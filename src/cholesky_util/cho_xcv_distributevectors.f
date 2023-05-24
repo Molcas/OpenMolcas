@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-*               2012,2014, Victor P. Vysotskiy                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!               2012,2014, Victor P. Vysotskiy                         *
+!***********************************************************************
       SubRoutine Cho_XCV_DistributeVectors(irc,SP_BatchDim,nSP_Batch,
      &                                     idSP,n_idSP,NVT,l_NVT)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Parallel execution: distribute vectors across nodes.
-C     Serial execution: reorder vectors on tmp files and write them to
-C     permanent vector files.
-C
-C     Victor P. Vysotskiy, 2012:
-C     Number of 'ga_put' has been remarkably reduced.
-C     Victor P. Vysotskiy, 2014:
-C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Parallel execution: distribute vectors across nodes.
+!     Serial execution: reorder vectors on tmp files and write them to
+!     permanent vector files.
+!
+!     Victor P. Vysotskiy, 2012:
+!     Number of 'ga_put' has been remarkably reduced.
+!     Victor P. Vysotskiy, 2014:
+!     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 
       Implicit None
       Integer irc
@@ -322,7 +322,7 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 #else
       irc=999 ! should never be called in serial installation
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(SP_BatchDim)
          Call Unused_integer_array(id_mySP)

@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
       use ChoReO
-C
-C     Purpose: reorder Cholesky vectors on disk to full storage.
-C
+!
+!     Purpose: reorder Cholesky vectors on disk to full storage.
+!
       Implicit Real*8 (a-h,o-z)
       INTEGER   N,LRDIM,LWRK
       INTEGER   IRS2F(N,LRDIM)
@@ -28,29 +28,29 @@ C
          CALL CHO_QUIT('Dimension error in '//SECNAM,104)
       END IF
 
-C     Save read-call counter.
-C     -----------------------
+!     Save read-call counter.
+!     -----------------------
 
       NSCALL = NSYS_CALL
 
-C     Make rs1 the "current" reduced set (for reading).
-C     -------------------------------------------------
+!     Make rs1 the "current" reduced set (for reading).
+!     -------------------------------------------------
 
       CALL CHO_RSCOPY(1,2)
 
-C     Loop over Cholesky vector symmetries.
-C     -------------------------------------
+!     Loop over Cholesky vector symmetries.
+!     -------------------------------------
 
       DO ISYM = 1,NSYM
          IF (NUMCHO(ISYM) .GT. 0) THEN
 
-C           Open files.
-C           -----------
+!           Open files.
+!           -----------
 
             CALL CHO_OPFVEC(ISYM,1)
 
-C           Set up vector batch.
-C           --------------------
+!           Set up vector batch.
+!           --------------------
 
             MINMEM = NNBSTR(ISYM,2) + NNBST(ISYM)
             IF (MINMEM .LT. 1) THEN
@@ -73,8 +73,8 @@ C           --------------------
                NBATCH = (NUMCHO(ISYM) - 1)/NVEC + 1
             END IF
 
-C           Start batch loop over vectors.
-C           ------------------------------
+!           Start batch loop over vectors.
+!           ------------------------------
 
             DO IBATCH = 1,NBATCH
 
@@ -85,8 +85,8 @@ C           ------------------------------
                END IF
                IVEC1 = NVEC*(IBATCH - 1) + 1
 
-C              Read batch of reduced vectors.
-C              ------------------------------
+!              Read batch of reduced vectors.
+!              ------------------------------
 
                KCHO1 = 1
                KREAD = KCHO1 + NNBSTR(ISYM,2)*NUMV
@@ -94,8 +94,8 @@ C              ------------------------------
                CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,
      &                         ISYM,WRK(KREAD),LREAD)
 
-C              Reorder.
-C              --------
+!              Reorder.
+!              --------
 
                KCHO2 = KREAD
                CALL IZERO(IOFF,64)
@@ -124,8 +124,8 @@ C              --------
                   END DO
                END DO
 
-C              Write full vectors to disk.
-C              ---------------------------
+!              Write full vectors to disk.
+!              ---------------------------
 
                DO ISYMB = 1,NSYM
                   ISYMA = MULD2H(ISYMB,ISYM)
@@ -137,16 +137,16 @@ C              ---------------------------
 
             END DO
 
-C           Close files.
-C           ------------
+!           Close files.
+!           ------------
 
             CALL CHO_OPFVEC(ISYM,2)
 
          END IF
       END DO
 
-C     Restore read-call counter.
-C     --------------------------
+!     Restore read-call counter.
+!     --------------------------
 
       NSYS_CALL = NSCALL
 

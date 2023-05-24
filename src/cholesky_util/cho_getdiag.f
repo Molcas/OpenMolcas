@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETDIAG(LCONV)
-C
-C     Purpose: get diagonal in first reduced set. On exit, DIAG
-C              points to the diagonal and flag LCONV tells
-C              if the diagonal is converged.
-C
+!
+!     Purpose: get diagonal in first reduced set. On exit, DIAG
+!              points to the diagonal and flag LCONV tells
+!              if the diagonal is converged.
+!
       use ChoArr, only: iSP2F, MySP, n_MySP, iSimRI
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
@@ -38,10 +38,10 @@ C
 
       IF (RSTDIA) THEN
 
-C        Set mySP list.
-C        Always the trivial list for serial runs (restart not possible
-C        in parallel runs).
-C        -------------------------------------------------------------
+!        Set mySP list.
+!        Always the trivial list for serial runs (restart not possible
+!        in parallel runs).
+!        -------------------------------------------------------------
 
          N_MYSP = NNSHL
          l_MySP=0
@@ -54,13 +54,13 @@ C        -------------------------------------------------------------
             CALL CHO_QUIT('MYSP allocation error in '//SECNAM,101)
          END IF
 
-C        Read index array NNBSTRSH and set IIBSTRSH etc.
-C        -----------------------------------------------
+!        Read index array NNBSTRSH and set IIBSTRSH etc.
+!        -----------------------------------------------
 
          CALL CHO_RSTD_GETIND1()
 
-C        Allocate mapping arrays between reduced sets.
-C        ---------------------------------------------
+!        Allocate mapping arrays between reduced sets.
+!        ---------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
 
@@ -72,13 +72,13 @@ C        ---------------------------------------------
      &                     Label='IndRSh_Hidden')
          IndRSh => IndRSh_Hidden
 
-C        Read mapping arrays.
-C        --------------------
+!        Read mapping arrays.
+!        --------------------
 
          CALL CHO_RSTD_GETIND2()
 
-C        Check reduced to full shell pair mapping with the one on disk.
-C        --------------------------------------------------------------
+!        Check reduced to full shell pair mapping with the one on disk.
+!        --------------------------------------------------------------
 
          NERR = -1
          CALL CHO_RSTD_CHKSP2F(iSP2F,SIZE(iSP2F),NERR)
@@ -88,8 +88,8 @@ C        --------------------------------------------------------------
             CALL CHO_QUIT('SP2F error in '//SECNAM,102)
          END IF
 
-C        Allocation: diagonal.
-C        ---------------------
+!        Allocation: diagonal.
+!        ---------------------
 
          NEEDR = 1
          NEEDI = 4*NEEDR
@@ -98,8 +98,8 @@ C        ---------------------
          Call mma_allocate(KBUF,NEEDR,Label='KBUF')
          Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
-C        Read diagonal.
-C        --------------
+!        Read diagonal.
+!        --------------
 
          CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,NEEDR,NDUMP)
 
@@ -108,8 +108,8 @@ C        --------------
 
       ELSE
 
-C        Calculate diagonal and get 1st reduced set.
-C        -------------------------------------------
+!        Calculate diagonal and get 1st reduced set.
+!        -------------------------------------------
 
          Call mma_maxDBLE(LMAX)
          LMAX = LMAX/2 - MX2SH
@@ -133,9 +133,9 @@ C        -------------------------------------------
          Call mma_deallocate(KBUF)
          Call mma_deallocate(KSCR)
 
-C        Allocate diagonal and mapping array between reduced sets.
-C        Reallocate buffer.
-C        ---------------------------------------------------------
+!        Allocate diagonal and mapping array between reduced sets.
+!        Reallocate buffer.
+!        ---------------------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
          Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
@@ -151,55 +151,55 @@ C        ---------------------------------------------------------
          Call mma_allocate(KBUF,NEEDR,Label='KBUF')
          Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
-C        Get diagonal in first reduced set.
-C        ----------------------------------
+!        Get diagonal in first reduced set.
+!        ----------------------------------
 
          CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,LBUF,NDUMP)
 
-C        Deallocate back to and including buffer.
-C        ----------------------------------------
+!        Deallocate back to and including buffer.
+!        ----------------------------------------
 
          Call mma_deallocate(KIBUF)
          Call mma_deallocate(KBUF)
 
       END IF
 
-C     Set local and global info. On exit, Diag points to the local
-C     diagonal.
-C     -------------------------------------------------------------
+!     Set local and global info. On exit, Diag points to the local
+!     diagonal.
+!     -------------------------------------------------------------
 
       CALL CHO_P_SETGL()
 
-C     Write local diagonal to disk.
-C     -----------------------------
+!     Write local diagonal to disk.
+!     -----------------------------
 
       IOPT = 1
       CALL CHO_IODIAG(Diag,IOPT)
 
-C     Allocate memory for iscratch array for reading vectors.
-C     -------------------------------------------------------
+!     Allocate memory for iscratch array for reading vectors.
+!     -------------------------------------------------------
 
       DODUMMY = .NOT.(CHO_IOVEC.EQ.1 .OR. CHO_IOVEC.EQ.2 .OR.
      &                CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4 .OR.
      &                (FRAC_CHVBUF.GT.0.0D0 .AND. FRAC_CHVBUF.LT.1.0D0))
       CALL CHO_ALLO_ISCR(DODUMMY)
 
-C     Initialize reduced set dimension(s) used for reading vectors.
-C     -------------------------------------------------------------
+!     Initialize reduced set dimension(s) used for reading vectors.
+!     -------------------------------------------------------------
 
       CALL CHO_INIRSDIM()
 
-C     For RI simulation, zero 1-center diagonals smaller than
-C     THR_SIMRI. Indices of zeroed diagonals are stored in ip_ISIMRI.
-C     ---------------------------------------------------------------
+!     For RI simulation, zero 1-center diagonals smaller than
+!     THR_SIMRI. Indices of zeroed diagonals are stored in ip_ISIMRI.
+!     ---------------------------------------------------------------
 
       IF (CHO_SIMRI) THEN
          Call mma_allocate(iSimRI,NNBSTRT(1),Label='iSimRI')
          CALL CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,ISIMRI)
       END IF
 
-C     Update diagonal if restart, else just do analysis.
-C     --------------------------------------------------
+!     Update diagonal if restart, else just do analysis.
+!     --------------------------------------------------
 
       LCONV = .FALSE.
       IF (RSTCHO) THEN

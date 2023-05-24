@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-*  CHO_get_Rij
-*
-*> @author F. Aquilante
-*>
-*> @details
-*> Computes the \f$ R \f$ matrix used for the
-*> maximization of Edmiston--Ruedenberg functional
-*>
-*> \f[ \mathit{ER} = \sum_i (ii|ii) = \mathrm{Tr}(R) \f]
-*>
-*> for a given set of MOs.
-*>
-*> \f$ R \f$ is defined from the two-electron integrals
-*> computed from the MO-transformed Cholesky vectors
-*>
-*> \f[ R_{ij} = (ij|jj) = \sum_K L_{ij,K} L_{jj,K} \f]
-*>
-*> and the condition for the maximization of the ER-functional
-*> is given by
-*>
-*> \f[ \mathrm{grad}(\mathit{ER})_{ij} = 4(R_{ij} - R_{ji}) = 0 \quad (\forall i,j) \f]
-*>
-*> @note
-*> Requires initialization of the Cholesky information.
-*>
-*> @param[out] irc     Return code
-*> @param[in]  MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
-*> @param[in]  nOcc    Number of orbitals to be localized in each symmetry
-*> @param[out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
-*> @param[in]  timings Switch on/off timings printout
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+!  CHO_get_Rij
+!
+!> @author F. Aquilante
+!>
+!> @details
+!> Computes the \f$ R \f$ matrix used for the
+!> maximization of Edmiston--Ruedenberg functional
+!>
+!> \f[ \mathit{ER} = \sum_i (ii|ii) = \mathrm{Tr}(R) \f]
+!>
+!> for a given set of MOs.
+!>
+!> \f$ R \f$ is defined from the two-electron integrals
+!> computed from the MO-transformed Cholesky vectors
+!>
+!> \f[ R_{ij} = (ij|jj) = \sum_K L_{ij,K} L_{jj,K} \f]
+!>
+!> and the condition for the maximization of the ER-functional
+!> is given by
+!>
+!> \f[ \mathrm{grad}(\mathit{ER})_{ij} = 4(R_{ij} - R_{ji}) = 0 \quad (\forall i,j) \f]
+!>
+!> @note
+!> Requires initialization of the Cholesky information.
+!>
+!> @param[out] irc     Return code
+!> @param[in]  MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
+!> @param[in]  nOcc    Number of orbitals to be localized in each symmetry
+!> @param[out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
+!> @param[in]  timings Switch on/off timings printout
+!***********************************************************************
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
@@ -95,7 +95,7 @@
          tintg(i) = zero  !time for computing the functional
       end do
 
-C --- compute some offsets and other quantities
+! --- compute some offsets and other quantities
       iOcc(1)=0
       iOcs(1)=0
       Mocc=nOcc(1)
@@ -113,7 +113,7 @@ C --- compute some offsets and other quantities
          iSkip(kS) = Min(nOcc(kS),1) ! initialize skipping flags
       End Do
 
-C --- Memory need for 1 of the half-transformed vectors : L(aj)
+! --- Memory need for 1 of the half-transformed vectors : L(aj)
       Maj=0
       Do iSyma=1,nSym
          Maj = Maj + nBas(iSyma)*nOcc(iSyma)
@@ -126,8 +126,8 @@ C --- Memory need for 1 of the half-transformed vectors : L(aj)
 
       Do JRED=JRED1,JRED2
 
-C --- Memory management section -----------------------------
-C ---
+! --- Memory management section -----------------------------
+! ---
       CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
       if (nVrs.eq.0) goto 999
@@ -166,7 +166,7 @@ C ---
 
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
-C --- BATCH over the vectors in JSYM=1 ----------------------------
+! --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
@@ -197,8 +197,8 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
          tread(1) = tread(1) + (TCR2 - TCR1)
          tread(2) = tread(2) + (TWR2 - TWR1)
 
-C --- First half-transformation of the vectors : Lab,J --> LiJ,b
-C --------------------------------------------------------------
+! --- First half-transformation of the vectors : Lab,J --> LiJ,b
+! --------------------------------------------------------------
 
          kMOs = 1
          nMOs = 1
@@ -232,9 +232,9 @@ C --------------------------------------------------------------
             If (iSkip(kSym) .ne. 0) Then
 
                CALL CWTIME(TCT1,TWT1)
-C ---------------------------------------------------------------------
-C --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
-C ---------------------------------------------------------------------
+! ---------------------------------------------------------------------
+! --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
+! ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
      &                           One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,
@@ -257,9 +257,9 @@ C ---------------------------------------------------------------------
 
                   End Do
 
-C --------------------------------------------------------------------
-C --- Compute   R(i,j) = sum_K  L(i,K)[j] * L(K)[j]
-C --------------------------------------------------------------------
+! --------------------------------------------------------------------
+! --- Compute   R(i,j) = sum_K  L(i,K)[j] * L(K)[j]
+! --------------------------------------------------------------------
 
                   jpR = iOcs(kSym) + nOcc(kSym)*(lj-1) + 1
 
@@ -285,14 +285,14 @@ C --------------------------------------------------------------------
       Call Deallocate_DT(Laq(1))
       END DO  !end batch loop
 
-C --- free memory
+! --- free memory
       Call mma_deallocate(Lab)
 
 999   Continue
 
       END DO   ! loop over red sets
 
-C --- sync Rij
+! --- sync Rij
 
       Call GAdGOp(Rij,nOcs,'+')
 
@@ -300,8 +300,8 @@ C --- sync Rij
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
 
-*
-*---- Write out timing information
+!
+!---- Write out timing information
       if(timings)then
 
       Write(6,*)

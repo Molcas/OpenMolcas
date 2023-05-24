@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
-C
-C     Purpose: qualify diagonal elements for decomposition in
-C              current reduced set. ISYMAX is the symmetry block
-C              to which the largest diagonal belongs.
-C              MEM is the (total!) max. allowed
-C              memory for storing the qualified columns.
-C              If no more columns can be qualified on exit,
-C              FULL=.true. is returned.
-C
+!
+!     Purpose: qualify diagonal elements for decomposition in
+!              current reduced set. ISYMAX is the symmetry block
+!              to which the largest diagonal belongs.
+!              MEM is the (total!) max. allowed
+!              memory for storing the qualified columns.
+!              If no more columns can be qualified on exit,
+!              FULL=.true. is returned.
+!
       use ChoArr, only: iSP2F
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
       Implicit Real*8 (a-h,o-z)
@@ -38,13 +38,13 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 #endif
 
-C     Copy counter to offset array.
-C     -----------------------------
+!     Copy counter to offset array.
+!     -----------------------------
 
       CALL ICOPY(NSYM,NQUAL,1,IOFFQ,1)
 
-C     Check memory.
-C     -------------
+!     Check memory.
+!     -------------
 
       MEM0 = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
       LEFT = MEM - MEM0
@@ -59,8 +59,8 @@ C     -------------
       FULL = LEFT .LT. MINM
       IF (FULL) RETURN
 
-C     Qualify.
-C     --------
+!     Qualify.
+!     --------
 
       IF (IALQUA .EQ. 0) THEN  ! qualify until full (dalton style)
          DO ISYM = 1,NSYM
@@ -84,10 +84,10 @@ C     --------
          END DO
       END IF
 
-C     Set FULL flag:
-C     FULL=.true. if a) not enough memory to qualify another column of
-C     any symmetry, or b) MAXQUAL reached in any symmetry.
-C     ----------------------------------------------------------------
+!     Set FULL flag:
+!     FULL=.true. if a) not enough memory to qualify another column of
+!     any symmetry, or b) MAXQUAL reached in any symmetry.
+!     ----------------------------------------------------------------
 
       NEED = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
       IF (NEED.LT.1 .OR. NEED.GT.MEM) THEN
@@ -110,8 +110,8 @@ C     ----------------------------------------------------------------
          END DO
       END IF
 
-C     Debug: print.
-C     -------------
+!     Debug: print.
+!     -------------
 
       IF (LOCDBG) THEN
          CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)

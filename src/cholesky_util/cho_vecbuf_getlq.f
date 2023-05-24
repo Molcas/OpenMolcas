@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_VecBuf_GetLQ(QVec,l_QVec)
-C
-C     Purpose: extract elements corresponding to qualified diagonals
-C              from vectors in buffer.
-C
+!
+!     Purpose: extract elements corresponding to qualified diagonals
+!              from vectors in buffer.
+!
       use ChoSwp, only: iQuAB
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
@@ -23,13 +23,13 @@ C
       Integer nVecTot(8)
       Integer iS, iE, lRow, lCol
 
-C     Check if there is any buffer at all.
-C     ------------------------------------
+!     Check if there is any buffer at all.
+!     ------------------------------------
 
       If (.NOT.Allocated(CHVBUF)) Return
 
-C     Extract from each symmetry block.
-C     ---------------------------------
+!     Extract from each symmetry block.
+!     ---------------------------------
 
       Call Cho_P_GetGV(nVecTot,nSym)
 

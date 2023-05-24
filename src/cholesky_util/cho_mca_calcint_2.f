@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_CALCINT_2(ISHLAB)
-C
-C     Purpose: calculate qualified integral columns from
-C              shell pair distribution (**|ISHLA ISHLB).
-C
-C     Version 2: avoid storage of full shell quadruple in interface to
-C                seward; get qualified directly!
-C
+!
+!     Purpose: calculate qualified integral columns from
+!              shell pair distribution (**|ISHLA ISHLB).
+!
+!     Version 2: avoid storage of full shell quadruple in interface to
+!                seward; get qualified directly!
+!
       use ChoArr, only: iSP2F, MySP
       use ChoSwp, only: nnBstRSh
       use Constants
@@ -38,8 +38,8 @@ C
       Call mma_maxDBLE(MEM_START)
 #endif
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
 
@@ -60,16 +60,16 @@ C     ----------------
 
       IF (IPRINT .GE. INFINT) WRITE(LUPRI,*)
 
-C     Allocate memory and initialize:
-C     qualified columns in reduced set,
-C     max. shell quadruple.
-C     ---------------------------------
+!     Allocate memory and initialize:
+!     qualified columns in reduced set,
+!     max. shell quadruple.
+!     ---------------------------------
 
       Call mma_allocate(IntCol,LCOL,Label='IntCol')
       IntCol(:)=Zero
 
-C     Set mapping from shell pair AB to qualified columns.
-C     ----------------------------------------------------
+!     Set mapping from shell pair AB to qualified columns.
+!     ----------------------------------------------------
 
       IRC  = 0
       ILOC = 2
@@ -79,26 +79,26 @@ C     ----------------------------------------------------
          CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
       END IF
 
-C     Set memory used by seward.
-C     --------------------------
+!     Set memory used by seward.
+!     --------------------------
 
       Call mma_maxDBLE(LINT)
       CALL XSETMEM_INTS(LINT)
 
-C     Loop over shell quadruples.
-C     ---------------------------
+!     Loop over shell quadruples.
+!     ---------------------------
 
       DO ISHLCD = 1,NNSHL
 
-C        Set left shell pair index.
-C        --------------------------
+!        Set left shell pair index.
+!        --------------------------
 
          ISCD = MYSP(ISHLCD)
          CALL CHO_INVPCK(ISP2F(ISCD),ISHLC,ISHLD,.TRUE.)
 
-C        Find out if this shell pair (CD) contributes to
-C        current reduced set.
-C        -----------------------------------------------
+!        Find out if this shell pair (CD) contributes to
+!        current reduced set.
+!        -----------------------------------------------
 
          ISYM   = 1
          DOINTS = (NAB(ISYM).GT.0) .AND.
@@ -111,8 +111,8 @@ C        -----------------------------------------------
 
          IF (DOINTS) THEN
 
-C           Print message.
-C           --------------
+!           Print message.
+!           --------------
 
             IF (IPRINT .GE. INFINT) THEN
                 WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
@@ -120,8 +120,8 @@ C           --------------
      &          '|',ISHLA,ISHLB,')'
             END IF
 
-C           Set mapping from shell pair CD to reduced set.
-C           ----------------------------------------------
+!           Set mapping from shell pair CD to reduced set.
+!           ----------------------------------------------
 
             IRC  = 0
             ILOC = 2
@@ -131,8 +131,8 @@ C           ----------------------------------------------
                CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
             END IF
 
-C           Calculate integrals.
-C           --------------------
+!           Calculate integrals.
+!           --------------------
 
             CALL CHO_TIMER(C1,W1)
             CALL CHO_MCA_INT_1(ISCD,ISHLAB,
@@ -144,13 +144,13 @@ C           --------------------
 
          ELSE
 
-C           Update skip counter.
-C           --------------------
+!           Update skip counter.
+!           --------------------
 
             XSKIP = XSKIP + One
 
-C           Print message.
-C           --------------
+!           Print message.
+!           --------------
 
             IF (IPRINT .GE. INFINT) THEN
                 WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
@@ -162,8 +162,8 @@ C           --------------
 
       END DO
 
-C     Write the columns to disk.
-C     --------------------------
+!     Write the columns to disk.
+!     --------------------------
 
       CALL CHO_TIMER(C1,W1)
       DO ISYM = 1,NSYM
@@ -179,14 +179,14 @@ C     --------------------------
       TINTEG(1,2) = TINTEG(1,2) + C2 - C1
       TINTEG(2,2) = TINTEG(2,2) + W2 - W1
 
-C     Free memory: both memory used by seward and used here.
-C     ------------------------------------------------------
+!     Free memory: both memory used by seward and used here.
+!     ------------------------------------------------------
 
       CALL XRLSMEM_INTS()
       Call mma_deallocate(IntCol)
 
-C     Print skip statistics.
-C     ----------------------
+!     Print skip statistics.
+!     ----------------------
 
       IF (IPRINT .GE. INFIN2) THEN
          PCT = 1.0D2*XSKIP/XXSHL

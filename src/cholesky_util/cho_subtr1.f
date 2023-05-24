@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SUBROUTINE CHO_SUBTR1(XINT,WRK,LWRK,ISYM,FXDMEM)
-C
-C     Purpose: subtract contributions from previous vectors
-C              from the qualified integrals (in XINT).
-C              This version is I/O-driven.
-C
-C     Screening in subtraction introduced Jan. 2006, TBP.
-C
+!
+!     Purpose: subtract contributions from previous vectors
+!              from the qualified integrals (in XINT).
+!              This version is I/O-driven.
+!
+!     Screening in subtraction introduced Jan. 2006, TBP.
+!
       use ChoArr, only: iScr, LQ
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
       use ChoVecBuf, only: nVec_in_Buf
@@ -45,8 +45,8 @@ C
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
 
-C     Return if nothing to do.
-C     ------------------------
+!     Return if nothing to do.
+!     ------------------------
 
       IF (NUMCHO(ISYM) .LT. 1) RETURN
 
@@ -56,8 +56,8 @@ C     ------------------------
          CALL CHO_QUIT('Vector buffer error in '//SECNAM,104)
       END IF
 
-C     Allocate "junk yard".
-C     ---------------------
+!     Allocate "junk yard".
+!     ---------------------
 
       KJUNK = 1
       KEND0 = KJUNK + 1
@@ -87,19 +87,19 @@ C     ---------------------
       WRK(KJUNK) = ZERO
       IOFF(0)    = KJUNK
 
-C     Split memory for subtraction of previous vectors:
-C     {Read buffer},{L(cd,#J),L({ab},#J)}
-C     Initially, the fraction N1_VECRD/N2_VECRD of total memory is
-C     reserved for reading. Then, the split aims at
-C              1<=#J<=MAX(NQUAL(ISYM),N_SUBTR)
-C     I.e., the number of vectors in the read buffer is at least #J.
-C     Obviously, if MAX(NQUAL(ISYM),N_SUBTR) > NVEC_TO_READ then
-C     1<=#J<=NVEC_TO_READ. (Keeping #J within bounds is the role of
-C     NUMSMN).
-C     N1_VECRD, N2_VECRD, and N_SUBTR can be user-defined (input)
-C     and should have been checked as part of configuration check
-C     (CHO_CHKCONF) during initialization.
-C     --------------------------------------------------------------
+!     Split memory for subtraction of previous vectors:
+!     {Read buffer},{L(cd,#J),L({ab},#J)}
+!     Initially, the fraction N1_VECRD/N2_VECRD of total memory is
+!     reserved for reading. Then, the split aims at
+!              1<=#J<=MAX(NQUAL(ISYM),N_SUBTR)
+!     I.e., the number of vectors in the read buffer is at least #J.
+!     Obviously, if MAX(NQUAL(ISYM),N_SUBTR) > NVEC_TO_READ then
+!     1<=#J<=NVEC_TO_READ. (Keeping #J within bounds is the role of
+!     NUMSMN).
+!     N1_VECRD, N2_VECRD, and N_SUBTR can be user-defined (input)
+!     and should have been checked as part of configuration check
+!     (CHO_CHKCONF) during initialization.
+!     --------------------------------------------------------------
 
       KREAD = KEND0 ! pointer to read buffer
       IREDC = -1    ! id of red. set index array at location 3
@@ -142,8 +142,8 @@ C     --------------------------------------------------------------
 
       END IF
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       NUMRD  = 0
       NUMBAT = 0
@@ -152,15 +152,15 @@ C     ----------------
       CALL IZERO(IVSTAT,4)
       CALL FZERO(TIMLOC,6)
 
-C     Start buffer batch loop.
-C     ------------------------
+!     Start buffer batch loop.
+!     ------------------------
 
       IVEC1 = NVEC_IN_BUF(ISYM) + 1
       IMAPC = -1
       DO WHILE (IVEC1 .LE. NUMCHO(ISYM))
 
-C        Read as many vectors as possible into buffer.
-C        ---------------------------------------------
+!        Read as many vectors as possible into buffer.
+!        ---------------------------------------------
 
          CALL CHO_TIMER(C1,W1)
          NVRD  = 0
@@ -172,16 +172,16 @@ C        ---------------------------------------------
          TIMLOC(1,1) = TIMLOC(1,1) + C2 - C1
          TIMLOC(2,1) = TIMLOC(2,1) + W2 - W1
 
-C        Quit if no vectors were read.
-C        -----------------------------
+!        Quit if no vectors were read.
+!        -----------------------------
 
          IF (NVRD .LT. 1) THEN
             CALL CHO_QUIT('Insufficient scratch space for read in '
      &                    //SECNAM,101)
          END IF
 
-C        Compute memory available for subtraction batching.
-C        --------------------------------------------------
+!        Compute memory available for subtraction batching.
+!        --------------------------------------------------
 
          KEND1 = KREAD + MUSED
          LWRK1 = LWRK  - KEND1 + 1
@@ -190,8 +190,8 @@ C        --------------------------------------------------
             CALL CHO_QUIT('Insufficient memory in '//SECNAM//' [1]',101)
          END IF
 
-C        Set up batch.
-C        -------------
+!        Set up batch.
+!        -------------
 
          MMEM = NNBSTR(ISYM,2) + NQUAL(ISYM)
          IF (MMEM .LT. 1) THEN
@@ -207,8 +207,8 @@ C        -------------
             NBATCH = (NVRD - 1)/NVEC + 1
          END IF
 
-C        Set local statistics info.
-C        --------------------------
+!        Set local statistics info.
+!        --------------------------
 
          NUMBAT = NUMBAT + NBATCH
          IF (NUMRD .EQ. 1) THEN
@@ -223,8 +223,8 @@ C        --------------------------
             IVSTAT(2,2) = MAX(IVSTAT(2,2),NVEC)
          END IF
 
-C        Start batch loop.
-C        -----------------
+!        Start batch loop.
+!        -----------------
 
          IOFF(1) = KREAD - 1
          DO IBATCH = 1,NBATCH
@@ -236,8 +236,8 @@ C        -----------------
             END IF
             IVEC1_1 = IVEC1 + NVEC*(IBATCH-1)
 
-C           Set memory pointers for this batch.
-C           -----------------------------------
+!           Set memory pointers for this batch.
+!           -----------------------------------
 
             KCHO1 = KEND1
             KCHO2 = KCHO1 + NNBSTR(ISYM,2)*NUMV
@@ -247,11 +247,11 @@ C           -----------------------------------
                CALL CHO_QUIT('Batch error in '//SECNAM,104)
             END IF
 
-C           Get the next NUMV vectors sorted according to current
-C           reduced set (originally, this section was part of the
-C           I/O; hence, it is timed as if it was I/O for
-C           compatibility).
-C           -----------------------------------------------------
+!           Get the next NUMV vectors sorted according to current
+!           reduced set (originally, this section was part of the
+!           I/O; hence, it is timed as if it was I/O for
+!           compatibility).
+!           -----------------------------------------------------
 
             CALL CHO_TIMER(C1,W1)
 
@@ -311,18 +311,18 @@ C           -----------------------------------------------------
             TIMLOC(1,2) = TIMLOC(1,2) + C2 - C1
             TIMLOC(2,2) = TIMLOC(2,2) + W2 - W1
 
-C           Screened or unscreened subtraction section.
-C           The screened version uses level 2 blas, while the unscreened
-C           one employs level 3 blas.
-C           ------------------------------------------------------------
+!           Screened or unscreened subtraction section.
+!           The screened version uses level 2 blas, while the unscreened
+!           one employs level 3 blas.
+!           ------------------------------------------------------------
 
             CALL CHO_TIMER(C1,W1)
 
             IF (CHO_SSCREEN) THEN ! screened subtraction
 
-C              Copy out sub-blocks corresponding to qualified diagonals:
-C              L(#J,{ab})
-C              ---------------------------------------------------------
+!              Copy out sub-blocks corresponding to qualified diagonals:
+!              L(#J,{ab})
+!              ---------------------------------------------------------
 
                KOFB0 = KCHO1 - 1 - IIBSTR(ISYM,2)
                DO J = 1,NUMV
@@ -333,10 +333,10 @@ C              ---------------------------------------------------------
                   END DO
                END DO
 
-C              Subtract:
-C              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
-C              for each ab in {ab}.
-C              ----------------------------------------------------
+!              Subtract:
+!              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
+!              for each ab in {ab}.
+!              ----------------------------------------------------
 
                CALL CHO_SUBSCR_DIA(WRK(KCHO1),NUMV,ISYM,2,SSNORM)
                DO IAB = 1,NQUAL(ISYM)
@@ -364,9 +364,9 @@ C              ----------------------------------------------------
 
                IF (Associated(LQ(ISYM)%Array)) THEN
 
-C                 If the qualified block, L({ab},#J), is already in
-C                 core, use this block.
-C                 -------------------------------------------------
+!                 If the qualified block, L({ab},#J), is already in
+!                 core, use this block.
+!                 -------------------------------------------------
 
                   CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
@@ -376,9 +376,9 @@ C                 -------------------------------------------------
 
                ELSE
 
-C                 Copy out sub-blocks corresponding to qualified
-C                 diagonals: L({ab},#J)
-C                 ----------------------------------------------
+!                 Copy out sub-blocks corresponding to qualified
+!                 diagonals: L({ab},#J)
+!                 ----------------------------------------------
 
                   KOFB0 = KCHO1 - 1 - IIBSTR(ISYM,2)
                   DO J = 1,NUMV
@@ -389,9 +389,9 @@ C                 ----------------------------------------------
                      END DO
                   END DO
 
-C                 Subtract:
-C                 (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
-C                 ----------------------------------------------------
+!                 Subtract:
+!                 (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
+!                 ----------------------------------------------------
 
                   CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
@@ -408,15 +408,15 @@ C                 ----------------------------------------------------
 
          END DO
 
-C        Update counter.
-C        ---------------
+!        Update counter.
+!        ---------------
 
          IVEC1 = IVEC1 + NVRD
 
       END DO
 
-C     Update global statistics info.
-C     ------------------------------
+!     Update global statistics info.
+!     ------------------------------
 
       NSYS_CALL   = NSYS_CALL + NUMRD
       NDGM_CALL   = NDGM_CALL + NUMBAT
@@ -429,8 +429,8 @@ C     ------------------------------
          SUBSCRSTAT(2) = SUBSCRSTAT(2) + XDON
       END IF
 
-C     Print statistics.
-C     -----------------
+!     Print statistics.
+!     -----------------
 
       IF (LOCDBG .OR. IPRINT.GE.INFO) THEN
          IF (NUMRD .EQ. 0) THEN

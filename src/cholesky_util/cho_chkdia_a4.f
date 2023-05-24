@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_ChkDia_A4(Diag,Dmax,iSym,nNeg,nNegT,nConv,xM,yM,zM)
-C
-C     Purpose: check for negative diagonals.
-C              Dmax is the max. diagonal (global), used for screening.
-C              On exit,
-C              nNeg = #negative zeroed diagonals.
-C              nNegT = #negative diagonals
-C              nConv = #diagonal elements < ThrCom
-C              xM = max. element in Diag
-C              yM = min. element in Diag
-C              zM = max. abs. element in Diag
-C
+!
+!     Purpose: check for negative diagonals.
+!              Dmax is the max. diagonal (global), used for screening.
+!              On exit,
+!              nNeg = #negative zeroed diagonals.
+!              nNegT = #negative diagonals
+!              nConv = #diagonal elements < ThrCom
+!              xM = max. element in Diag
+!              yM = min. element in Diag
+!              zM = max. abs. element in Diag
+!
       use ChoSwp, only: IndRed
       Implicit None
       Real*8  Diag(*), Dmax

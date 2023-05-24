@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
-C
-C     Purpose: decompose qualified columns ("parallel" algorithm).
-C
+!
+!     Purpose: decompose qualified columns ("parallel" algorithm).
+!
       use ChoArr, only: LQ_Tot, LQ
       use ChoVecBuf, only: nVec_in_Buf
 
@@ -30,9 +30,9 @@ C
       Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:), xInt(:),
      &                      Wrk1(:)
       Integer, Allocatable:: IDKVec(:), iQScr(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       SubRoutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
       Integer l_QVec, nQSP
@@ -40,12 +40,12 @@ C
       Integer LstQSP(nQSP)
       End SubRoutine Cho_P_GetLQ
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
-C     Print header.
-C     -------------
+!     Print header.
+!     -------------
 
       LenLin = 0
       If (iPrint .ge. Inf_Progress) Then
@@ -86,8 +86,8 @@ C     -------------
          Call iCopy(nSym,NumCho,1,NumCho_Old,1)
       End If
 
-C     Allocations.
-C     ------------
+!     Allocations.
+!     ------------
 
       Call Cho_P_GetGV(numV,nSym)
 
@@ -104,9 +104,9 @@ C     ------------
       Call mma_allocate(IDKVec,l_IDKVec,Label='IDKVec')
       Call mma_allocate(QDiag,l_IDKVec,Label='QDiag')
 
-C     Extract elements corresponding to qualified diagonals from
-C     previous Cholesky vectors (if any).
-C     ----------------------------------------------------------
+!     Extract elements corresponding to qualified diagonals from
+!     previous Cholesky vectors (if any).
+!     ----------------------------------------------------------
 
       Call Cho_Timer(C1,W1)
       Call mma_allocate(LQ_Tot,l_LQ,Label='LQ_Tot')
@@ -129,27 +129,27 @@ C     ----------------------------------------------------------
       tDecom(1,2) = tDecom(1,2) + C2 - C1
       tDecom(2,2) = tDecom(2,2) + W2 - W1
 
-C     Extract qualified diagonal integral block.
-C     ------------------------------------------
+!     Extract qualified diagonal integral block.
+!     ------------------------------------------
 
       Call Cho_Timer(C1,W1)
 
       Call mma_allocate(MQ,l_KVec,Label='MQ')
       Call Cho_P_GetMQ(MQ,SIZE(MQ),LstQSP,NumSP)
 
-C     Decompose qualified diagonal block.
-C     The qualified diagonals are returned in QDiag.
-C     ----------------------------------------------
+!     Decompose qualified diagonal block.
+!     The qualified diagonals are returned in QDiag.
+!     ----------------------------------------------
 
       Call Cho_Dec_Qual(Diag,LQ_Tot,MQ,KVec,IDKVec,nKVec,QDiag)
 
-C     Deallocate MQ.
-C     --------------
+!     Deallocate MQ.
+!     --------------
 
       Call mma_deallocate(MQ)
 
-C     Reorder the elements of the K-vectors according to IDK ordering.
-C     ----------------------------------------------------------------
+!     Reorder the elements of the K-vectors according to IDK ordering.
+!     ----------------------------------------------------------------
 
       MxQ = nQual(1)
       Do iSym = 2,nSym
@@ -176,8 +176,8 @@ C     ----------------------------------------------------------------
          kID = kID + nQual(iSym)
       End Do
 
-C     Reorder QDiag to IDK ordering.
-C     ------------------------------
+!     Reorder QDiag to IDK ordering.
+!     ------------------------------
 
       kID = 0
       kQD = 0
@@ -191,8 +191,8 @@ C     ------------------------------
          kID = kID + nQual(iSym)
       End Do
 
-C     Reorder elements of LQ vectors to IDK ordering.
-C     -----------------------------------------------
+!     Reorder elements of LQ vectors to IDK ordering.
+!     -----------------------------------------------
 
       kID = 0
       Do iSym = 1,nSym
@@ -210,9 +210,9 @@ C     -----------------------------------------------
 
       Call mma_deallocate(KVScr)
 
-C     Reset qualification index arrays to IDK ordering.
-C     Local as well as global are reordered.
-C     -------------------------------------------------
+!     Reset qualification index arrays to IDK ordering.
+!     Local as well as global are reordered.
+!     -------------------------------------------------
 
       Call iCopy(nSym,nQual,1,nQual_Old,1)
       Call mma_allocate(iQScr,MxQ,Label='iQScr')
@@ -226,34 +226,34 @@ C     -------------------------------------------------
       tDecom(1,4) = tDecom(1,4) + C2 - C1
       tDecom(2,4) = tDecom(2,4) + W2 - W1
 
-C     Compute vectors in each symmetry block.
-C     ---------------------------------------
+!     Compute vectors in each symmetry block.
+!     ---------------------------------------
 
       kV = 1
       kI = 1
       kQD = 1
       Do iSym = 1,nSym
 
-C        Cycle loop if nothing to do in this symmetry.
-C        ---------------------------------------------
+!        Cycle loop if nothing to do in this symmetry.
+!        ---------------------------------------------
 
          If (nQual(iSym) .lt. 1) Go To 100
 
-C        Set vector information.
-C        -----------------------
+!        Set vector information.
+!        -----------------------
 
          Call Cho_P_SetVecInf(nQual(iSym),iSym,iPass)
 
-C        Allocate memory for integrals/vectors.
-C        --------------------------------------
+!        Allocate memory for integrals/vectors.
+!        --------------------------------------
 
          l_xInt = max(nnBstR(iSym,2)*nQual(iSym),1)
          Call mma_allocate(xInt,l_xInt,Label='xInt')
 
          If (nnBstR(iSym,2) .gt. 0) Then
 
-C           Read integral columns from disk, ordered according to IDK.
-C           ----------------------------------------------------------
+!           Read integral columns from disk, ordered according to IDK.
+!           ----------------------------------------------------------
 
             Call Cho_Timer(C1,W1)
             Call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),
@@ -262,8 +262,8 @@ C           ----------------------------------------------------------
             tDecom(1,1) = tDecom(1,1) + C2 - C1
             tDecom(2,1) = tDecom(2,1) + W2 - W1
 
-C           Compute vectors.
-C           ----------------
+!           Compute vectors.
+!           ----------------
 
             Call mma_maxDBLE(l_Wrk1)
             Call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
@@ -273,8 +273,8 @@ C           ----------------
 
             Call mma_deallocate(Wrk1)
 
-C           Write vectors to disk and update vector counters.
-C           -------------------------------------------------
+!           Write vectors to disk and update vector counters.
+!           -------------------------------------------------
 
             Call Cho_Timer(C1,W1)
             iVec1 = NumCho(iSym) + 1
@@ -289,8 +289,8 @@ C           -------------------------------------------------
 
          End If
 
-C        Transpose vectors on disk (parallel only).
-C        ------------------------------------------
+!        Transpose vectors on disk (parallel only).
+!        ------------------------------------------
 
          Call Cho_Timer(C1,W1)
          iRed = 2
@@ -301,13 +301,13 @@ C        ------------------------------------------
          tDecom(1,2) = tDecom(1,2) + C2 - C1
          tDecom(2,2) = tDecom(2,2) + W2 - W1
 
-C        Deallocate memory for integrals/vectors.
-C        ----------------------------------------
+!        Deallocate memory for integrals/vectors.
+!        ----------------------------------------
 
          Call mma_deallocate(xInt)
 
-C        Empty symmetry blocks jump here.
-C        --------------------------------
+!        Empty symmetry blocks jump here.
+!        --------------------------------
 
   100    Continue
          kV = kV + nQual(iSym)**2
@@ -316,16 +316,16 @@ C        --------------------------------
 
       End Do
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
       Call mma_deallocate(LQ_Tot)
       Call mma_deallocate(QDiag)
       Call mma_deallocate(IDKVec)
       Call mma_deallocate(KVec)
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       If (iPrint .ge. Inf_Progress) Then
          Do iSym = 1,nSym

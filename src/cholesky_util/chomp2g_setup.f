@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
       use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
@@ -19,11 +19,11 @@
       use ChoMP2, only: MP2D_e_full, MP2D_e
       use ChoMP2, only: MP2W_e_full, MP2W_e
       use Constants
-*
-*     Jonas Bostrom, Feb 2010
-*
-*     Purpose: Do some additional setup only needed for
-*              MP2-gradients or properties.
+!
+!     Jonas Bostrom, Feb 2010
+!
+!     Purpose: Do some additional setup only needed for
+!              MP2-gradients or properties.
       Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
@@ -32,14 +32,14 @@
 #include "stdalloc.fh"
       Integer irc
       Real*8 EOcc(*), EVir(*)
-*
-******************************************************
+!
+!*****************************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-******************************************************
+!*****************************************************
       nMOType = 3
       Call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
-*
-*     Initialize an  offset for writing choleskyvectors to disk
+!
+!     Initialize an  offset for writing choleskyvectors to disk
       Do iProdType = 1, nMoType**2
          Do iSym = 1, nSym
             iAdrOff(iSym,iProdType) = 0
@@ -58,7 +58,7 @@
             nMO(iSym,3) = nVir(iSym)
          End Do
       End Do
-*
+!
       Do iMoType = 1, nMoType
          Do jMoType = 1, nMoType
             iProdType = jMOType + (iMOType-1)*nMOType
@@ -100,14 +100,14 @@
          End Do
       End Do
 
-*     Allocate MP2_density
-*     --------------------
+!     Allocate MP2_density
+!     --------------------
 
       lDens = nOrb(1)*nOrb(1)
       Do iSym = 2, nSym
          lDens = lDens + nOrb(iSym)*nOrb(iSym)
       End Do
-*
+!
       ChoMP2g_Allocated=.True.
 
       Call mma_allocate(MP2D_full,lDens,Label='MP2D_full')
@@ -124,8 +124,8 @@
          MP2W(iSym)%A(1:nb,1:nb) => MP2W_full(iS:iE)
       End Do
 
-*     Allocate extended MP2_density (with deleted orbitals)
-*     -----------------------------------------------------
+!     Allocate extended MP2_density (with deleted orbitals)
+!     -----------------------------------------------------
 
       lDens_e = (nOrb(1)+nDel(1))*(nOrb(1)+nDel(1))
       Do iSym = 2, nSym
@@ -147,17 +147,17 @@
          MP2W_e(iSym)%A(1:nb,1:nb) => MP2W_e_full(iS:iE)
       End Do
 
-*     Allocate adress-field for reordered R-vectors
-*     ---------------------------------------------
+!     Allocate adress-field for reordered R-vectors
+!     ---------------------------------------------
       Call mma_allocate(AdrR1,nSym,nSym,nOccT,Label='AdrR1')
       Call mma_allocate(AdrR2,nSym,nSym,nVirT,Label='AdrR2')
 
-*    Allocate a vector for the orbital energies of frozen and virtual
-*     frozen molecules.
+!    Allocate a vector for the orbital energies of frozen and virtual
+!     frozen molecules.
       Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
       Call mma_allocate(EOccuT,Max(1,nOccT),Label='EOccuT')
       Call mma_allocate(EVirtT,Max(1,nVirT),Label='EVirtT')
-*     Fill them with the right things
+!     Fill them with the right things
       Do iSym = 1, nSym
          Do i = 1, nFro(iSym)
             EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT +i)

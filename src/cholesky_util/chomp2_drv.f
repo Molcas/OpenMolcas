@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
-C
-C     Thomas Bondo Pedersen, October 2004.
-C
-C     Purpose: driver for computing the MP2 energy correction EMP2
-C              using Cholesky decomposed two-electron integrals.
-C              Input must have been processed and MO coefficients
-C              and orbital energies must be passed as arguments.
-C
-C     Notes:
-C
-C       - all MO Cholesky vector files generated here are deleted before
-C         exit, except for error terminations (i.e. no cleanup actions
-C         are taken!)
-C
+!
+!     Thomas Bondo Pedersen, October 2004.
+!
+!     Purpose: driver for computing the MP2 energy correction EMP2
+!              using Cholesky decomposed two-electron integrals.
+!              Input must have been processed and MO coefficients
+!              and orbital energies must be passed as arguments.
+!
+!     Notes:
+!
+!       - all MO Cholesky vector files generated here are deleted before
+!         exit, except for error terminations (i.e. no cleanup actions
+!         are taken!)
+!
       use ChoMP2, only: EFrozT, EOccuT, EVirtT
       Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)
@@ -55,8 +55,8 @@ C
          Call CWTime(CPUTot1,WallTot1)
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       irc = 0
 
@@ -86,7 +86,7 @@ C     ----------------
       End If
 
       If(DoDens) Then
-C        Write(6,*) 'Run ChoMP2g_setup'
+!        Write(6,*) 'Run ChoMP2g_setup'
          Call ChoMP2g_Setup(irc, EOcc, EVir)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_Setup returned ',irc
@@ -105,11 +105,11 @@ C        Write(6,*) 'Run ChoMP2g_setup'
      &                   WallIni2,WallIni1,iFmt)
       End If
 
-C     Transform Cholesky vectors directly from reduced set to MO
-C     representation. Result vectors are stored on disk.
-C     If decomposition of (ai|bj) is requested, compute also the
-C     (ai|ai) diagonal here.
-C     ----------------------------------------------------------
+!     Transform Cholesky vectors directly from reduced set to MO
+!     representation. Result vectors are stored on disk.
+!     If decomposition of (ai|bj) is requested, compute also the
+!     (ai|ai) diagonal here.
+!     ----------------------------------------------------------
 
       If (Verbose) Then
          Call CWTime(CPUTra1,WallTra1)
@@ -128,7 +128,7 @@ C     ----------------------------------------------------------
          lDiag = 1
       End If
       Call mma_allocate(Diag,lDiag,Label='Diag')
-*
+!
       If(.not.DoDens) Then
          Call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
          If (irc .ne. 0) Then
@@ -153,9 +153,9 @@ C     ----------------------------------------------------------
          End If
       End If
 
-C     Finalize Cholesky info (to release memory).
-C     Retain essential info: LuPri, nSym, and NumCho(*).
-C     --------------------------------------------------
+!     Finalize Cholesky info (to release memory).
+!     Retain essential info: LuPri, nSym, and NumCho(*).
+!     --------------------------------------------------
 
       nSym_Sav = nSym
       Call iCopy(nSym,NumCho,1,nMP2Vec,1)
@@ -170,9 +170,9 @@ C     --------------------------------------------------
       nSym  = nSym_Sav
       Call iCopy(nSym,nMP2Vec,1,NumCho,1)
 
-C     Decompose (ai|bj) integrals, if requested.
-C     Set number of vectors to be used in energy calculation.
-C     -------------------------------------------------------
+!     Decompose (ai|bj) integrals, if requested.
+!     Set number of vectors to be used in energy calculation.
+!     -------------------------------------------------------
 
       If (DecoMP2) Then
          If (Verbose) Then
@@ -212,8 +212,8 @@ C     -------------------------------------------------------
       End If
       Call mma_deallocate(Diag)
 
-C     Presort Cholesky vectors if needed.
-C     -----------------------------------
+!     Presort Cholesky vectors if needed.
+!     -----------------------------------
 
       DoSort = nBatch .gt. 1
       If (DoSort.and. (.not.DoDens)) Then
@@ -240,8 +240,8 @@ C     -----------------------------------
          End If
       End If
 
-C     FNO section: MP2 pseudodensity
-C     ------------------------------
+!     FNO section: MP2 pseudodensity
+!     ------------------------------
 
       If (DoFNO.and.(.not.DoDens)) Then
          If (Verbose) Then
@@ -264,8 +264,8 @@ C     ------------------------------
          Go To 1 ! exit
       End If
 
-*     Compute MP2 Density and energy correction.
-*     ------------------------------------------
+!     Compute MP2 Density and energy correction.
+!     ------------------------------------------
       If (DoDens) Then
          If (Verbose) Then
             Call CWTime(CPUEnr1,WallEnr1)
@@ -278,8 +278,8 @@ C     ------------------------------
          End If
       End If
 
-*     Compute some matrices for Mp2-gradients
-*     ---------------------------------------
+!     Compute some matrices for Mp2-gradients
+!     ---------------------------------------
       If(DoGrdt) Then
          If (Verbose) Then
             Call CWTime(CPUEnr1,WallEnr1)
@@ -298,8 +298,8 @@ C     ------------------------------
       End If
 
 
-C     Compute MP2 energy correction.
-C     ------------------------------
+!     Compute MP2 energy correction.
+!     ------------------------------
 
       If (Verbose) Then
          Call CWTime(CPUEnr1,WallEnr1)
@@ -325,8 +325,8 @@ C     ------------------------------
      &                   WallEnr2,WallEnr1,iFmt)
       End If
 
-C     Exit.
-C     -----
+!     Exit.
+!     -----
 
     1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
       If (Diff .gt. Tol) Then

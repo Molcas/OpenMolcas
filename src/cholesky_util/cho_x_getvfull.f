@@ -1,60 +1,60 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-*  Cho_X_getVfull
-*
-*> @brief
-*>   Reorder Cholesky vectors from reduced to full storage
-*> @author F. Aquilante
-*>
-*> @details
-*> This routine reorders Cholesky vectors from reduced to
-*> full storage. For \p DoRead = ``.true.`` the vectors are read from
-*> disk using array \p RedVec as scratch space, whereas for
-*> \p DoRead = ``.false.`` the reduced vectors must be supplied in
-*> array \p RedVec.
-*>
-*> Given a set of pointers (\p ipChoV) to target
-*> arrays, the routine reorders \p NUMV Cholesky
-*> vectors of compound symmetry \p ISYM starting with
-*> vector \p JVEC1 and returns them in the target arrays.
-*> Each pointer should thereby point to a
-*> location where the corresponding Cholesky
-*> vector of a given unique symmetry pair
-*> of indices has to be stored.
-*>
-*> - \p iSwap = ``0``: \f$ L(a,b,J) \f$ is returned (in LT-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
-*> - \p iSwap = ``1``: \f$ L(a,J,b) \f$ is returned
-*> - \p iSwap = ``2``: \f$ L(a,J,b) \f$ is returned (in SQ-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
-*>
-*> - \p iSkip(syma) = ``0``: skip the symmetry block \f$ a \f$. Any vector \f$ L_{ab} \f$ or \f$ L_{ba} \f$
-*>                           with \c syma &times; \c symb = \p ISYM won't be returned in the target array
-*>
-*> - \p IREDC: reduced set in core at the moment of the call to the routine.
-*>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
-*>
-*> @param[out] irc     return code
-*> @param[in]  RedVec  vectors stored in reduced set(s) [\p DoRead option off]
-*>                     or scratch space for reading reduced vectors [\p DoRead option on]
-*> @param[in]  lRedVec size of the \p RedVec
-*> @param[in]  IVEC1   first vector to read
-*> @param[in]  NUMV    number of vectors to read starting from \p IVEC1
-*> @param[in]  ISYM    compound symmetry of the Cholesky vectors
-*> @param[in]  iSwap   type of the full storage for the returned Cholesky vectors
-*> @param[in]  IREDC   current reduced set in core (location ``3``)
-*> @param[in]  ipChoV  pointers to the target arrays
-*> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
-*> @param[in]  DoRead  flag for reading reduced vectors from disk
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+!  Cho_X_getVfull
+!
+!> @brief
+!>   Reorder Cholesky vectors from reduced to full storage
+!> @author F. Aquilante
+!>
+!> @details
+!> This routine reorders Cholesky vectors from reduced to
+!> full storage. For \p DoRead = ``.true.`` the vectors are read from
+!> disk using array \p RedVec as scratch space, whereas for
+!> \p DoRead = ``.false.`` the reduced vectors must be supplied in
+!> array \p RedVec.
+!>
+!> Given a set of pointers (\p ipChoV) to target
+!> arrays, the routine reorders \p NUMV Cholesky
+!> vectors of compound symmetry \p ISYM starting with
+!> vector \p JVEC1 and returns them in the target arrays.
+!> Each pointer should thereby point to a
+!> location where the corresponding Cholesky
+!> vector of a given unique symmetry pair
+!> of indices has to be stored.
+!>
+!> - \p iSwap = ``0``: \f$ L(a,b,J) \f$ is returned (in LT-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
+!> - \p iSwap = ``1``: \f$ L(a,J,b) \f$ is returned
+!> - \p iSwap = ``2``: \f$ L(a,J,b) \f$ is returned (in SQ-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
+!>
+!> - \p iSkip(syma) = ``0``: skip the symmetry block \f$ a \f$. Any vector \f$ L_{ab} \f$ or \f$ L_{ba} \f$
+!>                           with \c syma &times; \c symb = \p ISYM won't be returned in the target array
+!>
+!> - \p IREDC: reduced set in core at the moment of the call to the routine.
+!>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
+!>
+!> @param[out] irc     return code
+!> @param[in]  RedVec  vectors stored in reduced set(s) [\p DoRead option off]
+!>                     or scratch space for reading reduced vectors [\p DoRead option on]
+!> @param[in]  lRedVec size of the \p RedVec
+!> @param[in]  IVEC1   first vector to read
+!> @param[in]  NUMV    number of vectors to read starting from \p IVEC1
+!> @param[in]  ISYM    compound symmetry of the Cholesky vectors
+!> @param[in]  iSwap   type of the full storage for the returned Cholesky vectors
+!> @param[in]  IREDC   current reduced set in core (location ``3``)
+!> @param[in]  ipChoV  pointers to the target arrays
+!> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
+!> @param[in]  DoRead  flag for reading reduced vectors from disk
+!***********************************************************************
       Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                          iSwap,IREDC,ipChoV,iSkip,DoRead)
       Implicit Real*8 (a-h,o-z)
@@ -69,9 +69,9 @@
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-**************************************************
+!*************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
+!*****
       MXUSD = 0
       MUSED = 0
 

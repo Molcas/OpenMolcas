@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
-C
-C     Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
-C              return the global max. abs. in DGMAX.
-C
+!
+!     Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
+!              return the global max. abs. in DGMAX.
+!
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
@@ -93,10 +93,10 @@ C
 
       END
       SubRoutine Cho_MaxAbsDiag_1C(Diag,iLoc,DGMax)
-C
-C     Specialization for 1-Center approximation: only find max for
-C     1-center diagonals.
-C
+!
+!     Specialization for 1-Center approximation: only find max for
+!     1-center diagonals.
+!
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
       Implicit Real*8 (a-h,o-z)

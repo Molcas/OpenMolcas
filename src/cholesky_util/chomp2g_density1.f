@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
       SubRoutine ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 
-*     Jonas Bostrom, Feb 2010
-*
-*     Purpose: To Compute MP2 density from Cholesky MO-vectors and
-*              decomposed MP2 amplitudes.
+!     Jonas Bostrom, Feb 2010
+!
+!     Purpose: To Compute MP2 density from Cholesky MO-vectors and
+!              decomposed MP2 amplitudes.
 
       use ChoMP2, only: AdrR1, AdrR2
       Implicit Real*8 (a-h,o-z)
@@ -24,26 +24,26 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-*
+!
       Character*16 SecNam
       Parameter (SecNam='ChoMP2g_density1')
-*
+!
       Character Fname*5
       Real*8 Wrk(lWrk), EOcc(*), EVir(*), EFro(*)
 
       Real*8 X(0:1)
       Data X /0.0D0,1.0D0/
-*     -----------------------------
+!     -----------------------------
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-*     -----------------------------
+!     -----------------------------
       maxvalue = 200
 
-*     Do not delete vectors
-*     ---------------------
+!     Do not delete vectors
+!     ---------------------
       iClos = 2
 
-*     Set type of Choleskyvectors
-*     ---------------------------
+!     Set type of Choleskyvectors
+!     ---------------------------
       iTypL = 1
       iTypR = 2
       iVecOV = 6
@@ -51,23 +51,23 @@
       iVecOO = 5
       iVecFV = 3
       iVecVV = 9
-*
-*     Calc max number of cholesky vectors in a specific sym
-*     -----------------------------------------------------
+!
+!     Calc max number of cholesky vectors in a specific sym
+!     -----------------------------------------------------
       nMP2VecMax = 0
       NumChoMax = 0
       Do i = 1, nSym
          nMP2VecMax = Max(nMP2VecMax,nMP2Vec(i))
          NumChoMax = Max(NumChoMax, NumCho(i))
       End Do
-*
+!
       nMoMoMax = 0
       Do iSym = 1, nSym
          nMoMoMax = max(nMoMo(iSym,iVecOV),nMoMoMax)
       End Do
 
-*     Allocate Memory for Pab-Vector
-*     ------------------------------
+!     Allocate Memory for Pab-Vector
+!     ------------------------------
       lPab = nVir(1)*nVir(1)
       kPab(1) = 1
       Do iSym = 2, nSym
@@ -77,8 +77,8 @@
       kEndPab = kPab(1) + lPab
       Call FZero(Wrk(kPab(1)),lPab)
 
-*     Allocate Memory for Wab-Vector
-*     ------------------------------
+!     Allocate Memory for Wab-Vector
+!     ------------------------------
       lWab = nVir(1)*nVir(1)
       kWab(1) = kEndPab
       Do iSym = 2, nSym
@@ -88,8 +88,8 @@
       kEndWab = kWab(1) + lWab
       Call FZero(Wrk(kWab(1)),lWab)
 
-*     Allocate memory for Pij-Vector
-*     ------------------------------
+!     Allocate memory for Pij-Vector
+!     ------------------------------
 
       lPij = nOcc(1)*nOcc(1)
       kPij(1) = kEndWab
@@ -100,8 +100,8 @@
       kEndPij = kPij(1) + lPij
       Call FZero(Wrk(kPij(1)),lPij)
 
-*     Allocate memory for Wij-Vector
-*     ------------------------------
+!     Allocate memory for Wij-Vector
+!     ------------------------------
 
       lWij = nOcc(1)*nOcc(1)
       kWij(1) = kEndPij
@@ -112,8 +112,8 @@
       kEndWij = kWij(1) + lWij
       Call FZero(Wrk(kWij(1)),lWij)
 
-*     Allocate memory for Pai-Vector
-*     ------------------------------
+!     Allocate memory for Pai-Vector
+!     ------------------------------
 
       lPai = nVir(1)*nOcc(1)
       kPai(1) = kEndWij
@@ -124,8 +124,8 @@
       kEndPai = kPai(1) + lPai
       Call FZero(Wrk(kPai(1)),lPai)
 
-*     Allocate memory for Wai-Vector
-*     ------------------------------
+!     Allocate memory for Wai-Vector
+!     ------------------------------
 
       lWai = nVir(1)*nOcc(1)
       kWai(1) = kEndPai
@@ -136,8 +136,8 @@
       kEndWai = kWai(1) + lWai
       Call FZero(Wrk(kWai(1)),lWai)
 
-*     Allocate memory for PaK-Vector
-*     ------------------------------
+!     Allocate memory for PaK-Vector
+!     ------------------------------
 
       lPaK = nVir(1)*nFro(1)
       kPaK(1) = kEndWai
@@ -148,8 +148,8 @@
       kEndPaK = kPaK(1) + lPaK
       Call FZero(Wrk(kPaK(1)),lPaK)
 
-*     Allocate memory for WaK-Vector
-*     ------------------------------
+!     Allocate memory for WaK-Vector
+!     ------------------------------
 
       lWaK = nVir(1)*nFro(1)
       kWaK(1) = kEndPaK
@@ -161,8 +161,8 @@
       Call FZero(Wrk(kWaK(1)),lWaK)
 
 
-*     Allocate memory for PiK-vector (occ-fro)
-*     ----------------------------------------
+!     Allocate memory for PiK-vector (occ-fro)
+!     ----------------------------------------
 
       lPiK = nOcc(1)*nFro(1)
       kPiK(1) = kEndWaK
@@ -173,8 +173,8 @@
       kEndPiK = kPiK(1) + lPiK
       Call FZero(Wrk(kPiK(1)),lPiK)
 
-*     Allocate memory for WiK-vector (occ-fro)
-*     ----------------------------------------
+!     Allocate memory for WiK-vector (occ-fro)
+!     ----------------------------------------
 
       lWiK = nOcc(1)*nFro(1)
       kWiK(1) = kEndPiK
@@ -185,8 +185,8 @@
       kEndWiK = kWiK(1) + lWiK
       Call FZero(Wrk(kWiK(1)),lWiK)
 
-*     Allocate memory for WJK-vector (fro-fro)
-*     ----------------------------------------
+!     Allocate memory for WJK-vector (fro-fro)
+!     ----------------------------------------
 
       lWJK = nFro(1)*nFro(1)
       kWJK(1) = kEndWiK
@@ -197,8 +197,8 @@
       kEndWJK = kWJK(1) + lWJK
       Call FZero(Wrk(kWJK(1)),lWJK)
 
-*     Allocate memory for Lagr-vector
-*     ------------------------------
+!     Allocate memory for Lagr-vector
+!     ------------------------------
 
       lLagr = nOcc(1)*nVir(1)
       kLagr(1) = kEndWJK
@@ -209,8 +209,8 @@
       kEndLagr = kLagr(1) + lLagr
       Call FZero(Wrk(kLagr(1)),lLagr)
 
-*     Allocate memory for FrozenLagr-vector
-*     -------------------------------------
+!     Allocate memory for FrozenLagr-vector
+!     -------------------------------------
 
       lFLagr = nFro(1)*nVir(1)
       kFLagr(1) = kEndLagr
@@ -226,28 +226,28 @@
          Call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
       End If
 
-*     Allocate memory for X^KJ-vector
-*     -------------------------------
+!     Allocate memory for X^KJ-vector
+!     -------------------------------
 
       lX = nVec*nMp2VecMax
       kX = kEndFLagr
       kEndX = kX + lX
-*
+!
       Do iSym = 1, nSym
 
-*        Allocate memory for Ria-vectors
-*        -------------------------------
+!        Allocate memory for Ria-vectors
+!        -------------------------------
          lRia = nMoMo(iSym,iVecOV)*nVec
          kRia = kEndX
          kEndRia = kRia + lRia
          kLia = kRia
-*
+!
          lRia2 = nMoMo(iSym,iVecOV)*nVec
          kRia2 = kEndRia
          kEndRia2 = kRia2 + lRia2
 
-*        Allocate memory for L-vectors
-*        -----------------------------
+!        Allocate memory for L-vectors
+!        -----------------------------
          lLKa = nMoMo(iSym,iVecFV)*nVec
          kLKa = kEndRia2
          kEndLKa = kLKa + lLKa
@@ -264,21 +264,21 @@
          kLiK = kEndLij
          kEndLiK = kLiK + lLiK
 
-*        Allocate memory for U-vector
-*        ----------------------------
+!        Allocate memory for U-vector
+!        ----------------------------
 
          lU = nMoMo(iSym,iVecOV)*nVec
          kU = kEndLiK
          kEndU = kU + lU
 
-*        Setup batch over amplitude vectors.
-*        -----------------------------------
+!        Setup batch over amplitude vectors.
+!        -----------------------------------
          nBatR = (nMP2Vec(iSym)-1)/nVec + 1
          nBatL = (NumCho(iSym)-1)/nVec + 1
          If((nMoMo(iSym,iVecOV) .gt. 0).and.(nMp2Vec(iSym).gt.0)) Then
-*
-*           Open the File for reordered amplitude vectors
-*           ---------------------------------------------
+!
+!           Open the File for reordered amplitude vectors
+!           ---------------------------------------------
             Call ChoMP2_OpenF(1,iTypR,iSym)
             Call ChoMP2_OpenF(1,iTypL,iSym)
 
@@ -286,14 +286,14 @@
             LuUVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',1
             Call DaName_MF_WA(LuUVec,Fname)
-*
+!
             iSeed = 7
             LuVVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',2
             Call DaName_MF_WA(LuVVec,Fname)
-*
-*           Calculate Intermediate vectors U
-*           --------------------------------
+!
+!           Calculate Intermediate vectors U
+!           --------------------------------
             Do kBat = 1, nBatR
                Call FZero(Wrk(kX),lX)
                If (kBat .eq. nBatR) Then
@@ -303,14 +303,14 @@
                End If
                kVec = nVec*(kBat-1) + 1
 
-*              Read Amplitude vectors from kBat
-*              --------------------------------
+!              Read Amplitude vectors from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = nMoMo(iSym,iVecOV)*(kVec-1) + 1
                Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia),lTot,
      &                      iAdr)
-*
+!
                Do jBat = 1, nBatR
                   If (jBat .eq. nBatR) Then
                      NumVecJ = nMP2Vec(iSym) - nVec*(nBatR-1)
@@ -318,17 +318,17 @@
                      NumVecJ = nVec
                   End If
                   jVec = nVec*(jBat-1) + 1
-*
-*                 Read Amplitude vectors from jBat
-*                 --------------------------------
+!
+!                 Read Amplitude vectors from jBat
+!                 --------------------------------
                   iOpt = 2
                   lTot = nMoMo(iSym,iVecOV)*NumVecJ
                   iAdr = nMoMo(iSym,iVecOV)*(jVec-1) + 1
                   Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia2),lTot,
      &                         iAdr)
 
-*                 Construct X^JK-vector
-*                 ---------------------
+!                 Construct X^JK-vector
+!                 ---------------------
                  iOffX = NumVecK*(jVec-1)
                  Call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),
      &                       1.0d0, Wrk(kRia),nMoMo(iSym,iVecOV),
@@ -336,7 +336,7 @@
      &                       Wrk(kX+iOffX),NumVecK)
 
                End Do
-*
+!
                iOpt = 1
                lTot = nMP2Vec(iSym)*NumVecK
                iAdr = 1 + nMP2Vec(iSym)*(kVec-1)
@@ -349,7 +349,7 @@
                   NumVecK = nVec
                End If
                kVec = nVec*(kBat-1) + 1
-*
+!
                iOpt = 2
                lTot = nMP2Vec(iSym)*NumVecK
                iAdr = 1 + nMP2Vec(iSym)*(kVec-1)
@@ -363,14 +363,14 @@
                   End If
                   jVec = nVec*(jBat-1) + 1
 
-*                 Read Amplitude vectors from jBat
-*                 --------------------------------
+!                 Read Amplitude vectors from jBat
+!                 --------------------------------
                   iOpt = 2
                   lTot = nMoMo(iSym,iVecOV)*NumVecJ
                   iAdr = nMoMo(iSym,iVecOV)*(jVec-1) + 1
                   Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia),lTot,
      &                         iAdr)
-*
+!
                  iOffX = NumVecK*(jVec-1)
                  Fac = X(min((jBat-1),1))
                  Call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,
@@ -378,16 +378,16 @@
      &                       Wrk(kX+iOffX),NumVecK,Fac,
      &                       Wrk(kU),nMoMo(iSym,iVecOV))
                End Do
-*
+!
                iOpt = 1
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOV)*(kVec-1)
                Call dDaFile(LuUVec,iOpt,Wrk(kU),
      &                      lTot,iAdr)
             End Do
-*
-*           Calculate "Coulomb"-contributions to Densities from U
-*           -----------------------------------------------------
+!
+!           Calculate "Coulomb"-contributions to Densities from U
+!           -----------------------------------------------------
             Do kBat = 1,nBatR
                If (kBat .eq. nBatR) Then
                   NumVecK = nMP2Vec(iSym) - nVec*(nBatR-1)
@@ -396,23 +396,23 @@
                End If
                kVec = nVec*(kBat-1) + 1
 
-*              Read Amplitude vectors from kBat
-*              --------------------------------
+!              Read Amplitude vectors from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = nMoMo(iSym,iVecOV)*(kVec-1) + 1
                Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia),lTot,
      &                      iAdr)
 
-*              Load intermediate vectors U^K_ib
-*              --------------------------------
+!              Load intermediate vectors U^K_ib
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = nMoMo(iSym,iVecOv)*(kVec-1) + 1
                Call dDaFile(LuUVec,iOpt,Wrk(kU),lTot,iAdr)
 
-*              Calculate the "Coulomb" Contribution to Pab
-*              -------------------------------------------
+!              Calculate the "Coulomb" Contribution to Pab
+!              -------------------------------------------
                iOff1 = 0
                Do iSymI = 1, nSym
                   iSymA = MulD2h(iSym,iSymI)
@@ -428,9 +428,9 @@
  121              Continue
                   iOff1 = iOff1 + nOcc(iSymI)*nVir(iSymA)
                End Do
-*              Calculate the "Coulomb" Contribution to Pik
-*              -------------------------------------------
-*
+!              Calculate the "Coulomb" Contribution to Pik
+!              -------------------------------------------
+!
                Do kVec1 = 1, NumVecK
                   iOff1 = 0
                   Do iSymK = 1, nSym
@@ -449,10 +449,10 @@
                End Do
 
             End Do
-*
+!
 
-*           Calculate Intermediate vectors U*
-*           ---------------------------------
+!           Calculate Intermediate vectors U*
+!           ---------------------------------
             Do kBat = 1, nBatL
                Call FZero(Wrk(kX),lX)
                If (kBat .eq. nBatL) Then
@@ -462,15 +462,15 @@
                End If
                kVec = nVec*(kBat-1) + 1
 
-*              Read Integral vectors from kBat
-*              --------------------------------
+!              Read Integral vectors from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOV)*(kVec-1) +
      &                iAdrOff(iSym,iVecOV)
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLia),lTot,
      &                      iAdr)
-*
+!
                Do jBat = 1, nBatR
                   If (jBat .eq. nBatR) Then
                      NumVecJ = nMP2Vec(iSym) - nVec*(nBatR-1)
@@ -478,24 +478,24 @@
                      NumVecJ = nVec
                   End If
                   jVec = nVec*(jBat-1) + 1
-*
-*                 Read Amplitude vectors from jBat
-*                 --------------------------------
+!
+!                 Read Amplitude vectors from jBat
+!                 --------------------------------
                   iOpt = 2
                   lTot = nMoMo(iSym,iVecOV)*NumVecJ
                   iAdr = nMoMo(iSym,iVecOV)*(jVec-1) + 1
                   Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia2),lTot,
      &                         iAdr)
 
-*                 Construct X^JK-vector
-*                 ---------------------
+!                 Construct X^JK-vector
+!                 ---------------------
                  iOffX = NumVecK*(jVec-1)
                  Call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),
      &                       1.0d0, Wrk(kLia),nMoMo(iSym,iVecOV),
      &                       Wrk(kRia2),nMoMo(iSym,iVecOV),0.0d0,
      &                       Wrk(kX+iOffX),NumVecK)
                End Do
-*
+!
                iOpt = 1
                lTot = nMP2Vec(iSym)*NumVecK
                iAdr = 1 + nMP2Vec(iSym)*(kVec-1)
@@ -508,12 +508,12 @@
                   NumVecK = nVec
                End If
                kVec = nVec*(kBat-1) + 1
-*
+!
                iOpt = 2
                lTot = nMP2Vec(iSym)*NumVecK
                iAdr = 1 + nMP2Vec(iSym)*(kVec-1)
                Call dDaFile(LuVVec,iOpt,Wrk(kX),lTot,iAdr)
-*
+!
                Do jBat = 1, nBatR
                   If (jBat .eq. nBatR) Then
                      NumVecJ = nMP2Vec(iSym) - nVec*(nBatR-1)
@@ -522,14 +522,14 @@
                   End If
                   jVec = nVec*(jBat-1) + 1
 
-*                 Read Amplitude vectors from jBat
-*                 --------------------------------
+!                 Read Amplitude vectors from jBat
+!                 --------------------------------
                   iOpt = 2
                   lTot = nMoMo(iSym,iVecOV)*NumVecJ
                   iAdr = nMoMo(iSym,iVecOV)*(jVec-1) + 1
                   Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia),lTot,
      &                         iAdr)
-*
+!
                  iOffX = NumVecK*(jVec-1)
                  Fac = X(min((jBat-1),1))
                  Call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,
@@ -537,18 +537,18 @@
      &                       Wrk(kX+iOffX),NumVecK,Fac,
      &                       Wrk(kU),nMoMo(iSym,iVecOV))
                End Do
-*
+!
                iOpt = 1
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOV)*(kVec-1)
                Call dDaFile(LuUVec,iOpt,Wrk(kU),lTot,iAdr)
             End Do
 
-*           Calculate "Coulomb"-contributions to Densities and
-*           the Lagrangian from U*
-*           -----------------------------------------------------
+!           Calculate "Coulomb"-contributions to Densities and
+!           the Lagrangian from U*
+!           -----------------------------------------------------
             Do kBat = 1,nBatL
-*
+!
                If (kBat .eq. nBatL) Then
                   NumVecK = NumCho(iSym) - nVec*(nBatL-1)
                Else
@@ -556,17 +556,17 @@
                End If
                kVec = nVec*(kBat-1) + 1
 
-*              Read Integral vectors(FV) from kBat
-*              --------------------------------
+!              Read Integral vectors(FV) from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecFV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecFV)*(kVec-1) +
      &                 iAdrOff(iSym,iVecFV)
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLKa),lTot,
      &                      iAdr)
-*
-*              Read Integral vectors(VV) from kBat
-*              --------------------------------
+!
+!              Read Integral vectors(VV) from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecVV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecVV)*(kVec-1) +
@@ -574,8 +574,8 @@
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLab),lTot,
      &                      iAdr)
 
-*              Read Integral vectors(OO) from kBat
-*              --------------------------------
+!              Read Integral vectors(OO) from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOO)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOO)*(kVec-1) +
@@ -583,8 +583,8 @@
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLij),lTot,
      &                      iAdr)
 
-*              Read Integral vectors(OF) from kBat
-*              --------------------------------
+!              Read Integral vectors(OF) from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOF)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOF)*(kVec-1) +
@@ -592,8 +592,8 @@
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLiK),lTot,
      &                      iAdr)
 
-*              Read Integral vectors(OV) from kBat
-*              --------------------------------
+!              Read Integral vectors(OV) from kBat
+!              --------------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = 1 + nMoMo(iSym,iVecOV)*(kVec-1) +
@@ -601,16 +601,16 @@
                Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLia),lTot,
      &                      iAdr)
 
-*              Load intermediate vectors
-*              -------------------------
+!              Load intermediate vectors
+!              -------------------------
                iOpt = 2
                lTot = nMoMo(iSym,iVecOV)*NumVecK
                iAdr = nMoMo(iSym,iVecOv)*(kVec-1) + 1
                Call dDaFile(LuUVec,iOpt,Wrk(kU),lTot,iAdr)
 
-*        Calculate the "Coulomb" Contribution to Froz-occupied density PiK
-*        -----------------------------------------------------------------
-*
+!        Calculate the "Coulomb" Contribution to Froz-occupied density PiK
+!        -----------------------------------------------------------------
+!
                Do kVec1 = 1, NumVecK
                   iOffU1 = 0
                   iOffL1 = 0
@@ -632,8 +632,8 @@
                   End Do
                End Do
 
-*              Calculate the "Coulomb" contribution to Wij (froz-occ)
-*              ------------------------------------------------------
+!              Calculate the "Coulomb" contribution to Wij (froz-occ)
+!              ------------------------------------------------------
 
                Do kVec1 = 1, NumVecK
                   iOffU1 = 0
@@ -657,8 +657,8 @@
                End Do
 
 
-*              Calculate "Coulomb"-contribution to Lagr(IV)
-*              --------------------------------------------
+!              Calculate "Coulomb"-contribution to Lagr(IV)
+!              --------------------------------------------
                Do kVec1 = 1, NumVecK
                   iOffU1 = 0
                   iOffL1 = 0
@@ -674,15 +674,15 @@
      &                          Wrk(kLab+iOffL),nVir(iSymB),
      &                          Wrk(kU+iOffU),nVir(iSymB),1.0d0,
      &                          Wrk(kLagr(iSymA)),nVir(iSymA))
-*
+!
  132                 Continue
                      iOffU1 = iOffU1 + nOcc(iSymI)*nVir(iSymB)
                      iOffL1 = iOffL1 + nVir(iSymA)*nVir(iSymB)
                   End Do
                End Do
 
-*              Calculate "Coulomb"-contribution to Lagr(III)
-*              ---------------------------------------------
+!              Calculate "Coulomb"-contribution to Lagr(III)
+!              ---------------------------------------------
                iOffU1 = 0
                iOffL1 = 0
                Do iSymJ = 1, nSym
@@ -703,8 +703,8 @@
                   iOffL1 = iOffL1 + nOcc(iSymJ)*nOcc(iSymI)
                End Do
 
-*              Calculate "Coulomb"-contribution to Wai
-*              ---------------------------------------
+!              Calculate "Coulomb"-contribution to Wai
+!              ---------------------------------------
                iOffU1 = 0
                iOffL1 = 0
                Do iSymJ = 1, nSym
@@ -726,8 +726,8 @@
                End Do
 
 
-*              Calculate "Coulomb"-contribution to Wab
-*              ---------------------------------------
+!              Calculate "Coulomb"-contribution to Wab
+!              ---------------------------------------
                iOff1 = 0
                Do iSymI = 1, nSym
                   iSymA = MulD2h(iSym,iSymI)
@@ -744,8 +744,8 @@
                   iOff1 = iOff1 + nOcc(iSymI)*nVir(iSymA)
                End Do
 
-*              Calculate "Coulomb"-contribution to Wij (Wik)
-*              ---------------------------------------------
+!              Calculate "Coulomb"-contribution to Wij (Wik)
+!              ---------------------------------------------
                Do kVec1 = 1, NumVecK
                   iOff1 = 0
                   Do iSymK = 1, nSym
@@ -763,8 +763,8 @@
                End Do
 
 
-*     Calculate "Coulomb"-contribution to the Frozen Lagr(III)
-*     --------------------------------------------------------
+!     Calculate "Coulomb"-contribution to the Frozen Lagr(III)
+!     --------------------------------------------------------
                iOffU1 = 0
                iOffL1 = 0
                Do iSymJ = 1, nSym
@@ -786,8 +786,8 @@
                End Do
 
 
-*     Calculate "Coulomb"-contribution to the WaK (vir-froz)
-*     --------------------------------------------------------
+!     Calculate "Coulomb"-contribution to the WaK (vir-froz)
+!     --------------------------------------------------------
                iOffU1 = 0
                iOffL1 = 0
                Do iSymJ = 1, nSym
@@ -817,13 +817,13 @@
          End If                 ! vector check
       End Do !iSym
 
-***********************************************************
-*     --------------------------------------------------  *
-*     Calculate the exchange part needing U_ic^K-vectors  *
-*     --------------------------------------------------  *
-***********************************************************
-*     Calculate the max number of orbitals of a specific type
-*     -------------------------------------------------------
+!**********************************************************
+!     --------------------------------------------------  *
+!     Calculate the exchange part needing U_ic^K-vectors  *
+!     --------------------------------------------------  *
+!**********************************************************
+!     Calculate the max number of orbitals of a specific type
+!     -------------------------------------------------------
       nFroMax = 0
       nVirMax = 0
       nOccMax = 0
@@ -841,97 +841,97 @@
          nB = nVirMax
       End If
 
-*     Allocate memory for T_[i]j^[b]c
-*     -------------------------------
+!     Allocate memory for T_[i]j^[b]c
+!     -------------------------------
       lAmp = nVirMax*nB*nOccMax
       kAmp = kEndFLagr
       kEndAmp = kAmp + lAmp
       Call FZero(Wrk(kAmp),lAmp)
 
-*
-*     Allocate memory for Rjc^K
-*     -------------------------
+!
+!     Allocate memory for Rjc^K
+!     -------------------------
       lRjc = nVirMax*nVec
       kRjc = kEndAmp
       kEndRjc = kRjc+lRjc
 
-*     Allocate memory for Rib^K
-*     -------------------------
+!     Allocate memory for Rib^K
+!     -------------------------
       lRib = nOccMax*nVec
       kRib = kEndRjc
       kEndRib = kRib + lRib
 
 
-*     Open files for Reordered R-vectors
-*     ----------------------------------
+!     Open files for Reordered R-vectors
+!     ----------------------------------
       iSeed = 7
       LuRInv(1) = IsFreeUnit(iSeed)
       Write(Fname,'(A4,I1)') 'TMPV',4
       Call DaName_MF_WA(LuRInv(1),Fname)
-*
+!
       iSeed = 8
       LuRInv(2) = IsFreeUnit(iSeed)
       Write(Fname,'(A4,I1)') 'TMPV',5
       Call DaName_MF_WA(LuRInv(2),Fname)
 
-*
+!
       Do jSym = 1, nSym
          If((nMoMo(jSym,iVecOV) .le. 0) .or.
      &      (nMp2Vec(jSym)*NumCho(jSym)).le.0)
      &       Go To 10
 
-*        Allocate memory for Ric^J
-*        -------------------------
+!        Allocate memory for Ric^J
+!        -------------------------
          lRic = nMoMo(jSym,iVecOV)*nVec
          kRic = kEndRib
          kEndRic = kRic + lRic
 
-*        Allocate memory for Lic^J
-*        -------------------------
+!        Allocate memory for Lic^J
+!        -------------------------
          lLic = nMoMo(jSym,iVecOV)*nVec
          kLic = kEndRic
          kEndLic = kLic + lLic
 
-*        Allocate memory for Lab^J
-*        -------------------------
+!        Allocate memory for Lab^J
+!        -------------------------
          lLab = nMoMo(jSym,iVecVV)*nVec
          kLab = kEndLic
          kEndLab = kLab + lLab
 
-*        Allocate memory for Lji^J
-*        -------------------------
+!        Allocate memory for Lji^J
+!        -------------------------
          lLji = nMoMo(jSym,iVecOO)*nVec
          kLji = kEndLab
          kEndLji = kLji + lLji
 
-*        Allocate memory for LKa^J
-*        -------------------------
+!        Allocate memory for LKa^J
+!        -------------------------
          lLKa = nMoMo(jSym,iVecFV)*nVec
          kLKa = kEndLji
          kEndLKa = kLKa + lLKa
 
-*        Allocate memory for LiK^J
-*        -------------------------
+!        Allocate memory for LiK^J
+!        -------------------------
          lLiK = nMoMo(jSym,iVecOF)*nVec
          kLiK = kEndLKa
          kEndLiK = kLiK + lLiK
 
-*        Allocate memory for Ujb^J
-*        -------------------------
+!        Allocate memory for Ujb^J
+!        -------------------------
          lU = nMoMo(jSym,iVecOV)*nVec
          kU = kEndLiK
          kEndU = kU+lU
 
-*        Allocate memory for Vjb^J
-*        -------------------------
+!        Allocate memory for Vjb^J
+!        -------------------------
          lV = nMoMo(jSym,iVecOV)*nVec
          kV = kEndU
 
          nBatR = (nMP2Vec(jSym)-1)/nVec + 1
          nBatL = (NumCho(jSym)-1)/nVec + 1
-*
-*        Open the File for reordered amplitude vectors
-*        ---------------------------------------------
+!
+!        Open the File for reordered amplitude vectors
+!        ---------------------------------------------
          Call ChoMP2_OpenF(1,iTypR,jSym)
          Call ChoMP2_OpenF(1,iTypL,jSym)
 
@@ -965,8 +965,8 @@
             End If
             jVec = nVec*(jBat-1) + 1
 
-*           Read Amplitude vectors from kBat
-*           --------------------------------
+!           Read Amplitude vectors from kBat
+!           --------------------------------
             If(NumRVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOV)*NumRVecJ
@@ -1017,14 +1017,14 @@
      &                          + (kVec-1)*nVir(iSymC)
                            Call dDaFile(LuRInv(1),iOpt,Wrk(kRjc),
      &                                  lTot,iAdr)
-*
+!
                            Do iBRel = 1, NumB
                               iB = iBrel + (iB1-1)
                               iOpt = 2
                               lTot = NumVecK*nOcc(iSymI)
                               iAdr = AdrR2(iSymB,iSymI,iB)
      &                             + (kVec-1)*nOcc(iSymI)
-*
+!
                               Call dDaFile(LuRInv(2),iOpt, Wrk(kRib),
      &                                     lTot,iAdr)
                               iOffAmp =(iBrel-1)*nVir(iSymC)*nOcc(iSymI)
@@ -1038,8 +1038,8 @@
                            End Do
                         End Do
 
-*                       Calculate the contribution to U^J_jb
-*                       ------------------------------------
+!                       Calculate the contribution to U^J_jb
+!                       ------------------------------------
                         If(NumRVecJ .gt. 0) Then
                            iOffRic = iT1am(iSymC,iSymI)
                            iOffU = iT1am(iSymB,iSymJ)+(iJ-1)*nVir(iSymB)
@@ -1049,8 +1049,8 @@
      &                           Wrk(kRic+iOffRic),nMoMo(jSym,iVecOV),
      &                           1.0d0,Wrk(kU+iOffU),nMoMo(jSym,iVecOV))
                         End If
-*                       Calculate the contribution to V^J_jb
-*                       ------------------------------------
+!                       Calculate the contribution to V^J_jb
+!                       ------------------------------------
                         If(NumLVecJ .gt. 0) Then
                            iOffLic = iT1am(iSymC,iSymI)
                            iOffV = iT1am(iSymB,iSymJ)+(iJ-1)*nVir(iSymB)
@@ -1068,20 +1068,20 @@
                End Do           !iSymI
  202           Continue
             End Do              !iSymJ
-*
+!
             iOpt = 1
             lTot = nMoMo(jSym,iVecOV)*NumRVecJ
             iAdr = 1 + nMoMo(jSym,iVecOV)*(jVec-1)
             Call dDaFile(LuUVec,iOpt,Wrk(kU),
      &                   lTot,iAdr)
-*
+!
             iOpt = 1
             lTot = nMoMo(jSym,iVecOV)*NumLVecJ
             iAdr = 1 + nMoMo(jSym,iVecOV)*(jVec-1)
             Call dDaFile(LuVVec,iOpt,Wrk(kV),
      &                   lTot,iAdr)
          End Do                 !jBat
-*
+!
          Do jBat = 1, nBatMax
             If (jBat .eq. nBatR) Then
                NumRVecJ = nMP2Vec(jSym) - nVec*(nBatR-1)
@@ -1099,8 +1099,8 @@
             End If
             jVec = nVec*(jBat-1) + 1
 
-*           Read Amplitude Rja
-*           --------------------------------
+!           Read Amplitude Rja
+!           --------------------------------
             If(NumRVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOV)*NumRVecJ
@@ -1108,8 +1108,8 @@
                Call dDaFile(lUnit_F(jSym,iTypR),iOpt,Wrk(kRic),lTot,
      &              iAdr)
             End If
-*           Read Integrals R_ab^J from disk
-*           -------------------------------
+!           Read Integrals R_ab^J from disk
+!           -------------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecVV)*NumLVecJ
@@ -1119,8 +1119,8 @@
      &              iAdr)
             End If
 
-*           Read Integrals L_ab^J from disk
-*           -------------------------------
+!           Read Integrals L_ab^J from disk
+!           -------------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecVV)*NumLVecJ
@@ -1130,8 +1130,8 @@
      &              iAdr)
             End If
 
-*           Read L_ji^J-vectors from disk
-*           -----------------------------
+!           Read L_ji^J-vectors from disk
+!           -----------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOO)*NumLVecJ
@@ -1141,8 +1141,8 @@
      &              iAdr)
             End If
 
-*           Read L_ic^J-vectors from disk
-*           -----------------------------
+!           Read L_ic^J-vectors from disk
+!           -----------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOV)*NumLVecJ
@@ -1151,8 +1151,8 @@
      &                      iAdr)
             End If
 
-*           Read L_Ka^J-vectors from disk
-*           -----------------------------
+!           Read L_Ka^J-vectors from disk
+!           -----------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecFV)*NumLVecJ
@@ -1162,8 +1162,8 @@
      &              iAdr)
             End If
 
-*           Read L_Ka^J-vectors from disk
-*           -----------------------------
+!           Read L_Ka^J-vectors from disk
+!           -----------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOF)*NumLVecJ
@@ -1173,8 +1173,8 @@
      &              iAdr)
             End If
 
-*           Read U_jb^J-vectors from disk
-*           -----------------------------
+!           Read U_jb^J-vectors from disk
+!           -----------------------------
             If(NumRVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOV)*NumRVecJ
@@ -1183,8 +1183,8 @@
             End If
 
 
-*           Read V_jb^J-vectors from disk
-*           -----------------------------
+!           Read V_jb^J-vectors from disk
+!           -----------------------------
             If(NumLVecJ .gt. 0) Then
                iOpt = 2
                lTot = nMoMo(jSym,iVecOV)*NumLVecJ
@@ -1193,8 +1193,8 @@
             End If
 
 
-*           Calculate the "Exchange" Contribution to Pab
-*           -------------------------------------------
+!           Calculate the "Exchange" Contribution to Pab
+!           -------------------------------------------
 
             iOff1 = 0
             Do iSymJ = 1, nSym
@@ -1212,9 +1212,9 @@
                iOff1 = iOff1 + nOcc(iSymJ)*nVir(iSymA)
             End Do
 
-*           Calculate the "Exchange" Contribution to Pij
-*           -------------------------------------------
-*
+!           Calculate the "Exchange" Contribution to Pij
+!           -------------------------------------------
+!
             Do jVec1 = 1, NumRVecJ
                iOff1 = 0
                Do iSymJ = 1, nSym
@@ -1232,8 +1232,8 @@
                End Do
             End Do
 
-*           Calculate the "Exchange"-contribution to PiK (Froz-occ)
-*           -------------------------------------------------------
+!           Calculate the "Exchange"-contribution to PiK (Froz-occ)
+!           -------------------------------------------------------
 
             Do jVec1 = 1, NumLVecJ
                   iOffV1 = 0
@@ -1256,8 +1256,8 @@
                    End Do
                End Do
 
-*           Calculate the "Exchange"-contribution to WiK (Froz-occ)
-*           -------------------------------------------------------
+!           Calculate the "Exchange"-contribution to WiK (Froz-occ)
+!           -------------------------------------------------------
 
             Do jVec1 = 1, NumLVecJ
                   iOffV1 = 0
@@ -1281,8 +1281,8 @@
                End Do
 
 
-*           Calculate the "Exchange"-contribution to Lagr(IV)
-*           -------------------------------------------------
+!           Calculate the "Exchange"-contribution to Lagr(IV)
+!           -------------------------------------------------
 
             Do jVec1 = 1, NumLVecJ
                iOffV1 = 0
@@ -1305,8 +1305,8 @@
                End Do
             End Do
 
-*           Calculate the "Exchange"-contribution to Lagr(III)
-*           --------------------------------------------------
+!           Calculate the "Exchange"-contribution to Lagr(III)
+!           --------------------------------------------------
 
             iOffV1 = 0
             iOffL1 = 0
@@ -1328,8 +1328,8 @@
                iOffL1 = iOffL1 + nOcc(iSymJ)*nOcc(iSymI)
             End Do
 
-*           Calculate the "Exchange"-contribution to Wai
-*           --------------------------------------------------
+!           Calculate the "Exchange"-contribution to Wai
+!           --------------------------------------------------
 
             iOffV1 = 0
             iOffL1 = 0
@@ -1352,8 +1352,8 @@
                iOffL1 = iOffL1 + nOcc(iSymJ)*nOcc(iSymI)
             End Do
 
-*           Calculate the "Exchange"-contribution to Wab
-*           ---------------------------------------------
+!           Calculate the "Exchange"-contribution to Wab
+!           ---------------------------------------------
             iOff1 = 0
             Do iSymJ = 1, nSym
                iSymA = MulD2h(jSym,iSymJ)
@@ -1370,8 +1370,8 @@
                iOff1 = iOff1 + nOcc(iSymJ)*nVir(iSymA)
             End Do
 
-*           Calculate the "Exchange"-contribution to Wij
-*           --------------------------------------------
+!           Calculate the "Exchange"-contribution to Wij
+!           --------------------------------------------
 
             Do jVec1 = 1, NumLVecJ
                iOff1 = 0
@@ -1390,8 +1390,8 @@
                End Do
             End Do
 
-*           Calculate "Exchange"-contribution to the Frozen Lagr(III)
-*           --------------------------------------------------------
+!           Calculate "Exchange"-contribution to the Frozen Lagr(III)
+!           --------------------------------------------------------
             iOffV1 = 0
             iOffL1 = 0
             Do iSymJ = 1, nSym
@@ -1412,8 +1412,8 @@
                iOffL1 = iOffL1 + nOcc(iSymJ)*nFro(iSymI)
             End Do
 
-*           Calculate "Exchange"-contribution to the Wak(Vir-Froz)
-*           --------------------------------------------------------
+!           Calculate "Exchange"-contribution to the Wak(Vir-Froz)
+!           --------------------------------------------------------
             iOffV1 = 0
             iOffL1 = 0
             Do iSymJ = 1, nSym
@@ -1448,8 +1448,8 @@
       Call DaClos(LuRInv(2))
 
 
-*     Scale the Frozen-Occupied part of the density
-*     ---------------------------------------------
+!     Scale the Frozen-Occupied part of the density
+!     ---------------------------------------------
       Do iSym = 1, nSym
          Do iI = 1, nOcc(iSym)
             E_i = EOcc(iOcc(iSym) + iI)
@@ -1466,31 +1466,31 @@
       Do iSym = 1, nSym
          If(NumCho(iSym) .gt. 0) Then
 
-*
+!
             Call ChoMP2_OpenF(1,1,iSym)
 
-*
-*           I doubt the intermediate files here need to be
-*           Multifiles, probably they will never be used again after the
-*           end of the iSym-loop (or even IB-block loop).
+!
+!           I doubt the intermediate files here need to be
+!           Multifiles, probably they will never be used again after the
+!           end of the iSym-loop (or even IB-block loop).
             iSeed = 7
             LuUVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',1
             Call DaName_MF_WA(LuUVec,Fname)
-*
+!
             iSeed = 7
             LuVVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',2
             Call DaName_MF_WA(LuVVec,Fname)
-*
+!
             iSeed = 7
             LuWVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',3
             Call DaName_MF_WA(LuWVec,Fname)
-*
+!
             lScr = lWrk - kEndFLagr
-*           Construct Lagr(i)
-*           -----------------
+!           Construct Lagr(i)
+!           -----------------
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'oovo',iSym,nVec,Wrk(kLagr(1)),
      &                            lLagr,Wrk(kPij(1)),lPij,-0.5d0)
@@ -1498,8 +1498,8 @@
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'fovo',iSym,nVec,Wrk(kLagr(1)),
      &                            lLagr,Wrk(kPiK(1)),lPiK,-1.0d0)
-*           Construct FLagr(i)
-*           ------------------
+!           Construct FLagr(i)
+!           ------------------
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'oovf',iSym,nVec,Wrk(kFLagr(1)),
      &                            lFLagr,Wrk(kPij(1)),lPij,-0.5d0)
@@ -1507,13 +1507,13 @@
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'fovf',iSym,nVec,Wrk(kFLagr(1)),
      &                            lFLagr,Wrk(kPiK(1)),lPiK,-1.0d0)
-*           Construct Lagr(ii)
-*           ------------------
+!           Construct Lagr(ii)
+!           ------------------
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'vvvo',iSym,nVec,Wrk(kLagr(1)),
      &                            lLagr,Wrk(kPab(1)),lPab,-0.5d0)
-*           Construct FLagr(ii)
-*           -------------------
+!           Construct FLagr(ii)
+!           -------------------
             Call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,
      &                            'vvvf',iSym,nVec,Wrk(kFLagr(1)),
      &                            lFLagr,Wrk(kPab(1)),lPab,-0.5d0)
@@ -1525,9 +1525,9 @@
 
          End If
       End Do
-*
+!
 
-*
+!
 #ifdef _DEBUGPRINT_
       Write(6,*) 'Pab'
       Do i = 1,lPab
@@ -1572,6 +1572,6 @@
          Write(6,*) Wrk(kFLagr(1)+i-1)
       End Do
 #endif
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(EVir)
       End

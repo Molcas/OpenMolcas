@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_RESTART(DIAG,WRK,LWRK,DSKDIA,LCONV)
-C
-C     Purpose: update and analyze diagonal for restart
-C              (or check of decomposition). Index arrays
-C              for first reduced set must be set up before
-C              this routine is called. Reduced set 2, on the
-C              other hand, is set up here.
-C
+!
+!     Purpose: update and analyze diagonal for restart
+!              (or check of decomposition). Index arrays
+!              for first reduced set must be set up before
+!              this routine is called. Reduced set 2, on the
+!              other hand, is set up here.
+!
       use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP, iSimRI
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
@@ -37,8 +37,8 @@ C
       PARAMETER (XMONE = -1.0D0, ZERO = 0.0D0)
 
 
-C     Read diagonal (in reduced set 1).
-C     ---------------------------------
+!     Read diagonal (in reduced set 1).
+!     ---------------------------------
 
       IF (DSKDIA) THEN
          IOPT = 2
@@ -51,8 +51,8 @@ C     ---------------------------------
      &   'Number of diagonal elements (1st reduced set): ',NNBSTRT(1)
       END IF
 
-C     Analyze diagonal before update.
-C     -------------------------------
+!     Analyze diagonal before update.
+!     -------------------------------
 
       IF (IPRINT .GE. INF_PASS) THEN
          BIN1 = 1.0D2
@@ -62,8 +62,8 @@ C     -------------------------------
          CALL CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.TRUE.)
       END IF
 
-C     Copy reduced set 1 to 2.
-C     ------------------------
+!     Copy reduced set 1 to 2.
+!     ------------------------
 
       CALL CHO_RSCOPY(1,2)
 
@@ -94,18 +94,18 @@ C     ------------------------
                CALL CHO_QUIT('Insufficient memory in '//SECNAM,101)
             END IF
 
-C           Save a copy of the original diagonal.
-C           -------------------------------------
+!           Save a copy of the original diagonal.
+!           -------------------------------------
 
             CALL DCOPY_(NDIM,DIAG(IIBSTR(ISYM,1)+1),1,WRK(KDIAG),1)
 
-C           Calculate Cholesky diagonal.
-C           ----------------------------
+!           Calculate Cholesky diagonal.
+!           ----------------------------
 
             CALL CHO_DIACHO(DIAG,ISYM,WRK(KEND1),LWRK1)
 
-C           Find min. and max. error and save original value.
-C           -------------------------------------------------
+!           Find min. and max. error and save original value.
+!           -------------------------------------------------
 
             ERRMX = -1.0D10
             ERRMN =  1.0D10
@@ -127,9 +127,9 @@ C           -------------------------------------------------
                END IF
             END DO
 
-C           Find min. and max. diagonals, zero too negative diagonals,
-C           and screen (if requested).
-C           ----------------------------------------------------------
+!           Find min. and max. diagonals, zero too negative diagonals,
+!           and screen (if requested).
+!           ----------------------------------------------------------
 
             IF (CHO_DECALG .EQ. 4) THEN
                SCDIAG_SAVE = SCDIAG
@@ -143,8 +143,8 @@ C           ----------------------------------------------------------
      &                         NSCR)
             END IF
 
-C           Count converged diagonals.
-C           --------------------------
+!           Count converged diagonals.
+!           --------------------------
 
             NCONV = 0
             DO JAB = 1,NDIM
@@ -152,16 +152,16 @@ C           --------------------------
                IF (ABS(DIAG(IAB)) .LE. THRCOM) NCONV = NCONV + 1
             END DO
 
-C           Calculate average and RMS error.
-C           --------------------------------
+!           Calculate average and RMS error.
+!           --------------------------------
 
             KOFF   = IIBSTR(ISYM,1) + 1
             XDIM   = DBLE(NDIM)
             RMSERR = SQRT(DDOT_(NDIM,DIAG(KOFF),1,DIAG(KOFF),1)/XDIM)
             AVEERR = CHO_DSUMELM(DIAG(KOFF),NDIM)/XDIM
 
-C           Print.
-C           ------
+!           Print.
+!           ------
 
             IF (IPRINT .GE. INF_PASS) THEN
                WRITE(LUPRI,'(A,1P,D18.8)')
@@ -201,16 +201,16 @@ C           ------
 
       END DO
 
-C     Sync diagonal and set reduced set.
-C     ----------------------------------
+!     Sync diagonal and set reduced set.
+!     ----------------------------------
 
       SYNC = .TRUE.
       CALL CHO_P_SETRED(DIAG,SYNC)
       KRED = XNPASS + 1
       CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,2)
 
-C     Sync and analyze (histogram) updated diagonal.
-C     ----------------------------------------------
+!     Sync and analyze (histogram) updated diagonal.
+!     ----------------------------------------------
 
       CALL CHO_P_SYNCDIAG(DIAG,2)
       IF (IPRINT .GE. INF_PASS) THEN
@@ -221,8 +221,8 @@ C     ----------------------------------------------
          CALL CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.FALSE.)
       END IF
 
-C     Set data for minimal integral checking.
-C     ---------------------------------------
+!     Set data for minimal integral checking.
+!     ---------------------------------------
 
       IF (CHO_MINCHK) THEN
          IF (IMXAB .GT. 0) THEN
@@ -346,17 +346,17 @@ C     ---------------------------------------
          END IF
       END IF
 
-C     Set convergence flag.
-C     ---------------------
+!     Set convergence flag.
+!     ---------------------
 
       LCONV = NCONVT.EQ.NNBSTRT(1)
 
-C     For 1-center decomposition, convergence is determined only by
-C     judging the 1-center diagonals.
-C     For RI simulations, diagonals that were initially zeroed may not
-C     be converged, but that is OK as long as the diagonal is smaller
-C     than the threshold for deletion, THR_SIMRI.
-C     ----------------------------------------------------------------
+!     For 1-center decomposition, convergence is determined only by
+!     judging the 1-center diagonals.
+!     For RI simulations, diagonals that were initially zeroed may not
+!     be converged, but that is OK as long as the diagonal is smaller
+!     than the threshold for deletion, THR_SIMRI.
+!     ----------------------------------------------------------------
 
       IF (CHO_1CENTER .AND. .NOT.LCONV) THEN
 #if defined (_DEBUGPRINT_)

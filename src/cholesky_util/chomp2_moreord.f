@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_MOReOrd(CMO,COcc,CVir)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: reorder MOs,
-C
-C              CMO(alpha,i) -> COcc(i,alpha)
-C              CMO(alpha,a) -> CVir(alpha,a)
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: reorder MOs,
+!
+!              CMO(alpha,i) -> COcc(i,alpha)
+!              CMO(alpha,a) -> CVir(alpha,a)
+!
       Implicit Real*8 (a-h,o-z)
       Real*8 COcc(*), CVir(*), CMO(*)
 #include "cholesky.fh"

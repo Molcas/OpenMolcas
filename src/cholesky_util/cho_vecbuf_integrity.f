@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Thomas Bondo Pedersen                            *
-************************************************************************
-C This file contains routines for integrity checks of the Cholesky
-C vector buffer. For debugging purposes.
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
+! This file contains routines for integrity checks of the Cholesky
+! vector buffer. For debugging purposes.
       Subroutine Cho_VecBuf_EnableIntegrityCheck(irc)
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Enable integrity check of buffer: allocate and store norm and sum
-C     of each vector in the buffer.
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Enable integrity check of buffer: allocate and store norm and sum
+!     of each vector in the buffer.
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
@@ -96,15 +96,15 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine Cho_VecBuf_Check()
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Check buffer integrity and stop if corrupted.
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Check buffer integrity and stop if corrupted.
+!
       Implicit None
 #include "cholesky.fh"
       Real*8 Tol
@@ -123,23 +123,23 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine Cho_VecBuf_CheckIntegrity(Tol,Verbose,Txt,irc)
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Check integrity of Cholesky vector buffer and print result.
-C     Tol is the tolerance to use for comparing norm and sum.
-C     Txt is printed along with the check message if Verbose=.True.
-C     (if Verbose=.False. nothing is printed).
-C     Return code:
-C        irc=0: buffer OK
-C        irc=1: buffer corrupted
-C
-C     A simpler interface is given by Subroutine Cho_VecBuf_Check.
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Check integrity of Cholesky vector buffer and print result.
+!     Tol is the tolerance to use for comparing norm and sum.
+!     Txt is printed along with the check message if Verbose=.True.
+!     (if Verbose=.False. nothing is printed).
+!     Return code:
+!        irc=0: buffer OK
+!        irc=1: buffer corrupted
+!
+!     A simpler interface is given by Subroutine Cho_VecBuf_Check.
+!
       Implicit None
       Real*8  Tol
       Logical Verbose
@@ -165,17 +165,17 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Logical Function Cho_VecBuf_Integrity_OK(Tol,Report)
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Check Cholesky vector buffer integrity: compute norm and sum of
-C     vectors in the buffer and compare these values to the table
-C     generated at buffer initialization.
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Check Cholesky vector buffer integrity: compute norm and sum of
+!     vectors in the buffer and compare these values to the table
+!     generated at buffer initialization.
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
@@ -247,22 +247,22 @@ C
       Cho_VecBuf_Integrity_OK=nErr.eq.0
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine Cho_VecBuf_CompareNormAndSum(n,nVec,Vec,J1,iSym,irc)
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Compare norm and sum of vectors against values stored in buffer
-C     for Cholesky vectors J1,J1+1,J1+nVec-1 of symmetry iSym stored in
-C     array Vec(n,nVec). Comparison is only made for those vectors that
-C     are actually stored in the buffer, of course.
-C
-C     Return codes:
-C        irc=0: no differences detected.
-C        irc>0: number of vectors for which differences are detected.
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Compare norm and sum of vectors against values stored in buffer
+!     for Cholesky vectors J1,J1+1,J1+nVec-1 of symmetry iSym stored in
+!     array Vec(n,nVec). Comparison is only made for those vectors that
+!     are actually stored in the buffer, of course.
+!
+!     Return codes:
+!        irc=0: no differences detected.
+!        irc>0: number of vectors for which differences are detected.
+!
       use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
       Implicit None
       Integer n
@@ -306,17 +306,17 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine Cho_VecBuf_PrtRef(Txt)
-C
-C     Thomas Bondo Pedersen, September 2012.
-C
-C     Print reference norm and sum of vectors in buffer.
-C     Txt is printed along with the reference values (for
-C     identification).
-C
+!
+!     Thomas Bondo Pedersen, September 2012.
+!
+!     Print reference norm and sum of vectors in buffer.
+!     Txt is printed along with the reference values (for
+!     identification).
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf

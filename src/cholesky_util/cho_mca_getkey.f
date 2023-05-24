@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,
      &                          LUPRI)
-C
-C     Purpose: get next keyword and convert it to internal IDKEY.
-C
+!
+!     Purpose: get next keyword and convert it to internal IDKEY.
+!
       Implicit Real*8 (a-h,o-z)
       CHARACTER*(*) OPTION(NOPTION)  ! <-- character*(loption)
 
@@ -63,11 +63,11 @@ C
      &            'ADDR','VBUF','1-CE','NO2-','PRET',
      &            '1-CE','1-CE'/
 
-C Set flags for using obsolete/alias keywords:
+! Set flags for using obsolete/alias keywords:
       PARAMETER (USE_OBS = .FALSE., USE_ALI = .TRUE.)
 
-C     Check that we are in sync with caller.
-C     --------------------------------------
+!     Check that we are in sync with caller.
+!     --------------------------------------
 
       IF (NOPTION .NE. NTABLE) THEN
          WRITE(LUPRI,*) SECNAM,': NOPTION = ',NOPTION,
@@ -76,8 +76,8 @@ C     --------------------------------------
          GO TO 2000
       END IF
 
-C     Other internal checks.
-C     ----------------------
+!     Other internal checks.
+!     ----------------------
 
       IF (LKEY .GT. LKWORD) THEN
          WRITE(LUPRI,*) SECNAM,': LKEY = ',LKEY,
@@ -86,16 +86,16 @@ C     ----------------------
          GO TO 2000
       END IF
 
-C     Set blank line.
-C     ---------------
+!     Set blank line.
+!     ---------------
 
       DO I = 1,LBLINE
          BLINE(I:I) = ' '
       END DO
 
-C     Read keyword (the check for comment/blank line should be
-C     obsolete).
-C     --------------------------------------------------------
+!     Read keyword (the check for comment/blank line should be
+!     obsolete).
+!     --------------------------------------------------------
 
     1 KEY = GET_LN(LUNIT)
       KWORD = KEY
@@ -113,8 +113,8 @@ C     --------------------------------------------------------
          KWORD(I:I) = ' '
       END DO
 
-C     Check for obsolete keyword.
-C     ---------------------------
+!     Check for obsolete keyword.
+!     ---------------------------
 
       IF (USE_OBS) THEN
          IOBSOL = CHO_TABIND(OBSOL,LKEY,NOBSOL,' ',0,0,KWORD(1:LKEY))
@@ -125,8 +125,8 @@ C     ---------------------------
          END IF
       END IF
 
-C     Check for alias.
-C     ----------------
+!     Check for alias.
+!     ----------------
 
       IALIAS = 0
       IF (USE_ALI) THEN
@@ -139,8 +139,8 @@ C     ----------------
          END IF
       END IF
 
-C     Table lookup.
-C     -------------
+!     Table lookup.
+!     -------------
 
       IDKEY = CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LKEY,NEOINP,
      &                   KWORD(1:LKEY))
@@ -175,8 +175,8 @@ C     -------------
          WRITE(LUPRI,*)
       END IF
 
-C     Normal exit point.
-C     ------------------
+!     Normal exit point.
+!     ------------------
 
  2000 RETURN
 

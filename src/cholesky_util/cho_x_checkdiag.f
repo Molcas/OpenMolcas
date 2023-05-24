@@ -1,49 +1,49 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-*               Francesco Aquilante                                    *
-************************************************************************
-*  Cho_X_CheckDiag
-*
-*> @brief
-*>   Check diagonal
-*> @author Thomas Bondo Pedersen
-*> @modified_by F. Aquilante (add ::OneCenter_ChkDiag)
-*> @modified_by T.B. Pedersen (If ``(Cho_1Center)``: \p Err only contains 1-center errors on exit)
-*>
-*> @details
-*> This routine reads and analyzes (histogram and statistics)
-*> the exact integral diagonal, computes and analyzes the
-*> diagonal from Cholesky vectors,
-*> and the difference between the two (exact minus Cholesky).
-*>
-*> The statistics printed are: minimum value, maximum
-*> value, mean value, mean absolute value, variance (wrt mean
-*> value), and standard deviation (wrt mean value).
-*>
-*> On exit:
-*>
-*> - \p Err(1) = min error
-*> - \p Err(2) = max error
-*> - \p Err(3) = average error
-*> - \p Err(4) = RMS error
-*>
-*> Return code is ``0`` if successful execution. If \p irc is non-zero,
-*> the contents or \p Err are ill-defined.
-*> Results will only be printed to output if \c iPrint is ``-5`` or
-*> greater (\c iPrint stored in choprint.inc).
-*>
-*> @param[out] irc Return code
-*> @param[out] Err min, max, average, and RMS error
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!               Francesco Aquilante                                    *
+!***********************************************************************
+!  Cho_X_CheckDiag
+!
+!> @brief
+!>   Check diagonal
+!> @author Thomas Bondo Pedersen
+!> @modified_by F. Aquilante (add ::OneCenter_ChkDiag)
+!> @modified_by T.B. Pedersen (If ``(Cho_1Center)``: \p Err only contains 1-center errors on exit)
+!>
+!> @details
+!> This routine reads and analyzes (histogram and statistics)
+!> the exact integral diagonal, computes and analyzes the
+!> diagonal from Cholesky vectors,
+!> and the difference between the two (exact minus Cholesky).
+!>
+!> The statistics printed are: minimum value, maximum
+!> value, mean value, mean absolute value, variance (wrt mean
+!> value), and standard deviation (wrt mean value).
+!>
+!> On exit:
+!>
+!> - \p Err(1) = min error
+!> - \p Err(2) = max error
+!> - \p Err(3) = average error
+!> - \p Err(4) = RMS error
+!>
+!> Return code is ``0`` if successful execution. If \p irc is non-zero,
+!> the contents or \p Err are ill-defined.
+!> Results will only be printed to output if \c iPrint is ``-5`` or
+!> greater (\c iPrint stored in choprint.inc).
+!>
+!> @param[out] irc Return code
+!> @param[out] Err min, max, average, and RMS error
+!***********************************************************************
       SubRoutine Cho_X_CheckDiag(irc,Err)
       Implicit None
       Integer irc
@@ -63,8 +63,8 @@
       Integer i
       Real*8, Allocatable::  XD(:), CD(:), Bin(:), Stat(:)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
       If (nnBstRT(1) .lt. 1) Then
@@ -72,29 +72,29 @@ C     ----------------
          Return
       End If
 
-C     Allocations.
-C     ------------
+!     Allocations.
+!     ------------
 
       Call mma_allocate(XD,nnBstRT(1),Label='XD')
       Call mma_allocate(CD,nnBstRT(1),Label='CD')
       Call mma_allocate(Bin,16,Label='Bin')
       Call mma_allocate(Stat,7,Label='Stat')
 
-C     Set bins for histograms.
-C     ------------------------
+!     Set bins for histograms.
+!     ------------------------
 
       Bin(1) = 1.0d0
       Do i = 1,SIZE(Bin)-1
          Bin(1+i) = Bin(i)*1.0d-1
       End Do
 
-C     Read exact diagonal.
-C     --------------------
+!     Read exact diagonal.
+!     --------------------
 
       Call Cho_IODiag(XD,2)
 
-C     Print histogram of exact diagonal and get statistics.
-C     -----------------------------------------------------
+!     Print histogram of exact diagonal and get statistics.
+!     -----------------------------------------------------
 
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Exact Integral Diagonal','=',80,6)
@@ -103,8 +103,8 @@ C     -----------------------------------------------------
          Call Cho_PrtSt(XD,SIZE(XD),Stat)
       End If
 
-C     Calculate Cholesky diagonal.
-C     ----------------------------
+!     Calculate Cholesky diagonal.
+!     ----------------------------
 
       Call Cho_X_CalcChoDiag(irc,CD)
       If (irc .ne. 0) Then
@@ -112,8 +112,8 @@ C     ----------------------------
          Go To 1 ! return after dealloc
       End If
 
-C     Print histogram of Cholesky diagonal and get statistics.
-C     --------------------------------------------------------
+!     Print histogram of Cholesky diagonal and get statistics.
+!     --------------------------------------------------------
 
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,
@@ -123,13 +123,13 @@ C     --------------------------------------------------------
          Call Cho_PrtSt(CD,SIZE(CD),Stat)
       End If
 
-C     Subtract Cholesky diagonal from exact diagonal.
-C     -----------------------------------------------
+!     Subtract Cholesky diagonal from exact diagonal.
+!     -----------------------------------------------
 
       Call dAXPY_(nnBstRT(1),-1.0d0,CD,1,XD,1)
 
-C     Print histogram of difference array and get statistics.
-C     -------------------------------------------------------
+!     Print histogram of difference array and get statistics.
+!     -------------------------------------------------------
 
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,
@@ -141,8 +141,8 @@ C     -------------------------------------------------------
          Call Cho_PrtSt(XD,SIZE(XD),Stat)
       End If
 
-C     Set Err array.
-C     --------------
+!     Set Err array.
+!     --------------
 
       Err(1) = Stat(3)
       Err(2) = Stat(4)
@@ -160,10 +160,10 @@ C     --------------
      &   'RMS error       : ',Err(4)
       End If
 
-C     Error analysis for the 1-center diagonals only.
-C     If this is a one-center calculation, use statistics from 1-center
-C     diagonals only as elements of Err array.
-C     -----------------------------------------------------------------
+!     Error analysis for the 1-center diagonals only.
+!     If this is a one-center calculation, use statistics from 1-center
+!     diagonals only as elements of Err array.
+!     -----------------------------------------------------------------
 
       If (nSym.eq.1) Then
          Call OneCenter_ChkDiag(XD,SIZE(XD),Stat,iPrint.ge.iPrThr)
@@ -175,8 +175,8 @@ C     -----------------------------------------------------------------
          End If
       End If
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
     1 Continue
       Call mma_deallocate(Stat)
@@ -245,8 +245,8 @@ C     --------------
          Call Cho_PrtSt(Diag,l_D,Stat)
       End If
 
-C     Set Err array.
-C     --------------
+!     Set Err array.
+!     --------------
 
       Err(1) = Stat(3)
       Err(2) = Stat(4)

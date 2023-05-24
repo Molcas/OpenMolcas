@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
      &                       SCR,LSCR)
-C
-C=======================================================================
-C==== DEPRECATED - USE CHO_X_GETVEC OR CHO_X_VECRD INSTEAD =============
-C=======================================================================
-C
-C     Purpose: read Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
-C              of symmetry ISYM from file. The vectors are returned
-C              in the "current" reduced set.
-C
-C     NOTE: array SCR(LSCR) is used for storing the vectors in the
-C           red. set from disk and for a full first red. set vector.
-C           Thus, to be certain that enough memory is available,
-C           use LSCR = 2 x dimension of first reduced set.
-C
-C
+!
+!=======================================================================
+!==== DEPRECATED - USE CHO_X_GETVEC OR CHO_X_VECRD INSTEAD =============
+!=======================================================================
+!
+!     Purpose: read Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
+!              of symmetry ISYM from file. The vectors are returned
+!              in the "current" reduced set.
+!
+!     NOTE: array SCR(LSCR) is used for storing the vectors in the
+!           red. set from disk and for a full first red. set vector.
+!           Thus, to be certain that enough memory is available,
+!           use LSCR = 2 x dimension of first reduced set.
+!
+!
       use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
@@ -39,13 +39,13 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-C     Initialize output array.
-C     ------------------------
+!     Initialize output array.
+!     ------------------------
 
       CALL FZERO(CHOVEC,LENVEC*NUMVEC)
 
-C     Read reduced set index arrays for first vector.
-C     -----------------------------------------------
+!     Read reduced set index arrays for first vector.
+!     -----------------------------------------------
 
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
@@ -63,10 +63,10 @@ C     -----------------------------------------------
          CALL CHO_QUIT('[1] Insufficient scratch space in '//SECNAM,102)
       END IF
 
-C     Read vectors and re-order into current reduced set via reduced
-C     set 1.
-C     NOTE: if the read vectors are already in red. set 1, don't resort.
-C     ------------------------------------------------------------------
+!     Read vectors and re-order into current reduced set via reduced
+!     set 1.
+!     NOTE: if the read vectors are already in red. set 1, don't resort.
+!     ------------------------------------------------------------------
 
       DO JVEC = 1,NUMVEC
 
@@ -88,10 +88,10 @@ C     ------------------------------------------------------------------
             IRED = JRED
          END IF
 
-C        IOPT = 2
-C        IADR = INFVEC(IVEC,3,ISYM)
-C        CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KREAD),NNBSTR(ISYM,3),IADR)
-C-tbp: replaced above code to make use of buffer through cho_vecrd.
+!        IOPT = 2
+!        IADR = INFVEC(IVEC,3,ISYM)
+!        CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KREAD),NNBSTR(ISYM,3),IADR)
+!-tbp: replaced above code to make use of buffer through cho_vecrd.
          JNUM  = 0
          IREDC = IRED
          MUSED = 0

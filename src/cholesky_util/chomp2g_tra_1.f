@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2g_Tra_1(COrb1,COrb2,Diag,DoDiag,Wrk,lWrk,iSym,
      &                         iMoType1, iMoType2)
-C
-C     Thomas Bondo Pedersen, Dec. 2010.
-C
-C     Purpose: transform Cholesky vectors to (pq) MO basis for symmetry
-C              block iSym. Files are assumed open.
-C              If requested (DoDiag=.true.), compute (pq|pq) integral
-C              diagonal.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2010.
+!
+!     Purpose: transform Cholesky vectors to (pq) MO basis for symmetry
+!              block iSym. Files are assumed open.
+!              If requested (DoDiag=.true.), compute (pq|pq) integral
+!              diagonal.
+!
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
@@ -36,21 +36,21 @@ C
 
       Integer pq
 
-*     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
+!     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
       iVecType = iMoType2 + (iMoType1-1)*nMoType
 
-C     Check if anything to do.
-C     ------------------------
+!     Check if anything to do.
+!     ------------------------
 
       If (NumCho(iSym).lt.1 .or. nMoMo(iSym,iVecType).lt.1) Return
 
-C     Initialize Diag (if needed).
-C     ----------------------------
+!     Initialize Diag (if needed).
+!     ----------------------------
 
       If (DoDiag) Call FZero(Diag,nMoMo(iSym,iVecType))
 
-C     Allocate memory for half-transformed vector.
-C     --------------------------------------------
+!     Allocate memory for half-transformed vector.
+!     --------------------------------------------
 
       lHlfTr = nMoAo(iSym,iMoType1)
 
@@ -61,8 +61,8 @@ C     --------------------------------------------
          Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
       End If
 
-C     Reserve memory for reading AO vectors.
-C     --------------------------------------
+!     Reserve memory for reading AO vectors.
+!     --------------------------------------
 
       lRead = Cho_lRead(iSym,lWrk0)
       If (lRead .lt. 1) Then
@@ -77,8 +77,8 @@ C     --------------------------------------
          End If
       End If
 
-C     Set up batch.
-C     -------------
+!     Set up batch.
+!     -------------
 
       nMOVec = min(lWrk1/nMoMo(iSym,iVecType),NumCho(iSym))
       If (nMOVec .lt. 1) Then
@@ -86,15 +86,15 @@ C     -------------
       End If
       NumBat = (NumCho(iSym) - 1)/nMOVec + 1
 
-C     Set reduced set handles.
-C     ------------------------
+!     Set reduced set handles.
+!     ------------------------
 
       iRedC = -1
       iLoc  = 3
 
-C     Transform each batch of vectors and compute diagonal contributions
-C     (if requested).
-C     ------------------------------------------------------------------
+!     Transform each batch of vectors and compute diagonal contributions
+!     (if requested).
+!     ------------------------------------------------------------------
 
       Do iBat = 1,NumBat
 
@@ -137,7 +137,7 @@ C     ------------------------------------------------------------------
                   End If
                   iRedC = iRed
                End If
-*
+!
                Call ChoMP2g_TraVec(Wrk(kOff),Wrk(kOffMO),COrb1,COrb2,
      &                            Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc,
      &                            iMoType1,iMoType2)
@@ -166,9 +166,9 @@ C     ------------------------------------------------------------------
          End If
 
       End Do
-*     When we reach this point we have written all vectors of the present
-*     type for this symmetry and need to remember were we should continue
-*     to write the next type.
+!     When we reach this point we have written all vectors of the present
+!     type for this symmetry and need to remember were we should continue
+!     to write the next type.
       If(iVecType.ne.9) Then
          nAdrOff(iSym) = iAdr-1
       End If

@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_SrtDrv(irc,DelOrig)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: presort Cholesky vectors according to batch structure in
-C              MP2 program.
-C
-C     DelOrig: input : flag for deleting original vector files.
-C              output: flag to tell that at least 1 symmetry block has
-C                      in fact been deleted.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: presort Cholesky vectors according to batch structure in
+!              MP2 program.
+!
+!     DelOrig: input : flag for deleting original vector files.
+!              output: flag to tell that at least 1 symmetry block has
+!                      in fact been deleted.
+!
       use ChoMP2, only: LnT1am, lUnit
       Implicit Real*8 (a-h,o-z)
       Integer irc
@@ -40,15 +40,15 @@ C
       If (nBatch .lt. 1) Return
 
 
-C     Allocate available memory.
-C     --------------------------
+!     Allocate available memory.
+!     --------------------------
 
       Call mma_maxDBLE(lWrk)
       Call mma_allocate(Wrk,lWrk,Label='Wrk')
 
-C     Set vector type (i.e., transformed vectors or vectors from (ai|bj)
-C     decomposition. Decide whether original files should be deleted.
-C     ------------------------------------------------------------------
+!     Set vector type (i.e., transformed vectors or vectors from (ai|bj)
+!     decomposition. Decide whether original files should be deleted.
+!     ------------------------------------------------------------------
 
       If (DecoMP2) Then
          iTyp = 2
@@ -63,13 +63,13 @@ C     ------------------------------------------------------------------
       End If
       DelOrig = .false.
 
-C     Start symmetry loop.
-C     --------------------
+!     Start symmetry loop.
+!     --------------------
 
       Do iSym = 1,nSym
 
-C        Set number of vectors.
-C        ----------------------
+!        Set number of vectors.
+!        ----------------------
 
          If (iTyp .eq. 1) Then
             nSrtVec = NumCho(iSym)
@@ -82,8 +82,8 @@ C        ----------------------
 
          If (nT1am(iSym).gt.0 .and. nSrtVec.gt.0) Then
 
-C           Set up vector batch.
-C           --------------------
+!           Set up vector batch.
+!           --------------------
 
             LnT1amx = 0
             Do iBatch = 1,nBatch
@@ -99,13 +99,13 @@ C           --------------------
                nBat = (nSrtVec - 1)/NumVec + 1
             End If
 
-C           Open full vector file.
-C           ----------------------
+!           Open full vector file.
+!           ----------------------
 
             Call ChoMP2_OpenF(1,iTyp,iSym)
 
-C           Start batch loop.
-C           -----------------
+!           Start batch loop.
+!           -----------------
 
             Do iBat = 1,nBat
 
@@ -116,8 +116,8 @@ C           -----------------
                End If
                iVec1 = NumVec*(iBat-1) + 1
 
-C              Read batch of vectors.
-C              ----------------------
+!              Read batch of vectors.
+!              ----------------------
 
                lChoMO = nT1am(iSym)*NumV
 
@@ -129,8 +129,8 @@ C              ----------------------
                Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO,
      &                      iAdr)
 
-C              Sort and write to disk.
-C              -----------------------
+!              Sort and write to disk.
+!              -----------------------
 
                kSort  = 1 + lChoMO
                lSort  = lWrk  - lChoMO
@@ -151,8 +151,8 @@ C              -----------------------
 
             End Do
 
-C           Close (and possibly delete) full vector file.
-C           ---------------------------------------------
+!           Close (and possibly delete) full vector file.
+!           ---------------------------------------------
 
             Call ChoMP2_OpenF(iClos,iTyp,iSym)
             DelOrig = iClos .eq. 3

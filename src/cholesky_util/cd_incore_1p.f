@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-*               2006, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!               2006, Francesco Aquilante                              *
+!***********************************************************************
       SubRoutine CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,
      &                       iD,irc)
-C
-C Author:   F. Aquilante, March 2006
-C
-C Snicked from CD_InCore_1 :
-C
-C     Thomas Bondo Pedersen, October 2004.
-C
-C     Purpose: Cholesky decompose the n-by-n matrix X.
-C              Vectors are returned in Vec array.
-C
-C     Return code (irc):
-C
-C        0 -- decomposition success.
-C      101 -- negative diagonal encountered (i.e. < ThrFail)
-C      102 -- number of vectors needed exceeds max. allowed (MxVec)
-C
-C     Note: the algorithm is designed for incomplete Cholesky
-C     decomposition, i.e. for semi-definitive matrices, and thus makes
-C     use of level-1 BLAS only.
-C
-C     Feature: In/Out argument iD(MxVec).
-C              iD(k) on exit contains the index of the diagonal
-C                    from which the k-th Cholesky vector was generated
-C
+!
+! Author:   F. Aquilante, March 2006
+!
+! Snicked from CD_InCore_1 :
+!
+!     Thomas Bondo Pedersen, October 2004.
+!
+!     Purpose: Cholesky decompose the n-by-n matrix X.
+!              Vectors are returned in Vec array.
+!
+!     Return code (irc):
+!
+!        0 -- decomposition success.
+!      101 -- negative diagonal encountered (i.e. < ThrFail)
+!      102 -- number of vectors needed exceeds max. allowed (MxVec)
+!
+!     Note: the algorithm is designed for incomplete Cholesky
+!     decomposition, i.e. for semi-definitive matrices, and thus makes
+!     use of level-1 BLAS only.
+!
+!     Feature: In/Out argument iD(MxVec).
+!              iD(k) on exit contains the index of the diagonal
+!                    from which the k-th Cholesky vector was generated
+!
       Implicit None
       Integer n, MxVec, NumCho, irc
       Real*8  X(n,n), Vec(n,MxVec)

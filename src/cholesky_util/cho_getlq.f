@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-C
-C     Purpose: extract elements corresponding to qualified columns from
-C              the Cholesky vectors in buffer and/or on disk.
-C
+!
+!     Purpose: extract elements corresponding to qualified columns from
+!              the Cholesky vectors in buffer and/or on disk.
+!
       use ChoVecBuf, only: nVec_in_Buf
       Implicit None
       Integer l_QVec, nQSP
@@ -25,21 +25,21 @@ C
 
       Integer iV1(8), nV(8)
       Integer nTot, iSym
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       SubRoutine Cho_VecBuf_GetLQ(QVec,l_QVec)
       Integer l_QVec
       Real*8, Target::  QVec(l_QVec)
       End SubRoutine Cho_VecBuf_GetLQ
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       If (nQSP .lt. 1) Return
       nTot = NumCho(1)
@@ -54,13 +54,13 @@ C     ------------
       End Do
       If (nTot .lt. 1) Return
 
-C     Extract from vectors in buffer.
-C     -------------------------------
+!     Extract from vectors in buffer.
+!     -------------------------------
 
       Call Cho_VecBuf_GetLQ(QVec,l_QVec)
 
-C     Extract from vectors on disk.
-C     -----------------------------
+!     Extract from vectors on disk.
+!     -----------------------------
 
       Do iSym = 1,nSym
          iV1(iSym) = nVec_in_Buf(iSym) + 1

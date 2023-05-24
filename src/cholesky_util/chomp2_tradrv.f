@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_TraDrv(irc,CMO,Diag,DoDiag)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: AO-to-MO (ai) transformation of Cholesky vectors
-C              performed directly in reduced sets. This assumes
-C              that the MP2 program has been appropriately initialized.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: AO-to-MO (ai) transformation of Cholesky vectors
+!              performed directly in reduced sets. This assumes
+!              that the MP2 program has been appropriately initialized.
+!
       Implicit None
       Integer irc
       Real*8  CMO(*), Diag(*)
@@ -33,20 +33,20 @@ C
 
       irc = 0
 
-C     Reorder MO coefficients.
-C     ------------------------
+!     Reorder MO coefficients.
+!     ------------------------
 
       Call mma_allocate(COcc,nT1AOT(1),Label='COcc')
       Call mma_allocate(CVir,nAOVir(1),Label='CVir')
       Call ChoMP2_MOReOrd(CMO,COcc,CVir)
 
-C     Transform vectors.
-C     ------------------
+!     Transform vectors.
+!     ------------------
 
       Call ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 
-C     Deallocate reordered MO coefficients.
-C     -------------------------------------
+!     Deallocate reordered MO coefficients.
+!     -------------------------------------
 
       Call mma_deallocate(CVir)
       Call mma_deallocate(COcc)

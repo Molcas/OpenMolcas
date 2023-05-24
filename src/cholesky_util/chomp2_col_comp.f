@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,
      &                           Fac,irc)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: compute columns from a set of vectors.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: compute columns from a set of vectors.
+!
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf)
       Integer iCol(nCol)

@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_PTS_WrRst(irc,NVT,l_NVT)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: Write restart files (parallel two-step algorithm).
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: Write restart files (parallel two-step algorithm).
+!
       use ChoSwp, only: InfRed, InfVec
       Implicit None
       Integer irc
@@ -34,17 +34,17 @@ C
       Integer, Pointer:: InfVcT(:,:,:)
       Integer iV, iAdr
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Cho_X_GetIP_InfVec(InfVcT)
       Integer, Pointer:: InfVct(:,:,:)
       End Subroutine Cho_X_GetIP_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       ! Init return code
       irc=0
 

@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-*               2020,2021, Roland Lindh                                *
-************************************************************************
-*  Cho_X_CalculateGMat
-*
-*> @brief
-*>   Calculate Cholesky \f$ G \f$ matrix (metric matrix)
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> Calculate the metric matrix from Cholesky vectors (i.e. exact).
-*>
-*> \f[ G_{IJ} = \sum_{K=1}^{\min(I,J)} L_{IK} L_{JK} \f]
-*>
-*> The matrix is symmetric and stored on disk (file ``AVECXX``) in
-*> triangular storage. The file is opened and closed in this
-*> routine using routines ::DAName_MF_WA and ::DAClos, respectively
-*> (i.e. \c FileName is opened as a word addressable multifile).
-*> The calculation failed if \p irc is different from zero on exit.
-*>
-*> @note
-*> This routine should *not* be used with DF.
-*>
-*> @param[out] irc Return code
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!               2020,2021, Roland Lindh                                *
+!***********************************************************************
+!  Cho_X_CalculateGMat
+!
+!> @brief
+!>   Calculate Cholesky \f$ G \f$ matrix (metric matrix)
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> Calculate the metric matrix from Cholesky vectors (i.e. exact).
+!>
+!> \f[ G_{IJ} = \sum_{K=1}^{\min(I,J)} L_{IK} L_{JK} \f]
+!>
+!> The matrix is symmetric and stored on disk (file ``AVECXX``) in
+!> triangular storage. The file is opened and closed in this
+!> routine using routines ::DAName_MF_WA and ::DAClos, respectively
+!> (i.e. \c FileName is opened as a word addressable multifile).
+!> The calculation failed if \p irc is different from zero on exit.
+!>
+!> @note
+!> This routine should *not* be used with DF.
+!>
+!> @param[out] irc Return code
+!***********************************************************************
       SubRoutine Cho_X_CalculateGMat(irc)
       use ChoSwp, only: InfVec
       use Constants
@@ -51,27 +51,27 @@
       Integer, Pointer:: InfVcT(:,:,:)
       Integer, Allocatable:: NVT(:), iRS2RS(:)
       Real*8, Allocatable:: Wrk(:), G(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
       Integer, Pointer:: InfVcT(:,:,:)
       Integer :: n, NVT(n)
       End SubRoutine Cho_CGM_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Refuse to perform calculation for DF.
-C     -------------------------------------
+!     Refuse to perform calculation for DF.
+!     -------------------------------------
 
       Call DecideOnDF(isDF)
       If (isDF) Then
@@ -80,20 +80,20 @@ C     -------------------------------------
       End If
 
 
-C     Scratch location in index arrays.
-C     ---------------------------------
+!     Scratch location in index arrays.
+!     ---------------------------------
 
       iLoc = 3 ! do NOT change (used implicitly by reading routine)
 
-C     Get pointer to InfVec array for all vectors (needed for parallel
-C     runs) and the total number of vectors.
-C     ----------------------------------------------------------------
+!     Get pointer to InfVec array for all vectors (needed for parallel
+!     runs) and the total number of vectors.
+!     ----------------------------------------------------------------
 
       Call mma_allocate(NVT,nSym,Label='NVT')
       Call Cho_CGM_InfVec(InfVcT,NVT,SIZE(NVT))
 
-C     Copy rs1 to location 2.
-C     -----------------------
+!     Copy rs1 to location 2.
+!     -----------------------
 
       Call Cho_X_RSCopy(irc,1,2)
       If (irc .ne. 0) Then
@@ -101,15 +101,15 @@ C     -----------------------
          Go To 1 ! exit
       End If
 
-C     Calculate triangular G matrix.
-C     G(IJ)=sum_K L(I,K)*L(J,K).
-C     ------------------------------
+!     Calculate triangular G matrix.
+!     G(IJ)=sum_K L(I,K)*L(J,K).
+!     ------------------------------
 
       iRedC = -1
       Do iSym = 1,nSym
 
-C        Open file.
-C        ----------
+!        Open file.
+!        ----------
 
          Write (FileName,'(A4,I2.2)') 'AVEC',iSym-1
          lUnit = 7
@@ -180,8 +180,8 @@ C        ----------
          Call mma_deallocate(G)
          Call mma_deallocate(iRS2RS)
 
-C        Close file
-C        ----------
+!        Close file
+!        ----------
          Call DAClos(lUnit)
       End Do
 
@@ -189,25 +189,25 @@ C        ----------
       Call mma_deallocate(NVT)
 
       End
-C
-C**********************************************************************C
-C
+!
+!**********************************************************************C
+!
       SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
       Implicit None
       Integer, Pointer:: InfVcT(:,:,:)
       Integer n
       Integer NVT(n)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Cho_X_GetIP_InfVec(InfVcT)
       Integer, Pointer:: InfVct(:,:,:)
       End Subroutine Cho_X_GetIP_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Cho_X_GetIP_InfVec(InfVcT)
       Call Cho_X_GetTotV(NVT,n)
 

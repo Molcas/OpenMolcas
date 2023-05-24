@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs
@@ -43,7 +43,7 @@
       External  ga_create_irreg, ga_destroy
       Logical   ga_create_irreg, ga_destroy, ok
       Integer   g_a
-CVVP:2014 DGA is here
+!VVP:2014 DGA is here
 #ifndef _GA_
       Logical   ga_create_local
       Integer   ga_local_woff,nelm,iGAL
@@ -52,7 +52,7 @@ CVVP:2014 DGA is here
       Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),
      &                       nRSL(:), MapRS2RS(:)
       Real*8, Allocatable:: VecR(:,:)
-***************************************************************
+!**************************************************************
 
       If (.not.Cho_Real_Par) Then
          If (LocDbg) Then
@@ -118,7 +118,7 @@ CVVP:2014 DGA is here
          Write(Lupri,*) 'MAP:'
          Write(LuPri,*) (map(i),i=1,nProcs_eff)
       End If
-CVVP:2014 Local rather than Global
+!VVP:2014 Local rather than Global
 #ifdef _GA_
       ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,
      &                     nProcs_eff,1,1,g_a)
@@ -132,7 +132,7 @@ CVVP:2014 Local rather than Global
 #ifdef _GA_
          Call ga_put(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
 #else
-CVVP:2014 the minimal latency and scalable putC call
+!VVP:2014 the minimal latency and scalable putC call
          Call ga_putc(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
 #endif
       End If
@@ -149,7 +149,7 @@ CVVP:2014 the minimal latency and scalable putC call
 #ifdef _GA_
          Call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #else
-CVVP:2014 the minimal latency and scalable getC call
+!VVP:2014 the minimal latency and scalable getC call
          Call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #endif
       End Do
@@ -157,7 +157,7 @@ CVVP:2014 the minimal latency and scalable getC call
       ok = ga_destroy(g_a)
       If (.not. ok) Call Cho_Quit(SecNam//': ga_destroy error',101)
 
-C --- write the reordered vec on disk
+! --- write the reordered vec on disk
 
       Call Cho_P_IndxSwp()
       irc=-1
@@ -230,7 +230,7 @@ C --- write the reordered vec on disk
       End If
       myNumCho(iSym) = myNumCho(iSym) + nVR
 
-C --- deallocations
+! --- deallocations
 
       Call mma_deallocate(Map)
       Call mma_deallocate(iAdrLG)
@@ -241,7 +241,7 @@ C --- deallocations
       Call Cho_Quit(SecNam//
      &              ' should never be called in serial installation',
      &              103)
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Vec)
          Call Unused_integer(Jin)

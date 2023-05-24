@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_PUTVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM)
-C
-C     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
-C              of symmetry ISYM to file.
-C
+!
+!     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
+!              of symmetry ISYM to file.
+!
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
@@ -29,8 +29,8 @@ C
 
       CHK_OVERFLOW = .NOT.Cho_Real_Par
 
-C     Return if no vectors.
-C     ---------------------
+!     Return if no vectors.
+!     ---------------------
 
       IF (NUMVEC .LT. 1) THEN
          IF (LOCDBG) THEN
@@ -40,9 +40,9 @@ C     ---------------------
          return
       END IF
 
-C     Check vector dimension: should be the same as current reduced
-C     set.
-C     -------------------------------------------------------------
+!     Check vector dimension: should be the same as current reduced
+!     set.
+!     -------------------------------------------------------------
 
       IF (LENVEC .NE. NNBSTR(ISYM,2)) THEN
          CALL CHO_QUIT('Illegal vector dimension in '//SECNAM,104)
@@ -55,8 +55,8 @@ C     -------------------------------------------------------------
          return
       END IF
 
-C     Check symmetry.
-C     ---------------
+!     Check symmetry.
+!     ---------------
 
       IF ((ISYM.LT.1) .OR. (ISYM.GT.NSYM)) THEN
          WRITE(LUPRI,*) SECNAM,': symmetry out of bounds'
@@ -64,8 +64,8 @@ C     ---------------
          CALL CHO_QUIT('Symmetry out of bounds in '//SECNAM,104)
       END IF
 
-C     Check vector index.
-C     -------------------
+!     Check vector index.
+!     -------------------
 
       IVEC2 = IVEC1 + NUMVEC - 1
       IF ((IVEC1.LT.1) .OR. (IVEC1.GT.MAXVEC) .OR.
@@ -77,8 +77,8 @@ C     -------------------
      &                 //SECNAM,104)
       END IF
 
-C     Check for overflow for WA file addressing.
-C     ------------------------------------------
+!     Check for overflow for WA file addressing.
+!     ------------------------------------------
 
       IF (CHK_OVERFLOW .AND. CHO_ADRVEC.EQ.1) THEN
          IADR2 = INFVEC(IVEC2,4,ISYM)
@@ -103,11 +103,11 @@ C     ------------------------------------------
          END IF
       END IF
 
-C     Call the low-level I/O routines.
-C     CHO_ADRVEC=1: WA files.
-C     CHO_ADRVEC=2: DA files.
-C     Set (next) disk addresses.
-C     --------------------------------
+!     Call the low-level I/O routines.
+!     CHO_ADRVEC=1: WA files.
+!     CHO_ADRVEC=2: DA files.
+!     Set (next) disk addresses.
+!     --------------------------------
 
 
       IF (CHO_ADRVEC .EQ. 1) THEN
@@ -145,8 +145,8 @@ C     --------------------------------
          CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)
       END IF
 
-C     Debug stuff.
-C     ------------
+!     Debug stuff.
+!     ------------
 
       IF (LOCDBG) THEN
          WRITE(LUPRI,*)

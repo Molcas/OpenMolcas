@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_DBGINT_A()
-C
-C     Purpose: regenerate and check all integrals (or the number
-C              of columns specified in input).
-C
-C     NOTE: this is *not* meant for production calculations, only for
-C           debugging, as:
-C           1) full Cholesky vectors are read
-C           2) calculations are performed in full (no use of red. sets
-C              apart from first)
-C           3) full integral symmetry not used
-C              (only partial particle permutation symmetry)
-C
+!
+!     Purpose: regenerate and check all integrals (or the number
+!              of columns specified in input).
+!
+!     NOTE: this is *not* meant for production calculations, only for
+!           debugging, as:
+!           1) full Cholesky vectors are read
+!           2) calculations are performed in full (no use of red. sets
+!              apart from first)
+!           3) full integral symmetry not used
+!              (only partial particle permutation symmetry)
+!
       use ChoArr, only: nBstSh, iSP2F
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
@@ -35,8 +35,8 @@ C
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 
-C     Force computation of full shell quadruple.
-C     ------------------------------------------
+!     Force computation of full shell quadruple.
+!     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
          WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
@@ -46,8 +46,8 @@ C     ------------------------------------------
          IFCSEW = 1
       END IF
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       GLMAX = 0.0D0
       GLMIN = 1.0D15
@@ -55,34 +55,34 @@ C     ----------------
       XTCMP = 0.0D0
       XPECT = 0.0D0
 
-C     Make first reduced set the current reduced set.
-C     -----------------------------------------------
+!     Make first reduced set the current reduced set.
+!     -----------------------------------------------
 
       CALL CHO_RSCOPY(1,2)
 
-C     Allocate memory for largest integral quadruple.
-C     -----------------------------------------------
+!     Allocate memory for largest integral quadruple.
+!     -----------------------------------------------
 
       LINTMX = MX2SH*MX2SH
       Call mma_allocate(INT1,LINTMX,Label='INT1')
 
-C     Allocate max. memory
-C     ----------------------------------------------------------
+!     Allocate max. memory
+!     ----------------------------------------------------------
 
       Call mma_maxDBLE(LWRK)
       Call mma_allocate(WRK,LWRK/2,Label='WRK')
       CALL XSETMEM_INTS(LWRK/2)
 
-C     Print header.
-C     -------------
+!     Print header.
+!     -------------
 
       CALL CHO_HEAD('Integral Error Analysis','=',80,LUPRI)
       WRITE(LUPRI,'(/,A,/,A)')
      & '    C     D     A     B   Abs. Min.    Abs. Max.      RMS',
      & '--------------------------------------------------------------'
 
-C     Loop over shell quadruples.
-C     ---------------------------
+!     Loop over shell quadruples.
+!     ---------------------------
 
       ISAB1 = 1
       IF (NCOL_CHK .GT. 0) THEN
@@ -118,27 +118,27 @@ C     ---------------------------
             END IF
             LINT1 = NUMCD*NUMAB ! actual space needed for (CD|AB)
 
-C           Compute expected number of comparisons.
-C           ---------------------------------------
+!           Compute expected number of comparisons.
+!           ---------------------------------------
 
             XPECTL = DBLE(LINT1)
             XPECT  = XPECT + XPECTL
 
-C           Calculate shell quadruple (CD|AB).
-C           ----------------------------------
+!           Calculate shell quadruple (CD|AB).
+!           ----------------------------------
 
             INT1(1:LINT1)=0.0D0
             CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.FALSE.)
 
-C           Calculate integrals from Cholesky vectors.
-C           ------------------------------------------
+!           Calculate integrals from Cholesky vectors.
+!           ------------------------------------------
 
             CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,
      &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,
      &                          ISHLCD,ISHLAB)
 
-C           Write report.
-C           -------------
+!           Write report.
+!           -------------
 
             IF (NCMP .LT. 1) THEN
                WRITE(LUPRI,'(4(I5,1X),5X,A)')
@@ -162,8 +162,8 @@ C           -------------
 
       END DO
 
-C     Print end of table.
-C     -------------------
+!     Print end of table.
+!     -------------------
 
       WRITE(LUPRI,'(A)')
      & '--------------------------------------------------------------'
@@ -178,15 +178,15 @@ C     -------------------
       WRITE(LUPRI,'(A)')
      & '--------------------------------------------------------------'
 
-C     Release all memory allocated here (and release seward memory).
-C     --------------------------------------------------------------
+!     Release all memory allocated here (and release seward memory).
+!     --------------------------------------------------------------
 
       CALL XRLSMEM_INTS()
       Call mma_deallocate(WRK)
       Call mma_deallocate(INT1)
 
-C     Check total number of comparisons.
-C     ----------------------------------
+!     Check total number of comparisons.
+!     ----------------------------------
 
       DO ISYM = 1,NSYM
          XLBAS(ISYM) = DBLE(NBAS(ISYM))

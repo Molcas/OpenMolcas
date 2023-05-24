@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl,
      &                  iShlSO, IntMap
-C
-C     Purpose: initializations.
-C
-C              IF (SKIP_PRESCREEN): skip prescreening of diagonal.
-C              In this case, NNSHL and array iSP2F must be set
-C              externally (the allocation is checked here).
-C
-C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
-C              record bookmarks during Cholesky decomposition.
-C
+!
+!     Purpose: initializations.
+!
+!              IF (SKIP_PRESCREEN): skip prescreening of diagonal.
+!              In this case, NNSHL and array iSP2F must be set
+!              externally (the allocation is checked here).
+!
+!              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
+!              record bookmarks during Cholesky decomposition.
+!
       use ChoArr, only: nDimRS, MySP
       use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
      &                                       iiBstRSh_Hidden, iiBstRSh,
@@ -53,28 +53,28 @@ C
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 
 
-C     Check settings for parallel runs.
-C     Return code: 3 will cause verification to accept this as a passed
-C     test (certain options are not available in parallel runs).
-C     -----------------------------------------------------------------
+!     Check settings for parallel runs.
+!     Return code: 3 will cause verification to accept this as a passed
+!     test (certain options are not available in parallel runs).
+!     -----------------------------------------------------------------
 
       IRC = -1
       CALL CHO_P_CHECK(IRC)
       IF (IRC .NE. 0) THEN
          WRITE(LUPRI,*) SECNAM,': CHO_P_CHECK returned ',irc
-C        CALL CHO_QUIT('Error in '//SECNAM,102)
+!        CALL CHO_QUIT('Error in '//SECNAM,102)
          CALL CHO_QUIT('Parallel option conflicts in '//SECNAM,3)
       END IF
 
-C     Allocate array for tracing idle procs.
-C     --------------------------------------
+!     Allocate array for tracing idle procs.
+!     --------------------------------------
 
       IF (TRACE_IDLE) THEN
          CALL CHO_TRCIDL_INIT()
       END IF
 
-C     Set diagonal prescreening threshold.
-C     ------------------------------------
+!     Set diagonal prescreening threshold.
+!     ------------------------------------
 
       IF (SKIP_PRESCREEN) CHO_PRESCREEN = .FALSE.
       IF (CHO_PRESCREEN) THEN
@@ -83,23 +83,23 @@ C     ------------------------------------
          END IF
       END IF
 
-C     Get info from Seward.
-C     ---------------------
+!     Get info from Seward.
+!     ---------------------
 
       CALL CHO_MCA_INIT(SKIP_PRESCREEN)
 
-C     Initialize module ChoSP (enabling use of function CHO_F2SP).
-C     ---------------------------------------------------------
+!     Initialize module ChoSP (enabling use of function CHO_F2SP).
+!     ---------------------------------------------------------
 
       NNSHL_SP = NNSHL
 
-C     Set damping.
-C     ------------
+!     Set damping.
+!     ------------
 
       CALL CHO_SETDAMP()
 
-C     Allocate memory for reduced set index arrays.
-C     ---------------------------------------------
+!     Allocate memory for reduced set index arrays.
+!     ---------------------------------------------
 
       Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
      &                  Label='iiBstRSh_Hidden')
@@ -110,8 +110,8 @@ C     ---------------------------------------------
       Call mma_allocate(IntMap,nnShl,Label='IntMap')
       Call mma_allocate(MySP,nnShl,Label='MySP')
 
-C     Initialize timings etc.
-C     -----------------------
+!     Initialize timings etc.
+!     -----------------------
 
       CALL FZERO(TDECDRV,2)
       CALL FZERO(TINTEG,2*NINTEG)
@@ -129,21 +129,21 @@ C     -----------------------
       NSYS_CALL = 0
       NDGM_CALL = 0
 
-C     Open files for vector and reduced set storage.
-C     Open restart files.
-C     ----------------------------------------------
+!     Open files for vector and reduced set storage.
+!     Open restart files.
+!     ----------------------------------------------
 
       CALL CHO_UNINI()
       CALL CHO_P_OPENVR(1)
 
-C     Initialize integral SP counter.
-C     -------------------------------
+!     Initialize integral SP counter.
+!     -------------------------------
 
       CALL CHO_INIMAP()
 
-C     Allocate memory for INFRED and INFVEC arrays.
-C     In so doing, determine the max. #vectors and #reduced sets.
-C     -----------------------------------------------------------
+!     Allocate memory for INFRED and INFVEC arrays.
+!     In so doing, determine the max. #vectors and #reduced sets.
+!     -----------------------------------------------------------
 
       IF (MAXRED.LT.1 .OR. MAXVEC.LT.1) THEN
          XXBMX = -1.0D8
@@ -197,9 +197,9 @@ C     -----------------------------------------------------------
          Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
       END IF
 
-C     Allocate bookmarks (accuracy and number of Cholesky vectors).
-C     Not available with restart.
-C     -------------------------------------------------------------
+!     Allocate bookmarks (accuracy and number of Cholesky vectors).
+!     Not available with restart.
+!     -------------------------------------------------------------
 
       If (Allocate_Bookmarks) Then
          If (RSTCHO) Then
@@ -222,14 +222,14 @@ C     -------------------------------------------------------------
          nCol_BkmThr=0
       End If
 
-C     Initialize INFRED, INFVEC, vector counter, etc.
-C     Special handling depending on Cholesky restart.
-C     -----------------------------------------------
+!     Initialize INFRED, INFVEC, vector counter, etc.
+!     Special handling depending on Cholesky restart.
+!     -----------------------------------------------
 
       CALL CHO_INIT1()
 
-C     Set threshold for screening in vector subtraction.
-C     --------------------------------------------------
+!     Set threshold for screening in vector subtraction.
+!     --------------------------------------------------
 
       IF (CHO_SSCREEN) THEN
          IF (SSTAU .LT. 0.0D0) THEN
@@ -237,16 +237,16 @@ C     --------------------------------------------------
          END IF
       END IF
 
-C     Print header and configuration.
-C     -------------------------------
+!     Print header and configuration.
+!     -------------------------------
 
       IF (IPRINT .GE. 1) THEN
          CALL CHO_PRTHEAD(.FALSE.)
          CALL CHO_FLUSH(LUPRI)
       END IF
 
-C     Check configuration.
-C     --------------------
+!     Check configuration.
+!     --------------------
 
       NCONFL = 0
       CALL CHO_CHKCONF(NCONFL,.TRUE.)
@@ -260,9 +260,9 @@ C     --------------------
          CALL CHO_QUIT('Configuration conflicts in '//SECNAM,105)
       END IF
 
-C     Allocate and set shell-to-center mapping for 1-center
-C     decomposition.
-C     -----------------------------------------------------
+!     Allocate and set shell-to-center mapping for 1-center
+!     decomposition.
+!     -----------------------------------------------------
 
       IF (CHO_1CENTER) THEN
          Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
@@ -275,16 +275,16 @@ C     -----------------------------------------------------
          END IF
       END IF
 
-C     Allocate IQUAB array for qualification.
-C     Allocate IQUAB_L array for parallel runs.
-C     -----------------------------------------
+!     Allocate IQUAB array for qualification.
+!     Allocate IQUAB_L array for parallel runs.
+!     -----------------------------------------
 
       Call mma_allocate(iQuAB_Hidden,MaxQual,nSym,Label='iQuAB_Hidden')
       iQuAB => iQuAB_Hidden
       CALL CHO_P_INILQ(MAXQUAL,NSYM)
 
-C     Set screening mode.
-C     -------------------
+!     Set screening mode.
+!     -------------------
 
       IF (CHO_DECALG.EQ.2 .OR. CHO_DECALG.EQ.3 .OR.
      &    CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6) THEN
@@ -301,8 +301,8 @@ C     -------------------
          MODE_SCREEN = 1 ! damped screening
       END IF
 
-C     Print section.
-C     --------------
+!     Print section.
+!     --------------
 
       IF (IPRINT .GE. INF_INIT) THEN
 
@@ -325,8 +325,8 @@ C     --------------
 
          IF (IPRINT .GE. 4) THEN ! debug print
 
-C           Basis size info.
-C           ----------------
+!           Basis size info.
+!           ----------------
 
             WRITE(LUPRI,'(/,2X,A,/,2X,A)')
      &      '  Symmetry        NBAS        IBAS',
@@ -338,8 +338,8 @@ C           ----------------
             WRITE(LUPRI,'(2X,A)')
      &      '----------------------------------'
 
-C           Shell info.
-C           -----------
+!           Shell info.
+!           -----------
 
             WRITE(LUPRI,'(/,2X,A,/,2X,A,/,2X,A)')
      &     '     Shell   Dimension    Symmetry   Dimension      Offset',

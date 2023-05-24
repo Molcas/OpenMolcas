@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,
      &                         J1,J2,iSym)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: Read partial Cholesky vectors J1 to J2 on disk.
-C              (Parallel two-step algorithm)
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: Read partial Cholesky vectors J1 to J2 on disk.
+!              (Parallel two-step algorithm)
+!
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: nnBstRSh
 #endif
@@ -84,14 +84,14 @@ C
       Call Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C BLOCK READ
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! BLOCK READ
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SubRoutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,
      &                          J1,J2,iSym)
-C
-C     Read the vector blocks.
-C
+!
+!     Read the vector blocks.
+!
       use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc

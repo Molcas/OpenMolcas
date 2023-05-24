@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Srt(Vec,Srt,nVec,iSym,iBatch)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: copy out subblock of vectors.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: copy out subblock of vectors.
+!
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am
       use ChoMP2, only: LnBatOrb
       use ChoMP2, only: LnPQprod, LiPQprod
@@ -48,16 +48,16 @@ C
 
          End Do
       Else
-*       Special sorting for Mp2-density calculations where all integrals
-*       are used (for pure energy calculations only integrals of type
-*       (occ,vir|occ,vir) are needed).
+!       Special sorting for Mp2-density calculations where all integrals
+!       are used (for pure energy calculations only integrals of type
+!       (occ,vir|occ,vir) are needed).
          Do iVec = 1,nVec
-*
+!
             kOff0 = nPQ_prod(iSym)*(iVec-1) + 1
             kOff1 = LnPQprod(iSym,iBatch)*(iVec-1) + 1
-*
+!
             Do iSymI = 1,nSym
-*
+!
                iSymA = MulD2h(iSymI,iSym)
                If (LnBatOrb(iSymI,iBatch).gt.0 .and.
      &             (nFro(iSymA) + nOcc(iSymA)

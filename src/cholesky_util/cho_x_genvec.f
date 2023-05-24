@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_X_GenVec(irc,Diag)
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here
       Implicit None
@@ -23,15 +23,15 @@
       Integer iSym
 
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Re-allocate the iQuAB index array, save old allocation.
-C     This is used to trick the integral extraction from Seward so as to
-C     reduce the number of re-calculations of shell pairs.
-C     ------------------------------------------------------------------
+!     Re-allocate the iQuAB index array, save old allocation.
+!     This is used to trick the integral extraction from Seward so as to
+!     reduce the number of re-calculations of shell pairs.
+!     ------------------------------------------------------------------
 
       pTemp => iQuAB
       MaxQual_SAVE  = MaxQual
@@ -44,20 +44,20 @@ C     ------------------------------------------------------------------
       Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
       iQuAB => iQuAB_here
 
-C     Read initial diagonal.
-C     ----------------------
+!     Read initial diagonal.
+!     ----------------------
 
       Call Cho_IODiag(Diag,2)
 
-C     Reinitialize the number of zeroed negative diagonals.
-C     Turn on damped screening for second step.
-C     -----------------------------------------------------
+!     Reinitialize the number of zeroed negative diagonals.
+!     Turn on damped screening for second step.
+!     -----------------------------------------------------
 
       nNZTot = 0
       MODE_SCREEN = 1
 
-C     Generate vectors.
-C     -----------------
+!     Generate vectors.
+!     -----------------
 
       Call Cho_GnVc_Drv(irc,Diag)
       If (irc .ne. 0) Then
@@ -65,9 +65,9 @@ C     -----------------
          Go To 100 ! exit
       End If
 
-C     De-allocations.
-C     Restore original iQuAB array.
-C     -----------------------------
+!     De-allocations.
+!     Restore original iQuAB array.
+!     -----------------------------
 
   100 Continue
       Call mma_deallocate(iQuAB_here)

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2008, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2008, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,
      &                         Thr,Span,MxQual,
      &                         ThrNeg,ThrFail,
@@ -19,34 +19,34 @@
      &                         NumCho,
      &                         irc)
 
-C
-C     Thomas Bondo Pedersen, October 2004.
-C     Modified to compute at most MxNumCho vectors,
-C        Thomas Bondo Pedersen, January 2008.
-C
-C     Purpose: Cholesky decompose a matrix.
-C              Stop decomposition when either
-C              1) max. diag <= Thr
-C              2) NumCho = MxNumCho
-C
-C     To use criterion 1) only (standard procedure),
-C     simply set MxNumCho = nDim.
-C     To use criterion 2) only,
-C     simply set Thr=1.0d-20 (i.e. zero)
-C
-C     Note: do *not* call this routine directly;
-C           use ChoDec(...) or ChoDec_MxVec instead
-C           (see those routines for documentation).
-C           This routine contains implicit assumptions
-C           that are checked by ChoDec and ChoDec_MxVec!!!
-C
-C     Error codes, irc:
-C        0 : all OK
-C      301 : too few qualified (probably a bug)
-C      302 : insufficient buffer size, lBuf
-C      303 : too negative diagonal encountered
-C            (matrix non-positive definite!)
-C
+!
+!     Thomas Bondo Pedersen, October 2004.
+!     Modified to compute at most MxNumCho vectors,
+!        Thomas Bondo Pedersen, January 2008.
+!
+!     Purpose: Cholesky decompose a matrix.
+!              Stop decomposition when either
+!              1) max. diag <= Thr
+!              2) NumCho = MxNumCho
+!
+!     To use criterion 1) only (standard procedure),
+!     simply set MxNumCho = nDim.
+!     To use criterion 2) only,
+!     simply set Thr=1.0d-20 (i.e. zero)
+!
+!     Note: do *not* call this routine directly;
+!           use ChoDec(...) or ChoDec_MxVec instead
+!           (see those routines for documentation).
+!           This routine contains implicit assumptions
+!           that are checked by ChoDec and ChoDec_MxVec!!!
+!
+!     Error codes, irc:
+!        0 : all OK
+!      301 : too few qualified (probably a bug)
+!      302 : insufficient buffer size, lBuf
+!      303 : too negative diagonal encountered
+!            (matrix non-positive definite!)
+!
 
       Implicit Real*8 (a-h,o-z)
       External CD_Col    ! external routine for matrix columns
@@ -65,27 +65,27 @@ C
       mPass = MxNumCho
       Do While (iPass .lt. mPass)
 
-C        Update counter.
-C        ---------------
+!        Update counter.
+!        ---------------
 
          iPass = iPass + 1
 
-C        Find max. diagonal.
-C        -------------------
+!        Find max. diagonal.
+!        -------------------
 
          Dmax = Diag(1)
          Do i = 2,nDim
             Dmax = max(Dmax,Diag(i))
          End Do
 
-C        Check for convergence.
-C        ----------------------
+!        Check for convergence.
+!        ----------------------
 
          If (Dmax.gt.Thr .and. NumCho.lt.MxNumCho) Then
 
-C           Find largest diagonal elements > DiaMin.
-C           I.e., qualify columns.
-C           ========================================
+!           Find largest diagonal elements > DiaMin.
+!           I.e., qualify columns.
+!           ========================================
 
             nQual  = min(MxQual,MxNumCho-NumCho)
             DiaMin = max(Dmax*Span,Thr)
@@ -96,13 +96,13 @@ C           ========================================
                Go To 1  ! exit
             End If
 
-C           Get qualified columns from external routine.
-C           ============================================
+!           Get qualified columns from external routine.
+!           ============================================
 
             Call CD_Col(Qual,nDim,iQual,nQual,Buf,lBuf)
 
-C           Subtract previous vectors (if any).
-C           ===================================
+!           Subtract previous vectors (if any).
+!           ===================================
 
             If (NumCho .gt. 0) Then
 
@@ -150,8 +150,8 @@ C           ===================================
 
             End If
 
-C           Decompose.
-C           ==========
+!           Decompose.
+!           ==========
 
             MxVec  = min(nQual,lBuf/nDim)
             iDump  = 0
@@ -159,8 +159,8 @@ C           ==========
             iCho   = 0
             Do While (iCho .lt. iChoMx)
 
-C              Find max. among qualified.
-C              --------------------------
+!              Find max. among qualified.
+!              --------------------------
 
                Dx = Diag(iQual(1))
                ix = 1
@@ -174,8 +174,8 @@ C              --------------------------
                Last = Dx.lt.DiaMin .or. Dx.le.Thr
                If (.not. Last) Then
 
-C                 Calculate new vector.
-C                 ---------------------
+!                 Calculate new vector.
+!                 ---------------------
 
                   Factor = 1.0d0/sqrt(Dx)
                   Do i = 1,nDim
@@ -186,8 +186,8 @@ C                 ---------------------
                      End If
                   End Do
 
-C                 Update diagonal and find new max.
-C                 ---------------------------------
+!                 Update diagonal and find new max.
+!                 ---------------------------------
 
                   Diag(1) = Diag(1) - Qual(1,ix)*Qual(1,ix)
                   xm = Diag(1)
@@ -196,14 +196,14 @@ C                 ---------------------------------
                      xm = max(xm,Diag(i))
                   End Do
 
-C                 Zero treated diagonal and find new DiaMin.
-C                 ------------------------------------------
+!                 Zero treated diagonal and find new DiaMin.
+!                 ------------------------------------------
 
                   Diag(iQual(ix)) = 0.0d0
                   DiaMin = max(xm*Span,Thr)
 
-C                 Zero negative diagonals (quit if too negative).
-C                 -----------------------------------------------
+!                 Zero negative diagonals (quit if too negative).
+!                 -----------------------------------------------
 
                   Do i = 1,nDim
                      If (Diag(i) .lt. ThrNeg) Then
@@ -216,8 +216,8 @@ C                 -----------------------------------------------
                      End If
                   End Do
 
-C                 Subtract this vector from qualified columns.
-C                 --------------------------------------------
+!                 Subtract this vector from qualified columns.
+!                 --------------------------------------------
 
                   Do i = 1,nQual
                      If (Diag(iQual(i)) .ne. 0.0d0) Then
@@ -227,21 +227,21 @@ C                 --------------------------------------------
                      End If
                   End Do
 
-C                 Store vector in buffer.
-C                 -----------------------
+!                 Store vector in buffer.
+!                 -----------------------
 
                   kOff = nDim*iDump + 1
                   Call dCopy_(nDim,Qual(1,ix),1,Buf(kOff),1)
 
-C                 Update counter.
-C                 ---------------
+!                 Update counter.
+!                 ---------------
 
                   iDump = iDump + 1
 
                End If
 
-C              Dump vectors to external routine CD_Vec.
-C              ----------------------------------------
+!              Dump vectors to external routine CD_Vec.
+!              ----------------------------------------
 
                If (Last .or. iDump.eq.MxVec) Then
                   If (iDump .gt. 0) Then

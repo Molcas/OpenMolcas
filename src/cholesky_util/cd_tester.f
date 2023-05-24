@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  CD_Tester
-*
-*> @brief
-*>   Test the decomposition modules
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> Runs and tests the output from the general Cholesky decomposers
-*> ::ChoDec (out-of-core) and ::CD_InCore (in-core). The positive
-*> definite matrix to which \p ip_PDM points should be stored as a
-*> lower triangle.
-*>
-*> Error codes:
-*> - \p irc = ``-1``: \p n non-positive (&rarr; nothing done)
-*> - \p irc =  ``0``: all OK
-*> - \p irc =  ``1``: error in ::ChoDec
-*> - \p irc =  ``2``: error in ::CD_InCore
-*> - \p irc =  ``3``: error in both
-*>
-*> @param[out] irc     Return code
-*> @param[in]  PDM     matrix in \p Work
-*> @param[in]  n       Dimension of matrix (\p n &times; \p n)
-*> @param[in]  Verbose Print flag
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  CD_Tester
+!
+!> @brief
+!>   Test the decomposition modules
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> Runs and tests the output from the general Cholesky decomposers
+!> ::ChoDec (out-of-core) and ::CD_InCore (in-core). The positive
+!> definite matrix to which \p ip_PDM points should be stored as a
+!> lower triangle.
+!>
+!> Error codes:
+!> - \p irc = ``-1``: \p n non-positive (&rarr; nothing done)
+!> - \p irc =  ``0``: all OK
+!> - \p irc =  ``1``: error in ::ChoDec
+!> - \p irc =  ``2``: error in ::CD_InCore
+!> - \p irc =  ``3``: error in both
+!>
+!> @param[out] irc     Return code
+!> @param[in]  PDM     matrix in \p Work
+!> @param[in]  n       Dimension of matrix (\p n &times; \p n)
+!> @param[in]  Verbose Print flag
+!***********************************************************************
       SubRoutine CD_Tester(irc,PDM,n,Verbose)
       use CDTHLP
       Implicit Real*8 (a-h,o-z)
@@ -61,8 +61,8 @@
          Go To 1
       End If
 
-C     Test ChoDec.
-C     ============
+!     Test ChoDec.
+!     ============
 
       Restart = .false.
       Thr     = 1.0d-12
@@ -131,8 +131,8 @@ C     ============
          Call xFlush(6)
       End If
 
-C     Test in-core decomposition.
-C     ===========================
+!     Test in-core decomposition.
+!     ===========================
 
       If (Verbose) Then
          irc_sav = irc
@@ -192,7 +192,7 @@ C     ===========================
 
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
       use CDTHLP, only: Mat
-*     Implicit None
+!     Implicit None
       Integer nDim, nCol, lBuf
       Real*8 Col(nDim,nCol), Buf(lBuf)
       Integer iCol(nCol)
@@ -206,7 +206,7 @@ C     ===========================
 
       Return
 #ifdef _WARNING_WORKAROUND_
-C Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Buf)
       End if
@@ -242,7 +242,7 @@ C Avoid unused argument warnings
       End If
 
       End SubRoutine CD_Tester_Vec
-C
+!
       SubRoutine CD_Tester_CPPF(PDM,X,n)
       Implicit None
       Integer n
@@ -260,7 +260,7 @@ C
       End Do
 
       End SubRoutine CD_Tester_CPPF
-C
+!
       SubRoutine CD_Tester_Diag(PDM,Diag,n)
       Implicit None
       Integer n
@@ -274,7 +274,7 @@ C
       End Do
 
       End SubRoutine CD_Tester_Diag
-C
+!
       SubRoutine CD_Tester_Diff(X,n,Err)
       Implicit None
       Integer n
@@ -301,7 +301,7 @@ C
       End If
 
       End SubRoutine CD_Tester_Diff
-C
+!
       SubRoutine CD_Tester_Final(irc,NumCho,n,Thr,Err,Verbose)
       Implicit None
       Integer irc, NumCho, n
@@ -375,7 +375,7 @@ C
       If (Verbose) Call xFlush(6)
 
       End SubRoutine CD_Tester_Final
-C
+!
       SubRoutine CD_Tester_ES(X,n,Err)
       Implicit None
       Integer n

@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_SetRed_L()
-C
-C     Purpose: set next local reduced set. The next global reduced set
-C              must be available at (global) index array location 2.
-C
+!
+!     Purpose: set next local reduced set. The next global reduced set
+!              must be available at (global) index array location 2.
+!
       use ChoSwp, only: nnBstRSh, nnBstRSh_G
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only:   IndRed,   IndRed_G
@@ -28,8 +28,8 @@ C
       Integer i, j, k, i0, k0, l, ll
       Integer iSym, iSP, iShlAB
 
-C     Copy current local reduced set (at location 2) to location 3.
-C     -------------------------------------------------------------
+!     Copy current local reduced set (at location 2) to location 3.
+!     -------------------------------------------------------------
 
       Call Cho_X_RSCopy(irc,2,3)
       If (irc .ne. 0) Then
@@ -37,8 +37,8 @@ C     -------------------------------------------------------------
          Call Cho_Quit('Error in '//SecNam,104)
       End If
 
-C     Re-initialize local reduced set indices at location 2.
-C     ------------------------------------------------------
+!     Re-initialize local reduced set indices at location 2.
+!     ------------------------------------------------------
 
       nDim = nSym*nnShl
       IndRed(:,2)=0
@@ -48,8 +48,8 @@ C     ------------------------------------------------------
       Call iZero(nnBstR(:,2),nSym)
       nnBstRT(2) = 0
 
-C     Set local nnBstRSh counter at location 2.
-C     -----------------------------------------
+!     Set local nnBstRSh counter at location 2.
+!     -----------------------------------------
 
       Do iSP = 1,nnShl
          iShlAB = mySP(iSP)
@@ -58,13 +58,13 @@ C     -----------------------------------------
          End Do
       End Do
 
-C     Set remaining reduced set indices (excl. IndRed), location 2.
-C     -------------------------------------------------------------
+!     Set remaining reduced set indices (excl. IndRed), location 2.
+!     -------------------------------------------------------------
 
       Call Cho_SetRedInd(2)
 
-C     Set local IndRed to point to local 1st reduced set.
-C     ---------------------------------------------------
+!     Set local IndRed to point to local 1st reduced set.
+!     ---------------------------------------------------
 
       iC = 0
       Do iSym = 1,nSym

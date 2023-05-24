@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
-C
-C     Purpose: shell-driven calculation of the integral diagonal and
-C              setup of the first reduced set.
-C
+!
+!     Purpose: shell-driven calculation of the integral diagonal and
+!              setup of the first reduced set.
+!
       use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
       use ChoArr, only: MySP, n_MySP
       use ChoSwp, only: nnBstRSh
@@ -38,8 +38,8 @@ C
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
 
-C     Check dimensions.
-C     -----------------
+!     Check dimensions.
+!     -----------------
 
       IF (LENBUF .LT. LBUF) THEN
          WRITE(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'
@@ -56,8 +56,8 @@ C     -----------------
          CALL CHO_QUIT('Scratch space error in '//SECNAM,102)
       END IF
 
-C     Open scratch files.
-C     -------------------
+!     Open scratch files.
+!     -------------------
 
       IUNIT = -1
       CALL CHO_OPEN(IUNIT,'_CHO_DIASCR2')
@@ -66,27 +66,27 @@ C     -------------------
       REWIND(IUNIT)
       REWIND(JUNIT)
 
-C     Make JUNIT available outside this routine.
-C     ------------------------------------------
+!     Make JUNIT available outside this routine.
+!     ------------------------------------------
 
       LUSCR = JUNIT
 
-C     Initialize abs. max. diag. array.
-C     ---------------------------------
+!     Initialize abs. max. diag. array.
+!     ---------------------------------
 
       CALL FZERO(DIAMAX,NSYM)
 
-C     Allocate array for storing 10 most negative diagonals
-C     (there should be none, of course, but they do show up)
-C     ------------------------------------------------------
+!     Allocate array for storing 10 most negative diagonals
+!     (there should be none, of course, but they do show up)
+!     ------------------------------------------------------
 
       Call mma_allocate(NegCalcDiag,10,Label='NegCalcDiag')
       NegCalcDiag(:)=0.0D0
       n_NegCalcDiag=0
 
-C     Calculate diagonal in loop over shell-pairs.
-C     CHO_NO2CENTER on: skip all 2-center diagonals.
-C     ----------------------------------------------
+!     Calculate diagonal in loop over shell-pairs.
+!     CHO_NO2CENTER on: skip all 2-center diagonals.
+!     ----------------------------------------------
 
       NIATOMSHL = 0
       IF (ALLOCATED(IATOMSHL)) NIATOMSHL = SIZE(IATOMSHL)
@@ -278,8 +278,8 @@ C     ----------------------------------------------
      &   'Number of negative diagonals computed   : ',n_NegCalcDiag
       END IF
 
-C     Read through the file to get first reduced set.
-C     -----------------------------------------------
+!     Read through the file to get first reduced set.
+!     -----------------------------------------------
 
       nnBstRSh(:,:,1) = 0
 

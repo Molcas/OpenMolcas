@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_REOVEC(IRS2F,N,LRDIM,WRK,LWRK)
-C
-C     Purpose: reorder Cholesky vectors on disk to full storage.
-C
+!
+!     Purpose: reorder Cholesky vectors on disk to full storage.
+!
       Implicit Real*8 (a-h,o-z)
       INTEGER   IRS2F(N,LRDIM)
       DIMENSION WRK(LWRK)
@@ -27,8 +27,8 @@ C
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
 
 
-C     Set up mapping from rs1 to full storage.
-C     ----------------------------------------
+!     Set up mapping from rs1 to full storage.
+!     ----------------------------------------
 
       IF (N .LT. 3) THEN
          CALL CHO_QUIT('Dimension error [1] in '//SECNAM,104)
@@ -54,13 +54,13 @@ C     ----------------------------------------
          IRS2F(3,IRS1) = JAB
       END DO
 
-C     Set up index arrays and open files for storing full vectors.
-C     ------------------------------------------------------------
+!     Set up index arrays and open files for storing full vectors.
+!     ------------------------------------------------------------
 
       CALL CHO_REOINI()
 
-C     Reorder vectors on disk.
-C     ------------------------
+!     Reorder vectors on disk.
+!     ------------------------
 
       CALL CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 

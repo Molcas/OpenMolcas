@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_INT_1_DBG2()
-C
-C     Purpose: test symmetry of integral matrix.
-C
+!
+!     Purpose: test symmetry of integral matrix.
+!
       use ChoArr, only: iSP2F, nBstSh
       use Constants
 
@@ -38,8 +38,8 @@ C
       WRITE(LUPRI,*) SECNAM,': testing integral matrix symmetry'
       WRITE(LUPRI,*)
 
-C     Force computation of full shell quadruple.
-C     ------------------------------------------
+!     Force computation of full shell quadruple.
+!     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
          WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
@@ -75,20 +75,20 @@ C     ------------------------------------------
             pINT1(1:LINT) => INT1(     1:     LINT)
             pINT2(1:LINT) => INT1(LINT+1:LINT+LINT)
 
-C           Calculate integrals (CD|AB).
-C           ----------------------------
+!           Calculate integrals (CD|AB).
+!           ----------------------------
 
             pINT1(:)=Zero
             CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,pINT1,LINT,PRTINT)
 
-C           Calculate integrals (AB|CD).
-C           ----------------------------
+!           Calculate integrals (AB|CD).
+!           ----------------------------
 
             pINT2(:)=Zero
             CALL CHO_MCA_INT_1(ISHLAB,ISHLCD,pINT2,LINT,PRTINT)
 
-C           Compare.
-C           --------
+!           Compare.
+!           --------
 
             ITST = 0
             IERR = 0
@@ -103,12 +103,12 @@ C           --------
      &      '(',ISHLC,ISHLD,'|',ISHLA,ISHLB,'): ',IERR,
      &      ' #tests: ',ITST
             IF (IERR .NE. 0) THEN
-c              WRITE(LUPRI,*) '    Here is the shell quadruple in INT1:'
-c              CALL CHO_OUTPUT(pINT1,1,NUMCD,1,NUMAB,NUMCD,NUMAB,
-c    &                         1,LUPRI)
-c              WRITE(LUPRI,*) '    And the shell quadruple in INT2:'
-c              CALL CHO_OUTPUT(pINT2,1,NUMAB,1,NUMCD,NUMAB,NUMCD,
-c    &                         1,LUPRI)
+!              WRITE(LUPRI,*) '    Here is the shell quadruple in INT1:'
+!              CALL CHO_OUTPUT(pINT1,1,NUMCD,1,NUMAB,NUMCD,NUMAB,
+!    &                         1,LUPRI)
+!              WRITE(LUPRI,*) '    And the shell quadruple in INT2:'
+!              CALL CHO_OUTPUT(pINT2,1,NUMAB,1,NUMCD,NUMAB,NUMCD,
+!    &                         1,LUPRI)
                DO IB = 1,NBSTSH(ISHLB)
                   ISYMB = CHO_ISAOSH(IB,ISHLB)
                   DO IA = 1,NBSTSH(ISHLA)

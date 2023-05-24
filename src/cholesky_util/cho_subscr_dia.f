@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
-C
-C     Purpose: compute diagonal from Cholesky vectors and find norm
-C              for each shell pair. Needed for screening of vector
-C              subtraction. Which norm is used is determined by
-C              string DSPNorm:
-C
-C              DSPNorm = 'Max' : max. element
-C              DSPNorm = 'Fro' : Frobenius norm
-C
-C              Any other norm is taken to be 'Max'.
-C
+!
+!     Purpose: compute diagonal from Cholesky vectors and find norm
+!              for each shell pair. Needed for screening of vector
+!              subtraction. Which norm is used is determined by
+!              string DSPNorm:
+!
+!              DSPNorm = 'Max' : max. element
+!              DSPNorm = 'Fro' : Frobenius norm
+!
+!              Any other norm is taken to be 'Max'.
+!
       use ChoSwp, only: nnBstRSh, iiBstRSh
       use ChoSubScr, only: DSubScr, DSPNm
       Implicit Real*8 (a-h,o-z)
@@ -44,15 +44,15 @@ C
       End If
 #endif
 
-C     Initialize and check for early return.
-C     --------------------------------------
+!     Initialize and check for early return.
+!     --------------------------------------
 
       Call FZero(DSubScr,nnBstR(iSym,iLoc))
       Call FZero(DSPNm,nnShl)
       If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
-C     Compute diagonal.
-C     -----------------
+!     Compute diagonal.
+!     -----------------
 
       Do iVec = 1,nVec
          kOff = nnBstR(iSym,iLoc)*(iVec-1)
@@ -62,8 +62,8 @@ C     -----------------
          End Do
       End Do
 
-C     Find diagonal norm in each shell pair.
-C     --------------------------------------
+!     Find diagonal norm in each shell pair.
+!     --------------------------------------
 
       lstr = len(DSPNorm)
       If (lstr .lt. 3) Then

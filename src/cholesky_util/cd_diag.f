@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine CD_Diag(CD_Vec,
      &                   Restart,Converged,Thr,
      &                   ThrNeg,ThrFail,
@@ -17,25 +17,25 @@
      &                   nDim,lBuf,
      &                   ErrStat,NumCho,
      &                   irc)
-C
-C     Thomas Bondo Pedersen, October 2004.
-C
-C     Purpose: set up diagonal for general Cholesky decomposition.
-C
-C     NB!! ThrNeg and ThrFail are supposed to be negative with
-C          ThrFail < ThrNeg. Diagonals less than ThrNeg are zeroed,
-C          while diagonals less than ThrFail is taken as a sign of
-C          a non-positive definite matrix (i.e., decomposition will
-C          fail).
-C
-C     Error codes, irc:
-C        0 : all OK
-C      201 : inconsistent input: Restart but NumCho < 0.
-C            (NumCho >= 0 is allowed with Restart.)
-C      202 : insufficient buffer size, lBuf.
-C      203 : too negative diagonal element found (i.e., matrix
-C            is non-positive definit).
-C
+!
+!     Thomas Bondo Pedersen, October 2004.
+!
+!     Purpose: set up diagonal for general Cholesky decomposition.
+!
+!     NB!! ThrNeg and ThrFail are supposed to be negative with
+!          ThrFail < ThrNeg. Diagonals less than ThrNeg are zeroed,
+!          while diagonals less than ThrFail is taken as a sign of
+!          a non-positive definite matrix (i.e., decomposition will
+!          fail).
+!
+!     Error codes, irc:
+!        0 : all OK
+!      201 : inconsistent input: Restart but NumCho < 0.
+!            (NumCho >= 0 is allowed with Restart.)
+!      202 : insufficient buffer size, lBuf.
+!      203 : too negative diagonal element found (i.e., matrix
+!            is non-positive definit).
+!
       Implicit Real*8 (a-h,o-z)
       External  CD_Vec ! external routine for vectors
       Logical   Restart, Converged
@@ -46,8 +46,8 @@ C
       Parameter (SecNam = 'CD_Diag')
 
 
-C     Set variables.
-C     --------------
+!     Set variables.
+!     --------------
 
       irc = 0
       If (nDim .lt. 1) Then
@@ -57,8 +57,8 @@ C     --------------
          Converged = .false.
       End If
 
-C     Set up diagonal.
-C     ----------------
+!     Set up diagonal.
+!     ----------------
 
       Call dCopy_(nDim,DiaInp,1,Diag,1)
 
@@ -103,10 +103,10 @@ C     ----------------
          End If
       End If
 
-C     Zero negative diagonals (fail if too negative),
-C     get error statistics (min, max, and rms error),
-C     check convergence based on max diagonal.
-C     -----------------------------------------------
+!     Zero negative diagonals (fail if too negative),
+!     get error statistics (min, max, and rms error),
+!     check convergence based on max diagonal.
+!     -----------------------------------------------
 
       If (Diag(1) .lt. ThrNeg) Then
          If (Diag(1) .lt. ThrFail) Then

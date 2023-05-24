@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
-C
-C     Purpose: read diagonal in first reduced set.
-C
+!
+!     Purpose: read diagonal in first reduced set.
+!
       use ChoSwp, only: IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), BUF(LENBUF)
@@ -30,8 +30,8 @@ C
       PARAMETER (INFOD = INF_DIAG)
       PARAMETER (TINY  = 1.0D-14)
 
-C     Read diagonal from file.
-C     ------------------------
+!     Read diagonal from file.
+!     ------------------------
 
       IF (RSTDIA) THEN
          IOPT = 2
@@ -47,16 +47,16 @@ C     ------------------------
          CALL CHO_GAIGOP(INDRED,NNBSTRT(1),'+')
       END IF
 
-C     Copy info to current reduced set (IRED=2).
-C     Also set up IRED=3 (although it should be redundant).
-C     -----------------------------------------------------
+!     Copy info to current reduced set (IRED=2).
+!     Also set up IRED=3 (although it should be redundant).
+!     -----------------------------------------------------
 
       DO IRS = 2,3
          CALL CHO_RSCOPY(1,IRS)
       END DO
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       IF (LOCDBG .OR. (IPRINT.GE.INFOD)) THEN
          DO ISYM = 1,NSYM

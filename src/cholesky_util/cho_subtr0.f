@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SUBROUTINE CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
-C
-C     Purpose: subtract contributions from previous vectors
-C              from the qualified integrals (in XINT).
-C              This version is memory-driven.
-C
-C     Screening in subtraction introduced Jan. 2006, TBP.
-C
+!
+!     Purpose: subtract contributions from previous vectors
+!              from the qualified integrals (in XINT).
+!              This version is memory-driven.
+!
+!     Screening in subtraction introduced Jan. 2006, TBP.
+!
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
       use ChoVecBuf, only: nVec_in_Buf
@@ -38,8 +38,8 @@ C
 
       PARAMETER (XMONE = -1.0D0, ONE = 1.0D0)
 
-C     Return if nothing to do.
-C     ------------------------
+!     Return if nothing to do.
+!     ------------------------
 
       IF (NUMCHO(ISYM) .LT. 1) RETURN
 
@@ -49,14 +49,14 @@ C     ------------------------
          CALL CHO_QUIT('Vector buffer error in '//SECNAM,104)
       END IF
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       XTOT = 0.0D0
       XDON = 0.0D0
 
-C     Reserve space needed for reading previous vectors.
-C     --------------------------------------------------
+!     Reserve space needed for reading previous vectors.
+!     --------------------------------------------------
 
       LREAD = CHO_LREAD(ISYM,LWRK)
       IF (LREAD .LT. 1) THEN
@@ -67,8 +67,8 @@ C     --------------------------------------------------
          LWRK1 = LWRK - LREAD
       END IF
 
-C     Set up batch.
-C     -------------
+!     Set up batch.
+!     -------------
 
       MMEM = NNBSTR(ISYM,2) + NQUAL(ISYM)
       NVEC = MIN(LWRK1/MMEM,NVEC_TO_READ)
@@ -77,8 +77,8 @@ C     -------------
       END IF
       NBATCH = (NVEC_TO_READ - 1)/NVEC + 1
 
-C     Start batch loop.
-C     -----------------
+!     Start batch loop.
+!     -----------------
 
       DO IBATCH = 1,NBATCH
 
@@ -89,8 +89,8 @@ C     -----------------
          END IF
          IVEC1 = NVEC_IN_BUF(ISYM) + NVEC*(IBATCH - 1) + 1
 
-C        Complete allocation.
-C        --------------------
+!        Complete allocation.
+!        --------------------
 
          KCHO1 = 1
          KCHO2 = KCHO1 + NNBSTR(ISYM,2)*NUMV
@@ -100,8 +100,8 @@ C        --------------------
             CALL CHO_QUIT('Batch error in '//SECNAM,104)
          END IF
 
-C        Read previous vectors.
-C        ----------------------
+!        Read previous vectors.
+!        ----------------------
 
          CALL CHO_TIMER(C1,W1)
          CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,ISYM,
@@ -111,10 +111,10 @@ C        ----------------------
          TDECOM(2,2) = TDECOM(2,2) + W2 - W1
 
 
-C        Screened or unscreened subtraction section.
-C        The screened version uses level 2 blas, while the unscreened
-C        one employs level 3 blas.
-C        ------------------------------------------------------------
+!        Screened or unscreened subtraction section.
+!        The screened version uses level 2 blas, while the unscreened
+!        one employs level 3 blas.
+!        ------------------------------------------------------------
 
          CALL CHO_TIMER(C1,W1)
 
@@ -129,10 +129,10 @@ C        ------------------------------------------------------------
                END DO
             END DO
 
-C           Subtract:
-C           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
-C           for each ab in {ab}.
-C           ----------------------------------------------------
+!           Subtract:
+!           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
+!           for each ab in {ab}.
+!           ----------------------------------------------------
 
             CALL CHO_SUBSCR_DIA(WRK(KCHO1),NUMV,iSym,2,SSNorm)
             DO IAB = 1,NQUAL(ISYM)
@@ -160,9 +160,9 @@ C           ----------------------------------------------------
 
            IF (Associated(LQ(ISYM)%Array)) THEN
 
-C              If the qualified block, L({ab},#J), is already in core,
-C              use this block.
-C              -------------------------------------------------------
+!              If the qualified block, L({ab},#J), is already in core,
+!              use this block.
+!              -------------------------------------------------------
 
                CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
@@ -173,9 +173,9 @@ C              -------------------------------------------------------
 
             ELSE
 
-C              Copy out sub-blocks corresponding to qualified diagonals:
-C              L({ab},#J)
-C              ---------------------------------------------------------
+!              Copy out sub-blocks corresponding to qualified diagonals:
+!              L({ab},#J)
+!              ---------------------------------------------------------
 
                DO J = 1,NUMV
                   DO IAB = 1,NQUAL(ISYM)
@@ -187,9 +187,9 @@ C              ---------------------------------------------------------
                   END DO
                END DO
 
-C              Subtract:
-C              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
-C              ----------------------------------------------------
+!              Subtract:
+!              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
+!              ----------------------------------------------------
 
                CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
@@ -198,8 +198,8 @@ C              ----------------------------------------------------
 
             END IF
 
-C           Update DGEMM-call counter.
-C           --------------------------
+!           Update DGEMM-call counter.
+!           --------------------------
 
             NDGM_CALL = NDGM_CALL + 1
 
@@ -211,8 +211,8 @@ C           --------------------------
 
       END DO
 
-C     Update screening statistics.
-C     ----------------------------
+!     Update screening statistics.
+!     ----------------------------
 
       IF (CHO_SSCREEN) THEN
          SUBSCRSTAT(1) = SUBSCRSTAT(1) + XTOT

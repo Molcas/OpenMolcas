@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Thomas Bondo Pedersen                            *
-************************************************************************
-C#define _DEBUGPRINT_
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Compute Laplace-SOS-MP2 energy.
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Compute Laplace-SOS-MP2 energy.
+!
       Implicit None
       Integer irc
       Real*8  EMP2
@@ -55,9 +55,9 @@ C
 
       Real*8, Allocatable:: W(:), T(:)
 
-C====================
-C     Initializations
-C====================
+!====================
+!     Initializations
+!====================
 
       Call Untested('Laplace-SOS-MP2')
 
@@ -88,9 +88,9 @@ C====================
          End If
       End If
 
-C====================================================
-C     Parameters for numerical Laplace transformation
-C====================================================
+!====================================================
+!     Parameters for numerical Laplace transformation
+!====================================================
 
       ! get max and min orbital energies
       ELOMO=0.0d0
@@ -133,7 +133,7 @@ C====================================================
      &                        SecNam//': unable to determine LUMO,HUMO')
          Call Abend()
       End If
-C-tbp:
+!-tbp:
       write(6,*) 'ELOMO,EHOMO=',ELOMO,EHOMO
       write(6,*) 'ELUMO,EHUMO=',ELUMO,EHUMO
 
@@ -186,9 +186,9 @@ C-tbp:
          Go To 1 ! exit after cleanup actions
       End If
 
-C======================================
-C     Compute SOS-MP2 energy correction
-C======================================
+!======================================
+!     Compute SOS-MP2 energy correction
+!======================================
 
       If (Sorted) Then
          Call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,
@@ -215,9 +215,9 @@ C======================================
          End If
       End If
 
-C============
-C     Cleanup
-C============
+!============
+!     Cleanup
+!============
     1 Continue ! errors jump to this point
 
       ! translate orbital energy origin from Fermi back to original
@@ -279,7 +279,7 @@ C============
       If (abs(emin-xmin).gt.Tol) irc=irc+1
       If (abs(emax-xmax).gt.Tol) irc=irc+2
 
-C-tbp:
+!-tbp:
       if (irc.ne.0) then
          write(6,'(A,1P,2D25.16)') 'xmin,xmax=',xmin,xmax
          write(6,'(A,1P,2D25.16)') 'emin,emax=',emin,emax

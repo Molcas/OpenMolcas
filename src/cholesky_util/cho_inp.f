@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_INP(DFONLY,LUNIT,LUOUT)
-C
-C     Purpose: If DFONLY, set defaults only.
-C              Else, read and process input for Cholesky decomposition
-C              from unit LUNIT. LUOUT is the unit of the output file
-C              which is stored internally in the Cholesky program as
-C              LUPRI (in cholesky.fh).
-C
+!
+!     Purpose: If DFONLY, set defaults only.
+!              Else, read and process input for Cholesky decomposition
+!              from unit LUNIT. LUOUT is the unit of the output file
+!              which is stored internally in the Cholesky program as
+!              LUPRI (in cholesky.fh).
+!
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
       Implicit Real*8 (a-h,o-z)
       LOGICAL DFONLY
@@ -100,10 +100,10 @@ C
      &             'set block size for Z vectors (parallel two-step)  ',
      &             'activate tracing of idle nodes (parallel run)     '/
 
-C     Define all entries in common blocks.
-C     Set output unit.
-C     Set run mode to "internal".
-C     ------------------------------------
+!     Define all entries in common blocks.
+!     Set output unit.
+!     Set run mode to "internal".
+!     ------------------------------------
 
       IRC = 0
       CALL CHO_X_SETINC(IRC)
@@ -118,27 +118,27 @@ C     ------------------------------------
       CALL CHO_SETPTR2()
       CALL CHO_SETGLOB()
 
-C     Set default parallel configuration.
-C     CHO_FAKE_PAR = .TRUE. : fake parallel.
-C     CHO_FAKE_PAR = .FALSE.: true parallel.
-C     --------------------------------------
+!     Set default parallel configuration.
+!     CHO_FAKE_PAR = .TRUE. : fake parallel.
+!     CHO_FAKE_PAR = .FALSE.: true parallel.
+!     --------------------------------------
 
       CHO_FAKE_PAR = .FALSE.
       CALL CHO_PARCONF(CHO_FAKE_PAR)
 
-C     Set default decomposition algorithm (depends on parallel or serial
-C     installation).
-C     ------------------------------------------------------------------
+!     Set default decomposition algorithm (depends on parallel or serial
+!     installation).
+!     ------------------------------------------------------------------
 
       CALL CHO_SETDECALG_DEF()
 
-C     Set default MXSHPR (depends on parallel or serial).
-C     ---------------------------------------------------
+!     Set default MXSHPR (depends on parallel or serial).
+!     ---------------------------------------------------
 
       CALL CHO_SETMXSHPR_DEF(MXSHPR_DEF)
 
-C     Set defaults.
-C     -------------
+!     Set defaults.
+!     -------------
 
       DECALG_USRDEF = .FALSE.
       MXSHPR_USRDEF = .FALSE.
@@ -209,35 +209,35 @@ C     -------------
       BLOCKSIZE = 500  ! #vecs in each Z vector block
       TRACE_IDLE = .FALSE. ! trace idle processes
 
-C     Set default print level using molcas environment (or whatever was
-C     set in seward initially).
-C     -----------------------------------------------------------------
+!     Set default print level using molcas environment (or whatever was
+!     set in seward initially).
+!     -----------------------------------------------------------------
 
       IPRINT = IPRINTLEVEL(-1)
       IF (IPRINT .LE. 2) IPRINT = 1
       IPRINT = IPRINT - 1
 
-C     Return if defaults only.
-C     ------------------------
+!     Return if defaults only.
+!     ------------------------
 
       FORCEPARALLEL = .FALSE.
       IF (DFONLY) GO TO 2000
 
-C     Loop through keyword input.
-C     ---------------------------
+!     Loop through keyword input.
+!     ---------------------------
 
  1000 CONTINUE
 
-C        Read next keyword and get corresponding ID.
-C        -------------------------------------------
+!        Read next keyword and get corresponding ID.
+!        -------------------------------------------
 
          IDKEY = 0
          CALL CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,LUPRI)
 
          IF (IDKEY.GE.1 .AND. IDKEY.LE.NOPTION) THEN  ! key found
 
-C           Branch for further processing.
-C           ------------------------------
+!           Branch for further processing.
+!           ------------------------------
 
             IF (IDKEY .EQ.  1) GO TO  1
             IF (IDKEY .EQ.  2) GO TO  2
@@ -298,8 +298,8 @@ C           ------------------------------
             IF (IDKEY .EQ. 57) GO TO 57
             IF (IDKEY .EQ. 58) GO TO 58
 
-C           If this section is executed, it's most likely a bug.
-C           ----------------------------------------------------
+!           If this section is executed, it's most likely a bug.
+!           ----------------------------------------------------
 
             WRITE(LUPRI,*) 'IDKEY = ',IDKEY,' is formally legal, but:'
             WRITE(LUPRI,*) 'Did you forget to change the ',
@@ -307,56 +307,56 @@ C           ----------------------------------------------------
             CALL CHO_QUIT('Illegal address in computed GOTO in '
      &                    //SECNAM,105)
 
-C           Read decomposition threshold.
-C           -----------------------------
+!           Read decomposition threshold.
+!           -----------------------------
 
     1       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,THRCOM)
             GO TO 1000
 
-C           Read print level.
-C           -----------------
+!           Read print level.
+!           -----------------
 
     2       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,IPRINT)
             GO TO 1000
 
-C           Read buffer length for diagonal calculation.
-C           --------------------------------------------
+!           Read buffer length for diagonal calculation.
+!           --------------------------------------------
 
     3       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,LBUF)
             GO TO 1000
 
-C           Read threshold for discarding initial diagonal elements.
-C           --------------------------------------------------------
+!           Read threshold for discarding initial diagonal elements.
+!           --------------------------------------------------------
 
     4       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,THRDIAG)
             GO TO 1000
 
-C           Read damping factor for 1st reduced set.
-C           ----------------------------------------
+!           Read damping factor for 1st reduced set.
+!           ----------------------------------------
 
     5       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,DAMP(1))
             GO TO 1000
 
-C           Read damping factor for later reduced set.
-C           ------------------------------------------
+!           Read damping factor for later reduced set.
+!           ------------------------------------------
 
     6       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,DAMP(2))
             GO TO 1000
 
-C           Read span factor.
-C           -----------------
+!           Read span factor.
+!           -----------------
 
     7       CONTINUE
                LINE = GET_LN(LUNIT)
@@ -364,83 +364,83 @@ C           -----------------
                SPAN=MIN(ABS(SPAN),1.0d0)
             GO TO 1000
 
-C           Read minimum number of qualifieds for decomposition.
-C           ----------------------------------------------------
+!           Read minimum number of qualifieds for decomposition.
+!           ----------------------------------------------------
 
     8       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,MINQUAL)
             GO TO 1000
 
-C           Read maximum number of shell pair distributions that should
-C           be calculated before passing to decomposition.
-C           -----------------------------------------------------------
+!           Read maximum number of shell pair distributions that should
+!           be calculated before passing to decomposition.
+!           -----------------------------------------------------------
 
     9       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,MXSHPR)
             GO TO 1000
 
-C           Turn on screening.
-C           ------------------
+!           Turn on screening.
+!           ------------------
 
    10       CONTINUE
                SCDIAG = .TRUE.
             GO TO 1000
 
-C           Turn off screening.
-C           -------------------
+!           Turn off screening.
+!           -------------------
 
    11       CONTINUE
                SCDIAG = .FALSE.
             GO TO 1000
 
-C           Read algorithm ID for qualification procedure,
-C           1: qualify from 1 to max.
-C           2: qualify the largest qualifiables
-C           ----------------------------------------------
+!           Read algorithm ID for qualification procedure,
+!           1: qualify from 1 to max.
+!           2: qualify the largest qualifiables
+!           ----------------------------------------------
 
    12       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,IALQUA)
             GO TO 1000
 
-C           Read threshold for zeroing (small) negative diagonals.
-C           Diag < THRNEG => Diag = 0.
-C           ------------------------------------------------------
+!           Read threshold for zeroing (small) negative diagonals.
+!           Diag < THRNEG => Diag = 0.
+!           ------------------------------------------------------
 
    13       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,THRNEG)
             GO TO 1000
 
-C           Read threshold for warning about negative diagonals.
-C           Diag < WARNEG => Diag = 0, but issue warning.
-C           ----------------------------------------------------
+!           Read threshold for warning about negative diagonals.
+!           Diag < WARNEG => Diag = 0, but issue warning.
+!           ----------------------------------------------------
 
    14       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,WARNEG)
             GO TO 1000
 
-C           Read threshold for shutdown due to negative diagonals.
-C           Diag < TOONEG => shutdown.
-C           ------------------------------------------------------
+!           Read threshold for shutdown due to negative diagonals.
+!           Diag < TOONEG => shutdown.
+!           ------------------------------------------------------
 
    15       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,TOONEG)
             GO TO 1000
 
-C           Check configuration only.
-C           -------------------------
+!           Check configuration only.
+!           -------------------------
 
    16       CONTINUE
                CHKONLY = .TRUE.
             GO TO 1000
 
-C           Check all integrals after decomposition.
-C           ----------------------------------------
+!           Check all integrals after decomposition.
+!           ----------------------------------------
 
    17       CONTINUE
                CHO_INTCHK = .TRUE.
@@ -448,15 +448,15 @@ C           ----------------------------------------
                NCOL_CHK   = 0  ! => all
             GO TO 1000
 
-C           Restart diagonal.
-C           -----------------
+!           Restart diagonal.
+!           -----------------
 
    18       CONTINUE
                RSTDIA = .TRUE.
             GO TO 1000
 
-C           Restart decomposition using default model.
-C           ------------------------------------------
+!           Restart decomposition using default model.
+!           ------------------------------------------
 
    19       CONTINUE
                IF (.NOT. RSTCHO) THEN
@@ -465,8 +465,8 @@ C           ------------------------------------------
                END IF
             GO TO 1000
 
-C           Read restart model and set restart.
-C           -----------------------------------
+!           Read restart model and set restart.
+!           -----------------------------------
 
    20       CONTINUE
                RSTCHO = .TRUE.
@@ -479,32 +479,32 @@ C           -----------------------------------
                END IF
             GO TO 1000
 
-C           Read max. #qualifieds per symmetry.
-C           -----------------------------------
+!           Read max. #qualifieds per symmetry.
+!           -----------------------------------
 
    21       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,MAXQUAL)
             GO TO 1000
 
-C           Read max. #Cholesky vectors per symmetry.
-C           -----------------------------------------
+!           Read max. #Cholesky vectors per symmetry.
+!           -----------------------------------------
 
    22       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,MAXVEC)
             GO TO 1000
 
-C           Read max. #reduced sets.
-C           ------------------------
+!           Read max. #reduced sets.
+!           ------------------------
 
    23       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,MAXRED)
             GO TO 1000
 
-C           Read number of integral columns to check.
-C           -----------------------------------------
+!           Read number of integral columns to check.
+!           -----------------------------------------
 
    24       CONTINUE
                CHO_INTCHK = .TRUE.
@@ -513,60 +513,60 @@ C           -----------------------------------------
                CALL GET_I1(1,NCOL_CHK)
             GO TO 1000
 
-C           Minimal integral check.
-C           -----------------------
+!           Minimal integral check.
+!           -----------------------
 
    25       CONTINUE
                CHO_INTCHK = .TRUE.
                CHO_MINCHK = .TRUE.
             GO TO 1000
 
-C           Use abs. value to set up reduced sets.
-C           --------------------------------------
+!           Use abs. value to set up reduced sets.
+!           --------------------------------------
 
    26       CONTINUE
                CHO_USEABS = .TRUE.
             GO TO 1000
 
-C           Do not use abs. value to set up reduced sets.
-C           ---------------------------------------------
+!           Do not use abs. value to set up reduced sets.
+!           ---------------------------------------------
 
    27       CONTINUE
                CHO_USEABS = .FALSE.
             GO TO 1000
 
-C           Turn on tracing of negative diagonals.
-C           --------------------------------------
+!           Turn on tracing of negative diagonals.
+!           --------------------------------------
 
    28       CONTINUE
                CHO_TRCNEG = .TRUE.
             GO TO 1000
 
-C           Read I/O model used for reading Cholesky vectors.
-C           -------------------------------------------------
+!           Read I/O model used for reading Cholesky vectors.
+!           -------------------------------------------------
 
    29       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,CHO_IOVEC)
             GO TO 1000
 
-C           Set vector reordering.
-C           ----------------------
+!           Set vector reordering.
+!           ----------------------
 
    30       CONTINUE
                CHO_REORD = .TRUE.
             GO TO 1000
 
-C           Halt execution after decomposition.
-C           -----------------------------------
+!           Halt execution after decomposition.
+!           -----------------------------------
 
    31       CONTINUE
                HALTIT = .TRUE.
             GO TO 1000
 
-C           Set fraction of memory to be used as vector buffer during
-C           subtraction.
-C           ---------------------------------------------------------
+!           Set fraction of memory to be used as vector buffer during
+!           subtraction.
+!           ---------------------------------------------------------
 
    32       CONTINUE
                LINE = GET_LN(LUNIT)
@@ -575,8 +575,8 @@ C           ---------------------------------------------------------
                N2_VECRD = INTSCR(2)
             GO TO 1000
 
-C           Set fraction of memory to be used for qualified columns.
-C           --------------------------------------------------------
+!           Set fraction of memory to be used for qualified columns.
+!           --------------------------------------------------------
 
    33       CONTINUE
                LINE = GET_LN(LUNIT)
@@ -585,24 +585,24 @@ C           --------------------------------------------------------
                N2_QUAL = INTSCR(2)
             GO TO 1000
 
-C           Set max. #vectors in subtraction of prev. vectors.
-C           --------------------------------------------------
+!           Set max. #vectors in subtraction of prev. vectors.
+!           --------------------------------------------------
 
    34       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,N_SUBTR)
             GO TO 1000
 
-C           Set address mode for vector I/O: WA (=1) or DA (=2).
-C           ----------------------------------------------------
+!           Set address mode for vector I/O: WA (=1) or DA (=2).
+!           ----------------------------------------------------
 
    35       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_I1(1,CHO_ADRVEC)
             GO TO 1000
 
-C           Set model used to interface to integral code.
-C           ---------------------------------------------
+!           Set model used to interface to integral code.
+!           ---------------------------------------------
 
    36       CONTINUE
                LINE = GET_LN(LUNIT)
@@ -614,43 +614,43 @@ C           ---------------------------------------------
                END IF
             GO TO 1000
 
-C           One-step (conventional) decomposition.
-C           --------------------------------------
+!           One-step (conventional) decomposition.
+!           --------------------------------------
 
    37       CONTINUE
                CHO_DECALG = 1
                DECALG_USRDEF = .TRUE.
             GO TO 1000
 
-C           Two-step (generate map, then vectors) decomposition.
-C           ----------------------------------------------------
+!           Two-step (generate map, then vectors) decomposition.
+!           ----------------------------------------------------
 
    38       CONTINUE
                CHO_DECALG = 2
                DECALG_USRDEF = .TRUE.
             GO TO 1000
 
-C           Naive decomposition (remove diagonals as soon as smaller
-C           than threshold).
-C           --------------------------------------------------------
+!           Naive decomposition (remove diagonals as soon as smaller
+!           than threshold).
+!           --------------------------------------------------------
 
    39       CONTINUE
                CHO_DECALG = 3
                DECALG_USRDEF = .TRUE.
             GO TO 1000
 
-C           Set memory fraction used for vector buffer.
-C           -------------------------------------------
+!           Set memory fraction used for vector buffer.
+!           -------------------------------------------
 
    40       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,FRAC_CHVBUF)
             GO TO 1000
 
-C           Turn on diagonal checking of qualified columns both before
-C           and after subtraction of previous vectors. Set tolerance in
-C           checking.
-C           -----------------------------------------------------------
+!           Turn on diagonal checking of qualified columns both before
+!           and after subtraction of previous vectors. Set tolerance in
+!           checking.
+!           -----------------------------------------------------------
 
    41       CONTINUE
                CHO_DIACHK = .TRUE.
@@ -658,76 +658,76 @@ C           -----------------------------------------------------------
                CALL GET_F1(1,TOL_DIACHK)
             GO TO 1000
 
-C           Test vector subtraction screening.
-C           ----------------------------------
+!           Test vector subtraction screening.
+!           ----------------------------------
 
    42       CONTINUE
                CHO_TSTSCREEN = .TRUE.
             GO TO 1000
 
-C           Use screening in vector subtraction.
-C           ------------------------------------
+!           Use screening in vector subtraction.
+!           ------------------------------------
 
    43       CONTINUE
                CHO_SSCREEN = .TRUE.
             GO TO 1000
 
-C           Do not use screening in vector subtraction.
-C           -------------------------------------------
+!           Do not use screening in vector subtraction.
+!           -------------------------------------------
 
    44       CONTINUE
                CHO_SSCREEN = .FALSE.
             GO TO 1000
 
-C           Threshold for screening in vector subtraction.
-C           ----------------------------------------------
+!           Threshold for screening in vector subtraction.
+!           ----------------------------------------------
 
    45       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_F1(1,SSTAU)
             GO TO 1000
 
-C           Threshold for screening in vector subtraction.
-C           ----------------------------------------------
+!           Threshold for screening in vector subtraction.
+!           ----------------------------------------------
 
    46       CONTINUE
                LINE = GET_LN(LUNIT)
                CALL GET_S(1,SSNORM,1)
             GO TO 1000
 
-C           Decompose 1-center diagonals only. 2-center diagonals are
-C           still included, but never explicitly decomposed.
-C           ---------------------------------------------------------
+!           Decompose 1-center diagonals only. 2-center diagonals are
+!           still included, but never explicitly decomposed.
+!           ---------------------------------------------------------
 
    47       CONTINUE
                CHO_1CENTER = .TRUE.
             GO TO 1000
 
-C           Decompose 1-center diagonals only. 2-center diagonals are
-C           never included.
-C           ---------------------------------------------------------
+!           Decompose 1-center diagonals only. 2-center diagonals are
+!           never included.
+!           ---------------------------------------------------------
 
    48       CONTINUE
                CHO_1CENTER = .TRUE.
                CHO_NO2CENTER = .TRUE.
             GO TO 1000
 
-C           Turn off diagonal prescreening.
-C           -------------------------------
+!           Turn off diagonal prescreening.
+!           -------------------------------
 
    49       CONTINUE
                CHO_PRESCREEN = .FALSE.
             GO TO 1000
 
-C           Turn on diagonal prescreening.
-C           ------------------------------
+!           Turn on diagonal prescreening.
+!           ------------------------------
 
    50       CONTINUE
                CHO_PRESCREEN = .TRUE.
             GO TO 1000
 
-C           Set diagonal prescreening threshold.
-C           ------------------------------------
+!           Set diagonal prescreening threshold.
+!           ------------------------------------
 
    51       CONTINUE
                CHO_PRESCREEN = .TRUE.
@@ -735,25 +735,25 @@ C           ------------------------------------
                CALL GET_F1(1,THR_PRESCREEN)
             GO TO 1000
 
-C           Use "parallel" decomposition algorithm.
-C           ---------------------------------------
+!           Use "parallel" decomposition algorithm.
+!           ---------------------------------------
 
    52       CONTINUE
                FORCEPARALLEL = .TRUE.
             GO TO 1000
 
-C           Use "parallel" decomposition algorithm.
-C           ---------------------------------------
+!           Use "parallel" decomposition algorithm.
+!           ---------------------------------------
 
    53       CONTINUE
                CHO_SIMP = .TRUE.
             GO TO 1000
 
-C           Simulate RI.
-C           Activate 1-center decomposition.
-C           Read threshold for removing 1-center diagonals in map
-C           generation.
-C           -----------------------------------------------------
+!           Simulate RI.
+!           Activate 1-center decomposition.
+!           Read threshold for removing 1-center diagonals in map
+!           generation.
+!           -----------------------------------------------------
 
    54       CONTINUE
                CHO_SIMRI = .TRUE.
@@ -762,34 +762,34 @@ C           -----------------------------------------------------
                CALL GET_F1(1,THR_SIMRI)
             GO TO 1000
 
-C           Activate fake parallel:
-C           Run parallel decomposition, then distribute vectors if
-C           parallel.
-C           ------------------------------------------------------
+!           Activate fake parallel:
+!           Run parallel decomposition, then distribute vectors if
+!           parallel.
+!           ------------------------------------------------------
 
    55       CONTINUE
                CHO_FAKE_PAR = .TRUE.
                FAKE_USRDEF = .TRUE.
             GO TO 1000
 
-C           Activate true parallel decomposition (deactivate fake).
-C           -------------------------------------------------------
+!           Activate true parallel decomposition (deactivate fake).
+!           -------------------------------------------------------
 
    56       CONTINUE
                CHO_FAKE_PAR = .FALSE.
                FAKE_USRDEF = .TRUE.
             GO TO 1000
 
-C           Read BlockSize (Z vectors).
-C           ---------------------------
+!           Read BlockSize (Z vectors).
+!           ---------------------------
 
    57       CONTINUE
                 LINE = GET_LN(LUNIT)
                 CALL GET_I1(1,BLOCKSIZE)
             GO TO 1000
 
-C           Turn on tracing of idle nodes.
-C           ------------------------------
+!           Turn on tracing of idle nodes.
+!           ------------------------------
 
    58       CONTINUE
                TRACE_IDLE = .TRUE.
@@ -805,8 +805,8 @@ C           ------------------------------
             GO TO 1100
          END IF
 
-C     Post processing.
-C     ----------------
+!     Post processing.
+!     ----------------
 
  2000 CONTINUE
       IF (FAKE_USRDEF) THEN
@@ -830,18 +830,18 @@ C     ----------------
          END IF
       END IF
 
-C     Put decomposition threshold in RICD_Info.
-C     -----------------------------------------
+!     Put decomposition threshold in RICD_Info.
+!     -----------------------------------------
 
       CALL PUT_THR_CHO(THRCOM)
 
-C     Normal exit.
-C     ------------
+!     Normal exit.
+!     ------------
 
       RETURN
 
-C     Error exits.
-C     ------------
+!     Error exits.
+!     ------------
 
  1100 CONTINUE ! IDKEY out of bounds
       WRITE(LUPRI,*) SECNAM,': IDKEY out of bounds: ',IDKEY
@@ -864,20 +864,20 @@ C     ------------
       IF (.FALSE.) Call Unused_character(Line)
 #endif
       END
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine Put_thr_Cho(ThrCom)
       use RICD_Info, only: Do_RI, Thrshld_CD
       Implicit Real*8 (a-h,o-z)
-*
+!
       If (.not. Do_RI) Thrshld_CD = ThrCom
-*
+!
       Return
       End
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       SubRoutine Cho_Inp_SetDecAlg(ForceParallel)
       Implicit None
       Logical ForceParallel

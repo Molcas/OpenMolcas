@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
       SubRoutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
-*
-*      Jonas Bostrom, Apr 2010
-*
-*      Purpose: To reorder R-vectors so it is practical to access
-*               one ia-piece at the time.
+!
+!      Jonas Bostrom, Apr 2010
+!
+!      Purpose: To reorder R-vectors so it is practical to access
+!               one ia-piece at the time.
 
       use ChoMP2, only: AdrR1, AdrR2
       Implicit Real*8 (a-h,o-z)
@@ -24,29 +24,29 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-*
+!
       Character Fname*5
       Real*8 Wrk(lWrk)
-*
+!
       Character*7  ThisNm
       Character*15 SecNam
       Parameter (SecNam = 'ChoMP2g_Reord_r', ThisNm = 'Reord_r')
-*
+!
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-*
+!
       iTypR = 2
       iVecOV = 6
       maxvalue = 1000
 
-*     Do not delete vectors
-*     ---------------------
+!     Do not delete vectors
+!     ---------------------
       iClos = 2
 
       iSeed = 7
       LuRInv(1) = IsFreeUnit(iSeed)
       Write(Fname,'(A4,I1)') 'TMPV',4
       Call DaName_MF_WA(LuRInv(1),Fname)
-*
+!
       LuRInv(2) = IsFreeUnit(iSeed)
       Write(Fname,'(A4,I1)') 'TMPV',5
       Call DaName_MF_WA(LuRInv(2),Fname)
@@ -66,7 +66,7 @@
             End Do
          End Do
       End Do
-*
+!
       Do iSym = 1, nSym
          If(nMP2Vec(iSym) .eq. 0) Go To 10
          nVec = Min(maxvalue,nMP2Vec(iSym))
@@ -75,8 +75,8 @@
          End If
          nBatR = (nMP2Vec(iSym)-1)/nVec + 1
 
-*        Allocate memory for Ria-vectors
-*        -------------------------------
+!        Allocate memory for Ria-vectors
+!        -------------------------------
 
          lRia = nMoMo(iSym,iVecOV)*nVec
          kRia1 = 1
@@ -84,8 +84,8 @@
 
          kRia2 = kEndRia1
 
-*        Open Cholesky amplitude vectors
-*        -------------------------------
+!        Open Cholesky amplitude vectors
+!        -------------------------------
          Call ChoMP2_OpenF(1,iTypR,iSym)
 
          Do iBat = 1, nBatR
@@ -96,8 +96,8 @@
             End If
             iVec = nVec*(iBat-1) + 1
 
-*           Read Amplitude vectors
-*           ----------------------
+!           Read Amplitude vectors
+!           ----------------------
             iOpt = 2
             lTot = nMoMo(iSym,iVecOV)*NumVec
             iAdr = nMoMo(iSym,iVecOV)*(iVec-1) + 1
@@ -118,7 +118,7 @@
                End Do
             End Do
 
-*           Put the reordered vectors on disk
+!           Put the reordered vectors on disk
             iOpt = 1
             Do iSymI = 1, nSym
                iSymA = MulD2h(iSymI,iSym)
@@ -144,13 +144,13 @@
             End If
             iVec = nVec*(iBat-1) + 1
 
-*           Read Amplitude vectors
-*           ----------------------
+!           Read Amplitude vectors
+!           ----------------------
             iOpt = 2
             lTot = nMoMo(iSym,iVecOV)*NumVec
             iAdr = nMoMo(iSym,iVecOV)*(iVec-1) + 1
             Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
-*
+!
             Do iSymI = 1, nSym
                iSymA = MulD2h(iSymI,iSym)
                Do iI = 1, nOcc(iSymI)
@@ -166,8 +166,8 @@
                   End Do
                End Do
             End Do
-*
-*           Put the reordered vectors on disk
+!
+!           Put the reordered vectors on disk
             iOpt = 1
             Do iSymI = 1, nSym
                iSymA = MulD2h(iSymI,iSym)
@@ -195,6 +195,6 @@
       Call DaClos(LuRInv(1))
       Call DaClos(LuRInv(2))
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(irc)
       End

@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_RSTOF(IRS2F,N,LRDIM,IRED)
       use ChoArr, only: iSOShl, iShlSO, nBstSh
-C
-C     Purpose: set up mapping between reduced set and SO indices
-C              (i.e., full storage).
-C
-C     IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
-C     IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
-C
+!
+!     Purpose: set up mapping between reduced set and SO indices
+!              (i.e., full storage).
+!
+!     IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
+!     IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
+!
       Implicit Real*8 (a-h,o-z)
       INTEGER IRS2F(N,LRDIM)
 #include "cholesky.fh"

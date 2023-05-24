@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2008, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2008, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine ChoMP2_DecDrv(irc,DelOrig,Diag,CD_Type)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C     * Amplitude extension, Thomas Bondo Pedersen, Dec. 2007/Jan. 2008.
-C
-C     Purpose: decompose (ai|bj) integrals or
-C              amplitudes [(ai|bj)/e(a)-e(i)+e(b)-e(j)]
-C              for use in Cholesky MP2 program.
-C
-C     Arguments:
-C     irc...... OUT: return code - if non-zero, decomposition failed.
-C               Caller MUST check this!
-C     DelOrig.. INP: flag for deleting files with original vectors after
-C               decomposition completes.
-C     Diag..... INP: integral diagonal (ai|ai) or
-C               amplitude diagonal (ai|ai)/2[e(a)-e(i)]
-C     CD_Type.. INP: string
-C               'Integrals'  - integral decomposition
-C               'Amplitudes' - amplitude decomposition
-C
-C     Other input such as orbital energies are read from mbpt2 include
-C     files.
-C
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!     * Amplitude extension, Thomas Bondo Pedersen, Dec. 2007/Jan. 2008.
+!
+!     Purpose: decompose (ai|bj) integrals or
+!              amplitudes [(ai|bj)/e(a)-e(i)+e(b)-e(j)]
+!              for use in Cholesky MP2 program.
+!
+!     Arguments:
+!     irc...... OUT: return code - if non-zero, decomposition failed.
+!               Caller MUST check this!
+!     DelOrig.. INP: flag for deleting files with original vectors after
+!               decomposition completes.
+!     Diag..... INP: integral diagonal (ai|ai) or
+!               amplitude diagonal (ai|ai)/2[e(a)-e(i)]
+!     CD_Type.. INP: string
+!               'Integrals'  - integral decomposition
+!               'Amplitudes' - amplitude decomposition
+!
+!     Other input such as orbital energies are read from mbpt2 include
+!     files.
+!
+!
       use ChoMP2, only: OldVec
       use ChoMP2_dec, only: Incore
       Implicit Real*8 (a-h,o-z)
@@ -64,8 +64,8 @@ C
       Real*8, Allocatable:: ErrStat(:), Bin(:), Qual(:), Buf(:)
       Integer, Allocatable:: iQual(:), iPivot(:)
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       irc = 0
 
@@ -94,14 +94,14 @@ C     ----------------
          Return
       End If
       iOption_MP2CD = iOption  ! copy to include file chomp2_dec.fh
-C-TBP:
-C Frankie,
-C I use the array MxCDVec(iSym) to decide whether the decomposition
-C of a given symmetry block is conventional or "MaxVec":
-C ConventionalCD = MxCDVec(iSym).lt.1 .or. MxCDVec(iSym).ge.nT1Am(iSym)
-C You may want to calculate the MxCDVec values somewhere else and store
-C them in an include-file (say, chomp2_dec.fh).
-C For now, I simply define the array here:
+!-TBP:
+! Frankie,
+! I use the array MxCDVec(iSym) to decide whether the decomposition
+! of a given symmetry block is conventional or "MaxVec":
+! ConventionalCD = MxCDVec(iSym).lt.1 .or. MxCDVec(iSym).ge.nT1Am(iSym)
+! You may want to calculate the MxCDVec values somewhere else and store
+! them in an include-file (say, chomp2_dec.fh).
+! For now, I simply define the array here:
       Do iSym = 1,nSym
          MxCDVec(iSym) = nT1Am(iSym)
       End Do
@@ -129,8 +129,8 @@ C For now, I simply define the array here:
       End If
       iClos(2) = 2     ! signals close and keep result vectors
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       If (Verbose) Then
          Write(6,*)
@@ -143,8 +143,8 @@ C     ------
          End If
       End If
 
-C     Start symmetry loop.
-C     --------------------
+!     Start symmetry loop.
+!     --------------------
 
       kOffD = 1
       Do iSym = 1,nSym
@@ -174,15 +174,15 @@ C     --------------------
                Call Cho_AnaSize(Diag(kOffD),nDim,Bin,nBin,6)
             End If
 
-C           Open files.
-C           -----------
+!           Open files.
+!           -----------
 
             Do iTyp = 1,2
                Call ChoMP2_OpenF(1,iTyp,iSym)
             End Do
 
-C           Setup decomposition.
-C           --------------------
+!           Setup decomposition.
+!           --------------------
 
             NowSym = iSym
 
@@ -233,8 +233,8 @@ C           --------------------
             Call mma_maxDBLE(lBuf)
             Call mma_allocate(Buf,lBuf,Label='Buf')
 
-C           Decompose this symmetry block.
-C           ------------------------------
+!           Decompose this symmetry block.
+!           ------------------------------
 
             Thr  = ThrMP2
             Span = SpanMP2
@@ -298,8 +298,8 @@ C           ------------------------------
                Go To 1 ! exit
             End If
 
-C           If requested, check decomposition.
-C           ----------------------------------
+!           If requested, check decomposition.
+!           ----------------------------------
 
             If (ChkDecoMP2) Then
                Write(6,*)
@@ -352,8 +352,8 @@ C           ----------------------------------
                End If
             End If
 
-C           Free memory.
-C           ------------
+!           Free memory.
+!           ------------
 
             Call mma_deallocate(Buf)
             If (InCore(iSym)) Call mma_deallocate(OldVec)
@@ -361,15 +361,15 @@ C           ------------
             Call mma_deallocate(iQual)
             Call mma_deallocate(Qual)
 
-C           Close (possibly deleting original) files.
-C           -----------------------------------------
+!           Close (possibly deleting original) files.
+!           -----------------------------------------
 
             Do iTyp = 1,2
                Call ChoMP2_OpenF(iClos(iTyp),iTyp,iSym)
             End Do
 
-C           Update pointer to diagonal block.
-C           ---------------------------------
+!           Update pointer to diagonal block.
+!           ---------------------------------
 
             kOffD = kOffD + nT1am(iSym)
 

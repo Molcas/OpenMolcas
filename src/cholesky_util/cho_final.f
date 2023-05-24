@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_FINAL(WriteBookmarks)
       use ChoArr, only: iSOShl
-C
-C     Purpose: Cholesky finalizations.
-C
+!
+!     Purpose: Cholesky finalizations.
+!
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -30,8 +30,8 @@ C
       Integer is1CCD
 #endif
 
-C     Write NUMCHO array, shell indices, and threshold to runfile.
-C     ------------------------------------------------------------
+!     Write NUMCHO array, shell indices, and threshold to runfile.
+!     ------------------------------------------------------------
 
       CALL CHO_P_GETGV(NUMV,NSYM)
       CALL PUT_IARRAY('NUMCHO',NUMV,NSYM)
@@ -49,9 +49,9 @@ C     ------------------------------------------------------------
       End If
 #endif
 
-C     Write bookmarks to runfile.
-C     First, transpose array.
-C     ---------------------------
+!     Write bookmarks to runfile.
+!     First, transpose array.
+!     ---------------------------
 
       If (WriteBookmarks) Then
          Call mma_allocate(BkmDim,4,Label='BkmDim')
@@ -92,13 +92,13 @@ C     ---------------------------
          nCol_BkmThr=0
       End If
 
-C     Write vector file address mode to runfile.
-C     ------------------------------------------
+!     Write vector file address mode to runfile.
+!     ------------------------------------------
 
       CALL PUT_ISCALAR('ChoVec Address',CHO_ADRVEC)
 
-C     Write reorder mark to runfile.
-C     ------------------------------
+!     Write reorder mark to runfile.
+!     ------------------------------
 
       IF (CHO_REORD) THEN
          IREO = 1
@@ -107,8 +107,8 @@ C     ------------------------------
       END IF
       CALL PUT_ISCALAR('Cholesky Reorder',IREO)
 
-C     Set initialization integer flag to "not set".
-C     ---------------------------------------------
+!     Set initialization integer flag to "not set".
+!     ---------------------------------------------
 
       CHOISINI = CHOINICHECK + 1
       CALL PUT_ISCALAR('ChoIni',CHOISINI)

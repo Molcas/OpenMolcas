@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_OpenF(iOpt,iTyp,iSym)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
-C              delete (iOpt=3) Cholesky vector files for MP2 program
-C              (full vectors).
-C              For iOpt=0, the units are initialized (to -1).
-C              iTyp=1: transformed Cholesky vectors.
-C              iTyp=2: vectors from (ai|bj) decomposition.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
+!              delete (iOpt=3) Cholesky vector files for MP2 program
+!              (full vectors).
+!              For iOpt=0, the units are initialized (to -1).
+!              iTyp=1: transformed Cholesky vectors.
+!              iTyp=2: vectors from (ai|bj) decomposition.
+!
       Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
@@ -35,16 +35,16 @@ C
          Call ChoMP2_Quit(SecNam,'iTyp error',' ')
       End If
 
-C     Initialize units and return for iOpt=0.
-C     ---------------------------------------
+!     Initialize units and return for iOpt=0.
+!     ---------------------------------------
 
       If (iOpt .eq. 0) Then
          lUnit_F(iSym,iTyp) = -1
          Return
       End If
 
-C     Open or close files.
-C     --------------------
+!     Open or close files.
+!     --------------------
 
       If (iOpt .eq. 1) Then
          If ((nT1am(iSym).gt.0) .or.

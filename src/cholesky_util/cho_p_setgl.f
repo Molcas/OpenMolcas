@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_SetGL()
-C
-C     Purpose: set global and local index arrays and diagonal.
-C              If a sequencial run:
-C                 Diag   => Diag_Hidden
-C                 Diag_G => Null()
-C              If a parallel run:
-C                 Diag   => Diag_G_Hidden
-C                 Diag_G => Diag_Hidden
-C
-C              Diag_Hidden is allocated in the calling routine, while
-C              Diag_G_Hidden is allocated here if needed.
-C
+!
+!     Purpose: set global and local index arrays and diagonal.
+!              If a sequencial run:
+!                 Diag   => Diag_Hidden
+!                 Diag_G => Null()
+!              If a parallel run:
+!                 Diag   => Diag_G_Hidden
+!                 Diag_G => Diag_Hidden
+!
+!              Diag_Hidden is allocated in the calling routine, while
+!              Diag_G_Hidden is allocated here if needed.
+!
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
       use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
@@ -41,16 +41,16 @@ C
       Integer i, N, iSP, iSym, iShlAB, i1, i2, irc
 
 
-C     If not parallel, return.
-C     ------------------------
+!     If not parallel, return.
+!     ------------------------
 
       If (.not.Cho_Real_Par) Then
          Diag => Diag_Hidden
          Return
       End If
 
-C     Set global data (choglob.fh).
-C     ------------------------------
+!     Set global data (choglob.fh).
+!     ------------------------------
 
       Diag_G => Diag_Hidden
 
@@ -74,8 +74,8 @@ C     ------------------------------
 
       IndRSh_G => IndRSh
 
-C     Reallocate and reset local data.
-C     --------------------------------
+!     Reallocate and reset local data.
+!     --------------------------------
 
       Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),
      &                  Label='InfRed_G_Hidden')
@@ -135,8 +135,8 @@ C     --------------------------------
          Call Cho_Quit('Error in '//SecNam,104)
       End If
 
-C     Allocate and set local diagonal.
-C     --------------------------------
+!     Allocate and set local diagonal.
+!     --------------------------------
 
       Call mma_allocate(Diag_G_Hidden,mmBstRT,Label='Diag_G_Hidden')
       Diag => Diag_G_Hidden

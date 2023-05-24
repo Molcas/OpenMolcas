@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
       SubRoutine ChoMP2_rhslagr_1(EOcc,EVir,EFro,EDel,Xaibj,
      &                            LnPQRSprod,LiPQRSprod,iBatch,jBatch,
      &                            nOccLeftI,nOccLeftJ,
      &                            nOrbLeftI,nOrbLeftJ,
      &                            nFroLeftI,nFroLeftJ)
-*     This will calculate the righthandside of the mp2lagrangian.
-*
+!     This will calculate the righthandside of the mp2lagrangian.
+!
       use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
       Implicit Real*8 (a-h,o-z)
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
@@ -27,11 +27,11 @@
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "WrkSpc.fh"
-*
+!
       Character*10  ThisNm
       Character*17 SecNam
       Parameter (SecNam = 'ChoMP2_rhslagr_1', ThisNm = 'rhslagr_1')
-*
+!
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       iDensVir(i,j,k) = ip_Density(k) +
@@ -78,12 +78,12 @@
      &                           j-1
      &                        + (nOrb(k) + nDel(k))
      &                        * (i + nFro(k) + nOcc(k) - 1)
-*
+!
       Do iSymBJ = 1,nSym
          iSymAI = iSymBJ
-********************************************************************
-****   Common code for Pab, Wab, Lagr(3) and PaB
-********************************************************************
+!*******************************************************************
+!***   Common code for Pab, Wab, Lagr(3) and PaB
+!*******************************************************************
          Do iSymJ = 1,nSym
             iSymB = MulD2h(iSymJ,iSymBJ)
             LjOrb = Min(LnBatOrb(iSymJ,jBatch)-nFroLeftJ(iSymJ),
@@ -131,9 +131,9 @@
      &                         +  nFro(iSymA) + nDel(iSymA))
      &                         * (Lj + nFroLeftJ(iSymJ) - 1)
      &                         + iA + nFro(iSymA) + nOcc(iSymA)
-*
-*     Construct the T_iajb (common for all terms)
-*
+!
+!     Construct the T_iajb (common for all terms)
+!
                            Dnom1 = EOcc(iOcc(iSymI) + iI)
      &                              - EVir(iVir(iSymA) + iA)
      &                              + EOcc(iOcc(iSymJ) + iJ)
@@ -154,7 +154,7 @@
                               T1 = 4.0d0*Xaibj(ip_iajb)
                               T1 = (T1 - 2.0d0*Xaibj(ip_ibja))
      &                           / Dnom1
-*     Here we calculate the MP2-energy
+!     Here we calculate the MP2-energy
                               EMP2_Dens = EMP2_Dens
      &                                  + 0.5d0*T1*Xaibj(ip_iajb)
                            Do iP = 1, nOrb(iSymP) + nDel(iSymP)
@@ -162,26 +162,26 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Li + nFroLeftI(iSymI) - 1) + iP
-*                             Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
-*    &                            + (nOcc(iSymP) + nVir(iSymP)
-*    &                            +  nFro(iSymP) + nDel(iSymP))
-*    &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
+!                             Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
+!    &                            + (nOcc(iSymP) + nVir(iSymP)
+!    &                            +  nFro(iSymP) + nDel(iSymP))
+!    &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + iTri(Lpi,Lbj)
-*                                ip_jpib = 0
+!                                ip_jpib = 0
                               Else
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + LnPQprod(iSymBJ,iBatch)
      &                                   * (Lbj-1) + Lpi
-*                                ip_jpib = LiPQRSprod(iSymBI)
-*    &                                   + LnPQprod(iSymBI,iBatch)
-*    &                                   * (Lpj-1) + Lbi
+!                                ip_jpib = LiPQRSprod(iSymBI)
+!    &                                   + LnPQprod(iSymBI,iBatch)
+!    &                                   * (Lpj-1) + Lbi
                               End If
                               X2 = Xaibj(ip_ipjb)
-*******************************************************************
-*        Calculate P_Ca frozen virtual - active virtual
-*******************************************************************
+!******************************************************************
+!        Calculate P_Ca frozen virtual - active virtual
+!******************************************************************
                               If(iP.gt. nFro(iSymP) + nOcc(iSymP)
      &                                + nVir(iSymP)) Then
                                  iCFroz = iP - nFro(iSymP) - nOcc(iSymP)
@@ -197,22 +197,22 @@
                                  Work(iWDensVirFro(iA,iCFroz,iSymP)) =
      &                               Work(iWDensVirFro(iA,iCFroz,iSymP))
      &                               - 2.0d0 * T1*X2
-***************** The 2 ON THE ROW ABOVE IS QUESTIONABLE *****'''' ***
-*                 Write(6,*) 'index Dens', iDensFroVir(iCFroz,iA,iSymA) -
-*     &                                    ip_Density(iSymA)
-*                 Write(6,*) 'Value', Work(iDensFroVir(iCFroz,iA,iSymA))
-*     &                                + 2.0d0 * T1*X2/Dnom2
-*                        Write(6,*) 'xicjb', X2
-*                        Write(6,*) 'EDiffbc',Dnom2
-*                        Write(6,*) 'E_a', EVir(iVir(iSymA) + iA)
-*                        Write(6,*) 'E:B', EDel(iDel(iSymP) + iCFroz)
-*                        Write(6,*) 'Tij', T1
-*                        Write(6,*) 'iB, iC',
-*     &                             iCFroz+nOcc(iSymP) -nFro(iSymP), iB
-*                        Write(6,*) 'iI, iJ', iI, iJ
-*******************************************************************
-*         Calculate P_ab active vir - active vir
-*******************************************************************
+!**************** The 2 ON THE ROW ABOVE IS QUESTIONABLE *****'''' ***
+!                 Write(6,*) 'index Dens', iDensFroVir(iCFroz,iA,iSymA) -
+!     &                                    ip_Density(iSymA)
+!                 Write(6,*) 'Value', Work(iDensFroVir(iCFroz,iA,iSymA))
+!     &                                + 2.0d0 * T1*X2/Dnom2
+!                        Write(6,*) 'xicjb', X2
+!                        Write(6,*) 'EDiffbc',Dnom2
+!                        Write(6,*) 'E_a', EVir(iVir(iSymA) + iA)
+!                        Write(6,*) 'E:B', EDel(iDel(iSymP) + iCFroz)
+!                        Write(6,*) 'Tij', T1
+!                        Write(6,*) 'iB, iC',
+!     &                             iCFroz+nOcc(iSymP) -nFro(iSymP), iB
+!                        Write(6,*) 'iI, iJ', iI, iJ
+!******************************************************************
+!         Calculate P_ab active vir - active vir
+!******************************************************************
                               Else If(iP .gt. nFro(iSymP) + nOcc(iSymP))
      &                             Then
                                  iC = iP - nFro(iSymP) - nOcc(iSymP)
@@ -226,9 +226,9 @@
                                  Work(iWDensVir(iA,iC,iSymP)) =
      &                                Work(iWDensVir(iA,iC,iSymP))
      &                                - 2.0d0 * T1*X2
-*******************************************************************
-*        Calculate Lagr(3)_ai  active virtual - all occupied
-*******************************************************************
+!******************************************************************
+!        Calculate Lagr(3)_ai  active virtual - all occupied
+!******************************************************************
                               Else
                                  iK = iP
                                 Work(iMp2Lagr(iA,iK,iSymP))=
@@ -238,43 +238,43 @@
      &                               Work(iWDensVactOcc(iA,iK,iSymP))
      &                               - 4.0d0 * T1*X2
                               End If
-*
-* ------------------------- Debugging comments --------------------------
-*                              If(iP.gt. nFro(iSymP) + nOcc(iSymP)
-*     &                             .and. (ip .le. nFro(iSymP) +
-*     &                              nOcc(iSymP) + nVir(iSymP))) Then
-*                                 Write(6,*) 'AIBJC',iA,iI,iB,iJ,iC
-*                                 Write(6,*) 'Symm',iSymA,iSymI,iSymB,
-*     &                                             iSymJ,iSymP
-*                                 Write(6,*) 'Dnom1', Dnom1
-*                                Write(6,*) 'Dnom2', Dnom2
-*                                 Write(6,*) 'iajb', Xaibj(ip_iajb)
-*                                 Write(6,*) 'ibja', Xaibj(ip_ibja)
-*                                 Write(6,*) 'icjb', Xaibj(ip_ipjb)
-*                                 Write(6,*) 'Bidrag T',T1*X2/dnom2
-*                              Write(6,*) 'adress',iDensVir(iA,iC,iSymP)-
-*     &                                    ip_Density(1)
-*                              End If
-*-------------------------------------------------------------------------
-* ------------------------- Debugging comments --------------------------
-*                              If(iP .le. nFro(iSymP) + nOcc(iSymP)) Then
-*                                 Write(6,*) 'AIBJK',iA,iI,iB,iJ,iK
-*                                 Write(6,*) 'Symm',iSymA,iSymI,iSymB,
-*     &                                             iSymJ,iSymP
-*                                 Write(6,*) 'Dnom2', Dnom2
-*                                 Write(6,*) 'iajb', Xaibj(ip_iajb)
-*                                 Write(6,*) 'ibja', Xaibj(ip_ibja)
-*                                 Write(6,*) 'ibjk', Xaibj(ip_ipjb)
-*                                 If(iBatch.ne.jBatch) Then
-*                                    Write(6,*) 'ikjb', Xaibj(ip_jpib)
-*                                  Write(6,*) 'Bidrag U',U1*U2
-*                                 EndIf
-*                                 Write(6,*) 'Bidrag T', T1*T2
-*                                 Write(6,*) 'adress',
-*     &                                      iMp2Lagr(iA,iK,iSymP)-
-*     &                                               ip_Mp2Lagr(1)
-*                              End If
-* ------------------------------------------------------------------------
+!
+! ------------------------- Debugging comments --------------------------
+!                              If(iP.gt. nFro(iSymP) + nOcc(iSymP)
+!     &                             .and. (ip .le. nFro(iSymP) +
+!     &                              nOcc(iSymP) + nVir(iSymP))) Then
+!                                 Write(6,*) 'AIBJC',iA,iI,iB,iJ,iC
+!                                 Write(6,*) 'Symm',iSymA,iSymI,iSymB,
+!     &                                             iSymJ,iSymP
+!                                 Write(6,*) 'Dnom1', Dnom1
+!                                Write(6,*) 'Dnom2', Dnom2
+!                                 Write(6,*) 'iajb', Xaibj(ip_iajb)
+!                                 Write(6,*) 'ibja', Xaibj(ip_ibja)
+!                                 Write(6,*) 'icjb', Xaibj(ip_ipjb)
+!                                 Write(6,*) 'Bidrag T',T1*X2/dnom2
+!                              Write(6,*) 'adress',iDensVir(iA,iC,iSymP)-
+!     &                                    ip_Density(1)
+!                              End If
+!-------------------------------------------------------------------------
+! ------------------------- Debugging comments --------------------------
+!                              If(iP .le. nFro(iSymP) + nOcc(iSymP)) Then
+!                                 Write(6,*) 'AIBJK',iA,iI,iB,iJ,iK
+!                                 Write(6,*) 'Symm',iSymA,iSymI,iSymB,
+!     &                                             iSymJ,iSymP
+!                                 Write(6,*) 'Dnom2', Dnom2
+!                                 Write(6,*) 'iajb', Xaibj(ip_iajb)
+!                                 Write(6,*) 'ibja', Xaibj(ip_ibja)
+!                                 Write(6,*) 'ibjk', Xaibj(ip_ipjb)
+!                                 If(iBatch.ne.jBatch) Then
+!                                    Write(6,*) 'ikjb', Xaibj(ip_jpib)
+!                                  Write(6,*) 'Bidrag U',U1*U2
+!                                 EndIf
+!                                 Write(6,*) 'Bidrag T', T1*T2
+!                                 Write(6,*) 'adress',
+!     &                                      iMp2Lagr(iA,iK,iSymP)-
+!     &                                               ip_Mp2Lagr(1)
+!                              End If
+! ------------------------------------------------------------------------
                            End Do
                         End Do
                      End Do
@@ -283,13 +283,13 @@
             End Do
          End Do
 
-***************************************************************************
-****  Common code for Pij, Wij(I), Lagr(4) and PiJ
-***************************************************************************
-*
-*     To avoid compiler warnings
-*         iKfroz = 0
-*         iK = 0
+!**************************************************************************
+!***  Common code for Pij, Wij(I), Lagr(4) and PiJ
+!**************************************************************************
+!
+!     To avoid compiler warnings
+!         iKfroz = 0
+!         iK = 0
 
          Do iSymA = 1, nSym
             iSymI = MulD2h(iSymA,iSymAI)
@@ -360,7 +360,7 @@
                            T1 = (T1-2.0D0*Xaibj(ip_ibja))
      &                            / Dnom1
                            Do iP = 1, nOrb(iSymP) + nDel(iSymP)
-*
+!
                               Lbp = LiPQprod(iSymP,iSymB,jBatch)
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
@@ -374,11 +374,11 @@
      &                                   + LnPQprod(iSymAI,iBatch)
      &                                   * (Lbp-1) + Lai
                               End If
-*
+!
                               X2 = Xaibj(ip_iapb)
-*******************************************************************
-*        Calculate P_Pj frozen occupied - active occupied
-*******************************************************************
+!******************************************************************
+!        Calculate P_Pj frozen occupied - active occupied
+!******************************************************************
                               If(ip .le. nFro(iSymP)) Then
                                  iKFroz = iP
                                  Dnom2 = EOcc(iOcc(iSymI) + iI)
@@ -392,9 +392,9 @@
                                  Work(iWDensOccFro(iJ,iKFroz,iSymP)) =
      &                             Work(iWDensOccFro(iJ,iKFroz,iSymP))
      &                             - 2.0d0 * T1*X2
-*******************************************************************
-*         Calculate P_ij active occ - active occ
-*******************************************************************
+!******************************************************************
+!         Calculate P_ij active occ - active occ
+!******************************************************************
                               Else If(iP .le. nFro(iSymP)
      &                                      + nOcc(iSymP)) Then
                                  iK = iP - nFro(iSymP)
@@ -408,9 +408,9 @@
                                  Work(iWDensOcc(iJ,iK,iSymP)) =
      &                             Work(iWDensOcc(iJ,iK,iSymP))
      &                             - 2.0d0 * T1*X2
-*******************************************************************
-*        Calculate Lagr(4)_ai all virtual - active occupied
-*******************************************************************
+!******************************************************************
+!        Calculate Lagr(4)_ai all virtual - active occupied
+!******************************************************************
                               Else
                                  iC = iP - nFro(iSymP) - nOcc(iSymP)
                                  Work(iMp2Lagr(iC,iJ+nFro(iSymJ),
@@ -419,39 +419,39 @@
      &                                + T1*X2
                               End If
 
-* ------------------------- Debugging comments --------------------------
-*                           If((iP .gt. nFro(iSymP)).and.
-*     &                        (iP .le. nFro(iSymP)+nOcc(iSymP))) Then
-*                              Write(6,*) 'AIBJK',iA,iI,iB,iJ,iK
-*                              Write(6,*) 'Symm',iSymA,iSymI,iSymB,
-*     &                                          iSymJ,iSymP
-*                              Write(6,*) 'Dnom1', Dnom1
-*                              Write(6,*) 'Dnom2', Dnom2
-*                              Write(6,*) 'iajb', Xaibj(ip_iajb)
-*                              Write(6,*) 'ibja', Xaibj(ip_ibja)
-*                              Write(6,*) 'iakb', Xaibj(ip_iapb)
-*                              Write(6,*) 'Bidrag', T1*T2
-*                              Write(6,*) 'adress',iDensOcc(iJ,iK,iSymP)-
-*     &                                            ip_Density(1)
-*                           End If
-* ----------------------------------------------------------------------
-* ------------------------- Debugging comments -------------------------
-*                              Write(6,*) 'AIBJC',iA,iI,iB,iJ,iC
-*                              Write(6,*) 'Symm',iSymA,iSymI,iSymB,
-*     &                                          iSymJ,iSymC
-*                              Write(6,*) 'Dnom1', Dnom1
-*                              Write(6,*) 'aibj', Xaibj(ip_iajb)
-*                              Write(6,*) 'biaj', Xaibj(ip_ibja)
-*                              Write(6,*) 'iacb', Xaibj(ip_iacb)
-*                              If(iBatch.ne.jBatch) Then
-*                                 Write(6,*) 'iacb', Xaibj(ip_ibca)
-*                                 Write(6,*) 'Bidrag U', U1*U2
-*                              End If
-*                              Write(6,*) 'Bidrag T', T1*T2
-*                              Write(6,*) 'adress',iMp2Lagr(iC,iJ,iSymJ)-
-*     &                                   ip_Mp2Lagr(1)
-*------------------------------------------------------------------------
-*
+! ------------------------- Debugging comments --------------------------
+!                           If((iP .gt. nFro(iSymP)).and.
+!     &                        (iP .le. nFro(iSymP)+nOcc(iSymP))) Then
+!                              Write(6,*) 'AIBJK',iA,iI,iB,iJ,iK
+!                              Write(6,*) 'Symm',iSymA,iSymI,iSymB,
+!     &                                          iSymJ,iSymP
+!                              Write(6,*) 'Dnom1', Dnom1
+!                              Write(6,*) 'Dnom2', Dnom2
+!                              Write(6,*) 'iajb', Xaibj(ip_iajb)
+!                              Write(6,*) 'ibja', Xaibj(ip_ibja)
+!                              Write(6,*) 'iakb', Xaibj(ip_iapb)
+!                              Write(6,*) 'Bidrag', T1*T2
+!                              Write(6,*) 'adress',iDensOcc(iJ,iK,iSymP)-
+!     &                                            ip_Density(1)
+!                           End If
+! ----------------------------------------------------------------------
+! ------------------------- Debugging comments -------------------------
+!                              Write(6,*) 'AIBJC',iA,iI,iB,iJ,iC
+!                              Write(6,*) 'Symm',iSymA,iSymI,iSymB,
+!     &                                          iSymJ,iSymC
+!                              Write(6,*) 'Dnom1', Dnom1
+!                              Write(6,*) 'aibj', Xaibj(ip_iajb)
+!                              Write(6,*) 'biaj', Xaibj(ip_ibja)
+!                              Write(6,*) 'iacb', Xaibj(ip_iacb)
+!                              If(iBatch.ne.jBatch) Then
+!                                 Write(6,*) 'iacb', Xaibj(ip_ibca)
+!                                 Write(6,*) 'Bidrag U', U1*U2
+!                              End If
+!                              Write(6,*) 'Bidrag T', T1*T2
+!                              Write(6,*) 'adress',iMp2Lagr(iC,iJ,iSymJ)-
+!     &                                   ip_Mp2Lagr(1)
+!------------------------------------------------------------------------
+!
                            End Do
                         End Do
                      End Do

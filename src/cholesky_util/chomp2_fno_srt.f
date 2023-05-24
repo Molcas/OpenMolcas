@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Francesco Aquilante                              *
+!***********************************************************************
       SubRoutine ChoMP2_fno_Srt(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
-C
-C      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
-C
-C
+!
+!      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
+!
+!
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LiMatij, lUnit
       Implicit Real*8 (a-h,o-z)
       Logical Delete
@@ -46,8 +46,8 @@ C
          lP(iS)=lP(iS-1)+nOcc(iS-1)
       End Do
 
-C     Set number of vectors.
-C     ----------------------
+!     Set number of vectors.
+!     ----------------------
 
       If (DecoMP2) Then
          Call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
@@ -57,8 +57,8 @@ C     ----------------------
 
       If (MP2_small) Then
 
-C        Loop over occupied orbital batches.
-C        --------------------------------------------------
+!        Loop over occupied orbital batches.
+!        --------------------------------------------------
 
          Do iBatch = 1,nBatch
 
@@ -78,16 +78,16 @@ C        --------------------------------------------------
                kMabij = kXaibj  ! rename pointer
                Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-C              Loop over Cholesky vector symmetries.
-C              -------------------------------------
+!              Loop over Cholesky vector symmetries.
+!              -------------------------------------
 
                Do iSym = 1,nSym
 
                   Nai = LnT1am(iSym,iBatch)
                   If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
 
-C                    Reserve memory for reading a single vector.
-C                    -------------------------------------------
+!                    Reserve memory for reading a single vector.
+!                    -------------------------------------------
 
                      kVecai = kEnd0
                      kEnd1  = kVecai + Nai
@@ -98,8 +98,8 @@ C                    -------------------------------------------
      &                                   '[ChoAlg.2.1]')
                      End If
 
-C                    Set up batch over Cholesky vectors.
-C                    -----------------------------------
+!                    Set up batch over Cholesky vectors.
+!                    -----------------------------------
 
                      nVec = min(lWrk1/Nai,nEnrVec(iSym))
                      If (nVec .lt. 1) Then ! should not happen
@@ -108,13 +108,13 @@ C                    -----------------------------------
                      End If
                      nBat = (nEnrVec(iSym)-1)/nVec + 1
 
-C                    Open Cholesky vector files.
-C                    ---------------------------
+!                    Open Cholesky vector files.
+!                    ---------------------------
 
                      Call ChoMP2_OpenB(1,iSym,iBatch)
 
-C                    Start vector batch loop.
-C                    ------------------------
+!                    Start vector batch loop.
+!                    ------------------------
 
                      Do iBat = 1,nBat
 
@@ -125,8 +125,8 @@ C                    ------------------------
                         End If
                         iVec1 = nVec*(iBat-1) + 1
 
-C                       Set up index arrays for reordered vectors.
-C                       ------------------------------------------
+!                       Set up index arrays for reordered vectors.
+!                       ------------------------------------------
 
                         nVaJi = 0
                         Do iSymi = 1,nSym
@@ -136,8 +136,8 @@ C                       ------------------------------------------
      &                          + nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
                         End Do
 
-C                       Pointer to reordered vectors: kVec.
-C                       -----------------------------------
+!                       Pointer to reordered vectors: kVec.
+!                       -----------------------------------
 
                         kVec  = kEnd1
                         kEnd2 = kVec  + nVaJi
@@ -148,8 +148,8 @@ C                       -----------------------------------
      &                                      '[ChoAlg.2.3]')
                         End If
 
-C                       Read one vector at a time and reorder.
-C                       --------------------------------------
+!                       Read one vector at a time and reorder.
+!                       --------------------------------------
 
                         iVec0 = iVec1 - 1
                         Do iVec = 1,NumVec
@@ -176,8 +176,8 @@ C                       --------------------------------------
 
                         End Do
 
-C                       Compute M(ab,ii) .
-C                       ---------------------------------------
+!                       Compute M(ab,ii) .
+!                       ---------------------------------------
 
                         Do iSymj = 1,nSym
 
@@ -216,8 +216,8 @@ C                       ---------------------------------------
 
                      Call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
 
-C                    Close Cholesky vector files.
-C                    ----------------------------
+!                    Close Cholesky vector files.
+!                    ----------------------------
 
                      Call ChoMP2_OpenB(2,iSym,iBatch)
 
@@ -238,8 +238,8 @@ C                    ----------------------------
      &                              + nMatab(1)*(ij-1)
      &                              + iMatab(iSymb,iSymb)
 
-C                             Compute energy contribution
-C                             -------------------------------------
+!                             Compute energy contribution
+!                             -------------------------------------
                               Do jb=1,nVir(iSymb)
                                  Do ja=1,nVir(iSymb)
                                     Dnom = EVir(iVir(iSymb)+ja)
@@ -249,7 +249,7 @@ C                             -------------------------------------
                                     kOffMM = kOffM
      &                                     + nVir(iSymb)*(jb-1) +ja-1
                                     DeMP2 = DeMP2
-c     &                                    + Wrk(kOffMM)**2/Dnom
+!     &                                    + Wrk(kOffMM)**2/Dnom
      &                                    + Wrk(kOffMM)**2*xsDnom
                                  End Do
                               End Do
@@ -268,8 +268,8 @@ c     &                                    + Wrk(kOffMM)**2/Dnom
 
          End Do ! iBatch
 
-C        Delete files if requested.
-C        --------------------------
+!        Delete files if requested.
+!        --------------------------
 
          If (Delete) Then
             Do iBatch = 1,nBatch
@@ -285,8 +285,8 @@ C        --------------------------
       EndIf
 
 
-C     Loop over occupied orbital batches.
-C     --------------------------------------------------
+!     Loop over occupied orbital batches.
+!     --------------------------------------------------
 
       Do iBatch = 1,nBatch
 
@@ -306,16 +306,16 @@ C     --------------------------------------------------
             kMabij = kXaibj  ! rename pointer
             Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-C           Loop over Cholesky vector symmetries.
-C           -------------------------------------
+!           Loop over Cholesky vector symmetries.
+!           -------------------------------------
 
             Do iSym = 1,nSym
 
                Nai = LnT1am(iSym,iBatch)
                If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
 
-C                 Reserve memory for reading a single vector.
-C                 -------------------------------------------
+!                 Reserve memory for reading a single vector.
+!                 -------------------------------------------
 
                   kVecai = kEnd0
                   kEnd1  = kVecai + Nai
@@ -326,8 +326,8 @@ C                 -------------------------------------------
      &                                '[ChoAlg.2.1]')
                   End If
 
-C                 Set up batch over Cholesky vectors.
-C                 -----------------------------------
+!                 Set up batch over Cholesky vectors.
+!                 -----------------------------------
 
                   nVec = min(lWrk1/Nai,nEnrVec(iSym))
                   If (nVec .lt. 1) Then ! should not happen
@@ -336,13 +336,13 @@ C                 -----------------------------------
                   End If
                   nBat = (nEnrVec(iSym)-1)/nVec + 1
 
-C                 Open Cholesky vector files.
-C                 ---------------------------
+!                 Open Cholesky vector files.
+!                 ---------------------------
 
                   Call ChoMP2_OpenB(1,iSym,iBatch)
 
-C                 Start vector batch loop.
-C                 ------------------------
+!                 Start vector batch loop.
+!                 ------------------------
 
                   Do iBat = 1,nBat
 
@@ -353,8 +353,8 @@ C                 ------------------------
                      End If
                      iVec1 = nVec*(iBat-1) + 1
 
-C                    Set up index arrays for reordered vectors.
-C                    ------------------------------------------
+!                    Set up index arrays for reordered vectors.
+!                    ------------------------------------------
 
                      nVaJi = 0
                      Do iSymi = 1,nSym
@@ -364,8 +364,8 @@ C                    ------------------------------------------
      &                       + nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
                      End Do
 
-C                    Pointer to reordered vectors: kVec.
-C                    -----------------------------------
+!                    Pointer to reordered vectors: kVec.
+!                    -----------------------------------
 
                      kVec  = kEnd1
                      kEnd2 = kVec  + nVaJi
@@ -376,8 +376,8 @@ C                    -----------------------------------
      &                                   '[ChoAlg.2.3]')
                      End If
 
-C                    Read one vector at a time and reorder.
-C                    --------------------------------------
+!                    Read one vector at a time and reorder.
+!                    --------------------------------------
 
                      iVec0 = iVec1 - 1
                      Do iVec = 1,NumVec
@@ -404,8 +404,8 @@ C                    --------------------------------------
 
                      End Do
 
-C                    Compute M(ab,ii) .
-C                    ---------------------------------------
+!                    Compute M(ab,ii) .
+!                    ---------------------------------------
 
                      Do iSymj = 1,nSym
 
@@ -442,8 +442,8 @@ C                    ---------------------------------------
 
                      Call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
 
-C                    Close Cholesky vector files.
-C                    ----------------------------
+!                    Close Cholesky vector files.
+!                    ----------------------------
 
                      Call ChoMP2_OpenB(2,iSym,iBatch)
 
@@ -464,8 +464,8 @@ C                    ----------------------------
      &                              + nMatab(1)*(ij-1)
      &                              + iMatab(iSymb,iSymb)
 
-C                             Compute T(a,b)[i] and energy contrib.
-C                             -------------------------------------
+!                             Compute T(a,b)[i] and energy contrib.
+!                             -------------------------------------
                               Do jb=1,nVir(iSymb)
                                  Do ja=1,nVir(iSymb)
                                     Dnom = EVir(iVir(iSymb)+ja)
@@ -475,9 +475,9 @@ C                             -------------------------------------
                                     kOffMM = kOffM
      &                                     + nVir(iSymb)*(jb-1) +ja-1
                                     DeMP2 = DeMP2
-c     &                                    + Wrk(kOffMM)**2/Dnom
+!     &                                    + Wrk(kOffMM)**2/Dnom
      &                                    + Wrk(kOffMM)**2*xsDnom
-c                                    Wrk(kOffMM) = Wrk(kOffMM)/Dnom
+!                                    Wrk(kOffMM) = Wrk(kOffMM)/Dnom
                                     Wrk(kOffMM) = Wrk(kOffMM)*xsDnom
                                  End Do
                               End Do
@@ -487,8 +487,8 @@ c                                    Wrk(kOffMM) = Wrk(kOffMM)/Dnom
      &                                                   Wrk(kOffM),1,
      &                                                   Wrk(kOffM),1)
 
-C                             Compute P(a,b) += sum_c T(a,c)*T(c,b)
-C                             -------------------------------------
+!                             Compute P(a,b) += sum_c T(a,c)*T(c,b)
+!                             -------------------------------------
                               Call dGeMM_('N','N',nVir(iSymb),
      &                                   nVir(iSymb),nVir(iSymb),
      &                             1.0d0,Wrk(kOffM),nVir(iSymb),
@@ -511,8 +511,8 @@ C                             -------------------------------------
 
       End Do ! iBatch
 
-C     Delete files if requested.
-C     --------------------------
+!     Delete files if requested.
+!     --------------------------
 
       If (Delete) Then
          Do iBatch = 1,nBatch

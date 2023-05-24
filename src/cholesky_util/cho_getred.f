@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETRED(IPASS,ILOC,LRSH)
-C
-C     Purpose: read index arrays for current reduced set (reduced set
-C              IPASS).
-C
+!
+!     Purpose: read index arrays for current reduced set (reduced set
+!              IPASS).
+!
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
@@ -30,8 +30,8 @@ C
       EXTERNAL CHO_ISUMELM
 
 #if defined (_DEBUGPRINT_)
-C     Test dimensions.
-C     ----------------
+!     Test dimensions.
+!     ----------------
 
       IF (SIZE(nnBstRSh,1) .NE. NSYM) THEN
          CALL CHO_QUIT('NSYM error in '//SECNAM,104)
@@ -50,8 +50,8 @@ C     ----------------
       END IF
 #endif
 
-C     Get first address.
-C     ------------------
+!     Get first address.
+!     ------------------
 
       IADR1 = INFRED(IPASS)
 #if defined (_DEBUGPRINT_)
@@ -67,8 +67,8 @@ C     ------------------
      &                  ' at addr: ',IADR1
       END IF
 
-C     Read index arrays.
-C     ------------------
+!     Read index arrays.
+!     ------------------
 
       IOPT = 2
       IADR = IADR1

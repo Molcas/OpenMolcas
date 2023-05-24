@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
       SubRoutine ChoMP2_RHSlagr_2(EOcc,EVir,EFro,EDel,Xaibj,
      &                          LnPQRSprod,LiPQRSprod,iBatch,jBatch,
      &                          nOccLeftI,nOccLeftJ,
      &                          nOrbLeftI,nOrbLeftJ,
      &                          nFroLeftI,nFroLeftJ)
-*     This will calculate the righthandside of the mp2lagrangian.
+!     This will calculate the righthandside of the mp2lagrangian.
       use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
       Implicit Real*8 (a-h,o-z)
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
@@ -26,7 +26,7 @@
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-*
+!
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       iDensVir(i,j,k) = ip_Density(k) +
@@ -39,7 +39,7 @@
       iMp2Lagr(i,j,k) = ip_Mp2Lagr(k) +
      &                          j-1 + (nOcc(k)+nFro(k))*(i-1)
       iDiaA(i,j,k) = ip_DiaA(k) + j-1 + (nOcc(k)+nFro(k))*(i-1)
-*
+!
       Do iSymIP = 1, nSym
          iSymAQ = iSymIP
          Do iSymI = 1,nSym
@@ -58,7 +58,7 @@
      &             * (Li - 1)
      &             +  iI
 
-*
+!
                Do iSymA = 1, nSym
                   iSymAI = MulD2h(iSymI,iSymA)
                   iSymQ = MulD2h(iSymA,iSymAQ)
@@ -72,9 +72,9 @@
                         iA = iFirstS(iSymA,jBatch) - nFro(iSymA)
      &                     - nOcc(iSymA) + La-1
                      End If
-*     Calculating the diagonal of A: 3(ia|ia) - (ii|aa)
-*     (Only needed once for each iA hence iP = 1)
-*
+!     Calculating the diagonal of A: 3(ia|ia) - (ii|aa)
+!     (Only needed once for each iA hence iP = 1)
+!
                      If((iSymI .eq. iSymA).and.(iSymIP.eq.1)) Then
                         Lii = LiPQprod(iSymI,iSymI,iBatch)
      &                       + (nFro(iSymI) + nOcc(iSymI)
@@ -128,14 +128,14 @@
                         Work(iDiaA(iA,iI,iSymI)) =
      &                       Work(iDiaA(iA,iI,iSymI))
      &                       + 1.0D0/(DiagInt + DiagEn)
-*-----------------------------------------------------------------------
-*                              Write(6,*) 'IA', iI, iA
-*                              Write(6,*) 'Symm', iSymI, iSymA
-*                              Write(6,*) 'iiaa', Xaibj(ip_iiaa)
-*                              Write(6,*) 'iaia', Xaibj(ip_aiai)
-*                              Write(6,*) 'DiagInt', DiagInt
-*                              Write(6,*) 'DiagEn', DiagEn
-*-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!                              Write(6,*) 'IA', iI, iA
+!                              Write(6,*) 'Symm', iSymI, iSymA
+!                              Write(6,*) 'iiaa', Xaibj(ip_iiaa)
+!                              Write(6,*) 'iaia', Xaibj(ip_aiai)
+!                              Write(6,*) 'DiagInt', DiagInt
+!                              Write(6,*) 'DiagEn', DiagEn
+!-----------------------------------------------------------------------
                      End If
                      Do iP = 1, nOrb(iSymP) + nDel(iSymP)
                         Lip = LiPQprod(iSymP,iSymI,iBatch)
@@ -162,7 +162,7 @@
      &                             +  nVir(iSymQ) + nDel(iSymQ))
      &                             * (Li-1)
      &                             +  iK
-*
+!
                               If(iBatch.eq.jBatch) Then
                                  ip_ijak = LiPQRSprod(iSymIP)
      &                                + iTri(Lip,Lak)
@@ -182,16 +182,16 @@
      &                             Work(iMp2Lagr(iA,iK,iSymQ))
      &                             + Work(iDensOcc(iJ,iI,iSymI))
      &                             * A
-*--------------------- Debug Comments -----------------------
-*                              If(iP .le. nFro(iSymP) + nOcc(iSymP)) Then
-*                                 Write(6,*) 'AIJK',iA,iI,iJ,iK
-*                                 Write(6,*) 'aijk', Xaibj(ip_ijak)
-*                                 Write(6,*) 'akji', Xaibj(ip_ikaj)
-*                                 Write(6,*) 'A',A
-*                                 Write(6,*) 'Density',Work(iDensOcc(iJ,
-*     &                                                     iI,iSymI))
-*                              End If
-*------------------------------------------------------------
+!--------------------- Debug Comments -----------------------
+!                              If(iP .le. nFro(iSymP) + nOcc(iSymP)) Then
+!                                 Write(6,*) 'AIJK',iA,iI,iJ,iK
+!                                 Write(6,*) 'aijk', Xaibj(ip_ijak)
+!                                 Write(6,*) 'akji', Xaibj(ip_ikaj)
+!                                 Write(6,*) 'A',A
+!                                 Write(6,*) 'Density',Work(iDensOcc(iJ,
+!     &                                                     iI,iSymI))
+!                              End If
+!------------------------------------------------------------
                            End Do
                         Else If((iP .gt. nFro(iSymP) + nOcc(iSymP)).and.
      &                          (iSymA .eq. iSymQ)) Then
@@ -226,20 +226,20 @@
      &                             Work(iMp2Lagr(iC,iI,iSymI))
      &                             + Work(iDensVir(iB,iA,iSymA))
      &                             * A
-*----------- Debug Comments ------------------------------------------
-*                        Write(6,*) 'AIBC',iA,iI,iB,iC
-*                        Write(6,*) 'Symm',iSymA,iSymI,iSymQ,iSymP
-*                        Write(6,*) 'icab', Xaibj(ip_icab)
-*                        Write(6,*) 'ibac', Xaibj(ip_ibac)
-*                        Write(6,*) 'adress',iMp2Lagr(iC,iI,iSymI)-
-*     &                             ip_Mp2Lagr(1)
-*                        Write(6,*) 'DensAdress',iDensVir(iB,iA,iSymA)-
-*     &                                          ip_Density(1)
-*                        Write(6,*) 'Dens',Work(iDensVir(iB,iA,iSymA))
-*                        Write(6,*) 'A',A
-*                        Write(6,*) 'Bidrag',
-*     &                             A*Work(iDensVir(iB,iA,iSymA))
-*----------------------------------------------------------------------
+!----------- Debug Comments ------------------------------------------
+!                        Write(6,*) 'AIBC',iA,iI,iB,iC
+!                        Write(6,*) 'Symm',iSymA,iSymI,iSymQ,iSymP
+!                        Write(6,*) 'icab', Xaibj(ip_icab)
+!                        Write(6,*) 'ibac', Xaibj(ip_ibac)
+!                        Write(6,*) 'adress',iMp2Lagr(iC,iI,iSymI)-
+!     &                             ip_Mp2Lagr(1)
+!                        Write(6,*) 'DensAdress',iDensVir(iB,iA,iSymA)-
+!     &                                          ip_Density(1)
+!                        Write(6,*) 'Dens',Work(iDensVir(iB,iA,iSymA))
+!                        Write(6,*) 'A',A
+!                        Write(6,*) 'Bidrag',
+!     &                             A*Work(iDensVir(iB,iA,iSymA))
+!----------------------------------------------------------------------
                            End Do
                         End If
                      End Do
@@ -248,7 +248,7 @@
             End Do
          End Do
       End Do
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(nOrbLeftI)
          Call Unused_integer_array(nOrbLeftJ)

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_OPENVR(IOPT,ID)
-C
-C     Purpose: open (IOPT=1) or close (IOPT=2) files for vector
-C              and reduced set storage as well as restart files.
-C              ID=1: open local files (for parallel run)
-C              ID=2: open global files (as in serial run)
-C
+!
+!     Purpose: open (IOPT=1) or close (IOPT=2) files for vector
+!              and reduced set storage as well as restart files.
+!              ID=1: open local files (for parallel run)
+!              ID=2: open global files (as in serial run)
+!
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 

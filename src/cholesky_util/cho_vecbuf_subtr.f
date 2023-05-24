@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
-C
-C     Purpose: subtract contributions to qualified columns from the
-C              vectors stored in the buffer (if any).
-C
-C     DoTime: time as vector subtraction.
-C     DpStat: update statistics info (#calls to dGeMM).
-C
+!
+!     Purpose: subtract contributions to qualified columns from the
+!              vectors stored in the buffer (if any).
+!
+!     DoTime: time as vector subtraction.
+!     DpStat: update statistics info (#calls to dGeMM).
+!
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
@@ -39,8 +39,8 @@ C
 
       Real*8, Pointer:: V(:,:)=>Null(), U(:,:)=>Null(), W(:,:)=>Null()
 
-C     Return if nothing to do.
-C     ------------------------
+!     Return if nothing to do.
+!     ------------------------
 
       If (l_ChVBuf_Sym(iSym) .lt. 1) Then
          If (LocDbg) Then
@@ -71,19 +71,19 @@ C     ------------------------
          Return
       End If
 
-C     Start timing.
-C     -------------
+!     Start timing.
+!     -------------
 
       If (DoTime) Call Cho_Timer(C1,W1)
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       xTot = 0.0d0
       xDon = 0.0d0
 
-C     Set up vector batch.
-C     --------------------
+!     Set up vector batch.
+!     --------------------
 
       nVec = min(lWrk/nQual(iSym),nVec_in_Buf(iSym))
       If (nVec .lt. 1) Then
@@ -93,8 +93,8 @@ C     --------------------
          nBatch = (nVec_in_Buf(iSym)-1)/nVec + 1
       End If
 
-C     Map the integral array, xInt, onto the pointer U
-C     ------------------------------------------------
+!     Map the integral array, xInt, onto the pointer U
+!     ------------------------------------------------
 
       lRow = nnBstR(iSym,2)
       lCol = nQual(iSym)
@@ -103,13 +103,13 @@ C     ------------------------------------------------
 
       U(1:lRow,1:lCol) => xInt(iS:iE)
 
-C     Start batch loop.
-C     -----------------
+!     Start batch loop.
+!     -----------------
 
       Do iBatch = 1,nBatch
 
-C        Set info for this batch.
-C        ------------------------
+!        Set info for this batch.
+!        ------------------------
 
          If (iBatch .eq. nBatch) Then
             NumV = nVec_in_Buf(iSym) - nVec*(nBatch-1)
@@ -132,10 +132,10 @@ C        ------------------------
 
          V(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
-C        Screened or unscreened subtraction section.
-C        The screened version uses level 2 blas, while the unscreened
-C        one employs level 3 blas.
-C        ------------------------------------------------------------
+!        Screened or unscreened subtraction section.
+!        The screened version uses level 2 blas, while the unscreened
+!        one employs level 3 blas.
+!        ------------------------------------------------------------
 
          If (Cho_SScreen) Then
 
@@ -146,9 +146,9 @@ C        ------------------------------------------------------------
 
             W(1:lRow,1:lCol) => Wrk(iS:iE)
 
-C           Copy out sub-blocks corresponding to qualified diagonals:
-C           L(#J,{ab})
-C           ---------------------------------------------------------
+!           Copy out sub-blocks corresponding to qualified diagonals:
+!           L(#J,{ab})
+!           ---------------------------------------------------------
 
             Do jVec = 1,NumV
                Do iAB = 1,nQual(iSym)
@@ -157,10 +157,10 @@ C           ---------------------------------------------------------
                End Do
             End Do
 
-C           Subtract:
-C           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
-C           for each ab in {ab}.
-C           ----------------------------------------------------
+!           Subtract:
+!           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
+!           for each ab in {ab}.
+!           ----------------------------------------------------
 
             Call Cho_SubScr_Dia(V(:,iVec0+1),NumV,iSym,2,SSNorm)
 
@@ -184,9 +184,9 @@ C           ----------------------------------------------------
 
             If (Associated(LQ(iSym)%Array)) Then
 
-C              If the qualified block, L({ab},#J), is already in core,
-C              use this block.
-C              -------------------------------------------------------
+!              If the qualified block, L({ab},#J), is already in core,
+!              use this block.
+!              -------------------------------------------------------
 
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
@@ -204,9 +204,9 @@ C              -------------------------------------------------------
 
                W(1:lRow,1:lCol) => WrK(iS:iE)
 
-C              Copy out sub-blocks corresponding to qualified diagonals:
-C              L({ab},#J).
-C              ---------------------------------------------------------
+!              Copy out sub-blocks corresponding to qualified diagonals:
+!              L({ab},#J).
+!              ---------------------------------------------------------
 
                Do jVec = 1,NumV
                   Do iAB = 1,nQual(iSym)
@@ -215,9 +215,9 @@ C              ---------------------------------------------------------
                   End Do
                End Do
 
-C              Subtract:
-C              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
-C              ----------------------------------------------------
+!              Subtract:
+!              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
+!              ----------------------------------------------------
 
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
@@ -235,8 +235,8 @@ C              ----------------------------------------------------
 
       End Do
 
-C     Update statistics info.
-C     -----------------------
+!     Update statistics info.
+!     -----------------------
 
       If (DoStat) nDGM_Call = nDGM_Call + nBatch
       If (Cho_SScreen) Then
@@ -244,8 +244,8 @@ C     -----------------------
          SubScrStat(2) = SubScrStat(2) + xDon
       End If
 
-C     Update global timing.
-C     ---------------------
+!     Update global timing.
+!     ---------------------
 
       If (DoTime) Then
          Call Cho_Timer(C2,W2)

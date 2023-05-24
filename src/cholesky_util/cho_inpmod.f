@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_InpMod(Mode)
-C
-C     Thomas Bondo Pedersen, Jan. 2005.
-C
-C     Purpose: modifiy Cholesky settings for
-C              Mode = 'LOW ' : low-accuracy decomposition
-C              Mode = 'MEDI' : medium-accuracy decomposition
-C              Mode = 'HIGH' : high-accuracy decomposition
-C              Mode = '1CCD' : set one-center approximation
-C              (All other Mode-values are ignored.)
-C
+!
+!     Thomas Bondo Pedersen, Jan. 2005.
+!
+!     Purpose: modifiy Cholesky settings for
+!              Mode = 'LOW ' : low-accuracy decomposition
+!              Mode = 'MEDI' : medium-accuracy decomposition
+!              Mode = 'HIGH' : high-accuracy decomposition
+!              Mode = '1CCD' : set one-center approximation
+!              (All other Mode-values are ignored.)
+!
       Implicit None
       Character*4 Mode
 

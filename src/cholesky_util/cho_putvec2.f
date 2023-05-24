@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
-C
-C     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
-C              of symmetry ISYM to file.
-C
-C     Version 2: handles several reduced set at a time.
-C
+!
+!     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
+!              of symmetry ISYM to file.
+!
+!     Version 2: handles several reduced set at a time.
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
@@ -29,8 +29,8 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-C     Return if no vectors.
-C     ---------------------
+!     Return if no vectors.
+!     ---------------------
 
       IF (NUMVEC .LT. 1) THEN
          IF (LOCDBG) THEN
@@ -40,8 +40,8 @@ C     ---------------------
          return
       END IF
 
-C     Check symmetry.
-C     ---------------
+!     Check symmetry.
+!     ---------------
 
       IF ((ISYM.LT.1) .OR. (ISYM.GT.NSYM)) THEN
          WRITE(LUPRI,*) SECNAM,': symmetry out of bounds'
@@ -49,8 +49,8 @@ C     ---------------
          CALL CHO_QUIT('Symmetry out of bounds in '//SECNAM,104)
       END IF
 
-C     Check vector index.
-C     -------------------
+!     Check vector index.
+!     -------------------
 
       IVEC2 = IVEC1 + NUMVEC - 1
       IF ((IVEC1.LT.1) .OR. (IVEC1.GT.MAXVEC) .OR.
@@ -62,8 +62,8 @@ C     -------------------
      &                 //SECNAM,104)
       END IF
 
-C     Check for overflow for WA file addressing.
-C     ------------------------------------------
+!     Check for overflow for WA file addressing.
+!     ------------------------------------------
 
       IF (CHO_ADRVEC .EQ. 1) THEN
          IADR2 = INFVEC(IVEC2,4,ISYM)
@@ -88,11 +88,11 @@ C     ------------------------------------------
          END IF
       END IF
 
-C     Call the low-level I/O routines.
-C     CHO_ADRVEC=1: WA files.
-C     CHO_ADRVEC=2: DA files.
-C     Set (next) disk addresses.
-C     --------------------------------
+!     Call the low-level I/O routines.
+!     CHO_ADRVEC=1: WA files.
+!     CHO_ADRVEC=2: DA files.
+!     Set (next) disk addresses.
+!     --------------------------------
 
 
       IF (CHO_ADRVEC .EQ. 1) THEN
@@ -143,8 +143,8 @@ C     --------------------------------
          CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)
       END IF
 
-C     Debug stuff.
-C     ------------
+!     Debug stuff.
+!     ------------
 
       IF (LOCDBG) THEN
          WRITE(LUPRI,*)

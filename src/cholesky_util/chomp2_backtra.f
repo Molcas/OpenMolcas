@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
-C
-C     Thomas Bondo Pedersen, Dec. 2007.
-C
-C     Purpose: Backtransform MO vectors to AO basis.
-C              The result vectors are stored in lower triangular
-C              storage.
-C
-C     Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
-C           instead !!
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2007.
+!
+!     Purpose: Backtransform MO vectors to AO basis.
+!              The result vectors are stored in lower triangular
+!              storage.
+!
+!     Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
+!           instead !!
+!
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
@@ -50,8 +50,8 @@ C
 
       MulD2h(k,l)=iEOr(k-1,l-1)+1
 
-C     Set up index arrays.
-C     --------------------
+!     Set up index arrays.
+!     --------------------
 
       Call iCopy(8*8,[0],0,iAB,1)
       nAB_Tot = 0
@@ -65,8 +65,8 @@ C     --------------------
          nAB_Tot = nAB_Tot + nAB(iSym)
       End Do
 
-C     Backtransform.
-C     --------------
+!     Backtransform.
+!     --------------
 
       If (DoDiag) Then
          Call dCopy_(nAB_Tot,[0.0d0],0,Diag,1)

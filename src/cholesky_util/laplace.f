@@ -1,57 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Ten-no Research Group                            *
-*               2012, Thomas Bondo Pedersen                            *
-************************************************************************
-*NOTICE===NOTICE========NOTICE========NOTICE========NOTICE========NOTICE
-*                                                                      *
-*  Thomas Bondo Pedersen, Nov. 28, 2012:                               *
-*  Part of this code (subroutine Remez and everything called in that   *
-*  routine) was obtained from S. Ten-no; conditions (license or other  *
-*  terms) are unknown at present. Please do not use without consulting *
-*  T.B. Pedersen first!                                                *
-*                                                                      *
-*NOTICE===NOTICE========NOTICE========NOTICE========NOTICE========NOTICE
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Ten-no Research Group                            *
+!               2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
+!NOTICE===NOTICE========NOTICE========NOTICE========NOTICE========NOTICE
+!                                                                      *
+!  Thomas Bondo Pedersen, Nov. 28, 2012:                               *
+!  Part of this code (subroutine Remez and everything called in that   *
+!  routine) was obtained from S. Ten-no; conditions (license or other  *
+!  terms) are unknown at present. Please do not use without consulting *
+!  T.B. Pedersen first!                                                *
+!                                                                      *
+!NOTICE===NOTICE========NOTICE========NOTICE========NOTICE========NOTICE
       Subroutine MinimaxLaplace(Verbose,N,xmin,xmax,l_wt,w,t,irc)
-C
-C     Thomas Bondo Pedersen, November 2012.
-C
-C     Generate grid (weights w and points t) for the
-C     Laplace transform of 1/x.
-C
-C     The minimax approximation for setting up the grid
-C     [Takatsuka, Ten-no, Hackbusch; JCP 129, 044112 (2008)]
-C     is used. The source code for the minimax approximation
-C     was provided by Ten-no on Nov. 28, 2012 (to TBP).
-C
-C     Verbose   -- boolean to control printing
-C     N         -- number of grid points requested. If N=0 on input,
-C                  the number of points required to get an accuracy
-C                  of 1.0d-6 (in the Laplace transform) is used. In
-C                  this case, N is the required number of grid points
-C                  on return.
-C     xmin,xmax -- range of x values to be covered.
-C     l_wt      -- allocated dimension of the arrays w and t.
-C                  If N(input)=0 and l_wt<N(output), only l_wt grid
-C                  points are returned in w and t. N(output) is still
-C                  the full number of grid points [this situation is
-C                  also flagged by the return code irc, see below].
-C     w         -- grid weights are returned in array w.
-C     t         -- grid points are returned in array t.
-C     irc       -- return code:
-C                  <0: input error (parameter -irc is the culprit)
-C                   0: all OK
-C                   1: l_wt is too small to store full result and only
-C                      l_wt grid weights/points are returned.
-C
+!
+!     Thomas Bondo Pedersen, November 2012.
+!
+!     Generate grid (weights w and points t) for the
+!     Laplace transform of 1/x.
+!
+!     The minimax approximation for setting up the grid
+!     [Takatsuka, Ten-no, Hackbusch; JCP 129, 044112 (2008)]
+!     is used. The source code for the minimax approximation
+!     was provided by Ten-no on Nov. 28, 2012 (to TBP).
+!
+!     Verbose   -- boolean to control printing
+!     N         -- number of grid points requested. If N=0 on input,
+!                  the number of points required to get an accuracy
+!                  of 1.0d-6 (in the Laplace transform) is used. In
+!                  this case, N is the required number of grid points
+!                  on return.
+!     xmin,xmax -- range of x values to be covered.
+!     l_wt      -- allocated dimension of the arrays w and t.
+!                  If N(input)=0 and l_wt<N(output), only l_wt grid
+!                  points are returned in w and t. N(output) is still
+!                  the full number of grid points [this situation is
+!                  also flagged by the return code irc, see below].
+!     w         -- grid weights are returned in array w.
+!     t         -- grid points are returned in array t.
+!     irc       -- return code:
+!                  <0: input error (parameter -irc is the culprit)
+!                   0: all OK
+!                   1: l_wt is too small to store full result and only
+!                      l_wt grid weights/points are returned.
+!
       Implicit None
       Logical Verbose
       Integer N
@@ -153,25 +153,25 @@ C
       End If
       End
       Integer Function TestMinimaxLaplace(Tolerance,Verbose)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Test that the minimax code from Ten-no gives correct results
-C     (test case provided by Ten-no). The minimax code is called
-C     through routine MinimaxLaplace.
-C
-C     Input:
-C        Tolerance -- >=0: defines tolerance for test
-C                     <0:  default tolerance used
-C        Verbose   -- If .true., print information
-C
-C     Returns:
-C        -1: nonzero return code from MinimaxLaplace
-C         0: weights OK, grid points OK
-C         1: weights wrong, grid points OK
-C         2: weights OK, grid points wrong
-C         3: weights wrong, grid points wrong
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Test that the minimax code from Ten-no gives correct results
+!     (test case provided by Ten-no). The minimax code is called
+!     through routine MinimaxLaplace.
+!
+!     Input:
+!        Tolerance -- >=0: defines tolerance for test
+!                     <0:  default tolerance used
+!        Verbose   -- If .true., print information
+!
+!     Returns:
+!        -1: nonzero return code from MinimaxLaplace
+!         0: weights OK, grid points OK
+!         1: weights wrong, grid points OK
+!         2: weights OK, grid points wrong
+!         3: weights wrong, grid points wrong
+!
       Implicit None
       Real*8  Tolerance
       Logical Verbose
@@ -286,59 +286,59 @@ C
       TestMinimaxLaplace=irc
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  Thomas Bondo Pedersen, Nov. 28, 2012:
-C  This code was obtained from S. Ten-no; conditions (license or other
-C  terms) are unknown at present.
-C  It implements the minimax approximation for the numerical
-C  quadrature for Laplace transformation of 1/x. Weights and
-C  points are returned in Coeff:
-C     Coeff(1) = Omega(1)   Coeff(2) = Alpha(1)
-C     Coeff(3) = Omega(2)   Coeff(4) = Alpha(2)
-C     etc.
-C  Reference: Takatsuka, Ten-no, Hackbusch; JCP 129, 044112 (2008)
-C
-*MODULE BESTAP   *DECK Remez
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!  Thomas Bondo Pedersen, Nov. 28, 2012:
+!  This code was obtained from S. Ten-no; conditions (license or other
+!  terms) are unknown at present.
+!  It implements the minimax approximation for the numerical
+!  quadrature for Laplace transformation of 1/x. Weights and
+!  points are returned in Coeff:
+!     Coeff(1) = Omega(1)   Coeff(2) = Alpha(1)
+!     Coeff(3) = Omega(2)   Coeff(4) = Alpha(2)
+!     etc.
+!  Reference: Takatsuka, Ten-no, Hackbusch; JCP 129, 044112 (2008)
+!
+!MODULE BESTAP   *DECK Remez
       SUBROUTINE Remez(Vrbse,K_Lap,EMin,EMax,Coeff,Demand,Inf)
-*======================================================================*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Function : Main program of Remez algorithm                       *
-*                                                                      *
-*                1      K_Lap                                          *
-*             ------- := SUM Omega(N)*EXP(-Alpha(N)*DELTA)             *
-*              DELTA     N=1                                           *
-*                                                                      *
-*              DELTA  := EA+EB-EI-EJ                                   *
-*                                                                      *
-*     Author(s): Akio Takatsuka (2007)                                 *
-*                                                                      *
-*     K_Lap : The number of quadrature points (K_Lap=1,...,20)         *
-*             K_Lap=0 : K_Lap is automatically determined.             *
-*                                                                      *
-*----------------------------------------------------------------------*
-*======================================================================*
+!======================================================================*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Function : Main program of Remez algorithm                       *
+!                                                                      *
+!                1      K_Lap                                          *
+!             ------- := SUM Omega(N)*EXP(-Alpha(N)*DELTA)             *
+!              DELTA     N=1                                           *
+!                                                                      *
+!              DELTA  := EA+EB-EI-EJ                                   *
+!                                                                      *
+!     Author(s): Akio Takatsuka (2007)                                 *
+!                                                                      *
+!     K_Lap : The number of quadrature points (K_Lap=1,...,20)         *
+!             K_Lap=0 : K_Lap is automatically determined.             *
+!                                                                      *
+!----------------------------------------------------------------------*
+!======================================================================*
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C
+!
+!
       Logical Vrbse
       LOGICAL Inf
-C
+!
       PARAMETER (ItrEnd=50,ZERO=0.0D+00,ONE=1.0D+00,MxList=30)
-C
+!
       CHARACTER*8 Demand
       Logical Verbose
-C
-Ctbp  DIMENSION Alpha(20),Omega(20),Xi(40),Coeff(40),V(40),T(40),DD(82),
-Ctbp *          CofOld(40),RList(MxList),IRMax(20),RMin(20),RMax(20)
+!
+!tbp  DIMENSION Alpha(20),Omega(20),Xi(40),Coeff(40),V(40),T(40),DD(82),
+!tbp *          CofOld(40),RList(MxList),IRMax(20),RMin(20),RMax(20)
       DIMENSION Coeff(40),T(40),DD(82),
      *          CofOld(40),RList(MxList),IRMax(20),RMin(20),RMax(20)
-C
+!
       DATA RList / 2.0D+00, 5.0D+00, 1.0D+01, 2.0D+01, 3.0D+01, 4.0D+01,
      *             5.0D+01, 6.0D+01, 7.0D+01, 8.0D+01, 9.0D+01, 1.0D+02,
      *             2.0D+02, 3.0D+02, 4.0D+02, 5.0D+02, 6.0D+02, 7.0D+02,
@@ -355,25 +355,25 @@ C
      *             3.450D+06, 5.754D+06, 9.494D+06, 1.550D+07/
       DATA IRMax / 3, 7,13,16,22, 23,27,31,31,31,
      *            31,31,31,31,31, 31,31,31,31,31/
-C
+!
       LOGICAL Change,Dbg,SkpRem,StopBA
-C
+!
       Call Untested('Laplace quadrature generation (subroutine remez)')
-C
+!
       Dbg = .FALSE.
       SkpRem = .FALSE.
       Change = .FALSE.
       IMes = -1
-C
+!
       Verbose=Vrbse.or.Dbg
-C
+!
       Call Remez_SetupPrint(Verbose)
-C
+!
       WRITE(IW,'(/" Remez: minimax approximation for Laplace grid " )')
       WRITE(IW,'( " ============================================= "/)')
-C
-C     ===== Check input variables =====
-C
+!
+!     ===== Check input variables =====
+!
       IF (EMin.GT.EMax) THEN
          WRITE(IW,'(/" Input values of energy are unsuitable. "/)')
          WRITE(IW,*)'EMin, EMax',EMin,EMax
@@ -387,13 +387,13 @@ C
          Call Remez_ShutDownPrint(Verbose)
          RETURN
       ENDIF
-C
-C     ===== Set initial values =====
-C           InitR : initial R
-C
+!
+!     ===== Set initial values =====
+!           InitR : initial R
+!
       EMinIv = ONE/EMin
       R = EMax*EMinIv
-C
+!
       J = MxList
       DO I=1,MxList
          EDiff = R-RList(J)
@@ -405,12 +405,12 @@ C
       ENDDO
       InitR = 1
   100 CONTINUE
-C
-C     ===== Determine K_Lap value (If K_Lap isn't determined.) =====
-C
+!
+!     ===== Determine K_Lap value (If K_Lap isn't determined.) =====
+!
       IF (K_Lap.EQ.0) CALL DfineK(K_Lap,R,InitR,Demand)
       IDim = 2*K_Lap
-C
+!
       RMax0=RMax(K_Lap)
       WRITE(IW,'(1X,"# of quadrature points =",I3/)')K_Lap
       WRITE(IW,'(1X,"Maximum R =",F20.10)')RMax0
@@ -418,10 +418,10 @@ C
       WRITE(IW,'(4X,"Min =",2X,F14.8)')EMin
       WRITE(IW,'(4X,"Max =",2X,F14.8)')EMax
       WRITE(IW,'(4X,"R   =",F16.8)')R
-C
-C     ===== Check the R value =====
-C       R.LE.RMin(K_Lap) or R.GT.RMax(K_Lap)
-C
+!
+!     ===== Check the R value =====
+!       R.LE.RMin(K_Lap) or R.GT.RMax(K_Lap)
+!
       IF (R.LE.RMin(K_Lap)) THEN
          SkpRem = .TRUE.
          InitR = 1
@@ -448,11 +448,11 @@ C
      *      RMax(K_Lap)
          GOTO 999
       ENDIF
-C
-C     ===== Set initial values (Omega,Alpha,T) =====
-C
+!
+!     ===== Set initial values (Omega,Alpha,T) =====
+!
       CALL SetExp(K_Lap,InitR,R,RIni,Coeff,T)
-C
+!
       IF (Dbg) THEN
          WRITE(IW,'(/" Initial data for Remez algorithm"/)')
          DO I=1,K_Lap
@@ -462,12 +462,12 @@ C
      *      I,Coeff(Idx),I,Coeff(Idx+1)
          ENDDO
       ENDIF
-C
-C     ===== Start Remez step =====
-C
+!
+!     ===== Start Remez step =====
+!
       Theta  = ZERO
       Theta2 = ONE
-C
+!
       WRITE(IW,'(" Remez step starts from ",F5.0/)') RIni
       CALL FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
       IF (Dbg) THEN
@@ -480,9 +480,9 @@ C
          Change =.TRUE.
          GOTO 999
       ENDIF
-C
-C     ===== Iteration =====
-C
+!
+!     ===== Iteration =====
+!
       DO Iter=1,ItrEnd
          CALL DCOPY_(IDim,Coeff,1,CofOld,1)
          CALL SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
@@ -490,10 +490,10 @@ C
             Change =.TRUE.
             GOTO 999
          ENDIF
-c        CALL TStat(" Newton2",1)
+!        CALL TStat(" Newton2",1)
          CALL SlvNt1(K_Lap,100,Coeff,T)
-c        CALL TStat(" Newton1",1)
-C
+!        CALL TStat(" Newton1",1)
+!
          IF (Dbg) THEN
             WRITE(IW,'(/"Iter =",I3)')Iter
             CALL FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
@@ -504,16 +504,16 @@ C
             ENDDO
             WRITE(IW,*)
          ENDIF
-C
-C     ===== Check convergence =====
-C     CofOld is updated by the mean of Coeff
-C
+!
+!     ===== Check convergence =====
+!     CofOld is updated by the mean of Coeff
+!
          DO J=1,IDim
             CofOld(J) = ABS(CofOld(J)-Coeff(J))
          ENDDO
          CALL FindAM(IDim+1,DD,DDMax,IMax)
          DCofMx = FindMx(IDim,CofOld)
-C
+!
          IF (Dbg) THEN
             CALL FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
             CALL FindAM(IDim+1,DD,DDMax,IMax)
@@ -527,17 +527,17 @@ C
      *         WRITE(IW,'(" Iter",5X,"Max Change",15X,"Max DD")')
             WRITE(IW,'(I3,2(2X,E23.15E3))') Iter,DCofMx,VVMax
          ENDIF
-C
+!
          IF ((VVMax.LT.5.0D-16).AND.(DCofMx.LT.1.0D-05)) GOTO 777
-C
-c        CALL TStat(" Check T",1)
+!
+!        CALL TStat(" Check T",1)
       ENDDO
-C
+!
       WRITE(IW,'(" The number of iterations exceeded ",I3," .")')
      *        ItrEnd
-C
-C     ===== Check the result =====
-C
+!
+!     ===== Check the result =====
+!
   777 CONTINUE
       CALL FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
       IF (StopBA) THEN
@@ -546,26 +546,26 @@ C
       ENDIF
       CALL FindAM(IDim+1,DD,DDMax,IMax)
       CALL ChkAcc(K_Lap,InitR,DDMax,R,Change)
-C
-C     ===== Change parameters =====
-C     If the convergence isn't good, the larger R's parameters are used.
-C
+!
+!     ===== Change parameters =====
+!     If the convergence isn't good, the larger R's parameters are used.
+!
       WRITE(IW,'(/" Iteration =",I6)') Iter
   999 CONTINUE
       IF (Change.OR.SkpRem) THEN
          WRITE(IW,'(1X,"Change!!")')
          CALL SetExp(K_Lap,InitR,R,RIni,Coeff,T)
       ENDIF
-C
-C     ===== Determine Xi =====
-C
-c     CALL TStat(" Check T",1)
+!
+!     ===== Determine Xi =====
+!
+!     CALL TStat(" Check T",1)
       CALL SlvNt1(K_Lap,1,Coeff,T)
       IF (Change) THEN
          R = RIni
       ENDIF
-c     CALL TStat(" Newton1",1)
-C
+!     CALL TStat(" Newton1",1)
+!
       WRITE(IW,'(/" Optimized solution in R = ",F10.4/)')R
       DO I=1,K_Lap
          Idx = 2*I-1
@@ -584,9 +584,9 @@ C
          WRITE(IW,'(" Xi(",I2,") = ",F20.15)')I,T(I)
       ENDDO
       WRITE(IW,'()')
-C
-C     ===== Maltiple the scaling parameter (EMinIv = 1/EMin) =====
-C
+!
+!     ===== Maltiple the scaling parameter (EMinIv = 1/EMin) =====
+!
       CALL DSCAL_(IDim,EMinIv,Coeff,1)
       WRITE(IW,'(/" Final solution "/)')
       DO I=1,K_Lap
@@ -595,29 +595,29 @@ C
      *   '(" Omega(",I3,") = ",F21.18,2X,"Alpha(",I3,") = ",F20.17)')
      *   I,Coeff(Idx),I,Coeff(Idx+1)
       ENDDO
-C
+!
       Call Remez_ShutDownPrint(Verbose)
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK EXPSUM
+!*MODULE BESTAP *DECK EXPSUM
       FUNCTION ExpSum(X,K,Coeff)
-*======================================================================*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     FUNCTION : Compute the Function in Exponential sum method.       *
-*             K                                                        *
-*     1/X =: SUM Omega(I)*EXP(-Alpha(I)*X)                             *
-*            I=1                                                       *
-*                                                                      *
-*     Author(s): Akio Takatsuka (2007)                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*======================================================================*
+!======================================================================*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     FUNCTION : Compute the Function in Exponential sum method.       *
+!             K                                                        *
+!     1/X =: SUM Omega(I)*EXP(-Alpha(I)*X)                             *
+!            I=1                                                       *
+!                                                                      *
+!     Author(s): Akio Takatsuka (2007)                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!======================================================================*
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION Coeff(40)
-C
+!
       Dum = 0.0D+00
       DO I=1,K
          Idx = 2*I-1
@@ -626,58 +626,58 @@ C
          Dum = Dum+Omega*EXP(-X*Alpha)
       ENDDO
       ExpSum = Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK GLASUM
+!*MODULE BESTAP *DECK GLASUM
       FUNCTION GLaSum(K,X,W,Delta)
-*======================================================================*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     FUNCTION : Compute the Function in Gauss-Laguerre method         *
-*             K                                                        *
-*     1/X =: SUM W(I)*Func(X(I))                                       *
-*            I=1                                                       *
-*                                                                      *
-*     Author(s): Akio Takatsuka (2007)                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*======================================================================*
+!======================================================================*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     FUNCTION : Compute the Function in Gauss-Laguerre method         *
+!             K                                                        *
+!     1/X =: SUM W(I)*Func(X(I))                                       *
+!            I=1                                                       *
+!                                                                      *
+!     Author(s): Akio Takatsuka (2007)                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!======================================================================*
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
-C
+!
       DIMENSION W(20),X(20)
-C
+!
       Dum = ZERO
       DO I=1,K
          Val = EXP((-Delta+ONE)*X(I))
          Dum = Dum+W(I)*Val
       ENDDO
       GLaSum = Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK GLESUM
+!*MODULE BESTAP *DECK GLESUM
       FUNCTION GLeSum(K,X,W,Delta)
-*======================================================================*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     FUNCTION : Compute the Function in Gauss-Legendre method         *
-*             K                                                        *
-*     1/X =: SUM W(I)*Func(X(I))                                       *
-*            I=1                                                       *
-*                                                                      *
-*     Author(s): Akio Takatsuka (2007)                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*======================================================================*
+!======================================================================*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     FUNCTION : Compute the Function in Gauss-Legendre method         *
+!             K                                                        *
+!     1/X =: SUM W(I)*Func(X(I))                                       *
+!            I=1                                                       *
+!                                                                      *
+!     Author(s): Akio Takatsuka (2007)                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!======================================================================*
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
-C
+!
       DIMENSION W(20),X(20)
-C
+!
       Dum = ZERO
       DO I=1,K
          A    = ONE/(ONE-X(I))
@@ -687,95 +687,95 @@ C
          Dum = Dum+W(I)*Val
       ENDDO
       GLeSum = Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK FUNCLA
+!*MODULE BESTAP *DECK FUNCLA
       FUNCTION FuncLa(X,Delta)
-C----------------------------------------------------------------------
-C----------------------------------------------------------------------
+!----------------------------------------------------------------------
+!----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       FuncLa = EXP((-Delta+1.0D+00)*X)
       RETURN
       END
-C*MODULE BESTAP *DECK FUNCLE
+!*MODULE BESTAP *DECK FUNCLE
       FUNCTION FuncLe(X,Delta)
-C----------------------------------------------------------------------
-C     Function : Define function after CoV for Gauss-Legendre Method
-C                H.Koch,A.Sanchez de Meras (J.Chem.Phys. 113,508)
-C-----------------------------------------------------------------------
+!----------------------------------------------------------------------
+!     Function : Define function after CoV for Gauss-Legendre Method
+!                H.Koch,A.Sanchez de Meras (J.Chem.Phys. 113,508)
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ONE=1.0D+00)
-C
+!
       Varl = X/(ONE-X)
       Derv = ONE/((ONE-X)*(ONE-X))
       FuncLe = Derv*EXP(-Delta*Varl)
       RETURN
       END
-C*MODULE BESTAP *DECK SUMLAG
+!*MODULE BESTAP *DECK SUMLAG
       FUNCTION SumLag(K_Lap,W,X,Delta)
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION W(K_Lap),X(K_Lap)
-C
+!
       Dum = 0.0D+00
       DO I=1,K_Lap
          Dum = Dum+W(I)*FuncLa(X(I),Delta)
       ENDDO
       SumLag = Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK SUMLEG
+!*MODULE BESTAP *DECK SUMLEG
       FUNCTION SumLeg(K_Lap,W,X,Delta)
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION W(K_Lap),X(K_Lap)
-C
+!
       Dum = 0.0D+00
       DO I=1,K_Lap
          Dum = Dum+W(I)*FuncLe(X(I),Delta)
       ENDDO
       SumLeg = Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK SLVNT1
+!*MODULE BESTAP *DECK SLVNT1
       SUBROUTINE SlvNt1(K_Lap,NTimes,Coeff,T)
-C-----------------------------------------------------------------------
-C     Function : Newton-Raphson method (type 1)
-C                obtain omega & alpha
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Newton-Raphson method (type 1)
+!                obtain omega & alpha
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (TOL=1.0D-22,ONE=1.0D+00,TWO=2.0D+00,THTMIN=1.0D-04,
      *           PT5=0.5D+00)
-C
+!
       DIMENSION Coeff(40),CoeffOld(40),W(40),VV(40),T(40),A(40,40)
-C
+!
       LOGICAL Error,Dbg
-C
+!
       Theta = 1.0D+00
       Dbg = .FALSE.
       IDim = 2*K_Lap
-C
+!
       DO Iter=1,NTimes
          IRes = 1
          CALL AltErr(K_Lap,Coeff,T,VV,Eps0)
          IF (Eps0.GT.Tol) THEN
             CALL PtDiff(IDim,Coeff,T,A)
-C
+!
             IF (Dbg) THEN
                WRITE(IW,'("Check values of derivatives")')
                CALL Laplace_PRSQ(A,IDim,IDim,IDim)
             ENDIF
-C
+!
             CALL SlvEqs(IDim,A,W,VV,Error)
             IF (Dbg) THEN
                WRITE(IW,*)'Check solutions of equations',Error
@@ -785,7 +785,7 @@ C
             ENDIF
             IF (.NOT.Error) GOTO 555
             CALL DCOPY_(IDim,Coeff,1,CoeffOld,1)
-C
+!
   222       CONTINUE
             DO I=1,IDim
                Coeff(I) = CoeffOld(I)-Theta*W(I)
@@ -811,49 +811,49 @@ C
   999 CONTINUE
       RETURN
       END
-C*MODULE BESTAP *DECK SLVNT2
+!*MODULE BESTAP *DECK SLVNT2
       SUBROUTINE SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
-C-----------------------------------------------------------------------
-C     Function : Newton-Raphson method (type 2)
-C
-C         R      : The size of approximation range
-C         T      : clossing points
-C         TOld   : saved data of the first T
-C         Coeff  : Omega & Alpha
-C         CofOld : saved data of the first Coeff
-C         DD     : maximum error & its coordinate
-C         VVMax  : Maximum mean of VV array
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Newton-Raphson method (type 2)
+!
+!         R      : The size of approximation range
+!         T      : clossing points
+!         TOld   : saved data of the first T
+!         Coeff  : Omega & Alpha
+!         CofOld : saved data of the first Coeff
+!         DD     : maximum error & its coordinate
+!         VVMax  : Maximum mean of VV array
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (TOL=1.0D-22,ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00,
      *           PT5=0.5D+00,TLim=2.0D-05)
-C
+!
       LOGICAL Error,NG,Dbg,StopBA
-C
+!
       DIMENSION Coeff(40),CofOld(40),T(40),TOld(40),VV(40),W(40),DD(82),
      *          A(40,40)
-C
+!
       IDim = 2*K_Lap
       New2 = 10
       Theta2Mx = ONE
       NG = .FALSE.
       Dbg = .FALSE.
       IF (Dbg) WRITE(IW,*)'theta2',Theta2
-C
+!
       CALL FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
       IF (StopBA) RETURN
       CALL DCOPY_(IDim,Coeff,1,CofOld,1)
-C
+!
       DO I=1,IDim
          VV(I) = DD(I)+DD(I+1)
       ENDDO
       Eps0 = FindMx(IDim,VV)
-C-tbp: avoid the risk of using eps1 later:
+!-tbp: avoid the risk of using eps1 later:
       Eps1=Eps0
-C
+!
       IF (Eps0.GT.TOL) THEN
          Eps = 1.0D-03
          DO J=1,IDim
@@ -874,7 +874,7 @@ C
          CALL SlvEqs(IDim,A,W,VV,Error)
          IF (.NOT.Error) GOTO 555
          CALL DCOPY_(IDim,T,1,TOld,1)
-C
+!
   222    CONTINUE
          DO I=1,IDim
             T(I) = TOld(I)-Theta2*W(I)
@@ -901,7 +901,7 @@ C
             IF (Theta2.GT.Theta2Mx) Theta2 = Theta2Mx
          ENDIF
          GOTO 999
-C
+!
   333    CONTINUE
          IF (Theta2.LT.TLim) THEN
             WRITE(IW,'(" Theta2 becomes too small.")')
@@ -909,14 +909,14 @@ C
             Theta2 = Theta2*PT5
             GOTO 222
          ENDIF
-C
+!
   555    CONTINUE
       ENDIF
-C
+!
   999 CONTINUE
       VVMax = Eps1
       CALL SlvNt1(K_Lap,New2,Coeff,T)
-C
+!
       IF (Dbg) THEN
          WRITE(IW,*)'eps1',VVMax
          DO I=1,IDim
@@ -926,34 +926,34 @@ C
             WRITE(IW,*)'T',i,t(i)
          ENDDO
       ENDIF
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK FDEXTR
+!*MODULE BESTAP *DECK FDEXTR
       SUBROUTINE FdExtr(K_Lap,T,Coeff,R,Theta,DD,StpBA)
-C-----------------------------------------------------------------------
-C     Function : Find extrema in each interval
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Find extrema in each interval
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,PT5=5.0D-01,MxIter=10000,
      *           Thrs=1.0D-09,TWO=2.0D+00)
-C
+!
       DIMENSION Coeff(40),T(40),DD(82)
-C
+!
       LOGICAL Dbg,StpBA
-C
+!
       IDim = 2*K_Lap
       IDimEnd = IDim+1
       Dbg =.FALSE.
       StpBA =.FALSE.
-C
+!
       DO I=1,IDimEnd
-C
-C     ===== End points =====
-C
+!
+!     ===== End points =====
+!
          IF (I.EQ.1) THEN
             XXMax = ONE
             GOTO 888
@@ -961,15 +961,15 @@ C
             XXMax = R
             GOTO 888
          ENDIF
-C
-C     ===== Initial values (midpoint)
-C
+!
+!     ===== Initial values (midpoint)
+!
          X1 = T(I-1)
          X2 = T(I)
          X = (X1+X2)*PT5
-C
-C     ===== Solve Equations =====
-C
+!
+!     ===== Solve Equations =====
+!
          Theta = ONE
          DO Iter=1,MxIter
             FX  = GetDr1(K_Lap,X,Coeff)
@@ -988,15 +988,15 @@ C
             ENDIF
             X = XNew
          ENDDO
-C
+!
          WRITE(IW,'("*************** Max Iteration in FdExtr")')
          WRITE(IW,'("I =",I3," Max DifX. =",E23.15E3)')I,DifX
 !!       StpBA =.TRUE.
 !!       RETURN
-C
+!
          FMax  = ZERO
          XXMax = ZERO
-C
+!
          IX = -1
          XErr2 = 9.99D+02
          XErr3 = XErr2
@@ -1004,7 +1004,7 @@ C
          IDrEnd = IDr+1
          DrInv = ONE/DBLE(IDr)
          DrDif = (X2-X1)*DrInv
-C
+!
          DO J=1,IDrEnd
             X = X1+(J-1)*DrDif
             FF = QuadErr(K_Lap,X,Coeff)
@@ -1018,30 +1018,30 @@ C
             ENDIF
          ENDDO
          XXMax = -XXMax
-C
+!
          IF (IX.EQ.1) GOTO 888
          IF (IX.EQ.IDrEnd) GOTO 888
-C
+!
          Dum = X1+(IX-2)*DrDif
          XM1 = QuadErr(K_Lap,Dum,Coeff)
-C
+!
          Dum = X1+(IX-1)*DrDif
          XM2 = QuadErr(K_Lap,Dum,Coeff)
-C
+!
          Dum = X1+IX*DrDif
          XM3 = QuadErr(K_Lap,Dum,Coeff)
-C
+!
          XErr1  = (XM3-XM1)/(TWO*(XM3-TWO*XM2+XM1))
          XErr2  = XErr1*DrInv-XXMax
          XMx = MAX(ABS(XM1),ABS(XM3))
          IF (ABS(XM2).LE.XMx) GOTO 888
          XXMax = XErr2
-C
+!
   777    CONTINUE
          XXMax = XNew
-C
-C     ===== Save data =====
-C
+!
+!     ===== Save data =====
+!
   888    CONTINUE
          FMax = QuadErr(K_Lap,XXMax,Coeff)
          DD(I) = FMax
@@ -1049,21 +1049,21 @@ C
       ENDDO
       RETURN
       END
-C*MODULE BESTAP *DECK GETDR1
+!*MODULE BESTAP *DECK GETDR1
       FUNCTION GetDr1(K_Lap,X,Coeff)
-C-----------------------------------------------------------------------
-C     Function : Get 1st derivative of error function
-C
-C                     K_Lap
-C     Dr1(X) = 1/X*X - SUM Omega(I)*Alpha(I)*Exp(-Alpha(I)*X)
-C                      I=1
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Get 1st derivative of error function
+!
+!                     K_Lap
+!     Dr1(X) = 1/X*X - SUM Omega(I)*Alpha(I)*Exp(-Alpha(I)*X)
+!                      I=1
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
-C
+!
       DIMENSION Coeff(40)
-C
+!
       Dum = ZERO
       DO I=1,K_Lap
          Idx = 2*I-1
@@ -1071,26 +1071,26 @@ C
          Alpha = Coeff(Idx+1)
          Dum = Dum+Omega*Alpha*EXP(-Alpha*X)
       ENDDO
-C
+!
       GetDr1 = Dum-ONE/(X*X)
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK GETDR2
+!*MODULE BESTAP *DECK GETDR2
       FUNCTION GetDr2(K_Lap,X,Coeff)
-C-----------------------------------------------------------------------
-C     Function : Get 2nd derivative of error function
-C
-C     K_Lap
-C      SUM Omega(I)*Alpha(I)*Alpha(I)*Exp(-Alpha(I)*X)
-C      I=1
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Get 2nd derivative of error function
+!
+!     K_Lap
+!      SUM Omega(I)*Alpha(I)*Alpha(I)*Exp(-Alpha(I)*X)
+!      I=1
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00)
-C
+!
       DIMENSION Coeff(40)
-C
+!
       Dum = ZERO
       DO I=1,K_Lap
          Idx = 2*I-1
@@ -1098,25 +1098,25 @@ C
          Alpha = Coeff(Idx+1)
          Dum = Dum+Omega*Alpha*Alpha*EXP(-Alpha*X)
       ENDDO
-C
+!
       GetDr2 = TWO/(X*X*X)-Dum
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK SLVEQS
+!*MODULE BESTAP *DECK SLVEQS
       SUBROUTINE SlvEqs(N,A,X,B,Error)
-C-----------------------------------------------------------------------
-C     Function : Solve equations (Loesen)
-C                Solve AX = B
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Solve equations (Loesen)
+!                Solve AX = B
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,G_Eps=1.0D-19)
-C
+!
       LOGICAL Error
-C
+!
       DIMENSION A(40,40),B(40),X(40)
-C
+!
       Error = .FALSE.
       DO I=1,N
          DO K=I,N
@@ -1133,7 +1133,7 @@ C
                A(K,J) = A(K,J)*SInv
             ENDDO
          ENDDO
-C
+!
          P = A(I,I)
          K = I
          DO J=I,N
@@ -1154,7 +1154,7 @@ C
             B(K) = S
          ENDIF
          IF ((ABS(P).LT.G_Eps).AND.(P.EQ.ZERO)) GOTO 999
-C
+!
          PInv = ONE/P
          B(I) = B(I)*PInv
          DO J=I+1,N
@@ -1172,7 +1172,7 @@ C
             ENDIF
          ENDDO
       ENDDO
-C
+!
       II = N
       DO I=1,N
          S = B(II)
@@ -1183,22 +1183,22 @@ C
          X(II) = S
          II = II-1
       ENDDO
-C
+!
       Error = .TRUE.
   999 CONTINUE
       RETURN
       END
-C*MODULE BESTAP *DECK PTDIFF
+!*MODULE BESTAP *DECK PTDIFF
       SUBROUTINE PtDiff(IDim,Coeff,T,A)
-C-----------------------------------------------------------------------
-C     Function : Calculate derivative
-C                j = odd  ; A(I,J) = EXP(-X*Coeff(J+1))
-C                j = even ; A(I,J) = -X*Coeff(J-1)*EXP(-X*Coeff(J))
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Calculate derivative
+!                j = odd  ; A(I,J) = EXP(-X*Coeff(J+1))
+!                j = even ; A(I,J) = -X*Coeff(J-1)*EXP(-X*Coeff(J))
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION Coeff(40),T(40),A(40,40)
-C
+!
       DO I=1,IDim
          DO J=1,IDim
             X = T(IDim+1-I)
@@ -1211,31 +1211,31 @@ C
       ENDDO
       RETURN
       END
-C*MODULE BESTAP *DECK QUADERR
+!*MODULE BESTAP *DECK QUADERR
       FUNCTION QuadErr(K_Lap,X,Coeff)
-C-----------------------------------------------------------------------
-C     Function : Calculate the error between Exponensial sum and 1/x
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Calculate the error between Exponensial sum and 1/x
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ONE=1.0D+00)
-C
+!
       DIMENSION Coeff(40)
-C
+!
       S = ExpSum(X,K_Lap,Coeff)
-C
+!
       QuadErr = S-ONE/X
       RETURN
       END
-C*MODULE BESTAP *DECK ALTERR
+!*MODULE BESTAP *DECK ALTERR
       SUBROUTINE AltErr(K_Lap,Coeff,T,VV,Eps)
-C-----------------------------------------------------------------------
-C     Function : Calculate errors in each points of alternant
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Calculate errors in each points of alternant
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION VV(40),T(40),Coeff(40)
-C
+!
       IDim = 2*K_Lap
       Eps = 0.0D+00
       J = IDim
@@ -1247,24 +1247,24 @@ C
       ENDDO
       RETURN
       END
-C*MODULE BESTAP *DECK CKALTD
+!*MODULE BESTAP *DECK CKALTD
       SUBROUTINE CkAltD(K_Lap,DD,NG)
-C-----------------------------------------------------------------------
-C     Function : Check the alternation of array DD
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Check the alternation of array DD
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (ZERO=0.0D+00)
-C
+!
       DIMENSION DD(82)
-C
+!
       LOGICAL NG
-C
+!
       IDimEnd = 2*K_Lap
       NG = .FALSE.
-C
+!
       DO I=1,IDimEnd
          A = DD(I)*DD(I+1)
          IF (A.GE.ZERO) THEN
@@ -1274,24 +1274,24 @@ C
       ENDDO
       RETURN
       END
-C*MODULE BESTAP *DECK CkAltT
+!*MODULE BESTAP *DECK CkAltT
       SUBROUTINE CkAltT(K_Lap,R,T,NG)
-C-----------------------------------------------------------------------
-C     Function : Check the alternation of array T
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Check the alternation of array T
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (ONE=1.0D+00)
-C
+!
       DIMENSION T(40)
-C
+!
       LOGICAL NG
-C
+!
       IDimEnd = 2*K_Lap+1
       NG = .FALSE.
-C
+!
       DO I=1,IDimEnd
          IF (I.EQ.1) THEN
             A = ONE
@@ -1312,41 +1312,41 @@ C
   999 CONTINUE
       RETURN
       END
-C*MODULE BESTAP *DECK INITT
+!*MODULE BESTAP *DECK INITT
       SUBROUTINE InitT(K_Lap,T,RIni,RNew)
-C-----------------------------------------------------------------------
-C     Function : Set the initial T()
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Set the initial T()
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C
+!
+!
       PARAMETER (ONE=1.0D+00)
-C
+!
       DIMENSION T(40)
-C
+!
       LOGICAL Dbg
-C
+!
       Dbg = .FALSE.
       Val = (RNew-ONE)/(RIni-ONE)
-C
+!
       IF (Dbg) WRITE(IW,'("T(I)")')
       DO I=1,2*K_Lap
          T(I) = ONE+(T(I)-ONE)*Val
          IF (Dbg) WRITE(IW,'(I3,2X,F20.14)')I,T(I)
       ENDDO
-C
+!
       RETURN
       END
-C*MODULE BESTAP *DECK FINDMX
+!*MODULE BESTAP *DECK FINDMX
       FUNCTION FindMx(n,X)
-C-----------------------------------------------------------------------
-C     Function : Find Maximumnorm in X(IDim)
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Find Maximumnorm in X(IDim)
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION X(n)
-C
+!
       XMax = 0.0D+00
       DO I=1,n
          XMax = MAX(XMax,ABS(X(I)))
@@ -1354,18 +1354,18 @@ C
       FindMx = XMax
       RETURN
       END
-C*MODULE BESTAP *DECK FINDAM
+!*MODULE BESTAP *DECK FINDAM
       SUBROUTINE FindAM(n,X,XMax,IMax)
-C-----------------------------------------------------------------------
-C     Function : Find Absolute Maximum in X(n)    XMax = X(IMax)
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Find Absolute Maximum in X(n)    XMax = X(IMax)
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION X(n)
-C
+!
       IMax = 1
       XMax = 0.0D+00
-C
+!
       DO I=1,n
          XVal = ABS(X(I))
          IF (XMax.LT.XVal) THEN
@@ -1375,34 +1375,34 @@ C
       ENDDO
       RETURN
       END
-C*MODULE BESTAP *DECK DFINEK
+!*MODULE BESTAP *DECK DFINEK
       SUBROUTINE DfineK(K_Lap,R,InitR,Demand)
-C-----------------------------------------------------------------------
-C     Function : Define optimal K value
-C
-C     Demand : Select the accuracy which you want
-C            = MILLI ... 10E-03 accuracy (K = 2-)
-C            = MICRO ... 10E-06 accuracy (K = 4-)
-C            = NANO  ... 10E-09 accuracy (K = 7-)
-C            = PICO  ... 10E-12 accuracy (K =11-)
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Define optimal K value
+!
+!     Demand : Select the accuracy which you want
+!            = MILLI ... 10E-03 accuracy (K = 2-)
+!            = MICRO ... 10E-06 accuracy (K = 4-)
+!            = NANO  ... 10E-09 accuracy (K = 7-)
+!            = PICO  ... 10E-12 accuracy (K =11-)
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (MxList=31,MxK=20,ZERO=0.0D+00)
-C
+!
       CHARACTER*8 Milli,Micro,Nano,Pico,Demand
-C
+!
       DIMENSION ErLst1(MxK),ErLst2(MxK),ErLst3(MxK),ErLst4(MxK),
      *          ErLst5(MxK),IdxMin(MxK),KList1(MxList),KList2(MxList),
      *          KList3(MxList),KList4(MxList),RList(30)
-C
+!
       DATA Milli,Micro /'MILLI   ','MICRO   '/
       DATA Nano,Pico   /'NANO    ','PICO    '/
-C
+!
       DATA IdxMin / 1, 1, 1, 1, 1,  1, 1, 3, 3, 3,
      *              3, 3, 3, 3, 3,  3, 4, 6, 7, 8/
-C
+!
       DATA KList1 / 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
      *              3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3/
       DATA KList2 / 3, 4, 5, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 9, 9,
@@ -1411,7 +1411,7 @@ C
      *             15,15,15,15,15,16,17,17,17,18,18,18,18,18,18/
       DATA KList4 / 6,10,10,12,13,14,14,15,15,16,16,16,18,19,19,20,
      *             20,20,20,20,20,20,20,20,20,20,20,20,20,20,20/
-C
+!
       DATA ErLst1 / 0.000D+00, 8.752D-03, 5.052D-03, 1.700D-03,
      *              6.428D-04, 2.646D-04, 1.163D-04, 5.392D-05,
      *              2.611D-05, 1.312D-05, 6.807D-06, 3.630D-06,
@@ -1443,15 +1443,15 @@ C
      *              5.0D+02, 6.0D+02, 7.0D+02, 8.0D+02, 9.0D+02,
      *              1.0D+03, 2.0D+03, 3.0D+03, 4.0D+03, 5.0D+03,
      *              6.0D+03, 7.0D+03, 8.0D+03, 9.0D+03, 1.0D+04/
-C
+!
       LOGICAL Trial
-C
-C     ===== Check a larger R value =====
-C
+!
+!     ===== Check a larger R value =====
+!
       Trial = .FALSE.
-C
+!
       WRITE(IW,'("Demanded accuracy is ",A8,".")')Demand
-C
+!
       IF (InitR.EQ.31) THEN
          IF (Demand.EQ.Milli) THEN
             K_Lap = 3
@@ -1492,11 +1492,11 @@ C
   100    CONTINUE
          RETURN
       ENDIF
-C
+!
       IF (InitR.LE.8) Trial = .TRUE.
-C
+!
       IVal = InitR+1
-C
+!
       IF (Demand.EQ.Milli) THEN
          K_Lap = KList1(IVal)
          IF (Trial) THEN
@@ -1550,52 +1550,52 @@ C
      *   '(/" This K gurantees the error less than ",E11.4E2," .")')
      *    ErLst4(K_Lap)
       ENDIF
-C
+!
       RETURN
       END
-*MODULE BESTAP *DECK DFMP2E
+!MODULE BESTAP *DECK DFMP2E
       SUBROUTINE DfMP2E(NVar,NOcc,NCore,E,EMin,EMax)
-C-----------------------------------------------------------------------
-C     Function : Define MP2 energy
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Define MP2 energy
+!-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (TWO=2.0D+00)
-C
+!
       DIMENSION E(NVar),IDX(NVar)
-C
+!
       DO I=1,NVar
          IDX(I) = I
       ENDDO
-c     CALL OrdV(E,IDX,NVar)
-C
+!     CALL OrdV(E,IDX,NVar)
+!
       EMin = TWO*(E(IDX(NCore+NOcc+1))-E(IDX(NCore+NOcc)))
       EMax = TWO*(E(IDX(NVar))-E(IDX(NCore+1)))
-C
+!
       RETURN
       END
 
       SUBROUTINE AbortG
       IMPLICIT NONE
-C-tbp STOP
+!-tbp STOP
       Call WarningMessage(2,'Remez aborting!')
       Call Abend()
       END
 
-C*MODULE GELLIB  *DECK Laplace_PRSQ
+!*MODULE GELLIB  *DECK Laplace_PRSQ
       SUBROUTINE Laplace_PRSQ(V,M,N,NDIM)
-C
-C     USE IO_Files
-C
+!
+!     USE IO_Files
+!
       use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
-C
-C
+!
+!
       DIMENSION V(NDIM,M)
-C
-C     ----- PRINT OUT A SQUARE MATRIX -----
-C     -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING DIMENSION -NDIM-
-C
+!
+!     ----- PRINT OUT A SQUARE MATRIX -----
+!     -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING DIMENSION -NDIM-
+!
       MAX = 10
       IMAX = 0
   100 IMIN = IMAX+1
@@ -1613,23 +1613,23 @@ C
  9048 FORMAT(I5,1X,10F12.7)
       END
 
-C*MODULE GELLIB  *DECK LVCLR
+!*MODULE GELLIB  *DECK LVCLR
       SUBROUTINE LVCLR(A,INCA,N)
-C
+!
       IMPLICIT REAL*8(A-H,O-Z)
-C
+!
       DIMENSION A(*)
-C
+!
       PARAMETER (ZERO=0.0D+00)
-C
-C     ----- ZERO OUT VECTOR -A-, USING INCREMENT -INCA- -----
-C
+!
+!     ----- ZERO OUT VECTOR -A-, USING INCREMENT -INCA- -----
+!
       IF (INCA .NE. 1) GO TO 100
       DO L=1,N
          A(L) = ZERO
       ENDDO
       RETURN
-C
+!
   100 CONTINUE
       LA=1-INCA
       DO L=1,N
@@ -1638,248 +1638,248 @@ C
       ENDDO
       RETURN
       END
-C*MODULE *DECK SETEXP
+!*MODULE *DECK SETEXP
       SUBROUTINE SetExp(K,InitR,R,RIni,Coeff,T)
-*======================================================================*
-*----------------------------------------------------------------------*
-*                                                                      *
-C     Function : Determine the initial values for Exponential sum      *
-C
-C     All data were prepared by Prof. W. Hackbusch and shown on the
-C     site below.
-C
-C         www.mis.mpg.de/scicomp/EXP_SUM/1_x/
-C
-C     Author(s): Akio Takatsuka (2007)
-C-----------------------------------------------------------------------
+!======================================================================*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Function : Determine the initial values for Exponential sum      *
+!
+!     All data were prepared by Prof. W. Hackbusch and shown on the
+!     site below.
+!
+!         www.mis.mpg.de/scicomp/EXP_SUM/1_x/
+!
+!     Author(s): Akio Takatsuka (2007)
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,THREE=3.0D+00,KMAX=20,
      *           KMAX2=2*KMAX)
-C
+!
       DIMENSION Alpha(KMAX),Omega(KMAX),Xi(KMAX2),Coeff(KMAX2),T(KMAX2)
-C
+!
       LOGICAL Dbg
-C
+!
       Dbg = .FALSE.
-C
+!
       IDim = 2*K
       CALL LVCLR(Alpha,1,KMAX)
       CALL LVCLR(Omega,1,KMAX)
       CALL LVCLR(Xi,1,KMAX2)
       CALL LVCLR(Coeff,1,KMAX2)
       CALL LVCLR(T,1,KMAX2)
-C
-C     ===== Check K value =====
-C
+!
+!     ===== Check K value =====
+!
       GOTO ( 100, 200, 300, 400, 500, 600, 700, 800, 900,1000,
      *      1100,1200,1300,1400,1500,1600,1700,1800,1900,2000),K
-C
-C     ===== K = 01 =====
-C
+!
+!     ===== K = 01 =====
+!
   100 CONTINUE
       GOTO ( 102, 105, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199,
      *       199, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199, 199,
      *       199, 199, 199, 199, 199, 199, 199),InitR
-C
-C     ----- K = 01 , R = 2E0 -----
-C
+!
+!     ----- K = 01 , R = 2E0 -----
+!
   102 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 2.0009458905089673305330300046023239701753D+00
-C
+!
       Alpha( 1) = 0.7151291879699048470680859679315943822075D+00
-C
+!
       Xi( 1) = 1.088487745833368534800061899759D+00
       Xi( 2) = 1.762080703894060781608023324996D+00
       GOTO 9999
-C
-C     ----- K = 01 , R = 5E0 -----
-C
+!
+!     ----- K = 01 , R = 5E0 -----
+!
   105 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 1.5216296303352122180679514840129229469312D+00
-C
+!
       Alpha( 1) = 0.4931630669040556423090519017060628925719D+00
-C
+!
       Xi( 1) = 1.170595465206690831828743870613D+00
       Xi( 2) = 3.226441104658823615493681846722D+00
       GOTO 9999
-C
-C     ----- K = 01 , R = 1E1 (Best : R = 8.667) -----
-C
+!
+!     ----- K = 01 , R = 1E1 (Best : R = 8.667) -----
+!
   199 CONTINUE
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 1.4290997869805788563629667109466936381068D+00
-C
+!
       Alpha( 1) = 0.4464926062994777657404622123182846848977D+00
-C
+!
       Xi( 1) = 1.190833867508896858262469609091D+00
       Xi( 2) = 3.774644895827677148602424805901D+00
       GOTO 9999
-C
-C     ===== K = 02 =====
-C
+!
+!     ===== K = 02 =====
+!
   200 CONTINUE
-C
+!
       GOTO ( 202, 205, 211, 212, 213, 214, 299, 299, 299, 299, 299, 299,
      *       299, 299, 299, 299, 299, 299, 299, 299, 299, 299, 299, 299,
      *       299, 299, 299, 299, 299, 299, 299),InitR
-C
-C     ----- K = 02 , R = 2E0 -----
-C
+!
+!     ----- K = 02 , R = 2E0 -----
+!
   202 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 1.0724401884999553583380227372856552392477D+00
       Omega( 2) = 3.2918896543848644533659941746606136803166D+00
-C
+!
       Alpha( 1) = 0.4072692399097063106511596580761036534568D+00
       Alpha( 2) = 2.4428035233716464261818218650645917477959D+00
-C
+!
       Xi( 1) = 1.024669084390886258668224018109D+00
       Xi( 2) = 1.221540551568295593040137936303D+00
       Xi( 3) = 1.586346135830852440849920992338D+00
       Xi( 4) = 1.940702043262358547767373884163D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 5E0 -----
-C
+!
+!     ----- K = 02 , R = 5E0 -----
+!
   205 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.6544138215791260005066258542694157540609D+00
       Omega( 2) = 2.5128880395953934736782975356561564694857D+00
-C
+!
       Alpha( 1) = 0.2412189720039558034640671951853718724124D+00
       Alpha( 2) = 1.6503932424456509387919456166571308131097D+00
-C
+!
       Xi( 1) = 1.053800078348716762481791786588D+00
       Xi( 2) = 1.530809276455422984720630696920D+00
       Xi( 3) = 2.701138971986026049171975005336D+00
       Xi( 4) = 4.545078945463444416996701136213D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 1E1 -----
-C
+!
+!     ----- K = 02 , R = 1E1 -----
+!
   211 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.4596450781301019298055472034336688125222D+00
       Omega( 2) = 2.2190206174604986150578761483487255645741D+00
-C
+!
       Alpha( 1) = 0.1616927398937998487085578730448887085913D+00
       Alpha( 2) = 1.3075141330652339404817807722025690964074D+00
-C
+!
       Xi( 1) = 1.072446291884906891152262620182D+00
       Xi( 2) = 1.752717114846459290429699084957D+00
       Xi( 3) = 3.698767419816329259920836824982D+00
       Xi( 4) = 8.233481847579251056146176779293D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 2E1 -----
-C
+!
+!     ----- K = 02 , R = 2E1 -----
+!
   212 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.3456883945557714279787908662200379694696D+00
       Omega( 2) = 2.0588931989746813778271311567991119773069D+00
-C
+!
       Alpha( 1) = 0.1137705533481849198753493856983709520136D+00
       Alpha( 2) = 1.1122420832263719987081929119199230626691D+00
-C
+!
       Xi( 1) = 1.086388801185830942520188502343D+00
       Xi( 2) = 1.931390216502200829159531514367D+00
       Xi( 3) = 4.620528669639594092268669589529D+00
       Xi( 4) = 13.614404138913966666943333727602D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 3E1 -----
-C
+!
+!     ----- K = 02 , R = 3E1 -----
+!
   213 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.3089269872856084493337180951755271962611D+00
       Omega( 2) = 2.0075705464402703406302796995674952995614D+00
-C
+!
       Alpha( 1) = 0.0979831430245671137333374374478456303450D+00
       Alpha( 2) = 1.0494466863388992488356071808297542702348D+00
-C
+!
       Xi( 1) = 1.091649420750634746956134191187D+00
       Xi( 2) = 2.001884214128133870425410578697D+00
       Xi( 3) = 5.015778281485991329114587644611D+00
       Xi( 4) = 16.815914202468247307109550092719D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 4E1 -----
-C
+!
+!     ----- K = 02 , R = 4E1 -----
+!
   214 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.2978387832240039867037588450227048042507D+00
       Omega( 2) = 1.9920021768207375049194313154643509733432D+00
-C
+!
       Alpha( 1) = 0.0931855955444948900315608152078450387990D+00
       Alpha( 2) = 1.0304678137783844420281159637298173947784D+00
-C
+!
       Xi( 1) = 1.093332292125060299864749979726D+00
       Xi( 2) = 2.024812554457079488527682098464D+00
       Xi( 3) = 5.148542084107910186442647049176D+00
       Xi( 4) = 18.048492691174313850774324485826D+00
       GOTO 9999
-C
-C     ----- K = 02 , R = 5E1 (Best : R = 41.54) -----
-C
+!
+!     ----- K = 02 , R = 5E1 (Best : R = 41.54) -----
+!
   299 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.2976555432327632915757986697968817679794D+00
       Omega( 2) = 1.9917443679019896428470520755027450832131D+00
-C
+!
       Alpha( 1) = 0.0931061725688367425719750222756765367649D+00
       Alpha( 2) = 1.0301539335400714347910217094650420222024D+00
-C
+!
       Xi( 1) = 1.093360513875665603511673495962D+00
       Xi( 2) = 2.025198654658210892275452263966D+00
       Xi( 3) = 5.150796128864857912049018962009D+00
       Xi( 4) = 18.070172281159798970476271229302D+00
       GOTO 9999
-C
-C     ===== K = 03 =====
-C
+!
+!     ===== K = 03 =====
+!
   300 CONTINUE
-C
+!
       GOTO ( 302, 305, 311, 312, 313, 314, 315, 316, 317, 318, 319, 321,
      *       399, 399, 399, 399, 399, 399, 399, 399, 399, 399, 399, 399,
      *       399, 399, 399, 399, 399, 399, 399),InitR
-C
-C     ----- K = 03 , R = 2E0 -----
-C
+!
+!     ----- K = 03 , R = 2E0 -----
+!
   302 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 0.7470594125158281184444220013318727069418D+00
       Omega( 2) = 1.9588903206974837864322303015995885289158D+00
       Omega( 3) = 4.1617883704995866428130724123946038162103D+00
-C
+!
       Alpha( 1) = 0.2874933084171688071331227098959004706558D+00
       Alpha( 2) = 1.6046370491507346881746715050454099582566D+00
       Alpha( 3) = 4.5064864376399242354084839767836001556134D+00
-C
+!
       Xi( 1) = 1.011367648358682691891487215319D+00
       Xi( 2) = 1.102107335879371621334757436195D+00
       Xi( 3) = 1.280275921324935759957296121936D+00
@@ -1887,21 +1887,21 @@ C
       Xi( 5) = 1.792807750855102859387051050799D+00
       Xi( 6) = 1.974208219701866289202789317425D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 5E0 -----
-C
+!
+!     ----- K = 03 , R = 5E0 -----
+!
   305 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.4365792105033683860376356178356616055680D+00
       Omega( 2) = 1.2723305210744182858640521915916110629041D+00
       Omega( 3) = 3.2151540832501005597130611102230091091769D+00
-C
+!
       Alpha( 1) = 0.1660731375014149112742277078491603958810D+00
       Alpha( 2) = 0.9784372085453775896011531509888214941384D+00
       Alpha( 3) = 3.0530159808682457700784035337093769157946D+00
-C
+!
       Xi( 1) = 1.025951895784413650568669962304D+00
       Xi( 2) = 1.242824075650160353407464031150D+00
       Xi( 3) = 1.722934671753702002227302825244D+00
@@ -1909,21 +1909,21 @@ C
       Xi( 5) = 3.710191462368181307841102922751D+00
       Xi( 6) = 4.812712621252895713562514057315D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 1E1 -----
-C
+!
+!     ----- K = 03 , R = 1E1 -----
+!
   311 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.2847348675836868480131403719157745513257D+00
       Omega( 2) = 0.9583115118002354952046577263313764660779D+00
       Omega( 3) = 2.8443772254878889997348895279927205592685D+00
-C
+!
       Alpha( 1) = 0.1064455484301103369894087730118670265256D+00
       Alpha( 2) = 0.6791933646735415630178896162494339705518D+00
       Alpha( 3) = 2.4024163101166760476718603500856374921568D+00
-C
+!
       Xi( 1) = 1.036540052009057201009949167325D+00
       Xi( 2) = 1.350512629433860964335220589128D+00
       Xi( 3) = 2.095440330945998347236119974113D+00
@@ -1931,21 +1931,21 @@ C
       Xi( 5) = 6.064676170659236835534106058176D+00
       Xi( 6) = 9.312377099278923659429751946703D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 2E1 -----
-C
+!
+!     ----- K = 03 , R = 2E1 -----
+!
   312 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.1871865945351820821081342480218800972125D+00
       Omega( 2) = 0.7633857188437595157155454717035070189013D+00
       Omega( 3) = 2.6169711142660253494832134357750419439981D+00
-C
+!
       Alpha( 1) = 0.0679013689405892574945246102646745356424D+00
       Alpha( 2) = 0.4897948875089661041485125658745403143257D+00
       Alpha( 3) = 1.9962015809195739495960839060550995327503D+00
-C
+!
       Xi( 1) = 1.046004741949051884642926668612D+00
       Xi( 2) = 1.450848248703333635638811072166D+00
       Xi( 3) = 2.466950930523215088823255070061D+00
@@ -1953,21 +1953,21 @@ C
       Xi( 5) = 9.248118901369171863426077440096D+00
       Xi( 6) = 17.567914206128274501664265905276D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 3E1 -----
-C
+!
+!     ----- K = 03 , R = 3E1 -----
+!
   313 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.1489350280707968614941037743815144267501D+00
       Omega( 2) = 0.6872993149781066612611854504955033462466D+00
       Omega( 3) = 2.5251745372914686719838239792323975052568D+00
-C
+!
       Alpha( 1) = 0.0526373510053126044740958670159480803363D+00
       Alpha( 2) = 0.4159550868841870631409125130817372451020D+00
       Alpha( 3) = 1.8359809178980240516269178963071340149327D+00
-C
+!
       Xi( 1) = 1.050731777552041640516958254103D+00
       Xi( 2) = 1.502520887461407482184674866410D+00
       Xi( 3) = 2.667783186472804712440626273562D+00
@@ -1975,21 +1975,21 @@ C
       Xi( 5) = 11.391839687100992576165858771731D+00
       Xi( 6) = 24.939047426082355123772016369799D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 4E1 -----
-C
+!
+!     ----- K = 03 , R = 4E1 -----
+!
   314 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.1282763604743762873410797484274858959452D+00
       Omega( 2) = 0.6457800255491172428698280760794858679219D+00
       Omega( 3) = 2.4737466774457358498554016001946820324520D+00
-C
+!
       Alpha( 1) = 0.0443249082477236827920660192786650455332D+00
       Alpha( 2) = 0.3760267128377692993999176218622437772865D+00
       Alpha( 3) = 1.7481061682069727251757906838491862799856D+00
-C
+!
       Xi( 1) = 1.053649416445949383441815783158D+00
       Xi( 2) = 1.534965201688940375458411469189D+00
       Xi( 3) = 2.797338196085134732517263334017D+00
@@ -1997,21 +1997,21 @@ C
       Xi( 5) = 12.960177258090050030417406112804D+00
       Xi( 6) = 31.526153474782242738805315696027D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 5E1 -----
-C
+!
+!     ----- K = 03 , R = 5E1 -----
+!
   315 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.1153310756696578369059902335891365510179D+00
       Omega( 2) = 0.6194232578183114542973164429184862456168D+00
       Omega( 3) = 2.4405036326787768433295433556651232720469D+00
-C
+!
       Alpha( 1) = 0.0390820984323069169736556555116990807619D+00
       Alpha( 2) = 0.3509230683778314732214603094417881834488D+00
       Alpha( 3) = 1.6921947262166477795545388440601186630374D+00
-C
+!
       Xi( 1) = 1.055646218481340204787058412172D+00
       Xi( 2) = 1.557420836116662476826533190177D+00
       Xi( 3) = 2.888617000023559338922271577665D+00
@@ -2019,21 +2019,21 @@ C
       Xi( 5) = 14.162824787784242307718540754280D+00
       Xi( 6) = 37.407934771317043306376737277219D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 6E1 -----
-C
+!
+!     ----- K = 03 , R = 6E1 -----
+!
   316 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.1065007940761846950413838444604586186415D+00
       Omega( 2) = 0.6012169550303838670810181732395705012095D+00
       Omega( 3) = 2.4172446838218981427469367329052829518332D+00
-C
+!
       Alpha( 1) = 0.0354878575633928706640498294822005931337D+00
       Alpha( 2) = 0.3337331092077952527763084339396115751697D+00
       Alpha( 3) = 1.6535367452293752402354976016596310728346D+00
-C
+!
       Xi( 1) = 1.057097434208872948745855380182D+00
       Xi( 2) = 1.573870966645937349978265351602D+00
       Xi( 3) = 2.956339877497224052612170841492D+00
@@ -2041,21 +2041,21 @@ C
       Xi( 5) = 15.111869488781895343176842061439D+00
       Xi( 6) = 42.640384216822704587651626795264D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 7E1 -----
-C
+!
+!     ----- K = 03 , R = 7E1 -----
+!
   317 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.1001553077368610132974404043626481808360D+00
       Omega( 2) = 0.5879845498502223689126118533199161220182D+00
       Omega( 3) = 2.4001809699912176228331350813505196128972D+00
-C
+!
       Alpha( 1) = 0.0328950169895424992609872082843791574192D+00
       Alpha( 2) = 0.3213333776732262143905564238943739496790D+00
       Alpha( 3) = 1.6254323321274150328501900686362091619230D+00
-C
+!
       Xi( 1) = 1.058191270863622694426570136628D+00
       Xi( 2) = 1.586343845420391796365890135778D+00
       Xi( 3) = 3.008179205772900836370065125180D+00
@@ -2063,21 +2063,21 @@ C
       Xi( 5) = 15.873238341608802483631568414069D+00
       Xi( 6) = 47.261670190788973886647506006398D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 8E1 -----
-C
+!
+!     ----- K = 03 , R = 8E1 -----
+!
   318 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0954485614946326069841066666588069722366D+00
       Omega( 2) = 0.5780719785823823125598015792991901662390D+00
       Omega( 3) = 2.3873083432732535235590992650500652416667D+00
-C
+!
       Alpha( 1) = 0.0309660405726075814911553646738284761852D+00
       Alpha( 2) = 0.3121038074526534121424636153419029938050D+00
       Alpha( 3) = 1.6043802276101923300543825035013867363887D+00
-C
+!
       Xi( 1) = 1.059033121789881161920778007701D+00
       Xi( 2) = 1.595987137144691836248243388408D+00
       Xi( 3) = 3.048551860121487124032427229459D+00
@@ -2085,21 +2085,21 @@ C
       Xi( 5) = 16.488307114705869405035798536119D+00
       Xi( 6) = 51.297243347978425765526511170833D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 9E1 -----
-C
+!
+!     ----- K = 03 , R = 9E1 -----
+!
   319 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0918992098575219402425365983200222785854D+00
       Omega( 2) = 0.5705336658200345004285022887380307565763D+00
       Omega( 3) = 2.3774665399131085228353471583417899637425D+00
-C
+!
       Alpha( 1) = 0.0295080586695789376959540937367387769541D+00
       Alpha( 2) = 0.3051223245003002779000573357892633907795D+00
       Alpha( 3) = 1.5883739921280894394003957437178087275242D+00
-C
+!
       Xi( 1) = 1.059686558350682067061211688586D+00
       Xi( 2) = 1.603499064055321644611459830365D+00
       Xi( 3) = 3.080180337433629595518189137060D+00
@@ -2107,21 +2107,21 @@ C
       Xi( 5) = 16.984271206669289473734085760270D+00
       Xi( 6) = 54.763342161663440026825311335301D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 1E2 -----
-C
+!
+!     ----- K = 03 , R = 1E2 -----
+!
   321 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0892157079089669919486071947289929084945D+00
       Omega( 2) = 0.5647942501087851651861426738321370066842D+00
       Omega( 3) = 2.3699428171677330734901795183944273048837D+00
-C
+!
       Alpha( 1) = 0.0284038048199532795564959406289795573741D+00
       Alpha( 2) = 0.2998300570947111501655338999805522348652D+00
       Alpha( 3) = 1.5761907592561199853995260178329829159338D+00
-C
+!
       Xi( 1) = 1.060191971776997436806982966218D+00
       Xi( 2) = 1.609324357152911759254176882195D+00
       Xi( 3) = 3.104816257355714646673852663561D+00
@@ -2129,21 +2129,21 @@ C
       Xi( 5) = 17.379498870857770060141533896569D+00
       Xi( 6) = 57.669325212093752022757264796837D+00
       GOTO 9999
-C
-C     ----- K = 03 , R = 2E2 (Best : R = 146.8) -----
-C
+!
+!     ----- K = 03 , R = 2E2 (Best : R = 146.8) -----
+!
   399 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0842336964653581986314334444088114395299D+00
       Omega( 2) = 0.5540364331533339688207195905533808399923D+00
       Omega( 3) = 2.3557688429224689736704578812975796608953D+00
-C
+!
       Alpha( 1) = 0.0263492728481437144350885744964463341944D+00
       Alpha( 2) = 0.2899685548481513726706056827131519071372D+00
       Alpha( 3) = 1.5533661852788560075230156476422394007386D+00
-C
+!
       Xi( 1) = 1.061157926448131444429646974559D+00
       Xi( 2) = 1.620497451354158359860917204553D+00
       Xi( 3) = 3.152337144451245588925442087103D+00
@@ -2151,31 +2151,31 @@ C
       Xi( 5) = 18.164730430146035160265949315317D+00
       Xi( 6) = 63.847716086263413940576905147850D+00
       GOTO 9999
-C
-C     ===== K = 04 =====
-C
+!
+!     ===== K = 04 =====
+!
   400 CONTINUE
-C
+!
       GOTO ( 402, 405, 411, 412, 413, 414, 415, 416, 417, 418, 419, 421,
      *       422, 423, 424, 499, 499, 499, 499, 499, 499, 499, 499, 499,
      *       499, 499, 499, 499, 499, 499, 499),InitR
-C
-C     ----- K = 04 , R = 2E0 -----
-C
+!
+!     ----- K = 04 , R = 2E0 -----
+!
   402 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 0.5753086924118193929257938923349513515859D+00
       Omega( 2) = 1.4324382751398495198852031662362094266427D+00
       Omega( 3) = 2.6015042679469189200285039742510662108543D+00
       Omega( 4) = 4.8372822744559876655644214960005911052576D+00
-C
+!
       Alpha( 1) = 0.2225282101342608647137188276898811523097D+00
       Alpha( 2) = 1.2118271769428668733874221441482177397120D+00
       Alpha( 3) = 3.1874817920306483924348245340141261294775D+00
       Alpha( 4) = 6.7398873748331835607794371156842316850089D+00
-C
+!
       Xi( 1) = 1.006506167989540905796305714226D+00
       Xi( 2) = 1.058464707807605930571862029588D+00
       Xi( 3) = 1.161505681175087609235951902065D+00
@@ -2185,23 +2185,23 @@ C
       Xi( 7) = 1.879073519869262322767519690636D+00
       Xi( 8) = 1.985688675481389943249486973453D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 5E0 -----
-C
+!
+!     ----- K = 04 , R = 5E0 -----
+!
   405 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.3311114029441486656963472556824967796274D+00
       Omega( 2) = 0.8719992880247880499789900343721171793732D+00
       Omega( 3) = 1.7621447067201108642887225075313040179026D+00
       Omega( 4) = 3.7722154835897864035877680155550706331269D+00
-C
+!
       Alpha( 1) = 0.1272851568278456049125666599275419343940D+00
       Alpha( 2) = 0.7128840158683421319844343566618505292354D+00
       Alpha( 3) = 1.9837003473579683075636928557550220375560D+00
       Alpha( 4) = 4.5827403151170012138813925073321797754033D+00
-C
+!
       Xi( 1) = 1.015209771693483679195178781551D+00
       Xi( 2) = 1.139795898096606982757665604833D+00
       Xi( 3) = 1.403933946114703158530509496948D+00
@@ -2211,23 +2211,23 @@ C
       Xi( 7) = 4.220215506742421560527206425562D+00
       Xi( 8) = 4.899608368220416046347892580215D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 1E1 -----
-C
+!
+!     ----- K = 04 , R = 1E1 -----
+!
   411 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.2109714423067830878737302299774647451613D+00
       Omega( 2) = 0.6012085214120437117791585779347229845371D+00
       Omega( 3) = 1.3842061450697847088241870805447319980885D+00
       Omega( 4) = 3.3493765842990434143926908872046510623477D+00
-C
+!
       Alpha( 1) = 0.0804090244155528715704300650457536647764D+00
       Alpha( 2) = 0.4687930946688866533453993179492158560606D+00
       Alpha( 3) = 1.4098715378713611090033888673112016931555D+00
       Alpha( 4) = 3.6048552773416722889727320522368358979293D+00
-C
+!
       Xi( 1) = 1.021921225313027279247950207530D+00
       Xi( 2) = 1.204384941419539613869163496851D+00
       Xi( 3) = 1.607251451203153021457352422896D+00
@@ -2237,23 +2237,23 @@ C
       Xi( 7) = 7.518763336083220949045829994972D+00
       Xi( 8) = 9.646065333930355733746409008234D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 2E1 -----
-C
+!
+!     ----- K = 04 , R = 2E1 -----
+!
   412 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.1329180070416147036311800902486091047194D+00
       Omega( 2) = 0.4264908534251436216986307081722173961680D+00
       Omega( 3) = 1.1416477627542353926511781159192082668596D+00
       Omega( 4) = 3.0780675346606618560107992976782043115236D+00
-C
+!
       Alpha( 1) = 0.0499698775458987140683406961289003689330D+00
       Alpha( 2) = 0.3105631707014663601691250444103431505027D+00
       Alpha( 3) = 1.0398249107852826248832647793030048433138D+00
       Alpha( 4) = 2.9750469432139245655032783188786993378017D+00
-C
+!
       Xi( 1) = 1.028384820056705543857462903379D+00
       Xi( 2) = 1.268165682588351670712946417385D+00
       Xi( 3) = 1.816842986610023565584304261478D+00
@@ -2263,23 +2263,23 @@ C
       Xi( 7) = 12.817017304467905825828000221378D+00
       Xi( 8) = 18.811438665072096257727118917558D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 3E1 -----
-C
+!
+!     ----- K = 04 , R = 3E1 -----
+!
   413 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.1016013598614176051835515483812155679288D+00
       Omega( 2) = 0.3564500076585994777433278463130150726101D+00
       Omega( 3) = 1.0408682232432721238716069600549474216677D+00
       Omega( 4) = 2.9620670599932430282208439820124112884514D+00
-C
+!
       Alpha( 1) = 0.0377493790524789586313635092462703823912D+00
       Alpha( 2) = 0.2471731689001984523724369038899517647678D+00
       Alpha( 3) = 0.8901553582336263936887477132842150240322D+00
       Alpha( 4) = 2.7154179633949424115240550703376243291132D+00
-C
+!
       Xi( 1) = 1.031884400461319287699291091798D+00
       Xi( 2) = 1.303394819838255136359300712101D+00
       Xi( 3) = 1.936484594904135799484437563400D+00
@@ -2289,23 +2289,23 @@ C
       Xi( 7) = 17.064887801084204502904961842091D+00
       Xi( 8) = 27.603035761750134504874387708639D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 4E1 -----
-C
+!
+!     ----- K = 04 , R = 4E1 -----
+!
   414 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0842613451067411968134360580884312241778D+00
       Omega( 2) = 0.3175083683168243892547700363282459079528D+00
       Omega( 3) = 0.9827580985120555624170654573923400221247D+00
       Omega( 4) = 2.8938728508266506878315177386795653546869D+00
-C
+!
       Alpha( 1) = 0.0309718827633249730023221003502587045375D+00
       Alpha( 2) = 0.2120774570049154385080730084167655036254D+00
       Alpha( 3) = 0.8062000011279130441146055507939394146888D+00
       Alpha( 4) = 2.5672235706906126311704907649868800945114D+00
-C
+!
       Xi( 1) = 1.034189547957952938364925565828D+00
       Xi( 2) = 1.326882303593381459455753657029D+00
       Xi( 3) = 2.017833912902638116102643772720D+00
@@ -2315,23 +2315,23 @@ C
       Xi( 7) = 20.628245205359198052516567223336D+00
       Xi( 8) = 36.056476263170379424616296404338D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 5E1 -----
-C
+!
+!     ----- K = 04 , R = 5E1 -----
+!
   415 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0731190495973734073321850628068840904916D+00
       Omega( 2) = 0.2923269496573136512322394625629229381047D+00
       Omega( 3) = 0.9440309351700997790167620149492933023794D+00
       Omega( 4) = 2.8478366618531806178475640489722309212084D+00
-C
+!
       Alpha( 1) = 0.0266079437201842705628133858158923530368D+00
       Alpha( 2) = 0.1895065774790961192112310682023057495371D+00
       Alpha( 3) = 0.7515202985781507951474830764304613239801D+00
       Alpha( 4) = 2.4693480571818920657912316274362751755689D+00
-C
+!
       Xi( 1) = 1.035859420488966962437850372059D+00
       Xi( 2) = 1.344041617001740170165430265925D+00
       Xi( 3) = 2.078083732500034939115474141857D+00
@@ -2341,23 +2341,23 @@ C
       Xi( 7) = 23.694624806761000475330281034303D+00
       Xi( 8) = 44.192689038985971203971070409011D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 6E1 -----
-C
+!
+!     ----- K = 04 , R = 6E1 -----
+!
   416 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0653078213757228939496122036012515366110D+00
       Omega( 2) = 0.2745449432568480962601076972307012624697D+00
       Omega( 3) = 0.9160037860065624061296600533221834439246D+00
       Omega( 4) = 2.8142148838640842138485165246919450510177D+00
-C
+!
       Alpha( 1) = 0.0235419918657027563556896837884679918318D+00
       Alpha( 2) = 0.1736604768046437706328520220178113220300D+00
       Alpha( 3) = 0.7126891672717474266905354762791091616236D+00
       Alpha( 4) = 2.3990539647469760751227058070966791092360D+00
-C
+!
       Xi( 1) = 1.037140461619688747412632023881D+00
       Xi( 2) = 1.357289114402989183786468752047D+00
       Xi( 3) = 2.125078140520427659714702839366D+00
@@ -2367,23 +2367,23 @@ C
       Xi( 7) = 26.378389732187363631021881360539D+00
       Xi( 8) = 52.027795795803441894489260732826D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 7E1 -----
-C
+!
+!     ----- K = 04 , R = 7E1 -----
+!
   417 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0595075285913887735555084096406019966707D+00
       Omega( 2) = 0.2612399364166240053278938981762280491239D+00
       Omega( 3) = 0.8946057701502559431701484815580016629610D+00
       Omega( 4) = 2.7883700207922745009040538244349249907827D+00
-C
+!
       Alpha( 1) = 0.0212604165557323362225922592366744723336D+00
       Alpha( 2) = 0.1618724211569130696873998823126505897108D+00
       Alpha( 3) = 0.6835043049845140389537447023204919105410D+00
       Alpha( 4) = 2.3457307234433385698373769612246064752981D+00
-C
+!
       Xi( 1) = 1.038161965305633614828524635687D+00
       Xi( 2) = 1.367906084839922344650701979685D+00
       Xi( 3) = 2.163045651450423545025109062223D+00
@@ -2393,23 +2393,23 @@ C
       Xi( 7) = 28.756568839488641399840251899889D+00
       Xi( 8) = 59.575852601901405913853437823491D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 8E1 -----
-C
+!
+!     ----- K = 04 , R = 8E1 -----
+!
   418 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0550202496658656947137210676407326204185D+00
       Omega( 2) = 0.2508680510132605612151797391806695713967D+00
       Omega( 3) = 0.8776426020163860330729720116149650266379D+00
       Omega( 4) = 2.7677729356352664641209571083635410104762D+00
-C
+!
       Alpha( 1) = 0.0194916432536069991175730915095032358408D+00
       Alpha( 2) = 0.1527342674760213229605320187087791339309D+00
       Alpha( 3) = 0.6606717166460769025495593231855906424244D+00
       Alpha( 4) = 2.3036894119803122266132433537677570711821D+00
-C
+!
       Xi( 1) = 1.038999699185351887459859143714D+00
       Xi( 2) = 1.376648661571191919659150337818D+00
       Xi( 3) = 2.194515905695126582828496930588D+00
@@ -2419,23 +2419,23 @@ C
       Xi( 7) = 30.884378731911624308553721007797D+00
       Xi( 8) = 66.849598004065109602134242550164D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 9E1 -----
-C
+!
+!     ----- K = 04 , R = 9E1 -----
+!
   419 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0514404134505259737501683264815355300925D+00
       Omega( 2) = 0.2425316805672637418404054970855199258040D+00
       Omega( 3) = 0.8638140458215766392642900872722577787499D+00
       Omega( 4) = 2.7509105528330038540653357248544352842146D+00
-C
+!
       Alpha( 1) = 0.0180777829160191627153871996372402897180D+00
       Alpha( 2) = 0.1454283956184184608531519827812061862460D+00
       Alpha( 3) = 0.6422668197625267019735227636001440032487D+00
       Alpha( 4) = 2.2695770442654134364975082593929300855962D+00
-C
+!
       Xi( 1) = 1.039701559473601906805062533579D+00
       Xi( 2) = 1.383998181274938783931992281051D+00
       Xi( 3) = 2.221116333865750902369640140677D+00
@@ -2445,23 +2445,23 @@ C
       Xi( 7) = 32.803053350819499158624870105427D+00
       Xi( 8) = 73.860605145714235443554773752339D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 1E2 -----
-C
+!
+!     ----- K = 04 , R = 1E2 -----
+!
   421 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0485154483001083335682321676096684370805D+00
       Omega( 2) = 0.2356710456997001232359086747569776321143D+00
       Omega( 3) = 0.8522950664164703286885226007907334633273D+00
       Omega( 4) = 2.7368154329484132645643884584885086042050D+00
-C
+!
       Alpha( 1) = 0.0169204412159692850155435659906255629892D+00
       Alpha( 2) = 0.1394458611981022595169591934971542457333D+00
       Alpha( 3) = 0.6270840649394218112842348811231119043441D+00
       Alpha( 4) = 2.2412769022182530667848532335284517102991D+00
-C
+!
       Xi( 1) = 1.040299549550007821561471710314D+00
       Xi( 2) = 1.390278043830974921083593054405D+00
       Xi( 3) = 2.243950554331804970228242401831D+00
@@ -2471,23 +2471,23 @@ C
       Xi( 7) = 34.544307705980290587599590423906D+00
       Xi( 8) = 80.619317886311765174178756154788D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 2E2 -----
-C
+!
+!     ----- K = 04 , R = 2E2 -----
+!
   422 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0346528544291562165083103903839845116863D+00
       Omega( 2) = 0.2022620232531529587587451612940014911146D+00
       Omega( 3) = 0.7941993308902318025530031597725155734224D+00
       Omega( 4) = 2.6650476801253452636790430840818544311333D+00
-C
+!
       Alpha( 1) = 0.0114012537962333943318828338546466749648D+00
       Alpha( 2) = 0.1108289024285984015197803129182396730812D+00
       Alpha( 3) = 0.5527015496667354365950206029900471094152D+00
       Alpha( 4) = 2.1002718748225481968597977422419376125617D+00
-C
+!
       Xi( 1) = 1.043510941463284021849672322801D+00
       Xi( 2) = 1.424292069942840605165264300513D+00
       Xi( 3) = 2.369336520202418435061819668164D+00
@@ -2497,23 +2497,23 @@ C
       Xi( 7) = 45.936015344901233076885249673182D+00
       Xi( 8) = 135.930079665824886978042762564201D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 3E2 -----
-C
+!
+!     ----- K = 04 , R = 3E2 -----
+!
   423 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0300842254221815340984474453078778566351D+00
       Omega( 2) = 0.1907535375929733114611520222725360440563D+00
       Omega( 3) = 0.7733295903723639011994803182936664143199D+00
       Omega( 4) = 2.6389901708906205511726700274621748576465D+00
-C
+!
       Alpha( 1) = 0.0095667747961039157790762718983068602085D+00
       Alpha( 2) = 0.1012379805187263745680720586350709311318D+00
       Alpha( 3) = 0.5269302725083039626134684407787744930829D+00
       Alpha( 4) = 2.0503770061024033061029825386611946669291D+00
-C
+!
       Xi( 1) = 1.044749147786660410067334503470D+00
       Xi( 2) = 1.437539613008931760579182934645D+00
       Xi( 3) = 2.418961360192959209481494697869D+00
@@ -2523,23 +2523,23 @@ C
       Xi( 7) = 51.485939374184318526039838559427D+00
       Xi( 8) = 171.534260231812210592550194121486D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 4E2 -----
-C
+!
+!     ----- K = 04 , R = 4E2 -----
+!
   424 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0284661205929678002576150783187181048106D+00
       Omega( 2) = 0.1865878163370500782299293146548890831582D+00
       Omega( 3) = 0.7656572669069769046914022969652080519154D+00
       Omega( 4) = 2.6293741631156146041845000915770924621029D+00
-C
+!
       Alpha( 1) = 0.0089149584966167103430493114449295610768D+00
       Alpha( 2) = 0.0978104436659742490270375535332814109779D+00
       Alpha( 3) = 0.5175885566543470744449786935525992248586D+00
       Alpha( 4) = 2.0321413590981910171542196286154080553388D+00
-C
+!
       Xi( 1) = 1.045216293509242250106376637131D+00
       Xi( 2) = 1.442556485572168388509251002461D+00
       Xi( 3) = 2.437872235678494421511064427222D+00
@@ -2549,23 +2549,23 @@ C
       Xi( 7) = 53.790818525643893238674664303289D+00
       Xi( 8) = 188.385827462242781263346280695714D+00
       GOTO 9999
-C
-C     ----- K = 04 , R = 5E2 (Best : R = 436.1) -----
-C
+!
+!     ----- K = 04 , R = 5E2 (Best : R = 436.1) -----
+!
   499 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0283509824145518462858693315570279835924D+00
       Omega( 2) = 0.1862893386105706895712131113129750303870D+00
       Omega( 3) = 0.7651050730792038023189878537255737001033D+00
       Omega( 4) = 2.6286812528458147286778562312647977705637D+00
-C
+!
       Alpha( 1) = 0.0088685367946663247640828832071835385875D+00
       Alpha( 2) = 0.0975658350270974381366175312568778110744D+00
       Alpha( 3) = 0.5169189990170087889041414253021855529369D+00
       Alpha( 4) = 2.0308311260118173089978671486122152600728D+00
-C
+!
       Xi( 1) = 1.045250181977026276611796029581D+00
       Xi( 2) = 1.442920714529975515167184441090D+00
       Xi( 3) = 2.439247862946276155723945855414D+00
@@ -2575,33 +2575,33 @@ C
       Xi( 7) = 53.962878608716110463011661479982D+00
       Xi( 8) = 189.696990422674594614638188261324D+00
       GOTO 9999
-C
-C     ===== K = 05 =====
-C
+!
+!     ===== K = 05 =====
+!
   500 CONTINUE
-C
+!
       GOTO ( 502, 505, 511, 512, 513, 514, 515, 516, 517, 518, 519, 521,
      *       522, 523, 524, 525, 526, 527, 528, 529, 531, 599, 599, 599,
      *       599, 599, 599, 599, 599, 599, 599),InitR
-C
-C     ----- K = 05 , R = 2E0 -----
-C
+!
+!     ----- K = 05 , R = 2E0 -----
+!
   502 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 0.4683556115061091129983267961067738838210D+00
       Omega( 2) = 1.1387420740801897163681222213682531219092D+00
       Omega( 3) = 1.9531818897084401308490708704113103522104D+00
       Omega( 4) = 3.1153038431409946034094521349899764572910D+00
       Omega( 5) = 5.3979418510235632052904342081944832898444D+00
-C
+!
       Alpha( 1) = 0.1816122344478981142344448801440037755128D+00
       Alpha( 2) = 0.9776830415195706051986919427054800735277D+00
       Alpha( 3) = 2.5060472629612186804687334884533811418805D+00
       Alpha( 4) = 4.9959238094351378477869785044163108977955D+00
       Alpha( 5) = 9.0782980472197038765772014734523054357851D+00
-C
+!
       Xi( 1) = 1.004205961424876742218471881163D+00
       Xi( 2) = 1.037808810177569494902563573824D+00
       Xi( 3) = 1.104673526155082756558187262463D+00
@@ -2613,25 +2613,25 @@ C
       Xi( 9) = 1.921494689550123476790011167736D+00
       Xi(10) = 1.990922307578263482060257349993D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 5E0 -----
-C
+!
+!     ----- K = 05 , R = 5E0 -----
+!
   505 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.2675144938257100701254221492009222060915D+00
       Omega( 2) = 0.6731648185410648106067992013645806537170D+00
       Omega( 3) = 1.2341495375414908785378573230495646839699D+00
       Omega( 4) = 2.1730749987606481090328391925226014791406D+00
       Omega( 5) = 4.2400491045957718516841439271303215718945D+00
-C
+!
       Alpha( 1) = 0.1033351211759554590466098772383318760149D+00
       Alpha( 2) = 0.5658998554798738632692738093066253668439D+00
       Alpha( 3) = 1.5002594864446179758615818045086598431226D+00
       Alpha( 4) = 3.1563889823905420255363563075690080950153D+00
       Alpha( 5) = 6.1935841722085905663650051700130916287890D+00
-C
+!
       Xi( 1) = 1.009973918929146431255200466737D+00
       Xi( 2) = 1.090947626405043171474856800174D+00
       Xi( 3) = 1.259063365124301121355382404587D+00
@@ -2643,25 +2643,25 @@ C
       Xi( 9) = 4.488508901774702612979400795368D+00
       Xi(10) = 4.937710663142177220773926249464D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 1E1 -----
-C
+!
+!     ----- K = 05 , R = 1E1 -----
+!
   511 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.1686100332421062595255559918294707699715D+00
       Omega( 2) = 0.4447462226391396488648245083341592476245D+00
       Omega( 3) = 0.8914300222454683441828879320034673128248D+00
       Omega( 4) = 1.7540776690871601983497465870875942073326D+00
       Omega( 5) = 3.7773593670209078805664187905577477977204D+00
-C
+!
       Alpha( 1) = 0.0647973162949741815670734457199841926922D+00
       Alpha( 2) = 0.3632942397911341266415318623783647922210D+00
       Alpha( 3) = 1.0098084995269309119183404055419828182494D+00
       Alpha( 4) = 2.2813077174805524267257178516743465479522D+00
       Alpha( 5) = 4.8771539519428148820243129613061228155857D+00
-C
+!
       Xi( 1) = 1.014582863653057650654004673285D+00
       Xi( 2) = 1.134203389307848182355163701995D+00
       Xi( 3) = 1.389246760143581714357606526900D+00
@@ -2673,25 +2673,25 @@ C
       Xi( 9) = 8.349475129996430378988281351127D+00
       Xi(10) = 9.786083246339030821889237721223D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 2E1 -----
-C
+!
+!     ----- K = 05 , R = 2E1 -----
+!
   512 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.1043419845604544110779284687984258539473D+00
       Omega( 2) = 0.2955585665005043083473218468171239692310D+00
       Omega( 3) = 0.6678313388646436865592193043994484469295D+00
       Omega( 4) = 1.4788816616452081139634552875428141760494D+00
       Omega( 5) = 3.4728708916802090379740558523380400401948D+00
-C
+!
       Alpha( 1) = 0.0397910355186319709875524593817308627308D+00
       Alpha( 2) = 0.2313133225382769353847172214000416090585D+00
       Alpha( 3) = 0.6899245534043173482918569205946113243044D+00
       Alpha( 4) = 1.7098435082055959542040105003657401994133D+00
       Alpha( 5) = 4.0149225768154399888662520190507621009601D+00
-C
+!
       Xi( 1) = 1.019217117302840040836235668831D+00
       Xi( 2) = 1.178415662855246872275580272138D+00
       Xi( 3) = 1.526280432408703061791278854376D+00
@@ -2703,25 +2703,25 @@ C
       Xi( 9) = 15.109104672966703414999090071547D+00
       Xi(10) = 19.306177258864197996898748321826D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 3E1 -----
-C
+!
+!     ----- K = 05 , R = 3E1 -----
+!
   513 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0785202296725237321788569942737634477226D+00
       Omega( 2) = 0.2352291127246095037714793130056989411969D+00
       Omega( 3) = 0.5755235459038332647744261316713476617224D+00
       Omega( 4) = 1.3603613273128701396854495220267722288554D+00
       Omega( 5) = 3.3389033426820007048260730009303642873419D+00
-C
+!
       Alpha( 1) = 0.0297577867799910187276724591112775364365D+00
       Alpha( 2) = 0.1781464556286160730389639406112678443606D+00
       Alpha( 3) = 0.5601138852938733217684888487930550127203D+00
       Alpha( 4) = 1.4739028120126258845998951096945006611350D+00
       Alpha( 5) = 3.6519366545145374282690942102647113642888D+00
-C
+!
       Xi( 1) = 1.021836627027043814075306371603D+00
       Xi( 2) = 1.203748836653624470203506613419D+00
       Xi( 3) = 1.606670345753720860427701810913D+00
@@ -2733,25 +2733,25 @@ C
       Xi( 9) = 21.021496749683150869966730134308D+00
       Xi(10) = 28.634423521169729146343407855113D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 4E1 -----
-C
+!
+!     ----- K = 05 , R = 4E1 -----
+!
   514 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0641814838050678704967598464659062074134D+00
       Omega( 2) = 0.2015553177348803795505350136552102924270D+00
       Omega( 3) = 0.5226910879403149711537254762383497563860D+00
       Omega( 4) = 1.2901011954205592439665767345857716463797D+00
       Omega( 5) = 3.2584115181337518739324021765924044302665D+00
-C
+!
       Alpha( 1) = 0.0241901803500972818551558720864824714170D+00
       Alpha( 2) = 0.1485733749263374468200897549063910219047D+00
       Alpha( 3) = 0.4872759750389151346509908346860129313427D+00
       Alpha( 4) = 1.3391490990318978887216316842057040048530D+00
       Alpha( 5) = 3.4411575727997536413432788648947280307766D+00
-C
+!
       Xi( 1) = 1.023618696885570287786852705647D+00
       Xi( 2) = 1.221131920310683900633870468955D+00
       Xi( 3) = 1.662645702391932947322369940046D+00
@@ -2763,25 +2763,25 @@ C
       Xi( 9) = 26.333922981430985232539909723926D+00
       Xi(10) = 37.796347893531772609704288967691D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 5E1 -----
-C
+!
+!     ----- K = 05 , R = 5E1 -----
+!
   515 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0549289684719608573105023054117257430562D+00
       Omega( 2) = 0.1797226084604662145184595864466636783163D+00
       Omega( 3) = 0.4876092684357195764356749517753897293915D+00
       Omega( 4) = 1.2421875649935035342474529129752625067340D+00
       Omega( 5) = 3.2030368198904093346955634924455580403446D+00
-C
+!
       Alpha( 1) = 0.0205985169364180585578296594009839459716D+00
       Alpha( 2) = 0.1294650714429877070990940191030915684678D+00
       Alpha( 3) = 0.4397972396705089706309306507581169398691D+00
       Alpha( 4) = 1.2499372840249322914873975065574995824136D+00
       Alpha( 5) = 3.2997722744581938507293233930894871264172D+00
-C
+!
       Xi( 1) = 1.024945306274655407348384006383D+00
       Xi( 2) = 1.234152929071583455950845975568D+00
       Xi( 3) = 1.705016340573330133512271189478D+00
@@ -2793,25 +2793,25 @@ C
       Xi( 9) = 31.182470293965814951003823196629D+00
       Xi(10) = 46.806410907619687457315027501181D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 6E1 -----
-C
+!
+!     ----- K = 05 , R = 6E1 -----
+!
   516 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0484092394476768007366320866607933837145D+00
       Omega( 2) = 0.1642667164220850362451762857740611423196D+00
       Omega( 3) = 0.4622317543222329255900738403939342902049D+00
       Omega( 4) = 1.2068045801673655563132636636680672381772D+00
       Omega( 5) = 3.1618887677979012988931789562840890539519D+00
-C
+!
       Alpha( 1) = 0.0180677099136463318526386444967668509776D+00
       Alpha( 2) = 0.1159843500861629782565289520368523312754D+00
       Alpha( 3) = 0.4060170289500016420044040121872797044489D+00
       Alpha( 4) = 1.1856093034676985442871580134216458191077D+00
       Alpha( 5) = 3.1967392715623493253812581471606790728401D+00
-C
+!
       Xi( 1) = 1.025987986599939304102439840971D+00
       Xi( 2) = 1.244436379710849673897732348138D+00
       Xi( 3) = 1.738749585862048788209056893184D+00
@@ -2823,25 +2823,25 @@ C
       Xi( 9) = 35.654447253787359656262978546692D+00
       Xi(10) = 55.674065914067402998516298495701D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 7E1 -----
-C
+!
+!     ----- K = 05 , R = 7E1 -----
+!
   517 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0435404641423749599441785345516064964499D+00
       Omega( 2) = 0.1526714077865754897296796457895062815169D+00
       Omega( 3) = 0.4428218963958594054004542367453112206022D+00
       Omega( 4) = 1.1792923812761709411681826376039339265844D+00
       Omega( 5) = 3.1297433721720418944422376084091297343548D+00
-C
+!
       Alpha( 1) = 0.0161774474636488094969117472812780711422D+00
       Alpha( 2) = 0.1059055746618679526608545332644339964645D+00
       Alpha( 3) = 0.3805585874490105481766921702302397534368D+00
       Alpha( 4) = 1.1365624686784197416161701355008517566603D+00
       Alpha( 5) = 3.1174919552876026438738288337759740898036D+00
-C
+!
       Xi( 1) = 1.026838038680242269021919421235D+00
       Xi( 2) = 1.252852622804190629098204656788D+00
       Xi( 3) = 1.766537099233853070679757524264D+00
@@ -2853,25 +2853,25 @@ C
       Xi( 9) = 39.810779880025723560105221920935D+00
       Xi(10) = 64.406047341502177097649628478848D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 8E1 -----
-C
+!
+!     ----- K = 05 , R = 8E1 -----
+!
   518 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0397514331536537414319993754413529174485D+00
       Omega( 2) = 0.1436062765137879609363786778675198263500D+00
       Omega( 3) = 0.4273835064255168622604236922102316498240D+00
       Omega( 4) = 1.1571122334202288380652218213739956809150D+00
       Omega( 5) = 3.1037318963686114029875556807880343512807D+00
-C
+!
       Alpha( 1) = 0.0147059497531036244120876258813235271106D+00
       Alpha( 2) = 0.0980528681678504911183773609661962211703D+00
       Alpha( 3) = 0.3605733280656044851652641120010045483468D+00
       Alpha( 4) = 1.0976668403036145611100307672991505114624D+00
       Alpha( 5) = 3.0541811446566613800959050228911451085878D+00
-C
+!
       Xi( 1) = 1.027549586211971455510481854301D+00
       Xi( 2) = 1.259920380026032329847524016131D+00
       Xi( 3) = 1.789997919671034310416801726973D+00
@@ -2883,25 +2883,25 @@ C
       Xi( 9) = 43.696432384087426959579092411445D+00
       Xi(10) = 73.007490012850690647150386780595D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 9E1 -----
-C
+!
+!     ----- K = 05 , R = 9E1 -----
+!
   519 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0367103115933988785408103542456936807525D+00
       Omega( 2) = 0.1362975085252602825992016347123048092271D+00
       Omega( 3) = 0.4147426140491629501059079460079104251236D+00
       Omega( 4) = 1.1387451937085927495315468283010318373272D+00
       Omega( 5) = 3.0821271502266368218312525550928171469423D+00
-C
+!
       Alpha( 1) = 0.0135244470648898468016302571240161434218D+00
       Alpha( 2) = 0.0917428214601229520200201608681744858131D+00
       Alpha( 3) = 0.3444004900958717987143227479140961122539D+00
       Alpha( 4) = 1.0659073186356656392668670885193193953455D+00
       Alpha( 5) = 3.0021576019667892893435373613542083148786D+00
-C
+!
       Xi( 1) = 1.028157239821055244765463099199D+00
       Xi( 2) = 1.265972618547575588121394118968D+00
       Xi( 3) = 1.810179597639107708308310595857D+00
@@ -2913,25 +2913,25 @@ C
       Xi( 9) = 47.345971610642393925111326424826D+00
       Xi(10) = 81.482534713832055844884294515396D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 1E2 -----
-C
+!
+!     ----- K = 05 , R = 1E2 -----
+!
   521 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0342103034874631526696152957617291789916D+00
       Omega( 2) = 0.1302622960820672937630720217283553097332D+00
       Omega( 3) = 0.4041584156458790294866832704112624696791D+00
       Omega( 4) = 1.1232181675451095866731174299779638658947D+00
       Omega( 5) = 3.0638169728620764668738235547706949546409D+00
-C
+!
       Alpha( 1) = 0.0125527275404679892651334575069677068626D+00
       Alpha( 2) = 0.0865493948772892533749523380492973956279D+00
       Alpha( 3) = 0.3310012429371387315162403308654859301896D+00
       Alpha( 4) = 1.0393832416814095931769171277103680495202D+00
       Alpha( 5) = 2.9584699518773349188188737102223058172967D+00
-C
+!
       Xi( 1) = 1.028684362432210875628289803441D+00
       Xi( 2) = 1.271235368477093939892745566578D+00
       Xi( 3) = 1.827797553096407015267403639580D+00
@@ -2943,25 +2943,25 @@ C
       Xi( 9) = 50.786829027389754267346466676258D+00
       Xi(10) = 89.834677621284348428276622655630D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 2E2 -----
-C
+!
+!     ----- K = 05 , R = 2E2 -----
+!
   522 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0219924131992907643790133211808557334166D+00
       Omega( 2) = 0.1002064224819224335166702351263001702364D+00
       Omega( 3) = 0.3489637351854245363700929988270971193742D+00
       Omega( 4) = 1.0398862719837947781158921101152259325318D+00
       Omega( 5) = 2.9648211490348502911412048588246648250788D+00
-C
+!
       Alpha( 1) = 0.0077919805414365443251355311960609784094D+00
       Alpha( 2) = 0.0610302875027291444151751869523492288749D+00
       Alpha( 3) = 0.2635451761362904776547170376810313996430D+00
       Alpha( 4) = 0.9023059551184773100754483998731103611135D+00
       Alpha( 5) = 2.7287535886135676362583557530427924575633D+00
-C
+!
       Xi( 1) = 1.031738582081012241178225030680D+00
       Xi( 2) = 1.301959934154840365511107691532D+00
       Xi( 3) = 1.931949578030785384056416953413D+00
@@ -2973,25 +2973,25 @@ C
       Xi( 9) = 77.269299127612637412276797022059D+00
       Xi(10) = 167.164290422268234273528442201950D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 3E2 -----
-C
+!
+!     ----- K = 05 , R = 3E2 -----
+!
   523 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0174282312374317400131801909443640674624D+00
       Omega( 2) = 0.0885516446827289778186164705131577790098D+00
       Omega( 3) = 0.3261206213119612461344941356511384356054D+00
       Omega( 4) = 1.0041414563483471091443616218796819339332D+00
       Omega( 5) = 2.9219747649465219435215707077801994273614D+00
-C
+!
       Alpha( 1) = 0.0060033834494476276132450510373411711740D+00
       Alpha( 2) = 0.0513810282138952673963618999336544490575D+00
       Alpha( 3) = 0.2369999919944957109688371890698910249284D+00
       Alpha( 4) = 0.8463234388251620139622527494438486428407D+00
       Alpha( 5) = 2.6327559231103213198584012122438480218989D+00
-C
+!
       Xi( 1) = 1.033174749276737282299709619338D+00
       Xi( 2) = 1.316546435265119147366326413096D+00
       Xi( 3) = 1.982179306549416015082593078844D+00
@@ -3003,25 +3003,25 @@ C
       Xi( 9) = 95.084831518769201169627436343035D+00
       Xi(10) = 234.568627387691309854611532159652D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 4E2 -----
-C
+!
+!     ----- K = 05 , R = 4E2 -----
+!
   524 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0150187614602143699419223993318794896368D+00
       Omega( 2) = 0.0822228451037669558342933957828524427214D+00
       Omega( 3) = 0.3132830923567541781904564196503670814309D+00
       Omega( 4) = 0.9837032818773332431801573183527409582894D+00
       Omega( 5) = 2.8973695770360148279195383613782155407534D+00
-C
+!
       Alpha( 1) = 0.0050550447094746876118002336473328250932D+00
       Alpha( 2) = 0.0462342261395064916236290718243306940849D+00
       Alpha( 3) = 0.2224845241613079064560594411137373072052D+00
       Alpha( 4) = 0.8150922595119977967221928938368336048370D+00
       Alpha( 5) = 2.5785670834577289001546263058628483122448D+00
-C
+!
       Xi( 1) = 1.034032920030843131142458957150D+00
       Xi( 2) = 1.325306119866962213421808514102D+00
       Xi( 3) = 2.012588769819031008683277161886D+00
@@ -3033,25 +3033,25 @@ C
       Xi( 9) = 108.077596856357892887712246476895D+00
       Xi(10) = 293.377329734328583604741069734700D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 5E2 -----
-C
+!
+!     ----- K = 05 , R = 5E2 -----
+!
   525 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0135371869189180438887112238946497377867D+00
       Omega( 2) = 0.0782451713630320120227627615772103553127D+00
       Omega( 3) = 0.3050398442664156748805118213319076403423D+00
       Omega( 4) = 0.9704412982176837114303528941672283281150D+00
       Omega( 5) = 2.8813614470814399848557635364088014284789D+00
-C
+!
       Alpha( 1) = 0.0044700910206532437740403729785343411862D+00
       Alpha( 2) = 0.0430422335189548189549968524453271712105D+00
       Alpha( 3) = 0.2133256975578133257876378356399094116114D+00
       Alpha( 4) = 0.7951322401352172105932353263213485661254D+00
       Alpha( 5) = 2.5436793036816291951971585882930071420560D+00
-C
+!
       Xi( 1) = 1.034604842237904686209210014525D+00
       Xi( 2) = 1.331161827039902273081550809763D+00
       Xi( 3) = 2.033020735682391787017830875328D+00
@@ -3063,25 +3063,25 @@ C
       Xi( 9) = 117.945145859368349001983222734680D+00
       Xi(10) = 344.399657536421490683364865503790D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 6E2 -----
-C
+!
+!     ----- K = 05 , R = 6E2 -----
+!
   526 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0125497022369018914496793782285821716727D+00
       Omega( 2) = 0.0755480277998204573136121521559349645258D+00
       Omega( 3) = 0.2993684653512476888869656838076949156857D+00
       Omega( 4) = 0.9612526221486810956294750962758399737140D+00
       Omega( 5) = 2.8702502162736308354874792403421679409803D+00
-C
+!
       Alpha( 1) = 0.0040793511611987108165482531028228629921D+00
       Alpha( 2) = 0.0408997178514718597193682708690332106016D+00
       Alpha( 3) = 0.2071003853755610939370431985984133405054D+00
       Alpha( 4) = 0.7814442554474885124478691911242833612050D+00
       Alpha( 5) = 2.5196339666338295893831950023056265308696D+00
-C
+!
       Xi( 1) = 1.035008238780495264021869195048D+00
       Xi( 2) = 1.335300992017198816116940740528D+00
       Xi( 3) = 2.047513221463767489919846620516D+00
@@ -3093,25 +3093,25 @@ C
       Xi( 9) = 125.578805960313507290859735832100D+00
       Xi(10) = 388.108156802750548258762464115534D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 7E2 -----
-C
+!
+!     ----- K = 05 , R = 7E2 -----
+!
   527 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0118636637624195178692006451964813251720D+00
       Omega( 2) = 0.0736487157459496412766292508522703030849D+00
       Omega( 3) = 0.2953333596223997398124046231959738406658D+00
       Omega( 4) = 0.9546824601007417951544463396995610082740D+00
       Omega( 5) = 2.8622952932595032279547431208754915132886D+00
-C
+!
       Alpha( 1) = 0.0038074691411251674333998201932641181067D+00
       Alpha( 2) = 0.0394027284673490241780448913727630255721D+00
       Alpha( 3) = 0.2027096957655570047296704136452483169251D+00
       Alpha( 4) = 0.7717281393047814657369654067764486171654D+00
       Alpha( 5) = 2.5025046733436876863956171979097575786000D+00
-C
+!
       Xi( 1) = 1.035300325762522878733813691543D+00
       Xi( 2) = 1.338302645324408399912265166254D+00
       Xi( 3) = 2.058049151069528705498140608299D+00
@@ -3123,25 +3123,25 @@ C
       Xi( 9) = 131.493131827179792911475253447406D+00
       Xi(10) = 424.753380875778627501215822803715D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 8E2 -----
-C
+!
+!     ----- K = 05 , R = 8E2 -----
+!
   528 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0113813497171839778759997200904829917079D+00
       Omega( 2) = 0.0722993078519351827732693401007413314119D+00
       Omega( 3) = 0.2924451938945003215083486003411650244743D+00
       Omega( 4) = 0.9499630028765620042311909609900055784237D+00
       Omega( 5) = 2.8565759204045159773410755832401264342479D+00
-C
+!
       Alpha( 1) = 0.0036161175535254347276672282204476593925D+00
       Alpha( 2) = 0.0383455049806827012912025746255162417242D+00
       Alpha( 3) = 0.1995869766812679076551772378023130727343D+00
       Alpha( 4) = 0.7647855301606951202580964022104126343038D+00
       Alpha( 5) = 2.4902332388884395458772402776048693340272D+00
-C
+!
       Xi( 1) = 1.035512044375376673852225117844D+00
       Xi( 2) = 1.340480804514106308159872293917D+00
       Xi( 3) = 2.065708029999885967905107198028D+00
@@ -3153,25 +3153,25 @@ C
       Xi( 9) = 135.999940734977351364243247644481D+00
       Xi(10) = 454.425212167193654899666199753483D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 9E2 -----
-C
+!
+!     ----- K = 05 , R = 9E2 -----
+!
   529 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0110493996986944845713091178408815640211D+00
       Omega( 2) = 0.0713632054457008080852590571618865311621D+00
       Omega( 3) = 0.2904310341712171869663506457159840579152D+00
       Omega( 4) = 0.9466633544503644491496796575802363804542D+00
       Omega( 5) = 2.8525745409845265157262189648079697690264D+00
-C
+!
       Alpha( 1) = 0.0034843237838238312649514669648576070671D+00
       Alpha( 2) = 0.0376153534981393007195370117162758205609D+00
       Alpha( 3) = 0.1974191937931761697681051076491698381687D+00
       Alpha( 4) = 0.7599497569265250643288402143671333988095D+00
       Alpha( 5) = 2.4816698505783679781604156300289787395741D+00
-C
+!
       Xi( 1) = 1.035661029320602322481049972769D+00
       Xi( 2) = 1.342014708503715602716348243018D+00
       Xi( 3) = 2.071108717563173735399031927251D+00
@@ -3183,25 +3183,25 @@ C
       Xi( 9) = 139.288693645026466591541058903658D+00
       Xi(10) = 477.083147859152222031164924942459D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 1E3 -----
-C
+!
+!     ----- K = 05 , R = 1E3 -----
+!
   531 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0108382726570232800350219570101328869782D+00
       Omega( 2) = 0.0707644978086732066545881149333130366585D+00
       Omega( 3) = 0.2891382091047487843294035159136257107093D+00
       Omega( 4) = 0.9445417262916081805245935298920301192993D+00
       Omega( 5) = 2.8500005633404065035450825060792112708441D+00
-C
+!
       Alpha( 1) = 0.0034004600489073895373085156109901894261D+00
       Alpha( 2) = 0.0371498167966149987156249893255344218801D+00
       Alpha( 3) = 0.1960321090378673603580109152666466343362D+00
       Alpha( 4) = 0.7568483876518314330643366627526802403736D+00
       Alpha( 5) = 2.4761708329681671751556354399426140844298D+00
-C
+!
       Xi( 1) = 1.035757223385584084281510475201D+00
       Xi( 2) = 1.343005822739786468667487484563D+00
       Xi( 3) = 2.074601499880166638077258478567D+00
@@ -3213,25 +3213,25 @@ C
       Xi( 9) = 141.466224071874645137891768342797D+00
       Xi(10) = 492.570529270241514563366536094691D+00
       GOTO 9999
-C
-C     ----- K = 05 , R = 2E3 (Best : R = 1154) -----
-C
+!
+!     ----- K = 05 , R = 2E3 (Best : R = 1154) -----
+!
   599 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0107186010624974955309879299722441992060D+00
       Omega( 2) = 0.0704239357038686291254884867807373183268D+00
       Omega( 3) = 0.2884012053308492404702506606284373447124D+00
       Omega( 4) = 0.9433310104981166196980689464535174693083D+00
       Omega( 5) = 2.8485313369244249009568092922961568547180D+00
-C
+!
       Alpha( 1) = 0.0033529112764591385087846226072116895267D+00
       Alpha( 2) = 0.0368855238086302728956974734259022241645D+00
       Alpha( 3) = 0.1952428895765193203392729240364111831241D+00
       Alpha( 4) = 0.7550812995393414493814493448908820028009D+00
       Alpha( 5) = 2.4730352459564652644382481971874199189187D+00
-C
+!
       Xi( 1) = 1.035812293717382617536798550262D+00
       Xi( 2) = 1.343573108837654108403160402307D+00
       Xi( 3) = 2.076601508202342995451986085165D+00
@@ -3243,35 +3243,35 @@ C
       Xi( 9) = 142.731756929721936510979674039845D+00
       Xi(10) = 501.753271542624243922725568722853D+00
       GOTO 9999
-C
-C     ===== K = 06 =====
-C
+!
+!     ===== K = 06 =====
+!
   600 CONTINUE
-C
+!
       GOTO ( 602, 605, 611, 612, 613, 614, 615, 616, 617, 618, 619, 621,
      *       622, 623, 624, 625, 626, 627, 628, 629, 631, 632, 699, 699,
      *       699, 699, 699, 699, 699, 699, 699),InitR
-C
-C     ----- K = 06 , R = 2E0 -----
-C
+!
+!     ----- K = 06 , R = 2E0 -----
+!
   602 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 0.3951503586666182849006841854011540249303D+00
       Omega( 2) = 0.9483584803953558999261436168737304797105D+00
       Omega( 3) = 1.5813287669193051950466619159918479908811D+00
       Omega( 4) = 2.3797403876283135313977890046288621306303D+00
       Omega( 5) = 3.5481339355732610745496058424208740689210D+00
       Omega( 6) = 5.8817260741536767109684247234469012255431D+00
-C
+!
       Alpha( 1) = 0.1534423273269616295463391511533224331743D+00
       Alpha( 2) = 0.8208030144142543005673050282577918324023D+00
       Alpha( 3) = 2.0763266377595740032162285881867092030006D+00
       Alpha( 4) = 4.0375449448252483082913433243277268047677D+00
       Alpha( 5) = 6.9549672561485968930519718789184935303638D+00
       Alpha( 6) = 11.4891014499758782963292902401519768318394D+00
-C
+!
       Xi( 1) = 1.002939863002787006869727381986D+00
       Xi( 2) = 1.026434552149436049629967204755D+00
       Xi( 3) = 1.073260845596178922312612102896D+00
@@ -3285,27 +3285,27 @@ C
       Xi(11) = 1.945142207156052932765302743157D+00
       Xi(12) = 1.993735287513832045501287193456D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 5E0 -----
-C
+!
+!     ----- K = 06 , R = 5E0 -----
+!
   605 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.2246903767486849122763520325563035839878D+00
       Omega( 2) = 0.5519095844142891326106030447373740344119D+00
       Omega( 3) = 0.9622019394266135803054848518733876971964D+00
       Omega( 4) = 1.5504627855961601076272698973568253677513D+00
       Omega( 5) = 2.5290208569930264208974746154012791521382D+00
       Omega( 6) = 4.6466141585747064604410005994594712319667D+00
-C
+!
       Alpha( 1) = 0.0870216340647555737652257303038627611613D+00
       Alpha( 2) = 0.4709136752047922974001321200221426011012D+00
       Alpha( 3) = 1.2180676458000685170304441817812346471328D+00
       Alpha( 4) = 2.4535517473926842261719438731404352438403D+00
       Alpha( 5) = 4.4452949405703532036703007346289950874052D+00
       Alpha( 6) = 7.8614295814483422927473887931171248055762D+00
-C
+!
       Xi( 1) = 1.007037883811018135664719364009D+00
       Xi( 2) = 1.063908019632764205227894172001D+00
       Xi( 3) = 1.180628980475084192761948964634D+00
@@ -3319,27 +3319,27 @@ C
       Xi(11) = 4.641862576083718421298546230602D+00
       Xi(12) = 4.957655499604545906288527445938D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 1E1 -----
-C
+!
+!     ----- K = 06 , R = 1E1 -----
+!
   611 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.1407385838051433856106010866771072187476D+00
       Omega( 2) = 0.3565694200685690354226536902260136230325D+00
       Omega( 3) = 0.6603802616738012804843693803746873527416D+00
       Omega( 4) = 1.1604682915072341640571468301956770119432D+00
       Omega( 5) = 2.0803301182531367932628668659944537466799D+00
       Omega( 6) = 4.1513349861478130481580450794609760123421D+00
-C
+!
       Alpha( 1) = 0.0543212598500059367314274534621620915686D+00
       Alpha( 2) = 0.2985187647358117048385951763922463442213D+00
       Alpha( 3) = 0.7962225930216238800108709272596030359637D+00
       Alpha( 4) = 1.6836229524774230601608104862521031463984D+00
       Alpha( 5) = 3.2535534765211933906029623253530758120178D+00
       Alpha( 6) = 6.1993107601849360499893237808066714933375D+00
-C
+!
       Xi( 1) = 1.010390027445351043833277060457D+00
       Xi( 2) = 1.094952075027758760716531383217D+00
       Xi( 3) = 1.271782267388700225991052250585D+00
@@ -3353,27 +3353,27 @@ C
       Xi(11) = 8.840257599451475464640004542360D+00
       Xi(12) = 9.857134216221037015942529890822D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 2E1 -----
-C
+!
+!     ----- K = 06 , R = 2E1 -----
+!
   612 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0862496741180035379067893470950156853405D+00
       Omega( 2) = 0.2287552313838759988283118665397530833161D+00
       Omega( 3) = 0.4619231653435139031303388601479298358754D+00
       Omega( 4) = 0.9029137915898263100529519409320755585213D+00
       Omega( 5) = 1.7807264424526320117014507871111561598809D+00
       Omega( 6) = 3.8200570280772443360669393674911020752916D+00
-C
+!
       Alpha( 1) = 0.0331253840720488536691890318203190801682D+00
       Alpha( 2) = 0.1862453189927838743364689119696997465780D+00
       Alpha( 3) = 0.5202262124793207121137110504616174466719D+00
       Alpha( 4) = 1.1783399761432671823966136792627423801605D+00
       Alpha( 5) = 2.4682032832613331014767754645333752705483D+00
       Alpha( 6) = 5.0989823083682598225604976072133922571084D+00
-C
+!
       Xi( 1) = 1.013856805828272228940135912811D+00
       Xi( 2) = 1.127427449637189030957028224034D+00
       Xi( 3) = 1.369180650217897420007316655610D+00
@@ -3387,27 +3387,27 @@ C
       Xi(11) = 16.536631228932167728476465562437D+00
       Xi(12) = 19.547499375541998470340310234405D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 3E1 -----
-C
+!
+!     ----- K = 06 , R = 3E1 -----
+!
   613 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0643875392260774473662246139560316748884D+00
       Omega( 2) = 0.1769925533203732905728139748746663428847D+00
       Omega( 3) = 0.3803989314000021870147000280226734503231D+00
       Omega( 4) = 0.7936758834219182629486112612315906744698D+00
       Omega( 5) = 1.6486087888192316119276986663422235324106D+00
       Omega( 6) = 3.6716777532566438266292685455027822172269D+00
-C
+!
       Alpha( 1) = 0.0246338601868061877442589273357054224789D+00
       Alpha( 2) = 0.1410255763456897599880624991075528384954D+00
       Alpha( 3) = 0.4082545329312478092306272492439944699072D+00
       Alpha( 4) = 0.9707499275233410204527170761501508877700D+00
       Alpha( 5) = 2.1393343031375326331305214422329186163552D+00
       Alpha( 6) = 4.6296955440744570115831069134770814343938D+00
-C
+!
       Xi( 1) = 1.015871521114546384184813831997D+00
       Xi( 2) = 1.146484930769694886125431576573D+00
       Xi( 3) = 1.427344744422456389006462207369D+00
@@ -3421,27 +3421,27 @@ C
       Xi(11) = 23.594132485605730422534298540427D+00
       Xi(12) = 29.124355626658757639074748269081D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 4E1 -----
-C
+!
+!     ----- K = 06 , R = 4E1 -----
+!
   614 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0522574742342978113803029626555085584982D+00
       Omega( 2) = 0.1480796993930270559432010521461187124714D+00
       Omega( 3) = 0.3341395292959524739658146164078544870790D+00
       Omega( 4) = 0.7296921875931181159023568294497152919575D+00
       Omega( 5) = 1.5689274489411984757044130067704656994465D+00
       Omega( 6) = 3.5813517206284184537547210513963591438369D+00
-C
+!
       Alpha( 1) = 0.0199272921588992815234223088260989698028D+00
       Alpha( 2) = 0.1158687609653954539857666911073508231311D+00
       Alpha( 3) = 0.3455473250255029791578372660998397236654D+00
       Alpha( 4) = 0.8529186964399603203962341169130922935437D+00
       Alpha( 5) = 1.9493007795284760018481723387040460693242D+00
       Alpha( 6) = 4.3543982689127892935984642797109245293541D+00
-C
+!
       Xi( 1) = 1.017270403178994494716724794614D+00
       Xi( 2) = 1.159800883046806106312261175351D+00
       Xi( 3) = 1.468442034643479504585870942801D+00
@@ -3455,27 +3455,27 @@ C
       Xi(11) = 30.180838554184981833983236754193D+00
       Xi(12) = 38.605808888195780537860857251076D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 5E1 -----
-C
+!
+!     ----- K = 06 , R = 5E1 -----
+!
   615 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0444334182386757780728681402337976180661D+00
       Omega( 2) = 0.1293308348039938405240863519840566198127D+00
       Omega( 3) = 0.3036711754764852394777429472894070272559D+00
       Omega( 4) = 0.6863985328085999401193963154188537600930D+00
       Omega( 5) = 1.5138503087235758502553106819021877527121D+00
       Omega( 6) = 3.5185424210031163373864349086517222531256D+00
-C
+!
       Alpha( 1) = 0.0168938375522182825927815447500379697487D+00
       Alpha( 2) = 0.0996091777682384279030331809823284316963D+00
       Alpha( 3) = 0.3047652371799653853450158547122583740929D+00
       Alpha( 4) = 0.7753183769485387444244002541626770153016D+00
       Alpha( 5) = 1.8222505520282237026757216069583478201821D+00
       Alpha( 6) = 4.1681458423137244346731722366428130044369D+00
-C
+!
       Xi( 1) = 1.018329136868172673938484629197D+00
       Xi( 2) = 1.169925964521422761719336713693D+00
       Xi( 3) = 1.499946922777239079064073856706D+00
@@ -3489,27 +3489,27 @@ C
       Xi(11) = 36.390287374282789891605238707939D+00
       Xi(12) = 48.002121522630162350070426313664D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 6E1 -----
-C
+!
+!     ----- K = 06 , R = 6E1 -----
+!
   616 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0389207539214614393984598920278594746947D+00
       Omega( 2) = 0.1160606055099792352353874243242604080706D+00
       Omega( 3) = 0.2817827958041292704650070122252003557151D+00
       Omega( 4) = 0.6545864705958214315481384637518402769274D+00
       Omega( 5) = 1.4727168297337244618882418079053309156734D+00
       Omega( 6) = 3.4714354715327135230719390879272623351426D+00
-C
+!
       Alpha( 1) = 0.0147577944494537626858251828237955649570D+00
       Alpha( 2) = 0.0881339680501746974836184238266678647733D+00
       Alpha( 3) = 0.2758135968716968830646233540315748200555D+00
       Alpha( 4) = 0.7195968816061252057566730022664103216812D+00
       Alpha( 5) = 1.7298527418488277009002082595934268738347D+00
       Alpha( 6) = 4.0313890355775024482327950625659696015646D+00
-C
+!
       Xi( 1) = 1.019173107753838788806267923182D+00
       Xi( 2) = 1.178026728564142044789787855397D+00
       Xi( 3) = 1.525313988635216473003890225169D+00
@@ -3523,27 +3523,27 @@ C
       Xi(11) = 42.283685047310163161726759284420D+00
       Xi(12) = 57.320130973726621487901455864744D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 7E1 -----
-C
+!
+!     ----- K = 06 , R = 7E1 -----
+!
   617 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0348032175661934841130653456309218540810D+00
       Omega( 2) = 0.1061085857260316455183803488471205866972D+00
       Omega( 3) = 0.2651359722976122245839594032679187307622D+00
       Omega( 4) = 0.6299268945664218586569932378793623684032D+00
       Omega( 5) = 1.4404181621079914719625938990255065164092D+00
       Omega( 6) = 3.4343276793451510164097845168029721207859D+00
-C
+!
       Alpha( 1) = 0.0131630672750795466269084499355557227318D+00
       Alpha( 2) = 0.0795507056312876082931700126577023723939D+00
       Alpha( 3) = 0.2540370048152601382225254655899959743692D+00
       Alpha( 4) = 0.6772494438031879543122421027945279092819D+00
       Alpha( 5) = 1.6588625672007166433853317388802395271341D+00
       Alpha( 6) = 3.9254796374566991239932894908193361516169D+00
-C
+!
       Xi( 1) = 1.019869801124880972402822476575D+00
       Xi( 2) = 1.184733879548496024566514583931D+00
       Xi( 3) = 1.546426224341374471861997041966D+00
@@ -3557,27 +3557,27 @@ C
       Xi(11) = 47.904785539258988878719147663787D+00
       Xi(12) = 66.564805255975383981026372026690D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 8E1 -----
-C
+!
+!     ----- K = 06 , R = 8E1 -----
+!
   618 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0315973344518909737188756565312575119719D+00
       Omega( 2) = 0.0983312504597541692870528440284516591419D+00
       Omega( 3) = 0.2519549389039057720135559442775630145661D+00
       Omega( 4) = 0.6100807113831754208426068342152603918294D+00
       Omega( 5) = 1.4141485422756007230568955912453077417013D+00
       Omega( 6) = 3.4040697463532191200091120419912726902112D+00
-C
+!
       Alpha( 1) = 0.0119218682970624811615680807216910430668D+00
       Alpha( 2) = 0.0728594690057079250061376415881220225401D+00
       Alpha( 3) = 0.2369701576901333403899060567332490734316D+00
       Alpha( 4) = 0.6437479496493271354895342184487816439287D+00
       Alpha( 5) = 1.6021676951562195459748821901868609529629D+00
       Alpha( 6) = 3.8403261825125701504728137347655092526111D+00
-C
+!
       Xi( 1) = 1.020459608471411983455362504358D+00
       Xi( 2) = 1.190426416844526231217198108947D+00
       Xi( 3) = 1.564422761724479715196578499814D+00
@@ -3591,27 +3591,27 @@ C
       Xi(11) = 53.286665854063588545347363023552D+00
       Xi(12) = 75.739948898847376648757467876294D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 9E1 -----
-C
+!
+!     ----- K = 06 , R = 9E1 -----
+!
   619 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0290224356155021399123123456570416678346D+00
       Omega( 2) = 0.0920629962514437429516337904611411602218D+00
       Omega( 3) = 0.2412003862634107494074828595409520914927D+00
       Omega( 4) = 0.5936581793011396837047265184761357659227D+00
       Omega( 5) = 1.3922177274028809855705227094269105236890D+00
       Omega( 6) = 3.3787565044853692037326448049938676376769D+00
-C
+!
       Alpha( 1) = 0.0109252384908035184792304329338963331253D+00
       Alpha( 2) = 0.0674791066323320984753487798701865330031D+00
       Alpha( 3) = 0.2231770678139233854745358820448331016451D+00
       Alpha( 4) = 0.6164401736272702965815928344284202466952D+00
       Alpha( 5) = 1.5555685911402398983321981873473305313382D+00
       Alpha( 6) = 3.7699289128884461914145015404287164528796D+00
-C
+!
       Xi( 1) = 1.020968577308356571250493038949D+00
       Xi( 2) = 1.195349326545488175899470406627D+00
       Xi( 3) = 1.580044347500419270107982483431D+00
@@ -3625,27 +3625,27 @@ C
       Xi(11) = 58.455305927451702747293937889594D+00
       Xi(12) = 84.848581717880271528542390768735D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 1E2 -----
-C
+!
+!     ----- K = 06 , R = 1E2 -----
+!
   621 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0269037503472777864172587897889643571148D+00
       Omega( 2) = 0.0868884034646989601314973940271446650740D+00
       Omega( 3) = 0.2322198468998249781331455129929075553719D+00
       Omega( 4) = 0.5797744666263794617393732833132702353396D+00
       Omega( 5) = 1.3735366550622797052541579354567602422321D+00
       Omega( 6) = 3.3571561544965228026781572934211794745352D+00
-C
+!
       Alpha( 1) = 0.0101053613446297862534198233434856728508D+00
       Alpha( 2) = 0.0630473793038213744022494298968606329936D+00
       Alpha( 3) = 0.2117607008763383316597879446607777254030D+00
       Alpha( 4) = 0.5936601207247772421017086019734421142857D+00
       Alpha( 5) = 1.5164074607971299795501282647869345510117D+00
       Alpha( 6) = 3.7104671222364464652429538737976599804824D+00
-C
+!
       Xi( 1) = 1.021414424800761986929578672978D+00
       Xi( 2) = 1.199669935580648808329251586713D+00
       Xi( 3) = 1.593799340204969835197747196620D+00
@@ -3659,27 +3659,27 @@ C
       Xi(11) = 63.431700995949399989742856220687D+00
       Xi(12) = 93.893166381930095822083703893668D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 2E2 -----
-C
+!
+!     ----- K = 06 , R = 2E2 -----
+!
   622 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0164846314068179163341601152839577260067D+00
       Omega( 2) = 0.0611067628119328394039168686480145709083D+00
       Omega( 3) = 0.1855559934147548801965793563439888202993D+00
       Omega( 4) = 0.5047457845186150892030987891168081205251D+00
       Omega( 5) = 1.2702004011589922115310624661788097000681D+00
       Omega( 6) = 3.2370283689529729053650092263083593024930D+00
-C
+!
       Alpha( 1) = 0.0060745561605835059879668618321862938458D+00
       Alpha( 2) = 0.0411656892946592426047976772535141876119D+00
       Alpha( 3) = 0.1543149999726211490301509485223441231483D+00
       Alpha( 4) = 0.4758340265306222515633103459231634246862D+00
       Alpha( 5) = 1.3088413484383164279902661553123266457987D+00
       Alpha( 6) = 3.3901114378459397153287718795766636503686D+00
-C
+!
       Xi( 1) = 1.024101300602834063355715821242D+00
       Xi( 2) = 1.225872067300112482112275924528D+00
       Xi( 3) = 1.678117393118015734172938924207D+00
@@ -3693,27 +3693,27 @@ C
       Xi(11) = 105.433492840975274018600060799145D+00
       Xi(12) = 181.154627443317280025003590537835D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 3E2 -----
-C
+!
+!     ----- K = 06 , R = 3E2 -----
+!
   623 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0125220873991649013673126546002112302602D+00
       Omega( 2) = 0.0510449651372189538865904463033063009902D+00
       Omega( 3) = 0.1660665774537122245792068742087366217675D+00
       Omega( 4) = 0.4717249694785838887698715959917450391004D+00
       Omega( 5) = 1.2233401903869242636395744949773245480174D+00
       Omega( 6) = 3.1821812879622630178787223709235831847764D+00
-C
+!
       Alpha( 1) = 0.0045403772662585912767843686170532446766D+00
       Alpha( 2) = 0.0327772446201638313597389196712983405746D+00
       Alpha( 3) = 0.1315230758019218048579827493038685304327D+00
       Alpha( 4) = 0.4270458936595012981913849908766067642318D+00
       Alpha( 5) = 1.2198581690530462475104134245640352673945D+00
       Alpha( 6) = 3.2496928841682374872364136297875347736408D+00
-C
+!
       Xi( 1) = 1.025454614360495746291576657505D+00
       Xi( 2) = 1.239178295945885844762078542569D+00
       Xi( 3) = 1.721535746309017900212978702257D+00
@@ -3727,27 +3727,27 @@ C
       Xi(11) = 138.073633010752780642116377407547D+00
       Xi(12) = 263.244689306263335931701519143644D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 4E2 -----
-C
+!
+!     ----- K = 06 , R = 4E2 -----
+!
   624 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0103875843304171820269982020983057235952D+00
       Omega( 2) = 0.0455094300305711951095202511680115620152D+00
       Omega( 3) = 0.1548849634653172308842647431070815855492D+00
       Omega( 4) = 0.4522533544737275122324914045091048819813D+00
       Omega( 5) = 1.1952746785512347834409124791577028190659D+00
       Omega( 6) = 3.1492145201891648162006304145776880432095D+00
-C
+!
       Alpha( 1) = 0.0037126126629825554528679758519577047693D+00
       Alpha( 2) = 0.0282275965399766230694815353011173364450D+00
       Alpha( 3) = 0.1188555545634441366689162088154940732920D+00
       Alpha( 4) = 0.3992215234884476781219552615764811775989D+00
       Alpha( 5) = 1.1681141741170859201784035241722392584052D+00
       Alpha( 6) = 3.1670518413818134278395893810298389325908D+00
-C
+!
       Xi( 1) = 1.026309589054521672854027036781D+00
       Xi( 2) = 1.247623140493916250176598126131D+00
       Xi( 3) = 1.749302523234483264453001383210D+00
@@ -3761,27 +3761,27 @@ C
       Xi(11) = 164.775747948596678463251130608569D+00
       Xi(12) = 340.704993926550859129065429442562D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 5E2 -----
-C
+!
+!     ----- K = 06 , R = 5E2 -----
+!
   625 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0090407515643733420463126391163066752910D+00
       Omega( 2) = 0.0419530265693814966586653539964979486854D+00
       Omega( 3) = 0.1474881550985332631474719264352835068621D+00
       Omega( 4) = 0.4391435240680694682146884694207145116707D+00
       Omega( 5) = 1.1761879348950756306226711478402080501837D+00
       Omega( 6) = 3.1267420244356869851905245116796550064464D+00
-C
+!
       Alpha( 1) = 0.0031893814523236114041891876456566445874D+00
       Alpha( 2) = 0.0253389996114558638162154828588068511408D+00
       Alpha( 3) = 0.1106604325079244116039264844708611690294D+00
       Alpha( 4) = 0.3808951402331243825578627887340488200607D+00
       Alpha( 5) = 1.1335878719950364830731243115380380004353D+00
       Alpha( 6) = 3.1114724532084870984530861059980111349432D+00
-C
+!
       Xi( 1) = 1.026911118547184017645718112632D+00
       Xi( 2) = 1.253582552323086940580104675647D+00
       Xi( 3) = 1.768996911522499009016863580346D+00
@@ -3795,27 +3795,27 @@ C
       Xi(11) = 187.263674144445891420196481647054D+00
       Xi(12) = 413.913484907066588913693294671248D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 6E2 -----
-C
+!
+!     ----- K = 06 , R = 6E2 -----
+!
   626 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0081091385540135693656027429492005875744D+00
       Omega( 2) = 0.0394541019605209582625016985490962184713D+00
       Omega( 3) = 0.1421765733804508024330824980663301460027D+00
       Omega( 4) = 0.4296107974766591557622998076571008141400D+00
       Omega( 5) = 1.1622091695018335619563054628144982416416D+00
       Omega( 6) = 3.1102558315953168074571855150622923247283D+00
-C
+!
       Alpha( 1) = 0.0028268458406437786379807047690629340231D+00
       Alpha( 2) = 0.0233296022544698573519074196944145249688D+00
       Alpha( 3) = 0.1048731918356399272484742561661885673630D+00
       Alpha( 4) = 0.3677786713597671238969513685113099654700D+00
       Alpha( 5) = 1.1086419641112550304095848985319605617406D+00
       Alpha( 6) = 3.0710862053749614941113021959750994938076D+00
-C
+!
       Xi( 1) = 1.027362349375534096769004011040D+00
       Xi( 2) = 1.258062845629194640849519981618D+00
       Xi( 3) = 1.783857473947565594691103130209D+00
@@ -3829,27 +3829,27 @@ C
       Xi(11) = 206.575346884772450523071185557455D+00
       Xi(12) = 483.170485098160643666620472913564D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 7E2 -----
-C
+!
+!     ----- K = 06 , R = 7E2 -----
+!
   627 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0074247323082149151767562551395424064182D+00
       Omega( 2) = 0.0375927111082512853721488907399184142832D+00
       Omega( 3) = 0.1381527530049599144834670053083591767518D+00
       Omega( 4) = 0.4223205987016474642354712382141812554437D+00
       Omega( 5) = 1.1514604701601748779592193638876551631256D+00
       Omega( 6) = 3.0975627662452193883998313728156404067704D+00
-C
+!
       Alpha( 1) = 0.0025601001960133667433892277467619158493D+00
       Alpha( 2) = 0.0218457448223638122831329923256848957180D+00
       Alpha( 3) = 0.1005461602165559508416316399082024446443D+00
       Alpha( 4) = 0.3578681828337668482410954123862367737274D+00
       Alpha( 5) = 1.0896558648067596280053018209521553671948D+00
       Alpha( 6) = 3.0402149545555030530838425129047664086102D+00
-C
+!
       Xi( 1) = 1.027715621821195243930369134233D+00
       Xi( 2) = 1.261576389565768080143308427221D+00
       Xi( 3) = 1.795544353439286316509275465148D+00
@@ -3863,27 +3863,27 @@ C
       Xi(11) = 223.395485833209753306904943315203D+00
       Xi(12) = 548.719796409537993453486848238754D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 8E2 -----
-C
+!
+!     ----- K = 06 , R = 8E2 -----
+!
   628 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0069001546543077985549532039726006171776D+00
       Omega( 2) = 0.0361483829711729105784953110236390472210D+00
       Omega( 3) = 0.1349880105474074203292852297542125938890D+00
       Omega( 4) = 0.4165440392673443189099687783416570141526D+00
       Omega( 5) = 1.1429068035001628213156305013953328852949D+00
       Omega( 6) = 3.0874514747660918537620206025806623983954D+00
-C
+!
       Alpha( 1) = 0.0023553678339827302485676510657164328677D+00
       Alpha( 2) = 0.0207030056277595794300103474935847991389D+00
       Alpha( 3) = 0.0971788429385239001901753211343226723784D+00
       Alpha( 4) = 0.3500900854010225815668867072050218780532D+00
       Alpha( 5) = 1.0746683097025738517268228511269967384578D+00
       Alpha( 6) = 3.0157614053961606392657152087011240837455D+00
-C
+!
       Xi( 1) = 1.028000752156941029246198238134D+00
       Xi( 2) = 1.264415988943018486130066835305D+00
       Xi( 3) = 1.805010490262082701240151094702D+00
@@ -3897,27 +3897,27 @@ C
       Xi(11) = 238.202187815886369665063782008474D+00
       Xi(12) = 610.759132377441485761693229505909D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 9E2 -----
-C
+!
+!     ----- K = 06 , R = 9E2 -----
+!
   629 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0064853094461266979653356052996915348530D+00
       Omega( 2) = 0.0349935860300550033064764278434299882292D+00
       Omega( 3) = 0.1324294705506935298291179906038372848798D+00
       Omega( 4) = 0.4118457658248256582898295941053135038601D+00
       Omega( 5) = 1.1359254669154330633345367784770019170537D+00
       Omega( 6) = 3.0791919318758857709427551041514448115777D+00
-C
+!
       Alpha( 1) = 0.0021932677980895974418018107244751635498D+00
       Alpha( 2) = 0.0197953716360736805643274864585645644866D+00
       Alpha( 3) = 0.0944803091081423382480261770333118676035D+00
       Alpha( 4) = 0.3438129085859721877115654370404840278752D+00
       Alpha( 5) = 1.0625153853630918895922796707509405678138D+00
       Alpha( 6) = 2.9958772123567106030524870297071515778953D+00
-C
+!
       Xi( 1) = 1.028236134913692806066090601469D+00
       Xi( 2) = 1.266762739177218750441338002144D+00
       Xi( 3) = 1.812848047722443427004664073809D+00
@@ -3931,27 +3931,27 @@ C
       Xi(11) = 251.342760645662371368769250068453D+00
       Xi(12) = 669.448234681487855890491545096666D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 1E3 -----
-C
+!
+!     ----- K = 06 , R = 1E3 -----
+!
   631 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0061493505796972659139391947143854499913D+00
       Omega( 2) = 0.0340491288320566085672728810773701724202D+00
       Omega( 3) = 0.1303175043656297746362884848458918440883D+00
       Omega( 4) = 0.4079481557970084787390335073764546791608D+00
       Omega( 5) = 1.1301170634334537682492635712883100040926D+00
       Omega( 6) = 3.0723153218216233070487347633914509970054D+00
-C
+!
       Alpha( 1) = 0.0020618552752413614870631087313407325823D+00
       Alpha( 2) = 0.0190573955732373034512451125815912789108D+00
       Alpha( 3) = 0.0922691708416082665949044076814100634465D+00
       Alpha( 4) = 0.3386390121450568758694043419721353416207D+00
       Alpha( 5) = 1.0524587572217026424205646439880013076618D+00
       Alpha( 6) = 2.9793845872747349067324873495010706392350D+00
-C
+!
       Xi( 1) = 1.028433820474111892490261255251D+00
       Xi( 2) = 1.268735476408904108095582197180D+00
       Xi( 3) = 1.819446326348997650503361289687D+00
@@ -3965,27 +3965,27 @@ C
       Xi(11) = 263.077018330371225407482427272043D+00
       Xi(12) = 724.915711823892740806041246059976D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 2E3 -----
-C
+!
+!     ----- K = 06 , R = 2E3 -----
+!
   632 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0046569405523143578406867516827905006949D+00
       Omega( 2) = 0.0297242860906955031989184080193355796951D+00
       Omega( 3) = 0.1204049483744157716992866265226513888820D+00
       Omega( 4) = 0.3894115976155329942069369120183353061293D+00
       Omega( 5) = 1.1022784500339817690328300670010719386482D+00
       Omega( 6) = 3.0392951653690305389380471590143883986457D+00
-C
+!
       Alpha( 1) = 0.0014764458510144259402872805191954397319D+00
       Alpha( 2) = 0.0157368046519649566180259299061350297677D+00
       Alpha( 3) = 0.0820975255837409421109419904727388939136D+00
       Alpha( 4) = 0.3144524324480677776084708990866900535366D+00
       Alpha( 5) = 1.0049446929502894142053129322711413351499D+00
       Alpha( 6) = 2.9009766057570200677769717279019801026152D+00
-C
+!
       Xi( 1) = 1.029405214778790805764049909321D+00
       Xi( 2) = 1.278453273819321666239338941562D+00
       Xi( 3) = 1.852083750419863797821024009593D+00
@@ -3999,27 +3999,27 @@ C
       Xi(11) = 331.833089656248126891879834943211D+00
       Xi(12) = 1116.683301472208890703363692864514D+00
       GOTO 9999
-C
-C     ----- K = 06 , R = 3E3 (R = 2802.1) -----
-C
+!
+!     ----- K = 06 , R = 3E3 (R = 2802.1) -----
+!
   699 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0044122353526579834677601589087297950798D+00
       Omega( 2) = 0.0289892203219406956332546360446955624468D+00
       Omega( 3) = 0.1186779113929924570088980488591356987627D+00
       Omega( 4) = 0.3861395125485350843393649034052117485771D+00
       Omega( 5) = 1.0973265611814315093758276375979221484158D+00
       Omega( 6) = 3.0334106111925839318731873417434030670847D+00
-C
+!
       Alpha( 1) = 0.0013802019452414498485521955422304640759D+00
       Alpha( 2) = 0.0151836143815727678219742818009618812169D+00
       Alpha( 3) = 0.0803615118552532432872931474066025003822D+00
       Alpha( 4) = 0.3102556086327740258025507241734786134657D+00
       Alpha( 5) = 0.9966114862688711845714432946419236714064D+00
       Alpha( 6) = 2.8871396539466742396824738836613732928527D+00
-C
+!
       Xi( 1) = 1.029582279599890563067006443720D+00
       Xi( 2) = 1.280228685956502250381169871751D+00
       Xi( 3) = 1.858070579019150707117576104555D+00
@@ -4033,20 +4033,20 @@ C
       Xi(11) = 346.736477454457815289279309922676D+00
       Xi(12) = 1218.904339756573323549915244257136D+00
       GOTO 9999
-C
-C     ===== K = 07 =====
-C
+!
+!     ===== K = 07 =====
+!
   700 CONTINUE
       GOTO ( 702, 705, 711, 712, 713, 714, 715, 716, 717, 718, 719, 721,
      *       722, 723, 724, 725, 726, 727, 728, 729, 731, 732, 733, 734,
      *       735, 736, 799, 799, 799, 799, 799),InitR
-C
-C     ----- K = 07 , R = 2E0 -----
-C
+!
+!     ----- K = 07 , R = 2E0 -----
+!
   702 CONTINUE
-C
+!
       RIni = 2.0D+00
-C
+!
       Omega( 1) = 0.3418302741901420474621587503039066291421D+00
       Omega( 2) = 0.8139373975876501259149251032987137932651D+00
       Omega( 3) = 1.3352973461439932906149458125000251129677D+00
@@ -4054,7 +4054,7 @@ C
       Omega( 5) = 2.7444403923927759290143230108682814716303D+00
       Omega( 6) = 3.9247848246178932362336622130527530316613D+00
       Omega( 7) = 6.3099568403220470053441304436603331851074D+00
-C
+!
       Alpha( 1) = 0.1328537955998787967458766787198776171408D+00
       Alpha( 2) = 0.7079130219116617702703429804156343152499D+00
       Alpha( 3) = 1.7769359317465696517825135547496984145255D+00
@@ -4062,7 +4062,7 @@ C
       Alpha( 5) = 5.7364147937170302084600170822170639439719D+00
       Alpha( 6) = 9.0227759271360481047041801616614975500852D+00
       Alpha( 7) = 13.9533183597427484952391285588646496762522D+00
-C
+!
       Xi( 1) = 1.002169736045136631320297271319D+00
       Xi( 2) = 1.019513465126059823515937419192D+00
       Xi( 3) = 1.054112462151100426720543024040D+00
@@ -4078,13 +4078,13 @@ C
       Xi(13) = 1.959581528128465564039632773596D+00
       Xi(14) = 1.995418384645174889589248901078D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 5E0 -----
-C
+!
+!     ----- K = 07 , R = 5E0 -----
+!
   705 CONTINUE
-C
+!
       RIni = 5.0D+00
-C
+!
       Omega( 1) = 0.1938010079679485214818220051302688489159D+00
       Omega( 2) = 0.4692435586300529009988209000470149590001D+00
       Omega( 3) = 0.7946376596686955935222411440133072346725D+00
@@ -4092,7 +4092,7 @@ C
       Omega( 5) = 1.8330663504453953155251891282695453355700D+00
       Omega( 6) = 2.8441417219183059963884957488389204627310D+00
       Omega( 7) = 5.0081428000286361285758873762574694410432D+00
-C
+!
       Alpha( 1) = 0.0751780120539355767539336714011533047142D+00
       Alpha( 2) = 0.4039405737710808214351466266522905357306D+00
       Alpha( 3) = 1.0300953839123784970457226028983654941840D+00
@@ -4100,7 +4100,7 @@ C
       Alpha( 5) = 3.5300416178849783098783743362503173557343D+00
       Alpha( 6) = 5.8202600945046032879064135112656686033006D+00
       Alpha( 7) = 9.5718793022987917473720642647094791755080D+00
-C
+!
       Xi( 1) = 1.005229217356591901169279856809D+00
       Xi( 2) = 1.047367901529659821226875271449D+00
       Xi( 3) = 1.133255240513607687907401966321D+00
@@ -4116,13 +4116,13 @@ C
       Xi(13) = 4.736373451605665986594712046909D+00
       Xi(14) = 4.969367264862313466472487633041D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 1E1 -----
-C
+!
+!     ----- K = 07 , R = 1E1 -----
+!
   711 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.1209024409395209843302420454902446067535D+00
       Omega( 2) = 0.2992121471107249075992943337931606606617D+00
       Omega( 3) = 0.5287623608132956787406149523622644892384D+00
@@ -4130,7 +4130,7 @@ C
       Omega( 5) = 1.4096599453909605129337326290261955819005D+00
       Omega( 6) = 2.3721982300004752701287624727655156675610D+00
       Omega( 7) = 4.4850705608595406738946242963805843828595D+00
-C
+!
       Alpha( 1) = 0.0467849719196950606124379631878262841838D+00
       Alpha( 2) = 0.2541310917703071038133404851988572659138D+00
       Alpha( 3) = 0.6620206366128168775329887463243494494236D+00
@@ -4138,7 +4138,7 @@ C
       Alpha( 5) = 2.4608175652259984735742426309457187016960D+00
       Alpha( 6) = 4.3018718689144129466335464417880984910880D+00
       Alpha( 7) = 7.5591271744403052404090437299544191773748D+00
-C
+!
       Xi( 1) = 1.007773548460501324597511640935D+00
       Xi( 2) = 1.070746162242091784034224433153D+00
       Xi( 3) = 1.200884006431706493194314089301D+00
@@ -4154,13 +4154,13 @@ C
       Xi(13) = 9.146670152521306849935367466742D+00
       Xi(14) = 9.897948626231446764278665284564D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 2E1 -----
-C
+!
+!     ----- K = 07 , R = 2E1 -----
+!
   712 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0736409437937410912873993466820632392000D+00
       Omega( 2) = 0.1880960775887743137598211856653662721328D+00
       Omega( 3) = 0.3535856122925518073838498794847495787508D+00
@@ -4168,7 +4168,7 @@ C
       Omega( 5) = 1.1268723268357688314239561933050026709680D+00
       Omega( 6) = 2.0532076958089364882714678017805454146583D+00
       Omega( 7) = 4.1312146140908651273035423479029759619152D+00
-C
+!
       Alpha( 1) = 0.0283978750193578094886787902689784246490D+00
       Alpha( 2) = 0.1566946545197924593886091779171287896588D+00
       Alpha( 3) = 0.4212835366409847733014729098677264573780D+00
@@ -4176,7 +4176,7 @@ C
       Alpha( 5) = 1.7551920884002582784293167161848714385997D+00
       Alpha( 6) = 3.2943879648814646311262566147348707090714D+00
       Alpha( 7) = 6.2167521169331160300723648770571116983774D+00
-C
+!
       Xi( 1) = 1.010457578611366577406131816996D+00
       Xi( 2) = 1.095616183002617286261666518232D+00
       Xi( 3) = 1.273980560723253206830904438185D+00
@@ -4192,13 +4192,13 @@ C
       Xi(13) = 17.448466798972224843858325193935D+00
       Xi(14) = 19.682176912149916015240536104614D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 3E1 -----
-C
+!
+!     ----- K = 07 , R = 3E1 -----
+!
   713 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0547081236603999407457348414657305468722D+00
       Omega( 2) = 0.1431673361803440539338381706779834701138D+00
       Omega( 3) = 0.2818519061350474052586589923663495937944D+00
@@ -4206,7 +4206,7 @@ C
       Omega( 5) = 1.0042678371684878323210135531162734423560D+00
       Omega( 6) = 1.9102105077080432205633916953324558107852D+00
       Omega( 7) = 3.9707839278055398883095217232863660683506D+00
-C
+!
       Alpha( 1) = 0.0210415974965753205954983179326589493030D+00
       Alpha( 2) = 0.1175159106746453374671966020381663753369D+00
       Alpha( 3) = 0.3237851994719231859306673299014889266800D+00
@@ -4214,7 +4214,7 @@ C
       Alpha( 5) = 1.4622083631638707608250971059504763616133D+00
       Alpha( 6) = 2.8681290607978677652690341348673541688186D+00
       Alpha( 7) = 5.6391282837140386504162781200477638776647D+00
-C
+!
       Xi( 1) = 1.012047889671287567302411514181D+00
       Xi( 2) = 1.110459031424489875165134700197D+00
       Xi( 3) = 1.318193740074288370246052837231D+00
@@ -4230,13 +4230,13 @@ C
       Xi(13) = 25.270403304102207706419158661504D+00
       Xi(14) = 29.392338201320215115841527619978D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 4E1 -----
-C
+!
+!     ----- K = 07 , R = 4E1 -----
+!
   714 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0442163443975152241595058272977114555147D+00
       Omega( 2) = 0.1180995323059765671812955563357849797512D+00
       Omega( 3) = 0.2413652023935609491770218348882792724908D+00
@@ -4244,7 +4244,7 @@ C
       Omega( 5) = 0.9312065231173353566963835081793376957648D+00
       Omega( 6) = 1.8229592256705783305482590495039119105058D+00
       Omega( 7) = 3.8722630501939474274158969890891057730187D+00
-C
+!
       Alpha( 1) = 0.0169689443476473593619315970854044550720D+00
       Alpha( 2) = 0.0957454021439034121850595628056002084350D+00
       Alpha( 3) = 0.2692943329972380760823583850660511984643D+00
@@ -4252,7 +4252,7 @@ C
       Alpha( 5) = 1.2943422432026802725664113569159496819339D+00
       Alpha( 6) = 2.6197801492130474551502800073521370904928D+00
       Alpha( 7) = 5.2979645334238242792256057267508140284917D+00
-C
+!
       Xi( 1) = 1.013167810074629683896214882299D+00
       Xi( 2) = 1.120961719456940277922681048484D+00
       Xi( 3) = 1.349752481091188788231947925933D+00
@@ -4268,13 +4268,13 @@ C
       Xi(13) = 32.732631020313671822014045531546D+00
       Xi(14) = 39.041770580631060420795375165426D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 5E1 -----
-C
+!
+!     ----- K = 07 , R = 5E1 -----
+!
   715 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0374556861766770008238325914001753957905D+00
       Omega( 2) = 0.1018584053448467243574568005803904213735D+00
       Omega( 3) = 0.2148511025892223438697476584069434579760D+00
@@ -4282,7 +4282,7 @@ C
       Omega( 5) = 0.8811012601672848720498788799293521378786D+00
       Omega( 6) = 1.7621025260651733441042560146527762299229D+00
       Omega( 7) = 3.8032676122312763994978007664471419957408D+00
-C
+!
       Alpha( 1) = 0.0143466169541190409781331515856606095838D+00
       Alpha( 2) = 0.0816866369651240595850809518563284683523D+00
       Alpha( 3) = 0.2339291825665959799257151430218470977707D+00
@@ -4290,7 +4290,7 @@ C
       Alpha( 5) = 1.1828967187208399169549496998676829662145D+00
       Alpha( 6) = 2.4526048384096859368563858794232146465220D+00
       Alpha( 7) = 5.0658409539581052498900815006521725081257D+00
-C
+!
       Xi( 1) = 1.014025144133170897075071903437D+00
       Xi( 2) = 1.129030581189734573849606236173D+00
       Xi( 3) = 1.374154955229312968139135375800D+00
@@ -4306,13 +4306,13 @@ C
       Xi(13) = 39.901986900788082385238553229101D+00
       Xi(14) = 48.637992964763487789559004426110D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 6E1 -----
-C
+!
+!     ----- K = 07 , R = 6E1 -----
+!
   716 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0326960774209725745576341198600500703719D+00
       Omega( 2) = 0.0903720874058653475289029123607154048159D+00
       Omega( 3) = 0.1959082814526107491255330766977138523544D+00
@@ -4320,7 +4320,7 @@ C
       Omega( 5) = 0.8438800600320581920773567452531693788842D+00
       Omega( 6) = 1.7163114229596175923635986704240963263146D+00
       Omega( 7) = 3.7512051733025360371592132890938842137984D+00
-C
+!
       Alpha( 1) = 0.0125016247905536379320489532261662102286D+00
       Alpha( 2) = 0.0717712321052866914869341856408890834018D+00
       Alpha( 3) = 0.2088738414319771117188748177362356273079D+00
@@ -4328,7 +4328,7 @@ C
       Alpha( 5) = 1.1023091213725187257656268347005834584706D+00
       Alpha( 6) = 2.3303116968910064584104280260845598604647D+00
       Alpha( 7) = 4.8945625765439792422169251739916262522456D+00
-C
+!
       Xi( 1) = 1.014715224361727711533710805103D+00
       Xi( 2) = 1.135543811863650034239478503473D+00
       Xi( 3) = 1.393953321295632137338978140395D+00
@@ -4344,13 +4344,13 @@ C
       Xi(13) = 46.822227620804437678986298365658D+00
       Xi(14) = 58.185982218651912008244853069527D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 7E1 -----
-C
+!
+!     ----- K = 07 , R = 7E1 -----
+!
   717 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0291433464945640642622870161715376013944D+00
       Omega( 2) = 0.0817642335427500664324818209494072362986D+00
       Omega( 3) = 0.1815754004803848480574784279850675261514D+00
@@ -4358,7 +4358,7 @@ C
       Omega( 5) = 0.8147620352906383847462444547371518410728D+00
       Omega( 6) = 1.6801229596135672934549901147427419800806D+00
       Omega( 7) = 3.7099722173278536427321050439331884263083D+00
-C
+!
       Alpha( 1) = 0.0111252038160296457427713345475495110293D+00
       Alpha( 2) = 0.0643586014972104123637100525634480163717D+00
       Alpha( 3) = 0.1900644749502537916602696449475118356531D+00
@@ -4366,7 +4366,7 @@ C
       Alpha( 5) = 1.0406826317548054407213786731745130964555D+00
       Alpha( 6) = 2.2358669464308131998551976149514075586922D+00
       Alpha( 7) = 4.7613343074885285197833661996469345467631D+00
-C
+!
       Xi( 1) = 1.015289737852678177056769959208D+00
       Xi( 2) = 1.140979005247219047109764888948D+00
       Xi( 3) = 1.410544090266070947148682734884D+00
@@ -4382,13 +4382,13 @@ C
       Xi(13) = 53.524677150646856726295963468942D+00
       Xi(14) = 67.689337530528587344447188911545D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 8E1 -----
-C
+!
+!     ----- K = 07 , R = 8E1 -----
+!
   718 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0263787173200564479601888581011825962719D+00
       Omega( 2) = 0.0750421509086382211394091953926555049748D+00
       Omega( 3) = 0.1702797881866766488298753703944932169634D+00
@@ -4396,7 +4396,7 @@ C
       Omega( 5) = 0.7911419754631662469546680982457331765545D+00
       Omega( 6) = 1.6505212211957283195869206071648704892141D+00
       Omega( 7) = 3.6761865418821602685597177417875514038315D+00
-C
+!
       Alpha( 1) = 0.0100546153997157513998472223859526053502D+00
       Alpha( 2) = 0.0585824764836521650425210303025913560759D+00
       Alpha( 3) = 0.1753502950297512436001563448928486366185D+00
@@ -4404,7 +4404,7 @@ C
       Alpha( 5) = 0.9916572813188190211371869642320575621852D+00
       Alpha( 6) = 2.1600909301499331841359130557123080507154D+00
       Alpha( 7) = 4.6537869270461901666235959851292136590928D+00
-C
+!
       Xi( 1) = 1.015779815962351235580224395605D+00
       Xi( 2) = 1.145624668844172087999247477974D+00
       Xi( 3) = 1.424775149344744374084632820843D+00
@@ -4420,13 +4420,13 @@ C
       Xi(13) = 60.033087433123451526206793005258D+00
       Xi(14) = 77.150815062068650709847794644247D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 9E1 -----
-C
+!
+!     ----- K = 07 , R = 9E1 -----
+!
   719 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0241592217050219513695098142586070721904D+00
       Omega( 2) = 0.0696282194693923318982824166578637914427D+00
       Omega( 3) = 0.1611029161809211525906290404797083226640D+00
@@ -4434,7 +4434,7 @@ C
       Omega( 5) = 0.7714604530426776657575996254401218266139D+00
       Omega( 6) = 1.6256811668432707961582175948400674769800D+00
       Omega( 7) = 3.6477955931137628568360770087153355234477D+00
-C
+!
       Alpha( 1) = 0.0091954804054835872354338476876434160800D+00
       Alpha( 2) = 0.0539396604718906497494984066121137544769D+00
       Alpha( 3) = 0.1634793191158028323581221513682848467397D+00
@@ -4442,7 +4442,7 @@ C
       Alpha( 5) = 0.9514935033869456469830805378506966007990D+00
       Alpha( 6) = 2.0975458645195081742486353792997988421121D+00
       Alpha( 7) = 4.5645482583921669532747711350850750022801D+00
-C
+!
       Xi( 1) = 1.016205645890911096708084104812D+00
       Xi( 2) = 1.149668216519620178562265111477D+00
       Xi( 3) = 1.437199773265788005512620661985D+00
@@ -4458,13 +4458,13 @@ C
       Xi(13) = 66.366208781268083836957227816811D+00
       Xi(14) = 86.572612087553766122005605154754D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 1E2 -----
-C
+!
+!     ----- K = 07 , R = 1E2 -----
+!
   721 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0223336425511763742141036447053092928172D+00
       Omega( 2) = 0.0651620107304038612404959232571322047534D+00
       Omega( 3) = 0.1534694844777638628207424437155381724551D+00
@@ -4472,7 +4472,7 @@ C
       Omega( 5) = 0.7547179370389609007045185473661064179396D+00
       Omega( 6) = 1.6044221299260411336745288379823648483580D+00
       Omega( 7) = 3.6234684847661182520439648868659787694924D+00
-C
+!
       Alpha( 1) = 0.0084890821340208078627211844661981654525D+00
       Alpha( 2) = 0.0501166420149617110350252335154719318666D+00
       Alpha( 3) = 0.1536699828592926572490588374431119689234D+00
@@ -4480,7 +4480,7 @@ C
       Alpha( 5) = 0.9178336466850517870669570741348763931455D+00
       Alpha( 6) = 2.0447798621093103792461381784661966776184D+00
       Alpha( 7) = 4.4889127432163770567950800138845579567715D+00
-C
+!
       Xi( 1) = 1.016581033751988272229027643334D+00
       Xi( 2) = 1.153238255900683739696432894561D+00
       Xi( 3) = 1.448198864476133218559539272974D+00
@@ -4496,13 +4496,13 @@ C
       Xi(13) = 72.539294925666396807173441629857D+00
       Xi(14) = 95.956531905924009606678737327456D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 2E2 -----
-C
+!
+!     ----- K = 07 , R = 2E2 -----
+!
   722 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0133615547183825570028305575534521842940D+00
       Omega( 2) = 0.0429728469424360175410925952177443321034D+00
       Omega( 3) = 0.1143029399081515586560726591147663100401D+00
@@ -4510,7 +4510,7 @@ C
       Omega( 5) = 0.6622322841999484042811198458711174907876D+00
       Omega( 6) = 1.4847175320092703810050463464342840325116D+00
       Omega( 7) = 3.4859753729916252771962870138366952232900D+00
-C
+!
       Alpha( 1) = 0.0050213411684266507485648978019454613531D+00
       Alpha( 2) = 0.0312546410994290844202411500801774835168D+00
       Alpha( 3) = 0.1045970270084145620410366606112262388706D+00
@@ -4518,7 +4518,7 @@ C
       Alpha( 5) = 0.7407504784499061527671195936939341208927D+00
       Alpha( 6) = 1.7609744335543204401530945069076494746696D+00
       Alpha( 7) = 4.0759036969145123916954953635638503328664D+00
-C
+!
       Xi( 1) = 1.018899180639725698428732503231D+00
       Xi( 2) = 1.175398537435454030561192417803D+00
       Xi( 3) = 1.517098188949008791422644326641D+00
@@ -4534,13 +4534,13 @@ C
       Xi(13) = 127.557313717779402660601473229462D+00
       Xi(14) = 187.964656376434722406809640915526D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 3E2 -----
-C
+!
+!     ----- K = 07 , R = 3E2 -----
+!
   723 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0099434776685598156043417164204334390831D+00
       Omega( 2) = 0.0343511106592218869145501525946828635938D+00
       Omega( 3) = 0.0981869859630001312231998428226020791953D+00
@@ -4548,7 +4548,7 @@ C
       Omega( 5) = 0.6200522686047906112676193768340482392887D+00
       Omega( 6) = 1.4287348681193340442507899723523223656230D+00
       Omega( 7) = 3.4213578343787924831639890577150708850240D+00
-C
+!
       Alpha( 1) = 0.0037021290962675962693202485944560242714D+00
       Alpha( 2) = 0.0240203563378520316728596080066426843302D+00
       Alpha( 3) = 0.0852762937444175518725514133222542767498D+00
@@ -4556,7 +4556,7 @@ C
       Alpha( 5) = 0.6652246780099562398647777827775939840649D+00
       Alpha( 6) = 1.6360585970149727252963625656612123293598D+00
       Alpha( 7) = 3.8902964899531037119752990838250639171747D+00
-C
+!
       Xi( 1) = 1.020114753497002453054565140889D+00
       Xi( 2) = 1.187099191216807305706247566146D+00
       Xi( 3) = 1.553915186630408594393656929178D+00
@@ -4572,13 +4572,13 @@ C
       Xi(13) = 174.028024411478690586241313553728D+00
       Xi(14) = 277.096563357526212451054092866798D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 4E2 -----
-C
+!
+!     ----- K = 07 , R = 4E2 -----
+!
   724 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0080939178056842052675398224009795100642D+00
       Omega( 2) = 0.0296137712027515596681381555149714657205D+00
       Omega( 3) = 0.0889710554315036591940877956641298140994D+00
@@ -4586,7 +4586,7 @@ C
       Omega( 5) = 0.5945144839955654431193528275390036696990D+00
       Omega( 6) = 1.3943733291175232474326181608681451962184D+00
       Omega( 7) = 3.3815881302823882889520973327179831358080D+00
-C
+!
       Alpha( 1) = 0.0029885877621226805003736622535354117147D+00
       Alpha( 2) = 0.0200860577922968259766053076079139749766D+00
       Alpha( 3) = 0.0745569090055890414765402129937399422488D+00
@@ -4594,7 +4594,7 @@ C
       Alpha( 5) = 0.6211585820580099310248868571537883553901D+00
       Alpha( 6) = 1.5618502570945419418314142889769868816074D+00
       Alpha( 7) = 3.7787455933745262991359237236821400074405D+00
-C
+!
       Xi( 1) = 1.020907027261065597428107976086D+00
       Xi( 2) = 1.194755421073434828059187107208D+00
       Xi( 3) = 1.578171835966652915761096465097D+00
@@ -4610,13 +4610,13 @@ C
       Xi(13) = 214.691514081141909806027534557415D+00
       Xi(14) = 363.703742836510989511200619972442D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 5E2 -----
-C
+!
+!     ----- K = 07 , R = 5E2 -----
+!
   725 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0069203048135253428019736431434094647841D+00
       Omega( 2) = 0.0265678981798603566214964869646175671392D+00
       Omega( 3) = 0.0828637474252807121509402550618705873831D+00
@@ -4624,7 +4624,7 @@ C
       Omega( 5) = 0.5769324424498350087852326095738675348912D+00
       Omega( 6) = 1.3704988341020230761639620009617601681384D+00
       Omega( 7) = 3.3539045747733188186819053289156045138952D+00
-C
+!
       Alpha( 1) = 0.0025357978643651919453790228361350633790D+00
       Alpha( 2) = 0.0175787590913981830039277591895552355084D+00
       Alpha( 3) = 0.0676131686107736120728336354224197179974D+00
@@ -4632,7 +4632,7 @@ C
       Alpha( 5) = 0.5915602300563041923654392095777154736425D+00
       Alpha( 6) = 1.5113889410817196977138837654663916509890D+00
       Alpha( 7) = 3.7022956650360443564638096569652248035709D+00
-C
+!
       Xi( 1) = 1.021479441200213300524474169251D+00
       Xi( 2) = 1.200302232522448429331840547007D+00
       Xi( 3) = 1.595827735605926870027064523594D+00
@@ -4648,13 +4648,13 @@ C
       Xi(13) = 250.980726330417617891965775811514D+00
       Xi(14) = 447.983276787880737329627933718257D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 6E2 -----
-C
+!
+!     ----- K = 07 , R = 6E2 -----
+!
   726 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0061035796916500113814640741949357760632D+00
       Omega( 2) = 0.0244232192416007003895835926476909349958D+00
       Omega( 3) = 0.0784589868370574932828170715282123381940D+00
@@ -4662,7 +4662,7 @@ C
       Omega( 5) = 0.5638921330027344504579565886981384892351D+00
       Omega( 6) = 1.3526720019223379766525397482901382772980D+00
       Omega( 7) = 3.3332048728001092039677916156747983222886D+00
-C
+!
       Alpha( 1) = 0.0022206030882728451253574190622092077163D+00
       Alpha( 2) = 0.0158270515451072657162057133461985358736D+00
       Alpha( 3) = 0.0626946503162819286951099040372525905696D+00
@@ -4670,7 +4670,7 @@ C
       Alpha( 5) = 0.5700007444812679664497730158689847712594D+00
       Alpha( 6) = 1.4742950212653216273198109043107706384035D+00
       Alpha( 7) = 3.6457725385269232113404080930507689117803D+00
-C
+!
       Xi( 1) = 1.021919091049763004728188897641D+00
       Xi( 2) = 1.204571103144114048617840939670D+00
       Xi( 3) = 1.609463268497709121816405253291D+00
@@ -4686,13 +4686,13 @@ C
       Xi(13) = 283.787903272999503967444212548799D+00
       Xi(14) = 530.071360403332262234421534685680D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 7E2 -----
-C
+!
+!     ----- K = 07 , R = 7E2 -----
+!
   727 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0054997334786715528114468842270368131864D+00
       Omega( 2) = 0.0228205582831145280442084171540484405227D+00
       Omega( 3) = 0.0751020958906572246355681961305084115565D+00
@@ -4700,7 +4700,7 @@ C
       Omega( 5) = 0.5537362828757469355414784495383884177500D+00
       Omega( 6) = 1.3387155190228089959641674666634969526058D+00
       Omega( 7) = 3.3169815640530344305267340665466235805070D+00
-C
+!
       Alpha( 1) = 0.0019874597606895922284125043360408779947D+00
       Alpha( 2) = 0.0145272077069423383971261110568506946805D+00
       Alpha( 3) = 0.0590012024024202301324961653788969684342D+00
@@ -4708,7 +4708,7 @@ C
       Alpha( 5) = 0.5534433535878024911706767052788080718528D+00
       Alpha( 6) = 1.4456024138634961035462106471172205601761D+00
       Alpha( 7) = 3.6018543623381220743304848008747853782552D+00
-C
+!
       Xi( 1) = 1.022270812436681717877591524246D+00
       Xi( 2) = 1.207991628120255596184028090700D+00
       Xi( 3) = 1.620418778730794495636022278795D+00
@@ -4724,13 +4724,13 @@ C
       Xi(13) = 313.725737845372681794620106643379D+00
       Xi(14) = 610.074245598087845920964866763825D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 8E2 -----
-C
+!
+!     ----- K = 07 , R = 8E2 -----
+!
   728 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0050337173255694819542215847577720788664D+00
       Omega( 2) = 0.0215715572186778580597268017635115278097D+00
       Omega( 3) = 0.0724425268654193898633223726302166056712D+00
@@ -4738,7 +4738,7 @@ C
       Omega( 5) = 0.5455484720427803431832061709094716661639D+00
       Omega( 6) = 1.3274159182138670886588402431094380062859D+00
       Omega( 7) = 3.3038349430915769215123811708423318123096D+00
-C
+!
       Alpha( 1) = 0.0018074376308293873225900948837306658756D+00
       Alpha( 2) = 0.0135206342248096353230596162325882758637D+00
       Alpha( 3) = 0.0561110636131199456631791448041335357289D+00
@@ -4746,7 +4746,7 @@ C
       Alpha( 5) = 0.5402437912418699069187419392612525825825D+00
       Alpha( 6) = 1.4225951349686722217403878065766775762313D+00
       Alpha( 7) = 3.5665103665179134825174989131824077048805D+00
-C
+!
       Xi( 1) = 1.022560533027442646698476624856D+00
       Xi( 2) = 1.210812880720948947802471928892D+00
       Xi( 3) = 1.629474819752517520191070765634D+00
@@ -4762,13 +4762,13 @@ C
       Xi(13) = 341.242194277617065245600258549530D+00
       Xi(14) = 688.080995614329459397762178696212D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 9E2 -----
-C
+!
+!     ----- K = 07 , R = 9E2 -----
+!
   729 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0046623733840567663782794506806272938348D+00
       Omega( 2) = 0.0205672519359959761756968419851854257274D+00
       Omega( 3) = 0.0702737396603948621029152137029694102921D+00
@@ -4776,7 +4776,7 @@ C
       Omega( 5) = 0.5387744815015728043591965168435109490019D+00
       Omega( 6) = 1.3180345908931347003508610660205135900469D+00
       Omega( 7) = 3.2929120497385742784117457215842250661808D+00
-C
+!
       Alpha( 1) = 0.0016639061581903090382578440289268462138D+00
       Alpha( 2) = 0.0127159638686803215795124489574663417812D+00
       Alpha( 3) = 0.0537791314332657295004772469299014758803D+00
@@ -4784,7 +4784,7 @@ C
       Alpha( 5) = 0.5294244944099308792118813160598733702500D+00
       Alpha( 6) = 1.4036450526560744079661996464025719433266D+00
       Alpha( 7) = 3.5373112546752497732747283487597655948775D+00
-C
+!
       Xi( 1) = 1.022804500014966087081264012326D+00
       Xi( 2) = 1.213191167955960221135763843492D+00
       Xi( 3) = 1.637123071334967660292285251966D+00
@@ -4800,13 +4800,13 @@ C
       Xi(13) = 366.679168982654130809484271935617D+00
       Xi(14) = 764.169197413019728071237324229514D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 1E3 -----
-C
+!
+!     ----- K = 07 , R = 1E3 -----
+!
   731 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0043590321081121139760861777322220600439D+00
       Omega( 2) = 0.0197399376432508969001888149419343676527D+00
       Omega( 3) = 0.0684653140928303800778536788995687345505D+00
@@ -4814,7 +4814,7 @@ C
       Omega( 5) = 0.5330567089683808103500566033527974241224D+00
       Omega( 6) = 1.3100924544159886419789073919162092352053D+00
       Omega( 7) = 3.2836589740207806184697780782499876295333D+00
-C
+!
       Alpha( 1) = 0.0015465907100920743574390230079540486940D+00
       Alpha( 2) = 0.0120566431726508442136752479942329863150D+00
       Alpha( 3) = 0.0518524899332544268603262683364762963834D+00
@@ -4822,7 +4822,7 @@ C
       Alpha( 5) = 0.5203635254756012724994956863966422133672D+00
       Alpha( 6) = 1.3877091798262134707134599076461256572657D+00
       Alpha( 7) = 3.5126938632453743125566569815987350011710D+00
-C
+!
       Xi( 1) = 1.023013513345144816463032355625D+00
       Xi( 2) = 1.215230582716563716714000542574D+00
       Xi( 3) = 1.643691936875600002583922010224D+00
@@ -4838,13 +4838,13 @@ C
       Xi(13) = 390.305983622066960142538150080327D+00
       Xi(14) = 838.408036003843683214853399476851D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 2E3 -----
-C
+!
+!     ----- K = 07 , R = 2E3 -----
+!
   732 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0029076880267603933005398324359788708726D+00
       Omega( 2) = 0.0156597956896735144358535993941439201649D+00
       Omega( 3) = 0.0592095502043018142181824651354427047067D+00
@@ -4852,7 +4852,7 @@ C
       Omega( 5) = 0.5027200930136521302951831124961046270982D+00
       Omega( 6) = 1.2675787498436361208815903456326168452506D+00
       Omega( 7) = 3.2340325901955293901816196333598441015056D+00
-C
+!
       Alpha( 1) = 0.0009839513388777788122618579800399141178D+00
       Alpha( 2) = 0.0088654691035194740209818644628703143695D+00
       Alpha( 3) = 0.0422681213886127304387536549046266998175D+00
@@ -4860,7 +4860,7 @@ C
       Alpha( 5) = 0.4733864179916387237624132711122371119927D+00
       Alpha( 6) = 1.3040672497163430146966886513659744650795D+00
       Alpha( 7) = 3.3825029684199556978714540367292329392512D+00
-C
+!
       Xi( 1) = 1.024172280366627781934829588550D+00
       Xi( 2) = 1.226568594740137924472590802427D+00
       Xi( 3) = 1.680383653786395965409883324071D+00
@@ -4876,13 +4876,13 @@ C
       Xi(13) = 560.898336854662458939024816118035D+00
       Xi(14) = 1490.286275794594197607878527378489D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 3E3 -----
-C
+!
+!     ----- K = 07 , R = 3E3 -----
+!
   733 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0023891359913667532623401029484230817523D+00
       Omega( 2) = 0.0141270708183685676429170753609643185200D+00
       Omega( 3) = 0.0555607731872176977069453709251467543595D+00
@@ -4890,7 +4890,7 @@ C
       Omega( 5) = 0.4902176680956567550581301495604691353947D+00
       Omega( 6) = 1.2498655911588724229822205957773917361919D+00
       Omega( 7) = 3.2133062542046689007927545711496009062103D+00
-C
+!
       Alpha( 1) = 0.0007821171870305443173034760429886136368D+00
       Alpha( 2) = 0.0077017029989496356004449804759370845630D+00
       Alpha( 3) = 0.0386294252067045345620343969883503376650D+00
@@ -4898,7 +4898,7 @@ C
       Alpha( 5) = 0.4545657667811826265153243853411879626947D+00
       Alpha( 6) = 1.2700397189863825259895785402264323238342D+00
       Alpha( 7) = 3.3290409499662179716207577317987897913554D+00
-C
+!
       Xi( 1) = 1.024675716539555973241988617861D+00
       Xi( 2) = 1.231511459124680835488033214808D+00
       Xi( 3) = 1.696471376869980616391465899628D+00
@@ -4914,13 +4914,13 @@ C
       Xi(13) = 663.478795889117814399416062087766D+00
       Xi(14) = 1999.469575084823482424845053628815D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 4E3 -----
-C
+!
+!     ----- K = 07 , R = 4E3 -----
+!
   734 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0021345887454745103229132954271440869576D+00
       Omega( 2) = 0.0133516115008142197954869455529813837558D+00
       Omega( 3) = 0.0536724306078645814847285448051517064982D+00
@@ -4928,7 +4928,7 @@ C
       Omega( 5) = 0.4836135983756697330070324636341894120051D+00
       Omega( 6) = 1.2404615898649592524395288140048876357469D+00
       Omega( 7) = 3.2022901936660388647754027502401186211500D+00
-C
+!
       Alpha( 1) = 0.0006828418611695833685875723414321347704D+00
       Alpha( 2) = 0.0071228279773048582995505152888615629792D+00
       Alpha( 3) = 0.0367803190813663724561134293206121625985D+00
@@ -4936,7 +4936,7 @@ C
       Alpha( 5) = 0.4447519660204219866823233120456393407949D+00
       Alpha( 6) = 1.2521695310166051146776380886826984806248D+00
       Alpha( 7) = 3.3008429720439399334547259101668714720290D+00
-C
+!
       Xi( 1) = 1.024948138888778894684851439312D+00
       Xi( 2) = 1.234190219000572436014451227493D+00
       Xi( 3) = 1.705213827210675740656334320455D+00
@@ -4952,13 +4952,13 @@ C
       Xi(13) = 728.957088334483430391852465390912D+00
       Xi(14) = 2380.807754337805310029807515093125D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 5E3 -----
-C
+!
+!     ----- K = 07 , R = 5E3 -----
+!
   735 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0020013110880352670689172903334754338722D+00
       Omega( 2) = 0.0129378908695508702795281923136894164372D+00
       Omega( 3) = 0.0526524725928330593509372851979133400846D+00
@@ -4966,7 +4966,7 @@ C
       Omega( 5) = 0.4800066743351757202824987846856430451226D+00
       Omega( 6) = 1.2353112694406893889422990873150354218524D+00
       Omega( 7) = 3.1962532851668917213347476113938228081679D+00
-C
+!
       Alpha( 1) = 0.0006308136329875133503749580097738625106D+00
       Alpha( 2) = 0.0068171406204782821707966887665730570944D+00
       Alpha( 3) = 0.0357916075110693214643040830497122684051D+00
@@ -4974,7 +4974,7 @@ C
       Alpha( 5) = 0.4394293305525136815502598719440641161782D+00
       Alpha( 6) = 1.2424396843361854057092782954718757082446D+00
       Alpha( 7) = 3.2854539018961136489019314588233555696206D+00
-C
+!
       Xi( 1) = 1.025098873577052448636398596093D+00
       Xi( 2) = 1.235673707244880951635658539178D+00
       Xi( 3) = 1.710062509020929812368801148370D+00
@@ -4990,13 +4990,13 @@ C
       Xi(13) = 768.766113582342625665244639776574D+00
       Xi(14) = 2636.957864008649196518874191497162D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 6E3 -----
-C
+!
+!     ----- K = 07 , R = 6E3 -----
+!
   736 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0019443655262837805540929227176606686189D+00
       Omega( 2) = 0.0127592807278033828906170380271256625804D+00
       Omega( 3) = 0.0522093509652323378418623672780896072254D+00
@@ -5004,7 +5004,7 @@ C
       Omega( 5) = 0.4784306996286163934429570832040923278328D+00
       Omega( 6) = 1.2330577486624195179083438023148744377977D+00
       Omega( 7) = 3.1936109524714979715324936204723371702130D+00
-C
+!
       Alpha( 1) = 0.0006085749350024496484217942501512843556D+00
       Alpha( 2) = 0.0066859021591416628164316834654484766887D+00
       Alpha( 3) = 0.0353643071742100135552912699293814924317D+00
@@ -5012,7 +5012,7 @@ C
       Alpha( 5) = 0.4371119961322447686495520219329691258281D+00
       Alpha( 6) = 1.2381951172423498714432119061079617949872D+00
       Alpha( 7) = 3.2787324516562921345678299767101293582527D+00
-C
+!
       Xi( 1) = 1.025165174452603894690583263838D+00
       Xi( 2) = 1.236326517914779124572392798864D+00
       Xi( 3) = 1.712197846342166541056678541466D+00
@@ -5028,13 +5028,13 @@ C
       Xi(13) = 787.164708503534546246704906025116D+00
       Xi(14) = 2762.028952486066240679107863797981D+00
       GOTO 9999
-C
-C     ----- K = 07 , R = 7E3 (Best : R = 6373) -----
-C
+!
+!     ----- K = 07 , R = 7E3 (Best : R = 6373) -----
+!
   799 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0019398222440315960905672225964360699813D+00
       Omega( 2) = 0.0127449810742930615739735666740173325451D+00
       Omega( 3) = 0.0521738008587097122689798991274079398295D+00
@@ -5042,7 +5042,7 @@ C
       Omega( 5) = 0.4783040507603607306979110608269323279274D+00
       Omega( 6) = 1.2328765453712284030614657059921057680185D+00
       Omega( 7) = 3.1933984156189349494676943397308832572890D+00
-C
+!
       Alpha( 1) = 0.0006068004605425493834683378191301172944D+00
       Alpha( 2) = 0.0066754145503086015556908419665838039236D+00
       Alpha( 3) = 0.0353300853116583099772316650666326154351D+00
@@ -5050,7 +5050,7 @@ C
       Alpha( 5) = 0.4369259718550706375703868156179510151560D+00
       Alpha( 6) = 1.2378541669818243195532250777723959345167D+00
       Alpha( 7) = 3.2781922981409610852194386199087716704526D+00
-C
+!
       Xi( 1) = 1.025170524052779595907541887456D+00
       Xi( 2) = 1.236379131356275595647088716422D+00
       Xi( 3) = 1.712369980532019143231250990489D+00
@@ -5066,20 +5066,20 @@ C
       Xi(13) = 788.671587835625583551291128969751D+00
       Xi(14) = 2772.466801786170626620275925233727D+00
       GOTO 9999
-C
-C     ===== K = 08 =====
-C
+!
+!     ===== K = 08 =====
+!
   800 CONTINUE
       GOTO ( 811, 811, 811, 812, 813, 814, 815, 816, 817, 818, 819, 821,
      *       822, 823, 824, 825, 826, 827, 828, 829, 831, 832, 833, 834,
      *       835, 836, 837, 838, 839, 841, 899),InitR
-C
-C     ----- K = 08 , R = 1E1 -----
-C
+!
+!     ----- K = 08 , R = 1E1 -----
+!
   811 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.1060264691056738337355419034280235024426D+00
       Omega( 2) = 0.2585290566968715258728672007348947659011D+00
       Omega( 3) = 0.4435891050076717719745974383149800246429D+00
@@ -5088,7 +5088,7 @@ C
       Omega( 6) = 1.6406263617959378568180936475151554532204D+00
       Omega( 7) = 2.6364875094068331538854632611901251948439D+00
       Omega( 8) = 4.7875207637643221363424328451685596519383D+00
-C
+!
       Alpha( 1) = 0.0410961677249340287632430913922210180544D+00
       Alpha( 2) = 0.2215921003939924626704397608856211832062D+00
       Alpha( 3) = 0.5688643520073686326546553992944410538257D+00
@@ -5097,7 +5097,7 @@ C
       Alpha( 6) = 3.3208105201716792307872760936504619166953D+00
       Alpha( 7) = 5.4098231210814420621448006532006047564209D+00
       Alpha( 8) = 8.9485547791067179199120396049238479463384D+00
-C
+!
       Xi( 1) = 1.006032718863063354138714933228D+00
       Xi( 2) = 1.054756906560646363473984776782D+00
       Xi( 3) = 1.154677820077761327588646012021D+00
@@ -5115,13 +5115,13 @@ C
       Xi(15) = 9.348328430558432060662465978851D+00
       Xi(16) = 9.923503335592442870655149889103D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 2E1 -----
-C
+!
+!     ----- K = 08 , R = 2E1 -----
+!
   812 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0643091646223874215151082057995157725827D+00
       Omega( 2) = 0.1604657999272340102763292901677516510972D+00
       Omega( 3) = 0.2880804447393661645070508936505859765020D+00
@@ -5130,7 +5130,7 @@ C
       Omega( 6) = 1.3381266056699614649949658939931396162137D+00
       Omega( 7) = 2.3014174412873261213723780072015756559267D+00
       Omega( 8) = 4.4140627077983801873801994464230347148259D+00
-C
+!
       Alpha( 1) = 0.0248626641496695616997454235039266556839D+00
       Alpha( 2) = 0.1356048286078502581323201522933707963148D+00
       Alpha( 3) = 0.3561108775384803358553861135638030077644D+00
@@ -5139,7 +5139,7 @@ C
       Alpha( 6) = 2.4047037240593269399879794434582436224446D+00
       Alpha( 7) = 4.1743696392540901437748224189761003799504D+00
       Alpha( 8) = 7.3612293134220797129890767607207635592204D+00
-C
+!
       Xi( 1) = 1.008169052232099786869934376909D+00
       Xi( 2) = 1.074413773288232067234723721150D+00
       Xi( 3) = 1.211692604293373886530441052578D+00
@@ -5157,13 +5157,13 @@ C
       Xi(15) = 18.054131542215802208942165840710D+00
       Xi(16) = 19.764723853693879527040899724000D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 3E1 -----
-C
+!
+!     ----- K = 08 , R = 3E1 -----
+!
   813 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0476193831333583450525004984038579536332D+00
       Omega( 2) = 0.1209066723887145041542424094005436785437D+00
       Omega( 3) = 0.2245974893577788025821138223614426010499D+00
@@ -5172,7 +5172,7 @@ C
       Omega( 6) = 1.2046845144004612635597536995923917402251D+00
       Omega( 7) = 2.1494044055658569707632776779604455441586D+00
       Omega( 8) = 4.2432459544114843929055180815623771195533D+00
-C
+!
       Alpha( 1) = 0.0183751523863023500047613476363062012808D+00
       Alpha( 2) = 0.1010910396253187920628411819445879871182D+00
       Alpha( 3) = 0.2701415651193927010753279005506044541107D+00
@@ -5181,7 +5181,7 @@ C
       Alpha( 6) = 2.0209412748621891147641355113151462319365D+00
       Alpha( 7) = 3.6475369117856662377636506322531317891844D+00
       Alpha( 8) = 6.6737616671756857531297435492945169244194D+00
-C
+!
       Xi( 1) = 1.009453069531725518575074329597D+00
       Xi( 2) = 1.086294465453709110424294903563D+00
       Xi( 3) = 1.246517015355910598770235175881D+00
@@ -5199,13 +5199,13 @@ C
       Xi(15) = 26.393779632799863620745695058645D+00
       Xi(16) = 29.554146068708933157292984006403D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 4E1 -----
-C
+!
+!     ----- K = 08 , R = 4E1 -----
+!
   814 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0383807437367189014720077113590468442794D+00
       Omega( 2) = 0.0988727723491150179601283029540148561409D+00
       Omega( 3) = 0.1888951020665660617106661536834799619555D+00
@@ -5214,7 +5214,7 @@ C
       Omega( 6) = 1.1241351163372292887559361629357113088190D+00
       Omega( 7) = 2.0558777824169633277693464146196333786065D+00
       Omega( 8) = 4.1376874677588956052270985352947718638461D+00
-C
+!
       Alpha( 1) = 0.0147868844915852609137710857271919007161D+00
       Alpha( 2) = 0.0819390877546529709812448902250814342096D+00
       Alpha( 3) = 0.2221894844955850291406572113994677408755D+00
@@ -5223,7 +5223,7 @@ C
       Alpha( 6) = 1.7993973054918034820215747005001105662814D+00
       Alpha( 7) = 3.3386937535433484879054955030142082250677D+00
       Alpha( 8) = 6.2657281268480889825471524812172674501198D+00
-C
+!
       Xi( 1) = 1.010366740445417035334195465790D+00
       Xi( 2) = 1.094780045401361425697756013520D+00
       Xi( 3) = 1.271563130120029259440862789976D+00
@@ -5241,13 +5241,13 @@ C
       Xi(15) = 34.457132831177792381405211585843D+00
       Xi(16) = 39.301898615146465043590495724857D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 5E1 -----
-C
+!
+!     ----- K = 08 , R = 5E1 -----
+!
   815 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0324331424753547827576646931518888905543D+00
       Omega( 2) = 0.0846168152459831565353576103560850896201D+00
       Omega( 3) = 0.1656001458179835813551818504696377942764D+00
@@ -5256,7 +5256,7 @@ C
       Omega( 6) = 1.0683503216704084423172363416121299906081D+00
       Omega( 7) = 1.9902248502356169701336952027048710078816D+00
       Omega( 8) = 4.0633908158171135622388492336654053360689D+00
-C
+!
       Alpha( 1) = 0.0124783628250833338653203201037977798649D+00
       Alpha( 2) = 0.0695851236918722079302017206881014743658D+00
       Alpha( 3) = 0.1911241780349972787915197730557181898803D+00
@@ -5265,7 +5265,7 @@ C
       Alpha( 6) = 1.6513816100170211501139277965322094132716D+00
       Alpha( 7) = 3.1297492657062539102991172157430810329970D+00
       Alpha( 8) = 5.9869906376636193414200737272778951592045D+00
-C
+!
       Xi( 1) = 1.011072047923903786492520751050D+00
       Xi( 2) = 1.101348923582572341653591785349D+00
       Xi( 3) = 1.291052883774184086604179533264D+00
@@ -5283,13 +5283,13 @@ C
       Xi(15) = 42.293955496997097776024077120383D+00
       Xi(16) = 49.013661838087606636288340311580D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 6E1 -----
-C
+!
+!     ----- K = 08 , R = 6E1 -----
+!
   816 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0282493396917258093250667396606479186971D+00
       Omega( 2) = 0.0745460391371821543519829780799490492882D+00
       Omega( 3) = 0.1490178202155422004619722553542260357062D+00
@@ -5298,7 +5298,7 @@ C
       Omega( 6) = 1.0265829920889139290117800240587087046151D+00
       Omega( 7) = 1.9405634730900531873887607248185815933539D+00
       Omega( 8) = 4.0070879826910095447729809325920768969809D+00
-C
+!
       Alpha( 1) = 0.0108553510974204830253448880728051051392D+00
       Alpha( 2) = 0.0608802488511118427343626023640066335929D+00
       Alpha( 3) = 0.1691520259232484054237079240667895874140D+00
@@ -5307,7 +5307,7 @@ C
       Alpha( 6) = 1.5437686299849278366395910477848474329221D+00
       Alpha( 7) = 2.9762479203500894029289086661904661923472D+00
       Alpha( 8) = 5.7806062770457643908497691320746980636613D+00
-C
+!
       Xi( 1) = 1.011643782347894183711901894274D+00
       Xi( 2) = 1.106685789782311103214042236065D+00
       Xi( 3) = 1.306952921678010662580489420481D+00
@@ -5325,13 +5325,13 @@ C
       Xi(15) = 49.936766005697233127696987864397D+00
       Xi(16) = 58.693184247146195215566466529822D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 7E1 -----
-C
+!
+!     ----- K = 08 , R = 7E1 -----
+!
   817 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0251286437058089860943941662788092550329D+00
       Omega( 2) = 0.0670064982182152067786084191636231111033D+00
       Omega( 3) = 0.1365152448171116218549048237917986625689D+00
@@ -5340,7 +5340,7 @@ C
       Omega( 6) = 0.9936935209922501315103066099609918637725D+00
       Omega( 7) = 1.9011380241938253567429012447220770809508D+00
       Omega( 8) = 3.9623285503691931192307706943722678261111D+00
-C
+!
       Alpha( 1) = 0.0096453351395891204763473249922389740618D+00
       Alpha( 2) = 0.0543778231378707960550324476689532104956D+00
       Alpha( 3) = 0.1526831785356098382909484367786490111030D+00
@@ -5349,7 +5349,7 @@ C
       Alpha( 6) = 1.4610854083998511351470336872004907036171D+00
       Alpha( 7) = 2.8572596946046264153838689647812998373411D+00
       Alpha( 8) = 5.6195795452967103279437455221057007292984D+00
-C
+!
       Xi( 1) = 1.012122710671435961058382824174D+00
       Xi( 2) = 1.111164724011816449752466928746D+00
       Xi( 3) = 1.320342732736776704904023416187D+00
@@ -5367,13 +5367,13 @@ C
       Xi(15) = 57.408826043273802532812544185958D+00
       Xi(16) = 68.343169229978600588693016248953D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 8E1 -----
-C
+!
+!     ----- K = 08 , R = 8E1 -----
+!
   818 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0227017559634129721878547086139077393341D+00
       Omega( 2) = 0.0611239009072996963401575801905218909837D+00
       Omega( 3) = 0.1266953565686958380293123532789323348879D+00
@@ -5382,7 +5382,7 @@ C
       Omega( 6) = 0.9668633389980441755740502018934279249152D+00
       Omega( 7) = 1.8687591398468625841821147415267034830322D+00
       Omega( 8) = 3.9255289517027899676149260699276055675000D+00
-C
+!
       Alpha( 1) = 0.0087047417233341318281537391313151807992D+00
       Alpha( 2) = 0.0493145028931534314920142984817186260216D+00
       Alpha( 3) = 0.1398190631110847891754086352866792708483D+00
@@ -5391,7 +5391,7 @@ C
       Alpha( 6) = 1.3950320723685946309967562117826389567199D+00
       Alpha( 7) = 2.7614744811077356516967190591671510446758D+00
       Alpha( 8) = 5.4892323987691283215459292499360799411079D+00
-C
+!
       Xi( 1) = 1.012533502490892778542287688825D+00
       Xi( 2) = 1.115012603425935855958398001953D+00
       Xi( 3) = 1.331879579513728790161365689304D+00
@@ -5409,13 +5409,13 @@ C
       Xi(15) = 64.727769266696378293313163254652D+00
       Xi(16) = 77.965680890470509610545857270836D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 9E1 -----
-C
+!
+!     ----- K = 08 , R = 9E1 -----
+!
   819 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0207545161695637046829612587170443838147D+00
       Omega( 2) = 0.0563898985798704578030699288704319371845D+00
       Omega( 3) = 0.1187430252961514762452565653616520791047D+00
@@ -5424,7 +5424,7 @@ C
       Omega( 6) = 0.9443959761885041913733254692608909408591D+00
       Omega( 7) = 1.8414905485795193190246346603977656286588D+00
       Omega( 8) = 3.8945094081684952511731440116804492390656D+00
-C
+!
       Alpha( 1) = 0.0079503396990795410480889018368932941172D+00
       Alpha( 2) = 0.0452471530544417981952029159109507361336D+00
       Alpha( 3) = 0.1294552708085345075057727079470559772290D+00
@@ -5433,7 +5433,7 @@ C
       Alpha( 6) = 1.3407130798147101330810085362266192987590D+00
       Alpha( 7) = 2.6821760146617595517177373709571952531405D+00
       Alpha( 8) = 5.3808006207281632595450238110146301551140D+00
-C
+!
       Xi( 1) = 1.012892217775423017332367403576D+00
       Xi( 2) = 1.118377380194879730447750365574D+00
       Xi( 3) = 1.341993546337162129746152505749D+00
@@ -5451,13 +5451,13 @@ C
       Xi(15) = 71.907509186043684815126120213336D+00
       Xi(16) = 87.562358890709824886522394393751D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 1E2 -----
-C
+!
+!     ----- K = 08 , R = 1E2 -----
+!
   821 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0191536972157081944805691103503320071866D+00
       Omega( 2) = 0.0524874991701344780364337210681879852814D+00
       Omega( 3) = 0.1121483176832860124096298039264585355568D+00
@@ -5466,7 +5466,7 @@ C
       Omega( 6) = 0.9251988674368323040423864322967517637153D+00
       Omega( 7) = 1.8180761380444023894405528030127072725008D+00
       Omega( 8) = 3.8678537676116576005547892380675989443262D+00
-C
+!
       Alpha( 1) = 0.0073303678892273275250013949040639449350D+00
       Alpha( 2) = 0.0418998419489961924599388982948244830595D+00
       Alpha( 3) = 0.1209028306256034907491844591909124773110D+00
@@ -5475,7 +5475,7 @@ C
       Alpha( 6) = 1.2950331295281306881374966399889103740861D+00
       Alpha( 7) = 2.6150915210491833956529816873626259621233D+00
       Alpha( 8) = 5.2886811792799689560008735700336046647863D+00
-C
+!
       Xi( 1) = 1.013209889188098188333303495412D+00
       Xi( 2) = 1.121360848910737284967603644148D+00
       Xi( 3) = 1.350981373984641096446315811086D+00
@@ -5493,13 +5493,13 @@ C
       Xi(15) = 78.959365725034720430441925742571D+00
       Xi(16) = 97.134544711358374660670200739787D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 2E2 -----
-C
+!
+!     ----- K = 08 , R = 2E2 -----
+!
   822 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0112997080726952972012938495108280712032D+00
       Omega( 2) = 0.0331538459933014433800801089302634494516D+00
       Omega( 3) = 0.0786965757234113262867832017111169307100D+00
@@ -5508,7 +5508,7 @@ C
       Omega( 6) = 0.8174921432572277218628342687622989615193D+00
       Omega( 7) = 1.6846079041638185670769559121318081906793D+00
       Omega( 8) = 3.7155370264539169717667166370489439941593D+00
-C
+!
       Alpha( 1) = 0.0042923690505157349716684159375568174966D+00
       Alpha( 2) = 0.0254154224653902906883522856348878171673D+00
       Alpha( 3) = 0.0783393362576383196028756081275012945753D+00
@@ -5517,7 +5517,7 @@ C
       Alpha( 6) = 1.0517208224751955088736854460051972637302D+00
       Alpha( 7) = 2.2505781328076893770505362279976679928950D+00
       Alpha( 8) = 4.7811047016943063726022999926357215372263D+00
-C
+!
       Xi( 1) = 1.015206143343586549059043289134D+00
       Xi( 2) = 1.140189268684429005460030659425D+00
       Xi( 3) = 1.408141644285239425229624976588D+00
@@ -5535,13 +5535,13 @@ C
       Xi(15) = 143.996271130142976066301763182764D+00
       Xi(16) = 191.696182955146930640411007118473D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 3E2 -----
-C
+!
+!     ----- K = 08 , R = 3E2 -----
+!
   823 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0083147700732372714089635679264589374071D+00
       Omega( 2) = 0.0256810205584535582997796412940694210647D+00
       Omega( 3) = 0.0651854465211138051674568880122784264586D+00
@@ -5550,7 +5550,7 @@ C
       Omega( 6) = 0.7671776007943373896016958646271177713061D+00
       Omega( 7) = 1.6209236463502489251084850985229479647387D+00
       Omega( 8) = 3.6426182431755443347221046224149176850915D+00
-C
+!
       Alpha( 1) = 0.0031400004160420679633702276687193255533D+00
       Alpha( 2) = 0.0191108173471338873873208484902019854701D+00
       Alpha( 3) = 0.0617360444099322960463064463576543516865D+00
@@ -5559,7 +5559,7 @@ C
       Alpha( 6) = 0.9458455055554492088413544303993063522285D+00
       Alpha( 7) = 2.0873834230907897340206308411936220181815D+00
       Alpha( 8) = 4.5494170928592982520478893437854139847332D+00
-C
+!
       Xi( 1) = 1.016281976238305648414274318103D+00
       Xi( 2) = 1.150394802721959229985931871809D+00
       Xi( 3) = 1.439444124816771421095790151057D+00
@@ -5577,13 +5577,13 @@ C
       Xi(15) = 201.808154923244766287826479356227D+00
       Xi(16) = 284.486122795369502369577929812294D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 4E2 -----
-C
+!
+!     ----- K = 08 , R = 4E2 -----
+!
   824 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0067008875889055753375121758999566345949D+00
       Omega( 2) = 0.0215908496440356932643997141599290223724D+00
       Omega( 3) = 0.0575423155787227755035507983233378226373D+00
@@ -5592,7 +5592,7 @@ C
       Omega( 6) = 0.7362076092535837336188440926942888609119D+00
       Omega( 7) = 1.5812540713021125379821388290402239817922D+00
       Omega( 8) = 3.5971080384364662310345273077416550222551D+00
-C
+!
       Alpha( 1) = 0.0025176525567014111136737313000402704866D+00
       Alpha( 2) = 0.0156870855266922170677206492539479398829D+00
       Alpha( 3) = 0.0525805310064843255993228491457225359795D+00
@@ -5601,7 +5601,7 @@ C
       Alpha( 6) = 0.8831960386953907907940479471431416413907D+00
       Alpha( 7) = 1.9892072955102488654183928717955609499768D+00
       Alpha( 8) = 4.4084930703152622123892900862784927085158D+00
-C
+!
       Xi( 1) = 1.016997180607474292844683017023D+00
       Xi( 2) = 1.157202679675031171914120764477D+00
       Xi( 3) = 1.460451278101122088329093251513D+00
@@ -5619,13 +5619,13 @@ C
       Xi(15) = 254.493575469728197963048543783771D+00
       Xi(16) = 375.770376438034457905468244121039D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 5E2 -----
-C
+!
+!     ----- K = 08 , R = 5E2 -----
+!
   825 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0056765954727616951858215415486347277252D+00
       Omega( 2) = 0.0189684285531276371907465202668041648337D+00
       Omega( 3) = 0.0525102584623810031392329537858199017819D+00
@@ -5634,7 +5634,7 @@ C
       Omega( 6) = 0.7145967548360081613746663808939274531440D+00
       Omega( 7) = 1.5533459981559690892558359132102907551598D+00
       Omega( 8) = 3.5650469439391760267422937236148072770447D+00
-C
+!
       Alpha( 1) = 0.0021229535274735288473389613556410737694D+00
       Alpha( 2) = 0.0135064199433631837297302771827567369201D+00
       Alpha( 3) = 0.0466737186745842354107353684017356343361D+00
@@ -5643,7 +5643,7 @@ C
       Alpha( 6) = 0.8406244096896624128523872743201650337141D+00
       Alpha( 7) = 1.9217275963995139784722121500948333050474D+00
       Alpha( 8) = 4.3108989561714496580382971480105425143847D+00
-C
+!
       Xi( 1) = 1.017522457222688383104633458309D+00
       Xi( 2) = 1.162214480881127272250859239211D+00
       Xi( 3) = 1.475981656325268065888672852637D+00
@@ -5661,13 +5661,13 @@ C
       Xi(15) = 303.185783856004199443567870275729D+00
       Xi(16) = 465.696952975465335022864366010253D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 6E2 -----
-C
+!
+!     ----- K = 08 , R = 6E2 -----
+!
   826 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0049631227560872719340512640700396884696D+00
       Omega( 2) = 0.0171254524636490031161900138637066426384D+00
       Omega( 3) = 0.0488948450803400766644427576090858877933D+00
@@ -5676,7 +5676,7 @@ C
       Omega( 6) = 0.6983780043252394544375794005475199810462D+00
       Omega( 7) = 1.5322730134232326378723731963304999226239D+00
       Omega( 8) = 3.5408125259521600184699219315831442145281D+00
-C
+!
       Alpha( 1) = 0.0018481578123667529228029920789454221275D+00
       Alpha( 2) = 0.0119828198121361834915281287423927114588D+00
       Alpha( 3) = 0.0425003466075095890485270166275766356989D+00
@@ -5685,7 +5685,7 @@ C
       Alpha( 6) = 0.8092949962970130067330468137676291462412D+00
       Alpha( 7) = 1.8716385878240684829953988099759953911416D+00
       Alpha( 8) = 4.2380476718029878352607398017681816781987D+00
-C
+!
       Xi( 1) = 1.017931737489983994677730794187D+00
       Xi( 2) = 1.166126687088432865944259697599D+00
       Xi( 3) = 1.488142831743968411421959185947D+00
@@ -5703,13 +5703,13 @@ C
       Xi(15) = 348.607063705276868759153074961432D+00
       Xi(16) = 554.362393276937058528286428327192D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 7E2 -----
-C
+!
+!     ----- K = 08 , R = 7E2 -----
+!
   827 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0044348751043990017105410794857889289489D+00
       Omega( 2) = 0.0157499318410671428728766184368392799797D+00
       Omega( 3) = 0.0461450866606818998462370608887317402491D+00
@@ -5718,7 +5718,7 @@ C
       Omega( 6) = 0.6856106320477458669995253492945863627028D+00
       Omega( 7) = 1.5156041931287733760033015206758477688709D+00
       Omega( 8) = 3.5216267135009914567532474105604478609166D+00
-C
+!
       Alpha( 1) = 0.0016447651044251732014945396810785827046D+00
       Alpha( 2) = 0.0108516614681113453641541537544878970323D+00
       Alpha( 3) = 0.0393710657262846921716368999571988851471D+00
@@ -5727,7 +5727,7 @@ C
       Alpha( 6) = 0.7850072328236101285546533201653573996737D+00
       Alpha( 7) = 1.8325419240849563618477036097687005167245D+00
       Alpha( 8) = 4.1809312247825503000391023089576947313617D+00
-C
+!
       Xi( 1) = 1.018263452788968317116839734648D+00
       Xi( 2) = 1.169302024710275848297380552054D+00
       Xi( 3) = 1.498038435178118336628221018980D+00
@@ -5745,13 +5745,13 @@ C
       Xi(15) = 391.261408758174212108027489875894D+00
       Xi(16) = 641.835825018210841652610554319836D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 8E2 -----
-C
+!
+!     ----- K = 08 , R = 8E2 -----
+!
   828 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0040264999918426540221549566906517059195D+00
       Omega( 2) = 0.0146786769119747113790630218058130829206D+00
       Omega( 3) = 0.0439682178014438697386619039203514702763D+00
@@ -5760,7 +5760,7 @@ C
       Omega( 6) = 0.6752146704956449841349142015900497426628D+00
       Omega( 7) = 1.5019777460020226257262840330319875192799D+00
       Omega( 8) = 3.5059316086191087472306165961910551231995D+00
-C
+!
       Alpha( 1) = 0.0014875565232259687857860485271817296837D+00
       Alpha( 2) = 0.0099749829069579409847811583139653990315D+00
       Alpha( 3) = 0.0369240609001513219396858715704023978788D+00
@@ -5769,7 +5769,7 @@ C
       Alpha( 6) = 0.7654746988259726943760324902044089867559D+00
       Alpha( 7) = 1.8009234408139323254478478264495322491712D+00
       Alpha( 8) = 4.1345719764847616165340249416715323604876D+00
-C
+!
       Xi( 1) = 1.018540004076203246089621368142D+00
       Xi( 2) = 1.171952366106674925231613537679D+00
       Xi( 3) = 1.506315092686870306631745364268D+00
@@ -5787,13 +5787,13 @@ C
       Xi(15) = 431.521930984642145351370956518622D+00
       Xi(16) = 728.170044478462002657259688476188D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 9E2 -----
-C
+!
+!     ----- K = 08 , R = 9E2 -----
+!
   829 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0037004598585148988313034407312759888065D+00
       Omega( 2) = 0.0138175172883332139873169817391451719146D+00
       Omega( 3) = 0.0421928680892260580071807026664165718444D+00
@@ -5802,7 +5802,7 @@ C
       Omega( 6) = 0.6665335644303945399156280382513273252698D+00
       Omega( 7) = 1.4905611878984845606243778148858325494075D+00
       Omega( 8) = 3.4927739456075436869086914271065325010568D+00
-C
+!
       Alpha( 1) = 0.0013620554429901594556538322548094877007D+00
       Alpha( 2) = 0.0092734079691412496733424783261490187414D+00
       Alpha( 3) = 0.0349498666613168215373320165534343217928D+00
@@ -5811,7 +5811,7 @@ C
       Alpha( 6) = 0.7493320377090901402957270893701036129642D+00
       Alpha( 7) = 1.7746689959691647210096240860899285962660D+00
       Alpha( 8) = 4.0959603100621581276558069717452781333122D+00
-C
+!
       Xi( 1) = 1.018775508491156873958592699037D+00
       Xi( 2) = 1.174211612730809165200743238167D+00
       Xi( 3) = 1.513382632847937119707250330780D+00
@@ -5829,13 +5829,13 @@ C
       Xi(15) = 469.676669712967440134532282058899D+00
       Xi(16) = 813.407470316859758374672395575544D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 1E3 -----
-C
+!
+!     ----- K = 08 , R = 1E3 -----
+!
   831 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0034335760503910689907179870465625537435D+00
       Omega( 2) = 0.0131080577194026246206680157667390229648D+00
       Omega( 3) = 0.0407113742175260309220409526975714697983D+00
@@ -5844,7 +5844,7 @@ C
       Omega( 6) = 0.6591413831361904632319577423960055284624D+00
       Omega( 7) = 1.4808119960150753685384703017824392645707D+00
       Omega( 8) = 3.4815321032916017986516554749698570958572D+00
-C
+!
       Alpha( 1) = 0.0012593274957499998663477814415077860044D+00
       Alpha( 2) = 0.0086978504539733445175800526094622711071D+00
       Alpha( 3) = 0.0333181980142722798886561596382049899034D+00
@@ -5853,7 +5853,7 @@ C
       Alpha( 6) = 0.7357066637534231497890305218056994362996D+00
       Alpha( 7) = 1.7524189550363361240819734532259133175103D+00
       Alpha( 8) = 4.0631526124948221172054896310754656951758D+00
-C
+!
       Xi( 1) = 1.018979407447829179018429501813D+00
       Xi( 2) = 1.176169329208864889084115712414D+00
       Xi( 3) = 1.519516377580273219349143998258D+00
@@ -5871,13 +5871,13 @@ C
       Xi(15) = 505.955334415113799101382241474312D+00
       Xi(16) = 897.583498348762517882182265793745D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 2E3 -----
-C
+!
+!     ----- K = 08 , R = 2E3 -----
+!
   832 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0021430462268822023309589085496296156919D+00
       Omega( 2) = 0.0095934513264009831643493869668404272488D+00
       Omega( 3) = 0.0330567547313259784287067452601682759905D+00
@@ -5886,7 +5886,7 @@ C
       Omega( 6) = 0.6185015005689335353296354202967677338165D+00
       Omega( 7) = 1.4267377848347798636021235840765086777537D+00
       Omega( 8) = 3.4190751095195143275089905143815371957317D+00
-C
+!
       Alpha( 1) = 0.0007623416133137365415047053069166893557D+00
       Alpha( 2) = 0.0058908109757378770075222831209549312348D+00
       Alpha( 3) = 0.0251495451866708728604304879869490996214D+00
@@ -5895,7 +5895,7 @@ C
       Alpha( 6) = 0.6627794284196205648477043248512075024337D+00
       Alpha( 7) = 1.6318321257986886528481423885850176702661D+00
       Alpha( 8) = 3.8839165956082179677767013403766327428457D+00
-C
+!
       Xi( 1) = 1.020159001593107734868863534228D+00
       Xi( 2) = 1.187526285869552161852599758696D+00
       Xi( 3) = 1.555265978199967590446355092393D+00
@@ -5913,13 +5913,13 @@ C
       Xi(15) = 795.634013655747957927122371302175D+00
       Xi(16) = 1686.377993447082192846053771972947D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 3E3 -----
-C
+!
+!     ----- K = 08 , R = 3E3 -----
+!
   833 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0016651967973811464223829755079871184353D+00
       Omega( 2) = 0.0082344958996268037770835195553187357831D+00
       Omega( 3) = 0.0299132583617116829806614709472145641200D+00
@@ -5928,7 +5928,7 @@ C
       Omega( 6) = 0.6004207194957538095076224338164649907412D+00
       Omega( 7) = 1.4024065780531140042045393223624216716416D+00
       Omega( 8) = 3.3909109012617059081100279183118573200773D+00
-C
+!
       Alpha( 1) = 0.0005779647722766572749244552188729873166D+00
       Alpha( 2) = 0.0048345080412755526751872900501766361359D+00
       Alpha( 3) = 0.0219435969317702805491434843790377051675D+00
@@ -5937,7 +5937,7 @@ C
       Alpha( 6) = 0.6314114180649208010482481556735478989140D+00
       Alpha( 7) = 1.5791206489394280554393670823465356534143D+00
       Alpha( 8) = 3.8047625323126017483563177101757446507690D+00
-C
+!
       Xi( 1) = 1.020717974317504311582843756767D+00
       Xi( 2) = 1.192926375345656953897745256032D+00
       Xi( 3) = 1.572365758565759568505214305301D+00
@@ -5955,13 +5955,13 @@ C
       Xi(15) = 1002.025485610155657867359479951119D+00
       Xi(16) = 2390.559013053741090448767181442236D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 4E3 -----
-C
+!
+!     ----- K = 08 , R = 4E3 -----
+!
   834 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0014125661829260472694481433082042132199D+00
       Omega( 2) = 0.0074937692680186526238192543016708446757D+00
       Omega( 3) = 0.0281426446017923193173519008647431860481D+00
@@ -5970,7 +5970,7 @@ C
       Omega( 6) = 0.5898121473669076002743424935736982206436D+00
       Omega( 7) = 1.3880475721468792164826552837375572835299D+00
       Omega( 8) = 3.3742707589985145493014645490248426540347D+00
-C
+!
       Alpha( 1) = 0.0004803056376499482843359545048171274639D+00
       Alpha( 2) = 0.0042692087887265292081189805867974529363D+00
       Alpha( 3) = 0.0201825342118137213973306414230290961598D+00
@@ -5979,7 +5979,7 @@ C
       Alpha( 6) = 0.6133156517874289083034830549756577511289D+00
       Alpha( 7) = 1.5484597079648389776791728156268845850718D+00
       Alpha( 8) = 3.7584802839867816838439334992116869216261D+00
-C
+!
       Xi( 1) = 1.021056476561818582402159372169D+00
       Xi( 2) = 1.196202442602344475633055487229D+00
       Xi( 3) = 1.582771745869115058219164793307D+00
@@ -5997,13 +5997,13 @@ C
       Xi(15) = 1159.523072215187794564705825450801D+00
       Xi(16) = 3021.329814481966200334639438551676D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 5E3 -----
-C
+!
+!     ----- K = 08 , R = 5E3 -----
+!
   835 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0012560128074441001169983661285393938822D+00
       Omega( 2) = 0.0070239046575416292430630292066562336828D+00
       Omega( 3) = 0.0269953790374489263546685510405942487466D+00
@@ -6012,7 +6012,7 @@ C
       Omega( 6) = 0.5827590540484507476183539953495937879779D+00
       Omega( 7) = 1.3784658861922865615099592639936076921003D+00
       Omega( 8) = 3.3631587036004961274553159977784844159032D+00
-C
+!
       Alpha( 1) = 0.0004196991604112789323126704230364908410D+00
       Alpha( 2) = 0.0039154579369630628607557650162906970337D+00
       Alpha( 3) = 0.0190601015881723848084195252483574734015D+00
@@ -6021,7 +6021,7 @@ C
       Alpha( 6) = 0.6014111142968013818213036947302185808439D+00
       Alpha( 7) = 1.5281833987584513796309862443401073051064D+00
       Alpha( 8) = 3.7277730360685648396904673385066075752547D+00
-C
+!
       Xi( 1) = 1.021286012308503826965210004030D+00
       Xi( 2) = 1.198426449965374330683919035234D+00
       Xi( 3) = 1.589849845991704522228139817575D+00
@@ -6039,13 +6039,13 @@ C
       Xi(15) = 1284.180367206866845375401453566155D+00
       Xi(16) = 3585.705870058596230975922480865847D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 6E3 -----
-C
+!
+!     ----- K = 08 , R = 6E3 -----
+!
   836 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0011500481004688015065847933138080960713D+00
       Omega( 2) = 0.0066999330935280467300949091072337360231D+00
       Omega( 3) = 0.0261924342913283282166704438523319176113D+00
@@ -6054,7 +6054,7 @@ C
       Omega( 6) = 0.5777335833512779340176424014430267561693D+00
       Omega( 7) = 1.3716213004158607933948704760140913094801D+00
       Omega( 8) = 3.3552168348270158923681016904794205402141D+00
-C
+!
       Alpha( 1) = 0.0003786335074948956111030892008294246320D+00
       Alpha( 2) = 0.0036740934531544308959442678803528070652D+00
       Alpha( 3) = 0.0182837045590645175482968388946947158047D+00
@@ -6063,7 +6063,7 @@ C
       Alpha( 6) = 0.5929904812716678494540455124361955085988D+00
       Alpha( 7) = 1.5137888616481399616442091171641948221804D+00
       Alpha( 8) = 3.7059238120115058068553687276036612274766D+00
-C
+!
       Xi( 1) = 1.021451800449782277646973427387D+00
       Xi( 2) = 1.200034072905669535404234171683D+00
       Xi( 3) = 1.594973221740001397320717069217D+00
@@ -6081,13 +6081,13 @@ C
       Xi(15) = 1384.874279477222157042071160049090D+00
       Xi(16) = 4088.104869330484655742807831302343D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 7E3 -----
-C
+!
+!     ----- K = 08 , R = 7E3 -----
+!
   837 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0010744332166565012706056802573029163028D+00
       Omega( 2) = 0.0064652733490262209884080399618228041092D+00
       Omega( 3) = 0.0256044015068254107644749777497605869314D+00
@@ -6096,7 +6096,7 @@ C
       Omega( 6) = 0.5740045808031631187308072017394522390532D+00
       Omega( 7) = 1.3665329240577759860059831042988776061975D+00
       Omega( 8) = 3.3493104419351631469582014632990762947884D+00
-C
+!
       Alpha( 1) = 0.0003493074543081077457771562854316887980D+00
       Alpha( 2) = 0.0035007144790761561605025670379856550518D+00
       Alpha( 3) = 0.0177200698247082988648451766164337861653D+00
@@ -6105,7 +6105,7 @@ C
       Alpha( 6) = 0.5867753361711184133904170567852531803510D+00
       Alpha( 7) = 1.5031361158199717780598048122442378371488D+00
       Alpha( 8) = 3.6897272261912295819846069333536320300482D+00
-C
+!
       Xi( 1) = 1.021576047090998875534716139324D+00
       Xi( 2) = 1.201239584206932473216776491309D+00
       Xi( 3) = 1.598818959507872945031113631753D+00
@@ -6123,13 +6123,13 @@ C
       Xi(15) = 1466.989064506464314763256595597340D+00
       Xi(16) = 4531.215030129676081482870131367235D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 8E3 -----
-C
+!
+!     ----- K = 08 , R = 8E3 -----
+!
   838 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0010187920024821150578778111207324530429D+00
       Omega( 2) = 0.0062904921216730113587560122793279626663D+00
       Omega( 3) = 0.0251627516939175241693924314767549788030D+00
@@ -6138,7 +6138,7 @@ C
       Omega( 6) = 0.5711759383022554021399480594922692944237D+00
       Omega( 7) = 1.3626676872789057304129201053655151554267D+00
       Omega( 8) = 3.3448225248609738599614438214757683454081D+00
-C
+!
       Alpha( 1) = 0.0003277166785761017410492756111355452942D+00
       Alpha( 2) = 0.0033724318575932676636188492459364485221D+00
       Alpha( 3) = 0.0172995667533701635395262377267733278075D+00
@@ -6147,7 +6147,7 @@ C
       Alpha( 6) = 0.5820796197507841215966310766116720287755D+00
       Alpha( 7) = 1.4950714931789085518788057216355014134024D+00
       Alpha( 8) = 3.6774503027702362826026338815665894799167D+00
-C
+!
       Xi( 1) = 1.021671002042388205223975850000D+00
       Xi( 2) = 1.202161314562530556150979355046D+00
       Xi( 3) = 1.601761466027823694051497593893D+00
@@ -6165,13 +6165,13 @@ C
       Xi(15) = 1533.982633106747890172627535321226D+00
       Xi(16) = 4916.479141479043034834717218473088D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 9E3 -----
-C
+!
+!     ----- K = 08 , R = 9E3 -----
+!
   839 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0009772948930853391284634293194322207654D+00
       Omega( 2) = 0.0061588545859857373910286541373454438641D+00
       Omega( 3) = 0.0248279792632893715773956862941096446207D+00
@@ -6180,7 +6180,7 @@ C
       Omega( 6) = 0.5690154793075477250444485499691893437557D+00
       Omega( 7) = 1.3597123047826839243668387013919129913120D+00
       Omega( 8) = 3.3413902799279070789106871330886860960163D+00
-C
+!
       Alpha( 1) = 0.0003116085515013381649146047259156533382D+00
       Alpha( 2) = 0.0032763270270228551517249077334320572774D+00
       Alpha( 3) = 0.0169824721145694412746424573762427101542D+00
@@ -6189,7 +6189,7 @@ C
       Alpha( 6) = 0.5785040412974863724415719445914874086156D+00
       Alpha( 7) = 1.4889211961369413103574085854852171451057D+00
       Alpha( 8) = 3.6680786204192270931207647821636896878772D+00
-C
+!
       Xi( 1) = 1.021743940791255173482741935853D+00
       Xi( 2) = 1.202869572669394368350827273506D+00
       Xi( 3) = 1.604023797288146306822334552500D+00
@@ -6207,13 +6207,13 @@ C
       Xi(15) = 1588.132591724796786158968586732954D+00
       Xi(16) = 5244.360558124685915970530913909897D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 1E4 -----
-C
+!
+!     ----- K = 08 , R = 1E4 -----
+!
   841 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0009464736592531918982037029551990930942D+00
       Omega( 2) = 0.0060603142125795529876743582796405629409D+00
       Omega( 3) = 0.0245761508893177345417288895412788463091D+00
@@ -6222,7 +6222,7 @@ C
       Omega( 6) = 0.5673808117367401690706377181960817779327D+00
       Omega( 7) = 1.3574743205521424079971690157542241195188D+00
       Omega( 8) = 3.3387907492178366939718225925304295742535D+00
-C
+!
       Alpha( 1) = 0.0002996417442897515258706464888341716724D+00
       Alpha( 2) = 0.0032046869025454530459728701673183248744D+00
       Alpha( 3) = 0.0167448876770150786602602997407696072685D+00
@@ -6231,7 +6231,7 @@ C
       Alpha( 6) = 0.5758049688355264809263081571266695846134D+00
       Alpha( 7) = 1.4842730758101718564713131232046805507707D+00
       Alpha( 8) = 3.6609907150717963281606054382066872676660D+00
-C
+!
       Xi( 1) = 1.021799368551998172280174947968D+00
       Xi( 2) = 1.203407933153845310266828738666D+00
       Xi( 3) = 1.605744200736071323793070775299D+00
@@ -6249,13 +6249,13 @@ C
       Xi(15) = 1630.941436333689831705839878850384D+00
       Xi(16) = 5514.459053591922825354743054049322D+00
       GOTO 9999
-C
-C     ----- K = 08 , R = 2E4 (Best : R = 13750) -----
-C
+!
+!     ----- K = 08 , R = 2E4 (Best : R = 13750) -----
+!
   899 CONTINUE
-C
+!
       RIni = 2.0D+04
-C
+!
       Omega( 1) = 0.0008991679845521025146213091349452900536D+00
       Omega( 2) = 0.0059076940528835928267816846645027473173D+00
       Omega( 3) = 0.0241839922144492679877196507007286463420D+00
@@ -6264,7 +6264,7 @@ C
       Omega( 6) = 0.5648187066649001726484184693344303695994D+00
       Omega( 7) = 1.3539633386811781257065209760348523104767D+00
       Omega( 8) = 3.3347117690388683390167318121299899758014D+00
-C
+!
       Alpha( 1) = 0.0002812708994976841560705178499606632370D+00
       Alpha( 2) = 0.0030942621869177655448272020594080444766D+00
       Alpha( 3) = 0.0163765529725487554336287900069724088326D+00
@@ -6273,7 +6273,7 @@ C
       Alpha( 6) = 0.5715854881795667998684029598166489449795D+00
       Alpha( 7) = 1.4769970948293096661392900803555505717668D+00
       Alpha( 8) = 3.6498865034832642553590253964301837186213D+00
-C
+!
       Xi( 1) = 1.021886671863076921249954831517D+00
       Xi( 2) = 1.204256055576628144164301470465D+00
       Xi( 3) = 1.608455843152621252459787137834D+00
@@ -6291,20 +6291,20 @@ C
       Xi(15) = 1701.442526845445518124400052784040D+00
       Xi(16) = 5981.188006841379713574013976540300D+00
       GOTO 9999
-C
-C     ===== K = 09 =====
-C
+!
+!     ===== K = 09 =====
+!
   900 CONTINUE
       GOTO ( 911, 911, 911, 912, 913, 914, 915, 916, 917, 918, 919, 921,
      *       922, 923, 924, 925, 926, 927, 928, 929, 931, 932, 933, 934,
      *       935, 936, 937, 938, 939, 941, 999),InitR
-C
-C     ----- K = 09 , R = 1E1 -----
-C
+!
+!     ----- K = 09 , R = 1E1 -----
+!
   911 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0944408179910022914211827939345855753572D+00
       Omega( 2) = 0.2279868254700224364391568376841945564593D+00
       Omega( 3) = 0.3835833446278580757457781630348492285520D+00
@@ -6314,7 +6314,7 @@ C
       Omega( 7) = 1.8552456496972611524982552100304644682183D+00
       Omega( 8) = 2.8782542842146350474483856851648511110398D+00
       Omega( 9) = 5.0648647749669027666626075490086122954381D+00
-C
+!
       Alpha( 1) = 0.0366466399628543326388667965287648797812D+00
       Alpha( 2) = 0.1966210450881259960855375681920698127669D+00
       Alpha( 3) = 0.4998872452506653510785443461639232509697D+00
@@ -6324,7 +6324,7 @@ C
       Alpha( 7) = 4.2485871297667448256117628258010654462851D+00
       Alpha( 8) = 6.5659021657465178678850237226072295015911D+00
       Alpha( 9) = 10.3619750572942871608486670176318966696272D+00
-C
+!
       Xi( 1) = 1.004816667567330690951678262568D+00
       Xi( 2) = 1.043640164615983558925489671498D+00
       Xi( 3) = 1.122838292110773394764933197365D+00
@@ -6344,13 +6344,13 @@ C
       Xi(17) = 9.487188575731532130461132190646D+00
       Xi(18) = 9.940546114292697808638432643846D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 2E1 -----
-C
+!
+!     ----- K = 09 , R = 2E1 -----
+!
   912 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0571068968380650208214283861801741082331D+00
       Omega( 2) = 0.1403046002401256655449986870953793527406D+00
       Omega( 3) = 0.2442888425192801570354217410852015746059D+00
@@ -6360,7 +6360,7 @@ C
       Omega( 7) = 1.5367428589142293419555346245530813575897D+00
       Omega( 8) = 2.5294131477214145515240717454474861369818D+00
       Omega( 9) = 4.6740157375771901292205168232385403825901D+00
-C
+!
       Alpha( 1) = 0.0221160161671775412491568451461843025641D+00
       Alpha( 2) = 0.1197005617264399827869773666744190876443D+00
       Alpha( 3) = 0.3095577652107071025687663745618039001783D+00
@@ -6370,7 +6370,7 @@ C
       Alpha( 7) = 3.1147249042730755213409521431344728625845D+00
       Alpha( 8) = 5.0981371610313976662498536285283989855088D+00
       Alpha( 9) = 8.5274716594293656964781424889565641933586D+00
-C
+!
       Xi( 1) = 1.006555872841583084060547437222D+00
       Xi( 2) = 1.059567009314663162903441540053D+00
       Xi( 3) = 1.168615284932517771484226931644D+00
@@ -6390,13 +6390,13 @@ C
       Xi(17) = 18.472407258722503753042842866705D+00
       Xi(18) = 19.818889952580328229006512152921D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 3E1 -----
-C
+!
+!     ----- K = 09 , R = 3E1 -----
+!
   913 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0421868132593801466490870087644449171194D+00
       Omega( 2) = 0.1050116169989357095166672938224561306697D+00
       Omega( 3) = 0.1876064252395335822036319395333947568361D+00
@@ -6406,7 +6406,7 @@ C
       Omega( 7) = 1.3943134568732370930999389657678477760783D+00
       Omega( 8) = 2.3697175189404877360642431849413469535648D+00
       Omega( 9) = 4.4940473157040011671636836609877718728967D+00
-C
+!
       Alpha( 1) = 0.0163142165710595383079330655470839950283D+00
       Alpha( 2) = 0.0888739577095855045956677292773306930940D+00
       Alpha( 3) = 0.2328241238721762329164349097920805320427D+00
@@ -6416,7 +6416,7 @@ C
       Alpha( 7) = 2.6362216580612873393762302098863870014611D+00
       Alpha( 8) = 4.4683557670936419926877025687872446724214D+00
       Alpha( 9) = 7.7290029467926875373327832985381746766507D+00
-C
+!
       Xi( 1) = 1.007612743465411295597580765282D+00
       Xi( 2) = 1.069288322758420971270165722444D+00
       Xi( 3) = 1.196793605127912162879554036632D+00
@@ -6436,13 +6436,13 @@ C
       Xi(17) = 27.172322404323542907947364177801D+00
       Xi(18) = 29.659116605127599357663581436384D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 4E1 -----
-C
+!
+!     ----- K = 09 , R = 4E1 -----
+!
   914 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0339352597594549956029142193103531610632D+00
       Omega( 2) = 0.0853875404125285589817064869910812063836D+00
       Omega( 3) = 0.1558201128416026146370843355470903190962D+00
@@ -6452,7 +6452,7 @@ C
       Omega( 7) = 1.3074948146510294393323609041246413653425D+00
       Omega( 8) = 2.2708533075573004104269481118194562441204D+00
       Omega( 9) = 4.3823089011892681450197062353879573493032D+00
-C
+!
       Alpha( 1) = 0.0131076927865854293291480287507455582130D+00
       Alpha( 2) = 0.0717893279105617697030163049110029760413D+00
       Alpha( 3) = 0.1901024737453172946342319291068712061588D+00
@@ -6462,7 +6462,7 @@ C
       Alpha( 7) = 2.3582852576121468594558261422378109273268D+00
       Alpha( 8) = 4.0973891923794437705357018852936334951664D+00
       Alpha( 9) = 7.2533276338963031727204155973964816439548D+00
-C
+!
       Xi( 1) = 1.008370802207068996059723120506D+00
       Xi( 2) = 1.076281916485633244188503676586D+00
       Xi( 3) = 1.217180087021721421173571509033D+00
@@ -6482,13 +6482,13 @@ C
       Xi(17) = 35.656631518931774505604126446201D+00
       Xi(18) = 39.469135361457544960983589987791D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 5E1 -----
-C
+!
+!     ----- K = 09 , R = 5E1 -----
+!
   915 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0286272689853100972254734734104286708600D+00
       Omega( 2) = 0.0727085059279048214692987329998974388445D+00
       Omega( 3) = 0.1351357560506628231771679773953742653703D+00
@@ -6498,7 +6498,7 @@ C
       Omega( 7) = 1.2469241956836626880611440526536171091720D+00
       Omega( 8) = 2.2011224300594862497357229180749982333509D+00
       Omega( 9) = 4.3033668024855845596170211830866492164205D+00
-C
+!
       Alpha( 1) = 0.0110461620270614760939376585401061614533D+00
       Alpha( 2) = 0.0607803585908880953167640268097748901255D+00
       Alpha( 3) = 0.1624695706747093375434251236177907173897D+00
@@ -6508,7 +6508,7 @@ C
       Alpha( 7) = 2.1716507047182063833406368003053898974031D+00
       Alpha( 8) = 3.8454420774551983344853589574796615124797D+00
       Alpha( 9) = 6.9274020285996225332857123557772638378083D+00
-C
+!
       Xi( 1) = 1.008959735058196170785597967079D+00
       Xi( 2) = 1.081727547054457924820790315490D+00
       Xi( 3) = 1.233121852783218921423627478795D+00
@@ -6528,13 +6528,13 @@ C
       Xi(17) = 43.963748828900448661904931668687D+00
       Xi(18) = 49.253357175193826684306275254244D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 6E1 -----
-C
+!
+!     ----- K = 09 , R = 6E1 -----
+!
   916 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0248959721764766027179375390554483260530D+00
       Omega( 2) = 0.0637623571241729140057427627219510668510D+00
       Omega( 3) = 0.1204491051105075692019704368396215699022D+00
@@ -6544,7 +6544,7 @@ C
       Omega( 7) = 1.2013063905514669937966282242669535662571D+00
       Omega( 8) = 2.1481696096724234316868024086133459604753D+00
       Omega( 9) = 4.2433533131659190401445413964864883382688D+00
-C
+!
       Alpha( 1) = 0.0095976729315090804611749044153445886707D+00
       Alpha( 2) = 0.0530301581506099356459857548096170631879D+00
       Alpha( 3) = 0.1429528058023013083942210840748820999124D+00
@@ -6554,7 +6554,7 @@ C
       Alpha( 7) = 2.0353775012644672000924200849780731914507D+00
       Alpha( 8) = 3.6597441611647041148983050540266503958264D+00
       Alpha( 9) = 6.6854573090516597900362372186577886168379D+00
-C
+!
       Xi( 1) = 1.009439712975342740008954933728D+00
       Xi( 2) = 1.086173843961676821479045429442D+00
       Xi( 3) = 1.246182533203064046745112136705D+00
@@ -6574,13 +6574,13 @@ C
       Xi(17) = 52.118697621441455680724175181240D+00
       Xi(18) = 59.014681121470907498860469786450D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 7E1 -----
-C
+!
+!     ----- K = 09 , R = 7E1 -----
+!
   917 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0221145238599984708285472578132013765639D+00
       Omega( 2) = 0.0570717255426385474206558284793189272932D+00
       Omega( 3) = 0.1094026520368098471004138748374767686755D+00
@@ -6590,7 +6590,7 @@ C
       Omega( 7) = 1.1652087065303460656573789067103064098774D+00
       Omega( 8) = 2.1059899831229173835893397903618051714147D+00
       Omega( 9) = 4.1955111714606977495710393721850550718955D+00
-C
+!
       Alpha( 1) = 0.0085183608716480930129208784529204478986D+00
       Alpha( 2) = 0.0472454375504523413084134817602199873932D+00
       Alpha( 3) = 0.1283432881500915206924142222821849657066D+00
@@ -6600,7 +6600,7 @@ C
       Alpha( 7) = 1.9302841753638598767603418160376804735279D+00
       Alpha( 8) = 3.5153907951084480490184375200968247554556D+00
       Alpha( 9) = 6.4962582918876183627442111312433326020255D+00
-C
+!
       Xi( 1) = 1.009843670644150163007851661590D+00
       Xi( 2) = 1.089921584463474284599875108182D+00
       Xi( 3) = 1.257222614712810082149112289596D+00
@@ -6620,13 +6620,13 @@ C
       Xi(17) = 60.139334259777297103655158139190D+00
       Xi(18) = 68.755191896088548135501650193646D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 8E1 -----
-C
+!
+!     ----- K = 09 , R = 8E1 -----
+!
   918 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0199526784301063577451595563647113174000D+00
       Omega( 2) = 0.0518563003933426289609489017590204795738D+00
       Omega( 3) = 0.1007466086972549770961059441287677174159D+00
@@ -6636,7 +6636,7 @@ C
       Omega( 7) = 1.1356374020567791251418512943338612330990D+00
       Omega( 8) = 2.0712467277560673076502312239810521532490D+00
       Omega( 9) = 4.1560789671987043254405835845943784079282D+00
-C
+!
       Alpha( 1) = 0.0076797894839484662018849520006419373530D+00
       Alpha( 2) = 0.0427441668967045518829467841415148399165D+00
       Alpha( 3) = 0.1169452389354414968946618488820909931292D+00
@@ -6646,7 +6646,7 @@ C
       Alpha( 7) = 1.8460526692834495029365074469929197675810D+00
       Alpha( 8) = 3.3988951192899249120239757449013495715917D+00
       Alpha( 9) = 6.3427950576266634284162970747189547182643D+00
-C
+!
       Xi( 1) = 1.010191606375282269425497361226D+00
       Xi( 2) = 1.093153804208305990286476117035D+00
       Xi( 3) = 1.266767168213191796510841413692D+00
@@ -6666,13 +6666,13 @@ C
       Xi(17) = 68.039170680158321147246169857681D+00
       Xi(18) = 78.476477920522839326622488442808D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 9E1 -----
-C
+!
+!     ----- K = 09 , R = 9E1 -----
+!
   919 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0182189939054983629658344577648132478487D+00
       Omega( 2) = 0.0476627110113685720830481885174068068523D+00
       Omega( 3) = 0.0937524260468592182812212071363333620866D+00
@@ -6682,7 +6682,7 @@ C
       Omega( 7) = 1.1107832014454115858535093730452558702382D+00
       Omega( 8) = 2.0419093040247857171864270808825381209317D+00
       Omega( 9) = 4.1227649447721858360846325375348442321410D+00
-C
+!
       Alpha( 1) = 0.0070075258403555020703036993606760418629D+00
       Alpha( 2) = 0.0391306245919652705714470233844259894340D+00
       Alpha( 3) = 0.1077729099627231377348294226459213263070D+00
@@ -6692,7 +6692,7 @@ C
       Alpha( 7) = 1.7765815928488142974106880900286853375292D+00
       Alpha( 8) = 3.3022331320416157920179939244675892950909D+00
       Alpha( 9) = 6.2148972696211912656628906237443743520998D+00
-C
+!
       Xi( 1) = 1.010496581083280220880737942935D+00
       Xi( 2) = 1.095990183864951506009788317897D+00
       Xi( 3) = 1.275160572005126224937043843966D+00
@@ -6712,13 +6712,13 @@ C
       Xi(17) = 75.828863188570153397449757903814D+00
       Xi(18) = 88.179798689784689713633270002902D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 1E2 -----
-C
+!
+!     ----- K = 09 , R = 1E2 -----
+!
   921 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0167944177457944369643606796760337829255D+00
       Omega( 2) = 0.0442084363213146724151648113421142483048D+00
       Omega( 3) = 0.0879647289700077565909605917249258766333D+00
@@ -6728,7 +6728,7 @@ C
       Omega( 7) = 1.0894766158992761576757013486371761246119D+00
       Omega( 8) = 2.0166575312935179065381569030179775836586D+00
       Omega( 9) = 4.0940777439727191787735560701833037455799D+00
-C
+!
       Alpha( 1) = 0.0064552940709981691840570444240049452489D+00
       Alpha( 2) = 0.0361585229138805650089794584134406107978D+00
       Alpha( 3) = 0.1002117521668118395314415851327094486578D+00
@@ -6738,7 +6738,7 @@ C
       Alpha( 7) = 1.7180040401346316646016137985597538317961D+00
       Alpha( 8) = 3.2202910181231106476629905133179931908671D+00
       Alpha( 9) = 6.1060543748685659035287109919210024600034D+00
-C
+!
       Xi( 1) = 1.010767590706046830870135089242D+00
       Xi( 2) = 1.098513253256041984550969714540D+00
       Xi( 3) = 1.282640843522771026668366500800D+00
@@ -6758,13 +6758,13 @@ C
       Xi(17) = 83.517069627790160295244259458514D+00
       Xi(18) = 97.866183331819870887258172587053D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 2E2 -----
-C
+!
+!     ----- K = 09 , R = 2E2 -----
+!
   922 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0098170280410918193187669420103624862151D+00
       Omega( 2) = 0.0271418312236300197459824140588935392771D+00
       Omega( 3) = 0.0588555405499913494831571141724380069604D+00
@@ -6774,7 +6774,7 @@ C
       Omega( 7) = 0.9685402483680957653956918040893953047998D+00
       Omega( 8) = 1.8714190637073344861563556351669035393570D+00
       Omega( 9) = 3.9288430703647423862870380339984421880217D+00
-C
+!
       Alpha( 1) = 0.0037535059072584840494327812487895812410D+00
       Alpha( 2) = 0.0215518207542155084664736459237888155371D+00
       Alpha( 3) = 0.0627363115303287840557539337127401779526D+00
@@ -6784,7 +6784,7 @@ C
       Alpha( 7) = 1.4030303812801839501980469271380513873737D+00
       Alpha( 8) = 2.7716770734119855206130378366680133694899D+00
       Alpha( 9) = 5.5024333947554721585375403503093139079283D+00
-C
+!
       Xi( 1) = 1.012493178977090445302446097831D+00
       Xi( 2) = 1.114635600388191899131652695676D+00
       Xi( 3) = 1.330753639161060988111394409739D+00
@@ -6804,13 +6804,13 @@ C
       Xi(17) = 156.003502086901291792675472436258D+00
       Xi(18) = 193.941202758701799216400907255320D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 3E2 -----
-C
+!
+!     ----- K = 09 , R = 3E2 -----
+!
   923 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0071726984278288066010701145430727976304D+00
       Omega( 2) = 0.0205765888728709433145848363075347542406D+00
       Omega( 3) = 0.0472784447759684887763415115508047747994D+00
@@ -6820,7 +6820,7 @@ C
       Omega( 7) = 0.9110357207216383647677138135634322679834D+00
       Omega( 8) = 1.8011087998289808716906312824335145705845D+00
       Omega( 9) = 3.8486906070706142239581243336132843069208D+00
-C
+!
       Alpha( 1) = 0.0027314605081480598387174042610339719239D+00
       Alpha( 2) = 0.0159839368530351834281333627679755338136D+00
       Alpha( 3) = 0.0482285546093564691738587914965341596485D+00
@@ -6830,7 +6830,7 @@ C
       Alpha( 7) = 1.2638987330530245045212903165499085389456D+00
       Alpha( 8) = 2.5683342984551687556826066183290890876378D+00
       Alpha( 9) = 5.2238613500063365430170492231809475924820D+00
-C
+!
       Xi( 1) = 1.013442243452601123016379447428D+00
       Xi( 2) = 1.123545736564435914097738467010D+00
       Xi( 3) = 1.357579144166563902564569266129D+00
@@ -6850,13 +6850,13 @@ C
       Xi(17) = 222.590737029752850958952414828218D+00
       Xi(18) = 288.838153884362069473423773047216D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 4E2 -----
-C
+!
+!     ----- K = 09 , R = 4E2 -----
+!
   924 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0057455219493550986707511589370728222192D+00
       Omega( 2) = 0.0169957484843711026029143378035524136749D+00
       Omega( 3) = 0.0407999991108632573202387710392669006865D+00
@@ -6866,7 +6866,7 @@ C
       Omega( 7) = 0.8752159980258892398767914255763855635450D+00
       Omega( 8) = 1.7568568252994703761090192206673066266376D+00
       Omega( 9) = 3.7981800919499917636168451195999296032824D+00
-C
+!
       Alpha( 1) = 0.0021805301099834817776713274169869682950D+00
       Alpha( 2) = 0.0129668297960735722897319044041863911332D+00
       Alpha( 3) = 0.0402738064105043472570085068273915140935D+00
@@ -6876,7 +6876,7 @@ C
       Alpha( 7) = 1.1807304388190987321817504440701895873644D+00
       Alpha( 8) = 2.4449277513093071833964742278766379968147D+00
       Alpha( 9) = 5.0530353436462703249978933861541463556932D+00
-C
+!
       Xi( 1) = 1.014082320008305114359195564511D+00
       Xi( 2) = 1.129572660367690155216839620334D+00
       Xi( 3) = 1.375820336165024656551944537419D+00
@@ -6896,13 +6896,13 @@ C
       Xi(17) = 284.882646179396948948880918806026D+00
       Xi(18) = 382.757902531871198242852116777613D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 5E2 -----
-C
+!
+!     ----- K = 09 , R = 5E2 -----
+!
   925 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0048408422622110301172535852011480361767D+00
       Omega( 2) = 0.0147065498776455584619584477344689243949D+00
       Omega( 3) = 0.0365691795723620899713360646310356116828D+00
@@ -6912,7 +6912,7 @@ C
       Omega( 7) = 0.8499869026869296652283887472112411387570D+00
       Omega( 8) = 1.7254635478924916411856693709836463312968D+00
       Omega( 9) = 3.7623132069881963044505335247436050849501D+00
-C
+!
       Alpha( 1) = 0.0018316193162704232806072771749805738750D+00
       Alpha( 2) = 0.0110482476764524436467582862997360848567D+00
       Alpha( 3) = 0.0351648885678759096644785831636825790270D+00
@@ -6922,7 +6922,7 @@ C
       Alpha( 7) = 1.1237641613889137305690862911333738338726D+00
       Alpha( 8) = 2.3595017117435727388094490741821118717780D+00
       Alpha( 9) = 4.9339327011643232204912701277521591691766D+00
-C
+!
       Xi( 1) = 1.014557844970328790747127190031D+00
       Xi( 2) = 1.134059522948674922230086203889D+00
       Xi( 3) = 1.389451040287651769223470354930D+00
@@ -6942,13 +6942,13 @@ C
       Xi(17) = 343.752713393957227056008107979324D+00
       Xi(18) = 475.812907782750572627250562618428D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 6E2 -----
-C
+!
+!     ----- K = 09 , R = 6E2 -----
+!
   926 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0042112164997987732153974691721304290937D+00
       Omega( 2) = 0.0131017443419484174921678409399261600043D+00
       Omega( 3) = 0.0335483667275851311346905863491896226947D+00
@@ -6958,7 +6958,7 @@ C
       Omega( 7) = 0.8309034361257299758688442403720131324008D+00
       Omega( 8) = 1.7015875252701152502013762224386539401166D+00
       Omega( 9) = 3.7350145975046860522764818890451010702236D+00
-C
+!
       Alpha( 1) = 0.0015889645189828853134388664020311410230D+00
       Alpha( 2) = 0.0097094235867913892325478815957529032943D+00
       Alpha( 3) = 0.0315686052432080812238802524499758916932D+00
@@ -6968,7 +6968,7 @@ C
       Alpha( 7) = 1.0815587767859619615666219583083318411809D+00
       Alpha( 8) = 2.2957009271064489539480868440790573004051D+00
       Alpha( 9) = 4.8444980562273129774501778666007112406078D+00
-C
+!
       Xi( 1) = 1.014931989558186863813540878887D+00
       Xi( 2) = 1.137595427276255482867614587938D+00
       Xi( 3) = 1.400223484478566062872220698843D+00
@@ -6988,13 +6988,13 @@ C
       Xi(17) = 399.765074289033366328194318839451D+00
       Xi(18) = 568.077352225634511329044329386306D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 7E2 -----
-C
+!
+!     ----- K = 09 , R = 7E2 -----
+!
   927 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0037452979413056402919975806280541985593D+00
       Omega( 2) = 0.0119065364988764364785814981427536363157D+00
       Omega( 3) = 0.0312620574896743206805217914212580154754D+00
@@ -7004,7 +7004,7 @@ C
       Omega( 7) = 0.8157768943467678142010719721799461012779D+00
       Omega( 8) = 1.6825795696161266758704433410542833371437D+00
       Omega( 9) = 3.7132685721630956357432878922608665561711D+00
-C
+!
       Alpha( 1) = 0.0014095059934701930788443244670950227349D+00
       Alpha( 2) = 0.0087163949435635453861511518988680613518D+00
       Alpha( 3) = 0.0288802601170618445065656990783375945853D+00
@@ -7014,7 +7014,7 @@ C
       Alpha( 7) = 1.0486449545129898443035151855973197143612D+00
       Alpha( 8) = 2.2456262013296283809680314869083872508781D+00
       Alpha( 9) = 4.7740022239383786352602545566270464405534D+00
-C
+!
       Xi( 1) = 1.015237855473021364284894052510D+00
       Xi( 2) = 1.140489695132720713915616683742D+00
       Xi( 3) = 1.409061234383698115726554767058D+00
@@ -7034,13 +7034,13 @@ C
       Xi(17) = 453.319129539005994583567016320558D+00
       Xi(18) = 659.604619900343409066856281697255D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 8E2 -----
-C
+!
+!     ----- K = 09 , R = 8E2 -----
+!
   928 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0033852098812278768834514551403294668752D+00
       Omega( 2) = 0.0109774080736766307342131628217718475327D+00
       Omega( 3) = 0.0294590554580619398994140601538704871132D+00
@@ -7050,7 +7050,7 @@ C
       Omega( 7) = 0.8033826246878963353733292540592714203740D+00
       Omega( 8) = 1.6669487573286433863047756309683222752938D+00
       Omega( 9) = 3.6953768800115142395979611622536253889848D+00
-C
+!
       Alpha( 1) = 0.0012708763612674633672627278152371388398D+00
       Alpha( 2) = 0.0079473213793494062269487572015835841199D+00
       Alpha( 3) = 0.0267833433812802426014028269601885412499D+00
@@ -7060,7 +7060,7 @@ C
       Alpha( 7) = 1.0220320315021205132346993060821205290267D+00
       Alpha( 8) = 2.2049227056952739652734285513702161551919D+00
       Alpha( 9) = 4.7164964053301330262207846644173514505383D+00
-C
+!
       Xi( 1) = 1.015494846734757918623598405006D+00
       Xi( 2) = 1.142924036879366089781116799795D+00
       Xi( 3) = 1.416508618588864020534749676994D+00
@@ -7080,13 +7080,13 @@ C
       Xi(17) = 504.714364302674262402481630829243D+00
       Xi(18) = 750.435276622015730974002423181446D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 9E2 -----
-C
+!
+!     ----- K = 09 , R = 9E2 -----
+!
   929 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0030977424691614607340063927698459167459D+00
       Omega( 2) = 0.0102316638905545772966616227712954856344D+00
       Omega( 3) = 0.0279930901026207251671101914475281446926D+00
@@ -7096,7 +7096,7 @@ C
       Omega( 7) = 0.7929727209927074070040797781899755136692D+00
       Omega( 8) = 1.6537803753979151391746704735652429008042D+00
       Omega( 9) = 3.6802970160533538548051912808745100846863D+00
-C
+!
       Alpha( 1) = 0.0011602484211060985717217235472717429268D+00
       Alpha( 2) = 0.0073321764357024223340904170269360928813D+00
       Alpha( 3) = 0.0250950982980019906870734758275176545794D+00
@@ -7106,7 +7106,7 @@ C
       Alpha( 7) = 0.9999272003534077926873227526449738888914D+00
       Alpha( 8) = 2.1709623019090606504347823468847877848020D+00
       Alpha( 9) = 4.6683738668041492225410649119510253512999D+00
-C
+!
       Xi( 1) = 1.015715269904661042610176380219D+00
       Xi( 2) = 1.145013877896202366670971861673D+00
       Xi( 3) = 1.422912376064371018724932782540D+00
@@ -7126,13 +7126,13 @@ C
       Xi(17) = 554.184538502184091124380671544714D+00
       Xi(18) = 840.601406203501388902932234259424D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 1E3 -----
-C
+!
+!     ----- K = 09 , R = 1E3 -----
+!
   931 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0028624090304025796460983327093585693035D+00
       Omega( 2) = 0.0096180997032853235358422147593948636768D+00
       Omega( 3) = 0.0267727106569027455297690373803298768962D+00
@@ -7142,7 +7142,7 @@ C
       Omega( 7) = 0.7840601806864651043913611028202126362885D+00
       Omega( 8) = 1.6424763479445014240521577564280164551747D+00
       Omega( 9) = 3.6673470190152673215452233668187886905798D+00
-C
+!
       Alpha( 1) = 0.0010697132697980306932461928089324321167D+00
       Alpha( 2) = 0.0068276991894412194727555210325975476593D+00
       Alpha( 3) = 0.0237021379736091671702849807343294052941D+00
@@ -7152,7 +7152,7 @@ C
       Alpha( 7) = 0.9811811804065308630713911075549304996457D+00
       Alpha( 8) = 2.1420504811752469024200423719506147790526D+00
       Alpha( 9) = 4.6272998769299419703944498127867746006814D+00
-C
+!
       Xi( 1) = 1.015907400071548715553802766376D+00
       Xi( 2) = 1.146836899869768950548445940463D+00
       Xi( 3) = 1.428506324684849970426195331363D+00
@@ -7172,13 +7172,13 @@ C
       Xi(17) = 601.917721942256615852429035840032D+00
       Xi(18) = 930.129063527018485946218362414584D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 2E3 -----
-C
+!
+!     ----- K = 09 , R = 2E3 -----
+!
   932 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0017219984012311614023473319012857984944D+00
       Omega( 2) = 0.0065884426254116958339659862291248781929D+00
       Omega( 3) = 0.0204962747939638545263652761457828788139D+00
@@ -7188,7 +7188,7 @@ C
       Omega( 7) = 0.7339849281745116267323264525046511153050D+00
       Omega( 8) = 1.5784277751334237942845012403481064211519D+00
       Omega( 9) = 3.5938760022078233764050020360159010124335D+00
-C
+!
       Alpha( 1) = 0.0006313454889490319018397847304711195671D+00
       Alpha( 2) = 0.0043668469857874161270711748684958397604D+00
       Alpha( 3) = 0.0167545678178722372817405520881162139801D+00
@@ -7198,7 +7198,7 @@ C
       Alpha( 7) = 0.8789214132697631501897964079184077945683D+00
       Alpha( 8) = 1.9823948779811632675204591258477648807457D+00
       Alpha( 9) = 4.3986398388485846411809221390143420649110D+00
-C
+!
       Xi( 1) = 1.017049176702895268119275495877D+00
       Xi( 2) = 1.157698409290087672310690103394D+00
       Xi( 3) = 1.461985362290557343041552673668D+00
@@ -7218,13 +7218,13 @@ C
       Xi(17) = 1008.768050953667418712100811717391D+00
       Xi(18) = 1793.900715959898712004161325239693D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 3E3 -----
-C
+!
+!     ----- K = 09 , R = 3E3 -----
+!
   933 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0012962831308852621829681126030056614873D+00
       Omega( 2) = 0.0054180644503889189698053654303810944270D+00
       Omega( 3) = 0.0179136340878167857434044487469071427199D+00
@@ -7234,7 +7234,7 @@ C
       Omega( 7) = 0.7108062282245082569428692997881569226593D+00
       Omega( 8) = 1.5484532018565422108527518396670075162547D+00
       Omega( 9) = 3.5594302119364723932699867692264206198161D+00
-C
+!
       Alpha( 1) = 0.0004677826770463522486164677222216998209D+00
       Alpha( 2) = 0.0034369131730817087311227362670523755028D+00
       Alpha( 3) = 0.0140274848449730914044667265394572552850D+00
@@ -7244,7 +7244,7 @@ C
       Alpha( 7) = 0.8333436224059946878105382961354763438067D+00
       Alpha( 8) = 1.9100798947374523063889167895368359495478D+00
       Alpha( 9) = 4.2939725970702426905561965853053152386565D+00
-C
+!
       Xi( 1) = 1.017616265156594057691638588459D+00
       Xi( 2) = 1.163110781763274042535302732482D+00
       Xi( 3) = 1.478765111309849790942327896204D+00
@@ -7264,13 +7264,13 @@ C
       Xi(17) = 1329.806380711968678443035685177165D+00
       Xi(18) = 2607.084823743725834788165229838341D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 4E3 -----
-C
+!
+!     ----- K = 09 , R = 4E3 -----
+!
   934 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0010688850352942277345185288013780511296D+00
       Omega( 2) = 0.0047768063467026780887263930162195402218D+00
       Omega( 3) = 0.0164437571556601970830269751969177072226D+00
@@ -7280,7 +7280,7 @@ C
       Omega( 7) = 0.6967562347704147392309613484595587351578D+00
       Omega( 8) = 1.5301758899530688042261300507718146945990D+00
       Omega( 9) = 3.5384053951731580640004126703246356555610D+00
-C
+!
       Alpha( 1) = 0.0003803762514503546170662433837566032691D+00
       Alpha( 2) = 0.0029354867547009724771518262816452637942D+00
       Alpha( 3) = 0.0125188405641583705003004340500227797861D+00
@@ -7290,7 +7290,7 @@ C
       Alpha( 7) = 0.8062550457285698337446186445554019428528D+00
       Alpha( 8) = 1.8667285745423568974398972897255077896261D+00
       Alpha( 9) = 4.2308745838119774058602717836663487105398D+00
-C
+!
       Xi( 1) = 1.017972913409440976432313030742D+00
       Xi( 2) = 1.166520663629237118219354740756D+00
       Xi( 3) = 1.489369630213643176512051946592D+00
@@ -7310,13 +7310,13 @@ C
       Xi(17) = 1595.695540737967720867906962212146D+00
       Xi(18) = 3375.521036011437759905007283123268D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 5E3 -----
-C
+!
+!     ----- K = 09 , R = 5E3 -----
+!
   935 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0009260627770325222336527758290516260109D+00
       Omega( 2) = 0.0043656639391461567718954344709259007828D+00
       Omega( 3) = 0.0154761374940805984633387460194797746738D+00
@@ -7326,7 +7326,7 @@ C
       Omega( 7) = 0.6871166160166532573721001608824110462592D+00
       Omega( 8) = 1.5175870789580829839544862114308898526360D+00
       Omega( 9) = 3.5239144130064043321758082694117319988436D+00
-C
+!
       Alpha( 1) = 0.0003254404360101518881557299786881284898D+00
       Alpha( 2) = 0.0026180514674484443450536228902708613120D+00
       Alpha( 3) = 0.0115451773269337696752609781492004970005D+00
@@ -7336,7 +7336,7 @@ C
       Alpha( 7) = 0.7879045136257066413686123151904894257314D+00
       Alpha( 8) = 1.8371950908189229402555156522858226253447D+00
       Alpha( 9) = 4.1877312846909169937598127475553155818488D+00
-C
+!
       Xi( 1) = 1.018223491055936285850161415745D+00
       Xi( 2) = 1.168919254817437955126270543449D+00
       Xi( 3) = 1.496844550309035365475221479592D+00
@@ -7356,13 +7356,13 @@ C
       Xi(17) = 1821.993947312338340438486739003565D+00
       Xi(18) = 4103.125862949434461413034114229959D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 6E3 -----
-C
+!
+!     ----- K = 09 , R = 6E3 -----
+!
   936 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0008275446967731432786926443147170612269D+00
       Omega( 2) = 0.0040770928209128811744981358677203386875D+00
       Omega( 3) = 0.0147834768067865480155659491968977992116D+00
@@ -7372,7 +7372,7 @@ C
       Omega( 7) = 0.6800069561584170269724625157437003508676D+00
       Omega( 8) = 1.5082761105851120459874631363206276546407D+00
       Omega( 9) = 3.5131912499637148285854676421635645056085D+00
-C
+!
       Alpha( 1) = 0.0002875179253957972909773293786282050144D+00
       Alpha( 2) = 0.0023975729163532282753073832408038934538D+00
       Alpha( 3) = 0.0108584821309771691825234673188516065778D+00
@@ -7382,7 +7382,7 @@ C
       Alpha( 7) = 0.7744924306712252477856266164035758947648D+00
       Alpha( 8) = 1.8155216145202244967761170957309957429970D+00
       Alpha( 9) = 4.1559868654318949401059446469020031145192D+00
-C
+!
       Xi( 1) = 1.018411464449650201402608473700D+00
       Xi( 2) = 1.170720123158882433568248049305D+00
       Xi( 3) = 1.502465139934904708317493782221D+00
@@ -7402,13 +7402,13 @@ C
       Xi(17) = 2018.127927928557927450547992975771D+00
       Xi(18) = 4792.881465381862065910922865441535D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 7E3 -----
-C
+!
+!     ----- K = 09 , R = 7E3 -----
+!
   937 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0007552936323448430041703487061287985993D+00
       Omega( 2) = 0.0038622717168615726822444232354050730471D+00
       Omega( 3) = 0.0142598450027955562363895375410649535297D+00
@@ -7418,7 +7418,7 @@ C
       Omega( 7) = 0.6745080482776006745187537261276844446911D+00
       Omega( 8) = 1.5010591549296192516709663733465163204528D+00
       Omega( 9) = 3.5048765058635483835708379629636510799173D+00
-C
+!
       Alpha( 1) = 0.0002596868790846979322642372917410644173D+00
       Alpha( 2) = 0.0022348903483392374692937683679574978335D+00
       Alpha( 3) = 0.0103453966022495648471076889335362736233D+00
@@ -7428,7 +7428,7 @@ C
       Alpha( 7) = 0.7641900750527943561455149201755432386562D+00
       Alpha( 8) = 1.7988216034442439343740346990863088194601D+00
       Alpha( 9) = 4.1314779669129050722158058572830441335100D+00
-C
+!
       Xi( 1) = 1.018558731978950639162663505122D+00
       Xi( 2) = 1.172131936927446008915414121798D+00
       Xi( 3) = 1.506876523430133237350068975413D+00
@@ -7448,13 +7448,13 @@ C
       Xi(17) = 2190.358162303570911166872292596963D+00
       Xi(18) = 5447.138394667314925001733172393870D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 8E3 -----
-C
+!
+!     ----- K = 09 , R = 8E3 -----
+!
   938 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0006999750349259222250828226387191211000D+00
       Omega( 2) = 0.0036956292786038210907891552511189692254D+00
       Omega( 3) = 0.0138485816729835371586079546118996930204D+00
@@ -7464,7 +7464,7 @@ C
       Omega( 7) = 0.6701100499979678797664479905638046375316D+00
       Omega( 8) = 1.4952771916809653082172312799080771128502D+00
       Omega( 9) = 3.4982130048175731091425477714551561803091D+00
-C
+!
       Alpha( 1) = 0.0002383647610636543066935782918757368021D+00
       Alpha( 2) = 0.0021096524885159010384065933355404731664D+00
       Alpha( 3) = 0.0099462230796899336260355408041722302670D+00
@@ -7474,7 +7474,7 @@ C
       Alpha( 7) = 0.7559949292957711996566484702331223388683D+00
       Alpha( 8) = 1.7855045682887562425713787184200498359132D+00
       Alpha( 9) = 4.1119029053730469726486707049417645976064D+00
-C
+!
       Xi( 1) = 1.018677716815463165224257824359D+00
       Xi( 2) = 1.173273207018096588190834983489D+00
       Xi( 3) = 1.510445803105953123802833448774D+00
@@ -7494,13 +7494,13 @@ C
       Xi(17) = 2343.085202243852703141158144717338D+00
       Xi(18) = 6067.768060278267428397924732053070D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 9E3 -----
-C
+!
+!     ----- K = 09 , R = 9E3 -----
+!
   939 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0006562555949134862097456894652110909183D+00
       Omega( 2) = 0.0035623967101711022665845959205357940114D+00
       Omega( 3) = 0.0135163916656435436341326689763109314413D+00
@@ -7510,7 +7510,7 @@ C
       Omega( 7) = 0.6665045419456762991429130127407631789538D+00
       Omega( 8) = 1.4905304766796539943287530638471594102157D+00
       Omega( 9) = 3.4927411942424347814258045463731150448439D+00
-C
+!
       Alpha( 1) = 0.0002215041451664834586830238490322980693D+00
       Alpha( 2) = 0.0020101870345634199486422168199478699435D+00
       Alpha( 3) = 0.0096263287145913500154076488345145090619D+00
@@ -7520,7 +7520,7 @@ C
       Alpha( 7) = 0.7493060755473707331363562855752746827420D+00
       Alpha( 8) = 1.7746133568189385439030011926142549327778D+00
       Alpha( 9) = 4.0958729118449167887726358738831322625629D+00
-C
+!
       Xi( 1) = 1.018776069157263152419046203789D+00
       Xi( 2) = 1.174216979156755687858058878614D+00
       Xi( 3) = 1.513399629431814344404649830267D+00
@@ -7540,13 +7540,13 @@ C
       Xi(17) = 2479.529732791401696267996612732532D+00
       Xi(18) = 6656.264013706788183810658665606752D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 1E4 -----
-C
+!
+!     ----- K = 09 , R = 1E4 -----
+!
   941 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0006208594515187709415282896912614829521D+00
       Omega( 2) = 0.0034534126161566192116306856473018083165D+00
       Omega( 3) = 0.0132423168362171444399849953854619855065D+00
@@ -7556,7 +7556,7 @@ C
       Omega( 7) = 0.6634927640743865600138698401799786097399D+00
       Omega( 8) = 1.4865608254662938828103563304594558758254D+00
       Omega( 9) = 3.4881641795154761623472261522493909069453D+00
-C
+!
       Alpha( 1) = 0.0002078469652528859301345068560495227272D+00
       Alpha( 2) = 0.0019292989209037795216477166365849627017D+00
       Alpha( 3) = 0.0093641492864657089188382653455189341685D+00
@@ -7566,7 +7566,7 @@ C
       Alpha( 7) = 0.7437390948258375387058989602895309189989D+00
       Alpha( 8) = 1.7655336768516124521660737300976506958250D+00
       Alpha( 9) = 4.0824948352969070938280060634184565060423D+00
-C
+!
       Xi( 1) = 1.018858789375025899808999141349D+00
       Xi( 2) = 1.175011031484274259969156906092D+00
       Xi( 3) = 1.515886425956611331731897773789D+00
@@ -7586,13 +7586,13 @@ C
       Xi(17) = 2602.119680662271022031362122106657D+00
       Xi(18) = 7213.819733283016149893995816455572D+00
       GOTO 9999
-C
-C     ----- K = 09 , R = 3E4 (Best : R = 28393) -----
-C
+!
+!     ----- K = 09 , R = 3E4 (Best : R = 28393) -----
+!
   999 CONTINUE
-C
+!
       RIni = 3.0D+04
-C
+!
       Omega( 1) = 0.0004354299056155451189326690961860569229D+00
       Omega( 2) = 0.0028608520316584030092596681186037366196D+00
       Omega( 3) = 0.0117112913825153417034176557554037145792D+00
@@ -7602,7 +7602,7 @@ C
       Omega( 7) = 0.6460013499115237401077861678633240671843D+00
       Omega( 8) = 1.4634218815677372793051733146363346804719D+00
       Omega( 9) = 3.4614670015318758573060614613936536443362D+00
-C
+!
       Alpha( 1) = 0.0001362078758772922180869218623951687197D+00
       Alpha( 2) = 0.0014984233172990983195404520551471949652D+00
       Alpha( 3) = 0.0079304843136686811123963131500702594678D+00
@@ -7612,7 +7612,7 @@ C
       Alpha( 7) = 0.7117747229082216156863423262013412795568D+00
       Alpha( 8) = 1.7131253759530024614919987979710924719257D+00
       Alpha( 9) = 4.0050154343014464928054985115579711418832D+00
-C
+!
       Xi( 1) = 1.019349605390273929466163349566D+00
       Xi( 2) = 1.179727839421699866128898093187D+00
       Xi( 3) = 1.530686767100153370941943709038D+00
@@ -7632,20 +7632,20 @@ C
       Xi(17) = 3513.499234321727268337554050958715D+00
       Xi(18) = 12351.225064419754213318469737714622D+00
       GOTO 9999
-C
-C     ===== K = 10 =====
-C
+!
+!     ===== K = 10 =====
+!
  1000 CONTINUE
       GOTO (1011,1011,1011,1012,1013,1014,1015,1016,1017,1018,1019,1021,
      *      1022,1023,1024,1025,1026,1027,1028,1029,1031,1032,1033,1034,
      *      1035,1036,1037,1038,1039,1041,1099),InitR
-C
-C     ----- K = 10 , R = 1E1 -----
-C
+!
+!     ----- K = 10 , R = 1E1 -----
+!
  1011 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0851548884512817157106711121739017755772D+00
       Omega( 2) = 0.2041221377375185690611911551450852186917D+00
       Omega( 3) = 0.3387624704041514381172919834206425093726D+00
@@ -7656,7 +7656,7 @@ C
       Omega( 8) = 2.0553775439606230667627384534057455311995D+00
       Omega( 9) = 3.1013168392332142260427868540872964331356D+00
       Omega(10) = 5.3215604240635308100348943582957872422412D+00
-C
+!
       Alpha( 1) = 0.0330697624272925114554972508829067123770D+00
       Alpha( 2) = 0.1768078437824842392430508761225205205392D+00
       Alpha( 3) = 0.4464853448677116219906260696781430397095D+00
@@ -7667,7 +7667,7 @@ C
       Alpha( 8) = 5.2328732180584053819763501458339760574745D+00
       Alpha( 9) = 7.7617287680176058257443261201302675544866D+00
       Alpha(10) = 11.7952949791468539881417187942247437604237D+00
-C
+!
       Xi( 1) = 1.003934043651302852277057420238D+00
       Xi( 2) = 1.035597560330198496896664250855D+00
       Xi( 3) = 1.099946515856572986790003210178D+00
@@ -7689,13 +7689,13 @@ C
       Xi(19) = 9.586495357975749287068878423668D+00
       Xi(20) = 9.952473091634462124335791521901D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 2E1 -----
-C
+!
+!     ----- K = 10 , R = 2E1 -----
+!
  1012 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0513720958134025681927881633315191578504D+00
       Omega( 2) = 0.1248594580087193300568662937544139879265D+00
       Omega( 3) = 0.2128344130226482852554382302345814537148D+00
@@ -7706,7 +7706,7 @@ C
       Omega( 8) = 1.7234803772519538559099619434711314625019D+00
       Omega( 9) = 2.7403911047158000403173305770110346202273D+00
       Omega(10) = 4.9150273553728394682060809373069787397981D+00
-C
+!
       Alpha( 1) = 0.0199190782019326982112128465729483650648D+00
       Alpha( 2) = 0.1072334417383124932971112143464953447847D+00
       Alpha( 3) = 0.2744085978174513274971662440959718765043D+00
@@ -7717,7 +7717,7 @@ C
       Alpha( 8) = 3.8758067491779373346227205443526031558577D+00
       Alpha( 9) = 6.0582950800444962447845187458739246721962D+00
       Alpha(10) = 9.7118480399069814258672383999737576232292D+00
-C
+!
       Xi( 1) = 1.005376604124994693195173367517D+00
       Xi( 2) = 1.048763421907059670040891774523D+00
       Xi( 3) = 1.137541925740631291530738367079D+00
@@ -7739,13 +7739,13 @@ C
       Xi(19) = 18.771523113469569298342176644212D+00
       Xi(20) = 19.856318263968247872161554390402D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 3E1 -----
-C
+!
+!     ----- K = 10 , R = 3E1 -----
+!
  1013 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0378829891316186436572269104899879366144D+00
       Omega( 2) = 0.0930163245037145861547622782694588750019D+00
       Omega( 3) = 0.1617466336454914180433906426004320167067D+00
@@ -7756,7 +7756,7 @@ C
       Omega( 8) = 1.5734470164829399977312815450680716367060D+00
       Omega( 9) = 2.5740012849105933854902683588505851730588D+00
       Omega(10) = 4.7268570117366334642008962596548826695653D+00
-C
+!
       Alpha( 1) = 0.0146720893474109634543403883795431585924D+00
       Alpha( 2) = 0.0793869117946712017544041301020385503762D+00
       Alpha( 3) = 0.2051749781339107614426065309687352566925D+00
@@ -7767,7 +7767,7 @@ C
       Alpha( 8) = 3.2995507853921115116319073834461050864775D+00
       Alpha( 9) = 5.3237296721066788398116220726308256416814D+00
       Alpha(10) = 8.8014613611571692972784797248664290236775D+00
-C
+!
       Xi( 1) = 1.006260876037949373641190720097D+00
       Xi( 2) = 1.056862976860428054949256337913D+00
       Xi( 3) = 1.160831214850607703750057231318D+00
@@ -7789,13 +7789,13 @@ C
       Xi(19) = 27.729559759629049972215475428072D+00
       Xi(20) = 29.731006308352625576787997552231D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 4E1 -----
-C
+!
+!     ----- K = 10 , R = 4E1 -----
+!
  1014 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0304283542679826195679411611483278221613D+00
       Omega( 2) = 0.0753370830029148128009893956025244676766D+00
       Omega( 3) = 0.1331690520655589057678631209613584474027D+00
@@ -7806,7 +7806,7 @@ C
       Omega( 8) = 1.4812981052443766873333644285004595531063D+00
       Omega( 9) = 2.4704999769201472898348670437229657181888D+00
       Omega(10) = 4.6095978515266311219961137268796846910845D+00
-C
+!
       Alpha( 1) = 0.0117740251702337547500765916989873272058D+00
       Alpha( 2) = 0.0639700951282584003517481079092998896840D+00
       Alpha( 3) = 0.1666917616889322231515588312866782416677D+00
@@ -7817,7 +7817,7 @@ C
       Alpha( 8) = 2.9631424352797224503787421046041572481045D+00
       Alpha( 9) = 4.8893793130761661856753530486230374663137D+00
       Alpha(10) = 8.2575316823540801510969422416508223250275D+00
-C
+!
       Xi( 1) = 1.006899144780989947909471959875D+00
       Xi( 2) = 1.062723543495707518853447826057D+00
       Xi( 3) = 1.177761340350092555961936113818D+00
@@ -7839,13 +7839,13 @@ C
       Xi(19) = 36.516222241626955218735117725259D+00
       Xi(20) = 39.582863294995880239918184528847D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 5E1 -----
-C
+!
+!     ----- K = 10 , R = 5E1 -----
+!
  1015 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0256360764998129773236843712697075048368D+00
       Omega( 2) = 0.0639288721978045180823380273793521411108D+00
       Omega( 3) = 0.1146131231768703616989810330217824940746D+00
@@ -7856,7 +7856,7 @@ C
       Omega( 8) = 1.4166433883580459902494161350539059185394D+00
       Omega( 9) = 2.3972309879960180553724186092168224604393D+00
       Omega(10) = 4.5265143423641330715570529896751850174041D+00
-C
+!
       Alpha( 1) = 0.0099118398530477141314073454003708008031D+00
       Alpha( 2) = 0.0540446717644748341431780273846907647339D+00
       Alpha( 3) = 0.1418346518220869974035791907795989175156D+00
@@ -7867,7 +7867,7 @@ C
       Alpha( 8) = 2.7363110644426438824126923687884982427931D+00
       Alpha( 9) = 4.5934743313426938901046503449521196671412D+00
       Alpha(10) = 7.8839620327921848055852116488040337571874D+00
-C
+!
       Xi( 1) = 1.007397524921629083536830928658D+00
       Xi( 2) = 1.067308174745297444981767531758D+00
       Xi( 3) = 1.191052363596173063612151943325D+00
@@ -7889,13 +7889,13 @@ C
       Xi(19) = 45.162035093038253464464704123316D+00
       Xi(20) = 49.415398342449165687562118165488D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 6E1 -----
-C
+!
+!     ----- K = 10 , R = 6E1 -----
+!
  1016 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0222692249040388280981964813642903777691D+00
       Omega( 2) = 0.0558880663046408164463683867356769141566D+00
       Omega( 3) = 0.1014636556552278832694230503719268199347D+00
@@ -7906,7 +7906,7 @@ C
       Omega( 8) = 1.3677291102282897400713168600816516118357D+00
       Omega( 9) = 2.3414239803231609166056514936826715711504D+00
       Omega(10) = 4.4631975323559974601697608598271926894085D+00
-C
+!
       Alpha( 1) = 0.0086040646080336160600617306098980563434D+00
       Alpha( 2) = 0.0470627087261883153550430774342272499666D+00
       Alpha( 3) = 0.1242996631171070397297857661189635081200D+00
@@ -7917,7 +7917,7 @@ C
       Alpha( 8) = 2.5701128719246770133483731557433316083916D+00
       Alpha( 9) = 4.3748135182289043707513920278273644726141D+00
       Alpha(10) = 7.6060959473532058099966290942717250800342D+00
-C
+!
       Xi( 1) = 1.007805439364083889943260463617D+00
       Xi( 2) = 1.071066197625785616364020580438D+00
       Xi( 3) = 1.201978120630536587599458686615D+00
@@ -7939,13 +7939,13 @@ C
       Xi(19) = 53.686820000316714349142266371473D+00
       Xi(20) = 59.230909829919811071530233448357D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 7E1 -----
-C
+!
+!     ----- K = 10 , R = 7E1 -----
+!
  1017 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0197607384753493559913451122281302652084D+00
       Omega( 2) = 0.0498802316575754729679071514114596652689D+00
       Omega( 3) = 0.0915913970615895810505752150376679310284D+00
@@ -7956,7 +7956,7 @@ C
       Omega( 8) = 1.3288768434592462668606197007115099495422D+00
       Omega( 9) = 2.2968563750443367990107523812781664673821D+00
       Omega(10) = 4.4126139217534362389934454729001345185679D+00
-C
+!
       Alpha( 1) = 0.0076300405792137536050681514282478801192D+00
       Alpha( 2) = 0.0418550058743523850566224404207149589752D+00
       Alpha( 3) = 0.1111879397803506057252460013928807569528D+00
@@ -7967,7 +7967,7 @@ C
       Alpha( 8) = 2.4415582485058356129563328362763741097297D+00
       Alpha( 9) = 4.2044568362569176688675609554479706275743D+00
       Alpha(10) = 7.3884269231485020785858697234260716868448D+00
-C
+!
       Xi( 1) = 1.008150014524303845044397864861D+00
       Xi( 2) = 1.074244696826699676161717689205D+00
       Xi( 3) = 1.211241091789887549981345749028D+00
@@ -7989,13 +7989,13 @@ C
       Xi(19) = 62.104689349878719990122322158754D+00
       Xi(20) = 69.031045631153914177158270604195D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 8E1 -----
-C
+!
+!     ----- K = 10 , R = 8E1 -----
+!
  1018 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0178119645779939205493930774737432187749D+00
       Omega( 2) = 0.0452010429992078838318486470881918393161D+00
       Omega( 3) = 0.0838686860067898385246972295381517881196D+00
@@ -8006,7 +8006,7 @@ C
       Omega( 8) = 1.2969458549711413536094720133640123549412D+00
       Omega( 9) = 2.2600630049093749383750523440639312866551D+00
       Omega(10) = 4.3708423865441739823364808437133888219250D+00
-C
+!
       Alpha( 1) = 0.0068735846308498890855135895257971290206D+00
       Alpha( 2) = 0.0378052651777488056238627801841634124003D+00
       Alpha( 3) = 0.1009686477595863478192708337366489956821D+00
@@ -8017,7 +8017,7 @@ C
       Alpha( 8) = 2.3382521089266642320102229657408088314696D+00
       Alpha( 9) = 4.0667052456180286103097631933422917427379D+00
       Alpha(10) = 7.2115952445320296061714859803259969339706D+00
-C
+!
       Xi( 1) = 1.008447777913406502949857090901D+00
       Xi( 2) = 1.076994369922411397700462432070D+00
       Xi( 3) = 1.219270759862891835112290450649D+00
@@ -8039,13 +8039,13 @@ C
       Xi(19) = 70.426307830426652024924383255211D+00
       Xi(20) = 78.817056210728345402860561819125D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 9E1 -----
-C
+!
+!     ----- K = 10 , R = 9E1 -----
+!
  1019 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0162498298873089111255316576223894919906D+00
       Omega( 2) = 0.0414415425972865049722947128341132838614D+00
       Omega( 3) = 0.0776387647291330781353872053651699047805D+00
@@ -8056,7 +8056,7 @@ C
       Omega( 8) = 1.2700319870608946222576701723383507669496D+00
       Omega( 9) = 2.2289313489910051518591571628746805799892D+00
       Omega(10) = 4.3354907748034642064709209829942437863792D+00
-C
+!
       Alpha( 1) = 0.0062673829680089525943469932686702428271D+00
       Alpha( 2) = 0.0345560641043288385510564176411607562045D+00
       Alpha( 3) = 0.0927525124197384534383741330754169496231D+00
@@ -8067,7 +8067,7 @@ C
       Alpha( 8) = 2.2528493904765100892383794528583962346602D+00
       Alpha( 9) = 3.9522041796110818614919807378882410375809D+00
       Alpha(10) = 7.0640128564798895837231751393403555994155D+00
-C
+!
       Xi( 1) = 1.008709550799474295615203167653D+00
       Xi( 2) = 1.079414015510788574540509965338D+00
       Xi( 3) = 1.226349205084010790772590382414D+00
@@ -8089,13 +8089,13 @@ C
       Xi(19) = 78.660058441117475559745120250454D+00
       Xi(20) = 88.589934153812753173107275017628D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 1E2 -----
-C
+!
+!     ----- K = 10 , R = 1E2 -----
+!
  1021 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0149667333303671774160669197782647099615D+00
       Omega( 2) = 0.0383470287811951085504445432827758111216D+00
       Omega( 3) = 0.0724914643973222100692215506823057324937D+00
@@ -8106,7 +8106,7 @@ C
       Omega( 8) = 1.2469010750155313586558583627272867033753D+00
       Omega( 9) = 2.2020857411608898814361912066317472636001D+00
       Omega(10) = 4.3050004878976240942252406984636081688222D+00
-C
+!
       Alpha( 1) = 0.0057695950967900246555054735806550292310D+00
       Alpha( 2) = 0.0318850373523618157524438330302496424906D+00
       Alpha( 3) = 0.0859854511862230953773761008007703310341D+00
@@ -8117,7 +8117,7 @@ C
       Alpha( 8) = 2.1806860194693055696787270525405233456695D+00
       Alpha( 9) = 3.8549835889359444251241887391401519380452D+00
       Alpha(10) = 6.9382543120618274915152590143208044537460D+00
-C
+!
       Xi( 1) = 1.008942800663505860595328678109D+00
       Xi( 2) = 1.081571842562595240776375515868D+00
       Xi( 3) = 1.232671760475624759558453680253D+00
@@ -8139,13 +8139,13 @@ C
       Xi(19) = 86.812756991639693997242499534650D+00
       Xi(20) = 98.350485614697928909988533519027D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 2E2 -----
-C
+!
+!     ----- K = 10 , R = 2E2 -----
+!
  1022 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0086915765856702453875327267322770108393D+00
       Omega( 2) = 0.0230969157217989523684319695673305972150D+00
       Omega( 3) = 0.0467619442529359648299560042045142083111D+00
@@ -8156,7 +8156,7 @@ C
       Omega( 8) = 1.1144275238224498491721933812748090986133D+00
       Omega( 9) = 2.0466210507551132822667144806061401141051D+00
       Omega(10) = 4.1283173287555058033476695911190290644299D+00
-C
+!
       Alpha( 1) = 0.0033373898429685276293693579766422296906D+00
       Alpha( 2) = 0.0187829201025006288636507280689902366078D+00
       Alpha( 3) = 0.0525560175455382537018861680011561077208D+00
@@ -8167,7 +8167,7 @@ C
       Alpha( 8) = 1.7897496715257404193907819767161981872050D+00
       Alpha( 9) = 3.3196100790475945492303405659484383249946D+00
       Alpha(10) = 6.2374001617059706020253229130645422628731D+00
-C
+!
       Xi( 1) = 1.010443336959742160639438846026D+00
       Xi( 2) = 1.095495276973907675674771433627D+00
       Xi( 3) = 1.273697812479731929485166075366D+00
@@ -8189,13 +8189,13 @@ C
       Xi(19) = 164.812157020091428330510474609127D+00
       Xi(20) = 195.389707710008929869571758786151D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 3E2 -----
-C
+!
+!     ----- K = 10 , R = 3E2 -----
+!
  1023 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0063194806278197052362891983183501576349D+00
       Omega( 2) = 0.0172560047833030945709404139695730684423D+00
       Omega( 3) = 0.0366472048428242284041141552802800518407D+00
@@ -8206,7 +8206,7 @@ C
       Omega( 8) = 1.0505752343277138402760986779505003596569D+00
       Omega( 9) = 1.9705361918601552558482845056708754327701D+00
       Omega(10) = 4.0417630245914110847550715366338636158616D+00
-C
+!
       Alpha( 1) = 0.0024194723389312347069082440292192570652D+00
       Alpha( 2) = 0.0138046334311983167548093303853007363102D+00
       Alpha( 3) = 0.0396925971499723762111360488707978433354D+00
@@ -8217,7 +8217,7 @@ C
       Alpha( 8) = 1.6150345745196448490757848426291332089022D+00
       Alpha( 9) = 3.0746551660908783176924530256002299211104D+00
       Alpha(10) = 5.9113092020828519575562087773334951634752D+00
-C
+!
       Xi( 1) = 1.011281696362410611089895084991D+00
       Xi( 2) = 1.103306398274419302838952883228D+00
       Xi( 3) = 1.296889679570163099865502676078D+00
@@ -8239,13 +8239,13 @@ C
       Xi(19) = 238.035976555240286464676380262517D+00
       Xi(20) = 291.598770626314468118467360113755D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 4E2 -----
-C
+!
+!     ----- K = 10 , R = 4E2 -----
+!
  1024 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0050414887113661361037624832320130918717D+00
       Omega( 2) = 0.0140800054500074398739956657404526207955D+00
       Omega( 3) = 0.0310367263079246550432213147888149684661D+00
@@ -8256,7 +8256,7 @@ C
       Omega( 8) = 1.0104385988466745368999713527990991224215D+00
       Omega( 9) = 1.9222796166689597670328495948588454211858D+00
       Omega(10) = 3.9868277184968530305053668882919737370685D+00
-C
+!
       Alpha( 1) = 0.0019254909170795910657038692770023913248D+00
       Alpha( 2) = 0.0111128914345121174053033314896299366126D+00
       Alpha( 3) = 0.0326715796695796239417029088736299513585D+00
@@ -8267,7 +8267,7 @@ C
       Alpha( 8) = 1.5097794912507614131184224826043305256462D+00
       Alpha( 9) = 2.9250174225165053239379464589120516393450D+00
       Alpha(10) = 5.7101524172963629357065162839290906049428D+00
-C
+!
       Xi( 1) = 1.011853390856991647133063250141D+00
       Xi( 2) = 1.108646476666356957751710665683D+00
       Xi( 3) = 1.312818245875861967899948801186D+00
@@ -8289,13 +8289,13 @@ C
       Xi(19) = 307.737175259318556874710282045271D+00
       Xi(20) = 387.133073207267179111079613562652D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 5E2 -----
-C
+!
+!     ----- K = 10 , R = 5E2 -----
+!
  1025 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0042324685609204748920790582593365325437D+00
       Omega( 2) = 0.0120546370748870361851306522681104294037D+00
       Omega( 3) = 0.0273986415737904902802037250542088742122D+00
@@ -8306,7 +8306,7 @@ C
       Omega( 8) = 0.9819685015827939782379410460499968849035D+00
       Omega( 9) = 1.8878328906613232435716953627746761412709D+00
       Omega(10) = 3.9475916782101656337874984181723903020611D+00
-C
+!
       Alpha( 1) = 0.0016130554450903338090927353529711874014D+00
       Alpha( 2) = 0.0094040709862812426859680339438773977179D+00
       Alpha( 3) = 0.0281792896456298726902417331810490885857D+00
@@ -8317,7 +8317,7 @@ C
       Alpha( 8) = 1.4372483830045267496483551994401750562247D+00
       Alpha( 9) = 2.8208885751505575071110265561458163574571D+00
       Alpha(10) = 5.5692173765763346026010094380609416475636D+00
-C
+!
       Xi( 1) = 1.012281851750328150402538640584D+00
       Xi( 2) = 1.112655829018262414881190736082D+00
       Xi( 3) = 1.324817075799919270065636844880D+00
@@ -8339,13 +8339,13 @@ C
       Xi(19) = 374.596819945121224632034184764962D+00
       Xi(20) = 482.078964309526471265776592645125D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 6E2 -----
-C
+!
+!     ----- K = 10 , R = 6E2 -----
+!
  1026 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0036700303900818465139500916755502246680D+00
       Omega( 2) = 0.0106377997883372633690940585980688748435D+00
       Omega( 3) = 0.0248163213140422915740365217632246164214D+00
@@ -8356,7 +8356,7 @@ C
       Omega( 8) = 0.9603068597394762664258907602921055968181D+00
       Omega( 9) = 1.8614967394761155464926252744994883414620D+00
       Omega(10) = 3.9175799473154924604332421944619113673980D+00
-C
+!
       Alpha( 1) = 0.0013960043685149540151937456685694860514D+00
       Alpha( 2) = 0.0082132548876076855998078587485500268173D+00
       Alpha( 3) = 0.0250272674132974799887917669374837181806D+00
@@ -8367,7 +8367,7 @@ C
       Alpha( 8) = 1.3832418428333822428642069235493750056776D+00
       Alpha( 9) = 2.7427730207536506401230780305411371955415D+00
       Alpha(10) = 5.4629433264669168906178808864382290266803D+00
-C
+!
       Xi( 1) = 1.012621454662819640043895652592D+00
       Xi( 2) = 1.115838165453791844586826920160D+00
       Xi( 3) = 1.334365050983588460919646023761D+00
@@ -8389,13 +8389,13 @@ C
       Xi(19) = 439.055243665943953190744508674470D+00
       Xi(20) = 576.493245747046950178127389108340D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 7E2 -----
-C
+!
+!     ----- K = 10 , R = 7E2 -----
+!
  1027 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0032542049889380949915407986467591472390D+00
       Omega( 2) = 0.0095845715277716938660811010070039728248D+00
       Omega( 3) = 0.0228716368797110218745124478323393901746D+00
@@ -8406,7 +8406,7 @@ C
       Omega( 8) = 0.9430492834876176160593778952101473578296D+00
       Omega( 9) = 1.8404331172312120606026838998126038404735D+00
       Omega(10) = 3.8935670915039185988829745221906364349707D+00
-C
+!
       Alpha( 1) = 0.0012356310955025927425262089495543171846D+00
       Alpha( 2) = 0.0073310324723258707728122175219243050748D+00
       Alpha( 3) = 0.0226776888586415631861574904865053170511D+00
@@ -8417,7 +8417,7 @@ C
       Alpha( 8) = 1.3409422950604044433081316056721732365986D+00
       Alpha( 9) = 2.6812225946438997526127118176120234238624D+00
       Alpha(10) = 5.3788596769382154365833625941917262025527D+00
-C
+!
       Xi( 1) = 1.012900857627860401314646987547D+00
       Xi( 2) = 1.118459326721759505883849183938D+00
       Xi( 3) = 1.342245589900514743842037390653D+00
@@ -8439,13 +8439,13 @@ C
       Xi(19) = 501.424828964952372711838535224160D+00
       Xi(20) = 670.416864260303763611847926995324D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 8E2 -----
-C
+!
+!     ----- K = 10 , R = 8E2 -----
+!
  1028 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0029330749052116580108893871157646482395D+00
       Omega( 2) = 0.0087672082685003208973357905278711577068D+00
       Omega( 3) = 0.0213446274367968236463239664266189343778D+00
@@ -8456,7 +8456,7 @@ C
       Omega( 8) = 0.9288450627750289506981418163888974959264D+00
       Omega( 9) = 1.8230399046731256502756543524945698209194D+00
       Omega(10) = 3.8737316934718114202432920345486877522490D+00
-C
+!
       Alpha( 1) = 0.0011118450661519535918240580681451423750D+00
       Alpha( 2) = 0.0066484639002268138156620752663578111097D+00
       Alpha( 3) = 0.0208496197653120780107457218205402327271D+00
@@ -8467,7 +8467,7 @@ C
       Alpha( 8) = 1.3066088455436533010637495388905904292187D+00
       Alpha( 9) = 2.6310144253057876860806690855199008183263D+00
       Alpha(10) = 5.3100363236689658024032578698125917071593D+00
-C
+!
       Xi( 1) = 1.013136955479273742511056588533D+00
       Xi( 2) = 1.120676286477326305339972944974D+00
       Xi( 3) = 1.348922273258674577652710402376D+00
@@ -8489,13 +8489,13 @@ C
       Xi(19) = 561.941036587875227037436332011566D+00
       Xi(20) = 763.881072280655437523044781755743D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 9E2 -----
-C
+!
+!     ----- K = 10 , R = 9E2 -----
+!
  1029 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0026768722975028171728839701841093368095D+00
       Omega( 2) = 0.0081121894164151209087417122335639252384D+00
       Omega( 3) = 0.0201076998512748532391228870400134987051D+00
@@ -8506,7 +8506,7 @@ C
       Omega( 8) = 0.9168662209932350510600829185392512954422D+00
       Omega( 9) = 1.8083310522241474101482958114495147583511D+00
       Omega(10) = 3.8569524630728154492020909316352117457427D+00
-C
+!
       Alpha( 1) = 0.0010131325949005472269497042832331334949D+00
       Alpha( 2) = 0.0061029931115648970293762832009520913346D+00
       Alpha( 3) = 0.0193811446162218188716495079551571656395D+00
@@ -8517,7 +8517,7 @@ C
       Alpha( 8) = 1.2779919332611943687434685745785145627451D+00
       Alpha( 9) = 2.5889883766039190108286527358671946785762D+00
       Alpha(10) = 5.2522618822502933752169318459834812529152D+00
-C
+!
       Xi( 1) = 1.013340506069180610372766626615D+00
       Xi( 2) = 1.122589180203960424787867911078D+00
       Xi( 3) = 1.354691599735056251529660698019D+00
@@ -8539,13 +8539,13 @@ C
       Xi(19) = 620.788700367442668193174171165083D+00
       Xi(20) = 856.910708122485446525118391036813D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 1E3 -----
-C
+!
+!     ----- K = 10 , R = 1E3 -----
+!
  1031 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0024672464939504652393320415079344676279D+00
       Omega( 2) = 0.0075740393679528136391924269567310634699D+00
       Omega( 3) = 0.0190813545239317744910730999946535391132D+00
@@ -8556,7 +8556,7 @@ C
       Omega( 8) = 0.9065719038631264092235190199531302823743D+00
       Omega( 9) = 1.7956602125219735557838315886947100352700D+00
       Omega(10) = 3.8424941566456491484106428035971703138785D+00
-C
+!
       Alpha( 1) = 0.0009323990731474346103138267389132815000D+00
       Alpha( 2) = 0.0056560052513406161738321840937171458563D+00
       Alpha( 3) = 0.0181719764811097294023625172906810654183D+00
@@ -8567,7 +8567,7 @@ C
       Alpha( 8) = 1.2536454845296414365536305512982551135792D+00
       Alpha( 9) = 2.5531023689261667071817574203862477588700D+00
       Alpha(10) = 5.2028048639403972550065979874034383101389D+00
-C
+!
       Xi( 1) = 1.013518771925512285039111537444D+00
       Xi( 2) = 1.124265631526049065186563524765D+00
       Xi( 3) = 1.359754378828921279800251431524D+00
@@ -8589,13 +8589,13 @@ C
       Xi(19) = 678.117414638977752505688556539098D+00
       Xi(20) = 949.526067440132668984187347405168D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 2E3 -----
-C
+!
+!     ----- K = 10 , R = 2E3 -----
+!
  1032 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0014526807816713179251917649882457073129D+00
       Omega( 2) = 0.0049297471955163571493195942292003808305D+00
       Omega( 3) = 0.0138551513028217050564071840916546829447D+00
@@ -8606,7 +8606,7 @@ C
       Omega( 8) = 0.8478938111702770348337629413570937231270D+00
       Omega( 9) = 1.7228690042716290663563083462861413863720D+00
       Omega(10) = 3.7593552654949775578344106641281996417092D+00
-C
+!
       Alpha( 1) = 0.0005421696478208119686995916880565410390D+00
       Alpha( 2) = 0.0034806730732080148226928955441580870733D+00
       Alpha( 3) = 0.0121808446627809141984838674395430491160D+00
@@ -8617,7 +8617,7 @@ C
       Alpha( 8) = 1.1191922258880422136112162134757852527400D+00
       Alpha( 9) = 2.3525743224761141579766399178907931855065D+00
       Alpha(10) = 4.9242248867504468650552196251624081924092D+00
-C
+!
       Xi( 1) = 1.014597792749656095289204071896D+00
       Xi( 2) = 1.134436845099320007208831828649D+00
       Xi( 3) = 1.390599483503960958718885521090D+00
@@ -8639,13 +8639,13 @@ C
       Xi(19) = 1188.115962211603321430075652642699D+00
       Xi(20) = 1855.702942249214593473105594512162D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 3E3 -----
-C
+!
+!     ----- K = 10 , R = 3E3 -----
+!
  1033 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0010738804618956168932148597825945723905D+00
       Omega( 2) = 0.0039152313311347269926616563272270266083D+00
       Omega( 3) = 0.0117284581530090255200150881759180165886D+00
@@ -8656,7 +8656,7 @@ C
       Omega( 8) = 0.8200399624470611673163374100159472845917D+00
       Omega( 9) = 1.6879552117417538126308354518023691070994D+00
       Omega(10) = 3.7194242684483121124793675305042484069418D+00
-C
+!
       Alpha( 1) = 0.0003967302317420766487669641541446638455D+00
       Alpha( 2) = 0.0026604835814450934334069928926397308189D+00
       Alpha( 3) = 0.0098489286120088280087307578206101688068D+00
@@ -8667,7 +8667,7 @@ C
       Alpha( 8) = 1.0579265306400313928492096238187514245510D+00
       Alpha( 9) = 2.2597542577639734308597024847742318343080D+00
       Alpha(10) = 4.7939093124023811104579551045645757767488D+00
-C
+!
       Xi( 1) = 1.015150512195101957795169422827D+00
       Xi( 2) = 1.139662893625249794190765206814D+00
       Xi( 3) = 1.406534849554869738802280465517D+00
@@ -8689,13 +8689,13 @@ C
       Xi(19) = 1617.989737536047364030444839499978D+00
       Xi(20) = 2730.560653699768991486962477210909D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 4E3 -----
-C
+!
+!     ----- K = 10 , R = 4E3 -----
+!
  1034 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0008710258738679722909390542499950133015D+00
       Omega( 2) = 0.0033608319216372058163594838554183441559D+00
       Omega( 3) = 0.0105209015614479294216962543956350728536D+00
@@ -8706,7 +8706,7 @@ C
       Omega( 8) = 0.8028142821879096244306467378137881496514D+00
       Omega( 9) = 1.6662385945818383603143561511039649758459D+00
       Omega(10) = 3.6945668905108900519854847610545789393655D+00
-C
+!
       Alpha( 1) = 0.0003189013513191434614517324352316388070D+00
       Alpha( 2) = 0.0022180408379182630683261988335797099126D+00
       Alpha( 3) = 0.0085622083802234129730279006340043501666D+00
@@ -8717,7 +8717,7 @@ C
       Alpha( 8) = 1.0208561605370438546977820970518280319084D+00
       Alpha( 9) = 2.2031043684761797731008758916004808270372D+00
       Alpha(10) = 4.7139161935991886124945604574776325534913D+00
-C
+!
       Xi( 1) = 1.015506565858864634942573812459D+00
       Xi( 2) = 1.143035114280607693749806930139D+00
       Xi( 3) = 1.416848829360455259648333969924D+00
@@ -8739,13 +8739,13 @@ C
       Xi(19) = 1993.591017126431915174045172989281D+00
       Xi(20) = 3578.011512315118128224611382393050D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 5E3 -----
-C
+!
+!     ----- K = 10 , R = 5E3 -----
+!
  1035 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0007431794401095743669437292025069935475D+00
       Omega( 2) = 0.0030055420983453206422728796977025811366D+00
       Omega( 3) = 0.0097249569761531400332958945814665341345D+00
@@ -8756,7 +8756,7 @@ C
       Omega( 8) = 0.7907883037645155538744590195676664734492D+00
       Omega( 9) = 1.6510183817369136722663994221171890330879D+00
       Omega(10) = 3.6771356408478858242890735530394863417314D+00
-C
+!
       Alpha( 1) = 0.0002698635605074361434595552571144225218D+00
       Alpha( 2) = 0.0019374881805125896826202009119374802815D+00
       Alpha( 3) = 0.0077316581226501765259868437837192933770D+00
@@ -8767,7 +8767,7 @@ C
       Alpha( 8) = 0.9953449891370984821750700355380558903562D+00
       Alpha( 9) = 2.1638931456033836848735357749617946865328D+00
       Alpha(10) = 4.6583347845772465202311696241821437070030D+00
-C
+!
       Xi( 1) = 1.015761905522425848232524747683D+00
       Xi( 2) = 1.145456265549093649732358135562D+00
       Xi( 3) = 1.424269242260172810038594548576D+00
@@ -8789,13 +8789,13 @@ C
       Xi(19) = 2328.357007035189155885746004059911D+00
       Xi(20) = 4400.318794246789840141076410873211D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 6E3 -----
-C
+!
+!     ----- K = 10 , R = 6E3 -----
+!
  1036 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0006546460868159010347083298598722111983D+00
       Omega( 2) = 0.0027559343285720026859823156024226209482D+00
       Omega( 3) = 0.0091533655076862242054661902498913228499D+00
@@ -8806,7 +8806,7 @@ C
       Omega( 8) = 0.7817777963990977949321550810601877401496D+00
       Omega( 9) = 1.6395819121798266358291246147516062592331D+00
       Omega(10) = 3.6640322363638034132773957374240580975311D+00
-C
+!
       Alpha( 1) = 0.0002359054779922201880353551623295017825D+00
       Alpha( 2) = 0.0017421610274382283694814347045805302816D+00
       Alpha( 3) = 0.0071448724389958750840038618351579557952D+00
@@ -8817,7 +8817,7 @@ C
       Alpha( 8) = 0.9764291736433913701498875370443641941165D+00
       Alpha( 9) = 2.1346954872130372662421271545696299654082D+00
       Alpha(10) = 4.6168309999158093559143423156854169064900D+00
-C
+!
       Xi( 1) = 1.015956987048296602019724355070D+00
       Xi( 2) = 1.147307628546274119174519512399D+00
       Xi( 3) = 1.429951990212024972920143439659D+00
@@ -8839,13 +8839,13 @@ C
       Xi(19) = 2630.654446316201495292830259131733D+00
       Xi(20) = 5199.087330578308051798330780002289D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 7E3 -----
-C
+!
+!     ----- K = 10 , R = 7E3 -----
+!
  1037 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0005894337117817897871925262719573074266D+00
       Omega( 2) = 0.0025697219209575387010189239343771472335D+00
       Omega( 3) = 0.0087192982240147648271186265299392825767D+00
@@ -8856,7 +8856,7 @@ C
       Omega( 8) = 0.7747051418395835614347233466503439558437D+00
       Omega( 9) = 1.6305850484217997494341273467810538022604D+00
       Omega(10) = 3.6537205359673349575229395203024296279182D+00
-C
+!
       Alpha( 1) = 0.0002108892791676530489045705884024184407D+00
       Alpha( 2) = 0.0015975896285734081348582562667227924269D+00
       Alpha( 3) = 0.0067051290145370598709271604299930746862D+00
@@ -8867,7 +8867,7 @@ C
       Alpha( 8) = 0.9617003167186997781125737394525287982106D+00
       Alpha( 9) = 2.1118856540803401934495997505081277267891D+00
       Alpha(10) = 4.5843367189279305151661247919037123210728D+00
-C
+!
       Xi( 1) = 1.016112431848799921166662252325D+00
       Xi( 2) = 1.148783819519298703311360743129D+00
       Xi( 3) = 1.434488586048307485597969046509D+00
@@ -8889,13 +8889,13 @@ C
       Xi(19) = 2906.228803626507716018068094854243D+00
       Xi(20) = 5975.583040521315707938043715330423D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 8E3 -----
-C
+!
+!     ----- K = 10 , R = 8E3 -----
+!
  1038 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0005392552127602062085177379348061715847D+00
       Omega( 2) = 0.0024247926212958021032482688579892671221D+00
       Omega( 3) = 0.0083764286534713166290939804527193590644D+00
@@ -8906,7 +8906,7 @@ C
       Omega( 8) = 0.7689669348259188687961206143395287426756D+00
       Omega( 9) = 1.6232725366290187618209528430668342480203D+00
       Omega(10) = 3.6453370534672855701654320403903852820804D+00
-C
+!
       Alpha( 1) = 0.0001916362889846043065853641168007868989D+00
       Alpha( 2) = 0.0014858556424114500268540757402062346682D+00
       Alpha( 3) = 0.0063615903805791639624878260322188294751D+00
@@ -8917,7 +8917,7 @@ C
       Alpha( 8) = 0.9498272260709862341906267735325286594161D+00
       Alpha( 9) = 2.0934494387115830259151610936996235068364D+00
       Alpha(10) = 4.5580268727262413749369562854241166860447D+00
-C
+!
       Xi( 1) = 1.016240074424546586972541162286D+00
       Xi( 2) = 1.149996640003310312294106110276D+00
       Xi( 3) = 1.438219369245532938900514197123D+00
@@ -8939,13 +8939,13 @@ C
       Xi(19) = 3159.281593163338799579165083741827D+00
       Xi(20) = 6730.860033210824243887770990113495D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 9E3 -----
-C
+!
+!     ----- K = 10 , R = 9E3 -----
+!
  1039 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0004993672899010212969344114431521214348D+00
       Omega( 2) = 0.0023083851082641087179457485990125009678D+00
       Omega( 3) = 0.0080975548740404425835813419926045853003D+00
@@ -8956,7 +8956,7 @@ C
       Omega( 8) = 0.7641947978821455716427410442825873815309D+00
       Omega( 9) = 1.6171820561365553377188714057055562989262D+00
       Omega(10) = 3.6383529487866477763330363970339931256603D+00
-C
+!
       Alpha( 1) = 0.0001763278642964950008481394511735025621D+00
       Alpha( 2) = 0.0013966738489163576343957964224357093386D+00
       Alpha( 3) = 0.0060847863738081463643708594359049701694D+00
@@ -8967,7 +8967,7 @@ C
       Alpha( 8) = 0.9400053232670322994851512532488158058186D+00
       Alpha( 9) = 2.0781646409684503076526623788211622922972D+00
       Alpha(10) = 4.5361826641383027796175508861153957695933D+00
-C
+!
       Xi( 1) = 1.016347286163623462804106445390D+00
       Xi( 2) = 1.151015790821104004676422860598D+00
       Xi( 3) = 1.441356899587345926781918603599D+00
@@ -8989,13 +8989,13 @@ C
       Xi(19) = 3393.010515303080970150872985868773D+00
       Xi(20) = 7465.825669118156909132011378460447D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 1E4 -----
-C
+!
+!     ----- K = 10 , R = 1E4 -----
+!
  1041 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0004668500190071136037058161189026300741D+00
       Omega( 2) = 0.0022125830949226374988479443175343197581D+00
       Omega( 3) = 0.0078655446011830261521978946079314276574D+00
@@ -9006,7 +9006,7 @@ C
       Omega( 8) = 0.7601490813086587507488821324752592545337D+00
       Omega( 9) = 1.6120121524724761282376314652786675196694D+00
       Omega(10) = 3.6324233181727452956458895849678469858191D+00
-C
+!
       Alpha( 1) = 0.0001638448168262916940862950973285122602D+00
       Alpha( 2) = 0.0013236958800674285022613046645077738983D+00
       Alpha( 3) = 0.0058563634806415089364502364350367757950D+00
@@ -9017,7 +9017,7 @@ C
       Alpha( 8) = 0.9317156300794014760126987573229939698649D+00
       Alpha( 9) = 2.0652402323623246008753306934835336505785D+00
       Alpha(10) = 4.5176891627407891488012181557820667876513D+00
-C
+!
       Xi( 1) = 1.016438941992472549339515675015D+00
       Xi( 2) = 1.151887410843916417150893660715D+00
       Xi( 3) = 1.444041938087961746682054420265D+00
@@ -9039,13 +9039,13 @@ C
       Xi(19) = 3609.930576169334359937224121495092D+00
       Xi(20) = 8181.271691613231036743769664099091D+00
       GOTO 9999
-C
-C     ----- K = 10 , R = 1E5 (Best : R = 56503) -----
-C
+!
+!     ----- K = 10 , R = 1E5 (Best : R = 56503) -----
+!
  1099 CONTINUE
-C
+!
       RIni = 1.0D+05
-C
+!
       Omega( 1) = 0.0002188017493762318239417294425826730764D+00
       Omega( 2) = 0.0014375664500890244128473657598404900071D+00
       Omega( 3) = 0.0058848743519528664629849115403487092024D+00
@@ -9056,7 +9056,7 @@ C
       Omega( 8) = 0.7222915374704975218400800074380896376169D+00
       Omega( 9) = 1.5633339391232095614897232294104867378337D+00
       Omega(10) = 3.5765361929512171882024340607841850214754D+00
-C
+!
       Alpha( 1) = 0.0000684439013883050839929452714076145436D+00
       Alpha( 2) = 0.0007529515955878675215771287905844322275D+00
       Alpha( 3) = 0.0039850355998364926202256629163972467822D+00
@@ -9067,7 +9067,7 @@ C
       Alpha( 8) = 0.8557928463574533264955450373445700051889D+00
       Alpha( 9) = 1.9457922045681717026794493863306456660212D+00
       Alpha(10) = 4.3457510815955149355814535194753034375026D+00
-C
+!
       Xi( 1) = 1.017332022553130616709937683595D+00
       Xi( 2) = 1.160396353209442369671874906167D+00
       Xi( 3) = 1.470341637704521359350171016978D+00
@@ -9089,20 +9089,20 @@ C
       Xi(19) = 6992.095093521639840528081322190701D+00
       Xi(20) = 24579.752122908689996094722118868958D+00
       GOTO 9999
-C
-C     ===== K = 11 =====
-C
+!
+!     ===== K = 11 =====
+!
  1100 CONTINUE
       GOTO (1111,1111,1111,1112,1113,1114,1115,1116,1117,1118,1119,1121,
      *      1122,1123,1124,1125,1126,1127,1128,1129,1131,1132,1133,1134,
      *      1135,1136,1137,1138,1139,1141,1199),InitR
-C
-C     ----- K = 11 , R = 1E1 -----
-C
+!
+!     ----- K = 11 , R = 1E1 -----
+!
  1111 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0775418031116303837967595156965838754104D+00
       Omega( 2) = 0.1849123891997807165503506926507171215235D+00
       Omega( 3) = 0.3038503048558095734777567686890620279883D+00
@@ -9114,7 +9114,7 @@ C
       Omega( 9) = 2.2427211748928490614354153143139569692721D+00
       Omega(10) = 3.3086113852215574260545033480340748610615D+00
       Omega(11) = 5.5609371683070527290528028974136987017118D+00
-C
+!
       Alpha( 1) = 0.0301309885271363365100741023641650606635D+00
       Alpha( 2) = 0.1606809945496051955719481532658399203228D+00
       Alpha( 3) = 0.4037750551486719004321696013803943969833D+00
@@ -9126,7 +9126,7 @@ C
       Alpha( 9) = 6.2650017998353700757543927046810949832434D+00
       Alpha(10) = 8.9909992515811430506197932110978854325367D+00
       Alpha(11) = 13.2454300125589543215415266885770506632980D+00
-C
+!
       Xi( 1) = 1.003273313513527648056442020952D+00
       Xi( 2) = 1.029590869049646218238991401961D+00
       Xi( 3) = 1.082926499973093964869844119114D+00
@@ -9150,13 +9150,13 @@ C
       Xi(21) = 9.659796125678525681619579490444D+00
       Xi(22) = 9.961142800362639472544490359951D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 2E1 -----
-C
+!
+!     ----- K = 11 , R = 2E1 -----
+!
  1112 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0466937996822860070988069850633772617243D+00
       Omega( 2) = 0.1126033802262315067067399536326899323058D+00
       Omega( 3) = 0.1890391440443657539844084930491519003226D+00
@@ -9168,7 +9168,7 @@ C
       Omega( 9) = 1.8993330622314406922693935664270270535781D+00
       Omega(10) = 2.9368796146680767613322549092202962128795D+00
       Omega(11) = 5.1400782864171481395879070852572567673633D+00
-C
+!
       Alpha( 1) = 0.0181210797127243208924727430053636112461D+00
       Alpha( 2) = 0.0971750380905392633493276692557838458697D+00
       Alpha( 3) = 0.2467985172992078721931506410380841032293D+00
@@ -9180,7 +9180,7 @@ C
       Alpha( 9) = 4.6805076135644237333641171083797871688148D+00
       Alpha(10) = 7.0492221261381141847457421079070627456531D+00
       Alpha(11) = 10.9116044227192424539638060387858331523603D+00
-C
+!
       Xi( 1) = 1.004488687272064465568106872428D+00
       Xi( 2) = 1.040655880503802272613045332150D+00
       Xi( 3) = 1.114370866869753685913201068924D+00
@@ -9204,13 +9204,13 @@ C
       Xi(21) = 18.991985340400373383912269176221D+00
       Xi(22) = 19.883248872480938938822614403534D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 3E1 -----
-C
+!
+!     ----- K = 11 , R = 3E1 -----
+!
  1113 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0343853828194110494539958728515971486672D+00
       Omega( 2) = 0.0836001053696773024971632994051251586143D+00
       Omega( 3) = 0.1425876773323265062450764320556295672304D+00
@@ -9222,7 +9222,7 @@ C
       Omega( 9) = 1.7427500950293133717607790833525882590038D+00
       Omega(10) = 2.7645508616331733189007413553639480596757D+00
       Omega(11) = 4.9444585797781260795222268988879932294367D+00
-C
+!
       Alpha( 1) = 0.0133321421683787708297889767691812856754D+00
       Alpha( 2) = 0.0717844674758855171126212431353952325708D+00
       Alpha( 3) = 0.1837505079175499636242110956807493948872D+00
@@ -9234,7 +9234,7 @@ C
       Alpha( 9) = 4.0041452021372941614575646784857099191868D+00
       Alpha(10) = 6.2084129877437377363971759969274444301846D+00
       Alpha(11) = 9.8885546801249998207644642533864498545881D+00
-C
+!
       Xi( 1) = 1.005238982501608224241762545859D+00
       Xi( 2) = 1.047506997148030853444708454525D+00
       Xi( 3) = 1.133953004614822940255766670070D+00
@@ -9258,13 +9258,13 @@ C
       Xi(21) = 28.140092899406508115262015579106D+00
       Xi(22) = 29.782364787011379817990852636456D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 4E1 -----
-C
+!
+!     ----- K = 11 , R = 4E1 -----
+!
  1114 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0275873899402055327081950686363143177005D+00
       Omega( 2) = 0.0675179313170176000007236156996714981915D+00
       Omega( 3) = 0.1166597880630956601271546770048903596262D+00
@@ -9276,7 +9276,7 @@ C
       Omega( 9) = 1.6460013694707742813033712891979121195618D+00
       Omega(10) = 2.6569503323667347158536927720362541549548D+00
       Omega(11) = 4.8222004072349348761071519131604645735933D+00
-C
+!
       Alpha( 1) = 0.0106884539456373632020807530607076074602D+00
       Alpha( 2) = 0.0577396059898886379488326323072833190508D+00
       Alpha( 3) = 0.1487543597431635365247251656661831020756D+00
@@ -9288,7 +9288,7 @@ C
       Alpha( 9) = 3.6076327856256673880415430932799836227787D+00
       Alpha(10) = 5.7096768822342786236026523916109454148682D+00
       Alpha(11) = 9.2758730438427994067357440499677068146411D+00
-C
+!
       Xi( 1) = 1.005783326006271300085727349316D+00
       Xi( 2) = 1.052487601408567548114461609465D+00
       Xi( 3) = 1.148244607841531594546492789366D+00
@@ -9312,13 +9312,13 @@ C
       Xi(21) = 37.149516720183049747761039327543D+00
       Xi(22) = 39.663654492691002611398642940799D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 5E1 -----
-C
+!
+!     ----- K = 11 , R = 5E1 -----
+!
  1115 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0232195566793358917775057497639989989580D+00
       Omega( 2) = 0.0571513181735215659321164369949253014624D+00
       Omega( 3) = 0.0998552854507156438591580945030035110221D+00
@@ -9330,7 +9330,7 @@ C
       Omega( 9) = 1.5778155724565829864328853071597791313252D+00
       Omega(10) = 2.5805592790528422068689617940862035538885D+00
       Omega(11) = 4.7353741399348671268706989501140469656093D+00
-C
+!
       Alpha( 1) = 0.0089905001583754167007777116649158699602D+00
       Alpha( 2) = 0.0487041770923081894940215308409392491740D+00
       Alpha( 3) = 0.1261762122605637203871103979579970655323D+00
@@ -9342,7 +9342,7 @@ C
       Alpha( 9) = 3.3393616918465426032010950896378176366852D+00
       Alpha(10) = 5.3690541246141367530582411138340148681891D+00
       Alpha(11) = 8.8542885137191006629173162245649564283667D+00
-C
+!
       Xi( 1) = 1.006210109757504921426142507901D+00
       Xi( 2) = 1.056398646441784029150444401690D+00
       Xi( 3) = 1.159500533992196700345742033100D+00
@@ -9366,13 +9366,13 @@ C
       Xi(21) = 46.045079807836921025054888190198D+00
       Xi(22) = 49.529969194038888841147283415012D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 6E1 -----
-C
+!
+!     ----- K = 11 , R = 6E1 -----
+!
  1116 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0201523470175281204055153230422781085451D+00
       Omega( 2) = 0.0498513967434951159696883329214278646191D+00
       Omega( 3) = 0.0879662646198283677617061476761151084247D+00
@@ -9384,7 +9384,7 @@ C
       Omega( 9) = 1.5260458052374904870185715055619368740736D+00
       Omega(10) = 2.5222361903145047716968268902704153333616D+00
       Omega(11) = 4.6690760135659036588265391465313314256491D+00
-C
+!
       Alpha( 1) = 0.0077985503072843401969374522390149317985D+00
       Alpha( 2) = 0.0423524201109992350250692174501443432177D+00
       Alpha( 3) = 0.1102652551111842159071952870763588805403D+00
@@ -9396,7 +9396,7 @@ C
       Alpha( 9) = 3.1422391785388204986026461362769168772502D+00
       Alpha(10) = 5.1168202530289228812179769256829331425251D+00
       Alpha(11) = 8.5402070139792344233634069361471574666211D+00
-C
+!
       Xi( 1) = 1.006560623915288661504863210183D+00
       Xi( 2) = 1.059614804442524975619868699006D+00
       Xi( 3) = 1.168778918256115415875463769968D+00
@@ -9420,13 +9420,13 @@ C
       Xi(21) = 54.842855007443132461103507679923D+00
       Xi(22) = 59.383169485026616251505116039766D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 7E1 -----
-C
+!
+!     ----- K = 11 , R = 7E1 -----
+!
  1117 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0178680837427477367867698077041893611749D+00
       Omega( 2) = 0.0444015974630119514095422973698479296445D+00
       Omega( 3) = 0.0790534342226611162648920380635608751163D+00
@@ -9438,7 +9438,7 @@ C
       Omega( 9) = 1.4848031156704543130154042018808979719324D+00
       Omega(10) = 2.4755646905106925954008489920710189835518D+00
       Omega(11) = 4.6160207288556499025458657037290777225280D+00
-C
+!
       Alpha( 1) = 0.0069111231519738776855104537936991260239D+00
       Alpha( 2) = 0.0376175443778602281864995200699741673134D+00
       Alpha( 3) = 0.0983788554316176733961925825189265282233D+00
@@ -9450,7 +9450,7 @@ C
       Alpha( 9) = 2.9893905748368822881521483791900095638994D+00
       Alpha(10) = 4.9199519381062117805679390070139334056876D+00
       Alpha(11) = 8.2938255368030769556358938743301223439630D+00
-C
+!
       Xi( 1) = 1.006857599192093716614082588023D+00
       Xi( 2) = 1.062342605357837705478026013584D+00
       Xi( 3) = 1.176664399235137160783931653540D+00
@@ -9474,13 +9474,13 @@ C
       Xi(21) = 63.554269878117245724108430593446D+00
       Xi(22) = 69.224585099912302292579635576431D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 8E1 -----
-C
+!
+!     ----- K = 11 , R = 8E1 -----
+!
  1118 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0160941951431383953638438273278654655485D+00
       Omega( 2) = 0.0401601741924849507256662425186410914080D+00
       Omega( 3) = 0.0720906972120942371015021692126634178521D+00
@@ -9492,7 +9492,7 @@ C
       Omega( 9) = 1.4508208171080411968533602218300870845269D+00
       Omega(10) = 2.4369656699328211739517119349685003726336D+00
       Omega(11) = 4.5721418768127472043519277100642739242176D+00
-C
+!
       Alpha( 1) = 0.0062221568462019169464015996146022402513D+00
       Alpha( 2) = 0.0339374511936524437029913999624985976311D+00
       Alpha( 3) = 0.0891223549172805987108204189839355535696D+00
@@ -9504,7 +9504,7 @@ C
       Alpha( 9) = 2.8662979670373295178718853204458127947873D+00
       Alpha(10) = 4.7605096085039891777926368554574310110183D+00
       Alpha(11) = 8.0934197853927114085087479722346870403271D+00
-C
+!
       Xi( 1) = 1.007114911323129302742236668156D+00
       Xi( 2) = 1.064708254106896957421127258847D+00
       Xi( 3) = 1.183514884140128698439622945138D+00
@@ -9528,13 +9528,13 @@ C
       Xi(21) = 72.187931301061125745344160264949D+00
       Xi(22) = 79.055224610952105873673545488600D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 9E1 -----
-C
+!
+!     ----- K = 11 , R = 9E1 -----
+!
  1119 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0146727601814103851884249431376805450356D+00
       Omega( 2) = 0.0367546982817821544715951916776353058935D+00
       Omega( 3) = 0.0664809481604872105456089000086183915528D+00
@@ -9546,7 +9546,7 @@ C
       Omega( 9) = 1.4221134659936936344174981949883829202008D+00
       Omega(10) = 2.4042539239717671687227018573196346551413D+00
       Omega(11) = 4.5349558958883104250667250845197031594580D+00
-C
+!
       Alpha( 1) = 0.0056702141892506984487967117841700215308D+00
       Alpha( 2) = 0.0309862655699217783785727724915615155510D+00
       Alpha( 3) = 0.0816860387399204145020530781762246874678D+00
@@ -9558,7 +9558,7 @@ C
       Alpha( 9) = 2.7643431184907410428242685584976356949483D+00
       Alpha(10) = 4.6277899426647656983338507963310348714003D+00
       Alpha(11) = 7.9259744054270826574097597028156769738416D+00
-C
+!
       Xi( 1) = 1.007341663573080700199054160482D+00
       Xi( 2) = 1.066794619685856562035786154752D+00
       Xi( 3) = 1.189565740566661882176950626455D+00
@@ -9582,13 +9582,13 @@ C
       Xi(21) = 80.750605961361787560326419566081D+00
       Xi(22) = 88.875884517700640997939220966373D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 1E2 -----
-C
+!
+!     ----- K = 11 , R = 1E2 -----
+!
  1121 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0135056228913994452729794171902399924079D+00
       Omega( 2) = 0.0339533364876027449583584683773240797677D+00
       Omega( 3) = 0.0618515718361504429331830610255815727783D+00
@@ -9600,7 +9600,7 @@ C
       Omega( 9) = 1.3973915223155492387231702000605082503171D+00
       Omega(10) = 2.3760047579964309286560536493837503257964D+00
       Omega(11) = 4.5028432521787169753521573589694071415579D+00
-C
+!
       Alpha( 1) = 0.0052171157900164305121616745847257234914D+00
       Alpha( 2) = 0.0285613209731876607790204474976447635015D+00
       Alpha( 3) = 0.0755656714563188581487750486442855901714D+00
@@ -9612,7 +9612,7 @@ C
       Alpha( 9) = 2.6780450591320426989138531181922076029878D+00
       Alpha(10) = 4.5149547171879260030677438741975038283272D+00
       Alpha(11) = 7.7831431411206166304933562472001540299971D+00
-C
+!
       Xi( 1) = 1.007544151737991758224083360673D+00
       Xi( 2) = 1.068659033452348684181849869379D+00
       Xi( 3) = 1.194980270598195126806155552668D+00
@@ -9636,13 +9636,13 @@ C
       Xi(21) = 89.247781400980597130145888229436D+00
       Xi(22) = 98.687213059750639010392347927336D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 2E2 -----
-C
+!
+!     ----- K = 11 , R = 2E2 -----
+!
  1122 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0078046543400422635145728894948136122878D+00
       Omega( 2) = 0.0201790394732283336855016087421632597909D+00
       Omega( 3) = 0.0388177376499393517197641391425211310207D+00
@@ -9654,7 +9654,7 @@ C
       Omega( 9) = 1.2547944496604302322016397108761509571195D+00
       Omega(10) = 2.2115303605695885785179660709687254893652D+00
       Omega(11) = 4.3158752146954668738390581417263547336916D+00
-C
+!
       Alpha( 1) = 0.0030056959919188562807105142291388966136D+00
       Alpha( 2) = 0.0166858950303621396647486396086490501034D+00
       Alpha( 3) = 0.0454121585139150468891477540472889629086D+00
@@ -9666,7 +9666,7 @@ C
       Alpha( 9) = 2.2076885241065623104173010204931415501051D+00
       Alpha(10) = 3.8906895639880266766531813349416779601597D+00
       Alpha(11) = 6.9840797596545937373814505466640412123525D+00
-C
+!
       Xi( 1) = 1.008857660934746233814124360961D+00
       Xi( 2) = 1.080784273809255970695726578601D+00
       Xi( 3) = 1.230364761635588597733781401899D+00
@@ -9690,13 +9690,13 @@ C
       Xi(21) = 171.364500755064211867662038457638D+00
       Xi(22) = 196.376475465801705613810845818534D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 3E2 -----
-C
+!
+!     ----- K = 11 , R = 3E2 -----
+!
  1123 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0056543295301813358414011055803893857075D+00
       Omega( 2) = 0.0149238456038072123943028965929735729645D+00
       Omega( 3) = 0.0298410617506146968957271093172978204677D+00
@@ -9708,7 +9708,7 @@ C
       Omega( 9) = 1.1853197469033224647214433411512857219350D+00
       Omega(10) = 2.1303494112152294552315484610360840633803D+00
       Omega(11) = 4.2235788700889298776484925834751038564718D+00
-C
+!
       Alpha( 1) = 0.0021727378031523375944273458000230436760D+00
       Alpha( 2) = 0.0121865964288996270824291085453638938674D+00
       Alpha( 3) = 0.0338656294644117483577108133202537842976D+00
@@ -9720,7 +9720,7 @@ C
       Alpha( 9) = 1.9954974609163636708455621948665736908879D+00
       Alpha(10) = 3.6029405911917065715322633367989624275651D+00
       Alpha(11) = 6.6099436566276548320371386768812271839124D+00
-C
+!
       Xi( 1) = 1.009600799991315490770904528262D+00
       Xi( 2) = 1.087668626770462309769071929111D+00
       Xi( 3) = 1.250588229153527876618551273324D+00
@@ -9744,13 +9744,13 @@ C
       Xi(21) = 249.601758117843898668319901901214D+00
       Xi(22) = 293.453465815889291107287917270696D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 4E2 -----
-C
+!
+!     ----- K = 11 , R = 4E2 -----
+!
  1124 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0044976260521517319245515960889070239404D+00
       Omega( 2) = 0.0120741168056918430547008215525384144939D+00
       Omega( 3) = 0.0248952788581032363513678056302080854323D+00
@@ -9762,7 +9762,7 @@ C
       Omega( 9) = 1.1413356299301324647040706272704824186803D+00
       Omega(10) = 2.0785533474380979603989699766586340956565D+00
       Omega(11) = 4.1646774569138222208547484015639383869711D+00
-C
+!
       Alpha( 1) = 0.0017251108842001406274932291868597078466D+00
       Alpha( 2) = 0.0097587036631565804408185399280994953841D+00
       Alpha( 3) = 0.0275863189794949365422823414975561640006D+00
@@ -9774,7 +9774,7 @@ C
       Alpha( 9) = 1.8668735332583040877974314697418378727889D+00
       Alpha(10) = 3.4262637969634559642444215921130989954690D+00
       Alpha(11) = 6.3781033361686373488186330149574132519774D+00
-C
+!
       Xi( 1) = 1.010112021550399436756358106937D+00
       Xi( 2) = 1.092414881681432928250963243499D+00
       Xi( 3) = 1.264587592050053307447289585586D+00
@@ -9798,13 +9798,13 @@ C
       Xi(21) = 324.959591817497274235382320739518D+00
       Xi(22) = 390.041181302548662090945441605072D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 5E2 -----
-C
+!
+!     ----- K = 11 , R = 5E2 -----
+!
  1125 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0037662887410819571916741684437096582272D+00
       Omega( 2) = 0.0102607532707418736217397522113292662738D+00
       Omega( 3) = 0.0217061831502438882615679295595700892818D+00
@@ -9816,7 +9816,7 @@ C
       Omega( 9) = 1.1099636389059035398432437324878208073642D+00
       Omega(10) = 2.0414044190001449170963898627206845048931D+00
       Omega(11) = 4.1224225984546086082316307397377386223525D+00
-C
+!
       Alpha( 1) = 0.0014423138924763025197926043403928719755D+00
       Alpha( 2) = 0.0082197985891394618109204455065619487897D+00
       Alpha( 3) = 0.0235807105099614116229154395926181919663D+00
@@ -9828,7 +9828,7 @@ C
       Alpha( 9) = 1.7778182811830074268539050863502382071601D+00
       Alpha(10) = 3.3028236886633358783491726251568820771354D+00
       Alpha(11) = 6.2150744684586401466765137602266122485162D+00
-C
+!
       Xi( 1) = 1.010497815491529190363995116542D+00
       Xi( 2) = 1.096002240606849505622118201575D+00
       Xi( 3) = 1.275199737243853945439613084556D+00
@@ -9852,13 +9852,13 @@ C
       Xi(21) = 397.980376028435770652258440804871D+00
       Xi(22) = 486.207578566478576365117447721786D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 6E2 -----
-C
+!
+!     ----- K = 11 , R = 6E2 -----
+!
  1126 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0032583762595687854266888154727496718088D+00
       Omega( 2) = 0.0089945425144352905224046871440757300320D+00
       Omega( 3) = 0.0194534746653866053971984259596261779279D+00
@@ -9870,7 +9870,7 @@ C
       Omega( 9) = 1.0859847078241911882360432040073305870465D+00
       Omega(10) = 2.0128882604504029184278035558008923544548D+00
       Omega(11) = 4.0899797614649650006474201902051390788984D+00
-C
+!
       Alpha( 1) = 0.0012460394897290092060417434141617043508D+00
       Alpha( 2) = 0.0071487801396430483380248590598304847532D+00
       Alpha( 3) = 0.0207774988093894703261279221714885601102D+00
@@ -9882,7 +9882,7 @@ C
       Alpha( 9) = 1.7112485746366723854362465462308762198518D+00
       Alpha(10) = 3.2099066335151224178302842293675212204107D+00
       Alpha(11) = 6.0917531992763160613064965520635496432078D+00
-C
+!
       Xi( 1) = 1.010805372459477708096779735580D+00
       Xi( 2) = 1.098865619000078383549201532787D+00
       Xi( 3) = 1.283689514573291367335178270181D+00
@@ -9906,13 +9906,13 @@ C
       Xi(21) = 469.014081344866218648004263513940D+00
       Xi(22) = 581.997135078390529783209927927601D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 7E2 -----
-C
+!
+!     ----- K = 11 , R = 7E2 -----
+!
  1127 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0028831912480045087212277655835598877410D+00
       Omega( 2) = 0.0080547896960305267873784628579469924148D+00
       Omega( 3) = 0.0177641918678628270847818723665589857319D+00
@@ -9924,7 +9924,7 @@ C
       Omega( 9) = 1.0668055886728782982774202392484141910245D+00
       Omega(10) = 1.9900009359991648603179642540439431286359D+00
       Omega(11) = 4.0639355181090332552913679808881397548248D+00
-C
+!
       Alpha( 1) = 0.0011011368472607193091320547883270319911D+00
       Alpha( 2) = 0.0063561904304476650575254676085734661939D+00
       Alpha( 3) = 0.0186927643171768198647865553280178474438D+00
@@ -9936,7 +9936,7 @@ C
       Alpha( 9) = 1.6589340653420582790723847299574345015571D+00
       Alpha(10) = 3.1364760958078274867208423692943597416161D+00
       Alpha(11) = 5.9939098333794121674193700055610634080949D+00
-C
+!
       Xi( 1) = 1.011059676264312853452044527192D+00
       Xi( 2) = 1.101235574587819892418069644968D+00
       Xi( 3) = 1.290729288973113345214381586512D+00
@@ -9960,13 +9960,13 @@ C
       Xi(21) = 538.308905487260507150004684717715D+00
       Xi(22) = 677.441769430224394354933536988028D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 8E2 -----
-C
+!
+!     ----- K = 11 , R = 8E2 -----
+!
  1128 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0025936679815209045092815352611878565448D+00
       Omega( 2) = 0.0073265355590078712569803592348505194565D+00
       Omega( 3) = 0.0164427238548874570983523426756511831570D+00
@@ -9978,7 +9978,7 @@ C
       Omega( 9) = 1.0509646969145498192083759692039279798337D+00
       Omega(10) = 1.9710423046491469765148854542680112444941D+00
       Omega(11) = 4.0423577589097630046420517313521258984110D+00
-C
+!
       Alpha( 1) = 0.0009893735940206601844169881235582786339D+00
       Alpha( 2) = 0.0057435672506857186733056418008469545811D+00
       Alpha( 3) = 0.0170741427403647941375252738288592624372D+00
@@ -9990,7 +9990,7 @@ C
       Alpha( 9) = 1.6163458927661897599837095840236145249946D+00
       Alpha(10) = 3.0764177556541122311468267058742753761180D+00
       Alpha(11) = 5.9136220183418721921611571623600411840016D+00
-C
+!
       Xi( 1) = 1.011275517891623727307660873809D+00
       Xi( 2) = 1.103248794090624789756248380623D+00
       Xi( 3) = 1.296718497999818083574012639314D+00
@@ -10014,13 +10014,13 @@ C
       Xi(21) = 606.051488249862153390168373334745D+00
       Xi(22) = 772.565802767476019097259154477797D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 9E2 -----
-C
+!
+!     ----- K = 11 , R = 9E2 -----
+!
  1129 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0023628382210883959192670945772402069096D+00
       Omega( 2) = 0.0067436900257026460985495023257862978738D+00
       Omega( 3) = 0.0153759124610560547947820026794263359449D+00
@@ -10032,7 +10032,7 @@ C
       Omega( 9) = 1.0375637395027244186960016514298388301540D+00
       Omega(10) = 1.9549638627492123649177432898049744380842D+00
       Omega(11) = 4.0240548291653549630234043554821710131364D+00
-C
+!
       Alpha( 1) = 0.0009003070544349668756826245250447088297D+00
       Alpha( 2) = 0.0052544185410532049085930220416046365628D+00
       Alpha( 3) = 0.0157763948086487224303656271701123969819D+00
@@ -10044,7 +10044,7 @@ C
       Alpha( 9) = 1.5807541895705499766051557730683896352275D+00
       Alpha(10) = 3.0260253637311591221048523436820687493309D+00
       Alpha(11) = 5.8460680636665212756529486082257562884479D+00
-C
+!
       Xi( 1) = 1.011462352317341486618133827857D+00
       Xi( 2) = 1.104992721003111662845044826931D+00
       Xi( 3) = 1.301913484870989259748787214566D+00
@@ -10068,13 +10068,13 @@ C
       Xi(21) = 672.388667147153316072660800273297D+00
       Xi(22) = 867.388489463458042361132527275913D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 1E3 -----
-C
+!
+!     ----- K = 11 , R = 1E3 -----
+!
  1131 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0021740872264102924137251822292796199498D+00
       Omega( 2) = 0.0062654140734613558082574018628929657382D+00
       Omega( 3) = 0.0144934344125449496880266454096330974721D+00
@@ -10086,7 +10086,7 @@ C
       Omega( 9) = 1.0260142895533087236108887863039740295790D+00
       Omega(10) = 1.9410767529159068538234869660819015280140D+00
       Omega(11) = 4.0082438733806685813784720373575964913471D+00
-C
+!
       Alpha( 1) = 0.0008275060405979828267253562920375414835D+00
       Alpha( 2) = 0.0048538992490044590716160904843995416158D+00
       Alpha( 3) = 0.0147096837575472349300117818823863125033D+00
@@ -10098,7 +10098,7 @@ C
       Alpha( 9) = 1.5504001921788530224703347992765145590965D+00
       Alpha(10) = 2.9828994649313298984528303181562591817055D+00
       Alpha(11) = 5.7881154950766118133520521382706647273153D+00
-C
+!
       Xi( 1) = 1.011626577944182569612600886000D+00
       Xi( 2) = 1.106526584008231192429901057483D+00
       Xi( 3) = 1.306488004306895040059974255620D+00
@@ -10122,13 +10122,13 @@ C
       Xi(21) = 737.439254546925192723705322350725D+00
       Xi(22) = 961.925573460294248806512484861742D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 2E3 -----
-C
+!
+!     ----- K = 11 , R = 2E3 -----
+!
  1132 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0012623682047825584772750883767213070374D+00
       Omega( 2) = 0.0039256526753984839104248943247865710759D+00
       Omega( 3) = 0.0100465837533007697967448834490411524456D+00
@@ -10140,7 +10140,7 @@ C
       Omega( 9) = 0.9594751280677348143619866116527106214562D+00
       Omega(10) = 1.8604943398396530794981079681704727590841D+00
       Omega(11) = 3.9164423268801717532231615459537010792701D+00
-C
+!
       Alpha( 1) = 0.0004763386763845254530552357019948517269D+00
       Alpha( 2) = 0.0029099646551678040284737028833839111996D+00
       Alpha( 3) = 0.0094574935145634442861732431306887036726D+00
@@ -10152,7 +10152,7 @@ C
       Alpha( 9) = 1.3812552178932358922435960635333174195694D+00
       Alpha(10) = 2.7398655433520379364181057679772379742644D+00
       Alpha(11) = 5.4589664557360760804675947621689147126745D+00
-C
+!
       Xi( 1) = 1.012634485295069944484590285239D+00
       Xi( 2) = 1.115960417122124936450781873543D+00
       Xi( 3) = 1.334732406200042509596820350382D+00
@@ -10176,13 +10176,13 @@ C
       Xi(21) = 1333.340188188764327881230542516278D+00
       Xi(22) = 1893.776396022996856172149193753285D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 3E3 -----
-C
+!
+!     ----- K = 11 , R = 3E3 -----
+!
  1133 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0009228838994159140362278747997393235636D+00
       Omega( 2) = 0.0030346810581029129714051889750436874493D+00
       Omega( 3) = 0.0082645523392666875460888138704707017723D+00
@@ -10194,7 +10194,7 @@ C
       Omega( 9) = 0.9273310285024501460247013662208104278761D+00
       Omega(10) = 1.8211892895434077157407193325866501254495D+00
       Omega(11) = 3.8716236620173660497919859713178425408842D+00
-C
+!
       Alpha( 1) = 0.0003458600493587631532409070893091182497D+00
       Alpha( 2) = 0.0021800684483446950346975147256439742094D+00
       Alpha( 3) = 0.0074338002448057351524994453700889707193D+00
@@ -10206,7 +10206,7 @@ C
       Alpha( 9) = 1.3030115311584663801824229834025459240365D+00
       Alpha(10) = 2.6257268942687263856092944047659898387792D+00
       Alpha(11) = 5.3027692366205613138871455269907073670765D+00
-C
+!
       Xi( 1) = 1.013162307629898129250796412482D+00
       Xi( 2) = 1.120914469518859819590836379710D+00
       Xi( 3) = 1.349640187754250304752977329681D+00
@@ -10230,13 +10230,13 @@ C
       Xi(21) = 1858.189718002260019669158452870761D+00
       Xi(22) = 2804.971625837513768741970920927997D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 4E3 -----
-C
+!
+!     ----- K = 11 , R = 4E3 -----
+!
  1134 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0007412355914717758371035817772411180560D+00
       Omega( 2) = 0.0025500918289050421850566258358608551227D+00
       Omega( 3) = 0.0072606523430177817511419347939333190922D+00
@@ -10248,7 +10248,7 @@ C
       Omega( 9) = 0.9071881653619918974224348162671560658055D+00
       Omega(10) = 1.7964239050734691755233790599888266115158D+00
       Omega(11) = 3.8433675617984309610605797580262787960237D+00
-C
+!
       Alpha( 1) = 0.0002761320530126240699661397732427373097D+00
       Alpha( 2) = 0.0017871801758091304107081822910227386636D+00
       Alpha( 3) = 0.0063237062667975813191577881024196816639D+00
@@ -10260,7 +10260,7 @@ C
       Alpha( 9) = 1.2551208194212885533918785951890129126696D+00
       Alpha(10) = 2.5552713219979284167606564670549573747849D+00
       Alpha(11) = 5.2057929169179171491853297393248567459523D+00
-C
+!
       Xi( 1) = 1.013507909133304014655078961749D+00
       Xi( 2) = 1.124163449694987797081516256448D+00
       Xi( 3) = 1.359445665438874723592727056243D+00
@@ -10284,13 +10284,13 @@ C
       Xi(21) = 2333.268953940222266929538363910979D+00
       Xi(22) = 3698.566202684434597314222514796711D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 5E3 -----
-C
+!
+!     ----- K = 11 , R = 5E3 -----
+!
  1135 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0006267332758852317722579485079117261881D+00
       Omega( 2) = 0.0022404994313095141259883842947339682716D+00
       Omega( 3) = 0.0066017708522960727291522728919781481949D+00
@@ -10302,7 +10302,7 @@ C
       Omega( 9) = 0.8929659232509779923656415001609332193766D+00
       Omega(10) = 1.7788722459640630017873100254810481146706D+00
       Omega(11) = 3.8233333460474906823848423309541999515204D+00
-C
+!
       Alpha( 1) = 0.0002322146395909955911310504293710264834D+00
       Alpha( 2) = 0.0015383078777110473123499812322934054976D+00
       Alpha( 3) = 0.0056097155499255455726426665679501537554D+00
@@ -10314,7 +10314,7 @@ C
       Alpha( 9) = 1.2218328763756418393763084062619839187391D+00
       Alpha(10) = 2.5060164008391585472104723386621571989963D+00
       Alpha(11) = 5.1377321548383988246248843534402794830385D+00
-C
+!
       Xi( 1) = 1.013759180858394429625320143362D+00
       Xi( 2) = 1.126528252383917901827299623552D+00
       Xi( 3) = 1.366596914335719902358103061690D+00
@@ -10338,13 +10338,13 @@ C
       Xi(21) = 2769.870549675472343631454918977397D+00
       Xi(22) = 4576.245877897764160469051830659737D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 6E3 -----
-C
+!
+!     ----- K = 11 , R = 6E3 -----
+!
  1136 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0005473782929676091589050948712450589406D+00
       Omega( 2) = 0.0020234317344929258391381305705325477362D+00
       Omega( 3) = 0.0061296388124654699446628358314170803567D+00
@@ -10356,7 +10356,7 @@ C
       Omega( 9) = 0.8822012112666169261873845564014828823929D+00
       Omega(10) = 1.7655503222027704023511934794399280690413D+00
       Omega(11) = 3.8081221072884642157331536171938068946474D+00
-C
+!
       Alpha( 1) = 0.0002017946813401587113227188651355496762D+00
       Alpha( 2) = 0.0013650957954943520156917383286121481234D+00
       Alpha( 3) = 0.0051063430539639230514999362724182230266D+00
@@ -10368,7 +10368,7 @@ C
       Alpha( 9) = 1.1969260235286672264861523862222725256288D+00
       Alpha(10) = 2.4690046401427888621022549431316406298720D+00
       Alpha(11) = 5.0864407388447149165403016191078222618671D+00
-C
+!
       Xi( 1) = 1.013953504011853172452235771761D+00
       Xi( 2) = 1.128358627594889074187596567089D+00
       Xi( 3) = 1.372140064760185083512708525966D+00
@@ -10392,13 +10392,13 @@ C
       Xi(21) = 3175.115660441574632955052948091179D+00
       Xi(22) = 5439.118719873584542945366138155805D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 7E3 -----
-C
+!
+!     ----- K = 11 , R = 7E3 -----
+!
  1137 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0004888589654993823415061000240821459384D+00
       Omega( 2) = 0.0018616953743137684792181802762370268489D+00
       Omega( 3) = 0.0057714059692291130183748788535363916097D+00
@@ -10410,7 +10410,7 @@ C
       Omega( 9) = 0.8736723641609264178224322772159382566315D+00
       Omega(10) = 1.7549721269953933305840720890955708455294D+00
       Omega(11) = 3.7960404785939114290661128281456626609724D+00
-C
+!
       Alpha( 1) = 0.0001793701948587827513269946831881221372D+00
       Alpha( 2) = 0.0012368771763232082847653708337562483699D+00
       Alpha( 3) = 0.0047295378501987948447370308565490537589D+00
@@ -10422,7 +10422,7 @@ C
       Alpha( 9) = 1.1773684055533485784709665789016241888021D+00
       Alpha(10) = 2.4398440817448355183785779765059942292282D+00
       Alpha(11) = 5.0459378421517919626783366116029583281488D+00
-C
+!
       Xi( 1) = 1.014110063993542450080237449228D+00
       Xi( 2) = 1.129834266023652116221927255157D+00
       Xi( 3) = 1.376614175376544919296613322945D+00
@@ -10446,13 +10446,13 @@ C
       Xi(21) = 3553.944782316665923271870042299270D+00
       Xi(22) = 6287.992938677223824228690318705048D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 8E3 -----
-C
+!
+!     ----- K = 11 , R = 8E3 -----
+!
  1138 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0004437681784262299374822296159619899880D+00
       Omega( 2) = 0.0017359012756834154712376973761674137098D+00
       Omega( 3) = 0.0054884264315541892356410051245080294890D+00
@@ -10464,7 +10464,7 @@ C
       Omega( 9) = 0.8666922993395973932656203841951025879098D+00
       Omega(10) = 1.7462992361734780941443997970274892850284D+00
       Omega(11) = 3.7861326498591262976374516302513484333758D+00
-C
+!
       Alpha( 1) = 0.0001620957580603920404350047751169776322D+00
       Alpha( 2) = 0.0011377383639357606060877822502092060475D+00
       Alpha( 3) = 0.0044352997606686039615651190055195529638D+00
@@ -10476,7 +10476,7 @@ C
       Alpha( 9) = 1.1614778624872791111619779735875113146903D+00
       Alpha(10) = 2.4160862126637673468528694220580632645579D+00
       Alpha(11) = 5.0128780625618468073760591874332703810069D+00
-C
+!
       Xi( 1) = 1.014239942221573816377028220970D+00
       Xi( 2) = 1.131059076026157462959570443317D+00
       Xi( 3) = 1.380331395988050338543944028924D+00
@@ -10500,13 +10500,13 @@ C
       Xi(21) = 3910.001707684114783170059581607347D+00
       Xi(22) = 7123.500668713473708226757707961951D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 9E3 -----
-C
+!
+!     ----- K = 11 , R = 9E3 -----
+!
  1139 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0004078691872318507710981469102911461944D+00
       Omega( 2) = 0.0016348875607537805668889520794434533357D+00
       Omega( 3) = 0.0052581081186506578951953894737053607500D+00
@@ -10518,7 +10518,7 @@ C
       Omega( 9) = 0.8608396444681421005233439014414642542761D+00
       Omega(10) = 1.7390161743430621089662874156900329580822D+00
       Omega(11) = 3.7778109552097616187157913536509568075417D+00
-C
+!
       Alpha( 1) = 0.0001483448807384251019126060000628136715D+00
       Alpha( 2) = 0.0010585558771085235814493063512785331337D+00
       Alpha( 3) = 0.0041982030737258507678037679385074643079D+00
@@ -10530,7 +10530,7 @@ C
       Alpha( 9) = 1.1482339764255602875724429634551881918014D+00
       Alpha(10) = 2.3962399342344530084672471481610500632087D+00
       Alpha(11) = 4.9852187457262847206443390213337352179224D+00
-C
+!
       Xi( 1) = 1.014350075600351303397629598724D+00
       Xi( 2) = 1.132098149109364029003994833733D+00
       Xi( 3) = 1.383487455589817327443469263670D+00
@@ -10554,13 +10554,13 @@ C
       Xi(21) = 4246.099010265820874021613917648210D+00
       Xi(22) = 7946.161467249157825065708493639249D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 1E4 -----
-C
+!
+!     ----- K = 11 , R = 1E4 -----
+!
  1141 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0003785550695185704905331018800670669910D+00
       Omega( 2) = 0.0015517451432116935316520689837685442747D+00
       Omega( 3) = 0.0050662753610968026142610148073591735951D+00
@@ -10572,7 +10572,7 @@ C
       Omega( 9) = 0.8558390892074689600002926348487619634398D+00
       Omega(10) = 1.7327854324885193371000649542601479424775D+00
       Omega(11) = 3.7706904785971858274761653317952436736959D+00
-C
+!
       Alpha( 1) = 0.0001371172950178501341687661597154926363D+00
       Alpha( 2) = 0.0009937039401902874349137946216603545224D+00
       Alpha( 3) = 0.0040024563087556733581913622193465540633D+00
@@ -10584,7 +10584,7 @@ C
       Alpha( 9) = 1.1369760622900190238709558498975127349695D+00
       Alpha(10) = 2.3793366605690113944199248763311516086105D+00
       Alpha(11) = 4.9616300421987320260451548303848312571063D+00
-C
+!
       Xi( 1) = 1.014445078090098826813052201867D+00
       Xi( 2) = 1.132994811083856317285821491136D+00
       Xi( 3) = 1.386212832419826497727145808714D+00
@@ -10608,13 +10608,13 @@ C
       Xi(21) = 4564.472467287974115635051930439658D+00
       Xi(22) = 8756.418598288730433587545576301636D+00
       GOTO 9999
-C
-C     ----- K = 11 , R = 2E5 (Best : R = 109000) -----
-C
+!
+!     ----- K = 11 , R = 2E5 (Best : R = 109000) -----
+!
  1199 CONTINUE
-C
+!
       RIni = 2.0D+05
-C
+!
       Omega( 1) = 0.0001134976878119174444673697307829282610D+00
       Omega( 2) = 0.0007457000167406750592463748688546593124D+00
       Omega( 3) = 0.0030526245415056300336642704359654820756D+00
@@ -10626,7 +10626,7 @@ C
       Omega( 9) = 0.7941436626469130445247178451406711019445D+00
       Omega(10) = 1.6552701124330565916236215895374073170387D+00
       Omega(11) = 3.6820059233978352326507876846051203756360D+00
-C
+!
       Alpha( 1) = 0.0000355034846592468107132831054925398845D+00
       Alpha( 2) = 0.0003905739575885531102960276960463920082D+00
       Alpha( 3) = 0.0020671330057150484115067632599066493881D+00
@@ -10638,7 +10638,7 @@ C
       Alpha( 9) = 1.0024332764988156885743383894826763480523D+00
       Alpha(10) = 2.1748065663060481430245152179026035810239D+00
       Alpha(11) = 4.6738220578828596602459499731452297055512D+00
-C
+!
       Xi( 1) = 1.015690089382477667647071417623D+00
       Xi( 2) = 1.144775026302406757206311938013D+00
       Xi( 3) = 1.422180113927765727826688091362D+00
@@ -10662,21 +10662,21 @@ C
       Xi(21) = 13479.416793377781868201736870105378D+00
       Xi(22) = 47385.042527437597300377092324197292D+00
       GOTO 9999
-C
-C     ===== K = 12 =====
-C
+!
+!     ===== K = 12 =====
+!
  1200 CONTINUE
-C
+!
       GOTO (1211,1211,1211,1212,1213,1214,1215,1216,1217,1218,1219,1221,
      *      1222,1223,1224,1225,1226,1227,1228,1229,1231,1232,1233,1234,
      *      1235,1236,1237,1238,1239,1241,1299),InitR
-C
-C     ----- K = 12 , R = 1E1 -----
-C
+!
+!     ----- K = 12 , R = 1E1 -----
+!
  1211 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0711846766353695929835615312242236285556D+00
       Omega( 2) = 0.1690895322362734570071068213037435157275D+00
       Omega( 3) = 0.2757926387649254820061406334730236267205D+00
@@ -10689,7 +10689,7 @@ C
       Omega(10) = 2.4187704026228852782157835443754834159336D+00
       Omega(11) = 3.5024366140575561975791657465251205394452D+00
       Omega(12) = 5.7855524079892674525239792959752094247960D+00
-C
+!
       Alpha( 1) = 0.0276731292622081597226468612990557538467D+00
       Alpha( 2) = 0.1472866131015313441898935409302140442378D+00
       Alpha( 3) = 0.3687581752417785056644226188149460199384D+00
@@ -10702,7 +10702,7 @@ C
       Alpha(10) = 7.3381749735963551352184441878279130833107D+00
       Alpha(11) = 10.2488461667396625765641404726125074375886D+00
       Alpha(12) = 14.7099922873718894451508520937466073519317D+00
-C
+!
       Xi( 1) = 1.002765923971119948229606400059D+00
       Xi( 2) = 1.024986275526004813121727643477D+00
       Xi( 3) = 1.069923061571954508281422080440D+00
@@ -10728,13 +10728,13 @@ C
       Xi(23) = 9.715357748524472440189436728275D+00
       Xi(24) = 9.967640980357458236130185902368D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 2E1 -----
-C
+!
+!     ----- K = 12 , R = 2E1 -----
+!
  1212 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0428025346628120542797864885725678263384D+00
       Omega( 2) = 0.1026156437369573046664321044896261980739D+00
       Omega( 3) = 0.1703341135440457080398339237414795377390D+00
@@ -10747,7 +10747,7 @@ C
       Omega(10) = 2.0653230769823831772941113982255956216250D+00
       Omega(11) = 3.1208980779060891430111424060811486924649D+00
       Omega(12) = 5.3514751896835863285289969226710127259139D+00
-C
+!
       Alpha( 1) = 0.0166219868333402929036517929953231664797D+00
       Alpha( 2) = 0.0888764190139657434596505598822790972235D+00
       Alpha( 3) = 0.2244621641849088582339188935321772078169D+00
@@ -10760,7 +10760,7 @@ C
       Alpha(10) = 5.5228868604047138988685783367316162184579D+00
       Alpha(11) = 8.0665421480846943892706324419350494281389D+00
       Alpha(12) = 12.1245972500037078271178936361707201285753D+00
-C
+!
       Xi( 1) = 1.003803596370103570420417860021D+00
       Xi( 2) = 1.034415659365927397353619732190D+00
       Xi( 3) = 1.096621417100223667496008972400D+00
@@ -10786,13 +10786,13 @@ C
       Xi(23) = 19.158744744777995581280771730803D+00
       Xi(24) = 19.903266289867562605087059068865D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 3E1 -----
-C
+!
+!     ----- K = 12 , R = 3E1 -----
+!
  1213 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0314847850052882651287426002406633074315D+00
       Omega( 2) = 0.0759880787044356675646785553857043282733D+00
       Omega( 3) = 0.1277666945808081383489799090491523259061D+00
@@ -10805,7 +10805,7 @@ C
       Omega(10) = 1.9030088361974479215735917003726740404090D+00
       Omega(11) = 2.9432226543582369869284792729402511213266D+00
       Omega(12) = 5.1490168368308802796830259129734486123198D+00
-C
+!
       Alpha( 1) = 0.0122175904856221182198541905933319995370D+00
       Alpha( 2) = 0.0655438352296026405680593254765575750298D+00
       Alpha( 3) = 0.1665923720397374805578206632961091315792D+00
@@ -10818,7 +10818,7 @@ C
       Alpha(10) = 4.7445349934637615109400687884999570087530D+00
       Alpha(11) = 7.1183009631362091041914541555968298780499D+00
       Alpha(12) = 10.9882665995376886869036581195757662499091D+00
-C
+!
       Xi( 1) = 1.004447934429248711295755425166D+00
       Xi( 2) = 1.040285530941391825554553918209D+00
       Xi( 3) = 1.113322679833070314174732484691D+00
@@ -10844,13 +10844,13 @@ C
       Xi(23) = 28.450293676293621054906868295120D+00
       Xi(24) = 29.820317503622383885700242167616D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 4E1 -----
-C
+!
+!     ----- K = 12 , R = 4E1 -----
+!
  1214 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0252371170645091488656224908843084264731D+00
       Omega( 2) = 0.0612388028802558352680415060254048853494D+00
       Omega( 3) = 0.1040508555604487832515667698751737901830D+00
@@ -10863,7 +10863,7 @@ C
       Omega(10) = 1.8022353684717613577469241814554834490991D+00
       Omega(11) = 2.8319457784449118414610985228208051012189D+00
       Omega(12) = 5.0221823554408107077688672159609950540471D+00
-C
+!
       Alpha( 1) = 0.0097872502132220878271146122934220912271D+00
       Alpha( 2) = 0.0526466975146047576613141973089771141758D+00
       Alpha( 3) = 0.1345082558306065039079946546451971300939D+00
@@ -10876,7 +10876,7 @@ C
       Alpha(10) = 4.2866097725398282212473655139461925500655D+00
       Alpha(11) = 6.5543641021523252536244708021939686659607D+00
       Alpha(12) = 10.3064204128060784605713795514247976825573D+00
-C
+!
       Xi( 1) = 1.004917393904752588975129445892D+00
       Xi( 2) = 1.044569558409484608335962563253D+00
       Xi( 3) = 1.125552323994750328188009513841D+00
@@ -10902,13 +10902,13 @@ C
       Xi(23) = 37.627748199051418528937595908701D+00
       Xi(24) = 39.723083912498277824043579897761D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 5E1 -----
-C
+!
+!     ----- K = 12 , R = 5E1 -----
+!
  1215 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0212246513027600224522744220764791656109D+00
       Omega( 2) = 0.0517398368864022841059815277509059683325D+00
       Omega( 3) = 0.0887040340301526822420282065995156273175D+00
@@ -10921,7 +10921,7 @@ C
       Omega(10) = 1.7309580289551620669533799068418034039496D+00
       Omega(11) = 2.7527605274972598524679118225932938912592D+00
       Omega(12) = 4.9319359578631724503293420891480991485878D+00
-C
+!
       Alpha( 1) = 0.0082269231802614559072336203847386482124D+00
       Alpha( 2) = 0.0443547657196888649133151207720748843144D+00
       Alpha( 3) = 0.1138293811452207303662378240494135184235D+00
@@ -10934,7 +10934,7 @@ C
       Alpha(10) = 3.9759001427243164585468432337123090292152D+00
       Alpha(11) = 6.1684054473566169670729897323013801724301D+00
       Alpha(12) = 9.8365133085386865204394202244486677955138D+00
-C
+!
       Xi( 1) = 1.005286713345526050981081078728D+00
       Xi( 2) = 1.047944183621078399456030827430D+00
       Xi( 3) = 1.135210433843728024933504572314D+00
@@ -10960,13 +10960,13 @@ C
       Xi(23) = 46.711681987399490362938836440776D+00
       Xi(24) = 49.613923452080444308903706129854D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 6E1 -----
-C
+!
+!     ----- K = 12 , R = 6E1 -----
+!
  1216 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0184080983839379267157781994157517146959D+00
       Omega( 2) = 0.0450560812760502163758973091095549889928D+00
       Omega( 3) = 0.0778611314389885509642088082249422598125D+00
@@ -10979,7 +10979,7 @@ C
       Omega(10) = 1.6766859343620682565615884196397189498384D+00
       Omega(11) = 2.6921885124990737729079592899239514736109D+00
       Omega(12) = 4.8629171815900725591060027586109981712070D+00
-C
+!
       Alpha( 1) = 0.0071319631843329120966111414180871319601D+00
       Alpha( 2) = 0.0385288520026886962092113695504957959770D+00
       Alpha( 3) = 0.0992694979607395232008675012291831762923D+00
@@ -10992,7 +10992,7 @@ C
       Alpha(10) = 3.7470487790881047123620062322402191057336D+00
       Alpha(11) = 5.8821023096538253248366512337952372035943D+00
       Alpha(12) = 9.4859726615850346702341067128827489796095D+00
-C
+!
       Xi( 1) = 1.005590897534543594229843044285D+00
       Xi( 2) = 1.050726610075362197922049789511D+00
       Xi( 3) = 1.143190120587738044482910282351D+00
@@ -11018,13 +11018,13 @@ C
       Xi(23) = 55.715382113648056268406794089287D+00
       Xi(24) = 59.494370263074479988907317107305D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 7E1 -----
-C
+!
+!     ----- K = 12 , R = 7E1 -----
+!
  1217 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0163112546177454600382497129987258155381D+00
       Omega( 2) = 0.0400697356456504853207400973502672059112D+00
       Omega( 3) = 0.0697424933664369035060106791212852783701D+00
@@ -11037,7 +11037,7 @@ C
       Omega(10) = 1.6333462645016366815691605252069962261885D+00
       Omega(11) = 2.6436380689380596005228635236861123303242D+00
       Omega(12) = 4.8076086410744625688519493511563496213057D+00
-C
+!
       Alpha( 1) = 0.0063170013560629504831786822007660964218D+00
       Alpha( 2) = 0.0341880877391648044947766987150528095185D+00
       Alpha( 3) = 0.0884008694023858860409491484955157858394D+00
@@ -11050,7 +11050,7 @@ C
       Alpha(10) = 3.5692344888793875149098078214393581220065D+00
       Alpha(11) = 5.6583087139239065569383535514447203240707D+00
       Alpha(12) = 9.2106775903010455952210633334686917805811D+00
-C
+!
       Xi( 1) = 1.005849257632735276350374742371D+00
       Xi( 2) = 1.053092012352318902301644143460D+00
       Xi( 3) = 1.149985578372599481257465559025D+00
@@ -11076,13 +11076,13 @@ C
       Xi(23) = 64.648275342701393565703060772876D+00
       Xi(24) = 69.365518178125603089567707826291D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 8E1 -----
-C
+!
+!     ----- K = 12 , R = 8E1 -----
+!
  1218 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0146834403786877239651904761101597340911D+00
       Omega( 2) = 0.0361914353823823021965373943065191753021D+00
       Omega( 3) = 0.0634072655822392595469159763676980645641D+00
@@ -11095,7 +11095,7 @@ C
       Omega(10) = 1.5975625195441151351087236132109126174328D+00
       Omega(11) = 2.6034273539351463129000452401129450663575D+00
       Omega(12) = 4.7618102577925454188360887552988742754678D+00
-C
+!
       Alpha( 1) = 0.0056844758581019654055792875504971028988D+00
       Alpha( 2) = 0.0308158126566199542090130052834906493331D+00
       Alpha( 3) = 0.0799429238320965633604023477254418850180D+00
@@ -11108,7 +11108,7 @@ C
       Alpha(10) = 3.4257800602112389596123898094504056643927D+00
       Alpha(11) = 5.4768215137600342588310164959608528079116D+00
       Alpha(12) = 8.9865269269342936426375745284644835919607D+00
-C
+!
       Xi( 1) = 1.006073602738567478002973398787D+00
       Xi( 2) = 1.055147598456383129352301186721D+00
       Xi( 3) = 1.155899772802454390091542180130D+00
@@ -11134,13 +11134,13 @@ C
       Xi(23) = 73.517454101237934040169452742930D+00
       Xi(24) = 79.228194435685670563018767609265D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 9E1 -----
-C
+!
+!     ----- K = 12 , R = 9E1 -----
+!
  1219 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0133794494576575845756776948422550610474D+00
       Omega( 2) = 0.0330793026375962093940706967853948583524D+00
       Omega( 3) = 0.0583083622425075984217843899637401250402D+00
@@ -11153,7 +11153,7 @@ C
       Omega(10) = 1.5672784492918067736659179511882200586115D+00
       Omega(11) = 2.5693057474657722766622769405842063861201D+00
       Omega(12) = 4.7229543998458347066858598051197759559727D+00
-C
+!
       Alpha( 1) = 0.0051778836534097643948459314521687302246D+00
       Alpha( 2) = 0.0281125858476668863738048582262551988720D+00
       Alpha( 3) = 0.0731525476894912956787680145820385035904D+00
@@ -11166,7 +11166,7 @@ C
       Alpha(10) = 3.3067709916274913978500443745289771868556D+00
       Alpha(11) = 5.3255742673944999232733821248331196329673D+00
       Alpha(12) = 8.7990705510743595623573964914498901634943D+00
-C
+!
       Xi( 1) = 1.006271692633365518279066341822D+00
       Xi( 2) = 1.056963864704113705179910898124D+00
       Xi( 3) = 1.161132291472661585084689972458D+00
@@ -11192,13 +11192,13 @@ C
       Xi(23) = 82.328487884719088740759218580934D+00
       Xi(24) = 89.083051291139891222914393154042D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 1E2 -----
-C
+!
+!     ----- K = 12 , R = 1E2 -----
+!
  1221 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0123090459207837410891199329820988594975D+00
       Omega( 2) = 0.0305206065457638403504104975677568845072D+00
       Omega( 3) = 0.0541046151353604127178941081421914560678D+00
@@ -11211,7 +11211,7 @@ C
       Omega(10) = 1.5411563493400488027585543138187063050282D+00
       Omega(11) = 2.5398045743466134197257461080354801197245D+00
       Omega(12) = 4.6893656358078771848908739006134283044958D+00
-C
+!
       Alpha( 1) = 0.0047621173572975827785759539954868468925D+00
       Alpha( 2) = 0.0258922311893780472792723611891174684274D+00
       Alpha( 3) = 0.0675671840652446778192983384281333769650D+00
@@ -11224,7 +11224,7 @@ C
       Alpha(10) = 3.2058935052153564042483335772004693353665D+00
       Alpha(11) = 5.1968507098720845721086247781528300038190D+00
       Alpha(12) = 8.6390362946276927349695262670081774558639D+00
-C
+!
       Xi( 1) = 1.006448902079904277376797006038D+00
       Xi( 2) = 1.058589676293567137109648268467D+00
       Xi( 3) = 1.165821620001373944228856283090D+00
@@ -11250,13 +11250,13 @@ C
       Xi(23) = 91.085884791545486179054069708627D+00
       Xi(24) = 98.930619049291083751118680567060D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 2E2 -----
-C
+!
+!     ----- K = 12 , R = 2E2 -----
+!
  1222 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0070860134344731771125858264120944696174D+00
       Omega( 2) = 0.0179638474505374610739656280819498412882D+00
       Omega( 3) = 0.0332648386084722072207381544928228578328D+00
@@ -11269,7 +11269,7 @@ C
       Omega(10) = 1.3896105342194977049505646982119344556850D+00
       Omega(11) = 2.3672949507125710425729098185243515217735D+00
       Omega(12) = 4.4930548591707977260610584746558515689685D+00
-C
+!
       Alpha( 1) = 0.0027347725482160792943084998921771111569D+00
       Alpha( 2) = 0.0150339160352873828102875271295335579680D+00
       Alpha( 3) = 0.0401109195501032844837787337544110499721D+00
@@ -11282,7 +11282,7 @@ C
       Alpha(10) = 2.6532976247909677335393152652898152155103D+00
       Alpha(11) = 4.4819518632296585563742907787343483505538D+00
       Alpha(12) = 7.7409496329154443465883628228141333238455D+00
-C
+!
       Xi( 1) = 1.007606335947693436188785098828D+00
       Xi( 2) = 1.069232017552700409715633889096D+00
       Xi( 3) = 1.196646752951617210668396051876D+00
@@ -11308,13 +11308,13 @@ C
       Xi(23) = 176.322305548129662736145384371866D+00
       Xi(24) = 197.078080187922438468173247372306D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 3E2 -----
-C
+!
+!     ----- K = 12 , R = 3E2 -----
+!
  1223 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0051195983342860145902886647665402941598D+00
       Omega( 2) = 0.0131892853745070899709111679129480698691D+00
       Omega( 3) = 0.0251976096018116801238985458244457049659D+00
@@ -11327,7 +11327,7 @@ C
       Omega(10) = 1.3151307967790183471416820548682835578802D+00
       Omega(11) = 2.2815665390532840575178730180283537265495D+00
       Omega(12) = 4.3955515211933913343085589264802592879278D+00
-C
+!
       Alpha( 1) = 0.0019724053061639556097514082173144389643D+00
       Alpha( 2) = 0.0109300683169841590296897317242941216620D+00
       Alpha( 3) = 0.0296391592056178483410768670358592657976D+00
@@ -11340,7 +11340,7 @@ C
       Alpha(10) = 2.4020735504281130311826641943184768024366D+00
       Alpha(11) = 4.1504387185145925299664670937715982290683D+00
       Alpha(12) = 7.3183269826043906326751287139131818548776D+00
-C
+!
       Xi( 1) = 1.008267959695940689372230247844D+00
       Xi( 2) = 1.075334014570839409954960963489D+00
       Xi( 3) = 1.214423438364915396893949084411D+00
@@ -11366,13 +11366,13 @@ C
       Xi(23) = 258.379990278291688771128420398782D+00
       Xi(24) = 294.757469626102057425054425721100D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 4E2 -----
-C
+!
+!     ----- K = 12 , R = 4E2 -----
+!
  1224 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0040632299910078106759216186403410597805D+00
       Omega( 2) = 0.0106063465272962994428892742962422524045D+00
       Omega( 3) = 0.0207757312971020101062205208061750560944D+00
@@ -11385,7 +11385,7 @@ C
       Omega(10) = 1.2677049097445011802262268552077273398027D+00
       Omega(11) = 2.2266091411905947496617519387740458114422D+00
       Omega(12) = 4.3330561116531063439206994392094429713325D+00
-C
+!
       Alpha( 1) = 0.0015632017689609898157798153692232823175D+00
       Alpha( 2) = 0.0087194292824458665820168347566909705648D+00
       Alpha( 3) = 0.0239611098766580661549173598967588105779D+00
@@ -11398,7 +11398,7 @@ C
       Alpha(10) = 2.2490192304692428984947555337114977191959D+00
       Alpha(11) = 3.9460569038339200339735035605315260909265D+00
       Alpha(12) = 7.0555049835035526799471850001310713196290D+00
-C
+!
       Xi( 1) = 1.008726364096767681775672353961D+00
       Xi( 2) = 1.079569865239148009376443648755D+00
       Xi( 3) = 1.226807850253259740951755629723D+00
@@ -11424,13 +11424,13 @@ C
       Xi(23) = 338.072865592173264936981524897419D+00
       Xi(24) = 392.068013409484955378303538964246D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 5E2 -----
-C
+!
+!     ----- K = 12 , R = 5E2 -----
+!
  1225 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0033960422874595711797197125202812939548D+00
       Omega( 2) = 0.0089658613194300815344673044431089703465D+00
       Omega( 3) = 0.0179367737694282584733686822589526776994D+00
@@ -11443,7 +11443,7 @@ C
       Omega(10) = 1.2337273932034403278214240717858274365426D+00
       Omega(11) = 2.1870446405759955243574416128282678073447D+00
       Omega(12) = 4.2880666798091348198770922373057601362234D+00
-C
+!
       Alpha( 1) = 0.0013049277071097104255392994673692919072D+00
       Alpha( 2) = 0.0073201722780452361153633597870560301146D+00
       Alpha( 3) = 0.0203478395613008850024403017034413387876D+00
@@ -11456,7 +11456,7 @@ C
       Alpha(10) = 2.1426416636948536359203593137934262813360D+00
       Alpha(11) = 3.8028020862221158767194073568873591284500D+00
       Alpha(12) = 6.8701597226829623989326212285533301837859D+00
-C
+!
       Xi( 1) = 1.009074237506387751147143849728D+00
       Xi( 2) = 1.082788834124289475795144266357D+00
       Xi( 3) = 1.236243635746990285275044574309D+00
@@ -11482,13 +11482,13 @@ C
       Xi(23) = 415.840851811601635301673951516932D+00
       Xi(24) = 489.064245362743104550418138387613D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 6E2 -----
-C
+!
+!     ----- K = 12 , R = 6E2 -----
+!
  1226 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0029330978418186225229015098728627131131D+00
       Omega( 2) = 0.0078221933123818168768042456175104693017D+00
       Omega( 3) = 0.0159389660701572009094708053805744540909D+00
@@ -11501,7 +11501,7 @@ C
       Omega(10) = 1.2076616461896024742102978555280401451455D+00
       Omega(11) = 2.1565782421799108423739882445246962561214D+00
       Omega(12) = 4.2534223060838955649334836017771976912627D+00
-C
+!
       Alpha( 1) = 0.0011258192253550014499241239919122281599D+00
       Alpha( 2) = 0.0063474759189304904574433830767576925069D+00
       Alpha( 3) = 0.0178245049430911581278964535626774257082D+00
@@ -11514,7 +11514,7 @@ C
       Alpha(10) = 2.0628733271752983560298061460613894269045D+00
       Alpha(11) = 3.6946810222503385231444111846954569955415D+00
       Alpha(12) = 6.7296153572336118308012953281860291099292D+00
-C
+!
       Xi( 1) = 1.009352858684480677242505108904D+00
       Xi( 2) = 1.085369791743565834438341177748D+00
       Xi( 3) = 1.243824575125177332463738411050D+00
@@ -11540,13 +11540,13 @@ C
       Xi(23) = 491.967307881478889547421928796211D+00
       Xi(24) = 585.781742831649248459680023870533D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 7E2 -----
-C
+!
+!     ----- K = 12 , R = 7E2 -----
+!
  1227 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0025913964430986229023616985306377458187D+00
       Omega( 2) = 0.0069745687472657970477579281003144284767D+00
       Omega( 3) = 0.0144458782481699179102050626527509180619D+00
@@ -11559,7 +11559,7 @@ C
       Omega(10) = 1.1867479034725879530722328358827155625477D+00
       Omega(11) = 2.1320583937567418447971839823296136273711D+00
       Omega(12) = 4.2255387852958599535953265746712759209913D+00
-C
+!
       Alpha( 1) = 0.0009936834721502659399096799518712186394D+00
       Alpha( 2) = 0.0056283719522631914286091411783047311346D+00
       Alpha( 3) = 0.0159514188285338891451384073227881543744D+00
@@ -11572,7 +11572,7 @@ C
       Alpha(10) = 2.0000185378949157531582730973340744640154D+00
       Alpha(11) = 3.6090366250071584601055024732474407755944D+00
       Alpha(12) = 6.6178680810696371172342777899899601834477D+00
-C
+!
       Xi( 1) = 1.009584167126639444580712967614D+00
       Xi( 2) = 1.087514380980905951638165740647D+00
       Xi( 3) = 1.250134264708169984717245348804D+00
@@ -11598,13 +11598,13 @@ C
       Xi(23) = 566.652856082373333757029598700683D+00
       Xi(24) = 682.245952844929716807342856554897D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 8E2 -----
-C
+!
+!     ----- K = 12 , R = 8E2 -----
+!
  1228 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0023278936489411329762620967223640811028D+00
       Omega( 2) = 0.0063185218754966287458375373900509863745D+00
       Omega( 3) = 0.0132814453404489143366560004351495383190D+00
@@ -11617,7 +11617,7 @@ C
       Omega(10) = 1.1694264755675532816000736224815170771762D+00
       Omega(11) = 2.1116976718956828160036337527216687703913D+00
       Omega(12) = 4.2023836966363481912334343348902621073648D+00
-C
+!
       Alpha( 1) = 0.0008918316487520093297028874758901328956D+00
       Alpha( 2) = 0.0050730424161482702214215540804931325880D+00
       Alpha( 3) = 0.0144995827015344837641555196180997988620D+00
@@ -11630,7 +11630,7 @@ C
       Alpha(10) = 1.9487292245922343926012657022717178278981D+00
       Alpha(11) = 3.5388436890305506690203307673669996802346D+00
       Alpha(12) = 6.5259940885676365634505968760237237802357D+00
-C
+!
       Xi( 1) = 1.009781189422376461309674433586D+00
       Xi( 2) = 1.089342453375589435697265439096D+00
       Xi( 3) = 1.255520216420012828435065488364D+00
@@ -11656,13 +11656,13 @@ C
       Xi(23) = 640.048365516021274701508048110554D+00
       Xi(24) = 778.476211396508393225435185058814D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 9E2 -----
-C
+!
+!     ----- K = 12 , R = 9E2 -----
+!
  1229 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0021179393643737881895871855717286558196D+00
       Omega( 2) = 0.0057940548940096001734946810565740626942D+00
       Omega( 3) = 0.0123440249542606461606643352725554141358D+00
@@ -11675,7 +11675,7 @@ C
       Omega(10) = 1.1547365191625175191844285271791648028739D+00
       Omega(11) = 2.0943916499248837598517319902313715829223D+00
       Omega(12) = 4.1827013514862671538299676576855290477397D+00
-C
+!
       Alpha( 1) = 0.0008107099970118842197798566422736049608D+00
       Alpha( 2) = 0.0046299931135256944031852331580129122912D+00
       Alpha( 3) = 0.0133373609699492468702364039376262461190D+00
@@ -11688,7 +11688,7 @@ C
       Alpha(10) = 1.9057753817936694537083300304836086525029D+00
       Alpha(11) = 3.4798372032584188881867981457673977274681D+00
       Alpha(12) = 6.4485549634885074733042786832015735853929D+00
-C
+!
       Xi( 1) = 1.009952281380811104868379379784D+00
       Xi( 2) = 1.090930967917693870028114644377D+00
       Xi( 3) = 1.260205860792128242748796895789D+00
@@ -11714,13 +11714,13 @@ C
       Xi(23) = 712.272365609997750501847235682362D+00
       Xi(24) = 874.487760295694255829879182329023D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 1E3 -----
-C
+!
+!     ----- K = 12 , R = 1E3 -----
+!
  1231 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0019463548977259609882261675835660175160D+00
       Omega( 2) = 0.0053641265236251452123256936582729181850D+00
       Omega( 3) = 0.0115705678700995050980931564896247998320D+00
@@ -11733,7 +11733,7 @@ C
       Omega(10) = 1.1420476000340242452198158407128403268871D+00
       Omega(11) = 2.0794138334222343020719209194524523809378D+00
       Omega(12) = 4.1656658270972997198076936964383776285104D+00
-C
+!
       Alpha( 1) = 0.0007444374958604834432202152752402340985D+00
       Alpha( 2) = 0.0042674831635267779901862078822255552879D+00
       Alpha( 3) = 0.0123834190491907699616523272877210981591D+00
@@ -11746,7 +11746,7 @@ C
       Alpha(10) = 1.8690725806928342152615774018897809582995D+00
       Alpha(11) = 3.4292526283354700571224388250257675281318D+00
       Alpha(12) = 6.3820141367267550843063450560777027931181D+00
-C
+!
       Xi( 1) = 1.010103112092257265333845872579D+00
       Xi( 2) = 1.092332114783997979996603422403D+00
       Xi( 3) = 1.264343204757084850888525229262D+00
@@ -11772,13 +11772,13 @@ C
       Xi(23) = 783.420520368272808864329448397257D+00
       Xi(24) = 970.293091739903134307354548582225D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 2E3 -----
-C
+!
+!     ----- K = 12 , R = 2E3 -----
+!
  1232 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0011191579213804319974210639944758871600D+00
       Omega( 2) = 0.0032686761628313806416415020390797696592D+00
       Omega( 3) = 0.0077087399912689356829477058900140784559D+00
@@ -11791,7 +11791,7 @@ C
       Omega(10) = 1.0683278448896231092217837255198276125157D+00
       Omega(11) = 1.9918273202232110990345104184484625875484D+00
       Omega(12) = 4.0660174427838312121406827426284280591062D+00
-C
+!
       Alpha( 1) = 0.0004253461425896496173415485612641709356D+00
       Alpha( 2) = 0.0025124573159036588932423487378203796894D+00
       Alpha( 3) = 0.0077110331233492505094457441800620545180D+00
@@ -11804,7 +11804,7 @@ C
       Alpha(10) = 1.6631068381675097116959710641381775531045D+00
       Alpha(11) = 3.1423301713480807483697132553857045422774D+00
       Alpha(12) = 6.0017142252759861143808495231866118047037D+00
-C
+!
       Xi( 1) = 1.011039072006112649049214269326D+00
       Xi( 2) = 1.101043496799447574119312776020D+00
       Xi( 3) = 1.290158227396799084374379162909D+00
@@ -11830,13 +11830,13 @@ C
       Xi(23) = 1448.751627700116159758181311190128D+00
       Xi(24) = 1918.726179869732959559769369661808D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 3E3 -----
-C
+!
+!     ----- K = 12 , R = 3E3 -----
+!
  1233 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0008121033978678005086831820597079861779D+00
       Omega( 2) = 0.0024758914491879611614147562023355297889D+00
       Omega( 3) = 0.0061840387301675452017574066525262832528D+00
@@ -11849,7 +11849,7 @@ C
       Omega(10) = 1.0322349251234491782818272764821188047790D+00
       Omega(11) = 1.9485640056433970451884793440022747290641D+00
       Omega(12) = 4.0167705581257705758913001403698217472993D+00
-C
+!
       Alpha( 1) = 0.0003071487155038260791730359526704660644D+00
       Alpha( 2) = 0.0018562367167545763176936772639522010842D+00
       Alpha( 3) = 0.0059269627132180731568844903565940196444D+00
@@ -11862,7 +11862,7 @@ C
       Alpha(10) = 1.5667393798490310214202581029496741393814D+00
       Alpha(11) = 3.0061217791432274326710732959000438313524D+00
       Alpha(12) = 5.8193331245322036022506184682612229153165D+00
-C
+!
       Xi( 1) = 1.011537667270811324251797436169D+00
       Xi( 2) = 1.105696052958149435524980164214D+00
       Xi( 3) = 1.304010485718364174031851099311D+00
@@ -11888,13 +11888,13 @@ C
       Xi(23) = 2052.941393499940959888050429071882D+00
       Xi(24) = 2852.754713529029453988883346937655D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 4E3 -----
-C
+!
+!     ----- K = 12 , R = 4E3 -----
+!
  1234 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0006481129780097903614989966194440823566D+00
       Omega( 2) = 0.0020466770735909012241228119039632149523D+00
       Omega( 3) = 0.0053330587438768426823312146772132491535D+00
@@ -11907,7 +11907,7 @@ C
       Omega(10) = 1.0094001089269477237746197584300489324960D+00
       Omega(11) = 1.9210522466051994238019073879542020222289D+00
       Omega(12) = 3.9854419726506038249534691342290670945658D+00
-C
+!
       Alpha( 1) = 0.0002441084588471243577005574969165241361D+00
       Alpha( 2) = 0.0015039659540854241270781306571979740738D+00
       Alpha( 3) = 0.0049543174187313296201879949179347484289D+00
@@ -11920,7 +11920,7 @@ C
       Alpha(10) = 1.5072708912101296354008397870849478294986D+00
       Alpha(11) = 2.9213720831136537564674121592034339300881D+00
       Alpha(12) = 5.7052025799370194676304879344286291598110D+00
-C
+!
       Xi( 1) = 1.011868124782982881842106903658D+00
       Xi( 2) = 1.108784281261581288781370435714D+00
       Xi( 3) = 1.313230305611500008285130736141D+00
@@ -11946,13 +11946,13 @@ C
       Xi(23) = 2613.271812605958078101764385792194D+00
       Xi(24) = 3774.791876342242130659698773342825D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 5E3 -----
-C
+!
+!     ----- K = 12 , R = 5E3 -----
+!
  1235 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0005448622032481286372600947547420457973D+00
       Omega( 2) = 0.0017734323890971321100885741729735745054D+00
       Omega( 3) = 0.0047781227439880182135425426732944220731D+00
@@ -11965,7 +11965,7 @@ C
       Omega(10) = 0.9931501845600177424120726110690071664067D+00
       Omega(11) = 1.9014045488724224262011217034817889270926D+00
       Omega(12) = 3.9630619605274942168163937461500268000236D+00
-C
+!
       Alpha( 1) = 0.0002044570226688318376350054358871373428D+00
       Alpha( 2) = 0.0012812569582845620733450595963610896266D+00
       Alpha( 3) = 0.0043315761250334632171618022816045323609D+00
@@ -11978,7 +11978,7 @@ C
       Alpha(10) = 1.4656545188883580361268593739154653121659D+00
       Alpha(11) = 2.8617277624721939989580615781861183677393D+00
       Alpha(12) = 5.6245660855886989468004066861084311312879D+00
-C
+!
       Xi( 1) = 1.012110763042167530293378996387D+00
       Xi( 2) = 1.111054165000070571411167064113D+00
       Xi( 3) = 1.320019842610480564752163668008D+00
@@ -12004,13 +12004,13 @@ C
       Xi(23) = 3139.042099606381820198208743022406D+00
       Xi(24) = 4686.177830762634208827677184672211D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 6E3 -----
-C
+!
+!     ----- K = 12 , R = 6E3 -----
+!
  1236 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0004733547189603010971959035112829189407D+00
       Omega( 2) = 0.0015823881371287818824851266865175181131D+00
       Omega( 3) = 0.0043823111403624851655164498809291728776D+00
@@ -12023,7 +12023,7 @@ C
       Omega(10) = 0.9807660789125268947286941101371127160746D+00
       Omega(11) = 1.8863908554847012133794462163116634201288D+00
       Omega(12) = 3.9459563742834082044654009369111236082972D+00
-C
+!
       Alpha( 1) = 0.0001770171299286721908510122436850378613D+00
       Alpha( 2) = 0.0011264749626048635599989632106142367629D+00
       Alpha( 3) = 0.0038940614761975710174005089287893599526D+00
@@ -12036,7 +12036,7 @@ C
       Alpha(10) = 1.4343293737380057116916412529583624291263D+00
       Alpha(11) = 2.8166420926084831063453128852103191093192D+00
       Alpha(12) = 5.5634336743866897334077903369831119562150D+00
-C
+!
       Xi( 1) = 1.012300011019211134870310342393D+00
       Xi( 2) = 1.112825973018472957513230747750D+00
       Xi( 3) = 1.325327181573794575004596185686D+00
@@ -12062,13 +12062,13 @@ C
       Xi(23) = 3636.192316312189927618447882196051D+00
       Xi(24) = 5587.788891480815288037575783164357D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 7E3 -----
-C
+!
+!     ----- K = 12 , R = 7E3 -----
+!
  1237 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0004206406183074642751176014425712815226D+00
       Omega( 2) = 0.0014403628889290248813555614772544122282D+00
       Omega( 3) = 0.0040830026632685866912733294292053853880D+00
@@ -12081,7 +12081,7 @@ C
       Omega(10) = 0.9708929815731902137373836303435581385202D+00
       Omega(11) = 1.8743958599473489759707281465672679132695D+00
       Omega(12) = 3.9322874092045371702611178399422442453215D+00
-C
+!
       Alpha( 1) = 0.0001568012924109277522218339664798227029D+00
       Alpha( 2) = 0.0010120177099265387919519793491138215380D+00
       Alpha( 3) = 0.0035674354694836556680850582446914986967D+00
@@ -12094,7 +12094,7 @@ C
       Alpha(10) = 1.4095969802818261701988708511912307130842D+00
       Alpha(11) = 2.7809257068145880041100392876529667773866D+00
       Alpha(12) = 5.5148932957723285465737039778844064130681D+00
-C
+!
       Xi( 1) = 1.012453649742454550326115070291D+00
       Xi( 2) = 1.114265297694975322129185002495D+00
       Xi( 3) = 1.329643492732267751835900648771D+00
@@ -12120,13 +12120,13 @@ C
       Xi(23) = 4108.885896644536002586534095826210D+00
       Xi(24) = 6480.251750339536623624070443838718D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 8E3 -----
-C
+!
+!     ----- K = 12 , R = 8E3 -----
+!
  1238 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0003800261919516156242255321248864341488D+00
       Omega( 2) = 0.0013301003573762626409333374786873871454D+00
       Omega( 3) = 0.0038471561499707714797889309202294505496D+00
@@ -12139,7 +12139,7 @@ C
       Omega(10) = 0.9627660079132293382284460414588522780832D+00
       Omega(11) = 1.8645049667248534153727104745179588007886D+00
       Omega(12) = 3.9210143330472333653667627029193454291089D+00
-C
+!
       Alpha( 1) = 0.0001412333942297918437753135947085141033D+00
       Alpha( 2) = 0.0009235844571854584796527123490960525798D+00
       Alpha( 3) = 0.0033129136408568407550036179773714217767D+00
@@ -12152,7 +12152,7 @@ C
       Alpha(10) = 1.3893988560757597640468383182188460978068D+00
       Alpha(11) = 2.7516769901723567494800787303077527212736D+00
       Alpha(12) = 5.4750676123472046341947305769792819774011D+00
-C
+!
       Xi( 1) = 1.012581999202422624196257006091D+00
       Xi( 2) = 1.115468316488554929139485893952D+00
       Xi( 3) = 1.333254441146869702481021768836D+00
@@ -12178,13 +12178,13 @@ C
       Xi(23) = 4560.218079011349314288992218280328D+00
       Xi(24) = 7364.042186608088992993970123279723D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 9E3 -----
-C
+!
+!     ----- K = 12 , R = 9E3 -----
+!
  1239 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0003476872036346924650056719599067536763D+00
       Omega( 2) = 0.0012416884882636269877667056760715824648D+00
       Omega( 3) = 0.0036555466665538696706320260457895310324D+00
@@ -12197,7 +12197,7 @@ C
       Omega(10) = 0.9559146236107875842192768689464799081179D+00
       Omega(11) = 1.8561541768321525229350210661749542850885D+00
       Omega(12) = 3.9114952214587968457818606404785555241688D+00
-C
+!
       Alpha( 1) = 0.0001288425823778130519868665891051323635D+00
       Alpha( 2) = 0.0008529882715494492601216538791176341450D+00
       Alpha( 3) = 0.0031081525804036526562012583045982450081D+00
@@ -12210,7 +12210,7 @@ C
       Alpha(10) = 1.3724831527625502694328271657830953245139D+00
       Alpha(11) = 2.7271246942905251098472618753731921970029D+00
       Alpha(12) = 5.4415834861582763355009051409183484793175D+00
-C
+!
       Xi( 1) = 1.012691548896615802415749341137D+00
       Xi( 2) = 1.116495545573975540099703751551D+00
       Xi( 3) = 1.336340203906648158049298713568D+00
@@ -12236,13 +12236,13 @@ C
       Xi(23) = 4992.591587474125793377766058256384D+00
       Xi(24) = 8239.537097791827611636961137264734D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 1E4 -----
-C
+!
+!     ----- K = 12 , R = 1E4 -----
+!
  1241 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0003212728404662958500820070891672644575D+00
       Omega( 2) = 0.0011690041207126430353211517156747367707D+00
       Omega( 3) = 0.0034961596915281700555119354057939662361D+00
@@ -12255,7 +12255,7 @@ C
       Omega(10) = 0.9500306179525972926844246124744586268207D+00
       Omega(11) = 1.8489733269096180122382719335227818646672D+00
       Omega(12) = 3.9033086697822239601474852976892293554556D+00
-C
+!
       Alpha( 1) = 0.0001187252048309153856080831843274048243D+00
       Alpha( 2) = 0.0007951872127706306181007148516960703066D+00
       Alpha( 3) = 0.0029393125552287440714112630489943112089D+00
@@ -12268,7 +12268,7 @@ C
       Alpha(10) = 1.3580375489597360417906926621789409637131D+00
       Alpha(11) = 2.7061158915034748547682325048313600746042D+00
       Alpha(12) = 5.4128928432449124911671201054730317991925D+00
-C
+!
       Xi( 1) = 1.012786628273634303011412061135D+00
       Xi( 2) = 1.117387423175520109368610843781D+00
       Xi( 3) = 1.339021202886511108134763581301D+00
@@ -12294,13 +12294,13 @@ C
       Xi(23) = 5407.926930663512710584228670995799D+00
       Xi(24) = 9107.045750956664901920589727524202D+00
       GOTO 9999
-C
-C     ----- K = 12 , R = 3E5 (Best : R = 204500) -----
-C
+!
+!     ----- K = 12 , R = 3E5 (Best : R = 204500) -----
+!
  1299 CONTINUE
-C
+!
       RIni = 3.0D+05
-C
+!
       Omega( 1) = 0.0000605283299992814375306170671597275762D+00
       Omega( 2) = 0.0003976819351504732883886811907123148835D+00
       Omega( 3) = 0.0016279651361197932355453018996374603411D+00
@@ -12313,7 +12313,7 @@ C
       Omega(10) = 0.8619857428372385712666940704718143706486D+00
       Omega(11) = 1.7404432216810900461772745884125868087722D+00
       Omega(12) = 3.7794416490913082928154720363522756088059D+00
-C
+!
       Alpha( 1) = 0.0000189340122962563570449109308913818346D+00
       Alpha( 2) = 0.0002082931461534274049703011728266327518D+00
       Alpha( 3) = 0.0011024023520154727638740112445094043725D+00
@@ -12326,7 +12326,7 @@ C
       Alpha(10) = 1.1508219943995056622990796890704245925008D+00
       Alpha(11) = 2.4001213099764144435262908094941280978674D+00
       Alpha(12) = 4.9906311509941725908581777737538232031511D+00
-C
+!
       Xi( 1) = 1.014328418137978840909974032058D+00
       Xi( 2) = 1.131893784203605395478724193747D+00
       Xi( 3) = 1.382866538366302002361490908200D+00
@@ -12352,21 +12352,21 @@ C
       Xi(23) = 25275.481162932050445135701011167839D+00
       Xi(24) = 88852.490738383218115359341027215123D+00
       GOTO 9999
-C
-C     ===== K = 13 =====
-C
+!
+!     ===== K = 13 =====
+!
  1300 CONTINUE
-C
+!
       GOTO (1311,1311,1311,1312,1313,1314,1315,1316,1317,1318,1319,1321,
      *      1322,1323,1324,1325,1326,1327,1328,1329,1331,1332,1333,1334,
      *      1335,1336,1337,1338,1339,1341,1399),InitR
-C
-C     ----- K = 13 , R = 1E1 -----
-C
+!
+!     ----- K = 13 , R = 1E1 -----
+!
  1311 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0657951119706244487439494861291677807458D+00
       Omega( 2) = 0.1558144970704423388032679176351535943468D+00
       Omega( 3) = 0.2526931220910247708876655847731740323070D+00
@@ -12380,7 +12380,7 @@ C
       Omega(11) = 2.5848157519580364366307279055945400614291D+00
       Omega(12) = 3.6846225483494229582717011117765082417463D+00
       Omega(13) = 5.9974171438876001808196414266660667635733D+00
-C
+!
       Alpha( 1) = 0.0255868207120509142801567182071154071821D+00
       Alpha( 2) = 0.1359771426930953219612682389416669082038D+00
       Alpha( 3) = 0.3394815030426081711657955441996392664805D+00
@@ -12394,7 +12394,7 @@ C
       Alpha(11) = 8.4469671933229768618842103755639527662424D+00
       Alpha(12) = 11.5314290237107121188733782624069590383442D+00
       Alpha(13) = 16.1870932176644028131773378476054858765565D+00
-C
+!
       Xi( 1) = 1.002367931474044091184373572734D+00
       Xi( 2) = 1.021378676057969264582593604818D+00
       Xi( 3) = 1.059761545282307757800607794785D+00
@@ -12422,13 +12422,13 @@ C
       Xi(25) = 9.758432049866919944305920786576D+00
       Xi(26) = 9.972636514077775164548167463607D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 2E1 -----
-C
+!
+!     ----- K = 13 , R = 2E1 -----
+!
  1312 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0395138683042062947122689906681580751524D+00
       Omega( 2) = 0.0943049708717428432632281544434338371730D+00
       Omega( 3) = 0.1551950063737451642088696970867012225881D+00
@@ -12442,7 +12442,7 @@ C
       Omega(11) = 2.2224139656716745058750994701313175028190D+00
       Omega(12) = 3.2940777647231293996394480005918126153119D+00
       Omega(13) = 5.5510419006212233681771262006066081085010D+00
-C
+!
       Alpha( 1) = 0.0153527424497649253380107594452175234778D+00
       Alpha( 2) = 0.0819058298666787536822611083542344800890D+00
       Alpha( 3) = 0.2059765874406550866432307270170731783310D+00
@@ -12456,7 +12456,7 @@ C
       Alpha(11) = 6.3981387299032817330725342319652781952755D+00
       Alpha(12) = 9.1067784968735133151532257222982025268720D+00
       Alpha(13) = 13.3491215794234994217529188809123752434971D+00
-C
+!
       Xi( 1) = 1.003264004819202082074980353354D+00
       Xi( 2) = 1.029509967775600109973765938776D+00
       Xi( 3) = 1.082718976902608210011180744914D+00
@@ -12484,13 +12484,13 @@ C
       Xi(25) = 19.287724426470788330334471538663D+00
       Xi(26) = 19.918547471186226260897456086241D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 3E1 -----
-C
+!
+!     ----- K = 13 , R = 3E1 -----
+!
  1313 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0290391751465786714628172348467982644138D+00
       Omega( 2) = 0.0696930970758023124331454259405838058683D+00
       Omega( 3) = 0.1159194578409333255356603378793955982928D+00
@@ -12504,7 +12504,7 @@ C
       Omega(11) = 2.0550145974924654234099880012465177969716D+00
       Omega(12) = 3.1115307366236419309591526571878716822539D+00
       Omega(13) = 5.3422507011769150369294434366196355767897D+00
-C
+!
       Alpha( 1) = 0.0112757434961027098823437898357513464731D+00
       Alpha( 2) = 0.0603223978722132603997598768869048413421D+00
       Alpha( 3) = 0.1525007237397825909968251609227785081657D+00
@@ -12518,7 +12518,7 @@ C
       Alpha(11) = 5.5162604961162127548482403405216700775782D+00
       Alpha(12) = 8.0501192457232339100281492960675677750260D+00
       Alpha(13) = 12.0989895223483451391216503267855841841083D+00
-C
+!
       Xi( 1) = 1.003823181499404824175598893721D+00
       Xi( 2) = 1.034594777838683702080729842621D+00
       Xi( 3) = 1.097135219703572158616612652882D+00
@@ -12546,13 +12546,13 @@ C
       Xi(25) = 28.689894066111251145698157749564D+00
       Xi(26) = 29.849150430210857226978604650469D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 4E1 -----
-C
+!
+!     ----- K = 13 , R = 4E1 -----
+!
  1314 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0232593715227870833565752828331341106605D+00
       Omega( 2) = 0.0560723340674415472326076650272375090367D+00
       Omega( 3) = 0.0940721603347912478917188135174587415577D+00
@@ -12566,7 +12566,7 @@ C
       Omega(11) = 1.9506750470698549813431191268797704196913D+00
       Omega(12) = 2.9969169133068959927964497458319215184019D+00
       Omega(13) = 5.2111890672789227571364001345699534795131D+00
-C
+!
       Alpha( 1) = 0.0090268981545618437966382375560459028208D+00
       Alpha( 2) = 0.0483993303389877087190048664949726386908D+00
       Alpha( 3) = 0.1228819816015637557480699032508297818822D+00
@@ -12580,7 +12580,7 @@ C
       Alpha(11) = 4.9958531488654190407666666473573968687560D+00
       Alpha(12) = 7.4203059140681452122111083635758177479147D+00
       Alpha(13) = 11.3476308264797006841034798796385985042434D+00
-C
+!
       Xi( 1) = 1.004232043627023784893026459031D+00
       Xi( 2) = 1.038318156231480049456195047242D+00
       Xi( 3) = 1.107721820878299290313862002222D+00
@@ -12608,13 +12608,13 @@ C
       Xi(25) = 37.996806449500844848898850614205D+00
       Xi(26) = 39.768061025330197821858746465296D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 5E1 -----
-C
+!
+!     ----- K = 13 , R = 5E1 -----
+!
  1315 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0195487683014131804904302096292934010080D+00
       Omega( 2) = 0.0473066906441472042096202648558955772273D+00
       Omega( 3) = 0.0799532151988612554909083458831720037097D+00
@@ -12628,7 +12628,7 @@ C
       Omega(11) = 1.8766592674405786687853378569279527710023D+00
       Omega(12) = 2.9152010854831847893892798895265627834306D+00
       Omega(13) = 5.1177889314922459049889136295519165287260D+00
-C
+!
       Alpha( 1) = 0.0075835662242047441891812278435408556376D+00
       Alpha( 2) = 0.0407376307940227880337270491284407114563D+00
       Alpha( 3) = 0.1038080361905194638215996043306699192499D+00
@@ -12642,7 +12642,7 @@ C
       Alpha(11) = 4.6418880421602061927405236119170695019420D+00
       Alpha(12) = 6.9884992950388464334927907106731481690076D+00
       Alpha(13) = 10.8291419643019349878382273644206179596949D+00
-C
+!
       Xi( 1) = 1.004554608672238489620875956376D+00
       Xi( 2) = 1.041258964374473610075416685206D+00
       Xi( 3) = 1.116101627887072712374399996449D+00
@@ -12670,13 +12670,13 @@ C
       Xi(25) = 47.225778138736842323014419875449D+00
       Xi(26) = 49.677259754806401468446575009352D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 6E1 -----
-C
+!
+!     ----- K = 13 , R = 6E1 -----
+!
  1316 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0169449723784150246818773792242818210241D+00
       Omega( 2) = 0.0411429334765565038551575309522245760263D+00
       Omega( 3) = 0.0699893468845359939195321062610499751599D+00
@@ -12690,7 +12690,7 @@ C
       Omega(11) = 1.8201701757324859294378746610298946961848D+00
       Omega(12) = 2.8525952723313601027115699038105844920210D+00
       Omega(13) = 5.0462646056798155956221729745436732628150D+00
-C
+!
       Alpha( 1) = 0.0065710035402700543248571778392336240060D+00
       Alpha( 2) = 0.0353569789480877304717082888069201729309D+00
       Alpha( 3) = 0.0903879851002289691225960455156496209383D+00
@@ -12704,7 +12704,7 @@ C
       Alpha(11) = 4.3806489535904541733624117938461495214142D+00
       Alpha(12) = 6.6677158397230641838533682363987509233993D+00
       Alpha(13) = 10.4419368034881749653097759988895631977357D+00
-C
+!
       Xi( 1) = 1.004820923451609358378194825079D+00
       Xi( 2) = 1.043689146683935296410113136023D+00
       Xi( 3) = 1.123038762755039575327691003803D+00
@@ -12732,13 +12732,13 @@ C
       Xi(25) = 56.387973898118182392025232729793D+00
       Xi(26) = 59.578031283605855136786821901751D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 7E1 -----
-C
+!
+!     ----- K = 13 , R = 7E1 -----
+!
  1317 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0150071017032093006110648873187296548082D+00
       Omega( 2) = 0.0365471975379521750101896593321271211607D+00
       Omega( 3) = 0.0625365727088906125669814928258460895449D+00
@@ -12752,7 +12752,7 @@ C
       Omega(11) = 1.7749717076250380731619951668598389460385D+00
       Omega(12) = 2.8023472237986139813867292325255675677909D+00
       Omega(13) = 4.9888828936432936915490454765631511691026D+00
-C
+!
       Alpha( 1) = 0.0058175684464509904005360128084051174469D+00
       Alpha( 2) = 0.0313496158111821703283461897776573934493D+00
       Alpha( 3) = 0.0803767583469204337375695924861052077404D+00
@@ -12766,7 +12766,7 @@ C
       Alpha(11) = 4.1773180520687124769874110086220753146335D+00
       Alpha(12) = 6.4166540692766925774344344279853658008506D+00
       Alpha(13) = 10.1375583316785151648947715941062597266864D+00
-C
+!
       Xi( 1) = 1.005047588223062141120182910736D+00
       Xi( 2) = 1.045759117208935584848218669496D+00
       Xi( 3) = 1.128956539525765419827198210445D+00
@@ -12794,13 +12794,13 @@ C
       Xi(25) = 65.491295607339020265480478144582D+00
       Xi(26) = 69.471289540743901530506221320138D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 8E1 -----
-C
+!
+!     ----- K = 13 , R = 8E1 -----
+!
  1318 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0135031151724071027421650087116389293840D+00
       Omega( 2) = 0.0329745931435352286415689602311340777874D+00
       Omega( 3) = 0.0567263877008931249511724474038354415484D+00
@@ -12814,7 +12814,7 @@ C
       Omega(11) = 1.7375901390625920424392106267141855369118D+00
       Omega(12) = 2.7606812801987436849487228540667160814337D+00
       Omega(13) = 4.9413195910534541549496978518618561793119D+00
-C
+!
       Alpha( 1) = 0.0052329389711535952884931147208874557819D+00
       Alpha( 2) = 0.0282375221936975021197891843466321049050D+00
       Alpha( 3) = 0.0725906701828313244301304520134099362849D+00
@@ -12828,7 +12828,7 @@ C
       Alpha(11) = 4.0130294793175877959660879934489230436157D+00
       Alpha(12) = 6.2128284447499835686096192333138787944335D+00
       Alpha(13) = 9.8895184069447695093466044191643504746025D+00
-C
+!
       Xi( 1) = 1.005244773103949057686291868041D+00
       Xi( 2) = 1.047561077168103439152466171969D+00
       Xi( 3) = 1.134114802087177959052585740629D+00
@@ -12856,13 +12856,13 @@ C
       Xi(25) = 74.541686169997492819594420154772D+00
       Xi(26) = 79.357724794226199571678392885588D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 9E1 -----
-C
+!
+!     ----- K = 13 , R = 9E1 -----
+!
  1319 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0122986244453973046956789770545181994521D+00
       Omega( 2) = 0.0301091511469223380805432287513068168039D+00
       Omega( 3) = 0.0520540922468294390643302714527518304521D+00
@@ -12876,7 +12876,7 @@ C
       Omega(11) = 1.7059067569607391338937230074179751682095D+00
       Omega(12) = 2.7252874685729666863042569557862293549988D+00
       Omega(13) = 4.9009295252479360156111498625364220060874D+00
-C
+!
       Alpha( 1) = 0.0047648122069902020234673299496630516359D+00
       Alpha( 2) = 0.0257437170231617231684525517673711725308D+00
       Alpha( 3) = 0.0663430976309872055498477808055390880781D+00
@@ -12890,7 +12890,7 @@ C
       Alpha(11) = 3.8765534322194465295143006589029255337664D+00
       Alpha(12) = 6.0427974354698543641740970944198352299281D+00
       Alpha(13) = 9.6819261346061663729353763407914357230766D+00
-C
+!
       Xi( 1) = 1.005419169394431866989929325040D+00
       Xi( 2) = 1.049155728700803947629240087114D+00
       Xi( 3) = 1.138684850126388985029103617652D+00
@@ -12918,13 +12918,13 @@ C
       Xi(25) = 83.543802300131321615650481504645D+00
       Xi(26) = 89.237879240503543407103670404013D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 1E2 -----
-C
+!
+!     ----- K = 13 , R = 1E2 -----
+!
  1321 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0113101318768680369468646322757277022930D+00
       Omega( 2) = 0.0277543331291073884246130461239676634477D+00
       Omega( 3) = 0.0482051453560221898190271249545757470401D+00
@@ -12938,7 +12938,7 @@ C
       Omega(11) = 1.6785411291166155571845039484735195856047D+00
       Omega(12) = 2.6946568538459302127267142035194069649151D+00
       Omega(13) = 4.8659851887432857154430765334041097958107D+00
-C
+!
       Alpha( 1) = 0.0043806958779880428850311965480179843269D+00
       Alpha( 2) = 0.0236960325297795352306781235113275485560D+00
       Alpha( 3) = 0.0612068179585451655720922548714613142806D+00
@@ -12952,7 +12952,7 @@ C
       Alpha(11) = 3.7607303110864559931615647148106518216082D+00
       Alpha(12) = 5.8979582101501310427427160476554490742274D+00
       Alpha(13) = 9.5045784620299077691263356371109694009647D+00
-C
+!
       Xi( 1) = 1.005575418829604012718910432955D+00
       Xi( 2) = 1.050585204860276456232358321952D+00
       Xi( 3) = 1.142785715858074474440136958364D+00
@@ -12980,13 +12980,13 @@ C
       Xi(25) = 92.501408562411169524131171471026D+00
       Xi(26) = 99.112194153775850354037846301480D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 2E2 -----
-C
+!
+!     ----- K = 13 , R = 2E2 -----
+!
  1322 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0064910169387615788873851173888807064571D+00
       Omega( 2) = 0.0162170689188738721855351275838441615917D+00
       Omega( 3) = 0.0291812342620532922049194799948845790993D+00
@@ -13000,7 +13000,7 @@ C
       Omega(11) = 1.5190239900002864945234570814847074871068D+00
       Omega(12) = 2.5149049645269635100842259278763890506525D+00
       Omega(13) = 4.6611089868946715738390329519802435243037D+00
-C
+!
       Alpha( 1) = 0.0025091447649231517130936230551216392648D+00
       Alpha( 2) = 0.0136939543239405979498931687290963488124D+00
       Alpha( 3) = 0.0360053496395654930710438813845630789956D+00
@@ -13014,7 +13014,7 @@ C
       Alpha(11) = 3.1235654399781725293078898930687614665658D+00
       Alpha(12) = 5.0909794073166716866889192072420655676979D+00
       Alpha(13) = 8.5067809666083261223648581683676184184151D+00
-C
+!
       Xi( 1) = 1.006601834937339819044804789527D+00
       Xi( 2) = 1.059993630307594630695321169522D+00
       Xi( 3) = 1.169875904016283995516881089038D+00
@@ -13042,13 +13042,13 @@ C
       Xi(25) = 180.140007970985797022822616497706D+00
       Xi(26) = 197.594393511301768248666910210432D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 3E2 -----
-C
+!
+!     ----- K = 13 , R = 3E2 -----
+!
  1323 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0046795081858433881002059097440476387320D+00
       Omega( 2) = 0.0118427641824228194680434741482832894377D+00
       Omega( 3) = 0.0218565387549393473972666286295196691469D+00
@@ -13062,7 +13062,7 @@ C
       Omega(11) = 1.4400626713409013551943360642582092623343D+00
       Omega(12) = 2.4250786861151264221445056357140401814831D+00
       Omega(13) = 4.5588403252510033966324320964247363008326D+00
-C
+!
       Alpha( 1) = 0.0018063447618946470180019119185742260125D+00
       Alpha( 2) = 0.0099215980419140012612502451706808503928D+00
       Alpha( 3) = 0.0264254867986646808014411166865009761295D+00
@@ -13076,7 +13076,7 @@ C
       Alpha(11) = 2.8320126081133543201502622554954768929747D+00
       Alpha(12) = 4.7148939360311128031130745164034578920109D+00
       Alpha(13) = 8.0352971415653418711666500229284793022089D+00
-C
+!
       Xi( 1) = 1.007193626623011663040636876065D+00
       Xi( 2) = 1.065432637443806315681767149517D+00
       Xi( 3) = 1.185616548254826569481698572694D+00
@@ -13104,13 +13104,13 @@ C
       Xi(25) = 265.146181392494579703855706043214D+00
       Xi(26) = 295.708296475482044995963804012717D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 4E2 -----
-C
+!
+!     ----- K = 13 , R = 4E2 -----
+!
  1324 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0037074547827871263050682546077649326399D+00
       Omega( 2) = 0.0094812003352843043722770295309021371111D+00
       Omega( 3) = 0.0178578875997744910917176385661830906315D+00
@@ -13124,7 +13124,7 @@ C
       Omega(11) = 1.3895433034020467885942193286830104170804D+00
       Omega(12) = 2.3672713492607711707055306860070231778082D+00
       Omega(13) = 4.4930584436212646576649931695612849580357D+00
-C
+!
       Alpha( 1) = 0.0014294954818313334632518094187425550246D+00
       Alpha( 2) = 0.0078925616602339314342899416997167971743D+00
       Alpha( 3) = 0.0212436561183783878532213605996870064985D+00
@@ -13138,7 +13138,7 @@ C
       Alpha(11) = 2.6536401907715668653520157960201686364599D+00
       Alpha(12) = 4.4822507877281657917567514459733502008021D+00
       Alpha(13) = 7.7412394984528697886722037324602752050851D+00
-C
+!
       Xi( 1) = 1.007606096810241348856428122982D+00
       Xi( 2) = 1.069229859498175030452574163498D+00
       Xi( 3) = 1.196640759740549974678158751118D+00
@@ -13166,13 +13166,13 @@ C
       Xi(25) = 348.193887706741630805318266084214D+00
       Xi(26) = 393.535359982477614654294839624527D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 5E2 -----
-C
+!
+!     ----- K = 13 , R = 5E2 -----
+!
  1325 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0030940770041673703710907771327609516732D+00
       Omega( 2) = 0.0079837694611341389841908510599521875406D+00
       Omega( 3) = 0.0152993134475317661556109508948220199187D+00
@@ -13186,7 +13186,7 @@ C
       Omega(11) = 1.3532170717002870102092446091823774168006D+00
       Omega(12) = 2.3255281638367188130987056604581653118657D+00
       Omega(13) = 4.4455695860020917236157811380792281852337D+00
-C
+!
       Alpha( 1) = 0.0011918361572482997446954992404148654384D+00
       Alpha( 2) = 0.0066097900285615277493251359768045016807D+00
       Alpha( 3) = 0.0179527056750687483633514927167107444461D+00
@@ -13200,7 +13200,7 @@ C
       Alpha(11) = 2.5292704379654323263749982064751975485706D+00
       Alpha(12) = 4.3187598299444165074120749459041235240875D+00
       Alpha(13) = 7.5333877438232410093249535876225309039000D+00
-C
+!
       Xi( 1) = 1.007920571368887845890675858396D+00
       Xi( 2) = 1.072128463819201193074279188089D+00
       Xi( 3) = 1.205075672577440925236844093682D+00
@@ -13228,13 +13228,13 @@ C
       Xi(25) = 429.646147143148018854308389791186D+00
       Xi(26) = 491.120109199436753161238655707166D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 6E2 -----
-C
+!
+!     ----- K = 13 , R = 6E2 -----
+!
  1326 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0026687973590316281074251490799259523001D+00
       Omega( 2) = 0.0069412729280144503670891957015920414875D+00
       Omega( 3) = 0.0135041197046104785608436511801233592678D+00
@@ -13248,7 +13248,7 @@ C
       Omega(11) = 1.3252656634606378833161899333248356924742D+00
       Omega(12) = 2.2933018738760703215950886857399382279254D+00
       Omega(13) = 4.4089135030774377404724773121813541365555D+00
-C
+!
       Alpha( 1) = 0.0010271376750990705541017466865053031633D+00
       Alpha( 2) = 0.0057189693059005456997162498370551597660D+00
       Alpha( 3) = 0.0156583921950699245940867316423394939306D+00
@@ -13262,7 +13262,7 @@ C
       Alpha(11) = 2.4357683331621138168431722759166291325528D+00
       Alpha(12) = 4.1950968917859868274194967696644198440481D+00
       Alpha(13) = 7.3754691998131300008367805531861449708231D+00
-C
+!
       Xi( 1) = 1.008173416081267910449602298595D+00
       Xi( 2) = 1.074461248734802413097415285659D+00
       Xi( 3) = 1.211876394948510017070264499495D+00
@@ -13290,13 +13290,13 @@ C
       Xi(25) = 509.736103384614762573656676636347D+00
       Xi(26) = 588.491495358906647139551893133103D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 7E2 -----
-C
+!
+!     ----- K = 13 , R = 7E2 -----
+!
  1327 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0023551074366808127160831978471125514041D+00
       Omega( 2) = 0.0061695608640397718077784828399900973750D+00
       Omega( 3) = 0.0121659998421845802122178217818948553486D+00
@@ -13310,7 +13310,7 @@ C
       Omega(11) = 1.3027813128385978228441360871059373494063D+00
       Omega(12) = 2.2673081489216234296786567359305308855255D+00
       Omega(13) = 4.3793496679197264718347293310785062203649D+00
-C
+!
       Alpha( 1) = 0.0009057063557368288924064534393173347970D+00
       Alpha( 2) = 0.0050609742799303003855303185673508714615D+00
       Alpha( 3) = 0.0139578927153902635739524530460176077185D+00
@@ -13324,7 +13324,7 @@ C
       Alpha(11) = 2.3619293562501908043029658079703381190484D+00
       Alpha(12) = 4.0969574805805687592666353147308200277621D+00
       Alpha(13) = 7.2496932242178477282142090576400050849770D+00
-C
+!
       Xi( 1) = 1.008384022836860419267308863756D+00
       Xi( 2) = 1.076405874089302964037931364949D+00
       Xi( 3) = 1.217553969104368558756812390698D+00
@@ -13352,13 +13352,13 @@ C
       Xi(25) = 588.628705898983448308037225160660D+00
       Xi(26) = 685.670160951395615878123379616227D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 8E2 -----
-C
+!
+!     ----- K = 13 , R = 8E2 -----
+!
  1328 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0021133505242918429081988530501834411268D+00
       Omega( 2) = 0.0055729095031150907330734793534293691764D+00
       Omega( 3) = 0.0111249328298707799984366777733268971673D+00
@@ -13372,7 +13372,7 @@ C
       Omega(11) = 1.2841170511265791665455812675666891209403D+00
       Omega(12) = 2.2456810726269699539456997650077596517804D+00
       Omega(13) = 4.3547537938385463066048863822743442142382D+00
-C
+!
       Alpha( 1) = 0.0008121562645573330148213797650535300532D+00
       Alpha( 2) = 0.0045532336041415750128387625057096999015D+00
       Alpha( 3) = 0.0126416380474307741316834503668420364164D+00
@@ -13386,7 +13386,7 @@ C
       Alpha(11) = 2.3015610953500072652887220581163774113520D+00
       Alpha(12) = 4.0163901817262514979366139211691688615247D+00
       Alpha(13) = 7.1461275739184389006394826360235583706526D+00
-C
+!
       Xi( 1) = 1.008563939331447717375617179059D+00
       Xi( 2) = 1.078068243250622171725688902555D+00
       Xi( 3) = 1.222413496521834490792998706432D+00
@@ -13414,13 +13414,13 @@ C
       Xi(25) = 666.447772441221866601690493325805D+00
       Xi(26) = 782.671756056125553668856298372702D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 9E2 -----
-C
+!
+!     ----- K = 13 , R = 9E2 -----
+!
  1329 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0019208272844967494482146201499085658160D+00
       Omega( 2) = 0.0050963883462757398966150865823182547487D+00
       Omega( 3) = 0.0102886814614984720077820270524304735460D+00
@@ -13434,7 +13434,7 @@ C
       Omega(11) = 1.2682562982661819158238317162279429339833D+00
       Omega(12) = 2.2272659740951444588743374231043503641558D+00
       Omega(13) = 4.3338116476561864979025195943052040092880D+00
-C
+!
       Alpha( 1) = 0.0007376832054758342712174149782226179051D+00
       Alpha( 2) = 0.0041484372456243542216096397475671997412D+00
       Alpha( 3) = 0.0115892775607377264963210837522833429603D+00
@@ -13448,7 +13448,7 @@ C
       Alpha(11) = 2.2509169842175276083674761995467861197540D+00
       Alpha(12) = 3.9485610579775714584684770391831420965900D+00
       Alpha(13) = 7.0587123560753475440092408188519357281621D+00
-C
+!
       Xi( 1) = 1.008720586782332077381563184559D+00
       Xi( 2) = 1.079516454195575416081555319980D+00
       Xi( 3) = 1.226651562695841871639991504939D+00
@@ -13476,13 +13476,13 @@ C
       Xi(25) = 743.290311601880343383985660921098D+00
       Xi(26) = 879.508623151254246841368455989141D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 1E3 -----
-C
+!
+!     ----- K = 13 , R = 1E3 -----
+!
  1331 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0017635661455619365334288679760671447738D+00
       Omega( 2) = 0.0047061107563201549891152464417942713482D+00
       Omega( 3) = 0.0096001161973894923613035215503863639697D+00
@@ -13496,7 +13496,7 @@ C
       Omega(11) = 1.2545308979027300954126045162695390899898D+00
       Omega(12) = 2.2113022645733460638285683419468341526226D+00
       Omega(13) = 4.3156577180022858523933404484296261216514D+00
-C
+!
       Alpha( 1) = 0.0006768696090223793169950347299677201329D+00
       Alpha( 2) = 0.0038174398927510270668774617448468222669D+00
       Alpha( 3) = 0.0107265164258034905514282509111922969680D+00
@@ -13510,7 +13510,7 @@ C
       Alpha(11) = 2.2075757403418671217555646624219889417873D+00
       Alpha(12) = 3.8903332120321473751832497267599819679162D+00
       Alpha(13) = 6.9835030321592778258625588971852948816377D+00
-C
+!
       Xi( 1) = 1.008859011660317063041429619386D+00
       Xi( 2) = 1.080796847166073275554876165216D+00
       Xi( 3) = 1.230402093767569798930631985723D+00
@@ -13538,13 +13538,13 @@ C
       Xi(25) = 819.234884579074029875567219960431D+00
       Xi(26) = 976.190808663600207428778787743795D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 2E3 -----
-C
+!
+!     ----- K = 13 , R = 2E3 -----
+!
  1332 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0010067371248319556046560592499350406115D+00
       Omega( 2) = 0.0028099546056502035573047821150408087654D+00
       Omega( 3) = 0.0061880278742393199293739909291889311760D+00
@@ -13558,7 +13558,7 @@ C
       Omega(11) = 1.1742485462233790930331595037117153879080D+00
       Omega(12) = 2.1173756701945022221447723076437341660494D+00
       Omega(13) = 4.2088436157456099954293771148172709217761D+00
-C
+!
       Alpha( 1) = 0.0003845271473448446583365740753402556296D+00
       Alpha( 2) = 0.0022186008736336012455931992939234254081D+00
       Alpha( 3) = 0.0065187824835520443497958998062963287268D+00
@@ -13572,7 +13572,7 @@ C
       Alpha(11) = 1.9629781296839430280477822865492498749518D+00
       Alpha(12) = 3.5583604501642892266669027101499978016363D+00
       Alpha(13) = 6.5515589465778985072894058383496940223267D+00
-C
+!
       Xi( 1) = 1.009725744646025334498584680176D+00
       Xi( 2) = 1.088827885747662834402781084631D+00
       Xi( 3) = 1.254003513448803964580417769081D+00
@@ -13600,13 +13600,13 @@ C
       Xi(25) = 1539.941298467155270324191462805175D+00
       Xi(26) = 1935.888468434480756519278088489955D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 3E3 -----
-C
+!
+!     ----- K = 13 , R = 3E3 -----
+!
  1333 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0007266173762481528841575934788560298117D+00
       Omega( 2) = 0.0020964974323044222425239772877869626200D+00
       Omega( 3) = 0.0048581767156706806801208444347023318599D+00
@@ -13620,7 +13620,7 @@ C
       Omega(11) = 1.1345214719922042758727676048380317297415D+00
       Omega(12) = 2.0705197705712899576818014635293252467818D+00
       Omega(13) = 4.1555506786128121082986297540884379486670D+00
-C
+!
       Alpha( 1) = 0.0002765305534557809014453940609423385211D+00
       Alpha( 2) = 0.0016230480146192057838232835936982667580D+00
       Alpha( 3) = 0.0049241941747125575466193772491280133963D+00
@@ -13634,7 +13634,7 @@ C
       Alpha(11) = 1.8474989877676289366098538735627698770259D+00
       Alpha(12) = 3.3994398160829219373863657738255028561980D+00
       Alpha(13) = 6.3427254429993991389005736358797093998874D+00
-C
+!
       Xi( 1) = 1.010193884925419554091617635461D+00
       Xi( 2) = 1.093175713659357331281225811370D+00
       Xi( 3) = 1.266836191359841957363580045026D+00
@@ -13662,13 +13662,13 @@ C
       Xi(25) = 2208.800660325778965731302605490782D+00
       Xi(26) = 2885.097496793069043574675447416666D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 4E3 -----
-C
+!
+!     ----- K = 13 , R = 4E3 -----
+!
  1334 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0005772981384290036624670431752038429751D+00
       Omega( 2) = 0.0017117321655301405442927299010991148975D+00
       Omega( 3) = 0.0041224097445417860749515386042940434663D+00
@@ -13682,7 +13682,7 @@ C
       Omega(11) = 1.1091987143511127322055218047403002401552D+00
       Omega(12) = 2.0405109967818031381416726821598217611609D+00
       Omega(13) = 4.1214134076962477036890075687836088036420D+00
-C
+!
       Alpha( 1) = 0.0002190369434955462190035078753869678125D+00
       Alpha( 2) = 0.0013041638214468583454602062556004771210D+00
       Alpha( 3) = 0.0040594961584673383144200413397140181360D+00
@@ -13696,7 +13696,7 @@ C
       Alpha(11) = 1.7757837240382841738437630363378616493719D+00
       Alpha(12) = 3.2999574598283268581262739349568846591865D+00
       Alpha(13) = 6.2112597218473327084775625905876950128004D+00
-C
+!
       Xi( 1) = 1.010507171655304307824468912358D+00
       Xi( 2) = 1.096089317567576409528234959723D+00
       Xi( 3) = 1.275457771083344649999148645581D+00
@@ -13724,13 +13724,13 @@ C
       Xi(25) = 2839.909796921835096306097057095030D+00
       Xi(26) = 3825.735247723769567373963695899874D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 5E3 -----
-C
+!
+!     ----- K = 13 , R = 5E3 -----
+!
  1335 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0004834183698374707752262757922247574105D+00
       Omega( 2) = 0.0014675492248497519941626034676619705355D+00
       Omega( 3) = 0.0036457480254511605207782252470460893079D+00
@@ -13744,7 +13744,7 @@ C
       Omega(11) = 1.0910702058875274777192954100968336206279D+00
       Omega(12) = 2.0189563667345757479870682615796795289498D+00
       Omega(13) = 4.0968895055939679610869375014914339772076D+00
-C
+!
       Alpha( 1) = 0.0001829255424868854810194156694383785244D+00
       Alpha( 2) = 0.0011029602809106096935085972524093200775D+00
       Alpha( 3) = 0.0035082040776387238560814207932736508155D+00
@@ -13758,7 +13758,7 @@ C
       Alpha(11) = 1.7253408354432977452660308292919921768771D+00
       Alpha(12) = 3.2295976939344447805002591422862678882666D+00
       Alpha(13) = 6.1179182378765278489674006578979970072396D+00
-C
+!
       Xi( 1) = 1.010738974857806489449606190956D+00
       Xi( 2) = 1.098247200440898018098702382250D+00
       Xi( 3) = 1.281854567869962779197434699086D+00
@@ -13786,13 +13786,13 @@ C
       Xi(25) = 3440.872267032228991823217256751377D+00
       Xi(26) = 4758.866855376139633815313345621689D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 6E3 -----
-C
+!
+!     ----- K = 13 , R = 6E3 -----
+!
  1336 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0004184727948542464259221414018489332287D+00
       Omega( 2) = 0.0012972732263054492916603540686795725811D+00
       Omega( 3) = 0.0033075235899535997919634227638907564284D+00
@@ -13806,7 +13806,7 @@ C
       Omega(11) = 1.0771838414761236184984463659652931255550D+00
       Omega(12) = 2.0024038613880578551390554409294963988941D+00
       Omega(13) = 4.0780542604105885617221671779475400398951D+00
-C
+!
       Alpha( 1) = 0.0001579639475325221557856034346471914287D+00
       Alpha( 2) = 0.0009633488427175769010574386298773053028D+00
       Alpha( 3) = 0.0031222338920011592445869299822930331700D+00
@@ -13820,7 +13820,7 @@ C
       Alpha(11) = 1.6872058594615989730869376472810472478159D+00
       Alpha(12) = 3.1761840167015348132453084195603310035949D+00
       Alpha(13) = 6.0468509031626904615293327527325573100825D+00
-C
+!
       Xi( 1) = 1.010920946649155907691268463378D+00
       Xi( 2) = 1.099942443889555764068369225761D+00
       Xi( 3) = 1.286886753704524820416527086664D+00
@@ -13848,13 +13848,13 @@ C
       Xi(25) = 4016.574435451630723736826666936395D+00
       Xi(26) = 5685.191791248119010493411451534485D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 7E3 -----
-C
+!
+!     ----- K = 13 , R = 7E3 -----
+!
  1337 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0003706377943815102771234427431927896390D+00
       Omega( 2) = 0.0011709747407894105638609296825974892542D+00
       Omega( 3) = 0.0030528344477778092929221660702804319598D+00
@@ -13868,7 +13868,7 @@ C
       Omega(11) = 1.0660630760791806437943682328572947426437D+00
       Omega(12) = 1.9891211408960819676710121695073496539408D+00
       Omega(13) = 4.0629379599812607197321934204836679782602D+00
-C
+!
       Alpha( 1) = 0.0001395911103949207554129102029963870046D+00
       Alpha( 2) = 0.0008602478231696831677067798698540362912D+00
       Alpha( 3) = 0.0028349335336120280063744556083016323811D+00
@@ -13882,7 +13882,7 @@ C
       Alpha(11) = 1.6569797098202836513770180859594916000788D+00
       Alpha(12) = 3.1337076649686691487417533608095254749060D+00
       Alpha(13) = 5.9902047769526498423135751902890433484572D+00
-C
+!
       Xi( 1) = 1.011069519030782586544066348200D+00
       Xi( 2) = 1.101327355506823330727472765034D+00
       Xi( 3) = 1.291002214027701274585632762459D+00
@@ -13910,13 +13910,13 @@ C
       Xi(25) = 4570.464376150974832757611920897034D+00
       Xi(26) = 6605.212628370586382064999497742974D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 8E3 -----
-C
+!
+!     ----- K = 13 , R = 8E3 -----
+!
  1338 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0003338078810012542241301752767718147297D+00
       Omega( 2) = 0.0010731162787732948328650156013738814487D+00
       Omega( 3) = 0.0028528419239137359014562672328632619845D+00
@@ -13930,7 +13930,7 @@ C
       Omega(11) = 1.0568715828439863723851518950702654819906D+00
       Omega(12) = 1.9781243638999431445598189971413205512363D+00
       Omega(13) = 4.0504218514964760687602218780511975637637D+00
-C
+!
       Alpha( 1) = 0.0001254533213413407806652386661250275779D+00
       Alpha( 2) = 0.0007806785450082557440315181957954382419D+00
       Alpha( 3) = 0.0026116176695613647849582669062742934507D+00
@@ -13944,7 +13944,7 @@ C
       Alpha(11) = 1.6322074462041672078278092827829937050410D+00
       Alpha(12) = 3.0988005415161087707093257037627154204529D+00
       Alpha(13) = 5.9435640977043874238865128756259537112783D+00
-C
+!
       Xi( 1) = 1.011194271189963009511050828770D+00
       Xi( 2) = 1.102490805240993707340632634661D+00
       Xi( 3) = 1.294462592735715565834576923354D+00
@@ -13972,13 +13972,13 @@ C
       Xi(25) = 5105.124648034188095113705685434979D+00
       Xi(26) = 7519.310923709670903658519591772347D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 9E3 -----
-C
+!
+!     ----- K = 13 , R = 9E3 -----
+!
  1339 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0003044979986515639643271668334694249336D+00
       Omega( 2) = 0.0009947872650128499371167273019472832019D+00
       Omega( 3) = 0.0026908314022329150792039797546531532113D+00
@@ -13992,7 +13992,7 @@ C
       Omega(11) = 1.0490934946574624696659719380598119187198D+00
       Omega(12) = 1.9688053441501122312702262706629596777930D+00
       Omega(13) = 4.0398142712789524011451902651970158331096D+00
-C
+!
       Alpha( 1) = 0.0001142078282379464811224502862054778346D+00
       Alpha( 2) = 0.0007172191780088991689513650538458089390D+00
       Alpha( 3) = 0.0024323501465652189386784643148481377395D+00
@@ -14006,7 +14006,7 @@ C
       Alpha(11) = 1.6113925491144701489546961492571597318602D+00
       Alpha(12) = 3.0694021532196554213033079516748102832935D+00
       Alpha(13) = 5.9042205649169941920374748978161960621946D+00
-C
+!
       Xi( 1) = 1.011301249609793416798196596940D+00
       Xi( 2) = 1.103488913440093922109161428402D+00
       Xi( 3) = 1.297433455503520915194463902775D+00
@@ -14034,13 +14034,13 @@ C
       Xi(25) = 5622.572944123117865355965250273584D+00
       Xi(26) = 8427.788308099427949215964872564655D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 1E4 -----
-C
+!
+!     ----- K = 13 , R = 1E4 -----
+!
  1341 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0002805676165532984518155677907628314793D+00
       Omega( 2) = 0.0009304915861452454389846289861329409199D+00
       Omega( 3) = 0.0025563936765912246068727965708777816189D+00
@@ -14054,7 +14054,7 @@ C
       Omega(11) = 1.0423899529883427146929528173124879231182D+00
       Omega(12) = 1.9607638827744524425474720308315568217949D+00
       Omega(13) = 4.0306601210273864796182485825681851565605D+00
-C
+!
       Alpha( 1) = 0.0001050303259562613398418802709865550737D+00
       Alpha( 2) = 0.0006653037355264198210729591502401308878D+00
       Alpha( 3) = 0.0022848087471415481963090890601617011235D+00
@@ -14068,7 +14068,7 @@ C
       Alpha(11) = 1.5935618858617478106045814434388319114078D+00
       Alpha(12) = 3.0441685261321626066507300967245441825071D+00
       Alpha(13) = 5.8704038773647556391857560420532990974607D+00
-C
+!
       Xi( 1) = 1.011394502750584783925397180937D+00
       Xi( 2) = 1.104359278856419517966108712059D+00
       Xi( 3) = 1.300025824648590792929729598182D+00
@@ -14096,13 +14096,13 @@ C
       Xi(25) = 6124.428667863334515342188524300582D+00
       Xi(26) = 9330.891138495153310117302680737339D+00
       GOTO 9999
-C
-C     ----- K = 13 , R = 4E5 (Best : R = 373800) -----
-C
+!
+!     ----- K = 13 , R = 4E5 (Best : R = 373800) -----
+!
  1399 CONTINUE
-C
+!
       RIni = 4.0D+05
-C
+!
       Omega( 1) = 0.0000330785848121602154387056886249976126D+00
       Omega( 2) = 0.0002173321916008653986926517817884589590D+00
       Omega( 3) = 0.0008896788976872138107598869801936891655D+00
@@ -14116,7 +14116,7 @@ C
       Omega(11) = 0.9262055359666433552523825967206505538343D+00
       Omega(12) = 1.8198087510110939301862312267310528568487D+00
       Omega(13) = 3.8700490617962436596440761737980551515648D+00
-C
+!
       Alpha( 1) = 0.0000103473916611944270948840590255708282D+00
       Alpha( 2) = 0.0001138316914487578993839338792673759188D+00
       Alpha( 3) = 0.0006024601498553105686272644218436783659D+00
@@ -14130,7 +14130,7 @@ C
       Alpha(11) = 1.3003150067055842798151993333632958638191D+00
       Alpha(12) = 2.6217712688276107583541796319792638314539D+00
       Alpha(13) = 5.2973357440769386740922475276249770104187D+00
-C
+!
       Xi( 1) = 1.013181302065140132755323432168D+00
       Xi( 2) = 1.121092899838553857147852022003D+00
       Xi( 3) = 1.350178171338921877860789200199D+00
@@ -14158,21 +14158,21 @@ C
       Xi(25) = 46249.942302022233448610677442047745D+00
       Xi(26) = 162585.334114312755389164522057399154D+00
       GOTO 9999
-C
-C     ===== K = 14 =====
-C
+!
+!     ===== K = 14 =====
+!
  1400 CONTINUE
-C
+!
       GOTO (1411,1411,1411,1412,1413,1414,1415,1416,1417,1418,1419,1421,
      *      1422,1423,1424,1425,1426,1427,1428,1429,1431,1432,1433,1434,
      *      1435,1436,1437,1438,1439,1441,1499),InitR
-C
-C     ----- K = 14 , R = 1E1 -----
-C
+!
+!     ----- K = 14 , R = 1E1 -----
+!
  1411 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0611672710980397459221895393316481559509D+00
       Omega( 2) = 0.1445085337560793091400733814677614930133D+00
       Omega( 3) = 0.2333087043102459606655702320510137326437D+00
@@ -14187,7 +14187,7 @@ C
       Omega(12) = 2.7419850943350311993709778057848325261148D+00
       Omega(13) = 3.8566755067690577972808196882681386341574D+00
       Omega(14) = 6.1981813314547232786344554966717623756267D+00
-C
+!
       Alpha( 1) = 0.0237936689536894477217231907983929772854D+00
       Alpha( 2) = 0.1262969464732095495004306207054156629965D+00
       Alpha( 3) = 0.3146136033888996736719578795060670017847D+00
@@ -14202,7 +14202,7 @@ C
       Alpha(12) = 9.5870452772388343133311283672526315058349D+00
       Alpha(13) = 12.8357494149077693088717433411716228874866D+00
       Alpha(14) = 17.6753312545577532001461751320903204032220D+00
-C
+!
       Xi( 1) = 1.002048743182274802569937943719D+00
       Xi( 2) = 1.018505136379617066234859468210D+00
       Xi( 3) = 1.051666186927454282981804489783D+00
@@ -14232,13 +14232,13 @@ C
       Xi(27) = 9.792471414911000586467348938413D+00
       Xi(28) = 9.976558470699145049660760964372D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 2E1 -----
-C
+!
+!     ----- K = 14 , R = 2E1 -----
+!
  1412 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0366971334946315666002201842654795171939D+00
       Omega( 2) = 0.0872726090345815495787507726221932102817D+00
       Omega( 3) = 0.1426593255181061152699582839087355523588D+00
@@ -14253,7 +14253,7 @@ C
       Omega(12) = 2.3714793690419589983642972841337837053288D+00
       Omega(13) = 3.4577518634250880304702169265596012337483D+00
       Omega(14) = 5.7402472869474302982761848568316054297611D+00
-C
+!
       Alpha( 1) = 0.0142641020572255696012418284615574926022D+00
       Alpha( 2) = 0.0759638522130805713449886763799501210315D+00
       Alpha( 3) = 0.1903985303505704626254955297293136595727D+00
@@ -14268,7 +14268,7 @@ C
       Alpha(12) = 7.3023268339139556773118022725554965290939D+00
       Alpha(13) = 10.1671211920942247573448891095893031888409D+00
       Alpha(14) = 14.5837970745518835380405420210081501863897D+00
-C
+!
       Xi( 1) = 1.002831485574532416013039670677D+00
       Xi( 2) = 1.025583475486455251675550759405D+00
       Xi( 3) = 1.071623521123393540607250662422D+00
@@ -14298,13 +14298,13 @@ C
       Xi(27) = 19.389421462003029458104341742342D+00
       Xi(28) = 19.930475888186686651490364674544D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 3E1 -----
-C
+!
+!     ----- K = 14 , R = 3E1 -----
+!
  1413 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0269485719324102415012518437278932204038D+00
       Omega( 2) = 0.0643920828356638264082208514271776778060D+00
       Omega( 3) = 0.1062051071686407342615728922885498519690D+00
@@ -14319,7 +14319,7 @@ C
       Omega(12) = 2.1995131318883793108964752605061221402138D+00
       Omega(13) = 3.2707215533727314348867720728009089725674D+00
       Omega(14) = 5.5255489337075930690069969219990753117600D+00
-C
+!
       Alpha( 1) = 0.0104692054336327858570128424009482159818D+00
       Alpha( 2) = 0.0558852823007056333488396047265434063434D+00
       Alpha( 3) = 0.1406960623012082067513454919360782469084D+00
@@ -14334,7 +14334,7 @@ C
       Alpha(12) = 6.3156455909790721985064276822186002391391D+00
       Alpha(13) = 9.0012119220790479849972354209342029207619D+00
       Alpha(14) = 13.2194183434275530303683710009465812618146D+00
-C
+!
       Xi( 1) = 1.003321224832383769774712956036D+00
       Xi( 2) = 1.030030492626788905276280505774D+00
       Xi( 3) = 1.084196012045892534110189120433D+00
@@ -14364,13 +14364,13 @@ C
       Xi(27) = 28.878537944622666046659564820231D+00
       Xi(28) = 29.871565401147938460107988944969D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 4E1 -----
-C
+!
+!     ----- K = 14 , R = 4E1 -----
+!
  1414 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0215714048457843105687122258612431480174D+00
       Omega( 2) = 0.0517388459374235217105636105983101913353D+00
       Omega( 3) = 0.0859543366519704896800508839294074903137D+00
@@ -14385,7 +14385,7 @@ C
       Omega(12) = 2.0919781635689984765260479582238417606277D+00
       Omega(13) = 3.1530482964361891962123962684927391819656D+00
       Omega(14) = 5.3905535884065372137508020955465326551348D+00
-C
+!
       Alpha( 1) = 0.0083766354672433427827797441066193240289D+00
       Alpha( 2) = 0.0447991964410272469703747522801196012665D+00
       Alpha( 3) = 0.1131902344655730421101795350746765933536D+00
@@ -14400,7 +14400,7 @@ C
       Alpha(12) = 5.7318680938431347069578203345940892177168D+00
       Alpha(13) = 8.3049530509144087178294291184954545315122D+00
       Alpha(14) = 12.3982499699347220156048221539890619169455D+00
-C
+!
       Xi( 1) = 1.003680405687570364558873492467D+00
       Xi( 2) = 1.033296098396227069050878899503D+00
       Xi( 3) = 1.093451374628653129691784051669D+00
@@ -14430,13 +14430,13 @@ C
       Xi(27) = 38.287076400773418147910343023455D+00
       Xi(28) = 39.802914803067470653902271138236D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 5E1 -----
-C
+!
+!     ----- K = 14 , R = 5E1 -----
+!
  1415 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0181203903997484738327760711920633163174D+00
       Omega( 2) = 0.0436009472996198242532490691597546472735D+00
       Omega( 3) = 0.0728818458472537549459944854202131381271D+00
@@ -14451,7 +14451,7 @@ C
       Omega(12) = 2.0155108372394360859505835215088609402301D+00
       Omega(13) = 3.0690175985474151918331459087951884612266D+00
       Omega(14) = 5.2942233398720185285311889966664011808462D+00
-C
+!
       Alpha( 1) = 0.0070339795370923024902860712457425274025D+00
       Alpha( 2) = 0.0376784577605089209654284747308405911781D+00
       Alpha( 3) = 0.0954894503195428311095546182463156270614D+00
@@ -14466,7 +14466,7 @@ C
       Alpha(12) = 5.3339687858463377414207362559039893312729D+00
       Alpha(13) = 7.8268675578464850916410311398863086651545D+00
       Alpha(14) = 11.8309580846968924782228183012477984448196D+00
-C
+!
       Xi( 1) = 1.003964463629397876258224353574D+00
       Xi( 2) = 1.035881220231276358544232618630D+00
       Xi( 3) = 1.100792113768499243535610443434D+00
@@ -14496,13 +14496,13 @@ C
       Xi(27) = 47.629809930857014223931633623010D+00
       Xi(28) = 49.726209480431178468901043387973D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 6E1 -----
-C
+!
+!     ----- K = 14 , R = 6E1 -----
+!
  1416 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0156994377913550977882427587759006648582D+00
       Omega( 2) = 0.0378817333353865612529927462542866933859D+00
       Omega( 3) = 0.0636654818251124950969320470672840883708D+00
@@ -14517,7 +14517,7 @@ C
       Omega(12) = 1.9570374697495082172253588748134234265308D+00
       Omega(13) = 3.0045539951549261944042240601859816706565D+00
       Omega(14) = 5.2203736700979702428301876260263725271216D+00
-C
+!
       Alpha( 1) = 0.0060922817824678279624866941797250996515D+00
       Alpha( 2) = 0.0326796427354352025450941101464286120404D+00
       Alpha( 3) = 0.0830432040368440788216186990156053582268D+00
@@ -14532,7 +14532,7 @@ C
       Alpha(12) = 5.0397939065273830204841343238797435333254D+00
       Alpha(13) = 7.4712575541170140043349678915518552457797D+00
       Alpha(14) = 11.4069124477270112142865410298497863550438D+00
-C
+!
       Xi( 1) = 1.004199463362554230845199998434D+00
       Xi( 2) = 1.038021580056463033818123231633D+00
       Xi( 3) = 1.106879359284786768771388643096D+00
@@ -14562,13 +14562,13 @@ C
       Xi(27) = 56.916242705365995533522971427942D+00
       Xi(28) = 59.642539771599628304482587637381D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 7E1 -----
-C
+!
+!     ----- K = 14 , R = 7E1 -----
+!
  1417 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0138981094100516390688979258792590254501D+00
       Omega( 2) = 0.0336195382439525929142991496345604929274D+00
       Omega( 3) = 0.0567778323204290500227434113078572863742D+00
@@ -14583,7 +14583,7 @@ C
       Omega(12) = 1.9101752773557870700724473089771038303297D+00
       Omega(13) = 2.9527569215812303133391475418179084044823D+00
       Omega(14) = 5.1610696744092252451902025356389458465856D+00
-C
+!
       Alpha( 1) = 0.0053917358661889226640618331173188115812D+00
       Alpha( 2) = 0.0289579546036361528682647826019036507716D+00
       Alpha( 3) = 0.0737635463848466191102309398586189814750D+00
@@ -14598,7 +14598,7 @@ C
       Alpha(12) = 4.8104879927941818903644466409730284794932D+00
       Alpha(13) = 7.1926391193233954741807767430117337426054D+00
       Alpha(14) = 11.0733054471847641789250538124633749248460D+00
-C
+!
       Xi( 1) = 1.004399828902913362942486696916D+00
       Xi( 2) = 1.039847728421465022181566228987D+00
       Xi( 3) = 1.112079776788726031958899620466D+00
@@ -14628,13 +14628,13 @@ C
       Xi(27) = 66.153095322911794506914873181813D+00
       Xi(28) = 69.552680159615619150115239932575D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 8E1 -----
-C
+!
+!     ----- K = 14 , R = 8E1 -----
+!
  1418 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0125004212646736390650997489820683838957D+00
       Omega( 2) = 0.0303076914188914629644759765256245565013D+00
       Omega( 3) = 0.0514124614377946843495937895990310906313D+00
@@ -14649,7 +14649,7 @@ C
       Omega(12) = 1.8713633171352733962876369044892044257722D+00
       Omega(13) = 2.9097642414871805181288133557160335840308D+00
       Omega(14) = 5.1118712221355903872060943982091885118280D+00
-C
+!
       Alpha( 1) = 0.0048482592516001103827690205463896155891D+00
       Alpha( 2) = 0.0260686293011070024490058189697849755362D+00
       Alpha( 3) = 0.0665500407740831386566547622773981629507D+00
@@ -14664,7 +14664,7 @@ C
       Alpha(12) = 4.6249719171086872476425511102604559710016D+00
       Alpha(13) = 6.9662281803325074125247950984629596860032D+00
       Alpha(14) = 10.8012531761208309200386623594170032447437D+00
-C
+!
       Xi( 1) = 1.004574409398721246216255875705D+00
       Xi( 2) = 1.041439794412749675648829916774D+00
       Xi( 3) = 1.116618705551927111024532179862D+00
@@ -14694,13 +14694,13 @@ C
       Xi(27) = 75.345409801972011369641801792341D+00
       Xi(28) = 79.457213912610988523765875868321D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 9E1 -----
-C
+!
+!     ----- K = 14 , R = 9E1 -----
+!
  1419 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0113813041251049466054515212423692283039D+00
       Omega( 2) = 0.0276524776127700123882970518335300269541D+00
       Omega( 3) = 0.0471009994681223302796281311027870586372D+00
@@ -14715,7 +14715,7 @@ C
       Omega(12) = 1.8384268358954554908619299924410483981774D+00
       Omega(13) = 2.8732112163151237922177616557206647485145D+00
       Omega(14) = 5.0700605746327023072399231562457089239615D+00
-C
+!
       Alpha( 1) = 0.0044131687819247254553858990627074332380D+00
       Alpha( 2) = 0.0237540107528117159956443154786298599390D+00
       Alpha( 3) = 0.0607645778668153227434893005887150962963D+00
@@ -14730,7 +14730,7 @@ C
       Alpha(12) = 4.4706848820515293859746697169299523011432D+00
       Alpha(13) = 6.7771978107945288916785786526020274322946D+00
       Alpha(14) = 10.5734181763829215875902245436179782700492D+00
-C
+!
       Xi( 1) = 1.004729032416783593298706400709D+00
       Xi( 2) = 1.042850578143463038927572783532D+00
       Xi( 3) = 1.120644850395562548629919963350D+00
@@ -14760,13 +14760,13 @@ C
       Xi(27) = 84.497138578197352687393362202783D+00
       Xi(28) = 89.356599271330439969440728731342D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 1E2 -----
-C
+!
+!     ----- K = 14 , R = 1E2 -----
+!
  1421 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0104630611822745417864471734366305089026D+00
       Omega( 2) = 0.0254712518740332508723116320542567692087D+00
       Omega( 3) = 0.0435516943672130260874577646623695414974D+00
@@ -14781,7 +14781,7 @@ C
       Omega(12) = 1.8099472513036932155502944929992281686282D+00
       Omega(13) = 2.8415520082506048565700040864356878955732D+00
       Omega(14) = 5.0338617706525944036667630232528836131678D+00
-C
+!
       Alpha( 1) = 0.0040562245376395091996092839934512364053D+00
       Alpha( 2) = 0.0218539743092570181921173661301893709208D+00
       Alpha( 3) = 0.0560102456526223489891057934902951487288D+00
@@ -14796,7 +14796,7 @@ C
       Alpha(12) = 4.3396108706176149492211857605639124813024D+00
       Alpha(13) = 6.6160519092730605914681740742366855556611D+00
       Alpha(14) = 10.3786631164987534587870743330029199569253D+00
-C
+!
       Xi( 1) = 1.004867744422024420096646590839D+00
       Xi( 2) = 1.044116774458187907196130006504D+00
       Xi( 3) = 1.124261616172937912989590603097D+00
@@ -14826,13 +14826,13 @@ C
       Xi(27) = 93.611467602814374969200095222277D+00
       Xi(28) = 99.251208591006958893709910540792D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 2E2 -----
-C
+!
+!     ----- K = 14 , R = 2E2 -----
+!
  1422 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0059897754697514995871548493591718376194D+00
       Omega( 2) = 0.0147993270032761131379042685018987413059D+00
       Omega( 3) = 0.0260524770457164332042342743539498073346D+00
@@ -14847,7 +14847,7 @@ C
       Omega(12) = 1.6432750177593764012327556822690155513556D+00
       Omega(13) = 2.6552117669183682784842664981184157113603D+00
       Omega(14) = 4.8210711548907294781221577473218076193007D+00
-C
+!
       Alpha( 1) = 0.0023182288230558957666211321703778058811D+00
       Alpha( 2) = 0.0125823731486630252544487145599516608740D+00
       Alpha( 3) = 0.0327195618552320785285395833563715228820D+00
@@ -14862,7 +14862,7 @@ C
       Alpha(12) = 3.6159269289529930701404536463883232499938D+00
       Alpha(13) = 5.7157741285866358522428642974233525819727D+00
       Alpha(14) = 9.2805653437018404599070930949267221876653D+00
-C
+!
       Xi( 1) = 1.005783423474271097430854382537D+00
       Xi( 2) = 1.052489365036918946808182362407D+00
       Xi( 3) = 1.148254951461565999556134476389D+00
@@ -14892,13 +14892,13 @@ C
       Xi(27) = 183.129616610208101168399963398770D+00
       Xi(28) = 197.985220406843973842136996665886D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 3E2 -----
-C
+!
+!     ----- K = 14 , R = 3E2 -----
+!
  1423 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0043105055503077696991761779028717871398D+00
       Omega( 2) = 0.0107629963032836868978568190848010832639D+00
       Omega( 3) = 0.0193446992531293919894731792030739825350D+00
@@ -14913,7 +14913,7 @@ C
       Omega(12) = 1.5602761224141383718288025872489299672452D+00
       Omega(13) = 2.5616606516288392130387824296988696914923D+00
       Omega(14) = 4.7144075044545905714063471769748048245674D+00
-C
+!
       Alpha( 1) = 0.0016663613283814120935658878094876023113D+00
       Alpha( 2) = 0.0090917173500048858559324685239821928207D+00
       Alpha( 3) = 0.0238907650081464097515017040371243517427D+00
@@ -14928,7 +14928,7 @@ C
       Alpha(12) = 3.2829551393289981401930194282456909604662D+00
       Alpha(13) = 5.2944340379242350253310989138810782606015D+00
       Alpha(14) = 8.7598988337524299023495455429610956343822D+00
-C
+!
       Xi( 1) = 1.006315237360364457479267041862D+00
       Xi( 2) = 1.057363459691149750168531751271D+00
       Xi( 3) = 1.162285463353864100699390504712D+00
@@ -14958,13 +14958,13 @@ C
       Xi(27) = 270.443464948497017869000202949792D+00
       Xi(28) = 296.422536960799892280515877018843D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 4E2 -----
-C
+!
+!     ----- K = 14 , R = 4E2 -----
+!
  1424 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0034102793689438034177186941271753273242D+00
       Omega( 2) = 0.0085877067644438304675559613457491714428D+00
       Omega( 3) = 0.0156948222369874568904316372575102889186D+00
@@ -14979,7 +14979,7 @@ C
       Omega(12) = 1.5069617811410725934963272809596901424811D+00
       Omega(13) = 2.5012628008061577539536401992847913788864D+00
       Omega(14) = 4.6455970530622682453970873073245684281574D+00
-C
+!
       Alpha( 1) = 0.0013171250509087271421003036641315941946D+00
       Alpha( 2) = 0.0072165930695399487539990672577833175083D+00
       Alpha( 3) = 0.0191248799561856207320913745087431756531D+00
@@ -14994,7 +14994,7 @@ C
       Alpha(12) = 3.0785150126590599113738516701133107744681D+00
       Alpha(13) = 5.0330591708377733087612093676455060631270D+00
       Alpha(14) = 8.4343872183413754663877659467630110157188D+00
-C
+!
       Xi( 1) = 1.006687768458224417687622842532D+00
       Xi( 2) = 1.060782789639744152446892977437D+00
       Xi( 3) = 1.172156295232698616976853289717D+00
@@ -15024,13 +15024,13 @@ C
       Xi(27) = 356.119449512395370216477630265217D+00
       Xi(28) = 394.631056323149155384832909021497D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 5E2 -----
-C
+!
+!     ----- K = 14 , R = 5E2 -----
+!
  1425 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0028426663110938020009905725362861494965D+00
       Omega( 2) = 0.0072103241609037110839534076393853023745D+00
       Omega( 3) = 0.0133657275195878244502213833856674174427D+00
@@ -15045,7 +15045,7 @@ C
       Omega(12) = 1.4685085046890018607669212147293080761301D+00
       Omega(13) = 2.4575387649296610392650463960961815246264D+00
       Omega(14) = 4.5958060777879913907928433047800353961065D+00
-C
+!
       Alpha( 1) = 0.0010970334583767882200461239185738937518D+00
       Alpha( 2) = 0.0060323406803296099254263007774512495018D+00
       Alpha( 3) = 0.0161030878430710059278171573590721088465D+00
@@ -15060,7 +15060,7 @@ C
       Alpha(12) = 2.9355854175023709227727169990274092015170D+00
       Alpha(13) = 4.8489747171770592204000094316285185414017D+00
       Alpha(14) = 8.2038646820468288378691568141221068799496D+00
-C
+!
       Xi( 1) = 1.006972908128617223309439476786D+00
       Xi( 2) = 1.063402835956595894996781770381D+00
       Xi( 3) = 1.179735523494981054852710766756D+00
@@ -15091,12 +15091,12 @@ C
       Xi(28) = 492.647718336578408993009503547000D+00
       GOTO 9999
 
-C     ----- K = 14 , R = 6E2 -----
-C
+!     ----- K = 14 , R = 6E2 -----
+!
  1426 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0024493762987277453332710217166756638818D+00
       Omega( 2) = 0.0062525417642427215862345631341295826289D+00
       Omega( 3) = 0.0117353802142847542872562097322763907670D+00
@@ -15111,7 +15111,7 @@ C
       Omega(12) = 1.4388462588113037831857865533891072118422D+00
       Omega(13) = 2.4237120872801188467896005285240335069830D+00
       Omega(14) = 4.5572977662850002100389246173506307968637D+00
-C
+!
       Alpha( 1) = 0.0009445997794898587881681367728076842427D+00
       Alpha( 2) = 0.0052106503828448096642906380189519399693D+00
       Alpha( 3) = 0.0139993998059489099533507614099570037780D+00
@@ -15126,7 +15126,7 @@ C
       Alpha(12) = 2.8278951803735827743701419789701390072878D+00
       Alpha(13) = 4.7094833640003784113077511808143071903032D+00
       Alpha(14) = 8.0284416387115672035859614830144437291892D+00
-C
+!
       Xi( 1) = 1.007202914800316681347147618197D+00
       Xi( 2) = 1.065518106264580068900417464395D+00
       Xi( 3) = 1.185864472955849129422525867206D+00
@@ -15156,13 +15156,13 @@ C
       Xi(27) = 523.664787470510884104246684955797D+00
       Xi(28) = 590.496446832911009994226958497165D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 7E2 -----
-C
+!
+!     ----- K = 14 , R = 7E2 -----
+!
  1427 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0021594492963257279436261964165877369481D+00
       Omega( 2) = 0.0055442742030058087287469853303434330627D+00
       Omega( 3) = 0.0105226822930893956613025014279472202361D+00
@@ -15177,7 +15177,7 @@ C
       Omega(12) = 1.4149345700297016986375989167079580965947D+00
       Omega(13) = 2.3963776420822999551306364818259453386418D+00
       Omega(14) = 4.5261871826738335603847185328874047627323D+00
-C
+!
       Alpha( 1) = 0.0008322695037266466425591101576351993341D+00
       Alpha( 2) = 0.0046041779357021047074279007649266759472D+00
       Alpha( 3) = 0.0124421375785095599149015859440081666065D+00
@@ -15192,7 +15192,7 @@ C
       Alpha(12) = 2.7426945317859525586955821152557177811104D+00
       Alpha(13) = 4.5986103520545233802434281766835511007230D+00
       Alpha(14) = 7.8885292427604850038803940837084383019828D+00
-C
+!
       Xi( 1) = 1.007395036308558245916576490142D+00
       Xi( 2) = 1.067286191578751572569226657716D+00
       Xi( 3) = 1.190994301131639571968666435620D+00
@@ -15222,13 +15222,13 @@ C
       Xi(27) = 605.866530293086994141127377133671D+00
       Xi(28) = 688.194268309426277874241151266688D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 8E2 -----
-C
+!
+!     ----- K = 14 , R = 8E2 -----
+!
  1428 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0019361209248683744086110819081388012552D+00
       Omega( 2) = 0.0049971806200044293842755464135629850375D+00
       Omega( 3) = 0.0095809917510057843200821196816274749608D+00
@@ -15243,7 +15243,7 @@ C
       Omega(12) = 1.3950481721401585319787888583853430191084D+00
       Omega(13) = 2.3735982301456124165563166261705418946804D+00
       Omega(14) = 4.5002652071230410369372110235275386003195D+00
-C
+!
       Alpha( 1) = 0.0007457708419311785665749849310712099593D+00
       Alpha( 2) = 0.0041365105869129268884829301808347956637D+00
       Alpha( 3) = 0.0112381125521925794856191731414807311040D+00
@@ -15258,7 +15258,7 @@ C
       Alpha(12) = 2.6729249179396884245497184595663497930218D+00
       Alpha(13) = 4.5074643277945692153123313783424919165554D+00
       Alpha(14) = 7.7731799603489856813863523310459413551143D+00
-C
+!
       Xi( 1) = 1.007559565169001995960963713461D+00
       Xi( 2) = 1.068801236800597058798113769829D+00
       Xi( 3) = 1.195394983364988433522518862517D+00
@@ -15288,13 +15288,13 @@ C
       Xi(27) = 687.169966216998286734352063831466D+00
       Xi(28) = 785.754038180450499972984346186422D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 9E2 -----
-C
+!
+!     ----- K = 14 , R = 9E2 -----
+!
  1429 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0017583561916395429822060017142557053482D+00
       Omega( 2) = 0.0045606051634619621230909035022871300669D+00
       Omega( 3) = 0.0088258952559276655398936639942975013184D+00
@@ -15309,7 +15309,7 @@ C
       Omega(12) = 1.3781205638528317495824018767969221244130D+00
       Omega(13) = 2.3541736567665158426625876542104265354283D+00
       Omega(14) = 4.4781636543138096371620415769854162135744D+00
-C
+!
       Alpha( 1) = 0.0006769402078263382473447450288824706055D+00
       Alpha( 2) = 0.0037638910093806651992535250829743920242D+00
       Alpha( 3) = 0.0102764752572631166838897109373773819385D+00
@@ -15324,7 +15324,7 @@ C
       Alpha(12) = 2.6143101743202715571759431334442069783108D+00
       Alpha(13) = 4.4306346423300903875248935026576191376080D+00
       Alpha(14) = 7.6757091479698113497057154752667429420399D+00
-C
+!
       Xi( 1) = 1.007703131510779039070602181027D+00
       Xi( 2) = 1.070123938594893971674483490464D+00
       Xi( 3) = 1.199240777802830972800958442281D+00
@@ -15354,13 +15354,13 @@ C
       Xi(27) = 767.655839022134085070092623936944D+00
       Xi(28) = 883.185893111137792332865359412608D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 1E3 -----
-C
+!
+!     ----- K = 14 , R = 1E3 -----
+!
  1431 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0016132124497670363360598869378707831412D+00
       Omega( 2) = 0.0042033179673286300773109411439698579471D+00
       Omega( 3) = 0.0082051681426387509475769890116003679736D+00
@@ -15375,7 +15375,7 @@ C
       Omega(12) = 1.3634496747327067076157799951907634294912D+00
       Omega(13) = 2.3373123988437141795165841173798071395140D+00
       Omega(14) = 4.4589806097080054219858324948688732547453D+00
-C
+!
       Alpha( 1) = 0.0006207557929943959426693132709531436353D+00
       Alpha( 2) = 0.0034593749933095318074656649744158531945D+00
       Alpha( 3) = 0.0094888451804602900570287317590090214736D+00
@@ -15390,7 +15390,7 @@ C
       Alpha(12) = 2.5640827986459930748486257812146504875273D+00
       Alpha(13) = 4.3646061500119444805101398543456525658257D+00
       Alpha(14) = 7.5917614754962411591741877625594270284637D+00
-C
+!
       Xi( 1) = 1.007830250880272755483260671561D+00
       Xi( 2) = 1.071295646757362046513038789097D+00
       Xi( 3) = 1.202650501122817269295840747478D+00
@@ -15420,13 +15420,13 @@ C
       Xi(27) = 847.389394762888743639628330583946D+00
       Xi(28) = 980.498069961306024933112013286518D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 2E3 -----
-C
+!
+!     ----- K = 14 , R = 2E3 -----
+!
  1432 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0009157569104258143407238324450962002610D+00
       Omega( 2) = 0.0024721937700800369844148039050191201227D+00
       Omega( 3) = 0.0051478470787629635160354869827248336378D+00
@@ -15441,7 +15441,7 @@ C
       Omega(12) = 1.2771569837351899401670096700911471998552D+00
       Omega(13) = 2.2376078746285902639889114906779354896571D+00
       Omega(14) = 4.3455745783663723949725998796367321119760D+00
-C
+!
       Alpha( 1) = 0.0003510368022941439417818036022346517289D+00
       Alpha( 2) = 0.0019913702978629040273133015293699488168D+00
       Alpha( 3) = 0.0056609555525626375320288213334463112147D+00
@@ -15456,7 +15456,7 @@ C
       Alpha(12) = 2.2792966515798136375829663347047926436062D+00
       Alpha(13) = 3.9865887787029058773966699869006902190449D+00
       Alpha(14) = 7.1077410216557896983392839107551708366373D+00
-C
+!
       Xi( 1) = 1.008632189108310501157381167125D+00
       Xi( 2) = 1.078699122282745128027260650416D+00
       Xi( 3) = 1.224259205672618162972879740646D+00
@@ -15486,13 +15486,13 @@ C
       Xi(27) = 1612.179929966378417849348636536888D+00
       Xi(28) = 1948.167189464106106577823140924011D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 3E3 -----
-C
+!
+!     ----- K = 14 , R = 3E3 -----
+!
  1433 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0006582780968990024278469099211063414456D+00
       Omega( 2) = 0.0018238955102013432973480472581821743017D+00
       Omega( 3) = 0.0039689243401756151851419822385036439982D+00
@@ -15507,7 +15507,7 @@ C
       Omega(12) = 1.2340831943571578578362074596341813048639D+00
       Omega(13) = 2.1874725831200839232075494589224717856268D+00
       Omega(14) = 4.2885600188927733692791088859763704022043D+00
-C
+!
       Alpha( 1) = 0.0002516319551055987430042176262621686500D+00
       Alpha( 2) = 0.0014463966580943881962319767136085357784D+00
       Alpha( 3) = 0.0042192863421776700386364223650803584320D+00
@@ -15522,7 +15522,7 @@ C
       Alpha(12) = 2.1438544125498438426297848069523865888186D+00
       Alpha(13) = 3.8044083660706669346510122586835223046364D+00
       Alpha(14) = 6.8722249361801352844636436856262662331574D+00
-C
+!
       Xi( 1) = 1.009070286187634341219278300006D+00
       Xi( 2) = 1.082752262413102746821912114594D+00
       Xi( 3) = 1.236136394203963409640575910053D+00
@@ -15552,13 +15552,13 @@ C
       Xi(27) = 2333.185126236751510520051056118973D+00
       Xi(28) = 2907.925413012566687065429960057372D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 4E3 -----
-C
+!
+!     ----- K = 14 , R = 4E3 -----
+!
  1434 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0005212677491514954218130321807623400732D+00
       Omega( 2) = 0.0014754241414154630869342410938796494868D+00
       Omega( 3) = 0.0033215711612985019576517681585969832270D+00
@@ -15573,7 +15573,7 @@ C
       Omega(12) = 1.2064609599820673001974169480376986030024D+00
       Omega(13) = 2.1551812818521882252759125364605097274762D+00
       Omega(14) = 4.2518383632143199927187759978863823562278D+00
-C
+!
       Alpha( 1) = 0.0001987978935030617574186219645329502803D+00
       Alpha( 2) = 0.0011552666132272471463946275898465598786D+00
       Alpha( 3) = 0.0034409962587201822635370277456492993373D+00
@@ -15588,7 +15588,7 @@ C
       Alpha(12) = 2.0593131981714612325010116400392234936589D+00
       Alpha(13) = 3.6898183294620708629583949456076652495540D+00
       Alpha(14) = 6.7232681806355749491201090339842494358891D+00
-C
+!
       Xi( 1) = 1.009365790770963671081628110215D+00
       Xi( 2) = 1.085489655663102161295592573698D+00
       Xi( 3) = 1.244177037777732447985414021563D+00
@@ -15618,13 +15618,13 @@ C
       Xi(27) = 3022.047473583720196943502855901897D+00
       Xi(28) = 3861.321520022056027920953624743561D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 5E3 -----
-C
+!
+!     ----- K = 14 , R = 5E3 -----
+!
  1435 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0004352427581767983618992876244154638377D+00
       Omega( 2) = 0.0012548576180906004206129180809578538280D+00
       Omega( 3) = 0.0029046595378673015925571838967769733308D+00
@@ -15639,7 +15639,7 @@ C
       Omega(12) = 1.1865913419286377433877963105679498312384D+00
       Omega(13) = 2.1318813562162843423634928097243346201140D+00
       Omega(14) = 4.2253409304934068796422153013736533466727D+00
-C
+!
       Alpha( 1) = 0.0001656550983736506384406475398318389636D+00
       Alpha( 2) = 0.0009719040519362571361550429919085730690D+00
       Alpha( 3) = 0.0029465717920729978218602967228109679176D+00
@@ -15654,7 +15654,7 @@ C
       Alpha(12) = 1.9996081150871290993799658797236418195098D+00
       Alpha(13) = 3.6084591233871420245474942456453959493956D+00
       Alpha(14) = 6.6171039433964087585204882913103574537672D+00
-C
+!
       Xi( 1) = 1.009585803629730712833306727205D+00
       Xi( 2) = 1.087529567163898100564875526253D+00
       Xi( 3) = 1.250179023934667543824922342210D+00
@@ -15684,13 +15684,13 @@ C
       Xi(27) = 3685.033596941953352832399559702026D+00
       Xi(28) = 4809.210718299243535689413420186611D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 6E3 -----
-C
+!
+!     ----- K = 14 , R = 6E3 -----
+!
  1436 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0003757964231191720894239006572337333245D+00
       Omega( 2) = 0.0011013938591955864320308362087549869379D+00
       Omega( 3) = 0.0026102631943494946954748291189155051661D+00
@@ -15705,7 +15705,7 @@ C
       Omega(12) = 1.1713098067261392495495495036372801678226D+00
       Omega(13) = 2.1139192519073143272049369878473612516245D+00
       Omega(14) = 4.2049130034262412448052559366118430261849D+00
-C
+!
       Alpha( 1) = 0.0001427695429054092805663457412044918537D+00
       Alpha( 2) = 0.0008448608471347996179937467201622597335D+00
       Alpha( 3) = 0.0026014627740257254616775862976485456102D+00
@@ -15720,7 +15720,7 @@ C
       Alpha(12) = 1.9543163700723141009687675029304898544069D+00
       Alpha(13) = 3.5464904138887233075831673101419028171222D+00
       Alpha(14) = 6.5360082020505321270982534986870859938790D+00
-C
+!
       Xi( 1) = 1.009759423645731589002511041642D+00
       Xi( 2) = 1.089140442439909128185572539937D+00
       Xi( 3) = 1.254924746323060942934136952065D+00
@@ -15750,13 +15750,13 @@ C
       Xi(27) = 4326.171464965746435549220905159018D+00
       Xi(28) = 5752.152994166337293346913384084473D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 7E3 -----
-C
+!
+!     ----- K = 14 , R = 7E3 -----
+!
  1437 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0003320523602446911839109026524973281025D+00
       Omega( 2) = 0.0009877883512064985389095867038440623720D+00
       Omega( 3) = 0.0023894838975166594517009308485527840915D+00
@@ -15771,7 +15771,7 @@ C
       Omega(12) = 1.1590285100821415355297830385161717003939D+00
       Omega(13) = 2.0994562104528666176585238734020322226570D+00
       Omega(14) = 4.1884637421121013621180817487754666217370D+00
-C
+!
       Alpha( 1) = 0.0001259399039924061092209764387331825952D+00
       Alpha( 2) = 0.0007511606113890968361609065965991266500D+00
       Alpha( 3) = 0.0023452526412624827559112299655078026639D+00
@@ -15786,7 +15786,7 @@ C
       Alpha(12) = 1.9183099739324458423090150049894475614565D+00
       Alpha(13) = 3.4970663804887805921079585447230897443660D+00
       Alpha(14) = 6.4711800508423940707369848013286173227243D+00
-C
+!
       Xi( 1) = 1.009901823360759665873694068683D+00
       Xi( 2) = 1.090462394415279327318686608539D+00
       Xi( 3) = 1.258823195298802149295555596886D+00
@@ -15816,13 +15816,13 @@ C
       Xi(27) = 4948.304895005864610268986325536389D+00
       Xi(28) = 6690.550796528218577385871412843699D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 8E3 -----
-C
+!
+!     ----- K = 14 , R = 8E3 -----
+!
  1438 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0002983989963563436384249721199839536223D+00
       Omega( 2) = 0.0008999186728744597156233732903295174932D+00
       Omega( 3) = 0.0022167291373876102643848982681404335970D+00
@@ -15837,7 +15837,7 @@ C
       Omega(12) = 1.1488458057525466396702612525970721435442D+00
       Omega(13) = 2.0874455976907589924498886979620237980271D+00
       Omega(14) = 4.1748030920369040923899317530043617807678D+00
-C
+!
       Alpha( 1) = 0.0001129997667730506017741767990734003818D+00
       Alpha( 2) = 0.0006789271013530558473627197612482175870D+00
       Alpha( 3) = 0.0021465653166690079212435335711053885355D+00
@@ -15852,7 +15852,7 @@ C
       Alpha(12) = 1.8887208600165844695623063032030586327892D+00
       Alpha(13) = 3.4563421263845536630585075776878056785790D+00
       Alpha(14) = 6.4176615144620159664895497897418863431085D+00
-C
+!
       Xi( 1) = 1.010021876087461640343796720476D+00
       Xi( 2) = 1.091577382099120778133349851657D+00
       Xi( 3) = 1.262114131007728140706179720265D+00
@@ -15882,13 +15882,13 @@ C
       Xi(27) = 5553.570815507726670556820636193152D+00
       Xi(28) = 7624.710568402647891339540819899412D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 9E3 -----
-C
+!
+!     ----- K = 14 , R = 9E3 -----
+!
  1439 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0002716356155158930017149898823204667853D+00
       Omega( 2) = 0.0008296965023838813597571069922455289092D+00
       Omega( 3) = 0.0020772138991470568411898948340058024264D+00
@@ -15903,7 +15903,7 @@ C
       Omega(12) = 1.1402040860907487576951166441396878781234D+00
       Omega(13) = 2.0772388473542544424198241781454044030397D+00
       Omega(14) = 4.1631936182286419828764423289868545907666D+00
-C
+!
       Alpha( 1) = 0.0001027140684192060395268882053794370218D+00
       Alpha( 2) = 0.0006213754330576066933856348433341115767D+00
       Alpha( 3) = 0.0019873999833585964459191006408617097279D+00
@@ -15918,7 +15918,7 @@ C
       Alpha(12) = 1.8637971960121483040468542968781662239053D+00
       Alpha(13) = 3.4219610092511837523554518725177331361920D+00
       Alpha(14) = 6.3724060819922240706154881184630767165800D+00
-C
+!
       Xi( 1) = 1.010125201560989707718490882016D+00
       Xi( 2) = 1.092537381742422711457772555033D+00
       Xi( 3) = 1.264949688541450199060107995042D+00
@@ -15948,13 +15948,13 @@ C
       Xi(27) = 6143.641436161321587317019066176726D+00
       Xi(28) = 8554.875233509914672858087669737870D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 1E4 -----
-C
+!
+!     ----- K = 14 , R = 1E4 -----
+!
  1441 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0002497975537203257548106469194482484597D+00
       Omega( 2) = 0.0007721386329534672507321604916288859677D+00
       Omega( 3) = 0.0019617570439813717404042820542306446718D+00
@@ -15969,7 +15969,7 @@ C
       Omega(12) = 1.1327363996341790508852118146698728651245D+00
       Omega(13) = 2.0684084060135147842881403468240364418307D+00
       Omega(14) = 4.1531491773382185369971331123650770678069D+00
-C
+!
       Alpha( 1) = 0.0000943250416165216137989618163403691270D+00
       Alpha( 2) = 0.0005743348523820048554984620892485680521D+00
       Alpha( 3) = 0.0018566487446835667285619298253439291013D+00
@@ -15984,7 +15984,7 @@ C
       Alpha(12) = 1.8423980004705068490734182207191338420671D+00
       Alpha(13) = 3.3923836281365733233243708877324706918444D+00
       Alpha(14) = 6.3334194940727337611377500969922493823105D+00
-C
+!
       Xi( 1) = 1.010215573145741349797392671928D+00
       Xi( 2) = 1.093377313015473438918140347553D+00
       Xi( 3) = 1.267432169816699997848784275956D+00
@@ -16014,13 +16014,13 @@ C
       Xi(27) = 6719.869978176123153978949176234892D+00
       Xi(28) = 9481.242392326531422952484717825428D+00
       GOTO 9999
-C
-C     ----- K = 14 , R = 7E5 (Best : R = 669250) -----
-C
+!
+!     ----- K = 14 , R = 7E5 (Best : R = 669250) -----
+!
  1499 CONTINUE
-C
+!
       RIni = 7.0D+05
-C
+!
       Omega( 1) = 0.0000184753234608245182832378360746668905D+00
       Omega( 2) = 0.0001213861645056389429640852281589141065D+00
       Omega( 3) = 0.0004969107802932144441376842338830427392D+00
@@ -16035,7 +16035,7 @@ C
       Omega(12) = 0.9871481159900666525102222448317945691088D+00
       Omega(13) = 1.8941325485709733519130645862382777977473D+00
       Omega(14) = 3.9547772395130827950086166433507628426014D+00
-C
+!
       Alpha( 1) = 0.0000057793103608868070374277361758280072D+00
       Alpha( 2) = 0.0000635782132566041314606087872052329196D+00
       Alpha( 3) = 0.0003364910016085842384488450805936701760D+00
@@ -16050,7 +16050,7 @@ C
       Alpha(12) = 1.4504311395006661014822971211835067606444D+00
       Alpha(13) = 2.8398376292459660175278302052248591280659D+00
       Alpha(14) = 5.5949042429760907193039831675207551597850D+00
-C
+!
       Xi( 1) = 1.012202011747291133833374920936D+00
       Xi( 2) = 1.111908257588833184056724412425D+00
       Xi( 3) = 1.322577398019902154033093644170D+00
@@ -16080,21 +16080,21 @@ C
       Xi(27) = 82806.812140749924971316886512795463D+00
       Xi(28) = 291096.000256029446035199725884012878D+00
       GOTO 9999
-C
-C     ===== K = 15 =====
-C
+!
+!     ===== K = 15 =====
+!
  1500 CONTINUE
-C
+!
       GOTO (1511,1511,1511,1512,1513,1514,1515,1516,1517,1518,1519,1521,
      *      1522,1523,1524,1525,1526,1527,1528,1529,1531,1532,1533,1534,
      *      1535,1536,1537,1538,1539,1541,1599),InitR
-C
-C     ----- K = 15 , R = 1E1 -----
-C
+!
+!     ----- K = 15 , R = 1E1 -----
+!
  1511 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0571511962479834348032161923242044920812D+00
       Omega( 2) = 0.1347609820353712418484776885962972414745D+00
       Omega( 3) = 0.2167924173410872770034491657797914854200D+00
@@ -16110,7 +16110,7 @@ C
       Omega(13) = 2.8914979429762138795137471625196212698938D+00
       Omega(14) = 4.0201557355540847760351497175435042663594D+00
       Omega(15) = 6.3896647738393501912181060564677181901061D+00
-C
+!
       Alpha( 1) = 0.0222363742099818770173831009723253160359D+00
       Alpha( 2) = 0.1179176691974456763197594451331173814879D+00
       Alpha( 3) = 0.2932181611149396961626262259059672032890D+00
@@ -16126,7 +16126,7 @@ C
       Alpha(13) = 10.7556773355908089108423641988565577776171D+00
       Alpha(14) = 14.1604753425802106564165838697988419880858D+00
       Alpha(15) = 19.1750635168336970078767356184812342689838D+00
-C
+!
       Xi( 1) = 1.001742002519599818990622686066D+00
       Xi( 2) = 1.016256515869695547051899942037D+00
       Xi( 3) = 1.044956843621521282270032948691D+00
@@ -16158,13 +16158,13 @@ C
       Xi(29) = 9.820249490631424653386272183297D+00
       Xi(30) = 9.979618292913723588861973912145D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 2E1 -----
-C
+!
+!     ----- K = 15 , R = 2E1 -----
+!
  1512 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0342570755840630594360332952796888150715D+00
       Omega( 2) = 0.0812389574552505602667430532892733907602D+00
       Omega( 3) = 0.1320880642088497519990664477718134151019D+00
@@ -16180,7 +16180,7 @@ C
       Omega(13) = 2.5132971297146048884809527157457864632306D+00
       Omega(14) = 3.6130225748024470322147805312340551608941D+00
       Omega(15) = 5.9202936131776174579974258982417723018443D+00
-C
+!
       Alpha( 1) = 0.0133199863613047550980807848253206771005D+00
       Alpha( 2) = 0.0708357967215275064081273469207555848470D+00
       Alpha( 3) = 0.1770754400387099266971340644216681425860D+00
@@ -16196,7 +16196,7 @@ C
       Alpha(13) = 8.2321905231666911532950603458402838441543D+00
       Alpha(14) = 11.2452663855440287169959456825552024383796D+00
       Alpha(15) = 15.8274909305672764536429553139385006943485D+00
-C
+!
       Xi( 1) = 1.002479499060150240174853208952D+00
       Xi( 2) = 1.022391750455047769625960274453D+00
       Xi( 3) = 1.062625160624124051296848780801D+00
@@ -16228,13 +16228,13 @@ C
       Xi(29) = 19.470958874305620065273125796068D+00
       Xi(30) = 19.939964616609519680590079104832D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 3E1 -----
-C
+!
+!     ----- K = 15 , R = 3E1 -----
+!
  1513 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0251404605998490003396624243095502926337D+00
       Omega( 2) = 0.0598615044552078848093701769067509488309D+00
       Omega( 3) = 0.0980768773006056569061677542775701255096D+00
@@ -16250,7 +16250,7 @@ C
       Omega(13) = 2.3371854613987042021544526804177621670533D+00
       Omega(14) = 3.4218312791854920487666369410817424068227D+00
       Omega(15) = 5.7000508866800705478662669722922373694018D+00
-C
+!
       Alpha( 1) = 0.0097706839879553685810991379978585058552D+00
       Alpha( 2) = 0.0520656002503765860991156218945397071707D+00
       Alpha( 3) = 0.1306478367526141272201992485357813222890D+00
@@ -16266,7 +16266,7 @@ C
       Alpha(13) = 7.1396285747356587861496557412266383835231D+00
       Alpha(14) = 9.9693937759796579598653432086052816885058D+00
       Alpha(15) = 14.3484779274818628541296461342824386520078D+00
-C
+!
       Xi( 1) = 1.002911899669123286312107101725D+00
       Xi( 2) = 1.026313689141005041976714706742D+00
       Xi( 3) = 1.073687816287695194548794386247D+00
@@ -16298,13 +16298,13 @@ C
       Xi(29) = 29.029563787005013233977201991820D+00
       Xi(30) = 29.889333975110803413854920762560D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 4E1 -----
-C
+!
+!     ----- K = 15 , R = 4E1 -----
+!
  1514 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0201134538823361043219286464767137090348D+00
       Omega( 2) = 0.0480468900161741623712583371813567012509D+00
       Omega( 3) = 0.0792047491252899234882378989852647066527D+00
@@ -16320,7 +16320,7 @@ C
       Omega(13) = 2.2267586807525969559012901655137284251396D+00
       Omega(14) = 3.3013295338455457977617363285460783117742D+00
       Omega(15) = 5.5613724683790860987830928507946737227030D+00
-C
+!
       Alpha( 1) = 0.0078140833353863054459905053937551766552D+00
       Alpha( 2) = 0.0417064349886099036901964884349602868951D+00
       Alpha( 3) = 0.1049725240802041791791758551521951403629D+00
@@ -16336,7 +16336,7 @@ C
       Alpha(13) = 6.4917334024130807878898152818436528832535D+00
       Alpha(14) = 9.2062044495678152173159802806878815317759D+00
       Alpha(15) = 13.4572444522132288824770030011279686732451D+00
-C
+!
       Xi( 1) = 1.003229857361806261315147204005D+00
       Xi( 2) = 1.029200765720327604368054819073D+00
       Xi( 3) = 1.081849244748823186002689711316D+00
@@ -16368,13 +16368,13 @@ C
       Xi(29) = 38.519215416158373282290439121311D+00
       Xi(30) = 39.830469749008866213457746852100D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 5E1 -----
-C
+!
+!     ----- K = 15 , R = 5E1 -----
+!
  1515 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0168880504457705811679482047621414508853D+00
       Omega( 2) = 0.0404523657107779312077841787215204405470D+00
       Omega( 3) = 0.0670338169082042983486528428538342438969D+00
@@ -16390,7 +16390,7 @@ C
       Omega(13) = 2.1480751959787540564857794000985791171843D+00
       Omega(14) = 3.2151626673716206042397125486331788124517D+00
       Omega(15) = 5.4623017093067981523289711187629791311338D+00
-C
+!
       Alpha( 1) = 0.0065589737028395636394760526925035160062D+00
       Alpha( 2) = 0.0350550853541004113653417693236002961044D+00
       Alpha( 3) = 0.0884595857610457954417980917793951078920D+00
@@ -16406,7 +16406,7 @@ C
       Alpha(13) = 6.0493272187711193718477609149175577840651D+00
       Alpha(14) = 8.6814711877106877273638230185781594627770D+00
       Alpha(15) = 12.8409564351942392032568385218382900347933D+00
-C
+!
       Xi( 1) = 1.003481855447011282978127255650D+00
       Xi( 2) = 1.031490732158271747716249411297D+00
       Xi( 3) = 1.088333640314139787261954461783D+00
@@ -16438,13 +16438,13 @@ C
       Xi(29) = 47.952660699750523112111499912658D+00
       Xi(30) = 49.764818282386813565881800158763D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 6E1 -----
-C
+!
+!     ----- K = 15 , R = 6E1 -----
+!
  1516 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0146259217872521891768382426221584147186D+00
       Omega( 2) = 0.0351175064449876853134877106171751748320D+00
       Omega( 3) = 0.0584601957105404397711031095480338493076D+00
@@ -16460,7 +16460,7 @@ C
       Omega(13) = 2.0878094629421765564096513667635690580937D+00
       Omega(14) = 3.1489876316118781847657598360612496435351D+00
       Omega(15) = 5.3862800842515326351159221651698771893280D+00
-C
+!
       Alpha( 1) = 0.0056788702569020912235681335794579283061D+00
       Alpha( 2) = 0.0303873265325022603842866977807979367299D+00
       Alpha( 3) = 0.0768546492022988189511158163558235401069D+00
@@ -16476,7 +16476,7 @@ C
       Alpha(13) = 5.7217548099966258393599127796136372126057D+00
       Alpha(14) = 8.2907395887501191293275648597216331836535D+00
       Alpha(15) = 12.3799185668548834054689122829984171403339D+00
-C
+!
       Xi( 1) = 1.003690691737168430098040006193D+00
       Xi( 2) = 1.033389874851190462783263879221D+00
       Xi( 3) = 1.093718642683819189430696749987D+00
@@ -16508,13 +16508,13 @@ C
       Xi(29) = 57.338084472108027285497389158309D+00
       Xi(30) = 59.693320802696889410682290488808D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 7E1 -----
-C
+!
+!     ----- K = 15 , R = 7E1 -----
+!
  1517 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0129431385760811314218342326677613218777D+00
       Omega( 2) = 0.0311433962175995538834011311379867947835D+00
       Omega( 3) = 0.0520576228698372043838453297748269932299D+00
@@ -16530,7 +16530,7 @@ C
       Omega(13) = 2.0394448609688786832206536248079942197364D+00
       Omega(14) = 3.0957651278694305178353085583609072273248D+00
       Omega(15) = 5.3251821433448008865155220981080219644355D+00
-C
+!
       Alpha( 1) = 0.0050242744369184408194854523071332108586D+00
       Alpha( 2) = 0.0269131431088499060335896212806106042592D+00
       Alpha( 3) = 0.0682062998374950968293799029307233894315D+00
@@ -16546,8 +16546,8 @@ C
       Alpha(13) = 5.4660873571676506076782997567420352424961D+00
       Alpha(14) = 7.9843185170675084285675515705094085205928D+00
       Alpha(15) = 12.0169576607587050556466556905377274233615D+00
-C
-C
+!
+!
       Xi( 1) = 1.003869021713253574957375180432D+00
       Xi( 2) = 1.035012555911422882045681836960D+00
       Xi( 3) = 1.098325070301832839846437051001D+00
@@ -16579,13 +16579,13 @@ C
       Xi(29) = 66.681268392919390133877222126557D+00
       Xi(30) = 69.616639040442253115459347867500D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 8E1 -----
-C
+!
+!     ----- K = 15 , R = 8E1 -----
+!
  1518 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0116376959297197557926148675337685300946D+00
       Omega( 2) = 0.0280565631287540469228494266831774872628D+00
       Omega( 3) = 0.0470734626814240072829236081336512498297D+00
@@ -16601,7 +16601,7 @@ C
       Omega(13) = 1.9993413337952957502209258566772120957467D+00
       Omega(14) = 3.0515526253989090257456168187033540561970D+00
       Omega(15) = 5.2744587859215596903524059246848310067435D+00
-C
+!
       Alpha( 1) = 0.0045165373581371195146511878480699575533D+00
       Alpha( 2) = 0.0242166963980014430311528883174587711835D+00
       Alpha( 3) = 0.0614863974926384792736035710125630515677D+00
@@ -16617,7 +16617,7 @@ C
       Alpha(13) = 5.2590120105798029950978922375526281030034D+00
       Alpha(14) = 7.7351118438454861121582328831181030182051D+00
       Alpha(15) = 11.7207866995992235304921424976498656178592D+00
-C
+!
       Xi( 1) = 1.004024611678951089564423848621D+00
       Xi( 2) = 1.036429045999876775410904194974D+00
       Xi( 3) = 1.102350204991204553946898547778D+00
@@ -16649,13 +16649,13 @@ C
       Xi(29) = 75.986543115418312147046897564451D+00
       Xi(30) = 79.535272972414583214639804964463D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 9E1 -----
-C
+!
+!     ----- K = 15 , R = 9E1 -----
+!
  1519 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0105926344340905414396767953051636812489D+00
       Omega( 2) = 0.0255826077357476880509386859413600845414D+00
       Omega( 3) = 0.0430707967103431928921556792050351347712D+00
@@ -16671,7 +16671,7 @@ C
       Omega(13) = 1.9652732153735464103519459122537682560505D+00
       Omega(14) = 3.0139343774001751512237046171094334567897D+00
       Omega(15) = 5.2313239633687951277499217361821592930937D+00
-C
+!
       Alpha( 1) = 0.0041101270238754405812767959548653662338D+00
       Alpha( 2) = 0.0220571300018926773574333508737277398382D+00
       Alpha( 3) = 0.0560989284387557866623367271857736326979D+00
@@ -16687,7 +16687,7 @@ C
       Alpha(13) = 5.0866235331733391220911111307856344865286D+00
       Alpha(14) = 7.5268981403874479869584024349649098439841D+00
       Alpha(15) = 11.4726163407158323241999409169977752753766D+00
-C
+!
       Xi( 1) = 1.004162582029408795234945439567D+00
       Xi( 2) = 1.037685695187326312513738379995D+00
       Xi( 3) = 1.105924293733365469899303235035D+00
@@ -16719,13 +16719,13 @@ C
       Xi(29) = 85.257300548335234142982574923053D+00
       Xi(30) = 89.449614211362739858712789242645D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 1E2 -----
-C
+!
+!     ----- K = 15 , R = 1E2 -----
+!
  1521 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0097353035250252180240644063989596812547D+00
       Omega( 2) = 0.0235509356290765406682197842178072555441D+00
       Omega( 3) = 0.0397775784086478460848312552200489733423D+00
@@ -16741,7 +16741,7 @@ C
       Omega(13) = 1.9357875430219505574541347114880807112058D+00
       Omega(14) = 2.9813305239671294517497801557226466684369D+00
       Omega(15) = 5.1939564819246461309550089158193486582604D+00
-C
+!
       Alpha( 1) = 0.0037767636667319992393943901441352717363D+00
       Alpha( 2) = 0.0202847833501038873942951728038264214149D+00
       Alpha( 3) = 0.0516732608069974953441424840583362509960D+00
@@ -16757,7 +16757,7 @@ C
       Alpha(13) = 4.9400405999879862563306520684136557974853D+00
       Alpha(14) = 7.3492824024054162557542668743337799241999D+00
       Alpha(15) = 11.2603722455184587251594829915291029465152D+00
-C
+!
       Xi( 1) = 1.004286491374597387635052292421D+00
       Xi( 2) = 1.038814735511330400170686150130D+00
       Xi( 3) = 1.109137987553001864350459004793D+00
@@ -16789,13 +16789,13 @@ C
       Xi(29) = 94.496276014416706254261946185125D+00
       Xi(30) = 99.359980127812882196025601189149D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 2E2 -----
-C
+!
+!     ----- K = 15 , R = 2E2 -----
+!
  1522 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0055614445793698374450548323373599846065D+00
       Omega( 2) = 0.0136224431019640811167206750388614100444D+00
       Omega( 3) = 0.0235750487763078402954483245301808835848D+00
@@ -16811,7 +16811,7 @@ C
       Omega(13) = 1.7626459217391767304210573041878262756654D+00
       Omega(14) = 2.7889482630945156801157563952742179935740D+00
       Omega(15) = 4.9738042967548596619796474893604454337037D+00
-C
+!
       Alpha( 1) = 0.0021545257831798762967911889214256415670D+00
       Alpha( 2) = 0.0116436500968750751715380365412799701375D+00
       Alpha( 3) = 0.0300215936149693332600643181154453920101D+00
@@ -16827,7 +16827,7 @@ C
       Alpha(13) = 4.1281869152446315049571901045766253446345D+00
       Alpha(14) = 6.3546659737279791273223406022907511214726D+00
       Alpha(15) = 10.0614643180308471551165361290713917696849D+00
-C
+!
       Xi( 1) = 1.005107922869164440056455323003D+00
       Xi( 2) = 1.046310545611985985594433179457D+00
       Xi( 3) = 1.130535493023324185518987960997D+00
@@ -16859,13 +16859,13 @@ C
       Xi(29) = 185.507461262228860315870448971509D+00
       Xi(30) = 198.288101188496654087023429724468D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 3E2 -----
-C
+!
+!     ----- K = 15 , R = 3E2 -----
+!
  1523 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0039963763487845303396661785985677362021D+00
       Omega( 2) = 0.0098751009059687778298861852294132646080D+00
       Omega( 3) = 0.0173873966346357320469510942054225388631D+00
@@ -16881,7 +16881,7 @@ C
       Omega(13) = 1.6759871195093390723466000857833080317505D+00
       Omega(14) = 2.6919852463147228120721177191398965078406D+00
       Omega(15) = 4.8630599466714542812063870602656834307709D+00
-C
+!
       Alpha( 1) = 0.0015467042849176954962383268563953786501D+00
       Alpha( 2) = 0.0083952816472138907269735634032736815158D+00
       Alpha( 3) = 0.0218334981051808871674497786879998173504D+00
@@ -16897,7 +16897,7 @@ C
       Alpha(13) = 3.7528692640339534856985803656925781979226D+00
       Alpha(14) = 5.8874881288607278330068939276031869667349D+00
       Alpha(15) = 9.4913359153416843577016903665821700997185D+00
-C
+!
       Xi( 1) = 1.005588000700964566532825961165D+00
       Xi( 2) = 1.050700460413906080670183584846D+00
       Xi( 3) = 1.143117239043653853361459660221D+00
@@ -16929,13 +16929,13 @@ C
       Xi(29) = 274.652937169310398690669217103277D+00
       Xi(30) = 296.972486408022178033805360541919D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 4E2 -----
-C
+!
+!     ----- K = 15 , R = 4E2 -----
+!
  1524 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0031580665533451926515155902194798009930D+00
       Omega( 2) = 0.0078585696681408003474823896310208493077D+00
       Omega( 3) = 0.0140296686661902682585376881535532689327D+00
@@ -16951,7 +16951,7 @@ C
       Omega(13) = 1.6201338736773287715897673422205116366968D+00
       Omega(14) = 2.6292153158930104208963057788039918705181D+00
       Omega(15) = 4.7914402331023540574511665468548926583026D+00
-C
+!
       Alpha( 1) = 0.0012213088418495537004662592817962052383D+00
       Alpha( 2) = 0.0066522128401389255792803818605196664038D+00
       Alpha( 3) = 0.0174210360526302611842069728229076552850D+00
@@ -16967,7 +16967,7 @@ C
       Alpha(13) = 3.5217221726634938554385823028525237532449D+00
       Alpha(14) = 5.5969790205896105357227798826613707205979D+00
       Alpha(15) = 9.1341806528607349079107446954139959416352D+00
-C
+!
       Xi( 1) = 1.005925747734232925958107462971D+00
       Xi( 2) = 1.053792964858323062660692970294D+00
       Xi( 3) = 1.152003033768909901531779516048D+00
@@ -16999,13 +16999,13 @@ C
       Xi(29) = 362.414818019072917348877282961439D+00
       Xi(30) = 395.470504041337537898259668622813D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 5E2 -----
-C
+!
+!     ----- K = 15 , R = 5E2 -----
+!
  1525 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0026298460390556482285692014265465754619D+00
       Omega( 2) = 0.0065832442531841001603625115022599967318D+00
       Omega( 3) = 0.0118917603535314008359361306367552035823D+00
@@ -17021,7 +17021,7 @@ C
       Omega(13) = 1.5797450704374967286620218276382843214378D+00
       Omega(14) = 2.5836775326140330290639046673106804519193D+00
       Omega(15) = 4.7395149729995405176591338758385063556489D+00
-C
+!
       Alpha( 1) = 0.0010163654596489672351419041398425113787D+00
       Alpha( 2) = 0.0055523279214756996604944981610341159239D+00
       Alpha( 3) = 0.0146272132671542568534833739235523353273D+00
@@ -17037,7 +17037,7 @@ C
       Alpha(13) = 3.3597478567908137022518522130098972411361D+00
       Alpha(14) = 5.3919954067373262818554935371651026798645D+00
       Alpha(15) = 8.8808449536686026783843805887386224640068D+00
-C
+!
       Xi( 1) = 1.006185134482228618699878319731D+00
       Xi( 2) = 1.056170294653800441364056850180D+00
       Xi( 3) = 1.158846606707571684513093102087D+00
@@ -17069,13 +17069,13 @@ C
       Xi(29) = 449.051122170990711673921325086667D+00
       Xi(30) = 493.813224037873900545969618747222D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 6E2 -----
-C
+!
+!     ----- K = 15 , R = 6E2 -----
+!
  1526 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0022640577225830361791103777398259655484D+00
       Omega( 2) = 0.0056973303057685757995652294817523486614D+00
       Omega( 3) = 0.0103981057606504449930884324652946570922D+00
@@ -17091,7 +17091,7 @@ C
       Omega(13) = 1.5485236223280244059015073321283750829025D+00
       Omega(14) = 2.5483852865162736312746455391575750581978D+00
       Omega(15) = 4.6992901048617441548023443420589728702907D+00
-C
+!
       Alpha( 1) = 0.0008744958294475131544913113867782683553D+00
       Alpha( 2) = 0.0047897439227468614920500548145371189079D+00
       Alpha( 3) = 0.0126845371835364479919219847861566741187D+00
@@ -17107,7 +17107,7 @@ C
       Alpha(13) = 3.2374803343641888637039621956503765431989D+00
       Alpha(14) = 5.2364298101630870137419837551107093531755D+00
       Alpha(15) = 8.6878037141362704012803597208858263911679D+00
-C
+!
       Xi( 1) = 1.006394949628333896555869297895D+00
       Xi( 2) = 1.058094769159536815278377375193D+00
       Xi( 3) = 1.164394712621561042784762429747D+00
@@ -17139,13 +17139,13 @@ C
       Xi(29) = 534.726829720322987760106059340615D+00
       Xi(30) = 592.020706939949882929852265078807D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 7E2 -----
-C
+!
+!     ----- K = 15 , R = 7E2 -----
+!
  1527 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0019945380638779841443940742378576613802D+00
       Omega( 2) = 0.0050427907113674821369335269944517152751D+00
       Omega( 3) = 0.0092889724596230179876020223266042119548D+00
@@ -17161,7 +17161,7 @@ C
       Omega(13) = 1.5233094274329127094458682933897364364384D+00
       Omega(14) = 2.5198228955401023394702203495043590919522D+00
       Omega(15) = 4.6667463424862905396056644846680683258455D+00
-C
+!
       Alpha( 1) = 0.0007699970490877884595638549179458937077D+00
       Alpha( 2) = 0.0042272630399960448487346850905688189215D+00
       Alpha( 3) = 0.0112479671026250682619917944243814744709D+00
@@ -17177,7 +17177,7 @@ C
       Alpha(13) = 3.1405939910687392466887013497967018338386D+00
       Alpha(14) = 5.1126181849943693725167592756264411946177D+00
       Alpha(15) = 8.5336606461802805142710659502824910305208D+00
-C
+!
       Xi( 1) = 1.006570622484552558046320969165D+00
       Xi( 2) = 1.059707104699230406316158570323D+00
       Xi( 3) = 1.169048586031044273956039369899D+00
@@ -17209,13 +17209,13 @@ C
       Xi(29) = 619.558212002491375869350775928979D+00
       Xi(30) = 690.107176530776788569987445498555D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 8E2 -----
-C
+!
+!     ----- K = 15 , R = 8E2 -----
+!
  1528 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0017870212715594367768755893768027609436D+00
       Omega( 2) = 0.0045376002737008805430341375295594241734D+00
       Omega( 3) = 0.0084290300565706590425532336412206557696D+00
@@ -17231,7 +17231,7 @@ C
       Omega(13) = 1.5023065731054268420827796370886630938912D+00
       Omega(14) = 2.4959879568923889199376364711469022950041D+00
       Omega(15) = 4.6395958902014889061078684040495545559679D+00
-C
+!
       Alpha( 1) = 0.0006895611127582455120514943612726466160D+00
       Alpha( 2) = 0.0037937712630365261380920618690740231393D+00
       Alpha( 3) = 0.0101383023615175421161443470620400209015D+00
@@ -17247,7 +17247,7 @@ C
       Alpha(13) = 3.0611464206734718420353791312749081043876D+00
       Alpha(14) = 5.0107183382202085176505834684945739354589D+00
       Alpha(15) = 8.4064479210506800003349647809613998106215D+00
-C
+!
       Xi( 1) = 1.006721380456283441583338611469D+00
       Xi( 2) = 1.061091517463179429944276910280D+00
       Xi( 3) = 1.173048717630027889353636072478D+00
@@ -17279,13 +17279,13 @@ C
       Xi(29) = 703.632253977297076108499140900676D+00
       Xi(30) = 788.083377984554580786280553184042D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 9E2 -----
-C
+!
+!     ----- K = 15 , R = 9E2 -----
+!
  1529 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0016219084670863559936738798323944965585D+00
       Omega( 2) = 0.0041347531000776380092693500570288911433D+00
       Omega( 3) = 0.0077404596712594351285001176721928262126D+00
@@ -17301,7 +17301,7 @@ C
       Omega(13) = 1.4844032778764126925818978008919657440856D+00
       Omega(14) = 2.4756385101249463417168866774531466035114D+00
       Omega(15) = 4.6164204896316331934967569505801066043205D+00
-C
+!
       Alpha( 1) = 0.0006255780084365577944930178347707205866D+00
       Alpha( 2) = 0.0034485635069017050178818035175223877253D+00
       Alpha( 3) = 0.0092527900519063576451213835871723034643D+00
@@ -17317,7 +17317,7 @@ C
       Alpha(13) = 2.9943196982235439904725810000840624525154D+00
       Alpha(14) = 4.9247349165318251985705433337869862953085D+00
       Alpha(15) = 8.2988518304647784879987670869638805015711D+00
-C
+!
       Xi( 1) = 1.006853176555457203339080662907D+00
       Xi( 2) = 1.062302369921885844810532928406D+00
       Xi( 3) = 1.176550488474161181560485867070D+00
@@ -17349,13 +17349,13 @@ C
       Xi(29) = 787.017026953280821321978777405093D+00
       Xi(30) = 885.957745722293947610026521033433D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 1E3 -----
-C
+!
+!     ----- K = 15 , R = 1E3 -----
+!
  1531 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0014871445606266374690648170305527775437D+00
       Omega( 2) = 0.0038052862730260423568116905828143115009D+00
       Omega( 3) = 0.0071751648320479873574389824506664092851D+00
@@ -17371,7 +17371,7 @@ C
       Omega(13) = 1.4688669259558777996929959663852116591443D+00
       Omega(14) = 2.4579547964873604457523847965916274915799D+00
       Omega(15) = 4.5962843562528531344592297447348983041593D+00
-C
+!
       Alpha( 1) = 0.0005733678386173403022237547407066043936D+00
       Alpha( 2) = 0.0031665856795662918647250551806501817076D+00
       Alpha( 3) = 0.0085280855110995089536301909903526219381D+00
@@ -17387,7 +17387,7 @@ C
       Alpha(13) = 2.9369927346261072438182021526742460082460D+00
       Alpha(14) = 4.8507701846577407742318321925978352737729D+00
       Alpha(15) = 8.2061044496867307255702495005778018821729D+00
-C
+!
       Xi( 1) = 1.006970073202688794916821735104D+00
       Xi( 2) = 1.063376780618819135437735923233D+00
       Xi( 3) = 1.179660120678657380158781131652D+00
@@ -17419,13 +17419,13 @@ C
       Xi(29) = 869.767525781364489290137242960554D+00
       Xi(30) = 983.737118578837241467116569992868D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 2E3 -----
-C
+!
+!     ----- K = 15 , R = 2E3 -----
+!
  1532 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0008404149095994821547922493110149844142D+00
       Omega( 2) = 0.0022127172568996186612089172029982364620D+00
       Omega( 3) = 0.0044044157718100057294363658400015992811D+00
@@ -17441,7 +17441,7 @@ C
       Omega(13) = 1.3770544599011862452186960581457242369652D+00
       Omega(14) = 2.3529519089229520290018626837991178035736D+00
       Omega(15) = 4.4767751352432112454948764934670180082321D+00
-C
+!
       Alpha( 1) = 0.0003230240034515234528317284556919730676D+00
       Alpha( 2) = 0.0018095714502588270203298215221821010346D+00
       Alpha( 3) = 0.0050161890329175661332183899787651171209D+00
@@ -17457,7 +17457,7 @@ C
       Alpha(13) = 2.6106708645312535210791793360840529203415D+00
       Alpha(14) = 4.4258490015686451357623809599317610263824D+00
       Alpha(15) = 7.6696259660669774405050702625885605812073D+00
-C
+!
       Xi( 1) = 1.007712242881242170611244546308D+00
       Xi( 2) = 1.070207907157320281754664392793D+00
       Xi( 3) = 1.199485052179940947070235779393D+00
@@ -17489,13 +17489,13 @@ C
       Xi(29) = 1669.807290680049618458724580705166D+00
       Xi(30) = 1957.242597377555057391873560845852D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 3E3 -----
-C
+!
+!     ----- K = 15 , R = 3E3 -----
+!
  1533 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0006021998451342176979288824166872129418D+00
       Omega( 2) = 0.0016187261267440271098155723703514163869D+00
       Omega( 3) = 0.0033452393365352763509459692835290578472D+00
@@ -17511,7 +17511,7 @@ C
       Omega(13) = 1.3308927436829058854042204251832970385294D+00
       Omega(14) = 2.2998057567870609319091862454698116380314D+00
       Omega(15) = 4.4163157384143941802841226706988209116389D+00
-C
+!
       Alpha( 1) = 0.0002309479118724317000477037857141156263D+00
       Alpha( 2) = 0.0013072884159532110557924429287968148827D+00
       Alpha( 3) = 0.0037002878105363975695076878989417390464D+00
@@ -17527,7 +17527,7 @@ C
       Alpha(13) = 2.4545240138803349828119232389767034874239D+00
       Alpha(14) = 4.2199332485013572769001755080608973003109D+00
       Alpha(15) = 7.4072221155356338874627131207972752235946D+00
-C
+!
       Xi( 1) = 1.008121593556959773850013883933D+00
       Xi( 2) = 1.073982970148324786159935162466D+00
       Xi( 3) = 1.210481226968480986810883237581D+00
@@ -17559,13 +17559,13 @@ C
       Xi(29) = 2432.807995726973129935188921990630D+00
       Xi(30) = 2924.603774735733815237637145401095D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 4E3 -----
-C
+!
+!     ----- K = 15 , R = 4E3 -----
+!
  1534 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0004756369084263004952714521495968358344D+00
       Omega( 2) = 0.0013003520804791979888086181946053876413D+00
       Omega( 3) = 0.0027672864591600532465548082207765223650D+00
@@ -17581,7 +17581,7 @@ C
       Omega(13) = 1.3011427010528306348786931057048832371947D+00
       Omega(14) = 2.2654170754188351810838597533148686125060D+00
       Omega(15) = 4.3772021220065278606509151515524536080193D+00
-C
+!
       Alpha( 1) = 0.0001820782633968936153992700384776116940D+00
       Alpha( 2) = 0.0010395111289733385836581521692936758150D+00
       Alpha( 3) = 0.0029925180411342110725723009850840483637D+00
@@ -17597,7 +17597,7 @@ C
       Alpha(13) = 2.3566519253922217683704098956098960115924D+00
       Alpha(14) = 4.0899108319618529120732797199622154948884D+00
       Alpha(15) = 7.2406374424386336823358800707239879557164D+00
-C
+!
       Xi( 1) = 1.008399536089696037796485661442D+00
       Xi( 2) = 1.076549175536408965432426387832D+00
       Xi( 3) = 1.217972693848358699828318685299D+00
@@ -17629,13 +17629,13 @@ C
       Xi(29) = 3168.504659462954313076110679503472D+00
       Xi(30) = 3887.092106025369653066192654478073D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 5E3 -----
-C
+!
+!     ----- K = 15 , R = 5E3 -----
+!
  1535 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0003962677505883613429462231368986466218D+00
       Omega( 2) = 0.0010992903894092523588024720520260613110D+00
       Omega( 3) = 0.0023969412766162124992569204063111443226D+00
@@ -17651,7 +17651,7 @@ C
       Omega(13) = 1.2796585097760807599870380713014128559735D+00
       Omega(14) = 2.2405122931894283274528723026719490007963D+00
       Omega(15) = 4.3488779989433205140809957089942372476798D+00
-C
+!
       Alpha( 1) = 0.0001514563506470363833414023745690263345D+00
       Alpha( 2) = 0.0008711260387687643076721269984070278314D+00
       Alpha( 3) = 0.0025442361670791670130245825005854687362D+00
@@ -17667,7 +17667,7 @@ C
       Alpha(13) = 2.2873048529384315526256227224521921925771D+00
       Alpha(14) = 3.9973073734529804231820071525049797855900D+00
       Alpha(15) = 7.1215488770918427764884672814815758101759D+00
-C
+!
       Xi( 1) = 1.008607548065553133798295804002D+00
       Xi( 2) = 1.078471333272938473789304136830D+00
       Xi( 3) = 1.223592701433025819340340289987D+00
@@ -17699,13 +17699,13 @@ C
       Xi(29) = 3882.125886910784884786806969714235D+00
       Xi(30) = 4845.405490236185681585112661196035D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 6E3 -----
-C
+!
+!     ----- K = 15 , R = 6E3 -----
+!
  1536 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0003414757206547954683262053514423289835D+00
       Omega( 2) = 0.0009596636276879566365309104716829757820D+00
       Omega( 3) = 0.0021365303957790902949651025335281451234D+00
@@ -17721,7 +17721,7 @@ C
       Omega(13) = 1.2630808671191903606347006761012607967132D+00
       Omega(14) = 2.2212530740729632757098077622259779673186D+00
       Omega(15) = 4.3269755853895644857193270027551079692785D+00
-C
+!
       Alpha( 1) = 0.0001303310340679438245633309440604102880D+00
       Alpha( 2) = 0.0007546147404157980901201372922210836025D+00
       Alpha( 3) = 0.0022321298968959612833828091071550203672D+00
@@ -17737,7 +17737,7 @@ C
       Alpha(13) = 2.2345533125141977257629294362217819980287D+00
       Alpha(14) = 3.9265876434223163664229833136332104004396D+00
       Alpha(15) = 7.0303439652448463047761106903266181689105D+00
-C
+!
       Xi( 1) = 1.008772408116241343792665596801D+00
       Xi( 2) = 1.079995719377837837043773716594D+00
       Xi( 3) = 1.228055056080842786158865975743D+00
@@ -17769,13 +17769,13 @@ C
       Xi(29) = 4577.025028872135528068554322089767D+00
       Xi(30) = 5799.999146855984597070943209473626D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 7E3 -----
-C
+!
+!     ----- K = 15 , R = 7E3 -----
+!
  1537 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0003011910603773180930263604154978676619D+00
       Omega( 2) = 0.0008564729701576365269785544678295130527D+00
       Omega( 3) = 0.0019419490399198079889074133375960473646D+00
@@ -17791,7 +17791,7 @@ C
       Omega(13) = 1.2497198359483893011483840451703031249053D+00
       Omega(14) = 2.2057032208277742770657914306298152951058D+00
       Omega(15) = 4.3092920548625502363826456075912574306130D+00
-C
+!
       Alpha( 1) = 0.0001148082111075384276075927101853132312D+00
       Alpha( 2) = 0.0006687803525803460729510951823621744960D+00
       Alpha( 3) = 0.0020009370081711234145035142742777289904D+00
@@ -17807,7 +17807,7 @@ C
       Alpha(13) = 2.1925153876058049134522426326654453987430D+00
       Alpha(14) = 3.8700528921889102919491609799962361648795D+00
       Alpha(15) = 6.9572668947263066707535628108161063209991D+00
-C
+!
       Xi( 1) = 1.008908127362487775098565112586D+00
       Xi( 2) = 1.081251304022287459743675852586D+00
       Xi( 3) = 1.231734114590510359627840986096D+00
@@ -17839,13 +17839,13 @@ C
       Xi(29) = 5255.568707099384338388148307785741D+00
       Xi(30) = 6751.198981108692237729229645992746D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 8E3 -----
-C
+!
+!     ----- K = 15 , R = 8E3 -----
+!
  1538 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0002702223025865613888936383161923707186D+00
       Omega( 2) = 0.0007767771880651208602113168201919873868D+00
       Omega( 3) = 0.0017901805651350507902784794304722193470D+00
@@ -17861,7 +17861,7 @@ C
       Omega(13) = 1.2386136266646492081790198458435270367772D+00
       Omega(14) = 2.1927583985724614741227855851946060283808D+00
       Omega(15) = 4.2945711898528852608868111584428106652922D+00
-C
+!
       Alpha( 1) = 0.0001028812551570597490250812923917502623D+00
       Alpha( 2) = 0.0006026772000226355159545637738775086811D+00
       Alpha( 3) = 0.0018220066643375311307608615195817447496D+00
@@ -17877,7 +17877,7 @@ C
       Alpha(13) = 2.1578952260979739972545504711476382908586D+00
       Alpha(14) = 3.8233719362259296979233286206678599228326D+00
       Alpha(15) = 6.8968130432491910890464847927461278231931D+00
-C
+!
       Xi( 1) = 1.009022925974474242508983901079D+00
       Xi( 2) = 1.082313804505225142828066242640D+00
       Xi( 3) = 1.234849928760580450729303358948D+00
@@ -17909,13 +17909,13 @@ C
       Xi(29) = 5919.534383978480728494275808770908D+00
       Xi(30) = 7699.252399038355023197510718091507D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 9E3 -----
-C
+!
+!     ----- K = 15 , R = 9E3 -----
+!
  1539 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0002456102897028886932859597773967999523D+00
       Omega( 2) = 0.0007131730524152647808370791436462926560D+00
       Omega( 3) = 0.0016679632044389639519804240932673855546D+00
@@ -17931,7 +17931,7 @@ C
       Omega(13) = 1.2291664486410005130033115672283372532547D+00
       Omega(14) = 2.1817332841699960041797340393188164853200D+00
       Omega(15) = 4.2820334602316590202376878071532928515808D+00
-C
+!
       Alpha( 1) = 0.0000934068720182621284586280672491975796D+00
       Alpha( 2) = 0.0005500573606271143280303282958182409246D+00
       Alpha( 3) = 0.0016789264798342002106741011556965970097D+00
@@ -17947,7 +17947,7 @@ C
       Alpha(13) = 2.1286767960585158574945974230274714500410D+00
       Alpha(14) = 3.7838867200618920482932394655506413982948D+00
       Alpha(15) = 6.8455960408957202303729949743882343682344D+00
-C
+!
       Xi( 1) = 1.009122023844475767246145481160D+00
       Xi( 2) = 1.083231329301445447217504269855D+00
       Xi( 3) = 1.237542464500154619695161672954D+00
@@ -17979,13 +17979,13 @@ C
       Xi(29) = 6570.312494082755212954083390286542D+00
       Xi(30) = 8644.355539147717990111630115279695D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 1E4 -----
-C
+!
+!     ----- K = 15 , R = 1E4 -----
+!
  1541 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0002255397353676053207922755160881253533D+00
       Omega( 2) = 0.0006611042867166782100040605708868302059D+00
       Omega( 3) = 0.0015670812397325413366538885838637196191D+00
@@ -18001,7 +18001,7 @@ C
       Omega(13) = 1.2209854833881973573119980591705768802058D+00
       Omega(14) = 2.1721753157989217952565652591800926529686D+00
       Omega(15) = 4.2711641588735770264442792587544772686670D+00
-C
+!
       Alpha( 1) = 0.0000856839825970028654958073832074039872D+00
       Alpha( 2) = 0.0005070831754268762750049198586958787427D+00
       Alpha( 3) = 0.0015615827771326924017788347867803644409D+00
@@ -18017,7 +18017,7 @@ C
       Alpha(13) = 2.1035450462970592940079722632518155478465D+00
       Alpha(14) = 3.7498584977918745053497573405110188105027D+00
       Alpha(15) = 6.8013961440006963335598577646834428378497D+00
-C
+!
       Xi( 1) = 1.009208933910929662631193737266D+00
       Xi( 2) = 1.084036269593066855094522227265D+00
       Xi( 3) = 1.239906037642474827937220938079D+00
@@ -18049,13 +18049,13 @@ C
       Xi(29) = 7209.027731618097082133544972748496D+00
       Xi(30) = 9586.668367498586480479616511729546D+00
       GOTO 9999
-C
-C     ----- K = 15 , R = 2E6 (Best : R = 1175000) -----
-C
+!
+!     ----- K = 15 , R = 2E6 (Best : R = 1175000) -----
+!
  1599 CONTINUE
-C
+!
       RIni = 2.0D+06
-C
+!
       Omega( 1) = 0.0000105228176670261742840088471752704995D+00
       Omega( 2) = 0.0000691367855732188023467920262056778807D+00
       Omega( 3) = 0.0002830208384686293506941606593681898252D+00
@@ -18071,7 +18071,7 @@ C
       Omega(13) = 1.0451182163084206676361212484671625588817D+00
       Omega(14) = 1.9640378140134062713833412727737481873191D+00
       Omega(15) = 4.0343871534325909029329582100587003878900D+00
-C
+!
       Alpha( 1) = 0.0000032916678993378630075590744267626528D+00
       Alpha( 2) = 0.0000362116499423094770823232623331534505D+00
       Alpha( 3) = 0.0001916520413872042188449850493459775125D+00
@@ -18087,7 +18087,7 @@ C
       Alpha(13) = 1.6008068838318576734705903086286582492903D+00
       Alpha(14) = 3.0544270604919671998137009616414161428111D+00
       Alpha(15) = 5.8841569972355831702123807325222060171654D+00
-C
+!
       Xi( 1) = 1.011356431856024272897959237483D+00
       Xi( 2) = 1.104003921877126792355956752534D+00
       Xi( 3) = 1.298967172564399300840019824133D+00
@@ -18119,21 +18119,21 @@ C
       Xi(29) = 145387.166005767926492353581124916673D+00
       Xi(30) = 511088.658350937068661323792184703052D+00
       GOTO 9999
-C
-C     ===== K = 16 =====
-C
+!
+!     ===== K = 16 =====
+!
  1600 CONTINUE
-C
+!
       GOTO (1611,1611,1611,1612,1613,1614,1615,1616,1617,1618,1619,1621,
      *      1622,1623,1624,1625,1626,1627,1628,1629,1631,1632,1633,1634,
      *      1635,1636,1637,1638,1639,1641,1699),InitR
-C
-C     ----- K = 16 , R = 1E1 -----
-C
+!
+!     ----- K = 16 , R = 1E1 -----
+!
  1611 CONTINUE
-C
+!
       RIni = 1.0D+01
-C
+!
       Omega( 1) = 0.0544693993323789184580487575393359378495D+00
       Omega( 2) = 0.1282577437959811045254613498522999748275D+00
       Omega( 3) = 0.2057916770589411241046537068277721971299D+00
@@ -18150,7 +18150,7 @@ C
       Omega(14) = 3.0457271705138052335284232219336786329222D+00
       Omega(15) = 4.1712794331204028318305088163242544396780D+00
       Omega(16) = 6.5349837313441176047529301840199877915438D+00
-C
+!
       Alpha( 1) = 0.0211963589052251348014477066658556303480D+00
       Alpha( 2) = 0.1123242174600216008732342896914158103527D+00
       Alpha( 3) = 0.2789480531208277305635963999597137785713D+00
@@ -18167,7 +18167,7 @@ C
       Alpha(14) = 12.1071304391623297451799357027368841954740D+00
       Alpha(15) = 15.6650471589833527241361621484827537642559D+00
       Alpha(16) = 20.8276833299618638964401107216417585732415D+00
-C
+!
       Xi( 1) = 1.001642773023285848659619245993D+00
       Xi( 2) = 1.020632283267804189482753918217D+00
       Xi( 3) = 1.069694067115581228568851890337D+00
@@ -18201,13 +18201,13 @@ C
       Xi(31) = 9.852011085479216269573943254301D+00
       Xi(32) = 9.982569464695079830551804889183D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 2E1 -----
-C
+!
+!     ----- K = 16 , R = 2E1 -----
+!
  1612 CONTINUE
-C
+!
       RIni = 2.0D+01
-C
+!
       Omega( 1) = 0.0321225885764125043171516096784934291009D+00
       Omega( 2) = 0.0760016922055371523816134915474407307556D+00
       Omega( 3) = 0.1230393637303320996076211497893826418704D+00
@@ -18224,7 +18224,7 @@ C
       Omega(14) = 2.6485569231618074975340149102009945636382D+00
       Omega(15) = 3.7608140990416505055043278060722400368832D+00
       Omega(16) = 6.0921817077078821980537504110486679564929D+00
-C
+!
       Alpha( 1) = 0.0124933559834041096275154218014913354295D+00
       Alpha( 2) = 0.0663634793404057955643017205349387666047D+00
       Alpha( 3) = 0.1655401210940494760050483574742585801687D+00
@@ -18241,7 +18241,7 @@ C
       Alpha(14) = 9.1850123784656421332614484320799874694785D+00
       Alpha(15) = 12.3393159714999913713004420223739998618839D+00
       Alpha(16) = 17.0792800750442479908869364280121772026177D+00
-C
+!
       Xi( 1) = 1.002189500000000066393113229424D+00
       Xi( 2) = 1.019762947701370624990595270543D+00
       Xi( 3) = 1.055229999999999890292201598641D+00
@@ -18275,13 +18275,13 @@ C
       Xi(31) = 19.537293771777199353351095467701D+00
       Xi(32) = 19.947636191155441776762247130250D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 3E1 -----
-C
+!
+!     ----- K = 16 , R = 3E1 -----
+!
  1613 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0235609197261937656794168142321277414908D+00
       Omega( 2) = 0.0559413134016891635680453990359106697383D+00
       Omega( 3) = 0.0911632628103368471841698970903333787419D+00
@@ -18298,7 +18298,7 @@ C
       Omega(14) = 2.4686440241868266001670079168306415340339D+00
       Omega(15) = 3.5657298034729491065849410480481651575246D+00
       Omega(16) = 5.8667042716208066843210089391646988588036D+00
-C
+!
       Alpha( 1) = 0.0091597849242320682433974644333363190896D+00
       Alpha( 2) = 0.0487412456562638064932481939128816605944D+00
       Alpha( 3) = 0.1219811140457653242323674165625835286164D+00
@@ -18315,7 +18315,7 @@ C
       Alpha(14) = 7.9856357540459984491881817447733737935778D+00
       Alpha(15) = 10.9528456420038435440225677020009698026115D+00
       Alpha(16) = 15.4852730910841890682103083598519788210979D+00
-C
+!
       Xi( 1) = 1.002573734850334118379015790889D+00
       Xi( 2) = 1.023246810174743838886546321021D+00
       Xi( 3) = 1.065036071547796444800547399634D+00
@@ -18349,13 +18349,13 @@ C
       Xi(31) = 29.152259241143720490396784583709D+00
       Xi(32) = 29.903656300768179401167179420895D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 4E1 -----
-C
+!
+!     ----- K = 16 , R = 4E1 -----
+!
  1614 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0188412226242910377874828628183556666897D+00
       Omega( 2) = 0.0448605493543371719201160244261394893783D+00
       Omega( 3) = 0.0734930731016188330131737836692362719759D+00
@@ -18372,7 +18372,7 @@ C
       Omega(14) = 2.3555756876213544785941128578699022000364D+00
       Omega(15) = 3.4425924383299705466756485128243525650760D+00
       Omega(16) = 5.7245565688195948557577541482288552288082D+00
-C
+!
       Alpha( 1) = 0.0073225601418134040001580017595350646786D+00
       Alpha( 2) = 0.0390193033202446146977791525262135863272D+00
       Alpha( 3) = 0.0979067844659002423532922175508641515762D+00
@@ -18389,7 +18389,7 @@ C
       Alpha(14) = 7.2729818547780006043890210776226012967527D+00
       Alpha(15) = 10.1223022282442616168185445246763265458867D+00
       Alpha(16) = 14.5237447268137015426309188725895182869863D+00
-C
+!
       Xi( 1) = 1.002857171005857524789632584383D+00
       Xi( 2) = 1.025817267547144013986951116557D+00
       Xi( 3) = 1.072287351569654696801375814985D+00
@@ -18423,13 +18423,13 @@ C
       Xi(31) = 38.707611387791347672820974068486D+00
       Xi(32) = 39.852625297309455229544106202866D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 5E1 -----
-C
+!
+!     ----- K = 16 , R = 5E1 -----
+!
  1615 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0158137200328224617952739810416984411745D+00
       Omega( 2) = 0.0377409803223574240874571214532373630846D+00
       Omega( 3) = 0.0621065805258739136550242328910220734883D+00
@@ -18446,7 +18446,7 @@ C
       Omega(14) = 2.2748723034512419898574980825500801984163D+00
       Omega(15) = 3.3544410264652535695693164052855195222946D+00
       Omega(16) = 5.6229103116070464694724317933349766462925D+00
-C
+!
       Alpha( 1) = 0.0061442796289501532090269618393424400082D+00
       Alpha( 2) = 0.0327791122423217869165921502239147145019D+00
       Alpha( 3) = 0.0824314340868094741013598521217620174184D+00
@@ -18463,7 +18463,7 @@ C
       Alpha(14) = 6.7855822825558887831549903513206345451181D+00
       Alpha(15) = 9.5506056509052685583177622063999478996266D+00
       Alpha(16) = 13.8582962625927245264856324524771480355412D+00
-C
+!
       Xi( 1) = 1.003082187031355445487948441219D+00
       Xi( 2) = 1.027859687592568978427298720391D+00
       Xi( 3) = 1.078057395890052983585156998192D+00
@@ -18497,13 +18497,13 @@ C
       Xi(31) = 48.214455529116414321533223841243D+00
       Xi(32) = 49.795804671837560206881789781619D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 6E1 -----
-C
+!
+!     ----- K = 16 , R = 6E1 -----
+!
  1616 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0136908377299396044207035376752412680901D+00
       Omega( 2) = 0.0327417346325856678237932895908501862436D+00
       Omega( 3) = 0.0540912157388128640461038339898314220022D+00
@@ -18520,7 +18520,7 @@ C
       Omega(14) = 2.2129740071556539273648495091961763137078D+00
       Omega(15) = 3.2866778023493446055612599021600317428238D+00
       Omega(16) = 5.5448487278535236997580037954236331643187D+00
-C
+!
       Alpha( 1) = 0.0053182066261874213429777932208436519446D+00
       Alpha( 2) = 0.0284011328189939031852584557999441550180D+00
       Alpha( 3) = 0.0715605398648006798946008370776450391304D+00
@@ -18537,7 +18537,7 @@ C
       Alpha(14) = 6.4242183428527932921407728183993413040298D+00
       Alpha(15) = 9.1244977187338398849636433851628680713475D+00
       Alpha(16) = 13.3601334728373712015109253670175348815974D+00
-C
+!
       Xi( 1) = 1.003268954923555123567163738230D+00
       Xi( 2) = 1.029556008797791147313382964512D+00
       Xi( 3) = 1.082855440022723218199303396592D+00
@@ -18571,13 +18571,13 @@ C
       Xi(31) = 57.679914983451419423221562254867D+00
       Xi(32) = 59.734007012493412575038220779788D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 7E1 -----
-C
+!
+!     ----- K = 16 , R = 7E1 -----
+!
  1617 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0121119422284885791480239553181974532237D+00
       Omega( 2) = 0.0290189532715633909560086142742640902270D+00
       Omega( 3) = 0.0481093108632741291783420454347686145979D+00
@@ -18594,7 +18594,7 @@ C
       Omega(14) = 2.1632416780817367598071382372992843556858D+00
       Omega(15) = 3.2321339880593698366123556198203914391343D+00
       Omega(16) = 5.4820672068151955966253119356679235352203D+00
-C
+!
       Alpha( 1) = 0.0047039031601346258206606154757267734823D+00
       Alpha( 2) = 0.0251434613504408551858001997711400399282D+00
       Alpha( 3) = 0.0634624580084015806394608788520983466697D+00
@@ -18611,7 +18611,7 @@ C
       Alpha(14) = 6.1418596932948431384342857786151625987259D+00
       Alpha(15) = 8.7900619662313506002052077015207487420412D+00
       Alpha(16) = 12.9677092977387981298509345151614979840815D+00
-C
+!
       Xi( 1) = 1.003428650850012487471922539850D+00
       Xi( 2) = 1.031007206247950144946921857692D+00
       Xi( 3) = 1.086964401585403750308787829137D+00
@@ -18645,13 +18645,13 @@ C
       Xi(31) = 67.109010911477774460887069096771D+00
       Xi(32) = 69.667807344614608493216234563761D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 8E1 -----
-C
+!
+!     ----- K = 16 , R = 8E1 -----
+!
  1618 CONTINUE
-C
+!
       RIni = 8.0D+01
-C
+!
       Omega( 1) = 0.0108873068861372562665142246438043649448D+00
       Omega( 2) = 0.0261282663223343776516766154977000624626D+00
       Omega( 3) = 0.0434552850078543593980904234663764640345D+00
@@ -18668,7 +18668,7 @@ C
       Omega(14) = 2.1219626037538278065432834074144352598523D+00
       Omega(15) = 3.1867916413473558830040527345417444848863D+00
       Omega(16) = 5.4299136597940658287980708607278756971937D+00
-C
+!
       Alpha( 1) = 0.0042274941327305500965867126814123899692D+00
       Alpha( 2) = 0.0226156451548393151356538145063668210355D+00
       Alpha( 3) = 0.0571724048914840694760443415983752757370D+00
@@ -18685,7 +18685,7 @@ C
       Alpha(14) = 5.9129417512000719144536764471098422291107D+00
       Alpha(15) = 8.5178777748218142407132802418345818296075D+00
       Alpha(16) = 12.6473263671162415074794571623328920395579D+00
-C
+!
       Xi( 1) = 1.003568146725075832287506216733D+00
       Xi( 2) = 1.032275421951231643576639418480D+00
       Xi( 3) = 1.090558429595056287738329137138D+00
@@ -18719,13 +18719,13 @@ C
       Xi(31) = 76.505504680732721367597548578487D+00
       Xi(32) = 79.597637690856747637313528542791D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 9E1 -----
-C
+!
+!     ----- K = 16 , R = 9E1 -----
+!
  1619 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0099070942053584087306917073216527835910D+00
       Omega( 2) = 0.0238121984392840396955234177900351255630D+00
       Omega( 3) = 0.0397197022388286855612516898506036966410D+00
@@ -18742,7 +18742,7 @@ C
       Omega(14) = 2.0868647293083933649988914726947086819564D+00
       Omega(15) = 3.1481875148259403213429202805784257179766D+00
       Omega(16) = 5.3855376972745262007663535896995199436788D+00
-C
+!
       Alpha( 1) = 0.0038462156898872527546131037468404856305D+00
       Alpha( 2) = 0.0205915676059204840877094912221512146289D+00
       Alpha( 3) = 0.0521312367564103167914054282744418244988D+00
@@ -18759,7 +18759,7 @@ C
       Alpha(14) = 5.7222039389716857524063875484188201880897D+00
       Alpha(15) = 8.2903222456109351128777928963131671480369D+00
       Alpha(16) = 12.3787400479130052528137229117533024691511D+00
-C
+!
       Xi( 1) = 1.003691976916175615866522186082D+00
       Xi( 2) = 1.033401659367964465748371272191D+00
       Xi( 3) = 1.093752631786901880362600225638D+00
@@ -18793,13 +18793,13 @@ C
       Xi(31) = 85.872336017797033375087423223704D+00
       Xi(32) = 89.523836686630239280193510609251D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 1E2 -----
-C
+!
+!     ----- K = 16 , R = 1E2 -----
+!
  1621 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0091030846063941373947308146122314731485D+00
       Omega( 2) = 0.0219107094627195211883731798541141699843D+00
       Omega( 3) = 0.0366477217677682609360426211481120972735D+00
@@ -18816,7 +18816,7 @@ C
       Omega(14) = 2.0564635512053020538481007406517164781690D+00
       Omega(15) = 3.1147098104802878920822906128051954510738D+00
       Omega(16) = 5.3470752639906505886482901424017200042726D+00
-C
+!
       Alpha( 1) = 0.0035335098097274502238478871302823636213D+00
       Alpha( 2) = 0.0189307470173197830927468501838184522512D+00
       Alpha( 3) = 0.0479913291058656280866289659675638645808D+00
@@ -18833,7 +18833,7 @@ C
       Alpha(14) = 5.5598919048823978901474607283716977690347D+00
       Alpha(15) = 8.0960961548375747339964525473021694779163D+00
       Alpha(16) = 12.1489357832949838493855065912896407098742D+00
-C
+!
       Xi( 1) = 1.003803294380646768694728687699D+00
       Xi( 2) = 1.034414459604964373409807798510D+00
       Xi( 3) = 1.096627116167862222044157571865D+00
@@ -18867,13 +18867,13 @@ C
       Xi(31) = 95.211876155386198909702510917441D+00
       Xi(32) = 99.446678144653096610705578228817D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 2E2 -----
-C
+!
+!     ----- K = 16 , R = 2E2 -----
+!
  1622 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0051910050391620038140489551154593828031D+00
       Omega( 2) = 0.0126277612849116577841408043912652114926D+00
       Omega( 3) = 0.0215606407131872894500943058787578721081D+00
@@ -18890,7 +18890,7 @@ C
       Omega(14) = 1.8774322383842335613957086337677537812851D+00
       Omega(15) = 2.9167470741005022236320975981271885757451D+00
       Omega(16) = 5.1200362418007544676283593343413258480723D+00
-C
+!
       Alpha( 1) = 0.0020125660928861264092960586986891247108D+00
       Alpha( 2) = 0.0108393025800470222817957488548046285359D+00
       Alpha( 3) = 0.0277607372768341410946277888344146944632D+00
@@ -18907,7 +18907,7 @@ C
       Alpha(14) = 4.6584561428876707965887615792155429517152D+00
       Alpha(15) = 7.0062440250979758607670355718965993219172D+00
       Alpha(16) = 10.8487716247577870394211418947350011876551D+00
-C
+!
       Xi( 1) = 1.004543963223910764100479942051D+00
       Xi( 2) = 1.041162209364920160662923431794D+00
       Xi( 3) = 1.115827713131373046559317863125D+00
@@ -18941,13 +18941,13 @@ C
       Xi(31) = 187.425817576227922295339922698076D+00
       Xi(32) = 198.527536791589821002501636826310D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 3E2 -----
-C
+!
+!     ----- K = 16 , R = 3E2 -----
+!
  1623 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0037255564169910067277597943676339942165D+00
       Omega( 2) = 0.0091302987056417856438241247712950254822D+00
       Omega( 3) = 0.0158171136039656348763288119460557190621D+00
@@ -18964,7 +18964,7 @@ C
       Omega(14) = 1.7874363147483472139985180571208900346392D+00
       Omega(15) = 2.8166376845013903116275721938421838785871D+00
       Omega(16) = 5.0054814386377507826747512709175680356566D+00
-C
+!
       Alpha( 1) = 0.0014432114855624366430164606540237359766D+00
       Alpha( 2) = 0.0078015317798097004564905892088494399061D+00
       Alpha( 3) = 0.0201254698329391623609277558668018137666D+00
@@ -18981,7 +18981,7 @@ C
       Alpha(14) = 4.2399974599818059570709161132384679149254D+00
       Alpha(15) = 6.4927254010870050415435428270427564712008D+00
       Alpha(16) = 10.2289376129522341478395031089121403056197D+00
-C
+!
       Xi( 1) = 1.004979210341979526917646770023D+00
       Xi( 2) = 1.045134743033515391371843228363D+00
       Xi( 3) = 1.127172042944499245854458879812D+00
@@ -19015,13 +19015,13 @@ C
       Xi(31) = 278.044557713935721832143599385745D+00
       Xi(32) = 297.404850809861197785677333627063D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 4E2 -----
-C
+!
+!     ----- K = 16 , R = 4E2 -----
+!
  1624 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0029411704155330162737393910176580957838D+00
       Omega( 2) = 0.0072506379760886996575654608095801156864D+00
       Omega( 3) = 0.0127075060808783997139066778217508790760D+00
@@ -19038,7 +19038,7 @@ C
       Omega(14) = 1.7292644544768973737056821926572069969552D+00
       Omega(15) = 2.7516812909019973754434773560717530926922D+00
       Omega(16) = 4.9312407184718789086505519314584944368107D+00
-C
+!
       Alpha( 1) = 0.0011386076066376620912603070696206275514D+00
       Alpha( 2) = 0.0061729978126926382157131298344943104439D+00
       Alpha( 3) = 0.0160169098352160544780869826098079755639D+00
@@ -19055,7 +19055,7 @@ C
       Alpha(14) = 3.9815934666964298322029691679091456535389D+00
       Alpha(15) = 6.1727341131020466791570755482609911268810D+00
       Alpha(16) = 9.8399722788013861806549753552531001332682D+00
-C
+!
       Xi( 1) = 1.005286566415155632557738851762D+00
       Xi( 2) = 1.047943318089983249109115037712D+00
       Xi( 3) = 1.135210829091119112297866844408D+00
@@ -19089,13 +19089,13 @@ C
       Xi(31) = 367.483131109660798974125839322369D+00
       Xi(32) = 396.127659252490586572204023241284D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 5E2 -----
-C
+!
+!     ----- K = 16 , R = 5E2 -----
+!
  1625 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0024472131936283410200325512872873701120D+00
       Omega( 2) = 0.0060630961621274316105539587545836255345D+00
       Omega( 3) = 0.0107312550216339942659886158224380459103D+00
@@ -19112,7 +19112,7 @@ C
       Omega(14) = 1.6871056785919717904784903561576925312693D+00
       Omega(15) = 2.7044720053839088518346511769152584747644D+00
       Omega(16) = 4.8773253290853238362152766161017325430294D+00
-C
+!
       Alpha( 1) = 0.0009468599039160355319218457159548968383D+00
       Alpha( 2) = 0.0051461608873027619992851695342184203952D+00
       Alpha( 3) = 0.0134185711537655366997178743235230591324D+00
@@ -19129,7 +19129,7 @@ C
       Alpha(14) = 3.8001562576159002308697626437705707758141D+00
       Alpha(15) = 5.9465865778449154555040934155840659514070D+00
       Alpha(16) = 9.5636980300421801154051038018621966330102D+00
-C
+!
       Xi( 1) = 1.005523302139058109761285408901D+00
       Xi( 2) = 1.050108461063545093423440834890D+00
       Xi( 3) = 1.141418414873557743926223151387D+00
@@ -19163,13 +19163,13 @@ C
       Xi(31) = 455.962930007404209614696455332705D+00
       Xi(32) = 494.722418110257492418480040896611D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 6E2 -----
-C
+!
+!     ----- K = 16 , R = 6E2 -----
+!
  1626 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0021053197367968382995978809512499507761D+00
       Omega( 2) = 0.0052388810322415410763938214706164631096D+00
       Omega( 3) = 0.0093527407563119556425679798974948120360D+00
@@ -19186,7 +19186,7 @@ C
       Omega(14) = 1.6544567764087873979741635799278753893304D+00
       Omega(15) = 2.6678292216763005312036433069877716661722D+00
       Omega(16) = 4.8355004456198803571183308935843569997814D+00
-C
+!
       Alpha( 1) = 0.0008141838379395475550614482643935199135D+00
       Alpha( 2) = 0.0044346795523015622871485191640317236050D+00
       Alpha( 3) = 0.0116136389856696046680349871174642295557D+00
@@ -19203,7 +19203,7 @@ C
       Alpha(14) = 3.6629754895839110103317876054873636348930D+00
       Alpha(15) = 5.7747339253388481326335901488988611163222D+00
       Alpha(16) = 9.3529386861084840504645954162299403833458D+00
-C
+!
       Xi( 1) = 1.005715257024971536078082612331D+00
       Xi( 2) = 1.051865261327573555262537841060D+00
       Xi( 3) = 1.146461986814843870500363331999D+00
@@ -19237,13 +19237,13 @@ C
       Xi(31) = 543.625273039097820670928484787510D+00
       Xi(32) = 593.206156763596342440525432948562D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 7E2 -----
-C
+!
+!     ----- K = 16 , R = 7E2 -----
+!
  1627 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0018535144254540457011458598956740728703D+00
       Omega( 2) = 0.0046303911519224061630527157149006534098D+00
       Omega( 3) = 0.0083305478664809014863852024840307208819D+00
@@ -19260,7 +19260,7 @@ C
       Omega(14) = 1.6280489633923891337925760058880086944555D+00
       Omega(15) = 2.6381353298352225220622935264458419624134D+00
       Omega(16) = 4.8016213243881142968931541314958622024278D+00
-C
+!
       Alpha( 1) = 0.0007164949012989691333421935718478446020D+00
       Alpha( 2) = 0.0039101863821661210702473291268149724331D+00
       Alpha( 3) = 0.0102801072464593958679624180301004354732D+00
@@ -19277,7 +19277,7 @@ C
       Alpha(14) = 3.5541234904565744520850423260327488605981D+00
       Alpha(15) = 5.6378062888905456332029608734757175625418D+00
       Alpha(16) = 9.1844824112248478770875736998391403176356D+00
-C
+!
       Xi( 1) = 1.005876309005510832483322458675D+00
       Xi( 2) = 1.053340084448622940402513770142D+00
       Xi( 3) = 1.150700637067471238149732326583D+00
@@ -19311,13 +19311,13 @@ C
       Xi(31) = 630.569530725390331893365214455116D+00
       Xi(32) = 691.590930201107461305909396287461D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 8E2 -----
-C
+!
+!     ----- K = 16 , R = 8E2 -----
+!
  1628 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0016597110979603259690510122363084344332D+00
       Omega( 2) = 0.0041610632624492284243526794146328384727D+00
       Omega( 3) = 0.0075390201458541255498857405065171732872D+00
@@ -19334,7 +19334,7 @@ C
       Omega(14) = 1.6060220091447995983740745784551506858406D+00
       Omega(15) = 2.6133276848398222708992622020929275095114D+00
       Omega(16) = 4.7733264900750258710043771870346063224133D+00
-C
+!
       Alpha( 1) = 0.0006413268094817407344158084552508680698D+00
       Alpha( 2) = 0.0035061734626053672457980382422618181870D+00
       Alpha( 3) = 0.0092508507448277612239634858613823720219D+00
@@ -19351,7 +19351,7 @@ C
       Alpha(14) = 3.4647582889019940316412821124103516012838D+00
       Alpha(15) = 5.5250005152878595270776740377982605423313D+00
       Alpha(16) = 9.0453357535582769796689284191870683571324D+00
-C
+!
       Xi( 1) = 1.006014770006011066765146122481D+00
       Xi( 2) = 1.054608649958689026268805755127D+00
       Xi( 3) = 1.154349912463906832247283185122D+00
@@ -19385,13 +19385,13 @@ C
       Xi(31) = 716.870063847640778764702673697684D+00
       Xi(32) = 789.885808266521592280184904666385D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 9E2 -----
-C
+!
+!     ----- K = 16 , R = 9E2 -----
+!
  1629 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0015055631595250562666732919406449575650D+00
       Omega( 2) = 0.0037870450506321845648883704562454033393D+00
       Omega( 3) = 0.0069059686538486601540820237609547005420D+00
@@ -19408,7 +19408,7 @@ C
       Omega(14) = 1.5872230602253215233114411186754466598359D+00
       Omega(15) = 2.5921258825123527603454670620308775141893D+00
       Omega(16) = 4.7491508522890109713146533643168822891312D+00
-C
+!
       Alpha( 1) = 0.0005815528588767195223618469517284229608D+00
       Alpha( 2) = 0.0031845872823828756917046448266309099928D+00
       Alpha( 3) = 0.0084300984840787595718698821389835984519D+00
@@ -19425,7 +19425,7 @@ C
       Alpha(14) = 3.3895107039352260140489814244091348882648D+00
       Alpha(15) = 5.4297307903033270120272957282026027314714D+00
       Alpha(16) = 8.9275533544404011261977349711571605439531D+00
-C
+!
       Xi( 1) = 1.006136012409362691789709021162D+00
       Xi( 2) = 1.055719931445410426961231675769D+00
       Xi( 3) = 1.157549330324401512287875448681D+00
@@ -19459,13 +19459,13 @@ C
       Xi(31) = 802.584897091940211777405522752815D+00
       Xi(32) = 888.097908151572883517221868032721D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 1E3 -----
-C
+!
+!     ----- K = 16 , R = 1E3 -----
+!
  1631 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0013797888502005507772685364165782262447D+00
       Omega( 2) = 0.0034813296515988117510506102492487401356D+00
       Omega( 3) = 0.0063868138275758572432797531299303317454D+00
@@ -19482,7 +19482,7 @@ C
       Omega(14) = 1.5708916426203869327361817287425083122798D+00
       Omega(15) = 2.5736841409626707883207680227499736247410D+00
       Omega(16) = 4.7281271127462638696574426244723099443945D+00
-C
+!
       Alpha( 1) = 0.0005327914492434099262305651010639823140D+00
       Alpha( 2) = 0.0029220140733091449616117170340334752154D+00
       Alpha( 3) = 0.0077588419683956976036238583228216159071D+00
@@ -19499,7 +19499,7 @@ C
       Alpha(14) = 3.3248991112367181318450887195226073345111D+00
       Alpha(15) = 5.3477122672426787952475180087930084482650D+00
       Alpha(16) = 8.8259523750929880087090495521806587930769D+00
-C
+!
       Xi( 1) = 1.006243706349369666569124048827D+00
       Xi( 2) = 1.056707400670955050996265012220D+00
       Xi( 3) = 1.160394330619598642897680185193D+00
@@ -19533,13 +19533,13 @@ C
       Xi(31) = 887.760886989793165269269081818493D+00
       Xi(32) = 986.233000349415966367949692994443D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 2E3 -----
-C
+!
+!     ----- K = 16 , R = 2E3 -----
+!
  1632 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0007768847420693003804794456927489132436D+00
       Omega( 2) = 0.0020065660238064882712827270748803809575D+00
       Omega( 3) = 0.0038523102169686026524150345307778708914D+00
@@ -19556,7 +19556,7 @@ C
       Omega(14) = 1.4739942115085553971543658180465286022809D+00
       Omega(15) = 2.4637954099354931818913888585953486654034D+00
       Omega(16) = 4.6029358609429098189193274581754167229519D+00
-C
+!
       Alpha( 1) = 0.0002992241208797295031346425477894110379D+00
       Alpha( 2) = 0.0016602631356552019942533424123887186852D+00
       Alpha( 3) = 0.0045138170003323857566210179376869904289D+00
@@ -19573,7 +19573,7 @@ C
       Alpha(14) = 2.9558684609147227069503305330044895526953D+00
       Alpha(15) = 4.8751392319118493660565216707425406639231D+00
       Alpha(16) = 8.2366778447943210109474798663597994163865D+00
-C
+!
       Xi( 1) = 1.006931202362213098188033211233D+00
       Xi( 2) = 1.063019469384929592374600115789D+00
       Xi( 3) = 1.178625720298270394695641649641D+00
@@ -19607,13 +19607,13 @@ C
       Xi(31) = 1716.193156804617456989703327963070D+00
       Xi(32) = 1964.134483811259450303232654277963D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 3E3 -----
-C
+!
+!     ----- K = 16 , R = 3E3 -----
+!
  1633 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0005552467027450946637557560830837644072D+00
       Omega( 2) = 0.0014584383837619173779302032801195865286D+00
       Omega( 3) = 0.0028902827511056797591154930498688613305D+00
@@ -19630,7 +19630,7 @@ C
       Omega(14) = 1.4249765739881087528526798502426231607387D+00
       Omega(15) = 2.4078703105469664194453194294709419409628D+00
       Omega(16) = 4.5392702166529680200823815283683870802633D+00
-C
+!
       Alpha( 1) = 0.0002134705217666186853756709926430330804D+00
       Alpha( 2) = 0.0011944382121612197912085697013191698534D+00
       Alpha( 3) = 0.0033030929481546051993269118990381727485D+00
@@ -19647,7 +19647,7 @@ C
       Alpha(14) = 2.7783675668309569231542027756276524996792D+00
       Alpha(15) = 4.6450720342179955234251931273092850460671D+00
       Alpha(16) = 7.9472026835846368108921822237533660882036D+00
-C
+!
       Xi( 1) = 1.007313518843293634764252120206D+00
       Xi( 2) = 1.066535862309835448508317512495D+00
       Xi( 3) = 1.188816594963225726860021891351D+00
@@ -19681,13 +19681,13 @@ C
       Xi(31) = 2513.149382258735478057332102252985D+00
       Xi(32) = 2937.145917315011803161439729592530D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 4E3 -----
-C
+!
+!     ----- K = 16 , R = 4E3 -----
+!
  1634 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0004376510700857689912567819958853429507D+00
       Omega( 2) = 0.0011653666641048586782173284792998857462D+00
       Omega( 3) = 0.0023680456391125560362919923651156550726D+00
@@ -19704,7 +19704,7 @@ C
       Omega(14) = 1.3932536792220334117067825907554379227804D+00
       Omega(15) = 2.3715445629975790188277012804363153009035D+00
       Omega(16) = 4.4979306792040948293105728783558561190148D+00
-C
+!
       Alpha( 1) = 0.0001680125928201301219977655484224925153D+00
       Alpha( 2) = 0.0009465404888159955446108676782243640524D+00
       Alpha( 3) = 0.0026538938383495571741655440775944918563D+00
@@ -19721,7 +19721,7 @@ C
       Alpha(14) = 2.6667207963614877679840026170055011789373D+00
       Alpha(15) = 4.4993322323555962252011886093328030256089D+00
       Alpha(16) = 7.7628668850489034132175691915733750647632D+00
-C
+!
       Xi( 1) = 1.007574569294012870328443309820D+00
       Xi( 2) = 1.068939445826771577870498153295D+00
       Xi( 3) = 1.195796686120764102658972638515D+00
@@ -19755,13 +19755,13 @@ C
       Xi(31) = 3286.862161306532813975778140047623D+00
       Xi(32) = 3906.325460007557433206315522511431D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 5E3 -----
-C
+!
+!     ----- K = 16 , R = 5E3 -----
+!
  1635 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0003639842736266964178310734200202589128D+00
       Omega( 2) = 0.0009806443211126502088166863421898888920D+00
       Omega( 3) = 0.0020348019995182053730111034189204088918D+00
@@ -19778,7 +19778,7 @@ C
       Omega(14) = 1.3702697547901459369443233349272759369342D+00
       Omega(15) = 2.3451567673310105685210991133260449714726D+00
       Omega(16) = 4.4679066019423948753590269955537905843812D+00
-C
+!
       Alpha( 1) = 0.0001395561408272046871737763002385354638D+00
       Alpha( 2) = 0.0007908754043432692235792866254553284966D+00
       Alpha( 3) = 0.0022437319728956972643010923506440290609D+00
@@ -19795,7 +19795,7 @@ C
       Alpha(14) = 2.5873972191280157082240998001054776977981D+00
       Alpha(15) = 4.3952693534984634562111371902659584520734D+00
       Alpha(16) = 7.6307623342543931983794625040218306821771D+00
-C
+!
       Xi( 1) = 1.007770795780931430678933891087D+00
       Xi( 2) = 1.070747566096610958611204389435D+00
       Xi( 3) = 1.201055232665560991260622625276D+00
@@ -19829,13 +19829,13 @@ C
       Xi(31) = 4041.741988572836854709535714391677D+00
       Xi(32) = 4872.251104496301511215250457098591D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 6E3 -----
-C
+!
+!     ----- K = 16 , R = 6E3 -----
+!
  1636 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0003131740893025812162727879048524162742D+00
       Omega( 2) = 0.0008525743777120362815273941689813569367D+00
       Omega( 3) = 0.0018013124768756676217053899063946786896D+00
@@ -19852,7 +19852,7 @@ C
       Omega(14) = 1.3524864442578875393420612116557322224253D+00
       Omega(15) = 2.3246983701212194409983086140769614758028D+00
       Omega(16) = 4.4446320157087978023648100478482092512422D+00
-C
+!
       Alpha( 1) = 0.0001199406337778443636857985098989262673D+00
       Alpha( 2) = 0.0006832918618089672388053348428115646440D+00
       Alpha( 3) = 0.0019587716841422183862100490567281774190D+00
@@ -19869,7 +19869,7 @@ C
       Alpha(14) = 2.5269188569364048871281752672857123798167D+00
       Alpha(15) = 4.3156266381570576305161390795461784364306D+00
       Alpha(16) = 7.5293759519457498950376073132417786837323D+00
-C
+!
       Xi( 1) = 1.007926880878180067591110002923D+00
       Xi( 2) = 1.072186661890797544074635516687D+00
       Xi( 3) = 1.205245264343925420112181579047D+00
@@ -19903,13 +19903,13 @@ C
       Xi(31) = 4780.612701110991521691317984732450D+00
       Xi(32) = 5835.298406764837678473156756808748D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 7E3 -----
-C
+!
+!     ----- K = 16 , R = 7E3 -----
+!
  1637 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0002758456244211198484029873463641013842D+00
       Omega( 2) = 0.0007580596968981613001793861046119504810D+00
       Omega( 3) = 0.0016273891617054744144489056203312093984D+00
@@ -19926,7 +19926,7 @@ C
       Omega(14) = 1.3381198015624958747374351197834130289266D+00
       Omega(15) = 2.3081433515491244952422267289193769101985D+00
       Omega(16) = 4.4257998198618129855226588365013640213874D+00
-C
+!
       Alpha( 1) = 0.0001055373074657432837801094713465251823D+00
       Alpha( 2) = 0.0006041148903459930011925159410151459083D+00
       Alpha( 3) = 0.0017480808776888785328212407021997165657D+00
@@ -19943,7 +19943,7 @@ C
       Alpha(14) = 2.4786279831485562544397815987196054265951D+00
       Alpha(15) = 4.2518384035905261455166870288024938417948D+00
       Alpha(16) = 7.4479905527901974220290892692020179310930D+00
-C
+!
       Xi( 1) = 1.008055779207782207780239036587D+00
       Xi( 2) = 1.073375671584851511462278816911D+00
       Xi( 3) = 1.208710313926687793728217967804D+00
@@ -19977,13 +19977,13 @@ C
       Xi(31) = 5505.466470836707039815394182369346D+00
       Xi(32) = 6795.735316804062661422136670807959D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 8E3 -----
-C
+!
+!     ----- K = 16 , R = 8E3 -----
+!
  1638 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0002471688129707959323570824706692294903D+00
       Omega( 2) = 0.0006851572503816519147648152698003298777D+00
       Omega( 3) = 0.0014921087303356729843801153825161298627D+00
@@ -20000,7 +20000,7 @@ C
       Omega(14) = 1.3261526510468241279311341074276242579799D+00
       Omega(15) = 2.2943342451891662763831247762169596171589D+00
       Omega(16) = 4.4100922622450336430498241124809055691003D+00
-C
+!
       Alpha( 1) = 0.0000944773691119611902426450944308088109D+00
       Alpha( 2) = 0.0005431933718162297242877610526333442831D+00
       Alpha( 3) = 0.0015852907600157036040126309677997240577D+00
@@ -20017,7 +20017,7 @@ C
       Alpha(14) = 2.4387882648489325467747873554813509144878D+00
       Alpha(15) = 4.1990791711593300687514751512452448878321D+00
       Alpha(16) = 7.3805513886962790482890173215935192274628D+00
-C
+!
       Xi( 1) = 1.008165110648253801062246282072D+00
       Xi( 2) = 1.074384597037245452273192258819D+00
       Xi( 3) = 1.211652804915005441363864968629D+00
@@ -20051,13 +20051,13 @@ C
       Xi(31) = 6217.794961798526415908128228693386D+00
       Xi(32) = 7753.764950412754636488443793496117D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 9E3 -----
-C
+!
+!     ----- K = 16 , R = 9E3 -----
+!
  1639 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0002243920605751591336424850472996972428D+00
       Omega( 2) = 0.0006270417067617411212975996796879091244D+00
       Omega( 3) = 0.0013834406617184846414476335802086481852D+00
@@ -20074,7 +20074,7 @@ C
       Omega(14) = 1.3159538709954992786576449814717193476099D+00
       Omega(15) = 2.2825517326481741162656768917571525889798D+00
       Omega(16) = 4.3966905735612235627332577969639260118129D+00
-C
+!
       Alpha( 1) = 0.0000856966014984952755532602313326851623D+00
       Alpha( 2) = 0.0004947372328309368735756184785531952564D+00
       Alpha( 3) = 0.0014553149185678176834364362982575380467D+00
@@ -20091,7 +20091,7 @@ C
       Alpha(14) = 2.4051111576427746828119036415216669411166D+00
       Alpha(15) = 4.1543839778031023445351022083116276917281D+00
       Alpha(16) = 7.3233295014735437632874548441463957715314D+00
-C
+!
       Xi( 1) = 1.008259723879726138789231226767D+00
       Xi( 2) = 1.075258004261145553404760422112D+00
       Xi( 3) = 1.214201731916668916913017162162D+00
@@ -20125,13 +20125,13 @@ C
       Xi(31) = 6918.766716127081207066140677852673D+00
       Xi(32) = 8709.547740942938796493422159983311D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 1E4 -----
-C
+!
+!     ----- K = 16 , R = 1E4 -----
+!
  1641 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0002058282962339966570492447403323450772D+00
       Omega( 2) = 0.0005795163034704684972347108991904546249D+00
       Omega( 3) = 0.0012939465354750554289245856494361408551D+00
@@ -20148,7 +20148,7 @@ C
       Omega(14) = 1.3071066983128932045181772036990253127442D+00
       Omega(15) = 2.2723201246218485212409465834326738331583D+00
       Omega(16) = 4.3850533669438823197381238649938950402429D+00
-C
+!
       Alpha( 1) = 0.0000785427260255526335381718684768102140D+00
       Alpha( 2) = 0.0004551924617865591627534382120762179724D+00
       Alpha( 3) = 0.0013488674597178575663637117702277345987D+00
@@ -20165,7 +20165,7 @@ C
       Alpha(14) = 2.3761018937333028314910082778865785257949D+00
       Alpha(15) = 4.1158110002476520194319986600817173894029D+00
       Alpha(16) = 7.2738777917555991910612822604065286213881D+00
-C
+!
       Xi( 1) = 1.008342889724298546520742103638D+00
       Xi( 2) = 1.076025969828900324021421497367D+00
       Xi( 3) = 1.216444223911958485550427466748D+00
@@ -20199,13 +20199,13 @@ C
       Xi(31) = 7609.323569634084918344996140149306D+00
       Xi(32) = 9663.214336891674749452363357704598D+00
       GOTO 9999
-C
-C     ----- K = 16 , R = 3E6 (Best : R = 2080000) -----
-C
+!
+!     ----- K = 16 , R = 3E6 (Best : R = 2080000) -----
+!
  1699 CONTINUE
-C
+!
       RIni = 3.0D+06
-C
+!
       Omega( 1) = 0.0000061003972863863402651743415894584292D+00
       Omega( 2) = 0.0000400806962962503114856435918063846946D+00
       Omega( 3) = 0.0001640757836358783800369896591054251489D+00
@@ -20222,7 +20222,7 @@ C
       Omega(14) = 1.1003842126562718536008853020824460600124D+00
       Omega(15) = 2.0300383954052895140417189789872054461739D+00
       Omega(16) = 4.1094986543741171998445071977812403929420D+00
-C
+!
       Alpha( 1) = 0.0000019082799452525089727123312353175870D+00
       Alpha( 2) = 0.0000209929942749567198929778781085970021D+00
       Alpha( 3) = 0.0001111065144474894622336291847425338020D+00
@@ -20239,7 +20239,7 @@ C
       Alpha(14) = 1.7511652086513542147475780419441093727073D+00
       Alpha(15) = 3.2656590749026312514666919861738847430388D+00
       Alpha(16) = 6.1657963486574848834508022488165579488850D+00
-C
+!
       Xi( 1) = 1.010619076865009477754139832761D+00
       Xi( 2) = 1.097130811991455252374719209207D+00
       Xi( 3) = 1.278543967005584003045551289013D+00
@@ -20273,17 +20273,17 @@ C
       Xi(31) = 250784.099339365001043233860400505364D+00
       Xi(32) = 881597.133850978159500755282351747155D+00
       GOTO 9999
-C
-C     ===== K = 17 =====
-C
+!
+!     ===== K = 17 =====
+!
  1700 CONTINUE
-C
+!
       GOTO (1712,1712,1712,1712,1713,1714,1715,1716,1717,1718,1719,1721,
      *      1722,1723,1724,1725,1726,1727,1728,1729,1731,1732,1733,1734,
      *      1735,1736,1737,1738,1739,1741,1799),InitR
-C
-C     ----- K = 17 , R = 2E1 -----
-C
+!
+!     ----- K = 17 , R = 2E1 -----
+!
  1712 CONTINUE
       Omega( 1) = 0.0302397699486285961049871363198748852597D+00
       Omega( 2) = 0.0714111729693463297876233723815442289151D+00
@@ -20302,7 +20302,7 @@ C
       Omega(15) = 2.7779101419370363975497317809981723257806D+00
       Omega(16) = 3.9019593558207467727961398340497112258163D+00
       Omega(17) = 6.2568211133691469119991190872553943336243D+00
-C
+!
       Alpha( 1) = 0.0117636499669930626207187650267282919003D+00
       Alpha( 2) = 0.0624282057373425173215709168411668983367D+00
       Alpha( 3) = 0.1554499074025039259292976789872398057923D+00
@@ -20320,7 +20320,7 @@ C
       Alpha(15) = 10.1586829246453062003396894397155847400427D+00
       Alpha(16) = 13.4479116052396606220686869903602200793102D+00
       Alpha(17) = 18.3386844672637758790756379312369972467422D+00
-C
+!
       Xi( 1) = 1.001944992041143801786949596444D+00
       Xi( 2) = 1.017573053775527585772427141553D+00
       Xi( 3) = 1.049054516638138171043259649906D+00
@@ -20356,13 +20356,13 @@ C
       Xi(33) = 19.591956786301745608094848627445D+00
       Xi(34) = 19.953925505681302989685610427273D+00
       GOTO 9999
-C
-C    ----- K = 17 , R = 3E1 -----
-C
+!
+!    ----- K = 17 , R = 3E1 -----
+!
  1713 CONTINUE
-C
+!
       RIni = 3.0D+01
-C
+!
       Omega( 1) = 0.0221689954347680469674537837715400101501D+00
       Omega( 2) = 0.0525136316982886899500462558193492057512D+00
       Omega( 3) = 0.0852024918822239950270025672651730275220D+00
@@ -20380,7 +20380,7 @@ C
       Omega(15) = 2.5944356141359594832267870812003707214899D+00
       Omega(16) = 3.7031544721692649809428876661598906139261D+00
       Omega(17) = 6.0263079220428109991809784151683970776503D+00
-C
+!
       Alpha( 1) = 0.0086209575744671239913921589881340423744D+00
       Alpha( 2) = 0.0458206720026962791509413542440087852015D+00
       Alpha( 3) = 0.1144226474825498924414854048925427321137D+00
@@ -20398,7 +20398,7 @@ C
       Alpha(15) = 8.8514862857485870194923505138717700901907D+00
       Alpha(16) = 11.9500387904471270811984640047853645228315D+00
       Alpha(17) = 16.6290535199854737982705366050595330307260D+00
-C
+!
       Xi( 1) = 1.002291568893694707334182658620D+00
       Xi( 2) = 1.020685218992778364949583491672D+00
       Xi( 3) = 1.057827576467378746490413665704D+00
@@ -20434,13 +20434,13 @@ C
       Xi(33) = 29.253240477906523528406346201791D+00
       Xi(34) = 29.915367900093881785988925159359D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 4E1 -----
-C
+!
+!     ----- K = 17 , R = 4E1 -----
+!
  1714 CONTINUE
-C
+!
       RIni = 4.0D+01
-C
+!
       Omega( 1) = 0.0177211717809415518640002830744184514344D+00
       Omega( 2) = 0.0420804499893616642852874065727775132473D+00
       Omega( 3) = 0.0685892521116945304979141580237200770398D+00
@@ -20458,7 +20458,7 @@ C
       Omega(15) = 2.4789350252740321232762521486137075044098D+00
       Omega(16) = 3.5775455854296866070336086140812881239981D+00
       Omega(17) = 5.8808761560584260018845481621241333414218D+00
-C
+!
       Alpha( 1) = 0.0068893777628398834758633286282081265028D+00
       Alpha( 2) = 0.0366619080357459382424421129309521916184D+00
       Alpha( 3) = 0.0917603715074955805243960005324055373421D+00
@@ -20476,7 +20476,7 @@ C
       Alpha(15) = 8.0735188590298359763430813273998865042813D+00
       Alpha(16) = 11.0517695651505124913860367286133623565547D+00
       Alpha(17) = 15.5970252200462439961733962512369089381536D+00
-C
+!
       Xi( 1) = 1.002545391012707700273062783047D+00
       Xi( 2) = 1.022989700653836702077051357129D+00
       Xi( 3) = 1.064312733992968879720951436152D+00
@@ -20512,13 +20512,13 @@ C
       Xi(33) = 38.862502856911729828826018717791D+00
       Xi(34) = 39.870707818741036188719961685933D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 5E1 -----
-C
+!
+!     ----- K = 17 , R = 5E1 -----
+!
  1715 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0148686660388008807532681768322213589073D+00
       Omega( 2) = 0.0353795804560981431076025719578703743196D+00
       Omega( 3) = 0.0578913354783317874690097646489528315783D+00
@@ -20536,7 +20536,7 @@ C
       Omega(15) = 2.3963756361848144599020066225492087141902D+00
       Omega(16) = 3.4875378011820311698922003618150711190538D+00
       Omega(17) = 5.7767967602680691920416511386804359062808D+00
-C
+!
       Alpha( 1) = 0.0057790612680969588938700127415254437224D+00
       Alpha( 2) = 0.0307848490694564320059887834943324058656D+00
       Alpha( 3) = 0.0771991247235623547496272990608989772454D+00
@@ -20554,7 +20554,7 @@ C
       Alpha(15) = 7.5407037530380250545287978969355435765465D+00
       Alpha(16) = 10.4328308991523239354290431002425521000987D+00
       Alpha(17) = 14.8822667559735207229790199257024596590782D+00
-C
+!
       Xi( 1) = 1.002747516529837833957478077096D+00
       Xi( 2) = 1.024822470846904157604911889123D+00
       Xi( 3) = 1.069480378717986563189001891772D+00
@@ -20590,13 +20590,13 @@ C
       Xi(33) = 48.429519596735885651056507938961D+00
       Xi(34) = 49.821049698729165840227484096658D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 6E1 -----
-C
+!
+!     ----- K = 17 , R = 6E1 -----
+!
  1716 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0128688641747443431470488014144171184938D+00
       Omega( 2) = 0.0306759431049708882359357839733626782674D+00
       Omega( 3) = 0.0503652577739043404976375644527264441308D+00
@@ -20614,7 +20614,7 @@ C
       Omega(15) = 2.3329791005813414442489339695185890377616D+00
       Omega(16) = 3.4182913257221446416862786765733517313492D+00
       Omega(17) = 5.6968099048043257253033655462814976999653D+00
-C
+!
       Alpha( 1) = 0.0050007674880163409831774297322620759232D+00
       Alpha( 2) = 0.0266626502692728805931916390842273401063D+00
       Alpha( 3) = 0.0669742870912714411999280307574711201823D+00
@@ -20632,7 +20632,7 @@ C
       Alpha(15) = 7.1452085392034963683832726744071806024294D+00
       Alpha(16) = 9.9711244754619540453521864264985197223723D+00
       Alpha(17) = 14.3468619350247799807199222676956651412183D+00
-C
+!
       Xi( 1) = 1.002915499109157203240158540147D+00
       Xi( 2) = 1.026346630989126865705907132309D+00
       Xi( 3) = 1.073782732619288837945005499197D+00
@@ -20668,13 +20668,13 @@ C
       Xi(33) = 57.960537309272782375418886502416D+00
       Xi(34) = 59.767106150282154120034761035640D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 7E1 -----
-C
+!
+!     ----- K = 17 , R = 7E1 -----
+!
  1717 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0113817599792177474883739024189011068700D+00
       Omega( 2) = 0.0271743593440448312882964931880280801124D+00
       Omega( 3) = 0.0447515467109071490308292058657446688130D+00
@@ -20692,7 +20692,7 @@ C
       Omega(15) = 2.2819924145495760149562197716122113888559D+00
       Omega(16) = 3.3625148353540114170776020863229405222228D+00
       Omega(17) = 5.6324406740100084454471451866908182637417D+00
-C
+!
       Alpha( 1) = 0.0044220826490264052288574705452950386331D+00
       Alpha( 2) = 0.0235959842136256114419402048903995350315D+00
       Alpha( 3) = 0.0593600889932688150471323720175353955142D+00
@@ -20710,7 +20710,7 @@ C
       Alpha(15) = 6.8358741981674408794145136880615609697998D+00
       Alpha(16) = 9.6084889100046543333744075710001197876409D+00
       Alpha(17) = 13.9248776999019524772821521096943797601853D+00
-C
+!
       Xi( 1) = 1.003059306218734375798842806127D+00
       Xi( 2) = 1.027652007831690134770884215154D+00
       Xi( 3) = 1.077470832132708706109849861043D+00
@@ -20746,9 +20746,9 @@ C
       Xi(33) = 67.459959939941881126856948469594D+00
       Xi(34) = 69.709379552572190680281849495259D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 8E1 -----
-C
+!
+!     ----- K = 17 , R = 8E1 -----
+!
  1718 CONTINUE
       Omega( 1) = 0.0102284904090335036154122382023867743328D+00
       Omega( 2) = 0.0244561615921032835244597249818587769710D+00
@@ -20767,7 +20767,7 @@ C
       Omega(15) = 2.2396347826394381254518084478632999889669D+00
       Omega(16) = 3.3161182846423878898840104101353176702105D+00
       Omega(17) = 5.5789379346348069691093052302477417470072D+00
-C
+!
       Alpha( 1) = 0.0039733564241690171219145038573883343958D+00
       Alpha( 2) = 0.0212168432499748764094165158142213378767D+00
       Alpha( 3) = 0.0534476838381714172498222412133195291517D+00
@@ -20785,7 +20785,7 @@ C
       Alpha(15) = 6.5848644957529141393155758255062437456218D+00
       Alpha(16) = 9.3131630039612661184703079619850996095920D+00
       Alpha(17) = 13.5801936423355342027294301310291757545201D+00
-C
+!
       Xi( 1) = 1.003185049342236287504663561077D+00
       Xi( 2) = 1.028793990287334054328782784182D+00
       Xi( 3) = 1.080699748461550579949237704813D+00
@@ -20821,13 +20821,13 @@ C
       Xi(33) = 76.931402511047548453682054514502D+00
       Xi(34) = 79.647416004628414316901530156656D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 9E1 -----
-C
+!
+!     ----- K = 17 , R = 9E1 -----
+!
  1719 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0093055452799273397626321252702752406805D+00
       Omega( 2) = 0.0222788871640996847180458744971942586233D+00
       Omega( 3) = 0.0368837610336946389418195154513702149757D+00
@@ -20845,7 +20845,7 @@ C
       Omega(15) = 2.2035942157384123282846261071554749833012D+00
       Omega(16) = 3.2765969845607466565205051489684251464496D+00
       Omega(17) = 5.5333942237095084396361621692506105318898D+00
-C
+!
       Alpha( 1) = 0.0036142847601028185659230223744642351846D+00
       Alpha( 2) = 0.0193121979363516552036001035219658916731D+00
       Alpha( 3) = 0.0487106256560613163639824208656081694357D+00
@@ -20863,7 +20863,7 @@ C
       Alpha(15) = 6.3755685758961003579622928150172356254188D+00
       Alpha(16) = 9.0661336228983590247373913761919084208785D+00
       Alpha(17) = 13.2911275294674962061530765211614379950333D+00
-C
+!
       Xi( 1) = 1.003296779115244159925370015518D+00
       Xi( 2) = 1.029808878893360909144438775087D+00
       Xi( 3) = 1.083571537207537143713415028756D+00
@@ -20899,13 +20899,13 @@ C
       Xi(33) = 86.376471319539266387199649699369D+00
       Xi(34) = 89.584005199299913783927973298660D+00
       GOTO 9999
-C
-C    ----- K = 17 , R = 1E2 -----
-C
+!
+!    ----- K = 17 , R = 1E2 -----
+!
  1721 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0085486027112414137163487210663292970025D+00
       Omega( 2) = 0.0204917524282931772402181497955142575051D+00
       Omega( 3) = 0.0340047708324275376429266393857320238681D+00
@@ -20923,7 +20923,7 @@ C
       Omega(15) = 2.1723542263902079296842423383750997345487D+00
       Omega(16) = 3.2423058243498171153255948961913190942141D+00
       Omega(17) = 5.4939008854835959206816542454987484234152D+00
-C
+!
       Alpha( 1) = 0.0033198247340284218243658512269636529091D+00
       Alpha( 2) = 0.0177496313316968076455022815945961056627D+00
       Alpha( 3) = 0.0448214559364190146659623521785409394624D+00
@@ -20941,7 +20941,7 @@ C
       Alpha(15) = 6.1973374899988810981035780578451976907672D+00
       Alpha(16) = 8.8551748034756879732545820083089438412571D+00
       Alpha(17) = 13.0437004598485047808520409517996085924096D+00
-C
+!
       Xi( 1) = 1.003397304594680938902989675299D+00
       Xi( 2) = 1.030722356774342372267780354456D+00
       Xi( 3) = 1.086157905417406153926636325213D+00
@@ -20977,13 +20977,13 @@ C
       Xi(33) = 95.798208021227316426304820851101D+00
       Xi(34) = 99.516891069178648451809543473701D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 2E2 -----
-C
+!
+!     ----- K = 17 , R = 2E2 -----
+!
  1722 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0048673410480669797478294228646605867894D+00
       Omega( 2) = 0.0117746330456780427921052094124287901167D+00
       Omega( 3) = 0.0198870791428627719878467153963308433617D+00
@@ -21001,7 +21001,7 @@ C
       Omega(15) = 1.9879267827114792103635962372543133369618D+00
       Omega(16) = 3.0391568135442928416493912902041074630688D+00
       Omega(17) = 5.2603872308116383059439780112143125734292D+00
-C
+!
       Alpha( 1) = 0.0018882627435518682409133786278578048812D+00
       Alpha( 2) = 0.0101417169947529204940798877934704513848D+00
       Alpha( 3) = 0.0258347276183185878667663681190758140360D+00
@@ -21019,7 +21019,7 @@ C
       Alpha(15) = 5.2051002196070909459370279481760235285037D+00
       Alpha(16) = 7.6693061305436458293012524922716011133161D+00
       Alpha(17) = 11.6418874847292572833820645250568759365706D+00
-C
+!
       Xi( 1) = 1.004068323206283402568815554812D+00
       Xi( 2) = 1.036827203872648411951511160378D+00
       Xi( 3) = 1.103482813671758877896965367338D+00
@@ -21055,13 +21055,13 @@ C
       Xi(33) = 188.993468008481036918277951031087D+00
       Xi(34) = 198.720074371188938050503125509749D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 3E2 -----
-C
+!
+!     ----- K = 17 , R = 3E2 -----
+!
  1723 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0034895570058752979874977019104920206161D+00
       Omega( 2) = 0.0084953771076717173810761269368840853389D+00
       Omega( 3) = 0.0145270414019809661616185474282414435976D+00
@@ -21079,7 +21079,7 @@ C
       Omega(15) = 1.8948707090313091034932888034880704708485D+00
       Omega(16) = 2.9361280759129321055959233044418965619116D+00
       Omega(17) = 5.1422560459812323464812156004200005554594D+00
-C
+!
       Alpha( 1) = 0.0013527924373737048622635492731852702164D+00
       Alpha( 2) = 0.0072886986335998001675672063135597023020D+00
       Alpha( 3) = 0.0186812974634128143710875636154811196832D+00
@@ -21097,7 +21097,7 @@ C
       Alpha(15) = 4.7428116771175643337672689359152400356834D+00
       Alpha(16) = 7.1090076869049263646495318003104557647021D+00
       Alpha(17) = 10.9721317820403240841931058469072013394907D+00
-C
+!
       Xi( 1) = 1.004464527867190501192636020722D+00
       Xi( 2) = 1.040437796402030025942099522585D+00
       Xi( 3) = 1.113762374064386074688434713487D+00
@@ -21133,13 +21133,13 @@ C
       Xi(33) = 280.812119844836972720747425569243D+00
       Xi(34) = 297.750869555545535610763252520883D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 4E2 -----
-C
+!
+!     ----- K = 17 , R = 4E2 -----
+!
  1724 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0027525568817549190527555180154836711459D+00
       Omega( 2) = 0.0067349258709659411096330717226565720779D+00
       Omega( 3) = 0.0116306948133806012482164378082916122992D+00
@@ -21157,7 +21157,7 @@ C
       Omega(15) = 1.8345705538017225324620013138243734829302D+00
       Omega(16) = 2.8691445129195687073660192556445736045134D+00
       Omega(17) = 5.0655577565800045543829843719407790558762D+00
-C
+!
       Alpha( 1) = 0.0010664804747085546700840461053008678682D+00
       Alpha( 2) = 0.0057604517182599801614652213193473739850D+00
       Alpha( 3) = 0.0148368170868551522151713821517926561455D+00
@@ -21175,7 +21175,7 @@ C
       Alpha(15) = 4.4566738162125549430406246109725998394424D+00
       Alpha(16) = 6.7592308752209600986732285221592064772267D+00
       Alpha(17) = 10.5512095381578559893237523326092741626780D+00
-C
+!
       Xi( 1) = 1.004745236963215977580091142762D+00
       Xi( 2) = 1.042998580297516816742589562672D+00
       Xi( 3) = 1.121068111086431744638676477610D+00
@@ -21211,13 +21211,13 @@ C
       Xi(33) = 371.614835336650621178122833043744D+00
       Xi(34) = 396.651647865055578978665806744175D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 5E2 -----
-C
+!
+!     ----- K = 17 , R = 5E2 -----
+!
  1725 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0022886748517332675470407850120899140300D+00
       Omega( 2) = 0.0056236828345040892299872893091150505285D+00
       Omega( 3) = 0.0097928733037316318863112012647886839289D+00
@@ -21235,7 +21235,7 @@ C
       Omega(15) = 1.7907855704489536393959198123937426316843D+00
       Omega(16) = 2.8203860853302943445357342522328281120281D+00
       Omega(17) = 5.0097774964476492884010716544196384347742D+00
-C
+!
       Alpha( 1) = 0.0008863304499981981883709391222252865772D+00
       Alpha( 2) = 0.0047974786871564526520171547335769091092D+00
       Alpha( 3) = 0.0124079377825491436129434178088637441562D+00
@@ -21253,7 +21253,7 @@ C
       Alpha(15) = 4.2554107039169150219874715457279990005190D+00
       Alpha(16) = 6.5116887625723135928947071793260192862363D+00
       Alpha(17) = 10.2518864229407280098255172973154003557283D+00
-C
+!
       Xi( 1) = 1.004962001499464992540500141160D+00
       Xi( 2) = 1.044977580151059749096788265010D+00
       Xi( 3) = 1.126722704247385133135596346765D+00
@@ -21289,13 +21289,13 @@ C
       Xi(33) = 461.593492653376612833149295056501D+00
       Xi(34) = 495.445182885228008445865910402972D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 6E2 -----
-C
+!
+!     ----- K = 17 , R = 6E2 -----
+!
  1726 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0019677354874388323126610430549229824315D+00
       Omega( 2) = 0.0048530017461425127139060600733877492985D+00
       Omega( 3) = 0.0085126416938917754928699342491238422070D+00
@@ -21313,7 +21313,7 @@ C
       Omega(15) = 1.7568239419680497032582797145572328645358D+00
       Omega(16) = 2.7824917704868392244292596426902264283854D+00
       Omega(17) = 4.9664538413426434467282111206998251873301D+00
-C
+!
       Alpha( 1) = 0.0007617277641131662537388027423620323608D+00
       Alpha( 2) = 0.0041306178060617515049843023657721863273D+00
       Alpha( 3) = 0.0107221676748737044701690972713092886437D+00
@@ -21331,7 +21331,7 @@ C
       Alpha(15) = 4.1030244474367591057777093777048094125348D+00
       Alpha(16) = 6.3233632286307359252411353089939893834526D+00
       Alpha(17) = 10.0233206331863437229048874321790663088905D+00
-C
+!
       Xi( 1) = 1.005138133768391998923430463719D+00
       Xi( 2) = 1.046586623977852883809157302775D+00
       Xi( 3) = 1.131325789969696443541292973922D+00
@@ -21367,13 +21367,13 @@ C
       Xi(33) = 550.870382015631614713857544529674D+00
       Xi(34) = 594.146087176383738637230891299623D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 7E2 -----
-C
+!
+!     ----- K = 17 , R = 7E2 -----
+!
  1727 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0017314513798382410054079192989959223858D+00
       Omega( 2) = 0.0042844078892813092310028655514131390447D+00
       Omega( 3) = 0.0075644514054617839744789589868922963234D+00
@@ -21391,7 +21391,7 @@ C
       Omega(15) = 1.7293175542134885413515787977445370415808D+00
       Omega(16) = 2.7517493678958247474344162020187809503113D+00
       Omega(17) = 4.9313241617443771235007599074151585227810D+00
-C
+!
       Alpha( 1) = 0.0006700144767931550113013450524924313756D+00
       Alpha( 2) = 0.0036392566808145860040259373692494992980D+00
       Alpha( 3) = 0.0094776144199785698788994253889683694325D+00
@@ -21409,7 +21409,7 @@ C
       Alpha(15) = 3.9819627692099408776925384412237463038764D+00
       Alpha(16) = 6.1731642832369503933430399111870201522834D+00
       Alpha(17) = 9.8404776509214518590007436671385221416131D+00
-C
+!
       Xi( 1) = 1.005286176376527788943297803126D+00
       Xi( 2) = 1.047939757148727411405902953945D+00
       Xi( 3) = 1.135200657171558425253578283876D+00
@@ -21445,13 +21445,13 @@ C
       Xi(33) = 639.531338122269526369478853666806D+00
       Xi(34) = 692.764683404033109026531889185208D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 8E2 -----
-C
+!
+!     ----- K = 17 , R = 8E2 -----
+!
  1728 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0015496548496931517238359808240517889733D+00
       Omega( 2) = 0.0038461093612214815545657090782930009887D+00
       Omega( 3) = 0.0068310098587557051586795740794055831202D+00
@@ -21469,7 +21469,7 @@ C
       Omega(15) = 1.7063473740013236616295741465698654337757D+00
       Omega(16) = 2.7260403665683967831465106534949427441461D+00
       Omega(17) = 4.9019578207789707797667477784386846906273D+00
-C
+!
       Alpha( 1) = 0.0005994659006691419248704380757022947002D+00
       Alpha( 2) = 0.0032609293287467020271499801992165501474D+00
       Alpha( 3) = 0.0085176833686744144688460190703582775029D+00
@@ -21487,7 +21487,7 @@ C
       Alpha(15) = 3.8824710537171935030055502924284382970654D+00
       Alpha(16) = 6.0493196223628172046929418748106854764046D+00
       Alpha(17) = 9.6893344958846452834658191655137216002913D+00
-C
+!
       Xi( 1) = 1.005413654823237422299316012886D+00
       Xi( 2) = 1.049105445525520472144567762918D+00
       Xi( 3) = 1.138541603761564504531181296620D+00
@@ -21523,13 +21523,13 @@ C
       Xi(33) = 727.640516882454204627972416119519D+00
       Xi(34) = 791.308726273244767590586690175769D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 9E2 -----
-C
+!
+!     ----- K = 17 , R = 9E2 -----
+!
  1729 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0014051007766722965632607598800672688011D+00
       Omega( 2) = 0.0034970054384386864617748899098162440602D+00
       Omega( 3) = 0.0062449864228303118897558520328933129306D+00
@@ -21547,7 +21547,7 @@ C
       Omega(15) = 1.6867230015056864829165600427884896816977D+00
       Omega(16) = 2.7040488024480957571574202269459874514723D+00
       Omega(17) = 4.8768459270337208614175261711665143593564D+00
-C
+!
       Alpha( 1) = 0.0005433808812488208877660859951255756251D+00
       Alpha( 2) = 0.0029599069426816397451533816346722072232D+00
       Alpha( 3) = 0.0077526842167645549894012190709352561058D+00
@@ -21565,7 +21565,7 @@ C
       Alpha(15) = 3.7986202418785148370722337674010304908734D+00
       Alpha(16) = 5.9446475204785969056846262059679020239855D+00
       Alpha(17) = 9.5613115630708263590134543541410039324546D+00
-C
+!
       Xi( 1) = 1.005525438161108560115690468972D+00
       Xi( 2) = 1.050128008171806777404887200955D+00
       Xi( 3) = 1.141474520126940505292123528847D+00
@@ -21601,13 +21601,13 @@ C
       Xi(33) = 815.247943933204043731599597322202D+00
       Xi(34) = 889.784294879880762019208617630284D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 1E3 -----
-C
+!
+!     ----- K = 17 , R = 1E3 -----
+!
  1731 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0012871872080564161462051941541180621886D+00
       Omega( 2) = 0.0032117941613826283106286114564162370577D+00
       Omega( 3) = 0.0057648310783511739021668651705709862654D+00
@@ -21625,7 +21625,7 @@ C
       Omega(15) = 1.6696584075417829916331349804359263089282D+00
       Omega(16) = 2.6849046641728076820557213899576254334534D+00
       Omega(17) = 4.8549914587310428900311654043520093182451D+00
-C
+!
       Alpha( 1) = 0.0004976403321071418149077351185567696934D+00
       Alpha( 2) = 0.0027142127504787087851420031682850297905D+00
       Alpha( 3) = 0.0071273804248462571307361505725669337252D+00
@@ -21643,7 +21643,7 @@ C
       Alpha(15) = 3.7265623220764432311016833843098083889345D+00
       Alpha(16) = 5.8544721956401703294101124264159352605930D+00
       Alpha(17) = 9.4508090016707621099090186334024110692553D+00
-C
+!
       Xi( 1) = 1.005624857260242493496062154978D+00
       Xi( 2) = 1.051037776031361623777643510280D+00
       Xi( 3) = 1.144085632307707296544639630209D+00
@@ -21679,13 +21679,13 @@ C
       Xi(33) = 902.393918911106110325448526054970D+00
       Xi(34) = 988.196307010837813322723377496004D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 2E3 -----
-C
+!
+!     ----- K = 17 , R = 2E3 -----
+!
  1732 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0007225227877812019577221340623993106611D+00
       Omega( 2) = 0.0018383479865653803184383474319044116108D+00
       Omega( 3) = 0.0034284305708949454600021375209883967017D+00
@@ -21703,7 +21703,7 @@ C
       Omega(15) = 1.5680614875995368081608438703966612592922D+00
       Omega(16) = 2.5704877366016645511351268460487062839093D+00
       Omega(17) = 4.7244846417528871085171615629150210224907D+00
-C
+!
       Alpha( 1) = 0.0002787396918418467402997800634687625143D+00
       Alpha( 2) = 0.0015350921123070499986556722033653743509D+00
       Alpha( 3) = 0.0041106907929045474245271303732895962213D+00
@@ -21721,7 +21721,7 @@ C
       Alpha(15) = 3.3137957600148759240276524762336407547991D+00
       Alpha(16) = 5.3335920256305480212713487908615661581280D+00
       Alpha(17) = 8.8084384918989444088893714379651100898627D+00
-C
+!
       Xi( 1) = 1.006262575581306089461675057350D+00
       Xi( 2) = 1.056880453784974475159134932323D+00
       Xi( 3) = 1.160893119463695852570592204067D+00
@@ -21757,13 +21757,13 @@ C
       Xi(33) = 1753.896398834346094686154060582339D+00
       Xi(34) = 1969.488625452609237731493863066135D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 3E3 -----
-C
+!
+!     ----- K = 17 , R = 3E3 -----
+!
  1733 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0005152964505271765564264614505052275462D+00
       Omega( 2) = 0.0013294206789940208072407632671277366576D+00
       Omega( 3) = 0.0025467655464825499513393278032402644584D+00
@@ -21781,7 +21781,7 @@ C
       Omega(15) = 1.5163956265285225614948202976783875328692D+00
       Omega(16) = 2.5119855345932346698829135123176570232317D+00
       Omega(17) = 4.6578206954465259386106990024956076013041D+00
-C
+!
       Alpha( 1) = 0.0001984953473166476890669774536704421386D+00
       Alpha( 2) = 0.0011007426306861563136964176821096239589D+00
       Alpha( 3) = 0.0029892040618499704110536525870564505958D+00
@@ -21799,7 +21799,7 @@ C
       Alpha(15) = 3.1143693332951915468762710270667071199568D+00
       Alpha(16) = 5.0790073624075776853939445665275798091898D+00
       Alpha(17) = 8.4917280230121232331708114315915736369789D+00
-C
+!
       Xi( 1) = 1.006619739302944042599885499101D+00
       Xi( 2) = 1.060158072508502472160694940495D+00
       Xi( 3) = 1.170351216673867388072885487027D+00
@@ -21835,13 +21835,13 @@ C
       Xi(33) = 2578.487415807036629455950560441124D+00
       Xi(34) = 2946.808860665281275537097371852724D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 4E3 -----
-C
+!
+!     ----- K = 17 , R = 4E3 -----
+!
  1734 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0004054777725141607820470602288826303394D+00
       Omega( 2) = 0.0010578850551656629063238917705727648588D+00
       Omega( 3) = 0.0020701844217904609134742508575952046890D+00
@@ -21859,7 +21859,7 @@ C
       Omega(15) = 1.4828393697982242696933874448461665451759D+00
       Omega(16) = 2.4738623767994982998851688504871049190115D+00
       Omega(17) = 4.6143996077690712896701707990132490522228D+00
-C
+!
       Alpha( 1) = 0.0001560036351335973021506571756710987642D+00
       Alpha( 2) = 0.0008699543072648038101912277729119149505D+00
       Alpha( 3) = 0.0023894041062470810685414011236352149758D+00
@@ -21877,7 +21877,7 @@ C
       Alpha(15) = 2.9885558338476809002014905614075246376160D+00
       Alpha(16) = 4.9172983979235954268664776645181291314657D+00
       Alpha(17) = 8.2895297475037491357827135196600920608034D+00
-C
+!
       Xi( 1) = 1.006864795993849638036828075816D+00
       Xi( 2) = 1.062409149010022496205027375815D+00
       Xi( 3) = 1.176859446125301238692852090484D+00
@@ -21913,13 +21913,13 @@ C
       Xi(33) = 3383.202563703130898886684008175507D+00
       Xi(34) = 3921.048508992051748967000435186492D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 5E3 -----
-C
+!
+!     ----- K = 17 , R = 5E3 -----
+!
  1735 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0003367471971412925717325832021585910181D+00
       Omega( 2) = 0.0008870248350176340236647966525952713202D+00
       Omega( 3) = 0.0017671250240551048071597017657084760511D+00
@@ -21937,7 +21937,7 @@ C
       Omega(15) = 1.4584594866065747734195159890369097865914D+00
       Omega(16) = 2.4460979032403840764155200648843901944929D+00
       Omega(17) = 4.5827860157812262045101681096070933563169D+00
-C
+!
       Alpha( 1) = 0.0001294266036966938828865212042745595766D+00
       Alpha( 2) = 0.0007252109691484226381374347412869102447D+00
       Alpha( 3) = 0.0020112414165164148180440470718363665803D+00
@@ -21955,7 +21955,7 @@ C
       Alpha(15) = 2.8989593755717999216340446944073505619599D+00
       Alpha(16) = 4.8015854096117595514736642314801429165527D+00
       Alpha(17) = 8.1443259141638506999616442527667459216900D+00
-C
+!
       Xi( 1) = 1.007049693449281561061572909388D+00
       Xi( 2) = 1.064108820854260653381538614948D+00
       Xi( 3) = 1.181780171940103476018076034126D+00
@@ -21991,13 +21991,13 @@ C
       Xi(33) = 4171.801010587520317507426170777762D+00
       Xi(34) = 4892.692186900420264095146194449626D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 6E3 -----
-C
+!
+!     ----- K = 17 , R = 6E3 -----
+!
  1736 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0002893788058660251220700467618580919993D+00
       Omega( 2) = 0.0007687334262258106657094887945776834348D+00
       Omega( 3) = 0.0015554121481513774189826932142603765907D+00
@@ -22015,7 +22015,7 @@ C
       Omega(15) = 1.4395525665351275588273866068433903819823D+00
       Omega(16) = 2.4245259251567070619796939734413854239392D+00
       Omega(17) = 4.5582283842336844886453106617807407019427D+00
-C
+!
       Alpha( 1) = 0.0001111196331432098773593451322553356947D+00
       Alpha( 2) = 0.0006252786872462859488655309548287009047D+00
       Alpha( 3) = 0.0017489792522994029448526429352736566436D+00
@@ -22033,7 +22033,7 @@ C
       Alpha(15) = 2.8305173366405512477925882075524555148149D+00
       Alpha(16) = 4.7128672569047431292928174162426557813887D+00
       Alpha(17) = 8.0326923086897244266624262820641888538375D+00
-C
+!
       Xi( 1) = 1.007197226460793085039621685972D+00
       Xi( 2) = 1.065465779153302418595823664038D+00
       Xi( 3) = 1.185712785913672866113660608889D+00
@@ -22069,13 +22069,13 @@ C
       Xi(33) = 4946.685510752378218679581323158345D+00
       Xi(34) = 5862.053726810713471184755007925560D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 7E3 -----
-C
+!
+!     ----- K = 17 , R = 7E3 -----
+!
  1737 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0002546024856868255790640578640213545492D+00
       Omega( 2) = 0.0006815428354254016933354768769792036975D+00
       Omega( 3) = 0.0013981202324835494463110884075934814419D+00
@@ -22093,7 +22093,7 @@ C
       Omega(15) = 1.4242478034182447374977539822360483867669D+00
       Omega(16) = 2.4070372300275924167239222084546668156690D+00
       Omega(17) = 4.5383221693832840825354180136486093033454D+00
-C
+!
       Alpha( 1) = 0.0000976854149814708326492514601623734505D+00
       Alpha( 2) = 0.0005517983285910077253117725012976357846D+00
       Alpha( 3) = 0.0015553737137321001051108821321665443005D+00
@@ -22111,7 +22111,7 @@ C
       Alpha(15) = 2.7757769723660380065382441427956905499741D+00
       Alpha(16) = 4.6416990087728610247380656161908518697601D+00
       Alpha(17) = 7.9429446589814974707607908577244870684808D+00
-C
+!
       Xi( 1) = 1.007319389110380035228485551269D+00
       Xi( 2) = 1.066589888949673799525830197865D+00
       Xi( 3) = 1.188973363650133420509405479670D+00
@@ -22147,13 +22147,13 @@ C
       Xi(33) = 5709.547016767365664069444619599381D+00
       Xi(34) = 6829.356727931260044872630032841698D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 8E3 -----
-C
+!
+!     ----- K = 17 , R = 8E3 -----
+!
  1738 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0002279023103120756710278003469489528643D+00
       Omega( 2) = 0.0006143635134771986060113443440817287966D+00
       Omega( 3) = 0.0012760613832044441301610013077272309800D+00
@@ -22171,7 +22171,7 @@ C
       Omega(15) = 1.4114768032680935039117897655813749224762D+00
       Omega(16) = 2.3924251516095368750181721084757668904786D+00
       Omega(17) = 4.5216921503983945364313346004792038002051D+00
-C
+!
       Alpha( 1) = 0.0000873752485729232052739186539292749745D+00
       Alpha( 2) = 0.0004953046592686001883442416238428201991D+00
       Alpha( 3) = 0.0014059944165274102069750455077691564387D+00
@@ -22189,7 +22189,7 @@ C
       Alpha(15) = 2.7305501139233138354223823229816048296925D+00
       Alpha(16) = 4.5827535921471781381157650780977519389126D+00
       Alpha(17) = 7.8684747200307262309654232623756797693204D+00
-C
+!
       Xi( 1) = 1.007423252156711233158345453198D+00
       Xi( 2) = 1.067545958684462881573863646256D+00
       Xi( 3) = 1.191748532127349882768843625236D+00
@@ -22225,13 +22225,13 @@ C
       Xi(33) = 6461.653218733122192585227594463504D+00
       Xi(34) = 7794.770020860430288500708684296114D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 9E3 -----
-C
+!
+!     ----- K = 17 , R = 9E3 -----
+!
  1739 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0002067069232999471537286281238665966442D+00
       Omega( 2) = 0.0005608633909978252172808457364124035127D+00
       Omega( 3) = 0.0011782216243339498151479667348989766040D+00
@@ -22249,7 +22249,7 @@ C
       Omega(15) = 1.4005756769476353303278959305799844514695D+00
       Omega(16) = 2.3799387445050415490661877004896496146102D+00
       Omega(17) = 4.5074826740051793551311565266814795904793D+00
-C
+!
       Alpha( 1) = 0.0000791937539895247108189476875747449952D+00
       Alpha( 2) = 0.0004504023150037544415944774320878854490D+00
       Alpha( 3) = 0.0012868784814711026352910402882796792046D+00
@@ -22267,7 +22267,7 @@ C
       Alpha(15) = 2.6922684555193764144916807046215012633184D+00
       Alpha(16) = 4.5327543615504205802742287989559599736822D+00
       Alpha(17) = 7.8052084922817838181369198835568568028975D+00
-C
+!
       Xi( 1) = 1.007513323393273480324539015385D+00
       Xi( 2) = 1.068375343402420561819340938392D+00
       Xi( 3) = 1.194157461177240413794688189686D+00
@@ -22303,13 +22303,13 @@ C
       Xi(33) = 7203.994243028661317751470960502047D+00
       Xi(34) = 8758.426634316419513659468520927476D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 1E4 -----
-C
+!
+!     ----- K = 17 , R = 1E4 -----
+!
  1741 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0001894404823677463667920654809512064076D+00
       Omega( 2) = 0.0005171521579185407874732546135154720446D+00
       Omega( 3) = 0.0010978019908693144478943387511854501426D+00
@@ -22327,7 +22327,7 @@ C
       Omega(15) = 1.3911056054623186686424601843370396636601D+00
       Omega(16) = 2.3690809988090366408185899471661173265602D+00
       Omega(17) = 4.4951275077550156087508037572320063191000D+00
-C
+!
       Alpha( 1) = 0.0000725310965107376669858941163040923911D+00
       Alpha( 2) = 0.0004137815424669815717360161697047082896D+00
       Alpha( 3) = 0.0011894399545926846678837841635688332698D+00
@@ -22345,7 +22345,7 @@ C
       Alpha(15) = 2.6592530593275406655771192498960431294108D+00
       Alpha(16) = 4.4895538180091512088336347385819635746884D+00
       Alpha(17) = 7.7504707158250140709709885555867003859021D+00
-C
+!
       Xi( 1) = 1.007592649444469128745469066466D+00
       Xi( 2) = 1.069105994629342305931793410956D+00
       Xi( 3) = 1.196280784224051306941123684613D+00
@@ -22381,13 +22381,13 @@ C
       Xi(33) = 7937.369697269809662110162662429502D+00
       Xi(34) = 9720.434818652815494921526351390639D+00
       GOTO 9999
-C
-C     ----- K = 17 , R = 4E6 (Best : R = 3450000) -----
-C
+!
+!     ----- K = 17 , R = 4E6 (Best : R = 3450000) -----
+!
  1799 CONTINUE
-C
+!
       RIni = 4.0D+06
-C
+!
       Omega( 1) = 0.0000035940371485362058646146374535601227D+00
       Omega( 2) = 0.0000236134639755399575718382917068256278D+00
       Omega( 3) = 0.0000966649276744700582760969845980136839D+00
@@ -22405,7 +22405,7 @@ C
       Omega(15) = 1.1531824876019704139351249039258107131900D+00
       Omega(16) = 2.0925629496356657199829243154454161413014D+00
       Omega(17) = 4.1806235890402281677770413015338135664933D+00
-C
+!
       Alpha( 1) = 0.0000011242594032445633032700876815128735D+00
       Alpha( 2) = 0.0000123679815859271178234803121394249498D+00
       Alpha( 3) = 0.0000654581861024040877946673219951213840D+00
@@ -22423,7 +22423,7 @@ C
       Alpha(15) = 1.9012936172648758912165356527168569300557D+00
       Alpha(16) = 3.4736583783930575820581704293843472441949D+00
       Alpha(17) = 6.4404292812165671732078930933340643605334D+00
-C
+!
       Xi( 1) = 1.009970530664533025196408222435D+00
       Xi( 2) = 1.091100374894485313965325490315D+00
       Xi( 3) = 1.260705916024403030052496166302D+00
@@ -22459,17 +22459,17 @@ C
       Xi(33) = 425672.461334471821515990086481906474D+00
       Xi(34) = 1496393.203891757919109295471571385860D+00
       GOTO 9999
-C
-C     ===== K = 18 =====
-C
+!
+!     ===== K = 18 =====
+!
  1800 CONTINUE
-C
+!
       GOTO (1814,1814,1814,1814,1814,1814,1815,1816,1817,1818,1819,1821,
      *      1822,1823,1824,1825,1826,1827,1828,1829,1831,1832,1833,1834,
      *      1835,1836,1837,1838,1839,1841,1899),InitR
-C
-C     ----- K = 18 , R = 4E1 -----
-C
+!
+!     ----- K = 18 , R = 4E1 -----
+!
  1814 CONTINUE
       Omega( 1) = 0.0167274165802513860823826823479021363994D+00
       Omega( 2) = 0.0396320789650787745488655453712789622500D+00
@@ -22489,7 +22489,7 @@ C
       Omega(16) = 2.5972903740046814934690905252168136030377D+00
       Omega(17) = 3.7067955624904116609767690260213157671387D+00
       Omega(18) = 6.0309875384759060877766512209774418806774D+00
-C
+!
       Alpha( 1) = 0.0065047076208708621155713512380219798459D+00
       Alpha( 2) = 0.0345763845115128158371191769565600182545D+00
       Alpha( 3) = 0.0863605588515674096804718672115708244519D+00
@@ -22508,7 +22508,7 @@ C
       Alpha(16) = 8.8915509813171337448120534752149524138076D+00
       Alpha(17) = 11.9933512286920285440025568668431787955342D+00
       Alpha(18) = 16.6764703424495107676739369395590983913280D+00
-C
+!
       Xi( 1) = 1.002281895030745650747305841577D+00
       Xi( 2) = 1.020601274498112542464187124658D+00
       Xi( 3) = 1.057592149276680056286040199076D+00
@@ -22546,13 +22546,13 @@ C
       Xi(35) = 38.991325593536572104158555163167D+00
       Xi(36) = 39.885656636714682761468697691498D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 5E1 -----
-C
+!
+!     ----- K = 18 , R = 5E1 -----
+!
  1815 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0140307605218535598694043205030002052780D+00
       Omega( 2) = 0.0333031046476313522763078051741603147207D+00
       Omega( 3) = 0.0542391067597988340175574253215762254854D+00
@@ -22571,7 +22571,7 @@ C
       Omega(16) = 2.5130133652311699174550924107407468000019D+00
       Omega(17) = 3.6150413100216131888093445967413686048531D+00
       Omega(18) = 5.9245991332934031326287738217217793135205D+00
-C
+!
       Alpha( 1) = 0.0054549392304390860063804144335086743212D+00
       Alpha( 2) = 0.0290223867517681674141805017036466196600D+00
       Alpha( 3) = 0.0726107466091915621157044068156860561203D+00
@@ -22590,7 +22590,7 @@ C
       Alpha(16) = 8.3129488532810737692196889625506628362928D+00
       Alpha(17) = 11.3269207860845923406187263360322958760662D+00
       Alpha(18) = 15.9122640621766044451840249607244004437234D+00
-C
+!
       Xi( 1) = 1.002464391136134444775136753680D+00
       Xi( 2) = 1.022256304083154015765674826888D+00
       Xi( 3) = 1.062246365419021906372105956695D+00
@@ -22628,13 +22628,13 @@ C
       Xi(35) = 48.608248884145268883805179882529D+00
       Xi(36) = 49.841888479247447113484881242584D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 6E1 -----
-C
+!
+!     ----- K = 18 , R = 6E1 -----
+!
  1816 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0121405347519407620709232286174139581192D+00
       Omega( 2) = 0.0288618393931178958476506390962157411195D+00
       Omega( 3) = 0.0471453534234992582939579534168084151702D+00
@@ -22653,7 +22653,7 @@ C
       Omega(16) = 2.4482320396481303422225178634263897947676D+00
       Omega(17) = 3.5444010975732188704206970797372378001455D+00
       Omega(18) = 5.8427862821989428898129814715645125033916D+00
-C
+!
       Alpha( 1) = 0.0047191986930654339728339675182761103756D+00
       Alpha( 2) = 0.0251276307573281678709765929458086475279D+00
       Alpha( 3) = 0.0629589265989026255958900708809000690280D+00
@@ -22672,7 +22672,7 @@ C
       Alpha(16) = 7.8830254363881228241855980698460371058900D+00
       Alpha(17) = 10.8294186040276253354605606737948164663976D+00
       Alpha(18) = 15.3395102645322537549335550899343161290744D+00
-C
+!
       Xi( 1) = 1.002616395780669641436821937219D+00
       Xi( 2) = 1.023633002185496356081437219210D+00
       Xi( 3) = 1.066126339894785308472224816256D+00
@@ -22710,13 +22710,13 @@ C
       Xi(35) = 58.193599285928023577552092859833D+00
       Xi(36) = 59.794392522177452587578416753900D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 7E1 -----
-C
+!
+!     ----- K = 18 , R = 7E1 -----
+!
  1817 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0107351232810468629851250702174347839701D+00
       Omega( 2) = 0.0255564508419643600863226237315806166350D+00
       Omega( 3) = 0.0418565819977648361015047651090270619534D+00
@@ -22735,7 +22735,7 @@ C
       Omega(16) = 2.3960872496711835004552793026988410929334D+00
       Omega(17) = 3.4874681328432800048091472211453378804435D+00
       Omega(18) = 5.7769132915013196856272859047720658054459D+00
-C
+!
       Alpha( 1) = 0.0041722273654163249931380952426757113827D+00
       Alpha( 2) = 0.0222307290396443183779358028842598749009D+00
       Alpha( 3) = 0.0557735798549863647072233861778922658914D+00
@@ -22754,7 +22754,7 @@ C
       Alpha(16) = 7.5464674378085068945712365895417406136403D+00
       Alpha(17) = 10.4384200067662236358773109046182980819140D+00
       Alpha(18) = 14.8878794520568949319092033611866554565495D+00
-C
+!
       Xi( 1) = 1.002746500963077756676117280321D+00
       Xi( 2) = 1.024813500939041238484150664334D+00
       Xi( 3) = 1.069455359303194782582407951210D+00
@@ -22792,9 +22792,9 @@ C
       Xi(35) = 67.751266231003974133129119650221D+00
       Xi(36) = 69.743612250520211681692472893701D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 8E1 -----
-C
+!
+!     ----- K = 18 , R = 8E1 -----
+!
  1818 CONTINUE
       Omega( 1) = 0.0096453634714459776446250768508483552921D+00
       Omega( 2) = 0.0229911914954888519723277037071218487085D+00
@@ -22814,7 +22814,7 @@ C
       Omega(16) = 2.3527363886592921645834336485947346773173D+00
       Omega(17) = 3.4400856803093292923551721473884867918969D+00
       Omega(18) = 5.7221362506057841519450934963941790556419D+00
-C
+!
       Alpha( 1) = 0.0037481479791149832953050169068176522558D+00
       Alpha( 2) = 0.0199837052906277190636078573346412490253D+00
       Alpha( 3) = 0.0501957295173809366498952379276321522639D+00
@@ -22833,7 +22833,7 @@ C
       Alpha(16) = 7.2731633678323005564106407128122100402834D+00
       Alpha(17) = 10.1198253599033266827630916928626447770512D+00
       Alpha(18) = 14.5188359474415940265565327926822192239342D+00
-C
+!
       Xi( 1) = 1.002860424788164310050224414805D+00
       Xi( 2) = 1.025846889080516637473075580722D+00
       Xi( 3) = 1.072372017532286578062224180474D+00
@@ -22871,13 +22871,13 @@ C
       Xi(35) = 77.284157137944809512486443736634D+00
       Xi(36) = 79.689879693219473143217523869453D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 9E1 -----
-C
+!
+!     ----- K = 18 , R = 9E1 -----
+!
  1819 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0087733404434387548033672378326730534326D+00
       Omega( 2) = 0.0209368384714918466680199597013123380407D+00
       Omega( 3) = 0.0344486189742356252067390434690175027299D+00
@@ -22896,7 +22896,7 @@ C
       Omega(16) = 2.3158244618404802744795339952688095763733D+00
       Omega(17) = 3.3997031182761035812255751009658411021519D+00
       Omega(18) = 5.6754851807026568998384985498262267356040D+00
-C
+!
       Alpha( 1) = 0.0034088324466304942828653943686506577748D+00
       Alpha( 2) = 0.0181850908751076816828541517917505743185D+00
       Alpha( 3) = 0.0457277483994523435547544919915763372842D+00
@@ -22915,7 +22915,7 @@ C
       Alpha(16) = 7.0451131792040270897074794032022282408434D+00
       Alpha(17) = 9.8531885527722552287413493310452849982539D+00
       Alpha(18) = 14.2092121932370148611537996607978584506782D+00
-C
+!
       Xi( 1) = 1.002961721025166549458446096921D+00
       Xi( 2) = 1.026766204416017339105110517394D+00
       Xi( 3) = 1.074968097905198518389122130934D+00
@@ -22953,13 +22953,13 @@ C
       Xi(35) = 86.794542101966609917718109556972D+00
       Xi(36) = 89.633454212174267200508026576244D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 1E2 -----
-C
+!
+!     ----- K = 18 , R = 1E2 -----
+!
  1821 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0080582509521047180549467776368433025169D+00
       Omega( 2) = 0.0192509609476614609854453049817002430188D+00
       Omega( 3) = 0.0317394427938591050538763398136676840977D+00
@@ -22978,7 +22978,7 @@ C
       Omega(16) = 2.2838110398262177888270563208550356648630D+00
       Omega(17) = 3.3646504591932695305087769321872315231303D+00
       Omega(18) = 5.6350170315352483343951384142656024778262D+00
-C
+!
       Alpha( 1) = 0.0031306056830560133828598610647442335164D+00
       Alpha( 2) = 0.0167097480153570078944115593483354942350D+00
       Alpha( 3) = 0.0420603752640300430925722127706301023409D+00
@@ -22997,7 +22997,7 @@ C
       Alpha(16) = 6.8507976282492986683063385111580601005699D+00
       Alpha(17) = 9.6253893619294186943108337928265427763108D+00
       Alpha(18) = 13.9441065435998151145549628360242877533892D+00
-C
+!
       Xi( 1) = 1.003052926226561582289178997662D+00
       Xi( 2) = 1.027594167659083854290610893223D+00
       Xi( 3) = 1.077307578264019709366611232682D+00
@@ -23035,13 +23035,13 @@ C
       Xi(35) = 96.284248376167663130420493189376D+00
       Xi(36) = 99.574545807998030635954656020203D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 2E2 -----
-C
+!
+!     ----- K = 18 , R = 2E2 -----
+!
  1822 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0045820368963704152337097232593199347406D+00
       Omega( 2) = 0.0110339170966427604803980900942395049213D+00
       Omega( 3) = 0.0184719162771828910888315643246126995791D+00
@@ -23060,7 +23060,7 @@ C
       Omega(16) = 2.0944104184617980375995860420346161845373D+00
       Omega(17) = 3.1566548552511186638124679459949106785643D+00
       Omega(18) = 5.3953896204254008449850699147276600342593D+00
-C
+!
       Alpha( 1) = 0.0017784976328254597846020525946444945653D+00
       Alpha( 2) = 0.0095305033170542902125845397161285621479D+00
       Alpha( 3) = 0.0241715763670107003239020948548443357140D+00
@@ -23079,7 +23079,7 @@ C
       Alpha(16) = 5.7666962938602527957189514129510143902735D+00
       Alpha(17) = 8.3428178609541474254271409272121218236862D+00
       Alpha(18) = 12.4402956709732414467342587194309544429416D+00
-C
+!
       Xi( 1) = 1.003663506801506389762811133348D+00
       Xi( 2) = 1.033142746023551331187827206914D+00
       Xi( 3) = 1.093018455829413779949524365698D+00
@@ -23117,13 +23117,13 @@ C
       Xi(35) = 190.289547476647152454698463941440D+00
       Xi(36) = 198.877193885560010044866174894196D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 3E2 -----
-C
+!
+!     ----- K = 18 , R = 3E2 -----
+!
  1823 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0032819955090503555272740882683274454834D+00
       Omega( 2) = 0.0079468793493810836594005704396070921547D+00
       Omega( 3) = 0.0134463066977488579596466478430216717754D+00
@@ -23142,7 +23142,7 @@ C
       Omega(16) = 1.9985335334287477169644062224840297403716D+00
       Omega(17) = 3.0509031139521674209132834354463170711824D+00
       Omega(18) = 5.2738872947947354752340487493711407296360D+00
-C
+!
       Alpha( 1) = 0.0012731020932926379380527076492363169891D+00
       Alpha( 2) = 0.0068408899118897193681851679695343770859D+00
       Alpha( 3) = 0.0174418711512609669660541942756704081319D+00
@@ -23161,7 +23161,7 @@ C
       Alpha(16) = 5.2599772756765359768386935979123109063949D+00
       Alpha(17) = 7.7353545752005753370454665951427841719124D+00
       Alpha(18) = 11.7204273208081208622680091657741741073551D+00
-C
+!
       Xi( 1) = 1.004025553321976346049515527170D+00
       Xi( 2) = 1.036437722481348209201124088708D+00
       Xi( 3) = 1.102375478703943399347818521417D+00
@@ -23199,13 +23199,13 @@ C
       Xi(35) = 283.096697924773534171816180560199D+00
       Xi(36) = 298.032071236183221080162653038315D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 4E2 -----
-C
+!
+!     ----- K = 18 , R = 4E2 -----
+!
  1824 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0025869658738650995540837667068662097947D+00
       Omega( 2) = 0.0062911965972854216977627132400402443224D+00
       Omega( 3) = 0.0107351937196825086527832821513273042768D+00
@@ -23224,7 +23224,7 @@ C
       Omega(16) = 1.9362701532184282835402297506810498362029D+00
       Omega(17) = 2.9820300811488273991928243944471432769205D+00
       Omega(18) = 5.1948743744285278511711723137267426864128D+00
-C
+!
       Alpha( 1) = 0.0010030076406179999942105379837249679031D+00
       Alpha( 2) = 0.0054011928532432062956794474161553720748D+00
       Alpha( 3) = 0.0138290060307211611204236526885547053922D+00
@@ -23243,7 +23243,7 @@ C
       Alpha(16) = 4.9456886302101260152394579527879159286385D+00
       Alpha(17) = 7.3555254238311264152264112858858879917534D+00
       Alpha(18) = 11.2674173192650138733764131337977687508101D+00
-C
+!
       Xi( 1) = 1.004282805067812349474401512062D+00
       Xi( 2) = 1.038781215403425604078962996013D+00
       Xi( 3) = 1.109042988081719358583153434150D+00
@@ -23281,13 +23281,13 @@ C
       Xi(35) = 375.021813623627757183776054716873D+00
       Xi(36) = 397.076126641171133935248604984736D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 5E2 -----
-C
+!
+!     ----- K = 18 , R = 5E2 -----
+!
  1825 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0021496953743731560101251697007807006656D+00
       Omega( 2) = 0.0052468862006833112099765594350114783495D+00
       Omega( 3) = 0.0090172230928359535380266090789924682269D+00
@@ -23306,7 +23306,7 @@ C
       Omega(16) = 1.8909840142511460085597910230070795023494D+00
       Omega(17) = 2.9318282815396242676000970739380591112422D+00
       Omega(18) = 5.1373386307376237109798000624039104877738D+00
-C
+!
       Alpha( 1) = 0.0008331309433943815098942257426056084979D+00
       Alpha( 2) = 0.0044945333930811546385421196767029350383D+00
       Alpha( 3) = 0.0115484388891811064633850032919160089051D+00
@@ -23325,7 +23325,7 @@ C
       Alpha(16) = 4.7242816837238013135021053034989790830878D+00
       Alpha(17) = 7.0863853905671759835296907859003567864420D+00
       Alpha(18) = 10.9449464392502047909230822320125753321918D+00
-C
+!
       Xi( 1) = 1.004481904006407640681831916485D+00
       Xi( 2) = 1.040596252761715729000420449513D+00
       Xi( 3) = 1.114214107448999987082412232997D+00
@@ -23363,13 +23363,13 @@ C
       Xi(35) = 466.232713296005259473453463670012D+00
       Xi(36) = 496.029146598745923762985299276806D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 6E2 -----
-C
+!
+!     ----- K = 18 , R = 6E2 -----
+!
  1826 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0018472812466389013476633640387092327728D+00
       Omega( 2) = 0.0045230951161749314658816684738690261369D+00
       Omega( 3) = 0.0078218518705832051876968686286717424849D+00
@@ -23388,7 +23388,7 @@ C
       Omega(16) = 1.8558099395439570770700160595723104961507D+00
       Omega(17) = 2.8927683242146853671936806984277268384176D+00
       Omega(18) = 5.0926048529515848253476639762027389224386D+00
-C
+!
       Alpha( 1) = 0.0007156743708438212167076732919592657600D+00
       Alpha( 2) = 0.0038669730467240550087457161883980338857D+00
       Alpha( 3) = 0.0099667736569093017184593524988855950397D+00
@@ -23407,7 +23407,7 @@ C
       Alpha(16) = 4.5564339182192386472174117084676936428878D+00
       Alpha(17) = 6.8814234769517057012377936331404271186329D+00
       Alpha(18) = 10.6984955705750573789689084058807111432543D+00
-C
+!
       Xi( 1) = 1.004643984741545345400204336528D+00
       Xi( 2) = 1.042074645394210798046014110341D+00
       Xi( 3) = 1.118430761824326471944729410879D+00
@@ -23445,13 +23445,13 @@ C
       Xi(35) = 556.836122235674439162611548681525D+00
       Xi(36) = 594.903798114882837011485605671623D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 7E2 -----
-C
+!
+!     ----- K = 18 , R = 7E2 -----
+!
  1827 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0016247092432591461352304324210898966996D+00
       Omega( 2) = 0.0039893994313251416743870041495267919629D+00
       Omega( 3) = 0.0069374055079908229851161122377078971368D+00
@@ -23470,7 +23470,7 @@ C
       Omega(16) = 1.8272882686574475928154362436295343741222D+00
       Omega(17) = 2.8610494958490072293401385028488448369899D+00
       Omega(18) = 5.0562989440574874931352833407061098114355D+00
-C
+!
       Alpha( 1) = 0.0006292469835733137284182558241710930824D+00
       Alpha( 2) = 0.0034047651822639677268244153603843349387D+00
       Alpha( 3) = 0.0087998347408858642547583683683753985605D+00
@@ -23489,7 +23489,7 @@ C
       Alpha(16) = 4.4229488336449699925102818642841384644271D+00
       Alpha(17) = 6.7178167798560101463094251794672118194285D+00
       Alpha(18) = 10.5012007218785897106130833300596805202076D+00
-C
+!
       Xi( 1) = 1.004780434310773046258091767413D+00
       Xi( 2) = 1.043319833174416598107168974163D+00
       Xi( 3) = 1.121985536102983483817616128242D+00
@@ -23527,13 +23527,13 @@ C
       Xi(35) = 646.906873407556217536740206242030D+00
       Xi(36) = 693.709013356253929971639848872655D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 8E2 -----
-C
+!
+!     ----- K = 18 , R = 8E2 -----
+!
  1828 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0014535131106379317333316059579137458080D+00
       Omega( 2) = 0.0035782111283537279736760203761869458816D+00
       Omega( 3) = 0.0062538907901807007953733519994843348400D+00
@@ -23552,7 +23552,7 @@ C
       Omega(16) = 1.8034459541421742348943010880724102662498D+00
       Omega(17) = 2.8345012673710117704836686236546938744141D+00
       Omega(18) = 5.0259251227466633133063311777988246831228D+00
-C
+!
       Alpha( 1) = 0.0005627823349452919476024198444999435686D+00
       Alpha( 2) = 0.0030490190788550875214783650790292823807D+00
       Alpha( 3) = 0.0079002908611035610043606602567733965259D+00
@@ -23571,7 +23571,7 @@ C
       Alpha(16) = 4.3131473835470109162368301802814585244050D+00
       Alpha(17) = 6.5828163262663410807036534766467639201437D+00
       Alpha(18) = 10.3380056558369038703301678872037427936448D+00
-C
+!
       Xi( 1) = 1.004898094068890803624155561025D+00
       Xi( 2) = 1.044393984659879491159670261702D+00
       Xi( 3) = 1.125054432088556264409534568571D+00
@@ -23609,13 +23609,13 @@ C
       Xi(35) = 736.500803300806524798183261282247D+00
       Xi(36) = 792.451491247524427707915606333700D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 9E2 -----
-C
+!
+!     ----- K = 18 , R = 9E2 -----
+!
  1829 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0013174240913447922862955386121529277599D+00
       Omega( 2) = 0.0032508514395187126474666097124613384217D+00
       Omega( 3) = 0.0057082100412331932396749775791150449678D+00
@@ -23634,7 +23634,7 @@ C
       Omega(16) = 1.7830579341042164463184901967984785642329D+00
       Omega(17) = 2.8117743448978530507176287756010424345732D+00
       Omega(18) = 4.9999329931068208993441559506720750505337D+00
-C
+!
       Alpha( 1) = 0.0005099568208449972669466612490863505203D+00
       Alpha( 2) = 0.0027660607937018372410523640468268946613D+00
       Alpha( 3) = 0.0071837947293005201754032885454182011387D+00
@@ -23653,7 +23653,7 @@ C
       Alpha(16) = 4.2205331501292748263599874380957999164821D+00
       Alpha(17) = 6.4686395215857634987711988205916213701130D+00
       Alpha(18) = 10.1996937375922911055495245769009216019185D+00
-C
+!
       Xi( 1) = 1.005001396313801223904652037966D+00
       Xi( 2) = 1.045337392924352607707222384548D+00
       Xi( 3) = 1.127751622960295857490096993470D+00
@@ -23691,13 +23691,13 @@ C
       Xi(35) = 825.661397565298972534009180890280D+00
       Xi(36) = 891.136474426410108484741812162611D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 1E3 -----
-C
+!
+!     ----- K = 18 , R = 1E3 -----
+!
  1831 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0012064426220277348421927766800379466794D+00
       Omega( 2) = 0.0029835180690567413453171449321671415689D+00
       Omega( 3) = 0.0052614499374626555399951026263660747162D+00
@@ -23716,7 +23716,7 @@ C
       Omega(16) = 1.7653147148395656396624095463288028895477D+00
       Omega(17) = 2.7919762112360454573041501635799477298860D+00
       Omega(18) = 4.9772976245970946174330962197274175196071D+00
-C
+!
       Alpha( 1) = 0.0004668841916966000667789184105363128885D+00
       Alpha( 2) = 0.0025351831509706915311185698724827375372D+00
       Alpha( 3) = 0.0065984216925515252374105569944245930358D+00
@@ -23735,7 +23735,7 @@ C
       Alpha(16) = 4.1408869163027081199135448486003951984458D+00
       Alpha(17) = 6.3702167167058456522660270238134216924664D+00
       Alpha(18) = 10.0802468831582137274646693292368127004011D+00
-C
+!
       Xi( 1) = 1.005093376132525855894128685719D+00
       Xi( 2) = 1.046177660293661799235584441981D+00
       Xi( 3) = 1.130155382689620449741113583642D+00
@@ -23773,13 +23773,13 @@ C
       Xi(35) = 914.423728477227911903835178009103D+00
       Xi(36) = 989.768192424407169671685124967553D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 2E3 -----
-C
+!
+!     ----- K = 18 , R = 2E3 -----
+!
  1832 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0006754355558846692900876811332770699448D+00
       Omega( 2) = 0.0016981110123511527371086297834995582079D+00
       Omega( 3) = 0.0030935620398448989903654091603024678392D+00
@@ -23798,7 +23798,7 @@ C
       Omega(16) = 1.6593600203583402066982721567711678289925D+00
       Omega(17) = 2.6733428837255038817023039543485651847732D+00
       Omega(18) = 4.8417963244440545122343477757453911181074D+00
-C
+!
       Alpha( 1) = 0.0002609144617723359486261109035747096652D+00
       Alpha( 2) = 0.0014284110053859972680907606439396073661D+00
       Alpha( 3) = 0.0037793133661504073677418541130079709944D+00
@@ -23817,7 +23817,7 @@ C
       Alpha(16) = 3.6834788445658696062583181696226120038773D+00
       Alpha(17) = 5.8004501434992357176805011231834896534565D+00
       Alpha(18) = 9.3845111360647014211999739075054094428197D+00
-C
+!
       Xi( 1) = 1.005685861641639236704545701251D+00
       Xi( 2) = 1.051596159151170734079652757664D+00
       Xi( 3) = 1.145689056256627882187000555536D+00
@@ -23855,13 +23855,13 @@ C
       Xi(35) = 1784.845317432186166839436225473037D+00
       Xi(36) = 1973.729505155171477626119269643823D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 3E3 -----
-C
+!
+!     ----- K = 18 , R = 3E3 -----
+!
  1833 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0004808527057530120646879777710587175465D+00
       Omega( 2) = 0.0012230540357134345610600229957605489250D+00
       Omega( 3) = 0.0022794773615028818237408098079654905632D+00
@@ -23880,7 +23880,7 @@ C
       Omega(16) = 1.6052318670779617392624372129716903145891D+00
       Omega(17) = 2.6124403539079170159190740330146240921749D+00
       Omega(18) = 4.7723166034655541832727732032282119689626D+00
-C
+!
       Alpha( 1) = 0.0001855132137736063358121048910850080238D+00
       Alpha( 2) = 0.0010215028674021077710349158867118857241D+00
       Alpha( 3) = 0.0027344893872422236454629935944321550423D+00
@@ -23899,7 +23899,7 @@ C
       Alpha(16) = 3.4616215444359196861702498981827602619887D+00
       Alpha(17) = 5.5210242574181025865948102548941278655548D+00
       Alpha(18) = 9.0404183615080770421157385641208747983910D+00
-C
+!
       Xi( 1) = 1.006019767325878380898919461917D+00
       Xi( 2) = 1.054654447744721473389367671913D+00
       Xi( 3) = 1.154481730854162642896550139415D+00
@@ -23937,13 +23937,13 @@ C
       Xi(35) = 2632.102614194688711357628108089557D+00
       Xi(36) = 2954.408009023968286310690700702253D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 4E3 -----
-C
+!
+!     ----- K = 18 , R = 4E3 -----
+!
  1834 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0003778416599558625136814260021171987813D+00
       Omega( 2) = 0.0009700552711586841215675634472227761851D+00
       Omega( 3) = 0.0018409801051395852861204940269061747227D+00
@@ -23962,7 +23962,7 @@ C
       Omega(16) = 1.5699678410487687506670931303354166175268D+00
       Omega(17) = 2.5726424686871686433545930450250693866110D+00
       Omega(18) = 4.7269410448355443114462626219562935148133D+00
-C
+!
       Alpha( 1) = 0.0001456238271029466235679437102518325731D+00
       Alpha( 2) = 0.0008055881529796759260288650740435695274D+00
       Alpha( 3) = 0.0021769113040709319569014331199885425860D+00
@@ -23981,7 +23981,7 @@ C
       Alpha(16) = 3.3212938447939196759742253028946379345143D+00
       Alpha(17) = 5.3431231415756004926066735638556792764575D+00
       Alpha(18) = 8.8202578142535065751361766928084762184881D+00
-C
+!
       Xi( 1) = 1.006249837220218427318377263369D+00
       Xi( 2) = 1.056763627903567057206984936002D+00
       Xi( 3) = 1.160556393946486782877379473344D+00
@@ -24019,13 +24019,13 @@ C
       Xi(35) = 3462.266972380735596814815835386980D+00
       Xi(36) = 3932.563282498275412546462348473142D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 5E3 -----
-C
+!
+!     ----- K = 18 , R = 5E3 -----
+!
  1835 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0003134246142158032734810333601663256964D+00
       Omega( 2) = 0.0008110913445565602189822027078339172768D+00
       Omega( 3) = 0.0015629384692881581495356294909948591254D+00
@@ -24044,7 +24044,7 @@ C
       Omega(16) = 1.5442858258917590750201875859914935062989D+00
       Omega(17) = 2.5435948471648603885168077320955148934445D+00
       Omega(18) = 4.6938350539639965238770946687196783386753D+00
-C
+!
       Alpha( 1) = 0.0001206930650163669435735920394876276307D+00
       Alpha( 2) = 0.0006703183122791027982681030697280355479D+00
       Alpha( 3) = 0.0018259870924344270491528795718680355797D+00
@@ -24063,7 +24063,7 @@ C
       Alpha(16) = 3.2211612799836014447638077307090043177595D+00
       Alpha(17) = 5.2155908584279214302951988013745676653343D+00
       Alpha(18) = 8.6618797298384585517036504676013919379329D+00
-C
+!
       Xi( 1) = 1.006423996345205587057101970228D+00
       Xi( 2) = 1.058361301581671429315051335962D+00
       Xi( 3) = 1.165163708193423441655985073329D+00
@@ -24101,13 +24101,13 @@ C
       Xi(35) = 4278.572687544602230147461341402959D+00
       Xi(36) = 4908.606320358155803873501099587884D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 6E3 -----
-C
+!
+!     ----- K = 18 , R = 6E3 -----
+!
  1836 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0002690595993960665142816519727377022608D+00
       Omega( 2) = 0.0007011712205890843232703006908824311383D+00
       Omega( 3) = 0.0013691799768125581991788663766690392620D+00
@@ -24126,7 +24126,7 @@ C
       Omega(16) = 1.5243296194546508300331905116919983811385D+00
       Omega(17) = 2.5209846078020964770839695834325766554684D+00
       Omega(18) = 4.6680728012172401693996581784062982478645D+00
-C
+!
       Alpha( 1) = 0.0001035308136047790344342341519508904346D+00
       Alpha( 2) = 0.0005770107086141849806252154223441125369D+00
       Alpha( 3) = 0.0015829797899359807400912928212512176263D+00
@@ -24145,7 +24145,7 @@ C
       Alpha(16) = 3.1445446516847145941760122145325340170530D+00
       Alpha(17) = 5.1176615243048077614693158743364165275125D+00
       Alpha(18) = 8.5399392502613672099182062780187152384315D+00
-C
+!
       Xi( 1) = 1.006563336480640592773827535211D+00
       Xi( 2) = 1.059640218352494603435559605842D+00
       Xi( 3) = 1.168855443655143328614449960146D+00
@@ -24183,13 +24183,13 @@ C
       Xi(35) = 5083.082981570182050656825367696001D+00
       Xi(36) = 5882.802567543666584448658340988914D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 7E3 -----
-C
+!
+!     ----- K = 18 , R = 7E3 -----
+!
  1837 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0002365076502038191340171300350260150114D+00
       Omega( 2) = 0.0006202374982483118990263014434338034730D+00
       Omega( 3) = 0.0012255391766448990887179151462738069256D+00
@@ -24208,7 +24208,7 @@ C
       Omega(16) = 1.5081480020417560127107478584740363203309D+00
       Omega(17) = 2.5026251803844643986467211060897852803464D+00
       Omega(18) = 4.6471582141491574774634643052451110634138D+00
-C
+!
       Alpha( 1) = 0.0000909434313084997517369665755008513452D+00
       Alpha( 2) = 0.0005084550515824451398987745469413429555D+00
       Alpha( 3) = 0.0014038244792441586625372879570082529366D+00
@@ -24227,7 +24227,7 @@ C
       Alpha(16) = 3.0831793456937972941565156981269524294476D+00
       Alpha(17) = 5.0390002479221054978997251794226031051949D+00
       Alpha(18) = 8.4417800600708798987661940493865131429629D+00
-C
+!
       Xi( 1) = 1.006678982289008553716903870967D+00
       Xi( 2) = 1.060702107647962616769794774729D+00
       Xi( 3) = 1.171923187911867818332758983679D+00
@@ -24265,13 +24265,13 @@ C
       Xi(35) = 5877.248639102002980560968126155785D+00
       Xi(36) = 6855.340400701302170816120451490860D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 8E3 -----
-C
+!
+!     ----- K = 18 , R = 8E3 -----
+!
  1838 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0002115284740783796764806697841528396187D+00
       Omega( 2) = 0.0005579383421879089058020304632990599147D+00
       Omega( 3) = 0.0011142909499591145459521934215317562344D+00
@@ -24290,7 +24290,7 @@ C
       Omega(16) = 1.4946250482618679494102240101760514789930D+00
       Omega(17) = 2.4872640460186868896410444795819216778909D+00
       Omega(18) = 4.6296620339926147775881648538387480584788D+00
-C
+!
       Alpha( 1) = 0.0000812878045927325144021032042943031293D+00
       Alpha( 2) = 0.0004557841761794852431641785151178805635D+00
       Alpha( 3) = 0.0012657578123163503806862666980180553988D+00
@@ -24309,7 +24309,7 @@ C
       Alpha(16) = 3.0324156209137652301724430436991042370209D+00
       Alpha(17) = 4.9737721389038062457660371862289139244240D+00
       Alpha(18) = 8.3602375136825026287132334168461511580972D+00
-C
+!
       Xi( 1) = 1.006777504083801923575637593533D+00
       Xi( 2) = 1.061607080786825722026195384373D+00
       Xi( 3) = 1.174539379286480291451899571342D+00
@@ -24347,13 +24347,13 @@ C
       Xi(35) = 6662.155284988241386034957258743816D+00
       Xi(36) = 7826.362033648923187900692255425383D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 9E3 -----
-C
+!
+!     ----- K = 18 , R = 9E3 -----
+!
  1839 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0001917087071140728861896276286167113689D+00
       Omega( 2) = 0.0005083673996572884774339624251292962809D+00
       Omega( 3) = 0.0010252753388815708509048107164099428168D+00
@@ -24372,7 +24372,7 @@ C
       Omega(16) = 1.4830665055986700072172129738490298223041D+00
       Omega(17) = 2.4741208992697565445181839827171188517241D+00
       Omega(18) = 4.6146940782524862182181757397358978778357D+00
-C
+!
       Alpha( 1) = 0.0000736290238032269856794258852238782564D+00
       Alpha( 2) = 0.0004139464765750485521445782707231769715D+00
       Alpha( 3) = 0.0011557812297434122215747940350810685217D+00
@@ -24391,7 +24391,7 @@ C
       Alpha(16) = 2.9893991734035000886436639344623245051480D+00
       Alpha(17) = 4.9183849686742173823277013422483605609159D+00
       Alpha(18) = 8.2908909398933378666340932028333554626442D+00
-C
+!
       Xi( 1) = 1.006863099304101848954946796244D+00
       Xi( 2) = 1.062393557111715980639625456217D+00
       Xi( 3) = 1.176814333233203487081436344752D+00
@@ -24429,13 +24429,13 @@ C
       Xi(35) = 7438.649516664441930124951340985717D+00
       Xi(36) = 8795.979363244467925220249071571743D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 1E4 -----
-C
+!
+!     ----- K = 18 , R = 1E4 -----
+!
  1841 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0001755698766377179191098856868139856113D+00
       Omega( 2) = 0.0004678982925563000470781511275870576116D+00
       Omega( 3) = 0.0009522284541816575439444643848361377048D+00
@@ -24454,7 +24454,7 @@ C
       Omega(16) = 1.4730129882137048356188779862918636354152D+00
       Omega(17) = 2.4626788343999579688516077258242376046837D+00
       Omega(18) = 4.6016648050632388746578049776303487305995D+00
-C
+!
       Alpha( 1) = 0.0000673944932443592347740887563178110303D+00
       Alpha( 2) = 0.0003798445724288769121336956812633525726D+00
       Alpha( 3) = 0.0010659079537327375747911780454017793840D+00
@@ -24473,7 +24473,7 @@ C
       Alpha(16) = 2.9522623750778322320852814497627036871563D+00
       Alpha(17) = 4.8704824975340537413642794106749533966649D+00
       Alpha(18) = 8.2308353047244688666800316312333052337635D+00
-C
+!
       Xi( 1) = 1.006938607447403179998186850685D+00
       Xi( 2) = 1.063087536083898769923711258301D+00
       Xi( 3) = 1.178822755325568607783284780233D+00
@@ -24511,13 +24511,13 @@ C
       Xi(35) = 8207.416602366232450727068226115080D+00
       Xi(36) = 9764.282891611335576165231486811535D+00
       GOTO 9999
-C
-C     ----- K = 18 , R = 7E6 (Best : R = 5754000) -----
-C
+!
+!     ----- K = 18 , R = 7E6 (Best : R = 5754000) -----
+!
  1899 CONTINUE
-C
+!
       RIni = 7.0D+06
-C
+!
       Omega( 1) = 0.0000021488928684308333590932841563472615D+00
       Omega( 2) = 0.0000141186087411002466169168258323821184D+00
       Omega( 3) = 0.0000577964458703214594127004473611769822D+00
@@ -24536,7 +24536,7 @@ C
       Omega(16) = 1.2037215951561885976485097304866656031663D+00
       Omega(17) = 2.1519727960953010075916685961416874306451D+00
       Omega(18) = 4.2481897052204185658182133966676019554143D+00
-C
+!
       Alpha( 1) = 0.0000006722003459742127493838922146696444D+00
       Alpha( 2) = 0.0000073948783267811964246400841948588358D+00
       Alpha( 3) = 0.0000391377783182234099414474302484684073D+00
@@ -24555,7 +24555,7 @@ C
       Alpha(16) = 2.0510284249577386773890491644678490956721D+00
       Alpha(17) = 3.6785502343031689822649282772815126918431D+00
       Alpha(18) = 6.7085847754388863170907364441575282398844D+00
-C
+!
       Xi( 1) = 1.009395745737906909672565447522D+00
       Xi( 2) = 1.085767274720172406417620369901D+00
       Xi( 3) = 1.244993387460704758486727816713D+00
@@ -24593,21 +24593,21 @@ C
       Xi(35) = 711939.930551565209214004426030442119D+00
       Xi(36) = 2502727.259356679297525261063128709793D+00
       GOTO 9999
-C
-C     ===== K = 19 =====
-C
+!
+!     ===== K = 19 =====
+!
  1900 CONTINUE
-C
+!
       GOTO (1915,1915,1915,1915,1915,1915,1915,1916,1917,1918,1919,1921,
      *      1922,1923,1924,1925,1926,1927,1928,1929,1931,1932,1933,1934,
      *      1935,1936,1937,1938,1939,1941,1999),InitR
-C
-C     ----- K = 19 , R = 5E1 -----
-C
+!
+!     ----- K = 19 , R = 5E1 -----
+!
  1915 CONTINUE
-C
+!
       RIni = 5.0D+01
-C
+!
       Omega( 1) = 0.0132826830194416807803993322081859140837D+00
       Omega( 2) = 0.0314619544366310461761112801659656668107D+00
       Omega( 3) = 0.0510405941109396439281310937918778591893D+00
@@ -24627,7 +24627,7 @@ C
       Omega(17) = 2.6251732346689794948216972736432239798887D+00
       Omega(18) = 3.7374625254639872015596097076794990243798D+00
       Omega(19) = 6.0668692481204908812167375664614610286662D+00
-C
+!
       Alpha( 1) = 0.0051653324779970956136735781970975578403D+00
       Alpha( 2) = 0.0274530907828038464176895411608669839154D+00
       Alpha( 3) = 0.0685515337906721233744819672673020960474D+00
@@ -24647,7 +24647,7 @@ C
       Alpha(17) = 9.1008211510663912782378992538667716871714D+00
       Alpha(18) = 12.2318347525748378611804012550123843539041D+00
       Alpha(19) = 16.9477854529288840881862121534595644334331D+00
-C
+!
       Xi( 1) = 1.002223055177585669733505979728D+00
       Xi( 2) = 1.020068881641270519544661965483D+00
       Xi( 3) = 1.056086533037423419228648113766D+00
@@ -24687,13 +24687,13 @@ C
       Xi(37) = 48.758328856575074497503585746472D+00
       Xi(38) = 49.859288832637748550835610217291D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 6E1 -----
-C
+!
+!     ----- K = 19 , R = 6E1 -----
+!
  1916 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0114906309116163052500179876831698511097D+00
       Omega( 2) = 0.0272551355331733221485583217730264138368D+00
       Omega( 3) = 0.0443315860348595596162864576617046452611D+00
@@ -24713,7 +24713,7 @@ C
       Omega(17) = 2.5591014359191158668727777980578252936539D+00
       Omega(18) = 3.6655030597697840007587882782402743941930D+00
       Omega(19) = 5.9833141100858836156604902978273230473860D+00
-C
+!
       Alpha( 1) = 0.0044677297018304385349302294827555925849D+00
       Alpha( 2) = 0.0237618978408818402320567273258711260553D+00
       Alpha( 3) = 0.0594114160764658039960651927241519487666D+00
@@ -24733,7 +24733,7 @@ C
       Alpha(17) = 8.6361979501095201654237154542670396040194D+00
       Alpha(18) = 11.6983480178736757729499040614484783873195D+00
       Alpha(19) = 16.3375694958031809009280088673676800681278D+00
-C
+!
       Xi( 1) = 1.002360995006740237663923898115D+00
       Xi( 2) = 1.021318048758237042195756716367D+00
       Xi( 3) = 1.059606151623512008204570922221D+00
@@ -24773,13 +24773,13 @@ C
       Xi(37) = 58.389182414311155015773646681509D+00
       Xi(38) = 59.817151370536068524796924350539D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 7E1 -----
-C
+!
+!     ----- K = 19 , R = 7E1 -----
+!
  1917 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0101583936800436977202207540667278085067D+00
       Omega( 2) = 0.0241249665058103895536766774279624492294D+00
       Omega( 3) = 0.0393317057827223293457968942427038783194D+00
@@ -24799,7 +24799,7 @@ C
       Omega(17) = 2.5058806026915007502883780965419191488763D+00
       Omega(18) = 3.6074792807362662347848286659157679423515D+00
       Omega(19) = 5.9160107882028491266615533028527806891361D+00
-C
+!
       Alpha( 1) = 0.0039491753771031185769067926947389901571D+00
       Alpha( 2) = 0.0210168823862312859271226283749967045367D+00
       Alpha( 3) = 0.0526087973586585307621916671183548430690D+00
@@ -24819,7 +24819,7 @@ C
       Alpha(17) = 8.2721969980975800619885096587324824213283D+00
       Alpha(18) = 11.2788396347966310851590465702543042425532D+00
       Alpha(19) = 15.8562119704864375405867216173305678239558D+00
-C
+!
       Xi( 1) = 1.002479198505003539260323208726D+00
       Xi( 2) = 1.022390504479265481126495918041D+00
       Xi( 3) = 1.062625654698778793834541833707D+00
@@ -24859,9 +24859,9 @@ C
       Xi(37) = 67.995596081201374584479513174529D+00
       Xi(38) = 69.772136024342829747901806314303D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 8E1 -----
-C
+!
+!     ----- K = 19 , R = 8E1 -----
+!
  1918 CONTINUE
       Omega( 1) = 0.0091254987849840324364410421367765913203D+00
       Omega( 2) = 0.0216962030279853467283981711261064972973D+00
@@ -24882,7 +24882,7 @@ C
       Omega(17) = 2.4616068500429554234860962669273476421949D+00
       Omega(18) = 3.5591669824444746713862364195790632948047D+00
       Omega(19) = 5.8600216193261290774894900490465943221352D+00
-C
+!
       Alpha( 1) = 0.0035471729434616345302458119371699640787D+00
       Alpha( 2) = 0.0188880029715094887638902540483165637397D+00
       Alpha( 3) = 0.0473292977661815378762565596770794940085D+00
@@ -24902,7 +24902,7 @@ C
       Alpha(17) = 7.9764064359028320869322847830318323758547D+00
       Alpha(18) = 10.9368462141095896360265538049816314014606D+00
       Alpha(19) = 15.4627356337412659847280194114205187361222D+00
-C
+!
       Xi( 1) = 1.002582989781723730071845424039D+00
       Xi( 2) = 1.023330305172375875150635182731D+00
       Xi( 3) = 1.065273284622550387427085405445D+00
@@ -24942,13 +24942,13 @@ C
       Xi(37) = 77.580156570777880062350639889246D+00
       Xi(38) = 79.724537365926090290435546137360D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 9E1 -----
-C
+!
+!     ----- K = 19 , R = 9E1 -----
+!
  1919 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0082990717162187397271702312198660145270D+00
       Omega( 2) = 0.0197515369312390787828330506251117704153D+00
       Omega( 3) = 0.0323320097626662699213874636872123602416D+00
@@ -24968,7 +24968,7 @@ C
       Omega(17) = 2.4238875934879392064213998736477151396684D+00
       Omega(18) = 3.5179749485496644326003312652773047375376D+00
       Omega(19) = 5.8123205382036475371773653897378153487807D+00
-C
+!
       Alpha( 1) = 0.0032255547241228648735466839718444287399D+00
       Alpha( 2) = 0.0171842010508271829507192336380927422113D+00
       Alpha( 3) = 0.0431012196639813078985763346306914201023D+00
@@ -24988,7 +24988,7 @@ C
       Alpha(17) = 7.7294438544955657434225304580621696004528D+00
       Alpha(18) = 10.6505008181886338851709905561904179194244D+00
       Alpha(19) = 15.1325054730258866404063455846085162193049D+00
-C
+!
       Xi( 1) = 1.002675179666646921553159466090D+00
       Xi( 2) = 1.024166784466018869726236517614D+00
       Xi( 3) = 1.067631447058344752666821098064D+00
@@ -25028,13 +25028,13 @@ C
       Xi(37) = 87.144881279033248336340911066600D+00
       Xi(38) = 89.674585781506149048669662704469D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 1E2 -----
-C
+!
+!     ----- K = 19 , R = 1E2 -----
+!
  1921 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0076214428423533533648966315811323912754D+00
       Omega( 2) = 0.0181559574087108285475600233382920123404D+00
       Omega( 3) = 0.0297734147216365840705928338602581639805D+00
@@ -25054,7 +25054,7 @@ C
       Omega(17) = 2.3911569034812322979543369738664182477805D+00
       Omega(18) = 3.4822059278807115196771593268465494475095D+00
       Omega(19) = 5.7709271606812320193520549072019321101834D+00
-C
+!
       Alpha( 1) = 0.0029618641807141679593227935000238071339D+00
       Alpha( 2) = 0.0157868150870244721383877902279313509837D+00
       Alpha( 3) = 0.0396314572880652742583218635374908700442D+00
@@ -25074,7 +25074,7 @@ C
       Alpha(17) = 7.5188983713448171624163518522721005865606D+00
       Alpha(18) = 10.4057656207948679566444027955185447353870D+00
       Alpha(19) = 14.8496710802594839790150005320867876434932D+00
-C
+!
       Xi( 1) = 1.002758313387566873968979874743D+00
       Xi( 2) = 1.024920598659349159223821978948D+00
       Xi( 3) = 1.069757834466405115167106365526D+00
@@ -25114,13 +25114,13 @@ C
       Xi(37) = 96.691389503979995982685391453515D+00
       Xi(38) = 99.622466654819725725977797026189D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 2E2 -----
-C
+!
+!     ----- K = 19 , R = 2E2 -----
+!
  1922 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0043285986426132386220931157639474351484D+00
       Omega( 2) = 0.0103841267899432984842859558662075958324D+00
       Omega( 3) = 0.0172575801907111374815939489404947870810D+00
@@ -25140,7 +25140,7 @@ C
       Omega(17) = 2.1971479882779208852271179974735559881083D+00
       Omega(18) = 3.2696589291009504607814911691932024950802D+00
       Omega(19) = 5.5255043846437808057435459030415358938626D+00
-C
+!
       Alpha( 1) = 0.0016808496363439748120994731675655053937D+00
       Alpha( 2) = 0.0089902455362286249226065355105719234530D+00
       Alpha( 3) = 0.0227190259538139841615601377880495626016D+00
@@ -25160,7 +25160,7 @@ C
       Alpha(17) = 6.3420000371091985293461879003018566436367D+00
       Alpha(18) = 9.0258836907504181286746036683155125501798D+00
       Alpha(19) = 13.2435500118326784525085715316095047455747D+00
-C
+!
       Xi( 1) = 1.003316141420518088113456034449D+00
       Xi( 2) = 1.029984844373334572755276927758D+00
       Xi( 3) = 1.084069907429715628891311873794D+00
@@ -25200,13 +25200,13 @@ C
       Xi(37) = 191.372424761705608134421119359558D+00
       Xi(38) = 199.007073990730296450535341534760D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 3E2 -----
-C
+!
+!     ----- K = 19 , R = 3E2 -----
+!
  1923 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0030979744625869967072705435341337110167D+00
       Omega( 2) = 0.0074677258025301549865259970878428319452D+00
       Omega( 3) = 0.0125261913826957596837776624625060417628D+00
@@ -25226,7 +25226,7 @@ C
       Omega(17) = 2.0986579423414440622504967270955944513844D+00
       Omega(18) = 3.1613549510476621497677418570759755311883D+00
       Omega(19) = 5.4008117863362945622676680734741694323020D+00
-C
+!
       Alpha( 1) = 0.0012023276934156263349336022294364112462D+00
       Alpha( 2) = 0.0064462014086364271354022620948848176781D+00
       Alpha( 3) = 0.0163648972786164023042514365294253231298D+00
@@ -25246,7 +25246,7 @@ C
       Alpha(17) = 5.7903223656449835364014300242985200384283D+00
       Alpha(18) = 8.3709144013367508090073254578555861371569D+00
       Alpha(19) = 12.4733976940382987035754736027115541219246D+00
-C
+!
       Xi( 1) = 1.003648158021418972693332427593D+00
       Xi( 2) = 1.033003144519449471492276992901D+00
       Xi( 3) = 1.092622523878765275831548287044D+00
@@ -25286,13 +25286,13 @@ C
       Xi(37) = 285.002487477980943592070772751867D+00
       Xi(38) = 298.263678893991040719235741107696D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 4E2 -----
-C
+!
+!     ----- K = 19 , R = 4E2 -----
+!
  1924 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0024403793946805315231385157112228845300D+00
       Omega( 2) = 0.0059048582845966957033063471967787583239D+00
       Omega( 3) = 0.0099774687415042409010875628684600346929D+00
@@ -25312,7 +25312,7 @@ C
       Omega(17) = 2.0345752967814761905541304232158950071607D+00
       Omega(18) = 3.0907125461287509788667338117562621846446D+00
       Omega(19) = 5.3196104384190826051652389860890934869531D+00
-C
+!
       Alpha( 1) = 0.0009467103340717739501497547248854563806D+00
       Alpha( 2) = 0.0050852716789430924001851573590382571410D+00
       Alpha( 3) = 0.0129568498853726468535035886743556066136D+00
@@ -25332,7 +25332,7 @@ C
       Alpha(17) = 5.4475161585937015703770547325746065325802D+00
       Alpha(18) = 7.9607968584149800131757879206872985378141D+00
       Alpha(19) = 11.9881831320134891061962578717725591559429D+00
-C
+!
       Xi( 1) = 1.003884682496624659777534338545D+00
       Xi( 2) = 1.035155226373312911756358056792D+00
       Xi( 3) = 1.098731067541452390673960282097D+00
@@ -25372,13 +25372,13 @@ C
       Xi(37) = 377.860785989429712655729431958207D+00
       Xi(38) = 397.424762847092499173928814570900D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 5E2 -----
-C
+!
+!     ----- K = 19 , R = 5E2 -----
+!
  1925 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0020268234806406438391822798748831413462D+00
       Omega( 2) = 0.0049197476167952692635729433721231140808D+00
       Omega( 3) = 0.0083642741943484745572196534593722994089D+00
@@ -25398,7 +25398,7 @@ C
       Omega(17) = 1.9878975548392614142775153274200761188695D+00
       Omega(18) = 3.0391599004378752222829684903615543589694D+00
       Omega(19) = 5.2604159726240093033350353479704608616885D+00
-C
+!
       Alpha( 1) = 0.0007859972597901745348478236210133102135D+00
       Alpha( 2) = 0.0042286450817449501904713403399593829590D+00
       Alpha( 3) = 0.0108071911802016967112295307493208262883D+00
@@ -25418,7 +25418,7 @@ C
       Alpha(17) = 5.2056855286788839805647843839153665612685D+00
       Alpha(18) = 7.6698792276257324335847487262185495637823D+00
       Alpha(19) = 11.6424766286962766128829094292029822099721D+00
-C
+!
       Xi( 1) = 1.004068107684561803570610916125D+00
       Xi( 2) = 1.036825255243909446557434850256D+00
       Xi( 3) = 1.103477363547749454239163546809D+00
@@ -25458,13 +25458,13 @@ C
       Xi(37) = 470.095204489244320344987215776200D+00
       Xi(38) = 496.507669079298629227769978911056D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 6E2 -----
-C
+!
+!     ----- K = 19 , R = 6E2 -----
+!
  1926 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0017409056747026545874079052236664544306D+00
       Omega( 2) = 0.0042373726647584414790970804183534159648D+00
       Omega( 3) = 0.0072429142123288246898999364307980552979D+00
@@ -25484,7 +25484,7 @@ C
       Omega(17) = 1.9515988935832955308369643376842361703893D+00
       Omega(18) = 2.9990092184363538463376386289382935501635D+00
       Omega(19) = 5.2143501856174815792602239561404076084727D+00
-C
+!
       Alpha( 1) = 0.0006749106811276842487306562492349604199D+00
       Alpha( 2) = 0.0036359671789622105300339471086606968342D+00
       Alpha( 3) = 0.0093172704445309736173081783562610613814D+00
@@ -25504,7 +25504,7 @@ C
       Alpha(17) = 5.0221505136447068514196634403390362422215D+00
       Alpha(18) = 7.4481359624155416242208271881963810301386D+00
       Alpha(19) = 11.3780700426969411604219417633032662706682D+00
-C
+!
       Xi( 1) = 1.004217674848781906879295611201D+00
       Xi( 2) = 1.038187722646932208765864491529D+00
       Xi( 3) = 1.107353467087303622719100804073D+00
@@ -25544,13 +25544,13 @@ C
       Xi(37) = 561.799637544799216448687673164386D+00
       Xi(38) = 595.523476269319698150894737409544D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 7E2 -----
-C
+!
+!     ----- K = 19 , R = 7E2 -----
+!
  1927 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0015305359756900182162422095234755037296D+00
       Omega( 2) = 0.0037344643826074083641921121969053931622D+00
       Omega( 3) = 0.0064139468635128237053342700486197047738D+00
@@ -25570,7 +25570,7 @@ C
       Omega(17) = 1.9221351370573637965671887073426660208497D+00
       Omega(18) = 2.9663769540121386336650743942300323396921D+00
       Omega(19) = 5.1769335862276031853292102002939145677374D+00
-C
+!
       Alpha( 1) = 0.0005931923431999073845779268704565823089D+00
       Alpha( 2) = 0.0031996124493035569613762615723967508430D+00
       Alpha( 3) = 0.0082186363834435553437062762713316566021D+00
@@ -25590,7 +25590,7 @@ C
       Alpha(17) = 4.8760531444257644525554218351004465148435D+00
       Alpha(18) = 7.2710002684677504511054357827504190936452D+00
       Alpha(19) = 11.1662645904274676379730468767093043425120D+00
-C
+!
       Xi( 1) = 1.004343767497067441141211929789D+00
       Xi( 2) = 1.039336846036955419592118232686D+00
       Xi( 3) = 1.110625364930867942092618250172D+00
@@ -25630,13 +25630,13 @@ C
       Xi(37) = 653.039856404240481424494646489620D+00
       Xi(38) = 694.479976293595314018602948635817D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 8E2 -----
-C
+!
+!     ----- K = 19 , R = 8E2 -----
+!
  1928 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0013687675835145835041809663813749953221D+00
       Omega( 2) = 0.0033471676646427708735811318296882177492D+00
       Omega( 3) = 0.0057738050801085363817534315371282627183D+00
@@ -25656,7 +25656,7 @@ C
       Omega(17) = 1.8974831878073656902172414162599523024255D+00
       Omega(18) = 2.9390436880013247463935832648473933659261D+00
       Omega(19) = 5.1456085823147972462855703756900993539602D+00
-C
+!
       Alpha( 1) = 0.0005303640593514308630205644594368674660D+00
       Alpha( 2) = 0.0028638758287205060384243059329670288982D+00
       Alpha( 3) = 0.0073721713842827054850996061369922118800D+00
@@ -25676,7 +25676,7 @@ C
       Alpha(17) = 4.7557800703159550360053786643987905335962D+00
       Alpha(18) = 7.1247401219003983438050886523029703312204D+00
       Alpha(19) = 10.9909675011459832495372412886069923843024D+00
-C
+!
       Xi( 1) = 1.004452631886133613615605386649D+00
       Xi( 2) = 1.040329331675136868666509126768D+00
       Xi( 3) = 1.113453259778105731417005563877D+00
@@ -25716,13 +25716,13 @@ C
       Xi(37) = 743.864863569709894974835151515435D+00
       Xi(38) = 793.383009264371348079336598857481D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 9E2 -----
-C
+!
+!     ----- K = 19 , R = 9E2 -----
+!
  1929 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0012402032728556425107311220689364217318D+00
       Omega( 2) = 0.0030389525605399794354794006448483578708D+00
       Omega( 3) = 0.0052631126447103385881148471768520291647D+00
@@ -25742,7 +25742,7 @@ C
       Omega(17) = 1.8763860059088577912677145431707970146817D+00
       Omega(18) = 2.9156290111440588414936508909747203688312D+00
       Omega(19) = 5.1187856317997873778491424445746815763414D+00
-C
+!
       Alpha( 1) = 0.0004804394956551810720697368343404948243D+00
       Alpha( 2) = 0.0025969131851087023373011867296428212271D+00
       Alpha( 3) = 0.0066982612708965181651650467806180522246D+00
@@ -25762,7 +25762,7 @@ C
       Alpha(17) = 4.6542608896940731166846916266877087764442D+00
       Alpha(18) = 7.0009678541599003353569641294740222292603D+00
       Alpha(19) = 10.8423231136438817214309726644216880231397D+00
-C
+!
       Xi( 1) = 1.004548318295606769835585925232D+00
       Xi( 2) = 1.041201951533019658905493409762D+00
       Xi( 3) = 1.115941179355407749458801991427D+00
@@ -25802,13 +25802,13 @@ C
       Xi(37) = 834.312794117182672082311256644971D+00
       Xi(38) = 892.237141519307482229184103061925D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 1E3 -----
-C
+!
+!     ----- K = 19 , R = 1E3 -----
+!
  1931 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0011353808465260069879296050097960968372D+00
       Omega( 2) = 0.0027873459250726631638297124942543758763D+00
       Omega( 3) = 0.0048452705067956602540325166186829797255D+00
@@ -25828,7 +25828,7 @@ C
       Omega(17) = 1.8580124017735812404781073348125630673167D+00
       Omega(18) = 2.8952193255576354972546243571329682708893D+00
       Omega(19) = 5.0954133884965537872567542532209472483373D+00
-C
+!
       Alpha( 1) = 0.0004397402753084449362910859172631425351D+00
       Alpha( 2) = 0.0023791469798983926843507672680561038092D+00
       Alpha( 3) = 0.0061479118280827121452711606346824835256D+00
@@ -25848,7 +25848,7 @@ C
       Alpha(17) = 4.5669007458854660075515952133429209425231D+00
       Alpha(18) = 6.8942170928054122419625926454500586260110D+00
       Alpha(19) = 10.7138936613586985358362313469626769801835D+00
-C
+!
       Xi( 1) = 1.004633602905102016025068456528D+00
       Xi( 2) = 1.041979925934169761043979196558D+00
       Xi( 3) = 1.118160489935932515250145702357D+00
@@ -25888,13 +25888,13 @@ C
       Xi(37) = 924.414396180339782538304405079543D+00
       Xi(38) = 991.046041188548449962780750865932D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 2E3 -----
-C
+!
+!     ----- K = 19 , R = 2E3 -----
+!
  1932 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0006342268344939125696036574103813671099D+00
       Omega( 2) = 0.0015791476671186966177249394612490396295D+00
       Omega( 3) = 0.0028224831978484241599048639283567330160D+00
@@ -25914,7 +25914,7 @@ C
       Omega(17) = 1.7480036471772586919096181823363167495700D+00
       Omega(18) = 2.7726434417237337353139697837534072277776D+00
       Omega(19) = 4.9552013805472642604503519248027032517712D+00
-C
+!
       Alpha( 1) = 0.0002452565599847984143030926544853248528D+00
       Alpha( 2) = 0.0013362518230503871040501927161363304730D+00
       Alpha( 3) = 0.0035014715409294380525670426851717054184D+00
@@ -25934,7 +25934,7 @@ C
       Alpha(17) = 4.0640491459580344647296856752660687561729D+00
       Alpha(18) = 6.2750499843757169557770247969585852843011D+00
       Alpha(19) = 9.9645512824420119125934380832632086821832D+00
-C
+!
       Xi( 1) = 1.005185018111157551918416475090D+00
       Xi( 2) = 1.047015084403527515068653419572D+00
       Xi( 3) = 1.132552373412988660009159680442D+00
@@ -25974,13 +25974,13 @@ C
       Xi(37) = 1810.494471703168660514648991011200D+00
       Xi(38) = 1977.145017183783119008033679619984D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 3E3 -----
-C
+!
+!     ----- K = 19 , R = 3E3 -----
+!
  1933 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0004508258133707264276268301706482657942D+00
       Omega( 2) = 0.0011336422409792784387268067759942102857D+00
       Omega( 3) = 0.0020660275741542744235437290088036599300D+00
@@ -26000,7 +26000,7 @@ C
       Omega(17) = 1.6915795941607348587716608268038953610812D+00
       Omega(18) = 2.7094961277357779252158292981889076145308D+00
       Omega(19) = 4.8830670881614229084967393479388420018950D+00
-C
+!
       Alpha( 1) = 0.0001741460746723223026059222944429000224D+00
       Alpha( 2) = 0.0009534786680525147055850404879083492826D+00
       Alpha( 3) = 0.0025232247863159527497894051278198856991D+00
@@ -26020,7 +26020,7 @@ C
       Alpha(17) = 3.8193114566860193737074524733543512411416D+00
       Alpha(18) = 5.9704942314286730564200367243898881497444D+00
       Alpha(19) = 9.5929431003947925327146606377937132492661D+00
-C
+!
       Xi( 1) = 1.005497493748834770231626034587D+00
       Xi( 2) = 1.049872343971031396969370574901D+00
       Xi( 3) = 1.140741043304082297238366550118D+00
@@ -26060,13 +26060,13 @@ C
       Xi(37) = 2676.497529878549615167671049675846D+00
       Xi(38) = 2960.490319908464064369013613031711D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 4E3 -----
-C
+!
+!     ----- K = 19 , R = 4E3 -----
+!
  1934 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0003538233776194802958029860407568323311D+00
       Omega( 2) = 0.0008967604464056150007104570558852385531D+00
       Omega( 3) = 0.0016597826113511905271613328799462649954D+00
@@ -26086,7 +26086,7 @@ C
       Omega(17) = 1.6547207576581276584817142838446102359740D+00
       Omega(18) = 2.6681317238664049255186805353901036141906D+00
       Omega(19) = 4.8358494106615862273383654734715264567058D+00
-C
+!
       Alpha( 1) = 0.0001365580998637658443965204401013453783D+00
       Alpha( 2) = 0.0007506111348062842641569451698334985990D+00
       Alpha( 3) = 0.0020021522024140182816247051332536610602D+00
@@ -26106,7 +26106,7 @@ C
       Alpha(17) = 3.6641596499525499375151532666095022250374D+00
       Alpha(18) = 5.7762017388518488080970114673107218550285D+00
       Alpha(19) = 9.3547296357315254423936412564444253803231D+00
-C
+!
       Xi( 1) = 1.005713601730994785545675318517D+00
       Xi( 2) = 1.051850110845436202526743951768D+00
       Xi( 3) = 1.146418488022776449412887256329D+00
@@ -26146,13 +26146,13 @@ C
       Xi(37) = 3527.708535605757588227149312842812D+00
       Xi(38) = 3941.735689232802021919610524491873D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 5E3 -----
-C
+!
+!     ----- K = 19 , R = 5E3 -----
+!
  1935 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0002932076769236164135650101109954734913D+00
       Omega( 2) = 0.0007481120070367528165557523625334851447D+00
       Omega( 3) = 0.0014028117638563894487564354834376045833D+00
@@ -26172,7 +26172,7 @@ C
       Omega(17) = 1.6278213442595887665417450640426011432282D+00
       Omega(18) = 2.6378835961637891341455969262952407916600D+00
       Omega(19) = 4.8013369479657254366468388528943478377187D+00
-C
+!
       Alpha( 1) = 0.0001130812139910994147589448447237172463D+00
       Alpha( 2) = 0.0006236346379751230297441147508268055599D+00
       Alpha( 3) = 0.0016746960030130307897149554135357574225D+00
@@ -26192,7 +26192,7 @@ C
       Alpha(17) = 3.5532562003332909203196648961764481100545D+00
       Alpha(18) = 5.6366992315260241036556365656906564254314D+00
       Alpha(19) = 9.1831095058734625198593182204831464332528D+00
-C
+!
       Xi( 1) = 1.005877665720023108860206595416D+00
       Xi( 2) = 1.053352510326261747995377215936D+00
       Xi( 3) = 1.150736387420469239288058072024D+00
@@ -26232,13 +26232,13 @@ C
       Xi(37) = 4366.934822915667493425928569195094D+00
       Xi(38) = 4921.233420587998445228095079073682D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 6E3 -----
-C
+!
+!     ----- K = 19 , R = 6E3 -----
+!
  1936 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0002514859830440869239136015861769274382D+00
       Omega( 2) = 0.0006454345166225561464407756856204861906D+00
       Omega( 3) = 0.0012241052339225014351097272952313688155D+00
@@ -26258,7 +26258,7 @@ C
       Omega(17) = 1.6068832147999930476519811484159561132401D+00
       Omega(18) = 2.6143018069305608908677734936176761948445D+00
       Omega(19) = 4.7744395683011073960172465646678574557882D+00
-C
+!
       Alpha( 1) = 0.0000969287142899266616743931479157920378D+00
       Alpha( 2) = 0.0005361166667958781532657658135121447884D+00
       Alpha( 3) = 0.0014482287494156358532772062232447940477D+00
@@ -26278,7 +26278,7 @@ C
       Alpha(17) = 3.4682764293725907667285263125123151439766D+00
       Alpha(18) = 5.5294373846519538316657271792564642964862D+00
       Alpha(19) = 9.0508080915429810530195564588495926727774D+00
-C
+!
       Xi( 1) = 1.006009240128929166716020837669D+00
       Xi( 2) = 1.054557977132429780046420086936D+00
       Xi( 3) = 1.154204095603665752053750004347D+00
@@ -26318,13 +26318,13 @@ C
       Xi(37) = 5195.963914028940708433879080985207D+00
       Xi(38) = 5899.210290609183795496051061491016D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 7E3 -----
-C
+!
+!     ----- K = 19 , R = 7E3 -----
+!
  1937 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0002208895821694307274828834988583334265D+00
       Omega( 2) = 0.0005699037544084404272864562319977910221D+00
       Omega( 3) = 0.0010918633813335534320382178225319891318D+00
@@ -26344,7 +26344,7 @@ C
       Omega(17) = 1.5898803365209977463742146985836711792217D+00
       Omega(18) = 2.5951273723316795516338068017248019714316D+00
       Omega(19) = 4.7525747636009296873994822707487628576928D+00
-C
+!
       Alpha( 1) = 0.0000850875740584050184891715783847259552D+00
       Alpha( 2) = 0.0004718588003697697800454389545224756497D+00
       Alpha( 3) = 0.0012814541772765324530906913351978315685D+00
@@ -26364,7 +26364,7 @@ C
       Alpha(17) = 3.4001292632837948708406788922431474020414D+00
       Alpha(18) = 5.4431820079123342474153313119700214883778D+00
       Alpha(19) = 8.9441925952542045497387079855400315864244D+00
-C
+!
       Xi( 1) = 1.006118662677609540065382098817D+00
       Xi( 2) = 1.055560882485330026730845076610D+00
       Xi( 3) = 1.157091285267903576160740397594D+00
@@ -26404,13 +26404,13 @@ C
       Xi(37) = 6016.051563543870672745583760843147D+00
       Xi(38) = 6875.826811662362523236424749484286D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 8E3 -----
-C
+!
+!     ----- K = 19 , R = 8E3 -----
+!
  1938 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0001974219472611918680628057947432432706D+00
       Omega( 2) = 0.0005118116348137075664006744003201726523D+00
       Omega( 3) = 0.0009896106633899506062647863087293476081D+00
@@ -26430,7 +26430,7 @@ C
       Omega(17) = 1.5756526218352263982169780831554817268625D+00
       Omega(18) = 2.5790649790605737466143987379751933985972D+00
       Omega(19) = 4.7342623575024274352150699396446498212754D+00
-C
+!
       Alpha( 1) = 0.0000760082237381623323150573807082883149D+00
       Alpha( 2) = 0.0004225198913857248501536460386735979955D+00
       Alpha( 3) = 0.0011530576109491102237842712627605146203D+00
@@ -26450,7 +26450,7 @@ C
       Alpha(17) = 3.3436945551800944286327532672942197677912D+00
       Alpha(18) = 5.3715847700553539891855925336727750618593D+00
       Alpha(19) = 8.8555393749506048960487558652232564782025D+00
-C
+!
       Xi( 1) = 1.006212049117425507771886317165D+00
       Xi( 2) = 1.056417094083936610254652321839D+00
       Xi( 3) = 1.159557738108722183770910030276D+00
@@ -26490,13 +26490,13 @@ C
       Xi(37) = 6828.134598951332540739400656093494D+00
       Xi(38) = 7851.204045745495675667768864514073D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 9E3 -----
-C
+!
+!     ----- K = 19 , R = 9E3 -----
+!
  1939 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0001788093141587950910466926028315019781D+00
       Omega( 2) = 0.0004656227515863442921042175258895118306D+00
       Omega( 3) = 0.0009079146920660995806425086333303620112D+00
@@ -26516,7 +26516,7 @@ C
       Omega(17) = 1.5634775601762413573762172669390224655217D+00
       Omega(18) = 2.5653069289627084795420153273681762584602D+00
       Omega(19) = 4.7185797086570276269099077914859208249254D+00
-C
+!
       Alpha( 1) = 0.0000688092831789428886600715190710250702D+00
       Alpha( 2) = 0.0003833503298649437034711633679124123675D+00
       Alpha( 3) = 0.0010508770061426041367165756367646478608D+00
@@ -26536,7 +26536,7 @@ C
       Alpha(17) = 3.2958263420011204398400034287774928998260D+00
       Alpha(18) = 5.3107342317254451554038585658901183705893D+00
       Alpha(19) = 8.7800794392682022619645021421774799819104D+00
-C
+!
       Xi( 1) = 1.006293311754988115754201605245D+00
       Xi( 2) = 1.057162362173585051805003998115D+00
       Xi( 3) = 1.161705777450567059119052037985D+00
@@ -26576,13 +26576,13 @@ C
       Xi(37) = 7632.945498142689400022931067724130D+00
       Xi(38) = 8825.436816484338248045560249011032D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 1E4 -----
-C
+!
+!     ----- K = 19 , R = 1E4 -----
+!
  1941 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0001636592420906213769240403004510964191D+00
       Omega( 2) = 0.0004279405854816205457864853499904897460D+00
       Omega( 3) = 0.0008409665962780909017066291043403236660D+00
@@ -26602,7 +26602,7 @@ C
       Omega(17) = 1.5528766164374189863222816554433336477814D+00
       Omega(18) = 2.5533176914480834875879194934000793182349D+00
       Omega(19) = 4.7049152280541132564554984707427820467274D+00
-C
+!
       Alpha( 1) = 0.0000629511228795506194228404754935270876D+00
       Alpha( 2) = 0.0003514392630321619536948574261158231846D+00
       Alpha( 3) = 0.0009674449077851093932061564059903674417D+00
@@ -26622,7 +26622,7 @@ C
       Alpha(17) = 3.2544646697665223023313019190538852853933D+00
       Alpha(18) = 5.2580631207486167848913494182738759263884D+00
       Alpha(19) = 8.7146769314049337381081206110877701576101D+00
-C
+!
       Xi( 1) = 1.006365101584634917913224638752D+00
       Xi( 2) = 1.057820914418007428314805196123D+00
       Xi( 3) = 1.163604799047569396093851357143D+00
@@ -26662,13 +26662,13 @@ C
       Xi(37) = 8431.073199220976136736283024220029D+00
       Xi(38) = 9798.602295452959125121594752272358D+00
       GOTO 9999
-C
-C     ----- K = 19 , R = 1E7 (Best : R = 9494000) -----
-C
+!
+!     ----- K = 19 , R = 1E7 (Best : R = 9494000) -----
+!
  1999 CONTINUE
-C
+!
       RIni = 1.0D+07
-C
+!
       Omega( 1) = 0.0000013023957441521602544712644568444782D+00
       Omega( 2) = 0.0000085569725723852577788740775816922306D+00
       Omega( 3) = 0.0000350291318515042740099143380057538505D+00
@@ -26688,7 +26688,7 @@ C
       Omega(17) = 1.2521859976389874101465604638860895647667D+00
       Omega(18) = 2.2085753256603982441243216872095445069135D+00
       Omega(19) = 4.3125582586355293529360721560550473441253D+00
-C
+!
       Alpha( 1) = 0.0000004074055411337607181698247862981237D+00
       Alpha( 2) = 0.0000044818700108551761525309296177417085D+00
       Alpha( 3) = 0.0000237205310080393393326447962985705983D+00
@@ -26708,7 +26708,7 @@ C
       Alpha(17) = 2.2002432689570702651401384875029521026590D+00
       Alpha(18) = 3.8804576345416524000685870587901149519894D+00
       Alpha(19) = 6.9707272486237740363561321554897176611121D+00
-C
+!
       Xi( 1) = 1.008882881112199099101801869072D+00
       Xi( 2) = 1.081017698083631578412702745062D+00
       Xi( 3) = 1.231049370022352407801242979435D+00
@@ -26748,21 +26748,21 @@ C
       Xi(37) = 1174668.046709527367738701286725699902D+00
       Xi(38) = 4129384.561684549837991653475910425186D+00
       GOTO 9999
-C
-C     ===== K = 20 =====
-C
+!
+!     ===== K = 20 =====
+!
  2000 CONTINUE
-C
+!
       GOTO (2016,2016,2016,2016,2016,2016,2016,2016,2017,2018,2019,2021,
      *      2022,2023,2024,2025,2026,2027,2028,2029,2031,2032,2033,2034,
      *      2035,2036,2037,2038,2039,2041,2099),InitR
-C
-C     ----- K = 20 , R = 6E1 -----
-C
+!
+!     ----- K = 20 , R = 6E1 -----
+!
  2016 CONTINUE
-C
+!
       RIni = 6.0D+01
-C
+!
       Omega( 1) = 0.0109070895912146964509237506528449568322D+00
       Omega( 2) = 0.0258215557106381350811177746024105417177D+00
       Omega( 3) = 0.0418492875540536475504379675810495697874D+00
@@ -26783,7 +26783,7 @@ C
       Omega(18) = 2.6659270101860627186132063348722454065864D+00
       Omega(19) = 3.7820372654999779801245074484228325673030D+00
       Omega(20) = 6.1188680951336386314165505240225684246980D+00
-C
+!
       Alpha( 1) = 0.0042417725533269219822935761250726205418D+00
       Alpha( 2) = 0.0225386311917021179409762040787845727152D+00
       Alpha( 3) = 0.0562526545785380834041079778362615115839D+00
@@ -26804,7 +26804,7 @@ C
       Alpha(18) = 9.4034717553014731759170041769380077312235D+00
       Alpha(19) = 12.5770535749700286690458406191339690849418D+00
       Alpha(20) = 17.3406428377065059253520074022958397108596D+00
-C
+!
       Xi( 1) = 1.002140440215847487634079349128D+00
       Xi( 2) = 1.019326578852813078909095301228D+00
       Xi( 3) = 1.054005917291743182743514462008D+00
@@ -26846,13 +26846,13 @@ C
       Xi(39) = 58.554845077855913096365192416215D+00
       Xi(40) = 59.836332563413038326816106859951D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 7E1 -----
-C
+!
+!     ----- K = 20 , R = 7E1 -----
+!
  2017 CONTINUE
-C
+!
       RIni = 7.0D+01
-C
+!
       Omega( 1) = 0.0096407657480833906907301614208627427161D+00
       Omega( 2) = 0.0228488140324318946828543921284682127748D+00
       Omega( 3) = 0.0371079148443205679574357670758022464952D+00
@@ -26873,7 +26873,7 @@ C
       Omega(18) = 2.6116952045089155652612955549329853965901D+00
       Omega(19) = 3.7229736168766252007306105653583472303580D+00
       Omega(20) = 6.0501925717934959512989134822191772400402D+00
-C
+!
       Alpha( 1) = 0.0037488236103774818168050568046104076281D+00
       Alpha( 2) = 0.0199302930946752964444442261446321928986D+00
       Alpha( 3) = 0.0497936793284737838022964602491260421857D+00
@@ -26894,7 +26894,7 @@ C
       Alpha(18) = 9.0118118124226002712759409085663264704635D+00
       Alpha(19) = 12.1288761752920887723727894069725152803585D+00
       Alpha(20) = 16.8294513681712583717114961601168943161611D+00
-C
+!
       Xi( 1) = 1.002249264643640987138516196264D+00
       Xi( 2) = 1.020306232501930232526264619164D+00
       Xi( 3) = 1.056756764198102628397879509947D+00
@@ -26936,9 +26936,9 @@ C
       Xi(39) = 68.202452246730995620571658122344D+00
       Xi(40) = 69.796152217716813180581336695241D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 8E1 -----
-C
+!
+!     ----- K = 20 , R = 8E1 -----
+!
  2018 CONTINUE
       Omega( 1) = 0.0086590863588565141643405616983519834662D+00
       Omega( 2) = 0.0205426420298526915798290482656485167468D+00
@@ -26960,7 +26960,7 @@ C
       Omega(18) = 2.5665602251435765930945298585186264972435D+00
       Omega(19) = 3.6737818796706969927314684332131378141639D+00
       Omega(20) = 5.9930486868878260317723694061697869983618D+00
-C
+!
       Alpha( 1) = 0.0033667116839452651136199132263573940982D+00
       Alpha( 2) = 0.0179077040024635203782502404501464354780D+00
       Alpha( 3) = 0.0447819490927944552507251538275845348380D+00
@@ -26981,7 +26981,7 @@ C
       Alpha(18) = 8.6933669897861839343314316330690871836850D+00
       Alpha(19) = 11.7633712436921895180472197317556037887698D+00
       Alpha(20) = 16.4114811544328902653128166022611367225181D+00
-C
+!
       Xi( 1) = 1.002343908951570856089886840667D+00
       Xi( 2) = 1.021163750948948316463887886485D+00
       Xi( 3) = 1.059172135095758688792463853012D+00
@@ -27023,13 +27023,13 @@ C
       Xi(39) = 77.830646493665011260987274255285D+00
       Xi(40) = 79.753695405112625525789749048045D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 9E1 -----
-C
+!
+!     ----- K = 20 , R = 9E1 -----
+!
  2019 CONTINUE
-C
+!
       RIni = 9.0D+01
-C
+!
       Omega( 1) = 0.0078737170270415834137788945075453472811D+00
       Omega( 2) = 0.0186964488653855530620178249795459990423D+00
       Omega( 3) = 0.0304731611612504394465020078619499344086D+00
@@ -27050,7 +27050,7 @@ C
       Omega(18) = 2.5280860401426815068509634798488150408957D+00
       Omega(19) = 3.6318216968458192351037333578389620925009D+00
       Omega(20) = 5.9443426326414896092298345564586270484142D+00
-C
+!
       Alpha( 1) = 0.0030610352418640447120127081638563115717D+00
       Alpha( 2) = 0.0162891771869635674108850453833952087734D+00
       Alpha( 3) = 0.0407690825452521048081046348837697124168D+00
@@ -27071,7 +27071,7 @@ C
       Alpha(18) = 8.4273421847671762746970203217244943516562D+00
       Alpha(19) = 11.4572134728147046389343244321423753717681D+00
       Alpha(20) = 16.0605822089161196127016228984984991257079D+00
-C
+!
       Xi( 1) = 1.002428277018268843964222958309D+00
       Xi( 2) = 1.021928355605721261845780789557D+00
       Xi( 3) = 1.061323947576878160437702236507D+00
@@ -27113,13 +27113,13 @@ C
       Xi(39) = 87.441234694140842965970339406567D+00
       Xi(40) = 89.709165277351819202389382468255D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 1E2 -----
-C
+!
+!     ----- K = 20 , R = 1E2 -----
+!
  2021 CONTINUE
-C
+!
       RIni = 1.0D+02
-C
+!
       Omega( 1) = 0.0072298139623285946619482263218042783492D+00
       Omega( 2) = 0.0171819049819507251149143436247390681615D+00
       Omega( 3) = 0.0280490206203562979914964458164061689160D+00
@@ -27140,7 +27140,7 @@ C
       Omega(18) = 2.4946869354115935330656883550659586035181D+00
       Omega(19) = 3.5953762265058869433773797164022312244924D+00
       Omega(20) = 5.9020687782584465089219527555997046874836D+00
-C
+!
       Alpha( 1) = 0.0028104368156272408351162658433561314375D+00
       Alpha( 2) = 0.0149618878639997985398237684284694637427D+00
       Alpha( 3) = 0.0374765158904498923609521256194998528599D+00
@@ -27161,7 +27161,7 @@ C
       Alpha(18) = 8.2004386148828166767238423418007187137846D+00
       Alpha(19) = 11.1954577499233262427927315663112040056149D+00
       Alpha(20) = 15.7599752081980677914999078303992519067833D+00
-C
+!
       Xi( 1) = 1.002504350751318743894917318027D+00
       Xi( 2) = 1.022617384709513394577123923668D+00
       Xi( 3) = 1.063264983315571922980850849694D+00
@@ -27203,13 +27203,13 @@ C
       Xi(39) = 97.035669327895155381047409548501D+00
       Xi(40) = 99.662726756177133079217522748650D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 2E2 -----
-C
+!
+!     ----- K = 20 , R = 2E2 -----
+!
  2022 CONTINUE
-C
+!
       RIni = 2.0D+02
-C
+!
       Omega( 1) = 0.0041019305409462499073685085547447126686D+00
       Omega( 2) = 0.0098090357905196088671124577187954152180D+00
       Omega( 3) = 0.0162026542274407600722791345654316685909D+00
@@ -27230,7 +27230,7 @@ C
       Omega(18) = 2.2963863207527393506517804366851009945094D+00
       Omega(19) = 3.3785361353156798077442685146465350953804D+00
       Omega(20) = 5.6511332870536226022882553277071338015958D+00
-C
+!
       Alpha( 1) = 0.0015934091103306747481783704387635347555D+00
       Alpha( 2) = 0.0085090494684967943130973777078607245272D+00
       Alpha( 3) = 0.0214381324891662292012295106327646188049D+00
@@ -27251,7 +27251,7 @@ C
       Alpha(18) = 6.9299171690423791059205982367785736641963D+00
       Alpha(19) = 9.7177223945287944323681572633688574569533D+00
       Alpha(20) = 14.0512612733913114246644959770549121458316D+00
-C
+!
       Xi( 1) = 1.003015863943882538347231181408D+00
       Xi( 2) = 1.027257716079474384514996776474D+00
       Xi( 3) = 1.076356981009167181973298910158D+00
@@ -27293,13 +27293,13 @@ C
       Xi(39) = 192.285821477193155773499633198753D+00
       Xi(40) = 199.115662670733542263801219007746D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 3E2 -----
-C
+!
+!     ----- K = 20 , R = 3E2 -----
+!
  2023 CONTINUE
-C
+!
       RIni = 3.0D+02
-C
+!
       Omega( 1) = 0.0029336693857008777795570392786517199823D+00
       Omega( 2) = 0.0070451555597185174561695585482984371950D+00
       Omega( 3) = 0.0117321497525370120694799300035959799260D+00
@@ -27320,7 +27320,7 @@ C
       Omega(18) = 2.1954643644645225810264205223987232784566D+00
       Omega(19) = 3.2678296963499660170160421301943642902188D+00
       Omega(20) = 5.5234111805051478074485293845441447047051D+00
-C
+!
       Alpha( 1) = 0.0011390449921040572701854757240759463688D+00
       Alpha( 2) = 0.0060955201406987995546792296740895578111D+00
       Alpha( 3) = 0.0154192503088270932163006887369305353275D+00
@@ -27341,7 +27341,7 @@ C
       Alpha(18) = 6.3328134368156954472038611125839224769152D+00
       Alpha(19) = 9.0149431194776533131027274059476894763066D+00
       Alpha(20) = 13.2306709449480355885592208764478527882602D+00
-C
+!
       Xi( 1) = 1.003321358308533492106895401719D+00
       Xi( 2) = 1.030032257451784524315656355054D+00
       Xi( 3) = 1.084204159286374321278546839498D+00
@@ -27383,13 +27383,13 @@ C
       Xi(39) = 286.607547547894308648253058890987D+00
       Xi(40) = 298.456696124284597687603692861558D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 4E2 -----
-C
+!
+!     ----- K = 20 , R = 4E2 -----
+!
  2024 CONTINUE
-C
+!
       RIni = 4.0D+02
-C
+!
       Omega( 1) = 0.0023096719274510651441821253897559995671D+00
       Omega( 2) = 0.0055650996970464216806463687240574822468D+00
       Omega( 3) = 0.0093269713005692897187092903384109110476D+00
@@ -27410,7 +27410,7 @@ C
       Omega(18) = 2.1296885906061568238117898133054950449150D+00
       Omega(19) = 3.1955233524783499790729301981428989165579D+00
       Omega(20) = 5.4401334554390823666433774086215180432191D+00
-C
+!
       Alpha( 1) = 0.0008964303533583869750454629725649330352D+00
       Alpha( 2) = 0.0048051191769556905898184843203141403123D+00
       Alpha( 3) = 0.0121936515586327546978718909531647085487D+00
@@ -27431,7 +27431,7 @@ C
       Alpha(18) = 5.9611648673187633256514983415286224044394D+00
       Alpha(19) = 8.5743268969111811122693622699841853318503D+00
       Alpha(20) = 12.7131467807816594490707973186260915099410D+00
-C
+!
       Xi( 1) = 1.003539495037077088610867614538D+00
       Xi( 2) = 1.032014976987189206142705999447D+00
       Xi( 3) = 1.089820619142263964586499203069D+00
@@ -27473,13 +27473,13 @@ C
       Xi(39) = 380.249138647751221770088037033020D+00
       Xi(40) = 397.714593199607818779783841023345D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 5E2 -----
-C
+!
+!     ----- K = 20 , R = 5E2 -----
+!
  2025 CONTINUE
-C
+!
       RIni = 5.0D+02
-C
+!
       Omega( 1) = 0.0019173831272521528896798773990151065760D+00
       Omega( 2) = 0.0046327320166332141803895488998271678938D+00
       Omega( 3) = 0.0078061639095677174562662372237636931871D+00
@@ -27500,7 +27500,7 @@ C
       Omega(18) = 2.0817153233738898900507391376279997530219D+00
       Omega(19) = 3.1427009603970152444227248444974520680262D+00
       Omega(20) = 5.3793660470672245059800542499317543843063D+00
-C
+!
       Alpha( 1) = 0.0007439418581085581892112420772465025687D+00
       Alpha( 2) = 0.0039932450657249991999831167498874462396D+00
       Alpha( 3) = 0.0101604121564421496262372104912863335358D+00
@@ -27521,7 +27521,7 @@ C
       Alpha(18) = 5.6986621888932010551905016360052513846313D+00
       Alpha(19) = 8.2614710190714416094062699791322756937006D+00
       Alpha(20) = 12.3441248885543208551468508105131149932276D+00
-C
+!
       Xi( 1) = 1.003708963893842017129146015897D+00
       Xi( 2) = 1.033556260629650301922054234094D+00
       Xi( 3) = 1.094191688950951933385728753745D+00
@@ -27563,13 +27563,13 @@ C
       Xi(39) = 473.341838864481170262576981144775D+00
       Xi(40) = 496.904669581782927945123873314515D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 6E2 -----
-C
+!
+!     ----- K = 20 , R = 6E2 -----
+!
  2026 CONTINUE
-C
+!
       RIni = 6.0D+02
-C
+!
       Omega( 1) = 0.0016462492734708234527647109017405024911D+00
       Omega( 2) = 0.0039872112227060935941520749149075131257D+00
       Omega( 3) = 0.0067499278484741489052820863359105629797D+00
@@ -27590,7 +27590,7 @@ C
       Omega(18) = 2.0443694768055509221153787091651565788197D+00
       Omega(19) = 3.1015254823222612565354616709356605497305D+00
       Omega(20) = 5.3320377235572179752155774767885532128275D+00
-C
+!
       Alpha( 1) = 0.0006385690974850548757151600493767867883D+00
       Alpha( 2) = 0.0034317403777428602951973557770234957154D+00
       Alpha( 3) = 0.0087519680446223105247708870003953141037D+00
@@ -27611,7 +27611,7 @@ C
       Alpha(18) = 5.4992396397309868927814890948724269037484D+00
       Alpha(19) = 8.0228171451540230257187813478481075435411D+00
       Alpha(20) = 12.0616990467191137143335155634815691882977D+00
-C
+!
       Xi( 1) = 1.003847356634095681036933367380D+00
       Xi( 2) = 1.034815504482238480966037330600D+00
       Xi( 3) = 1.097766223329619838448671653719D+00
@@ -27653,13 +27653,13 @@ C
       Xi(39) = 565.968849814896027228261488062344D+00
       Xi(40) = 596.036687702023577350995964252434D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 7E2 -----
-C
+!
+!     ----- K = 20 , R = 7E2 -----
+!
  2027 CONTINUE
-C
+!
       RIni = 7.0D+02
-C
+!
       Omega( 1) = 0.0014468089890773762064865747196430734167D+00
       Omega( 2) = 0.0035116704407315388026972902005620746912D+00
       Omega( 3) = 0.0059696893390567254892347596843815704659D+00
@@ -27680,7 +27680,7 @@ C
       Omega(18) = 2.0140282495547256480256798072403512378514D+00
       Omega(19) = 3.0680352452904602980100767783966375645832D+00
       Omega(20) = 5.2935687063784716698162935433202846979839D+00
-C
+!
       Alpha( 1) = 0.0005610725711432293110450681414887869058D+00
       Alpha( 2) = 0.0030184719671453096687248026427224933954D+00
       Alpha( 3) = 0.0077139213151301331876320745845054815959D+00
@@ -27701,7 +27701,7 @@ C
       Alpha(18) = 5.3403626575511835596066223530442584888078D+00
       Alpha(19) = 7.8320446783163987633166747137636320985621D+00
       Alpha(20) = 11.8353304830751550986642217644373431539861D+00
-C
+!
       Xi( 1) = 1.003964176491557225290307542309D+00
       Xi( 2) = 1.035878879979283295753589300148D+00
       Xi( 3) = 1.100787086356171728951380828221D+00
@@ -27743,13 +27743,13 @@ C
       Xi(39) = 658.188351846673526779341045767069D+00
       Xi(40) = 695.117510062629889944219030439854D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 8E2 -----
-C
+!
+!     ----- K = 20 , R = 8E2 -----
+!
  2028 CONTINUE
-C
+!
       RIni = 8.0D+02
-C
+!
       Omega( 1) = 0.0012934804789701730859765956200592429415D+00
       Omega( 2) = 0.0031455913931800428346504690637133738740D+00
       Omega( 3) = 0.0053675814320167539060817661362295938332D+00
@@ -27770,7 +27770,7 @@ C
       Omega(18) = 1.9886219964371001267706973170135142936488D+00
       Omega(19) = 3.0399647857026813235672285662403169226309D+00
       Omega(20) = 5.2613426947892068179062075028440403912100D+00
-C
+!
       Alpha( 1) = 0.0005015028829405916784257679467712992549D+00
       Alpha( 2) = 0.0027005909930681475630818603539742839281D+00
       Alpha( 3) = 0.0069144869551996271470756250110412111098D+00
@@ -27791,7 +27791,7 @@ C
       Alpha(18) = 5.2094742092379552876081627577065091827535D+00
       Alpha(19) = 7.6744322927942630638113719054871353364433D+00
       Alpha(20) = 11.6478865034794983488938835414217010111315D+00
-C
+!
       Xi( 1) = 1.004065146807242986924137151394D+00
       Xi( 2) = 1.036798291711282924277941208668D+00
       Xi( 3) = 1.103400699685969811006565344247D+00
@@ -27833,13 +27833,13 @@ C
       Xi(39) = 750.043689303183398031649176118663D+00
       Xi(40) = 794.152261652934190694352878381324D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 9E2 -----
-C
+!
+!     ----- K = 20 , R = 9E2 -----
+!
  2029 CONTINUE
-C
+!
       RIni = 9.0D+02
-C
+!
       Omega( 1) = 0.0011716492337915550176909349985344965805D+00
       Omega( 2) = 0.0028543637444917537430241641447509204355D+00
       Omega( 3) = 0.0048875252078222111903001742376495553088D+00
@@ -27860,7 +27860,7 @@ C
       Omega(18) = 1.9668638852113633858293209599743533999572D+00
       Omega(19) = 3.0159043047515122252470037844673811378016D+00
       Omega(20) = 5.2337328547580630883073737891209020745009D+00
-C
+!
       Alpha( 1) = 0.0004541767980519825111706183401114045317D+00
       Alpha( 2) = 0.0024478932125370641170577021153778596307D+00
       Alpha( 3) = 0.0062782731484099750528868734509441162928D+00
@@ -27881,7 +27881,7 @@ C
       Alpha(18) = 5.0989243358288849562905131751477938450989D+00
       Alpha(19) = 7.5409835974288115553569589177840271077002D+00
       Alpha(20) = 11.4888704905340859017959243004725067294203D+00
-C
+!
       Xi( 1) = 1.004153982232867567316730861293D+00
       Xi( 2) = 1.037607444726684115731893398582D+00
       Xi( 3) = 1.105702204165229871253052496005D+00
@@ -27923,13 +27923,13 @@ C
       Xi(39) = 841.568574535739497399777775399343D+00
       Xi(40) = 893.144945621413019420931078684589D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 1E3 -----
-C
+!
+!     ----- K = 20 , R = 1E3 -----
+!
  2031 CONTINUE
-C
+!
       RIni = 1.0D+03
-C
+!
       Omega( 1) = 0.0010723355841923380231486297425175235887D+00
       Omega( 2) = 0.0026167011819126501339751372570904819348D+00
       Omega( 3) = 0.0044949702361557219303550862396501308638D+00
@@ -27950,7 +27950,7 @@ C
       Omega(18) = 1.9479025693636614116046809619398061386164D+00
       Omega(19) = 2.9949203773370823315411182186096539226128D+00
       Omega(20) = 5.2096627614057815394525696728322827766533D+00
-C
+!
       Alpha( 1) = 0.0004156027289832161495224144314624206697D+00
       Alpha( 2) = 0.0022418131924125070431621603540481291184D+00
       Alpha( 3) = 0.0057588984634072065144597292723344095222D+00
@@ -27971,7 +27971,7 @@ C
       Alpha(18) = 5.0037385567561213977824663423632500780514D+00
       Alpha(19) = 7.4258328899260190657065361374833400986972D+00
       Alpha(20) = 11.3514236378291410202445721466801842325367D+00
-C
+!
       Xi( 1) = 1.004233231024701093010362273894D+00
       Xi( 2) = 1.038329467370194678934279541860D+00
       Xi( 3) = 1.107756928628184967021777507235D+00
@@ -28013,13 +28013,13 @@ C
       Xi(39) = 932.790079937360105510890662117163D+00
       Xi(40) = 992.098790773663964936979198228073D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 2E3 -----
-C
+!
+!     ----- K = 20 , R = 2E3 -----
+!
  2032 CONTINUE
-C
+!
       RIni = 2.0D+03
-C
+!
       Omega( 1) = 0.0005978419885949286863441535090461786961D+00
       Omega( 2) = 0.0014767718631817713858581144208310942378D+00
       Omega( 3) = 0.0025984483440739169295458804199994151674D+00
@@ -28040,7 +28040,7 @@ C
       Omega(18) = 1.8341101331108358160138296910623978419608D+00
       Omega(19) = 2.8686436013263880736960664830093037380720D+00
       Omega(20) = 5.0649921231386816383897297999538977819611D+00
-C
+!
       Alpha( 1) = 0.0002313895456520614452095149096515734610D+00
       Alpha( 2) = 0.0012557354836193615122101805673011931663D+00
       Alpha( 3) = 0.0032646741887890771295802847798070422947D+00
@@ -28061,7 +28061,7 @@ C
       Alpha(18) = 4.4547286544940377490085781087003624634235D+00
       Alpha(19) = 6.7568053146723298153265846455184373553493D+00
       Alpha(20) = 10.5482558845397232753782201797321249614470D+00
-C
+!
       Xi( 1) = 1.004747339117302895204406065766D+00
       Xi( 2) = 1.043017771421871897337234347258D+00
       Xi( 3) = 1.121122943817104279586212289832D+00
@@ -28103,13 +28103,13 @@ C
       Xi(39) = 1831.945762606023681007272330134583D+00
       Xi(40) = 1979.935885219789689526415088494105D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 3E3 -----
-C
+!
+!     ----- K = 20 , R = 3E3 -----
+!
  2033 CONTINUE
-C
+!
       RIni = 3.0D+03
-C
+!
       Omega( 1) = 0.0004244010974768445926899437445605628438D+00
       Omega( 2) = 0.0010572758982993402492957639719935170053D+00
       Omega( 3) = 0.0018917249558589985810016904596055076215D+00
@@ -28130,7 +28130,7 @@ C
       Omega(18) = 1.7755394743855650631098735958701695381023D+00
       Omega(19) = 2.8033893736182855665767937880517024495930D+00
       Omega(20) = 4.9903468977438102927544905096368665908813D+00
-C
+!
       Alpha( 1) = 0.0001641068734789775491146203960238572628D+00
       Alpha( 2) = 0.0008943560944810265020203757539360434059D+00
       Alpha( 3) = 0.0023447971546885438058928499216806984329D+00
@@ -28151,7 +28151,7 @@ C
       Alpha(18) = 4.1867092078282693752566689937566479784437D+00
       Alpha(19) = 6.4268615884660526358512777633791301923338D+00
       Alpha(20) = 10.1490122213306126980683630200985589908669D+00
-C
+!
       Xi( 1) = 1.005040110244036224594263440046D+00
       Xi( 2) = 1.045691029046423431805336312639D+00
       Xi( 3) = 1.128763112883265133006352454181D+00
@@ -28193,13 +28193,13 @@ C
       Xi(39) = 2713.581909018974785752220668655355D+00
       Xi(40) = 2965.433376542869509995270504987275D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 4E3 -----
-C
+!
+!     ----- K = 20 , R = 4E3 -----
+!
  2034 CONTINUE
-C
+!
       RIni = 4.0D+03
-C
+!
       Omega( 1) = 0.0003327412248922165634397579421326074378D+00
       Omega( 2) = 0.0008345346294245275355584726898871411604D+00
       Omega( 3) = 0.0015131489024454598513048971387788543819D+00
@@ -28220,7 +28220,7 @@ C
       Omega(18) = 1.7371875880089803571284731709134518951032D+00
       Omega(19) = 2.7605544547816329799174578374376665124146D+00
       Omega(20) = 4.9413871442531599464942360100394580513239D+00
-C
+!
       Alpha( 1) = 0.0001285687160662040868590269649470066160D+00
       Alpha( 2) = 0.0007030265145218756179107298328895964135D+00
       Alpha( 3) = 0.0018556066468578644959045714367580626192D+00
@@ -28241,7 +28241,7 @@ C
       Alpha(18) = 4.0164561880298074230885574387173164723208D+00
       Alpha(19) = 6.2159994161551889234156031971423317372683D+00
       Alpha(20) = 9.8926638869886735459802107328641795902513D+00
-C
+!
       Xi( 1) = 1.005243263568524270915212348587D+00
       Xi( 2) = 1.047547462290225787277624103222D+00
       Xi( 3) = 1.134076922122825184990543845309D+00
@@ -28283,13 +28283,13 @@ C
       Xi(39) = 3582.334751118383872947603663305927D+00
       Xi(40) = 3949.159043836234082247571564039390D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 5E3 -----
-C
+!
+!     ----- K = 20 , R = 5E3 -----
+!
  2035 CONTINUE
-C
+!
       RIni = 5.0D+03
-C
+!
       Omega( 1) = 0.0002755007456293087083343381417680981182D+00
       Omega( 2) = 0.0006949144419033538975492248174030407437D+00
       Omega( 3) = 0.0012741691536917060741693034919830296303D+00
@@ -28310,7 +28310,7 @@ C
       Omega(18) = 1.7091472734101286011900236450067325222335D+00
       Omega(19) = 2.7291791887956055148896361561838830311899D+00
       Omega(20) = 4.9055447220011625408288280514312873492599D+00
-C
+!
       Alpha( 1) = 0.0001063851333766171321713854083811957862D+00
       Alpha( 2) = 0.0005833704497286544695752803411058218241D+00
       Alpha( 3) = 0.0015485833354591999264720597823466463616D+00
@@ -28331,7 +28331,7 @@ C
       Alpha(18) = 3.8945710669852745757120449088262148507056D+00
       Alpha(19) = 6.0643908484080571797206204998076373158256D+00
       Alpha(20) = 9.7077396621160522965227057667902954563033D+00
-C
+!
       Xi( 1) = 1.005397886266596758843457071197D+00
       Xi( 2) = 1.048961230655805738389008130440D+00
       Xi( 3) = 1.138128141738333881627896759792D+00
@@ -28373,13 +28373,13 @@ C
       Xi(39) = 4440.660988457125205375319865197525D+00
       Xi(40) = 4931.417679757244129312709901569178D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 6E3 -----
-C
+!
+!     ----- K = 20 , R = 6E3 -----
+!
  2036 CONTINUE
-C
+!
       RIni = 6.0D+03
-C
+!
       Omega( 1) = 0.0002361233367644384153264616071129372576D+00
       Omega( 2) = 0.0005985629681840805466256151578293559501D+00
       Omega( 3) = 0.0011082635962737625764359315717541565327D+00
@@ -28400,7 +28400,7 @@ C
       Omega(18) = 1.6872881704391610297160547515815665065020D+00
       Omega(19) = 2.7046850592809888937529533281534099842247D+00
       Omega(20) = 4.8775739977916875052266210133211643551476D+00
-C
+!
       Alpha( 1) = 0.0000911299266109850957332030016216830454D+00
       Alpha( 2) = 0.0005009551141945329792627880345721319566D+00
       Alpha( 3) = 0.0013364798805110457434659911426025336034D+00
@@ -28421,7 +28421,7 @@ C
       Alpha(18) = 3.8010590078021969423407305788131793633511D+00
       Alpha(19) = 5.9476874839884439211123989821317081805319D+00
       Alpha(20) = 9.5650279522057114678021405573815627576550D+00
-C
+!
       Xi( 1) = 1.005522150854355086543705233293D+00
       Xi( 2) = 1.050097933108487030756487967675D+00
       Xi( 3) = 1.141388238967003724449490731363D+00
@@ -28463,13 +28463,13 @@ C
       Xi(39) = 5290.121656572453829880942066665739D+00
       Xi(40) = 5912.404896234080808881117263808846D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 7E3 -----
-C
+!
+!     ----- K = 20 , R = 7E3 -----
+!
  2037 CONTINUE
-C
+!
       RIni = 7.0D+03
-C
+!
       Omega( 1) = 0.0002072595231468213499063945560118259193D+00
       Omega( 2) = 0.0005277431684360765496723267838161813836D+00
       Omega( 3) = 0.0009856824971052030015167592057190315558D+00
@@ -28490,7 +28490,7 @@ C
       Omega(18) = 1.6695145014205041572585841436193732079118D+00
       Omega(19) = 2.6847452179286793384933862416374950043974D+00
       Omega(20) = 4.8548107905431088656376947820803025024361D+00
-C
+!
       Alpha( 1) = 0.0000799513211818079067937889729475453571D+00
       Alpha( 2) = 0.0004404801002737936481098717943129944308D+00
       Alpha( 3) = 0.0011804328722135864155047237566628637317D+00
@@ -28511,7 +28511,7 @@ C
       Alpha(18) = 3.7259889279509082341337866672859036043519D+00
       Alpha(19) = 5.8537470723789595161874743656227337851305D+00
       Alpha(20) = 9.4499152648056140299873129073660038557136D+00
-C
+!
       Xi( 1) = 1.005625679618194848359558069006D+00
       Xi( 2) = 1.051045303823765475741830455192D+00
       Xi( 3) = 1.144107252178249141925936438469D+00
@@ -28553,13 +28553,13 @@ C
       Xi(39) = 6131.811547394484692485860932720243D+00
       Xi(40) = 6892.258956059064872512465171894291D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 8E3 -----
-C
+!
+!     ----- K = 20 , R = 8E3 -----
+!
  2038 CONTINUE
-C
+!
       RIni = 8.0D+03
-C
+!
       Omega( 1) = 0.0001851299098853712358555604174581085686D+00
       Omega( 2) = 0.0004733136428774598001476326850989542749D+00
       Omega( 3) = 0.0008910302345945904181047824072544466523D+00
@@ -28580,7 +28580,7 @@ C
       Omega(18) = 1.6546249337670091160467158997171566170437D+00
       Omega(19) = 2.6680241617729963058552877797069413645659D+00
       Omega(20) = 4.8357267236022883618792866933233653981006D+00
-C
+!
       Alpha( 1) = 0.0000713831975957801466111443531485994396D+00
       Alpha( 2) = 0.0003940705574146305591114543596205008202D+00
       Alpha( 3) = 0.0010603983810765622490681104619046626336D+00
@@ -28601,7 +28601,7 @@ C
       Alpha(18) = 3.6637625466597185934936736773082088802767D+00
       Alpha(19) = 5.7757028616507803870684656377676446936675D+00
       Alpha(20) = 9.3541165810768880312445205937876835378120D+00
-C
+!
       Xi( 1) = 1.005714175296166185591580088943D+00
       Xi( 2) = 1.051855361860885470538795605222D+00
       Xi( 3) = 1.146433572360668402497808904261D+00
@@ -28643,13 +28643,13 @@ C
       Xi(39) = 6966.547494171885193559035087673692D+00
       Xi(40) = 7871.083787591410416251136439313996D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 9E3 -----
-C
+!
+!     ----- K = 20 , R = 9E3 -----
+!
  2039 CONTINUE
-C
+!
       RIni = 9.0D+03
-C
+!
       Omega( 1) = 0.0001675850063897899348922038208296175776D+00
       Omega( 2) = 0.0004300651428233078607750510614958841527D+00
       Omega( 3) = 0.0008155017874436882460892123038881385000D+00
@@ -28670,7 +28670,7 @@ C
       Omega(18) = 1.6418705955212931079127344768942009523016D+00
       Omega(19) = 2.6536884725292681538443700928198154542770D+00
       Omega(20) = 4.8193683822402017214933667155207785981474D+00
-C
+!
       Alpha( 1) = 0.0000645919046172234345277192904652592553D+00
       Alpha( 2) = 0.0003572443590041112892013320655616032129D+00
       Alpha( 3) = 0.0009649470914152303099950022874983085464D+00
@@ -28691,7 +28691,7 @@ C
       Alpha(18) = 3.6109374619584690662820597450988202581357D+00
       Alpha(19) = 5.7093212012966174763797799762699014536338D+00
       Alpha(20) = 9.2725132321391420756745427311784624180291D+00
-C
+!
       Xi( 1) = 1.005791290786639106328952120162D+00
       Xi( 2) = 1.052561442782077028457871081812D+00
       Xi( 3) = 1.148462306230012468536913483597D+00
@@ -28733,13 +28733,13 @@ C
       Xi(39) = 7794.966261719841277955111991104786D+00
       Xi(40) = 8848.960790013713130441885823529446D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 1E4 -----
-C
+!
+!     ----- K = 20 , R = 1E4 -----
+!
  2041 CONTINUE
-C
+!
       RIni = 1.0D+04
-C
+!
       Omega( 1) = 0.0001533088583996790095510891657987033454D+00
       Omega( 2) = 0.0003948028739733490494788862321205030748D+00
       Omega( 3) = 0.0007536794802031423094304539206291643216D+00
@@ -28760,7 +28760,7 @@ C
       Omega(18) = 1.6307550397909832636846039211064862683997D+00
       Omega(19) = 2.6411851424111611177578118336839452240383D+00
       Omega(20) = 4.8051033473224673939379336662369723853772D+00
-C
+!
       Alpha( 1) = 0.0000590671705438591008869824888928698123D+00
       Alpha( 2) = 0.0003272556062595359328914557204420754388D+00
       Alpha( 3) = 0.0008870654681564531663730242025227290537D+00
@@ -28781,7 +28781,7 @@ C
       Alpha(18) = 3.5652577795257526928167368662769831644255D+00
       Alpha(19) = 5.6518213613926824054160824584158717698301D+00
       Alpha(20) = 9.2017372707962730299380282872334646526724D+00
-C
+!
       Xi( 1) = 1.005859503199398386754856438152D+00
       Xi( 2) = 1.053186153275888604940492554451D+00
       Xi( 3) = 1.150258057001121285239063352090D+00
@@ -28823,13 +28823,13 @@ C
       Xi(39) = 8617.580795998892034148752827604767D+00
       Xi(40) = 9825.955895142357746863126521930099D+00
       GOTO 9999
-C
-C     ----- K = 20 , R = 2E7 (Best : R = 15500000) -----
-C
+!
+!     ----- K = 20 , R = 2E7 (Best : R = 15500000) -----
+!
  2099 CONTINUE
-C
+!
       RIni = 2.0D+07
-C
+!
       Omega( 1) = 0.0000007993194986512641166901235448122683D+00
       Omega( 2) = 0.0000052516714234706720281934952362413744D+00
       Omega( 3) = 0.0000214984315244743872681199392838942257D+00
@@ -28850,7 +28850,7 @@ C
       Omega(18) = 1.2987393328305022142119332095866468534950D+00
       Omega(19) = 2.2626342250504628758611680439116753404960D+00
       Omega(20) = 4.3740371878688864403644798173331764701288D+00
-C
+!
       Alpha( 1) = 0.0000002500370545434594296238125233046437D+00
       Alpha( 2) = 0.0000027506585025356866608437990382899719D+00
       Alpha( 3) = 0.0000145580032538501085778500384060329693D+00
@@ -28871,7 +28871,7 @@ C
       Alpha(18) = 2.3488406101348189318131498559694136929465D+00
       Alpha(19) = 4.0794996332053728733263442407519505650271D+00
       Alpha(20) = 7.2272671226952539505657135965321913317894D+00
-C
+!
       Xi( 1) = 1.008422495037119964549077177907D+00
       Xi( 2) = 1.076761274033416926885521613944D+00
       Xi( 3) = 1.218592382555999745273427048442D+00
@@ -28913,9 +28913,9 @@ C
       Xi(39) = 1913981.382576032838301216543186455965D+00
       Xi(40) = 6728339.259719949901864310959354043007D+00
       GOTO 9999
-C
-C     ===== Copy data =====
-C
+!
+!     ===== Copy data =====
+!
  9999 CONTINUE
       IF (Dbg) THEN
          WRITE(IW,'(/" Input data (SetExp)"/)')
@@ -28935,34 +28935,34 @@ C
       CALL DCOPY_(K,Alpha,1,Coeff(2),2)
       CALL DCOPY_(IDim,Xi,1,T,1)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(R)
       END
-C*MODULE *DECK CHKACC
+!*MODULE *DECK CHKACC
       SUBROUTINE ChkAcc(K,InitR,Error,R,Change)
-C-----------------------------------------------------------------------
-C     Function : Check the convergence
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     Function : Check the convergence
+!-----------------------------------------------------------------------
       use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       PARAMETER (ZERO=0.0D+00)
-C
+!
       DIMENSION E2(7),E5(7),E10(16),E20(17),E30(17),E40(18),E50(19),
      *          E60(20),E70(20),E80(20),E90(20),E100(20),E200(20),
      *          E300(20),E400(20),E500(20),E600(20),E700(20),E800(20),
      *          E900(20),E1000(20),E2000(20),E3000(20),E4000(20),
      *          E5000(20),E6000(20),E7000(20),E8000(20),E9000(20),
      *          E10000(20),ERMax(20),RList(30)
-C
+!
       LOGICAL Change
-C
+!
       DATA RList / 2.0D+00, 5.0D+00, 1.0D+01, 2.0D+01, 3.0D+01, 4.0D+01,
      *             5.0D+01, 6.0D+01, 7.0D+01, 8.0D+01, 9.0D+01, 1.0D+02,
      *             2.0D+02, 3.0D+02, 4.0D+02, 5.0D+02, 6.0D+02, 7.0D+02,
      *             8.0D+02, 9.0D+02, 1.0D+03, 2.0D+03, 3.0D+03, 4.0D+03,
      *             5.0D+03, 6.0D+03, 7.0D+03, 8.0D+03, 9.0D+03, 1.0D+04/
-C
+!
       DATA E2  / 2.128D-02, 2.080D-04, 1.833D-06, 1.542D-08, 1.261D-10,
      *           1.012D-12, 8.020D-15/
       DATA E5  / 7.075D-02, 3.437D-03, 1.500D-04, 6.258D-06, 2.543D-07,
@@ -29094,11 +29094,11 @@ C
      *             2.611D-05, 1.312D-05, 6.807D-06, 3.630D-06,
      *             1.984D-06, 1.108D-06, 6.311D-07, 3.659D-07,
      *             2.155D-07, 1.289D-07, 7.811D-08, 4.794D-08/
-C
+!
       GOTO ( 20, 50,110,120,130,140,150,160,170,180,190,210,220,230,240,
      *      250,260,270,280,290,310,320,330,340,350,360,370,380,390,410,
      *      999),InitR
-C
+!
    20 CONTINUE
       ErrMin = E2(K)
       ErrMax = E5(K)
@@ -29218,7 +29218,7 @@ C
   410 CONTINUE
       ErrMin = E10000(K)
       ErrMax = ERMax(K)
-C
+!
   900 CONTINUE
       WRITE(IW,'(/" Check the accuracy of the convergence"/)')
       WRITE(IW,'(" R =",F10.3,2X,"Maximum error = ",E18.9E2)')

@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_PUTRED1(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
      &                       MRED,MSYM,MMSHL,LMMBSTRT,IPASS,ILOC)
-C
-C     Purpose: write index arrays for current reduced set (reduced set
-C              IPASS).
-C
+!
+!     Purpose: write index arrays for current reduced set (reduced set
+!              IPASS).
+!
       Implicit Real*8 (a-h,o-z)
       INTEGER INFRED(MRED)
       INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
@@ -26,8 +26,8 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-C     Test dimensions.
-C     ----------------
+!     Test dimensions.
+!     ----------------
 
       IF (ILOC.LT.1 .OR. ILOC.GT.3) THEN
          CALL CHO_QUIT('ILOC error in '//SECNAM,104)
@@ -53,8 +53,8 @@ C     ----------------
          CALL CHO_QUIT('IPASS error in '//SECNAM,104)
       END IF
 
-C     Get first address.
-C     ------------------
+!     Get first address.
+!     ------------------
 
       IADR1 = INFRED(IPASS)
       IF (IADR1 .LT. 0) THEN
@@ -68,8 +68,8 @@ C     ------------------
      &                  ' at addr: ',IADR1
       END IF
 
-C     Write index arrays.
-C     -------------------
+!     Write index arrays.
+!     -------------------
 
       IOPT = 1
       IADR = IADR1

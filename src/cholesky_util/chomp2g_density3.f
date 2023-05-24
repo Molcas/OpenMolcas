@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
 
       SubRoutine ChoMP2g_Density3(irc,CMO)
-************************************************************************
-*     Jonas Bostrom, March 2010.                                       *
-*                                                                      *
-*     Purpose: Finalize MP2 Density.                                   *
-************************************************************************
+!***********************************************************************
+!     Jonas Bostrom, March 2010.                                       *
+!                                                                      *
+!     Purpose: Finalize MP2 Density.                                   *
+!***********************************************************************
       use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
       use Constants
       Implicit Real*8 (a-h,o-z)
@@ -33,9 +33,9 @@
       Integer nOccAll(8), nOrbAll(8)
 
       Real*8, Allocatable:: AOTriDens(:), WAOTriDens(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
      &                         nOrbAll,nOccAll,Diagonalize)
@@ -51,9 +51,9 @@
       Logical        , Intent(In)    :: Diagonalize
       End Subroutine Build_Mp2Dens
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
       irc=0
 
@@ -80,12 +80,12 @@
             End Do
          End Do
       End Do
-*
+!
       Call mma_allocate( AOTriDens,lTriDens,Label=' AOTriDens')
       Call mma_allocate(WAOTriDens,lTriDens,Label='WAOTriDens')
        AOTriDens(:)=Zero
       WAOTriDens(:)=Zero
-*
+!
 
       Call Build_Mp2Dens( AOTriDens,lTriDens, MP2D_e,CMO,nSym,
      &                   nOrbAll, nOccAll,.True.)
