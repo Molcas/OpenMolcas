@@ -17,6 +17,7 @@ C
 C     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 C
       use ChoMP2_dec
+      use mbpt2_global, only: EOcc, EVir
       Implicit None
       Integer nDim, nCol, l_Buf
       Real*8  Col(nDim,nCol), Buf(l_Buf)
@@ -51,8 +52,7 @@ C     Postprocess integrals.
 C     ----------------------
 
       If (iOption_MP2CD .eq. 2) Then ! generate amplitudes
-         Call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,
-     &                          Work(ip_EOc),Work(ip_EVir))
+         Call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
       End If
 
       End

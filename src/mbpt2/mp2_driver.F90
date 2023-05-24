@@ -62,13 +62,6 @@ real(kind=wp), external :: ddot_, Seconds
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 
-Interface
-     SubRoutine ChoMP2_SetPtsOen(EOc,EVir)
-     Real*8, Target:: EOc(*), EVir(*)
-     End SubRoutine ChoMP2_SetPtsOen
-End Interface
-
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -133,15 +126,6 @@ Wref = Zero
 ! Write out input parameters
 
 call PrInp_MBPT2(EOcc,EVir,iTst)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Copy pointers to orbital energies to chomp2_dec
-! Needed for amplitude Cholesky decomposition.
-
-if (DoCholesky) then
-  call ChoMP2_SetPtsOen(EOcc,EVir)
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

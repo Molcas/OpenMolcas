@@ -12,8 +12,7 @@
 ! Stuff for decomposing (ai|bj) integrals or amplitudes in MP2:
 !
 Module chomp2_dec
-Public:: InCore, iOption_MP2CD, NowSym, ip_EOc, ip_EVir
+Public:: InCore, iOption_MP2CD, NowSym
 Logical InCore(8)
 Integer iOption_MP2CD, NowSym
-Integer ip_EOc, ip_EVir
 End Module chomp2_dec

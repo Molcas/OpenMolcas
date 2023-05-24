@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005,2008, Thomas Bondo Pedersen                       *
 ************************************************************************
-      SubRoutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
-     &                         ErrStat)
+      SubRoutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 C
 C     Thomas Bondo Pedersen, Jan. 2008.
 C
@@ -206,6 +205,7 @@ C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
       use ChoMP2_dec
+      use mbpt2_global, only: EOcc, EVir
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
@@ -221,8 +221,6 @@ C
       Parameter (SecNam = 'ChoMP2_DecChk_2', ThisNm = 'DecChk_2')
 
       MulD2h(k,l)=iEOr(k-1,l-1)+1
-      Evir(k)=Work(ip_EVir-1+k)
-      EOcc(k)=Work(ip_EOc-1+k)
 
       irc = 0
 
