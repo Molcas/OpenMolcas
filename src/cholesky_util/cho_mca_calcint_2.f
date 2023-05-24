@@ -18,8 +18,8 @@ C                seward; get qualified directly!
 C
       use ChoArr, only: iSP2F, MySP
       use ChoSwp, only: nnBstRSh
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "stdalloc.fh"

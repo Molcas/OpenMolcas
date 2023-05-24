@@ -21,6 +21,7 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 !          decomposition completes.
 
 use ChoMP2, only: OldVec
+use ChoMP2_dec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -39,7 +40,6 @@ external :: Cho_SOSmp2_Col, ChoMP2_Vec
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 
 ! Initializations.
 ! ----------------

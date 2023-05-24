@@ -50,6 +50,7 @@
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Integer nOcc(*)
@@ -60,7 +61,6 @@
       Real*8  tread(2),tintg(2)
       Character(LEN=10), Parameter:: SECNAM = 'CHO_get_ER'
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"

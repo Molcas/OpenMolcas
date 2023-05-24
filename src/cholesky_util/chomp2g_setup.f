@@ -18,13 +18,13 @@
       use ChoMP2, only: MP2W_full, MP2W
       use ChoMP2, only: MP2D_e_full, MP2D_e
       use ChoMP2, only: MP2W_e_full, MP2W_e
+      use Constants
 *
 *     Jonas Bostrom, Feb 2010
 *
 *     Purpose: Do some additional setup only needed for
 *              MP2-gradients or properties.
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "choorb.fh"

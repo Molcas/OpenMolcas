@@ -16,11 +16,11 @@ C     Thomas Bondo Pedersen, Dec. 2007.
 C
 C     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 C
+      use ChoMP2_dec
       Implicit None
       Integer nDim, nCol, l_Buf
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
 
@@ -63,11 +63,11 @@ C
 C     Purpose: scale integrals with orbital energies to get
 C              (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
 C
+      use ChoMP2_dec
       Implicit None
       Integer nDim, nCol
       Real*8  Col(nDim,nCol), EOcc(*), EVir(*)
       Integer iCol(nCol)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 
@@ -105,12 +105,12 @@ C
 C     Purpose: compute specified (ai|bj) columns.
 C
       use ChoMP2, only: OldVec
+      use ChoMP2_dec
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 

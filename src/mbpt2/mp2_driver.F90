@@ -129,7 +129,7 @@ call PrInp_MBPT2(EOcc,EVir,iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Copy pointers to orbital energies to chomp2_dec.fh
+! Copy pointers to orbital energies to chomp2_dec
 ! Needed for amplitude Cholesky decomposition.
 
 if (DoCholesky) then

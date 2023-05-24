@@ -28,7 +28,7 @@ C         exit, except for error terminations (i.e. no cleanup actions
 C         are taken!)
 C       - the amplitude decomposition does NOT use EOcc and EVir; these
 C         are accessed through pointers ip_EOc and ip_EVir stored in
-C         chomp2_dec.fh
+C         Module chomp2_dec
 C
       Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)

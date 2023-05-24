@@ -30,9 +30,9 @@
       use SOAO_Info, only: iAOtSO, iOffSO
       use ChoArr, only: iSOShl, iShlSO, nBstSh
       use sort_data, only: nSkip
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "real.fh"
 #include "print.fh"
 *
       Real*8 SOint(ijkl,nSOint), TInt(nInt)

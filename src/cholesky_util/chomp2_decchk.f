@@ -30,6 +30,7 @@ C              ErrStat(1) = min error
 C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
+      use ChoMP2_dec
       Implicit None
       Integer irc, iSym
       Integer nDim, nCol
@@ -37,7 +38,6 @@ C
       Integer lWrk
       Real*8  Wrk(lWrk)
       Real*8  ErrStat(3)
-#include "chomp2_dec.fh"
 
       Character*6  ThisNm
       Character*13 SecNam
@@ -76,11 +76,11 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
+      use ChoMP2_dec
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 #include "WrkSpc.fh"
 
       external ddot_
@@ -205,11 +205,11 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
+      use ChoMP2_dec
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 #include "WrkSpc.fh"
 
       external ddot_

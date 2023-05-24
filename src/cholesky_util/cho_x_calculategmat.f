@@ -35,10 +35,10 @@
 ************************************************************************
       SubRoutine Cho_X_CalculateGMat(irc)
       use ChoSwp, only: InfVec
+      use Constants
       Implicit Real*8 (A-H,O-Z)
       Character*(6) FileName
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"
 

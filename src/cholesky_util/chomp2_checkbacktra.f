@@ -32,11 +32,11 @@ C     are calculated from the vector
 C
 C        D(J) = X(J) - Y(J)
 C
+      use Constants
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
       Integer lU_AO(*)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"

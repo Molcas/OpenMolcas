@@ -13,9 +13,9 @@ C
 C     Purpose: test symmetry of integral matrix.
 C
       use ChoArr, only: iSP2F, nBstSh
+      use Constants
 
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"
 

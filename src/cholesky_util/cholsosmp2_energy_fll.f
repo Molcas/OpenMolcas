@@ -271,6 +271,7 @@ C     vectors (i.e., no batching). This uses the exact same loop
 C     ordering as the sorted algorithm and thus reads through the
 C     vector files once for each grid point.
 C
+      use Constants
       Implicit None
       Integer N
       Real*8  w(N)
@@ -281,7 +282,6 @@ C
       Real*8  EMP2
       Integer irc
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"

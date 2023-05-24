@@ -32,6 +32,7 @@ subroutine Cho_SOSmp2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(3) = rms error
 
 use ChoMP2, only: OldVec
+use ChoMP2_dec
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -46,7 +47,6 @@ character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
 real(kind=wp), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 
 irc = 0
 

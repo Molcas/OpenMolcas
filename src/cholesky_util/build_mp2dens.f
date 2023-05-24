@@ -11,10 +11,9 @@
       Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
      &                         nOrbAll,nOccAll,Diagonalize)
       use ChoMP2, only: Pointer_2D
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
       Integer        , Intent(In)    ::nTriDens
@@ -120,8 +119,6 @@
      &                 0.0d0,AORecBlock,nOrbAll(iSym))
 *            Call RecPrt('AODens:','(20F8.5)',AORecBlock,
 *     &                  nOrb(iSym),nOrb(iSym))
-*            Call RecPrt('MODens:','(20F8.5)',Work(ip_MORecBlock),
-*     &                  nOrb(iSym), nOrb(iSym))
             Call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
             call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,
      &                 AOTriBlock,1,

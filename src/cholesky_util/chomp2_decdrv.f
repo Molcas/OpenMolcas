@@ -35,6 +35,7 @@ C     files.
 C
 C
       use ChoMP2, only: OldVec
+      use ChoMP2_dec
       Implicit Real*8 (a-h,o-z)
       External ChoMP2_Col, ChoMP2_Vec
       Integer  irc
@@ -44,7 +45,6 @@ C
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'DecDrv'

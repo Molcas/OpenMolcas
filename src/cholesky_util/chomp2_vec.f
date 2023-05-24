@@ -16,9 +16,9 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
 C
+      use ChoMP2_dec
       Implicit Real*8 (a-h,o-z)
       Real*8  Buf(lBuf)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
 
       Character*3  ThisNm

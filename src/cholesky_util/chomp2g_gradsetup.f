@@ -20,8 +20,8 @@
 *                           meeting, 7-11 April 2013).                 *
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"

@@ -46,6 +46,7 @@
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_DT, Deallocate_DT
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (DSBA_Type) MO
@@ -58,7 +59,6 @@
       Real*8  tread(2),tintg(2),tmotr(2)
       Character(LEN=11), Parameter:: SECNAM = 'CHO_get_Rij'
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"

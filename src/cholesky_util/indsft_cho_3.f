@@ -31,9 +31,9 @@
       use ChoArr, only: iSOShl, iShlSO, nBstSh, iShP2RS, iShP2Q,
      &                  nDim_Batch
       use sort_data, only: nSkip
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "real.fh"
 #include "print.fh"
 *
       Real*8 SOint(ijkl,nSOint), TInt(lInt)

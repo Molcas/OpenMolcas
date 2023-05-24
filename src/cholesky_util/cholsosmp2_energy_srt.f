@@ -18,6 +18,7 @@ C     Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
 C     vectors (i.e., occupied orbitals processed in batches).
 C
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
+      use Constants
       Implicit None
       Integer N
       Real*8  w(N)
@@ -28,7 +29,6 @@ C
       Real*8  EMP2
       Integer irc
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"

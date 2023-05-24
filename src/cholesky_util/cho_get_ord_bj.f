@@ -39,12 +39,12 @@
 *> @param[out] Dmax    Max value of the remainder after the decomposition
 ************************************************************************
       SUBROUTINE CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
+      use Constants
       Implicit Real*8 (a-h,o-z)
 
       Integer nOV, MaxNVec, ID_bj(*), NVec
       Real*8  thr, W(*), Dmax
 
-#include "real.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Diag(:)

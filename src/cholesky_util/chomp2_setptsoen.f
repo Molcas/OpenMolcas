@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine ChoMP2_SetPtsOen(EOc_,EVir_)
+      use ChoMP2_dec
       Implicit None
       Real*8 EOc_(*), EVir_(*)
       Integer ip_of_Work
       External ip_of_Work
-#include "chomp2_dec.fh"
 
       ip_EOc  = ip_of_Work(EOc_(1))
       ip_EVir = ip_of_Work(EVir_(1))

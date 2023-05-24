@@ -29,9 +29,9 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use ChoArr, only: iSOShl, iShlSO, nBstSh
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "real.fh"
 #include "print.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)

@@ -17,10 +17,10 @@ C              diagonal.
 C
       use ChoSwp, only: iQuAB, InfVec
       use GnVcMp, only: RS2RS
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 Diag(*)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "stdalloc.fh"
