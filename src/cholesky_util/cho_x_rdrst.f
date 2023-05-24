@@ -21,7 +21,7 @@ C              defined/initialized.
 C
       use ChoSwp, only: InfRed, InfRed_Hidden
       use ChoSwp, only: InfVec, InfVec_Hidden
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"

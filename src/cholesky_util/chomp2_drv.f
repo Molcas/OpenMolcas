@@ -26,7 +26,7 @@ C         exit, except for error terminations (i.e. no cleanup actions
 C         are taken!)
 C
       use ChoMP2, only: EFrozT, EOccuT, EVirtT
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"

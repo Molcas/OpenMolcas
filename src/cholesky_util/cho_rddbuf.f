@@ -16,7 +16,7 @@ C              indices.
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: iiBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
       INTEGER   INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)

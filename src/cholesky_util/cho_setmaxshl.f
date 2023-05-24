@@ -14,7 +14,7 @@ C     Purpose: set max. shell pair data for selection procedure.
 C
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       REAL*8 DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
 #include "real.fh"

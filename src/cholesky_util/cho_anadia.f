@@ -12,7 +12,7 @@
 C
 C     Purpose: analyze diagonal (histogram).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
       LOGICAL   FULL
 #include "cholesky.fh"

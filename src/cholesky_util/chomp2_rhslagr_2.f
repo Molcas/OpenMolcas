@@ -16,7 +16,7 @@
      &                          nFroLeftI,nFroLeftJ)
 *     This will calculate the righthandside of the mp2lagrangian.
       use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
       Integer nOccLeftI(8),nOccLeftJ(8)

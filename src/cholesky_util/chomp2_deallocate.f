@@ -20,7 +20,7 @@
 C
 C     Purpose: to deallocate memory of the  Cholesky MP2 program.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
 #include "stdalloc.fh"
 
@@ -59,7 +59,7 @@ C
 *     Purpose: Deallocate memory needed for
 *              MP2-gradients or properties.
 *
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "stdalloc.fh"

@@ -13,7 +13,7 @@ C
 C     Purpose: initialize counter arrays.
 C
       use ChoSwp, only: InfRed, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"

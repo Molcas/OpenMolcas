@@ -14,7 +14,7 @@ C     Purpose: register a shell quadruple (CD|AB) for minimal integral
 C              check using LABEL to keep track of its origin.
 C
       use ChoArr, only: iSP2F
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       CHARACTER*8 LABEL
 #include "cholesky.fh"
 

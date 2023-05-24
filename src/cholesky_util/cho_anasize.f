@@ -12,7 +12,7 @@
 C
 C     Purpose: analyse vector (histogram).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION VEC(LVEC), BIN(LBIN)
 
       PARAMETER (ZERO = 0.0D0)

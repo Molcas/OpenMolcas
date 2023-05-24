@@ -21,7 +21,7 @@ C
 C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
 
@@ -78,7 +78,7 @@ C           but execution is NOT stopped here!!!
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
 #include "cholesky.fh"

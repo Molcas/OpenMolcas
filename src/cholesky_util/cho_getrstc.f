@@ -12,7 +12,7 @@
 C
 C     Purpose: read and check decomposition restart info.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*11 SECNAM

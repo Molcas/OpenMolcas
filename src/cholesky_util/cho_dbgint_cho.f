@@ -20,7 +20,7 @@ C     NOTE: this is *only* for debugging.
 C
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
 

@@ -16,7 +16,7 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
       use GnVcMp, only: RS2RS
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer lInt
       Real*8  Diag(*), xInt(lInt)
       Integer mSym,mPass

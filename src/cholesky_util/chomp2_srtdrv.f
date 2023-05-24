@@ -22,7 +22,7 @@ C              output: flag to tell that at least 1 symmetry block has
 C                      in fact been deleted.
 C
       use ChoMP2, only: LnT1am, lUnit
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer irc
       Logical DelOrig
 #include "chomp2_cfg.fh"

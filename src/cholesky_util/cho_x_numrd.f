@@ -35,7 +35,7 @@
       Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       Integer iRed

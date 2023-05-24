@@ -15,7 +15,7 @@ C              element LAB in shell pair ISHLAB (sym. ISYMAB).
 C              If not included in this reduced set, 0 is returned.
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*8 SECNAM

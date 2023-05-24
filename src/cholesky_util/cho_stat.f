@@ -17,7 +17,7 @@ C
       use ChoSwp, only: nnBstRSh, InfVec
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
      &                     DSPNm, SSNorm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"

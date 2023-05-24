@@ -16,7 +16,7 @@ C     LEVEL =  1: test diagonal, reduced set 1 (i.e. initial).
 C              2: test diagonal, reduced set 2 (i.e. current).
 C              3: test symmetry of integral matrix (shell quadruple-based)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 

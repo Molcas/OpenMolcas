@@ -17,7 +17,7 @@ C              which is stored internally in the Cholesky program as
 C              LUPRI (in cholesky.fh).
 C
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       LOGICAL DFONLY
 #include "cholesky.fh"
 #include "choprint.fh"

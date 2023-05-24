@@ -55,7 +55,7 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoSubScr, only: Cho_SScreen
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "stdalloc.fh"

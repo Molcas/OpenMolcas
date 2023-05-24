@@ -21,7 +21,7 @@ C              For iOpt=0, the units are initialized (to -1).
 C              iTyp=1: transformed Cholesky vectors.
 C              iTyp=2: vectors from (ai|bj) decomposition.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 

@@ -20,7 +20,7 @@ C
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
       use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
       use ChoMP2, only: LnPQprod, LiPQprod
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
@@ -349,7 +349,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: set local index arrays and counters.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer iFirst(mBatch), NumOcc(mBatch)
       Integer iFirstS(mSym,mBatch), LnOcc(mSym,mBatch)
       Integer LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch)
@@ -492,7 +492,7 @@ C     Thomas Bondo Pedersen, Nov. 2004.
 C
 C     Purpose: Check memory availability.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2_cfg.fh"
       Integer LnT1am(nSym,nBatch)
       Integer LnPQprod(nSym,nBatch)
@@ -592,7 +592,7 @@ C
 C     Purpose: print setup for Cholesky MP2.
 C
       Use ChoMP2, only: iFirst, NumOcc, LnOcc, NumBatOrb, LnBatOrb
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"

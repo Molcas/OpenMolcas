@@ -16,7 +16,7 @@ C
       use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
       use ChoArr, only: MySP, n_MySP
       use ChoSwp, only: nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER LENBUF, LENSCR
       REAL*8 BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)

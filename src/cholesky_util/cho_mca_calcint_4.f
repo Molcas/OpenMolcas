@@ -20,7 +20,7 @@ C                - only one shell quadruple is computed (not an entire
 C                  column).
 C
       use ChoArr, only: iSP2F
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"

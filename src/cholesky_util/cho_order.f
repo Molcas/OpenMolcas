@@ -15,7 +15,7 @@ C              IJOB = -1: descending order
 C              IJOB =  1: ascending  order
 C              (all other IJOB values are ignored)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION VEC(LVEC)
 
       IF (IJOB .EQ. -1) THEN

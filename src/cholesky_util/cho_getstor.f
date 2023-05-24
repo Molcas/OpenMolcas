@@ -12,7 +12,7 @@
 C
 C     Purpose: get total vector storage (in words).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION VCSTOR(*)
 #include "cholesky.fh"
 
@@ -42,7 +42,7 @@ C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       IF (NUMCHO(ISYM) .LT. 1) THEN

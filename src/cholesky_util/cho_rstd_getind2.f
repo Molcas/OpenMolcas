@@ -13,7 +13,7 @@ C
 C     Purpose: read mapping arrays for diagonal restart.
 C
       use ChoSwp, only: IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       LEN0 = NSYM*NNSHL

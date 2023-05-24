@@ -15,7 +15,7 @@ C              matrix based on the reduced diagonal.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choprint.fh"

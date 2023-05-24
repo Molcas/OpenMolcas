@@ -14,7 +14,7 @@ C
 C     Purpose: write index arrays for current reduced set (reduced set
 C              IPASS).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER INFRED(MRED)
       INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
       INTEGER ISP2F(MMSHL)

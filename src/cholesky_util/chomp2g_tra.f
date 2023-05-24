@@ -16,7 +16,7 @@ C     Jonas Bostrom, Dec. 2004.
 C
 C     Purpose: transform Cholesky vectors to (pq) MO basis.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  COrb1(*), COrb2(*), Diag(*)
       Logical DoDiag
 #include "cholesky.fh"

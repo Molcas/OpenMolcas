@@ -16,7 +16,7 @@ C              in reduced set 1.
 C
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer IRED
       Real*8 DIAG(*)
 #include "real.fh"

@@ -18,7 +18,7 @@ C              set!!
 C
       use ChoArr, only: iSP2F, nBstSh, iShP2Q
       use ChoSwp, only: iQuAB, IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer nAB(*)
 #include "cholesky.fh"
 

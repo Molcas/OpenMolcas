@@ -15,7 +15,7 @@ C     Purpose: compute integrals for NumPass integral passes starting at
 C              pass iPass1.
 C
       use ChoSwp, only: IndRSh, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"

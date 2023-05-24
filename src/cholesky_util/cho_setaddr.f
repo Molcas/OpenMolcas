@@ -13,7 +13,7 @@ C
 C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
 #include "stdalloc.fh"

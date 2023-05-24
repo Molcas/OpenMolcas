@@ -22,7 +22,7 @@ C
 C     Modified by F. Aquilante to compute separately the Opposite-Spin
 C                              contribution to the MP2 energy
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  EOcc(*), EVir(*), Xaibj(LnT2am)
       Integer LiT2am(8)
 #include "cholesky.fh"

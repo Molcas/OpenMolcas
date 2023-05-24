@@ -22,7 +22,7 @@ C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
 C
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"

@@ -15,7 +15,7 @@ C              IPASS).
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER IPASS, ILOC
       LOGICAL LRSH
 #include "cholesky.fh"

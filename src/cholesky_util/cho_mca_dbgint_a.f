@@ -22,7 +22,7 @@ C           3) full integral symmetry not used
 C              (only partial particle permutation symmetry)
 C
       use ChoArr, only: nBstSh, iSP2F
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"

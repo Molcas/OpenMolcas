@@ -17,7 +17,7 @@ C     Version 2: handles several reduced set at a time.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(*)
 #include "cholesky.fh"
 

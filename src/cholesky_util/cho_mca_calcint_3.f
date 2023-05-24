@@ -21,7 +21,7 @@ C                - integrals returned in core (no I/O)
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"

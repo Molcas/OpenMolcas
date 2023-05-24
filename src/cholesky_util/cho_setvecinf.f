@@ -13,7 +13,7 @@ C
 C     Purpose: set info for vector IVEC of sym. ISYM.
 C
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM

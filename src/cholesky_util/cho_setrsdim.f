@@ -12,7 +12,7 @@
 C
 C     Purpose: set reduced set dimension.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER NDIMRS(MSYM,MRED)
 #include "cholesky.fh"
 

@@ -23,7 +23,7 @@
 *
 *     Purpose: Do some additional setup only needed for
 *              MP2-gradients or properties.
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"

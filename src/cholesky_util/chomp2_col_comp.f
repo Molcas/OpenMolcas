@@ -17,7 +17,7 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: compute columns from a set of vectors.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf)
       Integer iCol(nCol)
 

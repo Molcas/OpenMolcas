@@ -18,7 +18,7 @@ C
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
       use ChoSwp, only: Diag, Diag_Hidden
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       LOGICAL LCONV
 #include "cholesky.fh"
 #include "choprint.fh"

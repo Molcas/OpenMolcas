@@ -15,7 +15,7 @@ C              next write.
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh, IndRSh, InfRed, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM

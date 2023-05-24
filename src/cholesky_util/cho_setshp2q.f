@@ -21,7 +21,7 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
 #endif
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer nAB(8)
 #include "cholesky.fh"
 

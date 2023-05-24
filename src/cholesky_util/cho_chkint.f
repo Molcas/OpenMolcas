@@ -13,7 +13,7 @@ C
 C     Purpose: check diagonals in qualified integral columns.
 C
       use ChoSwp, only: iQuAB, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(*), DIAG(*)
       LOGICAL   REPORT
 #include "cholesky.fh"

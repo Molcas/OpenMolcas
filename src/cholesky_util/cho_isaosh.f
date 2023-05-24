@@ -16,7 +16,7 @@ C
       use ChoArr, only: nBstSh
 #endif
       use ChoArr, only: iBasSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       INTEGER  CHO_IRANGE

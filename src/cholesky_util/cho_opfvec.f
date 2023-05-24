@@ -13,7 +13,7 @@
 C
 C     Purpose: open/close files for full storage vectors, sym. ISYM.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM

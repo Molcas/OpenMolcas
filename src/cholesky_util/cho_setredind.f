@@ -14,7 +14,7 @@ C     Purpose: set index arrays for reduced set IRED. The counter
 C              array NNBSTRSH must be set on entry.
 C
       use ChoSwp, only: iiBstRSh, nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM

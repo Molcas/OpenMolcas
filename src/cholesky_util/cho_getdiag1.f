@@ -13,7 +13,7 @@ C
 C     Purpose: read diagonal in first reduced set.
 C
       use ChoSwp, only: IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
 #include "cholesky.fh"

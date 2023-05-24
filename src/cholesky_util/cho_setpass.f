@@ -13,7 +13,7 @@ C
 C     Purpose: Check convergence and, if not converged, set up
 C              integral pass.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
       LOGICAL   CONV

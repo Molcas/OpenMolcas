@@ -105,7 +105,7 @@ C
 C     Purpose: compute specified (ai|bj) columns.
 C
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
 #include "cholesky.fh"

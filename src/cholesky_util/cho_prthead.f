@@ -13,7 +13,7 @@ C
 C     Purpose: print Cholesky header.
 C
       use ChoSubScr, only: Cho_SScreen, SSTau
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       LOGICAL SKIPH
 #include "cholesky.fh"
 #include "choprint.fh"

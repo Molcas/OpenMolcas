@@ -16,7 +16,7 @@ C     NB!!!  The restart files are assumed open on entry.
 C
       use ChoArr, only: IntMap
       use ChoSwp, only: InfRed, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 

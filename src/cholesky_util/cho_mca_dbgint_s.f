@@ -19,7 +19,7 @@ C           2) calculations are performed in full (no use of red. sets
 C              apart from first)
 C
       use ChoArr, only: nBstSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
 #include "cholesky.fh"

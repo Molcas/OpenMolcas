@@ -15,7 +15,7 @@ C              and reduced set storage as well as restart files.
 C              ID=1: open local files (for parallel run)
 C              ID=2: open global files (as in serial run)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM

@@ -19,7 +19,7 @@ C
 C              CMO(alpha,i) -> COcc(i,alpha)
 C              CMO(alpha,a) -> CVir(alpha,a)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 COcc(*), CVir(*), CMO(*)
 #include "cholesky.fh"
 #include "chomp2.fh"

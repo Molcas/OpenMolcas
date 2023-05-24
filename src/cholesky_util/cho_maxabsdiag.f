@@ -14,7 +14,7 @@ C     Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
 C              return the global max. abs. in DGMAX.
 C
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 
@@ -99,7 +99,7 @@ C     1-center diagonals.
 C
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*)
 #include "cholesky.fh"
 

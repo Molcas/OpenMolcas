@@ -12,7 +12,7 @@
 C
 C     Purpose: echo message STRING and abort execution.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       CHARACTER*(*) STRING
 #include "cholesky.fh"
       WRITE(LUPRI,'(//,1X,A)') '***'

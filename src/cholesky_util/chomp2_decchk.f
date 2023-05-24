@@ -76,7 +76,7 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
@@ -205,7 +205,7 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"

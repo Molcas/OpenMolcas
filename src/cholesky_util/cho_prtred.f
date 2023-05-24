@@ -13,7 +13,7 @@ C
 C     Purpose: print information about reduced set.
 C
       use ChoSwp, only: nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "choorb.fh"
 #include "cholesky.fh"
 

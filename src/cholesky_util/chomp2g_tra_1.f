@@ -21,7 +21,7 @@ C              If requested (DoDiag=.true.), compute (pq|pq) integral
 C              diagonal.
 C
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"

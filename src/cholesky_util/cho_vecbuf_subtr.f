@@ -22,7 +22,7 @@ C
      &                     nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
      &                     DSPNm, SSNorm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8, Target::  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"

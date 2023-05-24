@@ -12,7 +12,7 @@
 C
 C     Purpose: write buffer to disk.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
 

@@ -13,7 +13,7 @@ C
 C     Purpose: MOLCAS interface to Cholesky decomposition driver.
 C
       use ChoArr, only: MySP
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "stdalloc.fh"
 

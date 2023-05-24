@@ -18,7 +18,7 @@
 *     Purpose: Construct the piece of the energy-weighted density
 *              usually labeled II.
 *
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 EOcc(*), EVir(*), EFro(*), EDel(*)
 #include "cholesky.fh"
 #include "chomp2.fh"

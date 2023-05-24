@@ -23,7 +23,7 @@ C
       use ChoVecBuf, only: nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
      &                     DSPNm, SSNorm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
 

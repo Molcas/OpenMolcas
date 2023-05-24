@@ -18,7 +18,7 @@ C     Purpose: AO-to-MO (pq) transformation of Cholesky vectors
 C              performed directly in reduced sets. This assumes
 C              that the MP2 program has been appropriately initialized.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8  CMO(*), Diag(*)
       Logical DoDiag, DoDiagbak

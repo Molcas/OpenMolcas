@@ -16,7 +16,7 @@ C
 C     WARNING: for IRED3 = 1, INDRED is reset here!!!!
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER IMAP(LMAP)
 #include "cholesky.fh"
 

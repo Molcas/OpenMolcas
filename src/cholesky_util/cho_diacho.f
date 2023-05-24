@@ -15,7 +15,7 @@ C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
       use ChoSwp, only: InfVec, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
 

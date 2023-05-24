@@ -19,7 +19,7 @@ C
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am
       use ChoMP2, only: LnBatOrb
       use ChoMP2, only: LnPQprod, LiPQprod
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Vec(*), Srt(*)
 #include "cholesky.fh"
 #include "chomp2.fh"

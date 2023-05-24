@@ -15,7 +15,7 @@ C              first (IRED=1) or current (IRED=2) reduced set.
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
       INTEGER   ISYLST(NSYLST)
 #include "cholesky.fh"

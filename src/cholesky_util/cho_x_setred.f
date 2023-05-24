@@ -41,7 +41,7 @@
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       If (iLoc.eq.2 .or. iLoc.eq.3) Then

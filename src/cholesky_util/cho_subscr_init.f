@@ -13,7 +13,7 @@ C
 C     Purpose: initialize screening in vector subtraction.
 C
       use ChoSubScr, only: DSubScr, DSPNm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "stdalloc.fh"
       Integer l_DSubScr

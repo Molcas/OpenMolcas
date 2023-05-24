@@ -18,7 +18,7 @@
 *              decomposed MP2 amplitudes.
 
       use ChoMP2, only: AdrR1, AdrR2
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"

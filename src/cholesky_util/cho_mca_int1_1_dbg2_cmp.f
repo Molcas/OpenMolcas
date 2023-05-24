@@ -12,7 +12,7 @@
      &                                   ERRMIN,IMN,JMN,
      &                                   ERRMAX,IMX,JMX,
      &                                   ITST,IERR,THR,PRTERR,LUPRI)
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT1(NI,NJ), XINT2(NJ,NI)
       LOGICAL PRTERR
 

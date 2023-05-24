@@ -14,7 +14,7 @@ C     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
 C              of symmetry ISYM to file.
 C
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
 #include "cholesky.fh"
 #include "cho_para_info.fh"

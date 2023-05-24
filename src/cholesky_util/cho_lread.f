@@ -14,7 +14,7 @@ C     Purpose: return a reasonable scratch space dimension for reading
 C              previous vectors using cho_getvec.
 C
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       INTEGER MNVECRS1

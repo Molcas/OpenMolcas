@@ -15,7 +15,7 @@ C              is stored in location 3.
 C
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 DIAG(*)
 #include "cholesky.fh"
 

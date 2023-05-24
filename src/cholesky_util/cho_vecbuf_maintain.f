@@ -35,7 +35,7 @@ C
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     nVec_in_Buf
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical DoTime, DoStat
 #include "cholesky.fh"
 #include "stdalloc.fh"

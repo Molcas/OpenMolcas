@@ -13,7 +13,7 @@ C
 C     Purpose: driver for subtracting contributions from previous vectors
 C              from the qualified integrals (in XINT).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
 

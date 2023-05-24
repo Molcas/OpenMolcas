@@ -18,7 +18,7 @@ C              other hand, is set up here.
 C
       use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP, iSimRI
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"

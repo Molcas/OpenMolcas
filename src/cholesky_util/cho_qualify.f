@@ -20,7 +20,7 @@ C              FULL=.true. is returned.
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
       LOGICAL   FULL
 #include "cholesky.fh"

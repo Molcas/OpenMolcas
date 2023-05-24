@@ -18,7 +18,7 @@ C     Purpose: compute MP2 energy contribution using original
 C              Cholesky vectors on disk for the case nBatch=1.
 C
       use ChoMP2, only: LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"

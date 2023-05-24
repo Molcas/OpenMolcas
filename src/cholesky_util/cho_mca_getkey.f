@@ -13,7 +13,7 @@
 C
 C     Purpose: get next keyword and convert it to internal IDKEY.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       CHARACTER*(*) OPTION(NOPTION)  ! <-- character*(loption)
 
       CHARACTER*14 SECNAM

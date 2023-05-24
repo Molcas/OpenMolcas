@@ -13,7 +13,7 @@ C
 C     Purpose: qualify diagonals ("qualify until full").
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 

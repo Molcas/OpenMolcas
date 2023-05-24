@@ -20,7 +20,7 @@
 *              usually labeled III.
 *
       use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer LnPQRSprod
       Real*8  Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)

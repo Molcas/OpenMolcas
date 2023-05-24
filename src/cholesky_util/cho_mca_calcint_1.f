@@ -17,7 +17,7 @@ C     Version 1: store full shell quadruple.
 C
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"

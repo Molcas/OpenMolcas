@@ -19,7 +19,7 @@
 *              contributions to the 1-pdm.
 
       use ChoMP2, only: MP2D, MP2W
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"

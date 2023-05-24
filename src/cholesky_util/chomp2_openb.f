@@ -20,7 +20,7 @@ C              (batch vectors).
 C              For iOpt=0, the units are initialized (to -1).
 C
       use ChoMP2, only: LnT1am, lUnit
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "chomp2.fh"
 

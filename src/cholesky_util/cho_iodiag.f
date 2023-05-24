@@ -39,7 +39,7 @@ C              The file is opened and closed here.
 C              IOPT=1: write
 C              IOPT=2: read
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION     DIAG(*)
       CHARACTER*(*) FNAME
 #include "cholesky.fh"

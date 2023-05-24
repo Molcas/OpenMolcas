@@ -18,7 +18,7 @@ C
 C     NB!!!! the restart files MUST be open on entry...
 C
       use ChoSwp, only: InfRed, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 

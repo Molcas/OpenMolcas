@@ -17,7 +17,7 @@ C
 C     Purpose: Construct diagonal for decomposition of amplitude
 C              vectors.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8  Diag(*), EOcc(*), EVir(*)
 #include "cholesky.fh"

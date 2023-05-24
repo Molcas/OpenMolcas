@@ -13,7 +13,7 @@
      &                            iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
 
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"

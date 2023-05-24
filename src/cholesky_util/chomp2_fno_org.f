@@ -16,7 +16,7 @@ C      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 C
 C
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical Delete
       Real*8  P_ab(*), P_ii(*)
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)

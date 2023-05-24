@@ -30,7 +30,7 @@ C       - the amplitude decomposition does NOT use EOcc and EVir; these
 C         are accessed through pointers ip_EOc and ip_EVir stored in
 C         chomp2_dec.fh
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"

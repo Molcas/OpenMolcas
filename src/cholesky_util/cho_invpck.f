@@ -16,7 +16,7 @@ C              Flag LOW specifies packing convention:
 C              LOW = T: i>=j
 C              LOW = F: i<=j
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       LOGICAL LOW
 
       PARAMETER (ONE = 1.0D0, TWO = 2.0D0, THREE = 3.0D0, EIGHT = 8.0D0)

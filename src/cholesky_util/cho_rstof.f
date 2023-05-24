@@ -17,7 +17,7 @@ C
 C     IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
 C     IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER IRS2F(N,LRDIM)
 #include "cholesky.fh"
 #include "choorb.fh"

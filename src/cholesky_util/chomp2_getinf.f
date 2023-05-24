@@ -16,7 +16,7 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: get info from conventional MP2 common blocks.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
 

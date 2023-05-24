@@ -22,7 +22,7 @@ C              Any other norm is taken to be 'Max'.
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh
       use ChoSubScr, only: DSubScr, DSPNm
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"

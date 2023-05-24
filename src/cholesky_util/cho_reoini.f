@@ -13,7 +13,7 @@
 C
 C     Purpose: initializations for vector reordering.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
       Integer :: I, J, MULD2H

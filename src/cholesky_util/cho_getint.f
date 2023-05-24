@@ -16,7 +16,7 @@ C     DIASH(ij): max. diagonal in shell pair i,j
 C     NPOTSH   : the number of shell pairs that can be qualified.
 C
       use ChoArr, only: iSP2F, IntMap
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
       INTEGER   LSTQSP(NPOTSH)

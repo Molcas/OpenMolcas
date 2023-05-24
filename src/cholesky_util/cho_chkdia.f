@@ -22,7 +22,7 @@ C              b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
 C              c) Keep track of most negative zeroed diagonal.
 C
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 

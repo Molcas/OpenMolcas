@@ -26,7 +26,7 @@ C           use LSCR = 2 x dimension of first reduced set.
 C
 C
       use ChoSwp, only: InfVec, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"

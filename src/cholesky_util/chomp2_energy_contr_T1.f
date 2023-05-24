@@ -24,7 +24,7 @@ C     Modified by F. Aquilante to add contributions from T1 amplitudes
 C                              determined from Thouless formula
 C
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  EOcc(*), EVir(*), Xaibj(LnT2am)
       Integer LiT2am(8)
 #include "cholesky.fh"

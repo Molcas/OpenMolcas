@@ -19,7 +19,7 @@ C     Purpose: compute consecutive columns of (ai|bj) matrix from
 C              vectors on file (unit: lUnit)
 C              vectors from MP2 decomposition).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(Nai,Nbj),Work(lWork)
 
       irc = 0

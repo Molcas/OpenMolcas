@@ -13,7 +13,7 @@ C
 C     Purpose: initialize reduced set dimension.
 C
       use ChoArr, only: nDimRS
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       IF (RSTCHO) THEN

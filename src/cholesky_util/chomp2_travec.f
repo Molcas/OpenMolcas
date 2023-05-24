@@ -19,7 +19,7 @@ C     Purpose: compute ai-vector from reduced set AO vector.
 C
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
       Real*8 Scr(lScr)
 #include "cholesky.fh"

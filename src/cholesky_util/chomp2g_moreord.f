@@ -20,7 +20,7 @@ C
 C              CMO(alpha,p) -> COrb1(p,alpha)
 C              CMO(alpha,q) -> COrb2(alpha,q)
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 COrb1(*), COrb2(*), CMO(*)
       Integer nOrb1(8), nOrb2(8)
       Integer nOffOrb1(8), nOffOrb2(8)

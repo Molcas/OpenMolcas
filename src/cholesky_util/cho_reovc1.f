@@ -13,7 +13,7 @@
 C
 C     Purpose: reorder Cholesky vectors on disk to full storage.
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER   N,LRDIM,LWRK
       INTEGER   IRS2F(N,LRDIM)
       REAL*8 WRK(LWRK)

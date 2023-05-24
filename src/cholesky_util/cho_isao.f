@@ -12,7 +12,7 @@
 C
 C     Purpose: return symmetry of AO number IAO (in global list).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 

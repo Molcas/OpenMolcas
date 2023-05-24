@@ -13,7 +13,7 @@ C
 C     Purpose: check diagonals in qualified integral columns against
 C              original diagonal (read in here).
 C
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION XINT(*), DIAG(*)
       LOGICAL   REPORT
 #include "cholesky.fh"

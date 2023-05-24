@@ -18,7 +18,7 @@ C     Purpose: compute MP2 energy contribution using presorted MO
 C              Cholesky vectors on disk.
 C
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LiMatij, lUnit
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"

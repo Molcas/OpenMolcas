@@ -15,7 +15,7 @@ C              columns (from disk).
 C
       use ChoSwp, only: iQuAB, IndRed
       use ChoVecBuf, only: nVec_in_Buf
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "choprint.fh"
