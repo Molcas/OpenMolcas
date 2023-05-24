@@ -14,7 +14,7 @@
 !              original diagonal (read in here).
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION XINT(*), DIAG(*)
+      REAL*8 XINT(*), DIAG(*)
       LOGICAL   REPORT
 #include "cholesky.fh"
 

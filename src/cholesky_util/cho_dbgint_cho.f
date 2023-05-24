@@ -21,7 +21,7 @@
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION XINT(NCD,NAB), WRK(LWRK)
+      REAL*8 XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
 
       CHARACTER*14 SECNAM

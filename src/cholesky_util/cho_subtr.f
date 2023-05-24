@@ -14,7 +14,7 @@
 !              from the qualified integrals (in XINT).
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION XINT(*), WRK(LWRK)
+      REAL*8 XINT(*), WRK(LWRK)
 #include "cholesky.fh"
 
       CHARACTER*9 SECNAM

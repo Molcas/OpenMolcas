@@ -22,7 +22,7 @@
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh
       Implicit Real*8 (a-h,o-z)
-      DIMENSION XINT(LINT)
+      REAL*8 XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
 

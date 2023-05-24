@@ -13,7 +13,7 @@
      &                                   ERRMAX,IMX,JMX,
      &                                   ITST,IERR,THR,PRTERR,LUPRI)
       Implicit Real*8 (a-h,o-z)
-      DIMENSION XINT1(NI,NJ), XINT2(NJ,NI)
+      REAL*8 XINT1(NI,NJ), XINT2(NJ,NI)
       LOGICAL PRTERR
 
       IF ((NI.LT.1) .OR. (NJ.LT.1)) THEN

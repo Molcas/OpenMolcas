@@ -26,7 +26,7 @@
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      DIMENSION CHOVEC(LENVEC,NUMVEC)
+      REAL*8 CHOVEC(LENVEC,NUMVEC)
       REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 

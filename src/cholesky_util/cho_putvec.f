@@ -15,7 +15,7 @@
 !
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      DIMENSION CHOVEC(LENVEC,NUMVEC)
+      REAL*8 CHOVEC(LENVEC,NUMVEC)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 

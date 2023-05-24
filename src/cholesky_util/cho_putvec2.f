@@ -18,7 +18,7 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      DIMENSION CHOVEC(*)
+      REAL*8 CHOVEC(*)
 #include "cholesky.fh"
 
       external ddot_
