@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_REOINI()
+      use ChoReo
 C
 C     Purpose: initializations for vector reordering.
 C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choreo.fh"
+      Integer :: I, J, MULD2H
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 

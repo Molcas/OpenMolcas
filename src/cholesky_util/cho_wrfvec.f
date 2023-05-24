@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_WRFVEC(VEC,ISYMA,ISYMB,IVEC1,NUMV)
+      use ChoReO
 C
 C     Purpose: write full storage vectors to disk.
 C
       IMPLICIT NONE
       REAL*8 VEC(*)
       INTEGER ISYMA, ISYMB, IVEC1, NUMV
-#include "choreo.fh"
 
       INTEGER     IOPT, IADR, NTOT
 
@@ -24,4 +24,4 @@ C
       NTOT = NABPK(ISYMA,ISYMB)*NUMV
       CALL DDAFILE(LUFV(ISYMA,ISYMB),IOPT,VEC,NTOT,IADR)
 
-      END
+      END SUBROUTINE CHO_WRFVEC

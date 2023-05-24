@@ -9,19 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
+      use ChoReO
 C
 C     Purpose: reorder Cholesky vectors on disk to full storage.
 C
 #include "implicit.fh"
+      INTEGER   N,LRDIM,LWRK
       INTEGER   IRS2F(N,LRDIM)
-      DIMENSION WRK(LWRK)
+      REAL*8 WRK(LWRK)
 #include "cholesky.fh"
-#include "choreo.fh"
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_REOVC1')
-
-      INTEGER IOFF(8,8)
+      CHARACTER(LEN=10), PARAMETER::SECNAM = 'CHO_REOVC1'
+      INTEGER IOFF(8,8), I, J, MulD2h
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 

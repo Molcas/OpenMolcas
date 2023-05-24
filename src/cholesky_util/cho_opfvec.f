@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_OPFVEC(ISYM,IOPT)
+      use ChoReo
 C
 C     Purpose: open/close files for full storage vectors, sym. ISYM.
 C
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choreo.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_OPFVEC')
