@@ -57,16 +57,48 @@ C     Logical Addpot
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
-      Real*8 Array(LenTot)
-      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,
-     &                                     SOInt, FArray, Scrtch,
-     &                                     ScrSph, Kern
+      Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij
       Real*8 CCoor(3,nComp), PtChrg(nGrid)
       dimension opmol(*),opnuc(*),iopadr(nComp,*)
       Character Label*8
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
       Logical Do_PGamma, Rsv_Tsk
+      Integer LenTot
+      Real*8 Array(LenTot)
+
+      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,
+     &                                     SOInt, FArray, Scrtch,
+     &                                     ScrSph
+
+      Interface
+      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,
+     &                    xZeta,xZI,xKappa,xPCoor,
+     &                    Kernel,KrnlMm,Label,lOper,nComp,CCoor,
+     &                    nOrdOp,iChO,
+     &                    iStabO,nStabO,nIC,
+     &                    PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
+     &                    Final,nFinal,Scrtch,nScrtch,
+     &                    ScrSph,nScrSph,Kern,nKern)
+      Integer iS,jS,iPrint
+      Logical Do_PGamma
+      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
+      External Kernel, KrnlMm
+      Character Label*8
+      Integer nComp
+      Integer lOper(nComp)
+      Real*8 CCoor(3,nComp)
+      Integer nOrdOp
+      Integer iChO(nComp), iStabO(0:7)
+      Integer nStabO, nIC, nGrid, iAddPot
+      Real*8 PtChrg(nGrid)
+      Integer l_SOInt
+      Real*8  SOInt(l_SOInt)
+      Integer nFinal, nScrtc, nScrSph, nKern
+      Real*8 Final(nFinal),Scrtch(nScrtch),ScrSph(nScrSph)
+      Real*8 , Target:: Kern(nKern)
+      End Subroutine OneEl_IJ
+      End Interface
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

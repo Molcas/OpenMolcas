@@ -33,8 +33,7 @@
       use Gateway_Info, only: FNMC
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-*     External Kernel, KrnlMm
-      External KrnlMm
+      External Kernel, KrnlMm
 #include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
@@ -42,14 +41,19 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
-      Real*8 Final(nFinal), Scrtch(nScrtch), ScrSph(nScrSph),
-     &       Kern(nKern), Coord(3*MxAtom)
+      Integer iS, jS, iPrint
+      Logical Do_PGamma
+      Integer nFinal, nScrtch, nScrSph
+      Real*8 Final(nFinal), Scrtch(nScrtch), ScrSph(nScrSph)
       Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
       Real*8 A(3), B(3), RB(3), CCoor(3,nComp), PtChrg(nGrid)
       Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
       Integer nOp(2), lOper(nComp), iChO(nComp),
      &        iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
-      Logical Do_PGamma
+      Integer nKern
+      Real*8, Target:: Kern(nKern)
+
+      Real*8      Coord(3*MxAtom)
 #ifdef _GEN1INT_
       Logical NATEST, DO_TRAN
 #endif

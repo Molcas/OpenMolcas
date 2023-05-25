@@ -25,7 +25,8 @@
       External Kernel, KrnlMm
 #include "stdalloc.fh"
 #include "real.fh"
-      Real*8, Dimension(:), Allocatable :: Out, Nuc, El, Array
+      Real*8, Dimension(:), Allocatable :: Out, Nuc, El
+      Real*8, Dimension(:), Allocatable, Target :: Array
       Character Label*8, LBL*4
       Character L_Temp*8
       Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
@@ -33,6 +34,32 @@
       dimension opmol(*),opnuc(*),iopadr(ncomp,*)
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
+
+      Interface
+
+      Subroutine OneEl_Inner
+     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+     &                  nOrdOp,rHrmt,iChO,
+     &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
+     &                  iStabO,nStabO,nIC,
+     &                  PtChrg,nGrid,iAddPot,Array,LenTot)
+      External Kernel, KrnlMm
+
+      Character Label*8
+      Integer nComp
+      Integer ip(nComp), lOper(nComp)
+      Real*8 CCoor(3,nComp)
+      Integer nOrdOp
+      Real*8 rHrmt
+      Integer iChO(nComp)
+      Real*8 opmol(*),opnuc(*)
+      Integer ipad, iopadr(nComp,*), idirect, isyop, iStabO(0:7), nIC
+      Integer nGrid, LenTot, iAddPot
+      Real*8 PtChrg(nGrid)
+      Real*8, Target:: Array(LenTot)
+      End Subroutine OneEl_Inner
+
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

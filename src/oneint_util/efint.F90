@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1995, Roland Lindh                                *
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine EFInt( &
 #                define _CALLING_
 #                include "int_interface.fh"
@@ -148,20 +148,21 @@ do lDCRT=0,nDCRT-1
 !     Array(iOffyy+i) = YY*ThreeI
 !     Array(iOffzz+i) = RR
 !   end do
-    EFInts(1:6,1:nzab) => Array(ip1:ip1-1+6*nzab)
+    EFInts(1:nzab,1:6) => Array(ip1:ip1-1+6*nzab)
     do i=1,nzab
-      RR =     EFInts(1,i)+     EFInts(4,i) +     EFInts(6,i)
-      XX = Two*EFInts(1,i)-     EFInts(4,i) -     EFInts(6,i)
-      YY =    -EFInts(1,i)+ Two*EFInts(4,i) -     EFInts(6,i)
-      EFInts(1,i) = ThreeI * XX
-      EFInts(4,i) = ThreeI * YY
-      EFInts(6,i) =          RR
+      RR =     EFInts(i,1)+     EFInts(i,4) +     EFInts(i,6)
+      XX = Two*EFInts(i,1)-     EFInts(i,4) -     EFInts(i,6)
+      YY =    -EFInts(i,1)+ Two*EFInts(i,4) -     EFInts(i,6)
+      EFInts(i,1) = ThreeI * XX
+      EFInts(i,4) = ThreeI * YY
+      EFInts(i,6) =          RR
     end do
     Nullify(EFInts)
   end if
 
   ! Stored as nZeta,iElem,jElem,iComp
 
+#ifdef _DEBUGPRINT_
   if (iPrint >= 49) then
     write(u6,*) ' In EFInt la,lb=',la,lb
     nzab = nZeta*kab
@@ -177,6 +178,7 @@ do lDCRT=0,nDCRT-1
       end do
     end do
   end if
+#endif
 
   ! Accumulate contributions
 
@@ -184,7 +186,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ip1),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine EFInt
