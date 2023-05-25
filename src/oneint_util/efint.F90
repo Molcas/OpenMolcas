@@ -33,7 +33,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), iElem, ij, iOffxx, iOffyy, iOffzz, ip, ip1, ip2, ip3, ipIn, iPrint, iRout, &
+!integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), iElem, ij, iOffxx, iOffyy, iOffzz, ip, ip1, ip2, ip3, ipIn, iPrint, iRout, &
+integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), iElem, ij, ip, ip1, ip2, ip3, ipIn, iPrint, iRout, &
                      iStabO(0:7), jElem, kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
                      nFLOP, nMem, nOp, nStabO, nT, nzab
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), RR, TC(3), XX, YY
@@ -42,6 +43,7 @@ character(len=80) :: Label
 real(kind=wp), parameter :: ThreeI = One/Three
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer :: EFInts(:,:)
 external :: Fake, TNAI, XCff2D, XRys2D
 
 #include "macros.fh"
@@ -134,17 +136,28 @@ do lDCRT=0,nDCRT-1
   if (nOrdOp == 2) then
     !if (.false.) then
     nzab = nZeta*kab
-    iOffxx = ip1
-    iOffyy = ip1+nzab*3
-    iOffzz = ip1+nzab*5
-    do i=0,nzab-1
-      RR = Array(iOffxx+i)+Array(iOffyy+i)+Array(iOffzz+i)
-      XX = Two*Array(iOffxx+i)-Array(iOffyy+i)-Array(iOffzz+i)
-      YY = Two*Array(iOffyy+i)-Array(iOffxx+i)-Array(iOffzz+i)
-      Array(iOffxx+i) = XX*ThreeI
-      Array(iOffyy+i) = YY*ThreeI
-      Array(iOffzz+i) = RR
+! order upper triangular xx,xy,xz,yy,yz,zz
+!   iOffxx = ip1
+!   iOffyy = ip1+nzab*3
+!   iOffzz = ip1+nzab*5
+!   do i=0,nzab-1
+!     RR = Array(iOffxx+i)+Array(iOffyy+i)+Array(iOffzz+i)
+!     XX = Two*Array(iOffxx+i)-Array(iOffyy+i)-Array(iOffzz+i)
+!     YY = Two*Array(iOffyy+i)-Array(iOffxx+i)-Array(iOffzz+i)
+!     Array(iOffxx+i) = XX*ThreeI
+!     Array(iOffyy+i) = YY*ThreeI
+!     Array(iOffzz+i) = RR
+!   end do
+    EFInts(1:6,1:nzab) => Array(ip1:ip1-1+6*nzab)
+    do i=1,nzab
+      RR =     EFInts(1,i)+     EFInts(4,i) +     EFInts(6,i)
+      XX = Two*EFInts(1,i)-     EFInts(4,i) -     EFInts(6,i)
+      YY =    -EFInts(1,i)+ Two*EFInts(4,i) -     EFInts(6,i)
+      EFInts(1,i) = ThreeI * XX
+      EFInts(4,i) = ThreeI * YY
+      EFInts(6,i) =          RR
     end do
+    Nullify(EFInts)
   end if
 
   ! Stored as nZeta,iElem,jElem,iComp
