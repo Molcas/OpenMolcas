@@ -1395,9 +1395,10 @@
       CHARACTER*8 Milli,Micro,Nano,Pico,Demand
 !
       REAL*8 ErLst1(MxK),ErLst2(MxK),ErLst3(MxK),ErLst4(MxK),
-     *          ErLst5(MxK),IdxMin(MxK),KList1(MxList),KList2(MxList),
-     *          KList3(MxList),KList4(MxList),RList(30)
+     *          ErLst5(MxK),RList(30)
 !
+      INTEGER IdxMin(MxK),KList1(MxList),KList2(MxList),
+     *        KList3(MxList),KList4(MxList)
       DATA Milli,Micro /'MILLI   ','MICRO   '/
       DATA Nano,Pico   /'NANO    ','PICO    '/
 !
