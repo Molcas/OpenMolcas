@@ -32,7 +32,7 @@ ncParm = nCent*nPart-nCent*icNum
 rr3(nPol*iCNum+1:,nPol*iCNum+1:) = Zero
 IndTr1 = 0
 ! If (iCNum+1) == nPart this loop will not be run, but that is
-! okey since then we only have one solvent and thus it can not
+! okey since then we only have one solvent and thus it cannot
 ! experience any field from other solvent molecules.
 do i=1,nPol
   Indp1 = i+iCnum*nPol

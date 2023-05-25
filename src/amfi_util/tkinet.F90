@@ -21,7 +21,7 @@ function Tkinet(l,alpha1,alpha2)
 !bs final formula:
 !bs Tkinet=0.5*alpha12 (2l+3) (alpha1*alpha2/alpha12*alpha12)**((2L+7)/4)
 !bs with alpha12=0.5*(alpha1+alpha2)
-!bs as alpha12 has the dimensions 1/length**2, this can not be that bad...
+!bs as alpha12 has the dimensions 1/length**2, this cannot be that bad...
 
 use Constants, only: Half, Quart
 use Definitions, only: wp, iwp

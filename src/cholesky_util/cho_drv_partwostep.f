@@ -127,7 +127,7 @@
       Call Cho_GetDiag(lConv)
       Call Cho_GASync()
       If (lConv) Then
-         ! restart is not possible, so it can not be converged!!
+         ! restart is not possible, so it cannot be converged!!
          Write(LuPri,'(A,A)')
      &   SecNam,': logical error: converged but not restart?!?!'
          Call Cho_Quit('Error in '//SecNam,103)

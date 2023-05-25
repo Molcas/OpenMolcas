@@ -214,7 +214,7 @@
             End If
          End Do
 290      Continue
-         Call SysAbendMsg('SCF:','Can not find start orbitals according to list:',cList)
+         Call SysAbendMsg('SCF:','Cannot find start orbitals according to list:',cList)
       End If
 !----------------------------------------------------------------------*
 ! What are the defaults for the different cases?                       *

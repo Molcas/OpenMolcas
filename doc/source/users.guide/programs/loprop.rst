@@ -247,7 +247,7 @@ There are no compulsory keywords.
 :kword:`USERdensity`
   No density matrix is computed instead it is read as an input from the file
   :file:`USERDEN`. This enables :program:`LoProp` to obtain localized
-  properties for densities that currently can not be computed with |molcas|.
+  properties for densities that currently cannot be computed with |molcas|.
   If the keyword :kword:`NOFIeld` is not given, six additional files are
   required (:file:`USERDEN1`--:file:`USERDEN6`), each containing the density matrix of
   a perturbed calculation, see above. Observe the form
@@ -256,7 +256,7 @@ There are no compulsory keywords.
   .. xmldoc:: %%Keyword: UserDensity <basic>
               No density matrix is computed instead it is read as an input from the file
               USERDEN. This enables LoProp to obtain localized
-              properties for densities that currently can not be computed with molcas.
+              properties for densities that currently cannot be computed with molcas.
               If the keyword NOFIeld is not given, six additional files are
               required (USERDEN1-USERDEN6), each containing the density matrix of
               a perturbed calculation, see above. Observe the form

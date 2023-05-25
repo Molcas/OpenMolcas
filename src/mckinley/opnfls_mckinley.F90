@@ -105,7 +105,7 @@ else if (Method == 'CASSCFSA') then
 else
   write(u6,*) ' OpnFls: Wavefunction type:',Method
   write(u6,*) '         Illegal type of wave function!'
-  write(u6,*) '         McKinley can not continue'
+  write(u6,*) '         McKinley cannot continue'
   write(u6,*)
   call Quit_OnUserError()
 end if

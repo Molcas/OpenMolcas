@@ -1607,7 +1607,7 @@ A list of these keywords is given below:
   to clean. For each group of orbitals within the symmetry, three lines
   follow. The first line indicates the number of considered orbitals
   and the specific number of the orbital (within the symmetry) in the
-  set of input orbitals. Note the input lines can not be longer than 72
+  set of input orbitals. Note the input lines cannot be longer than 72
   characters and the program expects as many continuation lines as are
   needed. The second line indicates the number of
   coefficients belonging to the prior orbitals which are going to be
@@ -2062,7 +2062,7 @@ A list of these keywords is given below:
   If the number of additional subgroups is not zero there are additional
   entries for each subgroup: The dimension of the subgroup and
   the list of orbitals in the subgroup counted relative to the first orbital
-  in this symmetry. Note, the input lines can not be longer than 180 characters
+  in this symmetry. Note, the input lines cannot be longer than 180 characters
   and the program expects continuation lines as many as there are needed.
   As an example assume an atom treated in :math:`C_{2v}` symmetry for
   which the d\ :math:`_{z^2}` orbitals (7 and 10) in symmetries 1 may mix with the
