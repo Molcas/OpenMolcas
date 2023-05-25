@@ -82,6 +82,13 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #define SIZE_INITIALIZATION
 #endif
 
+/* Intrinsic functions in initialization */
+#if ( __PGI )
+#undef INTRINSIC_INITIALIZATION
+#else
+#define INTRINSIC_INITIALIZATION
+#endif
+
 /* Safe character member initialization */
 #if (( __GNUC__ ) && ( GCC_VERSION < 80000 ))
 #undef CHAR_MEMBER_INIT
