@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2022, Ignacio Fdez. Galván                        *
+#               2014-2023, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -970,10 +970,11 @@ if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
 endif ()
 
 # Internal LAPACK+BLAS libraries from source code
+set (INTERNAL_LINALG "lapack" "blas")
 find_source (LinAlg_internal ${source_roots})
 if (LINALG STREQUAL "Internal")
   message ("-- Using internal LAPACK+BLAS libraries (SLOW!)")
-  set (LINALG_LIBRARIES "lapack" "blas")
+  set (LINALG_LIBRARIES ${INTERNAL_LINALG})
   # create the BLAS+LAPACK targets
   set (util "LinAlg_internal")
   if (NOT DEFINED ${util}_src)
@@ -2516,6 +2517,10 @@ if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
   list (APPEND MOLCAS_LIBRARIES "libmolcas_static")
   target_link_libraries (libmolcas_static ${utils_obj})
   target_link_libraries (libmolcas_static mods_obj)
+endif ()
+# make sure these are installed
+if (LINALG STREQUAL "Internal")
+  list (APPEND MOLCAS_LIBRARIES ${INTERNAL_LINALG})
 endif ()
 
 ################################################################################
