@@ -2530,7 +2530,7 @@ A list of these keywords is given below:
   This keyword currently does not work for wave functions optimized with the DMRG algorithm.
   More information regarding XMS-PDFT or CMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTate" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTATE" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: ROSTate <basic>
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
@@ -2801,7 +2801,7 @@ HCI-CASSCF keywords
 
   In this CAS(6,6) example, three initial configurations will be read. The first configuration is :math:`\ket{\mathord{\uparrow\uparrow}2020}`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCcupy" KIND="STRINGS_COMPUTED" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCCUPY" KIND="STRINGS_COMPUTED" LEVEL="BASIC">
               %%Keyword: DIOCcupy <basic>
               <HELP>
               Set HF determinant start guess for HCI wave functions (DICE).
