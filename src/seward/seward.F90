@@ -347,9 +347,9 @@ if (.not. Test) then
           call Cho_MCA_Drv()
           call Get_iArray('NumCho',nChoV,nIrrep)
           if (nPrint(iRout) >= 6) then
-             write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
-             write(u6,*)
-             write(u6,*)
+            write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+            write(u6,*)
+            write(u6,*)
           end if
         else if (Do_RI) then
           if (LocalDF) then

@@ -224,7 +224,7 @@ end if
 if (IfGrad(1,3) .or. IfGrad(2,3) .or. IfGrad(3,3)) then
   call ExpY(Temp,mZeta,mEta,Gmma,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
-  !if (iPrint >= 99) Call RecPrt('Expanded exponents (Gamma)',' ',Scrtch,nT,nRys)
+  !if (iPrint >= 99) call RecPrt('Expanded exponents (Gamma)',' ',Scrtch,nT,nRys)
 end if
 nVec = 0
 if (IfGrad(1,3)) then

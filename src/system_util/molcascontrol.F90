@@ -36,8 +36,8 @@
 !> Usage:
 !>
 !> \code
-!> Call MolcasControl('SHUTDOWN',Val)
-!> if (Val == 'YES') Call abend()
+!> call MolcasControl('SHUTDOWN',Val)
+!> if (Val == 'YES') call abend()
 !> \endcode
 !>
 !> @side_effects

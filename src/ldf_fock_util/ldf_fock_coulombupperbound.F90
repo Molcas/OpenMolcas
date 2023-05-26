@@ -40,11 +40,11 @@ if (NumberOfAtomPairs < 1) return
 
 l_U = nD
 call mma_allocate(U,l_U,label='LDFCU')
-!-tbp Call LDF_GetQuadraticDiagonal(ip)
+!-tbp call LDF_GetQuadraticDiagonal(ip)
 ip = ip_AP_Diag
 call LDF_ComputeU(iWork(ip),nD,ip_DBlocks,U)
 call LDF_Fock_CUB(iWork(ip),nD,FactC,U,ip_FBlocks)
-!-tbp Call LDF_FreeQuadraticDiagonal(ip)
+!-tbp call LDF_FreeQuadraticDiagonal(ip)
 call mma_deallocate(U)
 
 if (PrintNorm) then

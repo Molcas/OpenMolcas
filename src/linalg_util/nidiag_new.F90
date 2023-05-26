@@ -133,7 +133,7 @@ if (info /= 0) then
 end if
 
 do i=1,n
-  Call VecPhase(U(1,i),nv)
+  call VecPhase(U(1,i),nv)
 end do
 !----------------------------------------------------------------------*
 !                                                                      *
