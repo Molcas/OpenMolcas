@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_SETPASS(DIAG,DIASH,ISYSH,IRED,CONV,NPOTSH)
-C
-C     Purpose: Check convergence and, if not converged, set up
-C              integral pass.
-C
-#include "implicit.fh"
-      DIMENSION DIAG(*), DIASH(*)
+!
+!     Purpose: Check convergence and, if not converged, set up
+!              integral pass.
+!
+      Implicit Real*8 (a-h,o-z)
+      Real*8 Diag(*), DIASH(*)
       INTEGER   ISYSH(*)
       LOGICAL   CONV
 #include "cholesky.fh"
 
-C     Initialize the potential number of shell pairs that can
-C     contribute.
-C     -------------------------------------------------------
+!     Initialize the potential number of shell pairs that can
+!     contribute.
+!     -------------------------------------------------------
 
       NPOTSH = 0
 
-C     Find max. abs. diagonal in each symmetry and the global max.
-C     ------------------------------------------------------------
+!     Find max. abs. diagonal in each symmetry and the global max.
+!     ------------------------------------------------------------
 
       DGMAX = -1.0D15
       CALL CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 
-C     If not converged, set next integral pass.
-C     -----------------------------------------
+!     If not converged, set next integral pass.
+!     -----------------------------------------
 
       CONV = DGMAX .LT. THRCOM
       IF (.NOT. CONV) THEN

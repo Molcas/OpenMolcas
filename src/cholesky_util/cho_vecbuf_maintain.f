@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
-C
-C     Purpose: maintain Cholesky vector buffer:
-C
-C              1) reorder vectors in buffer to current reduced set
-C                 storage (defined by location 2),
-C
-C              2) if possible, read in new vectors and store in current
-C                 reduced set storage (defined by location 2).
-C
-C              It is assumed that all vectors in the buffer are stored
-C              according to the reduced set identified by iRed.
-C
-C     DoTime: time as vector I/O.
-C     DoStat: update statistics info (#calls to system for I/O).
-C
-C     Return code:  irc  = 0 : success
-C                   irc != 0 : failure
-C
-C     Index arrays from chovecbuf.f90 modified by this routine:
-C
-C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
-C
+!
+!     Purpose: maintain Cholesky vector buffer:
+!
+!              1) reorder vectors in buffer to current reduced set
+!                 storage (defined by location 2),
+!
+!              2) if possible, read in new vectors and store in current
+!                 reduced set storage (defined by location 2).
+!
+!              It is assumed that all vectors in the buffer are stored
+!              according to the reduced set identified by iRed.
+!
+!     DoTime: time as vector I/O.
+!     DoStat: update statistics info (#calls to system for I/O).
+!
+!     Return code:  irc  = 0 : success
+!                   irc != 0 : failure
+!
+!     Index arrays from chovecbuf.f90 modified by this routine:
+!
+!     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
+!
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     nVec_in_Buf
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
 
@@ -47,20 +47,20 @@ C
       Integer iS, iE, lRow, lCol
       Real*8, Allocatable:: VRd(:)
 
-*#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #if defined (_DEBUGPRINT_)
       Logical, Parameter:: LocDbg = .true.
 #else
       Logical, Parameter:: LocDbg = .false.
 #endif
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Return if there is no buffer to maintain.
-C     -----------------------------------------
+!     Return if there is no buffer to maintain.
+!     -----------------------------------------
 
       If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
@@ -69,8 +69,8 @@ C     -----------------------------------------
          Return
       End If
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       If (LocDbg) Then
          Write(Lupri,*)
@@ -86,8 +86,8 @@ C     ------------
      &                          (nVec_in_Buf(iSym),iSym=1,nSym)
       End If
 
-C     If there are no vectors yet, return.
-C     ------------------------------------
+!     If there are no vectors yet, return.
+!     ------------------------------------
 
       If (NumChT .lt. 1) Then
          If (LocDbg) Then
@@ -97,8 +97,8 @@ C     ------------------------------------
          Return
       End If
 
-C     Check that iScr array has been allocated.
-C     -----------------------------------------
+!     Check that iScr array has been allocated.
+!     -----------------------------------------
 
       If (.NOT.Allocated(iScr)) Then
          Write(Lupri,*) SecNam,': iScr array not allocated!'
@@ -106,13 +106,13 @@ C     -----------------------------------------
          Return
       End If
 
-C     Start timing.
-C     -------------
+!     Start timing.
+!     -------------
 
       If (DoTime) Call Cho_Timer(C1,W1)
 
-C     Set index arrays for reduced set iRed at location 3.
-C     ----------------------------------------------------
+!     Set index arrays for reduced set iRed at location 3.
+!     ----------------------------------------------------
 
       If (iRed .lt. 1) Then
          nErr = 0
@@ -141,14 +141,14 @@ C     ----------------------------------------------------
          Return
       End If
 
-C     Reordering.
-C     ===========
+!     Reordering.
+!     ===========
 
       Do iSym = 1,nSym
          If (nnBstR(iSym,2).gt.0 .and. nVec_in_Buf(iSym).gt.0) Then
 
-C           Check reduced set dimensions.
-C           -----------------------------
+!           Check reduced set dimensions.
+!           -----------------------------
 
             If (nnBstR(iSym,2) .gt. nnBstR(iSym,3)) Then
                Write(Lupri,*) SecNam,': dimension of reduced set at 2 ',
@@ -163,14 +163,14 @@ C           -----------------------------
                Return
             End If
 
-C           Define mapping from reduced set at location 2 to that at
-C           location 3.
-C           --------------------------------------------------------
+!           Define mapping from reduced set at location 2 to that at
+!           location 3.
+!           --------------------------------------------------------
 
             Call Cho_RS2RS(iScr,SIZE(iScr),2,3,iRedC,iSym)
 
-C           Reorder vectors.
-C           ----------------
+!           Reorder vectors.
+!           ----------------
 
             lRow = nnBstR(iSym,2)
             lCol = nVec_in_Buf(iSym)
@@ -206,8 +206,8 @@ C           ----------------
       V2=>Null()
       V3=>Null()
 
-C     Read in more vectors.
-C     =====================
+!     Read in more vectors.
+!     =====================
 
       nSys = 0 ! #calls to reading routine (counter)
 
@@ -223,9 +223,9 @@ C     =====================
          iMapC = -1
          If (nnBstR(iSym,2).gt.0 .and. nDisk.gt.0) Then
 
-C           Compute how many more vectors can be stored in buffer taking
-C           into account the number of vectors on disk.
-C           ------------------------------------------------------------
+!           Compute how many more vectors can be stored in buffer taking
+!           into account the number of vectors on disk.
+!           ------------------------------------------------------------
 
             Left = l_ChVBuf_Sym(iSym) - nnBstR(iSym,2)*nVec_in_Buf(iSym)
             If (Left .ge. 0) Then
@@ -237,14 +237,14 @@ C           ------------------------------------------------------------
             iVec1 = nVec_in_Buf(iSym) + 1
             iVec2 = iVec1 + nVec - 1
 
-C           Read and reorder vectors.
-C           -------------------------
+!           Read and reorder vectors.
+!           -------------------------
 
             iVec = iVec1
             Do While (iVec .le. iVec2)
 
-C              Read vectors.
-C              -------------
+!              Read vectors.
+!              -------------
 
                nVRd  = 0
                mUsed = 0
@@ -256,9 +256,9 @@ C              -------------
                End If
                nSys = nSys + 1
 
-C              Reorder the vectors and store in buffer in current
-C              reduced set.
-C              --------------------------------------------------
+!              Reorder the vectors and store in buffer in current
+!              reduced set.
+!              --------------------------------------------------
 
                lRow = nnBstR(iSym,2)
                lCol = nVec_in_Buf(iSym)+nVRd
@@ -303,8 +303,8 @@ C              --------------------------------------------------
 
                End Do
 
-C              Update counters.
-C              ----------------
+!              Update counters.
+!              ----------------
 
                iVec = iVec + nVRd
                nVec_in_Buf(iSym) = nVec_in_Buf(iSym) + nVRd
@@ -315,13 +315,13 @@ C              ----------------
       End Do
       Call mma_deallocate(VRd)
 
-C     Update global timing.
-C     ---------------------
+!     Update global timing.
+!     ---------------------
 
       If (DoStat) nSys_Call = nSys_Call + nSys
 
-C     Update global timing.
-C     ---------------------
+!     Update global timing.
+!     ---------------------
 
       If (DoTime) Then
          Call Cho_Timer(C2,W2)
@@ -329,8 +329,8 @@ C     ---------------------
          tDecom(2,2) = tDecom(2,2) + W2 - W1
       End If
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       If (LocDbg) Then
          Write(Lupri,*) 'After updating: '

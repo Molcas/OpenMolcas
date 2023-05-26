@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_GetMQ(MQ,l_MQ,LstQSP,nQSP)
 
       Implicit None
@@ -19,12 +19,12 @@
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_GetMQ')
 
-C --- In parallel:
-C --- This code only works if MxShpr is set to 1
-C ---      otherwise each node reads a slice
-C ---      of MQ and thus a more sophisticated
-C ---      "synchronization" would be needed
-C ----------------------------------------------
+! --- In parallel:
+! --- This code only works if MxShpr is set to 1
+! ---      otherwise each node reads a slice
+! ---      of MQ and thus a more sophisticated
+! ---      "synchronization" would be needed
+! ----------------------------------------------
 
       If (Cho_Real_Par) Then
          If (nQSP .gt. 1) Then

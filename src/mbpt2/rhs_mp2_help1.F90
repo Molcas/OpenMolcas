@@ -161,7 +161,6 @@ do iI=1,nOcc(iSymI)
           !write(u6,*) 'iI, iJ',iI,iJ
           !-------------------------------------------------------------
         end do
-        !Work(indexW) = Work(indexW)-Fac_ij*EDiffbc*(Two*(xijac*xijbc+xijca*xijcb)-xijac*xijcb-xijca*xijbc)
         !---------------------------------------------------------------
         !write(u6,*) 'The Denom is',EDenom
         !write(u6,*) 'xicja',xicja

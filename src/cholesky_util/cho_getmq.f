@@ -1,15 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer  l_MQ, nQShp
@@ -18,7 +19,6 @@
 
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=9), Parameter:: SecNam = 'Cho_GetMQ'
       Integer, Parameter:: iOpt = 2
@@ -51,8 +51,8 @@
 
          Call mma_allocate(Scr,Lint,Label='Scr')
 
-C --- Read the integrals
-C ----------------------
+! --- Read the integrals
+! ----------------------
          Do jQ=1,nQual(jSym)
 
             iAdr = nnBstr(jSym,2)*(jQ-1)
@@ -68,8 +68,8 @@ C ----------------------
 
             End Do
 
-C --- Extract the matrix of qualified integrals
-C ---------------------------------------------
+! --- Extract the matrix of qualified integrals
+! ---------------------------------------------
             Do iQ=1,nQual(jSym)
 
                iAB = iQuAB(iQ,jSym)  ! addr curr red set

@@ -129,15 +129,6 @@ call PrInp_MBPT2(EOcc,EVir,iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Copy pointers to orbital energies to chomp2_dec.fh
-! Needed for amplitude Cholesky decomposition.
-
-if (DoCholesky) then
-  call ChoMP2_SetPtsOen(EOcc,EVir)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! Check, if there is an ORDINT file...
 
 call f_Inquire(FNINTA,Exists)

@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_STAT()
-C
-C     Purpose: print statistics from decomposition.
-C
+!
+!     Purpose: print statistics from decomposition.
+!
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoArr, only: nDimRS, IntMap
       use ChoSwp, only: nnBstRSh, InfVec
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
      &                     DSPNm, SSNorm
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=8), PARAMETER:: SECNAM = 'CHO_STAT'
 
@@ -42,8 +42,8 @@ C
 
       PARALG=CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6
 
-C     Overall header.
-C     ---------------
+!     Overall header.
+!     ---------------
 
       CALL CHO_HEAD('Cholesky Decomposition Statistics','=',80,LUPRI)
       IF (RSTDIA) THEN
@@ -60,8 +60,8 @@ C     ---------------
          END IF
       END IF
 
-C     Configuration.
-C     --------------
+!     Configuration.
+!     --------------
 
       CALL CHO_HEAD('Configuration','-',80,LUPRI)
       IPRSAV = IPRINT
@@ -69,8 +69,8 @@ C     --------------
       CALL CHO_PRTHEAD(.TRUE.)
       IPRINT = IPRSAV
 
-C     Vector statistics.
-C     ------------------
+!     Vector statistics.
+!     ------------------
 
       CALL CHO_HEAD('Vector statistics','-',80,LUPRI)
       WRITE(LUPRI,'(/,A,A,/,A,A)')
@@ -229,8 +229,8 @@ C     ------------------
 
       CALL CHO_STAT_PARENTDIAG()
 
-C     Integral statistics.
-C     --------------------
+!     Integral statistics.
+!     --------------------
 
       MAXCAL = 0
       NCAL   = 0
@@ -281,8 +281,8 @@ C     --------------------
       WRITE(LUPRI,'(A)')
      & '-------------------------------------------'
 
-C     Section timings.
-C     ----------------
+!     Section timings.
+!     ----------------
 
       IF (IPRINT .GE. INF_TIMING) THEN
 
@@ -359,8 +359,8 @@ C     ----------------
 
       END IF ! IPRINT .GT. INF_TIMING
 
-C     Timing of decomposition driver.
-C     -------------------------------
+!     Timing of decomposition driver.
+!     -------------------------------
 
       IF (DID_DECDRV) THEN
 
@@ -507,8 +507,8 @@ C     -------------------------------
 
       END IF
 
-C     Screening statistics from vector subtractions.
-C     ----------------------------------------------
+!     Screening statistics from vector subtractions.
+!     ----------------------------------------------
 
       IF (CHO_SSCREEN) THEN
          CALL CHO_HEAD('Screening Statistics from Vector Subtraction',
@@ -528,9 +528,9 @@ C     ----------------------------------------------
          END IF
       END IF
 
-C     Statistics for shell quadruples spanned by each reduced set.
-C     (This is for test purposes.)
-C     ------------------------------------------------------------
+!     Statistics for shell quadruples spanned by each reduced set.
+!     (This is for test purposes.)
+!     ------------------------------------------------------------
 
       IF (CHO_TSTSCREEN .AND.
      &    .NOT.(CHO_FAKE_PAR.AND.NPROCS.GT.1.AND.Is_Real_Par())) THEN

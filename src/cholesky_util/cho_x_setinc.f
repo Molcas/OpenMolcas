@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine Cho_X_SetInc(irc)
-C
-C     T.B. Pedersen, July 2004.
-C
-C     Purpose: define all entries in include files
-C              choprint.fh
-C              choorb.fh
-C              cholesky.fh
-C              chosew.fh
-C              chovecbuf.f90
-C              chosubscr.fh
-C              chpari.fh
-C              cho_para_info.fh
-C              and some in the Module choarr.f90
-C
+!
+!     T.B. Pedersen, July 2004.
+!
+!     Purpose: define all entries in include files
+!              choprint.fh
+!              choorb.fh
+!              cholesky.fh
+!              chosew.fh
+!              chovecbuf.f90
+!              chosubscr.fh
+!              chpari.fh
+!              cho_para_info.fh
+!              and some in the Module choarr.f90
+!
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
       use ChoBkm, only:  nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
@@ -32,12 +32,12 @@ C
      &                     ip_CHVBFI_SYM, l_CHVBFI_SYM,
      &                     nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
+      use ChPari
       Implicit None
       Integer irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chpari.fh"
 #include "cho_para_info.fh"
 
       Integer iLarge
@@ -46,26 +46,26 @@ C
       Real*8 Large, Small
       Parameter (Large = 1.0D15, Small = 1.0D-15)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     choprint.fh.
-C     -------------
+!     choprint.fh.
+!     -------------
 
       iPrint = -iLarge
 
-C     choorb.fh.
-C     -----------
+!     choorb.fh.
+!     -----------
 
       Call iZero(iBas,8)
       Call iZero(nBas,8)
       Call iZero(XnBas,8)
       nBasT = 0
 
-C     cholesky.fh.
-C     -------------
+!     cholesky.fh.
+!     -------------
 
       ThrCom  = Large
       ThrDiag = Large
@@ -198,8 +198,8 @@ C     -------------
       Cho_SimRI = .false.
       Thr_SimRI = -Large
 
-C     chovecbuf.f90.
-C     --------------
+!     chovecbuf.f90.
+!     --------------
 
       Call iZero(ip_ChVBuf_Sym,8)
       Call iZero(l_ChVBuf_Sym,8)
@@ -207,8 +207,8 @@ C     --------------
       Call iZero(l_ChVBfI_Sym,8)
       Call iZero(nVec_in_Buf,8)
 
-C     chosubscr.fh.
-C     --------------
+!     chosubscr.fh.
+!     --------------
 
       Cho_SScreen = .false.
       SSTau       = 0.0d0
@@ -216,18 +216,18 @@ C     --------------
       SubScrStat(2) = 0.0d0
       SSNorm      = 'tbp'
 
-C     chpari.fh.
-C     -----------
+!     Module chpari
+!     -----------
 
       Call iZero(NumCho_Bak,8)
 
-C     cho_para_info.fh.
-C     ------------------
+!     cho_para_info.fh.
+!     ------------------
 
       Cho_Real_Par = .false.
 
-C     chobkm.f90
-C     -----------
+!     chobkm.f90
+!     -----------
 
       nRow_BkmVec=0
       nCol_BkmVec=0

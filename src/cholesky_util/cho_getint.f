@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETINT(DIAG,DIASH,ISYSH,LSTQSP,NPOTSH,ICOUNT)
-C
-C     Purpose: get qualified integral columns for Cholesky decomposition.
-C
-C     DIASH(ij): max. diagonal in shell pair i,j
-C     NPOTSH   : the number of shell pairs that can be qualified.
-C
+!
+!     Purpose: get qualified integral columns for Cholesky decomposition.
+!
+!     DIASH(ij): max. diagonal in shell pair i,j
+!     NPOTSH   : the number of shell pairs that can be qualified.
+!
       use ChoArr, only: iSP2F, IntMap
-#include "implicit.fh"
-      DIMENSION DIAG(*), DIASH(*)
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
+      Real*8 Diag(*), DIASH(*)
       INTEGER   ISYSH(*)
       INTEGER   LSTQSP(NPOTSH)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_GETINT')
@@ -37,16 +37,16 @@ C
       INTEGER  CHO_ISUMELM
       EXTERNAL CHO_ISUMELM
 
-C-tbp: some debugging...
-c     IF (LOCDBG) THEN
-c        DO LEVEL = 1,3
-c           CALL CHO_MCA_INT_1_DBG(DIAG,LEVEL)
-c        END DO
-c        call cho_quit(SECNAM//' end of test',100)
-c     END IF
+!-tbp: some debugging...
+!     IF (LOCDBG) THEN
+!        DO LEVEL = 1,3
+!           CALL CHO_MCA_INT_1_DBG(DIAG,LEVEL)
+!        END DO
+!        call cho_quit(SECNAM//' end of test',100)
+!     END IF
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       CALL IZERO(NQUAL,NSYM)
       ICOUNT = 0
@@ -77,18 +77,18 @@ C     ----------------
          CALL CHO_QUIT('Memory split error in '//SECNAM,101)
       END IF
 
-C     Shell pair qualification loop.
-C     ------------------------------
+!     Shell pair qualification loop.
+!     ------------------------------
 
       DO WHILE ((.NOT.DODECO) .AND. (ICOUNT.LT.MCOUNT))
 
-C        Update shell pair counter.
-C        --------------------------
+!        Update shell pair counter.
+!        --------------------------
 
          ICOUNT = ICOUNT + 1
 
-C        Get shell pair corresponding to largest diagonal.
-C        -------------------------------------------------
+!        Get shell pair corresponding to largest diagonal.
+!        -------------------------------------------------
 
          CALL CHO_P_GETMAXSHL(DIASH,SMAX,ISHLAB)
          CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
@@ -96,8 +96,8 @@ C        -------------------------------------------------
 
          IF ((SMAX.EQ.ZERO) .OR. (ABS(SMAX).LT.DIAMIN(ISYMAB))) THEN
 
-C           Diagonal too small to be qualified for decomposition.
-C           -----------------------------------------------------
+!           Diagonal too small to be qualified for decomposition.
+!           -----------------------------------------------------
 
             IF (ICOUNT .EQ. 1) THEN
                WRITE(LUPRI,*) SECNAM,': no integrals calculated; ',
@@ -115,17 +115,17 @@ C           -----------------------------------------------------
 
          ELSE
 
-C           Qualify diagonals within this shell pair.
-C           -----------------------------------------
+!           Qualify diagonals within this shell pair.
+!           -----------------------------------------
 
             SYNC = .FALSE.
             FULL = .FALSE.
             CALL CHO_P_QUALIFY(DIAG,SYNC,ISHLAB,ISYMAB,MEMQ(1),FULL)
 
-C           Calculate integral columns; get qualified ones stored in
-C           current reduced set; write these to disk on temporary
-C           file(s).
-C           --------------------------------------------------------
+!           Calculate integral columns; get qualified ones stored in
+!           current reduced set; write these to disk on temporary
+!           file(s).
+!           --------------------------------------------------------
 
             NSEL   = CHO_ISUMELM(NQUAL,NSYM)
             NCOLAB = NSEL - CHO_ISUMELM(IOFFQ,NSYM)
@@ -146,8 +146,8 @@ C           --------------------------------------------------------
                LSTQSP(ICOUNT) = ISHLAB
                CALL CHO_MCA_CALCINT(ISHLAB)
 
-C              Enough integral columns for proceeding to decomposition?
-C              --------------------------------------------------------
+!              Enough integral columns for proceeding to decomposition?
+!              --------------------------------------------------------
 
                DODECO = FULL .OR. NSEL.GE.MINQUAL
 
@@ -178,9 +178,9 @@ C              --------------------------------------------------------
 
       END DO
 
-C     Test loop exit (we may have calculated all possible integrals, yet
-C     NSEL < MINQUAL or allowed memory may have been used).
-C     ------------------------------------------------------------------
+!     Test loop exit (we may have calculated all possible integrals, yet
+!     NSEL < MINQUAL or allowed memory may have been used).
+!     ------------------------------------------------------------------
 
       IF (.NOT. DODECO) THEN
          NSEL = CHO_ISUMELM(NQUAL,NSYM)
@@ -199,8 +199,8 @@ C     ------------------------------------------------------------------
          END IF
       END IF
 
-C     Set indices for local qualified (parallel runs).
-C     ------------------------------------------------
+!     Set indices for local qualified (parallel runs).
+!     ------------------------------------------------
 
       CALL CHO_P_SETLQ()
 

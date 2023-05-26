@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_SETADDR(INFRED,INFVEC,MRED,MVEC,M2,MSYM)
-C
-C     Purpose: set first disk addresses for reduced set info and
-C              vectors.
-C
-#include "implicit.fh"
+!
+!     Purpose: set first disk addresses for reduced set info and
+!              vectors.
+!
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=11), PARAMETER:: SECNAM = 'CHO_SETADDR'
 
       Real*8, Allocatable:: KSA(:)
 
-C     Set addresses.
-C     --------------
+!     Set addresses.
+!     --------------
 
       IF (XNPASS .EQ. 0) THEN
          INFRED(1) = 0

@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine ChoMP2_Energy_Org(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
-C
-C     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
-C
-C     Purpose: compute MP2 energy contribution using original (i.e. not
-C              sorted according to batches over occupied orbitals)
-C              Cholesky vectors on disk.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
+!
+!     Purpose: compute MP2 energy contribution using original (i.e. not
+!              sorted according to batches over occupied orbitals)
+!              Cholesky vectors on disk.
+!
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"
@@ -44,8 +44,8 @@ C
 
       irc = 0
 
-C     Set number and type of vectors.
-C     -------------------------------
+!     Set number and type of vectors.
+!     -------------------------------
 
       If (DecoMP2) Then
          iTyp = 2
@@ -55,20 +55,20 @@ C     -------------------------------
          Call iCopy(nSym,NumCho,1,nEnrVec,1)
       End If
 
-C     Initialize MP2 energy correction.
-C     ---------------------------------
+!     Initialize MP2 energy correction.
+!     ---------------------------------
 
       EMP2 = 0.0D0
 
-C     Print header of status table.
-C     -----------------------------
+!     Print header of status table.
+!     -----------------------------
 
       If (Verbose) Then
          Call ChoMP2_Energy_Prt(SecNam,0,iDummy)
       End If
 
-C     Loop over occupied orbital batches.
-C     -----------------------------------
+!     Loop over occupied orbital batches.
+!     -----------------------------------
 
       Do iBatch = 1,nBatch
          If (Verbose) Then
@@ -85,27 +85,27 @@ C     -----------------------------------
                Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
             End If
 
-C           Special code for iBatch=jBatch and ChoAlg=2:
-C           compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.
-C           For ChoAlg=1: use strictly lower triangular storage (=>
-C           level 2 BLAS).
-C           --------------------------------------------------------
+!           Special code for iBatch=jBatch and ChoAlg=2:
+!           compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.
+!           For ChoAlg=1: use strictly lower triangular storage (=>
+!           level 2 BLAS).
+!           --------------------------------------------------------
 
             If (jBatch.eq.iBatch .and. ChoAlg.eq.2) Then
 
                kMabij = kXaibj  ! rename pointer
                Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-C              Loop over Cholesky vector symmetries.
-C              -------------------------------------
+!              Loop over Cholesky vector symmetries.
+!              -------------------------------------
 
                Do iSym = 1,nSym
 
                   Nai = LnT1am(iSym,iBatch)
                   If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
 
-C                    Reserve memory for reading a single vector.
-C                    -------------------------------------------
+!                    Reserve memory for reading a single vector.
+!                    -------------------------------------------
 
                      kVecai = kEnd0
                      kEnd1  = kVecai + nT1am(iSym)
@@ -116,8 +116,8 @@ C                    -------------------------------------------
      &                                   '[ChoAlg.2.1]')
                      End If
 
-C                    Set up batch over Cholesky vectors.
-C                    -----------------------------------
+!                    Set up batch over Cholesky vectors.
+!                    -----------------------------------
 
                      nVec = min(lWrk1/Nai,nEnrVec(iSym))
                      If (nVec .lt. 1) Then ! should not happen
@@ -126,13 +126,13 @@ C                    -----------------------------------
                      End If
                      nBat = (nEnrVec(iSym)-1)/nVec + 1
 
-C                    Open Cholesky vector files.
-C                    ---------------------------
+!                    Open Cholesky vector files.
+!                    ---------------------------
 
                      Call ChoMP2_OpenF(1,iTyp,iSym)
 
-C                    Start vector batch loop.
-C                    ------------------------
+!                    Start vector batch loop.
+!                    ------------------------
 
                      Do iBat = 1,nBat
 
@@ -143,8 +143,8 @@ C                    ------------------------
                         End If
                         iVec1 = nVec*(iBat-1) + 1
 
-C                       Set up index arrays for reordered vectors.
-C                       ------------------------------------------
+!                       Set up index arrays for reordered vectors.
+!                       ------------------------------------------
 
                         nVaJi = 0
                         Do iSymi = 1,nSym
@@ -154,8 +154,8 @@ C                       ------------------------------------------
      &                          + nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
                         End Do
 
-C                       Pointer to reordered vectors: kVec.
-C                       -----------------------------------
+!                       Pointer to reordered vectors: kVec.
+!                       -----------------------------------
 
                         kVec  = kEnd1
                         kEnd2 = kVec  + nVaJi
@@ -166,8 +166,8 @@ C                       -----------------------------------
      &                                      '[ChoAlg.2.3]')
                         End If
 
-C                       Read one vector at a time and reorder.
-C                       --------------------------------------
+!                       Read one vector at a time and reorder.
+!                       --------------------------------------
 
                         iVec0 = iVec1 - 1
                         Do iVec = 1,NumVec
@@ -195,9 +195,9 @@ C                       --------------------------------------
 
                         End Do
 
-C                       Compute M(ab,ij) for i<=j.
-C                       First do iSymi=iSymj, then iSymi<iSymj.
-C                       ---------------------------------------
+!                       Compute M(ab,ij) for i<=j.
+!                       First do iSymi=iSymj, then iSymi<iSymj.
+!                       ---------------------------------------
 
                         Do iSymj = 1,nSym
 
@@ -272,8 +272,8 @@ C                       ---------------------------------------
 
                      End Do
 
-C                    Close Cholesky vector files.
-C                    ----------------------------
+!                    Close Cholesky vector files.
+!                    ----------------------------
 
                      Call ChoMP2_OpenF(2,iTyp,iSym)
 
@@ -283,8 +283,8 @@ C                    ----------------------------
 
             Else ! level 2 BLAS for diagonal batches.
 
-C              Loop over Cholesky vector symmetries.
-C              -------------------------------------
+!              Loop over Cholesky vector symmetries.
+!              -------------------------------------
 
                Do iSym = 1,nSym
 
@@ -293,8 +293,8 @@ C              -------------------------------------
                   If (Nai.gt.0 .and. Nbj.gt.0 .and. nEnrVec(iSym).gt.0)
      &            Then
 
-C                    Allocate memory for reading 1 vector.
-C                    -------------------------------------
+!                    Allocate memory for reading 1 vector.
+!                    -------------------------------------
 
                      kRead = kEnd0
                      kEnd1 = kRead + nT1am(iSym)
@@ -304,8 +304,8 @@ C                    -------------------------------------
      &                                   '[0.1]')
                      End If
 
-C                    Setup Cholesky vector batching.
-C                    -------------------------------
+!                    Setup Cholesky vector batching.
+!                    -------------------------------
 
                      If (jBatch .eq. iBatch) Then
                        MinMem = Nai
@@ -319,13 +319,13 @@ C                    -------------------------------
                      End If
                      nBat = (nEnrVec(iSym) - 1)/NumVec + 1
 
-C                    Open Cholesky vector file.
-C                    --------------------------
+!                    Open Cholesky vector file.
+!                    --------------------------
 
                      Call ChoMP2_OpenF(1,iTyp,iSym)
 
-C                    Cholesky vector batch loop.
-C                    ---------------------------
+!                    Cholesky vector batch loop.
+!                    ---------------------------
 
                      Do iBat = 1,nBat
 
@@ -351,8 +351,8 @@ C                    ---------------------------
      &                                      '[2]')
                         End If
 
-C                       Read vectors, copy out sub-blocks.
-C                       ----------------------------------
+!                       Read vectors, copy out sub-blocks.
+!                       ----------------------------------
 
                         Do iVec = 1,NumV
 
@@ -373,8 +373,8 @@ C                       ----------------------------------
 
                         End Do
 
-C                       Compute integral contribution.
-C                       ------------------------------
+!                       Compute integral contribution.
+!                       ------------------------------
 
                         Fac   = X(min((iBat-1),1))
                         kXint = kXaibj + LiT2am(iSym)
@@ -391,8 +391,8 @@ C                       ------------------------------
 
                      End Do ! Cholesky vector batch
 
-C                    Close Cholesky vector files.
-C                    ----------------------------
+!                    Close Cholesky vector files.
+!                    ----------------------------
 
                      Call ChoMP2_OpenF(2,iTyp,iSym)
 
@@ -402,8 +402,8 @@ C                    ----------------------------
 
             End If
 
-C           Compute contribution to MP2 energy correction.
-C           ----------------------------------------------
+!           Compute contribution to MP2 energy correction.
+!           ----------------------------------------------
 
             Call ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Wrk(kXaibj),
      &                               LnT2am,LiT2am,iBatch,jBatch)
@@ -414,15 +414,15 @@ C           ----------------------------------------------
          End If
       End Do ! iBatch
 
-C     Finish table.
-C     -------------
+!     Finish table.
+!     -------------
 
       If (Verbose) Then
          Call ChoMP2_Energy_Prt(SecNam,3,iBatch)
       End If
 
-C     If requested, delete vector files.
-C     ----------------------------------
+!     If requested, delete vector files.
+!     ----------------------------------
 
       If (Delete) Then
          Do iSym = 1,nSym
@@ -431,8 +431,8 @@ C     ----------------------------------
          End Do
       End If
 
-C     Change sign on energy.
-C     ----------------------
+!     Change sign on energy.
+!     ----------------------
 
       EMP2 = -EMP2
 

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003-2010, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003-2010, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine Cho_Drv(iReturn)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: driver for the Cholesky decomposition of two-electron
-C              integrals. On entry, the integral program must have been
-C              initialized and the relevant index info (#irreps, basis
-C              functions, shells, etc.) must have been set up.
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: driver for the Cholesky decomposition of two-electron
+!              integrals. On entry, the integral program must have been
+!              initialized and the relevant index info (#irreps, basis
+!              functions, shells, etc.) must have been set up.
+!
       Implicit None
       Integer iReturn
 #include "cholesky.fh"
@@ -31,34 +31,34 @@ C
       End If
 
       End
-C
-C=======================================================================
-C
+!
+!=======================================================================
+!
       SUBROUTINE CHO_DRV_Internal(IRETURN)
-C
-C     Thomas Bondo Pedersen, 2003-2010.
-C
-C     Purpose: driver for the Cholesky decomposition of two-electron
-C              integrals. On entry, the integral program must have been
-C              initialized and the relevant index info (#irreps, basis
-C              functions, shells, etc.) must have been set up.
-C
-C     NOTE: this is the "old" version prior to the parallel two-step
-C           algorithm. It is still used for the "old" algorithms.
-C
-C     Return codes, IRETURN:
-C
-C        0 -- successful execution
-C        1 -- decomposition failed
-C        2 -- memory has been out of bounds
-C
+!
+!     Thomas Bondo Pedersen, 2003-2010.
+!
+!     Purpose: driver for the Cholesky decomposition of two-electron
+!              integrals. On entry, the integral program must have been
+!              initialized and the relevant index info (#irreps, basis
+!              functions, shells, etc.) must have been set up.
+!
+!     NOTE: this is the "old" version prior to the parallel two-step
+!           algorithm. It is still used for the "old" algorithms.
+!
+!     Return codes, IRETURN:
+!
+!        0 -- successful execution
+!        1 -- decomposition failed
+!        2 -- memory has been out of bounds
+!
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoSubScr, only: Cho_SScreen
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       LOGICAL, PARAMETER:: LOCDBG = .FALSE.
       LOGICAL, PARAMETER:: SKIP_PRESCREEN=.FALSE., ALLOC_BKM=.TRUE.
@@ -76,24 +76,24 @@ C
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
 #endif
 
-C     Start overall timing.
-C     ---------------------
+!     Start overall timing.
+!     ---------------------
 
       IF (IPRINT .GE. INF_TIMING) CALL CHO_TIMER(TCPU0,TWALL0)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       IRETURN = 0
 
-C     Make a dummy allocation.
-C     ------------------------
+!     Make a dummy allocation.
+!     ------------------------
 
       Call mma_allocate(Check,1,Label='Check')
       Check(1) = DUMTST
 
-C     INITIALIZATION.
-C     ===============
+!     INITIALIZATION.
+!     ===============
 
       ISEC = 1
       IF (IPRINT .GE. INF_TIMING) THEN
@@ -118,8 +118,8 @@ C     ===============
       END IF
 #endif
 
-C     GET DIAGONAL.
-C     =============
+!     GET DIAGONAL.
+!     =============
 
       ISEC = 2
       IF (IPRINT .GE. INF_TIMING) THEN
@@ -148,8 +148,8 @@ C     =============
       CALL CHO_PRINTLB() ! print vector dimension on each node
 #endif
 
-C     DECOMPOSITION.
-C     ==============
+!     DECOMPOSITION.
+!     ==============
 
       ISEC = 3
       IF (LCONV) THEN
@@ -220,8 +220,8 @@ C     ==============
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER DECOMPOSITION]')
 #endif
 
-C     CHECK DIAGONAL.
-C     ===============
+!     CHECK DIAGONAL.
+!     ===============
 
       ISEC = 4
       IF (LCONV) THEN
@@ -256,13 +256,13 @@ C     ===============
 #endif
       END IF
 
-C     PARALLEL RUNS: WRITE GLOBAL DIAGONAL TO DISK.
-C     =============================================
+!     PARALLEL RUNS: WRITE GLOBAL DIAGONAL TO DISK.
+!     =============================================
 
       CALL CHO_P_WRDIAG()
 
-C     CHECK INTEGRALS.
-C     ================
+!     CHECK INTEGRALS.
+!     ================
 
       ISEC = 5
       IF (CHO_INTCHK) THEN
@@ -288,8 +288,8 @@ C     ================
          CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
-C     REORDER VECTORS.
-C     ================
+!     REORDER VECTORS.
+!     ================
 
       ISEC = 6
       IF (CHO_REORD) THEN
@@ -321,10 +321,10 @@ C     ================
          CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
-C     FAKE PARALLEL: DISTRIBUTE VECTORS.
-C     Note: after this section, InfVec(*,3,*) is changed
-C     => vector disk addresses are screwed up!!
-C     ==================================================
+!     FAKE PARALLEL: DISTRIBUTE VECTORS.
+!     Note: after this section, InfVec(*,3,*) is changed
+!     => vector disk addresses are screwed up!!
+!     ==================================================
 
       ISEC = 7
       IF (CHO_FAKE_PAR .AND. NPROCS.GT.1 .AND. Is_Real_Par()) THEN
@@ -350,8 +350,8 @@ C     ==================================================
          CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
-C     FINALIZATIONS.
-C     ==============
+!     FINALIZATIONS.
+!     ==============
 
       ISEC = 8
       IF (IPRINT .GE. INF_TIMING) THEN
@@ -374,8 +374,8 @@ C     ==============
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_FINAL]')
 #endif
 
-C     STATISTICS.
-C     ===========
+!     STATISTICS.
+!     ===========
 
       IF (IPRINT .GE. 1) THEN
          ISEC = 9
@@ -399,10 +399,10 @@ C     ===========
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_STAT]')
 #endif
 
-C     Close vector and reduced storage files as well as restart files.
-C     Deallocate all memory and test bound.
-C     Print total timing.
-C     ----------------------------------------------------------------
+!     Close vector and reduced storage files as well as restart files.
+!     Deallocate all memory and test bound.
+!     Print total timing.
+!     ----------------------------------------------------------------
 
       CALL CHO_P_OPENVR(2)
 

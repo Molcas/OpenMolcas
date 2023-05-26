@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_CALCINT_3(XINT,LINT,ISHLAB)
-C
-C     Purpose: calculate qualified integral columns from
-C              shell pair distribution (**|ISHLA ISHLB).
-C
-C     Version 3: avoid storage of full shell quadruple in interface to
-C                seward; get qualified directly as in Version 2!
-C                Changes from Version 2:
-C                - addressing of qualified columns
-C                - integrals returned in core (no I/O)
-C
+!
+!     Purpose: calculate qualified integral columns from
+!              shell pair distribution (**|ISHLA ISHLB).
+!
+!     Version 3: avoid storage of full shell quadruple in interface to
+!                seward; get qualified directly as in Version 2!
+!                Changes from Version 2:
+!                - addressing of qualified columns
+!                - integrals returned in core (no I/O)
+!
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh
-#include "implicit.fh"
-      DIMENSION XINT(LINT)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
 
@@ -36,8 +36,8 @@ C
       PARAMETER (LOCDBG = .FALSE.)
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
 
@@ -46,8 +46,8 @@ C     ----------------
 
       IF (IPRINT .GE. INFINT) WRITE(LUPRI,*)
 
-C     Set mapping from shell pair AB to qualified columns.
-C     ----------------------------------------------------
+!     Set mapping from shell pair AB to qualified columns.
+!     ----------------------------------------------------
 
       IRC  = 0
       ILOC = 2
@@ -57,8 +57,8 @@ C     ----------------------------------------------------
          CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
       END IF
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       IF (IPRINT .GE. INF_IN2) THEN
          NCOLAB = CHO_ISUMELM(NAB,NSYM)
@@ -68,19 +68,19 @@ C     ------
          WRITE(LUPRI,'(80A)') ('=',i=1,77)
       END IF
 
-C     Loop over shell quadruples.
-C     ---------------------------
+!     Loop over shell quadruples.
+!     ---------------------------
 
       DO ISHLCD = 1,NNSHL
 
-C        Set left shell pair index.
-C        --------------------------
+!        Set left shell pair index.
+!        --------------------------
 
          CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
 
-C        Find out if this shell pair (CD) contributes to
-C        current reduced set.
-C        -----------------------------------------------
+!        Find out if this shell pair (CD) contributes to
+!        current reduced set.
+!        -----------------------------------------------
 
          ISYM   = 1
          DOINTS = (NAB(ISYM).GT.0) .AND.
@@ -93,8 +93,8 @@ C        -----------------------------------------------
 
          IF (DOINTS) THEN
 
-C           Print message.
-C           --------------
+!           Print message.
+!           --------------
 
             IF (IPRINT .GE. INFINT) THEN
                 WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
@@ -102,8 +102,8 @@ C           --------------
      &          '|',ISHLA,ISHLB,')'
             END IF
 
-C           Set mapping from shell pair CD to reduced set.
-C           ----------------------------------------------
+!           Set mapping from shell pair CD to reduced set.
+!           ----------------------------------------------
 
             IRC  = 0
             ILOC = 2
@@ -113,8 +113,8 @@ C           ----------------------------------------------
                CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
             END IF
 
-C           Calculate integrals.
-C           --------------------
+!           Calculate integrals.
+!           --------------------
 
             CALL CHO_TIMER(C1,W1)
             CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,
@@ -126,13 +126,13 @@ C           --------------------
 
          ELSE
 
-C           Update skip counter.
-C           --------------------
+!           Update skip counter.
+!           --------------------
 
             XSKIP = XSKIP + 1.0D0
 
-C           Print message.
-C           --------------
+!           Print message.
+!           --------------
 
             IF (IPRINT .GE. INFINT) THEN
                 WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
@@ -144,8 +144,8 @@ C           --------------
 
       END DO
 
-C     Print skip statistics.
-C     ----------------------
+!     Print skip statistics.
+!     ----------------------
 
       IF (IPRINT .GE. INFIN2) THEN
          PCT = 1.0D2*XSKIP/XXSHL

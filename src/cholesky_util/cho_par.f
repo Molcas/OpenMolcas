@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_ParConf(Fake)
-C
-C     Purpose: set parallel info used in Cholesky decomposition of
-C              two-electron integrals. If Fake=.True., run the
-C              decomposition in serial and distribute vectors over nodes
-C              at the end (no distribution is actually done, of course;
-C              the relevant vectors are simply kept on the relevant
-C              nodes).
-C
+!
+!     Purpose: set parallel info used in Cholesky decomposition of
+!              two-electron integrals. If Fake=.True., run the
+!              decomposition in serial and distribute vectors over nodes
+!              at the end (no distribution is actually done, of course;
+!              the relevant vectors are simply kept on the relevant
+!              nodes).
+!
       Use Para_Info, Only: Is_Real_Par
       Implicit None
       Logical Fake

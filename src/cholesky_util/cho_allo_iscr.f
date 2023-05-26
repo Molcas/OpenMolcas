@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_Allo_iScr(DoDummy)
-C
-C     Purpose: allocate iScr array for reading and reordering vectors.
-C              If (DoDummy): make dummy (length 1) allocation.
-C
+!
+!     Purpose: allocate iScr array for reading and reordering vectors.
+!              If (DoDummy): make dummy (length 1) allocation.
+!
       use ChoArr, only: iScr
+      use stdalloc
       Implicit None
       Logical DoDummy
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer iSym, l_iScr
 

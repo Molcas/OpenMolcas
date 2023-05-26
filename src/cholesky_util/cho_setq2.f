@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_SetQ2(iQuAB2,LstSP,nSP,iSym,jLoc,iLoc)
-C
-C     Purpose: set mapping from qualified diagonals of symmetry iSym to
-C              reduced set indexed by arrays at location iLoc>1,
-C              counting only shell pairs that contain qualified
-C              diagonals (in the order in which they were qualified).
-C              The qualified index array iQuAB (pointer in choswp.f90)
-C              is assumed to refer to index arrays at location jLoc>1.
-C
+!
+!     Purpose: set mapping from qualified diagonals of symmetry iSym to
+!              reduced set indexed by arrays at location iLoc>1,
+!              counting only shell pairs that contain qualified
+!              diagonals (in the order in which they were qualified).
+!              The qualified index array iQuAB (pointer in choswp.f90)
+!              is assumed to refer to index arrays at location jLoc>1.
+!
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
       Integer iQuAB2(*)

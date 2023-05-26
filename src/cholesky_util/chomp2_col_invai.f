@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Col_Invai(ai,iSymai,a,iSyma,i,iSymi)
-C
-C     Thomas Bondo Pedersen, Dec. 2007.
-C
-C     Purpose: calculate indices a and i (incl. symmetries)
-C              from compound index ai of symmetry iSymai.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2007.
+!
+!     Purpose: calculate indices a and i (incl. symmetries)
+!              from compound index ai of symmetry iSymai.
+!
       Implicit None
       Integer ai, iSymai, a, iSyma, i, iSymi
 #include "cholesky.fh"
@@ -32,8 +32,8 @@ C
       Integer MulD2h, k, l
       MulD2h(k,l)=iEOr(k-1,l-1)+1
 
-C     Find iSyma and iSymi.
-C     ---------------------
+!     Find iSyma and iSymi.
+!     ---------------------
 
       iSymi = -999999
       iSyma = -999999
@@ -58,8 +58,8 @@ C     ---------------------
       End If
 #endif
 
-C     Find a and i.
-C     -------------
+!     Find a and i.
+!     -------------
 
       i  = -999999
       a  = -999999

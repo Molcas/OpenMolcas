@@ -17,6 +17,7 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
 use ChoMP2, only: OldVec
+use ChoMP2_dec, only: NowSym, InCore
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -32,14 +33,13 @@ real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Col'
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
 
 if ((nCol < 1) .or. (nDim < 1)) return
 
 iSym = NowSym
 if (nDim /= nT1am(iSym)) then
   write(u6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
-  write(u6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
+  write(u6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
   call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
 end if
 

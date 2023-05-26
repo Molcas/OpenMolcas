@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_ANADIA(DIAG,BIN1,STEP,NUMBIN,FULL)
-C
-C     Purpose: analyze diagonal (histogram).
-C
-#include "implicit.fh"
-      DIMENSION DIAG(*)
+!
+!     Purpose: analyze diagonal (histogram).
+!
+      Implicit Real*8 (a-h,o-z)
+      Real*8 Diag(*)
       LOGICAL   FULL
 #include "cholesky.fh"
 
@@ -21,17 +21,17 @@ C
       PARAMETER (SECNAM = 'CHO_ANADIA')
 
       PARAMETER (MAXBIN = 50, NUMSTA = 7)
-      DIMENSION BIN(MAXBIN), STAT(NUMSTA)
+      REAL*8 BIN(MAXBIN), STAT(NUMSTA)
 
       LOGICAL FOUND
 
-C     Print header.
-C     -------------
+!     Print header.
+!     -------------
 
       CALL CHO_HEAD('Histogram of Diagonal Elements','=',80,LUPRI)
 
-C     Set up size bins for analysis of diagonal.
-C     ------------------------------------------
+!     Set up size bins for analysis of diagonal.
+!     ------------------------------------------
 
       IF (NUMBIN .LT. 1) THEN
          MBIN = MIN(10,MAXBIN)
@@ -48,8 +48,8 @@ C     ------------------------------------------
          BIN(IBIN) = BIN(IBIN-1)*STPLOC
       END DO
 
-C     Set smallest BIN according to full.
-C     -----------------------------------
+!     Set smallest BIN according to full.
+!     -----------------------------------
 
       IF (FULL) THEN
          NBIN = MBIN
@@ -67,13 +67,13 @@ C     -----------------------------------
          END DO
       END IF
 
-C     Histogram.
-C     ----------
+!     Histogram.
+!     ----------
 
       CALL CHO_ANASIZE(DIAG,NNBSTRT(1),BIN,NBIN,LUPRI)
 
-C     Count converged.
-C     ----------------
+!     Count converged.
+!     ----------------
 
       NCONV = 0
       DO IAB = 1,NNBSTRT(1)
@@ -82,9 +82,9 @@ C     ----------------
       WRITE(LUPRI,'(/,1X,A,I10,/,1X,A,I10)')
      & 'Converged  : ',NCONV,'Unconverged: ',NNBSTRT(1)-NCONV
 
-C     Print total number of negative zeroed diagonal as well as the most
-C     negative one.
-C     ------------------------------------------------------------------
+!     Print total number of negative zeroed diagonal as well as the most
+!     negative one.
+!     ------------------------------------------------------------------
 
       WRITE(LUPRI,'(/,1X,A,5X,I10)')
      & 'Total number of zeroed negative diagonals: ',NNZTOT
@@ -98,8 +98,8 @@ C     ------------------------------------------------------------------
          END IF
       END IF
 
-C     Print statistics.
-C     -----------------
+!     Print statistics.
+!     -----------------
 
       CALL STATISTICS(DIAG,NNBSTRT(1),STAT,1,2,3,4,5,6,7)
       WRITE(LUPRI,'(/,1X,A,1P,D15.6)')

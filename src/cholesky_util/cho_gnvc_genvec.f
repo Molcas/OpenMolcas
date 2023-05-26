@@ -1,22 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,
      &                           mSym,mPass,iPass1,NumPass)
-C
-C     Purpose: generate Cholesky vectors from raw integral columns.
-C
+!
+!     Purpose: generate Cholesky vectors from raw integral columns.
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
       use GnVcMp, only: RS2RS
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Integer lInt
       Real*8  Diag(*), xInt(lInt)
       Integer mSym,mPass
@@ -24,7 +25,6 @@ C
       Integer iPass1,NumPass
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GenVec'
 
@@ -34,8 +34,8 @@ C
 
       mapRS2RS(i,j)=RS2RS(j)%Map(i)
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       If (NumPass .lt. 1) return
 
@@ -65,8 +65,8 @@ C     ------------
       End Do
       If (NumVec .lt. 1) return ! exit
 
-C     Subtract previous vectors.
-C     --------------------------
+!     Subtract previous vectors.
+!     --------------------------
 
       Call mma_maxDBLE(l_Wrk)
       Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
@@ -76,8 +76,8 @@ C     --------------------------
       End Do
       Call mma_deallocate(Wrk)
 
-C     Initialize vector generation.
-C     -----------------------------
+!     Initialize vector generation.
+!     -----------------------------
 
       Do iSym = 1,nSym
          iOff1(iSym) = iOff_Col(iSym) + 1
@@ -105,8 +105,8 @@ C     -----------------------------
       l_VecTmp = max(l_VecTmp,MxSubtr)
       Call mma_allocate(VecTmp,l_VecTmp,Label='VecTmp')
 
-C     Copy reduced set iPass1 to location 3.
-C     --------------------------------------
+!     Copy reduced set iPass1 to location 3.
+!     --------------------------------------
 
       irc = 0
       Call Cho_X_RSCopy(irc,2,3)
@@ -115,13 +115,13 @@ C     --------------------------------------
          Call Cho_Quit('Error termination in '//SecNam,104)
       End If
 
-C     Decomposition pass loop.
-C     ------------------------
+!     Decomposition pass loop.
+!     ------------------------
 
       Do iPass = iPass1,iPass2
 
-C        Print header.
-C        -------------
+!        Print header.
+!        -------------
 
          LenLin = 0 ! to avoid compiler warnings
          If (iPrint .ge. INF_PROGRESS) Then
@@ -157,9 +157,9 @@ C        -------------
             Call iCopy(nSym,NumCho,1,NumCho_OLD,1)
          End If
 
-C        Zero entries in integral matrix that are not part of this
-C        reduced set.
-C        ---------------------------------------------------------
+!        Zero entries in integral matrix that are not part of this
+!        reduced set.
+!        ---------------------------------------------------------
 
          If (iPass .gt. iPass1) Then
             Do iSym = 1,nSym
@@ -177,21 +177,21 @@ C        ---------------------------------------------------------
             End Do
          End If
 
-C        Write reduced set info for this pass (index arrays are stored
-C        at location 3).
-C        -------------------------------------------------------------
+!        Write reduced set info for this pass (index arrays are stored
+!        at location 3).
+!        -------------------------------------------------------------
 
          Call Cho_P_PutRed(iPass,3)
 
-C        Start symmetry loop.
-C        --------------------
+!        Start symmetry loop.
+!        --------------------
 
          Do iSym = 1,nSym
 
             If (nVecRS(iSym,iPass) .lt. 1) Go To 100 ! cycle sym. loop
 
-C           Generate vectors for this pass and symmetry.
-C           --------------------------------------------
+!           Generate vectors for this pass and symmetry.
+!           --------------------------------------------
 
             Do iV = 1,nVecRS(iSym,iPass)
 
@@ -248,8 +248,8 @@ C           --------------------------------------------
 
             End Do
 
-C           Subtract contributions to later vectors.
-C           ----------------------------------------
+!           Subtract contributions to later vectors.
+!           ----------------------------------------
 
             nAB = nQual(iSym)
             Do jPass = iPass1,iPass
@@ -286,9 +286,9 @@ C           ----------------------------------------
      &                     1.0d0,xInt(kOff2),nnBstR(iSym,2))
             End If
 
-C           Reorder vectors to appropriate reduced set.
-C           Skipped for iPass1, as they are already in correct storage.
-C           -----------------------------------------------------------
+!           Reorder vectors to appropriate reduced set.
+!           Skipped for iPass1, as they are already in correct storage.
+!           -----------------------------------------------------------
 
             If (iPass .gt. iPass1) Then
                lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
@@ -304,32 +304,32 @@ C           -----------------------------------------------------------
                End Do
             End If
 
-C           Update vector counters.
-C           -----------------------
+!           Update vector counters.
+!           -----------------------
 
             NumCho(iSym) = NumCho(iSym) + nVecRS(iSym,iPass)
             NumChT = NumChT + nVecRS(iSym,iPass)
 
-C           Update pointer arrays.
-C           iOff1: pointer to integral columns (in xInt).
-C           iOff2: pointer to vectors (also in xInt).
-C           ---------------------------------------------
+!           Update pointer arrays.
+!           iOff1: pointer to integral columns (in xInt).
+!           iOff2: pointer to vectors (also in xInt).
+!           ---------------------------------------------
 
             iOff1(iSym) = iOff1(iSym)
      &                  + nnBstR(iSym,2)*nVecRS(iSym,iPass)
             iOff2(iSym) = iOff2(iSym)
      &                  + nnBstR(iSym,3)*nVecRS(iSym,iPass)
 
-C           Cycle point for empty symmetry.
-C           -------------------------------
+!           Cycle point for empty symmetry.
+!           -------------------------------
 
   100       Continue
             If (iPrint .ge. INF_PROGRESS) Call Cho_Flush(Lupri)
 
          End Do ! symmetry
 
-C        Print.
-C        ------
+!        Print.
+!        ------
 
          If (iPrint .ge. INF_PROGRESS) Then
             Do iSym = 1,nSym
@@ -348,8 +348,8 @@ C        ------
             Call Cho_Flush(Lupri)
          End If
 
-C        Analyze diagonal.
-C        -----------------
+!        Analyze diagonal.
+!        -----------------
 
          If (iPrint .ge. INF_PASS) Then
             Bin1 = 1.0d2
@@ -358,9 +358,9 @@ C        -----------------
             Call Cho_AnaDia(Diag,Bin1,Step,nBin,.false.)
          End If
 
-C        Set next (iPass+1) reduced set at location 2.
-C        Reduced set iPass1 is now stored at location 3.
-C        -----------------------------------------------
+!        Set next (iPass+1) reduced set at location 2.
+!        Reduced set iPass1 is now stored at location 3.
+!        -----------------------------------------------
 
          Call Cho_SetRed(Diag)
          jPass = iPass + 1
@@ -370,10 +370,10 @@ C        -----------------------------------------------
             Call Cho_Flush(Lupri)
          End If
 
-C        Swap locations so that:
-C        location 2 contains reduced set iPass1 and
-C        location 3 contains next (iPass+1) reduced set.
-C        -----------------------------------------------
+!        Swap locations so that:
+!        location 2 contains reduced set iPass1 and
+!        location 3 contains next (iPass+1) reduced set.
+!        -----------------------------------------------
 
          irc = 0
          Call Cho_X_RSSwap(irc,2,3)
@@ -384,13 +384,13 @@ C        -----------------------------------------------
 
       End Do ! integral pass
 
-C     Deallocate temporary vector array.
-C     ----------------------------------
+!     Deallocate temporary vector array.
+!     ----------------------------------
 
       Call mma_deallocate(VecTmp)
 
-C     Write vectors to disk.
-C     ----------------------
+!     Write vectors to disk.
+!     ----------------------
 
       Call Cho_Timer(C1,W1)
       Do iSym = 1,nSym
@@ -417,13 +417,13 @@ C     ----------------------
       tDecom(1,2) = tDecom(1,2) + C2 - C1
       tDecom(2,2) = tDecom(2,2) + W2 - W1
 
-C     Write restart files.
-C     --------------------
+!     Write restart files.
+!     --------------------
 
       Call Cho_P_WrRstC(iPass2)
 
-C     Store next (iPass2+1) reduced set at location 2.
-C     ------------------------------------------------
+!     Store next (iPass2+1) reduced set at location 2.
+!     ------------------------------------------------
 
       irc = 0
       Call Cho_X_RSCopy(irc,3,2)

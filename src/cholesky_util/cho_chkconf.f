@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_CHKCONF(NCONFL,VERBOSE)
-C
-C     Purpose: check configuration, return the number of errors NCONFL.
-C
+!
+!     Purpose: check configuration, return the number of errors NCONFL.
+!
       use ChoSubScr, only: Cho_SScreen, SSTau
       IMPLICIT NONE
       INTEGER NCONFL
@@ -27,23 +27,23 @@ C
       INTEGER NNN, MMM, INEGRR
       REAL*8  XLBUF, XMBUF
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       NCONFL = 0
       REPORT = VERBOSE
 
-C     Check that output unit is appropriately set.
-C     (Upper bound not checked, as it may vary.)
-C     --------------------------------------------
+!     Check that output unit is appropriately set.
+!     (Upper bound not checked, as it may vary.)
+!     --------------------------------------------
 
       IF (LUPRI .LT. 1) THEN
          NCONFL = NCONFL + 1
          REPORT = .FALSE.
       END IF
 
-C     Check decomposition algorithm.
-C     ------------------------------
+!     Check decomposition algorithm.
+!     ------------------------------
 
       IF (CHO_DECALG.LT.1 .OR. CHO_DECALG.GT.CHO_NDECALG) THEN
          IF (REPORT) THEN
@@ -67,8 +67,8 @@ C     ------------------------------
          END IF
       END IF
 
-C     Cancel exclusion of 2-center diagonals in case of symmetry.
-C     ----------------------------------------------------------
+!     Cancel exclusion of 2-center diagonals in case of symmetry.
+!     ----------------------------------------------------------
 
       IF (CHO_NO2CENTER) THEN
          IF (NSYM .NE. 1) THEN
@@ -80,8 +80,8 @@ C     ----------------------------------------------------------
          END IF
       END IF
 
-C     Cancel 1-center decomposition in case of symmetry.
-C     --------------------------------------------------
+!     Cancel 1-center decomposition in case of symmetry.
+!     --------------------------------------------------
 
       IF (CHO_1CENTER) THEN
          IF (NSYM .NE. 1) THEN
@@ -93,8 +93,8 @@ C     --------------------------------------------------
          END IF
       END IF
 
-C     Checks specific to RI simulation.
-C     ---------------------------------
+!     Checks specific to RI simulation.
+!     ---------------------------------
 
       IF (CHO_SIMRI) THEN
          IF (.NOT. CHO_1CENTER) THEN
@@ -120,8 +120,8 @@ C     ---------------------------------
          END IF
       END IF
 
-C     Check for conflicts for specific algorithms.
-C     --------------------------------------------
+!     Check for conflicts for specific algorithms.
+!     --------------------------------------------
 
       IF (CHO_DECALG.EQ.2 .OR. CHO_DECALG.EQ.5) THEN
          IF (.NOT. SCDIAG) THEN
@@ -161,8 +161,8 @@ C     --------------------------------------------
          END IF
       END IF
 
-C     Check max. number of Cholesky vectors and reduced sets.
-C     -------------------------------------------------------
+!     Check max. number of Cholesky vectors and reduced sets.
+!     -------------------------------------------------------
 
       IF (MAXVEC .LT. 1) THEN
          IF (REPORT) THEN
@@ -178,8 +178,8 @@ C     -------------------------------------------------------
          NCONFL = NCONFL + 1
       END IF
 
-C     Check qualification algorithm.
-C     ------------------------------
+!     Check qualification algorithm.
+!     ------------------------------
 
       IF (IALQUA .LT. 0) THEN
          IF (REPORT) THEN
@@ -197,8 +197,8 @@ C     ------------------------------
          IALQUA = NALQUA
       END IF
 
-C     Decomposition threshold.
-C     ------------------------
+!     Decomposition threshold.
+!     ------------------------
 
       IF (THRCOM .LT. 0.0D0) THEN
          IF (REPORT) THEN
@@ -210,8 +210,8 @@ C     ------------------------
          NCONFL = NCONFL + 1
       END IF
 
-C     Diagonal prescreening threshold.
-C     --------------------------------
+!     Diagonal prescreening threshold.
+!     --------------------------------
 
       IF (CHO_PRESCREEN) THEN
          IF (THR_PRESCREEN .GT. THRCOM) THEN
@@ -225,8 +225,8 @@ C     --------------------------------
          END IF
       END IF
 
-C     Screening threshold for vector subtraction.
-C     -------------------------------------------
+!     Screening threshold for vector subtraction.
+!     -------------------------------------------
 
       IF (CHO_SSCREEN) THEN
          IF (SSTAU .LT. 0.0D0) THEN
@@ -239,8 +239,8 @@ C     -------------------------------------------
          END IF
       END IF
 
-C     Buffer length.
-C     --------------
+!     Buffer length.
+!     --------------
 
       IF (LBUF .LT. 1) THEN
          IF (REPORT) THEN
@@ -255,8 +255,8 @@ C     --------------
          END IF
       END IF
 
-C     Memory split for qualified columns.
-C     -----------------------------------
+!     Memory split for qualified columns.
+!     -----------------------------------
 
       IF (N1_QUAL .GE. N2_QUAL) THEN
          IF (REPORT) THEN
@@ -274,10 +274,10 @@ C     -----------------------------------
          NCONFL = NCONFL + 1
       END IF
 
-C     Memory split for buffered reading of previous vectors.
-C     Max. #vectors in each call to DGEMM in subtraction.
-C     (CHO_IOVEC=3,4 only.)
-C     ------------------------------------------------------
+!     Memory split for buffered reading of previous vectors.
+!     Max. #vectors in each call to DGEMM in subtraction.
+!     (CHO_IOVEC=3,4 only.)
+!     ------------------------------------------------------
 
       IF (CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4) THEN
          IF (N2_VECRD .LT. N1_VECRD) THEN
@@ -302,8 +302,8 @@ C     ------------------------------------------------------
          END IF
       END IF
 
-C     Memory fraction used for vector buffer.
-C     ---------------------------------------
+!     Memory fraction used for vector buffer.
+!     ---------------------------------------
 
       IF (FRAC_CHVBUF .LT. 0.0D0) THEN
          IF (REPORT) THEN
@@ -319,8 +319,8 @@ C     ---------------------------------------
          FRAC_CHVBUF = 0.9D0
       END IF
 
-C     Threshold for discarding elements of initial diagonal.
-C     ------------------------------------------------------
+!     Threshold for discarding elements of initial diagonal.
+!     ------------------------------------------------------
 
       IF (THRDIAG .GT. THRCOM) THEN
          IF (REPORT) THEN
@@ -334,8 +334,8 @@ C     ------------------------------------------------------
          NCONFL = NCONFL + 1
       END IF
 
-C     Damping factors.
-C     ----------------
+!     Damping factors.
+!     ----------------
 
       IF (DAMP(1) .LT. 1.0D0) THEN
          IF (REPORT) THEN
@@ -352,8 +352,8 @@ C     ----------------
          NCONFL = NCONFL + 1
       END IF
 
-C     Span factor.
-C     ------------
+!     Span factor.
+!     ------------
 
       IF (SPAN .GT. 1.0D0) THEN
          IF (REPORT) THEN
@@ -368,10 +368,10 @@ C     ------------
          SPAN=0.9999d0
       END IF
 
-C     Max. #shell pairs allowed before proceeding to deco.
-C     Max. #qualifieds allowed to proceed to decomposition.
-C     Min. #qualifieds needed to proceed to decomposition.
-C     -----------------------------------------------------
+!     Max. #shell pairs allowed before proceeding to deco.
+!     Max. #qualifieds allowed to proceed to decomposition.
+!     Min. #qualifieds needed to proceed to decomposition.
+!     -----------------------------------------------------
 
       NNN = NSHELL*(NSHELL + 1)/2
       IF (MXSHPR.LT.0 .OR. MXSHPR.GT.NNN) THEN
@@ -400,8 +400,8 @@ C     -----------------------------------------------------
          MINQUAL = MMM
       END IF
 
-C     Handling of negative diagonals.
-C     -------------------------------
+!     Handling of negative diagonals.
+!     -------------------------------
 
       INEGRR = 0
       IF (THRNEG .GT. 0.0D0) THEN

@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_INIT(SKIP_PRESCREEN)
-C
-C     Purpose: initialization of Cholesky decomposition in MOLCAS.
-C
+!
+!     Purpose: initialization of Cholesky decomposition in MOLCAS.
+!
       use index_arrays, only: iSO2Sh
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
      &                  iShP2RS, iShP2Q
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')
 
-c     INTEGER  CHO_ISAO
-c     EXTERNAL CHO_ISAO
-c     INTEGER  CHO_ISAOSH
-c     EXTERNAL CHO_ISAOSH
+!     INTEGER  CHO_ISAO
+!     EXTERNAL CHO_ISAO
+!     INTEGER  CHO_ISAOSH
+!     EXTERNAL CHO_ISAOSH
 
-C     Check that the number of shells is within limits.
-C     -------------------------------------------------
+!     Check that the number of shells is within limits.
+!     -------------------------------------------------
 
       IF (NSHELL .LT. 1) THEN
          WRITE(LUPRI,*) 'NSHELL out of bounds: ',NSHELL
          CALL CHO_QUIT('NSHELL out of bounds in '//SECNAM,102)
       END IF
 
-C     Compute total #shell pair.
-C     --------------------------
+!     Compute total #shell pair.
+!     --------------------------
 
       NNSHL_TOT = NSHELL*(NSHELL + 1)/2
       IF (NNSHL_TOT .LT. 1) THEN
@@ -49,10 +49,10 @@ C     --------------------------
          CALL CHO_QUIT('NNSHL_TOT out of bounds in '//SECNAM,102)
       END IF
 
-C     Compute contributing #shell pair by prescreening (if requested).
-C     iSP2F(k): returns global shell pair of contributing shell pair k.
-C               (Allocated and defined in CHO_DIAPS.)
-C     -----------------------------------------------------------------
+!     Compute contributing #shell pair by prescreening (if requested).
+!     iSP2F(k): returns global shell pair of contributing shell pair k.
+!               (Allocated and defined in CHO_DIAPS.)
+!     -----------------------------------------------------------------
 
       IF (SKIP_PRESCREEN) THEN
          IF (NNSHL.LT.1 .OR. NNSHL.GT.NNSHL_TOT) THEN
@@ -74,8 +74,8 @@ C     -----------------------------------------------------------------
          CALL CHO_DIASP()
       END IF
 
-C     Get the number of symmetries.
-C     -----------------------------
+!     Get the number of symmetries.
+!     -----------------------------
 
       CALL GET_ISCALAR('nSym',NSYM)  ! Get # irreps.
       IF ((NSYM.LT.1) .OR. (NSYM.GT.8)) THEN
@@ -83,10 +83,10 @@ C     -----------------------------
          CALL CHO_QUIT('NSYM out of bounds in '//SECNAM,102)
       END IF
 
-C     NBAS(ISYM): # basis functions (SOs) in symmetry ISYM
-C     IBAS(ISYM): offset to basis functions in symmetry ISYM
-C     NBAST     : total number of basis functions
-C     ------------------------------------------------------
+!     NBAS(ISYM): # basis functions (SOs) in symmetry ISYM
+!     IBAS(ISYM): offset to basis functions in symmetry ISYM
+!     NBAST     : total number of basis functions
+!     ------------------------------------------------------
 
       CALL GET_IARRAY('nBas',NBAS,NSYM)
       IBAS(1) = 0
@@ -100,15 +100,15 @@ C     ------------------------------------------------------
          CALL CHO_QUIT('NBAST out of bounds in '//SECNAM,102)
       END IF
 
-C     Allocate shell based index arrays.
-C     ----------------------------------
+!     Allocate shell based index arrays.
+!     ----------------------------------
 
       Call mma_allocate(iBasSh,nSym,nShell,Label='iBasSh')
       Call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
       Call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
-C     ISOSHL(I): shell to which SO I belongs
-C     --------------------------------------
+!     ISOSHL(I): shell to which SO I belongs
+!     --------------------------------------
 
       Call mma_allocate(iSOShl,NBAST,Label='iSOShl')
       DO ISYM = 1,NSYM
@@ -118,10 +118,10 @@ C     --------------------------------------
          END DO
       END DO
 
-C     NBASSH(ISYM,ISHL): total dimension of shell ISHL, sym. ISYM
-C     NBSTSH(ISHL): total dimension of shell ISHL
-C     MXORSH      : max. shell dimension
-C     -----------------------------------------------------------
+!     NBASSH(ISYM,ISHL): total dimension of shell ISHL, sym. ISYM
+!     NBSTSH(ISHL): total dimension of shell ISHL
+!     MXORSH      : max. shell dimension
+!     -----------------------------------------------------------
 
       CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,
      &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
@@ -131,8 +131,8 @@ C     -----------------------------------------------------------
          MXORSH = MAX(MXORSH,NBSTSH(ISHL))
       END DO
 
-C     MX2SH: max. dimension of contributing shell pair.
-C     -------------------------------------------------
+!     MX2SH: max. dimension of contributing shell pair.
+!     -------------------------------------------------
 
       MX2SH = -1
       DO IJSHL = 1,NNSHL
@@ -151,17 +151,17 @@ C     -------------------------------------------------
          CALL CHO_QUIT('Initialization problem in '//SECNAM,102)
       END IF
 
-C     If needed, allocate memory for extracting qualified columns
-C     directly in reduced set from Seward.
-C     -----------------------------------------------------------
+!     If needed, allocate memory for extracting qualified columns
+!     directly in reduced set from Seward.
+!     -----------------------------------------------------------
 
       IF (IFCSEW .EQ. 2) THEN
          Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
          Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
       END IF
 
-C     ISHLSO(I): index of SO I within its shell
-C     -----------------------------------------
+!     ISHLSO(I): index of SO I within its shell
+!     -----------------------------------------
 
       Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
       CALL CHO_SETSH2(iShlSO,iSOShl,NBSTSH,NBAST,NSHELL)

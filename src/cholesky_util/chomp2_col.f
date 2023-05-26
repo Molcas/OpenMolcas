@@ -1,73 +1,72 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2007, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2007, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
-C
-C     Thomas Bondo Pedersen, Dec. 2007.
-C
-C     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2007.
+!
+!     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
+!
+      use ChoMP2_dec, only: NowSym, iOption_MP2CD
+      use mbpt2_global, only: EOcc, EVir
       Implicit None
       Integer nDim, nCol, l_Buf
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Character(LEN=3), Parameter:: ThisNm = 'Col'
       Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Col'
 
       Integer iSym
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       If (nCol.lt.1 .or. nDim.lt.1) Return
       iSym = NowSym
       If (nDim .ne. nT1am(iSym)) Then
          Write(6,*) SecNam,': inconsistent dimension. Expected: ',
      &              nT1am(iSym),'   Received: ',nDim
-         Write(6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
+         Write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
          Call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
       End If
 
 
-C     Calculate (ai|bj) integrals.
-C     ----------------------------
+!     Calculate (ai|bj) integrals.
+!     ----------------------------
 
       Call ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 
-C     Postprocess integrals.
-C     ----------------------
+!     Postprocess integrals.
+!     ----------------------
 
       If (iOption_MP2CD .eq. 2) Then ! generate amplitudes
-         Call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,
-     &                          Work(ip_EOc),Work(ip_EVir))
+         Call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
       End If
 
       End
       SubRoutine ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
-C
-C     Thomas Bondo Pedersen, Dec. 2007.
-C
-C     Purpose: scale integrals with orbital energies to get
-C              (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2007.
+!
+!     Purpose: scale integrals with orbital energies to get
+!              (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
+!
+      use ChoMP2_dec, only: NowSym
       Implicit None
       Integer nDim, nCol
       Real*8  Col(nDim,nCol), EOcc(*), EVir(*)
       Integer iCol(nCol)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 
@@ -98,21 +97,20 @@ C
 
       End
       SubRoutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C     Renamed (from ChoMP2_Col), Thomas Bondo Pedersen, Dec. 2007.
-C
-C     Purpose: compute specified (ai|bj) columns.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!     Renamed (from ChoMP2_Col), Thomas Bondo Pedersen, Dec. 2007.
+!
+!     Purpose: compute specified (ai|bj) columns.
+!
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      use ChoMP2_dec, only: InCore, NowSym
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'IntCol'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_IntCol'

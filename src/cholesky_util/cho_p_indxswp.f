@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_IndxSwp()
-C
-C     Purpose: swap global and local reduced set index arrays.
-C              Note that arrays InfRed and InfVec are swapped as well.
-C
-C     NB: this procedure is inexpensive, as we are merely swapping
-C         pointers, not actual data (except for the statically allocated
-C         index arrays which amount to swapping 51 integers in total).
-C
+!
+!     Purpose: swap global and local reduced set index arrays.
+!              Note that arrays InfRed and InfVec are swapped as well.
+!
+!     NB: this procedure is inexpensive, as we are merely swapping
+!         pointers, not actual data (except for the statically allocated
+!         index arrays which amount to swapping 51 integers in total).
+!
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only: IndRSh, IndRSh_G, pTemp1

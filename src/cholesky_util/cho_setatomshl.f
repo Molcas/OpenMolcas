@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_SetAtomShl(irc,iAtomShl,n)
       use ChoArr, only: iSOShl
-C
-C     Purpose: set mapping from shell to atom (i.e., center).
-C
+      use stdalloc
+!
+!     Purpose: set mapping from shell to atom (i.e., center).
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
       Integer iAtomShl(n)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=14), Parameter:: SecNam = 'Cho_SetAtomShl'
 
@@ -40,8 +40,8 @@ C
          Write(Lupri,*) '>>> Enter ',SecNam
       End If
 
-C     Check.
-C     ------
+!     Check.
+!     ------
 
       irc = 0
       If (nSym .ne. 1) Then ! does not work with symmetry
@@ -57,28 +57,28 @@ C     ------
      &                 104)
       End If
 
-C     Get number of atoms.
-C     --------------------
+!     Get number of atoms.
+!     --------------------
 
-C     Call Get_nAtoms_All(nAtom)
+!     Call Get_nAtoms_All(nAtom)
       Call Get_iScalar('Bfn Atoms',nAtom)
 
-C     Get atomic labels and basis function labels.
-C     --------------------------------------------
+!     Get atomic labels and basis function labels.
+!     --------------------------------------------
 
       Call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 
-C     Allocate and get index arrays for indexation of basis functions on
-C     each atom.
-C     ------------------------------------------------------------------
+!     Allocate and get index arrays for indexation of basis functions on
+!     each atom.
+!     ------------------------------------------------------------------
 
       Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
       Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
       Call BasFun_Atom(nBas_per_Atom,nBas_Start,
      &                 AtomLabel,nBasT,nAtom,Debug)
 
-C     Set shell-to-atom mapping.
-C     --------------------------
+!     Set shell-to-atom mapping.
+!     --------------------------
 
       Do iAtom = 1,nAtom
          i1 = nBas_Start(iAtom)
@@ -118,8 +118,8 @@ C     --------------------------
          End If
       End If
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
       Call mma_deallocate(nBas_Start)
       Call mma_deallocate(nBas_per_Atom)

@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
      &                      SCR,LSCR)
-C
-C     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
-C              of symmetry ISYM from file. The vectors are returned
-C              in the "current" reduced set. The algorithm used for
-C              reading is taken from input (via cholesky.fh header
-C              file).
-C
+!
+!     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
+!              of symmetry ISYM from file. The vectors are returned
+!              in the "current" reduced set. The algorithm used for
+!              reading is taken from input (via cholesky.fh header
+!              file).
+!
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
-#include "implicit.fh"
-      DIMENSION CHOVEC(LENVEC,NUMVEC)
-      DIMENSION SCR(LSCR)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 CHOVEC(LENVEC,NUMVEC)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       external ddot_
@@ -32,8 +32,8 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-C     Return if no vectors requested.
-C     -------------------------------
+!     Return if no vectors requested.
+!     -------------------------------
 
       IF (NUMVEC .LT. 1) THEN
          IF (LOCDBG) THEN
@@ -43,9 +43,9 @@ C     -------------------------------
          RETURN
       END IF
 
-C     Check vector dimension: should be identical to current reduced
-C     set. Check also symmetry and vector index.
-C     --------------------------------------------------------------
+!     Check vector dimension: should be identical to current reduced
+!     set. Check also symmetry and vector index.
+!     --------------------------------------------------------------
 
       IF (LOCDBG) THEN
          IFAIL = 0
@@ -91,8 +91,8 @@ C     --------------------------------------------------------------
          END IF
       END IF
 
-C     Call reading routine.
-C     ---------------------
+!     Call reading routine.
+!     ---------------------
 
       IF (CHO_IOVEC .EQ. 1) THEN
          CALL CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
@@ -103,8 +103,8 @@ C     ---------------------
          CALL CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
       END IF
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       IF (LOCDBG) THEN
          CALL CHO_FLUSH(LUPRI)

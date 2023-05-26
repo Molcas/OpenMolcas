@@ -8,12 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-! Stuff for decomposing (ai|bj) integrals or amplitudes in MP2:
-!
-      Logical InCore
-      Integer iOption_MP2CD, NowSym
-      Integer ip_EOc, ip_EVir
-
-      Common / CHOMD1 / InCore(8)
-      Common / CHOMD2 / iOption_MP2CD, NowSym, ip_EOc, ip_EVir
+! saved info for parallel runs
+Module ChPari
+      Integer NumCho_Bak(8)
+End Module ChPari

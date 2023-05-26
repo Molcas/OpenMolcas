@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_DRV()
-C
-C     Purpose: MOLCAS interface to Cholesky decomposition driver.
-C
+!
+!     Purpose: MOLCAS interface to Cholesky decomposition driver.
+!
       use ChoArr, only: MySP
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_DRV')
@@ -25,9 +25,9 @@ C
 
       CALL STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 
-C     Initialize integral program (this does some memory
-C     allocations; thus, DO NOT move this.
-C     --------------------------------------------------
+!     Initialize integral program (this does some memory
+!     allocations; thus, DO NOT move this.
+!     --------------------------------------------------
 
 #if defined (_DEBUGPRINT_)
       CALL CHO_PRESCR(CUTINT1,THRINT1)
@@ -53,8 +53,8 @@ C     --------------------------------------------------
       END IF
 #endif
 
-C     Start the Cholesky decomposition program.
-C     -----------------------------------------
+!     Start the Cholesky decomposition program.
+!     -----------------------------------------
 
       ICODE = 0
       CALL CHO_DRV(ICODE)
@@ -64,15 +64,15 @@ C     -----------------------------------------
          CALL CHO_QUIT('Decomposition failed!',104)
       END IF
 
-C     Finalize integral program.
-C     --------------------------
+!     Finalize integral program.
+!     --------------------------
 
       VERBOSE = .FALSE.
       FREEK2  = .TRUE.
       CALL TERM_INTS(VERBOSE,FREEK2)
 
-C     Halt execution if requested.
-C     ----------------------------
+!     Halt execution if requested.
+!     ----------------------------
 
       IF (HALTIT) THEN
          WRITE(LUPRI,*) SECNAM,': halting execution after ',

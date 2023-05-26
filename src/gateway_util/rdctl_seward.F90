@@ -72,7 +72,7 @@ real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lamb
                  sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
 
 logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
-                     CutInt_UsrDef, do1CCD, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
+                     CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
                      FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
                      NoZMAT, OrigInput, OriginSet, RF_read, RPSet, Skip1, Skip2, SymmSet, ThrInt_UsrDef, Vlct_, Write_BasLib, &
@@ -197,7 +197,6 @@ nTemp = 0
 lMltpl = .false.
 
 CholeskyWasSet = .false.
-do1CCD = .false.
 spanCD = -huge(spanCD)
 lTtl = .false.
 RF_read = .false.
@@ -1736,9 +1735,12 @@ do
         !                                                              *
         ! Use one-center Cholesky.
 
-        do1CCD = .true.
         Do_RI = .false.
         iChk_Ch = 1
+        DirInt = .true.
+        call Cho_Inp(.true.,-1,u6)
+        Cholesky = .true.
+        Call Cho_InpMod('1CCD')
         if ((iChk_RI+iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
@@ -3419,7 +3421,6 @@ end do
 !***********************************************************************
 !                                                                      *
 ! Cholesky-specific postprocessing:
-! 0) if 1C-CD is requested, do it.
 ! 1) reset integral prescreening thresholds (if not user-defined).
 ! 2) use default Cholesky normalization (if not user-defined);
 !    for AMFI or Douglas-Kroll, use Molcas normalization (again,
@@ -3433,14 +3434,6 @@ end do
 ! 6) if Cholesky threshold is specified, use it.
 ! 7) if span factor is specified, use it.
 
-if (do1CCD) then
-  if (.not. Cholesky) then
-    DirInt = .true.
-    call Cho_Inp(.true.,-1,u6)
-  end if
-  Cholesky = .true.
-  call Cho_InpMod('1CCD')
-end if
 if (Cholesky) then
   if (Onenly) then
     Cholesky = .false. ! we gotta be lazy in such cases

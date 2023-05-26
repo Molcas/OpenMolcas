@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_GnVc_Drv(irc,Diag)
-C
-C     Purpose: generate vectors from a known "map" and diagonal.
-C              First reduced set must have been set up, which is
-C              reasonable, since it is naturally done along with the
-C              diagonal.
-C
+!
+!     Purpose: generate vectors from a known "map" and diagonal.
+!              First reduced set must have been set up, which is
+!              reasonable, since it is naturally done along with the
+!              diagonal.
+!
       use ChoSwp, only: iQuAB, InfVec
       use GnVcMp, only: RS2RS
-#include "implicit.fh"
+      use Constants
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 Diag(*)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=12), Parameter:: SecNam = 'Cho_GnVc_Drv'
 
@@ -37,19 +37,19 @@ C
 
       mapRS2RS(i,j)=RS2RS(j)%Map(i)
 
-C     Start timing.
-C     -------------
+!     Start timing.
+!     -------------
 
       Call Cho_Timer(tCPU1,tWall1)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Copy first reduced set to current reduced set stored at location
-C     2.
-C     ----------------------------------------------------------------
+!     Copy first reduced set to current reduced set stored at location
+!     2.
+!     ----------------------------------------------------------------
 
       Call Cho_X_RSCopy(irc,1,2)
       If (irc .ne. 0) Then
@@ -57,14 +57,14 @@ C     ----------------------------------------------------------------
          Go To 100 ! exit
       End If
 
-C     Allocate memory for shell pair list.
-C     ------------------------------------
+!     Allocate memory for shell pair list.
+!     ------------------------------------
 
       Call mma_allocate(ListSP,nnShl,Label='ListSP')
 
-C     Set number of integral passes (= number of reduced sets).
-C     Set ID of last reduced set in each symmetry.
-C     ---------------------------------------------------------
+!     Set number of integral passes (= number of reduced sets).
+!     Set ID of last reduced set in each symmetry.
+!     ---------------------------------------------------------
 
       nPass = 0
       Do iSym = 1,nSym
@@ -81,10 +81,10 @@ C     ---------------------------------------------------------
          Call Cho_Quit('nPass != XnPass in '//SecNam,102)
       End If
 
-C     nVecRS(iSym,jRed): #vectors of sym. iSym, reduced set jRed.
-C     iVecRS(iSym,jRed): 1st vec. of sym. iSym, reduced set jRed.
-C                        (0 means no vectors!!)
-C     -----------------------------------------------------------
+!     nVecRS(iSym,jRed): #vectors of sym. iSym, reduced set jRed.
+!     iVecRS(iSym,jRed): 1st vec. of sym. iSym, reduced set jRed.
+!                        (0 means no vectors!!)
+!     -----------------------------------------------------------
 
       Call mma_allocate(nVecRS,nSym,nPass,Label='nVecRS')
       Call mma_allocate(iVecRS,nSym,nPass,Label='iVecRS')
@@ -110,16 +110,16 @@ C     -----------------------------------------------------------
          End If
       End Do
 
-C     Allocate RS-to-RS mapping array.
-C     --------------------------------
+!     Allocate RS-to-RS mapping array.
+!     --------------------------------
 
       Do iSym = 1,nSym
          call mma_allocate(RS2RS(iSym)%Map,nnBstR(iSym,1),
      &              Label='RS2RS(iSym)%Map')
       End Do
 
-C     Split remaining memory.
-C     -----------------------
+!     Split remaining memory.
+!     -----------------------
 
       Call mma_MaxDBLE(l_WrkT)
       Call mma_allocate(Wrk,l_WrkT,Label='Wrk')
@@ -134,8 +134,8 @@ C     -----------------------
       End If
 
 #if defined (_DEBUGPRINT_)
-C     Debug: force batching.
-C     ----------------------
+!     Debug: force batching.
+!     ----------------------
 
       lNdMx = 0
       Do iPass = 1,nPass
@@ -148,14 +148,14 @@ C     ----------------------
       l_Wrk = min(l_Wrk,lNdMx)
 #endif
 
-C     Reinitialize vector counters.
-C     -----------------------------
+!     Reinitialize vector counters.
+!     -----------------------------
 
       Call iZero(NumCho,nSym)
       NumChT = 0
 
-C     Start batch loop over integral passes.
-C     --------------------------------------
+!     Start batch loop over integral passes.
+!     --------------------------------------
 
       iPass = 0
       nBatch= 0
@@ -163,8 +163,8 @@ C     --------------------------------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlTot1,WlTot1)
 
-C        Update batch counter.
-C        ---------------------
+!        Update batch counter.
+!        ---------------------
 
          nBatch = nBatch + 1
          iPass1 = iPass + 1
@@ -175,9 +175,9 @@ C        ---------------------
             Go To 100 ! exit
          End If
 
-C        Set up this batch based on current reduced set.
-C        NumPass: the number of passes treated in this batch.
-C        --------------------------------------------------------
+!        Set up this batch based on current reduced set.
+!        NumPass: the number of passes treated in this batch.
+!        --------------------------------------------------------
 
          jRed    = iPass
          NumPass = 0
@@ -208,8 +208,8 @@ C        --------------------------------------------------------
             Go To 100 ! exit
          End If
 
-C        Print.
-C        ------
+!        Print.
+!        ------
 
          If (iPrint .ge. INF_PASS) Then
             Write(String,'(A19,I7)') 'Integral Pass Batch',nBatch
@@ -236,14 +236,14 @@ C        ------
             Call Cho_Flush(Lupri)
          End If
 
-C        Allocate memory for integral columns and initialize.
-C        ----------------------------------------------------
+!        Allocate memory for integral columns and initialize.
+!        ----------------------------------------------------
 
          Call mma_allocate(xInt,l_Int,Label='xInt')
          xInt(:)=Zero
 
-C        Set up map from first reduced set to reduced set iPass1.
-C        --------------------------------------------------------
+!        Set up map from first reduced set to reduced set iPass1.
+!        --------------------------------------------------------
 
          irc = 0
          Call Cho_X_RSCopy(irc,1,3)
@@ -257,11 +257,11 @@ C        --------------------------------------------------------
      &                     3,2,iPass1,iSym)
          End Do
 
-C        Set up "qualified column" index arrays.
-C        nQual(iSym): #qualifieds in symmetry iSym
-C        iQuAB(iAB,iSym): addr of qualified iAB, sym. iSym in curr.
-C                         reduced set.
-C        ----------------------------------------------------------
+!        Set up "qualified column" index arrays.
+!        nQual(iSym): #qualifieds in symmetry iSym
+!        iQuAB(iAB,iSym): addr of qualified iAB, sym. iSym in curr.
+!                         reduced set.
+!        ----------------------------------------------------------
 
          Call iZero(nQual,nSym)
          iPass2 = iPass1 + NumPass - 1
@@ -298,8 +298,8 @@ C        ----------------------------------------------------------
             Call Cho_Quit('Integral memory error in '//SecNam,101)
          End If
 
-C        Compute all integrals needed for NumPass passes.
-C        ------------------------------------------------
+!        Compute all integrals needed for NumPass passes.
+!        ------------------------------------------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlInt1,WlInt1)
          NumSP = 0
@@ -310,21 +310,21 @@ C        ------------------------------------------------
          End If
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlInt2,WlInt2)
 
-C        Generate vectors.
-C        -----------------
+!        Generate vectors.
+!        -----------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec1,WlDec1)
          Call Cho_GnVc_GenVec(Diag,xInt,SIZE(xInt),nVecRS,iVecRS,
      &                        nSym,nPass,iPass1,NumPass)
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec2,WlDec2)
 
-C        Deallocate memory.
-C        ------------------
+!        Deallocate memory.
+!        ------------------
 
          Call mma_deallocate(xInt)
 
-C        Print timing for this batch.
-C        ----------------------------
+!        Print timing for this batch.
+!        ----------------------------
 
          If (iPrint .ge. INF_PASS) Then
             TlInt = TlInt2 - TlInt1
@@ -348,15 +348,15 @@ C        ----------------------------
             Call Cho_Flush(Lupri)
          End If
 
-C        Update pass counter.
-C        --------------------
+!        Update pass counter.
+!        --------------------
 
          iPass = iPass + NumPass
 
       End Do ! integral pass loop
 
-C     Exit after deallocating memory.
-C     -------------------------------
+!     Exit after deallocating memory.
+!     -------------------------------
 
   100 Continue
       Did_DecDrv = .true.

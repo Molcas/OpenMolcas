@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine CD_DiaMax(Diag,nDim,iPivot,iQual,nQual,DiaMin)
-C
-C     Thomas Bondo Pedersen, October 2004.
-C
-C     Purpose: find nQual largest elements in Diag and leave pointers to
-C              them in iQual. Only elements larger than DiaMin are
-C              returned (thus, nQual may be reduced here).
-C
+!
+!     Thomas Bondo Pedersen, October 2004.
+!
+!     Purpose: find nQual largest elements in Diag and leave pointers to
+!              them in iQual. Only elements larger than DiaMin are
+!              returned (thus, nQual may be reduced here).
+!
       Implicit None
       Integer nDim, nQual
       Real*8  Diag(nDim)

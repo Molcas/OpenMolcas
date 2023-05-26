@@ -1,42 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
-C
-C     Thomas Bondo Pedersen, Jan. 2008.
-C     - based on ChoMP2_Drv() by T. B. Pedersen.
-C
-C     Purpose: driver for computing the MP2 energy correction EMP2
-C              using Cholesky decomposed two-electron integrals
-C              in a quartic scaling fashion.
-C              Input must have been processed and MO coefficients
-C              and orbital energies must be passed as arguments.
-C
-C     Notes:
-C
-C       - all MO Cholesky vector files generated here are deleted before
-C         exit, except for error terminations (i.e. no cleanup actions
-C         are taken!)
-C       - the amplitude decomposition does NOT use EOcc and EVir; these
-C         are accessed through pointers ip_EOc and ip_EVir stored in
-C         chomp2_dec.fh
-C
-#include "implicit.fh"
-      Dimension CMO(*), EOcc(*), EVir(*)
+!
+!     Thomas Bondo Pedersen, Jan. 2008.
+!     - based on ChoMP2_Drv() by T. B. Pedersen.
+!
+!     Purpose: driver for computing the MP2 energy correction EMP2
+!              using Cholesky decomposed two-electron integrals
+!              in a quartic scaling fashion.
+!              Input must have been processed and MO coefficients
+!              and orbital energies must be passed as arguments.
+!
+!     Notes:
+!
+!       - all MO Cholesky vector files generated here are deleted before
+!         exit, except for error terminations (i.e. no cleanup actions
+!         are taken!)
+!
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
+      Real*8 CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'O4_Drv'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_O4_Drv'
@@ -62,8 +59,8 @@ C
          Call CWTime(CPUTot1,WallTot1)
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       irc = 0
 
@@ -83,11 +80,11 @@ C     ----------------
          Call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
       End If
 
-C-TBP:
-C Frankie,
-C The setup is still the same here (i.e. batching etc. is included)
-C I don't use the batching info at all, though, so it should be save
-C to remove it - unless you need it, of course.
+!-TBP:
+! Frankie,
+! The setup is still the same here (i.e. batching etc. is included)
+! I don't use the batching info at all, though, so it should be save
+! to remove it - unless you need it, of course.
 
       Call ChoMP2_Setup(irc)
       If (irc .ne. 0) Then
@@ -106,10 +103,10 @@ C to remove it - unless you need it, of course.
      &                   WallIni2,WallIni1,iFmt)
       End If
 
-C     Transform Cholesky vectors directly from reduced set to MO
-C     representation. Result vectors are stored on disk.
-C     Compute also amplitude diagonal here.
-C     ----------------------------------------------------------
+!     Transform Cholesky vectors directly from reduced set to MO
+!     representation. Result vectors are stored on disk.
+!     Compute also amplitude diagonal here.
+!     ----------------------------------------------------------
 
       If (Verbose) Then
          Call CWTime(CPUTra1,WallTra1)
@@ -151,22 +148,22 @@ C     ----------------------------------------------------------
      &                   WallTra2,WallTra1,iFmt)
       End If
 
-C     Decompose MP2 amplitudes (times -1).
-C     ------------------------------------
+!     Decompose MP2 amplitudes (times -1).
+!     ------------------------------------
 
       If (Verbose) Then
          Call CWTime(CPUDec1,WallDec1)
       End If
 
-C-TBP:
-C Frankie,
-C I just modified the decomposition slightly so that it treats
-C amplitudes, too. You should be aware, though, that result vectors
-C are always written on the same files, so if you do another
-C decomposition of, say, integrals (or squared integrals), then
-C the vector files will be overwritten!!
-C The number of vectors is always written to nMP2Vec(iSym) in
-C chomp2.fh - this is overwritten too, if you do another CD!!
+!-TBP:
+! Frankie,
+! I just modified the decomposition slightly so that it treats
+! amplitudes, too. You should be aware, though, that result vectors
+! are always written on the same files, so if you do another
+! decomposition of, say, integrals (or squared integrals), then
+! the vector files will be overwritten!!
+! The number of vectors is always written to nMP2Vec(iSym) in
+! chomp2.fh - this is overwritten too, if you do another CD!!
 
       Delete = Delete_def ! delete transf. vector files after dec.
       Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
@@ -184,9 +181,9 @@ C chomp2.fh - this is overwritten too, if you do another CD!!
      &                   WallDec2,WallDec1,iFmt)
       End If
 
-C     Backtransform amplitude vectors to AO basis.
-C     Calculate also backtransformed amplitude diagonal.
-C     --------------------------------------------------
+!     Backtransform amplitude vectors to AO basis.
+!     Calculate also backtransformed amplitude diagonal.
+!     --------------------------------------------------
 
       If (Verbose) Then
          Call CWTime(CPUBT1,WallBT1)
@@ -222,19 +219,19 @@ C     --------------------------------------------------
      &                   WallBT2,WallBT1,iFmt)
       End If
 
-C-TBP:
-C Frankie,
-C You can now read the AO vectors from the units lU_AO(iSym)
-C using ddaFile(). The files are word-addressable so that it
-C is possible to read from the file as if addressing an array.
-C The number of vectors is nMP2Vec(iSym) stored in chomp2.fh.
-C To save memory, you may want to finalize Cholesky info before
-C continuing with the backtransformed vectors - but remember
-C that all Cholesky information (from the AO integral CD) is
-C then lost (f.ex. NumCho(iSym) becomes useless).
+!-TBP:
+! Frankie,
+! You can now read the AO vectors from the units lU_AO(iSym)
+! using ddaFile(). The files are word-addressable so that it
+! is possible to read from the file as if addressing an array.
+! The number of vectors is nMP2Vec(iSym) stored in chomp2.fh.
+! To save memory, you may want to finalize Cholesky info before
+! continuing with the backtransformed vectors - but remember
+! that all Cholesky information (from the AO integral CD) is
+! then lost (f.ex. NumCho(iSym) becomes useless).
 
-C     Finalize Cholesky info.
-C     -----------------------
+!     Finalize Cholesky info.
+!     -----------------------
 
       Call Cho_X_Final(irc)
       If (irc .ne. 0) Then
@@ -242,16 +239,16 @@ C     -----------------------
          Go To 1 ! exit
       End If
 
-C     Close and delete files containing backtransformed amplitude
-C     vectors.
-C     -----------------------------------------------------------
+!     Close and delete files containing backtransformed amplitude
+!     vectors.
+!     -----------------------------------------------------------
 
       Do iSym = 1,nSym
          Call daEras(lU_AO(iSym))
       End Do
 
-C     Exit.
-C     -----
+!     Exit.
+!     -----
 
     1 Continue
       Diff = abs(Check(1)-Chk_Mem_ChoMP2)

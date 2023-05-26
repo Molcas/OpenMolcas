@@ -1,54 +1,54 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
       SUBROUTINE CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
      &                      IREDC,iSwap,ipChoV,iSkip)
-************************************************************
-*   Author: F. Aquilante
-*
-*   Purpose:  SCR(lscr) contains JNUM cholesky vectors
-*             starting from JVEC1 and stored in reduced
-*             sets. The routine performs a reallocation
-*             of these elements in a set of target
-*             arrays identified by the pointers ipChoV.
-*             In the target arrays, the vectors are
-*             stored in full dimension and as a
-*             subset of a a given NUMV number of vectors.
-*             Each pointer should thereby point to a
-*             location where the corresponding Cholesky
-*             vector of a given unique symmetry pair
-*             of indices has to be stored
-*
-*   Input:
-*       Ivec1 =  first vector to be copied
-*       JNum  =  # of vectors to be copied
-*
-*       NumV  =  total # of vectors in the target arrays
-*
-*       iSwap :   = 0   L(a,b,J) is returned
-*                       (in LT-storage if sym(a)=sym(b))
-*                 = 1   L(a,J,b) is returned
-*                 = 2   L(a,J,b) is returned
-*                       (in SQ-storage if sym(a)=sym(b))
-*
-*       iSkip(syma)=0 : skip the symmetry block a.
-*                    Any vector L(ab) or L(ba) with syma x symb=JSYM
-*                    won't be returned in the target array
-*
-*       IREDC :  reduced set in core at the moment of
-*                the call to the routine.
-*                Can be set to -1 by the calling routine
-*
-*********************************************************
+!***********************************************************
+!   Author: F. Aquilante
+!
+!   Purpose:  SCR(lscr) contains JNUM cholesky vectors
+!             starting from JVEC1 and stored in reduced
+!             sets. The routine performs a reallocation
+!             of these elements in a set of target
+!             arrays identified by the pointers ipChoV.
+!             In the target arrays, the vectors are
+!             stored in full dimension and as a
+!             subset of a a given NUMV number of vectors.
+!             Each pointer should thereby point to a
+!             location where the corresponding Cholesky
+!             vector of a given unique symmetry pair
+!             of indices has to be stored
+!
+!   Input:
+!       Ivec1 =  first vector to be copied
+!       JNum  =  # of vectors to be copied
+!
+!       NumV  =  total # of vectors in the target arrays
+!
+!       iSwap :   = 0   L(a,b,J) is returned
+!                       (in LT-storage if sym(a)=sym(b))
+!                 = 1   L(a,J,b) is returned
+!                 = 2   L(a,J,b) is returned
+!                       (in SQ-storage if sym(a)=sym(b))
+!
+!       iSkip(syma)=0 : skip the symmetry block a.
+!                    Any vector L(ab) or L(ba) with syma x symb=JSYM
+!                    won't be returned in the target array
+!
+!       IREDC :  reduced set in core at the moment of
+!                the call to the routine.
+!                Can be set to -1 by the calling routine
+!
+!********************************************************
       use ChoArr, only: nDimRS, iRS2F
       use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
@@ -62,31 +62,31 @@
       Integer  cho_isao
       External cho_isao
 
-************************************************************************
+!***********************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
+!*****
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
+!***********************************************************************
 
-**********************************************************
-C
-C    From Reduced sets to full storage
-C    ---------------------------------
-C
-C    iSwap = 0
-C
-C     L{a,b,J} ---> L(a,b,J)
-C
-C    iSwap = 1
-C
-C     L{a,b,J} ---> L(a,J,b)
-C
-C    iSwap = 2
-C
-C     L{a,b,J} ---> L(ab,J)  ! with squaring of the
-C                            ! "diagonal" symmetry blocks
-C
-**********************************************************
+!*********************************************************
+!
+!    From Reduced sets to full storage
+!    ---------------------------------
+!
+!    iSwap = 0
+!
+!     L{a,b,J} ---> L(a,b,J)
+!
+!    iSwap = 1
+!
+!     L{a,b,J} ---> L(a,J,b)
+!
+!    iSwap = 2
+!
+!     L{a,b,J} ---> L(ab,J)  ! with squaring of the
+!                            ! "diagonal" symmetry blocks
+!
+!*********************************************************
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -350,4 +350,4 @@ C
       Return
       END
 
-**************************************************************
+!*************************************************************

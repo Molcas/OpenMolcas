@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       INTEGER FUNCTION CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
-C
-C     Purpose: return index in reduced set IRED (1,2,3) of
-C              element LAB in shell pair ISHLAB (sym. ISYMAB).
-C              If not included in this reduced set, 0 is returned.
-C
+!
+!     Purpose: return index in reduced set IRED (1,2,3) of
+!              element LAB in shell pair ISHLAB (sym. ISYMAB).
+!              If not included in this reduced set, 0 is returned.
+!
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*8 SECNAM

@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,
      &                         iSyCho,iSyCO,iSyCV,iLoc)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: compute ai-vector from reduced set AO vector.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: compute ai-vector from reduced set AO vector.
+!
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
       Real*8 Scr(lScr)
 #include "cholesky.fh"
@@ -48,9 +48,9 @@ C
          Call FZero(Scr,nT1AOT(iSyScr))
       End If
 
-C     First half-transformation step:
-C     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COcc(i,beta)
-C     ------------------------------------------------------
+!     First half-transformation step:
+!     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COcc(i,beta)
+!     ------------------------------------------------------
 
       If (iSyCho .eq. 1) Then
 
@@ -123,9 +123,9 @@ C     ------------------------------------------------------
 
       End If
 
-C     Second half-transformation step:
-C     VecMO(a,i) = sum_alpha CVir(alpha,a)*Scr(i,alpha)
-C     -------------------------------------------------
+!     Second half-transformation step:
+!     VecMO(a,i) = sum_alpha CVir(alpha,a)*Scr(i,alpha)
+!     -------------------------------------------------
 
       Do iSymi = 1,nSym
 
