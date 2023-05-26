@@ -67,7 +67,7 @@
 #                include "int_interface.fh"
               )
     use Definitions, only: wp, iwp
-    use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+    use Index_Functions, only: nTri_Elem1
 #include "int_interface.fh"
     End subroutine Kernel
 
