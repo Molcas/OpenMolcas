@@ -47,6 +47,7 @@ Interface
 #                define _CALLING_
 #                include "int_interface.fh"
                  , Kernel)
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp
 # include "int_interface.fh"
 
@@ -55,8 +56,8 @@ use Definitions, only: wp, iwp
 #                define _CALLING_
 #                include "int_interface.fh"
               )
-      use Definitions, only: wp, iwp
       use Index_Functions, only: nTri_Elem1
+      use Definitions, only: wp, iwp
 #include "int_interface.fh"
       End subroutine Kernel
       End Interface
