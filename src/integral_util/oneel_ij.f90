@@ -33,7 +33,7 @@
     use Gateway_Info, only: FNMC
     use Symmetry_Info, only: nIrrep
     Implicit Real*8 (a-h,o-z)
-    External Kernel, KrnlMm
+    External KrnlMm
 #include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
