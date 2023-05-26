@@ -101,10 +101,10 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
-  CoorAC(:,2) = TC
-  Coori(:,3) = TC
-  Coori(:,4) = TC
+  call OA(iDCRT(lDCRT),CoorO,TC)
+  CoorAC(:,2) = TC(:)
+  Coori(:,3) = TC(:)
+  Coori(:,4) = TC(:)
 
   ! Compute integrals with the Rys-Gauss quadrature.
 

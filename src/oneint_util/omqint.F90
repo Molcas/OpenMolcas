@@ -84,7 +84,7 @@ do iBeta=1,nBeta
 end do
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   iComp = 6 ! Why are these here ncomp is passed down?
 

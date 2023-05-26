@@ -95,7 +95,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In MltInt: A',' ',A,1,3)
   call RecPrt(' In MltInt: RB',' ',RB,1,3)
-  call RecPrt(' In MltInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In MltInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In MltInt: P',' ',P,nZeta,3)
@@ -111,7 +111,7 @@ end do
 !                                                                      *
 if (RMat_type_integrals) then
 
-  if (.not. EQ(CCoor,Origin)) then
+  if (.not. EQ(CoorO,Origin)) then
     call WarningMessage(2,'MltInt: R-matrix error')
     write(u6,*) 'MltInt: Wrong center of origin in case of R-matrix type of integrals!'
     write(u6,*) ' Origin should always be (0.0,0.0,0.0)!'
@@ -173,7 +173,7 @@ else
   end if
 
   do lDCRT=0,nDCRT-1
-    call OA(iDCRT(lDCRT),CCoor,TC)
+    call OA(iDCRT(lDCRT),CoorO,TC)
 
     ! Compute the contribution from the multipole moment operator
 

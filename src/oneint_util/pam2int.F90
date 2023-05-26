@@ -87,7 +87,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In PAM2Int: A',' ',A,1,3)
   call RecPrt(' In PAM2Int: RB',' ',RB,1,3)
-  call RecPrt(' In PAM2Int: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In PAM2Int: CoorO',' ',CoorO,1,3)
   call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: P',' ',P,nZeta,3)

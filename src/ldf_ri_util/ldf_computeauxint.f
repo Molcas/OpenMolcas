@@ -103,8 +103,8 @@ C
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
-      Real*8, Dimension(:), Allocatable :: Final, Scrtch,
-     &                                     ScrSph, Kern
+      Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
+      Real*8, Dimension(:), Allocatable, Target :: Kern
       Character*19 SecNam
       Parameter (SecNam='LDF_ComputeAuxInt_1')
 
@@ -132,6 +132,36 @@ C
 
       Integer i
       Integer nBasSh
+
+      Interface
+      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,
+     &                    xZeta,xZI,xKappa,xPCoor,
+     &                    Kernel,KrnlMm,Label,lOper,nComp,CCoor,
+     &                    nOrdOp,iChO,
+     &                    iStabO,nStabO,nIC,
+     &                    PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
+     &                    Final,nFinal,Scrtch,nScrtch,
+     &                    ScrSph,nScrSph,Kern,nKern)
+      Integer iS,jS,iPrint
+      Logical Do_PGamma
+      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
+      External  Kernel, KrnlMm
+      Character Label*8
+      Integer nComp
+      Integer lOper(nComp)
+      Real*8 CCoor(3,nComp)
+      Integer nOrdOp
+      Integer iChO(nComp), iStabO(0:7)
+      Integer nStabO, nIC, nGrid, iAddPot
+      Real*8 PtChrg(nGrid)
+      Integer l_SOInt
+      Real*8  SOInt(l_SOInt)
+      Integer nFinal, nScrtch, nScrSph, nKern
+      Real*8 Final(nFinal),Scrtch(nScrtch),ScrSph(nScrSph)
+      Real*8 , Target:: Kern(nKern)
+      End Subroutine OneEl_IJ
+
+      End Interface
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -341,8 +371,8 @@ C
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
-      Real*8, Dimension(:), Allocatable :: Final, Scrtch,
-     &                                     ScrSph, Kern
+      Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
+      Real*8, Dimension(:), Allocatable, Target :: Kern
       Character*19 SecNam
       Parameter (SecNam='LDF_ComputeAuxInt_2')
 
@@ -373,6 +403,36 @@ C
       Integer nBasSh
       Integer AP_2CFunctions
       Integer AP_2CList
+
+      Interface
+      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,
+     &                    xZeta,xZI,xKappa,xPCoor,
+     &                    Kernel,KrnlMm,Label,lOper,nComp,CCoor,
+     &                    nOrdOp,iChO,
+     &                    iStabO,nStabO,nIC,
+     &                    PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
+     &                    Final,nFinal,Scrtch,nScrtch,
+     &                    ScrSph,nScrSph,Kern,nKern)
+      Integer iS,jS,iPrint
+      Logical Do_PGamma
+      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
+      External  Kernel, KrnlMm
+      Character Label*8
+      Integer nComp
+      Integer lOper(nComp)
+      Real*8 CCoor(3,nComp)
+      Integer nOrdOp
+      Integer iChO(nComp), iStabO(0:7)
+      Integer nStabO, nIC, nGrid, iAddPot
+      Real*8 PtChrg(nGrid)
+      Integer l_SOInt
+      Real*8  SOInt(l_SOInt)
+      Integer nFinal, nScrtch, nScrSph, nKern
+      Real*8 Final(nFinal),Scrtch(nScrtch),ScrSph(nScrSph)
+      Real*8 , Target:: Kern(nKern)
+      End Subroutine OneEl_IJ
+
+      End Interface
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

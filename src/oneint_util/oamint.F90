@@ -78,7 +78,7 @@ do iBeta=1,nBeta
 end do
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   if (.not. lDOWNONLY) then
     nHer = (la+(lb+1)+(nOrdOp-1)+2)/2

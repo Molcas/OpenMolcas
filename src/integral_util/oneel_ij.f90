@@ -13,7 +13,7 @@
 !***********************************************************************
     Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,                       &
                         xZeta,xZI,xKappa,xPCoor,                      &
-                        Kernel,KrnlMm,Label,lOper,nComp,CCoor,        &
+                        Kernel,KrnlMm,Label,lOper,nComp,CoorO,        &
                         nOrdOp,iChO,                                  &
                         iStabO,nStabO,nIC,                            &
                         PtChrg,nGrid,iAddPot,SOInt,l_SOInt,           &
@@ -44,9 +44,10 @@
     Integer iS, jS, iPrint
     Logical Do_PGamma
     Integer nFinal, nScrtch, nScrSph
-    Real*8 Final(nFinal), Scrtch(nScrtch), ScrSph(nScrSph)
+    Real*8, target :: Final(nFinal)
+    Real*8 Scrtch(nScrtch), ScrSph(nScrSph)
     Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-    Real*8 A(3), B(3), RB(3), CCoor(3,nComp), PtChrg(nGrid)
+    Real*8 A(3), B(3), RB(3), CoorO(3,nComp), PtChrg(nGrid)
     Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
     Integer nOp(2), lOper(nComp), iChO(nComp), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
     Integer nKern
@@ -71,7 +72,7 @@
 #include "int_interface.fh"
     End subroutine Kernel
 
-    End Interface
+     End Interface
 !
 !     Statement functions
     nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -417,7 +418,7 @@
                       xZeta,xZI,xKappa,xPCoor,                            &
                       Final,iPrim*jPrim,nIC,nComp,                        &
                       iAng,jAng,A,RB,nOrder,Kern,                         &
-                      MemKer,Ccoor,nOrdOp,lOper,iChO,iStabM,              &
+                      MemKer,CoorO,nOrdOp,lOper,iChO,iStabM,              &
                       nStabM,PtChrg,nGrid,iAddPot)
               If (iPrint.ge.49) Then
                    Call RecPrt(' Primitive Integrals',' ',Final,iPrim*jPrim,nElem(iAng)*nElem(jAng)*nIC)

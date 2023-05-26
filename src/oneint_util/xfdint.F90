@@ -49,7 +49,7 @@ external TNAI, Fake, XCff2D, XRys2D
 unused_var(Alpha)
 unused_var(Beta)
 unused_var(nHer)
-unused_var(Ccoor)
+unused_var(CoorO)
 unused_var(PtChrg)
 unused_var(iAddPot)
 

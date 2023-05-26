@@ -66,14 +66,14 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In CntInt: A',' ',A,1,3)
   call RecPrt(' In CntInt: RB',' ',RB,1,3)
-  call RecPrt(' In CntInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In CntInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In CntInt: P',' ',P,nZeta,3)
   write(u6,*) ' In CntInt: la,lb=',la,lb
 end if
 
 ! Compute the contact terms.
 
-call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCho,nIC,Array(ipArr),rFinal,iStabM,nStabM,nComp, &
+call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,CoorO,lOper,iCho,nIC,Array(ipArr),rFinal,iStabM,nStabM,nComp, &
              rKappa)
 
 if (iPrint >= 99) then

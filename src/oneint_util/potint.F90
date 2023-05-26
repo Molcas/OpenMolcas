@@ -94,7 +94,7 @@ do lDCRT=0,nDCRT-1
     if (Chrg == Zero) cycle
 
     do i=1,3
-      TC(i) = real(iPh(i),kind=wp)*CCoor(i,iGrid)
+      TC(i) = real(iPh(i),kind=wp)*CoorO(i,iGrid)
       CoorAC(i,2) = TC(i)
       Coori(i,3) = TC(i)
       Coori(i,4) = TC(i)

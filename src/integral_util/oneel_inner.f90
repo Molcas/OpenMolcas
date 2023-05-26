@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
       Subroutine OneEl_Inner                                       &
-                       (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,  &
+                       (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,  &
                         nOrdOp,rHrmt,iChO,                         &
                         opmol,opnuc,ipad,iopadr,idirect,isyop,     &
                         iStabO,nStabO,nIC,                         &
@@ -59,7 +59,7 @@
 #include "property_label.fh"
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij
-      Real*8 CCoor(3,nComp), PtChrg(nGrid)
+      Real*8 CoorO(3,nComp), PtChrg(nGrid)
       dimension opmol(*),opnuc(*),iopadr(nComp,*)
       Character Label*8
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
@@ -67,12 +67,13 @@
       Integer LenTot
       Real*8 Array(LenTot)
 
-      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor, SOInt, FArray, Scrtch, ScrSph
+      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor, SOInt, Scrtch, ScrSph
+      Real*8, Allocatable, Target :: FArray(:)
 
       Interface
       Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,                  &
                           xZeta,xZI,xKappa,xPCoor,                 &
-                          Kernel,KrnlMm,Label,lOper,nComp,CCoor,   &
+                          Kernel,KrnlMm,Label,lOper,nComp,CoorO,   &
                           nOrdOp,iChO,                             &
                           iStabO,nStabO,nIC,                       &
                           PtChrg,nGrid,iAddPot,SOInt,l_SOInt,      &
@@ -81,11 +82,11 @@
       Integer iS,jS,iPrint
       Logical Do_PGamma
       Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-      External  Kernel, KrnlMm
+      External  KrnlMm
       Character Label*8
       Integer nComp
       Integer lOper(nComp)
-      Real*8 CCoor(3,nComp)
+      Real*8 CoorO(3,nComp)
       Integer nOrdOp
       Integer iChO(nComp), iStabO(0:7)
       Integer nStabO, nIC, nGrid, iAddPot
@@ -93,8 +94,19 @@
       Integer l_SOInt
       Real*8  SOInt(l_SOInt)
       Integer nFinal, nScrtch, nScrSph, nKern
-      Real*8 Final(nFinal),Scrtch(nScrtch),ScrSph(nScrSph)
+      Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
+      Real*8, Target:: Final(nFinal)
       Real*8 , Target:: Kern(nKern)
+      Interface
+      Subroutine Kernel( &
+#                define _CALLING_
+#                include "int_interface.fh"
+              )
+      use Definitions, only: wp, iwp
+      use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+      End subroutine Kernel
+      End Interface
       End Subroutine OneEl_IJ
 
       Subroutine Kernel( &
@@ -255,7 +267,7 @@
          ipSO=1
          Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,                     &
                        Zeta,ZI,Kappa,PCoor,                        &
-                       Kernel,KrnlMm,Label,lOper,nComp,CCoor,      &
+                       Kernel,KrnlMm,Label,lOper,nComp,CoorO,      &
                        nOrdOp,iChO,                                &
                        iStabO,nStabO,nIC,                          &
                        PtChrg,nGrid,iAddPot,SOInt,l_SOInt,         &

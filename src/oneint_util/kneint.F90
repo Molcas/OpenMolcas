@@ -94,7 +94,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In KnEInt: A',' ',A,1,3)
   call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
   write(u6,*) ' In KnEInt: la,lb=',la,lb
 end if
@@ -144,7 +144,7 @@ else
   ! Compute the contribution from the multipole moment operator
 
   ABeq(:) = .false.
-  call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
+  call CrtCmp(Zeta,P,nZeta,CoorO,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
 
   ! Compute the cartesian components for the multipole moment
   ! integrals. The integrals are factorized into components.

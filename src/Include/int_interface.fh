@@ -32,19 +32,20 @@
 ! nHer  : order of Rys- or Hermite-Gauss polynomial                    *
 ! Array : Auxiliary memory as requested by ECPMem                      *
 ! nArr  : length of Array                                              *
-! Ccoor : coordinates of the operator, zero for symmetric oper.        *
+! CoorO : coordinates of the operator, zero for symmetric oper.        *
 ! nOrdOp: Order of the operator                                        *
 !***********************************************************************
 
 #ifdef _CALLING_
-Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,lOper,iChO,iStabM, &
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,CoorO,nOrdOp,lOper,iChO,iStabM, &
 nStabM,PtChrg,nGrid,iAddPot &
 #else
 ! TODO: unknown intents, probably all "in" except rFinal
 integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nIC, nHer, nArr, nComp, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
                      iStabM(0:nStabM-1), nGrid, iAddPot
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), A(3), RB(3), Ccoor(3,nComp), PtChrg(nGrid)
+                 A(3), RB(3), CoorO(3,nComp), PtChrg(nGrid)
+real(kind=wp), target :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
 real(kind=wp), target :: Array(nZeta*nArr)
 #endif
 #undef _CALLING_

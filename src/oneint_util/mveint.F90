@@ -74,7 +74,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In MVeInt: A',' ',A,1,3)
   call RecPrt(' In MVeInt: RB',' ',RB,1,3)
-  call RecPrt(' In MVeInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In MVeInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In MVeInt: P',' ',P,nZeta,3)
   call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
@@ -89,7 +89,7 @@ call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 ! Compute the contribution from the multipole moment operator
 
 ABeq(:) = .false.
-call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-4,HerR(iHerR(nHer)),nHer,ABeq)
+call CrtCmp(Zeta,P,nZeta,CoorO,Array(ipRxyz),nOrdOp-4,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the cartesian components for the multipole moment
 ! integrals. The integrals are factorized into components.

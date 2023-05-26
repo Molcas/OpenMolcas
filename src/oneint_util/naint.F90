@@ -51,7 +51,7 @@ external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 unused_var(Alpha)
 unused_var(Beta)
 unused_var(nHer)
-unused_var(Ccoor)
+unused_var(CoorO)
 unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
