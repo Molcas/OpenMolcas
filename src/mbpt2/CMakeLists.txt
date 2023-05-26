@@ -33,6 +33,7 @@ set (sources
      get_tr_dab.F90
      lovmp2_drv.F90
      lovmp2_putinf.F90
+     mbpt2_global.F90
      mp2ap.F90
      mp2dens_drv.F90
      mp2diag.F90

@@ -15,4 +15,5 @@ Module chomp2_dec
 Public:: InCore, iOption_MP2CD, NowSym
 Logical InCore(8)
 Integer iOption_MP2CD, NowSym
+Real*8, Pointer, Contiguous :: EOcc(:) => null(), EVir(:) => null()
 End Module chomp2_dec

@@ -16,8 +16,7 @@
 !
 !     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 !
-      use ChoMP2_dec, only: NowSym, iOption_MP2CD
-      use mbpt2_global, only: EOcc, EVir
+      use ChoMP2_dec, only: EOcc, EVir, iOption_MP2CD, NowSym
       Implicit None
       Integer nDim, nCol, l_Buf
       Real*8  Col(nDim,nCol), Buf(l_Buf)

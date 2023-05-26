@@ -203,8 +203,7 @@
 !              ErrStat(3) = rms error
 !
       use ChoMP2, only: OldVec
-      use ChoMP2_dec, only: Incore
-      use mbpt2_global, only: EOcc, EVir
+      use ChoMP2_dec, only: EOcc, EVir, Incore
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
