@@ -28,12 +28,14 @@ subroutine EFInt( &
 
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Constants, only: Zero, One, Two, Three
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), ip1, ip2, ip3, ipIn, iPrint, iRout, &
+integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), ip1, ip2, ip3, ipIn, &
                      iStabO(0:7), kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
                      nFLOP, nMem, nOp, nStabO, nT, nzab
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), RR, TC(3), XX, YY
@@ -54,9 +56,6 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 200
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -166,7 +165,6 @@ do lDCRT=0,nDCRT-1
 
   ! Stored as nZeta,iElem,jElem,iComp
 
-  if (iPrint >= 49) then
     write(u6,*) ' In EFInt la,lb=',la,lb
     nzab = nZeta*kab
     do iElem=1,nTri_Elem1(la)
@@ -180,7 +178,6 @@ do lDCRT=0,nDCRT-1
         end do
       end do
     end do
-  end if
 #endif
 
   ! Accumulate contributions
