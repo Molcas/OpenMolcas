@@ -43,7 +43,7 @@
      &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
      &                  iStabO,nStabO,nIC,
      &                  PtChrg,nGrid,iAddPot,Array,LenTot)
-      External Kernel, KrnlMm
+      External KrnlMm
 
       Character Label*8
       Integer nComp
@@ -57,6 +57,17 @@
       Integer nGrid, LenTot, iAddPot
       Real*8 PtChrg(nGrid)
       Real*8 :: Array(LenTot)
+      Interface
+      Subroutine Kernel(
+#                define _CALLING_
+#                include "int_interface.fh"
+     &        )
+      use Definitions, only: wp, iwp
+      use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+      End subroutine Kernel
+      End Interface
+
       End Subroutine OneEl_Inner
 
       End Interface
