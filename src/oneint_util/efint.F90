@@ -135,20 +135,7 @@ do lDCRT=0,nDCRT-1
   ! Modify to traceless form, the sixth element contains r*r and
 
   if (nOrdOp == 2) then
-    !if (.false.) then
     nzab = nZeta*kab
-! order upper triangular xx,xy,xz,yy,yz,zz
-!   iOffxx = ip1
-!   iOffyy = ip1+nzab*3
-!   iOffzz = ip1+nzab*5
-!   do i=0,nzab-1
-!     RR = Array(iOffxx+i)+Array(iOffyy+i)+Array(iOffzz+i)
-!     XX = Two*Array(iOffxx+i)-Array(iOffyy+i)-Array(iOffzz+i)
-!     YY = Two*Array(iOffyy+i)-Array(iOffxx+i)-Array(iOffzz+i)
-!     Array(iOffxx+i) = XX*ThreeI
-!     Array(iOffyy+i) = YY*ThreeI
-!     Array(iOffzz+i) = RR
-!   end do
     EFInts(1:nzab,1:6) => Array(ip1:ip1-1+6*nzab)
     do i=1,nzab
       RR =     EFInts(i,1)+     EFInts(i,4) +     EFInts(i,6)
