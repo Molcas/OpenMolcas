@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys)
+subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys,nOrdOp)
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the roots and weights of the Rys polynomials.    *
@@ -28,14 +28,16 @@ subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys)
 use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
 use Gateway_global, only: asymptotic_Rys
 use Definitions, only: wp, iwp, u6
+use Constants, only: One
 
 implicit none
-integer(kind=iwp), intent(in) :: la, lb, lc, ld, nArg, nRys
+integer(kind=iwp), intent(in) :: la, lb, lc, ld, nArg, nRys, nOrdOp
 real(kind=wp), intent(in) :: Arg(nArg)
 real(kind=wp), intent(inout) :: Root(nRys,nArg)
 real(kind=wp), intent(out) :: Weight(nRys,nArg)
 integer(kind=iwp) :: labcd
 real(kind=wp) :: Tmax_
+integer(kind=iwp) :: iT, iRoot
 
 #ifdef _DEBUGPRINT_
 iRout = 78
@@ -115,6 +117,14 @@ select case (nRys)
     call Abend()
 
 end select
+
+if (nOrdOp==1 .or. nOrdOp==2) Then
+  do iT=1,nArg
+    do iRoot=1,nRys
+      Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
+    end do
+  end do
+End if
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then

@@ -111,6 +111,7 @@ ip_Array_Dummy = nArray
 
 ijkl = 0
 if (NoSpecial) ijkl = -1
+if (nOrdOp/=0) ijkl = -1
 
 ! For FMM, compute short-range integrals disabling special cases
 !gh - disable special cases anyway for the short range integrals
@@ -392,6 +393,10 @@ select case (ijkl)
         write(u6,*) ' ip-1  =',ip-1
         call Abend()
       end if
+      if (nOrdOp/=0) then
+        call WarningMessage(2,'Rys: check not implemented for nOrdOp/=0'
+        call Abend()
+      end if
 #     endif
       call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
 #     else
@@ -404,7 +409,7 @@ select case (ijkl)
           call Abend()
         end if
 #       endif
-        call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+        call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys,nOrdOp)
       else
 #       ifdef _CHECK_
         if (ip-1 > nArray) then
@@ -414,7 +419,7 @@ select case (ijkl)
           call Abend()
         end if
 #       endif
-        call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
+        call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys,nOrdOp)
       end if
 #     endif
       ! Let go of arguments

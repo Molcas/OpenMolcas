@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RTSWGH(TARR,NT,U2,WGH,NRYS)
+subroutine RTSWGH(TARR,NT,U2,WGH,NRYS,nOrdOp)
 
 use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
 use abdata, only: atab, btab, p0, tvalue
@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two, Three, Five, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NT, NRYS
+integer(kind=iwp), intent(in) :: NT, NRYS, nOrdOp
 real(kind=wp), intent(in) :: TARR(NT)
 real(kind=wp), intent(out) :: U2(NRYS,NT), WGH(NRYS,NT)
 integer(kind=iwp) :: IDEG, iroot, IT, J, k, nx
@@ -175,6 +175,14 @@ call mma_deallocate(BINV)
 call mma_deallocate(ROOT)
 call mma_deallocate(RYS)
 call mma_deallocate(RYSD)
+
+if (nOrdOp==1 .or. nOrdOp==2) then
+   do iT=1,nT
+      do iRoot=1,nRys
+        WGH(iRoot,iT) = ( U2(iRoot,iT) / (One-U2(iRoot,iT)) )**nOrdOp * WGH(iRoot,iT)
+      end do
+   end do
+end if
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then
