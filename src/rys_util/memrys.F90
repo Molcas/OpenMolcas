@@ -78,6 +78,7 @@ nabMax = la+lb+nOrdOp
 ncdMax = lc+ld+nOrdOp
 !ncdMin = max(lc,ld)
 nabcd = (nabMax+1)*(ncdMax+1)
+nabcd = (nabMax-nOrdOp+1)*(ncdMax-nOrdOp+1)
 lB10 = max(min(nabMax-1,1),0)
 lB01 = max(min(ncdMax-1,1),0)
 lB00 = max(min(min(nabMax,ncdMax),1),0)

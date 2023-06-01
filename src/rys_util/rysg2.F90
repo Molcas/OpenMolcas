@@ -88,6 +88,7 @@ integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), In
                      lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR
 logical(kind=iwp) :: KfGrd(3,4)
 external :: Exp_1, Exp_2
+integer(kind=iwp) :: nOrdOp=0
 
 KfGrd(:,:) = .false.
 lOp(1) = iOper(nOp(1))
@@ -225,7 +226,7 @@ if ((nRys > nMxRys) .or. NoTab) then
     call Abend()
   end if
 
-  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys,nOrdOp)
 else
   if (ip-1 > nArray) then
     call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 3)')
@@ -234,7 +235,7 @@ else
   end if
 
   ! Make sure rys11/her11 is called  (la+1)
-  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
+  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys,nOrdOp)
 end if
 ! Drop ipTv
 ip = ip-nT

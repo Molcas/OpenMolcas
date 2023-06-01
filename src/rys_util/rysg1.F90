@@ -47,6 +47,7 @@ integer(kind=iwp) :: iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB1
 real(kind=wp) :: Temp(9)
 logical(kind=iwp) :: JfGrad(3,4)
 external :: Exp_1, Exp_2
+integer(kind=iwp) :: nOrdOp=0
 
 lOp(1) = iOper(kOp(1))
 lOp(2) = iOper(kOp(2))
@@ -201,7 +202,7 @@ if ((nRys > nMxRys) .or. NoTab) then
     call Abend()
   end if
 # endif
-  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys,nOrdOp)
 else
 # ifdef _CHECK_
   if (ip-1 > nArray) then
@@ -211,7 +212,7 @@ else
     call Abend()
   end if
 # endif
-  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
+  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys,nOrdOp)
 end if
 ! Drop ipTv
 ip = ip-nT
