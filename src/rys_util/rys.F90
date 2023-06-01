@@ -50,9 +50,13 @@ logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
                      ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
                      ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, &
-                     ntmp, nTR
+                     ntmp, nTR, nabcdN, ipxyzN
 logical(kind=iwp) :: AeqB, CeqD, secondpass
 logical(kind=iwp), external :: EQ
+
+! Develepment part of the code towards integrals for Brite and Brite-Pauli Hamiltonians
+integer(kind=iwp) :: nOrdOp=0  ! 1 for Brite and 2 for BP Hamiltonian
+
 
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -74,12 +78,29 @@ lc = iAnga(3)
 ld = iAnga(4)
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
+
+! Compute the order of the needed polynomial.
+If (nOrdOp==0) Then
+nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+Else If (nOrdOp==1) Then
+nRys = (la+lb+lc+ld+3)/2
+Else If (nOrdOp==1) Then
 nRys = (la+lb+lc+ld+2)/2
-nabMax = la+lb
+End If
+
+
+nabMax = la+lb+nOrdOp
 nabMin = max(la,lb)
-ncdMax = lc+ld
+ncdMax = lc+ld+nOrdOp
 ncdMin = max(lc,ld)
+
 nabcd = (nabMax+1)*(ncdMax+1)
+
+If (nOrdOp==0) Then
+   nabcdN=nabcd
+Else
+   nabcdN=(nabMax-nOrdOp+1)*(ncdMax-nOrdOp+1)
+End If
 
 ! In some cases a pointer to Array will not be used. However, the
 ! subroutine call still have the same number of arguments. In this
@@ -179,7 +200,11 @@ select case (ijkl)
     ! Allocate memory for integrals of [a0|c0] type
     ip = 1
     ipAC = ip
-    ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    If (nOrdOp==0) Then
+       ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    Else
+       ip = ip+nT*6*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    End If
     !gh - in order to produce the short range integrals, two arrays of
     !gh - this type are needed - one for the ordinary full range, one for
     !gh - the long range integrals
@@ -195,6 +220,9 @@ select case (ijkl)
     ! Allocate memory for the 2D-integrals.
     ipxyz = ip
     ip = ip+nabcd*3*nT*nRys
+    ! Allocate memory for the generalized 2D-integrals a la Toru Shirozaki.
+    ipxyzN = ip
+    ip = ip+nabcdN*3*nOrdOp*nT*nRys
     secondpass = .false.
     ! jump mark for second pass:
     do
@@ -417,6 +445,11 @@ select case (ijkl)
       ip = ip-nTR*3
       ip = ip-nTR*3
 
+      ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
+
+      If (nOrdOp/=0)   &
+      call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-nOrdOp,ncdMax-nOrdOp,Array(ipP),Array(ipQ),nOrdOp)
+
       ! Compute [a0|c0] integrals
 
       ipScr = ip
@@ -452,7 +485,7 @@ select case (ijkl)
         else
 
           ! [in the second run, the long range integrals are created in Array(ipScr_long)]
-          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax+nOrdOp,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
                      Array(ipScr),Array(ipFact),AeqB,CeqD)
           ! [make difference to produce the desired short range integrals]
           if (FMM_shortrange) then
@@ -488,6 +521,7 @@ select case (ijkl)
     !*******************************************************************
     !                                                                  *
     ip = ip-nT*nRys
+    ip = ip-nabcdN*3*nOrdOp*nT*nRys
     ip = ip-nabcd*3*nT*nRys
     ip = ip-nT
     ! - release additional memory allocated for long range integrals

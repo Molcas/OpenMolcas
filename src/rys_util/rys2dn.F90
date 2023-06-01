@@ -37,35 +37,39 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax+nOrdOp,0:ncdMax+nOrdOp)
-real(kind=wp), intent(out) ::   xyz2DN(nArg*lRys,3,nOrdOp,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: P(3), Q(3)
-integer(kind=iwp) :: ie, if
+integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax, nOrdOp
+real(kind=wp), intent(inout) :: xyz2D(lRys,nArg,3,0:nabMax+nOrdOp,0:ncdMax+nOrdOp)
+real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,nOrdOp,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: P(nArg,3), Q(nArg,3)
+integer(kind=iwp) :: ie, if, iRys
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iOrdOp
 character(LEN=30) Label
-if (nabMax > 0) call RecPrt('P',' ',P,1,3)
-if (ncdMax > 0) call RecPrt('Q',' ',Q,1,3)
+if (nabMax > 0) call RecPrt('P',' ',P,nArg,3)
+if (ncdMax > 0) call RecPrt('Q',' ',Q,nArg,3)
 #endif
 
-xyz2DN(:,:,:,:) = Zero
+xyz2DN(:,:,:,:,:,:) = Zero
 
 do ie=0,nabMax
   do if=0,ncdMax
-    xyz2DN(:,1,1,ie,if) = xyz2D(:,1,ie+1,if) - xyz2D(:,1,ie,if+1) + (P(1)-Q(1))*xyz2D(:,1,ie,if)
-    xyz2DN(:,2,1,ie,if) = xyz2D(:,2,ie+1,if) - xyz2D(:,2,ie,if+1) + (P(2)-Q(2))*xyz2D(:,2,ie,if)
-    xyz2DN(:,3,1,ie,if) = xyz2D(:,3,ie+1,if) - xyz2D(:,3,ie,if+1) + (P(3)-Q(3))*xyz2D(:,3,ie,if)
+    do iRys = 1, lRys
+      xyz2DN(iRys,:,1,1,ie,if) = xyz2D(iRys,:,1,ie+1,if) - xyz2D(iRys,:,1,ie,if+1) + (P(:,1)-Q(:,1))*xyz2D(iRys,:,1,ie,if)
+      xyz2DN(iRys,:,2,1,ie,if) = xyz2D(iRys,:,2,ie+1,if) - xyz2D(iRys,:,2,ie,if+1) + (P(:,2)-Q(:,2))*xyz2D(iRys,:,2,ie,if)
+      xyz2DN(iRys,:,3,1,ie,if) = xyz2D(iRys,:,3,ie+1,if) - xyz2D(iRys,:,3,ie,if+1) + (P(:,3)-Q(:,3))*xyz2D(iRys,:,3,ie,if)
+    end do
   end do
 end do
 
 If (nOrdOp==2) Then
 do ie=0,nabMax
   do if=0,ncdMax
-    xyz2DN(:,1,2,ie,if) = xyz2DN(:,1,2,ie+1,if) - xyz2DN(:,1,2,ie,if+1) + (P(1)-Q(1))*xyz2DN(:,1,2,ie,if)
-    xyz2DN(:,2,2,ie,if) = xyz2DN(:,2,2,ie+1,if) - xyz2DN(:,2,2,ie,if+1) + (P(2)-Q(2))*xyz2DN(:,2,2,ie,if)
-    xyz2DN(:,3,2,ie,if) = xyz2DN(:,3,2,ie+1,if) - xyz2DN(:,3,2,ie,if+1) + (P(3)-Q(3))*xyz2DN(:,3,2,ie,if)
+    do iRys = 1, lRys
+      xyz2DN(iRys,:,1,2,ie,if) = xyz2DN(iRys,:,1,2,ie+1,if) - xyz2DN(iRys,:,1,2,ie,if+1) + (P(:,1)-Q(:,1))*xyz2DN(iRys,:,1,2,ie,if)
+      xyz2DN(iRys,:,2,2,ie,if) = xyz2DN(iRys,:,2,2,ie+1,if) - xyz2DN(iRys,:,2,2,ie,if+1) + (P(:,2)-Q(:,2))*xyz2DN(iRys,:,2,2,ie,if)
+      xyz2DN(iRys,:,3,2,ie,if) = xyz2DN(iRys,:,3,2,ie+1,if) - xyz2DN(iRys,:,3,2,ie,if+1) + (P(:,3)-Q(:,3))*xyz2DN(iRys,:,3,2,ie,if)
+    end do
   end do
 end do
 End If
@@ -76,11 +80,11 @@ do iOrdOp=1, nOrdOp
 do ie=0,nabMax
   do if=0,ncdMax
     write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(x)'
-    call RecPrt(Label,' ',xyz2DN(:,1,iOrdOp,ie,if),lRys,nArg)
+    call RecPrt(Label,' ',xyz2DN(:,:,1,iOrdOp,ie,if),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(y)'
-    call RecPrt(Label,' ',xyz2DN(:,2,iOrdOp,ie,if),lRys,nArg)
+    call RecPrt(Label,' ',xyz2DN(:,:,2,iOrdOp,ie,if),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(z)'
-    call RecPrt(Label,' ',xyz2DN(:,3,iOrdOp,ie,if),lRys,nArg)
+    call RecPrt(Label,' ',xyz2DN(:,:,3,iOrdOp,ie,if),lRys,nArg)
   end do
 end do
 end do

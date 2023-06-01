@@ -25,7 +25,10 @@ integer(kind=iwp), intent(in) :: iAnga(4)
 integer(kind=iwp), intent(out) :: MemPrm
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
-                     ncdMax, nRys
+                     ncdMax, nRys, nabcdN
+
+!Development for integrals for the Brite and the Brite-Pauli Hamiltonian
+integer(kind=iwp) :: nOrdOp=0
 
 iRout = 13
 iPrint = nPrint(iRout)
@@ -33,7 +36,13 @@ la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
+If (nOrdOp==0) Then
 nRys = (la+lb+lc+ld+2)/2
+Else If (nOrdOp==1) Then
+nRys = (la+lb+lc+ld+3)/2
+Else If (nOrdOp==2) Then
+nRys = (la+lb+lc+ld+2)/2
+End If
 labMin = nTri3_Elem1(max(la,lb)-1)
 labMax = nTri3_Elem1(la+lb)-1
 lcdMin = nTri3_Elem1(max(lc,ld)-1)
@@ -47,20 +56,26 @@ if (iPrint >= 99) then
 end if
 MemPrm = 0
 ! [a0|c0]
-MemPrm = MemPrm+labcd
-!                                                                      *
+If (nOrdOp==0) Then
+   MemPrm = MemPrm+labcd
+Else
+!  6 elements in the case of integrals for spin-spin coupling
+   MemPrm = MemPrm+labcd*6
+End If
+!                                                                     *
 !***********************************************************************
 !                                                                      *
 ! For FMM, we only want short-range integrals, using twice the memory
 ! to store full and long-range components (which are subtracted)
+! This option is not active for nOrdOp/=0
 
 if (FMM_shortrange) MemPrm = MemPrm+labcd
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nabMax = la+lb
+nabMax = la+lb+nOrdOp
 !nabMin = max(la,lb)
-ncdMax = lc+ld
+ncdMax = lc+ld+nOrdOp
 !ncdMin = max(lc,ld)
 nabcd = (nabMax+1)*(ncdMax+1)
 lB10 = max(min(nabMax-1,1),0)
@@ -70,6 +85,8 @@ lB00 = max(min(min(nabMax,ncdMax),1),0)
 MemPrm = MemPrm+1
 ! 2D-Integrals
 MemPrm = MemPrm+nabcd*3*nRys
+! Generalized 2D-integrals
+If (nOrdOp/=0) MemPrm = MemPrm+nabcdN*3*nRys
 ! Coefficients for recurrence relations
 MemPrm = MemPrm+3*nRys+3*nRys+3*nRys*(lB10+lB01+lB00)
 ! Roots

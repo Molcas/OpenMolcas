@@ -60,6 +60,7 @@ set (sources
      rys11.F90
      rys22.F90
      rys2d.F90
+     rys2dn.F90
      rys2dg.F90
      rys33.F90
      rys44.F90
