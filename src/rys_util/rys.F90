@@ -218,10 +218,10 @@ select case (ijkl)
     ! Allocate memory for the normalization factors
     ipFact = ip
     ip = ip+nT
-    ! Allocate memory for the 2D-integrals.
+    ! Allocate memory for the ordinary 2D-integrals.
     ipxyz = ip
     ip = ip+nabcd*3*nT*nRys
-    ! Allocate memory for the generalized 2D-integrals a la Toru Shirozaki.
+    ! Allocate memory for the extended 2D-integrals a la Toru Shirozaki.
     ipxyzN = ip
     ip = ip+nabcdN*3*nOrdOp*nT*nRys
     secondpass = .false.
