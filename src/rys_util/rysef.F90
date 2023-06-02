@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,Scrtch,PreFct,AeqB,CeqD)
 !***********************************************************************
@@ -39,10 +40,10 @@ real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 real(kind=wp), intent(inout) :: Scrtch(nRys,mArg)
 logical(kind=iwp), intent(in) :: AeqB, CeqD
 integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
+integer(kind=iwp) :: iRys,iArg
 
 !                                                                      *
 !***********************************************************************
@@ -74,6 +75,8 @@ do ief=1,ne*nf
   if (CeqD) nzfMin = nzfMax
 
   nItem = (nzeMax-nzeMin+1)*(nzfMax-nzfMin+1)
+#define _SPECIAL_
+#ifdef _SPECIAL_
   if (nItem > 1) then
 
     ! Precompute for all arguments Ix*Iy, avoid multiplying with ones.
@@ -82,8 +85,8 @@ do ief=1,ne*nf
 
     if (ixye+ixyf == 0) then
 
-      call RysEF1(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax,nzfMin, &
-                  nzfMax)
+      call RysEF1(       xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
+                  nzfMin,nzfMax)
 
     else if (ixe+ixf == 0) then
 
@@ -130,6 +133,11 @@ do ief=1,ne*nf
     end if
 
   end if
+#else
+      Scrtch(:,:) = xyz2D(:,:,1,ixe,ixf)*xyz2D(:,:,2,iye,iyf)
+      call RysEF0(Scrtch,xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
+                  nzfMin,nzfMax)
+#endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *

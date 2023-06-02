@@ -51,6 +51,7 @@ call RecPrt(' B00',' ',B00,lRys,nArg)
 call RecPrt(' B01',' ',B01,lRys,nArg)
 #endif
 
+
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then
 
   ! General code
@@ -182,6 +183,8 @@ do iab=0,nabMax
   end do
 end do
 #endif
+
+xyz2D(:,1:2,0,0)=One
 
 return
 
