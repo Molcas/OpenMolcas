@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RysEFX(Ixy4D,Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
-                  nzfMin,nzfMax)
+subroutine RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
+                  nzeMin,nzeMax,nzfMin,nzfMax)
 !***********************************************************************
 !                                                                      *
 !     Object: kernel routine to assemble the integrals from the Ixy    *
@@ -29,9 +29,9 @@ use Index_Functions, only: C3_Ind
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMin, nzeMax, &
-                                 nzfMin, nzfMax
-real(kind=wp), intent(in) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, iye, iyf, ixye, ixyf, &
+                                 nzeMin, nzeMax, nzfMin, nzfMax
+real(kind=wp), intent(in) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
 real(kind=wp), intent(inout) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 integer(kind=iwp) :: Inde, Indf, iRys, ize, izf
 
@@ -42,9 +42,9 @@ integer(kind=iwp) :: Inde, Indf, iRys, ize, izf
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        EFInt(1:mArg,Inde,Indf) = Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)
+        EFInt(1:mArg,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
         do iRys=2,nRys
-          EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+Ixy4D(iRys,:)*Iz2D(iRys,:,3,ize,izf)
+          EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
         end do
         EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
       end do

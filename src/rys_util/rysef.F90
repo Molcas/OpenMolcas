@@ -75,7 +75,7 @@ do ief=1,ne*nf
   if (CeqD) nzfMin = nzfMax
 
   nItem = (nzeMax-nzeMin+1)*(nzfMax-nzfMin+1)
-#define _SPECIAL_
+!#define _SPECIAL_
 #ifdef _SPECIAL_
   if (nItem > 1) then
 
@@ -134,9 +134,8 @@ do ief=1,ne*nf
 
   end if
 #else
-      Scrtch(:,:) = xyz2D(:,:,1,ixe,ixf)*xyz2D(:,:,2,iye,iyf)
-      call RysEFX(Scrtch,xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
-                  nzfMin,nzfMax)
+      call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
+                  nzeMin,nzeMax,nzfMin,nzfMax)
 #endif
   !                                                                    *
   !*********************************************************************
