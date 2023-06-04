@@ -66,9 +66,9 @@ If (nOrdOp==2) Then
 do ie=0,nabMax
   do if=0,ncdMax
     do iRys = 1, lRys
-      xyz2DN(iRys,:,1,2,ie,if) = xyz2DN(iRys,:,1,2,ie+1,if) - xyz2DN(iRys,:,1,2,ie,if+1) + (P(:,1)-Q(:,1))*xyz2DN(iRys,:,1,2,ie,if)
-      xyz2DN(iRys,:,2,2,ie,if) = xyz2DN(iRys,:,2,2,ie+1,if) - xyz2DN(iRys,:,2,2,ie,if+1) + (P(:,2)-Q(:,2))*xyz2DN(iRys,:,2,2,ie,if)
-      xyz2DN(iRys,:,3,2,ie,if) = xyz2DN(iRys,:,3,2,ie+1,if) - xyz2DN(iRys,:,3,2,ie,if+1) + (P(:,3)-Q(:,3))*xyz2DN(iRys,:,3,2,ie,if)
+      xyz2DN(iRys,:,1,2,ie,if) = xyz2DN(iRys,:,1,1,ie+1,if) - xyz2DN(iRys,:,1,1,ie,if+1) + (P(:,1)-Q(:,1))*xyz2DN(iRys,:,1,1,ie,if)
+      xyz2DN(iRys,:,2,2,ie,if) = xyz2DN(iRys,:,2,1,ie+1,if) - xyz2DN(iRys,:,2,1,ie,if+1) + (P(:,2)-Q(:,2))*xyz2DN(iRys,:,2,1,ie,if)
+      xyz2DN(iRys,:,3,2,ie,if) = xyz2DN(iRys,:,3,1,ie+1,if) - xyz2DN(iRys,:,3,1,ie,if+1) + (P(:,3)-Q(:,3))*xyz2DN(iRys,:,3,1,ie,if)
     end do
   end do
 end do
