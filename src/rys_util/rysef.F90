@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _SPECIAL_
 
 subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,Scrtch,PreFct,AeqB,CeqD)
 !***********************************************************************
@@ -30,7 +31,11 @@ subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
+#ifdef _SPECIAL_
 use Index_Functions, only: iTri_Rev
+#else
+use Index_Functions, only: iTri_Rev, C3_Ind
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
@@ -39,7 +44,12 @@ real(kind=wp), intent(in) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
 real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 real(kind=wp), intent(inout) :: Scrtch(nRys,mArg)
 logical(kind=iwp), intent(in) :: AeqB, CeqD
+#ifdef _SPECIAL_
 integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
+#else
+integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
+integer(kind=iwp) ::  Inde, Indf, ize, izf
+#endif
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -75,7 +85,6 @@ do ief=1,ne*nf
   if (CeqD) nzfMin = nzfMax
 
   nItem = (nzeMax-nzeMin+1)*(nzfMax-nzfMin+1)
-!#define _SPECIAL_
 #ifdef _SPECIAL_
   if (nItem > 1) then
 
@@ -134,8 +143,20 @@ do ief=1,ne*nf
 
   end if
 #else
-      call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
-                  nzeMin,nzeMax,nzfMin,nzfMax)
+    do izf=nzfMin,nzfMax
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
+      do ize=nzeMin,nzeMax
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
+        EFInt(1:mArg,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
+        do iRys=2,nRys
+          EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+        end do
+        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
+      end do
+    end do
+
+!   call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
+!               nzeMin,nzeMax,nzfMin,nzfMax)
 #endif
   !                                                                    *
   !*********************************************************************

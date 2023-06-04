@@ -24,7 +24,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4)
 integer(kind=iwp), intent(out) :: MemPrm
-integer(kind=iwp) :: iPrint, iRout, la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
+integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys, nabcdN
 
 !Development for integrals for the Brite and the Brite-Pauli Hamiltonian
@@ -46,12 +46,12 @@ labMax = nTri3_Elem1(la+lb)-1
 lcdMin = nTri3_Elem1(max(lc,ld)-1)
 lcdMax = nTri3_Elem1(lc+ld)-1
 labcd = (labMax-labMin+1)*(lcdMax-lcdMin+1)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' labMin=',labMin
   write(u6,*) ' labMax=',labMax
   write(u6,*) ' lcdMin=',lcdMin
   write(u6,*) ' lcdMax=',lcdMax
-end if
+#endif
 MemPrm = 0
 ! [a0|c0]
 If (nOrdOp==0) Then
@@ -97,7 +97,6 @@ MemPrm = MemPrm+1
 ! Expanded versions of Zeta, ZetInv, Eta, EtaInv, rKapab, rKapcd, P and Q
 MemPrm = MemPrm+12
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
   write(u6,*) ' [e0|f0] integrals   :',labcd
   write(u6,*) ' Normalization factor:',1
   write(u6,*) ' 2D-integrals        :',nabcd*3*nRys
@@ -111,7 +110,6 @@ if (iPrint >= 99) then
   write(u6,*) ' Roots               :',nRys
   write(u6,*) ' Inverse arguments   :',1
   write(u6,*) ' Arguments           :',1
-end if
 #endif
 
 return
