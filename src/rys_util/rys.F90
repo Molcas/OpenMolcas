@@ -527,7 +527,7 @@ select case (ijkl)
         else
            call RysEFn(Array(ipxyz),Array(ipxyzN),nT,nT,nRys,nabMin,nabMax-2,ncdMin,ncdMax-2,Array(ipAC), &
                        mabMin,mabMax,mcdMin,mcdMax, &
-                       Array(ipFact),AeqB,CeqD,nOrdOp)
+                       Array(ipFact),AeqB,CeqD)
         endif
         exit
         !                                                              *

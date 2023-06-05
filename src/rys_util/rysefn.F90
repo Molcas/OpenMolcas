@@ -12,8 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _CHECK_R3_TERM_
 
-subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,AeqB,CeqD,nOrdOp)
+subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,AeqB,CeqD)
 !***********************************************************************
 !                                                                      *
 !     Object: to compute integrals corresponding to the primitive set  *
@@ -30,15 +31,22 @@ subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMi
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
+! The _CHECK_R3_TERM_ option will test the 1/R**3 code by computing a single integral as (x**2+y**2+z**2)/r**3 = 1/r
+! That is it should generate the regular ERIs.
+
 use Index_Functions, only: iTri_Rev, C3_Ind
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax, nOrdOp
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
 real(kind=wp), intent(in) :: xyz2D (nRys,mArg,3,  0:neMax+2,0:nfMax+2)
 real(kind=wp), intent(in) :: xyz2Dn(nRys,mArg,3,2,0:neMax,       0:nfMax)
 real(kind=wp), intent(in) :: PreFct(mArg)
+#ifdef _CHECK_R3_TERM_
+real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
+#else
 real(kind=wp), intent(out) :: EFInt(nArg,6,meMin:meMax,mfMin:mfMax)
+#endif
 logical(kind=iwp), intent(in) :: AeqB, CeqD
 integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nzeMax, nzeMin, nzfMax, nzfMin
 integer(kind=iwp) ::  Inde, Indf, ize, izf
@@ -80,6 +88,16 @@ do ief=1,ne*nf
      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
      do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
+#ifdef _CHECK_R3_TERM_
+        EFInt(1:mArg,Inde,Indf) = Zero
+        do iRys=1,nRys
+           EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf) &
+                                   + xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2D (1,:,3,  ize,izf)
+                                   + xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,2,iye,iyf)*xyz2D (1,:,3,  ize,izf)
+                                   + xyz2D (1,:,1,  ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,2,ize,izf)
+        end do
+        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
+#else
         EFInt(1:mArg,1,Inde,Indf) = xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2D (1,:,3,  ize,izf)
         EFInt(1:mArg,2,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2D (1,:,3,  ize,izf)
         EFInt(1:mArg,3,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
@@ -106,6 +124,7 @@ do ief=1,ne*nf
         EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf)*PreFct(:)
         EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf)*PreFct(:)
         EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf)*PreFct(:)
+#endif
      end do
   end do
   !                                                                    *

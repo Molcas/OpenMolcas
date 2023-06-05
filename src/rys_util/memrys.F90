@@ -19,7 +19,10 @@ subroutine MemRys(iAnga,MemPrm)
 
 use Gateway_global, only: FMM_shortrange
 use Index_Functions, only: nTri3_Elem1
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4)
