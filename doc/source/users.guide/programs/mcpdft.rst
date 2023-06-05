@@ -111,6 +111,13 @@ The :kword:`KSDFT` is the only required keyword.
 :kword:`KSDFT`
   The functional choice follows. Specify the functional by prefixing
   ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
+  Note that hybrid functional names (e.g. PBE0 or B3LYP) should not be used after ``KSDFT=T:`` or
+  ``KSDFT=FT:`` in this module. 
+  See keyword ``LAMBda`` for a description on how to run hybrid MC-PDFT calculations.
+  Also note that a `Libxc <https://www.tddft.org/programs/libxc/>`_ functional name,
+  or the format of a number :math:`N` followed by :math:`N` lines, 
+  each of them containing a weight factor and a Libxc functional name, 
+  is not supported in this module.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="STRING" > LEVEL="BASIC"
               %Keyword: KSDFT <basic>
@@ -177,7 +184,21 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`LAMBda`
-  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation. In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy and the wave function energy. The weight of the wave function energy is given by Lambda, and the weight of the PDFT energy is one minus Lambda; for example, to run MC-PDFT with tPBE0, the value for Lambda should be 0.25.  The default is Lambda=0.0.
+  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation. In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy and the wave function energy. The weight of the wave function energy is given by Lambda, and the weight of the PDFT energy is one minus Lambda; for example, to run MC-PDFT with tPBE0, the value for Lambda should be 0.25. The default is Lambda=0.0.
+
+  Example of running tPBE0:
+  ::
+     KSDFT = T:PBE
+     LAMB  = 0.25
+  However, the following two examples will NOT give tPBE0 results.
+  ::
+     KSDFT = T:PBE0
+  or
+  ::
+     KSDFT = T:PBE0
+     LAMB  = 0.25
+  because hybrid functional names (e.g. PBE0 or B3LYP) should not be used 
+  after ``KSDFT=T:`` in this module.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMBDA" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
@@ -285,7 +306,6 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|. ::
 
    &MCPDFT
    KSDFT=T:PBE
-   NoGrad
    MSPDft
 
 The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` in :program:`RASSCF` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
