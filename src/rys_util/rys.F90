@@ -84,22 +84,29 @@ If (nOrdOp==0) Then
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
 Else If (nOrdOp==1) Then
 nRys = (la+lb+lc+ld+3)/2
-Else If (nOrdOp==1) Then
-nRys = (la+lb+lc+ld+2)/2
+Else If (nOrdOp==2) Then
+nRys = (la+lb+lc+ld+4)/2
 End If
 
 
-nabMax = la+lb+nOrdOp
+If (nOrdOp==0) Then
+nabMax = la+lb
 nabMin = max(la,lb)
-ncdMax = lc+ld+nOrdOp
+ncdMax = lc+ld
 ncdMin = max(lc,ld)
+Else
+nabMax = la+lb+2
+nabMin = max(la,lb)
+ncdMax = lc+ld+2
+ncdMin = max(lc,ld)
+End If
 
 nabcd = (nabMax+1)*(ncdMax+1)
 
 If (nOrdOp==0) Then
-   nabcdN=nabcd
+   nabcdN=0
 Else
-   nabcdN=(nabMax-nOrdOp+1)*(ncdMax-nOrdOp+1)
+   nabcdN=(nabMax-2+1)*(ncdMax-2+1)
 End If
 
 ! In some cases a pointer to Array will not be used. However, the
@@ -223,7 +230,7 @@ select case (ijkl)
     ip = ip+nabcd*3*nT*nRys
     ! Allocate memory for the extended 2D-integrals a la Toru Shirozaki.
     ipxyzN = ip
-    ip = ip+nabcdN*3*nOrdOp*nT*nRys
+    ip = ip+nabcdN*3*2*nT*nRys
     secondpass = .false.
     ! jump mark for second pass:
     do
@@ -453,12 +460,12 @@ select case (ijkl)
       ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
 
       If (nOrdOp/=0)   &
-      call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-nOrdOp,ncdMax-nOrdOp,Array(ipP),Array(ipQ),nOrdOp)
+      call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,Array(ipP),Array(ipQ),nOrdOp)
 
       ! Compute [a0|c0] integrals
 
       ipScr = ip
-      ip = ip+nT*nRys
+      If (nOrdOp==0) ip = ip+nT*nRys
       AeqB = EQ(Coora(1,1),Coora(1,2))
       CeqD = EQ(Coora(1,3),Coora(1,4))
       !                                                                *
@@ -490,7 +497,7 @@ select case (ijkl)
         else
 
           ! [in the second run, the long range integrals are created in Array(ipScr_long)]
-          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax+nOrdOp,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
                      Array(ipScr),Array(ipFact),AeqB,CeqD)
           ! [make difference to produce the desired short range integrals]
           if (FMM_shortrange) then
@@ -514,8 +521,14 @@ select case (ijkl)
         !                                                              *
         !***************************************************************
         !                                                              *
-        call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
-                   Array(ipFact),AeqB,CeqD)
+        if (nOrdOp==0) then
+           call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax, &
+                      Array(ipScr),Array(ipFact),AeqB,CeqD)
+        else
+           call RysEFn(Array(ipxyz),Array(ipxyzN),nT,nT,nRys,nabMin,nabMax-2,ncdMin,ncdMax-2,Array(ipAC), &
+                       mabMin,mabMax,mcdMin,mcdMax, &
+                       Array(ipFact),AeqB,CeqD,nOrdOp)
+        endif
         exit
         !                                                              *
         !***************************************************************
@@ -534,7 +547,11 @@ select case (ijkl)
 end select
 #ifdef _DEBUGPRINT_
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+If (nOrdOp==0) Then
 call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
+Else
+call RecPrt('{e0|f0}',' ',Array,nT,6*mabcd)
+End If
 #endif
 
 return

@@ -69,6 +69,7 @@ set (sources
      rys77.F90
      rys88.F90
      rys99.F90
+     rysefn.F90
      rysefx.F90
      rysef0.F90
      rysef1.F90

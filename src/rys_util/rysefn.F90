@@ -12,9 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-#define _SPECIAL_
 
-subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,Scrtch,PreFct,AeqB,CeqD)
+subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,AeqB,CeqD,nOrdOp)
 !***********************************************************************
 !                                                                      *
 !     Object: to compute integrals corresponding to the primitive set  *
@@ -31,26 +30,19 @@ subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
-#ifdef _SPECIAL_
-use Index_Functions, only: iTri_Rev
-#else
 use Index_Functions, only: iTri_Rev, C3_Ind
-#endif
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
-real(kind=wp), intent(in) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
-real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
-real(kind=wp), intent(inout) :: Scrtch(nRys,mArg)
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax, nOrdOp
+real(kind=wp), intent(in) :: xyz2D (nRys,mArg,3,  0:neMax+2,0:nfMax+2)
+real(kind=wp), intent(in) :: xyz2Dn(nRys,mArg,3,2,0:neMax,       0:nfMax)
+real(kind=wp), intent(in) :: PreFct(mArg)
+real(kind=wp), intent(out) :: EFInt(nArg,6,meMin:meMax,mfMin:mfMax)
 logical(kind=iwp), intent(in) :: AeqB, CeqD
-#ifdef _SPECIAL_
-integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
-#else
-integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
+integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nzeMax, nzeMin, nzfMax, nzfMin
 integer(kind=iwp) ::  Inde, Indf, ize, izf
 integer(kind=iwp) :: iRys
-#endif
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -58,9 +50,6 @@ character(len=80) :: Label
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifndef _SPECIAL_
-call unused_real_array(Scrtch)
-#endif
 ne = (neMax+1)*(neMax+2)/2
 nf = (nfMax+1)*(nfMax+2)/2
 
@@ -87,79 +76,38 @@ do ief=1,ne*nf
   nzfMin = max(0,nfMin-ixyf)
   if (CeqD) nzfMin = nzfMax
 
-#ifdef _SPECIAL_
-  nItem = (nzeMax-nzeMin+1)*(nzfMax-nzfMin+1)
-  if (nItem > 1) then
-
-    ! Precompute for all arguments Ix*Iy, avoid multiplying with ones.
-
-    ! Combine with possible Iz
-
-    if (ixye+ixyf == 0) then
-
-      call RysEF1(       xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
-                  nzfMin,nzfMax)
-
-    else if (ixe+ixf == 0) then
-
-      call RysEF0(xyz2D(:,:,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
-                  nzeMin,nzeMax,nzfMin,nzfMax)
-
-    else if (iye+iyf == 0) then
-
-      call RysEF0(xyz2D(:,:,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
-                  nzeMin,nzeMax,nzfMin,nzfMax)
-
-    else
-
-      Scrtch(:,:) = xyz2D(:,:,1,ixe,ixf)*xyz2D(:,:,2,iye,iyf)
-      call RysEF0(Scrtch,xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
-                  nzfMin,nzfMax)
-
-    end if
-
-  else
-
-    ! Here if only one triplet of 2D-integrals
-
-    ! Contract over roots
-
-    if (ixye+ixyf == 0) then
-
-      call RysEF2(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMax,nzfMax)
-
-    else if (ixe+ixf == 0) then
-
-      call RysEF3(xyz2D(:,:,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
-                  nzeMax,nzfMax)
-
-    else if (iye+iyf == 0) then
-
-      call RysEF3(xyz2D(:,:,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
-                  nzeMax,nzfMax)
-
-    else
-
-      call RysEF4(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMax,nzfMax)
-
-    end if
-
-  end if
-#else
-    do izf=nzfMin,nzfMax
-      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
-      do ize=nzeMin,nzeMax
+  do izf=nzfMin,nzfMax
+     Indf = C3_Ind(ixyf+izf,ixf,izf)-1
+     do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        EFInt(1:mArg,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
+        EFInt(1:mArg,1,Inde,Indf) = xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2D (1,:,3,  ize,izf)
+        EFInt(1:mArg,2,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2D (1,:,3,  ize,izf)
+        EFInt(1:mArg,3,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+        EFInt(1:mArg,4,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,2,iye,iyf)*xyz2D (1,:,3,  ize,izf)
+        EFInt(1:mArg,5,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+        EFInt(1:mArg,6,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,2,ize,izf)
         do iRys=2,nRys
-          EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+           EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf) + &
+                                       xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2D (1,:,3,  ize,izf)
+           EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf) + &
+                                       xyz2Dn(1,:,1,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2D (1,:,3,  ize,izf)
+           EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf) + &
+                                       xyz2Dn(1,:,1,1,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+           EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf) + &
+                                       xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,2,iye,iyf)*xyz2D (1,:,3,  ize,izf)
+           EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf) + &
+                                       xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+           EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf) + &
+                                       xyz2D (1,:,1,  ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,2,ize,izf)
         end do
-        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
-      end do
-    end do
-!   call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
-!               nzeMin,nzeMax,nzfMin,nzfMax)
-#endif
+        EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf)*PreFct(:)
+        EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf)*PreFct(:)
+        EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf)*PreFct(:)
+        EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf)*PreFct(:)
+        EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf)*PreFct(:)
+        EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf)*PreFct(:)
+     end do
+  end do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -171,12 +119,22 @@ end do
 #ifdef _DEBUGPRINT_
 do iab=meMin,meMax
   do icd=mfMin,mfMax
-    write(Label,'(A,I3,A,I3,A)') ' In RysEF: [',iab,',0|',icd,',0]'
-    call RecPrt(Label,' ',EFInt(1,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:xx [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,1,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:xy [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,2,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:xz [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,3,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:yy [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,4,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:yz [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,5,iab,icd),1,nArg)
+     write(Label,'(A,I3,A,I3,A)') ' In RysEF:zz [',iab,',0|',icd,',0]'
+     call RecPrt(Label,' ',EFInt(:,6,iab,icd),1,nArg)
   end do
 end do
 #endif
 
 return
 
-end subroutine RysEF
+end subroutine RysEFn

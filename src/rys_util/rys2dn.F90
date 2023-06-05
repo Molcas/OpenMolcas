@@ -39,7 +39,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax, nOrdOp
 real(kind=wp), intent(inout) :: xyz2D(lRys,nArg,3,0:nabMax+nOrdOp,0:ncdMax+nOrdOp)
-real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,nOrdOp,0:nabMax,0:ncdMax)
+real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,2,0:nabMax,0:ncdMax)
 real(kind=wp), intent(in) :: P(nArg,3), Q(nArg,3)
 integer(kind=iwp) :: ie, if, iRys
 

@@ -34,13 +34,15 @@ la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
+
 If (nOrdOp==0) Then
-nRys = (la+lb+lc+ld+2)/2
+   nRys = (la+lb+lc+ld+2)/2
 Else If (nOrdOp==1) Then
-nRys = (la+lb+lc+ld+3)/2
+   nRys = (la+lb+lc+ld+3)/2
 Else If (nOrdOp==2) Then
-nRys = (la+lb+lc+ld+2)/2
+   nRys = (la+lb+lc+ld+4)/2
 End If
+
 labMin = nTri3_Elem1(max(la,lb)-1)
 labMax = nTri3_Elem1(la+lb)-1
 lcdMin = nTri3_Elem1(max(lc,ld)-1)
@@ -71,12 +73,19 @@ if (FMM_shortrange) MemPrm = MemPrm+labcd
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+If (nOrdOp==0) Then
 nabMax = la+lb+nOrdOp
 !nabMin = max(la,lb)
 ncdMax = lc+ld+nOrdOp
 !ncdMin = max(lc,ld)
-nabcd = (nabMax+1)*(ncdMax+1)                ! ordinary 2D integrals
-nabcdN= (nabMax-nOrdOp+1)*(ncdMax-nOrdOp+1)  ! extended 2D integrals
+Else
+nabMax = la+lb+2
+!nabMin = max(la,lb)
+ncdMax = lc+ld+2
+!ncdMin = max(lc,ld)
+EndIf
+nabcd = (nabMax+1)*(ncdMax+1)      ! ordinary 2D integrals
+nabcdN= (nabMax-2+1)*(ncdMax-2+1)  ! extended 2D integrals
 lB10 = max(min(nabMax-1,1),0)
 lB01 = max(min(ncdMax-1,1),0)
 lB00 = max(min(min(nabMax,ncdMax),1),0)
@@ -85,7 +94,7 @@ MemPrm = MemPrm+1
 ! Ordinary 2D-Integrals
 MemPrm = MemPrm+nabcd*3*nRys
 ! Extended 2D-integrals
-If (nOrdOp/=0) MemPrm = MemPrm+nabcdN*3*nRys
+If (nOrdOp/=0) MemPrm = MemPrm+nabcdN*3*2*nRys
 ! Coefficients for recurrence relations
 MemPrm = MemPrm+3*nRys+3*nRys+3*nRys*(lB10+lB01+lB00)
 ! Roots
