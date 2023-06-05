@@ -41,7 +41,7 @@ ld = iAnga(4)
 If (nOrdOp==0) Then
    nRys = (la+lb+lc+ld+2)/2
 Else If (nOrdOp==1) Then
-   nRys = (la+lb+lc+ld+3)/2
+   nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==2) Then
    nRys = (la+lb+lc+ld+4)/2
 End If

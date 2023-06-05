@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys,nOrdOp)
 !***********************************************************************
@@ -40,9 +41,7 @@ real(kind=wp) :: Tmax_
 integer(kind=iwp) :: iT, iRoot
 
 #ifdef _DEBUGPRINT_
-iRout = 78
-iPrint = nPrint(iRout)
-if (iPrint >= 99) call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
+call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
 #endif
 labcd = 1
 
@@ -63,7 +62,7 @@ select case (nRys)
 
   case (1)
     labcd = la+lb+lc+ld
-    if (labcd == 0) then
+    if (labcd == 0 .and. nOrdOp==0) then
       call Rys01(Arg,nArg,Weight,Map(iMap(1)),nMap(1),x0(ix0(1)),nx0(1),Cff(iCffW(6,1)),Cff(iCffW(5,1)),Cff(iCffW(4,1)), &
                  Cff(iCffW(3,1)),Cff(iCffW(2,1)),Cff(iCffW(1,1)),Cff(iCffW(0,1)),ddx(nRys),HerW2(iHerW2(1)),TMax_)
     else
@@ -127,10 +126,8 @@ if (nOrdOp==1 .or. nOrdOp==2) Then
 End if
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  if (labcd /= 0) call Recprt(' In vRysRW: Roots ',' ',Root,nRys,nArg)
-  call Recprt(' In vRysRW: Weight',' ',Weight,nRys,nArg)
-end if
+if (labcd /= 0) call Recprt(' In vRysRW: Roots ',' ',Root,nRys,nArg)
+call Recprt(' In vRysRW: Weight',' ',Weight,nRys,nArg)
 #endif
 return
 

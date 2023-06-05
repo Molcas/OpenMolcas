@@ -53,8 +53,21 @@ integer(kind=iwp) :: iRys
 #endif
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
+integer(kind=iwp) iab, icd
 #endif
 
+#ifdef _DEBUGPRINT_
+do iab = 0, neMax
+   do icd = 0, nfMax
+      write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(x)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
+      write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(y)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
+      write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(z)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
+  end do
+end do
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -157,6 +170,7 @@ do ief=1,ne*nf
         EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
       end do
     end do
+!   Keep this call for debugging purposes.
 !   call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf, &
 !               nzeMin,nzeMax,nzfMin,nzfMax)
 #endif
@@ -172,7 +186,7 @@ end do
 do iab=meMin,meMax
   do icd=mfMin,mfMax
     write(Label,'(A,I3,A,I3,A)') ' In RysEF: [',iab,',0|',icd,',0]'
-    call RecPrt(Label,' ',EFInt(1,iab,icd),1,nArg)
+    call RecPrt(Label,' ',EFInt(:,iab,icd),1,nArg)
   end do
 end do
 #endif

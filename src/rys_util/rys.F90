@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
@@ -53,12 +54,14 @@ integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, 
                      ntmp, nTR, nabcdN, ipxyzN
 logical(kind=iwp) :: AeqB, CeqD, secondpass
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: mabcd
+#endif
 
 ! Develepment part of the code towards integrals for Brite and Brite-Pauli Hamiltonians
-integer(kind=iwp) :: nOrdOp=0  ! 1 for Brite and 2 for BP Hamiltonian
+integer(kind=iwp) :: nOrdOp=0  ! 1 for the Brite and 2 for the Brite-Pauli Hamiltonian
 
 
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) 'NoSpecial=',NoSpecial
 call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)
@@ -83,7 +86,7 @@ CeqD = EQ(Coori(1,3),Coori(1,4))
 If (nOrdOp==0) Then
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
 Else If (nOrdOp==1) Then
-nRys = (la+lb+lc+ld+3)/2
+nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==2) Then
 nRys = (la+lb+lc+ld+4)/2
 End If
@@ -434,13 +437,13 @@ select case (ijkl)
 
       ! Compute coefficients for the recurrence relations of the 2D-integrals
 
-      if (la+lb+lc+ld > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
+      if (la+lb+lc+ld+nOrdOp > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
       ! Let go of inverse
       ip = ip-nT
 
       call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
                  Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
-                 Array(ipB01))
+                 Array(ipB01),nOrdOp)
       ! Let go of roots
       ip = ip-nT*nRys
       ! Let go of Zeta, ZInv, Eta, and EInv
@@ -459,8 +462,7 @@ select case (ijkl)
 
       ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
 
-      If (nOrdOp/=0)   &
-      call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,Array(ipP),Array(ipQ),nOrdOp)
+      If (nOrdOp/=0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,Array(ipP),Array(ipQ))
 
       ! Compute [a0|c0] integrals
 

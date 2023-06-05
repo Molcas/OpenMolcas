@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Cff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
+subroutine Cff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -24,19 +24,19 @@ subroutine Cff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb
 ! Modified loop structure for RISC 1991 R. Lindh, Dept. of Theoretical *
 ! Chemistry, University of Lund, Sweden.                               *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
 real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
 integer(kind=iwp) :: iCar, iT
 real(kind=wp) :: h12
 logical(kind=iwp) :: AeqB, CeqD, EQ
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt(' In Cff2D: Coori',' ',Coori,3,4)
 call RecPrt(' In Cff2D: U2',' ',U2,nRys,nT)
@@ -85,7 +85,7 @@ if (ncdMax /= 0) then
   B01(:,:,3) = B01(:,:,1)
 end if
 
-if ((la+lb /= 0) .and. (lc+ld /= 0)) then
+if ((la+lb+nOrdOp /= 0) .and. (lc+ld+nOrdOp /= 0)) then
   if ((.not. AeqB) .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
@@ -115,7 +115,7 @@ if ((la+lb /= 0) .and. (lc+ld /= 0)) then
       end do
     end do
   end if
-else if (la+lb /= 0) then
+else if (la+lb+nOrdOp /= 0) then
   if (.not. AeqB) then
     do iCar=1,3
       do iT=1,nT
@@ -129,7 +129,7 @@ else if (la+lb /= 0) then
       end do
     end do
   end if
-else if (lc+ld /= 0) then
+else if (lc+ld+nOrdOp /= 0) then
   if (.not. CeqD) then
     do iCar=1,3
       do iT=1,nT
@@ -145,12 +145,12 @@ else if (lc+ld /= 0) then
   end if
 end if
 #ifdef _DEBUGPRINT_
-if (la+lb > 0) then
+if (la+lb+nOrdOp > 0) then
   call RecPrt(' PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
   call RecPrt(' PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
   call RecPrt(' PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
-if (lc+ld > 0) then
+if (lc+ld+nOrdOp > 0) then
   call RecPrt(' QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
   call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
   call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)

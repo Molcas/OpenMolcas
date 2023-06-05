@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-subroutine Rys2DN(xyz2D,xyz2DN,nArg,lRys,nabMax,ncdMax,P,Q,nOrdOp)
+subroutine Rys2DN(xyz2D,xyz2DN,nArg,lRys,nabMax,ncdMax,P,Q)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -37,17 +37,27 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax, nOrdOp
-real(kind=wp), intent(inout) :: xyz2D(lRys,nArg,3,0:nabMax+nOrdOp,0:ncdMax+nOrdOp)
+integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp), intent(inout) :: xyz2D(lRys,nArg,3,0:nabMax+2,0:ncdMax+2)
 real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,2,0:nabMax,0:ncdMax)
 real(kind=wp), intent(in) :: P(nArg,3), Q(nArg,3)
 integer(kind=iwp) :: ie, if, iRys
 
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iOrdOp
+integer(kind=iwp) :: iOrdOp, iab, icd
 character(LEN=30) Label
-if (nabMax > 0) call RecPrt('P',' ',P,nArg,3)
-if (ncdMax > 0) call RecPrt('Q',' ',Q,nArg,3)
+if (nabMax > 0) call RecPrt('Rys2Dn: P',' ',P,nArg,3)
+if (ncdMax > 0) call RecPrt('Rys2Dn: Q',' ',Q,nArg,3)
+do iab = 0, neMax+2
+   do icd = 0, nfMax+2
+      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(x)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
+      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(y)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
+      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(z)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
+  end do
+end do
 #endif
 
 xyz2DN(:,:,:,:,:,:) = Zero
@@ -61,8 +71,6 @@ do ie=0,nabMax
     end do
   end do
 end do
-
-If (nOrdOp==2) Then
 do ie=0,nabMax
   do if=0,ncdMax
     do iRys = 1, lRys
@@ -72,11 +80,10 @@ do ie=0,nabMax
     end do
   end do
 end do
-End If
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Generalized 2D integrals: 2D(:,ie,if,iOrdOp)'
-do iOrdOp=1, nOrdOp
+do iOrdOp=1, 2
 do ie=0,nabMax
   do if=0,ncdMax
     write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(x)'
