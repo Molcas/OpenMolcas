@@ -43,7 +43,7 @@ use Constants, only: Zero
 implicit none
 integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
 real(kind=wp), intent(in) :: xyz2D (nRys,mArg,3,  0:neMax+2,0:nfMax+2)
-real(kind=wp), intent(in) :: xyz2Dn(nRys,mArg,3,2,0:neMax,       0:nfMax)
+real(kind=wp), intent(in) :: xyz2Dn(nRys,mArg,3,2,0:neMax+1,0:nfMax+1)
 real(kind=wp), intent(in) :: PreFct(mArg)
 #ifdef _CHECK_R3_TERM_
 real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
@@ -125,9 +125,10 @@ do ief=1,ne*nf
         EFInt(1:mArg,Inde,Indf) = Zero
         do iRys=1,nRys
            EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf) &
-                                   + xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
+!                                  + xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
+!                                  + xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
+!                                  + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
+                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
         end do
         EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
 #else

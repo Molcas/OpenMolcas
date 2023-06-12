@@ -30,7 +30,7 @@ integer(kind=iwp), intent(out) :: MemPrm
 integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys, nabcdN
 
-!Development for integrals for the Brite and the Brite-Pauli Hamiltonian
+!Development for integrals for the Breit and the Breit-Pauli Hamiltonian
 integer(kind=iwp) :: nOrdOp=0
 
 la = iAnga(1)
@@ -88,7 +88,7 @@ ncdMax = lc+ld+2
 !ncdMin = max(lc,ld)
 EndIf
 nabcd = (nabMax+1)*(ncdMax+1)      ! ordinary 2D integrals
-nabcdN= (nabMax-2+1)*(ncdMax-2+1)  ! extended 2D integrals
+nabcdN= (nabMax-1+1)*(ncdMax-1+1)  ! extended 2D integrals
 lB10 = max(min(nabMax-1,1),0)
 lB01 = max(min(ncdMax-1,1),0)
 lB00 = max(min(min(nabMax,ncdMax),1),0)

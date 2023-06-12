@@ -13,6 +13,7 @@
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _CHECK_R3_TERM_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
@@ -58,8 +59,8 @@ logical(kind=iwp), external :: EQ
 integer(kind=iwp) :: mabcd
 #endif
 
-! Develepment part of the code towards integrals for Brite and Brite-Pauli Hamiltonians
-integer(kind=iwp) :: nOrdOp=0  ! 1 for the Brite and 2 for the Brite-Pauli Hamiltonian
+! Develepment part of the code towards integrals for Breit and Breit-Pauli Hamiltonians
+integer(kind=iwp) :: nOrdOp=0  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
 
 
 #ifdef _DEBUGPRINT_
@@ -109,7 +110,7 @@ nabcd = (nabMax+1)*(ncdMax+1)
 If (nOrdOp==0) Then
    nabcdN=0
 Else
-   nabcdN=(nabMax-2+1)*(ncdMax-2+1)
+   nabcdN=(nabMax-1+1)*(ncdMax-1+1)
 End If
 
 ! In some cases a pointer to Array will not be used. However, the
@@ -382,7 +383,7 @@ select case (ijkl)
       ! Compute the arguments for which we will compute the roots and the weights.
 
       call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),Array(iprKapab),Array(iprKapcd),Array(ipTv),Array(ipFact), &
-                  Array(ipDiv),nT,IsChi,ChiI2)
+                  Array(ipDiv),nT,IsChi,ChiI2,nOrdOp)
       ! Let go of rKapab and rKapcd
       ip = ip-2*nT
 
@@ -552,9 +553,14 @@ mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 If (nOrdOp==0) Then
 call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
 Else
+#ifdef _CHECK_R3_TERM_
+call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
+#else
 call RecPrt('{e0|f0}',' ',Array,nT,6*mabcd)
+#endif
 End If
 #endif
+!stop 666
 
 return
 

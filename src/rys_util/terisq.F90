@@ -11,7 +11,7 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !***********************************************************************
 
-subroutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
+subroutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute entities for the two-electron integrals which are *
@@ -26,11 +26,11 @@ subroutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !             the gradient estimates.                                  *
 !***********************************************************************
 
-use Constants, only: One
+use Constants, only: One, Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nT, IsChi
+integer(kind=iwp), intent(in) :: nT, IsChi, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), ChiI2
 real(kind=wp), intent(out) :: T(nT), Fact(nT), ZEInv(nT)
 integer(kind=iwp) :: iT
@@ -51,14 +51,42 @@ if (iPrint >= 99) then
 end if
 #endif
 
-do iT=1,nT
-  tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
-  ZEInv(iT) = tmp
-  Rho = Zeta(iT)*Zeta(iT)*tmp
-  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
-  T(iT) = Rho*PQ2
-end do
-Fact(:) = rKapab*rKapcd
+select case (nOrdOp)
+
+case (0)
+
+  do iT=1,nT
+    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+    ZEInv(iT) = tmp
+    Rho = Zeta(iT)*Zeta(iT)*tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    T(iT) = Rho*PQ2
+    Fact(iT) = rKapab(iT)*rKapcd(iT)
+  end do
+
+case (1)
+
+  do iT=1,nT
+    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+    ZEInv(iT) = tmp
+    Rho = Zeta(iT)*Zeta(iT)*tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    T(iT) = Rho*PQ2
+    Fact(iT) = rKapab(iT)*rKapcd(iT) * (Two * Rho)
+  end do
+
+case (2)
+
+  do iT=1,nT
+    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+    ZEInv(iT) = tmp
+    Rho = Zeta(iT)*Zeta(iT)*tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    T(iT) = Rho*PQ2
+    Fact(iT) = rKapab(iT)*rKapcd(iT) * (Four * Rho**2 / Three)
+  end do
+
+end select
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then

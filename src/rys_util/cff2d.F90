@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Cff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01,nOrdOp)
 !***********************************************************************
@@ -24,7 +25,6 @@ subroutine Cff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb
 ! Modified loop structure for RISC 1991 R. Lindh, Dept. of Theoretical *
 ! Chemistry, University of Lund, Sweden.                               *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 use Constants, only: Half
 use Definitions, only: wp, iwp
@@ -38,8 +38,8 @@ real(kind=wp) :: h12
 logical(kind=iwp) :: AeqB, CeqD, EQ
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In Cff2D: Coori',' ',Coori,3,4)
-call RecPrt(' In Cff2D: U2',' ',U2,nRys,nT)
+call RecPrt('Cff2D: Coori',' ',Coori,3,4)
+call RecPrt('Cff2D: U2',' ',U2,nRys,nT)
 #endif
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
@@ -146,29 +146,29 @@ else if (lc+ld+nOrdOp /= 0) then
 end if
 #ifdef _DEBUGPRINT_
 if (la+lb+nOrdOp > 0) then
-  call RecPrt(' PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
-  call RecPrt(' PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
-  call RecPrt(' PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
+  call RecPrt('Cff2D: PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
+  call RecPrt('Cff2D: PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
+  call RecPrt('Cff2D: PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
 if (lc+ld+nOrdOp > 0) then
-  call RecPrt(' QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
-  call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
-  call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
+  call RecPrt('Cff2D: QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
+  call RecPrt('Cff2D: QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
+  call RecPrt('Cff2D: QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
 if (nabMax /= 0) then
-  call RecPrt(' B10(x)',' ',B10(:,:,1),nRys,nT)
-  call RecPrt(' B10(y)',' ',B10(:,:,2),nRys,nT)
-  call RecPrt(' B10(z)',' ',B10(:,:,3),nRys,nT)
+  call RecPrt('Cff2D: B10(x)',' ',B10(:,:,1),nRys,nT)
+  call RecPrt('Cff2D: B10(y)',' ',B10(:,:,2),nRys,nT)
+  call RecPrt('Cff2D: B10(z)',' ',B10(:,:,3),nRys,nT)
 end if
 if (lac /= 0) then
-  call RecPrt(' B00(x)',' ',B00(:,:,1),nRys,nT)
-  call RecPrt(' B00(y)',' ',B00(:,:,2),nRys,nT)
-  call RecPrt(' B00(z)',' ',B00(:,:,3),nRys,nT)
+  call RecPrt('Cff2D: B00(x)',' ',B00(:,:,1),nRys,nT)
+  call RecPrt('Cff2D: B00(y)',' ',B00(:,:,2),nRys,nT)
+  call RecPrt('Cff2D: B00(z)',' ',B00(:,:,3),nRys,nT)
 end if
 if (ncdMax /= 0) then
-  call RecPrt(' B01(x)',' ',B01(:,:,1),nRys,nT)
-  call RecPrt(' B01(y)',' ',B01(:,:,2),nRys,nT)
-  call RecPrt(' B01(z)',' ',B01(:,:,3),nRys,nT)
+  call RecPrt('Cff2D: B01(x)',' ',B01(:,:,1),nRys,nT)
+  call RecPrt('Cff2D: B01(y)',' ',B01(:,:,2),nRys,nT)
+  call RecPrt('Cff2D: B01(z)',' ',B01(:,:,3),nRys,nT)
 end if
 #endif
 

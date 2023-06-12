@@ -12,7 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-subroutine Rys2DN(xyz2D,xyz2DN,nArg,lRys,nabMax,ncdMax,P,Q)
+
+subroutine Rys2DN(xyz2D,xyz2DN,nArg,lRys,nabMax,ncdMax,CoorAC)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -39,44 +40,46 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
 real(kind=wp), intent(inout) :: xyz2D(lRys,nArg,3,0:nabMax+2,0:ncdMax+2)
-real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,2,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: P(nArg,3), Q(nArg,3)
+real(kind=wp), intent(out) ::   xyz2DN(lRys,nArg,3,2,0:nabMax+1,0:ncdMax+1)
+real(kind=wp), intent(in) :: CoorAC(3,2)
 integer(kind=iwp) :: ie, if, iRys
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iOrdOp, iab, icd
 character(LEN=30) Label
-if (nabMax > 0) call RecPrt('Rys2Dn: P',' ',P,nArg,3)
-if (ncdMax > 0) call RecPrt('Rys2Dn: Q',' ',Q,nArg,3)
-do iab = 0, neMax+2
-   do icd = 0, nfMax+2
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(x)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(y)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(z)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
+call RecPrt('Rys2Dn: AC',' ',CoorAC,3,2)
+do iab = 0, nabMax+2
+   do icd = 0, ncdMax+2
+      write(Label,'(A,I3,A,I3,A)') ' In Rys2Dn: xyz2D(x)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),lRys,nArg)
+      write(Label,'(A,I3,A,I3,A)') ' In Rys2Dn: xyz2D(y)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),lRys,nArg)
+      write(Label,'(A,I3,A,I3,A)') ' In Rys2Dn: xyz2D(z)(',iab,',',icd,')'
+      call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),lRys,nArg)
   end do
 end do
 #endif
 
 xyz2DN(:,:,:,:,:,:) = Zero
 
-do ie=0,nabMax
-  do if=0,ncdMax
+do ie=0,nabMax+1
+  do if=0,ncdMax+1
     do iRys = 1, lRys
-      xyz2DN(iRys,:,1,1,ie,if) = xyz2D(iRys,:,1,ie+1,if) - xyz2D(iRys,:,1,ie,if+1) + (P(:,1)-Q(:,1))*xyz2D(iRys,:,1,ie,if)
-      xyz2DN(iRys,:,2,1,ie,if) = xyz2D(iRys,:,2,ie+1,if) - xyz2D(iRys,:,2,ie,if+1) + (P(:,2)-Q(:,2))*xyz2D(iRys,:,2,ie,if)
-      xyz2DN(iRys,:,3,1,ie,if) = xyz2D(iRys,:,3,ie+1,if) - xyz2D(iRys,:,3,ie,if+1) + (P(:,3)-Q(:,3))*xyz2D(iRys,:,3,ie,if)
+      xyz2DN(iRys,:,1,1,ie,if) = xyz2D(iRys,:,1,ie+1,if) - xyz2D(iRys,:,1,ie,if+1) + (CoorAC(1,1)-CoorAC(1,2))*xyz2D(iRys,:,1,ie,if)
+      xyz2DN(iRys,:,2,1,ie,if) = xyz2D(iRys,:,2,ie+1,if) - xyz2D(iRys,:,2,ie,if+1) + (CoorAC(2,1)-CoorAC(2,2))*xyz2D(iRys,:,2,ie,if)
+      xyz2DN(iRys,:,3,1,ie,if) = xyz2D(iRys,:,3,ie+1,if) - xyz2D(iRys,:,3,ie,if+1) + (CoorAC(3,1)-CoorAC(3,2))*xyz2D(iRys,:,3,ie,if)
     end do
   end do
 end do
 do ie=0,nabMax
   do if=0,ncdMax
     do iRys = 1, lRys
-      xyz2DN(iRys,:,1,2,ie,if) = xyz2DN(iRys,:,1,1,ie+1,if) - xyz2DN(iRys,:,1,1,ie,if+1) + (P(:,1)-Q(:,1))*xyz2DN(iRys,:,1,1,ie,if)
-      xyz2DN(iRys,:,2,2,ie,if) = xyz2DN(iRys,:,2,1,ie+1,if) - xyz2DN(iRys,:,2,1,ie,if+1) + (P(:,2)-Q(:,2))*xyz2DN(iRys,:,2,1,ie,if)
-      xyz2DN(iRys,:,3,2,ie,if) = xyz2DN(iRys,:,3,1,ie+1,if) - xyz2DN(iRys,:,3,1,ie,if+1) + (P(:,3)-Q(:,3))*xyz2DN(iRys,:,3,1,ie,if)
+      xyz2DN(iRys,:,1,2,ie,if) = xyz2DN(iRys,:,1,1,ie+1,if) - xyz2DN(iRys,:,1,1,ie,if+1) &
+                               + (CoorAC(1,1)-CoorAC(1,2))*xyz2DN(iRys,:,1,1,ie,if)
+      xyz2DN(iRys,:,2,2,ie,if) = xyz2DN(iRys,:,2,1,ie+1,if) - xyz2DN(iRys,:,2,1,ie,if+1) &
+                               + (CoorAC(2,1)-CoorAC(2,2))*xyz2DN(iRys,:,2,1,ie,if)
+      xyz2DN(iRys,:,3,2,ie,if) = xyz2DN(iRys,:,3,1,ie+1,if) - xyz2DN(iRys,:,3,1,ie,if+1) &
+                               + (CoorAC(3,1)-CoorAC(3,2))*xyz2DN(iRys,:,3,1,ie,if)
     end do
   end do
 end do
@@ -86,11 +89,11 @@ write(u6,*) ' Generalized 2D integrals: 2D(:,ie,if,iOrdOp)'
 do iOrdOp=1, 2
 do ie=0,nabMax
   do if=0,ncdMax
-    write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(x)'
+    write(Label,'(A,I2,A,I2,A,I2,A)') 'Rys2Dn: 2DN(',ie,',',if,',',iOrdOp,')(x)'
     call RecPrt(Label,' ',xyz2DN(:,:,1,iOrdOp,ie,if),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(y)'
+    write(Label,'(A,I2,A,I2,A,I2,A)') 'Rys2Dn: 2DN(',ie,',',if,',',iOrdOp,')(y)'
     call RecPrt(Label,' ',xyz2DN(:,:,2,iOrdOp,ie,if),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2DN(',ie,',',if,',',iOrdOp')(z)'
+    write(Label,'(A,I2,A,I2,A,I2,A)') 'Rys2Dn: 2DN(',ie,',',if,',',iOrdOp,')(z)'
     call RecPrt(Label,' ',xyz2DN(:,:,3,iOrdOp,ie,if),lRys,nArg)
   end do
 end do

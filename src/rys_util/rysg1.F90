@@ -183,7 +183,7 @@ end do
 
 ! Compute the arguments for which we will compute the roots and the weights.
 
-call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,Array(ipTv),Array(ipDiv),IsChi,ChiI2)
+call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,Array(ipTv),Array(ipDiv),IsChi,ChiI2,nOrdOp)
 
 ! Compute roots and weights. Make sure that the weights ends up in
 ! the array where the z component of the 2D integrals will be.
@@ -226,7 +226,8 @@ ip = ip-nT
 ! Compute coefficients for the recurrence relations of the 2D-integrals
 
 call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC,Array(ipP), &
-           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01))
+           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01),   &
+           nOrdOp)
 ! Drop ipU2
 ip = ip-nT*nRys
 ! Let go of Zeta, ZInv, Eta, and EInv
