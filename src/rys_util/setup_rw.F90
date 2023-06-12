@@ -52,6 +52,7 @@ call SetHer(nDiff)
 ! 2) for external field and nuclear attraction
 
 mRys = (iAng2+2+nDiff)/2
+mRys = (iAng2+4+nDiff)/2
 if (allocated(XF) .or. (nOrdEF == 1) .or. GIAO) mRys = max(mRys,(2*S%iAngMx+1+2+nDiff)/2)
 if (nOrdEF == 2) mRys = max(mRys,(2*S%iAngMx+2+2+nDiff)/2)
 if (DoRys) call SetUpR(mRys)

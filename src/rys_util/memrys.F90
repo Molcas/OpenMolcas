@@ -31,7 +31,7 @@ integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax
                      ncdMax, nRys, nabcdN
 
 !Development for integrals for the Breit and the Breit-Pauli Hamiltonian
-integer(kind=iwp) :: nOrdOp=0
+integer(kind=iwp) :: nOrdOp=1
 
 la = iAnga(1)
 lb = iAnga(2)
@@ -40,6 +40,7 @@ ld = iAnga(4)
 
 If (nOrdOp==0) Then
    nRys = (la+lb+lc+ld+2)/2
+   nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==1) Then
    nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==2) Then

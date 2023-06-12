@@ -67,7 +67,8 @@ case (1)
     tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
     ZEInv(iT) = tmp
     Rho=Zeta(iT)*Half
-    Fact(iT) = rKapab(iT)**2*sqrt(tmp) * Two * Rho
+    Fact(iT) = rKapab(iT)**2*sqrt(tmp)
+!   Fact(iT) = rKapab(iT)**2*sqrt(tmp) * Two * Rho
   end do
 
 case (2)

@@ -13,7 +13,7 @@
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 !#define _DEBUGPRINT_
-!#define _CHECK_R3_TERM_
+#define _CHECK_R3_TERM_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
@@ -60,7 +60,7 @@ integer(kind=iwp) :: mabcd
 #endif
 
 ! Develepment part of the code towards integrals for Breit and Breit-Pauli Hamiltonians
-integer(kind=iwp) :: nOrdOp=0  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
+integer(kind=iwp) :: nOrdOp=1  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
 
 
 #ifdef _DEBUGPRINT_
@@ -86,6 +86,7 @@ CeqD = EQ(Coori(1,3),Coori(1,4))
 ! Compute the order of the needed polynomial.
 If (nOrdOp==0) Then
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==1) Then
 nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==2) Then
@@ -106,7 +107,6 @@ ncdMin = max(lc,ld)
 End If
 
 nabcd = (nabMax+1)*(ncdMax+1)
-
 If (nOrdOp==0) Then
    nabcdN=0
 Else

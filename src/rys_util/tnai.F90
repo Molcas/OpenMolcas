@@ -77,7 +77,8 @@ case(1)
     PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
     Rho = Zeta(iT)
     T(iT) = Rho*PQ2
-    Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Two * Rho)
+    Fact(iT) = Two*rKapab(iT)*Pi*tmp
+!   Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Two * Rho)
   end do
 
 case(2)

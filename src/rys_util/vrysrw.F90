@@ -120,7 +120,8 @@ end select
 if (nOrdOp==1 .or. nOrdOp==2) Then
   do iT=1,nArg
     do iRoot=1,nRys
-      Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
+      Weight(iRoot,iT) =                                                 Weight(iRoot,iT)
+!     Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
     end do
   end do
 End if
