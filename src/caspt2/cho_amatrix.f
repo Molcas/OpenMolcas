@@ -170,7 +170,7 @@
      &           K1, KS, KSWCH, kOff(NSYM), NA, NB(NSYM), NK(NSYM),
      &           PQSYM, TUSYM
       LOGICAL :: diag
-      REAL*8, POINTER :: INT2(:,:)
+      REAL*8, POINTER, CONTIGUOUS :: INT2(:,:)
       REAL*8, EXTERNAL :: dDot_
 
       ! NB,NK = number of orbitals in bra/ket (not including NA factor)
@@ -248,7 +248,7 @@
             II = (I-1)*B1+1
             JJ = (J-1)*K1+1
             DO JA=1,NA
-              XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II,JJ),BS,
+              XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,
      &                   HDSQ%SB(TUSYM)%A2(:,JA),1)
               JJ = JJ+KS
             END DO
