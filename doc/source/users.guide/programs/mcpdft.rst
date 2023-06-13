@@ -30,8 +30,8 @@ to obtain the kinetic energy, classical Coulomb energy, total electron density, 
 (ii) a post-SCF calculation of the remaining energy using an on-top pair-density functional.
 In the current implementation, the on-top pair-density functionals are translated (t) or fully translated (ft) :cite:`Carlson2015` LSDA-type or GA-type exchange correlation functionals. 
 For example: tLSDA, tPBE, tBLYP, trevPBE and tOPBE for translated functionals, and ftLSDA, ftPBE, ftBLYP, ftrevPBE and ftOPBE for fully-translated functionals.
-Hybrid functionals (see the :kword:`LAMBda` keyword ) 
-and functionals with scaled exchange and correlation (see the :kword:`DFCF`) are also available.
+Hybrid functionals (see keyword :kword:`LAMBda` ) 
+and functionals with scaled exchange and correlation (see keyword :kword:`DFCF`) are also available.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
 The molecular orbitals and one- and two-body density matrices are read from the :file:`JOBIPH` (or :file:`JOBOLD`) file
@@ -118,7 +118,7 @@ The :kword:`KSDFT` is the only required keyword.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT calculations.
   Also note that the format of a number :math:`N` followed by :math:`N` lines, 
   each of them containing a weight factor and a Libxc functional name, 
-  is not supported in this module.::
+  is not supported in this module. Examples of this keyword::
 
      KSDFT=T:PBE                 * A functional keyword, can be used for MC-PDFT calculations.
 
@@ -301,8 +301,8 @@ geometry, etc. has to be given. Such information is supplied by the
   &MCPDFT
   KSDFT=T:PBE
 
-The first :program: `RASSCF` run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
-The MC-PDFT run will use the orbitals and density matrices optimized during the preceding :program: `RASSCF` run.
+The first :program:`RASSCF` run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
+The MC-PDFT run will use the orbitals and density matrices optimized during the preceding :program:`RASSCF` run.
 
 The following example shows a part of the input to run a CMS-PDFT calculation.
 For XMS-PDFT calculations, one simply replaces :kword:`CMSI` with :kword:`XMSI`.
