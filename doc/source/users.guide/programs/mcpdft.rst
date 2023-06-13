@@ -126,6 +126,8 @@ The :kword:`KSDFT` is the only required keyword.
 
      KSDFT=T:GGA_X_PBE           * A Libxc functional name, can be used for MC-PDFT calculations.
 
+  However, the following syntax should not be used.
+
   ::
 
      KSDFT=T: 2                  * two components with their weights, CANNOT be used for MC-PDFT calculations.
@@ -231,8 +233,8 @@ The :kword:`KSDFT` is the only required keyword.
 
 :kword:`FILEORB`
   This keyword allows one to set a reference wave function file to be used instead of the default, 
-which is the :file: `JOBIPH` file; in particular, one can use an :file: `HDF5` file.
-  If the MC-PDFT is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
+  which is the :file: `JOBIPH` file; in particular, one can use an :file: `HDF5` file.
+  If a MC-PDFT calculation is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
   Example: ``FileOrb = wavefunction.h5``
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="FILEORB" APPEAR="Set reference wave function file" KIND="STRING" LEVEL="BASIC">
