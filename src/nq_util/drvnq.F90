@@ -25,7 +25,7 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
                    nGridMax, nR_Eff, nRho, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
-use nq_pdft, only: lft, lGGA
+use nq_pdft, only: lft, lGGA,lmGGA1,lmGGA2
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
@@ -193,6 +193,7 @@ select case (Functional_type)
 
     nP2_ontop = 4
     lGGA = .true.
+!    write(6,*) 'nD=',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -225,6 +226,8 @@ select case (Functional_type)
     ! need rho(beta), gamma(beta,beta) and tau(beta).
 
     nP2_ontop = 4
+    lmGGA1 = .true.
+!    write(6,*) 'nD=',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -257,6 +260,9 @@ select case (Functional_type)
     ! tau(beta) and laplacian(beta).
 
     nP2_ontop = 4
+    lmGGA1 = .true.
+    lmGGA2 = .true.
+!    write(6,*) 'nD GGA_type2 =',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *

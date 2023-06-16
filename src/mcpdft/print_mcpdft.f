@@ -23,7 +23,9 @@
 * S Dong, 2018 (added print outs related to scaling)
 ******************************************************************
       use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
-      use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
+      use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I,
+     &                   Tau_a1, Tau_b1, Tau_a2, Tau_b2,
+     &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       use mspdft, only: mspdftmethod, do_rotate
 
@@ -59,6 +61,14 @@
      &           ' after functional transformation:', Dens_a2
       write(6,'(6X,A,12X,F10.3)') 'Integrated  beta density '//
      &           ' after functional transformation:', Dens_b2
+      write(6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     '//
+     &           'before functional transformation:', Tau_a1
+      write(6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     '//
+     &           'before functional transformation:', Tau_b1
+      write(6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     '//
+     &           ' after functional transformation:', Tau_a2
+      write(6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     '//
+     &           ' after functional transformation:', Tau_b2
       write(6,'(6X,A)') 'NOTE:'
       write(6,'(6X,2A)') 'Densities after transformation are ',
      &           'intermediate quantities'

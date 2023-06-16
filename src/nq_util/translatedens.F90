@@ -15,18 +15,19 @@
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 18, 2021, created this file.               *
 ! ****************************************************************
-subroutine TranslateDens(Pi,dRho_dr,dPi,l_tanhr,mGrid,nPi,ndRho_dr,nEGrad,DoGrad)
+subroutine TranslateDens(Pi,dRho_dr,dPi,Weights,l_tanhr,mGrid,nPi,ndRho_dr,nEGrad,DoGrad)
 
-use nq_Grid, only: GradRho, Rho
+use nq_Grid, only: GradRho, Rho, Tau, Lapl
+use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2, Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
 use nq_pdft, only: dZdR, fta, ftb, ftc, lft, lGGA, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, &
-                   ThrsRho, ZetaA
+                   ThrsRho, ZetaA, LaplAB, TauAB, lmGGA1, lmGGA2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mGrid, nPi, ndRho_dr, nEGrad
-real(kind=wp), intent(in) :: Pi(nPi,mGrid), dPi(nPi,nEGrad,mGrid)
+real(kind=wp), intent(in) :: Pi(nPi,mGrid), dPi(nPi,nEGrad,mGrid),Weights(mGrid)
 real(kind=wp), intent(inout) :: dRho_dr(ndRho_dr,mGrid,nEGrad)
 logical(kind=iwp), intent(in) :: l_tanhr, DoGrad
 integer(kind=iwp) :: iEGrad, iGrid
@@ -35,6 +36,7 @@ real(kind=wp) :: Diff1, GraddZdR, GradRatio, GradRatioX, GradRatioY, GradRatioZ,
 real(kind=wp), allocatable :: dRatio(:,:), dRhodx(:), dRhody(:), dRhodz(:), dZeta(:,:), ftx23(:), fty23(:), ftz23(:), &
                               GradRhoAB(:,:), GradRhoX(:,:), GradRhoY(:,:), GradRhoZ(:,:), RatioX(:), RatioY(:), RatioZ(:), &
                               tanhrx(:), tanhry(:), tanhrz(:)
+real(kind=wp), external :: DDot_
 ! PassX
 ! Pass1. Total density is greater than thresRho
 ! Pass2. Do translation
@@ -48,6 +50,19 @@ real(kind=wp), allocatable :: dRatio(:,:), dRhodx(:), dRhody(:), dRhodz(:), dZet
 ! calculating total density at each grid
 !***********************************************************************
 RhoAB(:) = Rho(1,1:mGrid)+Rho(2,1:mGrid)
+if(lmGGA1)  then
+ TauAB(:) =  Tau(1,1:mGrid) +  Tau(2,1:mGrid)
+end if
+Tau_a1 = Tau_a1 + ddot_(mGrid,Tau(1,1),2,Weights,1)
+Tau_b1 = Tau_b1 + ddot_(mGrid,Tau(2,1),2,Weights,1)
+
+if(lmGGA2)  then
+ LaplAB(:) = Lapl(1,1:mGrid) + Lapl(2,1:mGrid)
+end if
+Lapl_a1 = Lapl_a1 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
+Lapl_b1 = Lapl_b1 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
+
+
 
 !***********************************************************************
 ! calculating x, y, z components of density gradient
@@ -171,6 +186,27 @@ if (lGGA) then
   end if
 end if
 
+if (lmGGA1) then
+  do iGrid=1,mGrid
+    if (Pass1(iGrid)) then
+      Tau(1,iGrid) = OnePZ(iGrid)*TauAB(iGrid)
+      Tau(2,iGrid) = OneMZ(iGrid)*TauAB(iGrid)
+    end if
+  end do
+end if
+Tau_a2 = Tau_a2 + ddot_(mGrid,Tau(1,1),2,Weights,1)
+Tau_b2 = Tau_b2 + ddot_(mGrid,Tau(2,1),2,Weights,1)
+
+if (lmGGA2) then
+ do iGrid=1,mGrid
+   if (Pass1(iGrid)) then
+     Lapl(1,iGrid) = OnePZ(iGrid)*LaplAB(iGrid)
+     Lapl(2,iGrid) = OneMZ(iGrid)*LaplAB(iGrid)
+   end if
+ end do
+end if
+Lapl_a2 = Lapl_a2 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
+Lapl_b2 = Lapl_b2 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
 !********************************************************************
 ! Additional terms in the tanh translation
 !********************************************************************

@@ -151,7 +151,8 @@ end select
 !                                                                      *
 if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
   write(u6,*) ' MC-PDFT combined with invalid functional class'
-  call Abend()
+  write(u6,*) Functional_type
+!  call Abend()
 end if
 !                                                                      *
 !***********************************************************************

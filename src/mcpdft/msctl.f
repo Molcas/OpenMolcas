@@ -34,6 +34,9 @@
       use mspdft, only: dogradmspd, do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
+      use nq_info,  only: Tau_a1, Tau_b1, Tau_a2, Tau_b2, Lapl_a1,
+     &                    Lapl_b1, Lapl_a2, Lapl_b2
+      use constants, only: Zero, One
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -56,7 +59,6 @@
 *
       Character*8 Label
       Logical First, Dff, Do_DFT,Found
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
       integer iJOB,dmDisk,iP2d
       integer itmp0,itmp1,itmp2,itmp3,itmp4
@@ -246,7 +248,14 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 !matrices from the JOBIPH file.
       do jroot=1,lroots
         iIntS=jRoot
-
+        Tau_a1  = Zero
+        Tau_b1  = Zero
+        Tau_a2  = Zero
+        Tau_b2  = Zero
+        Lapl_a1 = Zero
+        Lapl_b1 = Zero
+        Lapl_a2 = Zero
+        Lapl_b2 = Zero
        !Load a fresh FockI and FockA
         Call dcopy_(ntot1,FI,1,Work(ifocki),1)
         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
