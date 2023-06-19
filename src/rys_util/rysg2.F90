@@ -71,6 +71,7 @@ use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi, NoTab
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
+use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)
@@ -88,7 +89,6 @@ integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), In
                      lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR
 logical(kind=iwp) :: KfGrd(3,4)
 external :: Exp_1, Exp_2
-integer(kind=iwp) :: nOrdOp=0
 
 KfGrd(:,:) = .false.
 lOp(1) = iOper(nOp(1))

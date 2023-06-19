@@ -20,6 +20,7 @@ subroutine MemRys(iAnga,MemPrm)
 use Gateway_global, only: FMM_shortrange
 use Index_Functions, only: nTri3_Elem1
 use Definitions, only: iwp
+use Breit, only: nOrdOp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -29,9 +30,6 @@ integer(kind=iwp), intent(in) :: iAnga(4)
 integer(kind=iwp), intent(out) :: MemPrm
 integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys, nabcdN
-
-!Development for integrals for the Breit and the Breit-Pauli Hamiltonian
-integer(kind=iwp) :: nOrdOp=0
 
 la = iAnga(1)
 lb = iAnga(2)

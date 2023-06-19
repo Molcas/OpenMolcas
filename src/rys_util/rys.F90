@@ -41,6 +41,7 @@ use vRys_RW, only: nMxRys
 #endif
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
+use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax, mcdMin, mcdMax, nArray
@@ -58,10 +59,6 @@ logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: mabcd
 #endif
-
-! Develepment part of the code towards integrals for Breit and Breit-Pauli Hamiltonians
-integer(kind=iwp) :: nOrdOp=0  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
-
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'NoSpecial=',NoSpecial

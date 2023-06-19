@@ -23,6 +23,7 @@ set (sources
      assg1.F90
      assg1_mck.F90
      assg2.F90
+     breit.F90
      cff2d.F90
      cff2dq.F90
      cff2ds.F90

@@ -10,3 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
+Module Breit
+Integer :: nOrdOp=0
+End Module Breit
+

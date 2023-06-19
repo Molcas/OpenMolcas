@@ -32,6 +32,7 @@ use Definitions, only: wp, iwp
 #if defined(_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
+use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
@@ -47,7 +48,6 @@ integer(kind=iwp) :: iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB1
 real(kind=wp) :: Temp(9)
 logical(kind=iwp) :: JfGrad(3,4)
 external :: Exp_1, Exp_2
-integer(kind=iwp) :: nOrdOp=0
 
 lOp(1) = iOper(kOp(1))
 lOp(2) = iOper(kOp(2))
