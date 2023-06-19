@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,2023, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2,nOrdOp)
 !***********************************************************************
@@ -43,17 +44,12 @@ unused_var(IsChi)
 unused_var(ChiI2)
 
 #ifdef _DEBUGPRINT_
-iRout = 57
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
-  call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
-  call RecPrt(' P in TNAI',' ',P,nT,3)
-  call RecPrt(' Q in TNAI',' ',Q,nT,3)
-  call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
-  call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
-  write(u6,*) ' In TNAI: ABeqCD=',ABeqCD
-end if
+call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
+call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
+call RecPrt(' P in TNAI',' ',P,nT,3)
+call RecPrt(' Q in TNAI',' ',Q,nT,3)
+call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
+call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
 #endif
 
 select case (nOrdOp)
@@ -77,8 +73,7 @@ case(1)
     PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
     Rho = Zeta(iT)
     T(iT) = Rho*PQ2
-    Fact(iT) = Two*rKapab(iT)*Pi*tmp
-!   Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Two * Rho)
+    Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Two * Rho)
   end do
 
 case(2)
@@ -95,10 +90,8 @@ case(2)
 end select
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-  call RecPrt('Fact  ',' ',Fact,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
+call RecPrt('Fact  ',' ',Fact,nT,1)
 #endif
 
 return

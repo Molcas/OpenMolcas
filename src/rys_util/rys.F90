@@ -13,7 +13,7 @@
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 !#define _DEBUGPRINT_
-#define _CHECK_R3_TERM_
+!#define _CHECK_R3_TERM_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
@@ -60,7 +60,7 @@ integer(kind=iwp) :: mabcd
 #endif
 
 ! Develepment part of the code towards integrals for Breit and Breit-Pauli Hamiltonians
-integer(kind=iwp) :: nOrdOp=1  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
+integer(kind=iwp) :: nOrdOp=0  ! 1 for the Breit and 2 for the Breit-Pauli Hamiltonian
 
 
 #ifdef _DEBUGPRINT_
@@ -560,7 +560,6 @@ call RecPrt('{e0|f0}',' ',Array,nT,6*mabcd)
 #endif
 End If
 #endif
-!stop 666
 
 return
 

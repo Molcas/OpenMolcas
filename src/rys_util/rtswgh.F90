@@ -175,8 +175,7 @@ call mma_deallocate(RYSD)
 if (nOrdOp==1 .or. nOrdOp==2) then
    do iT=1,nT
       do iRoot=1,nRys
-        WGH(iRoot,iT) =                                                 WGH(iRoot,iT)
-!        WGH(iRoot,iT) = ( U2(iRoot,iT) / (One-U2(iRoot,iT)) )**nOrdOp * WGH(iRoot,iT)
+         WGH(iRoot,iT) = ( U2(iRoot,iT) / (One-U2(iRoot,iT)) )**nOrdOp * WGH(iRoot,iT)
       end do
    end do
 end if

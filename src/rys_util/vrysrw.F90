@@ -41,7 +41,7 @@ real(kind=wp) :: Tmax_
 integer(kind=iwp) :: iT, iRoot
 
 #ifdef _DEBUGPRINT_
-call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
+call RecPrt('vRysRW:Arg',' ',Arg,nArg,1)
 #endif
 labcd = 1
 
@@ -120,15 +120,17 @@ end select
 if (nOrdOp==1 .or. nOrdOp==2) Then
   do iT=1,nArg
     do iRoot=1,nRys
-      Weight(iRoot,iT) =                                                 Weight(iRoot,iT)
-!     Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
+!     Write (6,*) 't^2, n',Root(iRoot,iT), nOrdOp
+!     Write (6,*) 't^2/(1-t^2)^n, w:',(Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp , Weight(iRoot,iT)
+      Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
+!     Write (6,*) 'w:',Weight(iRoot,iT)
     end do
   end do
 End if
 
 #ifdef _DEBUGPRINT_
-if (labcd /= 0) call Recprt(' In vRysRW: Roots ',' ',Root,nRys,nArg)
-call Recprt(' In vRysRW: Weight',' ',Weight,nRys,nArg)
+if (labcd /= 0) call Recprt('vRysRW: Roots ',' ',Root,nRys,nArg)
+call Recprt('vRysRW: Weight',' ',Weight,nRys,nArg)
 #endif
 return
 

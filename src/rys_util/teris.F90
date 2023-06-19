@@ -41,12 +41,8 @@ unused_var(Q)
 unused_var(rKapcd)
 
 #ifdef _DEBUGPRINT_
-iRout = 244
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
-  call RecPrt(' Kab in TERIS',' ',rKapab,nT,1)
-end if
+call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
+call RecPrt(' Kab in TERIS',' ',rKapab,nT,1)
 #endif
 
 T(:) = Zero
@@ -67,8 +63,7 @@ case (1)
     tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
     ZEInv(iT) = tmp
     Rho=Zeta(iT)*Half
-    Fact(iT) = rKapab(iT)**2*sqrt(tmp)
-!   Fact(iT) = rKapab(iT)**2*sqrt(tmp) * Two * Rho
+    Fact(iT) = rKapab(iT)**2*sqrt(tmp) * Two * Rho
   end do
 
 case (2)
@@ -82,10 +77,8 @@ case (2)
 
 end select
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
-  call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)
-end if
+call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
+call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)
 #endif
 
 return

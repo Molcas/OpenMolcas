@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,2023, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine TERI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2,nOrdOp)
 !***********************************************************************
@@ -32,7 +33,6 @@ real(kind=wp), intent(out) :: T(nT), Fact(nT), ZEInv(nT)
 integer(kind=iwp) :: iT
 real(kind=wp) :: PQ2, Rho, tmp
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt(' Zeta in TERI',' ',Zeta,1,nT)
 call RecPrt(' Eta in TERI',' ',Eta,1,nT)
@@ -63,8 +63,7 @@ case (1)
     Rho = Zeta(iT)*Eta(iT)*tmp
     PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
     T(iT) = Rho*PQ2
-    Fact(iT) = rKapab(iT)*rKapcd(iT)*sqrt(tmp)
-!   Fact(iT) = rKapab(iT)*rKapcd(iT)*sqrt(tmp) * Two * Rho
+    Fact(iT) = rKapab(iT)*rKapcd(iT)*sqrt(tmp) * Two * Rho
   end do
 
 case (2)

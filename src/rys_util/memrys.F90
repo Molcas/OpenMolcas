@@ -31,7 +31,7 @@ integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax
                      ncdMax, nRys, nabcdN
 
 !Development for integrals for the Breit and the Breit-Pauli Hamiltonian
-integer(kind=iwp) :: nOrdOp=1
+integer(kind=iwp) :: nOrdOp=0
 
 la = iAnga(1)
 lb = iAnga(2)

@@ -47,8 +47,8 @@ integer(kind=iwp) :: icd
 #endif
 
 #ifdef _DEBUGPRINT_
-if (nabMax > 0) call RecPrt('xRys2D: PAWP',' ',PAWP,nArg,lRys*3)
-if (ncdMax > 0) call RecPrt('xRys2D: QCWQ',' ',QCWQ,nArg,lRys*3)
+if (nabMax > 0) call RecPrt('xRys2D: PAWP',' ',PAWP,nArg*lRys,3)
+if (ncdMax > 0) call RecPrt('xRys2D: QCWQ',' ',QCWQ,nArg*lRys,3)
 call RecPrt('xRys2D:  B10',' ',B10,nArg*lRys,3)
 call RecPrt('xRys2D:  B00',' ',B00,nArg*lRys,3)
 call RecPrt('xRys2D:  B01',' ',B01,nArg*lRys,3)

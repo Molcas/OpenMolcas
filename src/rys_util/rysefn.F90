@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-#define _CHECK_R3_TERM_
+!#define _CHECK_R3_TERM_
 
 subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,AeqB,CeqD)
 !***********************************************************************
@@ -123,14 +123,12 @@ do ief=1,ne*nf
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
 #ifdef _CHECK_R3_TERM_
         iRys=1
-        EFInt(1:mArg,Inde,Indf) = xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
         EFInt(1:mArg,Inde,Indf) = Zero
         do iRys=1,nRys
            EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf) &
-!                                  + xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-!                                  + xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-!                                  + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
-                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
+                                   + xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
+                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
+                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
         end do
         EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
 #else

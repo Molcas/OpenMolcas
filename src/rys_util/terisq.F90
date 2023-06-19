@@ -40,15 +40,11 @@ real(kind=wp) :: PQ2, Rho, tmp
 unused_var(Eta)
 
 #ifdef _DEBUGPRINT_
-iRout = 56
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
-  call RecPrt(' P in TERISq',' ',P,nT,3)
-  call RecPrt(' Q in TERISq',' ',Q,nT,3)
-  call RecPrt(' Kab in TERISq',' ',rKapab,nT,1)
-  call RecPrt(' Kcd in TERISq',' ',rKapcd,nT,1)
-end if
+call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
+call RecPrt(' P in TERISq',' ',P,nT,3)
+call RecPrt(' Q in TERISq',' ',Q,nT,3)
+call RecPrt(' Kab in TERISq',' ',rKapab,nT,1)
+call RecPrt(' Kcd in TERISq',' ',rKapcd,nT,1)
 #endif
 
 select case (nOrdOp)
@@ -72,8 +68,7 @@ case (1)
     Rho = Zeta(iT)*Zeta(iT)*tmp
     PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
     T(iT) = Rho*PQ2
-    Fact(iT) = rKapab(iT)*rKapcd(iT)
-!   Fact(iT) = rKapab(iT)*rKapcd(iT) * (Two * Rho)
+    Fact(iT) = rKapab(iT)*rKapcd(iT) * (Two * Rho)
   end do
 
 case (2)
@@ -90,10 +85,8 @@ case (2)
 end select
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-  call RecPrt('Fact  ',' ',Fact,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
+call RecPrt('Fact  ',' ',Fact,nT,1)
 #endif
 
 return
