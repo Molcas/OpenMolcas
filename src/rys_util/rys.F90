@@ -81,6 +81,7 @@ AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
 
 ! Compute the order of the needed polynomial.
+nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
 If (nOrdOp==0) Then
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
 nRys = (la+lb+lc+ld+4)/2
