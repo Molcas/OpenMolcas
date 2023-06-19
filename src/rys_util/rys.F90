@@ -83,25 +83,25 @@ CeqD = EQ(Coori(1,3),Coori(1,4))
 ! Compute the order of the needed polynomial.
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
 If (nOrdOp==0) Then
-nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
-nRys = (la+lb+lc+ld+4)/2
+   nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+!  nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==1) Then
-nRys = (la+lb+lc+ld+4)/2
+   nRys = (la+lb+lc+ld+4)/2
 Else If (nOrdOp==2) Then
-nRys = (la+lb+lc+ld+4)/2
+   nRys = (la+lb+lc+ld+4)/2
 End If
 
 
 If (nOrdOp==0) Then
-nabMax = la+lb
-nabMin = max(la,lb)
-ncdMax = lc+ld
-ncdMin = max(lc,ld)
+   nabMax = la+lb
+   nabMin = max(la,lb)
+   ncdMax = lc+ld
+   ncdMin = max(lc,ld)
 Else
-nabMax = la+lb+2
-nabMin = max(la,lb)
-ncdMax = lc+ld+2
-ncdMin = max(lc,ld)
+   nabMax = la+lb+2
+   nabMin = max(la,lb)
+   ncdMax = lc+ld+2
+   ncdMin = max(lc,ld)
 End If
 
 nabcd = (nabMax+1)*(ncdMax+1)
