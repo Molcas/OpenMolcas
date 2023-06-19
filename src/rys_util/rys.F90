@@ -463,7 +463,8 @@ select case (ijkl)
 
       ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
 
-      If (nOrdOp/=0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,Array(ipP),Array(ipQ))
+      If (nOrdOp/=0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,CoorAC)
+
 
       ! Compute [a0|c0] integrals
 
