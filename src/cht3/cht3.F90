@@ -149,7 +149,7 @@ call mma_deallocate(L1Name)
 call mma_deallocate(L2Name)
 call mma_deallocate(T2Name)
 
-!Call EndGlb()
+!call EndGlb()
 
 ireturn = 0
 

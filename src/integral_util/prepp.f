@@ -280,7 +280,7 @@ C           End If
          Call WarningMessage(2,'Alaska: Unknown wavefuntion type')
          Write (6,*) 'Wavefunction type:',Method
          Write (6,*) 'Illegal type of wave function!'
-         Write (6,*) 'ALASKA can not continue.'
+         Write (6,*) 'ALASKA cannot continue.'
          Call Quit_OnUserError()
       End If
 *
@@ -401,7 +401,7 @@ C           End If
          If (nTst.ne.0) Then
             Call WarningMessage(2,
      &                  '; No frozen orbitals are allowed!'//
-     &                  '; ALASKA can not continue;')
+     &                  '; ALASKA cannot continue;')
             Call Quit_OnUserError()
          End If
 *

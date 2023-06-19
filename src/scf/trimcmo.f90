@@ -48,7 +48,7 @@
       Do iSym=1,nSym
          ndata=nBas(iSym)*nOrb(iSym)
 !
-!        Note that CMO1 and CMO2 might overlap. Hence, we can not use
+!        Note that CMO1 and CMO2 might overlap. Hence, we cannot use
 !        an ordinary call to DCopy!
 !
          If (iFrom(iSym).ne.iTo(iSym)) Then

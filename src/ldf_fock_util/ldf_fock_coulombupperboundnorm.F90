@@ -35,7 +35,7 @@ integer(kind=iwp), external :: LDF_nBas_Atom
 if (nD < 1) return
 if (NumberOfAtomPairs < 1) return
 
-!-tbp Call LDF_GetQuadraticDiagonal(ip)
+!-tbp call LDF_GetQuadraticDiagonal(ip)
 ip = ip_AP_Diag
 l_U = nD
 call mma_allocate(U,l_U,label='CUBNrmU')
@@ -54,7 +54,7 @@ do iD=1,nD
   UBFNorm(iD) = FactC(iD)*U(iD)*sqrt(UBFNorm(iD))
 end do
 call mma_deallocate(U)
-!-tbp Call LDF_FreeQuadraticDiagonal(ip)
+!-tbp call LDF_FreeQuadraticDiagonal(ip)
 
 if (PrintNorm) then
   do iD=1,nD

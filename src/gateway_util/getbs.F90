@@ -869,7 +869,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
     end select
   end do
   if (btest(dbsc(nCnttp)%nOpt,1) .and. btest(dbsc(nCnttp)%nOpt,3)) then
-    call WarningMessage(2,' 1st order relativistic correction and no-pair approximation can not be used simultaneously!')
+    call WarningMessage(2,' 1st order relativistic correction and no-pair approximation cannot be used simultaneously!')
     call Quit_OnUserError()
   end if
   if (nAIMP >= 0) then

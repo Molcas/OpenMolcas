@@ -70,19 +70,13 @@ subroutine procinp_caspt2
   ! Choose Focktype, reset IPEA shift to 0 for non-standard fock matrices
   Focktype = input%Focktype
   if (Focktype .ne. 'STANDARD') then
-    if (IfChol) then
-      call WarningMessage(2,'Requested FOCKtype not possible.')
-      write (6,*) 'Calculations using Cholesky vectors can only'
-      write (6,*) 'be used with the standard FOCKtype!'
-      call Quit_OnUserError
-    end if
     ! if both Hzero and Focktype are not standard, quit
     if (Hzero .ne. 'STANDARD') then
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
       call Quit_OnUserError
     end if
     ! IPEA shift different from zero only for standard Focktype
-    if (ipea_shift .gt. 0.0d0 .or. ipea_shift .lt. 0.0d0) then
+    if (ipea_shift .ne. 0.0d0) then
       ipea_shift = 0.0d0
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
@@ -97,7 +91,7 @@ subroutine procinp_caspt2
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-      ipea_shift = 0.0d0
+        ipea_shift = 0.0d0
       else
         ipea_shift = 0.25d0
       end if

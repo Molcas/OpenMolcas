@@ -112,7 +112,7 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   call mma_deallocate(Snt3)
 
 else
-  ! Here we go if both TDM's can not be put in memory. Might be a bit
+  ! Here we go if both TDM's cannot be put in memory. Might be a bit
   ! slow due to its nested nature with repeated IO.
 
   call mma_allocate(BigT,nSize,nTriS,label='ALLES')

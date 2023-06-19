@@ -28,7 +28,7 @@
 !> Example: Write CMO coeff. for RHF:
 !>
 !> \code
-!> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
+!> call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
 !> \endcode
 !>
 !> @param[in] FName File name

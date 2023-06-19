@@ -113,7 +113,7 @@
          END IF
          IF (RSTCHO) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') 'RI simulation can not be ',
+               WRITE(LUPRI,'(A,A)') 'RI simulation cannot be ',
      &                        'executed with decomposition restart.'
             END IF
             NCONFL = NCONFL + 1

@@ -26,7 +26,7 @@
 !> \f[ Q_{ab,cd} = \sum_I K_{ab,I} K_{cd,I} \f]
 !>
 !> @note
-!> \p Q is destroyed and can not be used after this routine.
+!> \p Q is destroyed and cannot be used after this routine.
 !>
 !> @param[in]     Diag  Array of diagonal integrals stored as in the first reduced set
 !> @param[in]     Lab   Array of Cholesky vectors (symmetry blocked) for the qualified shell pairs

@@ -76,6 +76,7 @@
       Dimension Dummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
+      CHARACTER*(80) OriginalKS
 
       INTEGER :: iDNG,IPRLEV
       Logical :: DNG
@@ -259,7 +260,6 @@ C   No changing about read in orbital information from INPORB yet.
         Write(LF,*) ' **********************************'
         Call Abend()
       End If
-
       If (DBG) Write(6,*) ' KSDFT command was given.'
       DFTFOCK='ROKS'
       Call SetPos_m(LUInput,'KSDF',Line,iRc)
@@ -267,6 +267,43 @@ C   No changing about read in orbital information from INPORB yet.
       Read(LUInput,*,End=9910,Err=9920) Line
       KSDFT=Line(1:80)
       Call UpCase(KSDFT)
+* checking KSDFT input for MC-PDFT
+      IF(KSDFT(1:2) == 'T:') THEN
+       OriginalKS=KSDFT(3:80)
+      ELSE IF(KSDFT(1:3) == 'FT:') THEN
+       OriginalKS=KSDFT(4:80)
+      ELSE
+       Call WarningMessage(2,'Wrong on-top functional for MC-PDFT')
+       Write(LF,*) ' ************* ERROR **************'
+       Write(LF,*) ' Current on-top functionals are:   '
+       Write(LF,*) ' T :  translated functionals       '
+       Write(LF,*) ' FT:  fully translated functionals '
+       Write(LF,*) ' e.g. T:PBE for tPBE functional    '
+       Write(LF,*) ' **********************************'
+       Call Abend()
+      END IF
+      If (DBG) write(LF,*) 'The original KS functional is', OriginalKS
+      ExFac=Get_ExFac(OriginalKS)
+* Assuming hybrid KS functionals contain more than 10E-6 percent
+* Hartree-Fock exchagne.
+      IF(Abs(ExFac).gt.1.0d-8) THEN
+       Call WarningMessage(2,'Hybrid functionals not supported')
+       Write(LF,*) ' ************* ERROR **************'
+       Write(LF,*) ' MC-PDFT does not translate hybrid '
+       Write(LF,*) ' functionals. If you want to run   '
+       Write(LF,*) ' hybrid MC-PDFT, use the LAMBda    '
+       Write(LF,*) ' keyword instead.                  '
+       Write(LF,*) '                                   '
+       Write(LF,*) ' EXAMPLE:                          '
+       Write(LF,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
+       Write(LF,*) ' Usage:                            '
+       Write(LF,*) '  KSDFT=T:PBE                      '
+       Write(LF,*) '  LAMB =0.25                       '
+       Write(LF,*) ' **********************************'
+       Call Abend()
+      END IF
+* End of checking KSDFT input for MC-PDFT
+
       ExFac=Get_ExFac(KSDFT)
 
 *---  Process DFCF command (S Dong, 2018)--------------------------*

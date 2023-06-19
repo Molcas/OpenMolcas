@@ -112,9 +112,8 @@
         end If
 
 c Modify the Fock matrix if needed
-        IF (FOCKTYPE.NE.'STANDARD') THEN
-           CALL NEWFOCK(WORK(LFIFA))
-        END IF
+c You don't have to be beautiful to turn me on
+        CALL NEWFOCK(WORK(LFIFA),WORK(LCMO))
 
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
