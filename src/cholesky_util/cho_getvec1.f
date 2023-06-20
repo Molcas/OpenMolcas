@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
      &                       SCR,LSCR)
-C
-C     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
-C              of symmetry ISYM from file. The vectors are returned
-C              in the "current" reduced set. This routine attempts
-C              to minimize gather/scatter operations and uses batched
-C              reading to (hopefully) improve buffering.
-C
-C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
-C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
-C
+!
+!     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
+!              of symmetry ISYM from file. The vectors are returned
+!              in the "current" reduced set. This routine attempts
+!              to minimize gather/scatter operations and uses batched
+!              reading to (hopefully) improve buffering.
+!
+!     NOTE: the scratch array SCR(LSCR) is used to read vectors from
+!           disk and should not be smaller than NNBSTR(ISYM,1)+1.
+!
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
-#include "implicit.fh"
-      DIMENSION CHOVEC(LENVEC,NUMVEC)
-      DIMENSION SCR(LSCR)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 CHOVEC(LENVEC,NUMVEC)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       CHARACTER*11 SECNAM
@@ -35,8 +35,8 @@ C
 
       INTEGER IOFF(0:1)
 
-C     Some initializations.
-C     ---------------------
+!     Some initializations.
+!     ---------------------
 
       ILOC  = 3
       IVEC2 = IVEC1 + NUMVEC - 1
@@ -51,21 +51,21 @@ C     ---------------------
       SCR(KJUNK) = 0.0D0
       IOFF(0)    = KJUNK
 
-C     Get reduced sets of first and last vector.
-C     ------------------------------------------
+!     Get reduced sets of first and last vector.
+!     ------------------------------------------
 
       IRED1 = INFVEC(IVEC1,2,ISYM)
       IRED2 = INFVEC(IVEC2,2,ISYM)
 
-C     Loop through reduced sets to be read.
-C     -------------------------------------
+!     Loop through reduced sets to be read.
+!     -------------------------------------
 
       KVEC1 = 1
       JVEC1 = IVEC1
       DO IRED = IRED1,IRED2
 
-C        Count vectors in this reduced set.
-C        ----------------------------------
+!        Count vectors in this reduced set.
+!        ----------------------------------
 
          JNUM = 0
          JVEC = JVEC1 - 1
@@ -79,13 +79,13 @@ C        ----------------------------------
             END IF
          END DO
 
-C        Skip if this reduced set is empty.
-C        ----------------------------------
+!        Skip if this reduced set is empty.
+!        ----------------------------------
 
          IF (JNUM .EQ. 0) GO TO 100
 
-C        Check vector range.
-C        -------------------
+!        Check vector range.
+!        -------------------
 
          IF (LOCDBG) THEN
             JVEC2 = JVEC1 + JNUM - 1
@@ -98,36 +98,36 @@ C        -------------------
             END IF
          END IF
 
-C        Read reduced set index arrays.
-C        ------------------------------
+!        Read reduced set index arrays.
+!        ------------------------------
 
          CALL CHO_GETRED(IRED,ILOC,.FALSE.)
          CALL CHO_SETREDIND(ILOC)
 
-C        If reduced sets are identical, simply read the vectors
-C        directly into CHOVEC array and go to next reduced set.
-C        ------------------------------------------------------
+!        If reduced sets are identical, simply read the vectors
+!        directly into CHOVEC array and go to next reduced set.
+!        ------------------------------------------------------
 
          IF (NNBSTR(ISYM,3) .EQ. NNBSTR(ISYM,2)) THEN
-C           IF (CHO_ADRVEC .EQ. 1) THEN
-C              IOPT = 2
-C              IADR = INFVEC(JVEC1,3,ISYM)
-C              LTOT = NNBSTR(ISYM,2)*JNUM
-C              CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,KVEC1),LTOT,IADR)
-C              NSYS_CALL = NSYS_CALL + 1
-C           ELSE IF (CHO_ADRVEC .EQ. 2) THEN
-C              IOPT = 2
-C              LTOT = NNBSTR(ISYM,2)
-C              DO KK = 1,JNUM
-C                 IADR = INFVEC(JVEC1+KK-1,3,ISYM)
-C                 CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,KVEC1+KK-1),
-C    &                         LTOT,IADR)
-C                 NSYS_CALL = NSYS_CALL + 1
-C              END DO
-C           ELSE
-C              CALL CHO_QUIT('[1] CHO_ADRVEC error in '//SECNAM,102)
-C           END IF
-C-tbp: replaced above to make use of buffer in cho_vecrd.
+!           IF (CHO_ADRVEC .EQ. 1) THEN
+!              IOPT = 2
+!              IADR = INFVEC(JVEC1,3,ISYM)
+!              LTOT = NNBSTR(ISYM,2)*JNUM
+!              CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,KVEC1),LTOT,IADR)
+!              NSYS_CALL = NSYS_CALL + 1
+!           ELSE IF (CHO_ADRVEC .EQ. 2) THEN
+!              IOPT = 2
+!              LTOT = NNBSTR(ISYM,2)
+!              DO KK = 1,JNUM
+!                 IADR = INFVEC(JVEC1+KK-1,3,ISYM)
+!                 CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,KVEC1+KK-1),
+!    &                         LTOT,IADR)
+!                 NSYS_CALL = NSYS_CALL + 1
+!              END DO
+!           ELSE
+!              CALL CHO_QUIT('[1] CHO_ADRVEC error in '//SECNAM,102)
+!           END IF
+!-tbp: replaced above to make use of buffer in cho_vecrd.
             LTOT = NNBSTR(ISYM,2)*JNUM
             JVEC_END = JVEC1 + JNUM - 1
             JNUM_RD = 0
@@ -142,8 +142,8 @@ C-tbp: replaced above to make use of buffer in cho_vecrd.
             GO TO 100
          END IF
 
-C        Set up batch over vectors to be read.
-C        -------------------------------------
+!        Set up batch over vectors to be read.
+!        -------------------------------------
 
          MINL = NNBSTR(ISYM,3)
          IF (MINL .LT. 1) THEN
@@ -168,13 +168,13 @@ C        -------------------------------------
             NBATCH = (JNUM - 1)/NVEC + 1
          END IF
 
-C        Set up mapping between reduced sets.
-C        ------------------------------------
+!        Set up mapping between reduced sets.
+!        ------------------------------------
 
          CALL CHO_RS2RS(ISCR,SIZE(ISCR),2,3,IRED,ISYM)
 
-C        Start batch loop.
-C        -----------------
+!        Start batch loop.
+!        -----------------
 
          DO IBATCH = 1,NBATCH
 
@@ -186,29 +186,29 @@ C        -----------------
             IBVEC1 = JVEC1 + NVEC*(IBATCH - 1)
             KBVEC1 = KVEC1 + NVEC*(IBATCH - 1)
 
-C           Read vectors.
-C           -------------
+!           Read vectors.
+!           -------------
 
-C           IF (CHO_ADRVEC .EQ. 1) THEN
-C              IOPT = 2
-C              LTOT = NNBSTR(ISYM,3)*NUMV
-C              IADR = INFVEC(IBVEC1,3,ISYM)
-C              CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KSCR),LTOT,IADR)
-C              NSYS_CALL = NSYS_CALL + 1
-C           ELSE IF (CHO_ADRVEC .EQ. 2) THEN
-C              IOPT = 2
-C              LTOT = NNBSTR(ISYM,3)
-C              KTRG = KSCR
-C              DO KK = 1,NUMV
-C                 IADR = INFVEC(IBVEC1+KK-1,3,ISYM)
-C                 CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KTRG),LTOT,IADR)
-C                 KTRG = KTRG + NNBSTR(ISYM,3)
-C                 NSYS_CALL = NSYS_CALL + 1
-C              END DO
-C           ELSE
-C              CALL CHO_QUIT('[2] CHO_ADRVEC error in '//SECNAM,102)
-C           END IF
-C-tbp: replaced above to make use of buffer in cho_vecrd.
+!           IF (CHO_ADRVEC .EQ. 1) THEN
+!              IOPT = 2
+!              LTOT = NNBSTR(ISYM,3)*NUMV
+!              IADR = INFVEC(IBVEC1,3,ISYM)
+!              CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KSCR),LTOT,IADR)
+!              NSYS_CALL = NSYS_CALL + 1
+!           ELSE IF (CHO_ADRVEC .EQ. 2) THEN
+!              IOPT = 2
+!              LTOT = NNBSTR(ISYM,3)
+!              KTRG = KSCR
+!              DO KK = 1,NUMV
+!                 IADR = INFVEC(IBVEC1+KK-1,3,ISYM)
+!                 CALL DDAFILE(LUCHO(ISYM),IOPT,SCR(KTRG),LTOT,IADR)
+!                 KTRG = KTRG + NNBSTR(ISYM,3)
+!                 NSYS_CALL = NSYS_CALL + 1
+!              END DO
+!           ELSE
+!              CALL CHO_QUIT('[2] CHO_ADRVEC error in '//SECNAM,102)
+!           END IF
+!-tbp: replaced above to make use of buffer in cho_vecrd.
             LTOT = NNBSTR(ISYM,3)*NUMV
             JVEC_END = IBVEC1 + NUMV - 1
             JNUM_RD = 0
@@ -227,8 +227,8 @@ C-tbp: replaced above to make use of buffer in cho_vecrd.
                CALL CHO_QUIT('CHO_ADRVEC error in '//SECNAM,102)
             END IF
 
-C           Copy vectors into result array.
-C           -------------------------------
+!           Copy vectors into result array.
+!           -------------------------------
 
             DO JVEC = 1,NUMV
                KVEC = KBVEC1 + JVEC - 1
@@ -241,8 +241,8 @@ C           -------------------------------
 
          END DO
 
-C        Set next vector to be treated.
-C        ------------------------------
+!        Set next vector to be treated.
+!        ------------------------------
 
   100    KVEC1 = KVEC1 + JNUM
          JVEC1 = JVEC1 + JNUM

@@ -105,7 +105,7 @@ end do
 
 call mma_allocate(iTemp,3*MxAtom,label='iTemp')
 
-! First CutGrd can not be more accurate than CutInt!
+! First CutGrd cannot be more accurate than CutInt!
 CutGrd = max(1.0e-7_wp,CutInt)
 ! Second CutInt should now locally for Alaska be reset to the value
 ! of CutInt/100!

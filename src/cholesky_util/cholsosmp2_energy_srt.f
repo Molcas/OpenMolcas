@@ -1,23 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine ChoLSOSMP2_Energy_Srt(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
-C     vectors (i.e., occupied orbitals processed in batches).
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
+!     vectors (i.e., occupied orbitals processed in batches).
+!
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
+      use Constants
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -28,11 +30,9 @@ C
       Real*8  EMP2
       Integer irc
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Srt'
 

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_WrDiag()
-C
-C     Purpose: store global diagonal on disk (Parallel only).
-C              NB: on exit, initial global diagonal is stored!
-C
+!
+!     Purpose: store global diagonal on disk (Parallel only).
+!              NB: on exit, initial global diagonal is stored!
+!
       use ChoSwp, only: Diag_G
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: Diag_L(:)
 
       If (Cho_Real_Par) Then

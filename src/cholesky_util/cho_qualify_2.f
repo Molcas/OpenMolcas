@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-C
-C     Purpose: qualify diagonals ("qualify until full, then largest").
-C
+!
+!     Purpose: qualify diagonals ("qualify until full, then largest").
+!
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
-      DIMENSION DIAG(*)
+      Implicit Real*8 (a-h,o-z)
+      Real*8 Diag(*)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM

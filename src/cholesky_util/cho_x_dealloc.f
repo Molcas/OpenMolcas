@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       subroutine Cho_X_Dealloc(irc)
 
       use Definitions, only: iwp
@@ -32,22 +32,22 @@
      &                    IndRed_G_Hidden,   IndRed_G,
      &                    InfVec_Bak
       use stdalloc, only: mma_deallocate
-C
-C     T.B. Pedersen, July 2004.
-C
-C     Purpose: deallocate ALL index arrays for the Cholesky utility.
-C              On exit, irc=0 signals sucessful completion.
-C
+      use ChPari
+!
+!     T.B. Pedersen, July 2004.
+!
+!     Purpose: deallocate ALL index arrays for the Cholesky utility.
+!              On exit, irc=0 signals sucessful completion.
+!
       implicit none
       integer(kind=iwp) :: irc
-#include "chpari.fh"
 
       character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
 
       irc = 0
 
-C     Deallocate.
-C     -----------
+!     Deallocate.
+!     -----------
 
       If (Allocated(InfRed_Hidden))
      &    Call mma_deallocate(InfRed_Hidden)

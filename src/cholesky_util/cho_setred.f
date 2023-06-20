@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_SETRED(DIAG)
-C
-C     Purpose: set next reduced set. A copy of the previous set
-C              is stored in location 3.
-C
+!
+!     Purpose: set next reduced set. A copy of the previous set
+!              is stored in location 3.
+!
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8 DIAG(*)
 #include "cholesky.fh"
 
@@ -24,8 +24,8 @@ C
 
       MSYM = SIZE(iiBstRSh,1)
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       IF (CHO_TRCNEG) THEN
          WRITE(LUPRI,*)
@@ -55,13 +55,13 @@ C     ------------
          WRITE(LUPRI,*) SECNAM,': total #negative: ',NNEG
       END IF
 
-C     Copy index arrays from location 2 to location 3.
-C     ------------------------------------------------
+!     Copy index arrays from location 2 to location 3.
+!     ------------------------------------------------
 
       CALL CHO_RSCOPY(2,3)
 
-C     Re-initialize index arrays at location 2.
-C     -----------------------------------------
+!     Re-initialize index arrays at location 2.
+!     -----------------------------------------
 
       IndRed(:,2)=0
       iiBstRSh(:,:,2)=0
@@ -70,8 +70,8 @@ C     -----------------------------------------
       nnBstr(1:MSYM,2)=0
       NNBSTRT(2) = 0
 
-C     Set new reduced set: mapping and SP counter.
-C     --------------------------------------------
+!     Set new reduced set: mapping and SP counter.
+!     --------------------------------------------
 
       IF (SCDIAG) THEN  ! do screening
 
@@ -352,13 +352,13 @@ C     --------------------------------------------
 
       END IF
 
-C     Set remaining index arrays.
-C     ---------------------------
+!     Set remaining index arrays.
+!     ---------------------------
 
       CALL CHO_SETREDIND(2)
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       IF (CHO_TRCNEG) THEN
          WRITE(LUPRI,*) SECNAM,': checking for negative diagonals ',

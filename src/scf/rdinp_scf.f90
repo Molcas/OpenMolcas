@@ -1239,7 +1239,7 @@
       If (LDF_IntegralMode.eq.0) Then
          LDF_UseConventionalIntegrals=.True.
          If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-            Call WarningMessage(2,'Conv. and LDF/PSD integrals can not be used simultaneously')
+            Call WarningMessage(2,'Conv. and LDF/PSD integrals cannot be used simultaneously')
             Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
             Write(6,'(1X,A)') 'Illegal input: INTM=0'
             Call Quit_OnUserError()
@@ -1272,7 +1272,7 @@
 !          Fock matrix
  7700 Continue
       If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,'Conv. and LDF/PSD integrals can not be used simultaneously')
+         Call WarningMessage(2,'Conv. and LDF/PSD integrals cannot be used simultaneously')
          Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If
@@ -1285,7 +1285,7 @@
 !          calculate Coulomb Fock matrix
  7800 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,'LDF and PSD/conv. integrals can not be used simultaneously')
+         Call WarningMessage(2,'LDF and PSD/conv. integrals cannot be used simultaneously')
          Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If
@@ -1299,7 +1299,7 @@
 !          of the LDF integrals, to calculate Coulomb Fock matrix
  7801 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UseLDFIntegrals) Then
-         Call WarningMessage(2,'PSD and LDF/conv. integrals can not be used simultaneously')
+         Call WarningMessage(2,'PSD and LDF/conv. integrals cannot be used simultaneously')
          Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If

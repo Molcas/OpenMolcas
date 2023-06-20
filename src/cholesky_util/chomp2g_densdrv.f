@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
 
       SubRoutine ChoMP2g_DensDrv(irc,EOcc,EVir,EFro,CMO)
 
-*     Jonas Bostrom, Feb 2010
-*
-*     Purpose: To Compute MP2 density from Cholesky MO-vectors and
-*              decomposed MP2 amplitudes.
+!     Jonas Bostrom, Feb 2010
+!
+!     Purpose: To Compute MP2 density from Cholesky MO-vectors and
+!              decomposed MP2 amplitudes.
 
-#include "implicit.fh"
-#include "stdalloc.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 
       Real*8 EOcc(*), EVir(*), EFro(*),CMO(*)
       Character*7  ThisNm
@@ -32,15 +32,15 @@
       irc = 0
 
       Call mma_maxDBLE(lWrk)
-*     Leave 5% of the memory unallocated
-*     ----------------------------------
+!     Leave 5% of the memory unallocated
+!     ----------------------------------
 #ifdef _I8_
       lWrk = lWrk*19/20
 #else
       lWrk = lWrk-lWrk/20
 #endif
       Call mma_allocate(Wrk,lWrk,Label='Wrk')
-*     Wrk(:)=0.0D0
+!     Wrk(:)=0.0D0
 
       Call ChoMP2g_Reord_R(irc,Wrk,lWrk)
 

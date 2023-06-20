@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
       SubRoutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,
      &                         iSyCho,iSyCO,iSyCV,iLoc,
      &                         iMoType1,iMoType2)
-C
-C     Jonas Bostrom, Feb 2010
-C
-C     Purpose: compute pq-vector from reduced set AO vector.
-C
+!
+!     Jonas Bostrom, Feb 2010
+!
+!     Purpose: compute pq-vector from reduced set AO vector.
+!
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
-#include "implicit.fh"
+      use ChoMP2g
+      Implicit Real*8 (a-h,o-z)
       Real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
       Real*8 Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_TraVec')
@@ -36,7 +36,7 @@ C
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
 
-*     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
+!     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
       iVecType = iMoType2 + (iMoType1-1)*nMoType
 
       If (iLoc.lt.2 .or. iLoc.gt.3) Then
@@ -53,9 +53,9 @@ C
          Call FZero(Scr,nMoAo(iSyScr,iMoType1))
       End If
 
-C     First half-transformation step:
-C     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COrb1(i,beta)
-C     ------------------------------------------------------
+!     First half-transformation step:
+!     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COrb1(i,beta)
+!     ------------------------------------------------------
 
       If (iSyCho .eq. 1) Then
 
@@ -134,9 +134,9 @@ C     ------------------------------------------------------
 
       End If
 
-C     Second half-transformation step:
-C     VecMO(q,p) = sum_alpha COrb2(alpha,q)*Scr(p,alpha)
-C     -------------------------------------------------
+!     Second half-transformation step:
+!     VecMO(q,p) = sum_alpha COrb2(alpha,q)*Scr(p,alpha)
+!     -------------------------------------------------
 
       Do iSymp = 1,nSym
 

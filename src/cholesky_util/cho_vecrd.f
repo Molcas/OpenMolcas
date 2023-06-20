@@ -1,51 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_VECRD(SCR,LSCR,JVEC1,IVEC2,ISYM,
      &                     JNUM,IREDC,MUSED)
-C
-C     Purpose: read as many vectors as fit into SCR array starting
-C              at vector JVEC1 and reading at most until vector IVEC2.
-C              On exit, JNUM is the number of vectors read.
-C              On entry as well as exit, IREDC identifies the reduced
-C              set stored in core (at position "3"; use -1 if none
-C              or unkown). Vectors are taken from buffer, if possible.
-C
-C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
-C           but execution is NOT stopped here!!!
-C
-#include "implicit.fh"
-      DIMENSION SCR(LSCR)
+!
+!     Purpose: read as many vectors as fit into SCR array starting
+!              at vector JVEC1 and reading at most until vector IVEC2.
+!              On exit, JNUM is the number of vectors read.
+!              On entry as well as exit, IREDC identifies the reduced
+!              set stored in core (at position "3"; use -1 if none
+!              or unkown). Vectors are taken from buffer, if possible.
+!
+!     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
+!           but execution is NOT stopped here!!!
+!
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       LOGICAL DOREAD
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       JNUM = 0
       MUSED = 0
       IF (LSCR .LT. 1) RETURN
 
-C     Copy vectors from buffer (if possible).
-C     Only relevant for "external" runs (else the vectors are stored in
-C     current reduced set).
-C     -----------------------------------------------------------------
+!     Copy vectors from buffer (if possible).
+!     Only relevant for "external" runs (else the vectors are stored in
+!     current reduced set).
+!     -----------------------------------------------------------------
 
       IF (RUN_MODE .EQ. RUN_EXTERNAL) THEN
          CALL CHO_VECBUF_RETRIEVE(SCR,LSCR,JVEC1,IVEC2,ISYM,
      &                            JNUM,IREDC,MUSED)
       END IF
 
-C     Read remaining vectors from disk.
-C     ---------------------------------
+!     Read remaining vectors from disk.
+!     ---------------------------------
 
       DOREAD = .TRUE.
       JV1 = JVEC1 + JNUM
@@ -63,23 +63,23 @@ C     ---------------------------------
       END
       SUBROUTINE CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,
      &                      JNUM,IREDC,MUSED,DOREAD)
-C
-C     Purpose: read as many vectors as fit into SCR array starting
-C              at vector JVEC1 and reading at most until vector IVEC2.
-C              On exit, JNUM is the number of vectors read.
-C              On entry as well as exit, IREDC identifies the reduced
-C              set stored in core (at position "3"; use -1 if none
-C              or unkown). If DOREAD=.false. no vectors are actually
-C              read in, but JNUM and MUSED are returned as appropriate.
-C              Thus, array SCR is not referenced for DOREAD=.false.
-C
-C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
-C           but execution is NOT stopped here!!!
-C
+!
+!     Purpose: read as many vectors as fit into SCR array starting
+!              at vector JVEC1 and reading at most until vector IVEC2.
+!              On exit, JNUM is the number of vectors read.
+!              On entry as well as exit, IREDC identifies the reduced
+!              set stored in core (at position "3"; use -1 if none
+!              or unkown). If DOREAD=.false. no vectors are actually
+!              read in, but JNUM and MUSED are returned as appropriate.
+!              Thus, array SCR is not referenced for DOREAD=.false.
+!
+!     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
+!           but execution is NOT stopped here!!!
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
-      DIMENSION SCR(LSCR)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 SCR(LSCR)
       LOGICAL   DOREAD
 #include "cholesky.fh"
 
@@ -97,8 +97,8 @@ C
 
       IF (CHO_ADRVEC .EQ. 1) THEN  ! WA addressing
 
-C        Count how many vectors can be read.
-C        -----------------------------------
+!        Count how many vectors can be read.
+!        -----------------------------------
 
          JNUM = 0
          LTOT = 0
@@ -138,8 +138,8 @@ C        -----------------------------------
             END DO
          END IF
 
-C        Read vectors (if any).
-C        ----------------------
+!        Read vectors (if any).
+!        ----------------------
 
          IF (DOREAD .AND. LTOT.GT.0) THEN
             IOPT = 2
@@ -149,8 +149,8 @@ C        ----------------------
 
       ELSE IF (CHO_ADRVEC .EQ. 2) THEN ! DA adressing
 
-C        Read as many vectors as can be read, one at a time.
-C        ---------------------------------------------------
+!        Read as many vectors as can be read, one at a time.
+!        ---------------------------------------------------
 
          JNUM = 0
          LTOT = 0
@@ -212,13 +212,13 @@ C        ---------------------------------------------------
 
       END IF
 
-C     Return total memory used for read.
-C     ----------------------------------
+!     Return total memory used for read.
+!     ----------------------------------
 
       MUSED = LTOT
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       IF (LOCDBG) THEN
          WRITE(LUPRI,*)

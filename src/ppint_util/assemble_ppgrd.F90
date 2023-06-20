@@ -27,9 +27,9 @@ integer(kind=iwp) :: i6, ix, iy, iz, jx, jy, jz
 !***********************************************************************
 !                                                                      *
 !call RecPrt('X',' ',A_laplb,(la+2)*(la+3)/2,(lb+1)*(lb+2)/2)
-!if (la > 0) Call RecPrt('X',' ',A_lamlb,(la+0)*(la+1)/2,(lb+1)*(lb+2)/2)
+!if (la > 0) call RecPrt('X',' ',A_lamlb,(la+0)*(la+1)/2,(lb+1)*(lb+2)/2)
 !call RecPrt('X',' ',A_lalbp,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2)
-!if (lb > 0) Call RecPrt('X',' ',A_lalbm,(la+1)*(la+2)/2,(lb+0)*(lb+1)/2)
+!if (lb > 0) call RecPrt('X',' ',A_lalbm,(la+1)*(la+2)/2,(lb+0)*(lb+1)/2)
 do ix=la,0,-1
   do iy=la-ix,0,-1
     iz = la-ix-iy

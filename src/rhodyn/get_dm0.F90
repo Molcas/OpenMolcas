@@ -216,7 +216,7 @@ else
 
     case ('SO')
       call dashes()
-      write(u6,*) 'WARNING! IF IFSO=OFF, CAN NOT POPULATE SO STATE'
+      write(u6,*) 'WARNING! IF IFSO=OFF, CANNOT POPULATE SO STATE'
       call dashes()
       call abend()
 

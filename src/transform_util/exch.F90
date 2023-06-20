@@ -30,6 +30,12 @@ integer(kind=iwp) :: I, I3, I4, IDISK, IREC, IS12, IS34, ISY1, ISY2, ISY3, ISY4,
 logical(kind=iwp) :: TRANSP
 #include "intgrl.fh"
 
+! Buffer size:
+NO1 = NORBZ(ISYP)
+NO2 = NORBZ(ISYQ)
+NBUF = NO1*NO2
+if (NBUF == 0) return
+
 NDIM2M = (NSYMZ*(NSYMZ+1))/2
 if (ISYP >= ISYQ) then
   ISY1 = ISYP
@@ -74,11 +80,8 @@ else
   IREC = I3+NOSHZ(ISY3)*(I4-1)
 end if
 
-! Buffer size:
 NO1 = NORBZ(ISY1)
 NO2 = NORBZ(ISY2)
-NBUF = NO1*NO2
-if (NBUF == 0) return
 
 ! Address update for earlier records, then read:
 ! PAM07 * Eliminate unsafe IPOSFILE call

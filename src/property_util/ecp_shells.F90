@@ -128,7 +128,7 @@ else if (iAtmNr <= 120) then
   list(2) = 0
   list(3) = 0
 else
-  write(u6,*) 'ECP_shells can not handle atom numbers beyond 112.'
+  write(u6,*) 'ECP_shells cannot handle atom numbers beyond 112.'
   call Abend()
 end if
 !                                                                      *

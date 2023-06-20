@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
-*               Francesco Aquilante                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
+!               Francesco Aquilante                                    *
+!***********************************************************************
       SubRoutine ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,
      &                               iBatch,jBatch)
-C
-C     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
-C
-C     Purpose: compute (MINUS the) energy contribution from a
-C              batch of (ai|bj) integrals.
-C
-C     Modified by F. Aquilante to compute separately the Opposite-Spin
-C                              contribution to the MP2 energy
+!
+!     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
+!
+!     Purpose: compute (MINUS the) energy contribution from a
+!              batch of (ai|bj) integrals.
+!
+!     Modified by F. Aquilante to compute separately the Opposite-Spin
+!                              contribution to the MP2 energy
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  EOcc(*), EVir(*), Xaibj(LnT2am)
       Integer LiT2am(8)
 #include "cholesky.fh"

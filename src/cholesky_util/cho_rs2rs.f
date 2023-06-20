@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_RS2RS(IMAP,LMAP,IRS2,IRS3,IRED3,ISYM)
-C
-C     Purpose: set up mapping between reduced sets stored at IRS2 and
-C              IRS3 (IRED3 is the reduced set id of IRS3).
-C
-C     WARNING: for IRED3 = 1, INDRED is reset here!!!!
-C
+!
+!     Purpose: set up mapping between reduced sets stored at IRS2 and
+!              IRS3 (IRED3 is the reduced set id of IRS3).
+!
+!     WARNING: for IRED3 = 1, INDRED is reset here!!!!
+!
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       INTEGER IMAP(LMAP)
 #include "cholesky.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_RS2RS')
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       IF (IRS2.LT.1 .OR. IRS2.GT.3 .OR.
      &    IRS3.LT.1 .OR. IRS3.GT.3) THEN
@@ -33,9 +33,9 @@ C     ------------
          CALL CHO_QUIT('Dimension error in '//SECNAM,104)
       END IF
 
-C     For IRED3 = 1, INDRED array addresses into shell pair. We hence
-C     need to reset it (as warned about above).
-C     ---------------------------------------------------------------
+!     For IRED3 = 1, INDRED array addresses into shell pair. We hence
+!     need to reset it (as warned about above).
+!     ---------------------------------------------------------------
 
       IF (IRED3 .EQ. 1) THEN
          I1 = IIBSTR(ISYM,IRS3) + 1
@@ -45,8 +45,8 @@ C     ---------------------------------------------------------------
          END DO
       END IF
 
-C     Set up mapping array.
-C     ---------------------
+!     Set up mapping array.
+!     ---------------------
 
       CALL IZERO(IMAP,NNBSTR(ISYM,IRS2))
       DO ISHLAB = 1,NNSHL

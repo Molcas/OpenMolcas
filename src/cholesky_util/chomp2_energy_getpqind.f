@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Jonas Bostrom                                    *
+!***********************************************************************
       SubRoutine ChoMP2_Energy_GetPQInd(LnPQRSprod, LiPQRSprod,
      &                                  iBatch,jBatch)
-C
-C     Jonas Bostrom, june 2008
-C
-C     Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
-C
+!
+!     Jonas Bostrom, june 2008
+!
+!     Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
+!
       use ChoMP2, only: LnPQprod
       Implicit None
       Integer iBatch, jBatch

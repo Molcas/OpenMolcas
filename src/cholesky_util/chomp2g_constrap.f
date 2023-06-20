@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
       Subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,Type,
      &                            iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
 
-#include "implicit.fh"
-#include "chomp2g.fh"
+      use ChoMP2g
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-*
+!
       Real*8 Scr(lScr), Ap(lAp), Dens(lDens)
 
       Character  Type(1:4)
       Logical DoX, DoY, DoZ
       Integer iOffp(8), iOffAp(8)
       Integer nOrb1(8,4), iOrbType(4)
-*
+!
       Character*8  ThisNm
       Character*16 SecNam
       Parameter (SecNam = 'ChoMP2g_ConstrAP', ThisNm = 'ConstrAP')
-*************************************
+!************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-*************************************
+!************************************
 
-*     Setup some lengths
-*     ------------------
+!     Setup some lengths
+!     ------------------
       nTypes = 4
 
       iTypL = 1
 
-*     Setup lengths of needed cholesky/intermediate vectors
-*     ----------------------------------------------------
+!     Setup lengths of needed cholesky/intermediate vectors
+!     ----------------------------------------------------
 
-*     Read the char-array Type = 'pqri'
-*     ---------------------------------
+!     Read the char-array Type = 'pqri'
+!     ---------------------------------
       Do i = 1, nTypes
          If(Type(i) .eq. 'f') Then
             iOrbType(i) = 1
@@ -68,8 +68,8 @@
          End If
       End Do
 
-*     Set vector type index
-*     ---------------------
+!     Set vector type index
+!     ---------------------
       iPQ = 3*(iOrbType(1)-1) + iOrbType(2)
       iIR = 3*(iOrbType(4)-1) + iOrbType(3)
       iIQ = 3*(iOrbType(4)-1) + iOrbType(2)
@@ -77,8 +77,8 @@
       iIP = 3*(iOrbType(4)-1) + iOrbType(1)
       iRQ = 3*(iOrbType(3)-1) + iOrbType(2)
 
-*     Set vector lengths
-*     ------------------
+!     Set vector lengths
+!     ------------------
       nPQ = nMoMo(iSym,iPQ)
       nIR = nMoMo(iSym,iIR)
       nIQ = nMoMo(iSym,iIQ)
@@ -86,8 +86,8 @@
       nIP = nMoMo(iSym,iIP)
       nRQ = nMoMo(iSym,iRQ)
 
-*     Set adress-offset for cholesky vector adress
-*     --------------------------------------------
+!     Set adress-offset for cholesky vector adress
+!     --------------------------------------------
       iAdrLpq = iAdrOff(iSym,iPQ)
       iAdrLir = iAdrOff(iSym,iIR)
       iAdrLiq = iAdrOff(iSym,iIQ)
@@ -95,8 +95,8 @@
       iAdrLip = iAdrOff(iSym,iIP)
       iAdrLrq = iAdrOff(iSym,iRQ)
 
-*     Set
-*
+!     Set
+!
 
 #ifdef _DEBUGPRINT_
       Write(6,*) 'iPQ', iPQ
@@ -105,7 +105,7 @@
       Write(6,*) 'iIP', iIP
       Write(6,*) 'iRQ', iRQ
       Write(6,*) 'iRP', iRP
-*
+!
       Write(6,*) 'nPQ', nPQ
       Write(6,*) 'nIQ', nIQ
       Write(6,*) 'nIR', nIR
@@ -113,12 +113,12 @@
       Write(6,*) 'nRQ', nRQ
       Write(6,*) 'nRP', nRP
 #endif
-*     Decide what type of intermediate vectors is needed
-*     --------------------------------------------------
+!     Decide what type of intermediate vectors is needed
+!     --------------------------------------------------
       DoX = .True.
       DoY = .True.
       DoZ = .True.
-*
+!
       If(iSym.ne.1) DoX = .False.
       If((nPQ .eq. 0) .or. (nIR .eq. 0)) DoX = .False.
       If((nRP .eq. 0) .or. (nIQ .eq. 0)) DoY = .False.
@@ -136,56 +136,56 @@
          End Do
       End If
 
-*     Allocate memory for L-vectors
-*     ------------------------------
+!     Allocate memory for L-vectors
+!     ------------------------------
 
-*        Lri:
+!        Lri:
          lLir = nIR*nVec
          kLir = 1
          kEndLir = kLir +lLir
 
-*        Lpq:
+!        Lpq:
          lLpq = nPQ*nVec
          kLpq = kEndLir
          kEndLpq = kLpq + lLpq
 
-*        Lrp:
+!        Lrp:
          lLrp = nRP*nVec
          kLrp = kEndLpq
          kEndLrp = kLrp + lLrp
 
-*        Lrq:
+!        Lrq:
          lLrq = nRQ*nVec
          kLrq = kEndLrp
          kEndLrq = kLrq + lLrq
 
-*        Lip:
+!        Lip:
          lLip = nIP*nVec
          kLip = kEndLrq
          kEndLip = kLip + lLip
 
-*        Liq:
+!        Liq:
          lLiq = nIQ*nVec
          kLiq = kEndLip
          kEndLiq = kLiq + lLiq
 
-*     Allocate memory for Intermediate Vectors
-*     ----------------------------------------
-*        X-vector
+!     Allocate memory for Intermediate Vectors
+!     ----------------------------------------
+!        X-vector
          lX = NumCho(iSym)
          kX = kEndLiq
          kEndX = kX + lX
-*        Y-vector
+!        Y-vector
          lY = nVec*nIP
          kY = kEndX
          kEndY = kY + lY
-*        Z-vector
+!        Z-vector
          kZ = kEndY
-*
+!
       nBatL = (NumCho(iSym)-1)/nVec + 1
 
-*     Construction of Intermediate vectors
-*     ------------------------------------
+!     Construction of Intermediate vectors
+!     ------------------------------------
       Do iBat = 1, nBatL
          If (iBat .eq. nBatL) Then
             NumVec = NumCho(iSym) - nVec*(nBatL-1)
@@ -194,8 +194,8 @@
          End If
          iVec = nVec*(iBat-1) + 1
 
-*        Read Lpq-vectors
-*        ----------------
+!        Read Lpq-vectors
+!        ----------------
          If(DoX) Then
             iOpt = 2
             lTot = nPQ*NumVec
@@ -205,8 +205,8 @@
      &                   lTot,iAdr)
          End If
 
-*        Read Liq-vectors
-*        ----------------
+!        Read Liq-vectors
+!        ----------------
          If(DoY) Then
             iOpt = 2
             lTot = nIQ*NumVec
@@ -216,7 +216,7 @@
      &                   lTot,iAdr)
          End If
 
-*
+!
          If(DoZ) Then
             iOpt = 2
             lTot = nIP*NumVec
@@ -225,8 +225,8 @@
      &                   lTot,iAdr)
          End If
 
-*        Construct X-vector
-*        ------------------
+!        Construct X-vector
+!        ------------------
          If(DoX) Then
             nRow = 1
             Call dGemm_('T','N',nRow,NumVec,nPQ,
@@ -235,8 +235,8 @@
      &                       Scr(kX+iVec-1),nRow)
          End If
 
-*        Construct Y-vector
-*        ------------------
+!        Construct Y-vector
+!        ------------------
          If(DoY) Then
             Do iVec1 = 1, NumVec
                iOffL1 = 0
@@ -267,8 +267,8 @@
                Call dDaFile(LuVVec, iOpt, Scr(kY),lTot,iAdr)
             End If
          End If
-*        Construct Z-vectors
-*        -------------------
+!        Construct Z-vectors
+!        -------------------
          If(DoZ) Then
             Do iVec1 = 1, NumVec
                iOffL1 = 0
@@ -298,12 +298,12 @@
                iAdr = nIQ*(iVec-1)+1
                Call dDaFile(LuWVec, iOpt, Scr(kZ),lTot,iAdr)
             End If
-*
+!
          End If
       End Do
 
-*     Contracting to produce the final contribution to A*p
-*     ----------------------------------------------------
+!     Contracting to produce the final contribution to A*p
+!     ----------------------------------------------------
       Do iBat = 1, nBatL
          If (iBat .eq. nBatL) Then
             NumVec = NumCho(iSym) - nVec*(nBatL-1)
@@ -312,8 +312,8 @@
          End If
          iVec = nVec*(iBat-1) + 1
 
-*        Read Lir-vectors
-*        ----------------
+!        Read Lir-vectors
+!        ----------------
          If(DoX) Then
             iOpt = 2
             lTot = nIR*NumVec
@@ -323,8 +323,8 @@
      &                   lTot,iAdr)
          End If
 
-*        Read Lrp-vectors
-*        ----------------
+!        Read Lrp-vectors
+!        ----------------
          If(DoY) Then
             iOpt = 2
             lTot = nRP*NumVec
@@ -333,8 +333,8 @@
      &                   lTot,iAdr)
          End If
 
-*        Read Lrq-vectors
-*        ----------------
+!        Read Lrq-vectors
+!        ----------------
          If(DoZ) Then
             iOpt = 2
             lTot = nRQ*NumVec
@@ -342,7 +342,7 @@
             Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLrq),
      &                   lTot,iAdr)
          End If
-*
+!
          If(DoX) Then
             iCol = 1
             Call dGemm_('N','N',nIR,iCol,NumVec,
@@ -350,17 +350,17 @@
      &                 Scr(kX+iVec-1),NumVec, 1.0d0,
      &                 Ap(1),nIR)
          End If
-*
+!
          If(DoY) Then
-*           Read Y-vector (if they are stored on disk and not in memory)
-*           ------------------------------------------------------------
+!           Read Y-vector (if they are stored on disk and not in memory)
+!           ------------------------------------------------------------
             If(nBatL .ne. 1) Then
                iOpt = 2
                lTot = nIP*NumVec
                iAdr = nIP*(iVec-1)+1
                Call dDaFile(LuVVec, iOpt, Scr(kY),lTot,iAdr)
             End If
-*
+!
             yfactor = 1.0d0*factor
             If(.not. DoZ) yfactor = yfactor*2.0d0
             Do iVec1 = 1, NumVec
@@ -373,7 +373,7 @@
                      nR = nOrb1(iSymR,3)
                      nP = nOrb1(iSymP,1)
                      nQ = nOrb1(iSymP,2)
-*
+!
                      If(nI*nR*nP*nQ .eq. 0) Go To 201
                      iOffL = (iVec1-1)*nRP + iOffL1
                      iOffY = (iVec1-1)*nIP + iOffY1
@@ -391,15 +391,15 @@
          End If
 
          If(DoZ) Then
-*           Read Z-vector (if they are stored on disk and not in memory)
-*           ------------------------------------------------------------
+!           Read Z-vector (if they are stored on disk and not in memory)
+!           ------------------------------------------------------------
             If(nBatL .ne. 1) Then
                iOpt = 2
                lTot = nIQ*NumVec
                iAdr = nIQ*(iVec-1)+1
                Call dDaFile(LuWVec, iOpt, Scr(kZ),lTot,iAdr)
             End If
-*
+!
             Do iVec1 = 1, NumVec
                   iOffL1 = 0
                   iOffZ1 = 0

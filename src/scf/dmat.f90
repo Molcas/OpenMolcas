@@ -126,7 +126,7 @@
 !     Put the actual densities on the run file.
 !
 !     Note, this is from where the DFT part of the DrvXV code gets the
-!     total density when it computes the DFT constributions to the
+!     total density when it computes the DFT contributions to the
 !     total energy and the Fock matrix.
 !
       Call DensAB(nBT,iPsLst,nD,Dens)

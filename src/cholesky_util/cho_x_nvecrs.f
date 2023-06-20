@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  Cho_X_nVecRS
-*
-*> @brief
-*>   Find first vector and number of vectors in reduced set \p iRed, sym. block \p iSym
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> This routine finds the first vector and number of
-*> vectors in reduced set \p iRed, sym. block \p iSym.
-*> Note that \p iVec=\p nVec = ``0`` may be returned---this is
-*> perfectly acceptable: a given reduced set may be
-*> empty. However, if negative numbers are returned
-*> (\p iVec < ``0`` and \p nVec < ``0``), an error has ocurred. This
-*> should be tested by the caller!!
-*>
-*> @note
-*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
-*>
-*> @param[in]  iRed Reduced set
-*> @param[in]  iSym Symmetry block (1-8)
-*> @param[out] iVec First vector in red. set \p iRed, sym. \p iSym
-*> @param[out] nVec Number of vectors in red. set \p iRed, sym. \p iSym
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  Cho_X_nVecRS
+!
+!> @brief
+!>   Find first vector and number of vectors in reduced set \p iRed, sym. block \p iSym
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> This routine finds the first vector and number of
+!> vectors in reduced set \p iRed, sym. block \p iSym.
+!> Note that \p iVec=\p nVec = ``0`` may be returned---this is
+!> perfectly acceptable: a given reduced set may be
+!> empty. However, if negative numbers are returned
+!> (\p iVec < ``0`` and \p nVec < ``0``), an error has ocurred. This
+!> should be tested by the caller!!
+!>
+!> @note
+!> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+!>
+!> @param[in]  iRed Reduced set
+!> @param[in]  iSym Symmetry block (1-8)
+!> @param[out] iVec First vector in red. set \p iRed, sym. \p iSym
+!> @param[out] nVec Number of vectors in red. set \p iRed, sym. \p iSym
+!***********************************************************************
       SubRoutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
       use ChoSwp, only: InfVec
       Implicit None
@@ -46,8 +46,8 @@
 
       Integer irc, LastRed, jVec, jRed
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       irc = 0
       If (iSym.lt.1 .or. iSym.gt.nSym) Then
@@ -80,8 +80,8 @@ C     ------------
       End If
       nVec=0
 
-C     Find first vector in reduced set iRed.
-C     --------------------------------------
+!     Find first vector in reduced set iRed.
+!     --------------------------------------
 
       Found = .false.
       jVec  = 0
@@ -96,8 +96,8 @@ C     --------------------------------------
          End If
       End Do
 
-C     No first vector <=> 0 vectors in reduced set iRed.
-C     --------------------------------------------------
+!     No first vector <=> 0 vectors in reduced set iRed.
+!     --------------------------------------------------
 
       If (.not. Found) Then
          iVec = 0
@@ -105,8 +105,8 @@ C     --------------------------------------------------
          Return
       End If
 
-C     Count number of vectors in reduced set iRed.
-C     --------------------------------------------
+!     Count number of vectors in reduced set iRed.
+!     --------------------------------------------
 
       nVec = 1
       jVec = iVec
@@ -121,8 +121,8 @@ C     --------------------------------------------
       End Do
 
 #if defined (_DEBUGPRINT_)
-C     Debug: print result.
-C     --------------------
+!     Debug: print result.
+!     --------------------
 
       Write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ',
      &           iRed,' (sym. block ',iSym,')'

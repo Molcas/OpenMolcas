@@ -154,7 +154,7 @@ else
   write(u6,*)
   write(u6,*) ' Wavefunction type:',Method
   write(u6,*) ' Illegal type of wave function!'
-  write(u6,*) ' ALASKA can not continue'
+  write(u6,*) ' ALASKA cannot continue'
   write(u6,*)
   call Quit_OnUserError()
 end if
@@ -250,7 +250,7 @@ if (lpso) then
   if (nTst /= 0) then
     write(u6,*)
     write(u6,*) ' No frozen orbitals are allowed!'
-    write(u6,*) ' ALASKA can not continue'
+    write(u6,*) ' ALASKA cannot continue'
     write(u6,*)
     call Quit_OnUserError()
   end if

@@ -84,7 +84,7 @@ C-------------------------------------------
         Endif
         If (iState.lt.jState) Then
 *
-*          For the rest of the code to work this can not be violated.
+*          For the rest of the code to work this cannot be violated.
 *
            Write (6,*) 'Proper: iState.lt.jState'
            Call Abend()

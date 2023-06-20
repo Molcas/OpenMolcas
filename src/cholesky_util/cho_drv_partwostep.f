@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_Drv_ParTwoStep(irc)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: Parallel two-step decomposition of two-electron
-C              integrals.
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: Parallel two-step decomposition of two-electron
+!              integrals.
+!
       use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoSubScr, only: Cho_SScreen, SSTau
+      use stdalloc
       Implicit None
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer iSec
       Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
@@ -75,8 +75,8 @@ C
 
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-C     Preliminaries.
-C     ==============
+!     Preliminaries.
+!     ==============
 
 #if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem('Start of '//SecNam)
@@ -94,8 +94,8 @@ C     ==============
 
       lConv = .False.
 
-C     Initialization.
-C     ===============
+!     Initialization.
+!     ===============
 
       iSec=1
       If (iPrint .ge. Inf_Timing) Then
@@ -114,8 +114,8 @@ C     ===============
       Call Cho_PrtMaxMem(SecNam//': After init')
 #endif
 
-C     Get diagonal.
-C     =============
+!     Get diagonal.
+!     =============
 
       iSec=2
       If (iPrint .ge. Inf_Timing) Then
@@ -127,7 +127,7 @@ C     =============
       Call Cho_GetDiag(lConv)
       Call Cho_GASync()
       If (lConv) Then
-         ! restart is not possible, so it can not be converged!!
+         ! restart is not possible, so it cannot be converged!!
          Write(LuPri,'(A,A)')
      &   SecNam,': logical error: converged but not restart?!?!'
          Call Cho_Quit('Error in '//SecNam,103)
@@ -143,8 +143,8 @@ C     =============
       Call Cho_PrtMaxMem(SecNam//': After diagonal')
 #endif
 
-C     Cholesky decomposition in two steps.
-C     ====================================
+!     Cholesky decomposition in two steps.
+!     ====================================
 
       ! Time the rest as "decomposition driver"
       Call Cho_Timer(C0,W0)
@@ -476,8 +476,8 @@ C     ====================================
       Call Cho_PrtMaxMem(SecNam//': After 2nd step.')
 #endif
 
-C     Check diagonal.
-C     ===============
+!     Check diagonal.
+!     ===============
 
       iSec=4
       If (iPrint .ge. Inf_Timing) Then
@@ -520,8 +520,8 @@ C     ===============
       Call Cho_PrtMaxMem(SecNam//': After diagonal check.')
 #endif
 
-C     Finalization.
-C     =============
+!     Finalization.
+!     =============
 
       iSec=8
       If (iPrint .ge. Inf_Timing) Then
@@ -543,8 +543,8 @@ C     =============
       Call Cho_PrtMaxMem(SecNam//': After finalization')
 #endif
 
-C     Statistics.
-C     ===========
+!     Statistics.
+!     ===========
 
       If (iPrint. ge. 1) Then
          iSec = 9
@@ -568,8 +568,8 @@ C     ===========
       Call Cho_PrtMaxMem(SecNam//': After statistics')
 #endif
 
-C     Wrap it up and return.
-C     ======================
+!     Wrap it up and return.
+!     ======================
 
       Call mma_deallocate(iV1Block)
       Call mma_deallocate(nVBlock)

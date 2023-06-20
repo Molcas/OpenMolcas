@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: compute dimension of Z vector array and print it to
-C              output (if requested through DoPrint). Check if there
-C              is sufficient memory at this point (if DoCheck).
-C
-C     Return codes:
-C
-C     irc=-1 : Input error (debug only)
-C     irc=0  : All ok
-C     irc=1  : Negative length of Z vector array (could be integer
-C              overflow)
-C     irc=999: Insufficient memory for Z vectors (only if DoCheck)
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: compute dimension of Z vector array and print it to
+!              output (if requested through DoPrint). Check if there
+!              is sufficient memory at this point (if DoCheck).
+!
+!     Return codes:
+!
+!     irc=-1 : Input error (debug only)
+!     irc=0  : All ok
+!     irc=1  : Negative length of Z vector array (could be integer
+!              overflow)
+!     irc=999: Insufficient memory for Z vectors (only if DoCheck)
+!
       Implicit None
       Integer irc
       Integer l_Z

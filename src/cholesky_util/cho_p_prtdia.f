@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_PrtDia(Diag,Sync,iSyLst,nSyLst,iLoc)
-C
-C     Purpose: print global diagonal. Diag is the local diagonal and
-C              if Sync=.True. the global diagonal is
-C              synchronized before printing. Array iSyLst(nSyLst)
-C              specifies which symmetry blocks to print, and iLoc points
-C              to the memory location of the reduced set index arrays to
-C              use for printing (and synchronizing, if requested).
-C
+!
+!     Purpose: print global diagonal. Diag is the local diagonal and
+!              if Sync=.True. the global diagonal is
+!              synchronized before printing. Array iSyLst(nSyLst)
+!              specifies which symmetry blocks to print, and iLoc points
+!              to the memory location of the reduced set index arrays to
+!              use for printing (and synchronizing, if requested).
+!
       use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
@@ -29,16 +29,16 @@ C
 
       If (Cho_Real_Par) Then
 
-C        Sync diagonal if requested.
-C        ---------------------------
+!        Sync diagonal if requested.
+!        ---------------------------
 
          If (Sync) Then
             Call Cho_P_SyncDiag(Diag,iLoc)
          End If
 
-C        Swap local and global index arrays and use original serial routine
-C        to print diagonal.
-C        ------------------------------------------------------------------
+!        Swap local and global index arrays and use original serial routine
+!        to print diagonal.
+!        ------------------------------------------------------------------
 
          Call Cho_P_IndxSwp()
          Call Cho_PrtDia(Diag_G,iSyLst,nSyLst,iLoc)

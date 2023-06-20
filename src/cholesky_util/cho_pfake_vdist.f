@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_PFake_VDist()
-C
-C     Author: Thomas Bondo Pedersen, April 2007.
-C     Purpose: fake parallel distribution of vectors.
-C
+!
+!     Author: Thomas Bondo Pedersen, April 2007.
+!     Purpose: fake parallel distribution of vectors.
+!
       Use Para_Info, Only: nProcs, Is_Real_Par
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_PFake_VDist'
 
@@ -32,23 +32,23 @@ C
       Integer, Allocatable:: InfV(:,:), IDV(:)
       Real*8, Allocatable:: Wrk(:)
 
-C     Return if nothing to do.
-C     ------------------------
+!     Return if nothing to do.
+!     ------------------------
 
       If (nProcs.eq.1 .or. .not.Is_Real_Par()) Return ! serial run
       If (.not.CHO_FAKE_PAR) Return ! true parallel run
 
-C     Memory allocation.
-C     ------------------
+!     Memory allocation.
+!     ------------------
 
       Call mma_allocate(InfV,2,MaxVec+1,Label='InfV')
       Call mma_allocate(IDV,MaxVec,Label='IDV')
       Call mma_maxDBLE(l_Wrk)
       Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
 
-C     Distribute vectors in each symmetry:
-C     read from LuCho files; put into LuCho_G files.
-C     ----------------------------------------------
+!     Distribute vectors in each symmetry:
+!     read from LuCho files; put into LuCho_G files.
+!     ----------------------------------------------
 
       iRedC = -1
       Do iSym = 1,nSym
@@ -78,8 +78,8 @@ C     ----------------------------------------------
          End Do
       End Do
 
-C     Deallocation.
-C     -------------
+!     Deallocation.
+!     -------------
 
       Call mma_deallocate(Wrk)
       Call mma_deallocate(IDV)

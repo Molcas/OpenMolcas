@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  Cho_X_NumRd
-*
-*> @brief
-*>   Return the number of Cholesky vectors that may be read into \p Mem words of memory.
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> The count starts at vector \p iVec1 of symmetry \p iSym
-*> (this is needed since the vectors are stored in
-*> different reduces sets).
-*> On exit, \p Cho_X_NumRd is negative if some error has
-*> occurred (``-1``, ``-2``, and ``-3`` signify errors in input
-*> variables, ``-4`` indicates an error in \p Cho_X_SetRed).
-*>
-*> @note
-*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
-*>
-*> @param[in] iVec1 First vector
-*> @param[in] iSym  Symmetry
-*> @param[in] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
-*> @param[in] Mem   Memory available for read
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  Cho_X_NumRd
+!
+!> @brief
+!>   Return the number of Cholesky vectors that may be read into \p Mem words of memory.
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> The count starts at vector \p iVec1 of symmetry \p iSym
+!> (this is needed since the vectors are stored in
+!> different reduces sets).
+!> On exit, \p Cho_X_NumRd is negative if some error has
+!> occurred (``-1``, ``-2``, and ``-3`` signify errors in input
+!> variables, ``-4`` indicates an error in \p Cho_X_SetRed).
+!>
+!> @note
+!> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+!>
+!> @param[in] iVec1 First vector
+!> @param[in] iSym  Symmetry
+!> @param[in] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
+!> @param[in] Mem   Memory available for read
+!***********************************************************************
       Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       Integer iRed

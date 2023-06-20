@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Energy_Fll(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: compute MP2 energy contribution using original
-C              Cholesky vectors on disk for the case nBatch=1.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: compute MP2 energy contribution using original
+!              Cholesky vectors on disk for the case nBatch=1.
+!
       use ChoMP2, only: LiMatij
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"
@@ -45,8 +45,8 @@ C
 
       irc = 0
 
-C     Determine if vector files are to be deleted after use.
-C     ------------------------------------------------------
+!     Determine if vector files are to be deleted after use.
+!     ------------------------------------------------------
 
       If (Delete) Then
          iClos = 3
@@ -54,8 +54,8 @@ C     ------------------------------------------------------
          iClos = 2
       End If
 
-C     Set number and type of vectors.
-C     -------------------------------
+!     Set number and type of vectors.
+!     -------------------------------
 
       If (DecoMP2) Then
          iTyp = 2
@@ -65,13 +65,13 @@ C     -------------------------------
          Call iCopy(nSym,NumCho,1,nEnrVec,1)
       End If
 
-C     Set (ai|bj) indices.
-C     --------------------
+!     Set (ai|bj) indices.
+!     --------------------
 
       Call ChoMP2_Energy_GetInd(LnT2am,LiT2am,1,1)
 
-C     Allocate memory for integrals.
-C     ------------------------------
+!     Allocate memory for integrals.
+!     ------------------------------
 
       kXaibj = 1
       kEnd0  = kXaibj + LnT2am
@@ -80,32 +80,32 @@ C     ------------------------------
          Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
       End If
 
-C     Initialize MP2 energy correction.
-C     ---------------------------------
+!     Initialize MP2 energy correction.
+!     ---------------------------------
 
       EMP2 = 0.0D0
 
-C     Special code for ChoAlg=2:
-C     compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.
-C     For ChoAlg=1: use strictly lower triangular storage (=>
-C     level 2 BLAS).
-C     --------------------------------------------------------
+!     Special code for ChoAlg=2:
+!     compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.
+!     For ChoAlg=1: use strictly lower triangular storage (=>
+!     level 2 BLAS).
+!     --------------------------------------------------------
 
       If (ChoAlg .eq. 2) Then ! level 3 BLAS algorithm
 
          kMabij = kXaibj ! rename pointer
          Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-C        Loop over Cholesky symmetries.
-C        ------------------------------
+!        Loop over Cholesky symmetries.
+!        ------------------------------
 
          Do iSym = 1,nSym
 
             Nai = nT1am(iSym)
             If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
 
-C              Reserve memory for reading a single vector.
-C              -------------------------------------------
+!              Reserve memory for reading a single vector.
+!              -------------------------------------------
 
                kVecai = kEnd0
                kEnd1  = kVecai + Nai
@@ -116,8 +116,8 @@ C              -------------------------------------------
      &                             '[ChoAlg.2.1]')
                End If
 
-C              Set up batch over Cholesky vectors.
-C              -----------------------------------
+!              Set up batch over Cholesky vectors.
+!              -----------------------------------
 
                nVec = min(lWrk1/Nai,nEnrVec(iSym))
                If (nVec .lt. 1) Then ! should not happen
@@ -126,13 +126,13 @@ C              -----------------------------------
                End If
                nBat = (nEnrVec(iSym)-1)/nVec + 1
 
-C              Open Cholesky vector files.
-C              ---------------------------
+!              Open Cholesky vector files.
+!              ---------------------------
 
                Call ChoMP2_OpenF(1,iTyp,iSym)
 
-C              Start vector batch loop.
-C              ------------------------
+!              Start vector batch loop.
+!              ------------------------
 
                Do iBat = 1,nBat
 
@@ -143,8 +143,8 @@ C              ------------------------
                   End If
                   iVec1 = nVec*(iBat-1) + 1
 
-C                 Set up index arrays for reordered vectors.
-C                 ------------------------------------------
+!                 Set up index arrays for reordered vectors.
+!                 ------------------------------------------
 
                   nVaJi = 0
                   Do iSymi = 1,nSym
@@ -154,8 +154,8 @@ C                 ------------------------------------------
      &                    + nVir(iSyma)*NumVec*nOcc(iSymi)
                   End Do
 
-C                 Pointer to reordered vectors: kVec.
-C                 -----------------------------------
+!                 Pointer to reordered vectors: kVec.
+!                 -----------------------------------
 
                   kVec  = kEnd1
                   kEnd2 = kVec  + nVaJi
@@ -166,8 +166,8 @@ C                 -----------------------------------
      &                                '[ChoAlg.2.3]')
                   End If
 
-C                 Read one vector at a time and reorder.
-C                 --------------------------------------
+!                 Read one vector at a time and reorder.
+!                 --------------------------------------
 
                   iVec0 = iVec1 - 1
                   Do iVec = 1,NumVec
@@ -194,9 +194,9 @@ C                 --------------------------------------
 
                   End Do
 
-C                 Compute M(ab,ij) for i<=j.
-C                 First do iSymi=iSymj, then iSymi<iSymj.
-C                 ---------------------------------------
+!                 Compute M(ab,ij) for i<=j.
+!                 First do iSymi=iSymj, then iSymi<iSymj.
+!                 ---------------------------------------
 
                   Do iSymj = 1,nSym
 
@@ -269,8 +269,8 @@ C                 ---------------------------------------
 
                End Do
 
-C              Close (and possibly delete) Cholesky vector files.
-C              --------------------------------------------------
+!              Close (and possibly delete) Cholesky vector files.
+!              --------------------------------------------------
 
                Call ChoMP2_OpenF(iClos,iTyp,iSym)
 
@@ -280,14 +280,14 @@ C              --------------------------------------------------
 
       Else ! level 2 BLAS algorithm
 
-C        Loop over Cholesky symmetries.
-C        ------------------------------
+!        Loop over Cholesky symmetries.
+!        ------------------------------
 
          Do iSym = 1,nSym
             If (nT1am(iSym).gt.0 .and. nEnrVec(iSym).gt.0) Then
 
-C              Set up Cholesky batch.
-C              ----------------------
+!              Set up Cholesky batch.
+!              ----------------------
 
                NumVec = min(lWrk0/nT1am(iSym),nEnrVec(iSym))
                If (NumVec .lt. 1) Then
@@ -295,13 +295,13 @@ C              ----------------------
                End IF
                nBat = (nEnrVec(iSym) - 1)/NumVec + 1
 
-C              Open Cholesky vector file.
-C              --------------------------
+!              Open Cholesky vector file.
+!              --------------------------
 
                Call ChoMP2_OpenF(1,iTyp,iSym)
 
-C              Start batch loop.
-C              -----------------
+!              Start batch loop.
+!              -----------------
 
                Do iBat = 1,nBat
 
@@ -312,8 +312,8 @@ C              -----------------
                   End If
                   iVec1 = NumVec*(iBat-1) + 1
 
-C                 Read vectors.
-C                 -------------
+!                 Read vectors.
+!                 -------------
 
                   kVec = kEnd0
 
@@ -323,8 +323,8 @@ C                 -------------
                   Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVec),lTot,
      &                         iAdr)
 
-C                 Compute contribution.
-C                 ---------------------
+!                 Compute contribution.
+!                 ---------------------
 
                   Fac   = X(min((iBat-1),1))
                   kXint = kXaibj + LiT2am(iSym)
@@ -335,8 +335,8 @@ C                 ---------------------
 
                End Do
 
-C              Close (and possibly delete) Cholesky vector file.
-C              -------------------------------------------------
+!              Close (and possibly delete) Cholesky vector file.
+!              -------------------------------------------------
 
                Call ChoMP2_OpenF(iClos,iTyp,iSym)
 
@@ -345,14 +345,14 @@ C              -------------------------------------------------
 
       End If ! ChoAlg
 
-C     Compute energy contribution.
-C     ----------------------------
+!     Compute energy contribution.
+!     ----------------------------
 
       Call ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Wrk(kXaibj),
      &                         LnT2am,LiT2am,1,1)
 
-C     Change sign on energy.
-C     ----------------------
+!     Change sign on energy.
+!     ----------------------
 
       EMP2 = -EMP2
 

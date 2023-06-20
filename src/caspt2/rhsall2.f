@@ -136,7 +136,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Assemble constributions to TUVX integrals
+*      Assemble contributions to TUVX integrals
 *      Reuse the ket vectors as L(TU) bra vectors
 *
        LBRASM=LKET

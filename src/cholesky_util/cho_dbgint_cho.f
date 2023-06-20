@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,
      &                          ERRMAX,ERRMIN,ERRRMS,NCMP,
      &                          ISHLCD,ISHLAB)
-C
-C     Purpose: calculate integrals in shell quadruple (CD|AB) from
-C              Cholesky vectors on disk and compare to those in
-C              XINT (for debugging).
-C
-C     NOTE: this is *only* for debugging.
-C
+!
+!     Purpose: calculate integrals in shell quadruple (CD|AB) from
+!              Cholesky vectors on disk and compare to those in
+!              XINT (for debugging).
+!
+!     NOTE: this is *only* for debugging.
+!
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
-      DIMENSION XINT(NCD,NAB), WRK(LWRK)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
 
       CHARACTER*14 SECNAM
@@ -30,8 +30,8 @@ C
       INTEGER  CHO_LREAD
       EXTERNAL CHO_LREAD
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
 
       CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
@@ -56,13 +56,13 @@ C     ----------------
       IF (NABL .GT. NAB) CALL CHO_QUIT('NAB error in '//SECNAM,104)
       IF (NAB.LT.1 .OR. NCD.LT.1) RETURN
 
-C     Save read-call counter.
-C     -----------------------
+!     Save read-call counter.
+!     -----------------------
 
       NSCALL = NSYS_CALL
 
-C     Get a copy of XINT.
-C     -------------------
+!     Get a copy of XINT.
+!     -------------------
 
       KXINT = 1
       KEND0 = KXINT + LCDABT
@@ -73,8 +73,8 @@ C     -------------------
 
       CALL DCOPY_(LCDABT,XINT,1,WRK(KXINT),1)
 
-C     Start symmetry loop.
-C     --------------------
+!     Start symmetry loop.
+!     --------------------
 
       DO ISYM = 1,NSYM
 
@@ -83,8 +83,8 @@ C     --------------------
 
          IF (NUMCD.GT.0 .AND. NUMAB.GT.0 .AND. NUMCHO(ISYM).GT.0) THEN
 
-C           Allocate space for integrals and for Cholesky reading.
-C           ------------------------------------------------------
+!           Allocate space for integrals and for Cholesky reading.
+!           ------------------------------------------------------
 
             LENint = NUMCD*NUMAB
             LREAD  = CHO_LREAD(ISYM,LWRK)
@@ -100,13 +100,13 @@ C           ------------------------------------------------------
                CALL CHO_QUIT('Insufficient memory in '//SECNAM,104)
             END IF
 
-C           Initialize integral array.
-C           --------------------------
+!           Initialize integral array.
+!           --------------------------
 
             CALL FZERO(WRK(KINT),LENint)
 
-C           Set up batch over Cholesky vectors.
-C           -----------------------------------
+!           Set up batch over Cholesky vectors.
+!           -----------------------------------
 
             MINM = NUMCD + NUMAB
             NVEC = MIN(LWRK1/MINM,NUMCHO(ISYM))
@@ -115,8 +115,8 @@ C           -----------------------------------
             END IF
             NBATCH = (NUMCHO(ISYM) - 1)/NVEC + 1
 
-C           Start batch loop.
-C           -----------------
+!           Start batch loop.
+!           -----------------
 
             DO IBATCH = 1,NBATCH
 
@@ -136,8 +136,8 @@ C           -----------------
                   CALL CHO_QUIT('Batch error in '//SECNAM,104)
                END IF
 
-C              Read vectors.
-C              -------------
+!              Read vectors.
+!              -------------
 
                DO IVEC = 1,NUMV
                   JVEC = JVEC1 + IVEC - 1
@@ -151,8 +151,8 @@ C              -------------
                   CALL DCOPY_(NUMAB,WRK(KOFF1),1,WRK(KOFF2),1)
                END DO
 
-C              Calculate contribution.
-C              -----------------------
+!              Calculate contribution.
+!              -----------------------
 
                CALL DGEMM_('N','T',NUMCD,NUMAB,NUMV,
      &                    1.0D0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,
@@ -160,8 +160,8 @@ C              -----------------------
 
             END DO
 
-C           Subtract contribution from full shell pair.
-C           -------------------------------------------
+!           Subtract contribution from full shell pair.
+!           -------------------------------------------
 
             DO IAB = 1,NUMAB
                JAB = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2) + IAB
@@ -179,8 +179,8 @@ C           -------------------------------------------
 
       END DO
 
-C     Compare full shell pair.
-C     ------------------------
+!     Compare full shell pair.
+!     ------------------------
 
       DO KAB = 1,NAB
          DO KCD = 1,NCD
@@ -202,8 +202,8 @@ C     ------------------------
          END DO
       END DO
 
-C     Restore read-call counter.
-C     --------------------------
+!     Restore read-call counter.
+!     --------------------------
 
       NSYS_CALL = NSCALL
 

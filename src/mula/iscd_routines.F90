@@ -901,7 +901,7 @@ call iDaFile(lNDEC,2,nDec,nOsc*lBatch,kIndex)
 
 !GGt -------------------------------------------------------------------
 !write(u6,*) 'CGGt[FCVal] max_nOrd > 0 then set up U(n,0).'
-!Call XFlush(u6)
+!call XFlush(u6)
 !GGt -------------------------------------------------------------------
 do kOsc=1,nOsc
   U(nInc(kOsc,1),0) = d2(kOsc)

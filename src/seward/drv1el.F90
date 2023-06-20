@@ -113,7 +113,7 @@ end do
 
 NDDO = .false.
 if (Prprt .and. DKroll) then
-  call WarningMessage(2,'Prprt and DKroll options can not be combined!')
+  call WarningMessage(2,'Prprt and DKroll options cannot be combined!')
   call Quit_OnUserError()
 end if
 

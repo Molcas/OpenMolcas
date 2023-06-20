@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_P_Distrib_SP(iOpt,mySP,N_mySP)
-C
-C     Thomas Bondo Pedersen, June 2007.
-C
-C     Determine distribution of ShellPairs.
-C     iOpt=1: each node has same number of ShellPairs.
-C     iOpt=2: each node has same dimension.
-C
+!
+!     Thomas Bondo Pedersen, June 2007.
+!
+!     Determine distribution of ShellPairs.
+!     iOpt=1: each node has same number of ShellPairs.
+!     iOpt=2: each node has same dimension.
+!
       Implicit None
       Integer iOpt
       Integer mySP(*)
@@ -33,19 +33,19 @@ C
 
       End
       SubRoutine Cho_P_Distrib_SP_byDim(mySP,N_mySP)
-C
-C     Thomas Bondo Pedersen, June 2007.
-C
-C     Determine distribution of ShellPairs by dimension.
-C
+!
+!     Thomas Bondo Pedersen, June 2007.
+!
+!     Determine distribution of ShellPairs by dimension.
+!
       Use Para_Info, Only: MyRank, nProcs
       use ChoArr, only: nBstSh, iSP2F
+      use stdalloc
       Implicit None
       Integer mySP(*)
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer, External:: Cho_iFindSmallest
 

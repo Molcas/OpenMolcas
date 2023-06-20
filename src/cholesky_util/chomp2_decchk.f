@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005,2008, Thomas Bondo Pedersen                       *
-************************************************************************
-      SubRoutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
-     &                         ErrStat)
-C
-C     Thomas Bondo Pedersen, Jan. 2008.
-C
-C     Purpose: check Cholesky decomposition of the (ai|bj) integrals
-C              or MP2 amplitudes (sym. block iSym).
-C              The columns of the matrix are
-C              compared nCol columns at a time. This
-C              implies that the memory requirement of this routine
-C              should be limited to approximately that of the
-C              decomposition itself. Note, however, that since all
-C              integrals are computed, this routine will consume
-C              significantly more CPU time.
-C              Files are assumed open.
-C              On exit,
-C              ErrStat(1) = min error
-C              ErrStat(2) = max error
-C              ErrStat(3) = rms error
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005,2008, Thomas Bondo Pedersen                       *
+!***********************************************************************
+      SubRoutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
+!
+!     Thomas Bondo Pedersen, Jan. 2008.
+!
+!     Purpose: check Cholesky decomposition of the (ai|bj) integrals
+!              or MP2 amplitudes (sym. block iSym).
+!              The columns of the matrix are
+!              compared nCol columns at a time. This
+!              implies that the memory requirement of this routine
+!              should be limited to approximately that of the
+!              decomposition itself. Note, however, that since all
+!              integrals are computed, this routine will consume
+!              significantly more CPU time.
+!              Files are assumed open.
+!              On exit,
+!              ErrStat(1) = min error
+!              ErrStat(2) = max error
+!              ErrStat(3) = rms error
+!
+      use ChoMP2_dec, only: iOption_MP2CD
       Implicit None
       Integer irc, iSym
       Integer nDim, nCol
@@ -37,7 +37,6 @@ C
       Integer lWrk
       Real*8  Wrk(lWrk)
       Real*8  ErrStat(3)
-#include "chomp2_dec.fh"
 
       Character*6  ThisNm
       Character*13 SecNam
@@ -58,30 +57,29 @@ C
       End
       SubRoutine ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
      &                           ErrStat)
-C
-C     Thomas Bondo Pedersen, Jan. 2005.
-C
-C     Purpose: check MP2 decomposition of the (ai|bj) integrals
-C              (sym. block iSym). The columns of the (ai|bj) matrix are
-C              compared nCol columns at a time. This
-C              implies that the memory requirement of this routine
-C              should be limited to approximately that of the
-C              decomposition itself. Note, however, that since all
-C              integrals are computed, this routine will consume
-C              significantly more CPU time.
-C              Files are assumed open.
-C              On exit,
-C              ErrStat(1) = min error
-C              ErrStat(2) = max error
-C              ErrStat(3) = rms error
-C
+!
+!     Thomas Bondo Pedersen, Jan. 2005.
+!
+!     Purpose: check MP2 decomposition of the (ai|bj) integrals
+!              (sym. block iSym). The columns of the (ai|bj) matrix are
+!              compared nCol columns at a time. This
+!              implies that the memory requirement of this routine
+!              should be limited to approximately that of the
+!              decomposition itself. Note, however, that since all
+!              integrals are computed, this routine will consume
+!              significantly more CPU time.
+!              Files are assumed open.
+!              On exit,
+!              ErrStat(1) = min error
+!              ErrStat(2) = max error
+!              ErrStat(3) = rms error
+!
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      use ChoMP2_dec, only: Incore
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -91,8 +89,8 @@ C
 
       irc = 0
 
-C     Check dimensions.
-C     -----------------
+!     Check dimensions.
+!     -----------------
 
       If (nDim.lt.1 .or. nCol.lt.1) Return
       If (nDim .ne. nT1am(iSym)) Then
@@ -100,27 +98,27 @@ C     -----------------
          Go To 1 ! exit
       End If
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       ErrStat(1) =  9.9d15
       ErrStat(2) = -9.9d15
       ErrStat(3) =  0.0d0
 
-C     Set up batching over columns of the (ai|bj) matrix.
-C     ---------------------------------------------------
+!     Set up batching over columns of the (ai|bj) matrix.
+!     ---------------------------------------------------
 
       NumCol  = min(nCol,nT1am(iSym))
       nBatCol = (nT1am(iSym) - 1)/NumCol + 1
 
-C     Start column batch loop.
-C     ------------------------
+!     Start column batch loop.
+!     ------------------------
 
       Nai = nDim
       Do iBatCol = 1,nBatCol
 
-C        Set batch info.
-C        ---------------
+!        Set batch info.
+!        ---------------
 
          If (iBatCol .eq. nBatCol) Then
             Nbj = nT1am(iSym) - NumCol*(nBatCol - 1)
@@ -129,8 +127,8 @@ C        ---------------
          End If
          ibj1 = NumCol*(iBatCol - 1) + 1
 
-C        Compute integrals from "new" vectors.
-C        -------------------------------------
+!        Compute integrals from "new" vectors.
+!        -------------------------------------
 
          lU     = lUnit_F(iSym,2)
          NumVec = nMP2Vec(iSym)
@@ -143,8 +141,8 @@ C        -------------------------------------
             Go To 1
          End If
 
-C        Compute "old" and subtract "new".
-C        ---------------------------------
+!        Compute "old" and subtract "new".
+!        ---------------------------------
 
          If (InCore(iSym)) Then
             Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
@@ -164,8 +162,8 @@ C        ---------------------------------
             End If
          End If
 
-C        Compute error stats.
-C        --------------------
+!        Compute error stats.
+!        --------------------
 
          Do kbj = 1,Nbj
             Do kai = 1,Nai
@@ -177,8 +175,8 @@ C        --------------------
 
       End Do
 
-C     Compute rms error.
-C     ------------------
+!     Compute rms error.
+!     ------------------
 
       xdim = dble(Nai)*dble(Nai)
       ErrStat(3) = sqrt(ErrStat(3)/xdim)
@@ -187,30 +185,29 @@ C     ------------------
       End
       SubRoutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
      &                           ErrStat)
-C
-C     Thomas Bondo Pedersen, Jan. 2008.
-C
-C     Purpose: check MP2 decomposition of the MP2 amplitudes
-C              (sym. block iSym). The columns of the matrix are
-C              compared nCol columns at a time. This
-C              implies that the memory requirement of this routine
-C              should be limited to approximately that of the
-C              decomposition itself. Note, however, that since all
-C              integrals are computed, this routine will consume
-C              significantly more CPU time.
-C              Files are assumed open.
-C              On exit,
-C              ErrStat(1) = min error
-C              ErrStat(2) = max error
-C              ErrStat(3) = rms error
-C
+!
+!     Thomas Bondo Pedersen, Jan. 2008.
+!
+!     Purpose: check MP2 decomposition of the MP2 amplitudes
+!              (sym. block iSym). The columns of the matrix are
+!              compared nCol columns at a time. This
+!              implies that the memory requirement of this routine
+!              should be limited to approximately that of the
+!              decomposition itself. Note, however, that since all
+!              integrals are computed, this routine will consume
+!              significantly more CPU time.
+!              Files are assumed open.
+!              On exit,
+!              ErrStat(1) = min error
+!              ErrStat(2) = max error
+!              ErrStat(3) = rms error
+!
       use ChoMP2, only: OldVec
-#include "implicit.fh"
+      use ChoMP2_dec, only: EOcc, EVir, Incore
+      Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -221,13 +218,11 @@ C
       Parameter (SecNam = 'ChoMP2_DecChk_2', ThisNm = 'DecChk_2')
 
       MulD2h(k,l)=iEOr(k-1,l-1)+1
-      Evir(k)=Work(ip_EVir-1+k)
-      EOcc(k)=Work(ip_EOc-1+k)
 
       irc = 0
 
-C     Check dimensions.
-C     -----------------
+!     Check dimensions.
+!     -----------------
 
       If (nDim.lt.1 .or. nCol.lt.1) Return
       If (nDim .ne. nT1am(iSym)) Then
@@ -235,27 +230,27 @@ C     -----------------
          Go To 1 ! exit
       End If
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       ErrStat(1) =  9.9d15
       ErrStat(2) = -9.9d15
       ErrStat(3) =  0.0d0
 
-C     Set up batching over columns of the (ai|bj) matrix.
-C     ---------------------------------------------------
+!     Set up batching over columns of the (ai|bj) matrix.
+!     ---------------------------------------------------
 
       NumCol  = min(nCol,nT1am(iSym))
       nBatCol = (nT1am(iSym) - 1)/NumCol + 1
 
-C     Start column batch loop.
-C     ------------------------
+!     Start column batch loop.
+!     ------------------------
 
       Nai = nDim
       Do iBatCol = 1,nBatCol
 
-C        Set batch info.
-C        ---------------
+!        Set batch info.
+!        ---------------
 
          If (iBatCol .eq. nBatCol) Then
             Nbj = nT1am(iSym) - NumCol*(nBatCol - 1)
@@ -264,8 +259,8 @@ C        ---------------
          End If
          ibj1 = NumCol*(iBatCol - 1) + 1
 
-C        Compute amplitudes from "old" vectors.
-C        --------------------------------------
+!        Compute amplitudes from "old" vectors.
+!        --------------------------------------
 
          If (InCore(iSym)) Then
             Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
@@ -304,8 +299,8 @@ C        --------------------------------------
             End Do
          End Do
 
-C        Compute amplitudes from "new" vectors and subtract "old".
-C        ---------------------------------------------------------
+!        Compute amplitudes from "new" vectors and subtract "old".
+!        ---------------------------------------------------------
 
          lU     = lUnit_F(iSym,2)
          NumVec = nMP2Vec(iSym)
@@ -318,8 +313,8 @@ C        ---------------------------------------------------------
             Go To 1
          End If
 
-C        Compute error stats.
-C        --------------------
+!        Compute error stats.
+!        --------------------
 
          Do kbj = 1,Nbj
             Do kai = 1,Nai
@@ -331,8 +326,8 @@ C        --------------------
 
       End Do
 
-C     Compute rms error.
-C     ------------------
+!     Compute rms error.
+!     ------------------
 
       xdim = dble(Nai)*dble(Nai)
       ErrStat(3) = sqrt(ErrStat(3)/xdim)

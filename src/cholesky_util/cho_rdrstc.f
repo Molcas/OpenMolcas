@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_RDRSTC(IFAIL)
-C
-C     Purpose: read decomposition restart info and store in common
-C              block. If IFAIL != 0 on exit, some error occurred and,
-C              most likely, some of the restart info is not
-C              defined/initialized.
-C
-C     NB!!!! the restart files MUST be open on entry...
-C
+!
+!     Purpose: read decomposition restart info and store in common
+!              block. If IFAIL != 0 on exit, some error occurred and,
+!              most likely, some of the restart info is not
+!              defined/initialized.
+!
+!     NB!!!! the restart files MUST be open on entry...
+!
       use ChoSwp, only: InfRed, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 
@@ -32,13 +32,13 @@ C
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       IFAIL = 0
 
-C     Read molecular info.
-C     --------------------
+!     Read molecular info.
+!     --------------------
 
       IADR = 0
 
@@ -58,8 +58,8 @@ C     --------------------
          CALL IDAFILE(LURST,IOPT,XNBAS,XNSYM,IADR)
       END IF
 
-C     Read decomposition configuration info.
-C     --------------------------------------
+!     Read decomposition configuration info.
+!     --------------------------------------
 
       IOPT = 2
       NRD  = 2
@@ -88,8 +88,8 @@ C     --------------------------------------
       XWARNEG  = DSCR(7)
       XTOONEG  = DSCR(8)
 
-C     Read decomposition info.
-C     ------------------------
+!     Read decomposition info.
+!     ------------------------
 
       IOPT = 2
       NRD  = 1

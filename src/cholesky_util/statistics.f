@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  Statistics
-*
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> Computes the following statistics for a data set \p X(i), \p i = ``1``, ``2``, ..., ``n``:
-*>
-*> - \p Stat(ip_Mean):      mean value
-*> - \p Stat(ip_MeanAbs):   mean absolute value
-*> - \p Stat(ip_Min):       minimum value
-*> - \p Stat(ip_Max):       maximum value
-*> - \p Stat(ip_MaxAbs):    maximum absolute value
-*> - \p Stat(ip_Variance):  biased variance (i.e. RMS w.r.t. mean value)
-*> - \p Stat(ip_VarianceU): unbiased variance
-*>
-*> @param[in]  X            Data array
-*> @param[in]  n            Dimension of \p X
-*> @param[out] Stat         Statistics
-*> @param[in]  ip_Mean      Pointer to mean value in \p Stat
-*> @param[in]  ip_MeanAbs   Pointer to mean abs. value in \p Stat
-*> @param[in]  ip_Min       Pointer to min. value in \p Stat
-*> @param[in]  ip_Max       Pointer to max. value in \p Stat
-*> @param[in]  ip_MaxAbs    Pointer to max. abs. value in \p Stat
-*> @param[in]  ip_Variance  Pointer to biased variance in \p Stat
-*> @param[in]  ip_VarianceU Pointer to unbiased variance in \p Stat
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  Statistics
+!
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> Computes the following statistics for a data set \p X(i), \p i = ``1``, ``2``, ..., ``n``:
+!>
+!> - \p Stat(ip_Mean):      mean value
+!> - \p Stat(ip_MeanAbs):   mean absolute value
+!> - \p Stat(ip_Min):       minimum value
+!> - \p Stat(ip_Max):       maximum value
+!> - \p Stat(ip_MaxAbs):    maximum absolute value
+!> - \p Stat(ip_Variance):  biased variance (i.e. RMS w.r.t. mean value)
+!> - \p Stat(ip_VarianceU): unbiased variance
+!>
+!> @param[in]  X            Data array
+!> @param[in]  n            Dimension of \p X
+!> @param[out] Stat         Statistics
+!> @param[in]  ip_Mean      Pointer to mean value in \p Stat
+!> @param[in]  ip_MeanAbs   Pointer to mean abs. value in \p Stat
+!> @param[in]  ip_Min       Pointer to min. value in \p Stat
+!> @param[in]  ip_Max       Pointer to max. value in \p Stat
+!> @param[in]  ip_MaxAbs    Pointer to max. abs. value in \p Stat
+!> @param[in]  ip_Variance  Pointer to biased variance in \p Stat
+!> @param[in]  ip_VarianceU Pointer to unbiased variance in \p Stat
+!***********************************************************************
       SubRoutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,
      &                      ip_MaxAbs,ip_Variance,ip_VarianceU)
       Implicit None

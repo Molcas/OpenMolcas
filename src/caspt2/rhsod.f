@@ -11,7 +11,7 @@
 * Copyright (C) Steven Vancoillie                                      *
 ************************************************************************
 *SVC: compute RHS elements "on demand". If we have access to all the
-* Cholesky vectors, we can just instruct a process to compute it's own
+* Cholesky vectors, we can just instruct a process to compute its own
 * block of RHS elements, computing the integrals directly. This is much
 * more computationally intensive, but should scale much better since we
 * go from a badly scaling scatter algorithm to no communication at all.

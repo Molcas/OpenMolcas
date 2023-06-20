@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_WRRSTC(IPASS)
-C
-C     Purpose: write decomposition restart info for integral pass IPASS.
-C
-C     NB!!!  The restart files are assumed open on entry.
-C
+!
+!     Purpose: write decomposition restart info for integral pass IPASS.
+!
+!     NB!!!  The restart files are assumed open on entry.
+!
       use ChoArr, only: IntMap
       use ChoSwp, only: InfRed, InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 
@@ -24,13 +24,13 @@ C
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
 
-C     Start address on file.
-C     ----------------------
+!     Start address on file.
+!     ----------------------
 
       IADR = 0
 
-C     Write molecular and configuration info.
-C     ---------------------------------------
+!     Write molecular and configuration info.
+!     ---------------------------------------
 
       IOPT = 1
       NWR  = 4
@@ -69,8 +69,8 @@ C     ---------------------------------------
       DSCR(8) = TOONEG
       CALL DDAFILE(LURST,IOPT,DSCR,NWR,IADR)
 
-C     Write vector info.
-C     ------------------
+!     Write vector info.
+!     ------------------
 
       IOPT = 1
       NWR  = 1
@@ -94,8 +94,8 @@ C     ------------------
          END IF
       END DO
 
-C     Write integral shell pair map to disk.
-C     --------------------------------------
+!     Write integral shell pair map to disk.
+!     --------------------------------------
 
       IOPT = 1
       NDIM=0

@@ -33,8 +33,8 @@
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
       END IF
-        Call TraCho2(Work(LCMO),Work(LDREF),
-     &               Work(LFFAO),Work(LFIAO),Work(LFAAO),IF_TRNSF)
+      Call TraCho2(Work(LCMO),Work(LDREF),
+     &             Work(LFFAO),Work(LFIAO),Work(LFAAO),IF_TRNSF)
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)

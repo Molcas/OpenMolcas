@@ -164,7 +164,7 @@ Keywords
   Using this threshold guessorb will make a closed shell
   configuration if it can find a HOMO/LUMO gap that is larger
   than the specified threshold.
-  If that can not be done, guessorb will place a number of orbitals
+  If that cannot be done, guessorb will place a number of orbitals
   in an active space in such a way that the gap between the
   three spaces (inactive, active and secondary) will be
   larger than the threshold.

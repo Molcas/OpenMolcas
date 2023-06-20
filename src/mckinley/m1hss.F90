@@ -99,7 +99,7 @@ nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 !do iDAO=1,nDAO
 !  DAO(:,iDAO) = Two*rKappa(:)*Pi*ZInv(:)*DAO(:,iDAO)
 !end do
-!if (iPrint >= 99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+!if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 
 ! Here we go
 

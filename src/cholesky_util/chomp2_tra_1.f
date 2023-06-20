@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: transform Cholesky vectors to (ai) MO basis for symmetry
-C              block iSym. Files are assumed open.
-C              If requested (DoDiag=.true.), compute (ai|ai) integral
-C              diagonal.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: transform Cholesky vectors to (ai) MO basis for symmetry
+!              block iSym. Files are assumed open.
+!              If requested (DoDiag=.true.), compute (ai|ai) integral
+!              diagonal.
+!
       use ChoSwp, only: InfVec
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Real*8  COcc(*), CVir(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
@@ -34,18 +34,18 @@ C
 
       Integer ai
 
-C     Check if anything to do.
-C     ------------------------
+!     Check if anything to do.
+!     ------------------------
 
       If (NumCho(iSym).lt.1 .or. nT1am(iSym).lt.1) Return
 
-C     Initialize Diag (if needed).
-C     ----------------------------
+!     Initialize Diag (if needed).
+!     ----------------------------
 
       If (DoDiag) Call FZero(Diag,nT1am(iSym))
 
-C     Allocate memory for half-transformed vector.
-C     --------------------------------------------
+!     Allocate memory for half-transformed vector.
+!     --------------------------------------------
 
       lHlfTr = nT1AOT(iSym)
 
@@ -56,8 +56,8 @@ C     --------------------------------------------
          Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
       End If
 
-C     Reserve memory for reading AO vectors.
-C     --------------------------------------
+!     Reserve memory for reading AO vectors.
+!     --------------------------------------
 
       lRead = Cho_lRead(iSym,lWrk0)
       If (lRead .lt. 1) Then
@@ -72,8 +72,8 @@ C     --------------------------------------
          End If
       End If
 
-C     Set up batch.
-C     -------------
+!     Set up batch.
+!     -------------
 
       nMOVec = min(lWrk1/nT1am(iSym),NumCho(iSym))
       If (nMOVec .lt. 1) Then
@@ -81,15 +81,15 @@ C     -------------
       End If
       NumBat = (NumCho(iSym) - 1)/nMOVec + 1
 
-C     Set reduced set handles.
-C     ------------------------
+!     Set reduced set handles.
+!     ------------------------
 
       iRedC = -1
       iLoc  = 3
 
-C     Transform each batch of vectors and compute diagonal contributions
-C     (if requested).
-C     ------------------------------------------------------------------
+!     Transform each batch of vectors and compute diagonal contributions
+!     (if requested).
+!     ------------------------------------------------------------------
 
       Do iBat = 1,NumBat
 

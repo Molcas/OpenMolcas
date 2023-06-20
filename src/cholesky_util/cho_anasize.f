@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_ANASIZE(VEC,LVEC,BIN,LBIN,LUPRI)
-C
-C     Purpose: analyse vector (histogram).
-C
-#include "implicit.fh"
-      DIMENSION VEC(LVEC), BIN(LBIN)
+!
+!     Purpose: analyse vector (histogram).
+!
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 VEC(LVEC), BIN(LBIN)
 
       PARAMETER (ZERO = 0.0D0)
 
@@ -21,24 +21,24 @@ C
       INTEGER   ICOUNT(MBIN)
       LOGICAL   FOUND
 
-C     Return if nothing to do.
-C     ------------------------
+!     Return if nothing to do.
+!     ------------------------
 
       IF ((LVEC.LT.1) .OR. (LBIN.LT.1)) RETURN
 
-C     Ensure that BIN is in descending order.
-C     ---------------------------------------
+!     Ensure that BIN is in descending order.
+!     ---------------------------------------
 
       IJOB = -1
       CALL CHO_ORDER(BIN,LBIN,IJOB)
 
-C     Test that BIN is positive.
-C     --------------------------
+!     Test that BIN is positive.
+!     --------------------------
 
       IF (BIN(1) .LE. ZERO) RETURN
 
-C     Analysis.
-C     ---------
+!     Analysis.
+!     ---------
 
       NBIN = MIN(LBIN,MBIN)
       CALL IZERO(ICOUNT,NBIN)
@@ -71,8 +71,8 @@ C     ---------
 
       END DO
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       TOPCT = 1.0D2/DBLE(LVEC)
 

@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Jonas Bostrom                                    *
+!***********************************************************************
 
       SubRoutine ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
-*
-*     Jonas Bostrom, Mars 2010
-*
-*     Purpose: Solve the CPHF-equations to obtain occ-vir
-*              contributions to the 1-pdm.
+!
+!     Jonas Bostrom, Mars 2010
+!
+!     Purpose: Solve the CPHF-equations to obtain occ-vir
+!              contributions to the 1-pdm.
 
       use ChoMP2, only: MP2D, MP2W
-#include "implicit.fh"
-#include "chomp2g.fh"
+      use ChoMP2g
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-*
+!
       Character Fname*5
       Real*8 Wrk(lWrk),EOcc(*), EVir(*), EFro(*)
       Integer kCGVec(9), kEndCGVec(9), kDiag(2), nOccAll(8)
@@ -34,8 +34,8 @@
       Character*16 SecNam
       Parameter (SecNam = 'ChoMP2g_Density2', ThisNm = 'Density2')
 
-*     Do not delete vectors after use.
-*     ------------------------------------------------------
+!     Do not delete vectors after use.
+!     ------------------------------------------------------
       iClos = 2
       iTypL = 1
       iVecFF = 1
@@ -46,32 +46,32 @@
       iVecFO = 2
       iVecOF = 4
 
-*
-*     Setup the conjugate gradient procedure
-*     --------------------------------------
+!
+!     Setup the conjugate gradient procedure
+!     --------------------------------------
       Eps = 1D-8
       Done=.false.
       nIter = 100
 
-*     Allocate memory for Frozen Diagonal of A
-*     ---------------------------------
+!     Allocate memory for Frozen Diagonal of A
+!     ---------------------------------
       lFDiag = nMoMo(1,iVecFV)
       kDiag(1) = kFLagr(1) + lFLagr
       kEndFDiag = kDiag(1) + lFDiag
       Call FZero(Wrk(kDiag(1)),lFDiag)
 
-*     Allocate memory for Occupied Diagonal of A
-*     ---------------------------------
+!     Allocate memory for Occupied Diagonal of A
+!     ---------------------------------
       lDiag = nMoMo(1,iVecOV)
       kDiag(2) = kEndFDiag
       kEndDiag = kDiag(2) + lDiag
       Call FZero(Wrk(kDiag(2)),lDiag)
-*
+!
       iSym = 1
       nOccAll(iSym) = nFro(iSym)+nOcc(iSym)
 
-*     Open Cholesky vector files.
-*     ---------------------------
+!     Open Cholesky vector files.
+!     ---------------------------
       Call ChoMP2_OpenF(1,1,iSym)
 
       maxvalue = 200
@@ -81,8 +81,8 @@
          Call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
       End If
 
-*     Allocate memory for Lia-vector and LIa-vector
-*     ---------------------------------------------
+!     Allocate memory for Lia-vector and LIa-vector
+!     ---------------------------------------------
 
       lLfa = nMoMo(iSym,iVecFV)*nVec
       kLfa = kEndDiag
@@ -100,8 +100,8 @@
          End If
          iVec = nVec*(iBat-1) + 1
 
-*        Read Lfa-vectors
-*        ----------------
+!        Read Lfa-vectors
+!        ----------------
          iOpt = 2
          lTot = nMoMo(iSym,iVecFV)*NumVec
          iAdr = nMoMo(iSym,iVecFV)*(iVec-1) + 1 +
@@ -109,8 +109,8 @@
          Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLfa),
      &                lTot,iAdr)
 
-*        Read Lia-vectors
-*        ----------------
+!        Read Lia-vectors
+!        ----------------
          iOpt = 2
          lTot = nMoMo(iSym,iVecOV)*NumVec
          iAdr = nMoMo(iSym,iVecOV)*(iVec-1) + 1 +
@@ -118,8 +118,8 @@
          Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLia),
      &                lTot,iAdr)
 
-*        Construct Diagonal of A
-*        -----------------------
+!        Construct Diagonal of A
+!        -----------------------
          Do iVec1 = 1, NumVec
             Do i = 1, nMoMo(iSym,iVecFV)
                iOffL = (iVec1-1)*nMoMo(iSym,iVecFV)
@@ -134,7 +134,7 @@
      &                             3.0d0*Wrk(kLia+i-1+iOffL)**2
             End Do
          End Do
-*
+!
          index1 = 0
          Do iSym1 = 1, nSym
             nA = nVir(iSym1)
@@ -169,8 +169,8 @@
       Call ChoMP2_OpenF(iClos,1,iSym)
 
 
-*     Allocate vectors needed for the PCG
-*     -----------------------------------
+!     Allocate vectors needed for the PCG
+!     -----------------------------------
       lCGFVec = 0
       Do iSym = 1, nSym
          lCGFVec = lCGFVec + (nFro(iSym))*nVir(iSym)
@@ -180,12 +180,12 @@
          lCGOVec = lCGOVec + (nOcc(iSym))*nVir(iSym)
       End Do
       lCGVec = lCGOVec + lCGFVec
-*     Vector Legend (as they are named in Conj_Grad):
-*                    Z = 1, Ztemp = 2
-*                    R = 3, Rtemp = 4
-*                    P = 5, Ptemp = 6
-*                    X = 7, Xtemp = 8
-*                    AP = 9
+!     Vector Legend (as they are named in Conj_Grad):
+!                    Z = 1, Ztemp = 2
+!                    R = 3, Rtemp = 4
+!                    P = 5, Ptemp = 6
+!                    X = 7, Xtemp = 8
+!                    AP = 9
 
       kCGVec(1) = kEndDiag
       kEndCGVec(1) = kCGVec(1) + lCGVec
@@ -198,8 +198,8 @@
          Call FZero(Wrk(kCGVec(i)),lCGVec)
       End Do
 
-*     Calculate inital values for the CG-vectors needing that
-*     -------------------------------------------------------
+!     Calculate inital values for the CG-vectors needing that
+!     -------------------------------------------------------
 
       Do i=1, lCGFVec
          Wrk(kCGVec(1)+i-1) = Wrk(kFLagr(1)+i-1)*Wrk(kDiag(1)+i-1)
@@ -216,19 +216,19 @@
       Do iIter = 1, nIter
          Call FZero(Wrk(kCGVec(9)),lCGVec)
 
-*     Calculate A*p
-*     -------------
+!     Calculate A*p
+!     -------------
          Do iSym = 1, nSym
 
-*           Open Cholesky vector files.
-*           ---------------------------
+!           Open Cholesky vector files.
+!           ---------------------------
             Call ChoMP2_OpenF(1,1,iSym)
 
             iSeed = 7
             LuVVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',2
             Call DaName_MF_WA(LuVVec,Fname)
-*
+!
             iSeed = 7
             LuWVec = IsFreeUnit(iSeed)
             Write(Fname,'(A4,I1)') 'TMPV',3
@@ -241,9 +241,9 @@
 
             lScr = lWrk - kEndCGVec(9)
             iOff = lCGFVec
-*
-*           Construct The Frozen part of A*P
-*           --------------------------------
+!
+!           Construct The Frozen part of A*P
+!           --------------------------------
             Call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,
      &                            'fvvf',iSym,nVec,Wrk(kCGVec(9)),
      &                            lCGFVec,Wrk(kCGVec(5)),lCGFVec,
@@ -252,8 +252,8 @@
      &                            'ovvf',iSym,nVec,Wrk(kCGVec(9)),
      &                            lCGFVec,Wrk(kCGVec(5)+iOff),lCGOVec,
      &                            1.0d0)
-*           Construct The Occupied part of A*P
-*           ----------------------------------
+!           Construct The Occupied part of A*P
+!           ----------------------------------
             Call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,
      &                            'fvvo',iSym,nVec,Wrk(kCGVec(9)+iOff),
      &                            lCGOVec,Wrk(kCGVec(5)),lCGFVec,
@@ -268,7 +268,7 @@
             Call DaClos(LuWVec)
 
          End Do
-*
+!
          index1 = 0
          Do iSym1 = 1, nSym
             nA = nVir(iSym1)
@@ -294,7 +294,7 @@
             End Do
             index1 = index1 + (nFro(iSym1)+nOcc(iSym1))*nVir(iSym1)
          End Do
-*
+!
          Call Conj_Grad(Done,lCGVec,Wrk(kDiag(1)),Wrk(kCGVec(7)),
      &                  Wrk(kCGVec(8)),Wrk(kCGVec(3)),Wrk(kCGVec(4)),
      &                  Wrk(kCGVec(5)),Wrk(kCGVec(6)),Wrk(kCGVec(1)),
@@ -310,8 +310,8 @@
 
  100  Continue
 
-*     Construct MP2 Density contribution from parts of the matrix
-*     -----------------------------------------------------------
+!     Construct MP2 Density contribution from parts of the matrix
+!     -----------------------------------------------------------
       iSymOffOV = 0
       Do iSym = 1, nSym
          Do i = 1, nOcc(iSym)
@@ -370,8 +370,8 @@
          iSymOffOV = iSymOffOV + (nOcc(iSym)+nFro(iSym))*nVir(iSym)
       End Do
 
-*     Add type (II) terms to W-matrix
-*     -------------------------------
+!     Add type (II) terms to W-matrix
+!     -------------------------------
 
       Do iSym = 1, nsym
          Do iI = 1, nOcc(iSym)
@@ -424,11 +424,11 @@
 
       iSym = 1
 
-*     Add type (III) terms to W-matrix
-*     -------------------------------
+!     Add type (III) terms to W-matrix
+!     -------------------------------
 
-*     Open Cholesky vector files.
-*     ---------------------------
+!     Open Cholesky vector files.
+!     ---------------------------
       Call ChoMP2_OpenF(1,1,iSym)
 
 
@@ -438,16 +438,16 @@
       End If
       nBatL = (NumCho(iSym)-1)/nVec + 1
 
-*     Allocate memory for U-vector
-*     ----------------------------
+!     Allocate memory for U-vector
+!     ----------------------------
 
       lU = nVec
       kU = kEndDiag
       kEndU = kU + lU
 
 
-*     Allocate memory for Lia-vector and LIa-vector
-*     ---------------------------------------------
+!     Allocate memory for Lia-vector and LIa-vector
+!     ---------------------------------------------
 
       lLfa = nMoMo(iSym,iVecFV)*nVec
       kLfa = kEndU
@@ -486,8 +486,8 @@
          iVec = nVec*(iBat-1) + 1
          Call FZero(Wrk(kU),lU)
 
-*     Read Lij^J-vectors from disk
-*     ----------------------------
+!     Read Lij^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -498,8 +498,8 @@
      &           iAdr)
          End If
 
-*     Read LiK^J-vectors from disk
-*     ----------------------------
+!     Read LiK^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -510,8 +510,8 @@
      &           iAdr)
          End If
 
-*     Read LKi^J-vectors from disk
-*     ----------------------------
+!     Read LKi^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -522,8 +522,8 @@
      &           iAdr)
          End If
 
-*     Read LIK^J-vectors from disk
-*     ----------------------------
+!     Read LIK^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -534,8 +534,8 @@
      &           iAdr)
          End If
 
-*     Read Lia^J-vectors from disk
-*     ----------------------------
+!     Read Lia^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -546,8 +546,8 @@
      &           iAdr)
          End If
 
-*     Read Lfa^J-vectors from disk
-*     ----------------------------
+!     Read Lfa^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -558,8 +558,8 @@
      &           iAdr)
          End If
 
-*     Read Lab^J-vectors from disk
-*     ----------------------------
+!     Read Lab^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -570,8 +570,8 @@
      &           iAdr)
          End If
 
-*     Construct U^J intermediate vectors
-*     ----------------------------------
+!     Construct U^J intermediate vectors
+!     ----------------------------------
          If(NumVec*nMoMo(iSym,iVecOO).eq.0) Go To 101
          Call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOO),
      &              1.0d0,Wrk(kPij(iSym)), 1,
@@ -607,8 +607,8 @@
      &              Wrk(kU),1)
  105     Continue
 
-*     Construct contribution to Wij
-*     -----------------------------
+!     Construct contribution to Wij
+!     -----------------------------
 
          If(nMoMo(iSym,iVecOO).eq.0) Go To 111
          Call dGemm_('N','N',nMoMo(iSym,iVecOO),1,NumVec,
@@ -617,8 +617,8 @@
      &             Wrk(kWij(iSym)),nMoMo(iSym,iVecOO))
  111     Continue
 
-*     Construct Contribution to WiK
-*     -----------------------------
+!     Construct Contribution to WiK
+!     -----------------------------
 
          If(nMoMo(iSym,iVecOF).eq.0) Go To 112
          Call dGemm_('N','N',nMoMo(iSym,iVecOF),1,NumVec,
@@ -627,8 +627,8 @@
      &             Wrk(kWiK(iSym)),nMoMo(iSym,iVecOF))
  112     Continue
 
-*     Construct Contribution to WJK
-*     -----------------------------
+!     Construct Contribution to WJK
+!     -----------------------------
 
          If(nMoMo(iSym,iVecFF).eq.0) Go To 113
          Call dGemm_('N','N',nMoMo(iSym,iVecFF),1,NumVec,
@@ -650,8 +650,8 @@
       iVecOV = 8
       iVecVV = 9
 
-*     Allocate memory for Lia-vector and LIa-vector
-*     ---------------------------------------------
+!     Allocate memory for Lia-vector and LIa-vector
+!     ---------------------------------------------
 
       lLJK = nMoMo(iSym,iVecFF)*nVec
       kLJK = kEndDiag
@@ -699,8 +699,8 @@
          End If
          iVec = nVec*(iBat-1) + 1
 
-*     Read Lpq^J-vectors from disk
-*     ----------------------------
+!     Read Lpq^J-vectors from disk
+!     ----------------------------
 
          If(NumVec .gt. 0) Then
             iOpt = 2
@@ -741,8 +741,8 @@
      &           iAdr)
          End If
 
-*     Put the Lpq-vectors together to one large vector
-*     ------------------------------------------------
+!     Put the Lpq-vectors together to one large vector
+!     ------------------------------------------------
 
          iOff2 = 0
          Do iVec1 = 1, NumVec
@@ -784,8 +784,8 @@
      &                  Wrk(kVip+iOff),nOrb(iSym))
          End Do
 
-*     Construct exchange contribution to Wij
-*     --------------------------------------
+!     Construct exchange contribution to Wij
+!     --------------------------------------
 
          Do iVec1 = 1, NumVec
             iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
@@ -798,16 +798,16 @@
 
       Call ChoMP2_OpenF(iClos,1,iSym)
 
-*     Add SCF-density to MP2-density contribution
-*     -------------------------------------------
+!     Add SCF-density to MP2-density contribution
+!     -------------------------------------------
       Do iSym1 = 1, nSym
          Do i = 1, nOcc(iSym1) + nFro(iSym1)
             MP2D(iSym1)%A(i,i) = MP2D(iSym1)%A(i,i) + 2.0d0
          End Do
       End Do
 
-*     Construct Mp2 + SCF W-density
-*     -----------------------------
+!     Construct Mp2 + SCF W-density
+!     -----------------------------
 
       Do i = 1, nFro(iSym)
          iOrb = i

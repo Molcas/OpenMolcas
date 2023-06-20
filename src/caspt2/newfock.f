@@ -16,14 +16,14 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA)
+      SUBROUTINE NEWFOCK(FIFA,CMO)
       use caspt2_output, only:iPrGlb,usual
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      REAL*8 FIFA(NFIFA)
+      REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
       INTEGER LDD,LDDTR,LDSQ,L2MDSQ,LINT,LSC,LSC1,LSC2,LSCR,
@@ -49,7 +49,7 @@ c and returned after modification.
 c To define the modified Fock matrix, a number of arrays on
 c  LUONE may be useful. In addition, the active 1- and 2-
 c electron density matrices, and the inactive Fock matrix
-c FIMO, are awailable in workspace at WORK(LDREF),
+c FIMO, are available in workspace at WORK(LDREF),
 c WORK(LPREF),WORK(LFIMO), and WORK(LFIFA).
 c Two-electron integrals involving non-frozen, non-deleted
 c orbitals, at most two secondary, are available from
@@ -61,14 +61,8 @@ c Coded 94-01-31 by Malmqvist, for CASPT2 MOLCAS-3.
 c Modif 96-10-06 by Malmqvist, restructured, options added.
 c Modif 14-03-19 by Malmqvist, restructured, options removed.
 
+      ! I never meant to cause you any sorrow
       IF(FOCKTYPE.EQ.'STANDARD') RETURN
-      IF(IFCHOL) THEN
-        WRITE(6,*)' Subroutine NEWFOCK is presently unable to use'
-        WRITE(6,*)' Cholesky vectors. The FOCKTYPE variable is now'
-        WRITE(6,*)' changed to STANDARD, and NEWFOCK returns without'
-        WRITE(6,*)' action. This will be fixed as soon as possible.'
-        FOCKTYPE='STANDARD'
-      END IF
 
 * Options MC and MC2 removed, PAM March 2014.
 *CPAM96 The option FOCKTYPE='MC      ' added 961006. This option will
@@ -177,44 +171,48 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
 
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         CALL DCOPY_(NOSQT,[0.0D0],0,WORK(LXMAT),1)
-        NOSQES=0
-        DO ISYMPQ=1,NSYM
-          NI=NISH(ISYMPQ)
-          NA=NASH(ISYMPQ)
-          NS=NSSH(ISYMPQ)
-          NO=NORB(ISYMPQ)
-          IF(NO.GT.0) THEN
-            MTRES=0
-            DO ISYMRS=1,NSYM
-              MI=NISH(ISYMRS)
-              MA=NASH(ISYMRS)
-              DO IV=1,MA
-                IR=IV+MI
-                DO IX=1,IV
-                  IS=IX+MI
-                  CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
-     &                      WORK(LINT),WORK(LSCR))
-                  IDDVX=MTRES+(IV*(IV-1))/2+IX
-                  DDVX=WORK(LDDTR-1+IDDVX)
-                  IF(IR.EQ.IS) DDVX=0.5D0*DDVX
-                  CALL DAXPY_(NO**2,DDVX,WORK(LINT),1,
-     &                                  WORK(LXMAT+NOSQES),1)
+        IF (IfChol) THEN
+          CALL Cho_Amatrix(WORK(LXMAT),CMO,WORK(LDDTR),NATR)
+        ELSE
+          NOSQES=0
+          DO ISYMPQ=1,NSYM
+            NI=NISH(ISYMPQ)
+            NA=NASH(ISYMPQ)
+            NS=NSSH(ISYMPQ)
+            NO=NORB(ISYMPQ)
+            IF(NO.GT.0) THEN
+              MTRES=0
+              DO ISYMRS=1,NSYM
+                MI=NISH(ISYMRS)
+                MA=NASH(ISYMRS)
+                DO IV=1,MA
+                  IR=IV+MI
+                  DO IX=1,IV
+                    IS=IX+MI
+                    CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
+     &                        WORK(LINT),WORK(LSCR))
+                    IDDVX=MTRES+(IV*(IV-1))/2+IX
+                    DDVX=WORK(LDDTR-1+IDDVX)
+                    IF(IR.EQ.IS) DDVX=0.5D0*DDVX
+                    CALL DAXPY_(NO**2,DDVX,WORK(LINT),1,
+     &                                    WORK(LXMAT+NOSQES),1)
+                  END DO
+                END DO
+                MTRES=MTRES+(MA*(MA+1))/2
+              END DO
+              DO IP=2,NO
+                DO IQ=1,IP-1
+                  LXPQ=LXMAT+NOSQES-1+IP+NO*(IQ-1)
+                  LXQP=LXMAT+NOSQES-1+IQ+NO*(IP-1)
+                  VAL=0.5D0*(WORK(LXPQ)+WORK(LXQP))
+                  WORK(LXPQ)=VAL
+                  WORK(LXQP)=VAL
                 END DO
               END DO
-              MTRES=MTRES+(MA*(MA+1))/2
-            END DO
-            DO IP=2,NO
-              DO IQ=1,IP-1
-                LXPQ=LXMAT+NOSQES-1+IP+NO*(IQ-1)
-                LXQP=LXMAT+NOSQES-1+IQ+NO*(IP-1)
-                VAL=0.5D0*(WORK(LXPQ)+WORK(LXQP))
-                WORK(LXPQ)=VAL
-                WORK(LXQP)=VAL
-              END DO
-            END DO
-            NOSQES=NOSQES+NO**2
-          END IF
-        END DO
+              NOSQES=NOSQES+NO**2
+            END IF
+          END DO
+        END IF
 c
 c Determine the correction to the Fock matrix
         IF(FOCKTYPE.EQ.'G1      ') THEN

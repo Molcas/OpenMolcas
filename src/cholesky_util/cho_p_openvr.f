@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_OpenVR(iOpt)
-C
-C     Purpose: open (iOpt=1) or close (iOpt=2) local and global storage
-C              files.
-C
+!
+!     Purpose: open (iOpt=1) or close (iOpt=2) local and global storage
+!              files.
+!
       Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
       Integer iOpt
@@ -26,8 +26,8 @@ C
       Character*12 SecNam
       Parameter (SecNam = 'Cho_P_OpenVR')
 
-C     Local files.
-C     ------------
+!     Local files.
+!     ------------
 
       If (Cho_Real_Par) Then
          ID = 1
@@ -36,8 +36,8 @@ C     ------------
       End If
       Call Cho_OpenVR(iOpt,ID)
 
-C     Global files for restart info and reduced set indices.
-C     ------------------------------------------------------
+!     Global files for restart info and reduced set indices.
+!     ------------------------------------------------------
 
       If (Cho_Real_Par) Then
          If (iOpt .eq. 1) Then
@@ -91,9 +91,9 @@ C     ------------------------------------------------------
      &                          102)
                   Call iZero(LuCho_G,nSym)
                End If
-C              Swap units so that
-C                 LuCho_G points to 'CHVEC'
-C                 LuCho   points to 'CHVCL'
+!              Swap units so that
+!                 LuCho_G points to 'CHVEC'
+!                 LuCho   points to 'CHVCL'
                Call iSwap(nSym,LuCho,1,LuCho_G,1)
             Else If (iOpt .eq. 2) Then
                Do iSym = 1,nSym

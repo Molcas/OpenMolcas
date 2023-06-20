@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
-C
-C     Purpose: set max. shell pair data for selection procedure.
-C
+!
+!     Purpose: set max. shell pair data for selection procedure.
+!
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-#include "implicit.fh"
+      use Constants
+      Implicit Real*8 (a-h,o-z)
       REAL*8 DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
-#include "real.fh"
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETMAXSHL')
 
-C     Initialize the largest diagonal in each shell pair.
-C     ---------------------------------------------------
+!     Initialize the largest diagonal in each shell pair.
+!     ---------------------------------------------------
 
       DIASH(1:NNSHL)=Zero
       ISYSH(1:NNSHL)=0
 
-C     Find largest diagonal in each shell pair. Loop only
-C     over those that are included in the reduced set at hand.
-C     --------------------------------------------------------
+!     Find largest diagonal in each shell pair. Loop only
+!     over those that are included in the reduced set at hand.
+!     --------------------------------------------------------
 
       IF (IRED .EQ. 1) THEN
          DO ISYMAB = 1,NSYM
@@ -63,12 +63,12 @@ C     --------------------------------------------------------
          CALL CHO_QUIT('Unknown reduced set in '//SECNAM,104)
       END IF
 
-C     Exclude 2-center diagonals (if requested).
-C     The effect of this is that 2-center diagonals can never be
-C     qualified; they may still be included in the vectors, though.
-C     If CHO_NO2CENTER=T, the 2-center diagonals are removed from the
-C     initial diagonal and we need not worry here.
-C     ---------------------------------------------------------------
+!     Exclude 2-center diagonals (if requested).
+!     The effect of this is that 2-center diagonals can never be
+!     qualified; they may still be included in the vectors, though.
+!     If CHO_NO2CENTER=T, the 2-center diagonals are removed from the
+!     initial diagonal and we need not worry here.
+!     ---------------------------------------------------------------
 
       IF (CHO_1CENTER .AND. .NOT.CHO_NO2CENTER) THEN
          DO ISAB = 1,NNSHL

@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_PutRed(iPass,iLoc)
-C
-C     Purpose: write global and local reduced set index arrays
-C              to disk and set
-C              address for next write. iLoc specifies the location in
-C              the index arrays to write, and iPass identifies the
-C              reduced set (i.e. the integral pass).
-C
+!
+!     Purpose: write global and local reduced set index arrays
+!              to disk and set
+!              address for next write. iLoc specifies the location in
+!              the index arrays to write, and iPass identifies the
+!              reduced set (i.e. the integral pass).
+!
       Implicit None
       Integer iPass, iLoc
 #include "cho_para_info.fh"
@@ -30,9 +30,9 @@ C
 
       If (Cho_Real_Par) Then
 
-C        Swap local and global reduced set indices and use original serial
-C        routine to write global index arrays.
-C        -----------------------------------------------------------------
+!        Swap local and global reduced set indices and use original serial
+!        routine to write global index arrays.
+!        -----------------------------------------------------------------
 
          Call Cho_P_IndxSwp()
          iTmp = LuRed
@@ -43,8 +43,8 @@ C        -----------------------------------------------------------------
 
       End If
 
-C     Write local index arrays.
-C     -------------------------
+!     Write local index arrays.
+!     -------------------------
 
       Call Cho_PutRed(iPass,iLoc)
 

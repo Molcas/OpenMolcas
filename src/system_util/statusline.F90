@@ -21,7 +21,7 @@
 !> difference between params.
 !>
 !> \code
-!> Call StatusLine(ModuleName,': just started')
+!> call StatusLine(ModuleName,': just started')
 !> \endcode
 !>
 !> @param[in] STR  Status
