@@ -33,9 +33,8 @@ module fciqmc_interface
 #include "SysDef.fh"
 
     private
-    public :: DoFCIQMC, NonDiagonal, PSDPurification, mkfg3fciqmc, load_fciqmc_g1
-    logical :: DoFCIQMC = .false., NonDiagonal = .false., &
-               PSDPurification = .false.
+    public :: DoFCIQMC, NonDiagonal, mkfg3fciqmc, load_fciqmc_g1
+    logical :: DoFCIQMC = .false., NonDiagonal = .false.
 
     contains
 
@@ -202,7 +201,9 @@ module fciqmc_interface
         real(wp), allocatable :: values(:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
+#ifdef _DEBUGPRINT_
         real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, start, finish, trace
+#endif
 
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
@@ -228,6 +229,7 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
 
+#ifdef _DEBUGPRINT_
         trace = 0.0_wp
         do v = 1, nLev
             do u = 1, nLev
@@ -237,10 +239,14 @@ module fciqmc_interface
             end do
         end do
         write(u6,'(a,f12.5)') 'Trace 3RDM: ', trace
+#endif
 
         if (NonDiagonal) then
+#ifdef _DEBUGPRINT_
             call timing(cpu0, cpu, tio0, tio)
+#endif
             call transform_six_index(g3_temp, nLev)
+#ifdef _DEBUGPRINT_
             call timing(cpu1, cpu, tio1, tio)
             write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
             write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
@@ -253,6 +259,7 @@ module fciqmc_interface
                 end do
             end do
             write(u6,'(a,f12.5)') 'Trace transformed 3RDM: ', trace
+#endif
         end if
 
         do i = 1, nG3

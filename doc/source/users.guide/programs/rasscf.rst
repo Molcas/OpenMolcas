@@ -615,66 +615,66 @@ Three translated functionals are currently available: tPBE, tLSDA and tBLYP.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
 .. _UG\:sec\:NOCI:
- 
+
 Non-Orthogonal Configuration Interaction
 ----------------------------------------
- 
+
 .. warning::
- 
+
    This program requires an external package to run.
-   
+
 |openmolcas| provides an interface to GronOR :cite:`Straatsma2022`, a massively parallel and GPU-accelerated implementation of NOCI and its extension to fragments or ensembles of molecules, NOCI-F.
- 
+
 .. _UG\:sec\:NOCI_dependencies:
- 
+
 Dependencies
 ............
- 
+
 Running NOCI and NOCI-F calculations requires the external installation of the GronOR program: https://gitlab.com/gronor/gronor.
- 
+
 .. _UG\:sec\:NOCI_InpOutFiles:
- 
+
 Input/Output Files
 ..................
- 
+
 One extra file is generated for each electronic state considered in the generation of the many-electron basis functions of the NOCI.
- 
+
 .. class:: filelist
- 
+
 :file:`VECDET.x`
   The :file:`$Project.VecDet.x` (or :file:`VECDET.x`) file contains the list of determinants of root :math:`x`. The list contains the CI coefficients and the active orbital occupations.
- 
+
 .. _UG\:sec\:NOCI_Keywords:
- 
+
 Input keywords
 ..............
- 
+
 The :kword:`PRSD` keyword must be added to the input to expand the CSFs in Slater determinants, which are written to the :file:`$Project.VecDet.x` file. It is highly recommended to decrease the threshold for writing CSFs to the output file (:kword:`PRWF`) to at least 1e-5.
- 
+
 .. _UG\:sec\:NOCI_InputExample:
- 
+
 Input Example
 .............
- 
+
 A minimal input example to generate the wave functions that describe the ground state and the first excited singlet state of fragment A. ::
- 
+
   &GATEWAY
   coord = fragA.xyz
   basis = ano-s-vdz
   group = c1
- 
+
   * symmetry is not implemented in GronOR
- 
+
   &RASSCF
   nactel = 6
   inactive = 18
   ras2 = 6
   prwf = 1e-5
   prsd
- 
+
   >>>> COPY $Project.RasOrb.1 $CurrDir/benzeneA_S0.orb
   >>>> COPY $Project.VecDet.1 $CurrDir/benzeneA_S0.det
- 
+
   &RASSCF
   nactel = 6
   inactive = 18
@@ -682,7 +682,7 @@ A minimal input example to generate the wave functions that describe the ground 
   prwf = 1e-5
   prsd
   ciroot = 1 2; 2
- 
+
   >>>> COPY $Project.RasOrb.2 $CurrDir/benzeneA_S1.orb
   >>>> COPY $Project.VecDet.2 $CurrDir/benzeneA_S1.det
 
@@ -1014,14 +1014,15 @@ A list of these keywords is given below:
 
 :kword:`PPT2`
   Prepare stochastic CASPT2 in pseudo-canonical orbitals.
-  This keyword will also cause a transformation of the output RasOrb to
-  pseudo-canonical orbitals, equivalent to OutO = canonical.
+  This keyword will cause a transformation of the output RasOrb to
+  pseudo-canonical orbitals, equivalent to outo = canonical.
 
-  The performance of FCIQMC depends to a large degree on the orbital basis. In
+  The performance of FCIQMC depends significantly on the orbital basis. In
   the pseudo-canonical basis, sampling the contraction of the (diagonal) Fock
-  matrix with the 7-index 4RDM is cheaper than in different orbitals; however,
-  converging the walker dynamic may take a (very) high number of walkers.
-  Should convergence difficulties persist, consider the NDPT keyword instead.
+  matrix with the 7-index 4RDM is cheaper than in non-canonical orbitals; however,
+  converging FCIQMC may take a (very) high number of walkers.
+  Sampling in a non-diagonal basis is highly recommended, refer to the NDPT
+  keyword for more information.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PPT2" LEVEL="ADVANCED" APPEAR="FCIQMC-CASPT2" KIND="SINGLE">
               %%Keyword: PPT2 <ADVANCED>
@@ -2015,7 +2016,7 @@ A list of these keywords is given below:
   occupations in one or more RAS/GAS's thereby eliminating all roots below.
   Very helpful for double-core excitations where the ground-state input
   can be used to eliminate unwanted roots. Works with RASSI.
-  First input is the number of RAS/GAS where the maximum and maximum - 1 
+  First input is the number of RAS/GAS where the maximum and maximum - 1
   occupations should be eliminated. Second is the RAS/GAS or RAS/GAS's where
   maximum and maximum - 1 occupations will not be allowed.
 
