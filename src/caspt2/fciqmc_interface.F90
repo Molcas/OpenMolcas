@@ -23,10 +23,12 @@ module fciqmc_interface
     use linalg_mod, only: verify_, abort_
     use fortran_strings, only: str
     use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _HDF5_
     use mh5, only: mh5_open_file_r, mh5_close_file, &
                    mh5_open_group, mh5_close_group, &
                    mh5_open_dset, mh5_close_dset, mh5_fetch_dset, mh5_get_dset_dims, &
                    mh5_exists_dset
+#endif
 
     implicit none
 
@@ -48,7 +50,6 @@ module fciqmc_interface
     !>  @param[inout]  g1        dense redundant 1RDM
     !>  @param[in]     iroot     CASSCF root number
     subroutine load_fciqmc_g1(nLev, g1, iroot)
-#ifdef _HDF5_
 #ifdef NAGFOR
         use f90_unix_proc, only: sleep
 #endif
@@ -56,6 +57,7 @@ module fciqmc_interface
         integer(iwp), intent(in) :: nLev
         real(wp), intent(inout) :: g1(nLev, nLev)
         integer(iwp), intent(in) :: iroot
+#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len2index(2), i, t, u
         logical :: tExist
@@ -192,7 +194,6 @@ module fciqmc_interface
     !>  @param[in]     f1         contracted Fock matrix with 2RDM
     !>  @param[in]     iroot      MCSCF root number.
     subroutine load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, f3, f2, f1, iroot)
-#ifdef _HDF5_
         use caspt2_data, only: nActEl
         integer(iwp), intent(in) :: nLev
         integer(1), intent(in) :: idxG3(6, nG3)
@@ -200,6 +201,7 @@ module fciqmc_interface
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
         integer(iwp), intent(in) :: iroot
+#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
@@ -378,7 +380,6 @@ module fciqmc_interface
                     end do
                 end do
                 call mh5_close_file(hdf5_file)
-#endif
             end subroutine transform_six_index
 
             pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
@@ -447,7 +448,7 @@ module fciqmc_interface
                 f1(:,:) = f1(:,:) / (nAct - 2)
                 g1(:,:) = g1(:,:) / (nAct - 1)
             end subroutine calc_f1_and_g1
-
+#endif
     end subroutine load_fciqmc_mats
 
 end module fciqmc_interface
