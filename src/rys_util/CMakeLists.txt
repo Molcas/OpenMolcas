@@ -82,6 +82,7 @@ set (sources
      rysg1.F90
      rysg2.F90
      rysscratch.F90
+     set_breit.F90
      sether.F90
      setupr.F90
      setup_rw.F90

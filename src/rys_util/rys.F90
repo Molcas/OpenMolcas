@@ -13,7 +13,7 @@
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 !#define _DEBUGPRINT_
-!#define _CHECK_R3_TERM_
+#define _CHECK_R3_TERM_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
