@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 2022-2023, Arta Safari                                 *
 !***********************************************************************
-#ifdef _HDF5_
 module fciqmc_interface
 
 #ifdef _MOLCAS_MPP_
@@ -49,6 +48,7 @@ module fciqmc_interface
     !>  @param[inout]  g1        dense redundant 1RDM
     !>  @param[in]     iroot     CASSCF root number
     subroutine load_fciqmc_g1(nLev, g1, iroot)
+#ifdef _HDF5_
 #ifdef NAGFOR
         use f90_unix_proc, only: sleep
 #endif
@@ -151,7 +151,7 @@ module fciqmc_interface
                 call transmat(g1, fockvecs, nLev)
                 call mh5_close_file(hdf5_file)
             end subroutine transform_1rdm
-
+#endif
     end subroutine load_fciqmc_g1
 
 
@@ -192,6 +192,7 @@ module fciqmc_interface
     !>  @param[in]     f1         contracted Fock matrix with 2RDM
     !>  @param[in]     iroot      MCSCF root number.
     subroutine load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, f3, f2, f1, iroot)
+#ifdef _HDF5_
         use caspt2_data, only: nActEl
         integer(iwp), intent(in) :: nLev
         integer(1), intent(in) :: idxG3(6, nG3)
@@ -377,6 +378,7 @@ module fciqmc_interface
                     end do
                 end do
                 call mh5_close_file(hdf5_file)
+#endif
             end subroutine transform_six_index
 
             pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
