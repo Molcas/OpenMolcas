@@ -507,6 +507,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if (DoFCIQMC) then
             continue
         else
+#ifdef _WARNING_WORKAROUND_
             IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
                 do icsf=1,nsgm1
@@ -518,6 +519,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
      &           work(lbuft),1,0.0D0,bufr,1)
                 call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
             END IF
+#endif
         end if
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb

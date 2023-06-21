@@ -451,4 +451,3 @@ module fciqmc_interface
     end subroutine load_fciqmc_mats
 
 end module fciqmc_interface
-#endif
