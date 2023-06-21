@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2022-2023, Arta Safari                                 *
 !***********************************************************************
+#ifdef _HDF5_
 module fciqmc_interface
 
 #ifdef _MOLCAS_MPP_
@@ -63,6 +64,10 @@ module fciqmc_interface
         logical :: proceed_found
         character(len=1024) :: WorkDir
         integer(iwp) :: err
+#ifdef _MOLCAS_MPP_
+        integer(MPIInt) :: error
+        integer(MPIInt), parameter :: ROOT = 0_MPIInt
+#endif
 
         proceed_found = .false.
         call getcwd_(WorkDir, err)
@@ -444,3 +449,4 @@ module fciqmc_interface
     end subroutine load_fciqmc_mats
 
 end module fciqmc_interface
+#endif

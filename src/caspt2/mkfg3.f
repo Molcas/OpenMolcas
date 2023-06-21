@@ -657,7 +657,7 @@ C  only for the G1 and G2 replicate arrays
              F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
             end do
            end do
-        ! Correction to F2: Some values not computed follow from symmetry
+      ! Correction to F2: Some values not computed follow from symmetry
            do ip1=1,nlev2-1
             itlev=idx2ij(1,ip1)
             iulev=idx2ij(2,ip1)
