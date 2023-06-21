@@ -129,6 +129,11 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
         call mh5_close_file(hdf5_file)
+#else
+        unused_var(nLev)
+        unused_var(g1)
+        unused_var(iroot)
+#endif
 
         contains
 
@@ -141,6 +146,7 @@ module fciqmc_interface
             subroutine transform_1rdm(g1, nLev)
                 real(wp), intent(inout) :: g1(nLev, nLev)
                 integer(iwp), intent(in) :: nLev
+#ifdef _HDF5
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group
                 real(wp) :: fockvecs(nLev, nLev)
@@ -153,12 +159,11 @@ module fciqmc_interface
                 call mh5_close_group(hdf5_group)
                 call transmat(g1, fockvecs, nLev)
                 call mh5_close_file(hdf5_file)
-            end subroutine transform_1rdm
 #else
-        unused_var(nLev)
-        unused_var(g1)
-        unused_var(iroot)
+                unused_var(g1)
+                unused_var(nLev)
 #endif
+            end subroutine transform_1rdm
     end subroutine load_fciqmc_g1
 
 

@@ -43,8 +43,8 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
-      use fciqmc, only:  tPrepStochCASPT2, tNonDiagStochPT2
 #endif
+      use fciqmc, only:  tPrepStochCASPT2, tNonDiagStochPT2
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
