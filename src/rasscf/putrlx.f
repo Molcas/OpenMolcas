@@ -44,7 +44,10 @@
       Call GetMem('TEMP','ALLO','REAL',ipDS,NZ)
 
       write(6,*)
-      do i = 1, lRoots
+      do i = 1, NRoots
+        do j = 1, size(iroot)
+        if (iroot(j) == i) then
+
         Call DDaFile(JOBIPH,2,D,NACPAR,jDisk)
         Call DDaFile(JOBIPH,2,DS,NACPAR,jDisk)
         Call DDaFile(JOBIPH,2,P,NACPR2,jDisk)
@@ -131,6 +134,8 @@
         Call GetMem('TEMP','FREE','REAL',ipQ,idum)
         Call GetMem('TEMP','FREE','REAL',ipB,idum)
         Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
+        end if
+        end do
       end do
 
       ! set mean gradient for outctl.f
