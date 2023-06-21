@@ -60,6 +60,7 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
@@ -78,6 +79,7 @@ integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2,
 logical(kind=iwp) :: Nospecial
 external :: TERI, ModU2, vCff2D, vRys2D
 integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
+integer(kind=iwp) :: nComp=1
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
@@ -92,6 +94,11 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 #endif
 
 NoSpecial = .false. ! Use special code if possible
+
+If (nOrdOp/=0) Then
+   NoSpecial=.true.   ! Don't use special code to compute Breit-type integrals
+   nComp=6
+End If
 
 ! Transfer k2 data and prescreen
 
@@ -123,13 +130,13 @@ else
     ! executed if used in single iteration mode. Hence,
     ! iW2 and iW4 are identical.
 
-    n1 = lZeta*lEta*mabcd
+    n1 = lZeta*lEta*nComp*mabcd
     iW3 = iW2+n1
-    call DGeTMO(Wrk(iW2),lZeta*lEta,lZeta*lEta,mabcd,Wrk(iW3),mabcd)
+    call DGeTMO(Wrk(iW2),lZeta*lEta*nComp,lZeta*lEta*nComp,mabcd,Wrk(iW3),mabcd)
     Wrk(iW2:iW2+n1-1) = Wrk(iW3:iW3+n1-1)
-    call TnsCtl(Wrk(iW2),nWork2,Coor,mabcd,lZeta*lEta,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
-                iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
-    n2 = lZeta*lEta*nabcd
+    call TnsCtl(Wrk(iW2),nWork2,Coor,mabcd,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld, &
+                iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
+    n2 = lZeta*lEta*nComp*nabcd
     if (i_Int /= iW2) Wrk(iW2:iW2+n2-1) = Wrk(i_Int:i_Int+n2-1)
     Do_TnsCtl = .false.
     n1 = 1
@@ -153,17 +160,17 @@ else
 
   if (iW4 /= iW2) then
     ! Account for size of the integrals in
-    nW2 = lZeta*lEta*kabcd
+    nW2 = lZeta*lEta*nComp*kabcd
   else ! iW4 == iW2
     ! Account for size of the integrals in and out
-    nW2 = max(iBasi*jBasj*kBask*lBasl,lZeta*lEta)*kabcd
+    nW2 = max(iBasi*jBasj*kBask*lBasl,lZeta*lEta)*nComp*kabcd
   end if
   iW3 = iW2+nW2
   nWork3 = mWork2-nW2
   !write(u6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
   !write(u6,*) 'nWork3:',nWork3
   call Cntrct(NoPInts,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk(iW2),n1,n2,n3,n4, &
-              Wrk(iW3),nWork3,Wrk(iW4),IndZet,lZeta,IndEta,lEta)
+              Wrk(iW3),nWork3,Wrk(iW4),IndZet,lZeta,IndEta,lEta,nComp)
 end if
 
 #ifdef _DEBUGPRINT_
