@@ -480,14 +480,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
+        l1=lbuf1+mxci*(ibmn-1)
         if (DoFCIQMC) then
             continue
         else
-            l1=lbuf1+mxci*(ibmn-1)
-#ifdef _WARNING_WORKAROUND_
             call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
      &           work(lbuft),1,0.0D0,bufr,1)
-#endif
 * and distribute this result into G3:
             call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
 * and copy the active indices into idxG3:
@@ -516,10 +514,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
      &                 (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
                 end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-#ifdef _WARNING_WORKAROUND_
                 call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
      &           work(lbuft),1,0.0D0,bufr,1)
-#endif
                 call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
             END IF
         end if

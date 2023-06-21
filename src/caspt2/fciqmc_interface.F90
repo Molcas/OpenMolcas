@@ -32,6 +32,7 @@ module fciqmc_interface
 
     implicit none
 
+#include "macros.fh"
 #include "SysDef.fh"
 
     private
@@ -153,6 +154,10 @@ module fciqmc_interface
                 call transmat(g1, fockvecs, nLev)
                 call mh5_close_file(hdf5_file)
             end subroutine transform_1rdm
+#else
+        unused_var(nLev)
+        unused_var(g1)
+        unused_var(iroot)
 #endif
     end subroutine load_fciqmc_g1
 
@@ -448,6 +453,17 @@ module fciqmc_interface
                 f1(:,:) = f1(:,:) / (nAct - 2)
                 g1(:,:) = g1(:,:) / (nAct - 1)
             end subroutine calc_f1_and_g1
+#else
+        unused_var(nLev)
+        unused_var(idxG3)
+        unused_var(nG3)
+        unused_var(g3)
+        unused_var(g2)
+        unused_var(g1)
+        unused_var(f3)
+        unused_var(f2)
+        unused_var(f1)
+        unused_var(iroot)
 #endif
     end subroutine load_fciqmc_mats
 
