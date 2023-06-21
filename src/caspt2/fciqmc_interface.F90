@@ -454,13 +454,13 @@ module fciqmc_interface
                 g1(:,:) = g1(:,:) / (nAct - 1)
             end subroutine calc_f1_and_g1
 #else
+        g3(*) = 0.0_wp
+        f3(*) = 0.0_wp
         unused_var(nLev)
         unused_var(idxG3)
         unused_var(nG3)
-        unused_var(g3)
         unused_var(g2)
         unused_var(g1)
-        unused_var(f3)
         unused_var(f2)
         unused_var(f1)
         unused_var(iroot)
