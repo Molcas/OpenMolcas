@@ -360,9 +360,7 @@ if (.not. Test) then
               write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
               write(u6,*)
             end if
-          Call Set_Breit(1)
             call Drv2El_3Center_RI(Integral_RI_3,Zero)
-          Call Set_Breit(0)
             call Get_iArray('NumCho',nChoV,nIrrep)
             if (nPrint(iRout) >= 6) then
               write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
@@ -375,9 +373,7 @@ if (.not. Test) then
           iWrOpt = 0
           call Sort0()
 
-          Call Set_Breit(1)
           call Drv2El(Integral_WrOut2,Zero)
-          Call Set_Breit(0)
 
           call Sort1B()
           call Sort2()
