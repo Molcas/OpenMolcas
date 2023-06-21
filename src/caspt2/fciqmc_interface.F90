@@ -129,11 +129,6 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
         call mh5_close_file(hdf5_file)
-#else
-        unused_var(nLev)
-        unused_var(g1)
-        unused_var(iroot)
-#endif
 
         contains
 
@@ -146,7 +141,6 @@ module fciqmc_interface
             subroutine transform_1rdm(g1, nLev)
                 real(wp), intent(inout) :: g1(nLev, nLev)
                 integer(iwp), intent(in) :: nLev
-#ifdef _HDF5
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group
                 real(wp) :: fockvecs(nLev, nLev)
@@ -159,11 +153,12 @@ module fciqmc_interface
                 call mh5_close_group(hdf5_group)
                 call transmat(g1, fockvecs, nLev)
                 call mh5_close_file(hdf5_file)
-#else
-                unused_var(g1)
-                unused_var(nLev)
-#endif
             end subroutine transform_1rdm
+#else
+        unused_var(nLev)
+        unused_var(g1)
+        unused_var(iroot)
+#endif
     end subroutine load_fciqmc_g1
 
 
@@ -184,11 +179,22 @@ module fciqmc_interface
                                    f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
         integer(1), intent(in) :: idxG3(6, *)
 
+#ifdef _HDF5_
         call load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, &
                                 f3, f2, f1, mstate(jState))
+#else
+        g3(1) = 0.0_wp
+        f3(1) = 0.0_wp
+        unused_var(idxG3)
+        unused_var(g2)
+        unused_var(g1)
+        unused_var(f2)
+        unused_var(f1)
+#endif
     end subroutine mkfg3fciqmc
 
 
+#ifdef _HDF5_
     !>  @brief
     !>    Read stochastically sampled 3RDMs and contracted Fock tensors
     !>    stored in HDF5 format.
@@ -211,7 +217,6 @@ module fciqmc_interface
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
         integer(iwp), intent(in) :: iroot
-#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
@@ -458,18 +463,7 @@ module fciqmc_interface
                 f1(:,:) = f1(:,:) / (nAct - 2)
                 g1(:,:) = g1(:,:) / (nAct - 1)
             end subroutine calc_f1_and_g1
-#else
-        g3(1) = 0.0_wp
-        f3(1) = 0.0_wp
-        unused_var(nLev)
-        unused_var(idxG3)
-        unused_var(nG3)
-        unused_var(g2)
-        unused_var(g1)
-        unused_var(f2)
-        unused_var(f1)
-        unused_var(iroot)
-#endif
     end subroutine load_fciqmc_mats
+#endif
 
 end module fciqmc_interface
