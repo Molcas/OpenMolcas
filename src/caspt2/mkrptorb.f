@@ -233,7 +233,7 @@ C Finally, loop again over symmetries, transforming the CI:
             write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
           end if
         else
-#ifdef _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL GETMEM('LCI3','ALLO','REAL',LCI,NCONF)
