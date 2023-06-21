@@ -591,9 +591,9 @@ C  only for the G1 and G2 replicate arrays
             end do
            end do
           end do
-          ! SVC20100310: took some spurious mirroring of G2 values out
-          ! of the loops and put them here, after the parallel section has
-          ! finished, so that GAdSUM works correctly.
+        ! SVC20100310: took some spurious mirroring of G2 values out
+        ! of the loops and put them here, after the parallel section has
+        ! finished, so that GAdSUM works correctly.
           do ip1=ntri2+1,nlev2
            itlev=idx2ij(1,ip1)
            iulev=idx2ij(2,ip1)
@@ -607,7 +607,7 @@ C  only for the G1 and G2 replicate arrays
             G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
            end do
           end do
-          ! Correction to G2: Some values not computed follow from symmetry
+       ! Correction to G2: Some values not computed follow from symmetry
           do ip1=1,nlev2-1
            itlev=idx2ij(1,ip1)
            iulev=idx2ij(2,ip1)
@@ -641,9 +641,9 @@ C  only for the G1 and G2 replicate arrays
              end do
             end do
            end do
-           ! SVC20100310: took some spurious mirroring of F2 values out
-           ! of the loops and put them here, after the parallel section has
-           ! finished, so that GAdSUM works correctly.
+        ! SVC20100310: took some spurious mirroring of F2 values out
+        ! of the loops and put them here, after the parallel section has
+        ! finished, so that GAdSUM works correctly.
            do ip1=ntri2+1,nlev2
             itlev=idx2ij(1,ip1)
             iulev=idx2ij(2,ip1)
@@ -657,7 +657,7 @@ C  only for the G1 and G2 replicate arrays
              F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
             end do
            end do
-           ! Correction to F2: Some values not computed follow from symmetry
+        ! Correction to F2: Some values not computed follow from symmetry
            do ip1=1,nlev2-1
             itlev=idx2ij(1,ip1)
             iulev=idx2ij(2,ip1)
@@ -682,7 +682,7 @@ C  only for the G1 and G2 replicate arrays
            iX=idxG3(4,iG3)
            iY=idxG3(5,iG3)
            iZ=idxG3(6,iG3)
-           ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
            if(iY.eq.iX) then
             G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
             IF(IFF.ne.0) F3(iG3)=
