@@ -139,11 +139,8 @@ module fciqmc_interface
             !>  @param[inout]    g1        dense redundant 1RDM
             !>  @param[in]       nLev      number of levels
             subroutine transform_1rdm(g1, nLev)
-#ifdef _WARNING_WORKAROUND_
-                ! otherwise NAGFOR complains about implicit typing
+                integer(iwp), intent(in) :: nLev  ! otherwise NAGFOR complains about implicit typing
                 real(wp), intent(inout) :: g1(nLev, nLev)
-                integer(iwp), intent(in) :: nLev
-#endif
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group
                 real(wp) :: fockvecs(nLev, nLev)
@@ -186,9 +183,8 @@ module fciqmc_interface
         call load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, &
                                 f3, f2, f1, mstate(jState))
 #else
-        g3(1) = 0.0_wp
-        f3(1) = 0.0_wp
-        idxG3(1, 1) = idxG3(1, 2)
+        g3(idxG3(1, 1)) = 0.0_wp
+        f3(idxG3(1, 1)) = 0.0_wp
         unused_var(g2)
         unused_var(g1)
         unused_var(f2)
@@ -215,11 +211,8 @@ module fciqmc_interface
     subroutine load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, f3, f2, f1, iroot)
         use caspt2_data, only: nActEl
         integer(iwp), intent(in) :: nLev
-#ifdef _WARNING_WORKAROUND_
-        ! otherwise NAGFOR complains about implicit typing
+        integer(iwp), intent(in) :: nG3  ! otherwise NAGFOR complains about implicit typing
         integer(1), intent(in) :: idxG3(6, nG3)
-        integer(iwp), intent(in) :: nG3
-# endif
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
         integer(iwp), intent(in) :: iroot
@@ -347,11 +340,8 @@ module fciqmc_interface
             !>  @param[inout]    f3        dense redundant F.4RDM
             !>  @param[in]       nLev      number of levels
             subroutine transform_six_index(six_index, nLev)
-#ifdef _WARNING_WORKAROUND_
-                ! otherwise NAGFOR complains about implicit typing
+                integer(iwp), intent(in) :: nLev  ! otherwise NAGFOR complains about implicit typing
                 real(wp), intent(inout) :: six_index(nLev, nLev, nLev, nLev, nLev, nLev)
-                integer(iwp), intent(in) :: nLev
-#endif
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group, iter
                 real(wp) :: fockvecs(nLev, nLev), buffer(nLev), buffer2(nLev)
