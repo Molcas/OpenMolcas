@@ -20,14 +20,13 @@ module fciqmc_interface
     use Para_Info, only: MyRank
     use filesystem, only : getcwd_
     use definitions, only: wp, iwp, u6
-    use linalg_mod, only: verify_, abort_
+    use linalg_mod, only: verify_
     use fortran_strings, only: str
     use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_r, mh5_close_file, &
                    mh5_open_group, mh5_close_group, &
-                   mh5_open_dset, mh5_close_dset, mh5_fetch_dset, mh5_get_dset_dims, &
-                   mh5_exists_dset
+                   mh5_open_dset, mh5_fetch_dset, mh5_get_dset_dims
 #endif
 
     implicit none

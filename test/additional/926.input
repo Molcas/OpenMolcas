@@ -4,6 +4,14 @@
 * Symmetry: C1
 * Features tested: stochastic-CASCI + stochastic-CASPT2 (M7)
 *-------------------------------------------------------------------------------
+>> RM -FORCE TEST_HDF5
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+>> IF ( -FILE TEST_HDF5 )
+>>   EXIT 36
+>> ENDIF
 
 &gateway
     coord
