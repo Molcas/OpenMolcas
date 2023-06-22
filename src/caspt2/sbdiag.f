@@ -237,7 +237,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
       ! fingerprint eigenvalues
-      ! if (iprglb >= insane) then
+      if (iprglb >= insane) then
         fp = dnrm2_(nas,work(leig),1)
         write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
         fp_n = 0.0_8
@@ -249,7 +249,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
         fp_n = sqrt(fp_n)
         write(6,'("DEBUG> ",a,es21.14)')'Negative eigval norm: ', fp_n
         write(6,'("DEBUG> ",a,es21.14,a)')'That is ', fp_n/fp * 100, "%"
-      ! end if
+      end if
 
 C Form orthonormal vectors by scaling eigenvectors
       NIN=0
