@@ -342,6 +342,7 @@ module fciqmc_interface
                 integer(iwp), intent(in) :: nLev  ! otherwise NAGFOR complains about implicit typing
                 real(wp), intent(inout) :: six_index(nLev, nLev, nLev, nLev, nLev, nLev)
                 logical :: tExist
+                integer(iwp) :: u2, v2, x2, y2, z2  ! prevent sharing scope with upper function
                 integer(iwp) :: hdf5_file, hdf5_group, iter
                 real(wp) :: fockvecs(nLev, nLev), buffer(nLev), buffer2(nLev)
 
@@ -355,36 +356,36 @@ module fciqmc_interface
                 buffer(:) = 0.0_wp
                 buffer2(:) = 0.0_wp
                 do iter = 1, 6
-                    do z = 1, nLev
-                        do y = 1, nLev
-                            do x = 1, nLev
-                                do v = 1, nLev
-                                    do u = 1, nLev
+                    do z2 = 1, nLev
+                        do y2 = 1, nLev
+                            do x2 = 1, nLev
+                                do v2 = 1, nLev
+                                    do u2 = 1, nLev
                                         select case(iter)
                                             case (1)
-                                                buffer(:) = six_index(:, u, v, x, y, z)
+                                                buffer(:) = six_index(:, u2, v2, x2, y2, z2)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(:, u, v, x, y, z) = buffer2(:)
+                                                six_index(:, u2, v2, x2, y2, z2) = buffer2(:)
                                             case (2)
-                                                buffer(:) = six_index(u, :, v, x, y, z)
+                                                buffer(:) = six_index(u2, :, v2, x2, y2, z2)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(u, :, v, x, y, z) = buffer2(:)
+                                                six_index(u2, :, v2, x2, y2, z2) = buffer2(:)
                                             case (3)
-                                                buffer(:) = six_index(u, v, :, x, y, z)
+                                                buffer(:) = six_index(u2, v2, :, x2, y2, z2)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(u, v, :, x, y, z) = buffer2(:)
+                                                six_index(u2, v2, :, x2, y2, z2) = buffer2(:)
                                             case (4)
-                                                buffer(:) = six_index(u, v, x, :, y, z)
+                                                buffer(:) = six_index(u2, v2, x2, :, y2, z2)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(u, v, x, :, y, z) = buffer2(:)
+                                                six_index(u2, v2, x2, :, y2, z2) = buffer2(:)
                                             case (5)
-                                                buffer(:) = six_index(u, v, x, y, :, z)
+                                                buffer(:) = six_index(u2, v2, x2, y2, :, z2)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(u, v, x, y, :, z) = buffer2(:)
+                                                six_index(u2, v2, x2, y2, :, z2) = buffer2(:)
                                             case (6)
-                                                buffer(:) = six_index(u, v, x, y, z, :)
+                                                buffer(:) = six_index(u2, v2, x2, y2, z2, :)
                                                 call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
-                                                six_index(u, v, x, y, z, :) = buffer2(:)
+                                                six_index(u2, v2, x2, y2, z2, :) = buffer2(:)
                                         end select
                                     end do
                                 end do
