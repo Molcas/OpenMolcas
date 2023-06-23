@@ -472,7 +472,6 @@ module fciqmc_interface
                 g1(:,:) = g1(:,:) / (nAct - 1)
             end subroutine calc_f1_and_g1
     end subroutine load_fciqmc_mats
-#endif
 
       subroutine bcast_2RDM(InFile)
         use filesystem, only : symlink_, strerror_, get_errno_
@@ -484,4 +483,5 @@ module fciqmc_interface
         call symlink_(trim(master), trim(InFile), err)
         if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
+#endif
 end module fciqmc_interface
