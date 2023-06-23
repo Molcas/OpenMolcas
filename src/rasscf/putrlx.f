@@ -43,8 +43,8 @@
       Call GetMem('TEMP','ALLO','REAL',ipDI,NZ)
       Call GetMem('TEMP','ALLO','REAL',ipDS,NZ)
 
-      do i = 1, NRoots
-        do j = 1, size(iroot)
+      do i = 1, LRoots
+        do j = 1, i
         if (iroot(j) == i) then
 
         Call DDaFile(JOBIPH,2,D,NACPAR,jDisk)
@@ -138,6 +138,11 @@
         ! specified in the input, not the average!
         if (iroot(j) == iRlxRoot) RlxGrd = DNRM2_(NSXS,Work(ipB),1)
 
+        else
+         Call DDaFile(JOBIPH,0,rdum,NACPAR,jDisk)
+         Call DDaFile(JOBIPH,0,rdum,NACPAR,jDisk)
+         Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
+         Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
         end if
         end do
       end do
