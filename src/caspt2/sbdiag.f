@@ -240,15 +240,6 @@ C DIAGONALIZE THE SCALED S MATRIX:
       if (iprglb >= insane) then
         fp = dnrm2_(nas,work(leig),1)
         write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
-        fp_n = 0.0_8
-        write(6,'("DEBUG> ",A)') 'Smat eigvals:'
-        do i = 0, nas - 1
-          write(6,'("DEBUG> ",ES21.14)') work(leig+i)
-          if (work(leig+i) < 0) fp_n = fp_n + work(leig+i)**2
-        end do
-        fp_n = sqrt(fp_n)
-        write(6,'("DEBUG> ",a,es21.14)')'Negative eigval norm: ', fp_n
-        write(6,'("DEBUG> ",a,es21.14,a)')'That is ', fp_n/fp * 100, "%"
       end if
 
 C Form orthonormal vectors by scaling eigenvectors

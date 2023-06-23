@@ -32,8 +32,11 @@
 
 >>> SHELL base64 --decode M7.casci.rdm.base64 > M7.rdm.1.h5
 >>> SHELL echo -1.904334813e+02 > NEWCYCLE
+>>> COPY M7.rdm.1.h5 M7.rdm.1.h5
+>>> COPY NEWCYCLE NEWCYCLE
+>>> COPY init.StrOrb init.StrOrb
 &rasscf
-    fileorb = acrolein.RasOrb
+    fileorb = init.StrOrb
     cionly
     nactel = 6 0 0
     inactive= 12
@@ -43,8 +46,11 @@
     mcm7
     ndpt
 
+>>> COPY fockdump.h5 fockdump.h5
 >>> SHELL base64 --decode M7.caspt2.rdm.base64 > fciqmc.caspt2.1.h5
 >>> SHELL touch PROCEED
+>>> COPY fciqmc.caspt2.1.h5 fciqmc.caspt2.1.h5
+>>> COPY PROCEED PROCEED
 &caspt2
     fciqmc
     ndia
@@ -52,7 +58,7 @@
     ipea = 0.25
     imag = 0.1
 
->> FILE acrolein.RasOrb
+>>>FILE init.StrOrb
 #INPORB 2.2
 #INFO
 * RASSCF average (pseudo-natural) orbitals
@@ -230,6 +236,7 @@
 0 iiiiiiiiii
 1 ii22222sss
 2 ssss
+
 >> EOF
 
 >> FILE M7.casci.rdm.base64
