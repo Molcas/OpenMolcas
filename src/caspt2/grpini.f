@@ -256,9 +256,7 @@ c You don't have to be beautiful to turn me on
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      if (DoFCIQMC) then
-        continue
-      else
+      if (.not. DoFCIQMC) then
           if (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices

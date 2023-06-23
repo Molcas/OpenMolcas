@@ -284,7 +284,6 @@
 !>  @param[out] PAMAT Average antisymm. 2-dens matrix
 !>
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
-          use Para_Info, only: MyRank
 #include "output_ras.fh"
           integer, intent(in) :: iroot
           real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
@@ -701,6 +700,10 @@
           real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc), rdm1_temp(nAc, nAc)
           logical :: tExist
           integer :: iprlev
+
+          if (myRank /= 0) then
+              call bcast_2RDM('M7.'//str(iroot)//'.h5')
+          end if
 
           ! TODO: no multi-root functionality yet
           call f_Inquire('M7.rdm.'//str(iroot)//'.h5', tExist)

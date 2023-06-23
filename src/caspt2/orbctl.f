@@ -60,9 +60,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
       END IF
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
-      if (DoFCIQMC) then
-          continue
-      else
+      if (.not. DoFCIQMC) then
           CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
           CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
 
@@ -89,9 +87,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'
       END IF
 
-      if (DoFCIQMC) then
-          continue
-      else
+      if (.not. DoFCIQMC) then
 C Save new MO coeffs, and the transformation matrices:
       IDISK=IAD1M(2)
       CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)

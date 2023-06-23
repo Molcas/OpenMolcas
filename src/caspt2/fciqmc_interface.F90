@@ -87,6 +87,7 @@ module fciqmc_interface
         write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder:'
         write(u6, '(8x,a)') 'cp $M7_WORKDIR/M7.rdm.h5 ' // trim(WorkDir) // '/fciqmc.caspt2.'// str(mstate(jState)) //'.h5'
         write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
+
         do while(.not. proceed_found)
             call sleep(1)
             if (myrank == 0) call f_Inquire('PROCEED', proceed_found)
@@ -98,7 +99,9 @@ module fciqmc_interface
 #endif
         end do
         if (myrank == 0) then
-            write(u6, '(a)') 'PROCEED file found. Continuing with CASPT2.'
+            write(u6,'(a)') 'PROCEED file found. Continuing with CASPT2.'
+        else if (myRank /= 0) then
+            call bcast_2RDM('fciqmc.caspt2.' // str(iroot) // '.h5')
         end if
 
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
@@ -144,6 +147,9 @@ module fciqmc_interface
                 integer(iwp) :: hdf5_file, hdf5_group
                 real(wp) :: fockvecs(nLev, nLev)
 
+                if (myRank /= 0) then
+                    call bcast_2RDM('fockdump.h5')
+                end if
                 call f_Inquire('fockdump.h5', tExist)
                 call verify_(tExist, 'fockdump.h5 does not exist.')
                 hdf5_file = mh5_open_file_r('fockdump.h5')
@@ -226,6 +232,9 @@ module fciqmc_interface
         real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, start, finish, trace
 #endif
 
+        if (myRank /= 0) then
+            call bcast_2RDM('fciqmc.caspt2.' // str(iroot) // '.h5')
+        end if
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
         hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
@@ -266,10 +275,10 @@ module fciqmc_interface
 #ifdef _DEBUGPRINT_
             call timing(cpu0, cpu, tio0, tio)
 #endif
+            write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
             call transform_six_index(g3_temp, nLev)
 #ifdef _DEBUGPRINT_
             call timing(cpu1, cpu, tio1, tio)
-            write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
             write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
             trace = 0.0_wp
             do v = 1, nLev
@@ -465,4 +474,14 @@ module fciqmc_interface
     end subroutine load_fciqmc_mats
 #endif
 
+      subroutine bcast_2RDM(InFile)
+        use filesystem, only : symlink_, strerror_, get_errno_
+        character(len=*), intent(in) :: InFile
+        character(len=1024) :: master
+        integer :: lmaster1, err
+
+        call prgmtranslate_master(InFile, master, lmaster1)
+        call symlink_(trim(master), trim(InFile), err)
+        if (err == 0) write(u6, *) strerror_(get_errno_())
+      end subroutine bcast_2RDM
 end module fciqmc_interface

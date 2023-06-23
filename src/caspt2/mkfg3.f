@@ -294,6 +294,7 @@ C-SVC20100301: initialize the series of subtasks
 
       myBuffer=0
 
+
  500  CONTINUE
 C-SVC20100908: first check: can I actually do any task?
       IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501

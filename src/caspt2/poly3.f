@@ -97,9 +97,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
 * elements of the G3 and F3
       NG3=NG3MAX
 
-      if (DoFCIQMC) then
-        continue
-      else
+      if (.not. DoFCIQMC) then
         CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
         IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
@@ -142,9 +140,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #endif
       END IF
 
-      if (DoFCIQMC) then
-        continue
-      else
+      if (.not. DoFCIQMC) then
         CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
       end if
 
