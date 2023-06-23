@@ -19,7 +19,7 @@
 #include "WrkSpc.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='PUTRLX  ')
-      Real*8 D(*),DS(*),P(*),DAO(*),C(*), gradients(nroots)
+      Real*8 D(*),DS(*),P(*),DAO(*),C(*)
       Dimension rdum(1)
 
       IPRLEV=IPRLOC(3)
@@ -122,9 +122,9 @@
         IF(ISTORP(NSYM+1).GT.0)
      &      CALL GETMEM('ISTRP','FREE','REAL',ipP,ISTORP(NSYM+1))
 
-        gradients(i) = DNRM2_(NSXS,Work(ipB),1)
         write(6,'(6x,a,i3,5x,f12.10)')
-     &      "Norm of electronic gradient of root ", i, gradients(i)
+     &      "Norm of electronic gradient of root ", i,
+     &      DNRM2_(NSXS,Work(ipB),1)
 *
         Call GetMem('TEMP','FREE','REAL',ipD,NACPAR)
         Call GetMem('TEMP','FREE','REAL',iptuvx,idum)
@@ -138,8 +138,9 @@
         end do
       end do
 
-      ! set mean gradient for outctl.f
-      RlxGrd = sum(gradients) / max(1, size(gradients))
+      ! For outctl the electronic gradient is set to the root
+      ! specified in the input, not the average!
+      if (iroot(j) == iRlxRoot) RlxGrd = DNRM2_(NSXS,Work(ipB),1)
 
 *
 * Add up one electron densities

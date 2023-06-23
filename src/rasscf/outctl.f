@@ -429,7 +429,8 @@ C Local print level (if any)
      &     '(orbital pair',IBLBM,',',JBLBM,' in symmetry',ISYMBB,')'
         If (irlxRoot.ne.0)
      &  Write(LF,Fmt2//'A,T45,E10.3)')
-     &     'Norm of electronic gradient (mean) ',RLXGRD
+     &     'Norm of electronic gradient',RLXGRD
+
 
       End if
 
