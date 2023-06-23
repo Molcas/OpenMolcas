@@ -44,6 +44,7 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
+      use fciqmc, only:  tPrepStochCASPT2, tNonDiagStochPT2
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
@@ -1025,6 +1026,56 @@ C         call fileorb(Line,CMSStartMat)
         Write(6,*) ' Response field will follow CISE root: ',ICIRFROOT
        End If
       End If
+*----------------------------------------------------------------------------------------
+      if (KeyMCM7) then
+#ifndef _HDF5_
+          call WarningMessage(2, 'MCM7 is given in the input, '//
+     &    'please make sure to compile Molcas with HDF5 support.')
+          GoTo 9930
+#endif
+            MCM7 = .true.
+            DoNECI = .true.  ! needed to initialise FCIQMC
+            totalwalkers = 20000
+            RDMsampling%start = 20000
+            RDMsampling%n_samples = 10000
+            RDMsampling%step = 100
+            if(DBG) write(6, *) 'M7 CASSCF activated.'
+            if(DBG) write(6, *) 'Decoupled mode not implemented.'
+            if(DBG) write(6, *) 'Ignore automatically generated FciInp!'
+      end if
+*----------------------------------------------------------------------------------------
+      if (KeyNDPT) then
+          tNonDiagStochPT2 = .true.
+          IPT2 = 1     ! flag for SXCTL
+          if (KeySUPS) then
+            write(6,*) 'SUPSymmetry incompatible with NDPT.'
+            Call Abend()
+          endif
+          if (KeyPPT2) then
+            write(6,*) 'Non-diagonal PT2 incompatible with PPT2.'
+            Call Abend()
+          endif
+          if (DBG) write(6,*)
+     &      'stoch.-PT2 will be prepared in the current basis.'
+          if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
+      end if
+*----------------------------------------------------------------------------------------
+      if (KeyPPT2) then
+          tPrepStochCASPT2 = .true.
+          iOrbTyp = 2  ! pseudo-canonical orbitals
+          IPT2 = 1     ! flag for SXCTL
+          if (KeySUPS) then
+            write(6,*) 'SUPSymmetry incompatible with PPT2.'
+            Call Abend()
+          endif
+          if (KeyNDPT) then
+            write(6,*) 'Non-diagonal PT2 incompatible with PPT2.'
+            Call Abend()
+          endif
+          if (DBG) write(6,*)
+     &        'Transforming final orbitals into pseudo-canonical.'
+          if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
+      end if
 *---  Process SSCR command --------------------------------------------*
       if (KeySSCR) then
         if (DBG) write(6,*) ' SSCR command was given.'
@@ -2092,19 +2143,6 @@ C orbitals accordingly
         if (KeyWRMA) then
             WRMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
-        end if
-*----------------------------------------------------------------------------------------
-        if (KeyMCM7) then
-#ifndef _HDF5_
-          call WarningMessage(2, 'MCM7 is given in the input, '//
-     &    'please make sure to compile Molcas with HDF5 support.')
-#endif
-            MCM7 = .true.
-            if (.not. DoNECI) then
-                call WarningMessage(2, 'MCM7 needs the NECI keyword!')
-                GoTo 9930
-            end if
-            if(DBG) write(6, *) 'M7 CASSCF activated.'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then

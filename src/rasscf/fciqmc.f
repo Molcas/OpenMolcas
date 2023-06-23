@@ -44,10 +44,12 @@
       implicit none
       save
       private
-      public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in
+      public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in,
+     &          tPrepStochCASPT2, tNonDiagStochPT2
 
       logical :: DoEmbdNECI = .false., DoNECI = .false.,
-     &  tGUGA_in  = .false.
+     &  tGUGA_in  = .false., tPrepStochCASPT2 = .false.,
+     &  tNonDiagStochPT2 = .false.
 
 #ifdef _NECI_
       interface
@@ -153,7 +155,7 @@
           character(len=*), parameter ::
      &      ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-!         ! SOME DIRTY SETUPS
+          ! some dirty setups
           S = 0.5_wp * dble(iSpin - 1)
           call check_options(lRf, KSDFT)
           ! Produce a working FCIDUMP file
@@ -163,19 +165,30 @@
             if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
           end if
 
-!         ! This call is not side effect free, sets EMY and modifies
-!         ! F_IN
-          call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
-     &                   F_IN, orbital_E, folded_Fock)
-
-!         ! Fortran Standard 2008 12.5.2.12:
-!         ! Allocatable actual arguments that are passed to
-!         ! non-allocatable, optional dummy arguments are **not**
-!         ! present.
-          call make_fcidumps(
-     &        ascii_fcidmp, h5_fcidmp, orbital_E, folded_Fock, TUVX,
-     &        EMY, permutation
-     &    )
+          if (tPrepStochCASPT2 .and. ifinal == 2) then
+              ! actual iter has to be set to a number greater 1
+              call transform(2, CMO, DIAF, D1I_AO, D1A_AO,
+     &                       D1S_MO, F_IN, orbital_E, folded_Fock)
+              call make_fcidumps(
+     &          'caspt2.FciDmp', 'caspt2.FciDmp.h5', orbital_E,
+     &          folded_Fock, TUVX, EMY, permutation
+     &        )
+              write(u6,'(4x, a)') 'Careful, the orbital energies '//
+     &          'written to the $Project.RasOrb file are wrong!'
+          else
+              ! This call is not side effect free, sets EMY and modifies
+              ! F_IN
+              call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
+     &                       D1S_MO, F_IN, orbital_E, folded_Fock)
+              ! Fortran Standard 2008 12.5.2.12:
+              ! Allocatable actual arguments that are passed to
+              ! non-allocatable, optional dummy arguments are **not**
+              ! present.
+              call make_fcidumps(
+     &            ascii_fcidmp, h5_fcidmp, orbital_E, folded_Fock, TUVX,
+     &            EMY, permutation
+     &        )
+          end if
 
 ! Run NECI
 #ifdef _MOLCAS_MPP_
@@ -309,7 +322,7 @@
      &          'cp', real_path(h5_fcidmp), '$M7_RUN_DIR'
             write(u6,'(4x, a)') 'When finished '
             write(u6,'(8x, a)')
-     &      'cp $M7_RUN_DIR/M7.h5 '//trim(WorkDir)
+     &      'cp $M7_RUN_DIR/M7.rdm.h5 '//trim(WorkDir)//'/M7.rdm.1.h5'
             write(u6,'(8x, A)')
      &      'echo $your_RDM_Energy > '//real_path(energy_file)
             call xflush(6)

@@ -9,19 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This is just an encapsulation of the common block in
-! src/Include/rasdim.fh
-! src/Include/rasscf.fh
-! src/Include/rasdim.fh
-! src/Include/output_ras.fh
-! into a data module
+module caspt2_data
 
-module rasscf_data
-
-implicit none
+      implicit none
 
 #include "rasdim.fh"
-#include "rasscf.fh"
-#include "output_ras.fh"
+#include "caspt2.fh"
+#include "SysDef.fh"
+#include "WrkSpc.fh"
+#include "pt2_guga.fh"
 
-end module rasscf_data
+end module caspt2_data

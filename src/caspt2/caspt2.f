@@ -15,6 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
+      use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only: iPrGlb, terse, usual, verbose
       use caspt2_gradient, only: do_grad, nStpGrd
 #ifdef _MOLCAS_MPP_
@@ -296,6 +297,7 @@ C
          CPUPRP=CPTF13-CPTF12
          TIOPRP=TIOTF13-TIOTF12
 
+        if (.not. DoFCIQMC) then
 * Gradients.
 * Note: Quantities computed in gradients section can also
 * be used efficiently for computing Multi-State HEFF.
@@ -356,6 +358,7 @@ C     transition density matrices.
            CPUINT=0.0D0
            TIOINT=0.0D0
          END IF
+        end if
 
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
@@ -387,7 +390,9 @@ C     transition density matrices.
           WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
           WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
           WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
-          WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
+          if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
+           WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
+          end if
           WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
           WRITE(6,*)
         END IF
@@ -441,6 +446,7 @@ C     transition density matrices.
        WRITE(6,*)
       END IF
 
+      if (.not. doFCIQMC) then
       IF (NLYROOT.NE.0) IFMSCOUP=.FALSE.
       IF (IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
@@ -461,6 +467,7 @@ C     transition density matrices.
          WRITE(6,*)
         END IF
       END IF
+
 
 ! Beginning of second step, in case gradient of (X)MS
       If (nStpGrd.eq.2) Then
@@ -656,17 +663,18 @@ C End of long loop over groups
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
-      CALL CREIPH_CASPT2(Heff,Ueff,U0)
+        CALL CREIPH_CASPT2(Heff,Ueff,U0)
 
 * Store the PT2 energy and effective Hamiltonian on the wavefunction file
-      CALL PT2WFN_ESTORE(HEFF)
+        CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
       IF ((IFXMS.or.IFRMS).AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
 
 * store information on runfile for geometry optimizations
-      Call Put_iScalar('NumGradRoot',iRlxRoot)
-      Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
+        Call Put_iScalar('NumGradRoot',iRlxRoot)
+        Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
+      end if
 
 
 9000  CONTINUE

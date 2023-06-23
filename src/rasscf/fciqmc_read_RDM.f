@@ -11,7 +11,7 @@
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
-*               2021,2022, Arta Safari                                 *
+*               2021-2023, Arta Safari                                 *
 ************************************************************************
 
       module fciqmc_read_RDM
@@ -28,7 +28,8 @@
       use para_info, only: myRank
       use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
-      use index_symmetry, only : one_el_idx_flatten, two_el_idx_flatten
+      use index_symmetry, only : one_el_idx, two_el_idx_flatten,
+     &                           one_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
@@ -74,12 +75,12 @@
           integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
           logical, intent(in) :: tGUGA
-          real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
+          real(wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
           integer :: i, j, jDisk
-          real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
-     &                             temp_PSMAT(:), temp_PAMAT(:)
+          real(wp), allocatable :: temp_dmat(:), temp_dspn(:),
+     &                             temp_psmat(:), temp_pamat(:)
 #ifdef _HDF5_
-          real(wp) :: decompr_DMAT(nAc,nAc), decompr_DSPN(nAc,nAc)
+          real(wp) :: decompr_dmat(nac,nac), decompr_dspn(nac,nac)
 #endif
 
           ! position in memory to write density matrices to JOBIPH
@@ -120,27 +121,26 @@
                       PAMAT = PAMAT + weight(j) * temp_PAMAT
 
                       ! state-specific Natural Occupation numbers
-                      if (ifinal > 0) then
+                      if (ifinal > 1) then
                           call RDM_to_runfile(
      &                       temp_DMAT, temp_DSPN, temp_PSMAT,
      &                       temp_PAMAT, jDisk
      &                    )
-#ifdef _WARNING_WORKAROUND_
-! build:garble does not recognise decompr_dmat/dspn
 #ifdef _HDF5_
                           ! final iteration load decompressed 1PDMs in
                           ! HDF5 file.
-                          decompr_DMAT = expand_1rdm(temp_DMAT)
+                          decompr_dmat(:,:) = 0.0_wp
+                          decompr_dspn(:,:) = 0.0_wp
+                          decompr_dmat = expand_1rdm(temp_dmat)
+                          decompr_dspn = expand_1rdm(temp_dspn)
                           call mh5_put_dset(wfn_dens,
-     &                                      decompr_DMAT,
+     &                                      decompr_dmat,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-                          decompr_DSPN = expand_1rdm(temp_DSPN)
                           call mh5_put_dset(wfn_spindens,
-     &                                      decompr_DSPN,
+     &                                      decompr_dspn,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-#endif
 #endif
 
                       end if
@@ -218,11 +218,11 @@
           ! DMAT is intent(inout)
           call cleanMat(DMAT)
 
-          dspn = dspn_from_2rdm(psmat, pamat, dmat)
           ! calling cleanmat on DSPN makes no sense, since the
-          ! eigenvalues are between negative -1 and 1. CleanMat
-          ! was designed for the regular density matrix where
-          ! the eigs are between 0 and 2.
+          ! eigenvalues are between -1 and 1. CleanMat
+          ! was designed for the regular density matrix with
+          ! eigenvalues between 0 and 2.
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
 
           iprlev = iprloc(1)
           if (iprlev >= debug) then
@@ -284,7 +284,6 @@
 !>  @param[out] PAMAT Average antisymm. 2-dens matrix
 !>
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
-          use Para_Info, only: MyRank
 #include "output_ras.fh"
           integer, intent(in) :: iroot
           real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
@@ -570,7 +569,6 @@
       ! Clean evil non-positive semi-definite matrices. DMAT is input
       ! and output.
       call cleanMat(DMAT)
-      ! call cleanMat(DSPN)  ! see comment in the GUGA analogue
 
       if (iprlev >= debug) then
           norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
@@ -594,149 +592,6 @@
         if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
-
-      function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
-        ! Implementation following the Columbus paper:
-        ! 10.1080/00268976.2022.2091049, assuming S = m_s.
-        use general_data, only: ispin
-        real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
-        real(wp) :: dspn(size(dmat))
-        real(wp) :: intermed, S, AcEl
-        integer :: p, q, k, pq, pkkq, n
-
-        ! ispin and nActEl are integer by default
-        S = (real(ispin, wp) - 1)/2
-        AcEl = real(nActEl, wp)
-        do q = 1, nAc
-          do p = 1, nAc
-            intermed = 0.0_wp
-            do k = 1, nAc
-              if (q == k) n = 1
-              if (k /= q) n = 2
-              pkkq = two_el_idx_flatten(p, k, k, q)
-              intermed = intermed + 2/n * (PSMAT(pkkq) - PAMAT(pkkq))
-            end do
-            pq = one_el_idx_flatten(p, q)
-            dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
-          end do
-        end do
-        if (ispin == 1) dspn(:) = dspn(:) * 0
-      end function dspn_from_2rdm
-
-
-#ifdef _HDF5_
-      pure function expand_1rdm(dmat) result(decompr_dmat)
-        ! Decompresses DMAT from subroutine read_neci_RDM from a
-        ! linearised vector with symmetry into the full, redundant, 1RDM
-        ! matrix for HDF5 writing.
-        real(wp), intent(in) :: dmat(:)
-        real(wp) :: decompr_dmat(nAc,nAc)
-        integer :: pq, p, q
-
-        do pq = 1, size(dmat)
-          call one_el_idx(pq, p, q)
-          decompr_dmat(p,q) = dmat(pq)
-          decompr_dmat(q,p) = dmat(pq)  ! hermiticity
-        end do
-      end function expand_1rdm
-
-
-      subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
-#include "output_ras.fh"
-          integer, intent(in) :: iroot
-          real(wp), intent(_OUT_) :: dmat(:), dspn(:),psmat(:),pamat(:)
-          integer, allocatable :: indices(:,:)
-          real(wp), allocatable :: values(:)
-          integer :: len4index(2), pqrs, pq, n_rs, p, q, r, s, i,
-     &               hdf5_file, hdf5_group, hdf5_dset
-          real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc), rdm1_temp(nAc, nAc)
-          logical :: tExist
-          integer :: iprlev
-
-          ! TODO: no multi-root functionality yet
-          call f_Inquire('M7.'//str(iroot)//'.h5', tExist)
-          call verify_(tExist, 'M7.'//str(iroot)//'.h5 does not exist.')
-          hdf5_file = mh5_open_file_r('M7.'//str(iroot)//'.h5')
-          hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/sf_2200')
-          hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
-          len4index(:) = 0
-          call mh5_get_dset_dims(hdf5_dset, len4index)
-          call mh5_close_dset(hdf5_dset)
-          call mma_allocate(indices, 4, len4index(2))
-          call mma_allocate(values, len4index(2))
-          indices(:,:) = 0
-          values(:) = 0.0_wp
-          call mh5_fetch_dset(hdf5_group, 'values', values)
-          call mh5_fetch_dset(hdf5_group, 'indices', indices)
-          call mh5_close_group(hdf5_group)
-          call mh5_close_file(hdf5_file)
-
-          rdm1_temp(:,:) = 0.0_wp
-          rdm2_temp(:,:,:,:) = 0.0_wp
-          do i = 1, len4index(2)
-              p = indices(1, i) + 1; q = indices(2, i) + 1
-              r = indices(3, i) + 1; s = indices(4, i) + 1
-              rdm2_temp(p, r, q, s) = values(i)
-              rdm2_temp(r, p, s, q) = values(i)
-              rdm2_temp(q, s, p, r) = values(i)
-              rdm2_temp(s, q, r, p) = values(i)
-          end do
-          call mma_deallocate(indices)
-          call mma_deallocate(values)
-
-          dmat(:) = 0.0_wp
-          dspn(:) = 0.0_wp
-          psmat(:) = 0.0_wp
-          pamat(:) = 0.0_wp
-          n_rs = 1  ! fix "may be used uninitialised"
-          do s = 1, nAc
-            do r = 1, nAc
-              do q = 1, nAc
-                do p = 1, nAc
-                  pqrs = two_el_idx_flatten(p, q, r, s)
-                  if (r == s) n_rs = 1
-                  if (r > s)  n_rs = 2
-                  psmat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) + rdm2_temp(q, p, r, s))/2
-                  pamat(pqrs) = -0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) - rdm2_temp(q, p, r, s))/2
-                end do
-              end do
-            end do
-          end do
-
-          do r = 1, nAc
-            do q = 1, nAc
-              do p = 1, nAc
-                rdm1_temp(p, q) = rdm1_temp(p,q) + rdm2_temp(p,q,r,r)
-              end do
-            end do
-          end do
-          rdm1_temp(:, :) = rdm1_temp(:, :) / (nActEl - 1)
-
-          do q = 1, nAc
-            do p = 1, nAc
-              pq = one_el_idx_flatten(p, q)
-              dmat(pq) = rdm1_temp(p, q)
-            end do
-          end do
-
-          call cleanMat(dmat)  ! cleanse non-PSD elements
-          dspn = dspn_from_2rdm(psmat, pamat, dmat)
-
-          iprlev = iprloc(1)
-          if (iprlev >= debug) then
-              do p = 1, size(psmat)
-                    write(u6,*) 'PSMAT:', p, psmat(p)
-              end do
-              do p = 1, size(pamat)
-                    write(u6,*) 'PAMAT:', p, pamat(p)
-              end do
-              call triprt('DMAT ',' ', dmat, nAc)
-              call triprt('DSPN ',' ', dspn, nAc)
-          end if
-      end subroutine read_hdf5_denmats
-#endif
 
       subroutine dump_fciqmc_mats(dmat, dspn, psmat, pamat)
           ! Currently only one root per spin is supported.
@@ -775,6 +630,172 @@
           end do
           close(funit)
       end subroutine
+
+
+      function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
+          ! Implementation following the Columbus paper:
+          ! 10.1080/00268976.2022.2091049, assuming S = m_s.
+          use general_data, only: ispin
+          real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
+          real(wp) :: dspn(size(dmat))
+          real(wp) :: intermed, Spin, AcEl
+          integer :: p, k, s, pk, ks, ps, pkks, fac, n
+
+          Spin = (real(ispin, wp) - 1)/2  ! integer by default
+          AcEl = real(nActEl, wp)
+          ! the cycle statements ensure proper handling of the logic
+          ! for values connected to index pairs "pprs" and "rspp"
+          do s = 1, nAc
+              do p = 1, nAc
+                  if (.not. p >= s) cycle
+                  intermed = 0.0_wp
+                  do k = 1, nAc
+                      pk = one_el_idx_flatten(p, k)
+                      ks = one_el_idx_flatten(k, s)
+                      pkks = one_el_idx_flatten(pk, ks)
+                      ! PAMAT is antisymmetric under single permutations
+                      fac = merge(-1, 1, p < k .neqv. k < s)
+                      if (pk < ks) then
+                          cycle
+                      else
+                          ! off-diagonal counts twice
+                          n = merge(1, 2, (k == s))
+                          intermed = intermed
+     &                  + (2/n * psmat(pkks) + fac*pamat(pkks))
+                      end if
+                  end do
+                  ps = one_el_idx_flatten(p, s)
+                  dspn(ps) = 1/(Spin+1)*((2-AcEl/2) * dmat(ps)-intermed)
+              end do
+          end do
+          if (ispin == 1) dspn(:) = dspn(:) * 0
+      end function dspn_from_2rdm
+
+
+#ifdef _HDF5_
+      pure function expand_1rdm(dmat) result(decompr_dmat)
+        ! Decompresses DMAT from subroutine read_neci_RDM from a
+        ! linearised vector with symmetry into the full, redundant, 1RDM
+        ! matrix for HDF5 writing.
+        real(wp), intent(in) :: dmat(:)
+        real(wp) :: decompr_dmat(nAc,nAc)
+        integer :: pq, p, q
+
+        do pq = 1, size(dmat)
+          call one_el_idx(pq, p, q)
+          decompr_dmat(p,q) = dmat(pq)
+          decompr_dmat(q,p) = dmat(pq)  ! hermiticity
+        end do
+      end function expand_1rdm
+
+
+      subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
+#include "output_ras.fh"
+          integer, intent(in) :: iroot
+          real(wp), intent(_OUT_) :: dmat(:), dspn(:),psmat(:),pamat(:)
+          integer, allocatable :: indices(:,:)
+          real(wp), allocatable :: values(:)
+          integer :: len4index(2), pqrs, pq, rs,  p, q, r, s, i,
+     &               fac, n_rs, hdf5_file, hdf5_group, hdf5_dset
+          real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc), rdm1_temp(nAc, nAc)
+          logical :: tExist
+          integer :: iprlev
+
+          if (myRank /= 0) then
+              call bcast_2RDM('M7.'//str(iroot)//'.h5')
+          end if
+
+          ! TODO: no multi-root functionality yet
+          call f_Inquire('M7.rdm.'//str(iroot)//'.h5', tExist)
+          call verify_(tExist, 'M7.rdm.'//str(iroot)//'.h5 not found.')
+          hdf5_file = mh5_open_file_r('M7.rdm.'//str(iroot)//'.h5')
+          hdf5_group = mh5_open_group(hdf5_file, 'spinfree/2200')
+          hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
+          len4index(:) = 0
+          call mh5_get_dset_dims(hdf5_dset, len4index)
+          call mh5_close_dset(hdf5_dset)
+          call mma_allocate(indices, 4, len4index(2))
+          call mma_allocate(values, len4index(2))
+          indices(:,:) = 0
+          values(:) = 0.0_wp
+          call mh5_fetch_dset(hdf5_group, 'values', values)
+          call mh5_fetch_dset(hdf5_group, 'indices', indices)
+          call mh5_close_group(hdf5_group)
+          call mh5_close_file(hdf5_file)
+
+          rdm1_temp(:,:) = 0.0_wp
+          rdm2_temp(:,:,:,:) = 0.0_wp
+          do i = 1, len4index(2)
+              p = indices(1, i) + 1; q = indices(2, i) + 1
+              r = indices(3, i) + 1; s = indices(4, i) + 1
+              rdm2_temp(p, r, q, s) = values(i)
+          end do
+          call mma_deallocate(indices)
+          call mma_deallocate(values)
+
+          dmat(:) = 0.0_wp
+          dspn(:) = 0.0_wp
+          psmat(:) = 0.0_wp
+          pamat(:) = 0.0_wp
+          do s = 1, nAc
+            do r = 1, nAc
+              do q = 1, nAc
+                do p = 1, nAc
+                  pq = one_el_idx_flatten(p, q)
+                  rs = one_el_idx_flatten(r, s)
+                  if (pq < rs) then
+                    cycle
+                  else
+                    pqrs = one_el_idx_flatten(pq, rs)
+                    fac = merge(-1, 1, p < q .neqv. r < s)
+                    n_rs = merge(2, 1, r /= s)
+                    psmat(pqrs) = 0.5_wp * n_rs
+     &                * (rdm2_temp(p,q,r,s) + rdm2_temp(q,p,r,s))/2
+                    pamat(pqrs) = 0.5_wp * n_rs * fac
+     &                * (rdm2_temp(p,q,r,s) - rdm2_temp(q,p,r,s))/2
+                  end if
+                end do
+              end do
+            end do
+          end do
+
+          do r = 1, nAc
+            do q = 1, nAc
+              do p = 1, nAc
+                rdm1_temp(p, q) = rdm1_temp(p,q) + rdm2_temp(p,q,r,r)
+              end do
+            end do
+          end do
+          rdm1_temp(:, :) = rdm1_temp(:, :) / (nActEl - 1)
+
+          do q = 1, nAc
+            do p = 1, nAc
+              pq = one_el_idx_flatten(p, q)
+              dmat(pq) = rdm1_temp(p, q)
+            end do
+          end do
+
+          call cleanMat(dmat)  ! cleanse non-PSD elements
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
+
+          iprlev = iprloc(1)
+          if (iprlev >= debug) then
+              write(u6,'(a)') 'PSMAT:'
+              do p = 1, size(psmat)
+                if (abs(psmat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+     &              p,psmat(p)
+              end do
+              write(u6,'(a)') 'PAMAT:'
+              do p = 1, size(pamat)
+                if (abs(pamat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+     &              p,pamat(p)
+              end do
+              call triprt('DMAT ',' ', dmat, nAc)
+              call triprt('DSPN ',' ', dspn, nAc)
+          end if
+      end subroutine read_hdf5_denmats
+#endif
+
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()
