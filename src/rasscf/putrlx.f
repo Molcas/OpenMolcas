@@ -43,7 +43,6 @@
       Call GetMem('TEMP','ALLO','REAL',ipDI,NZ)
       Call GetMem('TEMP','ALLO','REAL',ipDS,NZ)
 
-      write(6,*)
       do i = 1, NRoots
         do j = 1, size(iroot)
         if (iroot(j) == i) then
@@ -123,7 +122,7 @@
      &      CALL GETMEM('ISTRP','FREE','REAL',ipP,ISTORP(NSYM+1))
 
         write(6,'(6x,a,i3,5x,f12.10)')
-     &      "Norm of electronic gradient of root ", i,
+     &      "Norm of electronic gradient for root ", i,
      &      DNRM2_(NSXS,Work(ipB),1)
 *
         Call GetMem('TEMP','FREE','REAL',ipD,NACPAR)
@@ -134,13 +133,15 @@
         Call GetMem('TEMP','FREE','REAL',ipQ,idum)
         Call GetMem('TEMP','FREE','REAL',ipB,idum)
         Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
+
+        ! For outctl the electronic gradient is set to the root
+        ! specified in the input, not the average!
+        if (iroot(j) == iRlxRoot) RlxGrd = DNRM2_(NSXS,Work(ipB),1)
+
         end if
         end do
       end do
 
-      ! For outctl the electronic gradient is set to the root
-      ! specified in the input, not the average!
-      if (iroot(j) == iRlxRoot) RlxGrd = DNRM2_(NSXS,Work(ipB),1)
 
 *
 * Add up one electron densities
