@@ -11,6 +11,7 @@
 * Copyright (C) 1987, Per Ake Malmqvist                                *
 *               2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
+*               2023, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       use rassi_global_arrays, only: SFDYS, SODYSAMPS,
@@ -47,6 +48,7 @@
       DIMENSION DYSEN(NSS)
       DIMENSION AMPS(NSS)
       Character*30 Filename
+      Character*80 TITLE
       character(len=8) :: Label
 
 ! +++ J.Norell 2018
@@ -61,6 +63,8 @@ C    (approximation) for all states
 C 2. (Slower): Compute the full SO Dyson orbitals for the requested
 C    initial states and export them to .molden format. SO amplitudes
 C    are correctly calculated for these states.
+
+! IFG: Added DysOrb export, not sure it's correct
 
 ! ****************************************************************
 
@@ -270,10 +274,27 @@ C SO Dyson orbitals
 
 ! If at least one orbital was found, export it/them
         IF(ORBNUM.GT.0) THEN
-         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Re'
+         Write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Re'
          Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
-         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Im'
+         Write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Im'
          Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
+
+         ! This does not work for SO-Dyson orbitals, because they may
+         ! contain contributions from several irreps.
+         ! Either that's a bug elsewhere in the code, or the InpOrb
+         ! format is not adequate for these orbitals.
+         Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
+         LUNIT=IsFreeUnit(50)
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+     &                           'state ',JSTATE,' (real part)'
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOR,
+     &                    AMPS,DYSEN,Trim(TITLE),NZ)
+         Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+     &                           'state ',JSTATE,' (imaginary part)'
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOI,
+     &                    AMPS,DYSEN,Trim(TITLE),NZ)
+         Close(LUNIT)
         END IF
 
        END DO ! JSTATE

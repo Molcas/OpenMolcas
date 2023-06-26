@@ -101,19 +101,19 @@ if (Env == 'OFF') then
 end if
 !VV: current version of Molden has no clear limit for MaxOrb
 !if (MaxOrb > MaxOrb_Molden) then
-!   if (jPL >= 2) then
-!      write(u6,*)
-!      write(u6,*) ' Molden_Interface: W A R N I N G !!!!'
-!      write(u6,*)
-!      write(u6,*) ' No Molden input file will be generated!'
-!      write(u6,*)
-!      write(u6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
-!      write(u6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
-!      write(u6,*) ' on how to modify the parameter MaxOrb.'
-!      write(u6,*)
-!   end if
-!   iRC = 1
-!   return
+!  if (jPL >= 2) then
+!    write(u6,*)
+!    write(u6,*) ' Molden_Interface: W A R N I N G !!!!'
+!    write(u6,*)
+!    write(u6,*) ' No Molden input file will be generated!'
+!    write(u6,*)
+!    write(u6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
+!    write(u6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
+!    write(u6,*) ' on how to modify the parameter MaxOrb.'
+!    write(u6,*)
+!  end if
+!  iRC = 1
+!  return
 !end if
 !                                                                      *
 !***********************************************************************

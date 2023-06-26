@@ -2845,6 +2845,9 @@ C printing threshold
         END DO ! I
         WRITE(6,*)
         WRITE(6,*)
+        CALL CollapseOutput(0,'Dyson amplitudes '//
+     &                        '(SO states):')
+        WRITE(6,*)
 ! VKochetov 2021 put SO Dyson amplitudes to hdf5
 #ifdef _HDF5_
         if (rhodyn) then

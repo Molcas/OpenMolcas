@@ -1225,7 +1225,7 @@ Keywords
 
 :kword:`TRDC`
   Prints out COMPLEX valued components of the transition dipole vector
-  for spin-orbit calculations,
+  for spin--orbit calculations,
   otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
@@ -1275,7 +1275,7 @@ Keywords
 :kword:`DYSOn`
   Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
-  Calculations are performed for spin-free states, and for spin-orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin-orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin-orbit states see the :kword:`DYSExport` keyword.
+  Calculations are performed for spin-free states, and for spin--orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin--orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin--orbit states see the :kword:`DYSExport` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSON" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DYSON <advanced>
@@ -1285,9 +1285,9 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSExport`
-  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin--orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin--orbit states are always energy ordered.
 
-  Dyson amplitudes for the spin-orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keywpord), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
+  Dyson amplitudes for the spin--orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keyword), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
