@@ -50,7 +50,7 @@
         Call DDaFile(JOBIPH,2,D,NACPAR,jDisk)
         Call DDaFile(JOBIPH,2,DS,NACPAR,jDisk)
         Call DDaFile(JOBIPH,2,P,NACPR2,jDisk)
-        Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
+        ! Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
 *
 *       Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
 *
@@ -142,7 +142,7 @@
          Call DDaFile(JOBIPH,0,rdum,NACPAR,jDisk)
          Call DDaFile(JOBIPH,0,rdum,NACPAR,jDisk)
          Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
-         Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
+         ! Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
         end if
         end do
       end do
