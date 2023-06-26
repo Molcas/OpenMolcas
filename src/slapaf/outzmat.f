@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Giovanni Ghigo                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Giovanni Ghigo                                   *
+!***********************************************************************
       Subroutine OutZMAT(nAtoms,XYZCoords,N_ZMAT)
       Implicit Real*8 (a-h,o-z)
       Real*8 XYZCoords(3,nAtoms)
@@ -18,34 +18,34 @@
       Character(LEN=5), Allocatable:: Symbols(:)
       Integer, Allocatable:: NAT(:)
       Real*8, Allocatable:: ZMATCoords(:,:), ZMAT(:,:)
-*
+!
       Call mma_allocate(Symbols,N_ZMAT,Label='Symbols')
       Call mma_allocate(NAT,N_ZMAT,Label='NAT')
       Call mma_allocate(ZMATCoords,3,N_ZMAT,Label='ZMATCoords')
       Call mma_allocate(ZMAT,N_ZMAT,3,Label='ZMAT')
-*
-      Call OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,
+!
+      Call OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,        &
      &                      ZMATCoords,ZMAT)
-*
+!
       Call mma_deallocate(ZMAT)
       Call mma_deallocate(ZMATCoords)
       Call mma_deallocate(NAT)
       Call mma_deallocate(Symbols)
-*
+!
       Return
       End
-      Subroutine OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,
+      Subroutine OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,  &
      &                            ZMATCoords,ZMAT)
-************************************************************************
-* Author: Giovanni Ghigo                                               *
-*         Torino (Italy)  February-March 2007                          *
-*                                                                      *
-* This subroutine generates the nuclear coordinates in Z-matrix        *
-* format using the connection indices recovered from RunFile.          *
-* Remember:                                                            *
-*           X dummy atoms - NAT(i)= 0 - are included in SEWARD         *
-*           Z ghost atoms - NAT(i)=-1 - are NOT included in SEWARD     *
-************************************************************************
+!***********************************************************************
+! Author: Giovanni Ghigo                                               *
+!         Torino (Italy)  February-March 2007                          *
+!                                                                      *
+! This subroutine generates the nuclear coordinates in Z-matrix        *
+! format using the connection indices recovered from RunFile.          *
+! Remember:                                                            *
+!           X dummy atoms - NAT(i)= 0 - are included in SEWARD         *
+!           Z ghost atoms - NAT(i)=-1 - are NOT included in SEWARD     *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "stdalloc.fh"
@@ -58,13 +58,13 @@
       Logical IfTest
       Character(LEN=8) Label
       Real*8, Parameter :: ThrsTrasl=1.0d0  ! Threshold for warning
-*
+!
 #ifdef _DEBUGPRINT_
       IfTest=.True.
 #else
       IfTest=.False.
 #endif
-*
+!
       LuWr = 6
       todeg = 45.0d0 / ATan(1.0d0)
       dMaxTrasl = 0.0d0
@@ -101,10 +101,10 @@
         Return
       EndIf
 
-*  Z are ghost atoms
-*  A are both dummy (X) and real atoms
+!  Z are ghost atoms
+!  A are both dummy (X) and real atoms
 
-*  Z  Z  Z
+!  Z  Z  Z
       If (NAT(1).EQ.-1.and.NAT(2).EQ.-1.and.NAT(3).EQ.-1) then
         iBonded = 0
         Do i = 4, N_ZMAT
@@ -132,7 +132,7 @@
         EndDo
       EndIf
 
-*  Z  Z  A
+!  Z  Z  A
       If (NAT(1).EQ.-1.and.NAT(2).EQ.-1.and.NAT(3).GE.0) then
         iBonded = 0
         Do i = 3, N_ZMAT
@@ -150,7 +150,7 @@
         EndDo
       EndIf
 
-*  Z  A  Z
+!  Z  A  Z
       If (NAT(1).EQ.-1.and.NAT(3).EQ.-1.and.NAT(2).GE.0) then
         dMaxTrasl = 0.0d0
         dX = XYZCoords(1,1)
@@ -163,7 +163,7 @@
         ZMATCoords(2,2)=XYZCoords(2,1)
         ZMATCoords(3,2)=XYZCoords(3,1)
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY))
-        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
+        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')                  &
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(2)
         If (iZmat(1,3).EQ.2) ZMATCoords(3,3) = ZMATCoords(3,2)
         iBonded = 0
@@ -182,7 +182,7 @@
         EndDo
       EndIf
 
-*  A  Z  Z
+!  A  Z  Z
       If (NAT(1).GE.0.and.NAT(2).EQ.-1.and.NAT(3).EQ.-1) then
         dX = XYZCoords(1,1)
         dY = XYZCoords(2,1)
@@ -193,7 +193,7 @@
           XYZCoords(3,iAtom)=XYZCoords(3,iAtom)-dZ
         EndDo
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY),ABS(dZ))
-        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
+        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')                  &
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(1)
         iBonded = 0
         Do i = 4, N_ZMAT
@@ -220,7 +220,7 @@
         EndDo
       EndIf
 
-*  Z  A  B
+!  Z  A  B
       If (NAT(1).EQ.-1.and.NAT(2).GE.0.and.NAT(3).GE.0) then
         dX = XYZCoords(1,1)
         dY = XYZCoords(2,1)
@@ -230,11 +230,11 @@
           ZMATCoords(3,iAtom)=XYZCoords(3,iAtom-1)
         EndDo
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY))
-        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
+        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')                  &
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(2)
       EndIf
 
-*  A  Z  B
+!  A  Z  B
       If (NAT(1).GE.0.and.NAT(2).EQ.-1.and.NAT(3).GE.0) then
         dX = XYZCoords(1,1)
         dY = XYZCoords(2,1)
@@ -245,7 +245,7 @@
           XYZCoords(3,iAtom)=XYZCoords(3,iAtom)-dZ
         EndDo
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY),ABS(dZ))
-        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
+        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')                  &
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(1)
         iBonded = 0
         Do i = 3, N_ZMAT
@@ -263,7 +263,7 @@
         EndDo
       EndIf
 
-*  A  B  Z
+!  A  B  Z
       If (NAT(1).GE.0.and.NAT(2).GE.0.and.NAT(3).EQ.-1) then
         dMaxTrasl = 0.0d0
         dX = XYZCoords(1,1)
@@ -275,7 +275,7 @@
           XYZCoords(3,iAtom)=XYZCoords(3,iAtom)-dZ
         EndDo
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY),ABS(dZ))
-        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
+        If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')                  &
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(1)
         ZMATCoords(1,2)=XYZCoords(1,2)
         ZMATCoords(2,2)=XYZCoords(2,2)
@@ -302,7 +302,7 @@
         EndDo
       EndIf
 
-*  A  B  C
+!  A  B  C
       If (NAT(1).GE.0.and.NAT(2).GE.0.and.NAT(3).GE.0) then
         Call dCopy_(N_ZMAT*3,XYZCoords,1,ZMATCoords,1)
       EndIf
@@ -381,20 +381,20 @@
       EndIf
 
       Write (LuWr,*)
-      Write (LuWr,*) '***********************************************'//
+      Write (LuWr,*) '***********************************************'//&
      &               '*****************'
-      Write (LuWr,*) '* Nuclear coordinates in Z-Matrix format / Angs'//
+      Write (LuWr,*) '* Nuclear coordinates in Z-Matrix format / Angs'//&
      &               'trom and Degree *'
-      Write (LuWr,*) '-----------------------------------------------'//
+      Write (LuWr,*) '-----------------------------------------------'//&
      &               '-----------------'
       Do i=1, N_ZMAT
-        If (i.EQ.1)
+        If (i.EQ.1)                                                     &
      &    Write(LuWr,201) Symbols(i)
-        If (i.EQ.2)
+        If (i.EQ.2)                                                     &
      &    Write(LuWr,202) Symbols(i),iZmat(1,i),ZMAT(i,1)
-        If (i.EQ.3)
+        If (i.EQ.3)                                                     &
      &    Write(LuWr,203) Symbols(i),(iZmat(j,i),ZMAT(i,j),j=1,2)
-        If (i.GE.4)
+        If (i.GE.4)                                                     &
      &    Write(LuWr,204) Symbols(i),(iZmat(j,i),ZMAT(i,j),j=1,3)
       EndDo
       Call mma_deallocate(iZmat)

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Ignacio Fdez. Galvan                             *
-************************************************************************
-      Subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+      Subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,           &
      &                         BadConstraint)
       use Slapaf_Info, only: RefGeo
       use Slapaf_Parameters, only: MEP_Type
@@ -26,9 +26,9 @@
       Real*8, Parameter :: Thr = 1.0d-6
       Integer :: nCoor,i
       Real*8 rDum(1,1,1,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
       Integer nCent
@@ -42,9 +42,9 @@
       Logical ldB
       End Subroutine SphInt
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nCoor=3*nAtom
       Call mma_allocate(OldRef,3,nAtom,Label='OldRef')
       Call mma_allocate(Dummy,nCoor,Label='Dummy')
@@ -57,23 +57,23 @@
       i=0
       Do While (Abs(One-R/Dist).gt.Thr)
 
-*       Add the scaled direction vector
+!       Add the scaled direction vector
         CurFact=CurFact+Correct
         Point(:,:) = Ref(:,:) + CurFact * Dir(:,:)
 
-*       Align and measure distance
+!       Align and measure distance
         PrevR=R
         Call Align(Point(:,:),Ref(:,:),nAtom)
         If (MEP_Type.eq.'SPHERE') Then
-          Call SphInt(Point,nAtom,Not_Allocated,R,Dummy,
+          Call SphInt(Point,nAtom,Not_Allocated,R,Dummy,                &
      &                .False.,'dummy   ',rDum,.False.)
         Else If (MEP_Type.eq.'TRANSVERSE') Then
-          Call Transverse(Point,nAtom,R,Dummy,
+          Call Transverse(Point,nAtom,R,Dummy,                          &
      &                .False.,'dummy   ',rDum,.False.)
         End If
 
-*       Stop if too many iterations or if the constraint is moving
-*       in the wrong direction
+!       Stop if too many iterations or if the constraint is moving
+!       in the wrong direction
         i=i+1
         If (i.gt.5.or.Correct*(R-PrevR).lt.Zero) Exit
         Correct=(One-R/Dist)*Fact
@@ -83,8 +83,8 @@
       RefGeo(:,:) = OldRef(:,:)
       Call mma_deallocate(OldRef)
       Call mma_deallocate(Dummy)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End Subroutine Find_Distance

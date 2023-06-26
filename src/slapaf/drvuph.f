@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
       Use NewH_mod
       use Slapaf_Info, only: mRowH
@@ -15,20 +15,20 @@
 #include "real.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
       Logical Found, DoMask
-*
+!
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Logical Test
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function
+!
       Test(i)=iAnd(iOptH,2**(i-1)).eq.2**(i-1)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iSt=Max(2,nIter-(nWndw-1))
       Call Qpg_iScalar('HessIter',Found)
       If (Found) Then
@@ -42,23 +42,23 @@
       Lu=6
       Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
       Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (.Not.Test(4)) Then
          Write (Lu,*)
          If (nIter.lt.iSt) Then
             Write (Lu,*) 'No update of Hessian on the first iteration'
          Else
-            Write (Lu,'(A,30I3)') 'Hessian update from points:',
+            Write (Lu,'(A,30I3)') 'Hessian update from points:',        &
      &            (lIter,lIter=iSt-1,nIter)
          End If
          Write (Lu,*)
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       DoMask=.False.
       If (Allocated(UpdMask)) Then
          If (Size(UpdMask).eq.nInter) DoMask=.True.
@@ -74,11 +74,11 @@
             End If
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Update the Hessian over the window
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Update the Hessian over the window
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 #endif
@@ -91,8 +91,8 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End
