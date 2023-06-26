@@ -97,7 +97,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.24'
+  version = 'py2.25'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -1226,12 +1226,24 @@ class Molcas_module(object):
           if (exists(j)):
             if (isfile(j)):
               if (self.parent.save_mode == 'repl'):
-                action(i, j)
+                try:
+                  action(i, j)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
               elif (self.parent.save_mode == 'orig'):
                 orig = j+'.orig'
                 if (not exists(orig)):
                   move(j, orig)
-                action(i, j)
+                try:
+                  action(i, j)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
               elif (self.parent.save_mode == 'incr'):
                 fmt = '{0}.#{1}#'
                 n = 1
@@ -1239,13 +1251,23 @@ class Molcas_module(object):
                 while (exists(jj)):
                   n += 1
                   jj = fmt.format(j, n)
-                action(i, jj)
-              files.append(bi)
+                try:
+                  action(i, jj)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
             else:
               pass
           else:
-            action(i, j)
-            files.append(bi)
+            try:
+              action(i, j)
+              files.append(bi)
+            # use SameFileError workaround again
+            except Error as e:
+              if ('same file' not in text_type(e)):
+                raise
     return files
 
   def _delete_files(self):
