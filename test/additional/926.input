@@ -31,10 +31,9 @@
 &seward
 
 >>> SHELL base64 --decode M7.casci.rdm.base64 > M7.rdm.1.h5
->>> SHELL echo -1.904334813e+02 > NEWCYCLE
->>> COPY M7.rdm.1.h5 M7.rdm.1.h5
->>> COPY NEWCYCLE NEWCYCLE
->>> COPY init.StrOrb init.StrOrb
+>>> COPY M7.rdm.1.h5 .
+>>> COPY NEWCYCLE .
+>>> COPY init.StrOrb .
 &rasscf
     fileorb = init.StrOrb
     cionly
@@ -46,17 +45,20 @@
     mcm7
     ndpt
 
->>> COPY fockdump.h5 fockdump.h5
+>>> COPY fockdump.h5 .
 >>> SHELL base64 --decode M7.caspt2.rdm.base64 > fciqmc.caspt2.1.h5
->>> SHELL touch PROCEED
->>> COPY fciqmc.caspt2.1.h5 fciqmc.caspt2.1.h5
->>> COPY PROCEED PROCEED
+>>> COPY fciqmc.caspt2.1.h5 .
+>>> EXEC touch PROCEED
 &caspt2
     fciqmc
     ndia
     multistate = 1 1
     ipea = 0.25
     imag = 0.1
+
+>>>FILE NEWCYCLE
+-1.904334813e+02
+>>>EOF
 
 >>>FILE init.StrOrb
 #INPORB 2.2

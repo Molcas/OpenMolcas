@@ -12,7 +12,6 @@
 ! This is just an encapsulation of the common block in
 ! src/Include/rasdim.fh
 ! src/Include/rasscf.fh
-! src/Include/rasdim.fh
 ! src/Include/output_ras.fh
 ! into a data module
 

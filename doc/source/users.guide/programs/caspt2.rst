@@ -991,7 +991,7 @@ Keywords
   The program will skip the calculations of the :math:`n`-particle reduced
   density matrix and prompt the user for interaction.
   Multi-state calculations are currently not supported.
-  Always specify :kword:`MULTi` = 1 *iroot*, where *iroot* is the root index.
+  Always specify ``MULTi = 1 iroot``, where ``iroot`` is the root index.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FCIQMC" APPEAR="FCIQMC-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: FCIQmc <basic>
@@ -1001,11 +1001,11 @@ Keywords
               </KEYWORD>
 
 :kword:`NDIAgonal`
-  Active FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
+  Activiate FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
   operator. As a consequence the entire eight-index 4 RDM needs to be
   computed and contracted with the Fock matrix on the fly. Despite being
   computationally more costly, very often the number of walkers required to
-  stabilise the dynamic is considerably less than running in pseudo-canonical
+  stabilise the dynamics is considerably smaller than running in pseudo-canonical
   orbitals. This option is therefore highly recommended.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NDIAGONAL" APPEAR="NON-DIAGONAL-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">

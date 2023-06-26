@@ -1014,20 +1014,20 @@ A list of these keywords is given below:
 
 :kword:`PPT2`
   Prepare stochastic CASPT2 in pseudo-canonical orbitals.
-  This keyword will cause a transformation of the output RasOrb to
-  pseudo-canonical orbitals, equivalent to outo = canonical.
+  This keyword will cause a transformation of the output :file:`RasOrb` to
+  pseudo-canonical orbitals, equivalent to ``OUTO = canonical``.
 
   The performance of FCIQMC depends significantly on the orbital basis. In
   the pseudo-canonical basis, sampling the contraction of the (diagonal) Fock
   matrix with the 7-index 4RDM is cheaper than in non-canonical orbitals; however,
   converging FCIQMC may take a (very) high number of walkers.
-  Sampling in a non-diagonal basis is highly recommended, refer to the NDPT
+  Sampling in a non-diagonal basis is highly recommended, refer to the :kword:`NDPT`
   keyword for more information.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PPT2" LEVEL="ADVANCED" APPEAR="FCIQMC-CASPT2" KIND="SINGLE">
               %%Keyword: PPT2 <ADVANCED>
               <HELP>
-              Prepare the active-active block of the generalised Fock matrix
+              Prepare the active-active block of the generalized Fock matrix
               and a corresponding FCIDUMP for CASPT2 in the pseudo-canonical
               basis.
               </HELP>
@@ -1035,21 +1035,21 @@ A list of these keywords is given below:
 
 :kword:`NDPT`
   Prepare stochastic CASPT2 in any orbital basis. A :file:`fockdump.h5` file
-  will be dumped to the WorkDir which can be used with the same :file:`FCIDUMP`
-  as used for the last CASSCF iteration to perform stoch.-CASPT2.
+  will be dumped to the :file:`WorkDir` which can be used with the same :file:`FCIDUMP`
+  as used for the last CASSCF iteration to perform stochastic-CASPT2.
 
   The performance of FCIQMC depends to a large degree on the orbital basis and
   working in a non-pseudo-canonical orbital basis may alleviate the burden to
-  converge the dynamic significantly. This comes at the price of higher
+  converge the dynamics significantly. This comes at the price of higher
   computational requirements for the contraction of the full 4RDM with the
   non-diagonal Fockian. In practice, this expense is compensated for by
-  requiring one to two orders of magnitude less walkers compared to canonical
+  requiring one to two orders of magnitude fewer walkers compared to canonical
   orbitals.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NDPT" LEVEL="ADVANCED" APPEAR="Non-Diagonal-fciqmc-casPT2" KIND="SINGLE">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NDPT" LEVEL="ADVANCED" APPEAR="Non-diagonal FCIQMC-CASPT2" KIND="SINGLE">
               %%Keyword: NDPT <ADVANCED>
               <HELP>
-              Prepare the generalised Fock matrix in any orbital basis
+              Prepare the generalized Fock matrix in any orbital basis
               for stochastic CASPT2. Mutually exclusive with the PPT2 keyword.
               </HELP>
               </KEYWORD>
@@ -1068,8 +1068,8 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`RGRA`
-    Compute the norm of the orbital gradient for each CI root instead of just
-    for the root specified in geometry optimisation.
+  Compute the norm of the orbital gradient for each CI root instead of just
+  for the root specified in geometry optimization.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RGRA" LEVEL="BASIC" APPEAR="Root Gradients" KIND="SINGLE">
               %%Keyword: RGRA <BASIC>

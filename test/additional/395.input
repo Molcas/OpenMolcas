@@ -2,8 +2,8 @@
 * Molecule: Water
 * Basis: ANO-S-VDZP
 * Symmetry: C1
-* Features tested: Root selection for gradient
-* Responsible person: I. Fdez. Galván
+* Features tested: Root selection for gradient, Root resolved orbital gradient
+* Responsible person: I. Fdez. Galván, Arta Safari
 * Comments:
 *-------------------------------------------------------------------------------
 
@@ -30,6 +30,7 @@ Coord =  3
   NActEl = 8
   RAS2 = 6
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * Ground state with extra roots
@@ -40,6 +41,7 @@ Coord =  3
   RAS2 = 6
   CIRoot = 1 3; 1
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * State-average
@@ -51,6 +53,7 @@ Coord =  3
   CIRoot = 3 3 1
   RlxRoot = 1
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * State-specific excited state
@@ -62,6 +65,7 @@ Coord =  3
   CIRoot = 1 3; 2
   RlxRoot = 2
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 ***************************
@@ -87,6 +91,7 @@ Coord =  3
   NActEl = 8
   RAS2 = 6
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * Ground state with extra roots
@@ -97,6 +102,7 @@ Coord =  3
   RAS2 = 6
   CIRoot = 1 3; 1
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * State-average
@@ -108,6 +114,7 @@ Coord =  3
   CIRoot = 3 3 1
   RlxRoot = 1
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 
 * State-specific excited state
@@ -119,6 +126,7 @@ Coord =  3
   CIRoot = 1 3; 2
   RlxRoot = 2
   THRS =  5.0e-09, 5.0e-05, 5.0e-04
+  RGRA
 &SLAPAF
 *&MCLR
 >>FILE checkfile

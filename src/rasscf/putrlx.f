@@ -23,7 +23,6 @@
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
       Dimension rdum(1)
 
-
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
@@ -220,7 +219,6 @@
       Call GetMem('TEMP','FREE','REAL',ipQ,idum)
       Call GetMem('TEMP','FREE','REAL',ipB,idum)
       Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
-
 *
 * Add up one electron densities
 *

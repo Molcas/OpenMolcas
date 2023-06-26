@@ -431,7 +431,6 @@ C Local print level (if any)
      &  Write(LF,Fmt2//'A,T45,E10.3)')
      &     'Norm of electronic gradient',RLXGRD
 
-
       End if
 
       If ( ISUPSM.ne.0 ) then
