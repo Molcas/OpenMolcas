@@ -11,17 +11,21 @@
 
 subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
 
-use NewH_mod
 use Slapaf_Info, only: mRowH
+use NewH_mod, only: DiagMM, UpdMask
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
-logical Found, DoMask
+implicit none
+integer(kind=iwp) :: nWndw, nIter, nInter, iOptH, IterHess
+real(kind=wp) :: H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
+integer(kind=iwp) :: i, iSt, j, lIter
+logical(kind=iwp) :: DoMask, Found
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-logical Test
 ! Statement function
+logical(kind=iwp) :: Test
+integer(kind=iwp) :: i
 Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
 #endif
 
@@ -38,7 +42,7 @@ else
 end if
 if (allocated(mRowH)) iSt = max(iSt,size(mRowH)+2)
 #ifdef _DEBUGPRINT_
-Lu = 6
+Lu = u6
 write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
 call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 !                                                                      *

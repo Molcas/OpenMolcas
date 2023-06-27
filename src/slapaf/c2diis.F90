@@ -25,17 +25,22 @@ subroutine C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,nFix,iP)
 !***********************************************************************
 
 use Slapaf_Parameters, only: iOptC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Five, Ten
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter+1), B((nIter+1)*(nIter+1)), &
-       RHS(nIter+1), Scrt1(nScrt1)
-integer iP(nIter), iRc
-logical Fail
-real*8, allocatable :: A(:)
+integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
+real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter+1), &
+                 B((nIter+1)*(nIter+1)), RHS(nIter+1), Scrt1(nScrt1)
+integer(kind=iwp) :: ii, iInter, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, MaxWdw, MinWdw, mIter
+real(kind=wp) :: Alpha, c2_new, c2_old, ee_new, ee_old, Err1, Err2, t1, t2, ThrCff, Thrhld, ThrLdp
+logical(kind=iwp) :: Fail
+real(kind=wp), allocatable :: A(:)
+real(kind=wp), external :: DDot_
 ! Statement function
+integer(kind=iwp) :: ij, iTri, i, j, lda
 ij(i,j,lda) = (j-1)*lda+i
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -261,7 +266,7 @@ end if
 call dcopy_(mIter,Scrt1(ij(1,iVec_old,mIter)),1,RHS,1)
 
 if (iPrint >= 99) then
-  write(6,*) ' Selecting root',iVec_old
+  write(u6,*) ' Selecting root',iVec_old
   call RecPrt(' The solution vector',' ',RHS,1,mIter)
 end if
 
@@ -273,7 +278,7 @@ call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
 call dcopy_(nInter,[Zero],0,Scrt1,1)
 do iIter=1,mIter
 
-  if (abs(RHS(iIter)) < 1.0D-12) Go To 11
+  if (abs(RHS(iIter)) < 1.0e-12_wp) Go To 11
 
   call DaXpY_(nInter,RHS(iIter),Error(1,iP(iIter+iOff)),1,Scrt1,1)
 
@@ -305,7 +310,7 @@ call dcopy_(nInter,g(1,nIter+1),1,dq(1,nIter),1)
 iRc = 0
 call DPOTRS('U',nInter,1,A,nInter,dq(1,nIter),nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'C2DIIS(DPOTRS): iRC=',iRC
+  write(u6,*) 'C2DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
 if (iPrint >= 99) call RecPrt(' dq',' ',dq(1,nIter),1,nInter)

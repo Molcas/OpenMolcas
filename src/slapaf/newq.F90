@@ -21,20 +21,23 @@ subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Ener
 !             December '94                                             *
 !***********************************************************************
 
-use Slapaf_Parameters, only: iOptC, UpMeth, Line_Search, E_Delta
+use Slapaf_Parameters, only: E_Delta, iOptC, Line_Search, UpMeth
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
+real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter), error(nInter,nIter+1), B((nIter+1)**2), &
+                 RHS(nIter+1), Scrt1(nScrt1), Beta, Energy(nIter), Thr_RS
+character :: Step_Trunc
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-!logical Print
-real*8 q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter), error(nInter,nIter+1), B((nIter+1)*(nIter+1)), &
-       RHS(nIter+1), Scrt1(nScrt1), Energy(nIter), H(nInter,nInter)
-integer iP(nIter)
-character*1 Step_Trunc
-real*8, allocatable :: t_q(:), t_g(:), t_dq(:)
+integer(kind=iwp) :: i, iPrint, iRout, Lu, MinWdw
+real(kind=wp) :: Beta_New
+real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
+real(kind=wp), external :: DDot_
 
-Lu = 6
+Lu = u6
 iRout = 113
 iPrint = nPrint(iRout)
 !#define _DEBUGPRINT_
@@ -172,8 +175,8 @@ else if (iand(iOptC,8) == 8) then
   !                                                                    *
 else
   call WarningMessage(2,'Error in NewQ')
-  write(6,*) ' Newq: Illegal setting of iOptC!'
-  write(6,*) '  iOptC=',iOptC
+  write(u6,*) ' Newq: Illegal setting of iOptC!'
+  write(u6,*) '  iOptC=',iOptC
   call Abend()
 end if
 !                                                                      *

@@ -12,11 +12,14 @@
 subroutine MxLbls(nInter,Grad,Shift,Lbl)
 
 use Slapaf_Parameters, only: GrdLbl, StpLbl, GrdMax, StpMax
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Shift(nInter), Grad(nInter)
-character Lbl(nInter)*8
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: Grad(nInter), Shift(nInter)
+character(len=8) :: Lbl(nInter)
+integer(kind=iwp) :: i
 
 #ifdef _DEBUGPRINT_
 call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
@@ -36,9 +39,9 @@ do i=1,nInter
   end if
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' Tmp output in MxLbls'
-write(6,*) GrdLbl,' ',GrdMax
-write(6,*) StpLbl,' ',StpMax
+write(u6,*) ' Tmp output in MxLbls'
+write(u6,*) GrdLbl,' ',GrdMax
+write(u6,*) StpLbl,' ',StpMax
 #endif
 
 return

@@ -29,35 +29,38 @@ subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,mIter,Kriging_Hess
 !             2000                                                     *
 !***********************************************************************
 
-use Slapaf_info, only: GNrm, Lambda, Energy, qInt, dqInt, Shift, BMx, Degen, nStab, Smmtrc, Lbl
-use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH, HrmFrq_Show, Curvilinear, FindTS, nBVec, nDimBC, iOptC, iNeg, &
-                             TSConstraints, GNrm_Threshold, Mode, GrdMax, StpMax, nLambda
+use Slapaf_info, only: BMx, Degen, dqInt, Energy, GNrm, Lambda, Lbl, nStab, qInt, Shift, Smmtrc
+use Slapaf_Parameters, only: Curvilinear, FindTS, GNrm_Threshold, GrdMax, HrmFrq_Show, iInt, iNeg, iOptC, iOptH, iRow_c, Mode, &
+                             nBVec, nDimBC, nFix, nLambda, StpMax, TSConstraints
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Five, Ten, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-integer iDum(1)
-logical Found, Kriging_Hessian, First_MicroIteration, Hide, lWrite
-character Step_Trunc, File1*8, File2*8, Step_Trunc_
-real*8 Disp(1)
-real*8, allocatable :: Hessian(:,:), Wess(:,:), AMat(:), RHS(:), ErrVec(:,:), EMtrx(:,:)
-integer, allocatable :: index(:), iFlip(:)
-real*8, allocatable :: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:), T(:,:), d2L(:,:,:), BM(:,:), dBM(:,:,:), Energy_L(:), dEdx(:,:), &
-                       x(:,:), du(:), dEdq(:,:), dx(:,:), dy(:), BVec(:,:), Scr1(:), Scr2(:), value(:), Value0(:), Mult(:), &
-                       dBVec(:), Tmp(:)
+implicit none
+integer(kind=iwp) :: kIter, nWndw, mIter, iOpt_RS, Iter
+real(kind=wp) :: Beta, Beta_Disp, qBeta, qBeta_Disp
+character :: Step_Trunc
+logical(kind=iwp) :: Kriging_Hessian, First_MicroIteration, Hide
+integer(kind=iwp) :: i, iAd, iAtom, iDo_DipM, iDum(1), iEnd, iIter, iLambda, iOptH_, ix, ixyz, j, jAtom, jPrint, jx, jxyz, k, &
+                     kStart, lIter, LudRdx, M, Mask, Mode_Save, N, n1, nA, nLoop, nQQ, NRHS, nRP, nsAtom
+real(kind=wp) :: Disp(1), dxdx, dxdx_last, fact, fCart, gBeta, gg, gg_last, rCart, rInter, Sf, tBeta, Thr, Thr_RS, xBeta
+logical(kind=iwp) :: Found, lWrite
+character(len=8) :: File1, File2
+character :: Step_Trunc_
+integer(kind=iwp), allocatable :: iFlip(:), Indx(:)
+real(kind=wp), allocatable :: AMat(:), BM(:,:), BVec(:,:), CInt(:), CInt0(:), d2L(:,:,:), dBM(:,:,:), dBVec(:), dEdq(:,:), &
+                              dEdx(:,:), dRdq(:,:,:), du(:), dx(:,:), dy(:), EMtrx(:,:), Energy_L(:), ErrVec(:,:), Hessian(:,:), &
+                              Mult(:), R(:,:), RHS(:), Scr1(:), Scr2(:), T(:,:), Tmp(:), Val(:), Value0(:), Wess(:,:), x(:,:)
 character(len=8), allocatable :: Lbl_Tmp(:)
+real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! This option should careful debugged more.
+! This option should be more carefully debugged.
 !                                              RL December 2020
 #define _NEW_CODE_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 #ifdef _NEW_CODE_
-real*8, allocatable :: QC(:,:,:)
+real(kind=wp), allocatable :: QC(:,:,:)
 #endif
 
 !                                                                      *
@@ -70,7 +73,7 @@ nsAtom = size(Degen,2)
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-Lu = 6
+Lu = u6
 write(Lu,*) 'Update_inner:iOpt_RS,Beta,Beta_Disp=',iOpt_RS,Beta,Beta_Disp
 call RecPrt('Update_inner: qInt',' ',qInt,nQQ,kIter)
 call RecPrt('Update_inner: Shift',' ',Shift,nQQ,kIter-1)
@@ -86,7 +89,7 @@ StpMax = Zero
 Step_Trunc = 'N'
 nA = (max(nQQ,kIter)+1)**2
 call mma_Allocate(AMat,nA,Label='AMat')
-call mma_Allocate(Index,kIter,Label='Index')
+call mma_Allocate(Indx,kIter,Label='Indx')
 call mma_Allocate(ErrVec,nQQ,(kIter+1),Label='ErrVec')
 call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
 call mma_Allocate(RHS,kIter+1)
@@ -122,7 +125,7 @@ call Update_H(nWndw,Hessian,nQQ,mIter,iOptC,Shift(1,kIter-mIter+1),dqInt(1,kIter
               First_MicroIteration)
 
 !call RecPrt('Update_inner: Hessian',' ',Hessian,nQQ,nQQ)
-!write(6,*) 'After corrections'
+!write(u6,*) 'After corrections'
 !call DiagMtrx(Hessian,nQQ,jNeg)
 
 ! Save the number of internal coordinates on the runfile.
@@ -195,7 +198,7 @@ if (nLambda == 0) then
     if (rCart > rInter) then
       fCart = fCart*rInter/rCart
     else
-      fCart = fCart*0.9d0
+      fCart = fCart*0.9_wp
     end if
     nA = (max(nQQ,kIter)+1)**2
     !                                                                  *
@@ -213,17 +216,17 @@ if (nLambda == 0) then
       kStart = max(1,Iter-4)
       iEnd = Iter
     end if
-    Thr = 1.0D-6
+    Thr = 1.0e-6_wp
     do iIter=kStart,iEnd
 
       if (iIter /= kIter) then
         dxdx = sqrt(DDot_(nQQ,Shift(1,iIter),1,Shift(1,iIter),1))
 
-        if ((dxdx < 0.75d0*dxdx_last) .and. (dxdx < Beta-Thr)) then
+        if ((dxdx < 0.75_wp*dxdx_last) .and. (dxdx < Beta-Thr)) then
           ! Increase trust radius
           !xBeta = xBeta*Sf
           xBeta = min(Two,xBeta*Sf)
-        else if ((dxdx > 1.25d0*dxdx_last) .or. (dxdx >= Beta+Thr)) then
+        else if ((dxdx > 1.25_wp*dxdx_last) .or. (dxdx >= Beta+Thr)) then
           ! Reduce trust radius
           xBeta = max(One/Five,xBeta/Sf)
         end if
@@ -231,11 +234,11 @@ if (nLambda == 0) then
       end if
 
       gg = sqrt(DDot_(nQQ-nLambda,dqInt(:,iIter),1,dqInt(:,iIter),1))
-      if ((gg < 0.75d0*gg_last) .and. (gg < Beta-Thr)) then
+      if ((gg < 0.75_wp*gg_last) .and. (gg < Beta-Thr)) then
         ! Increase trust radius
         !gBeta = gBeta*Sf
         gBeta = min(Two,gBeta*Sf)
-      else if ((gg > 1.25d0*gg_last) .or. (gg >= Beta+Thr)) then
+      else if ((gg > 1.25_wp*gg_last) .or. (gg >= Beta+Thr)) then
         ! Reduce trust radius
         gBeta = max(One/Five,gBeta/Sf)
       end if
@@ -243,7 +246,7 @@ if (nLambda == 0) then
 
     end do
     tBeta = max(Beta*min(xBeta,gBeta),Beta/Ten)
-    !write(6,*) 'tBeta=',tBeta
+    !write(u6,*) 'tBeta=',tBeta
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -251,10 +254,10 @@ if (nLambda == 0) then
 
     fact = One
     qBeta = fCart*tBeta
-    Thr_RS = 1.0D-7
+    Thr_RS = 1.0e-7_wp
     do
       Step_Trunc_ = Step_Trunc
-      call Newq(qInt,nQQ,kIter,Shift,Hessian,dqInt,ErrVec,EMtrx,RHS,AMat,nA,qBeta,nFix,Index,Energy,Step_Trunc_,Thr_RS)
+      call Newq(qInt,nQQ,kIter,Shift,Hessian,dqInt,ErrVec,EMtrx,RHS,AMat,nA,qBeta,nFix,Indx,Energy,Step_Trunc_,Thr_RS)
       if (Step_Trunc == 'N') Step_Trunc = ' '
       if (iOpt_RS == 0) then
         if (Step_Trunc_ == 'N') Step_Trunc_ = ' '
@@ -266,16 +269,16 @@ if (nLambda == 0) then
       qInt(:,kIter+1) = qInt(:,kIter)+Shift(:,kIter)
       call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,nQQ)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
+      write(u6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
 #     endif
       fact = Half*fact
       qBeta = Half*qBeta
-      if (One-disp(1)/Beta_Disp > 1.0D-3) exit
-      if ((fact < 1.0D-5) .or. (disp(1) < Beta_Disp)) exit
+      if (One-disp(1)/Beta_Disp > 1.0e-3_wp) exit
+      if ((fact < 1.0e-5_wp) .or. (disp(1) < Beta_Disp)) exit
       Step_Trunc = '*'
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Step_Trunc=',Step_Trunc
+    write(u6,*) 'Step_Trunc=',Step_Trunc
 #   endif
 
     call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)
@@ -344,7 +347,7 @@ else
   call mma_allocate(dBM,n1,n1,nLambda,Label='dBM')
 
   call mma_allocate(BVec,3*nsAtom,nBVec,Label='BVec')
-  call mma_allocate(value,nBVec,Label='Value')
+  call mma_allocate(Val,nBVec,Label='Val')
   call mma_allocate(Value0,nBVec,Label='Value0')
   call mma_allocate(CInt,nLambda,Label='CInt')
   call mma_allocate(CInt0,nLambda,Label='CInt0')
@@ -364,7 +367,7 @@ else
     !                                                                  *
     lWrite = (lIter == kIter) .and. First_MicroIteration
     lWrite = lWrite .and. (.not. Hide)
-    call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,iRow_c,value,cInt,cInt0,Lbl(nQQ+1),lWrite,Mult,dBM,Value0,lIter,iFlip)
+    call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,iRow_c,Val,cInt,cInt0,Lbl(nQQ+1),lWrite,Mult,dBM,Value0,lIter,iFlip)
 
     ! Assemble r
 
@@ -425,14 +428,14 @@ else
   call mma_deallocate(cInt0)
   call mma_deallocate(cInt)
   call mma_deallocate(Value0)
-  call mma_deallocate(value)
+  call mma_deallocate(Val)
   call mma_deallocate(BVec)
 
 # ifdef _DEBUGPRINT_
   call RecPrt('Update_inner: R',' ',R,nLambda,kIter)
   call RecPrt('Update_inner: dRdq',' ',dRdq,nQQ*nLambda,kIter)
   do i=1,nLambda
-    write(6,*) ' iLambda=',i
+    write(u6,*) ' iLambda=',i
     call RecPrt('Update_inner: d2C/dx2',' ',dBM(1,1,i),n1,n1)
   end do
   if (Curvilinear) call dBPrint(nQQ,nDimBC)
@@ -463,7 +466,7 @@ else
   write(Lu,*) 'Update_inner: kIter=',kIter
   call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nQQ,1)
   do iLambda=1,nLambda
-    write(6,*) 'Update_inner: iLambda=',iLambda
+    write(u6,*) 'Update_inner: iLambda=',iLambda
     call RecPrt('Update_inner: QC',' ',QC(1,1,iLambda),nDimBC,nDimBC)
   end do
 # endif
@@ -550,7 +553,7 @@ else
 # ifdef _DEBUGPRINT_
   call RecPrt('Scr1',' ',Scr1,nQQ*nLambda,nQQ)
   do i=1,nLambda
-    write(6,*) ' iLambda=',i
+    write(u6,*) ' iLambda=',i
     call RecPrt('Update_inner: d2L',' ',d2L(:,:,i),nQQ,nQQ)
   end do
 # endif
@@ -573,7 +576,7 @@ else
   ! If the maximum displacement is more than 2*Beta, reduce the step.
 
   ! Initial setup to ensure fCart=1.0 at first iteration.
-  Thr_RS = 1.0D-7
+  Thr_RS = 1.0e-7_wp
   rInter = Beta
   fCart = Ten
   rCart = fCart*rInter
@@ -584,10 +587,10 @@ else
     if (rCart > rInter) then
       fCart = fCart*rInter/rCart
     else
-      fCart = fCart*0.9d0
+      fCart = fCart*0.9_wp
     end if
     call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,dEdq,du,x,dEdx,Wess,GNrm(kIter),nWndw,Hessian,nQQ,kIter,iOptH_,jPrint, &
-                 Energy_L,nLambda,ErrVec,EMtrx,RHS,AMat,nA,Beta,fCart,qBeta_Disp,nFix,Index,Step_Trunc,Lbl,d2L,nsAtom,iOpt_RS, &
+                 Energy_L,nLambda,ErrVec,EMtrx,RHS,AMat,nA,Beta,fCart,qBeta_Disp,nFix,Indx,Step_Trunc,Lbl,d2L,nsAtom,iOpt_RS, &
                  Thr_RS,iter,First_Microiteration)
     qBeta = fCart*Beta
     if (iOpt_RS == 1) exit
@@ -636,7 +639,7 @@ call mma_Deallocate(Hessian)
 call mma_Deallocate(RHS)
 call mma_Deallocate(EMtrx)
 call mma_Deallocate(ErrVec)
-call mma_Deallocate(Index)
+call mma_Deallocate(Indx)
 call mma_Deallocate(AMat)
 #ifdef _WARNING_WORKAROUND_
 if (Smmtrc(1,1)) i = nDimBC

@@ -36,16 +36,22 @@ subroutine RS_I_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 !             number, June '97, R. Lindh                               *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 H(nInter,nInter), g(nInter), dq(nInter)
-real*8, allocatable :: Val(:), Tmp(:,:), Vec(:,:), Mat(:)
-character*6 UpMeth
-character*1 Step_Trunc
-logical Found
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax, Thr_RS
+character(len=6) :: UpMeth
+character :: Step_Trunc
+integer(kind=iwp) :: i, ij, iNeg, iStatus, j, Lu, nNeg, NumVal, nVStep
+real(kind=wp) :: Fact, gi, Thr
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Mat(:), Tmp(:,:), Val(:), Vec(:,:)
+real(kind=wp), external :: DDot_
+
+Lu = u6
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
@@ -56,7 +62,7 @@ call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
 NumVal = min(2,nInter)
 nVStep = 2
 Found = .false.
-Thr = 1.0D-6
+Thr = 1.0e-6_wp
 call mma_allocate(Vec,nInter,NumVal,Label='Vec')
 Vec(:,:) = Zero
 call mma_allocate(Val,NumVal,Label='Val')

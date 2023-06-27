@@ -36,17 +36,24 @@
 !***********************************************************************
 
 subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,ResGrad,BadConstraint)
+
 use Symmetry_Info, only: nIrrep
-use Slapaf_Info, only: Weights, MF, RefGeo
-use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP, MEPNum, dMEPStep, MEP_Type, MEP_Algo, iter
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Cx(3*nAtom,iter+1), Gx(3*nAtom,iter+1)
-logical IRCRestart, BadConstraint
-parameter(RadToDeg=180.0d0/Pi)
-integer iDum(1)
-real*8, allocatable :: PrevDir(:,:), PostDir(:,:), Disp(:,:), Grad(:,:), Dir(:,:), Cen(:,:), len(:), Cur(:), drdx(:,:)
+use Slapaf_Info, only: MF, RefGeo, Weights
+use Slapaf_Parameters, only: dMEPStep, IRC, iter, MEP, MEP_Algo, MEP_Type, MEPNum, nLambda, nMEP, rMEP
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtom, iMEP, iOff_iter, iPrint
+real(kind=wp) :: Cx(3*nAtom,iter+1), Gx(3*nAtom,iter+1), ResGrad
+logical(kind=iwp) :: IRCRestart, BadConstraint
+integer(kind=iwp) :: iAd, iAtom, iDum(1), iLambda, iOff, iPrev_iter, ixyz, LudRdX, nCoor, nCoor_, nLambda_
+real(kind=wp) :: ConstraintAngle, Curvature, dd, dDir, dDisp, dGrad, dPostDir, dPostDirGrad, dPrevDir, dPrevDirDisp, dPrevDirGrad, &
+                 dPrevDirPostDir, drd, Fact, PathAngle, PathLength, TWeight, xWeight
+real(kind=wp), allocatable :: Cen(:,:), Cur(:), Dir(:,:), Disp(:,:), drdx(:,:), Grad(:,:), PLn(:), PostDir(:,:), PrevDir(:,:)
+integer(kind=iwp), external :: iDeg
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -96,7 +103,7 @@ dPrevDirDisp = Zero
 dPrevDirPostDir = Zero
 iOff = 0
 do iAtom=1,nAtom
-  Fact = dble(iDeg(Cx(1+iOff,iter)))
+  Fact = real(iDeg(Cx(1+iOff,iter)),kind=wp)
   xWeight = Weights(iAtom)
   TWeight = TWeight+Fact*xWeight
   do ixyz=1,3
@@ -141,7 +148,7 @@ else
   dPrevDirPostDir = One
 end if
 ! A negative curvature means there is no appropriate value
-Curvature = -1.0D-12
+Curvature = -1.0e-12_wp
 PathLength = dDisp/sqrt(TWeight)
 if (MEP .and. (MEP_Type == 'SPHERE    ')) then
   ! The curvature is the inverse radius of the circle tangent to
@@ -153,48 +160,48 @@ end if
 
 ! Store the length and curvature values, and print results
 
-call mma_allocate(Len,nMEP+1,Label='Len')
+call mma_allocate(PLn,nMEP+1,Label='PLn')
 call mma_allocate(Cur,nMEP+1,Label='Cur')
 if (iMEP >= 1) then
-  call Get_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Get_dArray('MEP-Lengths   ',PLn,nMEP+1)
   call Get_dArray('MEP-Curvatures',Cur,nMEP+1)
   if (IRC == -1) then
-    len(1+iMEP) = -PathLength
+    PLn(1+iMEP) = -PathLength
   else
-    len(1+iMEP) = PathLength
+    PLn(1+iMEP) = PathLength
   end if
   Cur(1+iMEP) = Curvature
-  call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Put_dArray('MEP-Lengths   ',PLn,nMEP+1)
   call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
   if ((iMEP >= 1) .and. (iPrint >= 5)) then
     if (MEP_Type == 'TRANSVERSE') then
-      ConstraintAngle = acos(dPrevDirGrad)*RadToDeg
+      ConstraintAngle = acos(dPrevDirGrad)/deg2rad
     else
-      ConstraintAngle = acos(dPostDirGrad)*RadToDeg
+      ConstraintAngle = acos(dPostDirGrad)/deg2rad
     end if
     if (MEP) then
-      PathAngle = acos(dPrevDirPostDir)*RadToDeg
+      PathAngle = acos(dPrevDirPostDir)/deg2rad
     else
-      PathAngle = acos(-dPrevDirDisp)*RadToDeg
+      PathAngle = acos(-dPrevDirDisp)/deg2rad
     end if
     ResGrad = dGrad
-    write(6,*)
-    write(6,'(a)') ' Last IRC/MEP step (in weighted coordinates / sqrt(total weight))'
-    write(6,'(a)') ' --------------------------------------------------------'
-    write(6,100) 'Residual gradient size:',ResGrad,'hartree/bohr'
-    write(6,100) 'Angle with constraint surface:',ConstraintAngle,'degrees'
-    write(6,100) 'Path angle:',PathAngle,'degrees'
-    if (Curvature >= Zero) write(6,100) 'Path curvature:',Curvature,'bohr^(-1)'
-    write(6,100) 'Path length:',PathLength,'bohr'
+    write(u6,*)
+    write(u6,'(a)') ' Last IRC/MEP step (in weighted coordinates / sqrt(total weight))'
+    write(u6,'(a)') ' --------------------------------------------------------'
+    write(u6,100) 'Residual gradient size:',ResGrad,'hartree/bohr'
+    write(u6,100) 'Angle with constraint surface:',ConstraintAngle,'degrees'
+    write(u6,100) 'Path angle:',PathAngle,'degrees'
+    if (Curvature >= Zero) write(u6,100) 'Path curvature:',Curvature,'bohr^(-1)'
+    write(u6,100) 'Path length:',PathLength,'bohr'
 100 format(1X,A30,1X,F12.6,1X,A)
   end if
 else
-  len(:) = Zero
+  PLn(:) = Zero
   Cur(:) = Zero
-  call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Put_dArray('MEP-Lengths   ',PLn,nMEP+1)
   call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
 end if
-call mma_deallocate(Len)
+call mma_deallocate(PLn)
 call mma_deallocate(Cur)
 
 ! Do not mess with the geometry or reference if the next iteration
@@ -221,7 +228,7 @@ if (.not. IRCRestart) then
     ! I believe the true MEP direction should be more slanted from
     ! the plane normal (PrevDir) than the Disp vector, therefore
     ! a negative value is probably better.
-    Fact = -0.5d0
+    Fact = -Half
     Dir(:,:) = Fact*PrevDir(:,:)
     call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,Dir(:,:),1)
   else
@@ -268,7 +275,7 @@ if (.not. IRCRestart) then
   dDir = Zero
   iOff = 0
   do iAtom=1,nAtom
-    Fact = dble(iDeg(Cx(1+iOff,iter)))
+    Fact = real(iDeg(Cx(1+iOff,iter)),kind=wp)
     xWeight = Weights(iAtom)
     do ixyz=1,3
       dDir = dDir+Fact*xWeight*Dir(ixyz,iAtom)**2
@@ -309,7 +316,7 @@ if (.not. IRCRestart) then
       end do
     end do
     Fact = dMEPStep*sqrt(TWeight/dDir)
-    call DaXpY_(nCoor,0.05d0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
+    call DaXpY_(nCoor,0.05_wp*Fact,Disp(:,:),1,Cx(:,iter+1),1)
   end if
   call Put_dArray('Transverse',Dir(:,:),nCoor)
   if (iter == 1) BadConstraint = .false.

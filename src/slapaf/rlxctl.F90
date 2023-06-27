@@ -10,33 +10,34 @@
 !***********************************************************************
 
 subroutine RlxCtl(iStop)
-
-use Chkpnt
-use thermochem, only: lTherm
-use kriging_mod, only: Kriging, nspAI
-use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH, Free_Slapaf, qInt, dqInt, Lbl
-use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth, HSet, BSet, PrQ, Numerical, iNeg, E_Delta, iRef, lNmHss, Cubic, &
-                             Request_Alaska, Request_RASSI, lCtoF, isFalcon, nDimBC, mTROld, NmIter, MxItr, mTtAtm, nWNdw, iter, &
-                             Fallback
-
-implicit real*8(a-h,o-z)
 !***********************************************************************
 !     Program for determination of the new molecular geometry          *
 !***********************************************************************
-#include "real.fh"
-#include "stdalloc.fh"
+
+use Slapaf_Info, only: BMx, Coor, Cx, dqInt, Free_Slapaf, GNrm, Lbl, mRowH, qInt, Shift
+use Slapaf_Parameters, only: BSet, Cubic, E_Delta, Fallback, HSet, HUpMet, iNeg, iRef, isFalcon, iter, lCtoF, lNmHss, mTROld, &
+                             mTtAtm, MxItr, nDimBC, NmIter, Numerical, nWNdw, PrQ, Request_Alaska, Request_RASSI, UpMeth, User_Def
+use Chkpnt, only: Chkpnt_close, Chkpnt_open, Chkpnt_update
+use thermochem, only: lTherm
+use kriging_mod, only: Kriging, nspAI
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iStop
 #include "print.fh"
-logical GoOn, Do_ESPF, Just_Frequencies, Found, Error, NewCarDone
-character(len=1) Step_trunc
-integer, external :: AixRm
-integer nGB
-real*8 rDum(1)
-real*8, allocatable :: GB(:), HX(:), HQ(:), KtB(:)
+integer(kind=iwp) :: i, iErr, iOff, j, kIter, Lu, LuSpool, mInt, mIntEff, nGB, nHQ, nHX, nHX2, nIntCoor, nKtB, nQQ
+real(kind=wp) :: rDum(1), ThrGrd
+logical(kind=iwp) :: Do_ESPF, Error, Found, GoOn, Just_Frequencies, NewCarDone
+character :: Step_trunc
+real(kind=wp), allocatable :: GB(:), HQ(:), HX(:), KtB(:)
+integer(kind=iwp), external :: AixRm
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = 6
+Lu = u6
 Just_Frequencies = .false.
 NewCarDone = .false.
 !                                                                      *
@@ -164,8 +165,8 @@ if ((allocated(mRowH) .and. (iter < NmIter)) .or. (lNmHss .and. (iter < NmIter))
   nPrint(52) = nPrint(52)-1  ! Status
   nPrint(53) = nPrint(53)-1
   nPrint(54) = nPrint(54)-1
-  write(6,*) ' Accumulate the gradient for selected numerical differentiation.'
-  write(6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
+  write(u6,*) ' Accumulate the gradient for selected numerical differentiation.'
+  write(u6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
   E_Delta = Zero
   Step_Trunc = ' '
   !                                                                    *
@@ -310,7 +311,7 @@ if (lNmHss .and. (iter >= NmIter)) then
     call Put_dArray('KtB',KtB,nKtB)
     call Put_iScalar('No of Internal coordinates',nIntCoor)
     ! Pretend the Hessian is analytical
-    nHX2 = int(sqrt(dble(nHX)))
+    nHX2 = int(sqrt(real(nHX,kind=wp)))
     iOff = 0
     do i=1,nHX2
       do j=1,i

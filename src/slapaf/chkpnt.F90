@@ -13,12 +13,17 @@
 
 module Chkpnt
 
+use Definitions, only: iwp
+
 implicit none
-character(len=9) :: basename = 'SLAPAFCHK'
+private
+
+character(len=9), parameter :: basename = 'SLAPAFCHK'
+
+integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, Iter_all
 character(len=12) :: filename
-integer :: chkpnt_id, chkpnt_iter, chkpnt_hess
-integer :: chkpnt_ener, chkpnt_coor, chkpnt_force, chkpnt_new
-integer :: Iter_all
+
+public :: Chkpnt_close, Chkpnt_open, Chkpnt_update, Chkpnt_update_MEP
 
 contains
 

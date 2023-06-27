@@ -31,14 +31,17 @@ subroutine ts_bfgs(dq,y,H,nH)
 !     f,a,b :  Multi-used variables       (real*8)
 !     v,u   :  Multi-used vectors         (nH)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer nH, i, j
-real*8 H(nH,nH), dq(nH), y(nH)
-real*8 a, b, f, WorkR, ddot_
-real*8, dimension(:,:), allocatable :: WorkM
-real*8, dimension(:), allocatable :: WorkV, v, u
+integer(kind=iwp) :: nH
+real(kind=wp) :: dq(nH), y(nH), H(nH,nH)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: a, b, f, WorkR
+real(kind=wp), allocatable :: u(:), v(:), WorkM(:,:), WorkV(:)
+real(kind=wp), external :: ddot_
 
 call mma_allocate(WorkM,nH,nH,label='WorkM')
 call mma_allocate(WorkV,nH,label='WorkV')
@@ -58,7 +61,7 @@ call mma_allocate(u,nH,label='u')
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 ! Make a comment in logfile
-write(6,*) 'hello from ts_bfgs.f'
+write(u6,*) 'hello from ts_bfgs.f'
 #endif
 
 ! Calculation of u = y^T*dq*y + (dq^T|B|dq)|B|dq
@@ -133,12 +136,12 @@ end do
 
 call dGeMV_('N',nH,nH,One,H,nH,dq,1,Zero,WorkV,1)
 
-! WorkV = WorkV - y = 0.00
+! WorkV = WorkV - y = 0.0
 
 call DaxPy_(nH,-One,y,1,WorkV,1)
 call RecPrt('quasi-Newton',' ',WorkV,1,nH)
 
-write(6,*) 'good-bye from ts_bfgs.f'
+write(u6,*) 'good-bye from ts_bfgs.f'
 #endif
 
 call mma_deallocate(WorkM)

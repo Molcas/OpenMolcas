@@ -13,15 +13,16 @@
 
 subroutine Init_UpdMask(nInter)
 
-use NewH_mod
-use Slapaf_Parameters, only: Curvilinear, Redundant
 use Slapaf_Info, only: Coor
+use Slapaf_Parameters, only: Curvilinear, Redundant
+use NewH_mod, only: UpdMask
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-#include "stdalloc.fh"
+integer(kind=iwp) :: nInter
+integer(kind=iwp) :: i, iAtom, nAtMM, nsAtom
 integer, allocatable :: IsMM(:)
-integer nsAtom, nInter
-integer iAtom, i, nAtMM
 
 nsAtom = size(Coor,2)
 

@@ -24,16 +24,21 @@ subroutine C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,iP,MinWdw)
 !***********************************************************************
 
 use Slapaf_Parameters, only: iOptC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nInter, nIter, nFix, iP(nIter), MinWdw
+real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), &
+                 B((nIter+1)*(nIter+1)), RHS(nIter+1)
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), B((nIter+1)*(nIter+1)), &
-       RHS(nIter+1)
-integer iP(nIter), iRc
-real*8, allocatable :: A(:)
+integer(kind=iwp) :: ii, iInter, iOff, iPrint, iRc, iRout, iSave, jIter, MaxWdw, mIter
+real(kind=wp) :: Err1, Err2
+real(kind=wp), allocatable :: A(:)
+real(kind=wp), external :: DDot_
 ! Statement function
+integer(kind=iwp) :: ij, i, j, lda
 ij(i,j,lda) = (j-1)*lda+i
 
 iRout = 114
@@ -44,7 +49,7 @@ call dcopy_(nInter**2,H,1,A,1)
 iRc = 0
 call dpotrf_('U',nInter,A,nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'C1DIIS(DPOTRF): iRC=',iRC
+  write(u6,*) 'C1DIIS(DPOTRF): iRC=',iRC
   call Abend()
 end if
 
@@ -54,7 +59,7 @@ call dcopy_(nInter*nIter,g,1,Error,1)
 iRc = 0
 call DPOTRS('U',nInter,nIter,A,nInter,Error,nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'C1DIIS(DPOTRS): iRC=',iRC
+  write(u6,*) 'C1DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
 if (iPrint >= 99) call RecPrt(' Error vectors',' ',error,nInter,nIter)
@@ -106,7 +111,7 @@ do i=1,nIter-1
     iP(ii) = iSave
   end if
 end do
-if (iPrint >= 99) write(6,*) ' iP=',iP
+if (iPrint >= 99) write(u6,*) ' iP=',iP
 
 MaxWdw = max(2,(nInter-nFix)/2)
 mIter = min(nIter,min(MinWdw,MaxWdw))
@@ -171,7 +176,7 @@ end if
 call dcopy_(nInter,g(1,nIter+1),1,dq(1,nIter),1)
 call DPOTRS('U',nInter,1,A,nInter,dq(1,nIter),nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'C1DIIS(DPOTRS): iRC=',iRC
+  write(u6,*) 'C1DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
 if (iPrint >= 99) call RecPrt(' dq',' ',dq(1,nIter),1,nInter)

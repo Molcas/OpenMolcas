@@ -15,19 +15,19 @@ subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,BadConstraint)
 
 use Slapaf_Info, only: RefGeo
 use Slapaf_Parameters, only: MEP_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer, intent(In) :: nAtom
-real*8, intent(In) :: Ref(3,nAtom), Dir(3,nAtom), Fact, Dist
-real*8, intent(Out) :: Point(3,nAtom)
-logical, intent(Out) :: BadConstraint
-real*8, allocatable :: OldRef(:,:), Dummy(:), Not_Allocated(:,:)
-real*8 :: R, CurFact, PrevR, Correct
-real*8, parameter :: Thr = 1.0d-6
-integer :: nCoor, i
-real*8 rDum(1,1,1,1)
+integer(kind=iwp), intent(in) :: nAtom
+real(kind=wp), intent(in) :: Ref(3,nAtom), Dir(3,nAtom), Fact, Dist
+real(kind=wp), intent(out) :: Point(3,nAtom)
+logical(kind=iwp), intent(out) :: BadConstraint
+integer(kind=iwp) :: i, nCoor
+real(kind=wp) :: Correct, CurFact, PrevR, R, rDum(1,1,1,1)
+real(kind=wp), allocatable :: Dummy(:), Not_Allocated(:,:), OldRef(:,:)
+real(kind=wp), parameter :: Thr = 1.0e-6_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *

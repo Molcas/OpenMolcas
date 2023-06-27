@@ -12,32 +12,6 @@
 !***********************************************************************
 
 subroutine OutZMAT(nAtoms,XYZCoords,N_ZMAT)
-
-implicit real*8(a-h,o-z)
-real*8 XYZCoords(3,nAtoms)
-#include "stdalloc.fh"
-#include "SysDef.fh"
-character(len=5), allocatable :: Symbols(:)
-integer, allocatable :: NAT(:)
-real*8, allocatable :: ZMATCoords(:,:), ZMAT(:,:)
-
-call mma_allocate(Symbols,N_ZMAT,Label='Symbols')
-call mma_allocate(NAT,N_ZMAT,Label='NAT')
-call mma_allocate(ZMATCoords,3,N_ZMAT,Label='ZMATCoords')
-call mma_allocate(ZMAT,N_ZMAT,3,Label='ZMAT')
-
-call OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,ZMATCoords,ZMAT)
-
-call mma_deallocate(ZMAT)
-call mma_deallocate(ZMATCoords)
-call mma_deallocate(NAT)
-call mma_deallocate(Symbols)
-
-return
-
-end subroutine OutZMAT
-
-subroutine OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,ZMATCoords,ZMAT)
 !***********************************************************************
 ! Author: Giovanni Ghigo                                               *
 !         Torino (Italy)  February-March 2007                          *
@@ -49,18 +23,26 @@ subroutine OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,ZMATCoords,ZMAT)
 !           Z ghost atoms - NAT(i)=-1 - are NOT included in SEWARD     *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "stdalloc.fh"
-#include "angstr.fh"
-character(len=5) Symbols(N_ZMAT)
-integer NAT(N_ZMAT)
-integer, allocatable :: iZmat(:,:)
-real*8 XYZCoords(3,nAtoms), ZMATCoords(3,N_ZMAT), ZMAT(N_ZMAT,3)
-real*8 CTX(3,4), Bt(3,4), dBt(3,4,3,4)
-logical IfTest
-character(len=8) Label
-real*8, parameter :: ThrsTrasl = 1.0d0  ! Threshold for warning
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Angstrom, deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtoms, N_ZMAT
+real(kind=wp) :: XYZCoords(3,nAtoms)
+integer(kind=iwp) :: i, iAtom, iAX, iBonded, ii, iRX, iTX, j, LuWr
+real(kind=wp) :: alpha, arccos, bond, Bt(3,4), CTX(3,4), dBt(3,4,3,4), dMaxTrasl, dvec2, dX, dX2, dY, dY2, dZ, dZ2, prod, theta
+logical(kind=iwp) :: IfTest
+character(len=8) :: Label
+character(len=5), allocatable :: Symbols(:)
+integer(kind=iwp), allocatable :: iZmat(:,:), NAT(:)
+real(kind=wp), allocatable :: ZMAT(:,:), ZMATCoords(:,:)
+real(kind=wp), parameter :: ThrsTrasl = One  ! Threshold for warning
+
+call mma_allocate(Symbols,N_ZMAT,Label='Symbols')
+call mma_allocate(NAT,N_ZMAT,Label='NAT')
+call mma_allocate(ZMATCoords,3,N_ZMAT,Label='ZMATCoords')
+call mma_allocate(ZMAT,N_ZMAT,3,Label='ZMAT')
 
 #ifdef _DEBUGPRINT_
 IfTest = .true.
@@ -68,9 +50,8 @@ IfTest = .true.
 IfTest = .false.
 #endif
 
-LuWr = 6
-todeg = 45.0d0/atan(1.0d0)
-dMaxTrasl = 0.0d0
+LuWr = u6
+dMaxTrasl = Zero
 Label = ' '
 call fZero(ZMAT,N_ZMAT*3)
 call fZero(ZMATCoords,N_ZMAT*3)
@@ -92,7 +73,7 @@ if (IfTest) then
   write(LuWr,*) '------------------------------------------------'
   write(LuWr,*) 'OutZMat - XYZCoords (Angstrom):'
   do i=1,nAtoms
-    write(LuWr,98) i,(angstr*XYZCoords(j,i),j=1,3)
+    write(LuWr,98) i,(Angstrom*XYZCoords(j,i),j=1,3)
   end do
   write(LuWr,*)
 end if
@@ -114,7 +95,7 @@ if ((NAT(1) == -1) .and. (NAT(2) == -1) .and. (NAT(3) == -1)) then
     if ((iZmat(1,i) == 2) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(3,2) = 1.0d0/angstr
+    ZMATCoords(3,2) = One/Angstrom
   else
     ZMATCoords(3,2) = XYZCoords(3,iBonded-3)
   end if
@@ -123,7 +104,7 @@ if ((NAT(1) == -1) .and. (NAT(2) == -1) .and. (NAT(3) == -1)) then
     if ((iZmat(1,i) == 3) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(1,3) = 1.0d0/angstr
+    ZMATCoords(1,3) = One/Angstrom
   else
     ZMATCoords(1,3) = XYZCoords(1,iBonded-3)
   end if
@@ -142,7 +123,7 @@ if ((NAT(1) == -1) .and. (NAT(2) == -1) .and. (NAT(3) >= 0)) then
     if ((iZmat(1,i) == 2) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(3,2) = 1.0d0/angstr
+    ZMATCoords(3,2) = One/Angstrom
   else
     ZMATCoords(3,2) = XYZCoords(3,iBonded-2)
   end if
@@ -155,7 +136,7 @@ end if
 
 ! Z  A  Z
 if ((NAT(1) == -1) .and. (NAT(3) == -1) .and. (NAT(2) >= 0)) then
-  dMaxTrasl = 0.0d0
+  dMaxTrasl = Zero
   dX = XYZCoords(1,1)
   dY = XYZCoords(2,1)
   do iAtom=1,N_ZMAT-2
@@ -165,7 +146,7 @@ if ((NAT(1) == -1) .and. (NAT(3) == -1) .and. (NAT(2) >= 0)) then
   ZMATCoords(1,2) = XYZCoords(1,1)
   ZMATCoords(2,2) = XYZCoords(2,1)
   ZMATCoords(3,2) = XYZCoords(3,1)
-  dMaxTrasl = max(0.0d0,abs(dX),abs(dY))
+  dMaxTrasl = max(Zero,abs(dX),abs(dY))
   if (dMaxTrasl >= ThrsTrasl) write(LuWr,'(A)') '  Warning: MaxTrasl >= ThrsTrasl for atom ',Symbols(2)
   if (iZmat(1,3) == 2) ZMATCoords(3,3) = ZMATCoords(3,2)
   iBonded = 0
@@ -173,7 +154,7 @@ if ((NAT(1) == -1) .and. (NAT(3) == -1) .and. (NAT(2) >= 0)) then
     if ((iZmat(1,i) == 3) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(1,3) = 1.0d0/angstr
+    ZMATCoords(1,3) = One/Angstrom
   else
     ZMATCoords(1,3) = XYZCoords(1,iBonded-2)
   end if
@@ -194,14 +175,14 @@ if ((NAT(1) >= 0) .and. (NAT(2) == -1) .and. (NAT(3) == -1)) then
     XYZCoords(2,iAtom) = XYZCoords(2,iAtom)-dY
     XYZCoords(3,iAtom) = XYZCoords(3,iAtom)-dZ
   end do
-  dMaxTrasl = max(0.0d0,abs(dX),abs(dY),abs(dZ))
+  dMaxTrasl = max(Zero,abs(dX),abs(dY),abs(dZ))
   if (dMaxTrasl >= ThrsTrasl) write(LuWr,'(A)') '  Warning: MaxTrasl >= ThrsTrasl for atom ',Symbols(1)
   iBonded = 0
   do i=4,N_ZMAT
     if ((iZmat(1,i) == 2) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(3,2) = 1.0d0/angstr
+    ZMATCoords(3,2) = One/Angstrom
   else
     ZMATCoords(3,2) = XYZCoords(3,iBonded-2)
   end if
@@ -210,7 +191,7 @@ if ((NAT(1) >= 0) .and. (NAT(2) == -1) .and. (NAT(3) == -1)) then
     if ((iZmat(1,i) == 3) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(1,3) = 1.0d0/angstr
+    ZMATCoords(1,3) = One/Angstrom
   else
     ZMATCoords(1,3) = XYZCoords(1,iBonded-2)
   end if
@@ -230,7 +211,7 @@ if ((NAT(1) == -1) .and. (NAT(2) >= 0) .and. (NAT(3) >= 0)) then
     ZMATCoords(2,iAtom) = XYZCoords(2,iAtom-1)-dY
     ZMATCoords(3,iAtom) = XYZCoords(3,iAtom-1)
   end do
-  dMaxTrasl = max(0.0d0,abs(dX),abs(dY))
+  dMaxTrasl = max(Zero,abs(dX),abs(dY))
   if (dMaxTrasl >= ThrsTrasl) write(LuWr,'(A)') '  Warning: MaxTrasl >= ThrsTrasl for atom ',Symbols(2)
 end if
 
@@ -244,14 +225,14 @@ if ((NAT(1) >= 0) .and. (NAT(2) == -1) .and. (NAT(3) >= 0)) then
     XYZCoords(2,iAtom) = XYZCoords(2,iAtom)-dY
     XYZCoords(3,iAtom) = XYZCoords(3,iAtom)-dZ
   end do
-  dMaxTrasl = max(0.0d0,abs(dX),abs(dY),abs(dZ))
+  dMaxTrasl = max(Zero,abs(dX),abs(dY),abs(dZ))
   if (dMaxTrasl >= ThrsTrasl) write(LuWr,'(A)') '  Warning: MaxTrasl >= ThrsTrasl for atom ',Symbols(1)
   iBonded = 0
   do i=3,N_ZMAT
     if ((iZmat(1,i) == 2) .and. (iBonded == 0)) iBonded = i
   end do
   if (iBonded == 0) then
-    ZMATCoords(3,2) = 1.0d0/angstr
+    ZMATCoords(3,2) = One/Angstrom
   else
     ZMATCoords(3,2) = XYZCoords(3,iBonded-1)
   end if
@@ -264,7 +245,7 @@ end if
 
 ! A  B  Z
 if ((NAT(1) >= 0) .and. (NAT(2) >= 0) .and. (NAT(3) == -1)) then
-  dMaxTrasl = 0.0d0
+  dMaxTrasl = Zero
   dX = XYZCoords(1,1)
   dY = XYZCoords(2,1)
   dZ = XYZCoords(3,1)
@@ -273,7 +254,7 @@ if ((NAT(1) >= 0) .and. (NAT(2) >= 0) .and. (NAT(3) == -1)) then
     XYZCoords(2,iAtom) = XYZCoords(2,iAtom)-dY
     XYZCoords(3,iAtom) = XYZCoords(3,iAtom)-dZ
   end do
-  dMaxTrasl = max(0.0d0,abs(dX),abs(dY),abs(dZ))
+  dMaxTrasl = max(Zero,abs(dX),abs(dY),abs(dZ))
   if (dMaxTrasl >= ThrsTrasl) write(LuWr,'(A)') '  Warning: MaxTrasl >= ThrsTrasl for atom ',Symbols(1)
   ZMATCoords(1,2) = XYZCoords(1,2)
   ZMATCoords(2,2) = XYZCoords(2,2)
@@ -284,12 +265,12 @@ if ((NAT(1) >= 0) .and. (NAT(2) >= 0) .and. (NAT(3) == -1)) then
       if ((iZmat(1,i) == 3) .and. (iBonded == 0)) iBonded = i
     end do
     if (iBonded == 0) then
-      ZMATCoords(1,3) = 1.0d0/angstr
+      ZMATCoords(1,3) = One/Angstrom
     else
       ZMATCoords(1,3) = XYZCoords(1,iBonded-2)
     end if
   else
-    ZMATCoords(1,3) = XYZCoords(1,2)+1.0d0/angstr
+    ZMATCoords(1,3) = XYZCoords(1,2)+One/Angstrom
     ZMATCoords(2,3) = XYZCoords(2,2)
     ZMATCoords(3,3) = XYZCoords(3,2)
   end if
@@ -310,7 +291,7 @@ if (IfTest) then
   write(LuWr,*) '------------------------------------------------'
   write(LuWr,*) 'OutZMat - ZMATCoords : '
   do i=1,N_ZMAT
-    write(LuWr,99) i,NAT(i),(angstr*ZMATCoords(j,i),j=1,3)
+    write(LuWr,99) i,NAT(i),(Angstrom*ZMATCoords(j,i),j=1,3)
   end do
 end if
 
@@ -320,7 +301,7 @@ dX = ZMATCoords(1,iAtom)-ZMATCoords(1,iRX)
 dY = ZMATCoords(2,iAtom)-ZMATCoords(2,iRX)
 dZ = ZMATCoords(3,iAtom)-ZMATCoords(3,iRX)
 bond = sqrt(dX*dX+dY*dY+dZ*dZ)
-ZMAT(iAtom,1) = bond*angstr
+ZMAT(iAtom,1) = bond*Angstrom
 
 if (N_ZMAT >= 3) then
   iAtom = 3
@@ -333,13 +314,13 @@ if (N_ZMAT >= 3) then
   dY2 = ZMATCoords(2,iAX)-ZMATCoords(2,iRX)
   dZ2 = ZMATCoords(3,iAX)-ZMATCoords(3,iRX)
   bond = sqrt(dX*dX+dY*dY+dZ*dZ)
-  ZMAT(iAtom,1) = bond*angstr
+  ZMAT(iAtom,1) = bond*Angstrom
   prod = dX*dX2+dY*dY2+dZ*dZ2
   dvec2 = sqrt(dX2*dX2+dY2*dY2+dZ2*dZ2)
   arccos = prod/(bond*dvec2)
-  if (arccos > 1.0d0) arccos = sign(1.0d0,arccos)
+  if (arccos > One) arccos = sign(One,arccos)
   alpha = acos(arccos)
-  ZMAT(iAtom,2) = alpha*todeg
+  ZMAT(iAtom,2) = alpha/deg2rad
 end if
 
 if (N_ZMAT >= 4) then
@@ -359,13 +340,13 @@ if (N_ZMAT >= 4) then
     dY2 = ZMATCoords(2,iAX)-ZMATCoords(2,iRX)
     dZ2 = ZMATCoords(3,iAX)-ZMATCoords(3,iRX)
     bond = sqrt(dX*dX+dY*dY+dZ*dZ)
-    ZMAT(iAtom,1) = bond*angstr
+    ZMAT(iAtom,1) = bond*Angstrom
     prod = dX*dX2+dY*dY2+dZ*dZ2
     dvec2 = sqrt(dX2*dX2+dY2*dY2+dZ2*dZ2)
     arccos = prod/(bond*dvec2)
-    if (arccos > 1.0d0) arccos = sign(1.0d0,arccos)
+    if (arccos > One) arccos = sign(One,arccos)
     alpha = acos(arccos)
-    ZMAT(iAtom,2) = alpha*todeg
+    ZMAT(iAtom,2) = alpha/deg2rad
     do ii=1,3
       CTX(ii,1) = ZMATCoords(ii,iTX)
       CTX(ii,2) = ZMATCoords(ii,iAX)
@@ -373,7 +354,7 @@ if (N_ZMAT >= 4) then
       CTX(ii,4) = ZMATCoords(ii,iAtom)
     end do
     call Trsn(CTX,4,theta,Bt,.false.,.false.,Label,dBt,.false.)
-    ZMAT(iAtom,3) = -theta*todeg
+    ZMAT(iAtom,3) = -theta/deg2rad
   end do
 end if
 
@@ -399,4 +380,12 @@ write(LuWr,*)
 98 format(I3,1X,3(F12.6))
 99 format(I3,1X,I3,1X,3(F12.6))
 
-end subroutine OutZMAT_Internal
+
+call mma_deallocate(ZMAT)
+call mma_deallocate(ZMATCoords)
+call mma_deallocate(NAT)
+call mma_deallocate(Symbols)
+
+return
+
+end subroutine OutZMAT

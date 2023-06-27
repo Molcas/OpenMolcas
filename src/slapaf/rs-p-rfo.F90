@@ -40,20 +40,25 @@ subroutine RS_P_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
 !             Removed full diagonalizations, April '14, I. Fdez. Galvan*
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax
+character(len=6) :: UpMeth
+character :: Step_Trunc
 #include "print.fh"
-real*8 H(nInter,nInter), g(nInter), dq(nInter), Lambda
-real*8, allocatable :: Mat(:), Val(:), Vec(:,:), Tmp(:,:)
-real*8, allocatable :: MatN(:), ValN(:), VecN(:), TmpN(:), StepN(:), GradN(:)
-real*8, allocatable :: MatP(:), ValP(:), VecP(:), TmpP(:), StepP(:), GradP(:)
-character*6 UpMeth
-character*1 Step_Trunc
-logical Found, Iterate
+integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, jk, k, Lu, mInter, nNeg, NumVal, nVStep
+real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, dqdq, dqdq_long, dqdq_short, EigVal_r, EigVal_t, gv, Lambda, Thr
+logical(kind=iwp) :: Found, Iterate
+real(kind=wp), allocatable :: GradN(:), GradP(:), Mat(:), MatN(:), MatP(:), StepN(:), StepP(:), Tmp(:,:), TmpN(:), TmpP(:), &
+                              Val(:), ValN(:), ValP(:), Vec(:,:), VecN(:), VecP(:)
+real(kind=wp), external :: DDot_
 
 iRout = 215
-Lu = 6
+Lu = u6
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt(' In RS_P_RFO: H','(10f10.6)',H,nInter,nInter)
@@ -66,7 +71,7 @@ UpMeth = 'RSPRFO'
 NumVal = min(2,nInter)
 nVStep = 2
 Found = .false.
-Thr = 1.0D-6
+Thr = 1.0e-6_wp
 call mma_allocate(Vec,nInter,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
@@ -133,7 +138,7 @@ A_RFO = One   ! Initial seed of alpha
 IterMx = 25
 Iter = 0
 Iterate = .false.
-Thr = 1.0D-7
+Thr = 1.0e-7_wp
 if (nNeg > 0) then
   mInter = nNeg+1
   call mma_allocate(StepN,nInter,Label='StepN')

@@ -12,23 +12,29 @@
 subroutine FixHess(H,nH,iOptC,MF,GNrm,nsAtom,AnalHess,AllowFindTS)
 
 use Slapaf_Parameters, only: iNeg, GNrm_Threshold, Mode
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 H(nH,nH), MF(3,nsAtom)
-logical AnalHess, AllowFindTS, Corrected, Found
-real*8, allocatable :: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:), FixVal(:), Rx(:,:), Vect(:)
-real*8, parameter :: HTh = 1.0d-3, ZTh = 1.0D-12, HHigh = 1.0d0
+implicit none
+integer(kind=iwp) :: nH, iOptC, nsAtom
+real(kind=wp) :: H(nH,nH), MF(3,nsAtom), GNrm
+logical(kind=iwp) :: AnalHess, AllowFindTS
+integer(kind=iwp) :: i, ij, iLow, iStatus, iTest, j, jNeg, k, Mask, nRP, NumVal, nVStep
+real(kind=wp) :: dRx, Fact, Fix_Val, rLow, rq, SumHii, temp, Test
+logical(kind=iwp) :: Corrected, Found
+real(kind=wp), allocatable :: EVal(:), FixVal(:), LowVal(:), LowVec(:,:), Rx(:,:), Tmp(:,:), Vect(:)
+real(kind=wp), parameter :: HHigh = One, HTh = 1.0e-3_wp, ZTh = 1.0e-12_wp
+real(kind=wp), external :: DDot_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-logical Too_Small
+logical(kind=iwp) :: Too_Small
 #endif
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'AnalHess=',AnalHess
+write(u6,*) 'AnalHess=',AnalHess
 call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
-Lu = 6
+Lu = u6
 Too_Small = .false.
 #endif
 
@@ -159,9 +165,9 @@ if (AllowFindTS) then
   call qpg_darray('TanVec',Found,nRP)
   if ((iand(iOptC,4096) == 4096) .and. ((iNeg(1) >= 1) .or. (Mode >= 0)) .and. ((GNrm <= GNrm_Threshold) .or. Found)) then
     if (iand(iOptC,8192) /= 8192) then
-      write(6,*) '**************************'
-      write(6,*) '* Enable TS optimization *'
-      write(6,*) '**************************'
+      write(u6,*) '**************************'
+      write(u6,*) '* Enable TS optimization *'
+      write(u6,*) '**************************'
     end if
     iOptC = ior(iOptC,8192)
   end if
@@ -243,7 +249,7 @@ else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
         end if
         Temp = FixVal(i)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '<old|new>,H_new=',rq,Temp
+        write(u6,*) '<old|new>,H_new=',rq,Temp
 #       endif
       end do
       call mma_deallocate(Rx)
@@ -257,7 +263,7 @@ else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
 #       endif
         ! Keep the old vector if there is significant overlap
         ! Note: there could be a better vector not in the computed set
-        if ((.not. AnalHess) .and. (Test > 0.50d0)) then
+        if ((.not. AnalHess) .and. (Test > Half)) then
           Mode = iTest
 #         ifdef _DEBUGPRINT_
           write(Lu,*) 'Keep old eigenvector!',Mode
@@ -320,14 +326,14 @@ else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
         end if
         Temp = FixVal(i)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '<old|new>,H_new=',rq,Temp
+        write(u6,*) '<old|new>,H_new=',rq,Temp
 #       endif
       end do
       call mma_deallocate(Rx)
 
       ! Keep the old vector if there is significant overlap
       ! Note: there could be a better vector not in the computed set
-      if (Test > 0.50d0) then
+      if (Test > Half) then
         Mode = iTest
         ! Prefer the lowest eigenvector if the best overlap is poor
       else
@@ -389,14 +395,14 @@ else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
         end if
         Temp = FixVal(i)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '<old|new>,H_new=',rq,Temp
+        write(u6,*) '<old|new>,H_new=',rq,Temp
 #       endif
       end do
       call mma_deallocate(Rx)
 
       ! Keep the old vector if there is significant overlap
       ! Note: there could be a better vector not in the computed set
-      if (Test > 0.50d0) then
+      if (Test > Half) then
         Mode = iTest
         ! Prefer the lowest eigenvector if the best overlap is poor
       else
@@ -440,7 +446,7 @@ else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
   !                                                                    *
 #ifdef _DEBUGPRINT_
 else
-  write(6,*) 'No Hessian massage!'
+  write(u6,*) 'No Hessian massage!'
 #endif
 end if
 !                                                                      *
@@ -471,7 +477,7 @@ if (Corrected) then
   do i=1,NumVal
     if (FixVal(i) < Zero) iNeg(1) = iNeg(1)+1
     Fix_Val = FixVal(i)-LowVal(i)
-    if (abs(Fix_Val) > 1.0D-12) then
+    if (abs(Fix_Val) > ZTh) then
       Fix_Val = FixVal(i)+LowVal(i)
 
       ! H |i>

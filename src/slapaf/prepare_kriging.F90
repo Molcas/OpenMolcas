@@ -14,9 +14,9 @@
 subroutine Prepare_Kriging(Model_E,Model_G,nData,nDim,iFirst)
 ! Prepare energy and gradients in the right format for Setup_Kriging
 
-use Kriging_mod, only: Model_Type, nSet
 use Slapaf_Info, only: dqInt, dqInt_Aux, Energy, Energy0
 use Slapaf_Parameters, only: NADC
+use Kriging_mod, only: Model_Type, nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half, Pi
 use Definitions, only: wp, iwp

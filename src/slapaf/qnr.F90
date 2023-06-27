@@ -19,11 +19,15 @@ subroutine QNR(nInter,nIter,dq,H,g)
 !             December '94                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1)
-integer, allocatable :: Tmp(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nInter, nIter
+real(kind=wp) :: dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1)
+integer(kind=iwp) :: Info
+integer(kind=iwp), allocatable :: Tmp(:)
 
 ! Compute a new independent geometry by relaxation of
 ! the gradient vector.
@@ -42,7 +46,7 @@ if (Info < 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'CG converged in ',Info,' iterations'
+write(u6,*) 'CG converged in ',Info,' iterations'
 call RecPrt(' H ',' ',H,nInter,nInter)
 call RecPrt(' dq',' ',dq(1,nIter),1,nInter)
 #endif

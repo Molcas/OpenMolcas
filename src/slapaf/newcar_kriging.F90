@@ -12,15 +12,17 @@
 !***********************************************************************
 
 subroutine NewCar_Kriging(kIter,SaveBMx,Error)
+
 use Slapaf_Info, only: Cx, BMx, BMx_kriging
 use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm, Force_dB
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer :: kIter
-logical :: SaveBMx, Error
-real*8, allocatable :: Coor(:,:), BMx_Tmp(:,:)
-logical :: Numerical_Save, PrQ_Save
+integer(kind=iwp) :: kIter
+logical(kind=iwp) :: SaveBMx, Error
+logical(kind=iwp) :: Numerical_Save, PrQ_Save
+real(kind=wp), allocatable :: BMx_Tmp(:,:), Coor(:,:)
 
 call mma_allocate(Coor,3,size(Cx,2),Label='Coor')
 Coor(:,:) = Cx(:,:,kIter)

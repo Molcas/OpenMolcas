@@ -11,18 +11,21 @@
 
 subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
 
-use Slapaf_Info, only: Gx, Degen
+use Slapaf_Info, only: Degen, Gx
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "Molcas.fh"
-real*8 GNrm(Iter), Grad(nInter,Iter)
+implicit none
+integer(kind=iwp) :: nInter, Iter, mIntEff
+real(kind=wp) :: GNrm(Iter), Grad(nInter,Iter)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: Fabs
 
 ! Compute the norm of the cartesian force vector.
 !
 ! |dE/dx|=Sqrt(dE/dx|u|dE/dx)
 
-Fabs = 0.0d0
+Fabs = Zero
 do i=1,size(Gx,2)
   do j=1,3
     Fabs = Fabs+Degen(j,i)*Gx(j,i,Iter)**2
@@ -31,7 +34,7 @@ end do
 Fabs = sqrt(Fabs)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,42) Fabs
+write(u6,42) Fabs
 42 format(/,' Norm of the force vector',F20.15)
 #endif
 GNrm(iter) = Fabs
@@ -40,11 +43,11 @@ GNrm(iter) = Fabs
 
 mIntEff = 0
 do i=1,nInter
-  if (abs(Grad(i,Iter)) > 1.0d-6) mIntEff = mIntEff+1
+  if (abs(Grad(i,Iter)) > 1.0e-6_wp) mIntEff = mIntEff+1
 end do
 if (mIntEff == 0) mIntEff = 1
 #ifdef _DEBUGPRINT_
-write(6,*) ' mIntEff=',mIntEff
+write(u6,*) ' mIntEff=',mIntEff
 #endif
 
 return

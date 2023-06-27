@@ -37,6 +37,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+implicit none
 integer(kind=iwp), intent(in) :: nDim, nVec
 real(kind=wp), intent(inout) :: BP(nDim,nVec)
 real(kind=wp), intent(in) :: Ref(nDim,nVec)

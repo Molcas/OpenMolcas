@@ -24,17 +24,19 @@ subroutine Update_sl(Step_Trunc,nWndw,kIter)
 !             2000                                                     *
 !***********************************************************************
 
-use Slapaf_Info, only: Shift, qInt
-use Slapaf_Parameters, only: Beta, Beta_disp, NmIter, iter
+use Slapaf_Info, only: qInt, Shift
+use Slapaf_Parameters, only: Beta, Beta_disp, iter, NmIter
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-character Step_Trunc
-real*8 Dummy(1)
-real*8, allocatable :: t_Shift(:,:), t_qInt(:,:), tmp(:)
+implicit none
+character :: Step_Trunc
+integer(kind=iwp) :: nWndw, kIter
+integer(kind=iwp) :: iOpt_RS, iter_, nQQ
+real(kind=wp) :: Dummy(1), qBeta, qBeta_Disp
 logical Kriging_Hessian, Hide
+real(kind=wp), allocatable :: t_qInt(:,:), t_Shift(:,:), tmp(:)
 
 !                                                                      *
 !***********************************************************************
@@ -70,7 +72,7 @@ if ((iter == NmIter) .and. (NmIter /= 1)) then
 ! Hessian we like the step to be relative to the initial structure.
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'UpDate_SL: first iteration'
+  write(u6,*) 'UpDate_SL: first iteration'
 # endif
   iter_ = 1
   call mma_Allocate(t_Shift,nQQ,size(Shift,2),Label='t_Shift')

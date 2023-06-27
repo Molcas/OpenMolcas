@@ -13,8 +13,15 @@
 
 module NewH_mod
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer, dimension(:), allocatable, save :: UpdMask
-real*8, save :: DiagMM = 1.0d0
+private
+
+real(kind=wp) :: DiagMM = One
+integer(kind=iwp), allocatable :: UpdMask(:)
+
+public :: DiagMM, UpdMask
 
 end module NewH_mod

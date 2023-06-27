@@ -12,16 +12,13 @@
 subroutine SlapAf(ireturn)
 
 use Slapaf_Parameters, only: CallLast, isFalcon
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-! Is this usage permitted? - Yingjin
-!#include "dmrginfo_mclr.fh"
-character*8 ELOOP
-!*********** columbus interface ****************************************
-integer Columbus
+implicit none
+integer(kind=iwp) :: ireturn
 #include "warnings.h"
+integer(kind=iwp) :: Columbus, iStop
+character(len=8) :: ELOOP
 
 !                                                                      *
 !***********************************************************************

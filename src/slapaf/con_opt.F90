@@ -45,41 +45,52 @@ subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,hql,du,x,dEdx,W,GNrm,nWndw,H
 
 use kriging_mod, only: Max_MicroIterations, nSet
 use Slapaf_Info, only: MF
-use Slapaf_Parameters, only: IRC, iOptC, CnstWght, StpLbl, StpMax, GrdMax, E_Delta, NADC
+use Slapaf_Parameters, only: CnstWght, E_Delta, GrdMax, iOptC, IRC, NADC, StpLbl, StpMax
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Five, Ten, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-integer nInter
-real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter), T(nInter,nInter), dEdq(nInter,nIter), rLambda(nLambda,nIter+1), &
-       q(nInter,nIter+1), dq(nInter,nIter), dy(nLambda), dx(nInter-nLambda,nIter),hql(nInter,nIter), du(nInter), &
-       x(nInter-nLambda,nIter+1), dEdx(nInter-nLambda,nIter), W(nInter-nLambda,nInter-nLambda), Hess(nInter,nInter), &
-       Energy(nIter), Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1), A(nA), d2rdq2(nInter,nInter,nLambda), disp(nSet)
-integer iP(nInter)
-logical Found, IRC_setup, First_MicroIteration, Recompute_disp, RVO
-character Step_Trunc*1, Lbl(nInter+nLambda)*8, StpLbl_Save*8, Step_Trunc_*1
-real*8, allocatable :: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
-real*8, allocatable :: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:), RR(:,:), Tdy(:), Tr(:), WTr(:), Hessian(:,:,:)
-character*8, allocatable :: LblSave(:)
-real*8, save :: Beta_Disp_Save = Zero, Disp_Save = Zero
-real*8, parameter :: Beta_Disp_Min = 1.0D-10
+implicit none
+integer(kind=iwp) :: nWndw, nInter, nIter, iOptH, jPrint, nLambda, nA, nFix, iP(nInter), nsAtom, iOpt_RS, iter_
+real(kind=wp) :: r(nLambda,nIter), drdq(nInter,nLambda,nIter), T(nInter,nInter), dEdq(nInter,nIter), rLambda(nLambda,nIter+1), &
+                 q(nInter,nIter+1), dq(nInter,nIter), dy(nLambda), dx(nInter-nLambda,nIter), hql(nInter,nIter), du(nInter), &
+                 x(nInter-nLambda,nIter+1), dEdx(nInter-nLambda,nIter), W(nInter-nLambda,nInter-nLambda), GNrm, &
+                 Hess(nInter,nInter), Energy(nIter), Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1), A(nA), cBeta, fCart, &
+                 Beta_Disp_Seed, d2rdq2(nInter,nInter,nLambda), Thr_RS
+real(kind=wp) :: disp(nSet)
+character :: Step_Trunc
+character(len=8) :: Lbl(nInter+nLambda)
+logical(kind=iwp) :: First_MicroIteration
+integer(kind=iwp) :: i, iCount, iCount_Max, iInter, iIter, iLambda, iMEP, iOff_Iter, iOptC_Temp, ipTb, ipTti, iSt, j, jLambda, &
+                     nTrans
+real(kind=wp) :: Beta, Beta_Disp, Beta_Disp_Save = Zero, Det, disp_long, Disp_Save = Zero, disp_short, Dummy, dxdx, dxdx_last, &
+                 dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, tBeta, Temp, &
+                 Thr, tmp, xBeta, yBeta
+logical(kind=iwp) :: Found, IRC_setup, Recompute_disp, RVO
+character(len=8) :: StpLbl_Save
+character :: Step_Trunc_
+real(kind=wp), allocatable :: dq_xy(:), Hessian(:,:,:), RR(:,:), RRInv(:,:), RRR(:,:), RT(:,:), RTInv(:,:), Tdy(:), Tmp1(:), &
+                              Tmp2(:,:), Tr(:), Trans(:), WTr(:)
+character(len=8), allocatable :: LblSave(:)
+real(kind=wp), parameter :: Beta_Disp_Min = 1.0e-10_wp
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) '****************************************************'
-write(6,*) '**** Con_Opt: Input data ***************************'
-write(6,*) '****************************************************'
-write(6,*)
-write(6,*) 'iOpt_RS=',iOpt_RS
-write(6,*) 'cBeta=',cBeta
-write(6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed
-write(6,*)
-write(6,*) 'First_Microiteration=',First_Microiteration
-write(6,*)
+write(u6,*)
+write(u6,*) '****************************************************'
+write(u6,*) '**** Con_Opt: Input data ***************************'
+write(u6,*) '****************************************************'
+write(u6,*)
+write(u6,*) 'iOpt_RS=',iOpt_RS
+write(u6,*) 'cBeta=',cBeta
+write(u6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed
+write(u6,*)
+write(u6,*) 'First_Microiteration=',First_Microiteration
+write(u6,*)
 call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
 call RecPrt('Con_Opt: q',' ',q,nInter,nIter)
 call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
@@ -87,16 +98,16 @@ if (nIter > 1) call RecPrt('Con_Opt: dq',' ',dq,nInter,nIter-1)
 call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
 call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
 do iIter=1,nIter
-  write(6,*) ' iIter=',iIter
+  write(u6,*) ' iIter=',iIter
   call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),nInter,nLambda)
 end do
 do iLambda=1,nLambda
-  write(6,*) 'iLambda=',iLambda
+  write(u6,*) 'iLambda=',iLambda
   call RecPrt('Con_Opt: d2rdq2(iLambda)',' ',d2rdq2(1,1,iLambda),nInter,nInter)
 end do
-write(6,*) '****************************************************'
-write(6,*) ' End of input arrays'
-write(6,*) '****************************************************'
+write(u6,*) '****************************************************'
+write(u6,*) ' End of input arrays'
+write(u6,*) '****************************************************'
 #endif
 !                                                                      *
 !***********************************************************************
@@ -116,7 +127,7 @@ dxdx_last = Beta
 Sf = sqrt(Two)
 dxdx = Zero
 dydy = Zero
-Thr = 1.0D-6
+Thr = 1.0e-6_wp
 call Get_iScalar('iOff_Iter',iOff_Iter)
 call mma_allocate(dq_xy,nInter,Label='dq_xy')
 call mma_allocate(Hessian,nInter,nInter,nSet,Label='Hessian')
@@ -127,15 +138,15 @@ call mma_allocate(Hessian,nInter,nInter,nSet,Label='Hessian')
 iSt = max(iOff_Iter+1,nIter-nWndw+1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) '****************************************************'
-write(6,*) ' Compute the lambda values'
-write(6,*) '****************************************************'
+write(u6,*) '****************************************************'
+write(u6,*) ' Compute the lambda values'
+write(u6,*) '****************************************************'
 #endif
 do iIter=iSt,nIter
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) '>>>>>> iIter=',iIter
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '>>>>>> iIter=',iIter
+  write(u6,*)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -177,25 +188,25 @@ do iIter=iSt,nIter
 # endif
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) '****************************************************'
-write(6,*) ' End of computing the lambda values'
-write(6,*) '****************************************************'
+write(u6,*) '****************************************************'
+write(u6,*) ' End of computing the lambda values'
+write(u6,*) '****************************************************'
 #endif
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) '****************************************************'
-write(6,*) ' Check that grads of constraint are not null vectors'
-write(6,*) '****************************************************'
+write(u6,*) '****************************************************'
+write(u6,*) ' Check that grads of constraint are not null vectors'
+write(u6,*) '****************************************************'
 #endif
 !do iIter = iOff_Iter+1,nIter
 do iIter=iSt,nIter
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) '>>>>>> iIter,nIter=',iIter,nIter
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '>>>>>> iIter,nIter=',iIter,nIter
+  write(u6,*)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -209,20 +220,20 @@ do iIter=iSt,nIter
   ! it with the reaction vector.
 
 # ifdef _DEBUGPRINT_
-  write(6,*) '****************************************************'
-  write(6,*) ' Check that grads of constraint are not null vectors'
-  write(6,*) '****************************************************'
+  write(u6,*) '****************************************************'
+  write(u6,*) ' Check that grads of constraint are not null vectors'
+  write(u6,*) '****************************************************'
 # endif
   do iLambda=1,nLambda
     RR_ = sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,drdq(1,iLambda,iIter),1))
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iLambda=',iLambda
+    write(u6,*) 'iLambda=',iLambda
     call RecPrt('drdq',' ',drdq(:,iLambda,iIter),1,nInter)
 #   endif
 
     ! Make sure that we don't mess up gradients which are zero vectors.
 
-    if (RR_ < 1.0D-12) then
+    if (RR_ < 1.0e-12_wp) then
       xBeta = xBeta*Half
 
       if (abs(IRC) /= 0) then
@@ -236,12 +247,12 @@ do iIter=iSt,nIter
 
       if (iIter == nIter) then
 
-        write(6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll fix it!'
+        write(u6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll fix it!'
 
         if (IRC_Setup .and. (IRC == 1)) then
-          write(6,*) ' IRC forward direction.'
+          write(u6,*) ' IRC forward direction.'
         else if (IRC_Setup .and. (IRC == -1)) then
-          write(6,*) ' IRC backward direction.'
+          write(u6,*) ' IRC backward direction.'
         end if
       end if
       r(iLambda,iIter) = Zero
@@ -251,7 +262,7 @@ do iIter=iSt,nIter
       ! Try to use the transverse direction if the gradient is too small
 
       RR_ = sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
-      if (RR_ < 1.0D-12) then
+      if (RR_ < 1.0e-12_wp) then
         call qpg_dArray('Transverse',Found,nTrans)
         if (Found .and. (nTrans == 3*nsAtom)) then
           call mma_Allocate(Trans,3*nsAtom,Label='Trans')
@@ -267,7 +278,7 @@ do iIter=iSt,nIter
 
       do iInter=1,nInter
         drdq(iInter,iLambda,iIter) = sign(One,dEdq(iInter,iIter))
-        if (abs(dEdq(iInter,iIter)) <= 1.0D-6) drdq(iInter,iLambda,iIter) = Zero
+        if (abs(dEdq(iInter,iIter)) <= 1.0e-6_wp) drdq(iInter,iLambda,iIter) = Zero
       end do
 #     ifdef _DEBUGPRINT_
       call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,nLambda*nIter)
@@ -293,9 +304,9 @@ do iIter=iSt,nIter
     end if
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) '****************************************************'
-  write(6,*) ' End Check'
-  write(6,*) '****************************************************'
+  write(u6,*) '****************************************************'
+  write(u6,*) ' End Check'
+  write(u6,*) '****************************************************'
 # endif
   !                                                                    *
   !*********************************************************************
@@ -424,7 +435,7 @@ do iIter=iSt,nIter
 
     if (iIter /= nIter) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'dx = T_{ti}^T dq'
+      write(u6,*) 'dx = T_{ti}^T dq'
       call RecPrt('dx(:,iIter)',' ',dq(1,iIter),nInter,1)
 #     endif
 
@@ -440,20 +451,20 @@ do iIter=iSt,nIter
       dxdx = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'dxdx=',dxdx
-      write(6,*) 'dxdx_last=',dxdx_last
+      write(u6,*) 'dxdx=',dxdx
+      write(u6,*) 'dxdx_last=',dxdx_last
 #     endif
 
-      if ((dxdx < 0.75d0*dxdx_last) .and. (dxdx < Beta-Thr)) then
+      if ((dxdx < 0.75_wp*dxdx_last) .and. (dxdx < Beta-Thr)) then
         ! Increase trust radius
         xBeta = min(One,xBeta*Sf)
-      else if ((dxdx > 1.25d0*dxdx_last) .or. (dxdx >= Beta+Thr)) then
+      else if ((dxdx > 1.25_wp*dxdx_last) .or. (dxdx >= Beta+Thr)) then
         ! Reduce trust radius
         xBeta = max(One/Five,xBeta/Sf)
       end if
       dxdx_last = dxdx
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'xBeta=',xBeta
+      write(u6,*) 'xBeta=',xBeta
 #     endif
     end if
     !                                                                  *
@@ -498,7 +509,7 @@ do iIter=iSt,nIter
 
     call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(1,ipTti),nInter,Tmp1,nInter,Zero,dEdx(1,iIter),nInter-nLambda)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iIter=',iIter
+    write(u6,*) 'iIter=',iIter
     call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,nInter-nLambda)
 #   endif
     call mma_deallocate(Tmp1)
@@ -508,7 +519,7 @@ do iIter=iSt,nIter
 
     if (RVO .and. First_Microiteration .and. (iIter == nIter)) then
       GNrm = sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
-      cBeta = min(1.0d3*GNrm,cBeta)
+      cBeta = min(1.0e3_wp*GNrm,cBeta)
       Beta = fCart*cBeta
     end if
 
@@ -517,18 +528,18 @@ do iIter=iSt,nIter
     ! on the gradient in the x subspace.
 
     gg = sqrt(DDot_(nInter-nLambda,dEdx(1,iIter),1,dEdx(1,iIter),1))
-    if ((gg < 0.75d0*gg_last) .and. (gg < Beta-Thr)) then
+    if ((gg < 0.75_wp*gg_last) .and. (gg < Beta-Thr)) then
       ! Increase trust radius
       gBeta = min(One,gBeta*Sf)
       !gBeta = gBeta*Sf
-    else if ((gg > 1.25d0*gg_last) .or. (gg >= Beta+Thr)) then
+    else if ((gg > 1.25_wp*gg_last) .or. (gg >= Beta+Thr)) then
       ! Reduce trust radius
       gBeta = max(One/Five,gBeta/Sf)
     end if
     gg_last = gg
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'gg=',gg
-    write(6,*) 'gBeta=',gBeta
+    write(u6,*) 'gg=',gg
+    write(u6,*) 'gBeta=',gBeta
 #   endif
 
   end if
@@ -600,10 +611,10 @@ do iIter=iSt,nIter
   ! restriction.
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Restricting the dy step.'
-  write(6,*) 'Start: dy(:)=',dy(:)
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Restricting the dy step.'
+  write(u6,*) 'Start: dy(:)=',dy(:)
+  write(u6,*)
 # endif
   if (.not. RVO) then
 
@@ -622,15 +633,15 @@ do iIter=iSt,nIter
     dydymax = CnstWght*max(dxdx,Half*Beta)
     if (dydy > dydymax) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Reduce dydy!',dydy,' -> ',dydymax
-      write(6,*) 'Scaling Factor=',(dydymax/dydy)
+      write(u6,*) 'Reduce dydy!',dydy,' -> ',dydymax
+      write(u6,*) 'Scaling Factor=',(dydymax/dydy)
 #     endif
       dy(:) = (dydymax/dydy)*dy(:)
       dydy = dydymax
       Step_Trunc = '*'
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'No reduce dydy!',dydy,' < ',dydymax
+      write(u6,*) 'No reduce dydy!',dydy,' < ',dydymax
 #     endif
       Step_Trunc = ' '
     end if
@@ -640,13 +651,13 @@ do iIter=iSt,nIter
     ! improving from step to step we reduce the step length in
     ! the subspace in which we do the minimization.
 
-    if ((dydy < 0.75d0*dydy_last) .or. (dydy < 1.0D-2)) then
+    if ((dydy < 0.75_wp*dydy_last) .or. (dydy < 1.0e-2_wp)) then
       ! Recent step in the space for the restriction is smaller
       ! than the previous, or the recent step is smaller than
       ! some threshold. Then increase step length for x, however
       ! not more than the overall step restriction.
       yBeta = min(Two,yBeta*Sf)
-    else if ((dydy > 1.25d0*dydy_last) .and. (dydy >= 1.0D-5)) then
+    else if ((dydy > 1.25_wp*dydy_last) .and. (dydy >= 1.0e-5_wp)) then
       ! Otherwise decrease step direction.
       yBeta = max(One/Ten,yBeta/Sf)
     end if
@@ -664,7 +675,7 @@ do iIter=iSt,nIter
 
     Fact = One
 #   ifdef _DEBUGPRINT_
-    if (iIter /= nIter) write(6,*) 'Go to 667'
+    if (iIter /= nIter) write(u6,*) 'Go to 667'
 #   endif
     if (iIter /= nIter) Go to 667
 
@@ -675,7 +686,7 @@ do iIter=iSt,nIter
         tmp = max(tmp,abs(drdq(j,i,iIter)))
       end do
     end do
-    tmp = min(tmp,0.30d0) ! Some constraints can have huge gradients. So be a bit careful.
+    tmp = min(tmp,0.3_wp) ! Some constraints can have huge gradients. So be a bit careful.
     ! Allowed dispersion in the y subspace
     Beta_Disp = max(Beta_Disp_Min,tmp*CnstWght/(CnstWght+One)*Beta_Disp_Seed)
     if (.not. First_MicroIteration) then
@@ -683,22 +694,22 @@ do iIter=iSt,nIter
     end if
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Step_trunc=',Step_trunc
-    write(6,*) 'CnstWght=',CnstWght
-    write(6,*) 'Beta=',Beta
-    write(6,*) 'tmp=',tmp
-    write(6,*) 'Beta_Disp=',Beta_Disp
+    write(u6,*) 'Step_trunc=',Step_trunc
+    write(u6,*) 'CnstWght=',CnstWght
+    write(u6,*) 'Beta=',Beta
+    write(u6,*) 'tmp=',tmp
+    write(u6,*) 'Beta_Disp=',Beta_Disp
 #   endif
 
 #   ifdef _DEBUGPRINT_
-    if (Disp_Save/Beta_Disp > 0.99d0) write(6,*) 'Go to 667'
+    if (Disp_Save/Beta_Disp > 0.99_wp) write(u6,*) 'Go to 667'
 #   endif
-    if (Disp_Save/Beta_Disp > 0.99d0) then
+    if (Disp_Save/Beta_Disp > 0.99_wp) then
       dy(:) = Zero
       Go To 667
     end if
     dydy = DDot_(nLambda,dy,1,dy,1)
-    if (dydy < 1.0D-12) Go To 667
+    if (dydy < 1.0e-12_wp) Go To 667
     ! Restrict dy step during micro iterations
     Fact = max(sqrt(dydy)/(CnstWght/(CnstWght+One)*Beta),One)
 
@@ -720,13 +731,13 @@ do iIter=iSt,nIter
       disp_short = disp_long+One
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'disp,Fact,iCount=',disp(1),Fact,iCount
+    write(u6,*) 'disp,Fact,iCount=',disp(1),Fact,iCount
 #   endif
     if ((disp(1) > Beta_Disp) .or. (iCount > 1)) then
       if (abs(Beta_Disp-disp(1)) < Thr_RS) Go To 667
       iCount = iCount+1
       if (iCount > iCount_Max) then
-        write(6,*) 'iCount > iCount_Max'
+        write(u6,*) 'iCount > iCount_Max'
         call Abend()
       end if
       call Find_RFO_Root(Fact_long,disp_long,Fact_short,disp_short,Fact,disp(1),Beta_Disp)
@@ -735,7 +746,7 @@ do iIter=iSt,nIter
     end if
     667 continue
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Final scaling Factor:',(One/Fact)
+    write(u6,*) 'Final scaling Factor:',(One/Fact)
 #   endif
     dy(:) = (One/Fact)*dy(:)
 #   ifdef _FindTS_
@@ -746,7 +757,7 @@ do iIter=iSt,nIter
 
     if (iand(iOptC,4096) == 4096) then
       dydy = sqrt(DDot_(nLambda,dy,1,dy,1))
-      Thrdy = 0.075d0
+      Thrdy = 0.075_wp
       if (dydy > Thrdy) then
         dy(:) = (Thrdy/dydy)*dy(:)
         Step_Trunc = '*'
@@ -754,8 +765,8 @@ do iIter=iSt,nIter
     end if
 #   endif
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Step_trunc=',Step_trunc
-    write(6,*) 'Final: dy(:)=',dy(:)
+    write(u6,*) 'Step_trunc=',Step_trunc
+    write(u6,*) 'Final: dy(:)=',dy(:)
 #   endif
   !                                                                    *
   !*********************************************************************
@@ -766,7 +777,7 @@ do iIter=iSt,nIter
   !                                                                    *
   !      Twist for MEP optimizations.
 
-  if ((iIter == iOff_iter+1) .and. (dydy < 1.0D-4) .and. (iIter /= 1)) then
+  if ((iIter == iOff_iter+1) .and. (dydy < 1.0e-4_wp) .and. (iIter /= 1)) then
     xBeta = xBeta*Half
   end if
   dydy_last = dydy
@@ -800,7 +811,7 @@ call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter-1)
 ! gradient.
 #ifdef _DEBUGPRINT_
 call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
-write(6,*) 'iOff_iter=',iOff_iter
+write(u6,*) 'iOff_iter=',iOff_iter
 #endif
 hql(:,:) = dEdq(:,:)
 do iIter=iOff_iter+1,nIter
@@ -835,10 +846,10 @@ call RecPrt('Con_Opt: Lagrangian, L = E + l r(q)',' ',Energy,nIter,1)
 ! There should be no negative eigenvalue, if so change the sign.
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*)
-write(6,*) ' *** Updating the reduced Hessian ***'
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) ' *** Updating the reduced Hessian ***'
+write(u6,*)
 #endif
 
 if (iand(iOptC,4096) == 4096) then
@@ -852,7 +863,7 @@ end if
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Con_Opt: Hessian before the update',' ',Hessian(:,:,1),nInter,nInter)
-write(6,*) 'iOptH=',iOptH
+write(u6,*) 'iOptH=',iOptH
 #endif
 if (Step_Trunc == 'N') Step_Trunc = ' '
 Dummy = Zero
@@ -860,7 +871,7 @@ call Update_H(nWndw,Hessian,nInter,nIter,iOptC_Temp,dq,hql,iOptH,jPrint,Dummy,ns
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Con_Opt: W(updated)',' ',Hessian(:,:,1),nInter,nInter)
-write(6,*) 'Step_Trunc=',Step_trunc
+write(u6,*) 'Step_Trunc=',Step_trunc
 call DiagMtrx(Hessian(:,:,1),nInter,iNeg)
 #endif
 !                                                                      *
@@ -897,7 +908,7 @@ if (nInter-nLambda > 0) then
     ! Note that we use the dEdx data for the last point on the real PES.
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Beta_Disp=',Beta_Disp
+    write(u6,*) 'Beta_Disp=',Beta_Disp
 #   endif
     tmp = Zero
     do i=1,nInter-nLambda
@@ -909,7 +920,7 @@ if (nInter-nLambda > 0) then
     end if
     Beta_Disp = Beta_Disp_Save
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
+    write(u6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
 #   endif
   end if
   !                                                                    *
@@ -919,17 +930,17 @@ if (nInter-nLambda > 0) then
 
   fact = One
   tBeta = max(Beta*yBeta*min(xBeta,gBeta),Beta/Ten)
-  Thr_RS = 1.0D-7
+  Thr_RS = 1.0e-7_wp
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Compute dx'
-  write(6,*)
-  write(6,*) 'Step_Trunc(0)=',Step_Trunc
-  write(6,*) 'Beta=',Beta
-  write(6,*) 'yBeta=',yBeta
-  write(6,*) 'xBeta=',xBeta
-  write(6,*) 'gBeta=',gBeta
-  write(6,*) 'tBeta=',tBeta
+  write(u6,*)
+  write(u6,*) 'Compute dx'
+  write(u6,*)
+  write(u6,*) 'Step_Trunc(0)=',Step_Trunc
+  write(u6,*) 'Beta=',Beta
+  write(u6,*) 'yBeta=',yBeta
+  write(u6,*) 'xBeta=',xBeta
+  write(u6,*) 'gBeta=',gBeta
+  write(u6,*) 'tBeta=',tBeta
 # endif
   do
     Step_Trunc_ = Step_Trunc
@@ -952,16 +963,16 @@ if (nInter-nLambda > 0) then
     call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
     Disp_Save = disp(1)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'disp=',disp(1)
+    write(u6,*) 'disp=',disp(1)
 #   endif
     fact = Half*fact
     tBeta = Half*tBeta
-    if (One-disp(1)/Beta_Disp > 1.0D-3) exit
-    if ((fact < 1.0D-5) .or. (disp(1) < Beta_Disp)) exit
+    if (One-disp(1)/Beta_Disp > 1.0e-3_wp) exit
+    if ((fact < 1.0e-5_wp) .or. (disp(1) < Beta_Disp)) exit
     Step_Trunc = '*'
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Step_Trunc(n)=',Step_Trunc
+  write(u6,*) 'Step_Trunc(n)=',Step_Trunc
 # endif
   GNrm = sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 
@@ -971,7 +982,7 @@ else
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Step_Trunc=',Step_trunc
+write(u6,*) 'Step_Trunc=',Step_trunc
 call RecPrt('Con_Opt: dx(actual)',' ',dx,nInter-nLambda,nIter)
 #endif
 !                                                                      *
@@ -990,7 +1001,7 @@ du(1:nLambda) = dy(:)
 call Backtrans_T(du,dq_xy)
 dydy = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 call RecPrt('dq(dy)',' ',dq_xy,nInter,1)
-write(6,*) '<R(q_0)|dy>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
+write(u6,*) '<R(q_0)|dy>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
 
 ! dx only, constrained minimization
 
@@ -999,7 +1010,7 @@ du(nLambda+1:nInter) = dx(:,nIter)
 call Backtrans_T(du,dq_xy)
 dxdx = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 call RecPrt('dq(dx)',' ',dq_xy,nInter,1)
-write(6,*) '<R(q_0)|dx>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
+write(u6,*) '<R(q_0)|dx>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
 #endif
 
 ! dy+dx, full step
@@ -1019,7 +1030,7 @@ call RecPrt('du',' ',du,1,nInter)
 Recompute_disp = .false.
 if ((Max_MicroIterations >= 50) .and. (niter-iter_+1 > Max_Microiterations-10)) then
   dydy = sqrt(DDot_(nLambda,dy,1,dy,1))
-  if (dydy > 1.0D-12) du(1+nLambda:nInter) = Zero
+  if (dydy > 1.0e-12_wp) du(1+nLambda:nInter) = Zero
   Recompute_disp = .true.
 end if
 call Backtrans_T(du,dq(1,nIter))

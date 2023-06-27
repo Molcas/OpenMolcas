@@ -21,17 +21,20 @@ subroutine NewH(nInter,nIter,dq_orig,g,H,iOptH,mIter)
 !             January '95                                              *
 !***********************************************************************
 
-use NewH_Mod
-use Slapaf_parameters, only: HUpMet
+use Slapaf_Parameters, only: HUpMet
+use NewH_Mod, only: UpdMask
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-#include "real.fh"
-#include "stdalloc.fh"
-integer nInter, nIter, mIter, iOptH, i
-real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
-logical Test, DoMask
-real*8, dimension(:), allocatable :: dg, gi
-real*8, dimension(:,:), allocatable :: dq
+implicit none
+integer(kind=iwp) :: nInter, nIter, iOptH, mIter
+real(kind=wp) :: dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
+integer(kind=iwp) :: i
+logical(kind=iwp) :: DoMask
+real(kind=wp), allocatable :: dg(:), dq(:,:), gi(:)
 ! Statement function
+logical(kind=iwp) :: Test
 Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
 
 !                                                                      *
@@ -39,12 +42,12 @@ Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' NewH: lIter=',nIter
+write(u6,*)
+write(u6,*) ' NewH: lIter=',nIter
 call RecPrt(' NewH: dq_orig',' ',dq_orig,nInter,nIter)
 call RecPrt(' NewH: g',' ',g,nInter,nIter)
 call RecPrt(' NewH: H(Old)',' ',H,nInter,nInter)
-write(6,*) ' NewH: Test(i)==',(Test(i),i=1,8)
+write(u6,*) ' NewH: Test(i)==',(Test(i),i=1,8)
 #endif
 
 ! Branch out if the first iteration
@@ -100,7 +103,7 @@ else if (Test(1)) then
   !Fletcher (or Meyer) update
 
   HUpMet = '  F   '
-  write(6,*) 'Deleted option in NewH'
+  write(u6,*) 'Deleted option in NewH'
   call Abend()
 
 else if (Test(2)) then
@@ -108,7 +111,7 @@ else if (Test(2)) then
   ! Broyden-Powel Symmetric Rank-2 update
 
   HUpMet = '  BP  '
-  write(6,*) 'Deleted option in NewH'
+  write(u6,*) 'Deleted option in NewH'
   call Abend()
 
 else if (Test(3)) then
@@ -155,7 +158,7 @@ else if (Test(8)) then
 else
 
   call WarningMessage(2,'Error in NewH')
-  write(6,*) ' Improper value of iOptH:',iOptH
+  write(u6,*) ' Improper value of iOptH:',iOptH
   call Abend()
 
 end if

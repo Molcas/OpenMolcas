@@ -13,9 +13,9 @@
 
 subroutine free_UpdMask()
 
-use NewH_mod
+use NewH_mod, only: UpdMask
+use stdalloc, only: mma_deallocate
 
-#include "stdalloc.fh"
 if (allocated(UpdMask)) call mma_deallocate(UpdMask)
 
 return

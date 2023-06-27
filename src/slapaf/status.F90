@@ -21,21 +21,26 @@ subroutine Status(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_Stat
 !             May '91                                                  *
 !***********************************************************************
 
-use Slapaf_Parameters, only: UpMeth, iNeg, StpLbl, GrdLbl, StpMax, GrdMax
+use Slapaf_Parameters, only: GrdLbl, GrdMax, iNeg, StpLbl, StpMax, UpMeth
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: kIter, nLines
+real(kind=wp) :: Energy, rGrad, Ex, delE
+logical(kind=iwp) :: Print_Status
+character(len=8) :: HUpMet
+character :: Step_Trunc
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-character HUpMet*8, Step_Trunc*1
-character*8 lNeg
-logical Print_Status
+integer(kind=iwp) :: i, iPrint, iRout, iter, ivv, Lu, Lu_file, Lu_out, nvv
+character(len=8) :: lNeg
 character(len=128), allocatable :: Lines(:)
+integer(kind=iwp), external :: isfreeunit
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = 6
+Lu = u6
 iRout = 52
 iPrint = nPrint(iRout)
 

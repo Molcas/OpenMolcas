@@ -20,23 +20,25 @@ subroutine Update_kriging(Step_Trunc,nWndw)
 !    (see update_sl)                                                   *
 !***********************************************************************
 
-use kriging_mod, only: Max_Microiterations, Thr_microiterations, nSet
-use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt, Lbl
-use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta, Beta_Disp_Seed => Beta_Disp, GrdLbl, GrdMax, E_Delta, ThrEne, ThrGrd, &
-                             ThrCons, nLambda, iter, NADC
+use Slapaf_Info, only: Cx, dqInt, Energy, GNrm, Gx, Lbl, qInt, Shift
+use Slapaf_Parameters, only: Beta_Disp_Seed => Beta_Disp, Beta_Seed => Beta, E_Delta, GrdLbl, GrdMax, iter, NADC, nLambda, &
+                             ThrCons, ThrEne, ThrGrd, UpMeth
+use kriging_mod, only: Max_Microiterations, nSet, Thr_microiterations
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Four, Six, Ten, Half, OneHalf
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-real*8 dEner, E_Disp
-integer HessIter
-logical First_MicroIteration, Error, Found, CheckCons
-character Step_Trunc
-character GrdLbl_Save*8
-real*8 Dummy(1), MaxErr, MaxErr_Ini
-real*8, allocatable :: ETemp(:,:), Hessian(:,:,:), Temp(:,:,:)
-real*8, parameter :: Beta_Disp_Min = 1.0D-10
+implicit none
+integer(kind=iwp) :: nWndw
+character :: Step_Trunc
+integer(kind=iwp) :: HessIter, i, iFirst, iInter, iOpt_RS, iRef, iRef_Save, iterAI, iterK, j, kIter, nQQ, nRaw, nWndw_
+real(kind=wp) :: Beta, Beta_Disp, dEner, dqdq, dqdq1, dqdq2, dqdq3, Dummy(1), E_Disp, FAbs, FAbs_Ini, GrdMax_Save, GrdMx, MaxErr, &
+                 MaxErr_Ini, qBeta, qBeta_Disp, RMS, RMSMx, tmp
+character(len=8) :: GrdLbl_Save
+logical(kind=iwp) :: CheckCons, Error, First_MicroIteration, Force_RS, Found, Kriging_Hessian, Not_Converged
+real(kind=wp), allocatable :: ETemp(:,:), Hessian(:,:,:), Temp(:,:,:)
+real(kind=wp), parameter :: Beta_Disp_Min = 1.0e-10_wp
+real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -44,23 +46,20 @@ real*8, parameter :: Beta_Disp_Min = 1.0D-10
 !
 !#define _DEBUGPRINT_
 !#define _OVERSHOOT_
-logical Kriging_Hessian, Not_Converged, Force_RS
 #ifdef _OVERSHOOT_
-real*8 :: OS_Disp(1), OS_Energy(1)
-real*8, allocatable :: Step_k(:,:)
+real(kind=wp) :: OS_Disp(1), OS_Energy(1)
+real(kind=wp), allocatable :: Step_k(:,:)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-
   subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
     import :: nSet
     integer, intent(in) :: nRaw, nInter
     real*8, intent(in) :: qInt(nInter,nRaw), Grad(nInter,nRaw,nSet), Energy(nRaw,nSet)
     real*8, intent(inout), optional :: Hessian_HMF(nInter,nInter), HDiag(nInter)
   end subroutine SetUp_Kriging
-
 end interface
 
 !                                                                      *
@@ -145,7 +144,7 @@ end do
 !  in con_opt, once the constrained gradient is available)
 
 Beta_Disp = max(Beta_Disp_Min,tmp*Beta_Disp_Seed)
-Beta = min(1.0d3*GNrm(iter),Beta_Seed)
+Beta = min(1.0e3_wp*GNrm(iter),Beta_Seed)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -160,9 +159,9 @@ do while (Not_Converged)
   !                                                                    *
   kIter = iterAI
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Do iterAI: ',iterAI
-  write(6,*) 'Beta=',Beta
+  write(u6,*)
+  write(u6,*) 'Do iterAI: ',iterAI
+  write(u6,*) 'Beta=',Beta
 # endif
 
   ! Compute the Kriging Hessian
@@ -186,7 +185,7 @@ do while (Not_Converged)
                     qBeta_Disp,.false.)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'After Update_inner: Step_Trunc=',Step_Trunc
+  write(u6,*) 'After Update_inner: Step_Trunc=',Step_Trunc
   call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
   call RecPrt('dqInt',' ',dqInt,nQQ,iterAI)
 # endif
@@ -204,7 +203,7 @@ do while (Not_Converged)
   !   gradient is close to convergence
 
   if (First_Microiteration) then
-    FAbs_Ini = GNrm(iterAI)/sqrt(dble(nQQ))
+    FAbs_Ini = GNrm(iterAI)/sqrt(real(nQQ,kind=wp))
     if (nLambda > 0) then
       if (FAbs_ini <= Ten*ThrGrd) CheckCons = .true.
       call Qpg_dScalar('Max error',Found)
@@ -225,7 +224,7 @@ do while (Not_Converged)
         Shift(:,iterAI) = Half*Shift(:,iterAI)
         qInt(:,iterAI+1) = qInt(:,iterAI)+Shift(:,iterAI)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Oscillation detected. Step cut down in half!'
+        write(u6,*) 'Oscillation detected. Step cut down in half!'
         call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
 #       endif
       end if
@@ -314,25 +313,25 @@ do while (Not_Converged)
     Not_Converged = Not_Converged .and. (dqdq < qBeta**2)
   else
     ! Use standard convergence criteria
-    FAbs = GNrm(iterAI-1)/sqrt(dble(nQQ))
-    RMS = sqrt(DDot_(nQQ,Shift(1,iterAI-1),1,Shift(1,iterAI-1),1)/dble(nQQ))
+    FAbs = GNrm(iterAI-1)/sqrt(real(nQQ,kind=wp))
+    RMS = sqrt(DDot_(nQQ,Shift(1,iterAI-1),1,Shift(1,iterAI-1),1)/real(nQQ,kind=wp))
     RMSMx = Zero
     do iInter=1,nQQ
       RMSMx = max(RMSMx,abs(Shift(iInter,iterAI-1)))
     end do
     GrdMx = GrdMax
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'iter=',iterAI-1
-    write(6,*) 'FAbs=',FAbs
-    write(6,*) 'GrdMx=',GrdMx
-    write(6,*) 'RMS=',RMS
-    write(6,*) 'RMSMx=',RMSMx
-    write(6,*) FAbs > min(ThrGrd,FAbs_ini)
-    write(6,*) GrdMx > ThrGrd*OneHalf
-    write(6,*) RMS > ThrGrd*Four
-    write(6,*) RMSMx > ThrGrd*Six
-    write(6,*) 'Step_Trunc=',Step_Trunc
+    write(u6,*)
+    write(u6,*) 'iter=',iterAI-1
+    write(u6,*) 'FAbs=',FAbs
+    write(u6,*) 'GrdMx=',GrdMx
+    write(u6,*) 'RMS=',RMS
+    write(u6,*) 'RMSMx=',RMSMx
+    write(u6,*) FAbs > min(ThrGrd,FAbs_ini)
+    write(u6,*) GrdMx > ThrGrd*OneHalf
+    write(u6,*) RMS > ThrGrd*Four
+    write(u6,*) RMSMx > ThrGrd*Six
+    write(u6,*) 'Step_Trunc=',Step_Trunc
 #   endif
     ! Ensure that the initial gradient is reduced,
     ! except in the last micro iteration
@@ -358,13 +357,13 @@ do while (Not_Converged)
   if (Force_RS) then
     call mma_allocate(Temp,3,size(Cx,2),1,Label='Temp')
     Temp(:,:,1) = Cx(:,:,iterAI)-Cx(:,:,iter)
-    RMS = sqrt(DDot_(3*size(Cx,2),Temp,1,Temp,1)/dble(3*size(Cx,2)))
+    RMS = sqrt(DDot_(3*size(Cx,2),Temp,1,Temp,1)/real(3*size(Cx,2),kind=wp))
     if (RMS > (Three*Beta)) Step_trunc = '*'
     call mma_deAllocate(Temp)
   end if
   if (Not_Converged .and. (Step_trunc == ' ') .and. (iterK >= Max_Microiterations)) Step_trunc = '#'
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Not_Converged=',Not_Converged
+  write(u6,*) 'Not_Converged=',Not_Converged
 # endif
   !                                                                    *
   !*********************************************************************
@@ -379,7 +378,7 @@ do while (Not_Converged)
   if (iOpt_RS == 0) Not_Converged = .false.
   ! Not_Converged=.False. ! Force single iteration scheme.
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Not_Converged=',Not_Converged
+  write(u6,*) 'Not_Converged=',Not_Converged
 # endif
   !                                                                    *
   !*********************************************************************
@@ -410,11 +409,11 @@ if (iter > 1) then
   dsds = dDot_(nQQ,Step_k(1,1),1,Step_k(1,2),1)
   dsds = dsds/sqrt(ddot_(nQQ,Step_k(1,1),1,Step_k(1,1),1))
   dsds = dsds/sqrt(ddot_(nQQ,Step_k(1,2),1,Step_k(1,2),1))
-  write(6,*) 'dsds = ',dsds
+  write(u6,*) 'dsds = ',dsds
 else
   dsds = Zero
 end if
-dsds_min = 0.9d0
+dsds_min = 0.9_wp
 if ((dsds > dsds_min) .and. (Step_Trunc == ' ')) then
   do Max_OS=9,0,-1
     OS_Factor = Max_OS*((dsds-dsds_min)/(One-dsds_min))**4
@@ -422,8 +421,8 @@ if ((dsds > dsds_min) .and. (Step_Trunc == ' ')) then
     call dAXpY_(nQQ,One+OS_Factor,Step_k(1,2),1,qInt(1,iterAI),1)
     call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nQQ)
     call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nQQ)
-    write(6,*) 'Max_OS=',Max_OS
-    write(6,*) OS_Disp(1),E_Disp,Beta_Disp
+    write(u6,*) 'Max_OS=',Max_OS
+    write(u6,*) OS_Disp(1),E_Disp,Beta_Disp
     if ((OS_Disp(1) > E_Disp) .and. (OS_Disp(1) < Beta_Disp)) then
       call dAXpY_(nQQ,OS_Factor,Step_k(1,2),1,Shift(1,iterAI-1),1)
       iRef_Save = iRef
@@ -468,7 +467,7 @@ GrdLbl = GrdLbl_Save
 #ifdef _DEBUGPRINT_
 call RecPrt('qInt(3):',' ',qInt,nQQ,iter+1)
 call RecPrt('Shift:',' ',Shift,nQQ,iter)
-write(6,*) 'UpMeth=',UpMeth
+write(u6,*) 'UpMeth=',UpMeth
 #endif
 !                                                                      *
 !***********************************************************************

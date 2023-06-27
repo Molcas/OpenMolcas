@@ -11,38 +11,34 @@
 
 subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 
-use Chkpnt
-use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt, dqInt, Lbl
-use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian, MaxItr, Numerical, iNeg, GrdMax, E_Delta, ThrEne, ThrGrd, nLambda, &
-                             iOptC, ThrCons, ThrMEP, Baker, eMEPTest, rMEP, MEP, nMEP, stop, NADC, EDiffZero, ApproxNADC
+use Slapaf_Info, only: Coor, Cx, dqInt, Energy, GNrm, Gx, Lbl, qInt, Shift
+use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Baker, E_Delta, EDiffZero, eMEPTest, FindTS, GrdMax, HUpMet, iNeg, &
+                             iOptC, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, rMEP, stop, ThrCons, ThrEne, ThrGrd, ThrMEP
+use Chkpnt, only: Chkpnt_update_MEP
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Four, Six, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: iter, kIter, nInter, iStop, MxItr, mIntEff, mTtAtm
+logical(kind=iwp) :: GoOn, Just_Frequencies
+character :: Step_Trunc
 #include "print.fh"
 #include "warnings.h"
-integer :: IRC = 0
-real*8 Maxed, MaxErr
-character(len=5) ConLbl(5)
-character(len=1) Step_Trunc
-character(len=16) StdIn
-character(len=80) Point_Desc
-character(len=16) MEP_Text
-logical Conv1, GoOn, Found, Terminate, Last_Energy, Just_Frequencies, Saddle, eTest, IRCRestart, Conv2, ConvTmp, TSReg, &
-        BadConstraint, TurnBack
+integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, Lu, &
+                     LuInput, nAtom, nBackward, nConst, nForward, nIRC, nSaddle, nSaddle_Max
+real(kind=wp) :: CumLen, E, E0, E1, E2, E_Prod, E_Reac, echng, eDiffMEP, Fabs, Maxed, MaxErr, prevDist, rDum(1,1,1,1), refDist, &
+                 ResGrad, RMS, RMSMax, Thr1, Thr2, Thr3, Thr4, Thr5, Val1, Val2, Val3, Val4, Val5
+logical(kind=iwp) :: BadConstraint, Conv1, Conv2, ConvTmp, eTest, Found, IRCRestart, Last_Energy, Saddle, Terminate, TSReg, TurnBack
+character(len=80) :: Point_Desc
+character(len=16) :: MEP_Text, StdIn
+character(len=5) :: ConLbl(5)
 character(len=8) Temp
-real*8, allocatable :: Coor1(:,:), Coor2(:,:)
-real*8, allocatable :: E_IRC(:), C_IRC(:,:,:), G_IRC(:,:,:)
-real*8, allocatable :: E_S(:), C_S(:,:,:), G_S(:,:,:)
-real*8, allocatable :: E_R(:), C_R(:,:), G_R(:,:)
-real*8, allocatable :: E_P(:), C_P(:,:), G_P(:,:)
-real*8, allocatable :: E_MEP(:), G_MEP(:,:,:)
-real*8, allocatable, target :: C_MEP(:,:,:)
-real*8, allocatable :: L_MEP(:), Cu_MEP(:)
-integer, allocatable :: Information(:)
-real*8, allocatable :: Tmp(:)
-real*8, allocatable, target :: Not_Allocated(:,:), OfRef(:,:)
-real*8 rDum(1,1,1,1)
+integer(kind=iwp), allocatable :: Information(:)
+real(kind=wp), allocatable :: C_IRC(:,:,:), C_P(:,:), C_R(:,:), C_S(:,:,:), Coor1(:,:), Coor2(:,:), Cu_MEP(:), E_IRC(:), E_MEP(:), &
+                              E_P(:), E_R(:), E_S(:), G_IRC(:,:,:), G_MEP(:,:,:), G_P(:,:), G_R(:,:), G_S(:,:,:), L_MEP(:), Tmp(:)
+real(kind=wp), allocatable, target :: C_MEP(:,:,:), Not_Allocated(:,:), OfRef(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -68,7 +64,7 @@ TSReg = iand(iOptC,8192) == 8192
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = 6
+Lu = u6
 nSaddle_Max = 100
 iRout = 116
 iPrint = nPrint(iRout)
@@ -211,7 +207,7 @@ if (Baker) then
   Conv1 = Conv1 .or. ((Val2 < Thr2) .and. (Step_Trunc == ' '))
   Conv1 = Conv1 .and. (Val3 < Thr3)
 else
-  Val2 = abs(Fabs/sqrt(dble(mIntEff)))
+  Val2 = abs(Fabs/sqrt(real(mIntEff,kind=wp)))
   Thr2 = ThrGrd
   Conv1 = Val2 < Thr2
   if (Conv1) then
@@ -219,9 +215,9 @@ else
   else
     ConLbl(2) = ' No  '
   end if
-  Conv1 = Conv1 .and. (abs(GrdMax) < ThrGrd*1.5d0)
+  Conv1 = Conv1 .and. (abs(GrdMax) < ThrGrd*1.5_wp)
   Val4 = abs(GrdMax)
-  Thr4 = ThrGrd*1.5d0
+  Thr4 = ThrGrd*1.5_wp
   ConvTmp = Val4 < Thr4
   Conv1 = Conv1 .and. ConvTmp
   if (ConvTmp) then
@@ -229,9 +225,9 @@ else
   else
     ConLbl(4) = ' No  '
   end if
-  Conv2 = (RMS < ThrGrd*4.d0) .and. (Step_Trunc == ' ')
+  Conv2 = (RMS < ThrGrd*Four) .and. (Step_Trunc == ' ')
   Val1 = RMS
-  Thr1 = ThrGrd*4.0d0
+  Thr1 = ThrGrd*Four
   ConvTmp = Val1 < Thr1
   Conv2 = ConvTmp .and. (Step_Trunc == ' ')
   if (ConvTmp) then
@@ -244,7 +240,7 @@ else
     ConLbl(1) = ' No  '
   end if
   Val3 = RMSMax
-  Thr3 = ThrGrd*6.0d0
+  Thr3 = ThrGrd*Six
   ConvTmp = Val3 < Thr3
   Conv2 = Conv2 .and. ConvTmp
   if (ConvTmp) then
@@ -357,7 +353,7 @@ if (iPrint >= 5) then
       write(Lu,'(A,I3,A)') ' Geometry is converged in ', kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
     else
       write(Lu,'(A)') ' No convergence after max iterations'
-      if (Lu /= 6) write(6,'(/A)') ' No convergence after max iterations'
+      if (Lu /= u6) write(u6,'(/A)') ' No convergence after max iterations'
     end if
   else
     write(Lu,'(A)') ' Convergence not reached yet!'
@@ -383,11 +379,11 @@ end if
 !end if
 
 ! The energy change should not be too large
-Maxed = 1.0d2
+Maxed = 1.0e2_wp
 if (abs(E_Delta) > Maxed) then
-  write(6,*) 'The predicted energy change is too large: ',E_Delta
-  write(6,'(A)') ' This can''t be right!'
-  write(6,'(A)') ' This job will be terminated.'
+  write(u6,*) 'The predicted energy change is too large: ',E_Delta
+  write(u6,'(A)') ' This can''t be right!'
+  write(u6,'(A)') ' This job will be terminated.'
   iStop = 8
   stop = .true.
 end if
@@ -494,15 +490,15 @@ if (Conv1 .and. Saddle) then
     call Get_dArray('Saddle',Tmp,nSaddle)
     E1 = Tmp(6*nAtom+1)
     E2 = Tmp(6*nAtom+2)
-    !write(6,*) 'ENew=',ENew
-    !write(6,*) 'E1,E2=',E1,E2
+    !write(u6,*) 'ENew=',ENew
+    !write(u6,*) 'E1,E2=',E1,E2
     if (E1 <= E2) then
-      !write(6,*) 'Update reactant'
+      !write(u6,*) 'Update reactant'
       Tmp(6*nAtom+1) = Energy(iter)
       E1 = Energy(iter)
       call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(1:3*nAtom),1)
     else
-      !write(6,*) 'Update product'
+      !write(u6,*) 'Update product'
       Tmp(6*nAtom+2) = Energy(iter)
       E2 = Energy(iter)
       call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(3*nAtom+1:6*nAtom),1)
@@ -587,7 +583,7 @@ if (Conv1 .and. Saddle) then
 
   if (.not. FindTS) then
     call mma_deallocate(Tmp)
-    !write(6,*) 'Reset $SubProject'
+    !write(u6,*) 'Reset $SubProject'
 
     ! Reset $SubProject for the next macro iteration.
 
@@ -597,11 +593,11 @@ if (Conv1 .and. Saddle) then
     call Molcas_Open(LuInput,StdIn)
     if (E1 <= E2) then
       write(LuInput,'(A)') '> EXPORT SubProject=.Reac'
-      !write(6,*) 'SubProject=.Reac'
+      !write(u6,*) 'SubProject=.Reac'
       call NameRun('RUNREAC')
     else
       write(LuInput,'(A)') '> EXPORT SubProject=.Prod'
-      !write(6,*) 'SubProject=.Prod'
+      !write(u6,*) 'SubProject=.Prod'
       call NameRun('RUNPROD')
     end if
 
@@ -654,6 +650,7 @@ end if
 !                                                                      *
 ! Book keeping for minimum energy path search
 
+IRC = 0
 call Qpg_iScalar('IRC',Found)
 if (Found) call Get_iScalar('IRC',IRC)
 
@@ -760,7 +757,7 @@ end if
 
 if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
   if ((iMEP >= 1) .and. (iPrint >= 5)) then
-    write(6,*)
+    write(u6,*)
     call CollapseOutput(1,'IRC/Minimum Energy Path Information')
   end if
 
@@ -795,9 +792,9 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
     if ((MEP .and. eTest) .and. (.not. Terminate)) then
       Terminate = .true.
       if (iPrint >= 5) then
-        write(6,*)
-        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy increase!'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy increase!'
+        write(u6,*)
       end if
     end if
 
@@ -806,9 +803,9 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
     if ((rMEP .and. eTest) .and. (.not. Terminate)) then
       Terminate = .true.
       if (iPrint >= 5) then
-        write(6,*)
-        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy decrease!'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy decrease!'
+        write(u6,*)
       end if
     end if
 
@@ -817,20 +814,20 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
       if ((ResGrad < ThrMEP) .and. (.not. Terminate)) then
         Terminate = .true.
         if (iPrint >= 5) then
-          write(6,*)
-          write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small gradient!'
-          write(6,*)
+          write(u6,*)
+          write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small gradient!'
+          write(u6,*)
         end if
       end if
     end if
 
     ! Test for small step.
-    if ((RMS < ThrGrd*4.d0) .and. (.not. Terminate)) then
+    if ((RMS < ThrGrd*Four) .and. (.not. Terminate)) then
       Terminate = .true.
       if (iPrint >= 5) then
-        write(6,*)
-        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small geometry change!'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small geometry change!'
+        write(u6,*)
       end if
     end if
 
@@ -838,9 +835,9 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
     if ((iMEP >= nMEP) .and. (.not. Terminate)) then
       Terminate = .true.
       if (iPrint >= 5) then
-        write(6,*)
-        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to max number of path points!'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to max number of path points!'
+        write(u6,*)
       end if
     end if
 
@@ -848,9 +845,9 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
     if ((BadConstraint .and. (.not. Terminate)) .or. TurnBack) then
       Terminate = .true.
       if (iPrint >= 5) then
-        write(6,*)
-        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to problematic constraint!'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to problematic constraint!'
+        write(u6,*)
       end if
     end if
 
@@ -947,34 +944,34 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
     call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
     call Get_dArray('MEP-Lengths',L_MEP,nMEP+1)
     call Get_dArray('MEP-Curvatures',Cu_MEP,nMEP+1)
-    write(6,*)
+    write(u6,*)
     CumLen = Zero
     if (Cu_MEP(1+iMEP) >= Zero) then
-      write(6,*) '         Cumul.'
-      write(6,*) 'Point  Length (bohr)       Energy  Curvature'
-      write(6,*) '--------------------------------------------'
+      write(u6,*) '         Cumul.'
+      write(u6,*) 'Point  Length (bohr)       Energy  Curvature'
+      write(u6,*) '--------------------------------------------'
       do i=0,iMEP
         CumLen = CumLen+L_MEP(1+i)
-        write(6,200) i,CumLen,E_MEP(1+i),Cu_MEP(1+i)
+        write(u6,200) i,CumLen,E_MEP(1+i),Cu_MEP(1+i)
       end do
     else
-      write(6,*) '         Cumul.'
-      write(6,*) 'Point  Length (bohr)       Energy'
-      write(6,*) '---------------------------------'
+      write(u6,*) '         Cumul.'
+      write(u6,*) 'Point  Length (bohr)       Energy'
+      write(u6,*) '---------------------------------'
       do i=0,iMEP
         CumLen = CumLen+L_MEP(1+i)
-        write(6,200) i,CumLen,E_MEP(1+i)
+        write(u6,200) i,CumLen,E_MEP(1+i)
       end do
     end if
 200 format(1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
     if (iPrint > 6) then
-      write(6,*)
+      write(u6,*)
       do i=0,iMEP
         call RecPrt(' Coordinates',' ',C_MEP(:,:,i+1),3,nAtom)
       end do
     end if
     call CollapseOutput(0,'IRC/Minimum Energy Path Information')
-    write(6,*)
+    write(u6,*)
     call mma_deallocate(E_MEP)
     call mma_deallocate(C_MEP)
     call mma_deallocate(L_MEP)

@@ -13,15 +13,17 @@ subroutine Reset_ThrGrd(nIter,mTtAtm,ThrGrd)
 
 use Slapaf_Info, only: Cx
 use Slapaf_Parameters, only: nDimBC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Ten, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-logical Found
-integer, allocatable :: TabAI(:), AN(:)
-real*8, allocatable :: TR(:), Vec(:), Coor(:,:), Tmp(:)
-integer, allocatable :: TabB(:,:), TabA(:,:,:)
+implicit none
+integer(kind=iwp) :: nIter, mTtAtm
+real(kind=wp) :: ThrGrd
+integer(kind=iwp) :: i, iIter, mTR, nBonds, nHidden, nMax, nSaddle, nsAtom
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:), TabB(:,:)
+real(kind=wp), allocatable :: Coor(:,:), Tmp(:), TR(:), Vec(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -93,7 +95,7 @@ mTtAtm = mTtAtm-nHidden
 call mma_allocate(Tmp,nSaddle,Label='Tmp')
 call Get_dArray('Saddle',Tmp,nSaddle)
 Found = .false.
-if (Tmp(nSaddle-1) > 0.50d0) then
+if (Tmp(nSaddle-1) > Half) then
   do i=1,nBonds
     if (TabB(3,i) == 2) then
       Found = .true.
@@ -102,7 +104,7 @@ if (Tmp(nSaddle-1) > 0.50d0) then
   end do
 20 continue
   if (Found) then
-    ! ThrGrd = 0.03D0
+    ! ThrGrd = 0.03_wp
     ThrGrd = Ten*ThrGrd
     call WarningMessage(1,'Molecule composed of many fragments Convergence threshold reduced')
   end if

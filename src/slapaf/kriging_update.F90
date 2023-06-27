@@ -13,18 +13,19 @@
 
 subroutine Kriging_Update(nQQ,iter,qInt,E_Disp)
 
-use Slapaf_Info, only: Energy, dqInt, Energy0, dqInt_Aux, Gx, Gx0, NAC, BMx_kriging, Degen
+use Slapaf_Info, only: BMx_kriging, Degen, dqInt, dqInt_Aux, Energy, Energy0, Gx, Gx0, NAC
 use Slapaf_Parameters, only: Curvilinear, NADC
 use Kriging_Mod, only: nSet
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nQQ, iter
-real*8 qInt(nQQ), E_Disp
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: nAtoms
-real*8 :: Diff, Omega
-real*8, allocatable :: Aux(:,:), Demp(:), Temp(:), vAux(:)
+integer(kind=iwp) :: nQQ, iter
+real(kind=wp) :: qInt(nQQ), E_Disp
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: Diff, Omega
+real(kind=wp), allocatable :: Aux(:,:), Demp(:), Temp(:), vAux(:)
 
 call mma_allocate(Temp,nSet,Label='Temp')
 call mma_allocate(Demp,nSet,Label='Demp')
