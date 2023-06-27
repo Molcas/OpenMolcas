@@ -8,1089 +8,1027 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Convrg(iter,kIter, nInter,iStop,MxItr,                 &
-     &                  mIntEff,mTtAtm,GoOn,Step_Trunc,                 &
-     &                  Just_Frequencies)
-      Use Chkpnt
-      Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,   &
-     &                       dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,    &
-     &                             MaxItr, Numerical, iNeg, GrdMax,     &
-     &                             E_Delta, ThrEne, ThrGrd, nLambda,    &
-     &                             iOptC, ThrCons, ThrMEP, Baker,       &
-     &                             eMEPTest, rMEP, MEP, nMEP, Stop,     &
-     &                             NADC, EDiffZero, ApproxNADC
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
+
+use Chkpnt
+use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt, dqInt, Lbl
+use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian, MaxItr, Numerical, iNeg, GrdMax, E_Delta, ThrEne, ThrGrd, nLambda, &
+                             iOptC, ThrCons, ThrMEP, Baker, eMEPTest, rMEP, MEP, nMEP, stop, NADC, EDiffZero, ApproxNADC
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "warnings.h"
-      Integer:: IRC=0
-      Real*8 Maxed, MaxErr
-      Character(LEN=5) ConLbl(5)
-      Character(LEN=1) Step_Trunc
-      Character(LEN=16) StdIn
-      Character(LEN=80) Point_Desc
-      Character(LEN=16) MEP_Text
-      Logical Conv1, GoOn, Found, Terminate, Last_Energy,               &
-     &        Just_Frequencies, Saddle, eTest,                          &
-     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,         &
-     &        TurnBack
-      Character(LEN=8) Temp
-      Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
-      Real*8, Allocatable:: E_IRC(:), C_IRC(:,:,:), G_IRC(:,:,:)
-      Real*8, Allocatable:: E_S(:), C_S(:,:,:), G_S(:,:,:)
-      Real*8, Allocatable:: E_R(:), C_R(:,:), G_R(:,:)
-      Real*8, Allocatable:: E_P(:), C_P(:,:), G_P(:,:)
-      Real*8, Allocatable:: E_MEP(:), G_MEP(:,:,:)
-      Real*8, Allocatable, Target:: C_MEP(:,:,:)
-      Real*8, Allocatable:: L_MEP(:), Cu_MEP(:)
-      Integer, Allocatable:: Information(:)
-      Real*8, Allocatable:: Tmp(:)
-      Real*8, Allocatable, Target:: Not_Allocated(:,:), OfRef(:,:)
-      Real*8 rDum(1,1,1,1)
+integer :: IRC = 0
+real*8 Maxed, MaxErr
+character(len=5) ConLbl(5)
+character(len=1) Step_Trunc
+character(len=16) StdIn
+character(len=80) Point_Desc
+character(len=16) MEP_Text
+logical Conv1, GoOn, Found, Terminate, Last_Energy, Just_Frequencies, Saddle, eTest, IRCRestart, Conv2, ConvTmp, TSReg, &
+        BadConstraint, TurnBack
+character(len=8) Temp
+real*8, allocatable :: Coor1(:,:), Coor2(:,:)
+real*8, allocatable :: E_IRC(:), C_IRC(:,:,:), G_IRC(:,:,:)
+real*8, allocatable :: E_S(:), C_S(:,:,:), G_S(:,:,:)
+real*8, allocatable :: E_R(:), C_R(:,:), G_R(:,:)
+real*8, allocatable :: E_P(:), C_P(:,:), G_P(:,:)
+real*8, allocatable :: E_MEP(:), G_MEP(:,:,:)
+real*8, allocatable, target :: C_MEP(:,:,:)
+real*8, allocatable :: L_MEP(:), Cu_MEP(:)
+integer, allocatable :: Information(:)
+real*8, allocatable :: Tmp(:)
+real*8, allocatable, target :: Not_Allocated(:,:), OfRef(:,:)
+real*8 rDum(1,1,1,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-      Integer nCent
-      Real*8  xyz(3,nCent)
-      Real*8, Allocatable, Target:: OfRef(:,:)
-      Real*8  RR0
-      Real*8  Bf(3,nCent)
-      Logical l_Write
-      Character(LEN=8) Label
-      Real*8  dBf(3,nCent,3,nCent)
-      Logical ldB
-      End Subroutine SphInt
-      End Interface
+interface
+  subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+    integer nCent
+    real*8 xyz(3,nCent)
+    real*8, allocatable, target :: OfRef(:,:)
+    real*8 RR0
+    real*8 Bf(3,nCent)
+    logical l_Write
+    character(len=8) Label
+    real*8 dBf(3,nCent,3,nCent)
+    logical ldB
+  end subroutine SphInt
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nAtom=SIZE(Cx,2)
-      TSReg = iAnd(iOptC,8192).eq.8192
+nAtom = size(Cx,2)
+TSReg = iand(iOptC,8192) == 8192
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Lu=6
-      nSaddle_Max=100
-      iRout=116
-      iPrint=nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt('Convrg: Energy',' ',Energy,1,iter)
-         Call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
-         Call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
-         Call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
-         Call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
-         Call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
-      End If
+Lu = 6
+nSaddle_Max = 100
+iRout = 116
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt('Convrg: Energy',' ',Energy,1,iter)
+  call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
+  call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
+  call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
+  call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
+  call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
+end if
+
+call Get_iScalar('Saddle Iter',iter_S)
+if (iter_S == 0) then
+  iter_S = 1
+  call Put_iScalar('Saddle Iter',iter_S)
+  call f_Inquire('RUNFILE2',Found)
+  if (Found) then
+    call NameRun('RUNFILE2')
+    call Put_iScalar('Saddle Iter',iter_S)
+    call NameRun('#Pop')
+  end if
+end if
+Temp = ' '
+if (Analytic_Hessian) then
+  if ((HUPMET == '  No  ') .or. (HUPMET == ' None ')) then
+    !Temp = 'Analytic'
+    Temp = 'Computed'
+  else
+    Temp(1:6) = HUPMET(1:6)
+  end if
+else
+  Temp(1:6) = HUPMET(1:6)
+end if
+
+call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
+call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
+call AtmLst(Cx(:,:,iter),nAtom,Coor1,mTtAtm)
+call AtmLst(Cx(:,:,iter+1),nAtom,Coor2,mTtAtm)
+call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
+call mma_deallocate(Coor1)
+call mma_deallocate(Coor2)
+
+if ((kIter /= iter) .and. (kIter == 1)) then
+  Fabs = GNrm(kiter)
+  E = Energy(kiter)
+else
+  Fabs = GNrm(iter)
+  E = Energy(iter)
+end if
+Fabs = max(Zero,Fabs)
+E0 = E+E_delta
+Energy(iter+1) = E0
+Gx(:,:,iter+1) = Zero
+if (kiter == 1) then
+  eChng = Zero
+else
+  if ((kIter /= iter) .and. (kIter == 2)) then
+    eChng = Energy(iter)-Energy(1)
+  else
+    eChng = Energy(iter)-Energy(iter-1)
+  end if
+end if
+
+eDiffMEP = Zero
+if (MEP .or. rMEP) then
+  Saddle = .false.
+  iMEP = 0
+  call Qpg_iScalar('nMEP',Found)
+  if (Found) call Get_iScalar('nMEP',iMEP)
+  if (iMEP == 0) then
+    iOff_Iter = 0
+    call Put_iScalar('iOff_Iter',iOff_Iter)
+  else
+    call Get_iScalar('iOff_Iter',iOff_Iter)
+  end if
+else
+  iOff_Iter = 0
+  iSaddle = 0
+  call qpg_dArray('Saddle',Saddle,nSaddle)
+  Saddle = Saddle .and. (.not. Just_Frequencies)
+  if (Saddle) then
+    call Qpg_iScalar('nMEP',Found)
+    if (Found) call Get_iScalar('nMEP',iSaddle)
+    call Get_iScalar('iOff_Iter',iOff_Iter)
+  end if
+end if
+
+! Convergence criteria
 !
-      Call Get_iScalar('Saddle Iter',iter_S)
-      If (iter_S.eq.0) Then
-         iter_S=1
-         Call Put_iScalar('Saddle Iter',iter_S)
-         Call f_Inquire('RUNFILE2',Found)
-         If (Found) Then
-            Call NameRun('RUNFILE2')
-            Call Put_iScalar('Saddle Iter',iter_S)
-            Call NameRun('#Pop')
-         End If
-      End If
-      Temp=' '
-      If (Analytic_Hessian) Then
-         If (HUPMET.eq.'  No  '.or.HUPMET.eq.' None ') Then
-!           Temp='Analytic'
-            Temp='Computed'
-         Else
-            Temp(1:6)= HUPMET(1:6)
-         End if
-      Else
-         Temp(1:6)= HUPMET(1:6)
-      End If
+! Too many iterations
 !
-      Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
-      Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-      Call AtmLst(Cx(:,:,iter  ),nAtom,Coor1,mTtAtm)
-      Call AtmLst(Cx(:,:,iter+1),nAtom,Coor2,mTtAtm)
-      Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
-      Call mma_deallocate(Coor1)
-      Call mma_deallocate(Coor2)
+! or
 !
-      If (kIter.ne.iter .and. kIter.eq.1) Then
-         Fabs   = GNrm(kiter)
-         E = Energy(kiter)
-      Else
-         Fabs   = GNrm(iter)
-         E = Energy(iter)
-      End If
-      Fabs = Max(Zero,Fabs)
-      E0 = E + E_delta
-      Energy(iter+1)=E0
-      Gx(:,:,iter+1)=Zero
-      If (kiter.eq.1) Then
-         eChng=Zero
-      Else
-         If (kIter.ne.iter .and. kIter.eq.2) Then
-            eChng=Energy(iter)-Energy(1)
-         Else
-            eChng=Energy(iter)-Energy(iter-1)
-         End If
-      End If
-!
-      eDiffMEP=Zero
-      If (MEP.or.rMEP) Then
-         Saddle=.False.
-         iMEP=0
-         Call Qpg_iScalar('nMEP',Found)
-         If (Found) Call Get_iScalar('nMEP',iMEP)
-         If (iMEP.eq.0) Then
-            iOff_Iter=0
-            Call Put_iScalar('iOff_Iter',iOff_Iter)
-         Else
-            Call Get_iScalar('iOff_Iter',iOff_Iter)
-         End If
-      Else
-         iOff_Iter=0
-         iSaddle=0
-         Call qpg_dArray('Saddle',Saddle,nSaddle)
-         Saddle=Saddle.and..NOT.Just_Frequencies
-         If (Saddle) Then
-            Call Qpg_iScalar('nMEP',Found)
-            If (Found) Call Get_iScalar('nMEP',iSaddle)
-            Call Get_iScalar('iOff_Iter',iOff_Iter)
-         End If
-      End If
-!
-!----- Convergence criteria
-!
-!      Too many iterations
-!
-!      or
-!
-! 1)   a la Baker
-!      Abs(GrdMax).lt.ThrGrd
+! 1) a la Baker
+!      Abs(GrdMax) < ThrGrd
 !      and
-!      Abs(eChng).lt.ThrEne or RMSMax.lt.ThrGrd
+!      Abs(eChng) < ThrEne or RMSMax < ThrGrd
 !
-! 2)   a la Gaussian
-!      Abs(Fabs/Sqrt(mIntEff)).lt.ThrGrd
+! 2) a la Gaussian
+!      Abs(Fabs/Sqrt(mIntEff)) < ThrGrd
 !      and
-!      Abs(GrdMax).lt.ThrGrd*1.5
+!      Abs(GrdMax) < ThrGrd*1.5
 !      and
-!      ((RMS.lt.ThrGrd*4
+!      ((RMS < ThrGrd*4
 !        and
-!        RMSMax.lt.ThrGrd*6)
+!        RMSMax < ThrGrd*6)
 !       or
-!       Abs(eChng).lt.ThrEne)
-!
-      If (Baker) Then
-         Val1= Abs(eChng)
-         Thr1= ThrEne
-         If (kIter.le.1) Then
-            ConLbl(1)=' --- '
-         Else If (Val1.lt.Thr1) Then
-            ConLbl(1)=' Yes '
-         Else
-            ConLbl(1)=' No  '
-         End If
-         Val2= RMSMax
-         Thr2= ThrGrd
-         If (Val2.lt.Thr2) Then
-            If (Step_Trunc.ne.' ') Then
-               ConLbl(2)=' No *'
-            Else
-               ConLbl(2)=' Yes '
-            End If
-         Else
-            ConLbl(2)=' No  '
-         End If
-         Val3= Abs(GrdMax)
-         Thr3= ThrGrd
-         If (Val3.lt.Thr3) Then
-            ConLbl(3)=' Yes '
-         Else
-            ConLbl(3)=' No  '
-         End If
-         Conv1= Val1.lt.Thr1.and.kIter.gt.1
-         Conv1= Conv1.or. (Val2.lt.Thr2 .and. Step_Trunc.eq.' ')
-         Conv1= Conv1.and. Val3.lt.Thr3
-      Else
-         Val2=Abs(Fabs/Sqrt(DBLE(mIntEff)))
-         Thr2=ThrGrd
-         Conv1=Val2.lt.Thr2
-         If (Conv1) Then
-            ConLbl(2)=' Yes '
-         Else
-            ConLbl(2)=' No  '
-         End If
-         Conv1= Conv1.and.Abs(GrdMax).lt.ThrGrd*1.5D0
-         Val4=Abs(GrdMax)
-         Thr4=ThrGrd*1.5D0
-         ConvTmp=Val4.lt.Thr4
-         Conv1=Conv1.and.ConvTmp
-         If (ConvTmp) Then
-            ConLbl(4)=' Yes '
-         Else
-            ConLbl(4)=' No  '
-         End If
-         Conv2= RMS.lt.ThrGrd*4.D0 .and. Step_Trunc.eq.' '
-         Val1=RMS
-         Thr1=ThrGrd*4.0D0
-         ConvTmp=Val1.lt.Thr1
-         Conv2=ConvTmp .and. Step_Trunc.eq.' '
-         If (ConvTmp) Then
-            If (Step_Trunc.ne.' ') Then
-               ConLbl(1)=' No *'
-            Else
-               ConLbl(1)=' Yes '
-            End If
-         Else
-            ConLbl(1)=' No  '
-         End If
-         Val3=RMSMax
-         Thr3=ThrGrd*6.0D0
-         ConvTmp=Val3.lt.Thr3
-         Conv2=Conv2.and.ConvTmp
-         If (ConvTmp) Then
-            If (Step_Trunc.ne.' ') Then
-               ConLbl(3)=' No *'
-            Else
-               ConLbl(3)=' Yes '
-            End If
-         Else
-            ConLbl(3)=' No  '
-         End If
-         Val5=Abs(eChng)
-         Thr5=ThrEne
-         ConvTmp=Val5.lt.Thr5 .and. kIter.gt.1
-         If (ConvTmp) Then
-            ConLbl(5)=' Yes '
-         Else
-            If (kIter.gt.1) Then
-               ConLbl(5)=' No  '
-            Else
-               ConLbl(5)=' --- '
-            End If
-         End If
-         Conv2=Conv2.or.ConvTmp
-         Conv1=Conv1.and.Conv2
-      End If
-!
-      Stop = Conv1 .or. (kIter-iOff_Iter).ge.MxItr ! CGG
-      iStop=1
-      If (kIter-iOff_Iter.ge.MxItr) iStop=16       ! CGG
-      If (Conv1.or.Just_Frequencies)  iStop= 0
-!
-      If (GoOn) Then
-         Stop=.False.
-         iStop=1
-      Else
-         If (Just_Frequencies) Stop=.True.
-         nPrint(52)=nPrint(52)+1
-         nPrint(54)=nPrint(54)+1
-         iPrint    =iPrint+1
-         nPrint(53)=nPrint(53)+1
-      End If
-      If (.Not.Just_Frequencies)                                        &
-     &   Call Status(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eChng,Temp,     &
-     &               Step_Trunc,.NOT.Numerical)
-!
-      If (Baker) Then
-         If (iPrint.ge.5) Then
-            Write (Lu,'(A)')                                            &
-     &        '                +----------------------------------+'
-            Write (Lu,'(A)')                                            &
-     &        '                +  Value      Threshold Converged? +'
-            Write (Lu,'(A)')                                            &
-     &        '+---------------+----------------------------------+'
-            Write (Lu,4)                                                &
-     &        '+ Max. gradient +',Val3,' ',Thr3,'    ',ConLbl(3),'  +'
-            Write (Lu,'(A)')                                            &
-     &        '+---------------+----------------------------------+'
-            Write (Lu,4)                                                &
-     &        '+ Max. disp.    +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
-            Write (Lu,'(A)')                                            &
-     &        '+---------------+----------------------------------+'
-            Write (Lu,4)                                                &
-     &        '+ Energy diff.  +',Val1,' ',Thr1,'    ',ConLbl(1),'  +'
-            Write (Lu,'(A)')                                            &
-     &        '+---------------+----------------------------------+'
- 4          Format(A,2(ES11.4,A),A,A)
-         End If
-      Else
-         If (iPrint.ge.5) Then
-            Write (Lu,'(A)')                                            &
-     &        '       +----------------------------------+'             &
-     &      //'----------------------------------+'
-            Write (Lu,'(A)')                                            &
-     &        '       +    Cartesian Displacements       +'             &
-     &      //'    Gradient in internals         +'
-            Write (Lu,'(A)')                                            &
-     &        '       +  Value      Threshold Converged? +'             &
-     &      //'  Value      Threshold Converged? +'
-            Write (Lu,'(A)')                                            &
-     &        ' +-----+----------------------------------+'             &
-     &      //'----------------------------------+'
-            Write (Lu,5)                                                &
-     &        ' + RMS +',Val1,   ' ',Thr1,'    ',ConLbl(1),  '  +',     &
-     &                Val2,   ' ',Thr2,'    ',ConLbl(2),  '  +'
-            Write (Lu,'(A)')                                            &
-     &       ' +-----+----------------------------------+'              &
-     &          //'----------------------------------+'
-            Write (Lu,5)                                                &
-     &        ' + Max +',Val3,   ' ',Thr3,'    ',ConLbl(3),  '  +',     &
-     &                Val4,   ' ',Thr4,'    ',ConLbl(4),  '  +'
-            Write (Lu,'(A)')                                            &
-     &       ' +-----+----------------------------------+'              &
-     &      //'----------------------------------+'
-            If (ThrEne.gt.Zero) Then
-               Write (Lu,5)                                             &
-     &           ' + dE  +',Val5,   ' ',Thr5,'    ',ConLbl(5),  '  +'
-               Write (Lu,'(A)')                                         &
-     &          ' +-----+----------------------------------+'
-            End If
-            Write (Lu,*)
- 5          Format(A,2(2(ES11.4,A),A,A))
-         End If
-      End If
-!
-      If (Stop.and.Conv1) Then
-         Call Qpg_dScalar('Max error',Found)
-         If (Found) Call Get_dScalar('Max error',MaxErr)
-         If (MaxErr.gt.ThrCons) Then
-            iStop=1
-            Conv1=.False.
-            Stop=.False.
-            Write(Lu,'(A,ES11.4)') 'Maximum constraint error: ',MaxErr
-            Write(Lu,*)
-         End If
-      End If
-!
-      nConst=0
-      If (iNeg(1).eq.0) Then
-         If (EDiffZero) Then
-            If (NADC) Then
-               nConst=2
-            Else
-               nConst=1
-            End If
-            Point_Desc='Minimum Energy Crossing Point Structure'
-         Else
-            Point_Desc='Minimum Structure'
-         End If
-      Else If (iNeg(1).eq.1) Then
-         Point_Desc='Transition State Structure'
-      Else
-         Point_Desc='Higher Order Saddle Point Structure'
-      End If
-      If (nLambda.gt.nConst) Point_Desc='Constrained '//Trim(Point_Desc)
-      If (iPrint.ge.5) Then
-         If (Stop) Then
-            If (Conv1) Then
-               Write (Lu,'(A,I3,A)') ' Geometry is converged in ',      &
-     &            kIter-iOff_iter,' iterations to a '//Trim(Point_Desc)
-            Else
-               Write (Lu,'(A)') ' No convergence after max iterations'
-               If (Lu.ne.6) Write (6,'(/A)')                            &
-     &                          ' No convergence after max iterations'
-            End If
-         Else
-            Write (Lu,'(A)') ' Convergence not reached yet!'
-         End If
-      End If
-      If (FindTS.and.Stop.and.Conv1) Then
-         If (.Not.TSReg) Then
-            If (iPrint.ge.5) Then
-               Write (Lu,*)
-               Write (Lu,'(A)')                                         &
-     &' FindTS was requested, but the TS regime was not reached.'
-               Write (Lu,'(A)')                                         &
-     &' The converged structure is probably not the desired TS.'
-            End If
-            iStop=16
-         End If
-      End If
-!      If (iPrint.eq.7) Then
-!         Write (Lu,*)
-!         Write (Lu,'(A)') '*********************************'//
-!     &      ' Geometry Statistics for Geometry Optimization '//
-!     &                    '*********************************'
-!         nPrint(118) = 7
-!         Call List(' Internal coordinates ',Lbl,qInt,nInter,iter+1)
-!         Call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
-!      End If
-!
-!     The energy change should not be too large
-      Maxed=1.0d2
-      If (Abs(E_Delta).gt.Maxed) Then
-         Write (6,*) 'The predicted energy change is too large: ',      &
-     &                E_Delta
-         Write (6,'(A)') ' This can''t be right!'
-         Write (6,'(A)') ' This job will be terminated.'
-         iStop=8
-         Stop=.True.
-      End If
-      If (iPrint.ge.5) Then
-         Write (Lu,*)
-         Write (Lu,'(A)') '*********************'//                     &
-     &      '*******************************************************'   &
-     &      //'*************************************'
-         Write (Lu,'(A)') '*********************'//                     &
-     &      '*******************************************************'   &
-     &      //'*************************************'
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Terminate=.False.
-      IRCRestart=.False.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Write summary of conical intersection characterization data
-!
-      If (Conv1.and.NADC.and.EDiffZero) Then
-         If (iPrint.ge.5) Then
-            If (.Not.ApproxNADC) Call CI_Summary(Lu)
-         End If
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Book keeping for Saddle optimization for a TS. Note that this will
-!     have to be done on both of the runfiles!
-!
-      If (Conv1.and.Saddle) Then
-!
-!        Here if a macro iteration in the Saddle TS optimization is
-!        completed.
-!
-!        ENew=Energy(iter)+E_Delta
-         Call mma_allocate(Tmp,nSaddle,Label='Tmp')
-!
-!        Store the info for later generation of MOLDEN formated files
-!
-         Call Get_dArray('Saddle',Tmp,nSaddle)
-         E_Reac=Tmp(6*nAtom+1)
-         E_Prod=Tmp(6*nAtom+2)
-!
-         Call mma_allocate(E_S,nSaddle_Max,Label='E_S')
-         Call mma_allocate(C_S,3,nAtom,nSaddle_Max,Label='C_S')
-         Call mma_allocate(G_S,3,nAtom,nSaddle_Max,Label='G_S')
-         If (iSaddle.eq.0) Then
-!
-!           Initiate with data from the starting points
-!
-            E_S(:)=Zero
-            C_S(:,:,:)=Zero
-            G_S(:,:,:)=Zero
-            iSaddle=1
-            If (E_Reac.le.E_Prod) Then
-               E_S(iSaddle)=E_Reac
-               Call DCopy_(3*nAtom,Tmp(1:3*nAtom),1,C_S(:,:,iSaddle),1)
-            Else
-               E_S(iSaddle)=E_Prod
-               Call DCopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,            &
-     &                     C_S(:,:,iSaddle),1)
-            End If
-!
-         Else
-!
-            Call Get_dArray('MEP-Energies',E_S,nSaddle_Max)
-            Call Get_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
-!
-         End If
-!
-!        Add the new data
-!
-         iSaddle=iSaddle+1
-         E_S(iSaddle)=Energy(iter)
-         C_S(:,:,iSaddle) = Cx(:,:,iter)
-         G_S(:,:,iSaddle) = Gx(:,:,iter)
-!
-!        Put data on RUNFILE
-!
-         Call Put_dArray('MEP-Energies',E_S,nSaddle_Max)
-         Call Put_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
-         Call Put_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
-         Call Put_iScalar('nMEP',iSaddle)
-!
-         Call mma_deallocate(G_S)
-         Call mma_deallocate(C_S)
-         Call mma_deallocate(E_S)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Now update the "Saddle" field on both runfiles.
-!
-         Do iFile = 1, 2
-!
-         If (iFile.eq.1) Then
-            Call NameRun('RUNREAC')
-         Else
-            Call NameRun('RUNPROD')
-         End If
-!
-!        Update info on the runfile.
-!
-         Call Get_dArray('Saddle',Tmp,nSaddle)
-         E1=Tmp(6*nAtom+1)
-         E2=Tmp(6*nAtom+2)
-!        Write (6,*) 'ENew=',ENew
-!        Write (6,*) 'E1,E2=',E1,E2
-         If (E1.le.E2) Then
-!           Write (6,*) 'Update reactant'
-            Tmp(6*nAtom+1)=Energy(iter)
-            E1=Energy(iter)
-            Call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(1:3*nAtom),1)
-         Else
-!           Write (6,*) 'Update product'
-            Tmp(6*nAtom+2)=Energy(iter)
-            E2=Energy(iter)
-            Call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(3*nAtom+1:6*nAtom),1)
-         End If
-!        Set flag that seward should process the info! This should not
-!        be done for the final macro iteration.
-         If (.Not.FindTS) Tmp(6*nAtom+5)=One
-         Call Put_dArray('Saddle',Tmp,nSaddle)
-!
-         End Do
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Converged or not, create the saddle.molden file
-!        after each macro iteration
-!
-         Call NameRun('RUNREAC')
-         Call mma_allocate(E_r,nSaddle_Max,Label='E_r')
-         Call mma_allocate(C_r,3*nAtom,nSaddle_Max,Label='C_r')
-         Call mma_allocate(G_r,3*nAtom,nSaddle_Max,Label='G_r')
-         Call Qpg_iScalar('nMEP',Found)
-         if(Found) Then
-            Call Get_dArray('MEP-Energies',E_r,nSaddle_Max)
-            Call Get_dArray('MEP-Coor',C_r,3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',G_r,3*nAtom*nSaddle_Max)
-            Call Get_iScalar('nMEP',iSaddle_r)
-         Else
-            E_r(1)=E_Reac
-            C_r(:,1) = Tmp(1:3*nAtom)
-            G_r(:,:) = Zero
-            iSaddle_r=1
-         End If
-!
-         Call NameRun('RUNPROD')
-         Call mma_allocate(E_p,nSaddle_Max,Label='E_p')
-         Call mma_allocate(C_p,3*nAtom,nSaddle_Max,Label='C_p')
-         Call mma_allocate(G_p,3*nAtom,nSaddle_Max,Label='G_p')
-         Call Qpg_iScalar('nMEP',Found)
-         if(Found) Then
-            Call Get_dArray('MEP-Energies',E_p,nSaddle_Max)
-            Call Get_dArray('MEP-Coor',C_p,3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',G_p,3*nAtom*nSaddle_Max)
-            Call Get_iScalar('nMEP',iSaddle_p)
-         Else
-            E_p(1)=E_Prod
-            C_p(:,1) = Tmp(3*nAtom+1:6*nAtom)
-            G_p(:,:) = Zero
-            iSaddle_p=1
-         End If
-!
-!        Merge the two lists
-!
-         jSaddle=iSaddle_r
-         Do iSaddle=iSaddle_p, 1, -1
-            jSaddle=jSaddle+1
-            E_r(jSaddle) = E_p(iSaddle)
-            C_r(:,jSaddle) = C_p(:,iSaddle)
-            G_r(:,jSaddle) = G_p(:,iSaddle)
-         End Do
-         Call mma_deallocate(G_p)
-         Call mma_deallocate(C_p)
-         Call mma_deallocate(E_p)
-!
-!        Align the structures sequentially, only for visualization
-!        (gradients are not changed, though)
-! TODO   Rotate the gradients too
-!
-         Do iSaddle=1,iSaddle_r+iSaddle_p-1
-            Call Align(C_r(:,iSaddle+1),C_r(:,iSaddle),nAtom)
-         End Do
-!
-         Call Intergeo('MD_SADDLE',E_r,C_r,                             &
-     &                 G_r,nAtom,iSaddle_r+iSaddle_p)
-!
-         Call mma_deallocate(G_r)
-         Call mma_deallocate(C_r)
-         Call mma_deallocate(E_r)
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        If the Saddle TS optimization is not yet completed set up
-!        data for the next macro iteration.
-!
-         If (.Not.FindTS) Then
-            Call mma_deallocate(Tmp)
-!           Write (*,*) 'Reset $SubProject'
-!
-!           Reset $SubProject for the next macro iteration.
-!
-            LuInput=11
-            LuInput=IsFreeUnit(LuInput)
-            Call StdIn_Name(StdIn)
-            Call Molcas_Open(LuInput,StdIn)
-            If (E1.le.E2) Then
-               Write (LuInput,'(A)') '> EXPORT SubProject=.Reac'
-!              Write (6,*) 'SubProject=.Reac'
-               Call NameRun('RUNREAC')
-            Else
-               Write (LuInput,'(A)') '> EXPORT SubProject=.Prod'
-!              Write (6,*) 'SubProject=.Prod'
-               Call NameRun('RUNPROD')
-            End If
-!
-!           Signal whether next iteration will be the first in the branch
-!
-            Call Qpg_iScalar('nMEP',Found)
-            If (.Not.Found) Then
-               Write (LuInput,'(A)') '> EXPORT SADDLE_FIRST=1'
-            End If
-            Write (LuInput,'(A,I3)') '> EXIT ',_RC_CONTINUE_LOOP_
-            Close(LuInput)
-!
-!           Set flags to request yet another macro iteration.
-!
-            Terminate=.False.
-            iStop=6
-            Stop=.False.
-         Else
-            Call NameRun('RUNFILE')
-            Call mma_deallocate(Tmp)
-            nSaddle=0
-            Call Put_dArray('Saddle',[Zero],nSaddle)
-            Call Put_iScalar('nMEP',nSaddle)
-         End If
-!
-!        Update the active runfile wrt the total number of micro
-!        iterations done in all macro iterations of this branch.
-!
-         Call NameRun('RUNFILE')
-         Call Put_iScalar('iOff_Iter',iter)
-      End If
-!
-!     Disable first iteration signal right after the first iteration
-!     (in each branch)
-!
-      If ((.Not.Conv1).and.Saddle) Then
-         If ((iter.Eq.1).and.(iStop.eq.1)) Then
-            LuInput=11
-            LuInput=IsFreeUnit(LuInput)
-            Call StdIn_Name(StdIn)
-            Call Molcas_Open(LuInput,StdIn)
-            Write (LuInput,'(A)') '> EXPORT SADDLE_FIRST=0'
-            Write (LuInput,'(A,I3)') '> EXIT ',_RC_CONTINUE_LOOP_
-            Close(LuInput)
-            iStop=6
-         End If
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Book keeping for minimum energy path search
-!
-      Call Qpg_iScalar('IRC',Found)
-      If (Found) Call Get_iScalar('IRC',IRC)
-!
-      TurnBack=.False.
-      If (MEP.or.rMEP) Then
-       If (Conv1) Then
-!
-!        Is this the first iteration or not?
-!
-         iMEP=iMEP+1
-!
-!        Save information for the current step
-!
-         Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-         Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
-         Call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
-         If (iMEP.gt.1) Then
-            Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
-            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
-            Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
-         Else
-            E_MEP(:)=Zero
-            C_MEP(:,:,:)=Zero
-            G_MEP(:,:,:)=Zero
-            E_MEP(iMEP)=Energy(iOff_iter+1)
-            C_MEP(:,:,iMEP)= Cx(:,:,iOff_iter+1)
-            G_MEP(:,:,iMEP)= Gx(:,:,iOff_iter+1)
-         End If
-!
-         E_MEP(iMEP+1)=Energy(iter)
-         C_MEP(:,:,iMEP+1)= Cx(:,:,iter)
-         G_MEP(:,:,iMEP+1)= Gx(:,:,iter)
-         Call Put_dArray('MEP-Energies',E_MEP,nMEP+1)
-         Call Put_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
-         Call Put_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
-         Call Put_iScalar('nMEP',iMEP)
-!
-!        Save the path so far (energies, coordinates and forces)
-!
-         Call Intergeo('MD_MEP',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
-!
-!        Compute energy difference and RMS between last two structures
-!
-         eDiffMEP=E_MEP(iMEP+1)-E_MEP(iMEP)
-         Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
-         Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-         Call AtmLst(C_MEP(:,:,iMEP  ),nAtom,Coor1,mTtAtm)
-         Call AtmLst(C_MEP(:,:,iMEP+1),nAtom,Coor2,mTtAtm)
-         Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
-         Call mma_deallocate(Coor1)
-         Call mma_deallocate(Coor2)
-!
-         Call mma_deallocate(G_MEP)
-         Call mma_deallocate(C_MEP)
-         Call mma_deallocate(E_MEP)
-!
-       Else
-!
-!        Test for "turn back", i.e. when the trial structure
-!        is getting too close to the previous converged structure,
-!        this may be an indication of an ill-behaved constraint
-         If (iMEP.ge.1) Then
-            Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
-            Call mma_allocate(OfRef,3,nAtom,Label='OfRef')
-            Call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
-            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
-            OfRef(:,:)=C_MEP(:,:,iMEP+1)
+!       Abs(eChng) < ThrEne)
 
-!           Using hypersphere measure, even with "transverse" MEPs,
-!           this should not be a problem
-            Call SphInt(Cx(:,:,iter),nAtom,Not_Allocated,refDist,Tmp,   &
-     &         .False.,'dummy   ',rDum,.False.)
-            Call SphInt(Cx(:,:,iter),nAtom,OfRef,prevDist,              &
-     &                  Tmp,.False.,'dummy   ',rDUm,.False.)
-            If (prevDist.lt.Half*refDist) Then
-               TurnBack=.True.
-               Conv1=.True.
-               Stop=.True.
-               iStop=0
-               Terminate=.True.
-            End If
-            Call mma_deallocate(Tmp)
-            Call mma_deallocate(OfRef)
-            Call mma_deallocate(C_MEP)
-         End If
-!
-       End If
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----List internal coordinates and gradients
-!
-      kkIter=iter+1
-      If (iPrint.ge.8) Then
-         Call List(' Internal coordinates ',Lbl,qInt,nInter,kkIter)
-         Call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Put out the new reference structure and the new starting
-!     structure to be used for the next MEP point.
-!     For rMEP keep the reference structure!
-!     Note that this is done in weighted Cartesian coordinates!
-!
-      If ((Conv1.or.(iter.eq.1)).and.(MEP.or.rMEP)) Then
-         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
-            Write (6,*)
-            Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
-         End If
-!
-         ResGrad=Huge(ResGrad)
-         If (.Not.Terminate) Then
-            BadConstraint=.False.
-            Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,  &
-     &                   ResGrad,BadConstraint)
-            Call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Coor,1)
-            Call Put_iScalar('iOff_Iter',iter)
-         End If
-!
-         If (MEP) Then
-            If (IRC.eq.0) Then
-               MEP_Text='MEP'
-            Else If (IRC.eq.1) Then
-               MEP_Text='IRC(forward)'
-            Else
-               MEP_Text='IRC(backward)'
-            End If
-         Else If (rMEP) Then
-            MEP_Text='rMEP'
-         Else
-            MEP_Text=''
-         End If
-!
-!        Should we terminate or not? Not done on the first iteration.
-!
-         If (iMEP.gt.0) Then
-!
-!           Test for energy increase (optionally disabled).
-            eTest=eMEPTest.and.(eDiffMEP.gt.Zero)
-            If ((MEP.and.eTest).and.(.not.Terminate)) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//      &
-     &               ' terminated due to energy increase!'
-                  Write (6,*)
-               End If
-            End If
-!
-!           Test for energy decrease (optionally disabled).
-            eTest=eMEPTest.and.(eDiffMEP.lt.Zero)
-            If ((rMEP.and.eTest).and.(.not.Terminate)) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//      &
-     &               ' terminated due to energy decrease!'
-                  Write (6,*)
-               End If
-            End If
-!
-!           Test for small gradient.
-            If ((iMEP.gt.1).or.(IRC.eq.0)) Then
-              If ((ResGrad.lt.ThrMEP).and.(.not.Terminate)) Then
-                 Terminate=.True.
-                 If (iPrint.ge.5) Then
-                    Write (6,*)
-                    Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//    &
-     &               ' terminated due to small gradient!'
-                    Write (6,*)
-                 End If
-              End If
-            End If
-!
-!           Test for small step.
-            If ((RMS.lt.ThrGrd*4.D0).and.(.not.Terminate)) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//      &
-     &               ' terminated due to small geometry change!'
-                  Write (6,*)
-               End If
-            End If
-!
-!           Test for max number of points.
-            If ((iMEP.ge.nMEP).and.(.not.Terminate)) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//      &
-     &               ' terminated due to max number of path points!'
-                  Write (6,*)
-               End If
-            End If
-!
-!           Test for constraint misbehavior.
-            If ((BadConstraint.and.(.not.Terminate)).or.TurnBack) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//      &
-     &               ' terminated due to problematic constraint!'
-                  Write (6,*)
-               End If
-            End If
-!
-!           If IRC reset for backward IRC search.
-!
-            If (Terminate) Then
-               If (IRC.eq.1) Then
-                  IRCRestart=.True.
-               End If
-            End If
-!
-         End If
-!
-         If (Conv1) Then
-            Call Chkpnt_update_MEP(.Not.TurnBack,IRCRestart)
-         End If
-!
-         If (Conv1.and.Terminate) Then
-            If (IRC.ne.0) Then
-               Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-               Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
-               Call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
-               Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
-               Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
-               Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
-               If (IRC.eq.1) Then
-                  IRCRestart=.True.
-                  IRC=-1
-                  Call Put_iScalar('IRC',IRC)
-!
-!                 Store away data for IRC molden file. Forward part.
-!
-                  Call Put_dArray('IRC-Energies',E_MEP,iMEP+1)
-                  Call Put_dArray('IRC-Coor',C_MEP,3*nAtom*(iMEP+1))
-                  Call Put_dArray('IRC-Grad',G_MEP,3*nAtom*(iMEP+1))
-                  Call Put_dArray('Ref_Geom',Cx,3*nAtom)
-!
-!                 Write a temporary file
-!                 (will be overwritten when the backward part is done)
-!
-                  Call Intergeo('MD_IRC',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
-!
-                  Terminate=.False.
-!
-               Else If (IRC.eq.-1) Then
-!
-!                 Assemble molden file for IRC
-!
-                  nBackward=iMEP+1
-                  Call qpg_dArray('IRC-Energies',Found,nForward)
-                  nIRC=nForward+nBackward-1
-                  Call mma_allocate(E_IRC,nIRC,Label='E_IRC')
-                  Call mma_allocate(C_IRC,3,nAtom,nIRC,Label='C_IRC')
-                  Call mma_allocate(G_IRC,3,nAtom,nIRC,Label='G_IRC')
-!
-                  j=0
-                  Do i = nBackward, 1, -1
-                     j = j+1
-                     E_IRC(j)=E_MEP(i)
-                     C_IRC(:,:,j) = C_MEP(:,:,i)
-                     G_IRC(:,:,j) = G_MEP(:,:,i)
-                  End Do
-!
-                  Call Get_dArray('IRC-Energies',E_IRC(nBackward),      &
-     &                            nForward)
-                  Call Get_dArray('IRC-Coor',C_IRC(:,:,nBackward:nIRC), &
-     &                            nForward*3*nAtom)
-                  Call Get_dArray('IRC-Grad',G_IRC(:,:,nBackward:nIRC), &
-     &                            nForward*3*nAtom)
-!
-                  Call Intergeo('MD_IRC',E_IRC,C_IRC,G_IRC,nAtom,nIRC)
-!
-                  Call mma_deallocate(G_IRC)
-                  Call mma_deallocate(C_IRC)
-                  Call mma_deallocate(E_IRC)
-               End If
+if (Baker) then
+  Val1 = abs(eChng)
+  Thr1 = ThrEne
+  if (kIter <= 1) then
+    ConLbl(1) = ' --- '
+  else if (Val1 < Thr1) then
+    ConLbl(1) = ' Yes '
+  else
+    ConLbl(1) = ' No  '
+  end if
+  Val2 = RMSMax
+  Thr2 = ThrGrd
+  if (Val2 < Thr2) then
+    if (Step_Trunc /= ' ') then
+      ConLbl(2) = ' No *'
+    else
+      ConLbl(2) = ' Yes '
+    end if
+  else
+    ConLbl(2) = ' No  '
+  end if
+  Val3 = abs(GrdMax)
+  Thr3 = ThrGrd
+  if (Val3 < Thr3) then
+    ConLbl(3) = ' Yes '
+  else
+    ConLbl(3) = ' No  '
+  end if
+  Conv1 = (Val1 < Thr1) .and. (kIter > 1)
+  Conv1 = Conv1 .or. ((Val2 < Thr2) .and. (Step_Trunc == ' '))
+  Conv1 = Conv1 .and. (Val3 < Thr3)
+else
+  Val2 = abs(Fabs/sqrt(dble(mIntEff)))
+  Thr2 = ThrGrd
+  Conv1 = Val2 < Thr2
+  if (Conv1) then
+    ConLbl(2) = ' Yes '
+  else
+    ConLbl(2) = ' No  '
+  end if
+  Conv1 = Conv1 .and. (abs(GrdMax) < ThrGrd*1.5d0)
+  Val4 = abs(GrdMax)
+  Thr4 = ThrGrd*1.5d0
+  ConvTmp = Val4 < Thr4
+  Conv1 = Conv1 .and. ConvTmp
+  if (ConvTmp) then
+    ConLbl(4) = ' Yes '
+  else
+    ConLbl(4) = ' No  '
+  end if
+  Conv2 = (RMS < ThrGrd*4.d0) .and. (Step_Trunc == ' ')
+  Val1 = RMS
+  Thr1 = ThrGrd*4.0d0
+  ConvTmp = Val1 < Thr1
+  Conv2 = ConvTmp .and. (Step_Trunc == ' ')
+  if (ConvTmp) then
+    if (Step_Trunc /= ' ') then
+      ConLbl(1) = ' No *'
+    else
+      ConLbl(1) = ' Yes '
+    end if
+  else
+    ConLbl(1) = ' No  '
+  end if
+  Val3 = RMSMax
+  Thr3 = ThrGrd*6.0d0
+  ConvTmp = Val3 < Thr3
+  Conv2 = Conv2 .and. ConvTmp
+  if (ConvTmp) then
+    if (Step_Trunc /= ' ') then
+      ConLbl(3) = ' No *'
+    else
+      ConLbl(3) = ' Yes '
+    end if
+  else
+    ConLbl(3) = ' No  '
+  end if
+  Val5 = abs(eChng)
+  Thr5 = ThrEne
+  ConvTmp = (Val5 < Thr5) .and. (kIter > 1)
+  if (ConvTmp) then
+    ConLbl(5) = ' Yes '
+  else
+    if (kIter > 1) then
+      ConLbl(5) = ' No  '
+    else
+      ConLbl(5) = ' --- '
+    end if
+  end if
+  Conv2 = Conv2 .or. ConvTmp
+  Conv1 = Conv1 .and. Conv2
+end if
 
-               Call mma_deallocate(G_MEP)
-               Call mma_deallocate(C_MEP)
-               Call mma_deallocate(E_MEP)
-            End If
-         End If
-!
-         If (.Not.Terminate) Then
-           iStop=1
-           Stop=.False.
-         End If
-!
-!        Print out the path so far
-!
-         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
-            Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-            Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
-            Call mma_allocate(L_MEP,nMEP+1,Label='L_MEP')
-            Call mma_allocate(Cu_MEP,nMEP+1,Label='Cu_MEP')
-            Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
-            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
-            Call Get_dArray('MEP-Lengths',L_MEP,nMEP+1)
-            Call Get_dArray('MEP-Curvatures',Cu_MEP,nMEP+1)
-            Write (6,*)
-            CumLen=Zero
-            If (Cu_MEP(1+iMEP).ge.Zero) Then
-               Write(6,*) '         Cumul.'
-               Write(6,*) 'Point  Length (bohr)       Energy  Curvature'
-               Write(6,*) '--------------------------------------------'
-               Do i = 0, iMEP
-                  CumLen=CumLen+L_MEP(1+i)
-                  Write (6,200) i,CumLen,E_MEP(1+i),Cu_MEP(1+i)
-               End Do
-            Else
-               Write(6,*) '         Cumul.'
-               Write(6,*) 'Point  Length (bohr)       Energy'
-               Write(6,*) '---------------------------------'
-               Do i = 0, iMEP
-                  CumLen=CumLen+L_MEP(1+i)
-                  Write (6,200) i,CumLen,E_MEP(1+i)
-               End Do
-            End If
-200         Format (1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
-            If (iPrint.gt.6) Then
-               Write (6,*)
-               Do i = 0, iMEP
-                  Call RecPrt(' Coordinates',' ',C_MEP(:,:,i+1),3,nAtom)
-               End Do
-            End If
-            Call CollapseOutput(0,'IRC/Minimum Energy Path Information')
-            Write(6,*)
-            Call mma_deallocate(E_MEP)
-            Call mma_deallocate(C_MEP)
-            Call mma_deallocate(L_MEP)
-            Call mma_deallocate(Cu_MEP)
-         End If
-!
-      End If
-!
-      If (IRCRestart) Then
-!
-!         Prepare the runfile to start from Scratch
-!
-          iMEP=0
-          Call Put_iScalar('nMEP',iMEP)
-          Call mma_allocate(Information,7,Label='Information')
-          Information(:)=0
-          Information(1)=-99     ! Deactivate the record
-          Call Put_iArray('Slapaf Info 1',Information,7)
-          Call mma_deallocate(Information)
-          iOff_Iter=0
-          Call Put_iScalar('iOff_Iter',iOff_Iter)
-!
-!         Restore data
-!
-          Call Put_dScalar('Last Energy',Energy(1))
-          Call Put_dArray('GRAD',Gx,3*nAtom)
-          Call Put_dArray('Unique Coordinates',Cx,3*nAtom)
-          Call Put_Coord_New(Cx,nAtom)
-          call dcopy_(3*nAtom,Cx,1,Coor,1)
-          call dcopy_(3*nAtom,Cx,1,Cx(:,:,iter+1),1)
-      End If
+stop = Conv1 .or. (kIter-iOff_Iter >= MxItr) ! CGG
+iStop = 1
+if (kIter-iOff_Iter >= MxItr) iStop = 16     ! CGG
+if (Conv1 .or. Just_Frequencies) iStop = 0
+
+if (GoOn) then
+  stop = .false.
+  iStop = 1
+else
+  if (Just_Frequencies) stop = .true.
+  nPrint(52) = nPrint(52)+1
+  nPrint(54) = nPrint(54)+1
+  iPrint = iPrint+1
+  nPrint(53) = nPrint(53)+1
+end if
+if (.not. Just_Frequencies) call Status(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eChng,Temp,Step_Trunc,.not. Numerical)
+
+if (Baker) then
+  if (iPrint >= 5) then
+    write(Lu,'(A)') '                +----------------------------------+'
+    write(Lu,'(A)') '                +  Value      Threshold Converged? +'
+    write(Lu,'(A)') '+---------------+----------------------------------+'
+    write(Lu,4) '+ Max. gradient +',Val3,' ',Thr3,'    ',ConLbl(3),'  +'
+    write(Lu,'(A)') '+---------------+----------------------------------+'
+    write(Lu,4) '+ Max. disp.    +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
+    write(Lu,'(A)') '+---------------+----------------------------------+'
+    write(Lu,4) '+ Energy diff.  +',Val1,' ',Thr1,'    ',ConLbl(1),'  +'
+    write(Lu,'(A)') '+---------------+----------------------------------+'
+4   format(A,2(ES11.4,A),A,A)
+  end if
+else
+  if (iPrint >= 5) then
+    write(Lu,'(A)') '       +----------------------------------+----------------------------------+'
+    write(Lu,'(A)') '       +    Cartesian Displacements       +    Gradient in internals         +'
+    write(Lu,'(A)') '       +  Value      Threshold Converged? +  Value      Threshold Converged? +'
+    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    write(Lu,5) ' + RMS +',Val1,' ',Thr1,'    ',ConLbl(1),'  +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
+    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    write(Lu,5) ' + Max +',Val3,' ',Thr3,'    ',ConLbl(3),'  +',Val4,' ',Thr4,'    ',ConLbl(4),'  +'
+    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    if (ThrEne > Zero) then
+      write(Lu,5) ' + dE  +',Val5,' ',Thr5,'    ',ConLbl(5),'  +'
+      write(Lu,'(A)') ' +-----+----------------------------------+'
+    end if
+    write(Lu,*)
+5   format(A,2(2(ES11.4,A),A,A))
+  end if
+end if
+
+if (stop .and. Conv1) then
+  call Qpg_dScalar('Max error',Found)
+  if (Found) call Get_dScalar('Max error',MaxErr)
+  if (MaxErr > ThrCons) then
+    iStop = 1
+    Conv1 = .false.
+    stop = .false.
+    write(Lu,'(A,ES11.4)') 'Maximum constraint error: ',MaxErr
+    write(Lu,*)
+  end if
+end if
+
+nConst = 0
+if (iNeg(1) == 0) then
+  if (EDiffZero) then
+    if (NADC) then
+      nConst = 2
+    else
+      nConst = 1
+    end if
+    Point_Desc = 'Minimum Energy Crossing Point Structure'
+  else
+    Point_Desc = 'Minimum Structure'
+  end if
+else if (iNeg(1) == 1) then
+  Point_Desc = 'Transition State Structure'
+else
+  Point_Desc = 'Higher Order Saddle Point Structure'
+end if
+if (nLambda > nConst) Point_Desc = 'Constrained '//trim(Point_Desc)
+if (iPrint >= 5) then
+  if (stop) then
+    if (Conv1) then
+      write(Lu,'(A,I3,A)') ' Geometry is converged in ', kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
+    else
+      write(Lu,'(A)') ' No convergence after max iterations'
+      if (Lu /= 6) write(6,'(/A)') ' No convergence after max iterations'
+    end if
+  else
+    write(Lu,'(A)') ' Convergence not reached yet!'
+  end if
+end if
+if (FindTS .and. stop .and. Conv1) then
+  if (.not. TSReg) then
+    if (iPrint >= 5) then
+      write(Lu,*)
+      write(Lu,'(A)') ' FindTS was requested, but the TS regime was not reached.'
+      write(Lu,'(A)') ' The converged structure is probably not the desired TS.'
+    end if
+    iStop = 16
+  end if
+end if
+!if (iPrint == 7) then
+!  write(Lu,*)
+!  write(Lu,'(A)') '********************************* Geometry Statistics for Geometry Optimization '// &
+!                  '*********************************'
+!  nPrint(118) = 7
+!  call List(' Internal coordinates ',Lbl,qInt,nInter,iter+1)
+!  call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
+!end if
+
+! The energy change should not be too large
+Maxed = 1.0d2
+if (abs(E_Delta) > Maxed) then
+  write(6,*) 'The predicted energy change is too large: ',E_Delta
+  write(6,'(A)') ' This can''t be right!'
+  write(6,'(A)') ' This job will be terminated.'
+  iStop = 8
+  stop = .true.
+end if
+if (iPrint >= 5) then
+  write(Lu,*)
+  write(Lu,'(A)') '********************************************************'// &
+                  '*********************************************************'
+  write(Lu,'(A)') '********************************************************'// &
+                  '*********************************************************'
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Figure out if the last energy should be computed!
-!
-      Last_Energy = Stop .and. iStop.ne.16 .and. iStop.ne.8
-      Last_Energy = Last_Energy .and. .Not.MEP .and. .Not.rMEP
-      Last_Energy = Last_Energy .and.                                   &
-     &             .Not. (Numerical .and. kIter.eq.1)
-      If (Last_Energy) iStop = 2
+Terminate = .false.
+IRCRestart = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write geometry file for MOLDEN. Note that this file should not be
-!     generated if Slapaf is running new geometries for any numerical
-!     procedure!
-!
-      If (                                                              &
-     &     .NOT. Just_Frequencies  .AND.                                &
-     &     .NOT. Numerical                                              &
-     &   ) Then
-         Call Write_QMMM(Cx,nAtom,iter)
-         Call Intergeo('MD_GEO',Energy,Cx,Gx,nAtom,iter+1)
-      End If
+! Write summary of conical intersection characterization data
+
+if (Conv1 .and. NADC .and. EDiffZero) then
+  if (iPrint >= 5) then
+    if (.not. ApproxNADC) call CI_Summary(Lu)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Book keeping for Saddle optimization for a TS. Note that this will
+! have to be done on both of the runfiles!
+
+if (Conv1 .and. Saddle) then
+
+  ! Here if a macro iteration in the Saddle TS optimization is completed.
+
+  !ENew = Energy(iter)+E_Delta
+  call mma_allocate(Tmp,nSaddle,Label='Tmp')
+
+  ! Store the info for later generation of MOLDEN formated files
+
+  call Get_dArray('Saddle',Tmp,nSaddle)
+  E_Reac = Tmp(6*nAtom+1)
+  E_Prod = Tmp(6*nAtom+2)
+
+  call mma_allocate(E_S,nSaddle_Max,Label='E_S')
+  call mma_allocate(C_S,3,nAtom,nSaddle_Max,Label='C_S')
+  call mma_allocate(G_S,3,nAtom,nSaddle_Max,Label='G_S')
+  if (iSaddle == 0) then
+
+    ! Initiate with data from the starting points
+
+    E_S(:) = Zero
+    C_S(:,:,:) = Zero
+    G_S(:,:,:) = Zero
+    iSaddle = 1
+    if (E_Reac <= E_Prod) then
+      E_S(iSaddle) = E_Reac
+      call DCopy_(3*nAtom,Tmp(1:3*nAtom),1,C_S(:,:,iSaddle),1)
+    else
+      E_S(iSaddle) = E_Prod
+      call DCopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,C_S(:,:,iSaddle),1)
+    end if
+
+  else
+
+    call Get_dArray('MEP-Energies',E_S,nSaddle_Max)
+    call Get_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
+    call Get_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
+
+  end if
+
+  ! Add the new data
+
+  iSaddle = iSaddle+1
+  E_S(iSaddle) = Energy(iter)
+  C_S(:,:,iSaddle) = Cx(:,:,iter)
+  G_S(:,:,iSaddle) = Gx(:,:,iter)
+
+  ! Put data on RUNFILE
+
+  call Put_dArray('MEP-Energies',E_S,nSaddle_Max)
+  call Put_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
+  call Put_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
+  call Put_iScalar('nMEP',iSaddle)
+
+  call mma_deallocate(G_S)
+  call mma_deallocate(C_S)
+  call mma_deallocate(E_S)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Now update the "Saddle" field on both runfiles.
+
+  do iFile=1,2
+
+    if (iFile == 1) then
+      call NameRun('RUNREAC')
+    else
+      call NameRun('RUNPROD')
+    end if
+
+    ! Update info on the runfile.
+
+    call Get_dArray('Saddle',Tmp,nSaddle)
+    E1 = Tmp(6*nAtom+1)
+    E2 = Tmp(6*nAtom+2)
+    !write(6,*) 'ENew=',ENew
+    !write(6,*) 'E1,E2=',E1,E2
+    if (E1 <= E2) then
+      !write(6,*) 'Update reactant'
+      Tmp(6*nAtom+1) = Energy(iter)
+      E1 = Energy(iter)
+      call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(1:3*nAtom),1)
+    else
+      !write(6,*) 'Update product'
+      Tmp(6*nAtom+2) = Energy(iter)
+      E2 = Energy(iter)
+      call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(3*nAtom+1:6*nAtom),1)
+    end if
+    ! Set flag that seward should process the info! This should not
+    ! be done for the final macro iteration.
+    if (.not. FindTS) Tmp(6*nAtom+5) = One
+    call Put_dArray('Saddle',Tmp,nSaddle)
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Converged or not, create the saddle.molden file
+  ! after each macro iteration
+
+  call NameRun('RUNREAC')
+  call mma_allocate(E_r,nSaddle_Max,Label='E_r')
+  call mma_allocate(C_r,3*nAtom,nSaddle_Max,Label='C_r')
+  call mma_allocate(G_r,3*nAtom,nSaddle_Max,Label='G_r')
+  call Qpg_iScalar('nMEP',Found)
+  if (Found) then
+    call Get_dArray('MEP-Energies',E_r,nSaddle_Max)
+    call Get_dArray('MEP-Coor',C_r,3*nAtom*nSaddle_Max)
+    call Get_dArray('MEP-Grad',G_r,3*nAtom*nSaddle_Max)
+    call Get_iScalar('nMEP',iSaddle_r)
+  else
+    E_r(1) = E_Reac
+    C_r(:,1) = Tmp(1:3*nAtom)
+    G_r(:,:) = Zero
+    iSaddle_r = 1
+  end if
+
+  call NameRun('RUNPROD')
+  call mma_allocate(E_p,nSaddle_Max,Label='E_p')
+  call mma_allocate(C_p,3*nAtom,nSaddle_Max,Label='C_p')
+  call mma_allocate(G_p,3*nAtom,nSaddle_Max,Label='G_p')
+  call Qpg_iScalar('nMEP',Found)
+  if (Found) then
+    call Get_dArray('MEP-Energies',E_p,nSaddle_Max)
+    call Get_dArray('MEP-Coor',C_p,3*nAtom*nSaddle_Max)
+    call Get_dArray('MEP-Grad',G_p,3*nAtom*nSaddle_Max)
+    call Get_iScalar('nMEP',iSaddle_p)
+  else
+    E_p(1) = E_Prod
+    C_p(:,1) = Tmp(3*nAtom+1:6*nAtom)
+    G_p(:,:) = Zero
+    iSaddle_p = 1
+  end if
+
+  ! Merge the two lists
+
+  jSaddle = iSaddle_r
+  do iSaddle=iSaddle_p,1,-1
+    jSaddle = jSaddle+1
+    E_r(jSaddle) = E_p(iSaddle)
+    C_r(:,jSaddle) = C_p(:,iSaddle)
+    G_r(:,jSaddle) = G_p(:,iSaddle)
+  end do
+  call mma_deallocate(G_p)
+  call mma_deallocate(C_p)
+  call mma_deallocate(E_p)
+
+  ! Align the structures sequentially, only for visualization
+  ! (gradients are not changed, though)
+  ! TODO: Rotate the gradients too
+
+  do iSaddle=1,iSaddle_r+iSaddle_p-1
+    call Align(C_r(:,iSaddle+1),C_r(:,iSaddle),nAtom)
+  end do
+
+  call Intergeo('MD_SADDLE',E_r,C_r,G_r,nAtom,iSaddle_r+iSaddle_p)
+
+  call mma_deallocate(G_r)
+  call mma_deallocate(C_r)
+  call mma_deallocate(E_r)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! If the Saddle TS optimization is not yet completed set up
+  ! data for the next macro iteration.
+
+  if (.not. FindTS) then
+    call mma_deallocate(Tmp)
+    !write(6,*) 'Reset $SubProject'
+
+    ! Reset $SubProject for the next macro iteration.
+
+    LuInput = 11
+    LuInput = IsFreeUnit(LuInput)
+    call StdIn_Name(StdIn)
+    call Molcas_Open(LuInput,StdIn)
+    if (E1 <= E2) then
+      write(LuInput,'(A)') '> EXPORT SubProject=.Reac'
+      !write(6,*) 'SubProject=.Reac'
+      call NameRun('RUNREAC')
+    else
+      write(LuInput,'(A)') '> EXPORT SubProject=.Prod'
+      !write(6,*) 'SubProject=.Prod'
+      call NameRun('RUNPROD')
+    end if
+
+    ! Signal whether next iteration will be the first in the branch
+
+    call Qpg_iScalar('nMEP',Found)
+    if (.not. Found) then
+      write(LuInput,'(A)') '> EXPORT SADDLE_FIRST=1'
+    end if
+    write(LuInput,'(A,I3)') '> EXIT ',_RC_CONTINUE_LOOP_
+    close(LuInput)
+
+    ! Set flags to request yet another macro iteration.
+
+    Terminate = .false.
+    iStop = 6
+    stop = .false.
+  else
+    call NameRun('RUNFILE')
+    call mma_deallocate(Tmp)
+    nSaddle = 0
+    call Put_dArray('Saddle',[Zero],nSaddle)
+    call Put_iScalar('nMEP',nSaddle)
+  end if
+
+  ! Update the active runfile wrt the total number of micro
+  ! iterations done in all macro iterations of this branch.
+
+  call NameRun('RUNFILE')
+  call Put_iScalar('iOff_Iter',iter)
+end if
+
+! Disable first iteration signal right after the first iteration
+! (in each branch)
+
+if ((.not. Conv1) .and. Saddle) then
+  if ((iter == 1) .and. (iStop == 1)) then
+    LuInput = 11
+    LuInput = IsFreeUnit(LuInput)
+    call StdIn_Name(StdIn)
+    call Molcas_Open(LuInput,StdIn)
+    write(LuInput,'(A)') '> EXPORT SADDLE_FIRST=0'
+    write(LuInput,'(A,I3)') '> EXIT ',_RC_CONTINUE_LOOP_
+    close(LuInput)
+    iStop = 6
+  end if
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Book keeping for minimum energy path search
+
+call Qpg_iScalar('IRC',Found)
+if (Found) call Get_iScalar('IRC',IRC)
+
+TurnBack = .false.
+if (MEP .or. rMEP) then
+  if (Conv1) then
+
+    ! Is this the first iteration or not?
+
+    iMEP = iMEP+1
+
+    ! Save information for the current step
+
+    call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+    call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+    call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
+    if (iMEP > 1) then
+      call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+      call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+      call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
+    else
+      E_MEP(:) = Zero
+      C_MEP(:,:,:) = Zero
+      G_MEP(:,:,:) = Zero
+      E_MEP(iMEP) = Energy(iOff_iter+1)
+      C_MEP(:,:,iMEP) = Cx(:,:,iOff_iter+1)
+      G_MEP(:,:,iMEP) = Gx(:,:,iOff_iter+1)
+    end if
+
+    E_MEP(iMEP+1) = Energy(iter)
+    C_MEP(:,:,iMEP+1) = Cx(:,:,iter)
+    G_MEP(:,:,iMEP+1) = Gx(:,:,iter)
+    call Put_dArray('MEP-Energies',E_MEP,nMEP+1)
+    call Put_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+    call Put_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
+    call Put_iScalar('nMEP',iMEP)
+
+    ! Save the path so far (energies, coordinates and forces)
+
+    call Intergeo('MD_MEP',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
+
+    ! Compute energy difference and RMS between last two structures
+
+    eDiffMEP = E_MEP(iMEP+1)-E_MEP(iMEP)
+    call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
+    call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
+    call AtmLst(C_MEP(:,:,iMEP),nAtom,Coor1,mTtAtm)
+    call AtmLst(C_MEP(:,:,iMEP+1),nAtom,Coor2,mTtAtm)
+    call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
+    call mma_deallocate(Coor1)
+    call mma_deallocate(Coor2)
+
+    call mma_deallocate(G_MEP)
+    call mma_deallocate(C_MEP)
+    call mma_deallocate(E_MEP)
+
+  else
+
+    ! Test for "turn back", i.e. when the trial structure
+    ! is getting too close to the previous converged structure,
+    ! this may be an indication of an ill-behaved constraint
+    if (iMEP >= 1) then
+      call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+      call mma_allocate(OfRef,3,nAtom,Label='OfRef')
+      call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
+      call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+      OfRef(:,:) = C_MEP(:,:,iMEP+1)
+
+      ! Using hypersphere measure, even with "transverse" MEPs,
+      ! this should not be a problem
+      call SphInt(Cx(:,:,iter),nAtom,Not_Allocated,refDist,Tmp,.false.,'dummy   ',rDum,.false.)
+      call SphInt(Cx(:,:,iter),nAtom,OfRef,prevDist,Tmp,.false.,'dummy   ',rDUm,.false.)
+      if (prevDist < Half*refDist) then
+        TurnBack = .true.
+        Conv1 = .true.
+        stop = .true.
+        iStop = 0
+        Terminate = .true.
+      end if
+      call mma_deallocate(Tmp)
+      call mma_deallocate(OfRef)
+      call mma_deallocate(C_MEP)
+    end if
+
+  end if
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! List internal coordinates and gradients
+
+kkIter = iter+1
+if (iPrint >= 8) then
+  call List(' Internal coordinates ',Lbl,qInt,nInter,kkIter)
+  call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Put out the new reference structure and the new starting
+! structure to be used for the next MEP point.
+! For rMEP keep the reference structure!
+! Note that this is done in weighted Cartesian coordinates!
+
+if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
+  if ((iMEP >= 1) .and. (iPrint >= 5)) then
+    write(6,*)
+    call CollapseOutput(1,'IRC/Minimum Energy Path Information')
+  end if
+
+  ResGrad = huge(ResGrad)
+  if (.not. Terminate) then
+    BadConstraint = .false.
+    call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,ResGrad,BadConstraint)
+    call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Coor,1)
+    call Put_iScalar('iOff_Iter',iter)
+  end if
+
+  if (MEP) then
+    if (IRC == 0) then
+      MEP_Text = 'MEP'
+    else if (IRC == 1) then
+      MEP_Text = 'IRC(forward)'
+    else
+      MEP_Text = 'IRC(backward)'
+    end if
+  else if (rMEP) then
+    MEP_Text = 'rMEP'
+  else
+    MEP_Text = ''
+  end if
+
+  ! Should we terminate or not? Not done on the first iteration.
+
+  if (iMEP > 0) then
+
+    ! Test for energy increase (optionally disabled).
+    eTest = eMEPTest .and. (eDiffMEP > Zero)
+    if ((MEP .and. eTest) .and. (.not. Terminate)) then
+      Terminate = .true.
+      if (iPrint >= 5) then
+        write(6,*)
+        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy increase!'
+        write(6,*)
+      end if
+    end if
+
+    ! Test for energy decrease (optionally disabled).
+    eTest = eMEPTest .and. (eDiffMEP < Zero)
+    if ((rMEP .and. eTest) .and. (.not. Terminate)) then
+      Terminate = .true.
+      if (iPrint >= 5) then
+        write(6,*)
+        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to energy decrease!'
+        write(6,*)
+      end if
+    end if
+
+    ! Test for small gradient.
+    if ((iMEP > 1) .or. (IRC == 0)) then
+      if ((ResGrad < ThrMEP) .and. (.not. Terminate)) then
+        Terminate = .true.
+        if (iPrint >= 5) then
+          write(6,*)
+          write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small gradient!'
+          write(6,*)
+        end if
+      end if
+    end if
+
+    ! Test for small step.
+    if ((RMS < ThrGrd*4.d0) .and. (.not. Terminate)) then
+      Terminate = .true.
+      if (iPrint >= 5) then
+        write(6,*)
+        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to small geometry change!'
+        write(6,*)
+      end if
+    end if
+
+    ! Test for max number of points.
+    if ((iMEP >= nMEP) .and. (.not. Terminate)) then
+      Terminate = .true.
+      if (iPrint >= 5) then
+        write(6,*)
+        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to max number of path points!'
+        write(6,*)
+      end if
+    end if
+
+    ! Test for constraint misbehavior.
+    if ((BadConstraint .and. (.not. Terminate)) .or. TurnBack) then
+      Terminate = .true.
+      if (iPrint >= 5) then
+        write(6,*)
+        write(6,'(A)') ' '//trim(MEP_Text)//'-search terminated due to problematic constraint!'
+        write(6,*)
+      end if
+    end if
+
+    ! If IRC reset for backward IRC search.
+
+    if (Terminate) then
+      if (IRC == 1) then
+        IRCRestart = .true.
+      end if
+    end if
+
+  end if
+
+  if (Conv1) then
+    call Chkpnt_update_MEP(.not. TurnBack,IRCRestart)
+  end if
+
+  if (Conv1 .and. Terminate) then
+    if (IRC /= 0) then
+      call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+      call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+      call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
+      call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+      call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+      call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
+      if (IRC == 1) then
+        IRCRestart = .true.
+        IRC = -1
+        call Put_iScalar('IRC',IRC)
+
+        ! Store away data for IRC molden file. Forward part.
+
+        call Put_dArray('IRC-Energies',E_MEP,iMEP+1)
+        call Put_dArray('IRC-Coor',C_MEP,3*nAtom*(iMEP+1))
+        call Put_dArray('IRC-Grad',G_MEP,3*nAtom*(iMEP+1))
+        call Put_dArray('Ref_Geom',Cx,3*nAtom)
+
+        ! Write a temporary file
+        ! (will be overwritten when the backward part is done)
+
+        call Intergeo('MD_IRC',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
+
+        Terminate = .false.
+
+      else if (IRC == -1) then
+
+        ! Assemble molden file for IRC
+
+        nBackward = iMEP+1
+        call qpg_dArray('IRC-Energies',Found,nForward)
+        nIRC = nForward+nBackward-1
+        call mma_allocate(E_IRC,nIRC,Label='E_IRC')
+        call mma_allocate(C_IRC,3,nAtom,nIRC,Label='C_IRC')
+        call mma_allocate(G_IRC,3,nAtom,nIRC,Label='G_IRC')
+
+        j = 0
+        do i=nBackward,1,-1
+          j = j+1
+          E_IRC(j) = E_MEP(i)
+          C_IRC(:,:,j) = C_MEP(:,:,i)
+          G_IRC(:,:,j) = G_MEP(:,:,i)
+        end do
+
+        call Get_dArray('IRC-Energies',E_IRC(nBackward),nForward)
+        call Get_dArray('IRC-Coor',C_IRC(:,:,nBackward:nIRC),nForward*3*nAtom)
+        call Get_dArray('IRC-Grad',G_IRC(:,:,nBackward:nIRC),nForward*3*nAtom)
+
+        call Intergeo('MD_IRC',E_IRC,C_IRC,G_IRC,nAtom,nIRC)
+
+        call mma_deallocate(G_IRC)
+        call mma_deallocate(C_IRC)
+        call mma_deallocate(E_IRC)
+      end if
+
+      call mma_deallocate(G_MEP)
+      call mma_deallocate(C_MEP)
+      call mma_deallocate(E_MEP)
+    end if
+  end if
+
+  if (.not. Terminate) then
+    iStop = 1
+    stop = .false.
+  end if
+
+  ! Print out the path so far
+
+  if ((iMEP >= 1) .and. (iPrint >= 5)) then
+    call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+    call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+    call mma_allocate(L_MEP,nMEP+1,Label='L_MEP')
+    call mma_allocate(Cu_MEP,nMEP+1,Label='Cu_MEP')
+    call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+    call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+    call Get_dArray('MEP-Lengths',L_MEP,nMEP+1)
+    call Get_dArray('MEP-Curvatures',Cu_MEP,nMEP+1)
+    write(6,*)
+    CumLen = Zero
+    if (Cu_MEP(1+iMEP) >= Zero) then
+      write(6,*) '         Cumul.'
+      write(6,*) 'Point  Length (bohr)       Energy  Curvature'
+      write(6,*) '--------------------------------------------'
+      do i=0,iMEP
+        CumLen = CumLen+L_MEP(1+i)
+        write(6,200) i,CumLen,E_MEP(1+i),Cu_MEP(1+i)
+      end do
+    else
+      write(6,*) '         Cumul.'
+      write(6,*) 'Point  Length (bohr)       Energy'
+      write(6,*) '---------------------------------'
+      do i=0,iMEP
+        CumLen = CumLen+L_MEP(1+i)
+        write(6,200) i,CumLen,E_MEP(1+i)
+      end do
+    end if
+200 format(1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
+    if (iPrint > 6) then
+      write(6,*)
+      do i=0,iMEP
+        call RecPrt(' Coordinates',' ',C_MEP(:,:,i+1),3,nAtom)
+      end do
+    end if
+    call CollapseOutput(0,'IRC/Minimum Energy Path Information')
+    write(6,*)
+    call mma_deallocate(E_MEP)
+    call mma_deallocate(C_MEP)
+    call mma_deallocate(L_MEP)
+    call mma_deallocate(Cu_MEP)
+  end if
+
+end if
+
+if (IRCRestart) then
+
+  ! Prepare the runfile to start from Scratch
+
+  iMEP = 0
+  call Put_iScalar('nMEP',iMEP)
+  call mma_allocate(Information,7,Label='Information')
+  Information(:) = 0
+  Information(1) = -99     ! Deactivate the record
+  call Put_iArray('Slapaf Info 1',Information,7)
+  call mma_deallocate(Information)
+  iOff_Iter = 0
+  call Put_iScalar('iOff_Iter',iOff_Iter)
+
+  ! Restore data
+
+  call Put_dScalar('Last Energy',Energy(1))
+  call Put_dArray('GRAD',Gx,3*nAtom)
+  call Put_dArray('Unique Coordinates',Cx,3*nAtom)
+  call Put_Coord_New(Cx,nAtom)
+  call dcopy_(3*nAtom,Cx,1,Coor,1)
+  call dcopy_(3*nAtom,Cx,1,Cx(:,:,iter+1),1)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Figure out if the last energy should be computed!
+
+Last_Energy = stop .and. (iStop /= 16) .and. (iStop /= 8)
+Last_Energy = Last_Energy .and. (.not. MEP) .and. (.not. rMEP)
+Last_Energy = Last_Energy .and. (.not. (Numerical .and. (kIter == 1)))
+if (Last_Energy) iStop = 2
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Write geometry file for MOLDEN. Note that this file should not be
+! generated if Slapaf is running new geometries for any numerical
+! procedure!
+
+if ((.not. Just_Frequencies) .and. (.not. Numerical)) then
+  call Write_QMMM(Cx,nAtom,iter)
+  call Intergeo('MD_GEO',Energy,Cx,Gx,nAtom,iter+1)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Convrg

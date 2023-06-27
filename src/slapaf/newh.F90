@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1995, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine NewH(nInter,nIter,dq_orig,g,H,iOptH,mIter)
+
+subroutine NewH(nInter,nIter,dq_orig,g,H,iOptH,mIter)
 !***********************************************************************
 !                                                                      *
 ! Object: Driver for inverse Hessian update.                           *
@@ -19,164 +20,161 @@
 !             University of Lund, SWEDEN                               *
 !             January '95                                              *
 !***********************************************************************
-      Use NewH_Mod
-      use Slapaf_parameters, only: HUpMet
+
+use NewH_Mod
+use Slapaf_parameters, only: HUpMet
+
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer nInter, nIter, mIter, iOptH, i
-      Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
-      Logical Test, DoMask
-      Real*8, Dimension(:), Allocatable :: dg, gi
-      Real*8, Dimension(:,:), Allocatable :: dq
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Statement function
-!
-      Test(i)=iAnd(iOptH,2**(i-1)).eq.2**(i-1)
+integer nInter, nIter, mIter, iOptH, i
+real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
+logical Test, DoMask
+real*8, dimension(:), allocatable :: dg, gi
+real*8, dimension(:,:), allocatable :: dq
+! Statement function
+Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*) ' NewH: lIter=',nIter
-      Call RecPrt(' NewH: dq_orig',' ',dq_orig,nInter,nIter)
-      Call RecPrt(' NewH: g',' ',g,nInter,nIter)
-      Call RecPrt(' NewH: H(Old)',' ',H,nInter,nInter)
-      Write(6,*)' NewH: Test(i)==',(Test(i),i=1,8)
+write(6,*)
+write(6,*) ' NewH: lIter=',nIter
+call RecPrt(' NewH: dq_orig',' ',dq_orig,nInter,nIter)
+call RecPrt(' NewH: g',' ',g,nInter,nIter)
+call RecPrt(' NewH: H(Old)',' ',H,nInter,nInter)
+write(6,*) ' NewH: Test(i)==',(Test(i),i=1,8)
 #endif
-!
-!     Branch out if the first iteration
-!
-      If (nIter.le.1) Go To 999
+
+! Branch out if the first iteration
+
+if (nIter <= 1) Go To 999
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Get the MM mask
-      DoMask=.False.
-      If (Allocated(UpdMask)) Then
-         If (Size(UpdMask).eq.nInter) DoMask=.True.
-      End If
+! Get the MM mask
+DoMask = .false.
+if (allocated(UpdMask)) then
+  if (size(UpdMask) == nInter) DoMask = .true.
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_allocate(dg,nInter,label="dg")
-      Call mma_allocate(gi,nInter,label="gi")
-      Call mma_allocate(dq,nInter,nIter,label="dq")
-      call dcopy_(nInter*nIter,dq_orig,1,dq,1)
+call mma_allocate(dg,nInter,label='dg')
+call mma_allocate(gi,nInter,label='gi')
+call mma_allocate(dq,nInter,nIter,label='dq')
+call dcopy_(nInter*nIter,dq_orig,1,dq,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Form the difference between the gradients. Observe the order!
-!     This since we are storing the forces rather than the gradients,
-!     big mistake!!!
-!
-      Do i = 1, nInter
-         dg(i) = g(i,nIter-1) - g(i,nIter)
-         If (DoMask) Then
-            If (UpdMask(i).ne.0) Then
-               dg(i) = Zero
-               dq(i,nIter-1) = Zero
-            End If
-         End If
-      End Do
+! Form the difference between the gradients. Observe the order!
+! This since we are storing the forces rather than the gradients,
+! big mistake!!!
+
+do i=1,nInter
+  dg(i) = g(i,nIter-1)-g(i,nIter)
+  if (DoMask) then
+    if (UpdMask(i) /= 0) then
+      dg(i) = Zero
+      dq(i,nIter-1) = Zero
+    end if
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' NewH: dg',' ',dg,nInter,1)
+call RecPrt(' NewH: dg',' ',dg,nInter,1)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Compute the update
-!
-      If (Test(4)) Then
-!
-!------- No update
-!
-         HUpMet=' None '
-!
-      Else If (Test(1)) Then
-!
-!------ Fletcher (or Meyer) update
-!
-         HUpMet='  F   '
-         Write (6,*) 'Deleted option in NewH'
-         Call Abend()
-!
-      Else If (Test(2)) Then
-!
-!------- Broyden-Powel Symmetric Rank-2 update
-!
-         HUpMet='  BP  '
-         Write (6,*) 'Deleted option in NewH'
-         Call Abend()
-!
-      Else If (Test(3)) Then
-!
-!------- Broyden-Fletcher-Goldfarb-Shanno update
-!
-         HUpMet=' BFGS '
-         Call DFP(H,nInter,gi,dq(1,nIter-1),dg)
-!
-      Else If (Test(5)) Then
-!
-!------- Murtagh-Sargent-Powell update
-!
-         HUpMet=' MSP  '
-         Call dGeMV_('N',nInter,nInter,                                 &
-     &              -One,H,nInter,                                      &
-     &              dq(1,nIter-1),1,                                    &
-     &              One,dg,1)
-#ifdef _DEBUGPRINT_
-         Call RecPrt(' NewH: gamma',' ',dg,nInter,1)
-#endif
-         Call MSP(H,dg,dq(1,nIter-1),nInter)
-!
-      Else If (Test(7)) Then
-!
-!------- EU update
-!
-         HUpMet='  EU  '
-!
-!        Some precalculations:
-         Do i=1,nInter
-            gi(i) = -g(i,nIter-1)
-            If (DoMask) Then
-               If (UpdMask(i).ne.0) gi(i) = Zero
-            End If
-         End Do
-!
-         Call EU(dq(1,nIter-1),dg,gi,H,nInter)
-!
-      Else If (Test(8)) Then
-!
-!------- TS_BFGS update
-!
-         HUpMet='TSBFGS'
-         Call TS_BFGS(dq(1,nIter-1),dg,H,nInter)
-!
-      Else
-!
-         Call WarningMessage(2,'Error in NewH')
-         Write (6,*) ' Improper value of iOptH:',iOptH
-         Call Abend()
-!
-      End If
+! Compute the update
+
+if (Test(4)) then
+
+  ! No update
+
+  HUpMet = ' None '
+
+else if (Test(1)) then
+
+  !Fletcher (or Meyer) update
+
+  HUpMet = '  F   '
+  write(6,*) 'Deleted option in NewH'
+  call Abend()
+
+else if (Test(2)) then
+
+  ! Broyden-Powel Symmetric Rank-2 update
+
+  HUpMet = '  BP  '
+  write(6,*) 'Deleted option in NewH'
+  call Abend()
+
+else if (Test(3)) then
+
+  ! Broyden-Fletcher-Goldfarb-Shanno update
+
+  HUpMet = ' BFGS '
+  call DFP(H,nInter,gi,dq(1,nIter-1),dg)
+
+else if (Test(5)) then
+
+  ! Murtagh-Sargent-Powell update
+
+  HUpMet = ' MSP  '
+  call dGeMV_('N',nInter,nInter,-One,H,nInter,dq(1,nIter-1),1,One,dg,1)
+# ifdef _DEBUGPRINT_
+  call RecPrt(' NewH: gamma',' ',dg,nInter,1)
+# endif
+  call MSP(H,dg,dq(1,nIter-1),nInter)
+
+else if (Test(7)) then
+
+  ! EU update
+
+  HUpMet = '  EU  '
+
+  ! Some precalculations:
+  do i=1,nInter
+    gi(i) = -g(i,nIter-1)
+    if (DoMask) then
+      if (UpdMask(i) /= 0) gi(i) = Zero
+    end if
+  end do
+
+  call EU(dq(1,nIter-1),dg,gi,H,nInter)
+
+else if (Test(8)) then
+
+  ! TS_BFGS update
+
+  HUpMet = 'TSBFGS'
+  call TS_BFGS(dq(1,nIter-1),dg,H,nInter)
+
+else
+
+  call WarningMessage(2,'Error in NewH')
+  write(6,*) ' Improper value of iOptH:',iOptH
+  call Abend()
+
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' NewH:  H(New)',' ',H,nInter,nInter)
+call RecPrt(' NewH:  H(New)',' ',H,nInter,nInter)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_deallocate(dg)
-      Call mma_deallocate(gi)
-      Call mma_deallocate(dq)
+call mma_deallocate(dg)
+call mma_deallocate(gi)
+call mma_deallocate(dq)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
- 999  Continue
-      Return
-      End Subroutine NewH
+999 continue
+return
+
+end subroutine NewH

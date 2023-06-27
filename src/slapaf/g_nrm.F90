@@ -8,42 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
-      use Slapaf_Info, only: Gx, Degen
-      Implicit Real*8 (a-h,o-z)
+
+subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
+
+use Slapaf_Info, only: Gx, Degen
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
-      Real*8 GNrm(Iter),Grad(nInter,Iter)
+real*8 GNrm(Iter), Grad(nInter,Iter)
+
+! Compute the norm of the cartesian force vector.
 !
-!
-!     Compute the norm of the cartesian force vector.
-!
-!     |dE/dx|=Sqrt(dE/dx|u|dE/dx)
-!
-      Fabs=0.0D0
-      Do i = 1, SIZE(Gx,2)
-         Do j = 1, 3
-            Fabs=Fabs+ Degen(j,i)*Gx(j,i,Iter)**2
-         End Do
-      End Do
-      Fabs=Sqrt(Fabs)
+! |dE/dx|=Sqrt(dE/dx|u|dE/dx)
+
+Fabs = 0.0d0
+do i=1,size(Gx,2)
+  do j=1,3
+    Fabs = Fabs+Degen(j,i)*Gx(j,i,Iter)**2
+  end do
+end do
+Fabs = sqrt(Fabs)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-         Write (6,42) Fabs
-42       Format (/,' Norm of the force vector',F20.15)
+write(6,42) Fabs
+42 format(/,' Norm of the force vector',F20.15)
 #endif
-      GNrm(iter)=Fabs
-!
-!-----Write out the internal force vector.
-!
-      mIntEff=0
-      Do i = 1, nInter
-         If (Abs(Grad(i,Iter)).gt.1.0d-6) mIntEff=mIntEff+1
-      End Do
-      If (mIntEff.eq.0) mIntEff=1
+GNrm(iter) = Fabs
+
+! Write out the internal force vector.
+
+mIntEff = 0
+do i=1,nInter
+  if (abs(Grad(i,Iter)) > 1.0d-6) mIntEff = mIntEff+1
+end do
+if (mIntEff == 0) mIntEff = 1
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' mIntEff=',mIntEff
+write(6,*) ' mIntEff=',mIntEff
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine G_Nrm

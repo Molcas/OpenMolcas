@@ -10,9 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1995, Roland Lindh                                     *
 !***********************************************************************
-      Module NewH_mod
-      Implicit None
-      Integer, Dimension(:), Allocatable, Save :: UpdMask
-      Real*8, Save :: DiagMM=1.0d0
 
-      End Module NewH_mod
+module NewH_mod
+
+implicit none
+integer, dimension(:), allocatable, save :: UpdMask
+real*8, save :: DiagMM = 1.0d0
+
+end module NewH_mod

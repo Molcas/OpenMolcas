@@ -10,81 +10,83 @@
 !                                                                      *
 ! Copyright (C) 2020, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,           &
-     &                         BadConstraint)
-      use Slapaf_Info, only: RefGeo
-      use Slapaf_Parameters, only: MEP_Type
-      Implicit None
+
+subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,BadConstraint)
+
+use Slapaf_Info, only: RefGeo
+use Slapaf_Parameters, only: MEP_Type
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer, Intent(In) :: nAtom
-      Real*8, Intent(In) :: Ref(3,nAtom),Dir(3,nAtom),Fact,Dist
-      Real*8, Intent(Out) :: Point(3,nAtom)
-      Logical, Intent(Out) :: BadConstraint
-      Real*8, Allocatable :: OldRef(:,:),Dummy(:), Not_Allocated(:,:)
-      Real*8 :: R,CurFact,PrevR,Correct
-      Real*8, Parameter :: Thr = 1.0d-6
-      Integer :: nCoor,i
-      Real*8 rDum(1,1,1,1)
+integer, intent(In) :: nAtom
+real*8, intent(In) :: Ref(3,nAtom), Dir(3,nAtom), Fact, Dist
+real*8, intent(Out) :: Point(3,nAtom)
+logical, intent(Out) :: BadConstraint
+real*8, allocatable :: OldRef(:,:), Dummy(:), Not_Allocated(:,:)
+real*8 :: R, CurFact, PrevR, Correct
+real*8, parameter :: Thr = 1.0d-6
+integer :: nCoor, i
+real*8 rDum(1,1,1,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-      Integer nCent
-      Real*8  xyz(3,nCent)
-      Real*8, Allocatable, Target:: OfRef(:,:)
-      Real*8  RR0
-      Real*8  Bf(3,nCent)
-      Logical l_Write
-      Character(LEN=8) Label
-      Real*8  dBf(3,nCent,3,nCent)
-      Logical ldB
-      End Subroutine SphInt
-      End Interface
+interface
+  subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+    integer nCent
+    real*8 xyz(3,nCent)
+    real*8, allocatable, target :: OfRef(:,:)
+    real*8 RR0
+    real*8 Bf(3,nCent)
+    logical l_Write
+    character(len=8) Label
+    real*8 dBf(3,nCent,3,nCent)
+    logical ldB
+  end subroutine SphInt
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nCoor=3*nAtom
-      Call mma_allocate(OldRef,3,nAtom,Label='OldRef')
-      Call mma_allocate(Dummy,nCoor,Label='Dummy')
-      OldRef(:,:) = RefGeo(:,:)
-      RefGeo(:,:)    = Ref(:,:)
+nCoor = 3*nAtom
+call mma_allocate(OldRef,3,nAtom,Label='OldRef')
+call mma_allocate(Dummy,nCoor,Label='Dummy')
+OldRef(:,:) = RefGeo(:,:)
+RefGeo(:,:) = Ref(:,:)
 
-      R=Zero
-      CurFact=Zero
-      Correct=Fact
-      i=0
-      Do While (Abs(One-R/Dist).gt.Thr)
+R = Zero
+CurFact = Zero
+Correct = Fact
+i = 0
+do while (abs(One-R/Dist) > Thr)
 
-!       Add the scaled direction vector
-        CurFact=CurFact+Correct
-        Point(:,:) = Ref(:,:) + CurFact * Dir(:,:)
+  ! Add the scaled direction vector
+  CurFact = CurFact+Correct
+  Point(:,:) = Ref(:,:)+CurFact*Dir(:,:)
 
-!       Align and measure distance
-        PrevR=R
-        Call Align(Point(:,:),Ref(:,:),nAtom)
-        If (MEP_Type.eq.'SPHERE') Then
-          Call SphInt(Point,nAtom,Not_Allocated,R,Dummy,                &
-     &                .False.,'dummy   ',rDum,.False.)
-        Else If (MEP_Type.eq.'TRANSVERSE') Then
-          Call Transverse(Point,nAtom,R,Dummy,                          &
-     &                .False.,'dummy   ',rDum,.False.)
-        End If
+  ! Align and measure distance
+  PrevR = R
+  call Align(Point(:,:),Ref(:,:),nAtom)
+  if (MEP_Type == 'SPHERE') then
+    call SphInt(Point,nAtom,Not_Allocated,R,Dummy,.false.,'dummy   ',rDum,.false.)
+  else if (MEP_Type == 'TRANSVERSE') then
+    call Transverse(Point,nAtom,R,Dummy,.false.,'dummy   ',rDum,.false.)
+  end if
 
-!       Stop if too many iterations or if the constraint is moving
-!       in the wrong direction
-        i=i+1
-        If (i.gt.5.or.Correct*(R-PrevR).lt.Zero) Exit
-        Correct=(One-R/Dist)*Fact
-      End Do
-      BadConstraint=(Abs(One-R/Dist).gt.Thr)
+  ! Stop if too many iterations or if the constraint is moving
+  ! in the wrong direction
+  i = i+1
+  if ((i > 5) .or. (Correct*(R-PrevR) < Zero)) exit
+  Correct = (One-R/Dist)*Fact
+end do
+BadConstraint = (abs(One-R/Dist) > Thr)
 
-      RefGeo(:,:) = OldRef(:,:)
-      Call mma_deallocate(OldRef)
-      Call mma_deallocate(Dummy)
+RefGeo(:,:) = OldRef(:,:)
+call mma_deallocate(OldRef)
+call mma_deallocate(Dummy)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End Subroutine Find_Distance
+return
+
+end subroutine Find_Distance

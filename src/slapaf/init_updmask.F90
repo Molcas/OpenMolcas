@@ -10,39 +10,41 @@
 !                                                                      *
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Init_UpdMask(nInter)
-      Use NewH_mod
-      use Slapaf_Parameters, only: Curvilinear, Redundant
-      use Slapaf_Info, only: Coor
-      Implicit None
-#include "stdalloc.fh"
-      Integer, Allocatable:: IsMM(:)
-      Integer nsAtom, nInter
-!
-      Integer iAtom, i, nAtMM
 
-      nsAtom=SIZE(Coor,2)
-!
-!---- If redundant Cartesians and no symmetry, use unit matrix for MM atoms
-!
-      If (Redundant.and.(.not.Curvilinear).and.                         &
-     &    (3*nsAtom.eq.nInter)) Then
-         Call mma_allocate(UpdMask,nInter,label="UpdMask")
-         Call mma_allocate(IsMM,nsAtom,Label='IsMM')
-         Call MMCount(nsAtom,nAtMM,IsMM)
-         Do iAtom=1,nsAtom
-            If (IsMM(iAtom).eq.1) Then
-               Do i=1,3
-                 UpdMask((iAtom-1)*3+i)=1
-               End Do
-            Else
-               Do i=1,3
-                 UpdMask((iAtom-1)*3+i)=0
-               End Do
-            End If
-         End Do
-         Call mma_deallocate(IsMM)
-      End If
-!
-      Return
-      End Subroutine Init_UpdMask
+subroutine Init_UpdMask(nInter)
+
+use NewH_mod
+use Slapaf_Parameters, only: Curvilinear, Redundant
+use Slapaf_Info, only: Coor
+
+implicit none
+#include "stdalloc.fh"
+integer, allocatable :: IsMM(:)
+integer nsAtom, nInter
+integer iAtom, i, nAtMM
+
+nsAtom = size(Coor,2)
+
+! If redundant Cartesians and no symmetry, use unit matrix for MM atoms
+
+if (Redundant .and. (.not. Curvilinear) .and. (3*nsAtom == nInter)) then
+  call mma_allocate(UpdMask,nInter,label='UpdMask')
+  call mma_allocate(IsMM,nsAtom,Label='IsMM')
+  call MMCount(nsAtom,nAtMM,IsMM)
+  do iAtom=1,nsAtom
+    if (IsMM(iAtom) == 1) then
+      do i=1,3
+        UpdMask((iAtom-1)*3+i) = 1
+      end do
+    else
+      do i=1,3
+        UpdMask((iAtom-1)*3+i) = 0
+      end do
+    end if
+  end do
+  call mma_deallocate(IsMM)
+end if
+
+return
+
+end subroutine Init_UpdMask

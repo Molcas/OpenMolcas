@@ -8,363 +8,354 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RlxCtl(iStop)
-      Use Chkpnt
-      use thermochem, only: lTherm
-      Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH,         &
-     &                       Free_Slapaf, qInt, dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,            &
-     &                             HSet, BSet, PrQ, Numerical, iNeg,    &
-     &                             E_Delta, iRef, lNmHss, Cubic,        &
-     &                             Request_Alaska, Request_RASSI, lCtoF,&
-     &                             isFalcon, nDimBC, mTROld,            &
-     &                             NmIter, MxItr, mTtAtm, nWNdw, iter,  &
-     &                             Fallback
-      Implicit Real*8 (a-h,o-z)
+
+subroutine RlxCtl(iStop)
+
+use Chkpnt
+use thermochem, only: lTherm
+use kriging_mod, only: Kriging, nspAI
+use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH, Free_Slapaf, qInt, dqInt, Lbl
+use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth, HSet, BSet, PrQ, Numerical, iNeg, E_Delta, iRef, lNmHss, Cubic, &
+                             Request_Alaska, Request_RASSI, lCtoF, isFalcon, nDimBC, mTROld, NmIter, MxItr, mTtAtm, nWNdw, iter, &
+                             Fallback
+
+implicit real*8(a-h,o-z)
 !***********************************************************************
 !     Program for determination of the new molecular geometry          *
 !***********************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error, NewCarDone
-      Character(LEN=1) Step_trunc
-      Integer, External:: AixRm
-      Integer nGB
-      Real*8 rDum(1)
-      Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Lu=6
-      Just_Frequencies=.False.
-      NewCarDone=.False.
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!-----Process the input
-!
-      LuSpool=21
-      Call SpoolInp(LuSpool)
-!
-      Call RdCtl_Slapaf(LuSpool,.False.)
-      mInt = nDimBC - mTROld
-!
-      Call Close_LuSpool(LuSpool)
-!
-      Call Chkpnt_open()
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      If (Request_Alaska.or.Request_RASSI) Then
-!
-!        Alaska/RASSI only
-         iStop=3
-         Call Free_Slapaf()
-         Return
-       Else If (isFalcon) Then
-         iStop=1
-         Call Free_Slapaf()
-         Return
-      End if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      PrQ= .Not.Request_Alaska
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Compute the Wilson B-matrices, which describe the transformations
-!     between internal and Cartesian coordinates. Values of the
-!     Internal coordinates are computed too.
-!
-      HSet=.True.
-      BSet=.True.
-      kIter=iter
-!
-!---- Compute number of steps for numerical differentiation
-!
-      NmIter=1
-      ! Numerical only for some rows
-      If (Allocated(mRowH))  NmIter=SIZE(mRowH)+1
-      If (lNmHss) NmIter=2*mInt+1    ! Full numerical
-      If (Cubic)  NmIter=2*mInt**2+1 ! Full cubic
-!
-      If (lTherm .and. iter.EQ.1) then
-         Call Put_dArray('Initial Coordinates',Coor,SIZE(Coor))
-      EndIf
-!
-!---- Fix the definition of internal during numerical differentiation
-      If (lNmHss.and.iter.lt.NmIter.and.iter.ne.1) nPrint(122)=5
-!
-!---- Do not overwrite numerical Hessian
-      If ((lNmHss.or.Allocated(mRowH))                                  &
-     &    .and.(iter.gt.NmIter.or.iter.lt.NmIter)) HSet = .False.
-!
-!---- Set logical to indicate status during numerical differentiation
-      Numerical = lNmHss .and.iter.le.NmIter .and.iter.ne.1
-!
-      If (Numerical) nWndw=NmIter
-      iRef=0
-      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
-      nQQ = SIZE(qInt,1)
-!
-      nPrint(30) = nPrint(30)-1
-!
-      Call Put_dArray('BMtrx',BMx,SIZE(Coor)*nQQ)
-      Call Put_iScalar('No of Internal coordinates',nQQ)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Reset_ThrGrd(Iter,mTtAtm,ThrGrd)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!-----Compute the norm of the Cartesian gradient.
-!
-      Call G_Nrm(nQQ,GNrm,iter,dqInt,mIntEff)
-      If (nPrint(116).ge.6) Call ListU(Lu,Lbl,dqInt,nQQ,iter)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     Accumulate gradient for complete or partial numerical
-!     differentiation of the Hessian.
-!
-      If ((Allocated(mRowH).and.iter.lt.NmIter) .or.                    &
-     &        (lNmHss.and.iter.lt.NmIter)) Then
+logical GoOn, Do_ESPF, Just_Frequencies, Found, Error, NewCarDone
+character(len=1) Step_trunc
+integer, external :: AixRm
+integer nGB
+real*8 rDum(1)
+real*8, allocatable :: GB(:), HX(:), HQ(:), KtB(:)
 
-         If (Allocated(mRowH).and.iter.lt.NmIter) Then
-!
-!----------------------------------------------------------------------*
-!        I) Update geometry for selected numerical differentiation.    *
-!----------------------------------------------------------------------*
-!
-            Call Freq1()
-            UpMeth='RowH  '
-         Else
-!
-!----------------------------------------------------------------------*
-!        II) Update geometry for full numerical differentiation.       *
-!----------------------------------------------------------------------*
-!
-            Call NwShft()
-            UpMeth='NumHss'
-         End If
-!
-         Call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
-         iNeg(:)=-99
-         HUpMet=' None '
-         nPrint(116)=nPrint(116)-3
-         nPrint( 52)=nPrint( 52)-1  ! Status
-         nPrint( 53)=nPrint( 53)-1
-         nPrint( 54)=nPrint( 54)-1
-         Write (6,*) ' Accumulate the gradient for selected '//         &
-     &               'numerical differentiation.'
-         Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
-         E_Delta=Zero
-         Step_Trunc=' '
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Lu = 6
+Just_Frequencies = .false.
+NewCarDone = .false.
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      Else
+! Process the input
+
+LuSpool = 21
+call SpoolInp(LuSpool)
+
+call RdCtl_Slapaf(LuSpool,.false.)
+mInt = nDimBC-mTROld
+
+call Close_LuSpool(LuSpool)
+
+call Chkpnt_open()
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!--------Compute updated geometry in Internal coordinates
-!
-         Step_Trunc=' '
-         E_Delta=zero
-         If (Allocated(mRowH).or.lNmHss) kIter = iter - (NmIter-1)
-!define UNIT_MM
-#ifdef UNIT_MM
-         Call Init_UpdMask(nInter)
-#endif
-!
-!        Update geometry
-!
-         If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Step_Trunc,nWndw)
-            If ((Step_Trunc.eq.'#').And.Fallback) Then
-               Call Update_sl(Step_Trunc,nWndw/2,kIter)
-            Else
-               NewCarDone=.True.
-            End If
-         Else
-            Call Update_sl(Step_Trunc,nWndw,kIter)
-         End If
-!
-#ifdef UNIT_MM
-         Call Free_UpdMask()
-#endif
-      End If
+if (Request_Alaska .or. Request_RASSI) then
+
+  ! Alaska/RASSI only
+  iStop = 3
+  call Free_Slapaf()
+  return
+else if (isFalcon) then
+  iStop = 1
+  call Free_Slapaf()
+  return
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+PrQ = .not. Request_Alaska
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (lCtoF .and. PrQ) call Def_CtoF(.false.)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute the Wilson B-matrices, which describe the transformations
+! between internal and Cartesian coordinates. Values of the
+! Internal coordinates are computed too.
+
+HSet = .true.
+BSet = .true.
+kIter = iter
+
+! Compute number of steps for numerical differentiation
+
+NmIter = 1
+! Numerical only for some rows
+if (allocated(mRowH)) NmIter = size(mRowH)+1
+if (lNmHss) NmIter = 2*mInt+1   ! Full numerical
+if (Cubic) NmIter = 2*mInt**2+1 ! Full cubic
+
+if (lTherm .and. (iter == 1)) then
+  call Put_dArray('Initial Coordinates',Coor,size(Coor))
+end if
+
+! Fix the definition of internal during numerical differentiation
+if (lNmHss .and. (iter < NmIter) .and. (iter /= 1)) nPrint(122) = 5
+
+! Do not overwrite numerical Hessian
+if ((lNmHss .or. allocated(mRowH)) .and. ((iter > NmIter) .or. (iter < NmIter))) HSet = .false.
+
+! Set logical to indicate status during numerical differentiation
+Numerical = lNmHss .and. (iter <= NmIter) .and. (iter /= 1)
+
+if (Numerical) nWndw = NmIter
+iRef = 0
+call BMtrx(size(Coor,2),Coor,iter,mTtAtm,nWndw)
+nQQ = size(qInt,1)
+
+nPrint(30) = nPrint(30)-1
+
+call Put_dArray('BMtrx',BMx,size(Coor)*nQQ)
+call Put_iScalar('No of Internal coordinates',nQQ)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call Reset_ThrGrd(Iter,mTtAtm,ThrGrd)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!-----Transform the new internal coordinates to Cartesians
-!     (if not already done by Kriging)
-!
-      If (NewCarDone) Then
-         Coor(:,:) = Cx(:,:,Iter+1)
-      Else
-         PrQ=.False.
-         Error=.False.
-         iRef=0
-         Call NewCar(Iter,Size(Coor,2),Coor,mTtAtm,Error)
-      End If
+! Compute the norm of the Cartesian gradient.
+
+call G_Nrm(nQQ,GNrm,iter,dqInt,mIntEff)
+if (nPrint(116) >= 6) call ListU(Lu,Lbl,dqInt,nQQ,iter)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!
-!-----If this is a ESPF QM/MM job, the link atom coordinates are updated
-!
-      Do_ESPF = .False.
-      Call DecideOnESPF(Do_ESPF)
-      If (Do_ESPF) Then
-       Call LA_Morok(SIZE(Coor,2),Coor,2)
-       Cx(:,:,Iter+1) = Coor(:,:)
-      End If
+! Accumulate gradient for complete or partial numerical
+! differentiation of the Hessian.
+
+if ((allocated(mRowH) .and. (iter < NmIter)) .or. (lNmHss .and. (iter < NmIter))) then
+
+  if (allocated(mRowH) .and. (iter < NmIter)) then
+
+    !------------------------------------------------------------------*
+    !    I) Update geometry for selected numerical differentiation.    *
+    !------------------------------------------------------------------*
+
+    call Freq1()
+    UpMeth = 'RowH  '
+  else
+
+    !------------------------------------------------------------------*
+    !    II) Update geometry for full numerical differentiation.       *
+    !------------------------------------------------------------------*
+
+    call NwShft()
+    UpMeth = 'NumHss'
+  end if
+
+  call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
+  iNeg(:) = -99
+  HUpMet = ' None '
+  nPrint(116) = nPrint(116)-3
+  nPrint(52) = nPrint(52)-1  ! Status
+  nPrint(53) = nPrint(53)-1
+  nPrint(54) = nPrint(54)-1
+  write(6,*) ' Accumulate the gradient for selected numerical differentiation.'
+  write(6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
+  E_Delta = Zero
+  Step_Trunc = ' '
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Compute updated geometry in Internal coordinates
+
+  Step_Trunc = ' '
+  E_Delta = zero
+  if (allocated(mRowH) .or. lNmHss) kIter = iter-(NmIter-1)
+# ifdef UNIT_MM
+  call Init_UpdMask(nInter)
+# endif
+
+  ! Update geometry
+
+  if (Kriging .and. (Iter >= nspAI)) then
+    call Update_Kriging(Step_Trunc,nWndw)
+    if ((Step_Trunc == '#') .and. Fallback) then
+      call Update_sl(Step_Trunc,nWndw/2,kIter)
+    else
+      NewCarDone = .true.
+    end if
+  else
+    call Update_sl(Step_Trunc,nWndw,kIter)
+  end if
+
+# ifdef UNIT_MM
+  call Free_UpdMask()
+# endif
+end if
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! Transform the new internal coordinates to Cartesians
+! (if not already done by Kriging)
+
+if (NewCarDone) then
+  Coor(:,:) = Cx(:,:,Iter+1)
+else
+  PrQ = .false.
+  Error = .false.
+  iRef = 0
+  call NewCar(Iter,size(Coor,2),Coor,mTtAtm,Error)
+end if
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! If this is a ESPF QM/MM job, the link atom coordinates are updated
+
+Do_ESPF = .false.
+call DecideOnESPF(Do_ESPF)
+if (Do_ESPF) then
+  call LA_Morok(size(Coor,2),Coor,2)
+  Cx(:,:,Iter+1) = Coor(:,:)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Adjust some print levels
-!
-      If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
-!
-!        If only frequencies no more output
-!
-         nPrint(21) = 5 ! Hessian already printed calling Update_sl
-         If (kIter.gt.MxItr) Then
-            Just_Frequencies=.True.
-            nPrint(116)=nPrint(116)-3
-            nPrint( 52)=nPrint( 52)-1
-            nPrint( 53)=nPrint( 53)-1
-            nPrint( 54)=nPrint( 54)-1
-         End If
-      End If
-!
-!     Fix correct reference structure in case of Numerical Hessian
-!     optimization.
-!
-      If ((lNmHss.or.Allocated(mRowH)).and.kIter.eq.1) Then
-         Cx(:,:,iter) = Cx(:,:,1)
-      End If
-!
-!---- Print statistics and check on convergence
-!
-      GoOn = (lNmHss.and.iter.lt.NmIter) .OR.                           &
-     &       (Allocated(mRowH).and.iter.lt.NmIter)
-      Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
-      Call Convrg(iter,kIter,nQQ,iStop,MxItr,mIntEff,                   &
-     &            mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
-!
+! Adjust some print levels
+
+if ((lNmHss .or. allocated(mRowH)) .and. (iter == NmIter)) then
+
+  ! If only frequencies no more output
+
+  nPrint(21) = 5 ! Hessian already printed calling Update_sl
+  if (kIter > MxItr) then
+    Just_Frequencies = .true.
+    nPrint(116) = nPrint(116)-3
+    nPrint(52) = nPrint(52)-1
+    nPrint(53) = nPrint(53)-1
+    nPrint(54) = nPrint(54)-1
+  end if
+end if
+
+! Fix correct reference structure in case of Numerical Hessian optimization.
+
+if ((lNmHss .or. allocated(mRowH)) .and. (kIter == 1)) then
+  Cx(:,:,iter) = Cx(:,:,1)
+end if
+
+! Print statistics and check on convergence
+
+GoOn = (lNmHss .and. (iter < NmIter)) .or. (allocated(mRowH) .and. (iter < NmIter))
+Numerical = (lNmHss .or. allocated(mRowH)) .and. (iter <= NmIter)
+call Convrg(iter,kIter,nQQ,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
+
 !***********************************************************************
 !                                                                      *
 !                           EPILOGUE                                   *
 !                                                                      *
 !***********************************************************************
-!
-!-----Write information to files
-!
-      Numerical = (lNmHss.or.Allocated(mRowH)) .and. iter.le.NmIter
 
-      Call DstInf(iStop,Just_Frequencies)
+! Write information to files
 
-      If (lCtoF) Call Def_CtoF(.True.)
-      If (.Not.User_Def .and.                                           &
-     &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt()
-!
-!-----After a numerical frequencies calculation, restore the original
-!     runfile, but save the useful data (gradient and Hessian)
-!
-      If (lNmHss.and.iter.ge.NmIter) Then
-         Call f_Inquire('RUNBACK',Found)
-         If (Found) Then
-!           Read data
-            nGB=SIZE(Coor)
-            Call mma_allocate(GB,nGB,Label='GB')
-            Call Get_dArray_chk('GRAD',GB,nGB)
+Numerical = (lNmHss .or. allocated(mRowH)) .and. (iter <= NmIter)
 
-            Call Qpg_dArray('Hss_X',Found,nHX)
-            Call mma_allocate(HX,nHX,Label='HX')
-            Call Get_dArray('Hss_X',HX,nHX)
+call DstInf(iStop,Just_Frequencies)
 
-            Call Qpg_dArray('Hss_Q',Found,nHQ)
-            Call mma_allocate(HQ,nHQ,Label='HQ')
-            Call Get_dArray('Hss_Q',HQ,nHQ)
+if (lCtoF) call Def_CtoF(.true.)
+if ((.not. User_Def) .and. ((lNmHss .and. (iter >= NmIter)) .or. (.not. lNmHss))) call cp_SpcInt()
 
-            Call Qpg_dArray('KtB',Found,nKtB)
-            Call mma_allocate(KtB,nKtB,Label='KtB')
-            Call Get_dArray('KtB',KtB,nKtB)
+! After a numerical frequencies calculation, restore the original
+! runfile, but save the useful data (gradient and Hessian)
 
-            Call Get_iScalar('No of Internal coordinates',nIntCoor)
-!           Write data in backup file
-            Call NameRun('RUNBACK')
-            Call Put_dArray('GRAD',GB,nGB)
-            Call Put_dArray('Hss_X',HX,nHX)
-            Call Put_dArray('Hss_Q',HQ,nHQ)
-            Call Put_dArray('Hss_upd',rdum,0)
-            Call Put_dArray('Hess',HQ,nHQ)
-            Call Put_dArray('KtB',KtB,nKtB)
-            Call Put_iScalar('No of Internal coordinates',nIntCoor)
-!           Pretend the Hessian is analytical
-            nHX2=Int(Sqrt(Dble(nHX)))
-            iOff=0
-            Do i=1,nHX2
-               Do j=1,i
-                  iOff=iOff+1
-                  HX(iOff)=HX((i-1)*nHX2+j)
-               End Do
-            End Do
-#ifdef _DEBUGPRINT_
-            Call TriPrt('AnalHess',' ',HX,nHX2)
-#endif
+if (lNmHss .and. (iter >= NmIter)) then
+  call f_Inquire('RUNBACK',Found)
+  if (Found) then
+    ! Read data
+    nGB = size(Coor)
+    call mma_allocate(GB,nGB,Label='GB')
+    call Get_dArray_chk('GRAD',GB,nGB)
 
-            Call Put_AnalHess(HX,iOff)
-            Call NameRun('#Pop')
+    call Qpg_dArray('Hss_X',Found,nHX)
+    call mma_allocate(HX,nHX,Label='HX')
+    call Get_dArray('Hss_X',HX,nHX)
 
-            Call mma_deallocate(GB)
-            Call mma_deallocate(HX)
-            Call mma_deallocate(HQ)
-            Call mma_deallocate(KtB)
-!
-!           Restore and remove the backup runfile
-!
-            Call fCopy('RUNBACK','RUNFILE',iErr)
-            If (iErr.ne.0) Call Abend()
-            If (AixRm('RUNBACK').ne.0) Call Abend()
-         End If
-      End If
-!
-!-----Remove the GRADS file
-!
-      Call f_Inquire('GRADS',Found)
-      If (Found) Then
-         If (AixRm('GRADS').ne.0) Call Abend()
-      End If
-!
-      Call Chkpnt_update()
-      Call Chkpnt_close()
+    call Qpg_dArray('Hss_Q',Found,nHQ)
+    call mma_allocate(HQ,nHQ,Label='HQ')
+    call Get_dArray('Hss_Q',HQ,nHQ)
+
+    call Qpg_dArray('KtB',Found,nKtB)
+    call mma_allocate(KtB,nKtB,Label='KtB')
+    call Get_dArray('KtB',KtB,nKtB)
+
+    call Get_iScalar('No of Internal coordinates',nIntCoor)
+    ! Write data in backup file
+    call NameRun('RUNBACK')
+    call Put_dArray('GRAD',GB,nGB)
+    call Put_dArray('Hss_X',HX,nHX)
+    call Put_dArray('Hss_Q',HQ,nHQ)
+    call Put_dArray('Hss_upd',rdum,0)
+    call Put_dArray('Hess',HQ,nHQ)
+    call Put_dArray('KtB',KtB,nKtB)
+    call Put_iScalar('No of Internal coordinates',nIntCoor)
+    ! Pretend the Hessian is analytical
+    nHX2 = int(sqrt(dble(nHX)))
+    iOff = 0
+    do i=1,nHX2
+      do j=1,i
+        iOff = iOff+1
+        HX(iOff) = HX((i-1)*nHX2+j)
+      end do
+    end do
+#   ifdef _DEBUGPRINT_
+    call TriPrt('AnalHess',' ',HX,nHX2)
+#   endif
+
+    call Put_AnalHess(HX,iOff)
+    call NameRun('#Pop')
+
+    call mma_deallocate(GB)
+    call mma_deallocate(HX)
+    call mma_deallocate(HQ)
+    call mma_deallocate(KtB)
+
+    ! Restore and remove the backup runfile
+
+    call fCopy('RUNBACK','RUNFILE',iErr)
+    if (iErr /= 0) call Abend()
+    if (AixRm('RUNBACK') /= 0) call Abend()
+  end if
+end if
+
+! Remove the GRADS file
+
+call f_Inquire('GRADS',Found)
+if (Found) then
+  if (AixRm('GRADS') /= 0) call Abend()
+end if
+
+call Chkpnt_update()
+call Chkpnt_close()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Deallocate memory
-!
-      Call Free_Slapaf()
-!
-!-----Terminate the calculations.
-!
-      Return
-      End
+! Deallocate memory
+
+call Free_Slapaf()
+
+! Terminate the calculations.
+
+return
+
+end subroutine RlxCtl

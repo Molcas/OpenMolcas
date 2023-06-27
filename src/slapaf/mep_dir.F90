@@ -34,319 +34,296 @@
 !> @param[out]    ResGrad       Residual gradient
 !> @param[out]    BadConstraint Flag to signal constraint problems
 !***********************************************************************
-      Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,  &
-     &                   ResGrad,BadConstraint)
-      use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Weights, MF, RefGeo
-      use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP,       &
-     &                             MEPNum, dMEPStep, MEP_Type,          &
-     &                             MEP_Algo, iter
-      Implicit Real*8 (a-h,o-z)
+
+subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,ResGrad,BadConstraint)
+use Symmetry_Info, only: nIrrep
+use Slapaf_Info, only: Weights, MF, RefGeo
+use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP, MEPNum, dMEPStep, MEP_Type, MEP_Algo, iter
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
-      Logical IRCRestart,BadConstraint
-      Parameter ( RadToDeg=180.0D0/Pi )
-      Integer iDum(1)
-      Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:), Disp(:,:),      &
-     &                      Grad(:,:), Dir(:,:), Cen(:,:),              &
-     &                      Len(:), Cur(:), drdx(:,:)
-!
+real*8 Cx(3*nAtom,iter+1), Gx(3*nAtom,iter+1)
+logical IRCRestart, BadConstraint
+parameter(RadToDeg=180.0d0/Pi)
+integer iDum(1)
+real*8, allocatable :: PrevDir(:,:), PostDir(:,:), Disp(:,:), Grad(:,:), Dir(:,:), Cen(:,:), len(:), Cur(:), drdx(:,:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nCoor=3*nAtom
-      iPrev_iter=Max(iOff_iter,1)
-      Call mma_allocate(PrevDir,3,nAtom,Label='PrevDir')
-      Call mma_allocate(PostDir,3,nAtom,Label='PostDir')
-      Call mma_allocate(Disp,3,nAtom,Label='Disp')
-      Call mma_allocate(Grad,3,nAtom,Label='Grad')
-      Call mma_allocate(Dir,3,nAtom,Label='Dir')
-      Call mma_allocate(Cen,3,nAtom,Label='Cen')
-!
-!     Obtain some useful vectors:
-!     PrevDir: difference between ref. structure and previous MEP point
-!     PostDir: difference between current MEP point and ref. structure
-!     Disp:    difference between current and previous MEP points
-!     Grad:    gradient at current MEP point
-!
-      If (iter.gt.1) Then
-        PrevDir(:,:) = RefGeo(:,:)
-        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
-        Call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
-        PostDir(:,:) = PostDir(:,:) - RefGeo(:,:)
-        Call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
-        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
-      Else
-        PrevDir(:,:)=Zero
-        PostDir(:,:)=Zero
-        Disp(:,:)   =Zero
-      End If
-      Call dCopy_(nCoor,Gx(:,iter),1,Grad(:,:),1)
-!
-!     Normalize the vectors in weighted coordinates
-!     and compute some angles that provide information on the path
-!     shape and quality.
-!     Note that gradient and coordinates transform differently
-!
-      TWeight=Zero
-      dPrevDir=Zero
-      dPostDir=Zero
-      dDisp=Zero
-      dGrad=Zero
-      dPostDirGrad=Zero
-      dPrevDirGrad=Zero
-      dPrevDirDisp=Zero
-      dPrevDirPostDir=Zero
-      iOff=0
-      Do iAtom=1,nAtom
-        Fact=Dble(iDeg(Cx(1+iOff,iter)))
-        xWeight=Weights(iAtom)
-        TWeight=TWeight+Fact*xWeight
-        Do ixyz=1,3
-          dPrevDir=dPrevDir+Fact*xWeight*PrevDir(ixyz,iAtom)**2
-          dPostDir=dPostDir+Fact*xWeight*PostDir(ixyz,iAtom)**2
-          dDisp=dDisp+Fact*xWeight*Disp(ixyz,iAtom)**2
-          dGrad=dGrad+Fact*Grad(ixyz,iAtom)**2/xWeight
-          dPostDirGrad=dPostDirGrad+                                    &
-     &        Fact*PostDir(ixyz,iAtom)*Grad(ixyz,iAtom)
-          dPrevDirGrad=dPrevDirGrad+                                    &
-     &        Fact*PrevDir(ixyz,iAtom)*Grad(ixyz,iAtom)
-          dPrevDirDisp=dPrevDirDisp+                                    &
-     &        Fact*xWeight*PrevDir(ixyz,iAtom)*Disp(ixyz,iAtom)
-          dPrevDirPostDir=dPrevDirPostDir+                              &
-     &        Fact*xWeight*PrevDir(ixyz,iAtom)*PostDir(ixyz,iAtom)
-          iOff=iOff+1
-        End Do
-      End Do
-      dPrevDir=Sqrt(dPrevDir)
-      dPostDir=Sqrt(dPostDir)
-      dDisp=Sqrt(dDisp)
-      dGrad=Sqrt(dGrad)
-      If (dPrevDir.gt.Zero)                                             &
-     &  Call DScal_(nCoor,One/dPrevDir,PrevDir(:,:),1)
-      If (dPostDir.gt.Zero)                                             &
-     &  Call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
-      If (dDisp.gt.Zero)                                                &
-     &  Call DScal_(nCoor,One/dDisp,Disp(:,:),1)
-      If (dGrad.gt.Zero)                                                &
-     &  Call DScal_(nCoor,One/dGrad,Grad(:,:),1)
-!     Any zero vector is assumed to be parallel to any other
-      If (dPostDir*dGrad.gt.Zero) Then
-        dPostDirGrad=dPostDirGrad/(dPostDir*dGrad)
-      Else
-        dPostDirGrad=One
-      End If
-      If (dPrevDir*dGrad.gt.Zero) Then
-        dPrevDirGrad=dPrevDirGrad/(dPrevDir*dGrad)
-      Else
-        dPrevDirGrad=One
-      End If
-      If (dPrevDir*dDisp.gt.Zero) Then
-        dPrevDirDisp=dPrevDirDisp/(dPrevDir*dDisp)
-      Else
-        dPrevDirDisp=One
-      End If
-      If (dPrevDir*dPostDir.gt.Zero) Then
-        dPrevDirPostDir=dPrevDirPostDir/(dPrevDir*dPostDir)
-      Else
-        dPrevDirPostDir=One
-      End If
-!     A negative curvature means there is no appropriate value
-      Curvature=-1.0D-12
-      PathLength=dDisp/Sqrt(TWeight)
-      If (MEP.and.MEP_Type.eq.'SPHERE    ') Then
-!       The curvature is the inverse radius of the circle tangent to
-!       both the current and previous MEP points
-!       The path length is the arc length between these points
-        If (One-dPrevDirPostDir.gt.Zero)                                &
-     &    Curvature=(One-dPrevDirPostDir)/Sqrt(One-dPrevDirPostDir**2)/ &
-     &              Sqrt(dPrevDir*dPostDir/TWeight)
-        If (Curvature.gt.Zero)                                          &
-     &    PathLength=aCos(dPrevDirPostDir)/Curvature
-      End If
-!
-!     Store the length and curvature values, and print results
-!
-      Call mma_allocate(Len,nMEP+1,Label='Len')
-      Call mma_allocate(Cur,nMEP+1,Label='Cur')
-      If (iMEP.ge.1) Then
-        Call Get_dArray('MEP-Lengths   ',Len,nMEP+1)
-        Call Get_dArray('MEP-Curvatures',Cur,nMEP+1)
-        If (IRC.eq.-1) Then
-          Len(1+iMEP)=-PathLength
-        Else
-          Len(1+iMEP)=PathLength
-        End If
-        Cur(1+iMEP)=Curvature
-        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
-        If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
-          If (MEP_Type.eq.'TRANSVERSE') Then
-            ConstraintAngle=aCos(dPrevDirGrad)*RadToDeg
-          Else
-            ConstraintAngle=aCos(dPostDirGrad)*RadToDeg
-          End If
-          If (MEP) Then
-            PathAngle=aCos(dPrevDirPostDir)*RadToDeg
-          Else
-            PathAngle=aCos(-dPrevDirDisp)*RadToDeg
-          End If
-          ResGrad=dGrad
-          Write(6,*)
-          Write(6,'(a)')                                                &
-     &      ' Last IRC/MEP step'//                                      &
-     &      ' (in weighted coordinates / sqrt(total weight))'
-          Write(6,'(a)')                                                &
-     &      ' --------------------------------------------------------'
-          Write(6,100) 'Residual gradient size:',ResGrad,'hartree/bohr'
-          Write(6,100) 'Angle with constraint surface:',                &
-     &                 ConstraintAngle,'degrees'
-          Write(6,100) 'Path angle:',PathAngle,'degrees'
-          If (Curvature.ge.Zero) Write(6,100)                           &
-     &                 'Path curvature:',Curvature,'bohr^(-1)'
-          Write(6,100) 'Path length:',PathLength,'bohr'
-100       Format(1X,A30,1X,F12.6,1X,A)
-        End If
-      Else
-        Len(:)=Zero
-        Cur(:)=Zero
-        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
-      End If
-      Call mma_deallocate(Len)
-      Call mma_deallocate(Cur)
-!
-!     Do not mess with the geometry or reference if the next iteration
-!     will be the start of a reverse IRC search.
-!
-      If (.Not.IRCRestart) Then
-!
-!       The new direction for the MEP should be the gradient in weighted
-!       coordinates, but this may break additional constraints if they
-!       exist, and the gradient may be close to zero.
-!       Instead, we will use the direction that, on convergence, should
-!       be parallel to the gradient when there are no other constraints.
-!       Note that we could be following the gradient uphill
-!
-        If (MEP_Type.eq.'TRANSVERSE') Then
-!         In the TRANSVERSE case, PrevDir is the vector parallel to the
-!         gradient, but following this will never change the hyperplane
-!         orientation.
-!         We will try using a linear combination of PrevDir and Disp
-!           dp  = Disp.PrevDir
-!           Dir = dp*Disp + a*(PrevDir-dp*Disp)
-!               = a*PrevDir + (1-a)*dp*Disp
-!         Try different values for Fact (the "a" above).
-!         I believe the true MEP direction should be more slanted from
-!         the plane normal (PrevDir) than the Disp vector, therefore
-!         a negative value is probably better.
-          Fact=-0.5D0
-          Dir(:,:) = Fact * PrevDir(:,:)
-          Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,        &
-     &                                             Dir(:,:),1)
-        Else
-!         In the SPHERE case, PostDir is the vector to use
-          Dir(:,:) = PostDir(:,:)
-        End If
-!
-!       Special cases
-!
-        If (iMEP.eq.0) Then
-          If (IRC.eq.0) Then
-!           In the initial iteration of a MEP, use the initial direction
-            Call Get_dArray('Transverse',Dir(:,:),nCoor)
-          Else
-!           In the initial iteration of an IRC branch, use the reaction vector
-            Call dCopy_(nCoor,MF,1,Dir(:,:),1)
-          End If
-        End If
-!
-!       Project any additional constraints out of the direction vector
-!       The constraint vectors are read from the dRdX file
-!
-        LudRdX=30
-        Call DaName(LudRdX,'dRdX')
-        iAd=0
-        Call iDaFile(LudRdX,2,iDum,1,iAd)
-        nLambda_=iDum(1)
-        Call iDaFile(LudRdX,2,iDum,1,iAd)
-        nCoor_=iDum(1)
-        Call mma_allocate(drdx,nCoor_,nLambda_,Label='drdx')
-        Call dDaFile(LudRdX,2,drdx,nLambda_*nCoor_,iAd)
-        Call DaClos(LudRdX)
-        Do iLambda=1,nLambda
-          If (iLambda.ne.MEPnum) Then
-            dd=dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
-            drd=dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
-            Call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
-          End If
-        End Do
-        Call mma_deallocate(drdx)
-!
-!       Compute the length of the direction vector in weighted coordinates
-!
-        dDir=Zero
-        iOff=0
-        Do iAtom=1,nAtom
-          Fact=Dble(iDeg(Cx(1+iOff,iter)))
-          xWeight=Weights(iAtom)
-          Do ixyz=1,3
-            dDir=dDir+Fact*xWeight*Dir(ixyz,iAtom)**2
-            iOff=iOff+1
-          End Do
-        End Do
-        dDir=Sqrt(dDir)
-!
-!       According to the Gonzalez-Schlegel method, the reference point
-!       is half-step away in the search direction.
-!       First set the new reference point (except for rMEP) and then
-!       compute the new starting structure at the full step distance
-!       For an IRC first step, keep the initial structure as reference
-!
-        Fact=dMEPStep*Sqrt(TWeight)/dDir
-        Call dCopy_(nCoor,Cx(:,iter),1,Cen(:,:),1)
-        If (MEP_Algo.eq.'GS') Then
-          If ((IRC.eq.0).or.(iMEP.ne.0))                                &
-     &      Call Find_Distance(Cx(:,iter),Cen(:,:),Dir(:,:),            &
-     &                Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
-          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cen(:,:),nCoor)
-          Call Find_Distance(Cen(:,:),Cx(:,iter+1),Dir(:,:),            &
-     &              Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
-        Else If (MEP_Algo.eq.'MB') Then
-          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cx(1,iter),nCoor)
-          Call Find_Distance(Cx(:,iter),Cx(:,iter+1),Dir(:,:),          &
-     &              Fact,dMEPStep,nAtom,BadConstraint)
-        End If
-!
-!       Randomly displace the new geometry 1/20th of the MEP distance
-!       to try to break symmetry
-!
-        If (nIrrep.eq.1) Then
-          Call Random_Vector(nCoor,Disp(:,:),.True.)
-          dDir=Zero
-          iOff=0
-          Do iAtom=1,nAtom
-            xWeight=Weights(iAtom)
-            Do ixyz=1,3
-              dDir=dDir+xWeight*Disp(ixyz,iAtom)**2
-              iOff=iOff+1
-            End Do
-          End Do
-          Fact=dMEPStep*Sqrt(TWeight/dDir)
-          Call DaXpY_(nCoor,0.05D0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
-        End If
-        Call Put_dArray('Transverse',Dir(:,:),nCoor)
-        If (iter.eq.1) BadConstraint=.False.
-      End If
+nCoor = 3*nAtom
+iPrev_iter = max(iOff_iter,1)
+call mma_allocate(PrevDir,3,nAtom,Label='PrevDir')
+call mma_allocate(PostDir,3,nAtom,Label='PostDir')
+call mma_allocate(Disp,3,nAtom,Label='Disp')
+call mma_allocate(Grad,3,nAtom,Label='Grad')
+call mma_allocate(Dir,3,nAtom,Label='Dir')
+call mma_allocate(Cen,3,nAtom,Label='Cen')
+
+! Obtain some useful vectors:
+! PrevDir: difference between ref. structure and previous MEP point
+! PostDir: difference between current MEP point and ref. structure
+! Disp:    difference between current and previous MEP points
+! Grad:    gradient at current MEP point
+
+if (iter > 1) then
+  PrevDir(:,:) = RefGeo(:,:)
+  call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
+  call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
+  PostDir(:,:) = PostDir(:,:)-RefGeo(:,:)
+  call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
+  call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
+else
+  PrevDir(:,:) = Zero
+  PostDir(:,:) = Zero
+  Disp(:,:) = Zero
+end if
+call dCopy_(nCoor,Gx(:,iter),1,Grad(:,:),1)
+
+! Normalize the vectors in weighted coordinates
+! and compute some angles that provide information on the path
+! shape and quality.
+! Note that gradient and coordinates transform differently
+
+TWeight = Zero
+dPrevDir = Zero
+dPostDir = Zero
+dDisp = Zero
+dGrad = Zero
+dPostDirGrad = Zero
+dPrevDirGrad = Zero
+dPrevDirDisp = Zero
+dPrevDirPostDir = Zero
+iOff = 0
+do iAtom=1,nAtom
+  Fact = dble(iDeg(Cx(1+iOff,iter)))
+  xWeight = Weights(iAtom)
+  TWeight = TWeight+Fact*xWeight
+  do ixyz=1,3
+    dPrevDir = dPrevDir+Fact*xWeight*PrevDir(ixyz,iAtom)**2
+    dPostDir = dPostDir+Fact*xWeight*PostDir(ixyz,iAtom)**2
+    dDisp = dDisp+Fact*xWeight*Disp(ixyz,iAtom)**2
+    dGrad = dGrad+Fact*Grad(ixyz,iAtom)**2/xWeight
+    dPostDirGrad = dPostDirGrad+Fact*PostDir(ixyz,iAtom)*Grad(ixyz,iAtom)
+    dPrevDirGrad = dPrevDirGrad+Fact*PrevDir(ixyz,iAtom)*Grad(ixyz,iAtom)
+    dPrevDirDisp = dPrevDirDisp+Fact*xWeight*PrevDir(ixyz,iAtom)*Disp(ixyz,iAtom)
+    dPrevDirPostDir = dPrevDirPostDir+Fact*xWeight*PrevDir(ixyz,iAtom)*PostDir(ixyz,iAtom)
+    iOff = iOff+1
+  end do
+end do
+dPrevDir = sqrt(dPrevDir)
+dPostDir = sqrt(dPostDir)
+dDisp = sqrt(dDisp)
+dGrad = sqrt(dGrad)
+if (dPrevDir > Zero) call DScal_(nCoor,One/dPrevDir,PrevDir(:,:),1)
+if (dPostDir > Zero) call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
+if (dDisp > Zero) call DScal_(nCoor,One/dDisp,Disp(:,:),1)
+if (dGrad > Zero) call DScal_(nCoor,One/dGrad,Grad(:,:),1)
+! Any zero vector is assumed to be parallel to any other
+if (dPostDir*dGrad > Zero) then
+  dPostDirGrad = dPostDirGrad/(dPostDir*dGrad)
+else
+  dPostDirGrad = One
+end if
+if (dPrevDir*dGrad > Zero) then
+  dPrevDirGrad = dPrevDirGrad/(dPrevDir*dGrad)
+else
+  dPrevDirGrad = One
+end if
+if (dPrevDir*dDisp > Zero) then
+  dPrevDirDisp = dPrevDirDisp/(dPrevDir*dDisp)
+else
+  dPrevDirDisp = One
+end if
+if (dPrevDir*dPostDir > Zero) then
+  dPrevDirPostDir = dPrevDirPostDir/(dPrevDir*dPostDir)
+else
+  dPrevDirPostDir = One
+end if
+! A negative curvature means there is no appropriate value
+Curvature = -1.0D-12
+PathLength = dDisp/sqrt(TWeight)
+if (MEP .and. (MEP_Type == 'SPHERE    ')) then
+  ! The curvature is the inverse radius of the circle tangent to
+  ! both the current and previous MEP points
+  ! The path length is the arc length between these points
+  if (One-dPrevDirPostDir > Zero) Curvature = (One-dPrevDirPostDir)/sqrt(One-dPrevDirPostDir**2)/sqrt(dPrevDir*dPostDir/TWeight)
+  if (Curvature > Zero) PathLength = acos(dPrevDirPostDir)/Curvature
+end if
+
+! Store the length and curvature values, and print results
+
+call mma_allocate(Len,nMEP+1,Label='Len')
+call mma_allocate(Cur,nMEP+1,Label='Cur')
+if (iMEP >= 1) then
+  call Get_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Get_dArray('MEP-Curvatures',Cur,nMEP+1)
+  if (IRC == -1) then
+    len(1+iMEP) = -PathLength
+  else
+    len(1+iMEP) = PathLength
+  end if
+  Cur(1+iMEP) = Curvature
+  call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
+  if ((iMEP >= 1) .and. (iPrint >= 5)) then
+    if (MEP_Type == 'TRANSVERSE') then
+      ConstraintAngle = acos(dPrevDirGrad)*RadToDeg
+    else
+      ConstraintAngle = acos(dPostDirGrad)*RadToDeg
+    end if
+    if (MEP) then
+      PathAngle = acos(dPrevDirPostDir)*RadToDeg
+    else
+      PathAngle = acos(-dPrevDirDisp)*RadToDeg
+    end if
+    ResGrad = dGrad
+    write(6,*)
+    write(6,'(a)') ' Last IRC/MEP step (in weighted coordinates / sqrt(total weight))'
+    write(6,'(a)') ' --------------------------------------------------------'
+    write(6,100) 'Residual gradient size:',ResGrad,'hartree/bohr'
+    write(6,100) 'Angle with constraint surface:',ConstraintAngle,'degrees'
+    write(6,100) 'Path angle:',PathAngle,'degrees'
+    if (Curvature >= Zero) write(6,100) 'Path curvature:',Curvature,'bohr^(-1)'
+    write(6,100) 'Path length:',PathLength,'bohr'
+100 format(1X,A30,1X,F12.6,1X,A)
+  end if
+else
+  len(:) = Zero
+  Cur(:) = Zero
+  call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+  call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
+end if
+call mma_deallocate(Len)
+call mma_deallocate(Cur)
+
+! Do not mess with the geometry or reference if the next iteration
+! will be the start of a reverse IRC search.
+
+if (.not. IRCRestart) then
+
+  ! The new direction for the MEP should be the gradient in weighted
+  ! coordinates, but this may break additional constraints if they
+  ! exist, and the gradient may be close to zero.
+  ! Instead, we will use the direction that, on convergence, should
+  ! be parallel to the gradient when there are no other constraints.
+  ! Note that we could be following the gradient uphill
+
+  if (MEP_Type == 'TRANSVERSE') then
+    ! In the TRANSVERSE case, PrevDir is the vector parallel to the
+    ! gradient, but following this will never change the hyperplane
+    ! orientation.
+    ! We will try using a linear combination of PrevDir and Disp
+    !   dp  = Disp.PrevDir
+    !   Dir = dp*Disp + a*(PrevDir-dp*Disp)
+    !       = a*PrevDir + (1-a)*dp*Disp
+    ! Try different values for Fact (the "a" above).
+    ! I believe the true MEP direction should be more slanted from
+    ! the plane normal (PrevDir) than the Disp vector, therefore
+    ! a negative value is probably better.
+    Fact = -0.5d0
+    Dir(:,:) = Fact*PrevDir(:,:)
+    call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,Dir(:,:),1)
+  else
+    ! In the SPHERE case, PostDir is the vector to use
+    Dir(:,:) = PostDir(:,:)
+  end if
+
+  ! Special cases
+
+  if (iMEP == 0) then
+    if (IRC == 0) then
+      ! In the initial iteration of a MEP, use the initial direction
+      call Get_dArray('Transverse',Dir(:,:),nCoor)
+    else
+      ! In the initial iteration of an IRC branch, use the reaction vector
+      call dCopy_(nCoor,MF,1,Dir(:,:),1)
+    end if
+  end if
+
+  ! Project any additional constraints out of the direction vector
+  ! The constraint vectors are read from the dRdX file
+
+  LudRdX = 30
+  call DaName(LudRdX,'dRdX')
+  iAd = 0
+  call iDaFile(LudRdX,2,iDum,1,iAd)
+  nLambda_ = iDum(1)
+  call iDaFile(LudRdX,2,iDum,1,iAd)
+  nCoor_ = iDum(1)
+  call mma_allocate(drdx,nCoor_,nLambda_,Label='drdx')
+  call dDaFile(LudRdX,2,drdx,nLambda_*nCoor_,iAd)
+  call DaClos(LudRdX)
+  do iLambda=1,nLambda
+    if (iLambda /= MEPnum) then
+      dd = dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
+      drd = dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
+      call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
+    end if
+  end do
+  call mma_deallocate(drdx)
+
+  ! Compute the length of the direction vector in weighted coordinates
+
+  dDir = Zero
+  iOff = 0
+  do iAtom=1,nAtom
+    Fact = dble(iDeg(Cx(1+iOff,iter)))
+    xWeight = Weights(iAtom)
+    do ixyz=1,3
+      dDir = dDir+Fact*xWeight*Dir(ixyz,iAtom)**2
+      iOff = iOff+1
+    end do
+  end do
+  dDir = sqrt(dDir)
+
+  ! According to the Gonzalez-Schlegel method, the reference point
+  ! is half-step away in the search direction.
+  ! First set the new reference point (except for rMEP) and then
+  ! compute the new starting structure at the full step distance
+  ! For an IRC first step, keep the initial structure as reference
+
+  Fact = dMEPStep*sqrt(TWeight)/dDir
+  call dCopy_(nCoor,Cx(:,iter),1,Cen(:,:),1)
+  if (MEP_Algo == 'GS') then
+    if ((IRC == 0) .or. (iMEP /= 0)) call Find_Distance(Cx(:,iter),Cen(:,:),Dir(:,:),Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
+    if (.not. rMEP) call Put_dArray('Ref_Geom',Cen(:,:),nCoor)
+    call Find_Distance(Cen(:,:),Cx(:,iter+1),Dir(:,:),Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
+  else if (MEP_Algo == 'MB') then
+    if (.not. rMEP) call Put_dArray('Ref_Geom',Cx(1,iter),nCoor)
+    call Find_Distance(Cx(:,iter),Cx(:,iter+1),Dir(:,:),Fact,dMEPStep,nAtom,BadConstraint)
+  end if
+
+  ! Randomly displace the new geometry 1/20th of the MEP distance
+  ! to try to break symmetry
+
+  if (nIrrep == 1) then
+    call Random_Vector(nCoor,Disp(:,:),.true.)
+    dDir = Zero
+    iOff = 0
+    do iAtom=1,nAtom
+      xWeight = Weights(iAtom)
+      do ixyz=1,3
+        dDir = dDir+xWeight*Disp(ixyz,iAtom)**2
+        iOff = iOff+1
+      end do
+    end do
+    Fact = dMEPStep*sqrt(TWeight/dDir)
+    call DaXpY_(nCoor,0.05d0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
+  end if
+  call Put_dArray('Transverse',Dir(:,:),nCoor)
+  if (iter == 1) BadConstraint = .false.
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_deallocate(PrevDir)
-      Call mma_deallocate(PostDir)
-      Call mma_deallocate(Disp)
-      Call mma_deallocate(Grad)
-      Call mma_deallocate(Dir)
-      Call mma_deallocate(Cen)
-      Return
-      End
+call mma_deallocate(PrevDir)
+call mma_deallocate(PostDir)
+call mma_deallocate(Disp)
+call mma_deallocate(Grad)
+call mma_deallocate(Dir)
+call mma_deallocate(Cen)
+
+return
+
+end subroutine MEP_Dir

@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,    &
-     &                        mIter,Kriging_Hessian,qBeta,iOpt_RS,      &
-     &                        First_MicroIteration,Iter,qBeta_Disp,Hide)
+
+subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,mIter,Kriging_Hessian,qBeta,iOpt_RS,First_MicroIteration,Iter, &
+                        qBeta_Disp,Hide)
 !***********************************************************************
 !     Object: to update coordinates                                    *
 !                                                                      *
@@ -28,31 +28,25 @@
 !     Author: Roland Lindh                                             *
 !             2000                                                     *
 !***********************************************************************
-      use Slapaf_info, only: GNrm, Lambda, Energy, qInt, dqInt, Shift,  &
-     &                       BMx, Degen, nStab, Smmtrc, Lbl
-      use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,           &
-     &                             HrmFrq_Show, Curvilinear, FindTS,    &
-     &                             nBVec, nDimBC, iOptC, iNeg,          &
-     &                             TSConstraints, GNrm_Threshold, Mode, &
-     &                             GrdMax, StpMax, nLambda
-      Implicit Real*8 (a-h,o-z)
+
+use Slapaf_info, only: GNrm, Lambda, Energy, qInt, dqInt, Shift, BMx, Degen, nStab, Smmtrc, Lbl
+use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH, HrmFrq_Show, Curvilinear, FindTS, nBVec, nDimBC, iOptC, iNeg, &
+                             TSConstraints, GNrm_Threshold, Mode, GrdMax, StpMax, nLambda
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Integer iDum(1)
-      Logical Found, Kriging_Hessian, First_MicroIteration, Hide, lWrite
-      Character Step_Trunc, File1*8, File2*8, Step_Trunc_
-      Real*8 Disp(1)
-      Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),           &
-     &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
-      Integer, Allocatable:: Index(:), iFlip(:)
-      Real*8, Allocatable:: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:),     &
-     &                      T(:,:), d2L(:,:,:), BM(:,:), dBM(:,:,:),    &
-     &                      Energy_L(:), dEdx(:,:), x(:,:), du(:),      &
-     &                      dEdq(:,:), dx(:,:), dy(:), BVec(:,:),       &
-     &                      Scr1(:), Scr2(:), Value(:), Value0(:),      &
-     &                      Mult(:), dBVec(:), Tmp(:)
-      Character(LEN=8), Allocatable:: Lbl_Tmp(:)
+integer iDum(1)
+logical Found, Kriging_Hessian, First_MicroIteration, Hide, lWrite
+character Step_Trunc, File1*8, File2*8, Step_Trunc_
+real*8 Disp(1)
+real*8, allocatable :: Hessian(:,:), Wess(:,:), AMat(:), RHS(:), ErrVec(:,:), EMtrx(:,:)
+integer, allocatable :: index(:), iFlip(:)
+real*8, allocatable :: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:), T(:,:), d2L(:,:,:), BM(:,:), dBM(:,:,:), Energy_L(:), dEdx(:,:), &
+                       x(:,:), du(:), dEdq(:,:), dx(:,:), dy(:), BVec(:,:), Scr1(:), Scr2(:), value(:), Value0(:), Mult(:), &
+                       dBVec(:), Tmp(:)
+character(len=8), allocatable :: Lbl_Tmp(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -63,630 +57,591 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _NEW_CODE_
-      Real*8, Allocatable:: QC(:,:,:)
+real*8, allocatable :: QC(:,:,:)
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nQQ = SIZE(qInt,1)
-      nsAtom=SIZE(Degen,2)
+nQQ = size(qInt,1)
+nsAtom = size(Degen,2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Lu=6
-      Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',               &
-     &                     iOpt_RS,Beta,Beta_Disp
-      Call RecPrt('Update_inner: qInt',' ',qInt,nQQ,kIter)
-      Call RecPrt('Update_inner: Shift',' ',Shift,nQQ,kIter-1)
-      Call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
-      Call RecPrt('Update_inner: Energy',' ',Energy,kIter,1)
-      n1=3*nsAtom
-      Call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nQQ)
+Lu = 6
+write(Lu,*) 'Update_inner:iOpt_RS,Beta,Beta_Disp=',iOpt_RS,Beta,Beta_Disp
+call RecPrt('Update_inner: qInt',' ',qInt,nQQ,kIter)
+call RecPrt('Update_inner: Shift',' ',Shift,nQQ,kIter-1)
+call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
+call RecPrt('Update_inner: Energy',' ',Energy,kIter,1)
+n1 = 3*nsAtom
+call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nQQ)
 #endif
-!
-      GrdMax=Zero
-      StpMax=Zero
-!
-      Step_Trunc='N'
-      nA = (Max(nQQ,kIter)+1)**2
-      Call mma_Allocate(AMat,nA,Label='AMat')
-      Call mma_Allocate(Index,kIter,Label='Index')
-      Call mma_Allocate(ErrVec,nQQ,(kIter+1),Label='ErrVec')
-      Call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
-      Call mma_Allocate(RHS,kIter+1)
+
+GrdMax = Zero
+StpMax = Zero
+
+Step_Trunc = 'N'
+nA = (max(nQQ,kIter)+1)**2
+call mma_Allocate(AMat,nA,Label='AMat')
+call mma_Allocate(Index,kIter,Label='Index')
+call mma_Allocate(ErrVec,nQQ,(kIter+1),Label='ErrVec')
+call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
+call mma_Allocate(RHS,kIter+1)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     Pick up the Hessian in internal coordinates and then update it
-!     according to some Hessian update method (BFGS, MSP, etc.)
-!
-!
-      If (Kriging_Hessian) Then
-         iOptH_ = iOr(8,iAnd(iOptH,32))
-      Else
-         iOptH_ = iOptH
-      End If
-      Call mma_Allocate(Hessian,nQQ,nQQ,Label='Hessian')
-      Call Get_dArray('Hss_Q',Hessian,nQQ**2)
-!
-!     Perform the Hessian update, in case of GEK it essentially will
-!     modify the Hessian if it is needed to guide 2nd order
-!     optimization towards a minimum or a TS.
-!
+! Pick up the Hessian in internal coordinates and then update it
+! according to some Hessian update method (BFGS, MSP, etc.)
+
+if (Kriging_Hessian) then
+  iOptH_ = ior(8,iand(iOptH,32))
+else
+  iOptH_ = iOptH
+end if
+call mma_Allocate(Hessian,nQQ,nQQ,Label='Hessian')
+call Get_dArray('Hss_Q',Hessian,nQQ**2)
+
+! Perform the Hessian update, in case of GEK it essentially will
+! modify the Hessian if it is needed to guide 2nd order
+! optimization towards a minimum or a TS.
+
 #ifdef _DEBUGPRINT_
-      Write (Lu,*)
-      Write (Lu,*)
-      Write (Lu,*) ' *** Updating the molecular Hessian ***'
-      Write (Lu,*)
-      jPrint=99
+write(Lu,*)
+write(Lu,*)
+write(Lu,*) ' *** Updating the molecular Hessian ***'
+write(Lu,*)
+jPrint = 99
 #else
-      jPrint=5
+jPrint = 5
 #endif
-      Call Update_H(nWndw,Hessian,nQQ,                                  &
-     &              mIter,iOptC,                                        &
-     &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),      &
-     &              iOptH_,jPrint,GNrm(kIter),                          &
-     &              nsAtom,.True.,                                      &
-     &              First_MicroIteration)
-!
-!     Call RecPrt('Update_inner: Hessian',' ',Hessian,nQQ,nQQ)
-!     Write (6,*) 'After corrections'
-!     Call DiagMtrx(Hessian,nQQ,jNeg)
-!
-!     Save the number of internal coordinates on the runfile.
-!
-      Call Put_iScalar('No of Internal coordinates',nQQ)
-!
-!     Save the force constant matrix on the runfile.
-!
-      Call Put_dArray('Hess',Hessian,nQQ**2)
-!
-!     Optional frequency analysis
-!
-      If (HrmFrq_Show) Call GF_on_the_fly(iDo_DipM)
+call Update_H(nWndw,Hessian,nQQ,mIter,iOptC,Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),iOptH_,jPrint,GNrm(kIter),nsAtom,.true., &
+              First_MicroIteration)
+
+!call RecPrt('Update_inner: Hessian',' ',Hessian,nQQ,nQQ)
+!write(6,*) 'After corrections'
+!call DiagMtrx(Hessian,nQQ,jNeg)
+
+! Save the number of internal coordinates on the runfile.
+
+call Put_iScalar('No of Internal coordinates',nQQ)
+
+! Save the force constant matrix on the runfile.
+
+call Put_dArray('Hess',Hessian,nQQ**2)
+
+! Optional frequency analysis
+
+if (HrmFrq_Show) call GF_on_the_fly(iDo_DipM)
 
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!---- If this is a constrained optimization with the goal of finding a
-!     transition state and we have one negative eigenvalue of the
-!     Hessian then shift over to Mode Following RF to find the TS.
-!
-!     If TSConstraints were given, merge them with global constraints if
-!     they exist, unless we are in TS regime.
-!     If TS constraints were not given, remove global constraints when in
-!     TS regime.
-!
-      Call qpg_darray('TanVec',Found,nRP)
-      If (FindTS.and.First_MicroIteration) Then
-         File1='UDC'
-         File2='TSC'
-         If (.not.TSConstraints) File2=''
-         If (iNeg(1).ge.1) Then
-            If ((GNrm(kIter).le.GNrm_Threshold).or.Found) Then
-!              Change to MFRF optimization.
-               Mask=1+2+4+8+16+32+64+256+512+1024+2048+8192
-               iOptC=iAnd(iOptC,Mask)
-               Call Put_lScalar('TS Search',.True.)
-               If (TSConstraints) Then
-                  File2=''
-               Else
-                  File1=''
-               End If
-            End If
-         End If
-         Call Merge_Constraints(File1,File2,'UDC',nLambda,iRow_c)
-         Call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.False.)
-      End If
+! If this is a constrained optimization with the goal of finding a
+! transition state and we have one negative eigenvalue of the
+! Hessian then shift over to Mode Following RF to find the TS.
+
+! If TSConstraints were given, merge them with global constraints if
+! they exist, unless we are in TS regime.
+! If TS constraints were not given, remove global constraints when in
+! TS regime.
+
+call qpg_darray('TanVec',Found,nRP)
+if (FindTS .and. First_MicroIteration) then
+  File1 = 'UDC'
+  File2 = 'TSC'
+  if (.not. TSConstraints) File2 = ''
+  if (iNeg(1) >= 1) then
+    if ((GNrm(kIter) <= GNrm_Threshold) .or. Found) then
+      ! Change to MFRF optimization.
+      Mask = 1+2+4+8+16+32+64+256+512+1024+2048+8192
+      iOptC = iand(iOptC,Mask)
+      call Put_lScalar('TS Search',.true.)
+      if (TSConstraints) then
+        File2 = ''
+      else
+        File1 = ''
+      end if
+    end if
+  end if
+  call Merge_Constraints(File1,File2,'UDC',nLambda,iRow_c)
+  call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.false.)
+end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      If ( nLambda.eq.0) Then
-         M=3*nsAtom
-         N=nQQ
-         NRHS=1
-         Call mma_Allocate(Tmp,M,Label='Tmp:M')
-!
-!        Iterate to avoid too large displacement in cartesians.
-!        If the maximum displacement is more than 2*Beta, reduce the step.
-!
-!        Initial setup to ensure fCart=1.0 at first iteration.
-         rInter=Beta
-         fCart=Ten
-         rCart=fCart*rInter
-         nLoop=0
-         Do While (rCart.ge.Two*Beta)
-            nLoop=nLoop+1
-            If (nLoop.gt.10) Exit
-            If (rCart.gt.rInter) Then
-              fCart=fCart*rInter/rCart
-            Else
-              fCart=fCart*0.9D0
-            End If
-            nA = (Max(nQQ,kIter)+1)**2
+if (nLambda == 0) then
+  M = 3*nsAtom
+  N = nQQ
+  NRHS = 1
+  call mma_Allocate(Tmp,M,Label='Tmp:M')
+
+  ! Iterate to avoid too large displacement in cartesians.
+  ! If the maximum displacement is more than 2*Beta, reduce the step.
+
+  ! Initial setup to ensure fCart=1.0 at first iteration.
+  rInter = Beta
+  fCart = Ten
+  rCart = fCart*rInter
+  nLoop = 0
+  do while (rCart >= Two*Beta)
+    nLoop = nLoop+1
+    if (nLoop > 10) exit
+    if (rCart > rInter) then
+      fCart = fCart*rInter/rCart
+    else
+      fCart = fCart*0.9d0
+    end if
+    nA = (max(nQQ,kIter)+1)**2
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    gBeta = One
+    xBeta = One
+    gg_last = Beta
+    dxdx_last = Beta
+    Sf = sqrt(Two)
+    if (iOpt_RS == 0) then
+      kStart = max(1,kIter-4)
+      iEnd = kIter
+    else
+      kStart = max(1,Iter-4)
+      iEnd = Iter
+    end if
+    Thr = 1.0D-6
+    do iIter=kStart,iEnd
+
+      if (iIter /= kIter) then
+        dxdx = sqrt(DDot_(nQQ,Shift(1,iIter),1,Shift(1,iIter),1))
+
+        if ((dxdx < 0.75d0*dxdx_last) .and. (dxdx < Beta-Thr)) then
+          ! Increase trust radius
+          !xBeta = xBeta*Sf
+          xBeta = min(Two,xBeta*Sf)
+        else if ((dxdx > 1.25d0*dxdx_last) .or. (dxdx >= Beta+Thr)) then
+          ! Reduce trust radius
+          xBeta = max(One/Five,xBeta/Sf)
+        end if
+        dxdx_last = dxdx
+      end if
+
+      gg = sqrt(DDot_(nQQ-nLambda,dqInt(:,iIter),1,dqInt(:,iIter),1))
+      if ((gg < 0.75d0*gg_last) .and. (gg < Beta-Thr)) then
+        ! Increase trust radius
+        !gBeta = gBeta*Sf
+        gBeta = min(Two,gBeta*Sf)
+      else if ((gg > 1.25d0*gg_last) .or. (gg >= Beta+Thr)) then
+        ! Reduce trust radius
+        gBeta = max(One/Five,gBeta/Sf)
+      end if
+      gg_last = gg
+
+    end do
+    tBeta = max(Beta*min(xBeta,gBeta),Beta/Ten)
+    !write(6,*) 'tBeta=',tBeta
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Compute updated geometry in Internal coordinates
+
+    fact = One
+    qBeta = fCart*tBeta
+    Thr_RS = 1.0D-7
+    do
+      Step_Trunc_ = Step_Trunc
+      call Newq(qInt,nQQ,kIter,Shift,Hessian,dqInt,ErrVec,EMtrx,RHS,AMat,nA,qBeta,nFix,Index,Energy,Step_Trunc_,Thr_RS)
+      if (Step_Trunc == 'N') Step_Trunc = ' '
+      if (iOpt_RS == 0) then
+        if (Step_Trunc_ == 'N') Step_Trunc_ = ' '
+        Step_Trunc = Step_Trunc_
+        exit
+      end if
+      if (Step_Trunc//Step_Trunc_ == ' *') Step_Trunc = '.'
+
+      qInt(:,kIter+1) = qInt(:,kIter)+Shift(:,kIter)
+      call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,nQQ)
+#     ifdef _DEBUGPRINT_
+      write(6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
+#     endif
+      fact = Half*fact
+      qBeta = Half*qBeta
+      if (One-disp(1)/Beta_Disp > 1.0D-3) exit
+      if ((fact < 1.0D-5) .or. (disp(1) < Beta_Disp)) exit
+      Step_Trunc = '*'
+    end do
+#   ifdef _DEBUGPRINT_
+    write(6,*) 'Step_Trunc=',Step_Trunc
+#   endif
+
+    call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)
+
+    ! Set shift vector to zero for frozen internal coordinates.
+
+    if (nFix > 0) call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
+
+    ! Rough conversion to Cartesians
+
+    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(1,kIter),Tmp)
+    rInter = sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
+    rCart = Zero
+    do i=1,nsAtom
+      rCart = max(rCart,sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
+    end do
+  end do
+  call mma_deallocate(Tmp)
+  call Put_dScalar('Max error',Zero)
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Optimization with constraints using Lagrangian technique.
+
+  ! Allocate memory for the new arrays
+
+  call mma_allocate(R,nLambda,kIter,Label='R')
+  call mma_allocate(dRdq,nQQ,nLambda,kIter,Label='dRdq')
+  dRdq(:,:,:) = Zero
+  call mma_allocate(T,nQQ,nQQ,Label='T')
+  T(:,:) = Zero
+  call mma_allocate(dy,nLambda,Label='dy')
+  call mma_allocate(dx,(nQQ-nLambda),kIter,Label='dx')
+  dx(:,:) = Zero
+  call mma_allocate(dEdq,nQQ,kIter,Label='dEdQ')
+  call mma_allocate(du,nQQ,Label='du')
+  call mma_allocate(X,(nQQ-nLambda),(kIter+1),Label='X')
+  X(:,:) = Zero
+  call mma_allocate(dEdx,nQQ-nLambda,kIter,Label='dEdx')
+  call mma_allocate(Wess,nQQ-nLambda,nQQ-nLambda,Label='Wess')
+  Wess(:,:) = Zero
+  call mma_allocate(Energy_L,kIter,Label='Energy_L')
+
+  Energy_L(:) = Energy(1:kIter)
+
+  if (nQQ+nLambda > size(Lbl)) then
+    call mma_allocate(Lbl_tmp,nQQ+nLambda,Label='Lbl_tmp')
+    Lbl_tmp(:) = ''
+    Lbl_tmp(1:size(Lbl)) = Lbl(:)
+    call mma_deallocate(Lbl)
+    call mma_allocate(Lbl,nQQ+nLambda,Label='Lbl')
+    Lbl(:) = Lbl_tmp(:)
+    call mma_deallocate(Lbl_tmp)
+  end if
+
+  nBVec = iRow_c-nLambda-1
+
+  n1 = 3*nsAtom
+  call mma_allocate(BM,n1,nLambda,Label='BM')
+  call mma_allocate(dBM,n1,n1,nLambda,Label='dBM')
+
+  call mma_allocate(BVec,3*nsAtom,nBVec,Label='BVec')
+  call mma_allocate(value,nBVec,Label='Value')
+  call mma_allocate(Value0,nBVec,Label='Value0')
+  call mma_allocate(CInt,nLambda,Label='CInt')
+  call mma_allocate(CInt0,nLambda,Label='CInt0')
+  call mma_allocate(Mult,nBVec**2,Label='Mult')
+  call mma_allocate(iFlip,nBVec,Label='iFlip')
+  call mma_allocate(dBVec,nBVec*(3*nsAtom)**2,Label='dBVec')
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Compute the constraints
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  do lIter=1,kIter
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    lWrite = (lIter == kIter) .and. First_MicroIteration
+    lWrite = lWrite .and. (.not. Hide)
+    call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,iRow_c,value,cInt,cInt0,Lbl(nQQ+1),lWrite,Mult,dBM,Value0,lIter,iFlip)
+
+    ! Assemble r
+
+    R(:,lIter) = cInt(:)-cInt0(:)
+
+    ! Assemble dC/dQ: Solve  B dC/dQ = dC/dx
+
+    ! where B = dQ/dx
+
+    dRdq(:,:,lIter) = Zero
+#   ifdef _DEBUGPRINT_
+    write(Lu,*) 'Update_inner: lIter=',lIter
+    call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nQQ)
+    call RecPrt('Update_inner: dC/dx(BM)',' ',BM,n1,nLambda)
+#   endif
+
+    M = n1
+    N = nQQ
+    NRHS = nLambda
+
+    ! Temporary fix of the dC/dx vector which always
+    ! is propted up with the full degeneracy factor.
+
+    if (.not. Curvilinear) then
+      do iLambda=1,nLambda
+        do i=1,n1
+          iAtom = (i+2)/3
+          ixyz = i-(iAtom-1)*3
+          BM(i,iLambda) = BM(i,iLambda)/Degen(ixyz,iAtom)
+        end do
+      end do
+    end if
+    if (lIter == kIter) then
+      LudRdX = 30
+      call DaName(LudRdX,'dRdX')
+      iAd = 0
+      iDum(1) = nLambda
+      call iDaFile(LudRdX,1,iDum,1,iAd)
+      iDum(1) = n1
+      call iDaFile(LudRdX,1,iDum,1,iAd)
+      call dDaFile(LudRdX,1,BM,nLambda*n1,iAd)
+      call DaClos(LudRdX)
+    end if
+    call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,BM,dRdq(1,1,lIter))
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Update_inner: dRdq(1,1,lIter)',' ',dRdq(1,1,lIter),nQQ,nLambda)
+#   endif
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  end do     ! lIter
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  call mma_deallocate(dBVec)
+  call mma_deallocate(iFlip)
+  call mma_deallocate(Mult)
+  call mma_deallocate(cInt0)
+  call mma_deallocate(cInt)
+  call mma_deallocate(Value0)
+  call mma_deallocate(value)
+  call mma_deallocate(BVec)
+
+# ifdef _DEBUGPRINT_
+  call RecPrt('Update_inner: R',' ',R,nLambda,kIter)
+  call RecPrt('Update_inner: dRdq',' ',dRdq,nQQ*nLambda,kIter)
+  do i=1,nLambda
+    write(6,*) ' iLambda=',i
+    call RecPrt('Update_inner: d2C/dx2',' ',dBM(1,1,i),n1,n1)
+  end do
+  if (Curvilinear) call dBPrint(nQQ,nDimBC)
+# endif
+  call mma_deallocate(BM)
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Assemble d^2C/dQ^2
+  !
+  !  The expression is written as
+  !
+  !  dQ/dx * d^2C/dQ^2 * (dQ/dx)^T = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
+  !
+  !  Dimensions
+  !  dQ/dx     :  3*nsAtom x nQQ
+  !  d^2C/dx^2 :  3*nsatom x 3*nsatom
+  !  d^2C/dQ^2 :  nQQ   x nQQ
+
+# ifdef _NEW_CODE_
+  ! Compute Sum (d^2Q/dx^2 * dC/dQ)
+
+  call mma_allocate(QC,nDimBC,nDimBC,nLambda,Label='QC')
+  QC(:,:,:) = Zero
+  if (Curvilinear) call dBMult(dRdq(1,1,kIter),QC,nQQ,nDimBC,nLambda)
+# ifdef _DEBUGPRINT_
+  write(Lu,*) 'Update_inner: kIter=',kIter
+  call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nQQ,1)
+  do iLambda=1,nLambda
+    write(6,*) 'Update_inner: iLambda=',iLambda
+    call RecPrt('Update_inner: QC',' ',QC(1,1,iLambda),nDimBC,nDimBC)
+  end do
+# endif
+
+  ! Subtract the term from d^2C/dx^2
+
+  do k=1,nLambda
+    j = 0
+    do jx=1,n1
+      jAtom = (jx+2)/3
+      jxyz = jx-(jAtom-1)*3
+      if (Smmtrc(jxyz,jAtom)) then
+        j = j+1
+
+        i = 0
+        do ix=1,n1
+          iAtom = (ix+2)/3
+          ixyz = ix-(iAtom-1)*3
+          if (Smmtrc(ixyz,iAtom)) then
+            i = i+1
+            dBM(ix,jx,k) = dBM(ix,jx,k)-QC(i,j,k)
+          end if
+        end do
+      end if
+    end do
+  end do
+  call mma_deallocate(QC)
+# endif
+
+  call mma_allocate(Scr2,nQQ*n1*nLambda,Label='Scr2')
+  call mma_allocate(Scr1,nQQ*n1*nLambda,Label='Scr1')
+# ifdef _DEBUGPRINT_
+  call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,nLambda)
+# endif
+
+  ! Temporary fix of the d^2C/dx^2 vector which always
+  ! is propted up with the full degeneracy factor.
+
+  if (.not. Curvilinear) then
+    do k=1,nLambda
+      do j=1,n1
+        jAtom = (j+2)/3
+        jxyz = j-(jAtom-1)*3
+        do i=1,n1
+          iAtom = (i+2)/3
+          ixyz = i-(iAtom-1)*3
+          dBM(i,j,k) = dBM(i,j,k)/(Degen(ixyz,iAtom)*Degen(jxyz,jAtom))
+        end do
+      end do
+    end do
+  end if
+# ifdef _DEBUGPRINT_
+  call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,nLambda)
+# endif
+
+  ! Solve first for y in
+  !         dQ/dx y = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
+  !
+  ! where y   = d^2C/dQ^2 * (dQ/dx)^T
+  !
+  ! and   y^T = dQ/dx * d^2C/dQ^2
+
+  M = 3*nsAtom
+  N = nQQ
+  NRHS = n1*nLambda
+  call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,dBM,Scr1)
+
+  ! Generate y^T in Scr2
+
+  call TRNSPS(nQQ,n1*nLambda,Scr1,Scr2)
+# ifdef _DEBUGPRINT_
+  call RecPrt('d^2C/dQ^2 * (dQ/dx)^T',' ',Scr1,nQQ,n1*nLambda)
+  call RecPrt('dQ/dx * d^2C/dQ^2',' ',Scr2,n1*nLambda,nQQ)
+# endif
+  call mma_deallocate(dBM)
+
+  ! Followed by solve for x in B x = y^T for which B = dQ/dx
+
+  NRHS = nLambda*nQQ
+  call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,Scr2,Scr1)
+  call mma_allocate(d2L,nQQ,nQQ,nLambda,Label='d2L')
+
+  call TRNSPS(nQQ*nLambda,nQQ,Scr1,d2L)
+# ifdef _DEBUGPRINT_
+  call RecPrt('Scr1',' ',Scr1,nQQ*nLambda,nQQ)
+  do i=1,nLambda
+    write(6,*) ' iLambda=',i
+    call RecPrt('Update_inner: d2L',' ',d2L(:,:,i),nQQ,nQQ)
+  end do
+# endif
+  call mma_deallocate(Scr2)
+  call mma_deallocate(Scr1)
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Compute updated geometry in Internal coordinates
+
+  Mode_Save = Mode
+  Mode = 0
+  M = 3*nsAtom
+  N = nQQ
+  NRHS = 1
+  call mma_Allocate(Tmp,M,Label='Tmp:M')
+
+  ! Iterate to avoid too large displacement in cartesians.
+  ! If the maximum displacement is more than 2*Beta, reduce the step.
+
+  ! Initial setup to ensure fCart=1.0 at first iteration.
+  Thr_RS = 1.0D-7
+  rInter = Beta
+  fCart = Ten
+  rCart = fCart*rInter
+  nLoop = 0
+  do while (rCart >= Two*Beta)
+    nLoop = nLoop+1
+    if (nLoop > 100) exit
+    if (rCart > rInter) then
+      fCart = fCart*rInter/rCart
+    else
+      fCart = fCart*0.9d0
+    end if
+    call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,dEdq,du,x,dEdx,Wess,GNrm(kIter),nWndw,Hessian,nQQ,kIter,iOptH_,jPrint, &
+                 Energy_L,nLambda,ErrVec,EMtrx,RHS,AMat,nA,Beta,fCart,qBeta_Disp,nFix,Index,Step_Trunc,Lbl,d2L,nsAtom,iOpt_RS, &
+                 Thr_RS,iter,First_Microiteration)
+    qBeta = fCart*Beta
+    if (iOpt_RS == 1) exit
+
+    ! Rough conversion to Cartesians
+
+    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(1,kIter),Tmp)
+    rInter = sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
+    rCart = Zero
+    do i=1,nsAtom
+      rCart = max(rCart,sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
+    end do
+  end do
+  Mode = Mode_Save
+  call mma_deallocate(Tmp)
+
+# ifdef _DEBUGPRINT_
+  write(Lu,*)
+  write(Lu,*) '********************************************'
+  write(Lu,*) '* Lagrange multipliers for the constraints *'
+  write(Lu,*) '********************************************'
+  write(Lu,'(1X,A,2X,ES13.6)') (Lbl(nQQ+iInt),-One*Lambda(iInt,mIter),iInt=1,nLambda)
+  write(Lu,*)
+# endif
+
+  call mma_deallocate(d2L)
+  call mma_deallocate(Energy_L)
+  call mma_deallocate(Wess)
+  call mma_deallocate(dEdx)
+  call mma_deallocate(x)
+  call mma_deallocate(du)
+  call mma_deallocate(dEdq)
+  call mma_deallocate(dx)
+  call mma_deallocate(dy)
+  call mma_deallocate(T)
+  call mma_deallocate(dRdq)
+  call mma_deallocate(R)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-            gBeta=One
-            xBeta=One
-            gg_last=Beta
-            dxdx_last=Beta
-            Sf=Sqrt(Two)
-            If (iOpt_RS.eq.0) Then
-               kStart=Max(1,kIter-4)
-               iEnd=kIter
-            Else
-               kStart=Max(1,Iter-4)
-               iEnd=Iter
-            End If
-            Thr=1.0D-6
-            Do iIter = kStart, iEnd
-!
-               If (iIter.ne.kIter) Then
-                  dxdx=                                                 &
-     &             Sqrt(DDot_(nQQ,Shift(1,iIter),1,Shift(1,iIter),1))
-!
-                  If (dxdx.lt.0.75D0*dxdx_last.and.                     &
-     &                dxdx.lt.(Beta-Thr)) Then
-!                    Increase trust radius
-!                    xBeta=xBeta*Sf
-                     xBeta=Min(Two,xBeta*Sf)
-                  Else If (dxdx.gt.1.25D0*dxdx_last.or.                 &
-     &                     dxdx.ge.(Beta+Thr)) Then
-!                    Reduce trust radius
-                     xBeta=Max(One/Five,xBeta/Sf)
-                  End If
-                  dxdx_last=dxdx
-               End If
-!
-               gg=Sqrt(DDot_(nQQ-nLambda,dqInt(:,iIter),1,              &
-     &                                      dqInt(:,iIter),1))
-               If (gg.lt.0.75D0*gg_last.and.gg.lt.(Beta-Thr)) Then
-!                 Increase trust radius
-!                 gBeta=gBeta*Sf
-                  gBeta=Min(Two,gBeta*Sf)
-               Else If (gg.gt.1.25D0*gg_last.or.gg.ge.(Beta+Thr)) Then
-!                 Reduce trust radius
-                  gBeta=Max(One/Five,gBeta/Sf)
-               End If
-               gg_last=gg
-!
-            End Do
-            tBeta= Max(Beta*Min(xBeta,gBeta),Beta/Ten)
-!           Write (6,*) 'tBeta=',tBeta
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---------- Compute updated geometry in Internal coordinates
-!
-            fact=One
-            qBeta=fCart*tBeta
-            Thr_RS=1.0D-7
-            Do
-               Step_Trunc_=Step_Trunc
-               Call Newq(qInt,nQQ,kIter,Shift,Hessian,dqInt,            &
-     &                   ErrVec,EMtrx,RHS,                              &
-     &                   AMat,nA,                                       &
-     &                   qBeta,nFix,Index,                              &
-     &                   Energy,Step_Trunc_,Thr_RS)
-               If (Step_Trunc.eq.'N') Step_Trunc=' '
-               If (iOpt_RS.eq.0) Then
-                  If (Step_Trunc_.eq.'N') Step_Trunc_=' '
-                  Step_Trunc=Step_Trunc_
-                  Exit
-               End If
-               If (Step_Trunc//Step_Trunc_.eq.' *') Step_Trunc='.'
-!
-               qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
-               Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,      &
-     &                                       nQQ)
-#ifdef _DEBUGPRINT_
-               Write (6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
-#endif
-               fact=Half*fact
-               qBeta=Half*qBeta
-               If (One-disp(1)/Beta_Disp.gt.1.0D-3) Exit
-               If ((fact.lt.1.0D-5) .or. (disp(1).lt.Beta_Disp)) Exit
-               Step_Trunc='*'
-            End Do
-#ifdef _DEBUGPRINT_
-            Write (6,*) 'Step_Trunc=',Step_Trunc
-#endif
-!
-            Call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)
-!
-!---------- Set shift vector to zero for frozen internal coordinates.
-!
-            If (nFix.gt.0)                                              &
-     &         Call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
-!
-!           Rough conversion to Cartesians
-!
-            Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,          &
-     &                     Shift(1,kIter),Tmp)
-            rInter=Sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
-            rCart=Zero
-            Do i=1,nsAtom
-               rCart=Max(rCart,                                         &
-     &                   Sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
-            End Do
-         End Do
-         Call mma_deallocate(Tmp)
-         Call Put_dScalar('Max error',Zero)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      Else
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!        Optimization with constraints using Lagrangian technique.
-!
-!        Allocate memory for the new arrays
-!
-         Call mma_allocate(R,nLambda,kIter,Label='R')
-         Call mma_allocate(dRdq,nQQ,nLambda,kIter,Label='dRdq')
-         dRdq(:,:,:)=Zero
-         Call mma_allocate(T,nQQ,nQQ,Label='T')
-         T(:,:)=Zero
-         Call mma_allocate(dy,nLambda,Label='dy')
-         Call mma_allocate(dx,(nQQ-nLambda),kIter,Label='dx')
-         dx(:,:)=Zero
-         Call mma_allocate(dEdq,nQQ,kIter,Label='dEdQ')
-         Call mma_allocate(du,nQQ,Label='du')
-         Call mma_allocate(X,(nQQ-nLambda),(kIter+1),Label='X')
-         X(:,:)=Zero
-         call mma_allocate(dEdx,nQQ-nLambda,kIter,Label='dEdx')
-         Call mma_allocate(Wess,nQQ-nLambda,nQQ-nLambda,                &
-     &                     Label='Wess')
-         Wess(:,:)=Zero
-         Call mma_allocate(Energy_L,kIter,Label='Energy_L')
-!
-         Energy_L(:)=Energy(1:kIter)
-!
-         If (nQQ+nLambda.gt.SIZE(Lbl)) Then
-            Call mma_allocate(Lbl_tmp,nQQ+nLambda,Label='Lbl_tmp')
-            Lbl_tmp(:)=''
-            Lbl_tmp(1:SIZE(Lbl))=Lbl(:)
-            Call mma_deallocate(Lbl)
-            Call mma_allocate(Lbl,nQQ+nLambda,Label='Lbl')
-            Lbl(:)=Lbl_tmp(:)
-            call mma_deallocate(Lbl_tmp)
-         End If
-!
-         nBVec=iRow_c-nLambda-1
-!
-         n1=3*nsAtom
-         Call mma_allocate(BM,n1,nLambda,Label='BM')
-         Call mma_allocate(dBM,n1,n1,nLambda,Label='dBM')
-!
-         Call mma_allocate(BVec,3*nsAtom,nBVec,Label='BVec')
-         Call mma_allocate(Value,nBVec,Label='Value')
-         Call mma_allocate(Value0,nBVec,Label='Value0')
-         Call mma_allocate(CInt,nLambda,Label='CInt')
-         Call mma_allocate(CInt0,nLambda,Label='CInt0')
-         Call mma_allocate(Mult,nBVec**2,Label='Mult')
-         Call mma_allocate(iFlip,nBVec,Label='iFlip')
-         Call mma_allocate(dBVec,nBVec*(3*nsAtom)**2,Label='dBVec')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Compute the constraints
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Do lIter = 1, kIter
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-            lWrite=(lIter.eq.kIter).and.First_MicroIteration
-            lWrite=lWrite.and.(.not.Hide)
-            Call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,            &
-     &                   iRow_c,Value,cInt,cInt0,Lbl(nQQ+1),            &
-     &                   lWrite,Mult,dBM,Value0,lIter,iFlip)
-!
-!           Assemble r
-!
-            R(:,lIter)=cInt(:)-cInt0(:)
-!
-!           Assemble dC/dQ: Solve  B dC/dQ = dC/dx
-!
-!           where B = dQ/dx
-!
-            dRdq(:,:,lIter)=Zero
-#ifdef _DEBUGPRINT_
-            Write (Lu,*) 'Update_inner: lIter=',lIter
-            Call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nQQ)
-            Call RecPrt('Update_inner: dC/dx(BM)',' ',BM,n1,nLambda)
-#endif
-!
-            M=n1
-            N=nQQ
-            NRHS=nLambda
-!
-!           Temporary fix of the dC/dx vector which always
-!           is propted up with the full degeneracy factor.
-!
-            If (.NOT.Curvilinear) Then
-               Do iLambda=1,nLambda
-                  Do i = 1, n1
-                     iAtom = (i+2)/3
-                     ixyz = i - (iAtom-1)*3
-                     BM(i,iLambda)=BM(i,iLambda)/Degen(ixyz,iAtom)
-                  End Do
-               End Do
-            End If
-            If (lIter.eq.kIter) Then
-               LudRdX=30
-               Call DaName(LudRdX,'dRdX')
-               iAd=0
-               iDum(1)=nLambda
-               Call iDaFile(LudRdX,1,iDum,1,iAd)
-               iDum(1)=n1
-               Call iDaFile(LudRdX,1,iDum,1,iAd)
-               Call dDaFile(LudRdX,1,BM,nLambda*n1,iAd)
-               Call DaClos(LudRdX)
-            End If
-            Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,          &
-     &                     BM,dRdq(1,1,lIter))
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Update_inner: dRdq(1,1,lIter)',' ',            &
-     &                   dRdq(1,1,lIter),nQQ,nLambda)
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         End Do     ! lIter
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Call mma_deallocate(dBVec)
-         Call mma_deallocate(iFlip)
-         Call mma_deallocate(Mult)
-         Call mma_deallocate(cInt0)
-         Call mma_deallocate(cInt)
-         Call mma_deallocate(Value0)
-         Call mma_deallocate(Value)
-         Call mma_deallocate(BVec)
-!
-#ifdef _DEBUGPRINT_
-         Call RecPrt('Update_inner: R',' ',R,nLambda,kIter)
-         Call RecPrt('Update_inner: dRdq',' ',dRdq,nQQ*nLambda,         &
-     &               kIter)
-         Do i = 1, nLambda
-            Write (6,*) ' iLambda=',i
-            Call RecPrt('Update_inner: d2C/dx2',' ',dBM(1,1,i),n1,n1)
-         End Do
-         If (Curvilinear) Call dBPrint(nQQ,nDimBC)
-#endif
-         Call mma_deallocate(BM)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!------- Assemble d^2C/dQ^2
-!
-!        The expression is written as
-!
-!        dQ/dx * d^2C/dQ^2 * (dQ/dx)^T = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
-!
-!        Dimensions
-!        dQ/dx     :  3*nsAtom x nQQ
-!        d^2C/dx^2 :  3*nsatom x 3*nsatom
-!        d^2C/dQ^2 :  nQQ   x nQQ
-!
-#ifdef _NEW_CODE_
-!        Compute Sum (d^2Q/dx^2 * dC/dQ)
-!
-         Call mma_allocate(QC,nDimBC,nDimBC,nLambda,Label='QC')
-         QC(:,:,:)=Zero
-         If (Curvilinear) Call dBMult(dRdq(1,1,kIter),                  &
-     &                                QC,nQQ,nDimBC,nLambda)
-#ifdef _DEBUGPRINT_
-         Write (Lu,*) 'Update_inner: kIter=',kIter
-         Call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nQQ,1)
-         Do iLambda=1,nLambda
-            Write (6,*) 'Update_inner: iLambda=',iLambda
-            Call RecPrt('Update_inner: QC',' ',QC(1,1,iLambda),         &
-     &                   nDimBC,nDimBC)
-         End Do
-#endif
-!
-!        Subtract the term from d^2C/dx^2
-!
-         Do k = 1, nLambda
-            j = 0
-            Do jx = 1, n1
-               jAtom = (jx+2)/3
-               jxyz = jx - (jAtom-1)*3
-               If (Smmtrc(jxyz,jAtom)) Then
-                  j = j + 1
-!
-                  i=0
-                  Do ix = 1, n1
-                     iAtom = (ix+2)/3
-                     ixyz = ix - (iAtom-1)*3
-                     If (Smmtrc(ixyz,iAtom)) Then
-                        i = i + 1
-                        dBM(ix,jx,k) = dBM(ix,jx,k) - QC(i,j,k)
-                     End If
-                  End Do
-               End If
-            End Do
-         End Do
-         Call mma_deallocate(QC)
-#endif
-!
-         Call mma_allocate(Scr2,nQQ*n1*nLambda,Label='Scr2')
-         Call mma_allocate(Scr1,nQQ*n1*nLambda,Label='Scr1')
-#ifdef _DEBUGPRINT_
-         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,      &
-     &               nLambda)
-#endif
-!
-!        Temporary fix of the d^2C/dx^2 vector which always
-!        is propted up with the full degeneracy factor.
-!
-         If (.NOT.Curvilinear) Then
-            Do k = 1, nLambda
-               Do j = 1, n1
-                  jAtom = (j+2)/3
-                  jxyz = j - (jAtom-1)*3
-                  Do i = 1, n1
-                     iAtom = (i+2)/3
-                     ixyz = i - (iAtom-1)*3
-                     dBM(i,j,k)=dBM(i,j,k)/(Degen(ixyz,iAtom)           &
-     &                                     *Degen(jxyz,jAtom))
-                  End Do
-               End Do
-            End Do
-         End If
-#ifdef _DEBUGPRINT_
-         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,      &
-     &               nLambda)
-#endif
-!
-!        Solve first for y in
-!                dQ/dx y = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
-!
-!        where y   = d^2C/dQ^2 * (dQ/dx)^T
-!
-!        and   y^T = dQ/dx * d^2C/dQ^2
-!
-         M=3*nsAtom
-         N=nQQ
-         NRHS=n1*nLambda
-         Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,dBM,Scr1)
-!
-!        Generate y^T in Scr2
-!
-         Call TRNSPS(nQQ,n1*nLambda,Scr1,Scr2)
-#ifdef _DEBUGPRINT_
-         Call RecPrt('d^2C/dQ^2 * (dQ/dx)^T',' ',Scr1,nQQ,n1*nLambda)
-         Call RecPrt('dQ/dx * d^2C/dQ^2',' ',Scr2,n1*nLambda,nQQ)
-#endif
-         Call mma_deallocate(dBM)
-!
-!        Followed by solve for x in B x = y^T for which B = dQ/dx
-!
-         NRHS=nLambda*nQQ
-         Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,Scr2,Scr1)
-         Call mma_allocate(d2L,nQQ,nQQ,nLambda,Label='d2L')
-!
-         Call TRNSPS(nQQ*nLambda,nQQ,Scr1,d2L)
-#ifdef _DEBUGPRINT_
-         Call RecPrt('Scr1',' ',Scr1,nQQ*nLambda,nQQ)
-         Do i = 1, nLambda
-            Write (6,*) ' iLambda=',i
-            Call RecPrt('Update_inner: d2L',' ',d2L(:,:,i),             &
-     &                  nQQ,nQQ)
-         End Do
-#endif
-         Call mma_deallocate(Scr2)
-         Call mma_deallocate(Scr1)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!------- Compute updated geometry in Internal coordinates
-!
-         Mode_Save=Mode
-         Mode=0
-         M=3*nsAtom
-         N=nQQ
-         NRHS=1
-         Call mma_Allocate(Tmp,M,Label='Tmp:M')
-!
-!        Iterate to avoid too large displacement in cartesians.
-!        If the maximum displacement is more than 2*Beta, reduce the step.
-!
-!        Initial setup to ensure fCart=1.0 at first iteration.
-         Thr_RS=1.0D-7
-         rInter=Beta
-         fCart=Ten
-         rCart=fCart*rInter
-         nLoop=0
-         Do While (rCart.ge.Two*Beta)
-            nLoop=nLoop+1
-            If (nLoop.gt.100) Exit
-            If (rCart.gt.rInter) Then
-              fCart=fCart*rInter/rCart
-            Else
-              fCart=fCart*0.9D0
-            End If
-            Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,        &
-     &                dEdq,du,x,dEdx,Wess,GNrm(kIter),                  &
-     &                nWndw,Hessian,nQQ,kIter,                          &
-     &                iOptH_,jPrint,Energy_L,nLambda,                   &
-     &                ErrVec,EMtrx,RHS,                                 &
-     &                AMat,nA,Beta,fCart,qBeta_Disp,nFix,               &
-     &                Index,Step_Trunc,Lbl,                             &
-     &                d2L,nsAtom,                                       &
-     &                iOpt_RS,Thr_RS,iter,                              &
-     &                First_Microiteration)
-            qBeta=fCart*Beta
-            If (iOpt_RS.eq.1) Exit
-!
-!           Rough conversion to Cartesians
-!
-            Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,          &
-     &                     Shift(1,kIter),Tmp)
-            rInter=Sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
-            rCart=Zero
-            Do i=1,nsAtom
-               rCart=Max(rCart,                                         &
-     &                   Sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
-            End Do
-         End Do
-         Mode=Mode_Save
-         Call mma_deallocate(Tmp)
-!
-#ifdef _DEBUGPRINT_
-         Write (Lu,*)
-         Write (Lu,*) '********************************************'
-         Write (Lu,*) '* Lagrange multipliers for the constraints *'
-         Write (Lu,*) '********************************************'
-         Write (Lu,'(1X,A,2X,ES13.6)')                                  &
-     &       (Lbl(nQQ+iInt),-One*Lambda(iInt,mIter),                    &
-     &        iInt=1,nLambda)
-         Write (Lu,*)
-#endif
-!
-         Call mma_deallocate(d2L)
-         Call mma_deallocate(Energy_L)
-         Call mma_deallocate(Wess)
-         Call mma_deallocate(dEdx)
-         Call mma_deallocate(x)
-         Call mma_deallocate(du)
-         Call mma_deallocate(dEdq)
-         Call mma_deallocate(dx)
-         Call mma_deallocate(dy)
-         Call mma_deallocate(T)
-         Call mma_deallocate(dRdq)
-         Call mma_deallocate(R)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call mma_Deallocate(Hessian)
-      Call mma_Deallocate(RHS)
-      Call mma_Deallocate(EMtrx)
-      Call mma_Deallocate(ErrVec)
-      Call mma_Deallocate(Index)
-      Call mma_Deallocate(AMat)
+call mma_Deallocate(Hessian)
+call mma_Deallocate(RHS)
+call mma_Deallocate(EMtrx)
+call mma_Deallocate(ErrVec)
+call mma_Deallocate(Index)
+call mma_Deallocate(AMat)
 #ifdef _WARNING_WORKAROUND_
-      If (Smmtrc(1,1)) i=nDimBC
+if (Smmtrc(1,1)) i = nDimBC
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Update_inner

@@ -8,91 +8,90 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
-      Use NewH_mod
-      use Slapaf_Info, only: mRowH
-      Implicit Real*8 (a-h,o-z)
+
+subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
+
+use NewH_mod
+use Slapaf_Info, only: mRowH
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
-      Logical Found, DoMask
-!
+real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
+logical Found, DoMask
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Logical Test
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Statement function
-!
-      Test(i)=iAnd(iOptH,2**(i-1)).eq.2**(i-1)
+logical Test
+! Statement function
+Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iSt=Max(2,nIter-(nWndw-1))
-      Call Qpg_iScalar('HessIter',Found)
-      If (Found) Then
-         Call Get_iScalar('HessIter',IterHess)
-         iSt=Max(iSt,IterHess+1)
-      Else
-         IterHess=0
-      End If
-      If (Allocated(mRowH)) iSt=Max(iSt,SIZE(mRowH)+2)
+iSt = max(2,nIter-(nWndw-1))
+call Qpg_iScalar('HessIter',Found)
+if (Found) then
+  call Get_iScalar('HessIter',IterHess)
+  iSt = max(iSt,IterHess+1)
+else
+  IterHess = 0
+end if
+if (allocated(mRowH)) iSt = max(iSt,size(mRowH)+2)
 #ifdef _DEBUGPRINT_
-      Lu=6
-      Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
-      Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
+Lu = 6
+write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
+call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (.Not.Test(4)) Then
-         Write (Lu,*)
-         If (nIter.lt.iSt) Then
-            Write (Lu,*) 'No update of Hessian on the first iteration'
-         Else
-            Write (Lu,'(A,30I3)') 'Hessian update from points:',        &
-     &            (lIter,lIter=iSt-1,nIter)
-         End If
-         Write (Lu,*)
-      End If
+if (.not. Test(4)) then
+  write(Lu,*)
+  if (nIter < iSt) then
+    write(Lu,*) 'No update of Hessian on the first iteration'
+  else
+    write(Lu,'(A,30I3)') 'Hessian update from points:',(lIter,lIter=iSt-1,nIter)
+  end if
+  write(Lu,*)
+end if
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      DoMask=.False.
-      If (Allocated(UpdMask)) Then
-         If (Size(UpdMask).eq.nInter) DoMask=.True.
-      End If
-      If (DoMask) Then
-         Do i=1,nInter
-            If (UpdMask(i).ne.0) Then
-               Do j=1,nInter
-                  H(i,j)=Zero
-                  H(j,i)=Zero
-               End Do
-               H(i,i)=DiagMM
-            End If
-         End Do
-      End If
+DoMask = .false.
+if (allocated(UpdMask)) then
+  if (size(UpdMask) == nInter) DoMask = .true.
+end if
+if (DoMask) then
+  do i=1,nInter
+    if (UpdMask(i) /= 0) then
+      do j=1,nInter
+        H(i,j) = Zero
+        H(j,i) = Zero
+      end do
+      H(i,i) = DiagMM
+    end if
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Update the Hessian over the window
-!
+! Update the Hessian over the window
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
+call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 #endif
-      Do lIter=iSt,nIter
+do lIter=iSt,nIter
+# ifdef _DEBUGPRINT_
+  write(Lu,*) 'DrvUpH: Call NewH, lIter=',lIter
+# endif
+  call NewH(nInter,lIter,dq,g,H,iOptH,nIter)
+end do
 #ifdef _DEBUGPRINT_
-         Write(Lu,*)'DrvUpH: Call NewH, lIter=',lIter
-#endif
-         Call NewH(nInter,lIter,dq,g,H,iOptH,nIter)
-      End Do
-#ifdef _DEBUGPRINT_
-      Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
+call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine DrvUpH

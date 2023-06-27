@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Update_sl(Step_Trunc,nWndw,kIter)
+
+subroutine Update_sl(Step_Trunc,nWndw,kIter)
 !***********************************************************************
 !                                                                      *
 !     Object: to update coordinates                                    *
@@ -22,117 +23,111 @@
 !     Author: Roland Lindh                                             *
 !             2000                                                     *
 !***********************************************************************
-      use Slapaf_Info, only: Shift, qInt
-      use Slapaf_Parameters, only: Beta, Beta_disp, NmIter, iter
-      Implicit Real*8 (a-h,o-z)
+
+use Slapaf_Info, only: Shift, qInt
+use Slapaf_Parameters, only: Beta, Beta_disp, NmIter, iter
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Character Step_Trunc
-      Real*8 Dummy(1)
-      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
-!
-      Logical Kriging_Hessian, Hide
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nQQ = SIZE(qInt,1)
-!
-#ifdef _DEBUGPRINT_
-      Call RecPrt('Update_sl: qInt',' ',qInt,nQQ,Iter)
-      Call RecPrt('Update_sl: Shift',' ',Shift,nQQ,Iter-1)
-#endif
-!
-      iOpt_RS=0
-      qBeta=Beta
-      qBeta_Disp=Beta_Disp
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Mk_Hss_Q()
-      Kriging_Hessian =.FALSE.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Select between numerical evaluation of the Hessian or a molcular
-!     geometry optimization.
-!
-      Hide=Step_Trunc.eq.'#'
-      Step_Trunc=' '
-      If (iter.eq.NmIter.and.NmIter.ne.1) Then
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!------- On the first iteration after a numerical evaluation of the
-!        Hessian we like the step to be relative to the initial
-!        structure.
-!
-#ifdef _DEBUGPRINT_
-         Write(6,*)'UpDate_SL: first iteration'
-#endif
-         iter_=1
-         Call mma_Allocate(t_Shift,nQQ,SIZE(Shift,2),Label='t_Shift')
-         t_Shift(:,:)=Shift(:,:)
-         Shift(:,:)=Zero
+character Step_Trunc
+real*8 Dummy(1)
+real*8, allocatable :: t_Shift(:,:), t_qInt(:,:), tmp(:)
+logical Kriging_Hessian, Hide
 
-         Call mma_Allocate(t_qInt,nQQ,SIZE(qInt,2),Label='t_qInt')
-         t_qInt(:,:)=qInt(:,:)
-         qInt(:,:)=Zero
-         qInt(:,1)=t_qInt(:,1)
-!
-         Call Update_inner(iter_,Beta,Beta_Disp,Step_Trunc,nWndw,       &
-     &                     kIter,Kriging_Hessian,qBeta,                 &
-     &                     iOpt_RS,.True.,iter_,qBeta_Disp,Hide)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!------- Move new coordinates to the correct position and compute the
-!        corresponding shift.
-!
-         Call mma_allocate(Tmp,SIZE(qInt,1),Label='tmp')
-         tmp(:)=qInt(:,2)
-         qInt(:,:)=t_qInt(:,:)
-         qInt(:,iter+1)=tmp(:)
-         Shift(:,:)=t_Shift(:,:)
-         Shift(:,iter)=tmp(:)-qInt(:,iter)
-!
-         Call mma_deallocate(tmp)
-         Call mma_deallocate(t_qInt)
-         Call mma_deallocate(t_Shift)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Conventional optimization.
-!
-         Call Update_inner(iter,Beta,Beta_Disp,Step_Trunc,nWndw,kIter,  &
-     &                     Kriging_Hessian,qBeta,                       &
-     &                     iOpt_RS,.True.,iter,qBeta_Disp,Hide)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-!-----Write out the shift in internal coordinates basis.
-!
+nQQ = size(qInt,1)
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Shifts in internal coordinate basis / au or rad',    &
-     &      ' ',Shift,nQQ,Iter)
-      Call RecPrt('qInt in internal coordinate basis / au or rad',      &
-     &      ' ',qInt,nQQ,Iter+1)
+call RecPrt('Update_sl: qInt',' ',qInt,nQQ,Iter)
+call RecPrt('Update_sl: Shift',' ',Shift,nQQ,Iter-1)
 #endif
 
-!
-!---- Remove unneeded fields from the runfile
-      Dummy(1)=-Zero
-      Call Put_dArray('BMxOld',Dummy(1),0)
-      Call Put_dArray('TROld',Dummy(1),0)
-!
-      Return
-      End
+iOpt_RS = 0
+qBeta = Beta
+qBeta_Disp = Beta_Disp
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call Mk_Hss_Q()
+Kriging_Hessian = .false.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Select between numerical evaluation of the Hessian or a molcular
+! geometry optimization.
+
+Hide = Step_Trunc == '#'
+Step_Trunc = ' '
+if ((iter == NmIter) .and. (NmIter /= 1)) then
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! On the first iteration after a numerical evaluation of the
+! Hessian we like the step to be relative to the initial structure.
+
+# ifdef _DEBUGPRINT_
+  write(6,*) 'UpDate_SL: first iteration'
+# endif
+  iter_ = 1
+  call mma_Allocate(t_Shift,nQQ,size(Shift,2),Label='t_Shift')
+  t_Shift(:,:) = Shift(:,:)
+  Shift(:,:) = Zero
+
+  call mma_Allocate(t_qInt,nQQ,size(qInt,2),Label='t_qInt')
+  t_qInt(:,:) = qInt(:,:)
+  qInt(:,:) = Zero
+  qInt(:,1) = t_qInt(:,1)
+
+  call Update_inner(iter_,Beta,Beta_Disp,Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,iOpt_RS,.true.,iter_,qBeta_Disp,Hide)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Move new coordinates to the correct position and compute the
+  ! corresponding shift.
+
+  call mma_allocate(Tmp,size(qInt,1),Label='tmp')
+  tmp(:) = qInt(:,2)
+  qInt(:,:) = t_qInt(:,:)
+  qInt(:,iter+1) = tmp(:)
+  Shift(:,:) = t_Shift(:,:)
+  Shift(:,iter) = tmp(:)-qInt(:,iter)
+
+  call mma_deallocate(tmp)
+  call mma_deallocate(t_qInt)
+  call mma_deallocate(t_Shift)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Conventional optimization.
+
+  call Update_inner(iter,Beta,Beta_Disp,Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,iOpt_RS,.true.,iter,qBeta_Disp,Hide)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Write out the shift in internal coordinates basis.
+
+#ifdef _DEBUGPRINT_
+call RecPrt('Shifts in internal coordinate basis / au or rad',' ',Shift,nQQ,Iter)
+call RecPrt('qInt in internal coordinate basis / au or rad',' ',qInt,nQQ,Iter+1)
+#endif
+
+! Remove unneeded fields from the runfile
+Dummy(1) = -Zero
+call Put_dArray('BMxOld',Dummy(1),0)
+call Put_dArray('TROld',Dummy(1),0)
+
+return
+
+end subroutine Update_sl

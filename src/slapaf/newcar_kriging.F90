@@ -10,47 +10,47 @@
 !                                                                      *
 ! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine NewCar_Kriging(kIter,SaveBMx,Error)
-      use Slapaf_Info, only: Cx, BMx, BMx_kriging
-      use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm, Force_dB
-      Implicit None
+
+subroutine NewCar_Kriging(kIter,SaveBMx,Error)
+use Slapaf_Info, only: Cx, BMx, BMx_kriging
+use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm, Force_dB
+
+implicit none
 #include "stdalloc.fh"
-      Integer :: kIter
-      Logical :: SaveBMx, Error
+integer :: kIter
+logical :: SaveBMx, Error
+real*8, allocatable :: Coor(:,:), BMx_Tmp(:,:)
+logical :: Numerical_Save, PrQ_Save
 
-      Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
-      Logical :: Numerical_Save,PrQ_Save
-!
-      Call mma_allocate(Coor,3,SIZE(Cx,2),Label='Coor')
-      Coor(:,:) = Cx(:,:,kIter)
+call mma_allocate(Coor,3,size(Cx,2),Label='Coor')
+Coor(:,:) = Cx(:,:,kIter)
 
-      Call mma_allocate(BMx_tmp,SIZE(BMx,1),SIZE(BMx,2),Label='BMx_tmp')
-      BMx_tmp(:,:) = BMx(:,:)
-!
-      Numerical_Save=Numerical
-      PrQ_Save=PrQ
-      Numerical=.False.
-      PrQ_Save=PrQ
-      PrQ=.False.
-!
-      Force_dB=SaveBMx
-!
-      Call NewCar(kIter,SIZE(Coor,2),Coor,mTtAtm,Error)
-!
-      Numerical=Numerical_Save
-      PrQ=PrQ_Save
-      Force_dB=.False.
-      Call mma_deallocate(Coor)
+call mma_allocate(BMx_tmp,size(BMx,1),size(BMx,2),Label='BMx_tmp')
+BMx_tmp(:,:) = BMx(:,:)
 
-!     Stash away this B-matrix for later us with EDiff constraints
+Numerical_Save = Numerical
+PrQ_Save = PrQ
+Numerical = .false.
+PrQ_Save = PrQ
+PrQ = .false.
 
-      If (Allocated(BMx_kriging)) Call mma_deallocate(BMx_kriging)
-      Call mma_allocate(BMx_kriging,SIZE(BMx,1),SIZE(BMx,2),            &
-     &                  Label='BMx_kriging')
-      BMx_kriging(:,:) = BMx(:,:)
+Force_dB = SaveBMx
 
-      If (.NOT.SaveBMx) BMx(:,:) = BMx_tmp(:,:)
+call NewCar(kIter,size(Coor,2),Coor,mTtAtm,Error)
 
-      Call mma_deallocate(BMx_tmp)
-!
-      End Subroutine NewCar_Kriging
+Numerical = Numerical_Save
+PrQ = PrQ_Save
+Force_dB = .false.
+call mma_deallocate(Coor)
+
+! Stash away this B-matrix for later us with EDiff constraints
+
+if (allocated(BMx_kriging)) call mma_deallocate(BMx_kriging)
+call mma_allocate(BMx_kriging,size(BMx,1),size(BMx,2),Label='BMx_kriging')
+BMx_kriging(:,:) = BMx(:,:)
+
+if (.not. SaveBMx) BMx(:,:) = BMx_tmp(:,:)
+
+call mma_deallocate(BMx_tmp)
+
+end subroutine NewCar_Kriging

@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Status(kIter,Energy,rGrad,                             &
-     &                  Ex,nLines,delE,HUpMet,                          &
-     &                  Step_Trunc,Print_Status)
+
+subroutine Status(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_Status)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -21,111 +20,101 @@
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
-      use Slapaf_Parameters, only: UpMeth, iNeg, StpLbl, GrdLbl,        &
-     &                             StpMax, GrdMax
-      Implicit Real*8 (A-H,O-Z)
+
+use Slapaf_Parameters, only: UpMeth, iNeg, StpLbl, GrdLbl, StpMax, GrdMax
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character HUpMet*8, Step_Trunc*1
-      Character*8 lNeg
-      Logical Print_Status
-      Character(LEN=128), Allocatable:: Lines(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+character HUpMet*8, Step_Trunc*1
+character*8 lNeg
+logical Print_Status
+character(len=128), allocatable :: Lines(:)
 
-      Lu=6
-      iRout = 52
-      iPrint = nPrint(iRout)
-!
-      Call mma_allocate(Lines,[-1,nLines],Label='Lines')
-!
-!     Pick up previous energy
-!
-      If (kIter.eq.1) Then
-         Lines(:)=' '
-         iter=1
-         Write (Lines(-1),'(A)')                                        &
-     &    '                       Energy '//                            &
-     &    '    Grad      Grad          '//                              &
-     &    '    Step                 Estimated   Geom'//                 &
-     &    '       Hessian'
-         Write (Lines(0),'(A)')                                         &
-     &    'Iter      Energy       Change '//                            &
-     &    '    Norm      Max    Element '//                             &
-     &    '   Max     Element     Final Energy Update'//                &
-     &    ' Update   Index'
-      Else
-         Call Get_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
-!--------Find first blank line
-         iter = kIter
-      End If
-!
-      If (iter.gt.nLines) Then
-         Call WarningMessage(2,'Status: iter.gt.nLines')
-         Write (Lu,*) 'iter,nLines=',iter,nLines
-         Call abend()
-      Else If (iter.lt.1) Then
-         Call WarningMessage(2,'Status: iter.lt.1')
-         Call abend()
-      End If
-!
-      Write(lNeg,'(I3)') iNeg(1)
-      If (iNeg(2).ne.iNeg(1)) Then
-         If (iNeg(2).gt.99) Then
-            Write(lNeg(4:8),'("(",I3,")")') iNeg(2)
-         Else If (iNeg(2).gt.9) Then
-            Write(lNeg(4:7),'("(",I2,")")') iNeg(2)
-         Else
-            Write(lNeg(4:6),'("(",I1,")")') iNeg(2)
-         End If
-      End If
-      Write (Lines(iter),                                               &
-     &    '(I3,F16.8,F12.8,2(F9.6,1X),A8,F9.6,A1,1X,A8,F16.8,1X,'//     &
-     &    'A,1X,A,1X,A)')                                               &
-     &    iter,Energy,delE,rGrad,GrdMax,GrdLbl,StpMax,Step_Trunc,       &
-     &    StpLbl,Ex,UpMeth,HUpMet,lNeg
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Lu_file=isfreeunit(8)
-!
-!     Turn off updating the structure file during numerical
-!     integrations steps.
-!
-      nvv = 1
-      If (Print_Status) nvv=2
-      Do ivv=1,nvv
-         If (ivv.eq.1) then
-           Lu_out=Lu
-         Else
-            Call Molcas_Open(Lu_File,'STRUCTURE')
-           Lu_out=Lu_file
-         End If
-!
-         If (ivv.eq.2.or.iPrint.ge.5) Then
-            Write (Lu_out,*)
-            Write (Lu_out,'(A)') '***********************'//            &
-     &         '*******************************************************'&
-     &         //'****************************************'
-            Write (Lu_out,'(A)') '*                              '//    &
-     &         '      Energy Statistics for Geometry Optimization      '&
-     &                    //'                               *'
-            Write (Lu_out,'(A)') '***********************'//            &
-     &         '*******************************************************'&
-     &         //'****************************************'
-            Do i = -1, iter
-               Write (Lu_out,'(A118)') Lines(i)
-            End Do
-            Write (Lu_out,*)
-         End If
-         If (ivv.eq.2) Close(Lu_file)
-      End Do
+Lu = 6
+iRout = 52
+iPrint = nPrint(iRout)
+
+call mma_allocate(Lines,[-1,nLines],Label='Lines')
+
+! Pick up previous energy
+
+if (kIter == 1) then
+  Lines(:) = ' '
+  iter = 1
+  write(Lines(-1),'(A)') '                       Energy     Grad      Grad              Step                 Estimated   '// &
+                         'Geom       Hessian'
+  write(Lines(0),'(A)') 'Iter      Energy       Change     Norm      Max    Element    Max     Element     Final Energy Update '// &
+                        'Update   Index'
+else
+  call Get_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
+  ! Find first blank line
+  iter = kIter
+end if
+
+if (iter > nLines) then
+  call WarningMessage(2,'Status: iter > nLines')
+  write(Lu,*) 'iter,nLines=',iter,nLines
+  call abend()
+else if (iter < 1) then
+  call WarningMessage(2,'Status: iter < 1')
+  call abend()
+end if
+
+write(lNeg,'(I3)') iNeg(1)
+if (iNeg(2) /= iNeg(1)) then
+  if (iNeg(2) > 99) then
+    write(lNeg(4:8),'("(",I3,")")') iNeg(2)
+  else if (iNeg(2) > 9) then
+    write(lNeg(4:7),'("(",I2,")")') iNeg(2)
+  else
+    write(lNeg(4:6),'("(",I1,")")') iNeg(2)
+  end if
+end if
+write(Lines(iter),100) iter,Energy,delE,rGrad,GrdMax,GrdLbl,StpMax,Step_Trunc,StpLbl,Ex,UpMeth,HUpMet,lNeg
+100 format(I3,F16.8,F12.8,2(F9.6,1X),A8,F9.6,A1,1X,A8,F16.8,1X,A,1X,A,1X,A)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+2)*128)
-      Call mma_deallocate(Lines)
-      Return
-      End
+Lu_file = isfreeunit(8)
+
+! Turn off updating the structure file during numerical integrations steps.
+
+nvv = 1
+if (Print_Status) nvv = 2
+do ivv=1,nvv
+  if (ivv == 1) then
+    Lu_out = Lu
+  else
+    call Molcas_Open(Lu_File,'STRUCTURE')
+    Lu_out = Lu_file
+  end if
+
+  if ((ivv == 2) .or. (iPrint >= 5)) then
+    write(Lu_out,*)
+    write(Lu_out,'(A)') '******************************************************************************************************'// &
+                        '****************'
+    write(Lu_out,'(A)') '*                                    Energy Statistics for Geometry Optimization                      '// &
+                        '               *'
+    write(Lu_out,'(A)') '******************************************************************************************************'// &
+                        '****************'
+    do i=-1,iter
+      write(Lu_out,'(A118)') Lines(i)
+    end do
+    write(Lu_out,*)
+  end if
+  if (ivv == 2) close(Lu_file)
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+2)*128)
+call mma_deallocate(Lines)
+
+return
+
+end subroutine Status

@@ -8,35 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MxLbls(nInter,Grad,Shift,Lbl)
-      use Slapaf_Parameters, only: GrdLbl,StpLbl,GrdMax,StpMax
-      Implicit Real*8 (a-h,o-z)
+
+subroutine MxLbls(nInter,Grad,Shift,Lbl)
+
+use Slapaf_Parameters, only: GrdLbl, StpLbl, GrdMax, StpMax
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Shift(nInter), Grad(nInter)
-      Character Lbl(nInter)*8
-!
+real*8 Shift(nInter), Grad(nInter)
+character Lbl(nInter)*8
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
-      Call RecPrt('MxLbls:Grad',' ',Grad,nInter,1)
+call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
+call RecPrt('MxLbls:Grad',' ',Grad,nInter,1)
 #endif
-!
-      GrdMax=Zero
-      StpMax=Zero
-      Do i = 1, nInter
-         If(Abs(Grad(i)).gt.Abs(GrdMax)) Then
-           GrdMax=Grad(i)
-           GrdLbl=Lbl(i)
-         End If
-         If(Abs(Shift(i)).gt.Abs(StpMax)) Then
-           StpMax=Shift(i)
-           StpLbl=Lbl(i)
-         End If
-      End Do
+
+GrdMax = Zero
+StpMax = Zero
+do i=1,nInter
+  if (abs(Grad(i)) > abs(GrdMax)) then
+    GrdMax = Grad(i)
+    GrdLbl = Lbl(i)
+  end if
+  if (abs(Shift(i)) > abs(StpMax)) then
+    StpMax = Shift(i)
+    StpLbl = Lbl(i)
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' Tmp output in MxLbls'
-      Write (6,*) GrdLbl,' ',GrdMax
-      Write (6,*) StpLbl,' ',StpMax
+write(6,*) ' Tmp output in MxLbls'
+write(6,*) GrdLbl,' ',GrdMax
+write(6,*) StpLbl,' ',StpMax
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine MxLbls

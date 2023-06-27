@@ -10,9 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine free_UpdMask()
-      Use NewH_mod
+
+subroutine free_UpdMask()
+
+use NewH_mod
+
 #include "stdalloc.fh"
-      If (Allocated(UpdMask)) Call mma_deallocate(UpdMask)
-      Return
-      End
+if (allocated(UpdMask)) call mma_deallocate(UpdMask)
+
+return
+
+end subroutine free_UpdMask
