@@ -1067,6 +1067,17 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`RGRA`
+    Compute the norm of the orbital gradient for each CI root instead of just
+    for the root specified in geometry optimisation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RGRA" LEVEL="BASIC" APPEAR="Root Gradients" KIND="SINGLE">
+              %%Keyword: RGRA <BASIC>
+              <HELP>
+              Compute the CI-root-resolved orbital gradient.
+              </HELP>
+              </KEYWORD>
+
 :kword:`WRMA`
   Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
   These matrices can be used in conjunction with the GUGA-FCIQMC interface

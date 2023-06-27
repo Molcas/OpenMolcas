@@ -33,7 +33,8 @@
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use fciqmc_read_RDM, only: MCM7, WRMA
       use CC_CI_mod, only: Do_CC_CI
-      use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
+      use spin_correlation, only: orb_range_p, orb_range_q, same_orbs,
+     &  tRootGrad
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
@@ -1075,6 +1076,11 @@ C         call fileorb(Line,CMSStartMat)
           if (DBG) write(6,*)
      &        'Transforming final orbitals into pseudo-canonical.'
           if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
+      end if
+*----------------------------------------------------------------------------------------
+      if (KeyRGRA) then
+        tRootGrad = .true.
+        if(DBG) write(6, *) 'Orbital gradient for each root is printed.'
       end if
 *---  Process SSCR command --------------------------------------------*
       if (KeySSCR) then

@@ -24,6 +24,7 @@ module spin_correlation
   public :: spin_correlation_driver
   integer, allocatable, public, save :: orb_range_p(:), orb_range_q(:)
   integer, public :: same_orbs
+  logical, public :: tRootGrad = .false.
 
 
 contains
