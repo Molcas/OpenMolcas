@@ -21,7 +21,6 @@
       Parameter (ROUTINE='PUTRLX  ')
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
       Dimension rdum(1)
-      logical :: disk_pointer_moved
 
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -31,120 +30,191 @@
 *     Read in corresponding density matrixes
 *
 
-      jDisk = IADR15(3)
       NZ=NTOT2
-
+      kDisk = IADR15(3)  ! we need to save this address to reset later
+      jDisk = IADR15(3)
       Call GetMem('TEMP','ALLO','REAL',ipDA,NZ)
       Call GetMem('TEMP','ALLO','REAL',ipDI,NZ)
       Call GetMem('TEMP','ALLO','REAL',ipDS,NZ)
-
       do i = 1, LRoots
-        disk_pointer_moved = .False.
-        do j = 1, i
-          if (iroot(j) == i) then
-            ! jDisk pointer now at position j
-            call ddafile(JOBIPH, 2, D, NACPAR, jDisk)
-            call ddafile(JOBIPH, 2, DS, NACPAR, jDisk)
-            call ddafile(JOBIPH, 2, P, NACPR2, jDisk)
-            call ddafile(JOBIPH, 0, rdum, NACPR2, jDisk)
-            disk_pointer_moved = .True.
+        call ddafile(JOBIPH, 2, D, NACPAR, jDisk)
+        call ddafile(JOBIPH, 2, DS, NACPAR, jDisk)
+        call ddafile(JOBIPH, 2, P, NACPR2, jDisk)
+        call ddafile(JOBIPH, 0, rdum, NACPR2, jDisk)
 *
-*           Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
+*       Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
 *
 *
-            Call Get_D1I_RASSCF(C,Work(ipDI))
+        Call Get_D1I_RASSCF(C,Work(ipDI))
 *
-            Call GetMem('TEMP','ALLO','REAL',ipD,NACPAR)
+        Call GetMem('TEMP','ALLO','REAL',ipD,NACPAR)
 *
-            CALL DCOPY_(NACPAR,DS,1,Work(ipD),1)
-            Call DBLOCK(Work(ipD))
-            CALL Get_D1A_RASSCF(C,Work(ipD),Work(ipDS))
+        CALL DCOPY_(NACPAR,DS,1,Work(ipD),1)
+        Call DBLOCK(Work(ipD))
+        CALL Get_D1A_RASSCF(C,Work(ipD),Work(ipDS))
 *
-            CALL DCOPY_(NACPAR,D,1,Work(ipD),1)
-            Call DBLOCK(Work(ipD))
-            CALL Get_D1A_RASSCF(C,Work(ipd),Work(ipDA))
+        CALL DCOPY_(NACPAR,D,1,Work(ipD),1)
+        Call DBLOCK(Work(ipD))
+        CALL Get_D1A_RASSCF(C,Work(ipd),Work(ipDA))
 *
-*           Construct the Fock matrix used for the connection term.
+*       Construct the Fock matrix used for the connection term.
 *
-            NFSIZE=MAX(NACPAR,NTOT4)
-            Call GetMem('TEMP','ALLO','REAL',ipF,NFSIZE)
-            Call GetMem('TEMP','ALLO','REAL',ipB,NZ)
-            Call GetMem('TEMP','ALLO','REAL',ipQ,NZ)
-            Call GetMem('TEMP','ALLO','REAL',ipFA,NZ)
-            Call GetMem('TEMP','ALLO','REAL',ipFI,NZ)
-            Call GetMem('TEMP','ALLO','REAL',ipPUVX,NFINT)
-            Call GetMem('TEMP','ALLO','REAL',iptuvx,nacpr2)
-            IPR=0
-            IF(IPRLEV.EQ.3) IPR=1
-            IF(IPRLEV.EQ.4) IPR=5
-            IF(IPRLEV.EQ.5) IPR=10
-            Call FZero(Work(ipPUVX),NFINT)
-            Call TraCtl2(C,Work(ipPUVX),Work(ipTUVX),
-     &                   Work(ipDI),Work(ipFI),
-     &                   Work(ipDA),Work(ipFA),ipr,lsquare,ExFac)
-            CALL SGFCIN(C,WORK(ipF),Work(ipFI),Work(ipDI),Work(ipDA),
-     &                                                    Work(ipDS))
-            call dcopy_(ntot4,[0.0d0],0,Work(ipF),1)
-            call dcopy_(ntot4,[0.0d0],0,Work(ipB),1)
+        NFSIZE=MAX(NACPAR,NTOT4)
+        Call GetMem('TEMP','ALLO','REAL',ipF,NFSIZE)
+        Call GetMem('TEMP','ALLO','REAL',ipB,NZ)
+        Call GetMem('TEMP','ALLO','REAL',ipQ,NZ)
+        Call GetMem('TEMP','ALLO','REAL',ipFA,NZ)
+        Call GetMem('TEMP','ALLO','REAL',ipFI,NZ)
+        Call GetMem('TEMP','ALLO','REAL',ipPUVX,NFINT)
+        Call GetMem('TEMP','ALLO','REAL',iptuvx,nacpr2)
+        IPR=0
+        IF(IPRLEV.EQ.3) IPR=1
+        IF(IPRLEV.EQ.4) IPR=5
+        IF(IPRLEV.EQ.5) IPR=10
+        Call FZero(Work(ipPUVX),NFINT)
+        Call TraCtl2(C,Work(ipPUVX),Work(ipTUVX),
+     &               Work(ipDI),Work(ipFI),
+     &               Work(ipDA),Work(ipFA),ipr,lsquare,ExFac)
+        CALL SGFCIN(C,WORK(ipF),Work(ipFI),Work(ipDI),Work(ipDA),
+     &                                                Work(ipDS))
+        call dcopy_(ntot4,[0.0d0],0,Work(ipF),1)
+        call dcopy_(ntot4,[0.0d0],0,Work(ipB),1)
 *
-*           Prevent FMAT from changing Active fock matrix
+*       Prevent FMAT from changing Active fock matrix
 *
-            iTmp=newfock
-            newFock=-99999
+        iTmp=newfock
+        newFock=-99999
 *
-            Call Fmat(C,Work(ipPUVX),Work(ipD),Work(ipDA),Work(ipFI),
-     &                Work(ipFA))
-            newFock=itmp
-            IFINAL=1
-            rTmp=   CBLBM
-            itmp= IBLBM
-            jtmp= JBLBM
-            istmp= ISYMBB
+        Call Fmat(C,Work(ipPUVX),Work(ipD),Work(ipDA),Work(ipFI),
+     &            Work(ipFA))
+        newFock=itmp
+        IFINAL=1
+        rTmp=   CBLBM
+        itmp= IBLBM
+        jtmp= JBLBM
+        istmp= ISYMBB
 
-            IF(ISTORP(NSYM+1).GT.0) THEN
-                CALL GETMEM('ISTRP','ALLO','REAL',ipP,ISTORP(NSYM+1))
-                CALL PMAT_RASSCF(P,WORK(ipP))
-            Else
-                ipP = ip_Dummy
-            END IF
+        IF(ISTORP(NSYM+1).GT.0) THEN
+            CALL GETMEM('ISTRP','ALLO','REAL',ipP,ISTORP(NSYM+1))
+            CALL PMAT_RASSCF(P,WORK(ipP))
+        Else
+            ipP = ip_Dummy
+        END IF
 *
-            Call FOCK(Work(ipF),Work(ipB),Work(ipFI),
-     &                Work(ipFA),Work(ipd),WORK(ipP),Work(ipQ),
-     &                Work(ipPUVX), IFINAL,C)
-            CBLBM=rtmp
-            IBLBM=itmp
-            JBLBM=jtmp
-            ISYMBB=istmp
-            IF(ISTORP(NSYM+1).GT.0)
-     &          CALL GETMEM('ISTRP','FREE','REAL',ipP,ISTORP(NSYM+1))
+        Call FOCK(Work(ipF),Work(ipB),Work(ipFI),
+     &            Work(ipFA),Work(ipd),WORK(ipP),Work(ipQ),
+     &            Work(ipPUVX), IFINAL,C)
+        CBLBM=rtmp
+        IBLBM=itmp
+        JBLBM=jtmp
+        ISYMBB=istmp
+        IF(ISTORP(NSYM+1).GT.0)
+     &      CALL GETMEM('ISTRP','FREE','REAL',ipP,ISTORP(NSYM+1))
 
-            write(6,'(6x,a,i3,5x,f12.10)')
-     &          "Norm of electronic gradient for root ", i,
-     &          DNRM2_(NSXS,Work(ipB),1)
+        write(6,'(6x,a,i3,5x,f12.10)')
+     &      "Norm of electronic gradient for root ", i,
+     &      DNRM2_(NSXS,Work(ipB),1)
 *
-            Call GetMem('TEMP','FREE','REAL',ipD,NACPAR)
-            Call GetMem('TEMP','FREE','REAL',iptuvx,idum)
-            Call GetMem('TEMP','FREE','REAL',ippuvx,idum)
-            Call GetMem('TEMP','FREE','REAL',ipFI,idum)
-            Call GetMem('TEMP','FREE','REAL',ipFA,idum)
-            Call GetMem('TEMP','FREE','REAL',ipQ,idum)
-            Call GetMem('TEMP','FREE','REAL',ipB,idum)
-            Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
-
-            ! For outctl the electronic gradient is set to the root
-            ! specified in the input, not the average!
-            if (iroot(j) == iRlxRoot) RlxGrd = DNRM2_(NSXS,Work(ipB),1)
-
-          end if
-        end do
-        if (.not. disk_pointer_moved) then
-          call ddafile(JOBIPH, 0, rdum, NACPAR, jDisk)
-          call ddafile(JOBIPH, 0, rdum, NACPAR, jDisk)
-          call ddafile(JOBIPH, 0, rdum, NACPR2, jDisk)
-          call ddafile(JOBIPH, 0, rdum, NACPR2, jDisk)
-        end if
+        Call GetMem('TEMP','FREE','REAL',ipD,NACPAR)
+        Call GetMem('TEMP','FREE','REAL',iptuvx,idum)
+        Call GetMem('TEMP','FREE','REAL',ippuvx,idum)
+        Call GetMem('TEMP','FREE','REAL',ipFI,idum)
+        Call GetMem('TEMP','FREE','REAL',ipFA,idum)
+        Call GetMem('TEMP','FREE','REAL',ipQ,idum)
+        Call GetMem('TEMP','FREE','REAL',ipB,idum)
+        Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
       end do
 
+      ! kDisk = IADR15(3)
+      Do i=1,iRlxRoot-1
+        Call DDaFile(JOBIPH,0,rdum,NACPAR,kDisk)
+        Call DDaFile(JOBIPH,0,rdum,NACPAR,kDisk)
+        Call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+        Call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+      End Do
+      Call DDaFile(JOBIPH,2,D,NACPAR,kDisk)
+      Call DDaFile(JOBIPH,2,DS,NACPAR,kDisk)
+      Call DDaFile(JOBIPH,2,P,NACPR2,kDisk)
+      Call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+*
+*     Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
+*
+      Call Get_D1I_RASSCF(C,Work(ipDI))
+*
+      Call GetMem('TEMP','ALLO','REAL',ipD,NACPAR)
+*
+      CALL DCOPY_(NACPAR,DS,1,Work(ipD),1)
+      Call DBLOCK(Work(ipD))
+      CALL Get_D1A_RASSCF(C,Work(ipD),Work(ipDS))
+*
+      CALL DCOPY_(NACPAR,D,1,Work(ipD),1)
+      Call DBLOCK(Work(ipD))
+      CALL Get_D1A_RASSCF(C,Work(ipd),Work(ipDA))
+*
+*     Construct the Fock matrix used for the connection term.
+*
+      NFSIZE=MAX(NACPAR,NTOT4)
+      Call GetMem('TEMP','ALLO','REAL',ipF,NFSIZE)
+      Call GetMem('TEMP','ALLO','REAL',ipB,NZ)
+      Call GetMem('TEMP','ALLO','REAL',ipQ,NZ)
+      Call GetMem('TEMP','ALLO','REAL',ipFA,NZ)
+      Call GetMem('TEMP','ALLO','REAL',ipFI,NZ)
+      Call GetMem('TEMP','ALLO','REAL',ipPUVX,NFINT)
+      Call GetMem('TEMP','ALLO','REAL',iptuvx,nacpr2)
+      IPR=0
+      IF(IPRLEV.EQ.3) IPR=1
+      IF(IPRLEV.EQ.4) IPR=5
+      IF(IPRLEV.EQ.5) IPR=10
+      Call FZero(Work(ipPUVX),NFINT)
+      Call TraCtl2(C,Work(ipPUVX),Work(ipTUVX),
+     &             Work(ipDI),Work(ipFI),
+     &             Work(ipDA),Work(ipFA),ipr,lsquare,ExFac)
+      CALL SGFCIN(C,WORK(ipF),Work(ipFI),Work(ipDI),Work(ipDA),
+     &                                              Work(ipDS))
+      call dcopy_(ntot4,[0.0d0],0,Work(ipF),1)
+      call dcopy_(ntot4,[0.0d0],0,Work(ipB),1)
+*
+*     Prevent FMAT from changing Active fock matrix
+*
+      iTmp=newfock
+      newFock=-99999
+*
+      Call Fmat(C,Work(ipPUVX),Work(ipD),Work(ipDA),Work(ipFI),
+     &          Work(ipFA))
+      newFock=itmp
+      IFINAL=1
+      rTmp=   CBLBM
+      itmp= IBLBM
+      jtmp= JBLBM
+      istmp= ISYMBB
+
+      IF(ISTORP(NSYM+1).GT.0) THEN
+          CALL GETMEM('ISTRP','ALLO','REAL',ipP,ISTORP(NSYM+1))
+          CALL PMAT_RASSCF(P,WORK(ipP))
+      Else
+          ipP = ip_Dummy
+      END IF
+*
+      Call FOCK(Work(ipF),Work(ipB),Work(ipFI),
+     &          Work(ipFA),Work(ipd),WORK(ipP),Work(ipQ),Work(ipPUVX),
+     &          IFINAL,C)
+      CBLBM=rtmp
+      IBLBM=itmp
+      JBLBM=jtmp
+      ISYMBB=istmp
+      IF(ISTORP(NSYM+1).GT.0)
+     &    CALL GETMEM('ISTRP','FREE','REAL',ipP,ISTORP(NSYM+1))
+
+      RlxGrd=DNRM2_(NSXS,Work(ipB),1)
+*
+      Call GetMem('TEMP','FREE','REAL',ipD,NACPAR)
+      Call GetMem('TEMP','FREE','REAL',iptuvx,idum)
+      Call GetMem('TEMP','FREE','REAL',ippuvx,idum)
+      Call GetMem('TEMP','FREE','REAL',ipFI,idum)
+      Call GetMem('TEMP','FREE','REAL',ipFA,idum)
+      Call GetMem('TEMP','FREE','REAL',ipQ,idum)
+      Call GetMem('TEMP','FREE','REAL',ipB,idum)
+      Call GetMem('TEMP','FREE','REAL',ipF,NFSIZE)
 
 *
 * Add up one electron densities
