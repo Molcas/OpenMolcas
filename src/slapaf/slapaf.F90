@@ -98,9 +98,7 @@ else if (iStop == 1) then
   else
     iReturn = _RC_ALL_IS_WELL_
   end if
-  if (isFalcon) then
-    iReturn = _RC_ALL_IS_WELL_
-  end if
+  if (isFalcon) iReturn = _RC_ALL_IS_WELL_
 
 else if (iStop == 0) then
 

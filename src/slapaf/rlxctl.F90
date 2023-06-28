@@ -97,9 +97,7 @@ if (allocated(mRowH)) NmIter = size(mRowH)+1
 if (lNmHss) NmIter = 2*mInt+1   ! Full numerical
 if (Cubic) NmIter = 2*mInt**2+1 ! Full cubic
 
-if (lTherm .and. (iter == 1)) then
-  call Put_dArray('Initial Coordinates',Coor,size(Coor))
-end if
+if (lTherm .and. (iter == 1)) call Put_dArray('Initial Coordinates',Coor,size(Coor))
 
 ! Fix the definition of internal during numerical differentiation
 if (lNmHss .and. (iter < NmIter) .and. (iter /= 1)) nPrint(122) = 5
@@ -252,9 +250,7 @@ end if
 
 ! Fix correct reference structure in case of Numerical Hessian optimization.
 
-if ((lNmHss .or. allocated(mRowH)) .and. (kIter == 1)) then
-  Cx(:,:,iter) = Cx(:,:,1)
-end if
+if ((lNmHss .or. allocated(mRowH)) .and. (kIter == 1)) Cx(:,:,iter) = Cx(:,:,1)
 
 ! Print statistics and check on convergence
 

@@ -21,7 +21,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nInter
-integer(kind=iwp) :: i, iAtom, nAtMM, nsAtom
+integer(kind=iwp) :: iAtom, nAtMM, nsAtom
 integer, allocatable :: IsMM(:)
 
 nsAtom = size(Coor,2)
@@ -33,15 +33,7 @@ if (Redundant .and. (.not. Curvilinear) .and. (3*nsAtom == nInter)) then
   call mma_allocate(IsMM,nsAtom,Label='IsMM')
   call MMCount(nsAtom,nAtMM,IsMM)
   do iAtom=1,nsAtom
-    if (IsMM(iAtom) == 1) then
-      do i=1,3
-        UpdMask((iAtom-1)*3+i) = 1
-      end do
-    else
-      do i=1,3
-        UpdMask((iAtom-1)*3+i) = 0
-      end do
-    end if
+    UpdMask((iAtom-1)*3+1:(iAtom-1)*3+3) = merge(1,0,IsMM(iAtom) == 1)
   end do
   call mma_deallocate(IsMM)
 end if

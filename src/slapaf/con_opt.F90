@@ -64,8 +64,8 @@ logical(kind=iwp) :: First_MicroIteration
 integer(kind=iwp) :: i, iCount, iCount_Max, iInter, iIter, iLambda, iMEP, iOff_Iter, iOptC_Temp, ipTb, ipTti, iSt, j, jLambda, &
                      nTrans
 real(kind=wp) :: Beta, Beta_Disp, Beta_Disp_Save = Zero, Det, disp_long, Disp_Save = Zero, disp_short, Dummy, dxdx, dxdx_last, &
-                 dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, tBeta, Temp, &
-                 Thr, tmp, xBeta, yBeta
+                 dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, tBeta, Thr, &
+                 tmp, xBeta, yBeta
 logical(kind=iwp) :: Found, IRC_setup, Recompute_disp, RVO
 character(len=8) :: StpLbl_Save
 character :: Step_Trunc_
@@ -99,11 +99,11 @@ call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
 call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
 do iIter=1,nIter
   write(u6,*) ' iIter=',iIter
-  call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),nInter,nLambda)
+  call RecPrt('Con_Opt: drdq(orig)',' ',drdq(:,:,iIter),nInter,nLambda)
 end do
 do iLambda=1,nLambda
   write(u6,*) 'iLambda=',iLambda
-  call RecPrt('Con_Opt: d2rdq2(iLambda)',' ',d2rdq2(1,1,iLambda),nInter,nInter)
+  call RecPrt('Con_Opt: d2rdq2(iLambda)',' ',d2rdq2(:,:,iLambda),nInter,nInter)
 end do
 write(u6,*) '****************************************************'
 write(u6,*) ' End of input arrays'
@@ -165,7 +165,7 @@ do iIter=iSt,nIter
 
   ! drdq^T drdq
 
-  call DGEMM_('T','N',nLambda,nLambda,nInter,One,drdq(1,1,iIter),nInter,drdq(1,1,iIter),nInter,Zero,RR,nLambda)
+  call DGEMM_('T','N',nLambda,nLambda,nInter,One,drdq(:,:,iIter),nInter,drdq(:,:,iIter),nInter,Zero,RR,nLambda)
 
   ! (drdq^T drdq)^{-1}
 
@@ -174,17 +174,17 @@ do iIter=iSt,nIter
 
   ! (drdq^T drdq)^{-1} drdq^T
 
-  call DGEMM_('N','T',nLambda,nInter,nLambda,One,RRInv,nLambda,drdq(1,1,iIter),nInter,Zero,RRR,nLambda)
+  call DGEMM_('N','T',nLambda,nInter,nLambda,One,RRInv,nLambda,drdq(:,:,iIter),nInter,Zero,RRR,nLambda)
   call mma_deallocate(RRInv)
 
   ! l = (T_b^T drdq)^{-1} drdq^T dEdq
 
   ! Note the sign conflict due to dEdq stored as a force.
 
-  call DGEMM_('N','N',nLambda,1,nInter,-One,RRR,nLambda,dEdq(1,iIter),nInter,Zero,rLambda(1,iIter),nLambda) ! Sign conflict
+  call DGEMM_('N','N',nLambda,1,nInter,-One,RRR,nLambda,dEdq(:,iIter),nInter,Zero,rLambda(:,iIter),nLambda) ! Sign conflict
   call mma_deallocate(RRR)
 # ifdef _DEBUGPRINT_
-  call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
+  call RecPrt('rLambda(iIter)',' ',rLambda(:,iIter),nLambda,1)
 # endif
 end do
 #ifdef _DEBUGPRINT_
@@ -225,7 +225,7 @@ do iIter=iSt,nIter
   write(u6,*) '****************************************************'
 # endif
   do iLambda=1,nLambda
-    RR_ = sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,drdq(1,iLambda,iIter),1))
+    RR_ = sqrt(DDot_(nInter,drdq(:,iLambda,iIter),1,drdq(:,iLambda,iIter),1))
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iLambda=',iLambda
     call RecPrt('drdq',' ',drdq(:,iLambda,iIter),1,nInter)
@@ -257,44 +257,47 @@ do iIter=iSt,nIter
       end if
       r(iLambda,iIter) = Zero
 
-      if (IRC_SetUp) call ReacQ(MF,3*nsAtom,dEdq(1,iIter),nInter)
+      if (IRC_SetUp) call ReacQ(MF,3*nsAtom,dEdq(:,iIter),nInter)
 
       ! Try to use the transverse direction if the gradient is too small
 
-      RR_ = sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
+      RR_ = sqrt(DDot_(nInter,dEdq(:,iIter),1,dEdq(:,iIter),1))
       if (RR_ < 1.0e-12_wp) then
         call qpg_dArray('Transverse',Found,nTrans)
         if (Found .and. (nTrans == 3*nsAtom)) then
           call mma_Allocate(Trans,3*nsAtom,Label='Trans')
           call Get_dArray('Transverse',Trans,nTrans)
-          call ReacQ(Trans,3*nsAtom,dEdq(1,iIter),nInter)
-          RR_ = sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
-          call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
+          call ReacQ(Trans,3*nsAtom,dEdq(:,iIter),nInter)
+          RR_ = sqrt(DDot_(nInter,dEdq(:,iIter),1,dEdq(:,iIter),1))
+          dEdq(:,iIter) = dEdq(:,iIter)/RR_
           call mma_deallocate(Trans)
         end if
       else
-        call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
+        dEdq(:,iIter) = dEdq(:,iIter)/RR_
       end if
 
       do iInter=1,nInter
-        drdq(iInter,iLambda,iIter) = sign(One,dEdq(iInter,iIter))
-        if (abs(dEdq(iInter,iIter)) <= 1.0e-6_wp) drdq(iInter,iLambda,iIter) = Zero
+        if (abs(dEdq(iInter,iIter)) <= 1.0e-6_wp) then
+          drdq(iInter,iLambda,iIter) = Zero
+        else
+          drdq(iInter,iLambda,iIter) = sign(One,dEdq(iInter,iIter))
+        end if
       end do
 #     ifdef _DEBUGPRINT_
-      call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,nLambda*nIter)
+      call RecPrt('Con_Opt: drdq',' ',drdq,nInter,nLambda*nIter)
 #     endif
 
       ! Orthogonalize against the gradient and all other constraints
 
-      RG = DDot_(nInter,drdq(1,iLambda,iIter),1,dEdq(1,iIter),1)
-      call DaXpY_(nInter,-RG,dEdq(1,iIter),1,drdq(1,iLambda,iIter),1)
-      RR_ = sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,drdq(1,iLambda,iIter),1))
+      RG = DDot_(nInter,drdq(:,iLambda,iIter),1,dEdq(:,iIter),1)
+      drdq(:,iLambda,iIter) = drdq(:,iLambda,iIter)-RG*dEdq(:,iIter)
+      RR_ = sqrt(DDot_(nInter,drdq(:,iLambda,iIter),1,drdq(:,iLambda,iIter),1))
       do jLambda=1,nLambda
         if (jLambda /= iLambda) then
-          RG = DDot_(nInter,drdq(1,iLambda,iIter),1,drdq(1,jLambda,iIter),1)
-          call DaXpY_(nInter,-RG,drdq(1,jLambda,iIter),1,drdq(1,iLambda,iIter),1)
-          RR_ = sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,drdq(1,iLambda,iIter),1))
-          call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
+          RG = DDot_(nInter,drdq(:,iLambda,iIter),1,drdq(:,jLambda,iIter),1)
+          drdq(:,iLambda,iIter) = drdq(:,iLambda,iIter)-RG*drdq(:,jLambda,iIter)
+          RR_ = sqrt(DDot_(nInter,drdq(:,iLambda,iIter),1,drdq(:,iLambda,iIter),1))
+          drdq(:,iLambda,iIter) = drdq(:,iLambda,iIter)/RR_
         end if
       end do
 
@@ -332,11 +335,11 @@ do iIter=iSt,nIter
   !
   ! T_{ti}^T T_{ti} = 1
 
-  call GS(drdq(1,1,iIter),nLambda,T,nInter,.false.,.false.)
+  call GS(drdq(:,:,iIter),nLambda,T,nInter,.false.,.false.)
 # ifdef _DEBUGPRINT_
   call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
-  call RecPrt('Con_Opt: T_b',' ',T(1,ipTB),nInter,nLambda)
-  call RecPrt('Con_Opt: T_ti',' ',T(1,ipTti),nInter,nInter-nLambda)
+  call RecPrt('Con_Opt: T_b',' ',T(:,ipTB),nInter,nLambda)
+  call RecPrt('Con_Opt: T_ti',' ',T(:,ipTti),nInter,nInter-nLambda)
 # endif
   !                                                                    *
   ! Note that the paper by Anglada and Bofill has some errors on the   *
@@ -361,7 +364,7 @@ do iIter=iSt,nIter
 
   ! drdq^T T_b
 
-  call DGEMM_('T','N',nLambda,nLambda,nInter,One,drdq(1,1,iIter),nInter,T(1,ipTb),nInter,Zero,RT,nLambda)
+  call DGEMM_('T','N',nLambda,nLambda,nInter,One,drdq(:,:,iIter),nInter,T(:,ipTb),nInter,Zero,RT,nLambda)
 # ifdef _DEBUGPRINT_
   call RecPrt('Con_Opt: RT = drdq^T T_b',' ',RT,nLambda,nLambda)
 # endif
@@ -370,12 +373,12 @@ do iIter=iSt,nIter
   call mma_deallocate(RT)
 # ifdef _DEBUGPRINT_
   call RecPrt('Con_Opt: RTInv = (drdq^T T_b)^{-1}',' ',RTInv,nLambda,nLambda)
-  call RecPrt('Con_Opt: r(:,iIter)',' ',r(1,iIter),nLambda,1)
+  call RecPrt('Con_Opt: r(:,iIter)',' ',r(:,iIter),nLambda,1)
 # endif
 
   ! dy = - (drdq^T T_b)^{-1} r(q)
 
-  call DGEMM_('N','N',nLambda,1,nLambda,-One,RTInv,nLambda,r(1,iIter),nLambda,Zero,dy,nLambda)
+  call DGEMM_('N','N',nLambda,1,nLambda,-One,RTInv,nLambda,r(:,iIter),nLambda,Zero,dy,nLambda)
   call mma_deallocate(RTInv)
 # ifdef _DEBUGPRINT_
   call RecPrt('Con_Opt: dy(full) = - (drdq^T T_b)^{-1} r(q)',' ',dy,nLambda,1)
@@ -394,14 +397,14 @@ do iIter=iSt,nIter
     Hessian(:,:,1) = Hess(:,:)
     if (iIter == nIter) then
       do iLambda=1,nLambda
-        call DaXpY_(nInter**2,-rLambda(iLambda,iIter),d2rdq2(1,1,iLambda),1,Hessian,1)
+        Hessian(:,:,1) = Hessian(:,:,1)-rLambda(iLambda,iIter)*d2rdq2(:,:,iLambda)
       end do
     end if
   else
-    call Hessian_Kriging_Layer(q(1,iIter),Hessian,nInter)
+    call Hessian_Kriging_Layer(q(:,iIter),Hessian,nInter)
     if ((nSet > 2) .and. NADC) Hessian(:,:,1) = Half*(Hessian(:,:,1)+Hessian(:,:,2))
     do iLambda=1,nLambda
-      call DaXpY_(nInter**2,-rLambda(iLambda,iIter),d2rdq2(1,1,iLambda),1,Hessian,1)
+      Hessian(:,:,1) = Hessian(:,:,1)-rLambda(iLambda,iIter)*d2rdq2(:,:,iLambda)
     end do
   end if
 # ifdef _DEBUGPRINT_
@@ -421,13 +424,13 @@ do iIter=iSt,nIter
     !
     ! x = T_{ti}^T q, since T_{ti}^T T_b = 0
 
-    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(1,ipTti),nInter,q(1,iIter),nInter,Zero,x(1,iIter),nInter-nLambda)
+    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(:,ipTti),nInter,q(:,iIter),nInter,Zero,x(:,iIter),nInter-nLambda)
 
     ! Compute dx
     !
     ! dx = T_{ti}^T dq
 
-    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(1,ipTti),nInter,dq(1,iIter),nInter,Zero,dx(1,iIter),nInter-nLambda)
+    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(:,ipTti),nInter,dq(:,iIter),nInter,Zero,dx(:,iIter),nInter-nLambda)
 
     ! Compute step restriction based on information from the
     ! minimization in the x subspace. This restriction is based
@@ -436,7 +439,7 @@ do iIter=iSt,nIter
     if (iIter /= nIter) then
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'dx = T_{ti}^T dq'
-      call RecPrt('dx(:,iIter)',' ',dq(1,iIter),nInter,1)
+      call RecPrt('dx(:,iIter)',' ',dq(:,iIter),nInter,1)
 #     endif
 
       ! Compute dq step in the x subspace
@@ -446,7 +449,7 @@ do iIter=iSt,nIter
       ! dq = T [0,dx]^T
 
       du(:) = Zero
-      call dcopy_(nInter-nLambda,dx(1,iIter),1,du(1+nLambda),1)
+      du(nLambda+1:) = dx(1:nInter-nLambda,iIter)
       call Backtrans_T(du,dq_xy)
       dxdx = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 
@@ -481,7 +484,7 @@ do iIter=iSt,nIter
     call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
+    call RecPrt('Con_Opt: dEdq',' ',dEdq(:,iIter),1,nInter)
     call RecPrt('Con_Opt: W',' ',Hessian(:,:,1),nInter,nInter)
     call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
     call RecPrt('Con_Opt: dy',' ',dy,1,nLambda)
@@ -489,7 +492,7 @@ do iIter=iSt,nIter
 
     ! W_{ex} T_b
 
-    call DGEMM_('N','N',nInter,nLambda,nInter,One,Hessian,nInter,T(1,ipTb),nInter,Zero,Tmp2,nInter)
+    call DGEMM_('N','N',nInter,nLambda,nInter,One,Hessian,nInter,T(:,ipTb),nInter,Zero,Tmp2,nInter)
 #   ifdef _DEBUGPRINT_
     call RecPrt('W_{ex} T_b',' ',Tmp2,nInter,nLambda)
 #   endif
@@ -507,10 +510,10 @@ do iIter=iSt,nIter
 
     ! dEdx = T_{ti}^T (dEdq + W_{ex} T_b dy)
 
-    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(1,ipTti),nInter,Tmp1,nInter,Zero,dEdx(1,iIter),nInter-nLambda)
+    call DGEMM_('T','N',nInter-nLambda,1,nInter,One,T(:,ipTti),nInter,Tmp1,nInter,Zero,dEdx(:,iIter),nInter-nLambda)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iIter=',iIter
-    call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,nInter-nLambda)
+    call RecPrt('dEdx(:,iIter)',' ',dEdx(:,iIter),1,nInter-nLambda)
 #   endif
     call mma_deallocate(Tmp1)
 
@@ -518,7 +521,7 @@ do iIter=iSt,nIter
     ! reduce the step size (see update_kriging)
 
     if (RVO .and. First_Microiteration .and. (iIter == nIter)) then
-      GNrm = sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
+      GNrm = sqrt(DDot_(nInter-nLambda,dEdx(:,nIter),1,dEdx(:,nIter),1))
       cBeta = min(1.0e3_wp*GNrm,cBeta)
       Beta = fCart*cBeta
     end if
@@ -527,7 +530,7 @@ do iIter=iSt,nIter
     ! minimization in the x subspace. This restriction is based
     ! on the gradient in the x subspace.
 
-    gg = sqrt(DDot_(nInter-nLambda,dEdx(1,iIter),1,dEdx(1,iIter),1))
+    gg = sqrt(DDot_(nInter-nLambda,dEdx(:,iIter),1,dEdx(:,iIter),1))
     if ((gg < 0.75_wp*gg_last) .and. (gg < Beta-Thr)) then
       ! Increase trust radius
       gBeta = min(One,gBeta*Sf)
@@ -558,20 +561,20 @@ do iIter=iSt,nIter
 
     ! T_b dy
 
-    call DGEMM_('N','N',nInter,1,nLambda,One,T(1,ipTb),nInter,dy,nLambda,Zero,Tdy,nInter)
+    call DGEMM_('N','N',nInter,1,nLambda,One,T(:,ipTb),nInter,dy,nLambda,Zero,Tdy,nInter)
 
     ! drdq^T dq = drdq^T T_b dy
 
-    call DGEMM_('T','N',nLambda,1,nInter,One,drdq(1,1,iIter),nInter,Tdy,nInter,Zero,Tmp1,nLambda)
+    call DGEMM_('T','N',nLambda,1,nInter,One,drdq(:,:,iIter),nInter,Tdy,nInter,Zero,Tmp1,nLambda)
     call mma_deallocate(Tdy)
 
     ! r + drdq^T dq
 
-    call DaXpY_(nLambda,One,r(1,iIter),1,Tmp1,1)
+    Tmp1(1:nLambda) = Tmp1(1:nLambda)+r(1:nLambda,iIter)
 
     ! l^T (r + drdq^T dq)
 
-    E_Delta = E_Delta-DDot_(nLambda,rLambda(1,iIter),1,Tmp1,1)
+    E_Delta = E_Delta-DDot_(nLambda,rLambda(:,iIter),1,Tmp1,1)
     call mma_deallocate(Tmp1)
 
     ! Term due to coupling
@@ -580,7 +583,7 @@ do iIter=iSt,nIter
 
     ! T_b dy
 
-    call DGEMM_('N','N',nInter,1,nLambda,One,T(1,ipTb),nInter,dy,nLambda,Zero,Tr,nInter)
+    call DGEMM_('N','N',nInter,1,nLambda,One,T(:,ipTb),nInter,dy,nLambda,Zero,Tr,nInter)
 
     ! dEdq^T T_b dy
     !
@@ -689,9 +692,7 @@ do iIter=iSt,nIter
       tmp = min(tmp,0.3_wp) ! Some constraints can have huge gradients. So be a bit careful.
       ! Allowed dispersion in the y subspace
       Beta_Disp = max(Beta_Disp_Min,tmp*CnstWght/(CnstWght+One)*Beta_Disp_Seed)
-      if (.not. First_MicroIteration) then
-        Beta_Disp = min(Disp_Save+Beta_Disp,Beta_Disp_Save)
-      end if
+      if (.not. First_MicroIteration) Beta_Disp = min(Disp_Save+Beta_Disp,Beta_Disp_Save)
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Step_trunc=',Step_trunc
@@ -716,11 +717,11 @@ do iIter=iSt,nIter
         if (Step_Trunc == 'N') Step_Trunc = ' '
         do
           du(1:nLambda) = (One/Fact)*dy(:)
-          du(1+nLambda:nInter) = Zero
+          du(nLambda+1:nInter) = Zero
           call Backtrans_T(du,dq_xy)
           q(:,iIter+1) = q(:,iIter)+dq_xy(:)
 
-          call Dispersion_Kriging_Layer(q(1,iIter+1),disp,nInter)
+          call Dispersion_Kriging_Layer(q(:,iIter+1),disp,nInter)
 
           if (iCount == 1) then
             Fact_long = Fact
@@ -753,7 +754,7 @@ do iIter=iSt,nIter
     ! the constrained optimization phase is actually not to
     ! find the constrained structure.
 
-    if (iand(iOptC,4096) == 4096) then
+    if (btest(iOptC,12)) then
       dydy = sqrt(DDot_(nLambda,dy,1,dy,1))
       Thrdy = 0.075_wp
       if (dydy > Thrdy) then
@@ -775,9 +776,7 @@ do iIter=iSt,nIter
   !                                                                    *
   !      Twist for MEP optimizations.
 
-  if ((iIter == iOff_iter+1) .and. (dydy < 1.0e-4_wp) .and. (iIter /= 1)) then
-    xBeta = xBeta*Half
-  end if
+  if ((iIter == iOff_iter+1) .and. (dydy < 1.0e-4_wp) .and. (iIter /= 1)) xBeta = xBeta*Half
   dydy_last = dydy
 
 # ifdef _DEBUGPRINT_
@@ -814,7 +813,7 @@ write(u6,*) 'iOff_iter=',iOff_iter
 hql(:,:) = dEdq(:,:)
 do iIter=iOff_iter+1,nIter
   do iLambda=1,nLambda
-    call DaXpY_(nInter,rLambda(iLambda,nIter),drdq(1,iLambda,iIter),1,hql(1,iIter),1) ! Sign conflict
+    hql(:,iIter) = hql(:,iIter)+rLambda(iLambda,nIter)*drdq(:,iLambda,iIter) ! Sign conflict
   end do
 end do
 #ifdef _DEBUGPRINT_
@@ -828,11 +827,9 @@ call RecPrt('Con_Opt: h(q,l) = dEdq - drdq l_0^T',' ',hql,nInter,nIter)
 ! L = E + l r(q)
 
 do iIter=iOff_iter+1,nIter
-  Temp = Energy(iIter)
   do iLambda=1,nLambda
-    Temp = Temp+rLambda(iLambda,iIter)*r(iLambda,iIter)
+    Energy(iIter) = Energy(iIter)+rLambda(iLambda,iIter)*r(iLambda,iIter)
   end do
-  Energy(iIter) = Temp
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('Con_Opt: Lagrangian, L = E + l r(q)',' ',Energy,nIter,1)
@@ -850,7 +847,7 @@ write(u6,*) ' *** Updating the reduced Hessian ***'
 write(u6,*)
 #endif
 
-if (iand(iOptC,4096) == 4096) then
+if (btest(iOptC,12)) then
 
   ! If FINDTS option force minimization option during the Hessian update.
 
@@ -884,8 +881,8 @@ call DiagMtrx(Hessian(:,:,1),nInter,iNeg)
 if (nInter-nLambda > 0) then
 
   call mma_allocate(Tmp2,nInter-nLambda,nInter,Label='Tmp2')
-  call DGEMM_('T','N',nInter-nLambda,nInter,nInter,One,T(1,ipTti),nInter,Hessian,nInter,Zero,Tmp2,nInter-nLambda)
-  call DGEMM_('N','N',nInter-nLambda,nInter-nLambda,nInter,One,Tmp2,nInter-nLambda,T(1,ipTti),nInter,Zero,W,nInter-nLambda)
+  call DGEMM_('T','N',nInter-nLambda,nInter,nInter,One,T(:,ipTti),nInter,Hessian,nInter,Zero,Tmp2,nInter-nLambda)
+  call DGEMM_('N','N',nInter-nLambda,nInter-nLambda,nInter,One,Tmp2,nInter-nLambda,T(:,ipTti),nInter,Zero,W,nInter-nLambda)
   call mma_deallocate(Tmp2)
 # ifdef _DEBUGPRINT_
   call RecPrt('Con_Opt: the reduced Hessian, T_{ti}^T W T_{ti}',' ',W,nInter-nLambda,nInter-nLambda)
@@ -913,9 +910,7 @@ if (nInter-nLambda > 0) then
       tmp = max(tmp,abs(dEdx(i,iter_)))
     end do
     ! Add the allowed dispersion in the x subspace.
-    if (First_MicroIteration) then
-      Beta_Disp_Save = max(Beta_Disp+tmp*Beta_Disp_Seed,Beta_Disp_Min)
-    end if
+    if (First_MicroIteration) Beta_Disp_Save = max(Beta_Disp+tmp*Beta_Disp_Seed,Beta_Disp_Min)
     Beta_Disp = Beta_Disp_Save
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
@@ -954,11 +949,11 @@ if (nInter-nLambda > 0) then
     if (Step_Trunc//Step_Trunc_ == ' *') Step_Trunc = '.'
 
     du(1:nLambda) = dy(:)
-    du(1+nLambda:nInter) = dx(:,nIter)
+    du(nLambda+1:nInter) = dx(:,nIter)
     call Backtrans_T(du,dq_xy)
     q(:,nIter+1) = q(:,nIter)+dq_xy(:)
 
-    call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
+    call Dispersion_Kriging_Layer(q(:,nIter+1),disp,nInter)
     Disp_Save = disp(1)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'disp=',disp(1)
@@ -972,7 +967,7 @@ if (nInter-nLambda > 0) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Step_Trunc(n)=',Step_Trunc
 # endif
-  GNrm = sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
+  GNrm = sqrt(DDot_(nInter-nLambda,dEdx(:,nIter),1,dEdx(:,nIter),1))
 
 else
   ! Negative norm should serve as sign that there is no gradient
@@ -999,7 +994,7 @@ du(1:nLambda) = dy(:)
 call Backtrans_T(du,dq_xy)
 dydy = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 call RecPrt('dq(dy)',' ',dq_xy,nInter,1)
-write(u6,*) '<R(q_0)|dy>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
+write(u6,*) '<R(q_0)|dy>=',DDot_(nInter,dRdq(:,1,nIter),1,dq_xy,1)
 
 ! dx only, constrained minimization
 
@@ -1008,7 +1003,7 @@ du(nLambda+1:nInter) = dx(:,nIter)
 call Backtrans_T(du,dq_xy)
 dxdx = sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 call RecPrt('dq(dx)',' ',dq_xy,nInter,1)
-write(u6,*) '<R(q_0)|dx>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
+write(u6,*) '<R(q_0)|dx>=',DDot_(nInter,dRdq(:,1,nIter),1,dq_xy,1)
 #endif
 
 ! dy+dx, full step
@@ -1017,7 +1012,7 @@ write(u6,*) '<R(q_0)|dx>=',DDot_(nInter,dRdq(1,1,nIter),1,dq_xy,1)
 
 du(:) = Zero
 du(1:nLambda) = dy(1:nLambda)
-du(1+nLambda:nInter) = dx(:,nIter)
+du(nLambda+1:nInter) = dx(:,nIter)
 #ifdef _DEBUGPRINT_
 call RecPrt('du',' ',du,1,nInter)
 #endif
@@ -1028,10 +1023,10 @@ call RecPrt('du',' ',du,1,nInter)
 Recompute_disp = .false.
 if ((Max_MicroIterations >= 50) .and. (niter-iter_+1 > Max_Microiterations-10)) then
   dydy = sqrt(DDot_(nLambda,dy,1,dy,1))
-  if (dydy > 1.0e-12_wp) du(1+nLambda:nInter) = Zero
+  if (dydy > 1.0e-12_wp) du(nLambda+1:nInter) = Zero
   Recompute_disp = .true.
 end if
-call Backtrans_T(du,dq(1,nIter))
+call Backtrans_T(du,dq(:,nIter))
 #ifdef _DEBUGPRINT_
 call RecPrt('dq(dx+dy)',' ',dq(:,nIter),1,nInter)
 #endif
@@ -1040,7 +1035,7 @@ call RecPrt('dq(dx+dy)',' ',dq(:,nIter),1,nInter)
 
 q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
 if (Recompute_disp) then
-  call Dispersion_Kriging_Layer(q(1,nIter+1),Disp,nInter)
+  call Dispersion_Kriging_Layer(q(:,nIter+1),Disp,nInter)
   Disp_Save = Disp(1)
 end if
 
@@ -1052,7 +1047,7 @@ call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
 !                                                                      *
 ! StpMax from q
 
-call MxLbls(nInter,hql(1,nIter),dq(1,nIter),Lbl)
+call MxLbls(nInter,hql(:,nIter),dq(:,nIter),Lbl)
 
 ! GrdMax for dEdx
 
@@ -1066,7 +1061,7 @@ if (nInter-nLambda > 0) then
   do i=1,nInter-nLambda
     write(Lbl(i),'(A,I3.3)') 'dEdx',i
   end do
-  call MxLbls(nInter-nLambda,dEdx(1,nIter),dx(1,nIter),LblSave)
+  call MxLbls(nInter-nLambda,dEdx(:,nIter),dx(:,nIter),LblSave)
   call mma_deallocate(LblSave)
   StpMax = StpMax_Save
   StpLbl = StpLbl_Save

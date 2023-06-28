@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp) :: nH, iOptC, nsAtom
 real(kind=wp) :: H(nH,nH), MF(3,nsAtom), GNrm
 logical(kind=iwp) :: AnalHess, AllowFindTS
-integer(kind=iwp) :: i, ij, iLow, iStatus, iTest, j, jNeg, k, Mask, nRP, NumVal, nVStep
+integer(kind=iwp) :: i, ij, iLow, iStatus, iTest, j, jNeg, nRP, NumVal, nVStep
 real(kind=wp) :: dRx, Fact, Fix_Val, rLow, rq, SumHii, temp, Test
 logical(kind=iwp) :: Corrected, Found
 real(kind=wp), allocatable :: EVal(:), FixVal(:), LowVal(:), LowVec(:,:), Rx(:,:), Tmp(:,:), Vect(:)
@@ -45,9 +45,10 @@ call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
 ! Copy elements for H
 
 SumHii = Zero
+ij = 0
 do i=1,nH
   do j=1,i
-    ij = i*(i-1)/2+j
+    ij = ij+1
     EVal(ij) = H(i,j)
   end do
   SumHii = SumHii+H(i,i)
@@ -81,9 +82,7 @@ do while (.not. Found)
   call RecPrt(' Eigenvalues',' ',LowVal,1,NumVal)
   call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 # endif
-  if (iStatus > 0) then
-    call SysWarnMsg('FixHess','Davidson procedure did not converge','')
-  end if
+  if (iStatus > 0) call SysWarnMsg('FixHess','Davidson procedure did not converge','')
   if ((LowVal(NumVal) > Ten*HTh) .or. (NumVal >= nH)) then
     Found = .true.
   else
@@ -145,7 +144,7 @@ do i=1,NumVal
   if (temp < Zero) then
     iNeg(1) = iNeg(1)+1
     jNeg = i
-    if (((.not. AnalHess) .or. (iand(iOptC,256) == 256)) .and. (iand(iOptC,128) == 128) .and. (iand(iOptC,4096) /= 4096)) then
+    if (((.not. AnalHess) .or. btest(iOptC,8)) .and. btest(iOptC,7) .and. (.not. btest(iOptC,12))) then
 
       ! Change the sign and if just too large reduce the value
       ! to the default of HHigh.
@@ -163,18 +162,15 @@ end do
 
 if (AllowFindTS) then
   call qpg_darray('TanVec',Found,nRP)
-  if ((iand(iOptC,4096) == 4096) .and. ((iNeg(1) >= 1) .or. (Mode >= 0)) .and. ((GNrm <= GNrm_Threshold) .or. Found)) then
-    if (iand(iOptC,8192) /= 8192) then
+  if (btest(iOptC,12) .and. ((iNeg(1) >= 1) .or. (Mode >= 0)) .and. ((GNrm <= GNrm_Threshold) .or. Found)) then
+    if (.not. btest(iOptC,13)) then
       write(u6,*) '**************************'
       write(u6,*) '* Enable TS optimization *'
       write(u6,*) '**************************'
     end if
-    iOptC = ior(iOptC,8192)
+    iOptC = ibset(iOptC,13)
   end if
-  if (iand(iOptC,8192) == 8192) then
-    Mask = 2**30-1-2**7
-    iOptC = iand(Mask,iOptC)
-  end if
+  if (btest(iOptC,13)) iOptC = ibclr(iOptC,7)
 end if
 !                                                                      *
 !***********************************************************************
@@ -193,9 +189,9 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iand(iOptC,128) == 128) then
-!
-  if ((iNeg(1) /= 0) .and. (iand(iOptC,256) /= 256)) then
+if (btest(iOptC,7)) then
+
+  if ((iNeg(1) /= 0) .and. (.not. btest(iOptC,8))) then
     Corrected = .true.
 #   ifdef _DEBUGPRINT_
     write(Lu,*) ' Some negative eigenvalues has been corrected'
@@ -210,7 +206,7 @@ if (iand(iOptC,128) == 128) then
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-else if ((iand(iOptC,8) == 8) .or. (iand(iOptC,8192) == 8192)) then
+else if (btest(iOptC,3) .or. btest(iOptC,13)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -491,9 +487,7 @@ if (Corrected) then
       ! H' = H + (val_new - val_old) |i> <i|
 
       do j=1,nH
-        do k=1,nH
-          H(j,k) = H(j,k)-Vect(j)*LowVec(k,i)-Vect(k)*LowVec(j,i)+Fix_Val*LowVec(j,i)*LowVec(k,i)
-        end do
+        H(:,j) = H(:,j)-Vect(:)*LowVec(j,i)-Vect(j)*LowVec(:,i)+Fix_Val*LowVec(:,i)*LowVec(j,i)
       end do
     end if
   end do

@@ -33,9 +33,6 @@ real(kind=wp) :: dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
 integer(kind=iwp) :: i
 logical(kind=iwp) :: DoMask
 real(kind=wp), allocatable :: dg(:), dq(:,:), gi(:)
-! Statement function
-logical(kind=iwp) :: Test
-Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
 
 !                                                                      *
 !***********************************************************************
@@ -47,7 +44,7 @@ write(u6,*) ' NewH: lIter=',nIter
 call RecPrt(' NewH: dq_orig',' ',dq_orig,nInter,nIter)
 call RecPrt(' NewH: g',' ',g,nInter,nIter)
 call RecPrt(' NewH: H(Old)',' ',H,nInter,nInter)
-write(u6,*) ' NewH: Test(i)==',(Test(i),i=1,8)
+write(u6,*) ' NewH: iOptH=',iOptH
 #endif
 
 ! Branch out if the first iteration
@@ -67,7 +64,7 @@ end if
 call mma_allocate(dg,nInter,label='dg')
 call mma_allocate(gi,nInter,label='gi')
 call mma_allocate(dq,nInter,nIter,label='dq')
-call dcopy_(nInter*nIter,dq_orig,1,dq,1)
+dq(:,:) = dq_orig(:,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -75,15 +72,15 @@ call dcopy_(nInter*nIter,dq_orig,1,dq,1)
 ! This since we are storing the forces rather than the gradients,
 ! big mistake!!!
 
-do i=1,nInter
-  dg(i) = g(i,nIter-1)-g(i,nIter)
-  if (DoMask) then
+dg(:) = g(:,nIter-1)-g(:,nIter)
+if (DoMask) then
+  do i=1,nInter
     if (UpdMask(i) /= 0) then
       dg(i) = Zero
       dq(i,nIter-1) = Zero
     end if
-  end if
-end do
+  end do
+end if
 #ifdef _DEBUGPRINT_
 call RecPrt(' NewH: dg',' ',dg,nInter,1)
 #endif
@@ -92,13 +89,13 @@ call RecPrt(' NewH: dg',' ',dg,nInter,1)
 !                                                                      *
 ! Compute the update
 
-if (Test(4)) then
+if (btest(iOptH,3)) then
 
   ! No update
 
   HUpMet = ' None '
 
-else if (Test(1)) then
+else if (btest(iOptH,0)) then
 
   !Fletcher (or Meyer) update
 
@@ -106,7 +103,7 @@ else if (Test(1)) then
   write(u6,*) 'Deleted option in NewH'
   call Abend()
 
-else if (Test(2)) then
+else if (btest(iOptH,1)) then
 
   ! Broyden-Powel Symmetric Rank-2 update
 
@@ -114,14 +111,14 @@ else if (Test(2)) then
   write(u6,*) 'Deleted option in NewH'
   call Abend()
 
-else if (Test(3)) then
+else if (btest(iOptH,2)) then
 
   ! Broyden-Fletcher-Goldfarb-Shanno update
 
   HUpMet = ' BFGS '
   call DFP(H,nInter,gi,dq(1,nIter-1),dg)
 
-else if (Test(5)) then
+else if (btest(iOptH,4)) then
 
   ! Murtagh-Sargent-Powell update
 
@@ -132,23 +129,23 @@ else if (Test(5)) then
 # endif
   call MSP(H,dg,dq(1,nIter-1),nInter)
 
-else if (Test(7)) then
+else if (btest(iOptH,6)) then
 
   ! EU update
 
   HUpMet = '  EU  '
 
   ! Some precalculations:
-  do i=1,nInter
-    gi(i) = -g(i,nIter-1)
-    if (DoMask) then
+  gi(:) = -g(:,nIter-1)
+  if (DoMask) then
+    do i=1,nInter
       if (UpdMask(i) /= 0) gi(i) = Zero
-    end if
-  end do
+    end do
+  end if
 
   call EU(dq(1,nIter-1),dg,gi,H,nInter)
 
-else if (Test(8)) then
+else if (btest(iOptH,7)) then
 
   ! TS_BFGS update
 

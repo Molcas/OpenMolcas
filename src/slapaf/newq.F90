@@ -32,7 +32,7 @@ real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter
                  RHS(nIter+1), Scrt1(nScrt1), Beta, Energy(nIter), Thr_RS
 character :: Step_Trunc
 #include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout, Lu, MinWdw
+integer(kind=iwp) :: iPrint, iRout, Lu, MinWdw
 real(kind=wp) :: Beta_New
 real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
 real(kind=wp), external :: DDot_
@@ -66,9 +66,9 @@ if (Line_Search) then
     call mma_allocate(t_g,nInter,Label='t_g')
     call mma_allocate(t_dq,nInter,Label='t_dq')
 
-    call dcopy_(nInter,dq(1,nIter-1),1,t_dq,1)
-    call dcopy_(nInter,q(1,nIter),1,t_q,1)
-    call dcopy_(nInter,g(1,nIter),1,t_g,1)
+    t_dq(:) = dq(:,nIter-1)
+    t_q(:) = q(:,nIter)
+    t_g(:) = g(:,nIter)
 
     call LnSrch(Energy,q,dq,g,nInter,nIter,E_Delta)
   else
@@ -86,7 +86,7 @@ if (iPrint >= 6) write(Lu,*)
 ! iOptC=0100   : C2-DIIS
 ! iOptC=1000   : Rational Function
 
-call dcopy_(nInter,[Zero],0,Scrt1,1)
+Scrt1(1:nInter) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -94,80 +94,80 @@ if (iOptC == 0) then
 
   ! No update of the geometry
 
-  call FZero(dq,nInter)
+  dq(:,:) = Zero
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (iand(iOptC,1) == 1) then
+else if (btest(iOptC,0)) then
 
   ! quasi Newton-Raphson
 
   UpMeth = ' qNR  '
   call QNR(nInter,nIter,dq,H,g)
-  Beta_New = sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
+  Beta_New = sqrt(DDot_(nInter,dq(:,nIter),1,dq(:,nIter),1))
   if (Beta_New > Beta) then
-    call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)
+    dq(:,nIter) = dq(:,nIter)*Beta/Beta_New
     Step_Trunc = '*'
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (iand(iOptC,2) == 2) then
+else if (btest(iOptC,1)) then
 
   ! C1-DIIS
 
   UpMeth = 'c1DIIS'
   MinWdw = 5
   call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,iP,MinWdw)
-  Beta_New = sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
+  Beta_New = sqrt(DDot_(nInter,dq(:,nIter),1,dq(:,nIter),1))
   if (Beta_New > Beta) then
-    call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)
+    dq(:,nIter) = dq(:,nIter)*Beta/Beta_New
     Step_Trunc = '*'
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (iand(iOptC,4) == 4) then
+else if (btest(iOptC,2)) then
 
   ! C2-DIIS
 
   UpMeth = 'c2DIIS'
   call C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,nFix,iP)
-  Beta_New = sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
+  Beta_New = sqrt(DDot_(nInter,dq(:,nIter),1,dq(:,nIter),1))
   if (Beta_New > Beta) then
-    call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)
+    dq(:,nIter) = dq(:,nIter)*Beta/Beta_New
     Step_Trunc = '*'
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (iand(iOptC,8) == 8) then
+else if (btest(iOptC,3)) then
 
   ! Rational Function Optimization (RFO)
 
   UpMeth = '  RF  '
 
-  if (iand(iOptC,128) /= 128) then
+  if (.not. btest(iOptC,7)) then
 
     ! TS optimization
 
-    if (iand(iOptC,512) /= 512) then
+    if (.not. btest(iOptC,9)) then
 
       ! Restricted Step Partitioned RFO
 
-      call RS_P_RFO(H,g(1,nIter),nInter,dq(1,nIter),UpMeth,E_Delta,Beta,Step_Trunc)
+      call RS_P_RFO(H,g(:,nIter),nInter,dq(:,nIter),UpMeth,E_Delta,Beta,Step_Trunc)
     else
 
       ! Restricted Step Image RFO
 
-      call RS_I_RFO(H,g(1,nIter),nInter,dq(1,nIter),UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
+      call RS_I_RFO(H,g(:,nIter),nInter,dq(:,nIter),UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
     end if
 
   else
 
     ! Restricted Step RFO
 
-    call RS_RFO(H,g(1,nIter),nInter,dq(1,nIter),UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
+    call RS_RFO(H,g(:,nIter),nInter,dq(:,nIter),UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
 
   end if
   !                                                                    *
@@ -190,14 +190,12 @@ if (Line_Search .and. (nIter >= 2)) then
     call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
     call RecPrt(' Newq: g ',' ',g,nInter,nIter)
   end if
-  call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
-  call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-  call dcopy_(nInter,t_q,1,q(1,nIter),1)
-  call dcopy_(nInter,q(1,nIter+1),1,dq(1,nIter),1)
-  call DaXpY_(nInter,-One,q(1,nIter),1,dq(1,nIter),1)
+  q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
+  q(:,nIter) = t_q(:)
+  dq(:,nIter) = q(:,nIter+1)-q(:,nIter)
 
-  call dcopy_(nInter,t_dq,1,dq(1,nIter-1),1)
-  call dcopy_(nInter,t_g,1,g(1,nIter),1)
+  dq(:,nIter-1) = t_dq(:)
+  g(:,nIter) = t_g(:)
   if (iPrint >= 99) then
     call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
     call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
@@ -211,23 +209,20 @@ end if
 
 ! Estimate energy at the relaxed geometry
 
-if (iand(iOptC,8) /= 8) then
+if (.not. btest(iOptC,3)) then
 
   ! g(r)
 
-  call dcopy_(nInter,g(1,nIter),1,Scrt1,1)
-  call DScal_(nInter,-One,Scrt1,1)
+  Scrt1(1:nInter) = -g(:,nIter)
 
   ! 1/2 H(r) (r -r)
   !            0
 
-  call dGeMV_('N',nInter,nInter,Half,H,nInter,dq(1,nIter),1,One,Scrt1,1)
-  E_Delta = DDot_(nInter,Scrt1,1,dq(1,nIter),1)
+  call dGeMV_('N',nInter,nInter,Half,H,nInter,dq(:,nIter),1,One,Scrt1,1)
+  E_Delta = DDot_(nInter,Scrt1,1,dq(:,nIter),1)
 end if
 
-do i=1,nInter
-  q(i,nIter+1) = q(i,nIter)+dq(i,nIter)
-end do
+q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
 
 #ifdef _DEBUGPRINT_
 write(Lu,*) ' E_Delta=',E_Delta

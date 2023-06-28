@@ -121,8 +121,10 @@ if (nSet > 1) then
 
   ! Modify with degeneracy factors.
 
-  if (Curvilinear) Gx(:,:,iter) = Gx(:,:,iter)/Degen(:,:)
-  if (Curvilinear) Gx0(:,:,iter) = Gx0(:,:,iter)/Degen(:,:)
+  if (Curvilinear) then
+    Gx(:,:,iter) = Gx(:,:,iter)/Degen(:,:)
+    Gx0(:,:,iter) = Gx0(:,:,iter)/Degen(:,:)
+  end if
 
   if (nSet > 2) then
     dqInt_Aux(:,iter,2) = Aux(:,3)

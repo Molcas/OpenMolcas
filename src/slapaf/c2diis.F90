@@ -34,10 +34,10 @@ implicit none
 integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
 real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter+1), &
                  B((nIter+1)*(nIter+1)), RHS(nIter+1), Scrt1(nScrt1)
-integer(kind=iwp) :: ii, iInter, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, MaxWdw, MinWdw, mIter
+integer(kind=iwp) :: ii, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, MaxWdw, MinWdw, mIter
 real(kind=wp) :: Alpha, c2_new, c2_old, ee_new, ee_old, Err1, Err2, t1, t2, ThrCff, Thrhld, ThrLdp
 logical(kind=iwp) :: Fail
-real(kind=wp), allocatable :: A(:)
+real(kind=wp), allocatable :: A(:,:)
 real(kind=wp), external :: DDot_
 ! Statement function
 integer(kind=iwp) :: ij, iTri, i, j, lda
@@ -47,10 +47,10 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 iRout = 121
 iPrint = nPrint(iRout)
 
-call FZero(Error,nInter*(nIter+1))
+Error(:,:) = Zero
 
-call mma_allocate(A,nInter**2,Label='A')
-call dcopy_(nInter**2,H,1,A,1)
+call mma_allocate(A,nInter,nInter,Label='A')
+A(:,:) = H(:,:)
 iRc = 0
 call dpotrf_('U',nInter,A,nInter,iRC)
 if (iRC /= 0) then
@@ -76,16 +76,14 @@ end if
 !    r  = r + e        e =r  - r
 !     eq   i   i        k  eq   k
 
-if ((iand(iOptC,16) == 16) .or. (iand(iOptC,32) == 32)) then
-  call ThrdO(nInter,g(1,nIter),A,Error(1,nIter),Fail)
+if (btest(iOptC,4) .or. btest(iOptC,5)) then
+  call ThrdO(nInter,g(:,nIter),A,Error(:,nIter),Fail)
   if (Fail) then
     call WarningMessage(2,'C2Diis: ThrdO Failed!')
     call Quit_OnConvError()
   end if
   do iIter=1,nIter-1
-    do iInter=1,nInter
-      Error(iInter,iIter) = Error(iInter,nIter)+q(iInter,nIter)-q(iInter,iIter)
-    end do
+    Error(:,iIter) = Error(:,nIter)+q(:,nIter)-q(:,iIter)
   end do
 end if
 if (iPrint >= 99) call RecPrt(' Error vectors',' ',error,nInter,nIter)
@@ -106,12 +104,12 @@ end do
 ! <dx|dx>
 
 do i=max(1,nIter-11),nIter-1
-  if (iand(iOptC,16) == 16) then
-    Err1 = DDot_(nInter,Error(1,iP(i)),1,Error(1,iP(i)),1)
-  else if (iand(iOptC,32) == 32) then
-    Err1 = DDot_(nInter,g(1,iP(i)),1,Error(1,iP(i)),1)
-  else if (iand(iOptC,64) == 64) then
-    Err1 = DDot_(nInter,g(1,iP(i)),1,g(1,iP(i)),1)
+  if (btest(iOptC,4)) then
+    Err1 = DDot_(nInter,Error(:,iP(i)),1,Error(:,iP(i)),1)
+  else if (btest(iOptC,5)) then
+    Err1 = DDot_(nInter,g(:,iP(i)),1,Error(:,iP(i)),1)
+  else if (btest(iOptC,6)) then
+    Err1 = DDot_(nInter,g(:,iP(i)),1,g(:,iP(i)),1)
   else
     Err1 = Zero
     call WarningMessage(2,' Illegal iOptC setting!')
@@ -119,12 +117,12 @@ do i=max(1,nIter-11),nIter-1
   end if
   ii = i
   do j=i+1,nIter
-    if (iand(iOptC,16) == 16) then
-      Err2 = DDot_(nInter,Error(1,iP(j)),1,Error(1,iP(j)),1)
-    else if (iand(iOptC,32) == 32) then
-      Err2 = DDot_(nInter,g(1,iP(j)),1,Error(1,iP(j)),1)
-    else if (iand(iOptC,64) == 64) then
-      Err2 = DDot_(nInter,g(1,iP(j)),1,g(1,iP(j)),1)
+    if (btest(iOptC,4)) then
+      Err2 = DDot_(nInter,Error(:,iP(j)),1,Error(:,iP(j)),1)
+    else if (btest(iOptC,5)) then
+      Err2 = DDot_(nInter,g(:,iP(j)),1,Error(:,iP(j)),1)
+    else if (btest(iOptC,6)) then
+      Err2 = DDot_(nInter,g(:,iP(j)),1,g(:,iP(j)),1)
     else
       Err2 = Zero
       call WarningMessage(2,' Illegal iOptC setting!')
@@ -153,12 +151,12 @@ ThrCff = (Two*Ten)**2
 ThrLdp = Ten**3
 do i=1,mIter
   do j=1,i
-    if (iand(iOptC,16) == 16) then
-      B(iTri(i,j)) = DDot_(nInter,Error(1,iP(i+iOff)),1,Error(1,iP(j+iOff)),1)
-    else if (iand(iOptC,32) == 32) then
-      B(iTri(i,j)) = DDot_(nInter,Error(1,iP(i+iOff)),1,g(1,iP(j+iOff)),1)
-    else if (iand(iOptC,64) == 64) then
-      B(iTri(i,j)) = DDot_(nInter,g(1,iP(i+iOff)),1,g(1,iP(j+iOff)),1)
+    if (btest(iOptC,4)) then
+      B(iTri(i,j)) = DDot_(nInter,Error(:,iP(i+iOff)),1,Error(:,iP(j+iOff)),1)
+    else if (btest(iOptC,5)) then
+      B(iTri(i,j)) = DDot_(nInter,Error(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
+    else if (btest(iOptC,6)) then
+      B(iTri(i,j)) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
     else
       call WarningMessage(2,' Illegal iOptC setting!')
       call Quit_OnUserError()
@@ -166,8 +164,7 @@ do i=1,mIter
   end do
 end do
 if (iPrint >= 99) call TriPrt(' The B Matrix',' ',B,mIter)
-call dcopy_(mIter**2,[Zero],0,Scrt1,1)
-call dcopy_(mIter,[One],0,Scrt1,mIter+1)
+call unitmat(Scrt1,mIter)
 call NIDiag_new(B,Scrt1,mIter,mIter)
 if (iPrint >= 99) then
   call TriPrt(' The B Matrix after diagonalization','(9E10.2)',B,mIter)
@@ -183,7 +180,7 @@ do iVec=1,mIter
     Alpha = Alpha+Scrt1(ij(i,iVec,mIter))
   end do
   Alpha = One/Alpha
-  call DScal_(mIter,Alpha,Scrt1(ij(1,iVec,mIter)),1)
+  Scrt1(ij(1,iVec,mIter):ij(1,iVec,mIter)+mIter-1) = Alpha*Scrt1(ij(1,iVec,mIter):ij(1,iVec,mIter)+mIter-1)
   B(iTri(iVec,iVec)) = B(iTri(iVec,iVec))*Alpha**2
 end do
 if (iPrint >= 99) then
@@ -262,7 +259,7 @@ if ((iVec_old < 1) .or. (iVec_old > mIter)) then
   call WarningMessage(2,' No proper solution found in C2-DIIS!')
   call Abend()
 end if
-call dcopy_(mIter,Scrt1(ij(1,iVec_old,mIter)),1,RHS,1)
+RHS(1:mIter) = Scrt1(ij(1,iVec_old,mIter):ij(1,iVec_old,mIter)+mIter-1)
 
 if (iPrint >= 99) then
   write(u6,*) ' Selecting root',iVec_old
@@ -272,55 +269,53 @@ end if
 ! Compute the interpolated parameter vector and
 ! the interpolated gradient vector.
 
-call dcopy_(nInter,[Zero],0,q(1,nIter+1),1)
-call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
-call dcopy_(nInter,[Zero],0,Scrt1,1)
+q(:,nIter+1) = Zero
+g(:,nIter+1) = Zero
+Scrt1(1:nInter) = Zero
 do iIter=1,mIter
 
   if (abs(RHS(iIter)) < 1.0e-12_wp) cycle
 
-  call DaXpY_(nInter,RHS(iIter),Error(1,iP(iIter+iOff)),1,Scrt1,1)
+  Scrt1(1:nInter) = Scrt1(1:nInter)+RHS(iIter)*Error(:,iP(iIter+iOff))
 
   ! The interpolated parameter vector is computed as a
   ! simple linear combination
 
-  call DaXpY_(nInter,RHS(iIter),q(1,iP(iIter+iOff)),1,q(1,nIter+1),1)
+  q(:,nIter+1) = q(:,nIter+1)+RHS(iIter)*q(:,iP(iIter+iOff))
 
   ! The interpolated gradient vector (Stored as force)
   !
   ! Sum(i) c  g                 (Coeffs stored in RHS)
   !         i  i
 
-  call DaXpY_(nInter,RHS(iIter),g(1,iP(iIter+iOff)),1,g(1,nIter+1),1)
+  g(:,nIter+1) = g(:,nIter+1)+RHS(iIter)*g(:,iP(iIter+iOff))
 
 end do
 
 if (iPrint >= 99) then
   call RecPrt(' The iev',' ',Scrt1,1,nInter)
-  call RecPrt(' The ipv',' ',q(1,nIter+1),1,nInter)
-  call RecPrt(' The igv',' ',g(1,nIter+1),1,nInter)
+  call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
+  call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
 end if
 
 ! Compute a new independent geometry by relaxation of
 ! the interpolated gradient vector.
 
-call dcopy_(nInter,g(1,nIter+1),1,dq(1,nIter),1)
+dq(:,nIter) = g(:,nIter+1)
 iRc = 0
-call DPOTRS('U',nInter,1,A,nInter,dq(1,nIter),nInter,iRC)
+call DPOTRS('U',nInter,1,A,nInter,dq(:,nIter),nInter,iRC)
 if (iRC /= 0) then
   write(u6,*) 'C2DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
-if (iPrint >= 99) call RecPrt(' dq',' ',dq(1,nIter),1,nInter)
+if (iPrint >= 99) call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
 
 ! The shift is relative to the interpolated parameter
 ! vector and we have to change it so that it is relative to the
 ! actual parameter vector.
 
-do iInter=1,nInter
-  dq(iInter,nIter) = dq(iInter,nIter)+q(iInter,nIter+1)-q(iInter,nIter)
-end do
-if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(1,nIter),1,nInter)
+dq(:,nIter) = dq(:,nIter)+q(:,nIter+1)-q(:,nIter)
+if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
 
 call mma_deallocate(A)
 

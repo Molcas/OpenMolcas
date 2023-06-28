@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nDim
 real(kind=wp) :: B(nDim,nDim), Bd(nDim), Delta(nDim), rGamma(nDim)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 real(kind=wp) :: dBd, gd
 real(kind=wp), parameter :: Thr = 1.0e-8_wp
 real(kind=wp), external :: DDot_
@@ -45,9 +45,7 @@ if (gd < Zero) then
   call MSP(B,rGamma,Delta,nDim)
 else
   do i=1,nDim
-    do j=1,nDim
-      B(i,j) = B(i,j)+(rGamma(i)*rGamma(j))/gd-(Bd(i)*Bd(j))/dBd
-    end do
+    B(:,i) = B(:,i)+(rGamma(:)*rGamma(i))/gd-(Bd(:)*Bd(i))/dBd
   end do
 end if
 

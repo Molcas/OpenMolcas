@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp) :: nDim
 real(kind=wp) :: B(nDim,nDim), rGamma(nDim), Delta(nDim)
 #include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout, j
+integer(kind=iwp) :: i, iPrint, iRout
 real(kind=wp) :: dd, e_msp, gd, gg, phi
 real(kind=wp), external :: DDot_
 
@@ -45,9 +45,7 @@ if (iPrint >= 99) then
   write(u6,*) 'MSP: E_msp=',E_msp
 end if
 do i=1,nDim
-  do j=1,nDim
-    B(i,j) = B(i,j)+((One-phi)/gd)*rGamma(i)*rGamma(j)+phi*((rGamma(i)*Delta(j)+Delta(i)*rGamma(j))/dd-gd*Delta(i)*Delta(j)/dd**2)
-  end do
+  B(:,i) = B(:,i)+((One-phi)/gd)*rGamma(:)*rGamma(i)+phi*((rGamma(:)*Delta(i)+Delta(:)*rGamma(i))/dd-gd*Delta(:)*Delta(i)/dd**2)
 end do
 
 if (iPrint >= 99) call RecPrt(' MSP: Updated Hessian',' ',B,nDim,nDim)

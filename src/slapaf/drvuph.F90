@@ -19,15 +19,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nWndw, nIter, nInter, iOptH, IterHess
 real(kind=wp) :: H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
-integer(kind=iwp) :: i, iSt, j, lIter
+integer(kind=iwp) :: i, iSt, lIter
 logical(kind=iwp) :: DoMask, Found
 !#define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-! Statement function
-logical(kind=iwp) :: Test
-integer(kind=iwp) :: i
-Test(i) = iand(iOptH,2**(i-1)) == 2**(i-1)
-#endif
 
 !                                                                      *
 !***********************************************************************
@@ -48,7 +42,7 @@ call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (.not. Test(4)) then
+if (.not. btest(iOptH,3)) then
   write(Lu,*)
   if (nIter < iSt) then
     write(Lu,*) 'No update of Hessian on the first iteration'
@@ -68,10 +62,8 @@ end if
 if (DoMask) then
   do i=1,nInter
     if (UpdMask(i) /= 0) then
-      do j=1,nInter
-        H(i,j) = Zero
-        H(j,i) = Zero
-      end do
+      H(i,:) = Zero
+      H(:,i) = Zero
       H(i,i) = DiagMM
     end if
   end do

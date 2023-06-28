@@ -42,7 +42,7 @@ real(kind=wp) :: Beta, Beta_Disp, qBeta, qBeta_Disp
 character :: Step_Trunc
 logical(kind=iwp) :: Kriging_Hessian, First_MicroIteration, Hide
 integer(kind=iwp) :: i, iAd, iAtom, iDo_DipM, iDum(1), iEnd, iIter, iLambda, iOptH_, ix, ixyz, j, jAtom, jPrint, jx, jxyz, k, &
-                     kStart, lIter, LudRdx, M, Mask, Mode_Save, N, n1, nA, nLoop, nQQ, NRHS, nRP, nsAtom
+                     kStart, lIter, LudRdx, M, Mode_Save, N, n1, nA, nLoop, nQQ, NRHS, nRP, nsAtom
 real(kind=wp) :: Disp(1), dxdx, dxdx_last, fact, fCart, gBeta, gg, gg_last, rCart, rInter, Sf, tBeta, Thr, Thr_RS, xBeta
 logical(kind=iwp) :: Found, lWrite
 character(len=8) :: File1, File2
@@ -101,7 +101,8 @@ call mma_Allocate(RHS,kIter+1)
 ! according to some Hessian update method (BFGS, MSP, etc.)
 
 if (Kriging_Hessian) then
-  iOptH_ = ior(8,iand(iOptH,32))
+  iOptH_ = ibset(0,3)
+  if (btest(iOptH,5)) iOptH_ = ibset(iOptH_,5)
 else
   iOptH_ = iOptH
 end if
@@ -121,7 +122,7 @@ jPrint = 99
 #else
 jPrint = 5
 #endif
-call Update_H(nWndw,Hessian,nQQ,mIter,iOptC,Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),iOptH_,jPrint,GNrm(kIter),nsAtom,.true., &
+call Update_H(nWndw,Hessian,nQQ,mIter,iOptC,Shift(:,kIter-mIter+1),dqInt(:,kIter-mIter+1),iOptH_,jPrint,GNrm(kIter),nsAtom,.true., &
               First_MicroIteration)
 
 !call RecPrt('Update_inner: Hessian',' ',Hessian,nQQ,nQQ)
@@ -161,8 +162,8 @@ if (FindTS .and. First_MicroIteration) then
   if (iNeg(1) >= 1) then
     if ((GNrm(kIter) <= GNrm_Threshold) .or. Found) then
       ! Change to MFRF optimization.
-      Mask = 1+2+4+8+16+32+64+256+512+1024+2048+8192
-      iOptC = iand(iOptC,Mask)
+      iOptC = ibclr(iOptC,7)
+      iOptC = ibclr(iOptC,12)
       call Put_lScalar('TS Search',.true.)
       if (TSConstraints) then
         File2 = ''
@@ -220,7 +221,7 @@ if (nLambda == 0) then
     do iIter=kStart,iEnd
 
       if (iIter /= kIter) then
-        dxdx = sqrt(DDot_(nQQ,Shift(1,iIter),1,Shift(1,iIter),1))
+        dxdx = sqrt(DDot_(nQQ,Shift(:,iIter),1,Shift(:,iIter),1))
 
         if ((dxdx < 0.75_wp*dxdx_last) .and. (dxdx < Beta-Thr)) then
           ! Increase trust radius
@@ -267,7 +268,7 @@ if (nLambda == 0) then
       if (Step_Trunc//Step_Trunc_ == ' *') Step_Trunc = '.'
 
       qInt(:,kIter+1) = qInt(:,kIter)+Shift(:,kIter)
-      call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,nQQ)
+      call Dispersion_Kriging_Layer(qInt(:,kIter+1),Disp,nQQ)
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
 #     endif
@@ -281,16 +282,16 @@ if (nLambda == 0) then
     write(u6,*) 'Step_Trunc=',Step_Trunc
 #   endif
 
-    call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)
+    call MxLbls(nQQ,dqInt(:,kIter),Shift(:,kIter),Lbl)
 
     ! Set shift vector to zero for frozen internal coordinates.
 
-    if (nFix > 0) call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
+    if (nFix > 0) Shift(iInt+1:iInt+nFix,kIter) = Zero
 
     ! Rough conversion to Cartesians
 
-    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(1,kIter),Tmp)
-    rInter = sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
+    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(:,kIter),Tmp)
+    rInter = sqrt(dDot_(N,Shift(:,kIter),1,Shift(:,kIter),1))
     rCart = Zero
     do i=1,nsAtom
       rCart = max(rCart,sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
@@ -411,9 +412,9 @@ else
       call dDaFile(LudRdX,1,BM,nLambda*n1,iAd)
       call DaClos(LudRdX)
     end if
-    call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,BM,dRdq(1,1,lIter))
+    call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,BM,dRdq(:,:,lIter))
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Update_inner: dRdq(1,1,lIter)',' ',dRdq(1,1,lIter),nQQ,nLambda)
+    call RecPrt('Update_inner: dRdq(:,:,lIter)',' ',dRdq(:,:,lIter),nQQ,nLambda)
 #   endif
     !                                                                  *
     !*******************************************************************
@@ -436,7 +437,7 @@ else
   call RecPrt('Update_inner: dRdq',' ',dRdq,nQQ*nLambda,kIter)
   do i=1,nLambda
     write(u6,*) ' iLambda=',i
-    call RecPrt('Update_inner: d2C/dx2',' ',dBM(1,1,i),n1,n1)
+    call RecPrt('Update_inner: d2C/dx2',' ',dBM(:,:,i),n1,n1)
   end do
   if (Curvilinear) call dBPrint(nQQ,nDimBC)
 # endif
@@ -461,13 +462,13 @@ else
 
   call mma_allocate(QC,nDimBC,nDimBC,nLambda,Label='QC')
   QC(:,:,:) = Zero
-  if (Curvilinear) call dBMult(dRdq(1,1,kIter),QC,nQQ,nDimBC,nLambda)
+  if (Curvilinear) call dBMult(dRdq(:,:,kIter),QC,nQQ,nDimBC,nLambda)
 # ifdef _DEBUGPRINT_
   write(Lu,*) 'Update_inner: kIter=',kIter
-  call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nQQ,1)
+  call RecPrt('dRdq(:,1,kIter)',' ',dRdq(:,1,kIter),nQQ,1)
   do iLambda=1,nLambda
     write(u6,*) 'Update_inner: iLambda=',iLambda
-    call RecPrt('Update_inner: QC',' ',QC(1,1,iLambda),nDimBC,nDimBC)
+    call RecPrt('Update_inner: QC',' ',QC(:,:,iLambda),nDimBC,nDimBC)
   end do
 # endif
 
@@ -597,8 +598,8 @@ else
 
     ! Rough conversion to Cartesians
 
-    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(1,kIter),Tmp)
-    rInter = sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
+    call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,Shift(:,kIter),Tmp)
+    rInter = sqrt(dDot_(N,Shift(:,kIter),1,Shift(:,kIter),1))
     rCart = Zero
     do i=1,nsAtom
       rCart = max(rCart,sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))

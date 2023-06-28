@@ -41,9 +41,7 @@ call CG_Solver(nInter,nInter**2,H,Tmp,g(1,nIter),dq(1,nIter),Info)
 
 call mma_deallocate(Tmp)
 
-if (Info < 0) then
-  call SysAbendMsg('QNR','Conjugate gradients not converged',' ')
-end if
+if (Info < 0) call SysAbendMsg('QNR','Conjugate gradients not converged',' ')
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'CG converged in ',Info,' iterations'

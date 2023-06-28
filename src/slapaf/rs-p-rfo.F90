@@ -76,9 +76,10 @@ call mma_allocate(Vec,nInter,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
 Vec(:,:) = Zero
+ij = 0
 do i=1,nInter
   do j=1,i
-    ij = i*(i-1)/2+j
+    ij = ij+1
     Mat(ij) = H(i,j)
   end do
 end do
@@ -89,9 +90,7 @@ end do
 ! Stop when the highest eigenvalue found is larger than Thr
 do while (.not. Found)
   call Davidson(Mat,nInter,NumVal,Val,Vec,iStatus)
-  if (iStatus > 0) then
-    call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
-  end if
+  if (iStatus > 0) call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
   if ((Val(NumVal) > Thr) .or. (NumVal >= nInter)) then
     Found = .true.
   else
@@ -161,7 +160,7 @@ do
   Iter = Iter+1
   !write(Lu,*) 'Iter=',Iter
   !write(Lu,*) 'A_RFO=',A_RFO
-  call FZero(dq,nInter)
+  dq(:) = Zero
   if (nNeg > 0) then
     !write(Lu,*)
     !write(Lu,*) 'Process negative eigenvalues.'
@@ -186,23 +185,21 @@ do
       MatN(i*(i+1)/2) = -Val(i)/A_RFO
       gv = DDot_(nInter,g,1,Vec(:,i),1)
       MatN(j+i) = gv/sqrt(A_RFO)
-      call DaXpY_(nInter,gv,Vec(:,i),1,GradN,1)
+      GradN(:) = GradN(:)+gv*Vec(:,i)
     end do
 
     ! Solve the partial RFO system for the negative subspace
     VecN(:) = TmpN(:)
     call Davidson(MatN,mInter,1,ValN,VecN,iStatus)
     TmpN(:) = VecN(:)
-    if (iStatus > 0) then
-      call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
-    end if
+    if (iStatus > 0) call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
     ValN(1) = -ValN(1)
 
     ! Scale the eigenvector (combines eqs. (5) and (23))
     ! Convert to full space and add to complete step
-    call DScal_(nNeg,One/(sqrt(A_RFO)*VecN(1+nNeg)),VecN,1)
+    VecN(1:nNeg) = VecN(1:nNeg)/(sqrt(A_RFO)*VecN(1+nNeg))
     call dGeMV_('N',nInter,nNeg,One,Vec,nInter,VecN,1,Zero,StepN,1)
-    call DaXpY_(nInter,One,StepN,1,dq,1)
+    dq(:) = dq(:)+StepN(:)
     !dqdq_max = sqrt(DDot_(nInter,StepN,1,StepN,1))
     !write(Lu,*) 'dqdq_max=',dqdq_max
     ! Sign
@@ -238,34 +235,34 @@ do
   GradP(:) = g(:)
   do i=1,nNeg
     gv = DDot_(nInter,GradP(:),1,Vec(:,i),1)
-    call DaXpY_(nInter,-gv,Vec(:,i),1,GradP(:),1)
+    GradP(:) = GradP(:)-gv*Vec(:,i)
   end do
   do j=1,nInter
-    call dcopy_(j,H(1,j),1,MatP(1+j*(j-1)/2),1)
+    ij = j*(j-1)/2
+    MatP(ij+1:ij+j) = H(1:j,j)
     do i=1,nNeg
       do k=1,j
         jk = j*(j-1)/2+k
         MatP(jk) = MatP(jk)-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
       end do
     end do
-    call DScal_(j,One/A_RFO,MatP(1+j*(j-1)/2),1)
+    MatP(ij+1:ij+j) = MatP(ij+1:ij+j)/A_RFO
   end do
-  call FZero(MatP(1+mInter*(mInter-1)/2),mInter)
-  call DaXpY_(nInter,-One/sqrt(A_RFO),GradP(:),1,MatP(1+mInter*(mInter-1)/2),1)
+  ij = mInter*(mInter-1)/2
+  MatP(ij+1:ij+nInter) = -GradP(:)/sqrt(A_RFO)
+  MatP(ij+nInter+1:ij+mInter) = Zero
 
   ! Solve the partial RFO system for the positive subspace
-  call dcopy_(mInter,TmpP(:),1,VecP(:),1)
+  VecP(:) = TmpP(:)
   call Davidson(MatP,mInter,1,ValP,VecP,iStatus)
-  if (iStatus > 0) then
-    call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
-  end if
+  if (iStatus > 0) call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
   TmpP(1:mInter) = VecP(1:mInter)
   StepP(1:nInter) = VecP(1:nInter)
 
   ! Scale the eigenvector (combines eqs. (5) and (23))
   ! Add to complete step
-  call DScal_(nInter,One/(sqrt(A_RFO)*VecP(1+nInter)),StepP,1)
-  call DaXpY_(nInter,One,StepP,1,dq,1)
+  StepP(:) = StepP(:)/(sqrt(A_RFO)*VecP(1+nInter))
+  dq(:) = dq(:)+StepP(:)
   ! dqdq_min = sqrt(DDot_(nInter,StepP,1,StepP,1))
   !write(Lu,*) 'dqdq_min=',dqdq_min
   EigVal_t = -DDot_(nInter,StepP,1,GradP,1) ! Sign

@@ -54,7 +54,7 @@ if (Old_MF) then
   if (jPrint >= 6) write(u6,*) ' Reading old reaction mode from disk'
   Tmp(:,:) = MF(:,:)
   Mode = 1  ! any number between 1 and nInter
-  iOptC = ior(iOptC,8192)
+  iOptC = ibset(iOptC,13)
 end if
 !                                                                      *
 !***********************************************************************
@@ -76,9 +76,7 @@ call mma_deallocate(Tmp)
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-if (jPrint >= 99) then
-  call RecPrt('Update_H: Updated Hessian',' ',H,nInter,nInter)
-end if
+if (jPrint >= 99) call RecPrt('Update_H: Updated Hessian',' ',H,nInter,nInter)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

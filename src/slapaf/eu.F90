@@ -52,7 +52,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nH
 real(kind=wp) :: dq(nH), dg(nH), gi(nH), H(nH,nH)
-integer(kind=iwp) :: i, j, ij
+integer(kind=iwp) :: i, j
 real(kind=wp) :: lim, WorkR
 real(kind=wp), allocatable :: E(:,:), Eval(:), EVec(:,:), f(:), M(:,:), p(:), u(:), v(:), WorkM(:,:), WorkV(:)
 real(kind=wp), external :: ddot_
@@ -83,15 +83,13 @@ call mma_allocate(WorkV,nH,Label='WorkV')
 
 do i=1,nH
   do j=1,i
-    ij = i*(i-1)/2+j
-    EVal(ij) = (H(i,j)+H(j,i))*Half
+    EVal(i*(i-1)/2+j) = (H(i,j)+H(j,i))*Half
   end do
 end do
 
 ! Make a unit Matrix
 
-call FZero(Evec,nH**2)
-call dcopy_(nH,[One],0,Evec,nH+1)
+call unitmat(Evec,nH)
 
 ! Get the eigenvalues and eigenvectors
 
@@ -102,7 +100,7 @@ call RecPrt('Evec matrix',' ',Evec,nH,nH)
 
 ! Calculate mi, diagonal elements of M matrix (eq. 18)
 
-call FZero(M,nH**2)
+M(:,:) = Zero
 #ifdef _DEBUGPRINT_
 call RecPrt('gi-vector',' ',gi,1,nH)
 call RecPrt('dq-vector',' ',dq,1,nH)
@@ -192,21 +190,18 @@ call DGEMM_('N','N',nH,1,nH,One,M,nH,dq,nH,Zero,WorkV,nH)
 ! WorkR = ( dq^T * WorkV )^-1
 
 WorkR = DDot_(nH,dq,1,WorkV,1)
-if (WorkR /= Zero) then
-  WorkR = One/WorkR
-end if
+if (WorkR /= Zero) WorkR = One/WorkR
 
 ! u = u + WorkR * WorkV
 
-call FZero(u,nH)
-call DaxPy_(nH,WorkR,WorkV,1,u,1)
+u(:) = WorkR*WorkV(:)
 
 ! v = dg - H * dq (equation 3, quasi-Newton condition)
 
 ! according to the paper, we want the Next iterationstep, but
 ! who doesn't? So we take the current and the previously.
 
-call dcopy_(nH,dg,1,v,1)
+v(:) = dg(:)
 call DGEMM_('N','N',nH,1,nH,-One,H,nH,dq,nH,One,v,nH)
 
 ! E = v*u^T + u*v^T - ( v^T*dq ) u*u^T (equation 5)
@@ -232,7 +227,7 @@ call RecPrt('Error matrix',' ',E,nH,nH)
 
 ! The new Hessian (H = H + E, equation 1)
 
-call DaxPy_(nH*nH,One,E,1,H,1)
+H(:,:) = H(:,:)+E(:,:)
 #ifdef _DEBUGPRINT_
 call RecPrt('new Hessian',' ',H,nH,nH)
 #endif
@@ -246,7 +241,7 @@ call DGEMM_('N','N',nH,1,nH,One,H,nH,dq,nH,Zero,WorkV,nH)
 ! WorkV = WorkV - dg = 0.0
 
 #ifdef _DEBUGPRINT_
-call DaxPy_(nH,-One,dg,1,WorkV,1)
+WorkV(:) = WorkV(:)-dg(:)
 call RecPrt('Quasi-Newton',' ',WorkV,1,nH)
 
 write(u6,*) 'goodbye from EU_'

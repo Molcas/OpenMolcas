@@ -218,7 +218,7 @@ subroutine Chkpnt_update()
   use mh5, only: mh5_put_attr, mh5_resize_dset, mh5_put_dset
 # include "WrkSpc.fh"
 # include "stdalloc.fh"
-  integer :: i, j
+  integer :: i, ij, j
   logical :: Found
   real*8, allocatable :: Hss_X(:)
 
@@ -230,9 +230,11 @@ subroutine Chkpnt_update()
     end if
     call mma_allocate(Hss_X,i)
     call Get_dArray('Hss_X',Hss_X,i)
+    ij = 0
     do i=1,nDimBC
-      do j=1,nDimBC
-        Hss_X(i*(i-1)/2+j) = Hss_X(nDimBC*(i-1)+j)
+      do j=1,i
+        ij = ij+1
+        Hss_X(ij) = Hss_X(nDimBC*(i-1)+j)
       end do
     end do
   end if
@@ -267,9 +269,7 @@ subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
 # ifdef _HDF5_
   integer :: attrid, dsetid, iMEP
 
-  if (IRCRestart) then
-    call mh5_init_attr(chkpnt_id,'IRC_RESTART',Iter_all+1)
-  end if
+  if (IRCRestart) call mh5_init_attr(chkpnt_id,'IRC_RESTART',Iter_all+1)
   if (SaveMEP) then
     attrid = mh5_open_attr(chkpnt_id,'MEP_ITERATIONS')
     call mh5_get_attr(attrid,iMEP)

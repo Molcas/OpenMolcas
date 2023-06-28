@@ -33,9 +33,9 @@ integer(kind=iwp) :: nInter, nIter, nFix, iP(nIter), MinWdw
 real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), &
                  B((nIter+1)*(nIter+1)), RHS(nIter+1)
 #include "print.fh"
-integer(kind=iwp) :: ii, iInter, iOff, iPrint, iRc, iRout, iSave, jIter, MaxWdw, mIter
+integer(kind=iwp) :: ii, iOff, iPrint, iRc, iRout, iSave, jIter, MaxWdw, mIter
 real(kind=wp) :: Err1, Err2
-real(kind=wp), allocatable :: A(:)
+real(kind=wp), allocatable :: A(:,:)
 real(kind=wp), external :: DDot_
 ! Statement function
 integer(kind=iwp) :: ij, i, j, lda
@@ -44,8 +44,8 @@ ij(i,j,lda) = (j-1)*lda+i
 iRout = 114
 iPrint = nPrint(iRout)
 
-call mma_allocate(A,nInter**2,Label='A')
-call dcopy_(nInter**2,H,1,A,1)
+call mma_allocate(A,nInter,nInter,Label='A')
+A(:,:) = H(:,:)
 iRc = 0
 call dpotrf_('U',nInter,A,nInter,iRC)
 if (iRC /= 0) then
@@ -55,7 +55,7 @@ end if
 
 ! Compute the new set of error vectors
 
-call dcopy_(nInter*nIter,g,1,Error,1)
+Error(:,:) = g(:,1:nIter)
 iRc = 0
 call DPOTRS('U',nInter,nIter,A,nInter,Error,nInter,iRC)
 if (iRC /= 0) then
@@ -76,12 +76,12 @@ end do
 ! error vector.
 
 do i=1,nIter-1
-  if (iand(iOptC,16) == 16) then
-    Err1 = DDot_(nInter,Error(1,iP(i)),1,Error(1,iP(i)),1)
-  else if (iand(iOptC,32) == 32) then
-    Err1 = DDot_(nInter,Error(1,iP(i)),1,g(1,iP(i)),1)
-  else if (iand(iOptC,64) == 64) then
-    Err1 = DDot_(nInter,g(1,iP(i)),1,g(1,iP(i)),1)
+  if (btest(iOptC,4)) then
+    Err1 = DDot_(nInter,Error(:,iP(i)),1,Error(:,iP(i)),1)
+  else if (btest(iOptC,5)) then
+    Err1 = DDot_(nInter,Error(:,iP(i)),1,g(:,iP(i)),1)
+  else if (btest(iOptC,6)) then
+    Err1 = DDot_(nInter,g(:,iP(i)),1,g(:,iP(i)),1)
   else
     Err1 = Zero
     call WarningMessage(2,' Illegal iOptC setting!')
@@ -89,12 +89,12 @@ do i=1,nIter-1
   end if
   ii = i
   do j=i+1,nIter
-    if (iand(iOptC,16) == 16) then
-      Err2 = DDot_(nInter,Error(1,iP(j)),1,Error(1,iP(j)),1)
-    else if (iand(iOptC,32) == 32) then
-      Err2 = DDot_(nInter,Error(1,iP(j)),1,g(1,iP(j)),1)
-    else if (iand(iOptC,64) == 64) then
-      Err2 = DDot_(nInter,g(1,iP(j)),1,g(1,iP(j)),1)
+    if (btest(iOptC,4)) then
+      Err2 = DDot_(nInter,Error(:,iP(j)),1,Error(:,iP(j)),1)
+    else if (btest(iOptC,5)) then
+      Err2 = DDot_(nInter,Error(:,iP(j)),1,g(:,iP(j)),1)
+    else if (btest(iOptC,6)) then
+      Err2 = DDot_(nInter,g(:,iP(j)),1,g(:,iP(j)),1)
     else
       Err2 = Zero
       call WarningMessage(2,' Illegal iOptC setting!')
@@ -120,24 +120,24 @@ B(ij(mIter+1,mIter+1,mIter+1)) = Zero
 RHS(mIter+1) = -One
 do i=1,mIter
   do j=1,i-1
-    if (iand(iOptC,16) == 16) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,error(1,iP(i+iOff)),1,error(1,iP(j+iOff)),1)
-    else if (iand(iOptC,32) == 32) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,error(1,iP(i+iOff)),1,g(1,iP(j+iOff)),1)
-    else if (iand(iOptC,64) == 64) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,g(1,iP(i+iOff)),1,g(1,iP(j+iOff)),1)
+    if (btest(iOptC,4)) then
+      B(ij(i,j,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,error(:,iP(j+iOff)),1)
+    else if (btest(iOptC,5)) then
+      B(ij(i,j,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
+    else if (btest(iOptC,6)) then
+      B(ij(i,j,mIter+1)) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
     else
       call WarningMessage(2,' Illegal iOptC setting!')
       call Abend()
     end if
     B(ij(j,i,mIter+1)) = B(ij(i,j,mIter+1))
   end do
-  if (iand(iOptC,16) == 16) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,error(1,iP(i+iOff)),1,error(1,iP(i+iOff)),1)
-  else if (iand(iOptC,32) == 32) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,error(1,iP(i+iOff)),1,g(1,iP(i+iOff)),1)
-  else if (iand(iOptC,64) == 64) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,g(1,iP(i+iOff)),1,g(1,iP(i+iOff)),1)
+  if (btest(iOptC,4)) then
+    B(ij(i,i,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,error(:,iP(i+iOff)),1)
+  else if (btest(iOptC,5)) then
+    B(ij(i,i,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,g(:,iP(i+iOff)),1)
+  else if (btest(iOptC,6)) then
+    B(ij(i,i,mIter+1)) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(i+iOff)),1)
   else
     call WarningMessage(2,' Illegal iOptC setting!')
     call Abend()
@@ -159,36 +159,34 @@ if (iPrint >= 99) call RecPrt(' The solution vector',' ',RHS,1,mIter+1)
 ! Compute the interpolated parameter vector and
 ! the interpolated gradient vector.
 
-call dcopy_(nInter,[Zero],0,q(1,nIter+1),1)
-call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
+q(:,nIter+1) = Zero
+g(:,nIter+1) = Zero
 do jIter=1,mIter
-  call DaXpY_(nInter,RHS(jIter),q(1,iP(jIter+iOff)),1,q(1,nIter+1),1)
-  call DaXpY_(nInter,RHS(jIter),g(1,iP(jIter+iOff)),1,g(1,nIter+1),1)
+  q(:,nIter+1) = q(:,nIter+1)+RHS(jIter)*q(:,iP(jIter+iOff))
+  g(:,nIter+1) = g(:,nIter+1)+RHS(jIter)*g(:,iP(jIter+iOff))
 end do
 if (iPrint >= 99) then
-  call RecPrt(' The ipv',' ',q(1,nIter+1),1,nInter)
-  call RecPrt(' The igv',' ',g(1,nIter+1),1,nInter)
+  call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
+  call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
 end if
 
 ! Compute a new independent geometry by relaxation of
 ! the interpolated gradient vector.
 
-call dcopy_(nInter,g(1,nIter+1),1,dq(1,nIter),1)
-call DPOTRS('U',nInter,1,A,nInter,dq(1,nIter),nInter,iRC)
+dq(:,nIter) = g(:,nIter+1)
+call DPOTRS('U',nInter,1,A,nInter,dq(:,nIter),nInter,iRC)
 if (iRC /= 0) then
   write(u6,*) 'C1DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
-if (iPrint >= 99) call RecPrt(' dq',' ',dq(1,nIter),1,nInter)
+if (iPrint >= 99) call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
 
 ! The shift is relative to the interpolated parameter
 ! vector and we have to change it so that it is relative to the
 ! actual parameter vector.
 
-do iInter=1,nInter
-  dq(iInter,nIter) = dq(iInter,nIter)+q(iInter,nIter+1)-q(iInter,nIter)
-end do
-if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(1,nIter),1,nInter)
+dq(:,nIter) = dq(:,nIter)+q(:,nIter+1)-q(:,nIter)
+if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
 
 call mma_deallocate(A)
 

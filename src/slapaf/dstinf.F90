@@ -97,11 +97,11 @@ do isAtom=1,size(Coor,2)+nsAtom_p
   end if
   doirrep: do iIrrep=0,nIrrep-1
     x2 = x1
-    if (iand(1,iOper(iIrrep)) /= 0) x2 = -x2
+    if (btest(iOper(iIrrep),0)) x2 = -x2
     y2 = y1
-    if (iand(2,iOper(iIrrep)) /= 0) y2 = -y2
+    if (btest(iOper(iIrrep),1)) y2 = -y2
     z2 = z1
-    if (iand(4,iOper(iIrrep)) /= 0) z2 = -z2
+    if (btest(iOper(iIrrep),2)) z2 = -z2
 
     ! Check if it is already in the list
 
@@ -209,10 +209,10 @@ end if
 ! If a transition state optimization put the "reaction" vector
 ! on the RUNFILE(S)
 
-if ((iand(iOptC,128) /= 128) .and. stop) then
+if ((.not. btest(iOptC,7)) .and. stop) then
 
   call mma_allocate(RV,3,size(Coor,2),Label='RV')
-  call dcopy_(3*size(Coor,2),MF,1,RV,1)
+  RV(:,:) = MF(:,:)
   do i=1,size(Coor,2)
     xWeight = Weights(i)
     RV(:,i) = RV(:,i)/xWeight

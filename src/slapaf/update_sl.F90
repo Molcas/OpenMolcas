@@ -127,8 +127,8 @@ call RecPrt('qInt in internal coordinate basis / au or rad',' ',qInt,nQQ,Iter+1)
 
 ! Remove unneeded fields from the runfile
 Dummy(1) = -Zero
-call Put_dArray('BMxOld',Dummy(1),0)
-call Put_dArray('TROld',Dummy(1),0)
+call Put_dArray('BMxOld',Dummy,0)
+call Put_dArray('TROld',Dummy,0)
 
 return
 

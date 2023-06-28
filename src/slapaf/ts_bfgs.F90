@@ -38,7 +38,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nH
 real(kind=wp) :: dq(nH), y(nH), H(nH,nH)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 real(kind=wp) :: a, b, f, WorkR
 real(kind=wp), allocatable :: u(:), v(:), WorkM(:,:), WorkV(:)
 real(kind=wp), external :: ddot_
@@ -72,16 +72,11 @@ a = DDot_(nH,y,1,dq,1)
 
 ! u = y^T*dq*y = a * y
 
-call dcopy_(nH,y,1,u,1)
-call DScal_(nH,a,u,1)
+u(:) = a*y(:)
 
 ! WorkM = |B|
 
-do j=1,nH
-  do i=1,nH
-    WorkM(i,j) = abs(H(i,j))
-  end do
-end do
+WorkM(:,:) = abs(H(:,:))
 
 ! WorkV = |B|dq
 
@@ -93,7 +88,7 @@ b = DDot_(nH,dq,1,WorkV,1)
 
 ! u = y^T*dq*y + (dq^T|B|dq)|B|dq = u + b * WorkV
 
-call DaxPy_(nH,b,WorkV,1,u,1)
+u(:) = u(:)+b*WorkV(:)
 
 ! Calculation of f = (y^T*dq)^2 + (dq^T|B|dq)^2 = a^2 + b^2
 
@@ -101,7 +96,7 @@ f = a**2+b**2
 
 ! Calculation of v = y - B * dq (quasi-Newton condition)
 
-call dcopy_(nH,y,1,v,1)
+v(:) = y(:)
 call dGeMV_('N',nH,nH,-One,H,nH,dq,1,One,v,1)
 
 ! Calculation of equation 23, the new Hessian
@@ -123,10 +118,8 @@ WorkR = (a-DDot_(nH,WorkV,1,dq,1))/f
 ! H_k+1 = H_k + 1/f ( v*u^T + u*v^T - (a - dq^T*B*dq)/f * u*u^T ) =
 !         H_k + 1/f ( v*u^T + u*v^T - WorkR * WorkM )
 
-do j=1,nH
-  do i=1,nH
-    H(i,j) = H(i,j)+One/f*(v(j)*u(i)+u(j)*v(i)-WorkR*WorkM(i,j))
-  end do
+do i=1,nH
+  H(:,i) = H(:,i)+One/f*(v(i)*u(:)+u(i)*v(:)-WorkR*WorkM(:,i))
 end do
 
 #ifdef _DEBUGPRINT_
@@ -138,7 +131,7 @@ call dGeMV_('N',nH,nH,One,H,nH,dq,1,Zero,WorkV,1)
 
 ! WorkV = WorkV - y = 0.0
 
-call DaxPy_(nH,-One,y,1,WorkV,1)
+WorkV(:) = WorkV(:)-y(:)
 call RecPrt('quasi-Newton',' ',WorkV,1,nH)
 
 write(u6,*) 'good-bye from ts_bfgs.f'

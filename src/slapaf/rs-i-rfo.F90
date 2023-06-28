@@ -68,9 +68,10 @@ Vec(:,:) = Zero
 call mma_allocate(Val,NumVal,Label='Val')
 Val(:) = Zero
 call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
+ij = 0
 do i=1,nInter
   do j=1,i
-    ij = i*(i-1)/2+j
+    ij = ij+1
     Mat(ij) = H(i,j)
   end do
 end do
@@ -79,9 +80,7 @@ end do
 ! Stop when the highest eigenvalue found is larger than Thr
 do while (.not. Found)
   call Davidson(Mat,nInter,NumVal,Val,Vec,iStatus)
-  if (iStatus > 0) then
-    call SysWarnMsg('RS_I_RFO','Davidson procedure did not converge','')
-  end if
+  if (iStatus > 0) call SysWarnMsg('RS_I_RFO','Davidson procedure did not converge','')
   nNeg = 0
   do i=1,NumVal
     if (Val(i) < Zero) nNeg = nNeg+1
@@ -91,7 +90,7 @@ do while (.not. Found)
   else
     ! Increase the number of eigenpairs to compute
     call mma_allocate(Tmp,nInter,NumVal,Label='Tmp')
-    call dcopy_(NumVal*nInter,Vec,1,Tmp,1)
+    Tmp(:,:) = Vec(:,:)
     call mma_deallocate(Vec)
     call mma_deallocate(Val)
 
@@ -131,16 +130,14 @@ write(Lu,*) ' nNeg=',nNeg
 
 if (nNeg > 0) then
   call mma_allocate(Tmp,nInter,1,Label='Tmp')
-  call dcopy_(nInter,g,1,Tmp(1,1),1)
+  Tmp(:,1) = g(:)
 
   do iNeg=1,nNeg
-    gi = DDot_(nInter,g,1,Vec(1,iNeg),1)
-    call DaXpY_(nInter,-Two*gi,Vec(1,iNeg),1,g,1)
+    gi = DDot_(nInter,g,1,Vec(:,iNeg),1)
+    g(:) = g(:)-Two*gi*Vec(:,iNeg)
     Fact = Two*Val(iNeg)
     do j=1,nInter
-      do i=1,nInter
-        H(i,j) = H(i,j)-Fact*Vec(i,iNeg)*Vec(j,iNeg)
-      end do
+      H(:,j) = H(:,j)-Fact*Vec(:,iNeg)*Vec(j,iNeg)
     end do
   end do
 end if
@@ -153,7 +150,7 @@ call RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 ! Restore the original gradient
 
 if (nNeg > 0) then
-  call dcopy_(nInter,Tmp(1,1),1,g,1)
+  g(:) = Tmp(:,1)
   call mma_deallocate(Tmp)
 end if
 

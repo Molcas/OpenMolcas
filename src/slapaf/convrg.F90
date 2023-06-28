@@ -60,7 +60,7 @@ end interface
 !***********************************************************************
 !                                                                      *
 nAtom = size(Cx,2)
-TSReg = iand(iOptC,8192) == 8192
+TSReg = btest(iOptC,13)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -439,10 +439,10 @@ if (Conv1 .and. Saddle) then
     iSaddle = 1
     if (E_Reac <= E_Prod) then
       E_S(iSaddle) = E_Reac
-      call DCopy_(3*nAtom,Tmp(1:3*nAtom),1,C_S(:,:,iSaddle),1)
+      C_S(:,:,iSaddle) = reshape(Tmp(1:3*nAtom),[3,nAtom])
     else
       E_S(iSaddle) = E_Prod
-      call DCopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,C_S(:,:,iSaddle),1)
+      C_S(:,:,iSaddle) = reshape(Tmp(3*nAtom+1:6*nAtom),[3,nAtom])
     end if
 
   else
@@ -494,12 +494,12 @@ if (Conv1 .and. Saddle) then
       !write(u6,*) 'Update reactant'
       Tmp(6*nAtom+1) = Energy(iter)
       E1 = Energy(iter)
-      call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(1:3*nAtom),1)
+      Tmp(1:3*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
     else
       !write(u6,*) 'Update product'
       Tmp(6*nAtom+2) = Energy(iter)
       E2 = Energy(iter)
-      call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(3*nAtom+1:6*nAtom),1)
+      Tmp(3*nAtom+1:6*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
     end if
     ! Set flag that seward should process the info! This should not
     ! be done for the final macro iteration.
@@ -602,9 +602,7 @@ if (Conv1 .and. Saddle) then
     ! Signal whether next iteration will be the first in the branch
 
     call Qpg_iScalar('nMEP',Found)
-    if (.not. Found) then
-      write(LuInput,'(A)') '> EXPORT SADDLE_FIRST=1'
-    end if
+    if (.not. Found) write(LuInput,'(A)') '> EXPORT SADDLE_FIRST=1'
     write(LuInput,'(A,I3)') '> EXIT ',_RC_CONTINUE_LOOP_
     close(LuInput)
 
@@ -763,7 +761,7 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
   if (.not. Terminate) then
     BadConstraint = .false.
     call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,ResGrad,BadConstraint)
-    call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Coor,1)
+    Coor(:,:) = Cx(:,:,iter+1)
     call Put_iScalar('iOff_Iter',iter)
   end if
 
@@ -851,17 +849,11 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
 
     ! If IRC reset for backward IRC search.
 
-    if (Terminate) then
-      if (IRC == 1) then
-        IRCRestart = .true.
-      end if
-    end if
+    if (Terminate .and. (IRC == 1)) IRCRestart = .true.
 
   end if
 
-  if (Conv1) then
-    call Chkpnt_update_MEP(.not. TurnBack,IRCRestart)
-  end if
+  if (Conv1) call Chkpnt_update_MEP(.not. TurnBack,IRCRestart)
 
   if (Conv1 .and. Terminate) then
     if (IRC /= 0) then
@@ -997,8 +989,8 @@ if (IRCRestart) then
   call Put_dArray('GRAD',Gx,3*nAtom)
   call Put_dArray('Unique Coordinates',Cx,3*nAtom)
   call Put_Coord_New(Cx,nAtom)
-  call dcopy_(3*nAtom,Cx,1,Coor,1)
-  call dcopy_(3*nAtom,Cx,1,Cx(:,:,iter+1),1)
+  Coor(:,:) = Cx(:,:,1)
+  Cx(:,:,iter+1) = Cx(:,:,1)
 end if
 !                                                                      *
 !***********************************************************************

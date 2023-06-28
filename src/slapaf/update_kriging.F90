@@ -112,8 +112,8 @@ iFirst = iter-nRaw+1
 #ifdef _DEBUGPRINT_
 call RecPrt('qInt(0)',' ',qInt(:,iFirst),nQQ,nRaw)
 call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
-call RecPrt('dqInt(0)',' ',dqInt(1,iFirst),nQQ,nRaw)
-call RecPrt('Shift',' ',Shift(1,iFirst),nQQ,nRaw)
+call RecPrt('dqInt(0)',' ',dqInt(:,iFirst),nQQ,nRaw)
+call RecPrt('Shift',' ',Shift(:,iFirst),nQQ,nRaw)
 #endif
 
 call mma_allocate(ETemp,nRaw,nSet,Label='ETemp')
@@ -263,9 +263,7 @@ do while (Not_Converged)
   ! reasonable value. Normally it is set by the force routine or
   ! the con_opt routine.
 
-  if ((nLambda == 0) .and. (iterAI > iter)) then
-    GNrm(iterAI) = sqrt(DDot_(nQQ,dqInt(1,iterAI),1,dqInt(1,iterAI),1))
-  end if
+  if ((nLambda == 0) .and. (iterAI > iter)) GNrm(iterAI) = sqrt(DDot_(nQQ,dqInt(:,iterAI),1,dqInt(:,iterAI),1))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -314,7 +312,7 @@ do while (Not_Converged)
   else
     ! Use standard convergence criteria
     FAbs = GNrm(iterAI-1)/sqrt(real(nQQ,kind=wp))
-    RMS = sqrt(DDot_(nQQ,Shift(1,iterAI-1),1,Shift(1,iterAI-1),1)/real(nQQ,kind=wp))
+    RMS = sqrt(DDot_(nQQ,Shift(:,iterAI-1),1,Shift(:,iterAI-1),1)/real(nQQ,kind=wp))
     RMSMx = Zero
     do iInter=1,nQQ
       RMSMx = max(RMSMx,abs(Shift(iInter,iterAI-1)))
@@ -399,16 +397,14 @@ write(UpMeth(4:6),'(I3)') iterK
 ! Attempt overshooting
 
 call mma_allocate(Step_k,nQQ,2)
-call dCopy_(nQQ,qInt(1,iterAI),1,Step_k(1,2),1)
-call dAXpY_(nQQ,-One,qInt(1,iter),1,Step_k(1,2),1)
-!call RecPrt('q(iter+1)-q(f)','',Step_k(1,2),nQQ,1)
+Step_k(:,2) = qInt(:,iterAI)-qInt(:,iter)
+!call RecPrt('q(iter+1)-q(f)','',Step_k(:,2),nQQ,1)
 if (iter > 1) then
-  call dCopy_(nQQ,qInt(1,iter),1,Step_k(1,1),1)
-  call dAXpY_(nQQ,-One,qInt(1,iter-1),1,Step_k(1,1),1)
-  !call RecPrt('q(f)-q(f-1)','',Step_k(1,1),nQQ,1)
-  dsds = dDot_(nQQ,Step_k(1,1),1,Step_k(1,2),1)
-  dsds = dsds/sqrt(ddot_(nQQ,Step_k(1,1),1,Step_k(1,1),1))
-  dsds = dsds/sqrt(ddot_(nQQ,Step_k(1,2),1,Step_k(1,2),1))
+  Step_k(:,1) = qInt(:,iter)-qInt(:,iter-1)
+  !call RecPrt('q(f)-q(f-1)','',Step_k(:,1),nQQ,1)
+  dsds = dDot_(nQQ,Step_k(:,1),1,Step_k(:,2),1)
+  dsds = dsds/sqrt(ddot_(nQQ,Step_k(:,1),1,Step_k(:,1),1))
+  dsds = dsds/sqrt(ddot_(nQQ,Step_k(:,2),1,Step_k(:,2),1))
   write(u6,*) 'dsds = ',dsds
 else
   dsds = Zero
@@ -417,14 +413,13 @@ dsds_min = 0.9_wp
 if ((dsds > dsds_min) .and. (Step_Trunc == ' ')) then
   do Max_OS=9,0,-1
     OS_Factor = Max_OS*((dsds-dsds_min)/(One-dsds_min))**4
-    call dCopy_(nQQ,qInt(1,iter),1,qInt(1,iterAI),1)
-    call dAXpY_(nQQ,One+OS_Factor,Step_k(1,2),1,qInt(1,iterAI),1)
-    call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nQQ)
-    call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nQQ)
+    qInt(:,iterAI) = qInt(:,iter)+(One+OS_Factor)*Step_k(:,2)
+    call Energy_Kriging_Layer(qInt(:,iterAI),OS_Energy,nQQ)
+    call Dispersion_Kriging_Layer(qInt(:,iterAI),OS_Disp,nQQ)
     write(u6,*) 'Max_OS=',Max_OS
     write(u6,*) OS_Disp(1),E_Disp,Beta_Disp
     if ((OS_Disp(1) > E_Disp) .and. (OS_Disp(1) < Beta_Disp)) then
-      call dAXpY_(nQQ,OS_Factor,Step_k(1,2),1,Shift(1,iterAI-1),1)
+      Shift(:,iterAI-1) = Shift(:,iterAI-1)+OS_Factor*Step_k(:,2)
       iRef_Save = iRef
       iRef = iter ! Set the reference geometry
       call NewCar_Kriging(iterAI-1,.true.,Error)
@@ -457,7 +452,7 @@ Shift(:,iter) = qInt(:,iter+1)-qInt(:,iter)
 
 E_Delta = Energy(iterAI)-Energy(iter)
 
-call MxLbls(nQQ,dqInt(1,iter),Shift(1,iter),Lbl)
+call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
 
 ! Stick in the correct value for GrdMax, which might contain a
 ! contribution due to constraints.

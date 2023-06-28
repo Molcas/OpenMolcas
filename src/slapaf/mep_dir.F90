@@ -74,18 +74,16 @@ call mma_allocate(Cen,3,nAtom,Label='Cen')
 ! Grad:    gradient at current MEP point
 
 if (iter > 1) then
-  PrevDir(:,:) = RefGeo(:,:)
-  call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
-  call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
-  PostDir(:,:) = PostDir(:,:)-RefGeo(:,:)
-  call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
-  call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
+  PrevDir(:,:) = RefGeo(:,:)-reshape(Cx(:,iPrev_iter),[3,nAtom])
+  PostDir(:,:) = reshape(Cx(:,iter),[3,nAtom])-RefGeo(:,:)
+  !Disp(:,:) = reshape(Cx(:,iter)-Cx(:,iPrev_iter),[3,nAtom])
+  Disp(:,:) = PrevDir(:,:)+PostDir(:,:)
 else
   PrevDir(:,:) = Zero
   PostDir(:,:) = Zero
   Disp(:,:) = Zero
 end if
-call dCopy_(nCoor,Gx(:,iter),1,Grad(:,:),1)
+Grad(:,:) = reshape(Gx(:,iter),[3,nAtom])
 
 ! Normalize the vectors in weighted coordinates
 ! and compute some angles that provide information on the path
@@ -122,10 +120,10 @@ dPrevDir = sqrt(dPrevDir)
 dPostDir = sqrt(dPostDir)
 dDisp = sqrt(dDisp)
 dGrad = sqrt(dGrad)
-if (dPrevDir > Zero) call DScal_(nCoor,One/dPrevDir,PrevDir(:,:),1)
-if (dPostDir > Zero) call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
-if (dDisp > Zero) call DScal_(nCoor,One/dDisp,Disp(:,:),1)
-if (dGrad > Zero) call DScal_(nCoor,One/dGrad,Grad(:,:),1)
+if (dPrevDir > Zero) PrevDir(:,:) = PrevDir(:,:)/dPrevDir
+if (dPostDir > Zero) PostDir(:,:) = PostDir(:,:)/dPostDir
+if (dDisp > Zero) Disp(:,:) = Disp(:,:)/dDisp
+if (dGrad > Zero) Grad(:,:) = Grad(:,:)/dGrad
 ! Any zero vector is assumed to be parallel to any other
 if (dPostDir*dGrad > Zero) then
   dPostDirGrad = dPostDirGrad/(dPostDir*dGrad)
@@ -228,8 +226,7 @@ if (.not. IRCRestart) then
     ! the plane normal (PrevDir) than the Disp vector, therefore
     ! a negative value is probably better.
     Fact = -Half
-    Dir(:,:) = Fact*PrevDir(:,:)
-    call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,Dir(:,:),1)
+    Dir(:,:) = Fact*PrevDir(:,:)+(One-Fact)*dPrevDirDisp*Disp(:,:)
   else
     ! In the SPHERE case, PostDir is the vector to use
     Dir(:,:) = PostDir(:,:)
@@ -243,7 +240,7 @@ if (.not. IRCRestart) then
       call Get_dArray('Transverse',Dir(:,:),nCoor)
     else
       ! In the initial iteration of an IRC branch, use the reaction vector
-      call dCopy_(nCoor,MF,1,Dir(:,:),1)
+      Dir(:,:) = MF(:,:)
     end if
   end if
 
@@ -264,7 +261,7 @@ if (.not. IRCRestart) then
     if (iLambda /= MEPnum) then
       dd = dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
       drd = dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
-      call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
+      Dir(:,:) = Dir(:,:)-drd/dd*reshape(drdx(:,iLambda),[3,nAtom])
     end if
   end do
   call mma_deallocate(drdx)
@@ -290,7 +287,7 @@ if (.not. IRCRestart) then
   ! For an IRC first step, keep the initial structure as reference
 
   Fact = dMEPStep*sqrt(TWeight)/dDir
-  call dCopy_(nCoor,Cx(:,iter),1,Cen(:,:),1)
+  Cen(:,:) = reshape(Cx(:,iter),[3,nAtom])
   if (MEP_Algo == 'GS') then
     if ((IRC == 0) .or. (iMEP /= 0)) call Find_Distance(Cx(:,iter),Cen(:,:),Dir(:,:),Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
     if (.not. rMEP) call Put_dArray('Ref_Geom',Cen(:,:),nCoor)
@@ -315,7 +312,7 @@ if (.not. IRCRestart) then
       end do
     end do
     Fact = dMEPStep*sqrt(TWeight/dDir)
-    call DaXpY_(nCoor,0.05_wp*Fact,Disp(:,:),1,Cx(:,iter+1),1)
+    Cx(:,iter+1) = Cx(:,iter+1)+0.05_wp*Fact*reshape(Disp(:,:),[nCoor])
   end if
   call Put_dArray('Transverse',Dir(:,:),nCoor)
   if (iter == 1) BadConstraint = .false.
