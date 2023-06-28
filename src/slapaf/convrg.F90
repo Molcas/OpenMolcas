@@ -296,7 +296,6 @@ if (Baker) then
     write(Lu,'(A)') '+---------------+----------------------------------+'
     write(Lu,4) '+ Energy diff.  +',Val1,' ',Thr1,'    ',ConLbl(1),'  +'
     write(Lu,'(A)') '+---------------+----------------------------------+'
-4   format(A,2(ES11.4,A),A,A)
   end if
 else
   if (iPrint >= 5) then
@@ -313,7 +312,6 @@ else
       write(Lu,'(A)') ' +-----+----------------------------------+'
     end if
     write(Lu,*)
-5   format(A,2(2(ES11.4,A),A,A))
   end if
 end if
 
@@ -963,7 +961,6 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
         write(u6,200) i,CumLen,E_MEP(1+i)
       end do
     end if
-200 format(1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
     if (iPrint > 6) then
       write(u6,*)
       do i=0,iMEP
@@ -1027,5 +1024,9 @@ end if
 !***********************************************************************
 !                                                                      *
 return
+
+4 format(A,2(ES11.4,A),A,A)
+5 format(A,2(2(ES11.4,A),A,A))
+200 format(1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
 
 end subroutine Convrg

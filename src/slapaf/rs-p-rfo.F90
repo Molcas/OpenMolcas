@@ -157,168 +157,165 @@ call mma_allocate(ValP,1,Label='ValP')
 call mma_allocate(MatP,mInter*(mInter+1)/2,Label='MatP')
 call mma_allocate(TmpP,mInter,Label='TmpP')
 TmpP(:) = Zero
-998 continue
-Iter = Iter+1
-!write(Lu,*) 'Iter=',Iter
-!write(Lu,*) 'A_RFO=',A_RFO
-call FZero(dq,nInter)
-if (nNeg > 0) then
+do
+  Iter = Iter+1
+  !write(Lu,*) 'Iter=',Iter
+  !write(Lu,*) 'A_RFO=',A_RFO
+  call FZero(dq,nInter)
+  if (nNeg > 0) then
+    !write(Lu,*)
+    !write(Lu,*) 'Process negative eigenvalues.'
+    !write(Lu,*)
+    mInter = nNeg+1
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Build the augmented matrix of the "negative" subspace
+    !  diagonal: negative eigenvalues (divided by alpha)
+    !  last row/column: components of the gradient along the
+    !                   negative eigenvectors (divided by sqrt(alpha))
+    ! Project the gradient in the negative subspace (but expressed
+    ! in the full space)
+    ! (Note that, since we are interested in the largest eigenvalue,
+    !  the whole matrix is multiplied by -1, so we actually find the
+    !  smallest eigenvalue and change its sign)
+    GradN(:) = Zero
+    MatN(:) = Zero
+    j = mInter*(mInter-1)/2
+    do i=1,nNeg
+      MatN(i*(i+1)/2) = -Val(i)/A_RFO
+      gv = DDot_(nInter,g,1,Vec(:,i),1)
+      MatN(j+i) = gv/sqrt(A_RFO)
+      call DaXpY_(nInter,gv,Vec(:,i),1,GradN,1)
+    end do
+
+    ! Solve the partial RFO system for the negative subspace
+    VecN(:) = TmpN(:)
+    call Davidson(MatN,mInter,1,ValN,VecN,iStatus)
+    TmpN(:) = VecN(:)
+    if (iStatus > 0) then
+      call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
+    end if
+    ValN(1) = -ValN(1)
+
+    ! Scale the eigenvector (combines eqs. (5) and (23))
+    ! Convert to full space and add to complete step
+    call DScal_(nNeg,One/(sqrt(A_RFO)*VecN(1+nNeg)),VecN,1)
+    call dGeMV_('N',nInter,nNeg,One,Vec,nInter,VecN,1,Zero,StepN,1)
+    call DaXpY_(nInter,One,StepN,1,dq,1)
+    !dqdq_max = sqrt(DDot_(nInter,StepN,1,StepN,1))
+    !write(Lu,*) 'dqdq_max=',dqdq_max
+    ! Sign
+    EigVal_r = -DDot_(nInter,StepN,1,GradN,1)
+    if (iPrint >= 99) then
+      call RecPrt('dq_r',' ',StepN,1,nInter)
+      call RecPrt(' g_r',' ',GradN,1,nInter)
+      write(Lu,*) 'Lambda=',EigVal_r
+    end if
+    if (EigVal_r < -Thr) then
+      write(Lu,*)
+      write(Lu,*) 'W A R N I N G !'
+      write(Lu,*) 'EigVal_r < Zero',EigVal_r
+      write(Lu,*)
+    end if
+  else
+    EigVal_r = Zero
+    !dqdq_max = Zero
+  end if
+
   !write(Lu,*)
-  !write(Lu,*) 'Process negative eigenvalues.'
+  !write(Lu,*) 'Process positive eigenvalues.'
   !write(Lu,*)
-  mInter = nNeg+1
+  mInter = nInter+1
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Build the augmented matrix of the "negative" subspace
-  !  diagonal: negative eigenvalues (divided by alpha)
-  !  last row/column: components of the gradient along the
-  !                   negative eigenvectors (divided by sqrt(alpha))
-  ! Project the gradient in the negative subspace (but expressed
-  ! in the full space)
-  ! (Note that, since we are interested in the largest eigenvalue,
-  !  the whole matrix is multiplied by -1, so we actually find the
-  !  smallest eigenvalue and change its sign)
-  GradN(:) = Zero
-  MatN(:) = Zero
-  j = mInter*(mInter-1)/2
+  ! Build the augmented matrix of the "positive" subspace
+  ! Instead of reducing the dimensions, the negative eigenvectors
+  ! are simply projected out from the gradient and the eigenvalues
+  ! are shifted to a large positive arbitrary value (10), to avoid
+  ! interferences
+  GradP(:) = g(:)
   do i=1,nNeg
-    MatN(i*(i+1)/2) = -Val(i)/A_RFO
-    gv = DDot_(nInter,g,1,Vec(:,i),1)
-    MatN(j+i) = gv/sqrt(A_RFO)
-    call DaXpY_(nInter,gv,Vec(:,i),1,GradN,1)
+    gv = DDot_(nInter,GradP(:),1,Vec(:,i),1)
+    call DaXpY_(nInter,-gv,Vec(:,i),1,GradP(:),1)
   end do
+  do j=1,nInter
+    call dcopy_(j,H(1,j),1,MatP(1+j*(j-1)/2),1)
+    do i=1,nNeg
+      do k=1,j
+        jk = j*(j-1)/2+k
+        MatP(jk) = MatP(jk)-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
+      end do
+    end do
+    call DScal_(j,One/A_RFO,MatP(1+j*(j-1)/2),1)
+  end do
+  call FZero(MatP(1+mInter*(mInter-1)/2),mInter)
+  call DaXpY_(nInter,-One/sqrt(A_RFO),GradP(:),1,MatP(1+mInter*(mInter-1)/2),1)
 
-  ! Solve the partial RFO system for the negative subspace
-  VecN(:) = TmpN(:)
-  call Davidson(MatN,mInter,1,ValN,VecN,iStatus)
-  TmpN(:) = VecN(:)
+  ! Solve the partial RFO system for the positive subspace
+  call dcopy_(mInter,TmpP(:),1,VecP(:),1)
+  call Davidson(MatP,mInter,1,ValP,VecP,iStatus)
   if (iStatus > 0) then
     call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
   end if
-  ValN(1) = -ValN(1)
+  TmpP(1:mInter) = VecP(1:mInter)
+  StepP(1:nInter) = VecP(1:nInter)
 
   ! Scale the eigenvector (combines eqs. (5) and (23))
-  ! Convert to full space and add to complete step
-  call DScal_(nNeg,One/(sqrt(A_RFO)*VecN(1+nNeg)),VecN,1)
-  call dGeMV_('N',nInter,nNeg,One,Vec,nInter,VecN,1,Zero,StepN,1)
-  call DaXpY_(nInter,One,StepN,1,dq,1)
-  !dqdq_max = sqrt(DDot_(nInter,StepN,1,StepN,1))
-  !write(Lu,*) 'dqdq_max=',dqdq_max
-  ! Sign
-  EigVal_r = -DDot_(nInter,StepN,1,GradN,1)
+  ! Add to complete step
+  call DScal_(nInter,One/(sqrt(A_RFO)*VecP(1+nInter)),StepP,1)
+  call DaXpY_(nInter,One,StepP,1,dq,1)
+  ! dqdq_min = sqrt(DDot_(nInter,StepP,1,StepP,1))
+  !write(Lu,*) 'dqdq_min=',dqdq_min
+  EigVal_t = -DDot_(nInter,StepP,1,GradP,1) ! Sign
   if (iPrint >= 99) then
-    call RecPrt('dq_r',' ',StepN,1,nInter)
-    call RecPrt(' g_r',' ',GradN,1,nInter)
-    write(Lu,*) 'Lambda=',EigVal_r
+    call RecPrt('dq_t',' ',StepP,1,nInter)
+    call RecPrt(' g_t',' ',GradP,1,nInter)
+    write(Lu,*) 'Lambda=',EigVal_t
   end if
-  if (EigVal_r < -Thr) then
+  if (EigVal_t > Thr) then
     write(Lu,*)
     write(Lu,*) 'W A R N I N G !'
-    write(Lu,*) 'EigVal_r < Zero',EigVal_r
+    write(Lu,*) 'EigVal_t > Zero',EigVal_t
     write(Lu,*)
   end if
-else
-  EigVal_r = Zero
-  !dqdq_max = Zero
-end if
 
-!write(Lu,*)
-!write(Lu,*) 'Process positive eigenvalues.'
-!write(Lu,*)
-mInter = nInter+1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Build the augmented matrix of the "positive" subspace
-! Instead of reducing the dimensions, the negative eigenvectors
-! are simply projected out from the gradient and the eigenvalues
-! are shifted to a large positive arbitrary value (10), to avoid
-! interferences
-GradP(:) = g(:)
-do i=1,nNeg
-  gv = DDot_(nInter,GradP(:),1,Vec(:,i),1)
-  call DaXpY_(nInter,-gv,Vec(:,i),1,GradP(:),1)
-end do
-do j=1,nInter
-  call dcopy_(j,H(1,j),1,MatP(1+j*(j-1)/2),1)
-  do i=1,nNeg
-    do k=1,j
-      jk = j*(j-1)/2+k
-      MatP(jk) = MatP(jk)-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
-    end do
-  end do
-  call DScal_(j,One/A_RFO,MatP(1+j*(j-1)/2),1)
-end do
-call FZero(MatP(1+mInter*(mInter-1)/2),mInter)
-call DaXpY_(nInter,-One/sqrt(A_RFO),GradP(:),1,MatP(1+mInter*(mInter-1)/2),1)
+  Lambda = EigVal_t+EigVal_r
+  dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
 
-! Solve the partial RFO system for the positive subspace
-call dcopy_(mInter,TmpP(:),1,VecP(:),1)
-call Davidson(MatP,mInter,1,ValP,VecP,iStatus)
-if (iStatus > 0) then
-  call SysWarnMsg('RS_P_RFO','Davidson procedure did not converge','')
-end if
-TmpP(1:mInter) = VecP(1:mInter)
-StepP(1:nInter) = VecP(1:nInter)
+  if (iPrint >= 6) write(Lu,'(I5,5F10.5)') Iter,A_RFO,dqdq,StepMax,EigVal_r,EigVal_t
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Initialize data for iterative scheme (only at first iteration)
 
-! Scale the eigenvector (combines eqs. (5) and (23))
-! Add to complete step
-call DScal_(nInter,One/(sqrt(A_RFO)*VecP(1+nInter)),StepP,1)
-call DaXpY_(nInter,One,StepP,1,dq,1)
-! dqdq_min = sqrt(DDot_(nInter,StepP,1,StepP,1))
-!write(Lu,*) 'dqdq_min=',dqdq_min
-EigVal_t = -DDot_(nInter,StepP,1,GradP,1) ! Sign
-if (iPrint >= 99) then
-  call RecPrt('dq_t',' ',StepP,1,nInter)
-  call RecPrt(' g_t',' ',GradP,1,nInter)
-  write(Lu,*) 'Lambda=',EigVal_t
-end if
-if (EigVal_t > Thr) then
-  write(Lu,*)
-  write(Lu,*) 'W A R N I N G !'
-  write(Lu,*) 'EigVal_t > Zero',EigVal_t
-  write(Lu,*)
-end if
+  if (.not. Iterate) then
+    A_RFO_long = A_RFO
+    dqdq_long = dqdq
+    A_RFO_short = Zero
+    dqdq_short = dqdq_long+One
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! RF with constraints. Start iteration scheme if computed step is too long.
 
-Lambda = EigVal_t+EigVal_r
-dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
+  if ((Iter == 1) .and. (dqdq > StepMax)) Iterate = .true.
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Procedure if the step length is not equal to the trust radius
 
-if (iPrint >= 6) write(Lu,'(I5,5F10.5)') Iter,A_RFO,dqdq,StepMax,EigVal_r,EigVal_t
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Initialize data for iterative scheme (only at first iteration)
-
-if (.not. Iterate) then
-  A_RFO_long = A_RFO
-  dqdq_long = dqdq
-  A_RFO_short = Zero
-  dqdq_short = dqdq_long+One
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! RF with constraints. Start iteration scheme if computed step is too long.
-
-if ((Iter == 1) .and. (dqdq > StepMax)) Iterate = .true.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Procedure if the step length is not equal to the trust radius
-
-if (Iterate .and. (abs(StepMax-dqdq) > Thr)) then
+  if ((.not. Iterate) .or. (abs(StepMax-dqdq) <= Thr)) exit
   Step_Trunc = '*'
   !write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,dqdq,StepMax)
   if (Iter > IterMx) then
     write(Lu,*) ' Too many iterations in RF'
-    Go To 997
+    exit
   end if
-  Go To 998
-end if
-
-997 continue
+end do
 
 call mma_deallocate(Vec)
 call mma_deallocate(Val)

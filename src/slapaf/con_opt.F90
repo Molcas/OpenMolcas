@@ -675,76 +675,74 @@ do iIter=iSt,nIter
 
     Fact = One
 #   ifdef _DEBUGPRINT_
-    if (iIter /= nIter) write(u6,*) 'Go to 667'
+    if (iIter /= nIter) write(u6,*) 'Skip'
 #   endif
-    if (iIter /= nIter) Go to 667
+    if (iIter == nIter) then
 
-    ! Pick up the largest element of the gradient of the constraints.
-    tmp = Zero
-    do i=1,nLambda
-      do j=1,nInter
-        tmp = max(tmp,abs(drdq(j,i,iIter)))
+      ! Pick up the largest element of the gradient of the constraints.
+      tmp = Zero
+      do i=1,nLambda
+        do j=1,nInter
+          tmp = max(tmp,abs(drdq(j,i,iIter)))
+        end do
       end do
-    end do
-    tmp = min(tmp,0.3_wp) ! Some constraints can have huge gradients. So be a bit careful.
-    ! Allowed dispersion in the y subspace
-    Beta_Disp = max(Beta_Disp_Min,tmp*CnstWght/(CnstWght+One)*Beta_Disp_Seed)
-    if (.not. First_MicroIteration) then
-      Beta_Disp = min(Disp_Save+Beta_Disp,Beta_Disp_Save)
-    end if
-
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'Step_trunc=',Step_trunc
-    write(u6,*) 'CnstWght=',CnstWght
-    write(u6,*) 'Beta=',Beta
-    write(u6,*) 'tmp=',tmp
-    write(u6,*) 'Beta_Disp=',Beta_Disp
-#   endif
-
-#   ifdef _DEBUGPRINT_
-    if (Disp_Save/Beta_Disp > 0.99_wp) write(u6,*) 'Go to 667'
-#   endif
-    if (Disp_Save/Beta_Disp > 0.99_wp) then
-      dy(:) = Zero
-      Go To 667
-    end if
-    dydy = DDot_(nLambda,dy,1,dy,1)
-    if (dydy < 1.0e-12_wp) Go To 667
-    ! Restrict dy step during micro iterations
-    Fact = max(sqrt(dydy)/(CnstWght/(CnstWght+One)*Beta),One)
-
-    iCount = 1
-    iCount_Max = 100
-    if (Step_Trunc == 'N') Step_Trunc = ' '
-    666 continue
-    du(1:nLambda) = (One/Fact)*dy(:)
-    du(1+nLambda:nInter) = Zero
-    call Backtrans_T(du,dq_xy)
-    q(:,iIter+1) = q(:,iIter)+dq_xy(:)
-
-    call Dispersion_Kriging_Layer(q(1,iIter+1),disp,nInter)
-
-    if (iCount == 1) then
-      Fact_long = Fact
-      disp_long = disp(1)
-      Fact_short = Zero
-      disp_short = disp_long+One
-    end if
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'disp,Fact,iCount=',disp(1),Fact,iCount
-#   endif
-    if ((disp(1) > Beta_Disp) .or. (iCount > 1)) then
-      if (abs(Beta_Disp-disp(1)) < Thr_RS) Go To 667
-      iCount = iCount+1
-      if (iCount > iCount_Max) then
-        write(u6,*) 'iCount > iCount_Max'
-        call Abend()
+      tmp = min(tmp,0.3_wp) ! Some constraints can have huge gradients. So be a bit careful.
+      ! Allowed dispersion in the y subspace
+      Beta_Disp = max(Beta_Disp_Min,tmp*CnstWght/(CnstWght+One)*Beta_Disp_Seed)
+      if (.not. First_MicroIteration) then
+        Beta_Disp = min(Disp_Save+Beta_Disp,Beta_Disp_Save)
       end if
-      call Find_RFO_Root(Fact_long,disp_long,Fact_short,disp_short,Fact,disp(1),Beta_Disp)
-      Step_Trunc = '*'
-      Go To 666
+
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Step_trunc=',Step_trunc
+      write(u6,*) 'CnstWght=',CnstWght
+      write(u6,*) 'Beta=',Beta
+      write(u6,*) 'tmp=',tmp
+      write(u6,*) 'Beta_Disp=',Beta_Disp
+#     endif
+
+      dydy = DDot_(nLambda,dy,1,dy,1)
+      if (Disp_Save/Beta_Disp > 0.99_wp) then
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Skip'
+#       endif
+        dy(:) = Zero
+      else if (dydy >= 1.0e-12_wp) then
+        ! Restrict dy step during micro iterations
+        Fact = max(sqrt(dydy)/(CnstWght/(CnstWght+One)*Beta),One)
+
+        iCount = 1
+        iCount_Max = 100
+        if (Step_Trunc == 'N') Step_Trunc = ' '
+        do
+          du(1:nLambda) = (One/Fact)*dy(:)
+          du(1+nLambda:nInter) = Zero
+          call Backtrans_T(du,dq_xy)
+          q(:,iIter+1) = q(:,iIter)+dq_xy(:)
+
+          call Dispersion_Kriging_Layer(q(1,iIter+1),disp,nInter)
+
+          if (iCount == 1) then
+            Fact_long = Fact
+            disp_long = disp(1)
+            Fact_short = Zero
+            disp_short = disp_long+One
+          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'disp,Fact,iCount=',disp(1),Fact,iCount
+#         endif
+          if ((disp(1) <= Beta_Disp) .and. (iCount == 1)) exit
+          if (abs(Beta_Disp-disp(1)) < Thr_RS) exit
+          iCount = iCount+1
+          if (iCount > iCount_Max) then
+            write(u6,*) 'iCount > iCount_Max'
+            call Abend()
+          end if
+          call Find_RFO_Root(Fact_long,disp_long,Fact_short,disp_short,Fact,disp(1),Beta_Disp)
+          Step_Trunc = '*'
+        end do
+      end if
     end if
-    667 continue
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Final scaling Factor:',(One/Fact)
 #   endif

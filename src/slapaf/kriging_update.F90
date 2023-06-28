@@ -116,16 +116,8 @@ if (nSet > 1) then
 
   nAtoms = size(Gx0,2)
 
-  call DGEMM_('N','N', &
-              3*nAtoms,1,nQQ, &
-              One,BMx_kriging,3*nAtoms, &
-              dqInt(:,iter),nQQ, &
-              Zero,Gx(:,:,iter),3*nAtoms)
-  call DGEMM_('N','N', &
-              3*nAtoms,1,nQQ, &
-              One,BMx_kriging,3*nAtoms, &
-              dqInt_Aux(:,iter,1),nQQ, &
-              Zero,Gx0(:,:,iter),3*nAtoms)
+  call DGEMM_('N','N',3*nAtoms,1,nQQ,One,BMx_kriging,3*nAtoms,dqInt(:,iter),nQQ,Zero,Gx(:,:,iter),3*nAtoms)
+  call DGEMM_('N','N',3*nAtoms,1,nQQ,One,BMx_kriging,3*nAtoms,dqInt_Aux(:,iter,1),nQQ,Zero,Gx0(:,:,iter),3*nAtoms)
 
   ! Modify with degeneracy factors.
 
@@ -134,11 +126,7 @@ if (nSet > 1) then
 
   if (nSet > 2) then
     dqInt_Aux(:,iter,2) = Aux(:,3)
-    call DGEMM_('N','N', &
-                3*nAtoms,1,nQQ, &
-                One,BMx_kriging,3*nAtoms, &
-                dqInt_Aux(:,iter,2),nQQ, &
-                Zero,NAC(:,:,iter),3*nAtoms)
+    call DGEMM_('N','N',3*nAtoms,1,nQQ,One,BMx_kriging,3*nAtoms,dqInt_Aux(:,iter,2),nQQ,Zero,NAC(:,:,iter),3*nAtoms)
     if (Curvilinear) NAC(:,:,iter) = NAC(:,:,iter)/Degen(:,:)
   end if
 

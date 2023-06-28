@@ -52,7 +52,7 @@ write(u6,*) ' NewH: Test(i)==',(Test(i),i=1,8)
 
 ! Branch out if the first iteration
 
-if (nIter <= 1) Go To 999
+if (nIter <= 1) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -177,7 +177,6 @@ call mma_deallocate(dq)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
 return
 
 end subroutine NewH

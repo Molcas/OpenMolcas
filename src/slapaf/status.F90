@@ -81,7 +81,6 @@ if (iNeg(2) /= iNeg(1)) then
   end if
 end if
 write(Lines(iter),100) iter,Energy,delE,rGrad,GrdMax,GrdLbl,StpMax,Step_Trunc,StpLbl,Ex,UpMeth,HUpMet,lNeg
-100 format(I3,F16.8,F12.8,2(F9.6,1X),A8,F9.6,A1,1X,A8,F16.8,1X,A,1X,A,1X,A)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -121,5 +120,7 @@ call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+2)*128)
 call mma_deallocate(Lines)
 
 return
+
+100 format(I3,F16.8,F12.8,2(F9.6,1X),A8,F9.6,A1,1X,A8,F16.8,1X,A,1X,A,1X,A)
 
 end subroutine Status

@@ -193,7 +193,6 @@ if (iMEP >= 1) then
     write(u6,100) 'Path angle:',PathAngle,'degrees'
     if (Curvature >= Zero) write(u6,100) 'Path curvature:',Curvature,'bohr^(-1)'
     write(u6,100) 'Path length:',PathLength,'bohr'
-100 format(1X,A30,1X,F12.6,1X,A)
   end if
 else
   PLn(:) = Zero
@@ -332,5 +331,7 @@ call mma_deallocate(Dir)
 call mma_deallocate(Cen)
 
 return
+
+100 format(1X,A30,1X,F12.6,1X,A)
 
 end subroutine MEP_Dir

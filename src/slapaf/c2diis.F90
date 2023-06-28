@@ -212,7 +212,7 @@ do iVec=1,mIter
     c2_new = DDot_(mIter,Scrt1(ij(1,iVec,mIter)),1,Scrt1(ij(1,iVec,mIter)),1)
     if (c2_new > ThrCff) then
       if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
-      Go To 10
+      cycle
     end if
   end if
 
@@ -221,7 +221,7 @@ do iVec=1,mIter
   c2_new = DDot_(mIter,Scrt1(ij(1,iVec,mIter)),1,Scrt1(ij(1,iVec,mIter)),1)
   if (c2_new > ThrLdp) then
     if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
-    Go To 10
+    cycle
   end if
 
   ! Keep the best candidate
@@ -257,7 +257,6 @@ do iVec=1,mIter
     end if
   end if
 
-10 continue
 end do
 if ((iVec_old < 1) .or. (iVec_old > mIter)) then
   call WarningMessage(2,' No proper solution found in C2-DIIS!')
@@ -278,7 +277,7 @@ call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
 call dcopy_(nInter,[Zero],0,Scrt1,1)
 do iIter=1,mIter
 
-  if (abs(RHS(iIter)) < 1.0e-12_wp) Go To 11
+  if (abs(RHS(iIter)) < 1.0e-12_wp) cycle
 
   call DaXpY_(nInter,RHS(iIter),Error(1,iP(iIter+iOff)),1,Scrt1,1)
 
@@ -294,7 +293,6 @@ do iIter=1,mIter
 
   call DaXpY_(nInter,RHS(iIter),g(1,iP(iIter+iOff)),1,g(1,nIter+1),1)
 
-11 continue
 end do
 
 if (iPrint >= 99) then

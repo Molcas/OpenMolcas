@@ -371,21 +371,19 @@ end do
 call mma_deallocate(iZmat)
 write(LuWr,*)
 
-201 format(5X,A5)
-202 format(5X,A5,1X,I4,F13.6)
-203 format(5X,A5,1X,2(I4,F13.6))
-204 format(5X,A5,1X,3(I4,F13.6))
-
-97 format(I3,1X,A,1X,I3,3X,3I4)
-98 format(I3,1X,3(F12.6))
-99 format(I3,1X,I3,1X,3(F12.6))
-
-
 call mma_deallocate(ZMAT)
 call mma_deallocate(ZMATCoords)
 call mma_deallocate(NAT)
 call mma_deallocate(Symbols)
 
 return
+
+97 format(I3,1X,A,1X,I3,3X,3I4)
+98 format(I3,1X,3(F12.6))
+99 format(I3,1X,I3,1X,3(F12.6))
+201 format(5X,A5)
+202 format(5X,A5,1X,I4,F13.6)
+203 format(5X,A5,1X,2(I4,F13.6))
+204 format(5X,A5,1X,3(I4,F13.6))
 
 end subroutine OutZMAT

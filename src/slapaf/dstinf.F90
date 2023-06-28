@@ -95,7 +95,7 @@ do isAtom=1,size(Coor,2)+nsAtom_p
     y1 = Cx_p(2,jsAtom)
     z1 = Cx_p(3,jsAtom)
   end if
-  do iIrrep=0,nIrrep-1
+  doirrep: do iIrrep=0,nIrrep-1
     x2 = x1
     if (iand(1,iOper(iIrrep)) /= 0) x2 = -x2
     y2 = y1
@@ -107,12 +107,12 @@ do isAtom=1,size(Coor,2)+nsAtom_p
 
     do iTemp=1,nTemp
       r = (x2-CC(1,iTemp))**2+(y2-CC(2,iTemp))**2+(z2-CC(3,iTemp))**2
-      if (r == Zero) Go To 6001
+      if (r == Zero) cycle doirrep
     end do
     nTemp = nTemp+1
     if (nTemp > nIrrep*(size(Coor,2)+nsAtom_p)) then
       call WarningMessage(2,'Error in DstInf')
-      write(u6,*) 'nTemp > nIrrep*SIZE(Coor,2)'
+      write(u6,*) 'nTemp > nIrrep*size(Coor,2)'
       call Abend()
     end if
     CC(1,nTemp) = x2
@@ -123,8 +123,7 @@ do isAtom=1,size(Coor,2)+nsAtom_p
     else
       LblTMP(nTemp) = 'PC'
     end if
-6001 continue
-  end do
+  end do doirrep
 end do
 !                                                                      *
 !***********************************************************************

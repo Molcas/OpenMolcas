@@ -99,12 +99,11 @@ if (Tmp(nSaddle-1) > Half) then
   do i=1,nBonds
     if (TabB(3,i) == 2) then
       Found = .true.
-      Go To 20
+      exit
     end if
   end do
-20 continue
   if (Found) then
-    ! ThrGrd = 0.03_wp
+    !ThrGrd = 0.03_wp
     ThrGrd = Ten*ThrGrd
     call WarningMessage(1,'Molecule composed of many fragments Convergence threshold reduced')
   end if
