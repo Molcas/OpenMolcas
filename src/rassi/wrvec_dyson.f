@@ -24,9 +24,9 @@
       CHARACTER(LEN=*) :: filename, TITLE
       INTEGER :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
       REAL*8 :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
-      INTEGER :: I, J, NB(0:NSYM), NBAS_(NSYM), NBT, NORB(NSYM), NSYM_,
-     &           OFF, ORBSYM(ORBNUM)
-      REAL*8 :: DUMMY(1), RSUM
+      INTEGER :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT,
+     &           NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
+      REAL*8 :: RSUM
       LOGICAL :: DODESYM
       REAL*8, ALLOCATABLE :: DESYM(:,:), REORD(:)
 
