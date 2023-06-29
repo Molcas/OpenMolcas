@@ -11,6 +11,7 @@
 
 subroutine FixHess(H,nH,iOptC,MF,GNrm,nsAtom,AnalHess,AllowFindTS)
 
+use Index_Functions, only: nTri_Elem
 use Slapaf_Parameters, only: iNeg, GNrm_Threshold, Mode
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half
@@ -40,7 +41,7 @@ Too_Small = .false.
 
 Corrected = .false.
 
-call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+call mma_allocate(EVal,nTri_Elem(nH),Label='EVal')
 
 ! Copy elements for H
 

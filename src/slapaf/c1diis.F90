@@ -30,16 +30,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nInter, nIter, nFix, iP(nIter), MinWdw
-real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), &
-                 B((nIter+1)*(nIter+1)), RHS(nIter+1)
+real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), B((nIter+1)**2), &
+                 RHS(nIter+1)
 #include "print.fh"
-integer(kind=iwp) :: ii, iOff, iPrint, iRc, iRout, iSave, jIter, MaxWdw, mIter
+integer(kind=iwp) :: i, ii, ij, iOff, iPrint, iRc, iRout, iSave, j, jIter, MaxWdw, mIter
 real(kind=wp) :: Err1, Err2
 real(kind=wp), allocatable :: A(:,:)
 real(kind=wp), external :: DDot_
-! Statement function
-integer(kind=iwp) :: ij, i, j, lda
-ij(i,j,lda) = (j-1)*lda+i
 
 iRout = 114
 iPrint = nPrint(iRout)
@@ -116,34 +113,25 @@ if (iPrint >= 99) write(u6,*) ' iP=',iP
 MaxWdw = max(2,(nInter-nFix)/2)
 mIter = min(nIter,min(MinWdw,MaxWdw))
 iOff = max(0,nIter-mIter)
-B(ij(mIter+1,mIter+1,mIter+1)) = Zero
+B((mIter+1)**2) = Zero
 RHS(mIter+1) = -One
 do i=1,mIter
-  do j=1,i-1
+  do j=1,i
+    ij = (j-1)*(mIter+1)+i
     if (btest(iOptC,4)) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,error(:,iP(j+iOff)),1)
+      B(ij) = DDot_(nInter,error(:,iP(i+iOff)),1,error(:,iP(j+iOff)),1)
     else if (btest(iOptC,5)) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
+      B(ij) = DDot_(nInter,error(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
     else if (btest(iOptC,6)) then
-      B(ij(i,j,mIter+1)) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
+      B(ij) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(j+iOff)),1)
     else
       call WarningMessage(2,' Illegal iOptC setting!')
       call Abend()
     end if
-    B(ij(j,i,mIter+1)) = B(ij(i,j,mIter+1))
+    if (j < i) B((i-1)*(mIter+1)+j) = B(ij)
   end do
-  if (btest(iOptC,4)) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,error(:,iP(i+iOff)),1)
-  else if (btest(iOptC,5)) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,error(:,iP(i+iOff)),1,g(:,iP(i+iOff)),1)
-  else if (btest(iOptC,6)) then
-    B(ij(i,i,mIter+1)) = DDot_(nInter,g(:,iP(i+iOff)),1,g(:,iP(i+iOff)),1)
-  else
-    call WarningMessage(2,' Illegal iOptC setting!')
-    call Abend()
-  end if
-  B(ij(i,mIter+1,mIter+1)) = -One
-  B(ij(mIter+1,i,mIter+1)) = -One
+  B(mIter*(mIter+1)+i) = -One
+  B(i*(mIter+1)) = -One
   RHS(i) = Zero
 end do
 if (iPrint >= 99) then

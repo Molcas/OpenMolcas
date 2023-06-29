@@ -36,6 +36,7 @@ subroutine RS_I_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 !             number, June '97, R. Lindh                               *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -67,7 +68,7 @@ call mma_allocate(Vec,nInter,NumVal,Label='Vec')
 Vec(:,:) = Zero
 call mma_allocate(Val,NumVal,Label='Val')
 Val(:) = Zero
-call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
+call mma_allocate(Mat,nTri_Elem(nInter),Label='Mat')
 ij = 0
 do i=1,nInter
   do j=1,i

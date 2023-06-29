@@ -24,6 +24,7 @@ subroutine C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,nFix,iP)
 !             Modified for anharmonic constants by R. Lindh, Oct. '95  *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Slapaf_Parameters, only: iOptC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten
@@ -34,15 +35,11 @@ implicit none
 integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
 real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter+1), &
                  B((nIter+1)*(nIter+1)), RHS(nIter+1), Scrt1(nScrt1)
-integer(kind=iwp) :: ii, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, MaxWdw, MinWdw, mIter
+integer(kind=iwp) :: i, ii, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, j, MaxWdw, MinWdw, mIter
 real(kind=wp) :: Alpha, c2_new, c2_old, ee_new, ee_old, Err1, Err2, t1, t2, ThrCff, Thrhld, ThrLdp
 logical(kind=iwp) :: Fail
 real(kind=wp), allocatable :: A(:,:)
 real(kind=wp), external :: DDot_
-! Statement function
-integer(kind=iwp) :: ij, iTri, i, j, lda
-ij(i,j,lda) = (j-1)*lda+i
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iRout = 121
 iPrint = nPrint(iRout)
@@ -177,10 +174,10 @@ end if
 do iVec=1,mIter
   Alpha = Zero
   do i=1,mIter
-    Alpha = Alpha+Scrt1(ij(i,iVec,mIter))
+    Alpha = Alpha+Scrt1((iVec-1)*mIter+i)
   end do
   Alpha = One/Alpha
-  Scrt1(ij(1,iVec,mIter):ij(1,iVec,mIter)+mIter-1) = Alpha*Scrt1(ij(1,iVec,mIter):ij(1,iVec,mIter)+mIter-1)
+  Scrt1((iVec-1)*mIter+1:iVec*mIter) = Alpha*Scrt1((iVec-1)*mIter+1:iVec*mIter)
   B(iTri(iVec,iVec)) = B(iTri(iVec,iVec))*Alpha**2
 end do
 if (iPrint >= 99) then
@@ -206,7 +203,7 @@ do iVec=1,mIter
 
     ! Reject if coefficients are too large (linear dep.).
 
-    c2_new = DDot_(mIter,Scrt1(ij(1,iVec,mIter)),1,Scrt1(ij(1,iVec,mIter)),1)
+    c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
     if (c2_new > ThrCff) then
       if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
       cycle
@@ -215,7 +212,7 @@ do iVec=1,mIter
 
   ! Reject if coefficients are by far too large (linear dep.).
 
-  c2_new = DDot_(mIter,Scrt1(ij(1,iVec,mIter)),1,Scrt1(ij(1,iVec,mIter)),1)
+  c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
   if (c2_new > ThrLdp) then
     if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
     cycle
@@ -233,8 +230,8 @@ do iVec=1,mIter
     ! New vector is close to the old vector.
     ! Selection based on relative weight of the last geometry.
     if (iPrint >= 99) write(6,*) 'Eigenvalues are close',iVec_old,iVec
-    t1 = abs(Scrt1(ij(mIter,iVec_old,mIter)))/sqrt(c2_old)
-    t2 = abs(Scrt1(ij(mIter,iVec,mIter)))/sqrt(c2_new)
+    t1 = abs(Scrt1(iVec_old*mIter))/sqrt(c2_old)
+    t2 = abs(Scrt1(iVec*mIter))/sqrt(c2_new)
     if (t2 > t1*1.2d0) then
       ! New vector much better relative weight.
       c2_old = c2_new
@@ -259,7 +256,7 @@ if ((iVec_old < 1) .or. (iVec_old > mIter)) then
   call WarningMessage(2,' No proper solution found in C2-DIIS!')
   call Abend()
 end if
-RHS(1:mIter) = Scrt1(ij(1,iVec_old,mIter):ij(1,iVec_old,mIter)+mIter-1)
+RHS(1:mIter) = Scrt1((iVec_old-1)*mIter+1:iVec_old*mIter)
 
 if (iPrint >= 99) then
   write(u6,*) ' Selecting root',iVec_old

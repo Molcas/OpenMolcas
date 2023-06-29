@@ -45,6 +45,7 @@ subroutine EU(dq,dg,gi,H,nH)
 !     p,f   :  Multi-used vectors        (nh)
 !     mi    :  Used varii                (real*8)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -52,7 +53,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nH
 real(kind=wp) :: dq(nH), dg(nH), gi(nH), H(nH,nH)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: lim, WorkR
 real(kind=wp), allocatable :: E(:,:), Eval(:), EVec(:,:), f(:), M(:,:), p(:), u(:), v(:), WorkM(:,:), WorkV(:)
 real(kind=wp), external :: ddot_
@@ -72,7 +73,7 @@ call mma_allocate(E,nH,nH,Label='E')
 call mma_allocate(EVec,nH,nH,Label='EVec')
 call mma_allocate(u,nH,Label='u')
 call mma_allocate(v,nH,Label='v')
-call mma_allocate(EVal,nH*(nH+1)/2,Label='Eval')
+call mma_allocate(EVal,nTri_Elem(nH),Label='Eval')
 call mma_allocate(p,nH,Label='p')
 call mma_allocate(f,nH,Label='f')
 call mma_allocate(WorkV,nH,Label='WorkV')
@@ -81,9 +82,11 @@ call mma_allocate(WorkV,nH,Label='WorkV')
 
 ! Make a triangular form of H that Jacob/NIDiag accepts
 
+ij = 0
 do i=1,nH
   do j=1,i
-    EVal(i*(i-1)/2+j) = (H(i,j)+H(j,i))*Half
+    ij = ij+1
+    EVal(ij) = (H(i,j)+H(j,i))*Half
   end do
 end do
 
@@ -129,7 +132,7 @@ do i=1,nH
 #   ifdef _DEBUGPRINT_
 
     ! The triangular indexation, ii.
-    ii = i*(i+1)/2
+    ii = nTri_Elem(i)
 
     ! Negative sign for the TS-reaction coordinate.
     ! WorkR = (-)f*p
@@ -159,7 +162,7 @@ do i=1,nH
     ! p(i) = 0, so mi is set to zero.
     M(i,i) = One
 #   ifdef _DEBUGPRINT_
-    ii = i*(i+1)/2
+    ii = nTri_Elem(i)
     write(u6,*) 'mi = p 1.0  Eigenvalue ',Eval(ii)
 #   endif
   end if

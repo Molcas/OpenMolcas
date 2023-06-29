@@ -188,8 +188,9 @@ module fciqmc_interface
         call load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, &
                                 f3, f2, f1, mstate(jState))
 #else
-        g3(idxG3(1, 1)) = 0.0_wp
-        f3(idxG3(1, 1)) = 0.0_wp
+        unused_var(idxG3(1,1))
+        unused_var(g3(1))
+        unused_var(f3(1))
         unused_var(g2)
         unused_var(g1)
         unused_var(f2)

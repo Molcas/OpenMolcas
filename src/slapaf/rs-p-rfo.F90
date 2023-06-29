@@ -40,6 +40,7 @@ subroutine RS_P_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
 !             Removed full diagonalizations, April '14, I. Fdez. Galvan*
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
@@ -50,7 +51,7 @@ real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax
 character(len=6) :: UpMeth
 character :: Step_Trunc
 #include "print.fh"
-integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, jk, k, Lu, mInter, nNeg, NumVal, nVStep
+integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, k, Lu, mInter, nNeg, NumVal, nVStep
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, dqdq, dqdq_long, dqdq_short, EigVal_r, EigVal_t, gv, Lambda, Thr
 logical(kind=iwp) :: Found, Iterate
 real(kind=wp), allocatable :: GradN(:), GradP(:), Mat(:), MatN(:), MatP(:), StepN(:), StepP(:), Tmp(:,:), TmpN(:), TmpP(:), &
@@ -74,7 +75,7 @@ Found = .false.
 Thr = 1.0e-6_wp
 call mma_allocate(Vec,nInter,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
-call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
+call mma_allocate(Mat,nTri_Elem(nInter),Label='Mat')
 Vec(:,:) = Zero
 ij = 0
 do i=1,nInter
@@ -144,7 +145,7 @@ if (nNeg > 0) then
   call mma_allocate(GradN,nInter,Label='GradN')
   call mma_allocate(VecN,mInter,Label='VecN')
   call mma_allocate(ValN,1,Label='ValN')
-  call mma_allocate(MatN,mInter*(mInter+1)/2,Label='MatN')
+  call mma_allocate(MatN,nTri_Elem(mInter),Label='MatN')
   call mma_allocate(TmpN,mInter,Label='TmpN')
   TmpN(:) = Zero
 end if
@@ -153,7 +154,7 @@ call mma_allocate(StepP,nInter,Label='StepP')
 call mma_allocate(GradP,nInter,Label='GradP')
 call mma_allocate(VecP,mInter,Label='VecP')
 call mma_allocate(ValP,1,Label='ValP')
-call mma_allocate(MatP,mInter*(mInter+1)/2,Label='MatP')
+call mma_allocate(MatP,nTri_Elem(mInter),Label='MatP')
 call mma_allocate(TmpP,mInter,Label='TmpP')
 TmpP(:) = Zero
 do
@@ -180,11 +181,10 @@ do
     !  smallest eigenvalue and change its sign)
     GradN(:) = Zero
     MatN(:) = Zero
-    j = mInter*(mInter-1)/2
     do i=1,nNeg
-      MatN(i*(i+1)/2) = -Val(i)/A_RFO
+      MatN(iTri(i,i)) = -Val(i)/A_RFO
       gv = DDot_(nInter,g,1,Vec(:,i),1)
-      MatN(j+i) = gv/sqrt(A_RFO)
+      MatN(iTri(i,mInter)) = gv/sqrt(A_RFO)
       GradN(:) = GradN(:)+gv*Vec(:,i)
     end do
 
@@ -238,19 +238,16 @@ do
     GradP(:) = GradP(:)-gv*Vec(:,i)
   end do
   do j=1,nInter
-    ij = j*(j-1)/2
-    MatP(ij+1:ij+j) = H(1:j,j)
+    MatP(iTri(j,1):iTri(j,j)) = H(1:j,j)
     do i=1,nNeg
       do k=1,j
-        jk = j*(j-1)/2+k
-        MatP(jk) = MatP(jk)-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
+        MatP(iTri(j,k)) = MatP(iTri(j,k))-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
       end do
     end do
-    MatP(ij+1:ij+j) = MatP(ij+1:ij+j)/A_RFO
+    MatP(iTri(j,1):iTri(j,j)) = MatP(iTri(j,1):iTri(j,j))/A_RFO
   end do
-  ij = mInter*(mInter-1)/2
-  MatP(ij+1:ij+nInter) = -GradP(:)/sqrt(A_RFO)
-  MatP(ij+nInter+1:ij+mInter) = Zero
+  MatP(iTri(mInter,1):iTri(mInter,nInter)) = -GradP(:)/sqrt(A_RFO)
+  MatP(iTri(mInter,nInter+1):iTri(mInter,mInter)) = Zero
 
   ! Solve the partial RFO system for the positive subspace
   VecP(:) = TmpP(:)

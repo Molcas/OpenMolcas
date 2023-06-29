@@ -32,7 +32,7 @@ subroutine Chkpnt_open()
   use Symmetry_Info, only: nIrrep
   use Slapaf_Info, only: Coor
   use Slapaf_Parameters, only: IRC, iter
-  use mh5, only: mh5_is_hdf5, mh5_open_file_rw, mh5_open_attr, mh5_open_dset, mh5_fetch_attr
+  use mh5, only: mh5_fetch_attr, mh5_is_hdf5, mh5_open_attr, mh5_open_dset, mh5_open_file_rw
   character(len=3) :: level
   logical :: create
   integer :: tmp
@@ -77,12 +77,13 @@ end subroutine Chkpnt_open
 
 subroutine Chkpnt_init()
 # ifdef _HDF5_
-  use Phase_Info
+  use Phase_Info, only: iPhase
   use Symmetry_Info, only: nIrrep
-  use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc, Coor
-  use Slapaf_Parameters, only: nDimBC, rMEP, MEP, dMEPStep
-  use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_attr_int, mh5_create_dset_str, mh5_create_dset_real, &
-                 mh5_create_dset_int, mh5_put_dset, mh5_close_dset
+  use Index_Functions, only: nTri_Elem
+  use Slapaf_Info, only: AtomLbl, Coor, dMass, iCoSet, nStab, Smmtrc
+  use Slapaf_Parameters, only: dMEPStep, MEP, nDimBC, rMEP
+  use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
+                 mh5_create_file, mh5_init_attr, mh5_put_dset
 # include "Molcas.fh"
 # include "stdalloc.fh"
   character :: lIrrep(24)
@@ -196,7 +197,7 @@ subroutine Chkpnt_init()
                      'iteration varying slowest, then atom index')
 
   ! Cartesian Hessian
-  chkpnt_hess = mh5_create_dset_real(chkpnt_id,'HESSIAN',1,[nDimBC*(nDimBC+1)/2])
+  chkpnt_hess = mh5_create_dset_real(chkpnt_id,'HESSIAN',1,[nTri_Elem(nDimBC)])
   call mh5_init_attr(chkpnt_hess,'DESCRIPTION','Cartesian Hessian in triangular form, as a vector of size [DOF*(DOF+1)/2]')
 
   ! MEP/IRC information
@@ -208,14 +209,13 @@ subroutine Chkpnt_init()
     call mh5_init_attr(dsetid,'DESCRIPTION','Iteration number for each converged MEP step, as a vector of size [MEP_ITERATIONS]')
   end if
 # endif
-
 end subroutine Chkpnt_init
 
 subroutine Chkpnt_update()
 # ifdef _HDF5_
-  use Slapaf_Info, only: Cx, Gx, Energy
-  use Slapaf_Parameters, only: nDimBC, iter
-  use mh5, only: mh5_put_attr, mh5_resize_dset, mh5_put_dset
+  use Slapaf_Info, only: Cx, Energy, Gx
+  use Slapaf_Parameters, only: iter, nDimBC
+  use mh5, only: mh5_put_attr, mh5_put_dset, mh5_resize_dset
 # include "WrkSpc.fh"
 # include "stdalloc.fh"
   integer :: i, ij, j
@@ -262,8 +262,8 @@ end subroutine Chkpnt_update
 
 subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
 # ifdef _HDF5_
-  use mh5, only: mh5_init_attr, mh5_open_attr, mh5_get_attr, mh5_put_attr, mh5_close_attr, mh5_open_dset, mh5_resize_dset, &
-                 mh5_put_dset, mh5_close_dset
+  use mh5, only: mh5_close_attr, mh5_close_dset, mh5_get_attr, mh5_init_attr, mh5_open_attr, mh5_open_dset, mh5_put_attr, &
+                 mh5_put_dset, mh5_resize_dset
 # endif
   logical, intent(In) :: SaveMEP, IRCRestart
 # ifdef _HDF5_
@@ -282,13 +282,9 @@ subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
     call mh5_close_dset(dsetid)
   end if
 # else
-  return
-# ifdef _WARNING_WORKAROUND_
-  if (.false.) then
-    call Unused_logical(SaveMEP)
-    call Unused_logical(IRCRestart)
-  end if
-# endif
+# include "macros.fh"
+  unused_var(SaveMEP)
+  unused_var(IRCRestart)
 # endif
 end subroutine Chkpnt_update_MEP
 
