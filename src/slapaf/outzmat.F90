@@ -28,8 +28,8 @@ use Constants, only: Zero, One, Angstrom, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, N_ZMAT
-real(kind=wp) :: XYZCoords(3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms, N_ZMAT
+real(kind=wp), intent(inout) :: XYZCoords(3,nAtoms)
 integer(kind=iwp) :: i, iAtom, iAX, iBonded, iRX, iTX, j, LuWr
 real(kind=wp) :: alpha, arccos, bond, Bt(3,4), CTX(3,4), dBt(3,4,3,4), dMaxTrasl, dvec2, dXYZ(3), dXYZ2(3), prod, theta
 logical(kind=iwp) :: IfTest
@@ -79,7 +79,7 @@ if (IfTest) then
 end if
 
 if (N_ZMAT < 3) return
-if (N_ZMAT > (nAtoms+3)) then
+if (N_ZMAT > nAtoms+3) then
   write(LuWr,'(A)') ' ZMAT cannot be defined :'
   write(LuWr,'(A)') ' Too many ghost Z atoms. '
   return

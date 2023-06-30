@@ -27,10 +27,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
-real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter), error(nInter,nIter+1), B((nIter+1)**2), &
-                 RHS(nIter+1), Scrt1(nScrt1), Beta, Energy(nIter), Thr_RS
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: nInter, nIter, nScrt1, nFix
+real(kind=wp), intent(inout) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter)
+real(kind=wp), intent(out) :: error(nInter,nIter+1), B((nIter+1)**2), RHS(nIter+1), Scrt1(nScrt1)
+real(kind=wp), intent(in) :: Beta, Energy(nIter), Thr_RS
+integer(kind=iwp), intent(out) :: iP(nIter)
+character, intent(inout) :: Step_Trunc
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, Lu, MinWdw
 real(kind=wp) :: Beta_New

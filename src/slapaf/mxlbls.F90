@@ -16,9 +16,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: Grad(nInter), Shift(nInter)
-character(len=8) :: Lbl(nInter)
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: Grad(nInter), Shift(nInter)
+character(len=8), intent(in) :: Lbl(nInter)
 integer(kind=iwp) :: i
 
 #ifdef _DEBUGPRINT_

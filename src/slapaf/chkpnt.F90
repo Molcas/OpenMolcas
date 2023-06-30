@@ -13,7 +13,12 @@
 
 module Chkpnt
 
-use Definitions, only: iwp
+#ifdef _HDF5_
+use mh5, only: mh5_close_attr, mh5_close_dset, mh5_close_file, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, &
+               mh5_create_dset_str, mh5_create_file, mh5_fetch_attr, mh5_get_attr, mh5_init_attr, mh5_is_hdf5, mh5_open_attr, &
+               mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset, mh5_resize_dset
+#endif
+use Definitions, only: wp, iwp
 
 implicit none
 private
@@ -32,10 +37,9 @@ subroutine Chkpnt_open()
   use Symmetry_Info, only: nIrrep
   use Slapaf_Info, only: Coor
   use Slapaf_Parameters, only: IRC, iter
-  use mh5, only: mh5_fetch_attr, mh5_is_hdf5, mh5_open_attr, mh5_open_dset, mh5_open_file_rw
+  integer(kind=iwp) :: tmp
+  logical(kind=iwp) :: create
   character(len=3) :: level
-  logical :: create
-  integer :: tmp
 
   Iter_all = Iter
   create = .true.
@@ -82,14 +86,12 @@ subroutine Chkpnt_init()
   use Index_Functions, only: nTri_Elem
   use Slapaf_Info, only: AtomLbl, Coor, dMass, iCoSet, nStab, Smmtrc
   use Slapaf_Parameters, only: dMEPStep, MEP, nDimBC, rMEP
-  use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
-                 mh5_create_file, mh5_init_attr, mh5_put_dset
+  use stdalloc, only: mma_allocate, mma_deallocate
 # include "Molcas.fh"
-# include "stdalloc.fh"
   character :: lIrrep(24)
-  integer :: dsetid, mAtom, i, j, k
-  real*8, allocatable :: charges(:)
-  integer, allocatable :: desym(:,:), symdof(:,:)
+  integer(kind=iwp) :: dsetid, i, j, k, mAtom
+  integer(kind=iwp), allocatable :: desym(:,:), symdof(:,:)
+  real(kind=wp), allocatable :: charges(:)
 
   chkpnt_id = mh5_create_file(filename)
 
@@ -215,12 +217,10 @@ subroutine Chkpnt_update()
 # ifdef _HDF5_
   use Slapaf_Info, only: Cx, Energy, Gx
   use Slapaf_Parameters, only: iter, nDimBC
-  use mh5, only: mh5_put_attr, mh5_put_dset, mh5_resize_dset
-# include "WrkSpc.fh"
-# include "stdalloc.fh"
-  integer :: i, ij, j
-  logical :: Found
-  real*8, allocatable :: Hss_X(:)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp) :: i, ij, j
+  logical(kind=iwp) :: Found
+  real(kind=wp), allocatable :: Hss_X(:)
 
   call Qpg_dArray('Hss_X',Found,i)
   if (Found) then
@@ -261,13 +261,9 @@ subroutine Chkpnt_update()
 end subroutine Chkpnt_update
 
 subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
+  logical(kind=iwp), intent(in) :: SaveMEP, IRCRestart
 # ifdef _HDF5_
-  use mh5, only: mh5_close_attr, mh5_close_dset, mh5_get_attr, mh5_init_attr, mh5_open_attr, mh5_open_dset, mh5_put_attr, &
-                 mh5_put_dset, mh5_resize_dset
-# endif
-  logical, intent(In) :: SaveMEP, IRCRestart
-# ifdef _HDF5_
-  integer :: attrid, dsetid, iMEP
+  integer(kind=iwp) :: attrid, dsetid, iMEP
 
   if (IRCRestart) call mh5_init_attr(chkpnt_id,'IRC_RESTART',Iter_all+1)
   if (SaveMEP) then
@@ -290,7 +286,6 @@ end subroutine Chkpnt_update_MEP
 
 subroutine Chkpnt_close()
 # ifdef _HDF5_
-  use mh5, only: mh5_close_file
   call mh5_close_file(chkpnt_id)
 # endif
 end subroutine Chkpnt_close

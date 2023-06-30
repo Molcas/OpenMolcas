@@ -18,8 +18,8 @@ use Constants, only: Zero, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nIter, mTtAtm
-real(kind=wp) :: ThrGrd
+integer(kind=iwp), intent(in) :: nIter, mTtAtm
+real(kind=wp), intent(inout) :: ThrGrd
 integer(kind=iwp) :: i, iIter, mTR, nBonds, nHidden, nMax, nSaddle, nsAtom
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:), TabB(:,:)
@@ -82,9 +82,7 @@ call Hidden(Coor,AN,nHidden)
 
 ! Generate bond list
 
-mTtAtm = mTtAtm+nHidden
-call Box(Coor,mTtAtm,AN,TabB,TabA,nBonds,nMax)
-mTtAtm = mTtAtm-nHidden
+call Box(Coor,mTtAtm+nHidden,AN,TabB,TabA,nBonds,nMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

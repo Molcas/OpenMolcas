@@ -20,8 +20,8 @@ use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iStop
-logical(kind=iwp) :: Just_Frequencies
+integer(kind=iwp), intent(in) :: iStop
+logical(kind=iwp), intent(in) :: Just_Frequencies
 #include "Molcas.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iDo_dDipM, iIrrep, iOff, iPrint, iRout, isAtom, iTemp, j, jsAtom, LOut, Lu_xyz, N_ZMAT, nCoord, nsAtom_p, &
@@ -47,7 +47,7 @@ LOut = u6
 ! Write information of this iteration to the RLXITR file
 
 call Dmp_Slapaf(stop,Just_Frequencies,Energy(1),iter,MaxItr,mTROld,lOld_Implicit,size(Coor,2))
-!
+
 if (SuperName /= 'numerical_gradient') then
   call Put_dArray('qInt',qInt,size(qInt))
   call Put_dArray('dqInt',dqInt,size(dqInt))

@@ -20,7 +20,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nInter
+integer(kind=iwp), intent(in) :: nInter
 integer(kind=iwp) :: iAtom, nAtMM, nsAtom
 integer, allocatable :: IsMM(:)
 

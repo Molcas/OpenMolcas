@@ -15,8 +15,9 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: B(nDim,nDim), rGamma(nDim), Delta(nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(inout) :: B(nDim,nDim)
+real(kind=wp), intent(in) :: rGamma(nDim), Delta(nDim)
 #include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout
 real(kind=wp) :: dd, e_msp, gd, gg, phi

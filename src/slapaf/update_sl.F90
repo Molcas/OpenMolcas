@@ -31,8 +31,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-character :: Step_Trunc
-integer(kind=iwp) :: nWndw, kIter
+character, intent(inout) :: Step_Trunc
+integer(kind=iwp), intent(in) :: nWndw, kIter
 integer(kind=iwp) :: iOpt_RS, iter_, nQQ
 real(kind=wp) :: Dummy(1), qBeta, qBeta_Disp
 logical Kriging_Hessian, Hide

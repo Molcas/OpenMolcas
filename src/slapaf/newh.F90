@@ -28,8 +28,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter, nIter, iOptH, mIter
-real(kind=wp) :: dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
+integer(kind=iwp), intent(in) :: nInter, nIter, iOptH, mIter
+real(kind=wp), intent(in) :: dq_orig(nInter,nIter), g(nInter,mIter+1)
+real(kind=wp), intent(inout) :: H(nInter,nInter)
 integer(kind=iwp) :: i
 logical(kind=iwp) :: DoMask
 real(kind=wp), allocatable :: dg(:), dq(:,:), gi(:)

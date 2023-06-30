@@ -24,8 +24,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter, nIter
-real(kind=wp) :: dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1)
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(inout) :: dq(nInter,nIter)
+real(kind=wp), intent(in) :: H(nInter,nInter), g(nInter,nIter+1)
 integer(kind=iwp) :: Info
 integer(kind=iwp), allocatable :: Tmp(:)
 

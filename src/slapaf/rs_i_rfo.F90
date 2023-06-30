@@ -42,10 +42,12 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax, Thr_RS
-character(len=6) :: UpMeth
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(inout) :: H(nInter,nInter), g(nInter), dqHdq
+real(kind=wp), intent(out) :: dq(nInter)
+character(len=6), intent(out) :: UpMeth
+real(kind=wp), intent(in) :: StepMax, Thr_RS
+character, intent(inout) :: Step_Trunc
 integer(kind=iwp) :: i, ij, iNeg, iStatus, j, Lu, nNeg, NumVal, nVStep
 real(kind=wp) :: Fact, gi, Thr
 logical(kind=iwp) :: Found
@@ -57,7 +59,6 @@ Lu = u6
 #ifdef _DEBUGPRINT_
 call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
 call RecPrt(' In RS_I_RFO: g','(10f10.6)',g,nInter,1)
-call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
 #endif
 
 NumVal = min(2,nInter)

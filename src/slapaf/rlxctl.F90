@@ -25,7 +25,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iStop
+integer(kind=iwp), intent(out) :: iStop
 #include "print.fh"
 integer(kind=iwp) :: i, iErr, iOff, j, kIter, Lu, LuSpool, mInt, mIntEff, nGB, nHQ, nHX, nHX2, nIntCoor, nKtB, nQQ
 real(kind=wp) :: rDum(1), ThrGrd

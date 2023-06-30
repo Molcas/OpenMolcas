@@ -51,8 +51,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nH
-real(kind=wp) :: dq(nH), dg(nH), gi(nH), H(nH,nH)
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: dq(nH), dg(nH), gi(nH)
+real(kind=wp), intent(inout) :: H(nH,nH)
 integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: lim, WorkR
 real(kind=wp), allocatable :: E(:,:), Eval(:), EVec(:,:), f(:), M(:,:), p(:), u(:), v(:), WorkM(:,:), WorkV(:)

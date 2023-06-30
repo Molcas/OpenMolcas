@@ -36,8 +36,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nH
-real(kind=wp) :: dq(nH), y(nH), H(nH,nH)
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: dq(nH), y(nH)
+real(kind=wp), intent(inout) :: H(nH,nH)
 integer(kind=iwp) :: i
 real(kind=wp) :: a, b, f, WorkR
 real(kind=wp), allocatable :: u(:), v(:), WorkM(:,:), WorkV(:)
@@ -61,7 +62,7 @@ call mma_allocate(u,nH,label='u')
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 ! Make a comment in logfile
-write(u6,*) 'hello from ts_bfgs.f'
+write(u6,*) 'hello from ts_bfgs'
 #endif
 
 ! Calculation of u = y^T*dq*y + (dq^T|B|dq)|B|dq
@@ -134,7 +135,7 @@ call dGeMV_('N',nH,nH,One,H,nH,dq,1,Zero,WorkV,1)
 WorkV(:) = WorkV(:)-y(:)
 call RecPrt('quasi-Newton',' ',WorkV,1,nH)
 
-write(u6,*) 'good-bye from ts_bfgs.f'
+write(u6,*) 'good-bye from ts_bfgs'
 #endif
 
 call mma_deallocate(WorkM)

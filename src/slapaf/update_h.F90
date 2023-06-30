@@ -18,9 +18,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nWndw, nInter, nIter, iOptC, iOptH, jPrint, nsAtom
-real(kind=wp) :: H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter), GNrm
-logical(kind=iwp) :: Store, AllowFindTS
+integer(kind=iwp), intent(in) :: nWndw, nInter, nIter, iOptH, jPrint, nsAtom
+real(kind=wp), intent(inout) :: H(nInter,nInter)
+integer(kind=iwp), intent(inout) :: iOptC
+real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter), GNrm
+logical(kind=iwp), intent(in) :: Store, AllowFindTS
 integer(kind=iwp) :: ierr, IterHess
 logical(kind=iwp) :: Old_MF
 real(kind=wp), allocatable :: Tmp(:,:)

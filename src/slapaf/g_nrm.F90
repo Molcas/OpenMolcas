@@ -16,8 +16,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter, Iter, mIntEff
-real(kind=wp) :: GNrm(Iter), Grad(nInter,Iter)
+integer(kind=iwp), intent(in) :: nInter, Iter
+real(kind=wp), intent(inout) :: GNrm(Iter)
+real(kind=wp), intent(in) :: Grad(nInter,Iter)
+integer(kind=iwp), intent(out) :: mIntEff
 integer(kind=iwp) :: i, j
 real(kind=wp) :: Fabs
 

@@ -37,10 +37,12 @@ use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kIter, nWndw, mIter, iOpt_RS, Iter
-real(kind=wp) :: Beta, Beta_Disp, qBeta, qBeta_Disp
-character :: Step_Trunc
-logical(kind=iwp) :: Kriging_Hessian, First_MicroIteration, Hide
+integer(kind=iwp), intent(in) :: kIter, nWndw, mIter, iOpt_RS, Iter
+real(kind=wp), intent(inout) :: Beta
+real(kind=wp), intent(in) :: Beta_Disp, qBeta_Disp
+character, intent(out) :: Step_Trunc
+logical(kind=iwp), intent(in) :: Kriging_Hessian, First_MicroIteration, Hide
+real(kind=wp), intent(out) :: qBeta
 integer(kind=iwp) :: i, iAd, iAtom, iDo_DipM, iDum(1), iEnd, iIter, iLambda, iOptH_, ix, ixyz, j, jAtom, jPrint, jx, jxyz, k, &
                      kStart, lIter, LudRdx, M, Mode_Save, N, n1, nA, nLoop, nQQ, NRHS, nRP, nsAtom
 real(kind=wp) :: Disp(1), dxdx, dxdx_last, fact, fCart, gBeta, gg, gg_last, rCart, rInter, Sf, tBeta, Thr, Thr_RS, xBeta

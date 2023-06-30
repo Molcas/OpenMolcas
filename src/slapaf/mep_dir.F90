@@ -45,9 +45,12 @@ use Constants, only: Zero, One, Half, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, iMEP, iOff_iter, iPrint
-real(kind=wp) :: Cx(3*nAtom,iter+1), Gx(3*nAtom,iter+1), ResGrad
-logical(kind=iwp) :: IRCRestart, BadConstraint
+integer(kind=iwp), intent(in) :: nAtom, iMEP, iOff_iter, iPrint
+real(kind=wp), intent(inout) :: Cx(3*nAtom,iter+1)
+real(kind=wp), intent(in) :: Gx(3*nAtom,iter+1)
+logical(kind=iwp), intent(in) :: IRCRestart
+real(kind=wp), intent(out) :: ResGrad
+logical(kind=iwp), intent(out) :: BadConstraint
 integer(kind=iwp) :: iAd, iAtom, iDum(1), iLambda, iOff, iPrev_iter, ixyz, LudRdX, nCoor, nCoor_, nLambda_
 real(kind=wp) :: ConstraintAngle, Curvature, dd, dDir, dDisp, dGrad, dPostDir, dPostDirGrad, dPrevDir, dPrevDirDisp, dPrevDirGrad, &
                  dPrevDirPostDir, drd, Fact, PathAngle, PathLength, TWeight, xWeight
@@ -76,7 +79,6 @@ call mma_allocate(Cen,3,nAtom,Label='Cen')
 if (iter > 1) then
   PrevDir(:,:) = RefGeo(:,:)-reshape(Cx(:,iPrev_iter),[3,nAtom])
   PostDir(:,:) = reshape(Cx(:,iter),[3,nAtom])-RefGeo(:,:)
-  !Disp(:,:) = reshape(Cx(:,iter)-Cx(:,iPrev_iter),[3,nAtom])
   Disp(:,:) = PrevDir(:,:)+PostDir(:,:)
 else
   PrevDir(:,:) = Zero

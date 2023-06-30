@@ -19,8 +19,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kIter
-logical(kind=iwp) :: SaveBMx, Error
+integer(kind=iwp), intent(in) :: kIter
+logical(kind=iwp), intent(in) :: SaveBMx
+logical(kind=iwp), intent(inout) :: Error
 logical(kind=iwp) :: Numerical_Save, PrQ_Save
 real(kind=wp), allocatable :: BMx_Tmp(:,:), Coor(:,:)
 

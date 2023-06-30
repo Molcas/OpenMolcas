@@ -46,10 +46,12 @@ use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax
-character(len=6) :: UpMeth
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: H(nInter,nInter), g(nInter), StepMax
+real(kind=wp), intent(out) :: dq(nInter)
+character(len=6), intent(out) :: UpMeth
+real(kind=wp), intent(inout) :: dqHdq
+character, intent(inout) :: Step_Trunc
 #include "print.fh"
 integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, k, Lu, mInter, nNeg, NumVal, nVStep
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, dqdq, dqdq_long, dqdq_short, EigVal_r, EigVal_t, gv, Lambda, Thr
@@ -64,7 +66,6 @@ iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt(' In RS_P_RFO: H','(10f10.6)',H,nInter,nInter)
   call RecPrt(' In RS_P_RFO: g','(10f10.6)',g,nInter,1)
-  call RecPrt(' In RS_P_RFO:dq','(10f10.6)',dq,nInter,1)
 end if
 
 UpMeth = 'RSPRFO'

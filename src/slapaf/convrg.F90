@@ -20,9 +20,10 @@ use Constants, only: Zero, One, Four, Six, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iter, kIter, nInter, iStop, MxItr, mIntEff, mTtAtm
-logical(kind=iwp) :: GoOn, Just_Frequencies
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: iter, kIter, nInter, MxItr, mIntEff, mTtAtm
+integer(kind=iwp), intent(out) :: iStop
+logical(kind=iwp), intent(in) :: GoOn, Just_Frequencies
+character, intent(in) :: Step_Trunc
 #include "print.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, Lu, &
@@ -283,7 +284,7 @@ else
   iPrint = iPrint+1
   nPrint(53) = nPrint(53)+1
 end if
-if (.not. Just_Frequencies) call Status(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eChng,Temp,Step_Trunc,.not. Numerical)
+if (.not. Just_Frequencies) call SlStatus(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eChng,Temp,Step_Trunc,.not. Numerical)
 
 if (Baker) then
   if (iPrint >= 5) then

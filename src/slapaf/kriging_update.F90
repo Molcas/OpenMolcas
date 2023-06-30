@@ -21,8 +21,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nQQ, iter
-real(kind=wp) :: qInt(nQQ), E_Disp
+integer(kind=iwp), intent(in) :: nQQ, iter
+real(kind=wp), intent(in) :: qInt(nQQ)
+real(kind=wp), intent(out) :: E_Disp
 integer(kind=iwp) :: nAtoms
 real(kind=wp) :: Diff, Omega
 real(kind=wp), allocatable :: Aux(:,:), Demp(:), Temp(:), vAux(:)

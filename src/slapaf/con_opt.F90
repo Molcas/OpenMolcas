@@ -51,21 +51,23 @@ use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nWndw, nInter, nIter, iOptH, jPrint, nLambda, nA, nFix, iP(nInter), nsAtom, iOpt_RS, iter_
-real(kind=wp) :: r(nLambda,nIter), drdq(nInter,nLambda,nIter), T(nInter,nInter), dEdq(nInter,nIter), rLambda(nLambda,nIter+1), &
-                 q(nInter,nIter+1), dq(nInter,nIter), dy(nLambda), dx(nInter-nLambda,nIter), hql(nInter,nIter), du(nInter), &
-                 x(nInter-nLambda,nIter+1), dEdx(nInter-nLambda,nIter), W(nInter-nLambda,nInter-nLambda), GNrm, &
-                 Hess(nInter,nInter), Energy(nIter), Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1), A(nA), cBeta, fCart, &
-                 Beta_Disp_Seed, d2rdq2(nInter,nInter,nLambda), Thr_RS
-real(kind=wp) :: disp(nSet)
-character :: Step_Trunc
-character(len=8) :: Lbl(nInter+nLambda)
-logical(kind=iwp) :: First_MicroIteration
+integer(kind=iwp), intent(in) :: nWndw, nInter, nIter, iOptH, jPrint, nA, nFix, nsAtom, iOpt_RS, iter_
+integer(kind=iwp), intent(inout) :: nLambda
+real(kind=wp), intent(inout) :: r(nLambda,nIter), drdq(nInter,nLambda,nIter), dEdq(nInter,nIter), rLambda(nLambda,nIter+1), &
+                                q(nInter,nIter+1), dq(nInter,nIter), Energy(nIter), cBeta, Thr_RS
+real(kind=wp), intent(out) :: T(nInter,nInter), dy(nLambda), dx(nInter-nLambda,nIter), hql(nInter,nIter), du(nInter), &
+                              x(nInter-nLambda,nIter+1), dEdx(nInter-nLambda,nIter), W(nInter-nLambda,nInter-nLambda), GNrm, &
+                              Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1), A(nA)
+real(kind=wp), intent(in) :: Hess(nInter,nInter), fCart, Beta_Disp_Seed, d2rdq2(nInter,nInter,nLambda)
+integer(kind=iwp), intent(out) :: iP(nInter)
+character, intent(out) :: Step_Trunc
+character(len=8), intent(inout) :: Lbl(nInter+nLambda)
+logical(kind=iwp), intent(in) :: First_MicroIteration
 integer(kind=iwp) :: i, iCount, iCount_Max, iInter, iIter, iLambda, iMEP, iOff_Iter, iOptC_Temp, ipTb, ipTti, iSt, j, jLambda, &
                      nTrans
-real(kind=wp) :: Beta, Beta_Disp, Beta_Disp_Save = Zero, Det, disp_long, Disp_Save = Zero, disp_short, Dummy, dxdx, dxdx_last, &
-                 dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, tBeta, Thr, &
-                 tmp, xBeta, yBeta
+real(kind=wp) :: Beta, Beta_Disp, Beta_Disp_Save = Zero, Det, disp(nSet), disp_long, Disp_Save = Zero, disp_short, Dummy, dxdx, &
+                 dxdx_last, dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, &
+                 tBeta, Thr, tmp, xBeta, yBeta
 logical(kind=iwp) :: Found, IRC_setup, Recompute_disp, RVO
 character(len=8) :: StpLbl_Save
 character :: Step_Trunc_
@@ -937,7 +939,7 @@ if (nInter-nLambda > 0) then
 # endif
   do
     Step_Trunc_ = Step_Trunc
-    call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,RHS,A,nA,tBeta,nFix,ip,Energy,Step_Trunc_,Thr_RS)
+    call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,RHS,A,nA,tBeta,nFix,iP,Energy,Step_Trunc_,Thr_RS)
     if (Step_Trunc == 'N') Step_Trunc = ' '
 
     if (.not. RVO) then
@@ -1021,7 +1023,7 @@ call RecPrt('du',' ',du,1,nInter)
 ! optimize and just focus on fulfilling the constraints.
 
 Recompute_disp = .false.
-if ((Max_MicroIterations >= 50) .and. (niter-iter_+1 > Max_Microiterations-10)) then
+if ((Max_MicroIterations >= 50) .and. (nIter-iter_+1 > Max_Microiterations-10)) then
   dydy = sqrt(DDot_(nLambda,dy,1,dy,1))
   if (dydy > 1.0e-12_wp) du(nLambda+1:nInter) = Zero
   Recompute_disp = .true.
@@ -1079,8 +1081,8 @@ contains
 
 subroutine Backtrans_T(du,dq)
   implicit none
-  real*8, intent(In) :: du(nInter)
-  real*8, intent(Out) :: dq(nInter)
+  real(kind=wp), intent(in) :: du(nInter)
+  real(kind=wp), intent(out) :: dq(nInter)
   call DGEMM_('N','N',nInter,1,nInter,One,T,nInter,du,nInter,Zero,dq,nInter)
 end subroutine Backtrans_T
 

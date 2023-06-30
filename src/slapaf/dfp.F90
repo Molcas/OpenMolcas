@@ -15,8 +15,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: B(nDim,nDim), Bd(nDim), Delta(nDim), rGamma(nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(inout) :: B(nDim,nDim)
+real(kind=wp), intent(out) :: Bd(nDim)
+real(kind=wp), intent(in) :: Delta(nDim), rGamma(nDim)
 integer(kind=iwp) :: i
 real(kind=wp) :: dBd, gd
 real(kind=wp), parameter :: Thr = 1.0e-8_wp

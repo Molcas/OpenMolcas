@@ -29,9 +29,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter, nIter, nFix, iP(nIter), MinWdw
-real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter), B((nIter+1)**2), &
-                 RHS(nIter+1)
+integer(kind=iwp), intent(in) :: nInter, nIter, nFix, MinWdw
+real(kind=wp), intent(inout) :: q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter+1)
+real(kind=wp), intent(in) :: H(nInter,nInter)
+real(kind=wp), intent(out) :: error(nInter,nIter), B((nIter+1)**2), RHS(nIter+1)
+integer(kind=iwp), intent(out) :: iP(nIter)
 #include "print.fh"
 integer(kind=iwp) :: i, ii, ij, iOff, iPrint, iRc, iRout, iSave, j, jIter, MaxWdw, mIter
 real(kind=wp) :: Err1, Err2

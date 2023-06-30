@@ -29,8 +29,8 @@ use Constants, only: Zero, One, Three, Four, Six, Ten, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nWndw
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: nWndw
+character, intent(out) :: Step_Trunc
 integer(kind=iwp) :: HessIter, i, iFirst, iInter, iOpt_RS, iRef, iRef_Save, iterAI, iterK, j, kIter, nQQ, nRaw, nWndw_
 real(kind=wp) :: Beta, Beta_Disp, dEner, dqdq, dqdq1, dqdq2, dqdq3, Dummy(1), E_Disp, FAbs, FAbs_Ini, GrdMax_Save, GrdMx, MaxErr, &
                  MaxErr_Ini, qBeta, qBeta_Disp, RMS, RMSMx, tmp

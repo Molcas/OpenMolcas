@@ -15,7 +15,7 @@ use Slapaf_Parameters, only: CallLast, isFalcon
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 #include "warnings.h"
 integer(kind=iwp) :: Columbus, iStop
 character(len=8) :: ELOOP

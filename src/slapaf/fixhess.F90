@@ -18,9 +18,11 @@ use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH, iOptC, nsAtom
-real(kind=wp) :: H(nH,nH), MF(3,nsAtom), GNrm
-logical(kind=iwp) :: AnalHess, AllowFindTS
+integer(kind=iwp), intent(in) :: nH, nsAtom
+real(kind=wp), intent(inout) :: H(nH,nH), MF(3,nsAtom)
+integer(kind=iwp), intent(inout) :: iOptC
+real(kind=wp), intent(in) :: GNrm
+logical(kind=iwp), intent(in) :: AnalHess, AllowFindTS
 integer(kind=iwp) :: i, ij, iLow, iStatus, iTest, j, jNeg, nRP, NumVal, nVStep
 real(kind=wp) :: dRx, Fact, Fix_Val, rLow, rq, SumHii, temp, Test
 logical(kind=iwp) :: Corrected, Found

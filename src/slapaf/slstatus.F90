@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Status(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_Status)
+subroutine SlStatus(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_Status)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -26,11 +26,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: kIter, nLines
-real(kind=wp) :: Energy, rGrad, Ex, delE
-logical(kind=iwp) :: Print_Status
-character(len=8) :: HUpMet
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: kIter, nLines
+real(kind=wp), intent(in) :: Energy, rGrad, Ex, delE
+character(len=8), intent(in) :: HUpMet
+character, intent(in) :: Step_Trunc
+logical(kind=iwp), intent(in) :: Print_Status
 #include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, iter, ivv, Lu, Lu_file, Lu_out, nvv
 character(len=8) :: lNeg
@@ -123,4 +123,4 @@ return
 
 100 format(I3,F16.8,F12.8,2(F9.6,1X),A8,F9.6,A1,1X,A8,F16.8,1X,A,1X,A,1X,A)
 
-end subroutine Status
+end subroutine SlStatus

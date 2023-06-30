@@ -17,8 +17,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nWndw, nIter, nInter, iOptH, IterHess
-real(kind=wp) :: H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
+integer(kind=iwp), intent(in) :: nWndw, nIter, nInter, iOptH
+real(kind=wp), intent(inout) :: H(nInter,nInter)
+real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter+1)
+integer(kind=iwp), intent(inout) :: IterHess
 integer(kind=iwp) :: i, iSt, lIter
 logical(kind=iwp) :: DoMask, Found
 !#define _DEBUGPRINT_

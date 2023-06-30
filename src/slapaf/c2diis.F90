@@ -31,10 +31,12 @@ use Constants, only: Zero, One, Two, Five, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nInter, nIter, nScrt1, nFix
+real(kind=wp), intent(inout) :: q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter+1)
+real(kind=wp), intent(in) :: H(nInter,nInter)
+real(kind=wp), intent(out) :: error(nInter,nIter+1), B((nIter+1)**2), RHS(nIter+1), Scrt1(nScrt1)
+integer(kind=iwp), intent(out) :: iP(nIter)
 #include "print.fh"
-integer(kind=iwp) :: nInter, nIter, nScrt1, nFix, iP(nIter)
-real(kind=wp) :: q(nInter,nIter+1), dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1), error(nInter,nIter+1), &
-                 B((nIter+1)*(nIter+1)), RHS(nIter+1), Scrt1(nScrt1)
 integer(kind=iwp) :: i, ii, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, j, MaxWdw, MinWdw, mIter
 real(kind=wp) :: Alpha, c2_new, c2_old, ee_new, ee_old, Err1, Err2, t1, t2, ThrCff, Thrhld, ThrLdp
 logical(kind=iwp) :: Fail
