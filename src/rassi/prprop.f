@@ -295,19 +295,29 @@ c add spin-orbit AMFI integrals:
 * printout of properties over the spin-orbit states
 *******************************************************
 c If PRPR requested, print the spin matrices
+#ifdef _HDF5_
+      IF (LPRPR.OR.PRMES) THEN
+#else
       IF (LPRPR) THEN
-         Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
-         Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
+#endif
+         Call mma_Allocate(SOPRR,NSS,NSS,Label='SOPRR')
+         Call mma_Allocate(SOPRI,NSS,NSS,Label='SOPRI')
          DO ICMP=1,3
-            SOPRR(:,1)=0.0D0
-            SOPRI(:,1)=0.0D0
+            SOPRR(:,:)=0.0D0
+            SOPRI(:,:)=0.0D0
             IF (ICMP.EQ.2) THEN
               CALL SMMAT(PROP,SOPRI,NSS,0,ICMP)
             ELSE
               CALL SMMAT(PROP,SOPRR,NSS,0,ICMP)
             END IF
             CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
-            CALL PRCMAT3(NSS,SOPRR,SOPRI,ICMP)
+#ifdef _HDF5_
+            Call mh5_put_dset(wfn_sos_spinr,
+     &                        SOPRR,[NSS,NSS,1],[0,0,ICMP-1])
+            Call mh5_put_dset(wfn_sos_spini,
+     &                        SOPRI,[NSS,NSS,1],[0,0,ICMP-1])
+#endif
+            IF (LPRPR) CALL PRCMAT3(NSS,SOPRR,SOPRI,ICMP)
          END DO
          Call mma_deallocate(SOPRR)
          Call mma_deallocate(SOPRI)
@@ -389,6 +399,8 @@ C Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
        CALL GETMEM('PMAP','FREE','INTE',LPMAP,NPMSIZ)
        NSOPR=ISOPR
 
+       Call mma_Allocate(SOPRR,NSS,NSS,Label='SOPRR')
+       Call mma_Allocate(SOPRI,NSS,NSS,Label='SOPRI')
 C Print out the matrix elements:
        NCOL=4
        DO ISOPR=1,NSOPR
@@ -396,10 +408,8 @@ C Print out the matrix elements:
         WRITE(6,'(1X,A,A8,A,I4)')
      &  'PROPERTY: ',SOPRNM(ISOPR),'   COMPONENT:',ISOCMP(ISOPR)
 CIFG  should print the origin, but where is it stored (for SO properties)?
-        Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
-        Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
-        SOPRR(:,1)=0.0D0
-        SOPRI(:,1)=0.0D0
+        SOPRR(:,:)=0.0D0
+        SOPRI(:,:)=0.0D0
 
         CALL SMMAT(PROP,SOPRR,NSS,ISOPR,0)
         CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
@@ -424,43 +434,26 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
 ! prpr end
         ENDIF
 
-        IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
-           CALL Put_dArray('ANGMR_NSS',SOPRR,3*NSS*NSS)
-           CALL Put_dArray('ANGMI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
+        IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
            Call mh5_put_dset(wfn_sos_angmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset(wfn_sos_angmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-#endif
         ENDIF
 
         IF( (SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1').AND.
      &      (SOPRTP(ISOPR).EQ.'HERMSING') ) THEN
-
-           CALL Put_dArray('EDIPR_NSS',SOPRR,NSS**2*3)
-           CALL Put_dArray('EDIPI_NSS',SOPRI,NSS**2*3)
-#ifdef _HDF5_
            Call mh5_put_dset(wfn_sos_edipmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset(wfn_sos_edipmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-#endif
         ENDIF
+#endif
 
-        IF( SOPRNM(ISOPR)(1:4) .EQ.'SPIN') THEN
-           CALL Put_dArray('SPINR_NSS',SOPRR,3*NSS*NSS)
-           CALL Put_dArray('SPINI_NSS',SOPRI,3*NSS*NSS)
-#ifdef _HDF5_
-           Call mh5_put_dset(wfn_sos_spinr,
-     $                 SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset(wfn_sos_spini,
-     $                 SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-#endif
-        ENDIF
-        Call mma_deallocate(SOPRR)
-        Call mma_deallocate(SOPRI)
        END DO
+       Call mma_deallocate(SOPRR)
+       Call mma_deallocate(SOPRI)
        Call CollapseOutput(0,'Matrix elements over SO states')
        WRITE(6,*)
 
