@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim)
-************************************************************************
-*                                                                      *
-* Object: to generate the B matrix which is the transformation matrix  *
-*         between an infinitesimal displacement in the symmetry adapted*
-*         internal coordinates and the symmetry unique cartesian       *
-*         coordinates.                                                 *
-*                                                                      *
-*     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
-*             University of Lund, SWEDEN                               *
-*             May 1991                                                 *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to generate the B matrix which is the transformation matrix  *
+!         between an infinitesimal displacement in the symmetry adapted*
+!         internal coordinates and the symmetry unique cartesian       *
+!         coordinates.                                                 *
+!                                                                      *
+!     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
+!             University of Lund, SWEDEN                               *
+!             May 1991                                                 *
+!***********************************************************************
       use Slapaf_Info, only: AtomLbl
       use Slapaf_Parameters, only: iRow, Redundant
       Implicit Real*8 (A-H,O-Z)
@@ -30,7 +30,7 @@
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
-      Character Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
+      Character Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,                   &
      &          Line*120, Format*8, filnam*16
       Logical Flip, lPIC(6*nAtom), lAtom(nAtom)
       Logical, Save:: First=.True.
@@ -61,17 +61,17 @@
       Do jBVct = 1, nBVct
          Labels(jBVct)=' '
       End Do
-*
-*     Lu=6
+!
+!     Lu=6
       nTemp=Len(Temp)
       Write (Format,'(A,I3.3,A)') '(F',nTemp,'.0)'
-*
+!
       Lu_UDIC=91
       filnam='UDIC'
       Call molcas_open(Lu_UDIC,filnam)
-c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
+!      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       Rewind(Lu_UDIC)
-*
+!
       call dcopy_(nBVct,[Zero],0,rMult,1)
       If (iPrint.eq.99) First = .True.
       If (lWrite) Then
@@ -86,18 +86,18 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Write (6,'(80A)') ('*',i=1,60)
          Write (6,*)
          Write (6,*)
-         Write (6,*) '***********************************************'//
+         Write (6,*) '***********************************************'//&
      &               '**************'
-         Write (6,*) '* Values of primitive internal coordinates     '//
+         Write (6,*) '* Values of primitive internal coordinates     '//&
      &               '             *'
-         Write (6,*) '-----------------------------------------------'//
+         Write (6,*) '-----------------------------------------------'//&
      &               '--------------'
          Rewind(Lu_UDIC)
       End If
-*
-*     Step 1. Set up the b vectors from which we will define the
-*     internal coordinates.
-*
+!
+!     Step 1. Set up the b vectors from which we will define the
+!     internal coordinates.
+!
       iBVct = 0
       Do 10 iLines = 1, iRow
          Flip=.False.
@@ -107,9 +107,9 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 
          If (Temp(1:4).Eq.'VARY') Go To 100
          iBVct = iBVct + 1
-*
-*        Move the label of the internal coordinate
-*
+!
+!        Move the label of the internal coordinate
+!
          neq = Index(Line,'=')
          If (neq.Eq.0) Then
             Call WarningMessage(2,'Error in DefInt')
@@ -130,7 +130,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                Write (6,'(A)') '***********************************'
                Write (6,'(A)') ' Syntax error in line :            '
                Write (6,'(A)') Line(1:33),'...'
-               Write (6,'(A,A)') Line(iFrst:jEnd),
+               Write (6,'(A,A)') Line(iFrst:jEnd),                      &
      &               ' has more than 8 character'
                Write (6,'(A)') '***********************************'
                Call Quit_OnUserError()
@@ -138,9 +138,9 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
             Call ChkLbl(Line(iFrst:jEnd),Labels,iBVct-1)
             Labels(iBVct) = Line(iFrst:jEnd)
          End If
-*
-*--------Construct the corresponding transformation vector
-*
+!
+!--------Construct the corresponding transformation vector
+!
          mCntr = 0
          If (Index(Temp,'CART').Ne.0) Then
             nCntr=1
@@ -233,27 +233,27 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
             Write (6,*) '*****************************'
             Call Quit_OnUserError()
          End If
-*
+!
          msAtom = nCntr + mCntr
          Call mma_allocate(xyz ,3*msAtom,Label='xyz')
          Call mma_allocate(Tmp2,3*msAtom,Label='Tmp2')
          Call mma_allocate(Ind ,2*msAtom,Label='Ind')
          Call mma_allocate(Mass,2*msAtom,Label='Mass')
          Call mma_allocate(TM,9*nAtom*(nCntr+mCntr),Label='TM')
-*
-         Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
-     &              nAtom,Coor,nCntr,mCntr,
-     &              xyz,Tmp2,Ind,Type,
-     &              Mass,TM,
-     &              Labels(iBVct),lWrite,
+!
+         Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,           &
+     &              nAtom,Coor,nCntr,mCntr,                             &
+     &              xyz,Tmp2,Ind,Type,                                  &
+     &              Mass,TM,                                            &
+     &              Labels(iBVct),lWrite,                               &
      &              rMult(iBVct),lAtom)
-*
-         If (.Not.First .and.
-     &       Type.eq.'TRSN' .and.
+!
+         If (.Not.First .and.                                           &
+     &       Type.eq.'TRSN' .and.                                       &
      &       Abs(Value_Temp).lt.Pi*Half) Flip=.False.
-         If (Flip .and.
+         If (Flip .and.                                                 &
      &       Value(iBVct)*Value_Temp.lt.Zero ) Then
-*           Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
+!           Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
             If (Value(iBVct).lt.Zero) Then
                Value(iBVct)= -Pi - (Pi-Value_Temp)
             Else
@@ -264,49 +264,49 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
             Value(iBVct)= Value_Temp
          End If
 
-*
+!
          Call mma_deallocate(TM)
          Call mma_deallocate(Mass)
          Call mma_deallocate(Ind)
          Call mma_deallocate(Tmp2)
          Call mma_deallocate(xyz)
-*
+!
  10   Continue
       Call WarningMessage(2,'Error in DefInt')
       Write (6,*) '**********************************************'
       Write (6,*) ' ERROR: No internal coordinates are defined ! '
       Write (6,*) '**********************************************'
       Call Quit_OnUserError()
-*
+!
  100  Continue
       nDefPICs = iBVct
-      If (iPrint.ge.59) Call RecPrt(' The B-vectors',' ',
+      If (iPrint.ge.59) Call RecPrt(' The B-vectors',' ',               &
      &                              BVct,3*nAtom,nBVct)
-      If (iPrint.ge.19) Call RecPrt(
-     &        ' Values of primitive internal coordinates / au or rad',
+      If (iPrint.ge.19) Call RecPrt(                                    &
+     &        ' Values of primitive internal coordinates / au or rad',  &
      &                             ' ',Value,nBVct,1)
-*
-*     Step 2. Define internal coordinates as linear combinations of
-*     the previously defined primitive internal coordinates.
-*
+!
+!     Step 2. Define internal coordinates as linear combinations of
+!     the previously defined primitive internal coordinates.
+!
       iBMtrx = 0
       jLines=iLines
  201  Continue
          jLines=jLines+1
          If (jLines.gt.iRow) Go To 200
-*
-*------- Jump over the FIX keyword if present
-*
+!
+!------- Jump over the FIX keyword if present
+!
          Read (Lu_UDIC,'(A)') Line
          Temp = Line
          Call UpCase(Temp)
          If (Temp(1:3).Eq.'FIX') Go To 20
          If (Temp(1:4).Eq.'ROWH') Go To 30
-*
+!
          iBMtrx = iBMtrx + 1
          rInt(iBMtrx) = Zero
          RR=Zero
-*
+!
          iFrst = 1
          Call NxtWrd(Line,iFrst,iEnd)
          jEnd = iEnd
@@ -314,12 +314,12 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Lbl(iBMtrx) = Line(iFrst:jEnd)
          neq = Index(Line,'=')
          If (neq.Eq.0) Then
-*
-*           a single vector (this will only extend over one line)
-*
+!
+!           a single vector (this will only extend over one line)
+!
             iBVct = 0
             Do 21 jBVct = 1, nBVct
-               If (Line(iFrst:jEnd).eq.Labels(jBVct))
+               If (Line(iFrst:jEnd).eq.Labels(jBVct))                   &
      &            iBVct=jBVct
  21         Continue
             If (iBVct.eq.0) Then
@@ -333,32 +333,32 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                Write (6,*) '*******************************'
                Call Quit_OnUserError()
             End If
-*
+!
             lPIC(iBVct) = .False.
             call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
-            Call DScal_(3*nAtom,rMult(iBVct)**2,
+            Call DScal_(3*nAtom,rMult(iBVct)**2,                        &
      &                 BMtrx(1,iBMtrx),1)
             rInt(iBMtrx) = rMult(iBVct)**2*Value(iBVct)
             RR=RR+rMult(iBVct)**2
-*
+!
          Else
-*
-*-----------A linear combination of vectors
-*
+!
+!-----------A linear combination of vectors
+!
             call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
             iFrst = neq + 1
             Sgn=One
-*
-*-----------Process the rest of the line and possible extension lines
-*
+!
+!-----------Process the rest of the line and possible extension lines
+!
  22         Continue
-*              Get the factor
+!              Get the factor
                Call NxtWrd(Line,iFrst,iEnd)
                Temp=Line(iFrst:iEnd)
                Read (Temp,Format) Fact
                Fact = Fact * Sgn
                iFrst = iEnd + 1
-*              Get the label
+!              Get the label
                Call NxtWrd(Line,iFrst,iEnd)
                iBVct = 0
                Do jBVct = 1, nBVct
@@ -375,16 +375,16 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                   Write (6,*) '********************************'
                   Call Quit_OnUserError()
                End If
-*
+!
                lPIC(iBVct) = .False.
-               Call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,
-     &                    BVct(1,iBvct),1,
+               Call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,                &
+     &                    BVct(1,iBvct),1,                              &
      &                    BMtrx(1,iBMtrx),1)
-               rInt(iBMtrx) = rInt(iBMtrx)
-     &                      + Fact * rMult(iBVct)**2
+               rInt(iBMtrx) = rInt(iBMtrx)                              &
+     &                      + Fact * rMult(iBVct)**2                    &
      &                      * Value(iBVct)
                RR=RR+rMult(iBVct)**2*Fact**2
-*
+!
                iFrst = iEnd + 1
                Temp=Line(iFrst:nTemp)
                nPlus = Index(Temp,'+')
@@ -399,9 +399,9 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                iFrst = iFrst + nMinus
                Go To 22
             End If
-*
-*---------- Here if all statements processed of this line
-*
+!
+!---------- Here if all statements processed of this line
+!
             If (Index(Line,'&').ne.0) Then
                jLines=jLines+1
                If (jLines.gt.iRow) Then
@@ -427,7 +427,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                   Call WarningMessage(2,'Error in DefInt')
                   Write (6,*)
                   Write (6,*) '************** ERROR *************'
-                  Write (6,*) ' Syntax Error: first character in '
+                  Write (6,*) ' Syntax Error: first character in '      &
      &                      //' extension line is not + or -'
                   Write (6,'(A)') Line
                   Write (6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
@@ -435,42 +435,42 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                   Call Quit_OnUserError()
                End If
             End If
-*
+!
          End If
-*
+!
        rInt(iBMtrx)=rInt(iBMtrx)/Sqrt(RR)
        Call DScal_(3*nAtom,One/Sqrt(RR),BMtrx(1,iBMtrx),1)
-*
+!
  20   Continue
       Go To 201
-*
-* --- Skip the  RowH  section of input ---
-*
+!
+! --- Skip the  RowH  section of input ---
+!
  30   jLines=jLines+1
       If (jLines.gt.iRow) Go To 200
       Read (Lu_UDIC,'(A)') Line
       Temp = Line
       Call UpCase(Temp)
       Go To 30
-*-----------------------------------------
+!-----------------------------------------
  200  Continue
-      If (iPrint.ge.99) Call RecPrt(' The B-matrix',' ',
+      If (iPrint.ge.99) Call RecPrt(' The B-matrix',' ',                &
      &                              BMtrx,3*nAtom,nQQ)
-*
+!
       If (lWrite) Then
          Write (6,*)
          Write (6,*)
          Write (6,*) '*********************************************'
          Write (6,*) '* Value of internal coordinates / au or rad *'
          Write (6,*) '---------------------------------------------'
-         Write (6,'(1X,A,2X,F10.4)')
+         Write (6,'(1X,A,2X,F10.4)')                                    &
      &         (Lbl(iInt),rInt(iInt),iInt=1,nQQ)
          Write (6,*)
          Call XFlush(6)
       End If
-*
-* --- Some checks: Warnings & Errors ---
-*
+!
+! --- Some checks: Warnings & Errors ---
+!
       iDiff = 3*nAtom-nDim
       If (iDiff.eq.0) Then
         cNum = '3N'
@@ -498,9 +498,9 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Write (6,*)
          Write (6,*) '****************** ERROR ******************'
          Write (6,*) ' Too many Internal Coordinates !           '
-         Write (6,'(A,I4)') ' N.r of Primitive Internal Coordinates:',
+         Write (6,'(A,I4)') ' N.r of Primitive Internal Coordinates:',  &
      &                                                    nDefPICs
-         Write (6,'(A,I4)') ' N.r of Internal Coordinates:          ',
+         Write (6,'(A,I4)') ' N.r of Internal Coordinates:          ',  &
      &                                                      iBMtrx
          Write (6,*) '*******************************************'
          Write (6,*)
@@ -538,9 +538,9 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Call WarningMessage(2,'Error in DefInt')
          Write (6,*)
          Write (6,*) '******************* ERROR *****************'
-         If (iBMtrx.gt.nQQ)
+         If (iBMtrx.gt.nQQ)                                             &
      &      Write (6,*) ' Too many internal coordinates are defined'
-         If (iBMtrx.lt.nQQ)
+         If (iBMtrx.lt.nQQ)                                             &
      &      Write (6,*) ' Too few internal coordinates are defined'
          Write (6,*) ' You have defined', iBMtrx
          Write (6,*) ' There should be ', nQQ

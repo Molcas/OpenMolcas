@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*#define _DEBUGPRINT_
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
-      Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
+      Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,         &
      &                       Lbl
-      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
-     &                             User_Def, MaxItr, BSet, HSet,
+      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,      &
+     &                             User_Def, MaxItr, BSet, HSet,        &
      &                             lOld, Numerical, nLambda, iRef
       use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
@@ -22,11 +22,11 @@
 #include "stdalloc.fh"
       Real*8 Coor(3,nsAtom)
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
-      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
+      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),         &
      &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
         Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
         Integer nsAtom
@@ -41,19 +41,19 @@
         Integer nHidden
         End Subroutine Hidden
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nQQ = 0
-*
+!
       Lu=6
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     iRef: point at the reference geometry, used for non-redundant
-*           internal coordinate to define the K-matrix and to generate
-*           the raw model Hessian and TR vectors.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     iRef: point at the reference geometry, used for non-redundant
+!           internal coordinate to define the K-matrix and to generate
+!           the raw model Hessian and TR vectors.
+!
       If (Numerical) Then
          iRef = 1               ! Numerical Hessian Computation
       Else If (iRef.eq.0) Then
@@ -63,22 +63,22 @@
             iRef = nIter        ! Normal Computation
          End If
       End If
-*
+!
 #ifdef _DEBUGPRINT_
       Write (6,*) ' Actual structure from iteration',iRef
       Write (6,*) ' Last structure from iteration',nIter
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Find the translational and rotational eigenvectors for the
-*     current structure.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Find the translational and rotational eigenvectors for the
+!     current structure.
+!
       Call mma_allocate(TR,18*nsAtom,Label='TR')
       TR(:)=Zero
-*
+!
       Call TRPGen(nDimBC,nsAtom,Cx(1,1,iRef),mTR,.False.,TR)
-*
+!
       Call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
       i = 0
@@ -92,136 +92,136 @@
       End Do
       Call Put_dArray('TR',TRnew,3*nsAtom*mTR)
       Call mma_deallocate(TRnew)
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('TR',' ',TR,nDimBC,mTR)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call mma_allocate(TabAI,2,mTtAtm,Label='TabAI')
       Call mma_allocate(Vec,3*mTtAtm,nDimBC,Label='Vec')
       Call mma_allocate(AN,mTtAtm,Label='AN')
       Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-*
-*-----Generate Grand atoms list
-*
+!
+!-----Generate Grand atoms list
+!
       Call GenCoo(Cx(1,1,iRef),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
-*
-*---- Are there some hidden frozen atoms ?
-*
+!
+!---- Are there some hidden frozen atoms ?
+!
       Call Hidden(Coor2,AN,nHidden)
-*
-*-----Generate bond list
-*
+!
+!-----Generate bond list
+!
       mTtAtm = mTtAtm+nHidden
       Call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- First compute the approximate Hessian in cartesians
-*
-*     OBSERVE if the analytic Hessian is available it will be used
-*     rather than the model Hessian.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute the raw Cartesian Hessian
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- First compute the approximate Hessian in cartesians
+!
+!     OBSERVE if the analytic Hessian is available it will be used
+!     rather than the model Hessian.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute the raw Cartesian Hessian
+!
       Call mma_allocate(EVal,(3*mTtAtm)*(3*mTtAtm+1)/2,Label='EVal')
       Call mma_Allocate(Hss_X,(3*mTtAtm)**2,Label='Hss_X')
       Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
-*
-      If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nsAtom,nDimBC,AN,
+!
+      If (HSet.or..Not.(Curvilinear.or.User_Def))                       &
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nsAtom,nDimBC,AN,    &
      &            nIter,TabB,TabA,nBonds,nMax,nHidden)
-*
+!
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Coor2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     The internal coordinates are of either two sets.
-*
-*              i)  user supplied internal coordinates
-*
-*             or
-*
-*             ii)  automatic internal coordinates
-*                    a) cartesian coordinates (lnm)
-*                    b) non-redundant internal coordinates (nrc)
-*                       1) Conventional
-*                       2) Curvature weighted   (HWRS)
-*
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     The internal coordinates are of either two sets.
+!
+!              i)  user supplied internal coordinates
+!
+!             or
+!
+!             ii)  automatic internal coordinates
+!                    a) cartesian coordinates (lnm)
+!                    b) non-redundant internal coordinates (nrc)
+!                       1) Conventional
+!                       2) Curvature weighted   (HWRS)
+!
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       Write (6,*) 'User_Def   :',User_Def
       Write (6,*) 'Curvilinear:',Curvilinear
 #endif
       If (User_Def) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          Call BMtrx_User_Defined(nsAtom,Coor,nDimBC,nIter,mTR,nQQ)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else If (Curvilinear) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          If (Redundant) Then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &           ' Bmtrx: Redundant option not implemented yet.')
             Call Abend()
          End If
-*
-*------- Re-generate the bonds if there were hidden atoms
-*
+!
+!------- Re-generate the bonds if there were hidden atoms
+!
          If (nHidden.ne.0) Then
-            Call Box(Coor2,mTtAtm,AN,TabB,TabA,
+            Call Box(Coor2,mTtAtm,AN,TabB,TabA,                         &
      &               nBonds,nMax)
          End If
-         Call BMtrx_Internal(
-     &                 nsAtom,nDimBC,
-     &                 nIter,
-     &                 mTtAtm,
-     &                 iRef,mTR,TR,TabAI,
-     &                 TabA,TabB,nBonds,nMax,
+         Call BMtrx_Internal(                                           &
+     &                 nsAtom,nDimBC,                                   &
+     &                 nIter,                                           &
+     &                 mTtAtm,                                          &
+     &                 iRef,mTR,TR,TabAI,                               &
+     &                 TabA,TabB,nBonds,nMax,                           &
      &                 iRef,nQQ,nWndw)
-*
-*------- Set the Labels for internal coordinates.
-*
+!
+!------- Set the Labels for internal coordinates.
+!
          Do i = 1, nQQ
             Write (Lbl(i),'(A,I3.3,A)') 'nrc',i,'  '
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else   ! Cartesian coordinates
-*                                                                      *
-************************************************************************
-*                                                                      *
-         Call BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TR,EVal,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+         Call BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TR,EVal,   &
      &                        Hss_X,nQQ,nWndw)
-*
-*------- Set the Labels for cartesian normal modes.
-*
+!
+!------- Set the Labels for cartesian normal modes.
+!
          Do i = 1, nQQ
             Write (Lbl(i),'(A,I3.3,A)') 'lnm',i,'  '
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End If
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
       If ((BSet.and.HSet.and..NOT.lOld)) Then
          Call Put_dArray('Hss_X',Hss_X,nDimBC**2)
          Call Put_dArray('KtB',KtB,nDimBC*nQQ)
@@ -234,23 +234,23 @@
       Call mma_deallocate(AN)
       Call mma_deallocate(Vec)
       Call mma_deallocate(TabAI)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute the shift vector in the basis.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute the shift vector in the basis.
+!
       If (Bset) Then
          Call mma_allocate(Shift,nQQ,MaxItr,Label='Shift')
          Shift(:,:)=Zero
          Call ShfANM(nQQ,nIter,qInt,Shift)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Store B matrices to be used to transform the numerical
-*     Hessian to the new basis as the optimization proceeds.
-*
-      If ((nIter.eq.1.and.BSet).and.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Store B matrices to be used to transform the numerical
+!     Hessian to the new basis as the optimization proceeds.
+!
+      If ((nIter.eq.1.and.BSet).and.                                    &
      &    (SuperName.ne.'numerical_gradient')) Then
 
          Call Put_dArray('BMxOld',BMx,3*nsAtom*nQQ)
@@ -274,30 +274,30 @@
             Call mma_deallocate(TROld)
          End If
       End IF
-*
-*---- Print the B-matrix
-*
+!
+!---- Print the B-matrix
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' The BMtrx',' ',BMx,3*nsAtom,nQQ)
 #endif
       Call mma_deallocate(TR)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*.... Print out the values of the internal coordinates
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!.... Print out the values of the internal coordinates
+!
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' Internal coordinates'
       Write (6,*)
-      Write (6,'(1X,A,2X,F10.4)')
+      Write (6,'(1X,A,2X,F10.4)')                                       &
      &         (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Too many constraints?
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Too many constraints?
+!
       If (nLambda.gt.nQQ) Then
          Call WarningMessage(2,'Error in RlxCtl')
          Write (Lu,*)
@@ -309,8 +309,8 @@
          Write (Lu,*) '********************************************'
          Call Quit_OnUserError()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

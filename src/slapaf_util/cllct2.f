@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1997, Roland Lindh                                *
-************************************************************************
-      SubRoutine Cllct2(Strng,Vector,dVector,Value,nAtom,
-     &                  nCntr,mCntr,xyz,Grad,Ind,Type,qMss,Lbl,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1997, Roland Lindh                                *
+!***********************************************************************
+      SubRoutine Cllct2(Strng,Vector,dVector,Value,nAtom,               &
+     &                  nCntr,mCntr,xyz,Grad,Ind,Type,qMss,Lbl,         &
      &                  lWrite,Deg,Hess,lIter)
-************************************************************************
-*     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
-*             University of Lund, SWEDEN                               *
-*             May '91                                                  *
-*                                                                      *
-*             Modified to be used in optimizations with constraints,   *
-*             June '97 (R. Lindh)                                      *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
+!             University of Lund, SWEDEN                               *
+!             May '91                                                  *
+!                                                                      *
+!             Modified to be used in optimizations with constraints,   *
+!             June '97 (R. Lindh)                                      *
+!***********************************************************************
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, dMass, AtomLbl
       Implicit Real*8 (A-H,O-Z)
@@ -32,17 +32,17 @@
       Character(LEN=LENIN) Name
       Character(LEN=8) Lbl
       Character Oper*3, Type*6
-      Real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr),
-     &       Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom),
-     &       Axis(3),
-     &       Perp_Axis(3,2), qMss(nCntr+mCntr),
+      Real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr),                       &
+     &       Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom),             &
+     &       Axis(3),                                                   &
+     &       Perp_Axis(3,2), qMss(nCntr+mCntr),                         &
      &       Hess(3,nCntr+mCntr,3,nCntr+mCntr)
       Integer   Ind(nCntr+mCntr,2), iDCR(MxAtom)
       Logical lWrite, ldB, lWarn
       Real*8, Allocatable:: Not_Allocated(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
       Integer nCent
@@ -56,11 +56,11 @@
       Logical ldB
       End Subroutine SphInt
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
-*
+!
       iRout = 50
       iPrint = nPrint(iRout)
       ldB=.True.
@@ -70,14 +70,14 @@
       Call RecPrt(' In Cllct2: Coor',' ',Cx(:,:,lIter),3,nAtom)
       Call RecPrt('dMass',' ',dMass,1,nAtom)
 #endif
-*
+!
       iFrst = 1
       iEnd  = 1
       lStrng=LEN(Strng)
-*
-*     Pick up cartesian coordinates associated with the
-*     internal coordinate
-*
+!
+!     Pick up cartesian coordinates associated with the
+!     internal coordinate
+!
       nCent=nCntr+mCntr
       Do ixyz = 1, nCent
          Call NxtWrd(Strng,iFrst,iEnd)
@@ -100,9 +100,9 @@
             If (Index(Oper,'Y').ne.0) iPhase=iEor(iPhase,2)
             If (Index(Oper,'Z').ne.0) iPhase=iEor(iPhase,4)
 
-*
-*---------- Check if operator belongs to the current point group
-*
+!
+!---------- Check if operator belongs to the current point group
+!
             i = 0
             Do j = 1, nIrrep-1
                If (iPhase.eq.iOper(j)) i = j
@@ -126,56 +126,56 @@
             Call WarningMessage(2,' Syntax error in:'//Label)
             Call Quit_OnUserError()
          End If
-*
-*------- Find corresponding coordinate
-*
-         If (Type(1:5).ne.'EDIFF'   .and.
-     &       Type(1:3).ne.'NAC'     .and.
-     &       Type(1:6).ne.'SPHERE'  .and.
+!
+!------- Find corresponding coordinate
+!
+         If (Type(1:5).ne.'EDIFF'   .and.                               &
+     &       Type(1:3).ne.'NAC'     .and.                               &
+     &       Type(1:6).ne.'SPHERE'  .and.                               &
      &       Type(1:6).ne.'TRANSV'        ) Then
             jsAtom = 0
             Do isAtom = 1, nAtom
                If (Name.eq.AtomLbl(isAtom)) jsAtom = isAtom
             End Do
             If (jsAtom.eq.0) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                 ' Unrecognizable atom label '//Name)
                Call Quit_OnUserError()
             End If
          Else
             jsAtom=ixyz
          End If
-*
-*--------Store away the unique center index and the operator
-*
+!
+!--------Store away the unique center index and the operator
+!
          Ind(ixyz,1) = jsAtom
          Ind(ixyz,2) = iPhase
          call dcopy_(3,Cx(:,jsAtom,lIter),1,xyz(1,ixyz),1)
-*--------Generate actual coordinate
+!--------Generate actual coordinate
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)
          If (iAnd(iPhase,4).ne.0) xyz(3,ixyz) = - xyz(3,ixyz)
          If (Type.eq.'DISSOC') qMss(ixyz) = dMass(jsAtom)
-*
+!
       End Do  ! Do ixyz = 1, nCntr+mCntr
-*
+!
       If (iPrint.ge.99) Then
-         Call RecPrt(' Coordinates',' ',
+         Call RecPrt(' Coordinates',' ',                                &
      &                              xyz,3,nCntr+mCntr)
          Call RecPrt('qMss',' ',qMss,1,nCntr+mCntr)
        End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*---- Process the internal coordinate
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!---- Process the internal coordinate
+!
       If (Type.eq.'X     ') Then
          Value = xyz(1,1)
          call dcopy_(3,[Zero],0,Grad,1)
          call dcopy_(9,[Zero],0,Hess,1)
          Grad(1,1) = One
-         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
+         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,               &
      &          ' : x-component=',Value,'/ bohr'
          Deg=D_Cart(Ind(1,1),nIrrep)
       Else If (Type.eq.'Y     ') Then
@@ -183,7 +183,7 @@
          call dcopy_(3,[Zero],0,Grad,1)
          call dcopy_(9,[Zero],0,Hess,1)
          Grad(2,1) = One
-         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
+         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,               &
      &          ' : y-component=',Value,'/ bohr'
          Deg=D_Cart(Ind(1,1),nIrrep)
       Else If (Type.eq.'Z     ') Then
@@ -191,7 +191,7 @@
          call dcopy_(3,[Zero],0,Grad,1)
          call dcopy_(9,[Zero],0,Hess,1)
          Grad(3,1) = One
-         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
+         If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,               &
      &          ' : z-component=',Value,'/ bohr'
          Deg=D_Cart(Ind(1,1),nIrrep)
       Else If (Type.eq.'STRTCH') Then
@@ -199,12 +199,12 @@
          Deg=D_Bond(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,
+         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,           &
      &              Axis,Perp_Axis(1,1),.False.)
          Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,
+         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,           &
      &              Axis,Perp_Axis(1,2),.True.)
          Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'BEND  ')Then
@@ -223,33 +223,33 @@
          Call ConInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,lIter)
          Deg=One
       Else If (Type(1:6).eq.'SPHERE')Then
-         Call SphInt(xyz,nCntr,Not_Allocated,Value,Grad,lWrite,Lbl,Hess,
+         Call SphInt(xyz,nCntr,Not_Allocated,Value,Grad,lWrite,Lbl,Hess,&
      &               ldB)
          Deg=One
       Else If (Type(1:6).eq.'TRANSV')Then
          Call Transverse(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
          Deg=One
       Else If (Type.eq.'DISSOC')Then
-         Call Dissoc(xyz,nCntr,mCntr,qMss,Value,Grad,lWrite,
+         Call Dissoc(xyz,nCntr,mCntr,qMss,Value,Grad,lWrite,            &
      &               Lbl,Hess,ldB)
          Deg=One
       Else
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &                     ' Type declaration is not supported:'//Type)
          Call Quit_OnUserError()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Deg=Sqrt(Deg)
-*
+!
       Call ProjSym2(nAtom,nCent,Ind,xyz,iDCR,Grad,Vector,Hess,dVector)
       If (iPrint.ge.99) Then
-         Call RecPrt(' symmetry adapted vector',
+         Call RecPrt(' symmetry adapted vector',                        &
      &                              ' ',Vector,3,nAtom)
-         Call RecPrt(' symmetry adapted dvector',
+         Call RecPrt(' symmetry adapted dvector',                       &
      &                              ' ',dVector,3*nAtom,3*nAtom)
       End If
-*
+!
       Return
       End

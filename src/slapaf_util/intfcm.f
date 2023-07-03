@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine IntFcm(lOld_Implicit)
-************************************************************************
-*                                                                      *
-* Object: to initialize the Hessian matrix for the first iteration.    *
-*                                                                      *
-*     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
-*             University of Lund, SWEDEN                               *
-*             May 1991                                                 *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to initialize the Hessian matrix for the first iteration.    *
+!                                                                      *
+!     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
+!             University of Lund, SWEDEN                               *
+!             May 1991                                                 *
+!***********************************************************************
       use Slapaf_Parameters, only: lOld
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -26,9 +26,9 @@
       Real*8 rDum(1)
       Logical lOld_Implicit, Hess_Found, Found_IRC
       Real*8, Allocatable:: Hess(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
         Subroutine OldFcm(Hess,nQQ,Lbl)
         Real*8, Allocatable:: Hess(:)
@@ -36,24 +36,24 @@
         Character*(*) Lbl
         End Subroutine OldFcm
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Read force constant matrix from old interphase
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Read force constant matrix from old interphase
+!
       If (lOld) Then
-*
-*        Explicit request to use an old force constant matrix stored
-*        on an old runfile.
+!
+!        Explicit request to use an old force constant matrix stored
+!        on an old runfile.
 
          Call OldFcm(Hess,nQQ,'RUNOLD')
 
       Else
-*
-*        If this is not an IRC calculation explore if the runfile
-*        contains a Hessian. If so, pull it off the runfile.
-*
+!
+!        If this is not an IRC calculation explore if the runfile
+!        contains a Hessian. If so, pull it off the runfile.
+!
          Call qpg_iScalar('IRC',Found_IRC)
 
          If (.Not.Found_IRC) Then
@@ -79,6 +79,6 @@
          Call mma_deallocate(Hess)
       End If
 
-*
+!
       Return
       End

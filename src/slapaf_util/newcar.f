@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*#define _DEBUGPRINT_
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
-      use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
+      use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,       &
      &                       AtomLbl, Lbl
       use Symmetry_Info, only: VarR, VarT
-      use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
+      use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,   &
      &                             lOld, WeightedConstraints
       Implicit Real*8 (a-h,o-z)
-************************************************************************
-*                                                                      *
-*     Object: To compute the new symm. distinct Cartesian coordinates  *
-*             from the suggested shift of the internal coordinates.    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: To compute the new symm. distinct Cartesian coordinates  *
+!             from the suggested shift of the internal coordinates.    *
+!                                                                      *
+!***********************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -32,35 +32,35 @@
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: mTtAtm
       Logical, Intent(InOut):: Error
-*
+!
       Logical:: BSet_Save, HSet_Save, lOld_Save
       Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nQQ = SIZE(qInt,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       Call RecPrt('NewCar: q',' ',qInt,nQQ,Iter+1)
-*     Call RecPrt('NewCar: Shift',' ',Shift,nQQ,iter)
+!     Call RecPrt('NewCar: Shift',' ',Shift,nQQ,iter)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call mma_allocate(DFC,3*nAtom,Label='DFC')
       Call mma_allocate(dss,nQQ,Label='dss')
       Call mma_allocate(rInt,nQQ,Label='rInt')
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       rInt(:) = qInt(:,iter)
       dss(:) = Shift(:,iter)
       rInt(:) = rInt(:) + dss(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Lu=6
       iRout = 33
       iPrint=nPrint(iRout)
@@ -69,25 +69,25 @@
 #endif
       If (iPrint.ge.11) Then
          Write (Lu,*)
-         Write (Lu,*) ' *** Transforming internal coordinates'
+         Write (Lu,*) ' *** Transforming internal coordinates'          &
      &             //' to Cartesian ***'
          Write (Lu,*)
          Write (Lu,*) ' Iter  Internal  Error'
       End If
-*
+!
       If (iPrint.ge.99) Then
          Write (Lu,*)
          Write (Lu,*) ' In NewCar: Shifts'
          Write (Lu,*)
-         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
+         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),         &
      &          iInter=1,nQQ)
-         Call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,
+         Call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,                   &
      &               Iter+1)
       End If
-*
-*     Compute the final internal coordinates, plus sign due to the use
-*     of forces and not gradients.
-*
+!
+!     Compute the final internal coordinates, plus sign due to the use
+!     of forces and not gradients.
+!
       rMax = Zero
       iMax = 0
       jter = 0
@@ -105,37 +105,37 @@
          End If
       End If
  300  Format (1X,'Iter:',I5,2X,A,1X,E11.4)
-*
+!
       If (iPrint.ge.19) Then
          Write (Lu,*)
          Write (Lu,*)' Internal coordinates of the next macro iteration'
          Write (Lu,*)
-         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),
+         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),        &
      &          iInter=1,nQQ)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute the new Cartesian coordinates.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Compute the new Cartesian coordinates.
+!
       iterMx = 50
-*
+!
       Do jter = 1, iterMx
-*
-*--------Compute the Cartesian shift, solve dq = B^T dx!
-*
+!
+!--------Compute the Cartesian shift, solve dq = B^T dx!
+!
          M = 3*nAtom
          N = nQQ
-         Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,dSS,
+         Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,dSS,         &
      &                  DFC)
          Call mma_deallocate(BMx)
-*
-         If (iPrint.ge.99)
-     &     Call PrList('Symmetry Distinct Nuclear Displacements',
+!
+         If (iPrint.ge.99)                                              &
+     &     Call PrList('Symmetry Distinct Nuclear Displacements',       &
      &                 AtomLbl,nAtom,DFC,3,nAtom)
-*
-*        Compute the RMS in Cartesian Coordinates.
-*
+!
+!        Compute the RMS in Cartesian Coordinates.
+!
          dx2=Zero
          denom=Zero
          ix = 0
@@ -147,30 +147,30 @@
             End Do
          End Do
          dx_RMS = Sqrt(dx2/denom)
-*
-*--------Update the symmetry distinct Cartesian coordinates.
-*
+!
+!--------Update the symmetry distinct Cartesian coordinates.
+!
          Call DaXpY_(3*nAtom,One,DFC,1,Coor,1)
-*
-*        Dirty fix of zeros
-*
+!
+!        Dirty fix of zeros
+!
          Do iAtom = 1, nAtom
-            If (Cx(1,iAtom,Iter).eq.Zero .and.
+            If (Cx(1,iAtom,Iter).eq.Zero .and.                          &
      &          Abs(Coor(1,iAtom)).lt.1.0D-13) Coor(1,iAtom)=Zero
-            If (Cx(2,iAtom,Iter).eq.Zero .and.
+            If (Cx(2,iAtom,Iter).eq.Zero .and.                          &
      &          Abs(Coor(2,iAtom)).lt.1.0D-13) Coor(2,iAtom)=Zero
-            If (Cx(3,iAtom,Iter).eq.Zero .and.
+            If (Cx(3,iAtom,Iter).eq.Zero .and.                          &
      &          Abs(Coor(3,iAtom)).lt.1.0D-13) Coor(3,iAtom)=Zero
          End Do
-*
+!
          Call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
-         If (iPrint.ge.99)
-     &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',
+         If (iPrint.ge.99)                                              &
+     &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr', &
      &                   AtomLbl,nAtom,Coor,3,nAtom)
-*
-*--------Compute new values q and the Wilson B-matrix for the new
-*        geometry with the current new set of Cartesian coordinates.
-*
+!
+!--------Compute new values q and the Wilson B-matrix for the new
+!        geometry with the current new set of Cartesian coordinates.
+!
          nWndw=1
          BSet_Save=BSet
          HSet_Save=HSet
@@ -182,10 +182,10 @@
          BSet=BSet_Save
          HSet=HSet_Save
          lOld=lOld_Save
-*
-*--------Check if the final structure is reached and get the
-*        difference between the present structure and the final.
-*
+!
+!--------Check if the final structure is reached and get the
+!        difference between the present structure and the final.
+!
          iMax = 1
          rMax = Zero
          Do i = 1, nQQ
@@ -195,31 +195,31 @@
                iMax = i
             End If
          End Do
-*
-*        Convergence based on the RMS of the Cartesian displacements.
-*
+!
+!        Convergence based on the RMS of the Cartesian displacements.
+!
          If (dx_RMS.lt.1.0D-6) Go To 998
-*
+!
          If (iPrint.ge.99) Then
             Write (Lu,*)
             Write (Lu,*) ' Displacement of internal coordinates'
             Write (Lu,*)
-            Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
+            Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),      &
      &             iInter=1,nQQ)
          End If
-*
+!
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     On input, Error specifies whether an error should be signalled
-*     (.True.) or the calculation aborted (.False.)
-*     In the former case, the output value indicates if an error has
-*     occurred
-*
-         If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     On input, Error specifies whether an error should be signalled
+!     (.True.) or the calculation aborted (.False.)
+!     In the former case, the output value indicates if an error has
+!     occurred
+!
+         If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',  &
      &                                  rInt,nQQ,1)
-         If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',
+         If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',    &
      &                                  qInt(:,Iter+1),nQQ,1)
       If (.NOT.Error) Then
          Call WarningMessage(2,'Error in NewCar')
@@ -229,42 +229,42 @@
          Write (Lu,*) ' Strong linear dependency among Coordinates.   '
          Write (Lu,*) ' Hint: Try to change the Internal Coordinates. '
          Write (Lu,*) '***********************************************'
-         If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',
+         If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',  &
      &                                  rInt,nQQ,1)
-         If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',
+         If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',    &
      &                                  qInt(:,Iter+1),nQQ,1)
          Write (Lu,*)
          Call Quit(_RC_NOT_CONVERGED_)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
  998  Continue
-*
+!
       If (iPrint.ge.6) Then
          Write (Lu,*)
-         Write (Lu,'(A,i2,A)')
-     &         ' New Cartesian coordinates were found in',
+         Write (Lu,'(A,i2,A)')                                          &
+     &         ' New Cartesian coordinates were found in',              &
      &         jter,' Newton-Raphson iterations.'
          Write (Lu,*)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Finally, just to be safe align the new Cartesian structure with
-*     the reference structure (see init2.f)
-*
-      If (WeightedConstraints.and.(.not.(VarR.or.VarT)))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Finally, just to be safe align the new Cartesian structure with
+!     the reference structure (see init2.f)
+!
+      If (WeightedConstraints.and.(.not.(VarR.or.VarT)))                &
      &   Call Align(Cx(:,:,iter+1),RefGeo,nAtom)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call mma_deallocate(rInt)
       Call mma_deallocate(dss)
       Call mma_deallocate(DFC)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Error=.False.
       Return
       End

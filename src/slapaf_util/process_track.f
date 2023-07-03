@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       SUBROUTINE Process_Track()
       use Slapaf_Info, only: RootMap
       use Slapaf_parameters, only: Request_RASSI
@@ -24,13 +24,13 @@
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: Overlaps
       LOGICAL :: Found,Done
       CHARACTER(LEN=8) :: Method
-*
+!
       CALL Get_cArray('Relax Method',Method,8)
-      IF ((Method .NE. 'CASSCF')  .AND.
-     &    (Method .NE. 'RASSCF')  .AND.
-     &    (Method .NE. 'CASSCFSA').AND.
-     &    (Method .NE. 'RASSCFSA').AND.
-     &    (Method .NE. 'CASPT2')  .AND.
+      IF ((Method .NE. 'CASSCF')  .AND.                                 &
+     &    (Method .NE. 'RASSCF')  .AND.                                 &
+     &    (Method .NE. 'CASSCFSA').AND.                                 &
+     &    (Method .NE. 'RASSCFSA').AND.                                 &
+     &    (Method .NE. 'CASPT2')  .AND.                                 &
      &    (Method .NE. 'RASPT2')  ) THEN
       CALL WarningMessage(2,'Error in Process_Track')
         WRITE(6,*) '***************** ERROR ********************'
@@ -40,9 +40,9 @@
         WRITE(6,*) '********************************************'
         CALL Quit_OnUserError()
       END IF
-*
-* Find the number of roots, and whether state overlaps are available
-*
+!
+! Find the number of roots, and whether state overlaps are available
+!
       nRoots=1
       CALL Qpg_iScalar('Number of roots',Found)
       IF (Found) CALL Get_iScalar('Number of roots',nRoots)
@@ -52,20 +52,20 @@
       ELSE
         Request_RASSI = .TRUE.
       END IF
-*
-* Make sure that the root mapping is only done once per iteration
-*
+!
+! Make sure that the root mapping is only done once per iteration
+!
       CALL Qpg_iScalar('Track Done',Done)
       CALL Get_lScalar('Track Done',Done)
       IF (Request_RASSI .OR. Done) RETURN
-*
-* Modify the root map according to the overlaps:
-*
-*   RootMap(i) = N
-*
-* where i is the original root number (at iter=1), and N is the
-* root number at the current iteration.
-*
+!
+! Modify the root map according to the overlaps:
+!
+!   RootMap(i) = N
+!
+! where i is the original root number (at iter=1), and N is the
+! root number at the current iteration.
+!
       CALL mma_allocate(Ovlp,nOv)
       CALL mma_allocate(Overlaps,nRoots,nRoots)
       CALL get_dArray('State Overlaps',Ovlp,nOv)
@@ -74,7 +74,7 @@
       END DO
       CALL mma_deallocate(Ovlp)
       IF (nPrint(1).GE.5) THEN
-        CALL RecPrt('Overlaps with previous states','',
+        CALL RecPrt('Overlaps with previous states','',                 &
      &              Overlaps,nRoots,nRoots)
         CALL mma_allocate(OldMap,nRoots)
         CALL iCopy(nRoots,RootMap,1,OldMap,1)
@@ -109,9 +109,9 @@
 
       CALL mma_deallocate(RootIdx)
       CALL mma_deallocate(Overlaps)
-*
-* Update the RunFile for automatic gradients
-*
+!
+! Update the RunFile for automatic gradients
+!
       CALL Qpg_iScalar('Relax CASSCF root',Found)
       IF (Found) THEN
         Call Get_iScalar('Relax CASSCF root',i)
@@ -123,11 +123,11 @@
       CALL Qpg_iScalar('NumGradRoot',Found)
       IF (Found) THEN
         Call Get_iScalar('NumGradRoot',i)
-        IF (RootMap(i).NE.i)
+        IF (RootMap(i).NE.i)                                            &
      &    CALL Put_iScalar('NumGradRoot',RootMap(i))
       END IF
       CALL Put_lScalar('Track Done',.TRUE.)
-*
+!
       RETURN
-*
+!
       END SUBROUTINE Process_Track

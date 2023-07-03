@@ -1,61 +1,61 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Ignacio Fdez. Galvan                             *
-************************************************************************
-* Print_Mode_Components
-*
-*> @brief
-*> Print the contributions from the primitive internal coordinates to the
-*> vibrational modes.
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Compute and print the contributions from the primitive internal coordinates
-*> (stretches, angles, dihedrals, out-of-planes) to the vibrational modes
-*>
-*> @param[in] Modes Vibrational modes, as computed by e.g. ::freqanal
-*> @param[in] Freq Vibrational frequencies
-*> @param[in] nModes Number of modes
-*> @param[in] lModes Size of \p Modes
-*> @param[in] lDisp Number of displacements per irrep
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+! Print_Mode_Components
+!
+!> @brief
+!> Print the contributions from the primitive internal coordinates to the
+!> vibrational modes.
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Compute and print the contributions from the primitive internal coordinates
+!> (stretches, angles, dihedrals, out-of-planes) to the vibrational modes
+!>
+!> @param[in] Modes Vibrational modes, as computed by e.g. ::freqanal
+!> @param[in] Freq Vibrational frequencies
+!> @param[in] nModes Number of modes
+!> @param[in] lModes Size of \p Modes
+!> @param[in] lDisp Number of displacements per irrep
+!***********************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep, VarR, VarT
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
-     &                       Energy, Energy0, DipM, MF, qInt, dqInt,
-     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
-     &                       Degen, nStab, jStab, iCoSet, AtomLbl,
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,  &
+     &                       Grd, Weights, ANr, Shift, GNrm, Lambda,    &
+     &                       Energy, Energy0, DipM, MF, qInt, dqInt,    &
+     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,     &
+     &                       Degen, nStab, jStab, iCoSet, AtomLbl,      &
      &                       Smmtrc, Lbl, mRowH, RootMap
-      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
-     &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
-     &                             HrmFrq_Show, IRC, Curvilinear,
-     &                             Redundant, FindTS, nBVec, nDimBC,
-     &                             User_Def, Analytic_Hessian, MaxItr,
-     &                             iOptC, UpMeth, HSet, BSet, rHidden,
-     &                             CnstWght, PrQ, lOld, Numerical, Beta,
-     &                             Beta_Disp, Line_Search,
-     &                             TSConstraints, GNrm_Threshold, Mode,
-     &                             ThrEne, ThrGrd, nLambda, iRef,
-     &                             ThrCons, ThrMEP, Baker, eMEPTest,
-     &                             rMEP, MEP, nMEP, MEPNum, MEPCons,
-     &                             dMEPStep, MEP_Type, MEP_Algo,
-     &                             Header, Max_Center, mTROld, RtRnc,
-     &                             Delta, rFuzz, lNmHss, Cubic,
-     &                             Request_Alaska, Request_RASSI,
-     &                             lOld_Implicit, CallLast, lSoft,
-     &                             lCtoF, Track, TwoRunFiles, isFalcon,
-     &                             Stop, NmIter, MxItr, mTtAtm, nWndw,
-     &                             iter, WeightedConstraints, mB_Tot,
-     &                             mdB_Tot, mq, NADC, EDiffZero,
+      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,            &
+     &                             ddV_Schlegel, HWRS, iOptH, HUpMet,   &
+     &                             HrmFrq_Show, IRC, Curvilinear,       &
+     &                             Redundant, FindTS, nBVec, nDimBC,    &
+     &                             User_Def, Analytic_Hessian, MaxItr,  &
+     &                             iOptC, UpMeth, HSet, BSet, rHidden,  &
+     &                             CnstWght, PrQ, lOld, Numerical, Beta,&
+     &                             Beta_Disp, Line_Search,              &
+     &                             TSConstraints, GNrm_Threshold, Mode, &
+     &                             ThrEne, ThrGrd, nLambda, iRef,       &
+     &                             ThrCons, ThrMEP, Baker, eMEPTest,    &
+     &                             rMEP, MEP, nMEP, MEPNum, MEPCons,    &
+     &                             dMEPStep, MEP_Type, MEP_Algo,        &
+     &                             Header, Max_Center, mTROld, RtRnc,   &
+     &                             Delta, rFuzz, lNmHss, Cubic,         &
+     &                             Request_Alaska, Request_RASSI,       &
+     &                             lOld_Implicit, CallLast, lSoft,      &
+     &                             lCtoF, Track, TwoRunFiles, isFalcon, &
+     &                             Stop, NmIter, MxItr, mTtAtm, nWndw,  &
+     &                             iter, WeightedConstraints, mB_Tot,   &
+     &                             mdB_Tot, mq, NADC, EDiffZero,        &
      &                             ApproxNADC, iState
       use thermochem
       Implicit None
@@ -65,11 +65,11 @@
 #include "real.fh"
       Real*8 rDum(1)
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
-      Integer :: LuInput,
-     &           nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
-     &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
+      Integer :: LuInput,                                               &
+     &           nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,           &
+     &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,   &
      &           iErr, PLback, nQQ, nsAtom
-      Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,
+      Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,&
      &                                       NMod
       Integer, Dimension(:), Allocatable :: Sort
       Integer, Parameter :: nLbl=10*MxAtom
@@ -122,14 +122,14 @@
       Character(LEN=8), Allocatable:: Bk_Lbl(:)
       Integer, Allocatable:: Bk_mRowH(:)
       Integer, Allocatable:: Bk_RootMap(:)
-*
-*
-*---- Ugly hack: backup all "global" slapaf variables in case this is
-*                called from inside slapaf
-*
-*     Note, this routine might be called from outside the Slapaf
-*     environment. In which case there is no backup to be made.
-*
+!
+!
+!---- Ugly hack: backup all "global" slapaf variables in case this is
+!                called from inside slapaf
+!
+!     Note, this routine might be called from outside the Slapaf
+!     environment. In which case there is no backup to be made.
+!
       If (Allocated(Cx)) Then
        nsAtom=SIZE(Cx,2)
        Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
@@ -181,7 +181,7 @@
          Call mma_deallocate(Weights)
        End If
        If (Allocated(Shift)) Then
-         Call mma_allocate(Bk_Shift,SIZE(Shift,1),MaxItr,
+         Call mma_allocate(Bk_Shift,SIZE(Shift,1),MaxItr,               &
      &                     Label='Bk_Shift')
          Bk_Shift(:,:) = Shift(:,:)
          Call mma_deallocate(Shift)
@@ -192,7 +192,7 @@
          Call mma_deallocate(GNrm)
        End If
        If (Allocated(Lambda)) Then
-         Call mma_allocate(Bk_Lambda,SIZE(Lambda,1),MaxItr+1,
+         Call mma_allocate(Bk_Lambda,SIZE(Lambda,1),MaxItr+1,           &
      &                     Label='Bk_Lambda')
          Bk_Lambda(:,:) = Lambda(:,:)
          Call mma_deallocate(Lambda)
@@ -218,13 +218,13 @@
          Call mma_deallocate(DipM)
        End If
        If (Allocated(qInt)) Then
-         Call mma_allocate(Bk_qInt,SIZE(qInt,1),MaxItr,
+         Call mma_allocate(Bk_qInt,SIZE(qInt,1),MaxItr,                 &
      &                     Label='Bk_qInt')
          Bk_qInt(:,:) = qInt(:,:)
          Call mma_deallocate(qInt)
        End If
        If (Allocated(dqInt)) Then
-         Call mma_allocate(Bk_dqInt,SIZE(dqInt,1),MaxItr,
+         Call mma_allocate(Bk_dqInt,SIZE(dqInt,1),MaxItr,               &
      &                     Label='Bk_dqInt')
          Bk_dqInt(:,:) = dqInt(:,:)
          Call mma_deallocate(dqInt)
@@ -260,25 +260,25 @@
          Call mma_deallocate(nqBM)
        End If
        If (Allocated(BMx)) Then
-         Call mma_allocate(Bk_BMx,SIZE(BMx,1),SIZE(BMx,2),
+         Call mma_allocate(Bk_BMx,SIZE(BMx,1),SIZE(BMx,2),              &
      &                     Label='Bk_BMx')
          Bk_BMx(:,:) = BMx(:,:)
          Call mma_deallocate(BMx)
        End If
        If (Allocated(Degen)) Then
-         Call mma_allocate(Bk_Degen,SIZE(Degen,1),SIZE(Degen,2),
+         Call mma_allocate(Bk_Degen,SIZE(Degen,1),SIZE(Degen,2),        &
      &                     Label='Bk_Degen')
          Bk_Degen(:,:) = Degen(:,:)
          Call mma_deallocate(Degen)
        End If
        If (Allocated(jStab)) Then
-         Call mma_allocate(Bk_jStab,[0,7],[1,SIZE(jStab,2)],
+         Call mma_allocate(Bk_jStab,[0,7],[1,SIZE(jStab,2)],            &
      &                     Label='Bk_jStab')
          Bk_jStab(:,:) = jStab(:,:)
          Call mma_deallocate(jStab)
        End If
        If (Allocated(iCoSet)) Then
-         Call mma_allocate(Bk_iCoSet,[0,7],[1,SIZE(iCoSet,2)],
+         Call mma_allocate(Bk_iCoSet,[0,7],[1,SIZE(iCoSet,2)],          &
      &                     Label='Bk_iCoSet')
          Bk_iCoSet(:,:) = iCoSet(:,:)
          Call mma_deallocate(iCoSet)
@@ -400,35 +400,35 @@
       Bk_iInt = iInt
       Bk_VarR = VarR
       Bk_VarT = VarT
-*
-*---- Make a backup of the runfile, since we are going to change the
-*     internal coordinates definition.
-*
+!
+!---- Make a backup of the runfile, since we are going to change the
+!     internal coordinates definition.
+!
       Call fCopy('RUNFILE','RUNBCK2',iErr)
       If (iErr.ne.0) Call Abend()
-*
-*---- Remove the Hessian and disable translational and rotational
-*     invariance
-*
+!
+!---- Remove the Hessian and disable translational and rotational
+!     invariance
+!
       Call Put_dArray('Hess',rDum,0)
       VarR=.True.
       VarT=.True.
-*                                                                      *
-************************************************************************
-* Call Slapaf to build the B matrix and get the displacement vectors   *
-* corresponding to the primitive internal coordinates (bonds and       *
-* angles)                                                              *
-************************************************************************
-*                                                                      *
-*---- Process the input
-*
+!                                                                      *
+!***********************************************************************
+! Call Slapaf to build the B matrix and get the displacement vectors   *
+! corresponding to the primitive internal coordinates (bonds and       *
+! angles)                                                              *
+!***********************************************************************
+!                                                                      *
+!---- Process the input
+!
       PLback=iPrintLevel(-1)
       i=iPrintLevel(0)
       LuInput=21
       LuInput=IsFreeUnit(LuInput)
       Call StdIn_Name(StdIn)
       Call Molcas_open(LuInput,StdIn)
-*
+!
       iRow=0
       iRow_c=0
       nFix=0
@@ -436,12 +436,12 @@
       Call RdCtl_Slapaf(LuInput,.True.)
       Curvilinear = .True.
       Numerical = .False.
-*
+!
       Close(LuInput)
       i=iPrintLevel(PLback)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       BSet=.True.
       HSet=.False.
       PrQ=.False.
@@ -449,11 +449,11 @@
       iRef=0
       Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
       nQQ = SIZE(Shift,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- First get the (transposed) K matrix, (dQ/dq)^T
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- First get the (transposed) K matrix, (dQ/dq)^T
+!
       Call mma_allocate(KMtrx,mq,nQQ,label="KMtrx")
       Call mma_allocate(KTrsp,nQQ,mq,label="KTrsp")
       Call Qpg_dArray('K',Found,nK)
@@ -461,10 +461,10 @@
       Call Get_dArray('K',KMtrx,nK)
       KTrsp(:,:)=Transpose(KMtrx)
       Call mma_deallocate(KMtrx)
-*
-*---- Form the full B matrix in the redundant internal coordinates
-*     (primitives) and multiply by KK(t) on the fly
-*
+!
+!---- Form the full B matrix in the redundant internal coordinates
+!     (primitives) and multiply by KK(t) on the fly
+!
       nX = 3*mTtAtm
       Call mma_allocate(KKtB,mq,nX,label="KKtB")
       Call FZero(KKtB,nX*mq)
@@ -474,34 +474,34 @@
          Do iB=i,i+nB-1
             j=iBM(iB)
             Do ii=1,mq
-               KKtB(ii,j)=KKtB(ii,j)+BM(iB)*
+               KKtB(ii,j)=KKtB(ii,j)+BM(iB)*                            &
      &            DDot_(nQQ,KTrsp(1,ii),1,KTrsp(1,iq),1)
             End Do
          End Do
          i=i+nB
       End Do
       Call mma_deallocate(KTrsp)
-*
-*---- Get the Cartesian normal modes
-*
+!
+!---- Get the Cartesian normal modes
+!
       Call Get_iScalar('Unique atoms',nUnique_Atoms)
       Call Get_nAtoms_All(nAll_Atoms)
       If (3*nAll_Atoms.ne.nX) Call Abend()
       Call mma_allocate(NMod,nX,nModes,label="NMod")
       Call FZero(NMod,nX*nModes)
-      Call Get_NMode_All(Modes,lModes,nModes,nUnique_Atoms,
+      Call Get_NMode_All(Modes,lModes,nModes,nUnique_Atoms,             &
      &                   NMod,nAll_Atoms,lDisp)
-*
-*---- Compute the overlaps with the primitive displacements
-*
+!
+!---- Compute the overlaps with the primitive displacements
+!
       Call mma_allocate(IntMod,mq,nModes,label="IntMod")
-      Call DGeMM_('N','N',mq,nModes,nX,One,KKtB,mq,
+      Call DGeMM_('N','N',mq,nModes,nX,One,KKtB,mq,                     &
      &            NMod,nX,Zero,IntMod,mq)
       Call mma_deallocate(KKtB)
       Call mma_deallocate(NMod)
-*
-*---- "Normalize" the maximum value to 1
-*
+!
+!---- "Normalize" the maximum value to 1
+!
       Do i=1,nModes
          Mx=Zero
          Do j=1,mq
@@ -509,9 +509,9 @@
          End Do
          If (Mx.gt.1.0D-10) Call DScal_(mq,One/Mx,IntMod(1,i),1)
       End Do
-*
-*---- Print the overlaps
-*
+!
+!---- Print the overlaps
+!
       Call mma_allocate(Label,nLbl,label='Label')
       Filename='INTCOR'
       LuIC=21
@@ -526,12 +526,12 @@
          Line=Get_Ln_EOF(LuIC)
       End Do
       Close(LuIC)
-*
+!
       MinComp=Half
       Call CollapseOutput(1,'Principal components of the normal modes')
       Write(6,'(3X,A)') '----------------------------------------'
       Write(6,*)
-      Write(6,'(3X,A,F4.2,A)') '(Only contributions larger than ',
+      Write(6,'(3X,A,F4.2,A)') '(Only contributions larger than ',      &
      &                         MinComp,' times the maximum are printed)'
       Write(6,*)
       Call mma_allocate(Sort,mq,label="Sort")
@@ -548,7 +548,7 @@
          End Do
          Do j=1,mq
             Do ii=j+1,mq
-               If (Abs(IntMod(Sort(ii),i)).gt.
+               If (Abs(IntMod(Sort(ii),i)).gt.                          &
      &             Abs(IntMod(Sort(j),i))) Then
                   im=Sort(j)
                   Sort(j)=Sort(ii)
@@ -561,21 +561,21 @@
          Write(6,'(6X,A)') '---------------------------------'
       End Do
       Call CollapseOutput(0,'Principal components of the normal modes')
-*
-*---- Clean up
-*
+!
+!---- Clean up
+!
       Call mma_deallocate(Label)
       Call mma_deallocate(IntMod)
       Call mma_deallocate(Sort)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Restore the runfile and the "global" variables
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Restore the runfile and the "global" variables
+!
       Call fCopy('RUNBCK2','RUNFILE',iErr)
       If (iErr.ne.0) Call Abend()
       If (AixRm('RUNBCK2').ne.0) Call Abend
-*
+!
       Header(:)=Bk_Header(:)
       iRef=Bk_iRef
       NmIter=Bk_NmIter
@@ -661,9 +661,9 @@
       iInt = Bk_iInt
       VarR = Bk_VarR
       VarT = Bk_VarT
-*
-*     Process arrays that are always allocated.
-*
+!
+!     Process arrays that are always allocated.
+!
       If (Allocated(Bk_Cx)) Then
          Cx(:,:,:) = Bk_Cx(:,:,:)
          Call mma_deallocate(Bk_Cx)
@@ -728,7 +728,7 @@
 
          If (SIZE(Shift,1)/=SIZE(Bk_Shift,1)) Then
             Call mma_deallocate(Shift)
-            Call mma_allocate(Shift,SIZE(Bk_Shift,1),MaxItr,
+            Call mma_allocate(Shift,SIZE(Bk_Shift,1),MaxItr,            &
      &                        Label='Shift')
          End If
          Shift(:,:) = Bk_Shift(:,:)
@@ -772,12 +772,12 @@
       Else
         If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
       End If
-*
-*     Process arrays that are allocated optionally.
-*
+!
+!     Process arrays that are allocated optionally.
+!
       If (Allocated(Bk_Lambda)) Then
          If (.NOT.Allocated(Lambda)) Then
-            Call mma_allocate(Lambda,SIZE(Bk_Lambda,1),MaxItr+1,
+            Call mma_allocate(Lambda,SIZE(Bk_Lambda,1),MaxItr+1,        &
      &                        Label='Lambda')
          End If
          Lambda(:,:) = Bk_Lambda(:,:)
@@ -845,7 +845,7 @@
       End If
       If (Allocated(Bk_BMx)) Then
          If (Allocated(BMx)) Call mma_deallocate(BMx)
-         Call mma_allocate(BMx,SIZE(Bk_BMx,1),SIZE(Bk_BMx,2),
+         Call mma_allocate(BMx,SIZE(Bk_BMx,1),SIZE(Bk_BMx,2),           &
      &                     Label='BMx')
          BMx(:,:) = Bk_BMx(:,:)
          Call mma_deallocate(Bk_BMx)
@@ -854,7 +854,7 @@
       End If
       If (Allocated(Bk_Degen)) Then
          If (Allocated(Degen)) Call mma_deallocate(Degen)
-         Call mma_allocate(Degen,SIZE(Bk_Degen,1),SIZE(Bk_Degen,2),
+         Call mma_allocate(Degen,SIZE(Bk_Degen,1),SIZE(Bk_Degen,2),     &
      &                     Label='Degen')
          Degen(:,:) = Bk_Degen(:,:)
          Call mma_deallocate(Bk_Degen)
@@ -863,7 +863,7 @@
       End If
       If (Allocated(Bk_jStab)) Then
          If (Allocated(jStab)) Call mma_deallocate(jStab)
-         Call mma_allocate(jStab,[0,7],[1,SIZE(Bk_jStab,2)],
+         Call mma_allocate(jStab,[0,7],[1,SIZE(Bk_jStab,2)],            &
      &                     Label='jStab')
          jStab(:,:) = Bk_jStab(:,:)
          Call mma_deallocate(Bk_jStab)
@@ -872,7 +872,7 @@
       End If
       If (Allocated(Bk_iCoSet)) Then
          If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
-         Call mma_allocate(iCoSet,[0,7],[1,SIZE(Bk_iCoSet,2)],
+         Call mma_allocate(iCoSet,[0,7],[1,SIZE(Bk_iCoSet,2)],          &
      &                     Label='iCoSet')
          iCoSet(:,:) = Bk_iCoSet(:,:)
          Call mma_deallocate(Bk_iCoSet)
@@ -927,5 +927,5 @@
       Else
          If (Allocated(RootMap)) Call mma_deallocate(RootMap)
       End If
-*
+!
       End Subroutine Print_Mode_Components

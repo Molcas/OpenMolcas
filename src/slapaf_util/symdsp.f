@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!***********************************************************************
       Logical Function SymDsp(iBsFnc)
-************************************************************************
-*                                                                      *
-* Object: to establish if a translation or a rotation belongs to the   *
-*         total symmetric irreducible representation.                  *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             April '92                                                *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to establish if a translation or a rotation belongs to the   *
+!         total symmetric irreducible representation.                  *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             April '92                                                *
+!***********************************************************************
       use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
       Integer jPrmt(0:7)
 #include "real.fh"
       Data jPrmt/1,-1,-1,1,-1,1,1,-1/
-*
-*     Statement function
-*
+!
+!     Statement function
+!
       iPrmt(i,j) = jPrmt(iAnd(i,j))
-*
-*     Write (*,*) ' iBsFnc=',iBsFnc
+!
+!     Write (*,*) ' iBsFnc=',iBsFnc
       SymDsp = .True.
       mask = 0
       Do 20 i = 0, nIrrep-1
@@ -39,15 +39,15 @@
  21      Continue
  20   Continue
       jBsFnc = iAnd(mask,iBsFnc)
-*     Write (*,*) ' jBsFnc=',jBsFnc
-*
-*     Loop over operators
-*
+!     Write (*,*) ' jBsFnc=',jBsFnc
+!
+!     Loop over operators
+!
       iAcc = 0
       Do 10 i = 0, nIrrep-1
          iAcc = iAcc + iPrmt(iOper(i),jBsFnc)
  10   Continue
       If (iAcc.eq.0) SymDsp = .False.
-*
+!
       Return
       End

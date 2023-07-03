@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Init2()
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,
-     &                       Energy, Energy0, DipM, qInt, dqInt,
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,               &
+     &                       Energy, Energy0, DipM, qInt, dqInt,        &
      &                       RefGeo, Get_Slapaf, dqInt_Aux
-      use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
+      use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,       &
      &                             TwoRunFiles, iter, NADC
       use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
@@ -22,35 +22,35 @@
       Logical Is_Roots_Set
       Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)
 #include "SysDef.fh"
-* Beijing Test
+! Beijing Test
       Logical Exist_2,lMMGrd, Found
       Real*8 Columbus_Energy(2)
-************ columbus interface ****************************************
+!*********** columbus interface ****************************************
       Integer Columbus
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Dummy-add the TS and saddle constraints, so that the arrays have
-*     a large enough size, these constraints will be actually added or
-*     not later on.
-*
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Dummy-add the TS and saddle constraints, so that the arrays have
+!     a large enough size, these constraints will be actually added or
+!     not later on.
+!
       Call Merge_Constraints('UDC','TSC','purge.Udc',mLambda,iDummy)
-      Call Merge_Constraints('purge.Udc','UDC.Saddle','purge.Udc',
+      Call Merge_Constraints('purge.Udc','UDC.Saddle','purge.Udc',      &
      &                       mLambda,iDummy)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Get some basic information from the runfile.
-*
-      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,SIZE(Coor,2),
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Get some basic information from the runfile.
+!
+      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,SIZE(Coor,2), &
      &                mLambda)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Save coordinates and gradients from this iteration onto the list.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Save coordinates and gradients from this iteration onto the list.
+!
       Cx(:,:,iter)=Coor(:,:)
       Gx(:,:,iter)=Grd(:,:)
 
@@ -73,9 +73,9 @@
         End If
       End If
 
-* In case of a QM/MM geometry optimization, all the old MM gradients are
-* replaced by the new one (both gradients are stored on the Runfile).
-*
+! In case of a QM/MM geometry optimization, all the old MM gradients are
+! replaced by the new one (both gradients are stored on the Runfile).
+!
       Call Qpg_dArray('MM Grad',lMMGrd,nData)
       lMMGrd = .False.
       If (lMMGrd) Then
@@ -90,15 +90,15 @@
          End Do
          Call mma_deallocate(MMGrd)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Pick up the reference structure from input or the run file.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Pick up the reference structure from input or the run file.
+!
       If (Iter.eq.1) Then
-*
-*        Check if reference structure is defined by Gateway/Seward
-*        for the Saddle approach to find a TS.
+!
+!        Check if reference structure is defined by Gateway/Seward
+!        for the Saddle approach to find a TS.
 
          Call qpg_dArray('Ref_Geom',Found,nData)
          If (Found) Then
@@ -107,10 +107,10 @@
             End If
             Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          Else
-*
-*           Not defined: default reference structure to the starting
-*           structure.
-*
+!
+!           Not defined: default reference structure to the starting
+!           structure.
+!
             If (.Not.Allocated(RefGeo)) Then
                Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
             End If
@@ -118,31 +118,31 @@
             Call Put_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          End If
       Else
-*
-*        Pick up the reference structure.
-*
+!
+!        Pick up the reference structure.
+!
          If (.Not.Allocated(RefGeo)) Then
             Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
          End If
          Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
       End If
-*
-*     Align the reference structure to the current one, otherwise
-*     measuring distances does not make much sense
-*
-*     (disabled for the moment, moving the reference affects the
-*      computation of some vectors for MEP)
-C     If (iter.gt.1) Call Align(RefGeo,Coor,SIZE(Coor,2))
-C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...  Get the energy of the last iteration
-*
-*     Check if we are running in C&M mode.
-*
+!
+!     Align the reference structure to the current one, otherwise
+!     measuring distances does not make much sense
+!
+!     (disabled for the moment, moving the reference affects the
+!      computation of some vectors for MEP)
+!     If (iter.gt.1) Call Align(RefGeo,Coor,SIZE(Coor,2))
+!     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!...  Get the energy of the last iteration
+!
+!     Check if we are running in C&M mode.
+!
       Call Get_iScalar('Columbus',columbus)
-*
+!
       If (Columbus.eq.1) Then
          Call Get_dArray('MR-CISD energy',Columbus_Energy,2)
          Energy(iter)=Columbus_Energy(1)
@@ -153,29 +153,29 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
          If (Is_Roots_Set) Then
             Call Get_iScalar('Number of roots',nRoots)
          End If
-*        Write (6,*) 'Runfile'
-*        Write (6,*) 'nRoots=',nRoots
+!        Write (6,*) 'Runfile'
+!        Write (6,*) 'nRoots=',nRoots
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
-*           Write (6,*) 'iRoot=',iRoot
+!           Write (6,*) 'iRoot=',iRoot
             Call mma_allocate(Tmp,nRoots,Label='Tmp')
             Call Get_dArray('Last energies',Tmp,nRoots)
-*           Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+!           Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
             Energy(iter)=Tmp(iRoot)
             Call mma_deallocate(Tmp)
          Else
             Call Get_dScalar('Last energy',Energy(iter))
          End If
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                                                      *
-************ columbus interface ****************************************
-*                                                                      *
-*     The dipole moment is required for numerical differentiation.
-*     Currently it is not written to the RUNFILE if we are in C&M mode.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                                                                      *
+!*********** columbus interface ****************************************
+!                                                                      *
+!     The dipole moment is required for numerical differentiation.
+!     Currently it is not written to the RUNFILE if we are in C&M mode.
+!
       If (columbus.eq.1) Then
       Else
          Is_Roots_Set = .False.
@@ -186,7 +186,7 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
          End If
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
-*           Write (6,*) 'iRoot=',iRoot
+!           Write (6,*) 'iRoot=',iRoot
             Call mma_allocate(DMs,3,nRoots,Label='DMs')
             DMs(:,:)=Zero
             Call Qpg_dArray('Last Dipole Moments',Found,nDip)
@@ -203,47 +203,47 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
                DipM(:,iter)=Zero
             End If
          End If
-*        Call RecPrt('Dipole Moment',' ',DipM(:,iter),1,3)
+!        Call RecPrt('Dipole Moment',' ',DipM(:,iter),1,3)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Test if this is a case of an intersection calculation. Depending
-*     on if we are running the calculation in M or C&M mode this is
-*     done in a bit different way.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Test if this is a case of an intersection calculation. Depending
+!     on if we are running the calculation in M or C&M mode this is
+!     done in a bit different way.
+!
       If (Columbus.eq.1) Then
-*
-*        C&M mode
-*
+!
+!        C&M mode
+!
          Call Get_iScalar('ColGradMode',iMode)
          If (iMode.eq.2.or.iMode.eq.3) Then
-*
+!
             E0=Columbus_Energy(2)
             Energy0(iter)=E0
-*
+!
             Call qpg_dArray('Grad State2',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
-               Call SysAbendmsg('Get_Molecule','Did not find:',
+               Call SysAbendmsg('Get_Molecule','Did not find:',         &
      &                          'Grad State2')
             End If
             Call Get_dArray('Grad State2',Gx0(1,1,iter),Length)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
             nSet = 2
-*
+!
          End If
          If (iMode.eq.3) Then
             Call Get_dArray('NADC',NAC(:,:,iter),Length)
          End If
-*
+!
       Else
-*
-*        M mode
-*
+!
+!        M mode
+!
          Call f_Inquire('RUNFILE2',Exist_2)
          If (Exist_2) Then
             Call NameRun('RUNFILE2')
-*
+!
             Is_Roots_Set = .False.
             Call Qpg_iScalar('Number of roots',Is_Roots_Set)
             nRoots = 1
@@ -251,42 +251,42 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
                Call Get_iScalar('Number of roots',nRoots)
             End If
 
-*           Write (6,*) 'Runfile2'
-*           Write (6,*) 'nRoots=',nRoots
+!           Write (6,*) 'Runfile2'
+!           Write (6,*) 'nRoots=',nRoots
             If (nRoots.ne.1) Then
                Call Get_iScalar('NumGradRoot',iRoot)
-C              Write (6,*) 'iRoot=',iRoot
+!              Write (6,*) 'iRoot=',iRoot
                Call mma_allocate(Tmp,nRoots,Label='Tmp')
                Call Get_dArray('Last energies',Tmp,nRoots)
-*              Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+!              Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
                E0=Tmp(iRoot)
                Call mma_deallocate(Tmp)
             Else
                Call Get_dScalar('Last energy',E0)
             End If
             Energy0(iter)=E0
-*
+!
             nGrad=3*SIZE(Coor,2)
             Call Get_dArray_chk('GRAD',Gx0(:,:,iter),nGrad)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
             nSet = 2
-*
+!
             Call NameRun('#Pop')
             TwoRunFiles = .True.
          End If
       End If
       If (NADC) nSet = 3
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---  Pick up information from previous iterations
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---  Pick up information from previous iterations
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iter/=1) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          Call qpg_dArray('qInt',Found,nqInt)
          If (Found) Then
             nQQ=nqInt/MaxItr
@@ -294,22 +294,22 @@ C              Write (6,*) 'iRoot=',iRoot
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
             Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
-            If (nSet>1) Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+            If (nSet>1) Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,  &
      &                                    Label='dqInt_Aux')
          End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Value_l=20.0D0
       Call Qpg_dScalar('Value_l',Found)
       If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

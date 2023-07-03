@@ -1,68 +1,68 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-*               2008, Giovanni Ghigo                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!               2008, Giovanni Ghigo                                   *
+!***********************************************************************
       SubRoutine Def_CtoF(lNew)
-************************************************************************
-*                                                                      *
-*     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
-*             University of Torino, ITALY                              *
-*             July 2008                                                *
-*     Adapted from  DefInt by                                          *
-*             Roland Lindh, Dep. of Theoretical Chemistry,             *
-*             University of Lund, SWEDEN                               *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
+!             University of Torino, ITALY                              *
+!             July 2008                                                *
+!     Adapted from  DefInt by                                          *
+!             Roland Lindh, Dep. of Theoretical Chemistry,             *
+!             University of Lund, SWEDEN                               *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Character Labels*8, Type*6, Temp*120,
+      Character Labels*8, Type*6, Temp*120,                             &
      &          Line*120, Format*8, filnam*16
       Logical lNew
       Integer, Allocatable:: Ind(:,:)
       Real*8, Allocatable:: xyz(:,:), Temp2(:,:), Mass(:,:)
-*
+!
       nTemp=Len(Temp)
       Write (Format,'(A,I3.3,A)') '(F',nTemp,'.0)'
-*
+!
       Lu_UDIC=91
       filnam='UDIC'
       call molcas_open(Lu_UDIC,filnam)
-c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
+!      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       Rewind(Lu_UDIC)
       Write (6,*)
-      Write (6,*)
+      Write (6,*)                                                       &
      &'****************************************************************'
       If (lNew) then
-         Write (6,*)
+         Write (6,*)                                                    &
      &'* New value of the internal coordinate to follow               *'
       else
-         Write (6,*)
+         Write (6,*)                                                    &
      &'* Original value of the internal coordinate to follow          *'
       EndIf
-      Write (6,*)
+      Write (6,*)                                                       &
      &'****************************************************************'
-*
-*     Step 1. BSet up the b vectors from which we will define the
-*     internal coordinates.
-*
-c      iBVct = 0
+!
+!     Step 1. BSet up the b vectors from which we will define the
+!     internal coordinates.
+!
+!      iBVct = 0
       Read (Lu_UDIC,'(A)') Line
       Temp=Line
       Call UpCase(Temp)
-*
-*     Move the label of the internal coordinate
-*
+!
+!     Move the label of the internal coordinate
+!
       neq = Index(Line,'=')
       If (neq.Eq.0) Then
          Call WarningMessage(2,'Error in Def_CTOF')
@@ -81,16 +81,16 @@ c      iBVct = 0
             Write (6,'(A)') '***********************************'
             Write (6,'(A)') ' Syntax error in line :            '
             Write (6,'(A)') Line(1:33),'...'
-            Write (6,'(A,A)') Line(iFrst:jEnd),
+            Write (6,'(A,A)') Line(iFrst:jEnd),                         &
      &            ' has more than 8 character'
             Write (6,'(A)') '***********************************'
             Call Quit_OnUserError()
          End If
          Labels = Line(iFrst:jEnd)
       End If
-*
-*-----Construct the corresponding transformation vector
-*
+!
+!-----Construct the corresponding transformation vector
+!
       mCntr = 0
       If (Index(Temp,'CART').Ne.0) Then
          nCntr=1
@@ -171,21 +171,21 @@ c      iBVct = 0
          Write (6,'(A)') Line
          Call Quit_OnUserError()
       End If
-*
+!
       msAtom = nCntr + mCntr
       Call mma_allocate(xyz ,3,msAtom,Label='xyz')
       Call mma_allocate(Temp2,3,msAtom,Label='Temp2')
       Call mma_allocate(Ind ,2,msAtom,Label='Ind')
       Call mma_allocate(Mass,2,msAtom,Label='Mass')
-*
-      Call CllCtoF(Line(nGo:nTemp),nCntr,mCntr,xyz,
+!
+      Call CllCtoF(Line(nGo:nTemp),nCntr,mCntr,xyz,                     &
      &             Temp2,Ind,Type,Mass,Labels)
-*
+!
       Call mma_deallocate(Mass)
       Call mma_deallocate(Ind)
       Call mma_deallocate(Temp2)
       Call mma_deallocate(xyz)
-*
+!
       Close(Lu_UDIC)
       Return
       End

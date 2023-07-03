@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Eq_Solver(Mode,M,N,NRHS,B,Curvilinear,Degen,dSS,DFC)
       Implicit Real*8 (a-h,o-z)
-************************************************************************
+!***********************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
 #include "warnings.h"
@@ -20,15 +20,15 @@
       Integer INFO
       Real*8 Temp(1)
       Real*8, Allocatable:: A(:), Btmp(:), Work(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Solve the equation Ax=b
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Solve the equation Ax=b
+!
       LDA=M
       LDB=Max(1,M,N)
       If (Mode.eq.'T') Then
@@ -55,10 +55,10 @@
          Call RecPrt('A',' ',A,M,N)
 #endif
       End If
-*
+!
       Call mma_allocate(Btmp,LDB*NRHS,Label='Btmp')
       Btmp(:)=Zero
-*
+!
       jpB=1
       If (Mode.eq.'T') Then
          Do iRHS = 1, nRHS
@@ -86,7 +86,7 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('B(in)',' ',Btmp,LDB,NRHS)
 #endif
-*
+!
       LWork=-1
       INFO=0
       call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Temp,LWork,INFO)
@@ -103,7 +103,7 @@
          Write (6,*) '***********************************************'
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('B(out)',' ',Btmp,LDB,NRHS)
 #endif
@@ -126,12 +126,12 @@
             jpB=jpB+LDB
          End Do
       End If
-*
+!
       Call mma_deallocate(Work)
       Call mma_deallocate(Btmp)
       Call mma_deallocate(A)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

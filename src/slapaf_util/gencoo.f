@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine GenCoo(Cart,nsAtom,Coor,mTtAtm,Vctrs,nDim,jAnr,iTabAI)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Degen, Smmtrc, ANr
@@ -16,20 +16,20 @@
       Real*8 Cart(3,nsAtom), Coor(3,mTtAtm), Vctrs(3*mTtAtm,nDim), r(3)
       Integer jAnr(mTtAtm), iTabAI(2,mTtAtm)
       Logical New
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       Call RecPrt('GenCoo: Cart',' ',Cart,3,nsAtom)
       Call RecPrt('GenCoo: Degen',' ',Degen,3,nsAtom)
 #endif
-*
-*-----Loop over list of symmetry unique centers
-*
+!
+!-----Loop over list of symmetry unique centers
+!
       iSt=1
       iDim = 0
       Do iAtom = 1, nsAtom
@@ -47,9 +47,9 @@
                Vctrs((iEnd-1)*3+ix,jDim)=Fact
             End If
          End Do
-*
-*-----Loop over the operators of the point group
-*
+!
+!-----Loop over the operators of the point group
+!
          iElem=1
          Do ig = 1, nIrrep-1
             r(1)=One
@@ -61,11 +61,11 @@
             x=r(1)*Cart(1,iAtom)
             y=r(2)*Cart(2,iAtom)
             z=r(3)*Cart(3,iAtom)
-*
+!
             New=.True.
             Do iGo = iSt, iEnd
-               If (New .and. x.eq.Coor(1,iGo)
-     &                 .and. y.eq.Coor(2,iGo)
+               If (New .and. x.eq.Coor(1,iGo)                           &
+     &                 .and. y.eq.Coor(2,iGo)                           &
      &                 .and. z.eq.Coor(3,iGo)) New=.False.
             End Do
             If (New) Then
@@ -86,7 +86,7 @@
                End Do
             End If
          End Do      ! End loop over operators
-*
+!
          Do ix = 1, 3
             If (Smmtrc(ix,iAtom)) Then
                iDim=iDim+1
@@ -94,7 +94,7 @@
          End Do
          iSt = iEnd + 1
       End Do         ! End loop over centers
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In GenCoo: Coor',' ',Coor,3,mTtAtm)
       Call RecPrt(' In GenCoo: Vctrs',' ',Vctrs,3*mTtAtm,nDim)

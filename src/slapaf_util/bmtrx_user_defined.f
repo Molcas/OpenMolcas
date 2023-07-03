@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
-      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,
+      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,  &
      &                       Lbl, Gx0, dqInt_Aux, NAC
-      use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
-     &                             MaxItr, iOptC, BSet, HSet, lOld,
+      use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian, &
+     &                             MaxItr, iOptC, BSet, HSet, lOld,     &
      &                             Numerical
       use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
@@ -22,18 +22,18 @@
       Real*8 Coor(3,nsAtom)
       Logical Proc_dB
       Real*8, Allocatable:: Degen2(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*.... Section for user defined internal coordinates
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!#define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!.... Section for user defined internal coordinates
+!
       Call Rd_UDIC(iInt,nFix,nRowH) ! nRowH is not used!
       nQQ=iInt+nFix
-*
+!
       If (Allocated(qInt)) Then
         If (SIZE(qInt,1)/=nQQ) Then
           Call mma_deallocate(qInt)
@@ -50,50 +50,50 @@
         If (SIZE(dqInt_Aux,1)/=nQQ) Call mma_deallocate(dqInt_Aux)
       End If
       If (.NOT.Allocated(dqInt_Aux).and.nSet>1) Then
-         Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+         Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,                 &
      &                     Label='dqInt_Aux')
          dqInt_Aux(:,:,:)=Zero
       End If
       Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
       BMx(:,:)=Zero
 
-*
-*-----Compute the B matrix in symmetry distinct basis and the
-*     internal coordinates.
-*
-*     iOptC(256) = constrained optimization
-      Proc_dB=HSet.and..Not.lOld.and.
-     &           (Analytic_Hessian.or.Numerical.or.
+!
+!-----Compute the B matrix in symmetry distinct basis and the
+!     internal coordinates.
+!
+!     iOptC(256) = constrained optimization
+      Proc_dB=HSet.and..Not.lOld.and.                                   &
+     &           (Analytic_Hessian.or.Numerical.or.                     &
      &            iAnd(iOptC,256).eq.256)
-*     Compute and store dBQQ in the reference structure
+!     Compute and store dBQQ in the reference structure
       If (Proc_dB) Then
-*        Not implimented, sorry
+!        Not implimented, sorry
       End If
-*
+!
       Call DefInt(nBVec,BMx,nQQ,nsAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute the gradient
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Compute the gradient
+!
       If (BSet) Then
-         Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,
+         Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,                  &
      &              nIter,dqInt,Lbl,Degen)
          If (nSet>1) Then
-            Call Force(nFix,Gx0(:,:,nIter),nsAtom,nQQ,BMx,
+            Call Force(nFix,Gx0(:,:,nIter),nsAtom,nQQ,BMx,              &
      &                 nIter,dqInt_Aux(:,:,1),Lbl,Degen)
          End If
          If (nSet>2) Then
-            Call Force(nFix,NAC(:,:,nIter),nsAtom,nQQ,BMx,
+            Call Force(nFix,NAC(:,:,nIter),nsAtom,nQQ,BMx,              &
      &                 nIter,dqInt_Aux(:,:,2),Lbl,Degen)
          End If
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (HSet.and..NOT.lOld.and.BSet) Then
          Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
-*
+!
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
          Do ix = 1, 3*nsAtom
@@ -104,7 +104,7 @@
                Degen2(i) = Degen(ixyz,iAtom)
             End If
          End Do
-*
+!
          Do j = 1, nQQ
             i = 0
             Do ix = 1, 3*nsAtom
@@ -116,17 +116,17 @@
                End If
             End Do
          End Do
-*
+!
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
-*              KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
+!              KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
                KtB(iDim,iInter) = KtB(iDim,iInter) / Degen2(iDim)
             End Do
          End Do
          Call mma_deallocate(Degen2)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

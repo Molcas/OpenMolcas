@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-* From: D.R. Yarkony, J. Phys. Chem. A 105 (2001) 6277-6293
-* and: J. Chem. Theory Comput. 12 (2016) 3636-3653
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! From: D.R. Yarkony, J. Phys. Chem. A 105 (2001) 6277-6293
+! and: J. Chem. Theory Comput. 12 (2016) 3636-3653
+!***********************************************************************
       Subroutine CI_Summary(Lu)
       use Slapaf_Info, only: Gx, Gx0, NAC, Energy
       use Slapaf_Parameters, only: CallLast, iter
       Implicit None
       Integer Lu, n, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp
-      Real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h,
+      Real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h,&
      &       st, srel, shead, peaked, bif, aux
       Real*8, External :: dDot_
       Character(Len=2) LabA
       Character(Len=40) Description
 #include "stdalloc.fh"
 #include "real.fh"
-*
+!
       n=3*SIZE(Gx,2)
       Call mma_Allocate(g,n)
       Call mma_Allocate(h,n)
-*
-*     Compute the orthogonal branching vectors
-*     Note that d(E1-E0)/dx is stored, but we want to use d((E1-E0)/2)/dx
-*     (and forces instead of gradients)
-*
+!
+!     Compute the orthogonal branching vectors
+!     Note that d(E1-E0)/dx is stored, but we want to use d((E1-E0)/2)/dx
+!     (and forces instead of gradients)
+!
       gg=dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
       hh=dDot_(n,NAC(1,1,iter),1,NAC(1,1,iter),1)
       gh=-dDot_(n,Gx0(1,1,iter),1,NAC(1,1,iter),1) !Factor 2 included
@@ -57,8 +57,8 @@
       Else
         Call dCopy_(n,[Zero],0,h,1)
       End If
-*     Ensure that the asymmetry will be positive
-*     this fixes which vector is x and which is y
+!     Ensure that the asymmetry will be positive
+!     this fixes which vector is x and which is y
       If (hh.gt.gg) Then
         Call SwapVe(g,h,n)
         aux=gg
@@ -70,8 +70,8 @@
       End If
       sg=-dDot_(n,Gx(1,1,iter),1,g,1)
       sh=-dDot_(n,Gx(1,1,iter),1,h,1)
-*     Ensure that the tilt heading will be in the first quadrant
-*     this fixes the signs of the x and y vectors
+!     Ensure that the tilt heading will be in the first quadrant
+!     this fixes the signs of the x and y vectors
       If (sg.lt.Zero) Then
         sg=Abs(sg)
         Call DScal_(n,-One,g,1)
@@ -95,9 +95,9 @@
         srel=Zero
       End If
       shead=Atan2(sh,sg)
-*
-*     peaked/sloped, bifurcating/single-path parameters
-*
+!
+!     peaked/sloped, bifurcating/single-path parameters
+!
       peaked=srel**2/(One-deltagh**2)*(One-deltagh*Cos(Two*shead))
       bif=((One+deltagh)*Cos(shead)**2)**(One/Three)
       bif=bif+((One-deltagh)*Sin(shead)**2)**(One/Three)
@@ -117,18 +117,18 @@
       Else
         Description=Trim(Description)//' * (B=1)'
       End If
-*
-*     Disable Last_Energy to prevent further rotations
-*
+!
+!     Disable Last_Energy to prevent further rotations
+!
       CallLast=.False.
-*
+!
       Write(Lu,*)
       Call CollapseOutput(1,'Conical Intersection Characterization')
       Write(Lu,'(3X,A)')    '-------------------------------------'
       Write(Lu,*)
       Write(Lu,*) 'See: J. Chem. Theory Comput. 12 (2016) 3636-3653'
       Write(Lu,*)
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
       Call RecPrt('Coupling vector','',NAC(1,1,iter),n,1)
@@ -169,14 +169,14 @@
       Call CollapseOutput(0,'Conical Intersection Characterization')
 100   Format (5X,A,T40,ES12.5,A)
 101   Format (5X,A,T11,ES12.5)
-110   Format (5X,'Average energy: ',F15.8,' + ',F12.8,'*x + ',
+110   Format (5X,'Average energy: ',F15.8,' + ',F12.8,'*x + ',          &
      &        F12.8,'*y')
-120   Format (5X,
-     &        'Energy difference: ',F12.8,'*sqrt(r^2 + ',F12.8,'*t)',
+120   Format (5X,                                                       &
+     &        'Energy difference: ',F12.8,'*sqrt(r^2 + ',F12.8,'*t)',   &
      &        /,10X,'r^2 = x^2 + y^2',/,10X,'t = x^2 - y^2')
-*
+!
       Call mma_Deallocate(g)
       Call mma_Deallocate(h)
       Return
-*
+!
       End Subroutine CI_Summary

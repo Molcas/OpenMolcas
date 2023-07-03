@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Start_Alaska()
       use Slapaf_Parameters, only: Request_Alaska, Request_RASSI, iState
       use UnixInfo, only: ProgName
@@ -21,15 +21,15 @@
       Logical Exists
       integer NACstatesOpt(2)
       Logical :: CalcNAC_Opt=.False.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Get the name of the module
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Get the name of the module
+!
       PName=ProgName
       Call Upcase(PName)
       PName = adjustl(PName)
-*
+!
       iEnd = 1
  99   If (PName(iEnd:iEnd).ne.' ') Then
          iEnd=iEnd+1
@@ -37,25 +37,25 @@
       End If
       iEnd = Min(iEnd-1,5)
       FileName=PName(1:iend)//'INP'
-*
+!
       LuInput=11
       LuInput=IsFreeUnit(LuInput)
       Call StdIn_Name(StdIn)
       Call Molcas_Open(LuInput,StdIn)
-*
+!
       If (Request_RASSI) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Request computation of overlaps.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Request computation of overlaps.
+!
          If (nPrint(1).ge.6) Then
             Write (6,*)
-            Write (6,*)
+            Write (6,*)                                                 &
      &        ' Slapaf requests the computation of overlaps first!'
             Write (6,*)
          End If
-*
+!
          Call Get_cArray('Relax Method',Method,8)
          If ((Method .eq. 'CASPT2').or.(Method .eq. 'RASPT2')) Then
            JOB1='JOBMIX'
@@ -65,7 +65,7 @@
          Call f_inquire('JOBAUTO',Exists)
          JOB2=JOB1
          If (Exists) JOB2='JOBAUTO'
-*
+!
          Write (LuInput,'(A)') '>ECHO OFF'
          Write (LuInput,'(A)') '> export SL_OLD_TRAP=$MOLCAS_TRAP'
          Write (LuInput,'(A)') '> export MOLCAS_TRAP=ON'
@@ -83,17 +83,17 @@
            Write (LuInput,'(A)') '> copy $Project.JobIph JOBAUTO'
          End If
          Write (LuInput,'(A)') '> export MOLCAS_TRAP=$SL_OLD_TRAP'
-*
+!
       Else If (Request_Alaska) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Request computation of gradients.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Request computation of gradients.
+!
          If (nPrint(1).ge.6) Then
             Call Get_cArray('Relax Method',Method,8)
             Write (6,*)
-            Write (6,*)
+            Write (6,*)                                                 &
      &        ' Slapaf requests the computation of gradients first!'
             If (iState(2).eq.0) Then
                Write (6,*) 'Root: ',iState(1)
@@ -111,13 +111,13 @@
                   NACstatesOpt(1) = iState(1)
                   NACstatesOpt(2) = iState(2)
                   Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
-*              Identify if MECI command in MC-PDFT should be used
+!              Identify if MECI command in MC-PDFT should be used
                   call put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
                end if
             End If
             Write (6,*)
          End If
-*
+!
          Write (LuInput,'(A)') '>ECHO OFF'
          Write (LuInput,'(A)') '>export SL_OLD_TRAP=$MOLCAS_TRAP'
          Write (LuInput,'(A)') '> export MOLCAS_TRAP=ON'
@@ -130,40 +130,40 @@
          End If
          Write (LuInput,'(A)') ' End of Input'
          Write (LuInput,'(A)') '> export MOLCAS_TRAP=$SL_OLD_TRAP'
-*        Repeat ECHO OFF, because it may have been turned on by alaska
+!        Repeat ECHO OFF, because it may have been turned on by alaska
          Write (LuInput,'(A)') '>ECHO OFF'
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Common code.
-*
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Common code.
+!
+!
       Call f_inquire(Filename,Exists)
       If (Exists) Then
          LuSpool = 77
          LuSpool = IsFreeUnit(LuSpool)
          Call Molcas_Open(LuSpool, Filename)
-*
+!
  100     Continue
          Read (LuSpool,'(A)',End=900) Line
          Write(LuInput,'(A)') Line
          Go To 100
  900     Continue
-*
+!
          Close(LuSpool)
-*
+!
       Else
-*
+!
          Write (LuInput,'(A)') ' &Slapaf &End'
          Write (LuInput,'(A)') ' End of Input'
-*
+!
       End If
       Write (LuInput,'(A)') '>ECHO ON'
-*
+!
       Close(LuInput)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

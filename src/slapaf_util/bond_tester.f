@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,
-     &                       iRow,iANr,iTabBonds,nBonds,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,  &
+     &                       iRow,iANr,iTabBonds,nBonds,                &
      &                       nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
       use Slapaf_Parameters, only: ddV_Schlegel, iOptC
       Implicit Real*8 (a-h,o-z)
@@ -17,7 +17,7 @@
 #define _VDW_
 #include "ddvdt.fh"
       Real*8 Coor(3,nAtoms)
-      Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),
+      Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),                      &
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
       Logical Help
 #define _OLD_CODE
@@ -26,26 +26,26 @@
       Real*8 B(3)
 #endif
 #include "bondtypes.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !#define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Check box indices for consistency
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Check box indices for consistency
+!
       If (ix.lt.1.or.ix.gt.nx) Return
       If (iy.lt.1.or.iy.gt.ny) Return
       If (iz.lt.1.or.iz.gt.nz) Return
       Nr=iTab(0, ix,iy,iz) ! nr of atoms in the box.
       If (Nr.eq.0) Return
-*
+!
       iRow=iTabRow(iANr(iAtom))
       nVal_i=0
       nn=iTabAtoms(1,0,iAtom)
       Do i = 1, nn
-         If (iTabBonds(3,iTabAtoms(2,i,iAtom)).eq.Covalent_Bond)
+         If (iTabBonds(3,iTabAtoms(2,i,iAtom)).eq.Covalent_Bond)        &
      &       nVal_i=nVal_i+1
       End Do
 #ifdef _DEBUGPRINT_
@@ -55,13 +55,13 @@
       Write (6,*) '                        nVal_i=',nVal_i
       Write (6,*)
 #endif
-*
-*     Loop over all atoms in the box
-*
+!
+!     Loop over all atoms in the box
+!
       If (ThrB.lt.ThrB_vdw) ivdW=vdW_Bond
       Box: Do Ir = 1, Nr
          jAtom=iTab(Ir,ix,iy,iz)
-C        If (iAtom.le.jAtom) Cycle Box
+!        If (iAtom.le.jAtom) Cycle Box
          If (iAtom.ge.jAtom) Cycle Box
          jRow =iTabRow(iANr(jAtom))
          Help = iRow.gt.3.or.jRow.gt.3
@@ -69,7 +69,7 @@ C        If (iAtom.le.jAtom) Cycle Box
          Write (6,*) ' jAtom, iAnr(jAtom)=',jAtom, iAnr(jAtom)
          Write (6,*) 'Help=',Help
 #endif
-*
+!
          x = Coor(1,iAtom)-Coor(1,jAtom)
          y = Coor(2,iAtom)-Coor(2,jAtom)
          z = Coor(3,iAtom)-Coor(3,jAtom)
@@ -80,9 +80,9 @@ C        If (iAtom.le.jAtom) Cycle Box
          rij2 = x**2 + y**2 + z**2
          r0 = rAv(iRow,jRow)
          alpha=aAv(iRow,jRow)
-*
-*--------Test if we have a bond iAtom-jAtom
-*
+!
+!--------Test if we have a bond iAtom-jAtom
+!
          If (ddV_Schlegel.or.Help) Then
             Rab=Sqrt(rij2)
             RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
@@ -91,26 +91,26 @@ C        If (iAtom.le.jAtom) Cycle Box
             Write (6,*) CovRad(iANr(iAtom)),CovRad(iANr(jAtom))
 #endif
             If (Rab.le.1.25d0*RabCov) Then
-*
-*              covalent bond
-*
+!
+!              covalent bond
+!
                test=1.0D0
                test_vdW=0.0D0
-*
-*              Skip if we are looking for vdW bonds
-*
+!
+!              Skip if we are looking for vdW bonds
+!
                If (ThrB.gt.ThrB_vdW) Cycle Box
-            Else If (Rab.gt.1.25d0*RabCov .and.
+            Else If (Rab.gt.1.25d0*RabCov .and.                         &
      &               Rab.le.2.00D0*RabCov) Then
-*
-*              vdW's bond
-*
+!
+!              vdW's bond
+!
                test=0.0D0
                test_vdW=ThrB_VdW
             Else
-*
-*              No Bond!
-*
+!
+!              No Bond!
+!
                Cycle Box
             End If
 
@@ -132,49 +132,49 @@ C        If (iAtom.le.jAtom) Cycle Box
             Write (6,*) 'Bond_Tester: test_vdW=',test_vdW,ThrB_vdW
             Write (6,*) 'Bond_Tester: r0_vdW=',r0_vdW, SQRT(rij2)
 #endif
-*
-*           If the valence force constant small but not too small
-*           denote the bond as an vdW's bond.
+!
+!           If the valence force constant small but not too small
+!           denote the bond as an vdW's bond.
             Test_vdW=Max(Test_vdW,Test)
-*
-*           If already valence bond skip if also vdW bond. We picked
-*           up this bond before!
-*
+!
+!           If already valence bond skip if also vdW bond. We picked
+!           up this bond before!
+!
             If (test.ge.ThrB .and. Test_vdW.ge.ThrB_vdW) Cycle Box
-*
-*           If none skip
-*
+!
+!           If none skip
+!
             If (test.lt.ThrB .and. test_vdW.lt.ThrB_vdW) Cycle Box
-*
-*           Some logic to see if vdw bond should be included.
-*           Hydrogen-hydrogen is always included.
-*
+!
+!           Some logic to see if vdw bond should be included.
+!           Hydrogen-hydrogen is always included.
+!
             If (iANr(iAtom).ne.1 .or. iANr(jAtom).ne.1) Then
-*
-*              Skip if any of the atoms has more than 6 valence bonds
-*              and the other at least 1 valence bond.
+!
+!              Skip if any of the atoms has more than 6 valence bonds
+!              and the other at least 1 valence bond.
                nVal_j=0
                nn=iTabAtoms(1,0,jAtom)
                Do i = 1, nn
-                  If ( iTabBonds(3,iTabAtoms(2,i,jAtom)) .eq.
+                  If ( iTabBonds(3,iTabAtoms(2,i,jAtom)) .eq.           &
      &                 Covalent_Bond) nVal_j=nVal_j+1
                End Do
 #ifdef _DEBUGPRINT_
                Write (6,*) 'nVal_j=',nVal_j
 #endif
-               If ((nVal_i.ge.6.and.nVal_j.ge.1) .or.
+               If ((nVal_i.ge.6.and.nVal_j.ge.1) .or.                   &
      &             (nVal_j.ge.6.and.nVal_i.ge.1)     ) Cycle Box
             End If
 #ifndef _OLD_CODE_
-*
-*           We need to exclude vdW bonds if there is an atom close to
-*           being in between the two atoms being considered and
-*           forming a covalent bond.
-*
+!
+!           We need to exclude vdW bonds if there is an atom close to
+!           being in between the two atoms being considered and
+!           forming a covalent bond.
+!
             If (test.lt.ThrB) Then ! only in case of vdW bond
-*
-*              Loop over all covalently bonded neighbors of atom iAtom
-*
+!
+!              Loop over all covalently bonded neighbors of atom iAtom
+!
 #ifdef _DEBUGPRINT_
                Write (6,*) 'Test validity of vdW bond'
 #endif
@@ -194,20 +194,20 @@ C        If (iAtom.le.jAtom) Cycle Box
                End Do
             End If
 #endif
-*
+!
          End If
-*
+!
          If (nBonds+1.gt.nBondMax) Then
             Write (6,*) 'Bond_Tester: nBonds+1.gt.nBondMax'
             Write (6,*) 'nBonds+1=',nBonds+1
             Write (6,*) 'nBondMax=',nBondMax
             Call Abend()
          End If
-*
+!
          nBonds = nBonds + 1
          iTabBonds(1,nBonds)=iAtom
          iTabBonds(2,nBonds)=jAtom
-*
+!
          If (test.ge.ThrB) Then
             ivdW=Covalent_Bond
          Else If (test_vdW.ge.ThrB_vdW) Then
@@ -225,7 +225,7 @@ C        If (iAtom.le.jAtom) Cycle Box
          Write (6,*) 'Bond type:', Bondtype(Min(3,ivdW))
          Write (6,*)
 #endif
-*
+!
          nNeighbor=iTabAtoms(1,0,iAtom)
          If (nNeighbor+1.gt.nMax) Then
             Write (6,*) 'Bond_Tester(1): nNeighbor+1.gt.nMax'
@@ -235,12 +235,12 @@ C        If (iAtom.le.jAtom) Cycle Box
             Call Abend()
          End If
 
-*        Update the neighbor lists of atoms iAtom and jAtom
+!        Update the neighbor lists of atoms iAtom and jAtom
          nNeighbor=nNeighbor+1
          iTabAtoms(1,0,iAtom) = nNeighbor
          iTabAtoms(1,nNeighbor,iAtom)=jAtom
          iTabAtoms(2,nNeighbor,iAtom)=nBonds
-*
+!
          nNeighbor=iTabAtoms(1,0,jAtom)
          If (nNeighbor+1.gt.nMax) Then
             Write (6,*) 'Bond_Tester(2): nNeighbor+1.gt.nMax'
@@ -253,8 +253,8 @@ C        If (iAtom.le.jAtom) Cycle Box
          iTabAtoms(1,0,jAtom) = nNeighbor
          iTabAtoms(1,nNeighbor,jAtom)=iAtom
          iTabAtoms(2,nNeighbor,jAtom)=nBonds
-*
+!
       End Do Box
-*
+!
       Return
       End

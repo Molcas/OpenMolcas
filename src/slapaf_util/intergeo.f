@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine intergeo(FileName,Enrg,Crd,Grd,nAtm,nIter)
-*---------------------------------*
-* Add geometry optimization info  *
-*   to the Molden inputfile       *
-*---------------------------------*
+!---------------------------------*
+! Add geometry optimization info  *
+!   to the Molden inputfile       *
+!---------------------------------*
       use Symmetry_Info, only: nIrrep
       use Phase_Info
       use Slapaf_Info, only: Cx, nStab
@@ -24,14 +24,14 @@
       Integer, Allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
       Character*(*) FileName
       Real*8, Allocatable:: Cx_p(:,:), Charge(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Pick information for centers and pseudo centers
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Pick information for centers and pseudo centers
+!
       Call Get_iScalar('Unique atoms',msAtom)
       Call Get_iScalar('Pseudo atoms',msAtom_p)
-*
+!
       Call mma_Allocate(Charge,msAtom+msAtom_p,Label='Charge')
       Call Get_dArray('Nuclear charge',Charge,msAtom)
 
@@ -43,9 +43,9 @@
          Call mma_allocate(Cx_p,3,1,Label='Cx_p')
          Cx_p(:,:)=0.0d0
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (msAtom.gt.nAtm) Then
          Call WarningMessage(2,'Error in InterGEO')
          Write (6,*) 'msAtom.gt.nAtm'
@@ -53,7 +53,7 @@
          Write (6,*) 'nAtm=',nAtm
          Call Abend()
       End If
-*
+!
       Lu_Molden=19
       Call molcas_open(Lu_Molden,FileName)
       Write (Lu_Molden,*) '[Molden Format]'
@@ -61,13 +61,13 @@
       Write (Lu_Molden,*) nIter
       Write (Lu_Molden,*) '[GEOCONV]'
       Write (Lu_Molden,*) 'energy'
-*
+!
       iEner=0
       Do iIter=1,nIter
          Write (Lu_Molden,'(E24.17)') Enrg(iIter)
          iEner=iEner+1
       End Do
-*
+!
       Write (Lu_Molden,*) 'max-force'
       iGx=0
       Do iIter=1,nIter
@@ -83,7 +83,7 @@
         End Do
         Write (Lu_Molden,'(F12.7)') grmax
       End Do
-*
+!
       Write (Lu_Molden,*) 'rms-force'
       iGx=0
       Do iIter=1,nIter
@@ -101,8 +101,8 @@
          End Do
          Write (Lu_Molden,'(F12.7)') sqrt(grtot)/DBLE(ngrad)
       End Do
-*
-*     This part disabled because gv refuses to open the file
+!
+!     This part disabled because gv refuses to open the file
 #ifdef write_molden_steps
       Write (Lu_Molden,*) 'max-step'
       Do iIter=1,nIter-1
@@ -117,7 +117,7 @@
          End Do
          Write (Lu_Molden,'(F12.7)') stepmax
       End Do
-*
+!
       Write (Lu_Molden,*) 'rms-step'
       Do iIter=1,nIter-1
          step=0.0D0
@@ -132,19 +132,19 @@
          Write (Lu_Molden,'(F12.7)') sqrt(step)/DBLE(ngrad)
       End Do
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Set up the desymmetrization of the coordinates
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Set up the desymmetrization of the coordinates
+!
       ixyz   = 0
       ixyz_p = 0
       MaxDCR=0
-      Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
+      Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],        &
      &                  label='icoset2')
-      Call mma_allocate(jStab2,[0,7],[1,msAtom+msAtom_p],
+      Call mma_allocate(jStab2,[0,7],[1,msAtom+msAtom_p],               &
      &                  label='jStab2')
-      Call mma_allocate(nStab2,[1,msAtom+msAtom_p],
+      Call mma_allocate(nStab2,[1,msAtom+msAtom_p],                     &
      &                  label='nStab2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
@@ -154,12 +154,12 @@
             ixyz_p = ixyz_p + 1
             iChxyz=iChAtm(Cx_p(1,ixyz_p))
          End If
-         Call Stblz(iChxyz,nStab2(ndc),jStab2(0,ndc),
+         Call Stblz(iChxyz,nStab2(ndc),jStab2(0,ndc),                   &
      &              MaxDCR,iCoSet2(0,0,ndc))
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nAt=0
       Write (Lu_Molden,*) '[GEOMETRIES] (XYZ)'
       Do ndc = 1, msAtom+msAtom_p
@@ -167,7 +167,7 @@
             nAt=nAt+1
          End do
       End do
-*
+!
       Do iIter=1,nIter
          Write (Lu_Molden,'(I4)') nAt
          Write (Lu_Molden,*) Enrg(iIter)
@@ -194,11 +194,11 @@
             End do
          End do
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Write (Lu_Molden,*) '[FORCES]'
-*
+!
       Do iIter=1,nIter
          Write (Lu_Molden,'(A,1X,I4)') 'point',iIter
          Write (Lu_Molden,'(I4)') nAt
@@ -227,15 +227,15 @@
       Call mma_deallocate(nStab2)
       Call mma_deallocate(jStab2)
       Call mma_deallocate(icoset2)
-*
+!
       Close(Lu_Molden)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Allocated(Cx_p)) Call mma_deallocate(Cx_p)
       Call mma_deallocate(Charge)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

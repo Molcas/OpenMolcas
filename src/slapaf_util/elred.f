@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine ElRed(Bmtrx,nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,Scrt,g12K,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine ElRed(Bmtrx,nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,Scrt,g12K,  &
      &                 Thr)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Bmtrx(nq,nx), Gmtrx(nq,nq), EVec(nq,nq),
+      Real*8 Bmtrx(nq,nx), Gmtrx(nq,nq), EVec(nq,nq),                   &
      &       EVal(nq*(nq+1)/2), uMtrx(nX), Scrt(nq,nX)
       Logical g12K, Diagonal
       Real*8, Parameter:: Zero_Approx=0.1D-9
       Real*8, Allocatable:: Work(:), W(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       Do i = 1, nq
          Do j = 1, nx
             If (Abs(Bmtrx(i,j)).lt.1.0D-10) Bmtrx(i,j)=Zero
          End Do
       End Do
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The B matrix','(5e21.12)',Bmtrx,nq,nx)
       Call RecPrt('ElRed: The u matrix','(5e21.12)',umtrx,nx,1)
@@ -40,20 +40,20 @@
          nK=0
          Go To 99
       End If
-*                             T
-*---- Form the G matrix, G=BuB
-*
+!                             T
+!---- Form the G matrix, G=BuB
+!
       Do j = 1, nX
          Do i = 1, nq
             Scrt(i,j) = BMtrx(i,j) * umtrx(j)
          End Do
       End Do
-      Call DGEMM_('N','T',
-     &            nq,nq,nX,
-     &            1.0d0,Scrt,nq,
-     &            Bmtrx,nq,
+      Call DGEMM_('N','T',                                              &
+     &            nq,nq,nX,                                             &
+     &            1.0d0,Scrt,nq,                                        &
+     &            Bmtrx,nq,                                             &
      &            0.0d0,Gmtrx,nq)
-*
+!
       Diagonal = .True.
       Do i = 1, nq
          Sum = 0.0D0
@@ -63,21 +63,21 @@
          End Do
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
-*
+!
 #ifdef _DEBUGPRINT_
-      Call RecPrt('ElRed: The G Matrix (nq x nq)',
+      Call RecPrt('ElRed: The G Matrix (nq x nq)',                      &
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
 #endif
-*
-*---- Set up a unit matrix
-*
+!
+!---- Set up a unit matrix
+!
       call dcopy_(nq*nq,[Zero],0,EVec,1)
       call dcopy_(nq,[One],0,EVec,nq+1)
-*
-*---- Set up the Hessian in lower triangular form, the elements
-*     are symmetrized.
-*
+!
+!---- Set up the Hessian in lower triangular form, the elements
+!     are symmetrized.
+!
       Do i = 1, nQ
          Do j = 1, i
             ijTri = i*(i-1)/2 + j
@@ -87,12 +87,12 @@
 #ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
-*
-*                                                        |g 0|
-*---- Compute eigenvalues and eigenvectors G(K L) = (K L)|0 0|
-*     K: nonredundant vectors with eigenvalues g
-*     L: redundant vectors
-*
+!
+!                                                        |g 0|
+!---- Compute eigenvalues and eigenvectors G(K L) = (K L)|0 0|
+!     K: nonredundant vectors with eigenvalues g
+!     L: redundant vectors
+!
       If (.NOT.Diagonal) Then
          N=nQ
          LDZ=Max(1,N)
@@ -117,7 +117,7 @@
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
-*     Fix standard direction.
+!     Fix standard direction.
       Do iQ = 1, nQ
          call VecPhase(EVec(1,iQ),nQ)
       End Do
@@ -126,10 +126,10 @@
       Call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
 #endif
-*
-*                                        -1/2
-*---- Remove redundant vectors and form g     K
-*
+!
+!                                        -1/2
+!---- Remove redundant vectors and form g     K
+!
       nK = 0
       Do i = 1, nQ
          ii=i*(i+1)/2
@@ -137,42 +137,42 @@
             nK = nK + 1
          End If
          EVal(i) = EVal(ii)
-c        If (g12K .and. Abs(EVal(i)).gt.Zero)
-         If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
+!        If (g12K .and. Abs(EVal(i)).gt.Zero)
+         If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)                    &
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('ElRed: The NonRedundant eigenvectors',
+      Call RecPrt('ElRed: The NonRedundant eigenvectors',               &
      &            '(5e21.12)',EVec,nQ,nK)
-      Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
+      Call RecPrt('ElRed: eigenvalues ','(8E12.4)',                     &
      &            EVal,1,nK)
 #endif
-*
+!
  99   Continue
       Return
       End
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      Subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,            &
      &                 Thr,BM,iBM,nB_Tot,nqB)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Gmtrx(nq,nq), EVec(nq,nq),
+      Real*8 Gmtrx(nq,nq), EVec(nq,nq),                                 &
      &       EVal(nq*(nq+1)/2), uMtrx(nX), BM(nB_Tot)
       Integer iBM(nB_Tot), nqB(nq)
       Logical g12K, Diagonal
       Real*8, Parameter:: Zero_Approx=0.1D-9
       Real*8, Allocatable:: Work(:), W(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
@@ -180,9 +180,9 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          nK=0
          Go To 99
       End If
-*                             T
-*---- Form the G matrix, G=BuB
-*
+!                             T
+!---- Form the G matrix, G=BuB
+!
       Call FZero(GMtrx,nq**2)
       iB = 0
       Do i = 1, nq
@@ -191,7 +191,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
             iB = iB + 1
             ik = iBM(iB)
             B_ik=BM(iB)
-*
+!
             jB = 0
             Do j = 1, nq
                mB = nqB(j)
@@ -200,15 +200,15 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
                   jl = iBM(jB)
                   If (ik.eq.jl) Then
                      B_jl=BM(jB)
-                     GMtrx(i,j) = GMtrx(i,j)
+                     GMtrx(i,j) = GMtrx(i,j)                            &
      &                          + B_ik*umtrx(ik)*B_jl
                   End If
                End Do
             End Do
-*
+!
          End Do
       End Do
-*
+!
       Diagonal = .True.
       Do i = 1, nq
          Sum = 0.0D0
@@ -218,21 +218,21 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          End Do
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
-*
+!
 #ifdef _DEBUGPRINT_
-      Call RecPrt('ElRed2: The G Matrix (nq x nq)',
+      Call RecPrt('ElRed2: The G Matrix (nq x nq)',                     &
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
 #endif
-*
-*---- Set up a unit matrix
-*
+!
+!---- Set up a unit matrix
+!
       call dcopy_(nq*nq,[Zero],0,EVec,1)
       call dcopy_(nq,[One],0,EVec,nq+1)
-*
-*---- Set up the Hessian in lower triangular form, the elements
-*     are symmetrized.
-*
+!
+!---- Set up the Hessian in lower triangular form, the elements
+!     are symmetrized.
+!
       Do i = 1, nQ
          Do j = 1, i
             ijTri = i*(i-1)/2 + j
@@ -242,12 +242,12 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 #ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
-*
-*                                                        |g 0|
-*---- Compute eigenvalues and eigenvectors G(K L) = (K L)|0 0|
-*     K: nonredundant vectors with eigenvalues g
-*     L: redundant vectors
-*
+!
+!                                                        |g 0|
+!---- Compute eigenvalues and eigenvectors G(K L) = (K L)|0 0|
+!     K: nonredundant vectors with eigenvalues g
+!     L: redundant vectors
+!
       If (.NOT.Diagonal) Then
          N=nQ
          LDZ=Max(1,N)
@@ -272,7 +272,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
-*     Fix standard direction.
+!     Fix standard direction.
       Do iQ = 1, nQ
          call VecPhase(EVec(1,iQ),nQ)
       End Do
@@ -281,10 +281,10 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
       Call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
 #endif
-*
-*                                        -1/2
-*---- Remove redundant vectors and form g     K
-*
+!
+!                                        -1/2
+!---- Remove redundant vectors and form g     K
+!
       nK = 0
       Do i = 1, nQ
          ii=i*(i+1)/2
@@ -292,17 +292,17 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
             nK = nK + 1
          End If
          EVal(i) = EVal(ii)
-c        If (g12K .and. Abs(EVal(i)).gt.Zero)
-         If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
+!        If (g12K .and. Abs(EVal(i)).gt.Zero)
+         If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)                    &
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('ElRed2: The NonRedundant eigenvectors',
+      Call RecPrt('ElRed2: The NonRedundant eigenvectors',              &
      &            '(5e21.12)',EVec,nQ,nK)
-       Call RecPrt('ElRed2: eigenvalues ','(8E12.4)',
+       Call RecPrt('ElRed2: eigenvalues ','(8E12.4)',                   &
      &            EVal,1,nK)
 #endif
-*
+!
  99   Continue
       Return
       End

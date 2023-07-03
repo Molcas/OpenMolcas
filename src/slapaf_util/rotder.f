@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*#define _DEBUGPRINT_
-      Subroutine rotder(nmass,xmass,currxyz,ref123,trans,rotang,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!#define _DEBUGPRINT_
+      Subroutine rotder(nmass,xmass,currxyz,ref123,trans,rotang,        &
      &   rotvec,rotmat,norder,dRVdXYZ,d2RVdXYZ2)
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
@@ -18,19 +18,19 @@
       real*8 trans(3),RotAng,RotVec(3), RotMat(3,3)
       real*8 dRVdXYZ(3,3*nMass)
       real*8 d2RVdXYZ2(3,3*nMass,3*nMass)
-* Local variables:
+! Local variables:
       Integer i,imass,ip,ip1,ip2,ipk,ipk1,ipk2
       Integer iter,j,j1,j2,k,k1,k2
       real*8 dRVdA(3,3),d2RVdA2(3,3,3),d3RVdA3(3,3,3,3)
       real*8 d4RVdA4(3,3,3,3,3)
       real*8 TotMass,MOI(3,3),MOIInv(3,3)
       real*8 Sum,Trace,SMat(3,3)
-c     real*8 G(3,3),det,detinv
+!     real*8 G(3,3),det,detinv
       real*8 Sayvetz2(3),RotErr,SmallRot(3)
       real*8 umat(3,3),vmat(3,3),sval(3),wTmp(100)
       real*8, dimension(:,:), allocatable :: Curr123,tmp
       real*8, dimension(:,:,:), allocatable :: dAdXYZ
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('Ref123',' ',Ref123,3,nMass)
 #endif
@@ -38,8 +38,8 @@ c     real*8 G(3,3),det,detinv
       Call mma_allocate(tmp,3,3*nMass,label='tmp')
       Call mma_allocate(dAdXYZ,3,3,nMass,label='dAdXYZ')
 
-* Compute the Center-of-Mass coordinates.
-* These are the same as the translation vector.
+! Compute the Center-of-Mass coordinates.
+! These are the same as the translation vector.
       Trans(1)=0.0D0
       Trans(2)=0.0D0
       Trans(3)=0.0D0
@@ -53,13 +53,13 @@ c     real*8 G(3,3),det,detinv
       Trans(1)=Trans(1)/TotMass
       Trans(2)=Trans(2)/TotMass
       Trans(3)=Trans(3)/TotMass
-* A lengthy piece of code determines the exact orientation
-* of the internal frame. This is defined by Sayvetz conditions
-* using a reference conformation. The procedure is iterative.
-* At least an approximate rotation vector is assumed to be
-* known when entering the Subroutine.
-* Given rotation vector (''BigOmega'' in formulas),
-* compute scalar rotation angle, and rotation matrix.
+! A lengthy piece of code determines the exact orientation
+! of the internal frame. This is defined by Sayvetz conditions
+! using a reference conformation. The procedure is iterative.
+! At least an approximate rotation vector is assumed to be
+! known when entering the Subroutine.
+! Given rotation vector (''BigOmega'' in formulas),
+! compute scalar rotation angle, and rotation matrix.
 #ifdef _DEBUGPRINT_
       Call RecPrt('RotVec(00)',' ',RotVec,1,3)
 #endif
@@ -72,13 +72,13 @@ c     real*8 G(3,3),det,detinv
   10  Continue
       iter=iter+1
       if(iter.ge.100) then
-c       Call Quit_OnConvError()
-        Call WarningMessage(1,
+!       Call Quit_OnConvError()
+        Call WarningMessage(1,                                          &
      &       'Warning: Convergence problem in the internal frame')
         goto 11
       end if
-* compute cartesian position vectors in the co-moving frame:
-* (Note: Inverse rotation matrix = transpose)
+! compute cartesian position vectors in the co-moving frame:
+! (Note: Inverse rotation matrix = transpose)
       do imass=1,nmass
        do i=1,3
         sum=0.0D0
@@ -88,8 +88,8 @@ c       Call Quit_OnConvError()
         Curr123(i,imass)=sum
        end do
       end do
-* Compute the Moments-of-Inertia matrix. The asymmetrical
-* one, used for Sayvetz conditions.
+! Compute the Moments-of-Inertia matrix. The asymmetrical
+! one, used for Sayvetz conditions.
       call dcopy_(3*nmass,Ref123,1,tmp,1)
 #ifdef _DEBUGPRINT_
       Call RecPrt('Curr123',' ',Curr123,3,nMass)
@@ -111,28 +111,28 @@ c       Call Quit_OnConvError()
 #ifdef _DEBUGPRINT_
       Call RecPrt('MOI',' ',MOI,SIZE(MOI,1),SIZE(MOI,2))
 #endif
-* Invert the MOI-matrix.
-c     G(1,1)=MOI(2,2)*MOI(3,3)-MOI(2,3)*MOI(3,2)
-c     G(2,1)=MOI(3,2)*MOI(1,3)-MOI(3,3)*MOI(1,2)
-c     G(3,1)=MOI(1,2)*MOI(2,3)-MOI(1,3)*MOI(2,2)
-c     G(1,2)=MOI(2,3)*MOI(3,1)-MOI(2,1)*MOI(3,3)
-c     G(2,2)=MOI(3,3)*MOI(1,1)-MOI(3,1)*MOI(1,3)
-c     G(3,2)=MOI(1,3)*MOI(2,1)-MOI(1,1)*MOI(2,3)
-c     G(1,3)=MOI(2,1)*MOI(3,2)-MOI(2,2)*MOI(3,1)
-c     G(2,3)=MOI(3,1)*MOI(1,2)-MOI(3,2)*MOI(1,1)
-c     G(3,3)=MOI(1,1)*MOI(2,2)-MOI(1,2)*MOI(2,1)
-c     Det=MOI(1,1)*G(1,1)+MOI(2,1)*G(2,1)+MOI(3,1)*G(3,1)
-c     DetInv=1.0D0/Det
-c     MOIInv(1,1)=G(1,1)*DetInv
-c     MOIInv(2,1)=G(1,2)*DetInv
-c     MOIInv(3,1)=G(1,3)*DetInv
-c     MOIInv(1,2)=G(2,1)*DetInv
-c     MOIInv(2,2)=G(2,2)*DetInv
-c     MOIInv(3,2)=G(2,3)*DetInv
-c     MOIInv(1,3)=G(3,1)*DetInv
-c     MOIInv(2,3)=G(3,2)*DetInv
-c     MOIInv(3,3)=G(3,3)*DetInv
-* (use the Moore-Penrose pseudoinverse, to deal with linear systems)
+! Invert the MOI-matrix.
+!     G(1,1)=MOI(2,2)*MOI(3,3)-MOI(2,3)*MOI(3,2)
+!     G(2,1)=MOI(3,2)*MOI(1,3)-MOI(3,3)*MOI(1,2)
+!     G(3,1)=MOI(1,2)*MOI(2,3)-MOI(1,3)*MOI(2,2)
+!     G(1,2)=MOI(2,3)*MOI(3,1)-MOI(2,1)*MOI(3,3)
+!     G(2,2)=MOI(3,3)*MOI(1,1)-MOI(3,1)*MOI(1,3)
+!     G(3,2)=MOI(1,3)*MOI(2,1)-MOI(1,1)*MOI(2,3)
+!     G(1,3)=MOI(2,1)*MOI(3,2)-MOI(2,2)*MOI(3,1)
+!     G(2,3)=MOI(3,1)*MOI(1,2)-MOI(3,2)*MOI(1,1)
+!     G(3,3)=MOI(1,1)*MOI(2,2)-MOI(1,2)*MOI(2,1)
+!     Det=MOI(1,1)*G(1,1)+MOI(2,1)*G(2,1)+MOI(3,1)*G(3,1)
+!     DetInv=1.0D0/Det
+!     MOIInv(1,1)=G(1,1)*DetInv
+!     MOIInv(2,1)=G(1,2)*DetInv
+!     MOIInv(3,1)=G(1,3)*DetInv
+!     MOIInv(1,2)=G(2,1)*DetInv
+!     MOIInv(2,2)=G(2,2)*DetInv
+!     MOIInv(3,2)=G(2,3)*DetInv
+!     MOIInv(1,3)=G(3,1)*DetInv
+!     MOIInv(2,3)=G(3,2)*DetInv
+!     MOIInv(3,3)=G(3,3)*DetInv
+! (use the Moore-Penrose pseudoinverse, to deal with linear systems)
       call dgesvd_('A','A',3,3,MOI,3,sval,umat,3,vmat,3,wTmp,100,i)
       Do i=1,3
         If (Abs(sval(i)).gt.1.0d-12) Then
@@ -150,20 +150,20 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       Call RecPrt('Ref123',' ',Ref123,3,nMass)
       Call RecPrt('Curr123',' ',Curr123,3,nMass)
 #endif
-* Determine small rotation that zeroes the Sayvetz rotational conditions
-*      write(*,*)' Determine small rotation. First compute Sayvetz2:'
+! Determine small rotation that zeroes the Sayvetz rotational conditions
+!      write(*,*)' Determine small rotation. First compute Sayvetz2:'
       do i=1,3
        j=1+mod(i,3)
        k=1+mod(j,3)
-*      sum=0.0D0
+!      sum=0.0D0
        Sayvetz2(i)=0.0D0
        do imass=1,nMass
-        Sayvetz2(i)=Sayvetz2(i)+
-*       sum=sum+
-     &          xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-
+        Sayvetz2(i)=Sayvetz2(i)+                                        &
+!       sum=sum+
+     &          xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-         &
      &                        Ref123(k,imass)*Curr123(j,imass))
        end do
-*      Sayvetz2(i)=sum
+!      Sayvetz2(i)=sum
       end do
 #ifdef _DEBUGPRINT_
       Call RecPrt('Sayvetz2',' ',Sayvetz2,1,3)
@@ -181,14 +181,14 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       Call RecPrt('SmallRot',' ',SmallRot,1,3)
 #endif
       RotErr=sqrt(RotErr)
-* Limiting step size:
+! Limiting step size:
       If(RotErr.gt.1.0D0) then
         SmallRot(1)=SmallRot(1)/RotErr
         SmallRot(2)=SmallRot(2)/RotErr
         SmallRot(3)=SmallRot(3)/RotErr
         RotErr=1.0D0
       End If
-* Apply this rotation to the rotation matrix:
+! Apply this rotation to the rotation matrix:
       Call updRotMat(SmallRot,RotMat)
 #ifdef _DEBUGPRINT_
       Call RecPrt('RotMat(i)',' ',RotMat,3,3)
@@ -199,38 +199,38 @@ c     MOIInv(3,3)=G(3,3)*DetInv
 #ifdef _DEBUGPRINT_
       Call RecPrt('RotMat(Final)',' ',RotMat,3,3)
 #endif
-* Now RotMat is converged. Recompute RotVec, RotAng.
+! Now RotMat is converged. Recompute RotVec, RotAng.
       Call Mat2Vec(RotMat,RotVec,RotAng)
 #ifdef _DEBUGPRINT_
       Call RecPrt('RotVec(Recomputed)',' ',RotVec,1,3)
 #endif
-* Derivatives w.r.t A(i), of global rotation parameters RotVec
-* Note: A(i) is the dual vector of the antisymmetric part of the
-* asymmetrically defined MOI matrix, with frozen orientation.
-* RotVec is the rotation parameter array necessary to make MOI
-* symmetrical.
+! Derivatives w.r.t A(i), of global rotation parameters RotVec
+! Note: A(i) is the dual vector of the antisymmetric part of the
+! asymmetrically defined MOI matrix, with frozen orientation.
+! RotVec is the rotation parameter array necessary to make MOI
+! symmetrical.
       call rotder4(norder,SMat,RotVec,dRVdA,d2RVdA2,d3RVdA3,d4RVdA4)
-* Note that A(i) is exactly linear in atom coordinates.
-* Definition of A(i) is as follows:
-*    A(1)=sum( xMass(imass)*(Ref123(2,imass)*Curr123(3,imass)-
-*                            Ref123(3,imass)*Curr123(2,imass)) )
-*    A(2)=sum( xMass(imass)*(Ref123(3,imass)*Curr123(1,imass)-
-*                            Ref123(1,imass)*Curr123(3,imass)) )
-*    A(3)=sum( xMass(imass)*(Ref123(1,imass)*Curr123(2,imass)-
-*                            Ref123(2,imass)*Curr123(1,imass)) )
-* First, compute derivatives without accounting for COM motion:
+! Note that A(i) is exactly linear in atom coordinates.
+! Definition of A(i) is as follows:
+!    A(1)=sum( xMass(imass)*(Ref123(2,imass)*Curr123(3,imass)-
+!                            Ref123(3,imass)*Curr123(2,imass)) )
+!    A(2)=sum( xMass(imass)*(Ref123(3,imass)*Curr123(1,imass)-
+!                            Ref123(1,imass)*Curr123(3,imass)) )
+!    A(3)=sum( xMass(imass)*(Ref123(1,imass)*Curr123(2,imass)-
+!                            Ref123(2,imass)*Curr123(1,imass)) )
+! First, compute derivatives without accounting for COM motion:
       do ip=1,nmass
        do k=1,3
-        dAdXYZ(1,k,ip)=xmass(ip)*
+        dAdXYZ(1,k,ip)=xmass(ip)*                                       &
      &          (RotMat(k,3)*Ref123(2,ip)-RotMat(k,2)*Ref123(3,ip))
-        dAdXYZ(2,k,ip)=xmass(ip)*
+        dAdXYZ(2,k,ip)=xmass(ip)*                                       &
      &          (RotMat(k,1)*Ref123(3,ip)-RotMat(k,3)*Ref123(1,ip))
-        dAdXYZ(3,k,ip)=xmass(ip)*
+        dAdXYZ(3,k,ip)=xmass(ip)*                                       &
      &          (RotMat(k,2)*Ref123(1,ip)-RotMat(k,1)*Ref123(2,ip))
        end do
       end do
-* Correction for COM motion: (Theoretically, this makes no
-* difference to the results, but why not...)
+! Correction for COM motion: (Theoretically, this makes no
+! difference to the results, but why not...)
       do i=1,3
        do k=1,3
         sum=0.0d0
@@ -242,11 +242,11 @@ c     MOIInv(3,3)=G(3,3)*DetInv
         end do
        end do
       end do
-* Finally,transform dXdA, etc, into derivatives w.r.t atom coordinates:
-*  dRVdXYZ(i,k,ip)= sum dRVdA(i,j)*dAdXYZ(j,k,ip)
-*  d2RVdXYZ2(i,k1,ip1,k2,ip2)=
-*    sum d2RVdA2(i,j1,j2)*dAdXYZ(j1,k1,ip1)*dAdXYZ(j2,k2,ip2)
-*  and so on.. Note: A is linear in nuclear coordinates.
+! Finally,transform dXdA, etc, into derivatives w.r.t atom coordinates:
+!  dRVdXYZ(i,k,ip)= sum dRVdA(i,j)*dAdXYZ(j,k,ip)
+!  d2RVdXYZ2(i,k1,ip1,k2,ip2)=
+!    sum d2RVdA2(i,j1,j2)*dAdXYZ(j1,k1,ip1)*dAdXYZ(j2,k2,ip2)
+!  and so on.. Note: A is linear in nuclear coordinates.
       If (nOrder.ge.1) Then
       do i=1,3
        do ip=1,nMass
@@ -294,17 +294,17 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       Call mma_deallocate(dAdXYZ)
       return
       end
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine rotder4(norder,S,X,dXdA,d2XdA2,d3XdA3,d4XdA4)
       implicit none
-* Call arguments:
+! Call arguments:
       integer norder
       real*8 S(3,3)
       real*8 X(3),dXdA(3,3),d2XdA2(3,3,3),d3XdA3(3,3,3,3)
       real*8 d4XdA4(3,3,3,3,3)
-* Local variables:
+! Local variables:
       integer i,i1,i2,i3,ia,ib,ic,id,j,k,l,m,n
       real*8 c0,c1,c2,Q,cs,sn,sum,XN
       real*8 dc0dQ,d2c0dQ2,d3c0dQ3,d4c0dQ4
@@ -320,11 +320,11 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       real*8 d4PdX4(3,3,3,3,3,3)
       real*8 dAdX(3,3),d2AdX2(3,3,3),d3AdX3(3,3,3,3)
       real*8 d4AdX4(3,3,3,3,3)
-c     real*8 T(3,3),det,detinv
+!     real*8 T(3,3),det,detinv
       real*8 tmp1(3),tmp2(3,3),tmp3(3,3,3),tmp4(3,3,3,3)
       real*8 tmp5(3,3,3,3,3),tmp5A(3,3,3,3,3)
       real*8 umat(3,3),vmat(3,3),sval(3),wTmp(100)
-*
+!
       d2c0dQ2=0.0D0 ! Dummy initialize
       d2c1dQ2=0.0D0 ! Dummy initialize
       d2c2dQ2=0.0D0 ! Dummy initialize
@@ -334,40 +334,40 @@ c     real*8 T(3,3),det,detinv
       d4c0dQ4=0.0D0 ! Dummy initialize
       d4c1dQ4=0.0D0 ! Dummy initialize
       d4c2dQ4=0.0D0 ! Dummy initialize
-*
+!
       Q=X(1)**2+X(2)**2+X(3)**2
       XN=sqrt(Q)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       if (Q.lt.0.5D0) then
-* Use a Taylor expansion:
-        c0=1.D0-(Q/2.D0)
+! Use a Taylor expansion:
+        c0=1.D0-(Q/2.D0)                                                &
      &    *(1.D0-(Q/12.D0)*(1.D0-(Q/30.D0)*(1.D0-(Q/56.D0))))
-        c1=(1.D0-(Q/6.D0)
+        c1=(1.D0-(Q/6.D0)                                               &
      &    *(1.D0-(Q/20.D0)*(1.D0-(Q/42.D0)*(1.D0-(Q/72.D0)))))
-        c2=(1.D0-(Q/12.D0)
+        c2=(1.D0-(Q/12.D0)                                              &
      &    *(1.D0-(Q/30.D0)*(1.D0-(Q/56.D0)*(1.D0-(Q/90.D0)))))/2.D0
-        dc0dQ=-(1.D0-(Q/6.D0)
+        dc0dQ=-(1.D0-(Q/6.D0)                                           &
      &       *(1.D0-(Q/20.D0)*(1.D0-(Q/42.D0)*(1.D0-(Q/72.D0)))))/2.D0
         dc1dQ=-(1.D0-(Q/10.D0)*(1.D0-(Q/28.D0)*(1.D0-(Q/54.D0))))/6.D0
-        dc2dQ=-(1.D0-(Q/30.D0)
+        dc2dQ=-(1.D0-(Q/30.D0)                                          &
      &       *(2.D0-(Q/56.D0)*(3.D0-(Q/90.D0)*4.D0)))/24.D0
        if (norder.le.1) goto 101
         d2c0dQ2=(1.D0-(Q/10.D0)*(1.D0-(Q/28.D0)*(1.D0-(Q/54.D0))))/12.D0
         d2c1dQ2=(1.D0-(Q/14.D0)*(1.D0-(Q/36.D0)*(1.D0-(Q/66.D0))))/60.D0
-        d2c2dQ2= (1.D0-(Q/56.D0)
+        d2c2dQ2= (1.D0-(Q/56.D0)                                        &
      &         *(3.D0-(Q/90.D0)*(6.D0-(Q/132.D0)*10.D0)))/360.D0
        if (norder.le.2) goto 101
-        d3c0dQ3=-(1.D0-(Q/14.D0)
+        d3c0dQ3=-(1.D0-(Q/14.D0)                                        &
      &         *(1.D0-(Q/36.D0)*(1.D0-(Q/66.D0))))/120.D0
-        d3c1dQ3=-(1.D0-(Q/18.D0)
+        d3c1dQ3=-(1.D0-(Q/18.D0)                                        &
      &         *(1.D0-(Q/44.D0)*(1.D0-(Q/78.D0))))/840.D0
         d3c2dQ3=-(1.D0-(Q/90.D0)*(4.D0-(Q/132.D0)*10.D0))/6720.D0
        if (norder.le.3) goto 101
-        d4c0dQ4=(1.D0-(Q/18.D0)
+        d4c0dQ4=(1.D0-(Q/18.D0)                                         &
      &         *(1.D0-(Q/44.D0)*(1.D0-(Q/78.D0))))/1680.D0
-        d4c1dQ4=(1.D0-(Q/22.D0)
+        d4c1dQ4=(1.D0-(Q/22.D0)                                         &
      &         *(1.D0-(Q/52.D0)*(1.D0-(Q/90.D0))))/15120.D0
         d4c2dQ4= (1.D0-(Q/132.D0)*(5.D0-(Q/182.D0)*15.D0))/151200.D0
  101  continue
@@ -387,13 +387,13 @@ c     real*8 T(3,3),det,detinv
        if (norder.le.2) goto 102
        d3c0dQ3=(3.D0*XN*cs-(3.D0-Q)*sn)/(8.D0*XN**5)
        d3c1dQ3=-((15.D0-6.D0*Q)*sn-XN*(15.D0-Q)*cs)/(8.D0*XN**7)
-       d3c2dQ3=(-48.D0+(48.D0-9.D0*XN**2)*cs+XN*(33.D0-XN**2)*sn)
+       d3c2dQ3=(-48.D0+(48.D0-9.D0*XN**2)*cs+XN*(33.D0-XN**2)*sn)       &
      &        /(8.D0*XN**8)
        if (norder.le.3) goto 102
        d4c0dQ4=((15.D0-6.D0*Q)*sn-XN*(15.D0-Q)*cs)/(16.D0*XN**7)
-       d4c1dQ4=((105.D0-Q*(45.D0-Q))*sn-XN*(105.D0-10.D0*Q)*cs)
+       d4c1dQ4=((105.D0-Q*(45.D0-Q))*sn-XN*(105.D0-10.D0*Q)*cs)         &
      &        /(16.D0*XN**9)
-       d4c2dQ4=(384.D0-(384.D0-87.D0*XN**2+XN**4)*cs
+       d4c2dQ4=(384.D0-(384.D0-87.D0*XN**2+XN**4)*cs                    &
      &        -XN*(279.D0-14.D0*XN**2)*sn)/(16.D0*XN**10)
  102  continue
       end if
@@ -488,9 +488,9 @@ c     real*8 T(3,3),det,detinv
        end do
       end do
  103  continue
-* The unitary matrix U=exp(XMat), and its derivatives.
-* Here, X is the matrix with elements XMat(i,j)=eps(i,k,j)*X(k)
-* First term, cos(X)*delta(i,j):
+! The unitary matrix U=exp(XMat), and its derivatives.
+! Here, X is the matrix with elements XMat(i,j)=eps(i,k,j)*X(k)
+! First term, cos(X)*delta(i,j):
       do i=1,3
        do j=1,3
         U(i,j)=0.0d0
@@ -546,7 +546,7 @@ c     real*8 T(3,3),det,detinv
       end do
       end do
  201  continue
-* Second term, (sin(X)/X)*eps(i,k,j)*X(k):
+! Second term, (sin(X)/X)*eps(i,k,j)*X(k):
       do i1=1,3
        i2=1+mod(i1,3)
        i3=1+mod(i2,3)
@@ -595,9 +595,9 @@ c     real*8 T(3,3),det,detinv
         do l=1,3
          do m=1,3
           do n=1,3
-           d4UdX4(i1,i3,k,l,m,n)=
+           d4UdX4(i1,i3,k,l,m,n)=                                       &
      &                   d4UdX4(i1,i3,k,l,m,n)+d4c1dX4(k,l,m,n)*X(i2)
-           d4UdX4(i3,i1,k,l,m,n)=
+           d4UdX4(i3,i1,k,l,m,n)=                                       &
      &                   d4UdX4(i3,i1,k,l,m,n)-d4c1dX4(k,l,m,n)*X(i2)
           end do
          end do
@@ -619,7 +619,7 @@ c     real*8 T(3,3),det,detinv
        end do
  202   continue
       end do
-* Third term,((1-cos(X))/X**2)*X(i)*X(j):
+! Third term,((1-cos(X))/X**2)*X(i)*X(j):
       do i=1,3
        do j=1,3
         U(i,j)=U(i,j)+c2*X(i)*X(j)
@@ -677,7 +677,7 @@ c     real*8 T(3,3),det,detinv
          do l=1,3
           do m=1,3
            do n=1,3
-            d4UdX4(i,j,k,l,m,n)=d4UdX4(i,j,k,l,m,n)+
+            d4UdX4(i,j,k,l,m,n)=d4UdX4(i,j,k,l,m,n)+                    &
      &                          d4c2dX4(k,l,m,n)*X(i)*X(j)
            end do
            d4UdX4(i,j,i,k,l,m)=d4UdX4(i,j,i,k,l,m)+d3c2dX3(k,l,m)*X(j)
@@ -706,9 +706,9 @@ c     real*8 T(3,3),det,detinv
        end do
       end do
  203  continue
-* The matrix S (which should be symmetrical) is the product
-* S=S0*U=S0*exp(X) with X given as input arguments to this Subroutine.
-* Need to compute S0=S*U(transpose):
+! The matrix S (which should be symmetrical) is the product
+! S=S0*U=S0*exp(X) with X given as input arguments to this Subroutine.
+! Need to compute S0=S*U(transpose):
       do i=1,3
        do j=1,3
         sum=0.0D0
@@ -718,15 +718,15 @@ c     real*8 T(3,3),det,detinv
         S0(i,j)=sum
        end do
       end do
-* The matrix product P=S0*U, where now U is used as an expansion in
-* the variables X, and its derivatives:
+! The matrix product P=S0*U, where now U is used as an expansion in
+! the variables X, and its derivatives:
       do i=1,3
        do j=1,3
-*       sum=0.0D0
-*       do i1=1,3
-*        sum=sum+S0(i,i1)*U(i1,j)
-*       end do
-*       P(i,j)=sum
+!       sum=0.0D0
+!       do i1=1,3
+!        sum=sum+S0(i,i1)*U(i1,j)
+!       end do
+!       P(i,j)=sum
         do k=1,3
          sum=0.0D0
          do i1=1,3
@@ -785,10 +785,10 @@ c     real*8 T(3,3),det,detinv
        end do
       end do
  301  continue
-* The vector A is the dual of the antisymmetric part of P:
-*       A(1)=P(3,2)-P(2,3)
-*       A(2)=P(1,3)-P(3,1)
-*       A(3)=P(2,1)-P(1,2)
+! The vector A is the dual of the antisymmetric part of P:
+!       A(1)=P(3,2)-P(2,3)
+!       A(2)=P(1,3)-P(3,1)
+!       A(3)=P(2,1)-P(1,2)
         do i=1,3
          dAdX(1,i)=dPdX(3,2,i)-dPdX(2,3,i)
          dAdX(2,i)=dPdX(1,3,i)-dPdX(3,1,i)
@@ -815,27 +815,27 @@ c     real*8 T(3,3),det,detinv
          end do
  304     continue
         end do
-* Finally, we have obtained derivatives of A w.r.t X.
-* So now we can obtain derivatives of the inverse mapping.
-* This will require the inverse T of the matrix dAdX:
-c     T(1,1)=dAdX(2,2)*dAdX(3,3)-dAdX(3,2)*dAdX(2,3)
-c     T(2,1)=dAdX(3,2)*dAdX(1,3)-dAdX(1,2)*dAdX(3,3)
-c     T(3,1)=dAdX(1,2)*dAdX(2,3)-dAdX(2,2)*dAdX(1,3)
-c     T(1,2)=dAdX(2,3)*dAdX(3,1)-dAdX(3,3)*dAdX(2,1)
-c     T(2,2)=dAdX(3,3)*dAdX(1,1)-dAdX(1,3)*dAdX(3,1)
-c     T(3,2)=dAdX(1,3)*dAdX(2,1)-dAdX(2,3)*dAdX(1,1)
-c     T(1,3)=dAdX(2,1)*dAdX(3,2)-dAdX(3,1)*dAdX(2,2)
-c     T(2,3)=dAdX(3,1)*dAdX(1,2)-dAdX(1,1)*dAdX(3,2)
-c     T(3,3)=dAdX(1,1)*dAdX(2,2)-dAdX(2,1)*dAdX(1,2)
-c     det=dAdX(1,1)*T(1,1)+dAdX(2,1)*T(2,1)+dAdX(3,1)*T(3,1)
-c     detInv=1.0D0/det
-*  First derivatives dXdA(j,i):
-c     do i=1,3
-c      do ia=1,3
-c       dXdA(ia,i)=DetInv*T(i,ia)
-c      end do
-c     end do
-* Use the Moore-Penrose pseudoinverse instead
+! Finally, we have obtained derivatives of A w.r.t X.
+! So now we can obtain derivatives of the inverse mapping.
+! This will require the inverse T of the matrix dAdX:
+!     T(1,1)=dAdX(2,2)*dAdX(3,3)-dAdX(3,2)*dAdX(2,3)
+!     T(2,1)=dAdX(3,2)*dAdX(1,3)-dAdX(1,2)*dAdX(3,3)
+!     T(3,1)=dAdX(1,2)*dAdX(2,3)-dAdX(2,2)*dAdX(1,3)
+!     T(1,2)=dAdX(2,3)*dAdX(3,1)-dAdX(3,3)*dAdX(2,1)
+!     T(2,2)=dAdX(3,3)*dAdX(1,1)-dAdX(1,3)*dAdX(3,1)
+!     T(3,2)=dAdX(1,3)*dAdX(2,1)-dAdX(2,3)*dAdX(1,1)
+!     T(1,3)=dAdX(2,1)*dAdX(3,2)-dAdX(3,1)*dAdX(2,2)
+!     T(2,3)=dAdX(3,1)*dAdX(1,2)-dAdX(1,1)*dAdX(3,2)
+!     T(3,3)=dAdX(1,1)*dAdX(2,2)-dAdX(2,1)*dAdX(1,2)
+!     det=dAdX(1,1)*T(1,1)+dAdX(2,1)*T(2,1)+dAdX(3,1)*T(3,1)
+!     detInv=1.0D0/det
+!  First derivatives dXdA(j,i):
+!     do i=1,3
+!      do ia=1,3
+!       dXdA(ia,i)=DetInv*T(i,ia)
+!      end do
+!     end do
+! Use the Moore-Penrose pseudoinverse instead
       call dgesvd_('A','A',3,3,dAdX,3,sval,umat,3,vmat,3,wTmp,100,i)
       Do i=1,3
         If (Abs(sval(i)).gt.1.0d-12) Then
@@ -845,7 +845,7 @@ c     end do
         End If
       End Do
       Call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,dXdA,3)
-*  Second derivatives d2XdA(ic,j,k)
+!  Second derivatives d2XdA(ic,j,k)
       if (norder.le.1) goto 401
       do i=1,3
        do k=1,3
@@ -876,7 +876,7 @@ c     end do
         end do
        end do
       end do
-*  Third derivatives d3XdA3(id,j,k,l)
+!  Third derivatives d3XdA3(id,j,k,l)
       if (norder.le.2) goto 401
       do i=1,3
        do l=1,3
@@ -946,7 +946,7 @@ c     end do
          do l=1,3
           sum=d3XdA3(ic,j,k,l)
           do i=1,3
-           sum=sum-DXDA(ic,i)*
+           sum=sum-DXDA(ic,i)*                                          &
      &             (tmp4(i,j,k,l)+tmp4(i,k,l,j)+tmp4(i,l,j,k))
           end do
           d3XdA3(ic,j,k,l)=sum
@@ -954,7 +954,7 @@ c     end do
         end do
        end do
       end do
-*  Fourth derivatives d4XdA4(id,j,k,l,m)
+!  Fourth derivatives d4XdA4(id,j,k,l,m)
       if (norder.le.3) goto 401
       do i=1,3
        do ia=1,3
@@ -1036,8 +1036,8 @@ c     end do
         do k=1,3
          do l=1,3
           do m=1,3
-           tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+
-     &          tmp5A(i,j,l,k,m)+tmp5A(i,k,l,j,m)+tmp5A(i,j,m,k,l)+
+           tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+            &
+     &          tmp5A(i,j,l,k,m)+tmp5A(i,k,l,j,m)+tmp5A(i,j,m,k,l)+     &
      &          tmp5A(i,k,m,j,l)+tmp5A(i,l,m,j,k)
           end do
          end do
@@ -1067,7 +1067,7 @@ c     end do
         do m=1,3
          do l=1,3
           do k=1,3
-       tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+
+       tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+                &
      &       tmp5A(i,k,l,m,j)+tmp5A(i,l,m,j,k)+tmp5A(i,m,j,k,l)
           end do
          end do
@@ -1097,7 +1097,7 @@ c     end do
         do j=1,3
          do l=1,3
           do k=1,3
-           tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+
+           tmp5(i,j,k,l,m)=tmp5(i,j,k,l,m)+tmp5A(i,j,k,l,m)+            &
      &                  tmp5A(i,j,k,m,l)+tmp5A(i,j,m,l,k)
           end do
          end do
@@ -1122,9 +1122,9 @@ c     end do
  401  continue
       return
       end
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine mat2vec(RotMat,RotVec,RotAng)
       implicit real*8 (a-h,o-z)
       parameter (Pi=3.14159265358979323846D0)
@@ -1138,8 +1138,8 @@ c     end do
       if(0.05D0*cr.gt.sr) then
         tn=sr/cr
         tn2=tn**2
-* cos(theta) is positive, C is theta/sin(theta)
-        C=(45045.0D0-tn2*(15015.0D0-tn2*(9009.0D0-tn2*(6435.0D0-
+! cos(theta) is positive, C is theta/sin(theta)
+        C=(45045.0D0-tn2*(15015.0D0-tn2*(9009.0D0-tn2*(6435.0D0-        &
      &   tn2*(5005.0D0-tn2*(4095.0D0-tn2*3465.0D0))))))/(45045.0D0*cr)
         RotVec(1)=x1*C
         RotVec(2)=x2*C
@@ -1148,9 +1148,9 @@ c     end do
       else if(-0.05D0*abs(cr).gt.sr.and.sr.gt.0.0D0) then
         tn=-sr/cr
         tn2=tn**2
-* cos(theta) is negative, sin(theta) is positive (always),
-* Pimth is (Pi-theta)
-        Pimth=tn*(45045.0D0-tn2*(15015.0D0-tn2*(9009.0D0-tn2*(6435.0D0-
+! cos(theta) is negative, sin(theta) is positive (always),
+! Pimth is (Pi-theta)
+        Pimth=tn*(45045.0D0-tn2*(15015.0D0-tn2*(9009.0D0-tn2*(6435.0D0- &
      &   tn2*(5005.0D0-tn2*(4095.0D0-tn2*3465.0D0))))))/45045.0D0
         RotAng   =Pi-Pimth
         RotVec(1)=(x1/sr)*RotAng
@@ -1169,24 +1169,24 @@ c     end do
       end if
       return
       end
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine mkRotMat(rotvec,rotmat)
       implicit real*8 (a-h,o-z)
       real*8 RotMat(3,3)
       real*8 RotVec(3)
-*
-C     Call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
-*
+!
+!     Call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
+!
       Q=RotVec(1)**2+RotVec(2)**2+RotVec(3)**2
       XN=sqrt(Q)
       if (Q.lt.0.01D0) then
-        c0=1.d0-(Q/2.d0)
+        c0=1.d0-(Q/2.d0)                                                &
      &    *(1.d0-(Q/12.d0)*(1.d0-(Q/30.d0)*(1.d0-(Q/56.d0))))
-        c1=1.d0-(Q/6.d0)
+        c1=1.d0-(Q/6.d0)                                                &
      &    *(1.d0-(Q/20.d0)*(1.d0-(Q/42.d0)*(1.d0-(Q/72.d0))))
-        c2=(1.d0-(Q/12.d0)
+        c2=(1.d0-(Q/12.d0)                                              &
      &    *(1.d0-(Q/30.d0)*(1.d0-(Q/56.d0)*(1.d0-(Q/90.d0)))))/2.d0
       else
        cs=cos(XN)
@@ -1225,9 +1225,9 @@ C     Call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
       end do
       return
       end
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine updRotMat(SmallRot,RotMat)
       implicit real*8 (a-h,o-z)
       dimension SmallRot(3),RotMat(3,3)
@@ -1247,7 +1247,7 @@ C     Call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
         RotMat(i,j)=tmp(i,j)
        end do
       end do
-* Check for orthonormality:
+! Check for orthonormality:
       do i=1,3
        do j=1,3
         sum=0.0d0
@@ -1262,9 +1262,9 @@ C     Call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
       end do
       return
       end
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine moveit(nmass,currxyz,ref123,trans,rotvec)
       implicit real*8 (a-h,o-z)
       real*8 U(3,3)

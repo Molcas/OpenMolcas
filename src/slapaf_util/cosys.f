@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CoSys(Cent,R,xyz)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -15,16 +15,16 @@
       Real*8 Cent(3,3), r(3), xyz(3,2)
       Integer iComp(3)
       Logical Linear
-*
+!
       iRout=221
       iPrint=nPrint(iRout)
       Lu=6
       If (iPrint.ge.99) Then
          Call RecPrt('CoSys: Cent',' ',Cent,3,3)
       End If
-*
-*---- Check if linear
-*
+!
+!---- Check if linear
+!
       Co=Zero
       Crap=Zero
       RR1=Zero
@@ -39,7 +39,7 @@
       RR2=Sqrt(RR2)
       Co=Co/(RR1*RR2)
       Do i = 1, 3
-         Crap = Crap + ( (Cent(i,3)-Cent(i,2))/RR2
+         Crap = Crap + ( (Cent(i,3)-Cent(i,2))/RR2                      &
      &     -Sign(One,Co)*(Cent(i,1)-Cent(i,2))/RR1 )**2
       End Do
       Crap=Sqrt(Crap)
@@ -69,11 +69,11 @@
          Write (6,*) 'Fi,Pi=',Fi,Pi
          Write (6,*) 'Pi-Fi=',Pi-Fi
       End If
-*
+!
       Linear=Abs(Si).lt.1.0D-13
-*
-*---- Form reference axis
-*
+!
+!---- Form reference axis
+!
       RR=Zero
       Do i = 1, 3
          R(i)=Cent(i,3)-Cent(i,1)
@@ -92,16 +92,16 @@
         RR=RR2
       End If
       Call DScal_(3,One/RR,R,1)
-*
+!
       If (iPrint.ge.99) Then
          Write (6,*) 'Linear=',Linear
          Write (6,*) 'RR=',RR
          Call RecPrt('R',' ',R,3,1)
       End If
-*
+!
  99   Continue
       If (Linear) Then
-*
+!
       nComp=0
       Do i = 1, 3
          If (R(i).eq.Zero) Then
@@ -109,13 +109,13 @@
             iComp(nComp)=i
          End If
       End Do
-*
-*---- Compute the WDC B-matrix
-*
+!
+!---- Compute the WDC B-matrix
+!
       call dcopy_(6,[Zero],0,xyz,1)
       If (nComp.eq.0) Then
-*        Write (*,*) ' Case nComp.eq.0'
-*
+!        Write (*,*) ' Case nComp.eq.0'
+!
          xyz(1,1)=R(1)
          xyz(2,1)=R(2)
          xyz(3,1)=-R(3)
@@ -135,10 +135,10 @@
          xyz(1,2)=xyz(1,2)/r2
          xyz(2,2)=xyz(2,2)/r2
          xyz(3,2)=xyz(3,2)/r2
-*
+!
       Else If (nComp.eq.1) Then
-*        Write (*,*) ' Case nComp.eq.1'
-*
+!        Write (*,*) ' Case nComp.eq.1'
+!
          i=iComp(1)
          xyz(i,1)=One
          xyz(1,2)=R(2)*xyz(3,1)-R(3)*xyz(2,1)
@@ -148,24 +148,24 @@
          xyz(1,2)=xyz(1,2)/r2
          xyz(2,2)=xyz(2,2)/r2
          xyz(3,2)=xyz(3,2)/r2
-*
+!
       Else If (nComp.eq.2) Then
-*        Write (*,*) ' Case nComp.eq.2'
-*
+!        Write (*,*) ' Case nComp.eq.2'
+!
          i=iComp(1)
          xyz(i,1)=One
          i=iComp(2)
          xyz(i,2)=One
-*
+!
       Else
          Call WarningMessage(2,'Error in CoSys')
          Write (Lu,*) ' CoSys: nComp.eq.3'
          Call Abend()
       End If
-*
+!
       Else     ! Non-linear
-*
-*        Form the cross product R12xR32
+!
+!        Form the cross product R12xR32
          RR=Zero
          Do i = 1, 3
             j = Mod(i,3)+1
@@ -184,7 +184,7 @@
          End If
          Call DScal_(3,One/Sqrt(RR),xyz(1,2),1)
          If (iPrint.ge.99) Write (6,*) 'RR=',RR
-*
+!
          RR=Zero
          Do i = 1, 3
             j = Mod(i,3)+1
@@ -197,12 +197,12 @@
          If (iPrint.ge.99) Then
             Call RecPrt('xyz',' ',xyz,3,2)
          End If
-*
+!
       End if
       If (iPrint.ge.99) Then
          Call RecPrt(' Reference Axis',' ',R,3,1)
          Call RecPrt(' Perpendicular Axes',' ',xyz,3,2)
       End If
-*
+!
       Return
       End

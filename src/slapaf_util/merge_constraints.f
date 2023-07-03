@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Merge_Constraints(FileIn1,FileIn2,FileOut,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Merge_Constraints(FileIn1,FileIn2,FileOut,             &
      &                             nLambda,iRow_c)
       Implicit None
       Character(Len=*), Intent(in) :: FileIn1, FileIn2, FileOut
@@ -20,7 +20,7 @@
       External :: Get_Ln, isFreeUnit, AixRm
       Integer :: i, j, Lu, iErr
 
-* Open the input files if they exist
+! Open the input files if they exist
       Lu1=0
       If (FileIn1.ne.'') Then
         Call f_Inquire(FileIn1,Found)
@@ -39,8 +39,8 @@
         End If
       End If
 
-* Set the output file as a third file, or a temporary one
-      If (((FileOut.eq.FileIn1).and.(Lu1.ne.0)).or.
+! Set the output file as a third file, or a temporary one
+      If (((FileOut.eq.FileIn1).and.(Lu1.ne.0)).or.                     &
      &    ((FileOut.eq.FileIn2).and.(Lu2.ne.0))) Then
         AuxFile=.True.
       Else
@@ -50,14 +50,14 @@
       nLambda=0
       iRow_c=0
 
-* If there are no input files, only delete the output file if it exists
+! If there are no input files, only delete the output file if it exists
       If ((Lu1.eq.0).and.(Lu2.eq.0)) Then
         If (.not.AuxFile) Then
           Call f_Inquire(FileOut,Found)
           If (Found) iErr = AixRm(FileOut)
         End If
         Return
-* Otherwise, open it
+! Otherwise, open it
       Else
         Lu3=isFreeUnit(30)
         If (AuxFile) Then
@@ -67,8 +67,8 @@
         End If
       End If
 
-* Copy the constraints to the output file, counting the lines
-* Copy only from existing files
+! Copy the constraints to the output file, counting the lines
+! Copy only from existing files
       Do i=1,2
         If (i.eq.1) Tag='VALUES'
         If (i.eq.2) Tag='END'
@@ -95,7 +95,7 @@
       End Do
       iRow_c=iRow_c+1
 
-* Close files, and copy temporary if used
+! Close files, and copy temporary if used
       If (Lu1.ne.0) Close (Lu1)
       If (Lu2.ne.0) Close (Lu2)
       If (Lu3.ne.0) Close (Lu3)
