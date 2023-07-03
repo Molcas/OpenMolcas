@@ -8,35 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OptRMS_Slapaf(x,y,nAt,RMS,RMSMax)
-      Use Symmetry_Info, only: VarR, VarT
-      Implicit Real*8 (a-h,o-z)
+
+subroutine OptRMS_Slapaf(x,y,nAt,RMS,RMSMax)
+
+use Symmetry_Info, only: VarR, VarT
+implicit real*8(a-h,o-z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 x(3,nAt), y(3,nAt)
-!
-!---- Only align if energy is rotational and translational invariant.
-!     (no weighting)
-!
-      If (.not.(VarR.or.VarT)) Then
-         Call Superpose(x,y,nAt,RMS,RMSMax)
-      Else
-!
-!---- Otherwise, just compute RMS
-!
-         RMS = Zero
-         RMSMax = Zero
-         Do i = 1, nAt
-            disp = Zero
-            Do ixyz = 1, 3
-               diff = x(ixyz,i)-y(ixyz,i)
-               RMS = RMS + diff**2
-               disp = disp + diff**2
-            End Do
-            If (Sqrt(disp).gt.RMSMax) RMSMax=Sqrt(disp)
-         End Do
-         RMS = Sqrt( RMS/DBLE(nAt) )
-      End If
-!
-      Return
-      End
+real*8 x(3,nAt), y(3,nAt)
+
+! Only align if energy is rotational and translational invariant.
+! (no weighting)
+
+if (.not. (VarR .or. VarT)) then
+  call Superpose(x,y,nAt,RMS,RMSMax)
+else
+
+  ! Otherwise, just compute RMS
+
+  RMS = Zero
+  RMSMax = Zero
+  do i=1,nAt
+    disp = Zero
+    do ixyz=1,3
+      diff = x(ixyz,i)-y(ixyz,i)
+      RMS = RMS+diff**2
+      disp = disp+diff**2
+    end do
+    if (sqrt(disp) > RMSMax) RMSMax = sqrt(disp)
+  end do
+  RMS = sqrt(RMS/dble(nAt))
+end if
+
+return
+
+end subroutine OptRMS_Slapaf

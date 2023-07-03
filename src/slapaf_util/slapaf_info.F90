@@ -10,324 +10,328 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Module Slapaf_Info
+
+module Slapaf_Info
+
 implicit none
-Private
-Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, &
-         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, Lbl, mRowH, RootMap, &
-         Free_Slapaf, Get_Slapaf, Dmp_Slapaf, dqInt_Aux, BMx_kriging
-!
+private
+
+public :: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, Energy, Energy0, DipM, MF, qInt, &
+          dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, &
+          Smmtrc, Lbl, mRowH, RootMap, Free_Slapaf, Get_Slapaf, Dmp_Slapaf, dqInt_Aux, BMx_kriging
+
 ! Arrays always allocated
-!
-Real*8, Allocatable:: Cx(:,:,:)     ! list of Cartesian coordinates
-Real*8, Allocatable:: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
-Real*8, Allocatable:: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
-Real*8, Allocatable:: NAC(:,:,:)    ! list of Cartesian non-adiabatic coupling vectors
-Real*8, Allocatable:: Q_nuclear(:)  ! list nuclear charges
-Real*8, Allocatable:: dmass(:)      ! list atomic mass in units of (C=12)
-Real*8, Allocatable:: Coor(:,:)     ! Cartesian coordinates of the last iteraction
-Real*8, Allocatable:: Grd(:,:)      ! gradient of the last iteraction in Cartesian coordinates
-Real*8, Allocatable:: Weights(:)    ! list of weights of ALL centers, however, the symmetry unique are first.
-Real*8, Allocatable:: Shift(:,:)    ! list of displacements in Cartesian coordinates
-Real*8, Allocatable:: GNrm(:)       ! list of the gradient norm for each iteration
-Real*8, Allocatable:: Energy(:)     ! list of the energies of each iteration, State 1
-Real*8, Allocatable:: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
-Real*8, Allocatable:: MF(:,:)       ! list of Cartesian mode following vectors for each iteration
-Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
-Real*8, Allocatable:: qInt(:,:)     ! internal coordinates for each iteration
-Real*8, Allocatable:: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
-Real*8, Allocatable:: dqInt_Aux(:,:,:)      ! derivatives of internal coordinates for each iteration, of sets > 1
-Real*8, Allocatable, Target:: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
-Real*8, Allocatable, Target:: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
-Real*8, Allocatable, Target:: GradRef(:,:)  ! Reference gradient
-Real*8, Allocatable, Target:: Bmx(:,:)      ! the B matrix
-Real*8, Allocatable:: BMx_kriging(:,:)      ! the updated B matrix during the Kriging procedure
-Real*8, Allocatable:: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
-Integer, Allocatable:: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets information for the indivudual centers
+
+real*8, allocatable :: Cx(:,:,:)     ! list of Cartesian coordinates
+real*8, allocatable :: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
+real*8, allocatable :: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
+real*8, allocatable :: NAC(:,:,:)    ! list of Cartesian non-adiabatic coupling vectors
+real*8, allocatable :: Q_nuclear(:)  ! list nuclear charges
+real*8, allocatable :: dmass(:)      ! list atomic mass in units of (C=12)
+real*8, allocatable :: Coor(:,:)     ! Cartesian coordinates of the last iteraction
+real*8, allocatable :: Grd(:,:)      ! gradient of the last iteraction in Cartesian coordinates
+real*8, allocatable :: Weights(:)    ! list of weights of ALL centers, however, the symmetry unique are first.
+real*8, allocatable :: Shift(:,:)    ! list of displacements in Cartesian coordinates
+real*8, allocatable :: GNrm(:)       ! list of the gradient norm for each iteration
+real*8, allocatable :: Energy(:)     ! list of the energies of each iteration, State 1
+real*8, allocatable :: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
+real*8, allocatable :: MF(:,:)       ! list of Cartesian mode following vectors for each iteration
+real*8, allocatable :: DipM(:,:)     ! list of dipole moments for each iteration
+real*8, allocatable :: qInt(:,:)     ! internal coordinates for each iteration
+real*8, allocatable :: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
+real*8, allocatable :: dqInt_Aux(:,:,:)      ! derivatives of internal coordinates for each iteration, of sets > 1
+real*8, allocatable, target :: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
+real*8, allocatable, target :: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
+real*8, allocatable, target :: GradRef(:,:)  ! Reference gradient
+real*8, allocatable, target :: Bmx(:,:)      ! the B matrix
+real*8, allocatable :: BMx_kriging(:,:)      ! the updated B matrix during the Kriging procedure
+real*8, allocatable :: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
+integer, allocatable :: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets information for the indivudual centers
 #include "LenIn.fh"
-Character(LEN=LENIN), Allocatable:: AtomLbl(:) ! atomic labels
-Logical, Allocatable:: Smmtrc(:,:)    ! Array with logical symmetry information on if a Cartesian is symmetric or not.
-Character(LEN=8), Allocatable:: Lbl(:) ! Labels for internal coordinates and constraints
+character(len=LenIn), allocatable :: AtomLbl(:) ! atomic labels
+logical, allocatable :: Smmtrc(:,:)    ! Array with logical symmetry information on if a Cartesian is symmetric or not.
+character(len=8), allocatable :: Lbl(:) ! Labels for internal coordinates and constraints
 
 ! Arrays for automatic internal coordinates
-Real*8, Allocatable:: BM(:)         ! ...
-Real*8, Allocatable:: dBM(:)        ! ...
-Integer, Allocatable:: iBM(:)       ! ...
-Integer, Allocatable:: idBM(:)      ! ...
-Integer, Allocatable:: nqBM(:)      ! ...
+real*8, allocatable :: BM(:)         ! ...
+real*8, allocatable :: dBM(:)        ! ...
+integer, allocatable :: iBM(:)       ! ...
+integer, allocatable :: idBM(:)      ! ...
+integer, allocatable :: nqBM(:)      ! ...
 
-Integer, Allocatable:: ANr(:)       ! list of atomic numbers
-!
+integer, allocatable :: ANr(:)       ! list of atomic numbers
+
 ! Arrays optionally allocated
-!
-Real*8, Allocatable:: Lambda(:,:)   ! list of the Lagrange multipiers
-Integer, Allocatable:: mRowH(:)     ! rows of the Hessian to be explicitly computed
-Integer, Allocatable:: RootMap(:)   ! Array to map the roots between iterations
-!
+
+real*8, allocatable :: Lambda(:,:)   ! list of the Lagrange multipiers
+integer, allocatable :: mRowH(:)     ! rows of the Hessian to be explicitly computed
+integer, allocatable :: RootMap(:)   ! Array to map the roots between iterations
+
 ! Utility arrays with explicit deallocation, i.e. not via Free_Slapaf()
-!
-Integer, Allocatable:: Atom(:)      ! Temporary arrays for the super symmetry case
-Integer, Allocatable:: NSup(:)      ! Temporary arrays for the super symmetry case
-Real*8, Allocatable::  KtB(:,:)     ! KtB array for the BMtrx family of subroutines
 
-Logical:: Initiated=.False.
-Integer nsAtom
-Contains
-  Subroutine Free_Slapaf()
-#include "stdalloc.fh"
-  If (Allocated(Energy)) Call mma_deallocate(Energy)
-  If (Allocated(Energy0)) Call mma_deallocate(Energy0)
-  If (Allocated(DipM)) Call mma_deallocate(DipM)
-  If (Allocated(GNrm)) Call mma_deallocate(GNrm)
-  If (Allocated(Cx)) Call mma_deallocate(Cx)
-  If (Allocated(Gx)) Call mma_deallocate(Gx)
-  If (Allocated(Gx0)) Call mma_deallocate(Gx0)
-  If (Allocated(NAC)) Call mma_deallocate(NAC)
-  If (Allocated(MF)) Call mma_deallocate(MF)
-  If (Allocated(Lambda)) Call mma_deallocate(Lambda)
-  If (Allocated(Degen)) Call mma_deallocate(Degen)
-  If (Allocated(jStab)) Call mma_deallocate(jStab)
-  If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
-  If (Allocated(nStab)) Call mma_deallocate(nStab)
-  If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
-  If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
-  If (Allocated(Lbl)) Call mma_deallocate(Lbl)
+integer, allocatable :: Atom(:)      ! Temporary arrays for the super symmetry case
+integer, allocatable :: NSup(:)      ! Temporary arrays for the super symmetry case
+real*8, allocatable :: KtB(:,:)     ! KtB array for the BMtrx family of subroutines
 
-  If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
-  If (Allocated(dMass)) Call mma_deallocate(dMass)
-  If (Allocated(Coor)) Call mma_deallocate(Coor)
-  If (Allocated(Grd)) Call mma_deallocate(Grd)
-  If (Allocated(ANr)) Call mma_deallocate(ANr)
-  If (Allocated(Weights)) Call mma_deallocate(Weights)
-  If (Allocated(Shift)) Call mma_deallocate(Shift)
-  If (Allocated(BMx)) Call mma_deallocate(BMx)
-  If (Allocated(BMx_kriging)) Call mma_deallocate(BMx_kriging)
+logical :: Initiated = .false.
+integer nsAtom
 
-  If (Allocated(BM)) Call mma_deallocate(BM)
-  If (Allocated(dBM)) Call mma_deallocate(dBM)
-  If (Allocated(iBM)) Call mma_deallocate(iBM)
-  If (Allocated(idBM)) Call mma_deallocate(idBM)
-  If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+contains
 
-  If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
-  If (Allocated(R12)) Call mma_deallocate(R12)
-  If (Allocated(R12)) Call mma_deallocate(GradRef)
+subroutine Free_Slapaf()
 
-  If (Allocated(qInt)) Call mma_deallocate(qInt)
-  If (Allocated(dqInt)) Call mma_deallocate(dqInt)
-  If (Allocated(dqInt_Aux)) Call mma_deallocate(dqInt_Aux)
-  If (Allocated(mRowH)) Call mma_deallocate(mRowH)
-  If (Allocated(RootMap)) Call mma_deallocate(RootMap)
-  End Subroutine Free_Slapaf
+# include "stdalloc.fh"
 
+  if (allocated(Energy)) call mma_deallocate(Energy)
+  if (allocated(Energy0)) call mma_deallocate(Energy0)
+  if (allocated(DipM)) call mma_deallocate(DipM)
+  if (allocated(GNrm)) call mma_deallocate(GNrm)
+  if (allocated(Cx)) call mma_deallocate(Cx)
+  if (allocated(Gx)) call mma_deallocate(Gx)
+  if (allocated(Gx0)) call mma_deallocate(Gx0)
+  if (allocated(NAC)) call mma_deallocate(NAC)
+  if (allocated(MF)) call mma_deallocate(MF)
+  if (allocated(Lambda)) call mma_deallocate(Lambda)
+  if (allocated(Degen)) call mma_deallocate(Degen)
+  if (allocated(jStab)) call mma_deallocate(jStab)
+  if (allocated(iCoSet)) call mma_deallocate(iCoSet)
+  if (allocated(nStab)) call mma_deallocate(nStab)
+  if (allocated(AtomLbl)) call mma_deallocate(AtomLbl)
+  if (allocated(Smmtrc)) call mma_deallocate(Smmtrc)
+  if (allocated(Lbl)) call mma_deallocate(Lbl)
 
+  if (allocated(Q_nuclear)) call mma_deallocate(Q_nuclear)
+  if (allocated(dMass)) call mma_deallocate(dMass)
+  if (allocated(Coor)) call mma_deallocate(Coor)
+  if (allocated(Grd)) call mma_deallocate(Grd)
+  if (allocated(ANr)) call mma_deallocate(ANr)
+  if (allocated(Weights)) call mma_deallocate(Weights)
+  if (allocated(Shift)) call mma_deallocate(Shift)
+  if (allocated(BMx)) call mma_deallocate(BMx)
+  if (allocated(BMx_kriging)) call mma_deallocate(BMx_kriging)
 
-  Subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit, nsAtom_In,mLambda)
+  if (allocated(BM)) call mma_deallocate(BM)
+  if (allocated(dBM)) call mma_deallocate(dBM)
+  if (allocated(iBM)) call mma_deallocate(iBM)
+  if (allocated(idBM)) call mma_deallocate(idBM)
+  if (allocated(nqBM)) call mma_deallocate(nqBM)
+
+  if (allocated(RefGeo)) call mma_deallocate(RefGeo)
+  if (allocated(R12)) call mma_deallocate(R12)
+  if (allocated(R12)) call mma_deallocate(GradRef)
+
+  if (allocated(qInt)) call mma_deallocate(qInt)
+  if (allocated(dqInt)) call mma_deallocate(dqInt)
+  if (allocated(dqInt_Aux)) call mma_deallocate(dqInt_Aux)
+  if (allocated(mRowH)) call mma_deallocate(mRowH)
+  if (allocated(RootMap)) call mma_deallocate(RootMap)
+end subroutine Free_Slapaf
+
+subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom_In,mLambda)
+
   use UnixInfo, only: SuperName
-  Integer iter, MaxItr, mTROld, nsAtom_In, mLambda
-  Logical lOld_Implicit
-#include "real.fh"
-#include "stdalloc.fh"
-  Logical Exist
-  Integer itmp, iOff, Lngth
-  Integer, Allocatable:: Information(:)
-  Real*8, Allocatable:: Relax(:)
 
-  Initiated=.True.
+  integer iter, MaxItr, mTROld, nsAtom_In, mLambda
+  logical lOld_Implicit
+# include "real.fh"
+# include "stdalloc.fh"
+  logical Exist
+  integer itmp, iOff, Lngth
+  integer, allocatable :: Information(:)
+  real*8, allocatable :: Relax(:)
 
-  nsAtom=nsAtom_In
+  Initiated = .true.
 
-  Call mma_allocate(Information,7,Label='Information')
+  nsAtom = nsAtom_In
 
-  Call qpg_iArray('Slapaf Info 1',Exist,itmp)
-  If (Exist) Call Get_iArray('Slapaf Info 1',Information,7)
+  call mma_allocate(Information,7,Label='Information')
 
-  If (.Not.Exist.or.(Exist.and.Information(1).eq.-99)) Then
-!    Write (6,*) 'Reinitiate Slapaf fields on runfile'
-     Information(:)=0
-     Information(3)=-99
-     Call Put_iArray('Slapaf Info 1',Information,7)
-  End If
+  call qpg_iArray('Slapaf Info 1',Exist,itmp)
+  if (Exist) call Get_iArray('Slapaf Info 1',Information,7)
 
-  iter  =Information(2)+1
-  If (iter.ge.MaxItr+1) Then
-     Write (6,*) 'Increase MaxItr in slapaf_info.f90'
-     Call WarningMessage(2,'iter.ge.MaxItr+1')
-     Call Abend()
-  End If
-  mTROld=Information(3)
-  lOld_Implicit= Information(4).eq.1
+  if ((.not. Exist) .or. (Information(1) == -99)) then
+    !write(6,*) 'Reinitiate Slapaf fields on runfile'
+    Information(:) = 0
+    Information(3) = -99
+    call Put_iArray('Slapaf Info 1',Information,7)
+  end if
 
-  Call mma_deallocate(Information)
+  iter = Information(2)+1
+  if (iter >= MaxItr+1) then
+    write(6,*) 'Increase MaxItr in slapaf_info.f90'
+    call WarningMessage(2,'iter >= MaxItr+1')
+    call Abend()
+  end if
+  mTROld = Information(3)
+  lOld_Implicit = Information(4) == 1
 
-  If (.NOT.Allocated(Energy)) Then
+  call mma_deallocate(Information)
 
-  Call mma_allocate(Energy,          MaxItr+1,Label='Energy')
-  Energy(:) = Zero
-  Call mma_allocate(Energy0,         MaxItr+1,Label='Energy0')
-  Energy0(:) = Zero
-  Call mma_allocate(DipM,   3,       MaxItr+1,Label='DipM')
-  DipM(:,:) = Zero
-  Call mma_allocate(GNrm,            MaxItr+1,Label='GNrm')
-  GNrm(:) = Zero
-  Call mma_allocate(Cx,     3,nsAtom,MaxItr+1,Label='Cx')
-  Cx(:,:,:) = Zero
-  Call mma_allocate(Gx,     3,nsAtom,MaxItr+1,Label='Gx')
-  Gx(:,:,:) = Zero
-  Call mma_allocate(Gx0,    3,nsAtom,MaxItr+1,Label='Gx0')
-  Gx0(:,:,:) = Zero
-  Call mma_allocate(NAC,    3,nsAtom,MaxItr+1,Label='NAC')
-  NAC(:,:,:) = Zero
-  Call mma_allocate(MF,     3,nsAtom,         Label='MF')
-  MF(:,:) = Zero
-  If (mLambda>0) Then
-     Call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
-     Lambda(:,:)=Zero
-  End If
+  if (.not. allocated(Energy)) then
 
-  End If
+    call mma_allocate(Energy,MaxItr+1,Label='Energy')
+    Energy(:) = Zero
+    call mma_allocate(Energy0,MaxItr+1,Label='Energy0')
+    Energy0(:) = Zero
+    call mma_allocate(DipM,3,MaxItr+1,Label='DipM')
+    DipM(:,:) = Zero
+    call mma_allocate(GNrm,MaxItr+1,Label='GNrm')
+    GNrm(:) = Zero
+    call mma_allocate(Cx,3,nsAtom,MaxItr+1,Label='Cx')
+    Cx(:,:,:) = Zero
+    call mma_allocate(Gx,3,nsAtom,MaxItr+1,Label='Gx')
+    Gx(:,:,:) = Zero
+    call mma_allocate(Gx0,3,nsAtom,MaxItr+1,Label='Gx0')
+    Gx0(:,:,:) = Zero
+    call mma_allocate(NAC,3,nsAtom,MaxItr+1,Label='NAC')
+    NAC(:,:,:) = Zero
+    call mma_allocate(MF,3,nsAtom,Label='MF')
+    MF(:,:) = Zero
+    if (mLambda > 0) then
+      call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
+      Lambda(:,:) = Zero
+    end if
 
-  If (iter==1) Return
+  end if
 
-  If (SuperName.ne.'numerical_gradient') Then
+  if (iter == 1) return
 
-     Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
-          +SIZE(Gx0)+SIZE(NAC)+SIZE(MF)
-     If (Allocated(Lambda)) Then
-       Lngth=Lngth+SIZE(Lambda)
-     End If
-     Call mma_allocate(Relax,Lngth,Label='Relax')
-     Call Get_dArray('Slapaf Info 2',Relax,Lngth)
+  if (SuperName /= 'numerical_gradient') then
 
-     iOff=1
-     Call DCopy_(SIZE(Energy ),Relax(iOff),1,Energy ,1)
-     iOff=iOff+SIZE(Energy)
-     Call DCopy_(SIZE(Energy0),Relax(iOff),1,Energy0,1)
-     iOff=iOff+SIZE(Energy0)
-     Call DCopy_(SIZE(DipM   ),Relax(iOff),1,DipM   ,1)
-     iOff=iOff+SIZE(DipM   )
-     Call DCopy_(SIZE(GNrm   ),Relax(iOff),1,GNrm   ,1)
-     iOff=iOff+SIZE(GNrm   )
-     Call DCopy_(SIZE(Cx     ),Relax(iOff),1,Cx     ,1)
-     iOff=iOff+SIZE(Cx     )
-     Call DCopy_(SIZE(Gx     ),Relax(iOff),1,Gx     ,1)
-     iOff=iOff+SIZE(Gx     )
-     Call DCopy_(SIZE(Gx0    ),Relax(iOff),1,Gx0    ,1)
-     iOff=iOff+SIZE(Gx0    )
-     Call DCopy_(SIZE(NAC    ),Relax(iOff),1,NAC    ,1)
-     iOff=iOff+SIZE(NAC    )
-     Call DCopy_(SIZE(MF     ),Relax(iOff),1,MF     ,1)
-     iOff=iOff+SIZE(MF     )
-     If (Allocated(Lambda)) Then
-        Call DCopy_(SIZE(Lambda ),Relax(iOff),1,Lambda ,1)
-        iOff=iOff+SIZE(Lambda )
-     End If
-     Call mma_deallocate(Relax)
-   Else
-     iter=1
-   End If
+    Lngth = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)+size(Gx)+size(Gx0)+size(NAC)+size(MF)
+    if (allocated(Lambda)) then
+      Lngth = Lngth+size(Lambda)
+    end if
+    call mma_allocate(Relax,Lngth,Label='Relax')
+    call Get_dArray('Slapaf Info 2',Relax,Lngth)
 
-  End Subroutine Get_Slapaf
+    iOff = 1
+    call DCopy_(size(Energy),Relax(iOff),1,Energy,1)
+    iOff = iOff+size(Energy)
+    call DCopy_(size(Energy0),Relax(iOff),1,Energy0,1)
+    iOff = iOff+size(Energy0)
+    call DCopy_(size(DipM),Relax(iOff),1,DipM,1)
+    iOff = iOff+size(DipM)
+    call DCopy_(size(GNrm),Relax(iOff),1,GNrm,1)
+    iOff = iOff+size(GNrm)
+    call DCopy_(size(Cx),Relax(iOff),1,Cx,1)
+    iOff = iOff+size(Cx)
+    call DCopy_(size(Gx),Relax(iOff),1,Gx,1)
+    iOff = iOff+size(Gx)
+    call DCopy_(size(Gx0),Relax(iOff),1,Gx0,1)
+    iOff = iOff+size(Gx0)
+    call DCopy_(size(NAC),Relax(iOff),1,NAC,1)
+    iOff = iOff+size(NAC)
+    call DCopy_(size(MF),Relax(iOff),1,MF,1)
+    iOff = iOff+size(MF)
+    if (allocated(Lambda)) then
+      call DCopy_(size(Lambda),Relax(iOff),1,Lambda,1)
+      iOff = iOff+size(Lambda)
+    end if
+    call mma_deallocate(Relax)
+  else
+    iter = 1
+  end if
 
+end subroutine Get_Slapaf
 
+subroutine Dmp_Slapaf(stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_Implicit,nsAtom)
 
-  Subroutine Dmp_Slapaf(Stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld, &
-                        lOld_Implicit,nsAtom)
   use UnixInfo, only: SuperName
-  Logical Stop, Just_Frequencies, lOld_Implicit
-  Real*8 Energy_In
-  Integer Iter, MaxItr, mTROld, nsAtom
-#include "stdalloc.fh"
-  Integer, Allocatable:: Information(:)
-  Real*8, Allocatable:: Relax(:)
-  Real*8, Allocatable:: GxFix(:,:)
-  Integer iOff_Iter, nSlap, iOff, Lngth
-  Logical Found
 
-  If (.NOT.Initiated) Then
-     Write (6,*) 'Dmp_Slapaf: Slapaf not initiated!'
-     Call Abend()
-  Else
-     Initiated=.False.
-  End If
+  logical stop, Just_Frequencies, lOld_Implicit
+  real*8 Energy_In
+  integer Iter, MaxItr, mTROld, nsAtom
+# include "stdalloc.fh"
+  integer, allocatable :: Information(:)
+  real*8, allocatable :: Relax(:)
+  real*8, allocatable :: GxFix(:,:)
+  integer iOff_Iter, nSlap, iOff, Lngth
+  logical Found
 
-!---  Write information of this iteration to the RLXITR file
-  Call mma_allocate(Information,7,Label='Information')
-  If (Stop) Then
-     Information(1)=-99     ! Deactivate the record
-     iOff_Iter=0
-     Call Put_iScalar('iOff_Iter',iOff_Iter)
-!
-!    Restore the runfile data as if the computation was analytic
-!    (note the gradient sign must be changed back)
-!
-     If (Just_Frequencies) Then
-        Call Put_dScalar('Last Energy',Energy_In)
-        Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
-        call dcopy_(3*nsAtom,Gx,1,GxFix,1)
-        GxFix(:,:) = - GxFix(:,:)
-        Call Put_dArray('GRAD',GxFix,3*nsAtom)
-        Call mma_deallocate(GxFix)
-        Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
-        Call Put_Coord_New(Cx,nsAtom)
-     End If
-  Else
-     Call qpg_iArray('Slapaf Info 1',Found,nSlap)
-     If (Found) Then
-        Call Get_iArray('Slapaf Info 1',Information,7)
-        If (Information(1).ne.-99) Information(1)=MaxItr
-     Else
-        Information(1)=MaxItr
-     End If
-  End If
+  if (.not. Initiated) then
+    write(6,*) 'Dmp_Slapaf: Slapaf not initiated!'
+    call Abend()
+  else
+    Initiated = .false.
+  end if
 
-  If (SuperName.ne.'numerical_gradient') Then
-     Information(2)=Iter
-     Information(3)=mTROld ! # symm. transl /rot.
-     If (lOld_Implicit) Then
-        Information(4)=1
-     Else
-        Information(4)=0
-     End If
-     Information(5)=0
-     Information(6)=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)
-     Information(7)=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)
-     Call Put_iArray('Slapaf Info 1',Information,7)
+  ! Write information of this iteration to the RLXITR file
+  call mma_allocate(Information,7,Label='Information')
+  if (stop) then
+    Information(1) = -99     ! Deactivate the record
+    iOff_Iter = 0
+    call Put_iScalar('iOff_Iter',iOff_Iter)
 
-     Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
-          +SIZE(Gx0)+SIZE(NAC)+SIZE(MF)
-     If (Allocated(Lambda)) Then
-       Lngth=Lngth+SIZE(Lambda)
-     End If
-     Call mma_allocate(Relax,Lngth,Label='Relax')
-     iOff = 1
-     Call DCopy_(SIZE(Energy ),Energy ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(Energy )
-     Call DCopy_(SIZE(Energy0),Energy0,1,Relax(iOff),1)
-     iOff = iOff + SIZE(Energy0)
-     Call DCopy_(SIZE(DipM   ),DipM   ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(DipM   )
-     Call DCopy_(SIZE(GNrm   ),GNrm   ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(GNrm   )
-     Call DCopy_(SIZE(Cx     ),Cx     ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(Cx     )
-     Call DCopy_(SIZE(Gx     ),Gx     ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(Gx     )
-     Call DCopy_(SIZE(Gx0    ),Gx0    ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(Gx0    )
-     Call DCopy_(SIZE(NAC    ),NAC    ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(NAC    )
-     Call DCopy_(SIZE(MF     ),MF     ,1,Relax(iOff),1)
-     iOff = iOff + SIZE(MF     )
-     If (Allocated(Lambda)) Then
-        Call DCopy_(SIZE(Lambda ),Lambda ,1,Relax(iOff),1)
-        iOff = iOff + SIZE(Lambda )
-     End If
-     Call Put_dArray('Slapaf Info 2',Relax,Lngth)
-     Call mma_deallocate(Relax)
-  End If
-  Call mma_deallocate(Information)
+    ! Restore the runfile data as if the computation was analytic
+    ! (note the gradient sign must be changed back)
 
-  End Subroutine Dmp_Slapaf
-End Module Slapaf_Info
+    if (Just_Frequencies) then
+      call Put_dScalar('Last Energy',Energy_In)
+      call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
+      call dcopy_(3*nsAtom,Gx,1,GxFix,1)
+      GxFix(:,:) = -GxFix(:,:)
+      call Put_dArray('GRAD',GxFix,3*nsAtom)
+      call mma_deallocate(GxFix)
+      call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
+      call Put_Coord_New(Cx,nsAtom)
+    end if
+  else
+    call qpg_iArray('Slapaf Info 1',Found,nSlap)
+    if (Found) then
+      call Get_iArray('Slapaf Info 1',Information,7)
+      if (Information(1) /= -99) Information(1) = MaxItr
+    else
+      Information(1) = MaxItr
+    end if
+  end if
+
+  if (SuperName /= 'numerical_gradient') then
+    Information(2) = Iter
+    Information(3) = mTROld ! # symm. transl /rot.
+    if (lOld_Implicit) then
+      Information(4) = 1
+    else
+      Information(4) = 0
+    end if
+    Information(5) = 0
+    Information(6) = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)
+    Information(7) = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)
+    call Put_iArray('Slapaf Info 1',Information,7)
+
+    Lngth = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)+size(Gx)+size(Gx0)+size(NAC)+size(MF)
+    if (allocated(Lambda)) then
+      Lngth = Lngth+size(Lambda)
+    end if
+    call mma_allocate(Relax,Lngth,Label='Relax')
+    iOff = 1
+    call DCopy_(size(Energy),Energy,1,Relax(iOff),1)
+    iOff = iOff+size(Energy)
+    call DCopy_(size(Energy0),Energy0,1,Relax(iOff),1)
+    iOff = iOff+size(Energy0)
+    call DCopy_(size(DipM),DipM,1,Relax(iOff),1)
+    iOff = iOff+size(DipM)
+    call DCopy_(size(GNrm),GNrm,1,Relax(iOff),1)
+    iOff = iOff+size(GNrm)
+    call DCopy_(size(Cx),Cx,1,Relax(iOff),1)
+    iOff = iOff+size(Cx)
+    call DCopy_(size(Gx),Gx,1,Relax(iOff),1)
+    iOff = iOff+size(Gx)
+    call DCopy_(size(Gx0),Gx0,1,Relax(iOff),1)
+    iOff = iOff+size(Gx0)
+    call DCopy_(size(NAC),NAC,1,Relax(iOff),1)
+    iOff = iOff+size(NAC)
+    call DCopy_(size(MF),MF,1,Relax(iOff),1)
+    iOff = iOff+size(MF)
+    if (allocated(Lambda)) then
+      call DCopy_(size(Lambda),Lambda,1,Relax(iOff),1)
+      iOff = iOff+size(Lambda)
+    end if
+    call Put_dArray('Slapaf Info 2',Relax,Lngth)
+    call mma_deallocate(Relax)
+  end if
+  call mma_deallocate(Information)
+
+end subroutine Dmp_Slapaf
+
+end module Slapaf_Info

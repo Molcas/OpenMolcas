@@ -8,42 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine cp_SpcInt
-      Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
-      Character*14  qLbl, filnam*16
-      Logical Exist
-      Real*8, Allocatable:: rK(:)
 
-!     Write (*,*) ' Copy files'
-!
-!.... Copy file SPCINX to SPCIN1
-!
-      filnam='SPCINX'
-      Call f_Inquire(filnam,Exist)
-      If (Exist) Then
-      LuTmp1=11
-      LuTmp2=12
-      call molcas_binaryopen_vanilla(luTmp1,filnam)
-!      Open(luTmp1,File=filnam,Form='unformatted',Status='unknown')
-      filnam='SPCIN1'
-      call molcas_binaryopen_vanilla(luTmp2,filnam)
-!      Open(luTmp2,File=filnam,Form='unformatted',Status='unknown')
-      ReWind (LuTmp1)
-      ReWind (LuTmp2)
-!
-      Read (LuTmp1) nq,nQQ
-      Write(LuTmp2) nq,nQQ
-      Call mma_allocate(rK,nQQ,Label='rK')
-      Do iq = 1, nq
-         Read (LuTmp1) qLbl,(rK(i),i=1,nQQ)
-         Write(LuTmp2) qLbl,(rK(i),i=1,nQQ)
-      End Do
-      Call mma_deallocate(rK)
-!
-      Close  (LuTmp1)
-      Close  (LuTmp2)
-      End If
-!
-      Return
-      End
+subroutine cp_SpcInt()
+
+implicit real*8(a-h,o-z)
+#include "stdalloc.fh"
+character*14 qLbl, filnam*16
+logical Exist
+real*8, allocatable :: rK(:)
+
+!write(6,*) ' Copy files'
+
+! Copy file SPCINX to SPCIN1
+
+filnam = 'SPCINX'
+call f_Inquire(filnam,Exist)
+if (Exist) then
+  LuTmp1 = 11
+  LuTmp2 = 12
+  call molcas_binaryopen_vanilla(luTmp1,filnam)
+  !open(luTmp1,File=filnam,Form='unformatted',Status='unknown')
+  filnam = 'SPCIN1'
+  call molcas_binaryopen_vanilla(luTmp2,filnam)
+  !open(luTmp2,File=filnam,Form='unformatted',Status='unknown')
+  rewind(LuTmp1)
+  rewind(LuTmp2)
+
+  read(LuTmp1) nq,nQQ
+  write(LuTmp2) nq,nQQ
+  call mma_allocate(rK,nQQ,Label='rK')
+  do iq=1,nq
+    read(LuTmp1) qLbl,(rK(i),i=1,nQQ)
+    write(LuTmp2) qLbl,(rK(i),i=1,nQQ)
+  end do
+  call mma_deallocate(rK)
+
+  close(LuTmp1)
+  close(LuTmp2)
+end if
+
+return
+
+end subroutine cp_SpcInt

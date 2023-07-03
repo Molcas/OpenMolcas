@@ -8,10 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function nU(iU)
-      nU=0
-      Do i = 0, 7
-         If (iAnd(iU,2**i).eq.2**i) nU = nU + 1
-      End Do
-      Return
-      End
+
+integer function nU(iU)
+
+nU = 0
+do i=0,7
+  if (iand(iU,2**i) == 2**i) nU = nU+1
+end do
+
+return
+
+end function nU

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine List2(Title,Lbl,gq,nAtom,nInter,Smmtrc)
+
+subroutine List2(Title,Lbl,gq,nAtom,nInter,Smmtrc)
 !***********************************************************************
 !                                                                      *
 ! Object: to print cartesian internal coordinates.                     *
@@ -19,25 +20,27 @@
 !             University of Lund, SWEDEN                               *
 !             1993                                                     *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-!
-      Real*8 gq(3*nAtom,nInter)
-      Character Lbl(nAtom)*(*), Title*(*)
-      Logical Smmtrc(3*nAtom)
-      Character(LEN=4), Allocatable:: qLbl(:)
-!
-      n_qLbl=3*nAtom
-      Call mma_allocate(qLbl,n_qLbl,Label='qLbl')
-      Call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
-      Call mma_deallocate(qLbl)
-!
-      Return
-      End
-      SubRoutine List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
+real*8 gq(3*nAtom,nInter)
+character Lbl(nAtom)*(*), Title*(*)
+logical Smmtrc(3*nAtom)
+character(len=4), allocatable :: qLbl(:)
+
+n_qLbl = 3*nAtom
+call mma_allocate(qLbl,n_qLbl,Label='qLbl')
+call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
+call mma_deallocate(qLbl)
+
+return
+
+end subroutine List2
+
+subroutine List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
 !***********************************************************************
 !                                                                      *
 ! Object: to print cartesian internal coordinates.                     *
@@ -46,126 +49,119 @@
 !             University of Lund, SWEDEN                               *
 !             1993                                                     *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-!
-      Real*8 gq(3*nAtom,nInter)
-      Character Lbl(nAtom)*(*), Format*72, Title*(*), Line*80
-      Character*4 qLbl(n_qLbl), qLbl_tmp*14
-      Logical Start, Smmtrc(3*nAtom)
-      character*16 filnam
-      Lu=6
-!
-      Thr=0.001D+00 ! Threshold for printout.
-!
-      mInt=3*nAtom
-!
-      Write (Lu,*)
-      Call CollapseOutput(1,'Internal coordinates')
-      Write (Lu,*)
-      Write (Lu,*) ' Specification of the internal coordinates '        &
-     &          //'according to the user-defined internal'
-      Write(Lu,*) ' coordinate format.'
-      Write (Lu,*)
-      Write (Lu,'(A)') 'Internal Coordinates'
-      iq = 0
-      Do igq = 1, mInt, 3
-         If (Smmtrc(igq  )) Then
-            iq=iq+1
-            Write (qLbl(igq  ),'(A,I3.3)') 'c',iq
-            Write (Lu,'(3A)')                                           &
-     &             qLbl(igq  ),' = Cartesian x ',Lbl((igq+2)/3)
-         End If
-         If (Smmtrc(igq+1)) Then
-            iq=iq+1
-            Write (qLbl(igq+1),'(A,I3.3)') 'c',iq
-            Write (Lu,'(3A)')                                           &
-     &             qLbl(igq+1),' = Cartesian y ',Lbl((igq+2)/3)
-         End If
-         If (Smmtrc(igq+2)) Then
-            iq=iq+1
-            Write (qLbl(igq+2),'(A,I3.3)') 'c',iq
-            Write (Lu,'(3A)')                                           &
-     &             qLbl(igq+2),' = Cartesian z ',Lbl((igq+2)/3)
-         End If
-      End Do
-      Write (Lu,'(A)') 'Vary'
-      Do iQQ = 1, nInter
-         Write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
-         iF=7
-         jq=0
-         Start=.True.
-         Do iq = 1, mInt
-            temp=Abs(gq(iq,iQQ))
-            If (temp.gt.Thr) Then
-               jq = jq + 1
-               If (jq.gt.4) Then
-                  Line(80:80)='&'
-                  Write (Lu,'(A)') Line
-                  Line=' '
-                  iF=6
-                  jq = 1
-                  Start=.False.
-               End If
-               If (jq.eq.1.and.Start) Then
-                  iE=iF+16
-                  Write(Line(iF:iE),'(A,F10.8,4A)') ' ',gq(iq,iQQ),     &
-     &                                            ' ',qLbl(iq),' '
-               Else
-                  iE=iF+17
-                  Write(Line(iF:iE),'(A,F10.8,4A)') '+ ',gq(iq,iQQ),    &
-     &                                            ' ',qLbl(iq),' '
-               End If
-               iF=iE+1
-            End If
-         End Do
-         Write (Lu,'(A)') Line
-      End Do
-      Write (Lu,'(A)') 'End Of Internal Coordinates'
-      Call CollapseOutput(0,'Internal coordinates')
-!
-!     Write linear combinations to disc
-!
-      LuTmp=11
-      filnam='SPCINX'
-      call molcas_binaryopen_vanilla(luTmp,filnam)
-!      Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
-      ReWind (LuTmp)
-!
-      Write (LuTmp) mInt,nInter
-      Do iq = 1, mInt
-         qLbl_tmp=qLbl(iq)
-         Write (LuTmp) qLbl_tmp,(gq(iq,iQQ),iQQ=1,nInter)
-      End Do
-!
-      Close  (LuTmp)
-!
-      Write (Lu,*)
-      Call CollapseOutput(1,Title)
-!
-      MxWdth=132
-      nLbl=8+1
-      nRow=9
-      inc = Min((MxWdth-nLbl)/nRow,nInter)
-!
-      Do 10 ii = 1, nInter, inc
-         Write (Lu,*)
-         Write(Format,'(A,I2,A)') '(A,1X,',inc,'(I5,4X))'
-         Write (Lu,Format) 'Internal',(i,i=ii,Min(ii+inc-1,nInter))
-         Write (Lu,*)
-         Write(Format,'(A,I2,A)') '(A4,A4,1X,',inc,'(F8.5,1X))'
-         Do 20 igq = 1, mInt, 3
-            Write (Lu,Format) Lbl((igq+2)/3),' x  ',                    &
-     &            (gq(igq  ,i),i=ii,Min(ii+inc-1,nInter))
-            Write (Lu,Format) Lbl((igq+2)/3),' y  ',                    &
-     &            (gq(igq+1,i),i=ii,Min(ii+inc-1,nInter))
-            Write (Lu,Format) Lbl((igq+2)/3),' z  ',                    &
-     &            (gq(igq+2,i),i=ii,Min(ii+inc-1,nInter))
- 20      Continue
-         Write (Lu,*)
- 10   Continue
-      Call CollapseOutput(0,Title)
-!
-      Return
-      End
+real*8 gq(3*nAtom,nInter)
+character Lbl(nAtom)*(*), format*72, Title*(*), Line*80
+character*4 qLbl(n_qLbl), qLbl_tmp*14
+logical Start, Smmtrc(3*nAtom)
+character*16 filnam
+
+Lu = 6
+
+Thr = 0.001D+00 ! Threshold for printout.
+
+mInt = 3*nAtom
+
+write(Lu,*)
+call CollapseOutput(1,'Internal coordinates')
+write(Lu,*)
+write(Lu,*) ' Specification of the internal coordinates according to the user-defined internal'
+write(Lu,*) ' coordinate format.'
+write(Lu,*)
+write(Lu,'(A)') 'Internal Coordinates'
+iq = 0
+do igq=1,mInt,3
+  if (Smmtrc(igq)) then
+    iq = iq+1
+    write(qLbl(igq),'(A,I3.3)') 'c',iq
+    write(Lu,'(3A)') qLbl(igq),' = Cartesian x ',Lbl((igq+2)/3)
+  end if
+  if (Smmtrc(igq+1)) then
+    iq = iq+1
+    write(qLbl(igq+1),'(A,I3.3)') 'c',iq
+    write(Lu,'(3A)') qLbl(igq+1),' = Cartesian y ',Lbl((igq+2)/3)
+  end if
+  if (Smmtrc(igq+2)) then
+    iq = iq+1
+    write(qLbl(igq+2),'(A,I3.3)') 'c',iq
+    write(Lu,'(3A)') qLbl(igq+2),' = Cartesian z ',Lbl((igq+2)/3)
+  end if
+end do
+write(Lu,'(A)') 'Vary'
+do iQQ=1,nInter
+  write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
+  if = 7
+  jq = 0
+  Start = .true.
+  do iq=1,mInt
+    temp = abs(gq(iq,iQQ))
+    if (temp > Thr) then
+      jq = jq+1
+      if (jq > 4) then
+        Line(80:80) = '&'
+        write(Lu,'(A)') Line
+        Line = ' '
+        if = 6
+        jq = 1
+        Start = .false.
+      end if
+      if ((jq == 1) .and. Start) then
+        iE = if+16
+        write(Line(if:iE),'(A,F10.8,4A)') ' ',gq(iq,iQQ),' ',qLbl(iq),' '
+      else
+        iE = if+17
+        write(Line(if:iE),'(A,F10.8,4A)') '+ ',gq(iq,iQQ),' ',qLbl(iq),' '
+      end if
+      if = iE+1
+    end if
+  end do
+  write(Lu,'(A)') Line
+end do
+write(Lu,'(A)') 'End Of Internal Coordinates'
+call CollapseOutput(0,'Internal coordinates')
+
+! Write linear combinations to disc
+
+LuTmp = 11
+filnam = 'SPCINX'
+call molcas_binaryopen_vanilla(luTmp,filnam)
+!open(luTmp,File=filnam,Form='unformatted',Status='unknown')
+rewind(LuTmp)
+
+write(LuTmp) mInt,nInter
+do iq=1,mInt
+  qLbl_tmp = qLbl(iq)
+  write(LuTmp) qLbl_tmp,(gq(iq,iQQ),iQQ=1,nInter)
+end do
+
+close(LuTmp)
+
+write(Lu,*)
+call CollapseOutput(1,Title)
+
+MxWdth = 132
+nLbl = 8+1
+nRow = 9
+inc = min((MxWdth-nLbl)/nRow,nInter)
+
+do ii=1,nInter,inc
+  write(Lu,*)
+  write(format,'(A,I2,A)') '(A,1X,',inc,'(I5,4X))'
+  write(Lu,format) 'Internal',(i,i=ii,min(ii+inc-1,nInter))
+  write(Lu,*)
+  write(format,'(A,I2,A)') '(A4,A4,1X,',inc,'(F8.5,1X))'
+  do igq=1,mInt,3
+    write(Lu,format) Lbl((igq+2)/3),' x  ',(gq(igq,i),i=ii,min(ii+inc-1,nInter))
+    write(Lu,format) Lbl((igq+2)/3),' y  ',(gq(igq+1,i),i=ii,min(ii+inc-1,nInter))
+    write(Lu,format) Lbl((igq+2)/3),' z  ',(gq(igq+2,i),i=ii,min(ii+inc-1,nInter))
+  end do
+  write(Lu,*)
+end do
+call CollapseOutput(0,Title)
+
+return
+
+end subroutine List2_

@@ -26,60 +26,61 @@
 !> @param[in]     Ref   Cartesian coordinates of the reference structure
 !> @param[in]     nAtom Number of symmetry-unique atoms
 !***********************************************************************
-      Subroutine Align(Coord,Ref,nAtom)
-      use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
-      use Slapaf_Info, only: Weights
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Align(Coord,Ref,nAtom)
+
+use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
+use Slapaf_Info, only: Weights
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Coord(3*nAtom), Ref(3*nAtom)
-      Real*8, Allocatable:: Coor_All(:,:), Ref_All(:,:)
-      Integer, Allocatable:: iStab(:)
+real*8 Coord(3*nAtom), Ref(3*nAtom)
+real*8, allocatable :: Coor_All(:,:), Ref_All(:,:)
+integer, allocatable :: iStab(:)
 
-!---- Do nothing if the energy is not rot. and trans. invariant
-      If (VarR.or.VarT) Return
+! Do nothing if the energy is not rot. and trans. invariant
+if (VarR .or. VarT) return
 
-      Call mma_allocate(Coor_All,3,nAtom*8,Label='Coor_All')
-      Call Expand_Coor(Coord,nAtom,Coor_All,mAtom)
-      Call mma_allocate(Ref_All ,3,nAtom*8,Label='Ref_All')
-      Call Expand_Coor(Ref,  nAtom,Ref_All,mAtom)
+call mma_allocate(Coor_All,3,nAtom*8,Label='Coor_All')
+call Expand_Coor(Coord,nAtom,Coor_All,mAtom)
+call mma_allocate(Ref_All,3,nAtom*8,Label='Ref_All')
+call Expand_Coor(Ref,nAtom,Ref_All,mAtom)
 
-!     Call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
+!call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
 
-      Call Superpose_w(Coor_All,Ref_All,Weights,mAtom,RMS,RMSMax)
+call Superpose_w(Coor_All,Ref_All,Weights,mAtom,RMS,RMSMax)
 
-!---- Get the stabilizers for each atom (to keep the symmetry)
-!     (code copied from init_slapaf)
-      Call mma_allocate(iStab,nAtom,Label='iStab')
-      Do iAt=1,nAtom
-        iAdr=(iAt-1)*3+1
-        iChxyz=0
-        Do i=0,2
-          If (Ref(iAdr+i).ne.Zero) Then
-            Do iIrrep=0,nIrrep-1
-              If (iAnd(2**i,iOper(iIrrep)).ne.0)                        &
-     &           iChxyz=iOr(iChxyz,2**i)
-            End Do
-          End If
-        End Do
-        nStb=0
-        Do iIrrep=0,nIrrep-1
-          If ((nStb.le.1).And.                                          &
-     &       (iAnd(iChxyz,iOper(iIrrep)).eq.0)) Then
-            iStab(iAt)=iOper(iIrrep)
-            nStb=nStb+1
-          End If
-        End Do
-      End Do
-!
-      Call Fix_Symmetry(Coor_All,nAtom,iStab)
-      Call mma_deallocate(iStab)
+! Get the stabilizers for each atom (to keep the symmetry)
+! (code copied from init_slapaf)
+call mma_allocate(iStab,nAtom,Label='iStab')
+do iAt=1,nAtom
+  iAdr = (iAt-1)*3+1
+  iChxyz = 0
+  do i=0,2
+    if (Ref(iAdr+i) /= Zero) then
+      do iIrrep=0,nIrrep-1
+        if (iand(2**i,iOper(iIrrep)) /= 0) iChxyz = ior(iChxyz,2**i)
+      end do
+    end if
+  end do
+  nStb = 0
+  do iIrrep=0,nIrrep-1
+    if ((nStb <= 1) .and. (iand(iChxyz,iOper(iIrrep)) == 0)) then
+      iStab(iAt) = iOper(iIrrep)
+      nStb = nStb+1
+    end if
+  end do
+end do
 
-      call dcopy_(3*nAtom,Coor_All,1,Coord,1)
+call Fix_Symmetry(Coor_All,nAtom,iStab)
+call mma_deallocate(iStab)
 
-!     Call RecPrt('Coord after align',' ',Coor_All,3,mAtom)
+call dcopy_(3*nAtom,Coor_All,1,Coord,1)
 
-      Call mma_deallocate(Coor_All)
-      Call mma_deallocate(Ref_All)
+!call RecPrt('Coord after align',' ',Coor_All,3,mAtom)
 
-      End
+call mma_deallocate(Coor_All)
+call mma_deallocate(Ref_All)
+
+end subroutine Align

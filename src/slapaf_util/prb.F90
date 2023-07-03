@@ -8,17 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PrB(dB,nq,nDim)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 dB(nq,nDim,nDim)
-!
-      Do iq = 1, nQ
-         Write (6,*) ' iq=',iq
-         Do iDim = 1, nDim
-            Write (6,'(9F10.6)')                                        &
-     &            (dB(iq,iDim,jDim),jDim=1,nDim)
-         End Do
-      End Do
-!
-      Return
-      End
+
+subroutine PrB(dB,nq,nDim)
+
+implicit real*8(a-h,o-z)
+real*8 dB(nq,nDim,nDim)
+
+do iq=1,nQ
+  write(6,*) ' iq=',iq
+  do iDim=1,nDim
+    write(6,'(9F10.6)') (dB(iq,iDim,jDim),jDim=1,nDim)
+  end do
+end do
+
+return
+
+end subroutine PrB

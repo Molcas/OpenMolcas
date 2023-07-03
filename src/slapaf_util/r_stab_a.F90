@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Function R_Stab_A(R,S,nS)
-      Integer S(nS), R
-!
-      R_Stab_A = .False.
-      Do iS = 1, nS
-         If (R.eq.S(iS)) Then
-            R_Stab_A = .True.
-            Return
-         End If
-      End Do
-!
-      Return
-      End
+
+logical function R_Stab_A(R,S,nS)
+
+integer S(nS), R
+
+R_Stab_A = .false.
+do iS=1,nS
+  if (R == S(iS)) then
+    R_Stab_A = .true.
+    return
+  end if
+end do
+
+return
+
+end function R_Stab_A

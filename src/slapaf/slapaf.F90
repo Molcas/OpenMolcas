@@ -60,7 +60,6 @@ if (iStop == 2) then
     end if
   end if
 
-
 else if (iStop == 3) then
 
   ! Invoke Alaska

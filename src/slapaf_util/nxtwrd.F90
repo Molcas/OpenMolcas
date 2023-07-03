@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine NxtWrd(Line,iF,iE)
+
+subroutine NxtWrd(Line,if,iE)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -23,40 +24,42 @@
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Character*(*) Line
-!
-      nChar = Len(Line)
-!     Find first non-blank character
- 10   Continue
-      If (iF.eq.0.or.iF.gt.nChar) Then
-         Call WarningMessage(2,'NxtWrd: iF.eq.0.or.iF.gt.nChar')
-         Write (6,*) 'nChar=',nChar
-         Write (6,*) 'iF,iE=',iF,iE
-         Call Abend()
-      End If
-      If (Line(iF:iF).eq.' ') Then
-         iF = iF + 1
-         If (iF.ge.nChar) Then
-             iF = nChar
-            iE=-1
-            Return
-         End If
-         Go To 10
-      End If
-!     Find the end of the present word
-      iE = iF + 1
- 20   Continue
-      If (Line(iE:iE).ne.' ') Then
-         iE = iE + 1
-         If (iE.gt.nChar) Then
-            iE=nChar
-            Return
-         End If
-         Go To 20
-      Else
-         iE = iE - 1
-      End If
-!
-      Return
-      End
+
+implicit real*8(A-H,O-Z)
+character*(*) Line
+
+nChar = len(Line)
+! Find first non-blank character
+10 continue
+if ((if == 0) .or. (if > nChar)) then
+  call WarningMessage(2,'NxtWrd: (iF == 0) .or. (iF > nChar)')
+  write(6,*) 'nChar=',nChar
+  write(6,*) 'iF,iE=',if,iE
+  call Abend()
+end if
+if (Line(if:if) == ' ') then
+  if = if+1
+  if (if >= nChar) then
+    if = nChar
+    iE = -1
+    return
+  end if
+  Go To 10
+end if
+! Find the end of the present word
+iE = if+1
+20 continue
+if (Line(iE:iE) /= ' ') then
+  iE = iE+1
+  if (iE > nChar) then
+    iE = nChar
+    return
+  end if
+  Go To 20
+else
+  iE = iE-1
+end if
+
+return
+
+end subroutine NxtWrd

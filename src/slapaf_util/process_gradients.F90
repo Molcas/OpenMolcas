@@ -10,151 +10,155 @@
 !                                                                      *
 ! Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 !***********************************************************************
-      Subroutine Process_Gradients()
-      use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0, RootMap
-      use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles, iter,   &
-     &                             NADC, ApproxNADC, iState
-      Implicit None
+
+subroutine Process_Gradients()
+
+use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0, RootMap
+use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles, iter, NADC, ApproxNADC, iState
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      Logical Found, Exist
-      Integer i,nRoots,RC,Read_Grad,Columbus, nsAtom
-      Real*8, Allocatable :: Grads(:,:), Ener(:)
-      Real*8 E0, E1
-      External Read_Grad
-!
-      Request_Alaska=.False.
-      nsAtom=SIZE(Gx,2)
-      Call mma_Allocate(Grads,3*nsAtom,3)
-!
-!     First check that all the needed gradients are available
-!     and stop to compute them if they are not.
-!     For a two-RunFile job, this behaves as if it is one state.
-!
-      If (TwoRunFiles) Then
-        iState(1)=0
-        iState(2)=0
-      End If
-!
-      IF (iState(1).NE.0) iState(1)=RootMap(iState(1))
-      IF (iState(2).NE.0) iState(2)=RootMap(iState(2))
-      i=MAX(iState(1),iState(2))
-      iState(2)=MIN(iState(1),iState(2))
-      iState(1)=i
-!
-!     Two states
-!
-      If ((iState(1).ne.0).and.(iState(2).ne.0)) Then
-        Do i=2,1,-1
-          RC=Read_Grad(Grads(1,i),3*nsAtom,iState(i),0,0)
-          If (RC.eq.0) Then
-            Request_Alaska=.True.
-            Call Put_iScalar('Relax CASSCF root',iState(i))
-            Call Put_iScalar('NumGradRoot',iState(i))
-            iState(1)=iState(i)
-            iState(2)=0
-            Exit
-          End If
-        End Do
-        If ((.Not.Request_Alaska).And.NADC) Then
-          RC=Read_Grad(Grads(1,3),3*nsAtom,0,iState(1),iState(2))
-          If (RC.eq.0) Request_Alaska=.True.
-        End If
-!
-!     One state
-!
-      Else
-        iState(1)=0
-        iState(2)=0
-        Call Qpg_iScalar('Relax CASSCF root',Exist)
-        If (Exist) Call Get_iScalar('Relax CASSCF root',iState(1))
-        If (iState(1).eq.0) iState(1)=1
-        RC=Read_Grad(Grads(1,1),3*nsAtom,iState(1),0,0)
-        If (RC.eq.0) Request_Alaska=.True.
-      End If
-!
-      If (Request_Alaska) Then
-        Call mma_Deallocate(Grads)
-        NADC=.False.
-        Return
-      End If
-!
-!     Once the gradients are read, convert them to forces
-!     and store them as appropriate.
-!
-!     Energy and gradient of the first (higher) state
-!
-      nRoots=1
-      Call Qpg_iScalar('Number of roots',Found)
-      If (Found) Call Get_iScalar('Number of roots',nRoots)
-      Call mma_Allocate(Ener,nRoots)
-      Call Get_dArray('Last energies',Ener,nRoots)
-      If (Max(iState(1),iState(2)).gt.nRoots) Then
-        Call WarningMessage(2,'Too few energies in RUNFILE')
-        Call Abend()
-      End If
-      Energy(iter)=Ener(iState(1))
-      E1=Ener(iState(1))
-      Call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
-      Gx(:,:,iter) = -Gx(:,:,iter)
-!
-!     For a two-RunFile job, read the second energy
-!     and gradient from RUNFILE2
-!
-      If (TwoRunFiles) Then
-        Call NameRun('RUNFILE2')
-        iState(2)=0
-        Call Qpg_iScalar('Relax CASSCF root',Exist)
-        If (Exist) Call Get_iScalar('Relax CASSCF root',iState(2))
-        If (iState(2).eq.0) iState(2)=1
-        nRoots=1
-        Call Qpg_iScalar('Number of roots',Found)
-        If (Found) Call Get_iScalar('Number of roots',nRoots)
-        Call mma_Deallocate(Ener)
-        Call mma_Allocate(Ener,nRoots)
-        Call Get_dArray('Last energies',Ener,nRoots)
-        Call Get_dArray('GRAD',Grads(1,2),3*nsAtom)
-        Call NameRun('#Pop')
-        RC=-1
-      End If
-!
-      If (iState(2).gt.0) Then
-!
-!       With two states the Lagrangian is different!
-!       We will optimize on the average energy and have a constraint
-!       for the energy diffirence. We change the energies and gradients
-!       hen on the fly.
-!
-        E0=Ener(iState(2))
-        Energy (iter)=(E1+E0)*Half
-        Energy0(iter)=E1-E0
-        Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
-        Gx(:,:,iter) = Half * Gx(:,:,iter)
-        Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
-        Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
-        Call Get_iScalar('Columbus',Columbus)
-!
-!       In case of a true conical intersection there is also coupling.
-!
-        If (NADC) Then
-          Call Get_iScalar('Columbus',Columbus)
-          If (Columbus.ne.1) Then
-            Call dCopy_(3*nsAtom,Grads(1,3),1,NAC(1,1,iter),1)
-!
-!           If the coupling derivative vector could not be calculated,
-!           use an approximate one.
-!
-            If (RC.lt.0) Then
-              ApproxNADC=.True.
-              Call Branching_Plane_Update(Gx,Gx0,NAC(:,:,iter),3*nsAtom,&
-     &                                    iter)
-            End If
-          End If
-        End If
-      End If
-!
-      Call mma_Deallocate(Ener)
-      Call mma_Deallocate(Grads)
-      Return
-!
-      End Subroutine Process_Gradients
+logical Found, Exist
+integer i, nRoots, RC, Read_Grad, Columbus, nsAtom
+real*8, allocatable :: Grads(:,:), Ener(:)
+real*8 E0, E1
+external Read_Grad
+
+Request_Alaska = .false.
+nsAtom = size(Gx,2)
+call mma_Allocate(Grads,3*nsAtom,3)
+
+! First check that all the needed gradients are available
+! and stop to compute them if they are not.
+! For a two-RunFile job, this behaves as if it is one state.
+
+if (TwoRunFiles) then
+  iState(1) = 0
+  iState(2) = 0
+end if
+
+if (iState(1) /= 0) iState(1) = RootMap(iState(1))
+if (iState(2) /= 0) iState(2) = RootMap(iState(2))
+i = max(iState(1),iState(2))
+iState(2) = min(iState(1),iState(2))
+iState(1) = i
+
+if ((iState(1) /= 0) .and. (iState(2) /= 0)) then
+
+  ! Two states
+
+  do i=2,1,-1
+    RC = Read_Grad(Grads(1,i),3*nsAtom,iState(i),0,0)
+    if (RC == 0) then
+      Request_Alaska = .true.
+      call Put_iScalar('Relax CASSCF root',iState(i))
+      call Put_iScalar('NumGradRoot',iState(i))
+      iState(1) = iState(i)
+      iState(2) = 0
+      exit
+    end if
+  end do
+  if ((.not. Request_Alaska) .and. NADC) then
+    RC = Read_Grad(Grads(1,3),3*nsAtom,0,iState(1),iState(2))
+    if (RC == 0) Request_Alaska = .true.
+  end if
+
+else
+
+  ! One state
+
+  iState(1) = 0
+  iState(2) = 0
+  call Qpg_iScalar('Relax CASSCF root',Exist)
+  if (Exist) call Get_iScalar('Relax CASSCF root',iState(1))
+  if (iState(1) == 0) iState(1) = 1
+  RC = Read_Grad(Grads(1,1),3*nsAtom,iState(1),0,0)
+  if (RC == 0) Request_Alaska = .true.
+end if
+
+if (Request_Alaska) then
+  call mma_Deallocate(Grads)
+  NADC = .false.
+  return
+end if
+
+! Once the gradients are read, convert them to forces
+! and store them as appropriate.
+
+! Energy and gradient of the first (higher) state
+
+nRoots = 1
+call Qpg_iScalar('Number of roots',Found)
+if (Found) call Get_iScalar('Number of roots',nRoots)
+call mma_Allocate(Ener,nRoots)
+call Get_dArray('Last energies',Ener,nRoots)
+if (max(iState(1),iState(2)) > nRoots) then
+  call WarningMessage(2,'Too few energies in RUNFILE')
+  call Abend()
+end if
+Energy(iter) = Ener(iState(1))
+E1 = Ener(iState(1))
+call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
+Gx(:,:,iter) = -Gx(:,:,iter)
+
+! For a two-RunFile job, read the second energy
+! and gradient from RUNFILE2
+
+if (TwoRunFiles) then
+  call NameRun('RUNFILE2')
+  iState(2) = 0
+  call Qpg_iScalar('Relax CASSCF root',Exist)
+  if (Exist) call Get_iScalar('Relax CASSCF root',iState(2))
+  if (iState(2) == 0) iState(2) = 1
+  nRoots = 1
+  call Qpg_iScalar('Number of roots',Found)
+  if (Found) call Get_iScalar('Number of roots',nRoots)
+  call mma_Deallocate(Ener)
+  call mma_Allocate(Ener,nRoots)
+  call Get_dArray('Last energies',Ener,nRoots)
+  call Get_dArray('GRAD',Grads(1,2),3*nsAtom)
+  call NameRun('#Pop')
+  RC = -1
+end if
+
+if (iState(2) > 0) then
+
+  ! With two states the Lagrangian is different!
+  ! We will optimize on the average energy and have a constraint
+  ! for the energy difference. We change the energies and gradients
+  ! on the fly.
+
+  E0 = Ener(iState(2))
+  Energy(iter) = (E1+E0)*Half
+  Energy0(iter) = E1-E0
+  call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
+  Gx(:,:,iter) = Half*Gx(:,:,iter)
+  call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+  call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
+  call Get_iScalar('Columbus',Columbus)
+
+  ! In case of a true conical intersection there is also coupling.
+
+  if (NADC) then
+    call Get_iScalar('Columbus',Columbus)
+    if (Columbus /= 1) then
+      call dCopy_(3*nsAtom,Grads(1,3),1,NAC(1,1,iter),1)
+
+      ! If the coupling derivative vector could not be calculated,
+      ! use an approximate one.
+
+      if (RC < 0) then
+        ApproxNADC = .true.
+        call Branching_Plane_Update(Gx,Gx0,NAC(:,:,iter),3*nsAtom,iter)
+      end if
+    end if
+  end if
+end if
+
+call mma_Deallocate(Ener)
+call mma_Deallocate(Grads)
+
+return
+
+end subroutine Process_Gradients

@@ -8,29 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function d_cart(Ind,nSym)
-      use Slapaf_Info, only: nStab
-      Implicit Real*8 (a-h,o-z)
+
+function d_cart(Ind,nSym)
+
+use Slapaf_Info, only: nStab
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Integer Ind(1)
-      Real*8 d_cart
+integer Ind(1)
+real*8 d_cart
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Cartesian coordinate  (iAtom)
-!
-      D_Cart=Zero
-!
-      iAtom=Ind(1)
-!
-      nU_A=nStab(iAtom)
-!
-!-----Now evaluate the degeneracy of the cartesian
-!
-      iDeg=nSym/nU_A
-      d_cart=DBLE(iDeg)
-!
-!     Write (*,*) ' d_cart=',d_cart
-!
-      Return
-      End
+! Cartesian coordinate  (iAtom)
+
+D_Cart = Zero
+
+iAtom = Ind(1)
+
+nU_A = nStab(iAtom)
+
+! Now evaluate the degeneracy of the cartesian
+
+iDeg = nSym/nU_A
+d_cart = dble(iDeg)
+
+!write(6,*) ' d_cart=',d_cart
+
+return
+
+end function d_cart

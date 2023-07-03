@@ -8,52 +8,57 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function D_Bond(Ind,iOp_,nSym)
-      use Slapaf_Info, only: jStab, nStab
-      Implicit Real*8 (a-h,o-z)
+
+function D_Bond(Ind,iOp_,nSym)
+
+use Slapaf_Info, only: jStab, nStab
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Integer Ind(2), iOp_(2)
-      Real*8 D_Bond
+integer Ind(2), iOp_(2)
+real*8 D_Bond
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- B O N D  (iAtom,jAtom)
+! B O N D  (iAtom,jAtom)
 !
-!---- Compute the stabilizer of P(A) & R(B), this is done in two ways.
+! Compute the stabilizer of P(A) & R(B), this is done in two ways.
 !
-!     P(A)-R(B) = A-PR(B)
+! P(A)-R(B) = A-PR(B)
 !
-!     A=/=B, the stabilizer is formed as the intersection of
-!            the stabilizers of A and B.
+! A=/=B, the stabilizer is formed as the intersection of
+!        the stabilizers of A and B.
 !
-!     A=B, the stabilizer is formed as union of U and R(U)
-!
-      D_Bond=Zero
-!
-      iAtom=Ind(1)
-      jAtom=Ind(2)
-      iOp_E=iOp_(1)
-      iOp_R=iOp_(2)
-!
-      nU_A=nStab(iAtom)
-      iU_A=iU(jStab(0,iAtom),nU_A)
-      nU_B=nStab(jAtom)
-      iU_B=iU(jStab(0,jAtom),nU_B)
-!
-      If (iAtom.eq.jAtom) Then
-         iOp_ER=iEor(iOp_E,iOp_R)
-         iU_AB=iOr(iU_A,iUR(iOp_ER,iU_A))
-      Else
-         iU_AB=iAnd(iU_A,iU_B)
-      End If
-      nU_AB=nU(iU_AB)
-!
-!-----Now evaluate the degeneracy of the bond.
-!
-      iDeg=nSym/nU_AB
-      D_Bond=DBLE(iDeg)
-!
-!     Write (*,*) ' D_Bond=',D_Bond
-!
-      Return
-      End
+! A=B, the stabilizer is formed as union of U and R(U)
+
+D_Bond = Zero
+
+iAtom = Ind(1)
+jAtom = Ind(2)
+iOp_E = iOp_(1)
+iOp_R = iOp_(2)
+
+nU_A = nStab(iAtom)
+iU_A = iU(jStab(0,iAtom),nU_A)
+nU_B = nStab(jAtom)
+iU_B = iU(jStab(0,jAtom),nU_B)
+
+if (iAtom == jAtom) then
+  iOp_ER = ieor(iOp_E,iOp_R)
+  iU_AB = ior(iU_A,iUR(iOp_ER,iU_A))
+else
+  iU_AB = iand(iU_A,iU_B)
+end if
+nU_AB = nU(iU_AB)
+
+! Now evaluate the degeneracy of the bond.
+
+iDeg = nSym/nU_AB
+D_Bond = dble(iDeg)
+
+!write(6,*) ' D_Bond=',D_Bond
+
+return
+
+end function D_Bond

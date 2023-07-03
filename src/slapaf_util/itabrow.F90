@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function iTabRow(i)
-      Implicit Integer (a-z)
-!
-      iTabRow=0
-      iTabRow=1
-      If (i.gt. 0 .and. i.le. 2) Then
-         iTabRow=1
-      Else If (i.gt. 2 .and. i.le.10) Then
-         iTabRow=2
-      Else If (i.gt.10 .and. i.le.18) Then
-         iTabRow=3
-      Else If (i.gt.18 .and. i.le.36) Then
-         iTabRow=4
-      Else If (i.gt.36 .and. i.le.54) Then
-         iTabRow=5
-      Else If (i.gt.54 .and. i.le.86) Then
-         iTabRow=6
-      Else If (i.gt.86) Then
-         iTabRow=7
-      End If
-!
-      Return
-      End
+
+integer function iTabRow(i)
+
+implicit integer(a-z)
+
+iTabRow = 0
+iTabRow = 1
+if ((i > 0) .and. (i <= 2)) then
+  iTabRow = 1
+else if ((i > 2) .and. (i <= 10)) then
+  iTabRow = 2
+else if ((i > 10) .and. (i <= 18)) then
+  iTabRow = 3
+else if ((i > 18) .and. (i <= 36)) then
+  iTabRow = 4
+else if ((i > 36) .and. (i <= 54)) then
+  iTabRow = 5
+else if ((i > 54) .and. (i <= 86)) then
+  iTabRow = 6
+else if (i > 86) then
+  iTabRow = 7
+end if
+
+return
+
+end function iTabRow

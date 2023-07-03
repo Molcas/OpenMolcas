@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine BPut(EVec,nDim,BMx,nX,Smmtrc,nQQ,Degen)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine BPut(EVec,nDim,BMx,nX,Smmtrc,nQQ,Degen)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
-      Logical Smmtrc(nX)
+real*8 EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
+logical Smmtrc(nX)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -20,22 +23,23 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iDim=0
-      Do iX = 1, nX
-         If (Smmtrc(iX)) Then
-            iDim=iDim+1
-            Do iQQ= 1, nQQ
-               BMx(iX,iQQ)=EVec(iDim,iQQ)/Sqrt(Degen(iX))
-            End Do
-         Else
-            Do iQQ = 1, nDim
-               BMx(iX,iQQ)=Zero
-            End Do
-         End If
-      End Do
+iDim = 0
+do iX=1,nX
+  if (Smmtrc(iX)) then
+    iDim = iDim+1
+    do iQQ=1,nQQ
+      BMx(iX,iQQ) = EVec(iDim,iQQ)/sqrt(Degen(iX))
+    end do
+  else
+    do iQQ=1,nDim
+      BMx(iX,iQQ) = Zero
+    end do
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BPut: BMx',' ',BMx,nX,nQQ)
+call RecPrt('BPut: BMx',' ',BMx,nX,nQQ)
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine BPut

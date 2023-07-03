@@ -8,51 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine AtmLst(Cart,nAtom,Coor,mAtom)
-      use Symmetry_Info, only: nIrrep, iOper
-      Implicit Real*8 (a-h,o-z)
+
+subroutine AtmLst(Cart,nAtom,Coor,mAtom)
+
+use Symmetry_Info, only: nIrrep, iOper
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Cart(3,nAtom), Coor(3,mAtom), r(3)
-      Logical New
-!
-!     Call RecPrt(' In AtmLst:Cart',' ',Cart,3,nAtom)
-!
-!-----Loop over list of symmetry unique centers
-!
-      iSt=1
-      Do iAtom = 1, nAtom
-         iEnd=iSt
-         call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)
-!
-!-----Loop over the operators of the point group
-!
-         Do ig = 1, nIrrep-1
-            r(1)=One
-            If (iAnd(iOper(ig),1).ne.0) r(1)=-One
-            r(2)=One
-            If (iAnd(iOper(ig),2).ne.0) r(2)=-One
-            r(3)=One
-            If (iAnd(iOper(ig),4).ne.0) r(3)=-One
-            x=r(1)*Cart(1,iAtom)
-            y=r(2)*Cart(2,iAtom)
-            z=r(3)*Cart(3,iAtom)
-!
-            New=.True.
-            Do iGo = iSt, iEnd
-               If (New .and. x.eq.Coor(1,iGo)                           &
-     &                 .and. y.eq.Coor(2,iGo)                           &
-     &                 .and. z.eq.Coor(3,iGo)) New=.False.
-            End Do
-            If (New) Then
-               iEnd = iEnd + 1
-               Coor(1,iEnd)=x
-               Coor(2,iEnd)=y
-               Coor(3,iEnd)=z
-            End If
-         End Do      ! End loop over operators
-         iSt = iEnd + 1
-      End Do         ! End loop over centers
-!
-!     Call RecPrt(' In AtmLst: Coor',' ',Coor,3,mAtom)
-      Return
-      End
+real*8 Cart(3,nAtom), Coor(3,mAtom), r(3)
+logical New
+
+!call RecPrt(' In AtmLst:Cart',' ',Cart,3,nAtom)
+
+! Loop over list of symmetry unique centers
+
+iSt = 1
+do iAtom=1,nAtom
+  iEnd = iSt
+  call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)
+
+  ! Loop over the operators of the point group
+
+  do ig=1,nIrrep-1
+    r(1) = One
+    if (iand(iOper(ig),1) /= 0) r(1) = -One
+    r(2) = One
+    if (iand(iOper(ig),2) /= 0) r(2) = -One
+    r(3) = One
+    if (iand(iOper(ig),4) /= 0) r(3) = -One
+    x = r(1)*Cart(1,iAtom)
+    y = r(2)*Cart(2,iAtom)
+    z = r(3)*Cart(3,iAtom)
+
+    New = .true.
+    do iGo=iSt,iEnd
+      if (New .and. (x == Coor(1,iGo)) .and. (y == Coor(2,iGo)) .and. (z == Coor(3,iGo))) New = .false.
+    end do
+    if (New) then
+      iEnd = iEnd+1
+      Coor(1,iEnd) = x
+      Coor(2,iEnd) = y
+      Coor(3,iEnd) = z
+    end if
+  end do      ! End loop over operators
+  iSt = iEnd+1
+end do        ! End loop over centers
+
+!call RecPrt(' In AtmLst: Coor',' ',Coor,3,mAtom)
+
+return
+
+end subroutine AtmLst

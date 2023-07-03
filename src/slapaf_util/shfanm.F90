@@ -8,28 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ShfANM(nInter,nIter,rInt,Shift)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine ShfANM(nInter,nIter,rInt,Shift)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 rInt(nInter,nIter), Shift(nInter,nIter)
-!
-      If (nIter.eq.1) Return
+real*8 rInt(nInter,nIter), Shift(nInter,nIter)
+
+if (nIter == 1) return
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' ShfANM: rInt',' ',rInt,nInter,nIter)
+call RecPrt(' ShfANM: rInt',' ',rInt,nInter,nIter)
 #endif
-!
-!-----Shifts: dq = q   -q
-!               n   n+1  n
-!
-      Do Iter=1,nIter-1
-         call dcopy_(nInter,rInt(1,Iter+1),1,Shift(1,Iter),1)
-         Call DaXpY_(nInter,-One,rInt(1,Iter),1,Shift(1,Iter),1)
-      End Do
+
+! Shifts: dq = q   -q
+!           n   n+1  n
+
+do Iter=1,nIter-1
+  call dcopy_(nInter,rInt(1,Iter+1),1,Shift(1,Iter),1)
+  call DaXpY_(nInter,-One,rInt(1,Iter),1,Shift(1,Iter),1)
+end do
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In ShfANM: New Shifts',' ',Shift,nInter,nIter-1)
+call RecPrt(' In ShfANM: New Shifts',' ',Shift,nInter,nIter-1)
 #endif
 
-      Return
-      End
+return
+
+end subroutine ShfANM

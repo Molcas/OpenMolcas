@@ -8,114 +8,110 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Start_Last_Energy()
-      Use RunFile_procedures, only: Get_Coord_New
-      Implicit Real*8 (a-h,o-z)
-      Character*16 StdIn
-      Character*8 Method
+
+subroutine Start_Last_Energy()
+
+use RunFile_procedures, only: Get_Coord_New
+
+implicit real*8(a-h,o-z)
+character*16 StdIn
+character*8 Method
 #include "print.fh"
 #include "stdalloc.fh"
-      Logical Saddle, FoundLastEn
-      Real*8, Dimension (:,:), Allocatable :: CN
+logical Saddle, FoundLastEn
+real*8, dimension(:,:), allocatable :: CN
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (nPrint(1).ge.6) Then
-         Write (6,*)
-         Write (6,*) ' Slapaf requests the last energy to be computed!'
-         Write (6,*)
-      End If
-!
-      LuInput=11
-      LuInput=IsFreeUnit(LuInput)
-      Call StdIn_Name(StdIn)
-      Call Molcas_Open(LuInput,StdIn)
+if (nPrint(1) >= 6) then
+  write(6,*)
+  write(6,*) ' Slapaf requests the last energy to be computed!'
+  write(6,*)
+end if
 
-      Call Get_iScalar('Grad ready',iGO)
-!
-      Write (LuInput,'(A)') '>ECHO OFF'
-      Write (LuInput,'(A)') '>export SL_OLD_TRAP=$MOLCAS_TRAP'
-      Write (LuInput,'(A)') '>export MOLCAS_TRAP=ON'
-!
-      Call qpg_dArray('Saddle',Saddle,nSaddle)
-      If (Saddle) Then
-!
-!         Clean up among the runfiles, etc.
-!
-          Write (LuInput,'(A)')                                         &
-     &          '>COPY $Project$SubProject.RunFile $Project.RunFile'
+LuInput = 11
+LuInput = IsFreeUnit(LuInput)
+call StdIn_Name(StdIn)
+call Molcas_Open(LuInput,StdIn)
 
-          Call qpg_cArray('LastEnergyMethod',FoundLastEn,lengthlast)
-          If (FoundLastEn) Then
-             Call Get_cArray('LastEnergyMethod',Method,8)
-          Else
-             Call Get_cArray('Relax Method',Method,8)
-          EndIf
+call Get_iScalar('Grad ready',iGO)
 
-          If (Method .eq. 'CASSCF'   .or.                               &
-     &        Method .eq. 'RASSCF'   .or.                               &
-     &        Method .eq. 'CASSCFSA' .or.                               &
-     &        Method .eq. 'RASSCFSA' .or.                               &
-     &        Method .eq. 'CASPT2'   .or.                               &
-     &        Method .eq. 'RASPT2'   ) Then
+write(LuInput,'(A)') '>ECHO OFF'
+write(LuInput,'(A)') '>export SL_OLD_TRAP=$MOLCAS_TRAP'
+write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
 
-             Write (LuInput,'(A)')                                      &
-     &             '>COPY $Project$SubProject.JobIph $Project.JobIph'
-             Write (LuInput,'(A)') '>RM $Project.Reac.JobIph'
-             Write (LuInput,'(A)') '>RM $Project.Prod.JobIph'
-          End If
-          Write (LuInput,'(A)') '>RM $Project.Reac.RunFile'
-          Write (LuInput,'(A)') '>RM $Project.Prod.RunFile'
-          Write (LuInput,'(A)') '>export SubProject='
-          Write (LuInput,'(A)') '>export MOLCAS_SADDLE=0'
-!
-!         Put the final structure as the reference structure
-!
-          Call Get_Coord_New(CN,nCoord)
-          Call NameRun('RUNREAC')
-          Call Put_dArray('Ref_Geom',CN,3*nCoord)
-          Call NameRun('#Pop')
-          Call NameRun('RUNPROD')
-          Call Put_dArray('Ref_Geom',CN,3*nCoord)
-          Call NameRun('#Pop')
-          Call mma_deallocate(CN)
-      End If
-!
-      If (iGo.le.1) Then
-!
-!        Normal behaviour
-!
-         Write (LuInput,'(A)') ' &Last_Energy &End'
-         Write (LuInput,'(A)') 'End of Input'
-!
-      Else
-!
-!        A CI ISC search has been performed. For the moment I care only
-!        for the ISC. Once the rest is done I will take care of that as
-!        well.
-!
-         Write (LuInput,'(A)') '>COPY $OldProject.Seward.Input '        &
-     &                       //'State1.Seward.Input'
-         Write (LuInput,'(A)') '>COPY $OldProject.Seward.Input '        &
-     &                       //'State2.Seward.Input'
-         Write (LuInput,'(A)')'>COPY $OldProject.RunFile State1.RunFile'
-         Write (LuInput,'(A)')'>COPY $OldProject.RunFile State2.RunFile'
-         Write (LuInput,'(A)') '>RM molcas.env'
-         Write (LuInput,'(A)') '>export Project=State1'
-         Write (LuInput,'(A)') ' &Last_Energy &End'
-         Write (LuInput,'(A)') 'End of Input'
-         Write (LuInput,'(A)') '>RM molcas.env'
-         Write (LuInput,'(A)') '>export Project=State2'
-         Write (LuInput,'(A)') ' &Last_Energy &End'
-         Write (LuInput,'(A)') 'End of Input'
-      End If
-      Write (LuInput,'(A)') '>export MOLCAS_TRAP=$SL_OLD_TRAP'
-!
-      Write (LuInput,'(A)') '>ECHO ON'
+call qpg_dArray('Saddle',Saddle,nSaddle)
+if (Saddle) then
 
-      Close(LuInput)
+  ! Clean up among the runfiles, etc.
+
+  write(LuInput,'(A)') '>COPY $Project$SubProject.RunFile $Project.RunFile'
+
+  call qpg_cArray('LastEnergyMethod',FoundLastEn,lengthlast)
+  if (FoundLastEn) then
+    call Get_cArray('LastEnergyMethod',Method,8)
+  else
+    call Get_cArray('Relax Method',Method,8)
+  end if
+
+  if ((Method == 'CASSCF') .or. (Method == 'RASSCF') .or. (Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. &
+      (Method == 'CASPT2') .or. (Method == 'RASPT2')) then
+
+    write(LuInput,'(A)') '>COPY $Project$SubProject.JobIph $Project.JobIph'
+    write(LuInput,'(A)') '>RM $Project.Reac.JobIph'
+    write(LuInput,'(A)') '>RM $Project.Prod.JobIph'
+  end if
+  write(LuInput,'(A)') '>RM $Project.Reac.RunFile'
+  write(LuInput,'(A)') '>RM $Project.Prod.RunFile'
+  write(LuInput,'(A)') '>export SubProject='
+  write(LuInput,'(A)') '>export MOLCAS_SADDLE=0'
+
+  ! Put the final structure as the reference structure
+
+  call Get_Coord_New(CN,nCoord)
+  call NameRun('RUNREAC')
+  call Put_dArray('Ref_Geom',CN,3*nCoord)
+  call NameRun('#Pop')
+  call NameRun('RUNPROD')
+  call Put_dArray('Ref_Geom',CN,3*nCoord)
+  call NameRun('#Pop')
+  call mma_deallocate(CN)
+end if
+
+if (iGo <= 1) then
+
+  ! Normal behaviour
+
+  write(LuInput,'(A)') ' &Last_Energy &End'
+  write(LuInput,'(A)') 'End of Input'
+
+else
+
+  ! A CI ISC search has been performed. For the moment I care only
+  ! for the ISC. Once the rest is done I will take care of that as well.
+
+  write(LuInput,'(A)') '>COPY $OldProject.Seward.Input State1.Seward.Input'
+  write(LuInput,'(A)') '>COPY $OldProject.Seward.Input State2.Seward.Input'
+  write(LuInput,'(A)') '>COPY $OldProject.RunFile State1.RunFile'
+  write(LuInput,'(A)') '>COPY $OldProject.RunFile State2.RunFile'
+  write(LuInput,'(A)') '>RM molcas.env'
+  write(LuInput,'(A)') '>export Project=State1'
+  write(LuInput,'(A)') ' &Last_Energy &End'
+  write(LuInput,'(A)') 'End of Input'
+  write(LuInput,'(A)') '>RM molcas.env'
+  write(LuInput,'(A)') '>export Project=State2'
+  write(LuInput,'(A)') ' &Last_Energy &End'
+  write(LuInput,'(A)') 'End of Input'
+end if
+write(LuInput,'(A)') '>export MOLCAS_TRAP=$SL_OLD_TRAP'
+
+write(LuInput,'(A)') '>ECHO ON'
+
+close(LuInput)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Start_Last_Energy

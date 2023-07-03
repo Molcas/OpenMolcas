@@ -8,41 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,        &
-     &                         iHiddenAN,nKept,iPL)
-      use Slapaf_Parameters, only: rHidden
-      Implicit Real*8 (a-h,o-z)
-!
+
+subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,iHiddenAN,nKept,iPL)
 !  Select among the hidden atoms the ones to be kept
-!
+
+use Slapaf_Parameters, only: rHidden
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Dimension Coord(3,mTtAtm),HiddenCoord(3,nHidden)
-      Dimension iHiddenAN(nHidden)
-!
-!
-!  Criteria: dMin < distance < rHidden
-!
-      dMax = rHidden ! bohr
-      Do iHid = 1, nHidden
-         X = HiddenCoord(1,iHid)
-         Y = HiddenCoord(2,iHid)
-         Z = HiddenCoord(3,iHid)
-         iAN = iHiddenAN(iHid)
-         iAtom = 0
-10       iAtom = iAtom + 1
-         Dist = sqrt((X-Coord(1,iAtom))**2+(Y-Coord(2,iAtom))**2+       &
-     &               (Z-Coord(3,iAtom))**2)
-         If(Dist .le. dMax) Then
-            iHiddenAN(iHid) = - iAN
-            nKept = nKept + 1
-         End If
-         If(iAtom.lt.mTtAtm .and. iHiddenAN(iHid).le.0) Goto 10
-      End Do
-!
-!  The end
-!
-      If(iPL .gt. 3 .and. nKept .gt. 0) Write(6,'(A,i3,A)')             &
-     &                ' Select_Hidden: ',nKept,' hidden atoms are kept'
-!
-      Return
-      End
+dimension Coord(3,mTtAtm), HiddenCoord(3,nHidden)
+dimension iHiddenAN(nHidden)
+
+! Criteria: dMin < distance < rHidden
+
+dMax = rHidden ! bohr
+do iHid=1,nHidden
+  X = HiddenCoord(1,iHid)
+  Y = HiddenCoord(2,iHid)
+  Z = HiddenCoord(3,iHid)
+  iAN = iHiddenAN(iHid)
+  iAtom = 0
+10 iAtom = iAtom+1
+  Dist = sqrt((X-Coord(1,iAtom))**2+(Y-Coord(2,iAtom))**2+(Z-Coord(3,iAtom))**2)
+  if (Dist <= dMax) then
+    iHiddenAN(iHid) = -iAN
+    nKept = nKept+1
+  end if
+  if ((iAtom < mTtAtm) .and. (iHiddenAN(iHid) <= 0)) goto 10
+end do
+
+! The end
+
+if ((iPL > 3) .and. (nKept > 0)) write(6,'(A,i3,A)') ' Select_Hidden: ',nKept,' hidden atoms are kept'
+
+return
+
+end subroutine Select_Hidden

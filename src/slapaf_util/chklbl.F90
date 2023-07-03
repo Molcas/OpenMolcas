@@ -8,18 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ChkLbl(Lbl,List,nList)
-      Character*(*) Lbl,List(nList)
-      Character*72 Warning
-!
-      Do 10 iList = 1, nList
-         If (Lbl.Eq.List(iList)) then
-            Write (Warning,'(A,A)') 'ChkLbl: Duplicate label;'//        &
-     &                 ' Lbl=',Lbl
-            Call WarningMessage(2,Warning)
-            Call Quit_OnUserError()
-         End If
- 10   Continue
-!
-      Return
-      End
+
+subroutine ChkLbl(Lbl,List,nList)
+
+character*(*) Lbl, List(nList)
+character*72 Warning
+
+do iList=1,nList
+  if (Lbl == List(iList)) then
+    write(Warning,'(A,A)') 'ChkLbl: Duplicate label; Lbl=',Lbl
+    call WarningMessage(2,Warning)
+    call Quit_OnUserError()
+  end if
+end do
+
+return
+
+end subroutine ChkLbl

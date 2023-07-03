@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Dissoc(xyz,nCntr,mCntr,rMss,Dist,B,lWrite,             &
-     &                  Label,dB,ldB)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Dissoc(xyz,nCntr,mCntr,rMss,Dist,B,lWrite,Label,dB,ldB)
 !***********************************************************************
 !                                                                      *
 !     Object: To evaluate the B matrix elements of an internal         *
@@ -18,130 +17,128 @@
 !             parts of a molecule.                                     *
 !                                                                      *
 !***********************************************************************
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 rMss(nCntr+mCntr), B(3,nCntr+mCntr), xyz(3,nCntr+mCntr),   &
-     &       dB(3,nCntr+mCntr,3,nCntr+mCntr)
-      Logical lWrite, ldB
-      Real*8 R(3,2), RM(2)
-      Character*8 Label
+real*8 rMss(nCntr+mCntr), B(3,nCntr+mCntr), xyz(3,nCntr+mCntr), dB(3,nCntr+mCntr,3,nCntr+mCntr)
+logical lWrite, ldB
+real*8 R(3,2), RM(2)
+character*8 Label
 #include "angstr.fh"
-!
-!
-      call dcopy_(2,[Zero],0,RM,1)
-      call dcopy_(6,[Zero],0,R,1)
-!
+
+call dcopy_(2,[Zero],0,RM,1)
+call dcopy_(6,[Zero],0,R,1)
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' nCntr,mCntr=',nCntr,mCntr
-      Call RecPrt(' Masses',' ',rMss,nCntr+mCntr,1)
-      Call RecPrt(' xyz',' ',xyz,3,nCntr+mCntr)
+write(6,*) ' nCntr,mCntr=',nCntr,mCntr
+call RecPrt(' Masses',' ',rMss,nCntr+mCntr,1)
+call RecPrt(' xyz',' ',xyz,3,nCntr+mCntr)
 #endif
-      Do iCntr = 1, nCntr+mCntr
-         i=1
-         If (iCntr.gt.nCntr) i=2
-!        Sum up mass of fragment
-         RM(i) = RM(i) + rMss(iCntr)
-!        Compute center of mass of the fragment
-         Do ix = 1, 3
-            R(ix,i) = R(ix,i) + rMss(iCntr) * xyz(ix,iCntr)
-         End Do
-      End Do
+do iCntr=1,nCntr+mCntr
+  i = 1
+  if (iCntr > nCntr) i = 2
+  ! Sum up mass of fragment
+  RM(i) = RM(i)+rMss(iCntr)
+  ! Compute center of mass of the fragment
+  do ix=1,3
+    R(ix,i) = R(ix,i)+rMss(iCntr)*xyz(ix,iCntr)
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('RM',' ',RM,1,2)
+call RecPrt('RM',' ',RM,1,2)
 #endif
-!
-!     Evaluate center of mass of the two parts and the distance between
-!
-      Dist = Zero
-      Do ix=1,3
-         R(ix,1) = R(ix,1)/RM(1)
-         R(ix,2) = R(ix,2)/RM(2)
-         Dist = Dist + (R(ix,1)-R(ix,2))**2
-      End Do
+
+! Evaluate center of mass of the two parts and the distance between
+
+Dist = Zero
+do ix=1,3
+  R(ix,1) = R(ix,1)/RM(1)
+  R(ix,2) = R(ix,2)/RM(2)
+  Dist = Dist+(R(ix,1)-R(ix,2))**2
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Center of mass of fragments',' ',R,3,2)
+call RecPrt(' Center of mass of fragments',' ',R,3,2)
 #endif
-!
-      Dist = Sqrt(Dist)
-!
-      If (lWrite) Write (6,'(1X,A,A,2(F10.6,A))') Label,                &
-     &   ' : Dissociation distance=',Dist,'/bohr',                      &
-     &       Dist*angstr,'/Angstrom'
-!
-!     Compute the B-matrix
-!
-      Do iCntr = 1, nCntr+mCntr
-         If (iCntr.le.nCntr) Then
-            Sign=1.0D0
-            i=1
-         Else
-            Sign=-1.0D0
-            i=2
-         End If
-         Do ix = 1, 3
-            If (xyz(ix,iCntr).ne.Zero) Then
-               Fact=Sign*rMss(iCntr)/RM(i)
-            Else
-               Fact=Zero
-            End If
-            B(ix,iCntr)= Fact* (R(ix,1)-R(ix,2)) / Dist
-         End Do
-      End Do
+
+Dist = sqrt(Dist)
+
+if (lWrite) write(6,'(1X,A,A,2(F10.6,A))') Label,' : Dissociation distance=',Dist,'/bohr',Dist*angstr,'/Angstrom'
+
+! Compute the B-matrix
+
+do iCntr=1,nCntr+mCntr
+  if (iCntr <= nCntr) then
+    Sign = 1.0d0
+    i = 1
+  else
+    Sign = -1.0d0
+    i = 2
+  end if
+  do ix=1,3
+    if (xyz(ix,iCntr) /= Zero) then
+      Fact = Sign*rMss(iCntr)/RM(i)
+    else
+      Fact = Zero
+    end if
+    B(ix,iCntr) = Fact*(R(ix,1)-R(ix,2))/Dist
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('B',' ',B,3,nCntr+mCntr)
+call RecPrt('B',' ',B,3,nCntr+mCntr)
 #endif
-!
-!     Compute the Cartesian derivative of the B-Matrix
-!
-      If (ldB) Then
-         Call FZero(dB,(3*(nCntr+mCntr))**2)
-         Do iCntr = 1, nCntr+mCntr
-            If (iCntr.le.nCntr) Then
-               Signi=1.0D0
-               i=1
-            Else
-               Signi=-1.0D0
-               i=2
-            End If
-            Facti=Signi*rMss(iCntr)/RM(i)
-!
-            Do jCntr = 1, nCntr+mCntr
-               If (jCntr.le.nCntr) Then
-                  Signj=1.0D0
-                  j=1
-               Else
-                  Signj=-1.0D0
-                  j=2
-               End If
-               Factj=Signj*rMss(jCntr)/RM(j)
-!
-               Do ix = 1, 3
-                  If (xyz(ix,iCntr).ne.Zero) Then
-                     dRdri=Facti
-                  Else
-                     dRdri=Zero
-                  End If
-                  Do jx = 1, 3
-                     If (xyz(jx,jCntr).ne.Zero) Then
-                        dRdrj=Factj
-                     Else
-                        dRdrj=Zero
-                     End If
-!
-                     If (ix.eq.jx) Then
-                        dB(ix,iCntr,jx,jCntr)=(dRdri*dRdrj              &
-     &                                    -B(ix,iCntr)*B(jx,jCntr))/Dist
-                     Else
-                        dB(ix,iCntr,jx,jCntr)=(                         &
-     &                                    -B(ix,iCntr)*B(jx,jCntr))/Dist
-                     End If
-                  End Do
-               End Do
-!
-            End Do
-         End Do
-#ifdef _DEBUGPRINT_
-         Call RecPrt('dB',' ',dB,3*(nCntr+mCntr),3*(nCntr+mCntr))
-#endif
-      End If
-      Return
-      End
+
+! Compute the Cartesian derivative of the B-Matrix
+
+if (ldB) then
+  call FZero(dB,(3*(nCntr+mCntr))**2)
+  do iCntr=1,nCntr+mCntr
+    if (iCntr <= nCntr) then
+      Signi = 1.0d0
+      i = 1
+    else
+      Signi = -1.0d0
+      i = 2
+    end if
+    Facti = Signi*rMss(iCntr)/RM(i)
+
+    do jCntr=1,nCntr+mCntr
+      if (jCntr <= nCntr) then
+        Signj = 1.0d0
+        j = 1
+      else
+        Signj = -1.0d0
+        j = 2
+      end if
+      Factj = Signj*rMss(jCntr)/RM(j)
+
+      do ix=1,3
+        if (xyz(ix,iCntr) /= Zero) then
+          dRdri = Facti
+        else
+          dRdri = Zero
+        end if
+        do jx=1,3
+          if (xyz(jx,jCntr) /= Zero) then
+            dRdrj = Factj
+          else
+            dRdrj = Zero
+          end if
+
+          if (ix == jx) then
+            dB(ix,iCntr,jx,jCntr) = (dRdri*dRdrj-B(ix,iCntr)*B(jx,jCntr))/Dist
+          else
+            dB(ix,iCntr,jx,jCntr) = (-B(ix,iCntr)*B(jx,jCntr))/Dist
+          end if
+        end do
+      end do
+
+    end do
+  end do
+# ifdef _DEBUGPRINT_
+  call RecPrt('dB',' ',dB,3*(nCntr+mCntr),3*(nCntr+mCntr))
+# endif
+end if
+
+return
+
+end subroutine Dissoc

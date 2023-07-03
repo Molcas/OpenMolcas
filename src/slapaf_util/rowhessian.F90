@@ -10,65 +10,68 @@
 !                                                                      *
 ! Copyright (C) Giovanni Ghigo                                         *
 !***********************************************************************
-      Subroutine RowHessian(nIter,nInter,Delta)
+
+subroutine RowHessian(nIter,nInter,Delta)
 !***********************************************************************
 !                                                                      *
 ! Object: Numerical estimation of single rows and columns of Hessian   *
-! Called from: RlxCtl when lRowH=.True. & iter.EQ.NmIter               *
+! Called from: RlxCtl when lRowH=.true. & iter == NmIter               *
 ! Author: Giovanni Ghigo, University of Torino, Italy                  *
 !                                                                      *
 !***********************************************************************
-      use Slapaf_Info, only: dqInt, mRowH
-      Implicit Real*8 (A-H,O-Z)
-      Real*8, Allocatable:: H(:,:)
+
+use Slapaf_Info, only: dqInt, mRowH
+
+implicit real*8(A-H,O-Z)
+real*8, allocatable :: H(:,:)
 #include "stdalloc.fh"
 #include "real.fh"
-      Real*8 rDum(1)
-!
-      If (.NOT.Allocated(mRowH)) Then
-         Write (6,*) 'RowHessian: .NOT.Allocated(mRowH)'
-         Call Abend()
-      End If
+real*8 rDum(1)
 
-      Call mma_allocate(H,nInter,nInter,Label='H')
-      Call Get_dArray('Hss_Q',H,nInter**2)
-      Call Put_dArray('Hss_upd',rDum,0)
-!
+if (.not. allocated(mRowH)) then
+  write(6,*) 'RowHessian: .NOT.Allocated(mRowH)'
+  call Abend()
+end if
+
+call mma_allocate(H,nInter,nInter,Label='H')
+call Get_dArray('Hss_Q',H,nInter**2)
+call Put_dArray('Hss_upd',rDum,0)
+
 #ifdef _DEBUGPRINT_
-      Write(6,*) 'RowHessian:'
-      Call RecPrt('Initial Hessian',' ',H,nInter,nInter)
-      Call RecPrt('Gradient  dqInt:','(10F9.6)', dqInt,nInter,nIter)
+write(6,*) 'RowHessian:'
+call RecPrt('Initial Hessian',' ',H,nInter,nInter)
+call RecPrt('Gradient  dqInt:','(10F9.6)',dqInt,nInter,nIter)
 #endif
-!
-! --- Evaluate the Hessian
-!
-      Do iRowH = 1, SIZE(mRowH)
-         iInter = mRowH(iRowH)
-         If (iInter>nIter) Then
-            Write (6,*) 'RowHessian: iIter>nIter'
-            Call Abend()
-         End If
-         Do jInter = 1, nInter
-            H(iInter,jInter) =                                          &
-     &         (dqInt(jInter,1) -dqInt(jInter,iRowH+1)) / Delta
-            H(jInter,iInter) = H(iInter,jInter)
-         End Do
-      EndDo
-!
-! --- Symmetrize
-!
-      Do iInter = 1, nInter
-         Do jInter = 1, nInter
-            dElement = (H(iInter,jInter)+H(jInter,iInter))/Two
-            H(iInter,jInter) = dElement
-            H(jInter,iInter) = dElement
-         EndDo
-      EndDo
+
+! Evaluate the Hessian
+
+do iRowH=1,size(mRowH)
+  iInter = mRowH(iRowH)
+  if (iInter > nIter) then
+    write(6,*) 'RowHessian: iIter>nIter'
+    call Abend()
+  end if
+  do jInter=1,nInter
+    H(iInter,jInter) = (dqInt(jInter,1)-dqInt(jInter,iRowH+1))/Delta
+    H(jInter,iInter) = H(iInter,jInter)
+  end do
+end do
+
+! Symmetrize
+
+do iInter=1,nInter
+  do jInter=1,nInter
+    dElement = (H(iInter,jInter)+H(jInter,iInter))/Two
+    H(iInter,jInter) = dElement
+    H(jInter,iInter) = dElement
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Final Hessian',' ',H,nInter,nInter)
+call RecPrt('Final Hessian',' ',H,nInter,nInter)
 #endif
-      Call Put_dArray('Hss_Q',H,nInter**2)
-      Call mma_deallocate(H)
-!
-      Return
-      End
+call Put_dArray('Hss_Q',H,nInter**2)
+call mma_deallocate(H)
+
+return
+
+end subroutine RowHessian

@@ -8,11 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function iU(iStab,nStab)
-      Integer iStab(0:nStab-1)
-      iU=0
-      Do i = 0, nStab-1
-         iU = iOr(iU,2**iStab(i))
-      End Do
-      Return
-      End
+
+integer function iU(iStab,nStab)
+
+integer iStab(0:nStab-1)
+
+iU = 0
+do i=0,nStab-1
+  iU = ior(iU,2**iStab(i))
+end do
+
+return
+
+end function iU

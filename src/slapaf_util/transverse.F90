@@ -8,125 +8,127 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
-      use Slapaf_Info, only: Weights, RefGeo, R12, GradRef
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
+
+use Slapaf_Info, only: Weights, RefGeo, R12, GradRef
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
-      Logical l_Write, ldB, lTrans
-      Character(LEN=8) Label
-      Real*8, Allocatable, Target:: TV(:,:)
-      Real*8, Pointer:: r12_p(:,:)
+real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
+logical l_Write, ldB, lTrans
+character(len=8) Label
+real*8, allocatable, target :: TV(:,:)
+real*8, pointer :: r12_p(:,:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     The reference direction (normal to the hyperplane) is taken from
-!     the input (GradRef) if allocated, or from the stored
-!     transverse direction if there is one, or from the R-P vector
-!     (R12) otherwise
-!
-      If (Allocated(GradRef)) Then
-         lTrans = .False.
-         r12_p => GradRef
-!        write(6,*), 'Using Reference Gradient'
-      Else
-         Call qpg_dArray('Transverse',lTrans,nTrans)
-         If (lTrans) Then
-            Call mma_allocate(TV,3,nCent,Label='TV')
-            Call Get_dArray('Transverse',TV,3*nCent)
-            r12_p => TV
-!           write(6,*), 'Using stored Transverse'
-         Else
-            r12_p => R12
-!           write(6,*), 'Using R-P Vector'
-         End If
-      End If
+! The reference direction (normal to the hyperplane) is taken from
+! the input (GradRef) if allocated, or from the stored
+! transverse direction if there is one, or from the R-P vector
+! (R12) otherwise
+
+if (allocated(GradRef)) then
+  lTrans = .false.
+  r12_p => GradRef
+  !write(6,*), 'Using Reference Gradient'
+else
+  call qpg_dArray('Transverse',lTrans,nTrans)
+  if (lTrans) then
+    call mma_allocate(TV,3,nCent,Label='TV')
+    call Get_dArray('Transverse',TV,3*nCent)
+    r12_p => TV
+    !write(6,*), 'Using stored Transverse'
+  else
+    r12_p => R12
+    !write(6,*), 'Using R-P Vector'
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Call RecPrt('Ref',' ',RefGeo,3,nCent)
-!     Call RecPrt('R12',' ',r12_p,3,nCent)
-!
-!     Length of the direction vector (weighted)
-!
-      RR_R12 = Zero
-      TWeight = Zero
-      Do iCent = 1, nCent
-         Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Weights(iCent)
-         TWeight = TWeight+xWeight
-         Do i = 1, 3
-            RR_R12 = RR_R12 + xWeight*(r12_p(i,iCent))**2
-         End Do
-      End Do
-      RR_R12=Sqrt(RR_R12)
-!
-!     The distance scaling will be 1/Sqrt(TWeight)
-!
-      SqInvTWeight=One/Sqrt(TWeight)
-!
-!     Dot product between the x-x0 vector and the direction (weighted)
-!
-      f=Zero
-      Do iCent = 1, nCent
-         Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Weights(iCent)
-         Do i = 1, 3
-            f = f + xWeight*(xyz(i,iCent)-RefGeo(i,iCent))              &
-     &        *  r12_p(i,iCent)
-         End Do
-      End Do
-!
-!     The distance to the plane is the dot product / direction length
-!
-      If (RR_R12.eq.Zero) Then
-         HDist = Zero
-      Else
-         HDist = f / RR_R12 * SqInvTWeight
-      End If
-!     Write (6,*) 'f, RR_R12=',f,RR_R12
-!
-      If (l_Write) Then
-         Write (6,'(2A,F18.8,A)') Label,' : Hyperplane distance =',     &
-     &                            HDist,                                &
-     &                            ' au (weighted/sqrt(total weight)'
-      End If
-!
+!call RecPrt('Ref',' ',RefGeo,3,nCent)
+!call RecPrt('R12',' ',r12_p,3,nCent)
+
+! Length of the direction vector (weighted)
+
+RR_R12 = Zero
+TWeight = Zero
+do iCent=1,nCent
+  Fact = dble(iDeg(xyz(1,iCent)))
+  xWeight = Fact*Weights(iCent)
+  TWeight = TWeight+xWeight
+  do i=1,3
+    RR_R12 = RR_R12+xWeight*(r12_p(i,iCent))**2
+  end do
+end do
+RR_R12 = sqrt(RR_R12)
+
+! The distance scaling will be 1/Sqrt(TWeight)
+
+SqInvTWeight = One/sqrt(TWeight)
+
+! Dot product between the x-x0 vector and the direction (weighted)
+
+f = Zero
+do iCent=1,nCent
+  Fact = dble(iDeg(xyz(1,iCent)))
+  xWeight = Fact*Weights(iCent)
+  do i=1,3
+    f = f+xWeight*(xyz(i,iCent)-RefGeo(i,iCent))*r12_p(i,iCent)
+  end do
+end do
+
+! The distance to the plane is the dot product / direction length
+
+if (RR_R12 == Zero) then
+  HDist = Zero
+else
+  HDist = f/RR_R12*SqInvTWeight
+end if
+!write(6,*) 'f, RR_R12=',f,RR_R12
+
+if (l_Write) then
+  write(6,'(2A,F18.8,A)') Label,' : Hyperplane distance =',HDist,' au (weighted/sqrt(total weight)'
+end if
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute the WDC B-matrix
-!     If the direction is null, the derivative is not defined
-!
-      Call FZero(Bf,3*nCent)
-      If (RR_R12.gt.Zero) Then
-!
-!        The derivative is simply the unit direction vector
-!        (with weighting and scaling accounted for)
-!
-         Do iCent = 1, nCent
-            Fact = Dble(iDeg(xyz(1,iCent)))
-            xWeight = Fact*Weights(iCent)
-            Do i = 1, 3
-               Bf(i,iCent) = xWeight*r12_p(i,iCent)/RR_R12*SqInvTWeight
-            End Do
-         End Do
-      End If
-!     Call RecPrt('Bf',' ',Bf,3,nCent)
+! Compute the WDC B-matrix
+! If the direction is null, the derivative is not defined
+
+call FZero(Bf,3*nCent)
+if (RR_R12 > Zero) then
+
+  ! The derivative is simply the unit direction vector
+  ! (with weighting and scaling accounted for)
+
+  do iCent=1,nCent
+    Fact = dble(iDeg(xyz(1,iCent)))
+    xWeight = Fact*Weights(iCent)
+    do i=1,3
+      Bf(i,iCent) = xWeight*r12_p(i,iCent)/RR_R12*SqInvTWeight
+    end do
+  end do
+end if
+!call RecPrt('Bf',' ',Bf,3,nCent)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     The second derivative is null, as the derivative is constant
-!
-      If (ldB) Then
-         Call FZero(dBf,(3*nCent)**2)
-      End If
-!
-      If (lTrans) Call mma_deallocate(TV)
-      r12_p => Null()
+! The second derivative is null, as the derivative is constant
+
+if (ldB) then
+  call FZero(dBf,(3*nCent)**2)
+end if
+
+if (lTrans) call mma_deallocate(TV)
+r12_p => null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Transverse

@@ -8,133 +8,133 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine GF_on_the_Fly(iDo_dDipM)
-      use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only:  Coor
-      use Slapaf_Parameters, only: nDimBC, mTROld
-      Implicit Real*8 (a-h,o-z)
+
+subroutine GF_on_the_Fly(iDo_dDipM)
+
+use Symmetry_Info, only: nIrrep
+use Slapaf_Info, only: Coor
+use Slapaf_Parameters, only: nDimBC, mTROld
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 DipM(3)
-      Integer mDisp(8)
-      Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), dDipM(:),      &
-     &                      IRInt(:), Temp(:), NMod(:)
+real*8 DipM(3)
+integer mDisp(8)
+real*8, allocatable :: EVec(:), EVal(:), RedMas(:), dDipM(:), IRInt(:), Temp(:), NMod(:)
+
 !define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      lUt=6
-!
-      nX=3*SIZE(Coor,2)
-      nAtom=SIZE(Coor,2)
-      nInter=nDimBC-mTROld
-      mTR=mTROld
-      nDoF=nDimBC
-!
-      Call mma_allocate(EVec,2*nX**2,Label='EVec')
-      Call mma_allocate(EVal,2*nX,Label='EVal')
-      Call mma_allocate(RedMas,nX,Label='RedMas')
-      Call mma_allocate(dDipM,3*nDoF,Label='dDipM')
-      dDipM(:)=Zero
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      DipM(:)=Zero
-      Call GF(nX,nDoF,nInter,EVec,EVal,RedMas,iNeg,dDipM,mTR,nAtom,DipM)
-!
-#ifdef _DEBUGPRINT_
-      Call RecPrt('EVec',' ',EVec,2*nX,nX)
-      Call RecPrt('EVal',' ',EVal,2,nX)
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Write out frequencies and IR intensities
-!
-      Write (LUt,10)
-      Write (LUt,10) ' Observe that the harmonic oscillator analysis'   &
-     &             //' is only valid at stationary points!'
-      Write (LUt,10)
-      Write (LUt,10) ' Note that rotational and translational degrees'  &
-     &             //' have been automatically removed,'
-      Write (LUt,10) ' if the energy is invariant to these degrees'     &
-     &             //' of freedom.'
-      Write (LUt,10)
-      Write (LUt,10)
-      Write (LUt,10) ' Harmonic frequencies in cm-1'
-      Write (LUt,10)
-      If (iDo_dDipM.eq.1) Then
-         Write (LUt,10) ' IR Intensities in km/mol'
-         Write (LUt,10)
-      End If
-      Write (LUt,10) ' Normal modes in gf_on_the_fly.f '
-10    Format(a)
-!
-      iOff=0
-      iCtl=iDo_dDipM
-      iEl =3
-      jSym=1
-!
-      Call mma_allocate(Temp,3*nDoF,Label='Temp')
-!
-      Call DGeTMO(dDipM,3,3,nInter,Temp,nInter)
-!
-      Call mma_deallocate(dDipM)
+lUt = 6
 
-      Call mma_allocate(IRInt,nDoF,Label='IRInt')
+nX = 3*size(Coor,2)
+nAtom = size(Coor,2)
+nInter = nDimBC-mTROld
+mTR = mTROld
+nDoF = nDimBC
 !
-      Lu_10=10
-      Lu_10=IsFreeUnit(Lu_10)
-      Call Molcas_Open(lu_10,'UNSYM')
-!
-      Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
-      Call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,   &
-     &              Lu_10,iOff)
-!
-      Close(Lu_10)
-      Call mma_deallocate(Temp)
-!
-      Call Add_Info('Approx. Freq.',EVal,nInter,1)
+call mma_allocate(EVec,2*nX**2,Label='EVec')
+call mma_allocate(EVal,2*nX,Label='EVal')
+call mma_allocate(RedMas,nX,Label='RedMas')
+call mma_allocate(dDipM,3*nDoF,Label='dDipM')
+dDipM(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Save normal modes for later generation of Molden input.
+DipM(:) = Zero
+call GF(nX,nDoF,nInter,EVec,EVal,RedMas,iNeg,dDipM,mTR,nAtom,DipM)
 !
-      nDisp=nDoF
-      Call mma_allocate(NMod,nDisp**2,Label='NMod')
-!
-      lModes=0
-      nModes=0
-      nX=nDoF
-      call dcopy_(nX*nInter,EVec,2,NMod,1)
-      lModes=lModes+nInter*nX
-      nModes=nModes+nInter
 #ifdef _DEBUGPRINT_
-      Call RecPrt('NModes',' ',NMod,nX,nInter)
+call RecPrt('EVec',' ',EVec,2*nX,nX)
+call RecPrt('EVal',' ',EVal,2,nX)
 #endif
-!
-      If (nIrrep.eq.1) Then
-         Call Print_Mode_Components(NMod,EVal,nModes,lModes,mDisp)
-      End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write stuff on Molden input file
-!
-      mSym=1
-      Call ICopy(8,[0],0,mDisp,1)
-      mDisp(1)=nInter
-      Call Freq_Molden(EVal,nModes,NMod,lModes,mSym,IRInt,mDisp,RedMas)
+! Write out frequencies and IR intensities
+
+write(LUt,10)
+write(LUt,10) ' Observe that the harmonic oscillator analysis is only valid at stationary points!'
+write(LUt,10)
+write(LUt,10) ' Note that rotational and translational degrees have been automatically removed,'
+write(LUt,10) ' if the energy is invariant to these degrees of freedom.'
+write(LUt,10)
+write(LUt,10)
+write(LUt,10) ' Harmonic frequencies in cm-1'
+write(LUt,10)
+if (iDo_dDipM == 1) then
+  write(LUt,10) ' IR Intensities in km/mol'
+  write(LUt,10)
+end if
+write(LUt,10) ' Normal modes in gf_on_the_fly.f '
+10 format(a)
+
+iOff = 0
+iCtl = iDo_dDipM
+iEl = 3
+jSym = 1
+
+call mma_allocate(Temp,3*nDoF,Label='Temp')
+
+call DGeTMO(dDipM,3,3,nInter,Temp,nInter)
+
+call mma_deallocate(dDipM)
+
+call mma_allocate(IRInt,nDoF,Label='IRInt')
+
+Lu_10 = 10
+Lu_10 = IsFreeUnit(Lu_10)
+call Molcas_Open(lu_10,'UNSYM')
+
+write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
+call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,Lu_10,iOff)
+
+close(Lu_10)
+call mma_deallocate(Temp)
+
+call Add_Info('Approx. Freq.',EVal,nInter,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_deallocate(NMod)
-      Call mma_deallocate(IRInt)
-      Call mma_deallocate(RedMas)
-      Call mma_deallocate(EVal)
-      Call mma_deallocate(EVec)
+! Save normal modes for later generation of Molden input.
+
+nDisp = nDoF
+call mma_allocate(NMod,nDisp**2,Label='NMod')
+
+lModes = 0
+nModes = 0
+nX = nDoF
+call dcopy_(nX*nInter,EVec,2,NMod,1)
+lModes = lModes+nInter*nX
+nModes = nModes+nInter
+#ifdef _DEBUGPRINT_
+call RecPrt('NModes',' ',NMod,nX,nInter)
+#endif
+
+if (nIrrep == 1) then
+  call Print_Mode_Components(NMod,EVal,nModes,lModes,mDisp)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Write stuff on Molden input file
+
+mSym = 1
+call ICopy(8,[0],0,mDisp,1)
+mDisp(1) = nInter
+call Freq_Molden(EVal,nModes,NMod,lModes,mSym,IRInt,mDisp,RedMas)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call mma_deallocate(NMod)
+call mma_deallocate(IRInt)
+call mma_deallocate(RedMas)
+call mma_deallocate(EVal)
+call mma_deallocate(EVec)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine GF_on_the_Fly

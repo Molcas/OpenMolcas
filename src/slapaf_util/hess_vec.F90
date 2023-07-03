@@ -8,49 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Hess(3*nAtoms*(3*nAtoms+1)/2),EVec((3*mAtoms)**2)
+real*8 Hess(3*nAtoms*(3*nAtoms+1)/2), EVec((3*mAtoms)**2)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute the eigenvalues and the eigenvectors of the Hessian
-!
+! Compute the eigenvalues and the eigenvectors of the Hessian
+
 !define _DEBUGPRINT_
-!
-!---- Set up a unit matrix
-!
-      nQ = nDim
-      call dcopy_(nQ*nQ,[Zero],0,EVec,1)
-      call dcopy_(nQ,[One],0,EVec,nQ+1)
-!
-!---- Compute eigenvalues and eigenvectors
-!
-      Call NIDiag_new(Hess,EVec,nQ,nQ)
-      Call JacOrd(Hess,EVec,nQ,nQ)
-!
-      ThrD=1.0D-10
-      Do iQ = 1, nQ
-!        Fix standard direction.
-         rZ = 0.0D0
-         Do iElem = 1, nQ
-            ij=(iQ-1)*nQ + iElem
-            If (Abs(EVec(ij)).gt.Abs(rZ)+ThrD)                          &
-     &         rZ = EVec(ij)
-         End Do
-         ij=(iQ-1)*nQ + 1
-         If (rZ.lt.0.0D0) Call DScal_(nQ,-One,EVec(ij),1)
-      End Do
+
+! Set up a unit matrix
+
+nQ = nDim
+call dcopy_(nQ*nQ,[Zero],0,EVec,1)
+call dcopy_(nQ,[One],0,EVec,nQ+1)
+
+! Compute eigenvalues and eigenvectors
+
+call NIDiag_new(Hess,EVec,nQ,nQ)
+call JacOrd(Hess,EVec,nQ,nQ)
+
+ThrD = 1.0D-10
+do iQ=1,nQ
+  ! Fix standard direction.
+  rZ = 0.0d0
+  do iElem=1,nQ
+    ij = (iQ-1)*nQ+iElem
+    if (abs(EVec(ij)) > abs(rZ)+ThrD) rZ = EVec(ij)
+  end do
+  ij = (iQ-1)*nQ+1
+  if (rZ < 0.0d0) call DScal_(nQ,-One,EVec(ij),1)
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Eigenvectors','(12f6.2)',EVec,nDim,nDim)
-      Call TriPrt(' Eigenvalues','(12E8.2)',Hess,nDim)
+call RecPrt(' Eigenvectors','(12f6.2)',EVec,nDim,nDim)
+call TriPrt(' Eigenvalues','(12E8.2)',Hess,nDim)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Hess_Vec

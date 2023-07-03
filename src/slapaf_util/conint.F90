@@ -8,151 +8,149 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
-      use Slapaf_Info, only: Gx0, Energy, Energy0
-      use Slapaf_Parameters, only: NADC, ApproxNADC
-      Implicit Real*8  (a-h,o-z)
+
+subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
+
+use Slapaf_Info, only: Gx0, Energy, Energy0
+use Slapaf_Parameters, only: NADC, ApproxNADC
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "constants.fh"
-      Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-      Logical lWrite_, ldB
-      Character(LEN=8) Label
-!
-      E1 = Energy (lIter)
-      E0 = Energy0(lIter)
+real*8 Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
+logical lWrite_, ldB
+character(len=8) Label
+
+E1 = Energy(lIter)
+E0 = Energy0(lIter)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      nAtoms = SIZE(Gx0,2)
-      Write (6,*) 'ConInt: lIter=',lIter
-      Write (6,*) 'ConInt: E1, E0=',E1,E0
-      Call RecPrt('ConInt: Gx0',' ',Gx0(:,:,lIter),3,nAtoms)
+nAtoms = size(Gx0,2)
+write(6,*) 'ConInt: lIter=',lIter
+write(6,*) 'ConInt: E1, E0=',E1,E0
+call RecPrt('ConInt: Gx0',' ',Gx0(:,:,lIter),3,nAtoms)
 #endif
+
+! iOpt=1 -> Linear
+! iOpt=2 -> Quadratic
+! iOpt=3 -> Absolute value
+if (NADC) then
+  if (ApproxNADC) then
+    iOpt = 2
+  else
+    iOpt = 3
+  end if
+else
+  iOpt = 1
+end if
+
+! Observe that the program is storing the forces rather than the
+! gradients!
 !
-!     iOpt=1 -> Linear
-!     iOpt=2 -> Quadratic
-!     iOpt=3 -> Absolute value
-      If (NADC) Then
-         If (ApproxNADC) Then
-            iOpt=2
-         Else
-            iOpt=3
-         End If
-      Else
-         iOpt=1
-      End If
-!
-!     Observe that the program is storing the forces rather than the
-!     gradients!
-!
-!     The average energy is stored in E1 and the energy difference in
-!     E0. Ditto for the gradients (see process_gradients).
-!
-      dE=Zero
-      If (iOpt.eq.1) Then
-!------- Linear ------------------
-         dE=E0
-      Else If (iOpt.eq.2) Then
-!------- Quadratic ---------------
-         dE=E0**2
-      Else If (iOpt.eq.3) Then
-!------- Absolute value ----------
-         dE=Abs(E0)
-      End If
-      If (lWrite_) Then
-         Write (6,'(2A,F18.8,A,F18.8,A)')                               &
-     &                 Label,' : Energy difference = ',                 &
-     &                 E0, ' hartree, ',                                &
-     &                 E0*CONV_AU_TO_KJ_PER_MOLE_,                      &
-     &                 ' kJ/mol'
-         Write (6,'( A,F18.8,A)') '           Average energy    = ',    &
-     &                            E1   , ' hartree'
+! The average energy is stored in E1 and the energy difference in
+! E0. Ditto for the gradients (see process_gradients).
+
+dE = Zero
+if (iOpt == 1) then
+  ! Linear
+  dE = E0
+else if (iOpt == 2) then
+  ! Quadratic
+  dE = E0**2
+else if (iOpt == 3) then
+  ! Absolute value
+  dE = abs(E0)
+end if
+if (lWrite_) then
+  write(6,'(2A,F18.8,A,F18.8,A)') Label,' : Energy difference = ',E0,' hartree, ',E0*CONV_AU_TO_KJ_PER_MOLE_,' kJ/mol'
+  write(6,'( A,F18.8,A)') '           Average energy    = ',E1,' hartree'
+# ifdef _DEBUGPRINT_
+  select case (iOpt)
+    case (1)
+      write(6,*) 'Option: Linear'
+    case (2)
+      write(6,*) 'Option: Quadratic'
+    case (3)
+      write(6,*) 'Option: Absolute value'
+  end select
+# endif
+end if
+
+! Compute the WDC B-matrix
+
+do iCent=1,nCent
+  Fact = dble(iDeg(xyz(1,iCent)))
+  !write(6,*) 'Fact=',Fact
+  do iCar=1,3
+    Bf(iCar,iCent) = Zero
+    if (iOpt == 1) then
+      ! Linear
+      Bf(iCar,iCent) = -Gx0(iCar,iCent,lIter)
+    else if (iOpt == 2) then
+      ! Quadratic
+
+      ! When the energy difference becomes small, the true derivative vanishes.
+      ! In such case use simply a scaled-down energy difference gradient
+
+      if (abs(E0) > 1.0D-5) then
+        Bf(iCar,iCent) = -Two*E0*Gx0(iCar,iCent,lIter)
+      else
+        Bf(iCar,iCent) = -Two*1.0D-5*Gx0(iCar,iCent,lIter)
+      end if
+    else if (iOpt == 3) then
+      ! Absolute value
+      Bf(iCar,iCent) = -sign(One,E0)*Gx0(iCar,iCent,lIter)
+    end if
+
+    Bf(iCar,iCent) = Fact*Bf(iCar,iCent)
+  end do
+end do
 #ifdef _DEBUGPRINT_
-         Select Case (iOpt)
-         Case (1)
-           Write (6,*) 'Option: Linear'
-         Case (2)
-           Write (6,*) 'Option: Quadratic'
-         Case (3)
-           Write (6,*) 'Option: Absolute value'
-         End Select
+call RecPrt('ConInt: Bf',' ',Bf,3,nCent)
 #endif
-      End If
-!
-!---- Compute the WDC B-matrix
-!
-      Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent)))
-!        Write (6,*) 'Fact=',Fact
-         Do iCar = 1, 3
-            Bf(iCar,iCent)=Zero
-            If (iOpt.eq.1) Then
-!------------- Linear ------------------
-               Bf(iCar,iCent)=-Gx0(iCar,iCent,lIter)
-            Else If (iOpt.eq.2) Then
-!------------- Quadratic ---------------
-!
-!              When the energy difference becomes small, the true derivative vanishes.
-!              In such case use simply a scaled-down energy difference gradient
-!
-               If (Abs(E0).gt.1.0D-5) Then
-                  Bf(iCar,iCent)=-Two*E0*Gx0(iCar,iCent,lIter)
-               Else
-                  Bf(iCar,iCent)=-Two*1.0D-5*Gx0(iCar,iCent,lIter)
-               End If
-            Else If (iOpt.eq.3) Then
-!------------- Absolute value ----------
-               Bf(iCar,iCent)=-Sign(One,E0)*Gx0(iCar,iCent,lIter)
-            End If
-!
-            Bf(iCar,iCent)=Fact*Bf(iCar,iCent)
-         End Do
-      End Do
-#ifdef _DEBUGPRINT_
-      Call RecPrt('ConInt: Bf',' ',Bf,3,nCent)
-#endif
-      If (lWrite_.and.iOpt.eq.1) Then
-         XX=Sqrt(DDot_(3*nCent,Bf,1,Bf,1))
-         If (XX.le.1.0D-3) Then
-            Write (6,*)
-            Write (6,*)                                                 &
-     &            '    Warning: PESs might be parallel!'
-            Write (6,*)
-         End If
-      End If
-!
-!---- Compute the cartesian derivative of the B-Matrix.
-!
-      If (ldB) Then
-         If (iOpt.eq.1) Then
-!---------- Linear ------------------
-            Call FZero(dBf,(3*nCent)**2)
-         Else If (iOpt.eq.2) Then
-!---------- Quadratic ---------------
-            Call FZero(dBf,(3*nCent)**2)
+if (lWrite_ .and. (iOpt == 1)) then
+  XX = sqrt(DDot_(3*nCent,Bf,1,Bf,1))
+  if (XX <= 1.0D-3) then
+    write(6,*)
+    write(6,*) '    Warning: PESs might be parallel!'
+    write(6,*)
+  end if
+end if
 
-            ix = 0
-            Do iCent = 1, nCent
-            Do i   = 1, 3
-               ix = ix + 1
+! Compute the cartesian derivative of the B-Matrix.
 
-               iy=0
-               Do jCent = 1, nCent
-               Do j   = 1, 3
-                  iy = iy + 1
-                  dBf(ix,iy)=-Two*Gx0(i,iCent,lIter)*Gx0(j,jCent,lIter)
-               End Do
-               End Do
-            End Do
-            End Do
+if (ldB) then
+  if (iOpt == 1) then
+    ! Linear
+    call FZero(dBf,(3*nCent)**2)
+  else if (iOpt == 2) then
+    ! Quadratic
+    call FZero(dBf,(3*nCent)**2)
 
-         Else If (iOpt.eq.3) Then
-!------------- Absolute value ----------
-            Call FZero(dBf,(3*nCent)**2)
-!
-         End If
-!        Call RecPrt('dBf','(9F9.1)',dBf,3*nCent,3*nCent)
-!
-      End If
-!
-      Return
-      End
+    ix = 0
+    do iCent=1,nCent
+      do i=1,3
+        ix = ix+1
+
+        iy = 0
+        do jCent=1,nCent
+          do j=1,3
+            iy = iy+1
+            dBf(ix,iy) = -Two*Gx0(i,iCent,lIter)*Gx0(j,jCent,lIter)
+          end do
+        end do
+      end do
+    end do
+
+  else if (iOpt == 3) then
+    ! Absolute value
+    call FZero(dBf,(3*nCent)**2)
+
+  end if
+  !call RecPrt('dBf','(9F9.1)',dBf,3*nCent,3*nCent)
+
+end if
+
+return
+
+end subroutine ConInt

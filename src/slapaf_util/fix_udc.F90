@@ -8,10 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Fix_UDC(iRow_c,nLambda,nsAtom,nStab,Remove)
-      use Slapaf_Info, only: AtomLbl
-      use UnixInfo, only: SuperName
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Fix_UDC(iRow_c,nLambda,nsAtom,nStab,Remove)
 !***********************************************************************
 !                                                                      *
 !     Object: Replace the fragment specifications with actual          *
@@ -19,377 +17,360 @@
 !             Remove constraints to be ignored.                        *
 !                                                                      *
 !***********************************************************************
-#include "Molcas.fh"
-      External Get_Ln
-      Character(LEN=180) Get_Ln, Line, Line2, Lines(iRow_c)
-      Character(LEN=16) FilNam
-      Character(LEN=180) Label1, Label2, Label3, Label4,                &
-     &                   FragLabels(iRow_c),                            &
-     &                   SoftLabels(iRow_c)
-      Integer nStab(nsAtom), FragZMat(iRow_c,2),ZMatOffset
-      Logical Ignore, Values, Remove
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (iRow_c.le.1) Return
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Open files for user defined internal constraints.
-!
-      Lu_UDC=91
-      FilNam='UDC'
-      Lu_UDC=IsFreeUnit(Lu_UDC)
-      Call Molcas_Open(Lu_UDC,FilNam)
-      ReWind(Lu_UDC)
-!
-      Lu_TMP=Lu_UDC+1
-      FilNam='UDCTMP'
-      Lu_TMP=IsFreeUnit(Lu_TMP)
-      Call Molcas_Open(Lu_TMP,FilNam)
-      ReWind(Lu_TMP)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Process the content of LU_UDC and put it onto LU_TMP
-!
-      iRow_c=0 ! Number of lines in the section
-      nZMat=0  ! Number of additional lines with constraints
-      nFrag=0  ! Number of fragment constraints
-      nSoft=0  ! Number of default soft constraints
-      Values=.False.
-!
-      iZMat=0
-      ZMatOffset=0
- 100  Continue
-         Line=Get_Ln(LU_UDC)   ! Read the line
-         Call UpCase(Line)
-!
-         If (Line(1:4).eq.'VALU') Values=.True.
-         If (Line(1:4).ne.'END') Then
-!
-!           Read all possible continuation lines
-!
-            nLines=1
-            Lines(nLines)=Line
-            Do While (Index(Lines(nLines),'&').gt.0)
-               nLines=nLines+1
-               Lines(nLines)=Get_Ln(LU_UDC)
-               Call UpCase(Lines(nLines))
-            End Do
-            iLine=1
-            Line=Lines(iLine)
-            iEq=Index(Line,'=')
-!
-!           If there are already some ZMAT constraints in the file,
-!           start numbering from the next one
-!
-            If (Line(1:4) .eq. 'ZMAT') Then
-               Read(Line(5:7),*) Num
-               ZMatOffset=Max(ZMatOffset,Num)
-            End If
-!
-            If (.Not.Values) Then
-!
-!           Find out if the primitive defaults to soft
-!
-            iFrst=iEq+1
-            Call NxtWrd(Line,iFrst,iEnd)
-            If ((Line(iFrst:iFrst+3).eq.'SPHE') .or.                    &
-     &          (Line(iFrst:iFrst+3).eq.'TRAN') .or.                    &
-     &          (Line(iFrst:iFrst+3).eq.'EDIF') .or.                    &
-     &          (Line(iFrst:iFrst+3).eq.'NAC ')) Then
-               nSoft=nSoft+1
-               iFrst=1
-               Call NxtWrd(Line,iFrst,iEnd)
-               SoftLabels(nSoft)=Line(iFrst:iEnd)
-            End If
-!
-!           Modify the lines with Fragments to Z-matrix format
-!
-            iFrst=iEq+1
-            Call NxtWrd(Line,iFrst,iEnd)
-            If (Line(iFrst:iFrst+7).eq.'FRAGMENT') Then
-!
-!              Here we do the expansion
-!
-               nFrag=nFrag+1
-               FragZMat(nFrag,1)=0
-               FragZMat(nFrag,2)=0
-               iFrst=1
-               Call NxtWrd(Line,iFrst,iEnd)
-               FragLabels(nFrag)=Line(iFrst:iEnd)
-               iFrst=Index(Line,'FRAGMENT')
-               Call NxtWrd(Line,iFrst,iEnd)
-!
-!              Pick up the first atom label
-!
-               iFrst=iEnd+1
-               Call NxtWrd(Line,iFrst,iEnd)
-               If (Line(iFrst:iEnd).eq.'&') Then
-                  iLine=iLine+1
-                  Line=Lines(iLine)     ! Read the continuation line
-                  iFrst=1
-                  Call NxtWrd(Line,iFrst,iEnd)
-               End If
-               Label1=Line(iFrst:iEnd)
-               nLabel1=iEnd-iFrst+1
-!
-!              Pick up the second atom label
-!
-               iFrst=iEnd+1
-               Call NxtWrd(Line,iFrst,iEnd)
-               If (Line(iFrst:iEnd).eq.'&') Then
-                  iLine=iLine+1
-                  Line=Lines(iLine)     ! Read the continuation line
-                  iFrst=1
-                  Call NxtWrd(Line,iFrst,iEnd)
-               End If
-               Label2=Line(iFrst:iEnd)
-               nLabel2=iEnd-iFrst+1
-!
-!              Case: Bond
-!
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,2(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Bond',Label2(1:nLabel2),     &
-     &                                           Label1(1:nLabel1)
 
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-               iZMat=iZMat+1
-               FragZMat(nFrag,1)=iZMat
-               FragZMat(nFrag,2)=iZMat
-!
-!              Pick up the third atom label
-!
-               iFrst=iEnd+1
-               Call NxtWrd(Line,iFrst,iEnd)
-               If (iEnd.eq.-1) Go To 300
-               If (Line(iFrst:iEnd).eq.'&') Then
-                  iLine=iLine+1
-                  Line=Lines(iLine)     ! Read the continuation line
-                  iFrst=1
-                  Call NxtWrd(Line,iFrst,iEnd)
-               End If
-               Label3=Line(iFrst:iEnd)
-               nLabel3=iEnd-iFrst+1
-               jAtom=0
-               Do iAtom = 1, nsAtom
-                  If (Label3.eq.AtomLbl(iAtom)) jAtom=iAtom
-               End Do
-               If (nStab(jAtom).eq.1) Then
-                  nDeg=3
-               Else If (nStab(jAtom).eq.2) Then
-                  nDeg=2
-               Else If (nStab(jAtom).eq.1) Then
-                  nDeg=1
-               Else
-                  nDeg=0
-               End If
-!
-!              Case: Bond-Angle
-               If (nDeg.le.1) Go To 200
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,2(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Bond',Label3(1:nLabel3),     &
-     &                                           Label2(1:nLabel2)
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-!
-               If (nDeg.le.2) Go To 200
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,3(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Angle',Label3(1:nLabel3),    &
-     &                                            Label2(1:nLabel2),    &
-     &                                            Label1(1:nLabel1)
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-               iZMat=iZMat+2
-               FragZMat(nFrag,2)=iZMat
- 200           Continue
-!
- 400           Continue
-!
-!              Pick up next atom (fourth)
-!
-               iFrst=iEnd+1
-               Call NxtWrd(Line,iFrst,iEnd)
-!
-!              Branch out if no more labels. Look out for line
-!              continuations
-!
-               If (iEnd.eq.-1) Go To 300
-               If (Line(iFrst:iEnd).eq.'&') Then
-                  iLine=iLine+1
-                  Line=Lines(iLine)     ! Read the continuation line
-                  iFrst=1
-                  Call NxtWrd(Line,iFrst,iEnd)
-               End If
-!
-               Label4=Line(iFrst:iEnd)
-               nLabel4=iEnd-iFrst+1
-               jAtom=0
-               Do iAtom = 1, nsAtom
-                  If (Label4.eq.AtomLbl(iAtom)) jAtom=iAtom
-               End Do
-               If (nStab(jAtom).eq.1) Then
-                  nDeg=3
-               Else If (nStab(jAtom).eq.2) Then
-                  nDeg=2
-               Else If (nStab(jAtom).eq.1) Then
-                  nDeg=1
-               Else
-                  nDeg=0
-               End If
-!
-!              Case: Bond-Angle-Dihedral
-               If (nDeg.eq.0) Go To 500
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,2(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Bond',Label4(1:nLabel4),     &
-     &                                           Label3(1:nLabel3)
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-!
-               If (nDeg.eq.1) Go To 500
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,3(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Angle',Label4(1:nLabel4),    &
-     &                                            Label3(1:nLabel3),    &
-     &                                            Label2(1:nLabel2)
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-!
-               If (nDeg.eq.2) Go To 500
-               nZMat=nZMat+1
-               Write (Line2,'(A,I3.3,A,4(1X,A))')                       &
-     &         'ZMAT',nZMat+ZMatOffset,' = Dihedral',Label4(1:nLabel4), &
-     &                                               Label3(1:nLabel3), &
-     &                                               Label2(1:nLabel2), &
-     &                                               Label1(1:nLabel1)
-               Write(Lu_TMP,'(A)') Line2
-               iRow_c=iRow_c+1
-               iZMat=iZMat+3
-               FragZMat(nFrag,2)=iZMat
- 500           Continue
-!
-!              Push the labels
-!
-               Label1=Label2
-               nLabel1=nLabel2
-               Label2=Label3
-               nLabel2=nLabel3
-               Label3=Label4
-               nLabel3=nLabel4
-!
-!              Get the next label
-!
-               Go To 400
-!
- 300           Continue
-!
-            Else
-!
-!              No processing just write to the file.
-!
-               Write(Lu_TMP,'(A)') Line
-               iRow_c=iRow_c+1
-            End If
-!
-            Else ! Values
-!
-!              Remove constraints to be ignored
-!
-               Ignore=.False.
-               iFrst=1
-               Call NxtWrd(Lines(1),iFrst,iEnd)
-               iFrag=0
-               Do i=1,nFrag
-                  If (Line(iFrst:iEnd).eq.Trim(FragLabels(i))) Then
-                     iFrag=i
-                  End If
-               End Do
-!              Some constraints default to soft unless marked as hard
-               iSoft=0
-               If (Index(Lines(nLines),'HARD').le.iEq) Then
-                  Do i=1,nSoft
-                     If (Line(iFrst:iEnd).eq.Trim(SoftLabels(i))) Then
-                        iSoft=i
-                     End If
-                  End Do
-               End If
-               iEq=Index(Lines(nLines),'=')
-!              Ignore soft in num. grad., phantom in slapaf
-               If ((SuperName.eq.'numerical_gradient') .and.            &
-     &             ((Index(Lines(nLines),'SOFT').gt.iEq) .or.           &
-     &              (iSoft.gt.0))) Ignore=.True..And.Remove
-               If ((SuperName.eq.'slapaf') .and.                        &
-     &             (Index(Lines(nLines),'PHANTOM').gt.iEq))             &
-     &               Ignore=.True..And.Remove
-!              Ignore if this is a fragment constraint
-               If (iFrag.gt.0) Then
-!                 if it is already ignored, ignore all replacement constraints
-                  If (Ignore) FragZMat(iFrag,2)=0
-                  Ignore=.True.
-               End If
-               If (.Not.Ignore) Then
-                  Do i=1,nLines
-                     Write(Lu_TMP,'(A)') Lines(i)
-                  End Do
-                  iRow_c=iRow_c+nLines
-               Else
-                  nLambda=nLambda-1
-               End If
-!
-            End If ! Values
-!
-            Go To 100 ! Get the next line
-!
-         End If
-!
-!     Put in the additional constraints here.
-!
-      Do iFrag=1,nFrag
-!        Note that FragZMat(iFrag,2)=0 if the fragment is ignored
-         Do iZMat=FragZMat(iFrag,1),FragZMat(iFrag,2)
-            Write (Lu_TMP,'(A,I3.3,A)') 'ZMAT',iZMat+ZMatOffset,' = FIX'
-            iRow_c=iRow_c+1
-            nLambda=nLambda+1
-         End Do
-      End Do
-!
+use Slapaf_Info, only: AtomLbl
+use UnixInfo, only: SuperName
+
+implicit real*8(A-H,O-Z)
+#include "Molcas.fh"
+external Get_Ln
+character(len=180) Get_Ln, Line, Line2, Lines(iRow_c)
+character(len=16) FilNam
+character(len=180) Label1, Label2, Label3, Label4, FragLabels(iRow_c), SoftLabels(iRow_c)
+integer nStab(nsAtom), FragZMat(iRow_c,2), ZMatOffset
+logical Ignore, Values, Remove
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write out the last line again
-!
-      Line='END OF CONSTRAINTS'
-      Write(Lu_TMP,'(A)') Line
+if (iRow_c <= 1) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Copy the stuff from LU_TMP back to LU_UDC
-!
-      REWIND(Lu_UDC)
-      REWIND(Lu_TMP)
- 600  Continue
-      Line=Get_Ln(Lu_TMP)
-!     Write (*,*) Line
-!
-      Write (Lu_UDC,'(A)') Trim(Line)
-      If (Line(1:4).ne.'END ') Go To 600
-!     Write (*,*) 'iRow_C,nLambda=',iRow_C,nLambda
-!
+! Open files for user defined internal constraints.
+
+Lu_UDC = 91
+FilNam = 'UDC'
+Lu_UDC = IsFreeUnit(Lu_UDC)
+call Molcas_Open(Lu_UDC,FilNam)
+rewind(Lu_UDC)
+
+Lu_TMP = Lu_UDC+1
+FilNam = 'UDCTMP'
+Lu_TMP = IsFreeUnit(Lu_TMP)
+call Molcas_Open(Lu_TMP,FilNam)
+rewind(Lu_TMP)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Close the files.
-!
-      Close(Lu_TMP)
-      Close(Lu_UDC)
+! Process the content of LU_UDC and put it onto LU_TMP
+
+iRow_c = 0 ! Number of lines in the section
+nZMat = 0  ! Number of additional lines with constraints
+nFrag = 0  ! Number of fragment constraints
+nSoft = 0  ! Number of default soft constraints
+Values = .false.
+
+iZMat = 0
+ZMatOffset = 0
+100 continue
+Line = Get_Ln(LU_UDC)   ! Read the line
+call UpCase(Line)
+
+if (Line(1:4) == 'VALU') Values = .true.
+if (Line(1:4) /= 'END') then
+
+  ! Read all possible continuation lines
+
+  nLines = 1
+  Lines(nLines) = Line
+  do while (index(Lines(nLines),'&') > 0)
+    nLines = nLines+1
+    Lines(nLines) = Get_Ln(LU_UDC)
+    call UpCase(Lines(nLines))
+  end do
+  iLine = 1
+  Line = Lines(iLine)
+  iEq = index(Line,'=')
+
+  ! If there are already some ZMAT constraints in the file,
+  ! start numbering from the next one
+
+  if (Line(1:4) == 'ZMAT') then
+    read(Line(5:7),*) Num
+    ZMatOffset = max(ZMatOffset,Num)
+  end if
+
+  if (.not. Values) then
+
+    ! Find out if the primitive defaults to soft
+
+    iFrst = iEq+1
+    call NxtWrd(Line,iFrst,iEnd)
+    if ((Line(iFrst:iFrst+3) == 'SPHE') .or. (Line(iFrst:iFrst+3) == 'TRAN') .or. (Line(iFrst:iFrst+3) == 'EDIF') .or. &
+        (Line(iFrst:iFrst+3) == 'NAC ')) then
+      nSoft = nSoft+1
+      iFrst = 1
+      call NxtWrd(Line,iFrst,iEnd)
+      SoftLabels(nSoft) = Line(iFrst:iEnd)
+    end if
+
+    ! Modify the lines with Fragments to Z-matrix format
+
+    iFrst = iEq+1
+    call NxtWrd(Line,iFrst,iEnd)
+    if (Line(iFrst:iFrst+7) == 'FRAGMENT') then
+
+      ! Here we do the expansion
+
+      nFrag = nFrag+1
+      FragZMat(nFrag,1) = 0
+      FragZMat(nFrag,2) = 0
+      iFrst = 1
+      call NxtWrd(Line,iFrst,iEnd)
+      FragLabels(nFrag) = Line(iFrst:iEnd)
+      iFrst = index(Line,'FRAGMENT')
+      call NxtWrd(Line,iFrst,iEnd)
+
+      ! Pick up the first atom label
+
+      iFrst = iEnd+1
+      call NxtWrd(Line,iFrst,iEnd)
+      if (Line(iFrst:iEnd) == '&') then
+        iLine = iLine+1
+        Line = Lines(iLine)     ! Read the continuation line
+        iFrst = 1
+        call NxtWrd(Line,iFrst,iEnd)
+      end if
+      Label1 = Line(iFrst:iEnd)
+      nLabel1 = iEnd-iFrst+1
+
+      ! Pick up the second atom label
+
+      iFrst = iEnd+1
+      call NxtWrd(Line,iFrst,iEnd)
+      if (Line(iFrst:iEnd) == '&') then
+        iLine = iLine+1
+        Line = Lines(iLine)     ! Read the continuation line
+        iFrst = 1
+        call NxtWrd(Line,iFrst,iEnd)
+      end if
+      Label2 = Line(iFrst:iEnd)
+      nLabel2 = iEnd-iFrst+1
+
+      ! Case: Bond
+
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label2(1:nLabel2),Label1(1:nLabel1)
+
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+      iZMat = iZMat+1
+      FragZMat(nFrag,1) = iZMat
+      FragZMat(nFrag,2) = iZMat
+
+      ! Pick up the third atom label
+
+      iFrst = iEnd+1
+      call NxtWrd(Line,iFrst,iEnd)
+      if (iEnd == -1) Go To 300
+      if (Line(iFrst:iEnd) == '&') then
+        iLine = iLine+1
+        Line = Lines(iLine)     ! Read the continuation line
+        iFrst = 1
+        call NxtWrd(Line,iFrst,iEnd)
+      end if
+      Label3 = Line(iFrst:iEnd)
+      nLabel3 = iEnd-iFrst+1
+      jAtom = 0
+      do iAtom=1,nsAtom
+        if (Label3 == AtomLbl(iAtom)) jAtom = iAtom
+      end do
+      if (nStab(jAtom) == 1) then
+        nDeg = 3
+      else if (nStab(jAtom) == 2) then
+        nDeg = 2
+      else if (nStab(jAtom) == 1) then
+        nDeg = 1
+      else
+        nDeg = 0
+      end if
+
+      ! Case: Bond-Angle
+      if (nDeg <= 1) Go To 200
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label3(1:nLabel3),Label2(1:nLabel2)
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+
+      if (nDeg <= 2) Go To 200
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label3(1:nLabel3),Label2(1:nLabel2),Label1(1:nLabel1)
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+      iZMat = iZMat+2
+      FragZMat(nFrag,2) = iZMat
+200   continue
+
+400   continue
+
+      ! Pick up next atom (fourth)
+
+      iFrst = iEnd+1
+      call NxtWrd(Line,iFrst,iEnd)
+
+      ! Branch out if no more labels. Look out for line continuations
+
+      if (iEnd == -1) Go To 300
+      if (Line(iFrst:iEnd) == '&') then
+        iLine = iLine+1
+        Line = Lines(iLine)     ! Read the continuation line
+        iFrst = 1
+        call NxtWrd(Line,iFrst,iEnd)
+      end if
+
+      Label4 = Line(iFrst:iEnd)
+      nLabel4 = iEnd-iFrst+1
+      jAtom = 0
+      do iAtom=1,nsAtom
+        if (Label4 == AtomLbl(iAtom)) jAtom = iAtom
+      end do
+      if (nStab(jAtom) == 1) then
+        nDeg = 3
+      else if (nStab(jAtom) == 2) then
+        nDeg = 2
+      else if (nStab(jAtom) == 1) then
+        nDeg = 1
+      else
+        nDeg = 0
+      end if
+
+      ! Case: Bond-Angle-Dihedral
+      if (nDeg == 0) Go To 500
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label4(1:nLabel4),Label3(1:nLabel3)
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+
+      if (nDeg == 1) Go To 500
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label4(1:nLabel4),Label3(1:nLabel3),Label2(1:nLabel2)
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+
+      if (nDeg == 2) Go To 500
+      nZMat = nZMat+1
+      write(Line2,'(A,I3.3,A,4(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Dihedral',Label4(1:nLabel4),Label3(1:nLabel3), &
+                                        Label2(1:nLabel2),Label1(1:nLabel1)
+      write(Lu_TMP,'(A)') Line2
+      iRow_c = iRow_c+1
+      iZMat = iZMat+3
+      FragZMat(nFrag,2) = iZMat
+500   continue
+
+      ! Push the labels
+
+      Label1 = Label2
+      nLabel1 = nLabel2
+      Label2 = Label3
+      nLabel2 = nLabel3
+      Label3 = Label4
+      nLabel3 = nLabel4
+
+      ! Get the next label
+
+      Go To 400
+
+300   continue
+
+    else
+
+      ! No processing just write to the file.
+
+      write(Lu_TMP,'(A)') Line
+      iRow_c = iRow_c+1
+    end if
+
+  else ! Values
+
+    ! Remove constraints to be ignored
+
+    Ignore = .false.
+    iFrst = 1
+    call NxtWrd(Lines(1),iFrst,iEnd)
+    iFrag = 0
+    do i=1,nFrag
+      if (Line(iFrst:iEnd) == trim(FragLabels(i))) then
+        iFrag = i
+      end if
+    end do
+    ! Some constraints default to soft unless marked as hard
+    iSoft = 0
+    if (index(Lines(nLines),'HARD') <= iEq) then
+      do i=1,nSoft
+        if (Line(iFrst:iEnd) == trim(SoftLabels(i))) then
+          iSoft = i
+        end if
+      end do
+    end if
+    iEq = index(Lines(nLines),'=')
+    ! Ignore soft in num. grad., phantom in slapaf
+    if ((SuperName == 'numerical_gradient') .and. ((index(Lines(nLines),'SOFT') > iEq) .or. (iSoft > 0))) Ignore = Remove
+    if ((SuperName == 'slapaf') .and. (index(Lines(nLines),'PHANTOM') > iEq)) Ignore = Remove
+    ! Ignore if this is a fragment constraint
+    if (iFrag > 0) then
+      ! if it is already ignored, ignore all replacement constraints
+      if (Ignore) FragZMat(iFrag,2) = 0
+      Ignore = .true.
+    end if
+    if (.not. Ignore) then
+      do i=1,nLines
+        write(Lu_TMP,'(A)') Lines(i)
+      end do
+      iRow_c = iRow_c+nLines
+    else
+      nLambda = nLambda-1
+    end if
+
+  end if ! Values
+
+  Go To 100 ! Get the next line
+
+end if
+
+! Put in the additional constraints here.
+
+do iFrag=1,nFrag
+  ! Note that FragZMat(iFrag,2)=0 if the fragment is ignored
+  do iZMat=FragZMat(iFrag,1),FragZMat(iFrag,2)
+    write(Lu_TMP,'(A,I3.3,A)') 'ZMAT',iZMat+ZMatOffset,' = FIX'
+    iRow_c = iRow_c+1
+    nLambda = nLambda+1
+  end do
+end do
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Write out the last line again
+
+Line = 'END OF CONSTRAINTS'
+write(Lu_TMP,'(A)') Line
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Copy the stuff from LU_TMP back to LU_UDC
+
+rewind(Lu_UDC)
+rewind(Lu_TMP)
+600 continue
+Line = Get_Ln(Lu_TMP)
+!write(6,*) Line
+
+write(Lu_UDC,'(A)') trim(Line)
+if (Line(1:4) /= 'END ') Go To 600
+!write(6,*) 'iRow_C,nLambda=',iRow_C,nLambda
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Close the files.
+
+close(Lu_TMP)
+close(Lu_UDC)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Fix_UDC

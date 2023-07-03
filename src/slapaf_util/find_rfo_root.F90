@@ -41,109 +41,111 @@
 !> @see ::RS_I_RFO
 !> @see ::RS_P_RFO
 !***********************************************************************
-      SUBROUTINE Find_RFO_Root(x1,y1,x2,y2,x3,y3,Val)
-      IMPLICIT NONE
+
+subroutine Find_RFO_Root(x1,y1,x2,y2,x3,y3,Val)
+
+implicit none
 #include "real.fh"
-      REAL*8 x1,x2,x3,y1,y2,y3,Val,xx1,yy1,xx2,yy2
-      REAL*8 new,nnew,delta,denom,coefA,coefB,coefC,discr,Thr
-      PARAMETER ( Thr = 1.0D-16 )
-!
-!---- First, we must find a value of alpha that gives a small enough step
-!
-      IF (y2 .GT. Val) THEN
-        y2=y3
-!
-!       In the first iteration, simply try with alpha+1
-        IF (x2 .EQ. Zero) THEN
-          new=x1+One
-          x2=new
-!
-!       If the step is below the threshold, a bracketing pair has been found.
-!       Suggest an intermediate point (with secant method, or midpoint)
-        ELSE IF (y3 .LT. Val) THEN
-          new=x1+(Val-y1)/(y2-y1)*(x2-x1)
-          IF ((new.LE.x1).OR.(new.GE.x2)) new=Half*(x1+x2)
-!
-!       If it is not there yet, extrapolate using a straight line (times an
-!       arbitrary factor of 1.5, to overcome systematic undershooting), and
-!       update the other end point
-        ELSE
-          IF (y1-y2 .GT. Thr) THEN
-!           Don't get too ambitious -- thus the min function.
-            delta=Min(x2,(Val-y2)*(x1-x2)/(y1-y2))
-            new=x2+1.5D0*delta
-          ELSE
-!           If y2 is very close to y1, or actually lower, just double the step.
-            new=x2+Two*(x2-x1)
-          END IF
-          x1=x2
-          y1=y2
-          x2=new
-        END IF
-!
-!---- Once a bracketing pair has been found, we arrive here with two end points
-!     (long and short), and a middle point, for which the step length has just
-!     been computed
-!
-      ELSE
-!
-!       Use the midpoint (bisection) or secant (regula falsi) as safety net
-!       Do this in the subinterval where the root should be
-        xx1=x1
-        yy1=y1
-        xx2=x2
-        yy2=y2
-        IF (y3 .LT. Val) THEN
-          xx2=x3
-          yy2=y3
-        ELSE
-          xx1=x3
-          yy1=y3
-        END IF
-!       If the middle point is shorter than the "short" step, something went
-!       wrong, start again from 1 (signal with -1),
-!       maybe now we will get a better eigenvalue to start with
-        IF ((y3 .LT. y2) .AND. (y3 .GT. Val)) THEN
-          x3 = -One
-          RETURN
-        END IF
-        new=xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
-        IF ((new.LE.xx1).OR.(new.GE.xx2)) new=Half*(xx1+xx2)
-        nnew=new
-!
-!       Define a quadratic fitting for the 3 points
-        denom=(x1-x2)*(x1-x3)*(x2-x3)
-        IF (ABS(denom) .GT. Thr) THEN
-          coefA=(x3*(y2-y1)+x2*(y1-y3)+x1*(y3-y2))/denom
-          coefB=(x3**2*(y1-y2)+x2**2*(y3-y1)+x1**2*(y2-y3))/denom
-          coefC=(x2*x3*(x2-x3)*y1+                                      &
-     &           x3*x1*(x3-x1)*y2+x1*x2*(x1-x2)*y3)/denom
-          discr=coefB**2-Four*coefA*(coefC-Val)
-        ELSE
-          discr=Zero
-        END IF
-!
-!       Find the point between x1 and x2 where the step would be exactly Val
-        IF (discr .GT. Zero) THEN
-!         Choose root depending on sign of y1-y2
-          IF (y1-y2 .GT. Zero) THEN
-            nnew=(-coefB-SQRT(discr))/(Two*coefA)
-          ELSE IF (y1-y2 .LT. Zero) THEN
-            nnew=(-coefB+SQRT(discr))/(Two*coefA)
-          END IF
-        END IF
-!       Last check: make sure the new point is in the correct interval
-        IF ((nnew.GT.xx1).AND.(nnew.LT.xx2)) new=nnew
-!
-!       Update the end points
-        x1=xx1
-        y1=yy1
-        x2=xx2
-        y2=yy2
-      END IF
-!
-!     Update the suggested value
-      x3=new
-!
-      RETURN
-      END
+real*8 x1, x2, x3, y1, y2, y3, Val, xx1, yy1, xx2, yy2
+real*8 new, nnew, delta, denom, coefA, coefB, coefC, discr, Thr
+parameter(Thr=1.0D-16)
+
+! First, we must find a value of alpha that gives a small enough step
+
+if (y2 > Val) then
+  y2 = y3
+
+  ! In the first iteration, simply try with alpha+1
+  if (x2 == Zero) then
+    new = x1+One
+    x2 = new
+
+    ! If the step is below the threshold, a bracketing pair has been found.
+    ! Suggest an intermediate point (with secant method, or midpoint)
+  else if (y3 < Val) then
+    new = x1+(Val-y1)/(y2-y1)*(x2-x1)
+    if ((new <= x1) .or. (new >= x2)) new = Half*(x1+x2)
+
+    ! If it is not there yet, extrapolate using a straight line (times an
+    ! arbitrary factor of 1.5, to overcome systematic undershooting), and
+    ! update the other end point
+  else
+    if (y1-y2 > Thr) then
+      ! Don't get too ambitious -- thus the min function.
+      delta = min(x2,(Val-y2)*(x1-x2)/(y1-y2))
+      new = x2+1.5d0*delta
+    else
+      ! If y2 is very close to y1, or actually lower, just double the step.
+      new = x2+Two*(x2-x1)
+    end if
+    x1 = x2
+    y1 = y2
+    x2 = new
+  end if
+
+else
+
+  ! Once a bracketing pair has been found, we arrive here with two end points
+  ! (long and short), and a middle point, for which the step length has just
+  ! been computed
+
+  ! Use the midpoint (bisection) or secant (regula falsi) as safety net
+  ! Do this in the subinterval where the root should be
+  xx1 = x1
+  yy1 = y1
+  xx2 = x2
+  yy2 = y2
+  if (y3 < Val) then
+    xx2 = x3
+    yy2 = y3
+  else
+    xx1 = x3
+    yy1 = y3
+  end if
+  ! If the middle point is shorter than the "short" step, something went
+  ! wrong, start again from 1 (signal with -1),
+  ! maybe now we will get a better eigenvalue to start with
+  if ((y3 < y2) .and. (y3 > Val)) then
+    x3 = -One
+    return
+  end if
+  new = xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
+  if ((new <= xx1) .or. (new >= xx2)) new = Half*(xx1+xx2)
+  nnew = new
+
+  ! Define a quadratic fitting for the 3 points
+  denom = (x1-x2)*(x1-x3)*(x2-x3)
+  if (abs(denom) > Thr) then
+    coefA = (x3*(y2-y1)+x2*(y1-y3)+x1*(y3-y2))/denom
+    coefB = (x3**2*(y1-y2)+x2**2*(y3-y1)+x1**2*(y2-y3))/denom
+    coefC = (x2*x3*(x2-x3)*y1+x3*x1*(x3-x1)*y2+x1*x2*(x1-x2)*y3)/denom
+    discr = coefB**2-Four*coefA*(coefC-Val)
+  else
+    discr = Zero
+  end if
+
+  ! Find the point between x1 and x2 where the step would be exactly Val
+  if (discr > Zero) then
+    ! Choose root depending on sign of y1-y2
+    if (y1-y2 > Zero) then
+      nnew = (-coefB-sqrt(discr))/(Two*coefA)
+    else if (y1-y2 < Zero) then
+      nnew = (-coefB+sqrt(discr))/(Two*coefA)
+    end if
+  end if
+  ! Last check: make sure the new point is in the correct interval
+  if ((nnew > xx1) .and. (nnew < xx2)) new = nnew
+
+  ! Update the end points
+  x1 = xx1
+  y1 = yy1
+  x2 = xx2
+  y2 = yy2
+end if
+
+! Update the suggested value
+x3 = new
+
+return
+
+end subroutine Find_RFO_Root

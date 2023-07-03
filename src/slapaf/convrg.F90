@@ -349,7 +349,7 @@ if (nLambda > nConst) Point_Desc = 'Constrained '//trim(Point_Desc)
 if (iPrint >= 5) then
   if (stop) then
     if (Conv1) then
-      write(Lu,'(A,I3,A)') ' Geometry is converged in ', kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
+      write(Lu,'(A,I3,A)') ' Geometry is converged in ',kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
     else
       write(Lu,'(A)') ' No convergence after max iterations'
       if (Lu /= u6) write(u6,'(/A)') ' No convergence after max iterations'

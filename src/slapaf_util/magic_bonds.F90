@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Magic_Bonds(Coor,nAtoms,iTabBonds,nBondMax,nBonds,     &
-     &                       iTabAtoms,nMax)
-      Implicit real*8 (a-h,o-z)
+
+subroutine Magic_Bonds(Coor,nAtoms,iTabBonds,nBondMax,nBonds,iTabAtoms,nMax)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Coor(3,nAtoms)
-      Integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
+real*8 Coor(3,nAtoms)
+integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -22,132 +24,126 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      Fi_limit = (165.0D0/180.D0)*Pi
-      CosFi_limit=Cos(Fi_limit)
-      Do iBond = 1, nBonds
-         iBondType=iTabBonds(3,iBond)
-         If (iBondType.eq.vdW_Bond) Go To 100
-         If (iBondType.gt.Magic_Bond) Go To 100
-!
-         Do iCase = 1, 2
-!
-            If (iCase.eq.1) Then
-               iAtom=iTabBonds(1,iBond)
-               jAtom=iTabBonds(2,iBond)
-            Else
-               iAtom=iTabBonds(2,iBond)
-               jAtom=iTabBonds(1,iBond)
-            End If
-!
-            xij=Coor(1,iAtom)-Coor(1,jAtom)
-            yij=Coor(2,iAtom)-Coor(2,jAtom)
-            zij=Coor(3,iAtom)-Coor(3,jAtom)
-            rij=Sqrt(xij**2+yij**2+zij**2)
-!
-            nNeighbor_j = iTabAtoms(1,0,jAtom)
-            Do kNeighbor = 1, nNeighbor_j
-               kAtom = iTabAtoms(1,kNeighbor,jAtom)
-               jBond = iTabAtoms(2,kNeighbor,jAtom)
-               If (jBond.ge.iBond) Go To 99
-               jBondType=iTabBonds(3,jBond)
-               If (jBondType.eq.vdW_Bond) Go To 99
-               If (jBondType.gt.Magic_Bond) Go To 99
-!
-!              If this is close to a linear system we will form
-!              a magic bond between iAtom and kAtom
-!
-               xkj=Coor(1,kAtom)-Coor(1,jAtom)
-               ykj=Coor(2,kAtom)-Coor(2,jAtom)
-               zkj=Coor(3,kAtom)-Coor(3,jAtom)
-               rkj=Sqrt(xkj**2+ykj**2+zkj**2)
-!
-               CosFi=(xij*xkj+yij*ykj+zij*zkj)/(rij*rkj)
-#ifdef _DEBUGPRINT_
-               Write(6,*) 'iAtom,jAtom,kAtom=',iAtom,jAtom,kAtom
-               Write(6,*) 'CosFi,CosFi_limit=',CosFi,CosFi_limit
-#endif
 
-!
-!------------> Observe that this limit should be coordinated with
-!              the limit for excluding torsions in torsion_list!
-!
-               If (CosFi.le.CosFi_Limit) Then
-!
-#ifdef _DEBUGPRINT_
-                  Write (6,*) 'Forming a "magic" bond'
-                  Write (6,*) 'iAtom,kAtom=',iAtom,kAtom
-#endif
-!                 Double check that this bond is not included already.
-!                 If that is the case just update the bond type if it
-!                 is not classified already as a covalent bond.
-!
-                  Do kBond = 1, nBonds
-                     If ( (iTabBonds(1,kBond).eq.iAtom .and.            &
-     &                     iTabBonds(2,kBond).eq.kAtom) .or.            &
-     &                    (iTabBonds(1,kBond).eq.kAtom .and.            &
-     &                     iTabBonds(2,kBond).eq.iAtom) .and.           &
-     &                     iTabBonds(3,kBond).ne.Covalent_Bond) Then
-                         iTabBonds(3,kBond)=jAtom + Magic_Bond
-                         Go To 99
-                     End If
-                  End Do
-!
-                  If (nBonds+1.gt.nBondMax) Then
-                     Call WarningMessage(2,'Error in Magic_Bonds')
-                     Write (6,*) 'Magic_Bonds: nBonds.gt.nBondMax'
-                     Write (6,*) 'iTabBonds:'
-                     Do kBond = 1, nBonds
-                        Write (6,*)
-                        Write (6,*) 'kBond=',kBond
-                        Write (6,*)
-                        Write (6,*) 'Atoms=',iTabBonds(1,kBond),        &
-     &                                       iTabBonds(2,kBond)
-                        Write (6,*) 'Bondtype:',iTabBonds(3,kBond)
-                     End Do
-                     Call Abend()
-                  End If
-                  nBonds = nBonds + 1
-                  iTabBonds(1,nBonds)=Max(iAtom,kAtom)
-                  iTabBonds(2,nBonds)=Min(iAtom,kAtom)
-                  iTabBonds(3,nBonds)=jAtom + Magic_Bond
-!
-                  nNeighbor_i=iTabAtoms(1,0,iAtom)+1
-                  If (nNeighbor_i.gt.nMax) Then
-                     Call WarningMessage(2,'Error in Magic_Bonds')
-                     Write (6,*)                                        &
-     &                  'Magic_Bonds: nNeighbor_i.gt.nMax'
-                     Write (6,*) 'iAtom=',iAtom
-                     Write (6,*) 'nNeighbor_i=',nNeighbor_i
-                     Write (6,*) 'nMax=',nMax
-                     Call Abend()
-                  End If
-                  iTabAtoms(1,0,iAtom)=nNeighbor_i
-                  iTabAtoms(1,nNeighbor_i,iAtom)=kAtom
-                  iTabAtoms(2,nNeighbor_i,iAtom)=nBonds
-!
-                  nNeighbor_k=iTabAtoms(1,0,kAtom)+1
-                  If (nNeighbor_k.gt.nMax) Then
-                     Call WarningMessage(2,'Error in Magic_Bonds')
-                     Write (6,*)                                        &
-     &                  'Magic_Bonds: nNeighbor_k.gt.nMax'
-                     Write (6,*) 'kAtom=',kAtom
-                     Write (6,*) 'nNeighbor_k=',nNeighbor_k
-                     Write (6,*) 'nMax=',nMax
-                     Call Abend()
-                  End If
-                  iTabAtoms(1,0,kAtom)=nNeighbor_k
-                  iTabAtoms(1,nNeighbor_k,kAtom)=iAtom
-                  iTabAtoms(2,nNeighbor_k,kAtom)=nBonds
-               End If
-!
- 99            Continue
-            End Do   ! kNeighbor
-!
-         End Do      ! iCase
-!
- 100     Continue
-      End Do         ! iBond
-!
-      Return
-      End
+Fi_limit = (165.0d0/180.d0)*Pi
+CosFi_limit = cos(Fi_limit)
+do iBond=1,nBonds
+  iBondType = iTabBonds(3,iBond)
+  if (iBondType == vdW_Bond) Go To 100
+  if (iBondType > Magic_Bond) Go To 100
+
+  do iCase=1,2
+
+    if (iCase == 1) then
+      iAtom = iTabBonds(1,iBond)
+      jAtom = iTabBonds(2,iBond)
+    else
+      iAtom = iTabBonds(2,iBond)
+      jAtom = iTabBonds(1,iBond)
+    end if
+
+    xij = Coor(1,iAtom)-Coor(1,jAtom)
+    yij = Coor(2,iAtom)-Coor(2,jAtom)
+    zij = Coor(3,iAtom)-Coor(3,jAtom)
+    rij = sqrt(xij**2+yij**2+zij**2)
+
+    nNeighbor_j = iTabAtoms(1,0,jAtom)
+    do kNeighbor=1,nNeighbor_j
+      kAtom = iTabAtoms(1,kNeighbor,jAtom)
+      jBond = iTabAtoms(2,kNeighbor,jAtom)
+      if (jBond >= iBond) Go To 99
+      jBondType = iTabBonds(3,jBond)
+      if (jBondType == vdW_Bond) Go To 99
+      if (jBondType > Magic_Bond) Go To 99
+
+      ! If this is close to a linear system we will form
+      ! a magic bond between iAtom and kAtom
+
+      xkj = Coor(1,kAtom)-Coor(1,jAtom)
+      ykj = Coor(2,kAtom)-Coor(2,jAtom)
+      zkj = Coor(3,kAtom)-Coor(3,jAtom)
+      rkj = sqrt(xkj**2+ykj**2+zkj**2)
+
+      CosFi = (xij*xkj+yij*ykj+zij*zkj)/(rij*rkj)
+#     ifdef _DEBUGPRINT_
+      write(6,*) 'iAtom,jAtom,kAtom=',iAtom,jAtom,kAtom
+      write(6,*) 'CosFi,CosFi_limit=',CosFi,CosFi_limit
+#     endif
+
+      ! Observe that this limit should be coordinated with
+      ! the limit for excluding torsions in torsion_list!
+
+      if (CosFi <= CosFi_Limit) then
+
+#       ifdef _DEBUGPRINT_
+        write(6,*) 'Forming a "magic" bond'
+        write(6,*) 'iAtom,kAtom=',iAtom,kAtom
+#       endif
+        ! Double check that this bond is not included already.
+        ! If that is the case just update the bond type if it
+        ! is not classified already as a covalent bond.
+
+        do kBond=1,nBonds
+          if (((iTabBonds(1,kBond) == iAtom) .and. (iTabBonds(2,kBond) == kAtom)) .or. &
+              ((iTabBonds(1,kBond) == kAtom) .and. (iTabBonds(2,kBond) == iAtom)) .and. (iTabBonds(3,kBond) /= Covalent_Bond)) then
+            iTabBonds(3,kBond) = jAtom+Magic_Bond
+            Go To 99
+          end if
+        end do
+
+        if (nBonds+1 > nBondMax) then
+          call WarningMessage(2,'Error in Magic_Bonds')
+          write(6,*) 'Magic_Bonds: nBonds > nBondMax'
+          write(6,*) 'iTabBonds:'
+          do kBond=1,nBonds
+            write(6,*)
+            write(6,*) 'kBond=',kBond
+            write(6,*)
+            write(6,*) 'Atoms=',iTabBonds(1,kBond),iTabBonds(2,kBond)
+            write(6,*) 'Bondtype:',iTabBonds(3,kBond)
+          end do
+          call Abend()
+        end if
+        nBonds = nBonds+1
+        iTabBonds(1,nBonds) = max(iAtom,kAtom)
+        iTabBonds(2,nBonds) = min(iAtom,kAtom)
+        iTabBonds(3,nBonds) = jAtom+Magic_Bond
+
+        nNeighbor_i = iTabAtoms(1,0,iAtom)+1
+        if (nNeighbor_i > nMax) then
+          call WarningMessage(2,'Error in Magic_Bonds')
+          write(6,*) 'Magic_Bonds: nNeighbor_i > nMax'
+          write(6,*) 'iAtom=',iAtom
+          write(6,*) 'nNeighbor_i=',nNeighbor_i
+          write(6,*) 'nMax=',nMax
+          call Abend()
+        end if
+        iTabAtoms(1,0,iAtom) = nNeighbor_i
+        iTabAtoms(1,nNeighbor_i,iAtom) = kAtom
+        iTabAtoms(2,nNeighbor_i,iAtom) = nBonds
+
+        nNeighbor_k = iTabAtoms(1,0,kAtom)+1
+        if (nNeighbor_k > nMax) then
+          call WarningMessage(2,'Error in Magic_Bonds')
+          write(6,*) 'Magic_Bonds: nNeighbor_k > nMax'
+          write(6,*) 'kAtom=',kAtom
+          write(6,*) 'nNeighbor_k=',nNeighbor_k
+          write(6,*) 'nMax=',nMax
+          call Abend()
+        end if
+        iTabAtoms(1,0,kAtom) = nNeighbor_k
+        iTabAtoms(1,nNeighbor_k,kAtom) = iAtom
+        iTabAtoms(2,nNeighbor_k,kAtom) = nBonds
+      end if
+
+99    continue
+    end do   ! kNeighbor
+
+  end do     ! iCase
+
+100 continue
+end do       ! iBond
+
+return
+
+end subroutine Magic_Bonds

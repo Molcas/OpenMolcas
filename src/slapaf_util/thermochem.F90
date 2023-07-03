@@ -10,14 +10,19 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Module ThermoChem
-implicit none
-Private
-Public:: lTherm, lDoubleIso, nUserPT, nsRot, UserT, UserP
-#include "real.fh"
-Integer :: i
 
-Logical ::  lTherm=.False., lDoubleIso=.False.
-Integer ::  nUserPT=0, nsRot=0
-Real*8  ::  UserT(64)=[(Zero,i=1,64)], UserP=Zero
-End Module ThermoChem
+module ThermoChem
+
+implicit none
+private
+
+public :: lTherm, lDoubleIso, nUserPT, nsRot, UserT, UserP
+
+#include "real.fh"
+integer :: i
+
+logical :: lTherm = .false., lDoubleIso = .false.
+integer :: nUserPT = 0, nsRot = 0
+real*8 :: UserT(64) = [(Zero,i=1,64)], UserP = Zero
+
+end module ThermoChem

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2009, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine ReacX(V_Q,nQ,V_X,nX)
+
+subroutine ReacX(V_Q,nQ,V_X,nX)
 !***********************************************************************
 !                                                                      *
 !     Objective: Transform the "reaction vector" from internal         *
@@ -19,19 +20,18 @@
 !     Roland Lindh, Dept. of Theor. Chem., Lund University, Sweden     *
 !     2009                                                             *
 !***********************************************************************
-      use Slapaf_Info, only: BMx
-      Implicit Real*8 (a-h,o-z)
-      Real*8 V_Q(nQ), V_X(nX)
+
+use Slapaf_Info, only: BMx
+
+implicit real*8(a-h,o-z)
+real*8 V_Q(nQ), V_X(nX)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call DGEMM_('N','N',                                              &
-     &           nX,1,nQ,                                               &
-     &           1.0D0,BMx,nX,                                          &
-     &                 V_Q,nQ,                                          &
-     &           0.0D0,V_X,nX)
+call DGEMM_('N','N',nX,1,nQ,1.0d0,BMx,nX,V_Q,nQ,0.0d0,V_X,nX)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine ReacX

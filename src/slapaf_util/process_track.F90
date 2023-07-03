@@ -10,124 +10,121 @@
 !                                                                      *
 ! Copyright (C) 2016, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      SUBROUTINE Process_Track()
-      use Slapaf_Info, only: RootMap
-      use Slapaf_parameters, only: Request_RASSI
-      IMPLICIT NONE
+
+subroutine Process_Track()
+
+use Slapaf_Info, only: RootMap
+use Slapaf_parameters, only: Request_RASSI
+
+implicit none
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      INTEGER :: nOv,nRoots,i
-      INTEGER, DIMENSION(:), ALLOCATABLE :: OldMap,RootIdx
-      INTEGER, DIMENSION(2) :: MaxId
-      REAL*8, DIMENSION(:), ALLOCATABLE :: Ovlp
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: Overlaps
-      LOGICAL :: Found,Done
-      CHARACTER(LEN=8) :: Method
-!
-      CALL Get_cArray('Relax Method',Method,8)
-      IF ((Method .NE. 'CASSCF')  .AND.                                 &
-     &    (Method .NE. 'RASSCF')  .AND.                                 &
-     &    (Method .NE. 'CASSCFSA').AND.                                 &
-     &    (Method .NE. 'RASSCFSA').AND.                                 &
-     &    (Method .NE. 'CASPT2')  .AND.                                 &
-     &    (Method .NE. 'RASPT2')  ) THEN
-      CALL WarningMessage(2,'Error in Process_Track')
-        WRITE(6,*) '***************** ERROR ********************'
-        WRITE(6,*) ' The TRACK keyword can only be used with'
-        WRITE(6,*) ' states computed by the RASSCF or CASPT2'
-        WRITE(6,*) ' programs.'
-        WRITE(6,*) '********************************************'
-        CALL Quit_OnUserError()
-      END IF
-!
+integer :: nOv, nRoots, i
+integer, dimension(:), allocatable :: OldMap, RootIdx
+integer, dimension(2) :: MaxId
+real*8, dimension(:), allocatable :: Ovlp
+real*8, dimension(:,:), allocatable :: Overlaps
+logical :: Found, Done
+character(len=8) :: Method
+
+call Get_cArray('Relax Method',Method,8)
+if ((Method /= 'CASSCF') .and. (Method /= 'RASSCF') .and. (Method /= 'CASSCFSA') .and. (Method /= 'RASSCFSA') .and. &
+    (Method /= 'CASPT2') .and. (Method /= 'RASPT2')) then
+  call WarningMessage(2,'Error in Process_Track')
+  write(6,*) '***************** ERROR ********************'
+  write(6,*) ' The TRACK keyword can only be used with'
+  write(6,*) ' states computed by the RASSCF or CASPT2'
+  write(6,*) ' programs.'
+  write(6,*) '********************************************'
+  call Quit_OnUserError()
+end if
+
 ! Find the number of roots, and whether state overlaps are available
-!
-      nRoots=1
-      CALL Qpg_iScalar('Number of roots',Found)
-      IF (Found) CALL Get_iScalar('Number of roots',nRoots)
-      CALL qpg_dArray('State Overlaps',Found,nOv)
-      IF (Found.AND.(nOv.EQ.(2*nRoots)**2)) THEN
-        Request_RASSI = .FALSE.
-      ELSE
-        Request_RASSI = .TRUE.
-      END IF
-!
+
+nRoots = 1
+call Qpg_iScalar('Number of roots',Found)
+if (Found) call Get_iScalar('Number of roots',nRoots)
+call qpg_dArray('State Overlaps',Found,nOv)
+if (Found .and. (nOv == (2*nRoots)**2)) then
+  Request_RASSI = .false.
+else
+  Request_RASSI = .true.
+end if
+
 ! Make sure that the root mapping is only done once per iteration
-!
-      CALL Qpg_iScalar('Track Done',Done)
-      CALL Get_lScalar('Track Done',Done)
-      IF (Request_RASSI .OR. Done) RETURN
-!
+
+call Qpg_iScalar('Track Done',Done)
+call Get_lScalar('Track Done',Done)
+if (Request_RASSI .or. Done) return
+
 ! Modify the root map according to the overlaps:
 !
 !   RootMap(i) = N
 !
 ! where i is the original root number (at iter=1), and N is the
 ! root number at the current iteration.
-!
-      CALL mma_allocate(Ovlp,nOv)
-      CALL mma_allocate(Overlaps,nRoots,nRoots)
-      CALL get_dArray('State Overlaps',Ovlp,nOv)
-      DO i=1,nRoots
-        Overlaps(:,i)=Ovlp((2*i-1)*nRoots+1:2*i*nRoots)
-      END DO
-      CALL mma_deallocate(Ovlp)
-      IF (nPrint(1).GE.5) THEN
-        CALL RecPrt('Overlaps with previous states','',                 &
-     &              Overlaps,nRoots,nRoots)
-        CALL mma_allocate(OldMap,nRoots)
-        CALL iCopy(nRoots,RootMap,1,OldMap,1)
-      END IF
-      CALL mma_allocate(RootIdx,nRoots)
-      DO i=1,nRoots
-        MaxId=MAXLOC(ABS(Overlaps))
-        RootIdx(MaxId(1))=MaxId(2)
-        Overlaps(MaxId(1),:)=Zero
-        Overlaps(:,MaxId(2))=Zero
-      END DO
-      DO i=1,nRoots
-        RootMap(i)=RootIdx(RootMap(i))
-      END DO
-      CALL Put_iArray('Root Mapping',RootMap,nRoots)
-      IF (nPrint(1).GE.5) THEN
-        WRITE(6,*)
-        WRITE(6,100) 'Root map'
-        WRITE(6,*)
-        WRITE(6,100) 'Original  Prev.  This'
-        WRITE(6,100) '  root    iter.  iter.'
-        WRITE(6,100) '----------------------'
-        DO i=1,nRoots
-          WRITE(6,101) i,OldMap(i),RootMap(i)
-        END DO
-        WRITE(6,100) '----------------------'
-        WRITE(6,*)
-        CALL mma_deallocate(OldMap)
-      END IF
-100   FORMAT(3X,A)
-101   FORMAT(3X,I6,1X,I6,1X,I6)
 
-      CALL mma_deallocate(RootIdx)
-      CALL mma_deallocate(Overlaps)
-!
+call mma_allocate(Ovlp,nOv)
+call mma_allocate(Overlaps,nRoots,nRoots)
+call get_dArray('State Overlaps',Ovlp,nOv)
+do i=1,nRoots
+  Overlaps(:,i) = Ovlp((2*i-1)*nRoots+1:2*i*nRoots)
+end do
+call mma_deallocate(Ovlp)
+if (nPrint(1) >= 5) then
+  call RecPrt('Overlaps with previous states','',Overlaps,nRoots,nRoots)
+  call mma_allocate(OldMap,nRoots)
+  call iCopy(nRoots,RootMap,1,OldMap,1)
+end if
+call mma_allocate(RootIdx,nRoots)
+do i=1,nRoots
+  MaxId = maxloc(abs(Overlaps))
+  RootIdx(MaxId(1)) = MaxId(2)
+  Overlaps(MaxId(1),:) = Zero
+  Overlaps(:,MaxId(2)) = Zero
+end do
+do i=1,nRoots
+  RootMap(i) = RootIdx(RootMap(i))
+end do
+call Put_iArray('Root Mapping',RootMap,nRoots)
+if (nPrint(1) >= 5) then
+  write(6,*)
+  write(6,100) 'Root map'
+  write(6,*)
+  write(6,100) 'Original  Prev.  This'
+  write(6,100) '  root    iter.  iter.'
+  write(6,100) '----------------------'
+  do i=1,nRoots
+    write(6,101) i,OldMap(i),RootMap(i)
+  end do
+  write(6,100) '----------------------'
+  write(6,*)
+  call mma_deallocate(OldMap)
+end if
+100 format(3X,A)
+101 format(3X,I6,1X,I6,1X,I6)
+
+call mma_deallocate(RootIdx)
+call mma_deallocate(Overlaps)
+
 ! Update the RunFile for automatic gradients
-!
-      CALL Qpg_iScalar('Relax CASSCF root',Found)
-      IF (Found) THEN
-        Call Get_iScalar('Relax CASSCF root',i)
-        IF (RootMap(i).NE.i) THEN
-          CALL Put_iScalar('Relax CASSCF root',RootMap(i))
-          CALL Put_iScalar('Relax Original root',RootMap(i))
-        END IF
-      END IF
-      CALL Qpg_iScalar('NumGradRoot',Found)
-      IF (Found) THEN
-        Call Get_iScalar('NumGradRoot',i)
-        IF (RootMap(i).NE.i)                                            &
-     &    CALL Put_iScalar('NumGradRoot',RootMap(i))
-      END IF
-      CALL Put_lScalar('Track Done',.TRUE.)
-!
-      RETURN
-!
-      END SUBROUTINE Process_Track
+
+call Qpg_iScalar('Relax CASSCF root',Found)
+if (Found) then
+  call Get_iScalar('Relax CASSCF root',i)
+  if (RootMap(i) /= i) then
+    call Put_iScalar('Relax CASSCF root',RootMap(i))
+    call Put_iScalar('Relax Original root',RootMap(i))
+  end if
+end if
+call Qpg_iScalar('NumGradRoot',Found)
+if (Found) then
+  call Get_iScalar('NumGradRoot',i)
+  if (RootMap(i) /= i) call Put_iScalar('NumGradRoot',RootMap(i))
+end if
+call Put_lScalar('Track Done',.true.)
+
+return
+
+end subroutine Process_Track

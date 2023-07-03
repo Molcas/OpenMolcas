@@ -8,27 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Hss_q()
-      use Slapaf_Info, only: dqInt
-      use Slapaf_Parameters, only: lOld, iRef
-      Implicit Real*8 (a-h,o-z)
-!
-      If (lOld) Return
-!
-      nQQ=SIZE(dqInt,1)
-      Call Hss_q_(nQQ,dqInt(:,iRef))
-!
-      Return
-      End
-      Subroutine Hss_q_(nQQ,Grad)
-      use Slapaf_Info, only: Degen, Smmtrc
-      use Slapaf_Parameters, only: Curvilinear, nDimBC, Analytic_Hessian
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Hss_q()
+
+use Slapaf_Info, only: dqInt
+use Slapaf_Parameters, only: lOld, iRef
+
+implicit real*8(a-h,o-z)
+
+if (lOld) return
+
+nQQ = size(dqInt,1)
+call Hss_q_(nQQ,dqInt(:,iRef))
+
+return
+
+end subroutine Hss_q
+
+subroutine Hss_q_(nQQ,Grad)
+
+use Slapaf_Info, only: Degen, Smmtrc
+use Slapaf_Parameters, only: Curvilinear, nDimBC, Analytic_Hessian
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Grad(nQQ)
-      Real*8 rDum(1)
-      Real*8, Allocatable:: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
+real*8 Grad(nQQ)
+real*8 rDum(1)
+real*8, allocatable :: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -36,64 +44,65 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nAtom=SIZE(Degen,2)
+nAtom = size(Degen,2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Back-transform from cartesian to internals
+! Back-transform from cartesian to internals
 !
-!     dQ/dx d^2E/dQ^2 dQ/dx + d^2Q/dx^2 dE/dQ = d^2E/dx^2
-!
-!     Pickup d^2E/dx^2
-!
-      Call mma_allocate(Hss_x,nDimBC**2,Label='Hss_X')
-      Call Get_dArray('Hss_X',Hss_x,nDimBC**2)
-      Call mma_allocate(KtB,nDimBC*nQQ,Label='KtB')
-      Call Get_dArray('KtB',KtB,nDimBC*nQQ)
+! dQ/dx d^2E/dQ^2 dQ/dx + d^2Q/dx^2 dE/dQ = d^2E/dx^2
+
+! Pickup d^2E/dx^2
+
+call mma_allocate(Hss_x,nDimBC**2,Label='Hss_X')
+call Get_dArray('Hss_X',Hss_x,nDimBC**2)
+call mma_allocate(KtB,nDimBC*nQQ,Label='KtB')
+call Get_dArray('KtB',KtB,nDimBC*nQQ)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Hss_x',' ',Hss_X,nDimBC,nDimBC)
+call RecPrt('Hss_x',' ',Hss_X,nDimBC,nDimBC)
 #endif
-!
-      Call mma_allocate(Degen2,nDimBC,Label='Degen2')
-      i=0
-      Do ix = 1, 3*nAtom
-         iAtom = (ix+2)/3
-         ixyz = ix - (iAtom-1)*3
-         If (Smmtrc(ixyz,iAtom)) Then
-            i = i + 1
-            Degen2(i) = Degen(ixyz,iAtom)
-         End If
-      End Do
+
+call mma_allocate(Degen2,nDimBC,Label='Degen2')
+i = 0
+do ix=1,3*nAtom
+  iAtom = (ix+2)/3
+  ixyz = ix-(iAtom-1)*3
+  if (Smmtrc(ixyz,iAtom)) then
+    i = i+1
+    Degen2(i) = Degen(ixyz,iAtom)
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Degen2',' ',Degen2,nDimBC,1)
+call RecPrt('Degen2',' ',Degen2,nDimBC,1)
 #endif
-!
-      If (Analytic_Hessian.and.Curvilinear) Then
-!
-!        Form u^(1/2) (Sum(i) d^2Q_i/dx^2 * dE/dQ_i) u^(1/2)
-!
-!        and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
-!
-         Call dBuu(Degen2,nQQ,nDimBC,Grad,Hss_X,.False.)
+
+if (Analytic_Hessian .and. Curvilinear) then
+
+  ! Form u^(1/2) (Sum(i) d^2Q_i/dx^2 * dE/dQ_i) u^(1/2)
+  !
+  ! and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
+
+  call dBuu(Degen2,nQQ,nDimBC,Grad,Hss_X,.false.)
+# ifdef _DEBUGPRINT_
+  call RecPrt('H(X)-BtgQ',' ',Hss_X,nDimBC,nDimBC)
+# endif
+end if
+
+call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
+call Hess_Tra(Hss_X,nDimBC,Degen2,KtB,nQQ,Hss_Q)
+
+call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
+call Put_dArray('Hss_upd',rDum,0)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('H(X)-BtgQ',' ',Hss_X,nDimBC,nDimBC)
+call RecPrt('Hss_Q: Hessian',' ',Hss_Q,nQQ,nQQ)
 #endif
-      End If
-!
-      Call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
-      Call Hess_Tra(Hss_X,nDimBC,Degen2,KtB,nQQ,Hss_Q)
-!
-      Call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
-      Call Put_dArray('Hss_upd',rDum,0)
-#ifdef _DEBUGPRINT_
-      Call RecPrt('Hss_Q: Hessian',' ',Hss_Q,nQQ,nQQ)
-#endif
-      Call mma_deallocate(Hss_Q)
-      Call mma_deallocate(KtB)
-      Call mma_deallocate(Degen2)
-      Call mma_deallocate(Hss_X)
+call mma_deallocate(Hss_Q)
+call mma_deallocate(KtB)
+call mma_deallocate(Degen2)
+call mma_deallocate(Hss_X)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Hss_q_

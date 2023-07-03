@@ -8,44 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,Label,dBf,ldB,lIter)
-      use Slapaf_Info, only: NAC
-      Implicit Real*8  (a-h,o-z)
+
+subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,Label,dBf,ldB,lIter)
+
+use Slapaf_Info, only: NAC
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "constants.fh"
-      Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-      Logical lWrite_, ldB
-      Character*8 Label
-!
-!
-      H12=Zero
-      If (lWrite_) Then
-         Write (6,'(2A,F18.8,A,F18.8,A)')                               &
-     &             Label,' : H12               = ',                     &
-     &             H12, ' hartree '
-      End If
-!
-!---- Compute the WDC B-matrix
-!
-      Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent)))
-         Do iCar = 1, 3
-            Bf(iCar,iCent)=Fact*NAC(iCar,iCent,lIter)
-         End Do
-      End Do
+real*8 Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
+logical lWrite_, ldB
+character*8 Label
+
+H12 = Zero
+if (lWrite_) then
+  write(6,'(2A,F18.8,A,F18.8,A)') Label,' : H12               = ',H12,' hartree '
+end if
+
+! Compute the WDC B-matrix
+
+do iCent=1,nCent
+  Fact = dble(iDeg(xyz(1,iCent)))
+  do iCar=1,3
+    Bf(iCar,iCent) = Fact*NAC(iCar,iCent,lIter)
+  end do
+end do
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'NACInt, lIter:',lIter
-      Call RecPrt('NAC',' ',NAC(1,1,lIter),3,nCent)
-      Call RecPrt('Bf',' ',Bf,3,nCent)
+write(6,*) 'NACInt, lIter:',lIter
+call RecPrt('NAC',' ',NAC(1,1,lIter),3,nCent)
+call RecPrt('Bf',' ',Bf,3,nCent)
 #endif
-!
-!---- Compute the cartesian derivative of the B-Matrix.
-!
-      If (ldB) Then
-         Call FZero(dBf,(3*nCent)**2)
-!
-      End If
-!
-      Return
-      End
+
+! Compute the cartesian derivative of the B-Matrix.
+
+if (ldB) then
+  call FZero(dBf,(3*nCent)**2)
+
+end if
+
+return
+
+end subroutine NACInt

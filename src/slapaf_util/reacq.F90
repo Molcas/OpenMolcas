@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2009, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine ReacQ(V_X,nX,V_Q,nQ)
+
+subroutine ReacQ(V_X,nX,V_Q,nQ)
 !***********************************************************************
 !                                                                      *
 !     Objective: Transform the "reaction vector" from cartesian        *
@@ -19,27 +20,31 @@
 !     Roland Lindh, Dept. of Theor. Chem., Lund University, Sweden     *
 !     2009                                                             *
 !***********************************************************************
-      use Slapaf_Info, only: BMx, Degen
-      Implicit Real*8 (a-h,o-z)
-      Real*8 V_Q(nQ), V_X(nX)
+
+use Slapaf_Info, only: BMx, Degen
+
+implicit real*8(a-h,o-z)
+real*8 V_Q(nQ), V_X(nX)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BMx',' ',BMx,nX,nQ)
-      Call RecPrt('V_X',' ',V_X,nX,1)
+call RecPrt('BMx',' ',BMx,nX,nQ)
+call RecPrt('V_X',' ',V_X,nX,1)
 #endif
-!
-      M = nX
-      N = nQ
-      NRHS=1
-      Call Eq_Solver('T',M,N,NRHS,BMx,.FALSE.,Degen,V_X,V_Q)
-!
+
+M = nX
+N = nQ
+NRHS = 1
+call Eq_Solver('T',M,N,NRHS,BMx,.false.,Degen,V_X,V_Q)
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('V_Q',' ',V_Q,nQ,1)
+call RecPrt('V_Q',' ',V_Q,nQ,1)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine ReacQ

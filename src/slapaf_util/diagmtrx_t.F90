@@ -1,0 +1,117 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+#include "compiler_features.h"
+#ifdef _DEBUGPRINT_
+subroutine DiagMtrx_T(H,nH,iNeg)
+
+implicit real*8(a-h,o-z)
+#include "real.fh"
+#include "stdalloc.fh"
+#include "print.fh"
+character*16 filnam
+real*8 H(*)
+logical Exist
+real*8, allocatable :: EVal(:), EVec(:), rK(:), qEVec(:)
+
+Lu = 6
+iRout = 22
+iprint = nPrint(iRout)
+
+call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+call mma_allocate(EVec,nH*nH,Label='EVec')
+
+! Copy elements for H
+
+call dcopy_(nH*(nH+1)/2,H,1,EVal,1)
+
+! Set up a unit matrix
+
+call dcopy_(nH*nH,[Zero],0,EVec,1)
+call dcopy_(nH,[One],0,EVec,nH+1)
+
+! Compute eigenvalues and eigenvectors
+
+call NIDiag_new(EVal,EVec,nH,nH)
+call Jacord(EVal,EVec,nH,nH)
+
+! Print out the result
+
+iNeg = 0
+do i=1,nH
+  if (EVal(i*(i+1)/2) < Zero) iNeg = iNeg+1
+end do
+if (iprint > 5) then
+  write(Lu,*)
+  write(Lu,*) 'Eigenvalues of the Hessian'
+  write(Lu,*)
+  write(Lu,'(5G20.6)') (EVal(i*(i+1)/2),i=1,nH)
+end if
+
+call f_Inquire('SPCINX',Exist)
+
+if (Exist .and. (iprint > 5)) then
+
+  ! Read linear combinations from disc
+
+  LuTmp = 11
+  filnam = 'SPCINX'
+  !open(luTmp,File=filnam,Form='unformatted',Status='unknown')
+  call molcas_binaryopen_vanilla(luTmp,filnam)
+  rewind(LuTmp)
+
+  read(LuTmp) nq,nQQ
+
+  if (nQQ == nH) then
+
+    call mma_allocate(rK,nq*nQQ,Label='rK')
+    call mma_allocate(qEVec,nq*nH,Label='qEVec')
+
+    call Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
+
+    call mma_deallocate(qEVec)
+    call mma_deallocate(rk)
+
+  else
+
+    write(Lu,*)
+    write(Lu,*) 'Eigenvectors of the Hessian'
+    write(Lu,*)
+    do i=1,nH
+      write(Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
+    end do
+  end if
+
+  close(LuTmp)
+
+else if (iprint > 5) then
+  write(Lu,*)
+  write(Lu,*) 'Eigenvectors of the Hessian'
+  write(Lu,*)
+  do i=1,nH
+    write(Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
+  end do
+
+end if
+
+call mma_deallocate(EVec)
+call mma_deallocate(EVal)
+
+return
+
+end subroutine DiagMtrx_T
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(DiagMtrx_T)
+
+#endif

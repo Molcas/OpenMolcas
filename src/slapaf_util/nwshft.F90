@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine NwShft()
+
+subroutine NwShft()
 !***********************************************************************
 !                                                                      *
 ! Object: to numerically evaluate the molecular Hessian.               *
@@ -19,106 +20,107 @@
 !             University of Lund, SWEDEN                               *
 !             May '92                                                  *
 !***********************************************************************
-      use Slapaf_Info, only: Shift, qInt
-      use Slapaf_parameters, only: iter, Delta
-!
-      Integer nInter
 
-      nInter=SIZE(Shift,1)
-      Call NwShft_Internal(Shift,nInter,Iter,Delta,qInt)
+use Slapaf_Info, only: Shift, qInt
+use Slapaf_parameters, only: iter, Delta
 
-      Contains
-      SubRoutine NwShft_Internal(dq,nInter,nIter,Delta,q)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 dq(nInter,nIter), q(nInter,nIter+1)
-#include "real.fh"
-!
-#ifdef _DEBUGPRINT_
-      Call RecPrt('NwShft  q',' ', q,nInter,nIter)
-      Call RecPrt('NwShft dq',' ',dq,nInter,nIter-1)
-#endif
-!
-!
-!-----Compute the new shift
-!
-!     Write (*,*) ' nIter=',nIter
-      If (nIter.lt.2*nInter+1) Then
-!
-!------- Shifts for the numerical Hessian
-!
-         jInter = (nIter+1)/2
-         call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
-         If (Mod(nIter,2).eq.0) Then
-            dq(jInter,nIter) = -Two*Delta
-         Else
-!---------- Undo previous displacement
-            If (jInter.gt.1) dq(jInter-1,nIter) = Delta
-            dq(jInter,nIter) = Delta
-         End If
-!
-      Else
-!
-!------- Shifts for the numerical cubic force constants
-!
-         iCount=(nIter-2*nInter+3)/4
-!        Write (*,*) ' iCount=',iCount
-         jCount=0
-         lInter=0
-         Do kInter = 1, nInter
-            Do lInter = 1, kInter-1
-               jCount = jCount + 1
-               If (jCount.eq.iCount) Go To 777
-            End Do
-         End Do
- 777     Continue
-         If (lInter.eq.0) Then
-            Call WarningMessage(2,'lInter.eq.0')
-            Call Abend()
-         End If
-!        Write (*,*) 'kInter, lInter=',kInter,lInter
-         kCount=nIter-2*nInter
-         call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
-!------- Undo last change for numerical Hessian
-         If (iCount.eq.1) dq(nInter,nIter)=Delta
-         If (Mod(kCount,4).eq.1) Then
-!---------- Undo change due to previous pair
-            If (lInter.ne.1) Then
-               dq(kInter,nIter)=Delta
-               dq(lInter-1,nIter)=Delta
-            Else If (lInter.eq.1.and.kInter.ne.2) Then
-               dq(kInter-1,nIter)=Delta
-               dq(kInter-2,nIter)=Delta
-            End If
-!---------- +d,+d
-!           Write (*,*) ' +d,+d'
-            dq(kInter,nIter) = dq(kInter,nIter)+Delta
-            dq(lInter,nIter) = dq(lInter,nIter)+Delta
-         Else If (Mod(kCount,4).eq.2) Then
-!---------- -d,+d
-!           Write (*,*) ' -d,+d'
-            dq(kInter,nIter) = -Two*Delta
-            dq(lInter,nIter) = Zero
-         Else If (Mod(kCount,4).eq.3) Then
-!---------- +d,-d
-!           Write (*,*) ' +d,-d'
-            dq(kInter,nIter) = Two*Delta
-            dq(lInter,nIter) = -Two*Delta
-         Else If (Mod(kCount,4).eq.0) Then
-!---------- -d,-d
-!           Write (*,*) ' -d,-d'
-            dq(kInter,nIter) = -Two*Delta
-            dq(lInter,nIter) = Zero
-         End If
-      End If
-!
-!---- Compute the new parameter set.
-      call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
-      Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-!
-#ifdef _DEBUGPRINT_
-      Call RecPrt('  q',' ', q,nInter,nIter+1)
-      Call RecPrt(' dq',' ',dq,nInter,nIter)
-#endif
-      End SubRoutine NwShft_Internal
+integer nInter
 
-      End SubRoutine NwShft
+nInter = size(Shift,1)
+call NwShft_Internal(Shift,nInter,Iter,Delta,qInt)
+
+contains
+
+subroutine NwShft_Internal(dq,nInter,nIter,Delta,q)
+  implicit real*8(A-H,O-Z)
+  real*8 dq(nInter,nIter), q(nInter,nIter+1)
+# include "real.fh"
+
+# ifdef _DEBUGPRINT_
+  call RecPrt('NwShft  q',' ',q,nInter,nIter)
+  call RecPrt('NwShft dq',' ',dq,nInter,nIter-1)
+# endif
+
+  ! Compute the new shift
+
+  !write(6,*) ' nIter=',nIter
+  if (nIter < 2*nInter+1) then
+
+    ! Shifts for the numerical Hessian
+
+    jInter = (nIter+1)/2
+    call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
+    if (mod(nIter,2) == 0) then
+      dq(jInter,nIter) = -Two*Delta
+    else
+      ! Undo previous displacement
+      if (jInter > 1) dq(jInter-1,nIter) = Delta
+      dq(jInter,nIter) = Delta
+    end if
+
+  else
+
+    ! Shifts for the numerical cubic force constants
+
+    iCount = (nIter-2*nInter+3)/4
+    !write(6,*) ' iCount=',iCount
+    jCount = 0
+    lInter = 0
+    do kInter=1,nInter
+      do lInter=1,kInter-1
+        jCount = jCount+1
+        if (jCount == iCount) Go To 777
+      end do
+    end do
+777 continue
+    if (lInter == 0) then
+      call WarningMessage(2,'lInter == 0')
+      call Abend()
+    end if
+    !write(6,*) 'kInter, lInter=',kInter,lInter
+    kCount = nIter-2*nInter
+    call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
+    ! Undo last change for numerical Hessian
+    if (iCount == 1) dq(nInter,nIter) = Delta
+    if (mod(kCount,4) == 1) then
+      ! Undo change due to previous pair
+      if (lInter /= 1) then
+        dq(kInter,nIter) = Delta
+        dq(lInter-1,nIter) = Delta
+      else if ((lInter == 1) .and. (kInter /= 2)) then
+        dq(kInter-1,nIter) = Delta
+        dq(kInter-2,nIter) = Delta
+      end if
+      ! +d,+d
+      !write(6,*) ' +d,+d'
+      dq(kInter,nIter) = dq(kInter,nIter)+Delta
+      dq(lInter,nIter) = dq(lInter,nIter)+Delta
+    else if (mod(kCount,4) == 2) then
+      ! -d,+d
+      !write(6,*) ' -d,+d'
+      dq(kInter,nIter) = -Two*Delta
+      dq(lInter,nIter) = Zero
+    else if (mod(kCount,4) == 3) then
+      ! +d,-d
+      !write(6,*) ' +d,-d'
+      dq(kInter,nIter) = Two*Delta
+      dq(lInter,nIter) = -Two*Delta
+    else if (mod(kCount,4) == 0) then
+      ! -d,-d
+      !write(6,*) ' -d,-d'
+      dq(kInter,nIter) = -Two*Delta
+      dq(lInter,nIter) = Zero
+    end if
+  end if
+
+  ! Compute the new parameter set.
+  call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
+  call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
+
+# ifdef _DEBUGPRINT_
+  call RecPrt('  q',' ',q,nInter,nIter+1)
+  call RecPrt(' dq',' ',dq,nInter,nIter)
+# endif
+end subroutine NwShft_Internal
+
+end subroutine NwShft

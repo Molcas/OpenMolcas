@@ -8,13 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function iUR(iR,iU)
-      iUR=0
-      Do i = 0, 7
-         If (iAnd(iU,2**i).eq.2**i) Then
-            iUR = iOr(iUR,2**iEor(i,iR))
-         End If
-      End Do
-!     Write (*,*) ' iUR=',iUR
-      Return
-      End
+
+integer function iUR(iR,iU)
+
+iUR = 0
+do i=0,7
+  if (iand(iU,2**i) == 2**i) then
+    iUR = ior(iUR,2**ieor(i,iR))
+  end if
+end do
+!write(6,*) ' iUR=',iUR
+
+return
+
+end function iUR

@@ -27,392 +27,360 @@
 !> @param[in] lModes Size of \p Modes
 !> @param[in] lDisp Number of displacements per irrep
 !***********************************************************************
-      Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
-      use Symmetry_Info, only: nIrrep, VarR, VarT
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,  &
-     &                       Grd, Weights, ANr, Shift, GNrm, Lambda,    &
-     &                       Energy, Energy0, DipM, MF, qInt, dqInt,    &
-     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,     &
-     &                       Degen, nStab, jStab, iCoSet, AtomLbl,      &
-     &                       Smmtrc, Lbl, mRowH, RootMap
-      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,            &
-     &                             ddV_Schlegel, HWRS, iOptH, HUpMet,   &
-     &                             HrmFrq_Show, IRC, Curvilinear,       &
-     &                             Redundant, FindTS, nBVec, nDimBC,    &
-     &                             User_Def, Analytic_Hessian, MaxItr,  &
-     &                             iOptC, UpMeth, HSet, BSet, rHidden,  &
-     &                             CnstWght, PrQ, lOld, Numerical, Beta,&
-     &                             Beta_Disp, Line_Search,              &
-     &                             TSConstraints, GNrm_Threshold, Mode, &
-     &                             ThrEne, ThrGrd, nLambda, iRef,       &
-     &                             ThrCons, ThrMEP, Baker, eMEPTest,    &
-     &                             rMEP, MEP, nMEP, MEPNum, MEPCons,    &
-     &                             dMEPStep, MEP_Type, MEP_Algo,        &
-     &                             Header, Max_Center, mTROld, RtRnc,   &
-     &                             Delta, rFuzz, lNmHss, Cubic,         &
-     &                             Request_Alaska, Request_RASSI,       &
-     &                             lOld_Implicit, CallLast, lSoft,      &
-     &                             lCtoF, Track, TwoRunFiles, isFalcon, &
-     &                             Stop, NmIter, MxItr, mTtAtm, nWndw,  &
-     &                             iter, WeightedConstraints, mB_Tot,   &
-     &                             mdB_Tot, mq, NADC, EDiffZero,        &
-     &                             ApproxNADC, iState
-      use thermochem
-      Implicit None
+
+subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
+
+use Symmetry_Info, only: nIrrep, VarR, VarT
+use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, Weights, ANr, Shift, GNrm, Lambda, Energy, Energy0, DipM, &
+                       MF, qInt, dqInt, RefGeo, BM, iBM, dBM, idBM, nqBM, BMx, Degen, nStab, jStab, iCoSet, AtomLbl, Smmtrc, Lbl, &
+                       mRowH, RootMap
+use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, Curvilinear, &
+                             Redundant, FindTS, nBVec, nDimBC, User_Def, Analytic_Hessian, MaxItr, iOptC, UpMeth, HSet, BSet, &
+                             rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, Line_Search, TSConstraints, GNrm_Threshold, &
+                             Mode, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker, eMEPTest, rMEP, MEP, nMEP, MEPNum, &
+                             MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header, Max_Center, mTROld, RtRnc, Delta, rFuzz, lNmHss, &
+                             Cubic, Request_Alaska, Request_RASSI, lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, &
+                             isFalcon, stop, NmIter, MxItr, mTtAtm, nWndw, iter, WeightedConstraints, mB_Tot, mdB_Tot, mq, NADC, &
+                             EDiffZero, ApproxNADC, iState
+use thermochem
+
+implicit none
 #include "backup_info.fh"
 #include "print.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-      Real*8 rDum(1)
-      Real*8 :: Modes(*), Freq(*), Mx, MinComp
-      Integer :: LuInput,                                               &
-     &           nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,           &
-     &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,   &
-     &           iErr, PLback, nQQ, nsAtom
-      Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,&
-     &                                       NMod
-      Integer, Dimension(:), Allocatable :: Sort
-      Integer, Parameter :: nLbl=10*MxAtom
-      Integer, External :: IsFreeUnit, iPrintLevel, AixRm
-      Logical :: Found
-      Character(Len=8) :: Filename
-      Character(Len=16) :: StdIn
-      Character(Len=24), Allocatable :: Label(:)
-      Character(Len=180), External :: Get_Ln_EOF
-      Character(LEN=180):: Line
-      Real*8, External :: DDot_
+real*8 rDum(1)
+real*8 :: Modes(*), Freq(*), Mx, MinComp
+integer :: LuInput, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms, iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK, iErr, &
+           PLback, nQQ, nsAtom
+real*8, dimension(:,:), allocatable :: KMtrx, KTrsp, KKtB, IntMod, NMod
+integer, dimension(:), allocatable :: Sort
+integer, parameter :: nLbl = 10*MxAtom
+integer, external :: IsFreeUnit, iPrintLevel, AixRm
+logical :: Found
+character(Len=8) :: Filename
+character(Len=16) :: StdIn
+character(Len=24), allocatable :: Label(:)
+character(Len=180), external :: Get_Ln_EOF
+character(len=180) :: Line
+real*8, external :: DDot_
+logical :: Bk_VarR, Bk_VarT
+real*8, allocatable :: Bk_Energy(:)
+real*8, allocatable :: Bk_Energy0(:)
+real*8, allocatable :: Bk_DipM(:,:)
+real*8, allocatable :: Bk_GNrm(:)
+real*8, allocatable :: Bk_Cx(:,:,:)
+real*8, allocatable :: Bk_Gx(:,:,:)
+real*8, allocatable :: Bk_Gx0(:,:,:)
+real*8, allocatable :: Bk_MF(:,:)
+real*8, allocatable :: Bk_Lambda(:,:)
+real*8, allocatable :: Bk_NAC(:,:,:)
+real*8, allocatable :: Bk_Q_nuclear(:)
+real*8, allocatable :: Bk_dMass(:)
+real*8, allocatable :: Bk_Coor(:,:)
+real*8, allocatable :: Bk_Grd(:,:)
+real*8, allocatable :: Bk_Weights(:)
+real*8, allocatable :: Bk_Shift(:,:)
+real*8, allocatable :: Bk_qInt(:,:)
+real*8, allocatable :: Bk_dqInt(:,:)
+real*8, allocatable :: Bk_RefGeo(:,:)
+real*8, allocatable :: Bk_BMx(:,:)
+real*8, allocatable :: Bk_Degen(:,:)
+real*8, allocatable :: Bk_BM(:)
+real*8, allocatable :: Bk_dBM(:)
+integer, allocatable :: Bk_iBM(:)
+integer, allocatable :: Bk_idBM(:)
+integer, allocatable :: Bk_nqBM(:)
+integer, allocatable :: Bk_ANr(:)
+integer, allocatable :: Bk_jStab(:,:)
+integer, allocatable :: Bk_nStab(:)
+integer, allocatable :: Bk_iCoSet(:,:)
+character(len=LenIn), allocatable :: Bk_AtomLbl(:)
+logical, allocatable :: Bk_Smmtrc(:,:)
+character(len=8), allocatable :: Bk_Lbl(:)
+integer, allocatable :: Bk_mRowH(:)
+integer, allocatable :: Bk_RootMap(:)
 
-      Logical :: Bk_VarR, Bk_VarT
+! Ugly hack: backup all "global" slapaf variables in case this is
+!            called from inside slapaf
 
-      Real*8, Allocatable:: Bk_Energy(:)
-      Real*8, Allocatable:: Bk_Energy0(:)
-      Real*8, Allocatable:: Bk_DipM(:,:)
-      Real*8, Allocatable:: Bk_GNrm(:)
-      Real*8, Allocatable:: Bk_Cx(:,:,:)
-      Real*8, Allocatable:: Bk_Gx(:,:,:)
-      Real*8, Allocatable:: Bk_Gx0(:,:,:)
-      Real*8, Allocatable:: Bk_MF(:,:)
-      Real*8, Allocatable:: Bk_Lambda(:,:)
+! Note, this routine might be called from outside the Slapaf
+! environment. In which case there is no backup to be made.
 
-      Real*8, Allocatable:: Bk_NAC(:,:,:)
-      Real*8, Allocatable:: Bk_Q_nuclear(:)
-      Real*8, Allocatable:: Bk_dMass(:)
-      Real*8, Allocatable:: Bk_Coor(:,:)
-      Real*8, Allocatable:: Bk_Grd(:,:)
-      Real*8, Allocatable:: Bk_Weights(:)
-      Real*8, Allocatable:: Bk_Shift(:,:)
-      Real*8, Allocatable:: Bk_qInt(:,:)
-      Real*8, Allocatable:: Bk_dqInt(:,:)
-      Real*8, Allocatable:: Bk_RefGeo(:,:)
-      Real*8, Allocatable:: Bk_BMx(:,:)
-      Real*8, Allocatable:: Bk_Degen(:,:)
+if (allocated(Cx)) then
+  nsAtom = size(Cx,2)
+  call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
+  Bk_Cx(:,:,:) = Cx(:,:,:)
+  call mma_deallocate(Cx)
+  if (allocated(Gx)) then
+    call mma_allocate(Bk_Gx,3,nsAtom,MaxItr+1,Label='Bk_Gx')
+    Bk_Gx(:,:,:) = Gx(:,:,:)
+    call mma_deallocate(Gx)
+  end if
+  if (allocated(Gx0)) then
+    call mma_allocate(Bk_Gx0,3,nsAtom,MaxItr+1,Label='Bk_Gx0')
+    Bk_Gx0(:,:,:) = Gx0(:,:,:)
+    call mma_deallocate(Gx0)
+  end if
+  if (allocated(NAC)) then
+    call mma_allocate(Bk_NAC,3,nsAtom,MaxItr+1,Label='Bk_NAC')
+    Bk_NAC(:,:,:) = NAC(:,:,:)
+    call mma_deallocate(NAC)
+  end if
+  if (allocated(Q_nuclear)) then
+    call mma_allocate(Bk_Q_nuclear,nsAtom,Label='Bk_Q_nuclear')
+    Bk_Q_nuclear(:) = Q_nuclear(:)
+    call mma_deallocate(Q_nuclear)
+  end if
+  if (allocated(dMass)) then
+    call mma_allocate(Bk_dMass,nsAtom,Label='Bk_dMass')
+    Bk_dMass(:) = dMass(:)
+    call mma_deallocate(dMass)
+  end if
+  if (allocated(Coor)) then
+    call mma_allocate(Bk_Coor,3,nsAtom,Label='Bk_Coor')
+    Bk_Coor(:,:) = Coor(:,:)
+    call mma_deallocate(Coor)
+  end if
+  if (allocated(Grd)) then
+    call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
+    Bk_Grd(:,:) = Grd(:,:)
+    call mma_deallocate(Grd)
+  end if
+  if (allocated(ANr)) then
+    call mma_allocate(Bk_ANr,nsAtom,Label='Bk_ANr')
+    Bk_ANr(:) = ANr(:)
+    call mma_deallocate(ANr)
+  end if
+  if (allocated(Weights)) then
+    call mma_allocate(Bk_Weights,size(Weights),Label='Bk_Weights')
+    Bk_Weights(:) = Weights(:)
+    call mma_deallocate(Weights)
+  end if
+  if (allocated(Shift)) then
+    call mma_allocate(Bk_Shift,size(Shift,1),MaxItr,Label='Bk_Shift')
+    Bk_Shift(:,:) = Shift(:,:)
+    call mma_deallocate(Shift)
+  end if
+  if (allocated(GNrm)) then
+    call mma_allocate(Bk_GNrm,MaxItr+1,Label='Bk_GNrm')
+    Bk_GNrm(:) = GNrm(:)
+    call mma_deallocate(GNrm)
+  end if
+  if (allocated(Lambda)) then
+    call mma_allocate(Bk_Lambda,size(Lambda,1),MaxItr+1,Label='Bk_Lambda')
+    Bk_Lambda(:,:) = Lambda(:,:)
+    call mma_deallocate(Lambda)
+  end if
+  if (allocated(Energy)) then
+    call mma_allocate(Bk_Energy,MaxItr+1,Label='Bk_Energy')
+    Bk_Energy(:) = Energy(:)
+    call mma_deallocate(Energy)
+  end if
+  if (allocated(Energy0)) then
+    call mma_allocate(Bk_Energy0,MaxItr+1,Label='Bk_Energy0')
+    Bk_Energy0(:) = Energy0(:)
+    call mma_deallocate(Energy0)
+  end if
+  if (allocated(MF)) then
+    call mma_allocate(Bk_MF,3,nsAtom,Label='Bk_MF')
+    Bk_MF(:,:) = MF(:,:)
+    call mma_deallocate(MF)
+  end if
+  if (allocated(DipM)) then
+    call mma_allocate(Bk_DipM,3,MaxItr+1,Label='Bk_DipM')
+    Bk_DipM(:,:) = DipM(:,:)
+    call mma_deallocate(DipM)
+  end if
+  if (allocated(qInt)) then
+    call mma_allocate(Bk_qInt,size(qInt,1),MaxItr,Label='Bk_qInt')
+    Bk_qInt(:,:) = qInt(:,:)
+    call mma_deallocate(qInt)
+  end if
+  if (allocated(dqInt)) then
+    call mma_allocate(Bk_dqInt,size(dqInt,1),MaxItr,Label='Bk_dqInt')
+    Bk_dqInt(:,:) = dqInt(:,:)
+    call mma_deallocate(dqInt)
+  end if
+  if (allocated(RefGeo)) then
+    call mma_allocate(Bk_RefGeo,3,nsAtom,Label='Bk_RefGeo')
+    Bk_RefGeo(:,:) = RefGeo(:,:)
+    call mma_deallocate(RefGeo)
+  end if
+  if (allocated(BM)) then
+    call mma_allocate(Bk_BM,size(BM),Label='Bk_BM')
+    Bk_BM(:) = BM(:)
+    call mma_deallocate(BM)
+  end if
+  if (allocated(dBM)) then
+    call mma_allocate(Bk_dBM,size(dBM),Label='Bk_dBM')
+    Bk_dBM(:) = dBM(:)
+    call mma_deallocate(dBM)
+  end if
+  if (allocated(iBM)) then
+    call mma_allocate(Bk_iBM,size(iBM),Label='Bk_iBM')
+    Bk_iBM(:) = iBM(:)
+    call mma_deallocate(iBM)
+  end if
+  if (allocated(idBM)) then
+    call mma_allocate(Bk_idBM,size(idBM),Label='Bk_idBM')
+    Bk_idBM(:) = idBM(:)
+    call mma_deallocate(idBM)
+  end if
+  if (allocated(nqBM)) then
+    call mma_allocate(Bk_nqBM,size(nqBM),Label='Bk_nqBM')
+    Bk_nqBM(:) = nqBM(:)
+    call mma_deallocate(nqBM)
+  end if
+  if (allocated(BMx)) then
+    call mma_allocate(Bk_BMx,size(BMx,1),size(BMx,2),Label='Bk_BMx')
+    Bk_BMx(:,:) = BMx(:,:)
+    call mma_deallocate(BMx)
+  end if
+  if (allocated(Degen)) then
+    call mma_allocate(Bk_Degen,size(Degen,1),size(Degen,2),Label='Bk_Degen')
+    Bk_Degen(:,:) = Degen(:,:)
+    call mma_deallocate(Degen)
+  end if
+  if (allocated(jStab)) then
+    call mma_allocate(Bk_jStab,[0,7],[1,size(jStab,2)],Label='Bk_jStab')
+    Bk_jStab(:,:) = jStab(:,:)
+    call mma_deallocate(jStab)
+  end if
+  if (allocated(iCoSet)) then
+    call mma_allocate(Bk_iCoSet,[0,7],[1,size(iCoSet,2)],Label='Bk_iCoSet')
+    Bk_iCoSet(:,:) = iCoSet(:,:)
+    call mma_deallocate(iCoSet)
+  end if
+  if (allocated(nStab)) then
+    call mma_allocate(Bk_nStab,size(nStab),Label='Bk_nStab')
+    Bk_nStab(:) = nStab(:)
+    call mma_deallocate(nStab)
+  end if
+  if (allocated(AtomLbl)) then
+    call mma_allocate(Bk_AtomLbl,size(AtomLbl),Label='Bk_AtomLbl')
+    Bk_AtomLbl(:) = AtomLbl(:)
+    call mma_deallocate(AtomLbl)
+  end if
+  if (allocated(Smmtrc)) then
+    call mma_allocate(Bk_Smmtrc,3,size(Smmtrc,2),Label='Bk_Smmtrc')
+    Bk_Smmtrc(:,:) = Smmtrc(:,:)
+    call mma_deallocate(Smmtrc)
+  end if
+  if (allocated(Lbl)) then
+    call mma_allocate(Bk_Lbl,size(Lbl),Label='Bk_Lbl')
+    Bk_Lbl(:) = Lbl(:)
+    call mma_deallocate(Lbl)
+  end if
+  if (allocated(mRowH)) then
+    call mma_allocate(Bk_mRowH,size(mRowH),Label='Bk_mRowH')
+    Bk_mRowH(:) = mRowH(:)
+    call mma_deallocate(mRowH)
+  end if
+  if (allocated(RootMap)) then
+    call mma_allocate(Bk_RootMap,size(RootMap),Label='Bk_RootMap')
+    Bk_RootMap(:) = RootMap(:)
+    call mma_deallocate(RootMap)
+  end if
+end if
 
-      Real*8, Allocatable:: Bk_BM(:)
-      Real*8, Allocatable:: Bk_dBM(:)
-      Integer, Allocatable:: Bk_iBM(:)
-      Integer, Allocatable:: Bk_idBM(:)
-      Integer, Allocatable:: Bk_nqBM(:)
+Bk_Header(:) = Header(:)
+Bk_iRef = iRef
+Bk_NmIter = NmIter
+Bk_iter = iter
+Bk_nDimBC = nDimBC
+Bk_MxItr = MxItr
+Bk_Max_Center = Max_Center
+Bk_iOptC = iOptC
+Bk_mode = mode
+Bk_mTROld = mTROld
+Bk_nWndw = nWndw
+Bk_iOptH = iOptH
+Bk_nLambda = nLambda
+Bk_nMEP = nMEP
+Bk_nBVec = nBVec
+Bk_IRC = IRC
+Bk_mTtAtm = mTtAtm
+Bk_MEPnum = MEPnum
+Bk_Stop = stop
+Bk_lOld = lOld
+Bk_CurviLinear = CurviLinear
+Bk_HSet = HSet
+Bk_BSet = BSet
+Bk_lNmHss = lNmHss
+Bk_Cubic = Cubic
+Bk_Baker = Baker
+Bk_DDV_Schlegel = DDV_Schlegel
+Bk_Line_Search = Line_Search
+Bk_HWRS = HWRS
+Bk_Analytic_Hessian = Analytic_Hessian
+Bk_FindTS = FindTS
+Bk_MEP = MEP
+Bk_User_Def = User_Def
+Bk_rMEP = rMEP
+Bk_lOld_Implicit = lOld_Implicit
+Bk_HrmFrq_Show = HrmFrq_Show
+Bk_eMEPtest = eMEPtest
+Bk_Redundant = Redundant
+Bk_lCtoF = lCtoF
+Bk_lSoft = lSoft
+Bk_CallLast = CallLast
+Bk_TwoRunFiles = TwoRunFiles
+Bk_TSConstraints = TSConstraints
+Bk_MEPCons = MEPCons
+Bk_Track = Track
+Bk_Request_Alaska = Request_Alaska
+Bk_Request_RASSI = Request_RASSI
+Bk_ThrEne = ThrEne
+Bk_ThrGrd = ThrGrd
+Bk_Beta = Beta
+Bk_Beta_Disp = Beta_Disp
+Bk_Delta = Delta
+Bk_Rtrnc = Rtrnc
+Bk_rHidden = rHidden
+Bk_ThrCons = ThrCons
+Bk_GNrm_Threshold = GNrm_Threshold
+Bk_CnstWght = CnstWght
+Bk_dMEPStep = dMEPStep
+Bk_rFuzz = rFuzz
+Bk_ThrMEP = ThrMEP
+Bk_lTherm = lTherm
+Bk_lDoubleIso = lDoubleIso
+Bk_nUserPT = nUserPT
+Bk_nsRot = nsRot
+Bk_UserT(:) = UserT(:)
+Bk_UserP = UserP
+Bk_HUpMet = HUpMet
+Bk_UpMeth = UpMeth
+Bk_MEP_Type = MEP_Type
+Bk_MEP_Algo = MEP_Algo
+Bk_isFalcon = isFalcon
+Bk_mB_Tot = mB_Tot
+Bk_mdB_Tot = mdB_Tot
+Bk_mq = mq
+Bk_WeightedConstraints = WeightedConstraints
+Bk_NADC = NADC
+Bk_EDiffZero = EDiffZero
+Bk_ApproxNADC = ApproxNADC
+Bk_iState(:) = iState(:)
+Bk_iRow = iRow
+Bk_iRow_c = iRow_c
+Bk_nFix = nFix
+Bk_iInt = iInt
+Bk_VarR = VarR
+Bk_VarT = VarT
 
-      Integer, Allocatable:: Bk_ANr(:)
-      Integer, Allocatable:: Bk_jStab(:,:)
-      Integer, Allocatable:: Bk_nStab(:)
-      Integer, Allocatable:: Bk_iCoSet(:,:)
-      Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
-      Logical, Allocatable:: Bk_Smmtrc(:,:)
-      Character(LEN=8), Allocatable:: Bk_Lbl(:)
-      Integer, Allocatable:: Bk_mRowH(:)
-      Integer, Allocatable:: Bk_RootMap(:)
-!
-!
-!---- Ugly hack: backup all "global" slapaf variables in case this is
-!                called from inside slapaf
-!
-!     Note, this routine might be called from outside the Slapaf
-!     environment. In which case there is no backup to be made.
-!
-      If (Allocated(Cx)) Then
-       nsAtom=SIZE(Cx,2)
-       Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
-       Bk_Cx(:,:,:) = Cx(:,:,:)
-       Call mma_deallocate(Cx)
-       If (Allocated(Gx)) Then
-         Call mma_allocate(Bk_Gx,3,nsAtom,MaxItr+1,Label='Bk_Gx')
-         Bk_Gx(:,:,:) = Gx(:,:,:)
-         Call mma_deallocate(Gx)
-       End If
-       If (Allocated(Gx0)) Then
-         Call mma_allocate(Bk_Gx0,3,nsAtom,MaxItr+1,Label='Bk_Gx0')
-         Bk_Gx0(:,:,:) = Gx0(:,:,:)
-         Call mma_deallocate(Gx0)
-       End If
-       If (Allocated(NAC)) Then
-         Call mma_allocate(Bk_NAC,3,nsAtom,MaxItr+1,Label='Bk_NAC')
-         Bk_NAC(:,:,:) = NAC(:,:,:)
-         Call mma_deallocate(NAC)
-       End If
-       If (Allocated(Q_nuclear)) Then
-         Call mma_allocate(Bk_Q_nuclear,nsAtom,Label='Bk_Q_nuclear')
-         Bk_Q_nuclear(:) = Q_nuclear(:)
-         Call mma_deallocate(Q_nuclear)
-       End If
-       If (Allocated(dMass)) Then
-         Call mma_allocate(Bk_dMass,nsAtom,Label='Bk_dMass')
-         Bk_dMass(:) = dMass(:)
-         Call mma_deallocate(dMass)
-       End If
-       If (Allocated(Coor)) Then
-         Call mma_allocate(Bk_Coor,3,nsAtom,Label='Bk_Coor')
-         Bk_Coor(:,:) = Coor(:,:)
-         Call mma_deallocate(Coor)
-       End If
-       If (Allocated(Grd)) Then
-         Call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
-         Bk_Grd(:,:) = Grd(:,:)
-         Call mma_deallocate(Grd)
-       End If
-       If (Allocated(ANr)) Then
-         Call mma_allocate(Bk_ANr,nsAtom,Label='Bk_ANr')
-         Bk_ANr(:) = ANr(:)
-         Call mma_deallocate(ANr)
-       End If
-       If (Allocated(Weights)) Then
-         Call mma_allocate(Bk_Weights,SIZE(Weights),Label='Bk_Weights')
-         Bk_Weights(:) = Weights(:)
-         Call mma_deallocate(Weights)
-       End If
-       If (Allocated(Shift)) Then
-         Call mma_allocate(Bk_Shift,SIZE(Shift,1),MaxItr,               &
-     &                     Label='Bk_Shift')
-         Bk_Shift(:,:) = Shift(:,:)
-         Call mma_deallocate(Shift)
-       End If
-       If (Allocated(GNrm)) Then
-         Call mma_allocate(Bk_GNrm,MaxItr+1,Label='Bk_GNrm')
-         Bk_GNrm(:) = GNrm(:)
-         Call mma_deallocate(GNrm)
-       End If
-       If (Allocated(Lambda)) Then
-         Call mma_allocate(Bk_Lambda,SIZE(Lambda,1),MaxItr+1,           &
-     &                     Label='Bk_Lambda')
-         Bk_Lambda(:,:) = Lambda(:,:)
-         Call mma_deallocate(Lambda)
-       End If
-       If (Allocated(Energy)) Then
-         Call mma_allocate(Bk_Energy,MaxItr+1,Label='Bk_Energy')
-         Bk_Energy(:) = Energy(:)
-         Call mma_deallocate(Energy)
-       End If
-       If (Allocated(Energy0)) Then
-         Call mma_allocate(Bk_Energy0,MaxItr+1,Label='Bk_Energy0')
-         Bk_Energy0(:) = Energy0(:)
-         Call mma_deallocate(Energy0)
-       End If
-       If (Allocated(MF)) Then
-         Call mma_allocate(Bk_MF,3,nsAtom,Label='Bk_MF')
-         Bk_MF(:,:) = MF(:,:)
-         Call mma_deallocate(MF)
-       End If
-       If (Allocated(DipM)) Then
-         Call mma_allocate(Bk_DipM,3,MaxItr+1,Label='Bk_DipM')
-         Bk_DipM(:,:) = DipM(:,:)
-         Call mma_deallocate(DipM)
-       End If
-       If (Allocated(qInt)) Then
-         Call mma_allocate(Bk_qInt,SIZE(qInt,1),MaxItr,                 &
-     &                     Label='Bk_qInt')
-         Bk_qInt(:,:) = qInt(:,:)
-         Call mma_deallocate(qInt)
-       End If
-       If (Allocated(dqInt)) Then
-         Call mma_allocate(Bk_dqInt,SIZE(dqInt,1),MaxItr,               &
-     &                     Label='Bk_dqInt')
-         Bk_dqInt(:,:) = dqInt(:,:)
-         Call mma_deallocate(dqInt)
-       End If
-       If (Allocated(RefGeo)) Then
-         Call mma_allocate(Bk_RefGeo,3,nsAtom,Label='Bk_RefGeo')
-         Bk_RefGeo(:,:) = RefGeo(:,:)
-         Call mma_deallocate(RefGeo)
-       End If
-       If (Allocated(BM)) Then
-         Call mma_allocate(Bk_BM,SIZE(BM),Label='Bk_BM')
-         Bk_BM(:) = BM(:)
-         Call mma_deallocate(BM)
-       End If
-       If (Allocated(dBM)) Then
-         Call mma_allocate(Bk_dBM,SIZE(dBM),Label='Bk_dBM')
-         Bk_dBM(:) = dBM(:)
-         Call mma_deallocate(dBM)
-       End If
-       If (Allocated(iBM)) Then
-         Call mma_allocate(Bk_iBM,SIZE(iBM),Label='Bk_iBM')
-         Bk_iBM(:) = iBM(:)
-         Call mma_deallocate(iBM)
-       End If
-       If (Allocated(idBM)) Then
-         Call mma_allocate(Bk_idBM,SIZE(idBM),Label='Bk_idBM')
-         Bk_idBM(:) = idBM(:)
-         Call mma_deallocate(idBM)
-       End If
-       If (Allocated(nqBM)) Then
-         Call mma_allocate(Bk_nqBM,SIZE(nqBM),Label='Bk_nqBM')
-         Bk_nqBM(:) = nqBM(:)
-         Call mma_deallocate(nqBM)
-       End If
-       If (Allocated(BMx)) Then
-         Call mma_allocate(Bk_BMx,SIZE(BMx,1),SIZE(BMx,2),              &
-     &                     Label='Bk_BMx')
-         Bk_BMx(:,:) = BMx(:,:)
-         Call mma_deallocate(BMx)
-       End If
-       If (Allocated(Degen)) Then
-         Call mma_allocate(Bk_Degen,SIZE(Degen,1),SIZE(Degen,2),        &
-     &                     Label='Bk_Degen')
-         Bk_Degen(:,:) = Degen(:,:)
-         Call mma_deallocate(Degen)
-       End If
-       If (Allocated(jStab)) Then
-         Call mma_allocate(Bk_jStab,[0,7],[1,SIZE(jStab,2)],            &
-     &                     Label='Bk_jStab')
-         Bk_jStab(:,:) = jStab(:,:)
-         Call mma_deallocate(jStab)
-       End If
-       If (Allocated(iCoSet)) Then
-         Call mma_allocate(Bk_iCoSet,[0,7],[1,SIZE(iCoSet,2)],          &
-     &                     Label='Bk_iCoSet')
-         Bk_iCoSet(:,:) = iCoSet(:,:)
-         Call mma_deallocate(iCoSet)
-       End If
-       If (Allocated(nStab)) Then
-         Call mma_allocate(Bk_nStab,SIZE(nStab),Label='Bk_nStab')
-         Bk_nStab(:) = nStab(:)
-         Call mma_deallocate(nStab)
-       End If
-       If (Allocated(AtomLbl)) Then
-         Call mma_allocate(Bk_AtomLbl,SIZE(AtomLbl),Label='Bk_AtomLbl')
-         Bk_AtomLbl(:) = AtomLbl(:)
-         Call mma_deallocate(AtomLbl)
-       End If
-       If (Allocated(Smmtrc)) Then
-         Call mma_allocate(Bk_Smmtrc,3,SIZE(Smmtrc,2),Label='Bk_Smmtrc')
-         Bk_Smmtrc(:,:) = Smmtrc(:,:)
-         Call mma_deallocate(Smmtrc)
-       End If
-       If (Allocated(Lbl)) Then
-         Call mma_allocate(Bk_Lbl,SIZE(Lbl),Label='Bk_Lbl')
-         Bk_Lbl(:) = Lbl(:)
-         Call mma_deallocate(Lbl)
-       End If
-       If (Allocated(mRowH)) Then
-         Call mma_allocate(Bk_mRowH,SIZE(mRowH),Label='Bk_mRowH')
-         Bk_mRowH(:) = mRowH(:)
-         Call mma_deallocate(mRowH)
-       End If
-       If (Allocated(RootMap)) Then
-         Call mma_allocate(Bk_RootMap,SIZE(RootMap),Label='Bk_RootMap')
-         Bk_RootMap(:) = RootMap(:)
-         Call mma_deallocate(RootMap)
-       End If
-      End If
+! Make a backup of the runfile, since we are going to change the
+! internal coordinates definition.
 
-      Bk_Header(:)=Header(:)
-      Bk_iRef=iRef
-      Bk_NmIter=NmIter
-      Bk_iter=iter
-      Bk_nDimBC=nDimBC
-      Bk_MxItr=MxItr
-      Bk_Max_Center=Max_Center
-      Bk_iOptC=iOptC
-      Bk_mode=mode
-      Bk_mTROld=mTROld
-      Bk_nWndw=nWndw
-      Bk_iOptH=iOptH
-      Bk_nLambda=nLambda
-      Bk_nMEP=nMEP
-      Bk_nBVec=nBVec
-      Bk_IRC=IRC
-      Bk_mTtAtm=mTtAtm
-      Bk_MEPnum=MEPnum
-      Bk_Stop=Stop
-      Bk_lOld=lOld
-      Bk_CurviLinear=CurviLinear
-      Bk_HSet=HSet
-      Bk_BSet=BSet
-      Bk_lNmHss=lNmHss
-      Bk_Cubic=Cubic
-      Bk_Baker=Baker
-      Bk_DDV_Schlegel=DDV_Schlegel
-      Bk_Line_Search=Line_Search
-      Bk_HWRS=HWRS
-      Bk_Analytic_Hessian=Analytic_Hessian
-      Bk_FindTS=FindTS
-      Bk_MEP=MEP
-      Bk_User_Def=User_Def
-      Bk_rMEP=rMEP
-      Bk_lOld_Implicit=lOld_Implicit
-      Bk_HrmFrq_Show=HrmFrq_Show
-      Bk_eMEPtest=eMEPtest
-      Bk_Redundant=Redundant
-      Bk_lCtoF=lCtoF
-      Bk_lSoft=lSoft
-      Bk_CallLast=CallLast
-      Bk_TwoRunFiles=TwoRunFiles
-      Bk_TSConstraints=TSConstraints
-      Bk_MEPCons=MEPCons
-      Bk_Track=Track
-      Bk_Request_Alaska=Request_Alaska
-      Bk_Request_RASSI=Request_RASSI
-      Bk_ThrEne=ThrEne
-      Bk_ThrGrd=ThrGrd
-      Bk_Beta=Beta
-      Bk_Beta_Disp=Beta_Disp
-      Bk_Delta=Delta
-      Bk_Rtrnc=Rtrnc
-      Bk_rHidden=rHidden
-      Bk_ThrCons=ThrCons
-      Bk_GNrm_Threshold=GNrm_Threshold
-      Bk_CnstWght=CnstWght
-      Bk_dMEPStep=dMEPStep
-      Bk_rFuzz=rFuzz
-      Bk_ThrMEP=ThrMEP
-      Bk_lTherm=lTherm
-      Bk_lDoubleIso=lDoubleIso
-      Bk_nUserPT=nUserPT
-      Bk_nsRot=nsRot
-      Bk_UserT(:)=UserT(:)
-      Bk_UserP=UserP
-      Bk_HUpMet=HUpMet
-      Bk_UpMeth=UpMeth
-      Bk_MEP_Type=MEP_Type
-      Bk_MEP_Algo=MEP_Algo
-      Bk_isFalcon=isFalcon
-      Bk_mB_Tot=mB_Tot
-      Bk_mdB_Tot=mdB_Tot
-      Bk_mq=mq
-      Bk_WeightedConstraints=WeightedConstraints
-      Bk_NADC=NADC
-      Bk_EDiffZero=EDiffZero
-      Bk_ApproxNADC=ApproxNADC
-      Bk_iState(:)=iState(:)
-      Bk_iRow = iRow
-      Bk_iRow_c=iRow_c
-      Bk_nFix = nFix
-      Bk_iInt = iInt
-      Bk_VarR = VarR
-      Bk_VarT = VarT
-!
-!---- Make a backup of the runfile, since we are going to change the
-!     internal coordinates definition.
-!
-      Call fCopy('RUNFILE','RUNBCK2',iErr)
-      If (iErr.ne.0) Call Abend()
-!
-!---- Remove the Hessian and disable translational and rotational
-!     invariance
-!
-      Call Put_dArray('Hess',rDum,0)
-      VarR=.True.
-      VarT=.True.
+call fCopy('RUNFILE','RUNBCK2',iErr)
+if (iErr /= 0) call Abend()
+
+! Remove the Hessian and disable translational and rotational invariance
+
+call Put_dArray('Hess',rDum,0)
+VarR = .true.
+VarT = .true.
 !                                                                      *
 !***********************************************************************
 ! Call Slapaf to build the B matrix and get the displacement vectors   *
@@ -420,512 +388,501 @@
 ! angles)                                                              *
 !***********************************************************************
 !                                                                      *
-!---- Process the input
-!
-      PLback=iPrintLevel(-1)
-      i=iPrintLevel(0)
-      LuInput=21
-      LuInput=IsFreeUnit(LuInput)
-      Call StdIn_Name(StdIn)
-      Call Molcas_open(LuInput,StdIn)
-!
-      iRow=0
-      iRow_c=0
-      nFix=0
-      iInt=0
-      Call RdCtl_Slapaf(LuInput,.True.)
-      Curvilinear = .True.
-      Numerical = .False.
-!
-      Close(LuInput)
-      i=iPrintLevel(PLback)
+! Process the input
+
+PLback = iPrintLevel(-1)
+i = iPrintLevel(0)
+LuInput = 21
+LuInput = IsFreeUnit(LuInput)
+call StdIn_Name(StdIn)
+call Molcas_open(LuInput,StdIn)
+
+iRow = 0
+iRow_c = 0
+nFix = 0
+iInt = 0
+call RdCtl_Slapaf(LuInput,.true.)
+Curvilinear = .true.
+Numerical = .false.
+
+close(LuInput)
+i = iPrintLevel(PLback)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      BSet=.True.
-      HSet=.False.
-      PrQ=.False.
-      nWndw=iter
-      iRef=0
-      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
-      nQQ = SIZE(Shift,1)
+BSet = .true.
+HSet = .false.
+PrQ = .false.
+nWndw = iter
+iRef = 0
+call BMtrx(size(Coor,2),Coor,iter,mTtAtm,nWndw)
+nQQ = size(Shift,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- First get the (transposed) K matrix, (dQ/dq)^T
-!
-      Call mma_allocate(KMtrx,mq,nQQ,label="KMtrx")
-      Call mma_allocate(KTrsp,nQQ,mq,label="KTrsp")
-      Call Qpg_dArray('K',Found,nK)
-      If (.not.Found .or. (nK.ne.mq*nQQ)) Call Abend()
-      Call Get_dArray('K',KMtrx,nK)
-      KTrsp(:,:)=Transpose(KMtrx)
-      Call mma_deallocate(KMtrx)
-!
-!---- Form the full B matrix in the redundant internal coordinates
-!     (primitives) and multiply by KK(t) on the fly
-!
-      nX = 3*mTtAtm
-      Call mma_allocate(KKtB,mq,nX,label="KKtB")
-      Call FZero(KKtB,nX*mq)
-      i=1
-      Do iq=1,mq
-         nB=nqBM(iq)
-         Do iB=i,i+nB-1
-            j=iBM(iB)
-            Do ii=1,mq
-               KKtB(ii,j)=KKtB(ii,j)+BM(iB)*                            &
-     &            DDot_(nQQ,KTrsp(1,ii),1,KTrsp(1,iq),1)
-            End Do
-         End Do
-         i=i+nB
-      End Do
-      Call mma_deallocate(KTrsp)
-!
-!---- Get the Cartesian normal modes
-!
-      Call Get_iScalar('Unique atoms',nUnique_Atoms)
-      Call Get_nAtoms_All(nAll_Atoms)
-      If (3*nAll_Atoms.ne.nX) Call Abend()
-      Call mma_allocate(NMod,nX,nModes,label="NMod")
-      Call FZero(NMod,nX*nModes)
-      Call Get_NMode_All(Modes,lModes,nModes,nUnique_Atoms,             &
-     &                   NMod,nAll_Atoms,lDisp)
-!
-!---- Compute the overlaps with the primitive displacements
-!
-      Call mma_allocate(IntMod,mq,nModes,label="IntMod")
-      Call DGeMM_('N','N',mq,nModes,nX,One,KKtB,mq,                     &
-     &            NMod,nX,Zero,IntMod,mq)
-      Call mma_deallocate(KKtB)
-      Call mma_deallocate(NMod)
-!
-!---- "Normalize" the maximum value to 1
-!
-      Do i=1,nModes
-         Mx=Zero
-         Do j=1,mq
-           Mx=Max(Mx,Abs(IntMod(j,i)))
-         End Do
-         If (Mx.gt.1.0D-10) Call DScal_(mq,One/Mx,IntMod(1,i),1)
-      End Do
-!
-!---- Print the overlaps
-!
-      Call mma_allocate(Label,nLbl,label='Label')
-      Filename='INTCOR'
-      LuIC=21
-      LuIC=IsFreeUnit(LuIC)
-      Call Molcas_open(LuIC,Filename)
-      i=1
-      Line=Get_Ln_EOF(LuIC)
-      Do While (Line .ne. 'EOF')
-         j=Index(Line,'=')+1
-         Label(i)=AdjustL(Line(j:))
-         i=i+1
-         Line=Get_Ln_EOF(LuIC)
-      End Do
-      Close(LuIC)
-!
-      MinComp=Half
-      Call CollapseOutput(1,'Principal components of the normal modes')
-      Write(6,'(3X,A)') '----------------------------------------'
-      Write(6,*)
-      Write(6,'(3X,A,F4.2,A)') '(Only contributions larger than ',      &
-     &                         MinComp,' times the maximum are printed)'
-      Write(6,*)
-      Call mma_allocate(Sort,mq,label="Sort")
-      Do i=1,nModes
-         Write(6,*)
-         Write(6,'(6X,A,1X,I6)') 'Mode',i
-         Write(Line,'(5X,F10.2)') Freq(i)
-         j=Index(Line,'-')
-         If (j.gt.0) Line(j:j)='i'
-         Write(6,'(8X,A)') 'Frequency: '//Trim(Line)//' cm-1'
-         Write(6,'(6X,A)') '---------------------------------'
-         Do j=1,mq
-            Sort(j)=j
-         End Do
-         Do j=1,mq
-            Do ii=j+1,mq
-               If (Abs(IntMod(Sort(ii),i)).gt.                          &
-     &             Abs(IntMod(Sort(j),i))) Then
-                  im=Sort(j)
-                  Sort(j)=Sort(ii)
-                  Sort(ii)=im
-               End If
-            End Do
-            If (Abs(IntMod(Sort(j),i)).lt.MinComp) Exit
-            Write(6,'(8X,A,F7.4)') Label(Sort(j)),IntMod(Sort(j),i)
-         End Do
-         Write(6,'(6X,A)') '---------------------------------'
-      End Do
-      Call CollapseOutput(0,'Principal components of the normal modes')
-!
-!---- Clean up
-!
-      Call mma_deallocate(Label)
-      Call mma_deallocate(IntMod)
-      Call mma_deallocate(Sort)
+! First get the (transposed) K matrix, (dQ/dq)^T
+
+call mma_allocate(KMtrx,mq,nQQ,label='KMtrx')
+call mma_allocate(KTrsp,nQQ,mq,label='KTrsp')
+call Qpg_dArray('K',Found,nK)
+if ((.not. Found) .or. (nK /= mq*nQQ)) call Abend()
+call Get_dArray('K',KMtrx,nK)
+KTrsp(:,:) = transpose(KMtrx)
+call mma_deallocate(KMtrx)
+
+! Form the full B matrix in the redundant internal coordinates
+! (primitives) and multiply by KK(t) on the fly
+
+nX = 3*mTtAtm
+call mma_allocate(KKtB,mq,nX,label='KKtB')
+call FZero(KKtB,nX*mq)
+i = 1
+do iq=1,mq
+  nB = nqBM(iq)
+  do iB=i,i+nB-1
+    j = iBM(iB)
+    do ii=1,mq
+      KKtB(ii,j) = KKtB(ii,j)+BM(iB)*DDot_(nQQ,KTrsp(1,ii),1,KTrsp(1,iq),1)
+    end do
+  end do
+  i = i+nB
+end do
+call mma_deallocate(KTrsp)
+
+! Get the Cartesian normal modes
+
+call Get_iScalar('Unique atoms',nUnique_Atoms)
+call Get_nAtoms_All(nAll_Atoms)
+if (3*nAll_Atoms /= nX) call Abend()
+call mma_allocate(NMod,nX,nModes,label='NMod')
+call FZero(NMod,nX*nModes)
+call Get_NMode_All(Modes,lModes,nModes,nUnique_Atoms,NMod,nAll_Atoms,lDisp)
+
+! Compute the overlaps with the primitive displacements
+
+call mma_allocate(IntMod,mq,nModes,label='IntMod')
+call DGeMM_('N','N',mq,nModes,nX,One,KKtB,mq,NMod,nX,Zero,IntMod,mq)
+call mma_deallocate(KKtB)
+call mma_deallocate(NMod)
+
+! "Normalize" the maximum value to 1
+
+do i=1,nModes
+  Mx = Zero
+  do j=1,mq
+    Mx = max(Mx,abs(IntMod(j,i)))
+  end do
+  if (Mx > 1.0D-10) call DScal_(mq,One/Mx,IntMod(1,i),1)
+end do
+
+! Print the overlaps
+
+call mma_allocate(Label,nLbl,label='Label')
+Filename = 'INTCOR'
+LuIC = 21
+LuIC = IsFreeUnit(LuIC)
+call Molcas_open(LuIC,Filename)
+i = 1
+Line = Get_Ln_EOF(LuIC)
+do while (Line /= 'EOF')
+  j = index(Line,'=')+1
+  Label(i) = adjustl(Line(j:))
+  i = i+1
+  Line = Get_Ln_EOF(LuIC)
+end do
+close(LuIC)
+
+MinComp = Half
+call CollapseOutput(1,'Principal components of the normal modes')
+write(6,'(3X,A)') '----------------------------------------'
+write(6,*)
+write(6,'(3X,A,F4.2,A)') '(Only contributions larger than ',MinComp,' times the maximum are printed)'
+write(6,*)
+call mma_allocate(Sort,mq,label='Sort')
+do i=1,nModes
+  write(6,*)
+  write(6,'(6X,A,1X,I6)') 'Mode',i
+  write(Line,'(5X,F10.2)') Freq(i)
+  j = index(Line,'-')
+  if (j > 0) Line(j:j) = 'i'
+  write(6,'(8X,A)') 'Frequency: '//trim(Line)//' cm-1'
+  write(6,'(6X,A)') '---------------------------------'
+  do j=1,mq
+    Sort(j) = j
+  end do
+  do j=1,mq
+    do ii=j+1,mq
+      if (abs(IntMod(Sort(ii),i)) > abs(IntMod(Sort(j),i))) then
+        im = Sort(j)
+        Sort(j) = Sort(ii)
+        Sort(ii) = im
+      end if
+    end do
+    if (abs(IntMod(Sort(j),i)) < MinComp) exit
+    write(6,'(8X,A,F7.4)') Label(Sort(j)),IntMod(Sort(j),i)
+  end do
+  write(6,'(6X,A)') '---------------------------------'
+end do
+call CollapseOutput(0,'Principal components of the normal modes')
+
+! Clean up
+
+call mma_deallocate(Label)
+call mma_deallocate(IntMod)
+call mma_deallocate(Sort)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Restore the runfile and the "global" variables
-!
-      Call fCopy('RUNBCK2','RUNFILE',iErr)
-      If (iErr.ne.0) Call Abend()
-      If (AixRm('RUNBCK2').ne.0) Call Abend
-!
-      Header(:)=Bk_Header(:)
-      iRef=Bk_iRef
-      NmIter=Bk_NmIter
-      iter=Bk_iter
-      nDimBC=Bk_nDimBC
-      MxItr=Bk_MxItr
-      Max_Center=Bk_Max_Center
-      iOptC=Bk_iOptC
-      mode=Bk_mode
-      mTROld=Bk_mTROld
-      nWndw=Bk_nWndw
-      iOptH=Bk_iOptH
-      nLambda=Bk_nLambda
-      nMEP=Bk_nMEP
-      nBVec=Bk_nBVec
-      IRC=Bk_IRC
-      mTtAtm=Bk_mTtAtm
-      MEPnum=Bk_MEPnum
-      Stop=Bk_Stop
-      lOld=Bk_lOld
-      CurviLinear=Bk_CurviLinear
-      HSet=Bk_HSet
-      BSet=Bk_BSet
-      lNmHss=Bk_lNmHss
-      Cubic=Bk_Cubic
-      Baker=Bk_Baker
-      DDV_Schlegel=Bk_DDV_Schlegel
-      Line_Search=Bk_Line_Search
-      HWRS=Bk_HWRS
-      Analytic_Hessian=Bk_Analytic_Hessian
-      FindTS=Bk_FindTS
-      MEP=Bk_MEP
-      User_Def=Bk_User_Def
-      rMEP=Bk_rMEP
-      lOld_Implicit=Bk_lOld_Implicit
-      HrmFrq_Show=Bk_HrmFrq_Show
-      eMEPtest=Bk_eMEPtest
-      Redundant=Bk_Redundant
-      lCtoF=Bk_lCtoF
-      lSoft=Bk_lSoft
-      CallLast=Bk_CallLast
-      TwoRunFiles=Bk_TwoRunFiles
-      TSConstraints=Bk_TSConstraints
-      MEPCons=Bk_MEPCons
-      Track=Bk_Track
-      Request_Alaska=Bk_Request_Alaska
-      Request_RASSI=Bk_Request_RASSI
-      ThrEne=Bk_ThrEne
-      ThrGrd=Bk_ThrGrd
-      Beta=Bk_Beta
-      Beta_Disp=Bk_Beta_Disp
-      Delta=Bk_Delta
-      Rtrnc=Bk_Rtrnc
-      rHidden=Bk_rHidden
-      ThrCons=Bk_ThrCons
-      GNrm_Threshold=Bk_GNrm_Threshold
-      CnstWght=Bk_CnstWght
-      dMEPStep=Bk_dMEPStep
-      rFuzz=Bk_rFuzz
-      ThrMEP=Bk_ThrMEP
-      lTherm=Bk_lTherm
-      lDoubleIso=Bk_lDoubleIso
-      nUserPT=Bk_nUserPT
-      nsRot=Bk_nsRot
-      UserT(:)=Bk_UserT(:)
-      UserP=Bk_UserP
-      HUpMet=Bk_HUpMet
-      UpMeth=Bk_UpMeth
-      MEP_Type=Bk_MEP_Type
-      MEP_Algo=Bk_MEP_Algo
-      isFalcon=Bk_isFalcon
-      mB_Tot=Bk_mB_Tot
-      mdB_Tot=Bk_mdB_Tot
-      mq=Bk_mq
-      WeightedConstraints=Bk_WeightedConstraints
-      NADC=Bk_NADC
-      EDiffZero=Bk_EDiffZero
-      ApproxNADC=Bk_ApproxNADC
-      iState(:)=Bk_iState(:)
-      iRow = Bk_iRow
-      iRow_c=Bk_iRow_c
-      nFix = Bk_nFix
-      iInt = Bk_iInt
-      VarR = Bk_VarR
-      VarT = Bk_VarT
-!
-!     Process arrays that are always allocated.
-!
-      If (Allocated(Bk_Cx)) Then
-         Cx(:,:,:) = Bk_Cx(:,:,:)
-         Call mma_deallocate(Bk_Cx)
-      Else
-         Call mma_deallocate(Cx)
-      End If
-      If (Allocated(Bk_Gx)) Then
-         Gx(:,:,:) = Bk_Gx(:,:,:)
-         Call mma_deallocate(Bk_Gx)
-      Else
-         Call mma_deallocate(Gx)
-      End If
-      If (Allocated(Bk_Gx0)) Then
-         Gx0(:,:,:) = Bk_Gx0(:,:,:)
-         Call mma_deallocate(Bk_Gx0)
-      Else
-         Call mma_deallocate(Gx0)
-      End If
-      If (Allocated(Bk_NAC)) Then
-         NAC(:,:,:) = Bk_NAC(:,:,:)
-         Call mma_deallocate(Bk_NAC)
-      Else
-         Call mma_deallocate(NAC)
-      End If
-      If (Allocated(Bk_Q_nuclear)) Then
-         Q_nuclear(:) = Bk_Q_nuclear(:)
-         Call mma_deallocate(Bk_Q_nuclear)
-      Else
-         Call mma_deallocate(Q_nuclear)
-      End If
-      If (Allocated(Bk_dMass)) Then
-         dMass(:) = Bk_dMass(:)
-         Call mma_deallocate(Bk_dMass)
-      Else
-         Call mma_deallocate(dMass)
-      End If
-      If (Allocated(Bk_Coor)) Then
-         Coor(:,:) = Bk_Coor(:,:)
-         Call mma_deallocate(Bk_Coor)
-      Else
-        If (Allocated(Coor)) Call mma_deallocate(Coor)
-      End If
-      If (Allocated(Bk_Grd)) Then
-         Grd(:,:) = Bk_Grd(:,:)
-         Call mma_deallocate(Bk_Grd)
-      Else
-        If (Allocated(Grd)) Call mma_deallocate(Grd)
-      End If
-      If (Allocated(Bk_ANr)) Then
-         ANr(:) = Bk_ANr(:)
-         Call mma_deallocate(Bk_ANr)
-      Else
-         Call mma_deallocate(ANr)
-      End If
-      If (Allocated(Bk_Weights)) Then
-         Weights(:) = Bk_Weights(:)
-         Call mma_deallocate(Bk_Weights)
-      Else
-         Call mma_deallocate(Weights)
-      End If
-      If (Allocated(Bk_Shift)) Then
+! Restore the runfile and the "global" variables
 
-         If (SIZE(Shift,1)/=SIZE(Bk_Shift,1)) Then
-            Call mma_deallocate(Shift)
-            Call mma_allocate(Shift,SIZE(Bk_Shift,1),MaxItr,            &
-     &                        Label='Shift')
-         End If
-         Shift(:,:) = Bk_Shift(:,:)
-         Call mma_deallocate(Bk_Shift)
-      Else
-         Call mma_deallocate(Shift)
-      End If
-      If (Allocated(Bk_GNrm)) Then
-         GNrm(:) = Bk_GNrm(:)
-         Call mma_deallocate(Bk_GNrm)
-      Else
-         Call mma_deallocate(GNrm)
-      End If
-      If (Allocated(Bk_Energy)) Then
-         Energy(:) = Bk_Energy(:)
-         Call mma_deallocate(Bk_Energy)
-      Else
-         Call mma_deallocate(Energy)
-      End If
-      If (Allocated(Bk_Energy0)) Then
-         Energy0(:) = Bk_Energy0(:)
-         Call mma_deallocate(Bk_Energy0)
-      Else
-         Call mma_deallocate(Energy0)
-      End If
-      If (Allocated(Bk_MF)) Then
-         MF(:,:) = Bk_MF(:,:)
-         Call mma_deallocate(Bk_MF)
-      Else
-         Call mma_deallocate(MF)
-      End If
-      If (Allocated(Bk_DipM)) Then
-         DipM(:,:) = Bk_DipM(:,:)
-         Call mma_deallocate(Bk_DipM)
-      Else
-        If (Allocated(DipM)) Call mma_deallocate(DipM)
-      End If
-      If (Allocated(Bk_RefGeo)) Then
-         RefGeo(:,:) = Bk_RefGeo(:,:)
-         Call mma_deallocate(Bk_RefGeo)
-      Else
-        If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
-      End If
-!
-!     Process arrays that are allocated optionally.
-!
-      If (Allocated(Bk_Lambda)) Then
-         If (.NOT.Allocated(Lambda)) Then
-            Call mma_allocate(Lambda,SIZE(Bk_Lambda,1),MaxItr+1,        &
-     &                        Label='Lambda')
-         End If
-         Lambda(:,:) = Bk_Lambda(:,:)
-         Call mma_deallocate(Bk_Lambda)
-      Else
-        If (Allocated(Lambda)) Call mma_deallocate(Lambda)
-      End If
+call fCopy('RUNBCK2','RUNFILE',iErr)
+if (iErr /= 0) call Abend()
+if (AixRm('RUNBCK2') /= 0) call Abend()
 
-      If (Allocated(Bk_qInt)) Then
-         If (Allocated(qInt)) Call mma_deallocate(qInt)
-         Call mma_allocate(qInt,SIZE(Bk_qInt,1),MaxItr,Label='qInt')
-         qInt(:,:) = Bk_qInt(:,:)
-         Call mma_deallocate(Bk_qInt)
-      Else
-         If (Allocated(qInt)) Call mma_deallocate(qInt)
-      End If
-      If (Allocated(Bk_dqInt)) Then
-         If (Allocated(dqInt)) Call mma_deallocate(dqInt)
-         Call mma_allocate(dqInt,SIZE(Bk_dqInt,1),MaxItr,Label='dqInt')
-         dqInt(:,:) = Bk_dqInt(:,:)
-         Call mma_deallocate(Bk_dqInt)
-      Else
-         If (Allocated(dqInt)) Call mma_deallocate(dqInt)
-      End If
+Header(:) = Bk_Header(:)
+iRef = Bk_iRef
+NmIter = Bk_NmIter
+iter = Bk_iter
+nDimBC = Bk_nDimBC
+MxItr = Bk_MxItr
+Max_Center = Bk_Max_Center
+iOptC = Bk_iOptC
+mode = Bk_mode
+mTROld = Bk_mTROld
+nWndw = Bk_nWndw
+iOptH = Bk_iOptH
+nLambda = Bk_nLambda
+nMEP = Bk_nMEP
+nBVec = Bk_nBVec
+IRC = Bk_IRC
+mTtAtm = Bk_mTtAtm
+MEPnum = Bk_MEPnum
+stop = Bk_Stop
+lOld = Bk_lOld
+CurviLinear = Bk_CurviLinear
+HSet = Bk_HSet
+BSet = Bk_BSet
+lNmHss = Bk_lNmHss
+Cubic = Bk_Cubic
+Baker = Bk_Baker
+DDV_Schlegel = Bk_DDV_Schlegel
+Line_Search = Bk_Line_Search
+HWRS = Bk_HWRS
+Analytic_Hessian = Bk_Analytic_Hessian
+FindTS = Bk_FindTS
+MEP = Bk_MEP
+User_Def = Bk_User_Def
+rMEP = Bk_rMEP
+lOld_Implicit = Bk_lOld_Implicit
+HrmFrq_Show = Bk_HrmFrq_Show
+eMEPtest = Bk_eMEPtest
+Redundant = Bk_Redundant
+lCtoF = Bk_lCtoF
+lSoft = Bk_lSoft
+CallLast = Bk_CallLast
+TwoRunFiles = Bk_TwoRunFiles
+TSConstraints = Bk_TSConstraints
+MEPCons = Bk_MEPCons
+Track = Bk_Track
+Request_Alaska = Bk_Request_Alaska
+Request_RASSI = Bk_Request_RASSI
+ThrEne = Bk_ThrEne
+ThrGrd = Bk_ThrGrd
+Beta = Bk_Beta
+Beta_Disp = Bk_Beta_Disp
+Delta = Bk_Delta
+Rtrnc = Bk_Rtrnc
+rHidden = Bk_rHidden
+ThrCons = Bk_ThrCons
+GNrm_Threshold = Bk_GNrm_Threshold
+CnstWght = Bk_CnstWght
+dMEPStep = Bk_dMEPStep
+rFuzz = Bk_rFuzz
+ThrMEP = Bk_ThrMEP
+lTherm = Bk_lTherm
+lDoubleIso = Bk_lDoubleIso
+nUserPT = Bk_nUserPT
+nsRot = Bk_nsRot
+UserT(:) = Bk_UserT(:)
+UserP = Bk_UserP
+HUpMet = Bk_HUpMet
+UpMeth = Bk_UpMeth
+MEP_Type = Bk_MEP_Type
+MEP_Algo = Bk_MEP_Algo
+isFalcon = Bk_isFalcon
+mB_Tot = Bk_mB_Tot
+mdB_Tot = Bk_mdB_Tot
+mq = Bk_mq
+WeightedConstraints = Bk_WeightedConstraints
+NADC = Bk_NADC
+EDiffZero = Bk_EDiffZero
+ApproxNADC = Bk_ApproxNADC
+iState(:) = Bk_iState(:)
+iRow = Bk_iRow
+iRow_c = Bk_iRow_c
+nFix = Bk_nFix
+iInt = Bk_iInt
+VarR = Bk_VarR
+VarT = Bk_VarT
 
-      If (Allocated(Bk_BM)) Then
-         If (Allocated(BM)) Call mma_deallocate(BM)
-         Call mma_allocate(BM,SIZE(Bk_BM),Label='BM')
-         BM(:) = Bk_BM(:)
-         Call mma_deallocate(Bk_BM)
-      Else
-         If (Allocated(BM)) Call mma_deallocate(BM)
-      End If
-      If (Allocated(Bk_dBM)) Then
-         If (Allocated(dBM)) Call mma_deallocate(dBM)
-         Call mma_allocate(dBM,SIZE(Bk_dBM),Label='dBM')
-         dBM(:) = Bk_dBM(:)
-         Call mma_deallocate(Bk_dBM)
-      Else
-         If (Allocated(dBM)) Call mma_deallocate(dBM)
-      End If
-      If (Allocated(Bk_iBM)) Then
-         If (Allocated(iBM)) Call mma_deallocate(iBM)
-         Call mma_allocate(iBM,SIZE(Bk_iBM),Label='iBM')
-         iBM(:) = Bk_iBM(:)
-         Call mma_deallocate(Bk_iBM)
-      Else
-         If (Allocated(iBM)) Call mma_deallocate(iBM)
-      End If
-      If (Allocated(Bk_idBM)) Then
-         If (Allocated(idBM)) Call mma_deallocate(idBM)
-         Call mma_allocate(idBM,SIZE(Bk_idBM),Label='idBM')
-         idBM(:) = Bk_idBM(:)
-         Call mma_deallocate(Bk_idBM)
-      Else
-         If (Allocated(idBM)) Call mma_deallocate(idBM)
-      End If
-      If (Allocated(Bk_nqBM)) Then
-         If (Allocated(nqBM)) Call mma_deallocate(nqBM)
-         Call mma_allocate(nqBM,SIZE(Bk_nqBM),Label='nqBM')
-         nqBM(:) = Bk_nqBM(:)
-         Call mma_deallocate(Bk_nqBM)
-      Else
-         If (Allocated(nqBM)) Call mma_deallocate(nqBM)
-      End If
-      If (Allocated(Bk_BMx)) Then
-         If (Allocated(BMx)) Call mma_deallocate(BMx)
-         Call mma_allocate(BMx,SIZE(Bk_BMx,1),SIZE(Bk_BMx,2),           &
-     &                     Label='BMx')
-         BMx(:,:) = Bk_BMx(:,:)
-         Call mma_deallocate(Bk_BMx)
-      Else
-         If (Allocated(BMx)) Call mma_deallocate(BMx)
-      End If
-      If (Allocated(Bk_Degen)) Then
-         If (Allocated(Degen)) Call mma_deallocate(Degen)
-         Call mma_allocate(Degen,SIZE(Bk_Degen,1),SIZE(Bk_Degen,2),     &
-     &                     Label='Degen')
-         Degen(:,:) = Bk_Degen(:,:)
-         Call mma_deallocate(Bk_Degen)
-      Else
-         If (Allocated(Degen)) Call mma_deallocate(Degen)
-      End If
-      If (Allocated(Bk_jStab)) Then
-         If (Allocated(jStab)) Call mma_deallocate(jStab)
-         Call mma_allocate(jStab,[0,7],[1,SIZE(Bk_jStab,2)],            &
-     &                     Label='jStab')
-         jStab(:,:) = Bk_jStab(:,:)
-         Call mma_deallocate(Bk_jStab)
-      Else
-         If (Allocated(jStab)) Call mma_deallocate(jStab)
-      End If
-      If (Allocated(Bk_iCoSet)) Then
-         If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
-         Call mma_allocate(iCoSet,[0,7],[1,SIZE(Bk_iCoSet,2)],          &
-     &                     Label='iCoSet')
-         iCoSet(:,:) = Bk_iCoSet(:,:)
-         Call mma_deallocate(Bk_iCoSet)
-      Else
-         If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
-      End If
-      If (Allocated(Bk_nStab)) Then
-         If (Allocated(nStab)) Call mma_deallocate(nStab)
-         Call mma_allocate(nStab,SIZE(Bk_nStab,1),Label='nStab')
-         nStab(:) = Bk_nStab(:)
-         Call mma_deallocate(Bk_nStab)
-      Else
-         If (Allocated(nStab)) Call mma_deallocate(nStab)
-      End If
-      If (Allocated(Bk_AtomLbl)) Then
-         If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
-         Call mma_allocate(AtomLbl,SIZE(Bk_AtomLbl,1),Label='AtomLbl')
-         AtomLbl(:) = Bk_AtomLbl(:)
-         Call mma_deallocate(Bk_AtomLbl)
-      Else
-         If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
-      End If
-      If (Allocated(Bk_Smmtrc)) Then
-         If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
-         Call mma_allocate(Smmtrc,3,SIZE(Bk_Smmtrc,2),Label='Smmtrc')
-         Smmtrc(:,:) = Bk_Smmtrc(:,:)
-         Call mma_deallocate(Bk_Smmtrc)
-      Else
-         If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
-      End If
-      If (Allocated(Bk_Lbl)) Then
-         If (Allocated(Lbl)) Call mma_deallocate(Lbl)
-         Call mma_allocate(Lbl,SIZE(Bk_Lbl),Label='Lbl')
-         Lbl(:) = Bk_Lbl(:)
-         Call mma_deallocate(Bk_Lbl)
-      Else
-         If (Allocated(Lbl)) Call mma_deallocate(Lbl)
-      End If
-      If (Allocated(Bk_mRowH)) Then
-         If (Allocated(mRowH)) Call mma_deallocate(mRowH)
-         Call mma_allocate(mRowH,SIZE(Bk_mRowH),Label='mRowH')
-         mRowH(:) = Bk_mRowH(:)
-         Call mma_deallocate(Bk_mRowH)
-      Else
-         If (Allocated(mRowH)) Call mma_deallocate(mRowH)
-      End If
-      If (Allocated(Bk_RootMap)) Then
-         If (Allocated(RootMap)) Call mma_deallocate(RootMap)
-         Call mma_allocate(RootMap,SIZE(Bk_RootMap),Label='RootMap')
-         RootMap(:) = Bk_RootMap(:)
-         Call mma_deallocate(Bk_RootMap)
-      Else
-         If (Allocated(RootMap)) Call mma_deallocate(RootMap)
-      End If
-!
-      End Subroutine Print_Mode_Components
+! Process arrays that are always allocated.
+
+if (allocated(Bk_Cx)) then
+  Cx(:,:,:) = Bk_Cx(:,:,:)
+  call mma_deallocate(Bk_Cx)
+else
+  call mma_deallocate(Cx)
+end if
+if (allocated(Bk_Gx)) then
+  Gx(:,:,:) = Bk_Gx(:,:,:)
+  call mma_deallocate(Bk_Gx)
+else
+  call mma_deallocate(Gx)
+end if
+if (allocated(Bk_Gx0)) then
+  Gx0(:,:,:) = Bk_Gx0(:,:,:)
+  call mma_deallocate(Bk_Gx0)
+else
+  call mma_deallocate(Gx0)
+end if
+if (allocated(Bk_NAC)) then
+  NAC(:,:,:) = Bk_NAC(:,:,:)
+  call mma_deallocate(Bk_NAC)
+else
+  call mma_deallocate(NAC)
+end if
+if (allocated(Bk_Q_nuclear)) then
+  Q_nuclear(:) = Bk_Q_nuclear(:)
+  call mma_deallocate(Bk_Q_nuclear)
+else
+  call mma_deallocate(Q_nuclear)
+end if
+if (allocated(Bk_dMass)) then
+  dMass(:) = Bk_dMass(:)
+  call mma_deallocate(Bk_dMass)
+else
+  call mma_deallocate(dMass)
+end if
+if (allocated(Bk_Coor)) then
+  Coor(:,:) = Bk_Coor(:,:)
+  call mma_deallocate(Bk_Coor)
+else
+  if (allocated(Coor)) call mma_deallocate(Coor)
+end if
+if (allocated(Bk_Grd)) then
+  Grd(:,:) = Bk_Grd(:,:)
+  call mma_deallocate(Bk_Grd)
+else
+  if (allocated(Grd)) call mma_deallocate(Grd)
+end if
+if (allocated(Bk_ANr)) then
+  ANr(:) = Bk_ANr(:)
+  call mma_deallocate(Bk_ANr)
+else
+  call mma_deallocate(ANr)
+end if
+if (allocated(Bk_Weights)) then
+  Weights(:) = Bk_Weights(:)
+  call mma_deallocate(Bk_Weights)
+else
+  call mma_deallocate(Weights)
+end if
+if (allocated(Bk_Shift)) then
+
+  if (size(Shift,1) /= size(Bk_Shift,1)) then
+    call mma_deallocate(Shift)
+    call mma_allocate(Shift,size(Bk_Shift,1),MaxItr,Label='Shift')
+  end if
+  Shift(:,:) = Bk_Shift(:,:)
+  call mma_deallocate(Bk_Shift)
+else
+  call mma_deallocate(Shift)
+end if
+if (allocated(Bk_GNrm)) then
+  GNrm(:) = Bk_GNrm(:)
+  call mma_deallocate(Bk_GNrm)
+else
+  call mma_deallocate(GNrm)
+end if
+if (allocated(Bk_Energy)) then
+  Energy(:) = Bk_Energy(:)
+  call mma_deallocate(Bk_Energy)
+else
+  call mma_deallocate(Energy)
+end if
+if (allocated(Bk_Energy0)) then
+  Energy0(:) = Bk_Energy0(:)
+  call mma_deallocate(Bk_Energy0)
+else
+  call mma_deallocate(Energy0)
+end if
+if (allocated(Bk_MF)) then
+  MF(:,:) = Bk_MF(:,:)
+  call mma_deallocate(Bk_MF)
+else
+  call mma_deallocate(MF)
+end if
+if (allocated(Bk_DipM)) then
+  DipM(:,:) = Bk_DipM(:,:)
+  call mma_deallocate(Bk_DipM)
+else
+  if (allocated(DipM)) call mma_deallocate(DipM)
+end if
+if (allocated(Bk_RefGeo)) then
+  RefGeo(:,:) = Bk_RefGeo(:,:)
+  call mma_deallocate(Bk_RefGeo)
+else
+  if (allocated(RefGeo)) call mma_deallocate(RefGeo)
+end if
+
+! Process arrays that are allocated optionally.
+
+if (allocated(Bk_Lambda)) then
+  if (.not. allocated(Lambda)) then
+    call mma_allocate(Lambda,size(Bk_Lambda,1),MaxItr+1,Label='Lambda')
+  end if
+  Lambda(:,:) = Bk_Lambda(:,:)
+  call mma_deallocate(Bk_Lambda)
+else
+  if (allocated(Lambda)) call mma_deallocate(Lambda)
+end if
+
+if (allocated(Bk_qInt)) then
+  if (allocated(qInt)) call mma_deallocate(qInt)
+  call mma_allocate(qInt,size(Bk_qInt,1),MaxItr,Label='qInt')
+  qInt(:,:) = Bk_qInt(:,:)
+  call mma_deallocate(Bk_qInt)
+else
+  if (allocated(qInt)) call mma_deallocate(qInt)
+end if
+if (allocated(Bk_dqInt)) then
+  if (allocated(dqInt)) call mma_deallocate(dqInt)
+  call mma_allocate(dqInt,size(Bk_dqInt,1),MaxItr,Label='dqInt')
+  dqInt(:,:) = Bk_dqInt(:,:)
+  call mma_deallocate(Bk_dqInt)
+else
+  if (allocated(dqInt)) call mma_deallocate(dqInt)
+end if
+
+if (allocated(Bk_BM)) then
+  if (allocated(BM)) call mma_deallocate(BM)
+  call mma_allocate(BM,size(Bk_BM),Label='BM')
+  BM(:) = Bk_BM(:)
+  call mma_deallocate(Bk_BM)
+else
+  if (allocated(BM)) call mma_deallocate(BM)
+end if
+if (allocated(Bk_dBM)) then
+  if (allocated(dBM)) call mma_deallocate(dBM)
+  call mma_allocate(dBM,size(Bk_dBM),Label='dBM')
+  dBM(:) = Bk_dBM(:)
+  call mma_deallocate(Bk_dBM)
+else
+  if (allocated(dBM)) call mma_deallocate(dBM)
+end if
+if (allocated(Bk_iBM)) then
+  if (allocated(iBM)) call mma_deallocate(iBM)
+  call mma_allocate(iBM,size(Bk_iBM),Label='iBM')
+  iBM(:) = Bk_iBM(:)
+  call mma_deallocate(Bk_iBM)
+else
+  if (allocated(iBM)) call mma_deallocate(iBM)
+end if
+if (allocated(Bk_idBM)) then
+  if (allocated(idBM)) call mma_deallocate(idBM)
+  call mma_allocate(idBM,size(Bk_idBM),Label='idBM')
+  idBM(:) = Bk_idBM(:)
+  call mma_deallocate(Bk_idBM)
+else
+  if (allocated(idBM)) call mma_deallocate(idBM)
+end if
+if (allocated(Bk_nqBM)) then
+  if (allocated(nqBM)) call mma_deallocate(nqBM)
+  call mma_allocate(nqBM,size(Bk_nqBM),Label='nqBM')
+  nqBM(:) = Bk_nqBM(:)
+  call mma_deallocate(Bk_nqBM)
+else
+  if (allocated(nqBM)) call mma_deallocate(nqBM)
+end if
+if (allocated(Bk_BMx)) then
+  if (allocated(BMx)) call mma_deallocate(BMx)
+  call mma_allocate(BMx,size(Bk_BMx,1),size(Bk_BMx,2),Label='BMx')
+  BMx(:,:) = Bk_BMx(:,:)
+  call mma_deallocate(Bk_BMx)
+else
+  if (allocated(BMx)) call mma_deallocate(BMx)
+end if
+if (allocated(Bk_Degen)) then
+  if (allocated(Degen)) call mma_deallocate(Degen)
+  call mma_allocate(Degen,size(Bk_Degen,1),size(Bk_Degen,2),Label='Degen')
+  Degen(:,:) = Bk_Degen(:,:)
+  call mma_deallocate(Bk_Degen)
+else
+  if (allocated(Degen)) call mma_deallocate(Degen)
+end if
+if (allocated(Bk_jStab)) then
+  if (allocated(jStab)) call mma_deallocate(jStab)
+  call mma_allocate(jStab,[0,7],[1,size(Bk_jStab,2)],Label='jStab')
+  jStab(:,:) = Bk_jStab(:,:)
+  call mma_deallocate(Bk_jStab)
+else
+  if (allocated(jStab)) call mma_deallocate(jStab)
+end if
+if (allocated(Bk_iCoSet)) then
+  if (allocated(iCoSet)) call mma_deallocate(iCoSet)
+  call mma_allocate(iCoSet,[0,7],[1,size(Bk_iCoSet,2)],Label='iCoSet')
+  iCoSet(:,:) = Bk_iCoSet(:,:)
+  call mma_deallocate(Bk_iCoSet)
+else
+  if (allocated(iCoSet)) call mma_deallocate(iCoSet)
+end if
+if (allocated(Bk_nStab)) then
+  if (allocated(nStab)) call mma_deallocate(nStab)
+  call mma_allocate(nStab,size(Bk_nStab,1),Label='nStab')
+  nStab(:) = Bk_nStab(:)
+  call mma_deallocate(Bk_nStab)
+else
+  if (allocated(nStab)) call mma_deallocate(nStab)
+end if
+if (allocated(Bk_AtomLbl)) then
+  if (allocated(AtomLbl)) call mma_deallocate(AtomLbl)
+  call mma_allocate(AtomLbl,size(Bk_AtomLbl,1),Label='AtomLbl')
+  AtomLbl(:) = Bk_AtomLbl(:)
+  call mma_deallocate(Bk_AtomLbl)
+else
+  if (allocated(AtomLbl)) call mma_deallocate(AtomLbl)
+end if
+if (allocated(Bk_Smmtrc)) then
+  if (allocated(Smmtrc)) call mma_deallocate(Smmtrc)
+  call mma_allocate(Smmtrc,3,size(Bk_Smmtrc,2),Label='Smmtrc')
+  Smmtrc(:,:) = Bk_Smmtrc(:,:)
+  call mma_deallocate(Bk_Smmtrc)
+else
+  if (allocated(Smmtrc)) call mma_deallocate(Smmtrc)
+end if
+if (allocated(Bk_Lbl)) then
+  if (allocated(Lbl)) call mma_deallocate(Lbl)
+  call mma_allocate(Lbl,size(Bk_Lbl),Label='Lbl')
+  Lbl(:) = Bk_Lbl(:)
+  call mma_deallocate(Bk_Lbl)
+else
+  if (allocated(Lbl)) call mma_deallocate(Lbl)
+end if
+if (allocated(Bk_mRowH)) then
+  if (allocated(mRowH)) call mma_deallocate(mRowH)
+  call mma_allocate(mRowH,size(Bk_mRowH),Label='mRowH')
+  mRowH(:) = Bk_mRowH(:)
+  call mma_deallocate(Bk_mRowH)
+else
+  if (allocated(mRowH)) call mma_deallocate(mRowH)
+end if
+if (allocated(Bk_RootMap)) then
+  if (allocated(RootMap)) call mma_deallocate(RootMap)
+  call mma_allocate(RootMap,size(Bk_RootMap),Label='RootMap')
+  RootMap(:) = Bk_RootMap(:)
+  call mma_deallocate(Bk_RootMap)
+else
+  if (allocated(RootMap)) call mma_deallocate(RootMap)
+end if
+
+end subroutine Print_Mode_Components

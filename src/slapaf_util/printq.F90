@@ -8,12 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
+
+implicit real*8(a-h,o-z)
 #include "print.fh"
-      Real*8 rK(nq,nQQ), rMult(nq)
-      Character*14  qLbl(nq), Line*80, filnam*16
-      Logical Start
+real*8 rK(nq,nQQ), rMult(nq)
+character*14 qLbl(nq), Line*80, filnam*16
+logical Start
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -22,118 +24,115 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iPrint=99
+iPrint = 99
 #else
-      iRout=122
-      iPrint=nPrint(iRout)
+iRout = 122
+iPrint = nPrint(iRout)
 #endif
-!
-      Lu=6
-      Thr=0.001D+00 ! Threshold for printout.
-!
-      If (iPrint.le.5) Go To 99
-      Write (Lu,*)
-      Call CollapseOutput(1,'Internal coordinate section')
-!
-      If (iPrint.ge.6) Then
-         Write (Lu,*)
-         Write (Lu,'(80A)') ('*',i=1,80)
-         Write (Lu,*) ' Auto-Defined Internal coordinates'
-         Write (Lu,'(80A)') ('-',i=1,80)
-         Write (Lu,'(A)') '  Primitive Internal Coordinates:'
-      Else
-         Write (Lu,*)
-         Write (Lu,'(A)') '  Redundant Internal Coordinates:'
-         Write (Lu,*)
-      End If
-!
-      Rewind(LuIC)
- 999  Continue
-         Read (LuIC,'(A)',END=998) Line
-         Write (Lu,'(A)') Line
-         Go To 999
- 998  Continue
-      Rewind(LuIC)
-      If (iPrint.lt.6) Go To 99
-!
-      Write (Lu,'(A)') '  Internal Coordinates:'
-      Do iQQ = 1, nQQ
-         Write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
-         iF=7
-         jq=0
-         Start=.True.
-         Do iq = 1, nq
-            temp=Abs(rK(iq,iQQ))
-            If (temp.gt.Thr) Then
-               jq = jq + 1
-               If (jq.gt.4) Then
-                  Line(80:80)='&'
-                  Write (Lu,'(A)') Line
-                  Line=' '
-                  iF=6
-                  jq = 1
-                  Start=.False.
-               End If
-               If (jq.eq.1.and.Start) Then
-                  iE=iF+16
-                  Write(Line(iF:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),     &
-     &                                            ' ',qLbl(iq)(1:4),' '
-               Else
-                  iE=iF+17
-                  Write(Line(iF:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),    &
-     &                                            ' ',qLbl(iq)(1:4),' '
-               End If
-               iF=iE+1
-            End If
-         End Do
-         Write (Lu,'(A)') Line
-      End Do
-      Write (Lu,'(80A)') ('*',i=1,80)
-      Call CollapseOutput(0,'Internal coordinate section')
- 99   Continue
-!
-!     Write linear combinations to disc
-!
-      LuTmp=11
-      filnam='SPCINX'
-      call molcas_binaryopen_vanilla(luTmp,filnam)
-!     Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
-      ReWind (LuTmp)
-!
-!---- put in degeneracy factor so that ddot will work.
-!
-      Write (LuTmp) nq,nQQ
-      Do iq = 1, nq
-         Write (LuTmp) qLbl(iq),(rMult(iq)*rK(iq,iQQ),iQQ=1,nQQ)
-      End Do
-!
-      Close  (LuTmp)
-!
-      If (iPrint.ge.10.and.nQQ.le.12) Then
-         Write (Lu,*)
-         Write (Lu,*) ' Nonredundant internal coordinates'
-      End If
-      If (iPrint.ge.6.and.nQQ.le.12) Then
-         Write (Lu,*)
-         Write (Lu,*) ' Number of redundant coordinates:',nq
-         Write (Lu,*)
-      End If
-      If (iPrint.ge.10.and.nQQ.le.12) Then
-         Write (Lu,'(A,E10.3)') ' Threshold for printout:',Thr
-         IncQQ = 8
-         Do iiQQ = 1, nQQ, IncQQ
-            mQQ=Min(nQQ,iiQQ+IncQQ-1)
-            Write (Lu,*)
-            Write (Lu,'(14X,8I10)') (iQQ,iQQ=iiQQ,mQQ)
-            Do iq = 1, nq
-               temp=Sqrt(DDot_(nQQ,rK(iq,1),nq,rK(iq,1),nq))
-               If (temp.gt.Thr)                                         &
-     &            Write (Lu,'(A,8F10.6)')                               &
-     &                  qLbl(iq),(rK(iq,iQQ),iQQ=iiQQ,mQQ)
-            End Do
-            Write (Lu,*)
-         End Do
-      End If
-!
-      Return
-      End
+
+Lu = 6
+Thr = 0.001D+00 ! Threshold for printout.
+
+if (iPrint <= 5) Go To 99
+write(Lu,*)
+call CollapseOutput(1,'Internal coordinate section')
+
+if (iPrint >= 6) then
+  write(Lu,*)
+  write(Lu,'(80A)') ('*',i=1,80)
+  write(Lu,*) ' Auto-Defined Internal coordinates'
+  write(Lu,'(80A)') ('-',i=1,80)
+  write(Lu,'(A)') '  Primitive Internal Coordinates:'
+else
+  write(Lu,*)
+  write(Lu,'(A)') '  Redundant Internal Coordinates:'
+  write(Lu,*)
+end if
+
+rewind(LuIC)
+999 continue
+read(LuIC,'(A)',end=998) Line
+write(Lu,'(A)') Line
+Go To 999
+998 continue
+rewind(LuIC)
+if (iPrint < 6) Go To 99
+
+write(Lu,'(A)') '  Internal Coordinates:'
+do iQQ=1,nQQ
+  write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
+  if = 7
+  jq = 0
+  Start = .true.
+  do iq=1,nq
+    temp = abs(rK(iq,iQQ))
+    if (temp > Thr) then
+      jq = jq+1
+      if (jq > 4) then
+        Line(80:80) = '&'
+        write(Lu,'(A)') Line
+        Line = ' '
+        if = 6
+        jq = 1
+        Start = .false.
+      end if
+      if ((jq == 1) .and. Start) then
+        iE = if+16
+        write(Line(if:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+      else
+        iE = if+17
+        write(Line(if:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+      end if
+      if = iE+1
+    end if
+  end do
+  write(Lu,'(A)') Line
+end do
+write(Lu,'(80A)') ('*',i=1,80)
+call CollapseOutput(0,'Internal coordinate section')
+99 continue
+
+! Write linear combinations to disc
+
+LuTmp = 11
+filnam = 'SPCINX'
+call molcas_binaryopen_vanilla(luTmp,filnam)
+!open(luTmp,File=filnam,Form='unformatted',Status='unknown')
+rewind(LuTmp)
+
+! put in degeneracy factor so that ddot will work.
+
+write(LuTmp) nq,nQQ
+do iq=1,nq
+  write(LuTmp) qLbl(iq),(rMult(iq)*rK(iq,iQQ),iQQ=1,nQQ)
+end do
+
+close(LuTmp)
+
+if ((iPrint >= 10) .and. (nQQ <= 12)) then
+  write(Lu,*)
+  write(Lu,*) ' Nonredundant internal coordinates'
+end if
+if ((iPrint >= 6) .and. (nQQ <= 12)) then
+  write(Lu,*)
+  write(Lu,*) ' Number of redundant coordinates:',nq
+  write(Lu,*)
+end if
+if ((iPrint >= 10) .and. (nQQ <= 12)) then
+  write(Lu,'(A,E10.3)') ' Threshold for printout:',Thr
+  IncQQ = 8
+  do iiQQ=1,nQQ,IncQQ
+    mQQ = min(nQQ,iiQQ+IncQQ-1)
+    write(Lu,*)
+    write(Lu,'(14X,8I10)') (iQQ,iQQ=iiQQ,mQQ)
+    do iq=1,nq
+      temp = sqrt(DDot_(nQQ,rK(iq,1),nq,rK(iq,1),nq))
+      if (temp > Thr) write(Lu,'(A,8F10.6)') qLbl(iq),(rK(iq,iQQ),iQQ=iiQQ,mQQ)
+    end do
+    write(Lu,*)
+  end do
+end if
+
+return
+
+end subroutine PrintQ
