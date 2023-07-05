@@ -21,7 +21,7 @@ use integrators, only: rk4_sph
 use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime, flag_fdm, flag_pulse, hamiltonian, &
                        hamiltoniant, initialtime, ipglob, ispin, len_sph, list_so_proj, list_so_sf, list_so_spin, list_sf_spin, &
                        lroots, method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
-                       out3_fmt, out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
+                       out3_fmt, out_fdmr, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
                        Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr
 
 use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices, W3J, &
@@ -182,7 +182,7 @@ if (flag_fdm) then
   jj = 1 ! counts output of full density matrix
   ! store full density matrix
   call mh5_put_dset(out_tfdm,[time*auToFs],[1],[0])
-  call mh5_put_dset(out_fdm,abs(rho_init),[1,len_sph,d,d],[0,0,0,0])
+  call mh5_put_dset(out_fdmr,abs(rho_init),[1,len_sph,d,d],[0,0,0,0])
 end if
 
 call mma_allocate(rho_sph_t,len_sph,d,d)
@@ -229,7 +229,7 @@ do Ntime=1,(Nstep-1)
         end do
       end if
       call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
-      call mh5_put_dset(out_fdm,abs(rho_sph_t),[1,len_sph,d,d],[jj,0,0,0])
+      call mh5_put_dset(out_fdmr,abs(rho_sph_t),[1,len_sph,d,d],[jj,0,0,0])
       jj = jj+1
     end if
   end if
