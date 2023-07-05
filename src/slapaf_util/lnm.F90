@@ -12,18 +12,21 @@
 subroutine LNM(Cart,mTtAtm,Hess,Scrt1,Scrt2,Vctrs,nsAtom,nDim,iAnr,nIter,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
 use Symmetry_Info, only: nIrrep
+use Slapaf_Parameters, only: Analytic_Hessian, iOptH
 use Slapaf_Info, only: Degen, Smmtrc
-use Slapaf_Parameters, only: iOptH, Analytic_Hessian
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "angstr.fh"
-real*8 Cart(3,mTtAtm+nHidden), Hess(3*mTtAtm*(3*mTtAtm+1)/2), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2), Vctrs(3*mTtAtm,nDim)
-integer iANr(mTtAtm+nHidden), iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mTtAtm+nHidden)
-logical Found, RunOld
-real*8, allocatable :: TanVec(:), HTanVec(:)
+implicit none
+integer(kind=iwp) :: mTtAtm, nsAtom, nDim, nHidden, iANr(mTtAtm+nHidden), nIter, nBonds, iTabBonds(3,nBonds), nMax, &
+                     iTabAtoms(2,0:nMax,mTtAtm+nHidden)
+real(kind=wp) :: Cart(3,mTtAtm+nHidden), Hess(3*mTtAtm*(3*mTtAtm+1)/2), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2), &
+                 Vctrs(3*mTtAtm,nDim)
+integer(kind=iwp) :: i, iAtom, ii, ij, ijTri, IterHess, ix, ixyz, j, jAtom, ji, jj, jxyz, Len3, Length, nRP
+real(kind=wp) :: eigen, Tmp
+logical(kind=iwp) :: Found, RunOld
+real(kind=wp), allocatable :: HTanVec(:), TanVec(:)
 
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -32,8 +35,8 @@ iPrint = nPrint(iRout)
 call RecPrt('In LNM: Cart',' ',Cart,3,mTtAtm)
 if (nHidden /= 0) call RecPrt('In LNM: Cart(hidden atoms)',' ',Cart(1,mTtAtm+1),3,nHidden)
 call RecPrt('In LNM: Vctrs',' ',Vctrs,3*mTtAtm,nDim)
-write(6,*) 'iAnr=',iANr
-write(6,*) 'Analytic Hessian=',Analytic_Hessian
+write(u6,*) 'iAnr=',iANr
+write(u6,*) 'Analytic Hessian=',Analytic_Hessian
 #endif
 !                                                                      *
 !***********************************************************************
@@ -56,13 +59,13 @@ if (Analytic_Hessian) then
   Len3 = ndim
   Len3 = Len3*(Len3+1)/2
 
-  call qpg_dArray('Analytic Hessian',Found,Len)
+  call qpg_dArray('Analytic Hessian',Found,Length)
   if (Found) then
     call Get_dArray_chk('Analytic Hessian',Hess,Len3)
     RunOld = .false.
   else
     call NameRun('RUNOLD')
-    call qpg_dArray('Analytic Hessian',Found,Len)
+    call qpg_dArray('Analytic Hessian',Found,Length)
     if (.not. Found) then
       call WarningMessage(2,' Error in LNM: Analytic Hessian not found')
       call Abend()
@@ -103,7 +106,7 @@ if (Analytic_Hessian) then
   end do
 # ifdef _DEBUGPRINT_
   call TriPrt('Hessian(anal.)',' ',Hess,nDim)
-  write(6,*) 'nDim,mTtAtm,nsAtom=',nDim,mTtAtm,nsAtom
+  write(u6,*) 'nDim,mTtAtm,nsAtom=',nDim,mTtAtm,nsAtom
   call RecPrt('Hessian(anal.)',' ',Scrt1,nDim,nDim)
 # endif
 
@@ -150,11 +153,11 @@ else   ! Use the Hessian Model Function
 
     ! Now project out the total symmetric part of the Hessian
 
-    call DGEMM_('N','N',3*mTtAtm,nDim,3*mTtAtm,1.0d0,Scrt1,3*mTtAtm,Vctrs,3*mTtAtm,0.0d0,Scrt2,3*mTtAtm)
+    call DGEMM_('N','N',3*mTtAtm,nDim,3*mTtAtm,One,Scrt1,3*mTtAtm,Vctrs,3*mTtAtm,Zero,Scrt2,3*mTtAtm)
 #   ifdef _DEBUGPRINT_
     if (iPrint >= 19) call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
 #   endif
-    call DGEMM_('T','N',nDim,nDim,3*mTtAtm,1.0d0,Vctrs,3*mTtAtm,Scrt2,3*mTtAtm,0.0d0,Scrt1,nDim)
+    call DGEMM_('T','N',nDim,nDim,3*mTtAtm,One,Vctrs,3*mTtAtm,Scrt2,3*mTtAtm,Zero,Scrt1,nDim)
 #   ifdef _DEBUGPRINT_
     if (iPrint >= 19) call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
 #   endif
@@ -168,7 +171,7 @@ else   ! Use the Hessian Model Function
   if (Found) then
     if (nRP /= 3*nsAtom) then
       call WarningMessage(2,' Error in LNM: nRP /= 3*nsAtom')
-      write(6,*) 'nRP,3*nsAtom=',nRP,nsAtom
+      write(u6,*) 'nRP,3*nsAtom=',nRP,nsAtom
       call Abend()
     end if
 
@@ -194,15 +197,15 @@ else   ! Use the Hessian Model Function
 
     ! Compute H|i>
 
-    call dGeMV_('N',nRP,nRP,1.0d0,scrt1,nRP,TanVec,1,0.0d0,HTanVec,1)
+    call dGeMV_('N',nRP,nRP,One,scrt1,nRP,TanVec,1,Zero,HTanVec,1)
 
     ! Compute <i|H|i>
 
-    eigen = 0.0d0
+    eigen = Zero
     do i=1,nRP
       eigen = eigen+HTanVec(i)*TanVec(i)
     end do
-    !write(6,*) 'Eigen=',eigen
+    !write(u6,*) 'Eigen=',eigen
     if (eigen >= Zero) then
 
       ! Form H - H|i><i| - |i><i|H

@@ -11,9 +11,13 @@
 
 subroutine ShfANM(nInter,nIter,rInt,Shift)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 rInt(nInter,nIter), Shift(nInter,nIter)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nInter, nIter
+real(kind=wp) :: rInt(nInter,nIter), Shift(nInter,nIter)
+integer(kind=iwp) :: Iter
 
 if (nIter == 1) return
 

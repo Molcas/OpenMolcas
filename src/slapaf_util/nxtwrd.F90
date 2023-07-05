@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine NxtWrd(Line,if,iE)
+subroutine NxtWrd(Line,i_F,iE)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -25,28 +25,32 @@ subroutine NxtWrd(Line,if,iE)
 !             May '91                                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-character*(*) Line
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*) :: Line
+integer(kind=iwp) :: i_F, iE
+integer(kind=iwp) :: nChar
 
 nChar = len(Line)
 ! Find first non-blank character
 do
-  if ((if == 0) .or. (if > nChar)) then
-    call WarningMessage(2,'NxtWrd: (iF == 0) .or. (iF > nChar)')
-    write(6,*) 'nChar=',nChar
-    write(6,*) 'iF,iE=',if,iE
+  if ((i_F == 0) .or. (i_F > nChar)) then
+    call WarningMessage(2,'NxtWrd: (i_F == 0) .or. (i_F > nChar)')
+    write(u6,*) 'nChar=',nChar
+    write(u6,*) 'i_F,iE=',i_F,iE
     call Abend()
   end if
-  if (Line(if:if) /= ' ') exit
-  if = if+1
-  if (if >= nChar) then
-    if = nChar
+  if (Line(i_F:i_F) /= ' ') exit
+  i_F = i_F+1
+  if (i_F >= nChar) then
+    i_F = nChar
     iE = -1
     return
   end if
 end do
 ! Find the end of the present word
-iE = if+1
+iE = i_F+1
 do
   if (Line(iE:iE) /= ' ') then
     iE = iE+1

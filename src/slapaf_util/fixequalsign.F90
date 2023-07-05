@@ -11,10 +11,15 @@
 
 subroutine FixEqualSign(Line,LuRd)
 
-character*(*) Line
-character*180 Temp_Line
-character*180 Get_Ln
-external Get_Ln
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Line
+integer(kind=iwp) :: LuRd
+integer(kind=iwp) :: ix, iy, nLine
+character(len=180) :: Temp_Line
+integer(kind=iwp), external :: iCLast
+character(len=180), external :: Get_Ln
 
 nLine = len(Line)
 if (nLine > len(Temp_Line)) then

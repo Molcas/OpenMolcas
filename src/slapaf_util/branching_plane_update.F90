@@ -43,19 +43,25 @@
 
 subroutine Branching_Plane_Update(AGV,DGV,CDV,n,nIter)
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, nIter
+real(kind=wp) :: AGV(n,nIter), DGV(n,nIter), CDV(n)
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 AGV(n,nIter), DGV(n,nIter), CDV(n)
-real*8, allocatable :: x0(:), x1(:)
+integer(kind=iwp) :: iPrint, iRout, iter
+real(kind=wp) :: alpha, beta, proj, r, xx, yx, yx_xx
+real(kind=wp), allocatable :: x0(:), x1(:)
+real(kind=wp), external :: DDot_
 
 iRout = 31
 iPrint = nPrint(iRout)
 
 if (iPrint >= 6) then
-  write(6,*) 'Branching plane'
-  write(6,*) 'n,nIter=',n,nIter
+  write(u6,*) 'Branching plane'
+  write(u6,*) 'n,nIter=',n,nIter
   call RecPrt('AGV',' ',AGV,n,nIter)
   call RecPrt('DGV',' ',DGV,n,nIter)
   call RecPrt('CDV (init)',' ',CDV,n,1)
@@ -108,12 +114,12 @@ do iter=2,nIter
   ! remove the projection of CDV along DGV and renormalize
 
   if (iPrint >= 6) then
-    write(6,*)
-    write(6,*) 'iter=',iter
-    write(6,*) 'r(DGV)=',r
-    write(6,*) 'xx=',xx
-    write(6,*) 'yx=',yx
-    write(6,*) 'alpha,beta=',alpha,beta
+    write(u6,*)
+    write(u6,*) 'iter=',iter
+    write(u6,*) 'r(DGV)=',r
+    write(u6,*) 'xx=',xx
+    write(u6,*) 'yx=',yx
+    write(u6,*) 'alpha,beta=',alpha,beta
   end if
 
   proj = DDot_(n,CDV,1,x1,1)
@@ -122,7 +128,7 @@ do iter=2,nIter
   call DScal_(n,r,CDV,1)
 
   if (iPrint >= 6) then
-    write(6,*) 'r(CDV)=',r
+    write(u6,*) 'r(CDV)=',r
   end if
 
   if (iter /= nIter) call dcopy_(n,x0,1,x1,1)

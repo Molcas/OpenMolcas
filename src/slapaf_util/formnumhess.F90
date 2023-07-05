@@ -11,17 +11,20 @@
 
 subroutine FormNumHess(nIter,nInter,Delta,nAtom,iNeg,DipM)
 
-use Slapaf_Info, only: qInt, Shift, dqInt, Degen, Smmtrc
-use Slapaf_Parameters, only: Curvilinear, mTROld, Cubic
+use Slapaf_Parameters, only: Cubic, Curvilinear, mTROld
+use Slapaf_Info, only: Degen, dqInt, qInt, Shift, Smmtrc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: nIter, nInter, nAtom, iNeg
+real(kind=wp) :: Delta, DipM(3,nIter)
 #include "print.fh"
-real*8 DipM(3,nIter)
-logical Found
-real*8 rDum(1)
-real*8, allocatable :: FEq(:), dDipM(:), KtB(:), HB(:), Hx(:), Degen2(:), H(:), IRInt(:)
+integer(kind=iwp) :: i, ii, ij, iPrint, iRout, mTR, nDim, nKtB
+real(kind=wp) :: rDum(1)
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: dDipM(:), Degen2(:), FEq(:), H(:), HB(:), Hx(:), IRInt(:), KtB(:)
 
 !                                                                      *
 !***********************************************************************
@@ -51,8 +54,8 @@ end if
 
 call NmHess(Shift,nInter,dqInt,nIter,H,Delta,qInt,FEq,Cubic,DipM,dDipM)
 
-write(6,*)
-write(6,*) ' Numerical differentiation is finished!'
+write(u6,*)
+write(u6,*) ' Numerical differentiation is finished!'
 if (iPrint >= 98) call RecPrt(' Numerical force constant matrix',' ',H,nInter,nInter)
 
 call Add_Info('Numerical Hessian',H,nInter**2,2)
@@ -110,7 +113,7 @@ call HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
 
 call Add_Info('Numerical IR Intensities',IRInt,nInter,2)
 call mma_deallocate(IRInt)
-write(6,*)
+write(u6,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -9,11 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nFgBond(iAtom,nAtoms,nMax,iTabBonds,nBondMax,iTabAtoms)
+function nFgBond(iAtom,nAtoms,nMax,iTabBonds,nBondMax,iTabAtoms)
 
-implicit real*8(a-h,o-z)
-integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nFgBond
+integer(kind=iwp) :: iAtom, nAtoms, nMax, nBondMax, iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
+integer(kind=iwp) :: i, nn
 
 !                                                                      *
 !***********************************************************************

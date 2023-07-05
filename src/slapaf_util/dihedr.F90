@@ -20,22 +20,26 @@ subroutine Dihedr(Lbls,xyz,mCentr,rtrnc,Max_Center)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-#include "Molcas.fh"
-real*8 xyz(3,mCentr), Bt(3,4), Coor(3,4)
-character*(LenIn) Lbls(mCentr)
-character*8 Label
-logical type
-dimension Dummy(1)
+use Constants, only: Zero, One, deg2rad
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+#include "Molcas.fh"
+integer(kind=iwp) :: mCentr, Max_Center
+character(len=LenIn) :: Lbls(mCentr)
+real(kind=wp) :: xyz(3,mCentr), rtrnc
+integer(kind=iwp) :: ic, jc, kc, lc, Lu
+real(kind=wp) :: arg, Bt(3,4), Coor(3,4), Dummy(1), Phi1, Phi12, Phi2, r1, r12, r2, r23, r3, Tau, x1, x12, x2, x23, x3, x4, y1, &
+                 y12, y2, y23, y3, y4, z1, z12, z2, z23, z3, z4
+character(len=8) :: Label
+logical(kind=iwp) :: Typ
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
+
+Lu = u6
 Label = ' '
 if (mCentr > Max_Center) return
 
-Thr = 1.0D-12
-type = .false.
+Typ = .false.
 do ic=1,mCentr
   x2 = xyz(1,ic)
   y2 = xyz(2,ic)
@@ -61,7 +65,7 @@ do ic=1,mCentr
       arg = ((x1-x2)*(x3-x2)+(y1-y2)*(y3-y2)+(z1-z2)*(z3-z2))/(r1*r2)
       if (abs(arg) > One) arg = sign(One,arg)
       if (One-abs(arg) < Thr) cycle
-      Phi1 = 180.d0*acos(arg)/Pi
+      Phi1 = acos(arg)/deg2rad
       x12 = (y2-y1)*(z3-z2)-(y3-y2)*(z2-z1)
       y12 = (z2-z1)*(x3-x2)-(z3-z2)*(x2-x1)
       z12 = (x2-x1)*(y3-y2)-(x3-x2)*(y2-y1)
@@ -80,7 +84,7 @@ do ic=1,mCentr
         arg = ((x2-x3)*(x4-x3)+(y2-y3)*(y4-y3)+(z2-z3)*(z4-z3))/(r2*r3)
         if (abs(arg) > One) arg = sign(One,arg)
         if (One-abs(arg) < Thr) cycle
-        Phi2 = 180.d0*acos(arg)/Pi
+        Phi2 = acos(arg)/deg2rad
         x23 = (y3-y2)*(z4-z3)-(y4-y3)*(z3-z2)
         y23 = (z3-z2)*(x4-x3)-(z4-z3)*(x3-x2)
         z23 = (x3-x2)*(y4-y3)-(x4-x3)*(y3-y2)
@@ -89,11 +93,11 @@ do ic=1,mCentr
         call dcopy_(3,xyz(1,lc),1,Coor(1,4),1)
         !arg = (x12*x23+y12*y23+z12*z23)/(r12*r23)
         !if (abs(arg) > One) arg = sign(One,arg)
-        !Phi12 = 180.D0*acos(arg)/Pi
+        !Phi12 = acos(arg)/deg2rad
         call Trsn(Coor,4,Tau,Bt,.false.,.false.,Label,Dummy,.false.)
-        Phi12 = 180.0D+00*Tau/Pi
-        if (.not. type) then
-          type = .true.
+        Phi12 = Tau/deg2rad
+        if (.not. Typ) then
+          Typ = .true.
           write(Lu,*)
           write(Lu,'(10X,A)') ' ***************************************************************'
           write(Lu,'(10X,A)') ' *              Valence Dihedral Angles / Degree               *'

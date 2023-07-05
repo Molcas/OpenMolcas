@@ -11,11 +11,12 @@
 
 subroutine Mk_Hss_Q()
 
-use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
-use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss, nDimBC, mTROld, NmIter, iter
+use Slapaf_Parameters, only: BSet, Delta, HSet, iter, lNmHss, mTROld, nDimBC, NmIter
+use Slapaf_Info, only: BMx, Coor, Cx, DipM, dqInt, mRowH, qInt
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iNeg, mInt, nsAtom
 
 ! Compute the Hessian in internal coordinates.
 
@@ -30,7 +31,7 @@ if ((lNmHss .or. allocated(mRowH)) .and. (iter == NmIter)) then
   call Put_Coord_New(Cx,nsAtom)
   if (allocated(mRowH)) then
     if (BSet .and. HSet) call Hss_Q()
-    call RowHessian(NmIter,mInt,Delta/2.5d0)
+    call RowHessian(NmIter,mInt,Delta/2.5_wp)
   else
     call FormNumHess(iter,mInt,Delta,nsAtom,iNeg,DipM)
   end if

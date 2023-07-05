@@ -11,7 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-logical function SymDsp(iBsFnc)
+function SymDsp(iBsFnc)
 !***********************************************************************
 !                                                                      *
 ! Object: to establish if a translation or a rotation belongs to the   *
@@ -23,12 +23,15 @@ logical function SymDsp(iBsFnc)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iOper
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-integer, external :: iPrmt
+implicit none
+logical(kind=iwp) :: SymDsp
+integer(kind=iwp) :: iBsFnc
+integer(kind=iwp) :: i, iAcc, j, jBsFnc, mask
+integer(kind=iwp), external :: iPrmt
 
-!write(6,*) ' iBsFnc=',iBsFnc
+!write(u6,*) ' iBsFnc=',iBsFnc
 SymDsp = .true.
 mask = 0
 do i=0,nIrrep-1
@@ -37,7 +40,7 @@ do i=0,nIrrep-1
   end do
 end do
 jBsFnc = iand(mask,iBsFnc)
-!write(6,*) ' jBsFnc=',jBsFnc
+!write(u6,*) ' jBsFnc=',jBsFnc
 
 ! Loop over operators
 

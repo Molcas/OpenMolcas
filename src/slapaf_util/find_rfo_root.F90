@@ -44,11 +44,13 @@
 
 subroutine Find_RFO_Root(x1,y1,x2,y2,x3,y3,Val)
 
+use Constants, only: Zero, One, Two, Four, Half, OneHalf
+use Definitions, only: wp
+
 implicit none
-#include "real.fh"
-real*8 x1, x2, x3, y1, y2, y3, Val, xx1, yy1, xx2, yy2
-real*8 new, nnew, delta, denom, coefA, coefB, coefC, discr, Thr
-parameter(Thr=1.0D-16)
+real(kind=wp) :: x1, y1, x2, y2, x3, y3, Val
+real(kind=wp) :: coefA, coefB, coefC, delta, denom, discr, new, nnew, xx1, xx2, yy1, yy2
+real(kind=wp), parameter :: Thr = 1.0e-16_wp
 
 ! First, we must find a value of alpha that gives a small enough step
 
@@ -73,7 +75,7 @@ if (y2 > Val) then
     if (y1-y2 > Thr) then
       ! Don't get too ambitious -- thus the min function.
       delta = min(x2,(Val-y2)*(x1-x2)/(y1-y2))
-      new = x2+1.5d0*delta
+      new = x2+OneHalf*delta
     else
       ! If y2 is very close to y1, or actually lower, just double the step.
       new = x2+Two*(x2-x1)

@@ -18,23 +18,24 @@ subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
 !                                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen, AtomLbl, Lbl
 use Symmetry_Info, only: VarR, VarT
-use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet, lOld, WeightedConstraints
+use Slapaf_Parameters, only: BSet, Curvilinear, HSet, lOld, User_Def, WeightedConstraints
+use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, Lbl, qInt, RefGeo, Shift
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp), intent(in) :: Iter, nAtom, mTtAtm
+real(kind=wp), intent(inout) :: Coor(3,nAtom)
+logical(kind=iwp), intent(inout) :: Error
 #include "print.fh"
-#include "Molcas.fh"
 #include "warnings.h"
-parameter(NRHS=1)
-integer, intent(In) :: Iter, nAtom
-real*8, intent(InOut) :: Coor(3,nAtom)
-integer, intent(In) :: mTtAtm
-logical, intent(InOut) :: Error
-logical :: BSet_Save, Converged, HSet_Save, lOld_Save
-real*8, allocatable :: DFC(:), dss(:), rInt(:)
+logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
+integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, ix, jter, Lu, M, N, nQQ, nWndw
+real(kind=wp) :: denom, dx2, dx_RMS, rMax
+real(kind=wp), allocatable :: DFC(:), dss(:), rInt(:)
+integer(kind=iwp), parameter :: NRHS = 1
 
 !                                                                      *
 !***********************************************************************
@@ -62,7 +63,7 @@ rInt(:) = rInt(:)+dss(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = 6
+Lu = u6
 iRout = 33
 iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
@@ -148,9 +149,9 @@ do jter=1,iterMx
   ! Dirty fix of zeros
 
   do iAtom=1,nAtom
-    if ((Cx(1,iAtom,Iter) == Zero) .and. (abs(Coor(1,iAtom)) < 1.0D-13)) Coor(1,iAtom) = Zero
-    if ((Cx(2,iAtom,Iter) == Zero) .and. (abs(Coor(2,iAtom)) < 1.0D-13)) Coor(2,iAtom) = Zero
-    if ((Cx(3,iAtom,Iter) == Zero) .and. (abs(Coor(3,iAtom)) < 1.0D-13)) Coor(3,iAtom) = Zero
+    if ((Cx(1,iAtom,Iter) == Zero) .and. (abs(Coor(1,iAtom)) < 1.0e-13_wp)) Coor(1,iAtom) = Zero
+    if ((Cx(2,iAtom,Iter) == Zero) .and. (abs(Coor(2,iAtom)) < 1.0e-13_wp)) Coor(2,iAtom) = Zero
+    if ((Cx(3,iAtom,Iter) == Zero) .and. (abs(Coor(3,iAtom)) < 1.0e-13_wp)) Coor(3,iAtom) = Zero
   end do
 
   call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
@@ -186,7 +187,7 @@ do jter=1,iterMx
 
   ! Convergence based on the RMS of the Cartesian displacements.
 
-  if (dx_RMS < 1.0D-6) then
+  if (dx_RMS < 1.0e-6_wp) then
     Converged = .true.
     exit
   end if

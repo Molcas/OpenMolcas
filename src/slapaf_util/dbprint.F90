@@ -11,13 +11,17 @@
 
 subroutine dBPrint(nQQ,nDim)
 
+use Slapaf_Parameters, only: mq
 use Slapaf_Info, only: dBM, idBM, nqBM
-use Slapaf_parameters, only: mq
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: dBQQ(:,:), K(:,:)
+implicit none
+integer(kind=iwp) :: nQQ, nDim
+integer(kind=iwp) :: i_Dim, idB, iElem, iq, iQQ, jDim, nElem
+real(kind=wp) :: dBqR, rK
+real(kind=wp), allocatable :: dBQQ(:,:), K(:,:)
 
 if (.not. allocated(dBM)) return
 call mma_allocate(dBQQ,nDim,nDim,Label='dBQQ')
@@ -31,9 +35,9 @@ do iQQ=1,nQQ
     rK = K(iq,iQQ)
     do iElem=idB,idB+(nElem**2)-1
       dBqR = dBM(iElem)
-      iDim = idBM(1+(iElem-1)*2)
+      i_Dim = idBM(1+(iElem-1)*2)
       jDim = idBM(2+(iElem-1)*2)
-      dBQQ(iDim,jDim) = dBQQ(iDim,jDim)+rK*dBqR
+      dBQQ(i_Dim,jDim) = dBQQ(i_Dim,jDim)+rK*dBqR
     end do
     idB = idB+nElem**2
   end do

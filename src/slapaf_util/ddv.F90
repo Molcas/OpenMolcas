@@ -12,13 +12,15 @@
 subroutine ddV(Cart,mTtAtm,Hess,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
 use Symmetry_Info, only: VarR, VarT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8 Cart(3,mTtAtm+nHidden), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
-integer iANr(mTtAtm+nHidden), iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mTtAtm+nHidden)
-real*8, allocatable :: HBig(:)
-logical VRSave, VTSave
+implicit none
+integer(kind=iwp) :: mTtAtm, nHidden, iANr(mTtAtm+nHidden), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm+nHidden)
+real(kind=wp) :: Cart(3,mTtAtm+nHidden), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+integer(kind=iwp) :: nTot
+logical(kind=iwp) :: VRSave, VTSave
+real(kind=wp), allocatable :: HBig(:)
 
 ! Temporary big hessian
 !                                                                      *
@@ -43,7 +45,7 @@ if (nHidden > 0) then
   VarT = VTSave
   call dCopy_((3*mTtAtm)*(3*mTtAtm+1)/2,HBig,1,Hess,1)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'DDV: Improved Hessian'
+  write(u6,*) 'DDV: Improved Hessian'
   call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)
   call TriPrt('Hessian (hidden atoms):',' ',HBig,3*nTot)
   call TriPrt('Hessian (normal):',' ',Hess,3*mTtAtm)

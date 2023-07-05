@@ -12,11 +12,15 @@
 function D_Trsn(Ind,iOp_,nSym)
 
 use Slapaf_Info, only: jStab, nStab
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-integer Ind(4), iOp_(4)
-real*8 D_Trsn
+implicit none
+real(kind=wp) :: D_Trsn
+integer(kind=iwp) :: Ind(4), iOp_(4), nSym
+integer(kind=iwp) :: iAtom, iDeg, iOp_E, iOp_ER, iOp_ES, iOp_ET, iOp_R, iOp_S, iOp_T, iOp_TS, iU_A, iU_AB, iU_ABCD, iU_B, iU_C, &
+                     iU_CD, iU_D, jAtom, kAtom, lAtom, nU_A, nU_ABCD, nU_B, nU_C, nU_D
+integer(kind=iwp), external :: iU, iUR, nU
 
 !                                                                      *
 !***********************************************************************
@@ -34,8 +38,8 @@ iOp_R = iOp_(2)
 iOp_T = iOp_(3)
 iOp_TS = iOp_(4)
 iOp_S = ieor(iOp_T,iOp_TS)
-!write(6,*) iAtom,jAtom,kAtom,lAtom
-!write(6,*) iOp_E,iOp_R,iOp_T,iOp_TS,iOp_S
+!write(u6,*) iAtom,jAtom,kAtom,lAtom
+!write(u6,*) iOp_E,iOp_R,iOp_T,iOp_TS,iOp_S
 
 nU_A = nStab(iAtom)
 iU_A = iU(jStab(0,iAtom),nU_A)
@@ -46,10 +50,10 @@ iU_C = iU(jStab(0,kAtom),nU_C)
 nU_D = nStab(lAtom)
 iU_D = iU(jStab(0,lAtom),nU_D)
 
-!write(6,*) ' U_A:',iU_A,nU_A
-!write(6,*) ' U_B:',iU_B,nU_B
-!write(6,*) ' U_C:',iU_C,nU_C
-!write(6,*) ' U_D:',iU_D,nU_D
+!write(u6,*) ' U_A:',iU_A,nU_A
+!write(u6,*) ' U_B:',iU_B,nU_B
+!write(u6,*) ' U_C:',iU_C,nU_C
+!write(u6,*) ' U_D:',iU_D,nU_D
 
 ! Form stabilizer for (iAtom,jAtom)
 
@@ -59,8 +63,8 @@ if (iAtom == jAtom) then
 else
   iU_AB = iand(iU_A,iU_B)
 end if
-!write(6,*) iAtom == jAtom
-!write(6,*) ' U_AB:',iU_AB,nU(iU_AB)
+!write(u6,*) iAtom == jAtom
+!write(u6,*) ' U_AB:',iU_AB,nU(iU_AB)
 
 ! Form stabilizer for (kAtom,lAtom)
 
@@ -70,30 +74,30 @@ if (kAtom == lAtom) then
 else
   iU_CD = iand(iU_C,iU_D)
 end if
-!write(6,*) kAtom == lAtom
-!write(6,*) ' U_CD:',iU_CD,nU(iU_CD)
+!write(u6,*) kAtom == lAtom
+!write(u6,*) ' U_CD:',iU_CD,nU(iU_CD)
 
 ! Form the stabilizer for the torsion
 
 if ((iAtom /= lAtom) .or. (jAtom /= kAtom) .or. ((iAtom == lAtom) .and. (jAtom == kAtom) .and. (iOp_ER /= iOp_ES))) then
   iU_ABCD = iand(iU_AB,iU_CD)
-  !write(6,*) ' Ops!'
+  !write(u6,*) ' Ops!'
 else
   iOp_ET = ieor(iOp_E,iOp_T)
   iU_ABCD = ior(iU_AB,iUR(iOp_ET,iU_CD))
 end if
-!write(6,*) iAtom /= lAtom
-!write(6,*) jAtom /= kAtom
-!write(6,*) ((iAtom == lAtom) .and. (jAtom == kAtom) .and. (iOp_ER /= iOp_ES))
+!write(u6,*) iAtom /= lAtom
+!write(u6,*) jAtom /= kAtom
+!write(u6,*) ((iAtom == lAtom) .and. (jAtom == kAtom) .and. (iOp_ER /= iOp_ES))
 nU_ABCD = nU(iU_ABCD)
-!write(6,*) ' U_ABCD:',iU_ABCD,nU(iU_ABCD)
+!write(u6,*) ' U_ABCD:',iU_ABCD,nU(iU_ABCD)
 
 ! Compute the degeneracy of the torsion
 
 iDeg = nSym/nU_ABCD
-D_Trsn = dble(iDeg)
+D_Trsn = real(iDeg,kind=wp)
 
-!write(6,*) ' D_Trsn=',D_Trsn
+!write(u6,*) ' D_Trsn=',D_Trsn
 
 return
 

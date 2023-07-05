@@ -13,17 +13,18 @@
 
 subroutine Process_Gradients()
 
-use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0, RootMap
-use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles, iter, NADC, ApproxNADC, iState
+use Slapaf_Parameters, only: ApproxNADC, iState, iter, NADC, Request_Alaska, TwoRunFiles
+use Slapaf_Info, only: Energy, Energy0, Gx, Gx0, NAC, RootMap
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-logical Found, Exist
-integer i, nRoots, RC, Read_Grad, Columbus, nsAtom
-real*8, allocatable :: Grads(:,:), Ener(:)
-real*8 E0, E1
-external Read_Grad
+integer(kind=iwp) :: Columbus, i, nRoots, nsAtom, RC
+real(kind=wp) :: E0, E1
+logical(kind=iwp) :: Exists, Found
+real(kind=wp), allocatable :: Ener(:), Grads(:,:)
+integer(kind=iwp), external :: Read_Grad
 
 Request_Alaska = .false.
 nsAtom = size(Gx,2)
@@ -70,8 +71,8 @@ else
 
   iState(1) = 0
   iState(2) = 0
-  call Qpg_iScalar('Relax CASSCF root',Exist)
-  if (Exist) call Get_iScalar('Relax CASSCF root',iState(1))
+  call Qpg_iScalar('Relax CASSCF root',Exists)
+  if (Exists) call Get_iScalar('Relax CASSCF root',iState(1))
   if (iState(1) == 0) iState(1) = 1
   RC = Read_Grad(Grads(1,1),3*nsAtom,iState(1),0,0)
   if (RC == 0) Request_Alaska = .true.
@@ -108,8 +109,8 @@ Gx(:,:,iter) = -Gx(:,:,iter)
 if (TwoRunFiles) then
   call NameRun('RUNFILE2')
   iState(2) = 0
-  call Qpg_iScalar('Relax CASSCF root',Exist)
-  if (Exist) call Get_iScalar('Relax CASSCF root',iState(2))
+  call Qpg_iScalar('Relax CASSCF root',Exists)
+  if (Exists) call Get_iScalar('Relax CASSCF root',iState(2))
   if (iState(2) == 0) iState(2) = 1
   nRoots = 1
   call Qpg_iScalar('Number of roots',Found)

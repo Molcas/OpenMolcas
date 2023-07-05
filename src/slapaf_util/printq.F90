@@ -11,11 +11,21 @@
 
 subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nq, nQQ, LuIC
+real(kind=wp) :: rK(nq,nQQ), rMult(nq)
+character(len=14) :: qLbl(nq)
 #include "print.fh"
-real*8 rK(nq,nQQ), rMult(nq)
-character*14 qLbl(nq), Line*80, filnam*16
-logical Start
+integer(kind=iwp) :: i, iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, Lu, LuTmp, mQQ
+real(kind=wp) :: temp
+logical(kind=iwp) :: Start
+character(len=80) :: Line
+character(len=16) :: filnam
+real(kind=wp), parameter :: Thr = 0.001_wp ! Threshold for printout.
+real(kind=wp), external :: DDot_
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -30,8 +40,7 @@ iRout = 122
 iPrint = nPrint(iRout)
 #endif
 
-Lu = 6
-Thr = 0.001D+00 ! Threshold for printout.
+Lu = u6
 
 if (iPrint > 5) then
   write(Lu,*)
@@ -61,7 +70,7 @@ if (iPrint > 5) then
     write(Lu,'(A)') '  Internal Coordinates:'
     do iQQ=1,nQQ
       write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
-      if = 7
+      i_F = 7
       jq = 0
       Start = .true.
       do iq=1,nq
@@ -72,18 +81,18 @@ if (iPrint > 5) then
             Line(80:80) = '&'
             write(Lu,'(A)') Line
             Line = ' '
-            if = 6
+            i_F = 6
             jq = 1
             Start = .false.
           end if
           if ((jq == 1) .and. Start) then
-            iE = if+16
-            write(Line(if:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+            iE = i_F+16
+            write(Line(i_F:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
           else
-            iE = if+17
-            write(Line(if:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+            iE = i_F+17
+            write(Line(i_F:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
           end if
-          if = iE+1
+          i_F = iE+1
         end if
       end do
       write(Lu,'(A)') Line

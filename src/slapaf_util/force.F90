@@ -11,14 +11,16 @@
 
 subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Iter,Grad,Lbl,Degen)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-real*8 GrdX(3*nAtom), BMx(3*nAtom,3*nAtom), Grad(nInter,Iter), Degen(3*nAtom)
-character Lbl(nInter)*8
-real*8 Dummy(1)
-real*8, allocatable :: Frc(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nFix, nAtom, nInter, Iter
+real(kind=wp) :: GrdX(3*nAtom), BMx(3*nAtom,3*nAtom), Grad(nInter,Iter), Degen(3*nAtom)
+character(len=8) :: Lbl(nInter)
+integer(kind=iwp) :: i, M, N, NRHS
+real(kind=wp) :: Dummy(1)
+real(kind=wp), allocatable :: Frc(:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('In Force:BMx ',' ',BMx,3*nAtom,nInter)

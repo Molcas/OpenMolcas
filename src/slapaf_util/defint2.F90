@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1997, Roland Lindh                                *
 !***********************************************************************
 
-subroutine DefInt2(BVct,dBVct,nBvct,BMtrx,mInt,nAtom,nLines,value,rInt,rInt0,Lbl,lWrite,rMult,dBMtrx,Value0,lIter,iFlip)
+subroutine DefInt2(BVct,dBVct,nBvct,BMtrx,mInt,nAtom,nLines,Val,rInt,rInt0,Lbl,lWrite,rMult,dBMtrx,Value0,lIter,iFlip)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the B matrix for the constraints                 *
@@ -24,26 +24,32 @@ subroutine DefInt2(BVct,dBVct,nBvct,BMtrx,mInt,nAtom,nLines,value,rInt,rInt0,Lbl
 !***********************************************************************
 
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Pi, Angstrom, deg2rad
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nBvct, mInt, nAtom, nLines, lIter, iFlip(nBVct)
+real(kind=wp) :: BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct), BMtrx(3*nAtom,mInt), Val(nBVct), rInt(mInt), rInt0(mInt), &
+                 rMult(nBVct,nBVct), dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct)
+character(len=8) :: Lbl(mInt)
+logical(kind=iwp) :: lWrite
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct), value(nBVct), BMtrx(3*nAtom,mInt), rInt(mInt), rInt0(mInt), &
-       rMult(nBVct,nBVct), dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
-character Line*120, type*6, format*8, Temp*120, Lbl(mInt)*8, filnam*16
-logical lWrite, Start, rInt0_on_file, rInt0_in_memory, InSlapaf, Found, Skip
-integer, parameter :: Flip = 1, NoFlip = 0
-integer, external :: StrnLn
-integer iFlip(nBVct)
-integer, allocatable :: Ind(:), tpc(:)
-real*8, allocatable :: Hess(:), Mass(:), Grad(:), xyz(:), r0(:)
+integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu, &
+                     Lu_UDC, mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
+real(kind=wp) :: Fact, MaxErr, Sgn, Tmp
+logical(kind=iwp) :: Found, InSlapaf, rInt0_in_memory, rInt0_on_file, Skip, Start
+character(len=120) :: Line, Temp
+character(len=16) :: filnam
+character(len=8) :: Frmt
+character(len=6) :: Typ
+integer(kind=iwp), allocatable :: Ind(:), tpc(:)
+real(kind=wp), allocatable :: Grad(:), Hess(:), Mass(:), r0(:), xyz(:)
 character(len=8), allocatable :: Labels(:)
-#include "angstr.fh"
+integer(kind=iwp), parameter :: Flip = 1, NoFlip = 0
 
 call mma_allocate(Labels,nBVct,Label='Labels')
-Lu = 6
+Lu = u6
 
 ! Initiate some stuff for automatic setting of
 ! the constraints to be those that the structure
@@ -61,7 +67,7 @@ Start = lIter == 1
 call ICopy(nBVct,[Flip],0,iFlip,1)
 
 nTemp = len(Temp)
-write(format,'(A,I3.3,A)') '(F',nTemp,'.0)'
+write(Frmt,'(A,I3.3,A)') '(F',nTemp,'.0)'
 
 Lu_UDC = 91
 filnam = 'UDC'
@@ -79,7 +85,7 @@ if ((iPrint >= 99) .or. lWrite) then
   write(Lu,'(80A)') ('*',i=1,80)
   do iLines=1,nLines
     read(Lu_UDC,'(A)') Line
-    write(Lu,'(A)') Line(:StrnLn(Line))
+    write(Lu,'(A)') trim(Line)
   end do
   write(Lu,'(80A)') ('*',i=1,80)
   write(Lu,*)
@@ -146,17 +152,17 @@ do iLines=1,nLines
     if (Temp(nGo:nGo2) == 'X') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'X     '
+      Typ = 'X     '
       iType = 1
     else if (Temp(nGo:nGo2) == 'Y') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'Y     '
+      Typ = 'Y     '
       iType = 2
     else if (Temp(nGo:nGo2) == 'Z') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'Z     '
+      Typ = 'Z     '
       iType = 3
     else
       nGo = -1
@@ -169,31 +175,31 @@ do iLines=1,nLines
     nCntr = 2
     nGo = index(Temp,'BOND')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'STRTCH'
+    Typ = 'STRTCH'
     iType = 4
   else if (index(Temp,'LANGLE(2)') /= 0) then
     nCntr = 3
     nGo = index(Temp,'LANGLE(2)')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'LBEND2'
+    Typ = 'LBEND2'
     iType = 5
   else if (index(Temp,'LANGLE(1)') /= 0) then
     nCntr = 3
     nGo = index(Temp,'LANGLE(1)')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'LBEND1'
+    Typ = 'LBEND1'
     iType = 6
   else if (index(Temp,'ANGL') /= 0) then
     nCntr = 3
     nGo = index(Temp,'ANGL')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'BEND  '
+    Typ = 'BEND  '
     iType = 7
   else if (index(Temp,'DIHE') /= 0) then
     nCntr = 4
     nGo = index(Temp,'DIHE')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'TRSN  '
+    Typ = 'TRSN  '
     ! AOM!! Remove flip for Torsions!!!
     iFlip(iBVct) = NoFlip
     iType = 8
@@ -201,33 +207,33 @@ do iLines=1,nLines
     nCntr = 4
     nGo = index(Temp,'OUTO')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'OUTOFP'
+    Typ = 'OUTOFP'
     iFlip(iBVct) = NoFlip
     iType = 9
   else if (index(Temp,'EDIF') /= 0) then
     nCntr = nAtom
     nGo = index(Temp,'EDIF')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'EDIFF '
+    Typ = 'EDIFF '
     iFlip(iBVct) = NoFlip
     iType = 10
   else if (index(Temp,'SPHE') /= 0) then
     nCntr = nAtom
     nGo = index(Temp,'SPHE')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'SPHERE'
+    Typ = 'SPHERE'
     iType = 11
   else if (index(Temp,'NAC ') /= 0) then
     nCntr = nAtom
     nGo = index(Temp,'NAC ')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'NAC   '
+    Typ = 'NAC   '
     iType = 12
   else if (index(Temp,'TRAN') /= 0) then
     nCntr = nAtom
     nGo = index(Temp,'TRAN')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'TRANSV'
+    Typ = 'TRANSV'
     iFlip(iBVct) = NoFlip
     iType = 13
   else if (index(Temp,'DISS') /= 0) then
@@ -236,22 +242,22 @@ do iLines=1,nLines
     i3 = index(Line,')')
     if ((i1 >= i2) .or. (i2 >= i3)) then
       call WarningMessage(2,'Error in DefInt2')
-      write(6,*)
-      write(6,*) '********** ERROR ************'
-      write(6,*) ' Line contains syntax error !'
-      write(6,'(A)') Line
-      write(6,*) i1,i2,i3
-      write(6,*) '*****************************'
+      write(u6,*)
+      write(u6,*) '********** ERROR ************'
+      write(u6,*) ' Line contains syntax error !'
+      write(u6,'(A)') Line
+      write(u6,*) i1,i2,i3
+      write(u6,*) '*****************************'
       call Quit_OnUserError()
     end if
     nGo = i3+1
     Temp = Line(i1+1:i2-1)
-    read(Temp,format) Tmp
+    read(Temp,Frmt) Tmp
     nCntr = nint(Tmp)
     Temp = Line(i2+1:i3-1)
-    read(Temp,format) Tmp
+    read(Temp,Frmt) Tmp
     mCntr = nint(Tmp)
-    type = 'DISSOC'
+    Typ = 'DISSOC'
     iType = 14
   else
     nGo = -1
@@ -269,10 +275,10 @@ do iLines=1,nLines
   call mma_allocate(Mass,msAtom,Label='Mass')
   call mma_allocate(Hess,(3*msAtom)**2,Label='Hess')
 
-  call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),value(iBVct),nAtom,nCntr,mCntr,xyz,Grad,Ind,type,Mass,Labels(iBVct), &
+  call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),Val(iBVct),nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,Mass,Labels(iBVct), &
               lWrite,rMult(iBVct,iBVct),Hess,lIter)
 
-  if ((type == 'TRSN  ') .and. (abs(value(iBVct)) < Pi*Half)) iFlip(iBVct) = NoFlip
+  if ((Typ == 'TRSN  ') .and. (abs(Val(iBVct)) < Pi*Half)) iFlip(iBVct) = NoFlip
 
   call mma_deallocate(Hess)
   call mma_deallocate(Mass)
@@ -295,17 +301,17 @@ if (.not. Start) then
 
     ! Test if we have a flip in the sign of the value
 
-    if ((value(iBVct)*Value0(iBVct) < Zero) .and. (iFlip(iBVct) == Flip)) then
+    if ((Val(iBVct)*Value0(iBVct) < Zero) .and. (iFlip(iBVct) == Flip)) then
       !write(Lu,*) 'Flip Sign for ',Labels(iBVct)
-      value(iBVct) = -value(iBVct)
+      Val(iBVct) = -Val(iBVct)
     end if
   end do
 end if
-call dcopy_(nBVct,value,1,Value0,1)
+call dcopy_(nBVct,Val,1,Value0,1)
 
 if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
 if (iPrint >= 19) then
-  call RecPrt(' Value of primitive internal coordinates / au or rad',' ',value,nBVct,1)
+  call RecPrt(' Value of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
 end if
 !                                                                      *
 !***********************************************************************
@@ -371,7 +377,7 @@ do
 
     call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
     call dcopy_((3*nAtom)**2,dBVct(1,1,iBVct),1,dBMtrx(1,1,iBMtrx),1)
-    rInt(iBMtrx) = value(iBVct)
+    rInt(iBMtrx) = Val(iBVct)
 
     iFrst = iEnd+1
     call NxtWrd(Line,iFrst,iEnd)
@@ -406,22 +412,22 @@ do
 
       ! Read value from input file.
 
-      read(Temp,format) rInt0(iBMtrx)
+      read(Temp,Frmt) rInt0(iBMtrx)
       Temp = Line
       call UpCase(Temp)
-      if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/angstr
-      if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*Pi/1.800D+02
+      if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/Angstrom
+      if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*deg2rad
     end if
 
     ! AOM: trying to correct torsion...
     if (tpc(iBVct) == 8) then
       n0 = int((rInt(iBMtrx)-rInt0(iBMtrx))/(Two*Pi))
-      if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0+1)*Two*Pi)) then
+      if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-n0*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-(n0+1)*Two*Pi)) then
         n0 = n0+1
-      else if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0-1)*Two*Pi)) then
+      else if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-n0*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-(n0-1)*Two*Pi)) then
         n0 = n0-1
       end if
-      rInt(iBMtrx) = rInt(iBMtrx)-dble(n0)*Two*Pi
+      rInt(iBMtrx) = rInt(iBMtrx)-n0*Two*Pi
     end if
     !                                                                  *
     !*******************************************************************
@@ -451,7 +457,7 @@ do
         !> Get the factor
         call NxtWrd(Line,iFrst,iEnd)
         Temp = Line(iFrst:iEnd)
-        read(Temp,format) Fact
+        read(Temp,Frmt) Fact
         Fact = Fact*Sgn
         iFrst = iEnd+1
         !> Get the label
@@ -472,7 +478,7 @@ do
 
         call DaXpY_(3*nAtom,Fact,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
         call DaXpY_((3*nAtom)**2,Fact,dBVct(1,1,iBvct),1,dBMtrx(1,1,iBMtrx),1)
-        rInt(iBMtrx) = rInt(iBMtrx)+Fact*value(iBVct)
+        rInt(iBMtrx) = rInt(iBMtrx)+Fact*Val(iBVct)
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -519,11 +525,11 @@ do
 
           ! Read value from input file.
 
-          read(Temp,format) rInt0(iBMtrx)
+          read(Temp,Frmt) rInt0(iBMtrx)
           Temp = Line
           call UpCase(Temp)
-          if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/angstr
-          if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*Pi/1.800D+02
+          if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/Angstrom
+          if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*deg2rad
         end if
         exit
       end if

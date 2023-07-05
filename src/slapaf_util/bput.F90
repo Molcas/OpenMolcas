@@ -11,10 +11,14 @@
 
 subroutine BPut(EVec,nDim,BMx,nX,Smmtrc,nQQ,Degen)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
-logical Smmtrc(nX)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim, nX, nQQ
+real(kind=wp) :: EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
+logical(kind=iwp) :: Smmtrc(nX)
+integer(kind=iwp) :: i_Dim, iQQ, iX
 
 !                                                                      *
 !***********************************************************************
@@ -23,12 +27,12 @@ logical Smmtrc(nX)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iDim = 0
+i_Dim = 0
 do iX=1,nX
   if (Smmtrc(iX)) then
-    iDim = iDim+1
+    i_Dim = i_Dim+1
     do iQQ=1,nQQ
-      BMx(iX,iQQ) = EVec(iDim,iQQ)/sqrt(Degen(iX))
+      BMx(iX,iQQ) = EVec(i_Dim,iQQ)/sqrt(Degen(iX))
     end do
   else
     do iQQ=1,nDim

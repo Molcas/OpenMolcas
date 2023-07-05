@@ -13,21 +13,26 @@ subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
 
 use Slapaf_Info, only: Gx0, Energy, Energy0
 use Slapaf_Parameters, only: NADC, ApproxNADC
+use Constants, only: Zero, One, Two, auTokJmol
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants.fh"
-real*8 Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-logical lWrite_, ldB
-character(len=8) Label
+implicit none
+integer(kind=iwp) :: nCent, lIter
+real(kind=wp) :: xyz(3,nCent), dE, Bf(3,nCent), dBf(3*nCent,3*nCent)
+logical(kind=iwp) :: lWrite_, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: i, iCar, iCent, iOpt, ix, iy, j, jCent
+real(kind=wp) :: E0, E1, Fact, XX
+integer(kind=iwp), external :: iDeg
+real(kind=wp), external :: DDot_
 
 E1 = Energy(lIter)
 E0 = Energy0(lIter)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 nAtoms = size(Gx0,2)
-write(6,*) 'ConInt: lIter=',lIter
-write(6,*) 'ConInt: E1, E0=',E1,E0
+write(u6,*) 'ConInt: lIter=',lIter
+write(u6,*) 'ConInt: E1, E0=',E1,E0
 call RecPrt('ConInt: Gx0',' ',Gx0(:,:,lIter),3,nAtoms)
 #endif
 
@@ -62,16 +67,16 @@ else if (iOpt == 3) then
   dE = abs(E0)
 end if
 if (lWrite_) then
-  write(6,'(2A,F18.8,A,F18.8,A)') Label,' : Energy difference = ',E0,' hartree, ',E0*CONV_AU_TO_KJ_PER_MOLE_,' kJ/mol'
-  write(6,'( A,F18.8,A)') '           Average energy    = ',E1,' hartree'
+  write(u6,'(2A,F18.8,A,F18.8,A)') Label,' : Energy difference = ',E0,' hartree, ',E0*auTokJmol,' kJ/mol'
+  write(u6,'( A,F18.8,A)') '           Average energy    = ',E1,' hartree'
 # ifdef _DEBUGPRINT_
   select case (iOpt)
     case (1)
-      write(6,*) 'Option: Linear'
+      write(u6,*) 'Option: Linear'
     case (2)
-      write(6,*) 'Option: Quadratic'
+      write(u6,*) 'Option: Quadratic'
     case (3)
-      write(6,*) 'Option: Absolute value'
+      write(u6,*) 'Option: Absolute value'
   end select
 # endif
 end if
@@ -79,8 +84,8 @@ end if
 ! Compute the WDC B-matrix
 
 do iCent=1,nCent
-  Fact = dble(iDeg(xyz(1,iCent)))
-  !write(6,*) 'Fact=',Fact
+  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
+  !write(u6,*) 'Fact=',Fact
   do iCar=1,3
     Bf(iCar,iCent) = Zero
     if (iOpt == 1) then
@@ -92,10 +97,10 @@ do iCent=1,nCent
       ! When the energy difference becomes small, the true derivative vanishes.
       ! In such case use simply a scaled-down energy difference gradient
 
-      if (abs(E0) > 1.0D-5) then
+      if (abs(E0) > 1.0e-5_wp) then
         Bf(iCar,iCent) = -Two*E0*Gx0(iCar,iCent,lIter)
       else
-        Bf(iCar,iCent) = -Two*1.0D-5*Gx0(iCar,iCent,lIter)
+        Bf(iCar,iCent) = -Two*1.0e-5_wp*Gx0(iCar,iCent,lIter)
       end if
     else if (iOpt == 3) then
       ! Absolute value
@@ -110,10 +115,10 @@ call RecPrt('ConInt: Bf',' ',Bf,3,nCent)
 #endif
 if (lWrite_ .and. (iOpt == 1)) then
   XX = sqrt(DDot_(3*nCent,Bf,1,Bf,1))
-  if (XX <= 1.0D-3) then
-    write(6,*)
-    write(6,*) '    Warning: PESs might be parallel!'
-    write(6,*)
+  if (XX <= 1.0e-3_wp) then
+    write(u6,*)
+    write(u6,*) '    Warning: PESs might be parallel!'
+    write(u6,*)
   end if
 end if
 

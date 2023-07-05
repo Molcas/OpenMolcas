@@ -9,32 +9,45 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,value,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,Grad_all,iGlow,iGhi,iPrv,Proc_dB, &
+subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,Grad_all,iGlow,iGhi,iPrv,Proc_dB, &
                       iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
 
-use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
+use Symmetry_Info, only: iOper, nIrrep
+use Slapaf_Info, only: ANr, AtomLbl, jStab, nStab
+use Constants, only: Zero, One, Two, Pi, deg2rad
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iGlow, iGhi, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
+                     iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, &
+                     idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), &
+                 dBM(ndB_Tot), Thr_small
+logical(kind=iwp) :: Process, Proc_dB
+character(len=14) :: qLbl(nB)
+#ifdef _DEBUGPRINT_
 #include "print.fh"
+#endif
 #include "Molcas.fh"
-parameter(mB=3*3)
-real*8 Cx(3,nsAtom,nIter), A(3,3), Hess(mB**2), fconst(nB), value(nB,nIter), rMult(nB), Ref(3,3), Prv(3,3), Grad_Ref(9), Axis(3), &
-       Perp_Axis(3,2), Grad(mB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
-integer iDCRR(0:7), iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7), iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB), iTabBonds(3,nBonds), &
-        iTabAI(2,mAtoms), iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot)
-logical Process, MinBas, Help, Proc_dB, R_Stab_A
-character*14 Label, qLbl(nB)
-character*3 ChOp(0:7)
-character*(LenIn4) Lbls(3)
 #include "bondtypes.fh"
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_bend.fh"
-data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
-data iChOp/1,1,1,2,1,2,2,3/
-#include "constants.fh"
+integer(kind=iwp), parameter :: mB = 3*3
+integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iDCR(3), iDCRR(0:7), iDCRT(0:7), ideg, iE1, iE2, iE3, iF1, iF2, iF3, Ind(3), &
+                     iNeighbor, ir, iStabM(0:7), iStabN(0:7), jAtom, jAtom_, jBond, jBondType, jNeighbor, jr, k, kDCR, kDCRR, &
+                     kDCRT, Lambda, mAtom, mAtom_, mi, mr, nCent, nCoBond_i, nCoBond_j, nCoBond_m, nDCRR, nDCRT, nk, nNeighbor_m, &
+                     nqA, nStabM, nStabN
+real(kind=wp) :: A(3,3), Alpha, Axis(3), BB, Deg, delta, f_Const, f_Const_Ref, Fact, Grad(mB), Grad_Ref(9), Hess(mB**2), &
+                 Perp_Axis(3,2), Prv(3,3), r0, Ref(3,3), rim2, rim2_Ref, rmj2, rmj2_Ref, Val, Val_Ref
+logical(kind=iwp) :: Help, MinBas
+character(len=LenIn4) :: Lbls(3)
+character(len=14) :: Label
+integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
+character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']
+integer(kind=iwp), external :: iTabRow, nCoBond
+real(kind=wp), external :: DDot_
+logical(kind=iwp), external :: R_Stab_A
 
 !                                                                      *
 !***********************************************************************
@@ -52,7 +65,7 @@ iPrint = 99
 
 nqA = 0
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(6,*) ' Enter Bends.'
+if (iPrint >= 99) write(u6,*) ' Enter Bends.'
 #endif
 call FZero(Hess,81)
 
@@ -60,12 +73,12 @@ call FZero(Hess,81)
 
 MinBas = .false.
 if (MinBas) then
-  Fact = 1.3d0
+  Fact = 1.3_wp
 else
   Fact = One
 end if
 nCent = 3
-!write(6,*)
+!write(u6,*)
 
 do mAtom_=1,mAtoms
   mAtom = iTabAI(1,mAtom_)
@@ -92,10 +105,10 @@ do mAtom_=1,mAtoms
     iBondType = iTabBonds(3,iBond)
     if ((iBondType == vdW_Bond) .or. (iBondType > Magic_Bond)) cycle
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'iAtom,mAtom=',iAtom,mAtom
-    write(6,*) 'iBond,iBondType=',iBond,iBondType
-    write(6,*) 'E,R=',ChOp(iDCR(1)),ChOp(iDCR(2))
+    write(u6,*)
+    write(u6,*) 'iAtom,mAtom=',iAtom,mAtom
+    write(u6,*) 'iBond,iBondType=',iBond,iBondType
+    write(u6,*) 'E,R=',ChOp(iDCR(1)),ChOp(iDCR(2))
 #   endif
 
     call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
@@ -122,10 +135,10 @@ do mAtom_=1,mAtoms
       jBondType = iTabBonds(3,jBond)
       if ((jBondType == vdW_Bond) .or. (jBondType > Magic_Bond)) cycle
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'jAtom,mAtom=',jAtom,mAtom
-      write(6,*) 'jBond,jBondType=',jBond,jBondType
-      write(6,*) 'T=',ChOp(iDCR(3))
+      write(u6,*)
+      write(u6,*) 'jAtom,mAtom=',jAtom,mAtom
+      write(u6,*) 'jBond,jBondType=',jBond,jBondType
+      write(u6,*) 'T=',ChOp(iDCR(3))
 #     endif
 
       write(Label,'(A,I2,A,I2,A,I2,A)') 'A(',iAtom,',',mAtom,',',jAtom,')'
@@ -142,16 +155,16 @@ do mAtom_=1,mAtoms
 
       call DCR(Lambda,jStab(0,iAtom),nStab(iAtom),jStab(0,jAtom),nStab(jAtom),iDCRT,nDCRT)
 #     ifdef _DEBUGPRINT_
-      write(6,'(10A)') 'T={',(ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
+      write(u6,'(10A)') 'T={',(ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
 #     endif
       kDCRT = iDCR(3)
 
 #     ifdef _DEBUGPRINT_
       if (iPrint >= 99) then
-        write(6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-        write(6,'(10A)') 'V={',(ChOp(jStab(i,mAtom)),i=0,nStab(mAtom)-1),'}  '
-        write(6,'(10A)') 'X={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-        write(6,'(2A)') 'T=',ChOp(kDCRT)
+        write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+        write(u6,'(10A)') 'V={',(ChOp(jStab(i,mAtom)),i=0,nStab(mAtom)-1),'}  '
+        write(u6,'(10A)') 'X={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+        write(u6,'(2A)') 'T=',ChOp(kDCRT)
       end if
 #     endif
 
@@ -169,7 +182,7 @@ do mAtom_=1,mAtoms
 
 #     ifdef _DEBUGPRINT_
       if (iPrint >= 99) then
-        write(6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
+        write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
       end if
 #     endif
 
@@ -180,8 +193,8 @@ do mAtom_=1,mAtoms
 
 #     ifdef _DEBUGPRINT_
       if (iPrint >= 99) then
-        write(6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-        write(6,'(2A)') 'R=',ChOp(kDCRR)
+        write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+        write(u6,'(2A)') 'R=',ChOp(kDCRR)
       end if
 #     endif
 
@@ -195,16 +208,16 @@ do mAtom_=1,mAtoms
 
 #     ifdef _DEBUGPRINT_
       if (iPrint >= 99) then
-        write(6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+        write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
       end if
 #     endif
 
       ! Compute the degeneracy of the angle
 
       ideg = nIrrep/nStabM
-      Deg = sqrt(dble(iDeg))
+      Deg = sqrt(real(iDeg,kind=wp))
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) write(6,*) ' nIrrep,nStabM=',nIrrep,nStabM
+      if (iPrint >= 99) write(u6,*) ' nIrrep,nStabM=',nIrrep,nStabM
 #     endif
 
       ! Test if coordinate should be included
@@ -239,8 +252,8 @@ do mAtom_=1,mAtoms
       end if
       if ((f_Const_Ref < f_Const_Min) .and. (iBondType /= Fragments_Bond) .and. (jBondType /= Fragments_Bond)) cycle
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' A Force Constant:',f_Const
-      write(6,*) iAtom,mAtom,jAtom,f_Const
+      write(u6,*) ' A Force Constant:',f_Const
+      write(u6,*) iAtom,mAtom,jAtom,f_Const
 #     endif
 
       call Bend(Ref,nCent,Val_Ref,Grad_Ref,.false.,.false.,'        ',Hess,Proc_dB)
@@ -257,20 +270,20 @@ do mAtom_=1,mAtoms
       ! value Pi. We introduce "linear" angles under two
       ! conditions.
       ! (1) the reference angle is within delta of Pi.
-      ! (2) the actual angle is within 1.0D-11 of Pi.(?)
-      ! Delta is set to 1.0D-11 if there are 3 atoms.(?)
+      ! (2) the actual angle is within 1.0e-11 of Pi.(?)
+      ! Delta is set to 1.0e-11 if there are 3 atoms.(?)
 
-      delta = (45.0d0/180.0d0)*Pi
-      ! If (mAtoms == 3) delta=1.0D-11 ! I do not understand
+      delta = 45.0_wp*deg2rad
+      ! if (mAtoms == 3) delta = 1.0e-11_wp ! I do not understand
       ! although it is probably me who introduced it!
 
-      if (((abs(Val_Ref-Pi) < Delta) .or. (abs(Val-Pi) < 1.0D-11)) .and. &
+      if (((abs(Val_Ref-Pi) < Delta) .or. (abs(Val-Pi) < 1.0e-11_wp)) .and. &
           (.not. (((iBondType == Fragments_Bond) .or. (jBondType == Fragments_Bond)) .and. (mAtoms <= 4)))) then
 
         ! Reference is linear(a) or
         ! reference is NOT linear but the new structure is(b).
 
-        if ((abs(Val-Pi) < 1.0D-11) .and. (.not. (abs(Val_Ref-Pi) < Delta))) then
+        if ((abs(Val-Pi) < 1.0e-11_wp) .and. (.not. (abs(Val_Ref-Pi) < Delta))) then
           ! Case b
           nk = 1
         else
@@ -307,9 +320,9 @@ do mAtom_=1,mAtoms
           end if
           write(LuIC,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #         ifdef _DEBUGPRINT_
-          if (iPrint >= 49) write(6,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ', &
-                                                          Lbls(3)(iF3:iE3)
-          write(6,*) 'iDeg=',iDeg
+          if (iPrint >= 49) write(u6,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ', &
+                                                           Lbls(3)(iF3:iE3)
+          write(u6,*) 'iDeg=',iDeg
 #         endif
           Label = ' '
           write(Label,'(A,I3.3)') 'a',nqA
@@ -322,7 +335,7 @@ do mAtom_=1,mAtoms
 
             BB = DDot_(9,Grad_all(1,nq,iPrv),1,Grad_all(1,nq,iIter),1)
             if (BB < Zero) then
-              !write(6,*) ' Angle flips, corrected!'
+              !write(u6,*) ' Angle flips, corrected!'
               Val = Two*Pi-Val
               call DScal_(9,-One,Grad_all(1,nq,iIter),1)
               call DScal_(81,-One,Hess,1)
@@ -334,11 +347,11 @@ do mAtom_=1,mAtoms
             Indq(3,nq) = kDCRT*8+kDCRR+1
 
             f_Const = max(f_Const,f_Const_Min)
-            if ((.not. Help) .and. ((iBondType == Fragments_Bond) .or. (jBondType == Fragments_Bond))) f_Const = f_Const*1.d3
+            if ((.not. Help) .and. ((iBondType == Fragments_Bond) .or. (jBondType == Fragments_Bond))) f_Const = f_Const*1.0e3_wp
             fconst(nq) = sqrt(f_Const)
             rMult(nq) = Deg
 
-            value(nq,iIter) = Val
+            Valu(nq,iIter) = Val
             qLbl(nq) = Label
 
             ! Project the gradient vector
@@ -376,7 +389,7 @@ do mAtom_=1,mAtoms
         end if
         write(LuIC,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 49) write(6,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
+        if (iPrint >= 49) write(u6,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #       endif
         Label = ' '
         write(Label,'(A,I3.3)') 'a',nqA
@@ -389,8 +402,8 @@ do mAtom_=1,mAtoms
 
           BB = DDot_(9,Grad_all(1,nq,iPrv),1,Grad_all(1,nq,iIter),1)
           if (BB < Zero) then
-            !write(6,*) ' Angle flips, corrected!'
-            !write(6,*) ' iRef,iIter=', iRef,iIter
+            !write(u6,*) ' Angle flips, corrected!'
+            !write(u6,*) ' iRef,iIter=', iRef,iIter
             Val = Two*Pi-Val
             call DScal_(9,-One,Grad_all(1,nq,iIter),1)
             call DScal_(81,-One,Hess,1)
@@ -401,11 +414,11 @@ do mAtom_=1,mAtoms
           Indq(2,nq) = (jAtom-1)*nsAtom**2+mi
           Indq(3,nq) = kDCRT*8+kDCRR+1
 
-          if ((.not. Help) .and. ((iBondType == Fragments_Bond) .or. (jBondType == Fragments_Bond))) f_Const = f_Const*100.d0
+          if ((.not. Help) .and. ((iBondType == Fragments_Bond) .or. (jBondType == Fragments_Bond))) f_Const = f_Const*1.0e2_wp
           fconst(nq) = sqrt(f_Const)
           rMult(nq) = Deg
 
-          value(nq,iIter) = Val
+          Valu(nq,iIter) = Val
           qLbl(nq) = Label
 
           ! Project the gradient vector

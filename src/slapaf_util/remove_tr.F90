@@ -13,15 +13,16 @@
 
 subroutine Remove_TR(nQ,nX,nQQ,KMat,nK,TRVec,nTR,BM,iBM,nqB,nB)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nQ, nX, nQQ, nK, nTR, nB
-real*8 :: KMat(nQ,nK), TRVec(nX,nTR), BM(nB)
-integer :: iBM(nB), nqB(nQ)
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: i, iK, iX, iQ, iB, iTR, iV
-real*8, dimension(:), allocatable :: VecInt, TR
-real*8, external :: DDot_
+integer(kind=iwp) :: nQ, nX, nQQ, nK, nTR, nB, iBM(nB), nqB(nQ)
+real(kind=wp) :: KMat(nQ,nK), TRVec(nX,nTR), BM(nB)
+integer(kind=iwp) :: i, iB, iK, iQ, iTR, iV, iX
+real(kind=wp), allocatable :: TR(:), VecInt(:)
+real(kind=wp), external :: DDot_
 
 call mma_allocate(TR,nK)
 call mma_allocate(VecInt,nX)

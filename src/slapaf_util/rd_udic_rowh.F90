@@ -21,23 +21,28 @@ subroutine Rd_UDIC_RowH(nInter,nRowH,mRowH)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-character*8 Labels(nInter)
-character*8 cLbl
-character*120 Temp
-character*16 filnam
-integer mRowH(nRowH)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
-Lu = 6
-Lu_UDIC = 91
+implicit none
+integer(kind=iwp) :: nInter, nRowH, mRowH(nRowH)
+integer(kind=iwp) :: iLines, iRowH, j, kLines, Lu, Lu_UDIC
+character(len=120) :: Temp
+character(len=16) :: filnam
+character(len=8) :: cLbl
+character(len=8), allocatable :: Labels(:)
+integer(kind=iwp), external :: IsFreeUnit
+
+Lu = u6
+Lu_UDIC = IsFreeUnit(91)
 filnam = 'UDIC'
 call molcas_open(Lu_UDIC,filnam)
 rewind(Lu_UDIC)
 mRowH(:) = 0
 
 ! Find begining of definitions of internal coordinates
+
+call mma_allocate(Labels,nInter,Label='Labels')
 
 do
   read(Lu_UDIC,'(A)') Temp
@@ -81,6 +86,8 @@ outer: do iRowH=1,nRowH
   call Quit_OnUserError()
 end do outer
 close(Lu_UDIC)
+
+call mma_deallocate(Labels)
 
 return
 

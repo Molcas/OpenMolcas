@@ -20,15 +20,21 @@ subroutine Fix_UDC(iRow_c,nLambda,nsAtom,nStab,Remove)
 
 use Slapaf_Info, only: AtomLbl
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-external Get_Ln
-character(len=180) Get_Ln, Line, Line2, Lines(iRow_c)
-character(len=16) FilNam
-character(len=180) Label1, Label2, Label3, Label4, FragLabels(iRow_c), SoftLabels(iRow_c)
-integer nStab(nsAtom), FragZMat(iRow_c,2), ZMatOffset
-logical Ignore, Values, Remove
+implicit none
+integer(kind=iwp) :: iRow_c, nLambda, nsAtom, nStab(nsAtom)
+logical(kind=iwp) :: Remove
+integer(kind=iwp) :: i, iAtom, iEnd, iEq, iFrag, iFrst, iLine, iSoft, iZMat, jAtom, Lu_TMP, Lu_UDC, nDeg, nFrag, nLabel1, nLabel2, &
+                     nLabel3, nLabel4, nLines, nSoft, Num, nZMat, ZMatOffset
+logical(kind=iwp) :: Ignore, Values
+character(len=180) :: Label1, Label2, Label3, Label4, Line, Line2
+character(len=16) :: FilNam
+integer(kind=iwp), allocatable :: FragZMat(:,:)
+character(len=180), allocatable :: FragLabels(:), Lines(:), SoftLabels(:)
+character(len=180), external :: Get_Ln
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -54,6 +60,11 @@ rewind(Lu_TMP)
 !***********************************************************************
 !                                                                      *
 ! Process the content of LU_UDC and put it onto LU_TMP
+
+call mma_allocate(FragZMat,iRow_c,2,Label='FragZMat')
+call mma_allocate(FragLabels,iRow_c,Label='FragLabels')
+call mma_allocate(Lines,iRow_c,Label='Lines')
+call mma_allocate(SoftLabels,iRow_c,Label='SoftLabels')
 
 iRow_c = 0 ! Number of lines in the section
 nZMat = 0  ! Number of additional lines with constraints
@@ -341,6 +352,11 @@ do iFrag=1,nFrag
   end do
 end do
 
+call mma_deallocate(FragZMat)
+call mma_deallocate(FragLabels)
+call mma_deallocate(Lines)
+call mma_deallocate(SoftLabels)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -357,12 +373,12 @@ rewind(Lu_UDC)
 rewind(Lu_TMP)
 do
   Line = Get_Ln(Lu_TMP)
-  !write(6,*) Line
+  !write(u6,*) Line
 
   write(Lu_UDC,'(A)') trim(Line)
   if (Line(1:4) == 'END ') exit
 end do
-!write(6,*) 'iRow_C,nLambda=',iRow_C,nLambda
+!write(u6,*) 'iRow_C,nLambda=',iRow_C,nLambda
 
 !                                                                      *
 !***********************************************************************

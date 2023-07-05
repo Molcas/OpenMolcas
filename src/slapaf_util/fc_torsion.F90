@@ -11,14 +11,19 @@
 
 function FC_Torsion(jSet,Coor,iTabAtoms,nMax,mAtoms)
 
-implicit real*8(a-h,o-z)
-real*8 FC_Torsion
-integer iTabAtoms(2,0:nMax,mAtoms), iCase(2,3), jSet(4)
-real*8 Coor(3,4), Gij(3)
-#include "bondtypes.fh"
-data iCase/1,2,2,3,3,4/
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-FC_Torsion = 0.0d0
+implicit none
+real(kind=wp) :: FC_Torsion
+integer(kind=iwp) :: jSet(4), nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms)
+real(kind=wp) :: Coor(3,4)
+#include "bondtypes.fh"
+integer(kind=iwp) :: i, iAtom, iAtom_, iHit, ii, jAtom, jAtom_
+real(kind=wp) :: Gij(3)
+integer(kind=iwp), parameter :: iCase(2,3) = reshape([1,2,2,3,3,4],[2,3])
+
+FC_Torsion = Zero
 do ii=1,3
   iHit = 0
   iAtom = jSet(iCase(1,ii))
@@ -32,7 +37,7 @@ do ii=1,3
       iHit = 1
       iAtom_ = iCase(1,ii)
       jAtom_ = iCase(2,ii)
-      Gij(ii) = 1.0d0/sqrt((Coor(1,iAtom_)-Coor(1,jAtom_))**2+(Coor(2,iAtom_)-Coor(2,jAtom_))**2+(Coor(3,iAtom_)-Coor(3,jAtom_))**2)
+      Gij(ii) = One/sqrt((Coor(1,iAtom_)-Coor(1,jAtom_))**2+(Coor(2,iAtom_)-Coor(2,jAtom_))**2+(Coor(3,iAtom_)-Coor(3,jAtom_))**2)
     end if
   end do
   if (iHit == 0) return

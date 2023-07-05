@@ -13,18 +13,13 @@ subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
 use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
 use Slapaf_Parameters, only: ddV_Schlegel, iOptC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Ten, Half, Angstrom, deg2rad
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-#include "stdalloc.fh"
-real*8 Cart(3,mTtAtm), rij(3), rjk(3), rkl(3), Hess((3*mTtAtm)*(3*mTtAtm+1)/2), si(3), sj(3), sk(3), sl(3), sm(3), x(2), y(2), &
-       z(2), xyz(3,4), C(3,4), Dum(1), ril(3), rik(3)
-integer iANr(mTtAtm), iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mTtAtm)
-logical MinBas, Help, Torsion_Check, Invariant(3)
-real*8 Trans(3), RotVec(3), RotMat(3,3)
-real*8, allocatable :: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
-#include "warnings.h"
+implicit none
+integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
+real(kind=wp) :: Cart(3,mTtAtm), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
 #define _FMIN_
 #define _VDW_
 #include "ddvdt.fh"
@@ -35,13 +30,29 @@ real*8, allocatable :: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
 #include "ddvdt_bend.fh"
 #include "ddvdt_trsn.fh"
 #include "ddvdt_outofp.fh"
-#include "constants.fh"
+integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
+                     jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
+                     mr, n3, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
+real(kind=wp) :: A35, aij, aik, ail, ajk, akl, alpha, ami, amj, beta, C(3,4), CosFi2, CosFi3, CosFi4, CosFi_Max, CosPhi, &
+                 cosThetax, cosThetay, cosThetaz, Diff, dO1_dx1, dO1_dx2, dO1_dy1, dO1_dy2, dO1_dz1, dO1_dz2, dO2_dx1, dO2_dx2, &
+                 dO2_dy1, dO2_dy2, dO2_dz1, dO2_dz2, dO3_dx1, dO3_dx2, dO3_dy1, dO3_dy2, dO3_dz1, dO3_dz2, Dum(1), f1, &
+                 f2, f_const, f_const_min_, Fact, g_ij, g_jk, g_kl, g_vdW, g_vdW_ij, g_vdW_im, g_vdW_jk, g_vdW_jm, g_vdW_kl, gij, &
+                 gim, gjm, gmm, Hxx, Hxy, Hxz, Hyy, Hyz, Hzz, r0, r0_vdW, r0_vdW_ij, r0_vdW_im, r0_vdW_jk, r0_vdW_jm, r0_vdW_kl, &
+                 r0mi, r0mj, r1, Rab, RabCov, Rbc, RbcCov, rij(3), rij0, rij2, rik(3), rik0, rik2, ril(3), ril0, ril2, rjk(3), &
+                 rjk0, rjk2, rkl(3), rkl0, rkl2, rL, rL2, rmi, rmi2, rmidotrmj, rmj, rmj2, RotAng, RotMat(3,3), RotVec(3), rrij, &
+                 rZero, si(3), SinPhi, sj(3), sk(3), sl(3), sm(3), Tau, Test_zero, Thr_Line, ThrFi1, ThrFi2, tij, TMass, Trans(3), &
+                 x(2), xij, xkl, xmi, xmj, xyz(3,4), y(2), yij, ykl, ymi, ymj, z(2), zij, zkl, zmi, zmj
+logical(kind=iwp) :: Help, Invariant(3), MinBas
+real(kind=wp), allocatable :: CurrXYZ(:,:), Grad(:,:,:), xMass(:)
+integer(kind=iwp), external :: iTabRow, LHR, nCoBond
+real(kind=wp), external :: CovRad, CovRadT, rMass
+logical(kind=iwp), external :: Torsion_Check
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'ddV: nBonds=',nBonds
+write(u6,*) 'ddV: nBonds=',nBonds
 nqR = 0
 nqB = 0
 nqT = 0
@@ -49,23 +60,22 @@ nqO = 0
 do iAtom=1,mTtAtm
 
   nNeighbor_i = iTabAtoms(1,0,iAtom)
-  write(6,*) 'iAtom,nNeighbor=',iAtom,nNeighbor_i
+  write(u6,*) 'iAtom,nNeighbor=',iAtom,nNeighbor_i
 end do
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-f_const_min_ = f_const_min*1.0D-1
-f_const = 0.0d0
-!
-bohr = CONST_BOHR_RADIUS_IN_SI_*1.0D+10
+f_const_min_ = f_const_min*0.1_wp
+f_const = Zero
+
 MinBas = .false.
 if (MinBas) then
-  Fact = 1.3d0
+  Fact = 1.3_wp
 else
   Fact = One
 end if
-rZero = 1.0d-10
+rZero = 1.0e-10_wp
 n3 = 3*mTtAtm
 
 call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
@@ -98,7 +108,7 @@ if (VarT) then
   if (.not. (Invariant(1) .and. Invariant(2) .and. Invariant(3))) then
 
     Fact = One
-    if (.not. VarR) Fact = 2.0D-2
+    if (.not. VarR) Fact = 2.0e-2_wp
 
     TMass = Zero
     do iAtom=1,mTtAtm
@@ -156,18 +166,18 @@ if (VarR) then
 
     !if (mTtAtm <= 2) then
     !  call WarningMessage(2,'Error in ddV')
-    !  write(6,*)
-    !  write(6,*) ' Warning!'
-    !  write(6,*) ' Rotational internal coordinates not implemented for fewer than 3 atoms!'
-    !  write(6,*) ' Add dummy atoms to your input and try again!'
-    !  write(6,*)
+    !  write(u6,*)
+    !  write(u6,*) ' Warning!'
+    !  write(u6,*) ' Rotational internal coordinates not implemented for fewer than 3 atoms!'
+    !  write(u6,*) ' Add dummy atoms to your input and try again!'
+    !  write(u6,*)
     !  call Quit(_RC_GENERAL_ERROR_)
     !end if
     call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
     call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
     do iAtom=1,mTtAtm
       if (iANr(iAtom) <= 0) then
-        xMass(iAtom) = 1.0D-10
+        xMass(iAtom) = 1.0e-10_wp
       end if
     end do
     nOrder = 1
@@ -292,7 +302,7 @@ do iBond=1,nBonds
       r0_vdW = r_ref_vdW(kr,lr)
       g_vdW = rkr_vdW*exp(-alpha_vdW*(r0_vdW-sqrt(rkl2))**2)
     else
-      g_vdW = 0.0d0
+      g_vdW = Zero
     end if
     gmm = gmm+g_vdW
   end if
@@ -300,10 +310,10 @@ do iBond=1,nBonds
   f_const = max(gmm,f_const_Min_)
 # ifdef _DEBUGPRINT_
   nqR = nqR+1
-  write(6,*) 'ddV: bonds: kAtom,lAtom=',kAtom,LAtom
-  write(6,*) '          : Bondtype=',iBondType
-  !write(6,*) gmm/rkr, f_const, g_vdW
-  write(6,*) f_const
+  write(u6,*) 'ddV: bonds: kAtom,lAtom=',kAtom,LAtom
+  write(u6,*) '          : Bondtype=',iBondType
+  !write(u6,*) gmm/rkr, f_const, g_vdW
+  write(u6,*) f_const
 # endif
   Hxx = f_const*xkl*xkl/rkl2
   Hxy = f_const*xkl*ykl/rkl2
@@ -383,7 +393,7 @@ if (nBonds >= 2) then
 
         Test_zero = xmi*xmj+ymi*ymj+zmi*zmj
         Test_zero = Test_zero/(rmi*rmj)
-        if (abs(Test_zero-One) < 1.0D-12) cycle
+        if (abs(Test_zero-One) < 1.0e-12_wp) cycle
 
         xij = (Cart(1,jAtom)-Cart(1,iAtom))
         yij = (Cart(2,jAtom)-Cart(2,iAtom))
@@ -414,8 +424,8 @@ if (nBonds >= 2) then
             r0_vdW_jm = r_ref_vdW(jr,mr)
             g_vdW_jm = exp(-alpha_vdW*(r0_vdW_jm-sqrt(rmj2))**2)
           else
-            g_vdW_im = 0.0d0
-            g_vdW_jm = 0.0d0
+            g_vdW_im = Zero
+            g_vdW_jm = Zero
           end if
           g_vdW_im = g_vdW_im*rkr_vdW/rkr
           g_vdW_jm = g_vdW_jm*rkr_vdW/rkr
@@ -425,18 +435,18 @@ if (nBonds >= 2) then
         end if
         rL2 = (ymi*zmj-zmi*ymj)**2+(zmi*xmj-xmi*zmj)**2+(xmi*ymj-ymi*xmj)**2
         !hjw modified
-        if (rL2 < 1.d-14) then
+        if (rL2 < 1.0e-14_wp) then
           rL = Zero
         else
           rL = sqrt(rL2)
         end if
         gij = max(gij,f_const_Min_)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'iAtom,mAtom,jAtom=',iAtom,mAtom,jAtom
-        write(6,*) 'gij=',gij
-        write(6,*) 'rmj=',rmj
-        write(6,*) 'rmi=',rmi
-        write(6,*) 'rrij=',rrij
+        write(u6,*) 'iAtom,mAtom,jAtom=',iAtom,mAtom,jAtom
+        write(u6,*) 'gij=',gij
+        write(u6,*) 'rmj=',rmj
+        write(u6,*) 'rmi=',rmi
+        write(u6,*) 'rrij=',rrij
 #       endif
 
         if ((rmj > rZero) .and. (rmi > rZero) .and. (rrij > rZero)) then
@@ -449,7 +459,7 @@ if (nBonds >= 2) then
 
           ! Non-linear case
 
-          Thr_Line = sin(Pi*25.0d0/180.0d0)
+          Thr_Line = sin(25.0_wp*deg2rad)
           if (mTtAtm == 3) Thr_Line = rZero
           if (SinPhi > Thr_Line) then
             si(1) = (xmi/rmi*cosphi-xmj/rmj)/(rmi*sinphi)
@@ -576,10 +586,10 @@ if (nBonds >= 3) then
     Fact = One
     if (iBondType > Magic_Bond) Fact = Two
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) '*',jAtom,kAtom,' *'
-    write(6,*)
-    write(6,*) 'BondType=',iBondType
+    write(u6,*)
+    write(u6,*) '*',jAtom,kAtom,' *'
+    write(u6,*)
+    write(u6,*) 'BondType=',iBondType
 #   endif
 
     ! Allow center bond to be a "magic" bond
@@ -600,9 +610,9 @@ if (nBonds >= 3) then
     do jNeighbor=1,nNeighbor_j
       iAtom = iTabAtoms(1,jNeighbor,jAtom)
 #     ifdef _DEBUGPRINT_
-      !write(6,*)
-      !write(6,*) iAtom,jAtom,kAtom,' *'
-      !write(6,*)
+      !write(u6,*)
+      !write(u6,*) iAtom,jAtom,kAtom,' *'
+      !write(u6,*)
 #     endif
       jBond = iTabAtoms(2,jNeighbor,jAtom)
       if (iBond == jBond) cycle
@@ -642,24 +652,24 @@ if (nBonds >= 3) then
         rkl2 = rkl(1)**2+rkl(2)**2+rkl(3)**2
 
         ! Allow only angles in the range of 35-145
-        A35 = (35.0d0/180.d0)*Pi
+        A35 = 35.0_wp*deg2rad
         CosFi_Max = cos(A35)
         CosFi2 = (rij(1)*rjk(1)+rij(2)*rjk(2)+rij(3)*rjk(3))/sqrt(rij2*rjk2)
         if (abs(CosFi2) > CosFi_Max) cycle
         CosFi3 = (rkl(1)*rjk(1)+rkl(2)*rjk(2)+rkl(3)*rjk(3))/sqrt(rkl2*rjk2)
         if (abs(CosFi3) > CosFi_Max) cycle
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'CosFi2,CosFi3=',CosFi2,CosFi3
-        write(6,*) 'rij=',rij,rij2
-        write(6,*) 'rjk=',rjk,rjk2
-        write(6,*) 'rkl=',rkl,rkl2
+        write(u6,*) 'CosFi2,CosFi3=',CosFi2,CosFi3
+        write(u6,*) 'rij=',rij,rij2
+        write(u6,*) 'rjk=',rjk,rjk2
+        write(u6,*) 'rkl=',rkl,rkl2
 #       endif
 
         if (ddV_Schlegel .or. Help) then
           Rab = sqrt(rij2)
-          RabCov = (CovRadT(iANr(iAtom))+CovRadT(iANr(jAtom)))/bohr
+          RabCov = (CovRadT(iANr(iAtom))+CovRadT(iANr(jAtom)))/Angstrom
           Rbc = sqrt(rjk2)/Fact
-          RbcCov = (CovRadT(iANr(jAtom))+CovRadT(iANr(kAtom)))/bohr
+          RbcCov = (CovRadT(iANr(jAtom))+CovRadT(iANr(kAtom)))/Angstrom
           Diff = RbcCov-Rbc
           if (Diff < Zero) Diff = Zero
           tij = Fact*A_Trsn(1)+A_Trsn(2)*Diff
@@ -684,9 +694,9 @@ if (nBonds >= 3) then
             r0_vdW_kl = r_ref_vdW(kr,lr)
             g_vdW_kl = exp(-alpha_vdW*(r0_vdW_kl-sqrt(rkl2))**2)
           else
-            g_vdW_ij = 0.0d0
-            g_vdW_jk = 0.0d0
-            g_vdW_kl = 0.0d0
+            g_vdW_ij = Zero
+            g_vdW_jk = Zero
+            g_vdW_kl = Zero
           end if
           g_vdW_ij = g_vdW_ij*rkr_vdW/rkr
           g_vdW_jk = g_vdW_jk*rkr_vdW/rkr
@@ -698,13 +708,13 @@ if (nBonds >= 3) then
         end if
         tij = max(tij,f_const_Min_)
         if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,xyz,iTabAtoms,nMax,mTtAtm)) then
-          tij = max(tij,10.0d0*f_const_Min_)
+          tij = max(tij,Ten*f_const_Min_)
         end if
 #       ifdef _DEBUGPRINT_
         nqT = nqT+1
-        write(6,*)
-        write(6,*) iAtom,jAtom,kAtom,lAtom
-        write(6,*) tij
+        write(u6,*)
+        write(u6,*) iAtom,jAtom,kAtom,lAtom
+        write(u6,*) tij
 #       endif
 
         call Trsn(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
@@ -765,18 +775,18 @@ if (nBonds >= 3) then
   do iAtom=1,mTtAtm
 
     nNeighbor_i = iTabAtoms(1,0,iAtom)
-    !write(6,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
+    !write(u6,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
     if (nNeighbor_i < 3) cycle
     ir = iTabRow(iANr(iAtom))
     call dcopy_(3,Cart(1,iAtom),1,xyz(1,4),1)
 
     do iNb0=1,nNeighbor_i
       jAtom = iTabAtoms(1,iNb0,iAtom)
-      !write(6,*) 'jAtom=',jAtom
+      !write(u6,*) 'jAtom=',jAtom
       jr = iTabRow(iANr(jAtom))
       iBond = iTabAtoms(2,iNb0,iAtom)
       iBondType = iTabBonds(3,iBond)
-      !write(6,*) 'iBondType=',iBondType
+      !write(u6,*) 'iBondType=',iBondType
       nCoBond_j = nCoBond(jAtom,mTtAtm,nMax,iTabBonds,nBonds,iTabAtoms)
       if (nCoBond_j > 1) cycle
       !if (iBondType == vdW_Bond) cycle
@@ -785,11 +795,11 @@ if (nBonds >= 3) then
 
       do iNb1=1,nNeighbor_i
         kAtom = iTabAtoms(1,iNb1,iAtom)
-        !write(6,*) 'kAtom=',kAtom
+        !write(u6,*) 'kAtom=',kAtom
         kBond = iTabAtoms(2,iNb1,iAtom)
         if (kAtom == jAtom) cycle
         kBondType = iTabBonds(3,kBond)
-        !write(6,*) 'kBondType=',kBondType
+        !write(u6,*) 'kBondType=',kBondType
         !if (kBondType == vdW_Bond) cycle
         if (kBondType > Magic_Bond) cycle
         kr = iTabRow(iANr(kAtom))
@@ -798,20 +808,20 @@ if (nBonds >= 3) then
 
         do iNb2=1,nNeighbor_i
           lAtom = iTabAtoms(1,iNb2,iAtom)
-          !write(6,*) 'lAtom=',lAtom
+          !write(u6,*) 'lAtom=',lAtom
           lBond = iTabAtoms(2,iNb2,iAtom)
 
           if (lAtom == jAtom) cycle
           if (lAtom <= kAtom) cycle
           lBondType = iTabBonds(3,lBond)
-          !write(6,*) 'lBondType=',lBondType
+          !write(u6,*) 'lBondType=',lBondType
           !if (lBondType == vdW_Bond) cycle
           if (lBondType > Magic_Bond) cycle
           lr = iTabRow(iANr(lAtom))
           Help = (kr > 3) .or. (ir > 3) .or. (jr > 3) .or. (lr > 3)
 
-          !Write(6,*) 'i,j,k,l=',iAtom,jAtom,kAtom,lAtom
-          !Write(6,*) 'Help=',Help
+          !Write(u6,*) 'i,j,k,l=',iAtom,jAtom,kAtom,lAtom
+          !Write(u6,*) 'Help=',Help
 
           call dcopy_(3,Cart(1,lAtom),1,xyz(1,3),1)
 
@@ -831,8 +841,8 @@ if (nBonds >= 3) then
           rik2 = rik(1)**2+rik(2)**2+rik(3)**2
           ril2 = ril(1)**2+ril(2)**2+ril(3)**2
 
-          ThrFi1 = cos(90.0d0*Pi/(180.0d0))
-          ThrFi2 = cos(150.0d0*Pi/(180.0d0))
+          ThrFi1 = cos(90.0_wp*deg2rad)
+          ThrFi2 = cos(150.0_wp*deg2rad)
           CosFi2 = (rij(1)*rik(1)+rij(2)*rik(2)+rij(3)*rik(3))/sqrt(rij2*rik2)
           if ((CosFi2 > ThrFi1) .or. (CosFi2 < ThrFi2)) cycle
 
@@ -842,7 +852,7 @@ if (nBonds >= 3) then
           CosFi4 = (rik(1)*ril(1)+rik(2)*ril(2)+rik(3)*ril(3))/sqrt(rik2*ril2)
           if ((CosFi4 > ThrFi1) .or. (CosFi4 < ThrFi2)) cycle
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'CosFi2,CosFi3,CosFi4=',CosFi2,CosFi3,CosFi4
+          write(u6,*) 'CosFi2,CosFi3,CosFi4=',CosFi2,CosFi3,CosFi4
 #         endif
 
           if (ddV_Schlegel .or. Help) then
@@ -863,7 +873,7 @@ if (nBonds >= 3) then
           !tij = max(tij,f_const_Min_)
 
           call OutofP(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
-          if (abs(Tau) > 25.0d0*(Pi/180.d0)) cycle
+          if (abs(Tau) > 25.0_wp*deg2rad) cycle
 #         ifdef _DEBUGPRINT_
           nqO = nqO+1
 #         endif
@@ -873,8 +883,8 @@ if (nBonds >= 3) then
           call dcopy_(3,C(1,2),1,sk,1)
           call dcopy_(3,C(1,3),1,sl,1)
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'iAtoms=',iAtom,jAtom,kAtom,lAtom
-          write(6,*) 'tij,Tau=',tij,Tau
+          write(u6,*) 'iAtoms=',iAtom,jAtom,kAtom,lAtom
+          write(u6,*) 'tij,Tau=',tij,Tau
           !call RecPrt('si',' ',si,1,3)
           !call RecPrt('sj',' ',sj,1,3)
           !call RecPrt('sk',' ',sk,1,3)
@@ -920,7 +930,7 @@ end if
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'ddV: nqR, nqB, nqT, nqO=',nqR,nqB,nqT,nqO
+write(u6,*) 'ddV: nqR, nqB, nqT, nqO=',nqR,nqB,nqT,nqO
 #endif
 
 return

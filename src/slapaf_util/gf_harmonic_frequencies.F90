@@ -11,10 +11,15 @@
 
 subroutine GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,EVec,EVal,RedM,iNeg,nX,nDoF)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants2.fh"
-real*8 G(nX**2), GInv(nX**2), Tmp1(nDoF,nDoF), Tmp2(nX**2), EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF)
+use Constants, only: Zero, One, autocm
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iNeg, nX, nDoF
+real(kind=wp) :: G(nX**2), GInv(nX**2), Tmp1(nDoF,nDoF), Tmp2(nX**2), EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF)
+integer(kind=iwp) :: iHarm, iiT, iX, jHarm, jj, jX
+real(kind=wp) :: r2, rlow, temp, Test_i, Test_j, tmp
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -81,7 +86,7 @@ call RecPrt('Converted EVal',' ',EVal,1,nDoF)
 
 do iHarm=1,nDoF
   call dcopy_(nDoF,EVec(1,iHarm),2,Tmp1,1)
-  call DGEMM_('N','N',nDoF,1,nDoF,1.0d0,GInv,nDoF,Tmp1,nDoF,0.0d0,Tmp2,nDoF)
+  call DGEMM_('N','N',nDoF,1,nDoF,One,GInv,nDoF,Tmp1,nDoF,Zero,Tmp2,nDoF)
   r2 = DDot_(nDoF,Tmp1,1,Tmp2,1)
   RedM(iHarm) = r2
   r2 = One/sqrt(r2)
@@ -95,10 +100,10 @@ call RecPrt('Normal coordinates (Q)',' ',EVec,nDoF*2,nDoF)
 
 do iHarm=1,nDoF-1
   Test_i = EVal(iHarm)
-  if (abs(Test_i) < 1.0D-3) Test_i = 1.0D+5
+  if (abs(Test_i) < 1.0e-3_wp) Test_i = 1.0e5_wp
   do jHarm=iHarm+1,nDoF
     Test_j = EVal(jHarm)
-    if (abs(Test_j) < 1.0D-3) Test_j = 1.0D+5
+    if (abs(Test_j) < 1.0e-3_wp) Test_j = 1.0e5_wp
     if (Test_j < Test_i) then
       rlow = Test_i
       Test_i = Test_j

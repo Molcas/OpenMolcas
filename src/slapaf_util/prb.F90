@@ -11,13 +11,17 @@
 
 subroutine PrB(dB,nq,nDim)
 
-implicit real*8(a-h,o-z)
-real*8 dB(nq,nDim,nDim)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nq, nDim
+real(kind=wp) :: dB(nq,nDim,nDim)
+integer(kind=iwp) :: i_Dim, iq, jDim
 
 do iq=1,nQ
-  write(6,*) ' iq=',iq
-  do iDim=1,nDim
-    write(6,'(9F10.6)') (dB(iq,iDim,jDim),jDim=1,nDim)
+  write(u6,*) ' iq=',iq
+  do i_Dim=1,nDim
+    write(u6,'(9F10.6)') (dB(iq,i_Dim,jDim),jDim=1,nDim)
   end do
 end do
 

@@ -17,12 +17,17 @@ subroutine OLDFCM(Hess,nQQ,RunOld)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-character*8 Method
-character*(*) RunOld
-logical Found
-real*8, allocatable :: Hess(:)
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), allocatable :: Hess(:)
+integer(kind=iwp) :: nQQ
+character(len=*) :: RunOld
+integer(kind=iwp) :: iInter, lHess, nHess
+real(kind=wp) :: Energy
+character(len=8) :: Method
+logical(kind=iwp) :: Found
 
 ! Prologue
 
@@ -40,7 +45,7 @@ call Get_dScalar('Last energy',Energy)
 call Get_iScalar('No of Internal coordinates',iInter)
 if (iInter <= 0) then
   call WarningMessage(2,'OldFCM: iInter <= 0')
-  write(6,*) 'iInter=',iInter
+  write(u6,*) 'iInter=',iInter
   call Abend()
 end if
 
@@ -56,7 +61,7 @@ call get_dArray('Hess',Hess,nHess)
 lHess = iInter**2
 if (nHess /= lHess) then
   call WarningMessage(2,'OldFCM: nHess /= lHess')
-  write(6,*) 'nHess,lHess=',nHess,lHess
+  write(u6,*) 'nHess,lHess=',nHess,lHess
   call Abend()
 end if
 
@@ -65,10 +70,10 @@ call NameRun('#Pop')
 
 ! Echo the input information
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,'(6X,A)') 'SLAPAF has been supplied with an old force constant matrix.'
-write(6,'(6X,3A)') 'It is based on ',Method,' calculations.'
-write(6,'(6X,A,F18.10)') 'The final energy was',Energy
+write(u6,*)
+write(u6,'(6X,A)') 'SLAPAF has been supplied with an old force constant matrix.'
+write(u6,'(6X,3A)') 'It is based on ',Method,' calculations.'
+write(u6,'(6X,A,F18.10)') 'The final energy was',Energy
 call RecPrt(' OldFcm',' ',Hess,iInter,iInter)
 #endif
 

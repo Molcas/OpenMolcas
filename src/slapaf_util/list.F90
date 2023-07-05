@@ -21,13 +21,17 @@ subroutine List(Line,Lbl,gq,mInt,nIter)
 !             1993                                                     *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 gq(mInt,nIter)
-character Lbl(mInt)*8, format*72, Line*(*)
-#include "print.fh"
-#include "real.fh"
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+character(len=*) :: Line
+integer(kind=iwp) :: mInt, nIter
+character(len=8) :: Lbl(mInt)
+real(kind=wp) :: gq(mInt,nIter)
+integer(kind=iwp) :: i, igq, ii, inc, Lu, MxWdth, nLbl, nRow
+character(len=72) :: Frmt
+
+Lu = u6
 
 write(Lu,*)
 write(Lu,*)
@@ -40,12 +44,12 @@ inc = min((MxWdth-nLbl)/nRow,nIter)
 
 do ii=1,nIter,inc
   write(Lu,*)
-  write(format,'(A,I2,A)') '(A,1X,',inc,'(I5,5X))'
-  write(Lu,format) 'Iter.   ',(i,i=ii,min(ii+inc-1,nIter))
+  write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(I5,5X))'
+  write(Lu,Frmt) 'Iter.   ',(i,i=ii,min(ii+inc-1,nIter))
   write(Lu,*)
-  write(format,'(A,I2,A)') '(A,1X,',inc,'(F9.5,1X))'
+  write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(F9.5,1X))'
   do igq=1,mInt
-    write(Lu,format) Lbl(igq),(gq(igq,i),i=ii,min(ii+inc-1,nIter))
+    write(Lu,Frmt) Lbl(igq),(gq(igq,i),i=ii,min(ii+inc-1,nIter))
   end do
   write(Lu,*)
   write(Lu,*)

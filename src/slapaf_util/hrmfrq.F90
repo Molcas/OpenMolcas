@@ -11,21 +11,21 @@
 
 subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
 
-use thermochem
+use thermochem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
-integer mDisp(8)
-real*8, allocatable :: EVec(:), EVal(:), RedMas(:), Temp(:), NMod(:)
+implicit none
+integer(kind=iwp) :: nAtom, nInter, iNeg, mTR
+real(kind=wp) :: dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
+integer(kind=iwp) :: iCtl, iEl, iOff, iSym, lModes, Lu_10, LUt, mDisp(8), nDisp, nDoF, nIrrep, nModes, nSym, nX
+real(kind=wp), allocatable :: EVal(:), EVec(:), NMod(:), RedMas(:), Temp(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-LUt = 6
+LUt = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *

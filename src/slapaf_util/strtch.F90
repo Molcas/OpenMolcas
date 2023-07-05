@@ -11,12 +11,16 @@
 
 subroutine Strtch(xyz,nCent,Avst,B,lWrite,Label,dB,ldB)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 B(3,nCent), xyz(3,nCent), dB(3,nCent,3,nCent), R(3)
-logical lWrite, ldB
-character*8 Label
-#include "angstr.fh"
+use Constants, only: One, Angstrom
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: xyz(3,nCent), Avst, B(3,nCent), dB(3,nCent,3,nCent)
+logical(kind=iwp) :: lWrite, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: i, j
+real(kind=wp) :: aRR, R(3), R2, RR, xRR
 
 R(1) = xyz(1,2)-xyz(1,1)
 R(2) = xyz(2,2)-xyz(2,1)
@@ -25,15 +29,15 @@ R2 = R(1)**2+R(2)**2+R(3)**2
 RR = sqrt(R2)
 Avst = RR
 
-aRR = RR*angstr
-if (lWrite) write(6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
-if (aRR < 1d-6) then
+aRR = RR*Angstrom
+if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
+if (aRR < 1.0e-6_wp) then
   call WarningMessage(2,'Abend in Strtch')
-  write(6,*) '***************** ERROR **********************'
-  write(6,*) ' Short (or negative) distance for coordinate: '
-  write(6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
-  write(6,*) '**********************************************'
-  write(6,*)
+  write(u6,*) '***************** ERROR **********************'
+  write(u6,*) ' Short (or negative) distance for coordinate: '
+  write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
+  write(u6,*) '**********************************************'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 

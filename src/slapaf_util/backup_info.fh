@@ -24,7 +24,7 @@
      &        Bk_mB_Tot, Bk_mdB_Tot, Bk_mq,                             &
      &        Bk_iState(2)
 !
-      Logical Bk_Stop,                                                  &
+      Logical Bk_SlStop,                                                &
      &        Bk_lOld, Bk_CurviLinear,                                  &
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_Baker,          &
      &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,                 &

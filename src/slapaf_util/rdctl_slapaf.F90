@@ -11,41 +11,43 @@
 
 subroutine RdCtl_Slapaf(LuSpool,Dummy_Call)
 
-use kriging_mod
-use ThermoChem
 use Symmetry_Info, only: Symmetry_Info_Get
-use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo, GradRef, nStab, Lbl, mRowH, Coor
-use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel, HWRS, iOptH, HrmFrq_Show, IRC, Curvilinear, Redundant, FindTS, nBVec, &
-                             User_Def, MaxItr, iOptC, rHidden, CnstWght, lOld, Beta, Beta_Disp, Line_Search, TSConstraints, &
-                             GNrm_Threshold, Mode, ThrEne, ThrGrd, nLambda, ThrCons, ThrMEP, Baker, eMEPTest, rMEP, MEP, nMEP, &
-                             MEPNum, MEPCons, dMEPStep, MEP_Type, MEP_Algo, Max_Center, Delta, RtRnc, rFuzz, lNmHss, Cubic, &
-                             Request_Alaska, CallLast, lCtoF, Track, isFalcon, MxItr, nWndw, Iter, WeightedConstraints, NADC, &
-                             Fallback
+use Slapaf_Parameters, only: Baker, Beta, Beta_Disp, CallLast, CnstWght, Cubic, Curvilinear, ddV_Schlegel, Delta, dMEPStep, &
+                             eMEPTest, Fallback, FindTS, GNrm_Threshold, HrmFrq_Show, HWRS, iOptC, iOptH, IRC, iRow, iRow_c, &
+                             isFalcon, Iter, lCtoF, Line_Search, lNmHss, lOld, Max_Center, MaxItr, MEP, MEP_Algo, MEP_Type, &
+                             MEPCons, MEPNum, Mode, MxItr, NADC, nBVec, nLambda, nMEP, nWndw, Redundant, Request_Alaska, rFuzz, &
+                             rHidden, rMEP, RtRnc, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, User_Def, &
+                             WeightedConstraints
+use Slapaf_Info, only: Atom, Coor, Cx, GradRef, Gx, Lbl, MF, mRowH, nStab, nSup, RefGeo, Weights
+use kriging_mod, only: blavAI, Kriging, Max_Microiterations, nD_In
+use ThermoChem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Ten, Half, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: LuSpool
+logical(kind=iwp) :: Dummy_Call
 #include "print.fh"
-integer iDum(1)
-logical Found, Dummy_Call
-character(len=180) Get_Ln
-character*16 FilNam
-character*3 MEPLab
-character(len=180), parameter :: BLine = ''
-character(len=180) :: Key = '', Char = ''
-real*8, allocatable :: DIR(:,:), Tmp(:), TmpRx(:)
-#include "cgetl.fh"
-external Get_Ln
-logical External_UDC, Explicit_IRC, Expert, ThrInp, FirstNum, Manual_Beta
-#include "angstr.fh"
+integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, iSetAll, istatus, iTmp, ixyz, j, jStrt, &
+                     kPrint, Lu, Lu_UDC, Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, Mask, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, &
+                     nSupSy
+real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
+logical(kind=iwp) :: Expert, Explicit_IRC, External_UDC, FirstNum, Found, Manual_Beta, ThrInp
+character(len=180) :: Chr, Key
+character(len=16) :: FilNam
+character(len=3) :: MEPLab
+real(kind=wp), allocatable :: DIR(:,:), Tmp(:), TmpRx(:)
+integer(kind=iwp), external :: IsFreeUnit
+character(len=180), external :: Get_Ln
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iRout = 2
 Expert = .false.
-Lu = 6
+Lu = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,20 +87,20 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
   LuRd = LuSpool
   call RdNlst(LuRd,'SLAPAF')
   do
-    Char = Get_Ln(LuRd)
-    call UpCase(Char)
-    !write(Lu,'(A)') Char
+    Chr = Get_Ln(LuRd)
+    call UpCase(Chr)
+    !write(Lu,'(A)') Chr
     !write(Lu,*) iOptC
-    if (char == BLine) cycle
-    if (char(1:1) == '*') cycle
-    select case (char(1:4))
+    if (Chr == '') cycle
+    if (Chr(1:1) == '*') cycle
+    select case (Chr(1:4))
       !case ('AIL ')
       !  !                                                              *
       !  !***** AIL  ****************************************************
       !  !                                                              *
       !  ! Width limits of the Matern function
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  call Get_F(1,lb,3)
 
       !case ('AIP ')
@@ -107,7 +109,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  !                                                              *
       !  ! Parameter of differentiability for Matern function
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  call Get_F1(1,pAI)
       !  if ((pAI > 3) .or. (pAI < 1)) anMd = .false.
 
@@ -117,7 +119,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  !                                                              *
       !  ! Defining the number of source points for the AI method
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  call Get_I1(1,nspAI)
 
       !case ('AIMD')
@@ -126,8 +128,8 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  !                                                              *
       !  ! Analytical or numerical Matern derivatives
       !
-      !  Char = Get_Ln(LuRd)
-      !  if ((Char == 'False') .or. (Char == 'false')) then
+      !  Chr = Get_Ln(LuRd)
+      !  if ((Chr == 'False') .or. (Chr == 'false')) then
       !    anMd = .false.
       !  else
       !    anMd = .true.
@@ -140,7 +142,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  ! Minimum energy differences of the last two iterations
       !  ! (loop exit condition)
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  call Get_F1(1,Thr_microiterations)
 
       !case ('AIBL')
@@ -150,7 +152,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  ! Base line modification value to not ordinary
       !  ! (Trend Function on GEK)
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  call Get_F1(1,blvAI)
       !  blAI = .true.
 
@@ -161,7 +163,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  ! Base line modification value to maximum value of the Energy
       !  ! This option supersedes any value assigned to blAI
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  mblAI = .true.
 
       !case ('L-VA')
@@ -170,7 +172,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       !  !                                                              *
       !  ! Change the l value of the GEK.
       !
-      !  Char = Get_Ln(LuRd)
+      !  Chr = Get_Ln(LuRd)
       !  Set_l = .true.
       !  call Get_F1(1,Value_l)
       !  call Qpg_dScalar('Value_l',Found)
@@ -180,7 +182,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** NDELta **************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,nD_In)
 
       case ('BAKE')
@@ -215,7 +217,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** CNWE ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,CnstWght)
 
       case ('CONS')
@@ -275,7 +277,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           call Quit_OnUserError()
         end if
         iNull = 0
-        New_Line = 1
+        NewLine = 1
         lCtoF = .true.
         Lu_UDIC = 91
         FilNam = 'UDIC'
@@ -283,7 +285,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         rewind(Lu_UDIC)
         Key = Get_Ln(LuRd)
         call UpCase(Key)
-        call FixEqualSign2(Key,LuRd,Lu_UDIC,iNull,New_Line)
+        call FixEqualSign2(Key,LuRd,Lu_UDIC,iNull,NewLine)
         write(Lu_UDIC,'(A)') Key
         close(Lu_UDIC)
 
@@ -303,7 +305,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** DELT ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,Delta)
 
       case ('DISO')
@@ -361,11 +363,11 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** FUZZ ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        call UpCase(Char)
+        Chr = Get_Ln(LuRd)
+        call UpCase(Chr)
         call Get_F1(1,rFuzz)
-        if (index(Char,'ANGSTROM') /= 0) rFuzz = rFuzz/angstr
-        rFuzz = max(rFuzz,1.0D-3)
+        if (index(Chr,'ANGSTROM') /= 0) rFuzz = rFuzz/Angstrom
+        rFuzz = max(rFuzz,1.0e-3_wp)
 
       case ('GG  ')
         !                                                              *
@@ -379,7 +381,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** GNRM ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,GNrm_Threshold)
 
       case ('GRAD')
@@ -413,28 +415,28 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** HUPD ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        read(Char,*) Char
-        call UpCase(Char)
-        if (trim(Char) == 'BFGS') then
+        Chr = Get_Ln(LuRd)
+        read(Chr,*) Chr
+        call UpCase(Chr)
+        if (trim(Chr) == 'BFGS') then
           iOptH = 4
-        !else if (trim(Char) == 'MEYER') then
+        !else if (trim(Chr) == 'MEYER') then
         !  iOptH = ior(1,iAnd(iOptH,32))
-        !else if (trim(Char) == 'BP') then
+        !else if (trim(Chr) == 'BP') then
         !  iOptH = ior(2,iAnd(iOptH,32))
-        else if (trim(Char) == 'NONE') then
+        else if (trim(Chr) == 'NONE') then
           iOptH = ior(8,iand(iOptH,32))
-        else if (trim(Char) == 'MSP') then
+        else if (trim(Chr) == 'MSP') then
           iOptH = ior(16,iand(iOptH,32))
-        else if (trim(Char) == 'EU') then
+        else if (trim(Chr) == 'EU') then
           iOptH = ior(64,iand(iOptH,32))
-        else if (trim(Char) == 'TS-BFGS') then
+        else if (trim(Chr) == 'TS-BFGS') then
           iOptH = ior(128,iand(iOptH,32))
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
           write(Lu,*)
           write(Lu,*) '************ ERROR ****************'
-          write(Lu,*) 'Unsupported Hessian update method: ',trim(Char)
+          write(Lu,*) 'Unsupported Hessian update method: ',trim(Chr)
           write(Lu,*) '***********************************'
           call Quit_OnUserError()
         end if
@@ -451,7 +453,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! Read the internal coordinate specification.
 
-        New_Line = 1
+        NewLine = 1
         Lu_UDIC = 91
         FilNam = 'UDIC'
         call molcas_open(Lu_UDIC,FilNam)
@@ -481,13 +483,13 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
 
           if (Key(1:4) == 'VARY') nBVec = iRow
           if ((Key(1:4) == 'VARY') .or. (Key(1:3) == 'FIX') .or. (Key(1:4) == 'ROWH')) then
-            New_Line = 0
+            NewLine = 0
           end if
 
           do
-            if (New_Line /= 1) exit
-            if (index(Key,'=') == 0) call FixEqualSign2(Key,LuRd,Lu_UDIC,iRow,New_Line)
-            if (New_Line == 2) then
+            if (NewLine /= 1) exit
+            if (index(Key,'=') == 0) call FixEqualSign2(Key,LuRd,Lu_UDIC,iRow,NewLine)
+            if (NewLine == 2) then
               close(Lu_UDIC)
               exit inte
             end if
@@ -499,7 +501,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
 
           ! If this line does not have a continuation the next line should
           ! have a equal sign!
-          if (index(Key,'&') == 0) New_Line = 1
+          if (index(Key,'&') == 0) NewLine = 1
         end do inte
 
       case ('IRC ')
@@ -522,7 +524,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! read max iterations
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,iTmp)
         MxItr = min(iTmp,MxItr)
 
@@ -540,12 +542,12 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !***** LAST ****************************************************
         !                                                              *
         do
-          Char = Get_Ln(LuRd)
-          Char = adjustl(Char)
-          if ((Char /= BLine) .and. (char(1:1) == '*')) exit
+          Chr = Get_Ln(LuRd)
+          Chr = adjustl(Chr)
+          if ((Chr /= '') .and. (Chr(1:1) == '*')) exit
         end do
-        call UpCase(Char)
-        call Put_cArray('LastEnergyMethod',Char,8)
+        call UpCase(Chr)
+        call Put_cArray('LastEnergyMethod',Chr,8)
 
       case ('LINE')
         !                                                              *
@@ -558,8 +560,8 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !***** MAXS ****************************************************
         !                                                              *
         do
-          Char = Get_Ln(LuRd)
-          if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+          Chr = Get_Ln(LuRd)
+          if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
         end do
         call Get_F1(1,Beta)
 
@@ -568,8 +570,8 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !***** MAXD ****************************************************
         !                                                              *
         do
-          Char = Get_Ln(LuRd)
-          if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+          Chr = Get_Ln(LuRd)
+          if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
         end do
         call Get_F1(1,Beta_Disp)
         Manual_Beta = .true.
@@ -585,11 +587,11 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** MEPA/IRCA ***********************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        call UpCase(Char)
-        if (char(1:2) == 'GS') then
+        Chr = Get_Ln(LuRd)
+        call UpCase(Chr)
+        if (Chr(1:2) == 'GS') then
           MEP_Algo = 'GS'
-        else if (char(1:2) == 'MB') then
+        else if (Chr(1:2) == 'MB') then
           MEP_Algo = 'MB'
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
@@ -604,7 +606,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** MEPC/IRCC ***********************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,ThrMEP)
         ThrMEP = max(Zero,ThrMEP)
 
@@ -612,24 +614,24 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** MEPStep/IRCStep *****************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        call UpCase(Char)
+        Chr = Get_Ln(LuRd)
+        call UpCase(Chr)
         call Get_F1(1,dMEPStep)
 
         ! Note that according to the Gonzalez-Schlegel method, only half
         ! this step is used in the constraint
 
-        if (index(Char,'ANGSTROM') /= 0) dMEPStep = dMEPStep/angstr
+        if (index(Chr,'ANGSTROM') /= 0) dMEPStep = dMEPStep/Angstrom
 
       case ('MEPT','IRCT')
         !                                                              *
         !***** MEPT/IRCT ***********************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        call UpCase(Char)
-        if (char(1:6) == 'SPHERE') then
+        Chr = Get_Ln(LuRd)
+        call UpCase(Chr)
+        if (Chr(1:6) == 'SPHERE') then
           MEP_Type = 'SPHERE'
-        else if (char(1:5) == 'PLANE') then
+        else if (Chr(1:5) == 'PLANE') then
           MEP_Type = 'TRANSVERSE'
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
@@ -647,8 +649,8 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         ! Mode following algorithm
 
         do
-          Char = Get_Ln(LuRd)
-          if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+          Chr = Get_Ln(LuRd)
+          if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
         end do
         call Get_I1(1,mode)
 
@@ -658,14 +660,14 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! Maximum number of Iterations for the Kriging method
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,Max_Microiterations)
 
       case ('NMEP','NIRC')
         !                                                              *
         !***** NMEP/NIRC ***********************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,nMEP)
         nMEP = min(max(nMEP,1),MaxItr)
 
@@ -758,16 +760,16 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !***** PRIN ****************************************************
         !                                                              *
         do
-          Char = Get_Ln(LuRd)
-          call UpCase(Char)
-          if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+          Chr = Get_Ln(LuRd)
+          call UpCase(Chr)
+          if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
         end do
         call Get_I1(1,mPrint)
         do i=1,mPrint
           do
-            Char = Get_Ln(LuRd)
-            call UpCase(Char)
-            if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+            Chr = Get_Ln(LuRd)
+            call UpCase(Chr)
+            if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
           end do
           call Get_I1(1,iRout)
           call Get_I1(2,kPrint)
@@ -834,7 +836,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           write(Lu,*) '************************************'
           call Quit_OnUserError()
         end if
-        if (index(Key,'ANGSTROM') /= 0) rHidden = rHidden/angstr
+        if (index(Key,'ANGSTROM') /= 0) rHidden = rHidden/Angstrom
 
       case ('RMEP')
         !                                                              *
@@ -855,11 +857,11 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** RTRN ****************************************************
         !                                                              *
-        Char = Get_Ln(LuRd)
-        call UpCase(Char)
+        Chr = Get_Ln(LuRd)
+        call UpCase(Chr)
         call Get_I1(1,Max_Center)
         call Get_F1(2,rtrnc)
-        if (index(Char,'ANGSTROM') /= 0) Rtrnc = Rtrnc/angstr
+        if (index(Chr,'ANGSTROM') /= 0) Rtrnc = Rtrnc/Angstrom
 
       case ('SUPS')
         !                                                              *
@@ -871,7 +873,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         ! Repeat nsg times
         ! nmem, (ind.., i = 1, nmem)
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,nSupSy)
         call mma_allocate(nSup,NSUPSY,Label='nSup')
         call mma_allocate(Atom,nsAtom,Label='Atom')
@@ -896,7 +898,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         ! adding energy to the last energy value of the base line
         ! This option supersedes any value assigned to blAI and mblAI
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,blavAI)
 
       case ('THER')
@@ -905,17 +907,17 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         lNmHss = .true.
         lTherm = .true.
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_I1(1,nsRot)
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,UserP)
         do
-          Char = Get_Ln(LuRd)
-          call UpCase(Char)
-          if (char(1:4) == 'END ') then
+          Chr = Get_Ln(LuRd)
+          call UpCase(Chr)
+          if (Chr(1:4) == 'END ') then
             if (nUserPT == 0) then
               nUserPT = 1
-              UserT(1) = 298.15d0
+              UserT(1) = 298.15_wp
             end if
             exit
           end if
@@ -929,7 +931,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! read the gradient threshold
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,ThrEne)
         call Get_F1(2,ThrGrd)
         ThrInp = .true.
@@ -940,7 +942,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! read the constraints threshold
 
-        Char = Get_Ln(LuRd)
+        Chr = Get_Ln(LuRd)
         call Get_F1(1,ThrCons)
         ThrCons = abs(ThrCons)
 
@@ -999,15 +1001,15 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !***** WIND ****************************************************
         !                                                              *
         do
-          Char = Get_Ln(LuRd)
-          call UpCase(Char)
-          if ((Char /= BLine) .and. (char(1:1) /= '*')) exit
+          Chr = Get_Ln(LuRd)
+          call UpCase(Chr)
+          if ((Chr /= '') .and. (Chr(1:1) /= '*')) exit
         end do
         call Get_I1(1,nWndw)
 
       case default
         call WarningMessage(2,'Error in RdCtl_Slapaf')
-        if (char(1:1) == ' ') then
+        if (Chr(1:1) == ' ') then
           write(Lu,*) ' RdCtl_Slapaf: Command line starts with a blank.'
         else
           write(Lu,*)
@@ -1016,7 +1018,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           write(Lu,*) ' with an unknown command.     '
           write(Lu,*) ' *****************************'
         end if
-        write(Lu,'(A)') Char
+        write(Lu,'(A)') Chr
         call Quit_OnUserError()
 
     end select
@@ -1088,7 +1090,7 @@ if (MEP .or. rMEP .or. (abs(IRC) == 1)) then
   Valu = dMEPStep
   if (MEP_Type == 'SPHERE') Valu = abs(Valu)
   if (MEP .and. (MEP_Algo == 'GS')) Valu = Half*Valu
-  if (rMEP) Valu = max(dble(iMEP+1),One)*Valu
+  if (rMEP) Valu = max(real(iMEP+1,kind=wp),One)*Valu
   Lu_UDCTMP = IsFreeUnit(20)
   call Molcas_Open(Lu_UDCTMP,'UDCTMP')
   write(Lu_UDCTMP,*) MEPLab//' = '//MEP_Type
@@ -1149,7 +1151,7 @@ if (abs(IRC) == 1) then
   else if (iMEP == 0) then
     call NameRun('RUNOLD')
     call qpg_dArray('Reaction Vector',Found,nRx)
-    !write(6,*) 'RUNOLD: Found=',Found
+    !write(u6,*) 'RUNOLD: Found=',Found
     if (Found) then
       ! Case 2)
       call Get_dArray('Reaction Vector',MF,3*nsAtom)
@@ -1157,16 +1159,16 @@ if (abs(IRC) == 1) then
     else
       call NameRun('#Pop')
       call qpg_dArray('Reaction Vector',Found,nRx)
-      !write(6,*) 'RUNFILE: Found=',Found
+      !write(u6,*) 'RUNFILE: Found=',Found
       if (Found) then
         ! Case 3)
         call Get_dArray('Reaction Vector',MF,3*nsAtom)
       else
         call WarningMessage(2,'Error in RdCtl_Slapaf')
-        write(6,*)
-        write(6,*) '************ ERROR **************'
-        write(6,*) 'IRC calculation but no IRC vector'
-        write(6,*) '*********************************'
+        write(u6,*)
+        write(u6,*) '************ ERROR **************'
+        write(u6,*) 'IRC calculation but no IRC vector'
+        write(u6,*) '*********************************'
         call Quit_OnUserError()
       end if
     end if
@@ -1174,7 +1176,7 @@ if (abs(IRC) == 1) then
 
   ! Fix the direction forward/backwards
 
-  if ((iMEP == 0) .and. (iRC == -1)) call DScal_(3*nsAtom,-1.0d0,MF,1)
+  if ((iMEP == 0) .and. (iRC == -1)) call DScal_(3*nsAtom,-One,MF,1)
   if ((iMEP == 0) .and. (MEP_Type == 'TRANSVERSE')) call Put_dArray('Transverse',MF,3*nsAtom)
 
 end if
@@ -1253,11 +1255,11 @@ if (Found .and. (nSaddle /= 0)) then
   HSR0 = Tmp(nSaddle-2)
   HSR = Tmp(nSaddle-1)
   Update = Tmp(nSaddle)
-  if (Update == 2.0d0) then
+  if (Update == Two) then
 
     ! Enable FindTS procedure
 
-    !write(6,*) 'Enable FindTS procedure'
+    !write(u6,*) 'Enable FindTS procedure'
     if (iand(iOptH,8) /= 8) iOptH = ior(16,iand(iOptH,32)) ! MSP
     nWndw = 4*nWndw
     ! make it look as if this were FindTS with constraints
@@ -1265,18 +1267,18 @@ if (Found .and. (nSaddle /= 0)) then
     TSConstraints = .true.
     iOptC = ior(iOptC,4096)
     iOptC = ior(iOptC,8192)
-    Beta = 0.1d0
+    Beta = 0.1_wp
 
   else
 
     ! Normal constrained optimization with a reduced threshold.
     ! Let the threshold be somewhat tighter as we are close to the TS.
 
-    if ((HSR/HSR0 < 0.20d0) .or. (HSR < 0.20d0)) then
-      !ThrGrd = 0.0003D0
-      Beta = 0.1d0
+    if ((HSR/HSR0 < 0.2_wp) .or. (HSR < 0.2_wp)) then
+      !ThrGrd = 0.0003_wp
+      Beta = 0.1_wp
     else
-      !ThrGrd = 0.003D0
+      !ThrGrd = 0.003_wp
       ThrGrd = Ten*ThrGrd
     end if
 
@@ -1344,7 +1346,7 @@ if (Kriging) then
   call Qpg_iScalar('TS Search',Found)
   if (Found) call Get_lScalar('TS Search',Found)
   if (FindTS .and. (.not. (Found .or. Manual_Beta))) then
-    Beta_Disp = 0.1d0
+    Beta_Disp = 0.1_wp
   end if
 end if
 !                                                                      *

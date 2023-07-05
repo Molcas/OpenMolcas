@@ -16,17 +16,23 @@ subroutine intergeo(FileName,Enrg,Crd,Grd,nAtm,nIter)
 !---------------------------------*
 
 use Symmetry_Info, only: nIrrep
-use Phase_Info
+use Phase_Info, only: iPhase
+use Isotopes, only: PTab
 use Slapaf_Info, only: Cx, nStab
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-#include "angstr.fh"
-#include "periodic_table.fh"
-real*8 Crd(3,nAtm,nIter), Enrg(nIter), Grd(3,nAtm,nIter)
-integer, allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
-character*(*) FileName
-real*8, allocatable :: Cx_p(:,:), Charge(:)
+implicit none
+character(len=*) :: FileName
+integer(kind=iwp) :: nAtm, nIter
+real(kind=wp) :: Enrg(nIter), Crd(3,nAtm,nIter), Grd(3,nAtm,nIter)
+integer(kind=iwp) :: i, iChxyz, iEner, iFacx, iFacy, iFacz, iGx, iIter, ixyz, ixyz_p, LbAtom, Lu_Molden, MaxDCR, msAtom, msAtom_p, &
+                     nAt, ndc, ngrad
+real(kind=wp) :: grmax, grtot, grx, gry, grz, x, x1, y, y1, z, z1
+integer(kind=iwp), allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
+real(kind=wp), allocatable :: Charge(:), Cx_p(:,:)
+integer(kind=iwp), external :: iChAtm
 
 !                                                                      *
 !***********************************************************************
@@ -45,16 +51,16 @@ if (msAtom_p > 0) then
   call Get_dArray('Pseudo Coordinates',Cx_p,3*msAtom_p)
 else
   call mma_allocate(Cx_p,3,1,Label='Cx_p')
-  Cx_p(:,:) = 0.0d0
+  Cx_p(:,:) = Zero
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (msAtom > nAtm) then
   call WarningMessage(2,'Error in InterGEO')
-  write(6,*) 'msAtom > nAtm'
-  write(6,*) 'msAtom=',msAtom
-  write(6,*) 'nAtm=',nAtm
+  write(u6,*) 'msAtom > nAtm'
+  write(u6,*) 'msAtom=',msAtom
+  write(u6,*) 'nAtm=',nAtm
   call Abend()
 end if
 
@@ -75,7 +81,7 @@ end do
 write(Lu_Molden,*) 'max-force'
 iGx = 0
 do iIter=1,nIter
-  grmax = 0.0d0
+  grmax = Zero
   do ndc=1,msAtom
     grx = abs(Grd(1,ndc,iIter))
     gry = abs(Grd(2,ndc,iIter))
@@ -91,7 +97,7 @@ end do
 write(Lu_Molden,*) 'rms-force'
 iGx = 0
 do iIter=1,nIter
-  grtot = 0.0d0
+  grtot = Zero
   ngrad = 0
   do ndc=1,msAtom
     grx = Grd(1,ndc,iIter)
@@ -103,14 +109,14 @@ do iIter=1,nIter
     end do
     iGx = iGx+3
   end do
-  write(Lu_Molden,'(F12.7)') sqrt(grtot)/dble(ngrad)
+  write(Lu_Molden,'(F12.7)') sqrt(grtot)/real(ngrad,kind=wp)
 end do
 
 ! This part disabled because gv refuses to open the file
 #ifdef write_molden_steps
 write(Lu_Molden,*) 'max-step'
 do iIter=1,nIter-1
-  stepmax = 0.0d0
+  stepmax = Zero
   do ndc=1,msAtom
     dx = Crd(1,ndc,iIter+1)-Crd(1,ndc,iIter)
     dy = Crd(2,ndc,iIter+1)-Crd(2,ndc,iIter)
@@ -124,7 +130,7 @@ end do
 
 write(Lu_Molden,*) 'rms-step'
 do iIter=1,nIter-1
-  step = 0.0d0
+  step = Zero
   do ndc=1,msAtom
     dx = Crd(1,ndc,iIter+1)-Crd(1,ndc,iIter)
     dy = Crd(2,ndc,iIter+1)-Crd(2,ndc,iIter)
@@ -133,7 +139,7 @@ do iIter=1,nIter-1
       step = step+dx*dx+dy*dy+dz*dz
     end do
   end do
-  write(Lu_Molden,'(F12.7)') sqrt(step)/dble(ngrad)
+  write(Lu_Molden,'(F12.7)') sqrt(step)/real(ngrad,kind=wp)
 end do
 #endif
 !                                                                      *
@@ -185,9 +191,9 @@ do iIter=1,nIter
       iFacx = iPhase(1,icoset2(i,0,ndc))
       iFacy = iPhase(2,icoset2(i,0,ndc))
       iFacz = iPhase(3,icoset2(i,0,ndc))
-      x1 = angstr*x*dble(iFacx)
-      y1 = angstr*y*dble(iFacy)
-      z1 = angstr*z*dble(iFacz)
+      x1 = Angstrom*x*real(iFacx,kind=wp)
+      y1 = Angstrom*y*real(iFacy,kind=wp)
+      z1 = Angstrom*z*real(iFacz,kind=wp)
       LbAtom = int(charge(ndc))
       write(Lu_Molden,102) pTab(LbAtom),x1,y1,z1
     end do
@@ -207,17 +213,17 @@ do iIter=1,nIter
       y = Grd(2,ndc,iIter)
       z = Grd(3,ndc,iIter)
     else
-      x = 0.0d0
-      y = 0.0d0
-      z = 0.0d0
+      x = Zero
+      y = Zero
+      z = Zero
     end if
     do i=0,nIrrep/nStab2(ndc)-1
       iFacx = iPhase(1,icoset2(i,0,ndc))
       iFacy = iPhase(2,icoset2(i,0,ndc))
       iFacz = iPhase(3,icoset2(i,0,ndc))
-      x1 = x/angstr*dble(iFacx)
-      y1 = y/angstr*dble(iFacy)
-      z1 = z/angstr*dble(iFacz)
+      x1 = x/Angstrom*real(iFacx,kind=wp)
+      y1 = y/Angstrom*real(iFacy,kind=wp)
+      z1 = z/Angstrom*real(iFacz,kind=wp)
       write(Lu_Molden,103) x1,y1,z1
     end do
   end do

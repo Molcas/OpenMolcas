@@ -12,11 +12,15 @@
 function D_Bend(Ind,iOp_,nSym)
 
 use Slapaf_Info, only: jStab, nStab
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-integer Ind(3), iOp_(3)
-real*8 D_Bend
+implicit none
+real(kind=wp) :: D_Bend
+integer(kind=iwp) :: Ind(3), iOp_(3), nSym
+integer(kind=iwp) :: iAtom, ideg, iOp_E, iOp_ER, iOp_ET, iOp_R, iOp_T, iU_A, iU_AB, iU_ABC, iU_AC, iU_B, iU_C, jAtom, mAtom, nU_A, &
+                     nU_ABC, nU_B, nU_C
+integer(kind=iwp), external :: iU, iUR, nU
 
 !                                                                      *
 !***********************************************************************
@@ -44,9 +48,9 @@ iU_B = iU(jStab(0,mAtom),nU_B)
 nU_C = nStab(jAtom)
 iU_C = iU(jStab(0,jAtom),nU_C)
 
-!write(6,*) ' U_A',iU_A,nU_A
-!write(6,*) ' U_B',iU_B,nU_B
-!write(6,*) ' U_C',iU_C,nU_C
+!write(u6,*) ' U_A',iU_A,nU_A
+!write(u6,*) ' U_B',iU_B,nU_B
+!write(u6,*) ' U_C',iU_C,nU_C
 
 ! Form the stabilizer for ((iAtom,mAtom),jAtom)
 
@@ -87,9 +91,9 @@ nU_ABC = nU(iU_ABC)
 ! Compute the degeneracy of the angle
 
 ideg = nSym/nU_ABC
-D_Bend = dble(iDeg)
+D_Bend = real(iDeg,kind=wp)
 
-!write(6,*) ' D_Bend=',D_Bend
+!write(u6,*) ' D_Bend=',D_Bend
 
 return
 

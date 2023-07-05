@@ -11,19 +11,23 @@
 
 subroutine cp_SpcInt()
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-character*14 qLbl, filnam*16
-logical Exist
-real*8, allocatable :: rK(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-!write(6,*) ' Copy files'
+implicit none
+integer(kind=iwp) :: i, iq, LuTmp1, LuTmp2, nq, nQQ
+logical(kind=iwp) :: Exists
+character(len=16) :: filnam
+character(len=14) :: qLbl
+real(kind=wp), allocatable :: rK(:)
+
+!write(u6,*) ' Copy files'
 
 ! Copy file SPCINX to SPCIN1
 
 filnam = 'SPCINX'
-call f_Inquire(filnam,Exist)
-if (Exist) then
+call f_Inquire(filnam,Exists)
+if (Exists) then
   LuTmp1 = 11
   LuTmp2 = 12
   call molcas_binaryopen_vanilla(luTmp1,filnam)

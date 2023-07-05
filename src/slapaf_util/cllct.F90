@@ -11,28 +11,35 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Cllct(Strng,Vector,value,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,type,qMss,TMtrx,Lbl,lWrite,Deg,lAtom)
+subroutine Cllct(Strng,Vector,Val,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,TMtrx,Lbl,lWrite,Deg,lAtom)
 !***********************************************************************
 !     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: dMass, AtomLbl
+use Symmetry_Info, only: iOper, nIrrep
+use Slapaf_Info, only: AtomLbl, dMass
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+character(len=*) :: Strng
+integer(kind=iwp) :: nAtom, nCntr, mCntr, Ind(nCntr+mCntr,2)
+real(kind=wp) :: Vector(3,nAtom), Val, Coor(3,nAtom), xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr), &
+                 TMtrx(3,nAtom,3,(nCntr+mCntr)), Deg
+character(len=6) :: Typ
+character(len=8) :: Lbl
+logical(kind=iwp) :: lWrite, lAtom(nAtom)
 #include "print.fh"
-#include "real.fh"
 #include "Molcas.fh"
-character*(*) Strng
-character Label*(LenIn5), Name*(LenIn)
-character Oper*3, type*6, Lbl*8
-real*8 Coor(3,nAtom), Vector(3,nAtom), xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr), TMtrx(3,nAtom,3,(nCntr+mCntr)), &
-       Axis(3), Perp_Axis(3,2)
-integer Ind(nCntr+mCntr,2)
-logical lWrite, ldB, lWarn, lAtom(nAtom)
-dimension Dummy(1)
+integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
+real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), tx, ty, tz
+logical(kind=iwp) :: ldB, lWarn
+character(len=LenIn5) :: Label
+character(len=LenIn) :: AtName
+character(len=3) :: Oper
+real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn
 
 iRout = 50
 iPrint = nPrint(iRout)
@@ -54,8 +61,8 @@ do ixyz=1,nCent
   nPar2 = index(Label,')')
   iPhase = 0
   if ((nPar1 /= 0) .and. (nPar2 /= 0)) then
-    Name = '    '
-    Name = Label(1:nPar1-1)
+    AtName = '    '
+    AtName = Label(1:nPar1-1)
     Oper = Label(nPar1+1:nPar2-1)
     call UpCase(Oper)
     if (index(Oper,'X') /= 0) iPhase = ieor(iPhase,1)
@@ -70,24 +77,24 @@ do ixyz=1,nCent
     end do
     if (i == 0) then
       call WarningMessage(2,'Error in Cllclt')
-      write(6,*) '*********** ERROR ***********'
-      write(6,*) ' Undefined symmetry operator '
-      write(6,*) '*****************************'
-      write(6,*) ' ',Oper
-      write(6,*)
+      write(u6,*) '*********** ERROR ***********'
+      write(u6,*) ' Undefined symmetry operator '
+      write(u6,*) '*****************************'
+      write(u6,*) ' ',Oper
+      write(u6,*)
       call Quit_OnUserError()
     end if
   else if ((nPar1 == 0) .and. (nPar2 == 0)) then
-    Name = '    '
-    Name = Strng(iFrst:iEnd)
+    AtName = '    '
+    AtName = Strng(iFrst:iEnd)
     Oper = ' '
   else
     call WarningMessage(2,'Error in Cllclt')
-    write(6,*) '********** ERROR **********'
-    write(6,*) ' Syntax error in:'
-    write(6,*) ' ',Label
-    write(6,*) '***************************'
-    write(6,*)
+    write(u6,*) '********** ERROR **********'
+    write(u6,*) ' Syntax error in:'
+    write(u6,*) ' ',Label
+    write(u6,*) '***************************'
+    write(u6,*)
     call Quit_OnUserError()
   end if
 
@@ -95,15 +102,15 @@ do ixyz=1,nCent
 
   jsAtom = 0
   do isAtom=1,nAtom
-    if (Name == AtomLbl(isAtom)) jsAtom = isAtom
+    if (AtName == AtomLbl(isAtom)) jsAtom = isAtom
   end do
   if (jsAtom == 0) then
     call WarningMessage(2,'Error in Cllclt')
-    write(6,*) '********** ERROR **********'
-    write(6,*) ' Unrecognizable atom label '
-    write(6,*) ' ',Name
-    write(6,*) '***************************'
-    write(6,*)
+    write(u6,*) '********** ERROR **********'
+    write(u6,*) ' Unrecognizable atom label '
+    write(u6,*) ' ',trim(AtName)
+    write(u6,*) '***************************'
+    write(u6,*)
     call Quit_OnUserError()
   end if
   lAtom(jsAtom) = .false.
@@ -117,7 +124,7 @@ do ixyz=1,nCent
   if (iand(iPhase,1) /= 0) xyz(1,ixyz) = -xyz(1,ixyz)
   if (iand(iPhase,2) /= 0) xyz(2,ixyz) = -xyz(2,ixyz)
   if (iand(iPhase,4) /= 0) xyz(3,ixyz) = -xyz(3,ixyz)
-  if (type == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
+  if (Typ == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
   iFrst = iEnd+1
 end do
 
@@ -127,50 +134,50 @@ if (iPrint >= 99) call RecPrt(' Coordinates',' ',xyz,3,nCent)
 !                                                                      *
 ! Process the internal coordinate
 
-if (type == 'X     ') then
-  value = xyz(1,1)
+if (Typ == 'X     ') then
+  Val = xyz(1,1)
   call dcopy_(3,[Zero],0,Temp,1)
   Temp(1,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
-else if (type == 'Y     ') then
-  value = xyz(2,1)
+else if (Typ == 'Y     ') then
+  Val = xyz(2,1)
   call dcopy_(3,[Zero],0,Temp,1)
   Temp(2,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
-else if (type == 'Z     ') then
-  value = xyz(3,1)
+else if (Typ == 'Z     ') then
+  Val = xyz(3,1)
   call dcopy_(3,[Zero],0,Temp,1)
   Temp(3,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
-else if (type == 'STRTCH') then
-  call Strtch(xyz,nCent,value,Temp,lWrite,Lbl,Dummy,ldB)
+else if (Typ == 'STRTCH') then
+  call Strtch(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB)
   Deg = D_Bond(Ind,Ind(1,2),nIrrep)
-else if (type == 'LBEND1') then
+else if (Typ == 'LBEND1') then
   call CoSys(xyz,Axis,Perp_Axis)
-  call LBend(xyz,nCent,value,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,1),.false.)
+  call LBend(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,1),.false.)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'LBEND2') then
+else if (Typ == 'LBEND2') then
   call CoSys(xyz,Axis,Perp_Axis)
-  call LBend(xyz,nCent,value,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,2),.true.)
+  call LBend(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,2),.true.)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'BEND  ') then
-  call Bend(xyz,nCent,value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
+else if (Typ == 'BEND  ') then
+  call Bend(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'TRSN  ') then
-  call Trsn(xyz,nCent,value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
+else if (Typ == 'TRSN  ') then
+  call Trsn(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
   Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
-else if (type == 'OUTOFP') then
-  call OutOfP(xyz,nCent,value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
+else if (Typ == 'OUTOFP') then
+  call OutOfP(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
   Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
-else if (type == 'DISSOC') then
-  call Dissoc(xyz,nCntr,mCntr,qMss,value,Temp,lWrite,Lbl,Dummy,ldB)
+else if (Typ == 'DISSOC') then
+  call Dissoc(xyz,nCntr,mCntr,qMss,Val,Temp,lWrite,Lbl,Dummy,ldB)
   Deg = One
 else
   call WarningMessage(2,'Error in Cllclt')
-  write(6,'(A,A)') ' Type declaration is corrupted:',type
+  write(u6,'(A,A)') ' Type declaration is corrupted: ',trim(Typ)
   call Quit_OnUserError()
 end if
 !                                                                      *

@@ -22,21 +22,24 @@ subroutine IntFcm(lOld_Implicit)
 !***********************************************************************
 
 use Slapaf_Parameters, only: lOld
+use stdalloc, only: mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 rDum(1)
-logical lOld_Implicit, Hess_Found, Found_IRC
-real*8, allocatable :: Hess(:)
+implicit none
+logical(kind=iwp) :: lOld_Implicit
+integer(kind=iwp) :: nHess, nQQ
+real(kind=wp) :: rDum(1)
+logical(kind=iwp) :: Found_IRC, Hess_Found
+real(kind=wp), allocatable :: Hess(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine OldFcm(Hess,nQQ,Lbl)
-    real*8, allocatable :: Hess(:)
-    integer nQQ
-    character*(*) Lbl
+  subroutine OldFcm(Hess,nQQ,RunOld)
+    import :: wp, iwp
+    real(kind=wp), allocatable :: Hess(:)
+    integer(kind=iwp) :: nQQ
+    character(len=*) :: RunOld
   end subroutine OldFcm
 end interface
 

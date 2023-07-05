@@ -32,22 +32,22 @@
 
 subroutine Davidson(A,n,k,Eig,Vec,iRC)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, k, iRC
-real*8 A(n*(n+1)/2), Eig(k), Vec(n,k)
-real*8, dimension(:), allocatable :: Eig_old, EVec, Sub, Ab, Proj, EVal
-real*8 Aux, Thr, Thr2, Thr3, Conv, Alpha
-real*8 ddot_
-integer mk, old_mk, mink, maxk, ig, info, nTmp, iter, maxiter
-integer i, j, ii, jj
-logical Last, Augmented, Reduced
-external ddot_
-parameter(Thr=1.0D-7,maxiter=300,Thr2=1.0D-16,Thr3=1.0D-16)
-real*8 rDum(1)
-real*8, allocatable :: Vec2(:), Val(:), Tmp(:), Diag(:), TVec(:), TAV(:), TRes(:)
-integer, allocatable :: index(:)
-#include "stdalloc.fh"
-#include "real.fh"
+integer(kind=iwp) :: n, k, iRC
+real(kind=wp) :: A(n*(n+1)/2), Eig(k), Vec(n,k)
+integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, nTmp, old_mk
+real(kind=wp) :: Alpha, Aux, Conv, rDum(1)
+logical(kind=iwp) :: Augmented, Last, Reduced
+integer(kind=iwp), allocatable :: index(:)
+real(kind=wp), allocatable :: Ab(:), Diag(:), Eig_old(:), EVal(:), EVec(:), Proj(:), Sub(:), TAV(:), Tmp(:), TRes(:), TVec(:), &
+                              Val(:), Vec2(:)
+integer(kind=iwp), parameter :: maxiter = 300
+real(kind=wp), parameter :: Thr = 1.0e-7_wp, Thr2 = 1.0e-16_wp, Thr3 = 1.0e-16_wp
+real(kind=wp), external :: ddot_
 
 !#define _DEBUGPRINT_
 
@@ -103,8 +103,8 @@ if (mk >= n) then
   call mma_deallocate(Vec2)
 # ifdef _DEBUGPRINT_
   call RecPrt('Eigenvalues',' ',Eig,1,n)
-  write(6,*)
-  write(6,'(A)') 'Complete system solved'
+  write(u6,*)
+  write(u6,'(A)') 'Complete system solved'
 # endif
   return
 end if
@@ -194,8 +194,8 @@ do while (.not. Last)
   if (iter > 1) call dcopy_(k,Eig,1,Eig_old,1)
 # ifdef _DEBUGPRINT_
   if (.not. Reduced) then
-    write(6,'(A)') '---------------'
-    write(6,'(A,1X,I5)') 'Iteration',iter
+    write(u6,'(A)') '---------------'
+    write(u6,'(A,1X,I5)') 'Iteration',iter
   end if
   call RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 # endif
@@ -240,7 +240,7 @@ do while (.not. Last)
 
   if (.not. Reduced) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
+    write(u6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #   endif
     call dcopy_(maxk*maxk,Proj,1,EVec,1)
     call dsyev_('V','L',mk,EVec,maxk,EVal,rDum,-1,info)
@@ -257,7 +257,7 @@ do while (.not. Last)
 # ifdef _DEBUGPRINT_
   call RecPrt('Eigenvalues',' ',EVal,1,mk)
   call SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
-  write(6,*)
+  write(u6,*)
 # endif
 
   ! Check for convergence
@@ -277,7 +277,7 @@ do while (.not. Last)
       end if
     end do
 #   ifdef _DEBUGPRINT_
-    if (Augmented) write(6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue change:',Conv
+    if (Augmented) write(u6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue change:',Conv
 #   endif
   else
     Conv = Ten*Thr
@@ -285,17 +285,17 @@ do while (.not. Last)
   old_mk = mk
   if (Augmented .and. (Conv <= Thr) .and. (mk >= mink)) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Converged due to small change'
+    write(u6,'(A)') 'Converged due to small change'
 #   endif
     Last = .true.
   else if (mk == n) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Complete system solved'
+    write(u6,'(A)') 'Complete system solved'
 #   endif
     Last = .true.
   else if (iter >= maxiter) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Not converged'
+    write(u6,'(A)') 'Not converged'
 #   endif
     Last = .true.
     iRC = 1
@@ -309,7 +309,7 @@ do while (.not. Last)
   else if ((min(mk+k,n) > maxk) .or. (iRC == 2)) then
     if (iRC == 2) iRC = 0
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
+    write(u6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #   endif
     call mma_allocate(Tmp,mink*n,Label='Tmp')
     call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,Tmp,n)
@@ -329,7 +329,7 @@ do while (.not. Last)
 
 #   ifdef _DEBUGPRINT_
     if (j < mink) then
-      write(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
+      write(u6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
     end if
 #   endif
     call FZero(Sub(1+j*n),(maxk-j)*n)
@@ -405,8 +405,8 @@ do while (.not. Last)
       ! solved only approximately, and it is not efficient to do this
       ! for each of the possibly many eigenpairs
       block
-        integer iDum(1)
-        real*8, allocatable :: P1(:)
+        integer(kind=iwp) :: iDum(1)
+        real(kind=wp), allocatable :: P1(:)
         call mma_allocate(P1,n*n,Label='P1')
         ! project: (I-|v><v|) (A-e*I) (I-|v><v|) =
         !          A - e*I + (<v|P>+e)*|v><v| - |v><P| - |P><v|
@@ -423,7 +423,7 @@ do while (.not. Last)
         ! solve the equation
         call CG_Solver(n,n*n,P1,iDum,TRes,Tmp,info,5)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'CG iterations',info
+        write(u6,*) 'CG iterations',info
 #       endif
         call mma_deallocate(P1)
       end block
@@ -435,11 +435,11 @@ do while (.not. Last)
       end if
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
+    write(u6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
 #   endif
     if ((Conv < Thr3) .and. (mk >= mink)) then
 #     ifdef _DEBUGPRINT_
-      write(6,'(A)') 'Converged due to small residual'
+      write(u6,'(A)') 'Converged due to small residual'
 #     endif
       Last = .true.
     else
@@ -450,7 +450,7 @@ do while (.not. Last)
 
       if (jj == 0) then
 #       ifdef _DEBUGPRINT_
-        write(6,'(A)') 'Process stagnated'
+        write(u6,'(A)') 'Process stagnated'
 #       endif
         if (mk < maxk) then
           call FZero(Tmp,n)

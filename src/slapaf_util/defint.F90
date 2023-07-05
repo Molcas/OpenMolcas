@@ -24,30 +24,38 @@ subroutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim)
 !             May 1991                                                 *
 !***********************************************************************
 
-use Slapaf_Info, only: AtomLbl
 use Slapaf_Parameters, only: iRow, Redundant
+use Slapaf_Info, only: AtomLbl
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nBVct, nQQ, nAtom, nDim
+real(kind=wp) :: BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
+character(len=8) :: Lbl(nQQ)
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-real*8 BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
-character type*6, Temp*120, Lbl(nQQ)*8, cNum*4, Line*120, format*8, filnam*16
-logical Flip, lPIC(6*nAtom), lAtom(nAtom), Found
-logical, save :: First = .true.
-logical :: lWrite = .false., lErr = .false.
-integer, allocatable :: Ind(:)
-real*8, allocatable :: xyz(:), Tmp2(:), Mass(:), TM(:)
-real*8, allocatable :: BVct(:,:), value(:), rMult(:)
+integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iDiff, iEnd, iFrst, iInt, iLines, iPrint, iRout, jBVct, jEnd, jLines, Lu_UDIC, &
+                     mCntr, msAtom, nCntr, nDefPICs, neq, nGo, nGo2, nMinus, nPlus, nTemp
+real(kind=wp) :: Fact, RR, Sgn, Tmp, Value_Temp
+logical(kind=iwp) :: First = .true., Flip, Found, lAtom(nAtom), lErr, lPIC(6*nAtom), lWrite
+character(len=120) :: Line, Temp
+character(len=16) :: filnam
+character(len=8) :: Frmt
+character(len=6) :: Typ
+character(len=4) :: cNum
+integer(kind=iwp), allocatable :: Ind(:)
+real(kind=wp), allocatable :: BVct(:,:), Mass(:), rMult(:), TM(:), Tmp2(:), Val(:), xyz(:)
 character(len=8), allocatable :: Labels(:)
 
 call mma_allocate(BVct,3*nAtom,nBVct,Label='BVct')
-call mma_allocate(value,nBVct,Label='Value')
+call mma_allocate(Val,nBVct,Label='Val')
 call mma_allocate(rMult,nBVct,Label='rMult')
 call mma_allocate(Labels,nBVct,Label='Labels')
 BVct(:,:) = Zero
-value(:) = Zero
+Val(:) = Zero
+lWrite = .false.
+lErr = .false.
 
 iRout = 30
 iPrint = nPrint(iRout)
@@ -63,9 +71,9 @@ do jBVct=1,nBVct
   Labels(jBVct) = ' '
 end do
 
-!Lu = 6
+!Lu = u6
 nTemp = len(Temp)
-write(format,'(A,I3.3,A)') '(F',nTemp,'.0)'
+write(Frmt,'(A,I3.3,A)') '(F',nTemp,'.0)'
 
 Lu_UDIC = 91
 filnam = 'UDIC'
@@ -76,20 +84,20 @@ rewind(Lu_UDIC)
 call dcopy_(nBVct,[Zero],0,rMult,1)
 if (iPrint == 99) First = .true.
 if (lWrite) then
-  write(6,*)
-  write(6,'(80A)') ('*',i=1,60)
-  write(6,*) ' User-Defined Internal coordinates'
-  write(6,'(80A)') ('-',i=1,60)
+  write(u6,*)
+  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,*) ' User-Defined Internal coordinates'
+  write(u6,'(80A)') ('-',i=1,60)
   do iLines=1,iRow
     read(Lu_UDIC,'(A)') Temp
-    write(6,'(A)') Temp
+    write(u6,'(A)') Temp
   end do
-  write(6,'(80A)') ('*',i=1,60)
-  write(6,*)
-  write(6,*)
-  write(6,*) '*************************************************************'
-  write(6,*) '* Values of primitive internal coordinates                  *'
-  write(6,*) '-------------------------------------------------------------'
+  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '*************************************************************'
+  write(u6,*) '* Values of primitive internal coordinates                  *'
+  write(u6,*) '-------------------------------------------------------------'
   rewind(Lu_UDIC)
 end if
 
@@ -115,11 +123,11 @@ do iLines=1,iRow
   neq = index(Line,'=')
   if (neq == 0) then
     call WarningMessage(2,'Error in DefInt')
-    write(6,*)
-    write(6,'(A)') '***********************************'
-    write(6,'(A)') ' Syntax error in line :            '
-    write(6,'(A)') Line(1:33),'...'
-    write(6,'(A)') '***********************************'
+    write(u6,*)
+    write(u6,'(A)') '***********************************'
+    write(u6,'(A)') ' Syntax error in line :            '
+    write(u6,'(A)') Line(1:33),'...'
+    write(u6,'(A)') '***********************************'
     call Quit_OnUserError()
   else
     iFrst = 1
@@ -128,12 +136,12 @@ do iLines=1,iRow
     if (Line(iEnd:iEnd) == '=') jEnd = jEnd-1
     if (jEnd-iFrst+1 > 8) then
       call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,'(A)') '***********************************'
-      write(6,'(A)') ' Syntax error in line :            '
-      write(6,'(A)') Line(1:33),'...'
-      write(6,'(A,A)') Line(iFrst:jEnd),' has more than 8 character'
-      write(6,'(A)') '***********************************'
+      write(u6,*)
+      write(u6,'(A)') '***********************************'
+      write(u6,'(A)') ' Syntax error in line :            '
+      write(u6,'(A)') Line(1:33),'...'
+      write(u6,'(A,A)') Line(iFrst:jEnd),' has more than 8 character'
+      write(u6,'(A)') '***********************************'
       call Quit_OnUserError()
     end if
     call ChkLbl(Line(iFrst:jEnd),Labels,iBVct-1)
@@ -152,86 +160,86 @@ do iLines=1,iRow
     if (Temp(nGo:nGo2) == 'X') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'X     '
+      Typ = 'X     '
     else if (Temp(nGo:nGo2) == 'Y') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'Y     '
+      Typ = 'Y     '
     else if (Temp(nGo:nGo2) == 'Z') then
       nGo = nGo2+1
       call NxtWrd(Temp,nGo,nGo2)
-      type = 'Z     '
+      Typ = 'Z     '
     else
       nGo = -1
       call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,*) '*********** ERROR ************'
-      write(6,*) ' DefInt: wrong cartesian type '
-      write(6,'(A,A)') ' Temp=',Temp
-      write(6,*) '******************************'
+      write(u6,*)
+      write(u6,*) '*********** ERROR ************'
+      write(u6,*) ' DefInt: wrong cartesian type '
+      write(u6,'(A,A)') ' Temp=',Temp
+      write(u6,*) '******************************'
       call Quit_OnUserError()
     end if
   else if (index(Temp,'BOND') /= 0) then
     nCntr = 2
     nGo = index(Temp,'BOND')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'STRTCH'
+    Typ = 'STRTCH'
   else if (index(Temp,'LANGLE(2)') /= 0) then
     nCntr = 3
     nGo = index(Temp,'LANGLE(2)')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'LBEND2'
+    Typ = 'LBEND2'
   else if (index(Temp,'LANGLE(1)') /= 0) then
     nCntr = 3
     nGo = index(Temp,'LANGLE(1)')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'LBEND1'
+    Typ = 'LBEND1'
   else if (index(Temp,'ANGL') /= 0) then
     nCntr = 3
     nGo = index(Temp,'ANGL')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'BEND  '
+    Typ = 'BEND  '
   else if (index(Temp,'DIHE') /= 0) then
     nCntr = 4
     nGo = index(Temp,'DIHE')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'TRSN  '
+    Typ = 'TRSN  '
     Flip = .not. First
   else if (index(Temp,'OUTO') /= 0) then
     nCntr = 4
     nGo = index(Temp,'OUTO')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'OUTOFP'
+    Typ = 'OUTOFP'
   else if (index(Temp,'DISS') /= 0) then
     i1 = index(Line,'(')
     i2 = index(Line,'+')
     i3 = index(Line,')')
     if ((i1 >= i2) .or. (i2 >= i3)) then
       call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,*) '********** ERROR ************'
-      write(6,*) ' Line contains syntax error !'
-      write(6,'(A)') Line
-      write(6,*) i1,i2,i3
-      write(6,*) '*****************************'
+      write(u6,*)
+      write(u6,*) '********** ERROR ************'
+      write(u6,*) ' Line contains syntax error !'
+      write(u6,'(A)') Line
+      write(u6,*) i1,i2,i3
+      write(u6,*) '*****************************'
       call Quit_OnUserError()
     end if
     nGo = i3+1
     Temp = Line(i1+1:i2-1)
-    read(Temp,format) Tmp
+    read(Temp,Frmt) Tmp
     nCntr = nint(Tmp)
     Temp = Line(i2+1:i3-1)
-    read(Temp,format) Tmp
+    read(Temp,Frmt) Tmp
     mCntr = nint(Tmp)
-    type = 'DISSOC'
+    Typ = 'DISSOC'
   else
     nGo = -1
     call WarningMessage(2,'Error in DefInt')
-    write(6,*)
-    write(6,*) '*********** ERROR ***********'
-    write(6,*) ' Line contains syntax error !'
-    write(6,'(A)') Line
-    write(6,*) '*****************************'
+    write(u6,*)
+    write(u6,*) '*********** ERROR ***********'
+    write(u6,*) ' Line contains syntax error !'
+    write(u6,'(A)') Line
+    write(u6,*) '*****************************'
     call Quit_OnUserError()
   end if
 
@@ -242,20 +250,20 @@ do iLines=1,iRow
   call mma_allocate(Mass,2*msAtom,Label='Mass')
   call mma_allocate(TM,9*nAtom*(nCntr+mCntr),Label='TM')
 
-  call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,nAtom,Coor,nCntr,mCntr,xyz,Tmp2,Ind,type,Mass,TM,Labels(iBVct),lWrite, &
+  call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,nAtom,Coor,nCntr,mCntr,xyz,Tmp2,Ind,Typ,Mass,TM,Labels(iBVct),lWrite, &
              rMult(iBVct),lAtom)
 
-  if ((.not. First) .and. (type == 'TRSN') .and. (abs(Value_Temp) < Pi*Half)) Flip = .false.
-  if (Flip .and. (value(iBVct)*Value_Temp < Zero)) then
+  if ((.not. First) .and. (Typ == 'TRSN') .and. (abs(Value_Temp) < Pi*Half)) Flip = .false.
+  if (Flip .and. (Val(iBVct)*Value_Temp < Zero)) then
     !write(Lu,*) 'Flip Sign for ',Labels(iBVct)
-    if (value(iBVct) < Zero) then
-      value(iBVct) = -Pi-(Pi-Value_Temp)
+    if (Val(iBVct) < Zero) then
+      Val(iBVct) = -Pi-(Pi-Value_Temp)
     else
-      value(iBVct) = Pi+(Pi+Value_Temp)
+      Val(iBVct) = Pi+(Pi+Value_Temp)
     end if
 
   else
-    value(iBVct) = Value_Temp
+    Val(iBVct) = Value_Temp
   end if
 
   call mma_deallocate(TM)
@@ -267,15 +275,15 @@ end do
 
 if (.not. Found) then
   call WarningMessage(2,'Error in DefInt')
-  write(6,*) '**********************************************'
-  write(6,*) ' ERROR: No internal coordinates are defined ! '
-  write(6,*) '**********************************************'
+  write(u6,*) '**********************************************'
+  write(u6,*) ' ERROR: No internal coordinates are defined ! '
+  write(u6,*) '**********************************************'
   call Quit_OnUserError()
 end if
 
 nDefPICs = iBVct
 if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
-if (iPrint >= 19) call RecPrt(' Values of primitive internal coordinates / au or rad',' ',value,nBVct,1)
+if (iPrint >= 19) call RecPrt(' Values of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
 
 ! Step 2. Define internal coordinates as linear combinations of
 ! the previously defined primitive internal coordinates.
@@ -314,20 +322,20 @@ do
     end do
     if (iBVct == 0) then
       call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,*) '*******************************'
-      write(6,*) ' ERROR: A single vector        '
-      write(6,*) ' Undefined internal coordinate '
-      write(6,'(A,A)') Line
-      write(6,'(A,A)') Line(iFrst:jEnd)
-      write(6,*) '*******************************'
+      write(u6,*)
+      write(u6,*) '*******************************'
+      write(u6,*) ' ERROR: A single vector        '
+      write(u6,*) ' Undefined internal coordinate '
+      write(u6,'(A,A)') Line
+      write(u6,'(A,A)') Line(iFrst:jEnd)
+      write(u6,*) '*******************************'
       call Quit_OnUserError()
     end if
 
     lPIC(iBVct) = .false.
     call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
     call DScal_(3*nAtom,rMult(iBVct)**2,BMtrx(1,iBMtrx),1)
-    rInt(iBMtrx) = rMult(iBVct)**2*value(iBVct)
+    rInt(iBMtrx) = rMult(iBVct)**2*Val(iBVct)
     RR = RR+rMult(iBVct)**2
 
   else
@@ -344,7 +352,7 @@ do
       ! Get the factor
       call NxtWrd(Line,iFrst,iEnd)
       Temp = Line(iFrst:iEnd)
-      read(Temp,format) Fact
+      read(Temp,Frmt) Fact
       Fact = Fact*Sgn
       iFrst = iEnd+1
       ! Get the label
@@ -355,19 +363,19 @@ do
       end do
       if (iBVct == 0) then
         call WarningMessage(2,'Error in DefInt')
-        write(6,*)
-        write(6,*) '************ ERROR *************'
-        write(6,*) ' Linear combinations of vectors '
-        write(6,*) ' Undefined internal coordinate  '
-        write(6,'(A,A)') Line
-        write(6,'(A,A)') Line(iFrst:iEnd)
-        write(6,*) '********************************'
+        write(u6,*)
+        write(u6,*) '************ ERROR *************'
+        write(u6,*) ' Linear combinations of vectors '
+        write(u6,*) ' Undefined internal coordinate  '
+        write(u6,'(A,A)') Line
+        write(u6,'(A,A)') Line(iFrst:iEnd)
+        write(u6,*) '********************************'
         call Quit_OnUserError()
       end if
 
       lPIC(iBVct) = .false.
       call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
-      rInt(iBMtrx) = rInt(iBMtrx)+Fact*rMult(iBVct)**2*value(iBVct)
+      rInt(iBMtrx) = rInt(iBMtrx)+Fact*rMult(iBVct)**2*Val(iBVct)
       RR = RR+rMult(iBVct)**2*Fact**2
 
       iFrst = iEnd+1
@@ -391,10 +399,10 @@ do
       jLines = jLines+1
       if (jLines > iRow) then
         call WarningMessage(2,'Error in DefInt')
-        write(6,*)
-        write(6,*) '********** ERROR *********'
-        write(6,*) ' DefInt: jLines > iRow '
-        write(6,*) '**************************'
+        write(u6,*)
+        write(u6,*) '********** ERROR *********'
+        write(u6,*) ' DefInt: jLines > iRow '
+        write(u6,*) '**************************'
         call Quit_OnUserError()
       end if
       read(Lu_UDIC,'(A)') Line
@@ -408,12 +416,12 @@ do
         Sgn = -One
       else
         call WarningMessage(2,'Error in DefInt')
-        write(6,*)
-        write(6,*) '************** ERROR *************'
-        write(6,*) ' Syntax Error: first character in  extension line is not + or -'
-        write(6,'(A)') Line
-        write(6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
-        write(6,*) '**********************************'
+        write(u6,*)
+        write(u6,*) '************** ERROR *************'
+        write(u6,*) ' Syntax Error: first character in  extension line is not + or -'
+        write(u6,'(A)') Line
+        write(u6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
+        write(u6,*) '**********************************'
         call Quit_OnUserError()
       end if
     end do
@@ -438,14 +446,14 @@ end do
 if (iPrint >= 99) call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,nQQ)
 
 if (lWrite) then
-  write(6,*)
-  write(6,*)
-  write(6,*) '*********************************************'
-  write(6,*) '* Value of internal coordinates / au or rad *'
-  write(6,*) '---------------------------------------------'
-  write(6,'(1X,A,2X,F10.4)') (Lbl(iInt),rInt(iInt),iInt=1,nQQ)
-  write(6,*)
-  call XFlush(6)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '*********************************************'
+  write(u6,*) '* Value of internal coordinates / au or rad *'
+  write(u6,*) '---------------------------------------------'
+  write(u6,'(1X,A,2X,F10.4)') (Lbl(iInt),rInt(iInt),iInt=1,nQQ)
+  write(u6,*)
+  call XFlush(u6)
 end if
 
 ! Some checks: Warnings & Errors ---
@@ -458,40 +466,40 @@ else
 end if
 
 if (iBMtrx < nDim) then
-  write(6,*) '**************** ERROR **********************'
-  write(6,*) ' N.r of Internal Coordinates lower than ',cNum
-  write(6,*) '*********************************************'
-  write(6,*)
+  write(u6,*) '**************** ERROR **********************'
+  write(u6,*) ' N.r of Internal Coordinates lower than ',cNum
+  write(u6,*) '*********************************************'
+  write(u6,*)
   lErr = .true.
 end if
 
 if ((iBMtrx > nDim) .and. (.not. Redundant)) then
-  write(6,*) '***************** ERROR ***********************'
-  write(6,*) ' N.r of Internal Coordinates greater than ',cNum
-  write(6,*) '***********************************************'
-  write(6,*)
+  write(u6,*) '***************** ERROR ***********************'
+  write(u6,*) ' N.r of Internal Coordinates greater than ',cNum
+  write(u6,*) '***********************************************'
+  write(u6,*)
   lErr = .true.
 end if
 
 if (nDefPICs < iBMtrx) then
-  write(6,*)
-  write(6,*) '****************** ERROR ******************'
-  write(6,*) ' Too many Internal Coordinates !           '
-  write(6,'(A,I4)') ' N.r of Primitive Internal Coordinates:',nDefPICs
-  write(6,'(A,I4)') ' N.r of Internal Coordinates:          ',iBMtrx
-  write(6,*) '*******************************************'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '****************** ERROR ******************'
+  write(u6,*) ' Too many Internal Coordinates !           '
+  write(u6,'(A,I4)') ' N.r of Primitive Internal Coordinates:',nDefPICs
+  write(u6,'(A,I4)') ' N.r of Internal Coordinates:          ',iBMtrx
+  write(u6,*) '*******************************************'
+  write(u6,*)
   lErr = .true.
 end if
 
 do i=1,nDefPICs
   if (lPIC(i)) then
-    write(6,*)
-    write(6,*) '*************** ERROR *******************'
-    write(6,*) ' Primitive Internal Coordinate not used: '
-    write(6,*) ' ',Labels(i)
-    write(6,*) '*****************************************'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) '*************** ERROR *******************'
+    write(u6,*) ' Primitive Internal Coordinate not used: '
+    write(u6,*) ' ',Labels(i)
+    write(u6,*) '*****************************************'
+    write(u6,*)
     lErr = .true.
   end if
 end do
@@ -499,12 +507,12 @@ end do
 do i=1,nAtom
   if (lAtom(i)) then
     call WarningMessage(2,'Error in DefInt')
-    write(6,*)
-    write(6,*) '*********** ERROR ****************'
-    write(6,*) ' No Coordinate defined for atom:  '
-    write(6,*) ' ',AtomLbl(i)
-    write(6,*) '**********************************'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) '*********** ERROR ****************'
+    write(u6,*) ' No Coordinate defined for atom:  '
+    write(u6,*) ' ',AtomLbl(i)
+    write(u6,*) '**********************************'
+    write(u6,*)
     lErr = .true.
   end if
 end do
@@ -513,13 +521,13 @@ if (lErr) call Quit_OnUserError()
 
 if (iBMtrx /= nQQ) then
   call WarningMessage(2,'Error in DefInt')
-  write(6,*)
-  write(6,*) '******************* ERROR *****************'
-  if (iBMtrx > nQQ) write(6,*) ' Too many internal coordinates are defined'
-  if (iBMtrx < nQQ) write(6,*) ' Too few internal coordinates are defined'
-  write(6,*) ' You have defined',iBMtrx
-  write(6,*) ' There should be ',nQQ
-  write(6,*) '*******************************************'
+  write(u6,*)
+  write(u6,*) '******************* ERROR *****************'
+  if (iBMtrx > nQQ) write(u6,*) ' Too many internal coordinates are defined'
+  if (iBMtrx < nQQ) write(u6,*) ' Too few internal coordinates are defined'
+  write(u6,*) ' You have defined',iBMtrx
+  write(u6,*) ' There should be ',nQQ
+  write(u6,*) '*******************************************'
   call Quit_OnUserError()
 end if
 
@@ -528,7 +536,7 @@ First = .false.
 
 call mma_deallocate(Labels)
 call mma_deallocate(rMult)
-call mma_deallocate(value)
+call mma_deallocate(Val)
 call mma_deallocate(BVct)
 
 return

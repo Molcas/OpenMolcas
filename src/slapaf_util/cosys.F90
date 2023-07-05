@@ -11,16 +11,21 @@
 
 subroutine CoSys(Cent,R,xyz)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One, Pi
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Cent(3,3), r(3), xyz(3,2)
 #include "print.fh"
-real*8 Cent(3,3), r(3), xyz(3,2)
-integer iComp(3)
-logical Linear, Retry
+integer(kind=iwp) :: i, iComp(3), iPrint, iRout, j, k, Lu, nComp
+real(kind=wp) :: Co, Crap, Fi, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
+logical(kind=iwp) :: Linear, Retry
+real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
+real(kind=wp), external :: ArCos, ArSin
 
 iRout = 221
 iPrint = nPrint(iRout)
-Lu = 6
+Lu = u6
 if (iPrint >= 99) then
   call RecPrt('CoSys: Cent',' ',Cent,3,3)
 end if
@@ -31,7 +36,6 @@ Co = Zero
 Crap = Zero
 RR1 = Zero
 RR2 = Zero
-ThrAcos = 1.0D-6
 do i=1,3
   Co = Co+(Cent(i,1)-Cent(i,2))*(Cent(i,3)-Cent(i,2))
   RR1 = RR1+(Cent(i,1)-Cent(i,2))**2
@@ -45,10 +49,10 @@ do i=1,3
 end do
 Crap = sqrt(Crap)
 if (iPrint >= 99) then
-  write(6,*) 'Co=',Co
-  write(6,*) 'Crap=',Crap
+  write(u6,*) 'Co=',Co
+  write(u6,*) 'Crap=',Crap
 end if
-if (Crap < 1.0D-6) then
+if (Crap < 1.0e-6_wp) then
   Si = Crap
   if (Co < Zero) then
     Fi = Pi-ArSin(Si)
@@ -60,18 +64,18 @@ else
   if ((Co < -One) .and. (Co > -One-ThrAcos)) Co = -One
   if ((Co > One+ThrAcos) .or. (Co < -One-ThrAcos)) then
     call WarningMessage(2,'Error in CoSys')
-    write(6,*) 'Error in cosys: arcos(',Co,')'
+    write(u6,*) 'Error in cosys: arcos(',Co,')'
     call Abend()
   end if
   Fi = ArCos(Co)
   Si = sqrt(One-Co**2)
 end if
 if (iPrint >= 99) then
-  write(6,*) 'Fi,Pi=',Fi,Pi
-  write(6,*) 'Pi-Fi=',Pi-Fi
+  write(u6,*) 'Fi,Pi=',Fi,Pi
+  write(u6,*) 'Pi-Fi=',Pi-Fi
 end if
 
-Linear = abs(Si) < 1.0D-13
+Linear = abs(Si) < 1.0e-13_wp
 
 ! Form reference axis
 
@@ -95,8 +99,8 @@ end if
 call DScal_(3,One/RR,R,1)
 
 if (iPrint >= 99) then
-  write(6,*) 'Linear=',Linear
-  write(6,*) 'RR=',RR
+  write(u6,*) 'Linear=',Linear
+  write(u6,*) 'RR=',RR
   call RecPrt('R',' ',R,3,1)
 end if
 
@@ -117,7 +121,7 @@ do while (Retry)
 
     call dcopy_(6,[Zero],0,xyz,1)
     if (nComp == 0) then
-      !write(6,*) ' Case nComp == 0'
+      !write(u6,*) ' Case nComp == 0'
 
       xyz(1,1) = R(1)
       xyz(2,1) = R(2)
@@ -140,7 +144,7 @@ do while (Retry)
       xyz(3,2) = xyz(3,2)/r2
 
     else if (nComp == 1) then
-      !write(6,*) ' Case nComp == 1'
+      !write(u6,*) ' Case nComp == 1'
 
       i = iComp(1)
       xyz(i,1) = One
@@ -153,7 +157,7 @@ do while (Retry)
       xyz(3,2) = xyz(3,2)/r2
 
     else if (nComp == 2) then
-      !write(6,*) ' Case nComp == 2'
+      !write(u6,*) ' Case nComp == 2'
 
       i = iComp(1)
       xyz(i,1) = One
@@ -182,11 +186,11 @@ do while (Retry)
     end do
     if (RR == Zero) then
       Linear = .true.
-      if (iPrint >= 99) write(6,*) 'Linear=',Linear
+      if (iPrint >= 99) write(u6,*) 'Linear=',Linear
       Retry = .true.
     else
       call DScal_(3,One/sqrt(RR),xyz(1,2),1)
-      if (iPrint >= 99) write(6,*) 'RR=',RR
+      if (iPrint >= 99) write(u6,*) 'RR=',RR
 
       RR = Zero
       do i=1,3
@@ -196,7 +200,7 @@ do while (Retry)
         RR = RR+xyz(i,1)**2
       end do
       call DScal_(3,One/sqrt(RR),xyz(1,1),1)
-      if (iPrint >= 99) write(6,*) 'RR=',RR
+      if (iPrint >= 99) write(u6,*) 'RR=',RR
       if (iPrint >= 99) then
         call RecPrt('xyz',' ',xyz,3,2)
       end if

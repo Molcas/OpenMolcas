@@ -13,30 +13,29 @@
 
 subroutine Process_Track()
 
+use Slapaf_Parameters, only: Request_RASSI
 use Slapaf_Info, only: RootMap
-use Slapaf_parameters, only: Request_RASSI
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: nOv, nRoots, i
-integer, dimension(:), allocatable :: OldMap, RootIdx
-integer, dimension(2) :: MaxId
-real*8, dimension(:), allocatable :: Ovlp
-real*8, dimension(:,:), allocatable :: Overlaps
-logical :: Found, Done
+integer(kind=iwp) :: i, MaxId(2), nOv, nRoots
+logical(kind=iwp) :: Done, Found
 character(len=8) :: Method
+integer(kind=iwp), allocatable :: OldMap(:), RootIdx(:)
+real(kind=wp), allocatable :: Overlaps(:,:), Ovlp(:)
 
 call Get_cArray('Relax Method',Method,8)
 if ((Method /= 'CASSCF') .and. (Method /= 'RASSCF') .and. (Method /= 'CASSCFSA') .and. (Method /= 'RASSCFSA') .and. &
     (Method /= 'CASPT2') .and. (Method /= 'RASPT2')) then
   call WarningMessage(2,'Error in Process_Track')
-  write(6,*) '***************** ERROR ********************'
-  write(6,*) ' The TRACK keyword can only be used with'
-  write(6,*) ' states computed by the RASSCF or CASPT2'
-  write(6,*) ' programs.'
-  write(6,*) '********************************************'
+  write(u6,*) '***************** ERROR ********************'
+  write(u6,*) ' The TRACK keyword can only be used with'
+  write(u6,*) ' states computed by the RASSCF or CASPT2'
+  write(u6,*) ' programs.'
+  write(u6,*) '********************************************'
   call Quit_OnUserError()
 end if
 
@@ -89,17 +88,17 @@ do i=1,nRoots
 end do
 call Put_iArray('Root Mapping',RootMap,nRoots)
 if (nPrint(1) >= 5) then
-  write(6,*)
-  write(6,100) 'Root map'
-  write(6,*)
-  write(6,100) 'Original  Prev.  This'
-  write(6,100) '  root    iter.  iter.'
-  write(6,100) '----------------------'
+  write(u6,*)
+  write(u6,100) 'Root map'
+  write(u6,*)
+  write(u6,100) 'Original  Prev.  This'
+  write(u6,100) '  root    iter.  iter.'
+  write(u6,100) '----------------------'
   do i=1,nRoots
-    write(6,101) i,OldMap(i),RootMap(i)
+    write(u6,101) i,OldMap(i),RootMap(i)
   end do
-  write(6,100) '----------------------'
-  write(6,*)
+  write(u6,100) '----------------------'
+  write(u6,*)
   call mma_deallocate(OldMap)
 end if
 

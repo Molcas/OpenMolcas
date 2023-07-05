@@ -9,7 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function iUR(iR,iU)
+function iUR(iR,iU)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iUR
+integer(kind=iwp) :: iR, iU
+integer(kind=iwp) :: i
 
 iUR = 0
 do i=0,7
@@ -17,7 +24,7 @@ do i=0,7
     iUR = ior(iUR,2**ieor(i,iR))
   end if
 end do
-!write(6,*) ' iUR=',iUR
+!write(u6,*) ' iUR=',iUR
 
 return
 

@@ -13,7 +13,7 @@ subroutine DstInf(iStop,Just_Frequencies)
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, Cx, Dmp_Slapaf, dqInt, Energy, MF, qInt, Weights
-use Slapaf_Parameters, only: iOptC, iter, lOld_Implicit, Max_Center, MaxItr, mTROld, Numerical, RtRnc, stop
+use Slapaf_Parameters, only: iOptC, iter, lOld_Implicit, Max_Center, MaxItr, mTROld, Numerical, RtRnc, SlStop
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom
@@ -46,7 +46,7 @@ LOut = u6
 !                                                                      *
 ! Write information of this iteration to the RLXITR file
 
-call Dmp_Slapaf(stop,Just_Frequencies,Energy(1),iter,MaxItr,mTROld,lOld_Implicit,size(Coor,2))
+call Dmp_Slapaf(SlStop,Just_Frequencies,Energy(1),iter,MaxItr,mTROld,lOld_Implicit,size(Coor,2))
 
 if (SuperName /= 'numerical_gradient') then
   call Put_dArray('qInt',qInt,size(qInt))
@@ -59,12 +59,12 @@ if (Just_Frequencies) return
 !                                                                      *
 ! Geometry information
 
-if (stop .or. do_printcoords) then
+if (SlStop .or. do_printcoords) then
   write(LOut,*)
   call CollapseOutput(1,'Geometry section')
   write(LOut,*)
   write(LOut,'(80A)') ('*',i=1,80)
-  if (stop) then
+  if (SlStop) then
     write(LOut,*) ' Geometrical information of the final structure'
     r_Iter = real(Iter,kind=wp)
     call Add_Info('GEO_ITER',[r_Iter],1,8)
@@ -130,7 +130,7 @@ end do
 !                                                                      *
 ! Write out the new cartesian symmetry coordinates.
 
-if (stop) then
+if (SlStop) then
   write(LOut,*) ' NOTE: on convergence the final predicted structure will be printed here.'
   write(LOut,*) ' This is not identical to the structure printed in the head of the output.'
   call OutCoor('* Nuclear coordinates of the final structure / Bohr     *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.false.)
@@ -209,7 +209,7 @@ end if
 ! If a transition state optimization put the "reaction" vector
 ! on the RUNFILE(S)
 
-if ((.not. btest(iOptC,7)) .and. stop) then
+if ((.not. btest(iOptC,7)) .and. SlStop) then
 
   call mma_allocate(RV,3,size(Coor,2),Label='RV')
   RV(:,:) = MF(:,:)
@@ -240,7 +240,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (stop .or. do_printcoords) call CollapseOutput(0,'Geometry section')
+if (SlStop .or. do_printcoords) call CollapseOutput(0,'Geometry section')
 
 return
 

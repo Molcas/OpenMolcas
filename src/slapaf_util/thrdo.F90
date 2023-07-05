@@ -16,10 +16,16 @@ subroutine ThrdO(nInter,g,A,e,Fail)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 g(nInter), A(nInter,nInter), e(nInter,2)
-logical Fail
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: g(nInter), A(nInter,nInter), e(nInter,2)
+logical(kind=iwp) :: Fail
+integer(kind=iwp) :: i, i0, i1, iRC, iStep, iter, iterMx, itmp
+real(kind=wp) :: diff, Test
+real(kind=wp), parameter :: Thrd = 1.0e-6_wp
 
 i0 = 1
 i1 = 2
@@ -33,13 +39,12 @@ Fail = .true.
 call dcopy_(nInter,g,1,e(1,i0),1)
 call DPOTRS('U',nInter,1,A,nInter,e(1,i0),nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'ThrdO(DPOTRS): iRC=',iRC
+  write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
   call Abend()
 end if
 
 call RecPrt(' ThrdO: e(0)',' ',e(1,i0),nInter,1)
 
-Thrd = 1.D-6
 iterMx = 40
 
 do
@@ -50,7 +55,7 @@ do
   call dcopy_(nInter,g,1,e(1,i1),1)
   call DPOTRS('U',nInter,1,A,nInter,e(1,i1),nInter,iRC)
   if (iRC /= 0) then
-    write(6,*) 'ThrdO(DPOTRS): iRC=',iRC
+    write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
     call Abend()
   end if
 
@@ -64,7 +69,7 @@ do
     diff = abs(e(i,i0)-e(i,i1))
     if (diff > Test) Test = diff
   end do
-  !write(6,*) iter,diff
+  !write(u6,*) iter,diff
 
   if (iter > iterMx) then
     call WarningMessage(1,'ThrdO: Exceeded max iterations')

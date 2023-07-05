@@ -11,19 +11,28 @@
 
 subroutine Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EVec(nH,nH), rK(nq,nH), qEVec(nq,nH), EVal(nH*(nH+1)/2)
-character(len=14) qLbl(nq)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nH, nq, LuTmp
+real(kind=wp) :: EVec(nH,nH), EVal(nH*(nH+1)/2), rK(nq,nH), qEVec(nq,nH)
+integer(kind=iwp) :: iiQQ, IncQQ, iq, iQQ, Lu, mQQ
+real(kind=wp) :: temp
+character(len=14), allocatable :: qLbl(:)
+real(kind=wp), parameter :: Thr = 1.0e-4_wp
+real(kind=wp), external :: DDot_
+
+call mma_allocate(qLbl,nq,Label='qLbl')
 
 do iq=1,nq
   read(LuTmp) qLbl(iq),(rK(iq,iQQ),iQQ=1,nH)
 end do
 
-call DGEMM_('N','N',nq,nH,nH,1.0d0,rK,nq,EVec,nH,0.0d0,qEVec,nq)
+call DGEMM_('N','N',nq,nH,nH,One,rK,nq,EVec,nH,Zero,qEVec,nq)
 
-Lu = 6
-Thr = 0.0001d0
+Lu = u6
 IncQQ = 5
 do iiQQ=1,nH,IncQQ
   mQQ = min(nH,iiQQ+IncQQ-1)
@@ -37,6 +46,8 @@ do iiQQ=1,nH,IncQQ
   end do
   write(Lu,*)
 end do
+
+call mma_deallocate(qLbl)
 
 return
 

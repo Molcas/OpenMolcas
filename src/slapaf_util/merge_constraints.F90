@@ -11,15 +11,17 @@
 
 subroutine Merge_Constraints(FileIn1,FileIn2,FileOut,nLambda,iRow_c)
 
+use Definitions, only: iwp
+
 implicit none
-character(Len=*), intent(in) :: FileIn1, FileIn2, FileOut
-integer, intent(inout) :: nLambda, iRow_c
-integer :: Lu1, Lu2, Lu3, isFreeUnit, AixRm
-character(Len=180) :: Line, Get_Ln
-character(Len=6) :: Tag
-logical :: Found, AuxFile
-external :: Get_Ln, isFreeUnit, AixRm
-integer :: i, j, Lu, iErr
+character(len=*), intent(in) :: FileIn1, FileIn2, FileOut
+integer(kind=iwp), intent(inout) :: nLambda, iRow_c
+integer(kind=iwp) :: i, iErr, j, Lu, Lu1, Lu2, Lu3
+logical(kind=iwp) :: Found, AuxFile
+character(len=180) :: Line
+character(len=6) :: Tag
+integer(kind=iwp), external :: AixRm, isFreeUnit
+character(len=180), external :: Get_Ln
 
 ! Open the input files if they exist
 Lu1 = 0

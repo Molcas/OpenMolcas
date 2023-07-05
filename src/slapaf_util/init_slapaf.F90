@@ -11,26 +11,25 @@
 
 subroutine Init_SlapAf()
 
-use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen, jStab, nStab, iCoSet, AtomLbl, Smmtrc, RootMap
-!use Slapaf_Info, only: R12
-use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr, Line_Search, ThrEne, ThrGrd, ThrCons, ThrMEP, Header, MxItr, &
-                             mTtAtm, mB_Tot, mdB_Tot, mq, Force_dB, NADC, ApproxNADC
-!use Slapaf_Parameters, only: lRP
+use Symmetry_Info, only: iOper, nIrrep
+use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Force_dB, Header, Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, &
+                             MxItr, NADC, nDimBC, ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP
+use Slapaf_Info, only: ANr, AtomLbl, Coor, Degen, dMass, Grd, iCoSet, jStab, nStab, q_nuclear, RootMap, Smmtrc !, R12
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
 #include "print.fh"
-#include "stdalloc.fh"
-integer iAdd(0:7)
-integer :: jPrmt(0:7) = [1,-1,-1,1,-1,1,1,-1]
-logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt, Skip
-external Reduce_Prt
-character(len=8) CMAX
-integer Columbus
-#include "SysDef.fh"
-real*8, allocatable :: xMass(:)
+integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, iRout, isAtom, ISPIN1, ISPIN2, itest, &
+                     jCoSet, jPrint, jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
+real(kind=wp) :: tmp
+logical(kind=iwp) :: Do_ESPF, Exist_2, Found, Same, Skip
+character(len=8) :: CMAX
+real(kind=wp), allocatable :: xMass(:)
+integer(kind=iwp), external :: iDeg, iPrintLevel, iPrmt
+logical(kind=iwp), external :: Reduce_Prt
 
 !
 !***********************************************************************
@@ -41,7 +40,7 @@ real*8, allocatable :: xMass(:)
 ! has been defined.
 
 call GetEnvf('MOLCAS_MAXITER',CMAX)
-!write(6,'(3A)') 'CMAX="',CMAX,'"'
+!write(u6,'(3A)') 'CMAX="',CMAX,'"'
 if (CMAX /= ' ') then
   read(CMAX,'(I8)') iMAX
   MxItr = min(MaxItr,iMax)
@@ -57,16 +56,16 @@ jPrint = 10
 !                                                                      *
 call DecideOnESPF(Do_ESPF)
 if (Do_ESPF) then
-  ThrGrd = 0.003d0
-  ThrEne = 1.0D-5
+  ThrGrd = 0.003_wp
+  ThrEne = 1.0e-5_wp
   Line_Search = .false.
 else
-  ThrGrd = 0.0003d0
-  ThrEne = 1.0D-6
+  ThrGrd = 0.0003_wp
+  ThrEne = 1.0e-6_wp
   Line_Search = .true.
 end if
 ThrMEP = ThrGrd
-ThrCons = 1.0d10
+ThrCons = 1.0e10_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -123,7 +122,7 @@ else
   ! ISPIN should only be found for RASSCF-based
   ! methods, so no CI mode for SCF, MP2, etc. (or that's the idea)
 
-  !write(6,*) 'See if CI'
+  !write(u6,*) 'See if CI'
   call Qpg_iScalar('ISPIN',Found)
   if (Found) then
     call Get_iScalar('ISPIN',ISPIN1)
@@ -132,11 +131,11 @@ else
     ISPIN1 = 0
     LSYM1 = 0
   end if
-  !write(6,*) 'iSpin=',ISPIN1
-  !write(6,*) 'stSym=',LSYM1
+  !write(u6,*) 'iSpin=',ISPIN1
+  !write(u6,*) 'stSym=',LSYM1
 
   call f_Inquire('RUNFILE2',Exist_2)
-  !write(6,*) 'Exist_2=',Exist_2
+  !write(u6,*) 'Exist_2=',Exist_2
   if (Exist_2) then
     call NameRun('RUNFILE2')
     call Qpg_iScalar('ISPIN',Found)
@@ -152,8 +151,8 @@ else
     ISPIN2 = ISPIN1
     LSYM2 = LSYM1
   end if
-  !write(6,*) 'iSpin=',ISPIN1,ISPIN2
-  !write(6,*) 'stSym=',LSYM1,LSYM2
+  !write(u6,*) 'iSpin=',ISPIN1,ISPIN2
+  !write(u6,*) 'stSym=',LSYM1,LSYM2
 
   ! Do not add the constraint at the NumGrad stage
 
@@ -259,7 +258,7 @@ do isAtom=1,size(Coor,2)
         call WarningMessage(2,' Error finding coset element')
         call Abend()
       end if
-      iAdd(n) = iAdd(n)+jPrmt(iand(iOper(iIrrep),iComp))
+      iAdd(n) = iAdd(n)+iPrmt(iIrrep,iComp)
     end do
     Skip = .false.
     do jCoSet=0,nCoSet-1
@@ -287,7 +286,7 @@ call mma_allocate(ANr,size(Coor,2),Label='ANr')
 do isAtom=1,size(Coor,2)
   ind = int(Q_nuclear(isAtom))
   if (ind <= 0) then
-    dMass(isAtom) = 1.0D-10
+    dMass(isAtom) = 1.0e-10_wp
   else
     dMass(isAtom) = xMass(isAtom)
   end if
@@ -304,7 +303,7 @@ mTtAtm = 0
 call mma_Allocate(Degen,3,size(Coor,2),Label='Degen')
 do isAtom=1,size(Coor,2)
   mTtAtm = mTtAtm+iDeg(Coor(:,isAtom))
-  tmp = dble(iDeg(Coor(:,isAtom)))
+  tmp = real(iDeg(Coor(:,isAtom)),kind=wp)
   do i=1,3
     Degen(i,isAtom) = tmp
   end do

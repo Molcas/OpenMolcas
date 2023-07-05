@@ -9,7 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nU(iU)
+function nU(iU)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nU
+integer(kind=iwp) :: iU
+integer(kind=iwp) :: i
 
 nU = 0
 do i=0,7

@@ -9,9 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function R_Stab_A(R,S,nS)
+function R_Stab_A(R,S,nS)
 
-integer S(nS), R
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: R_Stab_A
+integer(kind=iwp) :: nS, R, S(nS)
+integer(kind=iwp) :: iS
 
 R_Stab_A = .false.
 do iS=1,nS

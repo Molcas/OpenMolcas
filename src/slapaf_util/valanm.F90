@@ -11,13 +11,16 @@
 
 subroutine ValANM(nAtom,nInter,nIter,Bmx,Degen,rInt,Cx,Label,nWndw)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-real*8 BMx(3*nAtom,3*nAtom), rInt(nInter,nIter), Degen(3*nAtom), Cx(3*nAtom,nIter)
-character Label*(*)
-real*8, allocatable :: ScrC(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtom, nInter, nIter, nWndw
+real(kind=wp) :: BMx(3*nAtom,3*nAtom), Degen(3*nAtom), rInt(nInter,nIter), Cx(3*nAtom,nIter)
+character(len=*) :: Label
+integer(kind=iwp) :: iEnd, iIter, ij, iSt, j, M, N, NRHS
+real(kind=wp), allocatable :: ScrC(:)
 
 !                                                                      *
 !***********************************************************************
@@ -48,7 +51,7 @@ if (Label == 'Values') then
     end do
   end do
 
-  call DGEMM_('T','N',nInter,iSt-iEnd+1,3*nAtom,1.0d0,BMx,3*nAtom,ScrC,3*nAtom,0.0d0,rInt(1,iEnd),nInter)
+  call DGEMM_('T','N',nInter,iSt-iEnd+1,3*nAtom,One,BMx,3*nAtom,ScrC,3*nAtom,Zero,rInt(1,iEnd),nInter)
 
   call mma_deallocate(ScrC)
   !                                                                    *
@@ -71,7 +74,7 @@ end if
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,'(A)') ' In ValANM: New '
+write(u6,'(A)') ' In ValANM: New '
 call RecPrt(Label,' ',rInt(1,iEnd),nInter,iSt-iEnd+1)
 #endif
 

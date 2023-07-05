@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OutCoor(TEXT,Char,nDim,FI,N1,N2,lAngstroms)
+subroutine OutCoor(TEXT,Chr,nDim,FI,N1,N2,lAngstroms)
 !***********************************************************************
 !                                                                      *
 !     Object: To generate a cartesian output with atomic labels        *
@@ -17,14 +17,17 @@ subroutine OutCoor(TEXT,Char,nDim,FI,N1,N2,lAngstroms)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "angstr.fh"
-character*(*) TEXT
-character*(*) char(nDim)
-logical lAngstroms
-real*8 FI(N1,N2)
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+integer(kind=iwp) :: nDim, N1, N2
+character(len=*) :: TEXT, Chr(nDim)
+real(kind=wp) :: FI(N1,N2)
+logical(kind=iwp) :: lAngstroms
+integer(kind=iwp) :: I, J, Lu
+
+Lu = u6
 write(Lu,*)
 write(Lu,*) '*********************************************************'
 write(Lu,*) Text
@@ -32,9 +35,9 @@ write(Lu,*) '*********************************************************'
 write(Lu,*) ' ATOM              X               Y               Z     '
 do I=1,NDIM
   if (lAngstroms) then
-    write(Lu,300) char(I),(FI(J,I)*angstr,J=1,3)
+    write(Lu,300) Chr(I),(FI(J,I)*Angstrom,J=1,3)
   else
-    write(Lu,300) char(I),(FI(J,I),J=1,3)
+    write(Lu,300) Chr(I),(FI(J,I),J=1,3)
   end if
 end do
 

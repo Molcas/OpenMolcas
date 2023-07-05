@@ -11,9 +11,14 @@
 
 subroutine Sort_to_Box(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,xmin,ymin,zmin,Box_Size)
 
-implicit real*8(a-h,o-z)
-real*8 Coor(3,nAtoms)
-integer iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms)
+real(kind=wp) :: Coor(3,nAtoms), xmin, ymin, zmin, Box_Size
+integer(kind=iwp) :: iAtom, ix, iy, iz, Nr
+real(kind=wp) :: x, y, z
+integer(kind=iwp), external :: iTabRow
 
 !                                                                      *
 !***********************************************************************
@@ -45,7 +50,7 @@ do iAtom=1,nAtoms
     call Abend()
   end if
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Sort_to_Box: ix,iy,iz,Nr,iAtom=',ix,iy,iz,Nr,iAtom
+  write(u6,*) 'Sort_to_Box: ix,iy,iz,Nr,iAtom=',ix,iy,iz,Nr,iAtom
 # endif
 
   iTab(0,ix,iy,iz) = Nr

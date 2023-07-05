@@ -11,21 +11,23 @@
 
 subroutine moveit(nmass,currxyz,ref123,trans,rotvec)
 
-implicit real*8(a-h,o-z)
-real*8 U(3,3)
-real*8 CurrXYZ(3,nMass)
-real*8 Ref123(3,nMass)
-real*8 RotVec(3)
-real*8 Trans(3)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nMass
+real(kind=wp) :: CurrXYZ(3,nMass), Ref123(3,nMass), Trans(3), RotVec(3)
+real(kind=wp) :: U(3,3)
+integer(kind=iwp) :: i, imass, j
+real(kind=wp) :: rsum
 
 call mkRotMat(RotVec,U)
 do imass=1,nmass
   do i=1,3
-    sum = Trans(i)
+    rsum = Trans(i)
     do j=1,3
-      sum = sum+U(i,j)*Ref123(j,imass)
+      rsum = rsum+U(i,j)*Ref123(j,imass)
     end do
-    CurrXYZ(i,imass) = sum
+    CurrXYZ(i,imass) = rsum
   end do
 end do
 

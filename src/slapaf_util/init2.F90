@@ -11,22 +11,18 @@
 
 subroutine Init2()
 
-use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, Energy, Energy0, DipM, qInt, dqInt, RefGeo, Get_Slapaf, dqInt_Aux
-use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit, TwoRunFiles, iter, NADC
+use Slapaf_Parameters, only: iter, lOld_Implicit, MaxItr, mTROld, NADC, TwoRunFiles
+use Slapaf_Info, only: Coor, Cx, DipM, dqInt, dqInt_Aux, Energy, Energy0, Get_Slapaf, Grd, Gx, Gx0, NAC, qInt, RefGeo
 use Kriging_Mod, only: nSet
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-logical Is_Roots_Set
-real*8, allocatable :: MMGrd(:,:), Tmp(:), DMs(:,:)
-#include "SysDef.fh"
-! Beijing Test
-logical Exist_2, lMMGrd, Found
-real*8 Columbus_Energy(2)
-!*********** columbus interface ****************************************
-integer Columbus
+implicit none
+integer(kind=iwp) :: Columbus, i, iDummy, iMode, i_N, iRoot, j, Length, mLambda, nData, nDip, nGrad, nqInt, nQQ, nRoots
+real(kind=wp) :: Columbus_Energy(2), E0, Temp, Value_l
+logical(kind=iwp) :: Exist_2, Found, Is_Roots_Set, lMMGrd
+real(kind=wp), allocatable :: DMs(:,:), MMGrd(:,:), Tmp(:)
 
 !                                                                      *
 !***********************************************************************
@@ -61,11 +57,11 @@ if (iter > 1) then
   end do
   if (Temp == Zero) then
     call WarningMessage(2,'Error in Init2')
-    write(6,*)
-    write(6,*) '****************** ERROR *********************'
-    write(6,*) 'Coordinates did not change!'
-    write(6,*) 'Maybe SEWARD is not inside the loop?'
-    write(6,*) '**********************************************'
+    write(u6,*)
+    write(u6,*) '****************** ERROR *********************'
+    write(u6,*) 'Coordinates did not change!'
+    write(u6,*) 'Maybe SEWARD is not inside the loop?'
+    write(u6,*) '**********************************************'
     call Quit_OnUserError()
   end if
 end if
@@ -78,12 +74,12 @@ lMMGrd = .false.
 if (lMMGrd) then
   call mma_allocate(MMGrd,3*size(Coor,2),2,Label='MMGrd')
   call Get_dArray('MM Grad',MMGrd,3*size(Coor,2)*2)
-  do iN=1,iter-1
-    write(6,*) 'Grad at iteration :',iN
-    call RecPrt('Old:',' ',Gx(:,:,iN),3,size(Coor,2))
-    call DaXpY_(3*size(Coor,2),-One,MMGrd(:,1),1,Gx(:,:,iN),1)
-    call DaXpY_(3*size(Coor,2),One,MMGrd(:,2),1,Gx(:,:,iN),1)
-    call RecPrt('New:',' ',Gx(1,1,iN),3,size(Coor,2))
+  do i_N=1,iter-1
+    write(u6,*) 'Grad at iteration :',i_N
+    call RecPrt('Old:',' ',Gx(:,:,i_N),3,size(Coor,2))
+    call DaXpY_(3*size(Coor,2),-One,MMGrd(:,1),1,Gx(:,:,i_N),1)
+    call DaXpY_(3*size(Coor,2),One,MMGrd(:,2),1,Gx(:,:,i_N),1)
+    call RecPrt('New:',' ',Gx(1,1,i_N),3,size(Coor,2))
   end do
   call mma_deallocate(MMGrd)
 end if
@@ -149,11 +145,11 @@ else
   if (Is_Roots_Set) then
     call Get_iScalar('Number of roots',nRoots)
   end if
-  !write(6,*) 'Runfile'
-  !write(6,*) 'nRoots=',nRoots
+  !write(u6,*) 'Runfile'
+  !write(u6,*) 'nRoots=',nRoots
   if (nRoots /= 1) then
     call Get_iScalar('NumGradRoot',iRoot)
-    !write(6,*) 'iRoot=',iRoot
+    !write(u6,*) 'iRoot=',iRoot
     call mma_allocate(Tmp,nRoots,Label='Tmp')
     call Get_dArray('Last energies',Tmp,nRoots)
     !call RecPrt('Last Energies',' ',Tmp,1,nRoots)
@@ -179,7 +175,7 @@ else
   end if
   if (nRoots /= 1) then
     call Get_iScalar('NumGradRoot',iRoot)
-    !write(6,*) 'iRoot=',iRoot
+    !write(u6,*) 'iRoot=',iRoot
     call mma_allocate(DMs,3,nRoots,Label='DMs')
     DMs(:,:) = Zero
     call Qpg_dArray('Last Dipole Moments',Found,nDip)
@@ -243,11 +239,11 @@ else
       call Get_iScalar('Number of roots',nRoots)
     end if
 
-    !write(6,*) 'Runfile2'
-    !write(6,*) 'nRoots=',nRoots
+    !write(u6,*) 'Runfile2'
+    !write(u6,*) 'nRoots=',nRoots
     if (nRoots /= 1) then
       call Get_iScalar('NumGradRoot',iRoot)
-      !write(6,*) 'iRoot=',iRoot
+      !write(u6,*) 'iRoot=',iRoot
       call mma_allocate(Tmp,nRoots,Label='Tmp')
       call Get_dArray('Last energies',Tmp,nRoots)
       !call RecPrt('Last Energies',' ',Tmp,1,nRoots)
@@ -295,7 +291,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Value_l = 20.0d0
+Value_l = 20.0_wp
 call Qpg_dScalar('Value_l',Found)
 if (.not. Found) call Put_dScalar('Value_l',Value_l)
 !                                                                      *

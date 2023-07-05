@@ -23,21 +23,27 @@ subroutine Get_H(F,nX)
 !             October 2010                                             *
 !***********************************************************************
 
-use Slapaf_Info, only: Coor
-use Slapaf_Parameters, only: nDimBC, mTROld
+use Slapaf_Info, only: Coor, Smmtrc
+use Slapaf_Parameters, only: mTROld, nDimBC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-logical Found
-real*8 F(nX**2)
-real*8, allocatable :: H(:), BOld(:), Tmp2(:)
+implicit none
+integer(kind=iwp) :: nX
+real(kind=wp) :: F(nX**2)
+integer(kind=iwp) :: i, ii, iix, ij, ik, ix, j, jj, jjx, jx, k, nAtom, nBMx, nDoF, nHss, nInter
+real(kind=wp) :: tmp_ij
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: BMtrx(:,:), H(:,:), Tmp2(:)
 
 !define _DEBUGPRINT_
 nDoF = nDimBC
 nInter = nDimBC-mTROld
+nAtom = size(Coor,2)
 
 call mma_allocate(Tmp2,nX**2,Label='Tmp2')
-call mma_allocate(H,nInter**2,Label='H')
+call mma_allocate(H,nInter,nInter,Label='H')
 ! If there is an updated Hessian in the runfile, use it;
 ! otherwise use the last computed one.
 ! (Hss_upd must be removed every time Hss_Q is added)
@@ -47,34 +53,15 @@ if (Found .and. (nHss == nInter**2)) then
 else
   call Get_dArray('Hss_Q',H,nInter**2)
 end if
-call mma_allocate(BOld,nX*nInter,Label='BOld')
+call mma_allocate(BMtrx,nX,nInter,Label='BMtrx')
 ! If there is an old BMx stored, use it;
 ! otherwise use the current BMx
 call Qpg_dArray('BMxOld',Found,nBMx)
 if (Found .and. (nBMx == nX*nInter)) then
-  call Get_dArray('BMxOld',BOld,nX*nInter)
+  call Get_dArray('BMxOld',BMtrx,nX*nInter)
 else
-  call Get_dArray('BMtrx',BOld,nX*nInter)
+  call Get_dArray('BMtrx',BMtrx,nX*nInter)
 end if
-
-call Get_H_(nX,BOld,nDoF,nInter,H,Tmp2,F,size(Coor,2))
-
-call mma_deallocate(BOld)
-call mma_deallocate(H)
-call mma_deallocate(Tmp2)
-
-return
-
-end subroutine Get_H
-
-subroutine Get_H_(nX,BMtrx,nDoF,nInter,H,Tmp2,Tmp3,nAtom)
-
-use Slapaf_Info, only: Smmtrc
-
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-real*8 BMtrx(nX,nInter), H(nInter,nInter), Tmp2(nX**2), Tmp3(nX**2)
 
 !                                                                      *
 !***********************************************************************
@@ -122,7 +109,7 @@ do i=1,nDoF
           ik = (k-1)*nDoF+i
           tmp_ij = tmp_ij+Tmp2(ik)*BMtrx(jjx,k)
         end do
-        Tmp3(ij) = tmp_ij
+        F(ij) = tmp_ij
       end if
 
     end do
@@ -131,12 +118,17 @@ do i=1,nDoF
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt('Hessian (cartesian)',' ',Tmp3,nDoF,nDoF)
+call RecPrt('Hessian (cartesian)',' ',F,nDoF,nDoF)
 #endif
-call Put_dArray('FC-Matrix',Tmp3,nDoF**2)
+call Put_dArray('FC-Matrix',F,nDoF**2)
+
+call mma_deallocate(BMtrx)
+call mma_deallocate(H)
+call mma_deallocate(Tmp2)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 return
 
-end subroutine Get_H_
+end subroutine Get_H

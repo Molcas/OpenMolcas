@@ -14,26 +14,29 @@ subroutine GF_on_the_Fly(iDo_dDipM)
 use Symmetry_Info, only: nIrrep
 use Slapaf_Info, only: Coor
 use Slapaf_Parameters, only: nDimBC, mTROld
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 DipM(3)
-integer mDisp(8)
-real*8, allocatable :: EVec(:), EVal(:), RedMas(:), dDipM(:), IRInt(:), Temp(:), NMod(:)
+implicit none
+integer(kind=iwp) :: iDo_dDipM
+integer(kind=iwp) :: iCtl, iEl, iNeg, iOff, jSym, lModes, Lu_10, lUt, mDisp(8), mSym, mTR, nAtom, nDisp, nDoF, nInter, nModes, nX
+real(kind=wp) :: DipM(3)
+real(kind=wp), allocatable :: dDipM(:), EVal(:), EVec(:), IRInt(:), NMod(:), RedMas(:), Temp(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-lUt = 6
+lUt = u6
 
 nX = 3*size(Coor,2)
 nAtom = size(Coor,2)
 nInter = nDimBC-mTROld
 mTR = mTROld
 nDoF = nDimBC
-!
+
 call mma_allocate(EVec,2*nX**2,Label='EVec')
 call mma_allocate(EVal,2*nX,Label='EVal')
 call mma_allocate(RedMas,nX,Label='RedMas')
@@ -44,7 +47,7 @@ dDipM(:) = Zero
 !                                                                      *
 DipM(:) = Zero
 call GF(nX,nDoF,nInter,EVec,EVal,RedMas,iNeg,dDipM,mTR,nAtom,DipM)
-!
+
 #ifdef _DEBUGPRINT_
 call RecPrt('EVec',' ',EVec,2*nX,nX)
 call RecPrt('EVal',' ',EVal,2,nX)

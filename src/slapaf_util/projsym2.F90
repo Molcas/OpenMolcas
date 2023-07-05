@@ -12,23 +12,28 @@
 subroutine ProjSym2(nAtoms,nCent,Ind,A,iDCRs,B,BqR,dB,dBqR)
 
 use Slapaf_Info, only: jStab, nStab
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "warnings.h"
-#include "real.fh"
-real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), BqR(3,nAtoms), dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms), ATemp(3)
-integer Ind(nCent), iDCRs(nCent)
+implicit none
+integer(kind=iwp) :: nAtoms, nCent, Ind(nCent), iDCRs(nCent)
+real(kind=wp) :: A(3,nCent), B(3,nCent), BqR(3,nAtoms), dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms)
+integer(kind=iwp) :: i, ixyz, j, jxyz
+real(kind=wp) :: ATemp(3)
+real(kind=wp), allocatable :: Tx(:,:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('B',' ',B,3,nCent)
 call RecPrt('dB',' ',dB,3*nCent,3*nCent)
-write(6,*) iDCRs
+write(u6,*) iDCRs
 #endif
 
 ! Set up the T-matrix
 
 ! Project away nonsymmetric displacements
+
+call mma_allocate(Tx,3,nCent,Label='Tx')
 
 call dcopy_(3*nCent,[One],0,Tx,1)
 do i=1,nCent
@@ -73,6 +78,8 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt('dBqR',' ',dBqR,3*nAtoms,3*nAtoms)
 #endif
+
+call mma_deallocate(Tx)
 
 return
 

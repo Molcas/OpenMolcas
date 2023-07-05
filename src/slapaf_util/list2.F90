@@ -21,49 +21,28 @@ subroutine List2(Title,Lbl,gq,nAtom,nInter,Smmtrc)
 !             1993                                                     *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8 gq(3*nAtom,nInter)
-character Lbl(nAtom)*(*), Title*(*)
-logical Smmtrc(3*nAtom)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtom, nInter
+character(len=*) :: Title, Lbl(nAtom)
+real(kind=wp) :: gq(3*nAtom,nInter)
+logical(kind=iwp) :: Smmtrc(3*nAtom)
+integer(kind=iwp) :: i, iE, i_F, igq, ii, inc, iq, iQQ, jq, Lu, LuTmp, mInt, MxWdth, nLbl, nRow
+real(kind=wp) :: temp
+logical(kind=iwp) :: Start
+character(len=80) :: Line
+character(len=72) :: Frmt
+character(len=16) :: filnam
+character(len=14) :: qLbl_tmp
 character(len=4), allocatable :: qLbl(:)
+real(kind=wp), parameter :: Thr = 0.001_wp ! Threshold for printout.
 
-n_qLbl = 3*nAtom
-call mma_allocate(qLbl,n_qLbl,Label='qLbl')
-call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
-call mma_deallocate(qLbl)
-
-return
-
-end subroutine List2
-
-subroutine List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
-!***********************************************************************
-!                                                                      *
-! Object: to print cartesian internal coordinates.                     *
-!                                                                      *
-!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-!             University of Lund, SWEDEN                               *
-!             1993                                                     *
-!***********************************************************************
-
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 gq(3*nAtom,nInter)
-character Lbl(nAtom)*(*), format*72, Title*(*), Line*80
-character*4 qLbl(n_qLbl), qLbl_tmp*14
-logical Start, Smmtrc(3*nAtom)
-character*16 filnam
-
-Lu = 6
-
-Thr = 0.001D+00 ! Threshold for printout.
+Lu = u6
 
 mInt = 3*nAtom
+call mma_allocate(qLbl,mInt,Label='qLbl')
 
 write(Lu,*)
 call CollapseOutput(1,'Internal coordinates')
@@ -93,7 +72,7 @@ end do
 write(Lu,'(A)') 'Vary'
 do iQQ=1,nInter
   write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
-  if = 7
+  i_F = 7
   jq = 0
   Start = .true.
   do iq=1,mInt
@@ -104,18 +83,18 @@ do iQQ=1,nInter
         Line(80:80) = '&'
         write(Lu,'(A)') Line
         Line = ' '
-        if = 6
+        i_F = 6
         jq = 1
         Start = .false.
       end if
       if ((jq == 1) .and. Start) then
-        iE = if+16
-        write(Line(if:iE),'(A,F10.8,4A)') ' ',gq(iq,iQQ),' ',qLbl(iq),' '
+        iE = i_F+16
+        write(Line(i_F:iE),'(A,F10.8,4A)') ' ',gq(iq,iQQ),' ',qLbl(iq),' '
       else
-        iE = if+17
-        write(Line(if:iE),'(A,F10.8,4A)') '+ ',gq(iq,iQQ),' ',qLbl(iq),' '
+        iE = i_F+17
+        write(Line(i_F:iE),'(A,F10.8,4A)') '+ ',gq(iq,iQQ),' ',qLbl(iq),' '
       end if
-      if = iE+1
+      i_F = iE+1
     end if
   end do
   write(Lu,'(A)') Line
@@ -136,6 +115,7 @@ do iq=1,mInt
   qLbl_tmp = qLbl(iq)
   write(LuTmp) qLbl_tmp,(gq(iq,iQQ),iQQ=1,nInter)
 end do
+call mma_deallocate(qLbl)
 
 close(LuTmp)
 
@@ -149,14 +129,14 @@ inc = min((MxWdth-nLbl)/nRow,nInter)
 
 do ii=1,nInter,inc
   write(Lu,*)
-  write(format,'(A,I2,A)') '(A,1X,',inc,'(I5,4X))'
-  write(Lu,format) 'Internal',(i,i=ii,min(ii+inc-1,nInter))
+  write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(I5,4X))'
+  write(Lu,Frmt) 'Internal',(i,i=ii,min(ii+inc-1,nInter))
   write(Lu,*)
-  write(format,'(A,I2,A)') '(A4,A4,1X,',inc,'(F8.5,1X))'
+  write(Frmt,'(A,I2,A)') '(A4,A4,1X,',inc,'(F8.5,1X))'
   do igq=1,mInt,3
-    write(Lu,format) Lbl((igq+2)/3),' x  ',(gq(igq,i),i=ii,min(ii+inc-1,nInter))
-    write(Lu,format) Lbl((igq+2)/3),' y  ',(gq(igq+1,i),i=ii,min(ii+inc-1,nInter))
-    write(Lu,format) Lbl((igq+2)/3),' z  ',(gq(igq+2,i),i=ii,min(ii+inc-1,nInter))
+    write(Lu,Frmt) Lbl((igq+2)/3),' x  ',(gq(igq,i),i=ii,min(ii+inc-1,nInter))
+    write(Lu,Frmt) Lbl((igq+2)/3),' y  ',(gq(igq+1,i),i=ii,min(ii+inc-1,nInter))
+    write(Lu,Frmt) Lbl((igq+2)/3),' z  ',(gq(igq+2,i),i=ii,min(ii+inc-1,nInter))
   end do
   write(Lu,*)
 end do
@@ -164,4 +144,4 @@ call CollapseOutput(0,Title)
 
 return
 
-end subroutine List2_
+end subroutine List2

@@ -11,8 +11,13 @@
 
 subroutine ChkLbl(Lbl,List,nList)
 
-character*(*) Lbl, List(nList)
-character*72 Warning
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nList
+character(len=*) :: Lbl, List(nList)
+integer(kind=iwp) :: iList
+character(len=72) :: Warning
 
 do iList=1,nList
   if (Lbl == List(iList)) then

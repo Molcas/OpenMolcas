@@ -11,21 +11,23 @@
 
 subroutine WrInp_sl()
 
-use kriging_mod
-use Slapaf_Info, only: Coor, AtomLbl
-use Slapaf_Parameters, only: iRow, ddV_Schlegel, HWRS, iOptH, IRC, Curvilinear, Redundant, FindTS, Analytic_Hessian, iOptC, &
-                             rHidden, lOld, Beta, Beta_Disp, Line_Search, GNrm_Threshold, Mode, ThrEne, ThrGrd, Baker, eMEPTest, &
-                             rMEP, MEP, nMEP, MEP_Type, MEP_Algo, Header, Delta, lNmHss, Cubic, MxItr, nWndw
+use Slapaf_Parameters, only: Analytic_Hessian, Baker, Beta, Beta_Disp, Cubic, Curvilinear, ddV_Schlegel, Delta, eMEPTest, FindTS, &
+                             GNrm_Threshold, Header, HWRS, iOptC, iOptH, IRC, iRow, Line_Search, lNmHss, lOld, MEP, MEP_Algo, &
+                             MEP_Type, Mode, MxItr, nMEP, nWndw, Redundant, rHidden, rMEP, ThrEne, ThrGrd
+use kriging_mod, only: blaAI, blavAI, blAI, blvAI, Kriging, Max_Microiterations, mblAI, nD_In, set_l
+use Slapaf_Info, only: AtomLbl, Coor
+use Constants, only: Two, auTokJmol
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
 #include "print.fh"
-#include "constants.fh"
+integer(kind=iwp) :: iPrint, iRout, Lu, nsAtom
+real(kind=wp) :: Value_l
 
 iRout = 3
 iPrint = nPrint(iRout)
 
-Lu = 6
+Lu = u6
 
 if (lNmHss) then
   lOld = .false.
@@ -79,17 +81,16 @@ if (iPrint >= 5) then
     end if
 
     if (blaAI) then
-      write(6,'(A,F10.5,A)') '   Baseline is highest energy plus: ',blavAI,' a.u'
+      write(u6,'(A,F10.5,A)') '   Baseline is highest energy plus: ',blavAI,' a.u'
     else
       if (mblAI) then
-        write(6,*) '  Baseline set to maximum value of the energy'
+        write(u6,*) '  Baseline set to maximum value of the energy'
       else if (blAI) then
-        write(6,'(A,F9.5,A,/,A,F9.5,A)') '  Baseline (trend function) changed to value:',blvAI,'a.u.', &
-                                         '                                             ', &
-                                         blvAI*CONV_AU_TO_KJ_PER_MOLE_,' kJ/mol'
+        write(u6,'(A,F9.5,A,/,A,F9.5,A)') '  Baseline (trend function) changed to value:',blvAI,'a.u.', &
+                                          '                                             ',blvAI*auTokJmol,' kJ/mol'
       end if
     end if
-    write(6,'(A,F10.5,A)') '   Maximum dispersion accepted:     ',Beta_disp,' * abs(g.max.comp)'
+    write(u6,'(A,F10.5,A)') '   Maximum dispersion accepted:     ',Beta_disp,' * abs(g.max.comp)'
   else
     write(Lu,*) '-RFO activated with parameters:'
     write(Lu,'(A,I6)') '   Maximum number of data points used in RFO: ',nWndw

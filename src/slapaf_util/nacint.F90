@@ -12,30 +12,34 @@
 subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,Label,dBf,ldB,lIter)
 
 use Slapaf_Info, only: NAC
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants.fh"
-real*8 Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-logical lWrite_, ldB
-character*8 Label
+implicit none
+integer(kind=iwp) :: nCent, lIter
+real(kind=wp) :: xyz(3,nCent), H12, Bf(3,nCent), dBf(3*nCent,3*nCent)
+logical(kind=iwp) :: lWrite_, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: iCar, iCent
+real(kind=wp) :: Fact
+integer(kind=iwp), external :: iDeg
 
 H12 = Zero
 if (lWrite_) then
-  write(6,'(2A,F18.8,A,F18.8,A)') Label,' : H12               = ',H12,' hartree '
+  write(u6,'(2A,F18.8,A,F18.8,A)') Label,' : H12               = ',H12,' hartree '
 end if
 
 ! Compute the WDC B-matrix
 
 do iCent=1,nCent
-  Fact = dble(iDeg(xyz(1,iCent)))
+  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
   do iCar=1,3
     Bf(iCar,iCent) = Fact*NAC(iCar,iCent,lIter)
   end do
 end do
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'NACInt, lIter:',lIter
+write(u6,*) 'NACInt, lIter:',lIter
 call RecPrt('NAC',' ',NAC(1,1,lIter),3,nCent)
 call RecPrt('Bf',' ',Bf,3,nCent)
 #endif

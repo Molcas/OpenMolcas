@@ -13,74 +13,81 @@
 
 module Slapaf_Info
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, Energy, Energy0, DipM, MF, qInt, &
-          dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, &
-          Smmtrc, Lbl, mRowH, RootMap, Free_Slapaf, Get_Slapaf, Dmp_Slapaf, dqInt_Aux, BMx_kriging
-
 ! Arrays always allocated
-
-real*8, allocatable :: Cx(:,:,:)     ! list of Cartesian coordinates
-real*8, allocatable :: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
-real*8, allocatable :: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
-real*8, allocatable :: NAC(:,:,:)    ! list of Cartesian non-adiabatic coupling vectors
-real*8, allocatable :: Q_nuclear(:)  ! list nuclear charges
-real*8, allocatable :: dmass(:)      ! list atomic mass in units of (C=12)
-real*8, allocatable :: Coor(:,:)     ! Cartesian coordinates of the last iteraction
-real*8, allocatable :: Grd(:,:)      ! gradient of the last iteraction in Cartesian coordinates
-real*8, allocatable :: Weights(:)    ! list of weights of ALL centers, however, the symmetry unique are first.
-real*8, allocatable :: Shift(:,:)    ! list of displacements in Cartesian coordinates
-real*8, allocatable :: GNrm(:)       ! list of the gradient norm for each iteration
-real*8, allocatable :: Energy(:)     ! list of the energies of each iteration, State 1
-real*8, allocatable :: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
-real*8, allocatable :: MF(:,:)       ! list of Cartesian mode following vectors for each iteration
-real*8, allocatable :: DipM(:,:)     ! list of dipole moments for each iteration
-real*8, allocatable :: qInt(:,:)     ! internal coordinates for each iteration
-real*8, allocatable :: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
-real*8, allocatable :: dqInt_Aux(:,:,:)      ! derivatives of internal coordinates for each iteration, of sets > 1
-real*8, allocatable, target :: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
-real*8, allocatable, target :: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
-real*8, allocatable, target :: GradRef(:,:)  ! Reference gradient
-real*8, allocatable, target :: Bmx(:,:)      ! the B matrix
-real*8, allocatable :: BMx_kriging(:,:)      ! the updated B matrix during the Kriging procedure
-real*8, allocatable :: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
-integer, allocatable :: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets information for the indivudual centers
-#include "LenIn.fh"
-character(len=LenIn), allocatable :: AtomLbl(:) ! atomic labels
-logical, allocatable :: Smmtrc(:,:)    ! Array with logical symmetry information on if a Cartesian is symmetric or not.
-character(len=8), allocatable :: Lbl(:) ! Labels for internal coordinates and constraints
-
-! Arrays for automatic internal coordinates
-real*8, allocatable :: BM(:)         ! ...
-real*8, allocatable :: dBM(:)        ! ...
-integer, allocatable :: iBM(:)       ! ...
-integer, allocatable :: idBM(:)      ! ...
-integer, allocatable :: nqBM(:)      ! ...
-
-integer, allocatable :: ANr(:)       ! list of atomic numbers
-
+!
+! Cx                   list of Cartesian coordinates
+! Gx                   list of Cartesian Gradients, State 1
+! Gx0                  list of Cartesian Gradients, State 2 for optimization of conical intersections
+! NAC                  list of Cartesian non-adiabatic coupling vectors
+! Q_nuclear            list nuclear charges
+! dmass                list atomic mass in units of (C=12)
+! Coor                 Cartesian coordinates of the last iteration
+! Grd                  gradient of the last iteraction in Cartesian coordinates
+! Weights              list of weights of ALL centers, however, the symmetry unique are first.
+! Shift                list of displacements in Cartesian coordinates
+! GNrm                 list of the gradient norm for each iteration
+! Energy               list of the energies of each iteration, State 1
+! Energy0              list of the energies of each iteration, State 2 for optimization of conical intersections
+! MF                   list of Cartesian mode following vectors for each iteration
+! DipM                 list of dipole moments for each iteration
+! qInt                 internal coordinates for each iteration
+! dqInt                derivatives of internal coordinates for each iteration
+! dqInt_Aux            derivatives of internal coordinates for each iteration, of sets > 1
+! RefGeo               Reference geometry in Cartesian coordinates
+! R12                  Reference geometry in R-P calculation (not used right now)
+! GradRef              Reference gradient
+! Bmx                  the B matrix
+! BMx_kriging          the updated B matrix during the Kriging procedure
+! Degen                list of degeneracy numbers of the unique atoms (three identical entries)
+! Stab, iCoset, nStab  stabilizer and cosets information for the indivudual centers
+! AtomLbl              atomic labels
+! Smmtrc               Array with logical symmetry information on if a Cartesian is symmetric or not.
+! Lbl                  Labels for internal coordinates and constraints
+!Arrays for automatic internal coordinates
+! BM                   ...
+! dBM                  ...
+! iBM                  ...
+! idBM                 ...
+! nqBM                 ...
+! ANr                  list of atomic numbers
+!
 ! Arrays optionally allocated
-
-real*8, allocatable :: Lambda(:,:)   ! list of the Lagrange multipiers
-integer, allocatable :: mRowH(:)     ! rows of the Hessian to be explicitly computed
-integer, allocatable :: RootMap(:)   ! Array to map the roots between iterations
-
+!
+! Lambda               list of the Lagrange multipiers
+! mRowH                rows of the Hessian to be explicitly computed
+! RootMap              Array to map the roots between iterations
+!
 ! Utility arrays with explicit deallocation, i.e. not via Free_Slapaf()
+!
+! Atom                  Temporary arrays for the super symmetry case
+! NSup                  Temporary arrays for the super symmetry case
+! KtB                   KtB array for the BMtrx family of subroutines
 
-integer, allocatable :: Atom(:)      ! Temporary arrays for the super symmetry case
-integer, allocatable :: NSup(:)      ! Temporary arrays for the super symmetry case
-real*8, allocatable :: KtB(:,:)     ! KtB array for the BMtrx family of subroutines
+#include "LenIn.fh"
+logical(kind=iwp) :: Initiated = .false.
+integer(kind=iwp), allocatable :: ANr(:), Atom(:), iBM(:), idBM(:), iCoset(:,:), jStab(:,:), mRowH(:), nqBM(:), nStab(:), NSup(:), &
+                                  RootMap(:)
+real(kind=wp), allocatable :: BM(:), BMx_kriging(:,:), Coor(:,:), Cx(:,:,:), dBM(:), Degen(:,:), DipM(:,:), dmass(:), dqInt(:,:), &
+                              dqInt_Aux(:,:,:), Energy(:), Energy0(:), GNrm(:), Grd(:,:), Gx(:,:,:), Gx0(:,:,:), KtB(:,:), &
+                              Lambda(:,:), MF(:,:), NAC(:,:,:), Q_nuclear(:), qInt(:,:), Shift(:,:), Weights(:)
+real(kind=wp), allocatable, target :: Bmx(:,:), GradRef(:,:), R12(:,:), RefGeo(:,:)
+logical(kind=iwp), allocatable :: Smmtrc(:,:)
+character(len=LenIn), allocatable :: AtomLbl(:)
+character(len=8), allocatable :: Lbl(:)
 
-logical :: Initiated = .false.
-integer nsAtom
+public :: ANr, Atom, AtomLbl, BM, Bmx, BMx_kriging, Coor, Cx, dBM, Degen, DipM, dmass, Dmp_Slapaf, dqInt, dqInt_Aux, Energy, &
+          Energy0, Free_Slapaf, Get_Slapaf, GNrm, GradRef, Grd, Gx, Gx0, iBM, iCoset, idBM, jStab, KtB, Lambda, Lbl, MF, mRowH, &
+          NAC, nqBM, nStab, NSup, Q_nuclear, qInt, R12, RefGeo, RootMap, Shift, Smmtrc, Weights
 
 contains
 
 subroutine Free_Slapaf()
-
-# include "stdalloc.fh"
 
   if (allocated(Energy)) call mma_deallocate(Energy)
   if (allocated(Energy0)) call mma_deallocate(Energy0)
@@ -125,32 +132,31 @@ subroutine Free_Slapaf()
   if (allocated(dqInt_Aux)) call mma_deallocate(dqInt_Aux)
   if (allocated(mRowH)) call mma_deallocate(mRowH)
   if (allocated(RootMap)) call mma_deallocate(RootMap)
+
 end subroutine Free_Slapaf
 
-subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom_In,mLambda)
+subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom,mLambda)
 
   use UnixInfo, only: SuperName
+  use Constants, only: Zero
+  use Definitions, only: u6
 
-  integer iter, MaxItr, mTROld, nsAtom_In, mLambda
-  logical lOld_Implicit
-# include "real.fh"
-# include "stdalloc.fh"
-  logical Exist
-  integer itmp, iOff, Lngth
-  integer, allocatable :: Information(:)
-  real*8, allocatable :: Relax(:)
+  integer(kind=iwp) :: iter, MaxItr, mTROld, nsAtom, mLambda
+  logical(kind=iwp) :: lOld_Implicit
+  integer(kind=iwp) :: iOff, itmp, Lngth
+  logical(kind=iwp) :: Exists
+  integer(kind=iwp), allocatable :: Information(:)
+  real(kind=wp), allocatable :: Relax(:)
 
   Initiated = .true.
 
-  nsAtom = nsAtom_In
-
   call mma_allocate(Information,7,Label='Information')
 
-  call qpg_iArray('Slapaf Info 1',Exist,itmp)
-  if (Exist) call Get_iArray('Slapaf Info 1',Information,7)
+  call qpg_iArray('Slapaf Info 1',Exists,itmp)
+  if (Exists) call Get_iArray('Slapaf Info 1',Information,7)
 
-  if ((.not. Exist) .or. (Information(1) == -99)) then
-    !write(6,*) 'Reinitiate Slapaf fields on runfile'
+  if ((.not. Exists) .or. (Information(1) == -99)) then
+    !write(u6,*) 'Reinitiate Slapaf fields on runfile'
     Information(:) = 0
     Information(3) = -99
     call Put_iArray('Slapaf Info 1',Information,7)
@@ -158,7 +164,7 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom_In,mLambda)
 
   iter = Information(2)+1
   if (iter >= MaxItr+1) then
-    write(6,*) 'Increase MaxItr in slapaf_info.f90'
+    write(u6,*) 'Increase MaxItr in slapaf_info.f90'
     call WarningMessage(2,'iter >= MaxItr+1')
     call Abend()
   end if
@@ -235,22 +241,21 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom_In,mLambda)
 
 end subroutine Get_Slapaf
 
-subroutine Dmp_Slapaf(stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_Implicit,nsAtom)
+subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_Implicit,nsAtom)
 
   use UnixInfo, only: SuperName
+  use Definitions, only: u6
 
-  logical stop, Just_Frequencies, lOld_Implicit
-  real*8 Energy_In
-  integer Iter, MaxItr, mTROld, nsAtom
-# include "stdalloc.fh"
-  integer, allocatable :: Information(:)
-  real*8, allocatable :: Relax(:)
-  real*8, allocatable :: GxFix(:,:)
-  integer iOff_Iter, nSlap, iOff, Lngth
-  logical Found
+  logical(kind=iwp) :: lStop, Just_Frequencies, lOld_Implicit
+  real(kind=wp) :: Energy_In
+  integer(kind=iwp) :: Iter, MaxItr, mTROld, nsAtom
+  integer(kind=iwp) :: iOff, iOff_Iter, Lngth, nSlap
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: Information(:)
+  real(kind=wp), allocatable :: GxFix(:,:), Relax(:)
 
   if (.not. Initiated) then
-    write(6,*) 'Dmp_Slapaf: Slapaf not initiated!'
+    write(u6,*) 'Dmp_Slapaf: Slapaf not initiated!'
     call Abend()
   else
     Initiated = .false.
@@ -258,7 +263,7 @@ subroutine Dmp_Slapaf(stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_Im
 
   ! Write information of this iteration to the RLXITR file
   call mma_allocate(Information,7,Label='Information')
-  if (stop) then
+  if (lStop) then
     Information(1) = -99     ! Deactivate the record
     iOff_Iter = 0
     call Put_iScalar('iOff_Iter',iOff_Iter)

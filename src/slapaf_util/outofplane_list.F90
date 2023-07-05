@@ -18,30 +18,39 @@ subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,value,nB,qLbl,iRef,f
 !     of-plane angle. RL, Tokyo June, 2004.                            *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: nStab, jStab, AtomLbl, ANr
+use Symmetry_Info, only: iOper, nIrrep
+use Slapaf_Info, only: ANr, AtomLbl, jStab, nStab
+use Constants, only: Zero, Pi, deg2rad
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-parameter(mB=4*3)
-real*8 Cx(3,nsAtom,nIter), A(3,4), Grad(mB), Hess(mB**2), fconst(nB), value(nB,nIter), Ref(3,4), Prv(3,4), rMult(nB), Grad_ref(9), &
-       RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-integer iDCRR(0:7), iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7), iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7), Indq(3,nB), &
-        iDCRX(0:7), iDCRY(0:7), nqB(nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms), iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot), &
-        idBM(2,ndB_Tot)
-logical Process, Help, Proc_dB, R_Stab_A
-character*14 Label, qLbl(nB)
-character*3 ChOp(0:7)
+implicit none
+integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
+                     iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_tot, &
+                     idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp) :: Cx(3,nsAtom,nIter), value(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+logical(kind=iwp) :: Process, Proc_dB
+character(len=14) :: qLbl(nB)
 #include "Molcas.fh"
-character*(LenIn4) Lbls(4)
 #include "bondtypes.fh"
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_outofp.fh"
-data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
-data iChOp/1,1,1,2,1,2,2,3/
-#include "constants.fh"
+integer(kind=iwp), parameter :: mB = 4*3
+integer(kind=iwp) :: iAtom, iAtom_, iCase, iDCR(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRX(0:7), iDCRY(0:7), iDeg, iE1, iE2, &
+                     iE3, iE4, iF1, iF2, iF3, iF4, ij, ijDCR, Ind(4), ir, iStabM(0:7), iStabN(0:7), iStabO(0:7), jAtom, jAtom_, &
+                     jBond, jBondType, jr, kAtom, kAtom_, kBond, kBondType, kDCRR, kDCRS, kDCRT, kDCRTS, kl, kNeighbor, kr, &
+                     Lambda, lAtom, lAtom_, lBond, lBondType, lNeighbor, lr, mCent, nCent, nCoBond_j, nDCRR, nDCRS, nDCRT, nDCRX, &
+                     nDCRY, nFgBond_j, nNeighbor_i, nqO, nStabM, nStabN, nStabO
+real(kind=wp) :: A(3,4), Alpha, Deg, delta, delta0, f_Const, f_Const_ij, f_Const_ij_Ref, f_Const_ijk, f_Const_ijk_Ref, &
+                 f_Const_Ref, Fi2, Fi3, Fi4, Grad(mB), Grad_ref(9), Hess(mB**2), Prv(3,4), r0, Ref(3,4), rij2, rij2_Ref, rik2, &
+                 rik2_Ref, ril2, ril2_Ref, RX4Y(3,3), Val
+logical(kind=iwp) :: Help
+character(len=LenIn4) Lbls(4)
+character(len=14) :: Label
+integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
+character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']
+integer(kind=iwp), external :: iTabRow, nCoBond, nFgBond
+logical(kind=iwp), external :: R_Stab_A
 
 !                                                                      *
 !***********************************************************************
@@ -104,8 +113,8 @@ do jBond=1,nBonds
     iDCR(4) = iTabAI(2,iAtom_)
     iDCR(1) = iTabAI(2,jAtom_)
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'E,R=',AtomLbl(iAtom),ChOp(iDCR(4)),AtomLbl(jAtom),ChOp(iDCR(1))
+    write(u6,*)
+    write(u6,*) 'E,R=',AtomLbl(iAtom),ChOp(iDCR(4)),AtomLbl(jAtom),ChOp(iDCR(1))
 #   endif
     nCoBond_j = nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
     nFgBond_j = nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
@@ -126,10 +135,10 @@ do jBond=1,nBonds
     kDCRR = iDCR(1)
 #   ifdef _DEBUGPRINT_
     if (iPrint >= 99) then
-      write(6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-      write(6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-      write(6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-      write(6,'(2A)') 'R=',ChOp(kDCRR)
+      write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+      write(u6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+      write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+      write(u6,'(2A)') 'R=',ChOp(kDCRR)
     end if
 #   endif
 
@@ -142,7 +151,7 @@ do jBond=1,nBonds
     call Inter(jStab(0,iAtom),nStab(iAtom),jStab(0,jAtom),nStab(jAtom),iStabM,nStabM)
 #   ifdef _DEBUGPRINT_
     if (iPrint >= 99) then
-      write(6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+      write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
     end if
 #   endif
 
@@ -165,7 +174,7 @@ do jBond=1,nBonds
       kBond = iTabAtoms(2,kNeighbor,iAtom_)
       kBondType = iTabBonds(3,kBond)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'kBond,kBondType=',kBond,kBondType
+      write(u6,*) 'kBond,kBondType=',kBond,kBondType
 #     endif
       if (kBondType == vdW_Bond) cycle
       if (kBondType > Magic_Bond) cycle
@@ -183,9 +192,9 @@ do jBond=1,nBonds
         if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) cycle
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'T=',AtomLbl(kAtom),ChOp(iDCR(2))
-      write(6,*) 'kAtom=',kAtom
+      write(u6,*)
+      write(u6,*) 'T=',AtomLbl(kAtom),ChOp(iDCR(2))
+      write(u6,*) 'kAtom=',kAtom
 #     endif
 
       do lNeighbor=1,nNeighbor_i
@@ -200,8 +209,8 @@ do jBond=1,nBonds
         if (lBond == kBond) cycle
         lAtom = iTabAI(1,lAtom_)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'lBond,lBondType=',lBond,lBondType
-        write(6,*) 'lAtom=',lAtom
+        write(u6,*) 'lBond,lBondType=',lBond,lBondType
+        write(u6,*) 'lAtom=',lAtom
 #       endif
 
         lr = iTabRow(ANr(lAtom))
@@ -224,8 +233,8 @@ do jBond=1,nBonds
               (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) cycle
         end if
 #       ifdef _DEBUGPRINT_
-        write(6,*)
-        write(6,*) 'TS=',AtomLbl(lAtom),ChOp(iDCR(3))
+        write(u6,*)
+        write(u6,*) 'TS=',AtomLbl(lAtom),ChOp(iDCR(3))
 #       endif
 
         Help = (ir > 3) .or. (jr > 3) .or. (kr > 3) .or. (lr > 3)
@@ -239,10 +248,10 @@ do jBond=1,nBonds
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 99) then
-          write(6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),i=0,nStab(kAtom)-1),'}  '
-          write(6,'(10A)') 'X={',(ChOp(jStab(i,lAtom)),i=0,nStab(lAtom)-1),'}  '
-          write(6,'(10A)') 'S={',(ChOp(iDCRS(i)),i=0,nDCRS-1),'}  '
-          write(6,'(2A)') 'S=',ChOp(kDCRS)
+          write(u6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),i=0,nStab(kAtom)-1),'}  '
+          write(u6,'(10A)') 'X={',(ChOp(jStab(i,lAtom)),i=0,nStab(lAtom)-1),'}  '
+          write(u6,'(10A)') 'S={',(ChOp(iDCRS(i)),i=0,nDCRS-1),'}  '
+          write(u6,'(2A)') 'S=',ChOp(kDCRS)
         end if
 #       endif
 
@@ -257,7 +266,7 @@ do jBond=1,nBonds
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 99) then
-          write(6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
+          write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
         end if
 #       endif
 
@@ -275,10 +284,10 @@ do jBond=1,nBonds
         nDCRX = nDCRT
         nDCRY = nDCRT
         if (iAtom == jAtom) then
-          !write(6,*) ' Special fix'
+          !write(u6,*) ' Special fix'
           call Union(iDCRX,nDCRX,iDCRY,nDCRY,kDCRR,iDCRT,nDCRT)
         else if (kAtom == lAtom) then
-          !write(6,*) ' Special fix'
+          !write(u6,*) ' Special fix'
           call Union(iDCRX,nDCRX,iDCRY,nDCRY,kDCRS,iDCRT,nDCRT)
         end if
 
@@ -287,8 +296,8 @@ do jBond=1,nBonds
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 99) then
-          write(6,'(10A)') 'T={',(ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
-          write(6,'(2A)') 'T=',ChOp(kDCRT)
+          write(u6,'(10A)') 'T={',(ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
+          write(u6,'(2A)') 'T=',ChOp(kDCRT)
         end if
 #       endif
 
@@ -309,17 +318,17 @@ do jBond=1,nBonds
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 99) then
-          write(6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-          write(6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
-          write(6,'(10A)') 'O={',(ChOp(iStabO(i)),i=0,nStabO-1),'}  '
+          write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+          write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
+          write(u6,'(10A)') 'O={',(ChOp(iStabO(i)),i=0,nStabO-1),'}  '
         end if
-        write(6,*) 'jAtom,iAtom,kAtom,lAtom=',jAtom,iAtom,kAtom,lAtom
+        write(u6,*) 'jAtom,iAtom,kAtom,lAtom=',jAtom,iAtom,kAtom,lAtom
 #       endif
 
         ! Compute the degeneracy of the torsion
 
         iDeg = nIrrep/nStabO
-        Deg = sqrt(dble(iDeg))
+        Deg = sqrt(real(iDeg,kind=wp))
 
         ! Test if coordinate should be included
 
@@ -354,8 +363,8 @@ do jBond=1,nBonds
         ! Check that valence angles are above threshold
 
         mCent = 3
-        delta0 = (45.0d0/180.d0)*Pi
-        !if ((jBondType == Fragments_Bond) .or. (kBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta=0.0D0
+        delta0 = 45.0_wp*deg2rad
+        !if ((jBondType == Fragments_Bond) .or. (kBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = Zero
 
         ! 1-4-2
 
@@ -364,10 +373,10 @@ do jBond=1,nBonds
         call dcopy_(3,Ref(1,2),1,RX4Y(1,3),1)
         call Bend(RX4Y,mCent,Fi2,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '1-4-2: Fi2=',Fi2
+        write(u6,*) '1-4-2: Fi2=',Fi2
 #       endif
         delta = delta0
-        if ((jBondType == Fragments_Bond) .or. (kBondType == Fragments_Bond)) delta = 0.0d0
+        if ((jBondType == Fragments_Bond) .or. (kBondType == Fragments_Bond)) delta = Zero
         if (Fi2 > Pi-delta) cycle
         if (Fi2 < delta) cycle
 
@@ -376,10 +385,10 @@ do jBond=1,nBonds
         call dcopy_(3,Ref(1,3),1,RX4Y(1,3),1)
         call Bend(RX4Y,mCent,Fi3,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '1-4-3: Fi3=',Fi3
+        write(u6,*) '1-4-3: Fi3=',Fi3
 #       endif
         delta = delta0
-        if ((jBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = 0.0d0
+        if ((jBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = Zero
         if (Fi3 > Pi-delta) cycle
         if (Fi3 < delta) cycle
 
@@ -388,19 +397,19 @@ do jBond=1,nBonds
         call dcopy_(3,Ref(1,2),1,RX4Y(1,1),1)
         call Bend(RX4Y,mCent,Fi4,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
-        write(6,*) '2-4-3: Fi4=',Fi4
+        write(u6,*) '2-4-3: Fi4=',Fi4
 #       endif
         delta = delta0
-        if ((kBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = 0.0d0
+        if ((kBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = Zero
         if (Fi4 > Pi-delta) cycle
         if (Fi4 < delta) cycle
 
         call OutofP(Ref,nCent,Val,Grad,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Val=',Val*180.d0/Pi
+        write(u6,*) 'Val=',Val/deg2rad
 #       endif
 
-        if (abs(Val) > 35.d0*(Pi/180.d0)) cycle
+        if (abs(Val) > 35.0_wp*deg2rad) cycle
 
         call OutofP(A,nCent,Val,Grad,.false.,.false.,'        ',Hess,Proc_dB)
 
@@ -408,7 +417,7 @@ do jBond=1,nBonds
         if (.not. Process) mB_Tot = mB_Tot+mB
         if (.not. Proc_dB) mdB_Tot = mdB_Tot+mB**2
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'nq=',nq
+        write(u6,*) 'nq=',nq
 #       endif
 
         nqO = nqO+1
@@ -442,9 +451,9 @@ do jBond=1,nBonds
         write(LuIC,'(A,I3.3,8A)') 'o',nqO,' = Outofp   ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3),' ',Lbls(4)(iF4:iE4),' ', &
                                   Lbls(1)(iF1:iE1)
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 49) write(6,'(A,I3.3,8A)') 'o',nqO,' = Outofp   ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3),' ', &
-                                                 Lbls(4)(iF4:iE4),' ',Lbls(1)(iF1:iE1)
-        write(6,*) 'iDeg=',iDeg
+        if (iPrint >= 49) write(u6,'(A,I3.3,8A)') 'o',nqO,' = Outofp   ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3),' ', &
+                                                  Lbls(4)(iF4:iE4),' ',Lbls(1)(iF1:iE1)
+        write(u6,*) 'iDeg=',iDeg
 #       endif
         Label = ' '
         write(Label,'(A,I3.3)') 'o',nqO
@@ -460,7 +469,7 @@ do jBond=1,nBonds
 
           !f_Const = Max(f_Const,f_Const_Min)
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'f_const=',f_const
+          write(u6,*) 'f_const=',f_const
 #         endif
           fconst(nq) = sqrt(f_Const)
           rMult(nq) = Deg

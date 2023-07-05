@@ -13,11 +13,20 @@
 #ifdef _Test_Numerical_
 subroutine OutofP0(xyz,nCent,Teta,ldB)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 xyz(3,nCent), C14X(3,3), BR14X(3,3), dBR14X(3,3,3,3), R42(3), R43(3)
-logical ldB
-character*8 Label
+use Constants, only: deg2rad
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: xyz(3,nCent), Teta
+logical(kind=iwp) :: ldB
+integer(kind=iwp) :: mCent
+real(kind=wp) :: BR14X(3,3), C14X(3,3), CosFi1, CosFi2, CosFi3, dBR14X(3,3,3,3), dFi1, dFi2, dFi3, e41x, e41y, e41z, e42x, e42y, &
+                 e42z, e43x, e43y, e43z, Fi1, Fi2, Fi3, Q41, Q42, Q43, R41KV, R42(3), R42KV, R43(3), R43KV, RX1, RX2, RX3, RY1, &
+                 RY2, RY3, RZ1, RZ2, RZ3
+character(len=8) :: Label
+real(kind=wp), external :: ArCos
 
 !                                                                      *
 !***********************************************************************
@@ -62,15 +71,15 @@ CosFi1 = e43x*e42x+e43y*e42y+e43z*e42z
 
 Fi1 = ArCos(CosFi1)
 if (abs(CosFi1) > One) call RecPrt('xyz(1)',' ',xyz,3,4)
-dFi1 = 180.d0*Fi1/Pi
-if ((dFi1 > 177.5d0) .or. (dFi1 < 2.5d0)) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi1 = Fi1/deg2rad
+if ((dFi1 > 177.5_wp) .or. (dFi1 < 2.5_wp)) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 
 ! Dirty exit! This happens when an earlier structure is ill defined.
 
-if (abs(Fi1-Pi) < 1.0D-13) then
-  Teta = 0.0d0
+if (abs(Fi1-Pi) < 1.0e-13_wp) then
+  Teta = Zero
   return
 end if
 
@@ -80,9 +89,9 @@ CosFi2 = e41x*e43x+e41y*e43y+e41z*e43z
 
 Fi2 = ArCos(CosFi2)
 if (abs(CosFi2) > One) call RecPrt('xyz(2)',' ',xyz,3,4)
-dFi2 = 180.d0*Fi2/Pi
-if ((dFi2 > 177.5d0) .or. (dFi2 < 2.5d0)) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi2 = Fi2/deg2rad
+if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 
 ! Get the angle between e41 and e42
@@ -91,9 +100,9 @@ CosFi3 = e41x*e42x+e41y*e42y+e41z*e42z
 
 Fi3 = ArCos(CosFi3)
 if (abs(CosFi3) > One) call RecPrt('xyz(3)',' ',xyz,3,4)
-dFi3 = 180.d0*Fi3/Pi
-if ((dFi3 > 177.5d0) .or. (dFi3 < 2.5d0)) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi3 = Fi3/deg2rad
+if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 !                                                                      *
 !***********************************************************************
@@ -124,8 +133,8 @@ C14X(3,3) = R42(1)*R43(2)-R42(2)*R43(1)
 ! Exit if 2-3-4 are collinear
 ! (equivalent to the above check, but this is more concrete)
 
-if ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2) < 1.0D-10) then
-  Teta = 0.0d0
+if ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2) < 1.0e-10_wp) then
+  Teta = Zero
   return
 end if
 C14X(1,3) = C14X(1,3)+xyz(1,4)

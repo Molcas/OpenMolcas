@@ -20,13 +20,17 @@ subroutine Trsn(xyz,nCent,Tau,Bt,lWrite,lWarn,Label,dBt,ldB)
 ! R.Lindh May-June '96                                                 *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Bt(3,nCent), xyz(3,nCent), dBt(3,nCent,3,nCent), BRij(3,2), dBRij(3,2,3,2), BRjk(3,2), dBRjk(3,2,3,2), BRkl(3,2), &
-       dBRkl(3,2,3,2), Bf2(3,3), Bf3(3,3)
-logical lWrite, lWarn, ldB
-character*8 Label
-dimension Dum(1)
+use Constants, only: Zero, One, Two, Pi, deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: xyz(3,nCent), Tau, Bt(3,nCent), dBt(3,nCent,3,nCent)
+logical(kind=iwp) :: lWrite, lWarn, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: ix, iy, iz, jx, jy, jz, mCent
+real(kind=wp) :: Bf2(3,3), Bf3(3,3), BRij(3,2), BRjk(3,2), BRkl(3,2), CosFi2, CosFi3, CosTau, dBRij(3,2,3,2), dBRjk(3,2,3,2), &
+                 dBRkl(3,2,3,2), dFi2, dFi3, dTau, Dum(1), Fac, Fi2, Fi3, Rij1, Rjk1, Rkl1, SinFi2, SinFi3, SinTau
 
 mCent = 2
 call Strtch(xyz(1,1),mCent,Rij1,BRij,.false.,Label,dBRij,ldB)
@@ -40,10 +44,10 @@ call Bend(xyz(1,2),mCent,Fi3,Bf3,.false.,.false.,Label,Dum,.false.)
 SinFi3 = sin(Fi3)
 CosFi3 = cos(Fi3)
 
-if (SinFi2*SinFi3 < 1.0d-13) then
+if (SinFi2*SinFi3 < 1.0e-13_wp) then
   Tau = Zero
   dTau = Zero
-  if (lWrite) write(6,1) Label,-dTau,-Tau
+  if (lWrite) write(u6,1) Label,-dTau,-Tau
   return
 end if
 
@@ -70,21 +74,21 @@ SinTau = (BRij(1,2)*(BRjk(2,1)*BRkl(3,2)-BRjk(3,1)*BRkl(2,2))+BRij(2,2)*(BRjk(3,
 Tau = atan2(SinTau,CosTau)
 if (abs(Tau) == Pi) Tau = Pi
 
-dTau = 180.0D+00*Tau/Pi
-dFi2 = 180.0D+00*Fi2/Pi
-dFi3 = 180.0D+00*Fi3/Pi
+dTau = Tau/deg2rad
+dFi2 = Fi2/deg2rad
+dFi3 = Fi3/deg2rad
 if (lWarn) then
-  if ((dTau > 177.5) .or. (dTau < -177.5)) then
+  if ((dTau > 177.5_wp) .or. (dTau < -177.5_wp)) then
     call WarningMessage(1,' Warning: dihedral angle close to end of range')
   end if
-  if ((dFi2 > 177.5) .or. (dFi2 < 2.5)) then
+  if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) then
     call WarningMessage(1,' Warning: bond angle 2 close to end of range')
   end if
-  if ((dFi3 > 177.5) .or. (dFi3 < 2.5)) then
+  if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) then
     call WarningMessage(1,' Warning: bond angle 3 close to end of range')
   end if
 end if
-if (LWRITE) write(6,1) Label,-dTau,-Tau
+if (LWRITE) write(u6,1) Label,-dTau,-Tau
 
 ! Compute the WDC matrix.
 

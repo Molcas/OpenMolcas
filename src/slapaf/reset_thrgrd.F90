@@ -28,17 +28,17 @@ real(kind=wp), allocatable :: Coor(:,:), Tmp(:), TR(:), Vec(:)
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
-    integer nsAtom
-    real*8 Coor(3,nsAtom)
-    integer iANr(nsAtom)
-    integer, allocatable :: TabB(:,:), TabA(:,:,:)
-    integer nBonds, nMax
+  subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
+    import :: wp, iwp
+    integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
+    real(kind=wp) :: Coor(3,mTtAtm)
+    integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
   end subroutine Box
   subroutine Hidden(Coor,AN,nHidden)
-    real*8, allocatable :: Coor(:,:)
-    integer, allocatable :: AN(:)
-    integer nHidden
+    import :: wp, iwp
+    real(kind=wp), allocatable :: Coor(:,:)
+    integer(kind=iwp), allocatable :: AN(:)
+    integer(kind=iwp) :: nHidden
   end subroutine Hidden
 end interface
 

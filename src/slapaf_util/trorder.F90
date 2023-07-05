@@ -11,8 +11,12 @@
 
 subroutine TROrder(TRVec,nTR,nX)
 
-implicit real*8(a-h,o-z)
-real*8 TRVec(6*nX)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nTR, nX
+real(kind=wp) :: TRVec(6*nX)
+integer(kind=iwp) :: i, iFrom, iTo, iTR
 
 if (nTR == 6) return
 do i=2,nX

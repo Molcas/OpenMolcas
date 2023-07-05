@@ -12,13 +12,16 @@
 subroutine GenCoo(Cart,nsAtom,Coor,mTtAtm,Vctrs,nDim,jAnr,iTabAI)
 
 use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: Degen, Smmtrc, ANr
+use Slapaf_Info, only: ANr, Degen, Smmtrc
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Cart(3,nsAtom), Coor(3,mTtAtm), Vctrs(3*mTtAtm,nDim), r(3)
-integer jAnr(mTtAtm), iTabAI(2,mTtAtm)
-logical New
+implicit none
+integer(kind=iwp) :: nsAtom, mTtAtm, nDim, jAnr(mTtAtm), iTabAI(2,mTtAtm)
+real(kind=wp) :: Cart(3,nsAtom), Coor(3,mTtAtm), Vctrs(3*mTtAtm,nDim)
+integer(kind=iwp) :: i_Dim, iAtom, iElem, iEnd, ig, iGo, iSt, ix, jDim
+real(kind=wp) :: Fact, r(3), x, y, z
+logical(kind=iwp) :: New
 
 !                                                                      *
 !***********************************************************************
@@ -35,11 +38,11 @@ call RecPrt('GenCoo: Degen',' ',Degen,3,nsAtom)
 ! Loop over list of symmetry unique centers
 
 iSt = 1
-iDim = 0
+i_Dim = 0
 do iAtom=1,nsAtom
   Fact = One/sqrt(Degen(1,iAtom))
   iEnd = iSt
-  jDim = iDim
+  jDim = i_Dim
   call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)
   iTabAI(1,iEnd) = iAtom
   iTabAI(2,iEnd) = iOper(0)
@@ -79,7 +82,7 @@ do iAtom=1,nsAtom
       iTabAI(1,iEnd) = iAtom
       iTabAI(2,iEnd) = iOper(ig)
       jAnr(iEnd) = Anr(iAtom)
-      jDim = iDim
+      jDim = i_Dim
       do ix=1,3
         if (Smmtrc(ix,iAtom)) then
           jDim = jDim+1
@@ -91,7 +94,7 @@ do iAtom=1,nsAtom
 
   do ix=1,3
     if (Smmtrc(ix,iAtom)) then
-      iDim = iDim+1
+      i_Dim = i_Dim+1
     end if
   end do
   iSt = iEnd+1
@@ -100,11 +103,11 @@ end do         ! End loop over centers
 #ifdef _DEBUGPRINT_
 call RecPrt(' In GenCoo: Coor',' ',Coor,3,mTtAtm)
 call RecPrt(' In GenCoo: Vctrs',' ',Vctrs,3*mTtAtm,nDim)
-write(6,*)
-write(6,*) ' iTabAI'
-write(6,*)
+write(u6,*)
+write(u6,*) ' iTabAI'
+write(u6,*)
 do iAtom=1,mTtAtm
-  write(6,*) iTabAI(1,iAtom),iTabAI(2,iAtom)
+  write(u6,*) iTabAI(1,iAtom),iTabAI(2,iAtom)
 end do
 #endif
 

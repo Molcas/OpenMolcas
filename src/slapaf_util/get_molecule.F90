@@ -11,15 +11,17 @@
 
 subroutine Get_Molecule()
 
-use Slapaf_Info, only: Q_nuclear, Coor, Grd, Weights, AtomLbl
+use Slapaf_Info, only: AtomLbl, Coor, Grd, Q_nuclear, Weights
 use Symmetry_Info, only: VarR, VarT
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-logical Found
-integer Columbus
+implicit none
+#include "LenIn.fh"
+integer(kind=iwp) :: Columbus, iGO, iJustGrad, iMode, iPL, Length, nData, nsAtom
+logical(kind=iwp) :: Found
+integer(kind=iwp), external :: iPrintLevel
 
 !                                                                      *
 !***********************************************************************
@@ -58,8 +60,8 @@ if ((iJustGrad == 1) .and. (columbus == 1)) then
     end if
     if (length /= 3*nsAtom) then
       call WarningMessage(2,'Init: length /= 3*nsAtom')
-      write(6,*) 'Grad'
-      write(6,*) 'length,nsAtom=',length,nsAtom
+      write(u6,*) 'Grad'
+      write(u6,*) 'length,nsAtom=',length,nsAtom
       call Abend()
     end if
     call mma_allocate(Grd,3,nsAtom,Label='Grd')
@@ -86,9 +88,9 @@ call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nsAtom)
 
 iPL = iPrintLevel(-1)
 if ((VarT .or. VarR) .and. (iPL > 0)) then
-  write(6,*)
-  if (VarT) write(6,*) '    Gradient is translational variant!'
-  if (VarR) write(6,*) '    Gradient is rotational variant!'
+  write(u6,*)
+  if (VarT) write(u6,*) '    Gradient is translational variant!'
+  if (VarR) write(u6,*) '    Gradient is rotational variant!'
 end if
 !                                                                      *
 !***********************************************************************

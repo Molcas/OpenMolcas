@@ -34,19 +34,23 @@
 
 subroutine Preprocess_UDC(Lu,iPrint)
 
-use Slapaf_parameters, only: MEPCons, MEP_Type, lSoft, NADC, EDiffZero, NADC, iState
+use Slapaf_Parameters, only: EDiffZero, iState, lSoft, MEP_Type, MEPCons, NADC, NADC
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: Lu, iPrint, iPos, Error, nLines, i, j
-character(len=180) :: Line1, Line2, EDiffName, Get_Ln
-real*8 :: EDiffValue
-logical :: MECI_via_SLAPAF = .false.
-#include "real.fh"
+integer(kind=iwp) :: Lu, iPrint
+integer(kind=iwp) :: Error, i, iPos, j, nLines
+real(kind=wp) :: EDiffValue
+logical(kind=iwp) :: MECI_via_SLAPAF
+character(len=180) :: EDiffName, Line1, Line2
+character(len=180), external :: Get_Ln
 
 EDiffName = ''
 EDiffZero = .false.
 iState(1) = 0
 iState(2) = 0
+MECI_via_SLAPAF = .false.
 
 ! An arbitrary initial value given to EDiffValue, this value is
 ! irrelevant since the only thing that matters is whether it is 0.0
@@ -163,13 +167,13 @@ if (EDiffValue == Zero) then
   MECI_via_SLAPAF = .true.
   call put_lscalar('MECI_via_SLAPAF ',MECI_via_SLAPAF)
   if (iPrint >= 6) then
-    write(6,*) 'Energy difference constraint with zero value.'
-    write(6,*) 'This may be a conical intersection search.'
+    write(u6,*) 'Energy difference constraint with zero value.'
+    write(u6,*) 'This may be a conical intersection search.'
   end if
 else if (EDiffName(1:4) /= '    ') then
   if (iPrint >= 6) then
-    write(6,*) 'Energy difference constraint with non-zero value.'
-    write(6,*) 'This will not be a conical intersection search.'
+    write(u6,*) 'Energy difference constraint with non-zero value.'
+    write(u6,*) 'This will not be a conical intersection search.'
   end if
 else
   NADC = .false.

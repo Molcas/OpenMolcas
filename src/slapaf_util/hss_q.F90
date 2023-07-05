@@ -11,31 +11,15 @@
 
 subroutine Hss_q()
 
-use Slapaf_Info, only: dqInt
-use Slapaf_Parameters, only: lOld, iRef
+use Slapaf_Parameters, only: Analytic_Hessian, Curvilinear, iRef, lOld, nDimBC
+use Slapaf_Info, only: Degen, dqInt, Smmtrc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-
-if (lOld) return
-
-nQQ = size(dqInt,1)
-call Hss_q_(nQQ,dqInt(:,iRef))
-
-return
-
-end subroutine Hss_q
-
-subroutine Hss_q_(nQQ,Grad)
-
-use Slapaf_Info, only: Degen, Smmtrc
-use Slapaf_Parameters, only: Curvilinear, nDimBC, Analytic_Hessian
-
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Grad(nQQ)
-real*8 rDum(1)
-real*8, allocatable :: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
+implicit none
+integer(kind=iwp) :: i, iAtom, ix, ixyz, nAtom, nQQ
+real(kind=wp) :: rDum(1)
+real(kind=wp), allocatable :: Hss_X(:), Degen2(:), Hss_Q_(:), KtB(:)
 
 !                                                                      *
 !***********************************************************************
@@ -44,6 +28,9 @@ real*8, allocatable :: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+if (lOld) return
+
+nQQ = size(dqInt,1)
 nAtom = size(Degen,2)
 !                                                                      *
 !***********************************************************************
@@ -82,21 +69,21 @@ if (Analytic_Hessian .and. Curvilinear) then
   !
   ! and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
 
-  call dBuu(Degen2,nQQ,nDimBC,Grad,Hss_X,.false.)
+  call dBuu(Degen2,nQQ,nDimBC,dqInt(:,iRef),Hss_X,.false.)
 # ifdef _DEBUGPRINT_
   call RecPrt('H(X)-BtgQ',' ',Hss_X,nDimBC,nDimBC)
 # endif
 end if
 
-call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
-call Hess_Tra(Hss_X,nDimBC,Degen2,KtB,nQQ,Hss_Q)
+call mma_allocate(Hss_Q_,nQQ**2,Label='Hss_Q_')
+call Hess_Tra(Hss_X,nDimBC,Degen2,KtB,nQQ,Hss_Q_)
 
-call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
+call Put_dArray('Hss_Q',Hss_Q_,nQQ**2)
 call Put_dArray('Hss_upd',rDum,0)
 #ifdef _DEBUGPRINT_
-call RecPrt('Hss_Q: Hessian',' ',Hss_Q,nQQ,nQQ)
+call RecPrt('Hss_Q: Hessian',' ',Hss_Q_,nQQ,nQQ)
 #endif
-call mma_deallocate(Hss_Q)
+call mma_deallocate(Hss_Q_)
 call mma_deallocate(KtB)
 call mma_deallocate(Degen2)
 call mma_deallocate(Hss_X)
@@ -105,4 +92,4 @@ call mma_deallocate(Hss_X)
 !                                                                      *
 return
 
-end subroutine Hss_q_
+end subroutine Hss_q

@@ -29,15 +29,19 @@
 
 subroutine Align(Coord,Ref,nAtom)
 
-use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
+use Symmetry_Info, only: iOper, nIrrep, VarR, VarT
 use Slapaf_Info, only: Weights
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Coord(3*nAtom), Ref(3*nAtom)
-real*8, allocatable :: Coor_All(:,:), Ref_All(:,:)
-integer, allocatable :: iStab(:)
+implicit none
+integer(kind=iwp) :: nAtom
+real(kind=wp) :: Coord(3*nAtom), Ref(3*nAtom)
+integer(kind=iwp) :: i, iAdr, iAt, iChxyz, iIrrep, mAtom, nStb
+real(kind=wp) :: RMS, RMSMax
+integer(kind=iwp), allocatable :: iStab(:)
+real(kind=wp), allocatable :: Coor_All(:,:), Ref_All(:,:)
 
 ! Do nothing if the energy is not rot. and trans. invariant
 if (VarR .or. VarT) return

@@ -11,11 +11,13 @@
 
 subroutine NonSym(nStab,jStab,A,Tx)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-real*8 A(3), Tx(3)
-integer jStab(0:nStab-1)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nStab, jStab(0:nStab-1)
+real(kind=wp) :: A(3), Tx(3)
+integer(kind=iwp) :: iStab
 
 do iStab=0,nStab-1
   if ((A(1) /= Zero) .and. (iand(jStab(iStab),1)) /= 0) cycle

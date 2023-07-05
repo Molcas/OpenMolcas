@@ -12,32 +12,34 @@
 !#define _DEBUGPRINT_
 subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
 
-use Slapaf_Info, only: Cx, Shift, qInt, KtB, BMx, Smmtrc, Lbl
-use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC, User_Def, MaxItr, BSet, HSet, lOld, Numerical, nLambda, iRef
+use Slapaf_Info, only: BMx, Cx, KtB, Lbl, qInt, Shift, Smmtrc
+use Slapaf_Parameters, only: BSet, Curvilinear, HSet, iRef, lOld, MaxItr, nDimBC, nLambda, Numerical, Redundant, User_Def
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Coor(3,nsAtom)
-integer, allocatable :: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
-real*8, allocatable :: TR(:), TRNew(:), TROld(:), Scr2(:), Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
+implicit none
+integer(kind=iwp) :: nsAtom, nIter, mTtAtm, nWndw
+real(kind=wp) :: Coor(3,nsAtom)
+integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, nBonds, nHidden, nMax, nQQ
+integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:,:), TabB(:,:)
+real(kind=wp), allocatable :: Coor2(:,:), EVal(:), Hss_X(:), Scr2(:), TR(:), TRNew(:), TROld(:), Vec(:,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
-    integer nsAtom
-    real*8 Coor(3,nsAtom)
-    integer iANr(nsAtom)
-    integer, allocatable :: TabB(:,:), TabA(:,:,:)
-    integer nBonds, nMax
+  subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
+    import :: wp, iwp
+    integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
+    real(kind=wp) :: Coor(3,mTtAtm)
+    integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
   end subroutine Box
   subroutine Hidden(Coor,AN,nHidden)
-    real*8, allocatable :: Coor(:,:)
-    integer, allocatable :: AN(:)
-    integer nHidden
+    import :: wp, iwp
+    real(kind=wp), allocatable :: Coor(:,:)
+    integer(kind=iwp), allocatable :: AN(:)
+    integer(kind=iwp) :: nHidden
   end subroutine Hidden
 end interface
 
@@ -46,7 +48,7 @@ end interface
 !                                                                      *
 nQQ = 0
 
-Lu = 6
+Lu = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -65,8 +67,8 @@ else if (iRef == 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Actual structure from iteration',iRef
-write(6,*) ' Last structure from iteration',nIter
+write(u6,*) ' Actual structure from iteration',iRef
+write(u6,*) ' Last structure from iteration',nIter
 #endif
 !                                                                      *
 !***********************************************************************
@@ -157,8 +159,8 @@ call mma_deallocate(Coor2)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'User_Def   :',User_Def
-write(6,*) 'Curvilinear:',Curvilinear
+write(u6,*) 'User_Def   :',User_Def
+write(u6,*) 'Curvilinear:',Curvilinear
 #endif
 if (User_Def) then
   !                                                                    *
@@ -275,10 +277,10 @@ call mma_deallocate(TR)
 ! Print out the values of the internal coordinates
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' Internal coordinates'
-write(6,*)
-write(6,'(1X,A,2X,F10.4)') (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
+write(u6,*)
+write(u6,*) ' Internal coordinates'
+write(u6,*)
+write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
 #endif
 !                                                                      *
 !***********************************************************************

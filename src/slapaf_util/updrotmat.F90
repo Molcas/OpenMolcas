@@ -11,18 +11,22 @@
 
 subroutine updRotMat(SmallRot,RotMat)
 
-implicit real*8(a-h,o-z)
-dimension SmallRot(3), RotMat(3,3)
-dimension tmp(3,3), SmallMat(3,3)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: SmallRot(3), RotMat(3,3)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: rsum, SmallMat(3,3), tmp(3,3)
 
 call mkRotMat(SmallRot,SmallMat)
 do i=1,3
   do j=1,3
-    sum = 0.0d0
+    rsum = Zero
     do k=1,3
-      sum = sum+RotMat(i,k)*SmallMat(k,j)
+      rsum = rsum+RotMat(i,k)*SmallMat(k,j)
     end do
-    tmp(i,j) = sum
+    tmp(i,j) = rsum
   end do
 end do
 do i=1,3
@@ -33,13 +37,13 @@ end do
 ! Check for orthonormality:
 do i=1,3
   do j=1,3
-    sum = 0.0d0
-    if (i == j) sum = -1.0d0
+    rsum = Zero
+    if (i == j) rsum = -One
     do k=1,3
-      sum = sum+RotMat(i,k)*RotMat(j,k)
+      rsum = rsum+RotMat(i,k)*RotMat(j,k)
     end do
-    if (abs(sum) > 1.0D-10) then
-      write(6,*) ' UPDROTMAT ON check sum error:',sum
+    if (abs(rsum) > 1.0e-10_wp) then
+      write(u6,*) ' UPDROTMAT ON check sum error:',rsum
     end if
   end do
 end do

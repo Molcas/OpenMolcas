@@ -19,10 +19,16 @@ subroutine FUpdt(nInter,FEq,gi_2,gi_1,g_ref,qi_2,qi_1,q_ref,u,v,w)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 FEq(nInter,nInter,nInter), gi_2(nInter), gi_1(nInter), g_ref(nInter), qi_2(nInter), qi_1(nInter), q_ref(nInter), u(nInter), &
-       v(nInter), w(nInter), lambda
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: FEq(nInter,nInter,nInter), gi_2(nInter), gi_1(nInter), g_ref(nInter), qi_2(nInter), qi_1(nInter), q_ref(nInter), &
+                 u(nInter), v(nInter), w(nInter)
+integer(kind=iwp) :: i, k, l
+real(kind=wp) :: lambda, RHS, rLHS, ux, uy, vx, vy, wx, wy
+real(kind=wp), external :: DDot_
 
 !call RecPrt(' FEq',' ',FEq,nInter**2,nInter)
 !call RecPrt('  gi-2',' ', gi_2,1,nInter)
@@ -37,7 +43,7 @@ do i=1,nInter
   v(i) = -(gi_2(i)-g_ref(i))
 end do
 rLHS = DDot_(nInter,qi_2,1,u,1)-DDot_(nInter,q_ref,1,u,1)-DDot_(nInter,qi_1,1,v,1)+DDot_(nInter,q_ref,1,v,1)
-write(6,*) 'FUpdt: LHS=',rLHS
+write(u6,*) 'FUpdt: LHS=',rLHS
 RHS = Zero
 do i=1,nInter
   do k=1,nInter
@@ -47,9 +53,9 @@ do i=1,nInter
   end do
 end do
 RHS = Half*RHS
-write(6,*) 'FUpdt: RHS=',RHS
+write(u6,*) 'FUpdt: RHS=',RHS
 lambda = rLHS-RHS
-write(6,*) ' FUpdt: lambda=',lambda
+write(u6,*) ' FUpdt: lambda=',lambda
 do i=1,nInter
   w(i) = v(i)-u(i)
 end do
@@ -64,7 +70,7 @@ vy = DDot_(nInter,v,1,qi_2,1)-DDot_(nInter,v,1,q_ref,1)
 wx = DDot_(nInter,w,1,qi_1,1)-DDot_(nInter,w,1,q_ref,1)
 wy = DDot_(nInter,w,1,qi_2,1)-DDot_(nInter,w,1,q_ref,1)
 lambda = Two*lambda/(ux*vy*(wy-wx)+vx*wy*(uy-ux)+wx*uy*(vy-vx))
-write(6,*) ' FUpdt: lambda=',lambda
+write(u6,*) ' FUpdt: lambda=',lambda
 do i=1,nInter
   do k=1,nInter
     do l=1,nInter
@@ -80,7 +86,7 @@ do i=1,nInter
   v(i) = -(gi_2(i)-g_ref(i))
 end do
 rLHS = DDot_(nInter,qi_2,1,u,1)-DDot_(nInter,q_ref,1,u,1)-DDot_(nInter,qi_1,1,v,1)+DDot_(nInter,q_ref,1,v,1)
-write(6,*) 'FUpdt: LHS(qNR)=',rLHS
+write(u6,*) 'FUpdt: LHS(qNR)=',rLHS
 RHS = Zero
 do i=1,nInter
   do k=1,nInter
@@ -90,7 +96,7 @@ do i=1,nInter
   end do
 end do
 RHS = Half*RHS
-write(6,*) 'FUpdt: RHS(qNR)=',RHS
+write(u6,*) 'FUpdt: RHS(qNR)=',RHS
 
 return
 

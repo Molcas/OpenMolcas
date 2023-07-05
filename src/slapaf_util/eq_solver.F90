@@ -11,16 +11,19 @@
 
 subroutine Eq_Solver(Mode,M,N,NRHS,B,Curvilinear,Degen,dSS,DFC)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character :: Mode
+integer(kind=iwp) :: M, N, NRHS
+real(kind=wp) :: B(M,*), Degen(M), dSS(*), DFC(*)
+logical(kind=iwp) :: Curvilinear
 #include "warnings.h"
-real*8 B(M,*), Degen(M), dSS(*), DFC(*)
-logical Curvilinear
-character(len=1) Mode
-integer INFO
-real*8 Temp(1)
-real*8, allocatable :: A(:), Btmp(:), Work(:)
+integer(kind=iwp) :: i, ij, INFO, iRHS, jpB, LDA, LDB, LWork
+real(kind=wp) :: Temp(1)
+real(kind=wp), allocatable :: A(:), Btmp(:), Work(:)
 
 !                                                                      *
 !***********************************************************************
@@ -98,11 +101,11 @@ INFO = 0
 call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Work,LWork,INFO)
 if (INFO > 0) then
   call WarningMessage(2,'Error in Eq_Solver')
-  write(6,*)
-  write(6,*) '***********************************************'
-  write(6,*) ' ERROR: Eq_Solver could not find a solution.   '
-  write(6,*) ' The matrix is rank deficient.                 '
-  write(6,*) '***********************************************'
+  write(u6,*)
+  write(u6,*) '***********************************************'
+  write(u6,*) ' ERROR: Eq_Solver could not find a solution.   '
+  write(u6,*) ' The matrix is rank deficient.                 '
+  write(u6,*) '***********************************************'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 

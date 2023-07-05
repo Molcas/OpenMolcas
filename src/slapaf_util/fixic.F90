@@ -11,23 +11,27 @@
 
 subroutine FIXIC(nFix,SS,mInt,B,NDIM,F,Label,u)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 SS(mInt), B(nDim*mInt), F(nDim), u(nDim)
-character(len=8) Label(mInt)
-real*8, allocatable :: uInv(:,:), uB(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nFix, mInt, NDIM
+real(kind=wp) :: SS(mInt), B(nDim*mInt), F(nDim), u(nDim)
+character(len=8) :: Label(mInt)
+integer(kind=iwp) :: I
+real(kind=wp), allocatable :: uB(:,:), uInv(:,:)
 
 ! write out the internal coordinates which will be fixed
 
-write(6,*)
-write(6,*) ' Following internal coordinates are fixed'
-write(6,*)
+write(u6,*)
+write(u6,*) ' Following internal coordinates are fixed'
+write(u6,*)
 
 ! loop over all internal coordinates to be fixed
 
 do I=mInt-nFix+1,mInt
-  write(6,'(A,A,E10.3,A)') Label(i),' with a gradient of ',SS(I),' is frozen and the gradient is annihilated'
+  write(u6,'(A,A,E10.3,A)') Label(i),' with a gradient of ',SS(I),' is frozen and the gradient is annihilated'
   SS(i) = Zero
 end do
 

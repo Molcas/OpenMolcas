@@ -33,9 +33,11 @@
 #ifdef _FMIN_
 !     Data f_Const_Min/1.0D-2/
 !     Data f_Const_Min/0.0D-0/
+      Real*8 f_Const_Min
       Data f_Const_Min/1.0D-3/
 #endif
 #ifdef _VDW_
+      Real*8 alpha_vdW
 #define _OLD_CODE_
 #ifdef _OLD_CODE_
 !     HMF augmented by weak forces, MGS

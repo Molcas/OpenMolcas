@@ -11,19 +11,23 @@
 
 subroutine NRed(ArrIn,ArrOut,nX,nDim,Smmtrc)
 
-implicit real*8(a-h,o-z)
-real*8 ArrIn(nX), ArrOut(nDim)
-logical Smmtrc(nX)
+use Definitions, only: wp, iwp, u6
 
-iDim = 0
+implicit none
+integer(kind=iwp) :: nX, nDim
+real(kind=wp) :: ArrIn(nX), ArrOut(nDim)
+logical(kind=iwp) :: Smmtrc(nX)
+integer(kind=iwp) :: i_Dim, iX
+
+i_Dim = 0
 do iX=1,nX
   if (Smmtrc(iX)) then
-    iDim = iDim+1
-    ArrOut(iDim) = ArrIn(iX)
+    i_Dim = i_Dim+1
+    ArrOut(i_Dim) = ArrIn(iX)
   end if
 end do
-if (iDim /= nDim) then
-  write(6,*) 'In NRed: iDim /= nDim'
+if (i_Dim /= nDim) then
+  write(u6,*) 'In NRed: i_Dim /= nDim'
   call Abend()
 end if
 !call RecPrt('ArrIn',' ',ArrIn,nX,1)

@@ -11,16 +11,18 @@
 
 subroutine PrePro(nAtom,Coor)
 
-use Slapaf_Info, only: Grd, Atom, nSup, mRowH
-use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC, lOld, mTROld, lNmHss, lOld_Implicit, iter, iter
+use Slapaf_Parameters, only: iInt, iRow, iter, lNmHss, lOld, lOld_Implicit, mTROld, nDimBC, nFix, Redundant
+use Slapaf_Info, only: Atom, Grd, mRowH, nSup
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-real*8 Coor(3,nAtom)
-logical CofM
-real*8, allocatable :: TR(:)
+implicit none
+integer(kind=iwp) :: nAtom
+real(kind=wp) :: Coor(3,nAtom)
+integer(kind=iwp) :: mTR, nQQ, nRowH
+logical(kind=iwp) :: CofM
+real(kind=wp), allocatable :: TR(:)
 
 CofM = (Iter == 1) .and. lNmHss
 call mma_allocate(TR,18*nAtom,Label='TR')

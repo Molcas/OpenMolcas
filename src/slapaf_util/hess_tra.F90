@@ -11,11 +11,14 @@
 
 subroutine Hess_Tra(Hss_X,nDim,Degen,BMx,nInter,Hss_Q)
 
-implicit real*8(a-h,o-z)
-real*8 Hss_X(nDim*nDim), Degen(nDim), BMx(nDim,nInter), Hss_Q(nInter*nInter)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: X(:), XT(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim, nInter
+real(kind=wp) :: Hss_X(nDim*nDim), Degen(nDim), BMx(nDim,nInter), Hss_Q(nInter*nInter)
+integer(kind=iwp) :: i, ij, j, M, N, NRHS
+real(kind=wp), allocatable :: X(:), XT(:)
 
 !                                                                      *
 !***********************************************************************

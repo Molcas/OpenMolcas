@@ -13,25 +13,18 @@
 subroutine rotder(nmass,xmass,currxyz,ref123,trans,rotang,rotvec,rotmat,norder,dRVdXYZ,d2RVdXYZ2)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nmass, norder
-real*8 xMass(nMass), CurrXYZ(3,nMass), Ref123(3,nMass)
-real*8 trans(3), RotAng, RotVec(3), RotMat(3,3)
-real*8 dRVdXYZ(3,3*nMass)
-real*8 d2RVdXYZ2(3,3*nMass,3*nMass)
-! Local variables:
-integer i, imass, ip, ip1, ip2, ipk, ipk1, ipk2
-integer iter, j, j1, j2, k, k1, k2
-real*8 dRVdA(3,3), d2RVdA2(3,3,3), d3RVdA3(3,3,3,3)
-real*8 d4RVdA4(3,3,3,3,3)
-real*8 TotMass, MOI(3,3), MOIInv(3,3)
-real*8 Sum, Trace, SMat(3,3)
-!real*8 G(3,3),det,detinv
-real*8 Sayvetz2(3), RotErr, SmallRot(3)
-real*8 umat(3,3), vmat(3,3), sval(3), wTmp(100)
-real*8, dimension(:,:), allocatable :: Curr123, tmp
-real*8, dimension(:,:,:), allocatable :: dAdXYZ
+integer(kind=iwp) :: nmass, norder
+real(kind=wp) :: xMass(nMass), CurrXYZ(3,nMass), Ref123(3,nMass), trans(3), RotAng, RotVec(3), RotMat(3,3), dRVdXYZ(3,3*nMass), &
+                 d2RVdXYZ2(3,3*nMass,3*nMass)
+integer(kind=iwp) :: i, imass, ip, ip1, ip2, ipk, ipk1, ipk2, iter, j, j1, j2, k, k1, k2
+real(kind=wp) :: d2RVdA2(3,3,3), d3RVdA3(3,3,3,3), d4RVdA4(3,3,3,3,3), dRVdA(3,3), MOI(3,3), MOIInv(3,3), RotErr, rSum, &
+                 Sayvetz2(3), SmallRot(3), SMat(3,3), sval(3), TotMass, Trace, umat(3,3), vmat(3,3), wTmp(100) !, &
+                 !det, detinv, G(3,3)
+real(kind=wp), allocatable :: Curr123(:,:), dAdXYZ(:,:,:), tmp(:,:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Ref123',' ',Ref123,3,nMass)
@@ -42,10 +35,10 @@ call mma_allocate(dAdXYZ,3,3,nMass,label='dAdXYZ')
 
 ! Compute the Center-of-Mass coordinates.
 ! These are the same as the translation vector.
-Trans(1) = 0.0d0
-Trans(2) = 0.0d0
-Trans(3) = 0.0d0
-TotMass = 0.0d0
+Trans(1) = Zero
+Trans(2) = Zero
+Trans(3) = Zero
+TotMass = Zero
 do imass=1,nmass
   TotMass = TotMass+xMass(imass)
   Trans(1) = Trans(1)+xMass(imass)*CurrXYZ(1,imass)
@@ -82,11 +75,11 @@ do
   ! (Note: Inverse rotation matrix = transpose)
   do imass=1,nmass
     do i=1,3
-      sum = 0.0d0
+      rSum = Zero
       do j=1,3
-        sum = sum+RotMat(j,i)*(CurrXYZ(j,imass)-Trans(j))
+        rSum = rSum+RotMat(j,i)*(CurrXYZ(j,imass)-Trans(j))
       end do
-      Curr123(i,imass) = sum
+      Curr123(i,imass) = rSum
     end do
   end do
   ! Compute the Moments-of-Inertia matrix. The asymmetrical
@@ -101,7 +94,7 @@ do
       tmp(i,imass) = xMass(iMass)*tmp(i,imass)
     end do
   end do
-  call DGEMM_('N','T',3,3,nmass,1.0d0,tmp,3,Curr123,3,0.0d0,SMat,3)
+  call DGEMM_('N','T',3,3,nmass,One,tmp,3,Curr123,3,Zero,SMat,3)
   Trace = (SMat(1,1)+SMat(2,2)+SMat(3,3))
   do i=1,3
     do j=1,3
@@ -123,7 +116,7 @@ do
   !     G(2,3) = MOI(3,1)*MOI(1,2)-MOI(3,2)*MOI(1,1)
   !     G(3,3) = MOI(1,1)*MOI(2,2)-MOI(1,2)*MOI(2,1)
   !     Det = MOI(1,1)*G(1,1)+MOI(2,1)*G(2,1)+MOI(3,1)*G(3,1)
-  !     DetInv = 1.0D0/Det
+  !     DetInv = One/Det
   !     MOIInv(1,1) = G(1,1)*DetInv
   !     MOIInv(2,1) = G(1,2)*DetInv
   !     MOIInv(3,1) = G(1,3)*DetInv
@@ -136,13 +129,13 @@ do
   ! (use the Moore-Penrose pseudoinverse, to deal with linear systems)
   call dgesvd_('A','A',3,3,MOI,3,sval,umat,3,vmat,3,wTmp,100,i)
   do i=1,3
-    if (abs(sval(i)) > 1.0d-12) then
-      call dscal_(3,1.0d0/sval(i),umat(1,i),1)
+    if (abs(sval(i)) > 1.0e-12_wp) then
+      call dscal_(3,One/sval(i),umat(1,i),1)
     else
-      call dcopy_(3,[0.0d0],0,umat(1,i),1)
+      call dcopy_(3,[Zero],0,umat(1,i),1)
     end if
   end do
-  call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,MOIInv,3)
+  call dgemm_('T','T',3,3,3,One,vmat,3,umat,3,Zero,MOIInv,3)
 # ifdef _DEBUGPRINT_
   call RecPrt('vmat',' ',vmat,size(vmat,1),size(vmat,2))
   call RecPrt('umat',' ',umat,size(umat,1),size(umat,2))
@@ -152,11 +145,11 @@ do
   call RecPrt('Curr123',' ',Curr123,3,nMass)
 # endif
   ! Determine small rotation that zeroes the Sayvetz rotational conditions
-  !write(6,*) ' Determine small rotation. First compute Sayvetz2:'
+  !write(u6,*) ' Determine small rotation. First compute Sayvetz2:'
   do i=1,3
     j = 1+mod(i,3)
     k = 1+mod(j,3)
-    Sayvetz2(i) = 0.0d0
+    Sayvetz2(i) = Zero
     do imass=1,nMass
       Sayvetz2(i) = Sayvetz2(i)+xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-Ref123(k,imass)*Curr123(j,imass))
     end do
@@ -164,25 +157,25 @@ do
 # ifdef _DEBUGPRINT_
   call RecPrt('Sayvetz2',' ',Sayvetz2,1,3)
 # endif
-  RotErr = 0.0d0
+  RotErr = Zero
   do i=1,3
-    sum = 0.0d0
+    rSum = Zero
     do j=1,3
-      sum = sum+MOIInv(j,i)*Sayvetz2(j)
+      rSum = rSum+MOIInv(j,i)*Sayvetz2(j)
     end do
-    SmallRot(i) = +sum
-    RotErr = RotErr+sum**2
+    SmallRot(i) = rSum
+    RotErr = RotErr+rSum**2
   end do
 # ifdef _DEBUGPRINT_
   call RecPrt('SmallRot',' ',SmallRot,1,3)
 # endif
   RotErr = sqrt(RotErr)
   ! Limiting step size:
-  if (RotErr > 1.0d0) then
+  if (RotErr > One) then
     SmallRot(1) = SmallRot(1)/RotErr
     SmallRot(2) = SmallRot(2)/RotErr
     SmallRot(3) = SmallRot(3)/RotErr
-    RotErr = 1.0d0
+    RotErr = One
   end if
   ! Apply this rotation to the rotation matrix:
   call updRotMat(SmallRot,RotMat)
@@ -190,7 +183,7 @@ do
   call RecPrt('RotMat(i)',' ',RotMat,3,3)
   call RecPrt('SmallRot',' ',SmallRot,1,3)
 # endif
-  if (RotErr <= 1.0D-12) exit
+  if (RotErr <= 1.0e-12_wp) exit
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('RotMat(Final)',' ',RotMat,3,3)
@@ -223,12 +216,12 @@ end do
 ! difference to the results, but why not...)
 do i=1,3
   do k=1,3
-    sum = 0.0d0
+    rSum = Zero
     do ip=1,nmass
-      sum = sum+dAdXYZ(i,k,ip)
+      rSum = rSum+dAdXYZ(i,k,ip)
     end do
     do ip=1,nmass
-      dAdXYZ(i,k,ip) = dAdXYZ(i,k,ip)-(xMass(ip)/TotMass)*sum
+      dAdXYZ(i,k,ip) = dAdXYZ(i,k,ip)-(xMass(ip)/TotMass)*rSum
     end do
   end do
 end do
@@ -241,11 +234,11 @@ if (nOrder >= 1) then
     do ip=1,nMass
       do k=1,3
         ipk = k+3*(ip-1)
-        sum = 0.0d0
+        rSum = Zero
         do j=1,3
-          sum = sum+dRVdA(i,j)*dAdXYZ(j,k,ip)
+          rSum = rSum+dRVdA(i,j)*dAdXYZ(j,k,ip)
         end do
-        dRVdXYZ(i,ipk) = sum
+        dRVdXYZ(i,ipk) = rSum
       end do
     end do
   end do
@@ -256,11 +249,11 @@ if (nOrder >= 2) then
       do ip2=1,nMass
         do k2=1,3
           ipk2 = k2+3*(ip2-1)
-          sum = 0.0d0
+          rSum = Zero
           do j2=1,3
-            sum = sum+d2RVdA2(i,j1,j2)*dAdXYZ(j2,k2,ip2)
+            rSum = rSum+d2RVdA2(i,j1,j2)*dAdXYZ(j2,k2,ip2)
           end do
-          tmp(j1,ipk2) = sum
+          tmp(j1,ipk2) = rSum
         end do
       end do
     end do
@@ -268,11 +261,11 @@ if (nOrder >= 2) then
       do ip1=1,nMass
         do k1=1,3
           ipk1 = k1+3*(ip1-1)
-          sum = 0.0d0
+          rSum = Zero
           do j1=1,3
-            sum = sum+tmp(j1,ipk2)*dAdXYZ(j1,k1,ip1)
+            rSum = rSum+tmp(j1,ipk2)*dAdXYZ(j1,k1,ip1)
           end do
-          d2RVdXYZ2(i,ipk1,ipk2) = sum
+          d2RVdXYZ2(i,ipk1,ipk2) = rSum
         end do
       end do
     end do

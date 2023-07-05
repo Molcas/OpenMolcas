@@ -11,14 +11,19 @@
 
 subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,Thr,BM,iBM,nB_Tot,nqB)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Gmtrx(nq,nq), EVec(nq,nq), EVal(nq*(nq+1)/2), uMtrx(nX), BM(nB_Tot)
-integer iBM(nB_Tot), nqB(nq)
-logical g12K, Diagonal
-real*8, parameter :: Zero_Approx = 0.1D-9
-real*8, allocatable :: Work(:), W(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nq, nx, nK, nB_Tot, iBM(nB_Tot), nqB(nq)
+real(kind=wp) :: Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), uMtrx(nX), Thr, BM(nB_Tot)
+logical(kind=iwp) :: g12K
+integer(kind=iwp) :: i, iB, ii, ijTri, ik, Info, iQ, j, jB, jl, k, l, LDZ, mB, N, nB
+real(kind=wp) :: B_ik, B_jl, rSum
+logical(kind=iwp) :: Diagonal
+real(kind=wp), allocatable :: W(:), Work(:)
+real(kind=wp), parameter :: Zero_Approx = 1.0e-10_wp
 
 !                                                                      *
 !***********************************************************************
@@ -66,17 +71,17 @@ end do
 
 Diagonal = .true.
 do i=1,nq
-  Sum = 0.0d0
+  rSum = Zero
   do j=1,nq
-    if (abs(Gmtrx(i,j)) < 1.0D-10) Gmtrx(i,j) = Zero
-    if (j /= i) Sum = Sum+GMtrx(i,j)
+    if (abs(Gmtrx(i,j)) < 1.0e-10_wp) Gmtrx(i,j) = Zero
+    if (j /= i) rSum = rSum+GMtrx(i,j)
   end do
-  Diagonal = Diagonal .and. (Sum == 0.0d0)
+  Diagonal = Diagonal .and. (rSum == Zero)
 end do
 
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed2: The G Matrix (nq x nq)','(5e21.12)',Gmtrx,nq,nq)
-write(6,*) 'Diagonal=',Diagonal
+write(u6,*) 'Diagonal=',Diagonal
 #endif
 
 ! Set up a unit matrix
@@ -111,8 +116,8 @@ if (.not. Diagonal) then
   Info = 0
   call dspev_('V','U',N,Eval,W,EVec,LDZ,Work,Info)
   if (Info /= 0) then
-    write(6,*) 'Info /= 0'
-    write(6,*) 'Info=',Info
+    write(u6,*) 'Info /= 0'
+    write(u6,*) 'Info=',Info
     call Abend()
   end if
   call FZero(EVal,N*(N+1)/2)
@@ -123,13 +128,13 @@ if (.not. Diagonal) then
   call mma_deallocate(W)
   call mma_deallocate(Work)
 end if
-call DScal_(nQ*(nQ+1)/2,-1.0d0,EVal,1)
+call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
 call JacOrd(EVal,EVec,nQ,nQ)
 !Fix standard direction.
 do iQ=1,nQ
   call VecPhase(EVec(1,iQ),nQ)
 end do
-call DScal_(nQ*(nQ+1)/2,-1.0d0,EVal,1)
+call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
 call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)

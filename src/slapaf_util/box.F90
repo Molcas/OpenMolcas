@@ -11,12 +11,17 @@
 
 subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Coor(3,mTtAtm)
-integer iANr(mTtAtm)
-integer, allocatable :: TabB(:,:), TabA(:,:,:), iBox(:,:), Tab(:,:,:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two, Eight
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
+real(kind=wp) :: Coor(3,mTtAtm)
+integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
+integer(kind=iwp) :: iAtom, nBondMax, nx, ny, nz
+real(kind=wp) :: adjust, Box_Size, ThrB, xmax, xmin, ymax, ymin, zmax, zmin
+integer(kind=iwp), allocatable :: iBox(:,:), Tab(:,:,:,:)
 
 !                                                                      *
 !***********************************************************************
@@ -26,23 +31,23 @@ integer, allocatable :: TabB(:,:), TabA(:,:,:), iBox(:,:), Tab(:,:,:,:)
 !***********************************************************************
 !                                                                      *
 if (mTtAtm < 2) then
-  write(6,*) 'Too few atoms to relax: mTtAtm=',mTtAtm
+  write(u6,*) 'Too few atoms to relax: mTtAtm=',mTtAtm
   call WarningMessage(2,'mTtAtm < 2')
   call Abend()
 end if
 
-ThrB = 0.40d0
+ThrB = 0.4_wp
 #ifdef _DEBUGPRINT_
 call RecPrt('Box: Coor',' ',Coor,3,mTtAtm)
-write(6,*) 'Box: ThrB=',ThrB
+write(u6,*) 'Box: ThrB=',ThrB
 #endif
 
-xmin = 1.0D+10
-ymin = 1.0D+10
-zmin = 1.0D+10
-xmax = -1.0D+10
-ymax = -1.0D+10
-zmax = -1.0D+10
+xmin = 1.0e10_wp
+ymin = 1.0e10_wp
+zmin = 1.0e10_wp
+xmax = -1.0e10_wp
+ymax = -1.0e10_wp
+zmax = -1.0e10_wp
 
 ! Establish boundaries
 
@@ -54,28 +59,28 @@ do iAtom=1,mTtAtm
   zmin = min(zmin,Coor(3,iAtom))
   zmax = max(zmax,Coor(3,iAtom))
 end do
-xmin = xmin-1.0D-2
-xmax = xmax+1.0D-2
-ymin = ymin-1.0D-2
-ymax = ymax+1.0D-2
-zmin = zmin-1.0D-2
-zmax = zmax+1.0D-2
+xmin = xmin-1.0e-2_wp
+xmax = xmax+1.0e-2_wp
+ymin = ymin-1.0e-2_wp
+ymax = ymax+1.0e-2_wp
+zmin = zmin-1.0e-2_wp
+zmax = zmax+1.0e-2_wp
 
-Box_Size = 8.0d0  ! a.u.
+Box_Size = Eight  ! a.u.
 nx = max(1,int((xmax-xmin)/Box_Size)+1)
-adjust = (dble(nx)*Box_size-(xmax-xmin))/Two
+adjust = (nx*Box_size-(xmax-xmin))/Two
 xmin = xmin-adjust
 xmax = xmax+adjust
 ny = max(1,int((ymax-ymin)/Box_Size)+1)
-adjust = (dble(ny)*Box_size-(ymax-ymin))/Two
+adjust = (ny*Box_size-(ymax-ymin))/Two
 ymin = ymin-adjust
 ymax = ymax+adjust
 nz = max(1,int((zmax-zmin)/Box_Size)+1)
-adjust = (dble(nz)*Box_size-(zmax-zmin))/Two
+adjust = (nz*Box_size-(zmax-zmin))/Two
 zmin = zmin-adjust
 zmax = zmax+adjust
 #ifdef _DEBUGPRINT_
-write(6,*) 'nx,ny,nz=',nx,ny,nz
+write(u6,*) 'nx,ny,nz=',nx,ny,nz
 #endif
 
 nMax = 100

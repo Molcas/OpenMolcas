@@ -10,28 +10,30 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RF_Coord(nq,nsAtom,iIter,nIter,Cx,Process,value,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,Proc_dB,mB_Tot,mdB_Tot,BM,dBM,iBM, &
+subroutine RF_Coord(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,Proc_dB,mB_Tot,mdB_Tot,BM,dBM,iBM, &
                     idBM,nB_Tot,ndB_Tot,nqB)
 
-use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
-use Slapaf_Info, only: nStab, iCoSet, dMass
+use Symmetry_Info, only: iOper, nIrrep, VarR, VarT
+use Slapaf_Info, only: dMass, iCoSet, nStab
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "stdalloc.fh"
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, &
+                     idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+logical(kind=iwp) :: Process, Proc_dB
+character(len=14) :: qLbl(nB)
 #include "print.fh"
-real*8 Cx(3,nsAtom,nIter), fconst(nB), value(nB,nIter), rMult(nB), Trans(3), RotVec(3), RotMat(3,3), BM(nB_Tot), dBM(ndB_Tot)
-integer nqB(nB), Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
-logical Process, PSPrint, Proc_dB, Invariant
-character*3 TR_type(6)
-character*14 Label, qLbl(nB)
 #include "ddvdt_rf.fh"
-real*8, dimension(:), allocatable :: xMass
-real*8, dimension(:,:), allocatable :: currXYZ, Ref123, Grad, dRVdxyz, Hess
-real*8, dimension(:,:,:), allocatable :: d2RV
-integer, dimension(:), allocatable :: Ind, iDCR
-data TR_type/'Tx ','Ty ','Tz ','Ryz','Rzx','Rxy'/
+integer(kind=iwp) :: i, iAtom, iCent, iDeg, iPrint, iRout, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
+real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), Val
+logical(kind=iwp) :: Invariant, PSPrint
+character(len=14) :: Label
+integer(kind=iwp), allocatable :: iDCR(:), Ind(:)
+real(kind=wp), allocatable :: currXYZ(:,:), d2RV(:,:,:), dRVdxyz(:,:), Grad(:,:), Hess(:,:), Ref123(:,:), xMass(:)
+character(len=*), parameter :: TR_type(6) = ['Tx ','Ty ','Tz ','Ryz','Rzx','Rxy']
 
 iRout = 151
 iPrint = nPrint(iRout)
@@ -46,7 +48,7 @@ if ((.not. VarR) .and. (.not. VarT)) return
 nqRF = 0
 PSPrint = .false.
 if (iPrint >= 99) PSPrint = .true.
-if (PSPrint) write(6,*) ' Enter RF_Coords.'
+if (PSPrint) write(u6,*) ' Enter RF_Coords.'
 
 ! Find nCent and allocate
 
@@ -80,10 +82,10 @@ do iAtom=1,nsAtom
 end do
 
 !Fact = One
-!if (.not. VarR) Fact = 2.0D-2
+!if (.not. VarR) Fact = 2.0e-2_wp
 
-!write(6,*) 'nCent=',nCent
-!write(6,*) (Ind(iCent),iCent=1,nCent)
+!write(u6,*) 'nCent=',nCent
+!write(u6,*) (Ind(iCent),iCent=1,nCent)
 
 TMass = Zero
 do iCent=1,nCent
@@ -115,7 +117,7 @@ do ixyz=1,3
   if (.not. VarT) cycle
 
   iDeg = 1
-  Deg = sqrt(dble(iDeg))
+  Deg = sqrt(real(iDeg,kind=wp))
 
   nq = nq+1
   if (.not. Process) mB_Tot = mB_Tot+mB
@@ -132,7 +134,7 @@ do ixyz=1,3
   call dcopy_(mB,[Zero],0,Grad,1)
   do iCent=1,nCent
     iAtom = Ind(iCent)
-    !write(6,*) 'iAtom,iCOM=',iAtom,iCOM
+    !write(u6,*) 'iAtom,iCOM=',iAtom,iCOM
     Grad(ixyz,iCent) = dMass(iAtom)/TMass
   end do
 # ifdef _DEBUGPRINT_
@@ -152,7 +154,7 @@ do ixyz=1,3
     fconst(nq) = sqrt(Trans_Const)
     rMult(nq) = Deg
 
-    value(nq,iIter) = Val
+    Valu(nq,iIter) = Val
     qLbl(nq) = Label
 
     ! Project the gradient vector
@@ -165,7 +167,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!write(6,*) 'VarR=',VarR
+!write(u6,*) 'VarR=',VarR
 if (VarR) then
 
   ! A la Malmqvist
@@ -205,7 +207,7 @@ if (VarR) then
     kxyz = jxyz+1
     if (kxyz > 3) kxyz = 1
     iDeg = 1
-    Deg = sqrt(dble(iDeg))
+    Deg = sqrt(real(iDeg,kind=wp))
 
     nq = nq+1
     if (.not. Process) mB_Tot = mB_Tot+mB
@@ -239,7 +241,7 @@ if (VarR) then
       fconst(nq) = sqrt(Rot_Const)
       rMult(nq) = Deg
 
-      value(nq,iIter) = Val
+      Valu(nq,iIter) = Val
       qLbl(nq) = Label
 
       ! Project the gradient vector
@@ -250,7 +252,7 @@ if (VarR) then
 
   end do
   call mma_deallocate(d2RV)
-  !write(6,*) 'nqRF=',nqRF
+  !write(u6,*) 'nqRF=',nqRF
 end if
 !                                                                      *
 !***********************************************************************

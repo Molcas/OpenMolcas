@@ -11,13 +11,17 @@
 
 function arSin(Arg)
 
-implicit real*8(a-h,o-z)
-real*8 ArSin
-character*72 Warning
-#include "real.fh"
+use Constants, only: One
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: arSin
+real(kind=wp) :: Arg
+real(kind=wp) :: A
+character(len=72) :: Warning
+real(kind=wp), parameter :: Delta = 1.0e-12_wp
 
 A = Arg
-Delta = 1.0D-12
 if (abs(A) > One) then
   write(Warning,3) A
   if (abs(A) < One+Delta) then

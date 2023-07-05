@@ -11,11 +11,16 @@
 
 subroutine Magic_Bonds(Coor,nAtoms,iTabBonds,nBondMax,nBonds,iTabAtoms,nMax)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Coor(3,nAtoms)
-integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
+use Constants, only: deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtoms, nBondMax, iTabBonds(3,nBondMax), nBonds, nMax, iTabAtoms(2,0:nMax,nAtoms)
+real(kind=wp) :: Coor(3,nAtoms)
 #include "bondtypes.fh"
+integer(kind=iwp) :: iAtom, iBond, iBondType, iCase, jAtom, jBond, jBondType, kAtom, kBond, kNeighbor, nNeighbor_i, nNeighbor_j, &
+                     nNeighbor_k
+real(kind=wp) :: CosFi, CosFi_limit, Fi_limit, rij, rkj, xij, xkj, yij, ykj, zij, zkj
 
 !                                                                      *
 !***********************************************************************
@@ -25,7 +30,7 @@ integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 !***********************************************************************
 !                                                                      *
 
-Fi_limit = (165.0d0/180.d0)*Pi
+Fi_limit = 165.0_wp*deg2rad
 CosFi_limit = cos(Fi_limit)
 do iBond=1,nBonds
   iBondType = iTabBonds(3,iBond)
@@ -66,8 +71,8 @@ do iBond=1,nBonds
 
       CosFi = (xij*xkj+yij*ykj+zij*zkj)/(rij*rkj)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'iAtom,jAtom,kAtom=',iAtom,jAtom,kAtom
-      write(6,*) 'CosFi,CosFi_limit=',CosFi,CosFi_limit
+      write(u6,*) 'iAtom,jAtom,kAtom=',iAtom,jAtom,kAtom
+      write(u6,*) 'CosFi,CosFi_limit=',CosFi,CosFi_limit
 #     endif
 
       ! Observe that this limit should be coordinated with
@@ -76,8 +81,8 @@ do iBond=1,nBonds
       if (CosFi <= CosFi_Limit) then
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Forming a "magic" bond'
-        write(6,*) 'iAtom,kAtom=',iAtom,kAtom
+        write(u6,*) 'Forming a "magic" bond'
+        write(u6,*) 'iAtom,kAtom=',iAtom,kAtom
 #       endif
         ! Double check that this bond is not included already.
         ! If that is the case just update the bond type if it
@@ -93,14 +98,14 @@ do iBond=1,nBonds
 
         if (nBonds+1 > nBondMax) then
           call WarningMessage(2,'Error in Magic_Bonds')
-          write(6,*) 'Magic_Bonds: nBonds > nBondMax'
-          write(6,*) 'iTabBonds:'
+          write(u6,*) 'Magic_Bonds: nBonds > nBondMax'
+          write(u6,*) 'iTabBonds:'
           do kBond=1,nBonds
-            write(6,*)
-            write(6,*) 'kBond=',kBond
-            write(6,*)
-            write(6,*) 'Atoms=',iTabBonds(1,kBond),iTabBonds(2,kBond)
-            write(6,*) 'Bondtype:',iTabBonds(3,kBond)
+            write(u6,*)
+            write(u6,*) 'kBond=',kBond
+            write(u6,*)
+            write(u6,*) 'Atoms=',iTabBonds(1,kBond),iTabBonds(2,kBond)
+            write(u6,*) 'Bondtype:',iTabBonds(3,kBond)
           end do
           call Abend()
         end if
@@ -112,10 +117,10 @@ do iBond=1,nBonds
         nNeighbor_i = iTabAtoms(1,0,iAtom)+1
         if (nNeighbor_i > nMax) then
           call WarningMessage(2,'Error in Magic_Bonds')
-          write(6,*) 'Magic_Bonds: nNeighbor_i > nMax'
-          write(6,*) 'iAtom=',iAtom
-          write(6,*) 'nNeighbor_i=',nNeighbor_i
-          write(6,*) 'nMax=',nMax
+          write(u6,*) 'Magic_Bonds: nNeighbor_i > nMax'
+          write(u6,*) 'iAtom=',iAtom
+          write(u6,*) 'nNeighbor_i=',nNeighbor_i
+          write(u6,*) 'nMax=',nMax
           call Abend()
         end if
         iTabAtoms(1,0,iAtom) = nNeighbor_i
@@ -125,10 +130,10 @@ do iBond=1,nBonds
         nNeighbor_k = iTabAtoms(1,0,kAtom)+1
         if (nNeighbor_k > nMax) then
           call WarningMessage(2,'Error in Magic_Bonds')
-          write(6,*) 'Magic_Bonds: nNeighbor_k > nMax'
-          write(6,*) 'kAtom=',kAtom
-          write(6,*) 'nNeighbor_k=',nNeighbor_k
-          write(6,*) 'nMax=',nMax
+          write(u6,*) 'Magic_Bonds: nNeighbor_k > nMax'
+          write(u6,*) 'kAtom=',kAtom
+          write(u6,*) 'nNeighbor_k=',nNeighbor_k
+          write(u6,*) 'nMax=',nMax
           call Abend()
         end if
         iTabAtoms(1,0,kAtom) = nNeighbor_k

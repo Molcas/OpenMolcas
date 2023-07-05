@@ -23,32 +23,36 @@ subroutine Def_CtoF(lNew)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "Molcas.fh"
-character Labels*8, type*6, Temp*120, Line*120, format*8, filnam*16
-logical lNew
-integer, allocatable :: Ind(:,:)
-real*8, allocatable :: xyz(:,:), Temp2(:,:), Mass(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp) :: lNew
+integer(kind=iwp) :: i1, i2, i3, iEnd, iFrst, jEnd, Lu_UDIC, mCntr, msAtom, nCntr, neq, nGo, nTemp
+real(kind=wp) :: Tmp
+character(len=120) :: Line, Temp
+character(len=16) :: filnam
+character(len=8) :: Frmt, Labels
+character(len=6) :: Typ
+integer(kind=iwp), allocatable :: Ind(:,:)
+real(kind=wp), allocatable :: Mass(:,:), Temp2(:,:), xyz(:,:)
 
 nTemp = len(Temp)
-write(format,'(A,I3.3,A)') '(F',nTemp,'.0)'
+write(Frmt,'(A,I3.3,A)') '(F',nTemp,'.0)'
 
 Lu_UDIC = 91
 filnam = 'UDIC'
 call molcas_open(Lu_UDIC,filnam)
 !open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 rewind(Lu_UDIC)
-write(6,*)
-write(6,*) '****************************************************************'
+write(u6,*)
+write(u6,*) '****************************************************************'
 if (lNew) then
-  write(6,*) '* New value of the internal coordinate to follow               *'
+  write(u6,*) '* New value of the internal coordinate to follow               *'
 else
-  write(6,*) '* Original value of the internal coordinate to follow          *'
+  write(u6,*) '* Original value of the internal coordinate to follow          *'
 end if
-write(6,*) '****************************************************************'
+write(u6,*) '****************************************************************'
 
 ! Step 1. BSet up the b vectors from which we will define the
 ! internal coordinates.
@@ -63,10 +67,10 @@ call UpCase(Temp)
 neq = index(Line,'=')
 if (neq == 0) then
   call WarningMessage(2,'Error in Def_CTOF')
-  write(6,'(A)') '***********************************'
-  write(6,'(A)') ' Syntax error in line :            '
-  write(6,'(A)') Line(1:33),'...'
-  write(6,'(A)') '***********************************'
+  write(u6,'(A)') '***********************************'
+  write(u6,'(A)') ' Syntax error in line :            '
+  write(u6,'(A)') Line(1:33),'...'
+  write(u6,'(A)') '***********************************'
   call Quit_OnUserError()
 else
   iFrst = 1
@@ -75,11 +79,11 @@ else
   if (Line(iEnd:iEnd) == '=') jEnd = jEnd-1
   if (jEnd-iFrst+1 > 8) then
     call WarningMessage(2,'Error in Def_CTOF')
-    write(6,'(A)') '***********************************'
-    write(6,'(A)') ' Syntax error in line :            '
-    write(6,'(A)') Line(1:33),'...'
-    write(6,'(A,A)') Line(iFrst:jEnd),' has more than 8 character'
-    write(6,'(A)') '***********************************'
+    write(u6,'(A)') '***********************************'
+    write(u6,'(A)') ' Syntax error in line :            '
+    write(u6,'(A)') Line(1:33),'...'
+    write(u6,'(A,A)') Line(iFrst:jEnd),' has more than 8 character'
+    write(u6,'(A)') '***********************************'
     call Quit_OnUserError()
   end if
   Labels = Line(iFrst:jEnd)
@@ -95,76 +99,76 @@ if (index(Temp,'CART') /= 0) then
   if (index(Temp(nGo:nTemp),'X') /= 0) then
     nGo = nGo-1+index(Temp(nGo:nTemp),'X')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'X     '
+    Typ = 'X     '
   else if (index(Temp(nGo:nTemp),'Y') /= 0) then
     nGo = nGo-1+index(Temp(nGo:nTemp),'Y')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'Y     '
+    Typ = 'Y     '
   else if (index(Temp(nGo:nTemp),'Z') /= 0) then
     nGo = nGo-1+index(Temp(nGo:nTemp),'Z')
     nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-    type = 'Z     '
+    Typ = 'Z     '
   else
     nGo = -1
     call WarningMessage(2,'Error in Def_CTOF')
-    write(6,*) 'DefInt: wrong cartesian type'
-    write(6,'(A,A)') 'Temp=',Temp
+    write(u6,*) 'DefInt: wrong cartesian type'
+    write(u6,'(A,A)') 'Temp=',Temp
     call Quit_OnUserError()
   end if
 else if (index(Temp,'BOND') /= 0) then
   nCntr = 2
   nGo = index(Temp,'BOND')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'STRTCH'
+  Typ = 'STRTCH'
 else if (index(Temp,'LANGLE(2)') /= 0) then
   nCntr = 3
   nGo = index(Temp,'LANGLE(2)')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'LBEND2'
+  Typ = 'LBEND2'
 else if (index(Temp,'LANGLE(1)') /= 0) then
   nCntr = 3
   nGo = index(Temp,'LANGLE(1)')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'LBEND1'
+  Typ = 'LBEND1'
 else if (index(Temp,'ANGL') /= 0) then
   nCntr = 3
   nGo = index(Temp,'ANGL')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'BEND  '
+  Typ = 'BEND  '
 else if (index(Temp,'DIHE') /= 0) then
   nCntr = 4
   nGo = index(Temp,'DIHE')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'TRSN  '
+  Typ = 'TRSN  '
 else if (index(Temp,'OUTO') /= 0) then
   nCntr = 4
   nGo = index(Temp,'OUTO')
   nGo = nGo-1+index(Temp(nGo:nTemp),' ')
-  type = 'OUTOFP'
+  Typ = 'OUTOFP'
 else if (index(Temp,'DISS') /= 0) then
   i1 = index(Line,'(')
   i2 = index(Line,'+')
   i3 = index(Line,')')
   if ((i1 >= i2) .or. (i2 >= i3)) then
     call WarningMessage(2,'Error in Def_CTOF')
-    write(6,*) ' Line contains syntax error!'
-    write(6,'(A)') Line
-    write(6,*) i1,i2,i3
+    write(u6,*) ' Line contains syntax error!'
+    write(u6,'(A)') Line
+    write(u6,*) i1,i2,i3
     call Quit_OnUserError()
   end if
   nGo = i3+1
   Temp = Line(i1+1:i2-1)
-  read(Temp,format) Tmp
+  read(Temp,Frmt) Tmp
   nCntr = nint(Tmp)
   Temp = Line(i2+1:i3-1)
-  read(Temp,format) Tmp
+  read(Temp,Frmt) Tmp
   mCntr = nint(Tmp)
-  type = 'DISSOC'
+  Typ = 'DISSOC'
 else
   nGo = -1
   call WarningMessage(2,'Error in Def_CTOF')
-  write(6,*) ' Line contains syntax error!'
-  write(6,'(A)') Line
+  write(u6,*) ' Line contains syntax error!'
+  write(u6,'(A)') Line
   call Quit_OnUserError()
 end if
 
@@ -174,7 +178,7 @@ call mma_allocate(Temp2,3,msAtom,Label='Temp2')
 call mma_allocate(Ind,2,msAtom,Label='Ind')
 call mma_allocate(Mass,2,msAtom,Label='Mass')
 
-call CllCtoF(Line(nGo:nTemp),nCntr,mCntr,xyz,Temp2,Ind,type,Mass,Labels)
+call CllCtoF(Line(nGo:nTemp),nCntr,mCntr,xyz,Temp2,Ind,Typ,Mass,Labels)
 
 call mma_deallocate(Mass)
 call mma_deallocate(Ind)

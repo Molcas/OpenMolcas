@@ -12,11 +12,15 @@
 subroutine AtmLst(Cart,nAtom,Coor,mAtom)
 
 use Symmetry_Info, only: nIrrep, iOper
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Cart(3,nAtom), Coor(3,mAtom), r(3)
-logical New
+implicit none
+integer(kind=iwp) :: nAtom, mAtom
+real(kind=wp) :: Cart(3,nAtom), Coor(3,mAtom)
+integer(kind=iwp) :: iAtom, iEnd, ig, iGo, iSt
+real(kind=wp) :: r(3), x, y, z
+logical(kind=iwp) :: New
 
 !call RecPrt(' In AtmLst:Cart',' ',Cart,3,nAtom)
 

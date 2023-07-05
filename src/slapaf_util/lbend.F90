@@ -11,21 +11,28 @@
 
 subroutine LBend(Cent,nCent,Fir,Bf,lWrite,Label,dBf,ldB,Axis,Perp_Axis1,Force)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One, Two, Pi, deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: Cent(3,3), Fir, Bf(3,nCent), dBf(3,nCent,3,nCent), Axis(3), Perp_Axis1(3)
+logical(kind=iwp) :: lWrite, ldB, Force
+character(len=8) :: Label
 #include "print.fh"
-real*8 Bf(3,nCent), xxx(3,3), dBf(3,nCent,3,nCent), BRij(3,2), dBRij(3,2,3,2), BRjk(3,2), dBRjk(3,2,3,2), Fir, uMtrx(3,3), &
-       uVec(3,3), Scr1(3,3), Scr2(3,3), Axis(3), Perp_Axis1(3), Cent(3,3)
-logical lWrite, ldB, Linear, Force
-character*8 Label
+integer(kind=iwp) :: i, iPrint, iRout, j, Lu, mCent, Middle
+real(kind=wp) :: Bfi1, Bfi3, Bfj1, Bfj3, BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3,2,3,2), dBRjk(3,2,3,2), dFir, R1, R2, R3, Rij1, &
+                 Rjk1, Scr1(3,3), Scr2(3,3), Si, uMtrx(3,3), uVec(3,3), xxx(3,3)
+logical(kind=iwp) :: Linear
+real(kind=wp), external :: ArCos, ArSin
 
 iRout = 220
 iPrint = nPrint(iRout)
 
-Lu = 6
+Lu = u6
 
 if (iPrint >= 99) then
-  write(6,*) 'LBend: Force ',Force
+  write(u6,*) 'LBend: Force ',Force
   call RecPrt('LBend: Axis',' ',Axis,3,1)
   call RecPrt('LBend: Perp_Axis1',' ',Perp_Axis1,3,1)
 end if
@@ -36,7 +43,7 @@ call dcopy_(3,[Zero],0,uVec(1,3),1)
 
 ! Project the coordinates to the plane
 
-call DGEMM_('T','N',3,3,3,1.0d0,uVec,3,Cent,3,0.0d0,xxx,3)
+call DGEMM_('T','N',3,3,3,One,uVec,3,Cent,3,Zero,xxx,3)
 xxx(3,1) = Zero
 xxx(3,2) = Zero
 xxx(3,3) = Zero
@@ -85,16 +92,16 @@ Linear = .true.
 if (iPrint >= 99) then
   call RecPrt('BRij','(3F24.12)',BRij,3,2)
   call RecPrt('BRjk','(3F24.12)',BRjk,3,2)
-  write(6,*) ' Rij1=',Rij1
-  write(6,*) ' Rjk1=',Rjk1
-  write(6,*) ' Diff=',abs(ArCos(Co)-Pi)
-  write(6,'(A,F24.16)') ' Co=',Co
-  write(6,'(A,F24.16)') ' Crap=',Crap
+  write(u6,*) ' Rij1=',Rij1
+  write(u6,*) ' Rjk1=',Rjk1
+  write(u6,*) ' Diff=',abs(ArCos(Co)-Pi)
+  write(u6,'(A,F24.16)') ' Co=',Co
+  write(u6,'(A,F24.16)') ' Crap=',Crap
 end if
 
 ! Special care for cases close to linearity
 
-if (Crap < 1.0D-4) then
+if (Crap < 1.0e-4_wp) then
   Si = Crap
   if (Co < Zero) then
     Fir = Pi-ArSin(Si)
@@ -107,15 +114,15 @@ else
   Si = sqrt(One-Co**2)
 end if
 
-!if (abs(Fir-Pi) > 1.0D-13) then
-if (abs(Si) > 1.0D-13) then
+!if (abs(Fir-Pi) > 1.0e-13_wp) then
+if (abs(Si) > 1.0e-13_wp) then
   if (iPrint >= 99) write(Lu,*) ' LBend: Use nonlinear formulae'
   Linear = .false.
 else
   if (iPrint >= 99) write(Lu,*) ' LBend: Use linear formulae'
 end if
 
-dFir = 180.0d0*Fir/Pi
+dFir = Fir/deg2rad
 if (lWrite) then
   write(Lu,'(1X,A,A,F10.6,A,F12.8,A)') Label,' : Projected Angle=',dFir,'/degree, ',Fir,'/rad'
 end if
@@ -128,7 +135,7 @@ else
     uMtrx(i,1) = (Co*BRij(i,1)-BRjk(i,2))/(Si*Rij1)
   end do
 end if
-call DGEMM_('N','N',3,1,3,1.0d0,uVec,3,uMtrx,3,0.0d0,Scr2,3)
+call DGEMM_('N','N',3,1,3,One,uVec,3,uMtrx,3,Zero,Scr2,3)
 Bf(1,1) = Scr2(1,1)
 Bf(2,1) = Scr2(2,1)
 Bf(3,1) = Scr2(3,1)
@@ -141,7 +148,7 @@ else
     uMtrx(i,1) = (Co*BRjk(i,2)-BRij(i,1))/(Si*Rjk1)
   end do
 end if
-call DGEMM_('N','N',3,1,3,1.0d0,uVec,3,uMtrx,3,0.0d0,Scr2,3)
+call DGEMM_('N','N',3,1,3,One,uVec,3,uMtrx,3,Zero,Scr2,3)
 Bf(1,3) = Scr2(1,1)
 Bf(2,3) = Scr2(2,1)
 Bf(3,3) = Scr2(3,1)
@@ -175,8 +182,8 @@ if (ldB) then
       end do
     end do
   end if
-  call DGEMM_('N','T',3,3,3,1.0d0,uMtrx,3,uVec,3,0.0d0,Scr1,3)
-  call DGEMM_('N','N',3,3,3,1.0d0,uVec,3,Scr1,3,0.0d0,Scr2,3)
+  call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
+  call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
   dBf(1,1,1,1) = Scr2(1,1)
   dBf(2,1,1,1) = Scr2(2,1)
   dBf(2,1,2,1) = Scr2(2,2)
@@ -209,8 +216,8 @@ if (ldB) then
       end do
     end do
   end if
-  call DGEMM_('N','T',3,3,3,1.0d0,uMtrx,3,uVec,3,0.0d0,Scr1,3)
-  call DGEMM_('N','N',3,3,3,1.0d0,uVec,3,Scr1,3,0.0d0,Scr2,3)
+  call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
+  call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
   dBf(1,1,1,3) = Scr2(1,1)
   dBf(2,1,1,3) = Scr2(2,1)
   dBf(2,1,2,3) = Scr2(2,2)
@@ -243,8 +250,8 @@ if (ldB) then
       end do
     end do
   end if
-  call DGEMM_('N','T',3,3,3,1.0d0,uMtrx,3,uVec,3,0.0d0,Scr1,3)
-  call DGEMM_('N','N',3,3,3,1.0d0,uVec,3,Scr1,3,0.0d0,Scr2,3)
+  call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
+  call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
   dBf(1,3,1,1) = Scr2(1,1)
   dBf(2,3,1,1) = Scr2(2,1)
   dBf(2,3,2,1) = Scr2(2,2)
@@ -272,8 +279,8 @@ if (ldB) then
       end do
     end do
   end if
-  call DGEMM_('N','T',3,3,3,1.0d0,uMtrx,3,uVec,3,0.0d0,Scr1,3)
-  call DGEMM_('N','N',3,3,3,1.0d0,uVec,3,Scr1,3,0.0d0,Scr2,3)
+  call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
+  call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
   dBf(1,3,1,3) = Scr2(1,1)
   dBf(2,3,1,3) = Scr2(2,1)
   dBf(2,3,2,3) = Scr2(2,2)

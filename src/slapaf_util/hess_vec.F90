@@ -11,9 +11,15 @@
 
 subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Hess(3*nAtoms*(3*nAtoms+1)/2), EVec((3*mAtoms)**2)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, mAtoms, nDim
+real(kind=wp) :: Hess(3*nAtoms*(3*nAtoms+1)/2), EVec((3*mAtoms)**2)
+integer(kind=iwp) :: iElem, ij, iQ, nQ
+real(kind=wp) :: rZ
+real(kind=wp), parameter :: ThrD = 1.0e-10_wp
 
 !                                                                      *
 !***********************************************************************
@@ -33,16 +39,15 @@ call dcopy_(nQ,[One],0,EVec,nQ+1)
 call NIDiag_new(Hess,EVec,nQ,nQ)
 call JacOrd(Hess,EVec,nQ,nQ)
 
-ThrD = 1.0D-10
 do iQ=1,nQ
   ! Fix standard direction.
-  rZ = 0.0d0
+  rZ = Zero
   do iElem=1,nQ
     ij = (iQ-1)*nQ+iElem
     if (abs(EVec(ij)) > abs(rZ)+ThrD) rZ = EVec(ij)
   end do
   ij = (iQ-1)*nQ+1
-  if (rZ < 0.0d0) call DScal_(nQ,-One,EVec(ij),1)
+  if (rZ < Zero) call DScal_(nQ,-One,EVec(ij),1)
 end do
 !                                                                      *
 !***********************************************************************

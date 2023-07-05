@@ -29,20 +29,27 @@ subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 !     Remove references to work, Roland Lindh                          *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-integer nInter
-real*8 H(nInter,nInter), g(nInter), dq(nInter)
-character UpMeth*6, Step_Trunc*1
-real*8 StepMax
-! Local variables
-real*8, dimension(:), allocatable :: Tmp, Val, Matrix
-real*8, dimension(:,:), allocatable :: Vec
-logical Iterate, Restart
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nInter
+real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax, Thr_RS
+character(len=6) :: UpMeth
+character :: Step_Trunc
+integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, jj, Lu, NumVal
+real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, Dist, dqdq, dqdq_long, dqdq_short, EigVal, Fact, VV, ZZ
+logical(kind=iwp) :: Iterate, Restart
+real(kind=wp), allocatable :: Matrix(:), Val(:), Vec(:,:), Tmp(:)
+#define _CHECK_UPDATE_
+#ifdef _CHECK_UPDATE_
+real(kind=wp), parameter :: Thr_Check = 1.0e2_wp
+#endif
+real(kind=wp), external :: DDot_
 
 UpMeth = 'RS-RFO'
-Lu = 6
+Lu = u6
 !#define _DEBUGPRINT_
 !#define _DEBUG2_
 #ifdef _DEBUGPRINT_
@@ -66,8 +73,8 @@ call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
 call mma_allocate(Tmp,nInter+1,Label='Tmp')
 
-Vec(:,:) = 0.0d0
-Tmp(:) = 0.0
+Vec(:,:) = Zero
+Tmp(:) = Zero
 do
   Iter = Iter+1
 # ifdef _DEBUG2_
@@ -116,19 +123,19 @@ do
   call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
 # endif
   iRoot = -1
-  Dist = 1.0d99
+  Dist = 1.0e99_wp
   do iVal=1,NumVal
-    if (Vec(nInter+1,iVal) == 0.0d0) cycle
+    if (Vec(nInter+1,iVal) == Zero) cycle
     VV = DDot_(nInter,Vec(1,iVal),1,Vec(1,iVal),1)
     ZZ = VV/A_RFO+Vec(nInter+1,iVal)**2
     Fact = Vec(nInter+1,iVal)/sqrt(ZZ)
     dqdq = VV/(A_RFO*Fact**2*ZZ)
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'iVal,A_RFO=',iVal,A_RFO
-    write(6,*) 'ZZ=',ZZ
-    write(6,*) 'Fact=',Fact
-    write(6,*) 'dqdq=',dqdq
+    write(u6,*)
+    write(u6,*) 'iVal,A_RFO=',iVal,A_RFO
+    write(u6,*) 'ZZ=',ZZ
+    write(u6,*) 'Fact=',Fact
+    write(u6,*) 'dqdq=',dqdq
 #   endif
     if (dqdq < Dist) then
       iRoot = iVal
@@ -136,8 +143,8 @@ do
     end if
   end do
   if (iRoot == -1) then
-    write(6,*)
-    write(6,*) 'RS-RFO: Illegal iroot value!'
+    write(u6,*)
+    write(u6,*) 'RS-RFO: Illegal iroot value!'
     call Abend()
   end if
   call dcopy_(nInter+1,Vec(1,iRoot),1,Tmp,1)
@@ -176,10 +183,10 @@ do
 
   call DScal_(nInter,One/Fact,dq,1)
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'iRoot=',iRoot
-  write(6,*) 'ZZ=',ZZ
-  write(6,*) 'Fact=',Fact
+  write(u6,*)
+  write(u6,*) 'iRoot=',iRoot
+  write(u6,*) 'ZZ=',ZZ
+  write(u6,*) 'Fact=',Fact
 # endif
 
   ! Compute lambda_i according to Eq. (8a)
@@ -254,11 +261,10 @@ call RecPrt(' In RS_RFO:dq',' ',dq,nInter,1)
 #endif
 #define _CHECK_UPDATE_
 #ifdef _CHECK_UPDATE_
-Thr_Check = 1.0d2
 do i=1,nInter
   if (abs(dq(i)) > Thr_Check) then
-    write(6,*) 'RS_RFO: ABS(dq(i)) > Thr_Check'
-    write(6,*) '        Probably an error.'
+    write(u6,*) 'RS_RFO: ABS(dq(i)) > Thr_Check'
+    write(u6,*) '        Probably an error.'
     call Abend()
   end if
 end do
@@ -267,8 +273,8 @@ end do
 call mma_deallocate(Vec)
 call mma_deallocate(Val)
 call mma_deallocate(Matrix)
-!write(6,*) 'dqdq=',dqdq,dqdq**2
-!write(6,*) 'StepMax=',StepMax,StepMax**2
+!write(u6,*) 'dqdq=',dqdq,dqdq**2
+!write(u6,*) 'StepMax=',StepMax,StepMax**2
 !write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
 !write(Lu,*) dqdq < StepMax
 

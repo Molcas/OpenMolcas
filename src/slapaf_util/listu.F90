@@ -24,11 +24,13 @@ subroutine ListU(Lu,Lbl,gq,mInt,nIter)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 gq(mInt,nIter)
-character Lbl(mInt)*8
-#include "print.fh"
-#include "real.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lu, mInt, nIter
+character(len=8) :: Lbl(mInt)
+real(kind=wp) :: gq(mInt,nIter)
+integer(kind=iwp) :: igq
 
 write(Lu,*)
 write(Lu,*) '****************************'

@@ -11,14 +11,16 @@
 
 subroutine mk_G(G,GInv,nDimBC)
 
-use Slapaf_Info, only: dMass, Degen, Smmtrc
 use Slapaf_Parameters, only: Curvilinear, User_Def
+use Slapaf_Info, only: Degen, dMass, Smmtrc
+use Constants, only: Zero, One, uToau
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants2.fh"
-real*8 G(nDimBC,nDimBC), GInv(nDimBC,nDimBC)
-logical Auto
+implicit none
+integer(kind=iwp) :: nDimBC
+real(kind=wp) :: G(nDimBC,nDimBC), GInv(nDimBC,nDimBC)
+integer(kind=iwp) :: i, ii, ix, nsAtom
+logical(kind=iwp) :: Auto
 
 Auto = .not. User_Def
 nsAtom = size(Smmtrc,2)

@@ -21,12 +21,16 @@ subroutine NmHess(dq,nInter,g,nIter,Hess,Delta,q,FEq,Cubic,DipM,dDipM)
 !             May '92                                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 dq(nInter,nIter), g(nInter,nIter), Hess(nInter,nInter), q(nInter,nIter+1), FEq(nInter,nInter,nInter), DipM(3,nIter), &
-       dDipM(3,nInter)
-logical Cubic
+use Constants, only: Two, Six
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nInter, nIter
+real(kind=wp) :: dq(nInter,nIter), g(nInter,nIter), Hess(nInter,nInter), Delta, q(nInter,nIter+1), FEq(nInter,nInter,nInter), &
+                 DipM(3,nIter), dDipM(3,nInter)
+logical(kind=iwp) :: Cubic
 #include "print.fh"
-#include "real.fh"
+integer(kind=iwp) :: iCount, iInter, iPrint, iRout, jInter, kInter, kIter, kIter1, kIter2, kIter3, kIter4
 
 iRout = 181
 iPrint = nPrint(iRout)
@@ -45,7 +49,7 @@ do iInter=1,nInter
   kIter = 1+(iInter-1)*2
   kIter1 = kIter+1
   kIter2 = kIter+2
-  !write(6,*) kIter1,kIter2
+  !write(u6,*) kIter1,kIter2
   dDipM(1,iInter) = (DipM(1,kIter1)-DipM(1,kIter2))/(Two*Delta)
   dDipM(2,iInter) = (DipM(2,kIter1)-DipM(2,kIter2))/(Two*Delta)
   dDipM(3,iInter) = (DipM(3,kIter1)-DipM(3,kIter2))/(Two*Delta)
@@ -65,7 +69,7 @@ do iInter=1,nInter
     kIter = 1+(jInter-1)*2
     kIter1 = kIter+1
     kIter2 = kIter+2
-    !write(6,*) iInter,jInter,kIter1,kIter2
+    !write(u6,*) iInter,jInter,kIter1,kIter2
     ! Observe the sign convention due to the use of forces
     ! rather than gradients!!!
     Hess(iInter,jInter) = -(g(iInter,kIter1)-g(iInter,kIter2))/(Two*Delta)

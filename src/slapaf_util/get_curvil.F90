@@ -14,12 +14,17 @@ subroutine Get_CurviL(nq,nqRF,nqB,nqA,nqT,nqO,nsAtom,iIter,nIter,Cx,Process,valu
                       Grad_all,iGlow,iGhi,Proc_dB,iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM, &
                       nB_Tot,ndB_Tot,mqB,Thr_small)
 
-implicit real*8(a-h,o-z)
-real*8 Cx(3,nsAtom,nIter), fconst(nB), value(nB,nIter), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
-integer Indq(3,nB), iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms), iTabAI(2,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
-logical Process, Proc_dB
-character(len=14) qLbl(nB)
-#include "Molcas.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nq, nqRF, nqB, nqA, nqT, nqO, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, iGlow, iGhi, nBonds, &
+                     iTabBonds(3,nBonds), nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms), iTabAI(2,mAtoms), mB_Tot, mdB_Tot, nB_Tot, &
+                     iBM(nB_Tot), ndB_Tot, idBM(2,ndB_Tot), mqB(nB)
+real(kind=wp) :: Cx(3,nsAtom,nIter), value(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), &
+                 dBM(ndB_Tot), Thr_small
+logical(kind=iwp) :: Process, Proc_dB
+character(len=14) :: qLbl(nB)
+integer(kind=iwp) :: nq_
 
 !                                                                      *
 !***********************************************************************

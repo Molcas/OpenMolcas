@@ -33,11 +33,15 @@
 
 subroutine Add_Vector(n,m,Sub,Vec,Thr)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, m, i
-real*8 Sub(n,m+1), Vec(n), Thr, Aux, DDot_
-external ddot_
-#include "real.fh"
+integer(kind=iwp) :: n, m
+real(kind=wp) :: Sub(n,m+1), Vec(n), Thr
+integer(kind=iwp) :: i
+real(kind=wp) :: Aux
+real(kind=wp), external :: DDot_
 
 do i=1,m
   Aux = DDot_(n,Sub(1,i),1,Vec,1)

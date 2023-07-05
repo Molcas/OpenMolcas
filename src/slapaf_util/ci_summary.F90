@@ -14,18 +14,20 @@
 
 subroutine CI_Summary(Lu)
 
-use Slapaf_Info, only: Gx, Gx0, NAC, Energy
+use Slapaf_Info, only: Energy, Gx, Gx0, NAC
 use Slapaf_Parameters, only: CallLast, iter
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lu, n, i
-real*8, dimension(:), allocatable :: g, h, tmp
-real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h, st, srel, shead, peaked, bif, aux
-real*8, external :: dDot_
-character(Len=2) LabA
-character(Len=40) Description
-#include "stdalloc.fh"
-#include "real.fh"
+integer(kind=iwp) :: Lu
+integer(kind=iwp) :: i, n
+real(kind=wp) :: aux, beta_ang, bif, deltagh, dgh, gg, gh, hh, norm_g, norm_h, peaked, sg, sh, shead, srel, st
+character(len=40) :: Description
+character(len=2) :: LabA
+real(kind=wp), allocatable :: g(:), h(:), tmp(:)
+real(kind=wp), external :: dDot_
 
 n = 3*size(Gx,2)
 call mma_Allocate(g,n)
@@ -49,12 +51,12 @@ gg = dDot_(n,g,1,g,1)
 hh = dDot_(n,h,1,h,1)
 norm_g = sqrt(gg)
 norm_h = sqrt(hh)
-if (norm_g > 1.0D-12) then
+if (norm_g > 1.0e-12_wp) then
   call dScal_(n,One/norm_g,g,1)
 else
   call dCopy_(n,[Zero],0,g,1)
 end if
-if (norm_h > 1.0D-12) then
+if (norm_h > 1.0e-12_wp) then
   call dScal_(n,One/norm_h,h,1)
 else
   call dCopy_(n,[Zero],0,h,1)
@@ -86,12 +88,12 @@ st = sqrt(sg**2+sh**2)
 dgh = sqrt((gg+hh)/Two)
 LabA = ''
 deltagh = gg-hh
-if ((gg+hh) > 1.0D-12) then
+if ((gg+hh) > 1.0e-12_wp) then
   deltagh = deltagh/(gg+hh)
 else
   LabA = ' *'
 end if
-if (dgh > 1.0D-12) then
+if (dgh > 1.0e-12_wp) then
   srel = st/dgh
 else
   srel = Zero

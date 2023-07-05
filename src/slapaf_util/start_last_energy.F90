@@ -12,22 +12,25 @@
 subroutine Start_Last_Energy()
 
 use RunFile_procedures, only: Get_Coord_New
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-character*16 StdIn
-character*8 Method
+implicit none
 #include "print.fh"
-#include "stdalloc.fh"
-logical Saddle, FoundLastEn
-real*8, dimension(:,:), allocatable :: CN
+integer(kind=iwp) :: iGO, lengthlast, LuInput, nCoord, nSaddle
+logical(kind=iwp) :: FoundLastEn, Saddle
+character(len=16) :: StdIn
+character(len=8) :: Method
+real(kind=wp), allocatable :: CN(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (nPrint(1) >= 6) then
-  write(6,*)
-  write(6,*) ' Slapaf requests the last energy to be computed!'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Slapaf requests the last energy to be computed!'
+  write(u6,*)
 end if
 
 LuInput = 11

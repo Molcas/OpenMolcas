@@ -33,15 +33,12 @@ real(kind=wp), parameter :: Thr = 1.0e-6_wp
 !                                                                      *
 interface
   subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    integer nCent
-    real*8 xyz(3,nCent)
-    real*8, allocatable, target :: OfRef(:,:)
-    real*8 RR0
-    real*8 Bf(3,nCent)
-    logical l_Write
-    character(len=8) Label
-    real*8 dBf(3,nCent,3,nCent)
-    logical ldB
+    import :: wp, iwp
+    integer(kind=iwp) :: nCent
+    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
+    real(kind=wp), allocatable, target :: OfRef(:,:)
+    logical(kind=iwp) :: l_Write, ldB
+    character(len=8) :: Label
   end subroutine SphInt
 end interface
 

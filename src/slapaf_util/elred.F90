@@ -11,13 +11,19 @@
 
 subroutine ElRed(Bmtrx,nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,Scrt,g12K,Thr)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Bmtrx(nq,nx), Gmtrx(nq,nq), EVec(nq,nq), EVal(nq*(nq+1)/2), uMtrx(nX), Scrt(nq,nX)
-logical g12K, Diagonal
-real*8, parameter :: Zero_Approx = 0.1D-9
-real*8, allocatable :: Work(:), W(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nq, nx, nK
+real(kind=wp) :: Bmtrx(nq,nx), Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), uMtrx(nX), Scrt(nq,nX), Thr
+logical(kind=iwp) :: g12K
+integer(kind=iwp) :: i, ii, ijTri, Info, iQ, j, LDZ, N
+real(kind=wp) :: rSum
+logical(kind=iwp) :: Diagonal
+real(kind=wp), allocatable :: W(:), Work(:)
+real(kind=wp), parameter :: Zero_Approx = 1.0e-10_wp
 
 !                                                                      *
 !***********************************************************************
@@ -29,7 +35,7 @@ real*8, allocatable :: Work(:), W(:)
 
 do i=1,nq
   do j=1,nx
-    if (abs(Bmtrx(i,j)) < 1.0D-10) Bmtrx(i,j) = Zero
+    if (abs(Bmtrx(i,j)) < 1.0e-10_wp) Bmtrx(i,j) = Zero
   end do
 end do
 
@@ -50,21 +56,21 @@ do j=1,nX
     Scrt(i,j) = BMtrx(i,j)*umtrx(j)
   end do
 end do
-call DGEMM_('N','T',nq,nq,nX,1.0d0,Scrt,nq,Bmtrx,nq,0.0d0,Gmtrx,nq)
+call DGEMM_('N','T',nq,nq,nX,One,Scrt,nq,Bmtrx,nq,Zero,Gmtrx,nq)
 
 Diagonal = .true.
 do i=1,nq
-  Sum = 0.0d0
+  rSum = Zero
   do j=1,nq
-    if (abs(Gmtrx(i,j)) < 1.0D-10) Gmtrx(i,j) = Zero
-    if (j /= i) Sum = Sum+GMtrx(i,j)
+    if (abs(Gmtrx(i,j)) < 1.0e-10_wp) Gmtrx(i,j) = Zero
+    if (j /= i) rSum = rSum+GMtrx(i,j)
   end do
-  Diagonal = Diagonal .and. (Sum == 0.0d0)
+  Diagonal = Diagonal .and. (rSum == Zero)
 end do
 
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed: The G Matrix (nq x nq)','(5e21.12)',Gmtrx,nq,nq)
-write(6,*) 'Diagonal=',Diagonal
+write(u6,*) 'Diagonal=',Diagonal
 #endif
 
 ! Set up a unit matrix
@@ -99,8 +105,8 @@ if (.not. Diagonal) then
   Info = 0
   call dspev_('V','U',N,Eval,W,EVec,LDZ,Work,Info)
   if (Info /= 0) then
-    write(6,*) 'Info /= 0'
-    write(6,*) 'Info=',Info
+    write(u6,*) 'Info /= 0'
+    write(u6,*) 'Info=',Info
     call Abend()
   end if
   call FZero(EVal,N*(N+1)/2)
@@ -111,13 +117,13 @@ if (.not. Diagonal) then
   call mma_deallocate(W)
   call mma_deallocate(Work)
 end if
-call DScal_(nQ*(nQ+1)/2,-1.0d0,EVal,1)
+call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
 call JacOrd(EVal,EVec,nQ,nQ)
 !Fix standard direction.
 do iQ=1,nQ
   call VecPhase(EVec(1,iQ),nQ)
 end do
-call DScal_(nQ*(nQ+1)/2,-1.0d0,EVal,1)
+call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
 call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)

@@ -11,15 +11,19 @@
 
 subroutine dBuu(uM12,nQQ,nDim,g,Hss,Inv)
 
+use Slapaf_Parameters, only: mq
 use Slapaf_Info, only: dBM, idBM, nqBM
-use Slapaf_parameters, only: mq
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 uM12(nDim), g(nQQ), Hss(nDim,nDim)
-logical Inv
-real*8, allocatable :: Y(:), K(:,:), Temp(:,:)
+implicit none
+integer(kind=iwp) :: nQQ, nDim
+real(kind=wp) :: uM12(nDim), g(nQQ), Hss(nDim,nDim)
+logical(kind=iwp) :: Inv
+integer(kind=iwp) :: i, i_Dim, idB, iElem, iq, iQQ, j, jDim, nElem
+real(kind=wp) :: dBqR, xx, YqR
+real(kind=wp), allocatable :: K(:,:), Temp(:,:), Y(:)
 
 if (.not. allocated(dBM)) then
   Hss(:,:) = Zero
@@ -49,9 +53,9 @@ do iq=1,mq
   nElem = nqBM(iq)
   do iElem=idB,idB+(nElem**2)-1
     dBqR = dBM(iElem)
-    iDim = idBM(1+(iElem-1)*2)
+    i_Dim = idBM(1+(iElem-1)*2)
     jDim = idBM(2+(iElem-1)*2)
-    Temp(iDim,jDim) = Temp(iDim,jDim)+YqR*dBqR
+    Temp(i_Dim,jDim) = Temp(i_Dim,jDim)+YqR*dBqR
   end do
   idB = idB+nElem**2
 end do

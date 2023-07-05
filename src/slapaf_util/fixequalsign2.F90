@@ -9,12 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FixEqualSign2(Line,LuRd,Lu_UDIC,iRow,New_Line)
+subroutine FixEqualSign2(Line,LuRd,Lu_UDIC,iRow,NewLine)
 
-character*(*) Line
-character*180 Temp_Line
-character*180 Get_Ln
-external Get_Ln
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Line
+integer(kind=iwp) :: LuRd, Lu_UDIC, iRow, NewLine
+integer(kind=iwp) :: ix, iy, nLine
+character(len=180) :: Temp_Line
+integer(kind=iwp), external :: iCLast
+character(len=180), external :: Get_Ln
 
 nLine = len(Line)
 if (nLine > len(Temp_Line)) then
@@ -39,7 +44,7 @@ call UpCase(Line)
 if (index(Line(1:iy),'END ') == 1) then
   iRow = iRow+1
   write(Lu_UDIC,'(A)') Temp_Line
-  New_Line = 2
+  NewLine = 2
 
 else if (index(Line(1:iy),' ') == 0) then
   !                                                                    *
@@ -51,7 +56,7 @@ else if (index(Line(1:iy),' ') == 0) then
 
   iRow = iRow+1
   write(Lu_UDIC,'(A)') Temp_Line
-  New_Line = 1
+  NewLine = 1
 
 else
   !                                                                    *
@@ -66,7 +71,7 @@ else
   Temp_Line(ix+2:nLine) = Line(1:nLine-ix-1)
   Line = Temp_Line
   call UpCase(Line)
-  New_Line = 0
+  NewLine = 0
   !                                                                    *
   !*********************************************************************
   !                                                                    *

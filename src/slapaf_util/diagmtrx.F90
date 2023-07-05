@@ -11,16 +11,21 @@
 
 subroutine DiagMtrx(H,nH,iNeg)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-character*16 filnam
-real*8 H(nH,nH)
-logical Exist
-real*8, allocatable :: EVal(:), EVec(:), rK(:), qEVec(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+integer(kind=iwp) :: nH, iNeg
+real(kind=wp) :: H(nH,nH)
+#include "print.fh"
+integer(kind=iwp) :: i, ij, iPrint, iRout, j, Lu, LuTmp, nq, nQQ
+real(kind=wp) :: SumHii
+logical(kind=iwp) :: Exists
+character(len=16) :: filnam
+real(kind=wp), allocatable :: EVal(:), EVec(:), qEVec(:), rK(:)
+
+Lu = u6
 iRout = 21
 iPrint = nPrint(iRout)
 
@@ -63,9 +68,9 @@ if (iprint > 5) then
 end if
 
 filnam = 'SPCINX'
-call f_Inquire(filnam,Exist)
+call f_Inquire(filnam,Exists)
 
-if (Exist .and. (iprint > 5)) then
+if (Exists .and. (iprint > 5)) then
 
   ! Read linear combinations from disc
 

@@ -11,16 +11,20 @@
 
 subroutine TRComp(TRVec,nTR,nX,Smmtrc)
 
-implicit real*8(a-h,o-z)
-real*8 TRVec(nTR,nX)
-logical Smmtrc(nX)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nTR, nX
+real(kind=wp) :: TRVec(nTR,nX)
+logical(kind=iwp) :: Smmtrc(nX)
+integer(kind=iwp) :: i_Dim, iX
 
 if (nTR == 0) return
-iDim = 0
+i_Dim = 0
 do iX=1,nX
   if (Smmtrc(iX)) then
-    iDim = iDim+1
-    if (iDim /= iX) call dcopy_(nTR,TRVec(1,iX),1,TRVec(1,iDim),1)
+    i_Dim = i_Dim+1
+    if (i_Dim /= iX) call dcopy_(nTR,TRVec(1,iX),1,TRVec(1,i_Dim),1)
   end if
 end do
 

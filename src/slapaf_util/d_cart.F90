@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function d_cart(Ind,nSym)
+function D_Cart(Ind,nSym)
 
 use Slapaf_Info, only: nStab
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-integer Ind(1)
-real*8 d_cart
+implicit none
+real(kind=wp) :: D_Cart
+integer(kind=iwp) :: Ind(1), nSym
+integer(kind=iwp) :: iAtom, iDeg, nU_A
 
 !                                                                      *
 !***********************************************************************
@@ -32,10 +34,10 @@ nU_A = nStab(iAtom)
 ! Now evaluate the degeneracy of the cartesian
 
 iDeg = nSym/nU_A
-d_cart = dble(iDeg)
+d_cart = real(iDeg,kind=wp)
 
-!write(6,*) ' d_cart=',d_cart
+!write(u6,*) ' d_cart=',d_cart
 
 return
 
-end function d_cart
+end function D_Cart

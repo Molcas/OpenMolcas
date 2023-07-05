@@ -11,10 +11,15 @@
 
 subroutine Find_Bonds(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,ThrB)
 
-implicit real*8(a-h,o-z)
-real*8 Coor(3,nAtoms)
-integer iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
-#include "bondtypes.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), nBondMax, &
+                     iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
+real(kind=wp) :: Coor(3,nAtoms), ThrB
+integer(kind=iwp) :: iAtom, iRow, ix, iy, iz, jx, jy, jz
+real(kind=wp) :: ThrB_vdW
+integer(kind=iwp), external :: iTabRow
 
 !                                                                      *
 !***********************************************************************
@@ -27,8 +32,8 @@ integer iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), iTabBonds(3,nBondMa
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coor',' ',Coor,3,nAtoms)
-write(6,*) 'Find_Bonds: ThrB=',ThrB
-write(6,*) 'Initialize iTabAtoms'
+write(u6,*) 'Find_Bonds: ThrB=',ThrB
+write(u6,*) 'Initialize iTabAtoms'
 #endif
 
 call ICopy(nBondMax*3,[0],0,iTabBonds,1)
@@ -45,9 +50,9 @@ do iAtom=1,nAtoms
   if (iRow == 0) cycle
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'iAtom, iAnr=',iAtom,iANr(iAtom)
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'iAtom, iAnr=',iAtom,iANr(iAtom)
+  write(u6,*)
 # endif
   ix = iBox(1,iAtom)
   iy = iBox(2,iAtom)
@@ -58,7 +63,7 @@ do iAtom=1,nAtoms
   do jx=ix-1,ix+1
     do jy=iy-1,iy+1
       do jz=iz-1,iz+1
-        call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,iAtom,iRow,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,nMax,ThrB,1.0D+99)
+        call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,iAtom,iRow,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,nMax,ThrB,1.0e99_wp)
 
       end do
     end do
@@ -68,31 +73,31 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'After Covalent Bonds'
-write(6,*)
-write(6,*) 'iTabAtoms:'
+write(u6,*)
+write(u6,*) 'After Covalent Bonds'
+write(u6,*)
+write(u6,*) 'iTabAtoms:'
 do iAtom=1,nAtoms
-  write(6,*)
-  write(6,*) 'iAtom=',iAtom
-  write(6,*)
-  write(6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
+  write(u6,*)
+  write(u6,*) 'iAtom=',iAtom
+  write(u6,*)
+  write(u6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
   nn = iTabAtoms(1,0,iAtom)
-  write(6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
-  write(6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
-  write(6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
-  write(6,*) ' nCoBond :',nCoBond(iAtom,nAtoms,nMax,iTabBonds,nBondMax,iTabAtoms)
+  write(u6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
+  write(u6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
+  write(u6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
+  write(u6,*) ' nCoBond :',nCoBond(iAtom,nAtoms,nMax,iTabBonds,nBondMax,iTabAtoms)
 
 end do
-write(6,*)
-write(6,*)
-write(6,*) 'Bonds:'
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Bonds:'
 do iBond=1,nBonds
-  write(6,*)
-  write(6,*) 'iBond=',iBond
-  write(6,*)
-  write(6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-  write(6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
+  write(u6,*)
+  write(u6,*) 'iBond=',iBond
+  write(u6,*)
+  write(u6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
+  write(u6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
 end do
 #endif
 !                                                                      *
@@ -102,7 +107,7 @@ end do
 
 ! Loop over all adjacent boxes. Do vdW bonds.
 
-ThrB_vdW = 1.0D-4*ThrB
+ThrB_vdW = 1.0e-4_wp*ThrB
 do iAtom=1,nAtoms
 
   iRow = iTabRow(iANr(iAtom))
@@ -127,30 +132,30 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'After vdW Bonds'
-write(6,*)
-write(6,*) 'iTabAtoms:'
+write(u6,*)
+write(u6,*) 'After vdW Bonds'
+write(u6,*)
+write(u6,*) 'iTabAtoms:'
 do iAtom=1,nAtoms
-  write(6,*)
-  write(6,*) 'iAtom=',iAtom
-  write(6,*)
-  write(6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
+  write(u6,*)
+  write(u6,*) 'iAtom=',iAtom
+  write(u6,*)
+  write(u6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
   nn = iTabAtoms(1,0,iAtom)
-  write(6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
-  write(6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
-  write(6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
+  write(u6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
+  write(u6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
+  write(u6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
 end do
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,*) 'Bonds:'
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Bonds:'
 do iBond=1,nBonds
-  write(6,*)
-  write(6,*) 'iBond=',iBond
-  write(6,*)
-  write(6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-  write(6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
+  write(u6,*)
+  write(u6,*) 'iBond=',iBond
+  write(u6,*)
+  write(u6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
+  write(u6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
 end do
 #endif
 !                                                                      *
@@ -162,29 +167,29 @@ end do
 
 call Connect_Fragments(nAtoms,iTabBonds,nBondMax,nBonds,Coor,iTabAtoms,nMax,iANr)
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'After Connecting Fragments'
-write(6,*)
-write(6,*) 'iTabAtoms:'
+write(u6,*)
+write(u6,*) 'After Connecting Fragments'
+write(u6,*)
+write(u6,*) 'iTabAtoms:'
 do iAtom=1,nAtoms
-  write(6,*)
-  write(6,*) 'iAtom=',iAtom
-  write(6,*)
-  write(6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
+  write(u6,*)
+  write(u6,*) 'iAtom=',iAtom
+  write(u6,*)
+  write(u6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
   nn = iTabAtoms(1,0,iAtom)
-  write(6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
-  write(6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
-  write(6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
+  write(u6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
+  write(u6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
+  write(u6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
 end do
-write(6,*)
-write(6,*)
-write(6,*) 'Bonds:'
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Bonds:'
 do iBond=1,nBonds
-  write(6,*)
-  write(6,*) 'iBond=',iBond
-  write(6,*)
-  write(6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-  write(6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
+  write(u6,*)
+  write(u6,*) 'iBond=',iBond
+  write(u6,*)
+  write(u6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
+  write(u6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
 end do
 #endif
 
@@ -201,29 +206,29 @@ call Magic_Bonds(Coor,nAtoms,iTabBonds,nBondMax,nBonds,iTabAtoms,nMax)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'After Magic Bonds'
-write(6,*)
-write(6,*) 'iTabAtoms:'
+write(u6,*)
+write(u6,*) 'After Magic Bonds'
+write(u6,*)
+write(u6,*) 'iTabAtoms:'
 do iAtom=1,nAtoms
-  write(6,*)
-  write(6,*) 'iAtom=',iAtom
-  write(6,*)
-  write(6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
+  write(u6,*)
+  write(u6,*) 'iAtom=',iAtom
+  write(u6,*)
+  write(u6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
   nn = iTabAtoms(1,0,iAtom)
-  write(6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
-  write(6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
-  write(6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
+  write(u6,*) ' Neigbors:',(iTabAtoms(1,i,iAtom),i=1,nn)
+  write(u6,*) ' Bond    :',(iTabAtoms(2,i,iAtom),i=1,nn)
+  write(u6,*) ' Bondtype:',(iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
 end do
-write(6,*)
-write(6,*)
-write(6,*) 'Bonds:'
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Bonds:'
 do iBond=1,nBonds
-  write(6,*)
-  write(6,*) 'iBond=',iBond
-  write(6,*)
-  write(6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-  write(6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
+  write(u6,*)
+  write(u6,*) 'iBond=',iBond
+  write(u6,*)
+  write(u6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
+  write(u6,*) 'Bondtype:',BondType(min(3,iTabBonds(3,iBond)))
 end do
 #endif
 

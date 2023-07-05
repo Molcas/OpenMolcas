@@ -11,15 +11,20 @@
 
 subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
 
-use Slapaf_Info, only: Weights, RefGeo
+use Slapaf_Info, only: RefGeo, Weights
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
-real*8, allocatable, target :: OfRef(:,:)
-logical l_Write, ldB
-character*8 Label
-real*8, pointer :: xyz0(:,:)
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
+real(kind=wp), allocatable, target :: OfRef(:,:)
+logical(kind=iwp) :: l_Write, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: iCar, iCent, ixyz, jCent, jxyz
+real(kind=wp) :: Fact, RR0_unscaled, SqInvTWeight, temp, tempi, tempj, Tweight, xWeight, yWeight
+real(kind=wp), pointer :: xyz0(:,:)
+integer(kind=iwp), external :: iDeg
 
 !                                                                      *
 !***********************************************************************
@@ -36,12 +41,12 @@ end if
 RR0 = Zero
 TWeight = Zero
 do iCent=1,nCent
-  Fact = dble(iDeg(xyz(1,iCent)))
+  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
   xWeight = Fact*Weights(iCent)
   TWeight = TWeight+xWeight
-  !write(6,*) 'xWeight=',xWeight
+  !write(u6,*) 'xWeight=',xWeight
   do ixyz=1,3
-    !write(6,*) xyz(ixyz,iCent),xyz0(ixyz,iCent)
+    !write(u6,*) xyz(ixyz,iCent),xyz0(ixyz,iCent)
     temp = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
     RR0 = RR0+xWeight*temp**2
   end do
@@ -55,7 +60,7 @@ SqInvTWeight = One/sqrt(TWeight)
 RR0 = RR0_unscaled*SqInvTWeight
 
 if (l_Write) then
-  write(6,'(2A,F18.8,A)') Label,' : Radius of h-sphere= ',RR0,' au (weighted/sqrt(total weight))'
+  write(u6,'(2A,F18.8,A)') Label,' : Radius of h-sphere= ',RR0,' au (weighted/sqrt(total weight))'
 end if
 !                                                                      *
 !***********************************************************************
@@ -64,7 +69,7 @@ end if
 
 !FIXME: revise the symmetry
 do iCent=1,nCent
-  Fact = dble(iDeg(xyz(1,iCent)))
+  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
   xWeight = Fact*Weights(iCent)
   do iCar=1,3
     temp = xyz(iCar,iCent)-xyz0(iCar,iCent)
@@ -91,12 +96,12 @@ if (ldB) then
   call FZero(dBf,(3*nCent)**2)
   if (RR0 /= Zero) then
     do iCent=1,nCent
-      Fact = dble(iDeg(xyz(1,iCent)))
+      Fact = real(iDeg(xyz(1,iCent)),kind=wp)
       xWeight = Fact*Weights(iCent)
       do ixyz=1,3
         tempi = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
         do jCent=1,nCent
-          Fact = dble(iDeg(xyz(1,jCent)))
+          Fact = real(iDeg(xyz(1,jCent)),kind=wp)
           yWeight = Fact*Weights(jCent)
           do jxyz=1,3
             tempj = xyz(jxyz,jCent)-xyz0(jxyz,jCent)

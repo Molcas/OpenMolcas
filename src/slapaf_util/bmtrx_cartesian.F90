@@ -11,19 +11,21 @@
 
 subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
 
-use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen, AtomLbl, Smmtrc, Gx0, dqInt_Aux, NAC
-use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ, lOld
+use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, dqInt, dqInt_Aux, Gx, Gx0, KtB, NAC, qInt, Smmtrc
+use Slapaf_Parameters, only: BSet, HSet, lOld, MaxItr, PrQ, Redundant
 use Kriging_Mod, only: nSet
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 TRVec(nDimBC,mTR)
-real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
-real*8 Hss_x((3*mTtAtm)**2)
-real*8, allocatable :: EVec(:), Hi(:,:), iHi(:), Degen2(:)
-integer, allocatable :: Ind(:)
+implicit none
+integer(kind=iwp) :: nsAtom, nDimBC, nIter, mTtAtm, mTR, nQQ, nWndw
+real(kind=wp) :: TRVec(nDimBC,mTR), Eval(3*mTtAtm*(3*mTtAtm+1)/2), Hss_x((3*mTtAtm)**2)
+integer(kind=iwp) :: i, i_Dim, iAtom, iInd, iInter, ij, ijTri, ik, ipFrom, iTR, ix, ixyz, j, jAtom, ji, jx, jxyz, k, kAtom, kx, kxyz
+real(kind=wp) :: Hii, Omega, Temp
+integer(kind=iwp), allocatable :: Ind(:)
+real(kind=wp), allocatable :: Degen2(:), EVec(:), Hi(:,:), iHi(:)
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -110,7 +112,7 @@ if (Redundant) then
 
   do j=1,mTR
     do i=1,nDimBC
-      Temp = 0.0d0
+      Temp = Zero
       do k=1,nDimBC
         kx = Ind(k)
         iAtom = (kx+2)/3
@@ -144,7 +146,7 @@ if (Redundant) then
       ! translations and rotations to a large positive values.
 
       do iTR=1,mTR
-        Omega = 1.0D+5
+        Omega = 1.0e5_wp
         Hii = iHi(iTR)
         Temp = Temp+sqrt(Degen(ixyz,iAtom))* &
                (-TRVec(i,iTR)*Hi(j,iTR)-Hi(i,iTR)*TRVec(j,iTR)+TRVec(i,iTR)*(Omega+Hii)*TRVec(j,iTR))*sqrt(Degen(jxyz,jAtom))
@@ -172,7 +174,7 @@ if (Redundant) then
 
       ! <i|g>
 
-      Temp = 0.0d0
+      Temp = Zero
       iInd = 0
       do iAtom=1,nsAtom
         do j=1,3
@@ -250,7 +252,7 @@ else
 
   do j=1,mTR
     do i=1,nDimBC
-      Temp = 0.0d0
+      Temp = Zero
       do k=1,nDimBC
         kx = Ind(k)
         kAtom = (kx+2)/3
@@ -286,7 +288,7 @@ else
       ! and rotations down to negative faked eigenvalues.
 
       do iTR=1,mTR
-        Omega = -dble(iTR)
+        Omega = -real(iTR,kind=wp)
         Hii = iHi(iTR)
         Eval(ijTri) = Eval(ijTri)+sqrt(Degen(ixyz,iAtom))* &
                       (-TRVec(i,iTR)*Hi(j,iTR)-Hi(i,iTR)*TRVec(j,iTR)+TRVec(i,iTR)*(Omega+Hii)*TRVec(j,iTR))*sqrt(Degen(jxyz,jAtom))
@@ -350,8 +352,8 @@ if (HSet .and. (.not. lOld)) then
 
   call dcopy_(nDimBC*nQQ,EVec(ipFrom),1,KtB,1)
   do iInter=1,nQQ
-    do iDim=1,nDimBC
-      KtB(iDim,iInter) = KtB(iDim,iInter)/sqrt(Degen2(iDim))
+    do i_Dim=1,nDimBC
+      KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/sqrt(Degen2(i_Dim))
     end do
   end do
   call mma_deallocate(Degen2)

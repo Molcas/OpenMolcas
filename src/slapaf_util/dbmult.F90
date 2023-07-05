@@ -11,27 +11,32 @@
 
 subroutine dBMult(dCdQ,QC,nQQ,nDim,nLambda)
 
-use Slapaf_info, only: dBM, idBM, nqBM
-use Slapaf_parameters, only: mq
+use Slapaf_Parameters, only: mq
+use Slapaf_Info, only: dBM, idBM, nqBM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8 dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
-real*8, allocatable :: X(:,:), K(:,:)
+implicit none
+integer(kind=iwp) :: nQQ, nDim, nLambda
+real(kind=wp) :: dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
+integer(kind=iwp) :: i_Dim, idB, iElem, ijDim, iLambda, iq, jdim, nElem
+real(kind=wp) :: dBqR
+real(kind=wp), allocatable :: X(:,:), K(:,:)
 
-QC(:,:) = 0.0d0
+QC(:,:) = Zero
 
 if (.not. allocated(dBM)) then
-  !write(6,*) 'FAST out'
+  !write(u6,*) 'FAST out'
   return
 end if
 
 call mma_allocate(X,mq,nLambda,Label='X')
-X(:,:) = 0.0d0
+X(:,:) = Zero
 call mma_allocate(K,mq,nQQ,Label='K')
 call Get_dArray('K',K,mq*nQQ)
 
-call DGEMM_('N','N',mq,nLambda,nQQ,1.0d0,K,mq,dCdQ,nQQ,0.0d0,X,mq)
+call DGEMM_('N','N',mq,nLambda,nQQ,One,K,mq,dCdQ,nQQ,Zero,X,mq)
 call mma_deallocate(K)
 
 idB = 1
@@ -39,9 +44,9 @@ do iq=1,mq
   nElem = nqBM(iq)
   do iElem=idB,idB+(nElem**2)-1
     dBqR = dBM(iElem)
-    iDim = idBM(1+(iElem-1)*2)
+    i_Dim = idBM(1+(iElem-1)*2)
     jDim = idBM(2+(iElem-1)*2)
-    ijDim = (jDim-1)*nDim+iDim
+    ijDim = (jDim-1)*nDim+i_Dim
     do iLambda=1,nLambda
       QC(ijDim,iLambda) = QC(ijDim,iLambda)+X(iq,iLambda)*dBqR
     end do

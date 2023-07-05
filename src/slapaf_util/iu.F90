@@ -9,9 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function iU(iStab,nStab)
+function iU(iStab,nStab)
 
-integer iStab(0:nStab-1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iU
+integer(kind=iwp) :: nStab, iStab(0:nStab-1)
+integer(kind=iwp) :: i
 
 iU = 0
 do i=0,nStab-1

@@ -11,9 +11,12 @@
 
 subroutine Union(iU,nU,iV,nV,iR,iM,nM)
 
-implicit real*8(A-H,O-Z)
-integer iU(nU), iV(nV), iM(8)
-logical RinT_
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nU, iU(nU), nV, iV(nV), iR, iM(8), nM
+integer(kind=iwp) :: i, iRV
+logical(kind=iwp) :: RinT_
 
 ! M is formed as U union RU
 

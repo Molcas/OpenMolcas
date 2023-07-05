@@ -12,20 +12,25 @@
 subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,iRow,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
 
 use Slapaf_Parameters, only: ddV_Schlegel, iOptC
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nAtoms, nx, ny, nz, nMax, iTab(0:nMax,nx,ny,nz), ix, iy, iz, iAtom, iRow, iANr(nAtoms), nBondMax, &
+                     iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
+real(kind=wp) :: Coor(3,nAtoms), ThrB, ThrB_vdW
 #define _VDW_
 #include "ddvdt.fh"
-real*8 Coor(3,nAtoms)
-integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms), iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
-logical Help
+#include "bondtypes.fh"
+integer(kind=iwp) :: i, Ir, ivdW, jAtom, jRow, nn, nNeighbor, Nr, nVal_i, nVal_j
+real(kind=wp) :: alpha, r0, r0_vdw, Rab, RabCov, rij2, test, test_vdw, x, y, z
 #define _OLD_CODE
 #ifndef _OLD_CODE_
-real*8 A(3)
-real*8 B(3)
+real(kind=wp) :: A(3), B(3)
 #endif
-#include "bondtypes.fh"
+logical(kind=iwp) :: Help
+integer(kind=iwp), external :: iTabRow
+real(kind=wp), external :: CovRad
 
 !                                                                      *
 !***********************************************************************
@@ -49,11 +54,11 @@ do i=1,nn
   if (iTabBonds(3,iTabAtoms(2,i,iAtom)) == Covalent_Bond) nVal_i = nVal_i+1
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Bond_Tester: iAtom,=',iAtom
-write(6,*) '                Box(ix,iy,iz)=(',ix,iy,iz,')'
-write(6,*) '                        nVal_i=',nVal_i
-write(6,*)
+write(u6,*)
+write(u6,*) 'Bond_Tester: iAtom,=',iAtom
+write(u6,*) '                Box(ix,iy,iz)=(',ix,iy,iz,')'
+write(u6,*) '                        nVal_i=',nVal_i
+write(u6,*)
 #endif
 
 ! Loop over all atoms in the box
@@ -66,8 +71,8 @@ Box: do Ir=1,Nr
   jRow = iTabRow(iANr(jAtom))
   Help = (iRow > 3) .or. (jRow > 3)
 # ifdef _DEBUGPRINT_
-  write(6,*) ' jAtom, iAnr(jAtom)=',jAtom,iAnr(jAtom)
-  write(6,*) 'Help=',Help
+  write(u6,*) ' jAtom, iAnr(jAtom)=',jAtom,iAnr(jAtom)
+  write(u6,*) 'Help=',Help
 # endif
 
   x = Coor(1,iAtom)-Coor(1,jAtom)
@@ -87,24 +92,24 @@ Box: do Ir=1,Nr
     Rab = sqrt(rij2)
     RabCov = CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Rab=',Rab
-    write(6,*) CovRad(iANr(iAtom)),CovRad(iANr(jAtom))
+    write(u6,*) 'Rab=',Rab
+    write(u6,*) CovRad(iANr(iAtom)),CovRad(iANr(jAtom))
 #   endif
-    if (Rab <= 1.25d0*RabCov) then
+    if (Rab <= 1.25_wp*RabCov) then
 
       ! covalent bond
 
-      test = 1.0d0
-      test_vdW = 0.0d0
+      test = One
+      test_vdW = Zero
 
       ! Skip if we are looking for vdW bonds
 
       if (ThrB > ThrB_vdW) cycle Box
-    else if ((Rab > 1.25d0*RabCov) .and. (Rab <= 2.00d0*RabCov)) then
+    else if ((Rab > 1.25_wp*RabCov) .and. (Rab <= Two*RabCov)) then
 
       ! vdW's bond
 
-      test = 0.0d0
+      test = Zero
       test_vdW = ThrB_VdW
     else
 
@@ -120,16 +125,16 @@ Box: do Ir=1,Nr
       r0_vdW = r_ref_vdW(iRow,jRow)
       test_vdW = exp(-alpha_vdW*(r0_vdW-sqrt(rij2))**2)
     else
-      r0_vdW = 0.0d0
-      test_vdW = 0.0d0
+      r0_vdW = Zero
+      test_vdW = Zero
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'Bond_Tester: iAtom,jAtom=',iAtom,jAtom
-    write(6,*) 'Bond_Tester: iRow, jRow =',iRow,jRow
-    write(6,*) 'Bond_Tester: test=',test,ThrB
-    write(6,*) 'Bond_Tester: test_vdW=',test_vdW,ThrB_vdW
-    write(6,*) 'Bond_Tester: r0_vdW=',r0_vdW,sqrt(rij2)
+    write(u6,*)
+    write(u6,*) 'Bond_Tester: iAtom,jAtom=',iAtom,jAtom
+    write(u6,*) 'Bond_Tester: iRow, jRow =',iRow,jRow
+    write(u6,*) 'Bond_Tester: test=',test,ThrB
+    write(u6,*) 'Bond_Tester: test_vdW=',test_vdW,ThrB_vdW
+    write(u6,*) 'Bond_Tester: r0_vdW=',r0_vdW,sqrt(rij2)
 #   endif
 
     ! If the valence force constant small but not too small
@@ -158,7 +163,7 @@ Box: do Ir=1,Nr
         if (iTabBonds(3,iTabAtoms(2,i,jAtom)) == Covalent_Bond) nVal_j = nVal_j+1
       end do
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'nVal_j=',nVal_j
+      write(u6,*) 'nVal_j=',nVal_j
 #     endif
       if (((nVal_i >= 6) .and. (nVal_j >= 1)) .or. ((nVal_j >= 6) .and. (nVal_i >= 1))) cycle Box
     end if
@@ -173,7 +178,7 @@ Box: do Ir=1,Nr
       ! Loop over all covalently bonded neighbors of atom iAtom
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Test validity of vdW bond'
+      write(u6,*) 'Test validity of vdW bond'
 #     endif
       do i=1,iTabAtoms(1,0,iAtom)
         kAtom = iTabAtoms(1,i,iAtom)
@@ -185,7 +190,7 @@ Box: do Ir=1,Nr
         CosPhi = dot_product(A,B)/sqrt(ANorm*BNorm)
         Phi = acos(CosPhi)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'kAtom,Phi=',kAtom,Phi
+        write(u6,*) 'kAtom,Phi=',kAtom,Phi
 #       endif
         if (abs(Phi) < Pi/Four) cycle Box
       end do
@@ -195,9 +200,9 @@ Box: do Ir=1,Nr
   end if
 
   if (nBonds+1 > nBondMax) then
-    write(6,*) 'Bond_Tester: nBonds+1 > nBondMax'
-    write(6,*) 'nBonds+1=',nBonds+1
-    write(6,*) 'nBondMax=',nBondMax
+    write(u6,*) 'Bond_Tester: nBonds+1 > nBondMax'
+    write(u6,*) 'nBonds+1=',nBonds+1
+    write(u6,*) 'nBondMax=',nBondMax
     call Abend()
   end if
 
@@ -210,25 +215,25 @@ Box: do Ir=1,Nr
   else if (test_vdW >= ThrB_vdW) then
     ivdW = vdW_Bond
   else
-    write(6,*) 'Bond_Tester: Illegal operation'
+    write(u6,*) 'Bond_Tester: Illegal operation'
     call Abend()
     ivdW = 99
   end if
   iTabBonds(3,nBonds) = ivdW
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Add bond to the list.'
-  write(6,*) 'Atom pair:',iAtom,jAtom
-  write(6,*) 'Bond type:',Bondtype(min(3,ivdW))
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Add bond to the list.'
+  write(u6,*) 'Atom pair:',iAtom,jAtom
+  write(u6,*) 'Bond type:',Bondtype(min(3,ivdW))
+  write(u6,*)
 # endif
 
   nNeighbor = iTabAtoms(1,0,iAtom)
   if (nNeighbor+1 > nMax) then
-    write(6,*) 'Bond_Tester(1): nNeighbor+1 > nMax'
-    write(6,*) 'iAtom=',iAtom
-    write(6,*) 'nNeighbor=',nNeighbor
-    write(6,*) 'nMax=',nMax
+    write(u6,*) 'Bond_Tester(1): nNeighbor+1 > nMax'
+    write(u6,*) 'iAtom=',iAtom
+    write(u6,*) 'nNeighbor=',nNeighbor
+    write(u6,*) 'nMax=',nMax
     call Abend()
   end if
 
@@ -240,10 +245,10 @@ Box: do Ir=1,Nr
 
   nNeighbor = iTabAtoms(1,0,jAtom)
   if (nNeighbor+1 > nMax) then
-    write(6,*) 'Bond_Tester(2): nNeighbor+1 > nMax'
-    write(6,*) 'jAtom=',jAtom
-    write(6,*) 'nNeighbor=',nNeighbor
-    write(6,*) 'nMax=',nMax
+    write(u6,*) 'Bond_Tester(2): nNeighbor+1 > nMax'
+    write(u6,*) 'jAtom=',jAtom
+    write(u6,*) 'nNeighbor=',nNeighbor
+    write(u6,*) 'nMax=',nMax
     call Abend()
   end if
   nNeighbor = nNeighbor+1

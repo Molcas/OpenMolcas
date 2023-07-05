@@ -12,10 +12,14 @@
 subroutine OptRMS_Slapaf(x,y,nAt,RMS,RMSMax)
 
 use Symmetry_Info, only: VarR, VarT
-implicit real*8(a-h,o-z)
-#include "print.fh"
-#include "real.fh"
-real*8 x(3,nAt), y(3,nAt)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), RMS, RMSMax
+integer(kind=iwp) :: i, ixyz
+real(kind=wp) :: diff, disp
 
 ! Only align if energy is rotational and translational invariant.
 ! (no weighting)
@@ -37,7 +41,7 @@ else
     end do
     if (sqrt(disp) > RMSMax) RMSMax = sqrt(disp)
   end do
-  RMS = sqrt(RMS/dble(nAt))
+  RMS = sqrt(RMS/real(nAt,kind=wp))
 end if
 
 return

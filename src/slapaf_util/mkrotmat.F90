@@ -11,24 +11,28 @@
 
 subroutine mkRotMat(rotvec,rotmat)
 
-implicit real*8(a-h,o-z)
-real*8 RotMat(3,3)
-real*8 RotVec(3)
+use Constants, only: One, Two, Six, Twelve, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: RotVec(3), RotMat(3,3)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: c0, c1, c2, cs, Q, rsum, sn, XN
 
 !call RecPrt('mkRotMat: RotVec',' ',RotVec,1,3)
 
 Q = RotVec(1)**2+RotVec(2)**2+RotVec(3)**2
 XN = sqrt(Q)
-if (Q < 0.01d0) then
-  c0 = 1.d0-(Q/2.d0)*(1.d0-(Q/12.d0)*(1.d0-(Q/30.d0)*(1.d0-(Q/56.d0))))
-  c1 = 1.d0-(Q/6.d0)*(1.d0-(Q/20.d0)*(1.d0-(Q/42.d0)*(1.d0-(Q/72.d0))))
-  c2 = (1.d0-(Q/12.d0)*(1.d0-(Q/30.d0)*(1.d0-(Q/56.d0)*(1.d0-(Q/90.d0)))))/2.d0
+if (Q < 0.01_wp) then
+  c0 = One-(Q/Two)*(One-(Q/Twelve)*(One-(Q/30.0_wp)*(One-(Q/56.0_wp))))
+  c1 = One-(Q/Six)*(One-(Q/20.0_wp)*(One-(Q/42.0_wp)*(One-(Q/72.0_wp))))
+  c2 = (One-(Q/Twelve)*(One-(Q/30.0_wp)*(One-(Q/56.0_wp)*(One-(Q/90.0_wp)))))*Half
 else
   cs = cos(XN)
   sn = sin(XN)
   c0 = cs
   c1 = sn/XN
-  c2 = (1.0d0-cs)/(XN**2)
+  c2 = (One-cs)/(XN**2)
 end if
 RotMat(1,1) = c0
 RotMat(2,2) = c0
@@ -46,14 +50,14 @@ do i=1,3
 end do
 do i=1,3
   do j=1,3
-    sum = 0.0d0
-    if (i == j) sum = -1.0d0
+    rsum = 0.0d0
+    if (i == j) rsum = -1.0d0
     do k=1,3
-      sum = sum+RotMat(i,k)*RotMat(j,k)
+      rsum = rsum+RotMat(i,k)*RotMat(j,k)
     end do
-    if (abs(sum) > 1.0D-10) then
+    if (abs(rsum) > 1.0D-10) then
       call WarningMessage(2,'Error in RotDer')
-      write(6,*) ' MKROTMAT: ON check sum error=',sum
+      write(6,*) ' MKROTMAT: ON check sum error=',rsum
       call Abend()
     end if
   end do

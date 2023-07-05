@@ -18,19 +18,22 @@ subroutine Dissoc(xyz,nCntr,mCntr,rMss,Dist,B,lWrite,Label,dB,ldB)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 rMss(nCntr+mCntr), B(3,nCntr+mCntr), xyz(3,nCntr+mCntr), dB(3,nCntr+mCntr,3,nCntr+mCntr)
-logical lWrite, ldB
-real*8 R(3,2), RM(2)
-character*8 Label
-#include "angstr.fh"
+use Constants, only: Zero, One, Angstrom
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCntr, mCntr
+real(kind=wp) :: xyz(3,nCntr+mCntr), rMss(nCntr+mCntr), Dist, B(3,nCntr+mCntr), dB(3,nCntr+mCntr,3,nCntr+mCntr)
+logical(kind=iwp) :: lWrite, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: i, iCntr, ix, j, jCntr, jx
+real(kind=wp) :: dRdri, dRdrj, Fact, Facti, Factj, R(3,2), RM(2), Sgn, Signi, Signj
 
 call dcopy_(2,[Zero],0,RM,1)
 call dcopy_(6,[Zero],0,R,1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' nCntr,mCntr=',nCntr,mCntr
+write(u6,*) ' nCntr,mCntr=',nCntr,mCntr
 call RecPrt(' Masses',' ',rMss,nCntr+mCntr,1)
 call RecPrt(' xyz',' ',xyz,3,nCntr+mCntr)
 #endif
@@ -62,21 +65,21 @@ call RecPrt(' Center of mass of fragments',' ',R,3,2)
 
 Dist = sqrt(Dist)
 
-if (lWrite) write(6,'(1X,A,A,2(F10.6,A))') Label,' : Dissociation distance=',Dist,'/bohr',Dist*angstr,'/Angstrom'
+if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Dissociation distance=',Dist,'/bohr',Dist*Angstrom,'/Angstrom'
 
 ! Compute the B-matrix
 
 do iCntr=1,nCntr+mCntr
   if (iCntr <= nCntr) then
-    Sign = 1.0d0
+    Sgn = One
     i = 1
   else
-    Sign = -1.0d0
+    Sgn = -One
     i = 2
   end if
   do ix=1,3
     if (xyz(ix,iCntr) /= Zero) then
-      Fact = Sign*rMss(iCntr)/RM(i)
+      Fact = Sgn*rMss(iCntr)/RM(i)
     else
       Fact = Zero
     end if
@@ -93,20 +96,20 @@ if (ldB) then
   call FZero(dB,(3*(nCntr+mCntr))**2)
   do iCntr=1,nCntr+mCntr
     if (iCntr <= nCntr) then
-      Signi = 1.0d0
+      Signi = One
       i = 1
     else
-      Signi = -1.0d0
+      Signi = -One
       i = 2
     end if
     Facti = Signi*rMss(iCntr)/RM(i)
 
     do jCntr=1,nCntr+mCntr
       if (jCntr <= nCntr) then
-        Signj = 1.0d0
+        Signj = One
         j = 1
       else
-        Signj = -1.0d0
+        Signj = -One
         j = 2
       end if
       Factj = Signj*rMss(jCntr)/RM(j)

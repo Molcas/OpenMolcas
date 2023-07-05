@@ -11,20 +11,25 @@
 
 subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,nDim,CofM)
 
-use Slapaf_Info, only: dMass, Smmtrc
 use Symmetry_Info, only: VarR, VarT
+use Slapaf_Info, only: dMass, Smmtrc
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nAtoms, nTR, nDim
+real(kind=wp) :: TRVec(6,3*nAtoms), Coor(3,nAtoms), uMtrx(3*nAtoms)
+logical(kind=iwp) :: CofM
 #include "print.fh"
-real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms), uMtrx(3*nAtoms), CM(3)
-logical SymDsp, CofM
+integer(kind=iwp) :: i, iAtom, iCmp, iPrint, iRout, j, k
+real(kind=wp) :: CM(3), rii, rNorm
+logical(kind=iwp) :: SymDsp
 
 iRout = 131
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt(' In TRMake: Coor',' ',Coor,3,nAtoms)
-  write(6,*) ' nDim=',nDim
+  write(u6,*) ' nDim=',nDim
 end if
 
 call dcopy_(6*3*nAtoms,[Zero],0,TRVec,1)
@@ -70,7 +75,7 @@ if (.not. VarR) then
     end do
     CM(i) = CM(i)/rNorm
   end do
-  !write(6,*) 'TrMake CM=',CM
+  !write(u6,*) 'TrMake CM=',CM
 
   do i=1,3
     j = i+1
@@ -103,7 +108,7 @@ do i=1,nTR
   do iAtom=1,3*nAtoms
     rii = rii+uMtrx(iAtom)*TRVec(i,iatom)**2
   end do
-  if (rii > 1.d-15) then
+  if (rii > 1.0e-15_wp) then
     call DScal_(3*nAtoms,One/sqrt(rii),TRVec(i,1),6)
   else
     call dcopy_(3*nAtoms,[Zero],0,TRVec(i,1),6)

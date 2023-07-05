@@ -22,13 +22,17 @@ subroutine ReacX(V_Q,nQ,V_X,nX)
 !***********************************************************************
 
 use Slapaf_Info, only: BMx
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 V_Q(nQ), V_X(nX)
+implicit none
+integer(kind=iwp) :: nQ, nX
+real(kind=wp) :: V_Q(nQ), V_X(nX)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call DGEMM_('N','N',nX,1,nQ,1.0d0,BMx,nX,V_Q,nQ,0.0d0,V_X,nX)
+call DGEMM_('N','N',nX,1,nQ,One,BMx,nX,V_Q,nQ,Zero,V_X,nX)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

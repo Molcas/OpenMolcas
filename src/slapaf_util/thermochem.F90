@@ -13,16 +13,16 @@
 
 module ThermoChem
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: lTherm, lDoubleIso, nUserPT, nsRot, UserT, UserP
+integer(kind=iwp) :: nsRot = 0, nUserPT = 0
+real(kind=wp) :: UserP = Zero, UserT(64) = Zero
+logical(kind=iwp) :: lDoubleIso = .false., lTherm = .false.
 
-#include "real.fh"
-integer :: i
-
-logical :: lTherm = .false., lDoubleIso = .false.
-integer :: nUserPT = 0, nsRot = 0
-real*8 :: UserT(64) = [(Zero,i=1,64)], UserP = Zero
+public :: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 
 end module ThermoChem

@@ -13,16 +13,20 @@
 #ifdef _DEBUGPRINT_
 subroutine DiagMtrx_T(H,nH,iNeg)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-character*16 filnam
-real*8 H(*)
-logical Exist
-real*8, allocatable :: EVal(:), EVec(:), rK(:), qEVec(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+integer(kind=iwp) :: nH, iNeg
+real(kind=wp) :: H(*)
+#include "print.fh"
+integer(kind=iwp) :: i, iprint, iRout, j, Lu, LuTmp, nq, nQQ
+logical(kind=iwp) :: Exists
+character(len=16) :: filnam
+real(kind=wp), allocatable :: EVal(:), EVec(:), qEVec(:), rK(:)
+
+Lu = u6
 iRout = 22
 iprint = nPrint(iRout)
 
@@ -56,9 +60,9 @@ if (iprint > 5) then
   write(Lu,'(5G20.6)') (EVal(i*(i+1)/2),i=1,nH)
 end if
 
-call f_Inquire('SPCINX',Exist)
+call f_Inquire('SPCINX',Exists)
 
-if (Exist .and. (iprint > 5)) then
+if (Exists .and. (iprint > 5)) then
 
   ! Read linear combinations from disc
 

@@ -11,19 +11,20 @@
 
 subroutine Start_Alaska()
 
-use Slapaf_Parameters, only: Request_Alaska, Request_RASSI, iState
+use Slapaf_Parameters, only: iState, Request_Alaska, Request_RASSI
 use UnixInfo, only: ProgName
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "print.fh"
+integer(kind=iwp) :: iEnd, istatus, LuInput, LuSpool, NACstatesOpt(2)
+logical(kind=iwp) :: Exists
 character(len=len(ProgName)) :: PName
-character*128 FileName
-character*16 StdIn, JOB1, JOB2
-character*8 Method
 character(len=180) :: Line
-logical Exists
-integer NACstatesOpt(2)
-logical :: CalcNAC_Opt = .false.
+character(len=128) :: FileName
+character(len=16) :: StdIn, JOB1, JOB2
+character(len=8) :: Method
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -54,9 +55,9 @@ if (Request_RASSI) then
   ! Request computation of overlaps.
 
   if (nPrint(1) >= 6) then
-    write(6,*)
-    write(6,*) ' Slapaf requests the computation of overlaps first!'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Slapaf requests the computation of overlaps first!'
+    write(u6,*)
   end if
 
   call Get_cArray('Relax Method',Method,8)
@@ -95,29 +96,27 @@ else if (Request_Alaska) then
 
   if (nPrint(1) >= 6) then
     call Get_cArray('Relax Method',Method,8)
-    write(6,*)
-    write(6,*) ' Slapaf requests the computation of gradients first!'
+    write(u6,*)
+    write(u6,*) ' Slapaf requests the computation of gradients first!'
     if (iState(2) == 0) then
-      write(6,*) 'Root: ',iState(1)
+      write(u6,*) 'Root: ',iState(1)
       if (Method == 'MSPDFT  ') then
-        CalcNAC_Opt = .false.
         NACstatesOpt(1) = iState(1)
         NACstatesOpt(2) = iState(2)
         call put_iArray('NACstatesOpt    ',NACstatesOpt,2)
-        call put_lscalar('CalcNAC_Opt     ',CalcNAC_Opt)
+        call put_lscalar('CalcNAC_Opt     ',.false.)
       end if
     else
-      write(6,*) 'Roots: ',iState(1),',',iState(2)
+      write(u6,*) 'Roots: ',iState(1),',',iState(2)
       if (Method == 'MSPDFT  ') then
-        CalcNAC_Opt = .true.
         NACstatesOpt(1) = iState(1)
         NACstatesOpt(2) = iState(2)
         call put_iArray('NACstatesOpt    ',NACstatesOpt,2)
         ! Identify if MECI command in MC-PDFT should be used
-        call put_lscalar('CalcNAC_Opt     ',CalcNAC_Opt)
+        call put_lscalar('CalcNAC_Opt     ',.true.)
       end if
     end if
-    write(6,*)
+    write(u6,*)
   end if
 
   write(LuInput,'(A)') '>ECHO OFF'

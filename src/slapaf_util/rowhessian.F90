@@ -21,15 +21,19 @@ subroutine RowHessian(nIter,nInter,Delta)
 !***********************************************************************
 
 use Slapaf_Info, only: dqInt, mRowH
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-real*8, allocatable :: H(:,:)
-#include "stdalloc.fh"
-#include "real.fh"
-real*8 rDum(1)
+implicit none
+integer(kind=iwp) :: nIter, nInter
+real(kind=wp) :: Delta
+integer(kind=iwp) :: iInter, iRowH, jInter
+real(kind=wp) :: dElement, rDum(1)
+real(kind=wp), allocatable :: H(:,:)
 
 if (.not. allocated(mRowH)) then
-  write(6,*) 'RowHessian: .NOT.Allocated(mRowH)'
+  write(u6,*) 'RowHessian: .NOT.Allocated(mRowH)'
   call Abend()
 end if
 
@@ -38,7 +42,7 @@ call Get_dArray('Hss_Q',H,nInter**2)
 call Put_dArray('Hss_upd',rDum,0)
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'RowHessian:'
+write(u6,*) 'RowHessian:'
 call RecPrt('Initial Hessian',' ',H,nInter,nInter)
 call RecPrt('Gradient  dqInt:','(10F9.6)',dqInt,nInter,nIter)
 #endif
@@ -48,7 +52,7 @@ call RecPrt('Gradient  dqInt:','(10F9.6)',dqInt,nInter,nIter)
 do iRowH=1,size(mRowH)
   iInter = mRowH(iRowH)
   if (iInter > nIter) then
-    write(6,*) 'RowHessian: iIter>nIter'
+    write(u6,*) 'RowHessian: iIter>nIter'
     call Abend()
   end if
   do jInter=1,nInter
@@ -61,7 +65,7 @@ end do
 
 do iInter=1,nInter
   do jInter=1,nInter
-    dElement = (H(iInter,jInter)+H(jInter,iInter))/Two
+    dElement = (H(iInter,jInter)+H(jInter,iInter))*Half
     H(iInter,jInter) = dElement
     H(jInter,iInter) = dElement
   end do

@@ -18,16 +18,17 @@ subroutine Rd_UDIC(iInt,nFix,nRowH)
 !***********************************************************************
 
 use Slapaf_Parameters, only: iRow
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-integer Skip
-character*120 Temp
-character*16 filnam
-logical Found
+implicit none
+integer(kind=iwp) :: iInt, nFix, nRowH
+integer(kind=iwp) :: iLines, jLines, kLines, lLines, Lu_UDIC, Skip
+logical(kind=iwp) :: Found
+character(len=120) :: Temp
+character(len=16) :: filnam
+integer(kind=iwp), external :: IsFreeUnit
 
-Lu_UDIC = 91
+Lu_UDIC = IsFreeUnit(91)
 filnam = 'UDIC'
 call molcas_open(Lu_UDIC,filnam)
 !open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')

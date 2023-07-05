@@ -23,34 +23,30 @@ subroutine BMtrx_Internal(nsAtom,nDimBC,nIter,mAtoms,iIter,mTR,TRVec,iTabAI,iTab
 !              2004                                                    *
 !***********************************************************************
 
-use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB, Cx, Gx, BMx, Degen, Smmtrc, Gx0, dqInt_Aux, NAC
-use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr, iOptC, BSet, HSet, PrQ, lOld, Numerical, mB_Tot, mdB_Tot, mq
+use Slapaf_Info, only: BM, BMx, Cx, dBM, Degen, dqInt, dqInt_Aux, Gx, Gx0, iBM, idBM, KtB, NAC, nqBM, qInt, Smmtrc
+use Slapaf_Parameters, only: Analytic_Hessian, BSet, HSet, HWRS, iOptC, lOld, MaxItr, mB_Tot, mdB_Tot, mq, Numerical, PrQ
 use Kriging_Mod, only: nSet
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Five, deg2rad
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, nBonds, nMax, iRef, nWndw
+real(kind=wp), intent(in) :: TRVec(nDimBC,mTR), iTabAI(2,mAtoms), iTabAtoms(0:nMax,nsAtom), iTabBonds(3,nBonds)
+integer(kind=iwp), intent(inout) :: nQQ
 #include "warnings.h"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-integer, intent(In) :: nsAtom, nDimBC
-integer, intent(In) :: nIter, mAtoms
-integer, intent(In) :: iIter, mTR
-real*8, intent(In) :: TRVec(nDimBC,mTR)
-integer, intent(In) :: iTabBonds(3,nBonds), iTabAtoms(0:nMax,nsAtom), iTabAI(2,mAtoms)
-integer, intent(In) :: nBonds, nMax, iRef
-integer, intent(InOut) :: nQQ
-integer, intent(In) :: nWndW
-integer iDum(6)
-logical Proc, Proc_dB, Proc_H
-character(len=32) filnam
-character(len=14) cDum
-real*8 Dum(1)
-logical, save :: g12K = .false.
-real*8, allocatable :: Proj(:), Temp2(:), KtM(:,:), Degen2(:), EVal(:), G(:), GxR(:), qVal(:,:), F_c(:), K(:), GRef(:), Mult(:)
-real*8, allocatable :: KtBu(:), KtBt(:,:)
+integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
+                     iX, ixyz, jIter, LuIC, M, mIter, N, nB, nB_Tot, ndB_Tot, nK, nq, nqA, nqB, nqO, nqRF, nqT, NRHS, nX
+real(kind=wp) :: Alpha, Dum(1), temp, Thr_ElRed, Thr_raw, Thr_small
+logical(kind=iwp) :: g12K = .false., Proc, Proc_dB, Proc_H
+character(len=32) :: filnam
+character(len=14) :: cDum
+integer(kind=iwp), allocatable :: Ind(:,:)
+real(kind=wp), allocatable :: Degen2(:), EVal(:), F_c(:), G(:), GRef(:), GxR(:), K(:), KtBt(:,:), KtBu(:), KtM(:,:), Mult(:), &
+                              Proj(:), qVal(:,:), Temp2(:)
 character(len=14), allocatable :: qLbl(:)
-integer, allocatable :: Ind(:,:)
+integer(kind=iwp), external :: isfreeunit
 
 !                                                                      *
 !***********************************************************************
@@ -68,7 +64,7 @@ call mma_allocate(Proj,nDimBC,Label='Proj')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Thr_raw = 3.0D-2
+Thr_raw = 3.0e-2_wp
 if (HWRS) then
   Thr_ElRed = Thr_raw**2
 else
@@ -142,12 +138,12 @@ call molcas_open(LuIC,filnam)
 Proc = .false.     ! Flag for processing B
 Proc_dB = .false.  ! Flag for processing dB
 
-Thr_small = (30.0d0/180.0d0)*Pi
-do while (Thr_small > 1.0D-6)
+Thr_small = 30.0_wp*deg2rad
+do while (Thr_small > 1.0e-6_wp)
   call Get_Curvil(nq,nqRF,nqB,nqA,nqT,nqO,nsAtom,iIter,nIter,Cx,Proc,Dum,1,cDum,iRef,Dum,Dum,LuIC,iDum,iIter,Dum,iDum(1),iDum(1), &
                   Proc_dB,iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,iDum,Thr_small)
   if (nq >= nQQ) exit
-  Thr_small = Thr_small-(5.0d0/180.0d0)*Pi
+  Thr_small = Thr_small-Five*deg2rad
 end do
 
 rewind(LuIC)
@@ -164,7 +160,7 @@ iGhi = nqRF+nqB+nqA
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
+write(u6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
 #endif
 
 ! Now allocate some arrays which depend on nq
@@ -202,9 +198,9 @@ rewind(LuIC)
 
 if (iq /= nq) then
   call WarningMessage(2,' Error in Curvil')
-  write(6,*) 'In Curvil: iq /= nq'
-  write(6,*) 'iq=',iq
-  write(6,*) 'nq=',nq
+  write(u6,*) 'In Curvil: iq /= nq'
+  write(u6,*) 'iq=',iq
+  write(u6,*) 'nq=',nq
   call Abend()
 end if
 !                                                                      *
@@ -213,7 +209,7 @@ end if
 !                                                                      *
 #ifdef _DEBUGPRINT_
 if (iPrint >= 49) then
-  write(6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
+  write(u6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
   call RecPrt('q-values',' ',qVal,nq,nIter)
   call RecPrt('Force Constant matrix in redundant basis',' ',F_c,1,nq)
   call RecPrt('Multiplicity factors',' ',Mult,1,nq)
@@ -316,22 +312,22 @@ end if
 !***********************************************************************
 !                                                                      *
 if (PrQ .and. (iPrint >= 6)) then
-  write(6,*)
-  write(6,'(A)') ' ******************************************'
-  write(6,'(A)') ' * Statistics of the internal coordinates *'
-  write(6,'(A)') ' ******************************************'
-  write(6,'(A,I5)') ' Translations and Rotations:     ',nqRF
-  write(6,'(A,I5)') ' Bonds                     :     ',nqB
-  write(6,'(A,I5)') ' Angles                    :     ',nqA
-  write(6,'(A,I5)') ' Torsions                  :     ',nqT
-  write(6,'(A,I5)') ' Out-of-plane angles       :     ',nqO
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A)') ' ******************************************'
+  write(u6,'(A)') ' * Statistics of the internal coordinates *'
+  write(u6,'(A)') ' ******************************************'
+  write(u6,'(A,I5)') ' Translations and Rotations:     ',nqRF
+  write(u6,'(A,I5)') ' Bonds                     :     ',nqB
+  write(u6,'(A,I5)') ' Angles                    :     ',nqA
+  write(u6,'(A,I5)') ' Torsions                  :     ',nqT
+  write(u6,'(A,I5)') ' Out-of-plane angles       :     ',nqO
+  write(u6,*)
 end if
 if (nq < nQQ) then
   call WarningMessage(2,' Error in Curvil')
-  write(6,*) 'In Curvil: nq < nQQ'
-  write(6,*) 'nq=',nq
-  write(6,*) 'nQQ=',nQQ
+  write(u6,*) 'In Curvil: nq < nQQ'
+  write(u6,*) 'nq=',nq
+  write(u6,*) 'nQQ=',nQQ
   call Abend()
 end if
 !                                                                      *
@@ -387,9 +383,9 @@ do jIter=iSt,iEnd,-1
   rewind(LuIC)
 
   if (iq /= nq) then
-    write(6,*) 'In Curvil: iq /= nq'
-    write(6,*) 'iq=',iq
-    write(6,*) 'nq=',nq
+    write(u6,*) 'In Curvil: iq /= nq'
+    write(u6,*) 'iq=',iq
+    write(u6,*) 'nq=',nq
     call Abend()
   end if
   !                                                                    *
@@ -412,8 +408,8 @@ do jIter=iSt,iEnd,-1
     do iq=1,nq
       nB = nqBM(iq)
       do iB=0,nB-1
-        iDim = iBM(i)
-        KtBu((iDim-1)*nQQ+iQQ+1) = KtBu((iDim-1)*nQQ+iQQ+1)+K(iQQ*nq+iq)*BM(i)
+        i_Dim = iBM(i)
+        KtBu((i_Dim-1)*nQQ+iQQ+1) = KtBu((i_Dim-1)*nQQ+iQQ+1)+K(iQQ*nq+iq)*BM(i)
         i = i+1
       end do
     end do
@@ -437,14 +433,14 @@ do jIter=iSt,iEnd,-1
 
     ! modify from compact to full Cartesian storage.
 
-    iDim = 0
+    i_Dim = 0
     do iX=1,nX
       iAtom = (iX+2)/3
       ixyz = iX-(iAtom-1)*3
       if (Smmtrc(ixyz,iAtom)) then
-        iDim = iDim+1
+        i_Dim = i_Dim+1
         do iQQ=1,nQQ
-          iQD = (iDim-1)*nQQ+iQQ
+          iQD = (i_Dim-1)*nQQ+iQQ
           BMx(iX,iQQ) = KtBu(iQD)
         end do
       else
@@ -478,8 +474,8 @@ do jIter=iSt,iEnd,-1
     ! Strip KtB of the degeneracy factor (full).
 
     do iQQ=1,nQQ
-      do iDim=1,nDimBC
-        KtBt(iDim,iQQ) = KtBt(iDim,iQQ)/Degen2(iDim)
+      do i_Dim=1,nDimBC
+        KtBt(i_Dim,iQQ) = KtBt(i_Dim,iQQ)/Degen2(i_Dim)
       end do
     end do
 
@@ -541,7 +537,7 @@ do iq=1,nq
     KtM(iQQ,iq) = temp
   end do
 end do
-call DGEMM_('N','N',nQQ,mIter,nq,1.0d0,KtM,nQQ,qVal(:,jIter),nq,0.0d0,qInt(:,jIter),nQQ)
+call DGEMM_('N','N',nQQ,mIter,nq,One,KtM,nQQ,qVal(:,jIter),nq,Zero,qInt(:,jIter),nQQ)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

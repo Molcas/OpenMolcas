@@ -22,9 +22,12 @@ subroutine ReacQ(V_X,nX,V_Q,nQ)
 !***********************************************************************
 
 use Slapaf_Info, only: BMx, Degen
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 V_Q(nQ), V_X(nX)
+implicit none
+integer(kind=iwp) :: nX, nQ
+real(kind=wp) :: V_Q(nQ), V_X(nX)
+integer(kind=iwp) :: M, N, NRHS
 
 !                                                                      *
 !***********************************************************************

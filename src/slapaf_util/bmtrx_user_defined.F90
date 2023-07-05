@@ -11,17 +11,20 @@
 
 subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
 
-use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc, Lbl, Gx0, dqInt_Aux, NAC
-use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian, MaxItr, iOptC, BSet, HSet, lOld, Numerical
+use Slapaf_Info, only: BMx, Degen, dqInt, dqInt_Aux, Gx, Gx0, KtB, Lbl, NAC, qInt, Smmtrc
+use Slapaf_Parameters, only: Analytic_Hessian, BSet, HSet, iInt, iOptC, lOld, MaxItr, nBVec, nFix, Numerical
 use Kriging_Mod, only: nSet
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Coor(3,nsAtom)
-logical Proc_dB
-real*8, allocatable :: Degen2(:)
+implicit none
+integer(kind=iwp) :: nsAtom, nDim, nIter, mTR, nQQ
+real(kind=wp) :: Coor(3,nsAtom)
+integer(kind=iwp) :: i, i_Dim, iAtom, iInter, ix, ixyz, j, nRowH
+logical(kind=iwp) :: Proc_dB
+real(kind=wp), allocatable :: Degen2(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -111,9 +114,9 @@ if (HSet .and. (.not. lOld) .and. BSet) then
   end do
 
   do iInter=1,nQQ
-    do iDim=1,nDim
-      !KtB(iDim,iInter) = KtB(iDim,iInter)/Sqrt(Degen2(iDim))
-      KtB(iDim,iInter) = KtB(iDim,iInter)/Degen2(iDim)
+    do i_Dim=1,nDim
+      !KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/Sqrt(Degen2(i_Dim))
+      KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/Degen2(i_Dim)
     end do
   end do
   call mma_deallocate(Degen2)

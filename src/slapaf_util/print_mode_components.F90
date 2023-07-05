@@ -31,75 +31,47 @@
 subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
 
 use Symmetry_Info, only: nIrrep, VarR, VarT
-use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, Weights, ANr, Shift, GNrm, Lambda, Energy, Energy0, DipM, &
-                       MF, qInt, dqInt, RefGeo, BM, iBM, dBM, idBM, nqBM, BMx, Degen, nStab, jStab, iCoSet, AtomLbl, Smmtrc, Lbl, &
-                       mRowH, RootMap
-use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, Curvilinear, &
-                             Redundant, FindTS, nBVec, nDimBC, User_Def, Analytic_Hessian, MaxItr, iOptC, UpMeth, HSet, BSet, &
-                             rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, Line_Search, TSConstraints, GNrm_Threshold, &
-                             Mode, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker, eMEPTest, rMEP, MEP, nMEP, MEPNum, &
-                             MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header, Max_Center, mTROld, RtRnc, Delta, rFuzz, lNmHss, &
-                             Cubic, Request_Alaska, Request_RASSI, lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, &
-                             isFalcon, stop, NmIter, MxItr, mTtAtm, nWndw, iter, WeightedConstraints, mB_Tot, mdB_Tot, mq, NADC, &
-                             EDiffZero, ApproxNADC, iState
-use thermochem
+use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Baker, Beta, Beta_Disp, BSet, CallLast, CnstWght, Cubic, Curvilinear, &
+                             ddV_Schlegel, Delta, dMEPStep, EDiffZero, eMEPTest, FindTS, GNrm_Threshold, Header, HrmFrq_Show, &
+                             HSet, HUpMet, HWRS, iInt, iOptC, iOptH, IRC, iRef, iRow, iRow_c, isFalcon, iState, iter, lCtoF, &
+                             Line_Search, lNmHss, lOld, lOld_Implicit, lSoft, Max_Center, MaxItr, mB_Tot, mdB_Tot, MEP, MEP_Algo, &
+                             MEP_Type, MEPCons, MEPNum, Mode, mq, mTROld, mTtAtm, MxItr, NADC, nBVec, nDimBC, nFix, nLambda, nMEP, &
+                             NmIter, Numerical, nWndw, PrQ, Redundant, Request_Alaska, Request_RASSI, rFuzz, rHidden, rMEP, RtRnc, &
+                             SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, TwoRunFiles, UpMeth, User_Def, &
+                             WeightedConstraints
+use Slapaf_Info, only: ANr, AtomLbl, BM, BMx, Coor, Cx, dBM, Degen, DipM, dMass, dqInt, Energy, Energy0, GNrm, Grd, Gx, Gx0, iBM, &
+                       iCoSet, idBM, jStab, Lambda, Lbl, MF, mRowH, NAC, nqBM, nStab, Q_nuclear, qInt, RefGeo, RootMap, Shift, &
+                       Smmtrc, Weights
+use thermochem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
+real(kind=wp) :: Modes(*), Freq(*)
+integer(kind=iwp) :: lModes, lDisp(nIrrep)
 #include "backup_info.fh"
-#include "print.fh"
-#include "stdalloc.fh"
-#include "real.fh"
-real*8 rDum(1)
-real*8 :: Modes(*), Freq(*), Mx, MinComp
-integer :: LuInput, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms, iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK, iErr, &
-           PLback, nQQ, nsAtom
-real*8, dimension(:,:), allocatable :: KMtrx, KTrsp, KKtB, IntMod, NMod
-integer, dimension(:), allocatable :: Sort
-integer, parameter :: nLbl = 10*MxAtom
-integer, external :: IsFreeUnit, iPrintLevel, AixRm
-logical :: Found
-character(Len=8) :: Filename
-character(Len=16) :: StdIn
-character(Len=24), allocatable :: Label(:)
-character(Len=180), external :: Get_Ln_EOF
+integer(kind=iwp) :: i, iB, iErr, ii, im, iq, j, LuIC, LuInput, nAll_Atoms, nB, nK, nModes, nQQ, nsAtom, nUnique_Atoms, nX, PLback
+real(kind=wp) :: Mx, MinComp, rDum(1)
+logical(kind=iwp) :: Bk_VarR, Bk_VarT, Found
 character(len=180) :: Line
-real*8, external :: DDot_
-logical :: Bk_VarR, Bk_VarT
-real*8, allocatable :: Bk_Energy(:)
-real*8, allocatable :: Bk_Energy0(:)
-real*8, allocatable :: Bk_DipM(:,:)
-real*8, allocatable :: Bk_GNrm(:)
-real*8, allocatable :: Bk_Cx(:,:,:)
-real*8, allocatable :: Bk_Gx(:,:,:)
-real*8, allocatable :: Bk_Gx0(:,:,:)
-real*8, allocatable :: Bk_MF(:,:)
-real*8, allocatable :: Bk_Lambda(:,:)
-real*8, allocatable :: Bk_NAC(:,:,:)
-real*8, allocatable :: Bk_Q_nuclear(:)
-real*8, allocatable :: Bk_dMass(:)
-real*8, allocatable :: Bk_Coor(:,:)
-real*8, allocatable :: Bk_Grd(:,:)
-real*8, allocatable :: Bk_Weights(:)
-real*8, allocatable :: Bk_Shift(:,:)
-real*8, allocatable :: Bk_qInt(:,:)
-real*8, allocatable :: Bk_dqInt(:,:)
-real*8, allocatable :: Bk_RefGeo(:,:)
-real*8, allocatable :: Bk_BMx(:,:)
-real*8, allocatable :: Bk_Degen(:,:)
-real*8, allocatable :: Bk_BM(:)
-real*8, allocatable :: Bk_dBM(:)
-integer, allocatable :: Bk_iBM(:)
-integer, allocatable :: Bk_idBM(:)
-integer, allocatable :: Bk_nqBM(:)
-integer, allocatable :: Bk_ANr(:)
-integer, allocatable :: Bk_jStab(:,:)
-integer, allocatable :: Bk_nStab(:)
-integer, allocatable :: Bk_iCoSet(:,:)
+character(len=16) :: StdIn
+character(len=8) :: Filename
+integer(kind=iwp), allocatable :: Bk_ANr(:), Bk_iBM(:), Bk_iCoSet(:,:), Bk_idBM(:), Bk_jStab(:,:), Bk_mRowH(:), Bk_nqBM(:), &
+                                  Bk_nStab(:), Bk_RootMap(:), Sort(:)
+real(kind=wp), allocatable :: Bk_BM(:), Bk_BMx(:,:), Bk_Coor(:,:), Bk_Cx(:,:,:), Bk_dBM(:), Bk_Degen(:,:), Bk_DipM(:,:), &
+                              Bk_dMass(:), Bk_dqInt(:,:), Bk_Energy(:), Bk_Energy0(:), Bk_GNrm(:), Bk_Grd(:,:), Bk_Gx(:,:,:), &
+                              Bk_Gx0(:,:,:), Bk_Lambda(:,:), Bk_MF(:,:), Bk_NAC(:,:,:), Bk_Q_nuclear(:), Bk_qInt(:,:), &
+                              Bk_RefGeo(:,:), Bk_Shift(:,:), Bk_Weights(:), IntMod(:,:), KKtB(:,:), KMtrx(:,:), KTrsp(:,:), &
+                              NMod(:,:)
+logical(kind=iwp), allocatable :: Bk_Smmtrc(:,:)
 character(len=LenIn), allocatable :: Bk_AtomLbl(:)
-logical, allocatable :: Bk_Smmtrc(:,:)
+character(len=24), allocatable :: Label(:)
 character(len=8), allocatable :: Bk_Lbl(:)
-integer, allocatable :: Bk_mRowH(:)
-integer, allocatable :: Bk_RootMap(:)
+integer(kind=iwp), parameter :: nLbl = 10*MxAtom
+integer(kind=iwp), external :: AixRm, iPrintLevel, IsFreeUnit
+real(kind=wp), external :: DDot_
+character(len=180), external :: Get_Ln_EOF
 
 ! Ugly hack: backup all "global" slapaf variables in case this is
 !            called from inside slapaf
@@ -302,7 +274,7 @@ Bk_nBVec = nBVec
 Bk_IRC = IRC
 Bk_mTtAtm = mTtAtm
 Bk_MEPnum = MEPnum
-Bk_Stop = stop
+Bk_SlStop = SlStop
 Bk_lOld = lOld
 Bk_CurviLinear = CurviLinear
 Bk_HSet = HSet
@@ -472,7 +444,7 @@ do i=1,nModes
   do j=1,mq
     Mx = max(Mx,abs(IntMod(j,i)))
   end do
-  if (Mx > 1.0D-10) call DScal_(mq,One/Mx,IntMod(1,i),1)
+  if (Mx > 1.0e-10_wp) call DScal_(mq,One/Mx,IntMod(1,i),1)
 end do
 
 ! Print the overlaps
@@ -494,19 +466,19 @@ close(LuIC)
 
 MinComp = Half
 call CollapseOutput(1,'Principal components of the normal modes')
-write(6,'(3X,A)') '----------------------------------------'
-write(6,*)
-write(6,'(3X,A,F4.2,A)') '(Only contributions larger than ',MinComp,' times the maximum are printed)'
-write(6,*)
+write(u6,'(3X,A)') '----------------------------------------'
+write(u6,*)
+write(u6,'(3X,A,F4.2,A)') '(Only contributions larger than ',MinComp,' times the maximum are printed)'
+write(u6,*)
 call mma_allocate(Sort,mq,label='Sort')
 do i=1,nModes
-  write(6,*)
-  write(6,'(6X,A,1X,I6)') 'Mode',i
+  write(u6,*)
+  write(u6,'(6X,A,1X,I6)') 'Mode',i
   write(Line,'(5X,F10.2)') Freq(i)
   j = index(Line,'-')
   if (j > 0) Line(j:j) = 'i'
-  write(6,'(8X,A)') 'Frequency: '//trim(Line)//' cm-1'
-  write(6,'(6X,A)') '---------------------------------'
+  write(u6,'(8X,A)') 'Frequency: '//trim(Line)//' cm-1'
+  write(u6,'(6X,A)') '---------------------------------'
   do j=1,mq
     Sort(j) = j
   end do
@@ -519,9 +491,9 @@ do i=1,nModes
       end if
     end do
     if (abs(IntMod(Sort(j),i)) < MinComp) exit
-    write(6,'(8X,A,F7.4)') Label(Sort(j)),IntMod(Sort(j),i)
+    write(u6,'(8X,A,F7.4)') Label(Sort(j)),IntMod(Sort(j),i)
   end do
-  write(6,'(6X,A)') '---------------------------------'
+  write(u6,'(6X,A)') '---------------------------------'
 end do
 call CollapseOutput(0,'Principal components of the normal modes')
 
@@ -557,7 +529,7 @@ nBVec = Bk_nBVec
 IRC = Bk_IRC
 mTtAtm = Bk_mTtAtm
 MEPnum = Bk_MEPnum
-stop = Bk_Stop
+SlStop = Bk_SlStop
 lOld = Bk_lOld
 CurviLinear = Bk_CurviLinear
 HSet = Bk_HSet

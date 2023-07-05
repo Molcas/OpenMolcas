@@ -12,15 +12,18 @@
 subroutine TRPGen(nDim,nAtom,Coor,mTR,CofM,TRVec)
 
 use Slapaf_Info, only: Degen, Smmtrc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-real*8 Coor(3,nAtom), TRVec(3*nAtom*6)
-logical CofM
-logical, save :: g12K = .true.
-real*8, allocatable :: TR(:), Scrt(:), G(:), EVal(:), EVec(:), U(:)
+implicit none
+integer(kind=iwp) :: nDim, nAtom, mTR
+real(kind=wp) :: Coor(3,nAtom), TRVec(3*nAtom*6)
+logical(kind=iwp) :: CofM
+integer(kind=iwp) :: i, iAtom, ixyz, nTR
+real(kind=wp), allocatable :: EVal(:), EVec(:), G(:), Scrt(:), TR(:), U(:)
+real(kind=wp), parameter :: Thr_ElRed = 1.0e-12_wp
+logical(kind=iwp), parameter :: g12K = .true.
 
 call mma_allocate(TR,18*nAtom,Label='TR')
 
@@ -55,12 +58,11 @@ do iAtom=1,nAtom
   end do
 end do
 
-Thr_ElRed = 1.0D-12
 call ElRed(TRVec,nTR,nDim,G,EVal,EVec,mTR,U,Scrt,g12K,Thr_ElRed)
 
 if (mTR > 0) then
   TRVec(1:3*nAtom*nTR) = Zero
-  call DGEMM_('T','N',nDim,mTR,nTR,1.0d0,TR,nTR,EVec,nTR,0.0d0,TRVec,nDim)
+  call DGEMM_('T','N',nDim,mTR,nTR,One,TR,nTR,EVec,nTR,Zero,TRVec,nDim)
 end if
 
 call mma_deallocate(U)

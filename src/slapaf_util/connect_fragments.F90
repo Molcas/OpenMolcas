@@ -11,16 +11,20 @@
 
 subroutine Connect_Fragments(nAtoms,iTabBonds,nBondMax,nBonds,Coor,iTabAtoms,nMax,iANr)
 
-use slapaf_parameters, only: rFuzz
+use Slapaf_Parameters, only: rFuzz
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Five
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8 Coor(3,nAtoms)
-integer iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms), iTabBonds(3,nBondMax)
-integer, allocatable, dimension(:) :: iStack
-integer, allocatable :: nSet(:)
-real*8, allocatable :: SetDist(:)
+implicit none
+integer(kind=iwp) :: nAtoms, nBondMax, iTabBonds(3,nBondMax), nBonds, nMax, iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms)
+real(kind=wp) :: Coor(3,nAtoms)
 #include "bondtypes.fh"
+integer(kind=iwp) :: iAtom, iBond, iNeighbor, iOff, iOffHH, iSet, jAtom, kAtom, kSet, lAtom, lSet, nNeighbor_k, nNeighbor_l, &
+                     Not_Defined, nStack
+real(kind=wp) :: dR_Thr, HH_Thr, rShort, RTest
+integer(kind=iwp), allocatable :: iStack(:), nSet(:)
+real(kind=wp), allocatable :: SetDist(:)
 
 !                                                                      *
 !***********************************************************************
@@ -31,7 +35,7 @@ real*8, allocatable :: SetDist(:)
 !                                                                      *
 call mma_allocate(nSet,nAtoms,Label='nSet')
 dR_Thr = rFuzz
-HH_Thr = 5.0d0
+HH_Thr = Five
 
 call mma_allocate(iStack,nAtoms,label='iStack')
 
@@ -46,7 +50,7 @@ do
   nSet(iAtom) = iSet
 
 # ifdef _DEBUGPRINT_
-  write(6,*) '>>>> Connect Fragments <<<<<'
+  write(u6,*) '>>>> Connect Fragments <<<<<'
   call RecPrt('Coor',' ',Coor,3,nAtoms)
 # endif
   !                                                                    *
@@ -60,11 +64,11 @@ do
 
     iAtom = iStack(nStack)
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'iAtom=',iAtom
-    write(6,*) 'iSet=',iSet
-    write(6,*) 'nStack=',nStack
-    write(6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
+    write(u6,*)
+    write(u6,*) 'iAtom=',iAtom
+    write(u6,*) 'iSet=',iSet
+    write(u6,*) 'nStack=',nStack
+    write(u6,*) 'nNeighbor=',iTabAtoms(1,0,iAtom)
 #   endif
 
     ! Loop over all atoms to which this atom has a bond
@@ -76,10 +80,10 @@ do
       jAtom = iTabAtoms(1,iNeighbor,iAtom)
       iBond = iTabAtoms(2,iNeighbor,iAtom)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'jAtom=',jAtom
-      write(6,*) 'iBond=',iBond
-      write(6,*) 'iTabBonds(3,iBond)=',iTabBonds(3,iBond)
-      write(6,*) 'nSet(jAtom)=',nSet(jAtom)
+      write(u6,*) 'jAtom=',jAtom
+      write(u6,*) 'iBond=',iBond
+      write(u6,*) 'iTabBonds(3,iBond)=',iTabBonds(3,iBond)
+      write(u6,*) 'nSet(jAtom)=',nSet(jAtom)
 #     endif
       ! Skip if vdW bond.
       if (iTabBonds(3,iBond) == vdW_Bond) cycle
@@ -94,9 +98,9 @@ do
 
         ! Error if atom belongs to the wrong set.
         call WarningMessage(2,' Error in Connect_Fragments')
-        write(6,*) 'Connect_Fragments:'
-        write(6,*) 'Inconsistent set indices!'
-        write(6,*) 'iSet,jSet=',iSet,nSet(jAtom)
+        write(u6,*) 'Connect_Fragments:'
+        write(u6,*) 'Inconsistent set indices!'
+        write(u6,*) 'iSet,jSet=',iSet,nSet(jAtom)
         call Abend()
       end if
     end do
@@ -150,7 +154,7 @@ do
   ! Find the shortest distance between every two sets
 
   call mma_allocate(SetDist,iSet*iSet,Label='SetDist')
-  SetDist(:) = 1.0d6
+  SetDist(:) = 1.0e6_wp
   do kAtom=1,nAtoms
     kSet = nSet(kAtom)
     do lAtom=kAtom+1,nAtoms
@@ -171,7 +175,7 @@ do
 
   ! Find the shortest distance between any two sets.
 
-  rShort = 1.0d5
+  rShort = 1.0e5_wp
   do kSet=1,iSet
     do lSet=kSet+1,iSet
 
@@ -215,7 +219,7 @@ do
         ! Add the bond to the bond list
         if (nBonds+1 > nBondMax) then
           call WarningMessage(2,' Error in Connect_Fragments')
-          write(6,*) 'Connect_Fragments: nBonds+1 > nBondMax'
+          write(u6,*) 'Connect_Fragments: nBonds+1 > nBondMax'
           call Abend()
         end if
 
@@ -229,10 +233,10 @@ do
         nNeighbor_k = iTabAtoms(1,0,kAtom)+1
         if (nNeighbor_k > nMax) then
           call WarningMessage(2,' Error in Connect_Fragments')
-          write(6,*) 'Connect_Fragments: nNeighbor_k > nMax'
-          write(6,*) 'kAtom=',kAtom
-          write(6,*) 'nNeighbor_k=',nNeighbor_k
-          write(6,*) 'nMax=',nMax
+          write(u6,*) 'Connect_Fragments: nNeighbor_k > nMax'
+          write(u6,*) 'kAtom=',kAtom
+          write(u6,*) 'nNeighbor_k=',nNeighbor_k
+          write(u6,*) 'nMax=',nMax
           call Abend()
         end if
         iTabAtoms(1,0,kAtom) = nNeighbor_k
@@ -242,10 +246,10 @@ do
         nNeighbor_l = iTabAtoms(1,0,lAtom)+1
         if (nNeighbor_l > nMax) then
           call WarningMessage(2,' Error in Connect_Fragments')
-          write(6,*) 'Connect_Fragments: nNeighbor_l > nMax'
-          write(6,*) 'lAtom=',lAtom
-          write(6,*) 'nNeighbor_l=',nNeighbor_l
-          write(6,*) 'nMax=',nMax
+          write(u6,*) 'Connect_Fragments: nNeighbor_l > nMax'
+          write(u6,*) 'lAtom=',lAtom
+          write(u6,*) 'nNeighbor_l=',nNeighbor_l
+          write(u6,*) 'nMax=',nMax
           call Abend()
         end if
         iTabAtoms(1,0,lAtom) = nNeighbor_l

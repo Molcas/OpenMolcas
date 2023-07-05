@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1997, Roland Lindh                                *
 !***********************************************************************
 
-subroutine Cllct2(Strng,Vector,dVector,value,nAtom,nCntr,mCntr,xyz,Grad,Ind,type,qMss,Lbl,lWrite,Deg,Hess,lIter)
+subroutine Cllct2(Strng,Vector,dVector,Val,nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,qMss,Lbl,lWrite,Deg,Hess,lIter)
 !***********************************************************************
 !     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 !             University of Lund, SWEDEN                               *
@@ -21,37 +21,42 @@ subroutine Cllct2(Strng,Vector,dVector,value,nAtom,nCntr,mCntr,xyz,Grad,Ind,type
 !             June '97 (R. Lindh)                                      *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: Cx, dMass, AtomLbl
+use Symmetry_Info, only: iOper, nIrrep
+use Slapaf_Info, only: AtomLbl, Cx, dMass
+use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+character(len=*) :: Strng
+integer(kind=iwp) :: nAtom, nCntr, mCntr, Ind(nCntr+mCntr,2), lIter
+real(kind=wp) :: Vector(3,nAtom), dVector(3,nAtom,3,nAtom), Val, xyz(3,nCntr+mCntr), Grad(3,nCntr+mCntr), qMss(nCntr+mCntr), Deg, &
+                 Hess(3,nCntr+mCntr,3,nCntr+mCntr)
+character(len=6) :: Typ
+character(len=8) :: Lbl
+logical(kind=iwp) :: lWrite
 #include "print.fh"
-#include "real.fh"
 #include "Molcas.fh"
-character(len=*) Strng
-character(len=LenIn5) Label
-character(len=LenIn) Name
-character(len=8) Lbl
-character Oper*3, type*6
-real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr), Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom), Axis(3), Perp_Axis(3,2), &
-       qMss(nCntr+mCntr), Hess(3,nCntr+mCntr,3,nCntr+mCntr)
-integer Ind(nCntr+mCntr,2), iDCR(MxAtom)
-logical lWrite, ldB, lWarn
-real*8, allocatable :: Not_Allocated(:,:)
+integer(kind=iwp) :: i, iEnd, iFrst, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, lStrng, nCent, nPar1, nPar2
+real(kind=wp) :: Axis(3), Perp_Axis(3,2)
+character(len=LenIn5) :: Label
+character(len=LenIn) :: AtName
+character(len=3) :: Oper
+logical(kind=iwp) :: ldB, lWarn
+integer(kind=iwp), allocatable :: iDCR(:)
+real(kind=wp), allocatable :: Not_Allocated(:,:)
+real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    integer nCent
-    real*8 xyz(3,nCent)
-    real*8, allocatable, target :: OfRef(:,:)
-    real*8 RR0
-    real*8 Bf(3,nCent)
-    logical l_Write
-    character(len=8) Label
-    real*8 dBf(3,nCent,3,nCent)
-    logical ldB
+    import :: wp, iwp
+    integer(kind=iwp) :: nCent
+    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
+    real(kind=wp), allocatable, target :: OfRef(:,:)
+    logical(kind=iwp) :: l_Write, ldB
+    character(len=8) :: Label
   end subroutine SphInt
 end interface
 
@@ -72,8 +77,9 @@ iFrst = 1
 iEnd = 1
 lStrng = len(Strng)
 
-! Pick up cartesian coordinates associated with the
-! internal coordinate
+! Pick up cartesian coordinates associated with the internal coordinate
+
+call mma_allocate(iDCR,MxAtom,Label='iDCR')
 
 nCent = nCntr+mCntr
 do ixyz=1,nCent
@@ -89,8 +95,8 @@ do ixyz=1,nCent
   end if
   iPhase = 0
   if ((nPar1 /= 0) .and. (nPar2 /= 0)) then
-    Name = '    '
-    Name = Label(1:nPar1-1)
+    AtName = '    '
+    AtName = Label(1:nPar1-1)
     Oper = Label(nPar1+1:nPar2-1)
     call UpCase(Oper)
     if (index(Oper,'X') /= 0) iPhase = ieor(iPhase,1)
@@ -106,15 +112,15 @@ do ixyz=1,nCent
     iDCR(ixyz) = iOper(i)
     if (i == 0) then
       call WarningMessage(2,' Undefined symmetry operator')
-      write(6,'(A)') Oper
+      write(u6,'(A)') Oper
       call Quit_OnUserError()
     end if
     iFrst = iEnd+1
   else if ((nPar1 == 0) .and. (nPar2 == 0)) then
-    Name = '    '
+    AtName = '    '
     Oper = ' '
     if (iEnd >= iFrst) then
-      Name = Strng(iFrst:iEnd)
+      AtName = Strng(iFrst:iEnd)
       if ((iEnd >= 1) .and. (iEnd < lStrng)) iFrst = iEnd+1
     end if
     iDCR(ixyz) = iOper(0)
@@ -125,13 +131,13 @@ do ixyz=1,nCent
 
   ! Find corresponding coordinate
 
-  if ((type(1:5) /= 'EDIFF') .and. (type(1:3) /= 'NAC') .and. (type(1:6) /= 'SPHERE') .and. (type(1:6) /= 'TRANSV')) then
+  if ((Typ(1:5) /= 'EDIFF') .and. (Typ(1:3) /= 'NAC') .and. (Typ(1:6) /= 'SPHERE') .and. (Typ(1:6) /= 'TRANSV')) then
     jsAtom = 0
     do isAtom=1,nAtom
-      if (Name == AtomLbl(isAtom)) jsAtom = isAtom
+      if (AtName == AtomLbl(isAtom)) jsAtom = isAtom
     end do
     if (jsAtom == 0) then
-      call WarningMessage(2,' Unrecognizable atom label '//Name)
+      call WarningMessage(2,' Unrecognizable atom label '//trim(AtName))
       call Quit_OnUserError()
     end if
   else
@@ -147,7 +153,7 @@ do ixyz=1,nCent
   if (iand(iPhase,1) /= 0) xyz(1,ixyz) = -xyz(1,ixyz)
   if (iand(iPhase,2) /= 0) xyz(2,ixyz) = -xyz(2,ixyz)
   if (iand(iPhase,4) /= 0) xyz(3,ixyz) = -xyz(3,ixyz)
-  if (type == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
+  if (Typ == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
 
 end do  ! do ixyz=1,nCntr+mCntr
 
@@ -160,64 +166,64 @@ end if
 !                                                                      *
 ! Process the internal coordinate
 
-if (type == 'X     ') then
-  value = xyz(1,1)
+if (Typ == 'X     ') then
+  Val = xyz(1,1)
   call dcopy_(3,[Zero],0,Grad,1)
   call dcopy_(9,[Zero],0,Hess,1)
   Grad(1,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)
-else if (type == 'Y     ') then
-  value = xyz(2,1)
+else if (Typ == 'Y     ') then
+  Val = xyz(2,1)
   call dcopy_(3,[Zero],0,Grad,1)
   call dcopy_(9,[Zero],0,Hess,1)
   Grad(2,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)
-else if (type == 'Z     ') then
-  value = xyz(3,1)
+else if (Typ == 'Z     ') then
+  Val = xyz(3,1)
   call dcopy_(3,[Zero],0,Grad,1)
   call dcopy_(9,[Zero],0,Hess,1)
   Grad(3,1) = One
-  if (lWrite) write(6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',value,'/ bohr'
+  if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)
-else if (type == 'STRTCH') then
-  call Strtch(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB)
+else if (Typ == 'STRTCH') then
+  call Strtch(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB)
   Deg = D_Bond(Ind,Ind(1,2),nIrrep)
-else if (type == 'LBEND1') then
+else if (Typ == 'LBEND1') then
   call CoSys(xyz,Axis,Perp_Axis)
-  call LBend(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,1),.false.)
+  call LBend(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,1),.false.)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'LBEND2') then
+else if (Typ == 'LBEND2') then
   call CoSys(xyz,Axis,Perp_Axis)
-  call LBend(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,2),.true.)
+  call LBend(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,2),.true.)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'BEND  ') then
-  call Bend(xyz,nCntr,value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+else if (Typ == 'BEND  ') then
+  call Bend(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
   Deg = D_Bend(Ind,Ind(1,2),nIrrep)
-else if (type == 'TRSN  ') then
-  call Trsn(xyz,nCntr,value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+else if (Typ == 'TRSN  ') then
+  call Trsn(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
   Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
-else if (type == 'OUTOFP') then
-  call OutOfP(xyz,nCntr,value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+else if (Typ == 'OUTOFP') then
+  call OutOfP(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
   Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
-else if (type(1:3) == 'NAC') then
-  call NACInt(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB,lIter)
+else if (Typ(1:3) == 'NAC') then
+  call NACInt(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,lIter)
   Deg = One
-else if (type(1:5) == 'EDIFF') then
-  call ConInt(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB,lIter)
+else if (Typ(1:5) == 'EDIFF') then
+  call ConInt(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,lIter)
   Deg = One
-else if (type(1:6) == 'SPHERE') then
-  call SphInt(xyz,nCntr,Not_Allocated,value,Grad,lWrite,Lbl,Hess,ldB)
+else if (Typ(1:6) == 'SPHERE') then
+  call SphInt(xyz,nCntr,Not_Allocated,Val,Grad,lWrite,Lbl,Hess,ldB)
   Deg = One
-else if (type(1:6) == 'TRANSV') then
-  call Transverse(xyz,nCntr,value,Grad,lWrite,Lbl,Hess,ldB)
+else if (Typ(1:6) == 'TRANSV') then
+  call Transverse(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB)
   Deg = One
-else if (type == 'DISSOC') then
-  call Dissoc(xyz,nCntr,mCntr,qMss,value,Grad,lWrite,Lbl,Hess,ldB)
+else if (Typ == 'DISSOC') then
+  call Dissoc(xyz,nCntr,mCntr,qMss,Val,Grad,lWrite,Lbl,Hess,ldB)
   Deg = One
 else
-  call WarningMessage(2,' Type declaration is not supported: '//type)
+  call WarningMessage(2,' Type declaration is not supported: '//trim(Typ))
   call Quit_OnUserError()
 end if
 !                                                                      *
@@ -230,6 +236,8 @@ if (iPrint >= 99) then
   call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
   call RecPrt(' symmetry adapted dvector',' ',dVector,3*nAtom,3*nAtom)
 end if
+
+call mma_deallocate(iDCR)
 
 return
 

@@ -11,18 +11,23 @@
 
 subroutine Find_Min(nOrder,XStart,A,XMin,RC,XLow,XHi,ENew)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nOrder
+real(kind=wp) :: XStart, A(0:nOrder), XMin, XLow, XHi, ENew
+logical(kind=iwp) :: RC
 #include "print.fh"
-real*8 A(0:nOrder)
-logical RC
+integer(kind=iwp) :: i, iPrint, iRout, j, MaxIter
+real(kind=wp) :: ddfnc, dfnc, fnc, tmp, X, XInc, XValue, XX
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
 
 iRout = 117
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
 end if
-Thr = 1.0D-12
 XValue = XStart
 RC = .true.
 MaxIter = 100
@@ -37,21 +42,21 @@ do i=1,MaxIter
   dfnc = Zero
   XX = One
   do j=1,nOrder
-    tmp = dble(j)
+    tmp = real(j,kind=wp)
     dfnc = dfnc+A(j)*tmp*XX
     XX = XX*X
   end do
   ddfnc = Zero
   XX = One
   do j=2,nOrder
-    tmp = dble(j*j-j)
+    tmp = real(j*j-j,kind=wp)
     ddfnc = ddfnc+A(j)*tmp*XX
     XX = XX*X
   end do
   XInc = dfnc/ddfnc
   XValue = XValue-XInc
   if (iPrint == 99) then
-    write(6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
+    write(u6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
   end if
   if (abs(XInc) < Thr) then
     ENew = fnc
@@ -61,7 +66,7 @@ do i=1,MaxIter
   if (XValue > XHi) XValue = XHi
   if (XValue < XLow) XValue = XLow
 end do
-if (iPrint >= 6) write(6,*) '-- Too many iterations in Find_Min'
+if (iPrint >= 6) write(u6,*) '-- Too many iterations in Find_Min'
 RC = .false.
 
 return

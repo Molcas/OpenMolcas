@@ -11,15 +11,21 @@
 
 subroutine Print_qEVec2(nH,EVal,EVec)
 
-implicit real*8(a-h,o-z)
-real*8 EVec(nH,nH), EVal(nH*(nH+1)/2)
-character(len=14) qLbl(nH)
-character(len=14) cLbl
-character(len=120) Temp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nH
+real(kind=wp) :: EVal(nH*(nH+1)/2), EVec(nH,nH)
+integer(kind=iwp) :: iiQQ, iLines, IncQQ, iq, iQQ, j, Lu, Lu_UDIC, mQQ
+character(len=120) :: Temp
+character(len=14) :: cLbl
+character(len=14), allocatable :: qLbl(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Skip Primitive Coords
 
-Lu_UDIC = 91
+Lu_UDIC = IsFreeUnit(91)
 Temp = 'UDIC'
 call molcas_open(Lu_UDIC,Temp)
 do
@@ -29,6 +35,8 @@ do
 end do
 
 ! Read Internal Coords Labels
+
+call mma_allocate(qLbl,nH,Label='qLbl')
 
 do iLines=1,nH
   read(Lu_UDIC,'(A)') Temp
@@ -42,7 +50,7 @@ do iLines=1,nH
   qLbl(iLines) = cLbl
 end do
 
-Lu = 6
+Lu = u6
 IncQQ = 5
 do iiQQ=1,nH,IncQQ
   mQQ = min(nH,iiQQ+IncQQ-1)
@@ -55,6 +63,8 @@ do iiQQ=1,nH,IncQQ
   end do
   write(Lu,*)
 end do
+
+call mma_deallocate(qLbl)
 
 close(Lu_UDIC)
 

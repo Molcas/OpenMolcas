@@ -13,7 +13,7 @@ subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,J
 
 use Slapaf_Info, only: Coor, Cx, dqInt, Energy, GNrm, Gx, Lbl, qInt, Shift
 use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Baker, E_Delta, EDiffZero, eMEPTest, FindTS, GrdMax, HUpMet, iNeg, &
-                             iOptC, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, rMEP, stop, ThrCons, ThrEne, ThrGrd, ThrMEP
+                             iOptC, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, rMEP, SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
 use Chkpnt, only: Chkpnt_update_MEP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
@@ -45,15 +45,12 @@ integer(kind=iwp), external :: IsFreeUnit
 !                                                                      *
 interface
   subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    integer nCent
-    real*8 xyz(3,nCent)
-    real*8, allocatable, target :: OfRef(:,:)
-    real*8 RR0
-    real*8 Bf(3,nCent)
-    logical l_Write
-    character(len=8) Label
-    real*8 dBf(3,nCent,3,nCent)
-    logical ldB
+    import :: wp, iwp
+    integer(kind=iwp) :: nCent
+    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
+    real(kind=wp), allocatable, target :: OfRef(:,:)
+    logical(kind=iwp) :: l_Write, ldB
+    character(len=8) :: Label
   end subroutine SphInt
 end interface
 
@@ -269,16 +266,16 @@ else
   Conv1 = Conv1 .and. Conv2
 end if
 
-stop = Conv1 .or. (kIter-iOff_Iter >= MxItr) ! CGG
+SlStop = Conv1 .or. (kIter-iOff_Iter >= MxItr) ! CGG
 iStop = 1
 if (kIter-iOff_Iter >= MxItr) iStop = 16     ! CGG
 if (Conv1 .or. Just_Frequencies) iStop = 0
 
 if (GoOn) then
-  stop = .false.
+  SlStop = .false.
   iStop = 1
 else
-  if (Just_Frequencies) stop = .true.
+  if (Just_Frequencies) SlStop = .true.
   nPrint(52) = nPrint(52)+1
   nPrint(54) = nPrint(54)+1
   iPrint = iPrint+1
@@ -316,13 +313,13 @@ else
   end if
 end if
 
-if (stop .and. Conv1) then
+if (SlStop .and. Conv1) then
   call Qpg_dScalar('Max error',Found)
   if (Found) call Get_dScalar('Max error',MaxErr)
   if (MaxErr > ThrCons) then
     iStop = 1
     Conv1 = .false.
-    stop = .false.
+    SlStop = .false.
     write(Lu,'(A,ES11.4)') 'Maximum constraint error: ',MaxErr
     write(Lu,*)
   end if
@@ -347,7 +344,7 @@ else
 end if
 if (nLambda > nConst) Point_Desc = 'Constrained '//trim(Point_Desc)
 if (iPrint >= 5) then
-  if (stop) then
+  if (SlStop) then
     if (Conv1) then
       write(Lu,'(A,I3,A)') ' Geometry is converged in ',kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
     else
@@ -358,7 +355,7 @@ if (iPrint >= 5) then
     write(Lu,'(A)') ' Convergence not reached yet!'
   end if
 end if
-if (FindTS .and. stop .and. Conv1) then
+if (FindTS .and. SlStop .and. Conv1) then
   if (.not. TSReg) then
     if (iPrint >= 5) then
       write(Lu,*)
@@ -384,7 +381,7 @@ if (abs(E_Delta) > Maxed) then
   write(u6,'(A)') ' This can''t be right!'
   write(u6,'(A)') ' This job will be terminated.'
   iStop = 8
-  stop = .true.
+  SlStop = .true.
 end if
 if (iPrint >= 5) then
   write(Lu,*)
@@ -611,7 +608,7 @@ if (Conv1 .and. Saddle) then
 
     Terminate = .false.
     iStop = 6
-    stop = .false.
+    SlStop = .false.
   else
     call NameRun('RUNFILE')
     call mma_deallocate(Tmp)
@@ -723,7 +720,7 @@ if (MEP .or. rMEP) then
       if (prevDist < Half*refDist) then
         TurnBack = .true.
         Conv1 = .true.
-        stop = .true.
+        SlStop = .true.
         iStop = 0
         Terminate = .true.
       end if
@@ -921,7 +918,7 @@ if ((Conv1 .or. (iter == 1)) .and. (MEP .or. rMEP)) then
 
   if (.not. Terminate) then
     iStop = 1
-    stop = .false.
+    SlStop = .false.
   end if
 
   ! Print out the path so far
@@ -998,7 +995,7 @@ end if
 !                                                                      *
 ! Figure out if the last energy should be computed!
 
-Last_Energy = stop .and. (iStop /= 16) .and. (iStop /= 8)
+Last_Energy = SlStop .and. (iStop /= 16) .and. (iStop /= 8)
 Last_Energy = Last_Energy .and. (.not. MEP) .and. (.not. rMEP)
 Last_Energy = Last_Energy .and. (.not. (Numerical .and. (kIter == 1)))
 if (Last_Energy) iStop = 2

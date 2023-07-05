@@ -9,32 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,value,nB,qLbl,fconst,rMult,LuIC,Indq,Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms, &
+subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,LuIC,Indq,Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms, &
                      mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
 
 use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
 use Slapaf_Parameters, only: iOptC
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, LuIC, Indq(3,nB), nBonds, iTabBonds(3,nBonds), mAtoms, iTabAI(2,mAtoms), &
+                     mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, idBM(2,ndB_Tot), mqB(nB)
+real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+logical(kind=iwp) :: Process, Proc_dB
+character(len=14) :: qLbl(nB)
 #include "Molcas.fh"
-#include "real.fh"
-parameter(mB=2*3)
-real*8 Cx(3,nsAtom,nIter), A(3,2), Grad(mB), Hess(mB**2), fconst(nB), value(nB,nIter), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
-integer iDCRR(0:7), iStabM(0:7), Ind(2), iDCR(2), iChOp(0:7), Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms), iBM(nB_Tot), &
-        idBM(2,ndB_Tot), mqB(nB)
-logical Process, Proc_dB, Help, R_Stab_A
-character*14 Label, qLbl(nB)
-character*3 ChOp(0:7)
-character*(LenIn4) Lbls(2)
 #include "bondtypes.fh"
 #define _FMIN_
 #define _VDW_
 #include "ddvdt.fh"
 #define _SCHLEGEL_
 #include "ddvdt_bond.fh"
-data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
-data iChOp/1,1,1,2,1,2,2,3/
+integer(kind=iwp), parameter :: mB = 2*3
+integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
+                     iStabM(0:7), jAtom, jAtom_, jRow, kDCRR, Lambda, nCent, nDCRR, nqB, nStabM
+real(kind=wp) :: A(3,2), Alpha, Deg, f_Const, Grad(mB), Hess(mB**2), r0, Rab, RabCov, Rij2, Val
+logical(kind=iwp) :: Help
+character(len=14) :: Label
+character(len=LenIn4) :: Lbls(2)
+integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
+character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']
+real(kind=wp), external :: CovRad
+logical(kind=iwp), external :: R_Stab_A
 
 !                                                                      *
 !***********************************************************************
@@ -47,17 +53,17 @@ if (nBonds < 1) return
 
 nqB = 0
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' ---> Enter Bonds.'
-write(6,*)
-write(6,*) 'Process=',Process
+write(u6,*)
+write(u6,*) ' ---> Enter Bonds.'
+write(u6,*)
+write(u6,*) 'Process=',Process
 call RecPrt('CX',' ',CX,3*nsAtom,nIter)
-write(6,'(20(1X,A))') (AtomLbl(i),i=1,nsAtom)
-write(6,*)
-write(6,*) ' iTabAI'
-write(6,*)
+write(u6,'(20(1X,A))') (AtomLbl(i),i=1,nsAtom)
+write(u6,*)
+write(u6,*) ' iTabAI'
+write(u6,*)
 do iAtom=1,mAtoms
-  write(6,*) iTabAI(1,iAtom),iTabAI(2,iAtom)
+  write(u6,*) iTabAI(1,iAtom),iTabAI(2,iAtom)
 end do
 #endif
 
@@ -92,7 +98,7 @@ do iBond=1,nBonds
     iRow = max(ANr(iAtom),1)
     jRow = max(ANr(jAtom),1)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iAtom,jAtom=',iAtom,jAtom
+    write(u6,*) 'iAtom,jAtom=',iAtom,jAtom
 #   endif
     Help = (iRow > 3) .or. (jRow > 3)
     Ind(1) = iAtom
@@ -112,10 +118,10 @@ do iBond=1,nBonds
     kDCRR = iDCR(2)
 
 #   ifdef _DEBUGPRINT_
-    write(6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-    write(6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-    write(6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-    write(6,'(2A)') 'R=',ChOp(iDCR(2))
+    write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+    write(u6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+    write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+    write(u6,'(2A)') 'R=',ChOp(iDCR(2))
 #   endif
 
     call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
@@ -133,15 +139,15 @@ do iBond=1,nBonds
       call Union(jStab(0,iAtom),nStab(iAtom),jStab(0,jAtom),nStab(jAtom),kDCRR,iStabM,nStabM)
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+    write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #   endif
 
     ! Now evaluate the degeneracy of the bond.
 
     iDeg = nIrrep/nStabM
-    Deg = sqrt(dble(iDeg))
+    Deg = sqrt(real(iDeg,kind=wp))
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' nIrrep,nStabM=',nIrrep,nStabM
+    write(u6,*) ' nIrrep,nStabM=',nIrrep,nStabM
 #   endif
 
     nq = nq+1
@@ -163,7 +169,7 @@ do iBond=1,nBonds
     end if
     write(LuIC,'(A,I3.3,4A)') 'b',nqB,' = Bond ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2)
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,I3.3,4A)') 'b',nqB,' = Bond ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2)
+    write(u6,'(A,I3.3,4A)') 'b',nqB,' = Bond ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2)
 #   endif
     Label = ' '
     write(Label,'(A,I3.3)') 'b',nqB
@@ -199,11 +205,11 @@ do iBond=1,nBonds
       end if
 
       f_Const = max(f_Const,f_Const_Min)
-      if (iBondType == Fragments_Bond) f_Const = f_Const*1.d3
+      if (iBondType == Fragments_Bond) f_Const = f_Const*1.0e3_wp
       fconst(nq) = sqrt(f_Const)
       rMult(nq) = Deg
 
-      value(nq,iIter) = Val
+      Valu(nq,iIter) = Val
       qLbl(nq) = Label
 
       ! Project the gradient vector

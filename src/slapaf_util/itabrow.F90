@@ -9,27 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function iTabRow(i)
+function iTabRow(i)
 
-implicit integer(a-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iTabRow
+integer(kind=iwp) :: i
 
 iTabRow = 0
 iTabRow = 1
-if ((i > 0) .and. (i <= 2)) then
-  iTabRow = 1
-else if ((i > 2) .and. (i <= 10)) then
-  iTabRow = 2
-else if ((i > 10) .and. (i <= 18)) then
-  iTabRow = 3
-else if ((i > 18) .and. (i <= 36)) then
-  iTabRow = 4
-else if ((i > 36) .and. (i <= 54)) then
-  iTabRow = 5
-else if ((i > 54) .and. (i <= 86)) then
-  iTabRow = 6
-else if (i > 86) then
-  iTabRow = 7
-end if
+select case (i)
+  case (1:2)
+    iTabRow = 1
+  case (3:10)
+    iTabRow = 2
+  case (11:18)
+    iTabRow = 3
+  case (19:36)
+    iTabRow = 4
+  case (37:54)
+    iTabRow = 5
+  case (55:86)
+    iTabRow = 6
+  case (87:)
+    iTabRow = 7
+  case default
+    iTabRow = 1
+end select
 
 return
 

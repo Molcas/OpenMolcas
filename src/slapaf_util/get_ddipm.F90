@@ -16,14 +16,20 @@ subroutine Get_dDipM(dDipM,DipM,nDoF,nInter)
 !                                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: Coor
-use Slapaf_Parameters, only: mTROld
+use Slapaf_Parameters, only: mTR => mTROld
+use Slapaf_Info, only: Coor, Cx, Degen, Smmtrc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8 dDipM(3,nDoF), DipM(3)
-logical Found
-real*8, allocatable :: Tmp2(:), BOld(:), TROld(:)
+implicit none
+integer(kind=iwp) :: nDoF, nInter
+real(kind=wp) :: dDipM(3,nDoF), DipM(3)
+integer(kind=iwp) :: i, iAtom, ij, iTR, iX, jAtom, jj, jjj, jx, k, nAtom, nBMx, nTR, nX
+real(kind=wp) :: CM(3), rNorm, Rx, Ry, Rz, tmp_ij, Tx, Ty, Tz
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: BMtrx(:,:), Tmp2(:), TRVec(:,:)
+real(kind=wp), parameter :: thr = 1.0e-12_wp
 
 !                                                                      *
 !***********************************************************************
@@ -32,47 +38,28 @@ real*8, allocatable :: Tmp2(:), BOld(:), TROld(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nX = 3*size(Coor,2)
+nAtom = size(Coor,2)
+nX = 3*nAtom
 
 call mma_allocate(Tmp2,nX**2,Label='Tmp2')
-call mma_allocate(BOld,nX*nInter,Label='BOld')
+call mma_allocate(BMtrx,nX,nInter,Label='BMtrx')
 call Qpg_dArray('BMxOld',Found,nBMx)
 if (Found .and. (nBMx == nX*nInter)) then
-  call Get_dArray('BMxOld',BOld,nX*nInter)
+  call Get_dArray('BMxOld',BMtrx,nX*nInter)
 else
-  call Get_dArray('BMtrx',BOld,nX*nInter)
+  call Get_dArray('BMtrx',BMtrx,nX*nInter)
 end if
-if (mTROld > 0) then
-  call mma_allocate(TROld,nX*mTROld,Label='TROld')
+if (mTR > 0) then
+  call mma_allocate(TRVec,nX,mTR,Label='TRVec')
   call Qpg_dArray('TROld',Found,nTR)
-  if (Found .and. (nTR == nX*mTROld)) then
-    call Get_dArray('TROld',TROld,nX*mTROld)
+  if (Found .and. (nTR == nX*mTR)) then
+    call Get_dArray('TROld',TRVec,nX*mTR)
   else
-    call Get_dArray('TR',TROld,nX*mTROld)
+    call Get_dArray('TR',TRVec,nX*mTR)
   end if
 else
-  call mma_allocate(TROld,1,Label='TROld')
+  call mma_allocate(TRVec,1,0,Label='TRVec')
 end if
-
-call Get_dDipM_(nX,BOld,TROld,nDoF,nInter,Tmp2,dDipM,mTROld,size(Coor,2),DipM)
-
-call mma_deallocate(TROld)
-call mma_deallocate(BOld)
-call mma_deallocate(Tmp2)
-
-return
-
-end subroutine Get_dDipM
-
-subroutine Get_dDipM_(nX,BMtrx,TRVec,nDoF,nInter,Tmp2,dDipM,mTR,nAtom,DipM)
-
-use Slapaf_Info, only: Cx, Degen, Smmtrc
-
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 TRVec(nX,mTR), BMtrx(nX,nInter), Tmp2(nX**2), dDipM(3,nInter+mTR), DipM(3)
-real*8 CM(3)
-parameter(thr=1.0D-12)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('TRVec',' ',TRVec,nX,mTR)
@@ -119,17 +106,17 @@ do iX=mTR,1,-1
     Ry = Ry+(TRVec((i-1)*3+3,iX)*(Cx(1,i,1)-CM(1))-TRVec((i-1)*3+1,iX)*(Cx(3,i,1)-CM(3)))*Degen(2,i)
     Rz = Rz+(TRVec((i-1)*3+1,iX)*(Cx(2,i,1)-CM(2))-TRVec((i-1)*3+2,iX)*(Cx(1,i,1)-CM(1)))*Degen(3,i)
   end do
-#ifdef _DEBUGPRINT_
-  write(6,*) 'Tx,Ty,Tz=',Tx,Ty,Tz
-  write(6,*) 'Rx,Ry,Rz=',Rx,Ry,Rz
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Tx,Ty,Tz=',Tx,Ty,Tz
+  write(u6,*) 'Rx,Ry,Rz=',Rx,Ry,Rz
+# endif
 
   if ((Rx**2+Ry**2+Rz**2 < thr) .and. (Tx**2+Ty**2+Tz**2 > thr)) then
 
   ! Translation, dipole moment invariant to translation
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Translation'
+    write(u6,*) 'Translation'
 #   endif
     call dcopy_(3,[Zero],0,dDipM(1,iTR),1)
 
@@ -175,7 +162,7 @@ do ix=1,3
         jj = jj+1
         ij = (jj-1)*3+ix
 
-        tmp_ij = 0.0d0
+        tmp_ij = Zero
         do k=1,nInter
           tmp_ij = tmp_ij+dDipM(ix,k)*BMtrx(jjj,k)
         end do
@@ -193,9 +180,14 @@ call dcopy_(3*nDoF,Tmp2,1,dDipM,1)
 #ifdef _DEBUGPRINT_
 call RecPrt('dDipM(cartesian)',' ',dDipM,3,nDoF)
 #endif
+
+call mma_deallocate(TRVec)
+call mma_deallocate(BMtrx)
+call mma_deallocate(Tmp2)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 return
 
-end subroutine Get_dDipM_
+end subroutine Get_dDipM

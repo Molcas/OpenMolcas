@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine SupSym(FrcCrt,nsAtom,Coor,nSupSy,Idntcl,iAtom)
 !***********************************************************************
 !                                                                      *
@@ -15,16 +16,16 @@ subroutine SupSym(FrcCrt,nsAtom,Coor,nSupSy,Idntcl,iAtom)
 !                                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: dMass, Smmtrc
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-! global arrays
-real*8 FrcCrt(3,nsAtom), Coor(3,nsAtom)
-integer Idntcl(nSupSy), iAtom(nsAtom)
-! local arrays
-real*8 cMass(3)
-real*8 E(3)
+implicit none
+integer(kind=iwp) :: nsAtom, nSupSy, Idntcl(nSupSy), iAtom(nsAtom)
+real(kind=wp) :: FrcCrt(3,nsAtom), Coor(3,nsAtom)
+integer(kind=iwp) :: I, ICEN, IDIV, J, K, L
+real(kind=wp) :: ABSE, cMass(3), E(3), E2, FORCE, PROJ
+integer(kind=iwp), external :: iDeg
+real(kind=wp), external :: DDot_
 
 call CofMss(Coor,nsAtom,cMass)
 
@@ -61,7 +62,7 @@ do I=1,nSupSy
     PROJ = DDot_(3,E,1,FrcCrt(1,ICEN),1)
 
     ! Sum forces which should be equal
-    FORCE = FORCE+PROJ*dble(iDeg(Coor(1,iCen)))
+    FORCE = FORCE+PROJ*real(iDeg(Coor(1,iCen)),kind=wp)
     IDIV = IDIV+iDeg(Coor(1,iCen))
 
     ! Save the unit vector of the new force of this center
@@ -72,7 +73,7 @@ do I=1,nSupSy
   end do
 
   ! Get the new force
-  FORCE = FORCE/dble(IDIV)
+  FORCE = FORCE/real(IDIV,kind=wp)
   K = K-Idntcl(I)
 
   ! Symmetrize the forces
@@ -86,67 +87,5 @@ do I=1,nSupSy
     end do
   end do
 end do
-
-contains
-
-subroutine CofMss(Coor,nsAtom,cMass)
-  !*********************************************************************
-  !   Object: To calculate the molecular mass, the center of mass and  *
-  !           move the coordinates so origo is the center of mass.     *
-  !*********************************************************************
-
-  real*8 COOR(3,nsAtom), cMass(3)
-  integer i, j
-
-  ! Calculate the molecular mass.
-
-  TMass = Zero
-  do I=1,nsAtom
-    TMass = TMass+dMass(I)*dble(iDeg(Coor(1,i)))
-  end do
-  iCOM = -1
-  if (TMass >= 1.d99) then
-    do i=1,nsAtom
-      if (dMass(i) == 1.d99) then
-        iCOM = i
-        exit
-      end if
-    end do
-  end if
-
-  ! calculate the center of mass
-
-  cMass(:) = Zero
-  ! Loop over the unique centers
-  do i=1,nsAtom
-    do j=1,3
-      ! Add contribution
-      if (Smmtrc(j,i)) cMass(j) = cMass(j)+dMass(i)*Coor(j,i)*dble(iDeg(Coor(1,i)))
-    end do
-  end do
-
-  do i=1,3
-    cMass(i) = cMass(i)/TMass
-  end do
-  if ((iCOM >= 1) .and. (iCOM <= nsAtom)) cMass(:) = Coor(:,iCom)
-
-# ifdef _DEBUGPRINT_
-  if (LWrite) write(6,100) (cMass(i),i=1,3),TMass
-  100 format(//,' Center of Mass (Bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
-# endif
-# ifdef _DO_NOT_
-
-  ! translate the center of mass to origo
-
-  do i=1,nsAtom
-    do j=1,3
-      Coor(j,i) = Coor(j,i)-cMass(j)
-    end do
-  end do
-# endif
-
-  return
-
-end subroutine CofMss
 
 end subroutine SupSym

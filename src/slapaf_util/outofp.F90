@@ -11,16 +11,23 @@
 
 subroutine OutofP(xyz,nCent,Teta,Bt,lWrite,lWarn,Label,dBt,ldB)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Bt(3,nCent), xyz(3,nCent), dBt(3,nCent,3,nCent), R42(3), R43(3), C14X(3,3), BR14X(3,3), dBR14X(3,3,3,3)
-logical lWrite, lWarn, ldB
-character*8 Label
+use Constants, only: Zero, One, Two, Nine, Pi, deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCent
+real(kind=wp) :: xyz(3,nCent), Teta, Bt(3,nCent), dBt(3,nCent,3,nCent)
+logical(kind=iwp) :: lWrite, lWarn, ldB
+character(len=8) :: Label
+integer(kind=iwp) :: ix, iy, iz, jx, jy, jz, mCent
+real(kind=wp) :: BR14X(3,3), C14X(3,3), CosFi1, CosFi2, CosFi3, dBR14X(3,3,3,3), dFi1, dFi2, dFi3, dTeta, e41x, e41y, e41z, e42x, &
+                 e42y, e42z, e43x, e43y, e43z, Fi1, Fi2, Fi3, Q41, Q42, Q43, R41KV, R42(3), R42KV, R43(3), R43KV, RX1, RX2, RX3, &
+                 RY1, RY2, RY3, RZ1, RZ2, RZ3
 !#define _Test_Numerical_
 #ifdef _Test_Numerical_
-real*8 Bt_temp_p(3,4)
-real*8 Bt_temp_m(3,4)
+real(kind=wp) :: Bt_temp_m(3,4); Bt_temp_p(3,4)
 #endif
+real(kind=wp), external :: ArCos
 
 !                                                                      *
 !***********************************************************************
@@ -65,15 +72,15 @@ CosFi1 = e43x*e42x+e43y*e42y+e43z*e42z
 
 Fi1 = ArCos(CosFi1)
 if (abs(CosFi1) > One) call RecPrt('xyz(1)',' ',xyz,3,4)
-dFi1 = 180.d0*Fi1/Pi
-if (lWarn .and. ((dFi1 > 177.5d0) .or. (dFi1 < 2.5d0))) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi1 = Fi1/deg2rad
+if (lWarn .and. ((dFi1 > 177.5_wp) .or. (dFi1 < 2.5_wp))) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 
 ! Dirty exit! This happens when an earlier structure is ill defined.
 
-if (abs(Fi1-Pi) < 1.0D-13) then
-  Teta = 0.0d0
+if (abs(Fi1-Pi) < 1.0e-13_wp) then
+  Teta = Zero
   call FZero(Bt,3*nCent)
   return
 end if
@@ -84,9 +91,9 @@ CosFi2 = e41x*e43x+e41y*e43y+e41z*e43z
 
 Fi2 = ArCos(CosFi2)
 if (abs(CosFi2) > One) call RecPrt('xyz(2)',' ',xyz,3,4)
-dFi2 = 180.d0*Fi2/Pi
-if (lWarn .and. ((dFi2 > 177.5d0) .or. (dFi2 < 2.5d0))) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi2 = Fi2/deg2rad
+if (lWarn .and. ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp))) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 
 ! Get the angle between e41 and e42
@@ -95,9 +102,9 @@ CosFi3 = e41x*e42x+e41y*e42y+e41z*e42z
 
 Fi3 = ArCos(CosFi3)
 if (abs(CosFi3) > One) call RecPrt('xyz(3)',' ',xyz,3,4)
-dFi3 = 180.d0*Fi3/Pi
-if (lWarn .and. ((dFi3 > 177.5d0) .or. (dFi3 < 2.5d0))) then
-  write(6,*) 'Warning: auxiliary Angle close to end of range'
+dFi3 = Fi3/deg2rad
+if (lWarn .and. ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp))) then
+  write(u6,*) 'Warning: auxiliary Angle close to end of range'
 end if
 !                                                                      *
 !***********************************************************************
@@ -128,8 +135,8 @@ C14X(3,3) = R42(1)*R43(2)-R42(2)*R43(1)
 ! Exit if 2-3-4 are collinear
 ! (equivalent to the above check, but this is more concrete)
 
-if ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2) < 1.0D-10) then
-  Teta = 0.0d0
+if ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2) < 1.0e-10_wp) then
+  Teta = Zero
   call FZero(Bt,3*nCent)
   return
 end if
@@ -141,11 +148,11 @@ mCent = 3
 call Bend(C14X,mCent,Teta,BR14X,.false.,.false.,Label,dBR14X,ldB)
 
 Teta = Teta-Pi/Two
-dTeta = 180.d0*Teta/Pi
-if (lWarn .and. ((dTeta > 87.5d0) .or. (dTeta < -87.5d0))) then
-  write(6,*) 'Warning: Out of plane angle close to end of range'
+dTeta = Teta/deg2rad
+if (lWarn .and. ((dTeta > 87.5_wp) .or. (dTeta < -87.5_wp))) then
+  write(u6,*) 'Warning: Out of plane angle close to end of range'
 end if
-if (LWRITE) write(6,'(1X,A,A,F10.4,A,F10.4,A)') Label,' : Out of plane angle=',dTeta,'/degree, ',Teta,'/rad'
+if (LWRITE) write(u6,'(1X,A,A,F10.4,A,F10.4,A)') Label,' : Out of plane angle=',dTeta,'/degree, ',Teta,'/rad'
 
 ! Compute the WDC matrix
 
@@ -171,7 +178,7 @@ if (ldB) then
 
   ! Compute the derivative of the WDC matrix.
 
-  call dcopy_(12**2,[.9d1],0,dBt,1)
+  call dcopy_(12**2,[Nine],0,dBt,1)
   do ix=1,3
     iy = mod(ix+1,4)+(ix+1)/4
     iz = mod(iy+1,4)+(iy+1)/4
@@ -280,7 +287,7 @@ call DScal_(12,-One,Bt,1)
 
 ! test of Bt
 
-delta = 1.0D-5
+delta = 1.0e-5_wp
 do iAtom=1,4
   do iCar=1,3
     tmp = xyz(iCar,iAtom)
@@ -290,9 +297,9 @@ do iAtom=1,4
     call OutofP0(xyz,4,Tetam,ldB)
     xyz(iCar,iAtom) = tmp
 
-    dbdx = (Tetap-Tetam)/(2.0d0*delta)
+    dbdx = (Tetap-Tetam)/(Two*delta)
     if (abs(dbdx-Bt(iCar,iAtom)) > delta) then
-      write(6,*) dbdx,Bt(iCar,iAtom)
+      write(u6,*) dbdx,Bt(iCar,iAtom)
       call Abend()
     end if
   end do
@@ -312,10 +319,10 @@ if (ldb) then
 
       do jAtom=1,4
         do jCar=1,3
-          ddbddx = (Bt_temp_p(jCar,jAtom)-Bt_temp_m(jCar,jAtom))/(2.0d0*delta)
+          ddbddx = (Bt_temp_p(jCar,jAtom)-Bt_temp_m(jCar,jAtom))/(Two*delta)
         end do
         if (abs(ddbddx-dBt(iCar,iAtom,jCar,jAtom)) > delta) then
-          write(6,*) ddbddx,dBt(iCar,iAtom,jCar,jAtom)
+          write(u6,*) ddbddx,dBt(iCar,iAtom,jCar,jAtom)
           call Abend()
         end if
       end do

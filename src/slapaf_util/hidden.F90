@@ -14,26 +14,27 @@ subroutine Hidden(Coor,AN,nHidden)
 ! from the MM part of a QM/MM system
 
 use Slapaf_Parameters, only: rHidden
+use Isotopes, only: MaxAtomNum, PTab
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp), allocatable :: Coor(:,:)
+integer(kind=iwp), allocatable :: AN(:)
+integer(kind=iwp) :: nHidden
 #include "Molcas.fh"
-#include "angstr.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "periodic_table.fh"
-real*8, allocatable :: Coor(:,:)
-integer, allocatable :: AN(:)
-real*8, allocatable :: Coor_h(:,:)
-integer, allocatable :: AN_h(:)
-logical Do_ESPF, Exist, Exist2
+integer(kind=iwp) :: i, iAtNum, iHidden, iKept, iPL, ITkQMMM, mTot, mTtAtm, nKept
+real(kind=wp) :: XYZ(3)
+logical(kind=iwp) :: Do_ESPF, Exists, Exists2
 character(len=180) Line
-character(len=180), external :: Get_Ln
-real*8 XYZ(3)
 character(len=2) Symbol
+real(kind=wp), allocatable :: Coor_h(:,:), h_xyz(:,:)
+integer(kind=iwp), allocatable :: AN_h(:), h_AN(:)
 character(len=LenIn), allocatable :: LabMMO(:)
-real*8, allocatable :: h_xyz(:,:)
-integer, allocatable :: h_AN(:)
-!
+integer(kind=iwp), external :: iPrintLevel, IsFreeUnit
+character(len=180), external :: Get_Ln
+
 nHidden = 0
 if (rHidden < Two) return
 iPL = iPrintLevel(-1)
@@ -54,8 +55,8 @@ if (Do_ESPF) then
 
   ! Try MM atoms from Tinker QM/MM interface file
 
-  call F_Inquire('QMMM',Exist)
-  if (Exist) then
+  call F_Inquire('QMMM',Exists)
+  if (Exists) then
     ITkQMMM = IsFreeUnit(25)
     call Molcas_Open(ITkQMMM,'QMMM')
     Line = ' '
@@ -66,23 +67,23 @@ if (Do_ESPF) then
 
       if (index(Line,'NMM') /= 0) then
         call Get_I1(2,nHidden)
-        if (iPL > 3) write(6,'(A,I5,A)') 'Found ',nHidden,' hidden atoms.'
+        if (iPL > 3) write(u6,'(A,I5,A)') 'Found ',nHidden,' hidden atoms.'
         if (nHidden > 0) then
           call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
           call mma_allocate(h_AN,nHidden,Label='h_AN')
           do iHidden=1,nHidden
             Line = Get_Ln(ITkQMMM)
             if (index(Line,'MMCoord') == 0) then
-              write(6,*) 'Error in hidden. Last line does not start with MMCoord:'
-              write(6,*) Line
+              write(u6,*) 'Error in hidden. Last line does not start with MMCoord:'
+              write(u6,*) Line
               call Quit_onUserError()
             end if
             call Get_I1(2,iAtNum)
             h_AN(iHidden) = -iAtNum
             call Get_F(3,XYZ,3)
-            h_xyz(1,iHidden) = XYZ(1)/Angstr
-            h_xyz(2,iHidden) = XYZ(2)/Angstr
-            h_xyz(3,iHidden) = XYZ(3)/Angstr
+            h_xyz(1,iHidden) = XYZ(1)/Angstrom
+            h_xyz(2,iHidden) = XYZ(2)/Angstrom
+            h_xyz(3,iHidden) = XYZ(3)/Angstrom
           end do
         end if
       end if
@@ -92,12 +93,12 @@ if (Do_ESPF) then
 
   ! Try outer MM atoms stored on runfile
 
-  if (.not. Exist) then
-    call Qpg_dArray('MMO Coords',Exist2,nHidden)
+  if (.not. Exists) then
+    call Qpg_dArray('MMO Coords',Exists2,nHidden)
   else
-    Exist2 = .false.
+    Exists2 = .false.
   end if
-  if (Exist2) then
+  if (Exists2) then
     nHidden = nHidden/3
     call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
     call mma_allocate(h_AN,nHidden,Label='h_AN')
@@ -108,7 +109,7 @@ if (Do_ESPF) then
       Symbol(1:1) = LabMMO(iHidden)(1:1)
       Symbol(2:2) = LabMMO(iHidden)(2:2)
       if (Symbol(2:2) == '_') Symbol = ' '//Symbol(1:1)
-      do i=0,Num_Elem
+      do i=0,MaxAtomNum
         if (Ptab(i) == Symbol) then
           h_AN(iHidden) = -i
           exit
@@ -129,7 +130,7 @@ if (nHidden > 0) call Select_hidden(mTtAtm,nHidden,Coor,h_xyz,h_AN,nKept,iPL)
 
 if (nKept > 0) then
   if (iPL > 3) then
-    write(6,'(A8,I5,A)') 'Hidden: ',nKept,' atoms are kept.'
+    write(u6,'(A8,I5,A)') 'Hidden: ',nKept,' atoms are kept.'
   end if
   mTot = mTtAtm+nKept
   call mma_allocate(Coor_h,3,mTot,Label='Coor_h')
@@ -149,7 +150,7 @@ if (nKept > 0) then
     end if
   end do
   if (iKept /= nKept) then
-    write(6,'(A)') ' Hidden: wrong number of kept hidden atoms.'
+    write(u6,'(A)') ' Hidden: wrong number of kept hidden atoms.'
     call Quit_OnUserError()
   end if
   call mma_deallocate(h_AN)

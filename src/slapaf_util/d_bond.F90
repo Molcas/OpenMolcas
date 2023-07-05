@@ -12,11 +12,14 @@
 function D_Bond(Ind,iOp_,nSym)
 
 use Slapaf_Info, only: jStab, nStab
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-integer Ind(2), iOp_(2)
-real*8 D_Bond
+implicit none
+real(kind=wp) :: D_Bond
+integer(kind=iwp) :: Ind(2), iOp_(2), nSym
+integer(kind=iwp) :: iAtom, iDeg, iOp_E, iOp_ER, iOp_R, iU_A, iU_AB, iU_B, jAtom, nU_A, nU_AB, nU_B
+integer(kind=iwp), external :: iU, iUR, nU
 
 !                                                                      *
 !***********************************************************************
@@ -55,9 +58,9 @@ nU_AB = nU(iU_AB)
 ! Now evaluate the degeneracy of the bond.
 
 iDeg = nSym/nU_AB
-D_Bond = dble(iDeg)
+D_Bond = real(iDeg,kind=wp)
 
-!write(6,*) ' D_Bond=',D_Bond
+!write(u6,*) ' D_Bond=',D_Bond
 
 return
 

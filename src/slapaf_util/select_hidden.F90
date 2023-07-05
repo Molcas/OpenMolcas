@@ -10,14 +10,16 @@
 !***********************************************************************
 
 subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,iHiddenAN,nKept,iPL)
-!  Select among the hidden atoms the ones to be kept
+! Select among the hidden atoms the ones to be kept
 
 use Slapaf_Parameters, only: rHidden
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-dimension Coord(3,mTtAtm), HiddenCoord(3,nHidden)
-dimension iHiddenAN(nHidden)
+implicit none
+integer(kind=iwp) :: mTtAtm, nHidden, iHiddenAN(nHidden), nKept, iPL
+real(kind=wp) :: Coord(3,mTtAtm), HiddenCoord(3,nHidden)
+integer(kind=iwp) :: iAN, iAtom, iHid
+real(kind=wp) :: Dist, dMax, X, Y, Z
 
 ! Criteria: dMin < distance < rHidden
 
@@ -41,7 +43,7 @@ end do
 
 ! The end
 
-if ((iPL > 3) .and. (nKept > 0)) write(6,'(A,i3,A)') ' Select_Hidden: ',nKept,' hidden atoms are kept'
+if ((iPL > 3) .and. (nKept > 0)) write(u6,'(A,i3,A)') ' Select_Hidden: ',nKept,' hidden atoms are kept'
 
 return
 

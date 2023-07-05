@@ -13,12 +13,15 @@ subroutine GF(nX,nDoF,nInter,EVec,EVal,RedM,iNeg,dDipM,mTR,nAtom,DipM)
 
 use Slapaf_Info, only: Smmtrc
 use Slapaf_parameters, only: nDimBC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 dDipM(3,nInter+mTR), DipM(3), EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF)
-real*8, allocatable :: G(:), GInv(:), F(:), Tmp1(:), Tmp2(:)
+implicit none
+integer(kind=iwp) :: nX, nDoF, nInter, iNeg, mTR, nAtom
+real(kind=wp) :: EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF), dDipM(3,nInter+mTR), DipM(3)
+integer(kind=iwp) :: i, iAtom, iNC, ix, ixyz, iy, iz
+real(kind=wp), allocatable :: F(:), G(:), GInv(:), Tmp1(:), Tmp2(:)
 
 !                                                                      *
 !***********************************************************************
