@@ -102,7 +102,7 @@ do iBond=1,nBonds
   ! Center bond should not be a van der Waals bond,
   ! anything else goes!
 
-  if (iBondType == vdW_Bond) Go To 201
+  if (iBondType == vdW_Bond) cycle
 
   ! Extract index to the center atom in an "Magic" bond if this
   ! is a magic bond.
@@ -147,8 +147,8 @@ do iBond=1,nBonds
     nNeighbor_k = iTabAtoms(1,0,kAtom_)
     nCoBond_k = nCoBond(kAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
     nFgBond_k = nFgBond(kAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
-    if ((nCoBond_j < 2) .and. (nFgBond_j == 0)) Go To 250
-    if ((nCoBond_k < 2) .and. (nFgBond_k == 0)) Go To 250
+    if ((nCoBond_j < 2) .and. (nFgBond_j == 0)) cycle
+    if ((nCoBond_k < 2) .and. (nFgBond_k == 0)) cycle
 
 #   ifdef _DEBUGPRINT_
     write(6,*) 'nNeighbor_j,nNeighbor_k=',nNeighbor_j,nNeighbor_k
@@ -160,16 +160,16 @@ do iBond=1,nBonds
       !nCoBond_i = nCoBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
       !nFgBond_i = nFgBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
       jBond = iTabAtoms(2,iNeighbor,jAtom_)
-      if (jBond == iBond) Go To 301
+      if (jBond == iBond) cycle
       jBondType = iTabBonds(3,jBond)
 #     ifdef _DEBUGPRINT_
       write(6,*) 'jBond,jBondType=',jBond,BondType(min(3,jBondType))
 #     endif
-      if ((jBondType == vdW_Bond) .or. (jBondType == Magic_Bond)) Go To 301
-      !if ((nCoBond_j > 2) .and. (nCoBond_i >= 4) .and. (nFgBond_i == 0)) Go To 301
-      !if ((nCoBond_i >= 8) .and. (nCoBond_j >= 8) .and. (nCoBond_k >= 8)) Go To 301
+      if ((jBondType == vdW_Bond) .or. (jBondType == Magic_Bond)) cycle
+      !if ((nCoBond_j > 2) .and. (nCoBond_i >= 4) .and. (nFgBond_i == 0)) cycle
+      !if ((nCoBond_i >= 8) .and. (nCoBond_j >= 8) .and. (nCoBond_k >= 8)) cycle
       iAtom = iTabAI(1,iAtom_)
-      if ((iBondType > Magic_Bond) .and. (iAtom == iMagic)) Go To 301
+      if ((iBondType > Magic_Bond) .and. (iAtom == iMagic)) cycle
       ir = iTabRow(ANr(iAtom))
       Ind(1) = iAtom
       iDCR(1) = iTabAI(2,iAtom_)
@@ -177,18 +177,18 @@ do iBond=1,nBonds
 
       ! Torsion should be A-..., eliminate P(A)-...
 
-      if (iDCR(1) /= iOper(0)) Go To 301
+      if (iDCR(1) /= iOper(0)) cycle
 
       ! Eliminate A-R(B)-T(C)-TS(C) over A-B-RT(C)-RTS(D)
       ! Proceed if A-R-T(C)-TS(C)
 
-      if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) Go To 301
+      if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) cycle
 
       ! Eliminate A-R(B)-T(C)-TS(D) over A-R(B)-C-S(D)
       ! Proceed if A-R(B)-C-S(D)
 
       if (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(3),jStab(0,jAtom),nStab(jAtom)) .and. &
-          (iDCR(3) /= iOper(0))) Go To 301
+          (iDCR(3) /= iOper(0))) cycle
 #     ifdef _DEBUGPRINT_
       write(6,*)
       write(6,*) 'E=',AtomLbl(iAtom),ChOp(iDCR(1))
@@ -244,17 +244,17 @@ do iBond=1,nBonds
         iDCR(4) = iTabAI(2,lAtom_)
         if (R_Stab_A(iDCR(4),jStab(0,lAtom),nStab(lAtom))) iDCR(4) = iOper(0)
         kBond = iTabAtoms(2,lNeighbor,kAtom_)
-        if (kBond == iBond) Go To 401
-        if (lAtom_ == iAtom_) Go To 401
+        if (kBond == iBond) cycle
+        if (lAtom_ == iAtom_) cycle
         kBondType = iTabBonds(3,kBond)
 #       ifdef _DEBUGPRINT_
         write(6,*) 'kBond,kBondType=',kBond,Bondtype(min(3,kBondType))
 #       endif
-        if ((kBondType == vdW_Bond) .or. (kBondType == Magic_Bond)) Go To 401
-        !if ((nCoBond_k > 2) .and. (nCoBond_l >= 4) .and. (nFgBond_l == 0)) Go To 401
-        !if ((nCoBond_j >= 8) .and. (nCoBond_k >= 8) .and. (nCoBond_l >= 8)) Go To 401
+        if ((kBondType == vdW_Bond) .or. (kBondType == Magic_Bond)) cycle
+        !if ((nCoBond_k > 2) .and. (nCoBond_l >= 4) .and. (nFgBond_l == 0)) cycle
+        !if ((nCoBond_j >= 8) .and. (nCoBond_k >= 8) .and. (nCoBond_l >= 8)) cycle
 
-        if ((iBondType > Magic_Bond) .and. (lAtom == iMagic)) Go To 401
+        if ((iBondType > Magic_Bond) .and. (lAtom == iMagic)) cycle
         lr = iTabRow(ANr(lAtom))
         kDCRT = iDCR(3)
         kDCRTS = iDCR(4)
@@ -267,7 +267,7 @@ do iBond=1,nBonds
         ! Eliminate A-R(B)-T(C)-TS(D) over A-TSR(B)-S(C)-D
 
         if (R_Stab_A(iDCR(4),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(4),jStab(0,jAtom),nStab(jAtom)) .and. &
-            R_Stab_A(iDCR(4),jStab(0,kAtom),nStab(kAtom)) .and. (iDCR(4) /= iOper(0))) Go To 401
+            R_Stab_A(iDCR(4),jStab(0,kAtom),nStab(kAtom)) .and. (iDCR(4) /= iOper(0))) cycle
 
         nE = 1
         if (iDCR(2) == iOper(0)) nE = nE+1
@@ -277,8 +277,8 @@ do iBond=1,nBonds
         if (R_Stab_A(iDCR(4),jStab(0,iAtom),nStab(iAtom))) mE = mE+1
         if (R_Stab_A(ieor(iDCR(4),iDCR(3)),jStab(0,kAtom),nStab(kAtom))) mE = mE+1
         if (R_Stab_A(ieor(iDCR(4),iDCR(2)),jStab(0,jAtom),nStab(jAtom))) mE = mE+1
-        if (nE < mE) Go To 401
-        if ((nE == mE) .and. (iAtom > lAtom)) Go To 401
+        if (nE < mE) cycle
+        if ((nE == mE) .and. (iAtom > lAtom)) cycle
 
 #       ifdef _DEBUGPRINT_
         write(6,*)
@@ -410,7 +410,7 @@ do iBond=1,nBonds
         end if
 
         if ((f_Const_Ref < f_Const_Min) .and. (iBondType /= Fragments_Bond) .and. (iBondType <= Fragments_Bond) .and. &
-            (jBondType /= Fragments_Bond) .and. (kBondType /= Fragments_Bond)) Go To 401
+            (jBondType /= Fragments_Bond) .and. (kBondType /= Fragments_Bond)) cycle
 
         ! Check that valence angles are above threshold
 
@@ -418,11 +418,11 @@ do iBond=1,nBonds
         delta = (15.0d0/180.d0)*Pi
         if (nsAtom == 4) delta = -Ten
         call Bend(Ref(1,1),mCent,Fi2,Grad_ref,.false.,.false.,'        ',Hess,.false.)
-        if (Fi2 > Pi-delta) Go To 401
-        if (Fi2 < delta) Go To 401
+        if (Fi2 > Pi-delta) cycle
+        if (Fi2 < delta) cycle
         call Bend(Ref(1,2),mCent,Fi3,Grad_ref,.false.,.false.,'        ',Hess,.false.)
-        if (Fi3 > Pi-delta) Go To 401
-        if (Fi3 < delta) Go To 401
+        if (Fi3 > Pi-delta) cycle
+        if (Fi3 < delta) cycle
         !write(6,*) ' T Force Constant:',f_Const
 
         nq = nq+1
@@ -532,14 +532,10 @@ do iBond=1,nBonds
 
         end if
 
-401     continue
-      end do              ! iNeighbor_k
-301   continue
-    end do                ! iNeighbor_j
-250 continue
-  end do                  ! iCase
-201 continue
-end do                    ! iBonds
+      end do    ! iNeighbor_k
+    end do      ! iNeighbor_j
+  end do        ! iCase
+end do          ! iBonds
 #ifdef _DEBUGPRINT_
 write(6,*) 'nqT=',nqT
 #endif

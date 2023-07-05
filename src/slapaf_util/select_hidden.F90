@@ -28,13 +28,15 @@ do iHid=1,nHidden
   Z = HiddenCoord(3,iHid)
   iAN = iHiddenAN(iHid)
   iAtom = 0
-10 iAtom = iAtom+1
-  Dist = sqrt((X-Coord(1,iAtom))**2+(Y-Coord(2,iAtom))**2+(Z-Coord(3,iAtom))**2)
-  if (Dist <= dMax) then
-    iHiddenAN(iHid) = -iAN
-    nKept = nKept+1
-  end if
-  if ((iAtom < mTtAtm) .and. (iHiddenAN(iHid) <= 0)) goto 10
+  do
+    iAtom = iAtom+1
+    Dist = sqrt((X-Coord(1,iAtom))**2+(Y-Coord(2,iAtom))**2+(Z-Coord(3,iAtom))**2)
+    if (Dist <= dMax) then
+      iHiddenAN(iHid) = -iAN
+      nKept = nKept+1
+    end if
+    if ((iAtom >= mTtAtm) .or. (iHiddenAN(iHid) > 0)) exit
+  end do
 end do
 
 ! The end

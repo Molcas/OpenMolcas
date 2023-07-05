@@ -205,14 +205,13 @@ do ixyz=1,nCent
 
   ! Restrict loop to the stabilizers of the center.
   do iIrrep=0,nIrrep-1
-    if ((Coor(1,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),1) /= 0)) Go To 350
-    if ((Coor(2,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),2) /= 0)) Go To 350
-    if ((Coor(3,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),4) /= 0)) Go To 350
+    if ((Coor(1,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),1) /= 0)) cycle
+    if ((Coor(2,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),2) /= 0)) cycle
+    if ((Coor(3,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),4) /= 0)) cycle
 
     if (iand(iOper(iIrrep),1) /= 0) tx = Zero
     if (iand(iOper(iIrrep),2) /= 0) ty = Zero
     if (iand(iOper(iIrrep),4) /= 0) tz = Zero
-350 continue
   end do
 
   ! Step ii

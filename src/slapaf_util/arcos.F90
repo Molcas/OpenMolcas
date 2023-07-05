@@ -20,7 +20,6 @@ A = Arg
 Delta = 1.0D-12
 if (abs(A) > One) then
   write(Warning,3) A
-3 format(1X,'Warning argument of aCos= ',1F21.18)
   if (abs(A) < One+Delta) then
     !call WarningMessage(1,Warning)
     A = sign(One,A)
@@ -33,5 +32,7 @@ end if
 ArCos = acos(A)
 
 return
+
+3 format(1X,'Warning argument of aCos= ',1F21.18)
 
 end function arCos

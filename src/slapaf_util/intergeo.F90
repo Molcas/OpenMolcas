@@ -190,7 +190,6 @@ do iIter=1,nIter
       z1 = angstr*z*dble(iFacz)
       LbAtom = int(charge(ndc))
       write(Lu_Molden,102) pTab(LbAtom),x1,y1,z1
-102   format(A2,3(3x,F12.7))
     end do
   end do
 end do
@@ -220,7 +219,6 @@ do iIter=1,nIter
       y1 = y/angstr*dble(iFacy)
       z1 = z/angstr*dble(iFacz)
       write(Lu_Molden,103) x1,y1,z1
-103   format(3(3x,F12.7))
     end do
   end do
 end do
@@ -238,5 +236,8 @@ call mma_deallocate(Charge)
 !***********************************************************************
 !                                                                      *
 return
+
+102 format(A2,3(3x,F12.7))
+103 format(3(3x,F12.7))
 
 end subroutine intergeo

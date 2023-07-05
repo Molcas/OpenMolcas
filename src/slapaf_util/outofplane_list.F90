@@ -81,8 +81,8 @@ nCent = 4
 
 do jBond=1,nBonds
   jBondType = iTabBonds(3,jBond)
-  if (jBondType == vdW_Bond) Go To 101
-  if (jBondType > Magic_Bond) Go To 101
+  if (jBondType == vdW_Bond) cycle
+  if (jBondType > Magic_Bond) cycle
 
   do iCase=1,2
 
@@ -109,12 +109,12 @@ do jBond=1,nBonds
 #   endif
     nCoBond_j = nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
     nFgBond_j = nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
-    if ((nCoBond_j > 1) .and. (nFgBond_j == 0)) Go To 201
-    if (iDCR(4) /= iOper(0)) Go To 201
+    if ((nCoBond_j > 1) .and. (nFgBond_j == 0)) cycle
+    if (iDCR(4) /= iOper(0)) cycle
 
     ! R
 
-    if (R_Stab_A(iDCR(1),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(1) /= iOper(0))) Go To 201
+    if (R_Stab_A(iDCR(1),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(1) /= iOper(0))) cycle
 
     call dcopy_(3,Cx(1,iAtom,iIter),1,A(1,4),1)
     call dcopy_(3,Cx(1,iAtom,iRef),1,Ref(1,4),1)
@@ -161,15 +161,15 @@ do jBond=1,nBonds
     nNeighbor_i = iTabAtoms(1,0,iAtom_)
     do kNeighbor=1,nNeighbor_i
       kAtom_ = iTabAtoms(1,kNeighbor,iAtom_)
-      if (kAtom_ == jAtom_) Go To 301
+      if (kAtom_ == jAtom_) cycle
       kBond = iTabAtoms(2,kNeighbor,iAtom_)
       kBondType = iTabBonds(3,kBond)
 #     ifdef _DEBUGPRINT_
       write(6,*) 'kBond,kBondType=',kBond,kBondType
 #     endif
-      if (kBondType == vdW_Bond) Go To 301
-      if (kBondType > Magic_Bond) Go To 301
-      if (kBond == jBond) Go To 301
+      if (kBondType == vdW_Bond) cycle
+      if (kBondType > Magic_Bond) cycle
+      if (kBond == jBond) cycle
 
       kAtom = iTabAI(1,kAtom_)
       kr = iTabRow(ANr(kAtom))
@@ -178,9 +178,9 @@ do jBond=1,nBonds
 
       if (iDCR(1) == iOper(0)) then
         if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(2),jStab(0,jAtom),nStab(jAtom)) .and. &
-            (iDCR(2) /= iOper(0))) Go To 301
+            (iDCR(2) /= iOper(0))) cycle
       else
-        if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) Go To 301
+        if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) cycle
       end if
 #     ifdef _DEBUGPRINT_
       write(6,*)
@@ -190,14 +190,14 @@ do jBond=1,nBonds
 
       do lNeighbor=1,nNeighbor_i
         lAtom_ = iTabAtoms(1,lNeighbor,iAtom_)
-        if (lAtom_ == jAtom_) Go To 401
-        if (lAtom_ <= kAtom_) Go To 401
+        if (lAtom_ == jAtom_) cycle
+        if (lAtom_ <= kAtom_) cycle
         lBond = iTabAtoms(2,lNeighbor,iAtom_)
         lBondType = iTabBonds(3,lBond)
-        if (lBondType == vdW_Bond) Go To 401
-        if (lBondType > Magic_Bond) Go To 401
-        if (lBond == jBond) Go To 401
-        if (lBond == kBond) Go To 401
+        if (lBondType == vdW_Bond) cycle
+        if (lBondType > Magic_Bond) cycle
+        if (lBond == jBond) cycle
+        if (lBond == kBond) cycle
         lAtom = iTabAI(1,lAtom_)
 #       ifdef _DEBUGPRINT_
         write(6,*) 'lBond,lBondType=',lBond,lBondType
@@ -207,21 +207,21 @@ do jBond=1,nBonds
         lr = iTabRow(ANr(lAtom))
         Ind(3) = lAtom
         iDCR(3) = iTabAI(2,lAtom_)
-        !if (kAtom > lAtom) Go To 401
+        !if (kAtom > lAtom) cycle
 
         if (iDCR(1) == iOper(0)) then
           if (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(3),jStab(0,jAtom),nStab(jAtom)) .and. &
-              (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) Go To 401
+              (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) cycle
         else
-          if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) Go To 401
+          if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) cycle
         end if
 
         if (kAtom == lAtom) then
           if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(2),jStab(0,jAtom),nStab(jAtom)) .and. &
-              (iDCR(2) /= iOper(0))) Go To 401
-          if (iDCR(3) == iOper(0)) Go To 401
+              (iDCR(2) /= iOper(0))) cycle
+          if (iDCR(3) == iOper(0)) cycle
           if (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and. R_Stab_A(iDCR(3),jStab(0,jAtom),nStab(jAtom)) .and. &
-              (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) Go To 401
+              (iDCR(3) /= iOper(0)) .and. (iDCR(2) /= iOper(0))) cycle
         end if
 #       ifdef _DEBUGPRINT_
         write(6,*)
@@ -349,7 +349,7 @@ do jBond=1,nBonds
           f_Const = f_Const_ijk*exp(Alpha*(r0**2-ril2))
         end if
         if ((f_Const_Ref < f_Const_Min) .and. (jBondtype /= Fragments_Bond) .and. (kBondtype /= Fragments_Bond) .and. &
-            (lBondtype /= Fragments_Bond)) Go To 401
+            (lBondtype /= Fragments_Bond)) cycle
 
         ! Check that valence angles are above threshold
 
@@ -368,8 +368,8 @@ do jBond=1,nBonds
 #       endif
         delta = delta0
         if ((jBondType == Fragments_Bond) .or. (kBondType == Fragments_Bond)) delta = 0.0d0
-        if (Fi2 > Pi-delta) Go To 401
-        if (Fi2 < delta) Go To 401
+        if (Fi2 > Pi-delta) cycle
+        if (Fi2 < delta) cycle
 
         ! 1-4-3
 
@@ -380,8 +380,8 @@ do jBond=1,nBonds
 #       endif
         delta = delta0
         if ((jBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = 0.0d0
-        if (Fi3 > Pi-delta) Go To 401
-        if (Fi3 < delta) Go To 401
+        if (Fi3 > Pi-delta) cycle
+        if (Fi3 < delta) cycle
 
         ! 2-4-3
 
@@ -392,15 +392,15 @@ do jBond=1,nBonds
 #       endif
         delta = delta0
         if ((kBondType == Fragments_Bond) .or. (lBondType == Fragments_Bond)) delta = 0.0d0
-        if (Fi4 > Pi-delta) Go To 401
-        if (Fi4 < delta) Go To 401
+        if (Fi4 > Pi-delta) cycle
+        if (Fi4 < delta) cycle
 
         call OutofP(Ref,nCent,Val,Grad,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
         write(6,*) 'Val=',Val*180.d0/Pi
 #       endif
 
-        if (abs(Val) > 35.d0*(Pi/180.d0)) Go To 401
+        if (abs(Val) > 35.d0*(Pi/180.d0)) cycle
 
         call OutofP(A,nCent,Val,Grad,.false.,.false.,'        ',Hess,Proc_dB)
 
@@ -474,13 +474,9 @@ do jBond=1,nBonds
 
         end if
 
-401     continue
       end do            ! lNeighbor
-301   continue
     end do              ! kNeighbor
-201 continue
   end do                ! iCase
-101 continue
 end do                  ! jBond
 
 return

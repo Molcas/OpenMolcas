@@ -102,8 +102,6 @@ if (nPrint(1) >= 5) then
   write(6,*)
   call mma_deallocate(OldMap)
 end if
-100 format(3X,A)
-101 format(3X,I6,1X,I6,1X,I6)
 
 call mma_deallocate(RootIdx)
 call mma_deallocate(Overlaps)
@@ -126,5 +124,8 @@ end if
 call Put_lScalar('Track Done',.true.)
 
 return
+
+100 format(3X,A)
+101 format(3X,I6,1X,I6,1X,I6)
 
 end subroutine Process_Track

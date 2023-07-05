@@ -22,23 +22,23 @@ character(len=120) Temp
 Lu_UDIC = 91
 Temp = 'UDIC'
 call molcas_open(Lu_UDIC,Temp)
-10 read(Lu_UDIC,'(A)') Temp
-call UpCase(Temp)
-if (Temp(1:4) == 'VARY') Go To 20
-goto 10
+do
+  read(Lu_UDIC,'(A)') Temp
+  call UpCase(Temp)
+  if (Temp(1:4) == 'VARY') exit
+end do
 
 ! Read Internal Coords Labels
 
-20 do iLines=1,nH
-40 read(Lu_UDIC,'(A)') Temp
+do iLines=1,nH
+  read(Lu_UDIC,'(A)') Temp
   call UpCase(Temp)
-  if (Temp(1:3) == 'FIX') Go To 40
+  if (Temp(1:3) == 'FIX') cycle
   cLbl = ' '
   do j=1,14
-    if ((Temp(j:j) == ' ') .or. (Temp(j:j) == '=')) goto 30
+    if ((Temp(j:j) == ' ') .or. (Temp(j:j) == '=')) exit
     cLbl(j:j) = Temp(j:j)
   end do
-30 continue
   qLbl(iLines) = cLbl
 end do
 

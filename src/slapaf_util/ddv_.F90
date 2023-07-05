@@ -86,174 +86,176 @@ end do
 !                                                                      *
 ! Hessian for translational coordinates in case of a RF calculation.
 
-if (.not. VarT) Go To 777
+if (VarT) then
 
-do ixyz=1,3
-  Invariant(ixyz) = .false.
-  iTest = 2**(ixyz-1)
-  do iSym=0,nIrrep-1
-    if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
+  do ixyz=1,3
+    Invariant(ixyz) = .false.
+    iTest = 2**(ixyz-1)
+    do iSym=0,nIrrep-1
+      if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
+    end do
   end do
-end do
-if (Invariant(1) .and. Invariant(2) .and. Invariant(3)) Go To 777
+  if (.not. (Invariant(1) .and. Invariant(2) .and. Invariant(3))) then
 
-Fact = One
-if (.not. VarR) Fact = 2.0D-2
+    Fact = One
+    if (.not. VarR) Fact = 2.0D-2
 
-TMass = Zero
-do iAtom=1,mTtAtm
-  TMass = TMass+xMass(iAtom)
-end do
-do iAtom=1,mTtAtm
-  f1 = xMass(iAtom)/TMass
-  do jAtom=1,iAtom-1
-    f2 = xMass(jAtom)/TMass
+    TMass = Zero
+    do iAtom=1,mTtAtm
+      TMass = TMass+xMass(iAtom)
+    end do
+    do iAtom=1,mTtAtm
+      f1 = xMass(iAtom)/TMass
+      do jAtom=1,iAtom-1
+        f2 = xMass(jAtom)/TMass
 
-    f_const = max(Trans_Const,f_const_Min_)
-    gmm = Fact*f_const*f1*f2
+        f_const = max(Trans_Const,f_const_Min_)
+        gmm = Fact*f_const*f1*f2
 
-    if (.not. Invariant(1)) Hess(LHR(1,iAtom,1,jAtom)) = Hess(LHR(1,iAtom,1,jAtom))+gmm
-    if (.not. Invariant(2)) Hess(LHR(2,iAtom,2,jAtom)) = Hess(LHR(2,iAtom,2,jAtom))+gmm
-    if (.not. Invariant(3)) Hess(LHR(3,iAtom,3,jAtom)) = Hess(LHR(3,iAtom,3,jAtom))+gmm
+        if (.not. Invariant(1)) Hess(LHR(1,iAtom,1,jAtom)) = Hess(LHR(1,iAtom,1,jAtom))+gmm
+        if (.not. Invariant(2)) Hess(LHR(2,iAtom,2,jAtom)) = Hess(LHR(2,iAtom,2,jAtom))+gmm
+        if (.not. Invariant(3)) Hess(LHR(3,iAtom,3,jAtom)) = Hess(LHR(3,iAtom,3,jAtom))+gmm
 
-  end do
+      end do
 
-  f_const = max(Trans_Const,f_const_Min_)
-  gmm = Fact*f_const*f1*f1
+      f_const = max(Trans_Const,f_const_Min_)
+      gmm = Fact*f_const*f1*f1
 
-  if (.not. Invariant(1)) Hess(LHR(1,iAtom,1,iAtom)) = Hess(LHR(1,iAtom,1,iAtom))+gmm
-  if (.not. Invariant(1)) Hess(LHR(2,iAtom,2,iAtom)) = Hess(LHR(2,iAtom,2,iAtom))+gmm
-  if (.not. Invariant(1)) Hess(LHR(3,iAtom,3,iAtom)) = Hess(LHR(3,iAtom,3,iAtom))+gmm
+      if (.not. Invariant(1)) Hess(LHR(1,iAtom,1,iAtom)) = Hess(LHR(1,iAtom,1,iAtom))+gmm
+      if (.not. Invariant(1)) Hess(LHR(2,iAtom,2,iAtom)) = Hess(LHR(2,iAtom,2,iAtom))+gmm
+      if (.not. Invariant(1)) Hess(LHR(3,iAtom,3,iAtom)) = Hess(LHR(3,iAtom,3,iAtom))+gmm
 
-end do
-#ifdef _DEBUGPRINT_
-call TriPrt(' In LNM: Hessian after Translation','(6f12.7)',Hess,n3)
-call DiagMtrx_T(Hess,n3,iNeg)
-#endif
+    end do
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' In LNM: Hessian after Translation','(6f12.7)',Hess,n3)
+    call DiagMtrx_T(Hess,n3,iNeg)
+#   endif
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Hessian for rotational coordinates
 
-777 continue
-if (.not. VarR) Go To 778
+if (VarR) then
 
-do ixyz=1,3
-  Invariant(ixyz) = .false.
-  if (ixyz == 1) then
-    iTest = 6
-  else if (ixyz == 2) then
-    iTest = 5
-  else
-    iTest = 3
-  end if
-  do iSym=0,nIrrep-1
-    if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
+  do ixyz=1,3
+    Invariant(ixyz) = .false.
+    if (ixyz == 1) then
+      iTest = 6
+    else if (ixyz == 2) then
+      iTest = 5
+    else
+      iTest = 3
+    end if
+    do iSym=0,nIrrep-1
+      if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
+    end do
   end do
-end do
-if (Invariant(1) .and. Invariant(2) .and. Invariant(3)) Go To 778
+  if (.not. (Invariant(1) .and. Invariant(2) .and. Invariant(3))) then
 
-!if (mTtAtm <= 2) then
-!  call WarningMessage(2,'Error in ddV')
-!  write(6,*)
-!  write(6,*) ' Warning!'
-!  write(6,*) ' Rotational internal coordinates not implemented for fewer than 3 atoms!'
-!  write(6,*) ' Add dummy atoms to your input and try again!'
-!  write(6,*)
-!  call Quit(_RC_GENERAL_ERROR_)
-!end if
-call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
-call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
-do iAtom=1,mTtAtm
-  if (iANr(iAtom) <= 0) then
-    xMass(iAtom) = 1.0D-10
+    !if (mTtAtm <= 2) then
+    !  call WarningMessage(2,'Error in ddV')
+    !  write(6,*)
+    !  write(6,*) ' Warning!'
+    !  write(6,*) ' Rotational internal coordinates not implemented for fewer than 3 atoms!'
+    !  write(6,*) ' Add dummy atoms to your input and try again!'
+    !  write(6,*)
+    !  call Quit(_RC_GENERAL_ERROR_)
+    !end if
+    call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
+    call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
+    do iAtom=1,mTtAtm
+      if (iANr(iAtom) <= 0) then
+        xMass(iAtom) = 1.0D-10
+      end if
+    end do
+    nOrder = 1
+    Trans(:) = Zero
+    RotVec(:) = Zero
+    CurrXYZ(:,:) = Cart(:,:)
+    call RotDer(mTtAtm,xMass,CurrXYZ,Cart,Trans,RotAng,RotVec,RotMat,nOrder,Grad,dum)
+    call mma_deallocate(CurrXYZ)
+
+    do iAtom=1,mTtAtm
+      dO1_dx1 = Grad(1,1,iAtom)
+      dO2_dx1 = Grad(2,1,iAtom)
+      dO3_dx1 = Grad(3,1,iAtom)
+      dO1_dy1 = Grad(1,2,iAtom)
+      dO2_dy1 = Grad(2,2,iAtom)
+      dO3_dy1 = Grad(3,2,iAtom)
+      dO1_dz1 = Grad(1,3,iAtom)
+      dO2_dz1 = Grad(2,3,iAtom)
+      dO3_dz1 = Grad(3,3,iAtom)
+      if (Invariant(1)) then
+        dO1_dx1 = Zero
+        dO1_dy1 = Zero
+        dO1_dz1 = Zero
+      end if
+      if (Invariant(2)) then
+        dO2_dx1 = Zero
+        dO2_dy1 = Zero
+        dO2_dz1 = Zero
+      end if
+      if (Invariant(3)) then
+        dO3_dx1 = Zero
+        dO3_dy1 = Zero
+        dO3_dz1 = Zero
+      end if
+      do jAtom=1,iAtom-1
+        dO1_dx2 = Grad(1,1,jAtom)
+        dO2_dx2 = Grad(2,1,jAtom)
+        dO3_dx2 = Grad(3,1,jAtom)
+        dO1_dy2 = Grad(1,2,jAtom)
+        dO2_dy2 = Grad(2,2,jAtom)
+        dO3_dy2 = Grad(3,2,jAtom)
+        dO1_dz2 = Grad(1,3,jAtom)
+        dO2_dz2 = Grad(2,3,jAtom)
+        dO3_dz2 = Grad(3,3,jAtom)
+        if (Invariant(1)) then
+          dO1_dx2 = Zero
+          dO1_dy2 = Zero
+          dO1_dz2 = Zero
+        end if
+        if (Invariant(2)) then
+          dO2_dx2 = Zero
+          dO2_dy2 = Zero
+          dO2_dz2 = Zero
+        end if
+        if (Invariant(3)) then
+          dO3_dx2 = Zero
+          dO3_dy2 = Zero
+          dO3_dz2 = Zero
+        end if
+
+        f_const = max(Rot_Const,f_const_Min_)
+        Hess(LHR(1,iAtom,1,jAtom)) = Hess(LHR(1,iAtom,1,jAtom))+f_const*(dO1_dx1*dO1_dx2+dO2_dx1*dO2_dx2+dO3_dx1*dO3_dx2)
+        Hess(LHR(1,iAtom,2,jAtom)) = Hess(LHR(1,iAtom,2,jAtom))+f_const*(dO1_dx1*dO1_dy2+dO2_dx1*dO2_dy2+dO3_dx1*dO3_dy2)
+        Hess(LHR(1,iAtom,3,jAtom)) = Hess(LHR(1,iAtom,3,jAtom))+f_const*(dO1_dx1*dO1_dz2+dO2_dx1*dO2_dz2+dO3_dx1*dO3_dz2)
+        Hess(LHR(2,iAtom,1,jAtom)) = Hess(LHR(2,iAtom,1,jAtom))+f_const*(dO1_dy1*dO1_dx2+dO2_dy1*dO2_dx2+dO3_dy1*dO3_dx2)
+        Hess(LHR(2,iAtom,2,jAtom)) = Hess(LHR(2,iAtom,2,jAtom))+f_const*(dO1_dy1*dO1_dy2+dO2_dy1*dO2_dy2+dO3_dy1*dO3_dy2)
+        Hess(LHR(2,iAtom,3,jAtom)) = Hess(LHR(2,iAtom,3,jAtom))+f_const*(dO1_dy1*dO1_dz2+dO2_dy1*dO2_dz2+dO3_dy1*dO3_dz2)
+        Hess(LHR(3,iAtom,1,jAtom)) = Hess(LHR(3,iAtom,1,jAtom))+f_const*(dO1_dz1*dO1_dx2+dO2_dz1*dO2_dx2+dO3_dz1*dO3_dx2)
+        Hess(LHR(3,iAtom,2,jAtom)) = Hess(LHR(3,iAtom,2,jAtom))+f_const*(dO1_dz1*dO1_dy2+dO2_dz1*dO2_dy2+dO3_dz1*dO3_dy2)
+        Hess(LHR(3,iAtom,3,jAtom)) = Hess(LHR(3,iAtom,3,jAtom))+f_const*(dO1_dz1*dO1_dz2+dO2_dz1*dO2_dz2+dO3_dz1*dO3_dz2)
+
+      end do
+
+      Hess(LHR(1,iAtom,1,iAtom)) = Hess(LHR(1,iAtom,1,iAtom))+f_const*(dO1_dx1*dO1_dx1+dO2_dx1*dO2_dx1+dO3_dx1*dO3_dx1)
+      Hess(LHR(2,iAtom,1,iAtom)) = Hess(LHR(2,iAtom,1,iAtom))+f_const*(dO1_dy1*dO1_dx1+dO2_dy1*dO2_dx1+dO3_dy1*dO3_dx1)
+      Hess(LHR(2,iAtom,2,iAtom)) = Hess(LHR(2,iAtom,2,iAtom))+f_const*(dO1_dy1*dO1_dy1+dO2_dy1*dO2_dy1+dO3_dy1*dO3_dy1)
+      Hess(LHR(3,iAtom,1,iAtom)) = Hess(LHR(3,iAtom,1,iAtom))+f_const*(dO1_dz1*dO1_dx1+dO2_dz1*dO2_dx1+dO3_dz1*dO3_dx1)
+      Hess(LHR(3,iAtom,2,iAtom)) = Hess(LHR(3,iAtom,2,iAtom))+f_const*(dO1_dz1*dO1_dy1+dO2_dz1*dO2_dy1+dO3_dz1*dO3_dy1)
+      Hess(LHR(3,iAtom,3,iAtom)) = Hess(LHR(3,iAtom,3,iAtom))+f_const*(dO1_dz1*dO1_dz1+dO2_dz1*dO2_dz1+dO3_dz1*dO3_dz1)
+
+    end do
+    call mma_deallocate(Grad)
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' In LNM: Hessian after Rotation','(12f12.7)',Hess,n3)
+    call DiagMtrx_T(Hess,n3,iNeg)
+#   endif
   end if
-end do
-nOrder = 1
-Trans(:) = Zero
-RotVec(:) = Zero
-CurrXYZ(:,:) = Cart(:,:)
-call RotDer(mTtAtm,xMass,CurrXYZ,Cart,Trans,RotAng,RotVec,RotMat,nOrder,Grad,dum)
-call mma_deallocate(CurrXYZ)
-
-do iAtom=1,mTtAtm
-  dO1_dx1 = Grad(1,1,iAtom)
-  dO2_dx1 = Grad(2,1,iAtom)
-  dO3_dx1 = Grad(3,1,iAtom)
-  dO1_dy1 = Grad(1,2,iAtom)
-  dO2_dy1 = Grad(2,2,iAtom)
-  dO3_dy1 = Grad(3,2,iAtom)
-  dO1_dz1 = Grad(1,3,iAtom)
-  dO2_dz1 = Grad(2,3,iAtom)
-  dO3_dz1 = Grad(3,3,iAtom)
-  if (Invariant(1)) then
-    dO1_dx1 = Zero
-    dO1_dy1 = Zero
-    dO1_dz1 = Zero
-  end if
-  if (Invariant(2)) then
-    dO2_dx1 = Zero
-    dO2_dy1 = Zero
-    dO2_dz1 = Zero
-  end if
-  if (Invariant(3)) then
-    dO3_dx1 = Zero
-    dO3_dy1 = Zero
-    dO3_dz1 = Zero
-  end if
-  do jAtom=1,iAtom-1
-    dO1_dx2 = Grad(1,1,jAtom)
-    dO2_dx2 = Grad(2,1,jAtom)
-    dO3_dx2 = Grad(3,1,jAtom)
-    dO1_dy2 = Grad(1,2,jAtom)
-    dO2_dy2 = Grad(2,2,jAtom)
-    dO3_dy2 = Grad(3,2,jAtom)
-    dO1_dz2 = Grad(1,3,jAtom)
-    dO2_dz2 = Grad(2,3,jAtom)
-    dO3_dz2 = Grad(3,3,jAtom)
-    if (Invariant(1)) then
-      dO1_dx2 = Zero
-      dO1_dy2 = Zero
-      dO1_dz2 = Zero
-    end if
-    if (Invariant(2)) then
-      dO2_dx2 = Zero
-      dO2_dy2 = Zero
-      dO2_dz2 = Zero
-    end if
-    if (Invariant(3)) then
-      dO3_dx2 = Zero
-      dO3_dy2 = Zero
-      dO3_dz2 = Zero
-    end if
-
-    f_const = max(Rot_Const,f_const_Min_)
-    Hess(LHR(1,iAtom,1,jAtom)) = Hess(LHR(1,iAtom,1,jAtom))+f_const*(dO1_dx1*dO1_dx2+dO2_dx1*dO2_dx2+dO3_dx1*dO3_dx2)
-    Hess(LHR(1,iAtom,2,jAtom)) = Hess(LHR(1,iAtom,2,jAtom))+f_const*(dO1_dx1*dO1_dy2+dO2_dx1*dO2_dy2+dO3_dx1*dO3_dy2)
-    Hess(LHR(1,iAtom,3,jAtom)) = Hess(LHR(1,iAtom,3,jAtom))+f_const*(dO1_dx1*dO1_dz2+dO2_dx1*dO2_dz2+dO3_dx1*dO3_dz2)
-    Hess(LHR(2,iAtom,1,jAtom)) = Hess(LHR(2,iAtom,1,jAtom))+f_const*(dO1_dy1*dO1_dx2+dO2_dy1*dO2_dx2+dO3_dy1*dO3_dx2)
-    Hess(LHR(2,iAtom,2,jAtom)) = Hess(LHR(2,iAtom,2,jAtom))+f_const*(dO1_dy1*dO1_dy2+dO2_dy1*dO2_dy2+dO3_dy1*dO3_dy2)
-    Hess(LHR(2,iAtom,3,jAtom)) = Hess(LHR(2,iAtom,3,jAtom))+f_const*(dO1_dy1*dO1_dz2+dO2_dy1*dO2_dz2+dO3_dy1*dO3_dz2)
-    Hess(LHR(3,iAtom,1,jAtom)) = Hess(LHR(3,iAtom,1,jAtom))+f_const*(dO1_dz1*dO1_dx2+dO2_dz1*dO2_dx2+dO3_dz1*dO3_dx2)
-    Hess(LHR(3,iAtom,2,jAtom)) = Hess(LHR(3,iAtom,2,jAtom))+f_const*(dO1_dz1*dO1_dy2+dO2_dz1*dO2_dy2+dO3_dz1*dO3_dy2)
-    Hess(LHR(3,iAtom,3,jAtom)) = Hess(LHR(3,iAtom,3,jAtom))+f_const*(dO1_dz1*dO1_dz2+dO2_dz1*dO2_dz2+dO3_dz1*dO3_dz2)
-
-  end do
-
-  Hess(LHR(1,iAtom,1,iAtom)) = Hess(LHR(1,iAtom,1,iAtom))+f_const*(dO1_dx1*dO1_dx1+dO2_dx1*dO2_dx1+dO3_dx1*dO3_dx1)
-  Hess(LHR(2,iAtom,1,iAtom)) = Hess(LHR(2,iAtom,1,iAtom))+f_const*(dO1_dy1*dO1_dx1+dO2_dy1*dO2_dx1+dO3_dy1*dO3_dx1)
-  Hess(LHR(2,iAtom,2,iAtom)) = Hess(LHR(2,iAtom,2,iAtom))+f_const*(dO1_dy1*dO1_dy1+dO2_dy1*dO2_dy1+dO3_dy1*dO3_dy1)
-  Hess(LHR(3,iAtom,1,iAtom)) = Hess(LHR(3,iAtom,1,iAtom))+f_const*(dO1_dz1*dO1_dx1+dO2_dz1*dO2_dx1+dO3_dz1*dO3_dx1)
-  Hess(LHR(3,iAtom,2,iAtom)) = Hess(LHR(3,iAtom,2,iAtom))+f_const*(dO1_dz1*dO1_dy1+dO2_dz1*dO2_dy1+dO3_dz1*dO3_dy1)
-  Hess(LHR(3,iAtom,3,iAtom)) = Hess(LHR(3,iAtom,3,iAtom))+f_const*(dO1_dz1*dO1_dz1+dO2_dz1*dO2_dz1+dO3_dz1*dO3_dz1)
-
-end do
-call mma_deallocate(Grad)
-#ifdef _DEBUGPRINT_
-call TriPrt(' In LNM: Hessian after Rotation','(12f12.7)',Hess,n3)
-call DiagMtrx_T(Hess,n3,iNeg)
-#endif
-778 continue
+end if
 call mma_deallocate(xMass)
 !                                                                      *
 !***********************************************************************
@@ -264,7 +266,7 @@ do iBond=1,nBonds
   kAtom = iTabBonds(1,iBond)
   lAtom = iTabBonds(2,iBond)
   iBondType = iTabBonds(3,iBond)
-  !if (iBondType > Magic_Bond) Go To 10
+  !if (iBondType > Magic_Bond) cycle
   kr = iTabRow(iANr(kAtom))
   lr = iTabRow(iANr(lAtom))
   Help = (kr > 3) .or. (lr > 3)
@@ -334,7 +336,6 @@ do iBond=1,nBonds
   Hess(LHR(3,lAtom,2,lAtom)) = Hess(LHR(3,lAtom,2,lAtom))+Hyz
   Hess(LHR(3,lAtom,3,lAtom)) = Hess(LHR(3,lAtom,3,lAtom))+Hzz
 
-  !10 continue
 end do
 #ifdef _DEBUGPRINT_
 call TriPrt(' In LNM: Hessian after tension','(12f12.7)',Hess,n3)
@@ -345,185 +346,121 @@ call DiagMtrx_T(Hess,n3,iNeg)
 !                                                                      *
 ! Hessian for bending
 
-if (nBonds < 2) Go To 999
-do mAtom=1,mTtAtm
-  mr = iTabRow(iANr(mAtom))
+if (nBonds >= 2) then
+  do mAtom=1,mTtAtm
+    mr = iTabRow(iANr(mAtom))
 
-  nNeighbor = iTabAtoms(1,0,mAtom)
-  if (nNeighbor < 2) Go To 20
-  do iNeighbor=1,nNeighbor
-    iAtom = iTabAtoms(1,iNeighbor,mAtom)
-    iBond = iTabAtoms(2,iNeighbor,mAtom)
-    iBondType = iTabBonds(3,iBond)
-    if (iBondType > Magic_Bond) Go To 30
-    ir = iTabRow(iANr(iAtom))
+    nNeighbor = iTabAtoms(1,0,mAtom)
+    if (nNeighbor < 2) cycle
+    do iNeighbor=1,nNeighbor
+      iAtom = iTabAtoms(1,iNeighbor,mAtom)
+      iBond = iTabAtoms(2,iNeighbor,mAtom)
+      iBondType = iTabBonds(3,iBond)
+      if (iBondType > Magic_Bond) cycle
+      ir = iTabRow(iANr(iAtom))
 
-    xmi = (Cart(1,iAtom)-Cart(1,mAtom))
-    ymi = (Cart(2,iAtom)-Cart(2,mAtom))
-    zmi = (Cart(3,iAtom)-Cart(3,mAtom))
-    rmi2 = xmi**2+ymi**2+zmi**2
-    rmi = sqrt(rmi2)
+      xmi = (Cart(1,iAtom)-Cart(1,mAtom))
+      ymi = (Cart(2,iAtom)-Cart(2,mAtom))
+      zmi = (Cart(3,iAtom)-Cart(3,mAtom))
+      rmi2 = xmi**2+ymi**2+zmi**2
+      rmi = sqrt(rmi2)
 
-    do jNeighbor=1,iNeighbor-1
-      jAtom = iTabAtoms(1,jNeighbor,mAtom)
-      jBond = iTabAtoms(2,jNeighbor,mAtom)
-      jBondType = iTabBonds(3,jBond)
-      if (jBondType > Magic_Bond) Go To 40
-      jr = iTabRow(iANr(jAtom))
-      Help = (mr > 3) .or. (ir > 3) .or. (jr > 3)
+      do jNeighbor=1,iNeighbor-1
+        jAtom = iTabAtoms(1,jNeighbor,mAtom)
+        jBond = iTabAtoms(2,jNeighbor,mAtom)
+        jBondType = iTabBonds(3,jBond)
+        if (jBondType > Magic_Bond) cycle
+        jr = iTabRow(iANr(jAtom))
+        Help = (mr > 3) .or. (ir > 3) .or. (jr > 3)
 
-      xmj = (Cart(1,jAtom)-Cart(1,mAtom))
-      ymj = (Cart(2,jAtom)-Cart(2,mAtom))
-      zmj = (Cart(3,jAtom)-Cart(3,mAtom))
-      rmj2 = xmj**2+ymj**2+zmj**2
-      rmj = sqrt(rmj2)
+        xmj = (Cart(1,jAtom)-Cart(1,mAtom))
+        ymj = (Cart(2,jAtom)-Cart(2,mAtom))
+        zmj = (Cart(3,jAtom)-Cart(3,mAtom))
+        rmj2 = xmj**2+ymj**2+zmj**2
+        rmj = sqrt(rmj2)
 
-      ! Test if zero angle
+        ! Test if zero angle
 
-      Test_zero = xmi*xmj+ymi*ymj+zmi*zmj
-      Test_zero = Test_zero/(rmi*rmj)
-      if (abs(Test_zero-One) < 1.0D-12) Go To 40
+        Test_zero = xmi*xmj+ymi*ymj+zmi*zmj
+        Test_zero = Test_zero/(rmi*rmj)
+        if (abs(Test_zero-One) < 1.0D-12) cycle
 
-      xij = (Cart(1,jAtom)-Cart(1,iAtom))
-      yij = (Cart(2,jAtom)-Cart(2,iAtom))
-      zij = (Cart(3,jAtom)-Cart(3,iAtom))
-      rij2 = xij**2+yij**2+zij**2
-      rrij = sqrt(rij2)
+        xij = (Cart(1,jAtom)-Cart(1,iAtom))
+        yij = (Cart(2,jAtom)-Cart(2,iAtom))
+        zij = (Cart(3,jAtom)-Cart(3,iAtom))
+        rij2 = xij**2+yij**2+zij**2
+        rrij = sqrt(rij2)
 
-      if (ddV_Schlegel .or. Help) then
-        Rab = rmi
-        RabCov = CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
-        Rbc = rmj
-        RbcCov = CovRad(iANr(jAtom))+CovRad(iANr(mAtom))
-        if ((ir == 1) .or. (jr == 1)) then
-          gij = Fact*A_Bend(1)
-        else
-          gij = Fact*A_Bend(2)
-        end if
-      else
-        r0mi = rAv(mr,ir)
-        ami = aAv(mr,ir)
-        r0mj = rAv(mr,jr)
-        amj = aAv(mr,jr)
-        gim = exp(ami*(r0mi**2-rmi2))
-        gjm = exp(amj*(r0mj**2-rmj2))
-        if (iand(iOptC,1024) == 1024) then
-          r0_vdW_im = r_ref_vdW(ir,mr)
-          g_vdW_im = exp(-alpha_vdW*(r0_vdW_im-sqrt(rmi2))**2)
-          r0_vdW_jm = r_ref_vdW(jr,mr)
-          g_vdW_jm = exp(-alpha_vdW*(r0_vdW_jm-sqrt(rmj2))**2)
-        else
-          g_vdW_im = 0.0d0
-          g_vdW_jm = 0.0d0
-        end if
-        g_vdW_im = g_vdW_im*rkr_vdW/rkr
-        g_vdW_jm = g_vdW_jm*rkr_vdW/rkr
-        gim = gim+Half*g_vdW_im
-        gjm = gjm+Half*g_vdW_jm
-        gij = rkf*gim*gjm
-      end if
-      rL2 = (ymi*zmj-zmi*ymj)**2+(zmi*xmj-xmi*zmj)**2+(xmi*ymj-ymi*xmj)**2
-      !hjw modified
-      if (rL2 < 1.d-14) then
-        rL = Zero
-      else
-        rL = sqrt(rL2)
-      end if
-      gij = max(gij,f_const_Min_)
-#     ifdef _DEBUGPRINT_
-      write(6,*) 'iAtom,mAtom,jAtom=',iAtom,mAtom,jAtom
-      write(6,*) 'gij=',gij
-      write(6,*) 'rmj=',rmj
-      write(6,*) 'rmi=',rmi
-      write(6,*) 'rrij=',rrij
-#     endif
-
-      if ((rmj > rZero) .and. (rmi > rZero) .and. (rrij > rZero)) then
-#       ifdef _DEBUGPRINT_
-        nqB = nqB+1
-#       endif
-        SinPhi = rL/(rmj*rmi)
-        rmidotrmj = xmi*xmj+ymi*ymj+zmi*zmj
-        CosPhi = rmidotrmj/(rmj*rmi)
-
-        ! Non-linear case
-
-        Thr_Line = sin(Pi*25.0d0/180.0d0)
-        if (mTtAtm == 3) Thr_Line = rZero
-        if (SinPhi > Thr_Line) then
-          si(1) = (xmi/rmi*cosphi-xmj/rmj)/(rmi*sinphi)
-          si(2) = (ymi/rmi*cosphi-ymj/rmj)/(rmi*sinphi)
-          si(3) = (zmi/rmi*cosphi-zmj/rmj)/(rmi*sinphi)
-          sj(1) = (cosphi*xmj/rmj-xmi/rmi)/(rmj*sinphi)
-          sj(2) = (cosphi*ymj/rmj-ymi/rmi)/(rmj*sinphi)
-          sj(3) = (cosphi*zmj/rmj-zmi/rmi)/(rmj*sinphi)
-          sm(1) = -si(1)-sj(1)
-          sm(2) = -si(2)-sj(2)
-          sm(3) = -si(3)-sj(3)
-          do icoor=1,3
-            do jCoor=1,3
-              if (mAtom > iAtom) then
-                Hess(LHR(icoor,mAtom,jcoor,iAtom)) = Hess(LHR(icoor,mAtom,jcoor,iAtom))+gij*sm(icoor)*si(jcoor)
-              else
-                Hess(LHR(icoor,iAtom,jcoor,mAtom)) = Hess(LHR(icoor,iAtom,jcoor,mAtom))+gij*si(icoor)*sm(jcoor)
-              end if
-              if (mAtom > jAtom) then
-                Hess(LHR(icoor,mAtom,jcoor,jAtom)) = Hess(LHR(icoor,mAtom,jcoor,jAtom))+gij*sm(icoor)*sj(jcoor)
-              else
-                Hess(LHR(icoor,jAtom,jcoor,mAtom)) = Hess(LHR(icoor,jAtom,jcoor,mAtom))+gij*sj(icoor)*sm(jcoor)
-              end if
-              if (iAtom > jAtom) then
-                Hess(LHR(icoor,iAtom,jcoor,jAtom)) = Hess(LHR(icoor,iAtom,jcoor,jAtom))+gij*si(icoor)*sj(jcoor)
-              else
-                Hess(LHR(icoor,jAtom,jcoor,iAtom)) = Hess(LHR(icoor,jAtom,jcoor,iAtom))+gij*sj(icoor)*si(jcoor)
-              end if
-            end do
-          end do
-          do icoor=1,3
-            do jCoor=1,icoor
-              Hess(LHR(icoor,iAtom,jcoor,iAtom)) = Hess(LHR(icoor,iAtom,jcoor,iAtom))+gij*si(icoor)*si(jcoor)
-              Hess(LHR(icoor,mAtom,jcoor,mAtom)) = Hess(LHR(icoor,mAtom,jcoor,mAtom))+gij*sm(icoor)*sm(jcoor)
-              Hess(LHR(icoor,jAtom,jcoor,jAtom)) = Hess(LHR(icoor,jAtom,jcoor,jAtom))+gij*sj(icoor)*sj(jcoor)
-
-            end do
-          end do
-        else
-
-          ! Linear case
-
-          if ((abs(ymi) > rZero) .or. (abs(xmi) > rZero)) then
-            x(1) = -ymi
-            y(1) = xmi
-            z(1) = Zero
-            x(2) = -xmi*zmi
-            y(2) = -ymi*zmi
-            z(2) = xmi*xmi+ymi*ymi
+        if (ddV_Schlegel .or. Help) then
+          Rab = rmi
+          RabCov = CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
+          Rbc = rmj
+          RbcCov = CovRad(iANr(jAtom))+CovRad(iANr(mAtom))
+          if ((ir == 1) .or. (jr == 1)) then
+            gij = Fact*A_Bend(1)
           else
-            x(1) = One
-            y(1) = Zero
-            z(1) = Zero
-            x(2) = Zero
-            y(2) = One
-            z(2) = Zero
+            gij = Fact*A_Bend(2)
           end if
-#         ifdef _DEBUGPRINT_
-          nqB = nqB+2
-#         endif
-          do i=1,2
-            r1 = sqrt(x(i)**2+y(i)**2+z(i)**2)
-            cosThetax = x(i)/r1
-            cosThetay = y(i)/r1
-            cosThetaz = z(i)/r1
-            si(1) = -cosThetax/rmi
-            si(2) = -cosThetay/rmi
-            si(3) = -cosThetaz/rmi
-            sj(1) = -cosThetax/rmj
-            sj(2) = -cosThetay/rmj
-            sj(3) = -cosThetaz/rmj
-            sm(1) = -(si(1)+sj(1))
-            sm(2) = -(si(2)+sj(2))
-            sm(3) = -(si(3)+sj(3))
+        else
+          r0mi = rAv(mr,ir)
+          ami = aAv(mr,ir)
+          r0mj = rAv(mr,jr)
+          amj = aAv(mr,jr)
+          gim = exp(ami*(r0mi**2-rmi2))
+          gjm = exp(amj*(r0mj**2-rmj2))
+          if (iand(iOptC,1024) == 1024) then
+            r0_vdW_im = r_ref_vdW(ir,mr)
+            g_vdW_im = exp(-alpha_vdW*(r0_vdW_im-sqrt(rmi2))**2)
+            r0_vdW_jm = r_ref_vdW(jr,mr)
+            g_vdW_jm = exp(-alpha_vdW*(r0_vdW_jm-sqrt(rmj2))**2)
+          else
+            g_vdW_im = 0.0d0
+            g_vdW_jm = 0.0d0
+          end if
+          g_vdW_im = g_vdW_im*rkr_vdW/rkr
+          g_vdW_jm = g_vdW_jm*rkr_vdW/rkr
+          gim = gim+Half*g_vdW_im
+          gjm = gjm+Half*g_vdW_jm
+          gij = rkf*gim*gjm
+        end if
+        rL2 = (ymi*zmj-zmi*ymj)**2+(zmi*xmj-xmi*zmj)**2+(xmi*ymj-ymi*xmj)**2
+        !hjw modified
+        if (rL2 < 1.d-14) then
+          rL = Zero
+        else
+          rL = sqrt(rL2)
+        end if
+        gij = max(gij,f_const_Min_)
+#       ifdef _DEBUGPRINT_
+        write(6,*) 'iAtom,mAtom,jAtom=',iAtom,mAtom,jAtom
+        write(6,*) 'gij=',gij
+        write(6,*) 'rmj=',rmj
+        write(6,*) 'rmi=',rmi
+        write(6,*) 'rrij=',rrij
+#       endif
 
+        if ((rmj > rZero) .and. (rmi > rZero) .and. (rrij > rZero)) then
+#         ifdef _DEBUGPRINT_
+          nqB = nqB+1
+#         endif
+          SinPhi = rL/(rmj*rmi)
+          rmidotrmj = xmi*xmj+ymi*ymj+zmi*zmj
+          CosPhi = rmidotrmj/(rmj*rmi)
+
+          ! Non-linear case
+
+          Thr_Line = sin(Pi*25.0d0/180.0d0)
+          if (mTtAtm == 3) Thr_Line = rZero
+          if (SinPhi > Thr_Line) then
+            si(1) = (xmi/rmi*cosphi-xmj/rmj)/(rmi*sinphi)
+            si(2) = (ymi/rmi*cosphi-ymj/rmj)/(rmi*sinphi)
+            si(3) = (zmi/rmi*cosphi-zmj/rmj)/(rmi*sinphi)
+            sj(1) = (cosphi*xmj/rmj-xmi/rmi)/(rmj*sinphi)
+            sj(2) = (cosphi*ymj/rmj-ymi/rmi)/(rmj*sinphi)
+            sj(3) = (cosphi*zmj/rmj-zmi/rmi)/(rmj*sinphi)
+            sm(1) = -si(1)-sj(1)
+            sm(2) = -si(2)-sj(2)
+            sm(3) = -si(3)-sj(3)
             do icoor=1,3
               do jCoor=1,3
                 if (mAtom > iAtom) then
@@ -548,340 +485,235 @@ do mAtom=1,mTtAtm
                 Hess(LHR(icoor,iAtom,jcoor,iAtom)) = Hess(LHR(icoor,iAtom,jcoor,iAtom))+gij*si(icoor)*si(jcoor)
                 Hess(LHR(icoor,mAtom,jcoor,mAtom)) = Hess(LHR(icoor,mAtom,jcoor,mAtom))+gij*sm(icoor)*sm(jcoor)
                 Hess(LHR(icoor,jAtom,jcoor,jAtom)) = Hess(LHR(icoor,jAtom,jcoor,jAtom))+gij*sj(icoor)*sj(jcoor)
+
               end do
             end do
-          end do
-        end if
-      end if
+          else
 
-40    continue
+            ! Linear case
+
+            if ((abs(ymi) > rZero) .or. (abs(xmi) > rZero)) then
+              x(1) = -ymi
+              y(1) = xmi
+              z(1) = Zero
+              x(2) = -xmi*zmi
+              y(2) = -ymi*zmi
+              z(2) = xmi*xmi+ymi*ymi
+            else
+              x(1) = One
+              y(1) = Zero
+              z(1) = Zero
+              x(2) = Zero
+              y(2) = One
+              z(2) = Zero
+            end if
+#           ifdef _DEBUGPRINT_
+            nqB = nqB+2
+#           endif
+            do i=1,2
+              r1 = sqrt(x(i)**2+y(i)**2+z(i)**2)
+              cosThetax = x(i)/r1
+              cosThetay = y(i)/r1
+              cosThetaz = z(i)/r1
+              si(1) = -cosThetax/rmi
+              si(2) = -cosThetay/rmi
+              si(3) = -cosThetaz/rmi
+              sj(1) = -cosThetax/rmj
+              sj(2) = -cosThetay/rmj
+              sj(3) = -cosThetaz/rmj
+              sm(1) = -(si(1)+sj(1))
+              sm(2) = -(si(2)+sj(2))
+              sm(3) = -(si(3)+sj(3))
+
+              do icoor=1,3
+                do jCoor=1,3
+                  if (mAtom > iAtom) then
+                    Hess(LHR(icoor,mAtom,jcoor,iAtom)) = Hess(LHR(icoor,mAtom,jcoor,iAtom))+gij*sm(icoor)*si(jcoor)
+                  else
+                    Hess(LHR(icoor,iAtom,jcoor,mAtom)) = Hess(LHR(icoor,iAtom,jcoor,mAtom))+gij*si(icoor)*sm(jcoor)
+                  end if
+                  if (mAtom > jAtom) then
+                    Hess(LHR(icoor,mAtom,jcoor,jAtom)) = Hess(LHR(icoor,mAtom,jcoor,jAtom))+gij*sm(icoor)*sj(jcoor)
+                  else
+                    Hess(LHR(icoor,jAtom,jcoor,mAtom)) = Hess(LHR(icoor,jAtom,jcoor,mAtom))+gij*sj(icoor)*sm(jcoor)
+                  end if
+                  if (iAtom > jAtom) then
+                    Hess(LHR(icoor,iAtom,jcoor,jAtom)) = Hess(LHR(icoor,iAtom,jcoor,jAtom))+gij*si(icoor)*sj(jcoor)
+                  else
+                    Hess(LHR(icoor,jAtom,jcoor,iAtom)) = Hess(LHR(icoor,jAtom,jcoor,iAtom))+gij*sj(icoor)*si(jcoor)
+                  end if
+                end do
+              end do
+              do icoor=1,3
+                do jCoor=1,icoor
+                  Hess(LHR(icoor,iAtom,jcoor,iAtom)) = Hess(LHR(icoor,iAtom,jcoor,iAtom))+gij*si(icoor)*si(jcoor)
+                  Hess(LHR(icoor,mAtom,jcoor,mAtom)) = Hess(LHR(icoor,mAtom,jcoor,mAtom))+gij*sm(icoor)*sm(jcoor)
+                  Hess(LHR(icoor,jAtom,jcoor,jAtom)) = Hess(LHR(icoor,jAtom,jcoor,jAtom))+gij*sj(icoor)*sj(jcoor)
+                end do
+              end do
+            end do
+          end if
+        end if
+
+      end do
     end do
-30  continue
   end do
-20 continue
-end do
-#ifdef _DEBUGPRINT_
-call TriPrt(' In LNM: Hessian after bending','(12f12.7)',Hess,n3)
-call DiagMtrx_T(Hess,n3,iNeg)
-#endif
+# ifdef _DEBUGPRINT_
+  call TriPrt(' In LNM: Hessian after bending','(12f12.7)',Hess,n3)
+  call DiagMtrx_T(Hess,n3,iNeg)
+# endif
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Hessian for torsion
 
-if (nBonds < 3) Go To 999
-do iBond=1,nBonds
-  jAtom = iTabBonds(1,iBond)
-  kAtom = iTabBonds(2,iBond)
-  iBondType = iTabBonds(3,iBond)
-  Fact = One
-  if (iBondType > Magic_Bond) Fact = Two
-# ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) '*',jAtom,kAtom,' *'
-  write(6,*)
-  write(6,*) 'BondType=',iBondType
-# endif
-
-  ! Allow center bond to be a "magic" bond
-
-  !if (iBondType == vdW_Bond) Go To 444
-
-  jr = iTabRow(iANr(jAtom))
-  kr = iTabRow(iANr(kAtom))
-
-  call dcopy_(3,Cart(1,jAtom),1,xyz(1,2),1)
-  call dcopy_(3,Cart(1,kAtom),1,xyz(1,3),1)
-
-  nNeighbor_j = iTabAtoms(1,0,jAtom)
-  if (nNeighbor_j < 2) Go To 444
-  nNeighbor_k = iTabAtoms(1,0,kAtom)
-  if (nNeighbor_k < 2) Go To 444
-
-  do jNeighbor=1,nNeighbor_j
-    iAtom = iTabAtoms(1,jNeighbor,jAtom)
-#   ifdef _DEBUGPRINT_
-    !write(6,*)
-    !write(6,*) iAtom,jAtom,kAtom,' *'
-    !write(6,*)
-#   endif
-    jBond = iTabAtoms(2,jNeighbor,jAtom)
-    if (iBond == jBond) Go To 333
-    jBondType = iTabBonds(3,jBond)
-    !if (jBondType == vdW_Bond) Go To 333
-    if (jBondType > Magic_Bond) Go To 333
-    ir = iTabRow(iANr(iAtom))
-
-    call dcopy_(3,Cart(1,iAtom),1,xyz(1,1),1)
-
-    do kNeighbor=1,nNeighbor_k
-      lAtom = iTabAtoms(1,kNeighbor,kAtom)
-      kBond = iTabAtoms(2,kNeighbor,kAtom)
-      if (iBond == kBond) Go To 222
-      if (lAtom == iAtom) Go To 222
-      kBondType = iTabBonds(3,kBond)
-      !if (kBondType == vdW_Bond) Go To 222
-      if (kBondType > Magic_Bond) Go To 222
-      lr = iTabRow(iANr(lAtom))
-      Help = (kr > 3) .or. (ir > 3) .or. (jr > 3) .or. (lr > 3)
-
-      call dcopy_(3,Cart(1,lAtom),1,xyz(1,4),1)
-
-      rij(1) = Cart(1,iAtom)-Cart(1,jAtom)
-      rij(2) = Cart(2,iAtom)-Cart(2,jAtom)
-      rij(3) = Cart(3,iAtom)-Cart(3,jAtom)
-      rij2 = rij(1)**2+rij(2)**2+rij(3)**2
-
-      rjk(1) = Cart(1,jAtom)-Cart(1,kAtom)
-      rjk(2) = Cart(2,jAtom)-Cart(2,kAtom)
-      rjk(3) = Cart(3,jAtom)-Cart(3,kAtom)
-      rjk2 = rjk(1)**2+rjk(2)**2+rjk(3)**2
-
-      rkl(1) = Cart(1,kAtom)-Cart(1,lAtom)
-      rkl(2) = Cart(2,kAtom)-Cart(2,lAtom)
-      rkl(3) = Cart(3,kAtom)-Cart(3,lAtom)
-      rkl2 = rkl(1)**2+rkl(2)**2+rkl(3)**2
-
-      ! Allow only angles in the range of 35-145
-      A35 = (35.0d0/180.d0)*Pi
-      CosFi_Max = cos(A35)
-      CosFi2 = (rij(1)*rjk(1)+rij(2)*rjk(2)+rij(3)*rjk(3))/sqrt(rij2*rjk2)
-      if (abs(CosFi2) > CosFi_Max) Go To 222
-      CosFi3 = (rkl(1)*rjk(1)+rkl(2)*rjk(2)+rkl(3)*rjk(3))/sqrt(rkl2*rjk2)
-      if (abs(CosFi3) > CosFi_Max) Go To 222
-#     ifdef _DEBUGPRINT_
-      write(6,*) 'CosFi2,CosFi3=',CosFi2,CosFi3
-      write(6,*) 'rij=',rij,rij2
-      write(6,*) 'rjk=',rjk,rjk2
-      write(6,*) 'rkl=',rkl,rkl2
-#     endif
-
-      if (ddV_Schlegel .or. Help) then
-        Rab = sqrt(rij2)
-        RabCov = (CovRadT(iANr(iAtom))+CovRadT(iANr(jAtom)))/bohr
-        Rbc = sqrt(rjk2)/Fact
-        RbcCov = (CovRadT(iANr(jAtom))+CovRadT(iANr(kAtom)))/bohr
-        Diff = RbcCov-Rbc
-        if (Diff < Zero) Diff = Zero
-        tij = Fact*A_Trsn(1)+A_Trsn(2)*Diff
-      else
-        rij0 = rAv(ir,jr)**2
-        aij = aAv(ir,jr)
-        rjk0 = rAv(jr,kr)**2
-        ajk = aAv(jr,kr)
-        rkl0 = rAv(kr,lr)**2
-        akl = aAv(kr,lr)
-        ! Magic bond fix
-        rjk2 = rjk2/Fact**2
-
-        g_ij = exp(aij*(rij0-rij2))
-        g_jk = exp(ajk*(rjk0-rjk2))
-        g_kl = exp(akl*(rkl0-rkl2))
-        if (iand(iOptC,1024) == 1024) then
-          r0_vdW_ij = r_ref_vdW(ir,jr)
-          g_vdW_ij = exp(-alpha_vdW*(r0_vdW_ij-sqrt(rij2))**2)
-          r0_vdW_jk = r_ref_vdW(jr,kr)
-          g_vdW_jk = exp(-alpha_vdW*(r0_vdW_jk-sqrt(rjk2))**2)
-          r0_vdW_kl = r_ref_vdW(kr,lr)
-          g_vdW_kl = exp(-alpha_vdW*(r0_vdW_kl-sqrt(rkl2))**2)
-        else
-          g_vdW_ij = 0.0d0
-          g_vdW_jk = 0.0d0
-          g_vdW_kl = 0.0d0
-        end if
-        g_vdW_ij = g_vdW_ij*rkr_vdW/rkr
-        g_vdW_jk = g_vdW_jk*rkr_vdW/rkr
-        g_vdW_kl = g_vdW_kl*rkr_vdW/rkr
-        g_ij = g_ij+Half*g_vdW_ij
-        g_jk = g_jk+Half*g_vdW_jk
-        g_kl = g_kl+Half*g_vdW_kl
-        tij = rkt*g_ij*g_jk*g_kl
-      end if
-      tij = max(tij,f_const_Min_)
-      if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,xyz,iTabAtoms,nMax,mTtAtm)) then
-        tij = max(tij,10.0d0*f_const_Min_)
-      end if
-#     ifdef _DEBUGPRINT_
-      nqT = nqT+1
-      write(6,*)
-      write(6,*) iAtom,jAtom,kAtom,lAtom
-      write(6,*) tij
-#     endif
-
-      call Trsn(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
-      call dcopy_(3,C(1,1),1,si,1)
-      call dcopy_(3,C(1,2),1,sj,1)
-      call dcopy_(3,C(1,3),1,sk,1)
-      call dcopy_(3,C(1,4),1,sl,1)
-#     ifdef _DEBUGPRINT_
-      !call RecPrt('C',' ',C,3,4)
-#     endif
-
-      ! Off diagonal block
-
-      do icoor=1,3
-        do jCoor=1,3
-          Hess(LHR(icoor,iAtom,jcoor,jAtom)) = Hess(LHR(icoor,iAtom,jcoor,jAtom))+tij*si(icoor)*sj(jcoor)
-          Hess(LHR(icoor,iAtom,jcoor,kAtom)) = Hess(LHR(icoor,iAtom,jcoor,kAtom))+tij*si(icoor)*sk(jcoor)
-          Hess(LHR(icoor,iAtom,jcoor,lAtom)) = Hess(LHR(icoor,iAtom,jcoor,lAtom))+tij*si(icoor)*sl(jcoor)
-          Hess(LHR(icoor,jAtom,jcoor,kAtom)) = Hess(LHR(icoor,jAtom,jcoor,kAtom))+tij*sj(icoor)*sk(jcoor)
-          Hess(LHR(icoor,jAtom,jcoor,lAtom)) = Hess(LHR(icoor,jAtom,jcoor,lAtom))+tij*sj(icoor)*sl(jcoor)
-          Hess(LHR(icoor,kAtom,jcoor,lAtom)) = Hess(LHR(icoor,kAtom,jcoor,lAtom))+tij*sk(icoor)*sl(jcoor)
-
-        end do
-      end do
-
-      ! Diagonal block
-
-      do icoor=1,3
-        do jCoor=1,icoor
-          Hess(LHR(icoor,iAtom,jcoor,iAtom)) = Hess(LHR(icoor,iAtom,jcoor,iAtom))+tij*si(icoor)*si(jcoor)
-          Hess(LHR(icoor,jAtom,jcoor,jAtom)) = Hess(LHR(icoor,jAtom,jcoor,jAtom))+tij*sj(icoor)*sj(jcoor)
-          Hess(LHR(icoor,kAtom,jcoor,kAtom)) = Hess(LHR(icoor,kAtom,jcoor,kAtom))+tij*sk(icoor)*sk(jcoor)
-          Hess(LHR(icoor,lAtom,jcoor,lAtom)) = Hess(LHR(icoor,lAtom,jcoor,lAtom))+tij*sl(icoor)*sl(jcoor)
-
-        end do
-      end do
-
-222   continue
-    end do          ! iNeigbor_k
-333 continue
-  end do            ! iNeighbor_j
-444 continue
-end do              ! iBonds
-#ifdef _DEBUGPRINT_
-call TriPrt(' In LNM: Hessian after torsion','(12f12.7)',Hess,n3)
-call DiagMtrx_T(Hess,n3,iNeg)
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                                  k
-!                                 /
-! Hessian for out-of-plane   j - i
-!                                 \
-!                                  l
-
-!Go To 999
-if (nBonds < 3) Go To 999
-
-do iAtom=1,mTtAtm
-
-  nNeighbor_i = iTabAtoms(1,0,iAtom)
-  !write(6,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
-  if (nNeighbor_i < 3) Go To 446
-  ir = iTabRow(iANr(iAtom))
-  call dcopy_(3,Cart(1,iAtom),1,xyz(1,4),1)
-
-  do iNb0=1,nNeighbor_i
-    jAtom = iTabAtoms(1,iNb0,iAtom)
-    !write(6,*) 'jAtom=',jAtom
-    jr = iTabRow(iANr(jAtom))
-    iBond = iTabAtoms(2,iNb0,iAtom)
+if (nBonds >= 3) then
+  do iBond=1,nBonds
+    jAtom = iTabBonds(1,iBond)
+    kAtom = iTabBonds(2,iBond)
     iBondType = iTabBonds(3,iBond)
-    !write(6,*) 'iBondType=',iBondType
-    nCoBond_j = nCoBond(jAtom,mTtAtm,nMax,iTabBonds,nBonds,iTabAtoms)
-    if (nCoBond_j > 1) Go To 447
-    !if (iBondType == vdW_Bond) Go To 447
-    if (iBondType > Magic_Bond) Go To 447
-    call dcopy_(3,Cart(1,jAtom),1,xyz(1,1),1)
+    Fact = One
+    if (iBondType > Magic_Bond) Fact = Two
+#   ifdef _DEBUGPRINT_
+    write(6,*)
+    write(6,*) '*',jAtom,kAtom,' *'
+    write(6,*)
+    write(6,*) 'BondType=',iBondType
+#   endif
 
-    do iNb1=1,nNeighbor_i
-      kAtom = iTabAtoms(1,iNb1,iAtom)
-      !write(6,*) 'kAtom=',kAtom
-      kBond = iTabAtoms(2,iNb1,iAtom)
-      if (kAtom == jAtom) Go To 335
-      kBondType = iTabBonds(3,kBond)
-      !write(6,*) 'kBondType=',kBondType
-      !if (kBondType == vdW_Bond) Go To 335
-      if (kBondType > Magic_Bond) Go To 335
-      kr = iTabRow(iANr(kAtom))
+    ! Allow center bond to be a "magic" bond
 
-      call dcopy_(3,Cart(1,kAtom),1,xyz(1,2),1)
+    !if (iBondType == vdW_Bond) cycle
 
-      do iNb2=1,nNeighbor_i
-        lAtom = iTabAtoms(1,iNb2,iAtom)
-        !write(6,*) 'lAtom=',lAtom
-        lBond = iTabAtoms(2,iNb2,iAtom)
+    jr = iTabRow(iANr(jAtom))
+    kr = iTabRow(iANr(kAtom))
 
-        if (lAtom == jAtom) Go To 224
-        if (lAtom <= kAtom) Go To 224
-        lBondType = iTabBonds(3,lBond)
-        !write(6,*) 'lBondType=',lBondType
-        !if (lBondType == vdW_Bond) Go To 224
-        if (lBondType > Magic_Bond) Go To 224
+    call dcopy_(3,Cart(1,jAtom),1,xyz(1,2),1)
+    call dcopy_(3,Cart(1,kAtom),1,xyz(1,3),1)
+
+    nNeighbor_j = iTabAtoms(1,0,jAtom)
+    if (nNeighbor_j < 2) cycle
+    nNeighbor_k = iTabAtoms(1,0,kAtom)
+    if (nNeighbor_k < 2) cycle
+
+    do jNeighbor=1,nNeighbor_j
+      iAtom = iTabAtoms(1,jNeighbor,jAtom)
+#     ifdef _DEBUGPRINT_
+      !write(6,*)
+      !write(6,*) iAtom,jAtom,kAtom,' *'
+      !write(6,*)
+#     endif
+      jBond = iTabAtoms(2,jNeighbor,jAtom)
+      if (iBond == jBond) cycle
+      jBondType = iTabBonds(3,jBond)
+      !if (jBondType == vdW_Bond) cycle
+      if (jBondType > Magic_Bond) cycle
+      ir = iTabRow(iANr(iAtom))
+
+      call dcopy_(3,Cart(1,iAtom),1,xyz(1,1),1)
+
+      do kNeighbor=1,nNeighbor_k
+        lAtom = iTabAtoms(1,kNeighbor,kAtom)
+        kBond = iTabAtoms(2,kNeighbor,kAtom)
+        if (iBond == kBond) cycle
+        if (lAtom == iAtom) cycle
+        kBondType = iTabBonds(3,kBond)
+        !if (kBondType == vdW_Bond) cycle
+        if (kBondType > Magic_Bond) cycle
         lr = iTabRow(iANr(lAtom))
         Help = (kr > 3) .or. (ir > 3) .or. (jr > 3) .or. (lr > 3)
 
-        !Write(6,*) 'i,j,k,l=',iAtom,jAtom,kAtom,lAtom
-        !Write(6,*) 'Help=',Help
-
-        call dcopy_(3,Cart(1,lAtom),1,xyz(1,3),1)
+        call dcopy_(3,Cart(1,lAtom),1,xyz(1,4),1)
 
         rij(1) = Cart(1,iAtom)-Cart(1,jAtom)
         rij(2) = Cart(2,iAtom)-Cart(2,jAtom)
         rij(3) = Cart(3,iAtom)-Cart(3,jAtom)
-
-        rik(1) = Cart(1,iAtom)-Cart(1,kAtom)
-        rik(2) = Cart(2,iAtom)-Cart(2,kAtom)
-        rik(3) = Cart(3,iAtom)-Cart(3,kAtom)
-
-        ril(1) = Cart(1,iAtom)-Cart(1,lAtom)
-        ril(2) = Cart(2,iAtom)-Cart(2,lAtom)
-        ril(3) = Cart(3,iAtom)-Cart(3,lAtom)
-
         rij2 = rij(1)**2+rij(2)**2+rij(3)**2
-        rik2 = rik(1)**2+rik(2)**2+rik(3)**2
-        ril2 = ril(1)**2+ril(2)**2+ril(3)**2
 
-        ThrFi1 = cos(90.0d0*Pi/(180.0d0))
-        ThrFi2 = cos(150.0d0*Pi/(180.0d0))
-        CosFi2 = (rij(1)*rik(1)+rij(2)*rik(2)+rij(3)*rik(3))/sqrt(rij2*rik2)
-        if ((CosFi2 > ThrFi1) .or. (CosFi2 < ThrFi2)) Go To 224
+        rjk(1) = Cart(1,jAtom)-Cart(1,kAtom)
+        rjk(2) = Cart(2,jAtom)-Cart(2,kAtom)
+        rjk(3) = Cart(3,jAtom)-Cart(3,kAtom)
+        rjk2 = rjk(1)**2+rjk(2)**2+rjk(3)**2
 
-        CosFi3 = (rij(1)*ril(1)+rij(2)*ril(2)+rij(3)*ril(3))/sqrt(rij2*ril2)
-        if ((CosFi3 > ThrFi1) .or. (CosFi3 < ThrFi2)) Go To 224
+        rkl(1) = Cart(1,kAtom)-Cart(1,lAtom)
+        rkl(2) = Cart(2,kAtom)-Cart(2,lAtom)
+        rkl(3) = Cart(3,kAtom)-Cart(3,lAtom)
+        rkl2 = rkl(1)**2+rkl(2)**2+rkl(3)**2
 
-        CosFi4 = (rik(1)*ril(1)+rik(2)*ril(2)+rik(3)*ril(3))/sqrt(rik2*ril2)
-        if ((CosFi4 > ThrFi1) .or. (CosFi4 < ThrFi2)) Go To 224
+        ! Allow only angles in the range of 35-145
+        A35 = (35.0d0/180.d0)*Pi
+        CosFi_Max = cos(A35)
+        CosFi2 = (rij(1)*rjk(1)+rij(2)*rjk(2)+rij(3)*rjk(3))/sqrt(rij2*rjk2)
+        if (abs(CosFi2) > CosFi_Max) cycle
+        CosFi3 = (rkl(1)*rjk(1)+rkl(2)*rjk(2)+rkl(3)*rjk(3))/sqrt(rkl2*rjk2)
+        if (abs(CosFi3) > CosFi_Max) cycle
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'CosFi2,CosFi3,CosFi4=',CosFi2,CosFi3,CosFi4
+        write(6,*) 'CosFi2,CosFi3=',CosFi2,CosFi3
+        write(6,*) 'rij=',rij,rij2
+        write(6,*) 'rjk=',rjk,rjk2
+        write(6,*) 'rkl=',rkl,rkl2
 #       endif
 
         if (ddV_Schlegel .or. Help) then
-
-          ! I do not have a clue to how this will really work!
-
-          tij = f_const_Min_
+          Rab = sqrt(rij2)
+          RabCov = (CovRadT(iANr(iAtom))+CovRadT(iANr(jAtom)))/bohr
+          Rbc = sqrt(rjk2)/Fact
+          RbcCov = (CovRadT(iANr(jAtom))+CovRadT(iANr(kAtom)))/bohr
+          Diff = RbcCov-Rbc
+          if (Diff < Zero) Diff = Zero
+          tij = Fact*A_Trsn(1)+A_Trsn(2)*Diff
         else
           rij0 = rAv(ir,jr)**2
           aij = aAv(ir,jr)
-          rik0 = rAv(ir,kr)**2
-          aik = aAv(ir,kr)
-          ril0 = rAv(ir,lr)**2
-          ail = aAv(ir,lr)
-          beta = rko*exp((aij*rij0+aik*rik0+ail*ril0))
-          tij = beta*exp(-(aij*rij2+aik*rik2+ail*ril2))
-        end if
-        !tij = max(tij,f_const_Min_)
+          rjk0 = rAv(jr,kr)**2
+          ajk = aAv(jr,kr)
+          rkl0 = rAv(kr,lr)**2
+          akl = aAv(kr,lr)
+          ! Magic bond fix
+          rjk2 = rjk2/Fact**2
 
-        call OutofP(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
-        if (abs(Tau) > 25.0d0*(Pi/180.d0)) Go To 224
+          g_ij = exp(aij*(rij0-rij2))
+          g_jk = exp(ajk*(rjk0-rjk2))
+          g_kl = exp(akl*(rkl0-rkl2))
+          if (iand(iOptC,1024) == 1024) then
+            r0_vdW_ij = r_ref_vdW(ir,jr)
+            g_vdW_ij = exp(-alpha_vdW*(r0_vdW_ij-sqrt(rij2))**2)
+            r0_vdW_jk = r_ref_vdW(jr,kr)
+            g_vdW_jk = exp(-alpha_vdW*(r0_vdW_jk-sqrt(rjk2))**2)
+            r0_vdW_kl = r_ref_vdW(kr,lr)
+            g_vdW_kl = exp(-alpha_vdW*(r0_vdW_kl-sqrt(rkl2))**2)
+          else
+            g_vdW_ij = 0.0d0
+            g_vdW_jk = 0.0d0
+            g_vdW_kl = 0.0d0
+          end if
+          g_vdW_ij = g_vdW_ij*rkr_vdW/rkr
+          g_vdW_jk = g_vdW_jk*rkr_vdW/rkr
+          g_vdW_kl = g_vdW_kl*rkr_vdW/rkr
+          g_ij = g_ij+Half*g_vdW_ij
+          g_jk = g_jk+Half*g_vdW_jk
+          g_kl = g_kl+Half*g_vdW_kl
+          tij = rkt*g_ij*g_jk*g_kl
+        end if
+        tij = max(tij,f_const_Min_)
+        if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,xyz,iTabAtoms,nMax,mTtAtm)) then
+          tij = max(tij,10.0d0*f_const_Min_)
+        end if
 #       ifdef _DEBUGPRINT_
-        nqO = nqO+1
+        nqT = nqT+1
+        write(6,*)
+        write(6,*) iAtom,jAtom,kAtom,lAtom
+        write(6,*) tij
 #       endif
 
-        call dcopy_(3,C(1,4),1,si,1)
-        call dcopy_(3,C(1,1),1,sj,1)
-        call dcopy_(3,C(1,2),1,sk,1)
-        call dcopy_(3,C(1,3),1,sl,1)
+        call Trsn(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
+        call dcopy_(3,C(1,1),1,si,1)
+        call dcopy_(3,C(1,2),1,sj,1)
+        call dcopy_(3,C(1,3),1,sk,1)
+        call dcopy_(3,C(1,4),1,sl,1)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'iAtoms=',iAtom,jAtom,kAtom,lAtom
-        write(6,*) 'tij,Tau=',tij,Tau
-        !call RecPrt('si',' ',si,1,3)
-        !call RecPrt('sj',' ',sj,1,3)
-        !call RecPrt('sk',' ',sk,1,3)
-        !call RecPrt('sl',' ',sl,1,3)
+        !call RecPrt('C',' ',C,3,4)
 #       endif
 
         ! Off diagonal block
@@ -910,22 +742,183 @@ do iAtom=1,mTtAtm
           end do
         end do
 
-224     continue
-      end do        ! iNb2
-335   continue
-    end do          ! iNb1
-447 continue
-  end do            ! iCase
-446 continue
-end do              ! iBond
-#ifdef _DEBUGPRINT_
-call TriPrt(' In LNM: Hessian after out-of-plane','(12f12.7)',Hess,n3)
-call DiagMtrx_T(Hess,n3,iNeg)
-#endif
+      end do          ! iNeigbor_k
+    end do            ! iNeighbor_j
+  end do              ! iBonds
+# ifdef _DEBUGPRINT_
+  call TriPrt(' In LNM: Hessian after torsion','(12f12.7)',Hess,n3)
+  call DiagMtrx_T(Hess,n3,iNeg)
+# endif
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
+!                                  k
+!                                 /
+! Hessian for out-of-plane   j - i
+!                                 \
+!                                  l
+
+!if (.false.) then
+if (nBonds >= 3) then
+
+  do iAtom=1,mTtAtm
+
+    nNeighbor_i = iTabAtoms(1,0,iAtom)
+    !write(6,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
+    if (nNeighbor_i < 3) cycle
+    ir = iTabRow(iANr(iAtom))
+    call dcopy_(3,Cart(1,iAtom),1,xyz(1,4),1)
+
+    do iNb0=1,nNeighbor_i
+      jAtom = iTabAtoms(1,iNb0,iAtom)
+      !write(6,*) 'jAtom=',jAtom
+      jr = iTabRow(iANr(jAtom))
+      iBond = iTabAtoms(2,iNb0,iAtom)
+      iBondType = iTabBonds(3,iBond)
+      !write(6,*) 'iBondType=',iBondType
+      nCoBond_j = nCoBond(jAtom,mTtAtm,nMax,iTabBonds,nBonds,iTabAtoms)
+      if (nCoBond_j > 1) cycle
+      !if (iBondType == vdW_Bond) cycle
+      if (iBondType > Magic_Bond) cycle
+      call dcopy_(3,Cart(1,jAtom),1,xyz(1,1),1)
+
+      do iNb1=1,nNeighbor_i
+        kAtom = iTabAtoms(1,iNb1,iAtom)
+        !write(6,*) 'kAtom=',kAtom
+        kBond = iTabAtoms(2,iNb1,iAtom)
+        if (kAtom == jAtom) cycle
+        kBondType = iTabBonds(3,kBond)
+        !write(6,*) 'kBondType=',kBondType
+        !if (kBondType == vdW_Bond) cycle
+        if (kBondType > Magic_Bond) cycle
+        kr = iTabRow(iANr(kAtom))
+
+        call dcopy_(3,Cart(1,kAtom),1,xyz(1,2),1)
+
+        do iNb2=1,nNeighbor_i
+          lAtom = iTabAtoms(1,iNb2,iAtom)
+          !write(6,*) 'lAtom=',lAtom
+          lBond = iTabAtoms(2,iNb2,iAtom)
+
+          if (lAtom == jAtom) cycle
+          if (lAtom <= kAtom) cycle
+          lBondType = iTabBonds(3,lBond)
+          !write(6,*) 'lBondType=',lBondType
+          !if (lBondType == vdW_Bond) cycle
+          if (lBondType > Magic_Bond) cycle
+          lr = iTabRow(iANr(lAtom))
+          Help = (kr > 3) .or. (ir > 3) .or. (jr > 3) .or. (lr > 3)
+
+          !Write(6,*) 'i,j,k,l=',iAtom,jAtom,kAtom,lAtom
+          !Write(6,*) 'Help=',Help
+
+          call dcopy_(3,Cart(1,lAtom),1,xyz(1,3),1)
+
+          rij(1) = Cart(1,iAtom)-Cart(1,jAtom)
+          rij(2) = Cart(2,iAtom)-Cart(2,jAtom)
+          rij(3) = Cart(3,iAtom)-Cart(3,jAtom)
+
+          rik(1) = Cart(1,iAtom)-Cart(1,kAtom)
+          rik(2) = Cart(2,iAtom)-Cart(2,kAtom)
+          rik(3) = Cart(3,iAtom)-Cart(3,kAtom)
+
+          ril(1) = Cart(1,iAtom)-Cart(1,lAtom)
+          ril(2) = Cart(2,iAtom)-Cart(2,lAtom)
+          ril(3) = Cart(3,iAtom)-Cart(3,lAtom)
+
+          rij2 = rij(1)**2+rij(2)**2+rij(3)**2
+          rik2 = rik(1)**2+rik(2)**2+rik(3)**2
+          ril2 = ril(1)**2+ril(2)**2+ril(3)**2
+
+          ThrFi1 = cos(90.0d0*Pi/(180.0d0))
+          ThrFi2 = cos(150.0d0*Pi/(180.0d0))
+          CosFi2 = (rij(1)*rik(1)+rij(2)*rik(2)+rij(3)*rik(3))/sqrt(rij2*rik2)
+          if ((CosFi2 > ThrFi1) .or. (CosFi2 < ThrFi2)) cycle
+
+          CosFi3 = (rij(1)*ril(1)+rij(2)*ril(2)+rij(3)*ril(3))/sqrt(rij2*ril2)
+          if ((CosFi3 > ThrFi1) .or. (CosFi3 < ThrFi2)) cycle
+
+          CosFi4 = (rik(1)*ril(1)+rik(2)*ril(2)+rik(3)*ril(3))/sqrt(rik2*ril2)
+          if ((CosFi4 > ThrFi1) .or. (CosFi4 < ThrFi2)) cycle
+#         ifdef _DEBUGPRINT_
+          write(6,*) 'CosFi2,CosFi3,CosFi4=',CosFi2,CosFi3,CosFi4
+#         endif
+
+          if (ddV_Schlegel .or. Help) then
+
+            ! I do not have a clue to how this will really work!
+
+            tij = f_const_Min_
+          else
+            rij0 = rAv(ir,jr)**2
+            aij = aAv(ir,jr)
+            rik0 = rAv(ir,kr)**2
+            aik = aAv(ir,kr)
+            ril0 = rAv(ir,lr)**2
+            ail = aAv(ir,lr)
+            beta = rko*exp((aij*rij0+aik*rik0+ail*ril0))
+            tij = beta*exp(-(aij*rij2+aik*rik2+ail*ril2))
+          end if
+          !tij = max(tij,f_const_Min_)
+
+          call OutofP(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
+          if (abs(Tau) > 25.0d0*(Pi/180.d0)) cycle
+#         ifdef _DEBUGPRINT_
+          nqO = nqO+1
+#         endif
+
+          call dcopy_(3,C(1,4),1,si,1)
+          call dcopy_(3,C(1,1),1,sj,1)
+          call dcopy_(3,C(1,2),1,sk,1)
+          call dcopy_(3,C(1,3),1,sl,1)
+#         ifdef _DEBUGPRINT_
+          write(6,*) 'iAtoms=',iAtom,jAtom,kAtom,lAtom
+          write(6,*) 'tij,Tau=',tij,Tau
+          !call RecPrt('si',' ',si,1,3)
+          !call RecPrt('sj',' ',sj,1,3)
+          !call RecPrt('sk',' ',sk,1,3)
+          !call RecPrt('sl',' ',sl,1,3)
+#         endif
+
+          ! Off diagonal block
+
+          do icoor=1,3
+            do jCoor=1,3
+              Hess(LHR(icoor,iAtom,jcoor,jAtom)) = Hess(LHR(icoor,iAtom,jcoor,jAtom))+tij*si(icoor)*sj(jcoor)
+              Hess(LHR(icoor,iAtom,jcoor,kAtom)) = Hess(LHR(icoor,iAtom,jcoor,kAtom))+tij*si(icoor)*sk(jcoor)
+              Hess(LHR(icoor,iAtom,jcoor,lAtom)) = Hess(LHR(icoor,iAtom,jcoor,lAtom))+tij*si(icoor)*sl(jcoor)
+              Hess(LHR(icoor,jAtom,jcoor,kAtom)) = Hess(LHR(icoor,jAtom,jcoor,kAtom))+tij*sj(icoor)*sk(jcoor)
+              Hess(LHR(icoor,jAtom,jcoor,lAtom)) = Hess(LHR(icoor,jAtom,jcoor,lAtom))+tij*sj(icoor)*sl(jcoor)
+              Hess(LHR(icoor,kAtom,jcoor,lAtom)) = Hess(LHR(icoor,kAtom,jcoor,lAtom))+tij*sk(icoor)*sl(jcoor)
+
+            end do
+          end do
+
+          ! Diagonal block
+
+          do icoor=1,3
+            do jCoor=1,icoor
+              Hess(LHR(icoor,iAtom,jcoor,iAtom)) = Hess(LHR(icoor,iAtom,jcoor,iAtom))+tij*si(icoor)*si(jcoor)
+              Hess(LHR(icoor,jAtom,jcoor,jAtom)) = Hess(LHR(icoor,jAtom,jcoor,jAtom))+tij*sj(icoor)*sj(jcoor)
+              Hess(LHR(icoor,kAtom,jcoor,kAtom)) = Hess(LHR(icoor,kAtom,jcoor,kAtom))+tij*sk(icoor)*sk(jcoor)
+              Hess(LHR(icoor,lAtom,jcoor,lAtom)) = Hess(LHR(icoor,lAtom,jcoor,lAtom))+tij*sl(icoor)*sl(jcoor)
+
+            end do
+          end do
+
+        end do        ! iNb2
+      end do          ! iNb1
+    end do            ! iCase
+  end do              ! iBond
+# ifdef _DEBUGPRINT_
+  call TriPrt(' In LNM: Hessian after out-of-plane','(12f12.7)',Hess,n3)
+  call DiagMtrx_T(Hess,n3,iNeg)
+# endif
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
 write(6,*) 'ddV: nqR, nqB, nqT, nqO=',nqR,nqB,nqT,nqO
 #endif

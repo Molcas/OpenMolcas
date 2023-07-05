@@ -25,11 +25,8 @@ logical function SymDsp(iBsFnc)
 use Symmetry_Info, only: nIrrep, iOper
 
 implicit real*8(A-H,O-Z)
-integer jPrmt(0:7)
 #include "real.fh"
-data jPrmt/1,-1,-1,1,-1,1,1,-1/
-! Statement function
-iPrmt(i,j) = jPrmt(iand(i,j))
+integer, external :: iPrmt
 
 !write(6,*) ' iBsFnc=',iBsFnc
 SymDsp = .true.
@@ -46,7 +43,7 @@ jBsFnc = iand(mask,iBsFnc)
 
 iAcc = 0
 do i=0,nIrrep-1
-  iAcc = iAcc+iPrmt(iOper(i),jBsFnc)
+  iAcc = iAcc+iPrmt(i,jBsFnc)
 end do
 if (iAcc == 0) SymDsp = .false.
 

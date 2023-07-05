@@ -39,34 +39,38 @@ mRowH(:) = 0
 
 ! Find begining of definitions of internal coordinates
 
-10 read(Lu_UDIC,'(A)') Temp
-call UpCase(Temp)
-if (Temp(1:4) /= 'VARY') Go To 10
-do iLines=1,nInter
-20 read(Lu_UDIC,'(A)') Temp
+do
+  read(Lu_UDIC,'(A)') Temp
   call UpCase(Temp)
-  if (Temp(1:3) == 'FIX') Go To 20
+  if (Temp(1:4) == 'VARY') exit
+end do
+do iLines=1,nInter
+  do
+    read(Lu_UDIC,'(A)') Temp
+    call UpCase(Temp)
+    if (Temp(1:3) /= 'FIX') exit
+  end do
   cLbl = '        '
   do j=1,120
-    if (Temp(j:j) == ' ') goto 30
+    if (Temp(j:j) == ' ') exit
     cLbl(j:j) = Temp(j:j)
   end do
-30 Labels(iLines) = cLbl
-35 if (index(Temp,'&') == 0) goto 37
-  read(Lu_UDIC,'(A)') Temp
-  goto 35
-37 continue
+  Labels(iLines) = cLbl
+  do
+    if (index(Temp,'&') == 0) exit
+    read(Lu_UDIC,'(A)') Temp
+  end do
 end do
 
 read(Lu_UDIC,'(A)') Temp ! Skip ROWH
-do iRowH=1,nRowH
+outer: do iRowH=1,nRowH
   read(Lu_UDIC,'(A)') Temp
   call UpCase(Temp)
   cLbl(1:8) = Temp(1:8)
   do kLines=1,nInter
     if (cLbl == Labels(kLines)) then
       mRowH(iRowH) = kLines
-      goto 40
+      cycle outer
     end if
   end do
   call WarningMessage(2,'Error in rd_udic')
@@ -75,8 +79,7 @@ do iRowH=1,nRowH
   write(Lu,*) ' ',Temp(1:60)
   write(Lu,*) '**********************************************'
   call Quit_OnUserError()
-40 continue
-end do
+end do outer
 close(Lu_UDIC)
 
 return

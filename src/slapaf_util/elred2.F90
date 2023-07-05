@@ -33,7 +33,7 @@ call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
 if (nq == 0) then
   nK = 0
-  Go To 99
+  return
 end if
 
 !                         T
@@ -152,8 +152,6 @@ end do
 call RecPrt('ElRed2: The NonRedundant eigenvectors','(5e21.12)',EVec,nQ,nK)
 call RecPrt('ElRed2: eigenvalues ','(8E12.4)',EVal,1,nK)
 #endif
-
-99 continue
 
 return
 

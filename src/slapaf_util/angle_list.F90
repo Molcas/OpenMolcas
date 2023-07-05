@@ -75,7 +75,7 @@ do mAtom_=1,mAtoms
 
   nNeighbor_m = iTabAtoms(1,0,mAtom_)
   nCoBond_m = nCoBond(mAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
-  if (nNeighbor_m < 2) Go To 100
+  if (nNeighbor_m < 2) cycle
 
   do iNeighbor=1,nNeighbor_m
     iAtom_ = iTabAtoms(1,iNeighbor,mAtom_)
@@ -85,12 +85,12 @@ do mAtom_=1,mAtoms
     Ind(1) = iAtom
     iDCR(1) = iTabAI(2,iAtom_)
 
-    if (iDCR(1) /= iOper(0)) Go To 200
-    if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) Go To 200
+    if (iDCR(1) /= iOper(0)) cycle
+    if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) cycle
 
     iBond = iTabAtoms(2,iNeighbor,mAtom_)
     iBondType = iTabBonds(3,iBond)
-    if ((iBondType == vdW_Bond) .or. (iBondType > Magic_Bond)) Go To 200
+    if ((iBondType == vdW_Bond) .or. (iBondType > Magic_Bond)) cycle
 #   ifdef _DEBUGPRINT_
     write(6,*)
     write(6,*) 'iAtom,mAtom=',iAtom,mAtom
@@ -106,21 +106,21 @@ do mAtom_=1,mAtoms
       jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
       jAtom = iTabAI(1,jAtom_)
       nCoBond_j = nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,iTabAtoms)
-      if ((nCoBond_i >= 8) .and. (nCoBond_j >= 8) .and. (nCoBond_m >= 8)) Go To 300
+      if ((nCoBond_i >= 8) .and. (nCoBond_j >= 8) .and. (nCoBond_m >= 8)) cycle
 
       jr = iTabRow(ANr(jAtom))
       Ind(3) = jAtom
       iDCR(3) = iTabAI(2,jAtom_)
-      if (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(3) /= iOper(0))) Go To 300
-      if ((iDCR(3) == iOper(0)) .and. (iAtom >= jAtom)) Go To 300
+      if (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(3) /= iOper(0))) cycle
+      if ((iDCR(3) == iOper(0)) .and. (iAtom >= jAtom)) cycle
       kDCR = ieor(iDCR(2),iDCR(3))
-      if (R_Stab_A(kDCR,jStab(0,mAtom),nStab(mAtom)) .and. (iDCR(2) /= iOper(0))) Go To 300
+      if (R_Stab_A(kDCR,jStab(0,mAtom),nStab(mAtom)) .and. (iDCR(2) /= iOper(0))) cycle
 
       Help = (mr > 3) .or. (ir > 3) .or. (jr > 3)
 
       jBond = iTabAtoms(2,jNeighbor,mAtom_)
       jBondType = iTabBonds(3,jBond)
-      if ((jBondType == vdW_Bond) .or. (jBondType > Magic_Bond)) Go To 300
+      if ((jBondType == vdW_Bond) .or. (jBondType > Magic_Bond)) cycle
 #     ifdef _DEBUGPRINT_
       write(6,*)
       write(6,*) 'jAtom,mAtom=',jAtom,mAtom
@@ -237,7 +237,7 @@ do mAtom_=1,mAtoms
         f_Const = f_Const*exp(Alpha*(r0**2-rmj2))
 
       end if
-      if ((f_Const_Ref < f_Const_Min) .and. (iBondType /= Fragments_Bond) .and. (jBondType /= Fragments_Bond)) Go To 300
+      if ((f_Const_Ref < f_Const_Min) .and. (iBondType /= Fragments_Bond) .and. (jBondType /= Fragments_Bond)) cycle
 #     ifdef _DEBUGPRINT_
       write(6,*) ' A Force Constant:',f_Const
       write(6,*) iAtom,mAtom,jAtom,f_Const
@@ -248,7 +248,7 @@ do mAtom_=1,mAtoms
 
       ! Skip cases with a too small angle.
 
-      if ((abs(Val_Ref) < Thr_Small) .and. (iBondType /= Fragments_Bond) .and. (jBondType /= Fragments_Bond)) Go To 300
+      if ((abs(Val_Ref) < Thr_Small) .and. (iBondType /= Fragments_Bond) .and. (jBondType /= Fragments_Bond)) cycle
 
       !                                                                *
       !*****************************************************************
@@ -420,11 +420,8 @@ do mAtom_=1,mAtoms
       !*****************************************************************
       !                                                                *
 
-300   continue
     end do             ! End loop over jNeighbor
-200 continue
   end do               ! End loop over iCase
-100 continue
 end do                 ! End loop over iBond
 !                                                                      *
 !***********************************************************************

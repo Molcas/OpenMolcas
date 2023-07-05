@@ -109,11 +109,10 @@ subroutine CofMss(Coor,nsAtom,cMass)
     do i=1,nsAtom
       if (dMass(i) == 1.d99) then
         iCOM = i
-        Go To 99
+        exit
       end if
     end do
   end if
-99 continue
 
   ! calculate the center of mass
 
@@ -133,7 +132,7 @@ subroutine CofMss(Coor,nsAtom,cMass)
 
 # ifdef _DEBUGPRINT_
   if (LWrite) write(6,100) (cMass(i),i=1,3),TMass
-100 format(//,' Center of Mass (Bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
+  100 format(//,' Center of Mass (Bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
 # endif
 # ifdef _DO_NOT_
 

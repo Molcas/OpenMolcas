@@ -68,7 +68,6 @@ if (iDo_dDipM == 1) then
   write(LUt,10)
 end if
 write(LUt,10) ' Normal modes in gf_on_the_fly.f '
-10 format(a)
 
 iOff = 0
 iCtl = iDo_dDipM
@@ -136,5 +135,7 @@ call mma_deallocate(EVec)
 !***********************************************************************
 !                                                                      *
 return
+
+10 format(a)
 
 end subroutine GF_on_the_Fly

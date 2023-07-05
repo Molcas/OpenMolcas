@@ -33,7 +33,7 @@ implicit real*8(A-H,O-Z)
 real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct), value(nBVct), BMtrx(3*nAtom,mInt), rInt(mInt), rInt0(mInt), &
        rMult(nBVct,nBVct), dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
 character Line*120, type*6, format*8, Temp*120, Lbl(mInt)*8, filnam*16
-logical lWrite, Start, rInt0_on_file, rInt0_in_memory, InSlapaf
+logical lWrite, Start, rInt0_on_file, rInt0_in_memory, InSlapaf, Found, Skip
 integer, parameter :: Flip = 1, NoFlip = 0
 integer, external :: StrnLn
 integer iFlip(nBVct)
@@ -100,11 +100,15 @@ end if
 !                                                                      *
 iBVct = 0
 call mma_allocate(tpc,nBVct,Label='tpc')
+Found = .false.
 do iLines=1,nLines
   read(Lu_UDC,'(A)') Line
   Temp = Line
   call UpCase(Temp)
-  if (Temp(1:4) == 'VALU') Go To 100
+  if (Temp(1:4) == 'VALU') then
+    Found = .true.
+    exit
+  end if
   iBVct = iBVct+1
 
   ! Move the label of the internal coordinate
@@ -277,11 +281,12 @@ do iLines=1,nLines
   call mma_deallocate(xyz)
 
 end do
-call WarningMessage(2,'Error in DefInt2')
-write(Lu,*) 'DefInt2: No internal coordinates are defined!'
-call Quit_OnUserError()
 
-100 continue
+if (.not. Found) then
+  call WarningMessage(2,'Error in DefInt2')
+  write(Lu,*) 'DefInt2: No internal coordinates are defined!'
+  call Quit_OnUserError()
+end if
 
 ! Process primitive value to correct for flips
 
@@ -314,176 +319,66 @@ end if
 !                                                                      *
 iBMtrx = 0
 jLines = iLines
-201 continue
-jLines = jLines+1
-if (jLines > nLines) Go To 200
+do
+  jLines = jLines+1
+  if (jLines > nLines) exit
 
-read(Lu_UDC,'(A)') Line
-Temp = Line
-call UpCase(Temp)
+  read(Lu_UDC,'(A)') Line
+  Temp = Line
+  call UpCase(Temp)
 
-iBMtrx = iBMtrx+1
-rInt(iBMtrx) = Zero
-write(Lbl(iBMtrx),'(A,I3.3)') 'Cns',iBMtrx
+  iBMtrx = iBMtrx+1
+  rInt(iBMtrx) = Zero
+  write(Lbl(iBMtrx),'(A,I3.3)') 'Cns',iBMtrx
 
-! Find the label of the first primitive
+  ! Find the label of the first primitive
 
-iFrst = 1
-call NxtWrd(Line,iFrst,iEnd)
-jEnd = iEnd
-if (Line(iEnd:iEnd) == '=') jEnd = iEnd-1
-
-nPlus = index(Line,' + ')
-nMinus = index(Line,' - ')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if ((nPlus == 0) .and. (nMinus == 0) .and. (index(Line,'&') == 0)) then
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! a single vector (this will only extend over one line)
-
-  if (index(Line,'&') /= 0) then
-    call WarningMessage(2,'Error in DefInt2')
-    write(Lu,*) 'Single vector lines should not extend'
-    write(Lu,*) 'over more than one line!'
-    write(Lu,'(A)') Line
-    call Quit_OnUserError()
-  end if
-  iBVct = 0
-  do jBVct=1,nBVct
-    if (Line(iFrst:jEnd) == Labels(jBVct)) iBVct = jBVct
-  end do
-  if (iBVct == 0) then
-    call WarningMessage(2,'Error in DefInt2')
-    write(Lu,*) ' A single vector'
-    write(Lu,*) ' Undefined internal coordinate'
-    write(Lu,'(A,A)') Line
-    write(Lu,'(A,A)') Line(iFrst:jEnd)
-    call Quit_OnUserError()
-  end if
-
-  call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
-  call dcopy_((3*nAtom)**2,dBVct(1,1,iBVct),1,dBMtrx(1,1,iBMtrx),1)
-  rInt(iBMtrx) = value(iBVct)
-
-  iFrst = iEnd+1
-  call NxtWrd(Line,iFrst,iEnd)
-  if (Line(iEnd:iEnd) == '=') then
-    iFrst = iEnd+1
-    call NxtWrd(Line,iFrst,iEnd)
-  end if
-  Temp = Line(iFrst:iEnd)
-
-  if (index(Temp,'FIX') /= 0) then
-
-    ! Pick up values from the runfile. Written there on the first iteration.
-
-    if (.not. rInt0_in_memory) then
-      rInt0_in_memory = .true.
-      call mma_allocate(r0,nrInt0,Label='r0')
-      if (rInt0_on_file) then
-        call Get_dArray('rInt0',r0,nrInt0)
-      else
-        r0(:) = Zero
-      end if
-    end if
-
-    if (rInt0_on_file) then
-      rInt0(iBMtrx) = r0(iBMtrx)
-    else
-      r0(iBmtrx) = rInt(iBMtrx)
-      rInt0(iBMtrx) = rInt(iBMtrx)
-    end if
-
-  else
-
-    ! Read value from input file.
-
-    read(Temp,format) rInt0(iBMtrx)
-    Temp = Line
-    call UpCase(Temp)
-    if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/angstr
-    if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*Pi/1.800D+02
-  end if
-
-  ! AOM: trying to correct torsion...
-  if (tpc(iBVct) == 8) then
-    n0 = int((rInt(iBMtrx)-rInt0(iBMtrx))/(Two*Pi))
-    if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0+1)*Two*Pi)) then
-      n0 = n0+1
-    else if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0-1)*Two*Pi)) then
-      n0 = n0-1
-    end if
-    rInt(iBMtrx) = rInt(iBMtrx)-dble(n0)*Two*Pi
-  end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-else
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! A linear combination of vectors
-
-  call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
-  call dcopy_((3*nAtom)**2,[Zero],0,dBMtrx(1,1,iBMtrx),1)
   iFrst = 1
-  Sgn = One
-
-  ! Process the rest of the line and possible extension lines
-
-  22 continue
-
-  !*                                                                   *
-  !*********************************************************************
-  !*                                                                   *
-  !> Get the factor
   call NxtWrd(Line,iFrst,iEnd)
-  Temp = Line(iFrst:iEnd)
-  read(Temp,format) Fact
-  Fact = Fact*Sgn
-  iFrst = iEnd+1
-  !> Get the label
-  call NxtWrd(Line,iFrst,iEnd)
-  if (Line(iEnd:iEnd) == '=') iEnd = iEnd-1
-  iBVct = 0
-  do jBVct=1,nBVct
-    if (Line(iFrst:iEnd) == Labels(jBVct)) iBVct = jBVct
-  end do
-  if (iBVct == 0) then
-    call WarningMessage(2,'Error in DefInt2')
-    write(Lu,*) ' Linear combinations of vectors'
-    write(Lu,*) ' Undefined internal coordinate'
-    write(Lu,'(A,A)') Line
-    write(Lu,'(A,A)') Line(iFrst:iEnd)
-    call Quit_OnUserError()
-  end if
+  jEnd = iEnd
+  if (Line(iEnd:iEnd) == '=') jEnd = iEnd-1
 
-  call DaXpY_(3*nAtom,Fact,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
-  call DaXpY_((3*nAtom)**2,Fact,dBVct(1,1,iBvct),1,dBMtrx(1,1,iBMtrx),1)
-  rInt(iBMtrx) = rInt(iBMtrx)+Fact*value(iBVct)
-  !*                                                                   *
+  nPlus = index(Line,' + ')
+  nMinus = index(Line,' - ')
+  !                                                                    *
   !*********************************************************************
-  !*                                                                   *
+  !                                                                    *
+  if ((nPlus == 0) .and. (nMinus == 0) .and. (index(Line,'&') == 0)) then
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! a single vector (this will only extend over one line)
 
-  iFrst = iEnd+1
-  25 continue
-  Temp = Line(iFrst:nTemp)
-  nEq = index(Temp,'=')
-  nPlus = index(Temp,'+')
-  nMinus = index(Temp,'-')
-
-  if ((nEq /= 0) .and. ((nEq < nMinus) .eqv. (nMinus > 0)) .and. ((nEq < nPlus) .eqv. (nPlus > 0))) then
     if (index(Line,'&') /= 0) then
       call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) 'This line should not be extended'
+      write(Lu,*) 'Single vector lines should not extend'
+      write(Lu,*) 'over more than one line!'
       write(Lu,'(A)') Line
       call Quit_OnUserError()
     end if
-    iFrst = iFrst+nEq+1
+    iBVct = 0
+    do jBVct=1,nBVct
+      if (Line(iFrst:jEnd) == Labels(jBVct)) iBVct = jBVct
+    end do
+    if (iBVct == 0) then
+      call WarningMessage(2,'Error in DefInt2')
+      write(Lu,*) ' A single vector'
+      write(Lu,*) ' Undefined internal coordinate'
+      write(Lu,'(A,A)') Line
+      write(Lu,'(A,A)') Line(iFrst:jEnd)
+      call Quit_OnUserError()
+    end if
+
+    call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
+    call dcopy_((3*nAtom)**2,dBVct(1,1,iBVct),1,dBMtrx(1,1,iBMtrx),1)
+    rInt(iBMtrx) = value(iBVct)
+
+    iFrst = iEnd+1
     call NxtWrd(Line,iFrst,iEnd)
+    if (Line(iEnd:iEnd) == '=') then
+      iFrst = iEnd+1
+      call NxtWrd(Line,iFrst,iEnd)
+    end if
     Temp = Line(iFrst:iEnd)
 
     if (index(Temp,'FIX') /= 0) then
@@ -504,6 +399,7 @@ else
         rInt0(iBMtrx) = r0(iBMtrx)
       else
         r0(iBmtrx) = rInt(iBMtrx)
+        rInt0(iBMtrx) = rInt(iBMtrx)
       end if
 
     else
@@ -516,66 +412,175 @@ else
       if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/angstr
       if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*Pi/1.800D+02
     end if
-    Go To 24
-  end if
 
-  if ((nPlus /= 0) .and. ((nPlus < nMinus) .eqv. (nMinus > 0))) then
-    Sgn = One
-    iFrst = iFrst+nPlus
-    Go To 22
-  end if
-
-  if ((nMinus /= 0) .and. ((nMinus < nPlus) .eqv. (nPlus > 0))) then
-    Sgn = -One
-    iFrst = iFrst+nMinus
-    Go To 22
-  end if
-
-  ! Here if all statements processed of this line
-
-  if (index(Line,'&') /= 0) then
-    jLines = jLines+1
-    if (jLines > nLines) then
-      call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) 'DefInt2: jLines > nLines'
-      call Quit_OnUserError()
+    ! AOM: trying to correct torsion...
+    if (tpc(iBVct) == 8) then
+      n0 = int((rInt(iBMtrx)-rInt0(iBMtrx))/(Two*Pi))
+      if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0+1)*Two*Pi)) then
+        n0 = n0+1
+      else if (abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0)*Two*Pi) > abs(rInt(IBMtrx)-rInt0(iBMtrx)-dble(n0-1)*Two*Pi)) then
+        n0 = n0-1
+      end if
+      rInt(iBMtrx) = rInt(iBMtrx)-dble(n0)*Two*Pi
     end if
-    read(Lu_UDC,'(A)') Line
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  else
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! A linear combination of vectors
+
+    call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
+    call dcopy_((3*nAtom)**2,[Zero],0,dBMtrx(1,1,iBMtrx),1)
     iFrst = 1
-    call NxtWrd(Line,iFrst,iEnd)
-    if (Line(iFrst:iEnd) == '+') then
-      iFrst = iEnd+1
-      Sgn = One
-      Go To 22
-    else if (Line(iFrst:iEnd) == '-') then
-      iFrst = iEnd+1
-      Sgn = -One
-      Go To 22
-    else if (Line(iFrst:iEnd) == '=') then
+    Sgn = One
+
+    ! Process the rest of the line and possible extension lines
+
+    Skip = .false.
+    do
+
+      if (Skip) then
+        Skip = .false.
+      else
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        !> Get the factor
+        call NxtWrd(Line,iFrst,iEnd)
+        Temp = Line(iFrst:iEnd)
+        read(Temp,format) Fact
+        Fact = Fact*Sgn
+        iFrst = iEnd+1
+        !> Get the label
+        call NxtWrd(Line,iFrst,iEnd)
+        if (Line(iEnd:iEnd) == '=') iEnd = iEnd-1
+        iBVct = 0
+        do jBVct=1,nBVct
+          if (Line(iFrst:iEnd) == Labels(jBVct)) iBVct = jBVct
+        end do
+        if (iBVct == 0) then
+          call WarningMessage(2,'Error in DefInt2')
+          write(Lu,*) ' Linear combinations of vectors'
+          write(Lu,*) ' Undefined internal coordinate'
+          write(Lu,'(A,A)') Line
+          write(Lu,'(A,A)') Line(iFrst:iEnd)
+          call Quit_OnUserError()
+        end if
+
+        call DaXpY_(3*nAtom,Fact,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
+        call DaXpY_((3*nAtom)**2,Fact,dBVct(1,1,iBvct),1,dBMtrx(1,1,iBMtrx),1)
+        rInt(iBMtrx) = rInt(iBMtrx)+Fact*value(iBVct)
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+
+        iFrst = iEnd+1
+      end if
+      Temp = Line(iFrst:nTemp)
+      nEq = index(Temp,'=')
+      nPlus = index(Temp,'+')
+      nMinus = index(Temp,'-')
+
+      if ((nEq /= 0) .and. ((nEq < nMinus) .eqv. (nMinus > 0)) .and. ((nEq < nPlus) .eqv. (nPlus > 0))) then
+        if (index(Line,'&') /= 0) then
+          call WarningMessage(2,'Error in DefInt2')
+          write(Lu,*) 'This line should not be extended'
+          write(Lu,'(A)') Line
+          call Quit_OnUserError()
+        end if
+        iFrst = iFrst+nEq+1
+        call NxtWrd(Line,iFrst,iEnd)
+        Temp = Line(iFrst:iEnd)
+
+        if (index(Temp,'FIX') /= 0) then
+
+          ! Pick up values from the runfile. Written there on the first iteration.
+
+          if (.not. rInt0_in_memory) then
+            rInt0_in_memory = .true.
+            call mma_allocate(r0,nrInt0,Label='r0')
+            if (rInt0_on_file) then
+              call Get_dArray('rInt0',r0,nrInt0)
+            else
+              r0(:) = Zero
+            end if
+          end if
+
+          if (rInt0_on_file) then
+            rInt0(iBMtrx) = r0(iBMtrx)
+          else
+            r0(iBmtrx) = rInt(iBMtrx)
+          end if
+
+        else
+
+          ! Read value from input file.
+
+          read(Temp,format) rInt0(iBMtrx)
+          Temp = Line
+          call UpCase(Temp)
+          if (index(Temp,'ANGSTROM') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)/angstr
+          if (index(Temp,'DEGREE') /= 0) rInt0(iBMtrx) = rInt0(iBMtrx)*Pi/1.800D+02
+        end if
+        exit
+      end if
+
+      if ((nPlus /= 0) .and. ((nPlus < nMinus) .eqv. (nMinus > 0))) then
+        Sgn = One
+        iFrst = iFrst+nPlus
+        cycle
+      end if
+
+      if ((nMinus /= 0) .and. ((nMinus < nPlus) .eqv. (nPlus > 0))) then
+        Sgn = -One
+        iFrst = iFrst+nMinus
+        cycle
+      end if
+
+      ! Here if all statements processed of this line
+
+      if (index(Line,'&') == 0) exit
+      jLines = jLines+1
+      if (jLines > nLines) then
+        call WarningMessage(2,'Error in DefInt2')
+        write(Lu,*) 'DefInt2: jLines > nLines'
+        call Quit_OnUserError()
+      end if
+      read(Lu_UDC,'(A)') Line
       iFrst = 1
-      Go To 25
-    else
-      call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) ' Syntax Error: first character in  extension line is not + or -'
-      write(Lu,'(A)') Line
-      write(Lu,'(3A)') '-->',Line(iFrst:iEnd),'<--'
-      call Quit_OnUserError()
-    end if
+      call NxtWrd(Line,iFrst,iEnd)
+      if (Line(iFrst:iEnd) == '+') then
+        iFrst = iEnd+1
+        Sgn = One
+      else if (Line(iFrst:iEnd) == '-') then
+        iFrst = iEnd+1
+        Sgn = -One
+      else if (Line(iFrst:iEnd) == '=') then
+        iFrst = 1
+        Skip = .true.
+      else
+        call WarningMessage(2,'Error in DefInt2')
+        write(Lu,*) ' Syntax Error: first character in  extension line is not + or -'
+        write(Lu,'(A)') Line
+        write(Lu,'(3A)') '-->',Line(iFrst:iEnd),'<--'
+        call Quit_OnUserError()
+      end if
+    end do
+
+    ! At the end of this line
+
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
   end if
-
-  ! At the end of this line
-
-  24 continue
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-Go To 201
+end do
 
-200 continue
 if (iPrint >= 99) then
   call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,mInt)
   do iInt=1,mInt

@@ -25,7 +25,7 @@ implicit real*8(a-h,o-z)
 #include "stdalloc.fh"
 integer iAdd(0:7)
 integer :: jPrmt(0:7) = [1,-1,-1,1,-1,1,1,-1]
-logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt
+logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt, Skip
 external Reduce_Prt
 character(len=8) CMAX
 integer Columbus
@@ -233,9 +233,8 @@ do isAtom=1,size(Coor,2)
     do jCoSet=0,nCoSet-1
       jTest = iand(iChxyz,iCoSet(jCoSet,isAtom))
       Same = jTest == iTest
-      if (Same) Go To 7777
+      if (Same) exit
     end do
-7777 continue
     if (.not. Same) then
       nCoSet = nCoSet+1
       iCoSet(nCoSet-1,isAtom) = iOper(iIrrep)
@@ -262,12 +261,17 @@ do isAtom=1,size(Coor,2)
       end if
       iAdd(n) = iAdd(n)+jPrmt(iand(iOper(iIrrep),iComp))
     end do
+    Skip = .false.
     do jCoSet=0,nCoSet-1
-      if (iAdd(jCoSet) == 0) Go To 611
+      if (iAdd(jCoSet) == 0) then
+        Skip = .true.
+        exit
+      end if
     end do
-    nDimbc = nDimbc+1
-    Smmtrc(i,isAtom) = .true.
-611 continue
+    if (.not. Skip) then
+      nDimbc = nDimbc+1
+      Smmtrc(i,isAtom) = .true.
+    end if
   end do
 end do
 !                                                                      *

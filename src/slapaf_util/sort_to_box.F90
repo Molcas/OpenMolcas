@@ -27,7 +27,7 @@ call ICopy((nMax+1)*nx*ny*nz,[0],0,iTab,1)
 
 do iAtom=1,nAtoms
 
-  if (iTabRow(iAnr(iAtom)) == 0) Go To 99
+  if (iTabRow(iAnr(iAtom)) == 0) cycle
 
   x = Coor(1,iAtom)-xmin
   ix = int(x/Box_Size)+1
@@ -51,7 +51,6 @@ do iAtom=1,nAtoms
   iTab(0,ix,iy,iz) = Nr
   iTab(Nr,ix,iy,iz) = iAtom
 
-99 continue
 end do
 
 return

@@ -66,13 +66,12 @@ subroutine NwShft_Internal(dq,nInter,nIter,Delta,q)
     !write(6,*) ' iCount=',iCount
     jCount = 0
     lInter = 0
-    do kInter=1,nInter
+    outer: do kInter=1,nInter
       do lInter=1,kInter-1
         jCount = jCount+1
-        if (jCount == iCount) Go To 777
+        if (jCount == iCount) exit outer
       end do
-    end do
-777 continue
+    end do outer
     if (lInter == 0) then
       call WarningMessage(2,'lInter == 0')
       call Abend()

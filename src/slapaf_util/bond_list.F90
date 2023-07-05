@@ -69,8 +69,8 @@ do iBond=1,nBonds
 
   ! We will only incorpotate covalent and fragment bonds
 
-  if (iBondType == vdW_Bond) Go To 1   ! vdW bonds
-  if (iBondType > Magic_Bond) Go To 1  ! magic bonds
+  if (iBondType == vdW_Bond) cycle   ! vdW bonds
+  if (iBondType > Magic_Bond) cycle  ! magic bonds
 
   do iCase=1,2
 
@@ -86,9 +86,9 @@ do iBond=1,nBonds
 
     iDCR(1) = iTabAI(2,iAtom_)
     iDCR(2) = iTabAI(2,jAtom_)
-    if (jAtom > iAtom) Go To 2
-    if (iDCR(1) /= iOper(0)) Go To 2
-    if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) Go To 2
+    if (jAtom > iAtom) cycle
+    if (iDCR(1) /= iOper(0)) cycle
+    if (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(2) /= iOper(0))) cycle
     iRow = max(ANr(iAtom),1)
     jRow = max(ANr(jAtom),1)
 #   ifdef _DEBUGPRINT_
@@ -212,10 +212,8 @@ do iBond=1,nBonds
 
     end if
 
-2   continue
   end do     ! iCase
 
-1 continue
 end do       ! iBond
 
 return

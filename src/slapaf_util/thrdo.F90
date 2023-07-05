@@ -42,56 +42,56 @@ call RecPrt(' ThrdO: e(0)',' ',e(1,i0),nInter,1)
 Thrd = 1.D-6
 iterMx = 40
 
-800 continue
-iStep = iStep+1
+do
+  iStep = iStep+1
 
-900 continue
+  ! Newton-Raphson scheme
 
-! Newton-Raphson scheme
+  call dcopy_(nInter,g,1,e(1,i1),1)
+  call DPOTRS('U',nInter,1,A,nInter,e(1,i1),nInter,iRC)
+  if (iRC /= 0) then
+    write(6,*) 'ThrdO(DPOTRS): iRC=',iRC
+    call Abend()
+  end if
 
-call dcopy_(nInter,g,1,e(1,i1),1)
-call DPOTRS('U',nInter,1,A,nInter,e(1,i1),nInter,iRC)
-if (iRC /= 0) then
-  write(6,*) 'ThrdO(DPOTRS): iRC=',iRC
+  !call RecPrt(' ThrdO: e',' ',e(1,i1),nInter,1)
+  iter = iter+1
+
+  ! Check if the error vectors are self consistent.
+
+  Test = Zero
+  do i=1,nInter
+    diff = abs(e(i,i0)-e(i,i1))
+    if (diff > Test) Test = diff
+  end do
+  !write(6,*) iter,diff
+
+  if (iter > iterMx) then
+    call WarningMessage(1,'ThrdO: Exceeded max iterations')
+    return
+  end if
+
+  if (Test < Thrd) then
+    ! Copy converged vectors to slot 1
+    if (i1 /= 1) call dcopy_(nInter,e(1,i1),1,e(1,1),1)
+    if (iStep == 10) then
+      call RecPrt(' ThrdO: e(Final)',' ',e,nInter,1)
+      Fail = .false.
+      exit
+    else
+      iter = 0
+    end if
+  else
+    ! If not change vector slot
+    itmp = i0
+    i0 = i1
+    i1 = itmp
+    iStep = iStep-1
+  end if
+end do
+if (Fail) then
+  call WarningMessage(2,'Error in ThrdO')
   call Abend()
 end if
-
-!call RecPrt(' ThrdO: e',' ',e(1,i1),nInter,1)
-iter = iter+1
-
-! Check if the error vectors are self consistent.
-
-Test = Zero
-do i=1,nInter
-  diff = abs(e(i,i0)-e(i,i1))
-  if (diff > Test) Test = diff
-end do
-!write(6,*) iter,diff
-
-if (iter > iterMx) then
-  call WarningMessage(1,'ThrdO: Exceeded max iterations')
-  return
-end if
-
-if (Test < Thrd) then
-  ! Copy converged vectors to slot 1
-  if (i1 /= 1) call dcopy_(nInter,e(1,i1),1,e(1,1),1)
-  if (iStep == 10) then
-    call RecPrt(' ThrdO: e(Final)',' ',e,nInter,1)
-    Fail = .false.
-    return
-  else
-    iter = 0
-    Go To 800
-  end if
-else
-  ! If not change vector slot
-  itmp = i0
-  i0 = i1
-  i1 = itmp
-  Go To 900
-end if
-call WarningMessage(2,'Error in ThrdO')
-call Abend()
 
 end subroutine ThrdO

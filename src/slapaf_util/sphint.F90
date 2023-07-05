@@ -89,27 +89,27 @@ end do
 !FIXME: revise the symmetry
 if (ldB) then
   call FZero(dBf,(3*nCent)**2)
-  if (RR0 == Zero) Go To 99
-  do iCent=1,nCent
-    Fact = dble(iDeg(xyz(1,iCent)))
-    xWeight = Fact*Weights(iCent)
-    do ixyz=1,3
-      tempi = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
-      do jCent=1,nCent
-        Fact = dble(iDeg(xyz(1,jCent)))
-        yWeight = Fact*Weights(jCent)
-        do jxyz=1,3
-          tempj = xyz(jxyz,jCent)-xyz0(jxyz,jCent)
-          temp = Zero
-          if ((ixyz == jxyz) .and. (iCent == jCent)) temp = RR0_unscaled
-          temp = temp-yWeight*tempi*tempj/RR0_unscaled
-          temp = (xWeight*temp)/RR0_unscaled**2
-          dBf(ixyz,iCent,jxyz,jCent) = temp*SqInvTWeight
+  if (RR0 /= Zero) then
+    do iCent=1,nCent
+      Fact = dble(iDeg(xyz(1,iCent)))
+      xWeight = Fact*Weights(iCent)
+      do ixyz=1,3
+        tempi = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
+        do jCent=1,nCent
+          Fact = dble(iDeg(xyz(1,jCent)))
+          yWeight = Fact*Weights(jCent)
+          do jxyz=1,3
+            tempj = xyz(jxyz,jCent)-xyz0(jxyz,jCent)
+            temp = Zero
+            if ((ixyz == jxyz) .and. (iCent == jCent)) temp = RR0_unscaled
+            temp = temp-yWeight*tempi*tempj/RR0_unscaled
+            temp = (xWeight*temp)/RR0_unscaled**2
+            dBf(ixyz,iCent,jxyz,jCent) = temp*SqInvTWeight
+          end do
         end do
       end do
     end do
-  end do
-99 continue
+  end if
 !call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 
 end if

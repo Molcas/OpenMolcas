@@ -71,127 +71,127 @@ call mkRotMat(RotVec,RotMat)
 call RecPrt('RotVec(0)',' ',RotVec,1,3)
 #endif
 iter = 0
-10 continue
-iter = iter+1
-if (iter >= 100) then
-  !call Quit_OnConvError()
-  call WarningMessage(1,'Warning: Convergence problem in the internal frame')
-  goto 11
-end if
-! compute cartesian position vectors in the co-moving frame:
-! (Note: Inverse rotation matrix = transpose)
-do imass=1,nmass
+do
+  iter = iter+1
+  if (iter >= 100) then
+    !call Quit_OnConvError()
+    call WarningMessage(1,'Warning: Convergence problem in the internal frame')
+    exit
+  end if
+  ! compute cartesian position vectors in the co-moving frame:
+  ! (Note: Inverse rotation matrix = transpose)
+  do imass=1,nmass
+    do i=1,3
+      sum = 0.0d0
+      do j=1,3
+        sum = sum+RotMat(j,i)*(CurrXYZ(j,imass)-Trans(j))
+      end do
+      Curr123(i,imass) = sum
+    end do
+  end do
+  ! Compute the Moments-of-Inertia matrix. The asymmetrical
+  ! one, used for Sayvetz conditions.
+  call dcopy_(3*nmass,Ref123,1,tmp,1)
+# ifdef _DEBUGPRINT_
+  call RecPrt('Curr123',' ',Curr123,3,nMass)
+  call RecPrt('tmp',' ',tmp,3,nMass)
+# endif
+  do imass=1,nMass
+    do i=1,3
+      tmp(i,imass) = xMass(iMass)*tmp(i,imass)
+    end do
+  end do
+  call DGEMM_('N','T',3,3,nmass,1.0d0,tmp,3,Curr123,3,0.0d0,SMat,3)
+  Trace = (SMat(1,1)+SMat(2,2)+SMat(3,3))
+  do i=1,3
+    do j=1,3
+      MOI(i,j) = -SMat(i,j)
+    end do
+    MOI(i,i) = Trace-SMat(i,i)
+  end do
+# ifdef _DEBUGPRINT_
+  call RecPrt('MOI',' ',MOI,size(MOI,1),size(MOI,2))
+# endif
+  ! Invert the MOI-matrix.
+  !     G(1,1) = MOI(2,2)*MOI(3,3)-MOI(2,3)*MOI(3,2)
+  !     G(2,1) = MOI(3,2)*MOI(1,3)-MOI(3,3)*MOI(1,2)
+  !     G(3,1) = MOI(1,2)*MOI(2,3)-MOI(1,3)*MOI(2,2)
+  !     G(1,2) = MOI(2,3)*MOI(3,1)-MOI(2,1)*MOI(3,3)
+  !     G(2,2) = MOI(3,3)*MOI(1,1)-MOI(3,1)*MOI(1,3)
+  !     G(3,2) = MOI(1,3)*MOI(2,1)-MOI(1,1)*MOI(2,3)
+  !     G(1,3) = MOI(2,1)*MOI(3,2)-MOI(2,2)*MOI(3,1)
+  !     G(2,3) = MOI(3,1)*MOI(1,2)-MOI(3,2)*MOI(1,1)
+  !     G(3,3) = MOI(1,1)*MOI(2,2)-MOI(1,2)*MOI(2,1)
+  !     Det = MOI(1,1)*G(1,1)+MOI(2,1)*G(2,1)+MOI(3,1)*G(3,1)
+  !     DetInv = 1.0D0/Det
+  !     MOIInv(1,1) = G(1,1)*DetInv
+  !     MOIInv(2,1) = G(1,2)*DetInv
+  !     MOIInv(3,1) = G(1,3)*DetInv
+  !     MOIInv(1,2) = G(2,1)*DetInv
+  !     MOIInv(2,2) = G(2,2)*DetInv
+  !     MOIInv(3,2) = G(2,3)*DetInv
+  !     MOIInv(1,3) = G(3,1)*DetInv
+  !     MOIInv(2,3) = G(3,2)*DetInv
+  !     MOIInv(3,3) = G(3,3)*DetInv
+  ! (use the Moore-Penrose pseudoinverse, to deal with linear systems)
+  call dgesvd_('A','A',3,3,MOI,3,sval,umat,3,vmat,3,wTmp,100,i)
+  do i=1,3
+    if (abs(sval(i)) > 1.0d-12) then
+      call dscal_(3,1.0d0/sval(i),umat(1,i),1)
+    else
+      call dcopy_(3,[0.0d0],0,umat(1,i),1)
+    end if
+  end do
+  call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,MOIInv,3)
+# ifdef _DEBUGPRINT_
+  call RecPrt('vmat',' ',vmat,size(vmat,1),size(vmat,2))
+  call RecPrt('umat',' ',umat,size(umat,1),size(umat,2))
+  call RecPrt('MOI',' ',MOIInv,size(MOIInv,1),size(MOIInv,2))
+  call RecPrt('xMass',' ',xMass,1,nMass)
+  call RecPrt('Ref123',' ',Ref123,3,nMass)
+  call RecPrt('Curr123',' ',Curr123,3,nMass)
+# endif
+  ! Determine small rotation that zeroes the Sayvetz rotational conditions
+  !write(6,*) ' Determine small rotation. First compute Sayvetz2:'
+  do i=1,3
+    j = 1+mod(i,3)
+    k = 1+mod(j,3)
+    Sayvetz2(i) = 0.0d0
+    do imass=1,nMass
+      Sayvetz2(i) = Sayvetz2(i)+xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-Ref123(k,imass)*Curr123(j,imass))
+    end do
+  end do
+# ifdef _DEBUGPRINT_
+  call RecPrt('Sayvetz2',' ',Sayvetz2,1,3)
+# endif
+  RotErr = 0.0d0
   do i=1,3
     sum = 0.0d0
     do j=1,3
-      sum = sum+RotMat(j,i)*(CurrXYZ(j,imass)-Trans(j))
+      sum = sum+MOIInv(j,i)*Sayvetz2(j)
     end do
-    Curr123(i,imass) = sum
+    SmallRot(i) = +sum
+    RotErr = RotErr+sum**2
   end do
-end do
-! Compute the Moments-of-Inertia matrix. The asymmetrical
-! one, used for Sayvetz conditions.
-call dcopy_(3*nmass,Ref123,1,tmp,1)
-#ifdef _DEBUGPRINT_
-call RecPrt('Curr123',' ',Curr123,3,nMass)
-call RecPrt('tmp',' ',tmp,3,nMass)
-#endif
-do imass=1,nMass
-  do i=1,3
-    tmp(i,imass) = xMass(iMass)*tmp(i,imass)
-  end do
-end do
-call DGEMM_('N','T',3,3,nmass,1.0d0,tmp,3,Curr123,3,0.0d0,SMat,3)
-Trace = (SMat(1,1)+SMat(2,2)+SMat(3,3))
-do i=1,3
-  do j=1,3
-    MOI(i,j) = -SMat(i,j)
-  end do
-  MOI(i,i) = Trace-SMat(i,i)
-end do
-#ifdef _DEBUGPRINT_
-call RecPrt('MOI',' ',MOI,size(MOI,1),size(MOI,2))
-#endif
-! Invert the MOI-matrix.
-!     G(1,1) = MOI(2,2)*MOI(3,3)-MOI(2,3)*MOI(3,2)
-!     G(2,1) = MOI(3,2)*MOI(1,3)-MOI(3,3)*MOI(1,2)
-!     G(3,1) = MOI(1,2)*MOI(2,3)-MOI(1,3)*MOI(2,2)
-!     G(1,2) = MOI(2,3)*MOI(3,1)-MOI(2,1)*MOI(3,3)
-!     G(2,2) = MOI(3,3)*MOI(1,1)-MOI(3,1)*MOI(1,3)
-!     G(3,2) = MOI(1,3)*MOI(2,1)-MOI(1,1)*MOI(2,3)
-!     G(1,3) = MOI(2,1)*MOI(3,2)-MOI(2,2)*MOI(3,1)
-!     G(2,3) = MOI(3,1)*MOI(1,2)-MOI(3,2)*MOI(1,1)
-!     G(3,3) = MOI(1,1)*MOI(2,2)-MOI(1,2)*MOI(2,1)
-!     Det = MOI(1,1)*G(1,1)+MOI(2,1)*G(2,1)+MOI(3,1)*G(3,1)
-!     DetInv = 1.0D0/Det
-!     MOIInv(1,1) = G(1,1)*DetInv
-!     MOIInv(2,1) = G(1,2)*DetInv
-!     MOIInv(3,1) = G(1,3)*DetInv
-!     MOIInv(1,2) = G(2,1)*DetInv
-!     MOIInv(2,2) = G(2,2)*DetInv
-!     MOIInv(3,2) = G(2,3)*DetInv
-!     MOIInv(1,3) = G(3,1)*DetInv
-!     MOIInv(2,3) = G(3,2)*DetInv
-!     MOIInv(3,3) = G(3,3)*DetInv
-! (use the Moore-Penrose pseudoinverse, to deal with linear systems)
-call dgesvd_('A','A',3,3,MOI,3,sval,umat,3,vmat,3,wTmp,100,i)
-do i=1,3
-  if (abs(sval(i)) > 1.0d-12) then
-    call dscal_(3,1.0d0/sval(i),umat(1,i),1)
-  else
-    call dcopy_(3,[0.0d0],0,umat(1,i),1)
+# ifdef _DEBUGPRINT_
+  call RecPrt('SmallRot',' ',SmallRot,1,3)
+# endif
+  RotErr = sqrt(RotErr)
+  ! Limiting step size:
+  if (RotErr > 1.0d0) then
+    SmallRot(1) = SmallRot(1)/RotErr
+    SmallRot(2) = SmallRot(2)/RotErr
+    SmallRot(3) = SmallRot(3)/RotErr
+    RotErr = 1.0d0
   end if
+  ! Apply this rotation to the rotation matrix:
+  call updRotMat(SmallRot,RotMat)
+# ifdef _DEBUGPRINT_
+  call RecPrt('RotMat(i)',' ',RotMat,3,3)
+  call RecPrt('SmallRot',' ',SmallRot,1,3)
+# endif
+  if (RotErr <= 1.0D-12) exit
 end do
-call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,MOIInv,3)
-#ifdef _DEBUGPRINT_
-call RecPrt('vmat',' ',vmat,size(vmat,1),size(vmat,2))
-call RecPrt('umat',' ',umat,size(umat,1),size(umat,2))
-call RecPrt('MOI',' ',MOIInv,size(MOIInv,1),size(MOIInv,2))
-call RecPrt('xMass',' ',xMass,1,nMass)
-call RecPrt('Ref123',' ',Ref123,3,nMass)
-call RecPrt('Curr123',' ',Curr123,3,nMass)
-#endif
-! Determine small rotation that zeroes the Sayvetz rotational conditions
-!write(6,*) ' Determine small rotation. First compute Sayvetz2:'
-do i=1,3
-  j = 1+mod(i,3)
-  k = 1+mod(j,3)
-  Sayvetz2(i) = 0.0d0
-  do imass=1,nMass
-    Sayvetz2(i) = Sayvetz2(i)+xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-Ref123(k,imass)*Curr123(j,imass))
-  end do
-end do
-#ifdef _DEBUGPRINT_
-call RecPrt('Sayvetz2',' ',Sayvetz2,1,3)
-#endif
-RotErr = 0.0d0
-do i=1,3
-  sum = 0.0d0
-  do j=1,3
-    sum = sum+MOIInv(j,i)*Sayvetz2(j)
-  end do
-  SmallRot(i) = +sum
-  RotErr = RotErr+sum**2
-end do
-#ifdef _DEBUGPRINT_
-call RecPrt('SmallRot',' ',SmallRot,1,3)
-#endif
-RotErr = sqrt(RotErr)
-! Limiting step size:
-if (RotErr > 1.0d0) then
-  SmallRot(1) = SmallRot(1)/RotErr
-  SmallRot(2) = SmallRot(2)/RotErr
-  SmallRot(3) = SmallRot(3)/RotErr
-  RotErr = 1.0d0
-end if
-! Apply this rotation to the rotation matrix:
-call updRotMat(SmallRot,RotMat)
-#ifdef _DEBUGPRINT_
-call RecPrt('RotMat(i)',' ',RotMat,3,3)
-call RecPrt('SmallRot',' ',SmallRot,1,3)
-#endif
-if (RotErr > 1.0D-12) goto 10
-11 continue
 #ifdef _DEBUGPRINT_
 call RecPrt('RotMat(Final)',' ',RotMat,3,3)
 #endif

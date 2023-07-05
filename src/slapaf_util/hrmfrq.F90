@@ -57,7 +57,6 @@ write(LUt,10) ' Harmonic frequencies in cm-1'
 write(LUt,10)
 write(LUt,10) ' IR Intensities in km/mol'
 write(LUt,10)
-10 format(a)
 
 iOff = 0
 iCtl = 1
@@ -122,5 +121,7 @@ call mma_deallocate(EVec)
 !***********************************************************************
 !                                                                      *
 return
+
+10 format(a)
 
 end subroutine HrmFrq

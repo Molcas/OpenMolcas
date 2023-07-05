@@ -66,45 +66,45 @@ nqB(iq) = nq
 
 ! Create dBqR
 
-if (.not. Proc_dB) Go To 99
-do i=1,nCent
-  do ixyz=1,3
-    if (Smmtrc(ixyz,Ind(i))) then
-      iDim = 0
-      do j=1,Ind(i)
-        jxyz_Max = 3
-        if (j == Ind(i)) jxyz_Max = ixyz
-        do jxyz=1,jxyz_Max
-          if (Smmtrc(jxyz,j)) iDim = iDim+1
+if (Proc_dB) then
+  do i=1,nCent
+    do ixyz=1,3
+      if (Smmtrc(ixyz,Ind(i))) then
+        iDim = 0
+        do j=1,Ind(i)
+          jxyz_Max = 3
+          if (j == Ind(i)) jxyz_Max = ixyz
+          do jxyz=1,jxyz_Max
+            if (Smmtrc(jxyz,j)) iDim = iDim+1
+          end do
         end do
-      end do
 
-      do j=1,nCent
-        do jxyz=1,3
-          if (Smmtrc(jxyz,Ind(j))) then
+        do j=1,nCent
+          do jxyz=1,3
+            if (Smmtrc(jxyz,Ind(j))) then
 
-            jDim = 0
-            do k=1,Ind(j)
-              kxyz_Max = 3
-              if (k == Ind(j)) kxyz_Max = jxyz
-              do kxyz=1,kxyz_Max
-                if (Smmtrc(kxyz,k)) jDim = jDim+1
+              jDim = 0
+              do k=1,Ind(j)
+                kxyz_Max = 3
+                if (k == Ind(j)) kxyz_Max = jxyz
+                do kxyz=1,kxyz_Max
+                  if (Smmtrc(kxyz,k)) jDim = jDim+1
+                end do
               end do
-            end do
 
-            mdB_Tot = mdB_Tot+1
-            dBM(mdB_Tot) = rMult* Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
-            idBM(1,mdB_Tot) = iDim
-            idBM(2,mdB_Tot) = jDim
+              mdB_Tot = mdB_Tot+1
+              dBM(mdB_Tot) = rMult* Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
+              idBM(1,mdB_Tot) = iDim
+              idBM(2,mdB_Tot) = jDim
 
-          end if
+            end if
+          end do
         end do
-      end do
 
-    end if
+      end if
+    end do
   end do
-end do
-99 continue
+end if
 
 return
 

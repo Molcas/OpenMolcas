@@ -63,12 +63,12 @@ Values = .false.
 
 iZMat = 0
 ZMatOffset = 0
-100 continue
-Line = Get_Ln(LU_UDC)   ! Read the line
-call UpCase(Line)
+do
+  Line = Get_Ln(LU_UDC)   ! Read the line
+  call UpCase(Line)
 
-if (Line(1:4) == 'VALU') Values = .true.
-if (Line(1:4) /= 'END') then
+  if (Line(1:4) == 'VALU') Values = .true.
+  if (Line(1:4) == 'END') exit
 
   ! Read all possible continuation lines
 
@@ -163,115 +163,119 @@ if (Line(1:4) /= 'END') then
 
       iFrst = iEnd+1
       call NxtWrd(Line,iFrst,iEnd)
-      if (iEnd == -1) Go To 300
-      if (Line(iFrst:iEnd) == '&') then
-        iLine = iLine+1
-        Line = Lines(iLine)     ! Read the continuation line
-        iFrst = 1
-        call NxtWrd(Line,iFrst,iEnd)
+      if (iEnd /= -1) then
+        if (Line(iFrst:iEnd) == '&') then
+          iLine = iLine+1
+          Line = Lines(iLine)     ! Read the continuation line
+          iFrst = 1
+          call NxtWrd(Line,iFrst,iEnd)
+        end if
+        Label3 = Line(iFrst:iEnd)
+        nLabel3 = iEnd-iFrst+1
+        jAtom = 0
+        do iAtom=1,nsAtom
+          if (Label3 == AtomLbl(iAtom)) jAtom = iAtom
+        end do
+        if (nStab(jAtom) == 1) then
+          nDeg = 3
+        else if (nStab(jAtom) == 2) then
+          nDeg = 2
+        else if (nStab(jAtom) == 1) then
+          nDeg = 1
+        else
+          nDeg = 0
+        end if
+
+        ! Case: Bond-Angle
+        if (nDeg > 1) then
+          nZMat = nZMat+1
+          write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label3(1:nLabel3),Label2(1:nLabel2)
+          write(Lu_TMP,'(A)') Line2
+          iRow_c = iRow_c+1
+        end if
+
+        if (nDeg > 2) then
+          nZMat = nZMat+1
+          write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label3(1:nLabel3),Label2(1:nLabel2),Label1(1:nLabel1)
+          write(Lu_TMP,'(A)') Line2
+          iRow_c = iRow_c+1
+          iZMat = iZMat+2
+          FragZMat(nFrag,2) = iZMat
+        end if
+
+        do
+
+          ! Pick up next atom (fourth)
+
+          iFrst = iEnd+1
+          call NxtWrd(Line,iFrst,iEnd)
+
+          ! Branch out if no more labels. Look out for line continuations
+
+          if (iEnd == -1) exit
+          if (Line(iFrst:iEnd) == '&') then
+            iLine = iLine+1
+            Line = Lines(iLine)     ! Read the continuation line
+            iFrst = 1
+            call NxtWrd(Line,iFrst,iEnd)
+          end if
+
+          Label4 = Line(iFrst:iEnd)
+          nLabel4 = iEnd-iFrst+1
+          jAtom = 0
+          do iAtom=1,nsAtom
+            if (Label4 == AtomLbl(iAtom)) jAtom = iAtom
+          end do
+          if (nStab(jAtom) == 1) then
+            nDeg = 3
+          else if (nStab(jAtom) == 2) then
+            nDeg = 2
+          else if (nStab(jAtom) == 1) then
+            nDeg = 1
+          else
+            nDeg = 0
+          end if
+
+          ! Case: Bond-Angle-Dihedral
+          if (nDeg /= 0) then
+            nZMat = nZMat+1
+            write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label4(1:nLabel4),Label3(1:nLabel3)
+            write(Lu_TMP,'(A)') Line2
+            iRow_c = iRow_c+1
+
+            if (nDeg /= 1) then
+              nZMat = nZMat+1
+              write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label4(1:nLabel4),Label3(1:nLabel3), &
+                                                Label2(1:nLabel2)
+              write(Lu_TMP,'(A)') Line2
+              iRow_c = iRow_c+1
+
+              if (nDeg /= 2) then
+                nZMat = nZMat+1
+                write(Line2,'(A,I3.3,A,4(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Dihedral',Label4(1:nLabel4),Label3(1:nLabel3), &
+                                                  Label2(1:nLabel2),Label1(1:nLabel1)
+                write(Lu_TMP,'(A)') Line2
+                iRow_c = iRow_c+1
+                iZMat = iZMat+3
+                FragZMat(nFrag,2) = iZMat
+              end if
+            end if
+          end if
+
+          ! Push the labels
+
+          Label1 = Label2
+          nLabel1 = nLabel2
+          Label2 = Label3
+          nLabel2 = nLabel3
+          Label3 = Label4
+          nLabel3 = nLabel4
+
+          ! Get the next label
+
+        end do
+
       end if
-      Label3 = Line(iFrst:iEnd)
-      nLabel3 = iEnd-iFrst+1
-      jAtom = 0
-      do iAtom=1,nsAtom
-        if (Label3 == AtomLbl(iAtom)) jAtom = iAtom
-      end do
-      if (nStab(jAtom) == 1) then
-        nDeg = 3
-      else if (nStab(jAtom) == 2) then
-        nDeg = 2
-      else if (nStab(jAtom) == 1) then
-        nDeg = 1
-      else
-        nDeg = 0
-      end if
-
-      ! Case: Bond-Angle
-      if (nDeg <= 1) Go To 200
-      nZMat = nZMat+1
-      write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label3(1:nLabel3),Label2(1:nLabel2)
-      write(Lu_TMP,'(A)') Line2
-      iRow_c = iRow_c+1
-
-      if (nDeg <= 2) Go To 200
-      nZMat = nZMat+1
-      write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label3(1:nLabel3),Label2(1:nLabel2),Label1(1:nLabel1)
-      write(Lu_TMP,'(A)') Line2
-      iRow_c = iRow_c+1
-      iZMat = iZMat+2
-      FragZMat(nFrag,2) = iZMat
-200   continue
-
-400   continue
-
-      ! Pick up next atom (fourth)
-
-      iFrst = iEnd+1
-      call NxtWrd(Line,iFrst,iEnd)
-
-      ! Branch out if no more labels. Look out for line continuations
-
-      if (iEnd == -1) Go To 300
-      if (Line(iFrst:iEnd) == '&') then
-        iLine = iLine+1
-        Line = Lines(iLine)     ! Read the continuation line
-        iFrst = 1
-        call NxtWrd(Line,iFrst,iEnd)
-      end if
-
-      Label4 = Line(iFrst:iEnd)
-      nLabel4 = iEnd-iFrst+1
-      jAtom = 0
-      do iAtom=1,nsAtom
-        if (Label4 == AtomLbl(iAtom)) jAtom = iAtom
-      end do
-      if (nStab(jAtom) == 1) then
-        nDeg = 3
-      else if (nStab(jAtom) == 2) then
-        nDeg = 2
-      else if (nStab(jAtom) == 1) then
-        nDeg = 1
-      else
-        nDeg = 0
-      end if
-
-      ! Case: Bond-Angle-Dihedral
-      if (nDeg == 0) Go To 500
-      nZMat = nZMat+1
-      write(Line2,'(A,I3.3,A,2(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Bond',Label4(1:nLabel4),Label3(1:nLabel3)
-      write(Lu_TMP,'(A)') Line2
-      iRow_c = iRow_c+1
-
-      if (nDeg == 1) Go To 500
-      nZMat = nZMat+1
-      write(Line2,'(A,I3.3,A,3(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Angle',Label4(1:nLabel4),Label3(1:nLabel3),Label2(1:nLabel2)
-      write(Lu_TMP,'(A)') Line2
-      iRow_c = iRow_c+1
-
-      if (nDeg == 2) Go To 500
-      nZMat = nZMat+1
-      write(Line2,'(A,I3.3,A,4(1X,A))') 'ZMAT',nZMat+ZMatOffset,' = Dihedral',Label4(1:nLabel4),Label3(1:nLabel3), &
-                                        Label2(1:nLabel2),Label1(1:nLabel1)
-      write(Lu_TMP,'(A)') Line2
-      iRow_c = iRow_c+1
-      iZMat = iZMat+3
-      FragZMat(nFrag,2) = iZMat
-500   continue
-
-      ! Push the labels
-
-      Label1 = Label2
-      nLabel1 = nLabel2
-      Label2 = Label3
-      nLabel2 = nLabel3
-      Label3 = Label4
-      nLabel3 = nLabel4
-
-      ! Get the next label
-
-      Go To 400
-
-300   continue
 
     else
 
@@ -300,7 +304,7 @@ if (Line(1:4) /= 'END') then
       do i=1,nSoft
         if (Line(iFrst:iEnd) == trim(SoftLabels(i))) then
           iSoft = i
-        end if
+          end if
       end do
     end if
     iEq = index(Lines(nLines),'=')
@@ -324,9 +328,7 @@ if (Line(1:4) /= 'END') then
 
   end if ! Values
 
-  Go To 100 ! Get the next line
-
-end if
+end do ! Get the next line
 
 ! Put in the additional constraints here.
 
@@ -353,12 +355,13 @@ write(Lu_TMP,'(A)') Line
 
 rewind(Lu_UDC)
 rewind(Lu_TMP)
-600 continue
-Line = Get_Ln(Lu_TMP)
-!write(6,*) Line
+do
+  Line = Get_Ln(Lu_TMP)
+  !write(6,*) Line
 
-write(Lu_UDC,'(A)') trim(Line)
-if (Line(1:4) /= 'END ') Go To 600
+  write(Lu_UDC,'(A)') trim(Line)
+  if (Line(1:4) == 'END ') exit
+end do
 !write(6,*) 'iRow_C,nLambda=',iRow_C,nLambda
 
 !                                                                      *

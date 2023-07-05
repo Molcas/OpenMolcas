@@ -36,11 +36,12 @@ do I=1,NDIM
   else
     write(Lu,300) char(I),(FI(J,I),J=1,3)
   end if
-300 format(2X,A,3X,3F16.6)
 end do
 
 write(Lu,*)
 
 return
+
+300 format(2X,A,3X,3F16.6)
 
 end subroutine OutCoor

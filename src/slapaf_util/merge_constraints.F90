@@ -101,6 +101,8 @@ if (Lu2 /= 0) close(Lu2)
 if (Lu3 /= 0) close(Lu3)
 if (AuxFile) call fCopy('purge',FileOut,iErr)
 
+return
+
 100 format(A)
 
 end subroutine Merge_Constraints

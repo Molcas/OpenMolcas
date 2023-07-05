@@ -39,7 +39,7 @@ iPrint = nPrint(iRout)
 iPrint = 99
 #endif
 
-if ((.not. VarR) .and. (.not. VarT)) Go To 99
+if ((.not. VarR) .and. (.not. VarT)) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -100,7 +100,7 @@ do ixyz=1,3
   do iSym=0,nIrrep-1
     if (iOper(iSym) == iTest) Invariant = .true.
   end do
-  if (Invariant) Go To 199
+  if (Invariant) cycle
 
   ! Compute total mass and center of mass of the molecule, the center
   ! of the RF cavity is at origin with infinite mass. Hence, the latter
@@ -112,7 +112,7 @@ do ixyz=1,3
   end do
   COM_xyz = COM_xyz/TMass
 
-  if (.not. VarT) Go To 199
+  if (.not. VarT) cycle
 
   iDeg = 1
   Deg = sqrt(dble(iDeg))
@@ -161,102 +161,100 @@ do ixyz=1,3
 
   end if
 
-199 continue
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !write(6,*) 'VarR=',VarR
-if (.not. VarR) Go To 98
+if (VarR) then
 
-! A la Malmqvist
+  ! A la Malmqvist
 
-nOrder = 2
-nMass = nCent
-call FZero(Trans,3)
-call FZero(RotVec,3)
-call mma_allocate(d2RV,3,3*nCent,3*nCent,label='d2RV')
-#ifdef _DEBUGPRINT_
-call RecPrt('xMass',' ',xMass,1,nMass)
-#endif
-call RotDer(nMass,xMass,currXYZ,ref123,trans,RotAng,RotVec,RotMat,nOrder,dRVdXYZ,d2RV)
-#ifdef _DEBUGPRINT_
-call RecPrt('RotVec',' ',RotVec,1,3)
-call RecPrt('RotMat',' ',RotMat,3,3)
-call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
-#endif
-
-do ixyz=1,3
-
-  Invariant = .false.
-  if (ixyz == 1) then
-    iTest = 6
-  else if (ixyz == 2) then
-    iTest = 5
-  else
-    iTest = 3
-  end if
-  do iSym=0,nIrrep-1
-    if (iOper(iSym) == iTest) Invariant = .true.
-  end do
-  if (Invariant) Go To 299
-
-  jxyz = ixyz+1
-  if (jxyz > 3) jxyz = 1
-  kxyz = jxyz+1
-  if (kxyz > 3) kxyz = 1
-  iDeg = 1
-  Deg = sqrt(dble(iDeg))
-
-  nq = nq+1
-  if (.not. Process) mB_Tot = mB_Tot+mB
-  if (.not. Proc_dB) mdB_Tot = mdB_Tot+mB**2
-  nqRF = nqRF+1
-  write(LuIC,'(A,I2.2,2A)') 'TR',nqRF,' = ',TR_type(ixyz+3)
-  Label = ' '
-  write(Label,'(A,I2.2)') 'TR',nqRF
-
-  Val = RotVec(ixyz)
-
-  ! Compute the gradient
-
-  call dcopy_(mB,[Zero],0,Grad,1)
-  call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
+  nOrder = 2
+  nMass = nCent
+  call FZero(Trans,3)
+  call FZero(RotVec,3)
+  call mma_allocate(d2RV,3,3*nCent,3*nCent,label='d2RV')
 # ifdef _DEBUGPRINT_
-  call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
+  call RecPrt('xMass',' ',xMass,1,nMass)
+# endif
+  call RotDer(nMass,xMass,currXYZ,ref123,trans,RotAng,RotVec,RotMat,nOrder,dRVdXYZ,d2RV)
+# ifdef _DEBUGPRINT_
+  call RecPrt('RotVec',' ',RotVec,1,3)
+  call RecPrt('RotMat',' ',RotMat,3,3)
+  call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
 # endif
 
-  ! Second derivative
+  do ixyz=1,3
 
-  call FZero(Hess,mB**2)
-  if (Proc_dB) call DCopy_(mB**2,d2RV(ixyz,1,1),3,Hess,1)
+    Invariant = .false.
+    if (ixyz == 1) then
+      iTest = 6
+    else if (ixyz == 2) then
+      iTest = 5
+    else
+      iTest = 3
+    end if
+    do iSym=0,nIrrep-1
+      if (iOper(iSym) == iTest) Invariant = .true.
+    end do
+    if (Invariant) cycle
 
-  if (Process) then
+    jxyz = ixyz+1
+    if (jxyz > 3) jxyz = 1
+    kxyz = jxyz+1
+    if (kxyz > 3) kxyz = 1
+    iDeg = 1
+    Deg = sqrt(dble(iDeg))
 
-    Indq(1,nq) = -(2**(jxyz)/2+2**(kxyz)/2)
-    Indq(2,nq) = 0
-    Indq(3,nq) = 0
+    nq = nq+1
+    if (.not. Process) mB_Tot = mB_Tot+mB
+    if (.not. Proc_dB) mdB_Tot = mdB_Tot+mB**2
+    nqRF = nqRF+1
+    write(LuIC,'(A,I2.2,2A)') 'TR',nqRF,' = ',TR_type(ixyz+3)
+    Label = ' '
+    write(Label,'(A,I2.2)') 'TR',nqRF
 
-    fconst(nq) = sqrt(Rot_Const)
-    rMult(nq) = Deg
+    Val = RotVec(ixyz)
 
-    value(nq,iIter) = Val
-    qLbl(nq) = Label
+    ! Compute the gradient
 
-    ! Project the gradient vector
+    call dcopy_(mB,[Zero],0,Grad,1)
+    call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
+#   endif
 
-    call ProjSym(nCent,Ind,currXYZ,iDCR,Grad,Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB,nq,rMult(nq))
+    ! Second derivative
 
-  end if
+    call FZero(Hess,mB**2)
+    if (Proc_dB) call DCopy_(mB**2,d2RV(ixyz,1,1),3,Hess,1)
 
-299 continue
-end do
-call mma_deallocate(d2RV)
-!write(6,*) 'nqRF=',nqRF
+    if (Process) then
+
+      Indq(1,nq) = -(2**(jxyz)/2+2**(kxyz)/2)
+      Indq(2,nq) = 0
+      Indq(3,nq) = 0
+
+      fconst(nq) = sqrt(Rot_Const)
+      rMult(nq) = Deg
+
+      value(nq,iIter) = Val
+      qLbl(nq) = Label
+
+      ! Project the gradient vector
+
+      call ProjSym(nCent,Ind,currXYZ,iDCR,Grad,Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB,nq,rMult(nq))
+
+    end if
+
+  end do
+  call mma_deallocate(d2RV)
+  !write(6,*) 'nqRF=',nqRF
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-98 continue
 call mma_deallocate(currXYZ)
 call mma_deallocate(Ref123)
 call mma_deallocate(Grad)
@@ -265,7 +263,6 @@ call mma_deallocate(xMass)
 call mma_deallocate(Ind)
 call mma_deallocate(iDCR)
 call mma_deallocate(Hess)
-99 continue
 
 return
 

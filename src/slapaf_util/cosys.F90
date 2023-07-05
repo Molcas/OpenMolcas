@@ -16,7 +16,7 @@ implicit real*8(a-h,o-z)
 #include "print.fh"
 real*8 Cent(3,3), r(3), xyz(3,2)
 integer iComp(3)
-logical Linear
+logical Linear, Retry
 
 iRout = 221
 iPrint = nPrint(iRout)
@@ -100,106 +100,111 @@ if (iPrint >= 99) then
   call RecPrt('R',' ',R,3,1)
 end if
 
-99 continue
-if (Linear) then
+Retry = .true.
+do while (Retry)
+  Retry = .false.
+  if (Linear) then
 
-  nComp = 0
-  do i=1,3
-    if (R(i) == Zero) then
-      nComp = nComp+1
-      iComp(nComp) = i
+    nComp = 0
+    do i=1,3
+      if (R(i) == Zero) then
+        nComp = nComp+1
+        iComp(nComp) = i
+      end if
+    end do
+
+    ! Compute the WDC B-matrix
+
+    call dcopy_(6,[Zero],0,xyz,1)
+    if (nComp == 0) then
+      !write(6,*) ' Case nComp == 0'
+
+      xyz(1,1) = R(1)
+      xyz(2,1) = R(2)
+      xyz(3,1) = -R(3)
+      r12 = R(1)**2+R(2)**2-R(3)**2
+      r11 = R(1)**2+R(2)**2+R(3)**2
+      xyz(1,1) = xyz(1,1)-(r12/r11)*R(1)
+      xyz(2,1) = xyz(2,1)-(r12/r11)*R(2)
+      xyz(3,1) = xyz(3,1)-(r12/r11)*R(3)
+      r2 = sqrt(xyz(1,1)**2+xyz(2,1)**2+xyz(3,1)**2)
+      xyz(1,1) = xyz(1,1)/r2
+      xyz(2,1) = xyz(2,1)/r2
+      xyz(3,1) = xyz(3,1)/r2
+      xyz(1,2) = R(2)*xyz(3,1)-R(3)*xyz(2,1)
+      xyz(2,2) = R(3)*xyz(1,1)-R(1)*xyz(3,1)
+      xyz(3,2) = R(1)*xyz(2,1)-R(2)*xyz(1,1)
+      r2 = sqrt(xyz(1,2)**2+xyz(2,2)**2+xyz(3,2)**2)
+      xyz(1,2) = xyz(1,2)/r2
+      xyz(2,2) = xyz(2,2)/r2
+      xyz(3,2) = xyz(3,2)/r2
+
+    else if (nComp == 1) then
+      !write(6,*) ' Case nComp == 1'
+
+      i = iComp(1)
+      xyz(i,1) = One
+      xyz(1,2) = R(2)*xyz(3,1)-R(3)*xyz(2,1)
+      xyz(2,2) = R(3)*xyz(1,1)-R(1)*xyz(3,1)
+      xyz(3,2) = R(1)*xyz(2,1)-R(2)*xyz(1,1)
+      r2 = sqrt(xyz(1,2)**2+xyz(2,2)**2+xyz(3,2)**2)
+      xyz(1,2) = xyz(1,2)/r2
+      xyz(2,2) = xyz(2,2)/r2
+      xyz(3,2) = xyz(3,2)/r2
+
+    else if (nComp == 2) then
+      !write(6,*) ' Case nComp == 2'
+
+      i = iComp(1)
+      xyz(i,1) = One
+      i = iComp(2)
+      xyz(i,2) = One
+
+    else
+      call WarningMessage(2,'Error in CoSys')
+      write(Lu,*) ' CoSys: nComp == 3'
+      call Abend()
     end if
-  end do
 
-  ! Compute the WDC B-matrix
+  else     ! Non-linear
 
-  call dcopy_(6,[Zero],0,xyz,1)
-  if (nComp == 0) then
-    !write(6,*) ' Case nComp == 0'
+    ! Form the cross product R12xR32
+    RR = Zero
+    do i=1,3
+      j = mod(i,3)+1
+      k = mod(i+1,3)+1
+      R21j = Cent(j,1)-Cent(j,2)
+      R21k = Cent(k,1)-Cent(k,2)
+      R23j = Cent(j,3)-Cent(j,2)
+      R23k = Cent(k,3)-Cent(k,2)
+      xyz(i,2) = R21j*R23k-R21k*R23j
+      RR = RR+xyz(i,2)**2
+    end do
+    if (RR == Zero) then
+      Linear = .true.
+      if (iPrint >= 99) write(6,*) 'Linear=',Linear
+      Retry = .true.
+    else
+      call DScal_(3,One/sqrt(RR),xyz(1,2),1)
+      if (iPrint >= 99) write(6,*) 'RR=',RR
 
-    xyz(1,1) = R(1)
-    xyz(2,1) = R(2)
-    xyz(3,1) = -R(3)
-    r12 = R(1)**2+R(2)**2-R(3)**2
-    r11 = R(1)**2+R(2)**2+R(3)**2
-    xyz(1,1) = xyz(1,1)-(r12/r11)*R(1)
-    xyz(2,1) = xyz(2,1)-(r12/r11)*R(2)
-    xyz(3,1) = xyz(3,1)-(r12/r11)*R(3)
-    r2 = sqrt(xyz(1,1)**2+xyz(2,1)**2+xyz(3,1)**2)
-    xyz(1,1) = xyz(1,1)/r2
-    xyz(2,1) = xyz(2,1)/r2
-    xyz(3,1) = xyz(3,1)/r2
-    xyz(1,2) = R(2)*xyz(3,1)-R(3)*xyz(2,1)
-    xyz(2,2) = R(3)*xyz(1,1)-R(1)*xyz(3,1)
-    xyz(3,2) = R(1)*xyz(2,1)-R(2)*xyz(1,1)
-    r2 = sqrt(xyz(1,2)**2+xyz(2,2)**2+xyz(3,2)**2)
-    xyz(1,2) = xyz(1,2)/r2
-    xyz(2,2) = xyz(2,2)/r2
-    xyz(3,2) = xyz(3,2)/r2
+      RR = Zero
+      do i=1,3
+        j = mod(i,3)+1
+        k = mod(i+1,3)+1
+        xyz(i,1) = xyz(j,2)*R(k)-xyz(k,2)*R(j)
+        RR = RR+xyz(i,1)**2
+      end do
+      call DScal_(3,One/sqrt(RR),xyz(1,1),1)
+      if (iPrint >= 99) write(6,*) 'RR=',RR
+      if (iPrint >= 99) then
+        call RecPrt('xyz',' ',xyz,3,2)
+      end if
+    end if
 
-  else if (nComp == 1) then
-    !write(6,*) ' Case nComp == 1'
-
-    i = iComp(1)
-    xyz(i,1) = One
-    xyz(1,2) = R(2)*xyz(3,1)-R(3)*xyz(2,1)
-    xyz(2,2) = R(3)*xyz(1,1)-R(1)*xyz(3,1)
-    xyz(3,2) = R(1)*xyz(2,1)-R(2)*xyz(1,1)
-    r2 = sqrt(xyz(1,2)**2+xyz(2,2)**2+xyz(3,2)**2)
-    xyz(1,2) = xyz(1,2)/r2
-    xyz(2,2) = xyz(2,2)/r2
-    xyz(3,2) = xyz(3,2)/r2
-
-  else if (nComp == 2) then
-    !write(6,*) ' Case nComp == 2'
-
-    i = iComp(1)
-    xyz(i,1) = One
-    i = iComp(2)
-    xyz(i,2) = One
-
-  else
-    call WarningMessage(2,'Error in CoSys')
-    write(Lu,*) ' CoSys: nComp == 3'
-    call Abend()
   end if
+end do
 
-else     ! Non-linear
-
-  ! Form the cross product R12xR32
-  RR = Zero
-  do i=1,3
-    j = mod(i,3)+1
-    k = mod(i+1,3)+1
-    R21j = Cent(j,1)-Cent(j,2)
-    R21k = Cent(k,1)-Cent(k,2)
-    R23j = Cent(j,3)-Cent(j,2)
-    R23k = Cent(k,3)-Cent(k,2)
-    xyz(i,2) = R21j*R23k-R21k*R23j
-    RR = RR+xyz(i,2)**2
-  end do
-  if (RR == Zero) then
-    Linear = .true.
-    if (iPrint >= 99) write(6,*) 'Linear=',Linear
-    Go To 99
-  end if
-  call DScal_(3,One/sqrt(RR),xyz(1,2),1)
-  if (iPrint >= 99) write(6,*) 'RR=',RR
-
-  RR = Zero
-  do i=1,3
-    j = mod(i,3)+1
-    k = mod(i+1,3)+1
-    xyz(i,1) = xyz(j,2)*R(k)-xyz(k,2)*R(j)
-    RR = RR+xyz(i,1)**2
-  end do
-  call DScal_(3,One/sqrt(RR),xyz(1,1),1)
-  if (iPrint >= 99) write(6,*) 'RR=',RR
-  if (iPrint >= 99) then
-    call RecPrt('xyz',' ',xyz,3,2)
-  end if
-
-end if
 if (iPrint >= 99) then
   call RecPrt(' Reference Axis',' ',R,3,1)
   call RecPrt(' Perpendicular Axes',' ',xyz,3,2)

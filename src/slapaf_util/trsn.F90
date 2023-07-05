@@ -85,7 +85,6 @@ if (lWarn) then
   end if
 end if
 if (LWRITE) write(6,1) Label,-dTau,-Tau
-1 format(1X,A,' : Dihedral= ',F10.4,'   / Degree  ',F10.6,' / rad')
 
 ! Compute the WDC matrix.
 
@@ -166,5 +165,7 @@ call DScal_(3*nCent,Fac,Bt,1)
 if (ldB) call DScal_((3*nCent)**2,Fac,dBt,1)
 
 return
+
+1 format(1X,A,' : Dihedral= ',F10.4,'   / Degree  ',F10.6,' / rad')
 
 end subroutine Trsn

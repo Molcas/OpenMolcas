@@ -29,8 +29,8 @@ Fi_limit = (165.0d0/180.d0)*Pi
 CosFi_limit = cos(Fi_limit)
 do iBond=1,nBonds
   iBondType = iTabBonds(3,iBond)
-  if (iBondType == vdW_Bond) Go To 100
-  if (iBondType > Magic_Bond) Go To 100
+  if (iBondType == vdW_Bond) cycle
+  if (iBondType > Magic_Bond) cycle
 
   do iCase=1,2
 
@@ -48,13 +48,13 @@ do iBond=1,nBonds
     rij = sqrt(xij**2+yij**2+zij**2)
 
     nNeighbor_j = iTabAtoms(1,0,jAtom)
-    do kNeighbor=1,nNeighbor_j
+    neighbor: do kNeighbor=1,nNeighbor_j
       kAtom = iTabAtoms(1,kNeighbor,jAtom)
       jBond = iTabAtoms(2,kNeighbor,jAtom)
-      if (jBond >= iBond) Go To 99
+      if (jBond >= iBond) cycle neighbor
       jBondType = iTabBonds(3,jBond)
-      if (jBondType == vdW_Bond) Go To 99
-      if (jBondType > Magic_Bond) Go To 99
+      if (jBondType == vdW_Bond) cycle neighbor
+      if (jBondType > Magic_Bond) cycle neighbor
 
       ! If this is close to a linear system we will form
       ! a magic bond between iAtom and kAtom
@@ -87,7 +87,7 @@ do iBond=1,nBonds
           if (((iTabBonds(1,kBond) == iAtom) .and. (iTabBonds(2,kBond) == kAtom)) .or. &
               ((iTabBonds(1,kBond) == kAtom) .and. (iTabBonds(2,kBond) == iAtom)) .and. (iTabBonds(3,kBond) /= Covalent_Bond)) then
             iTabBonds(3,kBond) = jAtom+Magic_Bond
-            Go To 99
+            cycle neighbor
           end if
         end do
 
@@ -136,12 +136,10 @@ do iBond=1,nBonds
         iTabAtoms(2,nNeighbor_k,kAtom) = nBonds
       end if
 
-99    continue
-    end do   ! kNeighbor
+    end do neighbor  ! kNeighbor
 
   end do     ! iCase
 
-100 continue
 end do       ! iBond
 
 return

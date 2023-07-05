@@ -33,7 +33,7 @@ integer, intent(In) :: Iter, nAtom
 real*8, intent(InOut) :: Coor(3,nAtom)
 integer, intent(In) :: mTtAtm
 logical, intent(InOut) :: Error
-logical :: BSet_Save, HSet_Save, lOld_Save
+logical :: BSet_Save, Converged, HSet_Save, lOld_Save
 real*8, allocatable :: DFC(:), dss(:), rInt(:)
 
 !                                                                      *
@@ -102,7 +102,6 @@ if (iPrint >= 11) then
     write(Lu,300) jter,'N/A     ',rMax
   end if
 end if
-300 format(1X,'Iter:',I5,2X,A,1X,E11.4)
 
 if (iPrint >= 19) then
   write(Lu,*)
@@ -116,7 +115,7 @@ end if
 ! Compute the new Cartesian coordinates.
 
 iterMx = 50
-
+Converged = .false.
 do jter=1,iterMx
 
   ! Compute the Cartesian shift, solve dq = B^T dx!
@@ -187,7 +186,10 @@ do jter=1,iterMx
 
   ! Convergence based on the RMS of the Cartesian displacements.
 
-  if (dx_RMS < 1.0D-6) Go To 998
+  if (dx_RMS < 1.0D-6) then
+    Converged = .true.
+    exit
+  end if
 
   if (iPrint >= 99) then
     write(Lu,*)
@@ -200,29 +202,30 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! On input, Error specifies whether an error should be signalled
-! (.True.) or the calculation aborted (.False.)
-! In the former case, the output value indicates if an error has occurred
+if (.not. Converged) then
+  ! On input, Error specifies whether an error should be signalled
+  ! (.True.) or the calculation aborted (.False.)
+  ! In the former case, the output value indicates if an error has occurred
 
-if (.not. User_Def) call RecPrt('NewCar: rInt  ','(10F15.10)',rInt,nQQ,1)
-if (.not. User_Def) call RecPrt('NewCar: qInt','(10F15.10)',qInt(:,Iter+1),nQQ,1)
-if (.not. Error) then
-  call WarningMessage(2,'Error in NewCar')
-  write(Lu,*)
-  write(Lu,*) '***********************************************'
-  write(Lu,*) ' ERROR: No convergence in NewCar !             '
-  write(Lu,*) ' Strong linear dependency among Coordinates.   '
-  write(Lu,*) ' Hint: Try to change the Internal Coordinates. '
-  write(Lu,*) '***********************************************'
   if (.not. User_Def) call RecPrt('NewCar: rInt  ','(10F15.10)',rInt,nQQ,1)
   if (.not. User_Def) call RecPrt('NewCar: qInt','(10F15.10)',qInt(:,Iter+1),nQQ,1)
-  write(Lu,*)
-  call Quit(_RC_NOT_CONVERGED_)
+  if (.not. Error) then
+    call WarningMessage(2,'Error in NewCar')
+    write(Lu,*)
+    write(Lu,*) '***********************************************'
+    write(Lu,*) ' ERROR: No convergence in NewCar !             '
+    write(Lu,*) ' Strong linear dependency among Coordinates.   '
+    write(Lu,*) ' Hint: Try to change the Internal Coordinates. '
+    write(Lu,*) '***********************************************'
+    if (.not. User_Def) call RecPrt('NewCar: rInt  ','(10F15.10)',rInt,nQQ,1)
+    if (.not. User_Def) call RecPrt('NewCar: qInt','(10F15.10)',qInt(:,Iter+1),nQQ,1)
+    write(Lu,*)
+    call Quit(_RC_NOT_CONVERGED_)
+  end if
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-998 continue
 
 if (iPrint >= 6) then
   write(Lu,*)
@@ -248,5 +251,7 @@ call mma_deallocate(DFC)
 Error = .false.
 
 return
+
+300 format(1X,'Iter:',I5,2X,A,1X,E11.4)
 
 end subroutine NewCar

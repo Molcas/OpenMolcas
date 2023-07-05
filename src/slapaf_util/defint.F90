@@ -34,7 +34,7 @@ implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 real*8 BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
 character type*6, Temp*120, Lbl(nQQ)*8, cNum*4, Line*120, format*8, filnam*16
-logical Flip, lPIC(6*nAtom), lAtom(nAtom)
+logical Flip, lPIC(6*nAtom), lAtom(nAtom), Found
 logical, save :: First = .true.
 logical :: lWrite = .false., lErr = .false.
 integer, allocatable :: Ind(:)
@@ -97,13 +97,17 @@ end if
 ! internal coordinates.
 
 iBVct = 0
+Found = .false.
 do iLines=1,iRow
   Flip = .false.
   read(Lu_UDIC,'(A)') Line
   Temp = Line
   call UpCase(Temp)
 
-  if (Temp(1:4) == 'VARY') Go To 100
+  if (Temp(1:4) == 'VARY') then
+    Found = .true.
+    exit
+  end if
   iBVct = iBVct+1
 
   ! Move the label of the internal coordinate
@@ -260,13 +264,15 @@ do iLines=1,iRow
   call mma_deallocate(Tmp2)
   call mma_deallocate(xyz)
 end do
-call WarningMessage(2,'Error in DefInt')
-write(6,*) '**********************************************'
-write(6,*) ' ERROR: No internal coordinates are defined ! '
-write(6,*) '**********************************************'
-call Quit_OnUserError()
 
-100 continue
+if (.not. Found) then
+  call WarningMessage(2,'Error in DefInt')
+  write(6,*) '**********************************************'
+  write(6,*) ' ERROR: No internal coordinates are defined ! '
+  write(6,*) '**********************************************'
+  call Quit_OnUserError()
+end if
+
 nDefPICs = iBVct
 if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
 if (iPrint >= 19) call RecPrt(' Values of primitive internal coordinates / au or rad',' ',value,nBVct,1)
@@ -276,162 +282,159 @@ if (iPrint >= 19) call RecPrt(' Values of primitive internal coordinates / au or
 
 iBMtrx = 0
 jLines = iLines
-201 continue
-jLines = jLines+1
-if (jLines > iRow) Go To 200
+do
+  jLines = jLines+1
+  if (jLines > iRow) exit
 
-! Jump over the FIX keyword if present
+  ! Jump over the FIX keyword if present
 
-read(Lu_UDIC,'(A)') Line
-Temp = Line
-call UpCase(Temp)
-if (Temp(1:3) == 'FIX') Go To 20
-if (Temp(1:4) == 'ROWH') Go To 30
+  read(Lu_UDIC,'(A)') Line
+  Temp = Line
+  call UpCase(Temp)
+  if (Temp(1:3) == 'FIX') cycle
+  if (Temp(1:4) == 'ROWH') exit
 
-iBMtrx = iBMtrx+1
-rInt(iBMtrx) = Zero
-RR = Zero
+  iBMtrx = iBMtrx+1
+  rInt(iBMtrx) = Zero
+  RR = Zero
 
-iFrst = 1
-call NxtWrd(Line,iFrst,iEnd)
-jEnd = iEnd
-if (Line(iEnd:iEnd) == '=') jEnd = iEnd-1
-Lbl(iBMtrx) = Line(iFrst:jEnd)
-neq = index(Line,'=')
-if (neq == 0) then
-
-  ! a single vector (this will only extend over one line)
-
-  iBVct = 0
-  do jBVct=1,nBVct
-    if (Line(iFrst:jEnd) == Labels(jBVct)) iBVct = jBVct
-  end do
-  if (iBVct == 0) then
-    call WarningMessage(2,'Error in DefInt')
-    write(6,*)
-    write(6,*) '*******************************'
-    write(6,*) ' ERROR: A single vector        '
-    write(6,*) ' Undefined internal coordinate '
-    write(6,'(A,A)') Line
-    write(6,'(A,A)') Line(iFrst:jEnd)
-    write(6,*) '*******************************'
-    call Quit_OnUserError()
-  end if
-
-  lPIC(iBVct) = .false.
-  call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
-  call DScal_(3*nAtom,rMult(iBVct)**2,BMtrx(1,iBMtrx),1)
-  rInt(iBMtrx) = rMult(iBVct)**2*value(iBVct)
-  RR = RR+rMult(iBVct)**2
-
-else
-
-  ! A linear combination of vectors
-
-  call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
-  iFrst = neq+1
-  Sgn = One
-
-  ! Process the rest of the line and possible extension lines
-
-  22 continue
-  ! Get the factor
+  iFrst = 1
   call NxtWrd(Line,iFrst,iEnd)
-  Temp = Line(iFrst:iEnd)
-  read(Temp,format) Fact
-  Fact = Fact*Sgn
-  iFrst = iEnd+1
-  ! Get the label
-  call NxtWrd(Line,iFrst,iEnd)
-  iBVct = 0
-  do jBVct=1,nBVct
-    if (Line(iFrst:iEnd) == Labels(jBVct)) iBVct = jBVct
-  end do
-  if (iBVct == 0) then
-    call WarningMessage(2,'Error in DefInt')
-    write(6,*)
-    write(6,*) '************ ERROR *************'
-    write(6,*) ' Linear combinations of vectors '
-    write(6,*) ' Undefined internal coordinate  '
-    write(6,'(A,A)') Line
-    write(6,'(A,A)') Line(iFrst:iEnd)
-    write(6,*) '********************************'
-    call Quit_OnUserError()
-  end if
+  jEnd = iEnd
+  if (Line(iEnd:iEnd) == '=') jEnd = iEnd-1
+  Lbl(iBMtrx) = Line(iFrst:jEnd)
+  neq = index(Line,'=')
+  if (neq == 0) then
 
-  lPIC(iBVct) = .false.
-  call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
-  rInt(iBMtrx) = rInt(iBMtrx)+Fact*rMult(iBVct)**2*value(iBVct)
-  RR = RR+rMult(iBVct)**2*Fact**2
+    ! a single vector (this will only extend over one line)
 
-  iFrst = iEnd+1
-  Temp = Line(iFrst:nTemp)
-  nPlus = index(Temp,'+')
-  nMinus = index(Temp,'-')
-  if ((nPlus /= 0) .and. ((nPlus < nMinus) .eqv. (nMinus > 0))) then
+    iBVct = 0
+    do jBVct=1,nBVct
+      if (Line(iFrst:jEnd) == Labels(jBVct)) iBVct = jBVct
+    end do
+    if (iBVct == 0) then
+      call WarningMessage(2,'Error in DefInt')
+      write(6,*)
+      write(6,*) '*******************************'
+      write(6,*) ' ERROR: A single vector        '
+      write(6,*) ' Undefined internal coordinate '
+      write(6,'(A,A)') Line
+      write(6,'(A,A)') Line(iFrst:jEnd)
+      write(6,*) '*******************************'
+      call Quit_OnUserError()
+    end if
+
+    lPIC(iBVct) = .false.
+    call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
+    call DScal_(3*nAtom,rMult(iBVct)**2,BMtrx(1,iBMtrx),1)
+    rInt(iBMtrx) = rMult(iBVct)**2*value(iBVct)
+    RR = RR+rMult(iBVct)**2
+
+  else
+
+    ! A linear combination of vectors
+
+    call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
+    iFrst = neq+1
     Sgn = One
-    iFrst = iFrst+nPlus
-    Go To 22
-  end if
-  if ((nMinus /= 0) .and. ((nMinus < nPlus) .eqv. (nPlus > 0))) then
-    Sgn = -One
-    iFrst = iFrst+nMinus
-    Go To 22
-  end if
 
-  ! Here if all statements processed of this line
+    ! Process the rest of the line and possible extension lines
 
-  if (index(Line,'&') /= 0) then
-    jLines = jLines+1
-    if (jLines > iRow) then
-      call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,*) '********** ERROR *********'
-      write(6,*) ' DefInt: jLines > iRow '
-      write(6,*) '**************************'
-      call Quit_OnUserError()
-    end if
-    read(Lu_UDIC,'(A)') Line
-    iFrst = 1
-    call NxtWrd(Line,iFrst,iEnd)
-    if (Line(iFrst:iEnd) == '+') then
+    do
+      ! Get the factor
+      call NxtWrd(Line,iFrst,iEnd)
+      Temp = Line(iFrst:iEnd)
+      read(Temp,format) Fact
+      Fact = Fact*Sgn
       iFrst = iEnd+1
-      Sgn = One
-      Go To 22
-    else if (Line(iFrst:iEnd) == '-') then
+      ! Get the label
+      call NxtWrd(Line,iFrst,iEnd)
+      iBVct = 0
+      do jBVct=1,nBVct
+        if (Line(iFrst:iEnd) == Labels(jBVct)) iBVct = jBVct
+      end do
+      if (iBVct == 0) then
+        call WarningMessage(2,'Error in DefInt')
+        write(6,*)
+        write(6,*) '************ ERROR *************'
+        write(6,*) ' Linear combinations of vectors '
+        write(6,*) ' Undefined internal coordinate  '
+        write(6,'(A,A)') Line
+        write(6,'(A,A)') Line(iFrst:iEnd)
+        write(6,*) '********************************'
+        call Quit_OnUserError()
+      end if
+
+      lPIC(iBVct) = .false.
+      call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
+      rInt(iBMtrx) = rInt(iBMtrx)+Fact*rMult(iBVct)**2*value(iBVct)
+      RR = RR+rMult(iBVct)**2*Fact**2
+
       iFrst = iEnd+1
-      Sgn = -One
-      Go To 22
-    else
-      call WarningMessage(2,'Error in DefInt')
-      write(6,*)
-      write(6,*) '************** ERROR *************'
-      write(6,*) ' Syntax Error: first character in  extension line is not + or -'
-      write(6,'(A)') Line
-      write(6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
-      write(6,*) '**********************************'
-      call Quit_OnUserError()
-    end if
+      Temp = Line(iFrst:nTemp)
+      nPlus = index(Temp,'+')
+      nMinus = index(Temp,'-')
+      if ((nPlus /= 0) .and. ((nPlus < nMinus) .eqv. (nMinus > 0))) then
+        Sgn = One
+        iFrst = iFrst+nPlus
+        cycle
+      end if
+      if ((nMinus /= 0) .and. ((nMinus < nPlus) .eqv. (nPlus > 0))) then
+        Sgn = -One
+        iFrst = iFrst+nMinus
+        cycle
+      end if
+
+      ! Here if all statements processed of this line
+
+      if (index(Line,'&') == 0) exit
+      jLines = jLines+1
+      if (jLines > iRow) then
+        call WarningMessage(2,'Error in DefInt')
+        write(6,*)
+        write(6,*) '********** ERROR *********'
+        write(6,*) ' DefInt: jLines > iRow '
+        write(6,*) '**************************'
+        call Quit_OnUserError()
+      end if
+      read(Lu_UDIC,'(A)') Line
+      iFrst = 1
+      call NxtWrd(Line,iFrst,iEnd)
+      if (Line(iFrst:iEnd) == '+') then
+        iFrst = iEnd+1
+        Sgn = One
+      else if (Line(iFrst:iEnd) == '-') then
+        iFrst = iEnd+1
+        Sgn = -One
+      else
+        call WarningMessage(2,'Error in DefInt')
+        write(6,*)
+        write(6,*) '************** ERROR *************'
+        write(6,*) ' Syntax Error: first character in  extension line is not + or -'
+        write(6,'(A)') Line
+        write(6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
+        write(6,*) '**********************************'
+        call Quit_OnUserError()
+      end if
+    end do
+
   end if
 
-end if
+  rInt(iBMtrx) = rInt(iBMtrx)/sqrt(RR)
+  call DScal_(3*nAtom,One/sqrt(RR),BMtrx(1,iBMtrx),1)
 
-rInt(iBMtrx) = rInt(iBMtrx)/sqrt(RR)
-call DScal_(3*nAtom,One/sqrt(RR),BMtrx(1,iBMtrx),1)
-
-20 continue
-Go To 201
+end do
 
 ! Skip the  RowH  section of input ---
 
-30 jLines = jLines+1
-if (jLines > iRow) Go To 200
-read(Lu_UDIC,'(A)') Line
-Temp = Line
-call UpCase(Temp)
-Go To 30
+do
+  jLines = jLines+1
+  if (jLines > iRow) exit
+  read(Lu_UDIC,'(A)') Line
+  Temp = Line
+  call UpCase(Temp)
+end do
 
-200 continue
 if (iPrint >= 99) call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,nQQ)
 
 if (lWrite) then

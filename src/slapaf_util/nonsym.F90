@@ -18,13 +18,12 @@ real*8 A(3), Tx(3)
 integer jStab(0:nStab-1)
 
 do iStab=0,nStab-1
-  if ((A(1) /= Zero) .and. (iand(jStab(iStab),1)) /= 0) Go To 10
-  if ((A(2) /= Zero) .and. (iand(jStab(iStab),2)) /= 0) Go To 10
-  if ((A(3) /= Zero) .and. (iand(jStab(iStab),4)) /= 0) Go To 10
+  if ((A(1) /= Zero) .and. (iand(jStab(iStab),1)) /= 0) cycle
+  if ((A(2) /= Zero) .and. (iand(jStab(iStab),2)) /= 0) cycle
+  if ((A(3) /= Zero) .and. (iand(jStab(iStab),4)) /= 0) cycle
   if (iand(jStab(iStab),1) /= 0) Tx(1) = Zero
   if (iand(jStab(iStab),2) /= 0) Tx(2) = Zero
   if (iand(jStab(iStab),4) /= 0) Tx(3) = Zero
-10 continue
 end do
 
 return

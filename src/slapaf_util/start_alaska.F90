@@ -35,10 +35,10 @@ call Upcase(PName)
 PName = adjustl(PName)
 
 iEnd = 1
-99 if (PName(iEnd:iEnd) /= ' ') then
+do
+  if (PName(iEnd:iEnd) == ' ') exit
   iEnd = iEnd+1
-  Go To 99
-end if
+end do
 iEnd = min(iEnd-1,5)
 FileName = PName(1:iend)//'INP'
 
@@ -146,11 +146,11 @@ if (Exists) then
   LuSpool = IsFreeUnit(LuSpool)
   call Molcas_Open(LuSpool,Filename)
 
-100 continue
-  read(LuSpool,'(A)',end=900) Line
-  write(LuInput,'(A)') Line
-  Go To 100
-900 continue
+  do
+    read(LuSpool,'(A)',iostat=istatus) Line
+    if (istatus < 0) exit
+    write(LuInput,'(A)') Line
+  end do
 
   close(LuSpool)
 

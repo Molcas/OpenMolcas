@@ -33,64 +33,65 @@ iPrint = nPrint(iRout)
 Lu = 6
 Thr = 0.001D+00 ! Threshold for printout.
 
-if (iPrint <= 5) Go To 99
-write(Lu,*)
-call CollapseOutput(1,'Internal coordinate section')
-
-if (iPrint >= 6) then
+if (iPrint > 5) then
   write(Lu,*)
-  write(Lu,'(80A)') ('*',i=1,80)
-  write(Lu,*) ' Auto-Defined Internal coordinates'
-  write(Lu,'(80A)') ('-',i=1,80)
-  write(Lu,'(A)') '  Primitive Internal Coordinates:'
-else
-  write(Lu,*)
-  write(Lu,'(A)') '  Redundant Internal Coordinates:'
-  write(Lu,*)
-end if
+  call CollapseOutput(1,'Internal coordinate section')
 
-rewind(LuIC)
-999 continue
-read(LuIC,'(A)',end=998) Line
-write(Lu,'(A)') Line
-Go To 999
-998 continue
-rewind(LuIC)
-if (iPrint < 6) Go To 99
+  if (iPrint >= 6) then
+    write(Lu,*)
+    write(Lu,'(80A)') ('*',i=1,80)
+    write(Lu,*) ' Auto-Defined Internal coordinates'
+    write(Lu,'(80A)') ('-',i=1,80)
+    write(Lu,'(A)') '  Primitive Internal Coordinates:'
+  else
+    write(Lu,*)
+    write(Lu,'(A)') '  Redundant Internal Coordinates:'
+    write(Lu,*)
+  end if
 
-write(Lu,'(A)') '  Internal Coordinates:'
-do iQQ=1,nQQ
-  write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
-  if = 7
-  jq = 0
-  Start = .true.
-  do iq=1,nq
-    temp = abs(rK(iq,iQQ))
-    if (temp > Thr) then
-      jq = jq+1
-      if (jq > 4) then
-        Line(80:80) = '&'
-        write(Lu,'(A)') Line
-        Line = ' '
-        if = 6
-        jq = 1
-        Start = .false.
-      end if
-      if ((jq == 1) .and. Start) then
-        iE = if+16
-        write(Line(if:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
-      else
-        iE = if+17
-        write(Line(if:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
-      end if
-      if = iE+1
-    end if
+  rewind(LuIC)
+  do
+    read(LuIC,'(A)',iostat=istatus) Line
+    if (istatus < 0) exit
+    write(Lu,'(A)') Line
   end do
-  write(Lu,'(A)') Line
-end do
-write(Lu,'(80A)') ('*',i=1,80)
-call CollapseOutput(0,'Internal coordinate section')
-99 continue
+  rewind(LuIC)
+  if (iPrint >= 6) then
+
+    write(Lu,'(A)') '  Internal Coordinates:'
+    do iQQ=1,nQQ
+      write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
+      if = 7
+      jq = 0
+      Start = .true.
+      do iq=1,nq
+        temp = abs(rK(iq,iQQ))
+        if (temp > Thr) then
+          jq = jq+1
+          if (jq > 4) then
+            Line(80:80) = '&'
+            write(Lu,'(A)') Line
+            Line = ' '
+            if = 6
+            jq = 1
+            Start = .false.
+          end if
+          if ((jq == 1) .and. Start) then
+            iE = if+16
+            write(Line(if:iE),'(A,F10.8,4A)') ' ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+          else
+            iE = if+17
+            write(Line(if:iE),'(A,F10.8,4A)') '+ ',rK(iq,iQQ),' ',qLbl(iq)(1:4),' '
+          end if
+          if = iE+1
+        end if
+      end do
+      write(Lu,'(A)') Line
+    end do
+    write(Lu,'(80A)') ('*',i=1,80)
+    call CollapseOutput(0,'Internal coordinate section')
+  end if
+end if
 
 ! Write linear combinations to disc
 

@@ -146,19 +146,19 @@ else   ! Use the Hessian Model Function
 # ifdef _DEBUGPRINT_
   if (iPrint >= 19) call RecPrt(' Scrt1',' ',Scrt1,3*mTtAtm,3*mTtAtm)
 # endif
-  if (nIrrep == 1) Go To 99
+  if (nIrrep /= 1) then
 
-  ! Now project out the total symmetric part of the Hessian
+    ! Now project out the total symmetric part of the Hessian
 
-  call DGEMM_('N','N',3*mTtAtm,nDim,3*mTtAtm,1.0d0,Scrt1,3*mTtAtm,Vctrs,3*mTtAtm,0.0d0,Scrt2,3*mTtAtm)
-# ifdef _DEBUGPRINT_
-  if (iPrint >= 19) call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
-# endif
-  call DGEMM_('T','N',nDim,nDim,3*mTtAtm,1.0d0,Vctrs,3*mTtAtm,Scrt2,3*mTtAtm,0.0d0,Scrt1,nDim)
-# ifdef _DEBUGPRINT_
-  if (iPrint >= 19) call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
-# endif
-  99 continue
+    call DGEMM_('N','N',3*mTtAtm,nDim,3*mTtAtm,1.0d0,Scrt1,3*mTtAtm,Vctrs,3*mTtAtm,0.0d0,Scrt2,3*mTtAtm)
+#   ifdef _DEBUGPRINT_
+    if (iPrint >= 19) call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
+#   endif
+    call DGEMM_('T','N',nDim,nDim,3*mTtAtm,1.0d0,Vctrs,3*mTtAtm,Scrt2,3*mTtAtm,0.0d0,Scrt1,nDim)
+#   ifdef _DEBUGPRINT_
+    if (iPrint >= 19) call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
+#   endif
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -203,17 +203,17 @@ else   ! Use the Hessian Model Function
       eigen = eigen+HTanVec(i)*TanVec(i)
     end do
     !write(6,*) 'Eigen=',eigen
-    if (eigen < Zero) Go To 98
+    if (eigen >= Zero) then
 
-    ! Form H - H|i><i| - |i><i|H
+      ! Form H - H|i><i| - |i><i|H
 
-    do i=0,nRP-1
-      do j=0,nRP-1
-        scrt1(nRP*i+j+1) = scrt1(nRP*i+j+1)-HTanVec(1+i)*TanVec(1+j)-TanVec(1+i)*HTanVec(1+j)
+      do i=0,nRP-1
+        do j=0,nRP-1
+          scrt1(nRP*i+j+1) = scrt1(nRP*i+j+1)-HTanVec(1+i)*TanVec(1+j)-TanVec(1+i)*HTanVec(1+j)
+        end do
       end do
-    end do
+    end if
 
-    98 continue
     call mma_deallocate(HTanVec)
     call mma_deallocate(TanVec)
   end if

@@ -24,18 +24,19 @@ real*8 FI(N1,N2)
 
 Lu = 6
 write(Lu,100) Text
-100 format(//,1X,A,/)
 write(Lu,200)
-200 format(5X,'ATOM',21X,'X',19X,'Y',19X,'Z',/)
 do I=1,NDIM
   if (N1 == 3) then
     write(Lu,300) char(I),(FI(J,I),J=1,3)
-300 format(5X,A,3X,3F20.10)
   else
     write(Lu,300) char(I),(FI(I,J),J=1,3)
   end if
 end do
 
 return
+
+100 format(//,1X,A,/)
+200 format(5X,'ATOM',21X,'X',19X,'Y',19X,'Z',/)
+300 format(5X,A,3X,3F20.10)
 
 end subroutine PrList

@@ -30,35 +30,35 @@ character*(*) Line
 
 nChar = len(Line)
 ! Find first non-blank character
-10 continue
-if ((if == 0) .or. (if > nChar)) then
-  call WarningMessage(2,'NxtWrd: (iF == 0) .or. (iF > nChar)')
-  write(6,*) 'nChar=',nChar
-  write(6,*) 'iF,iE=',if,iE
-  call Abend()
-end if
-if (Line(if:if) == ' ') then
+do
+  if ((if == 0) .or. (if > nChar)) then
+    call WarningMessage(2,'NxtWrd: (iF == 0) .or. (iF > nChar)')
+    write(6,*) 'nChar=',nChar
+    write(6,*) 'iF,iE=',if,iE
+    call Abend()
+  end if
+  if (Line(if:if) /= ' ') exit
   if = if+1
   if (if >= nChar) then
     if = nChar
     iE = -1
     return
   end if
-  Go To 10
-end if
+end do
 ! Find the end of the present word
 iE = if+1
-20 continue
-if (Line(iE:iE) /= ' ') then
-  iE = iE+1
-  if (iE > nChar) then
-    iE = nChar
-    return
+do
+  if (Line(iE:iE) /= ' ') then
+    iE = iE+1
+    if (iE > nChar) then
+      iE = nChar
+      return
+    end if
+  else
+    iE = iE-1
+    exit
   end if
-  Go To 20
-else
-  iE = iE-1
-end if
+end do
 
 return
 

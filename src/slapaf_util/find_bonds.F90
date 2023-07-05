@@ -42,7 +42,7 @@ nBonds = 0
 do iAtom=1,nAtoms
 
   iRow = iTabRow(iANr(iAtom))
-  if (iRow == 0) Go To 99
+  if (iRow == 0) cycle
 
 # ifdef _DEBUGPRINT_
   write(6,*)
@@ -63,7 +63,6 @@ do iAtom=1,nAtoms
       end do
     end do
   end do
-99 continue
 end do
 !                                                                      *
 !***********************************************************************
@@ -107,7 +106,7 @@ ThrB_vdW = 1.0D-4*ThrB
 do iAtom=1,nAtoms
 
   iRow = iTabRow(iANr(iAtom))
-  if (iRow == 0) Go To 98
+  if (iRow == 0) cycle
 
   ix = iBox(1,iAtom)
   iy = iBox(2,iAtom)
@@ -123,7 +122,6 @@ do iAtom=1,nAtoms
       end do
     end do
   end do
-98 continue
 end do
 !                                                                      *
 !***********************************************************************

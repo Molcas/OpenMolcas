@@ -169,14 +169,15 @@ write(Lu,110) Energy(iter),sg,sh
 write(Lu,120) Two*dgh,deltagh
 call mma_Deallocate(tmp)
 call CollapseOutput(0,'Conical Intersection Characterization')
-100 format(5X,A,T40,ES12.5,A)
-101 format(5X,A,T11,ES12.5)
-110 format(5X,'Average energy: ',F15.8,' + ',F12.8,'*x + ',F12.8,'*y')
-120 format(5X,'Energy difference: ',F12.8,'*sqrt(r^2 + ',F12.8,'*t)',/,10X,'r^2 = x^2 + y^2',/,10X,'t = x^2 - y^2')
 
 call mma_Deallocate(g)
 call mma_Deallocate(h)
 
 return
+
+100 format(5X,A,T40,ES12.5,A)
+101 format(5X,A,T11,ES12.5)
+110 format(5X,'Average energy: ',F15.8,' + ',F12.8,'*x + ',F12.8,'*y')
+120 format(5X,'Energy difference: ',F12.8,'*sqrt(r^2 + ',F12.8,'*t)',/,10X,'r^2 = x^2 + y^2',/,10X,'t = x^2 - y^2')
 
 end subroutine CI_Summary
