@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 #include "LenIn.fh"
-integer(kind=iwp) :: Columbus, iGO, iJustGrad, iMode, iPL, Length, nData, nsAtom
+integer(kind=iwp) :: Columbus, iGO, iMode, iPL, Length, nData, nsAtom
 logical(kind=iwp) :: Found
 integer(kind=iwp), external :: iPrintLevel
 
@@ -37,7 +37,6 @@ call mma_allocate(Q_nuclear,nsAtom)
 call Get_dArray('Nuclear charge',Q_nuclear,nsAtom)
 
 call Get_iScalar('Grad ready',iGO)
-iJustGrad = iand(iGO,2**0)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -45,7 +44,7 @@ iJustGrad = iand(iGO,2**0)
 ! (This should eventually be removed, as Grd is unused...)
 
 call Get_iScalar('Columbus',columbus)
-if ((iJustGrad == 1) .and. (columbus == 1)) then
+if (btest(iGO,0) .and. (columbus == 1)) then
 
   ! C&M mode
 
@@ -68,8 +67,6 @@ if ((iJustGrad == 1) .and. (columbus == 1)) then
     call Get_dArray('Grad State1',Grd,3*nsAtom)
 
   end if
-  iJustGrad = 0
-  iGO = ior(iGO,iJustGrad)
   call Put_iScalar('Grad ready',iGO)
 else
 

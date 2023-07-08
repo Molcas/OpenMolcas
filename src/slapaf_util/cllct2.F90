@@ -150,9 +150,9 @@ do ixyz=1,nCent
   Ind(ixyz,2) = iPhase
   call dcopy_(3,Cx(:,jsAtom,lIter),1,xyz(1,ixyz),1)
   ! Generate actual coordinate
-  if (iand(iPhase,1) /= 0) xyz(1,ixyz) = -xyz(1,ixyz)
-  if (iand(iPhase,2) /= 0) xyz(2,ixyz) = -xyz(2,ixyz)
-  if (iand(iPhase,4) /= 0) xyz(3,ixyz) = -xyz(3,ixyz)
+  if (btest(iPhase,0)) xyz(1,ixyz) = -xyz(1,ixyz)
+  if (btest(iPhase,1)) xyz(2,ixyz) = -xyz(2,ixyz)
+  if (btest(iPhase,2)) xyz(3,ixyz) = -xyz(3,ixyz)
   if (Typ == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
 
 end do  ! do ixyz=1,nCntr+mCntr

@@ -20,7 +20,7 @@ integer(kind=iwp) :: i
 
 nU = 0
 do i=0,7
-  if (iand(iU,2**i) == 2**i) nU = nU+1
+  if (btest(iU,i)) nU = nU+1
 end do
 
 return

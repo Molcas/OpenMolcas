@@ -30,9 +30,8 @@ implicit none
 integer(kind=iwp) :: LuSpool
 logical(kind=iwp) :: Dummy_Call
 #include "print.fh"
-integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, iSetAll, istatus, iTmp, ixyz, j, jStrt, &
-                     kPrint, Lu, Lu_UDC, Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, Mask, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, &
-                     nSupSy
+integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, ixyz, j, jStrt, kPrint, Lu, &
+                     Lu_UDC, Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
 real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
 logical(kind=iwp) :: Expert, Explicit_IRC, External_UDC, FirstNum, Found, Manual_Beta, ThrInp
 character(len=180) :: Chr, Key
@@ -57,7 +56,6 @@ call Symmetry_Info_Get()
 call Init_Slapaf()
 nsAtom = size(Coor,2)
 iPrint = nPrint(iRout)
-iSetAll = 2**30-1
 
 call f_Inquire('UDC.Gateway',External_UDC)
 
@@ -195,17 +193,19 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** C1-D ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**0-2**1-2**2-2**3
-        iOptC = ior(2**1,iand(iOptC,Mask))
+        iOptC = ibclr(iOptC,0)
+        iOptC = ibset(iOptC,1)
+        iOptC = ibclr(iOptC,2)
+        iOptC = ibclr(iOptC,3)
 
       case ('C2-D')
         !                                                              *
         !***** C2-D ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**0-2**1-2**2-2**3
-        iOptC = ior(2**2,iand(iOptC,Mask))
+        iOptC = ibclr(iOptC,0)
+        iOptC = ibclr(iOptC,1)
+        iOptC = ibset(iOptC,2)
+        iOptC = ibclr(iOptC,3)
 
       case ('CART')
         !                                                              *
@@ -318,17 +318,17 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** DXDX ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**4-2**5-2**6
-        iOptC = ior(2**4,iand(iOptC,Mask))
+        iOptC = ibset(iOptC,4)
+        iOptC = ibclr(iOptC,5)
+        iOptC = ibclr(iOptC,6)
 
       case ('DXG ','GDX ')
         !                                                              *
         !***** DXG  ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**4-2**5-2**6
-        iOptC = ior(2**5,iand(iOptC,Mask))
+        iOptC = ibclr(iOptC,4)
+        iOptC = ibset(iOptC,5)
+        iOptC = ibclr(iOptC,6)
 
       case ('END ')
         exit
@@ -373,9 +373,9 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** GG   ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**4-2**5-2**6
-        iOptC = ior(2**6,iand(iOptC,Mask))
+        iOptC = ibclr(iOptC,4)
+        iOptC = ibclr(iOptC,4)
+        iOptC = ibset(iOptC,4)
 
       case ('GNRM')
         !                                                              *
@@ -419,19 +419,19 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         read(Chr,*) Chr
         call UpCase(Chr)
         if (trim(Chr) == 'BFGS') then
-          iOptH = 4
+          iOptH = ibset(0,2)
         !else if (trim(Chr) == 'MEYER') then
-        !  iOptH = ior(1,iAnd(iOptH,32))
+        !  iOptH = ibset(0,0)
         !else if (trim(Chr) == 'BP') then
-        !  iOptH = ior(2,iAnd(iOptH,32))
+        !  iOptH = ibset(0,1)
         else if (trim(Chr) == 'NONE') then
-          iOptH = ior(8,iand(iOptH,32))
+          iOptH = ibset(0,3)
         else if (trim(Chr) == 'MSP') then
-          iOptH = ior(16,iand(iOptH,32))
+          iOptH = ibset(0,4)
         else if (trim(Chr) == 'EU') then
-          iOptH = ior(64,iand(iOptH,32))
+          iOptH = ibset(0,5)
         else if (trim(Chr) == 'TS-BFGS') then
-          iOptH = ior(128,iand(iOptH,32))
+          iOptH = ibset(0,6)
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
           write(Lu,*)
@@ -675,9 +675,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** NEWT ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**0-2**1-2**2-2**3
-        iOptC = ior(2**0,iand(iOptC,Mask))
+        iOptC = ibset(iOptC,0)
+        iOptC = ibclr(iOptC,1)
+        iOptC = ibclr(iOptC,2)
+        iOptC = ibclr(iOptC,3)
 
       case ('NOEM')
         !                                                              *
@@ -715,22 +716,20 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** NO VDWB VdW correction both coordinate and Hessian ******
         !                                                              *
-        Mask = iSetAll-2**10-2**11
-        iOptC = iand(Mask,iOptC)
+        iOptC = ibclr(iOptC,10)
+        iOptC = ibclr(iOptC,11)
 
       case ('NOWC')
         !                                                              *
         !***** NO VDWB VdW correction for coordinate only **************
         !                                                              *
-        Mask = iSetAll-2**11
-        iOptC = iand(Mask,iOptC)
+        iOptC = ibclr(iOptC,11)
 
       case ('NOWH')
         !                                                              *
         !***** NO VDWB VdW correction for Hessian only *****************
         !                                                              *
-        Mask = iSetAll-2**10
-        iOptC = iand(Mask,iOptC)
+        iOptC = ibclr(iOptC,10)
 
       case ('NUME')
         !                                                              *
@@ -780,9 +779,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** RATI ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**0-2**1-2**2-2**3
-        iOptC = ior(2**3,iand(iOptC,Mask))
+        iOptC = ibclr(iOptC,0)
+        iOptC = ibclr(iOptC,1)
+        iOptC = ibclr(iOptC,2)
+        iOptC = ibset(iOptC,3)
 
       case ('REDU')
         !                                                              *
@@ -849,9 +849,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** RS-P ****************************************************
         !                                                              *
-        Mask = iSetAll
-        Mask = Mask-2**9
-        iOptC = iand(iOptC,Mask)
+        iOptC = ibclr(iOptC,9)
 
       case ('RTRN')
         !                                                              *
@@ -956,8 +954,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** TS   ****************************************************
         !                                                              *
-        Mask = iSetAll-2**7
-        iOptC = iand(Mask,iOptC)
+        iOptC = ibclr(iOptC,7)
 
       case ('TSCO')
         !                                                              *
@@ -981,20 +978,20 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         !***** VDWB VdW correction both coordinate and Hessian *********
         !                                                              *
-        iOptC = ior(1024,iOptC)
-        iOptC = ior(2048,iOptC)
+        iOptC = ibset(iOptC,10)
+        iOptC = ibset(iOptC,11)
 
       case ('VDWC')
         !                                                              *
         !***** VDWB VdW correction for coordinate only *****************
         !                                                              *
-        iOptC = ior(2048,iOptC)
+        iOptC = ibset(iOptC,11)
 
       case ('VDWH')
         !                                                              *
         !***** VDWB VdW correction for Hessian only ********************
         !                                                              *
-        iOptC = ior(1024,iOptC)
+        iOptC = ibset(iOptC,10)
 
       case ('WIND')
         !                                                              *
@@ -1220,14 +1217,14 @@ if (Explicit_IRC) call mma_deallocate(TmpRx)
 
 if (FindTS) then
 
-  if (iand(iOptH,64) == 64) then
-    iOptH = ior(64,iand(iOptH,32)) ! EU
-  else if (iand(iOptH,128) == 128) then
-    iOptH = ior(128,iand(iOptH,32)) ! TS-BFGS
+  if (btest(iOptH,5)) then
+    iOptH = ibset(0,5) ! EU
+  else if (btest(iOptH,6)) then
+    iOptH = ibset(0,6) ! TS-BFGS
   else
-    iOptH = ior(16,iand(iOptH,32)) ! MSP
+    iOptH = ibset(0,4) ! MSP
   end if
-  iOptC = ior(iOptC,4096)
+  iOptC = ibset(iOptC,12)
 
   ! Increase the update window so that we will not lose the update
   ! which generated the negative curvature.
@@ -1239,8 +1236,8 @@ end if
 !                                                                      *
 ! Modify some options if TS search
 
-if (iand(iOptC,128) /= 128) then
-  if (iand(iOptH,8) /= 8) iOptH = ior(16,iand(iOptH,32)) ! MSP
+if (.not. btest(iOptC,7)) then
+  if (.not. btest(iOptH,3)) iOptH = ibset(0,4) ! MSP
   Line_search = .false.
 end if
 !                                                                      *
@@ -1260,13 +1257,13 @@ if (Found .and. (nSaddle /= 0)) then
     ! Enable FindTS procedure
 
     !write(u6,*) 'Enable FindTS procedure'
-    if (iand(iOptH,8) /= 8) iOptH = ior(16,iand(iOptH,32)) ! MSP
+    if (.not. btest(iOptH,3)) iOptH = ibset(0,4) ! MSP
     nWndw = 4*nWndw
     ! make it look as if this were FindTS with constraints
     FindTS = .true.
     TSConstraints = .true.
-    iOptC = ior(iOptC,4096)
-    iOptC = ior(iOptC,8192)
+    iOptC = ibset(iOptC,12)
+    iOptC = ibset(iOptC,13)
     Beta = 0.1_wp
 
   else
@@ -1300,7 +1297,7 @@ call mma_allocate(Lbl,nLbl,Label='Lbl')
 ! Modify some options if constraints are part of the calculation.
 
 if ((nLambda > 0) .or. TSConstraints) then
-  iOptC = ior(iOptC,256) ! Constraints
+  iOptC = ibset(iOptC,8) ! Constraints
   Line_search = .false.
 end if
 !                                                                      *

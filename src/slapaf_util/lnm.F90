@@ -116,7 +116,7 @@ if (Analytic_Hessian) then
   if (RunOld) call NameRun('RUNOLD')
   call Get_iScalar('HessIter',IterHess)
   if (RunOld) call NameRun('#Pop')
-  if (IterHess == nIter) iOptH = ior(8,iand(iOptH,32))
+  if (IterHess == nIter) iOptH = ibset(0,3)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

@@ -24,14 +24,13 @@ private
 ! Beta_Disp  The threshold for restricted variance optimization.
 !
 !     Hessian update
-! 0   iOptH=00000001 (  1) Meyer (disabled)
-! 1   iOptH=00000010 (  2) BP (disabled)
-! 2   iOptH=00000100 (  4) BFGS
-! 3   iOptH=00001000 (  8) None
-! 4   iOptH=00010000 ( 16) MPS, for TS search
-! 5   iOptH=..1..... ( 32) Not used
-! 6   iOptH=01000000 ( 64) EU, for TS search
-! 7   iOptH=10000000 (128) TS-BFGS, for TS search
+! 0   iOptH=0000001 ( 1) Meyer (disabled)
+! 1   iOptH=0000010 ( 2) BP (disabled)
+! 2   iOptH=0000100 ( 4) BFGS
+! 3   iOptH=0001000 ( 8) None
+! 4   iOptH=0010000 (16) MPS, for TS search
+! 5   iOptH=0100000 (32) EU, for TS search
+! 6   iOptH=1000000 (64) TS-BFGS, for TS search
 !
 ! Optimization method. DO NOT EVER GO BEYOND BIT 30!!!
 !

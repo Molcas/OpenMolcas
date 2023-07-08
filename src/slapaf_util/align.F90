@@ -64,7 +64,7 @@ do iAt=1,nAtom
   do i=0,2
     if (Ref(iAdr+i) /= Zero) then
       do iIrrep=0,nIrrep-1
-        if (iand(2**i,iOper(iIrrep)) /= 0) iChxyz = ior(iChxyz,2**i)
+        if (btest(iOper(iIrrep),i)) iChxyz = ibset(iChxyz,i)
       end do
     end if
   end do

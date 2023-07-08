@@ -121,7 +121,7 @@ Box: do Ir=1,Nr
   else
 
     test = exp(alpha*(r0**2-rij2))
-    if (iand(iOptC,2048) == 2048) then
+    if (btest(iOptC,11)) then
       r0_vdW = r_ref_vdW(iRow,jRow)
       test_vdW = exp(-alpha_vdW*(r0_vdW-sqrt(rij2))**2)
     else

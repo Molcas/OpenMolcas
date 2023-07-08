@@ -194,7 +194,7 @@ do iBond=1,nBonds
         !  f_Const = A_Str/(Rab-B_Str(ij))**3
         !end if
       else
-        if ((iand(iOptC,2048) == 2048) .and. (iBondType == 1)) then
+        if (btest(iOptC,11) .and. (iBondType == 1)) then
           r0 = r_ref_vdW(iRow,jRow)
           f_Const = rkr_vdW*exp(-Alpha_vdW*(Rab-r0)**2)
         else

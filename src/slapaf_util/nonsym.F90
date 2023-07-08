@@ -20,12 +20,12 @@ real(kind=wp) :: A(3), Tx(3)
 integer(kind=iwp) :: iStab
 
 do iStab=0,nStab-1
-  if ((A(1) /= Zero) .and. (iand(jStab(iStab),1)) /= 0) cycle
-  if ((A(2) /= Zero) .and. (iand(jStab(iStab),2)) /= 0) cycle
-  if ((A(3) /= Zero) .and. (iand(jStab(iStab),4)) /= 0) cycle
-  if (iand(jStab(iStab),1) /= 0) Tx(1) = Zero
-  if (iand(jStab(iStab),2) /= 0) Tx(2) = Zero
-  if (iand(jStab(iStab),4) /= 0) Tx(3) = Zero
+  if ((A(1) /= Zero) .and. btest(jStab(iStab),0)) cycle
+  if ((A(2) /= Zero) .and. btest(jStab(iStab),1)) cycle
+  if ((A(3) /= Zero) .and. btest(jStab(iStab),2)) cycle
+  if (btest(jStab(iStab),0)) Tx(1) = Zero
+  if (btest(jStab(iStab),1)) Tx(2) = Zero
+  if (btest(jStab(iStab),2)) Tx(3) = Zero
 end do
 
 return

@@ -361,8 +361,8 @@ end if
 
 do jIter=iSt,iEnd,-1
   Proc_H = HSet .and. (jIter == iRef) .and. (.not. lOld)
-  ! iOptC(256) = constrained optimization
-  Proc_dB = Proc_H .and. (Analytic_Hessian .or. Numerical .or. (iand(iOptC,256) == 256))
+  ! iOptC(8) = constrained optimization
+  Proc_dB = Proc_H .and. (Analytic_Hessian .or. Numerical .or. btest(iOptC,8))
   ! Compute and store dBQQ in the reference structure
   if (Proc_dB) then
     if (allocated(dBM)) call mma_deallocate(dBM)

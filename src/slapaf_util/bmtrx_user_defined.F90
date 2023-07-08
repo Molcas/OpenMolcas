@@ -62,8 +62,8 @@ BMx(:,:) = Zero
 ! Compute the B matrix in symmetry distinct basis and the
 ! internal coordinates.
 
-! iOptC(256) = constrained optimization
-Proc_dB = HSet .and. (.not. lOld) .and. (Analytic_Hessian .or. Numerical .or. (iand(iOptC,256) == 256))
+! iOptC(8) = constrained optimization
+Proc_dB = HSet .and. (.not. lOld) .and. (Analytic_Hessian .or. Numerical .or. btest(iOptC,8))
 ! Compute and store dBQQ in the reference structure
 if (Proc_dB) then
   ! Not implimented, sorry

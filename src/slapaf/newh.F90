@@ -130,7 +130,7 @@ else if (btest(iOptH,4)) then
 # endif
   call MSP(H,dg,dq(1,nIter-1),nInter)
 
-else if (btest(iOptH,6)) then
+else if (btest(iOptH,5)) then
 
   ! EU update
 
@@ -146,7 +146,7 @@ else if (btest(iOptH,6)) then
 
   call EU(dq(1,nIter-1),dg,gi,H,nInter)
 
-else if (btest(iOptH,7)) then
+else if (btest(iOptH,6)) then
 
   ! TS_BFGS update
 

@@ -36,7 +36,7 @@ SymDsp = .true.
 mask = 0
 do i=0,nIrrep-1
   do j=1,3
-    if (iand(iOper(i),2**(j-1)) /= 0) mask = ior(mask,2**(j-1))
+    if (btest(iOper(i),j-1)) mask = ibset(mask,j-1)
   end do
 end do
 jBsFnc = iand(mask,iBsFnc)

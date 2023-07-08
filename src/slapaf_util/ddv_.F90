@@ -298,7 +298,7 @@ do iBond=1,nBonds
     r0 = rAv(kr,lr)
     alpha = aAv(kr,lr)
     gmm = rkr*exp(alpha*(r0**2-rkl2))
-    if (iand(iOptC,1024) == 1024) then
+    if (btest(iOptC,10)) then
       r0_vdW = r_ref_vdW(kr,lr)
       g_vdW = rkr_vdW*exp(-alpha_vdW*(r0_vdW-sqrt(rkl2))**2)
     else
@@ -418,7 +418,7 @@ if (nBonds >= 2) then
           amj = aAv(mr,jr)
           gim = exp(ami*(r0mi**2-rmi2))
           gjm = exp(amj*(r0mj**2-rmj2))
-          if (iand(iOptC,1024) == 1024) then
+          if (btest(iOptC,10)) then
             r0_vdW_im = r_ref_vdW(ir,mr)
             g_vdW_im = exp(-alpha_vdW*(r0_vdW_im-sqrt(rmi2))**2)
             r0_vdW_jm = r_ref_vdW(jr,mr)
@@ -686,7 +686,7 @@ if (nBonds >= 3) then
           g_ij = exp(aij*(rij0-rij2))
           g_jk = exp(ajk*(rjk0-rjk2))
           g_kl = exp(akl*(rkl0-rkl2))
-          if (iand(iOptC,1024) == 1024) then
+          if (btest(iOptC,10)) then
             r0_vdW_ij = r_ref_vdW(ir,jr)
             g_vdW_ij = exp(-alpha_vdW*(r0_vdW_ij-sqrt(rij2))**2)
             r0_vdW_jk = r_ref_vdW(jr,kr)

@@ -35,11 +35,11 @@ do iAtom=1,nAtom
 
   do ig=1,nIrrep-1
     r(1) = One
-    if (iand(iOper(ig),1) /= 0) r(1) = -One
+    if (btest(iOper(ig),0)) r(1) = -One
     r(2) = One
-    if (iand(iOper(ig),2) /= 0) r(2) = -One
+    if (btest(iOper(ig),1)) r(2) = -One
     r(3) = One
-    if (iand(iOper(ig),4) /= 0) r(3) = -One
+    if (btest(iOper(ig),2)) r(3) = -One
     x = r(1)*Cart(1,iAtom)
     y = r(2)*Cart(2,iAtom)
     z = r(3)*Cart(3,iAtom)

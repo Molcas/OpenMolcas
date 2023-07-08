@@ -20,7 +20,7 @@ integer(kind=iwp) :: i
 
 iU = 0
 do i=0,nStab-1
-  iU = ior(iU,2**iStab(i))
+  iU = ibset(iU,iStab(i))
 end do
 
 return

@@ -12,7 +12,7 @@
 subroutine Start_Last_Energy()
 
 use RunFile_procedures, only: Get_Coord_New
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -121,9 +121,9 @@ do ixyz=1,nCent
   Ind(ixyz,2) = iPhase
   call dcopy_(3,Coor(1,jsAtom),1,xyz(1,ixyz),1)
   ! Generate actual coordinate
-  if (iand(iPhase,1) /= 0) xyz(1,ixyz) = -xyz(1,ixyz)
-  if (iand(iPhase,2) /= 0) xyz(2,ixyz) = -xyz(2,ixyz)
-  if (iand(iPhase,4) /= 0) xyz(3,ixyz) = -xyz(3,ixyz)
+  if (btest(iPhase,0)) xyz(1,ixyz) = -xyz(1,ixyz)
+  if (btest(iPhase,1)) xyz(2,ixyz) = -xyz(2,ixyz)
+  if (btest(iPhase,2)) xyz(3,ixyz) = -xyz(3,ixyz)
   if (Typ == 'DISSOC') qMss(ixyz) = dMass(jsAtom)
   iFrst = iEnd+1
 end do
@@ -212,22 +212,22 @@ do ixyz=1,nCent
 
   ! Restrict loop to the stabilizers of the center.
   do iIrrep=0,nIrrep-1
-    if ((Coor(1,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),1) /= 0)) cycle
-    if ((Coor(2,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),2) /= 0)) cycle
-    if ((Coor(3,jsAtom) /= Zero) .and. (iand(iOper(iIrrep),4) /= 0)) cycle
+    if ((Coor(1,jsAtom) /= Zero) .and. btest(iOper(iIrrep),0)) cycle
+    if ((Coor(2,jsAtom) /= Zero) .and. btest(iOper(iIrrep),1)) cycle
+    if ((Coor(3,jsAtom) /= Zero) .and. btest(iOper(iIrrep),2)) cycle
 
-    if (iand(iOper(iIrrep),1) /= 0) tx = Zero
-    if (iand(iOper(iIrrep),2) /= 0) ty = Zero
-    if (iand(iOper(iIrrep),4) /= 0) tz = Zero
+    if (btest(iOper(iIrrep),0)) tx = Zero
+    if (btest(iOper(iIrrep),1)) ty = Zero
+    if (btest(iOper(iIrrep),2)) tz = Zero
   end do
 
   ! Step ii
 
   ! Rotate vector back to the unique center
 
-  if (iand(iPhase,1) /= 0) tx = -tx
-  if (iand(iPhase,2) /= 0) ty = -ty
-  if (iand(iPhase,4) /= 0) tz = -tz
+  if (btest(iPhase,0)) tx = -tx
+  if (btest(iPhase,1)) ty = -ty
+  if (btest(iPhase,2)) tz = -tz
   TMtrx(1,jsAtom,1,ixyz) = tx
   TMtrx(2,jsAtom,2,ixyz) = ty
   TMtrx(3,jsAtom,3,ixyz) = tz

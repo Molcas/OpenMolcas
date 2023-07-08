@@ -211,7 +211,7 @@ do isAtom=1,size(Coor,2)
   do i=1,3
     if (Coor(i,isAtom) /= Zero) then
       do iIrrep=0,nIrrep-1
-        if (iand(2**(i-1),iOper(iIrrep)) /= 0) iChxyz = ior(iChxyz,2**(i-1))
+        if (btest(iOper(iIrrep),i-1)) iChxyz = ibset(iChxyz,i-1)
       end do
     end if
   end do

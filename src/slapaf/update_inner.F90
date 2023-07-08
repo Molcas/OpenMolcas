@@ -104,7 +104,6 @@ call mma_Allocate(RHS,kIter+1)
 
 if (Kriging_Hessian) then
   iOptH_ = ibset(0,3)
-  if (btest(iOptH,5)) iOptH_ = ibset(iOptH_,5)
 else
   iOptH_ = iOptH
 end if

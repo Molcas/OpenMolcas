@@ -20,8 +20,8 @@ integer(kind=iwp) :: i
 
 iUR = 0
 do i=0,7
-  if (iand(iU,2**i) == 2**i) then
-    iUR = ior(iUR,2**ieor(i,iR))
+  if (btest(iU,i)) then
+    iUR = ibset(iUR,ieor(i,iR))
   end if
 end do
 !write(u6,*) ' iUR=',iUR

@@ -105,7 +105,7 @@ if (iPrint >= 5) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if (iand(iOptC,256) == 256) then
+  if (btest(iOptC,8)) then
 
     write(Lu,'(1X,A)') '-Constrained optimization.'
 
@@ -146,7 +146,7 @@ if (iPrint >= 5) then
       write(Lu,'(1X,A)') '-The optimization will home in on a transition state if:'
       write(Lu,'(A)') '  a) Negative curvature is encountered, and'
       write(Lu,'(A,F10.4)') '  b) the norm of the gradient is below:',GNrm_Threshold
-      if (iand(iOptC,512) == 512) then
+      if (btest(iOptC,9)) then
         write(Lu,'(A)') '  TS-search by RS-I-RFO.'
         !if (Kriging) then
         !  write(Lu,'(A)') '  TS-search by RV-I-RFO.'
@@ -166,16 +166,16 @@ if (iPrint >= 5) then
   end if
   write(Lu,*)
 
-  if (iand(iOptC,128) == 128) then
+  if (btest(iOptC,7)) then
     write(Lu,'(1X,A)') '-Optimization for minimum.'
-    if (iand(iOptC,1) == 1) then
+    if (btest(iOptC,0)) then
       write(Lu,'(A)') '  Optimization method: quasi-NR.'
-    else if (iand(iOptC,2) == 2) then
+    else if (btest(iOptC,1)) then
       write(Lu,'(A)') '  Optimization method: C1-DIIS.'
-    else if (iand(iOptC,4) == 4) then
+    else if (btest(iOptC,2)) then
       write(Lu,'(A)') '  Optimization method: C2-DIIS.'
 
-    else if (iand(iOptC,8) == 8) then
+    else if (btest(iOptC,3)) then
       if (Kriging) then
         write(Lu,'(A)') '  Optimization method: RVO.'
       else
@@ -188,7 +188,7 @@ if (iPrint >= 5) then
     end if
   else
     write(Lu,'(1X,A)') '-Optimization for transition state.'
-    if (iand(iOptC,512) == 512) then
+    if (btest(iOptC,9)) then
       write(Lu,'(A)') '  Optimization method: RS-I-RFO'
       !if (Kriging) then
       !  write(Lu,'(A)') '  Optimization method: RV-I-RFO'
@@ -216,12 +216,12 @@ if (iPrint >= 5) then
   !                                                                    *
   ! Special options on DIIS
 
-  if ((iand(iOptC,2) == 2) .or. (iand(iOptC,4) == 4)) then
-    if (iand(iOptC,16) == 16) then
+  if (btest(iOptC,1) .or. btest(iOptC,2)) then
+    if (btest(iOptC,4)) then
       write(Lu,'(1X,A)') '-DIIS based on <dx|dx>.'
-    else if (iand(iOptC,32) == 32) then
+    else if (btest(iOptC,5)) then
       write(Lu,'(1X,A)') '-DIIS based on <g|dx>.'
-    else if (iand(iOptC,64) == 64) then
+    else if (btest(iOptC,6)) then
       write(Lu,'(1X,A)') '-DIIS based on <g|g>.'
     else
       call WarningMessage(2,' WrInp: Wrong iOptC setting!')
@@ -247,7 +247,7 @@ if (iPrint >= 5) then
           write(Lu,'(1X,A)') '-Hessian guessed by Kriging surrogate surface.'
         else
           write(Lu,'(1X,A)') '-Initial Hessian guessed by Hessian Model Function (HMF).'
-          if (iand(iOptC,1024) == 1024) then
+          if (btest(iOptC,10)) then
             write(Lu,'(A)') '  HMF augmented with weak interactions.'
           end if
         end if
@@ -269,30 +269,27 @@ if (iPrint >= 5) then
   ! Hessian update method
 
   if (.not. Kriging) then
-    if (iand(iOptH,1) == 1) then
+    if (btest(iOptH,0)) then
       write(Lu,'(1X,A)') '-Hessian update method: Fletcher-Meyer'
-    else if (iand(iOptH,2) == 2) then
+    else if (btest(iOptH,1)) then
       write(Lu,'(1X,A)') '-Hessian update method: Broyden-Powell'
-    else if (iand(iOptH,4) == 4) then
+    else if (btest(iOptH,2)) then
       write(Lu,'(1X,A)') '-Hessian update method: Broyden-Fletcher-Goldfarb-Shanno'
-    else if (iand(iOptH,8) == 8) then
+    else if (btest(iOptH,3)) then
       write(Lu,'(1X,A)') '-Hessian update method: none'
-    else if (iand(iOptH,16) == 16) then
+    else if (btest(iOptH,4)) then
       write(Lu,'(1X,A)') '-Hessian update method: Murtagh-Sargent-Powell'
-    else if (iand(iOptH,64) == 64) then
+    else if (btest(iOptH,5)) then
       write(Lu,'(1X,A)') '-Hessian update method: EU update by Bofill'
-    else if (iand(iOptH,128) == 128) then
+    else if (btest(iOptH,6)) then
       write(Lu,'(1X,A)') '-Hessian update method: TS-BFGS update by Bofill'
     else
       call WarningMessage(2,' WrInp: Wrong iOptH setting!')
       write(Lu,*) ' Nonrecognizable iOptH setting:',iOptH
       call Abend()
     end if
-    if (.not. (iand(iOptH,8) == 8)) then
+    if (.not. btest(iOptH,3)) then
       write(Lu,'(A,I3)') '  Maximum number of points in Hessian update:',nWndw
-    end if
-    if (iand(iOptH,32) == 32) then
-      write(Lu,'(A)') '  Hessian update order according to Schlegel'
     end if
     write(Lu,*)
   end if
