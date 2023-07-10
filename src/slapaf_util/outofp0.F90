@@ -72,9 +72,7 @@ CosFi1 = e43x*e42x+e43y*e42y+e43z*e42z
 Fi1 = ArCos(CosFi1)
 if (abs(CosFi1) > One) call RecPrt('xyz(1)',' ',xyz,3,4)
 dFi1 = Fi1/deg2rad
-if ((dFi1 > 177.5_wp) .or. (dFi1 < 2.5_wp)) then
-  write(u6,*) 'Warning: auxiliary Angle close to end of range'
-end if
+if ((dFi1 > 177.5_wp) .or. (dFi1 < 2.5_wp)) write(u6,*) 'Warning: auxiliary Angle close to end of range'
 
 ! Dirty exit! This happens when an earlier structure is ill defined.
 
@@ -90,9 +88,7 @@ CosFi2 = e41x*e43x+e41y*e43y+e41z*e43z
 Fi2 = ArCos(CosFi2)
 if (abs(CosFi2) > One) call RecPrt('xyz(2)',' ',xyz,3,4)
 dFi2 = Fi2/deg2rad
-if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) then
-  write(u6,*) 'Warning: auxiliary Angle close to end of range'
-end if
+if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) write(u6,*) 'Warning: auxiliary Angle close to end of range'
 
 ! Get the angle between e41 and e42
 
@@ -101,9 +97,7 @@ CosFi3 = e41x*e42x+e41y*e42y+e41z*e42z
 Fi3 = ArCos(CosFi3)
 if (abs(CosFi3) > One) call RecPrt('xyz(3)',' ',xyz,3,4)
 dFi3 = Fi3/deg2rad
-if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) then
-  write(u6,*) 'Warning: auxiliary Angle close to end of range'
-end if
+if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) write(u6,*) 'Warning: auxiliary Angle close to end of range'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -115,17 +109,13 @@ call RecPrt('xyz',' ',xyz,3,nCent)
 !                                                                      *
 ! The first two centers are trivially
 
-call dcopy_(3,xyz(1,1),1,C14X(1,1),1)
-call dcopy_(3,xyz(1,4),1,C14X(1,2),1)
+C14X(:,1) = xyz(:,1)
+C14X(:,2) = xyz(:,4)
 
 ! The 3rd is
 
-R42(1) = xyz(1,2)-xyz(1,4)
-R42(2) = xyz(2,2)-xyz(2,4)
-R42(3) = xyz(3,2)-xyz(3,4)
-R43(1) = xyz(1,3)-xyz(1,4)
-R43(2) = xyz(2,3)-xyz(2,4)
-R43(3) = xyz(3,3)-xyz(3,4)
+R42(:) = xyz(:,2)-xyz(:,4)
+R43(:) = xyz(:,3)-xyz(:,4)
 C14X(1,3) = R42(2)*R43(3)-R42(3)*R43(2)
 C14X(2,3) = R42(3)*R43(1)-R42(1)*R43(3)
 C14X(3,3) = R42(1)*R43(2)-R42(2)*R43(1)
@@ -137,9 +127,7 @@ if ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2) < 1.0e-10_wp) then
   Teta = Zero
   return
 end if
-C14X(1,3) = C14X(1,3)+xyz(1,4)
-C14X(2,3) = C14X(2,3)+xyz(2,4)
-C14X(3,3) = C14X(3,3)+xyz(3,4)
+C14X(:,3) = C14X(:,3)+xyz(:,4)
 
 mCent = 3
 call Bend(C14X,mCent,Teta,BR14X,.false.,.false.,Label,dBR14X,ldB)

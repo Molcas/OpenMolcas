@@ -29,9 +29,7 @@ iPrint = nPrint(iRout)
 
 Lu = u6
 
-if (lNmHss) then
-  lOld = .false.
-end if
+if (lNmHss) lOld = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -247,9 +245,7 @@ if (iPrint >= 5) then
           write(Lu,'(1X,A)') '-Hessian guessed by Kriging surrogate surface.'
         else
           write(Lu,'(1X,A)') '-Initial Hessian guessed by Hessian Model Function (HMF).'
-          if (btest(iOptC,10)) then
-            write(Lu,'(A)') '  HMF augmented with weak interactions.'
-          end if
+          if (btest(iOptC,10)) write(Lu,'(A)') '  HMF augmented with weak interactions.'
         end if
       end if
     else if (lOld .and. (.not. lNmHss)) then
@@ -257,9 +253,7 @@ if (iPrint >= 5) then
     else
       write(Lu,'(1X,A,/,A,E9.2)') '-Initial Hessian guess is estimated with finite differences.', &
                                   '    Two point symmetric formula, Delta=',Delta
-      if (Cubic) then
-        write(Lu,'(1X,A)') '-Cubic force constants evaluated numerically.'
-      end if
+      if (Cubic) write(Lu,'(1X,A)') '-Cubic force constants evaluated numerically.'
     end if
   end if
   write(Lu,*)
@@ -288,9 +282,7 @@ if (iPrint >= 5) then
       write(Lu,*) ' Nonrecognizable iOptH setting:',iOptH
       call Abend()
     end if
-    if (.not. btest(iOptH,3)) then
-      write(Lu,'(A,I3)') '  Maximum number of points in Hessian update:',nWndw
-    end if
+    if (.not. btest(iOptH,3)) write(Lu,'(A,I3)') '  Maximum number of points in Hessian update:',nWndw
     write(Lu,*)
   end if
   !                                                                    *

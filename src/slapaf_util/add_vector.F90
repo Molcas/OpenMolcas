@@ -33,7 +33,6 @@
 
 subroutine Add_Vector(n,m,Sub,Vec,Thr)
 
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -44,21 +43,18 @@ real(kind=wp) :: Aux
 real(kind=wp), external :: DDot_
 
 do i=1,m
-  Aux = DDot_(n,Sub(1,i),1,Vec,1)
-  call daxpy_(n,-Aux,Sub(1,i),1,Vec,1)
+  Vec(:) = Vec(:)-DDot_(n,Sub(:,i),1,Vec,1)*Sub(:,i)
 end do
 Aux = DDot_(n,Vec,1,Vec,1)
 if (abs(Aux) > Thr) then
   ! Safety net: orthonormalize again before adding it
-  call dscal_(n,One/sqrt(Aux),Vec,1)
+  Vec(:) = Vec(:)/sqrt(Aux)
   do i=1,m
-    Aux = DDot_(n,Sub(1,i),1,Vec,1)
-    call daxpy_(n,-Aux,Sub(1,i),1,Vec,1)
+    Vec(:) = Vec(:)-DDot_(n,Sub(:,i),1,Vec,1)*Sub(:,i)
   end do
-  m = m+1
   Aux = DDot_(n,Vec,1,Vec,1)
-  call dscal_(n,One/sqrt(Aux),Vec,1)
-  call dcopy_(n,Vec,1,Sub(1,m),1)
+  m = m+1
+  Sub(:,m) = Vec(:)/sqrt(Aux)
 end if
 
 end subroutine Add_Vector

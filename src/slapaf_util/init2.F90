@@ -15,7 +15,7 @@ use Slapaf_Parameters, only: iter, lOld_Implicit, MaxItr, mTROld, NADC, TwoRunFi
 use Slapaf_Info, only: Coor, Cx, DipM, dqInt, dqInt_Aux, Energy, Energy0, Get_Slapaf, Grd, Gx, Gx0, NAC, qInt, RefGeo
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -77,9 +77,8 @@ if (lMMGrd) then
   do i_N=1,iter-1
     write(u6,*) 'Grad at iteration :',i_N
     call RecPrt('Old:',' ',Gx(:,:,i_N),3,size(Coor,2))
-    call DaXpY_(3*size(Coor,2),-One,MMGrd(:,1),1,Gx(:,:,i_N),1)
-    call DaXpY_(3*size(Coor,2),One,MMGrd(:,2),1,Gx(:,:,i_N),1)
-    call RecPrt('New:',' ',Gx(1,1,i_N),3,size(Coor,2))
+    Gx(:,:,i_N) = Gx(:,:,i_N)+reshape(MMGrd(:,2)-MMGrd(:,1),[3,size(Coor,2)])
+    call RecPrt('New:',' ',Gx(:,:,i_N),3,size(Coor,2))
   end do
   call mma_deallocate(MMGrd)
 end if
@@ -95,17 +94,13 @@ if (Iter == 1) then
 
   call qpg_dArray('Ref_Geom',Found,nData)
   if (Found) then
-    if (.not. allocated(RefGeo)) then
-      call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
-    end if
+    if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
     call Get_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
   else
 
     ! Not defined: default reference structure to the starting structure.
 
-    if (.not. allocated(RefGeo)) then
-      call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
-    end if
+    if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
     RefGeo(:,:) = Cx(:,:,1)
     call Put_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
   end if
@@ -113,9 +108,7 @@ else
 
   ! Pick up the reference structure.
 
-  if (.not. allocated(RefGeo)) then
-    call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
-  end if
+  if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
   call Get_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
 end if
 
@@ -142,9 +135,7 @@ else
   Is_Roots_Set = .false.
   call Qpg_iScalar('Number of roots',Is_Roots_Set)
   nRoots = 1
-  if (Is_Roots_Set) then
-    call Get_iScalar('Number of roots',nRoots)
-  end if
+  if (Is_Roots_Set) call Get_iScalar('Number of roots',nRoots)
   !write(u6,*) 'Runfile'
   !write(u6,*) 'nRoots=',nRoots
   if (nRoots /= 1) then
@@ -170,19 +161,15 @@ else
   Is_Roots_Set = .false.
   call Qpg_iScalar('Number of roots',Is_Roots_Set)
   nRoots = 1
-  if (Is_Roots_Set) then
-    call Get_iScalar('Number of roots',nRoots)
-  end if
+  if (Is_Roots_Set) call Get_iScalar('Number of roots',nRoots)
   if (nRoots /= 1) then
     call Get_iScalar('NumGradRoot',iRoot)
     !write(u6,*) 'iRoot=',iRoot
     call mma_allocate(DMs,3,nRoots,Label='DMs')
     DMs(:,:) = Zero
     call Qpg_dArray('Last Dipole Moments',Found,nDip)
-    if (Found .and. (nDip == 3*nRoots)) then
-      call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
-    end if
-    call dCopy_(3,DMs(:,iRoot),1,DipM(:,iter),1)
+    if (Found .and. (nDip == 3*nRoots)) call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
+    DipM(:,iter) = DMs(:,iRoot)
     call mma_deallocate(DMs)
   else
     call Qpg_dArray('Dipole moment',Found,nDip)
@@ -212,17 +199,13 @@ if (Columbus == 1) then
     Energy0(iter) = E0
 
     call qpg_dArray('Grad State2',Found,Length)
-    if ((.not. Found) .or. (Length == 0)) then
-      call SysAbendmsg('Get_Molecule','Did not find:','Grad State2')
-    end if
+    if ((.not. Found) .or. (Length == 0)) call SysAbendmsg('Get_Molecule','Did not find:','Grad State2')
     call Get_dArray('Grad State2',Gx0(1,1,iter),Length)
     Gx0(:,:,iter) = -Gx0(:,:,iter)
     nSet = 2
 
   end if
-  if (iMode == 3) then
-    call Get_dArray('NADC',NAC(:,:,iter),Length)
-  end if
+  if (iMode == 3) call Get_dArray('NADC',NAC(:,:,iter),Length)
 
 else
 
@@ -235,9 +218,7 @@ else
     Is_Roots_Set = .false.
     call Qpg_iScalar('Number of roots',Is_Roots_Set)
     nRoots = 1
-    if (Is_Roots_Set) then
-      call Get_iScalar('Number of roots',nRoots)
-    end if
+    if (Is_Roots_Set) call Get_iScalar('Number of roots',nRoots)
 
     !write(u6,*) 'Runfile2'
     !write(u6,*) 'nRoots=',nRoots

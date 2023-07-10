@@ -20,31 +20,27 @@ integer(kind=iwp) :: i, j, k
 real(kind=wp) :: rsum, SmallMat(3,3), tmp(3,3)
 
 call mkRotMat(SmallRot,SmallMat)
+tmp(:,:) = Zero
 do i=1,3
   do j=1,3
-    rsum = Zero
     do k=1,3
-      rsum = rsum+RotMat(i,k)*SmallMat(k,j)
+      tmp(i,j) = tmp(i,j)+RotMat(i,k)*SmallMat(k,j)
     end do
-    tmp(i,j) = rsum
   end do
 end do
-do i=1,3
-  do j=1,3
-    RotMat(i,j) = tmp(i,j)
-  end do
-end do
+RotMat(:,:) = tmp(:,:)
 ! Check for orthonormality:
 do i=1,3
   do j=1,3
-    rsum = Zero
-    if (i == j) rsum = -One
+    if (i == j) then
+      rsum = -One
+    else
+      rsum = Zero
+    end if
     do k=1,3
       rsum = rsum+RotMat(i,k)*RotMat(j,k)
     end do
-    if (abs(rsum) > 1.0e-10_wp) then
-      write(u6,*) ' UPDROTMAT ON check sum error:',rsum
-    end if
+    if (abs(rsum) > 1.0e-10_wp) write(u6,*) ' UPDROTMAT ON check sum error:',rsum
   end do
 end do
 

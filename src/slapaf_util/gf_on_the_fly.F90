@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp) :: iDo_dDipM
 integer(kind=iwp) :: iCtl, iEl, iNeg, iOff, jSym, lModes, Lu_10, lUt, mDisp(8), mSym, mTR, nAtom, nDisp, nDoF, nInter, nModes, nX
 real(kind=wp) :: DipM(3)
-real(kind=wp), allocatable :: dDipM(:), EVal(:), EVec(:), IRInt(:), NMod(:), RedMas(:), Temp(:)
+real(kind=wp), allocatable :: dDipM(:), EVal(:,:), EVec(:,:), IRInt(:), NMod(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !define _DEBUGPRINT_
@@ -37,8 +37,8 @@ nInter = nDimBC-mTROld
 mTR = mTROld
 nDoF = nDimBC
 
-call mma_allocate(EVec,2*nX**2,Label='EVec')
-call mma_allocate(EVal,2*nX,Label='EVal')
+call mma_allocate(EVec,2,nX**2,Label='EVec')
+call mma_allocate(EVal,2,nX,Label='EVal')
 call mma_allocate(RedMas,nX,Label='RedMas')
 call mma_allocate(dDipM,3*nDoF,Label='dDipM')
 dDipM(:) = Zero
@@ -90,12 +90,12 @@ Lu_10 = IsFreeUnit(Lu_10)
 call Molcas_Open(lu_10,'UNSYM')
 
 write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
-call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,Lu_10,iOff)
+call GF_Print(EVal(1,:),EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,Lu_10,iOff)
 
 close(Lu_10)
 call mma_deallocate(Temp)
 
-call Add_Info('Approx. Freq.',EVal,nInter,1)
+call Add_Info('Approx. Freq.',EVal(1,:),nInter,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -107,25 +107,23 @@ call mma_allocate(NMod,nDisp**2,Label='NMod')
 lModes = 0
 nModes = 0
 nX = nDoF
-call dcopy_(nX*nInter,EVec,2,NMod,1)
+NMod(1:nX*nInter) = EVec(1,1:nX*nInter)
 lModes = lModes+nInter*nX
 nModes = nModes+nInter
 #ifdef _DEBUGPRINT_
 call RecPrt('NModes',' ',NMod,nX,nInter)
 #endif
 
-if (nIrrep == 1) then
-  call Print_Mode_Components(NMod,EVal,nModes,lModes,mDisp)
-end if
+if (nIrrep == 1) call Print_Mode_Components(NMod,EVal(1,:),nModes,lModes,mDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Write stuff on Molden input file
 
 mSym = 1
-call ICopy(8,[0],0,mDisp,1)
+mDisp(:) = 0
 mDisp(1) = nInter
-call Freq_Molden(EVal,nModes,NMod,lModes,mSym,IRInt,mDisp,RedMas)
+call Freq_Molden(EVal(1,:),nModes,NMod,lModes,mSym,IRInt,mDisp,RedMas)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

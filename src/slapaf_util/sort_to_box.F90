@@ -28,7 +28,7 @@ integer(kind=iwp), external :: iTabRow
 !***********************************************************************
 !                                                                      *
 
-call ICopy((nMax+1)*nx*ny*nz,[0],0,iTab,1)
+iTab(:,:,:,:) = 0
 
 do iAtom=1,nAtoms
 

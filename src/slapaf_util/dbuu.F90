@@ -14,15 +14,15 @@ subroutine dBuu(uM12,nQQ,nDim,g,Hss,Inv)
 use Slapaf_Parameters, only: mq
 use Slapaf_Info, only: dBM, idBM, nqBM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nQQ, nDim
 real(kind=wp) :: uM12(nDim), g(nQQ), Hss(nDim,nDim)
 logical(kind=iwp) :: Inv
-integer(kind=iwp) :: i, i_Dim, idB, iElem, iq, iQQ, j, jDim, nElem
-real(kind=wp) :: dBqR, xx, YqR
+integer(kind=iwp) :: i, i_Dim, idB, iElem, iq, iQQ, jDim, nElem
+real(kind=wp) :: dBqR
 real(kind=wp), allocatable :: K(:,:), Temp(:,:), Y(:)
 
 if (.not. allocated(dBM)) then
@@ -38,7 +38,7 @@ call Get_dArray('K',K,mq*nQQ)
 
 Y(:) = Zero
 do iQQ=1,nQQ
-  call DaXpY_(mq,g(iQQ),K(:,iQQ),1,Y,1)
+  Y(:) = Y(:)+g(iQQ)*K(:,iQQ)
 end do
 call mma_deallocate(K)
 
@@ -49,25 +49,21 @@ Temp(:,:) = Zero
 
 idB = 1
 do iq=1,mq
-  YqR = Y(iq)
   nElem = nqBM(iq)
   do iElem=idB,idB+(nElem**2)-1
     dBqR = dBM(iElem)
     i_Dim = idBM(1+(iElem-1)*2)
     jDim = idBM(2+(iElem-1)*2)
-    Temp(i_Dim,jDim) = Temp(i_Dim,jDim)+YqR*dBqR
+    Temp(i_Dim,jDim) = Temp(i_Dim,jDim)+Y(iq)*dBqR
   end do
   idB = idB+nElem**2
 end do
 call mma_deallocate(Y)
 
-if (Inv) call DScal_(nDim**2,-One,Temp,1)
+if (Inv) Temp(:,:) = -Temp(:,:)
 
 do i=1,nDim
-  do j=1,nDim
-    xx = sqrt(uM12(i)*uM12(j))
-    Hss(i,j) = Hss(i,j)+Temp(i,j)/xx
-  end do
+  Hss(:,i) = Hss(:,i)+Temp(:,i)/sqrt(uM12(:)*uM12(i))
 end do
 
 call mma_deallocate(Temp)

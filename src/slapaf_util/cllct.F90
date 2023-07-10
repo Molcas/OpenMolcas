@@ -119,7 +119,7 @@ do ixyz=1,nCent
 
   Ind(ixyz,1) = jsAtom
   Ind(ixyz,2) = iPhase
-  call dcopy_(3,Coor(1,jsAtom),1,xyz(1,ixyz),1)
+  xyz(:,ixyz) = Coor(:,jsAtom)
   ! Generate actual coordinate
   if (btest(iPhase,0)) xyz(1,ixyz) = -xyz(1,ixyz)
   if (btest(iPhase,1)) xyz(2,ixyz) = -xyz(2,ixyz)
@@ -136,19 +136,19 @@ if (iPrint >= 99) call RecPrt(' Coordinates',' ',xyz,3,nCent)
 
 if (Typ == 'X     ') then
   Val = xyz(1,1)
-  call dcopy_(3,[Zero],0,Temp,1)
+  Temp(:,:) = Zero
   Temp(1,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
 else if (Typ == 'Y     ') then
   Val = xyz(2,1)
-  call dcopy_(3,[Zero],0,Temp,1)
+  Temp(:,:) = Zero
   Temp(2,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
 else if (Typ == 'Z     ') then
   Val = xyz(3,1)
-  call dcopy_(3,[Zero],0,Temp,1)
+  Temp(:,:) = Zero
   Temp(3,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',Val,'/ bohr'
   Deg = D_Cart(Ind,nIrrep)
@@ -198,8 +198,8 @@ if (iPrint >= 99) call RecPrt(' Transformation vector',' ',Temp,3,nCent)
 !     the multiplicity, g/u
 ! iii) sum over unique centers.
 
-call dcopy_(3*nAtom,[Zero],0,Vector,1)
-call dcopy_(3*nAtom*3*nCent,[Zero],0,TMtrx,1)
+Vector(:,:) = Zero
+TMtrx(:,:,:,:) = Zero
 do ixyz=1,nCent
   jsAtom = Ind(ixyz,1)
   iPhase = Ind(ixyz,2)

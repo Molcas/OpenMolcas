@@ -38,13 +38,13 @@ integer(kind=iwp), intent(inout) :: nQQ
 #include "print.fh"
 integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
                      iX, ixyz, jIter, LuIC, M, mIter, N, nB, nB_Tot, ndB_Tot, nK, nq, nqA, nqB, nqO, nqRF, nqT, NRHS, nX
-real(kind=wp) :: Alpha, Dum(1), temp, Thr_ElRed, Thr_raw, Thr_small
+real(kind=wp) :: Alpha, Dum(1), Thr_ElRed, Thr_raw, Thr_small
 logical(kind=iwp) :: g12K = .false., Proc, Proc_dB, Proc_H
 character(len=32) :: filnam
 character(len=14) :: cDum
 integer(kind=iwp), allocatable :: Ind(:,:)
 real(kind=wp), allocatable :: Degen2(:), EVal(:), F_c(:), G(:), GRef(:), GxR(:), K(:), KtBt(:,:), KtBu(:), KtM(:,:), Mult(:), &
-                              Proj(:), qVal(:,:), Temp2(:)
+                              Proj(:), qVal(:,:), Temp2(:,:)
 character(len=14), allocatable :: qLbl(:)
 integer(kind=iwp), external :: isfreeunit
 
@@ -243,7 +243,7 @@ if (HWRS) then
   i = 1
   do iq=1,nq
     nB = nqBM(iq)
-    call DScal_(nB,F_c(iq),BM(i),1)
+    BM(i:i+nB-1) = F_c(iq)*BM(i:i+nB-1)
     i = i+nB
   end do
 # ifdef _DEBUGPRINT_
@@ -268,7 +268,7 @@ end if
 i = 1
 do iq=1,nq
   nB = nqBM(iq)
-  call DScal_(nB,Mult(iq),BM(i),1)
+  BM(i:i+nB-1) = Mult(iq)*BM(i:i+nB-1)
   i = i+nB
 end do
 !                                                                      *
@@ -279,9 +279,7 @@ if (BSet) then
   call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
   call ElRed2(nq,nDimBC,G,EVal,K,nK,Proj,g12K,Thr_ElRed,BM,iBM,mB_Tot,nqBM)
 
-  if (nK > nQQ) then
-    call Remove_TR(nq,nDimBC,nQQ,K,nK,TRVec,mTR,BM,iBM,nqBM,mB_Tot)
-  end if
+  if (nK > nQQ) call Remove_TR(nq,nDimBC,nQQ,K,nK,TRVec,mTR,BM,iBM,nqBM,mB_Tot)
   call mma_deallocate(EVal)
   call mma_deallocate(G)
 
@@ -290,9 +288,7 @@ else
   call Get_dArray('K',K,nq*nQQ)
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('K',' ',K,nq,nQQ)
-end if
+if (iPrint >= 99) call RecPrt('K',' ',K,nq,nQQ)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -300,10 +296,10 @@ end if
 ! Print the nonreduntant coordinates.
 
 if (PrQ) then
-  call mma_allocate(Temp2,nq*nQQ,Label='Temp2')
-  call dcopy_(nQQ*nq,K,1,Temp2,1)
+  call mma_allocate(Temp2,nq,nQQ,Label='Temp2')
+  Temp2(:,:) = reshape(K(1:nq*nQQ),[nq,nQQ])
   do iq=1,nq
-    call DScal_(nQQ,One/Mult(iq),Temp2(iq),nq)
+    Temp2(iq,:) = Temp2(iq,:)/Mult(iq)
   end do
   call PrintQ(Temp2,qLbl,nq,nQQ,LuIC,Mult)
   call mma_deallocate(Temp2)
@@ -399,7 +395,7 @@ do jIter=iSt,iEnd,-1
   i = 1
   do iq=1,nq
     nB = nqBM(iq)
-    call DScal_(nB,Mult(iq),BM(i),1)
+    BM(i:i+nB-1) = Mult(iq)*BM(i:i+nB-1)
     i = i+nB
   end do
   KtBu(1:nQQ*nDimBC) = Zero
@@ -444,9 +440,7 @@ do jIter=iSt,iEnd,-1
           BMx(iX,iQQ) = KtBu(iQD)
         end do
       else
-        do iQQ=1,nQQ
-          BMx(iX,iQQ) = Zero
-        end do
+        BMx(iX,1:nQQ) = Zero
       end if
     end do
 
@@ -474,9 +468,7 @@ do jIter=iSt,iEnd,-1
     ! Strip KtB of the degeneracy factor (full).
 
     do iQQ=1,nQQ
-      do i_Dim=1,nDimBC
-        KtBt(i_Dim,iQQ) = KtBt(i_Dim,iQQ)/Degen2(i_Dim)
-      end do
+      KtBt(1:nDimBC,iQQ) = KtBt(1:nDimBC,iQQ)/Degen2(1:nDimBC)
     end do
 
     M = nDimBC
@@ -504,7 +496,7 @@ do jIter=iSt,iEnd,-1
 
     if (Proc_H) then
       call mma_allocate(KtB,nDimBC,nQQ,Label='KtB')
-      call DCopy_(nDimBC*nQQ,KtBt,1,KtB,1)
+      KtB(:,:) = KtBt(:,:)
       !call RecPrt('KtB',' ',KtB,nDimBC,nQQ)
     end if
     call mma_deallocate(KtBt)
@@ -533,8 +525,7 @@ call mma_allocate(KtM,nQQ,nq,Label='KtM')
 do iq=1,nq
   Alpha = Mult(iq)
   do iQQ=1,nQQ
-    temp = K(iq+(iQQ-1)*nq)*Alpha
-    KtM(iQQ,iq) = temp
+    KtM(iQQ,iq) = K(iq+(iQQ-1)*nq)*Alpha
   end do
 end do
 call DGEMM_('N','N',nQQ,mIter,nq,One,KtM,nQQ,qVal(:,jIter),nq,Zero,qInt(:,jIter),nQQ)

@@ -57,6 +57,7 @@ logical(kind=iwp), external :: R_Stab_A
 !***********************************************************************
 !                                                                      *
 if (nBonds < 2) return
+
 #ifdef _DEBUGPRINT_
 iRout = 150
 iPrint = nPrint(iRout)
@@ -67,7 +68,7 @@ nqA = 0
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) write(u6,*) ' Enter Bends.'
 #endif
-call FZero(Hess,81)
+Hess(:) = Zero
 
 ! Loop over bends
 
@@ -111,9 +112,9 @@ do mAtom_=1,mAtoms
     write(u6,*) 'E,R=',ChOp(iDCR(1)),ChOp(iDCR(2))
 #   endif
 
-    call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
-    call dcopy_(3,Cx(1,iAtom,iRef),1,Ref,1)
-    call dcopy_(3,Cx(1,iAtom,iPrv),1,Prv,1)
+    A(:,1) = Cx(:,iAtom,iIter)
+    Ref(:,1) = Cx(:,iAtom,iRef)
+    Prv(:,1) = Cx(:,iAtom,iPrv)
 
     do jNeighbor=1,nNeighbor_m
       jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
@@ -181,9 +182,7 @@ do mAtom_=1,mAtoms
       end if
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) then
-        write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
-      end if
+      if (iPrint >= 99) write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
 #     endif
 
       ! Form double coset representatives for ((iAtom,mAtom),jAtom)
@@ -207,9 +206,7 @@ do mAtom_=1,mAtoms
       call Inter(jStab(0,mAtom),nStab(mAtom),iStabN,nStabN,iStabM,nStabM)
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) then
-        write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-      end if
+      if (iPrint >= 99) write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #     endif
 
       ! Compute the degeneracy of the angle
@@ -337,8 +334,8 @@ do mAtom_=1,mAtoms
             if (BB < Zero) then
               !write(u6,*) ' Angle flips, corrected!'
               Val = Two*Pi-Val
-              call DScal_(9,-One,Grad_all(1,nq,iIter),1)
-              call DScal_(81,-One,Hess,1)
+              Grad_all(:,nq,iIter) = -Grad_all(:,nq,iIter)
+              Hess(:) = -Hess(:)
             end if
 
             Indq(1,nq) = 2+k
@@ -405,8 +402,8 @@ do mAtom_=1,mAtoms
             !write(u6,*) ' Angle flips, corrected!'
             !write(u6,*) ' iRef,iIter=', iRef,iIter
             Val = Two*Pi-Val
-            call DScal_(9,-One,Grad_all(1,nq,iIter),1)
-            call DScal_(81,-One,Hess,1)
+            Grad_all(:,nq,iIter) = -Grad_all(:,nq,iIter)
+            Hess(:) = -Hess(:)
           end if
 
           Indq(1,nq) = 2

@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "print.fh"
-integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, iRout, isAtom, ISPIN1, ISPIN2, itest, &
-                     jCoSet, jPrint, jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
+integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, isAtom, ISPIN1, ISPIN2, itest, jCoSet, &
+                     jPrint, jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
 real(kind=wp) :: tmp
 logical(kind=iwp) :: Do_ESPF, Exist_2, Found, Same, Skip
 character(len=8) :: CMAX
@@ -79,17 +79,11 @@ else if (iPL == 4) then
 else if (iPL == 5) then
   iPL = 99
 end if
-do iRout=1,nRout
-  nPrint(iRout) = iPL
-end do
+nPrint(:) = iPL
 
 ! Reduced print level of Slapaf parameters after the first iteration
 
-if (Reduce_Prt() .and. (iPL <= 5)) then
-  do iRout=1,nRout
-    nPrint(iRout) = iPL-1
-  end do
-end if
+if (Reduce_Prt() .and. (iPL <= 5)) nPrint(:) = iPL-1
 
 !                                                                      *
 !***********************************************************************
@@ -175,7 +169,6 @@ else
   nRoots = 1
   if (Found) call Get_iScalar('Number of roots',nRoots)
   call mma_allocate(RootMap,nRoots,Label='RootMap')
-  RootMap(:) = 0
   do i=1,nRoots
     RootMap(i) = i
   end do
@@ -244,8 +237,8 @@ do isAtom=1,size(Coor,2)
     call Abend()
   end if
   do i=1,3
-    iComp = 2**(i-1)
-    call ICopy(nCoSet,[0],0,iAdd,1)
+    iComp = ibset(0,i-1)
+    iAdd(0:nCoSet-1) = 0
     do iIrrep=0,nIrrep-1
       ! find the stabilizer index
       iTest = iand(iChxyz,iOper(iIrrep))
@@ -304,9 +297,7 @@ call mma_Allocate(Degen,3,size(Coor,2),Label='Degen')
 do isAtom=1,size(Coor,2)
   mTtAtm = mTtAtm+iDeg(Coor(:,isAtom))
   tmp = real(iDeg(Coor(:,isAtom)),kind=wp)
-  do i=1,3
-    Degen(i,isAtom) = tmp
-  end do
+  Degen(:,isAtom) = tmp
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('Degen',' ',Degen,3,size(Coor,2))

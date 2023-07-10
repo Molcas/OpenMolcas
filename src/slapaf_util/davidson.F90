@@ -42,7 +42,7 @@ real(kind=wp) :: A(n*(n+1)/2), Eig(k), Vec(n,k)
 integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, nTmp, old_mk
 real(kind=wp) :: Alpha, Aux, Conv, rDum(1)
 logical(kind=iwp) :: Augmented, Last, Reduced
-integer(kind=iwp), allocatable :: index(:)
+integer(kind=iwp), allocatable :: Indx(:)
 real(kind=wp), allocatable :: Ab(:), Diag(:), Eig_old(:), EVal(:), EVec(:), Proj(:), Sub(:), TAV(:), Tmp(:), TRes(:), TVec(:), &
                               Val(:), Vec2(:)
 integer(kind=iwp), parameter :: maxiter = 300
@@ -67,9 +67,7 @@ call TriPrt('Initial matrix','',A,n)
 ! maxk = maximum subspace size (25 if k=1)
 ! mink = subspace size to reduce to when the maximum is exceeded (5 if k=1)
 
-if (k > n) then
-  call SysAbendMsg('Davidson','Wrong k value.','')
-end if
+if (k > n) call SysAbendMsg('Davidson','Wrong k value.','')
 mink = min(max(k+2,5),n)
 maxk = min(5*mink,n)
 mk = k
@@ -81,12 +79,9 @@ iRC = 0
 if (mk >= n) then
   call mma_allocate(Val,n,Label='Val')
   call mma_allocate(Vec2,n*n,Label='Vec2')
-  call FZero(Vec,n*n)
   do j=1,n
     jj = (j-1)*n
-    do i=1,j
-      Vec2(jj+i) = A(j*(j-1)/2+i)
-    end do
+    Vec2(jj+1:jj+j) = A(j*(j-1)/2+1:j*(j+1)/2)
   end do
   call dsyev_('V','U',n,Vec2,n,Val,rDum,-1,info)
   nTmp = int(rDum(1))
@@ -96,8 +91,8 @@ if (mk >= n) then
   call SortEig(Val,Vec2,n,n,1,.false.)
   call mma_deallocate(Tmp)
 
-  call dcopy_(k,Val,1,Eig,1)
-  call dcopy_(n*k,Vec2,1,Vec,1)
+  Eig(:) = Val(1:k)
+  Vec(:,:) = reshape(Vec2(1:n*k),[n,k])
 
   call mma_deallocate(Val)
   call mma_deallocate(Vec2)
@@ -127,25 +122,25 @@ EVec(:) = Zero
 
 ! Build an index of sorted diagonal elements in A
 
-call mma_allocate(Index,n,Label='Index')
+call mma_allocate(Indx,n,Label='Indx')
 do i=1,n
-  index(i) = i
+  Indx(i) = i
 end do
 do i=1,n
-  ii = index(i)
+  ii = Indx(i)
   Aux = A(ii*(ii+1)/2)
   ii = i
   do j=i,n
-    jj = index(j)
+    jj = Indx(j)
     if (A(jj*(jj+1)/2) < Aux) then
       Aux = A(jj*(jj+1)/2)
       ii = j
     end if
   end do
   if (ii /= i) then
-    jj = index(ii)
-    index(ii) = index(i)
-    index(i) = jj
+    jj = Indx(ii)
+    Indx(ii) = Indx(i)
+    Indx(i) = jj
   end if
 end do
 
@@ -158,7 +153,7 @@ end do
 nTmp = 0
 call mma_allocate(Tmp,n,Label='Tmp')
 do i=1,k
-  call dcopy_(n,Vec(1,i),1,Tmp,1)
+  Tmp(:) = Vec(:,i)
   call Add_Vector(n,nTmp,Sub,Tmp,Thr3)
 end do
 
@@ -166,7 +161,7 @@ ii = 0
 Tmp(:) = Zero
 do while ((nTmp < mk) .and. (ii < n))
   ii = ii+1
-  jj = index(ii)
+  jj = Indx(ii)
   Tmp(jj) = One
   call Add_Vector(n,nTmp,Sub,Tmp,Thr3)
   Tmp(jj) = Zero
@@ -174,7 +169,7 @@ end do
 ! ig will be a global counter to loop across all n base vectors
 ig = ii
 call mma_deallocate(Tmp)
-call FZero(Sub(1+mk*n),(maxk-mk)*n)
+Sub(n*mk+1:) = Zero
 
 ! Iterative procedure starts here
 ! mk     = subspace size at each iteration
@@ -191,7 +186,7 @@ call mma_allocate(TAV,n,Label='TAV')
 call mma_allocate(TRes,n,Label='TRes')
 do while (.not. Last)
   iter = iter+1
-  if (iter > 1) call dcopy_(k,Eig,1,Eig_old,1)
+  if (iter > 1) Eig_old(:) = Eig(:)
 # ifdef _DEBUGPRINT_
   if (.not. Reduced) then
     write(u6,'(A)') '---------------'
@@ -207,9 +202,7 @@ do while (.not. Last)
   call mma_allocate(Tmp,n,Label='Tmp')
   do i=1,n
     ! Reconstruct a row (or column) of the matrix A
-    do j=1,i
-      Tmp(j) = A(i*(i-1)/2+j)
-    end do
+    Tmp(1:i) = A(i*(i-1)/2+1:i*(i+1)/2)
     do j=i+1,n
       Tmp(j) = A(j*(j-1)/2+i)
     end do
@@ -242,14 +235,14 @@ do while (.not. Last)
 #   ifdef _DEBUGPRINT_
     write(u6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #   endif
-    call dcopy_(maxk*maxk,Proj,1,EVec,1)
+    EVec(:) = Proj(:)
     call dsyev_('V','L',mk,EVec,maxk,EVal,rDum,-1,info)
     nTmp = int(rDum(1))
     call mma_allocate(Tmp,nTmp,Label='Tmp')
     call dsyev_('V','L',mk,EVec,maxk,EVal,Tmp,nTmp,info)
     call mma_deallocate(Tmp)
     call SortEig(EVal,EVec,mk,maxk,1,.false.)
-    call dcopy_(k,EVal,1,Eig,1)
+    Eig(:) = EVal(1:k)
 #   ifdef _DEBUGPRINT_
     call RecPrt('Current guess',' ',Eig,1,k)
 #   endif
@@ -313,7 +306,7 @@ do while (.not. Last)
 #   endif
     call mma_allocate(Tmp,mink*n,Label='Tmp')
     call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,Tmp,n)
-    call dcopy_(mink*n,Tmp,1,Sub,1)
+    Sub(1:mink*n) = Tmp(:)
     call mma_deallocate(Tmp)
 
     ! To make sure Sub' is orthonormal, add the vectors one by one
@@ -328,16 +321,11 @@ do while (.not. Last)
     ! j should be mink, but who knows...
 
 #   ifdef _DEBUGPRINT_
-    if (j < mink) then
-      write(u6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
-    end if
+    if (j < mink) write(u6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
 #   endif
-    call FZero(Sub(1+j*n),(maxk-j)*n)
-    call FZero(Ab(1+j*n),(maxk-j)*n)
-    call FZero(EVec,maxk*maxk)
-    do i=0,j-1
-      EVec(1+i*(maxk+1)) = One
-    end do
+    Sub(j*n+1:) = Zero
+    Ab(j*n+1:) = Zero
+    call unitmat(EVec,maxk)
     mk = j
     old_mk = 0
     Augmented = .false.
@@ -362,8 +350,7 @@ do while (.not. Last)
       ! Product of matrix and vector: Ab*Vec(i)
       call dGeMV_('N',n,mk,One,Ab,n,EVec(1+i*maxk),1,Zero,TAV,1)
       ! Residual: (A-Val(i))*Vec(i) = Ab*Vec(i) - Val(i)*Sub*Vec(i)
-      call dcopy_(n,TAV,1,TRes,1)
-      call daxpy_(n,-EVal(1+i),TVec,1,TRes,1)
+      TRes(:) = TAV(:)-EVal(i+1)*TVec(:)
       Conv = max(Conv,DDot_(n,TRes,1,TRes,1))
 
       ! Scale vector, orthonormalize, and add to subspace
@@ -376,9 +363,7 @@ do while (.not. Last)
         Diag(j) = One/sign(max(abs(Aux),Thr2),Aux)
       end do
       ! scale
-      do j=1,n
-        Tmp(j) = TRes(j)*Diag(j)
-      end do
+      Tmp(:) = TRes(:)*Diag(:)
 #     elif DAV_METH == DAV_IIGD
       ! Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
       do j=1,n
@@ -386,19 +371,14 @@ do while (.not. Last)
         Diag(j) = One/sign(max(abs(Aux),Thr2),Aux)
       end do
       ! scale
-      do j=1,n
-        Tmp(j) = TRes(j)*Diag(j)
-      end do
+      Tmp(:) = TRes(:)*Diag(:)
       Alpha = Zero
       do j=1,n
         Alpha = Alpha+Diag(j)*TVec(j)**2
       end do
       Alpha = DDot_(n,TVec,1,Tmp,1)/Alpha
       ! subtract
-      do j=1,n
-        TVec(j) = TVec(j)*Diag(j)
-      end do
-      call daxpy_(n,-Alpha,TVec,1,Tmp,1)
+      Tmp(:) = Tmp(:)-Alpha*TVec(:)*Diag(:)
 #     elif DAV_METH == DAV_GJD
       ! DO NOT USE THIS VARIANT!
       ! This is not practical as it stands, the equation should be
@@ -453,12 +433,12 @@ do while (.not. Last)
         write(u6,'(A)') 'Process stagnated'
 #       endif
         if (mk < maxk) then
-          call FZero(Tmp,n)
+          Tmp(:) = Zero
           i = 0
           do while ((jj < 1) .and. (i < n))
             i = i+1
             ig = mod(ig,n)+1
-            ii = index(ig)
+            ii = Indx(ig)
             Tmp(ii) = One
             jj = mk+jj
             call Add_Vector(n,jj,Sub,Tmp,Thr3)
@@ -484,7 +464,7 @@ call mma_deallocate(Diag)
 call mma_deallocate(TVec)
 call mma_deallocate(TAV)
 call mma_deallocate(TRes)
-call mma_deallocate(Index)
+call mma_deallocate(Indx)
 
 ! Store the current lowest k eigenvectors (in the full space)
 ! Vec' = Sub * Vec(1:k)

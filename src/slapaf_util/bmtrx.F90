@@ -181,9 +181,7 @@ else if (Curvilinear) then
 
   ! Re-generate the bonds if there were hidden atoms
 
-  if (nHidden /= 0) then
-    call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
-  end if
+  if (nHidden /= 0) call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
   call BMtrx_Internal(nsAtom,nDimBC,nIter,mTtAtm,iRef,mTR,TR,TabAI,TabA,TabB,nBonds,nMax,iRef,nQQ,nWndw)
 
   ! Set the Labels for internal coordinates.

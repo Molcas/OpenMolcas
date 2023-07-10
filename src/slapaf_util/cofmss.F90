@@ -53,9 +53,7 @@ do i=1,nsAtom
   end do
 end do
 
-do i=1,3
-  cMass(i) = cMass(i)/TMass
-end do
+cMass(:) = cMass(:)/TMass
 if ((iCOM >= 1) .and. (iCOM <= nsAtom)) cMass(:) = Coor(:,iCom)
 
 #ifdef _DEBUGPRINT_
@@ -67,9 +65,7 @@ if (LWrite) write(u6,100) (cMass(i),i=1,3),TMass
 ! translate the center of mass to origo
 
 do i=1,nsAtom
-  do j=1,3
-    Coor(j,i) = Coor(j,i)-cMass(j)
-  end do
+  Coor(:,i) = Coor(:,i)-cMass(:)
 end do
 #endif
 

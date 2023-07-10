@@ -22,7 +22,7 @@ use Symmetry_Info, only: VarR, VarT
 use Slapaf_Parameters, only: BSet, Curvilinear, HSet, lOld, User_Def, WeightedConstraints
 use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, Lbl, qInt, RefGeo, Shift
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -32,9 +32,9 @@ logical(kind=iwp), intent(inout) :: Error
 #include "print.fh"
 #include "warnings.h"
 logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
-integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, ix, jter, Lu, M, N, nQQ, nWndw
+integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, Lu, M, N, nQQ, nWndw
 real(kind=wp) :: denom, dx2, dx_RMS, rMax
-real(kind=wp), allocatable :: DFC(:), dss(:), rInt(:)
+real(kind=wp), allocatable :: DFC(:,:), dss(:), rInt(:)
 integer(kind=iwp), parameter :: NRHS = 1
 
 !                                                                      *
@@ -51,7 +51,7 @@ call RecPrt('NewCar: q',' ',qInt,nQQ,Iter+1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_allocate(DFC,3*nAtom,Label='DFC')
+call mma_allocate(DFC,3,nAtom,Label='DFC')
 call mma_allocate(dss,nQQ,Label='dss')
 call mma_allocate(rInt,nQQ,Label='rInt')
 !                                                                      *
@@ -132,11 +132,9 @@ do jter=1,iterMx
 
   dx2 = Zero
   denom = Zero
-  ix = 0
   do iAtom=1,nAtom
     do i=1,3
-      ix = ix+1
-      dx2 = dx2+Degen(i,iAtom)*DFC(ix)**2
+      dx2 = dx2+Degen(i,iAtom)*DFC(i,iAtom)**2
       denom = denom+Degen(i,iAtom)
     end do
   end do
@@ -144,7 +142,7 @@ do jter=1,iterMx
 
   ! Update the symmetry distinct Cartesian coordinates.
 
-  call DaXpY_(3*nAtom,One,DFC,1,Coor,1)
+  Coor(:,:) = Coor(:,:)+DFC(:,:)
 
   ! Dirty fix of zeros
 
@@ -154,7 +152,7 @@ do jter=1,iterMx
     if ((Cx(3,iAtom,Iter) == Zero) .and. (abs(Coor(3,iAtom)) < 1.0e-13_wp)) Coor(3,iAtom) = Zero
   end do
 
-  call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
+  Cx(:,:,Iter+1) = Coor(:,:)
   if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',AtomLbl,nAtom,Coor,3,nAtom)
 
   ! Compute new values q and the Wilson B-matrix for the new

@@ -24,13 +24,12 @@ real(kind=wp), parameter :: Delta = 1.0e-12_wp
 A = Arg
 if (abs(A) > One) then
   write(Warning,3) A
-  if (abs(A) < One+Delta) then
-    call WarningMessage(1,Warning)
-    A = sign(One,A)
-  else
+  if (abs(A) >= One+Delta) then
     call WarningMessage(2,Warning)
     call Abend()
   end if
+  !call WarningMessage(1,Warning)
+  A = sign(One,A)
 end if
 
 ArSin = asin(A)

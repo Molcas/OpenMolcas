@@ -26,10 +26,10 @@ integer(kind=iwp) :: i, n
 real(kind=wp) :: aux, beta_ang, bif, deltagh, dgh, gg, gh, hh, norm_g, norm_h, peaked, sg, sh, shead, srel, st
 character(len=40) :: Description
 character(len=2) :: LabA
-real(kind=wp), allocatable :: g(:), h(:), tmp(:)
+real(kind=wp), allocatable :: g(:), h(:), tmp(:,:)
 real(kind=wp), external :: dDot_
 
-n = 3*size(Gx,2)
+n = size(Gx,1)*size(Gx,2)
 call mma_Allocate(g,n)
 call mma_Allocate(h,n)
 
@@ -37,29 +37,25 @@ call mma_Allocate(h,n)
 ! Note that d(E1-E0)/dx is stored, but we want to use d((E1-E0)/2)/dx
 ! (and forces instead of gradients)
 
-gg = dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
-hh = dDot_(n,NAC(1,1,iter),1,NAC(1,1,iter),1)
-gh = -dDot_(n,Gx0(1,1,iter),1,NAC(1,1,iter),1) !Factor 2 included
+gg = dDot_(n,Gx0(:,:,iter),1,Gx0(:,:,iter),1)*Quart
+hh = dDot_(n,NAC(:,:,iter),1,NAC(:,:,iter),1)
+gh = -dDot_(n,Gx0(:,:,iter),1,NAC(:,:,iter),1) !Factor 2 included
 beta_ang = atan2(gh,gg-hh)*Half
-call dCopy_(n,Gx0(1,1,iter),1,g,1)
-call dScal_(n,-Half*cos(beta_ang),g,1)
-call dAxpY_(n,sin(beta_ang),NAC(1,1,iter),1,g,1)
-call dCopy_(n,NAC(1,1,iter),1,h,1)
-call dScal_(n,cos(beta_ang),h,1)
-call dAxpY_(n,Half*sin(beta_ang),Gx0(1,1,iter),1,h,1)
+g(:) = -cos(beta_ang)*Half*reshape(Gx0(:,:,iter),[n])+sin(beta_ang)*reshape(NAC(:,:,iter),[n])
+h(:) = cos(beta_ang)*reshape(NAC(:,:,iter),[n])+sin(beta_ang)*Half*reshape(Gx0(:,:,iter),[n])
 gg = dDot_(n,g,1,g,1)
 hh = dDot_(n,h,1,h,1)
 norm_g = sqrt(gg)
 norm_h = sqrt(hh)
 if (norm_g > 1.0e-12_wp) then
-  call dScal_(n,One/norm_g,g,1)
+  g(:) = g(:)/norm_g
 else
-  call dCopy_(n,[Zero],0,g,1)
+  g(:) = Zero
 end if
 if (norm_h > 1.0e-12_wp) then
-  call dScal_(n,One/norm_h,h,1)
+  h(:) = h(:)/norm_h
 else
-  call dCopy_(n,[Zero],0,h,1)
+  h(:) = Zero
 end if
 ! Ensure that the asymmetry will be positive
 ! this fixes which vector is x and which is y
@@ -78,11 +74,11 @@ sh = -dDot_(n,Gx(1,1,iter),1,h,1)
 ! this fixes the signs of the x and y vectors
 if (sg < Zero) then
   sg = abs(sg)
-  call DScal_(n,-One,g,1)
+  g(:) = -g(:)
 end if
 if (sh < Zero) then
   sh = abs(sh)
-  call DScal_(n,-One,h,1)
+  h(:) = -h(:)
 end if
 st = sqrt(sg**2+sh**2)
 dgh = sqrt((gg+hh)/Two)
@@ -153,19 +149,16 @@ write(Lu,101) 'B:',bif
 write(Lu,101) 'Type: '//trim(Description)
 write(Lu,*)
 write(Lu,*) 'Local linear representation:'
-call mma_Allocate(tmp,n)
-do i=1,size(Gx,2)
-  tmp(0*size(Gx,2)+i) = g((i-1)*3+1)
-  tmp(1*size(Gx,2)+i) = g((i-1)*3+2)
-  tmp(2*size(Gx,2)+i) = g((i-1)*3+3)
+n = size(Gx,2)
+call mma_Allocate(tmp,n,3)
+do i=1,n
+  tmp(i,:) = g((i-1)*3+1:i*3)
 end do
-call RecPrt('Local x','',tmp,size(Gx,2),3)
-do i=1,size(Gx,2)
-  tmp(0*size(Gx,2)+i) = h((i-1)*3+1)
-  tmp(1*size(Gx,2)+i) = h((i-1)*3+2)
-  tmp(2*size(Gx,2)+i) = h((i-1)*3+3)
+call RecPrt('Local x','',tmp,n,3)
+do i=1,n
+  tmp(i,:) = h((i-1)*3+1:i*3)
 end do
-call RecPrt('Local y','',tmp,size(Gx,2),3)
+call RecPrt('Local y','',tmp,n,3)
 write(Lu,*)
 write(Lu,110) Energy(iter),sg,sh
 write(Lu,120) Two*dgh,deltagh

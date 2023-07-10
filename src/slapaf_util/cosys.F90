@@ -26,9 +26,7 @@ real(kind=wp), external :: ArCos, ArSin
 iRout = 221
 iPrint = nPrint(iRout)
 Lu = u6
-if (iPrint >= 99) then
-  call RecPrt('CoSys: Cent',' ',Cent,3,3)
-end if
+if (iPrint >= 99) call RecPrt('CoSys: Cent',' ',Cent,3,3)
 
 ! Check if linear
 
@@ -79,24 +77,16 @@ Linear = abs(Si) < 1.0e-13_wp
 
 ! Form reference axis
 
-RR = Zero
-do i=1,3
-  R(i) = Cent(i,3)-Cent(i,1)
-  RR = RR+R(i)**2
-end do
-RR = sqrt(RR)
+R(:) = Cent(:,3)-Cent(:,1)
+RR = sqrt(R(1)**2+R(2)**2+R(3)**2)
 if ((RR1 >= RR2) .and. (RR1 >= RR)) then
-  do i=1,3
-    R(i) = Cent(i,1)-Cent(i,2)
-  end do
+  R(:) = Cent(:,1)-Cent(:,2)
   RR = RR1
 else if (RR2 >= RR) then
-  do i=1,3
-    R(i) = Cent(i,3)-Cent(i,2)
-  end do
+  R(:) = Cent(:,3)-Cent(:,2)
   RR = RR2
 end if
-call DScal_(3,One/RR,R,1)
+R(:) = R(:)/RR
 
 if (iPrint >= 99) then
   write(u6,*) 'Linear=',Linear
@@ -119,7 +109,7 @@ do while (Retry)
 
     ! Compute the WDC B-matrix
 
-    call dcopy_(6,[Zero],0,xyz,1)
+    xyz(:,:) = Zero
     if (nComp == 0) then
       !write(u6,*) ' Case nComp == 0'
 
@@ -189,7 +179,7 @@ do while (Retry)
       if (iPrint >= 99) write(u6,*) 'Linear=',Linear
       Retry = .true.
     else
-      call DScal_(3,One/sqrt(RR),xyz(1,2),1)
+      xyz(:,2) = xyz(:,2)/sqrt(RR)
       if (iPrint >= 99) write(u6,*) 'RR=',RR
 
       RR = Zero
@@ -199,9 +189,9 @@ do while (Retry)
         xyz(i,1) = xyz(j,2)*R(k)-xyz(k,2)*R(j)
         RR = RR+xyz(i,1)**2
       end do
-      call DScal_(3,One/sqrt(RR),xyz(1,1),1)
-      if (iPrint >= 99) write(u6,*) 'RR=',RR
+      xyz(:,1) = xyz(:,1)/sqrt(RR)
       if (iPrint >= 99) then
+        write(u6,*) 'RR=',RR
         call RecPrt('xyz',' ',xyz,3,2)
       end if
     end if

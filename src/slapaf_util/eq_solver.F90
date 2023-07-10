@@ -18,12 +18,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 character :: Mode
 integer(kind=iwp) :: M, N, NRHS
-real(kind=wp) :: B(M,*), Degen(M), dSS(*), DFC(*)
+real(kind=wp) :: B(M,N), Degen(M), dSS(*), DFC(*)
 logical(kind=iwp) :: Curvilinear
 #include "warnings.h"
-integer(kind=iwp) :: i, ij, INFO, iRHS, jpB, LDA, LDB, LWork
+integer(kind=iwp) :: i, ij, INFO, iRHS, LDA, LDB, LWork
 real(kind=wp) :: Temp(1)
-real(kind=wp), allocatable :: A(:), Btmp(:), Work(:)
+real(kind=wp), allocatable :: A(:,:), Btmp(:,:), Work(:)
 
 !                                                                      *
 !***********************************************************************
@@ -37,23 +37,23 @@ real(kind=wp), allocatable :: A(:), Btmp(:), Work(:)
 LDA = M
 LDB = max(1,M,N)
 if (Mode == 'T') then
-  call mma_allocate(A,M*M,Label='A')
-  A(:) = Zero
-  call dcopy_(M*N,B,1,A,1)
+  call mma_allocate(A,M,M,Label='A')
+  A(:,1:N) = B(:,:)
+  A(:,N+1:) = Zero
   if (.not. Curvilinear) then
     do i=1,M
-      call DScal_(M,sqrt(Degen(i)),A(i),M)
+      A(i,:) = sqrt(Degen(i))*A(i,:)
     end do
   end if
 # ifdef _DEBUGPRINT_
   call RecPrt('A',' ',A,M,M)
 # endif
 else
-  call mma_allocate(A,M*N,Label='A')
-  call dcopy_(M*N,B,1,A,1)
+  call mma_allocate(A,M,N,Label='A')
+  A(:,:) = B(:,:)
   if (.not. Curvilinear) then
     do i=1,M
-      call DScal_(N,sqrt(Degen(i)),A(i),M)
+      A(i,:) = sqrt(Degen(i))*A(i,:)
     end do
   end if
 # ifdef _DEBUGPRINT_
@@ -61,15 +61,13 @@ else
 # endif
 end if
 
-call mma_allocate(Btmp,LDB*NRHS,Label='Btmp')
-Btmp(:) = Zero
+call mma_allocate(Btmp,LDB,NRHS,Label='Btmp')
+Btmp(:,:) = Zero
 
-jpB = 1
 if (Mode == 'T') then
   do iRHS=1,nRHS
-    ij = (iRHS-1)*N+1
-    call dcopy_(N,dss(ij),1,Btmp(jpB),1)
-    jpB = jpB+LDB
+    ij = (iRHS-1)*N
+    Btmp(1:N,iRHS) = dss(ij+1:ij+N)
   end do
 else
 # ifdef _DEBUGPRINT_
@@ -77,15 +75,12 @@ else
 # endif
   do iRHS=1,nRHS
     if (.not. Curvilinear) then
-      do i=0,M-1
-        ij = (iRHS-1)*M+i+1
-        Btmp(jpB+i) = dss(ij)*sqrt(Degen(i+1))
-      end do
+      ij = (iRHS-1)*M
+      Btmp(1:M,iRHS) = dss(ij+1:ij+M)*sqrt(Degen(:))
     else
-      ij = (iRHS-1)*M+1
-      call dcopy_(M,dss(ij),1,Btmp(jpB),1)
+      ij = (iRHS-1)*M
+      Btmp(1:M,iRHS) = dss(ij+1:ij+M)
     end if
-    jpB = jpB+LDB
   end do
 end if
 #ifdef _DEBUGPRINT_
@@ -112,23 +107,16 @@ end if
 #ifdef _DEBUGPRINT_
 call RecPrt('B(out)',' ',Btmp,LDB,NRHS)
 #endif
-jpB = 1
 if (Mode == 'T') then
   do iRHS=1,nRHS
-    if (.not. Curvilinear) then
-      do i=0,M-1
-        Btmp(jpB+i) = Btmp(jpB+i)/sqrt(Degen(i+1))
-      end do
-    end if
-    ij = (iRHS-1)*M+1
-    call dcopy_(M,Btmp(jpB),1,DFC(ij),1)
-    jpB = jpB+LDB
+    if (.not. Curvilinear) Btmp(1:M,iRHS) = Btmp(1:M,iRHS)/sqrt(Degen(:))
+    ij = (iRHS-1)*M
+    DFC(ij+1:ij+M) = Btmp(1:M,iRHS)
   end do
 else
   do iRHS=1,nRHS
-    ij = (iRHS-1)*N+1
-    call dcopy_(N,Btmp(jpB),1,DFC(ij),1)
-    jpB = jpB+LDB
+    ij = (iRHS-1)*N
+    DFC(ij+1:ij+N) = Btmp(1:N,iRHS)
   end do
 end if
 

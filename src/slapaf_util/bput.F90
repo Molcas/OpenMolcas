@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp) :: nDim, nX, nQQ
 real(kind=wp) :: EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
 logical(kind=iwp) :: Smmtrc(nX)
-integer(kind=iwp) :: i_Dim, iQQ, iX
+integer(kind=iwp) :: i_Dim, iX
 
 !                                                                      *
 !***********************************************************************
@@ -31,13 +31,9 @@ i_Dim = 0
 do iX=1,nX
   if (Smmtrc(iX)) then
     i_Dim = i_Dim+1
-    do iQQ=1,nQQ
-      BMx(iX,iQQ) = EVec(i_Dim,iQQ)/sqrt(Degen(iX))
-    end do
+    BMx(iX,:) = EVec(i_Dim,:)/sqrt(Degen(iX))
   else
-    do iQQ=1,nDim
-      BMx(iX,iQQ) = Zero
-    end do
+    BMx(iX,:) = Zero
   end if
 end do
 #ifdef _DEBUGPRINT_

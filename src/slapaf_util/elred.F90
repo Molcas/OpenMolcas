@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp) :: nq, nx, nK
 real(kind=wp) :: Bmtrx(nq,nx), Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), uMtrx(nX), Scrt(nq,nX), Thr
 logical(kind=iwp) :: g12K
-integer(kind=iwp) :: i, ii, ijTri, Info, iQ, j, LDZ, N
+integer(kind=iwp) :: i, ii, ijTri, Info, iQ, j, LDZ
 real(kind=wp) :: rSum
 logical(kind=iwp) :: Diagonal
 real(kind=wp), allocatable :: W(:), Work(:)
@@ -52,9 +52,7 @@ end if
 ! Form the G matrix, G=BuB
 
 do j=1,nX
-  do i=1,nq
-    Scrt(i,j) = BMtrx(i,j)*umtrx(j)
-  end do
+  Scrt(:,j) = BMtrx(:,j)*umtrx(j)
 end do
 call DGEMM_('N','T',nq,nq,nX,One,Scrt,nq,Bmtrx,nq,Zero,Gmtrx,nq)
 
@@ -75,8 +73,7 @@ write(u6,*) 'Diagonal=',Diagonal
 
 ! Set up a unit matrix
 
-call dcopy_(nq*nq,[Zero],0,EVec,1)
-call dcopy_(nq,[One],0,EVec,nq+1)
+call unitmat(EVec,nq)
 
 ! Set up the Hessian in lower triangular form, the elements are symmetrized.
 
@@ -96,34 +93,33 @@ call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 ! L: redundant vectors
 
 if (.not. Diagonal) then
-  N = nQ
-  LDZ = max(1,N)
-  call mma_allocate(Work,3*N,Label='Work')
+  LDZ = max(1,nq)
+  call mma_allocate(Work,3*nq,Label='Work')
   Work(:) = Zero
-  call mma_allocate(W,N,Label='W')
+  call mma_allocate(W,nq,Label='W')
   W(:) = Zero
   Info = 0
-  call dspev_('V','U',N,Eval,W,EVec,LDZ,Work,Info)
+  call dspev_('V','U',nq,Eval,W,EVec,LDZ,Work,Info)
   if (Info /= 0) then
     write(u6,*) 'Info /= 0'
     write(u6,*) 'Info=',Info
     call Abend()
   end if
-  call FZero(EVal,N*(N+1)/2)
-  do i=1,N
+  EVal(:) = Zero
+  do i=1,nq
     ii = i*(i+1)/2
     EVal(ii) = W(i)
   end do
   call mma_deallocate(W)
   call mma_deallocate(Work)
 end if
-call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
+EVal(:) = -EVal(:)
 call JacOrd(EVal,EVec,nQ,nQ)
 !Fix standard direction.
 do iQ=1,nQ
   call VecPhase(EVec(1,iQ),nQ)
 end do
-call DScal_(nQ*(nQ+1)/2,-One,EVal,1)
+EVal(:) = -EVal(:)
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
 call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
@@ -135,12 +131,10 @@ call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
 nK = 0
 do i=1,nQ
   ii = i*(i+1)/2
-  if (EVal(ii) > Thr) then
-    nK = nK+1
-  end if
+  if (EVal(ii) > Thr) nK = nK+1
   EVal(i) = EVal(ii)
   !if (g12K .and. (abs(EVal(i)) > Zero))
-  if (g12K .and. (abs(EVal(i)) > Zero_Approx)) call DScal_(nQ,One/sqrt(EVal(i)),EVec(1,i),1)
+  if (g12K .and. (abs(EVal(i)) > Zero_Approx)) EVec(:,i) = EVec(:,i)/sqrt(EVal(i))
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('ElRed: The NonRedundant eigenvectors','(5e21.12)',EVec,nQ,nK)

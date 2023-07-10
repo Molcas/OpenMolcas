@@ -43,7 +43,7 @@ if (nHidden > 0) then
   call ddV_(Cart,nTot,HBig,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
   VarR = VRSave
   VarT = VTSave
-  call dCopy_((3*mTtAtm)*(3*mTtAtm+1)/2,HBig,1,Hess,1)
+  Hess(:) = HBig(1:(3*mTtAtm)*(3*mTtAtm+1)/2)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'DDV: Improved Hessian'
   call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)

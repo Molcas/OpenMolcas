@@ -13,13 +13,13 @@ subroutine ProjSym2(nAtoms,nCent,Ind,A,iDCRs,B,BqR,dB,dBqR)
 
 use Slapaf_Info, only: jStab, nStab
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nAtoms, nCent, Ind(nCent), iDCRs(nCent)
 real(kind=wp) :: A(3,nCent), B(3,nCent), BqR(3,nAtoms), dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms)
-integer(kind=iwp) :: i, ixyz, j, jxyz
+integer(kind=iwp) :: i, j, jxyz
 real(kind=wp) :: ATemp(3)
 real(kind=wp), allocatable :: Tx(:,:)
 
@@ -35,7 +35,7 @@ write(u6,*) iDCRs
 
 call mma_allocate(Tx,3,nCent,Label='Tx')
 
-call dcopy_(3*nCent,[One],0,Tx,1)
+Tx(:,:) = One
 do i=1,nCent
   call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
 
@@ -49,11 +49,9 @@ end do
 
 ! Create BqR
 
-call FZero(BqR,3*nAtoms)
+BqR(:,:) = Zero
 do i=1,nCent
-  do ixyz=1,3
-    BqR(ixyz,Ind(i)) = BqR(ixyz,Ind(i))+Tx(ixyz,i)*B(ixyz,i)
-  end do
+  BqR(:,Ind(i)) = BqR(:,Ind(i))+Tx(:,i)*B(:,i)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('BqR',' ',BqR,1,3*nAtoms)
@@ -61,16 +59,14 @@ call RecPrt('BqR',' ',BqR,1,3*nAtoms)
 
 ! Create dBqR
 
-call FZero(dBqR,(3*nAtoms)**2)
-do i=1,nCent
-  do ixyz=1,3
+dBqR(:,:,:,:) = Zero
+do j=1,nCent
+  do jxyz=1,3
 
-    do j=1,nCent
-      do jxyz=1,3
+    do i=1,nCent
 
-        dBqR(ixyz,Ind(i),jxyz,Ind(j)) = dBqR(ixyz,Ind(i),jxyz,Ind(j))+Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
+      dBqR(:,Ind(i),jxyz,Ind(j)) = dBqR(:,Ind(i),jxyz,Ind(j))+Tx(:,i)*dB(:,i,jxyz,j)*Tx(jxyz,j)
 
-      end do
     end do
 
   end do

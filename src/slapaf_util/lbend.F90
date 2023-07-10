@@ -37,9 +37,9 @@ if (iPrint >= 99) then
   call RecPrt('LBend: Perp_Axis1',' ',Perp_Axis1,3,1)
 end if
 
-call dcopy_(3,Axis,1,uVec(1,1),1)
-call dcopy_(3,Perp_Axis1,1,uVec(1,2),1)
-call dcopy_(3,[Zero],0,uVec(1,3),1)
+uVec(:,1) = Axis(:)
+uVec(:,2) = Perp_Axis1(:)
+uVec(:,3) = Zero
 
 ! Project the coordinates to the plane
 
@@ -68,9 +68,7 @@ if (Force) then
 end if
 if (Middle /= 2) then
   call DSwap_(3,xxx(1,2),1,xxx(1,Middle),1)
-  if (iPrint >= 99) then
-    call RecPrt('Swapped coordinates','(3F24.12)',xxx,3,3)
-  end if
+  if (iPrint >= 99) call RecPrt('Swapped coordinates','(3F24.12)',xxx,3,3)
 end if
 
 mCent = 2
@@ -123,11 +121,9 @@ else
 end if
 
 dFir = Fir/deg2rad
-if (lWrite) then
-  write(Lu,'(1X,A,A,F10.6,A,F12.8,A)') Label,' : Projected Angle=',dFir,'/degree, ',Fir,'/rad'
-end if
+if (lWrite) write(Lu,'(1X,A,A,F10.6,A,F12.8,A)') Label,' : Projected Angle=',dFir,'/degree, ',Fir,'/rad'
 
-call dcopy_(9,[Zero],0,uMtrx,1)
+uMtrx(:,:) = Zero
 if (Linear) then
   uMtrx(2,1) = -sign(One,Co)/Rij1
 else
@@ -140,23 +136,19 @@ Bf(1,1) = Scr2(1,1)
 Bf(2,1) = Scr2(2,1)
 Bf(3,1) = Scr2(3,1)
 
-call dcopy_(9,[Zero],0,uMtrx,1)
+uMtrx(:,:) = Zero
 if (Linear) then
   uMtrx(2,1) = One/Rjk1
 else
-  do i=1,3
-    uMtrx(i,1) = (Co*BRjk(i,2)-BRij(i,1))/(Si*Rjk1)
-  end do
+  uMtrx(:,1) = (Co*BRjk(:,2)-BRij(:,1))/(Si*Rjk1)
 end if
 call DGEMM_('N','N',3,1,3,One,uVec,3,uMtrx,3,Zero,Scr2,3)
 Bf(1,3) = Scr2(1,1)
 Bf(2,3) = Scr2(2,1)
 Bf(3,3) = Scr2(3,1)
 
-do i=1,3
-  ! Utilize translational invariance.
-  Bf(i,2) = -(Bf(i,1)+Bf(i,3))
-end do
+! Utilize translational invariance.
+Bf(:,2) = -(Bf(:,1)+Bf(:,3))
 
 ! Compute the cartesian derivative of the B-Matrix.
 
@@ -164,7 +156,7 @@ if (ldB) then
 
   ! 1,1 Block
 
-  call dcopy_(9,[Zero],0,uMtrx,1)
+  uMtrx(:,:) = Zero
   if (Linear) then
     if (Co > Zero) then
       uMtrx(1,2) = One/Rij1**2
@@ -193,7 +185,7 @@ if (ldB) then
 
   ! 1,3 Block
 
-  call dcopy_(9,[Zero],0,uMtrx,1)
+  uMtrx(:,:) = Zero
   if (Linear) then
     if (Co > Zero) then
       if (Rij1 < Rjk1) then
@@ -227,7 +219,7 @@ if (ldB) then
 
   ! 3,1 Block
 
-  call dcopy_(9,[Zero],0,uMtrx,1)
+  uMtrx(:,:) = Zero
   if (Linear) then
     if (Co > Zero) then
       if (Rjk1 < Rij1) then
@@ -261,7 +253,7 @@ if (ldB) then
 
   ! 3,3 Block
 
-  call dcopy_(9,[Zero],0,uMtrx,1)
+  uMtrx(:,:) = Zero
   if (Linear) then
     if (Co > Zero) then
       uMtrx(1,2) = -One/Rjk1**2
@@ -327,9 +319,7 @@ end if
 
 if (iPrint >= 99) then
   call RecPrt('Bf',' ',Bf,3,nCent)
-  if (ldB) then
-    call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
-  end if
+  if (ldB) call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 end if
 
 return

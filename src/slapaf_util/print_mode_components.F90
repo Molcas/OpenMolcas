@@ -407,7 +407,7 @@ call mma_deallocate(KMtrx)
 
 nX = 3*mTtAtm
 call mma_allocate(KKtB,mq,nX,label='KKtB')
-call FZero(KKtB,nX*mq)
+KKtB(:,:) = Zero
 i = 1
 do iq=1,mq
   nB = nqBM(iq)
@@ -427,7 +427,7 @@ call Get_iScalar('Unique atoms',nUnique_Atoms)
 call Get_nAtoms_All(nAll_Atoms)
 if (3*nAll_Atoms /= nX) call Abend()
 call mma_allocate(NMod,nX,nModes,label='NMod')
-call FZero(NMod,nX*nModes)
+NMod(:,:) = Zero
 call Get_NMode_All(Modes,lModes,nModes,nUnique_Atoms,NMod,nAll_Atoms,lDisp)
 
 ! Compute the overlaps with the primitive displacements
@@ -444,7 +444,7 @@ do i=1,nModes
   do j=1,mq
     Mx = max(Mx,abs(IntMod(j,i)))
   end do
-  if (Mx > 1.0e-10_wp) call DScal_(mq,One/Mx,IntMod(1,i),1)
+  if (Mx > 1.0e-10_wp) IntMod(:,i) = IntMod(:,i)/Mx
 end do
 
 ! Print the overlaps
@@ -710,9 +710,7 @@ end if
 ! Process arrays that are allocated optionally.
 
 if (allocated(Bk_Lambda)) then
-  if (.not. allocated(Lambda)) then
-    call mma_allocate(Lambda,size(Bk_Lambda,1),MaxItr+1,Label='Lambda')
-  end if
+  if (.not. allocated(Lambda)) call mma_allocate(Lambda,size(Bk_Lambda,1),MaxItr+1,Label='Lambda')
   Lambda(:,:) = Bk_Lambda(:,:)
   call mma_deallocate(Bk_Lambda)
 else

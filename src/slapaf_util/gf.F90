@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nX, nDoF, nInter, iNeg, mTR, nAtom
-real(kind=wp) :: EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF), dDipM(3,nInter+mTR), DipM(3)
+real(kind=wp) :: EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF), dDipM(3,nInter+mTR), DipM(3)
 integer(kind=iwp) :: i, iAtom, iNC, ix, ixyz, iy, iz
 real(kind=wp), allocatable :: F(:), G(:), GInv(:), Tmp1(:), Tmp2(:)
 
@@ -81,7 +81,7 @@ call Get_dDipM(dDipM,DipM,nDoF,nInter)
 ! Transform from cartesian to normal coordinates
 
 do iNC=1,nDoF
-  call dcopy_(nDoF,EVec(1,iNC),2,Tmp2,1)
+  Tmp2(1:nDoF) = EVec(1,:,iNC)
   ix = (iNC-1)*3+1
   iy = (iNC-1)*3+2
   iz = (iNC-1)*3+3
@@ -100,7 +100,7 @@ do iNC=1,nDoF
     end do
   end do
 end do
-call dcopy_(3*nDoF,Tmp1,1,dDipM,1)
+dDipM(:,:) = reshape(Tmp1(1:3*nDoF),[3,nDoF])
 #ifdef _DEBUGPRINT_
 call RecPrt('dDipM(normal coord.)',' ',dDipM,3,nDoF)
 #endif

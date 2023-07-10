@@ -68,7 +68,7 @@ Iter = 0
 Iterate = .false.
 Restart = .false.
 NumVal = min(6,nInter)+1
-call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
+call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
 call mma_allocate(Tmp,nInter+1,Label='Tmp')
@@ -110,11 +110,9 @@ do
 # endif
 
   ! Restore the vector from the previous iteration, if any
-  call dcopy_(nInter+1,Tmp(1),1,Vec(1,1),1)
+  Vec(:,1) = Tmp(:)
   call Davidson(Matrix,nInter+1,NumVal,Val,Vec,iStatus)
-  if (iStatus > 0) then
-    call SysWarnMsg('RS_RFO','Davidson procedure did not converge','')
-  end if
+  if (iStatus > 0) call SysWarnMsg('RS_RFO','Davidson procedure did not converge','')
 
   ! Pick up the root which represents the shortest displacement.
 
@@ -147,8 +145,8 @@ do
     write(u6,*) 'RS-RFO: Illegal iroot value!'
     call Abend()
   end if
-  call dcopy_(nInter+1,Vec(1,iRoot),1,Tmp,1)
-  call DScal_(nInter,One/sqrt(A_RFO),Vec(1,iRoot),1)
+  Tmp(:) = Vec(:,iRoot)
+  Vec(1:nInter,iRoot) = Vec(1:nInter,iRoot)/sqrt(A_RFO)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -160,7 +158,7 @@ do
   write(Lu,*) ' RF eigenvalue=',Val
 # endif
   ZZ = DDot_(nInter+1,Vec(1,iRoot),1,Vec(1,iRoot),1)
-  call DScal_(nInter+1,One/sqrt(ZZ),Vec(1,iRoot),1)
+  Vec(:,iRoot) = Vec(:,iRoot)/sqrt(ZZ)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -170,7 +168,7 @@ do
   !                                                                    *
   ! Copy v^k_{n,i}
 
-  call dcopy_(nInter,Vec(1,iRoot),1,dq,1)
+  dq(:) = Vec(1:nInter,iRoot)
 
   ! Pick v^k_{1,i}
 
@@ -181,7 +179,7 @@ do
 
   ! Normalize according to Eq. (5)
 
-  call DScal_(nInter,One/Fact,dq,1)
+  dq(:) = dq(:)/Fact
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) 'iRoot=',iRoot

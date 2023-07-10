@@ -81,7 +81,7 @@ if (Analytic_Hessian) then
 
   ! Modify matrix with degeneracy factors and square the matrix.
 
-  call FZero(Scrt1,nDim**2)
+  Scrt1(1:nDim**2) = Zero
   ii = 0
   do i=1,3*nsAtom
     iAtom = (i+2)/3
@@ -210,10 +210,8 @@ else   ! Use the Hessian Model Function
 
       ! Form H - H|i><i| - |i><i|H
 
-      do i=0,nRP-1
-        do j=0,nRP-1
-          scrt1(nRP*i+j+1) = scrt1(nRP*i+j+1)-HTanVec(1+i)*TanVec(1+j)-TanVec(1+i)*HTanVec(1+j)
-        end do
+      do i=1,nRP
+        scrt1((i-1)*nRP+1:i*nRP) = scrt1((i-1)*nRP+1:i*nRP)-HTanVec(i)*TanVec(:)-TanVec(i)*HTanVec(:)
       end do
     end if
 

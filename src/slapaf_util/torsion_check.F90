@@ -53,10 +53,10 @@ do ii=1,12
   jSet(3) = iSet(iCase(3,ii))
   jSet(4) = iSet(iCase(4,ii))
   !write(u6,*) 'ii,jSet=',ii,jSet
-  call dcopy_(3,Ref(1,iCase(1,ii)),1,Coor(1,1),1)
-  call dcopy_(3,Ref(1,iCase(2,ii)),1,Coor(1,2),1)
-  call dcopy_(3,Ref(1,iCase(3,ii)),1,Coor(1,3),1)
-  call dcopy_(3,Ref(1,iCase(4,ii)),1,Coor(1,4),1)
+  Coor(:,1) = Ref(:,iCase(1,ii))
+  Coor(:,2) = Ref(:,iCase(2,ii))
+  Coor(:,3) = Ref(:,iCase(3,ii))
+  Coor(:,4) = Ref(:,iCase(4,ii))
   !call RecPrt('Coor',' ',Coor,3,4)
   Test = FC_Torsion(jSet,Coor,iTabAtoms,nMax,mAtoms)
   if (Test > FC) then

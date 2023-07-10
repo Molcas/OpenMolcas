@@ -36,7 +36,7 @@ Fail = .true.
 ! Compile the error vector, starting in position 1
 ! Observe that g is the force and NOT the gradient
 
-call dcopy_(nInter,g,1,e(1,i0),1)
+e(:,i0) = g(:)
 call DPOTRS('U',nInter,1,A,nInter,e(1,i0),nInter,iRC)
 if (iRC /= 0) then
   write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
@@ -52,7 +52,7 @@ do
 
   ! Newton-Raphson scheme
 
-  call dcopy_(nInter,g,1,e(1,i1),1)
+  e(:,i1) = g(:)
   call DPOTRS('U',nInter,1,A,nInter,e(1,i1),nInter,iRC)
   if (iRC /= 0) then
     write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
@@ -78,7 +78,7 @@ do
 
   if (Test < Thrd) then
     ! Copy converged vectors to slot 1
-    if (i1 /= 1) call dcopy_(nInter,e(1,i1),1,e(1,1),1)
+    if (i1 /= 1) e(:,1) = e(:,i1)
     if (iStep == 10) then
       call RecPrt(' ThrdO: e(Final)',' ',e,nInter,1)
       Fail = .false.

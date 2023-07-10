@@ -85,10 +85,8 @@ do ii=1,nAtom
   end do
 end do
 
-if (Curvilinear) then
-  ! Compute and add the d^2Q/dx^2 dE/dQ part
-  call dBuu(Degen2,nInter,nDim,dqInt(1,1),Hx,.true.)
-end if
+! Compute and add the d^2Q/dx^2 dE/dQ part
+if (Curvilinear) call dBuu(Degen2,nInter,nDim,dqInt(1,1),Hx,.true.)
 
 call Put_dArray('Hss_X',Hx,nDim**2)
 call mma_deallocate(KtB)

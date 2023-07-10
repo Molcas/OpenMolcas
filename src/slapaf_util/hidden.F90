@@ -129,15 +129,13 @@ if (nHidden > 0) call Select_hidden(mTtAtm,nHidden,Coor,h_xyz,h_AN,nKept,iPL)
 ! Copy all the arrays needed by box and nlm
 
 if (nKept > 0) then
-  if (iPL > 3) then
-    write(u6,'(A8,I5,A)') 'Hidden: ',nKept,' atoms are kept.'
-  end if
+  if (iPL > 3) write(u6,'(A8,I5,A)') 'Hidden: ',nKept,' atoms are kept.'
   mTot = mTtAtm+nKept
   call mma_allocate(Coor_h,3,mTot,Label='Coor_h')
   call mma_allocate(AN_h,mTot,Label='AN_h')
 
-  call dCopy_(3*mTtAtm,Coor,1,Coor_h,1)
-  call iCopy(mTtAtm,AN,1,AN_h,1)
+  Coor_h(:,1:mTtAtm) = Coor(:,1:mTtAtm)
+  AN_h(1:mTtAtm) = AN(1:mTtAtm)
 
   ! Copy the kept hidden atom coordinates, atom numbers and masses
 
@@ -145,7 +143,7 @@ if (nKept > 0) then
   do iHidden=1,nHidden
     if (h_AN(iHidden) > 0) then
       iKept = iKept+1
-      call dCopy_(3,h_xyz(:,iHidden),1,Coor_h(:,mTtAtm+iKept),1)
+      Coor_h(:,mTtAtm+iKept) = h_xyz(:,iHidden)
       AN_h(mTtAtm+iKept) = h_AN(iHidden)
     end if
   end do
@@ -167,9 +165,7 @@ if (nKept > 0) then
   AN(:) = AN_h(:)
   call mma_deallocate(AN_h)
 
-  if (iPL > 3) then
-    call RecPrt('Hidden: Coor',' ',Coor,3,mTot)
-  end if
+  if (iPL > 3) call RecPrt('Hidden: Coor',' ',Coor,3,mTot)
 end if
 nHidden = nKept
 

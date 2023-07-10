@@ -305,17 +305,13 @@ do
     call NxtWrd(Lines(1),iFrst,iEnd)
     iFrag = 0
     do i=1,nFrag
-      if (Line(iFrst:iEnd) == trim(FragLabels(i))) then
-        iFrag = i
-      end if
+      if (Line(iFrst:iEnd) == trim(FragLabels(i))) iFrag = i
     end do
     ! Some constraints default to soft unless marked as hard
     iSoft = 0
     if (index(Lines(nLines),'HARD') <= iEq) then
       do i=1,nSoft
-        if (Line(iFrst:iEnd) == trim(SoftLabels(i))) then
-          iSoft = i
-          end if
+        if (Line(iFrst:iEnd) == trim(SoftLabels(i))) iSoft = i
       end do
     end if
     iEq = index(Lines(nLines),'=')

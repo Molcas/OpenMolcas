@@ -74,7 +74,7 @@ call mma_deallocate(Ovlp)
 if (nPrint(1) >= 5) then
   call RecPrt('Overlaps with previous states','',Overlaps,nRoots,nRoots)
   call mma_allocate(OldMap,nRoots)
-  call iCopy(nRoots,RootMap,1,OldMap,1)
+  OldMap(:) = RootMap(1:nRoots)
 end if
 call mma_allocate(RootIdx,nRoots)
 do i=1,nRoots

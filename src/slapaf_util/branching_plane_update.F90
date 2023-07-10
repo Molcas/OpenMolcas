@@ -44,7 +44,6 @@
 subroutine Branching_Plane_Update(AGV,DGV,CDV,n,nIter)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -52,7 +51,7 @@ integer(kind=iwp) :: n, nIter
 real(kind=wp) :: AGV(n,nIter), DGV(n,nIter), CDV(n)
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, iter
-real(kind=wp) :: alpha, beta, proj, r, xx, yx, yx_xx
+real(kind=wp) :: alpha, beta, r, xx, yx, yx_xx
 real(kind=wp), allocatable :: x0(:), x1(:)
 real(kind=wp), external :: DDot_
 
@@ -71,24 +70,17 @@ call mma_allocate(x1,n,Label='x1')
 
 ! Get the directional vector for the first difference gradient vector (DGV).
 
-call dcopy_(n,DGV,1,x0,1)
-r = One/sqrt(DDot_(n,x0,1,x0,1))
-call DScal_(n,r,x0,1)
-call dcopy_(n,x0,1,x1,1)
+x0(:) = DGV(:,1)/sqrt(DDot_(n,DGV(:,1),1,DGV(:,1),1))
+x1(:) = x0(:)
 
 ! Initial guess for the coupling derivative vector (CDV) is the
 ! average gradient vector (AGV).
 ! ... or rather its component perpendicular to DGV
 ! so, remove the projection of CDV along DGV and renormalize
 
-call dcopy_(n,AGV,1,CDV,1)
-proj = DDot_(n,CDV,1,x0,1)
-call DaXpY_(n,-proj,x0,1,CDV,1)
-r = One/sqrt(DDot_(n,CDV,1,CDV,1))
-call DScal_(n,r,CDV,1)
-if (iPrint >= 6) then
-  call RecPrt('CDV(0)',' ',CDV,n,1)
-end if
+CDV(:) = AGV(:,1)-DDot_(n,AGV(:,1),1,x0,1)*x0(:)
+CDV(:) = CDV(:)/sqrt(DDot_(n,CDV,1,CDV,1))
+if (iPrint >= 6) call RecPrt('CDV(0)',' ',CDV,n,1)
 
 ! Apply the MOM update method to correct the guessed CDV.
 
@@ -96,9 +88,9 @@ end if
 ! ipx1: xk,   ~DGV of current iteration
 
 do iter=2,nIter
-  call dcopy_(n,DGV(1,iter),1,x1,1)
-  r = One/sqrt(DDot_(n,x1,1,x1,1))
-  call DScal_(n,r,x1,1)
+  x1(:) = DGV(:,iter)
+  r = sqrt(DDot_(n,x1,1,x1,1))
+  x1(:) = DGV(:,iter)/r
 
   xx = DDot_(n,x0,1,x1,1)
   yx = DDot_(n,CDV,1,x1,1)
@@ -108,8 +100,7 @@ do iter=2,nIter
   ! but will keep the y vector sign if x does not change
   alpha = -yx/yx_xx
   beta = xx/yx_xx
-  call DScal_(n,beta,CDV,1)
-  call DaXpY_(n,alpha,x0,1,CDV,1)
+  CDV(:) = beta*CDV(:)+alpha*x0(:)
 
   ! remove the projection of CDV along DGV and renormalize
 
@@ -122,24 +113,19 @@ do iter=2,nIter
     write(u6,*) 'alpha,beta=',alpha,beta
   end if
 
-  proj = DDot_(n,CDV,1,x1,1)
-  call DaXpY_(n,-proj,x1,1,CDV,1)
-  r = One/sqrt(DDot_(n,CDV,1,CDV,1))
-  call DScal_(n,r,CDV,1)
+  CDV(:) = CDV(:)-DDot_(n,CDV,1,x1,1)*x1(:)
+  r = sqrt(DDot_(n,CDV,1,CDV,1))
+  CDV(:) = CDV(:)/r
 
-  if (iPrint >= 6) then
-    write(u6,*) 'r(CDV)=',r
-  end if
+  if (iPrint >= 6) write(u6,*) 'r(CDV)=',r
 
-  if (iter /= nIter) call dcopy_(n,x0,1,x1,1)
+  if (iter /= nIter) x1(:) = x0(:)
 
 end do
 
 call mma_deallocate(x1)
 call mma_deallocate(x0)
-if (iPrint >= 6) then
-  call RecPrt('CDV',' ',CDV,n,1)
-end if
+if (iPrint >= 6) call RecPrt('CDV',' ',CDV,n,1)
 
 return
 

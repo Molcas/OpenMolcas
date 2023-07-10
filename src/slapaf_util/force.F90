@@ -11,6 +11,9 @@
 
 subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Iter,Grad,Lbl,Degen)
 
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: AtomLbl
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -18,7 +21,7 @@ implicit none
 integer(kind=iwp) :: nFix, nAtom, nInter, Iter
 real(kind=wp) :: GrdX(3*nAtom), BMx(3*nAtom,3*nAtom), Grad(nInter,Iter), Degen(3*nAtom)
 character(len=8) :: Lbl(nInter)
-integer(kind=iwp) :: i, M, N, NRHS
+integer(kind=iwp) :: M, N, NRHS
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: Frc(:)
 
@@ -39,9 +42,7 @@ call mma_allocate(Frc,3*nAtom,Label='Frc')
 !
 ! |dE/dx|=Sqrt(dE/dx|u|dE/dx)
 
-do i=1,3*nAtom
-  Frc(i) = Degen(i)*GrdX(i)
-end do
+Frc(:) = Degen(:)*GrdX(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -66,10 +67,7 @@ if (nFix /= 0) call Fixic(nFix,Grad(1,Iter),nInter,BMx,nAtom*3,GrdX,Lbl,Degen)
 ! Write cartesian symmetry distinct forces which will be relaxed.
 
 #ifdef _DEBUGPRINT_
-block
-  use Slapaf_Info, only: AtomLbl
-  call PrList('Cartesian forces which will be relaxed hartree/bohr',AtomLbl,nAtom,GrdX,3,nAtom)
-end block
+call PrList('Cartesian forces which will be relaxed hartree/bohr',AtomLbl,nAtom,GrdX,3,nAtom)
 #endif
 
 call mma_deallocate(Frc)

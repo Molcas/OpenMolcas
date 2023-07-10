@@ -22,7 +22,7 @@ real(kind=wp) :: xyz(3,nCent), HDist, Bf(3,nCent), dBf(3,nCent,3,nCent)
 logical(kind=iwp) :: l_Write, ldB
 character(len=8) :: Label
 integer(kind=iwp) :: i, iCent, nTrans
-real(kind=wp) :: f, Fact, RR_R12, SqInvTWeight, TWeight, xWeight
+real(kind=wp) :: f, RR_R12, SqInvTWeight, TWeight, xWeight
 logical(kind=iwp) :: lTrans
 real(kind=wp), allocatable, target :: TV(:,:)
 real(kind=wp), pointer :: r12_p(:,:)
@@ -63,8 +63,7 @@ end if
 RR_R12 = Zero
 TWeight = Zero
 do iCent=1,nCent
-  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
-  xWeight = Fact*Weights(iCent)
+  xWeight = real(iDeg(xyz(1,iCent)),kind=wp)*Weights(iCent)
   TWeight = TWeight+xWeight
   do i=1,3
     RR_R12 = RR_R12+xWeight*(r12_p(i,iCent))**2
@@ -80,8 +79,7 @@ SqInvTWeight = One/sqrt(TWeight)
 
 f = Zero
 do iCent=1,nCent
-  Fact = real(iDeg(xyz(1,iCent)),kind=wp)
-  xWeight = Fact*Weights(iCent)
+  xWeight = real(iDeg(xyz(1,iCent)),kind=wp)*Weights(iCent)
   do i=1,3
     f = f+xWeight*(xyz(i,iCent)-RefGeo(i,iCent))*r12_p(i,iCent)
   end do
@@ -96,9 +94,7 @@ else
 end if
 !write(u6,*) 'f, RR_R12=',f,RR_R12
 
-if (l_Write) then
-  write(u6,'(2A,F18.8,A)') Label,' : Hyperplane distance =',HDist,' au (weighted/sqrt(total weight)'
-end if
+if (l_Write) write(u6,'(2A,F18.8,A)') Label,' : Hyperplane distance =',HDist,' au (weighted/sqrt(total weight)'
 
 !                                                                      *
 !***********************************************************************
@@ -106,17 +102,16 @@ end if
 ! Compute the WDC B-matrix
 ! If the direction is null, the derivative is not defined
 
-call FZero(Bf,3*nCent)
+Bf(:,:) = Zero
 if (RR_R12 > Zero) then
 
   ! The derivative is simply the unit direction vector
   ! (with weighting and scaling accounted for)
 
   do iCent=1,nCent
-    Fact = real(iDeg(xyz(1,iCent)),kind=wp)
-    xWeight = Fact*Weights(iCent)
+    xWeight = real(iDeg(xyz(1,iCent)),kind=wp)*Weights(iCent)
     do i=1,3
-      Bf(i,iCent) = xWeight*r12_p(i,iCent)/RR_R12*SqInvTWeight
+      Bf(:,iCent) = xWeight*r12_p(:,iCent)/RR_R12*SqInvTWeight
     end do
   end do
 end if
@@ -126,12 +121,10 @@ end if
 !                                                                      *
 ! The second derivative is null, as the derivative is constant
 
-if (ldB) then
-  call FZero(dBf,(3*nCent)**2)
-end if
+if (ldB) dBf(:,:,:,:) = Zero
 
 if (lTrans) call mma_deallocate(TV)
-r12_p => null()
+nullify(r12_p)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

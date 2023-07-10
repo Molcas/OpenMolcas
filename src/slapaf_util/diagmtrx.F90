@@ -12,7 +12,7 @@
 subroutine DiagMtrx(H,nH,iNeg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -46,8 +46,7 @@ end do
 
 ! Set up a unit matrix
 
-call dcopy_(nH*nH,[Zero],0,EVec,1)
-call dcopy_(nH,[One],0,EVec,nH+1)
+call unitmat(EVec,nH)
 
 ! Compute eigenvalues and eigenvectors
 

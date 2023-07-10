@@ -20,7 +20,7 @@ logical(kind=iwp) :: RinT_
 
 ! M is formed as U union RU
 
-call iCopy(nU,iU,1,iM,1) ! copy the first elements
+iM(1:nU) = iU(:) ! copy the first elements
 nM = nU
 do i=1,nV
   iRV = ieor(iR,iV(i))

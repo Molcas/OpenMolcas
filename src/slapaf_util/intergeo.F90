@@ -169,9 +169,7 @@ end do
 nAt = 0
 write(Lu_Molden,*) '[GEOMETRIES] (XYZ)'
 do ndc=1,msAtom+msAtom_p
-  do i=0,nIrrep/nStab2(ndc)-1
-    nAt = nAt+1
-  end do
+  nAt = nAt+nIrrep/nStab2(ndc)
 end do
 
 do iIter=1,nIter

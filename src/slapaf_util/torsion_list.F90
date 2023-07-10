@@ -58,7 +58,7 @@ logical(kind=iwp), external :: R_Stab_A, Torsion_Check
 if (nBonds < 3) return
 
 nqT = 0
-call FZero(Hess,144)
+Hess(:) = Zero
 
 ! Loop over dihedrals
 
@@ -203,9 +203,9 @@ do iBond=1,nBonds
       write(u6,*)
       write(u6,*) 'E=',AtomLbl(iAtom),ChOp(iDCR(1))
 #     endif
-      call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
-      call dcopy_(3,Cx(1,iAtom,iRef),1,Ref,1)
-      call dcopy_(3,Cx(1,iAtom,iPrv),1,Prv,1)
+      A(:,1) = Cx(:,iAtom,iIter)
+      Ref(:,1) = Cx(:,iAtom,iRef)
+      Prv(:,1) = Cx(:,iAtom,iPrv)
       Help = (ir > 3) .or. (jr > 3)
 
       ! Form double coset representatives for (iAtom,jAtom)
@@ -341,8 +341,8 @@ do iBond=1,nBonds
         ! are not included. If A=B we will normally exclude
         ! the pairs R(A)-A and TS(C)-T(C).
 
-        call iCopy(nDCRT,iDCRT,1,iDCRX,1)
-        call iCopy(nDCRT,iDCRT,1,iDCRY,1)
+        iDCRX(0:nDCRT-1) = iDCRT(0:nDCRT-1)
+        iDCRY(0:nDCRT-1) = iDCRT(0:nDCRT-1)
         nDCRX = nDCRT
         nDCRY = nDCRT
         if (iAtom == jAtom) then
@@ -415,9 +415,7 @@ do iBond=1,nBonds
           rkl2 = (A(1,3)-A(1,4))**2+(A(2,3)-A(2,4))**2+(A(3,3)-A(3,4))**2
           f_Const = f_Const_ijk*exp(Alpha*(r0**2-rkl2))
         end if
-        if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,Ref,iTabAtoms,nMax,mAtoms)) then
-          f_Const_Ref = max(f_Const_Ref,Ten*F_Const_Min)
-        end if
+        if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,Ref,iTabAtoms,nMax,mAtoms)) f_Const_Ref = max(f_Const_Ref,Ten*F_Const_Min)
 
         if ((f_Const_Ref < f_Const_Min) .and. (iBondType /= Fragments_Bond) .and. (iBondType <= Fragments_Bond) .and. &
             (jBondType /= Fragments_Bond) .and. (kBondType /= Fragments_Bond)) cycle

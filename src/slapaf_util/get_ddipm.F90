@@ -79,9 +79,7 @@ do i=1,3
   rNorm = Zero
   do iAtom=1,nAtom
     rNorm = rNorm+Degen(i,iAtom)
-    if (Smmtrc(i,iAtom)) then
-      CM(i) = CM(i)+Degen(i,iAtom)*Cx(i,iAtom,1)
-    end if
+    if (Smmtrc(i,iAtom)) CM(i) = CM(i)+Degen(i,iAtom)*Cx(i,iAtom,1)
   end do
   CM(i) = CM(i)/rNorm
 end do
@@ -118,7 +116,7 @@ do iX=mTR,1,-1
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Translation'
 #   endif
-    call dcopy_(3,[Zero],0,dDipM(1,iTR),1)
+    dDipM(:,iTR) = Zero
 
   else if ((Tx**2+Ty**2+Tz**2 < thr) .and. (Rx**2+Ry**2+Rz**2 > thr)) then
     rNorm = (Rx**2+Ry**2+Rz**2)
@@ -176,7 +174,7 @@ do ix=1,3
   end do
 
 end do
-call dcopy_(3*nDoF,Tmp2,1,dDipM,1)
+dDipM(:,:) = reshape(Tmp2(1:3*nDoF),[3,nDoF])
 #ifdef _DEBUGPRINT_
 call RecPrt('dDipM(cartesian)',' ',dDipM,3,nDoF)
 #endif

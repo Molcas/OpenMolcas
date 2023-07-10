@@ -32,7 +32,7 @@ real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), 
 logical(kind=iwp) :: Invariant, PSPrint
 character(len=14) :: Label
 integer(kind=iwp), allocatable :: iDCR(:), Ind(:)
-real(kind=wp), allocatable :: currXYZ(:,:), d2RV(:,:,:), dRVdxyz(:,:), Grad(:,:), Hess(:,:), Ref123(:,:), xMass(:)
+real(kind=wp), allocatable :: currXYZ(:,:), d2RV(:,:,:), dRVdxyz(:,:,:), Grad(:,:), Hess(:,:), Ref123(:,:), xMass(:)
 character(len=*), parameter :: TR_type(6) = ['Tx ','Ty ','Tz ','Ryz','Rzx','Rxy']
 
 iRout = 151
@@ -60,7 +60,7 @@ mB = nCent*3
 call mma_allocate(currXYZ,3,nCent,label='currXYZ')
 call mma_allocate(Ref123,3,nCent,label='Ref123')
 call mma_allocate(Grad,3,nCent,label='Grad')
-call mma_allocate(dRVdxyz,3,3*nCent,label='dRVdxyz')
+call mma_allocate(dRVdxyz,3,3,nCent,label='dRVdxyz')
 call mma_allocate(xMass,nCent,label='xMass')
 call mma_allocate(Ind,nCent,label='Ind')
 call mma_allocate(iDCR,nCent,label='iDCR')
@@ -131,7 +131,7 @@ do ixyz=1,3
 
   ! Compute the gradient
 
-  call dcopy_(mB,[Zero],0,Grad,1)
+  Grad(:,:) = Zero
   do iCent=1,nCent
     iAtom = Ind(iCent)
     !write(u6,*) 'iAtom,iCOM=',iAtom,iCOM
@@ -143,7 +143,7 @@ do ixyz=1,3
 
   ! Second derivative is trivially zero!
 
-  call FZero(Hess,mB**2)
+  Hess(:,:) = Zero
   if (Process) then
 
     Indq(1,nq) = -2**(ixyz)/2
@@ -174,8 +174,8 @@ if (VarR) then
 
   nOrder = 2
   nMass = nCent
-  call FZero(Trans,3)
-  call FZero(RotVec,3)
+  Trans(:) = Zero
+  RotVec(:) = Zero
   call mma_allocate(d2RV,3,3*nCent,3*nCent,label='d2RV')
 # ifdef _DEBUGPRINT_
   call RecPrt('xMass',' ',xMass,1,nMass)
@@ -221,16 +221,14 @@ if (VarR) then
 
     ! Compute the gradient
 
-    call dcopy_(mB,[Zero],0,Grad,1)
-    call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
+    Grad(:,:) = dRVdXYZ(ixyz,:,:)
 #   ifdef _DEBUGPRINT_
     call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 #   endif
 
     ! Second derivative
 
-    call FZero(Hess,mB**2)
-    if (Proc_dB) call DCopy_(mB**2,d2RV(ixyz,1,1),3,Hess,1)
+    Hess(:,:) = d2RV(ixyz,:,:)
 
     if (Process) then
 

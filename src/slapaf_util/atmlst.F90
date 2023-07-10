@@ -29,17 +29,14 @@ logical(kind=iwp) :: New
 iSt = 1
 do iAtom=1,nAtom
   iEnd = iSt
-  call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)
+  Coor(:,iSt) = Cart(:,iAtom)
 
   ! Loop over the operators of the point group
 
   do ig=1,nIrrep-1
-    r(1) = One
-    if (btest(iOper(ig),0)) r(1) = -One
-    r(2) = One
-    if (btest(iOper(ig),1)) r(2) = -One
-    r(3) = One
-    if (btest(iOper(ig),2)) r(3) = -One
+    r(1) = merge(-One,One,btest(iOper(ig),0))
+    r(2) = merge(-One,One,btest(iOper(ig),1))
+    r(3) = merge(-One,One,btest(iOper(ig),2))
     x = r(1)*Cart(1,iAtom)
     y = r(2)*Cart(2,iAtom)
     z = r(3)*Cart(3,iAtom)

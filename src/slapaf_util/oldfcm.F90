@@ -51,9 +51,7 @@ end if
 
 ! Get the force constant matrix
 call qpg_dArray('Hess',Found,nHess)
-if ((.not. Found) .or. (nHess == 0)) then
-  call SysAbendmsg('OldFcm','Did not find:','Hess')
-end if
+if ((.not. Found) .or. (nHess == 0)) call SysAbendmsg('OldFcm','Did not find:','Hess')
 
 call mma_Allocate(Hess,nHess,Label='Hess')
 call get_dArray('Hess',Hess,nHess)

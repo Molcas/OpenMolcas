@@ -55,10 +55,8 @@ do iRowH=1,size(mRowH)
     write(u6,*) 'RowHessian: iIter>nIter'
     call Abend()
   end if
-  do jInter=1,nInter
-    H(iInter,jInter) = (dqInt(jInter,1)-dqInt(jInter,iRowH+1))/Delta
-    H(jInter,iInter) = H(iInter,jInter)
-  end do
+  H(iInter,:) = (dqInt(:,1)-dqInt(:,iRowH+1))/Delta
+  H(:,iInter) = H(iInter,:)
 end do
 
 ! Symmetrize

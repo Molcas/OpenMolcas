@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nQQ, nDim, nLambda
 real(kind=wp) :: dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
-integer(kind=iwp) :: i_Dim, idB, iElem, ijDim, iLambda, iq, jdim, nElem
+integer(kind=iwp) :: i_Dim, idB, iElem, ijDim, iq, jdim, nElem
 real(kind=wp) :: dBqR
 real(kind=wp), allocatable :: X(:,:), K(:,:)
 
@@ -47,9 +47,7 @@ do iq=1,mq
     i_Dim = idBM(1+(iElem-1)*2)
     jDim = idBM(2+(iElem-1)*2)
     ijDim = (jDim-1)*nDim+i_Dim
-    do iLambda=1,nLambda
-      QC(ijDim,iLambda) = QC(ijDim,iLambda)+X(iq,iLambda)*dBqR
-    end do
+    QC(ijDim,:) = QC(ijDim,:)+X(iq,:)*dBqR
   end do
   idB = idB+nElem**2
 end do

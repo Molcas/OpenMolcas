@@ -25,9 +25,7 @@ real(kind=wp), parameter :: Thr = 1.0e-12_wp
 
 iRout = 117
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
-end if
+if (iPrint >= 99) call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
 XValue = XStart
 RC = .true.
 MaxIter = 100
@@ -55,9 +53,7 @@ do i=1,MaxIter
   end do
   XInc = dfnc/ddfnc
   XValue = XValue-XInc
-  if (iPrint == 99) then
-    write(u6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
-  end if
+  if (iPrint == 99) write(u6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
   if (abs(XInc) < Thr) then
     ENew = fnc
     XMin = XValue

@@ -59,9 +59,7 @@ RR0_unscaled = sqrt(RR0)
 SqInvTWeight = One/sqrt(TWeight)
 RR0 = RR0_unscaled*SqInvTWeight
 
-if (l_Write) then
-  write(u6,'(2A,F18.8,A)') Label,' : Radius of h-sphere= ',RR0,' au (weighted/sqrt(total weight))'
-end if
+if (l_Write) write(u6,'(2A,F18.8,A)') Label,' : Radius of h-sphere= ',RR0,' au (weighted/sqrt(total weight))'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -93,7 +91,7 @@ end do
 
 !FIXME: revise the symmetry
 if (ldB) then
-  call FZero(dBf,(3*nCent)**2)
+  dBf(:,:,:,:) = Zero
   if (RR0 /= Zero) then
     do iCent=1,nCent
       Fact = real(iDeg(xyz(1,iCent)),kind=wp)
@@ -115,11 +113,11 @@ if (ldB) then
       end do
     end do
   end if
-!call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
+  !call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 
 end if
 
-xyz0 => null()
+nullify(xyz0)
 
 return
 

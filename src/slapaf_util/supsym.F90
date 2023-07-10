@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nsAtom, nSupSy, Idntcl(nSupSy), iAtom(nsAtom)
 real(kind=wp) :: FrcCrt(3,nsAtom), Coor(3,nsAtom)
-integer(kind=iwp) :: I, ICEN, IDIV, J, K, L
-real(kind=wp) :: ABSE, cMass(3), E(3), E2, FORCE, PROJ
+integer(kind=iwp) :: I, ICEN, IDIV, J, K
+real(kind=wp) :: cMass(3), E(3), FORCE, PROJ
 integer(kind=iwp), external :: iDeg
 real(kind=wp), external :: DDot_
 
@@ -46,16 +46,9 @@ do I=1,nSupSy
     ! Get an unit vector in the direction from center of mass to
     ! the ICEN'th center.
 
-    E2 = Zero
-    do L=1,3
-      E(L) = Coor(L,ICEN)-cMass(L)
-      E2 = E2+E(L)*E(L)
-    end do
-    ABSE = sqrt(E2)
+    E(:) = Coor(:,ICEN)-cMass(:)
     ! Normalize the vector.
-    do L=1,3
-      E(L) = E(L)/ABSE
-    end do
+    E(:) = E(:)/sqrt(sum(E(:)**2))
 
     ! Project the force of the ICEN'th center on this unit vector
 
@@ -67,9 +60,7 @@ do I=1,nSupSy
 
     ! Save the unit vector of the new force of this center
 
-    do L=1,3
-      FrcCrt(L,ICEN) = E(L)
-    end do
+    FrcCrt(:,ICEN) = E(:)
   end do
 
   ! Get the new force
@@ -82,9 +73,7 @@ do I=1,nSupSy
     K = K+1
     ICEN = iAtom(K)
 
-    do L=1,3
-      FrcCrt(L,ICEN) = FrcCrt(L,ICEN)*FORCE
-    end do
+    FrcCrt(:,ICEN) = FrcCrt(:,ICEN)*FORCE
   end do
 end do
 

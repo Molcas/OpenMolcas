@@ -30,8 +30,8 @@ implicit none
 integer(kind=iwp) :: LuSpool
 logical(kind=iwp) :: Dummy_Call
 #include "print.fh"
-integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, ixyz, j, jStrt, kPrint, Lu, &
-                     Lu_UDC, Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
+integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu, Lu_UDC, &
+                     Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
 real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
 logical(kind=iwp) :: Expert, Explicit_IRC, External_UDC, FirstNum, Found, Manual_Beta, ThrInp
 character(len=180) :: Chr, Key
@@ -418,28 +418,29 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         Chr = Get_Ln(LuRd)
         read(Chr,*) Chr
         call UpCase(Chr)
-        if (trim(Chr) == 'BFGS') then
-          iOptH = ibset(0,2)
-        !else if (trim(Chr) == 'MEYER') then
-        !  iOptH = ibset(0,0)
-        !else if (trim(Chr) == 'BP') then
-        !  iOptH = ibset(0,1)
-        else if (trim(Chr) == 'NONE') then
-          iOptH = ibset(0,3)
-        else if (trim(Chr) == 'MSP') then
-          iOptH = ibset(0,4)
-        else if (trim(Chr) == 'EU') then
-          iOptH = ibset(0,5)
-        else if (trim(Chr) == 'TS-BFGS') then
-          iOptH = ibset(0,6)
-        else
-          call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '************ ERROR ****************'
-          write(Lu,*) 'Unsupported Hessian update method: ',trim(Chr)
-          write(Lu,*) '***********************************'
-          call Quit_OnUserError()
-        end if
+        select case (Chr)
+          !case ('MEYER') then
+          !  iOptH = ibset(0,0)
+          !case ('BP') then
+          !  iOptH = ibset(0,1)
+          case ('BFGS')
+            iOptH = ibset(0,2)
+          case ('NONE')
+            iOptH = ibset(0,3)
+          case ('MSP')
+            iOptH = ibset(0,4)
+          case ('EU')
+            iOptH = ibset(0,5)
+          case ('TS-BFGS')
+            iOptH = ibset(0,6)
+          case default
+            call WarningMessage(2,'Error in RdCtl_Slapaf')
+            write(Lu,*)
+            write(Lu,*) '************ ERROR ****************'
+            write(Lu,*) 'Unsupported Hessian update method: ',trim(Chr)
+            write(Lu,*) '***********************************'
+            call Quit_OnUserError()
+        end select
 
       case ('HWRS')
         !                                                              *
@@ -482,9 +483,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           ! Lines with VARY or FIX doesn't have equal signs
 
           if (Key(1:4) == 'VARY') nBVec = iRow
-          if ((Key(1:4) == 'VARY') .or. (Key(1:3) == 'FIX') .or. (Key(1:4) == 'ROWH')) then
-            NewLine = 0
-          end if
+          if ((Key(1:4) == 'VARY') .or. (Key(1:3) == 'FIX') .or. (Key(1:4) == 'ROWH')) NewLine = 0
 
           do
             if (NewLine /= 1) exit
@@ -1144,7 +1143,7 @@ if (abs(IRC) == 1) then
 
   if (Explicit_IRC .and. (iMEP == 0)) then
     ! Case 1)
-    call dcopy_(3*nsAtom,TmpRx,1,MF,1)
+    MF(:,1:nsAtom) = reshape(TmpRx,[3,nsAtom])
   else if (iMEP == 0) then
     call NameRun('RUNOLD')
     call qpg_dArray('Reaction Vector',Found,nRx)
@@ -1173,18 +1172,17 @@ if (abs(IRC) == 1) then
 
   ! Fix the direction forward/backwards
 
-  if ((iMEP == 0) .and. (iRC == -1)) call DScal_(3*nsAtom,-One,MF,1)
+  if ((iMEP == 0) .and. (iRC == -1)) MF(:,1:nsAtom) = -MF(:,1:nsAtom)
   if ((iMEP == 0) .and. (MEP_Type == 'TRANSVERSE')) call Put_dArray('Transverse',MF,3*nsAtom)
 
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (FindTS .and. (.not. TSConstraints)) then
-  call SysWarnMsg('RdCtl_Slapaf','WARNING:','FindTS specified, but no TSConstraints. '// &
-                  'It is highly recommended to use TSConstraints in SLAPAF instead of (or in addition to) global constraints '// &
-                  'when using FindTS. TSConstraints will be lifted in the final TS search.')
-end if
+if (FindTS .and. (.not. TSConstraints)) call SysWarnMsg('RdCtl_Slapaf','WARNING:','FindTS specified, but no TSConstraints. '// &
+                                                        'It is highly recommended to use TSConstraints in SLAPAF instead of '// &
+                                                        '(or in addition to) global constraints when using FindTS. '// &
+                                                        'TSConstraints will be lifted in the final TS search.')
 TSConstraints = TSConstraints .and. FindTS
 
 if ((MEP .or. rMEP) .and. (.not. Request_Alaska)) then
@@ -1201,9 +1199,7 @@ if ((MEP .or. rMEP) .and. (.not. Request_Alaska)) then
       call mma_allocate(Dir,3,nsAtom,Label='Dir')
       do iAtom=1,nsAtom
         xWeight = Weights(iAtom)
-        do ixyz=1,3
-          Dir(ixyz,iAtom) = Gx(ixyz,iAtom,iter)/xWeight
-        end do
+        Dir(:,iAtom) = Gx(:,iAtom,iter)/xWeight
       end do
       call Put_dArray('Transverse',Dir,3*nsAtom)
       call mma_deallocate(Dir)
@@ -1342,9 +1338,7 @@ if (Kriging) then
 
   call Qpg_iScalar('TS Search',Found)
   if (Found) call Get_lScalar('TS Search',Found)
-  if (FindTS .and. (.not. (Found .or. Manual_Beta))) then
-    Beta_Disp = 0.1_wp
-  end if
+  if (FindTS .and. (.not. (Found .or. Manual_Beta))) Beta_Disp = 0.1_wp
 end if
 !                                                                      *
 !***********************************************************************
@@ -1352,9 +1346,7 @@ end if
 ! Write out input parameters, No output if we didn't find the proper
 ! gradients on the runfile. We will come back!!!
 
-if (SuperName == 'slapaf') then
-  if (.not. Request_Alaska) call WrInp_sl()
-end if
+if ((SuperName == 'slapaf') .and. (.not. Request_Alaska)) call WrInp_sl()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

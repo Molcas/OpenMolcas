@@ -38,10 +38,8 @@ real(kind=wp), external :: DDot_
 !call RecPrt('  qi-1',' ', qi_1,1,nInter)
 !call RecPrt('  q_ref',' ', q_ref,1,nInter)
 
-do i=1,nInter
-  u(i) = -(gi_1(i)-g_ref(i))
-  v(i) = -(gi_2(i)-g_ref(i))
-end do
+u(:) = -(gi_1(:)-g_ref(:))
+v(:) = -(gi_2(:)-g_ref(:))
 rLHS = DDot_(nInter,qi_2,1,u,1)-DDot_(nInter,q_ref,1,u,1)-DDot_(nInter,qi_1,1,v,1)+DDot_(nInter,q_ref,1,v,1)
 write(u6,*) 'FUpdt: LHS=',rLHS
 RHS = Zero
@@ -56,9 +54,7 @@ RHS = Half*RHS
 write(u6,*) 'FUpdt: RHS=',RHS
 lambda = rLHS-RHS
 write(u6,*) ' FUpdt: lambda=',lambda
-do i=1,nInter
-  w(i) = v(i)-u(i)
-end do
+w(:) = v(:)-u(:)
 call RecPrt('u',' ',u,1,nInter)
 call RecPrt('v',' ',v,1,nInter)
 call RecPrt('w',' ',w,1,nInter)
@@ -71,20 +67,16 @@ wx = DDot_(nInter,w,1,qi_1,1)-DDot_(nInter,w,1,q_ref,1)
 wy = DDot_(nInter,w,1,qi_2,1)-DDot_(nInter,w,1,q_ref,1)
 lambda = Two*lambda/(ux*vy*(wy-wx)+vx*wy*(uy-ux)+wx*uy*(vy-vx))
 write(u6,*) ' FUpdt: lambda=',lambda
-do i=1,nInter
+do l=1,nInter
   do k=1,nInter
-    do l=1,nInter
-      FEq(i,k,l) = FEq(i,k,l)+lambda*(u(i)*v(k)*w(l)+v(i)*w(k)*u(l)+w(i)*u(k)*v(l))
-    end do
+    FEq(:,k,l) = FEq(:,k,l)+lambda*(u(:)*v(k)*w(l)+v(:)*w(k)*u(l)+w(:)*u(k)*v(l))
   end do
 end do
 
 ! Check on the third order condition
 
-do i=1,nInter
-  u(i) = -(gi_1(i)-g_ref(i))
-  v(i) = -(gi_2(i)-g_ref(i))
-end do
+u(:) = -(gi_1(:)-g_ref(:))
+v(:) = -(gi_2(:)-g_ref(:))
 rLHS = DDot_(nInter,qi_2,1,u,1)-DDot_(nInter,q_ref,1,u,1)-DDot_(nInter,qi_1,1,v,1)+DDot_(nInter,q_ref,1,v,1)
 write(u6,*) 'FUpdt: LHS(qNR)=',rLHS
 RHS = Zero

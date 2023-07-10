@@ -44,7 +44,7 @@ do ic=1,mCentr
   x2 = xyz(1,ic)
   y2 = xyz(2,ic)
   z2 = xyz(3,ic)
-  call dcopy_(3,xyz(1,ic),1,Coor(1,2),1)
+  Coor(:,2) = xyz(:,ic)
   do jc=1,mCentr
     if (jc == ic) cycle
     x3 = xyz(1,jc)
@@ -53,7 +53,7 @@ do ic=1,mCentr
     r2 = sqrt((x3-x2)**2+(y3-y2)**2+(z3-z2)**2)
     if ((r2 > rtrnc) .or. (r2 == Zero)) cycle
     !write(Lu,*)
-    call dcopy_(3,xyz(1,jc),1,Coor(1,3),1)
+    Coor(:,3) = xyz(:,jc)
     do kc=1,mCentr
       if (kc == ic) cycle
       if (kc == jc) cycle
@@ -71,7 +71,7 @@ do ic=1,mCentr
       z12 = (x2-x1)*(y3-y2)-(x3-x2)*(y2-y1)
       r12 = sqrt(x12**2+y12**2+z12**2)
       if (r12 == Zero) cycle
-      call dcopy_(3,xyz(1,kc),1,Coor(1,1),1)
+      Coor(:,1) = xyz(:,kc)
       do lc=kc+1,mCentr
         if (lc == ic) cycle
         if (lc == jc) cycle
@@ -90,7 +90,7 @@ do ic=1,mCentr
         z23 = (x3-x2)*(y4-y3)-(x4-x3)*(y3-y2)
         r23 = sqrt(x23**2+y23**2+z23**2)
         if (r23 == Zero) cycle
-        call dcopy_(3,xyz(1,lc),1,Coor(1,4),1)
+        Coor(:,4) = xyz(:,lc)
         !arg = (x12*x23+y12*y23+z12*z23)/(r12*r23)
         !if (abs(arg) > One) arg = sign(One,arg)
         !Phi12 = acos(arg)/deg2rad

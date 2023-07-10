@@ -58,7 +58,7 @@ else
   Fir = ArCos(Co)
   Si = sqrt(One-Co**2)
 end if
-!
+
 if (Fir < 1.0e-13_wp) then
   Fir = Zero
   return
@@ -74,7 +74,7 @@ if (lWrite) write(u6,'(1X,A,A,F10.4,A,F10.6,A)') Label,' : Angle=    ',dFir,'   
 
 if (Si == Zero) then
   ! Dummy assignment for a linear system!
-  call dcopy_(3*nCent,[Zero],0,Bf,1)
+  Bf(:,:) = Zero
 else
   do i=1,3
     Bf(i,1) = (Co*BRij(i,1)-BRjk(i,2))/(Si*Rij1)

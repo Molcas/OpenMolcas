@@ -36,8 +36,8 @@ write(u6,*) 'Find_Bonds: ThrB=',ThrB
 write(u6,*) 'Initialize iTabAtoms'
 #endif
 
-call ICopy(nBondMax*3,[0],0,iTabBonds,1)
-call ICopy(2*(nMax+1)*nAtoms,[0],0,iTabAtoms,1)
+iTabBonds(:,:) = 0
+iTabAtoms(:,:,:) = 0
 nBonds = 0
 !                                                                      *
 !***********************************************************************

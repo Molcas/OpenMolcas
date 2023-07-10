@@ -11,7 +11,6 @@
 
 subroutine ShfANM(nInter,nIter,rInt,Shift)
 
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,8 +28,7 @@ call RecPrt(' ShfANM: rInt',' ',rInt,nInter,nIter)
 !           n   n+1  n
 
 do Iter=1,nIter-1
-  call dcopy_(nInter,rInt(1,Iter+1),1,Shift(1,Iter),1)
-  call DaXpY_(nInter,-One,rInt(1,Iter),1,Shift(1,Iter),1)
+  Shift(:,Iter) = rInt(:,Iter+1)-rInt(:,Iter)
 end do
 
 #ifdef _DEBUGPRINT_

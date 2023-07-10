@@ -143,7 +143,7 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom,mLambda)
 
   integer(kind=iwp) :: iter, MaxItr, mTROld, nsAtom, mLambda
   logical(kind=iwp) :: lOld_Implicit
-  integer(kind=iwp) :: iOff, itmp, Lngth
+  integer(kind=iwp) :: iLn, iOff, itmp, Lngth
   logical(kind=iwp) :: Exists
   integer(kind=iwp), allocatable :: Information(:)
   real(kind=wp), allocatable :: Relax(:)
@@ -205,34 +205,42 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom,mLambda)
   if (SuperName /= 'numerical_gradient') then
 
     Lngth = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)+size(Gx)+size(Gx0)+size(NAC)+size(MF)
-    if (allocated(Lambda)) then
-      Lngth = Lngth+size(Lambda)
-    end if
+    if (allocated(Lambda)) Lngth = Lngth+size(Lambda)
     call mma_allocate(Relax,Lngth,Label='Relax')
     call Get_dArray('Slapaf Info 2',Relax,Lngth)
 
     iOff = 1
-    call DCopy_(size(Energy),Relax(iOff),1,Energy,1)
-    iOff = iOff+size(Energy)
-    call DCopy_(size(Energy0),Relax(iOff),1,Energy0,1)
-    iOff = iOff+size(Energy0)
-    call DCopy_(size(DipM),Relax(iOff),1,DipM,1)
-    iOff = iOff+size(DipM)
-    call DCopy_(size(GNrm),Relax(iOff),1,GNrm,1)
-    iOff = iOff+size(GNrm)
-    call DCopy_(size(Cx),Relax(iOff),1,Cx,1)
-    iOff = iOff+size(Cx)
-    call DCopy_(size(Gx),Relax(iOff),1,Gx,1)
-    iOff = iOff+size(Gx)
-    call DCopy_(size(Gx0),Relax(iOff),1,Gx0,1)
-    iOff = iOff+size(Gx0)
-    call DCopy_(size(NAC),Relax(iOff),1,NAC,1)
-    iOff = iOff+size(NAC)
-    call DCopy_(size(MF),Relax(iOff),1,MF,1)
-    iOff = iOff+size(MF)
+    iLn = size(Energy)
+    Energy(:) = Relax(iOff:iOff+iLn-1)
+    iOff = iOff+iLn
+    iLn = size(Energy0)
+    Energy0(:) = Relax(iOff:iOff+iLn-1)
+    iOff = iOff+iLn
+    iLn = size(DipM)
+    DipM(:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(DipM))
+    iOff = iOff+iLn
+    iLn = size(GNrm)
+    GNrm(:) = Relax(iOff:iOff+iLn-1)
+    iOff = iOff+iLn
+    iLn = size(Cx)
+    Cx(:,:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(Cx))
+    iOff = iOff+iLn
+    iLn = size(Gx)
+    Gx(:,:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(Gx))
+    iOff = iOff+iLn
+    iLn = size(Gx0)
+    Gx0(:,:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(Gx0))
+    iOff = iOff+iLn
+    iLn = size(NAC)
+    NAC(:,:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(NAC))
+    iOff = iOff+iLn
+    iLn = size(MF)
+    MF(:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(MF))
+    iOff = iOff+iLn
     if (allocated(Lambda)) then
-      call DCopy_(size(Lambda),Relax(iOff),1,Lambda,1)
-      iOff = iOff+size(Lambda)
+      iLn = size(Lambda)
+      Lambda(:,:) = reshape(Relax(iOff:iOff+iLn-1),shape(Lambda))
+      iOff = iOff+iLn
     end if
     call mma_deallocate(Relax)
   else
@@ -249,7 +257,7 @@ subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_I
   logical(kind=iwp) :: lStop, Just_Frequencies, lOld_Implicit
   real(kind=wp) :: Energy_In
   integer(kind=iwp) :: Iter, MaxItr, mTROld, nsAtom
-  integer(kind=iwp) :: iOff, iOff_Iter, Lngth, nSlap
+  integer(kind=iwp) :: iLn, iOff, iOff_Iter, Lngth, nSlap
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: Information(:)
   real(kind=wp), allocatable :: GxFix(:,:), Relax(:)
@@ -274,8 +282,7 @@ subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_I
     if (Just_Frequencies) then
       call Put_dScalar('Last Energy',Energy_In)
       call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
-      call dcopy_(3*nsAtom,Gx,1,GxFix,1)
-      GxFix(:,:) = -GxFix(:,:)
+      GxFix(:,:) = -Gx(:,:,1)
       call Put_dArray('GRAD',GxFix,3*nsAtom)
       call mma_deallocate(GxFix)
       call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
@@ -305,32 +312,40 @@ subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_I
     call Put_iArray('Slapaf Info 1',Information,7)
 
     Lngth = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)+size(Gx)+size(Gx0)+size(NAC)+size(MF)
-    if (allocated(Lambda)) then
-      Lngth = Lngth+size(Lambda)
-    end if
+    if (allocated(Lambda)) Lngth = Lngth+size(Lambda)
     call mma_allocate(Relax,Lngth,Label='Relax')
     iOff = 1
-    call DCopy_(size(Energy),Energy,1,Relax(iOff),1)
-    iOff = iOff+size(Energy)
-    call DCopy_(size(Energy0),Energy0,1,Relax(iOff),1)
-    iOff = iOff+size(Energy0)
-    call DCopy_(size(DipM),DipM,1,Relax(iOff),1)
-    iOff = iOff+size(DipM)
-    call DCopy_(size(GNrm),GNrm,1,Relax(iOff),1)
-    iOff = iOff+size(GNrm)
-    call DCopy_(size(Cx),Cx,1,Relax(iOff),1)
-    iOff = iOff+size(Cx)
-    call DCopy_(size(Gx),Gx,1,Relax(iOff),1)
-    iOff = iOff+size(Gx)
-    call DCopy_(size(Gx0),Gx0,1,Relax(iOff),1)
-    iOff = iOff+size(Gx0)
-    call DCopy_(size(NAC),NAC,1,Relax(iOff),1)
-    iOff = iOff+size(NAC)
-    call DCopy_(size(MF),MF,1,Relax(iOff),1)
-    iOff = iOff+size(MF)
+    iLn = size(Energy)
+    Relax(iOff:iOff+iLn-1) = pack(Energy,.true.)
+    iOff = iOff+iLn
+    iLn = size(Energy0)
+    Relax(iOff:iOff+iLn-1) = pack(Energy0,.true.)
+    iOff = iOff+iLn
+    iLn = size(DipM)
+    Relax(iOff:iOff+iLn-1) = pack(DipM,.true.)
+    iOff = iOff+iLn
+    iLn = size(GNrm)
+    Relax(iOff:iOff+iLn-1) = pack(GNrm,.true.)
+    iOff = iOff+iLn
+    iLn = size(Cx)
+    Relax(iOff:iOff+iLn-1) = pack(Cx,.true.)
+    iOff = iOff+iLn
+    iLn = size(Gx)
+    Relax(iOff:iOff+iLn-1) = pack(Gx,.true.)
+    iOff = iOff+iLn
+    iLn = size(Gx0)
+    Relax(iOff:iOff+iLn-1) = pack(Gx0,.true.)
+    iOff = iOff+iLn
+    iLn = size(NAC)
+    Relax(iOff:iOff+iLn-1) = pack(NAC,.true.)
+    iOff = iOff+iLn
+    iLn = size(MF)
+    Relax(iOff:iOff+iLn-1) = pack(MF,.true.)
+    iOff = iOff+iLn
     if (allocated(Lambda)) then
-      call DCopy_(size(Lambda),Lambda,1,Relax(iOff),1)
-      iOff = iOff+size(Lambda)
+      iLn = size(Lambda)
+      Relax(iOff:iOff+iLn-1) = pack(Lambda,.true.)
+      iOff = iOff+iLn
     end if
     call Put_dArray('Slapaf Info 2',Relax,Lngth)
     call mma_deallocate(Relax)

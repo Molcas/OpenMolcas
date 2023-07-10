@@ -24,7 +24,7 @@ i_Dim = 0
 do iX=1,nX
   if (Smmtrc(iX)) then
     i_Dim = i_Dim+1
-    if (i_Dim /= iX) call dcopy_(nTR,TRVec(1,iX),1,TRVec(1,i_Dim),1)
+    if (i_Dim /= iX) TRVec(:,i_Dim) = TRVec(:,iX)
   end if
 end do
 

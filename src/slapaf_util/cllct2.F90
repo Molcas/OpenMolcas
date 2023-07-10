@@ -148,7 +148,7 @@ do ixyz=1,nCent
 
   Ind(ixyz,1) = jsAtom
   Ind(ixyz,2) = iPhase
-  call dcopy_(3,Cx(:,jsAtom,lIter),1,xyz(1,ixyz),1)
+  xyz(:,ixyz) = Cx(:,jsAtom,lIter)
   ! Generate actual coordinate
   if (btest(iPhase,0)) xyz(1,ixyz) = -xyz(1,ixyz)
   if (btest(iPhase,1)) xyz(2,ixyz) = -xyz(2,ixyz)
@@ -168,22 +168,22 @@ end if
 
 if (Typ == 'X     ') then
   Val = xyz(1,1)
-  call dcopy_(3,[Zero],0,Grad,1)
-  call dcopy_(9,[Zero],0,Hess,1)
+  Grad(:,:) = Zero
+  Hess(:,:,:,:) = Zero
   Grad(1,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'Y     ') then
   Val = xyz(2,1)
-  call dcopy_(3,[Zero],0,Grad,1)
-  call dcopy_(9,[Zero],0,Hess,1)
+  Grad(:,:) = Zero
+  Hess(:,:,:,:) = Zero
   Grad(2,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'Z     ') then
   Val = xyz(3,1)
-  call dcopy_(3,[Zero],0,Grad,1)
-  call dcopy_(9,[Zero],0,Hess,1)
+  Grad(:,:) = Zero
+  Hess(:,:,:,:) = Zero
   Grad(3,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',Val,'/ bohr'
   Deg = D_Cart(Ind(1,1),nIrrep)

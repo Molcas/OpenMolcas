@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nsAtom, nDim, nIter, mTR, nQQ
 real(kind=wp) :: Coor(3,nsAtom)
-integer(kind=iwp) :: i, i_Dim, iAtom, iInter, ix, ixyz, j, nRowH
+integer(kind=iwp) :: i, iAtom, iInter, ix, ixyz, j, nRowH
 logical(kind=iwp) :: Proc_dB
 real(kind=wp), allocatable :: Degen2(:)
 
@@ -77,12 +77,8 @@ call DefInt(nBVec,BMx,nQQ,nsAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
 
 if (BSet) then
   call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,nIter,dqInt,Lbl,Degen)
-  if (nSet > 1) then
-    call Force(nFix,Gx0(:,:,nIter),nsAtom,nQQ,BMx,nIter,dqInt_Aux(:,:,1),Lbl,Degen)
-  end if
-  if (nSet > 2) then
-    call Force(nFix,NAC(:,:,nIter),nsAtom,nQQ,BMx,nIter,dqInt_Aux(:,:,2),Lbl,Degen)
-  end if
+  if (nSet > 1) call Force(nFix,Gx0(:,:,nIter),nsAtom,nQQ,BMx,nIter,dqInt_Aux(:,:,1),Lbl,Degen)
+  if (nSet > 2) call Force(nFix,NAC(:,:,nIter),nsAtom,nQQ,BMx,nIter,dqInt_Aux(:,:,2),Lbl,Degen)
 end if
 !                                                                      *
 !***********************************************************************
@@ -114,10 +110,8 @@ if (HSet .and. (.not. lOld) .and. BSet) then
   end do
 
   do iInter=1,nQQ
-    do i_Dim=1,nDim
-      !KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/Sqrt(Degen2(i_Dim))
-      KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/Degen2(i_Dim)
-    end do
+    !KtB(1:nDim,iInter) = KtB(1:nDim,iInter)/Sqrt(Degen2(1:nDim))
+    KtB(1:nDim,iInter) = KtB(1:nDim,iInter)/Degen2(1:nDim)
   end do
   call mma_deallocate(Degen2)
 end if

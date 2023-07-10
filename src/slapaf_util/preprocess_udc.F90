@@ -107,9 +107,7 @@ do
   end if
   ! If a primitive of the same type as that used by MEP/IRC
   ! is defined, signal it.
-  if (Line2(1:4) == MEP_Type(1:4)) then
-    MEPCons = .true.
-  end if
+  if (Line2(1:4) == MEP_Type(1:4)) MEPCons = .true.
 end do
 
 ! Now read the constraint values

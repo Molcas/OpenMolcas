@@ -32,7 +32,7 @@ real(kind=wp) :: Cart(3,mTtAtm), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
 #include "ddvdt_outofp.fh"
 integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
                      jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
-                     mr, n3, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
+                     mr, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
 real(kind=wp) :: A35, aij, aik, ail, ajk, akl, alpha, ami, amj, beta, C(3,4), CosFi2, CosFi3, CosFi4, CosFi_Max, CosPhi, &
                  cosThetax, cosThetay, cosThetaz, Diff, dO1_dx1, dO1_dx2, dO1_dy1, dO1_dy2, dO1_dz1, dO1_dz2, dO2_dx1, dO2_dx2, &
                  dO2_dy1, dO2_dy2, dO2_dz1, dO2_dz2, dO3_dx1, dO3_dx2, dO3_dy1, dO3_dy2, dO3_dz1, dO3_dz2, Dum(1), f1, &
@@ -58,7 +58,6 @@ nqB = 0
 nqT = 0
 nqO = 0
 do iAtom=1,mTtAtm
-
   nNeighbor_i = iTabAtoms(1,0,iAtom)
   write(u6,*) 'iAtom,nNeighbor=',iAtom,nNeighbor_i
 end do
@@ -76,10 +75,10 @@ else
   Fact = One
 end if
 rZero = 1.0e-10_wp
-n3 = 3*mTtAtm
 
-call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
+Hess(:) = Zero
 #ifdef _DEBUGPRINT_
+n3 = 3*mTtAtm
 call TriPrt(' In LNM: Hessian at start','(12f8.3)',Hess,n3)
 call DiagMtrx_T(Hess,n3,iNeg)
 #endif
@@ -105,15 +104,12 @@ if (VarT) then
       if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
     end do
   end do
-  if (.not. (Invariant(1) .and. Invariant(2) .and. Invariant(3))) then
+  if (.not. all(Invariant)) then
 
     Fact = One
     if (.not. VarR) Fact = 2.0e-2_wp
 
-    TMass = Zero
-    do iAtom=1,mTtAtm
-      TMass = TMass+xMass(iAtom)
-    end do
+    TMass = sum(xMass)
     do iAtom=1,mTtAtm
       f1 = xMass(iAtom)/TMass
       do jAtom=1,iAtom-1
@@ -162,7 +158,7 @@ if (VarR) then
       if (iOper(iSym) == iTest) Invariant(ixyz) = .true.
     end do
   end do
-  if (.not. (Invariant(1) .and. Invariant(2) .and. Invariant(3))) then
+  if (.not. all(Invariant)) then
 
     !if (mTtAtm <= 2) then
     !  call WarningMessage(2,'Error in ddV')
@@ -176,9 +172,7 @@ if (VarR) then
     call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
     call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
     do iAtom=1,mTtAtm
-      if (iANr(iAtom) <= 0) then
-        xMass(iAtom) = 1.0e-10_wp
-      end if
+      if (iANr(iAtom) <= 0) xMass(iAtom) = 1.0e-10_wp
     end do
     nOrder = 1
     Trans(:) = Zero
@@ -599,8 +593,8 @@ if (nBonds >= 3) then
     jr = iTabRow(iANr(jAtom))
     kr = iTabRow(iANr(kAtom))
 
-    call dcopy_(3,Cart(1,jAtom),1,xyz(1,2),1)
-    call dcopy_(3,Cart(1,kAtom),1,xyz(1,3),1)
+    xyz(:,2) = Cart(:,jAtom)
+    xyz(:,3) = Cart(:,kAtom)
 
     nNeighbor_j = iTabAtoms(1,0,jAtom)
     if (nNeighbor_j < 2) cycle
@@ -621,7 +615,7 @@ if (nBonds >= 3) then
       if (jBondType > Magic_Bond) cycle
       ir = iTabRow(iANr(iAtom))
 
-      call dcopy_(3,Cart(1,iAtom),1,xyz(1,1),1)
+      xyz(:,1) = Cart(:,iAtom)
 
       do kNeighbor=1,nNeighbor_k
         lAtom = iTabAtoms(1,kNeighbor,kAtom)
@@ -634,7 +628,7 @@ if (nBonds >= 3) then
         lr = iTabRow(iANr(lAtom))
         Help = (kr > 3) .or. (ir > 3) .or. (jr > 3) .or. (lr > 3)
 
-        call dcopy_(3,Cart(1,lAtom),1,xyz(1,4),1)
+        xyz(:,4) = Cart(:,lAtom)
 
         rij(1) = Cart(1,iAtom)-Cart(1,jAtom)
         rij(2) = Cart(2,iAtom)-Cart(2,jAtom)
@@ -707,9 +701,7 @@ if (nBonds >= 3) then
           tij = rkt*g_ij*g_jk*g_kl
         end if
         tij = max(tij,f_const_Min_)
-        if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,xyz,iTabAtoms,nMax,mTtAtm)) then
-          tij = max(tij,Ten*f_const_Min_)
-        end if
+        if (Torsion_Check(iAtom,jAtom,kAtom,lAtom,xyz,iTabAtoms,nMax,mTtAtm)) tij = max(tij,Ten*f_const_Min_)
 #       ifdef _DEBUGPRINT_
         nqT = nqT+1
         write(u6,*)
@@ -718,10 +710,10 @@ if (nBonds >= 3) then
 #       endif
 
         call Trsn(xyz,4,Tau,C,.false.,.false.,'        ',Dum,.false.)
-        call dcopy_(3,C(1,1),1,si,1)
-        call dcopy_(3,C(1,2),1,sj,1)
-        call dcopy_(3,C(1,3),1,sk,1)
-        call dcopy_(3,C(1,4),1,sl,1)
+        si(:) = C(:,1)
+        sj(:) = C(:,2)
+        sk(:) = C(:,3)
+        sl(:) = C(:,4)
 #       ifdef _DEBUGPRINT_
         !call RecPrt('C',' ',C,3,4)
 #       endif
@@ -778,7 +770,7 @@ if (nBonds >= 3) then
     !write(u6,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
     if (nNeighbor_i < 3) cycle
     ir = iTabRow(iANr(iAtom))
-    call dcopy_(3,Cart(1,iAtom),1,xyz(1,4),1)
+    xyz(:,4) = Cart(:,iAtom)
 
     do iNb0=1,nNeighbor_i
       jAtom = iTabAtoms(1,iNb0,iAtom)
@@ -791,7 +783,7 @@ if (nBonds >= 3) then
       if (nCoBond_j > 1) cycle
       !if (iBondType == vdW_Bond) cycle
       if (iBondType > Magic_Bond) cycle
-      call dcopy_(3,Cart(1,jAtom),1,xyz(1,1),1)
+      xyz(:,1) = Cart(:,jAtom)
 
       do iNb1=1,nNeighbor_i
         kAtom = iTabAtoms(1,iNb1,iAtom)
@@ -804,7 +796,7 @@ if (nBonds >= 3) then
         if (kBondType > Magic_Bond) cycle
         kr = iTabRow(iANr(kAtom))
 
-        call dcopy_(3,Cart(1,kAtom),1,xyz(1,2),1)
+        xyz(:,2) = Cart(:,kAtom)
 
         do iNb2=1,nNeighbor_i
           lAtom = iTabAtoms(1,iNb2,iAtom)
@@ -823,19 +815,13 @@ if (nBonds >= 3) then
           !Write(u6,*) 'i,j,k,l=',iAtom,jAtom,kAtom,lAtom
           !Write(u6,*) 'Help=',Help
 
-          call dcopy_(3,Cart(1,lAtom),1,xyz(1,3),1)
+          xyz(:,3) = Cart(:,lAtom)
 
-          rij(1) = Cart(1,iAtom)-Cart(1,jAtom)
-          rij(2) = Cart(2,iAtom)-Cart(2,jAtom)
-          rij(3) = Cart(3,iAtom)-Cart(3,jAtom)
+          rij(:) = Cart(:,iAtom)-Cart(:,jAtom)
 
-          rik(1) = Cart(1,iAtom)-Cart(1,kAtom)
-          rik(2) = Cart(2,iAtom)-Cart(2,kAtom)
-          rik(3) = Cart(3,iAtom)-Cart(3,kAtom)
+          rik(:) = Cart(:,iAtom)-Cart(:,kAtom)
 
-          ril(1) = Cart(1,iAtom)-Cart(1,lAtom)
-          ril(2) = Cart(2,iAtom)-Cart(2,lAtom)
-          ril(3) = Cart(3,iAtom)-Cart(3,lAtom)
+          ril(:) = Cart(:,iAtom)-Cart(:,lAtom)
 
           rij2 = rij(1)**2+rij(2)**2+rij(3)**2
           rik2 = rik(1)**2+rik(2)**2+rik(3)**2
@@ -878,10 +864,10 @@ if (nBonds >= 3) then
           nqO = nqO+1
 #         endif
 
-          call dcopy_(3,C(1,4),1,si,1)
-          call dcopy_(3,C(1,1),1,sj,1)
-          call dcopy_(3,C(1,2),1,sk,1)
-          call dcopy_(3,C(1,3),1,sl,1)
+          si(:) = C(:,4)
+          sj(:) = C(:,1)
+          sk(:) = C(:,2)
+          sl(:) = C(:,3)
 #         ifdef _DEBUGPRINT_
           write(u6,*) 'iAtoms=',iAtom,jAtom,kAtom,lAtom
           write(u6,*) 'tij,Tau=',tij,Tau

@@ -152,27 +152,22 @@ if (iPrint >= 6) write(u6,*) 'Minimum found at -->',XMin,'<--'
 
 ! Compute the displacement iOld -> iNew
 
-call dcopy_(nInter,q(1,iNew),1,dq(1,iNew-1),1)
-call DaXpY_(nInter,-One,q(1,iOld),1,dq(1,iNew-1),1)
-call DScal_(nInter,XMin,dq(1,iNew-1),1)
-dqdq = DDot_(nInter,dq(1,iNew-1),1,dq(1,iNew-1),1)
+dq(:,iNew-1) = XMin*(q(:,iNew)-q(:,iOld))
+dqdq = DDot_(nInter,dq(:,iNew-1),1,dq(:,iNew-1),1)
 
 ! Compute the new q
 
-call dcopy_(nInter,q(1,iOld),1,q(1,iNew),1)
-call DaXpY_(nInter,One,dq(1,iNew-1),1,q(1,iNew),1)
+q(:,iNew) = q(:,iOld)+dq(:,iNew-1)
 
 ! Update the gradient
 
-call DScal_(nInter,XMin,g(1,iNew),1)
-call DaXpY_(nInter,One-XMin,g(1,iOld),1,g(1,iNew),1)
-gdq = -DDot_(nInter,g(1,iNew),1,dq(1,iNew-1),1)
-call DaXpY_(nInter,gdq/dqdq,dq(1,iNew-1),1,g(1,iNew),1)
+g(:,iNew) = XMin*g(:,iNew)+(One-XMin)*g(:,iOld)
+gdq = -DDot_(nInter,g(:,iNew),1,dq(:,iNew-1),1)
+g(:,iNew) = g(:,iNew)+gdq/dqdq*dq(:,iNew-1)
 
 ! Update the displacement nIter-1 -> nIter
 
-call dcopy_(nInter,q(1,iNew),1,dq(1,iNew-1),1)
-call DaXpY_(nInter,-One,q(1,iNew-1),1,dq(1,iNew-1),1)
+dq(:,iNew-1) = q(:,iNew)-q(:,iNew-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

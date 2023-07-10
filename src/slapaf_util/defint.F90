@@ -61,15 +61,9 @@ iRout = 30
 iPrint = nPrint(iRout)
 
 if (iPrint >= 6) lWrite = .true.
-do i=1,6*nAtom
-  lPIC(i) = .true.
-end do
-do i=1,nAtom
-  lAtom(i) = .true.
-end do
-do jBVct=1,nBVct
-  Labels(jBVct) = ' '
-end do
+lPIC(:) = .true.
+lAtom(:) = .true.
+Labels(:) = ''
 
 !Lu = u6
 nTemp = len(Temp)
@@ -81,7 +75,7 @@ call molcas_open(Lu_UDIC,filnam)
 !open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 rewind(Lu_UDIC)
 
-call dcopy_(nBVct,[Zero],0,rMult,1)
+rMult(:) = Zero
 if (iPrint == 99) First = .true.
 if (lWrite) then
   write(u6,*)
@@ -333,8 +327,7 @@ do
     end if
 
     lPIC(iBVct) = .false.
-    call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
-    call DScal_(3*nAtom,rMult(iBVct)**2,BMtrx(1,iBMtrx),1)
+    BMtrx(:,iBMtrx) = rMult(iBVct)**2*BVct(:,iBVct)
     rInt(iBMtrx) = rMult(iBVct)**2*Val(iBVct)
     RR = RR+rMult(iBVct)**2
 
@@ -342,7 +335,7 @@ do
 
     ! A linear combination of vectors
 
-    call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
+    BMtrx(:,iBMtrx) = Zero
     iFrst = neq+1
     Sgn = One
 
@@ -374,7 +367,7 @@ do
       end if
 
       lPIC(iBVct) = .false.
-      call DaXpY_(3*nAtom,Fact*rMult(iBVct)**2,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
+      BMtrx(:,iBMtrx) = BMtrx(:,iBMtrx)+Fact*rMult(iBVct)**2*BVct(:,iBVct)
       rInt(iBMtrx) = rInt(iBMtrx)+Fact*rMult(iBVct)**2*Val(iBVct)
       RR = RR+rMult(iBVct)**2*Fact**2
 
@@ -429,7 +422,7 @@ do
   end if
 
   rInt(iBMtrx) = rInt(iBMtrx)/sqrt(RR)
-  call DScal_(3*nAtom,One/sqrt(RR),BMtrx(1,iBMtrx),1)
+  BMtrx(:,iBMtrx) = BMtrx(:,iBMtrx)/sqrt(RR)
 
 end do
 

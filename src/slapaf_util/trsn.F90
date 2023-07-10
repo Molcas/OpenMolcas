@@ -78,17 +78,11 @@ dTau = Tau/deg2rad
 dFi2 = Fi2/deg2rad
 dFi3 = Fi3/deg2rad
 if (lWarn) then
-  if ((dTau > 177.5_wp) .or. (dTau < -177.5_wp)) then
-    call WarningMessage(1,' Warning: dihedral angle close to end of range')
-  end if
-  if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) then
-    call WarningMessage(1,' Warning: bond angle 2 close to end of range')
-  end if
-  if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) then
-    call WarningMessage(1,' Warning: bond angle 3 close to end of range')
-  end if
+  if ((dTau > 177.5_wp) .or. (dTau < -177.5_wp)) call WarningMessage(1,' Warning: dihedral angle close to end of range')
+  if ((dFi2 > 177.5_wp) .or. (dFi2 < 2.5_wp)) call WarningMessage(1,' Warning: bond angle 2 close to end of range')
+  if ((dFi3 > 177.5_wp) .or. (dFi3 < 2.5_wp)) call WarningMessage(1,' Warning: bond angle 3 close to end of range')
 end if
-if (LWRITE) write(u6,1) Label,-dTau,-Tau
+if (lWrite) write(u6,1) Label,-dTau,-Tau
 
 ! Compute the WDC matrix.
 
@@ -165,8 +159,8 @@ end if
 
 Fac = -One
 Tau = Fac*Tau
-call DScal_(3*nCent,Fac,Bt,1)
-if (ldB) call DScal_((3*nCent)**2,Fac,dBt,1)
+Bt(:,:) = Fac*Bt(:,:)
+if (ldB) dBt(:,:,:,:) = Fac*dBt(:,:,:,:)
 
 return
 

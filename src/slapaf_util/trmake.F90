@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nAtoms, nTR, nDim
-real(kind=wp) :: TRVec(6,3*nAtoms), Coor(3,nAtoms), uMtrx(3*nAtoms)
+real(kind=wp) :: TRVec(6,3,nAtoms), Coor(3,nAtoms), uMtrx(3,nAtoms)
 logical(kind=iwp) :: CofM
 #include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCmp, iPrint, iRout, j, k
@@ -32,7 +32,7 @@ if (iPrint >= 99) then
   write(u6,*) ' nDim=',nDim
 end if
 
-call dcopy_(6*3*nAtoms,[Zero],0,TRVec,1)
+TRVec(:,:,:) = Zero
 nTR = 0
 !                                                                      *
 !***********************************************************************
@@ -44,7 +44,8 @@ if (.not. VarT) then
     iCmp = 2**(i-1)
     if (SymDsp(iCmp)) then
       nTR = nTR+1
-      call dcopy_(nAtoms,[One],0,TRVec(nTR,i),18)
+      TRVec(nTR,i,:) = One
+
     end if
   end do
 end if
@@ -60,17 +61,12 @@ if (.not. VarR) then
     CM(i) = Zero
     rNorm = Zero
     do iAtom=1,nAtoms
-      j = (iAtom-1)*3+i
       if (CofM) then
-        rNorm = rNorm+uMtrx(j)*dMass(iAtom)
-        if (Smmtrc(i,iAtom)) then
-          CM(i) = CM(i)+uMtrx(j)*Coor(i,iAtom)*dMass(iAtom)
-        end if
+        rNorm = rNorm+uMtrx(i,iAtom)*dMass(iAtom)
+        if (Smmtrc(i,iAtom)) CM(i) = CM(i)+uMtrx(i,iAtom)*Coor(i,iAtom)*dMass(iAtom)
       else
-        rNorm = rNorm+uMtrx(j)
-        if (Smmtrc(i,iAtom)) then
-          CM(i) = CM(i)+uMtrx(j)*Coor(i,iAtom)
-        end if
+        rNorm = rNorm+uMtrx(i,iAtom)
+        if (Smmtrc(i,iAtom)) CM(i) = CM(i)+uMtrx(i,iAtom)*Coor(i,iAtom)
       end if
     end do
     CM(i) = CM(i)/rNorm
@@ -78,23 +74,19 @@ if (.not. VarR) then
   !write(u6,*) 'TrMake CM=',CM
 
   do i=1,3
-    j = i+1
-    if (j > 3) j = j-3
-    k = i+2
-    if (k > 3) k = k-3
+    j = mod(i,3)+1
+    k = mod(i+1,3)+1
     ! j and k are the index of the plane perpendicular to the axis
 
     ! Check the rotation has any mirror plane parallel to the axis
     ! of the rotation. If not then the rotation will not break the
     ! symmetry.
 
-    iCmp = 2**(j-1)+2**(k-1)
+    iCmp = ibset(ibset(0,j-1),k-1)
     if (SymDsp(iCmp)) then
       nTR = nTR+1
-      call DYaX(nAtoms,One,Coor(j,1),3,TRVec(nTR,k),18)
-      call DaXpY_(nAtoms,-One,CM(j),0,TRVec(nTR,k),18)
-      call DYaX(nAtoms,-One,Coor(k,1),3,TRVec(nTR,j),18)
-      call DaXpY_(nAtoms,One,CM(k),0,TRVec(nTR,j),18)
+      TRVec(nTR,k,:) = Coor(j,:)-CM(j)
+      TRVec(nTR,j,:) = CM(k)-Coor(k,:)
     end if
   end do
 end if
@@ -105,13 +97,15 @@ end if
 
 do i=1,nTR
   rii = Zero
-  do iAtom=1,3*nAtoms
-    rii = rii+uMtrx(iAtom)*TRVec(i,iatom)**2
+  do iAtom=1,nAtoms
+    do j=1,3
+      rii = rii+uMtrx(j,iAtom)*TRVec(i,j,iatom)**2
+    end do
   end do
   if (rii > 1.0e-15_wp) then
-    call DScal_(3*nAtoms,One/sqrt(rii),TRVec(i,1),6)
+    TRVec(i,:,:) = TRVec(i,:,:)/sqrt(rii)
   else
-    call dcopy_(3*nAtoms,[Zero],0,TRVec(i,1),6)
+    TRVec(i,:,:) = Zero
   end if
 end do
 !                                                                      *

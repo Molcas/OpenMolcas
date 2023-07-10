@@ -18,14 +18,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nDim, nAtom, mTR
-real(kind=wp) :: Coor(3,nAtom), TRVec(3*nAtom*6)
+real(kind=wp) :: Coor(3,nAtom), TRVec(6*3*nAtom)
 logical(kind=iwp) :: CofM
 integer(kind=iwp) :: i, iAtom, ixyz, nTR
 real(kind=wp), allocatable :: EVal(:), EVec(:), G(:), Scrt(:), TR(:), U(:)
 real(kind=wp), parameter :: Thr_ElRed = 1.0e-12_wp
 logical(kind=iwp), parameter :: g12K = .true.
 
-call mma_allocate(TR,18*nAtom,Label='TR')
+call mma_allocate(TR,6*3*nAtom,Label='TR')
 
 ! Compute the symmetric translations and rotations
 !
@@ -53,7 +53,7 @@ do iAtom=1,nAtom
   do ixyz=1,3
     if (Smmtrc(ixyz,iAtom)) then
       i = i+1
-      call DScal_(nTR,sqrt(Degen(ixyz,iAtom)),TRVec((i-1)*nTR+1),1)
+      TRVec((i-1)*nTR+1:i*nTR) = sqrt(Degen(ixyz,iAtom))*TRVec((i-1)*nTR+1:i*nTR)
     end if
   end do
 end do

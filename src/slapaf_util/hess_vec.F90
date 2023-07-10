@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
+subroutine Hess_Vec(nAtoms,Hess,EVec,nDim)
 
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, mAtoms, nDim
-real(kind=wp) :: Hess(3*nAtoms*(3*nAtoms+1)/2), EVec((3*mAtoms)**2)
-integer(kind=iwp) :: iElem, ij, iQ, nQ
+integer(kind=iwp) :: nAtoms, nDim
+real(kind=wp) :: Hess(3*nAtoms*(3*nAtoms+1)/2), EVec(nDim,nDim)
+integer(kind=iwp) :: iElem, iQ, nQ
 real(kind=wp) :: rZ
 real(kind=wp), parameter :: ThrD = 1.0e-10_wp
 
@@ -31,8 +31,7 @@ real(kind=wp), parameter :: ThrD = 1.0e-10_wp
 ! Set up a unit matrix
 
 nQ = nDim
-call dcopy_(nQ*nQ,[Zero],0,EVec,1)
-call dcopy_(nQ,[One],0,EVec,nQ+1)
+call unitmat(EVec,nQ)
 
 ! Compute eigenvalues and eigenvectors
 
@@ -43,11 +42,9 @@ do iQ=1,nQ
   ! Fix standard direction.
   rZ = Zero
   do iElem=1,nQ
-    ij = (iQ-1)*nQ+iElem
-    if (abs(EVec(ij)) > abs(rZ)+ThrD) rZ = EVec(ij)
+    if (abs(EVec(iElem,iQ)) > abs(rZ)+ThrD) rZ = EVec(iElem,iQ)
   end do
-  ij = (iQ-1)*nQ+1
-  if (rZ < Zero) call DScal_(nQ,-One,EVec(ij),1)
+  if (rZ < Zero) EVec(:,iQ) = -EVec(:,iQ)
 end do
 !                                                                      *
 !***********************************************************************

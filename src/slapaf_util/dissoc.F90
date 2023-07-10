@@ -29,8 +29,8 @@ character(len=8) :: Label
 integer(kind=iwp) :: i, iCntr, ix, j, jCntr, jx
 real(kind=wp) :: dRdri, dRdrj, Fact, Facti, Factj, R(3,2), RM(2), Sgn, Signi, Signj
 
-call dcopy_(2,[Zero],0,RM,1)
-call dcopy_(6,[Zero],0,R,1)
+RM(:) = Zero
+R(:,:) = Zero
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' nCntr,mCntr=',nCntr,mCntr
@@ -43,9 +43,7 @@ do iCntr=1,nCntr+mCntr
   ! Sum up mass of fragment
   RM(i) = RM(i)+rMss(iCntr)
   ! Compute center of mass of the fragment
-  do ix=1,3
-    R(ix,i) = R(ix,i)+rMss(iCntr)*xyz(ix,iCntr)
-  end do
+  R(:,i) = R(:,i)+rMss(iCntr)*xyz(:,iCntr)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('RM',' ',RM,1,2)
@@ -53,10 +51,10 @@ call RecPrt('RM',' ',RM,1,2)
 
 ! Evaluate center of mass of the two parts and the distance between
 
+R(:,1) = R(:,1)/RM(1)
+R(:,2) = R(:,2)/RM(2)
 Dist = Zero
 do ix=1,3
-  R(ix,1) = R(ix,1)/RM(1)
-  R(ix,2) = R(ix,2)/RM(2)
   Dist = Dist+(R(ix,1)-R(ix,2))**2
 end do
 #ifdef _DEBUGPRINT_
@@ -93,7 +91,7 @@ call RecPrt('B',' ',B,3,nCntr+mCntr)
 ! Compute the Cartesian derivative of the B-Matrix
 
 if (ldB) then
-  call FZero(dB,(3*(nCntr+mCntr))**2)
+  dB(:,:,:,:) = Zero
   do iCntr=1,nCntr+mCntr
     if (iCntr <= nCntr) then
       Signi = One

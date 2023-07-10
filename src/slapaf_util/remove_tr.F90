@@ -14,7 +14,7 @@
 subroutine Remove_TR(nQ,nX,nQQ,KMat,nK,TRVec,nTR,BM,iBM,nqB,nB)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,12 +27,12 @@ real(kind=wp), external :: DDot_
 call mma_allocate(TR,nK)
 call mma_allocate(VecInt,nX)
 
-call FZero(TR,nK)
+TR(:) = Zero
 
 do iK=1,nK
 
   ! Get the normalized Cartesian vector for this internal coordinate
-  call FZero(VecInt,nX)
+  VecInt(:) = Zero
   iB = 0
   do iQ=1,nQ
     do i=1,nqB(iQ)
@@ -41,7 +41,7 @@ do iK=1,nK
       VecInt(iX) = VecInt(iX)+KMat(iQ,iK)*BM(iB)
     end do
   end do
-  call dScal_(nX,One/sqrt(dDot_(nX,VecInt,1,VecInt,1)),VecInt,1)
+  VecInt(:) = VecInt(:)/sqrt(dDot_(nX,VecInt,1,VecInt,1))
 
   ! Compute the overlap with the external translations and rotations
   do iTR=1,nTR

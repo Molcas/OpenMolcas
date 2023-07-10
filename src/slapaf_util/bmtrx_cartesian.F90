@@ -15,13 +15,13 @@ use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, dqInt, dqInt_Aux, Gx, Gx0, KtB, 
 use Slapaf_Parameters, only: BSet, HSet, lOld, MaxItr, PrQ, Redundant
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nsAtom, nDimBC, nIter, mTtAtm, mTR, nQQ, nWndw
 real(kind=wp) :: TRVec(nDimBC,mTR), Eval(3*mTtAtm*(3*mTtAtm+1)/2), Hss_x((3*mTtAtm)**2)
-integer(kind=iwp) :: i, i_Dim, iAtom, iInd, iInter, ij, ijTri, ik, ipFrom, iTR, ix, ixyz, j, jAtom, ji, jx, jxyz, k, kAtom, kx, kxyz
+integer(kind=iwp) :: i, iAtom, iInd, iInter, ij, ijTri, ik, ipFrom, iTR, ix, ixyz, j, jAtom, ji, jx, jxyz, k, kAtom, kx, kxyz
 real(kind=wp) :: Hii, Omega, Temp
 integer(kind=iwp), allocatable :: Ind(:)
 real(kind=wp), allocatable :: Degen2(:), EVec(:), Hi(:,:), iHi(:)
@@ -66,8 +66,7 @@ if (Redundant) then
     dqInt_Aux(:,:,:) = Zero
   end if
   call mma_allocate(EVec,nDimBC**2,Label='EVec')
-  EVec(:) = Zero
-  call dcopy_(nDimBC,[One],0,EVec,nDimBC+1)
+  call unitmat(EVec,nDimBC)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -311,7 +310,7 @@ else
   ! Compute the eigenvectors for the Cartesian Hessian
 
   call mma_allocate(EVec,(3*mTtAtm)**2,Label='EVec')
-  call Hess_Vec(mTtAtm,EVal,EVec,nsAtom,nDimBC)
+  call Hess_Vec(mTtAtm,EVal,EVec,nDimBC)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -350,11 +349,9 @@ if (HSet .and. (.not. lOld)) then
     end if
   end do
 
-  call dcopy_(nDimBC*nQQ,EVec(ipFrom),1,KtB,1)
+  KtB(:,:) = reshape(EVec(ipFrom:ipFrom+nDimBC*nQQ-1),[nDimBC,nQQ])
   do iInter=1,nQQ
-    do i_Dim=1,nDimBC
-      KtB(i_Dim,iInter) = KtB(i_Dim,iInter)/sqrt(Degen2(i_Dim))
-    end do
+    KtB(:,iInter) = KtB(:,iInter)/sqrt(Degen2(:))
   end do
   call mma_deallocate(Degen2)
 end if
@@ -370,12 +367,8 @@ call mma_deallocate(EVec)
 call ValANM(nsAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',nWndw)
 if (BSet) then
   call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt,Gx,'Gradients',nWndw)
-  if (nSet > 1) then
-    call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,1),Gx0,'Gradients',nWndw)
-  end if
-  if (nSet > 2) then
-    call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,2),NAC,'Gradients',nWndw)
-  end if
+  if (nSet > 1) call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,1),Gx0,'Gradients',nWndw)
+  if (nSet > 2) call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,2),NAC,'Gradients',nWndw)
 end if
 !                                                                      *
 !***********************************************************************

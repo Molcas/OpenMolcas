@@ -24,7 +24,7 @@ subroutine Freq1()
 
 use Slapaf_Parameters, only: Delta, iter
 use Slapaf_Info, only: mRowH, qInt, Shift
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -46,7 +46,7 @@ end if
 
 ! Compute the new shift
 
-call dcopy_(nInter,[Zero],0,Shift(1,iter),1)
+Shift(:,iter) = Zero
 nRowH = 0
 if (allocated(mRowH)) nRowH = size(mRowH)
 if (iter <= nRowH) then
@@ -60,8 +60,7 @@ end if
 
 ! Compute the new parameter set.
 
-call dcopy_(nInter,qInt(1,iter),1,qInt(1,iter+1),1)
-call DaXpY_(nInter,One,Shift(1,iter),1,qInt(1,iter+1),1)
+qInt(:,iter+1) = qInt(:,iter)+Shift(:,iter)
 
 if (iPrint > 5) then
   write(u6,*) ' Accumulate the gradient for yet one parameter set'

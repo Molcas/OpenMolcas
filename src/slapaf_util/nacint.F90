@@ -20,22 +20,18 @@ integer(kind=iwp) :: nCent, lIter
 real(kind=wp) :: xyz(3,nCent), H12, Bf(3,nCent), dBf(3*nCent,3*nCent)
 logical(kind=iwp) :: lWrite_, ldB
 character(len=8) :: Label
-integer(kind=iwp) :: iCar, iCent
+integer(kind=iwp) :: iCent
 real(kind=wp) :: Fact
 integer(kind=iwp), external :: iDeg
 
 H12 = Zero
-if (lWrite_) then
-  write(u6,'(2A,F18.8,A,F18.8,A)') Label,' : H12               = ',H12,' hartree '
-end if
+if (lWrite_) write(u6,'(2A,F18.8,A,F18.8,A)') Label,' : H12               = ',H12,' hartree '
 
 ! Compute the WDC B-matrix
 
 do iCent=1,nCent
   Fact = real(iDeg(xyz(1,iCent)),kind=wp)
-  do iCar=1,3
-    Bf(iCar,iCent) = Fact*NAC(iCar,iCent,lIter)
-  end do
+  Bf(:,iCent) = Fact*NAC(:,iCent,lIter)
 end do
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -46,10 +42,7 @@ call RecPrt('Bf',' ',Bf,3,nCent)
 
 ! Compute the cartesian derivative of the B-Matrix.
 
-if (ldB) then
-  call FZero(dBf,(3*nCent)**2)
-
-end if
+if (ldB) dBf(:,:) = Zero
 
 return
 

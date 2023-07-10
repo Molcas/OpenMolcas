@@ -15,6 +15,7 @@ subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,
 use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
 use Slapaf_Parameters, only: iOptC
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -103,7 +104,7 @@ do iBond=1,nBonds
     Help = (iRow > 3) .or. (jRow > 3)
     Ind(1) = iAtom
     Ind(2) = jAtom
-    call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
+    A(:,1) = Cx(:,iAtom,iIter)
     write(Label,'(A,I2,A,I2,A)') 'B(',iAtom,',',jAtom,')'
 
 #   ifdef _DEBUGPRINT_
@@ -173,7 +174,7 @@ do iBond=1,nBonds
 #   endif
     Label = ' '
     write(Label,'(A,I3.3)') 'b',nqB
-    if (.not. Proc_dB) call FZero(Hess,36)
+    if (.not. Proc_dB) Hess(:) = Zero
     call Strtch(A,nCent,Val,Grad,.false.,'        ',Hess,Proc_dB)
 
     if (Process) then

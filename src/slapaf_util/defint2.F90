@@ -64,7 +64,7 @@ rInt0_in_memory = .false.
 iRout = 30
 iPrint = nPrint(iRout)
 Start = lIter == 1
-call ICopy(nBVct,[Flip],0,iFlip,1)
+iFlip(:) = Flip
 
 nTemp = len(Temp)
 write(Frmt,'(A,I3.3,A)') '(F',nTemp,'.0)'
@@ -75,7 +75,7 @@ call molcas_open(Lu_UDC,filnam)
 !open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
 rewind(Lu_UDC)
 
-call dcopy_(nBVct**2,[Zero],0,rMult,1)
+rMult(:,:) = Zero
 if (iPrint >= 99) lWrite = .true.
 if ((iPrint >= 99) .or. lWrite) then
   write(Lu,*)
@@ -307,12 +307,10 @@ if (.not. Start) then
     end if
   end do
 end if
-call dcopy_(nBVct,Val,1,Value0,1)
+Value0(:) = Val(:)
 
 if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
-if (iPrint >= 19) then
-  call RecPrt(' Value of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
-end if
+if (iPrint >= 19) call RecPrt(' Value of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -375,8 +373,8 @@ do
       call Quit_OnUserError()
     end if
 
-    call dcopy_(3*nAtom,BVct(1,iBVct),1,BMtrx(1,iBMtrx),1)
-    call dcopy_((3*nAtom)**2,dBVct(1,1,iBVct),1,dBMtrx(1,1,iBMtrx),1)
+    BMtrx(:,iBMtrx) = BVct(:,iBVct)
+    dBMtrx(:,:,iBMtrx) = dBVct(:,:,iBVct)
     rInt(iBMtrx) = Val(iBVct)
 
     iFrst = iEnd+1
@@ -438,8 +436,8 @@ do
     !                                                                  *
     ! A linear combination of vectors
 
-    call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
-    call dcopy_((3*nAtom)**2,[Zero],0,dBMtrx(1,1,iBMtrx),1)
+    BMtrx(:,iBMtrx) = Zero
+    dBMtrx(:,:,iBMtrx) = Zero
     iFrst = 1
     Sgn = One
 
@@ -476,8 +474,8 @@ do
           call Quit_OnUserError()
         end if
 
-        call DaXpY_(3*nAtom,Fact,BVct(1,iBvct),1,BMtrx(1,iBMtrx),1)
-        call DaXpY_((3*nAtom)**2,Fact,dBVct(1,1,iBvct),1,dBMtrx(1,1,iBMtrx),1)
+        BMtrx(:,iBMtrx) = BMtrx(:,iBMtrx)+Fact*BVct(:,iBVct)
+        dBMtrx(:,:,iBMtrx) = dBMtrx(:,:,iBMtrx)+Fact*dBVct(:,:,iBVct)
         rInt(iBMtrx) = rInt(iBMtrx)+Fact*Val(iBVct)
         !                                                              *
         !***************************************************************

@@ -11,7 +11,7 @@
 ! Copyright (C) 2004, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,value,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,iPrv,Proc_dB,iTabBonds, &
+subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,iPrv,Proc_dB,iTabBonds, &
                            nBonds,iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
 !***********************************************************************
 !     This is a quick and possibly dirty implementation of the out-    *
@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
                      iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_tot, &
                      idBM(2,ndB_Tot), nqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), value(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
 logical(kind=iwp) :: Process, Proc_dB
 character(len=14) :: qLbl(nB)
 #include "Molcas.fh"
@@ -62,7 +62,7 @@ logical(kind=iwp), external :: R_Stab_A
 
 if (nBonds < 3) return
 nqO = 0
-call FZero(Hess,144)
+Hess(:) = Zero
 #ifdef _DEBUGPRINT_
 iRout = 152
 iPrint = nPrint(iRout)
@@ -125,9 +125,9 @@ do jBond=1,nBonds
 
     if (R_Stab_A(iDCR(1),jStab(0,iAtom),nStab(iAtom)) .and. (iDCR(1) /= iOper(0))) cycle
 
-    call dcopy_(3,Cx(1,iAtom,iIter),1,A(1,4),1)
-    call dcopy_(3,Cx(1,iAtom,iRef),1,Ref(1,4),1)
-    call dcopy_(3,Cx(1,iAtom,iPrv),1,Prv(1,4),1)
+    A(:,4) = Cx(:,iAtom,iIter)
+    Ref(:,4) = Cx(:,iAtom,iRef)
+    Prv(:,4) = Cx(:,iAtom,iPrv)
 
     ! Form double coset representatives for (iAtom,jAtom)
 
@@ -150,9 +150,7 @@ do jBond=1,nBonds
 
     call Inter(jStab(0,iAtom),nStab(iAtom),jStab(0,jAtom),nStab(jAtom),iStabM,nStabM)
 #   ifdef _DEBUGPRINT_
-    if (iPrint >= 99) then
-      write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-    end if
+    if (iPrint >= 99) write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #   endif
 
     if (Help) then
@@ -265,9 +263,7 @@ do jBond=1,nBonds
         call Inter(jStab(0,kAtom),nStab(kAtom),jStab(0,lAtom),nStab(lAtom),iStabN,nStabN)
 
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 99) then
-          write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
-        end if
+        if (iPrint >= 99) write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
 #       endif
 
         ! Form double coset representatives for
@@ -279,8 +275,8 @@ do jBond=1,nBonds
         ! are not included. If A=B we will normally exclude
         ! the pairs R(A)-A and TS(C)-T(C).
 
-        call iCopy(nDCRT,iDCRT,1,iDCRX,1)
-        call iCopy(nDCRT,iDCRT,1,iDCRY,1)
+        iDCRX(0:nDCRT-1) = iDCRT(0:nDCRT-1)
+        iDCRY(0:nDCRT-1) = iDCRT(0:nDCRT-1)
         nDCRX = nDCRT
         nDCRY = nDCRT
         if (iAtom == jAtom) then
@@ -368,9 +364,9 @@ do jBond=1,nBonds
 
         ! 1-4-2
 
-        call dcopy_(3,Ref(1,1),1,RX4Y(1,1),1)
-        call dcopy_(3,Ref(1,4),1,RX4Y(1,2),1)
-        call dcopy_(3,Ref(1,2),1,RX4Y(1,3),1)
+        RX4Y(:,1) = Ref(:,1)
+        RX4Y(:,2) = Ref(:,4)
+        RX4Y(:,3) = Ref(:,2)
         call Bend(RX4Y,mCent,Fi2,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
         write(u6,*) '1-4-2: Fi2=',Fi2
@@ -382,7 +378,7 @@ do jBond=1,nBonds
 
         ! 1-4-3
 
-        call dcopy_(3,Ref(1,3),1,RX4Y(1,3),1)
+        RX4Y(:,3) = Ref(:,3)
         call Bend(RX4Y,mCent,Fi3,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
         write(u6,*) '1-4-3: Fi3=',Fi3
@@ -394,7 +390,7 @@ do jBond=1,nBonds
 
         ! 2-4-3
 
-        call dcopy_(3,Ref(1,2),1,RX4Y(1,1),1)
+        RX4Y(:,1) = Ref(:,2)
         call Bend(RX4Y,mCent,Fi4,Grad_ref,.false.,.false.,'        ',Hess,.false.)
 #       ifdef _DEBUGPRINT_
         write(u6,*) '2-4-3: Fi4=',Fi4
@@ -474,7 +470,7 @@ do jBond=1,nBonds
           fconst(nq) = sqrt(f_Const)
           rMult(nq) = Deg
 
-          value(nq,iIter) = Val
+          Valu(nq,iIter) = Val
           qLbl(nq) = Label
 
           ! Project the gradient vector

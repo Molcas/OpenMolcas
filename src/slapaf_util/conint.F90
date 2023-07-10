@@ -125,12 +125,12 @@ end if
 ! Compute the cartesian derivative of the B-Matrix.
 
 if (ldB) then
+  dBf(:,:) = Zero
   if (iOpt == 1) then
     ! Linear
-    call FZero(dBf,(3*nCent)**2)
+
   else if (iOpt == 2) then
     ! Quadratic
-    call FZero(dBf,(3*nCent)**2)
 
     ix = 0
     do iCent=1,nCent
@@ -149,7 +149,6 @@ if (ldB) then
 
   else if (iOpt == 3) then
     ! Absolute value
-    call FZero(dBf,(3*nCent)**2)
 
   end if
   !call RecPrt('dBf','(9F9.1)',dBf,3*nCent,3*nCent)

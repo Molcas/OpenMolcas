@@ -43,14 +43,14 @@ do iAtom=1,nsAtom
   Fact = One/sqrt(Degen(1,iAtom))
   iEnd = iSt
   jDim = i_Dim
-  call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)
+  Coor(:,iSt) = Cart(:,iAtom)
   iTabAI(1,iEnd) = iAtom
   iTabAI(2,iEnd) = iOper(0)
   jAnr(iEnd) = Anr(iAtom)
   do ix=1,3
     if (Smmtrc(ix,iAtom)) then
       jDim = jDim+1
-      call dcopy_(3*mTtAtm,[Zero],0,Vctrs(1,jDim),1)
+      Vctrs(:,jDim) = Zero
       Vctrs((iEnd-1)*3+ix,jDim) = Fact
     end if
   end do
@@ -93,9 +93,7 @@ do iAtom=1,nsAtom
   end do      ! End loop over operators
 
   do ix=1,3
-    if (Smmtrc(ix,iAtom)) then
-      i_Dim = i_Dim+1
-    end if
+    if (Smmtrc(ix,iAtom)) i_Dim = i_Dim+1
   end do
   iSt = iEnd+1
 end do         ! End loop over centers

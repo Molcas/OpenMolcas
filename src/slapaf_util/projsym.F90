@@ -37,7 +37,7 @@ write(u6,*) iDCRs
 
 call mma_allocate(Tx,3,nCent,Label='Tx')
 
-call dcopy_(3*nCent,[One],0,Tx,1)
+Tx(:,:) = One
 do i=1,nCent
   call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
 

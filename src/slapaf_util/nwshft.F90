@@ -23,7 +23,7 @@ subroutine NwShft()
 
 use Slapaf_Info, only: qInt, Shift
 use Slapaf_parameters, only: Delta, iter, Delta
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: iwp
 
 implicit none
@@ -45,7 +45,7 @@ if (iter < 2*nInter+1) then
   ! Shifts for the numerical Hessian
 
   jInter = (iter+1)/2
-  call dcopy_(nInter,[Zero],0,Shift(1,iter),1)
+  Shift(:,iter) = Zero
   if (mod(iter,2) == 0) then
     Shift(jInter,iter) = -Two*Delta
   else
@@ -74,7 +74,7 @@ else
   end if
   !write(u6,*) 'kInter, lInter=',kInter,lInter
   kCount = iter-2*nInter
-  call dcopy_(nInter,[Zero],0,Shift(1,iter),1)
+  Shift(:,iter) = Zero
   ! Undo last change for numerical Hessian
   if (iCount == 1) Shift(nInter,iter) = Delta
   if (mod(kCount,4) == 1) then
@@ -109,8 +109,7 @@ else
 end if
 
 ! Compute the new parameter set.
-call dcopy_(nInter,qInt(1,iter),1,qInt(1,iter+1),1)
-call DaXpY_(nInter,One,Shift(1,iter),1,qInt(1,iter+1),1)
+qInt(:,iter+1) = qInt(:,iter)+Shift(:,iter)
 
 # ifdef _DEBUGPRINT_
 call RecPrt('  qInt',' ',qInt,nInter,iter+1)

@@ -35,12 +35,11 @@ call mma_allocate(EVec,nH*nH,Label='EVec')
 
 ! Copy elements for H
 
-call dcopy_(nH*(nH+1)/2,H,1,EVal,1)
+EVal(:) = H(1:nH*(nH+1)/2)
 
 ! Set up a unit matrix
 
-call dcopy_(nH*nH,[Zero],0,EVec,1)
-call dcopy_(nH,[One],0,EVec,nH+1)
+call unitmat(EVec,nH)
 
 ! Compute eigenvalues and eigenvectors
 

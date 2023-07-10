@@ -41,13 +41,9 @@ Trans(3) = Zero
 TotMass = Zero
 do imass=1,nmass
   TotMass = TotMass+xMass(imass)
-  Trans(1) = Trans(1)+xMass(imass)*CurrXYZ(1,imass)
-  Trans(2) = Trans(2)+xMass(imass)*CurrXYZ(2,imass)
-  Trans(3) = Trans(3)+xMass(imass)*CurrXYZ(3,imass)
+  Trans(:) = Trans(:)+xMass(imass)*CurrXYZ(:,imass)
 end do
-Trans(1) = Trans(1)/TotMass
-Trans(2) = Trans(2)/TotMass
-Trans(3) = Trans(3)/TotMass
+Trans(:) = Trans(:)/TotMass
 ! A lengthy piece of code determines the exact orientation
 ! of the internal frame. This is defined by Sayvetz conditions
 ! using a reference conformation. The procedure is iterative.
@@ -84,23 +80,19 @@ do
   end do
   ! Compute the Moments-of-Inertia matrix. The asymmetrical
   ! one, used for Sayvetz conditions.
-  call dcopy_(3*nmass,Ref123,1,tmp,1)
+  tmp(:,1:nmass) = Ref123(:,:)
 # ifdef _DEBUGPRINT_
   call RecPrt('Curr123',' ',Curr123,3,nMass)
   call RecPrt('tmp',' ',tmp,3,nMass)
 # endif
   do imass=1,nMass
-    do i=1,3
-      tmp(i,imass) = xMass(iMass)*tmp(i,imass)
-    end do
+    tmp(:,imass) = xMass(iMass)*tmp(:,imass)
   end do
   call DGEMM_('N','T',3,3,nmass,One,tmp,3,Curr123,3,Zero,SMat,3)
   Trace = (SMat(1,1)+SMat(2,2)+SMat(3,3))
+  MOI(:,:) = -SMat(:,:)
   do i=1,3
-    do j=1,3
-      MOI(i,j) = -SMat(i,j)
-    end do
-    MOI(i,i) = Trace-SMat(i,i)
+    MOI(i,i) = MOI(i,i)+Trace
   end do
 # ifdef _DEBUGPRINT_
   call RecPrt('MOI',' ',MOI,size(MOI,1),size(MOI,2))
@@ -130,9 +122,9 @@ do
   call dgesvd_('A','A',3,3,MOI,3,sval,umat,3,vmat,3,wTmp,100,i)
   do i=1,3
     if (abs(sval(i)) > 1.0e-12_wp) then
-      call dscal_(3,One/sval(i),umat(1,i),1)
+      umat(:,i) = umat(:,i)/sval(i)
     else
-      call dcopy_(3,[Zero],0,umat(1,i),1)
+      umat(:,i) = Zero
     end if
   end do
   call dgemm_('T','T',3,3,3,One,vmat,3,umat,3,Zero,MOIInv,3)
@@ -146,10 +138,10 @@ do
 # endif
   ! Determine small rotation that zeroes the Sayvetz rotational conditions
   !write(u6,*) ' Determine small rotation. First compute Sayvetz2:'
+  Sayvetz2(:) = Zero
   do i=1,3
     j = 1+mod(i,3)
     k = 1+mod(j,3)
-    Sayvetz2(i) = Zero
     do imass=1,nMass
       Sayvetz2(i) = Sayvetz2(i)+xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-Ref123(k,imass)*Curr123(j,imass))
     end do
@@ -206,11 +198,9 @@ call rotder4(norder,SMat,RotVec,dRVdA,d2RVdA2,d3RVdA3,d4RVdA4)
 !    A(3) = sum(xMass(imass)*(Ref123(1,imass)*Curr123(2,imass)-Ref123(2,imass)*Curr123(1,imass)) )
 ! First, compute derivatives without accounting for COM motion:
 do ip=1,nmass
-  do k=1,3
-    dAdXYZ(1,k,ip) = xmass(ip)*(RotMat(k,3)*Ref123(2,ip)-RotMat(k,2)*Ref123(3,ip))
-    dAdXYZ(2,k,ip) = xmass(ip)*(RotMat(k,1)*Ref123(3,ip)-RotMat(k,3)*Ref123(1,ip))
-    dAdXYZ(3,k,ip) = xmass(ip)*(RotMat(k,2)*Ref123(1,ip)-RotMat(k,1)*Ref123(2,ip))
-  end do
+  dAdXYZ(1,:,ip) = xmass(ip)*(RotMat(:,3)*Ref123(2,ip)-RotMat(:,2)*Ref123(3,ip))
+  dAdXYZ(2,:,ip) = xmass(ip)*(RotMat(:,1)*Ref123(3,ip)-RotMat(:,3)*Ref123(1,ip))
+  dAdXYZ(3,:,ip) = xmass(ip)*(RotMat(:,2)*Ref123(1,ip)-RotMat(:,1)*Ref123(2,ip))
 end do
 ! Correction for COM motion: (Theoretically, this makes no
 ! difference to the results, but why not...)
@@ -220,9 +210,7 @@ do i=1,3
     do ip=1,nmass
       rSum = rSum+dAdXYZ(i,k,ip)
     end do
-    do ip=1,nmass
-      dAdXYZ(i,k,ip) = dAdXYZ(i,k,ip)-(xMass(ip)/TotMass)*rSum
-    end do
+    dAdXYZ(i,k,:) = dAdXYZ(i,k,:)-(xMass(:)/TotMass)*rSum
   end do
 end do
 ! Finally,transform dXdA, etc, into derivatives w.r.t atom coordinates:

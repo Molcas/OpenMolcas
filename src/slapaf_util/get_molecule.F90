@@ -54,9 +54,7 @@ if (btest(iGO,0) .and. (columbus == 1)) then
     call Get_dArray_chk('GRAD',Grd,3*nsAtom)
   else if (iMode <= 3) then
     call qpg_dArray('Grad State1',Found,Length)
-    if (.not. Found .or. (Length == 0)) then
-      call SysAbendmsg('Get_Molecule','Did not find:','Grad State1')
-    end if
+    if (.not. Found .or. (Length == 0)) call SysAbendmsg('Get_Molecule','Did not find:','Grad State1')
     if (length /= 3*nsAtom) then
       call WarningMessage(2,'Init: length /= 3*nsAtom')
       write(u6,*) 'Grad'

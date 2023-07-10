@@ -11,7 +11,7 @@
 
 subroutine mkRotMat(rotvec,rotmat)
 
-use Constants, only: One, Two, Six, Twelve, Half
+use Constants, only: Zero, One, Two, Six, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -43,20 +43,21 @@ RotMat(2,1) = c1*RotVec(3)
 RotMat(2,3) = -c1*RotVec(1)
 RotMat(3,1) = -c1*RotVec(2)
 RotMat(1,2) = -c1*RotVec(3)
-do i=1,3
-  do j=1,3
-    RotMat(i,j) = RotMat(i,j)+c2*RotVec(i)*RotVec(j)
-  end do
+do j=1,3
+  RotMat(:,j) = RotMat(:,j)+c2*RotVec(:)*RotVec(j)
 end do
 do i=1,3
   do j=1,3
-    rsum = 0.0d0
-    if (i == j) rsum = -1.0d0
+    if (i == j) then
+      rsum = -One
+    else
+      rsum = Zero
+    end if
     do k=1,3
       rsum = rsum+RotMat(i,k)*RotMat(j,k)
     end do
-    if (abs(rsum) > 1.0D-10) then
-      call WarningMessage(2,'Error in RotDer')
+    if (abs(rsum) > 1.0e-10_wp) then
+      call WarningMessage(2,'Error in mkRotMat')
       write(6,*) ' MKROTMAT: ON check sum error=',rsum
       call Abend()
     end if

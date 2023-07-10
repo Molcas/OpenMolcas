@@ -64,10 +64,10 @@ write(u6,*)
 ! Loop over all atoms in the box
 
 if (ThrB < ThrB_vdw) ivdW = vdW_Bond
-Box: do Ir=1,Nr
+box: do Ir=1,Nr
   jAtom = iTab(Ir,ix,iy,iz)
   !if (iAtom <= jAtom) cycle box
-  if (iAtom >= jAtom) cycle Box
+  if (iAtom >= jAtom) cycle box
   jRow = iTabRow(iANr(jAtom))
   Help = (iRow > 3) .or. (jRow > 3)
 # ifdef _DEBUGPRINT_
@@ -104,7 +104,7 @@ Box: do Ir=1,Nr
 
       ! Skip if we are looking for vdW bonds
 
-      if (ThrB > ThrB_vdW) cycle Box
+      if (ThrB > ThrB_vdW) cycle box
     else if ((Rab > 1.25_wp*RabCov) .and. (Rab <= Two*RabCov)) then
 
       ! vdW's bond
@@ -115,7 +115,7 @@ Box: do Ir=1,Nr
 
       ! No Bond!
 
-      cycle Box
+      cycle box
     end if
 
   else
@@ -144,11 +144,11 @@ Box: do Ir=1,Nr
     ! If already valence bond skip if also vdW bond. We picked
     ! up this bond before!
 
-    if ((test >= ThrB) .and. (Test_vdW >= ThrB_vdW)) cycle Box
+    if ((test >= ThrB) .and. (Test_vdW >= ThrB_vdW)) cycle box
 
     ! If none skip
 
-    if ((test < ThrB) .and. (test_vdW < ThrB_vdW)) cycle Box
+    if ((test < ThrB) .and. (test_vdW < ThrB_vdW)) cycle box
 
     ! Some logic to see if vdw bond should be included.
     ! Hydrogen-hydrogen is always included.
@@ -165,7 +165,7 @@ Box: do Ir=1,Nr
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'nVal_j=',nVal_j
 #     endif
-      if (((nVal_i >= 6) .and. (nVal_j >= 1)) .or. ((nVal_j >= 6) .and. (nVal_i >= 1))) cycle Box
+      if (((nVal_i >= 6) .and. (nVal_j >= 1)) .or. ((nVal_j >= 6) .and. (nVal_i >= 1))) cycle box
     end if
 #   ifndef _OLD_CODE_
 
@@ -192,7 +192,7 @@ Box: do Ir=1,Nr
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'kAtom,Phi=',kAtom,Phi
 #       endif
-        if (abs(Phi) < Pi/Four) cycle Box
+        if (abs(Phi) < Pi/Four) cycle box
       end do
     end if
 #endif
@@ -256,7 +256,7 @@ Box: do Ir=1,Nr
   iTabAtoms(1,nNeighbor,jAtom) = iAtom
   iTabAtoms(2,nNeighbor,jAtom) = nBonds
 
-end do Box
+end do box
 
 return
 
