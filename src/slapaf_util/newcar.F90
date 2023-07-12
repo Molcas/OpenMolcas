@@ -19,8 +19,8 @@ subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
 !***********************************************************************
 
 use Symmetry_Info, only: VarR, VarT
-use Slapaf_Parameters, only: BSet, Curvilinear, HSet, lOld, User_Def, WeightedConstraints
-use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, Lbl, qInt, RefGeo, Shift
+use Slapaf_Info, only: AtomLbl, BMx, BSet, Curvilinear, Cx, Degen, HSet, Lbl, lOld, qInt, RefGeo, Shift, User_Def, &
+                       WeightedConstraints
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

@@ -12,9 +12,9 @@
 subroutine Init_SlapAf()
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Force_dB, Header, Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, &
-                             MxItr, NADC, nDimBC, ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP
-use Slapaf_Info, only: ANr, AtomLbl, Coor, Degen, dMass, Grd, iCoSet, jStab, nStab, q_nuclear, RootMap, Smmtrc !, R12
+use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Coor, Degen, dMass, Force_dB, Grd, Header, iCoSet, jStab, &
+                       Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, MxItr, NADC, nDimBC, nStab, q_nuclear, RootMap, Smmtrc, &
+                       ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP, R12
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

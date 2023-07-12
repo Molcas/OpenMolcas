@@ -21,7 +21,7 @@ subroutine NewH(nInter,nIter,dq_orig,g,H,iOptH,mIter)
 !             January '95                                              *
 !***********************************************************************
 
-use Slapaf_Parameters, only: HUpMet
+use Slapaf_Info, only: HUpMet
 use NewH_Mod, only: UpdMask
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

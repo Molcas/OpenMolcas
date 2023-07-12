@@ -11,11 +11,10 @@
 
 subroutine WrInp_sl()
 
-use Slapaf_Parameters, only: Analytic_Hessian, Baker, Beta, Beta_Disp, Cubic, Curvilinear, ddV_Schlegel, Delta, eMEPTest, FindTS, &
-                             GNrm_Threshold, Header, HWRS, iOptC, iOptH, IRC, iRow, Line_Search, lNmHss, lOld, MEP, MEP_Algo, &
-                             MEP_Type, Mode, MxItr, nMEP, nWndw, Redundant, rHidden, rMEP, ThrEne, ThrGrd
+use Slapaf_Info, only: Analytic_Hessian, AtomLbl, Baker, Beta, Beta_Disp, Coor, Cubic, Curvilinear, ddV_Schlegel, Delta, eMEPTest, &
+                       FindTS, GNrm_Threshold, Header, HWRS, iOptC, iOptH, IRC, iRow, Line_Search, lNmHss, lOld, MEP, MEP_Algo, &
+                       MEP_Type, Mode, MxItr, nMEP, nWndw, Redundant, rHidden, rMEP, ThrEne, ThrGrd
 use kriging_mod, only: blaAI, blavAI, blAI, blvAI, Kriging, Max_Microiterations, mblAI, nD_In, set_l
-use Slapaf_Info, only: AtomLbl, Coor
 use Constants, only: Two, auTokJmol
 use Definitions, only: wp, iwp, u6
 

@@ -13,7 +13,7 @@ subroutine Hidden(Coor,AN,nHidden)
 ! Add to the Grand atom list some hidden atoms, coming e.g.
 ! from the MM part of a QM/MM system
 
-use Slapaf_Parameters, only: rHidden
+use Slapaf_Info, only: rHidden
 use Isotopes, only: MaxAtomNum, PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Angstrom

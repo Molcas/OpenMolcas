@@ -11,6 +11,9 @@
 
 subroutine Find_Bonds(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,ThrB)
 
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: BondType
+#endif
 use Definitions, only: wp, iwp
 
 implicit none

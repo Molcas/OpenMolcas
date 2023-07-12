@@ -11,8 +11,7 @@
 
 subroutine Hss_q()
 
-use Slapaf_Parameters, only: Analytic_Hessian, Curvilinear, iRef, lOld, nDimBC
-use Slapaf_Info, only: Degen, dqInt, Smmtrc
+use Slapaf_Info, only: Analytic_Hessian, Curvilinear, Degen, dqInt, iRef, lOld, nDimBC, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

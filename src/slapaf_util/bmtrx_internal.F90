@@ -23,8 +23,8 @@ subroutine BMtrx_Internal(nsAtom,nDimBC,nIter,mAtoms,iIter,mTR,TRVec,iTabAI,iTab
 !              2004                                                    *
 !***********************************************************************
 
-use Slapaf_Info, only: BM, BMx, Cx, dBM, Degen, dqInt, dqInt_Aux, Gx, Gx0, iBM, idBM, KtB, NAC, nqBM, qInt, Smmtrc
-use Slapaf_Parameters, only: Analytic_Hessian, BSet, HSet, HWRS, iOptC, lOld, MaxItr, mB_Tot, mdB_Tot, mq, Numerical, PrQ
+use Slapaf_Info, only: Analytic_Hessian, BM, BMx, BSet, Cx, dBM, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, HWRS, iBM, idBM, iOptC, &
+                       KtB, lOld, MaxItr, mB_Tot, mdB_Tot, mq, NAC, nqBM, Numerical, PrQ, qInt, Smmtrc
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five, deg2rad

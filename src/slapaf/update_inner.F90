@@ -29,9 +29,9 @@ subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,mIter,Kriging_Hess
 !             2000                                                     *
 !***********************************************************************
 
-use Slapaf_info, only: BMx, Degen, dqInt, Energy, GNrm, Lambda, Lbl, nStab, qInt, Shift, Smmtrc
-use Slapaf_Parameters, only: Curvilinear, FindTS, GNrm_Threshold, GrdMax, HrmFrq_Show, iInt, iNeg, iOptC, iOptH, iRow_c, Mode, &
-                             nBVec, nDimBC, nFix, nLambda, StpMax, TSConstraints
+use Slapaf_Info, only: BMx, Curvilinear, Degen, dqInt, Energy, FindTS, GNrm, GNrm_Threshold, GrdMax, HrmFrq_Show, iInt, iNeg, &
+                       iOptC, iOptH, iRow_c, Lambda, Lbl, Mode, nBVec, nDimBC, nFix, nLambda, nStab, qInt, Shift, Smmtrc, StpMax, &
+                       TSConstraints
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp

@@ -11,8 +11,8 @@
 
 subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
 
-use Slapaf_Info, only: AtomLbl, BMx, Cx, Degen, dqInt, dqInt_Aux, Gx, Gx0, KtB, NAC, qInt, Smmtrc
-use Slapaf_Parameters, only: BSet, HSet, lOld, MaxItr, PrQ, Redundant
+use Slapaf_Info, only: AtomLbl, BMx, BSet, Cx, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, KtB, lOld, MaxItr, NAC, PrQ, qInt, &
+                       Redundant, Smmtrc
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half

@@ -15,6 +15,7 @@ subroutine RF_Coord(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rM
 
 use Symmetry_Info, only: iOper, nIrrep, VarR, VarT
 use Slapaf_Info, only: dMass, iCoSet, nStab
+use ddvdt, only: Rot_Const, Trans_Const
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -26,7 +27,6 @@ real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(n
 logical(kind=iwp) :: Process, Proc_dB
 character(len=14) :: qLbl(nB)
 #include "print.fh"
-#include "ddvdt_rf.fh"
 integer(kind=iwp) :: i, iAtom, iCent, iDeg, iPrint, iRout, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
 real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), Val
 logical(kind=iwp) :: Invariant, PSPrint

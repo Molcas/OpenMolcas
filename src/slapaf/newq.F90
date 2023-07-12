@@ -21,7 +21,7 @@ subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Ener
 !             December '94                                             *
 !***********************************************************************
 
-use Slapaf_Parameters, only: E_Delta, iOptC, Line_Search, UpMeth
+use Slapaf_Info, only: E_Delta, iOptC, Line_Search, UpMeth
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

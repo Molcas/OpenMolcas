@@ -13,7 +13,11 @@ subroutine Torsion_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fcons
                         iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Info, only: ANr, AtomLbl, jStab, nStab
+use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: BondType
+#endif
+use ddvdt, only: A_Trsn, aAV, f_Const_Min, rAV, rkt
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom, deg2rad
 use Definitions, only: wp, iwp
 
@@ -25,10 +29,6 @@ real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(n
 logical(kind=iwp) :: Process, Proc_dB
 character(len=14) :: qLbl(nB)
 #include "Molcas.fh"
-#include "bondtypes.fh"
-#define _FMIN_
-#include "ddvdt.fh"
-#include "ddvdt_trsn.fh"
 integer(kind=iwp), parameter :: mB = 4*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDCR(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRX(0:7), iDCRY(0:7), &
                      iDeg, iE1, iE2, iE3, iE4, iF1, iF2, iF3, iF4, ij, ijDCR, iMagic, Ind(4), iNeighbor, ir, iStabM(0:7), &

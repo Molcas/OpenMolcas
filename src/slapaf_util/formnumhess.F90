@@ -11,8 +11,7 @@
 
 subroutine FormNumHess(nIter,nInter,Delta,nAtom,iNeg,DipM)
 
-use Slapaf_Parameters, only: Cubic, Curvilinear, mTROld
-use Slapaf_Info, only: Degen, dqInt, qInt, Shift, Smmtrc
+use Slapaf_Info, only: Cubic, Curvilinear, Degen, mTROld, dqInt, qInt, Shift, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

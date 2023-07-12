@@ -11,7 +11,7 @@
 
 subroutine Start_Alaska()
 
-use Slapaf_Parameters, only: iState, Request_Alaska, Request_RASSI
+use Slapaf_Info, only: iState, Request_Alaska, Request_RASSI
 use UnixInfo, only: ProgName
 use Definitions, only: iwp, u6
 

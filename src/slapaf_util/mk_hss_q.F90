@@ -11,8 +11,7 @@
 
 subroutine Mk_Hss_Q()
 
-use Slapaf_Parameters, only: BSet, Delta, HSet, iter, lNmHss, mTROld, nDimBC, NmIter
-use Slapaf_Info, only: BMx, Coor, Cx, DipM, dqInt, mRowH, qInt
+use Slapaf_Info, only: BMx, BSet, Coor, Cx, Delta, DipM, HSet, iter, lNmHss, mTROld, nDimBC, NmIter, dqInt, mRowH, qInt
 use Definitions, only: wp, iwp
 
 implicit none

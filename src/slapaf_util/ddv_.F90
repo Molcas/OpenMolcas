@@ -12,7 +12,9 @@
 subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
 use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
-use Slapaf_Parameters, only: ddV_Schlegel, iOptC
+use Slapaf_Info, only: ddV_Schlegel, iOptC, Magic_Bond
+use ddvdt, only: A_Bend, A_Str, A_StrH, A_Trsn, aAV, alpha_vdW, B_Str, f_Const_Min, r_ref_vdW, rAV, rko, rkf, rkr, rkr_vdW, rkt, &
+                 Rot_Const, Trans_Const
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp
@@ -20,16 +22,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
 real(kind=wp) :: Cart(3,mTtAtm), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
-#define _FMIN_
-#define _VDW_
-#include "ddvdt.fh"
-#include "ddvdt_rf.fh"
-#define _SCHLEGEL_
-#include "ddvdt_bond.fh"
-#include "bondtypes.fh"
-#include "ddvdt_bend.fh"
-#include "ddvdt_trsn.fh"
-#include "ddvdt_outofp.fh"
 integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
                      jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
                      mr, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder

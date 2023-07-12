@@ -12,8 +12,8 @@
 subroutine DstInf(iStop,Just_Frequencies)
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Info, only: AtomLbl, Coor, Cx, Dmp_Slapaf, dqInt, Energy, MF, qInt, Weights
-use Slapaf_Parameters, only: iOptC, iter, lOld_Implicit, Max_Center, MaxItr, mTROld, Numerical, RtRnc, SlStop
+use Slapaf_Info, only: AtomLbl, Coor, Cx, Dmp_Slapaf, dqInt, Energy, iOptC, iter, lOld_Implicit, Max_Center, MaxItr, MF, mTROld, &
+                       Numerical, qInt, RtRnc, SlStop, Weights
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom

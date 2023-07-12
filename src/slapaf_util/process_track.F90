@@ -13,8 +13,7 @@
 
 subroutine Process_Track()
 
-use Slapaf_Parameters, only: Request_RASSI
-use Slapaf_Info, only: RootMap
+use Slapaf_Info, only: Request_RASSI, RootMap
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

@@ -13,7 +13,8 @@ subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,
                       iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Info, only: ANr, AtomLbl, jStab, nStab
+use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
+use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
 
@@ -29,10 +30,6 @@ character(len=14) :: qLbl(nB)
 #include "print.fh"
 #endif
 #include "Molcas.fh"
-#include "bondtypes.fh"
-#define _FMIN_
-#include "ddvdt.fh"
-#include "ddvdt_bend.fh"
 integer(kind=iwp), parameter :: mB = 3*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iDCR(3), iDCRR(0:7), iDCRT(0:7), ideg, iE1, iE2, iE3, iF1, iF2, iF3, Ind(3), &
                      iNeighbor, ir, iStabM(0:7), iStabN(0:7), jAtom, jAtom_, jBond, jBondType, jNeighbor, jr, k, kDCR, kDCRR, &

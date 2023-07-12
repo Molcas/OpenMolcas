@@ -13,8 +13,7 @@
 
 subroutine Init_UpdMask(nInter)
 
-use Slapaf_Info, only: Coor
-use Slapaf_Parameters, only: Curvilinear, Redundant
+use Slapaf_Info, only: Coor, Curvilinear, Redundant
 use NewH_mod, only: UpdMask
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

@@ -12,8 +12,7 @@
 subroutine LNM(Cart,mTtAtm,Hess,Scrt1,Scrt2,Vctrs,nsAtom,nDim,iAnr,nIter,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
 use Symmetry_Info, only: nIrrep
-use Slapaf_Parameters, only: Analytic_Hessian, iOptH
-use Slapaf_Info, only: Degen, Smmtrc
+use Slapaf_Info, only: Analytic_Hessian, Degen, iOptH, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -11,8 +11,7 @@
 
 subroutine Reset_ThrGrd(nIter,mTtAtm,ThrGrd)
 
-use Slapaf_Info, only: Cx
-use Slapaf_Parameters, only: nDimBC
+use Slapaf_Info, only: Cx, nDimBC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, Half
 use Definitions, only: wp, iwp

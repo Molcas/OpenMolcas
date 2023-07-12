@@ -13,8 +13,7 @@
 
 subroutine Process_Gradients()
 
-use Slapaf_Parameters, only: ApproxNADC, iState, iter, NADC, Request_Alaska, TwoRunFiles
-use Slapaf_Info, only: Energy, Energy0, Gx, Gx0, NAC, RootMap
+use Slapaf_Info, only: ApproxNADC, Energy, Energy0, Gx, Gx0, iState, iter, NAC, NADC, Request_Alaska, RootMap, TwoRunFiles
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp

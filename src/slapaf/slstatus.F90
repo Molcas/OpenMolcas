@@ -21,7 +21,7 @@ subroutine SlStatus(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_St
 !             May '91                                                  *
 !***********************************************************************
 
-use Slapaf_Parameters, only: GrdLbl, GrdMax, iNeg, StpLbl, StpMax, UpMeth
+use Slapaf_Info, only: GrdLbl, GrdMax, iNeg, StpLbl, StpMax, UpMeth
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

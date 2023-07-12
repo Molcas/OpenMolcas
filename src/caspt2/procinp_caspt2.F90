@@ -17,7 +17,6 @@ subroutine procinp_caspt2
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_gradient, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
-  use slapaf_parameters, only: EDiffZero, iState
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -625,15 +624,10 @@ subroutine procinp_caspt2
 
   if (do_grad) then
     call put_iScalar('mp2prpt',2)
-    do_nac = input%NAC .or. EDiffZero
+    do_nac = input%NAC
     if (input%iNACRoot1 == 0 .and. input%iNACRoot2 == 0) then
-      if (EDiffZero) then
-        iRoot1 = iState(1)
-        iRoot2 = iState(2)
-      else
-        iRoot1 = iRlxRoot
-        iRoot2 = iRlxRoot
-      end if
+      iRoot1 = iRlxRoot
+      iRoot2 = iRlxRoot
     else
       iRoot1 = input%iNACRoot1
       iRoot2 = input%iNACRoot2

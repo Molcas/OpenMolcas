@@ -12,15 +12,13 @@
 subroutine RdCtl_Slapaf(LuSpool,Dummy_Call)
 
 use Symmetry_Info, only: Symmetry_Info_Get
-use Slapaf_Parameters, only: Baker, Beta, Beta_Disp, CallLast, CnstWght, Cubic, Curvilinear, ddV_Schlegel, Delta, dMEPStep, &
-                             eMEPTest, Fallback, FindTS, GNrm_Threshold, HrmFrq_Show, HWRS, iOptC, iOptH, IRC, iRow, iRow_c, &
-                             isFalcon, Iter, lCtoF, Line_Search, lNmHss, lOld, Max_Center, MaxItr, MEP, MEP_Algo, MEP_Type, &
-                             MEPCons, MEPNum, Mode, MxItr, NADC, nBVec, nLambda, nMEP, nWndw, Redundant, Request_Alaska, rFuzz, &
-                             rHidden, rMEP, RtRnc, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, User_Def, &
-                             WeightedConstraints
-use Slapaf_Info, only: Atom, Coor, Cx, GradRef, Gx, Lbl, MF, mRowH, nStab, nSup, RefGeo, Weights
+use Slapaf_Info, only: Atom, Baker, Beta, Beta_Disp, CallLast, CnstWght, Coor, Cubic, Curvilinear, Cx, ddV_Schlegel, Delta, &
+                       dMEPStep, eMEPTest, Fallback, FindTS, GNrm_Threshold, GradRef, Gx, HrmFrq_Show, HWRS, iOptC, iOptH, IRC, &
+                       iRow, iRow_c, isFalcon, Iter, Lbl, lCtoF, lDoubleIso, Line_Search, lNmHss, lOld, lTherm, Max_Center, &
+                       MaxItr, MEP, MEP_Algo, MEP_Type, MEPCons, MEPNum, MF, Mode, mRowH, MxItr, NADC, nBVec, nLambda, nMEP, &
+                       nsRot, nStab, nSup, nUserPT, nWndw, Redundant, RefGeo, Request_Alaska, rFuzz, rHidden, rMEP, RtRnc, &
+                       ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, User_Def, UserP, UserT, WeightedConstraints, Weights
 use kriging_mod, only: blavAI, Kriging, Max_Microiterations, nD_In
-use ThermoChem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Half, Angstrom

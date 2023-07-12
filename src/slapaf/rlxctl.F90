@@ -14,11 +14,10 @@ subroutine RlxCtl(iStop)
 !     Program for determination of the new molecular geometry          *
 !***********************************************************************
 
-use Slapaf_Info, only: BMx, Coor, Cx, dqInt, Free_Slapaf, GNrm, Lbl, mRowH, qInt, Shift
-use Slapaf_Parameters, only: BSet, Cubic, E_Delta, Fallback, HSet, HUpMet, iNeg, iRef, isFalcon, iter, lCtoF, lNmHss, mTROld, &
-                             mTtAtm, MxItr, nDimBC, NmIter, Numerical, nWNdw, PrQ, Request_Alaska, Request_RASSI, UpMeth, User_Def
+use Slapaf_Info, only: BMx, BSet, Coor, Cubic, Cx, dqInt, E_Delta, Fallback, Free_Slapaf, GNrm, HSet, HUpMet, iNeg, iRef, &
+                       isFalcon, iter, Lbl, lCtoF, lNmHss, lTherm, mRowH, mTROld, mTtAtm, MxItr, nDimBC, NmIter, Numerical, nWNdw, &
+                       PrQ, qInt, Request_Alaska, Request_RASSI, Shift, UpMeth, User_Def
 use Chkpnt, only: Chkpnt_close, Chkpnt_open, Chkpnt_update
-use thermochem, only: lTherm
 use kriging_mod, only: Kriging, nspAI
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

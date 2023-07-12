@@ -13,8 +13,7 @@
 
 subroutine Kriging_Update(nQQ,iter,qInt,E_Disp)
 
-use Slapaf_Info, only: BMx_kriging, Degen, dqInt, dqInt_Aux, Energy, Energy0, Gx, Gx0, NAC
-use Slapaf_Parameters, only: Curvilinear, NADC
+use Slapaf_Info, only: BMx_kriging, Curvilinear, Degen, dqInt, dqInt_Aux, Energy, Energy0, Gx, Gx0, NAC, NADC
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half

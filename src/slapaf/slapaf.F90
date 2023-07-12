@@ -11,7 +11,7 @@
 
 subroutine SlapAf(ireturn)
 
-use Slapaf_Parameters, only: CallLast, isFalcon
+use Slapaf_Info, only: CallLast, isFalcon
 use Definitions, only: iwp
 
 implicit none

@@ -11,22 +11,27 @@
 
 subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,iRow,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
 
-use Slapaf_Parameters, only: ddV_Schlegel, iOptC
+use Slapaf_Info, only: Covalent_Bond, ddV_Schlegel, iOptC, vdW_Bond
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: BondType
+#endif
+use ddvdt, only: aAV, alpha_vdW, r_ref_vdW, rAV
 use Constants, only: Zero, One, Two
+#define _OLD_CODE_
+#ifndef _OLD_CODE_
+use Constants, only: Four, Pi
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nAtoms, nx, ny, nz, nMax, iTab(0:nMax,nx,ny,nz), ix, iy, iz, iAtom, iRow, iANr(nAtoms), nBondMax, &
                      iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
 real(kind=wp) :: Coor(3,nAtoms), ThrB, ThrB_vdW
-#define _VDW_
-#include "ddvdt.fh"
-#include "bondtypes.fh"
 integer(kind=iwp) :: i, Ir, ivdW, jAtom, jRow, nn, nNeighbor, Nr, nVal_i, nVal_j
 real(kind=wp) :: alpha, r0, r0_vdw, Rab, RabCov, rij2, test, test_vdw, x, y, z
-#define _OLD_CODE
 #ifndef _OLD_CODE_
-real(kind=wp) :: A(3), B(3)
+integer(kind=iwp) :: iBond, iType, kAtom
+real(kind=wp) :: A(3), ANorm, B(3), BNorm, CosPhi, Phi
 #endif
 logical(kind=iwp) :: Help
 integer(kind=iwp), external :: iTabRow

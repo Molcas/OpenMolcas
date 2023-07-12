@@ -11,8 +11,7 @@
 
 subroutine mk_G(G,GInv,nDimBC)
 
-use Slapaf_Parameters, only: Curvilinear, User_Def
-use Slapaf_Info, only: Degen, dMass, Smmtrc
+use Slapaf_Info, only: Curvilinear, Degen, dMass, Smmtrc, User_Def
 use Constants, only: Zero, One, uToau
 use Definitions, only: wp, iwp
 

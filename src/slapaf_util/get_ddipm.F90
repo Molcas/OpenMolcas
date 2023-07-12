@@ -16,8 +16,7 @@ subroutine Get_dDipM(dDipM,DipM,nDoF,nInter)
 !                                                                      *
 !***********************************************************************
 
-use Slapaf_Parameters, only: mTR => mTROld
-use Slapaf_Info, only: Coor, Cx, Degen, Smmtrc
+use Slapaf_Info, only: Coor, Cx, Degen, mTR => mTROld, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

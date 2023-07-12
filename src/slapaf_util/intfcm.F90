@@ -21,7 +21,7 @@ subroutine IntFcm(lOld_Implicit)
 !             May 1991                                                 *
 !***********************************************************************
 
-use Slapaf_Parameters, only: lOld
+use Slapaf_Info, only: lOld
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 

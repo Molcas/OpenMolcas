@@ -12,8 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
 
-use Slapaf_Info, only: BMx, Cx, KtB, Lbl, qInt, Shift, Smmtrc
-use Slapaf_Parameters, only: BSet, Curvilinear, HSet, iRef, lOld, MaxItr, nDimBC, nLambda, Numerical, Redundant, User_Def
+use Slapaf_Info, only: BMx, BSet, Cx, Curvilinear, HSet, iRef, KtB, Lbl, lOld, MaxItr, nDimBC, nLambda, Numerical, qInt, &
+                       Redundant, Shift, Smmtrc, User_Def
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

@@ -24,8 +24,7 @@ subroutine Update_sl(Step_Trunc,nWndw,kIter)
 !             2000                                                     *
 !***********************************************************************
 
-use Slapaf_Info, only: qInt, Shift
-use Slapaf_Parameters, only: Beta, Beta_disp, iter, NmIter
+use Slapaf_Info, only: Beta, Beta_disp, iter, NmIter, qInt, Shift
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

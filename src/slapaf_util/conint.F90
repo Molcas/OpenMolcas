@@ -11,8 +11,7 @@
 
 subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
 
-use Slapaf_Info, only: Gx0, Energy, Energy0
-use Slapaf_Parameters, only: NADC, ApproxNADC
+use Slapaf_Info, only: ApproxNADC, Energy, Energy0, Gx0, NADC
 use Constants, only: Zero, One, Two, auTokJmol
 use Definitions, only: wp, iwp, u6
 

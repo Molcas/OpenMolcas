@@ -20,9 +20,8 @@ subroutine Update_kriging(Step_Trunc,nWndw)
 !    (see update_sl)                                                   *
 !***********************************************************************
 
-use Slapaf_Info, only: Cx, dqInt, Energy, GNrm, Gx, Lbl, qInt, Shift
-use Slapaf_Parameters, only: Beta_Disp_Seed => Beta_Disp, Beta_Seed => Beta, E_Delta, GrdLbl, GrdMax, iter, NADC, nLambda, &
-                             ThrCons, ThrEne, ThrGrd, UpMeth
+use Slapaf_Info, only: Beta_Disp_Seed => Beta_Disp, Beta_Seed => Beta, Cx, dqInt, E_Delta, Energy, GNrm, GrdLbl, GrdMax, Gx, iter, &
+                       Lbl, NADC, nLambda, qInt, Shift, ThrCons, ThrEne, ThrGrd, UpMeth
 use kriging_mod, only: Max_Microiterations, nSet, Thr_microiterations
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Six, Ten, Half, OneHalf

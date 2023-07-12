@@ -21,8 +21,7 @@ subroutine NwShft()
 !             May '92                                                  *
 !***********************************************************************
 
-use Slapaf_Info, only: qInt, Shift
-use Slapaf_parameters, only: Delta, iter, Delta
+use Slapaf_Info, only: Delta, iter, qInt, Shift
 use Constants, only: Zero, Two
 use Definitions, only: iwp
 

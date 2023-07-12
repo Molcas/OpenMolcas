@@ -11,8 +11,8 @@
 
 subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
 
-use Slapaf_Info, only: BMx, Degen, dqInt, dqInt_Aux, Gx, Gx0, KtB, Lbl, NAC, qInt, Smmtrc
-use Slapaf_Parameters, only: Analytic_Hessian, BSet, HSet, iInt, iOptC, lOld, MaxItr, nBVec, nFix, Numerical
+use Slapaf_Info, only: Analytic_Hessian, BMx, BSet, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, iInt, iOptC, KtB, Lbl, lOld, MaxItr, &
+                       NAC, nBVec, nFix, Numerical, qInt, Smmtrc
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

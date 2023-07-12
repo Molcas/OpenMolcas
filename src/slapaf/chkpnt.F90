@@ -17,16 +17,19 @@ module Chkpnt
 use mh5, only: mh5_close_attr, mh5_close_dset, mh5_close_file, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, &
                mh5_create_dset_str, mh5_create_file, mh5_fetch_attr, mh5_get_attr, mh5_init_attr, mh5_is_hdf5, mh5_open_attr, &
                mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset, mh5_resize_dset
+use Definitions, only: wp
 #endif
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
 
+# ifdef _HDF5_
 character(len=9), parameter :: basename = 'SLAPAFCHK'
 
 integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, Iter_all
 character(len=12) :: filename
+#endif
 
 public :: Chkpnt_close, Chkpnt_open, Chkpnt_update, Chkpnt_update_MEP
 
@@ -35,8 +38,7 @@ contains
 subroutine Chkpnt_open()
 # ifdef _HDF5_
   use Symmetry_Info, only: nIrrep
-  use Slapaf_Info, only: Coor
-  use Slapaf_Parameters, only: IRC, iter
+  use Slapaf_Info, only: Coor, IRC, iter
   integer(kind=iwp) :: tmp
   logical(kind=iwp) :: create
   character(len=3) :: level
@@ -79,13 +81,12 @@ subroutine Chkpnt_open()
 # endif
 end subroutine Chkpnt_open
 
+#ifdef _HDF5_
 subroutine Chkpnt_init()
-# ifdef _HDF5_
   use Phase_Info, only: iPhase
   use Symmetry_Info, only: nIrrep
   use Index_Functions, only: nTri_Elem
-  use Slapaf_Info, only: AtomLbl, Coor, dMass, iCoSet, nStab, Smmtrc
-  use Slapaf_Parameters, only: dMEPStep, MEP, nDimBC, rMEP
+  use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, iCoSet, MEP, nDimBC, nStab, rMEP, Smmtrc
   use stdalloc, only: mma_allocate, mma_deallocate
 # include "Molcas.fh"
   character :: lIrrep(24)
@@ -210,13 +211,12 @@ subroutine Chkpnt_init()
     dsetid = mh5_create_dset_int(chkpnt_id,'MEP_INDICES',1,[0],dyn=.true.)
     call mh5_init_attr(dsetid,'DESCRIPTION','Iteration number for each converged MEP step, as a vector of size [MEP_ITERATIONS]')
   end if
-# endif
 end subroutine Chkpnt_init
+#endif
 
 subroutine Chkpnt_update()
 # ifdef _HDF5_
-  use Slapaf_Info, only: Cx, Energy, Gx
-  use Slapaf_Parameters, only: iter, nDimBC
+  use Slapaf_Info, only: Cx, Energy, Gx, iter, nDimBC
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp) :: i, ij, j
   logical(kind=iwp) :: Found

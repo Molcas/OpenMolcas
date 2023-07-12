@@ -11,8 +11,8 @@
 
 subroutine Init2()
 
-use Slapaf_Parameters, only: iter, lOld_Implicit, MaxItr, mTROld, NADC, TwoRunFiles
-use Slapaf_Info, only: Coor, Cx, DipM, dqInt, dqInt_Aux, Energy, Energy0, Get_Slapaf, Grd, Gx, Gx0, NAC, qInt, RefGeo
+use Slapaf_Info, only: Coor, Cx, DipM, dqInt, dqInt_Aux, Energy, Energy0, Get_Slapaf, Grd, Gx, Gx0, iter, lOld_Implicit, MaxItr, &
+                       mTROld, NAC, NADC, qInt, RefGeo, TwoRunFiles
 use Kriging_Mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

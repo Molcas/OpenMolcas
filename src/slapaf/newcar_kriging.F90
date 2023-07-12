@@ -13,8 +13,7 @@
 
 subroutine NewCar_Kriging(kIter,SaveBMx,Error)
 
-use Slapaf_Info, only: Cx, BMx, BMx_kriging
-use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm, Force_dB
+use Slapaf_Info, only: BMx, BMx_kriging, Cx, Force_dB, mTtAtm, Numerical, PrQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

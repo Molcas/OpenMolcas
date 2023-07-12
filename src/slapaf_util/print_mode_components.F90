@@ -31,18 +31,16 @@
 subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
 
 use Symmetry_Info, only: nIrrep, VarR, VarT
-use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Baker, Beta, Beta_Disp, BSet, CallLast, CnstWght, Cubic, Curvilinear, &
-                             ddV_Schlegel, Delta, dMEPStep, EDiffZero, eMEPTest, FindTS, GNrm_Threshold, Header, HrmFrq_Show, &
-                             HSet, HUpMet, HWRS, iInt, iOptC, iOptH, IRC, iRef, iRow, iRow_c, isFalcon, iState, iter, lCtoF, &
-                             Line_Search, lNmHss, lOld, lOld_Implicit, lSoft, Max_Center, MaxItr, mB_Tot, mdB_Tot, MEP, MEP_Algo, &
-                             MEP_Type, MEPCons, MEPNum, Mode, mq, mTROld, mTtAtm, MxItr, NADC, nBVec, nDimBC, nFix, nLambda, nMEP, &
-                             NmIter, Numerical, nWndw, PrQ, Redundant, Request_Alaska, Request_RASSI, rFuzz, rHidden, rMEP, RtRnc, &
-                             SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, TwoRunFiles, UpMeth, User_Def, &
-                             WeightedConstraints
-use Slapaf_Info, only: ANr, AtomLbl, BM, BMx, Coor, Cx, dBM, Degen, DipM, dMass, dqInt, Energy, Energy0, GNrm, Grd, Gx, Gx0, iBM, &
-                       iCoSet, idBM, jStab, Lambda, Lbl, MF, mRowH, NAC, nqBM, nStab, Q_nuclear, qInt, RefGeo, RootMap, Shift, &
-                       Smmtrc, Weights
-use thermochem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Baker, Beta, Beta_Disp, BM, BMx, BSet, CallLast, CnstWght, &
+                       Coor, Cubic, Curvilinear, Cx, dBM, ddV_Schlegel, Degen, Delta, DipM, dMass, dMEPStep, dqInt, EDiffZero, &
+                       eMEPTest, Energy, Energy0, FindTS, GNrm, GNrm_Threshold, Grd, Gx, Gx0, Header, HrmFrq_Show, HSet, HUpMet, &
+                       HWRS, iBM, iCoSet, idBM, iInt, iOptC, iOptH, IRC, iRef, iRow, iRow_c, isFalcon, iState, iter, jStab, &
+                       Lambda, Lbl, lCtoF, lDoubleIso, Line_Search, lNmHss, lOld, lOld_Implicit, lSoft, lTherm, Max_Center, &
+                       MaxItr, mB_Tot, mdB_Tot, MEP, MEP_Algo, MEP_Type, MEPCons, MEPNum, MF, Mode, mq, mRowH, mTROld, mTtAtm, &
+                       MxItr, NAC, NADC, nBVec, nDimBC, nFix, nLambda, nMEP, NmIter, nqBM, nsRot, nStab, Numerical, nUserPT, &
+                       nWndw, PrQ, Q_nuclear, qInt, Redundant, RefGeo, Request_Alaska, Request_RASSI, rFuzz, rHidden, rMEP, &
+                       RootMap, RtRnc, Shift, SlStop, Smmtrc, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, TwoRunFiles, &
+                       UpMeth, User_Def, UserP, UserT, WeightedConstraints, Weights
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -50,13 +48,25 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: Modes(*), Freq(*)
 integer(kind=iwp) :: lModes, lDisp(nIrrep)
-#include "backup_info.fh"
-integer(kind=iwp) :: i, iB, iErr, ii, im, iq, j, LuIC, LuInput, nAll_Atoms, nB, nK, nModes, nQQ, nsAtom, nUnique_Atoms, nX, PLback
-real(kind=wp) :: Mx, MinComp, rDum(1)
-logical(kind=iwp) :: Bk_VarR, Bk_VarT, Found
+#include "Molcas.fh"
+integer(kind=iwp) :: Bk_iInt, Bk_iOptC, Bk_iOptH, Bk_IRC, Bk_iRef, Bk_iRow, Bk_iRow_c, Bk_iState(2), Bk_iter, Bk_Max_Center, &
+                     Bk_mB_Tot, Bk_mdB_Tot, Bk_MEPnum, Bk_mode, Bk_mq, Bk_mTROld, Bk_mTtAtm, Bk_MxItr, Bk_nBVec, Bk_nDimBC, &
+                     Bk_nFix, Bk_nLambda, Bk_nMEP, Bk_NmIter, Bk_nsRot, Bk_nUserPT, Bk_nWndw, i, iB, iErr, ii, im, iq, j, LuIC, &
+                     LuInput, nAll_Atoms, nB, nK, nModes, nQQ, nsAtom, nUnique_Atoms, nX, PLback
+real(kind=wp) :: Bk_Beta, Bk_Beta_Disp, Bk_CnstWght, Bk_Delta, Bk_dMEPStep, Bk_GNrm_Threshold, Bk_rFuzz, Bk_rHidden, Bk_Rtrnc, &
+                 Bk_ThrCons, Bk_ThrEne, Bk_ThrGrd, Bk_ThrMEP, Bk_UserP, Bk_UserT(64), Mx, MinComp, rDum(1)
+logical(kind=iwp) :: Bk_Analytic_Hessian, Bk_ApproxNADC, Bk_Baker, Bk_BSet, Bk_CallLast, Bk_Cubic, Bk_CurviLinear, &
+                     Bk_DDV_Schlegel, Bk_EDiffZero, Bk_eMEPtest, Bk_FindTS, Bk_HrmFrq_Show, Bk_HSet, Bk_HWRS, Bk_isFalcon, &
+                     Bk_lCtoF, Bk_lDoubleIso, Bk_Line_Search, Bk_lNmHss, Bk_lOld, Bk_lOld_Implicit, Bk_lSoft, Bk_lTherm, Bk_MEP, &
+                     Bk_MEPCons, Bk_NADC, Bk_Redundant, Bk_Request_Alaska, Bk_Request_RASSI, Bk_rMEP, Bk_SlStop, Bk_Track, &
+                     Bk_TSConstraints, Bk_TwoRunFiles, Bk_User_Def, Bk_VarR, Bk_VarT, Bk_WeightedConstraints, Found
 character(len=180) :: Line
 character(len=16) :: StdIn
+character(len=10) :: Bk_MEP_Type
 character(len=8) :: Filename
+character(len=6) :: Bk_HUpMet, Bk_UpMeth
+character(len=2) :: Bk_MEP_Algo
+character :: Bk_Header(144)
 integer(kind=iwp), allocatable :: Bk_ANr(:), Bk_iBM(:), Bk_iCoSet(:,:), Bk_idBM(:), Bk_jStab(:,:), Bk_mRowH(:), Bk_nqBM(:), &
                                   Bk_nStab(:), Bk_RootMap(:), Sort(:)
 real(kind=wp), allocatable :: Bk_BM(:), Bk_BMx(:,:), Bk_Coor(:,:), Bk_Cx(:,:,:), Bk_dBM(:), Bk_Degen(:,:), Bk_DipM(:,:), &

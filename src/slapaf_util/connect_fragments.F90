@@ -11,7 +11,7 @@
 
 subroutine Connect_Fragments(nAtoms,iTabBonds,nBondMax,nBonds,Coor,iTabAtoms,nMax,iANr)
 
-use Slapaf_Parameters, only: rFuzz
+use Slapaf_Info, only: Fragments_Bond, rFuzz, vdW_Bond
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Five
 use Definitions, only: wp, iwp, u6
@@ -19,7 +19,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nAtoms, nBondMax, iTabBonds(3,nBondMax), nBonds, nMax, iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms)
 real(kind=wp) :: Coor(3,nAtoms)
-#include "bondtypes.fh"
 integer(kind=iwp) :: iAtom, iBond, iNeighbor, iOff, iOffHH, iSet, jAtom, kAtom, kSet, lAtom, lSet, nNeighbor_k, nNeighbor_l, &
                      Not_Defined, nStack
 real(kind=wp) :: dR_Thr, HH_Thr, rShort, RTest

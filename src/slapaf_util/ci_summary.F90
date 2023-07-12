@@ -14,8 +14,7 @@
 
 subroutine CI_Summary(Lu)
 
-use Slapaf_Info, only: Energy, Gx, Gx0, NAC
-use Slapaf_Parameters, only: CallLast, iter
+use Slapaf_Info, only: CallLast, Energy, Gx, Gx0, iter, NAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart
 use Definitions, only: wp, iwp

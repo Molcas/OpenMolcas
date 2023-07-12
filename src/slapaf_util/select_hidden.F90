@@ -12,7 +12,7 @@
 subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,iHiddenAN,nKept,iPL)
 ! Select among the hidden atoms the ones to be kept
 
-use Slapaf_Parameters, only: rHidden
+use Slapaf_Info, only: rHidden
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -17,7 +17,7 @@ subroutine Rd_UDIC(iInt,nFix,nRowH)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Slapaf_Parameters, only: iRow
+use Slapaf_Info, only: iRow
 use Definitions, only: iwp
 
 implicit none

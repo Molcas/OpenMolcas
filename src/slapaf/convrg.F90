@@ -11,9 +11,9 @@
 
 subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 
-use Slapaf_Info, only: Coor, Cx, dqInt, Energy, GNrm, Gx, Lbl, qInt, Shift
-use Slapaf_Parameters, only: Analytic_Hessian, ApproxNADC, Baker, E_Delta, EDiffZero, eMEPTest, FindTS, GrdMax, HUpMet, iNeg, &
-                             iOptC, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, rMEP, SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
+use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
+                       GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, Shift, &
+                       SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
 use Chkpnt, only: Chkpnt_update_MEP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half

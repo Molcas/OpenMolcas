@@ -38,8 +38,7 @@
 subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,ResGrad,BadConstraint)
 
 use Symmetry_Info, only: nIrrep
-use Slapaf_Info, only: MF, RefGeo, Weights
-use Slapaf_Parameters, only: dMEPStep, IRC, iter, MEP, MEP_Algo, MEP_Type, MEPNum, nLambda, nMEP, rMEP
+use Slapaf_Info, only: dMEPStep, IRC, iter, MEP, MEP_Algo, MEP_Type, MEPNum, MF, nLambda, nMEP, RefGeo, rMEP, Weights
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, deg2rad
 use Definitions, only: wp, iwp, u6

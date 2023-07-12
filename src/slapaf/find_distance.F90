@@ -13,8 +13,7 @@
 
 subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,BadConstraint)
 
-use Slapaf_Info, only: RefGeo
-use Slapaf_Parameters, only: MEP_Type
+use Slapaf_Info, only: MEP_Type, RefGeo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

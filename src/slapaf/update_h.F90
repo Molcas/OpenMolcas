@@ -11,8 +11,7 @@
 
 subroutine Update_H(nWndw,H,nInter,nIter,iOptC,dq,g,iOptH,jPrint,GNrm,nsAtom,Store,AllowFindTS)
 
-use Slapaf_Info, only: MF
-use Slapaf_Parameters, only: IRC, Mode
+use Slapaf_Info, only: IRC, MF, Mode
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

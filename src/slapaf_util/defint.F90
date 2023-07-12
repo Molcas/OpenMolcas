@@ -24,8 +24,7 @@ subroutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim)
 !             May 1991                                                 *
 !***********************************************************************
 
-use Slapaf_Parameters, only: iRow, Redundant
-use Slapaf_Info, only: AtomLbl
+use Slapaf_Info, only: AtomLbl, iRow, Redundant
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp, u6

@@ -25,7 +25,7 @@ subroutine C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,nFix,iP)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use Slapaf_Parameters, only: iOptC
+use Slapaf_Info, only: iOptC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten
 use Definitions, only: wp, iwp, u6

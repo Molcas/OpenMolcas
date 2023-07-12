@@ -12,8 +12,7 @@
 subroutine GF_on_the_Fly(iDo_dDipM)
 
 use Symmetry_Info, only: nIrrep
-use Slapaf_Info, only: Coor
-use Slapaf_Parameters, only: nDimBC, mTROld
+use Slapaf_Info, only: Coor, nDimBC, mTROld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

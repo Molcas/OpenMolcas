@@ -23,8 +23,7 @@ subroutine Get_H(F,nX)
 !             October 2010                                             *
 !***********************************************************************
 
-use Slapaf_Info, only: Coor, Smmtrc
-use Slapaf_Parameters, only: mTROld, nDimBC
+use Slapaf_Info, only: Coor, mTROld, nDimBC, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

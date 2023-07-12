@@ -11,8 +11,7 @@
 
 subroutine PrePro(nAtom,Coor)
 
-use Slapaf_Parameters, only: iInt, iRow, iter, lNmHss, lOld, lOld_Implicit, mTROld, nDimBC, nFix, Redundant
-use Slapaf_Info, only: Atom, Grd, mRowH, nSup
+use Slapaf_Info, only: Atom, Grd, iInt, iRow, iter, lNmHss, lOld, lOld_Implicit, mRowH, mTROld, nDimBC, nFix, nSup, Redundant
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

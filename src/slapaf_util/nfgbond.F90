@@ -11,12 +11,12 @@
 
 function nFgBond(iAtom,nAtoms,nMax,iTabBonds,nBondMax,iTabAtoms)
 
+use Slapaf_Info, only: Fragments_Bond
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nFgBond
 integer(kind=iwp) :: iAtom, nAtoms, nMax, nBondMax, iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
-#include "bondtypes.fh"
 integer(kind=iwp) :: i, nn
 
 !                                                                      *

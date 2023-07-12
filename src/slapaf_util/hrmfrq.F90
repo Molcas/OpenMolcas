@@ -11,7 +11,7 @@
 
 subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
 
-use thermochem, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use Slapaf_Info, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

@@ -23,7 +23,7 @@ subroutine C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,iP,MinWdw)
 !             December 1994                                            *
 !***********************************************************************
 
-use Slapaf_Parameters, only: iOptC
+use Slapaf_Info, only: iOptC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

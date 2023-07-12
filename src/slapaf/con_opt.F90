@@ -44,8 +44,7 @@ subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,hql,du,x,dEdx,W,GNrm,nWndw,H
 !***********************************************************************
 
 use kriging_mod, only: Max_MicroIterations, nSet
-use Slapaf_Info, only: MF
-use Slapaf_Parameters, only: CnstWght, E_Delta, GrdMax, iOptC, IRC, NADC, StpLbl, StpMax
+use Slapaf_Info, only: CnstWght, E_Delta, GrdMax, iOptC, IRC, MF, NADC, StpLbl, StpMax
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp, u6

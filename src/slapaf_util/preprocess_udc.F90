@@ -34,7 +34,7 @@
 
 subroutine Preprocess_UDC(Lu,iPrint)
 
-use Slapaf_Parameters, only: EDiffZero, iState, lSoft, MEP_Type, MEPCons, NADC, NADC
+use Slapaf_Info, only: EDiffZero, iState, lSoft, MEP_Type, MEPCons, NADC, NADC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

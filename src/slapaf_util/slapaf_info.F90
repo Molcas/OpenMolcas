@@ -14,10 +14,42 @@
 module Slapaf_Info
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
 
 implicit none
 private
+
+! Baker      Convergence a la Baker
+! Beta       The threshold for restricted step optimization.
+! Beta_Disp  The threshold for restricted variance optimization.
+!
+!     Hessian update
+! 0   iOptH=0000001 ( 1) Meyer (disabled)
+! 1   iOptH=0000010 ( 2) BP (disabled)
+! 2   iOptH=0000100 ( 4) BFGS
+! 3   iOptH=0001000 ( 8) None
+! 4   iOptH=0010000 (16) MPS, for TS search
+! 5   iOptH=0100000 (32) EU, for TS search
+! 6   iOptH=1000000 (64) TS-BFGS, for TS search
+!
+! Optimization method. DO NOT EVER GO BEYOND BIT 30!!!
+!
+!     iOptC=00000000000000  (  0) No optimization
+!  0  iOptC=00000000000001  (  1) Quasi Newton-Raphson
+!  1  iOptC=00000000000010  (  2) c1-DIIS
+!  2  iOptC=00000000000100  (  4) c2-DIIS
+!  3  iOptC=00000000001000  (  8) RS-RFO
+!  4  iOptC=0000000001....  ( 16) DIIS, <dx|dx>
+!  5  iOptC=0000000010....  ( 32) DIIS, <dx|g>
+!  6  iOptC=0000000100....  ( 64) DIIS, <g|g>
+!  7  iOptC=0000001.......  (128) Minimum, if not set TS search
+!  8  iOptC=0000010.......  (256) Optimization with constraint
+!  9  iOptC=00001.........  (512) set: RS-I-RFO, unset: RS-P-RFO
+! 10  iOptC=0001.......... (1024) HMF augmented with weak interactions
+! 11  iOptC=0010.......... (2048) augmented HMF used for selection of internal coordinates
+! 12  iOptC=01............ (4096) set if FindTS
+! 13  iOptC=10............ (8192) set if FindTS and in TS regime
 
 ! Arrays always allocated
 !
@@ -70,7 +102,28 @@ private
 ! KtB                   KtB array for the BMtrx family of subroutines
 
 #include "LenIn.fh"
-logical(kind=iwp) :: Initiated = .false.
+integer(kind=iwp), parameter :: MaxItr = 2000
+integer(kind=iwp) :: iInt = 0, iNeg(2) = 0, iOptC = int(b'111011001000'), iOptH = int(b'100'), IRC = 0, iRef = 0, iRow = 0, &
+                     iRow_c = 0, iState(2) = 0, iter = 0, Max_Center = 15, mB_Tot = 0, mdB_Tot = 0, MEPNum = 0, Mode = -1, &
+                     mq = 0, mTROld = 0, mTtAtm = 0, MxItr = 0, nBVec = 0, nDimBC = 0, nFix = 0, nLambda = 0, nMEP = MaxItr, &
+                     NmIter = 0, nsRot = 0, nUserPT = 0, nWndw = 5
+real(kind=wp) :: Beta = 0.3_wp, Beta_Disp = 0.3_wp, CnstWght = One, Delta = 1.0e-2_wp, dMEPStep = 0.1_wp, E_Delta = Zero, &
+                 GNrm_Threshold = 0.2_wp, GrdMax = Zero, StpMax = Zero, rFuzz = Half, rHidden = Zero, RtRnc = Three, &
+                 ThrCons = Zero, ThrMEP = Zero, ThrEne = Zero, ThrGrd = Zero, UserP = Zero, UserT(64) = Zero
+logical(kind=iwp) :: Analytic_Hessian = .false., ApproxNADC = .false., Baker = .false., BSet = .false., CallLast = .true., &
+                     Cubic = .false., Curvilinear = .true., ddV_Schlegel = .false., EDiffZero = .false., eMEPTest = .true., &
+                     Fallback = .true., FindTS = .false., Force_dB = .false., HrmFrq_Show = .false., HSet = .false., &
+                     HWRS = .true., Initiated = .false., isFalcon = .false., lCtoF = .false., lDoubleIso = .false., &
+                     Line_Search = .true., lNmHss = .false., lOld = .false., lOld_Implicit = .false., lRP = .false., &
+                     lSoft = .false., lTherm = .false., MEP = .false., MEPCons = .false., NADC = .false., Numerical = .false., &
+                     PrQ = .false., Redundant = .false., Request_Alaska = .false., Request_RASSI = .false., rMEP = .false., &
+                     SlStop = .false., Track = .false., TSConstraints = .false., TwoRunFiles = .false., User_Def = .false., &
+                     WeightedConstraints = .false.
+character(len=10) :: MEP_TYPE = 'SPHERE'
+character(len=8) :: GrdLbl = '', StpLbl = ''
+character(len=6) :: HUpMet = ' None ', UpMeth = '  RF  '
+character(len=2) :: MEP_Algo = 'GS'
+character :: Header(144) = ''
 integer(kind=iwp), allocatable :: ANr(:), Atom(:), iBM(:), idBM(:), iCoset(:,:), jStab(:,:), mRowH(:), nqBM(:), nStab(:), NSup(:), &
                                   RootMap(:)
 real(kind=wp), allocatable :: BM(:), BMx_kriging(:,:), Coor(:,:), Cx(:,:,:), dBM(:), Degen(:,:), DipM(:,:), dmass(:), dqInt(:,:), &
@@ -81,9 +134,26 @@ logical(kind=iwp), allocatable :: Smmtrc(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 character(len=8), allocatable :: Lbl(:)
 
-public :: ANr, Atom, AtomLbl, BM, Bmx, BMx_kriging, Coor, Cx, dBM, Degen, DipM, dmass, Dmp_Slapaf, dqInt, dqInt_Aux, Energy, &
-          Energy0, Free_Slapaf, Get_Slapaf, GNrm, GradRef, Grd, Gx, Gx0, iBM, iCoset, idBM, jStab, KtB, Lambda, Lbl, MF, mRowH, &
-          NAC, nqBM, nStab, NSup, Q_nuclear, qInt, R12, RefGeo, RootMap, Shift, Smmtrc, Weights
+integer(kind=iwp), parameter :: Covalent_Bond = 0, &
+                                vdW_Bond = 1, &
+                                Fragments_Bond = 2, &
+                                Magic_Bond = 3
+character(len=*), parameter :: BondType(0:3) = ['Covalent_Bond ', &
+                                                'vdW_Bond      ', &
+                                                'Fragments_Bond', &
+                                                'Magic_Bond    ']
+
+public :: Analytic_Hessian, ANr, ApproxNADC, Atom, AtomLbl, Baker, Beta, Beta_Disp, BM, Bmx, BMx_kriging, BondType, BSet, &
+          CallLast, CnstWght, Coor, Covalent_Bond, Cubic, Curvilinear, Cx, dBM, ddV_Schlegel, Degen, Delta, DipM, dmass, dMEPStep, &
+          Dmp_Slapaf, dqInt, dqInt_Aux, E_Delta, EDiffZero, eMEPTest, Energy, Energy0, Fallback, FindTS, Force_dB, Fragments_Bond, &
+          Free_Slapaf, Get_Slapaf, GNrm, GNrm_Threshold, GradRef, Grd, GrdLbl, GrdMax, Gx, Gx0, Header, HrmFrq_Show, HSet, HUpMet, &
+          HWRS, iBM, iCoset, idBM, iInt, iNeg, iOptC, iOptH, IRC, iRef, iRow, iRow_c, isFalcon, iState, iter, jStab, KtB, Lambda, &
+          Lbl, lCtoF, lDoubleIso, Line_Search, lNmHss, lOld, lOld_Implicit, lRP, lSoft, lTherm, Magic_Bond, Max_Center, MaxItr, &
+          mB_Tot, mdB_Tot, MEP, MEP_Algo, MEP_TYPE, MEPCons, MEPNum, MF, Mode, mq, mRowH, mTROld, mTtAtm, MxItr, NAC, NADC, nBVec, &
+          nDimBC, nFix, nLambda, nMEP, NmIter, nqBM, nsRot, nStab, NSup, Numerical, nUserPT, nWndw, PrQ, Q_nuclear, qInt, R12, &
+          Redundant, RefGeo, Request_Alaska, Request_RASSI, rFuzz, rHidden, rMEP, RootMap, RtRnc, Shift, SlStop, Smmtrc, StpLbl, &
+          StpMax, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, TwoRunFiles, UpMeth, User_Def, UserP, UserT, vdW_Bond, &
+          WeightedConstraints, Weights
 
 contains
 

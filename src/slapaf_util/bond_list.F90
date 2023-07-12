@@ -13,8 +13,8 @@ subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,
                      mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
 
 use Symmetry_Info, only: nIrrep, iOper
-use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
-use Slapaf_Parameters, only: iOptC
+use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, nStab, vdW_Bond
+use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -25,12 +25,6 @@ real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(n
 logical(kind=iwp) :: Process, Proc_dB
 character(len=14) :: qLbl(nB)
 #include "Molcas.fh"
-#include "bondtypes.fh"
-#define _FMIN_
-#define _VDW_
-#include "ddvdt.fh"
-#define _SCHLEGEL_
-#include "ddvdt_bond.fh"
 integer(kind=iwp), parameter :: mB = 2*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
                      iStabM(0:7), jAtom, jAtom_, jRow, kDCRR, Lambda, nCent, nDCRR, nqB, nStabM

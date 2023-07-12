@@ -11,7 +11,7 @@
 
 subroutine Transverse(xyz,nCent,HDist,Bf,l_Write,Label,dBf,ldB)
 
-use Slapaf_Info, only: Weights, RefGeo, R12, GradRef
+use Slapaf_Info, only: GradRef, R12, RefGeo, Weights
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

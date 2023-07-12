@@ -22,8 +22,7 @@ subroutine Freq1()
 ! Author: Giovanni Ghigo, University of Torino, Italy                  *
 !***********************************************************************
 
-use Slapaf_Parameters, only: Delta, iter
-use Slapaf_Info, only: mRowH, qInt, Shift
+use Slapaf_Info, only: Delta, iter, mRowH, qInt, Shift
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

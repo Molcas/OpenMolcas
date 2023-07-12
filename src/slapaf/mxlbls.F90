@@ -11,7 +11,7 @@
 
 subroutine MxLbls(nInter,Grad,Shift,Lbl)
 
-use Slapaf_Parameters, only: GrdLbl, StpLbl, GrdMax, StpMax
+use Slapaf_Info, only: GrdLbl, StpLbl, GrdMax, StpMax
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

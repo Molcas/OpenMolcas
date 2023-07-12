@@ -11,8 +11,7 @@
 
 subroutine GF(nX,nDoF,nInter,EVec,EVal,RedM,iNeg,dDipM,mTR,nAtom,DipM)
 
-use Slapaf_Info, only: Smmtrc
-use Slapaf_parameters, only: nDimBC
+use Slapaf_Info, only: nDimBC, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

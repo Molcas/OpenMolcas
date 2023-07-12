@@ -11,8 +11,7 @@
 
 subroutine dBMult(dCdQ,QC,nQQ,nDim,nLambda)
 
-use Slapaf_Parameters, only: mq
-use Slapaf_Info, only: dBM, idBM, nqBM
+use Slapaf_Info, only: dBM, idBM, mq, nqBM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp
