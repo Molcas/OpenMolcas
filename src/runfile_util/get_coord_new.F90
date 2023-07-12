@@ -23,7 +23,10 @@
 !> @param[out] nAtoms Number of symmetry-unique basis set centers
 !***********************************************************************
 
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Get_Coord_New(CN,nAtoms)
 
@@ -46,5 +49,3 @@ call Get_dArray(Label,CN,nAtoms3)
 return
 
 end subroutine Get_Coord_New
-
-#endif

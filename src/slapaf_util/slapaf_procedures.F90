@@ -9,27 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
+! This module contains procedures that need an interface
+module Slapaf_procedures
 
-subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
+private
+public :: Box, Hidden, OldFCM, SphInt
 
-use stdalloc, only: mma_allocate
-use Definitions, only: wp, iwp
+contains
 
-implicit none
-real(kind=wp), allocatable, intent(out) :: dExcdRa(:)
-integer(kind=iwp), intent(out) :: ndExcdRa
-logical(kind=iwp) :: Found
-character(len=*), parameter :: Label = 'dExcdRa'
+#define _IN_MODULE_
+#include "sphint.F90"
+#include "box.F90"
+#include "hidden.F90"
+#include "oldfcm.F90"
 
-call qpg_dArray(Label,Found,ndExcdRa)
-if ((.not. Found) .or. (ndExcdRa == 0)) call SysAbendmsg('Get_dExcdRa','Did not find:',Label)
-call mma_allocate(dExcdRa,ndExcdRa,label='dExcdRa')
-call Get_dArray(Label,dExcdRa,ndExcdRa)
-
-return
-
-end subroutine Get_dExcdRa
+end module Slapaf_procedures

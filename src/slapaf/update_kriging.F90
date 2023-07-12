@@ -22,7 +22,8 @@ subroutine Update_kriging(Step_Trunc,nWndw)
 
 use Slapaf_Info, only: Beta_Disp_Seed => Beta_Disp, Beta_Seed => Beta, Cx, dqInt, E_Delta, Energy, GNrm, GrdLbl, GrdMax, Gx, iter, &
                        Lbl, NADC, nLambda, qInt, Shift, ThrCons, ThrEne, ThrGrd, UpMeth
-use kriging_mod, only: Max_Microiterations, nSet, Thr_microiterations
+use Kriging_mod, only: Max_Microiterations, nSet, Thr_microiterations
+use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Six, Ten, Half, OneHalf
 use Definitions, only: wp, iwp
@@ -49,17 +50,6 @@ real(kind=wp), external :: DDot_
 real(kind=wp) :: OS_Disp(1), OS_Energy(1)
 real(kind=wp), allocatable :: Step_k(:,:)
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
-    import :: nSet
-    integer, intent(in) :: nRaw, nInter
-    real*8, intent(in) :: qInt(nInter,nRaw), Grad(nInter,nRaw,nSet), Energy(nRaw,nSet)
-    real*8, intent(inout), optional :: Hessian_HMF(nInter,nInter), HDiag(nInter)
-  end subroutine SetUp_Kriging
-end interface
 
 !                                                                      *
 !***********************************************************************

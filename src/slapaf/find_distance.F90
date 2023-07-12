@@ -14,6 +14,7 @@
 subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,BadConstraint)
 
 use Slapaf_Info, only: MEP_Type, RefGeo
+use Slapaf_procedures, only: SphInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -27,19 +28,6 @@ integer(kind=iwp) :: i, nCoor
 real(kind=wp) :: Correct, CurFact, PrevR, R, rDum(1,1,1,1)
 real(kind=wp), allocatable :: Dummy(:), Not_Allocated(:,:), OldRef(:,:)
 real(kind=wp), parameter :: Thr = 1.0e-6_wp
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    import :: wp, iwp
-    integer(kind=iwp) :: nCent
-    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
-    real(kind=wp), allocatable, target :: OfRef(:,:)
-    logical(kind=iwp) :: l_Write, ldB
-    character(len=8) :: Label
-  end subroutine SphInt
-end interface
 
 !                                                                      *
 !***********************************************************************

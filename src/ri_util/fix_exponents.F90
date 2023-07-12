@@ -10,7 +10,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Fix_Exponents(nP,mP,nC,Expn,CoeffC,CoeffP)
 
@@ -132,5 +134,3 @@ end if
 return
 
 end subroutine Fix_Exponents
-
-#endif

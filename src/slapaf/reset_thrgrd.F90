@@ -12,6 +12,7 @@
 subroutine Reset_ThrGrd(nIter,mTtAtm,ThrGrd)
 
 use Slapaf_Info, only: Cx, nDimBC
+use Slapaf_procedures, only: Box, Hidden
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, Half
 use Definitions, only: wp, iwp
@@ -23,23 +24,6 @@ integer(kind=iwp) :: i, iIter, mTR, nBonds, nHidden, nMax, nSaddle, nsAtom
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:), TabB(:,:)
 real(kind=wp), allocatable :: Coor(:,:), Tmp(:), TR(:), Vec(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
-    import :: wp, iwp
-    integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
-    real(kind=wp) :: Coor(3,mTtAtm)
-    integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
-  end subroutine Box
-  subroutine Hidden(Coor,AN,nHidden)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: Coor(:,:)
-    integer(kind=iwp), allocatable :: AN(:)
-    integer(kind=iwp) :: nHidden
-  end subroutine Hidden
-end interface
 
 !                                                                      *
 !***********************************************************************

@@ -14,6 +14,7 @@ subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
 
 use Slapaf_Info, only: BMx, BSet, Cx, Curvilinear, HSet, iRef, KtB, Lbl, lOld, MaxItr, nDimBC, nLambda, Numerical, qInt, &
                        Redundant, Shift, Smmtrc, User_Def
+use Slapaf_procedures, only: Box, Hidden
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -25,23 +26,6 @@ real(kind=wp) :: Coor(3,nsAtom)
 integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, nBonds, nHidden, nMax, nQQ
 integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:,:), TabB(:,:)
 real(kind=wp), allocatable :: Coor2(:,:), EVal(:), Hss_X(:), Scr2(:), TR(:), TRNew(:), TROld(:), Vec(:,:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
-    import :: wp, iwp
-    integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
-    real(kind=wp) :: Coor(3,mTtAtm)
-    integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
-  end subroutine Box
-  subroutine Hidden(Coor,AN,nHidden)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: Coor(:,:)
-    integer(kind=iwp), allocatable :: AN(:)
-    integer(kind=iwp) :: nHidden
-  end subroutine Hidden
-end interface
 
 !                                                                      *
 !***********************************************************************

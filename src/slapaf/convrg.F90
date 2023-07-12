@@ -14,6 +14,7 @@ subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,J
 use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
                        GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, Shift, &
                        SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
+use Slapaf_procedures, only: SphInt
 use Chkpnt, only: Chkpnt_update_MEP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
@@ -40,19 +41,6 @@ real(kind=wp), allocatable :: C_IRC(:,:,:), C_P(:,:), C_R(:,:), C_S(:,:,:), Coor
                               E_P(:), E_R(:), E_S(:), G_IRC(:,:,:), G_MEP(:,:,:), G_P(:,:), G_R(:,:), G_S(:,:,:), L_MEP(:), Tmp(:)
 real(kind=wp), allocatable, target :: C_MEP(:,:,:), Not_Allocated(:,:), OfRef(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    import :: wp, iwp
-    integer(kind=iwp) :: nCent
-    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
-    real(kind=wp), allocatable, target :: OfRef(:,:)
-    logical(kind=iwp) :: l_Write, ldB
-    character(len=8) :: Label
-  end subroutine SphInt
-end interface
 
 !                                                                      *
 !***********************************************************************

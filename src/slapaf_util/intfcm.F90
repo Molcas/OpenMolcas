@@ -22,6 +22,7 @@ subroutine IntFcm(lOld_Implicit)
 !***********************************************************************
 
 use Slapaf_Info, only: lOld
+use Slapaf_procedures, only: OldFCM
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,17 +32,6 @@ integer(kind=iwp) :: nHess, nQQ
 real(kind=wp) :: rDum(1)
 logical(kind=iwp) :: Found_IRC, Hess_Found
 real(kind=wp), allocatable :: Hess(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine OldFcm(Hess,nQQ,RunOld)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: Hess(:)
-    integer(kind=iwp) :: nQQ
-    character(len=*) :: RunOld
-  end subroutine OldFcm
-end interface
 
 !                                                                      *
 !***********************************************************************

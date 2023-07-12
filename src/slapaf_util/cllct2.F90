@@ -23,6 +23,7 @@ subroutine Cllct2(Strng,Vector,dVector,Val,nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,qM
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Cx, dMass
+use Slapaf_procedures, only: SphInt
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -46,19 +47,6 @@ logical(kind=iwp) :: ldB, lWarn
 integer(kind=iwp), allocatable :: iDCR(:)
 real(kind=wp), allocatable :: Not_Allocated(:,:)
 real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-    import :: wp, iwp
-    integer(kind=iwp) :: nCent
-    real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
-    real(kind=wp), allocatable, target :: OfRef(:,:)
-    logical(kind=iwp) :: l_Write, ldB
-    character(len=8) :: Label
-  end subroutine SphInt
-end interface
 
 !                                                                      *
 !***********************************************************************
