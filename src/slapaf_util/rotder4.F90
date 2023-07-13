@@ -15,8 +15,9 @@ use Constants, only: Zero, One, Two, Three, Four, Six, Five, Eight, Nine, Ten, T
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: norder
-real(kind=wp) :: S(3,3), X(3), dXdA(3,3), d2XdA2(3,3,3), d3XdA3(3,3,3,3), d4XdA4(3,3,3,3,3)
+integer(kind=iwp), intent(in) :: norder
+real(kind=wp), intent(in) :: S(3,3), X(3)
+real(kind=wp), intent(out) :: dXdA(3,3), d2XdA2(3,3,3), d3XdA3(3,3,3,3), d4XdA4(3,3,3,3,3)
 integer(kind=iwp) :: i, i1, i2, i3, ia, ib, ic, id, j, k, l, m, n
 real(kind=wp) :: c0, c1, c2, cs, d2AdX2(3,3,3), d2c0dQ2, d2c0dX2(3,3), d2c1dQ2, d2c1dX2(3,3), d2c2dQ2, d2c2dX2(3,3), &
                  d2PdX2(3,3,3,3), d2UdX2(3,3,3,3), d3AdX3(3,3,3,3), d3c0dQ3, d3c0dX3(3,3,3), d3c1dQ3, d3c1dX3(3,3,3), d3c2dQ3, &

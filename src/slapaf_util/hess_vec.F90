@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nDim
-real(kind=wp) :: Hess(3*nAtoms*(3*nAtoms+1)/2), EVec(nDim,nDim)
+integer(kind=iwp), intent(in) :: nAtoms, nDim
+real(kind=wp), intent(inout) :: Hess(3*nAtoms*(3*nAtoms+1)/2)
+real(kind=wp), intent(out) :: EVec(nDim,nDim)
 integer(kind=iwp) :: iElem, iQ, nQ
 real(kind=wp) :: rZ
 real(kind=wp), parameter :: ThrD = 1.0e-10_wp

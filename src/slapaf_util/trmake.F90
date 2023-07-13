@@ -17,9 +17,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nTR, nDim
-real(kind=wp) :: TRVec(6,3,nAtoms), Coor(3,nAtoms), uMtrx(3,nAtoms)
-logical(kind=iwp) :: CofM
+integer(kind=iwp), intent(in) :: nAtoms, nDim
+real(kind=wp), intent(out) :: TRVec(6,3,nAtoms)
+real(kind=wp), intent(in) :: Coor(3,nAtoms), uMtrx(3,nAtoms)
+integer(kind=iwp), intent(out) :: nTR
+logical(kind=iwp), intent(in) :: CofM
 #include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCmp, iPrint, iRout, j, k
 real(kind=wp) :: CM(3), rii, rNorm

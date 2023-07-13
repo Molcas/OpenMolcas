@@ -25,9 +25,9 @@ use Slapaf_Info, only: BMx, Degen
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nX, nQ
-real(kind=wp) :: V_Q(nQ), V_X(nX)
-integer(kind=iwp) :: M, N, NRHS
+integer(kind=iwp), intent(in) :: nX, nQ
+real(kind=wp), intent(in) :: V_X(nX)
+real(kind=wp), intent(out) :: V_Q(nQ)
 
 !                                                                      *
 !***********************************************************************
@@ -37,10 +37,7 @@ call RecPrt('BMx',' ',BMx,nX,nQ)
 call RecPrt('V_X',' ',V_X,nX,1)
 #endif
 
-M = nX
-N = nQ
-NRHS = 1
-call Eq_Solver('T',M,N,NRHS,BMx,.false.,Degen,V_X,V_Q)
+call Eq_Solver('T',nX,nQ,1,BMx,.false.,Degen,V_X,V_Q)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('V_Q',' ',V_Q,nQ,1)

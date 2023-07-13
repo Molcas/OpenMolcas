@@ -48,7 +48,8 @@ use Constants, only: Zero, One, Two, Four, Half, OneHalf
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: x1, y1, x2, y2, x3, y3, Val
+real(kind=wp), intent(inout) :: x1, y1, x2, y2, x3
+real(kind=wp), intent(in) :: y3, Val
 real(kind=wp) :: coefA, coefB, coefC, delta, denom, discr, new, nnew, xx1, xx2, yy1, yy2
 real(kind=wp), parameter :: Thr = 1.0e-16_wp
 

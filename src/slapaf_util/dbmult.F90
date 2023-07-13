@@ -17,8 +17,9 @@ use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nQQ, nDim, nLambda
-real(kind=wp) :: dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
+integer(kind=iwp), intent(in) :: nQQ, nDim, nLambda
+real(kind=wp), intent(in) :: dCdQ(nQQ,nLambda)
+real(kind=wp), intent(out) :: QC(nDim**2,nLambda)
 integer(kind=iwp) :: i_Dim, idB, iElem, ijDim, iq, jdim, nElem
 real(kind=wp) :: dBqR
 real(kind=wp), allocatable :: X(:,:), K(:,:)

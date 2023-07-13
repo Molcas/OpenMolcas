@@ -20,9 +20,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: g(nInter), A(nInter,nInter), e(nInter,2)
-logical(kind=iwp) :: Fail
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: g(nInter), A(nInter,nInter)
+real(kind=wp), intent(out) :: e(nInter,2)
+logical(kind=iwp), intent(out) :: Fail
 integer(kind=iwp) :: i, i0, i1, iRC, iStep, iter, iterMx, itmp
 real(kind=wp) :: diff, Test
 real(kind=wp), parameter :: Thrd = 1.0e-6_wp
@@ -37,13 +38,13 @@ Fail = .true.
 ! Observe that g is the force and NOT the gradient
 
 e(:,i0) = g(:)
-call DPOTRS('U',nInter,1,A,nInter,e(1,i0),nInter,iRC)
+call DPOTRS('U',nInter,1,A,nInter,e(:,i0),nInter,iRC)
 if (iRC /= 0) then
   write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
   call Abend()
 end if
 
-call RecPrt(' ThrdO: e(0)',' ',e(1,i0),nInter,1)
+call RecPrt(' ThrdO: e(0)',' ',e(:,i0),nInter,1)
 
 iterMx = 40
 
@@ -53,13 +54,13 @@ do
   ! Newton-Raphson scheme
 
   e(:,i1) = g(:)
-  call DPOTRS('U',nInter,1,A,nInter,e(1,i1),nInter,iRC)
+  call DPOTRS('U',nInter,1,A,nInter,e(:,i1),nInter,iRC)
   if (iRC /= 0) then
     write(u6,*) 'ThrdO(DPOTRS): iRC=',iRC
     call Abend()
   end if
 
-  !call RecPrt(' ThrdO: e',' ',e(1,i1),nInter,1)
+  !call RecPrt(' ThrdO: e',' ',e(:,i1),nInter,1)
   iter = iter+1
 
   ! Check if the error vectors are self consistent.

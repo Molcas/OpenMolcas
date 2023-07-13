@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: R_Stab_A
-integer(kind=iwp) :: nS, R, S(nS)
+integer(kind=iwp), intent(in) :: nS, R, S(nS)
 integer(kind=iwp) :: iS
 
 R_Stab_A = .false.

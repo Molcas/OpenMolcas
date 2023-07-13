@@ -18,13 +18,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nq, nqRF, nqB, nqA, nqT, nqO, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, iGlow, iGhi, nBonds, &
-                     iTabBonds(3,nBonds), nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms), iTabAI(2,mAtoms), mB_Tot, mdB_Tot, nB_Tot, &
-                     iBM(nB_Tot), ndB_Tot, idBM(2,ndB_Tot), mqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Val(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot), &
-                 Thr_small
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(out) :: nq, nqRF, nqB, nqA, nqT, nqO, mB_Tot, mdB_Tot
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iPrv, iGlow, iGhi, nBonds, iTabBonds(3,nBonds), nMax, &
+                                 mAtoms, iTabAtoms(2,0:nMax,mAtoms), iTabAI(2,mAtoms), nB_Tot, ndB_Tot
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter), Thr_small
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Val(nB,nIter), fconst(nB), rMult(nb), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
+integer(kind=iwp), intent(inout) :: Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
+character(len=14), intent(inout) :: qLbl(nB)
 integer(kind=iwp) :: nq_
 
 !                                                                      *

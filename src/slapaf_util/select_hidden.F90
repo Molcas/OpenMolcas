@@ -16,8 +16,9 @@ use Slapaf_Info, only: rHidden
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mTtAtm, nHidden, iHiddenAN(nHidden), nKept, iPL
-real(kind=wp) :: Coord(3,mTtAtm), HiddenCoord(3,nHidden)
+integer(kind=iwp), intent(in) :: mTtAtm, nHidden, iPL
+real(kind=wp), intent(in) :: Coord(3,mTtAtm), HiddenCoord(3,nHidden)
+integer(kind=iwp), intent(inout) :: iHiddenAN(nHidden), nKept
 integer(kind=iwp) :: iAN, iAtom, iHid
 real(kind=wp) :: Dist, dMax, X, Y, Z
 

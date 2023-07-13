@@ -16,10 +16,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent, lIter
-real(kind=wp) :: xyz(3,nCent), H12, Bf(3,nCent), dBf(3*nCent,3*nCent)
-logical(kind=iwp) :: lWrite_, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent, lIter
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: H12, Bf(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite_, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBf(3,nCent,3,nCent)
 integer(kind=iwp) :: iCent
 real(kind=wp) :: Fact
 integer(kind=iwp), external :: iDeg
@@ -42,7 +44,7 @@ call RecPrt('Bf',' ',Bf,3,nCent)
 
 ! Compute the cartesian derivative of the B-Matrix.
 
-if (ldB) dBf(:,:) = Zero
+if (ldB) dBf(:,:,:,:) = Zero
 
 return
 

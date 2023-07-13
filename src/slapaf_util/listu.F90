@@ -27,9 +27,9 @@ subroutine ListU(Lu,Lbl,gq,mInt,nIter)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu, mInt, nIter
-character(len=8) :: Lbl(mInt)
-real(kind=wp) :: gq(mInt,nIter)
+integer(kind=iwp), intent(in) :: Lu, mInt, nIter
+character(len=8), intent(in) :: Lbl(mInt)
+real(kind=wp), intent(in) :: gq(mInt,nIter)
 integer(kind=iwp) :: igq
 
 write(Lu,*)

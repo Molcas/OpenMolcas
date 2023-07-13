@@ -16,10 +16,12 @@ use Constants, only: Zero, One, Two, auTokJmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent, lIter
-real(kind=wp) :: xyz(3,nCent), dE, Bf(3,nCent), dBf(3*nCent,3*nCent)
-logical(kind=iwp) :: lWrite_, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent, lIter
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: dE, Bf(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite_, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBf(3*nCent,3*nCent)
 integer(kind=iwp) :: i, iCar, iCent, iOpt, ix, iy, j, jCent
 real(kind=wp) :: E0, E1, Fact, XX
 integer(kind=iwp), external :: iDeg
@@ -82,11 +84,11 @@ end if
 
 ! Compute the WDC B-matrix
 
+Bf(:,:) = Zero
 do iCent=1,nCent
   Fact = real(iDeg(xyz(1,iCent)),kind=wp)
   !write(u6,*) 'Fact=',Fact
   do iCar=1,3
-    Bf(iCar,iCent) = Zero
     if (iOpt == 1) then
       ! Linear
       Bf(iCar,iCent) = -Gx0(iCar,iCent,lIter)

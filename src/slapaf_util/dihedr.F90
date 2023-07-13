@@ -25,9 +25,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: mCentr, Max_Center
-character(len=LenIn) :: Lbls(mCentr)
-real(kind=wp) :: xyz(3,mCentr), rtrnc
+integer(kind=iwp), intent(in) :: mCentr, Max_Center
+character(len=LenIn), intent(in) :: Lbls(mCentr)
+real(kind=wp), intent(in) :: xyz(3,mCentr), rtrnc
 integer(kind=iwp) :: ic, jc, kc, lc, Lu
 real(kind=wp) :: arg, Bt(3,4), Coor(3,4), Dummy(1), Phi1, Phi12, Phi2, r1, r12, r2, r23, r3, Tau, x1, x12, x2, x23, x3, x4, y1, &
                  y12, y2, y23, y3, y4, z1, z12, z2, z23, z3, z4

@@ -17,13 +17,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nIter, nInter, nAtom, iNeg
-real(kind=wp) :: Delta, DipM(3,nIter)
+integer(kind=iwp), intent(in) :: nIter, nInter, nAtom
+real(kind=wp), intent(in) :: Delta, DipM(3,nIter)
+integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
 integer(kind=iwp) :: i, ii, ij, iPrint, iRout, mTR, nDim, nKtB
 real(kind=wp) :: rDum(1)
 logical(kind=iwp) :: Found
-real(kind=wp), allocatable :: dDipM(:), Degen2(:), FEq(:), H(:), HB(:), Hx(:), IRInt(:), KtB(:)
+real(kind=wp), allocatable :: dDipM(:), Degen2(:), FEq(:,:,:), H(:), HB(:), Hx(:), IRInt(:), KtB(:)
 
 !                                                                      *
 !***********************************************************************
@@ -45,11 +46,7 @@ dDipM(:) = Zero
 ! Form the Hessian matrix via a 2-point numerical differentiation.
 
 call mma_allocate(H,nInter**2,Label='H')
-if (Cubic) then
-  call mma_allocate(FEq,nInter**3,Label='FEq')
-else
-  call mma_allocate(FEq,1,Label='FEq')
-end if
+call mma_allocate(FEq,merge(nInter,0,Cubic),nInter,nInter,Label='FEq')
 
 call NmHess(Shift,nInter,dqInt,nIter,H,Delta,qInt,FEq,Cubic,DipM,dDipM)
 

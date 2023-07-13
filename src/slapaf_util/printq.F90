@@ -14,9 +14,9 @@ subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nq, nQQ, LuIC
-real(kind=wp) :: rK(nq,nQQ), rMult(nq)
-character(len=14) :: qLbl(nq)
+integer(kind=iwp), intent(in) :: nq, nQQ, LuIC
+real(kind=wp), intent(in) :: rK(nq,nQQ), rMult(nq)
+character(len=14), intent(in) :: qLbl(nq)
 #include "print.fh"
 integer(kind=iwp) :: i, iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, Lu, LuTmp, mQQ
 real(kind=wp) :: temp
@@ -114,7 +114,7 @@ rewind(LuTmp)
 
 write(LuTmp) nq,nQQ
 do iq=1,nq
-  write(LuTmp) qLbl(iq),(rMult(iq)*rK(iq,iQQ),iQQ=1,nQQ)
+  write(LuTmp) qLbl(iq),rMult(iq)*rK(iq,:)
 end do
 
 close(LuTmp)
@@ -137,7 +137,7 @@ if ((iPrint >= 10) .and. (nQQ <= 12)) then
     write(Lu,'(14X,8I10)') (iQQ,iQQ=iiQQ,mQQ)
     do iq=1,nq
       temp = sqrt(DDot_(nQQ,rK(iq,1),nq,rK(iq,1),nq))
-      if (temp > Thr) write(Lu,'(A,8F10.6)') qLbl(iq),(rK(iq,iQQ),iQQ=iiQQ,mQQ)
+      if (temp > Thr) write(Lu,'(A,8F10.6)') qLbl(iq),rK(iq,iiQQ:mQQ)
     end do
     write(Lu,*)
   end do

@@ -22,12 +22,13 @@ use Constants, only: Zero, One, Two, Ten, Pi, Angstrom, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
-                     iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, &
-                     idBM(2,ndB_Tot), nqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
+                                 iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), nB_Tot, ndB_Tot
+integer(kind=iwp), intent(inout) :: nq, Indq(3,nB), mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+character(len=14), intent(inout) :: qLbl(nB)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 4*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDCR(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRX(0:7), iDCRY(0:7), &
@@ -216,9 +217,9 @@ do iBond=1,nBonds
       write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
       write(u6,'(2A)') 'R=',ChOp(kDCRR)
 #     endif
-      call OA(kDCRR,Cx(1:3,jAtom,iIter),A(1:3,2))
-      call OA(kDCRR,Cx(1:3,jAtom,iRef),Ref(1:3,2))
-      call OA(kDCRR,Cx(1:3,jAtom,iPrv),Prv(1:3,2))
+      call OA(kDCRR,Cx(:,jAtom,iIter),A(:,2))
+      call OA(kDCRR,Cx(:,jAtom,iRef),Ref(:,2))
+      call OA(kDCRR,Cx(:,jAtom,iPrv),Prv(:,2))
 #     ifdef _DEBUGPRINT_
       write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
       write(u6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
@@ -312,10 +313,10 @@ do iBond=1,nBonds
         write(u6,'(2A)') 'S=',ChOp(kDCRS)
 #       endif
 
-        Ref(1:3,3) = Cx(1:3,kAtom,iRef)
-        call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,4))
-        Prv(1:3,3) = Cx(1:3,kAtom,iPrv)
-        call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,4))
+        Ref(1:3,3) = Cx(:,kAtom,iRef)
+        call OA(kDCRS,Cx(:,lAtom,iRef),Ref(:,4))
+        Prv(1:3,3) = Cx(:,kAtom,iPrv)
+        call OA(kDCRS,Cx(:,lAtom,iPrv),Prv(:,4))
 
         if (Help) then
           rkl2 = (Ref(1,3)-Ref(1,4))**2+(Ref(2,3)-Ref(2,4))**2+(Ref(3,3)-Ref(3,4))**2
@@ -361,12 +362,12 @@ do iBond=1,nBonds
 
         kDCRTS = ieor(kDCRT,kDCRS)
 
-        call OA(kDCRT,Cx(1:3,kAtom,iIter),A(1:3,3))
-        call OA(kDCRT,Cx(1:3,kAtom,iRef),Ref(1:3,3))
-        call OA(kDCRT,Cx(1:3,kAtom,iPrv),Prv(1:3,3))
-        call OA(kDCRTS,Cx(1:3,lAtom,iIter),A(1:3,4))
-        call OA(kDCRTS,Cx(1:3,lAtom,iRef),Ref(1:3,4))
-        call OA(kDCRTS,Cx(1:3,lAtom,iPrv),Prv(1:3,4))
+        call OA(kDCRT,Cx(:,kAtom,iIter),A(:,3))
+        call OA(kDCRT,Cx(:,kAtom,iRef),Ref(:,3))
+        call OA(kDCRT,Cx(:,kAtom,iPrv),Prv(:,3))
+        call OA(kDCRTS,Cx(:,lAtom,iIter),A(:,4))
+        call OA(kDCRTS,Cx(:,lAtom,iRef),Ref(:,4))
+        call OA(kDCRTS,Cx(:,lAtom,iPrv),Prv(:,4))
 
         ! Form the stabilizer for the torsion
 

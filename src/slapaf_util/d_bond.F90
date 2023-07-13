@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: D_Bond
-integer(kind=iwp) :: Ind(2), iOp_(2), nSym
+integer(kind=iwp), intent(in) :: Ind(2), iOp_(2), nSym
 integer(kind=iwp) :: iAtom, iDeg, iOp_E, iOp_ER, iOp_R, iU_A, iU_AB, iU_B, jAtom, nU_A, nU_AB, nU_B
 integer(kind=iwp), external :: iU, iUR, nU
 

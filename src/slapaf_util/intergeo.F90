@@ -24,9 +24,9 @@ use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: FileName
-integer(kind=iwp) :: nAtm, nIter
-real(kind=wp) :: Enrg(nIter), Crd(3,nAtm,nIter), Grd(3,nAtm,nIter)
+character(len=*), intent(in) :: FileName
+integer(kind=iwp), intent(in) :: nAtm, nIter
+real(kind=wp), intent(in) :: Enrg(nIter), Crd(3,nAtm,nIter), Grd(3,nAtm,nIter)
 integer(kind=iwp) :: i, iChxyz, iEner, iFacx, iFacy, iFacz, iGx, iIter, ixyz, ixyz_p, LbAtom, Lu_Molden, MaxDCR, msAtom, msAtom_p, &
                      nAt, ndc, ngrad
 real(kind=wp) :: grmax, grtot, grx, gry, grz, x, x1, y, y1, z, z1

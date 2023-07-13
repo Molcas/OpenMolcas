@@ -14,8 +14,9 @@ subroutine ShfANM(nInter,nIter,rInt,Shift)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter, nIter
-real(kind=wp) :: rInt(nInter,nIter), Shift(nInter,nIter)
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(in) :: rInt(nInter,nIter)
+real(kind=wp), intent(inout) :: Shift(nInter,nIter)
 integer(kind=iwp) :: Iter
 
 if (nIter == 1) return

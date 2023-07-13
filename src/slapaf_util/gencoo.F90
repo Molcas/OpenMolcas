@@ -17,8 +17,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nsAtom, mTtAtm, nDim, jAnr(mTtAtm), iTabAI(2,mTtAtm)
-real(kind=wp) :: Cart(3,nsAtom), Coor(3,mTtAtm), Vctrs(3*mTtAtm,nDim)
+integer(kind=iwp), intent(in) :: nsAtom, mTtAtm, nDim
+real(kind=wp), intent(in) :: Cart(3,nsAtom)
+real(kind=wp), intent(out) :: Coor(3,mTtAtm), Vctrs(3*mTtAtm,nDim)
+integer(kind=iwp), intent(out) :: jAnr(mTtAtm), iTabAI(2,mTtAtm)
 integer(kind=iwp) :: i_Dim, iAtom, iElem, iEnd, ig, iGo, iSt, ix, jDim
 real(kind=wp) :: Fact, r(3), x, y, z
 logical(kind=iwp) :: New

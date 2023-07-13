@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iTabRow
-integer(kind=iwp) :: i
+integer(kind=iwp), intent(in) :: i
 
 iTabRow = 0
 iTabRow = 1

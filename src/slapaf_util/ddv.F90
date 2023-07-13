@@ -16,8 +16,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mTtAtm, nHidden, iANr(mTtAtm+nHidden), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm+nHidden)
-real(kind=wp) :: Cart(3,mTtAtm+nHidden), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+integer(kind=iwp), intent(in) :: mTtAtm, nHidden, iANr(mTtAtm+nHidden), nBonds, iTabBonds(3,nBonds), nMax, &
+                                 iTabAtoms(2,0:nMax,mTtAtm+nHidden)
+real(kind=wp), intent(in) :: Cart(3,mTtAtm+nHidden)
+real(kind=wp), intent(out) :: Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
 integer(kind=iwp) :: nTot
 logical(kind=iwp) :: VRSave, VTSave
 real(kind=wp), allocatable :: HBig(:)

@@ -14,9 +14,9 @@ subroutine TRComp(TRVec,nTR,nX,Smmtrc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTR, nX
-real(kind=wp) :: TRVec(nTR,nX)
-logical(kind=iwp) :: Smmtrc(nX)
+integer(kind=iwp), intent(in) :: nTR, nX
+real(kind=wp), intent(inout) :: TRVec(nTR,nX)
+logical(kind=iwp), intent(in) :: Smmtrc(nX)
 integer(kind=iwp) :: i_Dim, iX
 
 if (nTR == 0) return

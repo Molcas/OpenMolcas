@@ -14,7 +14,7 @@
 subroutine OutofP0(xyz,nCent,Teta,ldB)
 
 use Constants, only: deg2rad
-use Constants, only: Zero, One, Two, Pi
+use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -132,7 +132,7 @@ C14X(:,3) = C14X(:,3)+xyz(:,4)
 mCent = 3
 call Bend(C14X,mCent,Teta,BR14X,.false.,.false.,Label,dBR14X,ldB)
 
-Teta = Teta-Pi/Two
+Teta = Teta-Half*Pi
 !                                                                      *
 !***********************************************************************
 !                                                                      *

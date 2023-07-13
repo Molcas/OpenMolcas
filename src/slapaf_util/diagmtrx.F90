@@ -16,8 +16,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH, iNeg
-real(kind=wp) :: H(nH,nH)
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: H(nH,nH)
+integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
 integer(kind=iwp) :: i, ij, iPrint, iRout, j, Lu, LuTmp, nq, nQQ
 real(kind=wp) :: SumHii

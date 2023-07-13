@@ -17,10 +17,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nmass, norder
-real(kind=wp) :: xMass(nMass), CurrXYZ(3,nMass), Ref123(3,nMass), trans(3), RotAng, RotVec(3), RotMat(3,3), dRVdXYZ(3,3*nMass), &
-                 d2RVdXYZ2(3,3*nMass,3*nMass)
-integer(kind=iwp) :: i, imass, ip, ip1, ip2, ipk, ipk1, ipk2, iter, j, j1, j2, k, k1, k2
+integer(kind=iwp), intent(in) :: nmass, norder
+real(kind=wp), intent(in) :: xMass(nMass), CurrXYZ(3,nMass), Ref123(3,nMass)
+real(kind=wp), intent(out) :: trans(3), RotAng, RotMat(3,3), dRVdXYZ(3,3*nMass)
+real(kind=wp), intent(inout) :: RotVec(3), d2RVdXYZ2(3,3*nMass,3*nMass)
+integer(kind=iwp) :: i, imass, ip, ip1, ip2, ipk, ipk1, ipk2, iter, j, j1, k, k1, k2
 real(kind=wp) :: d2RVdA2(3,3,3), d3RVdA3(3,3,3,3), d4RVdA4(3,3,3,3,3), dRVdA(3,3), MOI(3,3), MOIInv(3,3), RotErr, rSum, &
                  Sayvetz2(3), SmallRot(3), SMat(3,3), sval(3), TotMass, Trace, umat(3,3), vmat(3,3), wTmp(100) !, &
                  !det, detinv, G(3,3)
@@ -35,9 +36,7 @@ call mma_allocate(dAdXYZ,3,3,nMass,label='dAdXYZ')
 
 ! Compute the Center-of-Mass coordinates.
 ! These are the same as the translation vector.
-Trans(1) = Zero
-Trans(2) = Zero
-Trans(3) = Zero
+Trans(:) = Zero
 TotMass = Zero
 do imass=1,nmass
   TotMass = TotMass+xMass(imass)
@@ -222,11 +221,7 @@ if (nOrder >= 1) then
     do ip=1,nMass
       do k=1,3
         ipk = k+3*(ip-1)
-        rSum = Zero
-        do j=1,3
-          rSum = rSum+dRVdA(i,j)*dAdXYZ(j,k,ip)
-        end do
-        dRVdXYZ(i,ipk) = rSum
+        dRVdXYZ(i,ipk) = sum(dRVdA(i,:)*dAdXYZ(:,k,ip))
       end do
     end do
   end do
@@ -237,11 +232,7 @@ if (nOrder >= 2) then
       do ip2=1,nMass
         do k2=1,3
           ipk2 = k2+3*(ip2-1)
-          rSum = Zero
-          do j2=1,3
-            rSum = rSum+d2RVdA2(i,j1,j2)*dAdXYZ(j2,k2,ip2)
-          end do
-          tmp(j1,ipk2) = rSum
+          tmp(j1,ipk2) = sum(d2RVdA2(i,j1,:)*dAdXYZ(:,k2,ip2))
         end do
       end do
     end do
@@ -249,11 +240,7 @@ if (nOrder >= 2) then
       do ip1=1,nMass
         do k1=1,3
           ipk1 = k1+3*(ip1-1)
-          rSum = Zero
-          do j1=1,3
-            rSum = rSum+tmp(j1,ipk2)*dAdXYZ(j1,k1,ip1)
-          end do
-          d2RVdXYZ2(i,ipk1,ipk2) = rSum
+          d2RVdXYZ2(i,ipk1,ipk2) = sum(tmp(:,ipk2)*dAdXYZ(:,k1,ip1))
         end do
       end do
     end do

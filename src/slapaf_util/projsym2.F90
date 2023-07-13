@@ -17,8 +17,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nCent, Ind(nCent), iDCRs(nCent)
-real(kind=wp) :: A(3,nCent), B(3,nCent), BqR(3,nAtoms), dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms, nCent, Ind(nCent), iDCRs(nCent)
+real(kind=wp), intent(in) :: A(3,nCent), B(3,nCent), dB(3,nCent,3,nCent)
+real(kind=wp), intent(out) :: BqR(3,nAtoms), dBqR(3,nAtoms,3,nAtoms)
 integer(kind=iwp) :: i, j, jxyz
 real(kind=wp) :: ATemp(3)
 real(kind=wp), allocatable :: Tx(:,:)
@@ -37,7 +38,7 @@ call mma_allocate(Tx,3,nCent,Label='Tx')
 
 Tx(:,:) = One
 do i=1,nCent
-  call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
+  call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(:,i),Tx(:,i))
 
   ! Rotate vector back to the unique center
 

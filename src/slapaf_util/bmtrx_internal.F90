@@ -31,9 +31,10 @@ use Constants, only: Zero, One, Five, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, nBonds, nMax, iRef, nWndw
-real(kind=wp), intent(in) :: TRVec(nDimBC,mTR), iTabAI(2,mAtoms), iTabAtoms(0:nMax,nsAtom), iTabBonds(3,nBonds)
-integer(kind=iwp), intent(inout) :: nQQ
+integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,nsAtom), &
+                                 nBonds, iTabBonds(3,nBonds), iRef, nWndw
+real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
+integer(kind=iwp), intent(out) :: nQQ
 #include "warnings.h"
 #include "print.fh"
 integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
@@ -140,8 +141,9 @@ Proc_dB = .false.  ! Flag for processing dB
 
 Thr_small = 30.0_wp*deg2rad
 do while (Thr_small > 1.0e-6_wp)
-  call Get_Curvil(nq,nqRF,nqB,nqA,nqT,nqO,nsAtom,iIter,nIter,Cx,Proc,Dum,1,cDum,iRef,Dum,Dum,LuIC,iDum,iIter,Dum,iDum(1),iDum(1), &
-                  Proc_dB,iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,iDum,Thr_small)
+  call Get_Curvil(nq,nqRF,nqB,nqA,nqT,nqO,nsAtom,iIter,nIter,Cx,Proc,Dum,1,cDum,iRef,Dum,Dum,LuIC,iDum,iIter,Dum,1,1,Proc_dB, &
+                  iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,iDum,Thr_small)
+
   if (nq >= nQQ) exit
   Thr_small = Thr_small-Five*deg2rad
 end do
@@ -149,11 +151,11 @@ end do
 rewind(LuIC)
 
 if (nq == 0) then
-  call WarningMessage(2,' Curvil: nq == 0')
+  call WarningMessage(2,' BMtrx_internal: nq == 0')
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 
-iGlow = 1+nqRF+nqB
+iGlow = nqRF+nqB+1
 iGhi = nqRF+nqB+nqA
 !                                                                      *
 !***********************************************************************
@@ -197,8 +199,8 @@ call Get_Curvil(iq,iqRF,iqR,iqA,iqT,iqO,nsAtom,iIter,nIter,Cx,Proc,qVal,nq,qLbl,
 rewind(LuIC)
 
 if (iq /= nq) then
-  call WarningMessage(2,' Error in Curvil')
-  write(u6,*) 'In Curvil: iq /= nq'
+  call WarningMessage(2,' Error in BMtrx_internal')
+  write(u6,*) 'In BMtrx_internal: iq /= nq'
   write(u6,*) 'iq=',iq
   write(u6,*) 'nq=',nq
   call Abend()
@@ -320,8 +322,8 @@ if (PrQ .and. (iPrint >= 6)) then
   write(u6,*)
 end if
 if (nq < nQQ) then
-  call WarningMessage(2,' Error in Curvil')
-  write(u6,*) 'In Curvil: nq < nQQ'
+  call WarningMessage(2,' Error in BMtrx_internal')
+  write(u6,*) 'In BMtrx_internal: nq < nQQ'
   write(u6,*) 'nq=',nq
   write(u6,*) 'nQQ=',nQQ
   call Abend()
@@ -379,7 +381,7 @@ do jIter=iSt,iEnd,-1
   rewind(LuIC)
 
   if (iq /= nq) then
-    write(u6,*) 'In Curvil: iq /= nq'
+    write(u6,*) 'In BMtrx_internal: iq /= nq'
     write(u6,*) 'iq=',iq
     write(u6,*) 'nq=',nq
     call Abend()

@@ -25,7 +25,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter, nRowH, mRowH(nRowH)
+integer(kind=iwp), intent(in) :: nInter, nRowH
+integer(kind=iwp), intent(out) :: mRowH(nRowH)
 integer(kind=iwp) :: iLines, iRowH, j, kLines, Lu, Lu_UDIC
 character(len=120) :: Temp
 character(len=16) :: filnam

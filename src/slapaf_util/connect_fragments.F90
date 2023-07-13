@@ -17,8 +17,9 @@ use Constants, only: Five
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nBondMax, iTabBonds(3,nBondMax), nBonds, nMax, iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms)
-real(kind=wp) :: Coor(3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms, nBondMax, nMax, iANr(nAtoms)
+integer(kind=iwp), intent(inout) :: iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
+real(kind=wp), intent(in) :: Coor(3,nAtoms)
 integer(kind=iwp) :: iAtom, iBond, iNeighbor, iOff, iOffHH, iSet, jAtom, kAtom, kSet, lAtom, lSet, nNeighbor_k, nNeighbor_l, &
                      Not_Defined, nStack
 real(kind=wp) :: dR_Thr, HH_Thr, rShort, RTest

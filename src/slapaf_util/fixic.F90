@@ -16,9 +16,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nFix, mInt, NDIM
-real(kind=wp) :: SS(mInt), B(nDim*mInt), F(nDim), u(nDim)
-character(len=8) :: Label(mInt)
+integer(kind=iwp), intent(in) :: nFix, mInt, NDIM
+real(kind=wp), intent(inout) :: SS(mInt)
+real(kind=wp), intent(in) :: B(nDim*mInt), u(nDim)
+real(kind=wp), intent(out) :: F(nDim)
+character(len=8), intent(in) :: Label(mInt)
 integer(kind=iwp) :: I
 real(kind=wp), allocatable :: uB(:,:), uInv(:,:)
 

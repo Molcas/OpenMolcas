@@ -15,10 +15,11 @@ use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: Cent(3,3), Fir, Bf(3,nCent), dBf(3,nCent,3,nCent), Axis(3), Perp_Axis1(3)
-logical(kind=iwp) :: lWrite, ldB, Force
-character(len=8) :: Label
+real(kind=wp), intent(in) :: Cent(3,3), Axis(3), Perp_Axis1(3)
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(out) :: Fir, Bf(3,nCent), dBf(3,nCent,3,nCent)
+logical(kind=iwp), intent(in) :: lWrite, ldB, Force
+character(len=8), intent(in) :: Label
 #include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, Lu, mCent, Middle
 real(kind=wp) :: Bfi1, Bfi3, Bfj1, Bfj3, BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3,2,3,2), dBRjk(3,2,3,2), dFir, R1, R2, R3, Rij1, &
@@ -176,12 +177,7 @@ if (ldB) then
   end if
   call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
   call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
-  dBf(1,1,1,1) = Scr2(1,1)
-  dBf(2,1,1,1) = Scr2(2,1)
-  dBf(2,1,2,1) = Scr2(2,2)
-  dBf(3,1,1,1) = Scr2(3,1)
-  dBf(3,1,2,1) = Scr2(3,2)
-  dBf(3,1,3,1) = Scr2(3,3)
+  dBf(:,1,:,1) = Scr2(:,:)
 
   ! 1,3 Block
 
@@ -210,12 +206,7 @@ if (ldB) then
   end if
   call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
   call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
-  dBf(1,1,1,3) = Scr2(1,1)
-  dBf(2,1,1,3) = Scr2(2,1)
-  dBf(2,1,2,3) = Scr2(2,2)
-  dBf(3,1,1,3) = Scr2(3,1)
-  dBf(3,1,2,3) = Scr2(3,2)
-  dBf(3,1,3,3) = Scr2(3,3)
+  dBf(:,1,:,3) = Scr2(:,:)
 
   ! 3,1 Block
 
@@ -244,12 +235,7 @@ if (ldB) then
   end if
   call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
   call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
-  dBf(1,3,1,1) = Scr2(1,1)
-  dBf(2,3,1,1) = Scr2(2,1)
-  dBf(2,3,2,1) = Scr2(2,2)
-  dBf(3,3,1,1) = Scr2(3,1)
-  dBf(3,3,2,1) = Scr2(3,2)
-  dBf(3,3,3,1) = Scr2(3,3)
+  dBf(:,3,:,1) = Scr2(:,:)
 
   ! 3,3 Block
 
@@ -273,12 +259,7 @@ if (ldB) then
   end if
   call DGEMM_('N','T',3,3,3,One,uMtrx,3,uVec,3,Zero,Scr1,3)
   call DGEMM_('N','N',3,3,3,One,uVec,3,Scr1,3,Zero,Scr2,3)
-  dBf(1,3,1,3) = Scr2(1,1)
-  dBf(2,3,1,3) = Scr2(2,1)
-  dBf(2,3,2,3) = Scr2(2,2)
-  dBf(3,3,1,3) = Scr2(3,1)
-  dBf(3,3,2,3) = Scr2(3,2)
-  dBf(3,3,3,3) = Scr2(3,3)
+  dBf(:,3,:,3) = Scr2(:,:)
 
   do i=1,3
     do j=1,i
@@ -308,9 +289,9 @@ end if
 ! Swap atoms back
 
 if (Middle /= 2) then
-  call DSwap_(3,Bf(1,2),1,Bf(1,Middle),1)
+  call DSwap_(3,Bf(:,2),1,Bf(:,Middle),1)
   if (ldB) then
-    call DSwap_(3*nCent*3,dBf(1,1,1,2),1,dBf(1,1,1,Middle),1)
+    call DSwap_(3*nCent*3,dBf(:,:,:,2),1,dBf(:,:,:,Middle),1)
     call DSwap_(3*nCent,dBf(1,2,1,1),3*nCent,dBf(1,Middle,1,1),3*nCent)
     call DSwap_(3*nCent,dBf(2,2,1,1),3*nCent,dBf(2,Middle,1,1),3*nCent)
     call DSwap_(3*nCent,dBf(3,2,1,1),3*nCent,dBf(3,Middle,1,1),3*nCent)

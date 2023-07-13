@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iU
-integer(kind=iwp) :: nStab, iStab(0:nStab-1)
+integer(kind=iwp), intent(in) :: nStab, iStab(0:nStab-1)
 integer(kind=iwp) :: i
 
 iU = 0

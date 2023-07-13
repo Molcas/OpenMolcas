@@ -36,8 +36,10 @@ subroutine Add_Vector(n,m,Sub,Vec,Thr)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, m
-real(kind=wp) :: Sub(n,m+1), Vec(n), Thr
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(inout) :: m
+real(kind=wp), intent(inout) :: Sub(n,m+1), Vec(n)
+real(kind=wp), intent(in) :: Thr
 integer(kind=iwp) :: i
 real(kind=wp) :: Aux
 real(kind=wp), external :: DDot_

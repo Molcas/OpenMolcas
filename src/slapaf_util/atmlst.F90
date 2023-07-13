@@ -16,8 +16,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom, mAtom
-real(kind=wp) :: Cart(3,nAtom), Coor(3,mAtom)
+integer(kind=iwp), intent(in) :: nAtom, mAtom
+real(kind=wp), intent(in) :: Cart(3,nAtom)
+real(kind=wp), intent(out) :: Coor(3,mAtom)
 integer(kind=iwp) :: iAtom, iEnd, ig, iGo, iSt
 real(kind=wp) :: r(3), x, y, z
 logical(kind=iwp) :: New

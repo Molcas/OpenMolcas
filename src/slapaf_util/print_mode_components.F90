@@ -46,13 +46,13 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Modes(*), Freq(*)
-integer(kind=iwp) :: lModes, lDisp(nIrrep)
+real(kind=wp), intent(in) :: Modes(*), Freq(*)
+integer(kind=iwp), intent(in) :: nModes, lModes, lDisp(nIrrep)
 #include "Molcas.fh"
 integer(kind=iwp) :: Bk_iInt, Bk_iOptC, Bk_iOptH, Bk_IRC, Bk_iRef, Bk_iRow, Bk_iRow_c, Bk_iState(2), Bk_iter, Bk_Max_Center, &
                      Bk_mB_Tot, Bk_mdB_Tot, Bk_MEPnum, Bk_mode, Bk_mq, Bk_mTROld, Bk_mTtAtm, Bk_MxItr, Bk_nBVec, Bk_nDimBC, &
                      Bk_nFix, Bk_nLambda, Bk_nMEP, Bk_NmIter, Bk_nsRot, Bk_nUserPT, Bk_nWndw, i, iB, iErr, ii, im, iq, j, LuIC, &
-                     LuInput, nAll_Atoms, nB, nK, nModes, nQQ, nsAtom, nUnique_Atoms, nX, PLback
+                     LuInput, nAll_Atoms, nB, nK, nQQ, nsAtom, nUnique_Atoms, nX, PLback
 real(kind=wp) :: Bk_Beta, Bk_Beta_Disp, Bk_CnstWght, Bk_Delta, Bk_dMEPStep, Bk_GNrm_Threshold, Bk_rFuzz, Bk_rHidden, Bk_Rtrnc, &
                  Bk_ThrCons, Bk_ThrEne, Bk_ThrGrd, Bk_ThrMEP, Bk_UserP, Bk_UserT(64), Mx, MinComp, rDum(1)
 logical(kind=iwp) :: Bk_Analytic_Hessian, Bk_ApproxNADC, Bk_Baker, Bk_BSet, Bk_CallLast, Bk_Cubic, Bk_CurviLinear, &

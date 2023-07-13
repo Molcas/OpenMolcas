@@ -30,14 +30,15 @@ use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBVct, nQQ, nAtom, nDim
-real(kind=wp) :: BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
-character(len=8) :: Lbl(nQQ)
+integer(kind=iwp), intent(in) :: nBVct, nQQ, nAtom, nDim
+real(kind=wp), intent(out) :: BMtrx(3*nAtom,nQQ), rInt(nQQ)
+character(len=8), intent(out) :: Lbl(nQQ)
+real(kind=wp), intent(in) :: Coor(3,nAtom)
 #include "print.fh"
 integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iDiff, iEnd, iFrst, iInt, iLines, iPrint, iRout, jBVct, jEnd, jLines, Lu_UDIC, &
                      mCntr, msAtom, nCntr, nDefPICs, neq, nGo, nGo2, nMinus, nPlus, nTemp
 real(kind=wp) :: Fact, RR, Sgn, Tmp, Value_Temp
-logical(kind=iwp) :: First = .true., Flip, Found, lAtom(nAtom), lErr, lPIC(6*nAtom), lWrite
+logical(kind=iwp) :: First = .true., Flip, Found, lErr, lWrite
 character(len=120) :: Line, Temp
 character(len=16) :: filnam
 character(len=8) :: Frmt
@@ -45,6 +46,7 @@ character(len=6) :: Typ
 character(len=4) :: cNum
 integer(kind=iwp), allocatable :: Ind(:)
 real(kind=wp), allocatable :: BVct(:,:), Mass(:), rMult(:), TM(:), Tmp2(:), Val(:), xyz(:)
+logical(kind=iwp), allocatable :: lAtom(:), lPIC(:)
 character(len=8), allocatable :: Labels(:)
 
 call mma_allocate(BVct,3*nAtom,nBVct,Label='BVct')
@@ -60,6 +62,8 @@ iRout = 30
 iPrint = nPrint(iRout)
 
 if (iPrint >= 6) lWrite = .true.
+call mma_allocate(lAtom,nAtom,Label='lAtom')
+call mma_allocate(lPIC,6*nAtom,Label='lPIC')
 lPIC(:) = .true.
 lAtom(:) = .true.
 Labels(:) = ''
@@ -508,6 +512,9 @@ do i=1,nAtom
     lErr = .true.
   end if
 end do
+
+call mma_deallocate(lAtom)
+call mma_deallocate(lPIC)
 
 if (lErr) call Quit_OnUserError()
 

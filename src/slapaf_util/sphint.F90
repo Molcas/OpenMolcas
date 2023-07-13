@@ -21,11 +21,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), RR0, Bf(3,nCent), dBf(3,nCent,3,nCent)
-real(kind=wp), allocatable, target :: OfRef(:,:)
-logical(kind=iwp) :: l_Write, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), allocatable, target, intent(in) :: OfRef(:,:)
+real(kind=wp), intent(out) :: RR0, Bf(3,nCent)
+logical(kind=iwp), intent(in) :: l_Write, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBf(3,nCent,3,nCent)
 integer(kind=iwp) :: iCar, iCent, ixyz, jCent, jxyz
 real(kind=wp) :: Fact, RR0_unscaled, SqInvTWeight, temp, tempi, tempj, Tweight, xWeight, yWeight
 real(kind=wp), pointer :: xyz0(:,:)

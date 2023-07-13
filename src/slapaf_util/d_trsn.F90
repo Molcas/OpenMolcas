@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: D_Trsn
-integer(kind=iwp) :: Ind(4), iOp_(4), nSym
+integer(kind=iwp), intent(in) :: Ind(4), iOp_(4), nSym
 integer(kind=iwp) :: iAtom, iDeg, iOp_E, iOp_ER, iOp_ES, iOp_ET, iOp_R, iOp_S, iOp_T, iOp_TS, iU_A, iU_AB, iU_ABCD, iU_B, iU_C, &
                      iU_CD, iU_D, jAtom, kAtom, lAtom, nU_A, nU_ABCD, nU_B, nU_C, nU_D
 integer(kind=iwp), external :: iU, iUR, nU

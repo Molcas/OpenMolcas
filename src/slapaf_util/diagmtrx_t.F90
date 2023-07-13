@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH, iNeg
-real(kind=wp) :: H(*)
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: H(nH*(nH+1)/2)
+integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
 integer(kind=iwp) :: i, iprint, iRout, j, Lu, LuTmp, nq, nQQ
 logical(kind=iwp) :: Exists
@@ -35,7 +36,7 @@ call mma_allocate(EVec,nH*nH,Label='EVec')
 
 ! Copy elements for H
 
-EVal(:) = H(1:nH*(nH+1)/2)
+EVal(:) = H(:)
 
 ! Set up a unit matrix
 

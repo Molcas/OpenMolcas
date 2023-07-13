@@ -15,9 +15,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrder
-real(kind=wp) :: XStart, A(0:nOrder), XMin, XLow, XHi, ENew
-logical(kind=iwp) :: RC
+integer(kind=iwp), intent(in) :: nOrder
+real(kind=wp), intent(in) :: XStart, A(0:nOrder), XLow, XHi
+real(kind=wp), intent(out) :: XMin, ENew
+logical(kind=iwp), intent(out) :: RC
 #include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, MaxIter
 real(kind=wp) :: ddfnc, dfnc, fnc, tmp, X, XInc, XValue, XX
@@ -27,7 +28,7 @@ iRout = 117
 iPrint = nPrint(iRout)
 if (iPrint >= 99) call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
 XValue = XStart
-RC = .true.
+RC = .false.
 MaxIter = 100
 do i=1,MaxIter
   X = XValue
@@ -57,13 +58,13 @@ do i=1,MaxIter
   if (abs(XInc) < Thr) then
     ENew = fnc
     XMin = XValue
-    return
+    RC = .true.
+    exit
   end if
   if (XValue > XHi) XValue = XHi
   if (XValue < XLow) XValue = XLow
 end do
-if (iPrint >= 6) write(u6,*) '-- Too many iterations in Find_Min'
-RC = .false.
+if ((.not. RC) .and. (iPrint >= 6)) write(u6,*) '-- Too many iterations in Find_Min'
 
 return
 

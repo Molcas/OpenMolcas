@@ -23,9 +23,10 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: FEq(nInter,nInter,nInter), gi_2(nInter), gi_1(nInter), g_ref(nInter), qi_2(nInter), qi_1(nInter), q_ref(nInter), &
-                 u(nInter), v(nInter), w(nInter)
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(inout) :: FEq(nInter,nInter,nInter)
+real(kind=wp), intent(in) :: gi_2(nInter), gi_1(nInter), g_ref(nInter), qi_2(nInter), qi_1(nInter), q_ref(nInter)
+real(kind=wp), intent(out) :: u(nInter), v(nInter), w(nInter)
 integer(kind=iwp) :: i, k, l
 real(kind=wp) :: lambda, RHS, rLHS, ux, uy, vx, vy, wx, wy
 real(kind=wp), external :: DDot_

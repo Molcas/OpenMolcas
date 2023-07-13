@@ -14,8 +14,8 @@ subroutine FixEqualSign(Line,LuRd)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Line
-integer(kind=iwp) :: LuRd
+character(len=*), intent(inout) :: Line
+integer(kind=iwp), intent(in) :: LuRd
 integer(kind=iwp) :: ix, iy, nLine
 character(len=180) :: Temp_Line
 integer(kind=iwp), external :: iCLast

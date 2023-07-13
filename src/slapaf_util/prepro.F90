@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom
-real(kind=wp) :: Coor(3,nAtom)
+integer(kind=iwp), intent(in) :: nAtom
+real(kind=wp), intent(in) :: Coor(3,nAtom)
 integer(kind=iwp) :: mTR, nQQ, nRowH
 logical(kind=iwp) :: CofM
 real(kind=wp), allocatable :: TR(:)

@@ -18,7 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iDo_dDipM
+integer(kind=iwp), intent(in) :: iDo_dDipM
 integer(kind=iwp) :: iCtl, iEl, iNeg, iOff, jSym, lModes, Lu_10, lUt, mDisp(8), mSym, mTR, nAtom, nDisp, nDoF, nInter, nModes, nX
 real(kind=wp) :: DipM(3)
 real(kind=wp), allocatable :: dDipM(:), EVal(:,:), EVec(:,:), IRInt(:), NMod(:), RedMas(:), Temp(:)

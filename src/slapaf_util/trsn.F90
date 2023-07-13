@@ -24,10 +24,12 @@ use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), Tau, Bt(3,nCent), dBt(3,nCent,3,nCent)
-logical(kind=iwp) :: lWrite, lWarn, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: Tau, Bt(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite, lWarn, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBt(3,nCent,3,nCent)
 integer(kind=iwp) :: ix, iy, iz, jx, jy, jz, mCent
 real(kind=wp) :: Bf2(3,3), Bf3(3,3), BRij(3,2), BRjk(3,2), BRkl(3,2), CosFi2, CosFi3, CosTau, dBRij(3,2,3,2), dBRjk(3,2,3,2), &
                  dBRkl(3,2,3,2), dFi2, dFi3, dTau, Dum(1), Fac, Fi2, Fi3, Rij1, Rjk1, Rkl1, SinFi2, SinFi3, SinTau

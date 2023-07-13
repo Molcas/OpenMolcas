@@ -18,10 +18,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mTtAtm, nsAtom, nDim, nHidden, iANr(mTtAtm+nHidden), nIter, nBonds, iTabBonds(3,nBonds), nMax, &
-                     iTabAtoms(2,0:nMax,mTtAtm+nHidden)
-real(kind=wp) :: Cart(3,mTtAtm+nHidden), Hess(3*mTtAtm*(3*mTtAtm+1)/2), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2), &
-                 Vctrs(3*mTtAtm,nDim)
+integer(kind=iwp), intent(in) :: mTtAtm, nsAtom, nDim, nHidden, iANr(mTtAtm+nHidden), nIter, nBonds, iTabBonds(3,nBonds), nMax, &
+                                 iTabAtoms(2,0:nMax,mTtAtm+nHidden)
+real(kind=wp), intent(in) :: Cart(3,mTtAtm+nHidden), Vctrs(3*mTtAtm,nDim)
+real(kind=wp), intent(out) :: Hess(3*mTtAtm*(3*mTtAtm+1)/2), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2)
 integer(kind=iwp) :: i, iAtom, ii, ij, ijTri, IterHess, ix, ixyz, j, jAtom, ji, jj, jxyz, Len3, Length, nRP
 real(kind=wp) :: eigen, Tmp
 logical(kind=iwp) :: Found, RunOld

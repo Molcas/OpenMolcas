@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nQ, nX, nQQ, nK, nTR, nB, iBM(nB), nqB(nQ)
-real(kind=wp) :: KMat(nQ,nK), TRVec(nX,nTR), BM(nB)
+integer(kind=iwp), intent(in) :: nQ, nX, nQQ, nK, nTR, nB, iBM(nB), nqB(nQ)
+real(kind=wp), intent(inout) :: KMat(nQ,nK)
+real(kind=wp), intent(in) :: TRVec(nX,nTR), BM(nB)
 integer(kind=iwp) :: i, iB, iK, iQ, iTR, iV, iX
 real(kind=wp), allocatable :: TR(:), VecInt(:)
 real(kind=wp), external :: DDot_
@@ -45,14 +46,14 @@ do iK=1,nK
 
   ! Compute the overlap with the external translations and rotations
   do iTR=1,nTR
-    TR(iK) = TR(iK)+dDot_(nX,VecInt,1,TRvec(1,iTR),1)**2
+    TR(iK) = TR(iK)+dDot_(nX,VecInt,1,TRvec(:,iTR),1)**2
   end do
 end do
 
 ! Put the nK-nQQ vectors with largest overlap at the end
 do iK=nK,nQQ+1,-1
   iV = maxloc(TR(1:iK),1)
-  if (iV /= iK) call dSwap_(nQ,KMat(1,iK),1,KMat(1,iV),1)
+  if (iV /= iK) call dSwap_(nQ,KMat(:,iK),1,KMat(:,iV),1)
 end do
 
 call mma_deallocate(TR)

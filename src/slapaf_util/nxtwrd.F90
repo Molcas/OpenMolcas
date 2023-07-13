@@ -28,8 +28,8 @@ subroutine NxtWrd(Line,i_F,iE)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Line
-integer(kind=iwp) :: i_F, iE
+character(len=*), intent(in) :: Line
+integer(kind=iwp), intent(inout) :: i_F, iE
 integer(kind=iwp) :: nChar
 
 nChar = len(Line)

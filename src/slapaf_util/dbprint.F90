@@ -17,7 +17,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nQQ, nDim
+integer(kind=iwp), intent(in) :: nQQ, nDim
 integer(kind=iwp) :: i_Dim, idB, iElem, iq, iQQ, jDim, nElem
 real(kind=wp) :: dBqR, rK
 real(kind=wp), allocatable :: dBQQ(:,:), K(:,:)

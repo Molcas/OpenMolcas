@@ -14,8 +14,8 @@ subroutine TROrder(TRVec,nTR,nX)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTR, nX
-real(kind=wp) :: TRVec(6*nX)
+integer(kind=iwp), intent(in) :: nTR, nX
+real(kind=wp), intent(inout) :: TRVec(6*nX)
 integer(kind=iwp) :: i, iFrom, iTo, iTR
 
 if (nTR == 6) return

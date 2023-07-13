@@ -22,10 +22,12 @@ use Constants, only: Zero, One, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCntr, mCntr
-real(kind=wp) :: xyz(3,nCntr+mCntr), rMss(nCntr+mCntr), Dist, B(3,nCntr+mCntr), dB(3,nCntr+mCntr,3,nCntr+mCntr)
-logical(kind=iwp) :: lWrite, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCntr, mCntr
+real(kind=wp), intent(in) :: xyz(3,nCntr+mCntr), rMss(nCntr+mCntr)
+real(kind=wp), intent(out) :: Dist, B(3,nCntr+mCntr)
+logical(kind=iwp), intent(in) :: lWrite, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dB(3,nCntr+mCntr,3,nCntr+mCntr)
 integer(kind=iwp) :: i, iCntr, ix, j, jCntr, jx
 real(kind=wp) :: dRdri, dRdrj, Fact, Facti, Factj, R(3,2), RM(2), Sgn, Signi, Signj
 

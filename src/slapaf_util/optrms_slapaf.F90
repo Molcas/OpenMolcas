@@ -16,8 +16,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), RMS, RMSMax
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt)
+real(kind=wp), intent(out) :: RMS, RMSMax
 integer(kind=iwp) :: i, ixyz
 real(kind=wp) :: diff, disp
 

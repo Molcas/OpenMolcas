@@ -47,8 +47,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, nIter
-real(kind=wp) :: AGV(n,nIter), DGV(n,nIter), CDV(n)
+integer(kind=iwp), intent(in) :: n, nIter
+real(kind=wp), intent(in) :: AGV(n,nIter), DGV(n,nIter)
+real(kind=wp), intent(inout) :: CDV(n)
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, iter
 real(kind=wp) :: alpha, beta, r, xx, yx, yx_xx

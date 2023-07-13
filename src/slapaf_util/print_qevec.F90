@@ -16,8 +16,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH, nq, LuTmp
-real(kind=wp) :: EVec(nH,nH), EVal(nH*(nH+1)/2), rK(nq,nH), qEVec(nq,nH)
+integer(kind=iwp), intent(in) :: nH, nq, LuTmp
+real(kind=wp), intent(in) :: EVec(nH,nH), EVal(nH*(nH+1)/2)
+real(kind=wp), intent(out) :: rK(nq,nH), qEVec(nq,nH)
 integer(kind=iwp) :: iiQQ, IncQQ, iq, iQQ, Lu, mQQ
 real(kind=wp) :: temp
 character(len=14), allocatable :: qLbl(:)
@@ -27,7 +28,7 @@ real(kind=wp), external :: DDot_
 call mma_allocate(qLbl,nq,Label='qLbl')
 
 do iq=1,nq
-  read(LuTmp) qLbl(iq),(rK(iq,iQQ),iQQ=1,nH)
+  read(LuTmp) qLbl(iq),rK(iq,:)
 end do
 
 call DGEMM_('N','N',nq,nH,nH,One,rK,nq,EVec,nH,Zero,qEVec,nq)
@@ -42,7 +43,7 @@ do iiQQ=1,nH,IncQQ
   write(Lu,*)
   do iq=1,nq
     temp = sqrt(DDot_(nH,qEVec(iq,1),nq,qEVec(iq,1),nq))
-    if (temp > Thr) write(Lu,'(1X,A,5F10.6)') qLbl(iq),(qEVec(iq,iQQ),iQQ=iiQQ,mQQ)
+    if (temp > Thr) write(Lu,'(1X,A,5F10.6)') qLbl(iq),qEVec(iq,iiQQ:mQQ)
   end do
   write(Lu,*)
 end do

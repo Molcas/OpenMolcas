@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nStab, jStab(0:nStab-1)
-real(kind=wp) :: A(3), Tx(3)
+integer(kind=iwp), intent(in) :: nStab, jStab(0:nStab-1)
+real(kind=wp), intent(in) :: A(3)
+real(kind=wp), intent(inout) :: Tx(3)
 integer(kind=iwp) :: iStab
 
 do iStab=0,nStab-1

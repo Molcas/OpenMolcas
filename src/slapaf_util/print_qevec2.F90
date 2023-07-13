@@ -15,8 +15,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH
-real(kind=wp) :: EVal(nH*(nH+1)/2), EVec(nH,nH)
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: EVal(nH*(nH+1)/2), EVec(nH,nH)
 integer(kind=iwp) :: iiQQ, iLines, IncQQ, iq, iQQ, j, Lu, Lu_UDIC, mQQ
 character(len=120) :: Temp
 character(len=14) :: cLbl
@@ -59,7 +59,7 @@ do iiQQ=1,nH,IncQQ
   write(Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',(EVal(iQQ*(iQQ+1)/2),iQQ=iiQQ,mQQ)
   write(Lu,*)
   do iq=1,nH
-    write(Lu,'(1X,A,5F10.6)') qLbl(iq),(EVec(iq,iQQ),iQQ=iiQQ,mQQ)
+    write(Lu,'(1X,A,5F10.6)') qLbl(iq),EVec(iq,iiQQ:mQQ)
   end do
   write(Lu,*)
 end do

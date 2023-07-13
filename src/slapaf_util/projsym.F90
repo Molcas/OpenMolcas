@@ -17,10 +17,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCent, Ind(nCent), iDCRs(nCent), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, idBM(2,ndB_Tot), nB, nqB(nB), &
-                     iq
-real(kind=wp) :: A(3,nCent), B(3,nCent), dB(3,nCent,3,nCent), BM(nB_Tot), dBM(ndB_Tot), rMult
-logical(kind=iwp) :: Proc_dB
+integer(kind=iwp), intent(in) :: nCent, Ind(nCent), iDCRs(nCent), nB_Tot, ndB_Tot, nB, iq
+real(kind=wp), intent(in) :: A(3,nCent), B(3,nCent), dB(3,nCent,3,nCent), rMult
+integer(kind=iwp), intent(inout) :: mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp), intent(inout) :: BM(nB_Tot), dBM(ndB_Tot)
+logical(kind=iwp), intent(in) :: Proc_dB
 integer(kind=iwp) :: i, i_Dim, ixyz, j, jDim, jxyz, jxyz_Max, k, kxyz, kxyz_Max, nq
 real(kind=wp) :: ATemp(3)
 real(kind=wp), allocatable :: Tx(:,:)
@@ -39,7 +40,7 @@ call mma_allocate(Tx,3,nCent,Label='Tx')
 
 Tx(:,:) = One
 do i=1,nCent
-  call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
+  call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(:,i),Tx(:,i))
 
   ! Rotate vector back to the unique center
 

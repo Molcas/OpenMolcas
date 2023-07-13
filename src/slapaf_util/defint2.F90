@@ -29,11 +29,13 @@ use Constants, only: Zero, One, Two, Half, Pi, Angstrom, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBvct, mInt, nAtom, nLines, lIter, iFlip(nBVct)
-real(kind=wp) :: BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct), BMtrx(3*nAtom,mInt), Val(nBVct), rInt(mInt), rInt0(mInt), &
-                 rMult(nBVct,nBVct), dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct)
-character(len=8) :: Lbl(mInt)
-logical(kind=iwp) :: lWrite
+integer(kind=iwp), intent(in) :: nBvct, mInt, nAtom, nLines, lIter
+real(kind=wp), intent(out) :: BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct), BMtrx(3*nAtom,mInt), Val(nBVct), rInt(mInt), &
+                              rInt0(mInt), rMult(nBVct,nBVct), dBMtrx(3*nAtom,3*nAtom,mInt)
+character(len=8), intent(out) :: Lbl(mInt)
+logical(kind=iwp), intent(inout) :: lWrite
+real(kind=wp), intent(inout) :: Value0(nBVct)
+integer(kind=iwp), intent(out) :: iFlip(nBVct)
 #include "print.fh"
 integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu, &
                      Lu_UDC, mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
@@ -275,7 +277,7 @@ do iLines=1,nLines
   call mma_allocate(Mass,msAtom,Label='Mass')
   call mma_allocate(Hess,(3*msAtom)**2,Label='Hess')
 
-  call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),Val(iBVct),nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,Mass,Labels(iBVct), &
+  call Cllct2(Line(nGo:nTemp),BVct(:,iBVct),dBVct(:,:,iBVct),Val(iBVct),nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,Mass,Labels(iBVct), &
               lWrite,rMult(iBVct,iBVct),Hess,lIter)
 
   if ((Typ == 'TRSN  ') .and. (abs(Val(iBVct)) < Pi*Half)) iFlip(iBVct) = NoFlip
@@ -588,7 +590,7 @@ end do
 if (iPrint >= 99) then
   call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,mInt)
   do iInt=1,mInt
-    call RecPrt(' The dB-matrix',' ',dBMtrx(1,1,iInt),3*nAtom,3*nAtom)
+    call RecPrt(' The dB-matrix',' ',dBMtrx(:,:,iInt),3*nAtom,3*nAtom)
   end do
 end if
 close(Lu_UDC)

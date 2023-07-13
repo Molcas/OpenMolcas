@@ -24,13 +24,16 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Strng
-integer(kind=iwp) :: nAtom, nCntr, mCntr, Ind(nCntr+mCntr,2)
-real(kind=wp) :: Vector(3,nAtom), Val, Coor(3,nAtom), xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr), &
-                 TMtrx(3,nAtom,3,(nCntr+mCntr)), Deg
-character(len=6) :: Typ
-character(len=8) :: Lbl
-logical(kind=iwp) :: lWrite, lAtom(nAtom)
+character(len=*), intent(in) :: Strng
+integer(kind=iwp), intent(in) :: nAtom, nCntr, mCntr
+real(kind=wp), intent(out) :: Vector(3,nAtom), Val, xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr), &
+                              TMtrx(3,nAtom,3,(nCntr+mCntr)), Deg
+real(kind=wp), intent(in) :: Coor(3,nAtom)
+integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
+character(len=6), intent(in) :: Typ
+character(len=8), intent(in) :: Lbl
+logical(kind=iwp), intent(inout) :: lWrite
+logical(kind=iwp), intent(out) :: lAtom(nAtom)
 #include "print.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
@@ -139,39 +142,39 @@ if (Typ == 'X     ') then
   Temp(:,:) = Zero
   Temp(1,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : x-component=',Val,'/ bohr'
-  Deg = D_Cart(Ind,nIrrep)
+  Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'Y     ') then
   Val = xyz(2,1)
   Temp(:,:) = Zero
   Temp(2,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : y-component=',Val,'/ bohr'
-  Deg = D_Cart(Ind,nIrrep)
+  Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'Z     ') then
   Val = xyz(3,1)
   Temp(:,:) = Zero
   Temp(3,1) = One
   if (lWrite) write(u6,'(1X,A,A,2X,F10.4,A)') Lbl,' : z-component=',Val,'/ bohr'
-  Deg = D_Cart(Ind,nIrrep)
+  Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'STRTCH') then
   call Strtch(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB)
-  Deg = D_Bond(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bond(Ind(1:2,1),Ind(1:2,2),nIrrep)
 else if (Typ == 'LBEND1') then
   call CoSys(xyz,Axis,Perp_Axis)
   call LBend(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,1),.false.)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'LBEND2') then
   call CoSys(xyz,Axis,Perp_Axis)
   call LBend(xyz,nCent,Val,Temp,lWrite,Lbl,Dummy,ldB,Axis,Perp_Axis(1,2),.true.)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'BEND  ') then
   call Bend(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'TRSN  ') then
   call Trsn(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-  Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
+  Deg = D_Trsn(Ind(1:4,1),Ind(1:4,2),nIrrep)
 else if (Typ == 'OUTOFP') then
   call OutOfP(xyz,nCent,Val,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-  Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
+  Deg = D_Trsn(Ind(1:4,1),Ind(1:4,2),nIrrep)
 else if (Typ == 'DISSOC') then
   call Dissoc(xyz,nCntr,mCntr,qMss,Val,Temp,lWrite,Lbl,Dummy,ldB)
   Deg = One

@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: D_Cart
-integer(kind=iwp) :: Ind(1), nSym
+integer(kind=iwp), intent(in) :: Ind, nSym
 integer(kind=iwp) :: iAtom, iDeg, nU_A
 
 !                                                                      *
@@ -27,7 +27,7 @@ integer(kind=iwp) :: iAtom, iDeg, nU_A
 
 D_Cart = Zero
 
-iAtom = Ind(1)
+iAtom = Ind
 
 nU_A = nStab(iAtom)
 

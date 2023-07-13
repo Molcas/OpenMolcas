@@ -15,10 +15,12 @@ use Constants, only: One, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), Avst, B(3,nCent), dB(3,nCent,3,nCent)
-logical(kind=iwp) :: lWrite, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: Avst, B(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dB(3,nCent,3,nCent)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: aRR, R(3), R2, RR, xRR
 

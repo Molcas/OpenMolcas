@@ -21,11 +21,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, &
-                     idBM(2,ndB_Tot), nqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, nB_Tot, ndB_Tot
+integer(kind=iwp), intent(inout) :: nq, Indq(3,nB), mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+character(len=14), intent(inout) :: qLbl(nB)
 #include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCent, iDeg, iPrint, iRout, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
 real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), Val
@@ -73,8 +74,8 @@ do iAtom=1,nsAtom
 
   do i=0,nIrrep/nStab(iAtom)-1
     iCent = iCent+1
-    call OA(iCoSet(i,iAtom),Cx(1:3,iAtom,iIter),CurrXYZ(1:3,iCent))
-    call OA(iCoSet(i,iAtom),Cx(1:3,iAtom,iRef),Ref123(1:3,iCent))
+    call OA(iCoSet(i,iAtom),Cx(:,iAtom,iIter),CurrXYZ(:,iCent))
+    call OA(iCoSet(i,iAtom),Cx(:,iAtom,iRef),Ref123(:,iCent))
 
     Ind(iCent) = iAtom
     iDCR(iCent) = iCoSet(i,iAtom)

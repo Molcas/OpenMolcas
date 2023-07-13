@@ -14,8 +14,9 @@ subroutine GF_Mult(G,F,GF,nDoF)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDoF
-real(kind=wp) :: G(nDoF**2), F(nDoF**2), GF(nDoF*(nDoF+1)/2)
+integer(kind=iwp), intent(in) :: nDoF
+real(kind=wp), intent(in) :: G(nDoF**2), F(nDoF**2)
+real(kind=wp), intent(out) :: GF(nDoF*(nDoF+1)/2)
 integer(kind=iwp) :: ii, ij, ijT, iX, jj, jX
 real(kind=wp) :: XMass_i, XMass_j
 

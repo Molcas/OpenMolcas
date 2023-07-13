@@ -16,9 +16,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nq, nx, nK
-real(kind=wp) :: Bmtrx(nq,nx), Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), uMtrx(nX), Scrt(nq,nX), Thr
-logical(kind=iwp) :: g12K
+integer(kind=iwp), intent(in) :: nq, nx
+real(kind=wp), intent(inout) :: Bmtrx(nq,nx)
+real(kind=wp), intent(out) :: Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), Scrt(nq,nX)
+integer(kind=iwp), intent(out) :: nK
+real(kind=wp), intent(in) :: uMtrx(nX), Thr
+logical(kind=iwp), intent(in) :: g12K
 integer(kind=iwp) :: i, ii, ijTri, Info, iQ, j, LDZ
 real(kind=wp) :: rSum
 logical(kind=iwp) :: Diagonal
@@ -117,7 +120,7 @@ EVal(:) = -EVal(:)
 call JacOrd(EVal,EVec,nQ,nQ)
 !Fix standard direction.
 do iQ=1,nQ
-  call VecPhase(EVec(1,iQ),nQ)
+  call VecPhase(EVec(:,iQ),nQ)
 end do
 EVal(:) = -EVal(:)
 #ifdef _DEBUGPRINT_

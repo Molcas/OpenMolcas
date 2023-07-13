@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nU
-integer(kind=iwp) :: iU
+integer(kind=iwp), intent(in) :: iU
 integer(kind=iwp) :: i
 
 nU = 0

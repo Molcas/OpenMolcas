@@ -21,7 +21,7 @@ use Slapaf_Info, only: iRow
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iInt, nFix, nRowH
+integer(kind=iwp), intent(out) :: iInt, nFix, nRowH
 integer(kind=iwp) :: iLines, jLines, kLines, lLines, Lu_UDIC, Skip
 logical(kind=iwp) :: Found
 character(len=120) :: Temp

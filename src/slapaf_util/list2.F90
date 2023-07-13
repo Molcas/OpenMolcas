@@ -25,10 +25,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, nInter
-character(len=*) :: Title, Lbl(nAtom)
-real(kind=wp) :: gq(3*nAtom,nInter)
-logical(kind=iwp) :: Smmtrc(3*nAtom)
+integer(kind=iwp), intent(in) :: nAtom, nInter
+character(len=*), intent(in) :: Title, Lbl(nAtom)
+real(kind=wp), intent(in) :: gq(3*nAtom,nInter)
+logical(kind=iwp), intent(in) :: Smmtrc(3*nAtom)
 integer(kind=iwp) :: i, iE, i_F, igq, ii, inc, iq, iQQ, jq, Lu, LuTmp, mInt, MxWdth, nLbl, nRow
 real(kind=wp) :: temp
 logical(kind=iwp) :: Start

@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: lNew
+logical(kind=iwp), intent(in) :: lNew
 integer(kind=iwp) :: i1, i2, i3, iEnd, iFrst, jEnd, Lu_UDIC, mCntr, msAtom, nCntr, neq, nGo, nTemp
 real(kind=wp) :: Tmp
 character(len=120) :: Line, Temp

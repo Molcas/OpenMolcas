@@ -14,7 +14,8 @@ subroutine Union(iU,nU,iV,nV,iR,iM,nM)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nU, iU(nU), nV, iV(nV), iR, iM(8), nM
+integer(kind=iwp), intent(in) :: nU, iU(nU), nV, iV(nV), iR
+integer(kind=iwp), intent(out) :: iM(8), nM
 integer(kind=iwp) :: i, iRV
 logical(kind=iwp) :: RinT_
 

@@ -15,9 +15,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nInter
-real(kind=wp) :: Hss_X(nDim*nDim), Degen(nDim), BMx(nDim,nInter), Hss_Q(nInter*nInter)
-integer(kind=iwp) :: i, ij, j, M, N, NRHS
+integer(kind=iwp), intent(in) :: nDim, nInter
+real(kind=wp), intent(inout) :: Hss_X(nDim*nDim)
+real(kind=wp), intent(in) :: Degen(nDim), BMx(nDim,nInter)
+real(kind=wp), intent(out) :: Hss_Q(nInter*nInter)
+integer(kind=iwp) :: i, ij, j
 real(kind=wp), allocatable :: X(:), XT(:)
 
 !                                                                      *
@@ -43,10 +45,7 @@ call RecPrt('BMx',' ',BMx,nDim,nInter)
 call RecPrt('Hss_X',' ',Hss_X,nDim,nDim)
 #endif
 call mma_allocate(X,nDim*nInter,Label='X')
-M = nDim
-N = nInter
-NRHS = nDim
-call Eq_Solver('N',M,N,NRHS,BMx,.false.,Degen,Hss_X,X)
+call Eq_Solver('N',nDim,nInter,nDim,BMx,.false.,Degen,Hss_X,X)
 
 call mma_allocate(XT,nDim*nInter,Label='XT')
 call TRNSPS(nInter,nDim,X,XT)
@@ -55,10 +54,7 @@ call RecPrt('X',' ',X,nInter,nDim)
 call RecPrt('XT',' ',XT,nDim,nInter)
 #endif
 
-M = nDim
-N = nInter
-NRHS = nInter
-call Eq_Solver('N',M,N,NRHS,BMx,.false.,Degen,XT,Hss_Q)
+call Eq_Solver('N',nDim,nInter,nInter,BMx,.false.,Degen,XT,Hss_Q)
 
 call mma_deallocate(XT)
 call mma_deallocate(X)

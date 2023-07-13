@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nsAtom, nSupSy, Idntcl(nSupSy), iAtom(nsAtom)
-real(kind=wp) :: FrcCrt(3,nsAtom), Coor(3,nsAtom)
+integer(kind=iwp), intent(in) :: nsAtom, nSupSy, Idntcl(nSupSy), iAtom(nsAtom)
+real(kind=wp), intent(inout) :: FrcCrt(3,nsAtom)
+real(kind=wp), intent(in) :: Coor(3,nsAtom)
 integer(kind=iwp) :: I, ICEN, IDIV, J, K
 real(kind=wp) :: cMass(3), E(3), FORCE, PROJ
 integer(kind=iwp), external :: iDeg

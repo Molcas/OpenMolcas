@@ -26,9 +26,9 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), allocatable :: Hess(:)
-integer(kind=iwp) :: nQQ
-character(len=*) :: RunOld
+real(kind=wp), allocatable, intent(out) :: Hess(:)
+integer(kind=iwp), intent(out) :: nQQ
+character(len=*), intent(in) :: RunOld
 integer(kind=iwp) :: iInter, lHess, nHess
 real(kind=wp) :: Energy
 character(len=8) :: Method

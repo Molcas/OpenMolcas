@@ -21,9 +21,10 @@ use Constants, only: Two, Eight
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, nMax
-real(kind=wp) :: Coor(3,mTtAtm)
-integer(kind=iwp), allocatable :: TabB(:,:), TabA(:,:,:)
+integer(kind=iwp), intent(in) :: mTtAtm, iANr(mTtAtm)
+real(kind=wp), intent(in) :: Coor(3,mTtAtm)
+integer(kind=iwp), intent(out) :: nBonds, nMax
+integer(kind=iwp), allocatable, intent(out) :: TabB(:,:), TabA(:,:,:)
 integer(kind=iwp) :: iAtom, nBondMax, nx, ny, nz
 real(kind=wp) :: adjust, Box_Size, ThrB, xmax, xmin, ymax, ymin, zmax, zmin
 integer(kind=iwp), allocatable :: iBox(:,:), Tab(:,:,:,:)

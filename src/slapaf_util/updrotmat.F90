@@ -15,7 +15,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: SmallRot(3), RotMat(3,3)
+real(kind=wp), intent(in) :: SmallRot(3)
+real(kind=wp), intent(inout) :: RotMat(3,3)
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: rsum, SmallMat(3,3), tmp(3,3)
 

@@ -15,12 +15,14 @@ use Constants, only: Zero, One, Pi, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), Fir, Bf(3,nCent), dBf(3,nCent,3,nCent)
-logical(kind=iwp) :: lWrite, lWarn, ldB
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: Fir, Bf(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite, lWarn, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBf(3,nCent,3,nCent)
 integer(kind=iwp) :: i, j, mCent
 real(kind=wp) :: BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3,2,3,2), dBRjk(3,2,3,2), dFir, Rij1, Rjk1, Si
-character(len=8) :: Label
 real(kind=wp), external :: ArCos, ArSin
 
 !                                                                      *

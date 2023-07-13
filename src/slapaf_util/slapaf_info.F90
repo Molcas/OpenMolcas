@@ -211,8 +211,9 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom,mLambda)
   use Constants, only: Zero
   use Definitions, only: u6
 
-  integer(kind=iwp) :: iter, MaxItr, mTROld, nsAtom, mLambda
-  logical(kind=iwp) :: lOld_Implicit
+  integer(kind=iwp), intent(out) :: iter, mTROld
+  integer(kind=iwp), intent(in) :: MaxItr, nsAtom, mLambda
+  logical(kind=iwp), intent(out) :: lOld_Implicit
   integer(kind=iwp) :: iLn, iOff, itmp, Lngth
   logical(kind=iwp) :: Exists
   integer(kind=iwp), allocatable :: Information(:)
@@ -233,7 +234,7 @@ subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit,nsAtom,mLambda)
   end if
 
   iter = Information(2)+1
-  if (iter >= MaxItr+1) then
+  if (iter > MaxItr) then
     write(u6,*) 'Increase MaxItr in slapaf_info.f90'
     call WarningMessage(2,'iter >= MaxItr+1')
     call Abend()
@@ -324,9 +325,9 @@ subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_I
   use UnixInfo, only: SuperName
   use Definitions, only: u6
 
-  logical(kind=iwp) :: lStop, Just_Frequencies, lOld_Implicit
-  real(kind=wp) :: Energy_In
-  integer(kind=iwp) :: Iter, MaxItr, mTROld, nsAtom
+  logical(kind=iwp), intent(in) :: lStop, Just_Frequencies, lOld_Implicit
+  real(kind=wp), intent(in) :: Energy_In
+  integer(kind=iwp), intent(in) :: Iter, MaxItr, mTROld, nsAtom
   integer(kind=iwp) :: iLn, iOff, iOff_Iter, Lngth, nSlap
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: Information(:)
@@ -371,11 +372,7 @@ subroutine Dmp_Slapaf(lStop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld,lOld_I
   if (SuperName /= 'numerical_gradient') then
     Information(2) = Iter
     Information(3) = mTROld ! # symm. transl /rot.
-    if (lOld_Implicit) then
-      Information(4) = 1
-    else
-      Information(4) = 0
-    end if
+    Information(4) = merge(1,0,lOld_Implicit)
     Information(5) = 0
     Information(6) = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)
     Information(7) = size(Energy)+size(Energy0)+size(DipM)+size(GNrm)+size(Cx)

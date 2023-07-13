@@ -15,10 +15,12 @@ use Constants, only: Zero, One, Two, Nine, Pi, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), Teta, Bt(3,nCent), dBt(3,nCent,3,nCent)
-logical(kind=iwp) :: lWrite, lWarn, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(inout) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: Teta, Bt(3,nCent)
+logical(kind=iwp), intent(in) :: lWrite, lWarn, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBt(3,nCent,3,nCent)
 integer(kind=iwp) :: ix, iy, iz, jx, jy, jz, mCent
 real(kind=wp) :: BR14X(3,3), C14X(3,3), CosFi1, CosFi2, CosFi3, dBR14X(3,3,3,3), dFi1, dFi2, dFi3, dTeta, e41x, e41y, e41z, e42x, &
                  e42y, e42z, e43x, e43y, e43z, Fi1, Fi2, Fi3, Q41, Q42, Q43, R41KV, R42(3), R42KV, R43(3), R43KV, RX1, RX2, RX3, &
@@ -138,7 +140,7 @@ call Bend(C14X,mCent,Teta,BR14X,.false.,.false.,Label,dBR14X,ldB)
 Teta = Teta-Pi/Two
 dTeta = Teta/deg2rad
 if (lWarn .and. ((dTeta > 87.5_wp) .or. (dTeta < -87.5_wp))) write(u6,*) 'Warning: Out of plane angle close to end of range'
-if (LWRITE) write(u6,'(1X,A,A,F10.4,A,F10.4,A)') Label,' : Out of plane angle=',dTeta,'/degree, ',Teta,'/rad'
+if (lWrite) write(u6,'(1X,A,A,F10.4,A,F10.4,A)') Label,' : Out of plane angle=',dTeta,'/degree, ',Teta,'/rad'
 
 ! Compute the WDC matrix
 

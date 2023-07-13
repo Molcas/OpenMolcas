@@ -39,7 +39,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: Lu, iPrint
+integer(kind=iwp), intent(in) :: Lu, iPrint
 integer(kind=iwp) :: Error, i, iPos, j, nLines
 real(kind=wp) :: EDiffValue
 logical(kind=iwp) :: MECI_via_SLAPAF

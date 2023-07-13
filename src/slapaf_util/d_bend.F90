@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: D_Bend
-integer(kind=iwp) :: Ind(3), iOp_(3), nSym
+integer(kind=iwp), intent(in) :: Ind(3), iOp_(3), nSym
 integer(kind=iwp) :: iAtom, ideg, iOp_E, iOp_ER, iOp_ET, iOp_R, iOp_T, iU_A, iU_AB, iU_ABC, iU_AC, iU_B, iU_C, jAtom, mAtom, nU_A, &
                      nU_ABC, nU_B, nU_C
 integer(kind=iwp), external :: iU, iUR, nU

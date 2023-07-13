@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: Torsion_Check
-integer(kind=iwp) :: iAtom, jAtom, kAtom, lAtom, nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms)
-real(kind=wp) :: Ref(3,4)
+integer(kind=iwp), intent(in) :: iAtom, jAtom, kAtom, lAtom, nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms)
+real(kind=wp), intent(in) :: Ref(3,4)
 integer(kind=iwp) :: ii, iSet(4), jSet(4)
 real(kind=wp) :: Coor(3,4), FC, Test
 integer(kind=iwp), parameter :: iCase(4,12) = reshape([1,2,3,4, &

@@ -21,9 +21,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nsAtom, nIter, mTtAtm, nWndw
-real(kind=wp) :: Coor(3,nsAtom)
-integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, nBonds, nHidden, nMax, nQQ
+integer(kind=iwp), intent(in) :: nsAtom, nIter, mTtAtm, nWndw
+real(kind=wp), intent(in) :: Coor(3,nsAtom)
+integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, mTtAtm_, nBonds, nHidden, nMax, nQQ
 integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:,:), TabB(:,:)
 real(kind=wp), allocatable :: Coor2(:,:), EVal(:), Hss_X(:), Scr2(:), TR(:), TRNew(:), TROld(:), Vec(:,:)
 
@@ -92,7 +92,7 @@ call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
 
 ! Generate Grand atoms list
 
-call GenCoo(Cx(1,1,iRef),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
+call GenCoo(Cx(:,:,iRef),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
 
 ! Are there some hidden frozen atoms ?
 
@@ -100,9 +100,8 @@ call Hidden(Coor2,AN,nHidden)
 
 ! Generate bond list
 
-mTtAtm = mTtAtm+nHidden
-call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
-mTtAtm = mTtAtm-nHidden
+mTtAtm_ = mTtAtm+nHidden
+call Box(Coor2,mTtAtm_,AN,TabB,TabA,nBonds,nMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

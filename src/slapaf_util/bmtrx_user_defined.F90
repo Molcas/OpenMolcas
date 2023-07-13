@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nsAtom, nDim, nIter, mTR, nQQ
-real(kind=wp) :: Coor(3,nsAtom)
+integer(kind=iwp), intent(in) :: nsAtom, nDim, nIter, mTR
+real(kind=wp), intent(in) :: Coor(3,nsAtom)
+integer(kind=iwp), intent(out) :: nQQ
 integer(kind=iwp) :: i, iAtom, iInter, ix, ixyz, j, nRowH
 logical(kind=iwp) :: Proc_dB
 real(kind=wp), allocatable :: Degen2(:)

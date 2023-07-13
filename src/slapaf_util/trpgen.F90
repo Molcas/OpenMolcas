@@ -17,9 +17,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nAtom, mTR
-real(kind=wp) :: Coor(3,nAtom), TRVec(6*3*nAtom)
-logical(kind=iwp) :: CofM
+integer(kind=iwp), intent(in) :: nDim, nAtom
+real(kind=wp), intent(in) :: Coor(3,nAtom)
+integer(kind=iwp), intent(out) :: mTR
+logical(kind=iwp), intent(in) :: CofM
+real(kind=wp), intent(out) :: TRVec(6*3*nAtom)
 integer(kind=iwp) :: i, iAtom, ixyz, nTR
 real(kind=wp), allocatable :: EVal(:), EVec(:), G(:), Scrt(:), TR(:), U(:)
 real(kind=wp), parameter :: Thr_ElRed = 1.0e-12_wp
@@ -60,10 +62,7 @@ end do
 
 call ElRed(TRVec,nTR,nDim,G,EVal,EVec,mTR,U,Scrt,g12K,Thr_ElRed)
 
-if (mTR > 0) then
-  TRVec(1:3*nAtom*nTR) = Zero
-  call DGEMM_('T','N',nDim,mTR,nTR,One,TR,nTR,EVec,nTR,Zero,TRVec,nDim)
-end if
+if (mTR > 0) call DGEMM_('T','N',nDim,mTR,nTR,One,TR,nTR,EVec,nTR,Zero,TRVec,nDim)
 
 call mma_deallocate(U)
 call mma_deallocate(EVec)

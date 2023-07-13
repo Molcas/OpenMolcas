@@ -34,10 +34,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter
-real(kind=wp) :: H(nInter,nInter), g(nInter), dq(nInter), dqHdq, StepMax, Thr_RS
-character(len=6) :: UpMeth
-character :: Step_Trunc
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: H(nInter,nInter), g(nInter), StepMax, Thr_RS
+real(kind=wp), intent(out) :: dq(nInter)
+character(len=6), intent(out) :: UpMeth
+real(kind=wp), intent(inout) :: dqHdq
+character, intent(out) :: Step_Trunc
 integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, jj, Lu, NumVal
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, Dist, dqdq, dqdq_long, dqdq_short, EigVal, Fact, VV, ZZ
 logical(kind=iwp) :: Iterate, Restart

@@ -37,8 +37,11 @@ use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, k, iRC
-real(kind=wp) :: A(n*(n+1)/2), Eig(k), Vec(n,k)
+integer(kind=iwp), intent(in) :: n, k
+real(kind=wp), intent(in) :: A(n*(n+1)/2)
+real(kind=wp), intent(out) :: Eig(k)
+real(kind=wp), intent(inout) :: Vec(n,k)
+integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, nTmp, old_mk
 real(kind=wp) :: Alpha, Aux, Conv, rDum(1)
 logical(kind=iwp) :: Augmented, Last, Reduced

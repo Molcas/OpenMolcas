@@ -16,8 +16,9 @@ use Constants, only: deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nBondMax, iTabBonds(3,nBondMax), nBonds, nMax, iTabAtoms(2,0:nMax,nAtoms)
-real(kind=wp) :: Coor(3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms, nBondMax, nMax
+real(kind=wp), intent(in) :: Coor(3,nAtoms)
+integer(kind=iwp), intent(inout) :: iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
 integer(kind=iwp) :: iAtom, iBond, iBondType, iCase, jAtom, jBond, jBondType, kAtom, kBond, kNeighbor, nNeighbor_i, nNeighbor_j, &
                      nNeighbor_k
 real(kind=wp) :: CosFi, CosFi_limit, Fi_limit, rij, rkj, xij, xkj, yij, ykj, zij, zkj

@@ -25,8 +25,8 @@ use Constants, only: Zero, One, Two, Ten, Half, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuSpool
-logical(kind=iwp) :: Dummy_Call
+integer(kind=iwp), intent(in) :: LuSpool
+logical(kind=iwp), intent(in) :: Dummy_Call
 #include "print.fh"
 integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu, Lu_UDC, &
                      Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy

@@ -26,8 +26,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nQ, nX
-real(kind=wp) :: V_Q(nQ), V_X(nX)
+integer(kind=iwp), intent(in) :: nQ, nX
+real(kind=wp), intent(in) :: V_Q(nQ)
+real(kind=wp), intent(out) :: V_X(nX)
 
 !                                                                      *
 !***********************************************************************

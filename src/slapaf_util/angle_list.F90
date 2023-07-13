@@ -19,13 +19,13 @@ use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iGlow, iGhi, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
-                     iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, &
-                     idBM(2,ndB_Tot), nqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), &
-                 dBM(ndB_Tot), Thr_small
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iGlow, iGhi, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
+                                 iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), nB_Tot, ndB_Tot
+integer(kind=iwp), intent(inout) :: nq, Indq(3,nB), mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter), Thr_small
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
+character(len=14), intent(inout) :: qLbl(nB)
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
@@ -143,9 +143,9 @@ do mAtom_=1,mAtoms
 
 #     ifdef _DEBUGPRINT_
       if (iPrint >= 99) then
-        call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
-        call RecPrt('B',' ',Cx(1,mAtom,iIter),1,3)
-        call RecPrt('C',' ',Cx(1,jAtom,iIter),1,3)
+        call RecPrt('A',' ',Cx(:,iAtom,iIter),1,3)
+        call RecPrt('B',' ',Cx(:,mAtom,iIter),1,3)
+        call RecPrt('C',' ',Cx(:,jAtom,iIter),1,3)
       end if
 #     endif
 
@@ -166,9 +166,9 @@ do mAtom_=1,mAtoms
       end if
 #     endif
 
-      call OA(kDCRT,Cx(1:3,jAtom,iIter),A(1:3,3))
-      call OA(kDCRT,Cx(1:3,jAtom,iRef),Ref(1:3,3))
-      call OA(kDCRT,Cx(1:3,jAtom,iPrv),Prv(1:3,3))
+      call OA(kDCRT,Cx(:,jAtom,iIter),A(:,3))
+      call OA(kDCRT,Cx(:,jAtom,iRef),Ref(:,3))
+      call OA(kDCRT,Cx(:,jAtom,iPrv),Prv(:,3))
 
       ! Form the stabilizer for (iAtom,jAtom)
 
@@ -194,9 +194,9 @@ do mAtom_=1,mAtoms
       end if
 #     endif
 
-      call OA(kDCRR,Cx(1:3,mAtom,iIter),A(1:3,2))
-      call OA(kDCRR,Cx(1:3,mAtom,iRef),Ref(1:3,2))
-      call OA(kDCRR,Cx(1:3,mAtom,iPrv),Prv(1:3,2))
+      call OA(kDCRR,Cx(:,mAtom,iIter),A(:,2))
+      call OA(kDCRR,Cx(:,mAtom,iRef),Ref(:,2))
+      call OA(kDCRR,Cx(:,mAtom,iPrv),Prv(:,2))
 
       ! Form the stabilizer for ((iAtom,mAtom),jAtom)
 
@@ -323,11 +323,11 @@ do mAtom_=1,mAtoms
 
           if (Process) then
 
-            call LBend(A,nCent,Val,Grad_all(1,nq,iIter),.false.,'        ',Hess,Proc_dB,Axis,Perp_Axis(1,k),(k == 2))
+            call LBend(A,nCent,Val,Grad_all(:,nq,iIter),.false.,'        ',Hess,Proc_dB,Axis,Perp_Axis(1,k),(k == 2))
 
             ! Flip Angle value and gradient if needed!
 
-            BB = DDot_(9,Grad_all(1,nq,iPrv),1,Grad_all(1,nq,iIter),1)
+            BB = DDot_(9,Grad_all(:,nq,iPrv),1,Grad_all(:,nq,iIter),1)
             if (BB < Zero) then
               !write(u6,*) ' Angle flips, corrected!'
               Val = Two*Pi-Val
@@ -350,7 +350,7 @@ do mAtom_=1,mAtoms
 
             ! Project the gradient vector
 
-            call ProjSym(nCent,Ind,A,iDCR,Grad_all(1,nq,iIter),Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB, &
+            call ProjSym(nCent,Ind,A,iDCR,Grad_all(:,nq,iIter),Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB, &
                          nq,rMult(nq))
 
           end if
@@ -390,11 +390,11 @@ do mAtom_=1,mAtoms
 
         if (Process) then
 
-          call Bend(A,nCent,Val,Grad_all(1,nq,iIter),.false.,.false.,'        ',Hess,Proc_dB)
+          call Bend(A,nCent,Val,Grad_all(:,nq,iIter),.false.,.false.,'        ',Hess,Proc_dB)
 
           ! Flip Angle value and gradient if needed!
 
-          BB = DDot_(9,Grad_all(1,nq,iPrv),1,Grad_all(1,nq,iIter),1)
+          BB = DDot_(9,Grad_all(:,nq,iPrv),1,Grad_all(:,nq,iIter),1)
           if (BB < Zero) then
             !write(u6,*) ' Angle flips, corrected!'
             !write(u6,*) ' iRef,iIter=', iRef,iIter
@@ -417,7 +417,7 @@ do mAtom_=1,mAtoms
 
           ! Project the gradient vector
 
-          call ProjSym(nCent,Ind,A,iDCR,Grad_all(1,nq,iIter),Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB,nq, &
+          call ProjSym(nCent,Ind,A,iDCR,Grad_all(:,nq,iIter),Hess,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,Proc_dB,nqB,nB,nq, &
                        rMult(nq))
 
         end if

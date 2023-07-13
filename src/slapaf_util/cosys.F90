@@ -15,7 +15,8 @@ use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Cent(3,3), r(3), xyz(3,2)
+real(kind=wp), intent(in) :: Cent(3,3)
+real(kind=wp), intent(out) :: r(3), xyz(3,2)
 #include "print.fh"
 integer(kind=iwp) :: i, iComp(3), iPrint, iRout, j, k, Lu, nComp
 real(kind=wp) :: Co, Crap, Fi, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si

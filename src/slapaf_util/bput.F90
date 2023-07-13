@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nX, nQQ
-real(kind=wp) :: EVec(nDim,nQQ), BMx(nX,nQQ), Degen(nX)
+integer(kind=iwp), intent(in) :: nDim, nX, nQQ
+real(kind=wp) , intent(in) :: EVec(nDim,nQQ), Degen(nX)
+real(kind=wp) , intent(out) :: BMx(nX,nQQ)
 logical(kind=iwp) :: Smmtrc(nX)
 integer(kind=iwp) :: i_Dim, iX
 

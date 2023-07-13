@@ -24,8 +24,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRow_c, nLambda, nsAtom, nStab(nsAtom)
-logical(kind=iwp) :: Remove
+integer(kind=iwp), intent(inout) :: iRow_c, nLambda
+integer(kind=iwp), intent(in) :: nsAtom, nStab(nsAtom)
+logical(kind=iwp), intent(in) :: Remove
 integer(kind=iwp) :: i, iAtom, iEnd, iEq, iFrag, iFrst, iLine, iSoft, iZMat, jAtom, Lu_TMP, Lu_UDC, nDeg, nFrag, nLabel1, nLabel2, &
                      nLabel3, nLabel4, nLines, nSoft, Num, nZMat, ZMatOffset
 logical(kind=iwp) :: Ignore, Values

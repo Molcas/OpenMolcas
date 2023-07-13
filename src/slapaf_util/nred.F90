@@ -14,9 +14,10 @@ subroutine NRed(ArrIn,ArrOut,nX,nDim,Smmtrc)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nX, nDim
-real(kind=wp) :: ArrIn(nX), ArrOut(nDim)
-logical(kind=iwp) :: Smmtrc(nX)
+integer(kind=iwp), intent(in) :: nX, nDim
+real(kind=wp), intent(in) :: ArrIn(nX)
+real(kind=wp), intent(out) :: ArrOut(nDim)
+logical(kind=iwp), intent(in) :: Smmtrc(nX)
 integer(kind=iwp) :: i_Dim, iX
 
 i_Dim = 0

@@ -26,8 +26,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nIter, nInter
-real(kind=wp) :: Delta
+integer(kind=iwp), intent(in) :: nIter, nInter
+real(kind=wp), intent(in) :: Delta
 integer(kind=iwp) :: iInter, iRowH, jInter
 real(kind=wp) :: dElement, rDum(1)
 real(kind=wp), allocatable :: H(:,:)

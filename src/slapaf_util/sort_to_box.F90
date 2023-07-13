@@ -14,8 +14,9 @@ subroutine Sort_to_Box(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,xmin,ymin,zmin,B
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms)
-real(kind=wp) :: Coor(3,nAtoms), xmin, ymin, zmin, Box_Size
+integer(kind=iwp), intent(in) :: nAtoms, nMax, nx, ny, nz, iANr(nAtoms)
+real(kind=wp), intent(in) :: Coor(3,nAtoms), xmin, ymin, zmin, Box_Size
+integer(kind=iwp), intent(out) :: iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms)
 integer(kind=iwp) :: iAtom, ix, iy, iz, Nr
 real(kind=wp) :: x, y, z
 integer(kind=iwp), external :: iTabRow

@@ -16,10 +16,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom, nInter, nIter, nWndw
-real(kind=wp) :: BMx(3*nAtom,3*nAtom), Degen(3*nAtom), rInt(nInter,nIter), Cx(3*nAtom,nIter)
-character(len=*) :: Label
-integer(kind=iwp) :: iEnd, iIter, ij, iSt, j, M, N, NRHS
+integer(kind=iwp), intent(in) :: nAtom, nInter, nIter, nWndw
+real(kind=wp), intent(in) :: BMx(3*nAtom,3*nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
+real(kind=wp), intent(inout) :: rInt(nInter,nIter)
+character(len=*), intent(in) :: Label
+integer(kind=iwp) :: iEnd, iIter, ij, iSt, j, NRHS
 real(kind=wp), allocatable :: ScrC(:)
 
 !                                                                      *
@@ -36,6 +37,8 @@ real(kind=wp), allocatable :: ScrC(:)
 !                                                                      *
 iSt = nIter
 iEnd = iSt-min(nIter,nWndw+1)+1
+!NRHS = nIter
+NRHS = iSt-iEnd+1
 if (Label == 'Values') then
   !                                                                    *
   !*********************************************************************
@@ -51,7 +54,7 @@ if (Label == 'Values') then
     end do
   end do
 
-  call DGEMM_('T','N',nInter,iSt-iEnd+1,3*nAtom,One,BMx,3*nAtom,ScrC,3*nAtom,Zero,rInt(1,iEnd),nInter)
+  call DGEMM_('T','N',nInter,NRHS,3*nAtom,One,BMx,3*nAtom,ScrC,3*nAtom,Zero,rInt(:,iEnd),nInter)
 
   call mma_deallocate(ScrC)
   !                                                                    *
@@ -61,11 +64,7 @@ else
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  M = 3*nAtom
-  N = nInter
-  !NRHS = nIter
-  NRHS = iSt-iEnd+1
-  call Eq_Solver('N',M,N,NRHS,BMx,.false.,Degen,Cx(1,iEnd),rInt(1,iEnd))
+  call Eq_Solver('N',3*nAtom,nInter,NRHS,BMx,.false.,Degen,Cx(:,iEnd),rInt(:,iEnd))
   !                                                                    *
   !*********************************************************************
   !                                                                    *

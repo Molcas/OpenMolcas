@@ -16,12 +16,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nq, nDim
 real(kind=wp) :: dB(nq,nDim,nDim)
-integer(kind=iwp) :: i_Dim, iq, jDim
+integer(kind=iwp) :: i_Dim, iq
 
 do iq=1,nQ
   write(u6,*) ' iq=',iq
   do i_Dim=1,nDim
-    write(u6,'(9F10.6)') (dB(iq,i_Dim,jDim),jDim=1,nDim)
+    write(u6,'(9F10.6)') dB(iq,i_Dim,:)
   end do
 end do
 

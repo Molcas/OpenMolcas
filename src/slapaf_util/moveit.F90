@@ -14,8 +14,9 @@ subroutine moveit(nmass,currxyz,ref123,trans,rotvec)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nMass
-real(kind=wp) :: CurrXYZ(3,nMass), Ref123(3,nMass), Trans(3), RotVec(3)
+integer(kind=iwp), intent(in) :: nMass
+real(kind=wp), intent(out) :: CurrXYZ(3,nMass)
+real(kind=wp), intent(in) :: Ref123(3,nMass), Trans(3), RotVec(3)
 real(kind=wp) :: U(3,3)
 integer(kind=iwp) :: i, imass, j
 real(kind=wp) :: rsum

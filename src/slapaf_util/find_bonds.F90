@@ -17,9 +17,9 @@ use Slapaf_Info, only: BondType
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), nBondMax, &
-                     iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
-real(kind=wp) :: Coor(3,nAtoms), ThrB
+integer(kind=iwp), intent(in) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), nBondMax
+real(kind=wp), intent(in) :: Coor(3,nAtoms), ThrB
+integer(kind=iwp), intent(out) :: iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
 integer(kind=iwp) :: iAtom, iRow, ix, iy, iz, jx, jy, jz
 real(kind=wp) :: ThrB_vdW
 integer(kind=iwp), external :: iTabRow

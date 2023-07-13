@@ -29,8 +29,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nX
-real(kind=wp) :: F(nX**2)
+integer(kind=iwp), intent(in) :: nX
+real(kind=wp), intent(out) :: F(nX**2)
 integer(kind=iwp) :: i, ii, iix, ij, ik, ix, j, jj, jjx, jx, k, nAtom, nBMx, nDoF, nHss, nInter
 real(kind=wp) :: tmp_ij
 logical(kind=iwp) :: Found

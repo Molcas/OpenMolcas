@@ -17,10 +17,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCent
-real(kind=wp) :: xyz(3,nCent), HDist, Bf(3,nCent), dBf(3,nCent,3,nCent)
-logical(kind=iwp) :: l_Write, ldB
-character(len=8) :: Label
+integer(kind=iwp), intent(in) :: nCent
+real(kind=wp), intent(in) :: xyz(3,nCent)
+real(kind=wp), intent(out) :: HDist, Bf(3,nCent)
+logical(kind=iwp), intent(in) :: l_Write, ldB
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(inout) :: dBf(3,nCent,3,nCent)
 integer(kind=iwp) :: i, iCent, nTrans
 real(kind=wp) :: f, RR_R12, SqInvTWeight, TWeight, xWeight
 logical(kind=iwp) :: lTrans

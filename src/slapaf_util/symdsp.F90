@@ -27,7 +27,7 @@ use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: SymDsp
-integer(kind=iwp) :: iBsFnc
+integer(kind=iwp), intent(in) :: iBsFnc
 integer(kind=iwp) :: i, iAcc, j, jBsFnc, mask
 integer(kind=iwp), external :: iPrmt
 

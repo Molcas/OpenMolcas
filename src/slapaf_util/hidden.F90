@@ -25,9 +25,9 @@ use Constants, only: Two, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), allocatable :: Coor(:,:)
-integer(kind=iwp), allocatable :: AN(:)
-integer(kind=iwp) :: nHidden
+real(kind=wp), allocatable, intent(inout) :: Coor(:,:)
+integer(kind=iwp), allocatable, intent(inout) :: AN(:)
+integer(kind=iwp), intent(out) :: nHidden
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtNum, iHidden, iKept, iPL, ITkQMMM, mTot, mTtAtm, nKept
 real(kind=wp) :: XYZ(3)

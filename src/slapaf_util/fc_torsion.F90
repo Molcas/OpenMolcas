@@ -17,8 +17,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: FC_Torsion
-integer(kind=iwp) :: jSet(4), nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms)
-real(kind=wp) :: Coor(3,4)
+integer(kind=iwp), intent(in) :: jSet(4), nMax, mAtoms, iTabAtoms(2,0:nMax,mAtoms)
+real(kind=wp), intent(in) :: Coor(3,4)
 integer(kind=iwp) :: i, iAtom, iAtom_, iHit, ii, jAtom, jAtom_
 real(kind=wp) :: Gij(3)
 integer(kind=iwp), parameter :: iCase(2,3) = reshape([1,2,2,3,3,4],[2,3])

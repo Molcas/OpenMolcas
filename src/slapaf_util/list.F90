@@ -24,10 +24,10 @@ subroutine List(Line,Lbl,gq,mInt,nIter)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Line
-integer(kind=iwp) :: mInt, nIter
-character(len=8) :: Lbl(mInt)
-real(kind=wp) :: gq(mInt,nIter)
+character(len=*), intent(in) :: Line
+integer(kind=iwp), intent(in) :: mInt, nIter
+character(len=8), intent(in) :: Lbl(mInt)
+real(kind=wp), intent(in) :: gq(mInt,nIter)
 integer(kind=iwp) :: i, igq, ii, inc, Lu, MxWdth, nLbl, nRow
 character(len=72) :: Frmt
 

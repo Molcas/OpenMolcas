@@ -16,7 +16,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: arSin
-real(kind=wp) :: Arg
+real(kind=wp), intent(in) :: Arg
 real(kind=wp) :: A
 character(len=72) :: Warning
 real(kind=wp), parameter :: Delta = 1.0e-12_wp

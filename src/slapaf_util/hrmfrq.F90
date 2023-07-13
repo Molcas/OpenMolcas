@@ -16,8 +16,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, nInter, iNeg, mTR
-real(kind=wp) :: dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
+integer(kind=iwp), intent(in) :: nAtom, nInter, mTR
+integer(kind=iwp), intent(out) :: iNeg
+real(kind=wp), intent(inout) :: dDipM(3,nInter+mTR)
+real(kind=wp), intent(in) :: DipM(3)
+real(kind=wp), intent(out) :: IRInt(nInter+mTR)
 integer(kind=iwp) :: iCtl, iEl, iOff, iSym, lModes, Lu_10, LUt, mDisp(8), nDisp, nDoF, nIrrep, nModes, nSym, nX
 real(kind=wp), allocatable :: EVal(:,:), EVec(:,:), NMod(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit

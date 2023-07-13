@@ -15,8 +15,9 @@ use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nInter, nIter
-real(kind=wp) :: Energy(nIter), q(nInter,nIter), dq(nInter,nIter), g(nInter,nIter), dqHdq
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(in) :: Energy(nIter)
+real(kind=wp), intent(inout) :: q(nInter,nIter), dq(nInter,nIter), g(nInter,nIter), dqHdq
 #include "print.fh"
 integer(kind=iwp) :: i, ii, iNew, iOld, iPrint, iRout, jj, nOrder
 real(kind=wp) :: A(0:4), B(4,0:3), dqdq, ENew, Fact, FVal(4), gdq, Projg(2), Test1, Test2, x0, x0g, x1, x1g, x2, x2g, x3, x3g, &

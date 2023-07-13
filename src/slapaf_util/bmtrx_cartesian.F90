@@ -19,8 +19,11 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nsAtom, nDimBC, nIter, mTtAtm, mTR, nQQ, nWndw
-real(kind=wp) :: TRVec(nDimBC,mTR), Eval(3*mTtAtm*(3*mTtAtm+1)/2), Hss_x((3*mTtAtm)**2)
+integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mTtAtm, mTR, nWndw
+real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
+real(kind=wp), intent(out) :: Eval(3*mTtAtm*(3*mTtAtm+1)/2)
+real(kind=wp), intent(inout) :: Hss_x((3*mTtAtm)**2)
+integer(kind=iwp), intent(out) :: nQQ
 integer(kind=iwp) :: i, iAtom, iInd, iInter, ij, ijTri, ik, ipFrom, iTR, ix, ixyz, j, jAtom, ji, jx, jxyz, k, kAtom, kx, kxyz
 real(kind=wp) :: Hii, Omega, Temp
 integer(kind=iwp), allocatable :: Ind(:)
@@ -263,7 +266,7 @@ else
     end do
   end do
   do iTR=1,mTR
-    iHi(iTR) = DDot_(nDimBC,TRVec(1,iTR),1,Hi(:,iTR),1)
+    iHi(iTR) = DDot_(nDimBC,TRVec(:,iTR),1,Hi(:,iTR),1)
   end do
 # ifdef _DEBUGPRINT_
   call RecPrt('Hi',' ',Hi,nDimBC,mTR)

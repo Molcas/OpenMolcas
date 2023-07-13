@@ -36,8 +36,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom
-real(kind=wp) :: Coord(3*nAtom), Ref(3*nAtom)
+integer(kind=iwp), intent(in) :: nAtom
+real(kind=wp), intent(inout) :: Coord(3*nAtom)
+real(kind=wp), intent(in) :: Ref(3*nAtom)
 integer(kind=iwp) :: i, iAdr, iAt, iChxyz, iIrrep, mAtom, nStb
 real(kind=wp) :: RMS, RMSMax
 integer(kind=iwp), allocatable :: iStab(:)

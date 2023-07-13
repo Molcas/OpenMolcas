@@ -30,11 +30,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Strng
-integer(kind=iwp) :: nCntr, mCntr, Ind(nCntr+mCntr,2)
-real(kind=wp) :: xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr)
-character(len=6) :: Typ
-character(len=8) :: Lbl
+character(len=*), intent(in) :: Strng
+integer(kind=iwp), intent(in) :: nCntr, mCntr
+real(kind=wp), intent(out) :: xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCntr+mCntr)
+integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
+character(len=6), intent(in) :: Typ
+character(len=8), intent(in) :: Lbl
 #include "print.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nAtom, nCent, nPar1, nPar2

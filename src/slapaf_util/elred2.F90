@@ -16,9 +16,11 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nq, nx, nK, nB_Tot, iBM(nB_Tot), nqB(nq)
-real(kind=wp) :: Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq), uMtrx(nX), Thr, BM(nB_Tot)
-logical(kind=iwp) :: g12K
+integer(kind=iwp), intent(in) :: nq, nx, nB_Tot, iBM(nB_Tot), nqB(nq)
+real(kind=wp), intent(out) :: Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq)
+integer(kind=iwp), intent(out) :: nK
+real(kind=wp), intent(in) :: uMtrx(nX), Thr, BM(nB_Tot)
+logical(kind=iwp), intent(in) :: g12K
 integer(kind=iwp) :: i, iB, ii, ijTri, ik, Info, iQ, j, jB, jl, k, l, LDZ, mB, nB
 real(kind=wp) :: B_ik, B_jl, rSum
 logical(kind=iwp) :: Diagonal

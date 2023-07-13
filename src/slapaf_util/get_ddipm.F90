@@ -22,8 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDoF, nInter
-real(kind=wp) :: dDipM(3,nDoF), DipM(3)
+integer(kind=iwp), intent(in) :: nDoF, nInter
+real(kind=wp), intent(inout) :: dDipM(3,nDoF)
+real(kind=wp), intent(in) :: DipM(3)
 integer(kind=iwp) :: i, iAtom, ij, iTR, iX, jAtom, jj, jjj, jx, k, nAtom, nBMx, nTR, nX
 real(kind=wp) :: CM(3), rNorm, Rx, Ry, Rz, tmp_ij, Tx, Ty, Tz
 logical(kind=iwp) :: Found

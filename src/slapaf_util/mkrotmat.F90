@@ -15,7 +15,8 @@ use Constants, only: Zero, One, Two, Six, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: RotVec(3), RotMat(3,3)
+real(kind=wp), intent(in) :: RotVec(3)
+real(kind=wp), intent(out) :: RotMat(3,3)
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: c0, c1, c2, cs, Q, rsum, sn, XN
 

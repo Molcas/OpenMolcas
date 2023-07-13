@@ -15,8 +15,11 @@ use Constants, only: Zero, One, autocm
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iNeg, nX, nDoF
-real(kind=wp) :: G(nX**2), GInv(nX**2), Tmp1(nDoF,nDoF), Tmp2(nX**2), EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF)
+integer(kind=iwp), intent(in) :: nX, nDoF
+real(kind=wp), intent(in) :: G(nX**2), GInv(nX**2)
+real(kind=wp), intent(out) :: Tmp1(nDoF,nDoF), EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF)
+real(kind=wp), intent(inout) :: Tmp2(nX**2)
+integer(kind=iwp), intent(out) :: iNeg
 integer(kind=iwp) :: iHarm, iiT, iX, jHarm, jj, jX
 real(kind=wp) :: r2, rlow, temp, Test_i, Test_j, tmp
 real(kind=wp), external :: DDot_

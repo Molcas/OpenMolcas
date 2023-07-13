@@ -29,13 +29,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Strng
-integer(kind=iwp) :: nAtom, nCntr, mCntr, Ind(nCntr+mCntr,2), lIter
-real(kind=wp) :: Vector(3,nAtom), dVector(3,nAtom,3,nAtom), Val, xyz(3,nCntr+mCntr), Grad(3,nCntr+mCntr), qMss(nCntr+mCntr), Deg, &
-                 Hess(3,nCntr+mCntr,3,nCntr+mCntr)
-character(len=6) :: Typ
-character(len=8) :: Lbl
-logical(kind=iwp) :: lWrite
+character(len=*), intent(in) :: Strng
+integer(kind=iwp), intent(in) :: nAtom, nCntr, mCntr, lIter
+real(kind=wp), intent(out) :: Vector(3,nAtom), dVector(3,nAtom,3,nAtom), Val, xyz(3,nCntr+mCntr), Grad(3,nCntr+mCntr), &
+                              qMss(nCntr+mCntr), Deg, Hess(3,nCntr+mCntr,3,nCntr+mCntr)
+integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
+character(len=6), intent(in) :: Typ
+character(len=8), intent(in) :: Lbl
+logical(kind=iwp), intent(inout) :: lWrite
 #include "print.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, lStrng, nCent, nPar1, nPar2
@@ -177,24 +178,24 @@ else if (Typ == 'Z     ') then
   Deg = D_Cart(Ind(1,1),nIrrep)
 else if (Typ == 'STRTCH') then
   call Strtch(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB)
-  Deg = D_Bond(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bond(Ind(1:2,1),Ind(1:2,2),nIrrep)
 else if (Typ == 'LBEND1') then
   call CoSys(xyz,Axis,Perp_Axis)
   call LBend(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,1),.false.)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'LBEND2') then
   call CoSys(xyz,Axis,Perp_Axis)
   call LBend(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,Axis,Perp_Axis(1,2),.true.)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'BEND  ') then
   call Bend(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-  Deg = D_Bend(Ind,Ind(1,2),nIrrep)
+  Deg = D_Bend(Ind(1:3,1),Ind(1:3,2),nIrrep)
 else if (Typ == 'TRSN  ') then
   call Trsn(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-  Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
+  Deg = D_Trsn(Ind(1:4,1),Ind(1:4,2),nIrrep)
 else if (Typ == 'OUTOFP') then
   call OutOfP(xyz,nCntr,Val,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-  Deg = D_Trsn(Ind,Ind(1,2),nIrrep)
+  Deg = D_Trsn(Ind(1:4,1),Ind(1:4,2),nIrrep)
 else if (Typ(1:3) == 'NAC') then
   call NACInt(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,lIter)
   Deg = One

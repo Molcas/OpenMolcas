@@ -20,7 +20,7 @@ use Constants, only: Zero, One, Two, Three, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu
+integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp) :: i, n
 real(kind=wp) :: aux, beta_ang, bif, deltagh, dgh, gg, gh, hh, norm_g, norm_h, peaked, sg, sh, shead, srel, st
 character(len=40) :: Description

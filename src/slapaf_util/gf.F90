@@ -17,8 +17,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nX, nDoF, nInter, iNeg, mTR, nAtom
-real(kind=wp) :: EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF), dDipM(3,nInter+mTR), DipM(3)
+integer(kind=iwp), intent(in) :: nX, nDoF, nInter, mTR, nAtom
+real(kind=wp), intent(out) :: EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF)
+integer(kind=iwp), intent(out) :: iNeg
+real(kind=wp), intent(inout) :: dDipM(3,nInter+mTR)
+real(kind=wp), intent(in) :: DipM(3)
 integer(kind=iwp) :: i, iAtom, iNC, ix, ixyz, iy, iz
 real(kind=wp), allocatable :: F(:), G(:), GInv(:), Tmp1(:), Tmp2(:)
 

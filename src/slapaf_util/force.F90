@@ -18,10 +18,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nFix, nAtom, nInter, Iter
-real(kind=wp) :: GrdX(3*nAtom), BMx(3*nAtom,3*nAtom), Grad(nInter,Iter), Degen(3*nAtom)
-character(len=8) :: Lbl(nInter)
-integer(kind=iwp) :: M, N, NRHS
+integer(kind=iwp), intent(in) :: nFix, nAtom, nInter, Iter
+real(kind=wp), intent(inout) :: GrdX(3*nAtom), Grad(nInter,Iter)
+real(kind=wp), intent(in) :: BMx(3*nAtom,3*nAtom), Degen(3*nAtom)
+character(len=8), intent(in) :: Lbl(nInter)
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: Frc(:)
 
@@ -50,19 +50,16 @@ Frc(:) = Degen(:)*GrdX(:)
 !
 ! B dE/dq = dE/dx
 
-M = 3*nAtom
-N = nInter
-NRHS = 1
-call Eq_Solver('N',M,N,NRHS,BMx,.true.,Dummy,Frc,Grad(1,Iter))
+call Eq_Solver('N',3*nAtom,nInter,1,BMx,.true.,Dummy,Frc,Grad(:,Iter))
 #ifdef _DEBUGPRINT_
-call RecPrt(' Internal Forces in au before FIXIC ',' ',Grad(1,Iter),nInter,1)
+call RecPrt(' Internal Forces in au before FIXIC ',' ',Grad(:,Iter),nInter,1)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Remove gradient components in the constraints directions.
 
-if (nFix /= 0) call Fixic(nFix,Grad(1,Iter),nInter,BMx,nAtom*3,GrdX,Lbl,Degen)
+if (nFix /= 0) call Fixic(nFix,Grad(:,Iter),nInter,BMx,nAtom*3,GrdX,Lbl,Degen)
 
 ! Write cartesian symmetry distinct forces which will be relaxed.
 

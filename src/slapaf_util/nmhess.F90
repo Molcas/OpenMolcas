@@ -21,14 +21,14 @@ subroutine NmHess(dq,nInter,g,nIter,Hess,Delta,q,FEq,Cubic,DipM,dDipM)
 !             May '92                                                  *
 !***********************************************************************
 
-use Constants, only: Two, Six
+use Constants, only: Two, Six, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter, nIter
-real(kind=wp) :: dq(nInter,nIter), g(nInter,nIter), Hess(nInter,nInter), Delta, q(nInter,nIter+1), FEq(nInter,nInter,nInter), &
-                 DipM(3,nIter), dDipM(3,nInter)
-logical(kind=iwp) :: Cubic
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter), Delta, q(nInter,nIter+1), DipM(3,nIter)
+logical(kind=iwp), intent(in) :: Cubic
+real(kind=wp), intent(out) :: Hess(nInter,nInter), FEq(merge(nInter,0,Cubic),nInter,nInter), dDipM(3,nInter)
 #include "print.fh"
 integer(kind=iwp) :: iCount, iInter, iPrint, iRout, jInter, kInter, kIter, kIter1, kIter2, kIter3, kIter4
 
@@ -50,9 +50,7 @@ do iInter=1,nInter
   kIter1 = kIter+1
   kIter2 = kIter+2
   !write(u6,*) kIter1,kIter2
-  dDipM(1,iInter) = (DipM(1,kIter1)-DipM(1,kIter2))/(Two*Delta)
-  dDipM(2,iInter) = (DipM(2,kIter1)-DipM(2,kIter2))/(Two*Delta)
-  dDipM(3,iInter) = (DipM(3,kIter1)-DipM(3,kIter2))/(Two*Delta)
+  dDipM(:,iInter) = (DipM(:,kIter1)-DipM(:,kIter2))/(Two*Delta)
 end do
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -64,16 +62,14 @@ call RecPrt('dDipM',' ',dDipM,3,nInter)
 !                                                                      *
 ! Evaluate the Hessian
 
-do iInter=1,nInter
-  do jInter=1,nInter
-    kIter = 1+(jInter-1)*2
-    kIter1 = kIter+1
-    kIter2 = kIter+2
-    !write(u6,*) iInter,jInter,kIter1,kIter2
-    ! Observe the sign convention due to the use of forces
-    ! rather than gradients!!!
-    Hess(iInter,jInter) = -(g(iInter,kIter1)-g(iInter,kIter2))/(Two*Delta)
-  end do
+do jInter=1,nInter
+  kIter = 1+(jInter-1)*2
+  kIter1 = kIter+1
+  kIter2 = kIter+2
+  !write(u6,*) jInter,kIter1,kIter2
+  ! Observe the sign convention due to the use of forces
+  ! rather than gradients!!!
+  Hess(:,jInter) = -(g(:,kIter1)-g(:,kIter2))/(Two*Delta)
 end do
 if (iPrint >= 99) call RecPrt(' Numerical Hessian',' ',Hess,nInter,nInter)
 
@@ -81,7 +77,7 @@ if (iPrint >= 99) call RecPrt(' Numerical Hessian',' ',Hess,nInter,nInter)
 
 do iInter=1,nInter
   do jInter=1,iInter-1
-    Hess(iInter,jInter) = (Hess(iInter,jInter)+Hess(jInter,iInter))/Two
+    Hess(iInter,jInter) = (Hess(iInter,jInter)+Hess(jInter,iInter))*Half
     Hess(jInter,iInter) = Hess(iInter,jInter)
   end do
 end do
@@ -95,33 +91,29 @@ if (Cubic) then
 
   ! F(i,j,j)
 
-  do iInter=1,nInter
-    do jInter=1,nInter
-      kIter = 1+(jInter-1)*2
-      kIter1 = kIter+1
-      kIter2 = kIter+2
-      ! Observe the sign convention due to the use of forces
-      ! rather than gradients!!!
-      FEq(iInter,jInter,jInter) = -(g(iInter,kIter1)+g(iInter,kIter2))/(Delta**2)
-    end do
+  do jInter=1,nInter
+    kIter = 1+(jInter-1)*2
+    kIter1 = kIter+1
+    kIter2 = kIter+2
+    ! Observe the sign convention due to the use of forces
+    ! rather than gradients!!!
+    FEq(:,jInter,jInter) = -(g(:,kIter1)+g(:,kIter2))/(Delta**2)
   end do
 
   ! F(i,j,k); j>k
 
-  do iInter=1,nInter
-    iCount = 0
-    do jInter=1,nInter
-      do kInter=1,jInter-1
-        iCount = iCount+1
-        kIter = 1+2*nInter+(iCount-1)*4
-        kIter1 = kIter+1
-        kIter2 = kIter+2
-        kIter3 = kIter+3
-        kIter4 = kIter+4
-        ! Observe the sign convention due to the use of forces
-        ! rather than gradients!!!
-        FEq(iInter,jInter,kInter) = -(g(iInter,kIter1)-g(iInter,kIter2)-g(iInter,kIter3)+g(iInter,kIter4))/(Two*Delta)**2
-      end do
+  iCount = 0
+  do jInter=1,nInter
+    do kInter=1,jInter-1
+      iCount = iCount+1
+      kIter = 1+2*nInter+(iCount-1)*4
+      kIter1 = kIter+1
+      kIter2 = kIter+2
+      kIter3 = kIter+3
+      kIter4 = kIter+4
+      ! Observe the sign convention due to the use of forces
+      ! rather than gradients!!!
+      FEq(:,jInter,kInter) = -(g(:,kIter1)-g(:,kIter2)-g(:,kIter3)+g(:,kIter4))/(Two*Delta)**2
     end do
   end do
 

@@ -16,7 +16,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nCoBond
-integer(kind=iwp) :: iAtom, nAtoms, nMax, nBondMax, iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
+integer(kind=iwp), intent(in) :: iAtom, nAtoms, nMax, nBondMax, iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 integer(kind=iwp) :: i, nn
 
 !                                                                      *

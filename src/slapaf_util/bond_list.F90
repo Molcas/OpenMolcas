@@ -19,11 +19,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, LuIC, Indq(3,nB), nBonds, iTabBonds(3,nBonds), mAtoms, iTabAI(2,mAtoms), &
-                     mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_Tot, idBM(2,ndB_Tot), mqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, LuIC, nBonds, iTabBonds(3,nBonds), mAtoms, iTabAI(2,mAtoms), nB_Tot, &
+                                 ndB_Tot
+integer(kind=iwp), intent(inout) :: nq, Indq(3,nB), mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+character(len=14), intent(inout) :: qLbl(nB)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 2*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
@@ -102,8 +104,8 @@ do iBond=1,nBonds
     write(Label,'(A,I2,A,I2,A)') 'B(',iAtom,',',jAtom,')'
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
-    call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
+    call RecPrt('A',' ',Cx(:,iAtom,iIter),1,3)
+    call RecPrt('B',' ',Cx(:,jAtom,iIter),1,3)
 #   endif
 
 
@@ -119,7 +121,7 @@ do iBond=1,nBonds
     write(u6,'(2A)') 'R=',ChOp(iDCR(2))
 #   endif
 
-    call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
+    call OA(iDCR(2),Cx(:,jAtom,iIter),A(:,2))
 
     ! Compute the stabilizer of A & R(B), this is done in two ways.
     !

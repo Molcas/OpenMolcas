@@ -21,11 +21,11 @@ use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim, N1, N2
-character(len=*) :: TEXT, Chr(nDim)
-real(kind=wp) :: FI(N1,N2)
-logical(kind=iwp) :: lAngstroms
-integer(kind=iwp) :: I, J, Lu
+integer(kind=iwp), intent(in) :: nDim, N1, N2
+character(len=*), intent(in) :: TEXT, Chr(nDim)
+real(kind=wp), intent(in) :: FI(N1,N2)
+logical(kind=iwp), intent(in) :: lAngstroms
+integer(kind=iwp) :: I, Lu
 
 Lu = u6
 write(Lu,*)
@@ -35,9 +35,9 @@ write(Lu,*) '*********************************************************'
 write(Lu,*) ' ATOM              X               Y               Z     '
 do I=1,NDIM
   if (lAngstroms) then
-    write(Lu,300) Chr(I),(FI(J,I)*Angstrom,J=1,3)
+    write(Lu,300) Chr(I),FI(1:3,I)*Angstrom
   else
-    write(Lu,300) Chr(I),(FI(J,I),J=1,3)
+    write(Lu,300) Chr(I),FI(1:3,I)
   end if
 end do
 

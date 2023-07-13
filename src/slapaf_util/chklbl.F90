@@ -14,8 +14,8 @@ subroutine ChkLbl(Lbl,List,nList)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nList
-character(len=*) :: Lbl, List(nList)
+integer(kind=iwp), intent(in) :: nList
+character(len=*), intent(in) :: Lbl, List(nList)
 integer(kind=iwp) :: iList
 character(len=72) :: Warning
 

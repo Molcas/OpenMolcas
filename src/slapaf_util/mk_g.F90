@@ -16,8 +16,8 @@ use Constants, only: Zero, One, uToau
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDimBC
-real(kind=wp) :: G(nDimBC,nDimBC), GInv(nDimBC,nDimBC)
+integer(kind=iwp), intent(in) :: nDimBC
+real(kind=wp), intent(out) :: G(nDimBC,nDimBC), GInv(nDimBC,nDimBC)
 integer(kind=iwp) :: i, ii, ix, nsAtom
 logical(kind=iwp) :: Auto
 
@@ -40,7 +40,7 @@ do i=1,nsAtom
       else
         G(ii,ii) = One/(Degen(ix,i)*dMass(i))
       end if
-      GInv(ii,ii) = One/(G(ii,ii)*UTOAU)
+      GInv(ii,ii) = One/(G(ii,ii)*uToau)
     end if
   end do
 end do

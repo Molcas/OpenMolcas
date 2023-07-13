@@ -24,9 +24,10 @@ use Constants, only: Four, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nx, ny, nz, nMax, iTab(0:nMax,nx,ny,nz), ix, iy, iz, iAtom, iRow, iANr(nAtoms), nBondMax, &
-                     iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
-real(kind=wp) :: Coor(3,nAtoms), ThrB, ThrB_vdW
+integer(kind=iwp), intent(in) :: nAtoms, nx, ny, nz, nMax, iTab(0:nMax,nx,ny,nz), ix, iy, iz, iAtom, iANr(nAtoms), nBondMax
+real(kind=wp), intent(in) :: Coor(3,nAtoms), ThrB, ThrB_vdW
+integer(kind=iwp), intent(out) :: iRow
+integer(kind=iwp), intent(inout) :: iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:nMax,nAtoms)
 integer(kind=iwp) :: i, Ir, ivdW, jAtom, jRow, nn, nNeighbor, Nr, nVal_i, nVal_j
 real(kind=wp) :: alpha, r0, r0_vdw, Rab, RabCov, rij2, test, test_vdw, x, y, z
 #ifndef _OLD_CODE_

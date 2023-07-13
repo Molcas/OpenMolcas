@@ -27,7 +27,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: lOld_Implicit
+logical(kind=iwp), intent(inout) :: lOld_Implicit
 integer(kind=iwp) :: nHess, nQQ
 real(kind=wp) :: rDum(1)
 logical(kind=iwp) :: Found_IRC, Hess_Found

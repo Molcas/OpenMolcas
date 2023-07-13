@@ -20,8 +20,9 @@ use Constants, only: Zero, One, Two, Ten, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
-real(kind=wp) :: Cart(3,mTtAtm), Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+integer(kind=iwp), intent(in) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
+real(kind=wp), intent(in) :: Cart(3,mTtAtm)
+real(kind=wp), intent(out) :: Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
 integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
                      jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
                      mr, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
@@ -355,9 +356,9 @@ if (nBonds >= 2) then
       if (iBondType > Magic_Bond) cycle
       ir = iTabRow(iANr(iAtom))
 
-      xmi = (Cart(1,iAtom)-Cart(1,mAtom))
-      ymi = (Cart(2,iAtom)-Cart(2,mAtom))
-      zmi = (Cart(3,iAtom)-Cart(3,mAtom))
+      xmi = Cart(1,iAtom)-Cart(1,mAtom)
+      ymi = Cart(2,iAtom)-Cart(2,mAtom)
+      zmi = Cart(3,iAtom)-Cart(3,mAtom)
       rmi2 = xmi**2+ymi**2+zmi**2
       rmi = sqrt(rmi2)
 
@@ -369,9 +370,9 @@ if (nBonds >= 2) then
         jr = iTabRow(iANr(jAtom))
         Help = (mr > 3) .or. (ir > 3) .or. (jr > 3)
 
-        xmj = (Cart(1,jAtom)-Cart(1,mAtom))
-        ymj = (Cart(2,jAtom)-Cart(2,mAtom))
-        zmj = (Cart(3,jAtom)-Cart(3,mAtom))
+        xmj = Cart(1,jAtom)-Cart(1,mAtom)
+        ymj = Cart(2,jAtom)-Cart(2,mAtom)
+        zmj = Cart(3,jAtom)-Cart(3,mAtom)
         rmj2 = xmj**2+ymj**2+zmj**2
         rmj = sqrt(rmj2)
 
@@ -381,9 +382,9 @@ if (nBonds >= 2) then
         Test_zero = Test_zero/(rmi*rmj)
         if (abs(Test_zero-One) < 1.0e-12_wp) cycle
 
-        xij = (Cart(1,jAtom)-Cart(1,iAtom))
-        yij = (Cart(2,jAtom)-Cart(2,iAtom))
-        zij = (Cart(3,jAtom)-Cart(3,iAtom))
+        xij = Cart(1,jAtom)-Cart(1,iAtom)
+        yij = Cart(2,jAtom)-Cart(2,iAtom)
+        zij = Cart(3,jAtom)-Cart(3,iAtom)
         rij2 = xij**2+yij**2+zij**2
         rrij = sqrt(rij2)
 

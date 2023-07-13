@@ -25,12 +25,13 @@ use Constants, only: Zero, Pi, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nq, nsAtom, iIter, nIter, nB, iRef, LuIC, Indq(3,nB), iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
-                     iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), mB_Tot, mdB_Tot, nB_Tot, iBM(nB_Tot), ndB_tot, &
-                     idBM(2,ndB_Tot), nqB(nB)
-real(kind=wp) :: Cx(3,nsAtom,nIter), Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
-logical(kind=iwp) :: Process, Proc_dB
-character(len=14) :: qLbl(nB)
+integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
+                                 iTabAI(2,mAtoms), nMax, iTabAtoms(2,0:nMax,mAtoms), nB_Tot, ndB_tot
+integer(kind=iwp), intent(inout) :: nq, Indq(3,nB), mB_Tot, mdB_Tot, iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
+logical(kind=iwp), intent(in) :: Process, Proc_dB
+real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
+character(len=14), intent(inout) :: qLbl(nB)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 4*3
 integer(kind=iwp) :: iAtom, iAtom_, iCase, iDCR(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRX(0:7), iDCRY(0:7), iDeg, iE1, iE2, &
@@ -139,9 +140,9 @@ do jBond=1,nBonds
     end if
 #   endif
 
-    call OA(kDCRR,Cx(1:3,jAtom,iIter),A(1:3,1))
-    call OA(kDCRR,Cx(1:3,jAtom,iRef),Ref(1:3,1))
-    call OA(kDCRR,Cx(1:3,jAtom,iPrv),Prv(1:3,1))
+    call OA(kDCRR,Cx(:,jAtom,iIter),A(:,1))
+    call OA(kDCRR,Cx(:,jAtom,iRef),Ref(:,1))
+    call OA(kDCRR,Cx(:,jAtom,iPrv),Prv(:,1))
 
     ! Form stabilizer for (iAtom,jAtom)
 
@@ -250,10 +251,10 @@ do jBond=1,nBonds
         end if
 #       endif
 
-        Ref(1:3,2) = Cx(1:3,kAtom,iRef)
-        call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,3))
-        Prv(1:3,2) = Cx(1:3,kAtom,iPrv)
-        call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,3))
+        Ref(:,2) = Cx(:,kAtom,iRef)
+        call OA(kDCRS,Cx(:,lAtom,iRef),Ref(:,3))
+        Prv(:,2) = Cx(:,kAtom,iPrv)
+        call OA(kDCRS,Cx(:,lAtom,iPrv),Prv(:,3))
 
         ! Form stabilizer for (kAtom,lAtom)
 
@@ -294,12 +295,12 @@ do jBond=1,nBonds
         end if
 #       endif
 
-        call OA(kDCRT,Cx(1:3,kAtom,iIter),A(1:3,2))
-        call OA(kDCRT,Cx(1:3,kAtom,iRef),Ref(1:3,2))
-        call OA(kDCRT,Cx(1:3,kAtom,iPrv),Prv(1:3,2))
-        call OA(kDCRTS,Cx(1:3,lAtom,iIter),A(1:3,3))
-        call OA(kDCRTS,Cx(1:3,lAtom,iRef),Ref(1:3,3))
-        call OA(kDCRTS,Cx(1:3,lAtom,iPrv),Prv(1:3,3))
+        call OA(kDCRT,Cx(:,kAtom,iIter),A(:,2))
+        call OA(kDCRT,Cx(:,kAtom,iRef),Ref(:,2))
+        call OA(kDCRT,Cx(:,kAtom,iPrv),Prv(:,2))
+        call OA(kDCRTS,Cx(:,lAtom,iIter),A(:,3))
+        call OA(kDCRTS,Cx(:,lAtom,iRef),Ref(:,3))
+        call OA(kDCRTS,Cx(:,lAtom,iPrv),Prv(:,3))
 
         ! Form the stabilizer for the out-of-plane
 
