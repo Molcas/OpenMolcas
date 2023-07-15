@@ -23,6 +23,7 @@ subroutine BMtrx_Internal(nsAtom,nDimBC,nIter,mAtoms,iIter,mTR,TRVec,iTabAI,iTab
 !              2004                                                    *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Slapaf_Info, only: Analytic_Hessian, BM, BMx, BSet, Cx, dBM, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, HWRS, iBM, idBM, iOptC, &
                        KtB, lOld, MaxItr, mB_Tot, mdB_Tot, mq, NAC, nqBM, Numerical, PrQ, qInt, Smmtrc
 use Kriging_Mod, only: nSet
@@ -278,7 +279,7 @@ end do
 !                                                                      *
 if (BSet) then
   call mma_allocate(G,nq*nq,Label='G')
-  call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
+  call mma_allocate(EVal,nTri_Elem(nq),Label='EVal')
   call ElRed2(nq,nDimBC,G,EVal,K,nK,Proj,g12K,Thr_ElRed,BM,iBM,mB_Tot,nqBM)
 
   if (nK > nQQ) call Remove_TR(nq,nDimBC,nQQ,K,nK,TRVec,mTR,BM,iBM,nqBM,mB_Tot)

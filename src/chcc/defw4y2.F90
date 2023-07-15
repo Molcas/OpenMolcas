@@ -40,7 +40,7 @@ do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
     dSGrpUp = GrpaUp(dGrp)
   end if
   do dSGrp=GrpaLow(dGrp),dSGrpUp
-    cdSGrp = nTri_ELem(cSGrp-1)+dSGrp
+    cdSGrp = nTri_Elem(cSGrp-1)+dSGrp
     if (InqW4(abSGrp,cdSGrp)) w4y = w4y+1
   end do
 end do

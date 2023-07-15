@@ -11,13 +11,14 @@
 
 subroutine Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nH, nq, LuTmp
-real(kind=wp), intent(in) :: EVec(nH,nH), EVal(nH*(nH+1)/2)
+real(kind=wp), intent(in) :: EVec(nH,nH), EVal(nTri_Elem(nH))
 real(kind=wp), intent(out) :: rK(nq,nH), qEVec(nq,nH)
 integer(kind=iwp) :: iiQQ, IncQQ, iq, iQQ, Lu, mQQ
 real(kind=wp) :: temp
@@ -39,7 +40,7 @@ do iiQQ=1,nH,IncQQ
   mQQ = min(nH,iiQQ+IncQQ-1)
   write(Lu,*)
   write(Lu,'(14X,5I10)') (iQQ,iQQ=iiQQ,mQQ)
-  write(Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',(EVal(iQQ*(iQQ+1)/2),iQQ=iiQQ,mQQ)
+  write(Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',(EVal(nTri_Elem(iQQ)),iQQ=iiQQ,mQQ)
   write(Lu,*)
   do iq=1,nq
     temp = sqrt(DDot_(nH,qEVec(iq,1),nq,qEVec(iq,1),nq))

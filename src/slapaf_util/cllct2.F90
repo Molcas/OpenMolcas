@@ -23,7 +23,6 @@ subroutine Cllct2(Strng,Vector,dVector,Val,nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,qM
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Cx, dMass
-use Slapaf_procedures, only: SphInt
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -46,7 +45,6 @@ character(len=LenIn) :: AtName
 character(len=3) :: Oper
 logical(kind=iwp) :: ldB, lWarn
 integer(kind=iwp), allocatable :: iDCR(:)
-real(kind=wp), allocatable :: Not_Allocated(:,:)
 real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn
 
 !                                                                      *
@@ -203,7 +201,7 @@ else if (Typ(1:5) == 'EDIFF') then
   call ConInt(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB,lIter)
   Deg = One
 else if (Typ(1:6) == 'SPHERE') then
-  call SphInt(xyz,nCntr,Not_Allocated,Val,Grad,lWrite,Lbl,Hess,ldB)
+  call SphInt(xyz,nCntr,xyz,.false.,Val,Grad,lWrite,Lbl,Hess,ldB)
   Deg = One
 else if (Typ(1:6) == 'TRANSV') then
   call Transverse(xyz,nCntr,Val,Grad,lWrite,Lbl,Hess,ldB)

@@ -18,7 +18,6 @@ public :: Box, Hidden, OldFCM, SphInt
 contains
 
 #define _IN_MODULE_
-#include "sphint.F90"
 #include "box.F90"
 #include "hidden.F90"
 #include "oldfcm.F90"

@@ -11,6 +11,7 @@
 
 subroutine GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,EVec,EVal,RedM,iNeg,nX,nDoF)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, autocm
 use Definitions, only: wp, iwp
 
@@ -40,7 +41,7 @@ EVec(:,:,:) = Zero
 ! Cartesians.
 
 do iX=1,nDoF
-  iiT = iX*(iX+1)/2
+  iiT = nTri_Elem(iX)
   EVal(1,iX) = Tmp2(iiT)
   EVec(1,:,iX) = Tmp1(:,iX)
 

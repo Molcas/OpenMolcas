@@ -13,13 +13,14 @@
 #ifdef _DEBUGPRINT_
 subroutine DiagMtrx_T(H,nH,iNeg)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nH
-real(kind=wp), intent(in) :: H(nH*(nH+1)/2)
+real(kind=wp), intent(in) :: H(nTri_Elem(nH))
 integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
 integer(kind=iwp) :: i, iprint, iRout, j, Lu, LuTmp, nq, nQQ
@@ -31,8 +32,8 @@ Lu = u6
 iRout = 22
 iprint = nPrint(iRout)
 
-call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
-call mma_allocate(EVec,nH*nH,Label='EVec')
+call mma_allocate(EVal,nTri_Elem(nH),Label='EVal')
+call mma_allocate(EVec,nH**2,Label='EVec')
 
 ! Copy elements for H
 
@@ -51,13 +52,13 @@ call Jacord(EVal,EVec,nH,nH)
 
 iNeg = 0
 do i=1,nH
-  if (EVal(i*(i+1)/2) < Zero) iNeg = iNeg+1
+  if (EVal(nTri_Elem(i)) < Zero) iNeg = iNeg+1
 end do
 if (iprint > 5) then
   write(Lu,*)
   write(Lu,*) 'Eigenvalues of the Hessian'
   write(Lu,*)
-  write(Lu,'(5G20.6)') (EVal(i*(i+1)/2),i=1,nH)
+  write(Lu,'(5G20.6)') (EVal(nTri_Elem(i)),i=1,nH)
 end if
 
 call f_Inquire('SPCINX',Exists)

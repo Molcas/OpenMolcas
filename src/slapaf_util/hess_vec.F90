@@ -11,12 +11,13 @@
 
 subroutine Hess_Vec(nAtoms,Hess,EVec,nDim)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nDim
-real(kind=wp), intent(inout) :: Hess(3*nAtoms*(3*nAtoms+1)/2)
+real(kind=wp), intent(inout) :: Hess(nTri_Elem(3*nAtoms))
 real(kind=wp), intent(out) :: EVec(nDim,nDim)
 integer(kind=iwp) :: iElem, iQ, nQ
 real(kind=wp) :: rZ

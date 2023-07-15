@@ -100,7 +100,7 @@ if (Proc_dB) then
               end do
 
               mdB_Tot = mdB_Tot+1
-              dBM(mdB_Tot) = rMult* Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
+              dBM(mdB_Tot) = rMult*Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
               idBM(1,mdB_Tot) = i_Dim
               idBM(2,mdB_Tot) = jDim
 

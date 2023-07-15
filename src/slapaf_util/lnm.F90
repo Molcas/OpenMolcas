@@ -11,6 +11,7 @@
 
 subroutine LNM(Cart,mTtAtm,Hess,Scrt1,Scrt2,Vctrs,nsAtom,nDim,iAnr,nIter,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: nIrrep
 use Slapaf_Info, only: Analytic_Hessian, Degen, iOptH, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -21,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: mTtAtm, nsAtom, nDim, nHidden, iANr(mTtAtm+nHidden), nIter, nBonds, iTabBonds(3,nBonds), nMax, &
                                  iTabAtoms(2,0:nMax,mTtAtm+nHidden)
 real(kind=wp), intent(in) :: Cart(3,mTtAtm+nHidden), Vctrs(3*mTtAtm,nDim)
-real(kind=wp), intent(out) :: Hess(3*mTtAtm*(3*mTtAtm+1)/2), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2)
+real(kind=wp), intent(out) :: Hess(nTri_Elem(3*mTtAtm)), Scrt1((3*mTtAtm)**2), Scrt2((3*mTtAtm)**2)
 integer(kind=iwp) :: i, iAtom, ii, ij, ijTri, IterHess, ix, ixyz, j, jAtom, ji, jj, jxyz, Len3, Length, nRP
 real(kind=wp) :: eigen, Tmp
 logical(kind=iwp) :: Found, RunOld
@@ -56,7 +57,7 @@ if (Analytic_Hessian) then
   ! The Hessian matrix is read in the basis of the symmetric displacements.
 
   Len3 = ndim
-  Len3 = Len3*(Len3+1)/2
+  Len3 = nTri_Elem(Len3)
 
   call qpg_dArray('Analytic Hessian',Found,Length)
   if (Found) then
@@ -93,7 +94,7 @@ if (Analytic_Hessian) then
         jxyz = j-(jAtom-1)*3
         if (Smmtrc(jxyz,jAtom)) then
           jj = jj+1
-          ijTri = ii*(ii-1)/2+jj
+          ijTri = nTri_Elem(ii-1)+jj
           ij = (jj-1)*ndim+ii
           ji = (ii-1)*ndim+jj
           Tmp = Hess(ijTri)*sqrt(degen(ixyz,iAtom)*degen(jxyz,jAtom))
@@ -134,7 +135,7 @@ else   ! Use the Hessian Model Function
 
   do i=1,3*mTtAtm
     do j=1,i
-      ijTri = i*(i-1)/2+j
+      ijTri = nTri_Elem(i-1)+j
       ij = (j-1)*(3*mTtAtm)+i
       ji = (i-1)*(3*mTtAtm)+j
       Scrt1(ij) = Hess(ijTri)
@@ -228,7 +229,7 @@ end if
 do j=1,nDim
   do i=1,j
     ij = (j-1)*nDim+i
-    ijTri = i*(i-1)/2+j
+    ijTri = nTri_Elem(i-1)+j
     Hess(ijTri) = Scrt1(ij)
   end do
 end do

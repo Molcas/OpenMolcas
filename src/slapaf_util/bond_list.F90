@@ -108,7 +108,6 @@ do iBond=1,nBonds
     call RecPrt('B',' ',Cx(:,jAtom,iIter),1,3)
 #   endif
 
-
     ! Form double coset representatives
 
     call DCR(Lambda,jStab(0,iAtom),nStab(iAtom),jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
@@ -187,7 +186,7 @@ do iBond=1,nBonds
         !  ! Bond a la Fischer & Almlof
         f_Const = A_StrH(1)*exp(-A_StrH(2)*(Rab-RabCov))
         !else
-        !  ij = Max(iRow,jRow)*(Max(iRow,jRow)+1)/2+Min(iRow,jRow)
+        !  ij = iTri(iRow+1,jRow+1)-1
         !  f_Const = A_Str/(Rab-B_Str(ij))**3
         !end if
       else

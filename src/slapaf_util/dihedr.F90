@@ -104,7 +104,7 @@ do ic=1,mCentr
           write(Lu,'(10X,A)') ' ***************************************************************'
           write(Lu,'(7X,A)') '             Atom centers                       Phi1     Phi2     Theta '
         end if
-        write(Lu,'(10X,4(I2,1X,A,2X),1X,3(F7.2,2X))')kc,Lbls(kc),ic,Lbls(ic),jc,Lbls(jc),lc,Lbls(lc),Phi1,Phi2,Phi12
+        write(Lu,'(10X,4(I2,1X,A,2X),1X,3(F7.2,2X))') kc,Lbls(kc),ic,Lbls(ic),jc,Lbls(jc),lc,Lbls(lc),Phi1,Phi2,Phi12
       end do
     end do
   end do

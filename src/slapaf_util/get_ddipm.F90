@@ -111,7 +111,7 @@ do iX=mTR,1,-1
 
   if ((Rx**2+Ry**2+Rz**2 < thr) .and. (Tx**2+Ty**2+Tz**2 > thr)) then
 
-  ! Translation, dipole moment invariant to translation
+    ! Translation, dipole moment invariant to translation
 
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Translation'

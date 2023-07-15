@@ -32,13 +32,14 @@
 
 subroutine Davidson(A,n,k,Eig,Vec,iRC)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, k
-real(kind=wp), intent(in) :: A(n*(n+1)/2)
+real(kind=wp), intent(in) :: A(nTri_Elem(n))
 real(kind=wp), intent(out) :: Eig(k)
 real(kind=wp), intent(inout) :: Vec(n,k)
 integer(kind=iwp), intent(out) :: iRC
@@ -84,7 +85,7 @@ if (mk >= n) then
   call mma_allocate(Vec2,n*n,Label='Vec2')
   do j=1,n
     jj = (j-1)*n
-    Vec2(jj+1:jj+j) = A(j*(j-1)/2+1:j*(j+1)/2)
+    Vec2(jj+1:jj+j) = A(nTri_Elem(j-1)+1:nTri_Elem(j))
   end do
   call dsyev_('V','U',n,Vec2,n,Val,rDum,-1,info)
   nTmp = int(rDum(1))
@@ -131,12 +132,12 @@ do i=1,n
 end do
 do i=1,n
   ii = Indx(i)
-  Aux = A(ii*(ii+1)/2)
+  Aux = A(nTri_Elem(ii))
   ii = i
   do j=i,n
     jj = Indx(j)
-    if (A(jj*(jj+1)/2) < Aux) then
-      Aux = A(jj*(jj+1)/2)
+    if (A(nTri_Elem(jj)) < Aux) then
+      Aux = A(nTri_Elem(jj))
       ii = j
     end if
   end do
@@ -205,9 +206,9 @@ do while (.not. Last)
   call mma_allocate(Tmp,n,Label='Tmp')
   do i=1,n
     ! Reconstruct a row (or column) of the matrix A
-    Tmp(1:i) = A(i*(i-1)/2+1:i*(i+1)/2)
+    Tmp(1:i) = A(nTri_Elem(i-1)+1:nTri_Elem(i))
     do j=i+1,n
-      Tmp(j) = A(j*(j-1)/2+i)
+      Tmp(j) = A(nTri_Elem(j-1)+i)
     end do
     ! Compute the i-th element of each new column
     do j=old_mk,mk-1
@@ -362,7 +363,7 @@ do while (.not. Last)
 #     if DAV_METH == DAV_DPR
       ! Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
       do j=1,n
-        Aux = A(j*(j+1)/2)-Eval(1+i)
+        Aux = A(nTri_Elem(j))-Eval(1+i)
         Diag(j) = One/sign(max(abs(Aux),Thr2),Aux)
       end do
       ! scale
@@ -370,7 +371,7 @@ do while (.not. Last)
 #     elif DAV_METH == DAV_IIGD
       ! Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
       do j=1,n
-        Aux = A(j*(j+1)/2)-EVal(1+i)
+        Aux = A(nTri_Elem(j))-EVal(1+i)
         Diag(j) = One/sign(max(abs(Aux),Thr2),Aux)
       end do
       ! scale
@@ -396,7 +397,7 @@ do while (.not. Last)
         ! e = Val(i); |P> = A|v>
         Aux = DDot_(n,TVec,1,TAV,1)
         do kk=0,n-1
-          ll = kk*(kk+1)/2
+          ll = nTri_Elem(kk)
           do ii=0,kk
             P1(1+ii*n+kk) = A(ll+ii+1)+(Aux+EVal(1+i))*TVec(1+ii)*TVec(1+kk)-TAV(1+ii)*TVec(1+kk)-TAV(1+kk)*TVec(1+ii)
           end do

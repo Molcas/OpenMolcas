@@ -11,6 +11,7 @@
 
 subroutine DiagMtrx(H,nH,iNeg)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -30,15 +31,15 @@ Lu = u6
 iRout = 21
 iPrint = nPrint(iRout)
 
-call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
-call mma_allocate(EVec,nH*nH,Label='EVec')
+call mma_allocate(EVal,nTri_Elem(nH),Label='EVal')
+call mma_allocate(EVec,nH**2,Label='EVec')
 
 ! Copy elements for H
 
 SumHii = Zero
 do i=1,nH
   do j=1,i
-    ij = i*(i-1)/2+j
+    ij = nTri_Elem(i-1)+j
     EVal(ij) = H(i,j)
   end do
   SumHii = SumHii+H(i,i)
@@ -58,7 +59,7 @@ call Jacord(EVal,EVec,nH,nH)
 
 iNeg = 0
 do i=1,nH
-  if (EVal(i*(i+1)/2) < Zero) iNeg = iNeg+1
+  if (EVal(nTri_Elem(i)) < Zero) iNeg = iNeg+1
 end do
 if (iprint > 5) then
   write(Lu,*)
@@ -96,7 +97,7 @@ if (Exists .and. (iprint > 5)) then
     write(Lu,*)
     write(Lu,*) 'Eigenvalues of the Hessian'
     write(Lu,*)
-    write(Lu,'(1X,10F10.5)') (EVal(i*(i+1)/2),i=1,nH)
+    write(Lu,'(1X,10F10.5)') (EVal(nTri_Elem(i)),i=1,nH)
     write(Lu,*)
     write(Lu,*) 'Eigenvectors of the Hessian'
     write(Lu,*)

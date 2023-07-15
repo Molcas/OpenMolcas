@@ -12,6 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
 
+use Index_Functions, only: nTri_Elem
 use Slapaf_Info, only: BMx, BSet, Cx, Curvilinear, HSet, iRef, KtB, Lbl, lOld, MaxItr, nDimBC, nLambda, Numerical, qInt, &
                        Redundant, Shift, Smmtrc, User_Def
 use Slapaf_procedures, only: Box, Hidden
@@ -114,7 +115,7 @@ call Box(Coor2,mTtAtm_,AN,TabB,TabA,nBonds,nMax)
 !                                                                      *
 ! Compute the raw Cartesian Hessian
 
-call mma_allocate(EVal,(3*mTtAtm)*(3*mTtAtm+1)/2,Label='EVal')
+call mma_allocate(EVal,nTri_Elem(3*mTtAtm),Label='EVal')
 call mma_Allocate(Hss_X,(3*mTtAtm)**2,Label='Hss_X')
 call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 

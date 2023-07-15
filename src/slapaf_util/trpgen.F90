@@ -11,6 +11,7 @@
 
 subroutine TRPGen(nDim,nAtom,Coor,mTR,CofM,TRVec)
 
+use Index_Functions, only: nTri_Elem
 use Slapaf_Info, only: Degen, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -40,7 +41,7 @@ TRVec(1:nTR*nDim) = TR(1:nTR*nDim)
 
 call mma_allocate(Scrt,(3*nAtom)*nTR,Label='Scrt')
 call mma_allocate(G,nTR**2,Label='G')
-call mma_allocate(EVal,nTR*(nTR+1)/2,Label='EVal')
+call mma_allocate(EVal,nTri_Elem(nTR),Label='EVal')
 call mma_allocate(EVec,nTR**2,Label='EVec')
 
 ! Eliminate redundancy and produce an orthogonal representation.

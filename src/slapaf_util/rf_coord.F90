@@ -147,7 +147,7 @@ do ixyz=1,3
   Hess(:,:) = Zero
   if (Process) then
 
-    Indq(1,nq) = -2**(ixyz)/2
+    Indq(1,nq) = -2**(ixyz-1)
     Indq(2,nq) = 0
     Indq(3,nq) = 0
 
@@ -233,7 +233,7 @@ if (VarR) then
 
     if (Process) then
 
-      Indq(1,nq) = -(2**(jxyz)/2+2**(kxyz)/2)
+      Indq(1,nq) = -(2**(jxyz-1)+2**(kxyz-1))
       Indq(2,nq) = 0
       Indq(3,nq) = 0
 

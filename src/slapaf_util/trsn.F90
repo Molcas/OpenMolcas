@@ -114,16 +114,16 @@ if (ldB) then
       jz = jy+1
       if (jz > 3) jz = jz-3
 
-      dBt(ix,1,jx,1) = (dBRij(ix,1,jy,2)*BRjk(jz,2)-dBRij(ix,1,jz,2)*BRjk(jy,2)-Bt(jx,1)*(BRij(ix,1)*SinFi2**2+ &
-                        Rij1*Two*SinFi2*CosFi2*Bf2(ix,1)))/(Rij1*SinFi2**2)
+      dBt(ix,1,jx,1) = (dBRij(ix,1,jy,2)*BRjk(jz,2)-dBRij(ix,1,jz,2)*BRjk(jy,2)- &
+                        Bt(jx,1)*(BRij(ix,1)*SinFi2**2+Rij1*Two*SinFi2*CosFi2*Bf2(ix,1)))/(Rij1*SinFi2**2)
       dBt(ix,1,jx,2) = -((-BRij(ix,1)*CosFi2+Rij1*SinFi2*Bf2(ix,1))*Bt(jx,1)+(Rjk1-Rij1*CosFi2)*dBt(ix,1,jx,1))/Rjk1
       dBt(jx,2,ix,1) = dBt(ix,1,jx,2)
       dBt(ix,1,jx,4) = Zero
       dBt(jx,4,ix,1) = dBt(ix,1,jx,4)
       dBt(ix,1,jx,3) = -(dBt(ix,1,jx,1)+dBt(ix,1,jx,2))
       dBt(jx,3,ix,1) = dBt(ix,1,jx,3)
-      dBt(ix,4,jx,4) = (dBRkl(ix,2,jy,1)*BRjk(jz,1)-dBRkl(ix,2,jz,1)*BRjk(jy,1)-Bt(jx,4)*(BRkl(ix,2)*SinFi3**2+ &
-                        Rkl1*Two*SinFi3*CosFi3*Bf3(ix,3)))/(Rkl1*SinFi3**2)
+      dBt(ix,4,jx,4) = (dBRkl(ix,2,jy,1)*BRjk(jz,1)-dBRkl(ix,2,jz,1)*BRjk(jy,1)- &
+                        Bt(jx,4)*(BRkl(ix,2)*SinFi3**2+Rkl1*Two*SinFi3*CosFi3*Bf3(ix,3)))/(Rkl1*SinFi3**2)
       dBt(ix,4,jx,3) = -((-BRkl(ix,2)*CosFi3+Rkl1*SinFi3*Bf3(ix,3))*Bt(jx,4)+(Rjk1-Rkl1*CosFi3)*dBt(ix,4,jx,4))/Rjk1
       dBt(jx,3,ix,4) = dBt(ix,4,jx,3)
       dBt(ix,4,jx,2) = -(dBt(ix,4,jx,4)+dBt(ix,4,jx,3))

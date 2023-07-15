@@ -11,13 +11,14 @@
 
 subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,Thr,BM,iBM,nB_Tot,nqB)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nq, nx, nB_Tot, iBM(nB_Tot), nqB(nq)
-real(kind=wp), intent(out) :: Gmtrx(nq,nq), EVal(nq*(nq+1)/2), EVec(nq,nq)
+real(kind=wp), intent(out) :: Gmtrx(nq,nq), EVal(nTri_Elem(nq)), EVec(nq,nq)
 integer(kind=iwp), intent(out) :: nK
 real(kind=wp), intent(in) :: uMtrx(nX), Thr, BM(nB_Tot)
 logical(kind=iwp), intent(in) :: g12K
@@ -94,7 +95,7 @@ call unitmat(EVec,nq)
 
 do i=1,nQ
   do j=1,i
-    ijTri = i*(i-1)/2+j
+    ijTri = nTri_Elem(i-1)+j
     EVal(ijTri) = Half*(Gmtrx(i,j)+Gmtrx(j,i))
   end do
 end do
@@ -122,8 +123,7 @@ if (.not. Diagonal) then
   end if
   EVal(:) = Zero
   do i=1,nq
-    ii = i*(i+1)/2
-    EVal(ii) = W(i)
+    EVal(nTri_Elem(i)) = W(i)
   end do
   call mma_deallocate(W)
   call mma_deallocate(Work)
@@ -145,7 +145,7 @@ call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
 
 nK = 0
 do i=1,nQ
-  ii = i*(i+1)/2
+  ii = nTri_Elem(i)
   if (EVal(ii) > Thr) nK = nK+1
   EVal(i) = EVal(ii)
   !if (g12K .and. (abs(EVal(i)) > Zero))

@@ -11,6 +11,7 @@
 
 subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
 use Slapaf_Info, only: ddV_Schlegel, iOptC, Magic_Bond
 use ddvdt, only: A_Bend, A_Str, A_StrH, A_Trsn, aAV, alpha_vdW, B_Str, f_Const_Min, r_ref_vdW, rAV, rko, rkf, rkr, rkr_vdW, rkt, &
@@ -22,7 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
 real(kind=wp), intent(in) :: Cart(3,mTtAtm)
-real(kind=wp), intent(out) :: Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+real(kind=wp), intent(out) :: Hess(nTri_Elem(3*mTtAtm))
 integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
                      jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
                      mr, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
@@ -278,7 +279,7 @@ do iBond=1,nBonds
     if (((kr == 1) .and. (lr == 1)) .or. Help) then
       gmm = Fact*A_StrH(1)*exp(-A_StrH(2)*(Rab-RabCov))
     else
-      ij = max(kr,lr)*(max(kr,lr)-1)/2+min(kr,lr)
+      ij = iTri(kr,lr)
       gmm = Fact*A_Str/(Rab-B_Str(ij))**3
     end if
   else

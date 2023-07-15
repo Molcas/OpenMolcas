@@ -11,6 +11,7 @@
 
 subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
 
+use Index_Functions, only: nTri_Elem
 use Slapaf_Info, only: AtomLbl, BMx, BSet, Cx, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, KtB, lOld, MaxItr, NAC, PrQ, qInt, &
                        Redundant, Smmtrc
 use Kriging_Mod, only: nSet
@@ -21,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mTtAtm, mTR, nWndw
 real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
-real(kind=wp), intent(out) :: Eval(3*mTtAtm*(3*mTtAtm+1)/2)
+real(kind=wp), intent(out) :: Eval(nTri_Elem(3*mTtAtm))
 real(kind=wp), intent(inout) :: Hss_x((3*mTtAtm)**2)
 integer(kind=iwp), intent(out) :: nQQ
 integer(kind=iwp) :: i, iAtom, iInd, iInter, ij, ijTri, ik, ipFrom, iTR, ix, ixyz, j, jAtom, ji, jx, jxyz, k, kAtom, kx, kxyz
@@ -281,7 +282,7 @@ else
       jx = Ind(j)
       jAtom = (jx+2)/3
       jxyz = jx-(jAtom-1)*3
-      ijTri = i*(i-1)/2+j
+      ijTri = nTri_Elem(i-1)+j
       ij = (j-1)*nDimBC+i
       ji = (i-1)*nDimBC+j
       EVal(ijTri) = Half*(Hss_X(ij)+Hss_X(ji))

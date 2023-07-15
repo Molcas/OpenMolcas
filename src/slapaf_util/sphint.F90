@@ -9,28 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-!#error "This file must be compiled inside a module"
-#else
-
-subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+subroutine SphInt(xyz,nCent,OfRef,lOR,RR0,Bf,l_Write,Label,dBf,ldB)
 
 use Slapaf_Info, only: RefGeo, Weights
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nCent
-real(kind=wp), intent(in) :: xyz(3,nCent)
-real(kind=wp), allocatable, target, intent(in) :: OfRef(:,:)
+real(kind=wp), intent(in) :: xyz(3,nCent), OfRef(3,nCent)
 real(kind=wp), intent(out) :: RR0, Bf(3,nCent)
-logical(kind=iwp), intent(in) :: l_Write, ldB
+logical(kind=iwp), intent(in) :: lOR, l_Write, ldB
 character(len=8), intent(in) :: Label
 real(kind=wp), intent(inout) :: dBf(3,nCent,3,nCent)
 integer(kind=iwp) :: iCar, iCent, ixyz, jCent, jxyz
-real(kind=wp) :: Fact, RR0_unscaled, SqInvTWeight, temp, tempi, tempj, Tweight, xWeight, yWeight
-real(kind=wp), pointer :: xyz0(:,:)
+real(kind=wp) :: Fact, RR0_unscaled, SqInvTWeight, temp, Tweight, xWeight, yWeight
+real(kind=wp), allocatable :: xyz_0(:,:)
 integer(kind=iwp), external :: iDeg
 
 !                                                                      *
@@ -38,13 +33,15 @@ integer(kind=iwp), external :: iDeg
 !                                                                      *
 ! Compute the radius of the hypersphere
 
-if (.not. allocated(OfRef)) then
-  xyz0 => RefGeo(1:3,1:nCent)
-else
-  xyz0 => OfRef(1:3,1:nCent)
-end if
+call mma_allocate(xyz_0,3,nCent,Label='xyz_0')
 !call RecPrt('SphInt: xyz',' ',xyz,3,nCent)
-!call RecPrt('Ref: xyz0',' ',OfRef,3,nCent)
+if (lOR) then
+  xyz_0(:,:) = xyz(:,:)-OfRef(:,:)
+  !call RecPrt('Ref:',' ',OfRef,3,nCent)
+else
+  xyz_0(:,:) = xyz(:,:)-RefGeo(:,:)
+  !call RecPrt('Ref:',' ',RefGeo,3,nCent)
+end if
 RR0 = Zero
 TWeight = Zero
 do iCent=1,nCent
@@ -53,9 +50,8 @@ do iCent=1,nCent
   TWeight = TWeight+xWeight
   !write(u6,*) 'xWeight=',xWeight
   do ixyz=1,3
-    !write(u6,*) xyz(ixyz,iCent),xyz0(ixyz,iCent)
-    temp = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
-    RR0 = RR0+xWeight*temp**2
+    !write(u6,*) xyz_0(ixyz,iCent)
+    RR0 = RR0+xWeight*xyz_0(ixyz,iCent)**2
   end do
 end do
 RR0_unscaled = sqrt(RR0)
@@ -77,10 +73,8 @@ do iCent=1,nCent
   Fact = real(iDeg(xyz(1,iCent)),kind=wp)
   xWeight = Fact*Weights(iCent)
   do iCar=1,3
-    temp = xyz(iCar,iCent)-xyz0(iCar,iCent)
     if (RR0_unscaled /= Zero) then
-      temp = xyz(iCar,iCent)-xyz0(iCar,iCent)
-      Bf(iCar,iCent) = xWeight*temp/RR0_unscaled*SqInvTWeight
+      Bf(iCar,iCent) = xWeight*xyz_0(iCar,iCent)/RR0_unscaled*SqInvTWeight
     else
 
       ! If we are standing on the reference point the gradient
@@ -104,15 +98,13 @@ if (ldB) then
       Fact = real(iDeg(xyz(1,iCent)),kind=wp)
       xWeight = Fact*Weights(iCent)
       do ixyz=1,3
-        tempi = xyz(ixyz,iCent)-xyz0(ixyz,iCent)
         do jCent=1,nCent
           Fact = real(iDeg(xyz(1,jCent)),kind=wp)
           yWeight = Fact*Weights(jCent)
           do jxyz=1,3
-            tempj = xyz(jxyz,jCent)-xyz0(jxyz,jCent)
             temp = Zero
             if ((ixyz == jxyz) .and. (iCent == jCent)) temp = RR0_unscaled
-            temp = temp-yWeight*tempi*tempj/RR0_unscaled
+            temp = temp-yWeight*xyz_0(ixyz,iCent)*xyz_0(jxyz,jCent)/RR0_unscaled
             temp = (xWeight*temp)/RR0_unscaled**2
             dBf(ixyz,iCent,jxyz,jCent) = temp*SqInvTWeight
           end do
@@ -124,10 +116,8 @@ if (ldB) then
 
 end if
 
-nullify(xyz0)
+call mma_deallocate(xyz_0)
 
 return
 
 end subroutine SphInt
-
-#endif

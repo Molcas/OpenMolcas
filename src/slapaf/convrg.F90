@@ -14,7 +14,6 @@ subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,J
 use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
                        GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, Shift, &
                        SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
-use Slapaf_procedures, only: SphInt
 use Chkpnt, only: Chkpnt_update_MEP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
@@ -39,7 +38,7 @@ character(len=8) Temp
 integer(kind=iwp), allocatable :: Information(:)
 real(kind=wp), allocatable :: C_IRC(:,:,:), C_P(:,:), C_R(:,:), C_S(:,:,:), Coor1(:,:), Coor2(:,:), Cu_MEP(:), E_IRC(:), E_MEP(:), &
                               E_P(:), E_R(:), E_S(:), G_IRC(:,:,:), G_MEP(:,:,:), G_P(:,:), G_R(:,:), G_S(:,:,:), L_MEP(:), Tmp(:)
-real(kind=wp), allocatable, target :: C_MEP(:,:,:), Not_Allocated(:,:), OfRef(:,:)
+real(kind=wp), allocatable, target :: C_MEP(:,:,:), OfRef(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -703,8 +702,8 @@ if (MEP .or. rMEP) then
 
       ! Using hypersphere measure, even with "transverse" MEPs,
       ! this should not be a problem
-      call SphInt(Cx(:,:,iter),nAtom,Not_Allocated,refDist,Tmp,.false.,'dummy   ',rDum,.false.)
-      call SphInt(Cx(:,:,iter),nAtom,OfRef,prevDist,Tmp,.false.,'dummy   ',rDUm,.false.)
+      call SphInt(Cx(:,:,iter),nAtom,OfRef,.false.,refDist,Tmp,.false.,'dummy   ',rDum,.false.)
+      call SphInt(Cx(:,:,iter),nAtom,OfRef,.true.,prevDist,Tmp,.false.,'dummy   ',rDUm,.false.)
       if (prevDist < Half*refDist) then
         TurnBack = .true.
         Conv1 = .true.

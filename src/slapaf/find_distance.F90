@@ -14,7 +14,6 @@
 subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,BadConstraint)
 
 use Slapaf_Info, only: MEP_Type, RefGeo
-use Slapaf_procedures, only: SphInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -26,7 +25,7 @@ real(kind=wp), intent(out) :: Point(3,nAtom)
 logical(kind=iwp), intent(out) :: BadConstraint
 integer(kind=iwp) :: i, nCoor
 real(kind=wp) :: Correct, CurFact, PrevR, R, rDum(1,1,1,1)
-real(kind=wp), allocatable :: Dummy(:), Not_Allocated(:,:), OldRef(:,:)
+real(kind=wp), allocatable :: Dummy(:), OldRef(:,:)
 real(kind=wp), parameter :: Thr = 1.0e-6_wp
 
 !                                                                      *
@@ -52,7 +51,7 @@ do while (abs(One-R/Dist) > Thr)
   PrevR = R
   call Align(Point(:,:),Ref(:,:),nAtom)
   if (MEP_Type == 'SPHERE') then
-    call SphInt(Point,nAtom,Not_Allocated,R,Dummy,.false.,'dummy   ',rDum,.false.)
+    call SphInt(Point,nAtom,Point,.false.,R,Dummy,.false.,'dummy   ',rDum,.false.)
   else if (MEP_Type == 'TRANSVERSE') then
     call Transverse(Point,nAtom,R,Dummy,.false.,'dummy   ',rDum,.false.)
   end if

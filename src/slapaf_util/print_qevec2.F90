@@ -11,12 +11,13 @@
 
 subroutine Print_qEVec2(nH,EVal,EVec)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nH
-real(kind=wp), intent(in) :: EVal(nH*(nH+1)/2), EVec(nH,nH)
+real(kind=wp), intent(in) :: EVal(nTri_Elem(nH)), EVec(nH,nH)
 integer(kind=iwp) :: iiQQ, iLines, IncQQ, iq, iQQ, j, Lu, Lu_UDIC, mQQ
 character(len=120) :: Temp
 character(len=14) :: cLbl
@@ -56,7 +57,7 @@ do iiQQ=1,nH,IncQQ
   mQQ = min(nH,iiQQ+IncQQ-1)
   write(Lu,*)
   write(Lu,'(14X,5I10)') (iQQ,iQQ=iiQQ,mQQ)
-  write(Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',(EVal(iQQ*(iQQ+1)/2),iQQ=iiQQ,mQQ)
+  write(Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',(EVal(nTri_Elem(iQQ)),iQQ=iiQQ,mQQ)
   write(Lu,*)
   do iq=1,nH
     write(Lu,'(1X,A,5F10.6)') qLbl(iq),EVec(iq,iiQQ:mQQ)

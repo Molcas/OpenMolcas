@@ -11,8 +11,8 @@
 
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
-!#error "This file must be compiled inside a module"
-#else
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine OLDFCM(Hess,nQQ,RunOld)
 !***********************************************************************
@@ -86,5 +86,3 @@ nQQ = iINter
 return
 
 end subroutine OLDFCM
-
-#endif

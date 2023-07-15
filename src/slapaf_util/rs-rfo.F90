@@ -29,6 +29,7 @@ subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 !     Remove references to work, Roland Lindh                          *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -40,7 +41,7 @@ real(kind=wp), intent(out) :: dq(nInter)
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(out) :: Step_Trunc
-integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, jj, Lu, NumVal
+integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, Lu, NumVal
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, Dist, dqdq, dqdq_long, dqdq_short, EigVal, Fact, VV, ZZ
 logical(kind=iwp) :: Iterate, Restart
 real(kind=wp), allocatable :: Matrix(:), Val(:), Vec(:,:), Tmp(:)
@@ -72,7 +73,7 @@ Restart = .false.
 NumVal = min(6,nInter)+1
 call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
-call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
+call mma_allocate(Matrix,nTri_Elem(nInter+1),Label='Matrix')
 call mma_allocate(Tmp,nInter+1,Label='Tmp')
 
 Vec(:,:) = Zero
@@ -96,17 +97,16 @@ do
 
   do i=1,nInter
     do j=1,i
-      ij = i*(i-1)/2+j
+      ij = nTri_Elem(i-1)+j
       Matrix(ij) = Half*(H(i,j)+H(j,i))/A_RFO
     end do
   end do
   j = nInter+1
   do i=1,nInter
-    ij = j*(j-1)/2+i
+    ij = nTri_Elem(j-1)+i
     Matrix(ij) = -g(i)/sqrt(A_RFO) ! note sign
   end do
-  jj = j*(j+1)/2
-  Matrix(jj) = Zero
+  Matrix(nTri_Elem(j)) = Zero
 # ifdef _DEBUG2_
   call TriPrt('R_Tri',' ',Matrix,nInter+1)
 # endif
