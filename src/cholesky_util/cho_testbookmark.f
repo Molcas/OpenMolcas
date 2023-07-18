@@ -50,8 +50,8 @@
       If (jrc.eq.-1) Then ! bookmarks not available
          irc=-1
          If (verbose) Then
-            Write(6,'(A,A)')
-     &      'Cho_X_Bookmark returned -1 [not available].',
+            Write(6,'(A,A)')                                            &
+     &      'Cho_X_Bookmark returned -1 [not available].',              &
      &      'No further testing performed!'
          End If
          Return
@@ -204,7 +204,7 @@
          irc=-1
          Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
          If (irc.ne.0) Then
-            Write(6,'(A,I4)')
+            Write(6,'(A,I4)')                                           &
      &      'Cho_TestBookmark_1Cinit: Cho_SetAtomShl returned',irc
             Call Cho_Quit('shell-to-atom init failed!',104)
          End If

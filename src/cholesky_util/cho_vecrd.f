@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_VECRD(SCR,LSCR,JVEC1,IVEC2,ISYM,
+      SUBROUTINE CHO_VECRD(SCR,LSCR,JVEC1,IVEC2,ISYM,                   &
      &                     JNUM,IREDC,MUSED)
 !
 !     Purpose: read as many vectors as fit into SCR array starting
@@ -40,7 +40,7 @@
 !     -----------------------------------------------------------------
 
       IF (RUN_MODE .EQ. RUN_EXTERNAL) THEN
-         CALL CHO_VECBUF_RETRIEVE(SCR,LSCR,JVEC1,IVEC2,ISYM,
+         CALL CHO_VECBUF_RETRIEVE(SCR,LSCR,JVEC1,IVEC2,ISYM,            &
      &                            JNUM,IREDC,MUSED)
       END IF
 
@@ -54,14 +54,14 @@
          KS  = MUSED + 1
          JN  = 0
          MU  = 0
-         CALL CHO_VECRD1(SCR(KS),LFT,JV1,IVEC2,ISYM,
+         CALL CHO_VECRD1(SCR(KS),LFT,JV1,IVEC2,ISYM,                    &
      &                   JN,IREDC,MU,DOREAD)
          JNUM  = JNUM  + JN
          MUSED = MUSED + MU
       END IF
 
       END
-      SUBROUTINE CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,
+      SUBROUTINE CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,                  &
      &                      JNUM,IREDC,MUSED,DOREAD)
 !
 !     Purpose: read as many vectors as fit into SCR array starting
@@ -233,8 +233,8 @@
             END IF
          ELSE
             IF (DOREAD) THEN
-               WRITE(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,
-     &                        ' of symmetry ',ISYM,' read from unit ',
+               WRITE(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,     &
+     &                        ' of symmetry ',ISYM,' read from unit ',  &
      &                        LUCHO(ISYM)
                IF (Allocated(NDIMRS)) THEN
                   KOFFV = 1
@@ -242,20 +242,20 @@
                      JVEC = JVEC1 + IVEC - 1
                      JADR = INFVEC(JVEC,3,ISYM)
                      JRED = INFVEC(JVEC,2,ISYM)
-                     XNRM = SQRT(DDOT_(NDIMRS(ISYM,JRED),SCR(KOFFV),1,
+                     XNRM = SQRT(DDOT_(NDIMRS(ISYM,JRED),SCR(KOFFV),1,  &
      &                                                  SCR(KOFFV),1))
-                     WRITE(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,
+                     WRITE(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,   &
      &                              ' norm: ',XNRM
                      KOFFV = KOFFV + NDIMRS(ISYM,JRED)
                   END DO
                   NTST = KOFFV - 1
                   IF (NTST .NE. MUSED) THEN
-                    CALL CHO_QUIT('Vector dimension error in '//SECNAM,
+                    CALL CHO_QUIT('Vector dimension error in '//SECNAM, &
      &                            104)
                   END IF
                END IF
             ELSE
-               WRITE(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,
+               WRITE(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,     &
      &                        ' of symmetry ',ISYM,' can be read'
             END IF
          END IF

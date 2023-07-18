@@ -65,27 +65,27 @@
          Write(LuPri,*)
          Do iSym=1,nSym
             Call Cho_RWord2Byte(Word(iSym),Byte,Unt)
-            Write(LuPri,'(A,I2,A,I8,A,F8.3,1X,A,A)')
-     &      'Symmetry',iSym,':   ',INT(Word(iSym)),' words (',
+            Write(LuPri,'(A,I2,A,I8,A,F8.3,1X,A,A)')                    &
+     &      'Symmetry',iSym,':   ',INT(Word(iSym)),' words (',          &
      &      Byte,Unt,')'
          End Do
-         Write(LuPri,'(A)')
+         Write(LuPri,'(A)')                                             &
      &   '------------------------------------------'
          Call Cho_RWord2Byte(xl_Z,Byte,Unt)
-         Write(LuPri,'(A,I8,A,F8.3,1X,A,A)')
+         Write(LuPri,'(A,I8,A,F8.3,1X,A,A)')                            &
      &   'Total:        ',l_Z,' words (',Byte,Unt,')'
       End If
 
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_Z .lt. 0) Then
-         Write(Lupri,'(A,A)')
+         Write(Lupri,'(A,A)')                                           &
      &   SecNam,': dimension of Z vector array is negative!'
          Write(Lupri,'(A,I8)') 'l_Z=',l_Z
          If (xl_Z .gt. 0.0d0) Then
             Write(LuPri,'(A)') 'This seems to be an integer overflow!'
             Call Cho_RWord2Byte(xl_Z,Byte,Unt)
-            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')
-     &      'In double precision, xl_Z=',xl_Z,
+            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')                  &
+     &      'In double precision, xl_Z=',xl_Z,                          &
      &      ' words (',Byte,Unt,')'
          End If
          irc=1

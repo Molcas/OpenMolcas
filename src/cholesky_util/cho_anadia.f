@@ -79,21 +79,21 @@
       DO IAB = 1,NNBSTRT(1)
          IF (DIAG(IAB) .LE. THRCOM) NCONV = NCONV + 1
       END DO
-      WRITE(LUPRI,'(/,1X,A,I10,/,1X,A,I10)')
+      WRITE(LUPRI,'(/,1X,A,I10,/,1X,A,I10)')                            &
      & 'Converged  : ',NCONV,'Unconverged: ',NNBSTRT(1)-NCONV
 
 !     Print total number of negative zeroed diagonal as well as the most
 !     negative one.
 !     ------------------------------------------------------------------
 
-      WRITE(LUPRI,'(/,1X,A,5X,I10)')
+      WRITE(LUPRI,'(/,1X,A,5X,I10)')                                    &
      & 'Total number of zeroed negative diagonals: ',NNZTOT
       IF (NNZTOT .GT. 0) THEN
          IF (IABMNZ .LT. 1) THEN
-            WRITE(LUPRI,'(1X,A)')
+            WRITE(LUPRI,'(1X,A)')                                       &
      &     'WARNING: most negative zeroed diagonal has not been stored!'
          ELSE
-            WRITE(LUPRI,'(1X,A,1P,D15.6)')
+            WRITE(LUPRI,'(1X,A,1P,D15.6)')                              &
      &      '- most negative zeroed diagonal          : ',DIAMNZ
          END IF
       END IF
@@ -102,17 +102,17 @@
 !     -----------------
 
       CALL STATISTICS(DIAG,NNBSTRT(1),STAT,1,2,3,4,5,6,7)
-      WRITE(LUPRI,'(/,1X,A,1P,D15.6)')
+      WRITE(LUPRI,'(/,1X,A,1P,D15.6)')                                  &
      & 'Minimum diagonal: ',STAT(3)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')
+      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
      & 'Maximum diagonal: ',STAT(4)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')
+      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
      & 'Mean value      : ',STAT(1)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')
+      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
      & 'Mean abs. value : ',STAT(2)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')
+      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
      & 'Biased variance : ',STAT(6)
-      WRITE(LUPRI,'(1X,A,1P,D15.6,A)')
+      WRITE(LUPRI,'(1X,A,1P,D15.6,A)')                                  &
      & 'Standard dev.   : ',STAT(7),' (unbiased variance)'
 
       END

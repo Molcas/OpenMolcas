@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1971, Nelson H. F. Beebe                               *
 !***********************************************************************
-      SUBROUTINE CHO_OUTPUT(AMATRX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,
-     *                      COLDIM,NCTL,LUPRI)
+      SUBROUTINE CHO_OUTPUT(AMATRX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,    &
+     &                      COLDIM,NCTL,LUPRI)
 !.......................................................................
 !
 ! OUTPUT PRINTS A REAL MATRIX IN FORMATTED FORM WITH NUMBERED ROWS

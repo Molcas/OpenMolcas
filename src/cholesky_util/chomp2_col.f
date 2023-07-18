@@ -34,7 +34,7 @@
       If (nCol.lt.1 .or. nDim.lt.1) Return
       iSym = NowSym
       If (nDim .ne. nT1am(iSym)) Then
-         Write(6,*) SecNam,': inconsistent dimension. Expected: ',
+         Write(6,*) SecNam,': inconsistent dimension. Expected: ',      &
      &              nT1am(iSym),'   Received: ',nDim
          Write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
          Call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
@@ -129,8 +129,8 @@
       If (InCore(iSym)) Then  ! old vectors available in core
 
          Fac = 0.0D0
-         Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                        OldVec,NumCho(iSym),
+         Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,                       &
+     &                        OldVec,NumCho(iSym),                      &
      &                        Buf,l_Buf,Fac,irc)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
@@ -182,14 +182,14 @@
                If (lWrk .gt. lScr) Then
                   lWsav = lWrk
                   Call mma_allocate(Wrk,lWrk,Label='Wrk')
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Buf(1),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Buf(1),NumV,                     &
      &                                 Wrk,lWrk,Fac,irc)
                   Call mma_deallocate(Wrk)
                   lWrk = lWsav
                Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Buf(1),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Buf(1),NumV,                     &
      &                                 Buf(1+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
@@ -234,12 +234,12 @@
 
                lScr = lWrk - lTot
                If (l_Buf .gt. lScr) Then
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Wrk,NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Wrk,NumV,                        &
      &                                 Buf(1),l_Buf,Fac,irc)
                Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Wrk,NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Wrk,NumV,                        &
      &                                 Wrk(1+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then

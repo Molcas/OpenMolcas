@@ -41,63 +41,63 @@
       PARAMETER (NOPTION = 58, LOPTION = 50)  ! #options
       CHARACTER*(LOPTION) OPTION(NOPTION)
 
-      DATA OPTION /'set decomposition threshold                       ',
-     &             'set print level                                   ',
-     &             'set buffer length for diagonal calculation        ',
-     &             'set threshold for discarding initial diag. elem.  ',
-     &             'set damping factor for first reduced set          ',
-     &             'set damping factor for later reduced sets         ',
-     &             'set span                                          ',
-     &             'set minimum number of qualifieds for decomposition',
-     &             'set maximum number of shell pair distributions    ',
-     &             'turn on diag. screening (using damping factors)   ',
-     &             'turn off diag. screening                          ',
-     &             'set qualification algorithm                       ',
-     &             'set threshold for zeroing negative diagonals      ',
-     &             'set threshold for warning about negative diagonals',
-     &             'set threshold for shutdown due to negative diag.  ',
-     &             'check configuration only                          ',
-     &             'check all integrals (debug)                       ',
-     &             'diagonal restart                                  ',
-     &             'decomposition restart with default restart model  ',
-     &             'set restart model                                 ',
-     &             'set maximum #qualifieds per symmetry              ',
-     &             'set maximum #Cholesky vectors per symmetry        ',
-     &             'set max. #reduced sets (i.e., integral passes)    ',
-     &             'check specified #columns (debug)                  ',
-     &             'minimal integral check (debug)                    ',
-     &             'use abs. value to set up reduced sets             ',
-     &             'do not use abs. value to set up red. sets         ',
-     &             'turn on tracing of negative diagonals (debug)     ',
-     &             'set algorithm for reading Cholesky vectors        ',
-     &             'set vector reordering (for int. re-generation)    ',
-     &             'halt execution after decomposition                ',
-     &             'set memory fraction used as buffer for vec. read  ',
-     &             'set fraction of memory to be used for qual. col.  ',
-     &             'set maximum number of vectors in subtraction      ',
-     &             'set file address mode (WA or DA for vector files) ',
-     &             'set model used to interface to integral code      ',
-     &             'one-step (conventional) decomposition             ',
-     &             'two-step (generate map, then vectors) decomp.     ',
-     &             'naive decomposition                               ',
-     &             'set memory fraction used for global vector buffer ',
-     &             'set diagonal checking and set tolerance (debug)   ',
-     &             'test vector subtraction screening (statistics)    ',
-     &             'use screening in vector subtraction               ',
-     &             'do not use screening in vector subtraction        ',
-     &             'threshold for screening in vector subtraction     ',
-     &             'norm to use in vector subtraction screening       ',
-     &             'decompose 1-center diagonals only                 ',
-     &             'decompose 1-center diagonals only; excl. 2-center ',
-     &             'turn off diagonal prescreening                    ',
-     &             'turn on diagonal prescreening                     ',
-     &             'set diagonal prescreening threshold               ',
-     &             'use parallel decomposition algorithm              ',
-     &             'simulate parallel algorithm (i.e. modified span)  ',
-     &             'simulate RI (input 1-center threshold)            ',
-     &             'activate fake parallel decomposition              ',
-     &             'activate true parallel decomposition (deact. fake)',
-     &             'set block size for Z vectors (parallel two-step)  ',
+      DATA OPTION /'set decomposition threshold                       ',&
+     &             'set print level                                   ',&
+     &             'set buffer length for diagonal calculation        ',&
+     &             'set threshold for discarding initial diag. elem.  ',&
+     &             'set damping factor for first reduced set          ',&
+     &             'set damping factor for later reduced sets         ',&
+     &             'set span                                          ',&
+     &             'set minimum number of qualifieds for decomposition',&
+     &             'set maximum number of shell pair distributions    ',&
+     &             'turn on diag. screening (using damping factors)   ',&
+     &             'turn off diag. screening                          ',&
+     &             'set qualification algorithm                       ',&
+     &             'set threshold for zeroing negative diagonals      ',&
+     &             'set threshold for warning about negative diagonals',&
+     &             'set threshold for shutdown due to negative diag.  ',&
+     &             'check configuration only                          ',&
+     &             'check all integrals (debug)                       ',&
+     &             'diagonal restart                                  ',&
+     &             'decomposition restart with default restart model  ',&
+     &             'set restart model                                 ',&
+     &             'set maximum #qualifieds per symmetry              ',&
+     &             'set maximum #Cholesky vectors per symmetry        ',&
+     &             'set max. #reduced sets (i.e., integral passes)    ',&
+     &             'check specified #columns (debug)                  ',&
+     &             'minimal integral check (debug)                    ',&
+     &             'use abs. value to set up reduced sets             ',&
+     &             'do not use abs. value to set up red. sets         ',&
+     &             'turn on tracing of negative diagonals (debug)     ',&
+     &             'set algorithm for reading Cholesky vectors        ',&
+     &             'set vector reordering (for int. re-generation)    ',&
+     &             'halt execution after decomposition                ',&
+     &             'set memory fraction used as buffer for vec. read  ',&
+     &             'set fraction of memory to be used for qual. col.  ',&
+     &             'set maximum number of vectors in subtraction      ',&
+     &             'set file address mode (WA or DA for vector files) ',&
+     &             'set model used to interface to integral code      ',&
+     &             'one-step (conventional) decomposition             ',&
+     &             'two-step (generate map, then vectors) decomp.     ',&
+     &             'naive decomposition                               ',&
+     &             'set memory fraction used for global vector buffer ',&
+     &             'set diagonal checking and set tolerance (debug)   ',&
+     &             'test vector subtraction screening (statistics)    ',&
+     &             'use screening in vector subtraction               ',&
+     &             'do not use screening in vector subtraction        ',&
+     &             'threshold for screening in vector subtraction     ',&
+     &             'norm to use in vector subtraction screening       ',&
+     &             'decompose 1-center diagonals only                 ',&
+     &             'decompose 1-center diagonals only; excl. 2-center ',&
+     &             'turn off diagonal prescreening                    ',&
+     &             'turn on diagonal prescreening                     ',&
+     &             'set diagonal prescreening threshold               ',&
+     &             'use parallel decomposition algorithm              ',&
+     &             'simulate parallel algorithm (i.e. modified span)  ',&
+     &             'simulate RI (input 1-center threshold)            ',&
+     &             'activate fake parallel decomposition              ',&
+     &             'activate true parallel decomposition (deact. fake)',&
+     &             'set block size for Z vectors (parallel two-step)  ',&
      &             'activate tracing of idle nodes (parallel run)     '/
 
 !     Define all entries in common blocks.
@@ -112,7 +112,7 @@
       IF (IRC .NE. 0) THEN
          WRITE(LUPRI,*) SECNAM,': CHO_X_SETINC returned error code ',IRC
          WRITE(LUPRI,*) '(most likely due to a programming error...)'
-         CALL CHO_QUIT('Include file initialization error in '//SECNAM,
+         CALL CHO_QUIT('Include file initialization error in '//SECNAM, &
      &                 102)
       END IF
       CALL CHO_SETPTR2()
@@ -302,9 +302,9 @@
 !           ----------------------------------------------------
 
             WRITE(LUPRI,*) 'IDKEY = ',IDKEY,' is formally legal, but:'
-            WRITE(LUPRI,*) 'Did you forget to change the ',
+            WRITE(LUPRI,*) 'Did you forget to change the ',             &
      &                     'computed goto in ',SECNAM,'?'
-            CALL CHO_QUIT('Illegal address in computed GOTO in '
+            CALL CHO_QUIT('Illegal address in computed GOTO in '        &
      &                    //SECNAM,105)
 
 !           Read decomposition threshold.
@@ -822,7 +822,7 @@
       END IF
       CALL CHO_INP_SETDECALG(FORCEPARALLEL)
       IF (.NOT.MXSHPR_USRDEF) THEN
-         IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR.
+         IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR.                  &
      &       CHO_DECALG.EQ.6) THEN
             MXSHPR=1
          ELSE

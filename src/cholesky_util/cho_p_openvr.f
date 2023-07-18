@@ -87,7 +87,7 @@
                      Call DaName_MF(LuCho_G(iSym),FNVec(iSym))
                   End Do
                Else
-                  Call Cho_Quit('CHO_ADRVEC out of bounds in '//SecNam,
+                  Call Cho_Quit('CHO_ADRVEC out of bounds in '//SecNam, &
      &                          102)
                   Call iZero(LuCho_G,nSym)
                End If

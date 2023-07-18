@@ -54,7 +54,7 @@
       Integer iOpt, lTot, iAdr
       Integer nOcc_Max
 
-      Real*8, Allocatable:: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:),
+      Real*8, Allocatable:: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:),   &
      &                      V(:)
 
       Integer MulD2h, k, l
@@ -164,11 +164,11 @@
                Do iSymi = 1,nSym
                   iSyma = MulD2h(iSymi,iSym)
                   na = max(nVir(iSyma),1)
-                  Call dGeMV_('T',nVir(iSyma),nOcc(iSymi),
-     &                       1.0d0,V(1+iT1Am(iSyma,iSymi)),na,
-     &                             PVir(1+iVir(iSyma)),1,
+                  Call dGeMV_('T',nVir(iSyma),nOcc(iSymi),              &
+     &                       1.0d0,V(1+iT1Am(iSyma,iSymi)),na,          &
+     &                             PVir(1+iVir(iSyma)),1,               &
      &                       0.0d0,Q,1)
-                  Y(J) = Y(J) + dDot_(nOcc(iSymi),Q,1,
+                  Y(J) = Y(J) + dDot_(nOcc(iSymi),Q,1,                  &
      &                                POcc(1+iOcc(iSymi)),1)
                End Do
             End Do
@@ -230,22 +230,22 @@
 !     -------
 
       Call Cho_Head('MO Vector Backtransformation Check','=',80,6)
-      Write(6,'(/,2X,A,A,/,2X,A,A)')
-     & 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error',
-     & '        RMS Error',
-     & '-----------------------------------------------------------',
+      Write(6,'(/,2X,A,A,/,2X,A,A)')                                    &
+     & 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error',   &
+     & '        RMS Error',                                             &
+     & '-----------------------------------------------------------',   &
      & '-----------------'
       Do iSym = 1,nSym
-         Write(6,'(4X,I2,4X,1P,4(3X,D14.6))')
+         Write(6,'(4X,I2,4X,1P,4(3X,D14.6))')                           &
      &   iSym,(Err(i,iSym),i=1,4)
       End Do
-      Write(6,'(2X,A,A)')
-     & '-----------------------------------------------------------',
+      Write(6,'(2X,A,A)')                                               &
+     & '-----------------------------------------------------------',   &
      & '-----------------'
-      Write(6,'(2X,A,2X,1P,4(3X,D14.6))')
+      Write(6,'(2X,A,2X,1P,4(3X,D14.6))')                               &
      & 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
-      Write(6,'(2X,A,A,/)')
-     & '-----------------------------------------------------------',
+      Write(6,'(2X,A,A,/)')                                             &
+     & '-----------------------------------------------------------',   &
      & '-----------------'
 
 !     Free memory.

@@ -131,7 +131,7 @@
          Do While (KK1 .le. NumCho(iSym))
             nVRead = 0
             mUsed = 0
-            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,
+            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,       &
      &                       nVRead,iRedC,mUsed)
             If (nVRead .lt. 1) Then
                irc = 2
@@ -172,8 +172,8 @@
          Call DDAFile(lUnit,iOpt,G,SIZE(G),iDisk)
 #if defined (_DEBUGPRINT_)
          Call TriPrt('G-matix',' ',G,NVT(iSym))
-         Write(6,'(A,I2,A,1P,D16.7)')
-     &   'G matrix, sym.',iSym,': Norm = ',
+         Write(6,'(A,I2,A,1P,D16.7)')                                   &
+     &   'G matrix, sym.',iSym,': Norm = ',                             &
      &   sqrt(dDot_(SIZE(G),G,1,G,1))
 #endif
          Call mma_deallocate(Wrk)

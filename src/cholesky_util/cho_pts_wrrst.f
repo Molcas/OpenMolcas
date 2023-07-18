@@ -60,17 +60,17 @@
 
          Call mma_allocate(IDV,NVT(iSym),Label='IDV')
          myNumCho(iSym)=0
-         Call Cho_P_Distrib_Vec(1,NVT(iSym),IDV,
+         Call Cho_P_Distrib_Vec(1,NVT(iSym),IDV,                        &
      &                          myNumCho(iSym))
          Call mma_deallocate(IDV)
          If (NumCho(iSym) .ne. myNumCho(iSym)) Then
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      SecNam,': NumCho discrepancy in sym. ',iSym
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      '  NumCho=',NumCho(iSym)
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      'myNumCho=',myNumCho(iSym)
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      '     NVT=',NVT(iSym)
             irc=1
          End If
@@ -79,11 +79,11 @@
       Call Cho_GAIGOp(myNumCho,nSym,'+')
       Do iSym=1,nSym
          If (myNumCho(iSym).ne.NVT(iSym)) Then
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      SecNam,': NumCho discrepancy in sym. ',iSym
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      'Sum of NumCho across nodes=',myNumCho(iSym)
-            Write(LuPri,*)
+            Write(LuPri,*)                                              &
      &      '                       NVT=',NVT(iSym)
             irc=2
          End If

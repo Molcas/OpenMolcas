@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_XCV_WrVec(irc,Vec,l_Vec,NVT,l_NVT,
+      SubRoutine Cho_XCV_WrVec(irc,Vec,l_Vec,NVT,l_NVT,                 &
      &                         myRankSP,l_myRankSP,SP)
 !
 !     Thomas Bondo Pedersen, April 2010.

@@ -65,13 +65,13 @@
       If (l.lt.1 .or. need.ge.l) Then ! not enough memory for one read
          Call ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
          If (irc.ne.0) Then
-            Write(6,'(A,A,I10)')
+            Write(6,'(A,A,I10)')                                        &
      &      SecNam,': Cho_LSOSMP2_Energy_Fll2 returned',irc
          End If
       Else ! enough memory for one read through vector files
          Call ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
          If (irc.ne.0) Then
-            Write(6,'(A,A,I10)')
+            Write(6,'(A,A,I10)')                                        &
      &      SecNam,': Cho_LSOSMP2_Energy_Fll1 returned',irc
          End If
       End If
@@ -205,11 +205,11 @@
                      iSyma=MulD2h(iSym,iSymi)
                      ip1=ip0+iT1am(iSyma,iSymi)
                      Do i=1,nOcc(iSymi)
-                        Call dScal_(nVir(iSyma),exp(epsi(i,iSymi)*tq),
+                        Call dScal_(nVir(iSyma),exp(epsi(i,iSymi)*tq),  &
      &                             V(ip1+nVir(iSyma)*(i-1)+1,2),1)
                      End Do
                      Do a=1,nVir(iSyma)
-                        Call dScal_(nOcc(iSymi),exp(-epsa(a,iSyma)*tq),
+                        Call dScal_(nOcc(iSymi),exp(-epsa(a,iSyma)*tq), &
      &                             V(ip1+a,2),nVir(iSyma))
                      End Do
                   End Do
@@ -231,15 +231,15 @@
                      Else
                         nVeci=Laplace_BlockSize
                      End If
-                     Call dGEMM_('T','N',nVeci,nVecj,Nai,
-     &                           1.0d0,V(ipi,2),Nai,
-     &                                 V(ipj,2),Nai,
+                     Call dGEMM_('T','N',nVeci,nVecj,Nai,               &
+     &                           1.0d0,V(ipi,2),Nai,                    &
+     &                                 V(ipj,2),Nai,                    &
      &                           0.0d0,X,nVeci)
                      If (iBlock.eq.jBlock) Then
-                        Eq=Eq
+                        Eq=Eq                                           &
      &               +0.5d0*dDot_(nVeci*nVecj,X,1,X,1)
                      Else
-                        Eq=Eq
+                        Eq=Eq                                           &
      &                     +dDot_(nVeci*nVecj,X,1,X,1)
                      End If
                   End Do
@@ -365,22 +365,22 @@
             xn=dble(nBlock)
             xb=dble(bsize)
             xbp=dble(blast)
-            lX=max(lX,0.5d0*(xM*(xM+1.0d0)
-     &                      +(xn-1.0d0)*xb*(xb-1.0d0)
+            lX=max(lX,0.5d0*(xM*(xM+1.0d0)                              &
+     &                      +(xn-1.0d0)*xb*(xb-1.0d0)                   &
      &                      +xbp*(xbp-1.0d0)))
          End If
       End Do
       l_X=int(lX)
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_X .lt. 0) Then
-         Write(Lupri,'(A,A)')
+         Write(Lupri,'(A,A)')                                           &
      &   SecNam,': dimension of X matrix is negative!'
          Write(Lupri,'(A,I15)') 'l_X=',l_X
          If (lX .gt. 0.0d0) Then
             Write(LuPri,'(A)') 'This seems to be an integer overflow!'
             Call Cho_RWord2Byte(lX,Byte,Unt)
-            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')
-     &      'In double precision, lX=',lX,
+            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')                  &
+     &      'In double precision, lX=',lX,                              &
      &      ' words (',Byte,Unt,')'
          End If
          irc=1
@@ -411,8 +411,8 @@
                bsize=min(Laplace_BlockSize,nEnrVec(iSym))
                nBlock=(nEnrVec(iSym)-1)/bsize+1
                blast=nEnrVec(iSym)-bsize*(nBlock-1)
-               lenX=nEnrVec(iSym)*(nEnrVec(iSym)+1)/2
-     &             +(nBlock-1)*(bsize*(bsize-1)/2)
+               lenX=nEnrVec(iSym)*(nEnrVec(iSym)+1)/2                   &
+     &             +(nBlock-1)*(bsize*(bsize-1)/2)                      &
      &             +blast*(blast-1)/2
                X(1:lenX)=Zero
                ! open file, read vectors, close file
@@ -422,7 +422,7 @@
                iOpt=2
                l_Tot=Nai*nEnrVec(iSym)
                iAddr=1
-               Call dDAFile(lUnit_F(iSym,iTyp),iOpt,V,
+               Call dDAFile(lUnit_F(iSym,iTyp),iOpt,V,                  &
      &                      l_Tot,iAddr)
                Call ChoMP2_OpenF(2,iTyp,iSym)
                ! scale vectors
@@ -433,13 +433,13 @@
                         iSyma=MulD2h(iSym,iSymi)
                         ip1=ip0+iT1am(iSyma,iSymi)
                         Do i=1,nOcc(iSymi)
-                           Call dScal_(nVir(iSyma),
-     &                                exp(epsi(i,iSymi)*tq),
+                           Call dScal_(nVir(iSyma),                     &
+     &                                exp(epsi(i,iSymi)*tq),            &
      &                                V(ip1+nVir(iSyma)*(i-1)+1),1)
                         End Do
                         Do a=1,nVir(iSyma)
-                           Call dScal_(nOcc(iSymi),
-     &                                exp(-epsa(a,iSyma)*tq),
+                           Call dScal_(nOcc(iSymi),                     &
+     &                                exp(-epsa(a,iSyma)*tq),           &
      &                                V(ip1+a),nVir(iSyma))
                         End Do
                      End If
@@ -452,7 +452,7 @@
                Do jBlock=1,nBlock
                   ipj=1+Nai*Laplace_BlockSize*(jBlock-1)
                   If (jBlock.eq.nBlock) Then
-                     nVecj=nEnrVec(iSym)
+                     nVecj=nEnrVec(iSym)                                &
      &                    -Laplace_BlockSize*(nBlock-1)
                   Else
                      nVecj=Laplace_BlockSize
@@ -460,23 +460,23 @@
                   Do iBlock=jBlock,nBlock
                      ipi=1+Nai*Laplace_BlockSize*(iBlock-1)
                      If (iBlock.eq.nBlock) Then
-                        nVeci=nEnrVec(iSym)
+                        nVeci=nEnrVec(iSym)                             &
      &                       -Laplace_BlockSize*(nBlock-1)
                      Else
                         nVeci=Laplace_BlockSize
                      End If
-                     Call dGEMM_('T','N',nVeci,nVecj,Nai,
-     &                          1.0d0,V(ipi),Nai,
-     &                                V(ipj),Nai,
+                     Call dGEMM_('T','N',nVeci,nVecj,Nai,               &
+     &                          1.0d0,V(ipi),Nai,                       &
+     &                                V(ipj),Nai,                       &
      &                          1.0d0,X(ipX),nVeci)
                      ipX=ipX+nVeci*nVecj
                   End Do
                End Do
 #if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-1)) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                          SecNam//': dimension problem [1]')
-                  Write(6,'(A,I10,A,I10)')
+                  Write(6,'(A,I10,A,I10)')                              &
      &            'lenX=',lenX,' ipX-1=',ipX-1
                   Call Abend()
                End If
@@ -486,23 +486,23 @@
                ipX=1
                Do jBlock=1,nBlock
                   If (jBlock.eq.nBlock) Then
-                     nVecj=nEnrVec(iSym)
+                     nVecj=nEnrVec(iSym)                                &
      &                    -Laplace_BlockSize*(nBlock-1)
                   Else
                      nVecj=Laplace_BlockSize
                   End If
                   Do iBlock=jBlock,nBlock
                      If (iBlock.eq.nBlock) Then
-                        nVeci=nEnrVec(iSym)
+                        nVeci=nEnrVec(iSym)                             &
      &                       -Laplace_BlockSize*(nBlock-1)
                      Else
                         nVeci=Laplace_BlockSize
                      End If
                      If (iBlock.eq.jBlock) Then
-                        Eq=Eq+0.5d0*dDot_(nVeci*nVecj,
+                        Eq=Eq+0.5d0*dDot_(nVeci*nVecj,                  &
      &                                   X(ipX),1,X(ipX),1)
                      Else
-                        Eq=Eq+dDot_(nVeci*nVecj,
+                        Eq=Eq+dDot_(nVeci*nVecj,                        &
      &                             X(ipX),1,X(ipX),1)
                      End If
                      ipX=ipX+nVeci*nVecj
@@ -510,9 +510,9 @@
                End Do
 #if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-1)) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                             SecNam//': dimension problem [2]')
-                  Write(6,'(A,I10,A,I10)')
+                  Write(6,'(A,I10,A,I10)')                              &
      &            'lenX=',lenX,' ipX-1=',ipX-1
                   Call Abend()
                End If

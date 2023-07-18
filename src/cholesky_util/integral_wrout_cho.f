@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Integral_WrOut_Cho(
+      SubRoutine Integral_WrOut_Cho(                                    &
 #define _FIXED_FORMAT_
 #define _CALLING_
 #include "int_wrout_interface.fh"
@@ -29,35 +29,35 @@
 !
       If (IfcSew .eq. 1) Then
          If (nSym.eq.1) Then
-           Call PLF_Cho(TInt,nTInt,
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
+           Call PLF_Cho(TInt,nTInt,                                     &
+     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
+     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho(TInt,nTInt,
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+           Call IndSft_Cho(TInt,nTInt,                                  &
+     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
       Else If (IfcSew .eq. 2) Then
          If (nSym.eq.1) Then
-           Call PLF_Cho_2(TInt,nTInt,
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
+           Call PLF_Cho_2(TInt,nTInt,                                   &
+     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
+     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_2(TInt,nTInt,
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+           Call IndSft_Cho_2(TInt,nTInt,                                &
+     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
       Else If (IfcSew .eq. 3) Then
          If (nSym.eq.1) Then
-           Call PLF_Cho_3(TInt,nTInt,
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
+           Call PLF_Cho_3(TInt,nTInt,                                   &
+     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
+     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_3(TInt,nTInt,
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+           Call IndSft_Cho_3(TInt,nTInt,                                &
+     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
       Else

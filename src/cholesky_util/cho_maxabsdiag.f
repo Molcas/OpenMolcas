@@ -134,7 +134,7 @@
             Do iShlAB = 1,nnShl
                Call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
                If (iAtomShl(iShlA) .eq. iAtomShl(iShlB)) Then
-                  i1 = iiBstR(iSym,iLoc) + iiBstRSh(iSym,iShlAB,iLoc)
+                  i1 = iiBstR(iSym,iLoc) + iiBstRSh(iSym,iShlAB,iLoc)   &
      &               + 1
                   i2 = i1 + nnBstRSh(iSym,iShlAB,iLoc) - 1
                   Do i = i1,i2

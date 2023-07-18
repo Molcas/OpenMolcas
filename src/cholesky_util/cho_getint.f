@@ -68,10 +68,10 @@
       IF (MEMQ(1) .LT. MXDIM) THEN
          WRITE(LUPRI,*) SECNAM,': memory split error!'
          WRITE(LUPRI,*) 'Memory for storing qualified columns: ',MEMQ(1)
-         WRITE(LUPRI,*) 'Minimal memory needed to store one column: ',
+         WRITE(LUPRI,*) 'Minimal memory needed to store one column: ',  &
      &                  MXDIM
          WRITE(LUPRI,*) 'Total memory available: ',LMAX
-         WRITE(LUPRI,*) 'Memory split is ',N1_QUAL,'/',N2_QUAL,
+         WRITE(LUPRI,*) 'Memory split is ',N1_QUAL,'/',N2_QUAL,         &
      &                  ' for qualified columns.'
          WRITE(LUPRI,*) 'Change memory split in input file...'
          CALL CHO_QUIT('Memory split error in '//SECNAM,101)
@@ -100,11 +100,11 @@
 !           -----------------------------------------------------
 
             IF (ICOUNT .EQ. 1) THEN
-               WRITE(LUPRI,*) SECNAM,': no integrals calculated; ',
+               WRITE(LUPRI,*) SECNAM,': no integrals calculated; ',     &
      &                        'unable to proceed to decomposition!'
-               WRITE(LUPRI,*) 'Max. abs. diagonal for shell pair ',
+               WRITE(LUPRI,*) 'Max. abs. diagonal for shell pair ',     &
      &                        ISHLA,', ',ISHLB,': ',ABS(SMAX)
-               WRITE(LUPRI,*) 'Max. abs. diagonal allowed: ',
+               WRITE(LUPRI,*) 'Max. abs. diagonal allowed: ',           &
      &                        DIAMIN(ISYMAB),' (sym. ',ISYMAB,')'
                CALL CHO_QUIT('Severe error in '//SECNAM,104)
             ELSE
@@ -134,12 +134,12 @@
 
                INTMAP(ISHLAB) = INTMAP(ISHLAB) + 1
                IF (IPRINT .GE. INF_IN2) THEN
-                  WRITE(LUPRI,'(/,A,I5,1X,I5,A,I9,A)')
-     &            'Calculating shell pair (**|',ISHLA,ISHLB,
+                  WRITE(LUPRI,'(/,A,I5,1X,I5,A,I9,A)')                  &
+     &            'Calculating shell pair (**|',ISHLA,ISHLB,            &
      &            '):',NCOLAB,' columns have been qualified'
                   WRITE(LUPRI,'(80A)') ('=',i=1,77)
-                  WRITE(LUPRI,'(A,I12)')
-     &            'Number of calculations so far for this shell pair: ',
+                  WRITE(LUPRI,'(A,I12)')                                &
+     &            'Number of calculations so far for this shell pair: ',&
      &            INTMAP(ISHLAB)
                END IF
 
@@ -154,7 +154,7 @@
             ELSE IF (NCOLAB .EQ. 0) THEN
 
                IF (NSEL .LT. 1) THEN
-                  WRITE(LUPRI,*) SECNAM,': logical error: ',
+                  WRITE(LUPRI,*) SECNAM,': logical error: ',            &
      &                                  'unable to qualify diagonals'
                   WRITE(LUPRI,*) SECNAM,': NCOLAB = ',NCOLAB
                   WRITE(LUPRI,*) SECNAM,': NSEL   = ',NSEL
@@ -166,7 +166,7 @@
 
             ELSE
 
-               WRITE(LUPRI,*) SECNAM,': logical error: ',
+               WRITE(LUPRI,*) SECNAM,': logical error: ',               &
      &                               'unable to qualify diagonals'
                WRITE(LUPRI,*) SECNAM,': NCOLAB = ',NCOLAB
                WRITE(LUPRI,*) SECNAM,': NSEL   = ',NSEL
@@ -185,7 +185,7 @@
       IF (.NOT. DODECO) THEN
          NSEL = CHO_ISUMELM(NQUAL,NSYM)
          IF (NSEL .LT. 1) THEN
-            WRITE(LUPRI,*) SECNAM,': logical error: ',
+            WRITE(LUPRI,*) SECNAM,': logical error: ',                  &
      &                            'unable to qualify diagonals'
             WRITE(LUPRI,*) SECNAM,': Flag DODECO is ',DODECO
             WRITE(LUPRI,*) SECNAM,': NSEL    = ',NSEL

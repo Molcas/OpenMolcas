@@ -67,7 +67,7 @@
                            iQuAB(KKMN,ISYM) = I
                         END IF
                      ELSE
-                        CALL CHO_QUIT('Logical error in '//SECNAM,
+                        CALL CHO_QUIT('Logical error in '//SECNAM,      &
      &                                104)
                      END IF
                   END IF

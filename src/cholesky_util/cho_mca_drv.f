@@ -59,7 +59,7 @@
       ICODE = 0
       CALL CHO_DRV(ICODE)
       IF (ICODE .NE. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': decomposition driver returned code ',
+         WRITE(LUPRI,*) SECNAM,': decomposition driver returned code ', &
      &                  ICODE
          CALL CHO_QUIT('Decomposition failed!',104)
       END IF
@@ -75,7 +75,7 @@
 !     ----------------------------
 
       IF (HALTIT) THEN
-         WRITE(LUPRI,*) SECNAM,': halting execution after ',
+         WRITE(LUPRI,*) SECNAM,': halting execution after ',            &
      &                  'decomposition as requested...'
          CALL GASYNC
          CALL CHO_QUIT('End of Test (in '//SECNAM//')',100)

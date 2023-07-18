@@ -57,7 +57,7 @@
       Do iVec = 1,nVec
          kOff = nnBstR(iSym,iLoc)*(iVec-1)
          Do iAB = 1,nnBstR(iSym,iLoc)
-            DSubScr(iAB) = DSubScr(iAB)
+            DSubScr(iAB) = DSubScr(iAB)                                 &
      &                             + ChoVec(kOff+iAB)*ChoVec(kOff+iAB)
          End Do
       End Do

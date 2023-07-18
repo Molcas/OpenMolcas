@@ -40,19 +40,19 @@
 
       IF (NUMCHO(ISYM) .LT. 1) THEN ! no prev. vectors.
          IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NUMCHO = ',
+            WRITE(LUPRI,*) SECNAM,': nothing done because NUMCHO = ',   &
      &                     NUMCHO(ISYM),' (sym. ',ISYM,')'
          END IF
          return
       ELSE IF (NNBSTR(ISYM,2) .LT. 1) THEN ! nothing to do (this sym.)
          IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NNBSTR = ',
+            WRITE(LUPRI,*) SECNAM,': nothing done because NNBSTR = ',   &
      &                     NNBSTR(ISYM,2),' (sym. ',ISYM,')'
          END IF
          return
       ELSE IF (NQUAL(ISYM) .LT. 1) THEN ! no qualifieds in this sym.
          IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NQUAL  = ',
+            WRITE(LUPRI,*) SECNAM,': nothing done because NQUAL  = ',   &
      &                     NQUAL(ISYM),' (sym. ',ISYM,')'
          END IF
          return
@@ -67,7 +67,7 @@
          KEND  = KDIAG + NNBSTRT(1)
          LWRK  = LWRK  - KEND + 1
          IF (LWRK .LT. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': diagonal/integral check skipped ',
+            WRITE(LUPRI,*) SECNAM,': diagonal/integral check skipped ', &
      &                     'due to insufficient memory'
          ELSE
             TOL  = TOL_DIACHK
@@ -81,7 +81,7 @@
 !    &                         NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
                CALL CHO_QUIT('Diagonal errors in '//SECNAM,104)
             ELSE
-               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',
+               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',&
      &                     'and original diagonal: no errors !'
             END IF
          END IF

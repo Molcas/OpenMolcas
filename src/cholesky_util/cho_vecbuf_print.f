@@ -33,13 +33,13 @@
       Write(Lupri,*)
       Do iSym = 1,nSym
          Call Cho_Word2Byte(l_ChVBuf_Sym(iSym),8,xGb,Unt)
-         Write(Lupri,'(A,I2,A,I10,A,F8.2,A,A,A)')
-     &   'Dimension, sym.',iSym,': ',l_ChVBuf_Sym(iSym),
+         Write(Lupri,'(A,I2,A,I10,A,F8.2,A,A,A)')                       &
+     &   'Dimension, sym.',iSym,': ',l_ChVBuf_Sym(iSym),                &
      &   ' 8-byte words (',xGb,' ',Unt,')'
       End Do
       Call Cho_Word2Byte(SIZE(ChVBuf),8,xGb,Unt)
-      Write(Lupri,'(/,A,I10,A,F8.2,A,A,A)')
-     & 'Total dimension  : ',SIZE(ChVBuf),' 8-byte words (',xGb,' ',
+      Write(Lupri,'(/,A,I10,A,F8.2,A,A,A)')                             &
+     & 'Total dimension  : ',SIZE(ChVBuf),' 8-byte words (',xGb,' ',    &
      & Unt,')'
 
       End

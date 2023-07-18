@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,
-     &                          ERRMAX,ERRMIN,ERRRMS,NCMP,
+      SUBROUTINE CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,                  &
+     &                          ERRMAX,ERRMIN,ERRRMS,NCMP,              &
      &                          ISHLCD,ISHLAB)
 !
 !     Purpose: calculate integrals in shell quadruple (CD|AB) from
@@ -141,7 +141,7 @@
 
                DO IVEC = 1,NUMV
                   JVEC = JVEC1 + IVEC - 1
-                  CALL CHO_GETVEC(WRK(KVEC1),LVEC1,1,JVEC,ISYM,
+                  CALL CHO_GETVEC(WRK(KVEC1),LVEC1,1,JVEC,ISYM,         &
      &                            WRK(KREAD),LREAD)
                   KOFF1 = KVEC1  + IIBSTRSH(ISYM,ISHLCD,2)
                   KOFF2 = KCHOCD + NUMCD*(IVEC - 1)
@@ -154,8 +154,8 @@
 !              Calculate contribution.
 !              -----------------------
 
-               CALL DGEMM_('N','T',NUMCD,NUMAB,NUMV,
-     &                    1.0D0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,
+               CALL DGEMM_('N','T',NUMCD,NUMAB,NUMV,                    &
+     &                    1.0D0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,    &
      &                    1.0D0,WRK(KINT),NUMCD)
 
             END DO

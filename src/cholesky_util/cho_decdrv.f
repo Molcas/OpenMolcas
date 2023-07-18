@@ -130,7 +130,7 @@
 !        ----------------------
 
          IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': debug: diagonal before pass ',
+            WRITE(LUPRI,*) SECNAM,': debug: diagonal before pass ',     &
      &                     IPASS
             DO ISYM = 1,NSYM
                ISYLST(ISYM) = ISYM
@@ -187,7 +187,7 @@
 !        -----------------------------------------
 
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC1,WLDEC1)
-         IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6)
+         IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6) &
      &   THEN
             CALL CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
          ELSE
@@ -293,14 +293,14 @@
             CALL CHO_TIMER(TLTOT2,WLTOT2)
             TLTOT = TLTOT2 - TLTOT1
             WLTOT = WLTOT2 - WLTOT1
-            WRITE(LUPRI,'(/,A,I7,A)')
-     &      'Overall timings for integral pass',IPASS,
+            WRITE(LUPRI,'(/,A,I7,A)')                                   &
+     &      'Overall timings for integral pass',IPASS,                  &
      &      ' (CPU/Wall in seconds):'
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')
+            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
      &      'Integrals (incl. qualified I/O etc.): ',TLINT,WLINT
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')
+            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
      &      'Decomposition of qualified columns  : ',TLDEC,WLDEC
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')
+            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
      &      'Total (incl. restart info I/O etc.) : ',TLTOT,WLTOT
          END IF
 

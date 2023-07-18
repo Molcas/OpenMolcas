@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,
+      SubRoutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,  &
      &                           Fac,irc)
 !
 !     Thomas Bondo Pedersen, Dec. 2004.
@@ -48,8 +48,8 @@
             End If
 
             Call ChoMP2_Col_cp(Vec,nDim,nVec,Buf,NumC,iCol(iC1))
-            Call DGEMM_('N','T',nDim,NumC,nVec,
-     &                 1.0D0,Vec,nDim,Buf,NumC,
+            Call DGEMM_('N','T',nDim,NumC,nVec,                         &
+     &                 1.0D0,Vec,nDim,Buf,NumC,                         &
      &                 Fac,Col(1,iC1),nDim)
 
          End Do
@@ -57,8 +57,8 @@
       Else
 
          Do iC = 1,nCol
-            Call dGeMV_('N',nDim,nVec,
-     &                 1.0D0,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,
+            Call dGeMV_('N',nDim,nVec,                                  &
+     &                 1.0D0,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,        &
      &                 Fac,Col(1,iC),1)
          End Do
 

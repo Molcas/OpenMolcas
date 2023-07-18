@@ -23,9 +23,9 @@
          WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors!'
          WRITE(LUPRI,*) SECNAM,': symmetry: ',ISYM
          WRITE(LUPRI,*) SECNAM,': max. allowed is ',MAXVEC
-         WRITE(LUPRI,*) SECNAM,': please increase max. ',
+         WRITE(LUPRI,*) SECNAM,': please increase max. ',               &
      &                  'allowed'
-         CALL CHO_QUIT('Too many Cholesky vectors in '
+         CALL CHO_QUIT('Too many Cholesky vectors in '                  &
      &                 //SECNAM,104)
       ELSE IF (IVEC .EQ. MAXVEC) THEN ! no set next addr.
          INFVEC(IVEC,1,ISYM) = IAB    ! diag. index red. set 1
@@ -33,7 +33,7 @@
       ELSE
          INFVEC(IVEC,1,ISYM)   = IAB   ! diag. index red. set 1
          INFVEC(IVEC,2,ISYM)   = IPASS ! global red. set
-         INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)
+         INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)                    &
      &                         + NNBSTR(ISYM,ILOC) ! next addr.
       END IF
 

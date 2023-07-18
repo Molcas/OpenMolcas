@@ -52,7 +52,7 @@
                CALL DANAME_MF(LUCHO(ISYM),FNVEC(ISYM))
             END DO
          ELSE
-            CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM//
+            CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM//      &
      &                    '. Perhaps the NOCHO keyword is needed?',102)
          END IF
          LURST = 7

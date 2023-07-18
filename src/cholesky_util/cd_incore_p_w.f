@@ -66,7 +66,7 @@
       End Do
 
       If (MxVec .gt. 0) Then
-         Call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,
+         Call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,&
      &                       iD,irc)
       Else
          irc = -1

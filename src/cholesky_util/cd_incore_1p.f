@@ -11,7 +11,7 @@
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !               2006, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,
+      SubRoutine CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,  &
      &                       iD,irc)
 !
 ! Author:   F. Aquilante, March 2006

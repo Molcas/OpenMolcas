@@ -53,13 +53,13 @@
 !> @param[in]  BufFrac Fraction of memory to be used as buffer
 !***********************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,  &
      &                  iRS2F, nDimRS, MySP, n_MySP
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       use ChoSwp, only:   IndRed,   IndRed_Hidden
-      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,       &
      &                   nRow_BkmThr, nCol_BkmThr
       use ChoSP, only: nnShl_SP
       use ChoIni
@@ -96,7 +96,7 @@
 #if defined (_DEBUGPRINT_)
       Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
-      Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
+      Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',     &
      &           l_Max,' = ',Byte,Unt
 #endif
 
@@ -266,16 +266,16 @@
 !     Allocate and initialize index arrays.
 !     -------------------------------------
 
-      call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
+      call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,                   &
      &                  Label='iiBstRSh_Hidden')
       iiBstRSh => iiBstRSh_Hidden
-      call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+      call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,                   &
      &                  Label='nnBstRSh_Hidden')
       nnBstRSh => nnBstRSh_Hidden
       Call Cho_RstD_GetInd1()
       mmBstRT = nnBstRT(1)
 
-      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,
+      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,                     &
      &                  Label='IndRed_Hidden')
       IndRed => IndRed_Hidden
       Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
@@ -302,12 +302,12 @@
          nRow_BkmThr=BkmDim(3)
          nCol_BkmThr=BkmDim(4)
          Call mma_deallocate(BkmDim)
-         If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
+         If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.              &
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
-            Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,
+            Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,           &
      &                        Label='BkmVec')
             Call Get_iArray('Cholesky BkmVec',BkmVec,SIZE(BkmVec))
-            Call mma_allocate(BkmThr,nRow_BkmThr,nCol_BkmThr,
+            Call mma_allocate(BkmThr,nRow_BkmThr,nCol_BkmThr,           &
      &                        Label='BkmThr')
             Call Get_dArray('Cholesky BkmThr',BkmThr,SIZE(BkmThr))
          Else
@@ -360,7 +360,7 @@
       Call mma_allocate(iBasSh,nSym, nShell,Label='iBasSh')
       Call mma_allocate(nBasSh,nSym, nShell,Label='nBasSh')
       Call mma_allocate(nBstSh,nShell,Label='nBstSh')
-      Call Cho_SetSh(iBasSh,nBasSh,nBstSh,
+      Call Cho_SetSh(iBasSh,nBasSh,nBstSh,                              &
      &               iBas,nBas,iSOShl,nSym,nShell,nBasT)
 
       MxOrSh = nBstSh(1)
@@ -391,7 +391,7 @@
 !     Allocate integer scratch array used for Cholesky vector I/O.
 !     ------------------------------------------------------------
 
-      DoDummy = .not.(Cho_IOVec.eq.1 .or. Cho_IOVec.eq.2 .or.
+      DoDummy = .not.(Cho_IOVec.eq.1 .or. Cho_IOVec.eq.2 .or.           &
      &                Cho_IOVec.eq.3 .or. Cho_IOVec.eq.4)
       Call Cho_Allo_iScr(DoDummy)
 
@@ -437,39 +437,39 @@
    99 Continue ! Local DF not implemented
 ! TODO/FIXME: compute Cholesky vectors from LDF coefficients here?
          irc=-2
-         Write(6,'(//,A,A,//)')
+         Write(6,'(//,A,A,//)')                                         &
      &   SecNam,': Local DF not implemented!'
       Go To 1
 
   100 Continue ! Cholesky flag not found on runfile
          irc = -1
-         Write(6,'(//,A,A,//)')
+         Write(6,'(//,A,A,//)')                                         &
      &   SecNam,': two-electron integrals not Cholesky decomposed!'
       Go To 1
 
   101 Continue ! Bad info obtained from runfile
          irc = 1
-         Write(6,'(//,A,A,//)')
+         Write(6,'(//,A,A,//)')                                         &
      &   SecNam,': WARNING: error reading runfile!'
       Go To 1
 
   102 Continue ! restart info corrupted
          irc = 2
-         Write(6,'(//,A,A)')
+         Write(6,'(//,A,A)')                                            &
      &   SecNam,': WARNING: error reading restart info!'
-         Write(6,'(A,A,I6,//)')
+         Write(6,'(A,A,I6,//)')                                         &
      &   SecNam,': return code from read:',ierr
       Go To 1
 
   103 Continue ! include file inconsistency detected
          irc = 3
-         Write(6,'(//,A,A,//)')
+         Write(6,'(//,A,A,//)')                                         &
      &   SecNam,': WARNING: include file inconsistency detected!'
       Go To 1
 
   104 Continue ! error in parallel setup
          irc = 4
-         Write(6,'(//,A,A,//)')
+         Write(6,'(//,A,A,//)')                                         &
      &   SecNam,': WARNING: error in parallel setup!'
       Go To 1
 
@@ -480,7 +480,7 @@
 #if defined (_DEBUGPRINT_)
       Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
-      Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
+      Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',    &
      &           l_Max,' = ',Byte,Unt
       Call xFlush(6)
 #endif
@@ -507,7 +507,7 @@
 ! 2) serial DF
 ! 3) parallel Cholesky
 ! Do NOT define for parallel DF.
-      doDefine = .not.Is_Real_Par() .or.
+      doDefine = .not.Is_Real_Par() .or.                                &
      &           (Is_Real_Par() .and. .not.isDF)
       If (doDefine) Then
          Do iSym = 1,nSym

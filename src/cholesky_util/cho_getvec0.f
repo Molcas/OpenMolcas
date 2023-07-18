@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
+      SUBROUTINE CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,           &
      &                       SCR,LSCR)
 !
 !=======================================================================
@@ -82,7 +82,7 @@
                WRITE(LUPRI,*) 'Available: ',LSCR,'   Need: ',KEND1-1
                WRITE(LUPRI,*) '- needed for RED1: ',NNBSTR(ISYM,1)
                WRITE(LUPRI,*) '- needed for READ: ',NNBSTR(ISYM,3)
-               CALL CHO_QUIT('[2] Insufficient scratch space in '
+               CALL CHO_QUIT('[2] Insufficient scratch space in '       &
      &                       //SECNAM,102)
             END IF
             IRED = JRED
@@ -95,7 +95,7 @@
          JNUM  = 0
          IREDC = IRED
          MUSED = 0
-         CALL CHO_VECRD(SCR(KREAD),NNBSTR(ISYM,3),IVEC,IVEC,ISYM,
+         CALL CHO_VECRD(SCR(KREAD),NNBSTR(ISYM,3),IVEC,IVEC,ISYM,       &
      &                  JNUM,IREDC,MUSED)
          IF (JNUM .NE. 1) THEN
             CALL CHO_QUIT('Logical error in '//SECNAM,103)
@@ -103,10 +103,10 @@
          NSYS_CALL = NSYS_CALL + 1
          IF (LOCDBG) THEN
             XNRM = SQRT(DDOT_(NNBSTR(ISYM,3),SCR(KREAD),1,SCR(KREAD),1))
-            WRITE(LUPRI,*) SECNAM,': ',
-     &                     'Vector:',IVEC,' address: ',
-     &                     INFVEC(IVEC,3,ISYM),
-     &                     ' norm: ',XNRM,' sym. ',ISYM,' red. set: ',
+            WRITE(LUPRI,*) SECNAM,': ',                                 &
+     &                     'Vector:',IVEC,' address: ',                 &
+     &                     INFVEC(IVEC,3,ISYM),                         &
+     &                     ' norm: ',XNRM,' sym. ',ISYM,' red. set: ',  &
      &                     IRED,' dim.: ',NNBSTR(ISYM,3)
          END IF
 

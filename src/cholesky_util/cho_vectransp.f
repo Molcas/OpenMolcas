@@ -49,7 +49,7 @@
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
-      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),
+      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),             &
      &                       nRSL(:), MapRS2RS(:)
       Real*8, Allocatable:: VecR(:,:)
 !**************************************************************
@@ -57,8 +57,8 @@
       If (.not.Cho_Real_Par) Then
          If (LocDbg) Then
             Write(6,'(A,A,A)') 'Illegal call to ',SecNam,':'
-            Write(6,*)
-     &      'Should only be called in parallel, but Cho_Real_Par = ',
+            Write(6,*)                                                  &
+     &      'Should only be called in parallel, but Cho_Real_Par = ',   &
      &      Cho_Real_Par
          End If
          Call Cho_Quit('Illegal call to '//SecNam,103)
@@ -120,7 +120,7 @@
       End If
 !VVP:2014 Local rather than Global
 #ifdef _GA_
-      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,
+      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,                &
      &                     nProcs_eff,1,1,g_a)
 #else
       ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
@@ -163,8 +163,8 @@
       irc=-1
       Call Cho_X_RSCopy(irc,1,jRed)
       If (irc .ne. 0) Then
-         Call Cho_Quit(SecNam//
-     &                 ': Non-zero return code from Cho_X_RSCopy',
+         Call Cho_Quit(SecNam//                                         &
+     &                 ': Non-zero return code from Cho_X_RSCopy',      &
      &                 104)
       End If
 
@@ -224,7 +224,7 @@
          End Do
          LastV = myNumCho(iSym) + nVR
          If (LastV .gt. MaxVec) Then
-            Call Cho_Quit('Max. number of vectors exceeded in '//SecNam,
+            Call Cho_Quit('Max. number of vectors exceeded in '//SecNam,&
      &                    104)
          End If
       End If
@@ -238,8 +238,8 @@
       Call mma_deallocate(VecR)
       Call mma_deallocate(iVecR)
 #else
-      Call Cho_Quit(SecNam//
-     &              ' should never be called in serial installation',
+      Call Cho_Quit(SecNam//                                            &
+     &              ' should never be called in serial installation',   &
      &              103)
 ! Avoid unused argument warnings
       If (.False.) Then

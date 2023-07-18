@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl,
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl,       &
      &                  iShlSO, IntMap
 !
 !     Purpose: initializations.
@@ -22,11 +22,11 @@
 !              record bookmarks during Cholesky decomposition.
 !
       use ChoArr, only: nDimRS, MySP
-      use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
-     &                                       iiBstRSh_Hidden, iiBstRSh,
-     &                                         InfRed_Hidden,   InfRed,
+      use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh, &
+     &                                       iiBstRSh_Hidden, iiBstRSh, &
+     &                                         InfRed_Hidden,   InfRed, &
      &                                         InfVec_Hidden,   InfVec
-      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,       &
      &                   nRow_BkmThr, nCol_BkmThr
       use ChoSubScr, only: Cho_SScreen, SSTau
       use ChoSP, only: nnShl_SP
@@ -46,7 +46,7 @@
 
       REAL*8, PARAMETER::GBLIM = 2.147483648D9
       Integer :: I, J, MulD2h
-      Integer :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl,
+      Integer :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl,     &
      &           nnBMx, nnBT
       Real*8 :: XA, XB, XXBMx, XXBT
 
@@ -101,10 +101,10 @@
 !     Allocate memory for reduced set index arrays.
 !     ---------------------------------------------
 
-      Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
+      Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,                   &
      &                  Label='iiBstRSh_Hidden')
       iiBstRSh => iiBstRSh_Hidden
-      Call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+      Call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,                   &
      &                  Label='nnBstRSh_Hidden')
       nnBstRSh => nnBstRSh_Hidden
       Call mma_allocate(IntMap,nnShl,Label='IntMap')
@@ -191,7 +191,7 @@
       ELSE
          Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
          InfRed => InfRed_Hidden
-         Call mma_allocate(InfVec_Hidden,MaxVec,INFVEC_N2,nSym,
+         Call mma_allocate(InfVec_Hidden,MaxVec,INFVEC_N2,nSym,         &
      &                     Label='InfVec_Hidden')
          InfVec => InfVec_Hidden
          Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
@@ -251,11 +251,11 @@
       NCONFL = 0
       CALL CHO_CHKCONF(NCONFL,.TRUE.)
       IF (CHKONLY) THEN
-         WRITE(LUPRI,'(A,A,I4,A)')
+         WRITE(LUPRI,'(A,A,I4,A)')                                      &
      &   SECNAM,':',NCONFL,' conflicts detected in Cholesky config'
          CALL CHO_QUIT('End of configuration check in '//SECNAM,100)
       ELSE IF (NCONFL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A,I4,A)')
+         WRITE(LUPRI,'(A,A,I4,A)')                                      &
      &   SECNAM,':',NCONFL,' conflicts detected in Cholesky config'
          CALL CHO_QUIT('Configuration conflicts in '//SECNAM,105)
       END IF
@@ -286,7 +286,7 @@
 !     Set screening mode.
 !     -------------------
 
-      IF (CHO_DECALG.EQ.2 .OR. CHO_DECALG.EQ.3 .OR.
+      IF (CHO_DECALG.EQ.2 .OR. CHO_DECALG.EQ.3 .OR.                     &
      &    CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6) THEN
          IF (CHO_1CENTER) THEN
             IF (CHO_NO2CENTER) THEN ! 2-c removed at diag. calc.
@@ -308,19 +308,19 @@
 
          CALL CHO_HEAD(STRING//SECNAM,LINE,80,LUPRI)
 
-         WRITE(LUPRI,'(/,2X,A,I10)')
+         WRITE(LUPRI,'(/,2X,A,I10)')                                    &
      &   'Number of irreps        : ',NSYM
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Number of SOs           : ',NBAST
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Number of shells        : ',NSHELL
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Number of shell pairs   : ',NNSHL_TOT
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Contributing shell pairs: ',NNSHL
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Max. shell dimension    : ',MXORSH
-         WRITE(LUPRI,'(2X,A,I10)')
+         WRITE(LUPRI,'(2X,A,I10)')                                      &
      &   'Max. shell pair dim.    : ',MX2SH
 
          IF (IPRINT .GE. 4) THEN ! debug print
@@ -328,50 +328,50 @@
 !           Basis size info.
 !           ----------------
 
-            WRITE(LUPRI,'(/,2X,A,/,2X,A)')
-     &      '  Symmetry        NBAS        IBAS',
+            WRITE(LUPRI,'(/,2X,A,/,2X,A)')                              &
+     &      '  Symmetry        NBAS        IBAS',                       &
      &      '----------------------------------'
             DO ISYM = 1,NSYM
-               WRITE(LUPRI,'(2X,I10,2X,I10,2X,I10)')
+               WRITE(LUPRI,'(2X,I10,2X,I10,2X,I10)')                    &
      &         ISYM,NBAS(ISYM),IBAS(ISYM)
             END DO
-            WRITE(LUPRI,'(2X,A)')
+            WRITE(LUPRI,'(2X,A)')                                       &
      &      '----------------------------------'
 
 !           Shell info.
 !           -----------
 
-            WRITE(LUPRI,'(/,2X,A,/,2X,A,/,2X,A)')
-     &     '     Shell   Dimension    Symmetry   Dimension      Offset',
-     &     '             (NBSTSH)                (NBASSH)     (IBASSH)',
+            WRITE(LUPRI,'(/,2X,A,/,2X,A,/,2X,A)')                       &
+     &     '     Shell   Dimension    Symmetry   Dimension      Offset',&
+     &     '             (NBSTSH)                (NBASSH)     (IBASSH)',&
      &     '----------------------------------------------------------'
             DO ISHL = 1,NSHELL
                DO ISYM = 1,NSYM
                   IF (ISYM .EQ. 1) THEN
-                     WRITE(LUPRI,'(2X,I10,2X,I10,2X,I10,2X,I10,2X,I10)')
-     &               ISHL,NBSTSH(ISHL),
+                     WRITE(LUPRI,'(2X,I10,2X,I10,2X,I10,2X,I10,2X,I10)')&
+     &               ISHL,NBSTSH(ISHL),                                 &
      &               ISYM,NBASSH(ISYM,ISHL),IBASSH(ISYM,ISHL)
                   ELSE
-                     WRITE(LUPRI,'(26X,I10,2X,I10,2X,I10)')
+                     WRITE(LUPRI,'(26X,I10,2X,I10,2X,I10)')             &
      &               ISYM,NBASSH(ISYM,ISHL),IBASSH(ISYM,ISHL)
                   END IF
                END DO
             END DO
-            WRITE(LUPRI,'(2X,A)')
+            WRITE(LUPRI,'(2X,A)')                                       &
      &     '----------------------------------------------------------'
 
-            WRITE(LUPRI,'(/,2X,A,/,2X,A,/,2X,A)')
-     &      '    SO        SO    sym    Shell     Index ',
-     &      ' (global) (reduced)      (ISOSHL)  (ISHLSO)',
+            WRITE(LUPRI,'(/,2X,A,/,2X,A,/,2X,A)')                       &
+     &      '    SO        SO    sym    Shell     Index ',              &
+     &      ' (global) (reduced)      (ISOSHL)  (ISHLSO)',              &
      &      '-------------------------------------------'
             DO ISYM = 1,NSYM
                DO I = 1,NBAS(ISYM)
                   IA = IBAS(ISYM) + I
-                  WRITE(LUPRI,'(2X,I9,1X,I9,1X,I3,1X,I9,1X,I9)')
+                  WRITE(LUPRI,'(2X,I9,1X,I9,1X,I3,1X,I9,1X,I9)')        &
      &                 IA,I,ISYM,ISOSHL(IA),ISHLSO(IA)
                END DO
             END DO
-            WRITE(LUPRI,'(2X,A)')
+            WRITE(LUPRI,'(2X,A)')                                       &
      &      '-------------------------------------------'
 
          END IF

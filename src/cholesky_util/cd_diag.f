@@ -10,12 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine CD_Diag(CD_Vec,
-     &                   Restart,Converged,Thr,
-     &                   ThrNeg,ThrFail,
-     &                   DiaInp,Diag,Buf,
-     &                   nDim,lBuf,
-     &                   ErrStat,NumCho,
+      SubRoutine CD_Diag(CD_Vec,                                        &
+     &                   Restart,Converged,Thr,                         &
+     &                   ThrNeg,ThrFail,                                &
+     &                   DiaInp,Diag,Buf,                               &
+     &                   nDim,lBuf,                                     &
+     &                   ErrStat,NumCho,                                &
      &                   irc)
 !
 !     Thomas Bondo Pedersen, October 2004.

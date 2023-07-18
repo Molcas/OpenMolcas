@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETVEC2(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
+      SUBROUTINE CHO_GETVEC2(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,           &
      &                       SCR,LSCR)
 !
 !     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
@@ -70,7 +70,7 @@
          JRED1 = INFVEC(JVEC1,2,ISYM)
          NVRD  = 0
          MUSED = 0
-         CALL CHO_VECRD(SCR(KSCR),LEFT,JVEC1,IVEC2,ISYM,
+         CALL CHO_VECRD(SCR(KSCR),LEFT,JVEC1,IVEC2,ISYM,                &
      &                  NVRD,IREDC,MUSED)
          IF (CHO_ADRVEC .EQ. 1) THEN
             NSYS_CALL = NSYS_CALL + 1
@@ -84,7 +84,7 @@
 !        -----------------------------
 
          IF (NVRD .LT. 1) THEN
-            CALL CHO_QUIT('Insufficient scratch space for read in '
+            CALL CHO_QUIT('Insufficient scratch space for read in '     &
      &                    //SECNAM,101)
          END IF
 

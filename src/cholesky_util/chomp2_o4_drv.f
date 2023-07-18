@@ -99,7 +99,7 @@
             Go To 1  ! exit
          End If
          Call CWTime(CPUIni2,WallIni2)
-         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,
+         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1, &
      &                   WallIni2,WallIni1,iFmt)
       End If
 
@@ -144,7 +144,7 @@
 
       If (Verbose) Then
          Call CWTime(CPUTra2,WallTra2)
-         Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1,
+         Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1, &
      &                   WallTra2,WallTra1,iFmt)
       End If
 
@@ -169,15 +169,15 @@
       Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-         Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',
+         Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',           &
      &                    ' ')
       End If
       Call mma_deallocate(Diag)
 
       If (Verbose) Then
          Call CWTime(CPUDec2,WallDec2)
-         Call Cho_PrtTim('Cholesky MP2 decomposition',
-     &                   CPUDec2,CPUDec1,
+         Call Cho_PrtTim('Cholesky MP2 decomposition',                  &
+     &                   CPUDec2,CPUDec1,                               &
      &                   WallDec2,WallDec1,iFmt)
       End If
 
@@ -202,20 +202,20 @@
       End Do
 
       Call mma_allocate(Diag,lDiag,Label='Diag')
-      Call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,
+      Call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,    &
      &                        Diag,lDiag,lU_AO,irc)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
-         Call ChoMP2_Quit(SecNam,
-     &                'MP2 amplitude vector backtransformation failed!',
+         Call ChoMP2_Quit(SecNam,                                       &
+     &                'MP2 amplitude vector backtransformation failed!',&
      &                ' ')
       End If
       Call mma_deallocate(Diag)
 
       If (Verbose) Then
          Call CWTime(CPUBT2,WallBT2)
-         Call Cho_PrtTim('Cholesky MP2 backtransformation',
-     &                   CPUBT2,CPUBT1,
+         Call Cho_PrtTim('Cholesky MP2 backtransformation',             &
+     &                   CPUBT2,CPUBT1,                                 &
      &                   WallBT2,WallBT1,iFmt)
       End If
 
@@ -258,7 +258,7 @@
       End If
       If (Verbose) Then
          Call CWTime(CPUTot2,WallTot2)
-         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
+         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,                &
      &                   WallTot2,WallTot1,iFmt)
       End If
 

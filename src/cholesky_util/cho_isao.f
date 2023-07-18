@@ -24,15 +24,15 @@
       PARAMETER (SECNAM = 'CHO_ISAO')
 
       IF ((IAO.GT.NBAST) .OR. (IAO.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')
+         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
      &   SECNAM,': AO index out of bounds: ',IAO
-         WRITE(LUPRI,'(A,I10,A,/)')
+         WRITE(LUPRI,'(A,I10,A,/)')                                     &
      &   'Maximum possible: NBAST = ',NBAST,'(from common block)'
          IF (NBAST .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,
+            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
      &                    102)
          ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,
+            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
      &                    103)
          END IF
       END IF

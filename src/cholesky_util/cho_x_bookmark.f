@@ -86,7 +86,7 @@
 !     Check input.
 !     ------------
 
-      If (sign(1.0d0,Thr).lt.0.0d0 .or. Thr.lt.ThrCom .or.
+      If (sign(1.0d0,Thr).lt.0.0d0 .or. Thr.lt.ThrCom .or.              &
      &    mSym.lt.1 .or. mSym.gt.nSym) Then
          irc=1
          Return
@@ -98,9 +98,9 @@
       If (DebugPrint) Then
          Call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,6)
          Do iSym=1,nSym
-            Write(6,'(A,I2,A)') 'Symmetry block',iSym,
+            Write(6,'(A,I2,A)') 'Symmetry block',iSym,                  &
      &                          ' Bookmarks (nVec,delta)'
-            Write(6,'(5(1X,A,I6,A,D15.8,A))')
+            Write(6,'(5(1X,A,I6,A,D15.8,A))')                           &
      &      ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
          End Do
       End If

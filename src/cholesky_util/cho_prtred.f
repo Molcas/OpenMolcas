@@ -34,7 +34,7 @@
          DO ISYMB = 1,NSYM
             ISYMA = MULD2H(ISYMB,ISYM)
             IF (ISYMA .EQ. ISYMB) THEN
-               XXBAS(ISYM) = XXBAS(ISYM)
+               XXBAS(ISYM) = XXBAS(ISYM)                                &
      &                     + XBAS(ISYMA)*(XBAS(ISYMA) + 1.0D0)/2.0D0
             ELSE IF (ISYMA .GT. ISYMB) THEN
                XXBAS(ISYM) = XXBAS(ISYM) + XBAS(ISYMA)*XBAS(ISYMB)
@@ -74,21 +74,21 @@
          PCT1 = 1.0D2*DBLE(NSHP(1))/DBLE(NNSHL_TOT)
       END IF
       IF (IOPT .EQ. 1) THEN
-         WRITE(LUPRI,'(/,A,/,A)')
-     &   'Sym.          Full   First Red. Set',
+         WRITE(LUPRI,'(/,A,/,A)')                                       &
+     &   'Sym.          Full   First Red. Set',                         &
      &   '-----------------------------------'
          DO ISYM = 1,NSYM
-            WRITE(LUPRI,'(I3,3X,F12.1,7X,I10)')
+            WRITE(LUPRI,'(I3,3X,F12.1,7X,I10)')                         &
      &      ISYM,XXBAS(ISYM),NNBSTR(ISYM,1)
          END DO
-         WRITE(LUPRI,'(A)')
+         WRITE(LUPRI,'(A)')                                             &
      &   '-----------------------------------'
-         WRITE(LUPRI,'(A,F12.1,7X,I10)')
+         WRITE(LUPRI,'(A,F12.1,7X,I10)')                                &
      &   'Total:',XXBAST,NNBSTRT(1)
-         WRITE(LUPRI,'(A)')
+         WRITE(LUPRI,'(A)')                                             &
      &   '-----------------------------------'
-         WRITE(LUPRI,'(/,A,I10,A,I10,A,F7.2,A)')
-     &   'First Reduced Set:',NSHP(1),' of',NNSHL_TOT,
+         WRITE(LUPRI,'(/,A,I10,A,I10,A,F7.2,A)')                        &
+     &   'First Reduced Set:',NSHP(1),' of',NNSHL_TOT,                  &
      &   ' shell pairs contribute (',PCT1,'%)'
       ELSE
          IF (NNSHL_TOT .EQ. 0) THEN
@@ -96,25 +96,25 @@
          ELSE
             PCT2 = 1.0D2*DBLE(NSHP(2))/DBLE(NNSHL_TOT)
          END IF
-         WRITE(LUPRI,'(/,A,/,A,/,A)')
-     &   '                          Reduced Set',
-     &   'Sym.          Full      First    Current',
+         WRITE(LUPRI,'(/,A,/,A,/,A)')                                   &
+     &   '                          Reduced Set',                       &
+     &   'Sym.          Full      First    Current',                    &
      &   '----------------------------------------'
          DO ISYM = 1,NSYM
-            WRITE(LUPRI,'(I3,3X,F12.1,1X,I10,1X,I10)')
+            WRITE(LUPRI,'(I3,3X,F12.1,1X,I10,1X,I10)')                  &
      &      ISYM,XXBAS(ISYM),NNBSTR(ISYM,1),NNBSTR(ISYM,2)
          END DO
-         WRITE(LUPRI,'(A)')
+         WRITE(LUPRI,'(A)')                                             &
      &   '----------------------------------------'
-         WRITE(LUPRI,'(A,F12.1,1X,I10,1X,I10)')
+         WRITE(LUPRI,'(A,F12.1,1X,I10,1X,I10)')                         &
      &   'Total:',XXBAST,NNBSTRT(1),NNBSTRT(2)
-         WRITE(LUPRI,'(A)')
+         WRITE(LUPRI,'(A)')                                             &
      &   '----------------------------------------'
-         WRITE(LUPRI,'(/,A,I10,A,I10,A,F7.2,A)')
-     &   'First Reduced Set:',NSHP(1),' of',NNSHL_TOT,
+         WRITE(LUPRI,'(/,A,I10,A,I10,A,F7.2,A)')                        &
+     &   'First Reduced Set:',NSHP(1),' of',NNSHL_TOT,                  &
      &   ' shell pairs contribute (',PCT1,'%)'
-         WRITE(LUPRI,'(A,I10,A,I10,A,F7.2,A)')
-     &   'Curr. Reduced Set:',NSHP(2),' of',NNSHL_TOT,
+         WRITE(LUPRI,'(A,I10,A,I10,A,F7.2,A)')                          &
+     &   'Curr. Reduced Set:',NSHP(2),' of',NNSHL_TOT,                  &
      &   ' shell pairs contribute (',PCT2,'%)'
       END IF
 

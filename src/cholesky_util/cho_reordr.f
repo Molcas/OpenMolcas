@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
+      SUBROUTINE CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,    &
      &                      IREDC,iSwap,ipChoV,iSkip)
 !***********************************************************
 !   Author: F. Aquilante
@@ -126,7 +126,7 @@
                 ibs   = ibg - ibas(iSyma)
 
                 iabf  = iTri(ias,ibs)
-                kchov = (JVEC-1)*nBas(iSyma)*(nBas(iSyma)+1)/2 + iabf
+                kchov = (JVEC-1)*nBas(iSyma)*(nBas(iSyma)+1)/2 + iabf   &
      &                + ipChoV(iSyma) - 1
 
                 Work(kchov) = Scr(kscr)
@@ -172,11 +172,11 @@
                 ias   = iag - ibas(iSyma)  !addr within that symm block
                 ibs   = ibg - ibas(iSyma)
 
-                kchov1 = nBas(iSyma)*NUMV*(ibs-1)
-     &                 + nBas(iSyma)*(jVref+JVEC-2) + ias
+                kchov1 = nBas(iSyma)*NUMV*(ibs-1)                       &
+     &                 + nBas(iSyma)*(jVref+JVEC-2) + ias               &
      &                 + ipChoV(iSyma) - 1
-                kchov2 = nBas(iSyma)*NUMV*(ias-1)
-     &                 + nBas(iSyma)*(jVref+JVEC-2) + ibs
+                kchov2 = nBas(iSyma)*NUMV*(ias-1)                       &
+     &                 + nBas(iSyma)*(jVref+JVEC-2) + ibs               &
      &                 + ipChoV(iSyma) - 1
 
                 Work(kchov1) = Scr(kscr)
@@ -223,11 +223,11 @@
                 ias   = iag - ibas(iSyma)  !addr within that symm block
                 ibs   = ibg - ibas(iSyma)
 
-                kchov1 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)
-     &                 + nBas(iSyma)*(ibs-1) + ias
+                kchov1 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)               &
+     &                 + nBas(iSyma)*(ibs-1) + ias                      &
      &                 + ipChoV(iSyma) - 1
-                kchov2 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)
-     &                 + nBas(iSyma)*(ias-1) + ibs
+                kchov2 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)               &
+     &                 + nBas(iSyma)*(ias-1) + ibs                      &
      &                 + ipChoV(iSyma) - 1
 
                 Work(kchov1) = Scr(kscr)
@@ -275,8 +275,8 @@
                 ias   = iag - ibas(iSyma)  !addr within that symm block
                 ibs   = ibg - ibas(iSymb)
 
-                kchov = nBas(iSyma)*nBas(iSymb)*(JVEC-1)
-     &                + nBas(iSyma)*(ibs-1) + ias
+                kchov = nBas(iSyma)*nBas(iSymb)*(JVEC-1)                &
+     &                + nBas(iSyma)*(ibs-1) + ias                       &
      &                + ipChoV(iSyma) - 1
 
                 Work(kchov) = Scr(kscr)
@@ -323,8 +323,8 @@
                 ias   = iag - ibas(iSyma)  !addr within that symm block
                 ibs   = ibg - ibas(iSymb)
 
-                kchov = nBas(iSyma)*NUMV*(ibs-1)
-     &                + nBas(iSyma)*(jVref+JVEC-2) + ias
+                kchov = nBas(iSyma)*NUMV*(ibs-1)                        &
+     &                + nBas(iSyma)*(jVref+JVEC-2) + ias                &
      &                + ipChoV(iSyma) - 1
 
                 Work(kchov) = Scr(kscr)

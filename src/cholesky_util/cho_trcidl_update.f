@@ -27,7 +27,7 @@
 
 #if defined (_DEBUGPRINT_)
       If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
-         Write(LuPri,'(A)')
+         Write(LuPri,'(A)')                                             &
      &   'Cho_TrcIdl_Update should not be called in this run!'
          Write(LuPri,*) 'Trace_Idle=',Trace_Idle
          Call Cho_Quit('Illegal call to Cho_TrcIdl_Update',103)

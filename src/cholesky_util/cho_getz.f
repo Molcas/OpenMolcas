@@ -10,11 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_GetZ(irc,
-     &                    NVT,l_NVT,
-     &                    nBlock,l_nBlock,
-     &                    nV,l_nV1,l_nV2,
-     &                    iV1,l_iV11,l_iV12,
+      SubRoutine Cho_GetZ(irc,                                          &
+     &                    NVT,l_NVT,                                    &
+     &                    nBlock,l_nBlock,                              &
+     &                    nV,l_nV1,l_nV2,                               &
+     &                    iV1,l_iV11,l_iV12,                            &
      &                    ip_Z,l_Z1,l_Z2,Z,l_Z)
 !
 !     Thomas Bondo Pedersen, April 2010.
@@ -101,8 +101,8 @@
 
 #if defined (_DEBUGPRINT_)
       ! Check input variables
-      If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
-     &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
+      If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.                      &
+     &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.                        &
      &    l_Z2.lt.nSym) Then
          irc=-1
          Return
@@ -112,7 +112,7 @@
          nBlock_Max=max(nBlock_Max,nBlock(iSym))
       End Do
       nnB=nBlock_Max*(nBlock_Max+1)/2
-      If (l_nV1.lt.nBlock_Max .or. l_iV11.lt.nBlock_Max .or.
+      If (l_nV1.lt.nBlock_Max .or. l_iV11.lt.nBlock_Max .or.            &
      &    l_Z1.lt.nnB) Then
          irc=-2
          Return
@@ -126,8 +126,8 @@
       Do iSym=1,nSym
          If (iPrint.ge.myDebugInfo) Then
             Do i=1,nBlock(iSym)
-               Write(LuPri,'(2X,A,I6,A,I2,A,I6,A,I6)')
-     &         'Block',i,' of sym.',iSym,': nV=',nV(i,iSym),
+               Write(LuPri,'(2X,A,I6,A,I2,A,I6,A,I6)')                  &
+     &         'Block',i,' of sym.',iSym,': nV=',nV(i,iSym),            &
      &         ' iV1=',iV1(i,iSym)
             End Do
          End If
@@ -140,11 +140,11 @@
                End If
                n=n+k
                If (iPrint.ge.myDebugInfo) Then
-                  Write(Lupri,'(5X,A,I6,A,I6,A,I2,A,I9)')
-     &            'iBlock',i,' jBlock',j,' of Sym.',iSym,': ip_Z=',
+                  Write(Lupri,'(5X,A,I6,A,I6,A,I2,A,I9)')               &
+     &            'iBlock',i,' jBlock',j,' of Sym.',iSym,': ip_Z=',     &
      &            ip_Z(iTri(i,j),iSym)
-                  Write(LuPri,'(5X,A,I6,A,I9)')
-     &            '--> Block dimension:',k,'  Block ends at:',
+                  Write(LuPri,'(5X,A,I6,A,I9)')                         &
+     &            '--> Block dimension:',k,'  Block ends at:',          &
      &            ip_Z(iTri(i,j),iSym)+k-1
                End If
             End Do
@@ -163,7 +163,7 @@
          irc=-3
          If (iPrint.ge.myDebugInfo) Then
             Write(LuPri,'(A)') 'Ooops! They disagree....'
-            Write(LuPri,'(A,I4)')
+            Write(LuPri,'(A,I4)')                                       &
      &      'Returning with code:',irc
          End If
          Return
@@ -175,10 +175,10 @@
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call FZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call FZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),               &
      &                     nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2)
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call FZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call FZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),            &
      &                        nV(jBlock,iSym)*nV(kBlock,iSym))
             End Do
          End Do
@@ -203,7 +203,7 @@
       ! or modify contents of location 2.
       Call Cho_X_RSCopy(irc,1,2)
       If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I5)') SecNam,': Cho_X_RSCopy returned code',
+         Write(LuPri,'(A,A,I5)') SecNam,': Cho_X_RSCopy returned code', &
      &                           irc
          irc = 1
          Go To 1 ! exit after deallocation
@@ -225,7 +225,7 @@
             nVRead = 0
             mUsed = 0
             Call Cho_Timer(C0,W0)
-            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,
+            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,       &
      &                       nVRead,iRedC,mUsed)
             If (nVRead .lt. 1) Then
                irc = 2
@@ -255,7 +255,7 @@
                kBlock=Cho_iRange(K+1,iV1(1,iSym),nBlock(iSym),.True.)
 #if defined (_DEBUGPRINT_)
                If (kBlock.lt.1 .or. kBlock.gt.nBlock(iSym)) Then
-                  Call Cho_Quit('[BLOCK] Error detected in '//SecNam,
+                  Call Cho_Quit('[BLOCK] Error detected in '//SecNam,   &
      &                          104)
                End If
 #endif
@@ -267,7 +267,7 @@
                   Z(kOffZ+iTri(J_inBlock,K_inBlock))=Wrk(kOffV+iJ)
                End Do
                Do jBlock=kBlock+1,nBlock(iSym)
-                  kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1
+                  kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1                &
      &                 +nV(jBlock,iSym)*(K_inBlock-1)
                   Do J_inBlock=1,nV(jBlock,iSym)
                      J=iV1(jBlock,iSym)+J_inBlock-1
@@ -289,10 +289,10 @@
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),          &
      &                      nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2,'+')
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_GAdGOp(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call Cho_GAdGOp(Z(ip_Z(iTri(jBlock,kBlock),iSym)),       &
      &                         nV(jBlock,iSym)*nV(kBlock,iSym),'+')
             End Do
          End Do
@@ -303,7 +303,7 @@
 !     --------------------------------------------------------
 
       If (iPrint.ge.myDebugInfo) Then
-         Call Cho_Head(SecNam//': Diagonal of Z Vector Matrix','=',80,
+         Call Cho_Head(SecNam//': Diagonal of Z Vector Matrix','=',80,  &
      &                 LuPri)
          Write(Lupri,'(A)') ' '
       End If
@@ -313,20 +313,20 @@
             kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
             Do J_inBlock=1,nV(jBlock,iSym)
                If (iPrint.ge.myDebugInfo) Then
-                  Write(LuPri,'(A,I2,A,I6,A,1P,D15.6,A,D15.6)')
-     &            'Sym=',iSym,
-     &            '  J=',iV1(jBlock,iSym)+J_inBlock-1,
-     &            '  Z(J,J)=',
-     &            Z(kOffZ+iTri(J_inBlock,J_inBlock)),
-     &            '  Squared=',
+                  Write(LuPri,'(A,I2,A,I6,A,1P,D15.6,A,D15.6)')         &
+     &            'Sym=',iSym,                                          &
+     &            '  J=',iV1(jBlock,iSym)+J_inBlock-1,                  &
+     &            '  Z(J,J)=',                                          &
+     &            Z(kOffZ+iTri(J_inBlock,J_inBlock)),                   &
+     &            '  Squared=',                                         &
      &            Z(kOffZ+iTri(J_inBlock,J_inBlock))**2
                End If
-               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &             .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol       &
+     &             .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)     &
      &         Then
                   n=n+1
                   If (iPrint.ge.myDebugInfo) Then
-                     Write(LuPri,'(A)')
+                     Write(LuPri,'(A)')                                 &
      &               '  --> Small or negative Z diagonal!'
                   End If
                End If
@@ -338,10 +338,10 @@
          Go To 1 ! return
       End If
       ! Check diagonal elements
-      Call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,
-     &                        nV,l_nV1,l_nV2,
-     &                        iV1,l_iV11,l_iV12,
-     &                        ip_Z,l_Z1,l_Z2,Z,l_Z,
+      Call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,            &
+     &                        nV,l_nV1,l_nV2,                           &
+     &                        iV1,l_iV11,l_iV12,                        &
+     &                        ip_Z,l_Z1,l_Z2,Z,l_Z,                     &
      &                        iPrint.ge.myDebugInfo)
       If (irc.ne.0) Then
          Go To 1 ! return
@@ -361,12 +361,12 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Routine for checking integral diagonal diagonal
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SubRoutine Cho_CheckDiagFromZ(irc,
-     &                              NVT,l_NVT,
-     &                              nBlock,l_nBlock,
-     &                              nV,l_nV1,l_nV2,
-     &                              iV1,l_iV11,l_iV12,
-     &                              ip_Z,l_Z1,l_Z2,Z,l_Z,
+      SubRoutine Cho_CheckDiagFromZ(irc,                                &
+     &                              NVT,l_NVT,                          &
+     &                              nBlock,l_nBlock,                    &
+     &                              nV,l_nV1,l_nV2,                     &
+     &                              iV1,l_iV11,l_iV12,                  &
+     &                              ip_Z,l_Z1,l_Z2,Z,l_Z,               &
      &                              Report)
 !
 !     Thomas Bondo Pedersen, April 2010.
@@ -445,18 +445,18 @@
                Do J_inBlock=K_inBlock,nV(kBlock,iSym)
                   J=iV1(kBlock,iSym)+J_inBlock-1
                   iD=InfVcT(J,1,iSym)
-                  IntDia(iD)=IntDia(iD)
+                  IntDia(iD)=IntDia(iD)                                 &
      &            -Z(kOffZ+iTri(J_inBlock,K_inBlock))**2
                End Do
             End Do
             Do jBlock=kBlock+1,nBlock(iSym)
                Do K_inBlock=1,nV(kBlock,iSym)
-                  kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1
+                  kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1                &
      &                 +nV(jBlock,iSym)*(K_inBlock-1)
                   Do J_inBlock=1,nV(jBlock,iSym)
                      J=iV1(jBlock,iSym)+J_inBlock-1
                      iD=InfVcT(J,1,iSym)
-                     IntDia(iD)=IntDia(iD)
+                     IntDia(iD)=IntDia(iD)                              &
      &               -Z(kOffZ+J_inBlock)**2
                   End Do
                End Do
@@ -498,31 +498,31 @@
 
       ! Write a report if requested
       If (Report) Then
-         Call Cho_Head(SecNam//': Report on (J|J) Diagonal from Z','=',
+         Call Cho_Head(SecNam//': Report on (J|J) Diagonal from Z','=', &
      &                 80,LuPri)
-         Write(LuPri,'(/,A,I8)')
+         Write(LuPri,'(/,A,I8)')                                        &
      &   'Total dimension of diagonal............',nnBstRT(1)
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Number of Cholesky vectors.............',nTot
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Converged diagonals....................',n1
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Unconverged diagonals..................',nTot-n1
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Negative diagonals.....................',n2
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Neg. diag. that would be zeroed........',n3
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Neg. diag. that would cause warning....',n4
-         Write(LuPri,'(A,I8)')
+         Write(LuPri,'(A,I8)')                                          &
      &   'Neg. diag. that would cause crash......',n5
-         Write(LuPri,'(A,1P,D15.6)')
+         Write(LuPri,'(A,1P,D15.6)')                                    &
      &   'Max diagonal...........................',Dmax
-         Write(LuPri,'(A,1P,D15.6)')
+         Write(LuPri,'(A,1P,D15.6)')                                    &
      &   'Min diagonal...........................',Dmin
-         Write(LuPri,'(A,1P,D15.6)')
+         Write(LuPri,'(A,1P,D15.6)')                                    &
      &   'Max abs diagonal.......................',Damax
-         Write(LuPri,'(A,1P,D15.6)')
+         Write(LuPri,'(A,1P,D15.6)')                                    &
      &   'Min abs diagonal.......................',Damin
       End If
 

@@ -31,17 +31,17 @@
       If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Return
 
       If (Cho_Real_Par) Then
-         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho_G,DiaMaxT,
+         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho_G,DiaMaxT,     &
      &                            BkmVec,BkmThr)
       Else
-         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho,DiaMaxT,
+         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho,DiaMaxT,       &
      &                            BkmVec,BkmThr)
       End If
       nCol_BkmVec=nCol_BkmVec+1
       nCol_BkmThr=nCol_BkmThr+1
 
       End
-      Subroutine Cho_UpdateBookmarks(iRS,nSym,nRS,nVec,delta,nBkmVec,
+      Subroutine Cho_UpdateBookmarks(iRS,nSym,nRS,nVec,delta,nBkmVec,   &
      &                               BkmThr)
       Implicit None
       Integer iRS

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_PUTRED1(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
+      SUBROUTINE CHO_PUTRED1(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,       &
      &                       MRED,MSYM,MMSHL,LMMBSTRT,IPASS,ILOC)
 !
 !     Purpose: write index arrays for current reduced set (reduced set
@@ -58,13 +58,13 @@
 
       IADR1 = INFRED(IPASS)
       IF (IADR1 .LT. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',
+         WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',   &
      &                  IPASS,': ',IADR1
          CALL CHO_QUIT('Error in '//SECNAM,104)
       END IF
 
       IF (LOCDBG) THEN
-         WRITE(LUPRI,*) SECNAM,': putting reduced set ',IPASS,
+         WRITE(LUPRI,*) SECNAM,': putting reduced set ',IPASS,          &
      &                  ' at addr: ',IADR1
       END IF
 

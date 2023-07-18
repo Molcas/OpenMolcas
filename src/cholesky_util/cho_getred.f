@@ -56,14 +56,14 @@
       IADR1 = INFRED(IPASS)
 #if defined (_DEBUGPRINT_)
       IF (IADR1 .LT. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',
+         WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',   &
      &                  IPASS,': ',IADR1
          CALL CHO_QUIT('Error in '//SECNAM,104)
       END IF
 #endif
 
       IF (LOCDBG) THEN
-         WRITE(LUPRI,*) SECNAM,': getting reduced set ',IPASS,
+         WRITE(LUPRI,*) SECNAM,': getting reduced set ',IPASS,          &
      &                  ' at addr: ',IADR1
       END IF
 

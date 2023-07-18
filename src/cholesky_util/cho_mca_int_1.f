@@ -55,7 +55,7 @@
 
          IF (IFCSEW.EQ.1) THEN
 
-            WRITE(LUPRI,'(//,5X,A,A,4I5,A)')
+            WRITE(LUPRI,'(//,5X,A,A,4I5,A)')                            &
      &      SECNAM,': shell quadruple ',I,J,K,L,':'
 
             NUMI = NBSTSH(I)
@@ -77,8 +77,8 @@
                            DO II = 1,JJ
                               IIJJ = ITRI(II,JJ)
                               KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',
+                              WRITE(LUPRI,*)                            &
+     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
      &                        XINT(KOFF)
                            END DO
                         END DO
@@ -87,8 +87,8 @@
                            DO II = 1,NUMI
                               IIJJ = NUMI*(JJ - 1) + II
                               KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',
+                              WRITE(LUPRI,*)                            &
+     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
      &                        XINT(KOFF)
                            END DO
                         END DO
@@ -104,8 +104,8 @@
                            DO II = 1,JJ
                               IIJJ = ITRI(II,JJ)
                               KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',
+                              WRITE(LUPRI,*)                            &
+     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
      &                        XINT(KOFF)
                            END DO
                         END DO
@@ -114,8 +114,8 @@
                            DO II = 1,NUMI
                               IIJJ = NUMI*(JJ - 1) + II
                               KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',
+                              WRITE(LUPRI,*)                            &
+     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
      &                        XINT(KOFF)
                            END DO
                         END DO

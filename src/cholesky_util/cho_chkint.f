@@ -32,7 +32,7 @@
             NERR = NERR + 1
             IF (REPORT) THEN
                WRITE(LUPRI,*) SECNAM,': diag error: ',DIAG(JJ),XINT(KK)
-               WRITE(LUPRI,*) '            diagonal elm    : ',JJ,
+               WRITE(LUPRI,*) '            diagonal elm    : ',JJ,      &
      &                        ' (rs1) ',II,' (rs2)'
                WRITE(LUPRI,*) '            integral row,col: ',IK,I
             END IF

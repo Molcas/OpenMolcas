@@ -47,13 +47,13 @@
       If (nSym .ne. 1) Then ! does not work with symmetry
          irc = 1
          If (Debug) Then
-            Write(Lupri,*) '>>> Exit ',SecNam,
+            Write(Lupri,*) '>>> Exit ',SecNam,                          &
      &      ' (error exit: symmetry not allowed!)'
          End If
          Return
       End If
       If (n .lt. nShell) Then
-         Call Cho_Quit(SecNam//': iAtomShl not allocated correctly!',
+         Call Cho_Quit(SecNam//': iAtomShl not allocated correctly!',   &
      &                 104)
       End If
 
@@ -74,7 +74,7 @@
 
       Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
       Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
-      Call BasFun_Atom(nBas_per_Atom,nBas_Start,
+      Call BasFun_Atom(nBas_per_Atom,nBas_Start,                        &
      &                 AtomLabel,nBasT,nAtom,Debug)
 
 !     Set shell-to-atom mapping.
@@ -103,9 +103,9 @@
             iSh0 = numSh*(iBatch-1)
             iSh1 = iSh0 + 1
             iSh2 = iSh0 + nSh
-            Write(Lupri,'(/,A,7(1X,I9))')
+            Write(Lupri,'(/,A,7(1X,I9))')                               &
      &      'Shell:',(iSh,iSh=iSh1,iSh2)
-            Write(Lupri,'(A,7(1X,I9))')
+            Write(Lupri,'(A,7(1X,I9))')                                 &
      &      'Atom :',(iAtomShl(iSh),iSh=iSh1,iSh2)
             Do iSh = iSh1,iSh2
                If (iAtomShl(iSh).lt.1 .or. iAtomShl(iSh).gt.nAtom) Then

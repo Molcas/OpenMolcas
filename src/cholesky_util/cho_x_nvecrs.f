@@ -124,7 +124,7 @@
 !     Debug: print result.
 !     --------------------
 
-      Write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ',
+      Write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ', &
      &           iRed,' (sym. block ',iSym,')'
       Write(6,*) SecNam,': first vector is: ',iVec
 #endif

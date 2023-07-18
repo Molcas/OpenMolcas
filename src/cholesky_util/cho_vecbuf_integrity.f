@@ -21,8 +21,8 @@
 !
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
-     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,                       &
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,         &
      &                     nVec_in_Buf
       use stdalloc
       Implicit None
@@ -78,7 +78,7 @@
             ip=ip_ChvBfI_Sym(iSym)
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)
-               CHVBFI(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
+               CHVBFI(ip)=sqrt(dDot_(nDimRS(iSym,jRed),                 &
      &                            CHVBUF(ipV),1,CHVBUF(ipV),1))
                CHVBFI(ip+1)=Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
                ipV=ipV+nDimRS(iSym,jRed)
@@ -88,7 +88,7 @@
          If (iPrint.gt.2) Then
             Call Cho_VecBuf_PrtRef('@NABLE')
          End If
-         Write(LuPri,'(A)')
+         Write(LuPri,'(A)')                                             &
      &   'Cholesky vector buffer integrity checks enabled'
       Else
          Call iZero(l_ChVBfI_Sym,nSym)
@@ -117,7 +117,7 @@
       Txt=' '
       Call Cho_VecBuf_CheckIntegrity(Tol,Verbose,Txt,irc)
       If (irc.ne.0) Then
-         Write(LuPri,'(A,I3)')
+         Write(LuPri,'(A,I3)')                                          &
      &   'Cho_VecBuf_Check: buffer integrity check returned code',irc
          Call Cho_Quit('Cholesky vector buffer corrupted',104)
       End If
@@ -150,14 +150,14 @@
 
       If (Cho_VecBuf_Integrity_OK(Tol,Verbose)) Then
          If (Verbose) Then
-            Write(LuPri,'(A,A)')
+            Write(LuPri,'(A,A)')                                        &
      &      Txt,' Cholesky vector buffer integrity checked: OK'
             Call Cho_Flush(LuPri)
          End If
          irc=0
       Else
          If (Verbose) Then
-            Write(LuPri,'(A,A)')
+            Write(LuPri,'(A,A)')                                        &
      &      Txt,' Cholesky vector buffer integrity checked: CORRUPTED'
             Call Cho_Quit('Buffer corrupted',104)
          End If
@@ -178,8 +178,8 @@
 !
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
-     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,                       &
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,         &
      &                     nVec_in_Buf
       Implicit None
       Real*8  Tol
@@ -203,10 +203,10 @@
       RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       nErr=0
-      If (Allocated(CHVBUF) .and. Allocated(CHVBFI) .and.
+      If (Allocated(CHVBUF) .and. Allocated(CHVBFI) .and.               &
      &    Allocated(nDimRS)) Then
          Do iSym=1,nSym
-            If (nVec_in_Buf(iSym).gt.0 .and.
+            If (nVec_in_Buf(iSym).gt.0 .and.                            &
      &          l_ChVBfI_Sym(iSym).gt.0) Then
                ipV=ip_ChVBuf_Sym(iSym)
                Do jVec=1,nVec_in_Buf(iSym)
@@ -214,19 +214,19 @@
                   n=nDimRS(iSym,jRed)
                   Nrm=sqrt(dDot_(n,CHVBUF(ipV),1,CHVBUF(ipV),1))
                   Sm=Cho_dSumElm(CHVBUF(ipV),n)
-                  OK=abs(Nrm-RefNrm(jVec,iSym)).lt.Tol .and.
+                  OK=abs(Nrm-RefNrm(jVec,iSym)).lt.Tol .and.            &
      &               abs(Sm-RefSm(jVec,iSym)).lt.Tol
                   If (.not.OK) Then
                      nErr=nErr+1
                      If (Report) Then
-                        Write(LuPri,'(A,I7,A,I2,A,I9)')
-     &                  'Buffer corrupted: vector',jVec,' sym.',iSym,
+                        Write(LuPri,'(A,I7,A,I2,A,I9)')                 &
+     &                  'Buffer corrupted: vector',jVec,' sym.',iSym,   &
      &                  ' dim.',n
-                        Write(LuPri,'(3X,1P,3(A,D25.16))')
-     &                  'Norm=',Nrm,' Reference=',RefNrm(jVec,iSym),
+                        Write(LuPri,'(3X,1P,3(A,D25.16))')              &
+     &                  'Norm=',Nrm,' Reference=',RefNrm(jVec,iSym),    &
      &                  ' Diff=',Nrm-RefNrm(jVec,iSym)
-                        Write(LuPri,'(3X,1P,3(A,D25.16))')
-     &                  'Sum= ',Sm,' Reference=',RefSm(jVec,iSym),
+                        Write(LuPri,'(3X,1P,3(A,D25.16))')              &
+     &                  'Sum= ',Sm,' Reference=',RefSm(jVec,iSym),      &
      &                  ' Diff=',Sm-RefSm(jVec,iSym)
                      End If
                   End If
@@ -237,10 +237,10 @@
       End If
       If (Report) Then
          If (nErr.ne.0) Then
-            Write(LuPri,'(A,I7,A,1P,D25.16)')
+            Write(LuPri,'(A,I7,A,1P,D25.16)')                           &
      &      'Buffer corrupted for ',nErr,' vectors. Tolerance=',Tol
          Else
-            Write(LuPri,'(A,1P,D25.16)')
+            Write(LuPri,'(A,1P,D25.16)')                                &
      &      'Buffer integrity OK. Tolerance=',Tol
          End If
       End If
@@ -298,7 +298,7 @@
          Do J=1,mVec
             Nrm=sqrt(dDot_(n,Vec(1,J),1,Vec(1,J),1))
             Sm=Cho_dSumElm(Vec(1,J),n)
-            If (abs(RefNorm(J0+J,iSym)-Nrm).gt.Tol .or.
+            If (abs(RefNorm(J0+J,iSym)-Nrm).gt.Tol .or.                 &
      &          abs(RefSum(J0+J,iSym)-Sm).gt.Tol) Then
                irc=irc+1
             End If
@@ -334,7 +334,7 @@
       RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       If (.NOT.Allocated(nDimRS)) Then
-         Call Cho_Quit(
+         Call Cho_Quit(                                                 &
      &        'Cho_VecBuf_PrtRef: unable to print reference values',104)
       End If
       If (Allocated(CHVBFI)) Then
@@ -342,14 +342,14 @@
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)
                nDim=nDimRS(iSym,jRed)
-               Write(LuPri,'(A,A,I6,A,I2,A,I9,1P,2(A,D25.16))')
-     &         Txt,' Cholesky vector',jVec,
-     &         ' sym.',iSym,' dim.',nDim,
+               Write(LuPri,'(A,A,I6,A,I2,A,I9,1P,2(A,D25.16))')         &
+     &         Txt,' Cholesky vector',jVec,                             &
+     &         ' sym.',iSym,' dim.',nDim,                               &
      &         '  Norm=',RefNrm(jVec,iSym),' Sum=',RefSm(jVec,iSym)
             End Do
          End Do
       Else
-         Write(LuPri,'(A,A)')
+         Write(LuPri,'(A,A)')                                           &
      &   Txt,' Cho_VecBuf_PrtRef: no reference values available!'
       End If
 

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
+      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,        &
      &                         nOrbAll,nOccAll,Diagonalize)
       use ChoMP2, only: Pointer_2D
       use Constants
@@ -57,15 +57,15 @@
 !     allocated and set to zero
       Call mma_allocate(AORecBlock,nOrbAllMax**2,Label='AORecBlock')
       Call mma_allocate(TmpRecBlock,nOrbAllMax**2,Label='TmpRecBlock')
-      Call mma_allocate(AOTriBlock,nOrbAllMax*(nOrbAllMax+1)/2,
+      Call mma_allocate(AOTriBlock,nOrbAllMax*(nOrbAllMax+1)/2,         &
      &                  Label='AOTriBlock')
 
       If(Diagonalize) Then
-         Call mma_allocate(MOTriBlock,nOrbAllMax*(nOrbAllMax+1) / 2,
+         Call mma_allocate(MOTriBlock,nOrbAllMax*(nOrbAllMax+1) / 2,    &
      &                     Label='MOTriBlock')
-         Call mma_allocate(EigenVecBlock,nOrbAllMax*nOrbAllMax,
+         Call mma_allocate(EigenVecBlock,nOrbAllMax*nOrbAllMax,         &
      &                     Label='EigenVecBlock')
-         Call mma_allocate(EigenValBlock,nOrbAllMax,
+         Call mma_allocate(EigenValBlock,nOrbAllMax,                    &
      &                     Label='EigenValBlock')
          Call mma_allocate(EigenVecTot,lRecTot,Label='EigenVecTot')
          Call mma_allocate(EigenValTot,nOrbAllTot,Label='EigenValTot')
@@ -84,11 +84,11 @@
       ipSymTri(1) = 0
       ipSymLin(1) = 0
       Do iSym = 2, 8
-         ipSymTri(iSym) = ipSymTri(iSym-1)
+         ipSymTri(iSym) = ipSymTri(iSym-1)                              &
      &                  + (nOrbAll(iSym-1)) * (nOrbAll(iSym-1)+1)/2
-         ipSymRec(iSym) = ipSymRec(iSym-1)
+         ipSymRec(iSym) = ipSymRec(iSym-1)                              &
      &                  + (nOrbAll(iSym-1))**2
-         ipSymLin(iSym) = ipSymLin(iSym-1)
+         ipSymLin(iSym) = ipSymLin(iSym-1)                              &
      &                  + (nOrbAll(iSym-1))
       End Do
 !
@@ -107,21 +107,21 @@
                End Do
             End If
 !     Transform the symmetryblock to AO-density
-            Call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),
-     &                 nOrbAll(iSym),1.0d0 , CMO(ipSymRec(iSym)+1),
-     &                 nOrbAll(iSym),MP2X_e(iSym)%A,
-     &                 nOrbAll(iSym), 0.0d0, TmpRecBlock,
+            Call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),            &
+     &                 nOrbAll(iSym),1.0d0 , CMO(ipSymRec(iSym)+1),     &
+     &                 nOrbAll(iSym),MP2X_e(iSym)%A,                    &
+     &                 nOrbAll(iSym), 0.0d0, TmpRecBlock,               &
      &                 nOrbAll(iSym))
-            Call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),
-     &                 nOrbAll(iSym),
-     &                 1.0d0,TmpRecBlock,nOrbAll(iSym),
-     &                       CMO(ipSymRec(iSym)+1),nOrbAll(iSym),
+            Call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),            &
+     &                 nOrbAll(iSym),                                   &
+     &                 1.0d0,TmpRecBlock,nOrbAll(iSym),                 &
+     &                       CMO(ipSymRec(iSym)+1),nOrbAll(iSym),       &
      &                 0.0d0,AORecBlock,nOrbAll(iSym))
 !            Call RecPrt('AODens:','(20F8.5)',AORecBlock,
 !     &                  nOrb(iSym),nOrb(iSym))
             Call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
-            call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,
-     &                 AOTriBlock,1,
+            call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,              &
+     &                 AOTriBlock,1,                                    &
      &                 TriDens(1+ipSymTri(iSym)),1)
 
             If(Diagonalize) Then
@@ -135,7 +135,7 @@
                   End Do
                End Do
 !
-               Call NIDiag(MOTriBlock,EigenVecBlock,
+               Call NIDiag(MOTriBlock,EigenVecBlock,                    &
      &                     nOrbAll(iSym),nOrbAll(iSym))
 
 
@@ -144,7 +144,7 @@
                   EigenValBlock(i) =MOTriBlock(iTri(i,i))
                End Do
 !
-               Call SortEig(EigenValBlock,EigenVecBlock,
+               Call SortEig(EigenValBlock,EigenVecBlock,                &
      &                      nOrbAll(iSym),nOrbAll(iSym),-1,.false.)
 
 #ifdef _DEBUGPRINT_
@@ -158,9 +158,9 @@
                End Do
 #endif
 !
-               call dcopy_(nOrbAll(iSym)**2,EigenVecBlock,1,
+               call dcopy_(nOrbAll(iSym)**2,EigenVecBlock,1,            &
      &                    EigenVecTot(1+ipSymRec(iSym)),1)
-               call dcopy_(nOrbAll(iSym),EigenValBlock,1,
+               call dcopy_(nOrbAll(iSym),EigenValBlock,1,               &
      &                    EigenValTot(1+ipSymLin(iSym)),1)
 
             End If
@@ -186,7 +186,7 @@
             IndT(7,iSym)=nDel(iSym)
          End Do
          Note='*  Natural MP2 orbitals'
-         Call WrVec('MP2ORB',LuMP2,'COEI',mSym,nOrbAll,nOrbAll,
+         Call WrVec('MP2ORB',LuMP2,'COEI',mSym,nOrbAll,nOrbAll,         &
      &              EigenVecTot,EigenValTot,Energies,IndT,Note)
 !        Create a molden-file
          iUHF = 0

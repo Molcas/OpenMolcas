@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !               2012,2014, Victor P. Vysotskiy                         *
 !***********************************************************************
-      SubRoutine Cho_XCV_DistributeVectors(irc,SP_BatchDim,nSP_Batch,
+      SubRoutine Cho_XCV_DistributeVectors(irc,SP_BatchDim,nSP_Batch,   &
      &                                     idSP,n_idSP,NVT,l_NVT)
 !
 !     Thomas Bondo Pedersen, April 2010.
@@ -44,11 +44,11 @@
          If (iPrint.ge.Inf_Pass) Then
             Call Cho_Timer(C0,W0)
          End If
-         Call Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP,
+         Call Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP,       &
      &                     NVT,l_NVT)
          If (iPrint.ge.Inf_Pass) Then
             Call Cho_Timer(C1,W1)
-            Write(LuPri,'(/,1X,A)')
+            Write(LuPri,'(/,1X,A)')                                     &
      &      'Timing of vector distribution:'
             Call Cho_PrtTim(' ',C1,C0,W1,W0,-1)
          End If
@@ -59,14 +59,14 @@
          Call Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP)
          If (iPrint.ge.Inf_Pass) Then
             Call Cho_Timer(C1,W1)
-            Write(LuPri,'(/,1X,A)')
+            Write(LuPri,'(/,1X,A)')                                     &
      &      'Timing of vector write:'
             Call Cho_PrtTim(' ',C1,C0,W1,W0,-1)
          End If
       End If
 
       End
-      SubRoutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,
+      SubRoutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,                &
      &                        id_mySP,n_mySP,NVT,l_NVT)
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       Use Para_Info, Only: nProcs
@@ -160,16 +160,16 @@
       ! distribute vectors, one symmetry at a time
       Do iSym=1,nSym
          If (iPrint.ge.Inf_Progress) Then
-            Write(LuPri,'(/,A,I2,/,A)')
-     &      'Distributing vectors, symmetry',iSym,
+            Write(LuPri,'(/,A,I2,/,A)')                                 &
+     &      'Distributing vectors, symmetry',iSym,                      &
      &      '--------------------------------'
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Total number of vectors:',NVT(iSym)
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Local number of vectors:',NumCho(iSym)
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Vector dimension       :',nnBstR(iSym,2)
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Shell pair batches     :',nSP_Batch
             Call Cho_Flush(LuPri)
          End If
@@ -180,7 +180,7 @@
             Call Cho_GAIGOp(GANUMV,1,'min')
             nVec_per_batch=GANUMV(1)
             If (nVec_per_batch .lt. 1) Then
-               Call Cho_Quit(
+               Call Cho_Quit(                                           &
      &               'Insufficient memory for batching in '//SecNam,101)
             End If
             nBatch=(NVT(iSym)-1)/nVec_per_batch+1
@@ -192,13 +192,13 @@
             l_IDV=nVec_per_batch
             Call mma_allocate(GADIST,l_IDV,Label='GADIST')
             ! Create global array with evenly distributed chunks
-            ok=ga_create(mt_dbl,nnBstR(iSym,2),nVec_per_batch,'GA_XCV',
+            ok=ga_create(mt_dbl,nnBstR(iSym,2),nVec_per_batch,'GA_XCV', &
      &                   0,0,g_a)
             If (.not. ok) Then
                Call Cho_Quit(SecNam//': ga_create() failed!',101)
             End If
             If (iPrint.ge.Inf_Progress) Then
-               Write(LuPri,'(3X,A,I8)')
+               Write(LuPri,'(3X,A,I8)')                                 &
      &         'Vector batches         :',nBatch
                Call Cho_Flush(LuPri)
             End If
@@ -217,12 +217,12 @@
                J1=nVec_per_batch*(iBatch-1)+1
                J2=J1+nVec_this_batch-1
                If (iPrint.ge.Inf_Progress) Then
-                  Write(LuPri,'(3X,A,I8,/,3X,A)')
-     &            'Vector batch number:',iBatch,
+                  Write(LuPri,'(3X,A,I8,/,3X,A)')                       &
+     &            'Vector batch number:',iBatch,                        &
      &            '++++++++++++++++++++++++++++'
-                  Write(LuPri,'(6X,A,I8)')
+                  Write(LuPri,'(6X,A,I8)')                              &
      &            'Number of vectors in this batch:',nVec_this_batch
-                  Write(LuPri,'(6X,A,I8,1X,I8)')
+                  Write(LuPri,'(6X,A,I8,1X,I8)')                        &
      &            'First and last vector          :',J1,J2
                   Call Cho_Flush(LuPri)
                   Call Cho_Timer(X0,Y0)
@@ -250,7 +250,7 @@
                         If (nnBstRSh(iSym,iSP,2).gt.0) Then
                            myStart=iiBstRSh(iSym,iSP,2)+1
                            myEnd=myStart+nnBstRSh(iSym,iSP,2)-1
-                           Call ga_put(g_a,myStart,myEnd,1,
+                           Call ga_put(g_a,myStart,myEnd,1,             &
      &                          nVec_this_batch,GAVEC(kV),nDim)
                            kV=kV+nnBstRSh(iSym,iSP,2)
                         End If
@@ -260,7 +260,7 @@
                End Do
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X1,Y1)
-                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')
+                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')                  &
      &            'Time for read/ga_put (sec)     :',(X1-X0),(Y1-Y0)
                   Call Cho_Flush(LuPri)
                End If
@@ -278,7 +278,7 @@
 #if defined(_GA_)
                Do i=1,my_nV
                   J=GADIST(i)-J0
-                  Call ga_get(g_a,1,nnBstR(iSym,2),J,J,
+                  Call ga_get(g_a,1,nnBstR(iSym,2),J,J,                 &
      &                        GAVEC(kV),nnBstR(iSym,2))
                   kV=kV+nnBstR(iSym,2)
                End Do
@@ -286,7 +286,7 @@
                if(my_nV.gt.0) Then
                   Jst=GADIST(1)-J0
                   Jen=GADIST(my_nV)-J0
-                  Call ga_get_striped(g_a,1,nnBstR(iSym,2),Jst,
+                  Call ga_get_striped(g_a,1,nnBstR(iSym,2),Jst,         &
      &                 Jen,GAVEC(kV),nnBstR(iSym,2),nProcs)
                   kV=kV+nnBstR(iSym,2)*my_nV
                End If
@@ -301,7 +301,7 @@
                End If
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X1,Y1)
-                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')
+                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')                  &
      &            'Time for ga_get/write (sec)    :',(X1-X0),(Y1-Y0)
                   Call Cho_Flush(LuPri)
                End If
@@ -408,14 +408,14 @@
       ! read, reorder, and write vectors, one symmetry at a time
       Do iSym=1,nSym
          If (iPrint.ge.Inf_Progress) Then
-            Write(LuPri,'(/,A,I2,/,A)')
-     &      'Writing vectors, symmetry',iSym,
+            Write(LuPri,'(/,A,I2,/,A)')                                 &
+     &      'Writing vectors, symmetry',iSym,                           &
      &      '---------------------------'
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Total number of vectors:',NumCho(iSym)
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Vector dimension       :',nnBstR(iSym,2)
-            Write(LuPri,'(3X,A,I8)')
+            Write(LuPri,'(3X,A,I8)')                                    &
      &      'Shell pair batches     :',nSP_Batch
             Call Cho_Flush(LuPri)
          End If
@@ -424,12 +424,12 @@
             lTot=max_block_dim+nnBstR(iSym,2)
             nVec_per_batch=min(l_Mem/lTot,NumCho(iSym))
             If (nVec_per_batch .lt. 1) Then
-               Call Cho_Quit(
+               Call Cho_Quit(                                           &
      &               'Insufficient memory for batching in '//SecNam,101)
             End If
             nBatch=(NumCho(iSym)-1)/nVec_per_batch+1
             If (iPrint.ge.Inf_Progress) Then
-               Write(LuPri,'(3X,A,I8)')
+               Write(LuPri,'(3X,A,I8)')                                 &
      &         'Vector batches         :',nBatch
                Call Cho_Flush(LuPri)
             End If
@@ -444,13 +444,13 @@
                ! First vector in this batch
                J1=nVec_per_batch*(iBatch-1)+1
                If (iPrint.ge.Inf_Progress) Then
-                  Write(LuPri,'(3X,A,I8,/,3X,A)')
-     &            'Vector batch number:',iBatch,
+                  Write(LuPri,'(3X,A,I8,/,3X,A)')                       &
+     &            'Vector batch number:',iBatch,                        &
      &            '++++++++++++++++++++++++++++'
-                  Write(LuPri,'(6X,A,I8)')
+                  Write(LuPri,'(6X,A,I8)')                              &
      &            'Number of vectors in this batch:',nVec_this_batch
-                  Write(LuPri,'(6X,A,I8,1X,I8)')
-     &            'First and last vector          :',
+                  Write(LuPri,'(6X,A,I8,1X,I8)')                        &
+     &            'First and last vector          :',                   &
      &            J1,J1+nVec_this_batch-1
                   Call Cho_Flush(LuPri)
                   Call Cho_Timer(X0,Y0)
@@ -476,7 +476,7 @@
                      kV=ip_V-1
                      Do J=1,nVec_this_batch
                         kOffT=kT+nDim*(J-1)
-                        kOffV=kV+nnBstR(iSym,2)*(J-1)
+                        kOffV=kV+nnBstR(iSym,2)*(J-1)                   &
      &                          +iiBstRSh(iSym,id_mySP(iSP1),2)
                         Do i=1,nDim
                            DVSVEC(kOffV+i)=DVSVEC(kOffT+i)
@@ -488,7 +488,7 @@
                End Do
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X1,Y1)
-                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')
+                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')                  &
      &            'Time for read/reorder (sec)    :',(X1-X0),(Y1-Y0)
                   Call Cho_Flush(LuPri)
                End If
@@ -498,7 +498,7 @@
                Call DDAFile(LuCho(iSym),1,DVSVEC(ip_V),lTot,iAdr)
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X0,Y0)
-                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')
+                  Write(LuPri,'(6X,A,F12.2,1X,F12.2)')                  &
      &            'Time for write (sec)           :',(X0-X1),(Y0-Y1)
                   Call Cho_Flush(LuPri)
                End If

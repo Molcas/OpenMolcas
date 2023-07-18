@@ -13,23 +13,23 @@
       subroutine Cho_X_Dealloc(irc)
 
       use Definitions, only: iwp
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,&
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,      &
      &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot, iSimRI
 
-      use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
-     &                  nnBstRSh_Hidden, nnBstRSh,
-     &                  nnBstRSh_L_Hidden, nnBstRSh_G,
-     &                  iiBstRSh_Hidden, iiBstRSh,
-     &                  iiBstRSh_L_Hidden, iiBstRSh_G,
-     &                    IndRSh_Hidden,   IndRSh,
-     &                    IndRSh_G_Hidden,   IndRSh_G,
-     &                    InfRed_Hidden,   InfRed,
-     &                    InfRed_G_Hidden,   InfRed_G,
-     &                    InfVec_Hidden,   InfVec,
-     &                    InfVec_G_Hidden,   InfVec_G,
-     &                    IndRed_Hidden,   IndRed,
-     &                    IndRed_G_Hidden,   IndRed_G,
+      use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,   &
+     &                  nnBstRSh_Hidden, nnBstRSh,                      &
+     &                  nnBstRSh_L_Hidden, nnBstRSh_G,                  &
+     &                  iiBstRSh_Hidden, iiBstRSh,                      &
+     &                  iiBstRSh_L_Hidden, iiBstRSh_G,                  &
+     &                    IndRSh_Hidden,   IndRSh,                      &
+     &                    IndRSh_G_Hidden,   IndRSh_G,                  &
+     &                    InfRed_Hidden,   InfRed,                      &
+     &                    InfRed_G_Hidden,   InfRed_G,                  &
+     &                    InfVec_Hidden,   InfVec,                      &
+     &                    InfVec_G_Hidden,   InfVec_G,                  &
+     &                    IndRed_Hidden,   IndRed,                      &
+     &                    IndRed_G_Hidden,   IndRed_G,                  &
      &                    InfVec_Bak
       use stdalloc, only: mma_deallocate
       use ChPari
@@ -49,29 +49,29 @@
 !     Deallocate.
 !     -----------
 
-      If (Allocated(InfRed_Hidden))
+      If (Allocated(InfRed_Hidden))                                     &
      &    Call mma_deallocate(InfRed_Hidden)
       If (Associated(InfRed)) InfRed=>Null()
 
-      If (Allocated(InfVec_Hidden))
+      If (Allocated(InfVec_Hidden))                                     &
      &    Call mma_deallocate(InfVec_Hidden)
       If (Associated(InfVec)) InfVec=>Null()
 
-      If (Allocated(IndRed_Hidden))
+      If (Allocated(IndRed_Hidden))                                     &
      &    Call mma_deallocate(IndRed_Hidden)
       If (Associated(IndRed)) IndRed=>Null()
 
-      If (Allocated(IndRSh_Hidden))
+      If (Allocated(IndRSh_Hidden))                                     &
      &    Call mma_deallocate(IndRSh_Hidden)
       If (Associated(IndRSh)) IndRSh=>Null()
 
       If (Allocated(iScr)) Call mma_deallocate(iScr)
 
-      If (Allocated(iiBstRSh_Hidden))
+      If (Allocated(iiBstRSh_Hidden))                                   &
      &    Call mma_deallocate(iiBstRSh_Hidden)
       If (Associated(iiBstRSh)) iiBstRSh=>Null()
 
-      If (Allocated(nnBstRSh_Hidden))
+      If (Allocated(nnBstRSh_Hidden))                                   &
      &    Call mma_deallocate(nnBstRSh_Hidden)
       If (Associated(nnBstRSh)) nnBstRSh=>Null()
 
@@ -113,27 +113,27 @@
 
       If (Allocated(iSimRI)) Call mma_deallocate(iSimRI)
 
-      If (Allocated(InfVec_G_Hidden))
+      If (Allocated(InfVec_G_Hidden))                                   &
      &    Call mma_deallocate(InfVec_G_Hidden)
       If (Associated(InfVec_G)) InfVec_G=>Null()
 
-      If (Allocated(IndRed_G_Hidden))
+      If (Allocated(IndRed_G_Hidden))                                   &
      &    Call mma_deallocate(IndRed_G_Hidden)
       If (Associated(IndRed_G)) IndRed_G=>Null()
 
-      If (Allocated(InfRed_G_Hidden))
+      If (Allocated(InfRed_G_Hidden))                                   &
      &    Call mma_deallocate(InfRed_G_Hidden)
       If (Associated(InfRed_G)) InfRed_G=>Null()
 
-      If (Allocated(IndRSh_G_Hidden))
+      If (Allocated(IndRSh_G_Hidden))                                   &
      &    Call mma_deallocate(IndRSh_G_Hidden)
       If (Associated(IndRSh_G)) IndRSh_G=>Null()
 
-      If (Allocated(iiBstRSh_L_Hidden))
+      If (Allocated(iiBstRSh_L_Hidden))                                 &
      &    Call mma_deallocate(iiBstRSh_L_Hidden)
       If (Associated(iiBstRSh_G)) iiBstRSh_G=>Null()
 
-      If (Allocated(nnBstRSh_L_Hidden))
+      If (Allocated(nnBstRSh_L_Hidden))                                 &
      &    Call mma_deallocate(nnBstRSh_L_Hidden)
       If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
 

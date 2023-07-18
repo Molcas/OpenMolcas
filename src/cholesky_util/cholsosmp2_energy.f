@@ -69,7 +69,7 @@
 
       ! check that Laplace is requested
       If (.not.Laplace) Then
-         Call WarningMessage(1,SecNam//' was called - '
+         Call WarningMessage(1,SecNam//' was called - '                 &
      &                       //'but this is not a Laplace calculation!')
          Call xFlush(6)
          irc=-1
@@ -81,7 +81,7 @@
          Verb=.false.
          irc=TestMinimaxLaplace(1.0d-7,Verb)
          If (irc.ne.0) Then
-            Call WarningMessage(2,SecNam
+            Call WarningMessage(2,SecNam                                &
      &         //': error detected in numerical Laplace transformation')
             Write(6,'(A,I6)') 'irc=',irc
             Call Abend()
@@ -111,7 +111,7 @@
          End If
       End Do
       If (i.eq.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &                        SecNam//': unable to determine LOMO,HOMO')
          Call Abend()
       End If
@@ -129,7 +129,7 @@
          End If
       End Do
       If (i.eq.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &                        SecNam//': unable to determine LUMO,HUMO')
          Call Abend()
       End If
@@ -160,10 +160,10 @@
       xmax=2.0d0*(EHUMO-ELOMO)
       ! Debug: check range
       If (Debug) Then
-         irc=CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,
+         irc=CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,        &
      &                                                iVir,nVir)
          If (irc.ne.0) Then
-            Call WarningMessage(2,SecNam
+            Call WarningMessage(2,SecNam                                &
      &         //': error detected in orbital energy denominator range')
             Write(6,'(A,I6)') 'irc=',irc
             Call Abend()
@@ -178,7 +178,7 @@
       End If
       Call mma_allocate(W,l_w,Label='W')
       Call mma_allocate(T,l_w,Label='T')
-      Call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,
+      Call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,        &
      &                    l_w,W,T,irc)
       If (irc.ne.0) Then
          Write(6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
@@ -191,24 +191,24 @@
 !======================================
 
       If (Sorted) Then
-         Call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,
+         Call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,                &
      &                              W,T,EOcc,EVir,DelOrig,EMP2,irc)
          If (irc .ne. 0) Then
-            Write(6,'(A,A,I6)')
+            Write(6,'(A,A,I6)')                                         &
      &      SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
             Go To 1 ! exit
          End If
       Else
          If (nBatch .eq. 1) Then
-            Call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,
+            Call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,             &
      &                                 W,T,EOcc,EVir,DelOrig,EMP2,irc)
             If (irc .ne. 0) Then
-               Write(6,'(A,A,I6)')
+               Write(6,'(A,A,I6)')                                      &
      &         SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
                Go To 1 ! exit after cleanup
             End If
          Else
-            Call WarningMessage(1,
+            Call WarningMessage(1,                                      &
      &                        SecNam//': unsorted case not implemented')
             irc=-2
             Go To 1 ! exit after cleanup
@@ -237,7 +237,7 @@
       Call mma_deallocate(W)
 
       End
-      Integer Function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,
+      Integer Function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,        &
      &                                 iOcc,nOcc,iVir,nVir)
       Implicit None
       Real*8  xmin

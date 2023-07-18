@@ -105,9 +105,9 @@
       Call Cho_GASync()
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky initialization',
-     &                   TimSec(2,iSec),TimSec(1,iSec),
-     &                   TimSec(4,iSec),TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky initialization',                     &
+     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
+     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
      &                   1)
       End If
 #if defined (_DEBUGPRINT_)
@@ -120,7 +120,7 @@
       iSec=2
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')
+         Write(LuPri,'(/,A)')                                           &
      &   '***** Starting Cholesky diagonal setup *****'
          Call Cho_Flush(LuPri)
       End If
@@ -128,15 +128,15 @@
       Call Cho_GASync()
       If (lConv) Then
          ! restart is not possible, so it cannot be converged!!
-         Write(LuPri,'(A,A)')
+         Write(LuPri,'(A,A)')                                           &
      &   SecNam,': logical error: converged but not restart?!?!'
          Call Cho_Quit('Error in '//SecNam,103)
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky diagonal setup',
-     &                   TimSec(2,iSec),TimSec(1,iSec),
-     &                   TimSec(4,iSec),TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky diagonal setup',                     &
+     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
+     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
      &                   1)
       End If
 #if defined (_DEBUGPRINT_)
@@ -152,7 +152,7 @@
       iSec=3
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')
+         Write(LuPri,'(/,A)')                                           &
      &   '***** Starting Cholesky decomposition *****'
          Call Cho_Flush(LuPri)
       End If
@@ -166,9 +166,9 @@
       Call Cho_GASync()
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky map generation',
-     &                   tC1,TimSec(1,iSec),
-     &                   tW1,TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky map generation',                     &
+     &                   tC1,TimSec(1,iSec),                            &
+     &                   tW1,TimSec(3,iSec),                            &
      &                   2)
       End If
 #if defined (_DEBUGPRINT_)
@@ -247,7 +247,7 @@
             Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
             Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
             If (irc.ne.0) Then
-               Write(LuPri,'(A,A,I8)')
+               Write(LuPri,'(A,A,I8)')                                  &
      &         SecNam,': Cho_SetAtomShl returned code',irc
                irc=1
                Go To 1 ! clear memory and return
@@ -328,7 +328,7 @@
       Call Cho_X_GetTotV(NVT,SIZE(NVT))
       Call Cho_ZMem(irc,l_Z,NVT,SIZE(NVT),iPrint.ge.Inf_Timing,.True.)
       If (irc.ne.0) Then
-         Write(LuPri,'(A,A,I6)')
+         Write(LuPri,'(A,A,I6)')                                        &
      &   SecNam,': Cho_ZMem returned code',irc
          If (irc.eq.999) Then
             If (iPrint.lt.Inf_Timing) Then
@@ -336,34 +336,34 @@
             End If
             Call mma_maxDBLE(l_Z)
             Call Cho_Word2Byte(l_Z,8,Byte,Unt)
-            Write(LuPri,'(A,I12,A,F7.3,1X,A,A)')
-     &      'Largest available memory block:',l_Z,' words (',
+            Write(LuPri,'(A,I12,A,F7.3,1X,A,A)')                        &
+     &      'Largest available memory block:',l_Z,' words (',           &
      &      Byte,Unt,')'
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      '=> INSUFFICIENT MEMORY FOR STORING Z VECTORS!'
-            Write(LuPri,'(/,A,/,A)')
-     &      'You have the following options:',
+            Write(LuPri,'(/,A,/,A)')                                    &
+     &      'You have the following options:',                          &
      &      '(a) Increase available memory (MOLCAS_MEM),'
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      'and/or'
-            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A)')
-     &      '(b) -SERIAL EXECUTION:',
-     &      '       Use the serial two-step algorithm by specifying ',
-     &      'the keywords',
-     &      '          ChoInput',
-     &      '          TwoStep',
-     &      '          EndChoInput',
+            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A)')                    &
+     &      '(b) -SERIAL EXECUTION:',                                   &
+     &      '       Use the serial two-step algorithm by specifying ',  &
+     &      'the keywords',                                             &
+     &      '          ChoInput',                                       &
+     &      '          TwoStep',                                        &
+     &      '          EndChoInput',                                    &
      &      '       in Seward input.'
-            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A,/,A)')
-     &      '    -PARALLEL EXECUTION:',
-     &      '       Use the parallel one-step algorithm by specifying ',
-     &      'the keywords',
-     &      '          ChoInput',
-     &      '          OneStep',
-     &      '          Parallel',
-     &      '          EndChoInput',
+            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A,/,A)')                &
+     &      '    -PARALLEL EXECUTION:',                                 &
+     &      '       Use the parallel one-step algorithm by specifying ',&
+     &      'the keywords',                                             &
+     &      '          ChoInput',                                       &
+     &      '          OneStep',                                        &
+     &      '          Parallel',                                       &
+     &      '          EndChoInput',                                    &
      &      '       in Seward input.'
-            Call Cho_Quit(SecNam//': Insufficient memory for Z vectors',
+            Call Cho_Quit(SecNam//': Insufficient memory for Z vectors',&
      &                    101)
          End If
          irc=1
@@ -411,9 +411,9 @@
             End Do
          End Do
       End Do
-      Call Cho_GetZ(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),
-     &              nVBlock,nB_Max,nSym,
-     &              iV1Block,nB_Max,nSym,
+      Call Cho_GetZ(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),              &
+     &              nVBlock,nB_Max,nSym,                                &
+     &              iV1Block,nB_Max,nSym,                               &
      &              ZBlock,nnBlock,nSym,Z,l_Z)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
@@ -422,7 +422,7 @@
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,
+         Call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,  &
      &                   2)
       End If
 #if defined (_DEBUGPRINT_)
@@ -435,10 +435,10 @@
          Call Cho_Timer(tC0,tW0)
       End If
       Free_Z=.True.
-      Call Cho_X_CompVec(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),
-     &                   nVBlock,nB_Max,nSym,
-     &                   iV1Block,nB_Max,nSym,
-     &                   ZBlock,nnBlock,nSym,Z,l_Z,
+      Call Cho_X_CompVec(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),         &
+     &                   nVBlock,nB_Max,nSym,                           &
+     &                   iV1Block,nB_Max,nSym,                          &
+     &                   ZBlock,nnBlock,nSym,Z,l_Z,                     &
      &                   Free_Z)
       If (Free_Z) Call mma_deallocate(Z)
       If (irc .ne. 0) Then
@@ -455,16 +455,16 @@
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky vector generation',tC1,tC0,tW1,tW0,
+         Call Cho_PrtTim('Cholesky vector generation',tC1,tC0,tW1,tW0,  &
      &                   2)
       End If
 
       ! Final timing of decomposition section
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky decomposition',
-     &                   TimSec(2,iSec),TimSec(1,iSec),
-     &                   TimSec(4,iSec),TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky decomposition',                      &
+     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
+     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
      &                   1)
       End If
 
@@ -482,7 +482,7 @@
       iSec=4
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')
+         Write(LuPri,'(/,A)')                                           &
      &   '***** Starting Cholesky diagonal check *****'
          Call Cho_Flush(LuPri)
       End If
@@ -499,11 +499,11 @@
          Go To 1 ! release memory and return
       End If
       If (Err(2) .gt. ThrCom) Then
-         Write(LuPri,'(/,A)')
+         Write(LuPri,'(/,A)')                                           &
      &   'Cholesky decomposition failed!'
-         Write(LuPri,'(3X,A,1P,D15.6)')
+         Write(LuPri,'(3X,A,1P,D15.6)')                                 &
      &   'Largest integral diagonal..',Err(2)
-         Write(LuPri,'(3X,A,1P,D15.6)')
+         Write(LuPri,'(3X,A,1P,D15.6)')                                 &
      &   'Decomposition threshold....',ThrCom
          irc=1
          Go To 1 ! release memory and return
@@ -511,9 +511,9 @@
       Call mma_deallocate(Err)
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky diagonal check',
-     &                   TimSec(2,iSec),TimSec(1,iSec),
-     &                   TimSec(4,iSec),TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky diagonal check',                     &
+     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
+     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
      &                   1)
       End If
 #if defined (_DEBUGPRINT_)
@@ -526,7 +526,7 @@
       iSec=8
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')
+         Write(LuPri,'(/,A)')                                           &
      &   '***** Starting Cholesky finalization *****'
          Call Cho_Flush(LuPri)
       End If
@@ -534,9 +534,9 @@
       Call Cho_PTS_Final(NVT,SIZE(NVT))
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky finalization',
-     &                   TimSec(2,iSec),TimSec(1,iSec),
-     &                   TimSec(4,iSec),TimSec(3,iSec),
+         Call Cho_PrtTim('Cholesky finalization',                       &
+     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
+     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
      &                   1)
       End If
 #if defined (_DEBUGPRINT_)
@@ -546,11 +546,11 @@
 !     Statistics.
 !     ===========
 
-      If (iPrint. ge. 1) Then
+      If (iPrint .ge. 1) Then
          iSec = 9
          If (iPrint .ge. Inf_Timing) Then
             Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-            Write(LuPri,'(/,A)')
+            Write(LuPri,'(/,A)')                                        &
      &      '***** Starting Cholesky statistics *****'
             Call Cho_Flush(LUPRI)
          End If
@@ -558,9 +558,9 @@
          Call Cho_GASync()
          If (iPrint .ge. Inf_Timing) Then
             Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-            Call Cho_PrtTim('Cholesky statistics',
-     &                      TimSec(2,iSec),TimSec(1,iSec),
-     &                      TimSec(4,iSec),TimSec(3,iSec),
+            Call Cho_PrtTim('Cholesky statistics',                      &
+     &                      TimSec(2,iSec),TimSec(1,iSec),              &
+     &                      TimSec(4,iSec),TimSec(3,iSec),              &
      &                      1)
          End If
       End If
@@ -597,7 +597,7 @@
       ! Print total timing
       If (iPrint.ge.Inf_Timing .and. irc.eq.0) Then
          Call Cho_Timer(tCPU1,tWall1)
-         Call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,
+         Call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,              &
      &                   tWall1,tWall0,1)
       End If
 

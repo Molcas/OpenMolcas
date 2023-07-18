@@ -21,12 +21,12 @@
 
       DO ISYM = 1,NSYM
          IF (NUMCHO(ISYM) .GT. MAXVEC) THEN
-            WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors ',
+            WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors ',       &
      &                     'in symmetry ',ISYM,': ',NUMCHO(ISYM)
             CALL CHO_QUIT('Error in '//SECNAM,103)
             VCSTOR(ISYM) = 0.0D0
          ELSE IF (NUMCHO(ISYM) .LT. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': negative #Cholesky vectors ',
+            WRITE(LUPRI,*) SECNAM,': negative #Cholesky vectors ',      &
      &                     'in symmetry ',ISYM,': ',NUMCHO(ISYM)
             CALL CHO_QUIT('Error in '//SECNAM,103)
             VCSTOR(ISYM) = 0.0D0
@@ -53,11 +53,11 @@
             JRED = 3
             CALL CHO_GETRED(IRED,JRED,.FALSE.)
             CALL CHO_SETREDIND(JRED)
-            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))
+            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))                  &
      &             + DBLE(NNBSTR(ISYM,JRED))
          ELSE
             IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
-            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))
+            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))                  &
      &             + DBLE(NDIMRS(ISYM,IRED))
          END IF
       END IF

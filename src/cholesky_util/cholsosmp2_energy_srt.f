@@ -113,22 +113,22 @@
             xn=dble(nBlock)
             xb=dble(bsize)
             xbp=dble(blast)
-            lX=max(lX,0.5d0*(xM*(xM+1.0d0)
-     &                      +(xn-1.0d0)*xb*(xb-1.0d0)
+            lX=max(lX,0.5d0*(xM*(xM+1.0d0)                              &
+     &                      +(xn-1.0d0)*xb*(xb-1.0d0)                   &
      &                      +xbp*(xbp-1.0d0)))
          End If
       End Do
       l_X=int(lX)
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_X .lt. 0) Then
-         Write(Lupri,'(A,A)')
+         Write(Lupri,'(A,A)')                                           &
      &   SecNam,': dimension of X matrix is negative!'
          Write(Lupri,'(A,I15)') 'l_X=',l_X
          If (lX .gt. 0.0d0) Then
             Write(LuPri,'(A)') 'This seems to be an integer overflow!'
             Call Cho_RWord2Byte(lX,Byte,Unt)
-            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')
-     &      'In double precision, lX=',lX,
+            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')                  &
+     &      'In double precision, lX=',lX,                              &
      &      ' words (',Byte,Unt,')'
          End If
          irc=1
@@ -160,12 +160,12 @@
                bsize=min(Laplace_BlockSize,nEnrVec(iSym))
                nBlock=(nEnrVec(iSym)-1)/bsize+1
                blast=nEnrVec(iSym)-bsize*(nBlock-1)
-               lenX=nEnrVec(iSym)*(nEnrVec(iSym)+1)/2
-     &             +(nBlock-1)*(bsize*(bsize-1)/2)
+               lenX=nEnrVec(iSym)*(nEnrVec(iSym)+1)/2                   &
+     &             +(nBlock-1)*(bsize*(bsize-1)/2)                      &
      &             +blast*(blast-1)/2
 #if defined (_DEBUGPRINT_)
                If (lenX.gt.l_X) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                            SecNam//': insufficient X allocation')
                   Write(6,'(A,2(1X,I10))') 'lenX,l_X=',lenX,l_X
                   Call Abend()
@@ -184,9 +184,9 @@
                      iAddr=1
 #if defined (_DEBUGPRINT_)
                      If (l_Tot.gt.SIZE(V)) Then
-                        Call WarningMessage(2,
+                        Call WarningMessage(2,                          &
      &                            SecNam//': insufficient V allocation')
-                        Write(6,'(A,2(1X,I10))') 'l_Tot,SIZE(V)=',
+                        Write(6,'(A,2(1X,I10))') 'l_Tot,SIZE(V)=',      &
      &                                            l_Tot,SIZE(V)
                         Call Abend()
                      End If
@@ -202,13 +202,13 @@
                               ip1=ip0+LiT1am(iSyma,iSymi,iBatch)
                               Do i=0,LnOcc(iSymi,iBatch)-1
                                  ii=iFirstS(iSymi,iBatch)+i
-                                 Call dScal_(nVir(iSyma),
-     &                                      exp(epsi(ii,iSymi)*tq),
+                                 Call dScal_(nVir(iSyma),               &
+     &                                      exp(epsi(ii,iSymi)*tq),     &
      &                                      V(ip1+nVir(iSyma)*i+1),1)
                               End Do
                               Do a=1,nVir(iSyma)
-                                 Call dScal_(LnOcc(iSymi,iBatch),
-     &                                      exp(-epsa(a,iSyma)*tq),
+                                 Call dScal_(LnOcc(iSymi,iBatch),       &
+     &                                      exp(-epsa(a,iSyma)*tq),     &
      &                                      V(ip1+a),nVir(iSyma))
                               End Do
                            End If
@@ -221,7 +221,7 @@
                      Do jBlock=1,nBlock
                         ipj=1+Nai*Laplace_BlockSize*(jBlock-1)
                         If (jBlock.eq.nBlock) Then
-                           nVecj=nEnrVec(iSym)
+                           nVecj=nEnrVec(iSym)                          &
      &                          -Laplace_BlockSize*(nBlock-1)
                         Else
                            nVecj=Laplace_BlockSize
@@ -229,23 +229,23 @@
                         Do iBlock=jBlock,nBlock
                            ipi=1+Nai*Laplace_BlockSize*(iBlock-1)
                            If (iBlock.eq.nBlock) Then
-                              nVeci=nEnrVec(iSym)
+                              nVeci=nEnrVec(iSym)                       &
      &                             -Laplace_BlockSize*(nBlock-1)
                            Else
                               nVeci=Laplace_BlockSize
                            End If
-                           Call dGEMM_('T','N',nVeci,nVecj,Nai,
-     &                                1.0d0,V(ipi),Nai,
-     &                                      V(ipj),Nai,
+                           Call dGEMM_('T','N',nVeci,nVecj,Nai,         &
+     &                                1.0d0,V(ipi),Nai,                 &
+     &                                      V(ipj),Nai,                 &
      &                                1.0d0,X(ipX),nVeci)
                            ipX=ipX+nVeci*nVecj
                         End Do
                      End Do
 #if defined (_DEBUGPRINT_)
                      If (lenX.ne.(ipX-1)) Then
-                        Call WarningMessage(2,
+                        Call WarningMessage(2,                          &
      &                                SecNam//': dimension problem [1]')
-                        Write(6,'(A,I10,A,I10)')
+                        Write(6,'(A,I10,A,I10)')                        &
      &                  'lenX=',lenX,' ipX-1=',ipX-1
                         Call Abend()
                      End If
@@ -257,14 +257,14 @@
                ipX=1
                Do jBlock=1,nBlock
                   If (jBlock.eq.nBlock) Then
-                     nVecj=nEnrVec(iSym)
+                     nVecj=nEnrVec(iSym)                                &
      &                    -Laplace_BlockSize*(nBlock-1)
                   Else
                      nVecj=Laplace_BlockSize
                   End If
                   Do iBlock=jBlock,nBlock
                      If (iBlock.eq.nBlock) Then
-                        nVeci=nEnrVec(iSym)
+                        nVeci=nEnrVec(iSym)                             &
      &                       -Laplace_BlockSize*(nBlock-1)
                      Else
                         nVeci=Laplace_BlockSize
@@ -279,9 +279,9 @@
                End Do
 #if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-1)) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                             SecNam//': dimension problem [2]')
-                  Write(6,'(A,I10,A,I10)')
+                  Write(6,'(A,I10,A,I10)')                              &
      &            'lenX=',lenX,' ipX-1=',ipX-1
                   Call Abend()
                End If

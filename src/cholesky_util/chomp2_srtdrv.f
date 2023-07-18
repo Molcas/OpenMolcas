@@ -126,7 +126,7 @@
                iOpt = 2
                lTot = lChoMO
                iAdr = nT1am(iSym)*(iVec1-1) + 1
-               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO,
+               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO, &
      &                      iAdr)
 
 !              Sort and write to disk.
@@ -139,12 +139,12 @@
                   If (lSort .lt. lTot) Then
                      Call ChoMP2_Quit(SecNam,'sort batch error','[0]')
                   End If
-                  Call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,
+                  Call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,     &
      &                            iBatch)
                   Call ChoMP2_OpenB(1,iSym,iBatch)
                   iOpt = 1
                   iAdr = LnT1am(iSym,iBatch)*(iVec1-1) + 1
-                  Call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kSort),lTot,
+                  Call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kSort),lTot, &
      &                         iAdr)
                   Call ChoMP2_OpenB(2,iSym,iBatch)
                End Do

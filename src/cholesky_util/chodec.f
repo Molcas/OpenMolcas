@@ -86,12 +86,12 @@
 !> @param[in,out] NumCho  Number of Cholesky vectors
 !> @param[out]    irc     Return code
 !***********************************************************************
-      SubRoutine ChoDec(CD_Col,CD_Vec,
-     &                  Restart,Thr,Span,MxQual,
-     &                  Diag,Qual,Buf,
-     &                  iPivot,iQual,
-     &                  nDim,lBuf,
-     &                  ErrStat,NumCho,
+      SubRoutine ChoDec(CD_Col,CD_Vec,                                  &
+     &                  Restart,Thr,Span,MxQual,                        &
+     &                  Diag,Qual,Buf,                                  &
+     &                  iPivot,iQual,                                   &
+     &                  nDim,lBuf,                                      &
+     &                  ErrStat,NumCho,                                 &
      &                  irc)
       Implicit Real*8 (a-h,o-z)
       External  CD_Col    ! external routine for matrix columns
@@ -152,12 +152,12 @@
 !     Test diagonal for negative elements.
 !     -------------------------------------------------
 
-      Call CD_Diag(CD_Vec,
-     &             Restart,Converged,Thr,
-     &             ThrNeg,ThrFail,
-     &             Diag,Qual(1,0),Buf,
-     &             nDim,lBuf,
-     &             ErrStat,NumCho,
+      Call CD_Diag(CD_Vec,                                              &
+     &             Restart,Converged,Thr,                               &
+     &             ThrNeg,ThrFail,                                      &
+     &             Diag,Qual(1,0),Buf,                                  &
+     &             nDim,lBuf,                                           &
+     &             ErrStat,NumCho,                                      &
      &             irc)
       If (irc .ne. 0) Go To 1 ! exit (initial diagonal error)
 
@@ -170,13 +170,13 @@
 !        -------------------
 
          MxNumCho = nDim ! generate as many vectors as needed
-         Call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,
-     &                      Thr,Span,mQual,
-     &                      ThrNeg,ThrFail,
-     &                      Qual(1,0),Qual(1,1),Buf,
-     &                      iPivot,iQual,
-     &                      nDim,lBuf,
-     &                      NumCho,
+         Call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,                     &
+     &                      Thr,Span,mQual,                             &
+     &                      ThrNeg,ThrFail,                             &
+     &                      Qual(1,0),Qual(1,1),Buf,                    &
+     &                      iPivot,iQual,                               &
+     &                      nDim,lBuf,                                  &
+     &                      NumCho,                                     &
      &                      irc)
          If (irc .ne. 0) Go To 1  ! exit (decomposition error)
 
@@ -184,12 +184,12 @@
 !        -------------------------------------------
 
 
-         Call CD_Diag(CD_Vec,
-     &                .true.,Converged,Thr,
-     &                ThrNeg,ThrFail,
-     &                Diag,Qual(1,0),Buf,
-     &                nDim,lBuf,
-     &                ErrStat,NumCho,
+         Call CD_Diag(CD_Vec,                                           &
+     &                .true.,Converged,Thr,                             &
+     &                ThrNeg,ThrFail,                                   &
+     &                Diag,Qual(1,0),Buf,                               &
+     &                nDim,lBuf,                                        &
+     &                ErrStat,NumCho,                                   &
      &                irc)
          If (irc .ne. 0) Then
             irc = irc + 200 ! makes the error code 400 + n

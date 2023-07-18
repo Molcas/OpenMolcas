@@ -40,7 +40,7 @@
          LEN3 = MIN(LEN1,LEN2)
          LMIN = 2*NNBSTR(ISYM,1)
          CHO_LREAD = MAX(LEN3,LMIN) + 1
-      ELSE IF (CHO_IOVEC.EQ.2 .OR. CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4)
+      ELSE IF (CHO_IOVEC.EQ.2 .OR. CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4)  &
      & THEN
          LEN1 = LWRK/3 - 1
          LMIN = 2*NNBSTR(ISYM,1)

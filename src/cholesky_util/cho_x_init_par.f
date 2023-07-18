@@ -210,7 +210,7 @@
 
       NumCho_Bak(:)=0
       If (Is_Real_Par()) Then
-         Call mma_allocate(InfVec_Bak,SIZE(InfVec,1),SIZE(InfVec,2),
+         Call mma_allocate(InfVec_Bak,SIZE(InfVec,1),SIZE(InfVec,2),    &
      &                     SIZE(InfVec,3),Label='InfVec_Bak')
          InfVec_Bak(:,:,:)=InfVec(:,:,:)
          NumCho_Bak(1:nSym)=NumCho(1:nSym)

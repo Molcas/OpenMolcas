@@ -11,8 +11,8 @@
 ! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 !               Francesco Aquilante                                    *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,
-     &                                       LnT2am,LiT2am,
+      SubRoutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,           &
+     &                                       LnT2am,LiT2am,             &
      &                                       iBatch,jBatch)
 !
 !     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
@@ -53,20 +53,20 @@
                         iSyma = iSymb
                         If (iSymj.eq.iSymb) Then
                          Do b = 1,nVir(iSymb)
-                           abij = LiT2am(1)
-     &                          + nMatab(1)*(ij-1)
-     &                          + iMatab(iSyma,iSymb)
+                           abij = LiT2am(1)                             &
+     &                          + nMatab(1)*(ij-1)                      &
+     &                          + iMatab(iSyma,iSymb)                   &
      &                          + nVir(iSyma)*(b-1)
-                           baij = LiT2am(1)
-     &                          + nMatab(1)*(ij-1)
-     &                          + iMatab(iSymb,iSyma)
+                           baij = LiT2am(1)                             &
+     &                          + nMatab(1)*(ij-1)                      &
+     &                          + iMatab(iSymb,iSyma)                   &
      &                          - nVir(iSymb) + b
                            Do a = 1,nVir(iSyma)
                               abij = abij+1
                               baij = baij+nVir(iSymb)
-                              Dnom = EVir(iVir(iSyma)+a)
-     &                             - EOcc(iOcc(iSymi)+i)
-     &                             + EVir(iVir(iSymb)+b)
+                              Dnom = EVir(iVir(iSyma)+a)                &
+     &                             - EOcc(iOcc(iSymi)+i)                &
+     &                             + EVir(iVir(iSymb)+b)                &
      &                             - EOcc(iOcc(iSymj)+j)
                               ia = iOffT1(iSymi) + nOcc(iSymi)*(a-1) + i
                               jb = iOffT1(iSymj) + nOcc(iSymj)*(b-1) + j
@@ -82,20 +82,20 @@
                          End Do
                         Else
                          Do b = 1,nVir(iSymb)
-                           abij = LiT2am(1)
-     &                          + nMatab(1)*(ij-1)
-     &                          + iMatab(iSyma,iSymb)
+                           abij = LiT2am(1)                             &
+     &                          + nMatab(1)*(ij-1)                      &
+     &                          + iMatab(iSyma,iSymb)                   &
      &                          + nVir(iSyma)*(b-1)
-                           baij = LiT2am(1)
-     &                          + nMatab(1)*(ij-1)
-     &                          + iMatab(iSymb,iSyma)
+                           baij = LiT2am(1)                             &
+     &                          + nMatab(1)*(ij-1)                      &
+     &                          + iMatab(iSymb,iSyma)                   &
      &                          - nVir(iSymb) + b
                            Do a = 1,nVir(iSyma)
                               abij = abij+1
                               baij = baij+nVir(iSymb)
-                              Dnom = EVir(iVir(iSyma)+a)
-     &                             - EOcc(iOcc(iSymi)+i)
-     &                             + EVir(iVir(iSymb)+b)
+                              Dnom = EVir(iVir(iSyma)+a)                &
+     &                             - EOcc(iOcc(iSymi)+i)                &
+     &                             + EVir(iVir(iSymb)+b)                &
      &                             - EOcc(iOcc(iSymj)+j)
                               Xtmp  = Xaibj(abij)
                               Taibj = Xtmp/Dnom
@@ -122,26 +122,26 @@
                      j = iFirstS(iSymj,jBatch) + Lj - 1
                      Do Li = 1,LnOcc(iSymi,iBatch)
                         i = iFirstS(iSymi,iBatch) + Li - 1
-                        ij = LiMatij(iSymi,iSymj,iBatch)
+                        ij = LiMatij(iSymi,iSymj,iBatch)                &
      &                     + LnOcc(iSymi,iBatch)*(Lj-1) + Li
                         Do iSymb = 1,nSym
                            iSyma = MulD2h(iSymb,iSymab)
                            If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
                             Do b = 1,nVir(iSymb)
-                              abij = LiT2am(iSymij)
-     &                             + nMatab(iSymab)*(ij-1)
-     &                             + iMatab(iSyma,iSymb)
+                              abij = LiT2am(iSymij)                     &
+     &                             + nMatab(iSymab)*(ij-1)              &
+     &                             + iMatab(iSyma,iSymb)                &
      &                             + nVir(iSyma)*(b-1)
-                              baij = LiT2am(iSymij)
-     &                             + nMatab(iSymab)*(ij-1)
-     &                             + iMatab(iSymb,iSyma)
+                              baij = LiT2am(iSymij)                     &
+     &                             + nMatab(iSymab)*(ij-1)              &
+     &                             + iMatab(iSymb,iSyma)                &
      &                             - nVir(iSymb) + b
                               Do a = 1,nVir(iSyma)
                                  abij = abij+1
                                  baij = baij+nVir(iSymb)
-                                 Dnom = EVir(iVir(iSyma)+a)
-     &                                - EOcc(iOcc(iSymi)+i)
-     &                                + EVir(iVir(iSymb)+b)
+                                 Dnom = EVir(iVir(iSyma)+a)             &
+     &                                - EOcc(iOcc(iSymi)+i)             &
+     &                                + EVir(iVir(iSymb)+b)             &
      &                                - EOcc(iOcc(iSymj)+j)
                                  ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
                                  jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
@@ -157,20 +157,20 @@
                             End Do
                            Else
                             Do b = 1,nVir(iSymb)
-                              abij = LiT2am(iSymij)
-     &                             + nMatab(iSymab)*(ij-1)
-     &                             + iMatab(iSyma,iSymb)
+                              abij = LiT2am(iSymij)                     &
+     &                             + nMatab(iSymab)*(ij-1)              &
+     &                             + iMatab(iSyma,iSymb)                &
      &                             + nVir(iSyma)*(b-1)
-                              baij = LiT2am(iSymij)
-     &                             + nMatab(iSymab)*(ij-1)
-     &                             + iMatab(iSymb,iSyma)
+                              baij = LiT2am(iSymij)                     &
+     &                             + nMatab(iSymab)*(ij-1)              &
+     &                             + iMatab(iSymb,iSyma)                &
      &                             - nVir(iSymb) + b
                               Do a = 1,nVir(iSyma)
                                  abij = abij+1
                                  baij = baij+nVir(iSymb)
-                                 Dnom = EVir(iVir(iSyma)+a)
-     &                                - EOcc(iOcc(iSymi)+i)
-     &                                + EVir(iVir(iSymb)+b)
+                                 Dnom = EVir(iVir(iSyma)+a)             &
+     &                                - EOcc(iOcc(iSymi)+i)             &
+     &                                + EVir(iVir(iSymb)+b)             &
      &                                - EOcc(iOcc(iSymj)+j)
                                  Xtmp  = Xaibj(abij)
                                  Taibj = Xtmp/Dnom
@@ -196,7 +196,7 @@
                   Do Lj = 1,LnOcc(iSymj,jBatch)
                      j = iFirstS(iSymj,jBatch) + Lj - 1
                      Do b = 1,nVir(iSymb)
-                        Lbj = LiT1am(iSymb,iSymj,jBatch)
+                        Lbj = LiT1am(iSymb,iSymj,jBatch)                &
      &                      + nVir(iSymb)*(Lj - 1) + b
                         Do iSymi = 1,nSym
                            iSyma  = MulD2h(iSymi,iSymai)
@@ -205,18 +205,18 @@
                            If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
                             Do Li = 1,LnOcc(iSymi,iBatch)
                               i   = iFirstS(iSymi,iBatch) + Li - 1
-                              Lbi = LiT1am(iSymb,iSymi,iBatch)
+                              Lbi = LiT1am(iSymb,iSymi,iBatch)          &
      &                            + nVir(iSymb)*(Li - 1) + b
                               Do a = 1,nVir(iSyma)
-                                 Lai = LiT1am(iSyma,iSymi,iBatch)
+                                 Lai = LiT1am(iSyma,iSymi,iBatch)       &
      &                               + nVir(iSyma)*(Li - 1) + a
-                                 Laj = LiT1am(iSyma,iSymj,jBatch)
+                                 Laj = LiT1am(iSyma,iSymj,jBatch)       &
      &                               + nVir(iSyma)*(Lj - 1) + a
                                  aibj = LiT2am(iSymai) + iTri(Lai,Lbj)
                                  biaj = LiT2am(iSymbi) + iTri(Lbi,Laj)
-                                 Dnom = EVir(iVir(iSyma)+a)
-     &                                - EOcc(iOcc(iSymi)+i)
-     &                                + EVir(iVir(iSymb)+b)
+                                 Dnom = EVir(iVir(iSyma)+a)             &
+     &                                - EOcc(iOcc(iSymi)+i)             &
+     &                                + EVir(iVir(iSymb)+b)             &
      &                                - EOcc(iOcc(iSymj)+j)
                                  ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
                                  jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
@@ -233,18 +233,18 @@
                            Else
                             Do Li = 1,LnOcc(iSymi,iBatch)
                               i   = iFirstS(iSymi,iBatch) + Li - 1
-                              Lbi = LiT1am(iSymb,iSymi,iBatch)
+                              Lbi = LiT1am(iSymb,iSymi,iBatch)          &
      &                            + nVir(iSymb)*(Li - 1) + b
                               Do a = 1,nVir(iSyma)
-                                 Lai = LiT1am(iSyma,iSymi,iBatch)
+                                 Lai = LiT1am(iSyma,iSymi,iBatch)       &
      &                               + nVir(iSyma)*(Li - 1) + a
-                                 Laj = LiT1am(iSyma,iSymj,jBatch)
+                                 Laj = LiT1am(iSyma,iSymj,jBatch)       &
      &                               + nVir(iSyma)*(Lj - 1) + a
                                  aibj = LiT2am(iSymai) + iTri(Lai,Lbj)
                                  biaj = LiT2am(iSymbi) + iTri(Lbi,Laj)
-                                 Dnom = EVir(iVir(iSyma)+a)
-     &                                - EOcc(iOcc(iSymi)+i)
-     &                                + EVir(iVir(iSymb)+b)
+                                 Dnom = EVir(iVir(iSyma)+a)             &
+     &                                - EOcc(iOcc(iSymi)+i)             &
+     &                                + EVir(iVir(iSymb)+b)             &
      &                                - EOcc(iOcc(iSymj)+j)
                                  Xtmp  = Xaibj(aibj)
                                  Taibj = Xtmp/Dnom
@@ -279,7 +279,7 @@
                Do Lj = 1,LnOcc(iSymj,jBatch)
                   j = iFirstS(iSymj,jBatch) + Lj - 1
                   Do b = 1,nVir(iSymb)
-                     Lbj = LiT1am(iSymb,iSymj,jBatch)
+                     Lbj = LiT1am(iSymb,iSymj,jBatch)                   &
      &                   + nVir(iSymb)*(Lj - 1) + b
                      Do iSymi = 1,nSym
                         iSyma  = MulD2h(iSymi,iSymai)
@@ -288,20 +288,20 @@
                         If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
                          Do Li = 1,LnOcc(iSymi,iBatch)
                            i   = iFirstS(iSymi,iBatch) + Li - 1
-                           Lbi = LiT1am(iSymb,iSymi,iBatch)
+                           Lbi = LiT1am(iSymb,iSymi,iBatch)             &
      &                         + nVir(iSymb)*(Li - 1) + b
                            Do a = 1,nVir(iSyma)
-                              Lai = LiT1am(iSyma,iSymi,iBatch)
+                              Lai = LiT1am(iSyma,iSymi,iBatch)          &
      &                            + nVir(iSyma)*(Li - 1) + a
-                              Laj = LiT1am(iSyma,iSymj,jBatch)
+                              Laj = LiT1am(iSyma,iSymj,jBatch)          &
      &                            + nVir(iSyma)*(Lj - 1) + a
-                              aibj = LiT2am(iSymai)
+                              aibj = LiT2am(iSymai)                     &
      &                             + LnT1am(iSymai,iBatch)*(Lbj-1) + Lai
-                              biaj = LiT2am(iSymbi)
+                              biaj = LiT2am(iSymbi)                     &
      &                             + LnT1am(iSymbi,iBatch)*(Laj-1) + Lbi
-                              Dnom = EVir(iVir(iSyma)+a)
-     &                             - EOcc(iOcc(iSymi)+i)
-     &                             + EVir(iVir(iSymb)+b)
+                              Dnom = EVir(iVir(iSyma)+a)                &
+     &                             - EOcc(iOcc(iSymi)+i)                &
+     &                             + EVir(iVir(iSymb)+b)                &
      &                             - EOcc(iOcc(iSymj)+j)
                               ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
                               jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
@@ -318,20 +318,20 @@
                         Else
                          Do Li = 1,LnOcc(iSymi,iBatch)
                            i   = iFirstS(iSymi,iBatch) + Li - 1
-                           Lbi = LiT1am(iSymb,iSymi,iBatch)
+                           Lbi = LiT1am(iSymb,iSymi,iBatch)             &
      &                         + nVir(iSymb)*(Li - 1) + b
                            Do a = 1,nVir(iSyma)
-                              Lai = LiT1am(iSyma,iSymi,iBatch)
+                              Lai = LiT1am(iSyma,iSymi,iBatch)          &
      &                            + nVir(iSyma)*(Li - 1) + a
-                              Laj = LiT1am(iSyma,iSymj,jBatch)
+                              Laj = LiT1am(iSyma,iSymj,jBatch)          &
      &                            + nVir(iSyma)*(Lj - 1) + a
-                              aibj = LiT2am(iSymai)
+                              aibj = LiT2am(iSymai)                     &
      &                             + LnT1am(iSymai,iBatch)*(Lbj-1) + Lai
-                              biaj = LiT2am(iSymbi)
+                              biaj = LiT2am(iSymbi)                     &
      &                             + LnT1am(iSymbi,iBatch)*(Laj-1) + Lbi
-                              Dnom = EVir(iVir(iSyma)+a)
-     &                             - EOcc(iOcc(iSymi)+i)
-     &                             + EVir(iVir(iSymb)+b)
+                              Dnom = EVir(iVir(iSyma)+a)                &
+     &                             - EOcc(iOcc(iSymi)+i)                &
+     &                             + EVir(iVir(iSymb)+b)                &
      &                             - EOcc(iOcc(iSymj)+j)
                               Xtmp  = Xaibj(aibj)
                               Taibj = Xtmp/Dnom

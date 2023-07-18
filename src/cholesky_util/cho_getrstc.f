@@ -24,9 +24,9 @@
       IFAIL = 0
       CALL CHO_RDRSTC(IFAIL)
       IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A)')
+         WRITE(LUPRI,'(A,A)')                                           &
      &   SECNAM,': error reading decomposition restart file.'
-         WRITE(LUPRI,'(A,A,I10)')
+         WRITE(LUPRI,'(A,A,I10)')                                       &
      &   SECNAM,': return code from reading routine:',IFAIL
          CALL CHO_QUIT('Error reading decomposition restart file',104)
       END IF
@@ -37,7 +37,7 @@
       IFAIL = 0
       CALL CHO_RSTMOL(IFAIL)
       IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A)')
+         WRITE(LUPRI,'(A,A)')                                           &
      &   SECNAM,': decomposition restart failure.'
          CALL CHO_QUIT('Decomposition restart failure in '//SECNAM,105)
       END IF
@@ -48,21 +48,21 @@
       IFAIL = 0
       CALL CHO_RSTCNF(IFAIL)
       IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A,I6,A)')
+         WRITE(LUPRI,'(A,A,I6,A)')                                      &
      &   SECNAM,':',IFAIL,' configuration discrepancies detected.'
          IF (MODRST .EQ. -1) THEN
-            WRITE(LUPRI,'(A)')
+            WRITE(LUPRI,'(A)')                                          &
      &      'Recovery: using configuration from restart file.'
             CALL CHO_RESETCNF
          ELSE IF (MODRST .EQ. 0) THEN
-            WRITE(LUPRI,'(A)')
+            WRITE(LUPRI,'(A)')                                          &
      &      'Recovery: none, program stops.'
             CALL CHO_QUIT('Restart configuration error in '//SECNAM,105)
          ELSE IF (MODRST .EQ. 1) THEN
-            WRITE(LUPRI,'(A)')
+            WRITE(LUPRI,'(A)')                                          &
      &      'Recovery: using input configuration.'
          ELSE
-            WRITE(LUPRI,'(A,A,I6,A)')
+            WRITE(LUPRI,'(A,A,I6,A)')                                   &
      &      SECNAM,': restart model,',MODRST,', not recognized.'
             CALL CHO_QUIT('Error in '//SECNAM,103)
          END IF

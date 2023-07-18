@@ -39,77 +39,77 @@
 !     --------------------------------------
 
       IF (IRED .EQ. 1) THEN
-         CALL CHO_HEAD(SECNAM//': Diagonal in Original Reduced Set',
+         CALL CHO_HEAD(SECNAM//': Diagonal in Original Reduced Set',    &
      &                 '=',80,LUPRI)
          DO ILST = 1,NSYLST
             ISYM = ISYLST(ILST)
             IF (ISYM.LT.1 .OR. ISYM.GT.NSYM) THEN
-               WRITE(LUPRI,*) SECNAM,': element ',ILST,': ',ISYM,
+               WRITE(LUPRI,*) SECNAM,': element ',ILST,': ',ISYM,       &
      &                        ' of list ISYLST is out of bounds!'
                CALL CHO_QUIT('ISYLST input error in '//SECNAM,104)
             ELSE
                WRITE(LUPRI,'(/,A,I2)') 'Symmetry block:',ISYM
-               WRITE(LUPRI,'(/,A,/,A)')
-     &         '  Element Shell-Pair  SP Index         Diagonal',
+               WRITE(LUPRI,'(/,A,/,A)')                                 &
+     &         '  Element Shell-Pair  SP Index         Diagonal',       &
      &         '-----------------------------------------------'
                DO ISHLAB = 1,NNSHL
-                  IAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED)
+                  IAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED) &
      &                 + 1
                   IAB2 = IAB1 + NNBSTRSH(ISYM,ISHLAB,IRED) - 1
                   DO IAB = IAB1,IAB2
                      IF (INDRSH(IAB) .NE. ISP2F(ISHLAB)) THEN
-                        WRITE(LUPRI,*)
-     &                  'Shell Pair error: INDRSH,ISP2F,ISHLAB',
+                        WRITE(LUPRI,*)                                  &
+     &                  'Shell Pair error: INDRSH,ISP2F,ISHLAB',        &
      &                  INDRSH(IAB),ISP2F(ISHLAB),ISHLAB
-                        CALL CHO_QUIT('Shell-Pair error in '//SECNAM,
+                        CALL CHO_QUIT('Shell-Pair error in '//SECNAM,   &
      &                                104)
                      ELSE
                         JAB = IAB
-                        WRITE(LUPRI,'(I9,2X,I9,1X,I9,1X,1P,D16.8)')
+                        WRITE(LUPRI,'(I9,2X,I9,1X,I9,1X,1P,D16.8)')     &
      &                  JAB,ISP2F(ISHLAB),INDRED(IAB,IRED),DIAG(JAB)
                      END IF
                   END DO
                END DO
-               WRITE(LUPRI,'(A)')
+               WRITE(LUPRI,'(A)')                                       &
      &         '-----------------------------------------------'
             END IF
          END DO
       ELSE IF (IRED .EQ. 2) THEN
-         CALL CHO_HEAD(SECNAM//': Diagonal in Current Reduced Set',
+         CALL CHO_HEAD(SECNAM//': Diagonal in Current Reduced Set',     &
      &                 '=',80,LUPRI)
          DO ILST = 1,NSYLST
             ISYM = ISYLST(ILST)
             IF (ISYM.LT.1 .OR. ISYM.GT.NSYM) THEN
-               WRITE(LUPRI,*) SECNAM,': element ',ILST,': ',ISYM,
+               WRITE(LUPRI,*) SECNAM,': element ',ILST,': ',ISYM,       &
      &                        ' of list ISYLST is out of bounds!'
                CALL CHO_QUIT('ISYLST input error in '//SECNAM,104)
             ELSE
                WRITE(LUPRI,'(/,A,I2)') 'Symmetry block:',ISYM
-               WRITE(LUPRI,'(/,A,A,/,A,A)')
-     &         '  Element  RedSet 1 Shell-Pair  SP Index',
-     &         '         Diagonal',
-     &         '----------------------------------------',
+               WRITE(LUPRI,'(/,A,A,/,A,A)')                             &
+     &         '  Element  RedSet 1 Shell-Pair  SP Index',              &
+     &         '         Diagonal',                                     &
+     &         '----------------------------------------',              &
      &         '-----------------'
                DO ISHLAB = 1,NNSHL
-                  IAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED)
+                  IAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED) &
      &                 + 1
                   IAB2 = IAB1 + NNBSTRSH(ISYM,ISHLAB,IRED) - 1
                   DO IAB = IAB1,IAB2
                      JAB = INDRED(IAB,IRED)
                      IF (INDRSH(JAB) .NE. ISP2F(ISHLAB)) THEN
-                        WRITE(LUPRI,*)
-     &                  'Shell Pair error: INDRSH,ISP2F,ISHLAB',
+                        WRITE(LUPRI,*)                                  &
+     &                  'Shell Pair error: INDRSH,ISP2F,ISHLAB',        &
      &                  INDRSH(JAB),ISP2F(ISHLAB),ISHLAB
-                        CALL CHO_QUIT('Shell-Pair error in '//SECNAM,
+                        CALL CHO_QUIT('Shell-Pair error in '//SECNAM,   &
      &                                104)
                      ELSE
-                       WRITE(LUPRI,'(I9,1X,I9,2X,I9,1X,I9,1X,1P,D16.8)')
+                       WRITE(LUPRI,'(I9,1X,I9,2X,I9,1X,I9,1X,1P,D16.8)')&
      &                  IAB,JAB,ISP2F(ISHLAB),INDRED(JAB,1),DIAG(JAB)
                      END IF
                   END DO
                END DO
-               WRITE(LUPRI,'(A,A)')
-     &         '----------------------------------------',
+               WRITE(LUPRI,'(A,A)')                                     &
+     &         '----------------------------------------',              &
      &         '-----------------'
             END IF
          END DO

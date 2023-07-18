@@ -57,7 +57,7 @@
       If (Thr .lt. 0.0d0) Thr = DefThr
 
       If (MxVec .gt. 0) Then
-         Call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,
+         Call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,     &
      &                     iD,irc)
       Else
          irc = -1

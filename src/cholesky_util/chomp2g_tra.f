@@ -48,7 +48,7 @@
 !        Transform vectors.
 !        ------------------
 
-         Call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,TraMax,lW,
+         Call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,TraMax,lW,   &
      &                     iSym,iMoType1,iMoType2)
          kOffD = kOffD + nMoMo(iSym,iVecType)
 

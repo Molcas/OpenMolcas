@@ -66,10 +66,10 @@
                nMoMo(iSym,iProdType) = 0
                Do iSymP = 1,nSym
                   iSymQ = MulD2h(iSymP,iSym)
-                  iMoMo(iSymq,iSymp,iProdType) =
+                  iMoMo(iSymq,iSymp,iProdType) =                        &
      &                  nMoMo(iSym,iProdType)
-                  nMoMo(iSym,iProdType) = nMoMo(iSym,iProdType) +
-     &                  nMO(iSymP,iMOType)*
+                  nMoMo(iSym,iProdType) = nMoMo(iSym,iProdType) +       &
+     &                  nMO(iSymP,iMOType)*                             &
      &                  nMO(iSymQ,jMOType)
                End Do
             End Do
@@ -81,8 +81,8 @@
             Do iSymAl = 1, nSym
                iSymP = MulD2h(iSymAl,iSym)
                iMoAo(iSymP,iSymAl,iMoType) = nMoAo(iSym,iMoType)
-               nMoAo(iSym,iMoType) =
-     &               nMoAo(iSym,iMoType) +
+               nMoAo(iSym,iMoType) =                                    &
+     &               nMoAo(iSym,iMoType) +                              &
      &               nBas(iSymAl)*nMO(iSymP,iMoType)
             End Do
          End Do
@@ -93,8 +93,8 @@
             Do iSymQ = 1, nSym
                iSymAl = MulD2h(iSymQ,iSym)
                iAoMo(iSymAl,iSymQ,iMoType) = nAoMo(iSym,iMoType)
-               nAoMo(iSym,iMoType) =
-     &               nAoMo(iSym,iMoType) +
+               nAoMo(iSym,iMoType) =                                    &
+     &               nAoMo(iSym,iMoType) +                              &
      &               nBas(iSymAl)*nMO(iSymQ,iMoType)
             End Do
          End Do
@@ -129,7 +129,7 @@
 
       lDens_e = (nOrb(1)+nDel(1))*(nOrb(1)+nDel(1))
       Do iSym = 2, nSym
-         lDens_e = lDens_e + (nOrb(iSym)+nDel(iSym))
+         lDens_e = lDens_e + (nOrb(iSym)+nDel(iSym))                    &
      &                     * (nOrb(iSym)+nDel(iSym))
       End Do
 
@@ -163,11 +163,11 @@
             EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT +i)
          End Do
          Do i = 1, nOcc(iSym)
-            EOccuT(iOcc(iSym)+i) =
+            EOccuT(iOcc(iSym)+i) =                                      &
      &                    EOcc(iOcc(iSym) + i)
          End Do
          Do i = 1, nVir(iSym)
-            EVirtT(iVir(iSym)+i) =
+            EVirtT(iVir(iSym)+i) =                                      &
      &                    EVir(iVir(iSym)+iDel(iSym)+ i)
          End Do
       End Do

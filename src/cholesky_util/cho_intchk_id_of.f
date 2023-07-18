@@ -26,9 +26,9 @@
       INTEGER     NTABLE
       PARAMETER   (NTABLE = 12)
       CHARACTER*8 TABLE(NTABLE)
-      DATA TABLE  /'EXCL RS1','MAX|XRS1','MIN|XRS1',
-     &             'NEG DIAG','MAX|NEG ','MIN|NEG ',
-     &             'NEG->ZER','MAX|NEGZ','MIN|NEGZ',
+      DATA TABLE  /'EXCL RS1','MAX|XRS1','MIN|XRS1',                    &
+     &             'NEG DIAG','MAX|NEG ','MIN|NEG ',                    &
+     &             'NEG->ZER','MAX|NEGZ','MIN|NEGZ',                    &
      &             'MAX DIAG','MIN DIAG','MAX|MIN '/
 
       IF (IOPT .EQ. -1) THEN

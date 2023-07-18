@@ -43,14 +43,14 @@
          End If
       Else
          If (nBatch .eq. 1) Then
-            Call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,
+            Call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,        &
      &                              Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
                Go To 1 ! exit
             End If
          Else
-            Call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,
+            Call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,        &
      &                              Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_fno_Org returned ',irc

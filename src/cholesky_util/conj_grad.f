@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Conj_Grad(Done,lVector,Prec,X,XTemp,R,RTemp,
+      Subroutine Conj_Grad(Done,lVector,Prec,X,XTemp,R,RTemp,           &
      &                     P,PTemp,Z,ZTemp,AP,Tolerance,res)
 !
 !***********************************************************************
@@ -93,7 +93,7 @@
       call dcopy_(lVector,Z(1),1,ZTemp(1),1)
 !
 !     Now we calculate Alfa = (r_k * z_k) / (p_k * [A * p_k])
-      Alfa = ddot_(lVector,RTemp(1),1,ZTemp(1),1)/
+      Alfa = ddot_(lVector,RTemp(1),1,ZTemp(1),1)/                      &
      &       ddot_(lVector,PTemp(1),1,AP(1),1)
 !
 !     Now we calculate x_k+1 = x_k + alfa * p_k
@@ -116,7 +116,7 @@
       EndDo
 !
 !     Now we calculate beta = (r_k+1 * z_k+1) / (r_k * z_k)
-      Beta = ddot_(lVector,R(1),1,Z(1),1)/
+      Beta = ddot_(lVector,R(1),1,Z(1),1)/                              &
      &       ddot_(lVector,RTemp(1),1,ZTemp(1),1)
 !
 !     Now we calculate P_k+1

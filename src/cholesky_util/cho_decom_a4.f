@@ -27,7 +27,7 @@
       Integer NumCho_Old(8), nQual_Old(8)
       Integer NumV(8), nkVec(8)
 
-      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:), xInt(:),
+      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:), xInt(:),&
      &                      Wrk1(:)
       Integer, Allocatable:: IDKVec(:), iQScr(:)
 !                                                                      *
@@ -49,38 +49,38 @@
 
       LenLin = 0
       If (iPrint .ge. Inf_Progress) Then
-         Call Cho_Head(SecNam//
-     &                 ': Decomposition of Qualified Diagonals','=',
+         Call Cho_Head(SecNam//                                         &
+     &                 ': Decomposition of Qualified Diagonals','=',    &
      &                 80,LUPRI)
-         Write(Lupri,'(/,A,I5,A,I4,A)')
-     &   'Integral pass number',iPass,' (',NumSP,
+         Write(Lupri,'(/,A,I5,A,I4,A)')                                 &
+     &   'Integral pass number',iPass,' (',NumSP,                       &
      &   ' shell pair distributions calculated)'
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#vec. in buff.: ',(nVec_in_Buf(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#qualified    : ',(nQual(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   'Current  dim. : ',(nnBstr(iSym,2),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   'Original dim. : ',(nnBstr(iSym,1),iSym=1,nSym)
-         Write(Lupri,'(/,A,/,A,A)')
-     &   '           #Vectors             Treated Diagonal',
-     &   'Sym.     Sym.     Total     Index     Before      After',
+         Write(Lupri,'(/,A,/,A,A)')                                     &
+     &   '           #Vectors             Treated Diagonal',            &
+     &   'Sym.     Sym.     Total     Index     Before      After',     &
      &   '   Conv. Neg.   New Max'
          LenLin = 79
          Write(Lupri,'(80A)') ('-',I=1,LenLin)
          Call Cho_Flush(Lupri)
          Call iCopy(nSym,NumCho,1,NumCho_Old,1)
       Else If (iPrint .ge. Inf_Pass) Then
-         Write(Lupri,'(/,A,I4)')
+         Write(Lupri,'(/,A,I4)')                                        &
      &   'Number of shell pair distributions calculated:',NumSP
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#vec. in buff.: ',(nVec_in_Buf(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#qualified    : ',(nQual(iSym),iSym=1,nSym)
          Call Cho_Flush(Lupri)
          Call iCopy(nSym,NumCho,1,NumCho_Old,1)
@@ -116,7 +116,7 @@
       Do iSym = 1,nSym
          If (nQual(iSym)*NumV(iSym)>0) Then
             iEn = iEn + nQual(iSym)*NumV(iSym)
-            LQ(iSym)%Array(1:nQual(iSym),1:NumV(iSym)) =>
+            LQ(iSym)%Array(1:nQual(iSym),1:NumV(iSym)) =>               &
      &                LQ_Tot(iSt:iEn)
             iSt = iEn + 1
          Else
@@ -198,7 +198,7 @@
       Do iSym = 1,nSym
          If (nQual(iSym)<1) Cycle
          Do jVec = 1,NumV(iSym)
-            Call dCopy_(nQual(iSym),LQ(iSym)%Array(:,jVec),1,
+            Call dCopy_(nQual(iSym),LQ(iSym)%Array(:,jVec),1,           &
      &                              KVScr,1)
             Do iK = 1,nKVec(iSym)
                lK = IDKVec(kID+iK)
@@ -256,7 +256,7 @@
 !           ----------------------------------------------------------
 
             Call Cho_Timer(C1,W1)
-            Call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),
+            Call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),        &
      &                           nQual(iSym),LuSel(iSym))
             Call Cho_Timer(C2,W2)
             tDecom(1,1) = tDecom(1,1) + C2 - C1
@@ -268,7 +268,7 @@
             Call mma_maxDBLE(l_Wrk1)
             Call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
 
-            Call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),
+            Call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),             &
      &                       Wrk1,SIZE(Wrk1),iSym,iPass)
 
             Call mma_deallocate(Wrk1)
@@ -278,7 +278,7 @@
 
             Call Cho_Timer(C1,W1)
             iVec1 = NumCho(iSym) + 1
-            Call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),
+            Call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),            &
      &                      iVec1,iSym)
             Call Cho_VecBuf_Copy(xInt,nQual(iSym),iSym)
             NumCho(iSym) = NumCho(iSym) + nQual(iSym)
@@ -332,13 +332,13 @@
             NumCho_Old(iSym) = NumCho(iSym) - NumCho_Old(iSym)
          End Do
          Write(Lupri,'(80A)') ('-',I=1,LenLin)
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
       Else If (iPrint .ge. Inf_Pass) Then
          Do iSym = 1,nSym
             NumCho_Old(iSym) = NumCho(iSym) - NumCho_Old(iSym)
          End Do
-         Write(Lupri,'(A,8I8)')
+         Write(Lupri,'(A,8I8)')                                         &
      &   '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
       End If
 

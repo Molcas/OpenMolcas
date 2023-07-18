@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,
+      SubRoutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,      &
      &                         iLoc)
 !
 !     Purpose: read vector jVec, sym. iSym, from disk. Read only
@@ -41,7 +41,7 @@
 
       If (Cho_AdrVec .ne. 1) Then
          Write(Lupri,*) SecNam,': WA address mode is required!'
-         Write(Lupri,*) 'Cho_AdrVec is: ',Cho_AdrVec,
+         Write(Lupri,*) 'Cho_AdrVec is: ',Cho_AdrVec,                   &
      &                  ' (should be 1)'
          Call Cho_Quit('WA address mode is required in '//SecNam,104)
       End If

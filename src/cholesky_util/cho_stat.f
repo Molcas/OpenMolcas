@@ -15,7 +15,7 @@
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoArr, only: nDimRS, IntMap
       use ChoSwp, only: nnBstRSh, InfVec
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,              &
      &                     DSPNm, SSNorm
       use stdalloc
       Implicit Real*8 (a-h,o-z)
@@ -47,15 +47,15 @@
 
       CALL CHO_HEAD('Cholesky Decomposition Statistics','=',80,LUPRI)
       IF (RSTDIA) THEN
-         WRITE(LUPRI,'(/,A)')
+         WRITE(LUPRI,'(/,A)')                                           &
      &   'Calculation restarted from diagonal on disk'
       END IF
       IF (RSTCHO) THEN
          IF (RSTDIA) THEN
-            WRITE(LUPRI,'(A)')
+            WRITE(LUPRI,'(A)')                                          &
      &      'Calculation restarted from Cholesky vectors on disk'
          ELSE
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      'Calculation restarted from Cholesky vectors on disk'
          END IF
       END IF
@@ -73,10 +73,10 @@
 !     ------------------
 
       CALL CHO_HEAD('Vector statistics','-',80,LUPRI)
-      WRITE(LUPRI,'(/,A,A,/,A,A)')
-     & 'Sym.        N      Full      Mmax         M    M/Full',
-     & '    M/Mmax       M/N',
-     & '-----------------------------------------------------',
+      WRITE(LUPRI,'(/,A,A,/,A,A)')                                      &
+     & 'Sym.        N      Full      Mmax         M    M/Full',         &
+     & '    M/Mmax       M/N',                                          &
+     & '-----------------------------------------------------',         &
      & '---------------------'
       NTOT = 0
       DO ISYM = 1,NSYM
@@ -87,11 +87,11 @@
             KSYM = MULD2H(JSYM,ISYM)
             IF (JSYM .GT. KSYM) THEN
                NN = NN + NBAS(JSYM)*NBAS(KSYM)
-               XXBST(ISYM) = XXBST(ISYM)
+               XXBST(ISYM) = XXBST(ISYM)                                &
      &         + DBLE(NBAS(JSYM))*DBLE(NBAS(KSYM))
             ELSE IF (JSYM .EQ. KSYM) THEN
                NN = NN + NBAS(JSYM)*(NBAS(JSYM) + 1)/2
-               XXBST(ISYM) = XXBST(ISYM)
+               XXBST(ISYM) = XXBST(ISYM)                                &
      &         + DBLE(NBAS(JSYM))*(DBLE(NBAS(JSYM)) + 1.0D0)/2.0D0
             END IF
          END DO
@@ -112,11 +112,11 @@
          ELSE
             Y = 9.0D9
          END IF
-         WRITE(LUPRI,'(I3,4(1X,I9),3(1X,F9.4))')
+         WRITE(LUPRI,'(I3,4(1X,I9),3(1X,F9.4))')                        &
      &   ISYM,NBAS(ISYM),NN,NNBSTR(ISYM,1),NUMCHO(ISYM),YYY,YY,Y
       END DO
-      WRITE(LUPRI,'(A,A)')
-     & '-----------------------------------------------------',
+      WRITE(LUPRI,'(A,A)')                                              &
+     & '-----------------------------------------------------',         &
      & '---------------------'
       NN = NBAST*(NBAST + 1)/2
       IF (NN .GT. 0) THEN
@@ -137,21 +137,21 @@
       ELSE
          Y = 9.0D9
       END IF
-      WRITE(LUPRI,'(3X,4(1X,I9),3(1X,F9.4))')
+      WRITE(LUPRI,'(3X,4(1X,I9),3(1X,F9.4))')                           &
      & NBAST,NN,NNBSTRT(1),NUMCHT,YYY,YY,Y
-      WRITE(LUPRI,'(A,A)')
-     & '-----------------------------------------------------',
+      WRITE(LUPRI,'(A,A)')                                              &
+     & '-----------------------------------------------------',         &
      & '---------------------'
       IF (NTOT .NE. NUMCHT) THEN
-         WRITE(LUPRI,'(A)')
+         WRITE(LUPRI,'(A)')                                             &
      &   'WARNING: total number of vectors is wrong!!!'
       END IF
 
       CALL CHO_GETSTOR(VCSTOR)
 
-      WRITE(LUPRI,'(/,A,/,A,/,A)')
-     & '                       %Saving relative to',
-     & 'Sym.     Storage      1st Red. Set     Full',
+      WRITE(LUPRI,'(/,A,/,A,/,A)')                                      &
+     & '                       %Saving relative to',                    &
+     & 'Sym.     Storage      1st Red. Set     Full',                   &
      & '---------------------------------------------'
       VCTOT = 0.0D0
       X1TOT = 0.0D0
@@ -185,14 +185,14 @@
                END IF
             END IF
          END IF
-         WRITE(LUPRI,'(I2,4X,F10.3,1X,A,4X,F9.4,4X,F9.4)')
+         WRITE(LUPRI,'(I2,4X,F10.3,1X,A,4X,F9.4,4X,F9.4)')              &
      &   ISYM,XGB,UNT,SAV1,SAV2
          VCTOT = VCTOT + VCSTOR(ISYM)
          X1TOT = X1TOT + X1RED
          X2TOT = X2TOT + X1DIM*(X1DIM + 1.0D0)/2.0D0
          XXTOT = XXTOT + XX
       END DO
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      & '---------------------------------------------'
       IF (X1TOT .GT. 0.0D0) THEN
          SAV1  = 1.0D2*(X1TOT - VCTOT)/X1TOT
@@ -218,13 +218,13 @@
             END IF
          END IF
       END IF
-      WRITE(LUPRI,'(A6,F10.3,1X,A,4X,F9.4,4X,F9.4)')
+      WRITE(LUPRI,'(A6,F10.3,1X,A,4X,F9.4,4X,F9.4)')                    &
      & 'Total:',XGB,UNT,SAV1,SAV2
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      & '---------------------------------------------'
       PCT = 1.0D2*VCTOT/X2TOT
-      WRITE(LUPRI,'(A,F11.6,A)')
-     & 'Total storage corresponds to',PCT,
+      WRITE(LUPRI,'(A,F11.6,A)')                                        &
+     & 'Total storage corresponds to',PCT,                              &
      & '% of the 1st reduced set integral matrix.'
 
       CALL CHO_STAT_PARENTDIAG()
@@ -250,23 +250,23 @@
       XREP  = DBLE(NREP)
 
       CALL CHO_HEAD('Integral statistics','-',80,LUPRI)
-      WRITE(LUPRI,'(/,A,I10)')
+      WRITE(LUPRI,'(/,A,I10)')                                          &
      & '#Shells                  :',NSHELL
-      WRITE(LUPRI,'(A,I10)')
+      WRITE(LUPRI,'(A,I10)')                                            &
      & '#Shell Pair Distributions:',NNSHL
-      WRITE(LUPRI,'(A,I10)')
+      WRITE(LUPRI,'(A,I10)')                                            &
      & '#Integral passes         :',XNPASS
-      WRITE(LUPRI,'(A,I10)')
+      WRITE(LUPRI,'(A,I10)')                                            &
      & '#Calls to integral prog. :',NCALL
-      WRITE(LUPRI,'(A,I10,A,F8.3,A,A)')
-     & '#Shell Pairs Calculated  :',NCAL,' (',XCAL*1.0D2/XXSHL,' %',
+      WRITE(LUPRI,'(A,I10,A,F8.3,A,A)')                                 &
+     & '#Shell Pairs Calculated  :',NCAL,' (',XCAL*1.0D2/XXSHL,' %',    &
      & ' of total)'
-      WRITE(LUPRI,'(A,I10,A,F8.3,A,A)')
-     & '#Shell Pairs Repeated    :',NREP,' (',XREP*1.0D2/XCAL,' %',
+      WRITE(LUPRI,'(A,I10,A,F8.3,A,A)')                                 &
+     & '#Shell Pairs Repeated    :',NREP,' (',XREP*1.0D2/XCAL,' %',     &
      & ' of calculated)'
 
-      WRITE(LUPRI,'(/,A,/,A)')
-     & '#Calculations     #Shell Pairs   Percentage',
+      WRITE(LUPRI,'(/,A,/,A)')                                          &
+     & '#Calculations     #Shell Pairs   Percentage',                   &
      & '-------------------------------------------'
       DO ICAL = 1,MAXCAL
          N = 0
@@ -278,7 +278,7 @@
             WRITE(LUPRI,'(I12,6X,I12,5X,F8.3)') ICAL,N,X*1.0D2/XXSHL
          END IF
       END DO
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      & '-------------------------------------------'
 
 !     Section timings.
@@ -304,57 +304,57 @@
       TWFIN = TIMSEC(4,8) - TIMSEC(3,8)
 
       CALL CHO_HEAD('Section timings','-',80,LUPRI)
-      WRITE(LUPRI,'(/,A,/,A,/,A)')
-     &'                                 CPU time          Wall time',
-     &'Section                      hours min. sec.    hours min. sec.',
+      WRITE(LUPRI,'(/,A,/,A,/,A)')                                      &
+     &'                                 CPU time          Wall time',   &
+     &'Section                      hours min. sec.    hours min. sec.',&
      &'---------------------------------------------------------------'
       STRING = 'Initialization           '
       CALL CHO_CNVTIM(TCINI,IHC,IMC,SCC)
       CALL CHO_CNVTIM(TWINI,IHW,IMW,SCW)
-      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')        &
      & STRING,IHC,IMC,SCC,IHW,IMW,SCW
       STRING = 'Diagonal setup           '
       CALL CHO_CNVTIM(TCDIA,IHC,IMC,SCC)
       CALL CHO_CNVTIM(TWDIA,IHW,IMW,SCW)
-      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')        &
      & STRING,IHC,IMC,SCC,IHW,IMW,SCW
       STRING = 'Cholesky decomposition   '
       CALL CHO_CNVTIM(TCDEC,IHC,IMC,SCC)
       CALL CHO_CNVTIM(TWDEC,IHW,IMW,SCW)
-      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')        &
      & STRING,IHC,IMC,SCC,IHW,IMW,SCW
       STRING = 'Diagonal check           '
       CALL CHO_CNVTIM(TCCHD,IHC,IMC,SCC)
       CALL CHO_CNVTIM(TWCHD,IHW,IMW,SCW)
-      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')        &
      & STRING,IHC,IMC,SCC,IHW,IMW,SCW
       IF (CHO_INTCHK) THEN
          STRING = 'Integral check (debug)   '
          CALL CHO_CNVTIM(TCCHA,IHC,IMC,SCC)
          CALL CHO_CNVTIM(TWCHA,IHW,IMW,SCW)
-         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')     &
      &   STRING,IHC,IMC,SCC,IHW,IMW,SCW
       END IF
       IF (CHO_REORD) THEN
          STRING = 'Vector reordering        '
          CALL CHO_CNVTIM(TCREO,IHC,IMC,SCC)
          CALL CHO_CNVTIM(TWREO,IHW,IMW,SCW)
-         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')     &
      &    STRING,IHC,IMC,SCC,IHW,IMW,SCW
       END IF
       IF (CHO_FAKE_PAR .AND. NPROCS.GT.1 .AND. Is_Real_Par()) THEN
          STRING = 'Vector distribution      '
          CALL CHO_CNVTIM(TCDIS,IHC,IMC,SCC)
          CALL CHO_CNVTIM(TWDIS,IHW,IMW,SCW)
-         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+         WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')     &
      &    STRING,IHC,IMC,SCC,IHW,IMW,SCW
       END IF
       STRING = 'Finalization             '
       CALL CHO_CNVTIM(TCFIN,IHC,IMC,SCC)
       CALL CHO_CNVTIM(TWFIN,IHW,IMW,SCW)
-      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')
+      WRITE(LUPRI,'(A,1X,I8,2X,I2,1X,F5.1,1X,I8,2X,I2,1X,F5.1)')        &
      & STRING,IHC,IMC,SCC,IHW,IMW,SCW
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      &'---------------------------------------------------------------'
 
       END IF ! IPRINT .GT. INF_TIMING
@@ -396,112 +396,112 @@
          END IF
 
          CALL CHO_HEAD('Timing of decomposition driver','-',80,LUPRI)
-         WRITE(LUPRI,'(/,A,A,/,A,A)')
-     &    'Task           Component           CPU (min.)     %',
-     &    '   Wall (min.)     %',
-     &    '---------------------------------------------------',
+         WRITE(LUPRI,'(/,A,A,/,A,A)')                                   &
+     &    'Task           Component           CPU (min.)     %',        &
+     &    '   Wall (min.)     %',                                       &
+     &    '---------------------------------------------------',        &
      &    '----------------------'
          CTIM = TINTEG(1,1)
          WTIM = TINTEG(2,1)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   'Integrals      calculation        ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   'Integrals      calculation        ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TINTEG(1,2)
          WTIM = TINTEG(2,2)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               I/O, qualifieds    ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               I/O, qualifieds    ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TDECOM(1,1)
          WTIM = TDECOM(2,1)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   'Decomposition  I/O, qualifieds    ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   'Decomposition  I/O, qualifieds    ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TDECOM(1,2)
          WTIM = TDECOM(2,2)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               I/O, vectors       ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               I/O, vectors       ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TDECOM(1,3)
          WTIM = TDECOM(2,3)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               vector subtraction ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               vector subtraction ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          IF (PARALG) THEN
             CTIM = TDECOM(1,4)
             WTIM = TDECOM(2,4)
             IF (DOCPCT) CPCT = CTIM*CFAC
             IF (DOWPCT) WPCT = WTIM*WFAC
-            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &      '               qualified CD       ',
+            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')        &
+     &      '               qualified CD       ',                       &
      &      CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          END IF
          CTIM = TMISC(1,1)
          WTIM = TMISC(2,1)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   'Misc.          qualification      ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   'Misc.          qualification      ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TMISC(1,2)
          WTIM = TMISC(2,2)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               red. set write     ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               red. set write     ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          CTIM = TMISC(1,3)
          WTIM = TMISC(2,3)
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               info write         ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               info write         ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          IF (PARALG) THEN
             CTIM = TMISC(1,4)
             WTIM = TMISC(2,4)
             IF (DOCPCT) CPCT = CTIM*CFAC
             IF (DOWPCT) WPCT = WTIM*WFAC
-            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &      '               diagonal sync      ',
+            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')        &
+     &      '               diagonal sync      ',                       &
      &      CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
             CTIM = TMISC(1,5)
             WTIM = TMISC(2,5)
             IF (DOCPCT) CPCT = CTIM*CFAC
             IF (DOWPCT) WPCT = WTIM*WFAC
-            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &      '               vector count sync  ',
+            WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')        &
+     &      '               vector count sync  ',                       &
      &      CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
          END IF
          CTIM = CMISC
          WTIM = WMISC
          IF (DOCPCT) CPCT = CTIM*CFAC
          IF (DOWPCT) WPCT = WTIM*WFAC
-         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')
-     &   '               etc.               ',
+         WRITE(LUPRI,'(A,1X,F10.2,1X,F7.2,2X,F10.2,1X,F7.2)')           &
+     &   '               etc.               ',                          &
      &   CTIM/6.0D1,CPCT,WTIM/6.0D1,WPCT
-         WRITE(LUPRI,'(A,A)')
-     &   '---------------------------------------------------',
+         WRITE(LUPRI,'(A,A)')                                           &
+     &   '---------------------------------------------------',         &
      &   '----------------------'
-         WRITE(LUPRI,'(A,1X,F10.2,10X,F10.2)')
-     &   'Total:                            ',
+         WRITE(LUPRI,'(A,1X,F10.2,10X,F10.2)')                          &
+     &   'Total:                            ',                          &
      &   TDECDRV(1)/6.0D1,TDECDRV(2)/6.0D1
-         WRITE(LUPRI,'(A,A)')
-     &   '---------------------------------------------------',
+         WRITE(LUPRI,'(A,A)')                                           &
+     &   '---------------------------------------------------',         &
      &   '----------------------'
-         WRITE(LUPRI,'(A,I12)')
+         WRITE(LUPRI,'(A,I12)')                                         &
      &   'Total #system calls for vector read  :',NSYS_CALL
          IF (.NOT. CHO_SSCREEN) THEN
-            WRITE(LUPRI,'(A,I12)')
+            WRITE(LUPRI,'(A,I12)')                                      &
      &      'Total #DGEMM  calls for vector subtr.:',NDGM_CALL
          END IF
 
@@ -511,19 +511,19 @@
 !     ----------------------------------------------
 
       IF (CHO_SSCREEN) THEN
-         CALL CHO_HEAD('Screening Statistics from Vector Subtraction',
+         CALL CHO_HEAD('Screening Statistics from Vector Subtraction',  &
      &                 '-',80,LUPRI)
-         WRITE(LUPRI,'(/,A,12X,A)')
+         WRITE(LUPRI,'(/,A,12X,A)')                                     &
      &   'Norm used for diagonals      : ',SSNORM
-         WRITE(LUPRI,'(A,1P,D15.4)')
+         WRITE(LUPRI,'(A,1P,D15.4)')                                    &
      &   'Screening threshold          : ',SSTAU
-         WRITE(LUPRI,'(A,1P,D15.4)')
+         WRITE(LUPRI,'(A,1P,D15.4)')                                    &
      &   'Maximum possible #DGEMV calls: ',SUBSCRSTAT(1)
-         WRITE(LUPRI,'(A,1P,D15.4)')
+         WRITE(LUPRI,'(A,1P,D15.4)')                                    &
      &   'Actual #DGEMV calls          : ',SUBSCRSTAT(2)
          IF (SUBSCRSTAT(1) .GT. 0.0D0) THEN
             SSCRPCT = 1.0D2*(SUBSCRSTAT(1)-SUBSCRSTAT(2))/SUBSCRSTAT(1)
-            WRITE(LUPRI,'(A,8X,F7.2,A)')
+            WRITE(LUPRI,'(A,8X,F7.2,A)')                                &
      &      'Screening percent            : ',SSCRPCT,'%'
          END IF
       END IF
@@ -532,14 +532,14 @@
 !     (This is for test purposes.)
 !     ------------------------------------------------------------
 
-      IF (CHO_TSTSCREEN .AND.
+      IF (CHO_TSTSCREEN .AND.                                           &
      &    .NOT.(CHO_FAKE_PAR.AND.NPROCS.GT.1.AND.Is_Real_Par())) THEN
 
          CHO_SSCREEN_SAVE = CHO_SSCREEN
          CHO_SSCREEN = .TRUE. ! to avoid error termination
 
          IF (NTAU .LT. 1) THEN
-            WRITE(LUPRI,*) SECNAM,': screening test requested, but ',
+            WRITE(LUPRI,*) SECNAM,': screening test requested, but ',   &
      &                     'NTAU is non-positive!'
             WRITE(LUPRI,*) SECNAM,': test is skipped!'
             GO TO 199 ! skip
@@ -550,7 +550,7 @@
          END DO
 
          CALL CHO_HEAD('RS Screening Statistics (TEST)','-',80,LUPRI)
-         WRITE(LUPRI,'(/,A,A)')
+         WRITE(LUPRI,'(/,A,A)')                                         &
      &   'Norm used for diagonal shell pairs: ',SSNORM
          CALL CHO_SUBSCR_INIT()
 
@@ -570,8 +570,8 @@
                      Call mma_maxDBLE(LRDVT)
                      NUMVEC = MIN(LRDVT/NDIMRS(ISYM,IRED),NVEC)
                      IF (NUMVEC .LT. 1) THEN
-                        CALL CHO_QUIT(
-     &                  'Insufficient memory for TstScreen in '//SECNAM,
+                        CALL CHO_QUIT(                                  &
+     &                  'Insufficient memory for TstScreen in '//SECNAM,&
      &                  104)
                      END IF
                      NBATCH = (NVEC - 1)/NUMVEC + 1
@@ -590,31 +590,31 @@
                         JVEC2 = JVEC1 + NUMV - 1
                         JNUM  = 0
                         MUSD  = 0
-                        CALL CHO_VECRD(KRDVEC,LRDVEC,JVEC1,JVEC2,
+                        CALL CHO_VECRD(KRDVEC,LRDVEC,JVEC1,JVEC2,       &
      &                                 ISYM,JNUM,IREDC,MUSD)
                         IF (JNUM .NE. NUMV) THEN
-                           CALL CHO_QUIT('Logical error in '//SECNAM,
+                           CALL CHO_QUIT('Logical error in '//SECNAM,   &
      &                                   103)
                         END IF
 
                         IF (IREDC .NE. IRED) THEN
                            CALL CHO_X_SETRED(IRC,ILOC,IRED)
                            IF (IRC .NE. 0) THEN
-                              WRITE(LUPRI,*) SECNAM,
+                              WRITE(LUPRI,*) SECNAM,                    &
      &                        ': CHO_X_SETRED returned ',IRC
                               CALL CHO_QUIT('Error in '//SECNAM,104)
                            END IF
                            IREDC = IRED
                         END IF
 
-                        CALL CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,
+                        CALL CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,      &
      &                                      SSNORM)
                         XT = 0.0D0
                         CALL FZERO(XC,NTAU)
                         DO ISHAB = 1,NNSHL
                            IF (NNBSTRSH(ISYM,ISHAB,ILOC) .GT. 0) THEN
                               DO ISHGD = ISHAB,NNSHL
-                                 IF (NNBSTRSH(ISYM,ISHGD,ILOC) .GT. 0)
+                                 IF (NNBSTRSH(ISYM,ISHGD,ILOC) .GT. 0)  &
      &                           THEN
                                     TST = DSPNM(ISHAB)*DSPNM(ISHGD)
                                     TST = SQRT(TST)
@@ -629,26 +629,26 @@
                            END IF
                         END DO
 
-                        WRITE(LUPRI,'(/,1X,A,I6,A,I2,A)')
-     &                  '*** Statistics for reduced set',IRED,
+                        WRITE(LUPRI,'(/,1X,A,I6,A,I2,A)')               &
+     &                  '*** Statistics for reduced set',IRED,          &
      &                  '    Symmetry',ISYM,' ***'
-                        WRITE(LUPRI,'(1X,A,I6,A,I6)')
+                        WRITE(LUPRI,'(1X,A,I6,A,I6)')                   &
      &                  '    Batch no.',IBATCH,' of',NBATCH
-                        WRITE(LUPRI,'(1X,A,9X,I6)')
+                        WRITE(LUPRI,'(1X,A,9X,I6)')                     &
      &                  '       No. vectors     : ',NUMV
-                        WRITE(LUPRI,'(1X,A,9X,I6,9X,I6)')
+                        WRITE(LUPRI,'(1X,A,9X,I6,9X,I6)')               &
      &                  '       Vector range    : ',JVEC1,JVEC2
-                        WRITE(LUPRI,'(1X,A,1P,D15.7)')
+                        WRITE(LUPRI,'(1X,A,1P,D15.7)')                  &
      &                  '       Shell quadruples: ',XT
                         IF (XT .LT. 1.0D0) THEN
-                           CALL CHO_QUIT('XT non-positive in '//SECNAM,
+                           CALL CHO_QUIT('XT non-positive in '//SECNAM, &
      &                                   103)
                         END IF
                         FAC = 1.0D2/XT
                         DO ITAU = 1,NTAU
                            PCT = FAC*(XT-XC(ITAU))
-                           WRITE(LUPRI,'(1X,A,1P,D15.7,A,D15.7,A)')
-     &                     '       Threshold: ',TAU(ITAU),
+                           WRITE(LUPRI,'(1X,A,1P,D15.7,A,D15.7,A)')     &
+     &                     '       Threshold: ',TAU(ITAU),              &
      &                     '  Screening percent: ',PCT,'%'
                         END DO
                         CALL CHO_FLUSH(LUPRI)

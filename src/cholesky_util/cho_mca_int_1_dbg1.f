@@ -38,7 +38,7 @@
 !     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
-         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
+         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',     &
      &                  IFCSEW,' to 1.'
          IFCSEW = 1
       END IF
@@ -78,7 +78,7 @@
 
             DO ISYM = 1,NSYM
 
-               JAB1 = IIBSTR(ISYM,1) + IIBSTRSH(ISYM,ISHLAB,1)
+               JAB1 = IIBSTR(ISYM,1) + IIBSTRSH(ISYM,ISHLAB,1)          &
      &              + 1
                JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,1) - 1
 
@@ -86,38 +86,38 @@
 
                   IF ((JAB.LT.1) .OR. (JAB.GT.NNBSTRT(1))) THEN
                      WRITE(LUPRI,*) SECNAM,': JAB = ',JAB
-                     WRITE(LUPRI,*) SECNAM,
-     &                              ': should be between 1 and ',
+                     WRITE(LUPRI,*) SECNAM,                             &
+     &                              ': should be between 1 and ',       &
      &                              NNBSTRT(1)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',
+                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',    &
      &                             103)
                   END IF
 
                   JSHLAB = INDRSH(JAB)
                   IF (JSHLAB .NE. ISP2F(ISHLAB)) THEN
                      WRITE(LUPRI,*) SECNAM,': test is meaningless!'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',
+                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',      &
      &                              'ISP2F(ISHLAB)'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',
+                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',  &
      &                              JSHLAB,ISP2F(ISHLAB)
-                     CALL CHO_QUIT(SECNAM//': shell bug (IRED=1)',
+                     CALL CHO_QUIT(SECNAM//': shell bug (IRED=1)',      &
      &                             103)
                   END IF
 
                   IAB = INDRED(JAB,1)
                   IF ((IAB.LT.1) .OR. (IAB.GT.NUMAB)) THEN
                      WRITE(LUPRI,*) SECNAM,': IAB = ',IAB
-                     WRITE(LUPRI,*) SECNAM,
+                     WRITE(LUPRI,*) SECNAM,                             &
      &                             ': should be between 1 and ',NUMAB
-                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',
+                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',    &
      &                             103)
                   END IF
 
                   KABAB = NUMAB*(IAB - 1) + IAB
                   DIFF  = DIAG(JAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
-                     WRITE(LUPRI,*)
-     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
+                     WRITE(LUPRI,*)                                     &
+     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',             &
      &               ISHLA,ISHLB,JAB,IAB,DIFF
                      IERR = IERR + 1
                   END IF
@@ -128,7 +128,7 @@
 
             END DO
 
-            WRITE(LUPRI,*)
+            WRITE(LUPRI,*)                                              &
      &      SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
 
             NERR = NERR + IERR
@@ -137,7 +137,7 @@
 
             DO ISYM = 1,NSYM
 
-               JAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED)
+               JAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED)    &
      &              + 1
                JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,IRED) - 1
 
@@ -145,48 +145,48 @@
 
                   IF ((JAB.LT.1) .OR. (JAB.GT.NNBSTRT(IRED))) THEN
                      WRITE(LUPRI,*) SECNAM,': JAB = ',JAB
-                     WRITE(LUPRI,*) SECNAM,
-     &                              ': should be between 1 and ',
+                     WRITE(LUPRI,*) SECNAM,                             &
+     &                              ': should be between 1 and ',       &
      &                              NNBSTRT(IRED)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',
+                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
      &                             103)
                   END IF
 
                   JSHLAB = INDRSH(INDRED(JAB,IRED))
                   IF (JSHLAB .NE. ISP2F(ISHLAB)) THEN
                      WRITE(LUPRI,*) SECNAM,': test is meaningless!'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',
+                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',      &
      &                              'ISP2F(ISHLAB)'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',
+                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',  &
      &                              JSHLAB,ISP2F(ISHLAB)
-                     CALL CHO_QUIT(SECNAM//': shell bug (IRED>1)',
+                     CALL CHO_QUIT(SECNAM//': shell bug (IRED>1)',      &
      &                             103)
                   END IF
 
                   KAB = INDRED(JAB,IRED)  ! index in red. set 1
                   IF ((KAB.LT.1) .OR. (KAB.GT.NNBSTRT(1))) THEN
                      WRITE(LUPRI,*) SECNAM,': KAB = ',KAB
-                     WRITE(LUPRI,*) SECNAM,
-     &                              ': should be between 1 and ',
+                     WRITE(LUPRI,*) SECNAM,                             &
+     &                              ': should be between 1 and ',       &
      &                              NNBSTRT(1)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',
+                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
      &                             103)
                   END IF
 
                   IAB = INDRED(KAB,1)
                   IF ((IAB.LT.1) .OR. (IAB.GT.NUMAB)) THEN
                      WRITE(LUPRI,*) SECNAM,': IAB = ',IAB
-                     WRITE(LUPRI,*) SECNAM,
+                     WRITE(LUPRI,*) SECNAM,                             &
      &                             ': should be between 1 and ',NUMAB
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',
+                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
      &                             103)
                   END IF
 
                   KABAB = NUMAB*(IAB - 1) + IAB
                   DIFF  = DIAG(KAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
-                     WRITE(LUPRI,*)
-     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
+                     WRITE(LUPRI,*)                                     &
+     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',             &
      &               ISHLA,ISHLB,JAB,IAB,DIFF
                      IERR = IERR + 1
                   END IF
@@ -197,7 +197,7 @@
 
             END DO
 
-            WRITE(LUPRI,*)
+            WRITE(LUPRI,*)                                              &
      &      SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
 
             NERR = NERR + IERR
@@ -213,7 +213,7 @@
       CALL XRLSMEM_INTS()
       Call mma_deallocate(xINT)
 
-      WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
+      WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,             &
      &               ' #errors: ',NERR
 
       END

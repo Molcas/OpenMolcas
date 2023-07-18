@@ -101,7 +101,7 @@
             Go To 1  ! exit
          End If
          Call CWTime(CPUIni2,WallIni2)
-         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,
+         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1, &
      &                   WallIni2,WallIni1,iFmt)
       End If
 
@@ -137,7 +137,7 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUTra2,WallTra2)
-            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,
+            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,      &
      &                       CPUTra1,WallTra2,WallTra1,iFmt)
          End If
       Else If(DoDens) Then
@@ -148,7 +148,7 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUTra2,WallTra2)
-            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,
+            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,      &
      &                       CPUTra1,WallTra2,WallTra1,iFmt)
          End If
       End If
@@ -186,8 +186,8 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUDec2,WallDec2)
-            Call Cho_PrtTim('Cholesky MP2 decomposition',
-     &                      CPUDec2,CPUDec1,
+            Call Cho_PrtTim('Cholesky MP2 decomposition',               &
+     &                      CPUDec2,CPUDec1,                            &
      &                      WallDec2,WallDec1,iFmt)
          End If
       Else If(DoDens) Then
@@ -203,8 +203,8 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUDec2,WallDec2)
-            Call Cho_PrtTim('Cholesky MP2 decomposition',
-     &                      CPUDec2,CPUDec1,
+            Call Cho_PrtTim('Cholesky MP2 decomposition',               &
+     &                      CPUDec2,CPUDec1,                            &
      &                      WallDec2,WallDec1,iFmt)
          End If
       Else
@@ -227,15 +227,15 @@
             If (Delete) Then ! full vectors not available
                Call ChoMP2_Quit(SecNam,'MP2 presort failed!',' ')
             Else
-               Write(6,*) SecNam,
+               Write(6,*) SecNam,                                       &
      &                    ': trying to use full vectors instead...'
             End If
             DoSort = .false.
          End If
          If (Verbose) Then
             Call CWTime(CPUSrt2,WallSrt2)
-            Call Cho_PrtTim('Cholesky MP2 presort',
-     &                      CPUSrt2,CPUSrt1,
+            Call Cho_PrtTim('Cholesky MP2 presort',                     &
+     &                      CPUSrt2,CPUSrt1,                            &
      &                      WallSrt2,WallSrt1,iFmt)
          End If
       End If
@@ -248,7 +248,7 @@
             Call CWTime(CPUDab1,WallDab1)
          End If
          Delete = Delete_def
-         Call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),
+         Call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),                 &
      &                       EOcc,EVir,DoSort,Delete)
          call dscal_(l_Dii,-1.0d0,Work(ip_Dii),1)
          If (irc .ne. 0) Then
@@ -257,8 +257,8 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUDab2,WallDab2)
-            Call Cho_PrtTim('Cholesky MP2 FNO section ',
-     &                      CPUDab2,CPUDab1,
+            Call Cho_PrtTim('Cholesky MP2 FNO section ',                &
+     &                      CPUDab2,CPUDab1,                            &
      &                      WallDab2,WallDab1,iFmt)
          End If
          Go To 1 ! exit
@@ -291,8 +291,8 @@
          End If
          If (Verbose) Then
             Call CWTime(CPUEnr2,WallEnr2)
-            Call Cho_PrtTim('Cholesky Grad setup',
-     &                      CPUEnr2,CPUEnr1,
+            Call Cho_PrtTim('Cholesky Grad setup',                      &
+     &                      CPUEnr2,CPUEnr1,                            &
      &                      WallEnr2,WallEnr1,iFmt)
          End If
       End If
@@ -320,8 +320,8 @@
       End If
       If (Verbose) Then
          Call CWTime(CPUEnr2,WallEnr2)
-         Call Cho_PrtTim('Cholesky MP2 energy',
-     &                   CPUEnr2,CPUEnr1,
+         Call Cho_PrtTim('Cholesky MP2 energy',                         &
+     &                   CPUEnr2,CPUEnr1,                               &
      &                   WallEnr2,WallEnr1,iFmt)
       End If
 
@@ -335,7 +335,7 @@
       End If
       If (Verbose) Then
          Call CWTime(CPUTot2,WallTot2)
-         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
+         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,                &
      &                   WallTot2,WallTot1,iFmt)
       End If
       Call ChoMP2_deallocate(irc)

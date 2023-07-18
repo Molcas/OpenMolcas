@@ -55,15 +55,15 @@
             If (Diag(i) .lt. ThrNeg) Then
                nNeg = nNeg + 1
                If (Diag(i) .lt. TooNeg) Then
-                  Write(Lupri,'(A,A,I12,1X,1P,D16.8)')
+                  Write(Lupri,'(A,A,I12,1X,1P,D16.8)')                  &
      &            SecNam,': diagonal too negative: ',i,Diag(i)
-                  Write(Lupri,'(A,A)')
+                  Write(Lupri,'(A,A)')                                  &
      &            SecNam,': shutting down Cholesky decomposition!'
                   Call Cho_Quit('Diagonal too negative in '//SecNam,104)
                End If
                If (Diag(i) .lt. WarNeg) Then
-                  Write(Lupri,'(A,A,I12,1X,1P,D16.8,A)')
-     &            SecNam,': Negative diagonal: ',i,Diag(i),
+                  Write(Lupri,'(A,A,I12,1X,1P,D16.8,A)')                &
+     &            SecNam,': Negative diagonal: ',i,Diag(i),             &
      &            ' (zeroed)'
                End If
                Diag(i) = 0.0d0

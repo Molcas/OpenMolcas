@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_DecChk_Int(irc,lUnit,Col,Nai,Nbj,ibj1,NumVec,
+      SubRoutine ChoMP2_DecChk_Int(irc,lUnit,Col,Nai,Nbj,ibj1,NumVec,   &
      &                             Work,lWork,Fac)
 !
 !     Thomas Bondo Pedersen, Jan. 2005.
@@ -78,8 +78,8 @@
 !        Compute integrals.
 !        ------------------
 
-         Call DGEMM_('N','T',Nai,Nbj,NumV,
-     &              1.0d0,Work,Nai,Work(ibj1),Nai,
+         Call DGEMM_('N','T',Nai,Nbj,NumV,                              &
+     &              1.0d0,Work,Nai,Work(ibj1),Nai,                      &
      &              1.0d0,Col,Nai)
 
       End Do

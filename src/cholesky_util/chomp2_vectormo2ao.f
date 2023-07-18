@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2007,2008, Thomas Bondo Pedersen                       *
 !***********************************************************************
-      SubRoutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,
+      SubRoutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag, &
      &                              Diag,lDiag,lU_AO,irc)
 !
 !     Thomas Bondo Pedersen, Dec. 2007 - Jan. 2008.
@@ -103,7 +103,7 @@
             End Do
          End Do
          If (iCount .ne. lDiag) Then
-            Write(6,*) SecNam,': WARNING: ',
+            Write(6,*) SecNam,': WARNING: ',                            &
      &                 'inconsistent diagonal allocation!'
             If (iCount .gt. lDiag) Then
                Write(6,*) '   - insufficient memory, will return now...'

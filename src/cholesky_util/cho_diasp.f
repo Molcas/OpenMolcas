@@ -75,12 +75,12 @@
       If (.not.Cho_PreScreen) Tau = 0.0d0
       Write(LuPri,*) '>>> Exit from Cho_DiaSP:'
       Write(LuPri,*) '    Screening threshold               : ',Tau
-      Write(LuPri,*) '    Total number of shell pairs       : ',
+      Write(LuPri,*) '    Total number of shell pairs       : ',        &
      &                nnShl_Tot
-      Write(LuPri,*) '    Contributing number of shell pairs: ',
+      Write(LuPri,*) '    Contributing number of shell pairs: ',        &
      &                nnShl
       If (nnShl_Tot .ne. 0) Then
-         Write(LuPri,*) '    Screening-%: ',
+         Write(LuPri,*) '    Screening-%: ',                            &
      &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
       End If
 #endif

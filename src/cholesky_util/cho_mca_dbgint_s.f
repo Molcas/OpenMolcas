@@ -48,9 +48,9 @@
 !     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
-         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
+         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',     &
      &                  IFCSEW,' to 1.'
-         WRITE(LUPRI,*) SECNAM,
+         WRITE(LUPRI,*) SECNAM,                                         &
      &   ': memory demands are significantly increased by this!'
          IFCSEW = 1
       END IF
@@ -86,8 +86,8 @@
 !     -------------
 
       CALL CHO_HEAD('Integral Error Analysis','=',80,LUPRI)
-      WRITE(LUPRI,'(/,A,/,A)')
-     & '    C     D     A     B   Abs. Min.    Abs. Max.      RMS',
+      WRITE(LUPRI,'(/,A,/,A)')                                          &
+     & '    C     D     A     B   Abs. Min.    Abs. Max.      RMS',     &
      & '--------------------------------------------------------------'
 
 !     Loop over specified shell quadruples.
@@ -100,7 +100,7 @@
          ISHLA = ISHLQ(3,I)
          ISHLB = ISHLQ(4,I)
 
-         IF (ISHLC.GT.0 .AND. ISHLD.GT.0 .AND.
+         IF (ISHLC.GT.0 .AND. ISHLD.GT.0 .AND.                          &
      &       ISHLA.GT.0 .AND. ISHLB.GT.0) THEN
 
             IF (ISHLD .EQ. ISHLC) THEN
@@ -136,15 +136,15 @@
 !           Calculate integrals from Cholesky vectors.
 !           ------------------------------------------
 
-            CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,
-     &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,
+            CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,                   &
+     &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,       &
      &                          ISHLCD,ISHLAB)
 
 !           Write report.
 !           -------------
 
             IF (NCMP .LT. 1) THEN
-               WRITE(LUPRI,'(4(I5,1X),5X,A)')
+               WRITE(LUPRI,'(4(I5,1X),5X,A)')                           &
      &         ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
             ELSE
                XCMP  = DBLE(NCMP)
@@ -152,11 +152,11 @@
                RMS   = SQRT(ERRRMS/XCMP)
                IF (PRTLAB) THEN
                   CALL CHO_INTCHK_ID_OF(LABEL,I,-1)
-                  WRITE(LUPRI,'(4(I5,1X),1P,3(D12.4,1X),A,A,A)')
-     &            ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS,
+                  WRITE(LUPRI,'(4(I5,1X),1P,3(D12.4,1X),A,A,A)')        &
+     &            ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS,            &
      &            '(',LABEL,')'
                ELSE
-                  WRITE(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))')
+                  WRITE(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))')              &
      &            ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
                END IF
             END IF
@@ -176,17 +176,17 @@
 !     Print end of table.
 !     -------------------
 
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      & '--------------------------------------------------------------'
       IF (XTCMP .LT. 1.0D0) THEN
-         WRITE(LUPRI,'(A,23X,A)')
+         WRITE(LUPRI,'(A,23X,A)')                                       &
      &   'Total:',' !!! nothing compared !!! '
       ELSE
          GLRMS = SQRT(GLRMS/XTCMP)
-         WRITE(LUPRI,'(A,18X,1P,3(D12.4,1X))')
+         WRITE(LUPRI,'(A,18X,1P,3(D12.4,1X))')                          &
      &   'Total:',GLMIN,GLMAX,GLRMS
       END IF
-      WRITE(LUPRI,'(A)')
+      WRITE(LUPRI,'(A)')                                                &
      & '--------------------------------------------------------------'
 
 !     Release all memory allocated here (and release seward memory).
@@ -217,16 +217,16 @@
       END DO
 
       IF (ABS(XTCMP-XPECT) .GT. 1.0D-15) THEN
-         WRITE(LUPRI,'(/,A)')
+         WRITE(LUPRI,'(/,A)')                                           &
      &   'WARNING: not all integrals checked:'
       ELSE
          WRITE(LUPRI,*)
       END IF
-      WRITE(LUPRI,'(A,1P,D20.10)')
+      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
      & 'Total number of integral comparisons    :',XTCMP
-      WRITE(LUPRI,'(A,1P,D20.10)')
+      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
      & 'Total number expected (full shell pairs):',XPECT
-      WRITE(LUPRI,'(A,1P,D20.10)')
+      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
      & 'Total number of unique integrals        :',XNINT
 
       END

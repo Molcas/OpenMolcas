@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine CD_InCore_1(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,
+      SubRoutine CD_InCore_1(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,   &
      &                       irc)
 !
 !     Thomas Bondo Pedersen, October 2004.

@@ -21,7 +21,7 @@
 !
 !     On input, Lunit is the logical unit to print to...
 !
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,     &
      &                     DSPNm
       Implicit None
       Integer irc, Lunit
@@ -223,9 +223,9 @@
 
       End
       SubRoutine Cho_PrintPointers(irc,Lunit)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,&
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,      &
      &                  InfVec, IndRed
 !
 !     Purpose: print all entries in choarr.f90 and choswp.f90

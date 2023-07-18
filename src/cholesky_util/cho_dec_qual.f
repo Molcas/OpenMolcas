@@ -79,9 +79,9 @@
 
 ! ---  Do the subtraction  Q({ab}|{cd}) -= sum_J  L({ab},J) * L({cd},J)
 ! ---------------------------------------------------------------------
-         Call DGEMM_('N','T',nQual(jSym),nQual(jSym),nVecG(jSym),
-     &                      xone,Lab(ipSQL),mQ,
-     &                           Lab(ipSQL),mQ,
+         Call DGEMM_('N','T',nQual(jSym),nQual(jSym),nVecG(jSym),       &
+     &                      xone,Lab(ipSQL),mQ,                         &
+     &                           Lab(ipSQL),mQ,                         &
      &                       one,Q(ipQ),mQ)
 
 ! --- Extract diagonal of updated Q({ab}|{cd})
@@ -102,11 +102,11 @@
 !     Note: Q is destroyed in CD_InCore_p
 ! ---------------------------------------
          Thr = max(ThrCom,Dmax(jSym)*Span)
-         Call CD_InCore_p(Q(ipQ),nQual(jSym),Kab(ipSQK),
+         Call CD_InCore_p(Q(ipQ),nQual(jSym),Kab(ipSQK),                &
      &                    nQual(jSym),iD(ipD),NumV(jSym),Thr,irc)
 
          If (irc.ne.0) Then
-            write(6,*) SecNam,' non-zero rc on exit from CD_InCore_p: ',
+            write(6,*) SecNam,' non-zero rc on exit from CD_InCore_p: ',&
      &                 irc
             Call Cho_Quit('Decomposition error in '//SecNam,104)
          EndIf

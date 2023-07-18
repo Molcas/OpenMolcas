@@ -77,29 +77,29 @@
       TOPCT = 1.0D2/DBLE(LVEC)
 
       JCOUNT = ICOUNT(1)
-      WRITE(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')
-     & 'Larger than ',BIN(1),':',ICOUNT(1),
+      WRITE(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')     &
+     & 'Larger than ',BIN(1),':',ICOUNT(1),                             &
      & DBLE(ICOUNT(1))*TOPCT,'%','Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
       DO IBIN = 2,NBIN
          JCOUNT = JCOUNT + ICOUNT(IBIN)
-         WRITE(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')
-     &   'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN),
-     &   DBLE(ICOUNT(IBIN))*TOPCT,'%',
+         WRITE(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')&
+     &   'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN),     &
+     &   DBLE(ICOUNT(IBIN))*TOPCT,'%',                                  &
      &   'Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
       END DO
       JCOUNT = JCOUNT + NLOW
-      WRITE(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')
-     & 'Smaller than ',BIN(NBIN),':',NLOW,
+      WRITE(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')       &
+     & 'Smaller than ',BIN(NBIN),':',NLOW,                              &
      & DBLE(NLOW)*TOPCT,'%','Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
 
-      WRITE(LUPRI,'(/,1X,A,I12,1X,F7.2,A)')
-     & 'Number of elements exactly 0.0D0 :',NZER,
+      WRITE(LUPRI,'(/,1X,A,I12,1X,F7.2,A)')                             &
+     & 'Number of elements exactly 0.0D0 :',NZER,                       &
      & DBLE(NZER)*TOPCT,'%'
-      WRITE(LUPRI,'(1X,A,I12,1X,F7.2,A)')
-     & 'Number of negative elements      :',NNEG,
+      WRITE(LUPRI,'(1X,A,I12,1X,F7.2,A)')                               &
+     & 'Number of negative elements      :',NNEG,                       &
      & DBLE(NNEG)*TOPCT,'%'
       IF (NNEG .GT. 0) THEN
-         WRITE(LUPRI,'(1X,A,D12.4)')
+         WRITE(LUPRI,'(1X,A,D12.4)')                                    &
      & ' - numerically largest           :',XNEG
       END IF
 

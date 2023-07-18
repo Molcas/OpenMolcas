@@ -67,7 +67,7 @@
       End If
 
       ! Loop through integral shell quadruple
-      Write(LuPri,'(//,A,I4,A,I4,A,I4,A,I4,A)')
+      Write(LuPri,'(//,A,I4,A,I4,A,I4,A,I4,A)')                         &
      & 'Shell Quadruple (',iSC,',',iSD,'|',iSA,',',iSB,'):'
       Do AB=1,nAB
          iAB=iShP2Q(1,AB)
@@ -79,13 +79,13 @@
                iCD=iShP2RS(1,CD)
                If (iCD.gt.0) Then
                   If (iShP2RS(2,CD).eq.iSym) Then
-                     Write(Lupri,'(2X,A,I4,A,I4,A,1P,D15.6)')
+                     Write(Lupri,'(2X,A,I4,A,I4,A,1P,D15.6)')           &
      &               '(',CD,'|',AB,') =',xInt(kOffI+iCD)
                      xNorm=xNorm+xInt(kOffI+iCD)**2
                   End If
                End If
             End Do
-            Write(Lupri,'(A,I4,A,1P,D15.6)')
+            Write(Lupri,'(A,I4,A,1P,D15.6)')                            &
      &      '**Norm of column',AB,':',sqrt(xNorm)
          End If
       End Do

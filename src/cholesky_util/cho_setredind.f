@@ -25,9 +25,9 @@
 #if defined (_DEBUGPRINT_)
       MSYM = SIZE(iiBstRSh,1)
       MMSHL= SIZE(iiBstRSh,2)
-      IF ((NNSHL.NE.MMSHL) .OR. (NSYM.NE.MSYM))
+      IF ((NNSHL.NE.MMSHL) .OR. (NSYM.NE.MSYM))                         &
      & CALL CHO_QUIT('[1] Dimension error in '//SECNAM,104)
-      IF ((J.LT.1) .OR. (J.GT.3))
+      IF ((J.LT.1) .OR. (J.GT.3))                                       &
      & CALL CHO_QUIT('[2] Dimension error in '//SECNAM,104)
 #endif
 

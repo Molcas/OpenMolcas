@@ -38,7 +38,7 @@
                iSyma = MulD2h(iSymi,iSym)
                If (LnOcc(iSymi,iBatch).gt.0 .and. nVir(iSyma).gt.0) Then
                   lCp = nVir(iSyma)*LnOcc(iSymi,iBatch)
-                  kOff2 = kOff0 + iT1am(iSyma,iSymi)
+                  kOff2 = kOff0 + iT1am(iSyma,iSymi)                    &
      &                  + nVir(iSyma)*(iFirstS(iSymi,iBatch)-1)
                   kOff3 = kOff1 + LiT1am(iSyma,iSymi,iBatch)
                   Call dCopy_(lCp,Vec(kOff2),1,Srt(kOff3),1)
@@ -59,15 +59,15 @@
             Do iSymI = 1,nSym
 !
                iSymA = MulD2h(iSymI,iSym)
-               If (LnBatOrb(iSymI,iBatch).gt.0 .and.
-     &             (nFro(iSymA) + nOcc(iSymA)
+               If (LnBatOrb(iSymI,iBatch).gt.0 .and.                    &
+     &             (nFro(iSymA) + nOcc(iSymA)                           &
      &            + nVir(iSymA) + nDel(iSymA)).gt.0) Then
-                  lCp = (nFro(iSymA) + nOcc(iSymA)
-     &                +  nVir(iSymA) + nDel(iSymA))
+                  lCp = (nFro(iSymA) + nOcc(iSymA)                      &
+     &                +  nVir(iSymA) + nDel(iSymA))                     &
      &                *  LnBatOrb(iSymI,iBatch)
-                  kOff2 = kOff0 + iPQ_prod(iSymA,iSymI)
-     &                  + (nFro(iSymA) + nOcc(iSymA)
-     &                  +  nVir(iSymA) + nDel(iSymA))
+                  kOff2 = kOff0 + iPQ_prod(iSymA,iSymI)                 &
+     &                  + (nFro(iSymA) + nOcc(iSymA)                    &
+     &                  +  nVir(iSymA) + nDel(iSymA))                   &
      &                  * (iFirstS(iSymi,iBatch)-1)
                   kOff3 = kOff1 + LiPQprod(iSyma,iSymi,iBatch)
                   Call dCopy_(lCp,Vec(kOff2),1,Srt(kOff3),1)

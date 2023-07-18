@@ -74,30 +74,30 @@
                nErr = 0
                If (IndRSh(jAB).ne.iSP2F(mySP(iShlAB))) Then
                   Write(Lupri,*) SecNam,': inconsistent shell pairs!'
-                  Write(Lupri,*) SecNam,': from input: ',
-     &                           iSP2F(mySP(iShlAB)),
+                  Write(Lupri,*) SecNam,': from input: ',               &
+     &                           iSP2F(mySP(iShlAB)),                   &
      &                           '  from IndRsh: ',IndRSh(jAB)
                   nErr = nErr + 1
                End If
                If (kAB.lt.1 .or. kAB.gt.NumAB) Then
                   Write(Lupri,*) SecNam,': shell pair address error!'
                   Write(Lupri,*) SecNam,': kAB = ',kAB
-                  Write(Lupri,*) SecNam,': min and max allowed: 1 ',
+                  Write(Lupri,*) SecNam,': min and max allowed: 1 ',    &
      &                           NumAB
                   nErr = nErr + 1
                End If
                If (nErr .ne. 0) Then
-                  Write(Lupri,*) SecNam,': Shell A, B, AB: ',
+                  Write(Lupri,*) SecNam,': Shell A, B, AB: ',           &
      &                           iShlA,iShlB,iShlAB
                   Write(Lupri,*) SecNam,': iLoc: ',iLoc
                   Write(Lupri,*) SecNam,': symmetry block: ',iSym
-                  Write(Lupri,*) SecNam,': red. set address, ',
-     &                           'first and current: ',
+                  Write(Lupri,*) SecNam,': red. set address, ',         &
+     &                           'first and current: ',                 &
      &                           jAB,iiBstR(iSym,iLoc)+iAB
                   Call Cho_Quit('Error detected in '//SecNam,104)
                End If
 #endif
-               iShP2RS(1,kAB)   = iOff_Batch(iSym,iShlAB)
+               iShP2RS(1,kAB)   = iOff_Batch(iSym,iShlAB)               &
      &                                       + iAB - iAB1 + 1
                iShP2RS(2,kAB) = iSym
             End Do

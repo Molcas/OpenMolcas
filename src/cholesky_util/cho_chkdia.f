@@ -63,15 +63,15 @@
             IF (DIAG(IAB) .LT. THRNEG) THEN
                NNEG   = NNEG + 1
                IF (DIAG(IAB) .LT. TOONEG) THEN
-                  WRITE(LUPRI,'(A,A,I12,1X,1P,D16.8)')
+                  WRITE(LUPRI,'(A,A,I12,1X,1P,D16.8)')                  &
      &            SECNAM,': diagonal too negative: ',IAB,DIAG(IAB)
-                  WRITE(LUPRI,'(A,A)')
+                  WRITE(LUPRI,'(A,A)')                                  &
      &            SECNAM,': shutting down Cholesky decomposition!'
                   CALL CHO_QUIT('Diagonal too negative in '//SECNAM,104)
                END IF
                IF (DIAG(IAB) .LT. WARNEG) THEN
-                  WRITE(LUPRI,'(A,A,I12,1X,1P,D16.8,A)')
-     &            SECNAM,': Negative diagonal: ',IAB,DIAG(IAB),
+                  WRITE(LUPRI,'(A,A,I12,1X,1P,D16.8,A)')                &
+     &            SECNAM,': Negative diagonal: ',IAB,DIAG(IAB),         &
      &            ' (zeroed)'
                END IF
                IF (DIAG(IAB) .LT. DIAMNZ) THEN

@@ -16,7 +16,7 @@
 !         NB!  It is important that the vector counter NumCho does NOT
 !              include the nVec vectors in array Vec.
 !
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
      &                     nVec_in_Buf
       Implicit None
       Real*8  Vec(*)

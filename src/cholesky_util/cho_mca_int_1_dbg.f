@@ -42,7 +42,7 @@
       ELSE
          LOCDIAG = .FALSE.
          LOCSYM  = .FALSE.
-         WRITE(LUPRI,'(A)') 'Debug level not recognized ---',
+         WRITE(LUPRI,'(A)') 'Debug level not recognized ---',           &
      &                      ' debug cancelled!'
       END IF
 

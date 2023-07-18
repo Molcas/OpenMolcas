@@ -53,12 +53,12 @@
 !     -------------------
 
       IVEC2 = IVEC1 + NUMVEC - 1
-      IF ((IVEC1.LT.1) .OR. (IVEC1.GT.MAXVEC) .OR.
+      IF ((IVEC1.LT.1) .OR. (IVEC1.GT.MAXVEC) .OR.                      &
      &    (IVEC2.LT.1) .OR. (IVEC2.GT.MAXVEC)) THEN
          WRITE(LUPRI,*) SECNAM,': vector index out of bounds'
          WRITE(LUPRI,*) 'IVEC1 = ',IVEC1,' IVEC2 = ',IVEC2
          WRITE(LUPRI,*) '...must be between 1 and ',MAXVEC
-         CALL CHO_QUIT('Vector index out of bounds in '
+         CALL CHO_QUIT('Vector index out of bounds in '                 &
      &                 //SECNAM,104)
       END IF
 
@@ -69,7 +69,7 @@
          IADR2 = INFVEC(IVEC2,4,ISYM)
          IF (INFVEC(IVEC1,4,ISYM) .LT. 0) THEN
             WRITE(LUPRI,*) 'Error in ',SECNAM,':'
-            WRITE(LUPRI,*) 'Illegal disk address for first vector: ',
+            WRITE(LUPRI,*) 'Illegal disk address for first vector: ',   &
      &                     INFVEC(IVEC1,4,ISYM)
             IF (INFVEC(IVEC1,4,ISYM) .LT. -1) THEN
                WRITE(LUPRI,*) '....is it an overflow?'
@@ -78,7 +78,7 @@
             CALL CHO_QUIT('Illegal disk address in '//SECNAM,104)
          ELSE IF (IADR2 .LT. INFVEC(IVEC1,4,ISYM)) THEN
             WRITE(LUPRI,*) 'Error in ',SECNAM,':'
-            WRITE(LUPRI,*) 'Illegal disk address for last vector: ',
+            WRITE(LUPRI,*) 'Illegal disk address for last vector: ',    &
      &                     IADR2
             IF (IADR2 .LT. -1) THEN
                WRITE(LUPRI,*) '....is it an overflow?'
@@ -108,14 +108,14 @@
          DO IVEC = 1,NUMVEC-1
             JVEC = IVEC1 + IVEC - 1
             JRED = INFVEC(JVEC,2,ISYM)
-            INFVEC(JVEC+1,3,ISYM) =
+            INFVEC(JVEC+1,3,ISYM) =                                     &
      &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
          END DO
          IVEC = NUMVEC
          JVEC = IVEC1 + IVEC - 1
          IF (JVEC .LT. MAXVEC) THEN
             JRED = INFVEC(JVEC,2,ISYM)
-            INFVEC(JVEC+1,3,ISYM) =
+            INFVEC(JVEC+1,3,ISYM) =                                     &
      &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
          END IF
       ELSE IF (CHO_ADRVEC .EQ. 2) THEN
@@ -149,8 +149,8 @@
       IF (LOCDBG) THEN
          WRITE(LUPRI,*)
          WRITE(LUPRI,*) SECNAM,':'
-         WRITE(LUPRI,*) 'Vectors ',IVEC1,' to ',IVEC1+NUMVEC-1,
-     &                  ' of symmetry ',ISYM,' written to unit ',
+         WRITE(LUPRI,*) 'Vectors ',IVEC1,' to ',IVEC1+NUMVEC-1,         &
+     &                  ' of symmetry ',ISYM,' written to unit ',       &
      &                  LUCHO(ISYM)
          KOFF = 1
          DO IVEC = 1,NUMVEC
@@ -159,7 +159,7 @@
             LVEC = NDIMRS(ISYM,JRED)
             JADR = INFVEC(JVEC,3,ISYM)
             XNRM = SQRT(DDOT_(LVEC,CHOVEC(KOFF),1,CHOVEC(KOFF),1))
-            WRITE(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',
+            WRITE(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',  &
      &                     XNRM,' dimension: ',LVEC
             KOFF = KOFF + LVEC
          END DO

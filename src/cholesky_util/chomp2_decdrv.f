@@ -45,7 +45,7 @@
       Character(LEN=*) CD_Type
 
       External ChoMP2_Col, ChoMP2_Vec
-      Integer :: IOPTION, ISYM, LERRSTAT, nBin, kOffD, nDim, iBin, iTyp,
+      Integer :: IOPTION, ISYM, LERRSTAT, nBin, kOffD, nDim, iBin, iTyp,&
      &           MxQual, LEFT, lB, nInc, lTot, iOpt, iAdr
       Real*8 :: THR, XMN, XMX, RMS
 
@@ -157,7 +157,7 @@
          nDim = nT1am(iSym)
          If (nDim.gt.0 .and. NumCho(iSym).gt.0) Then
 
-            ConventionalCD = MxCDVec(iSym).lt.1 .or.
+            ConventionalCD = MxCDVec(iSym).lt.1 .or.                    &
      &                       MxCDVec(iSym).ge.nDim
             If (Verbose .and. nBin.gt.0) Then
                Bin(1) = 1.0D2
@@ -165,14 +165,14 @@
                   Bin(iBin) = Bin(iBin-1)*1.0D-1
                End Do
                If (ConventionalCD) Then
-                  Write(6,'(//,1X,A,I2,A,I9)')
-     &     '>>> Conventional Cholesky decomposition of symmetry block ',
-     &            iSym,
+                  Write(6,'(//,1X,A,I2,A,I9)')                          &
+     &     '>>> Conventional Cholesky decomposition of symmetry block ',&
+     &            iSym,                                                 &
      &            ', dimension: ',nDim
                Else
-                  Write(6,'(//,1X,A,I2,A,I9)')
-     &           '>>> MaxVec Cholesky decomposition of symmetry block ',
-     &            iSym,
+                  Write(6,'(//,1X,A,I2,A,I9)')                          &
+     &           '>>> MaxVec Cholesky decomposition of symmetry block ',&
+     &            iSym,                                                 &
      &            ', dimension: ',nDim
                End If
                Write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
@@ -244,26 +244,26 @@
             Thr  = ThrMP2
             Span = SpanMP2
             If (ConventionalCD) Then
-               Call ChoDec(ChoMP2_Col,ChoMP2_Vec,
-     &                     Restart,Thr,Span,MxQual,
-     &                     Diag(kOffD),Qual,Buf,
-     &                     iPivot,iQual,
-     &                     nDim,lBuf,
+               Call ChoDec(ChoMP2_Col,ChoMP2_Vec,                       &
+     &                     Restart,Thr,Span,MxQual,                     &
+     &                     Diag(kOffD),Qual,Buf,                        &
+     &                     iPivot,iQual,                                &
+     &                     nDim,lBuf,                                   &
      &                     ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
-                  Write(6,*) SecNam,': ChoDec returned ',irc,
+                  Write(6,*) SecNam,': ChoDec returned ',irc,           &
      &                              '   Symmetry block: ',iSym
                   Go To 1 ! exit...
                End If
             Else
-               Call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),
-     &                           Restart,Thr,Span,MxQual,
-     &                           Diag(kOffD),Qual,Buf,
-     &                           iPivot,iQual,
-     &                           nDim,lBuf,
+               Call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),   &
+     &                           Restart,Thr,Span,MxQual,               &
+     &                           Diag(kOffD),Qual,Buf,                  &
+     &                           iPivot,iQual,                          &
+     &                           nDim,lBuf,                             &
      &                           ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
-                  Write(6,*) SecNam,': ChoDec_MxVec returned ',irc,
+                  Write(6,*) SecNam,': ChoDec_MxVec returned ',irc,     &
      &                              '   Symmetry block: ',iSym
                   Go To 1 ! exit...
                End If
@@ -272,32 +272,32 @@
             XMx = ErrStat(2)
             RMS = ErrStat(3)
             If (Verbose) Then
-               Write(6,'(/,1X,A)')
+               Write(6,'(/,1X,A)')                                      &
      &         '- decomposition completed!'
-               Write(6,'(1X,A,I9,A,I9,A)')
-     &         'Number of vectors needed: ',nMP2Vec(iSym),
+               Write(6,'(1X,A,I9,A,I9,A)')                              &
+     &         'Number of vectors needed: ',nMP2Vec(iSym),              &
      &         ' (number of AO vectors: ',NumCho(iSym),')'
                If (.not. ConventionalCD) Then
-                  Write(6,'(1X,A,I9)')
+                  Write(6,'(1X,A,I9)')                                  &
      &            'Max. number of vectors allowed: ',MxCDVec(iSym)
                End If
-               Write(6,'(1X,A)')
+               Write(6,'(1X,A)')                                        &
      &         'Error statistics for diagonal [min,max,rms]:'
                Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
             End If
             If (ConventionalCD) Then
-               Failed = abs(Xmn).gt.Thr .or. abs(XMx).gt.thr .or.
+               Failed = abs(Xmn).gt.Thr .or. abs(XMx).gt.thr .or.       &
      &                  RMS.gt.Thr
             Else
                Failed = abs(Xmn).gt.Thr
             End If
             If (Failed) Then
                If (.not. Verbose) Then
-                  Write(6,'(1X,A)')
+                  Write(6,'(1X,A)')                                     &
      &            'Error statistics for diagonal [min,max,rms]:'
                   Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
                End If
-               Write(6,'(A,A,A,A)')
+               Write(6,'(A,A,A,A)')                                     &
      &         SecNam,': decomposition of ',Option,' failed!'
                irc = -9999
                Go To 1 ! exit
@@ -308,34 +308,34 @@
 
             If (ChkDecoMP2) Then
                Write(6,*)
-               Write(6,'(A,A,A)')
+               Write(6,'(A,A,A)')                                       &
      &         SecNam,': Checking decomposition of ',Option
                Write(6,*) 'Symmetry block: ',iSym
                Write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
                Write(6,*) 'Error statistics for diagonal [min,max,rms]:'
                Write(6,*)  ErrStat(:)
-               Call ChoMP2_DecChk(irc,iSym,Qual,nDim,MxQual,
+               Call ChoMP2_DecChk(irc,iSym,Qual,nDim,MxQual,            &
      &                            Buf,lBuf,ErrStat)
                If (irc .ne. 0) Then
                   If (irc .eq. -123456) Then
-                     Write(6,*)
-     &                       ' -- Sorry, full decomposition check not ',
+                     Write(6,*)                                         &
+     &                       ' -- Sorry, full decomposition check not ',&
      &                       'yet implemented --'
                      irc = 0
                   Else
-                     Write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,
+                     Write(6,*) SecNam,': ChoMP2_DecChk returned ',irc, &
      &                                 '   Symmetry block: ',iSym
-                     Call ChoMP2_Quit(SecNam,'decomposition failed!',
+                     Call ChoMP2_Quit(SecNam,'decomposition failed!',   &
      &                                ' ')
                   End If
                Else
                   XMn = ErrStat(1)
                   XMx = ErrStat(2)
                   RMS = ErrStat(3)
-                  Write(6,'(A,A,A)')
+                  Write(6,'(A,A,A)')                                    &
      &            'Error statistics for ',Option,' [min,max,rms]:'
                   Write(6,*) XMn,XMx,RMS
-                  Failed = Failed .or. abs(Xmn).gt.Thr .or.
+                  Failed = Failed .or. abs(Xmn).gt.Thr .or.             &
      &                     abs(XMx).gt.Thr .or. RMS.gt.Thr
                   If (ConventionalCD) Then
                      If (Failed) Then
@@ -347,7 +347,7 @@
                      End If
                   Else
                      If (Failed) Then
-                        Write(6,*)
+                        Write(6,*)                                      &
      &                  '==> DECOMPOSITION SUCCESS <== (by definition)'
                      Else
                         Write(6,*) '==> DECOMPOSITION SUCCESS <=='
@@ -381,7 +381,7 @@
          Else
 
             If (Verbose) Then
-               Write(6,'(//,1X,A,I2,A)')
+               Write(6,'(//,1X,A,I2,A)')                                &
      &         '>>> Symmetry block',iSym,' is empty!'
             End If
 

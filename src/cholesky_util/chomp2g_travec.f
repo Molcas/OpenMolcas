@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,
-     &                         iSyCho,iSyCO,iSyCV,iLoc,
+      SubRoutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,       &
+     &                         iSyCho,iSyCO,iSyCV,iLoc,                 &
      &                         iMoType1,iMoType2)
 !
 !     Jonas Bostrom, Feb 2010
@@ -46,7 +46,7 @@
       iSyScr = MulD2h(iSyCho,iSyCO)
       If (lScr .lt. nMoAo(iSyScr,iMoType1)) Then
          Write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-         Write(6,*) SecNam,': needed                          = ',
+         Write(6,*) SecNam,': needed                          = ',      &
      &              nMoAo(iSyScr,iMoType1)
          Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
       Else
@@ -79,9 +79,9 @@
             jBeta  = iBeta  - iBas(iSymBe)
 
             AOVal  = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1) +  nMo(iSymP,iMoType1)
+            kOffAl = iMoAo(iSymP,iSymAl,iMoType1) +  nMo(iSymP,iMoType1)&
      &                                       * (jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1) + nMo(iSymP,iMoType1)
+            kOffBe = iMoAo(iSymP,iSymBe,iMoType1) + nMo(iSymP,iMoType1) &
      &                                       * (jBeta  - 1)
             Do i = 1,nMo(iSymP,iMoType1)
                Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COrb1(kOffBe+i)
@@ -113,18 +113,18 @@
             AOVal  = VecAO(iAlBe)
 
             iSymP  = MulD2h(iSymBe,iSyCO)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)
+            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)                       &
      &             + nMo(iSymP,iMoType1)*(jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)
+            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)                       &
      &             + nMo(iSymP,iMoType1)*(jBeta  - 1)
             Do i = 1,nMo(iSymP,iMoType1)
                Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COrb1(kOffBe+i)
             End Do
 
             iSymP  = MulD2h(iSymAl,iSyCO)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)
+            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)                       &
      &             + nMo(iSymP,iMoType1)*(jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)
+            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)                       &
      &             + nMo(iSymP,iMoType1)*(jBeta  - 1)
             Do i = 1,nMo(iSymP,iMoType1)
                Scr(kOffBe+i) = Scr(kOffBe+i) + AOVal*COrb1(kOffAl+i)
@@ -151,8 +151,8 @@
             kOff1 = iAoMo(iSymAl,iSymq,iMoType2) + 1
             kOff2 = iMoAo(iSymp,iSymAl,iMoType1) + 1
             kOff3 = iMoMo(iSymq,iSymp,iVecType)   + 1
-            Call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),
-     &                 nBas(iSymAl),1.0D0,COrb2(kOff1),nTotAl,
+            Call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),&
+     &                 nBas(iSymAl),1.0D0,COrb2(kOff1),nTotAl,          &
      &                 Scr(kOff2),nTotp,0.0D0,VecMO(kOff3),nTotq)
          End If
 

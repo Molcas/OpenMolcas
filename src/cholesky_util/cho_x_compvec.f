@@ -10,12 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_X_CompVec(irc,
-     &                         NVT,l_NVT,
-     &                         nBlock,l_nBlock,
-     &                         nV,l_nV1,l_nV2,
-     &                         iV1,l_iV11,l_iV12,
-     &                         ip_Z,l_Z1,l_Z2,Z,l_Z,
+      SubRoutine Cho_X_CompVec(irc,                                     &
+     &                         NVT,l_NVT,                               &
+     &                         nBlock,l_nBlock,                         &
+     &                         nV,l_nV1,l_nV2,                          &
+     &                         iV1,l_iV11,l_iV12,                       &
+     &                         ip_Z,l_Z1,l_Z2,Z,l_Z,                    &
      &                         Free_Z)
 !
 !     Thomas Bondo Pedersen, April 2010.
@@ -127,8 +127,8 @@
 
 #if defined (_DEBUGPRINT_)
       ! Check input
-      If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
-     &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
+      If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.                      &
+     &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.                        &
      &    l_Z2.lt.nSym) Then
          irc=-2
          Return
@@ -138,7 +138,7 @@
          nBlock_Max=max(nBlock_Max,nBlock(iSym))
       End Do
       nnB=nBlock_Max*(nBlock_Max+1)/2
-      If (l_nV1.lt.nBlock_Max .or. l_iV11.lt.nBlock_Max .or.
+      If (l_nV1.lt.nBlock_Max .or. l_iV11.lt.nBlock_Max .or.            &
      &    l_Z1.lt.nnB) Then
          irc=-1
          Return
@@ -148,7 +148,7 @@
       ! Parallel runs: open tmp vector files
       Call Cho_XCV_TmpFiles(irc,1)
       If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')
+         Write(LuPri,'(A,A,I8,A)')                                      &
      &   SecNam,': [1] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
          irc=1
          Return
@@ -161,7 +161,7 @@
       ! I.e. make rs1 the "current" reduced set.
       Call Cho_X_RSCopy(irc,1,2)
       If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')
+         Write(LuPri,'(A,A,I8,A)')                                      &
      &   SecNam,': Error in Cho_X_RSCopy! (Return code:',irc,')'
          irc=1
          Return
@@ -210,19 +210,19 @@
       End Do
       If (iPrint.ge.myDebugInfo) Then
          Call Cho_Head('Shell pair info from '//SecNam,'*',80,LuPri)
-         Write(LuPri,'(/,A,I8,/)')
+         Write(LuPri,'(/,A,I8,/)')                                      &
      &   'Number of shell pairs giving rise to vectors:',nSP
          Do i=1,nSP
             iSP=XCVLSP(i)
             Call Cho_InvPck(iSP2F(iSP),j,k,.True.)
-            Write(Lupri,'(A,I8,A,I4,A,I4,A,I8,A)')
-     &      'Shell pair',iSP,' (shells',j,',',k,
-     &      ') gives rise to',XCVTMP(iSP),
+            Write(Lupri,'(A,I8,A,I4,A,I4,A,I8,A)')                      &
+     &      'Shell pair',iSP,' (shells',j,',',k,                        &
+     &      ') gives rise to',XCVTMP(iSP),                              &
      &      ' vectors'
          End Do
-         Write(LuPri,'(A,I8,/,A,I8,/,A,I8)')
-     &   'Total number of vectors (from SP).................',nTot2,
-     &   'Total number of vectors (from NVT)................',nTot,
+         Write(LuPri,'(A,I8,/,A,I8,/,A,I8)')                            &
+     &   'Total number of vectors (from SP).................',nTot2,    &
+     &   'Total number of vectors (from NVT)................',nTot,     &
      &   'Difference........................................',nTot2-nTot
       End If
       If (nTot.ne.nTot2) Then
@@ -269,22 +269,22 @@
 #if defined (_DEBUGPRINT_)
                ! Check for division by zero or negative diagonal
                ! This would be a bug....
-               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &            .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol       &
+     &            .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)      &
      &         Then
                   Write(LuPri,'(//,A,A)') SecNam,': Ooooops!'
-                  Write(LuPri,'(A)')
+                  Write(LuPri,'(A)')                                    &
      &            '....division by small or negative number....'
                   Write(LuPri,'(A,I8)') 'iSym=',iSym
                   Write(LuPri,'(A,I8)') 'jBlock=',jBlock
-                  Write(LuPri,'(A,I8)') 'J=',
+                  Write(LuPri,'(A,I8)') 'J=',                           &
      &            iV1(jBlock,iSym)+J_inBlock-1
-                  Write(LuPri,'(A,1P,D15.6)')
+                  Write(LuPri,'(A,1P,D15.6)')                           &
      &            'Z(J,J)=',Z(kOffZ+iTri(J_inBlock,J_inBlock))
-                  Write(LuPri,'(A,1P,D15.6)')
+                  Write(LuPri,'(A,1P,D15.6)')                           &
      &            'Tolerance=',Tol
-                  Call Cho_Quit(
-     &            'Division by small or negative number in '//SecNam,
+                  Call Cho_Quit(                                        &
+     &            'Division by small or negative number in '//SecNam,   &
      &            103)
                End If
 #endif
@@ -320,22 +320,22 @@
       If (iPrint.ge.Inf_Pass) Then
          Call Cho_Head('Generation of Cholesky vectors','=',80,LuPri)
          Call Cho_Word2Byte(l_Int,8,Byte,Unt)
-         Write(LuPri,'(/,A,I12,A,F10.3,1X,A,A)')
-     &   'Memory available for integrals/vectors..',l_Int,' (',Byte,Unt,
+         Write(LuPri,'(/,A,I12,A,F10.3,1X,A,A)')                        &
+     &   'Memory available for integrals/vectors..',l_Int,' (',Byte,Unt,&
      &   ')'
          Call Cho_Word2Byte(l_Wrk,8,Byte,Unt)
-         Write(LuPri,'(A,I12,A,F10.3,1X,A,A)')
-     &   'Memory available for Seward.............',l_Wrk,' (',Byte,Unt,
+         Write(LuPri,'(A,I12,A,F10.3,1X,A,A)')                          &
+     &   'Memory available for Seward.............',l_Wrk,' (',Byte,Unt,&
      &   ')'
-         Write(LuPri,'(A,I12)')
+         Write(LuPri,'(A,I12)')                                         &
      &   'Number of shell pairs, total (nnShl)....',nnShl
-         Write(LuPri,'(A,I12)')
+         Write(LuPri,'(A,I12)')                                         &
      &   'Number of shell pairs, this node........',iCountSP
          Write(LuPri,'(//,65X,A)') 'Time/min'
-         Write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)')
+         Write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)')          &
      &   'Batch','iSP1','iSP2','%Done','Memory','CPU','Wall'
-         Write(LuPri,'(A,A)')
-     &   '------------------------------------------------------------',
+         Write(LuPri,'(A,A)')                                           &
+     &   '------------------------------------------------------------',&
      &   '----------------'
          Call Cho_Flush(LuPri)
          TotMem=0.0d0
@@ -369,7 +369,7 @@
             End If
          End Do
          If (nSP_this_batch.lt.1) Then
-            Call Cho_Quit(
+            Call Cho_Quit(                                              &
      &         SecNam//': Insufficient memory for shell pair batch',101)
          End If
          iSP_2=iSP_1+nSP_this_batch-1
@@ -384,11 +384,11 @@
          ! Calculate integrals (uv|J) for uv in shell pair batch and
          ! for all J (shell pairs that give rise to vectors are
          ! listed in ListSP).
-         Call Cho_XCV_GetInt(irc,XCVTMP(iSP_1),nSP_this_batch,
-     &                       XCVLSP,SIZE(XCVLSP),
+         Call Cho_XCV_GetInt(irc,XCVTMP(iSP_1),nSP_this_batch,          &
+     &                       XCVLSP,SIZE(XCVLSP),                       &
      &                       NVT,l_NVT,XCVInt,SIZE(XCVInt))
          If (irc .ne. 0) Then
-            Write(LuPri,'(A,A,I8)')
+            Write(LuPri,'(A,A,I8)')                                     &
      &      SecNam,': Cho_XCV_GetInt returned code',irc
             Call Cho_Quit(SecNam//': Error in Cho_XCV_GetInt',104)
          End If
@@ -406,17 +406,17 @@
                   ! loop - i.e. Z(J,J) <- 1/Z(J,J)
                   J=iV1(jBlock,iSym)+J_inBlock-1
                   kL=kOffI+nDim_Batch(iSym)*(J-1)
-                  Call dScal_(nDim_Batch(iSym),
-     &                       Z(kOffZ+iTri(J_inBlock,J_inBlock)),
+                  Call dScal_(nDim_Batch(iSym),                         &
+     &                       Z(kOffZ+iTri(J_inBlock,J_inBlock)),        &
      &                       XCVInt(kL),1)
                   ! Subtract from subsequent columns in current block
                   ! using BLAS1
                   ! (uv|K) <- (uv|K) - L(uv,J)*Z(K,J), K>J (in jBlock)
                   Do K_inBlock=J_inBlock+1,nV(jBlock,iSym)
                      K=iV1(jBlock,iSym)+K_inBlock-1
-                     Call dAXPY_(nDim_Batch(iSym),
-     &                    -Z(kOffZ+iTri(K_inBlock,J_inBlock)),
-     &                    XCVInt(kL),1,
+                     Call dAXPY_(nDim_Batch(iSym),                      &
+     &                    -Z(kOffZ+iTri(K_inBlock,J_inBlock)),          &
+     &                    XCVInt(kL),1,                                 &
      &                    XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
                   End Do
                End Do
@@ -428,11 +428,11 @@
                   kI=kOffI+nDim_Batch(iSym)*(iV1(kBlock,iSym)-1)
                   kZ=ip_Z(iTri(kBlock,jBlock),iSym)
                   ldZ=max(nV(kBlock,iSym),1)
-                  Call dGeMM_('N','T',
-     &                        nDim_Batch(iSym),nV(kBlock,iSym),
-     &                        nV(jBlock,iSym),
-     &                        -1.0d0,XCVInt(kL),ldL,
-     &                               Z(kZ),ldZ,
+                  Call dGeMM_('N','T',                                  &
+     &                        nDim_Batch(iSym),nV(kBlock,iSym),         &
+     &                        nV(jBlock,iSym),                          &
+     &                        -1.0d0,XCVInt(kL),ldL,                    &
+     &                               Z(kZ),ldZ,                         &
      &                         1.0d0,XCVInt(kI),ldL)
                End Do
             End Do
@@ -465,9 +465,9 @@
             End Do
             Call Cho_Word2Byte(lTot,8,Byte,Unt)
             PMem=1.0d2*DBLE(lTot)/DBLE(l_Int)
-            Write(LuPri,
-     &'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)')
-     &      nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem,'%)',
+            Write(LuPri,                                                &
+     &'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)')&
+     &      nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem,'%)',         &
      &      (X1-X0)/6.0d1,(Y1-Y0)/6.0d1
             Call Cho_Flush(LuPri)
             TotMem=TotMem+DBLE(lTot)
@@ -480,14 +480,14 @@
          XCVnBt(nBatch)=nSP_this_batch
       End Do
       If (iPrint.ge.Inf_Pass) Then
-         Write(LuPri,'(A,A)')
-     &   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ',
+         Write(LuPri,'(A,A)')                                           &
+     &   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ',&
      &   '- - - - - - - - '
          Call Cho_RWord2Byte(TotMem,Byte,Unt)
-         Write(LuPri,'(32X,F10.3,1X,A,12X,F9.2,1X,F9.2)')
+         Write(LuPri,'(32X,F10.3,1X,A,12X,F9.2,1X,F9.2)')               &
      &   Byte,Unt,TotCPU,TotWall
-         Write(LuPri,'(A,A)')
-     &   '------------------------------------------------------------',
+         Write(LuPri,'(A,A)')                                           &
+     &   '------------------------------------------------------------',&
      &   '----------------'
          Call Cho_Flush(LuPri)
       End If
@@ -524,12 +524,12 @@
       ! Parallel runs: distribute vectors across nodes (store on files)
       ! Serial runs: write vectors to permanent files
       Call Cho_Timer(C0,W0)
-      Call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,
+      Call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,                 &
      &                               XCVTMP,iCountSP,NVT,l_NVT)
       If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8)')
+         Write(LuPri,'(A,A,I8)')                                        &
      &   SecNam,': Cho_XCV_DistributeVectors returned code',irc
-         Call Cho_Quit(SecNam//': Error in Cho_XCV_DistributeVectors',
+         Call Cho_Quit(SecNam//': Error in Cho_XCV_DistributeVectors',  &
      &                 104)
       End If
       Call Cho_Timer(C1,W1)
@@ -543,7 +543,7 @@
       ! Parallel runs: close and erase tmp vector files
       Call Cho_XCV_TmpFiles(irc,3)
       If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')
+         Write(LuPri,'(A,A,I8,A)')                                      &
      &   SecNam,': [3] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
          Call Cho_Quit(SecNam//': Error in Cho_XCV_TmpFiles',104)
       End If

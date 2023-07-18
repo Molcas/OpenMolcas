@@ -21,7 +21,7 @@
       use ChoArr, only: iScr, LQ
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
       use ChoVecBuf, only: nVec_in_Buf
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,     &
      &                     DSPNm, SSNorm
       Implicit Real*8 (a-h,o-z)
       REAL*8 XINT(*), WRK(LWRK)
@@ -70,16 +70,16 @@
          WRITE(LUPRI,*) SECNAM,': insufficient memory:'
          WRITE(LUPRI,*) 'Need at least: ',MUST+KEND0-1
          WRITE(LUPRI,*) 'Available    : ',LWRK
-         WRITE(LUPRI,*) '(A significant increase of memory is ',
+         WRITE(LUPRI,*) '(A significant increase of memory is ',        &
      &                  'needed for efficient execution.)'
          WRITE(LUPRI,*)
-         WRITE(LUPRI,*) 'Memory available in ',
+         WRITE(LUPRI,*) 'Memory available in ',                         &
      &                  SECNAM,' may also be increased by reducing:'
-         WRITE(LUPRI,*)
-     &   '1) max. #qualified per symmetry, currently: ',MAXQUAL,
+         WRITE(LUPRI,*)                                                 &
+     &   '1) max. #qualified per symmetry, currently: ',MAXQUAL,        &
      &   '   to less than than ',NQUAL(ISYM)
-         WRITE(LUPRI,*)
-     &   '2) max. memory fraction used by qualified, ',
+         WRITE(LUPRI,*)                                                 &
+     &   '2) max. memory fraction used by qualified, ',                 &
      &   ' currently: ',N1_QUAL,'/',N2_QUAL
          CALL CHO_QUIT('Insufficient memory in '//SECNAM//' [0]',101)
       END IF
@@ -130,7 +130,7 @@
          DO WHILE (NUMRD .LT. NUMSUB) ! reduce NUMSUB until NUMRD=NUMSUB
             NUMSUB = NUMSUB - 1
             IF (NUMSUB .LT. 1) THEN ! should never occur (checked above)
-               CALL CHO_QUIT('Insufficient memory for split in '
+               CALL CHO_QUIT('Insufficient memory for split in '        &
      &                       //SECNAM,101)
             END IF
             LREAD = LWRK0 - NUMSUB*MINLFT
@@ -165,7 +165,7 @@
          CALL CHO_TIMER(C1,W1)
          NVRD  = 0
          MUSED = 0
-         CALL CHO_VECRD(WRK(KREAD),LREAD,IVEC1,NUMCHO(ISYM),ISYM,
+         CALL CHO_VECRD(WRK(KREAD),LREAD,IVEC1,NUMCHO(ISYM),ISYM,       &
      &                  NVRD,IREDC,MUSED)
          NUMRD = NUMRD + 1
          CALL CHO_TIMER(C2,W2)
@@ -176,7 +176,7 @@
 !        -----------------------------
 
          IF (NVRD .LT. 1) THEN
-            CALL CHO_QUIT('Insufficient scratch space for read in '
+            CALL CHO_QUIT('Insufficient scratch space for read in '     &
      &                    //SECNAM,101)
          END IF
 
@@ -292,7 +292,7 @@
                   DO LVEC = 1,LNUM
                      KVEC = KVEC1 + LVEC - 1
                      DO IAB = 1,NNBSTR(ISYM,2)
-                        KOFF1 = KCHO1 + NNBSTR(ISYM,2)*(KVEC - 1) + IAB
+                        KOFF1 = KCHO1 + NNBSTR(ISYM,2)*(KVEC - 1) + IAB &
      &                        - 1
                         KOFF2 = IOFF(MIN(ISCR(IAB),1)) + ISCR(IAB)
                         WRK(KOFF1) = WRK(KOFF2)
@@ -350,10 +350,10 @@
                            XDON  = XDON + 1.0D0
                            KOFF1 = KCHO1 + IIBSTRSH(ISYM,ISHGD,2)
                            KOFF2 = KCHO2 + NUMV*(IAB-1)
-                           KOFF3 = NNBSTR(ISYM,2)*(IAB-1)
+                           KOFF3 = NNBSTR(ISYM,2)*(IAB-1)               &
      &                           + IIBSTRSH(ISYM,ISHGD,2) + 1
-                           CALL DGEMV_('N',NGD,NUMV,
-     &                                XMONE,WRK(KOFF1),NNBSTR(ISYM,2),
+                           CALL DGEMV_('N',NGD,NUMV,                    &
+     &                                XMONE,WRK(KOFF1),NNBSTR(ISYM,2),  &
      &                                WRK(KOFF2),1,ONE,XINT(KOFF3),1)
                         END IF
                      END IF
@@ -368,10 +368,10 @@
 !                 core, use this block.
 !                 -------------------------------------------------
 
-                  CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
-     &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                             LQ(ISYM)%Array(:,IVEC1_1),
-     &                             SIZE(LQ(ISYM)%Array,1),
+                  CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,  &
+     &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),           &
+     &                             LQ(ISYM)%Array(:,IVEC1_1),           &
+     &                             SIZE(LQ(ISYM)%Array,1),              &
      &                       ONE,XINT,NNBSTR(ISYM,2))
 
                ELSE
@@ -393,9 +393,9 @@
 !                 (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
 !                 ----------------------------------------------------
 
-                  CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
-     &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                       WRK(KCHO2),NQUAL(ISYM),
+                  CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,  &
+     &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),           &
+     &                       WRK(KCHO2),NQUAL(ISYM),                    &
      &                       ONE,XINT,NNBSTR(ISYM,2))
 
                END IF
@@ -444,57 +444,57 @@
             XAVEVC = DBLE(NUMCHO(ISYM))/DBLE(NUMBAT)
          END IF
          WRITE(LUPRI,'(A)') '*****'
-         WRITE(LUPRI,'(A,A,I2,A)')
+         WRITE(LUPRI,'(A,A,I2,A)')                                      &
      &   SECNAM,' statistics, symmetry',ISYM,':'
-         WRITE(LUPRI,'(A,I12)')
-     &   'Number of previous vectors                           : ',
+         WRITE(LUPRI,'(A,I12)')                                         &
+     &   'Number of previous vectors                           : ',     &
      &   NUMCHO(ISYM)
-         WRITE(LUPRI,'(A,I12)')
-     &   'Number of vectors in buffer                          : ',
+         WRITE(LUPRI,'(A,I12)')                                         &
+     &   'Number of vectors in buffer                          : ',     &
      &   NVEC_IN_BUF(ISYM)
-         WRITE(LUPRI,'(A,I12)')
-     &   'Memory available for subtraction of previous vectors : ',
+         WRITE(LUPRI,'(A,I12)')                                         &
+     &   'Memory available for subtraction of previous vectors : ',     &
      &   LWRK
-         WRITE(LUPRI,'(A,I12)')
-     &   'Memory reserved for buffered vector read             : ',
+         WRITE(LUPRI,'(A,I12)')                                         &
+     &   'Memory reserved for buffered vector read             : ',     &
      &   LREAD
-         WRITE(LUPRI,'(A,I12)')
-     &   'Number of batches needed for reading vectors         : ',
+         WRITE(LUPRI,'(A,I12)')                                         &
+     &   'Number of batches needed for reading vectors         : ',     &
      &   NUMRD
          IF (CHO_SSCREEN) THEN
-            WRITE(LUPRI,'(A,F12.2)')
-     &      'Number of calls to DGEMV                             : ',
+            WRITE(LUPRI,'(A,F12.2)')                                    &
+     &      'Number of calls to DGEMV                             : ',  &
      &      XDON
-            WRITE(LUPRI,'(A,1P,D12.2)')
-     &      'Screening threshold                                  : ',
+            WRITE(LUPRI,'(A,1P,D12.2)')                                 &
+     &      'Screening threshold                                  : ',  &
      &      SSTAU
             IF (XTOT .GT. 0.0D0) THEN
                SCRPCT = 1.0D2*(XTOT-XDON)/XTOT
             ELSE
                SCRPCT = 1.0D15
             END IF
-            WRITE(LUPRI,'(A,F12.2,A)')
-     &      'Screening percent                                    : ',
+            WRITE(LUPRI,'(A,F12.2,A)')                                  &
+     &      'Screening percent                                    : ',  &
      &      SCRPCT,'%'
          ELSE
-            WRITE(LUPRI,'(A,I12)')
-     &      'Number of calls to DGEMM                             : ',
+            WRITE(LUPRI,'(A,I12)')                                      &
+     &      'Number of calls to DGEMM                             : ',  &
      &      NUMBAT
          END IF
-         WRITE(LUPRI,'(A,I12,I12,F12.2)')
-     &   'Minimum, maximum, and average #vectors read          : ',
+         WRITE(LUPRI,'(A,I12,I12,F12.2)')                               &
+     &   'Minimum, maximum, and average #vectors read          : ',     &
      &   IVSTAT(1,1),IVSTAT(2,1),XAVERD
-         WRITE(LUPRI,'(A,I12,I12,F12.2)')
-     &   'Minimum, maximum, and average #vecs per call to BLAS : ',
+         WRITE(LUPRI,'(A,I12,I12,F12.2)')                               &
+     &   'Minimum, maximum, and average #vecs per call to BLAS : ',     &
      &   IVSTAT(1,2),IVSTAT(2,2),XAVEVC
-         WRITE(LUPRI,'(A,2F12.2)')
-     &   'Time for reading vectors into buffer (CPU/Wall; sec.): ',
+         WRITE(LUPRI,'(A,2F12.2)')                                      &
+     &   'Time for reading vectors into buffer (CPU/Wall; sec.): ',     &
      &   TIMLOC(1,1),TIMLOC(2,1)
-         WRITE(LUPRI,'(A,2F12.2)')
-     &   'Time for reduced set vector reorder  (CPU/Wall; sec.): ',
+         WRITE(LUPRI,'(A,2F12.2)')                                      &
+     &   'Time for reduced set vector reorder  (CPU/Wall; sec.): ',     &
      &   TIMLOC(1,2),TIMLOC(2,2)
-         WRITE(LUPRI,'(A,2F12.2)')
-     &   'Time for qual. copy + subtraction    (CPU/Wall; sec.): ',
+         WRITE(LUPRI,'(A,2F12.2)')                                      &
+     &   'Time for qual. copy + subtraction    (CPU/Wall; sec.): ',     &
      &   TIMLOC(1,3),TIMLOC(2,3)
          WRITE(LUPRI,'(A)') '*****'
       END IF

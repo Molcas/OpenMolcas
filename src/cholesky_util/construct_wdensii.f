@@ -26,32 +26,32 @@
 !
       Character*20 ThisNm
       Character*25 SecNam
-      Parameter (SecNam = 'Construct_WDensII',
+      Parameter (SecNam = 'Construct_WDensII',                          &
      &           ThisNm = 'Construct_WDensII')
 !
-      iDensActOcc(i,j,k) = ip_Density(k)
-     &                   +  j-1
-     &                   + (nOrb(k) + nDel(k))
+      iDensActOcc(i,j,k) = ip_Density(k)                                &
+     &                   +  j-1                                         &
+     &                   + (nOrb(k) + nDel(k))                          &
      &                   * (i + nFro(k) - 1)
-      iWDensActOcc(i,j,k) = ip_WDensity(k)
-     &                    +  j-1
-     &                    + (nOrb(k) + nDel(k))
+      iWDensActOcc(i,j,k) = ip_WDensity(k)                              &
+     &                    +  j-1                                        &
+     &                    + (nOrb(k) + nDel(k))                         &
      &                    * (i-1 + nFro(k))
-      iDensVactVall(i,j,k) = ip_Density(k)
-     &                     + j-1 + nFro(k) + nOcc(k)
-     &                     + (nOrb(k) + nDel(k))
+      iDensVactVall(i,j,k) = ip_Density(k)                              &
+     &                     + j-1 + nFro(k) + nOcc(k)                    &
+     &                     + (nOrb(k) + nDel(k))                        &
      &                     * (i-1 + nFro(k) + nOcc(k))
-      iWDensVactVall(i,j,k) = ip_WDensity(k)
-     &                      + j-1 + nFro(k) + nOcc(k)
-     &                      + (nOrb(k) + nDel(k))
+      iWDensVactVall(i,j,k) = ip_WDensity(k)                            &
+     &                      + j-1 + nFro(k) + nOcc(k)                   &
+     &                      + (nOrb(k) + nDel(k))                       &
      &                      * (i-1 + nFro(k) + nOcc(k))
-      iDensVallOcc(i,j,k) = ip_Density(k)
-     &                    +  j-1
-     &                    + (nOrb(k) + nDel(k))
+      iDensVallOcc(i,j,k) = ip_Density(k)                               &
+     &                    +  j-1                                        &
+     &                    + (nOrb(k) + nDel(k))                         &
      &                    * (i-1 + nFro(k) + nOcc(k))
-      iWDensVallOcc(i,j,k) = ip_WDensity(k)
-     &                    +  j-1
-     &                    + (nOrb(k) + nDel(k))
+      iWDensVallOcc(i,j,k) = ip_WDensity(k)                             &
+     &                    +  j-1                                        &
+     &                    + (nOrb(k) + nDel(k))                         &
      &                    * (i-1 + nFro(k) + nOcc(k))
 !
       Do iSym = 1, nSym
@@ -66,9 +66,9 @@
                Else
                   E_j = EOcc(iOcc(iSym) + iJ - nFro(iSym))
                End If
-               Work(iWDensActOcc(iI,iJ,iSym)) =
-     &              Work(iWDensActOcc(iI,iJ,iSym))
-     &           -  0.5d0 * Work(iDensActOcc(iI,iJ,iSym))
+               Work(iWDensActOcc(iI,iJ,iSym)) =                         &
+     &              Work(iWDensActOcc(iI,iJ,iSym))                      &
+     &           -  0.5d0 * Work(iDensActOcc(iI,iJ,iSym))               &
      &           * (E_i + E_j)
             End Do
          End Do
@@ -83,9 +83,9 @@
                Else
                   E_b = EVir(iVir(iSym) + iB)
                End If
-               Work(iWDensVactVall(iA,iB,iSym)) =
-     &              Work(iWDensVactVall(iA,iB,iSym))
-     &           -  0.5d0 * Work(iDensVactVall(iA,iB,iSym))
+               Work(iWDensVactVall(iA,iB,iSym)) =                       &
+     &              Work(iWDensVactVall(iA,iB,iSym))                    &
+     &           -  0.5d0 * Work(iDensVactVall(iA,iB,iSym))             &
      &           * (E_a + E_b)
             End Do
 !***********************************************************************
@@ -98,9 +98,9 @@
                Else
                   E_i = EOcc(iOcc(iSym) + iI - nFro(iSym))
                End If
-               Work(iWDensVallOcc(iA,iI,iSym)) =
-     &              Work(iWDensVallOcc(iA,iI,iSym))
-     &           - 2.0d0 * Work(iDensVallOcc(iA,iI,iSym))
+               Work(iWDensVallOcc(iA,iI,iSym)) =                        &
+     &              Work(iWDensVallOcc(iA,iI,iSym))                     &
+     &           - 2.0d0 * Work(iDensVallOcc(iA,iI,iSym))               &
      &           * (E_i)
             End Do
          End Do

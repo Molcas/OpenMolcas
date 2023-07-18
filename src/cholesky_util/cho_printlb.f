@@ -22,10 +22,10 @@
 
       LB(myRank) = nnBstRT(1)
       Call Cho_GAIGop(LB,nProcs,'+')
-      Call Cho_Head('Cholesky vector dimension on each node','=',80,
+      Call Cho_Head('Cholesky vector dimension on each node','=',80,    &
      &              LuPri)
       Do i = 0,nProcs-1
-         Write(LuPri,'(2X,A,I4,5X,A,I7)')
+         Write(LuPri,'(2X,A,I4,5X,A,I7)')                               &
      &   'Node:',i,'Dimension:',LB(i)
       End Do
 

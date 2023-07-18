@@ -11,7 +11,7 @@
 ! Copyright (C) 2008, Jonas Bostrom                                    *
 !***********************************************************************
 
-      SubRoutine Construct_WDensIII(Xaibj,LnPQRSprod,LiPQRSprod,iBatch,
+      SubRoutine Construct_WDensIII(Xaibj,LnPQRSprod,LiPQRSprod,iBatch, &
      &                              jBatch,nOccLeftI,nOccLeftJ)
 !
 !     Jonas Bostrom, October 2008
@@ -32,24 +32,24 @@
 !
       Character*20 ThisNm
       Character*25 SecNam
-      Parameter (SecNam = 'Construct_WDensIII',
+      Parameter (SecNam = 'Construct_WDensIII',                         &
      &           ThisNm = 'Construct_WDensIII')
 !
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      iDensAllAll(i,j,k) = ip_Density(k)
-     &                   +  j-1
-     &                   + (nOrb(k) + nDel(k))
+      iDensAllAll(i,j,k) = ip_Density(k)                                &
+     &                   +  j-1                                         &
+     &                   + (nOrb(k) + nDel(k))                          &
      &                   * (i-1)
-      iWDensOccOcc(i,j,k) = ip_WDensity(k)
-     &                    +  j-1
-     &                    + (nOrb(k) + nDel(k))
+      iWDensOccOcc(i,j,k) = ip_WDensity(k)                              &
+     &                    +  j-1                                        &
+     &                    + (nOrb(k) + nDel(k))                         &
      &                    * (i-1)
 !
       iSymPQ = 1
       iSymIJ = 1
       Do iSymJ = 1, nSym
-         LjOrb = Min(LnBatOrb(iSymJ,jBatch),
+         LjOrb = Min(LnBatOrb(iSymJ,jBatch),                            &
      &                  nOccLeftJ(iSymJ))
          Do Lj = 1, LjOrb
             iJ = iFirstS(iSymJ,jBatch) + Lj-1
@@ -59,49 +59,49 @@
                   iSymQJ = MulD2h(iSymQ,iSymJ)
                   iSymPI = iSymQJ
                   iSymP = MulD2h(iSymPQ,iSymQ)
-                  Ljq = LiPQProd(iSymQ,iSymJ,jBatch)
-     &                + (nFro(iSymQ) + nOcc(iSymQ)
-     &                +  nVir(iSymQ) + nDel(iSymQ))
-     &                * (Lj-1)
+                  Ljq = LiPQProd(iSymQ,iSymJ,jBatch)                    &
+     &                + (nFro(iSymQ) + nOcc(iSymQ)                      &
+     &                +  nVir(iSymQ) + nDel(iSymQ))                     &
+     &                * (Lj-1)                                          &
      &                + iQ
                   LpOrb = LnBatOrb(iSymP,iBatch)
                   Do Lp = 1, LpOrb
                      iP = iFirstS(iSymP,iBatch) + Lp-1
                      iSymI = MulD2h(iSymIJ,iSymJ)
-                     Lpq = LiPQProd(iSymQ,iSymP,iBatch)
-     &                   + (nFro(iSymQ) + nOcc(iSymQ)
-     &                   +  nVir(iSymQ) + nDel(iSymQ))
-     &                   * (Lp-1)
+                     Lpq = LiPQProd(iSymQ,iSymP,iBatch)                 &
+     &                   + (nFro(iSymQ) + nOcc(iSymQ)                   &
+     &                   +  nVir(iSymQ) + nDel(iSymQ))                  &
+     &                   * (Lp-1)                                       &
      &                   + iQ
                      Do iI = 1, nFro(iSymI) + nOcc(iSymI)
-                        Lpi = LiPQProd(iSymI,iSymP,iBatch)
-     &                      + (nFro(iSymI) + nOcc(iSymI)
-     &                      +  nVir(iSymI) + nDel(iSymI))
-     &                      * (Lp-1)
+                        Lpi = LiPQProd(iSymI,iSymP,iBatch)              &
+     &                      + (nFro(iSymI) + nOcc(iSymI)                &
+     &                      +  nVir(iSymI) + nDel(iSymI))               &
+     &                      * (Lp-1)                                    &
      &                      + iI
-                        Lji = LiPQProd(iSymI,iSymJ,jBatch)
-     &                      + (nFro(iSymI) + nOcc(iSymI)
-     &                      +  nVir(iSymI) + nDel(iSymI))
-     &                      * (Lj-1)
+                        Lji = LiPQProd(iSymI,iSymJ,jBatch)              &
+     &                      + (nFro(iSymI) + nOcc(iSymI)                &
+     &                      +  nVir(iSymI) + nDel(iSymI))               &
+     &                      * (Lj-1)                                    &
      &                      + iI
 !
                         If(iBatch.eq.jBatch) Then
-                           ip_pqij = LiPQRSprod(iSymPQ)
+                           ip_pqij = LiPQRSprod(iSymPQ)                 &
      &                             + iTri(Lji,Lpq)
-                           ip_piqj = LiPQRSprod(iSymPI)
+                           ip_piqj = LiPQRSprod(iSymPI)                 &
      &                             + iTri(Ljq,Lpi)
                         Else
-                           ip_pqij = LiPQRSprod(iSymPQ)
-     &                             + LnPQprod(iSymPQ,iBatch)
+                           ip_pqij = LiPQRSprod(iSymPQ)                 &
+     &                             + LnPQprod(iSymPQ,iBatch)            &
      &                             * (Lji-1) + Lpq
-                           ip_piqj = LiPQRSprod(iSymPI)
-     &                             + LnPQprod(iSymPI,iBatch)
+                           ip_piqj = LiPQRSprod(iSymPI)                 &
+     &                             + LnPQprod(iSymPI,iBatch)            &
      &                             * (Ljq-1) + Lpi
                         End If
 !
                         X = 2.0d0 * Xaibj(ip_pqij) - Xaibj(ip_piqj)
-                        Work(iWDensOccOcc(iI,iJ,iSymJ)) =
-     &                       Work(iWDensOccOcc(iI,iJ,iSymJ))
+                        Work(iWDensOccOcc(iI,iJ,iSymJ)) =               &
+     &                       Work(iWDensOccOcc(iI,iJ,iSymJ))            &
      &                     - X * Work(iDensAllAll(iP,iQ,iSymQ))
 !----------- Debug Comments -------------------------------------------
 !                        Write(6,*) 'IJPQ', iI, iJ, iP, iQ

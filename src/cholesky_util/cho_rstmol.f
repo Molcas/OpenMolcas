@@ -22,16 +22,16 @@
       NERR = 0
 
       IF (XNSYM .NE. NSYM) THEN
-         WRITE(LUPRI,'(A,I3,A,I3)')
-     &   'RESTART ERROR: #irreps from restart file:',XNSYM,
+         WRITE(LUPRI,'(A,I3,A,I3)')                                     &
+     &   'RESTART ERROR: #irreps from restart file:',XNSYM,             &
      &   ' Expected:',NSYM
          NERR = NERR + 1
       ELSE
          DO ISYM = 1,NSYM
             IF (XNBAS(ISYM) .NE. NBAS(ISYM)) THEN
-               WRITE(LUPRI,'(A,I2,A,I9,A,I9)')
-     &         'RESTART ERROR: #basis functions (sym.',ISYM,
-     &         ') from restart file:',XNBAS(ISYM),
+               WRITE(LUPRI,'(A,I2,A,I9,A,I9)')                          &
+     &         'RESTART ERROR: #basis functions (sym.',ISYM,            &
+     &         ') from restart file:',XNBAS(ISYM),                      &
      &         ' Expected:',NBAS(ISYM)
                NERR = NERR + 1
             END IF
@@ -39,15 +39,15 @@
       END IF
 
       IF (XNSHELL .NE. NSHELL) THEN
-         WRITE(LUPRI,'(A,I9,A,I9)')
-     &   'RESTART ERROR: #shells from restart file:',XNSHELL,
+         WRITE(LUPRI,'(A,I9,A,I9)')                                     &
+     &   'RESTART ERROR: #shells from restart file:',XNSHELL,           &
      &   ' Expected:',NSHELL
          NERR = NERR + 1
       END IF
 
       IF (XNNSHL .NE. NNSHL) THEN
-         WRITE(LUPRI,'(A,I9,A,I9)')
-     &   'RESTART ERROR: #shell pairs from restart file:',XNNSHL,
+         WRITE(LUPRI,'(A,I9,A,I9)')                                     &
+     &   'RESTART ERROR: #shell pairs from restart file:',XNNSHL,       &
      &   ' Expected:',NNSHL
          NERR = NERR + 1
       END IF

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,
+      SUBROUTINE CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,                &
      &                      LENBUF,LMMBSTRT,NDUMP)
 !
 !     Purpose: read diagonal from disk and set first reduced set
@@ -26,7 +26,7 @@
       PARAMETER (SECNAM = 'CHO_RDDBUF')
 
       IF (LENBUF .LT. LBUF) THEN
-         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,
+         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,                             &
      &                              ': LENBUF >= LBUF required!'
          WRITE(LUPRI,'(1X,A,I10)')    'LENBUF = ',LENBUF
          WRITE(LUPRI,'(1X,A,I10,/)')  'LBUF   = ',LBUF
@@ -46,7 +46,7 @@
             IF (IBUF(2,L) .GT. 0) THEN
                ISHLAB = IBUF(1,L)
                ISYMAB = IBUF(3,L)
-               IAB    = IIBSTR(ISYMAB,1) + IIBSTRSH(ISYMAB,ISHLAB,1)
+               IAB    = IIBSTR(ISYMAB,1) + IIBSTRSH(ISYMAB,ISHLAB,1)    &
      &                + IBUF(2,L)
                DIAG(IAB) = BUF(L)
                INDRSH(IAB) = ISP2F(ISHLAB)

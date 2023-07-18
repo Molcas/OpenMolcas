@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,
+      SubRoutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,        &
      &                           mSym,mPass,mmShl,iPass1,NumPass,NumSP)
 !
 !     Purpose: compute integrals for NumPass integral passes starting at

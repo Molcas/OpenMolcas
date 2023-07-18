@@ -91,7 +91,7 @@
                KCHO1 = 1
                KREAD = KCHO1 + NNBSTR(ISYM,2)*NUMV
                LREAD = LWRK - KREAD + 1
-               CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,
+               CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,    &
      &                         ISYM,WRK(KREAD),LREAD)
 
 !              Reorder.
@@ -118,7 +118,7 @@
                      ISYMB = IRS2F(2,I)
                      IAB   = IRS2F(3,I)
                      KOFF  = KOFF1 + IRS
-                     LOFF  = IOFF(ISYMA,ISYMB)
+                     LOFF  = IOFF(ISYMA,ISYMB)                          &
      &                     + NABPK(ISYMA,ISYMB)*(IVEC - 1) + IAB
                      WRK(LOFF) = WRK(KOFF)
                   END DO

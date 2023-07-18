@@ -107,12 +107,12 @@
                Do iSymI = 1, nSym
                   iSymA = MulD2h(iSymI,iSym)
                   Do iI = 1, nOcc(iSymI)
-                     ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI) +
+                     ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI) + &
      &                         (iVec1-1)*nMoMo(iSym,iVecOV)
-                     iOffset2 = (iVec1-1)*nVir(iSymA) +
-     &                          (iI-1)*NumVec*nVir(iSymA) +
+                     iOffset2 = (iVec1-1)*nVir(iSymA) +                 &
+     &                          (iI-1)*NumVec*nVir(iSymA) +             &
      &                           iT1am(iSymA,iSymI)*NumVec
-                     Call dCopy_(nVir(iSymA),Wrk(kRia1+iOffset1),1,
+                     Call dCopy_(nVir(iSymA),Wrk(kRia1+iOffset1),1,     &
      &                                      Wrk(kRia2+iOffset2),1)
                   End Do
                End Do
@@ -124,11 +124,11 @@
                iSymA = MulD2h(iSymI,iSym)
                Do iI = 1, nOcc(iSymI)
                   lTot = nVir(iSymA)*NumVec
-                  iAdr = AdrR1(iSymA,iSymI,iI)
+                  iAdr = AdrR1(iSymA,iSymI,iI)                          &
      &                 + (iVec-1)*nVir(iSymA)
-                  iOffset2 = (iI-1)*NumVec*nVir(iSymA) +
+                  iOffset2 = (iI-1)*NumVec*nVir(iSymA) +                &
      &                        iT1am(iSymA,iSymI)*NumVec
-                  Call dDaFile(LuRInv(1),iOpt, Wrk(kRia2+iOffSet2),
+                  Call dDaFile(LuRInv(1),iOpt, Wrk(kRia2+iOffSet2),     &
      &                         lTot,iAdr)
                End Do
             End Do
@@ -156,12 +156,12 @@
                Do iI = 1, nOcc(iSymI)
                   Do iA = 1, nVir(iSymA)
 
-                     iOffSet1 = iA-1 + (iI-1)*nVir(iSymA)
+                     iOffSet1 = iA-1 + (iI-1)*nVir(iSymA)               &
      &                        + iT1am(iSymA,iSymI)
-                     iOffSet2 = iI-1 + (iA-1)*NumVec*nOcc(iSymI)
+                     iOffSet2 = iI-1 + (iA-1)*NumVec*nOcc(iSymI)        &
      &                        + iT1am(iSymA,iSymI)*NumVec
-                     Call dCopy_(NumVec,Wrk(kRia1+iOffset1),
-     &                          nMoMo(iSym,iVecOV),Wrk(kRia2+iOffset2),
+                     Call dCopy_(NumVec,Wrk(kRia1+iOffset1),            &
+     &                          nMoMo(iSym,iVecOV),Wrk(kRia2+iOffset2), &
      &                          nOcc(iSymI))
                   End Do
                End Do
@@ -173,11 +173,11 @@
                iSymA = MulD2h(iSymI,iSym)
                Do iA = 1, nVir(iSymA)
                   lTot = nOcc(iSymI)*NumVec
-                  iAdr = AdrR2(iSymA,iSymI,iA)
+                  iAdr = AdrR2(iSymA,iSymI,iA)                          &
      &                 + (iVec-1)*nOcc(iSymI)
-                  iOffset2 = (iA-1)*NumVec*nOcc(iSymI) +
+                  iOffset2 = (iA-1)*NumVec*nOcc(iSymI) +                &
      &                        iT1am(iSymA,iSymI)*NumVec
-                  Call dDaFile(LuRInv(2),iOpt, Wrk(kRia2+iOffset2),
+                  Call dDaFile(LuRInv(2),iOpt, Wrk(kRia2+iOffset2),     &
      &                         lTot,iAdr)
                End Do
             End Do

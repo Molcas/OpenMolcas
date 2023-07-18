@@ -96,8 +96,8 @@
          Do jRed = 1,LastRed(iSym)
             Call Cho_X_nVecRS(jRed,iSym,iVec1,nVec)
             If (nVec.lt.0 .or. iVec1.lt.0) Then
-               Call Cho_Quit(SecNam
-     &                       //'Cho_X_nVecRS returned negative nVec',
+               Call Cho_Quit(SecNam                                     &
+     &                       //'Cho_X_nVecRS returned negative nVec',   &
      &                       103)
             Else
                nVecRS(iSym,jRed) = nVec
@@ -114,7 +114,7 @@
 !     --------------------------------
 
       Do iSym = 1,nSym
-         call mma_allocate(RS2RS(iSym)%Map,nnBstR(iSym,1),
+         call mma_allocate(RS2RS(iSym)%Map,nnBstR(iSym,1),              &
      &              Label='RS2RS(iSym)%Map')
       End Do
 
@@ -124,7 +124,7 @@
       Call mma_MaxDBLE(l_WrkT)
       Call mma_allocate(Wrk,l_WrkT,Label='Wrk')
       If (l_WrkT .lt. 2) Then
-         Write(Lupri,*) SecNam,': max. allocatable memory is ',
+         Write(Lupri,*) SecNam,': max. allocatable memory is ',         &
      &                  l_WrkT
          Write(Lupri,*) 'Please increase available memory.'
          irc = 101
@@ -169,7 +169,7 @@
          nBatch = nBatch + 1
          iPass1 = iPass + 1
          If (nBatch .gt. nPass) Then
-            Write(Lupri,*) SecNam,': batch counter exceeds ',
+            Write(Lupri,*) SecNam,': batch counter exceeds ',           &
      &      'pass counter: ',nBatch,' > ',nPass
             irc = 103
             Go To 100 ! exit
@@ -198,11 +198,11 @@
             End If
          End Do
          If (NumPass .lt. 1) Then
-            Write(Lupri,*) SecNam,': insufficient memory for batch ',
+            Write(Lupri,*) SecNam,': insufficient memory for batch ',   &
      &                     nBatch
-            Write(Lupri,*) SecNam,': at least  ',lThis,
+            Write(Lupri,*) SecNam,': at least  ',lThis,                 &
      &                     ' double precision words needed.'
-            Write(Lupri,*) SecNam,': available ',l_Wrk,
+            Write(Lupri,*) SecNam,': available ',l_Wrk,                 &
      &                     ' double precision words.'
             irc = 101
             Go To 100 ! exit
@@ -214,16 +214,16 @@
          If (iPrint .ge. INF_PASS) Then
             Write(String,'(A19,I7)') 'Integral Pass Batch',nBatch
             Call Cho_Head(String,'*',80,Lupri)
-            Write(Lupri,'(A,I5,A,I5,A,I5,A)')
-     &      'Integral passes treated:',iPass1,' to',iPass+NumPass,
+            Write(Lupri,'(A,I5,A,I5,A,I5,A)')                           &
+     &      'Integral passes treated:',iPass1,' to',iPass+NumPass,      &
      &      ' of',nPass,' passes.'
             Call Cho_Word2Byte(l_WrkT,8,dl_WrkT,Unt)
-            Write(Lupri,'(A,I10,A,F10.3,A,A)')
-     &      'Total memory available           : ',l_WrkT,
+            Write(Lupri,'(A,I10,A,F10.3,A,A)')                          &
+     &      'Total memory available           : ',l_WrkT,               &
      &      ' 8-byte words; ',dl_WrkT,' ',Unt
             Call Cho_Word2Byte(l_Int,8,dl_Int,Unt)
-            Write(Lupri,'(A,I10,A,F10.3,A,A)')
-     &      'Memory used for integrals/vectors: ',l_Int,
+            Write(Lupri,'(A,I10,A,F10.3,A,A)')                          &
+     &      'Memory used for integrals/vectors: ',l_Int,                &
      &      ' 8-byte words; ',dl_Int,' ',Unt
             Call iZero(nScrV,nSym)
             Do i = iPass1,iPass+NumPass
@@ -231,7 +231,7 @@
                   nScrV(iSym) = nScrV(iSym) + nVecRS(iSym,i)
                End Do
             End Do
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      '#vec. gener.  : ',(nScrV(i),i=1,nSym)
             Call Cho_Flush(Lupri)
          End If
@@ -248,12 +248,12 @@
          irc = 0
          Call Cho_X_RSCopy(irc,1,3)
          If (irc .ne. 0) Then
-            Call Cho_Quit(SecNam
-     &                    //': non-zero return code from Cho_X_RSCopy',
+            Call Cho_Quit(SecNam                                        &
+     &                    //': non-zero return code from Cho_X_RSCopy', &
      &                    104)
          End If
          Do iSym = 1,nSym
-            Call Cho_RS2RS(RS2RS(iSym)%Map,SIZE(RS2RS(iSym)%Map),
+            Call Cho_RS2RS(RS2RS(iSym)%Map,SIZE(RS2RS(iSym)%Map),       &
      &                     3,2,iPass1,iSym)
          End Do
 
@@ -276,7 +276,7 @@
 #if defined (_DEBUGPRINT_)
                   If (kAB.lt.1 .or. kAB.gt.nnBstR(iSym,2)) Then
                      Write(Lupri,*) SecNam,': illegal kAB = ',kAB
-                     Write(Lupri,*) 'Vector, symmetry, pass: ',
+                     Write(Lupri,*) 'Vector, symmetry, pass: ',         &
      &                              IV,iSym,jPass
                      Write(Lupri,*) 'Allowed range: 1 - ',nnBstR(iSym,2)
                      Call Cho_Quit('Index error in '//SecNam,104)
@@ -303,7 +303,7 @@
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlInt1,WlInt1)
          NumSP = 0
-         Call Cho_GnVc_GetInt(xInt,SIZE(xInt),nVecRS,iVecRS,ListSP,
+         Call Cho_GnVc_GetInt(xInt,SIZE(xInt),nVecRS,iVecRS,ListSP,     &
      &                        nSym,nPass,nnShl,iPass1,NumPass,NumSP)
          If (NumSP .lt. 1) Then
             Call Cho_Quit('No shell pairs calculated!',104)
@@ -314,7 +314,7 @@
 !        -----------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec1,WlDec1)
-         Call Cho_GnVc_GenVec(Diag,xInt,SIZE(xInt),nVecRS,iVecRS,
+         Call Cho_GnVc_GenVec(Diag,xInt,SIZE(xInt),nVecRS,iVecRS,       &
      &                        nSym,nPass,iPass1,NumPass)
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec2,WlDec2)
 
@@ -334,16 +334,16 @@
             Call Cho_Timer(TlTot2,WlTot2)
             TlTot = TlTot2 - TlTot1
             WlTot = WlTot2 - WlTot1
-            Write(Lupri,'(/,A,I7,A)')
-     &      'Overall timings for integral pass batch',nBatch,
+            Write(Lupri,'(/,A,I7,A)')                                   &
+     &      'Overall timings for integral pass batch',nBatch,           &
      &      ' (CPU/Wall in seconds):'
-            Write(Lupri,'(A,F12.2,1X,F12.2)')
+            Write(Lupri,'(A,F12.2,1X,F12.2)')                           &
      &      'Integrals    : ',TlInt,WlInt
-            Write(Lupri,'(A,F12.2,1X,F12.2)')
+            Write(Lupri,'(A,F12.2,1X,F12.2)')                           &
      &      'Decomposition: ',TlDec,WlDec
-            Write(Lupri,'(A,F12.2,1X,F12.2)')
+            Write(Lupri,'(A,F12.2,1X,F12.2)')                           &
      &      'Total        : ',TlTot,WlTot
-            Write(Lupri,'(A,I7,A,I7,A)')
+            Write(Lupri,'(A,I7,A,I7,A)')                                &
      &      'Integral passes treated:',iPass1,' to',iPass1-1+NumPass
             Call Cho_Flush(Lupri)
          End If

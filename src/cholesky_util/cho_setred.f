@@ -29,14 +29,14 @@
 
       IF (CHO_TRCNEG) THEN
          WRITE(LUPRI,*)
-         WRITE(LUPRI,*) SECNAM,
+         WRITE(LUPRI,*) SECNAM,                                         &
      &                  ': tracing of negative diagonals activated.'
          WRITE(LUPRI,*) SECNAM,': flag SCDIAG     is ',SCDIAG
          WRITE(LUPRI,*) SECNAM,': flag CHO_USEABS is ',CHO_USEABS
          IF (SCDIAG) THEN
             WRITE(LUPRI,*) SECNAM,': MODE_SCREEN     is ',MODE_SCREEN
          END IF
-         WRITE(LUPRI,*) SECNAM,': checking for negative diagonals in ',
+         WRITE(LUPRI,*) SECNAM,': checking for negative diagonals in ', &
      &                  'first reduced set:'
          NNEG = 0
          DO ISYM = 1,NSYM
@@ -49,7 +49,7 @@
                END IF
             END DO
             NNEG = NNEG + INEG
-            WRITE(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,
+            WRITE(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,      &
      &                     ': ',INEG
          END DO
          WRITE(LUPRI,*) SECNAM,': total #negative: ',NNEG
@@ -95,7 +95,7 @@
 
                      IF (XM .GT. THRCOM) THEN  ! only if not converged
                         DO ISHLAB = 1,NNSHL
-                           JAB1 = IIBSTR(ISYM,3)
+                           JAB1 = IIBSTR(ISYM,3)                        &
      &                          + IIBSTRSH(ISYM,ISHLAB,3) + 1
                            JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                            DO JAB = JAB1,JAB2
@@ -104,7 +104,7 @@
                               IF (TST .GT. THRCOM) THEN
                                  KAB = KAB + 1
                                  INDRED(KAB,2) = IAB
-                                 NNBSTRSH(ISYM,ISHLAB,2) =
+                                 NNBSTRSH(ISYM,ISHLAB,2) =              &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                               END IF
                            END DO
@@ -132,7 +132,7 @@
 
                      IF (XM .GT. THRCOM) THEN  ! only if not converged
                         DO ISHLAB = 1,NNSHL
-                           JAB1 = IIBSTR(ISYM,3)
+                           JAB1 = IIBSTR(ISYM,3)                        &
      &                          + IIBSTRSH(ISYM,ISHLAB,3) + 1
                            JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                            DO JAB = JAB1,JAB2
@@ -142,7 +142,7 @@
                                  IF (TST .GT. THRCOM) THEN
                                     KAB = KAB + 1
                                     INDRED(KAB,2) = IAB
-                                    NNBSTRSH(ISYM,ISHLAB,2) =
+                                    NNBSTRSH(ISYM,ISHLAB,2) =           &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                                  END IF
                               END IF
@@ -164,7 +164,7 @@
                   IF (NNBSTR(ISYM,3) .GT. 0) THEN
 
                      DO ISHLAB = 1,NNSHL
-                        JAB1 = IIBSTR(ISYM,3)
+                        JAB1 = IIBSTR(ISYM,3)                           &
      &                       + IIBSTRSH(ISYM,ISHLAB,3) + 1
                         JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                         DO JAB = JAB1,JAB2
@@ -172,7 +172,7 @@
                            IF (ABS(DIAG(IAB)) .GT. THRCOM) THEN
                               KAB = KAB + 1
                               INDRED(KAB,2) = IAB
-                              NNBSTRSH(ISYM,ISHLAB,2) =
+                              NNBSTRSH(ISYM,ISHLAB,2) =                 &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                            END IF
                         END DO
@@ -188,7 +188,7 @@
                   IF (NNBSTR(ISYM,3) .GT. 0) THEN
 
                      DO ISHLAB = 1,NNSHL
-                        JAB1 = IIBSTR(ISYM,3)
+                        JAB1 = IIBSTR(ISYM,3)                           &
      &                       + IIBSTRSH(ISYM,ISHLAB,3) + 1
                         JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                         DO JAB = JAB1,JAB2
@@ -196,7 +196,7 @@
                            IF (DIAG(IAB) .GT. THRCOM) THEN
                               KAB = KAB + 1
                               INDRED(KAB,2) = IAB
-                              NNBSTRSH(ISYM,ISHLAB,2) =
+                              NNBSTRSH(ISYM,ISHLAB,2) =                 &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                            END IF
                         END DO
@@ -216,10 +216,10 @@
                   IF (NNBSTR(ISYM,3) .GT. 0) THEN
 
                      DO ISHLAB = 1,NNSHL
-                        CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,
+                        CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,      &
      &                                  .TRUE.)
                         IF (IATOMSHL(ISHLA) .EQ. IATOMSHL(ISHLB)) THEN
-                           JAB1 = IIBSTR(ISYM,3)
+                           JAB1 = IIBSTR(ISYM,3)                        &
      &                          + IIBSTRSH(ISYM,ISHLAB,3) + 1
                            JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                            DO JAB = JAB1,JAB2
@@ -227,7 +227,7 @@
                               IF (ABS(DIAG(IAB)) .GT. THRCOM) THEN
                                  KAB = KAB + 1
                                  INDRED(KAB,2) = IAB
-                                 NNBSTRSH(ISYM,ISHLAB,2) =
+                                 NNBSTRSH(ISYM,ISHLAB,2) =              &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                               END IF
                            END DO
@@ -244,10 +244,10 @@
                   IF (NNBSTR(ISYM,3) .GT. 0) THEN
 
                      DO ISHLAB = 1,NNSHL
-                        CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,
+                        CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,      &
      &                                  .TRUE.)
                         IF (IATOMSHL(ISHLA) .EQ. IATOMSHL(ISHLB)) THEN
-                           JAB1 = IIBSTR(ISYM,3)
+                           JAB1 = IIBSTR(ISYM,3)                        &
      &                          + IIBSTRSH(ISYM,ISHLAB,3) + 1
                            JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                            DO JAB = JAB1,JAB2
@@ -255,7 +255,7 @@
                               IF (DIAG(IAB) .GT. THRCOM) THEN
                                  KAB = KAB + 1
                                  INDRED(KAB,2) = IAB
-                                 NNBSTRSH(ISYM,ISHLAB,2) =
+                                 NNBSTRSH(ISYM,ISHLAB,2) =              &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                               END IF
                            END DO
@@ -294,7 +294,7 @@
 
                   IF (XM .GT. THRCOM) THEN  ! only if not converged
                      DO ISHLAB = 1,NNSHL
-                        JAB1 = IIBSTR(ISYM,3)
+                        JAB1 = IIBSTR(ISYM,3)                           &
      &                       + IIBSTRSH(ISYM,ISHLAB,3) + 1
                         JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                         DO JAB = JAB1,JAB2
@@ -302,7 +302,7 @@
                            IF (ABS(DIAG(IAB)) .GT. 0.0D0) THEN
                               KAB = KAB + 1
                               INDRED(KAB,2) = IAB
-                              NNBSTRSH(ISYM,ISHLAB,2) =
+                              NNBSTRSH(ISYM,ISHLAB,2) =                 &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                            END IF
                         END DO
@@ -330,7 +330,7 @@
 
                   IF (XM .GT. THRCOM) THEN  ! only if not converged
                      DO ISHLAB = 1,NNSHL
-                        JAB1 = IIBSTR(ISYM,3)
+                        JAB1 = IIBSTR(ISYM,3)                           &
      &                       + IIBSTRSH(ISYM,ISHLAB,3) + 1
                         JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,3) - 1
                         DO JAB = JAB1,JAB2
@@ -338,7 +338,7 @@
                            IF (DIAG(IAB) .GT. 0.0D0) THEN
                               KAB = KAB + 1
                               INDRED(KAB,2) = IAB
-                              NNBSTRSH(ISYM,ISHLAB,2) =
+                              NNBSTRSH(ISYM,ISHLAB,2) =                 &
      &                                       NNBSTRSH(ISYM,ISHLAB,2) + 1
                            END IF
                         END DO
@@ -361,7 +361,7 @@
 !     ------------
 
       IF (CHO_TRCNEG) THEN
-         WRITE(LUPRI,*) SECNAM,': checking for negative diagonals ',
+         WRITE(LUPRI,*) SECNAM,': checking for negative diagonals ',    &
      &                  'in next reduced set:'
          NNEG = 0
          DO ISYM = 1,NSYM
@@ -375,7 +375,7 @@
                END IF
             END DO
             NNEG = NNEG + INEG
-            WRITE(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,
+            WRITE(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,      &
      &                     ': ',INEG
          END DO
          WRITE(LUPRI,*) SECNAM,': total #negative: ',NNEG

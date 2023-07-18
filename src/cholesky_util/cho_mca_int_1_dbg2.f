@@ -42,7 +42,7 @@
 !     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
-         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
+         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',     &
      &                  IFCSEW,' to 1.'
          IFCSEW = 1
       END IF
@@ -92,15 +92,15 @@
 
             ITST = 0
             IERR = 0
-            CALL CHO_MCA_INT1_1_DBG2_CMP(pINT1,pINT2,
-     &                                  NUMCD,NUMAB,ERRMIN,ICDMN,IABMN,
-     &                                  ERRMAX,ICDMX,IABMX,ITST,IERR,
+            CALL CHO_MCA_INT1_1_DBG2_CMP(pINT1,pINT2,                   &
+     &                                  NUMCD,NUMAB,ERRMIN,ICDMN,IABMN, &
+     &                                  ERRMAX,ICDMX,IABMX,ITST,IERR,   &
      &                                  THR,.FALSE.,LUPRI)
             NTST = NTST + ITST
             NERR = NERR + IERR
 
-            WRITE(LUPRI,*) '#sym. errors for ',
-     &      '(',ISHLC,ISHLD,'|',ISHLA,ISHLB,'): ',IERR,
+            WRITE(LUPRI,*) '#sym. errors for ',                         &
+     &      '(',ISHLC,ISHLD,'|',ISHLA,ISHLB,'): ',IERR,                 &
      &      ' #tests: ',ITST
             IF (IERR .NE. 0) THEN
 !              WRITE(LUPRI,*) '    Here is the shell quadruple in INT1:'
@@ -131,13 +131,13 @@
                            END IF
                            IABCD = NUMCD*(IAB - 1) + ICD
                            TST   = ABS(pINT1(IABCD))
-                           IF ((TST.GT.0.0D0).AND.(ISYMCD.NE.ISYMAB))
+                           IF ((TST.GT.0.0D0).AND.(ISYMCD.NE.ISYMAB))   &
      &                     THEN
                               WRITE(LUPRI,*) 'Symmetry break!!'
-                              WRITE(LUPRI,*) 'element ',ICD,IAB,
-     &                                       ' is non-zero: ',
+                              WRITE(LUPRI,*) 'element ',ICD,IAB,        &
+     &                                       ' is non-zero: ',          &
      &                                       pINT1(IABCD)
-                              WRITE(LUPRI,*) 'Symmetry is: ',
+                              WRITE(LUPRI,*) 'Symmetry is: ',           &
      &                                       MULD2H(ISYMCD,ISYMAB)
                            END IF
                         END DO
@@ -154,7 +154,7 @@
       pINT1=>Null()
       pINT2=>Null()
 
-      WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
+      WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,             &
      &               ' #errors: ',NERR
 
       END

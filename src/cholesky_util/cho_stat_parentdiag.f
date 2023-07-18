@@ -88,7 +88,7 @@
 
       Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
       Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
-      Call BasFun_Atom(nBas_per_Atom,nBas_Start,
+      Call BasFun_Atom(nBas_per_Atom,nBas_Start,                        &
      &                 AtomLabel,nBasT,nAtom,Debug)
 
 !     Allocate and get nuclear coordinates.
@@ -114,7 +114,7 @@
          Write(Lupri,*)
          Write(Lupri,*) SecNam,': mapping from basis function to atom:'
          Do i = 1,nBasT
-            Write(Lupri,*) 'Basis function ',i,' is centered on atom ',
+            Write(Lupri,*) 'Basis function ',i,' is centered on atom ', &
      &                     iBF2Atom(i),' labeled ',AtomLabel(i)(1:LENIN)
          End Do
       End If
@@ -148,8 +148,8 @@
          If (iAtA .eq. iAtB) Then
             nPC1(iAtA) = nPC1(iAtA) + 1
          Else
-            R = sqrt((Coord(1,iAtA)-Coord(1,iAtB))**2
-     &              +(Coord(2,iAtA)-Coord(2,iAtB))**2
+            R = sqrt((Coord(1,iAtA)-Coord(1,iAtB))**2                   &
+     &              +(Coord(2,iAtA)-Coord(2,iAtB))**2                   &
      &              +(Coord(3,iAtA)-Coord(3,iAtB))**2)
             RC2(iVec) = R
             Rmin = min(Rmin,R)
@@ -168,19 +168,19 @@
 !     Print overall statisctics.
 !     --------------------------
 
-      Write(Lupri,'(//,2X,A,/,2X,A)')
+      Write(Lupri,'(//,2X,A,/,2X,A)')                                   &
      & 'Parent Diagonals','----------------'
-      Write(Lupri,'(/,A,I9,A,F7.2,A)')
-     & 'Number of vectors from 1-center diagonals:',nTot1,
+      Write(Lupri,'(/,A,I9,A,F7.2,A)')                                  &
+     & 'Number of vectors from 1-center diagonals:',nTot1,              &
      & ' (',1.0d2*dble(nTot1)/dble(NumChT),'%)'
-      Write(Lupri,'(A,I9,A,F7.2,A)')
-     & 'Number of vectors from 2-center diagonals:',nTot2,
+      Write(Lupri,'(A,I9,A,F7.2,A)')                                    &
+     & 'Number of vectors from 2-center diagonals:',nTot2,              &
      & ' (',1.0d2*dble(nTot2)/dble(NumChT),'%)'
 
 !     Print statistics for 1-center vectors.
 !     --------------------------------------
 
-      Write(Lupri,'(/,1X,A)')
+      Write(Lupri,'(/,1X,A)')                                           &
      & 'Vectors from 1-center diagonals:'
       nBatch = (nAtom-nPseudo-1)/numAt + 1 ! exclude pseudo-atoms
       Do iBatch = 1,nBatch
@@ -197,7 +197,7 @@
             iAt = iAt0 + i
             If (nBas_per_Atom(iAt) .lt. 1) Then
                If (nPC1(iAt) .gt. 0) Then
-                  Call SysAbendMsg(SecNam,
+                  Call SysAbendMsg(SecNam,                              &
      &                 'No basis functions, but >0 vectors !?!?',' ')
                End If
                Ratio(i) = 0.0d0
@@ -205,16 +205,16 @@
                Ratio(i) = dble(nPC1(iAt))/dble(nBas_per_Atom(iAt))
             End If
          End Do
-         Write(Lupri,'(/,A,6(6X,A))')
-     &   'Label              ',
+         Write(Lupri,'(/,A,6(6X,A))')                                   &
+     &   'Label              ',                                         &
      &    (AtomLabel(nBas_Start(i))(1:LENIN),i=iAt1,iAt2)
-         Write(Lupri,'(A,6(1X,I9))')
+         Write(Lupri,'(A,6(1X,I9))')                                    &
      &   'Center no.         ',(i,i=iAt1,iAt2)
-         Write(Lupri,'(A,6(1X,I9))')
+         Write(Lupri,'(A,6(1X,I9))')                                    &
      &   'Vectors (M)        ',(nPC1(i),i=iAt1,iAt2)
-         Write(Lupri,'(A,6(1X,I9))')
+         Write(Lupri,'(A,6(1X,I9))')                                    &
      &   'Basis functions (N)',(nBas_per_Atom(i),i=iAt1,iAt2)
-         Write(Lupri,'(A,6(1X,F9.2))')
+         Write(Lupri,'(A,6(1X,F9.2))')                                  &
      &   'Ratio (M/N)        ',(Ratio(i),i=1,nAt)
          If (iBatch .ne. nBatch) Write(Lupri,*)
       End Do
@@ -223,7 +223,7 @@
 !     --------------------------------------
 
       If (nTot2 .gt. 0) Then
-         Write(Lupri,'(/,1X,A)')
+         Write(Lupri,'(/,1X,A)')                                        &
      &   'Vectors from 2-center diagonals:'
          RClass(1) = Rave - (Rave-Rmin)/2.0d0
          RClass(2) = Rave
@@ -253,22 +253,22 @@
 ! --- TODO/FIX  figure out if with ghost atoms is just a mistmatch
 !               or there is really a bug
 !
-            write(6,*) SecNam//': Warning! (nChk .ne. nTot2); could be',
+            write(6,*) SecNam//': Warning! (nChk .ne. nTot2); could be',&
      &' due to the presence of ghost atoms.'
          End If
-         Write(Lupri,'(/,A,1P,3D15.5)')
+         Write(Lupri,'(/,A,1P,3D15.5)')                                 &
      &   'Min, average, and max center distance: ',Rmin,Rave,Rmax
-         Write(Lupri,'(A,D12.2,A,I9)')
-     &   '#vectors with center distance                R <= ',
+         Write(Lupri,'(A,D12.2,A,I9)')                                  &
+     &   '#vectors with center distance                R <= ',          &
      &   RClass(1),': ',iClass(1)
-         Write(Lupri,'(A,D12.2,A,D12.2,A,I9)')
-     &   '#vectors with center distance ',RClass(1),' < R <= ',
+         Write(Lupri,'(A,D12.2,A,D12.2,A,I9)')                          &
+     &   '#vectors with center distance ',RClass(1),' < R <= ',         &
      &   RClass(2),': ',iClass(2)
-         Write(Lupri,'(A,D12.2,A,D12.2,A,I9)')
-     &   '#vectors with center distance ',RClass(2),' < R <= ',
+         Write(Lupri,'(A,D12.2,A,D12.2,A,I9)')                          &
+     &   '#vectors with center distance ',RClass(2),' < R <= ',         &
      &   RClass(3),': ',iClass(3)
-         Write(Lupri,'(A,D12.2,A,12X,A,I9)')
-     &   '#vectors with center distance ',RClass(3),' < R    ',
+         Write(Lupri,'(A,D12.2,A,12X,A,I9)')                            &
+     &   '#vectors with center distance ',RClass(3),' < R    ',         &
      &   ': ',iClass(4)
       End If
 

@@ -36,15 +36,15 @@
 
          Call FZero(CME_Time,2*2)
 
-         Write(6,'(/,4X,A,/,4X,A)')
-     &   'Evaluation of MP2 energy correction',
+         Write(6,'(/,4X,A,/,4X,A)')                                     &
+     &   'Evaluation of MP2 energy correction',                         &
      &   '==================================='
-         Write(6,'(4X,A,A)')
+         Write(6,'(4X,A,A)')                                            &
      &   'Evaluator: ',Caller
 
-         Write(6,'(/,4X,A,/,4X,A,/,4X,A)')
-     &   'Batch      CPU       Wall    Ratio',
-     &   ' No.     seconds    seconds',
+         Write(6,'(/,4X,A,/,4X,A,/,4X,A)')                              &
+     &   'Batch      CPU       Wall    Ratio',                          &
+     &   ' No.     seconds    seconds',                                 &
      &   '----------------------------------'
 
          Call xFlush(6)
@@ -75,14 +75,14 @@
 
       Else If (Job .eq. 3) Then
 
-         Write(6,'(4X,A)')
+         Write(6,'(4X,A)')                                              &
      &   '----------------------------------'
 
          Call xFlush(6)
 
       Else
 
-         Call ChoMP2_Quit(SecNam,
+         Call ChoMP2_Quit(SecNam,                                       &
      &                    'Input parameter "Job" is out of range',' ')
 
       End If

@@ -75,7 +75,7 @@
 !     Purpose: allocate and initialize vector buffer.
 !              (Internal run mode.)
 !
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
      &                     nVec_in_Buf
       use stdalloc
       Implicit None
@@ -159,7 +159,7 @@
 
             ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
-               ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
+               ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)              &
      &                             + l_ChVBuf_Sym(iSym-1)
             End Do
          End If
@@ -169,11 +169,11 @@
 
       If (LocDbg) Then
          Call Cho_Word2Byte(l_ChVBuf,8,x,Unt)
-         Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
+         Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,       &
      &                  '(',x,Unt,') at ',1
-         Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
+         Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',                      &
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
+         Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',                      &
      &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
          Call Cho_Flush(Lupri)
@@ -236,7 +236,7 @@
          Do iSym = 1,nSym
             jNum = 0
             mUsed = 0
-            Call Cho_VecRd1(Scr,Left,1,NumCho(iSym),iSym,
+            Call Cho_VecRd1(Scr,Left,1,NumCho(iSym),iSym,               &
      &                      jNum,iRedC,mUsed,DoRead)
             Left = Left - mUsed
             l_ChVBuf_Sym(iSym) = mUsed
@@ -251,7 +251,7 @@
 
             ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
-               ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
+               ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)              &
      &                             + l_ChVBuf_Sym(iSym-1)
             End Do
          End If
@@ -269,11 +269,11 @@
             Call Cho_Quit('Memory boundary error in '//SecNam,101)
          End If
          Call Cho_Word2Byte(l_ChVBuf,8,Byte,Unt)
-         Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
+         Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,       &
      &                  '(',Byte,Unt,')  at ',1
-         Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
+         Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',                      &
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
+         Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',                      &
      &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
          Call Cho_Flush(Lupri)

@@ -92,7 +92,7 @@
          If (nV(iSym).gt.0 .and. nQual(iSym).gt.0) Then
             iV2 = iV1(iSym) + nV(iSym) - 1
             Do jV = iV1(iSym),iV2
-               Call Cho_1VecRd_SP(Scr,l_Scr,jV,iSym,LstQSP,nQSP,iRedC,
+               Call Cho_1VecRd_SP(Scr,l_Scr,jV,iSym,LstQSP,nQSP,iRedC,  &
      &                            iLoc)
                If (iRedQ .ne. iRedC) Then
                   Call Cho_SetQ2(iQuAB_2,LstQSP,nQSP,iSym,jLoc,iLoc)

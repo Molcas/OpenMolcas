@@ -27,28 +27,28 @@
       PARAMETER (SECNAM = 'CHO_ISAOSH')
 
       IF ((ISHL.GT.NSHELL) .OR. (ISHL.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')
+         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
      &   SECNAM,': shell index out of bounds: ',ISHL
-         WRITE(LUPRI,'(A,I10,A,/)')
+         WRITE(LUPRI,'(A,I10,A,/)')                                     &
      &   'Maximum possible: NSHELL = ',NSHELL,'(from common block)'
          IF (NSHELL .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,
+            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
      &                    102)
          ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,
+            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
      &                    103)
          END IF
       ELSE IF ((IAO.GT.NBSTSH(ISHL)) .OR. (IAO.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')
+         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
      &   SECNAM,': AO index out of bounds: ',IAO,' shell: ',ISHL
-         WRITE(LUPRI,'(A,I10,A,/)')
-     &   'Maximum possible: NBSTSH(ISHL) = ',NBSTSH(ISHL),
+         WRITE(LUPRI,'(A,I10,A,/)')                                     &
+     &   'Maximum possible: NBSTSH(ISHL) = ',NBSTSH(ISHL),              &
      &   '(from common block)'
          IF (NBSTSH(ISHL) .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,
+            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
      &                    102)
          ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,
+            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
      &                    103)
          END IF
       END IF

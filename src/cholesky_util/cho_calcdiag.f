@@ -49,7 +49,7 @@
       END IF
       LSCR = MX2SH
       IF (LENSCR .LT. LSCR) THEN
-         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,
+         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,                             &
      &   ': LENSCR >= MX2SH required!'
          WRITE(LUPRI,'(1X,A,I10)')    'LENSCR = ',LENSCR
          WRITE(LUPRI,'(1X,A,I10,/)')  'MX2SH  = ',LSCR
@@ -91,7 +91,7 @@
       NIATOMSHL = 0
       IF (ALLOCATED(IATOMSHL)) NIATOMSHL = SIZE(IATOMSHL)
       IF (CHO_NO2CENTER .AND. NIATOMSHL.LT.NSHELL) THEN
-         CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
+         CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',   &
      &                 103)
       END IF
 
@@ -132,15 +132,15 @@
          IF (IPRINT .GE. INFO_INSANE) THEN
             IF ((ISHLA.EQ.1) .AND. (ISHLB.EQ.1)) THEN
                IF (CHO_PRESCREEN) THEN
-                  CALL CHO_HEAD(SECNAM//': Prescreened Diagonal',
+                  CALL CHO_HEAD(SECNAM//': Prescreened Diagonal',       &
      &                          '=',80,LUPRI)
                ELSE
-                  CALL CHO_HEAD(SECNAM//': Unscreened Diagonal',
+                  CALL CHO_HEAD(SECNAM//': Unscreened Diagonal',        &
      &                          '=',80,LUPRI)
                END IF
             END IF
-            WRITE(LUPRI,'(/,2X,A,I10,1X,I10,1X,I10)')
-     &      'Diagonal shell block A,B,AB = ',ISHLA,ISHLB,
+            WRITE(LUPRI,'(/,2X,A,I10,1X,I10,1X,I10)')                   &
+     &      'Diagonal shell block A,B,AB = ',ISHLA,ISHLB,               &
      &                                       ITRI(ISHLA,ISHLB)
             IF (ISHLA .EQ. ISHLB) THEN
                CALL CHO_OUTPAK(SCR,NUMA,1,LUPRI)
@@ -159,8 +159,8 @@
                   DIAAB  = SCR(IAB)
                   IF (DIAAB .LT. 0.0D0) THEN
                      n_NegCalcDiag=n_NegCalcDiag+1
-                     Call UpdateMostNegative(SIZE(NegCalcDiag),
-     *                                       NegCalcDiag,DIAAB)
+                     Call UpdateMostNegative(SIZE(NegCalcDiag),         &
+     &                                       NegCalcDiag,DIAAB)
                   END IF
                   IF (DIAAB .GT. THRDIAG) THEN
                      DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
@@ -191,8 +191,8 @@
                         DIAAB  = SCR(IAB)
                         IF (DIAAB .LT. 0.0D0) THEN
                            n_NegCalcDiag=n_NegCalcDiag+1
-                           Call UpdateMostNegative(SIZE(NegCalcDiag),
-     *                                       NegCalcDiag,DIAAB)
+                           Call UpdateMostNegative(SIZE(NegCalcDiag),   &
+     &                                       NegCalcDiag,DIAAB)
                         END IF
                         IF (DIAAB .GT. THRDIAG) THEN
                            DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
@@ -203,7 +203,7 @@
                            IBUF(3,ICOUNT) = ISYMAB
                            IBUF(4,ICOUNT) = IAB
                            IF (ICOUNT .EQ. LBUF) THEN
-                              CALL CHO_WRBUF(LBUF,BUF,IBUF,LBUF,
+                              CALL CHO_WRBUF(LBUF,BUF,IBUF,LBUF,        &
      &                                       IUNIT)
                               XLDIAG = XLDIAG + DBLE(LBUF)
                               ICOUNT = 0
@@ -235,25 +235,25 @@
       CALL CHO_GADGOP(XNCD,1,'+')
       n_NegCalcDiag=int(XNCD(1))
       If (n_NegCalcDiag.gt.0) Then
-         Call WarningMessage(1,
-     *          'WARNING: negative integral diagonal elements computed')
-         Write(LuPri,'(3X,A,A)')
-     *   'All negative integral diagonal elements have been',
-     *   ' removed (zeroed) - they are considered irrelevant!'
-         Write(LuPri,'(3X,A,I10)')
-     *   'Number of negative elements computed:   ',n_NegCalcDiag
-         Write(LuPri,'(3X,A,I10)')
-     *   'Number of negative elements (this node):',n_NegCalcDiag_local
+         Call WarningMessage(1,                                         &
+     &          'WARNING: negative integral diagonal elements computed')
+         Write(LuPri,'(3X,A,A)')                                        &
+     &   'All negative integral diagonal elements have been',           &
+     &   ' removed (zeroed) - they are considered irrelevant!'
+         Write(LuPri,'(3X,A,I10)')                                      &
+     &   'Number of negative elements computed:   ',n_NegCalcDiag
+         Write(LuPri,'(3X,A,I10)')                                      &
+     &   'Number of negative elements (this node):',n_NegCalcDiag_local
          If (n_NegCalcDiag_local.gt.0) Then
             ll=min(n_NegCalcDiag_local,SIZE(NegCalcDiag))
-            Write(LuPri,'(I5,A)')
-     *      ll,' most negative elements (this node):'
-            Write(LuPri,'(1P,10D12.4)')
-     *      (NegCalcDiag(i),i=1,ll)
+            Write(LuPri,'(I5,A)')                                       &
+     &      ll,' most negative elements (this node):'
+            Write(LuPri,'(1P,10D12.4)')                                 &
+     &      (NegCalcDiag(i),i=1,ll)
          End If
          Call CHO_GADGOP(NegCalcDiag,1,'min')
-         Write(LuPri,'(3X,A,1P,D12.4)')
-     *   'Most negative element overall: ',NegCalcDiag(1)
+         Write(LuPri,'(3X,A,1P,D12.4)')                                 &
+     &   'Most negative element overall: ',NegCalcDiag(1)
       End If
       Call mma_deallocate(NegCalcDiag)
 
@@ -263,18 +263,18 @@
          XMDIA = XXX*(XXX + 1.0D0)/2.0D0
          XLDIA = XLDIAG
          SAVD  = 1.0D2*(XMDIA - XLDIA)/XMDIA
-         WRITE(LUPRI,'(/,2X,A,1P,D15.6)')
+         WRITE(LUPRI,'(/,2X,A,1P,D15.6)')                               &
      &   'Screening threshold for initial diagonal: ',THRDIAG
-         WRITE(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)')
-     &   'Dimension of unscreened initial diagonal: ',XMDIA,
+         WRITE(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)')                       &
+     &   'Dimension of unscreened initial diagonal: ',XMDIA,            &
      &   'Dimension of   screened initial diagonal: ',XLDIA
-         WRITE(LUPRI,'(2X,A,7X,F8.3,A)')
+         WRITE(LUPRI,'(2X,A,7X,F8.3,A)')                                &
      &   'Saving from screening                   : ',SAVD,'%'
          DO ISYM = 1,NSYM
-            WRITE(LUPRI,'(2X,A,I2,12X,A,1P,D15.6)')
+            WRITE(LUPRI,'(2X,A,I2,12X,A,1P,D15.6)')                     &
      &      'Maximum diagonal, symmetry',ISYM,': ',DIAMAX(ISYM)
          END DO
-         WRITE(LUPRI,'(2X,A,5X,I10)')
+         WRITE(LUPRI,'(2X,A,5X,I10)')                                   &
      &   'Number of negative diagonals computed   : ',n_NegCalcDiag
       END IF
 
@@ -308,7 +308,7 @@
                      IBUF(2,L) = -1
                   ELSE
                      ISHLAB = IBUF(1,L)
-                     NNBSTRSH(ISYMAB,ISHLAB,1) =
+                     NNBSTRSH(ISYMAB,ISHLAB,1) =                        &
      &                                     NNBSTRSH(ISYMAB,ISHLAB,1) + 1
                      IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
                   END IF
@@ -329,7 +329,7 @@
                      IBUF(2,L) = -1
                   ELSE
                      ISHLAB = IBUF(1,L)
-                     NNBSTRSH(ISYMAB,ISHLAB,1) =
+                     NNBSTRSH(ISYMAB,ISHLAB,1) =                        &
      &                                     NNBSTRSH(ISYMAB,ISHLAB,1) + 1
                      IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
                   END IF

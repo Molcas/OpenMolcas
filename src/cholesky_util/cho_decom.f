@@ -34,38 +34,38 @@
 
       LENLIN = 0  ! to avoid compiler warnings...
       IF (IPRINT .GE. INF_PROGRESS) THEN
-         CALL CHO_HEAD(SECNAM//
-     &                 ': Decomposition of Qualified Diagonals','=',
+         CALL CHO_HEAD(SECNAM//                                         &
+     &                 ': Decomposition of Qualified Diagonals','=',    &
      &                 80,LUPRI)
-         WRITE(LUPRI,'(/,A,I5,A,I4,A)')
-     &   'Integral pass number',IPASS,' (',NUM,
+         WRITE(LUPRI,'(/,A,I5,A,I4,A)')                                 &
+     &   'Integral pass number',IPASS,' (',NUM,                         &
      &   ' shell pair distributions calculated)'
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   'Current  dim. : ',(NNBSTR(ISYM,2),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   'Original dim. : ',(NNBSTR(ISYM,1),ISYM=1,NSYM)
-         WRITE(LUPRI,'(/,A,/,A,A)')
-     &   '           #Vectors             Treated Diagonal',
-     &   'Sym.     Sym.     Total     Index     Before      After',
+         WRITE(LUPRI,'(/,A,/,A,A)')                                     &
+     &   '           #Vectors             Treated Diagonal',            &
+     &   'Sym.     Sym.     Total     Index     Before      After',     &
      &   '   Conv. Neg.   New Max'
          LENLIN = 79
          WRITE(LUPRI,'(80A)') ('-',I=1,LENLIN)
          CALL CHO_FLUSH(LUPRI)
          CALL ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
       ELSE IF (IPRINT .GE. INF_PASS) THEN
-         WRITE(LUPRI,'(/,A,I4)')
+         WRITE(LUPRI,'(/,A,I4)')                                        &
      &   'Number of shell pair distributions calculated:',NUM
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
          CALL CHO_FLUSH(LUPRI)
          CALL ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
@@ -140,7 +140,7 @@
 !    &                         NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
                CALL CHO_QUIT('Diagonal errors in '//SECNAM,104)
             ELSE
-               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',
+               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',&
      &                     'and current diagonal: no errors !'
             END IF
          END IF
@@ -255,7 +255,7 @@
                      KOFF2 = KINT1 + NNBSTR(ISYM,2)*(I - 1)
                      KOFF3 = KOFF0 + II - IIBSTR(ISYM,2)
                      FAC   = -WRK(KOFF3)
-                     CALL DAXPY_(NNBSTR(ISYM,2),FAC,WRK(KOFF1),1,
+                     CALL DAXPY_(NNBSTR(ISYM,2),FAC,WRK(KOFF1),1,       &
      &                                             WRK(KOFF2),1)
                   END IF
                END DO
@@ -284,7 +284,7 @@
 !              ----------------------
 
                IF (IPRINT .GE. INF_PROGRESS) THEN
-              WRITE(LUPRI,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')
+              WRITE(LUPRI,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')&
      &            ISYM,IVEC,IVECT,IABG,XC,OLDIAG,NCONV,NNEG,XM
                END IF
 
@@ -297,7 +297,7 @@
             IF (LAST .OR. (IDUMP.EQ.NUMBUF)) THEN
                CALL CHO_TIMER(C1,W1)
                IVEC1 = NUMCHO(ISYM) + 1
-               CALL CHO_PUTVEC(WRK(KCHO1),NNBSTR(ISYM,2),IDUMP,IVEC1,
+               CALL CHO_PUTVEC(WRK(KCHO1),NNBSTR(ISYM,2),IDUMP,IVEC1,   &
      &                         ISYM)
                CALL CHO_VECBUF_COPY(WRK(KCHO1),IDUMP,ISYM)
                NUMCHO(ISYM) = NUMCHO(ISYM) + IDUMP
@@ -329,13 +329,13 @@
             NUMCHO_OLD(ISYM) = NUMCHO(ISYM) - NUMCHO_OLD(ISYM)
          END DO
          WRITE(LUPRI,'(80A)') ('-',I=1,LENLIN)
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
       ELSE IF (IPRINT .GE. INF_PASS) THEN
          DO ISYM = 1,NSYM
             NUMCHO_OLD(ISYM) = NUMCHO(ISYM) - NUMCHO_OLD(ISYM)
          END DO
-         WRITE(LUPRI,'(A,8I8)')
+         WRITE(LUPRI,'(A,8I8)')                                         &
      &   '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
       END IF
 

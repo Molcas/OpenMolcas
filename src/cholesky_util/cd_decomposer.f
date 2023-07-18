@@ -10,13 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2004,2008, Thomas Bondo Pedersen                       *
 !***********************************************************************
-      SubRoutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,
-     &                         Thr,Span,MxQual,
-     &                         ThrNeg,ThrFail,
-     &                         Diag,Qual,Buf,
-     &                         iPivot,iQual,
-     &                         nDim,lBuf,
-     &                         NumCho,
+      SubRoutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,                  &
+     &                         Thr,Span,MxQual,                         &
+     &                         ThrNeg,ThrFail,                          &
+     &                         Diag,Qual,Buf,                           &
+     &                         iPivot,iQual,                            &
+     &                         nDim,lBuf,                               &
+     &                         NumCho,                                  &
      &                         irc)
 
 !
@@ -130,20 +130,20 @@
                   kOffQ = kOffV + lVec
 
                   iOpt = 2
-                  Call CD_Vec(iVec1,NumV,Buf(kOffV),lBuf-kOffV+1,nDim,
+                  Call CD_Vec(iVec1,NumV,Buf(kOffV),lBuf-kOffV+1,nDim,  &
      &                        iOpt)
 
                   Do jVec = 1,NumV
                      Do i = 1,nQual
                         kOff1 = kOffQ + NumV*(i - 1) + jVec - 1
-                        kOff2 = kOffV + nDim*(jVec - 1)
+                        kOff2 = kOffV + nDim*(jVec - 1)                 &
      &                        + iQual(i) - 1
                         Buf(kOff1) = Buf(kOff2)
                      End Do
                   End Do
 
-                  Call DGEMM_('N','N',nDim,nQual,NumV,
-     &                       -1.0d0,Buf(kOffV),nDim,Buf(kOffQ),NumV,
+                  Call DGEMM_('N','N',nDim,nQual,NumV,                  &
+     &                       -1.0d0,Buf(kOffV),nDim,Buf(kOffQ),NumV,    &
      &                       1.0d0,Qual(1,1),nDim)
 
                End Do
@@ -222,7 +222,7 @@
                   Do i = 1,nQual
                      If (Diag(iQual(i)) .ne. 0.0d0) Then
                         Factor = -Qual(iQual(i),ix)
-                        Call dAXPY_(nDim,Factor,
+                        Call dAXPY_(nDim,Factor,                        &
      &                             Qual(1,ix),1,Qual(1,i),1)
                      End If
                   End Do

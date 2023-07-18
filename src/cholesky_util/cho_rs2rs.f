@@ -26,7 +26,7 @@
 !     Check input.
 !     ------------
 
-      IF (IRS2.LT.1 .OR. IRS2.GT.3 .OR.
+      IF (IRS2.LT.1 .OR. IRS2.GT.3 .OR.                                 &
      &    IRS3.LT.1 .OR. IRS3.GT.3) THEN
          CALL CHO_QUIT('Index error in '//SECNAM,104)
       ELSE IF (LMAP .LT. NNBSTR(ISYM,IRS2)) THEN

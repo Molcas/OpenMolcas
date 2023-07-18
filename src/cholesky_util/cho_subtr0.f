@@ -21,7 +21,7 @@
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
       use ChoVecBuf, only: nVec_in_Buf
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,     &
      &                     DSPNm, SSNorm
       Implicit Real*8 (a-h,o-z)
       REAL*8 XINT(*), WRK(LWRK)
@@ -104,7 +104,7 @@
 !        ----------------------
 
          CALL CHO_TIMER(C1,W1)
-         CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,ISYM,
+         CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,ISYM,     &
      &                   WRK(KEND2),LWRK2)
          CALL CHO_TIMER(C2,W2)
          TDECOM(1,2) = TDECOM(1,2) + C2 - C1
@@ -146,10 +146,10 @@
                         XDON = XDON + 1.0D0
                         KOFF1 = KCHO1 + IIBSTRSH(ISYM,ISHGD,2)
                         KOFF2 = KCHO2 + NUMV*(IAB-1)
-                        KOFF3 = NNBSTR(ISYM,2)*(IAB-1)
+                        KOFF3 = NNBSTR(ISYM,2)*(IAB-1)                  &
      &                        + IIBSTRSH(ISYM,ISHGD,2) + 1
-                        CALL DGEMV_('N',NGD,NUMV,
-     &                             XMONE,WRK(KOFF1),NNBSTR(ISYM,2),
+                        CALL DGEMV_('N',NGD,NUMV,                       &
+     &                             XMONE,WRK(KOFF1),NNBSTR(ISYM,2),     &
      &                             WRK(KOFF2),1,ONE,XINT(KOFF3),1)
                      END IF
                   END IF
@@ -164,10 +164,10 @@
 !              use this block.
 !              -------------------------------------------------------
 
-               CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
-     &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                          LQ(ISYM)%Array(:,IVEC1),
-     &                          SIZE(LQ(ISYM)%Array,1),
+               CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,     &
+     &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),              &
+     &                          LQ(ISYM)%Array(:,IVEC1),                &
+     &                          SIZE(LQ(ISYM)%Array,1),                 &
      &                    ONE,XINT,NNBSTR(ISYM,2))
 
 
@@ -179,9 +179,9 @@
 
                DO J = 1,NUMV
                   DO IAB = 1,NQUAL(ISYM)
-                     KOFF1 = KCHO2 + NQUAL(ISYM)*(J - 1)
+                     KOFF1 = KCHO2 + NQUAL(ISYM)*(J - 1)                &
      &                     + IAB - 1
-                     KOFF2 = KCHO1 + NNBSTR(ISYM,2)*(J - 1)
+                     KOFF2 = KCHO1 + NNBSTR(ISYM,2)*(J - 1)             &
      &                     + IQUAB(IAB,ISYM) - IIBSTR(ISYM,2) - 1
                      WRK(KOFF1) = WRK(KOFF2)
                   END DO
@@ -191,9 +191,9 @@
 !              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
 !              ----------------------------------------------------
 
-               CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
-     &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                          WRK(KCHO2),NQUAL(ISYM),
+               CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,     &
+     &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),              &
+     &                          WRK(KCHO2),NQUAL(ISYM),                 &
      &                    ONE,XINT,NNBSTR(ISYM,2))
 
             END IF

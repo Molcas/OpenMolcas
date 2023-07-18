@@ -49,20 +49,20 @@
       nShell = jScr(2)
       nnShl  = jScr(3)
       If (jScr(2) .lt. 1) Then
-         Write(6,'(A,A,I10)')
+         Write(6,'(A,A,I10)')                                           &
      &   SecNam,': #shells from restart file:',jScr(2)
          ifail = 1
          Go To 100
       End If
       nSP_UpLim = nShell*(nShell+1)/2
       If (jScr(3).lt.1 .or. jScr(3).gt.nSP_UpLim) Then
-         Write(6,'(A,A,I10)')
+         Write(6,'(A,A,I10)')                                           &
      &   SecNam,': #shell pairs from restart file:',jScr(3)
          ifail = 1
          Go To 100
       End If
       If (jScr(1) .ne. nSym) Then
-         Write(6,'(A,A,I10)')
+         Write(6,'(A,A,I10)')                                           &
      &   SecNam,': #irreps from restart file:',jScr(1)
          ifail = 1
          Go To 100
@@ -71,8 +71,8 @@
          Call iDAFile(LuRst,iOpt,jScr,nSym,iAdr)
          Do iSym = 1,nSym
             If (jScr(iSym) .ne. nBas(iSym)) Then
-               Write(6,'(A,A,I2,A,I10)')
-     &         SecNam,': #basis functions in sym.',iSym,
+               Write(6,'(A,A,I2,A,I10)')                                &
+     &         SecNam,': #basis functions in sym.',iSym,                &
      &         ' from restart file:',jScr(iSym)
                ifail = 2
                Go To 100
@@ -91,7 +91,7 @@
       Else If (jScr(1) .EQ. 1) Then
          XScDiag = .true.
       Else
-         WRITE(6,'(A,A,I10)')
+         WRITE(6,'(A,A,I10)')                                           &
      &   SECNAM,': integer flag for screening not recognized:',jScr(1)
          ifail = 2
          Go To 100
@@ -99,17 +99,17 @@
       If (jScr(2).gt.0 .and. jScr(2).lt.3) Then
          XCho_AdrVec = jScr(2)
       Else
-         WRITE(6,'(A,A,I10)')
+         WRITE(6,'(A,A,I10)')                                           &
      &   SECNAM,': vector file address mode not recognized:',jScr(2)
          ifail = 3
          Go To 100
       End If
       If (XCho_AdrVec .ne. Cho_AdrVec) Then
-         WRITE(6,'(A,A,I10)')
-     &   SECNAM,': vector file address mode from restart file:',
+         WRITE(6,'(A,A,I10)')                                           &
+     &   SECNAM,': vector file address mode from restart file:',        &
      &   XCho_AdrVec
-         WRITE(6,'(A,A,I10)')
-     &   SECNAM,': vector file address mode from runfile     :',
+         WRITE(6,'(A,A,I10)')                                           &
+     &   SECNAM,': vector file address mode from runfile     :',        &
      &   Cho_AdrVec
          ifail = 3
          Go To 100
@@ -138,7 +138,7 @@
 !     Allocate InfVec array.
 !     ----------------------
 
-      Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,
+      Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,            &
      &                  Label='InfVec_Hidden')
       InfVec => InfVec_Hidden
 
@@ -151,7 +151,7 @@
       MaxRed = jScr(1)
       XnPass = MaxRed
       IF (MaxRed .lt. 1) Then
-         Write(6,'(A,A,I10)')
+         Write(6,'(A,A,I10)')                                           &
      &   SecNam,': #reduced sets from restart file:',MaxRed
          ifail = 4
          Go To 100
@@ -161,7 +161,7 @@
          iOpt = 2
          Call iDAFile(LuRst,iOpt,InfRed,SIZE(InfRed),iAdr)
          If (InfRed(1) .ne. 0) Then
-            Write(6,'(A,A,I10)')
+            Write(6,'(A,A,I10)')                                        &
      &      SecNam,': disk address of 1st reduced set:',InfRed(1)
             ifail = 5
             Go To 100
@@ -176,9 +176,9 @@
          nRd  = 1
          Call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
          If (jScr(1) .ne. NumCho(iSym)) Then
-            Write(6,'(A,A,I2,A,I10)')
+            Write(6,'(A,A,I2,A,I10)')                                   &
      &      SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
-            Write(6,'(A,A,I10)')
+            Write(6,'(A,A,I10)')                                        &
      &      SecNam,': ....and from restart file: ',jScr(iSym)
             ifail = 6
             Go To 100
@@ -189,7 +189,7 @@
                InfVec(:,:,iSym) = 0
                Do j = 1,SIZE(InfVec,2)
                   iOpt = 2
-                  Call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),
+                  Call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),&
      &                         iAdr)
                End Do
             End If
@@ -200,7 +200,7 @@
 !     -------
 
   100 If (ifail .ne. 0) Then  ! failures jump to this point
-         Write(6,'(A,A)')
+         Write(6,'(A,A)')                                               &
      &   SecNam,': refusing to read more restart info!'
       End If
 

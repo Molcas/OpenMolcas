@@ -49,7 +49,7 @@
       XNSHELL = JSCR(2)
       XNNSHL  = JSCR(3)
       IF (XNSYM.LT.1 .OR. XNSYM.GT.8) THEN
-         WRITE(LUPRI,'(A,A,I10)')
+         WRITE(LUPRI,'(A,A,I10)')                                       &
      &   SECNAM,': #irreps from restart file: ',XNSYM
          IFAIL = 1
          GO TO 100
@@ -69,7 +69,7 @@
       ELSE IF (JSCR(1) .EQ. 1) THEN
          XSCDIAG = .TRUE.
       ELSE
-         WRITE(LUPRI,'(A,A,I10)')
+         WRITE(LUPRI,'(A,A,I10)')                                       &
      &   SECNAM,': integer flag for screening not recognized:',JSCR(1)
          IFAIL = 2
          GO TO 100
@@ -96,7 +96,7 @@
       CALL IDAFILE(LURST,IOPT,JSCR,NRD,IADR)
       XNPASS = JSCR(1)
       IF (XNPASS.LT.1 .OR. XNPASS.GT.MAXRED) THEN
-         WRITE(LUPRI,'(A,A,I10)')
+         WRITE(LUPRI,'(A,A,I10)')                                       &
      &   SECNAM,': #reduced sets in restart:',XNPASS
          IFAIL = 3
          GO TO 100
@@ -105,7 +105,7 @@
          INFRED(:) = 0
          CALL IDAFILE(LURST,IOPT,INFRED,XNPASS,IADR)
          IF (INFRED(1) .NE. 0) THEN
-            WRITE(LUPRI,'(A,A,I10)')
+            WRITE(LUPRI,'(A,A,I10)')                                    &
      &      SECNAM,': disk address of 1st reduced set:',INFRED(1)
             IFAIL = 4
             GO TO 100
@@ -118,7 +118,7 @@
          CALL IDAFILE(LURST,IOPT,JSCR,NRD,IADR)
          NUMCHO(ISYM) = JSCR(1)
          IF (NUMCHO(ISYM).LT.0 .OR. NUMCHO(ISYM).GT.MAXVEC) THEN
-            WRITE(LUPRI,'(A,A,I2,A,I10)')
+            WRITE(LUPRI,'(A,A,I2,A,I10)')                               &
      &      SECNAM,': #Cholesky vectors (sym.',ISYM,'): ',NUMCHO(ISYM)
             IFAIL = 5
             GO TO 100
@@ -128,14 +128,14 @@
             INFVEC(:,:,ISYM) = 0
             DO J = 1,SIZE(INFVEC,2)
                IOPT = 2
-               CALL IDAFILE(LURST,IOPT,INFVEC(:,J,ISYM),NUMCHO(ISYM),
+               CALL IDAFILE(LURST,IOPT,INFVEC(:,J,ISYM),NUMCHO(ISYM),   &
      &                      IADR)
             END DO
          END IF
       END DO
 
   100 IF (IFAIL .NE. 0) THEN  ! failures jump to this point
-         WRITE(LUPRI,'(A,A)')
+         WRITE(LUPRI,'(A,A)')                                           &
      &   SECNAM,': refusing to read more restart info!'
       END IF
 

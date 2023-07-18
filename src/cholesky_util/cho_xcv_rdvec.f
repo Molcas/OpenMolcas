@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,
+      SubRoutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,   &
      &                         J1,J2,iSym)
 !
 !     Thomas Bondo Pedersen, April 2010.
@@ -43,12 +43,12 @@
       End If
 
 #if defined (_DEBUGPRINT_)
-      If (n_myRankSP.lt.1 .or. n_myRankSP.gt.nnShl .or. iSym.lt.1 .or.
+      If (n_myRankSP.lt.1 .or. n_myRankSP.gt.nnShl .or. iSym.lt.1 .or.  &
      &    iSym.gt.nSym .or. NVT.lt.1) Then
          irc=-1
          Return
       End If
-      If (J1.lt.1 .or. J1.gt.NVT .or. J2.lt.1 .or. J2.gt.NVT .or.
+      If (J1.lt.1 .or. J1.gt.NVT .or. J2.lt.1 .or. J2.gt.NVT .or.       &
      &    J1.gt.J2 .or. (J2-J1+1).gt.NVT) Then
          irc=-2
          Return
@@ -87,7 +87,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! BLOCK READ
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SubRoutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,
+      SubRoutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,        &
      &                          J1,J2,iSym)
 !
 !     Read the vector blocks.

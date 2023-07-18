@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2008, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_GetPQInd(LnPQRSprod, LiPQRSprod,
+      SubRoutine ChoMP2_Energy_GetPQInd(LnPQRSprod, LiPQRSprod,         &
      &                                  iBatch,jBatch)
 !
 !     Jonas Bostrom, june 2008
@@ -36,20 +36,20 @@
          If (ChoAlg .eq. 1) Then
             Do iSym = 1,nSym
                LiPQRSprod(iSym) = LnPQRSprod
-               LnPQRSprod = LnPQRSprod
-     &                    + LnPQprod(iSym,iBatch)
+               LnPQRSprod = LnPQRSprod                                  &
+     &                    + LnPQprod(iSym,iBatch)                       &
      &                    * (LnPQprod(iSym,iBatch)+1)/2
             End Do
          Else
             Write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',
+            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',      &
      &                       String)
          End If
       Else
          LnPQRSprod = 0
          Do iSym = 1,nSym
             LiPQRSprod(iSym) = LnPQRSprod
-            LnPQRSprod = LnPQRSprod + LnPQprod(iSym,iBatch)*
+            LnPQRSprod = LnPQRSprod + LnPQprod(iSym,iBatch)*            &
      &                                LnPQprod(iSym,jBatch)
          End Do
       End If

@@ -28,8 +28,8 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 !
-      Integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8),
-     &        nLRo(8), nLRb(8), iOffD(8), iAdrR(8), iOff_WJL(8),
+      Integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8),      &
+     &        nLRo(8), nLRb(8), iOffD(8), iAdrR(8), iOff_WJL(8),        &
      &        nB3(8), iOffB3(8,8), iOffCMOo(8), iAdrB(8)
       Real*8 CMO(*)
 !
@@ -167,13 +167,13 @@
          Do i = 1, nBas(iSym)
             Do j = 1, i-1
                index = index + 1
-               MP2Density(j + nBas(iSym)*(i-1)+iOff) =
+               MP2Density(j + nBas(iSym)*(i-1)+iOff) =                  &
      &                            MP2TDensity(index)/2.0d0
-               MP2Density(i + nBas(iSym)*(j-1)+iOff) =
+               MP2Density(i + nBas(iSym)*(j-1)+iOff) =                  &
      &                            MP2TDensity(index)/2.0d0
-               SCFDensity(j + nBas(iSym)*(i-1)+iOff) =
+               SCFDensity(j + nBas(iSym)*(i-1)+iOff) =                  &
      &                            SCFTDensity(index)/2.0d0
-               SCFDensity(i + nBas(iSym)*(j-1)+iOff) =
+               SCFDensity(i + nBas(iSym)*(j-1)+iOff) =                  &
      &                            SCFTDensity(index)/2.0d0
                Smat(j + nBas(iSym)*(i-1)+iOff) = STmat(index)
                Smat(i + nBas(iSym)*(j-1)+iOff) = STmat(index)
@@ -203,9 +203,9 @@
       iOff1 = 1
       iOff2 = 1
       Do iSym = 1, nSym
-         Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
-     &              1.0d0,CMO(iOff2), nBas(iSym),
-     &                    Smat(iOff1), nBas(iSym),
+         Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),         &
+     &              1.0d0,CMO(iOff2), nBas(iSym),                       &
+     &                    Smat(iOff1), nBas(iSym),                      &
      &              0.0d0,CMO_inv(iOff2), nOrb(iSym))
 !
          iOff1 =  iOff1 + nBas(iSym)**2
@@ -468,45 +468,45 @@
                kSym=iEor(iSym-1,jSym-1)+1
             Do i = 1, nFro(kSym)
                iOff1 = nMoMo(iSym,iVecFF)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),CJK(1+iOff1+iOffFF),1,
+               Call dCopy_(nFro(jSym),CJK(1+iOff1+iOffFF),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOF)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Cki(1+iOff1+iOffOF),1,
+               Call dCopy_(nOcc(jSym),Cki(1+iOff1+iOffOF),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVF)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Cka(1+iOff1+iOffVF),1,
+               Call dCopy_(nVir(jSym),Cka(1+iOff1+iOffVF),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nVir(jSym)
             End Do
 !
             Do i = 1, nOcc(kSym)
                iOff1 = nMoMo(iSym,iVecFO)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),CiK(1+iOff1+iOffFO),1,
+               Call dCopy_(nFro(jSym),CiK(1+iOff1+iOffFO),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOO)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Cij(1+iOff1+iOffOO),1,
+               Call dCopy_(nOcc(jSym),Cij(1+iOff1+iOffOO),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVO)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Cia(1+iOff1+iOffVO),1,
+               Call dCopy_(nVir(jSym),Cia(1+iOff1+iOffVO),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nVir(jSym)
             End Do
 !
             Do i = 1, nVir(kSym)
                iOff1 = nMoMo(iSym,iVecFV)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),CaK(1+iOff1+iOffFV),1,
+               Call dCopy_(nFro(jSym),CaK(1+iOff1+iOffFV),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOV)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Cai(1+iOff1+iOffOV),1,
+               Call dCopy_(nOcc(jSym),Cai(1+iOff1+iOffOV),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVV)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Cab(1+iOff1+iOffVV),1,
+               Call dCopy_(nVir(jSym),Cab(1+iOff1+iOffVV),1,            &
      &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nVir(jSym)
             End Do
@@ -535,17 +535,17 @@
 !           (C^-1)^T x C_pq^J = C_nq^J
 !
             iOff1 = nLRo(iSym)*(iJ-1) + iOffLRo(iSym,jSym)
-            Call dGemm_('T', 'N',nBas(jSym),nOrb(kSym), nOrb(jSym),
-     &                 1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),
-     &                       Cpq(1+iOff1), nOrb(jSym),
+            Call dGemm_('T', 'N',nBas(jSym),nOrb(kSym), nOrb(jSym),     &
+     &                 1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),      &
+     &                       Cpq(1+iOff1), nOrb(jSym),                  &
      &                 0.0d0,Cpn, nBas(jSym))
 !
 !           C_nq^J x  (C^-1) = C_nm^J
 !
             iOff2 = nLRb(iSym)*(iJ-1) + iOffLRb(iSym,jSym)
-            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nOrb(kSym),
-     &                 1.0d0,Cpn,nBas(jSym),
-     &                       CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),
+            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nOrb(kSym),      &
+     &                 1.0d0,Cpn,nBas(jSym),                            &
+     &                       CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),      &
      &                 0.0d0,Cmn(1+iOff2), nBas(jSym))
 !
             End Do
@@ -560,17 +560,17 @@
 !
             iOff = nLRb(iSym)*(iJ-1) + iOffLRb(iSym,jSym)
             iOff0= iOffD(kSym)
-            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(kSym),
-     &                 1.0d0,Cmn(1+iOff),nBas(jSym),
-     &                       MP2Density(1+iOff0), nBas(kSym),
+            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(kSym),      &
+     &                 1.0d0,Cmn(1+iOff),nBas(jSym),                    &
+     &                       MP2Density(1+iOff0), nBas(kSym),           &
      &                 0.0d0,Ukn(1+iOff), nBas(jSym))
 !
 !           D(HF)_kn x C_nm^J = V_km^J, Eq. (42)
 !
             iOff0= iOffD(jSym)
-            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(jSym),
-     &                 1.0d0,SCFDensity(1+iOff0), nBas(jSym),
-     &                       Cmn(1+iOff), nBas(jSym),
+            Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(jSym),      &
+     &                 1.0d0,SCFDensity(1+iOff0), nBas(jSym),           &
+     &                       Cmn(1+iOff), nBas(jSym),                   &
      &                 0.0d0,Vkn(1+iOff), nBas(jSym))
 !
             End Do
@@ -619,18 +619,18 @@
                iOff_Ria = iOff_Ria + nVir(jSym)*nOcc(kSym)
                iOff2 = iOff_Rin
                iOff_Rin = iOff_Rin + nBas(jSym)*nOcc(kSym)
-               Call dGemm_('N','N',nBas(jSym),nOcc(kSym), nVir(jSym),
-     &              1.0d0,CMO_v,nBas(jSym),
-     &                    Ria(1+iOff1), nVir(jSym),
+               Call dGemm_('N','N',nBas(jSym),nOcc(kSym), nVir(jSym),   &
+     &              1.0d0,CMO_v,nBas(jSym),                             &
+     &                    Ria(1+iOff1), nVir(jSym),                     &
      &              0.0d0,Rin(1+iOff2), nBas(jSym))
 !
 !              R_ni^K x C_mi^T = R_nm^K
 !
                iOff3 = iOff_Rmn
                iOff_Rmn = iOff_Rmn + nBas(jSym)*nBas(kSym)
-               Call dGemm_('N','T',nBas(jSym),nBas(kSym), nOcc(kSym),
-     &                 1.0d0,Rin(1+iOff2),nBas(jSym),
-     &                       CMO_o, nBas(kSym),
+               Call dGemm_('N','T',nBas(jSym),nBas(kSym), nOcc(kSym),   &
+     &                 1.0d0,Rin(1+iOff2),nBas(jSym),                   &
+     &                       CMO_o, nBas(kSym),                         &
      &                 0.0d0,Rmn(1+iOff3), nBas(jSym))
 !
                End Do ! jSym
@@ -648,9 +648,9 @@
 !
             If (iSym.eq.lSym) Then
             iOffZ = iOff_WJL(iSym) + nMP2Vec(iSym)*(iiJ-1) + iiK-1
-            Call dGemm_('T','N',nK,nJ,nLRb(iSym),
-     &                 1.0d0,Rmn,nLRb(iSym),
-     &                       Cmn,nLRb(iSym),
+            Call dGemm_('T','N',nK,nJ,nLRb(iSym),                       &
+     &                 1.0d0,Rmn,nLRb(iSym),                            &
+     &                       Cmn,nLRb(iSym),                            &
      &                 0.0d0,WJL(1+iOffZ), nMP2Vec(iSym))
             End If
 !                                                                      *
@@ -670,9 +670,9 @@
 !
 !                 C_mn^J x R_ni^K = W_mi^JK, see Eq. (44)
 !
-                  Call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),
-     &                        1.0d0,Cmn(1+iOffL),nBas(jSym),
-     &                              Rin(1+iOffR),nBas(kSym),
+                  Call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym), &
+     &                        1.0d0,Cmn(1+iOffL),nBas(jSym),            &
+     &                              Rin(1+iOffR),nBas(kSym),            &
      &                        0.0d0,WmjKJ,nBas(jSym))
 !
                   Fac = 1.0d0
@@ -683,9 +683,9 @@
                   mSym2 = iEor(lSym-1,jSym-1)+1
                   iOffB = nB3(iSym)*(iJ-1) + iOffB3(iSym,mSym2)
                   iOffR = nLRb(lSym)*(iK-1) + iOffLRb(lSym,mSym2)
-                  Call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),
-     &                       1.0d0,Rmn(1+iOffR),nBas(mSym2),
-     &                             WmjKJ, nBas(jSym),
+                  Call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),&
+     &                       1.0d0,Rmn(1+iOffR),nBas(mSym2),            &
+     &                             WmjKJ, nBas(jSym),                   &
      &                       Fac,  B3jl(1+iOffB),nBas(mSym2))
 !
                   End Do ! jSym
@@ -707,9 +707,9 @@
 !
 !           Complete the 3rd RHS term in Eq. 40
 !
-            Call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),
-     &                -8.0d0,B3jl(1+iOffB1) , nBas(jSym),
-     &                       CMO_o(1+iOff),nBas(kSym),
+            Call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),       &
+     &                -8.0d0,B3jl(1+iOffB1) , nBas(jSym),               &
+     &                       CMO_o(1+iOff),nBas(kSym),                  &
      &                 0.0d0,B3kl(1+iOffB2),nBas(jSym))
 !
             End Do ! jSym
@@ -795,9 +795,9 @@
 
             iOffA = iiK-1 + (iiJ-1)*NumCho(iSym) + iOff_A
             Fact = 1.0D0
-            Call dGemm_('T','N', nK, nJ,nLRb(iSym),
-     &                 Fact,Ukn,nLRb(iSym),
-     &                      Vkn,nLRb(iSym),
+            Call dGemm_('T','N', nK, nJ,nLRb(iSym),                     &
+     &                 Fact,Ukn,nLRb(iSym),                             &
+     &                      Vkn,nLRb(iSym),                             &
      &                0.0d0,A1(1+iOffA),NumCho(iSym))
 !
          End Do
@@ -818,9 +818,9 @@
             Fac = 1.0D0
             If (iiK.eq.1) Fac = 0.0D0
             iOffZ = iOff_WJL(iSym) + iiK-1 + (iiJ-1)*nMp2Vec(iSym)
-            Call dGemm_('N','N',nLRb(iSym),nJ,nK,
-     &                 -8.0d0,Rmn, nLRb(iSym),
-     &                        WJL(1+iOffZ),nMP2Vec(iSym),
+            Call dGemm_('N','N',nLRb(iSym),nJ,nK,                       &
+     &                 -8.0d0,Rmn, nLRb(iSym),                          &
+     &                        WJL(1+iOffZ),nMP2Vec(iSym),               &
      &                  Fac,  B2kl,nLRb(iSym))
          End Do
 !
@@ -850,8 +850,8 @@
                   kl = k + nBas(jSym)*(l-1) + iOffLRb(iSym,jSym)
                   kl_s = kl
                   lk = l + nBas(kSym)*(k-1) + iOffLRb(iSym,kSym)
-                  B3kl_s(1+iOffL+kl_s-1) =
-     &               ( B3kl(1+iOffL+kl-1) +
+                  B3kl_s(1+iOffL+kl_s-1) =                              &
+     &               ( B3kl(1+iOffL+kl-1) +                             &
      &                 B3kl(1+iOffL+lk-1) )/2
                End Do
             End Do
@@ -878,9 +878,9 @@
 !
                iOff1 = iOff + iOffLRb(iSym,jSym)
                iOff2 = iOffD(kSym)
-            Call dGemm_('N','N',nBas(jSym), nBas(kSym), nBas(kSym),
-     &                 1.0d0,Vkn(1+iOff1), nBas(jSym),
-     &                       MP2Density(1+iOff2), nBas(kSym),
+            Call dGemm_('N','N',nBas(jSym), nBas(kSym), nBas(kSym),     &
+     &                 1.0d0,Vkn(1+iOff1), nBas(jSym),                  &
+     &                       MP2Density(1+iOff2), nBas(kSym),           &
      &                 0.0d0,B1kl(1+iOff1), nBas(jSym))
             End Do
          End Do
@@ -917,9 +917,9 @@
       Do iSym = 1, nSym
          iOff1 = iOff_WJL(iSym)
          Fact=-8.0D0
-      Call dGemm_('T','N', NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),
-     &            Fact ,WJL(1+iOff1), nMP2Vec(iSym),!-2
-     &                  WJL(1+iOff1), nMP2Vec(iSym),
+      Call dGemm_('T','N', NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),     &
+     &            Fact ,WJL(1+iOff1), nMP2Vec(iSym),                    & !-2
+     &                  WJL(1+iOff1), nMP2Vec(iSym),                    &
      &            0.0d0,A2(1+iOff_A2),NumCho(iSym))
 !
          iOff_A2 = iOff_A2 + NumCho(iSym)**2
@@ -955,9 +955,9 @@
 !
             iOffA = iiJ-1 + (iiK-1)*NumCho(iSym) + iOff_A
             Fact = 1.0D0
-            Call dGemm_('T', 'N', nJ, nK, nLRb(iSym),
-     &                 Fact ,B3kl_s,nLRb(iSym),
-     &                       Cmn, nLRb(iSym),
+            Call dGemm_('T', 'N', nJ, nK, nLRb(iSym),                   &
+     &                 Fact ,B3kl_s,nLRb(iSym),                         &
+     &                       Cmn, nLRb(iSym),                           &
      &                 1.0d0,A1(1+iOffA),NumCho(iSym))
 !
          End Do

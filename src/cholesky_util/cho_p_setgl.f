@@ -77,19 +77,19 @@
 !     Reallocate and reset local data.
 !     --------------------------------
 
-      Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),
+      Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),                   &
      &                  Label='InfRed_G_Hidden')
       InfRed => InfRed_G_Hidden
 
-      Call mma_allocate(InfVec_G_Hidden,SIZE(InfVec,1),SIZE(InfVec,2),
+      Call mma_allocate(InfVec_G_Hidden,SIZE(InfVec,1),SIZE(InfVec,2),  &
      &                  SIZE(InfVec,3),Label='InfVec_G_Hidden')
       InfVec => InfVec_G_Hidden
 
       nnShl = n_mySP
-      Call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,
+      Call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,                &
      &                  Label='iiBstRSh_L_Hidden')
       iiBstRSh => iiBstRSh_L_Hidden
-      Call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,
+      Call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,                &
      &                  Label='nnBstRSh_L_Hidden')
       nnBstRSh => nnBstRSh_L_Hidden
 
@@ -102,10 +102,10 @@
       Call Cho_SetRedInd(1)
       mmBstRT = nnBstRT(1)
 
-      Call mma_allocate(IndRed_G_Hidden,mmBstRT,3,
+      Call mma_allocate(IndRed_G_Hidden,mmBstRT,3,                      &
      &                  Label='IndRed_G_Hidden')
       IndRed => IndRed_G_Hidden
-      Call mma_allocate(IndRSh_G_Hidden,mmBstRT,
+      Call mma_allocate(IndRSh_G_Hidden,mmBstRT,                        &
      &                  Label='IndRSh_G_Hidden')
       IndRSh => IndRSh_G_Hidden
       call mma_allocate(iL2G,mmBstRT,Label='iL2G')

@@ -112,10 +112,10 @@
          Do While (jVec1 .le. iVec2)
 
             jNum = 0
-            Call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,
+            Call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,         &
      &                     jNum,iRedC,mUsed)
             If (jNum .lt. 1) Then
-               Call ChoMP2_Quit(SecNam,
+               Call ChoMP2_Quit(SecNam,                                 &
      &                          'insufficient memory','[2]')
             End If
 
@@ -127,12 +127,12 @@
                   irc = 0
                   Call Cho_X_SetRed(irc,iLoc,iRed)
                   If (irc .ne. 0) Then
-                     Call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',
+                     Call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',   &
      &                                ' ')
                   End If
                   iRedC = iRed
                End If
-               Call ChoMP2_TraVec(Wrk(kOff),Wrk(kOffMO),COcc,CVir,
+               Call ChoMP2_TraVec(Wrk(kOff),Wrk(kOffMO),COcc,CVir,      &
      &                            Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc)
                kOff   = kOff   + nnBstR(iSym,iLoc)
                kOffMO = kOffMO + nT1am(iSym)

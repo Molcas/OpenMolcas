@@ -36,7 +36,7 @@
 !> @param[in]  ip_Variance  Pointer to biased variance in \p Stat
 !> @param[in]  ip_VarianceU Pointer to unbiased variance in \p Stat
 !***********************************************************************
-      SubRoutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,
+      SubRoutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,  &
      &                      ip_MaxAbs,ip_Variance,ip_VarianceU)
       Implicit None
       Integer n

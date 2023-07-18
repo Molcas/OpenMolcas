@@ -37,18 +37,18 @@
          If (ChoAlg .eq. 1) Then
             Do iSym = 1,nSym
                LiT2am(iSym) = LnT2am
-               LnT2am = LnT2am
+               LnT2am = LnT2am                                          &
      &                + LnT1am(iSym,iBatch)*(LnT1am(iSym,iBatch)+1)/2
             End Do
          Else If (ChoAlg .eq. 2) Then
             Do iSym = 1,nSym
                LiT2am(iSym) = LnT2am
-               LnT2am = LnT2am
+               LnT2am = LnT2am                                          &
      &                + nMatab(iSym)*LnMatij(iSym,iBatch)
             End Do
          Else
             Write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',
+            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',      &
      &                       String)
          End If
       Else

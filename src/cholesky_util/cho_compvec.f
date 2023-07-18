@@ -54,7 +54,7 @@
 !    &                      nnBstR(iSym,2),nQual(iSym),1,Lupri)
             Call Cho_Quit('Diagonal errors in '//SecNam,104)
          Else
-            Write(Lupri,*) SecNam,': comparison of qual. integrals ',
+            Write(Lupri,*) SecNam,': comparison of qual. integrals ',   &
      &                  'and current diagonal: no errors !'
          End If
       End If
@@ -151,7 +151,7 @@
             Do j = i+1,nQual(iSym)
                xM = max(xM,QDiag(j))
             End Do
-            Write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')
+            Write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')  &
      &      iSym,iVec,iVecT,iABG,xC,OlDiag,nConv,nNeg,xM
          End If
 

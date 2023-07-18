@@ -47,20 +47,20 @@
 
       IF (CHO_DECALG.LT.1 .OR. CHO_DECALG.GT.CHO_NDECALG) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,I4)') 'Illegal decomposition algorithm, ',
+            WRITE(LUPRI,'(A,A,I4)') 'Illegal decomposition algorithm, ',&
      &                     'CHO_DECALG = ',CHO_DECALG
          END IF
          NCONFL = NCONFL + 1
       END IF
       IF (Cho_Real_Par) THEN
-         IF (CHO_DECALG.NE.4 .AND. CHO_DECALG.NE.5 .AND.
+         IF (CHO_DECALG.NE.4 .AND. CHO_DECALG.NE.5 .AND.                &
      &       CHO_DECALG.NE.6) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,I4)')
-     &                        'Illegal decomposition algorithm, ',
+               WRITE(LUPRI,'(A,A,I4)')                                  &
+     &                        'Illegal decomposition algorithm, ',      &
      &                        'CHO_DECALG = ',CHO_DECALG
-               WRITE(LUPRI,'(A,A)')
-     &                        'Only parallel algorithm is allowed ',
+               WRITE(LUPRI,'(A,A)')                                     &
+     &                        'Only parallel algorithm is allowed ',    &
      &                        'for parallel execution'
             END IF
             NCONFL = NCONFL + 1
@@ -73,7 +73,7 @@
       IF (CHO_NO2CENTER) THEN
          IF (NSYM .NE. 1) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') 'Exclusion of 2-center diagonals ',
+               WRITE(LUPRI,'(A,A)') 'Exclusion of 2-center diagonals ', &
      &                        'only implemented for C1 point group.'
             END IF
             NCONFL = NCONFL + 1
@@ -86,7 +86,7 @@
       IF (CHO_1CENTER) THEN
          IF (NSYM .NE. 1) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') '1-center decomposition ',
+               WRITE(LUPRI,'(A,A)') '1-center decomposition ',          &
      &                        'only implemented for C1 point group.'
             END IF
             NCONFL = NCONFL + 1
@@ -99,21 +99,21 @@
       IF (CHO_SIMRI) THEN
          IF (.NOT. CHO_1CENTER) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') '1-center decomposition required ',
+               WRITE(LUPRI,'(A,A)') '1-center decomposition required ', &
      &                        'for RI simulation.'
             END IF
             NCONFL = NCONFL + 1
          END IF
          IF (CHO_DECALG .NE. 2) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') 'RI simulation can only be ',
+               WRITE(LUPRI,'(A,A)') 'RI simulation can only be ',       &
      &                        'executed with the two-step algorithm.'
             END IF
             NCONFL = NCONFL + 1
          END IF
          IF (RSTCHO) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') 'RI simulation cannot be ',
+               WRITE(LUPRI,'(A,A)') 'RI simulation cannot be ',         &
      &                        'executed with decomposition restart.'
             END IF
             NCONFL = NCONFL + 1
@@ -126,16 +126,16 @@
       IF (CHO_DECALG.EQ.2 .OR. CHO_DECALG.EQ.5) THEN
          IF (.NOT. SCDIAG) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)')
-     &                        'Screening must be turned on for two-',
+               WRITE(LUPRI,'(A,A)')                                     &
+     &                        'Screening must be turned on for two-',   &
      &                        'step decomposition algorithm.'
             END IF
             NCONFL = NCONFL + 1
          END IF
          IF (IFCSEW .NE. 2) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,A)') 'The interface to Seward must ',
-     &                        'be "2" (reduced set communication)',
+               WRITE(LUPRI,'(A,A,A)') 'The interface to Seward must ',  &
+     &                        'be "2" (reduced set communication)',     &
      &                        ' for two-step algorithm.'
                WRITE(LUPRI,'(A,I4)') 'Current value is IFCSEW=',IFCSEW
             END IF
@@ -143,7 +143,7 @@
          END IF
          IF (RSTCHO) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A)') 'Decomposition restart is not ',
+               WRITE(LUPRI,'(A,A)') 'Decomposition restart is not ',    &
      &                              'possible for two-step algorithm.'
             END IF
             NCONFL = NCONFL + 1
@@ -153,8 +153,8 @@
       IF (CHO_DECALG.EQ.5) THEN
          IF (BLOCKSIZE.LT.1) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,I8)')
-     &         'BlockSize must be strictly positive.',
+               WRITE(LUPRI,'(A,A,I8)')                                  &
+     &         'BlockSize must be strictly positive.',                  &
      &         'Current value is BlockSize=',BlockSize
             END IF
             NCONFL=NCONFL+1
@@ -172,7 +172,7 @@
       END IF
       IF (MAXRED .LT. 1) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,I8)')
+            WRITE(LUPRI,'(A,I8)')                                       &
      &      'Max. number of reduced sets < 1: ',MAXRED
          END IF
          NCONFL = NCONFL + 1
@@ -183,15 +183,15 @@
 
       IF (IALQUA .LT. 0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,I4,A)')
-     &                     'Qualification algorithm reset from ',
+            WRITE(LUPRI,'(A,I4,A)')                                     &
+     &                     'Qualification algorithm reset from ',       &
      &                     IALQUA,' to 1'
          END IF
          IALQUA = 1
       ELSE IF (IALQUA .GT. NALQUA) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,I4,A,I4)')
-     &                   'Qualification algorithm reset from ',
+            WRITE(LUPRI,'(A,I4,A,I4)')                                  &
+     &                   'Qualification algorithm reset from ',         &
      &                   IALQUA,' to ',NALQUA
          END IF
          IALQUA = NALQUA
@@ -202,9 +202,9 @@
 
       IF (THRCOM .LT. 0.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6,A,D15.6,A)')
-     &                     'Decomposition threshold not positive: ',
-     &                     THRCOM,' (default value: ',THRDEF,
+            WRITE(LUPRI,'(A,1P,D15.6,A,D15.6,A)')                       &
+     &                     'Decomposition threshold not positive: ',    &
+     &                     THRCOM,' (default value: ',THRDEF,           &
      &                     ')'
          END IF
          NCONFL = NCONFL + 1
@@ -216,9 +216,9 @@
       IF (CHO_PRESCREEN) THEN
          IF (THR_PRESCREEN .GT. THRCOM) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,1P,D15.6,A,D15.6)')
-     &                        'Diagonal prescreening threshold is ',
-     &                        'greater than decomposition threshold: ',
+               WRITE(LUPRI,'(A,A,1P,D15.6,A,D15.6)')                    &
+     &                        'Diagonal prescreening threshold is ',    &
+     &                        'greater than decomposition threshold: ', &
      &                        THR_PRESCREEN,' > ',THRCOM
             END IF
             NCONFL = NCONFL + 1
@@ -231,8 +231,8 @@
       IF (CHO_SSCREEN) THEN
          IF (SSTAU .LT. 0.0D0) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,1P,D15.6)')
-     &                        'Screening threshold for vector ',
+               WRITE(LUPRI,'(A,A,1P,D15.6)')                            &
+     &                        'Screening threshold for vector ',        &
      &                        'subtraction not positive: ',SSTAU
             END IF
             NCONFL = NCONFL + 1
@@ -260,15 +260,15 @@
 
       IF (N1_QUAL .GE. N2_QUAL) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,2I5)') 'N1_QUAL >= N2_QUAL: ',
+            WRITE(LUPRI,'(A,2I5)') 'N1_QUAL >= N2_QUAL: ',              &
      &                     N1_QUAL,N2_QUAL
          END IF
          NCONFL = NCONFL + 1
       END IF
       IF (N1_QUAL.LT.1 .OR. N2_QUAL.LT.1) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,2I5)')
-     &                     'N1_QUAL and/or N2_QUAL < 1: ',
+            WRITE(LUPRI,'(A,2I5)')                                      &
+     &                     'N1_QUAL and/or N2_QUAL < 1: ',              &
      &                     N1_QUAL,N2_QUAL
          END IF
          NCONFL = NCONFL + 1
@@ -282,14 +282,14 @@
       IF (CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4) THEN
          IF (N2_VECRD .LT. N1_VECRD) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,2I5)') 'N1_VECRD >= N2_VECRD: ',
+               WRITE(LUPRI,'(A,2I5)') 'N1_VECRD >= N2_VECRD: ',         &
      &                        N1_VECRD,N2_VECRD
             END IF
             NCONFL = NCONFL + 1
          END IF
          IF (N1_VECRD.LT.1 .OR. N2_VECRD.LT.1) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,2I5)') 'N1_VECRD and/or N2_VECRD < 1: ',
+               WRITE(LUPRI,'(A,2I5)') 'N1_VECRD and/or N2_VECRD < 1: ', &
      &                        N1_VECRD,N2_VECRD
             END IF
             NCONFL = NCONFL + 1
@@ -307,13 +307,13 @@
 
       IF (FRAC_CHVBUF .LT. 0.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,
+            WRITE(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,   &
      &                     ' resetting value to 0.0D0'
          END IF
          FRAC_CHVBUF = 0.0D0
       ELSE IF (FRAC_CHVBUF .GT. 0.9D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,
+            WRITE(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,   &
      &                     ' resetting value to 0.9D0'
          END IF
          FRAC_CHVBUF = 0.9D0
@@ -324,11 +324,11 @@
 
       IF (THRDIAG .GT. THRCOM) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,1P,D15.6)')
-     &                     'Threshold for discarding initial diagonals',
+            WRITE(LUPRI,'(A,A,1P,D15.6)')                               &
+     &                     'Threshold for discarding initial diagonals',&
      &                     ': ',THRDIAG
-            WRITE(LUPRI,'(A,1P,D15.6)')
-     &                     'is larger than decomposition threshold: ',
+            WRITE(LUPRI,'(A,1P,D15.6)')                                 &
+     &                     'is larger than decomposition threshold: ',  &
      &                     THRCOM
          END IF
          NCONFL = NCONFL + 1
@@ -339,14 +339,14 @@
 
       IF (DAMP(1) .LT. 1.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6)')
+            WRITE(LUPRI,'(A,1P,D15.6)')                                 &
      &      'First damping factor < 1: ',DAMP(1)
          END IF
          NCONFL = NCONFL + 1
       END IF
       IF (DAMP(2) .LT. 1.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6)')
+            WRITE(LUPRI,'(A,1P,D15.6)')                                 &
      &      'Second damping factor < 1: ',DAMP(2)
          END IF
          NCONFL = NCONFL + 1
@@ -362,7 +362,7 @@
          NCONFL = NCONFL + 1
       ELSE IF (ABS(1.0D0-SPAN).lt.1.0d-4) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A)')
+            WRITE(LUPRI,'(A)')                                          &
      &      'Span factor is too close to 1. Will use 0.9999 instead.'
          END IF
          SPAN=0.9999d0
@@ -376,7 +376,7 @@
       NNN = NSHELL*(NSHELL + 1)/2
       IF (MXSHPR.LT.0 .OR. MXSHPR.GT.NNN) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,I8)') 'Max. #shell pairs allowed ',
+            WRITE(LUPRI,'(A,A,I8)') 'Max. #shell pairs allowed ',       &
      &                     'before proceeding to deco. is: ',MXSHPR
             WRITE(LUPRI,'(A)') 'Resetting generic: 0'
          END IF
@@ -384,7 +384,7 @@
       END IF
       IF (MAXQUAL .LT. 1) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,I8)') 'Max. number of qualifieds is ',
+            WRITE(LUPRI,'(A,A,I8)') 'Max. number of qualifieds is ',    &
      &                     'non-positive: ',MAXQUAL
             WRITE(LUPRI,'(A,A,I8)') 'Using instead: ',ABS(MAXQUAL)
          END IF
@@ -393,7 +393,7 @@
       MMM = NSYM*MAXQUAL
       IF (MINQUAL.LT.1 .OR. MINQUAL.GT.MMM) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,I8)') 'Min. #qualified needed ',
+            WRITE(LUPRI,'(A,A,I8)') 'Min. #qualified needed ',          &
      &                     'before proceeding to deco. is: ',MINQUAL
             WRITE(LUPRI,'(A,I8)') 'resetting to: ',MMM
          END IF
@@ -406,8 +406,8 @@
       INEGRR = 0
       IF (THRNEG .GT. 0.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,1P,D15.6)')
-     &                     'Threshold for zeroing neg. diag. > 0: ',
+            WRITE(LUPRI,'(A,1P,D15.6)')                                 &
+     &                     'Threshold for zeroing neg. diag. > 0: ',    &
      &                     THRNEG
          END IF
          INEGRR = INEGRR + 1
@@ -415,8 +415,8 @@
       END IF
       IF (WARNEG .GT. 0.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,1P,D15.6)')
-     &                     'Threshold for warning about neg. diag. ',
+            WRITE(LUPRI,'(A,A,1P,D15.6)')                               &
+     &                     'Threshold for warning about neg. diag. ',   &
      &                     ' > 0: ',WARNEG
          END IF
          INEGRR = INEGRR + 1
@@ -424,8 +424,8 @@
       END IF
       IF (TOONEG .GT. 0.0D0) THEN
          IF (REPORT) THEN
-            WRITE(LUPRI,'(A,A,1P,D15.6)')
-     &                      'Threshold for shutdown due to neg. diag. ',
+            WRITE(LUPRI,'(A,A,1P,D15.6)')                               &
+     &                      'Threshold for shutdown due to neg. diag. ',&
      &                     ' > 0: ',TOONEG
          END IF
          INEGRR = INEGRR + 1
@@ -434,18 +434,18 @@
       IF (INEGRR .EQ. 0) THEN
          IF (THRNEG .LT. WARNEG) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,1P,D15.6,D15.6)')
-     &                      'Threshold for zeroing neg. diag. > ',
-     &                       'threshold for warning about neg. diag.: ',
+               WRITE(LUPRI,'(A,A,1P,D15.6,D15.6)')                      &
+     &                      'Threshold for zeroing neg. diag. > ',      &
+     &                       'threshold for warning about neg. diag.: ',&
      &                        THRNEG,WARNEG
             END IF
             NCONFL = NCONFL + 1
          END IF
          IF (WARNEG .LT. TOONEG) THEN
             IF (REPORT) THEN
-               WRITE(LUPRI,'(A,A,1P,D15.6,D15.6)')
-     &                     'Threshold for warning about neg. diag. > ',
-     &                     'threshold for shutdown due to neg. diag.: ',
+               WRITE(LUPRI,'(A,A,1P,D15.6,D15.6)')                      &
+     &                     'Threshold for warning about neg. diag. > ', &
+     &                     'threshold for shutdown due to neg. diag.: ',&
      &                     WARNEG,TOONEG
             END IF
             NCONFL = NCONFL + 1

@@ -12,8 +12,8 @@
 !
 !     Purpose: deallocate and finalize vector buffer.
 !
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
-     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,         &
      &                     nVec_in_Buf
       use stdalloc
       Implicit None

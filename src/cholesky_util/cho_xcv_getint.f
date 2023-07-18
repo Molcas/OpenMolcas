@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,
+      SubRoutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,    &
      &                          NVT,l_nVT,xInt,l_Int)
 !
 !     Thomas Bondo Pedersen, April 2010.

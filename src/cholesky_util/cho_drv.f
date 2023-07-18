@@ -103,9 +103,9 @@
       CALL CHO_GASYNC()
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-         CALL CHO_PRTTIM('Cholesky initialization',
-     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+         CALL CHO_PRTTIM('Cholesky initialization',                     &
+     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),                 &
+     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),                 &
      &                   1)
       END IF
 #if defined (_DEBUGPRINT_)
@@ -124,7 +124,7 @@
       ISEC = 2
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-         WRITE(LUPRI,'(/,A)')
+         WRITE(LUPRI,'(/,A)')                                           &
      &   '***** Starting Cholesky diagonal setup *****'
          CALL CHO_FLUSH(LUPRI)
       END IF
@@ -132,9 +132,9 @@
       CALL CHO_GASYNC()
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-         CALL CHO_PRTTIM('Cholesky diagonal setup',
-     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+         CALL CHO_PRTTIM('Cholesky diagonal setup',                     &
+     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),                 &
+     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),                 &
      &                   1)
       END IF
 #if defined (_DEBUGPRINT_)
@@ -154,18 +154,18 @@
       ISEC = 3
       IF (LCONV) THEN
          IF (RSTCHO) THEN
-            WRITE(LUPRI,'(//,10X,A,A,A,//)')
+            WRITE(LUPRI,'(//,10X,A,A,A,//)')                            &
      &      '***** ',SECNAM,': restarted calculation converged. *****'
             CALL FZERO(TIMSEC(1,ISEC),4)
          ELSE
-            WRITE(LUPRI,'(A,A)')
+            WRITE(LUPRI,'(A,A)')                                        &
      &      SECNAM,': logical error: converged but not restart?!?!'
             CALL CHO_QUIT('Error in '//SECNAM,103)
          END IF
       ELSE
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting Cholesky decomposition *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -181,27 +181,27 @@
             CALL CHO_P_OPENVR(1) ! re-open (problem on dec-alpha)
             IF (IPRINT .GE. INF_TIMING) THEN
                CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-               CALL CHO_PRTTIM('Cholesky map generation',
-     &                         TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                         TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+               CALL CHO_PRTTIM('Cholesky map generation',               &
+     &                         TIMSEC(2,ISEC),TIMSEC(1,ISEC),           &
+     &                         TIMSEC(4,ISEC),TIMSEC(3,ISEC),           &
      &                         2)
             END IF
             IRC = 0
             CALL CHO_X_GENVEC(IRC,Diag)
             CALL CHO_GASYNC()
             IF (IRC .NE. 0) THEN
-               WRITE(LUPRI,'(A,A)')
+               WRITE(LUPRI,'(A,A)')                                     &
      &         SECNAM,': decomposition failed!'
-               WRITE(LUPRI,'(A,A,I9)')
+               WRITE(LUPRI,'(A,A,I9)')                                  &
      &         SECNAM,': CHO_X_GENVEC returned ',IRC
                IRETURN = 1
                CALL CHO_QUIT('Error',104)
             END IF
             IF (IPRINT .GE. INF_TIMING) THEN
                CALL CHO_TIMER(TC,TW)
-               CALL CHO_PRTTIM('Cholesky vector generation',
-     &                         TC,TIMSEC(2,ISEC),
-     &                         TW,TIMSEC(4,ISEC),
+               CALL CHO_PRTTIM('Cholesky vector generation',            &
+     &                         TC,TIMSEC(2,ISEC),                       &
+     &                         TW,TIMSEC(4,ISEC),                       &
      &                         2)
             END IF
          END IF
@@ -210,9 +210,9 @@
          END IF
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Cholesky decomposition',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Cholesky decomposition',                   &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
       END IF
@@ -229,7 +229,7 @@
       ELSE
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting Cholesky diagonal check *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -239,16 +239,16 @@
          CALL CHO_GASYNC()
          Call mma_deallocate(KWRK)
          IF (.NOT. LCONV) THEN
-            WRITE(LUPRI,'(A,A)')
+            WRITE(LUPRI,'(A,A)')                                        &
      &      SECNAM,': Decomposition failed!'
             IRETURN = 1
             CALL CHO_QUIT('Decomposition failed!',104)
          END IF
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Cholesky diagonal check',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Cholesky diagonal check',                  &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
 #if defined (_DEBUGPRINT_)
@@ -268,7 +268,7 @@
       IF (CHO_INTCHK) THEN
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting Cholesky integral check *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -276,9 +276,9 @@
          CALL CHO_GASYNC()
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Cholesky integral check',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Cholesky integral check',                  &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
 #if defined (_DEBUGPRINT_)
@@ -295,7 +295,7 @@
       IF (CHO_REORD) THEN
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting vector reordering *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -309,9 +309,9 @@
          Call mma_deallocate(KIRS1F)
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Vector reordering',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Vector reordering',                        &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
 #if defined (_DEBUGPRINT_)
@@ -330,7 +330,7 @@
       IF (CHO_FAKE_PAR .AND. NPROCS.GT.1 .AND. Is_Real_Par()) THEN
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting vector distribution *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -338,9 +338,9 @@
          CALL CHO_P_WRRSTC(XNPASS)
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Vector distribution',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Vector distribution',                      &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
 #if defined (_DEBUGPRINT_)
@@ -356,7 +356,7 @@
       ISEC = 8
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-         WRITE(LUPRI,'(/,A)')
+         WRITE(LUPRI,'(/,A)')                                           &
      &   '***** Starting Cholesky finalization *****'
          CALL CHO_FLUSH(LUPRI)
       END IF
@@ -365,9 +365,9 @@
       CALL CHO_GASYNC()
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-         CALL CHO_PRTTIM('Cholesky finalization',
-     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+         CALL CHO_PRTTIM('Cholesky finalization',                       &
+     &                   TIMSEC(2,ISEC),TIMSEC(1,ISEC),                 &
+     &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),                 &
      &                   1)
       END IF
 #if defined (_DEBUGPRINT_)
@@ -381,7 +381,7 @@
          ISEC = 9
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
-            WRITE(LUPRI,'(/,A)')
+            WRITE(LUPRI,'(/,A)')                                        &
      &      '***** Starting Cholesky statistics *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
@@ -389,9 +389,9 @@
          CALL CHO_GASYNC()
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
-            CALL CHO_PRTTIM('Cholesky statistics',
-     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),
-     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
+            CALL CHO_PRTTIM('Cholesky statistics',                      &
+     &                      TIMSEC(2,ISEC),TIMSEC(1,ISEC),              &
+     &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),              &
      &                      1)
          END IF
       END IF
@@ -421,7 +421,7 @@
 
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TCPU1,TWALL1)
-         CALL CHO_PRTTIM('Cholesky procedure',TCPU1,TCPU0,
+         CALL CHO_PRTTIM('Cholesky procedure',TCPU1,TCPU0,              &
      &                   TWALL1,TWALL0,1)
       END IF
 

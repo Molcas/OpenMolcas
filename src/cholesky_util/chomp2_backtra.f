@@ -103,7 +103,7 @@
             iOpt = 2
             iAdr = nT1Am(iSym)*(iVec-1) + 1
             lVec = nT1Am(iSym)
-            Call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,
+            Call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,            &
      &                   iAdr)
 
             Do iSymi = 1,nSym
@@ -115,8 +115,8 @@
                na     = max(nVir(iSyma),1)
                nAl    = max(nBas(iSymAl),1)
                ni     = max(nOcc(iSymi),1)
-               Call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),
-     &                    1.0d0,MOVec(kMOVec),na,CVir(kCVir),nAl,
+               Call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),&
+     &                    1.0d0,MOVec(kMOVec),na,CVir(kCVir),nAl,       &
      &                    0.0d0,Temp(kTemp),ni)
             End Do
 
@@ -128,9 +128,9 @@
                kAOVec = 1 + iAB(iSymAl,iSymBe)
                ni     = max(nOcc(iSymi),1)
                nAl    = max(nBas(iSymAl),1)
-               Call DGEMM_('T','N',
-     &                    nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),
-     &                    1.0d0,Temp(kTemp),ni,COcc(kCOcc),ni,
+               Call DGEMM_('T','N',                                     &
+     &                    nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),        &
+     &                    1.0d0,Temp(kTemp),ni,COcc(kCOcc),ni,          &
      &                    0.0d0,AOVec(kAOVec),nAl)
             End Do
 
@@ -144,13 +144,13 @@
             Call dCopy_(nAB(iSym),AOVec,1,Buf(1+nVecInCore),MaxInCore)
             nVecInCore = nVecInCore + 1
 
-            If (nVecInCore.eq.MaxInCore .or.
+            If (nVecInCore.eq.MaxInCore .or.                            &
      &          iVec.eq.nMP2Vec(iSym)) Then
                Do AlBe = 1,nAB(iSym)
                   iOpt = 1
                   iAdr = nMP2Vec(iSym)*(AlBe-1) + nVecOnDisk + 1
                   lVec = nVecInCore
-                  Call ddaFile(lU_AO,iOpt,
+                  Call ddaFile(lU_AO,iOpt,                              &
      &                         Buf(1+MaxInCore*(AlBe-1)),lVec,iAdr)
                End Do
                nVecOnDisk = nVecOnDisk + nVecInCore

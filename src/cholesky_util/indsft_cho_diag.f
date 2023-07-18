@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine IndSft_Cho_Diag(TInt,nInt,
-     &                   iCmp,iShell,iBas,jBas,kBas,lBas,
-     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,
+      SubRoutine IndSft_Cho_Diag(TInt,nInt,                             &
+     &                   iCmp,iShell,iBas,jBas,kBas,lBas,               &
+     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,         &
      &                   iSOSym,nSOs)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
@@ -61,7 +61,7 @@
          Write (6,*) ' Sum=',r1,tr1
          Write (6,*) ' Dot=',r2,tr2
       End If
-      If (jprint.ge.99)
+      If (jprint.ge.99)                                                 &
      &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
       memSO2 = 0
 !
@@ -163,7 +163,7 @@
                 End If
 !
                 memSO2 = memSO2 + 1
-                If ( (nSkip(j1+1)+nSkip(j2+1)+
+                If ( (nSkip(j1+1)+nSkip(j2+1)+                          &
      &                nSkip(j3+1)+nSkip(j4+1) ).ne.0 ) GoTo 310
 !
 !               Compute absolute starting SO index
@@ -189,13 +189,13 @@
                                IF (ISHLI.EQ.ISHLJ.AND.ISHLI.EQ.SHA) THEN
                                   KIJ = ITRI(ISHLSO(ISOI),ISHLSO(JSOJ))
                                ELSE
-                                 IF (ISHLI.EQ.SHA.AND.ISHLJ.EQ.SHB)
+                                 IF (ISHLI.EQ.SHA.AND.ISHLJ.EQ.SHB)     &
      &                           THEN
-                                    KIJ = NUMI*(ISHLSO(JSOJ) - 1)
+                                    KIJ = NUMI*(ISHLSO(JSOJ) - 1)       &
      &                                  + ISHLSO(ISOI)
-                                 ELSE IF (ISHLJ.EQ.SHA.AND.ISHLI.EQ.SHB)
+                                 ELSE IF (ISHLJ.EQ.SHA.AND.ISHLI.EQ.SHB)&
      &                           THEN
-                                    KIJ = NUMJ*(ISHLSO(ISOI) - 1)
+                                    KIJ = NUMJ*(ISHLSO(ISOI) - 1)       &
      &                                  + ISHLSO(JSOJ)
                                  ELSE
                                     CALL CHO_QUIT('Integral error',104)

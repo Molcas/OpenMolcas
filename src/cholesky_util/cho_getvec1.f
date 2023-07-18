@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,
+      SUBROUTINE CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,           &
      &                       SCR,LSCR)
 !
 !     Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
@@ -133,7 +133,7 @@
             JNUM_RD = 0
             IREDC = IRED
             MUSED = 0
-            CALL CHO_VECRD(CHOVEC(1,KVEC1),LTOT,JVEC1,JVEC_END,ISYM,
+            CALL CHO_VECRD(CHOVEC(1,KVEC1),LTOT,JVEC1,JVEC_END,ISYM,    &
      &                     JNUM_RD,IREDC,MUSED)
             IF (JNUM_RD .NE. JNUM) THEN
                CALL CHO_QUIT('Logical error [RD1] in '//SECNAM,103)
@@ -214,7 +214,7 @@
             JNUM_RD = 0
             IREDC = IRED
             MUSED = 0
-            CALL CHO_VECRD(SCR(KSCR),LTOT,IBVEC1,JVEC_END,ISYM,
+            CALL CHO_VECRD(SCR(KSCR),LTOT,IBVEC1,JVEC_END,ISYM,         &
      &                     JNUM_RD,IREDC,MUSED)
             IF (JNUM_RD .NE. NUMV) THEN
                CALL CHO_QUIT('Logical error [RD2] in '//SECNAM,103)

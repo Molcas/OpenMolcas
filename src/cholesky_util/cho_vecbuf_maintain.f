@@ -33,7 +33,7 @@
 !
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
      &                     nVec_in_Buf
       use stdalloc
       Implicit Real*8 (a-h,o-z)
@@ -76,13 +76,13 @@
          Write(Lupri,*)
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'iRed = ',iRed
-         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF),
+         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF),                    &
      &                  '   ip_ChVBuf = ',1
-         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
+         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',                     &
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
+         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',                     &
      &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
+         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',                     &
      &                          (nVec_in_Buf(iSym),iSym=1,nSym)
       End If
 
@@ -119,8 +119,8 @@
          Do iSym = 1,nSym
             If (nVec_in_Buf(iSym) .ne. 0) Then
                Write(Lupri,*) SecNam,': sym. block ',iSym,':'
-               Write(Lupri,*) '   iRed = ',iRed,
-     &                        '   #vectors in buffer: ',
+               Write(Lupri,*) '   iRed = ',iRed,                        &
+     &                        '   #vectors in buffer: ',                &
      &                        nVec_in_Buf(iSym),' (should be 0)'
                nErr = nErr + 1
             End If
@@ -151,12 +151,12 @@
 !           -----------------------------
 
             If (nnBstR(iSym,2) .gt. nnBstR(iSym,3)) Then
-               Write(Lupri,*) SecNam,': dimension of reduced set at 2 ',
+               Write(Lupri,*) SecNam,': dimension of reduced set at 2 ',&
      &                        ' is larger than that at 3'
                Write(Lupri,*) 'Symmetry: ',iSym,'  ID of 3: ',iRedC
-               Write(Lupri,*) 'Dimension of reduced set 2: ',
+               Write(Lupri,*) 'Dimension of reduced set 2: ',           &
      &                        nnBstR(iSym,2)
-               Write(Lupri,*) 'Dimension of reduced set 3: ',
+               Write(Lupri,*) 'Dimension of reduced set 3: ',           &
      &                        nnBstR(iSym,3)
                Write(Lupri,*) 'Unable to continue...'
                irc = 104
@@ -248,10 +248,10 @@
 
                nVRd  = 0
                mUsed = 0
-               Call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,
+               Call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,           &
      &                        iRedC,mUsed)
                If (nVRd .lt. 1) Then
-                  Call Cho_Quit('Insufficient memory for read in '
+                  Call Cho_Quit('Insufficient memory for read in '      &
      &                          //SecNam,101)
                End If
                nSys = nSys + 1
@@ -275,7 +275,7 @@
                   If (jRed .ne. iRedC) Then
                      Call Cho_X_SetRed(irc,3,jRed)
                      If (irc .ne. 0) Then
-                        Write(Lupri,*)
+                        Write(Lupri,*)                                  &
      &                  SecNam,': Cho_X_SetRed [2] returned ',irc
                         irc = 104
                         Return
@@ -292,7 +292,7 @@
                      jRS3 = iScr(iRS2)
 #if defined (_DEBUGPRINT_)
                      If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
-                        Call Cho_Quit('RS-2-RS map error [2] in '
+                        Call Cho_Quit('RS-2-RS map error [2] in '       &
      &                                //SecNam,104)
                      End If
 #endif
@@ -334,7 +334,7 @@
 
       If (LocDbg) Then
          Write(Lupri,*) 'After updating: '
-         Write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',
+         Write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',                      &
      &                          (nVec_in_Buf(iSym),iSym=1,nSym)
          Write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
       End If

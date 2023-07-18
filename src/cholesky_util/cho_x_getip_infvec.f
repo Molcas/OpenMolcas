@@ -31,7 +31,7 @@
          If (Allocated(InfVec_Bak)) Then
             InfVcT => InfVec_Bak
           Else
-            Call Cho_Quit(
+            Call Cho_Quit(                                              &
      &               'Initialization problem in Cho_X_GetIP_InfVec',103)
          End If
       Else

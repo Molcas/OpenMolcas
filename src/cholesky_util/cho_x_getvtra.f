@@ -51,8 +51,8 @@
 !> @param[out]    ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
 !> @param[in]     DoRead  flag for reading the reduced vectors
 !***********************************************************************
-      subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
+      subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,      &
+     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,          &
      &                         DoRead)
       use Constants, only: Zero
       use Data_Structures, only: DSBA_Type, SBA_Type
@@ -91,7 +91,7 @@
         IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
 
         do while (jVec1 <= iVec2)
-          call CHO_VECRD(RedVec, lRedVec, JVEC1, IVEC2, ISYM, JNUM,
+          call CHO_VECRD(RedVec, lRedVec, JVEC1, IVEC2, ISYM, JNUM,     &
      &                   IREDC, MUSED)
           MXUSD = MAX(MXUSD,MUSED)
 
@@ -101,7 +101,7 @@
           end if
 
           JVREF = JVEC1 - IVEC1 + 1 ! Relative index
-          call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
+          call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,  &
      &                  IREDC,iSwap,nDen,kDen,MOs,ChoT)
           if (irc /= 0) then
             return
@@ -121,7 +121,7 @@
 !                                                                      *
         JNUM = NUMV
         JVREF = 1
-        call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
+        call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,    &
      &               IREDC,iSwap,nDen,kDen,MOs,ChoT)
         if (irc /= 0) then
           return

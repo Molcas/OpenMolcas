@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,
+      SubRoutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,          &
      &                         iSyCho,iSyCO,iSyCV,iLoc)
 !
 !     Thomas Bondo Pedersen, Dec. 2004.
@@ -41,7 +41,7 @@
       iSyScr = MulD2h(iSyCho,iSyCO)
       If (lScr .lt. nT1AOT(iSyScr)) Then
          Write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-         Write(6,*) SecNam,': needed                          = ',
+         Write(6,*) SecNam,': needed                          = ',      &
      &              nT1AOT(iSyScr)
          Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
       Else
@@ -140,8 +140,8 @@
             kOff1 = iAOVir(iSymAl,iSyma) + 1
             kOff2 = iT1AOT(iSymi,iSymAl) + 1
             kOff3 = iT1am(iSyma,iSymi)   + 1
-            Call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),
-     &                 1.0D0,CVir(kOff1),nTotAl,Scr(kOff2),nToti,
+            Call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),   &
+     &                 1.0D0,CVir(kOff1),nTotAl,Scr(kOff2),nToti,       &
      &                 0.0D0,VecMO(kOff3),nTota)
          End If
 

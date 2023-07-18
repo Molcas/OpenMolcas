@@ -42,7 +42,7 @@
       Do iShlAB = 1,nnShl
          Call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.True.)
          If (iAtomShl(iShlA) .eq. iAtomShl(iShlB)) Then
-            iAB1 = iiBstR(1,1)
+            iAB1 = iiBstR(1,1)                                          &
      &           + iiBstRSh(1,iShlAB,1) + 1
             iAB2 = iAB1 + nnBstRSh(1,iShlAB,1) - 1
             Do iAB = iAB1,iAB2
@@ -57,11 +57,11 @@
       End Do
 
       If (iPrint .gt. Inf_SimRI) Then
-         Write(LuPri,'(/,A,I7,A,1P,D10.2,A)')
-     &   'Simulating RI:',n,' 1-center diagonals < ',Thr,
+         Write(LuPri,'(/,A,I7,A,1P,D10.2,A)')                           &
+     &   'Simulating RI:',n,' 1-center diagonals < ',Thr,               &
      &   ' have been zeroed'
          If (n .gt. 0) Then
-            Write(LuPri,'(A,1P,D15.7)')
+            Write(LuPri,'(A,1P,D15.7)')                                 &
      &      'Largest zeroed diagonal: ',zmx
          End If
       End If

@@ -58,9 +58,9 @@
          iV = 0
          Do While (iV .lt. nV)
             nRead = 0
-            Call Cho_PFake_GetVec(Wrk,SIZE(Wrk),
-     &                            IDV(iV+1),nV-iV,
-     &                            InfV(:,iV+1),
+            Call Cho_PFake_GetVec(Wrk,SIZE(Wrk),                        &
+     &                            IDV(iV+1),nV-iV,                      &
+     &                            InfV(:,iV+1),                         &
      &                            iSym,nRead,iRedC)
             If (nRead .lt. 1) Then
                Call Cho_Quit('Insufficient memory in '//SecNam,101)
@@ -86,7 +86,7 @@
       Call mma_deallocate(InfV)
 
       End
-      SubRoutine Cho_PFake_GetVec(Vec,lVec,IDV,lIDV,InfV,iSym,nRead,
+      SubRoutine Cho_PFake_GetVec(Vec,lVec,IDV,lIDV,InfV,iSym,nRead,    &
      &                            iRedC)
       Implicit None
       Integer lVec, lIDV
@@ -106,7 +106,7 @@
       Do iVec = 1,lIDV
          n = 0
          m = 0
-         Call Cho_VecRd(Vec(ipV),Mem,IDV(iVec),IDV(iVec),iSym,
+         Call Cho_VecRd(Vec(ipV),Mem,IDV(iVec),IDV(iVec),iSym,          &
      &                  n,iRedC,m)
          If (n .eq. 1) Then
             nRead = nRead + 1

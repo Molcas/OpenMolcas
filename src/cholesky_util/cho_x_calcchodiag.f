@@ -75,7 +75,7 @@
 
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
             if(irc.ne.0)then
-              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
+              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',   &
      &                         '  rc= ',irc
               rc = irc
               Return
@@ -116,7 +116,7 @@
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
 
-               CALL CHO_VECRD(Lrs,SIZE(Lrs),JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,SIZE(Lrs),JVEC,IVEC2,JSYM,            &
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then

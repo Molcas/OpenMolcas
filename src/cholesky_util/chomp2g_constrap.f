@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      Subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,Type,
+      Subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,Type,                    &
      &                            iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
 
@@ -129,9 +129,9 @@
          iOffp(1) = 0
          iOffap(1) = 0
          Do iSym1 = 2, nSym
-            iOffp(iSym1) = iOffp(iSym1-1) +
+            iOffp(iSym1) = iOffp(iSym1-1) +                             &
      &                      nOrb1(iSym1-1,1)*nOrb1(iSym1-1,2)
-            iOffap(iSym1) = iOffap(iSym1-1) +
+            iOffap(iSym1) = iOffap(iSym1-1) +                           &
      &                      nOrb1(iSym1-1,3)*nOrb1(iSym1-1,4)
          End Do
       End If
@@ -199,9 +199,9 @@
          If(DoX) Then
             iOpt = 2
             lTot = nPQ*NumVec
-            iAdr = nPQ*(iVec-1) + 1 +
+            iAdr = nPQ*(iVec-1) + 1 +                                   &
      &             iAdrLpq
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLpq),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLpq),            &
      &                   lTot,iAdr)
          End If
 
@@ -210,9 +210,9 @@
          If(DoY) Then
             iOpt = 2
             lTot = nIQ*NumVec
-            iAdr = nIQ*(iVec-1) + 1 +
+            iAdr = nIQ*(iVec-1) + 1 +                                   &
      &           iAdrLiq
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLiq),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLiq),            &
      &                   lTot,iAdr)
          End If
 
@@ -221,7 +221,7 @@
             iOpt = 2
             lTot = nIP*NumVec
             iAdr = nIP*(iVec-1) + 1 + iAdrLip
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLip),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLip),            &
      &                   lTot,iAdr)
          End If
 
@@ -229,9 +229,9 @@
 !        ------------------
          If(DoX) Then
             nRow = 1
-            Call dGemm_('T','N',nRow,NumVec,nPQ,
-     &                 1.0d0,Dens(1),nPQ,
-     &                       Scr(kLpq),nPQ,0.0d0,
+            Call dGemm_('T','N',nRow,NumVec,nPQ,                        &
+     &                 1.0d0,Dens(1),nPQ,                               &
+     &                       Scr(kLpq),nPQ,0.0d0,                       &
      &                       Scr(kX+iVec-1),nRow)
          End If
 
@@ -251,9 +251,9 @@
                   If(nQ*nP*nI*nR .eq. 0) Go To 101
                   iOffL = (iVec1-1)*nIQ + iOffL1
                   iOffY = (iVec1-1)*nIP + iOffY1
-                  Call dGemm_('T','N', nP, nI, nQ,1.0d0,
-     &                       Dens(1+iOffP(iSymP)), nQ,
-     &                       Scr(kLiq+iOffL), nQ, 0.0d0,
+                  Call dGemm_('T','N', nP, nI, nQ,1.0d0,                &
+     &                       Dens(1+iOffP(iSymP)), nQ,                  &
+     &                       Scr(kLiq+iOffL), nQ, 0.0d0,                &
      &                       Scr(kY+iOffY), nP)
  101              Continue
                   iOffL1 = iOffL1 + nQ*nI
@@ -283,9 +283,9 @@
                   If(nQ*nP*nI*nR .eq. 0) Go To 102
                   iOffL = (iVec1-1)*nIP + iOffL1
                   iOffZ = (iVec1-1)*nIQ + iOffZ1
-                  Call dGemm_('N','N', nQ, nI, nP,1.0d0,
-     &                       Dens(1+iOffP(iSymQ)), nQ,
-     &                       Scr(kLip+iOffL), nP, 0.0d0,
+                  Call dGemm_('N','N', nQ, nI, nP,1.0d0,                &
+     &                       Dens(1+iOffP(iSymQ)), nQ,                  &
+     &                       Scr(kLip+iOffL), nP, 0.0d0,                &
      &                       Scr(kZ+iOffZ), nQ)
  102              Continue
                   iOffL1 = iOffL1 + nP*nI
@@ -317,9 +317,9 @@
          If(DoX) Then
             iOpt = 2
             lTot = nIR*NumVec
-            iAdr = nIR*(iVec-1) + 1 +
+            iAdr = nIR*(iVec-1) + 1 +                                   &
      &             iAdrLir
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLir),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLir),            &
      &                   lTot,iAdr)
          End If
 
@@ -329,7 +329,7 @@
             iOpt = 2
             lTot = nRP*NumVec
             iAdr = nRP*(iVec-1) + 1 + iAdrLrp
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLrp),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLrp),            &
      &                   lTot,iAdr)
          End If
 
@@ -339,15 +339,15 @@
             iOpt = 2
             lTot = nRQ*NumVec
             iAdr = nRQ*(iVec-1) + 1 + iAdrLrq
-            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLrq),
+            Call dDaFile(lUnit_F(iSym,iTypL),iOpt,Scr(kLrq),            &
      &                   lTot,iAdr)
          End If
 !
          If(DoX) Then
             iCol = 1
-            Call dGemm_('N','N',nIR,iCol,NumVec,
-     &                 4.0d0*factor, Scr(kLir),nIR,
-     &                 Scr(kX+iVec-1),NumVec, 1.0d0,
+            Call dGemm_('N','N',nIR,iCol,NumVec,                        &
+     &                 4.0d0*factor, Scr(kLir),nIR,                     &
+     &                 Scr(kX+iVec-1),NumVec, 1.0d0,                    &
      &                 Ap(1),nIR)
          End If
 !
@@ -377,9 +377,9 @@
                      If(nI*nR*nP*nQ .eq. 0) Go To 201
                      iOffL = (iVec1-1)*nRP + iOffL1
                      iOffY = (iVec1-1)*nIP + iOffY1
-                     Call dGemm_('T','N',nR, nI, nP,-1.0d0*yfactor,
-     &                          Scr(kLrp+iOffL), nP,
-     &                          Scr(kY+iOffY),nP ,1.0d0,
+                     Call dGemm_('T','N',nR, nI, nP,-1.0d0*yfactor,     &
+     &                          Scr(kLrp+iOffL), nP,                    &
+     &                          Scr(kY+iOffY),nP ,1.0d0,                &
      &                          Ap(1+ iOffAP(iSymI)),nR)
  201                 Continue
                      iOffL1 = iOffL1 + nR*nP
@@ -413,9 +413,9 @@
                      If(nI*nR*nQ*nP .eq. 0) Go To 202
                      iOffL = (iVec1-1)*nRQ + iOffL1
                      iOffZ = (iVec1-1)*nIQ + iOffZ1
-                     Call dGemm_('T','N',nR, nI, nQ,-1.0d0*factor,
-     &                          Scr(kLrq+iOffL), nQ,
-     &                          Scr(kZ+iOffZ),nQ ,1.0d0,
+                     Call dGemm_('T','N',nR, nI, nQ,-1.0d0*factor,      &
+     &                          Scr(kLrq+iOffL), nQ,                    &
+     &                          Scr(kZ+iOffZ),nQ ,1.0d0,                &
      &                          Ap(1+ iOffAP(iSymI)),nR)
  202                 Continue
                      iOffL1 = iOffL1 + nR*nQ

@@ -31,41 +31,41 @@
 
       IF (IOPT .EQ. 0) THEN
          LENSEC = LEN(SECTION)
-         WRITE(LUPRI,'(/,A,A,A)')
+         WRITE(LUPRI,'(/,A,A,A)')                                       &
      &   '***** ',SECTION(1:LENSEC),' completed *****'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
+     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
      &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,/)')
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,/)')                          &
+     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
      &   ' seconds'
       ELSE IF (IOPT .EQ. 1) THEN
          LENSEC = LEN(SECTION)
-         WRITE(LUPRI,'(///,A,A,A)')
+         WRITE(LUPRI,'(///,A,A,A)')                                     &
      &   '***** ',SECTION(1:LENSEC),' completed *****'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
+     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
      &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,//)')
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,//)')                         &
+     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
      &   ' seconds'
       ELSE IF (IOPT .EQ. 2) THEN
          LENSEC = MIN(LEN(SECTION),70)
          WRITE(STRING,'(A10,A)') 'Timing of ',SECTION(1:LENSEC)
          LENSEC = LENSEC + 10
          CALL CHO_HEAD(STRING(1:LENSEC),'=',80,LUPRI)
-         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,
+         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')                          &
+     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
      &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
+     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
      &   ' seconds'
       ELSE
-         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,
+         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')                          &
+     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
      &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,
+         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
+     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
      &   ' seconds'
       END IF
 

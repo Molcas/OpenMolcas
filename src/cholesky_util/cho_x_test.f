@@ -70,10 +70,10 @@
 
       Call dCopy_(lX,X,1,Y,1)
       If (Square) Then
-         Call DGEMM_('N','T',n,n,nVec,
+         Call DGEMM_('N','T',n,n,nVec,                                  &
      &              -xf,Vec,n,Vec,n,1.0d0,Y,n)
       Else
-         Call dGeMM_Tri('N','T',n,n,nVec,
+         Call dGeMM_Tri('N','T',n,n,nVec,                               &
      &                  -xf,Vec,n,Vec,n,1.0d0,Y,n)
       End If
 

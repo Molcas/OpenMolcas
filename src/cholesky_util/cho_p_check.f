@@ -29,17 +29,17 @@
       WriteBlank=.True.
 
       If (Cho_Real_Par) Then ! TRUE PARALLEL
-         If (Cho_DecAlg.ne.4 .and. Cho_DecAlg.ne.5 .and.
+         If (Cho_DecAlg.ne.4 .and. Cho_DecAlg.ne.5 .and.                &
      &       Cho_DecAlg.ne.6) Then
             If (WriteBlank) Then
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)')
-     &      'Only possible parallel Cholesky decomposition algorithm ',
+            Write(Lupri,'(A,A)')                                        &
+     &      'Only possible parallel Cholesky decomposition algorithm ', &
      &      'is "PARAllel".'
-            Write(Lupri,'(A,I3,A)')
-     &                     'Resetting Cho_DecAlg from ',Cho_DecAlg,
+            Write(Lupri,'(A,I3,A)')                                     &
+     &                     'Resetting Cho_DecAlg from ',Cho_DecAlg,     &
      &                     ' to 5 (parallel two-step algorithm),'
             Cho_DecAlg = 5
          End If
@@ -48,11 +48,11 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A,A)')
-     &                     'Max. number of shell pair distributions ',
-     &                     'calculated in each pass is 1 for ',
+            Write(Lupri,'(A,A,A)')                                      &
+     &                     'Max. number of shell pair distributions ',  &
+     &                     'calculated in each pass is 1 for ',         &
      &                     'parallel Cholesky.'
-            Write(Lupri,'(A,I6,A)')
+            Write(Lupri,'(A,I6,A)')                                     &
      &                     'Resetting MxShPr from ',MxShPr,' to 1'
             MxShPr = 1
          End If
@@ -62,8 +62,8 @@
                WriteBlank=.False.
             End If
             Write(Lupri,'(A)') 'You have requested integral checking.'
-            Write(Lupri,'(A,A)')
-     &                     'Integral checking is not possible for ',
+            Write(Lupri,'(A,A)')                                        &
+     &                     'Integral checking is not possible for ',    &
      &                     'parallel Cholesky.'
             irc = irc + 1
          End If
@@ -77,12 +77,12 @@
                irc = irc + 1
             End If
             If (RstCho) Then
-               Write(Lupri,'(A)')
+               Write(Lupri,'(A)')                                       &
      &         'You have requested decomposition restart.'
                irc = irc + 1
             End If
-            Write(Lupri,'(A,A)')
-     &                     'Restart is not possible for parallel ',
+            Write(Lupri,'(A,A)')                                        &
+     &                     'Restart is not possible for parallel ',     &
      &                     'Cholesky.'
          End If
          If (Cho_ReOrd) Then
@@ -90,8 +90,8 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)')
-     &                     'Vector reordering is not possible for ',
+            Write(Lupri,'(A,A)')                                        &
+     &                     'Vector reordering is not possible for ',    &
      &                     'parallel Cholesky.'
             irc = irc + 1
          End If
@@ -100,10 +100,10 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)')
-     &                     'Address mode for vector I/O must be word-',
+            Write(Lupri,'(A,A)')                                        &
+     &                     'Address mode for vector I/O must be word-', &
      &                     'addressable for parallel Cholesky.'
-            Write(Lupri,'(A,I4,A)')
+            Write(Lupri,'(A,I4,A)')                                     &
      &      'Resetting Cho_AdrVec from ',Cho_AdrVec,' to 1'
             Cho_AdrVec = 1
          End If
@@ -112,10 +112,10 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)')
-     &      'Seward interface must be directly in reduced ',
+            Write(Lupri,'(A,A)')                                        &
+     &      'Seward interface must be directly in reduced ',            &
      &      'sets for parallel Cholesky.'
-            Write(Lupri,'(A,I4,A)')
+            Write(Lupri,'(A,I4,A)')                                     &
      &      'Resetting IfcSew from ',IfcSew,' to 2'
             IfcSew = 2
          End If
@@ -124,8 +124,8 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)')
-     &                     'Test of subtraction screening is not ',
+            Write(Lupri,'(A,A)')                                        &
+     &                     'Test of subtraction screening is not ',     &
      &                     'possible for parallel Cholesky.'
             Write(Lupri,'(A)') 'Turning Cho_TstScreen off.'
             Cho_TstScreen = .False.
@@ -135,7 +135,7 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)') 'Subtraction screening is not ',
+            Write(Lupri,'(A,A)') 'Subtraction screening is not ',       &
      &                     'possible for parallel Cholesky.'
             irc = irc + 1
          End If
@@ -144,20 +144,20 @@
                Write(Lupri,*)
                WriteBlank=.False.
             End If
-            Write(Lupri,'(A,A)') 'Simulation of RI is not ',
+            Write(Lupri,'(A,A)') 'Simulation of RI is not ',            &
      &                     'possible for parallel Cholesky.'
             irc = irc + 1
          End If
       Else
-         If (CHO_FAKE_PAR .and.
+         If (CHO_FAKE_PAR .and.                                         &
      &       nProcs.gt.1 .and. Is_Real_Par()) Then ! FAKE PARALLEL
             If (Cho_ReOrd) Then
                If (WriteBlank) Then
                   Write(Lupri,*)
                   WriteBlank=.False.
                End If
-               Write(Lupri,'(A,A)')
-     &                        'Vector reordering is not possible for ',
+               Write(Lupri,'(A,A)')                                     &
+     &                        'Vector reordering is not possible for ', &
      &                        'parallel Cholesky.'
                irc = irc + 1
             End If

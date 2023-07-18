@@ -42,14 +42,14 @@
          iSym  = iSym - 1
          iSymi = iSym
          iSyma = MulD2h(iSymi,iSymai)
-         If (nOcc(iSymi).gt.0 .and. nVir(iSyma).gt.0 .and.
+         If (nOcc(iSymi).gt.0 .and. nVir(iSyma).gt.0 .and.              &
      &       ai.gt.iT1Am(iSyma,iSymi)) Then
             iSym = 0 ! Found! -- break loop
          End If
       End Do
 
 #if defined (_DEBUGPRINT_)
-      If (iSymi.lt.1 .or. iSymi.gt.nSym .or.
+      If (iSymi.lt.1 .or. iSymi.gt.nSym .or.                            &
      &    iSyma.lt.1 .or. iSyma.gt.nSym) Then
          Call ChoMP2_Quit(SecNam,'bug detected','[1]')
       End If
@@ -76,7 +76,7 @@
       End Do
 
 #if defined (_DEBUGPRINT_)
-      If (i.lt.1 .or. i.gt.nOcc(iSymi) .or.
+      If (i.lt.1 .or. i.gt.nOcc(iSymi) .or.                             &
      &    a.lt.1 .or. a.gt.nVir(iSyma)) Then
          Call ChoMP2_Quit(SecNam,'bug detected','[3]')
       End If

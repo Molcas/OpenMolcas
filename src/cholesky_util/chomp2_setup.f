@@ -77,7 +77,7 @@
          nFroT = nFroT + nFro(iSym)
          nDelT = nDelT + nDel(iSym)
          If(.false.) Then
-            nBatOrbT = nBatOrbT + nOcc(iSym) + nVir(iSym) + nFro(iSym)
+            nBatOrbT = nBatOrbT + nOcc(iSym) + nVir(iSym) + nFro(iSym)  &
      &                          + nDel(iSym)
          Else
             nBatOrbT = nBatOrbT + nOcc(iSym)
@@ -89,7 +89,7 @@
          Do iSymi = 1,nSym
             iSyma = MulD2h(iSymi,iSym)
             iT1am(iSyma,iSymi) = nT1am(iSym)
-            nT1am(iSym) = nT1am(iSym)
+            nT1am(iSym) = nT1am(iSym)                                   &
      &                  + nVir(iSyma)*nOcc(iSymi)
          End Do
       End Do
@@ -104,19 +104,19 @@
                iSymP = MulD2h(iSymQ,iSym)
                iPQ_prod(iSymP,iSymQ) = nPQ_prod(iSym)
 
-               nPQ_prod(iSym) = nPQ_Prod(iSym) +
-     &                          (nOcc(iSymP)+nVir(iSymP)
-     &                        +  nFro(iSymP)+nDel(iSymP))
-     &                        * (nOcc(iSymQ)+nVir(iSymQ)
+               nPQ_prod(iSym) = nPQ_Prod(iSym) +                        &
+     &                          (nOcc(iSymP)+nVir(iSymP)                &
+     &                        +  nFro(iSymP)+nDel(iSymP))               &
+     &                        * (nOcc(iSymQ)+nVir(iSymQ)                &
      &                        +  nFro(iSymQ)+nDel(iSymQ))
-               nPQ_prodij(iSym) = nPQ_Prodij(iSym) +
-     &                          (nFro(iSymP)+nOcc(iSymP))
+               nPQ_prodij(iSym) = nPQ_Prodij(iSym) +                    &
+     &                          (nFro(iSymP)+nOcc(iSymP))               &
      &                        * (nFro(iSymQ)+nOcc(iSymQ))
-               nPQ_prodia(iSym) = nPQ_Prodia(iSym) +
-     &                          (nFro(iSymP)+nOcc(iSymP))
+               nPQ_prodia(iSym) = nPQ_Prodia(iSym) +                    &
+     &                          (nFro(iSymP)+nOcc(iSymP))               &
      &                        * (nVir(iSymQ)+nDel(iSymQ))
-               nPQ_prodab(iSym) = nPQ_Prodab(iSym) +
-     &                          (nVir(iSymP)+nDel(iSymP))
+               nPQ_prodab(iSym) = nPQ_Prodab(iSym) +                    &
+     &                          (nVir(iSymP)+nDel(iSymP))               &
      &                        * (nVir(iSymQ)+nDel(iSymQ))
             End Do
          End Do
@@ -129,7 +129,7 @@
          Do iSymAl = 1,nSym
             iSymi = MulD2h(iSymAl,iSym)
             iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
-            nT1AOT(iSym) = nT1AOT(iSym)
+            nT1AOT(iSym) = nT1AOT(iSym)                                 &
      &                   + nOcc(iSymi)*nBas(iSymAl)
          End Do
       End Do
@@ -139,7 +139,7 @@
          Do iSyma = 1,nSym
             iSymAl = MulD2h(iSyma,iSym)
             iAOVir(iSymAl,iSyma) = nAOVir(iSym)
-            nAOVir(iSym) = nAOVir(iSym)
+            nAOVir(iSym) = nAOVir(iSym)                                 &
      &                   + nBas(iSymAl)*nVir(iSyma)
          End Do
       End Do
@@ -240,20 +240,20 @@
          Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
          If(.false.) Then
             Call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
-            Call mma_allocate(LiPQprod,nSym,nSym,nBatch,
+            Call mma_allocate(LiPQprod,nSym,nSym,nBatch,                &
      &                        Label='LiPQprod')
          Else
             Call mma_allocate(LnPQprod,   1,     1,Label='LnPQprod')
-            Call mma_allocate(LiPQprod,   1,   1,     1,
+            Call mma_allocate(LiPQprod,   1,   1,     1,                &
      &                        Label='LiPQprod')
          End If
 
-         Call ChoMP2_Setup_Index(iFirst,iFirstS,
-     &                           NumOcc,LnOcc,
-     &                           NumBatOrb,LnBatOrb,
-     &                           LnT1am,LiT1am,
-     &                           LnPQprod,LiPQprod,
-     &                           LnMatij,LiMatij,
+         Call ChoMP2_Setup_Index(iFirst,iFirstS,                        &
+     &                           NumOcc,LnOcc,                          &
+     &                           NumBatOrb,LnBatOrb,                    &
+     &                           LnT1am,LiT1am,                         &
+     &                           LnPQprod,LiPQprod,                     &
+     &                           LnMatij,LiMatij,                       &
      &                           nSym,nBatch)
 
          Call mma_maxDBLE(lWork)
@@ -272,22 +272,22 @@
                   xn=dble(nBlock)
                   xb=dble(bsize)
                   xbp=dble(blast)
-                  lX=max(lX,0.5d0*(xM*(xM+1.0d0)
-     &                            +(xn-1.0d0)*xb*(xb-1.0d0)
+                  lX=max(lX,0.5d0*(xM*(xM+1.0d0)                        &
+     &                            +(xn-1.0d0)*xb*(xb-1.0d0)             &
      &                            +xbp*(xbp-1.0d0)))
                End If
             End Do
             l_X=int(lX)
             If (l_X .lt. 0) Then
-               Write(Lupri,'(A,A)')
+               Write(Lupri,'(A,A)')                                     &
      &         SecNam,': dimension of X matrix is negative!'
                Write(Lupri,'(A,I15)') 'l_X=',l_X
                If (lX .gt. 0.0d0) Then
-                  Write(LuPri,'(A)')
+                  Write(LuPri,'(A)')                                    &
      &            'This seems to be an integer overflow!'
                   Call Cho_RWord2Byte(lX,Byte,Unt)
-                  Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')
-     &            'In double precision, lX=',lX,
+                  Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')            &
+     &            'In double precision, lX=',lX,                        &
      &            ' words (',Byte,Unt,')'
                End If
                irc=1
@@ -302,7 +302,7 @@
 !        The argument LnPQprod is only used for the case where full
 !        Lpq-vectors are transformed for densities. Will be a dummy arg
 !        for regular MP2.
-         Accepted = ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
+         Accepted = ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,   &
      &                                  nSym,nBatch,lAvail)
 
          If (ForceBatch .and. nBatch.eq.1) Then
@@ -337,11 +337,11 @@
 
       End
 !
-      SubRoutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,
-     &                              LnOcc,NumBatOrb,LnBatOrb,
-     &                              LnT1am,LiT1am,
-     &                              LnPQprod,LiPQprod,
-     &                              LnMatij,LiMatij,
+      SubRoutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,              &
+     &                              LnOcc,NumBatOrb,LnBatOrb,           &
+     &                              LnT1am,LiT1am,                      &
+     &                              LnPQprod,LiPQprod,                  &
+     &                              LnMatij,LiMatij,                    &
      &                              mSym,mBatch)
 !
 !     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
@@ -365,11 +365,11 @@
       MulD2h(i,j)=iEor(i-1,j-1)+1
 
       If (mBatch .ne. nBatch) Then
-         Call ChoMP2_Quit('ChoMP2_Setup_Index','mBatch !=  nBatch',
+         Call ChoMP2_Quit('ChoMP2_Setup_Index','mBatch !=  nBatch',     &
      &                    'Error')
       End If
       If (mSym .ne. nSym) Then
-         Call ChoMP2_Quit('ChoMP2_Setup_Index','mSym !=  nSym',
+         Call ChoMP2_Quit('ChoMP2_Setup_Index','mSym !=  nSym',         &
      &                    'Error')
       End If
 
@@ -449,13 +449,13 @@
             Do iSymi = 1,nSym
                iSyma = MulD2h(iSymi,iSym)
                LiT1am(iSyma,iSymi,iBatch) = LnT1am(iSym,iBatch)
-               LnT1am(iSym,iBatch) = LnT1am(iSym,iBatch)
+               LnT1am(iSym,iBatch) = LnT1am(iSym,iBatch)                &
      &                             + nVir(iSyma)*LnOcc(iSymi,iBatch)
                If(.false.) Then
                   LiPQprod(iSyma,iSymi,iBatch) = LnPQprod(iSym,iBatch)
-                  LnPQprod(iSym,iBatch) = LnPQprod(iSym,iBatch)
-     &                                  + (nOcc(iSymA) + nVir(iSymA)
-     &                                  +  nFro(iSymA) + nDel(iSymA))
+                  LnPQprod(iSym,iBatch) = LnPQprod(iSym,iBatch)         &
+     &                                  + (nOcc(iSymA) + nVir(iSymA)    &
+     &                                  +  nFro(iSymA) + nDel(iSymA))   &
      &                                  * (LnBatOrb(iSymI,iBatch))
                End If
             End Do
@@ -470,12 +470,12 @@
                   iSymi = MulD2h(iSymj,iSym)
                   If (iSymi .eq. iSymj) Then
                      LiMatij(iSymi,iSymi,iBatch) = LnMatij(iSym,iBatch)
-                     LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)
+                     LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)        &
      &                   + LnOcc(iSymi,iBatch)*(LnOcc(iSymi,iBatch)+1)/2
                   Else If (iSymi .lt. iSymj) Then
                      LiMatij(iSymi,iSymj,iBatch) = LnMatij(iSym,iBatch)
                      LiMatij(iSymj,iSymi,iBatch) = LnMatij(iSym,iBatch)
-                     LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)
+                     LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)        &
      &                   + LnOcc(iSymi,iBatch)*LnOcc(iSymj,iBatch)
                   End If
                End Do
@@ -484,7 +484,7 @@
       End If
 
       End
-      Logical Function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
+      Logical Function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,&
      &                                     nSym,nBatch,Mem)
 !
 !     Thomas Bondo Pedersen, Nov. 2004.
@@ -537,7 +537,7 @@
             Do iBatch = 1,jBatch
                Call ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
                If(.false.) Then
-                  Call ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,
+                  Call ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,    &
      &                                        iBatch,jBatch)
                End If
                If(.false.) Then
@@ -559,10 +559,10 @@
                      End If
                   Else
                      If(.false.) Then
-                        xDim = dble(LnPQprod(iSym,iBatch))
+                        xDim = dble(LnPQprod(iSym,iBatch))              &
      &                       + dble(LnPQprod(iSym,iBatch))
                      Else
-                        xDim = dble(LnT1am(iSym,iBatch))
+                        xDim = dble(LnT1am(iSym,iBatch))                &
      &                       + dble(LnT1am(iSym,jBatch))
                      End If
                   End If
@@ -607,33 +607,33 @@
 !     The values but not the names 'occupied' are updated to work
 !     also for batching over all orbitals
       If (nBatch .gt. 1) Then
-         Write(6,'(A,I6,A,I6,A)')
-     &   'The list of',nBatOrbT,' occupied orbitals has been split in',
+         Write(6,'(A,I6,A,I6,A)')                                       &
+     &   'The list of',nBatOrbT,' occupied orbitals has been split in', &
      &   nBatch,' batches:'
       Else If (nBatch .eq. 1) Then
-         Write(6,'(A,I6,A)')
+         Write(6,'(A,I6,A)')                                            &
      &   'The list of',nBatOrbT,' occupied orbitals is not split:'
       Else
-         Write(6,*) 'Oops, #batches over occupied orbitals ',
+         Write(6,*) 'Oops, #batches over occupied orbitals ',           &
      &              'is non-positive: ',nBatch
          irc = -101
          Return
       End If
 
-      Write(6,'(/,3X,A)')
+      Write(6,'(/,3X,A)')                                               &
      & ' Batch  First   Last #Occ/irrep'
       If (nSym .eq. 1) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------'
       Else If (nSym .eq. 2) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-----------------------------------'
       Else If (nSym .eq. 4) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------------------------'
       Else If (nSym .eq. 8) Then
-         Write(6,'(3X,A,A)')
-     &   '------------------------------------------------------------',
+         Write(6,'(3X,A,A)')                                            &
+     &   '------------------------------------------------------------',&
      &   '-----------------'
       Else
          Write(6,*) 'Oops, #irreps is out of bounds: ',nSym
@@ -642,13 +642,13 @@
       End If
       Do iBatch = 1,nBatch
          If(.false.) Then
-            Write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))')
-     &           iBatch,iFirst(iBatch),
-     &           iFirst(iBatch)+NumBatOrb(iBatch)-1,
+            Write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))')                     &
+     &           iBatch,iFirst(iBatch),                                 &
+     &           iFirst(iBatch)+NumBatOrb(iBatch)-1,                    &
      &           (LnBatOrb(iSym,iBatch),iSym=1,nSym)
          Else
-            Write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))')
-     &           iBatch,iFirst(iBatch),iFirst(iBatch)+NumOcc(iBatch)-1,
+            Write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))')                     &
+     &           iBatch,iFirst(iBatch),iFirst(iBatch)+NumOcc(iBatch)-1, &
      &           (LnOcc(iSym,iBatch),iSym=1,nSym)
          End If
          Do iSym = 1,nSym
@@ -660,37 +660,37 @@
          End Do
       End Do
       If (nSym .eq. 1) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------'
       Else If (nSym .eq. 2) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-----------------------------------'
       Else If (nSym .eq. 4) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------------------------'
       Else If (nSym .eq. 8) Then
-         Write(6,'(3X,A,A)')
-     &   '------------------------------------------------------------',
+         Write(6,'(3X,A,A)')                                            &
+     &   '------------------------------------------------------------',&
      &   '-----------------'
       End If
       Write(6,'(3X,A,14X,8(1X,I6))') 'Total:',(iCount(iSym),iSym=1,nSym)
       If (nSym .eq. 1) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------'
       Else If (nSym .eq. 2) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-----------------------------------'
       Else If (nSym .eq. 4) Then
-         Write(6,'(3X,A)')
+         Write(6,'(3X,A)')                                              &
      &   '-------------------------------------------------'
       Else If (nSym .eq. 8) Then
-         Write(6,'(3X,A,A)')
-     &   '------------------------------------------------------------',
+         Write(6,'(3X,A,A)')                                            &
+     &   '------------------------------------------------------------',&
      &   '-----------------'
       End If
       Do iSym = 1,nSym
          If(.false.) Then
-            If (iCount(iSym) .ne. nOcc(iSym)+nVir(iSym)
+            If (iCount(iSym) .ne. nOcc(iSym)+nVir(iSym)                 &
      &                          + nFro(iSym)+nDel(iSym)) Then
                Write(6,*) 'Oops, #Occ/irrep is incorrect....'
                irc = -103
@@ -705,42 +705,42 @@
          End If
       End Do
       If (nBatch.gt.1 .and. ForceBatch) Then
-         Write(6,'(/,A)')
+         Write(6,'(/,A)')                                               &
      &   'Notice: batching has been requested by user.'
       End If
 
-      Write(6,'(//,A)')
+      Write(6,'(//,A)')                                                 &
      & 'The following tasks will be performed:'
-      Write(6,'(A)')
+      Write(6,'(A)')                                                    &
      & ' * AO-to-MO transformation of original Cholesky vectors.'
       If (DecoMP2) Then
-         Write(6,'(A)')
+         Write(6,'(A)')                                                 &
      &   ' * Cholesky decomposition of (ai|bj) integrals.'
       End If
       If (nBatch .gt. 1) Then
          If (DecoMP2) Then
-            Write(6,'(A)')
+            Write(6,'(A)')                                              &
      &      ' * Presort of Cholesky vectors from (ai|bj) decomposition.'
          Else
             Write(6,'(A)') ' * Presort of MO Cholesky vectors.'
          End If
       End If
       If (Laplace.and.SOS_MP2) Then
-         Write(6,'(A)')
+         Write(6,'(A)')                                                 &
      &   ' * Calculation of Laplace-SOS-MP2 correlation energy.'
          If (Laplace_nGridPoints.eq.0) Then
-            Write(6,'(A)')
+            Write(6,'(A)')                                              &
      &      '   Numerical Laplace integration quadrature: default'
          Else
-            Write(6,'(A,I8)')
-     &      '   Numerical Laplace integration quadrature:',
+            Write(6,'(A,I8)')                                           &
+     &      '   Numerical Laplace integration quadrature:',             &
      &      Laplace_nGridPoints
          End If
       Else
-         Write(6,'(A,A)')
-     &   ' * On-the-fly assembly of (ai|bj) integrals and calculation ',
+         Write(6,'(A,A)')                                               &
+     &   ' * On-the-fly assembly of (ai|bj) integrals and calculation ',&
      &   'of MP2 energy correction.'
-         Write(6,'(A,I3,A)')
+         Write(6,'(A,I3,A)')                                            &
      &   '   [Cholesky algorithm:',ChoAlg,']'
       End If
 

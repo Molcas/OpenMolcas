@@ -48,14 +48,14 @@
       Else If (iOption_MP2CD .eq. 2) Then ! MP2 amp
          Call ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
       Else
-         Write(6,*) SecNam,': WARNING! ',
+         Write(6,*) SecNam,': WARNING! ',                               &
      &              'Unknown option, iOption_MP2CD = ', iOption_MP2CD
          irc = -123456
       End If
 
 
       End
-      SubRoutine ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
+      SubRoutine ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,       &
      &                           ErrStat)
 !
 !     Thomas Bondo Pedersen, Jan. 2005.
@@ -133,7 +133,7 @@
          lU     = lUnit_F(iSym,2)
          NumVec = nMP2Vec(iSym)
          Fac    = 0.0d0
-         Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,
+         Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,         &
      &                          Wrk,lWrk,Fac)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,' [1]'
@@ -145,17 +145,17 @@
 !        ---------------------------------
 
          If (InCore(iSym)) Then
-            Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
-     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,
+            Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),                   &
+     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,               &
      &                 -1.0d0,Col,Nai)
          Else
             lU     = lUnit_F(iSym,1)
             NumVec = NumCho(iSym)
             Fac    = -1.0d0
-            Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,
+            Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,      &
      &                             Wrk,lWrk,Fac)
             If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,
+               Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,   &
      &                    ' [2]'
                irc = 2
                Go To 1
@@ -183,7 +183,7 @@
 
     1 Continue
       End
-      SubRoutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
+      SubRoutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,       &
      &                           ErrStat)
 !
 !     Thomas Bondo Pedersen, Jan. 2008.
@@ -263,17 +263,17 @@
 !        --------------------------------------
 
          If (InCore(iSym)) Then
-            Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
-     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,
+            Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),                   &
+     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,               &
      &                 0.0d0,Col,Nai)
          Else
             lU     = lUnit_F(iSym,1)
             NumVec = NumCho(iSym)
             Fac    = 0.0d0
-            Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,
+            Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,      &
      &                             Wrk,lWrk,Fac)
             If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,
+               Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,   &
      &                    ' [2]'
                irc = 2
                Go To 1
@@ -291,7 +291,7 @@
                   iai0 = iT1am(iSyma,iSymi) + nVir(iSyma)*(i-1)
                   Do a = 1,nVir(iSyma)
                      iai = iai0 + a
-                     DE = EVir(iVir(iSyma)+a) - EOcc(iOcc(iSymi)+i)
+                     DE = EVir(iVir(iSyma)+a) - EOcc(iOcc(iSymi)+i)     &
      &                  + Ebj
                      Col(iai,iCol) = Col(iai,iCol)/DE
                   End Do
@@ -305,7 +305,7 @@
          lU     = lUnit_F(iSym,2)
          NumVec = nMP2Vec(iSym)
          Fac    = -1.0d0
-         Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,
+         Call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,         &
      &                          Wrk,lWrk,Fac)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,' [1]'

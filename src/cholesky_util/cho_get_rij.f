@@ -185,7 +185,7 @@
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,
+         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,                      &
      &                  NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
@@ -205,8 +205,8 @@
 
          CALL CWTIME(TCT1,TWT1)
 
-         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
+         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,                    &
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,           &
      &                         Laq(1),DoRead)
 
                if (irc.ne.0) then
@@ -236,9 +236,9 @@
 ! --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
 ! ---------------------------------------------------------------------
 
-              CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
-     &                           One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,
-     &                                MO%SB(kSym)%A2,nOcc(kSym),
+              CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),&
+     &                           One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,&
+     &                                MO%SB(kSym)%A2,nOcc(kSym),        &
      &                           Zero,pLab,nOcc(kSym)*JNUM)
 
 
@@ -263,8 +263,8 @@
 
                   jpR = iOcs(kSym) + nOcc(kSym)*(lj-1) + 1
 
-                  CALL DGEMV_('N',nOcc(kSym),JNUM,
-     &                       ONE,pLab(:,:,lj),nOcc(kSym),
+                  CALL DGEMV_('N',nOcc(kSym),JNUM,                      &
+     &                       ONE,pLab(:,:,lj),nOcc(kSym),               &
      &                           pLjj,1,ONE,Rij(jpR),1)
 
 
@@ -308,13 +308,13 @@
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)'Timing from ', SECNAM,'           CPU      WALL  '
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '
+         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '  &
      &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'TRANSFORM VECTORS                '
+         Write(6,'(2x,A26,2f10.2)')'TRANSFORM VECTORS                '  &
      &                           //'         ',tmotr(1),tmotr(2)
-         Write(6,'(2x,A26,2f10.2)')'COMPUTE Rij = (ij|jj)            '
+         Write(6,'(2x,A26,2f10.2)')'COMPUTE Rij = (ij|jj)            '  &
      &                           //'         ',tintg(1),tintg(2)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '
+         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
      &                           //'         ',TOTCPU,TOTWALL
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)

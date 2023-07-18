@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_VecBuf_Retrieve(Vec,lVec,jVec1,iVec2,iSym,
+      SubRoutine Cho_VecBuf_Retrieve(Vec,lVec,jVec1,iVec2,iSym,         &
      &                               jNum,iRedC,mUsed)
 !
 !     Thomas Bondo Pedersen, June 2006.
@@ -32,7 +32,7 @@
 !
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
      &                     l_CHVBFI_SYM, nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
@@ -63,7 +63,7 @@
 
       If (l_ChvBuf_Sym(iSym) .lt. 1) Then
          If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returning immediately. ',
+            Write(Lupri,*) SecNam,': returning immediately. ',          &
      &                     'No buffer allocated.'
          End If
          Return
@@ -73,8 +73,8 @@
       End If
       If (jVec1 .gt. nVec_in_Buf(iSym)) Then
          If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returning immediately. ',
-     &                     'jVec1 = ',jVec1,'  >  nVec_in_Buf = ',
+            Write(Lupri,*) SecNam,': returning immediately. ',          &
+     &                     'jVec1 = ',jVec1,'  >  nVec_in_Buf = ',      &
      &                     nVec_in_Buf(iSym),' (sym. ',iSym,')'
          End If
          Return
@@ -139,7 +139,7 @@
                      irc = 0
                      Call Cho_X_SetRed(irc,iLoc,jRed)
                      If (irc .ne. 0) Then
-                        Write(Lupri,*) SecNam,
+                        Write(Lupri,*) SecNam,                          &
      &                                 ': Cho_X_SetRed returned ',irc
                         Call Cho_Quit('Error [2] in '//SecNam,104)
                      End If
@@ -171,31 +171,31 @@
             Do iVec=1,jNum
                jVec=jVec1+iVec-1
                jRed=InfVec(jVec,2,iSym)
-               Call Cho_VecBuf_CompareNormAndSum(nDimRS(iSym,jRed),1,
+               Call Cho_VecBuf_CompareNormAndSum(nDimRS(iSym,jRed),1,   &
      &                                           Vec(kB),jVec,iSym,irc)
                If (irc.ne.0) Then
                   nErr=nErr+1
-                  Write(LuPri,'(A,I9,A,I2,A)')
+                  Write(LuPri,'(A,I9,A,I2,A)')                          &
      &            'Buffer copy failed for vector',jVec,' (sym.',iSym,')'
                End If
                kB=kB+nDimRS(iSym,jRed)
             End Do
             If (nErr.gt.0) Then
                Call Cho_Flush(LuPri)
-               Write(LuPri,'(A,I9,A)')
-     &         'Cho_VecBuf_Retrieve: buffer copy failed for',nErr,
+               Write(LuPri,'(A,I9,A)')                                  &
+     &         'Cho_VecBuf_Retrieve: buffer copy failed for',nErr,      &
      &         ' vectors. Going to check buffer integrity...'
                Call Cho_Flush(LuPri)
                Call Cho_VecBuf_Check()
-               Write(LuPri,'(A,A)')
-     &         'Buffer integrity checked: OK',
+               Write(LuPri,'(A,A)')                                     &
+     &         'Buffer integrity checked: OK',                          &
      &         ' --- error occurs in the copy operation.'
 #if defined (_I8_)
-               Write(LuPri,'(A,A)')
-     &         'This appears to be a 64-bit version of MOLCAS.',
+               Write(LuPri,'(A,A)')                                     &
+     &         'This appears to be a 64-bit version of MOLCAS.',        &
      &         ' Did you link to a 32-bit version of the BLAS library?'
 #endif
-               Call Cho_Quit(
+               Call Cho_Quit(                                           &
      &         'Cho_VecBuf_Retrieve: buffer copy failed',104)
             End If
          End If
@@ -215,7 +215,7 @@
          If (jNum .lt. 1) Then
             Write(Lupri,*) 'No vectors copied!'
          Else
-            Write(Lupri,*) 'Vectors ',jVec1,' to ',jVec1+jNum-1,
+            Write(Lupri,*) 'Vectors ',jVec1,' to ',jVec1+jNum-1,        &
      &                     ' of symmetry ',iSym,' copied from buffer.'
             If (Allocated(nDimRS)) Then
                kOffV = 1
@@ -223,9 +223,9 @@
                   jVec = jVec1 + iVec - 1
                   jRed = InfVec(jVec,2,iSym)
                   jAdr = InfVec(jVec,3,iSym)
-                  xNrm = sqrt(dDot_(nDimRS(iSym,jRed),Vec(kOffV),1,
+                  xNrm = sqrt(dDot_(nDimRS(iSym,jRed),Vec(kOffV),1,     &
      &                                               Vec(kOffV),1))
-                  Write(Lupri,*) 'Vector:',jVec,' disk address: ',jAdr,
+                  Write(Lupri,*) 'Vector:',jVec,' disk address: ',jAdr, &
      &                           ' norm: ',xNrm
                   kOffV = kOffV + nDimRS(iSym,jRed)
                End Do

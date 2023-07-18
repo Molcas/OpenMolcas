@@ -55,7 +55,7 @@
 !> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 !> @param[in]  DoRead  flag for reading reduced vectors from disk
 !***********************************************************************
-      Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+      Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,     &
      &                          iSwap,IREDC,ipChoV,iSkip,DoRead)
       Implicit Real*8 (a-h,o-z)
       REAL*8 RedVec(lRedVec)
@@ -120,7 +120,7 @@
        IVEC2 = JVEC1 + NUMV - 1
 
        Do While (jVec1.le.iVec2)
-        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,
+        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,                 &
      &                   JNUM,IREDC,MUSED)
         MXUSD = MAX(MXUSD,MUSED)
 
@@ -130,7 +130,7 @@
           End If
 
         jVref = JVEC1 - IVEC1 + 1
-        Call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,
+        Call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,  &
      &                 IREDC,iSwap,ipVec,iSkip)
 
         if (irc.ne.0) then
@@ -158,7 +158,7 @@
 
        JNUM=NUMV
 
-       Call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,
+       Call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC, &
      &                iSwap,ipVec,iSkip)
 
         if (irc.ne.0) then

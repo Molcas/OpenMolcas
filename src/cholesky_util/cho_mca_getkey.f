@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,
+      SUBROUTINE CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,     &
      &                          LUPRI)
 !
 !     Purpose: get next keyword and convert it to internal IDKEY.
@@ -42,25 +42,25 @@
       CHARACTER*(LKEY) OBSOL(NOBSOL)
       CHARACTER*(LKEY) ALIAS(NALIAS,2)
 
-      DATA TABLE /'THRC','PRIN','BUFF','THRD','DMP1',
-     &            'DMP2','SPAN','MINQ','MXSH','SCRE',
-     &            'NOSC','QUAL','THRN','WARN','TOON',
-     &            'CHEC','CHKA','RSTD','RSTC','RSTM',
-     &            'MAXQ','CHOM','REDM','CHKS','CHKM',
-     &            'ABSO','NOAB','TRCN','IOVE','REOR',
-     &            'HALT','FRAC','QFRA','MXSU','ADDR',
-     &            'IFCS','ONES','TWOS','NAIV','VBUF',
-     &            'DIAC','TSTS','SSCR','NOSS','SSTH',
-     &            'SSNO','1-CE','NO2-','NOPR','PRES',
-     &            'PRET','PARA','SIMP','SIMR','FAKE',
+      DATA TABLE /'THRC','PRIN','BUFF','THRD','DMP1',                   &
+     &            'DMP2','SPAN','MINQ','MXSH','SCRE',                   &
+     &            'NOSC','QUAL','THRN','WARN','TOON',                   &
+     &            'CHEC','CHKA','RSTD','RSTC','RSTM',                   &
+     &            'MAXQ','CHOM','REDM','CHKS','CHKM',                   &
+     &            'ABSO','NOAB','TRCN','IOVE','REOR',                   &
+     &            'HALT','FRAC','QFRA','MXSU','ADDR',                   &
+     &            'IFCS','ONES','TWOS','NAIV','VBUF',                   &
+     &            'DIAC','TSTS','SSCR','NOSS','SSTH',                   &
+     &            'SSNO','1-CE','NO2-','NOPR','PRES',                   &
+     &            'PRET','PARA','SIMP','SIMR','FAKE',                   &
      &            'TRUE','BLOC','IDLE'/
       DATA EOINP /'ENDC'/
       DATA OBSOL /'XXXX'/
-      DATA ALIAS /'PREC','THSI','THSU','STOP','MEMQ',
-     &            'IOMO','DYNA','1CEN','NO2C','THRP',
-     &            '1CCD','1C-C',
-     &            'THRC','DMP1','DMP2','HALT','QFRA',
-     &            'ADDR','VBUF','1-CE','NO2-','PRET',
+      DATA ALIAS /'PREC','THSI','THSU','STOP','MEMQ',                   &
+     &            'IOMO','DYNA','1CEN','NO2C','THRP',                   &
+     &            '1CCD','1C-C',                                        &
+     &            'THRC','DMP1','DMP2','HALT','QFRA',                   &
+     &            'ADDR','VBUF','1-CE','NO2-','PRET',                   &
      &            '1-CE','1-CE'/
 
 ! Set flags for using obsolete/alias keywords:
@@ -70,7 +70,7 @@
 !     --------------------------------------
 
       IF (NOPTION .NE. NTABLE) THEN
-         WRITE(LUPRI,*) SECNAM,': NOPTION = ',NOPTION,
+         WRITE(LUPRI,*) SECNAM,': NOPTION = ',NOPTION,                  &
      &                          ' NTABLE = ',NTABLE
          IDKEY = -5
          GO TO 2000
@@ -80,7 +80,7 @@
 !     ----------------------
 
       IF (LKEY .GT. LKWORD) THEN
-         WRITE(LUPRI,*) SECNAM,': LKEY = ',LKEY,
+         WRITE(LUPRI,*) SECNAM,': LKEY = ',LKEY,                        &
      &                          ' LKWORD = ',LKWORD
          IDKEY = -5
          GO TO 2000
@@ -119,7 +119,7 @@
       IF (USE_OBS) THEN
          IOBSOL = CHO_TABIND(OBSOL,LKEY,NOBSOL,' ',0,0,KWORD(1:LKEY))
          IF (IOBSOL.GT.0 .AND. IOBSOL.LE.NOBSOL) THEN
-            WRITE(LUPRI,*) '*** NOTICE: Cholesky keyword "',
+            WRITE(LUPRI,*) '*** NOTICE: Cholesky keyword "',            &
      &      KWORD(1:LKEY),'" is obsolete and will be disregarded.'
             GO TO 1
          END IF
@@ -130,7 +130,7 @@
 
       IALIAS = 0
       IF (USE_ALI) THEN
-         IALIAS = CHO_TABIND(ALIAS(1,1),LKEY,NALIAS,' ',0,0,
+         IALIAS = CHO_TABIND(ALIAS(1,1),LKEY,NALIAS,' ',0,0,            &
      &                       KWORD(1:LKEY))
          IF (IALIAS.GT.0 .AND. IALIAS.LE.NALIAS) THEN
             KWORD(1:LKEY) = ALIAS(IALIAS,2)
@@ -142,17 +142,17 @@
 !     Table lookup.
 !     -------------
 
-      IDKEY = CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LKEY,NEOINP,
+      IDKEY = CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LKEY,NEOINP,           &
      &                   KWORD(1:LKEY))
       IF (IDKEY .EQ. -1) THEN
          WRITE(LUPRI,*) SECNAM,': keyword not recognized:'
          IF (IALIAS .GT. 0) THEN
-            WRITE(LUPRI,*) 'Internal  key: ',KWORD(1:LAST),
+            WRITE(LUPRI,*) 'Internal  key: ',KWORD(1:LAST),             &
      &                     ' (significant part: ',KWORD(1:LKEY),')'
-            WRITE(LUPRI,*) 'Aliasing used: ',ALIAS(IALIAS,1),
+            WRITE(LUPRI,*) 'Aliasing used: ',ALIAS(IALIAS,1),           &
      &                     ' <-> ',ALIAS(IALIAS,2)
          ELSE
-            WRITE(LUPRI,*) 'Internal  key: ',KWORD(1:LAST),
+            WRITE(LUPRI,*) 'Internal  key: ',KWORD(1:LAST),             &
      &                     ' (significant part: ',KWORD(1:LKEY),')'
          END IF
          WRITE(LUPRI,*)
@@ -160,7 +160,7 @@
             WRITE(LUPRI,*) 'Available keywords and short explanations:'
             DO IOPTION = 1,NOPTION
                IF (TABLE(IOPTION) .NE. 'XXXX') THEN
-                  WRITE(LUPRI,*) TABLE(IOPTION),': ',
+                  WRITE(LUPRI,*) TABLE(IOPTION),': ',                   &
      &                           OPTION(IOPTION)
                END IF
             END DO

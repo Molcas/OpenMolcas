@@ -47,7 +47,7 @@
 !     --------------------
 
       If (iOpt .eq. 1) Then
-         If ((nT1am(iSym).gt.0) .or.
+         If ((nT1am(iSym).gt.0) .or.                                    &
      &       (DoDens .and. (nPQ_prod(iSym).gt.0))) Then
             If (lUnit_F(iSym,iTyp) .lt. 1) Then
                Call ChoMP2_GetBaseNm(BaseNm,iTyp)

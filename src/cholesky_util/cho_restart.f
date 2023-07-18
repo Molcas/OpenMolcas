@@ -47,7 +47,7 @@
       END IF
 
       IF (IPRINT .GE. INF_PASS) THEN
-         WRITE(LUPRI,'(/,A,I10,/)')
+         WRITE(LUPRI,'(/,A,I10,/)')                                     &
      &   'Number of diagonal elements (1st reduced set): ',NNBSTRT(1)
       END IF
 
@@ -76,11 +76,11 @@
          NVEC = NUMCHO(ISYM)
 
          IF (IPRINT .GE. INF_PASS) THEN
-            WRITE(LUPRI,'(//,A,I2)')
+            WRITE(LUPRI,'(//,A,I2)')                                    &
      &      'Check information, symmetry',ISYM
-            WRITE(LUPRI,'(/,A,6X,I12)')
+            WRITE(LUPRI,'(/,A,6X,I12)')                                 &
      &      'Dimension, 1st reduced set: ',NDIM
-            WRITE(LUPRI,'(A,6X,I12)')
+            WRITE(LUPRI,'(A,6X,I12)')                                   &
      &      'Number of Cholesky vectors: ',NVEC
          END IF
 
@@ -135,11 +135,11 @@
                SCDIAG_SAVE = SCDIAG
                SCDIAG = .FALSE. ! do NOT screen (no zeroing of diags)
                DMX = 1.0d0
-               CALL CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NSCR,XMAX,
+               CALL CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NSCR,XMAX,   &
      &                            XMIN,XAMAX)
                SCDIAG = SCDIAG_SAVE
             ELSE
-               CALL CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XAMAX,NNEGT,NNEG,
+               CALL CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XAMAX,NNEGT,NNEG,    &
      &                         NSCR)
             END IF
 
@@ -164,31 +164,31 @@
 !           ------
 
             IF (IPRINT .GE. INF_PASS) THEN
-               WRITE(LUPRI,'(A,1P,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8)')                              &
      &         'Minimum diagonal          : ',XMIN
-               WRITE(LUPRI,'(A,1P,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8)')                              &
      &         'Maximum diagonal          : ',XMAX
-               WRITE(LUPRI,'(A,1P,D18.8,1X,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8,1X,D18.8)')                     &
      &         'Minimum absolute error    : ',ERRMN,EXAMN
-               WRITE(LUPRI,'(A,1P,D18.8,1X,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8,1X,D18.8)')                     &
      &         'Maximum absolute error    : ',ERRMX,EXAMX
-               WRITE(LUPRI,'(A,1P,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8)')                              &
      &         'Average error             : ',AVEERR
-               WRITE(LUPRI,'(A,1P,D18.8)')
+               WRITE(LUPRI,'(A,1P,D18.8)')                              &
      &         'Root-mean-square error    : ',RMSERR
-               WRITE(LUPRI,'(A,6X,I12)')
+               WRITE(LUPRI,'(A,6X,I12)')                                &
      &         'Converged diagonals       : ',NCONV
-               WRITE(LUPRI,'(A,6X,I12)')
+               WRITE(LUPRI,'(A,6X,I12)')                                &
      &         'Unconverged diagonals     : ',NDIM-NCONV
-               WRITE(LUPRI,'(A,6X,I12)')
+               WRITE(LUPRI,'(A,6X,I12)')                                &
      &         'Zeroed negative diagonals : ',NNEG
                IF (CHO_DECALG .NE. 4) THEN ! NSCR is useless here
                   IF (SCDIAG) THEN
-                     WRITE(LUPRI,'(A,6X,I12)')
+                     WRITE(LUPRI,'(A,6X,I12)')                          &
      &               'Screened diagonals        : ',NSCR
                   ELSE
-                     WRITE(LUPRI,'(A,6X,I12,A)')
-     &               'Screenable diagonals      : ',NSCR,
+                     WRITE(LUPRI,'(A,6X,I12,A)')                        &
+     &               'Screenable diagonals      : ',NSCR,               &
      &               ' (not screened)'
                   END IF
                END IF
@@ -364,7 +364,7 @@
             CALL CHO_QUIT(SECNAM//': CHO_1CENTER on, but NSYM != 1',103)
          END IF
          IF (SIZE(IATOMSHL) .LT. NSHELL) THEN
-            CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
+            CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',&
      &                    103)
          END IF
 #endif
@@ -381,7 +381,7 @@
                   IF (ABS(DIAG(IAB)) .LE. THRCOM) THEN
                      NCONV = NCONV + 1
                   ELSE IF (CHO_SIMRI) THEN
-                     IF (ISIMRI(IAB).EQ.1 .AND.
+                     IF (ISIMRI(IAB).EQ.1 .AND.                         &
      &                   ABS(DIAG(IAB)) .LE. THR_SIMRI) THEN
                         NCONV = NCONV + 1
                      END IF

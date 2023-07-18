@@ -207,8 +207,8 @@
 ! --- V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
 !=============================================================
 
-               CALL DGEMV_('T',nRS,JNUM,
-     &                    TWO,Lab,nRS,
+               CALL DGEMV_('T',nRS,JNUM,                                &
+     &                    TWO,Lab,nRS,                                  &
      &                    Dab,1,ZERO,VJ,1)
 
 
@@ -268,11 +268,11 @@
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)'Timing from ', SECNAM,'            CPU      WALL '
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '
+         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '  &
      &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COMPUTE (ii|ii)                  '
+         Write(6,'(2x,A26,2f10.2)')'COMPUTE (ii|ii)                  '  &
      &                           //'         ',tintg(1),tintg(2)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '
+         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
      &                           //'         ',TOTCPU,TOTWALL
       Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)

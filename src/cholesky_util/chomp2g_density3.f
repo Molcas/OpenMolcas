@@ -37,7 +37,7 @@
 !***********************************************************************
 !                                                                      *
       Interface
-      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
+      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,        &
      &                         nOrbAll,nOccAll,Diagonalize)
 
       use ChoMP2, only: Pointer_2D
@@ -87,9 +87,9 @@
       WAOTriDens(:)=Zero
 !
 
-      Call Build_Mp2Dens( AOTriDens,lTriDens, MP2D_e,CMO,nSym,
+      Call Build_Mp2Dens( AOTriDens,lTriDens, MP2D_e,CMO,nSym,          &
      &                   nOrbAll, nOccAll,.True.)
-      Call Build_Mp2Dens(WAOTriDens,lTriDens, MP2W_e,CMO,nSym,
+      Call Build_Mp2Dens(WAOTriDens,lTriDens, MP2W_e,CMO,nSym,          &
      &                   nOrbAll, nOccAll,.False.)
 
       Call Put_dArray('D1aoVar',AOTriDens,lTriDens)

@@ -99,14 +99,14 @@
       Call CD_Tester_CPPF(PDM,Mat,n)
       Call CD_Tester_Diag(PDM,Diag,n)
       jrc = 0
-      Call ChoDec(CD_Tester_Col,CD_Tester_Vec,
-     &            Restart,Thr,Span,MxQual,
-     &            Diag,Qual,Buf,Pivot,iQual,
+      Call ChoDec(CD_Tester_Col,CD_Tester_Vec,                          &
+     &            Restart,Thr,Span,MxQual,                              &
+     &            Diag,Qual,Buf,Pivot,iQual,                            &
      &            n,l_Buf,ES,NumCho,jrc)
       If (jrc .eq. 0) Then
-         Call DGEMM_('N','T',n,n,NumCho,
-     &              -1.0d0,Vec,n,
-     &                     Vec,n,
+         Call DGEMM_('N','T',n,n,NumCho,                                &
+     &              -1.0d0,Vec,n,                                       &
+     &                     Vec,n,                                       &
      &               1.0d0,Mat,n)
          Call CD_Tester_ES(Mat,n,ES)
          Call CD_Tester_Diff(Mat,n,ES(4))
@@ -150,9 +150,9 @@
       Call CD_InCore(Mat,n,Vec,n,NumCho,Thr,jrc)
       If (jrc .eq. 0) Then
          Call CD_Tester_CPPF(PDM,Mat,n)
-         Call DGEMM_('N','T',n,n,NumCho,
-     &              -1.0d0,Vec,n,
-     &                     Vec,n,
+         Call DGEMM_('N','T',n,n,NumCho,                                &
+     &              -1.0d0,Vec,n,                                       &
+     &                     Vec,n,                                       &
      &               1.0d0,Mat,n)
          Call CD_Tester_ES(Mat,n,ES)
          Call CD_Tester_Diff(Mat,n,ES(4))

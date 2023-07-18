@@ -64,11 +64,11 @@
 
          MMBSTRT  = NNBSTRT(1)
 
-         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,                  &
      &                     Label='IndRed_Hidden')
          IndRed => IndRed_Hidden
 
-         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),                    &
      &                     Label='IndRSh_Hidden')
          IndRSh => IndRSh_Hidden
 
@@ -83,7 +83,7 @@
          NERR = -1
          CALL CHO_RSTD_CHKSP2F(iSP2F,SIZE(iSP2F),NERR)
          IF (NERR .NE. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': ',NERR,' errors detected in ',
+            WRITE(LUPRI,*) SECNAM,': ',NERR,' errors detected in ',     &
      &                     'reduced-to-full shell pair mapping!'
             CALL CHO_QUIT('SP2F error in '//SECNAM,102)
          END IF
@@ -138,10 +138,10 @@
 !        ---------------------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
-         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,                  &
      &                     Label='IndRed_Hidden')
          IndRed => IndRed_Hidden
-         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),                    &
      &                     Label='IndRSh_Hidden')
          IndRSh => IndRSh_Hidden
          CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
@@ -179,8 +179,8 @@
 !     Allocate memory for iscratch array for reading vectors.
 !     -------------------------------------------------------
 
-      DODUMMY = .NOT.(CHO_IOVEC.EQ.1 .OR. CHO_IOVEC.EQ.2 .OR.
-     &                CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4 .OR.
+      DODUMMY = .NOT.(CHO_IOVEC.EQ.1 .OR. CHO_IOVEC.EQ.2 .OR.           &
+     &                CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4 .OR.           &
      &                (FRAC_CHVBUF.GT.0.0D0 .AND. FRAC_CHVBUF.LT.1.0D0))
       CALL CHO_ALLO_ISCR(DODUMMY)
 

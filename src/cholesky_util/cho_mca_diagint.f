@@ -28,7 +28,7 @@
       CALL CHO_PRESCR(CUTINT1,THRINT1)
 #endif
 
-      CALL EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,
+      CALL EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,                  &
      &               Integral_WrOut_Cho_diag)
 
 #if defined (_DEBUGPRINT_)
@@ -38,7 +38,7 @@
          WRITE(LUPRI,*) SECNAM,': CutInt after  Eval_Ints_: ',CUTINT2
          WRITE(LUPRI,*) SECNAM,': ThrInt before Eval_Ints_: ',THRINT1
          WRITE(LUPRI,*) SECNAM,': ThrInt after  Eval_Ints_: ',THRINT2
-         CALL CHO_QUIT('Integral prescreening error detected in '
+         CALL CHO_QUIT('Integral prescreening error detected in '       &
      &                 //SECNAM,102)
       END IF
 #endif

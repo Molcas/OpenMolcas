@@ -62,8 +62,8 @@
 
       IF (IPRINT .GE. INF_IN2) THEN
          NCOLAB = CHO_ISUMELM(NAB,NSYM)
-         WRITE(LUPRI,'(/,A,I5,1X,I5,A,I9,A)')
-     &   'Calculating shell pair (**|',ISHLA,ISHLB,
+         WRITE(LUPRI,'(/,A,I5,1X,I5,A,I9,A)')                           &
+     &   'Calculating shell pair (**|',ISHLA,ISHLB,                     &
      &   '):',NCOLAB,' columns have been qualified'
          WRITE(LUPRI,'(80A)') ('=',i=1,77)
       END IF
@@ -83,11 +83,11 @@
 !        -----------------------------------------------
 
          ISYM   = 1
-         DOINTS = (NAB(ISYM).GT.0) .AND.
+         DOINTS = (NAB(ISYM).GT.0) .AND.                                &
      &            (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
          DO WHILE ((ISYM.LT.NSYM) .AND. (.NOT.DOINTS))
             ISYM   = ISYM + 1
-            DOINTS = (NAB(ISYM).GT.0) .AND.
+            DOINTS = (NAB(ISYM).GT.0) .AND.                             &
      &               (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
          END DO
 
@@ -97,8 +97,8 @@
 !           --------------
 
             IF (IPRINT .GE. INFINT) THEN
-                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
-     &          'Invoking Seward for shell quadruple (',ISHLC,ISHLD,
+                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')                &
+     &          'Invoking Seward for shell quadruple (',ISHLC,ISHLD,    &
      &          '|',ISHLA,ISHLB,')'
             END IF
 
@@ -117,8 +117,8 @@
 !           --------------------
 
             CALL CHO_TIMER(C1,W1)
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,
-     &                         XINT,LINT,
+            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,                           &
+     &                         XINT,LINT,                               &
      &                         LOCDBG.OR.(IPRINT.GE.100))
             CALL CHO_TIMER(C2,W2)
             TINTEG(1,1) = TINTEG(1,1) + C2 - C1
@@ -135,8 +135,8 @@
 !           --------------
 
             IF (IPRINT .GE. INFINT) THEN
-                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')
-     &          'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,
+                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')                &
+     &          'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,    &
      &          '|',ISHLA,ISHLB,')'
             END IF
 
@@ -149,7 +149,7 @@
 
       IF (IPRINT .GE. INFIN2) THEN
          PCT = 1.0D2*XSKIP/XXSHL
-         WRITE(LUPRI,'(A,F7.2,A)')
+         WRITE(LUPRI,'(A,F7.2,A)')                                      &
      &   'Skipped',PCT,'% of rows (shell pairs) in this distribution'
          CALL CHO_FLUSH(LUPRI)
       END IF

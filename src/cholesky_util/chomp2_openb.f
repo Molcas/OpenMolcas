@@ -53,7 +53,7 @@
             Else If (iBatch .lt. 1000) Then
                Write(BtchNm,'(A2,I1,I3)')    BaseNm,iSym,iBatch
             Else ! note: due to restriction in filename length...
-               Call ChoMP2_Quit(SecNam,'Too many batches',
+               Call ChoMP2_Quit(SecNam,'Too many batches',              &
      &                          '(Current max. is 999)')
                BtchNm = '?!?!?!' ! too avoid compiler warnings...
             End If

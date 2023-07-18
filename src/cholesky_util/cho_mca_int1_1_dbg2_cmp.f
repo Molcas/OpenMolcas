@@ -8,9 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_INT1_1_DBG2_CMP(XINT1,XINT2,NI,NJ,
-     &                                   ERRMIN,IMN,JMN,
-     &                                   ERRMAX,IMX,JMX,
+      SUBROUTINE CHO_MCA_INT1_1_DBG2_CMP(XINT1,XINT2,NI,NJ,             &
+     &                                   ERRMIN,IMN,JMN,                &
+     &                                   ERRMAX,IMX,JMX,                &
      &                                   ITST,IERR,THR,PRTERR,LUPRI)
       Implicit Real*8 (a-h,o-z)
       REAL*8 XINT1(NI,NJ), XINT2(NJ,NI)

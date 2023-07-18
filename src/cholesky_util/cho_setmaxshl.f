@@ -36,7 +36,7 @@
       IF (IRED .EQ. 1) THEN
          DO ISYMAB = 1,NSYM
             DO ISHLAB = 1,NNSHL
-               IAB1 = IIBSTR(ISYMAB,IRED)
+               IAB1 = IIBSTR(ISYMAB,IRED)                               &
      &              + IIBSTRSH(ISYMAB,ISHLAB,IRED) + 1
                IAB2 = IAB1 + NNBSTRSH(ISYMAB,ISHLAB,IRED) - 1
                DO IAB = IAB1,IAB2
@@ -48,7 +48,7 @@
       ELSE IF ((IRED.EQ.2) .OR. (IRED.EQ.3)) THEN
          DO ISYMAB = 1,NSYM
             DO ISHLAB = 1,NNSHL
-               JAB1 = IIBSTR(ISYMAB,IRED)
+               JAB1 = IIBSTR(ISYMAB,IRED)                               &
      &              + IIBSTRSH(ISYMAB,ISHLAB,IRED) + 1
                JAB2 = JAB1 + NNBSTRSH(ISYMAB,ISHLAB,IRED) - 1
                DO JAB = JAB1,JAB2

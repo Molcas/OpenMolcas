@@ -37,7 +37,7 @@
 !        Global.
 !        -------
 
-         Call Cho_P_SetAddr_2(InfRed_G,InfVec_G,
+         Call Cho_P_SetAddr_2(InfRed_G,InfVec_G,                        &
      &                        MaxRed,MaxVec,SIZE(InfVec,2),nSym,irc)
          If (irc .ne. 0) Then
             Write(Lupri,*) SecNam,': Cho_P_SetAddr_2 returned ',irc
@@ -49,14 +49,14 @@
 !     Local.
 !     ------
 
-      Call Cho_SetAddr(InfRed,InfVec,
+      Call Cho_SetAddr(InfRed,InfVec,                                   &
      &                 MaxRed,MaxVec,SIZE(InfVec,2),nSym)
 
       End
 !***********************************************************************
 !***********************************************************************
 !***********************************************************************
-      SubRoutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,
+      SubRoutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,   &
      &                           irc)
       Implicit None
       Integer MaxRed, MaxVec, N2, nSym, irc

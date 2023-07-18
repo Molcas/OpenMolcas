@@ -29,7 +29,7 @@
 
 #if defined (_DEBUGPRINT_)
       If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
-         Write(LuPri,'(A)')
+         Write(LuPri,'(A)')                                             &
      &   'Cho_TrcIdl_Report should not be called in this run!'
          Write(LuPri,*) 'Trace_Idle=',Trace_Idle
          Call Cho_Quit('Illegal call to Cho_TrcIdl_Report',103)
@@ -41,10 +41,10 @@
          l_Idle=0
          If (Allocated(Idle)) l_Idle = SIZE(Idle)
          If (l_Idle.lt.nProcs) Then
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      'Error detected in Cho_TrcIdl_Report: l_Idle < nProcs'
             Write(LuPri,*) 'Trace_Idle=',Trace_Idle
-            Call Cho_Quit(
+            Call Cho_Quit(                                              &
      &               'Cho_TrcIdle_Report: l_Idle not properly set!',103)
          End If
 #endif
@@ -56,17 +56,17 @@
             nIdle=nIdle+min(TIloc(i),1)
          End Do
          If (nIdle.eq.0) Then
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      'No idle procs to report'
          Else
-            Write(LuPri,'(I4,A,I4,A,F7.2,A)')
-     &      nIdle,' of',nProcs,' procs have been idle (',
+            Write(LuPri,'(I4,A,I4,A,F7.2,A)')                           &
+     &      nIdle,' of',nProcs,' procs have been idle (',               &
      &      1.0d2*dble(nIdle)/dble(nProcs),' %)'
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      'List of idle procs:'
             Do i=0,nProcs-1
                If (TIloc(i).gt.0) Then
-                  Write(LuPri,'(I4,A,I8,A)')
+                  Write(LuPri,'(I4,A,I8,A)')                            &
      &            i,' (Idle counter:',TIloc(i),')'
                End If
             End Do
@@ -74,10 +74,10 @@
          Call mma_deallocate(TIloc)
       Else
          If (Idle(1).eq.0) Then
-            Write(LuPri,'(A)')
+            Write(LuPri,'(A)')                                          &
      &      'No idle procs to report!'
          Else
-            Write(LuPri,'(A,I8,A)')
+            Write(LuPri,'(A,I8,A)')                                     &
      &      'Proc 0 has been idle',Idle(1),' times'
          End If
       End If

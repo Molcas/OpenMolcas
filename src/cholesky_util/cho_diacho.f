@@ -61,10 +61,10 @@
 
          NVRD  = 0
          MUSED = 0
-         CALL CHO_VECRD(WRK,LWRK,IVEC1,NUMCHO(ISYM),ISYM,
+         CALL CHO_VECRD(WRK,LWRK,IVEC1,NUMCHO(ISYM),ISYM,               &
      &                  NVRD,IREDC,MUSED)
          IF (NVRD .LT. 1) THEN
-            CALL CHO_QUIT('Insufficient scratch space for read in '
+            CALL CHO_QUIT('Insufficient scratch space for read in '     &
      &                    //SECNAM,101)
          END IF
 
@@ -112,7 +112,7 @@
                SCDIAG_SAVE = SCDIAG
                SCDIAG = .FALSE. ! do NOT screen
                DMX = 1.0D0
-               CALL CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NCONV,XMAX,
+               CALL CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NCONV,XMAX,  &
      &                            XMIN,XM)
                SCDIAG = SCDIAG_SAVE
             ELSE

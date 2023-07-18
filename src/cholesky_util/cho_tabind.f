@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LEOINP,NEOINP,
+      INTEGER FUNCTION CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LEOINP,NEOINP,&
      &                            WORD)
 !
 !     Purpose: table lookup.
@@ -43,7 +43,7 @@
             IF (LEOINP.GT.0 .AND. NEOINP.GT.0) THEN
                LCMP  = MIN(LEOINP,LKEY)
                IJUMP = 1
-               DO WHILE (IJUMP.LE.NEOINP .AND.
+               DO WHILE (IJUMP.LE.NEOINP .AND.                          &
      &                   EOINP(IJUMP)(1:LCMP).NE.WORD(1:LCMP))
                   IJUMP = IJUMP + 1
                END DO

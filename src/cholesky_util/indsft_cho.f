@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine IndSft_Cho(TInt,lInt,
-     &                   iCmp,iShell,iBas,jBas,kBas,lBas,
-     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,
+      SubRoutine IndSft_Cho(TInt,lInt,                                  &
+     &                   iCmp,iShell,iBas,jBas,kBas,lBas,               &
+     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,         &
      &                   iSOSym,nSOs)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
@@ -62,7 +62,7 @@
          Write (6,*) ' Sum=',r1,tr1
          Write (6,*) ' Dot=',r2,tr2
       End If
-      If (jprint.ge.99)
+      If (jprint.ge.99)                                                 &
      &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
       memSO2 = 0
 
@@ -83,11 +83,11 @@
       END IF
       NCDAB = NUMCD*NUMAB
       IF (NCDAB .NE. LINT) THEN
-         WRITE(LUPRI,*)
+         WRITE(LUPRI,*)                                                 &
      &   'IndSft_Cho: dimension of integral array: ',NCDAB
-         WRITE(LUPRI,*)
+         WRITE(LUPRI,*)                                                 &
      &   'IndSft_Cho: expected                   : ',LINT
-         WRITE(LUPRI,*)
+         WRITE(LUPRI,*)                                                 &
      &   'IndSft_Cho: YOU HAVE A DIMENSION PROBLEM!'
       END IF
 
@@ -201,7 +201,7 @@
                 End If
 !
                 memSO2 = memSO2 + 1
-                If ( (nSkip(j1+1)+nSkip(j2+1)+
+                If ( (nSkip(j1+1)+nSkip(j2+1)+                          &
      &                nSkip(j3+1)+nSkip(j4+1) ).ne.0 ) GoTo 310
 !
 !               Compute absolute starting SO index
@@ -224,63 +224,63 @@
                             ISHLK = ISOSHL(KSOK)
                             ISHLL = ISOSHL(LSOL)
 
-                            IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)
+                            IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)       &
      &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
                                C = ISHLSO(ISOI)
                                D = ISHLSO(JSOJ)
                                A = ISHLSO(KSOK)
                                B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)
+                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
      &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
                                C = ISHLSO(JSOJ)
                                D = ISHLSO(ISOI)
                                A = ISHLSO(KSOK)
                                B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)
+                            ELSE IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)  &
      &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
                                C = ISHLSO(ISOI)
                                D = ISHLSO(JSOJ)
                                A = ISHLSO(LSOL)
                                B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)
+                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
      &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
                                C = ISHLSO(JSOJ)
                                D = ISHLSO(ISOI)
                                A = ISHLSO(LSOL)
                                B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)
+                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
      &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
                                C = ISHLSO(KSOK)
                                D = ISHLSO(LSOL)
                                A = ISHLSO(ISOI)
                                B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)
+                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
      &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
                                C = ISHLSO(LSOL)
                                D = ISHLSO(KSOK)
                                A = ISHLSO(ISOI)
                                B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)
+                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
      &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
                                C = ISHLSO(KSOK)
                                D = ISHLSO(LSOL)
                                A = ISHLSO(JSOJ)
                                B = ISHLSO(ISOI)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)
+                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
      &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
                                C = ISHLSO(LSOL)
                                D = ISHLSO(KSOK)
                                A = ISHLSO(JSOJ)
                                B = ISHLSO(ISOI)
                             ELSE
-                               WRITE(LUPRI,*)
-     &                         'Shell quadruple requested: ',
+                               WRITE(LUPRI,*)                           &
+     &                         'Shell quadruple requested: ',           &
      &                         SHC,SHD,SHA,SHB
-                               WRITE(LUPRI,*)
-     &                         'Shell quadruple of element ',NTELM,':',
+                               WRITE(LUPRI,*)                           &
+     &                         'Shell quadruple of element ',NTELM,':', &
      &                         ISHLI,ISHLJ,ISHLK,ISHLL
-                               CALL CHO_QUIT(
-     &                                    'Logical error in IndSft_Cho',
+                               CALL CHO_QUIT(                           &
+     &                                    'Logical error in IndSft_Cho',&
      &                                    103)
                             END IF
 

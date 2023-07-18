@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,
+      SubRoutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,          &
      &                           mSym,mPass,iPass1,NumPass)
 !
 !     Purpose: generate Cholesky vectors from raw integral columns.
@@ -125,33 +125,33 @@
 
          LenLin = 0 ! to avoid compiler warnings
          If (iPrint .ge. INF_PROGRESS) Then
-            Call Cho_Head(SecNam//
-     &                    ': Generation of Vectors from Map','=',
+            Call Cho_Head(SecNam//                                      &
+     &                    ': Generation of Vectors from Map','=',       &
      &                    80,Lupri)
-            Write(Lupri,'(/,A,I5)')
+            Write(Lupri,'(/,A,I5)')                                     &
      &      'Integral pass number',iPass
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      'Current  dim. : ',(nnBstR(iSym,3),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      'Original dim. : ',(nnBstR(iSym,1),iSym=1,nSym)
-            Write(Lupri,'(/,A,/,A,A)')
-     &      '           #Vectors             Treated Diagonal',
-     &      'Sym.     Sym.     Total     Index     Before      After',
+            Write(Lupri,'(/,A,/,A,A)')                                  &
+     &      '           #Vectors             Treated Diagonal',         &
+     &      'Sym.     Sym.     Total     Index     Before      After',  &
      &      '   Conv. Neg.   New Max'
             LenLin = 79
             Write(Lupri,'(80A)') ('-',i=1,LenLin)
             Call Cho_Flush(Lupri)
             Call iCopy(nSym,NumCho,1,NumCho_OLD,1)
          Else If (iPrint .ge. INF_PASS) Then
-            Write(Lupri,'(/,A,I5)')
+            Write(Lupri,'(/,A,I5)')                                     &
      &      'Integral pass number',iPass
-            Write(LUPRI,'(A,8I8)')
+            Write(LUPRI,'(A,8I8)')                                      &
      &      '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-            Write(LUPRI,'(A,8I8)')
+            Write(LUPRI,'(A,8I8)')                                      &
      &      '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
             Call Cho_Flush(Lupri)
             Call iCopy(nSym,NumCho,1,NumCho_OLD,1)
@@ -234,7 +234,7 @@
                   jAB  = InfVec(jVec,1,iSym)
                   kOff2 = iOff1(iSym) + nnBstR(iSym,2)*(jV-1)
                   Fac   = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
-                  Call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,
+                  Call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,         &
      &                                          xInt(kOff2),1)
                End Do
 
@@ -242,7 +242,7 @@
 
                If (iPrint .ge. INF_PROGRESS) Then
                   iVecT = NumChT + iV
-              Write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')
+              Write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')&
      &            iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
                End If
 
@@ -277,12 +277,12 @@
                   End Do
                End Do
                kOff1 = iOff1(iSym)
-               kOff2 = iOff1(iSym)
+               kOff2 = iOff1(iSym)                                      &
      &               + nnBstR(iSym,2)*nVecRS(iSym,iPass)
-               Call DGEMM_('N','T',
-     &                    nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),
-     &                    -1.0d0,xInt(kOff1),nnBstR(iSym,2),
-     &                           VecTmp,nAB,
+               Call DGEMM_('N','T',                                     &
+     &                    nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),        &
+     &                    -1.0d0,xInt(kOff1),nnBstR(iSym,2),            &
+     &                           VecTmp,nAB,                            &
      &                     1.0d0,xInt(kOff2),nnBstR(iSym,2))
             End If
 
@@ -315,9 +315,9 @@
 !           iOff2: pointer to vectors (also in xInt).
 !           ---------------------------------------------
 
-            iOff1(iSym) = iOff1(iSym)
+            iOff1(iSym) = iOff1(iSym)                                   &
      &                  + nnBstR(iSym,2)*nVecRS(iSym,iPass)
-            iOff2(iSym) = iOff2(iSym)
+            iOff2(iSym) = iOff2(iSym)                                   &
      &                  + nnBstR(iSym,3)*nVecRS(iSym,iPass)
 
 !           Cycle point for empty symmetry.
@@ -336,14 +336,14 @@
                NumCho_OLD(iSym) = NumCho(iSym) - NumCho_OLD(iSym)
             End Do
             Write(Lupri,'(80A)') ('-',I=1,LenLin)
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
             Call Cho_Flush(Lupri)
          Else If (iPrint .GE. INF_PASS) Then
             Do iSym = 1,nSym
                NumCho_OLD(iSym) = NumCho(iSym) - NumCho_OLD(iSym)
             End Do
-            Write(Lupri,'(A,8I8)')
+            Write(Lupri,'(A,8I8)')                                      &
      &      '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
             Call Cho_Flush(Lupri)
          End If
@@ -408,7 +408,7 @@
             If (iVec1 .lt. 1) Then
                Call Cho_Quit('Logical error in '//SecNam,103)
             Else
-               Call Cho_PutVec2(xInt(iOff_Col(iSym)+1),NumVec,iVec1,
+               Call Cho_PutVec2(xInt(iOff_Col(iSym)+1),NumVec,iVec1,    &
      &                          iSym)
             End If
          End If

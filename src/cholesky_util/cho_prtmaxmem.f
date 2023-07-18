@@ -22,15 +22,15 @@
 
       l = len(Location)
       If (l .lt. 1) Then
-         Write(Lupri,'(/,A)')
+         Write(Lupri,'(/,A)')                                           &
      &   'Largest memory block available @<UNKNOWN>:'
       Else
-         Write(Lupri,'(/,A,A,A)')
+         Write(Lupri,'(/,A,A,A)')                                       &
      &   'Largest memory block available @',Location(1:l),':'
       End If
       Call mma_maxDBLE(lMax)
       Call Cho_Word2Byte(lMax,8,dlMax,Unt)
-      Write(Lupri,'(3X,I10,A,F10.3,A,A)')
+      Write(Lupri,'(3X,I10,A,F10.3,A,A)')                               &
      & lMax,' 8-byte words; ',dlMax,' ',Unt
 
       End

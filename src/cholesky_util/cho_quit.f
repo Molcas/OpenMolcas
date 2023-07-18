@@ -17,9 +17,9 @@
 #include "cholesky.fh"
       WRITE(LUPRI,'(//,1X,A)') '***'
       IF (IERR.EQ.0 .OR. IERR.EQ.100) THEN
-         WRITE(LUPRI,'(1X,A)')
+         WRITE(LUPRI,'(1X,A)')                                          &
      &   '*** Execution stopped by Cholesky Decomposition Utility'
-         WRITE(LUPRI,'(1X,A,A)')
+         WRITE(LUPRI,'(1X,A,A)')                                        &
      &   '*** Message: ',STRING
       ELSE
          WRITE(LUPRI,'(1X,A)')    '*** Error in Cholesky Core Routine'

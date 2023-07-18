@@ -112,7 +112,7 @@
                      lWrk1  = lWrk   - kEnd1 + 1
 
                      If (lWrk1 .lt. Nai) Then
-                        Call ChoMP2_Quit(SecNam,'Insufficient memory',
+                        Call ChoMP2_Quit(SecNam,'Insufficient memory',  &
      &                                   '[ChoAlg.2.1]')
                      End If
 
@@ -121,7 +121,7 @@
 
                      nVec = min(lWrk1/Nai,nEnrVec(iSym))
                      If (nVec .lt. 1) Then ! should not happen
-                        Call ChoMP2_Quit(SecNam,'Insufficient memory',
+                        Call ChoMP2_Quit(SecNam,'Insufficient memory',  &
      &                                   '[ChoAlg.2.2]')
                      End If
                      nBat = (nEnrVec(iSym)-1)/nVec + 1
@@ -150,7 +150,7 @@
                         Do iSymi = 1,nSym
                            iSyma = MulD2h(iSymi,iSym)
                            iVaJi(iSymi) = nVaJi
-                           nVaJi = nVaJi
+                           nVaJi = nVaJi                                &
      &                          + nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
                         End Do
 
@@ -161,8 +161,8 @@
                         kEnd2 = kVec  + nVaJi
                         lWrk2 = lWrk  - kEnd2 + 1
                         If (lWrk2 .lt. 0) Then ! should not happen
-                           Call ChoMP2_Quit(SecNam,
-     &                                      'Insufficient memory',
+                           Call ChoMP2_Quit(SecNam,                     &
+     &                                      'Insufficient memory',      &
      &                                      '[ChoAlg.2.3]')
                         End If
 
@@ -175,20 +175,20 @@
                            iOpt = 2
                            lTot = nT1am(iSym)
                            iAdr = nT1am(iSym)*(iVec0+iVec-1) + 1
-                           Call ddaFile(lUnit_F(iSym,iTyp),iOpt,
+                           Call ddaFile(lUnit_F(iSym,iTyp),iOpt,        &
      &                                  Wrk(kVecai),lTot,iAdr)
 
                            Do iSymi = 1,nSym
                               iSyma = MulD2h(iSymi,iSym)
                               i0 = iFirstS(iSymi,iBatch) - 1
                               Do i = 1,LnOcc(iSymi,iBatch)
-                                 kOff1 = kVecai
-     &                                 + iT1am(iSyma,iSymi)
+                                 kOff1 = kVecai                         &
+     &                                 + iT1am(iSyma,iSymi)             &
      &                                 + nVir(iSyma)*(i0+i-1)
-                                 kOff2 = kVec + iVaJi(iSymi)
-     &                                 + nVir(iSyma)*NumVec*(i-1)
+                                 kOff2 = kVec + iVaJi(iSymi)            &
+     &                                 + nVir(iSyma)*NumVec*(i-1)       &
      &                                 + nVir(iSyma)*(iVec-1)
-                                 Call dCopy_(nVir(iSyma),Wrk(kOff1),1,
+                                 Call dCopy_(nVir(iSyma),Wrk(kOff1),1,  &
      &                                      Wrk(kOff2),1)
                               End Do
                            End Do
@@ -208,21 +208,21 @@
                               Do j = 1,LnOcc(iSymj,iBatch)
                                  Do i = 1,j
 
-                                    ij = LiMatij(iSymj,iSymj,iBatch)
+                                    ij = LiMatij(iSymj,iSymj,iBatch)    &
      &                                 + iTri(i,j)
 
-                                    kOffi = kVec + iVaJi(iSymj)
+                                    kOffi = kVec + iVaJi(iSymj)         &
      &                                    + nVir(iSymb)*NumVec*(i-1)
-                                    kOffj = kVec + iVaJi(iSymj)
+                                    kOffj = kVec + iVaJi(iSymj)         &
      &                                    + nVir(iSymb)*NumVec*(j-1)
-                                    kOffM = kMabij + LiT2am(1)
-     &                                    + nMatab(1)*(ij-1)
+                                    kOffM = kMabij + LiT2am(1)          &
+     &                                    + nMatab(1)*(ij-1)            &
      &                                    + iMatab(iSymb,iSymb)
 
-                                    Call DGEMM_('N','T',
-     &                                   nVir(iSymb),nVir(iSymb),NumVec,
-     &                                   1.0d0,Wrk(kOffi),nVir(iSymb),
-     &                                         Wrk(kOffj),nVir(iSymb),
+                                    Call DGEMM_('N','T',                &
+     &                                   nVir(iSymb),nVir(iSymb),NumVec,&
+     &                                   1.0d0,Wrk(kOffi),nVir(iSymb),  &
+     &                                         Wrk(kOffj),nVir(iSymb),  &
      &                                   1.0D0,Wrk(kOffM),nVir(iSymb))
 
                                  End Do
@@ -234,30 +234,30 @@
                                  iSymab = MulD2h(iSyma,iSymb)
                                  iSymij = iSymab
 
-                                 If (LnOcc(iSymi,iBatch).gt.0 .and.
+                                 If (LnOcc(iSymi,iBatch).gt.0 .and.     &
      &                               nVir(iSyma).gt.0) Then
 
                                     Do j = 1,LnOcc(iSymj,iBatch)
                                        Do i = 1,LnOcc(iSymi,iBatch)
 
-                                          ij =
-     &                                    LiMatij(iSymi,iSymj,iBatch)
-     &                                    + LnOcc(iSymi,iBatch)*(j-1)
+                                          ij =                          &
+     &                                    LiMatij(iSymi,iSymj,iBatch)   &
+     &                                    + LnOcc(iSymi,iBatch)*(j-1)   &
      &                                    + i
 
-                                          kOffi = kVec + iVaJi(iSymi)
+                                          kOffi = kVec + iVaJi(iSymi)   &
      &                                    + nVir(iSyma)*NumVec*(i-1)
-                                          kOffj = kVec + iVaJi(iSymj)
+                                          kOffj = kVec + iVaJi(iSymj)   &
      &                                    + nVir(iSymb)*NumVec*(j-1)
-                                          kOffM = kMabij
-     &                                    + LiT2am(iSymij)
-     &                                    + nMatab(iSymab)*(ij-1)
+                                          kOffM = kMabij                &
+     &                                    + LiT2am(iSymij)              &
+     &                                    + nMatab(iSymab)*(ij-1)       &
      &                                    + iMatab(iSyma,iSymb)
 
-                                          Call DGEMM_('N','T',
-     &                                   nVir(iSyma),nVir(iSymb),NumVec,
-     &                                    1.0d0,Wrk(kOffi),nVir(iSyma),
-     &                                          Wrk(kOffj),nVir(iSymb),
+                                          Call DGEMM_('N','T',          &
+     &                                   nVir(iSyma),nVir(iSymb),NumVec,&
+     &                                    1.0d0,Wrk(kOffi),nVir(iSyma), &
+     &                                          Wrk(kOffj),nVir(iSymb), &
      &                                    1.0D0,Wrk(kOffM),nVir(iSyma))
 
                                        End Do
@@ -290,7 +290,7 @@
 
                   Nai = LnT1am(iSym,iBatch)
                   Nbj = LnT1am(iSym,jBatch)
-                  If (Nai.gt.0 .and. Nbj.gt.0 .and. nEnrVec(iSym).gt.0)
+                  If (Nai.gt.0 .and. Nbj.gt.0 .and. nEnrVec(iSym).gt.0) &
      &            Then
 
 !                    Allocate memory for reading 1 vector.
@@ -300,7 +300,7 @@
                      kEnd1 = kRead + nT1am(iSym)
                      lWrk1 = lWrk  - kEnd1 + 1
                      If (lWrk1 .lt. 1) Then
-                        Call ChoMP2_Quit(SecNam,'insufficient memory',
+                        Call ChoMP2_Quit(SecNam,'insufficient memory',  &
      &                                   '[0.1]')
                      End If
 
@@ -314,7 +314,7 @@
                      End If
                      NumVec = min(lWrk1/MinMem,nEnrVec(iSym))
                      If (NumVec .lt. 1) Then
-                        Call ChoMP2_Quit(SecNam,'insufficient memory',
+                        Call ChoMP2_Quit(SecNam,'insufficient memory',  &
      &                                   '[1]')
                      End If
                      nBat = (nEnrVec(iSym) - 1)/NumVec + 1
@@ -346,8 +346,8 @@
                         End If
                         lWrk2 = lWrk - kEnd2 + 1
                         If (lWrk2 .lt. 0) Then ! this would be a bug...
-                           Call ChoMP2_Quit(SecNam,
-     &                                      'insufficient memory',
+                           Call ChoMP2_Quit(SecNam,                     &
+     &                                      'insufficient memory',      &
      &                                      '[2]')
                         End If
 
@@ -360,14 +360,14 @@
                            iOpt = 2
                            lTot = nT1am(iSym)
                            iAdr = nT1am(iSym)*(jVec-1) + 1
-                           Call ddaFile(lUnit_F(iSym,iTyp),iOpt,
+                           Call ddaFile(lUnit_F(iSym,iTyp),iOpt,        &
      &                                  Wrk(kRead),lTot,iAdr)
                            kOff = kVai + Nai*(iVec - 1)
-                           Call ChoMP2_Srt(Wrk(kRead),Wrk(kOff),
+                           Call ChoMP2_Srt(Wrk(kRead),Wrk(kOff),        &
      &                                     1,iSym,iBatch)
                            If (jBatch .ne. iBatch) Then
                               kOff = kVbj + Nbj*(iVec - 1)
-                              Call ChoMP2_Srt(Wrk(kRead),Wrk(kOff),
+                              Call ChoMP2_Srt(Wrk(kRead),Wrk(kOff),     &
      &                                        1,iSym,jBatch)
                            End If
 
@@ -379,13 +379,13 @@
                         Fac   = X(min((iBat-1),1))
                         kXint = kXaibj + LiT2am(iSym)
                         If (iBatch .eq. jBatch) Then
-                           Call dGeMM_Tri('N','T',Nai,Nai,NumV,
-     &                                   1.0D0,Wrk(kVai),Nai,
-     &                                         Wrk(kVai),Nai,
+                           Call dGeMM_Tri('N','T',Nai,Nai,NumV,         &
+     &                                   1.0D0,Wrk(kVai),Nai,           &
+     &                                         Wrk(kVai),Nai,           &
      &                                   Fac,Wrk(kXint),Nai)
                         Else
-                           Call DGEMM_('N','T',Nai,Nbj,NumV,
-     &                                1.0D0,Wrk(kVai),Nai,Wrk(kVbj),Nbj,
+                           Call DGEMM_('N','T',Nai,Nbj,NumV,            &
+     &                                1.0D0,Wrk(kVai),Nai,Wrk(kVbj),Nbj,&
      &                                Fac,Wrk(kXint),Nai)
                         End If
 
@@ -405,7 +405,7 @@
 !           Compute contribution to MP2 energy correction.
 !           ----------------------------------------------
 
-            Call ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Wrk(kXaibj),
+            Call ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Wrk(kXaibj),        &
      &                               LnT2am,LiT2am,iBatch,jBatch)
 
          End Do ! jBatch

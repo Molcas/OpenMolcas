@@ -13,7 +13,7 @@
 !     Purpose: initialization of Cholesky decomposition in MOLCAS.
 !
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,  &
      &                  iShP2RS, iShP2Q
       use stdalloc
       Implicit Real*8 (a-h,o-z)
@@ -42,8 +42,8 @@
 
       NNSHL_TOT = NSHELL*(NSHELL + 1)/2
       IF (NNSHL_TOT .LT. 1) THEN
-         WRITE(LUPRI,*)
-     &   'NNSHL_TOT=NSHELL*(NSHELL+1)/2 is non-positive: ',
+         WRITE(LUPRI,*)                                                 &
+     &   'NNSHL_TOT=NSHELL*(NSHELL+1)/2 is non-positive: ',             &
      &   NNSHL_TOT
          WRITE(LUPRI,*) 'Integer overflow ?'
          CALL CHO_QUIT('NNSHL_TOT out of bounds in '//SECNAM,102)
@@ -56,17 +56,17 @@
 
       IF (SKIP_PRESCREEN) THEN
          IF (NNSHL.LT.1 .OR. NNSHL.GT.NNSHL_TOT) THEN
-            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',
+            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',          &
      &                     SKIP_PRESCREEN
             WRITE(LUPRI,*) 'NNSHL is out-of-bounds: ',NNSHL
             WRITE(LUPRI,*) 'Condition: 0 < NNSHL < ',NNSHL_TOT
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
          IF (SIZE(iSP2F) .NE. NNSHL) THEN
-            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',
+            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',          &
      &                     SKIP_PRESCREEN
             WRITE(LUPRI,*) 'NNSHL is: ',NNSHL
-            WRITE(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, ',
+            WRITE(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, ',      &
      &                     'SIZE(iSP2F)= ',SIZE(iSP2F)
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
@@ -123,7 +123,7 @@
 !     MXORSH      : max. shell dimension
 !     -----------------------------------------------------------
 
-      CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,
+      CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,                              &
      &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)
@@ -146,7 +146,7 @@
          MX2SH = MAX(MX2SH,NUMIJ)
       END DO
       IF (MX2SH .LT. 1) THEN
-         WRITE(LUPRI,*) 'Max. shell pair dimension non-positive: ',
+         WRITE(LUPRI,*) 'Max. shell pair dimension non-positive: ',     &
      &                  MX2SH
          CALL CHO_QUIT('Initialization problem in '//SECNAM,102)
       END IF

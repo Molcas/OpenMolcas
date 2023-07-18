@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine PLF_Cho_2(TInt,lInt,
-     &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
+      Subroutine PLF_Cho_2(TInt,lInt,                                   &
+     &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,            &
      &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
@@ -35,7 +35,7 @@
 #include "print.fh"
 !
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
-      Integer iShell(4), iAO(4), kOp(4),
+      Integer iShell(4), iAO(4), kOp(4),                                &
      &        iAOst(4), iSOs(4)
       Logical Shijij
 
@@ -53,7 +53,7 @@
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2
       End If
-      If (jPrint.ge.99) Call RecPrt(' In Plf_Cho_2: AOInt',' ',
+      If (jPrint.ge.99) Call RecPrt(' In Plf_Cho_2: AOInt',' ',         &
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 
       NUMC = NBSTSH(SHC)
@@ -121,63 +121,63 @@
                             ISHLK = ISOSHL(KSOK)
                             ISHLL = ISOSHL(LSOL)
 
-                            IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)
+                            IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)       &
      &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
                                C = ISHLSO(ISOI)
                                D = ISHLSO(JSOJ)
                                A = ISHLSO(KSOK)
                                B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)
+                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
      &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
                                C = ISHLSO(JSOJ)
                                D = ISHLSO(ISOI)
                                A = ISHLSO(KSOK)
                                B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)
+                            ELSE IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)  &
      &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
                                C = ISHLSO(ISOI)
                                D = ISHLSO(JSOJ)
                                A = ISHLSO(LSOL)
                                B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)
+                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
      &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
                                C = ISHLSO(JSOJ)
                                D = ISHLSO(ISOI)
                                A = ISHLSO(LSOL)
                                B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)
+                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
      &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
                                C = ISHLSO(KSOK)
                                D = ISHLSO(LSOL)
                                A = ISHLSO(ISOI)
                                B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)
+                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
      &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
                                C = ISHLSO(LSOL)
                                D = ISHLSO(KSOK)
                                A = ISHLSO(ISOI)
                                B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)
+                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
      &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
                                C = ISHLSO(KSOK)
                                D = ISHLSO(LSOL)
                                A = ISHLSO(JSOJ)
                                B = ISHLSO(ISOI)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)
+                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
      &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
                                C = ISHLSO(LSOL)
                                D = ISHLSO(KSOK)
                                A = ISHLSO(JSOJ)
                                B = ISHLSO(ISOI)
                             ELSE
-                               WRITE(LUPRI,*)
-     &                         'Shell quadruple requested: ',
+                               WRITE(LUPRI,*)                           &
+     &                         'Shell quadruple requested: ',           &
      &                         SHC,SHD,SHA,SHB
-                               WRITE(LUPRI,*)
-     &                         'Shell quadruple of element ',NTELM,':',
+                               WRITE(LUPRI,*)                           &
+     &                         'Shell quadruple of element ',NTELM,':', &
      &                         ISHLI,ISHLJ,ISHLK,ISHLL
-                               CALL CHO_QUIT(
-     &                                     'Logical error in PLF_Cho_2',
+                               CALL CHO_QUIT(                           &
+     &                                     'Logical error in PLF_Cho_2',&
      &                                     103)
                             END IF
 
@@ -205,7 +205,7 @@
                                   ICD = ISHP2Q(1,CD)
                                   IF (ICD.GT.0 .AND. IAB.GT.0) THEN
                                      ABCD = nnBstR(1,2)*(ICD-1) + IAB
-                                     TINT(ABCD) = AOint(nijkl,
+                                     TINT(ABCD) = AOint(nijkl,          &
      &                                                  i1,i2,i3,i4)
                                   END IF
                                ELSE IF (SHC.EQ.SHB) THEN
@@ -215,7 +215,7 @@
                                   ICD = ISHP2Q(1,CD)
                                   IF (ICD.GT.0 .AND. IAB.GT.0) THEN
                                      ABCD = nnBstR(1,2)*(ICD-1) + IAB
-                                     TINT(ABCD) = AOint(nijkl,
+                                     TINT(ABCD) = AOint(nijkl,          &
      &                                                  i1,i2,i3,i4)
                                   END IF
                                END IF

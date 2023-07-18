@@ -13,7 +13,7 @@
 !
 !     Purpose: Cholesky finalizations.
 !
-      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,       &
      &                   nRow_BkmThr, nCol_BkmThr
       use stdalloc, only: mma_allocate, mma_deallocate
       use ChoIni
@@ -61,7 +61,7 @@
          BkmDim(4)=nRow_BkmThr
          Call Put_iArray('Cholesky BkmDim',BkmDim,SIZE(BkmDim))
          Call mma_deallocate(BkmDim)
-         If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
+         If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.              &
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
             l=nRow_BkmVec*nCol_BkmVec
             Call mma_allocate(iScratch,l,Label='iScratch')

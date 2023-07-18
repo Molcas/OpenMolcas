@@ -55,8 +55,8 @@
          CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
          CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
          NCOLAB = CHO_ISUMELM(NAB,NSYM)
-         WRITE(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)')
-     &   'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,
+         WRITE(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)')                &
+     &   'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,   &
      &   '):',NCOLAB,' columns have been qualified'
          WRITE(LUPRI,'(89A)') ('=',i=1,89)
       END IF
@@ -76,8 +76,8 @@
 !     --------------------
 
       CALL CHO_TIMER(C1,W1)
-      CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,
-     &                   XINT,LINT,
+      CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,                                 &
+     &                   XINT,LINT,                                     &
      &                   LOCDBG.OR.(IPRINT.GE.100))
       CALL CHO_TIMER(C2,W2)
       TINTEG(1,1) = TINTEG(1,1) + C2 - C1

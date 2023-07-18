@@ -17,7 +17,7 @@
 #include "cho_para_info.fh"
 
       If (Cho_Real_Par) Then
-         Call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,
+         Call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,                 &
      &                     Label='iQuAB_L_Hidden')
          iQuAB_L => iQuAB_L_Hidden
          Call mma_allocate(iQL2G,MaxQual,nSym,Label='iQL2G')
