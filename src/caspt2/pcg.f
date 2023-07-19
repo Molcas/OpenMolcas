@@ -44,7 +44,7 @@
       REAL*8 OVLAPS(0:8,0:MXCASE)
       REAL*8 SAV,SAVI,savreg,DSCALE
 
-C Flag to tell wether convergence was obtained
+C Flag to tell whether convergence was obtained
       ICONV = 0
 
 C Lists of coupling coefficients, used for sigma vector

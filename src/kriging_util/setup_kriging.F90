@@ -11,9 +11,16 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
+subroutine Setup_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
 
 use kriging_mod, only: blavAI, nSet, layer_U, set_l
+! This will be in the same module
+!use kriging_procedures, only: set_l_Array
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -26,15 +33,6 @@ real(kind=wp), intent(inout), optional :: Hessian_HMF(nInter,nInter), HDiag(nInt
 integer(kind=iwp) :: i, iInter, ij, jInter
 real(kind=wp) :: Value_l
 real(kind=wp), allocatable :: Array_l(:), dqInt_s(:,:,:), Energy_s(:,:), Hessian(:,:), HTri(:), qInt_s(:,:)
-interface
-  subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian,HDiag)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: nInter
-    real(kind=wp), intent(out) :: Array_l(nInter)
-    real(kind=wp), intent(in) :: BaseLine
-    real(kind=wp), intent(inout), optional :: Hessian(nInter,nInter), HDiag(nInter)
-  end subroutine set_l_Array
-end interface
 
 !                                                                      *
 !***********************************************************************

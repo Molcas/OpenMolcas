@@ -11,6 +11,11 @@
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian,HDiag)
 
 use Constants, only: Three, Five

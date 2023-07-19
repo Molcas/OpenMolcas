@@ -200,8 +200,8 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'ONTOPO          ','ONTOPT          ','OE_OT           ','TEG_OT          ', & ! 149-152
                                 'FI_V            ','FA_V            ','FOCK_PDFT       ','AMFI_SINGLE     ', & ! 153-156
                                 'HAMSOR_SINGLE   ','HAMSOI_SINGLE   ','Last Dipole Mome','Un_cen Effective', & ! 157-160
-                                'Un_cen Coordinat','ANGMR_NSS       ','ANGMI_NSS       ','EDIPR_NSS       ', & ! 161-164
-                                'EDIPI_NSS       ','SPINR_NSS       ','SPINI_NSS       ','Proj_Coord      ', & ! 165-168
+                                'Un_cen Coordinat','                ','                ','                ', & ! 161-164
+                                '                ','                ','                ','Proj_Coord      ', & ! 165-168
                                 'd1activeao      ','Keep_Coord      ','PCMSph          ','PCMTess         ', & ! 169-172
                                 'Vert            ','Centr           ','SSph            ','PCMDM           ', & ! 173-176
                                 'EF_Centers      ','OAM_Center      ','OMQ_Center      ','DMS_Centers     ', & ! 177-180

@@ -25,12 +25,12 @@
 
 The :program:`MCPDFT` program in |openmolcas| performs multiconfiguration pair-density functional theory (MC-PDFT) calculations,
 as described in :cite:`limanni2014,limanni2015`. The MC-PDFT method involves two steps:
-(i) a CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI, or DMRG wave function calculation 
-to obtain the kinetic energy, classical Coulomb energy, total electron density, and on-top pair-density; 
+(i) a CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI, or DMRG wave function calculation
+to obtain the kinetic energy, classical Coulomb energy, total electron density, and on-top pair-density;
 (ii) a post-SCF calculation of the remaining energy using an on-top pair-density functional.
-In the current implementation, the on-top pair-density functionals are translated (t) or fully translated (ft) :cite:`Carlson2015` LSDA-type or GA-type exchange correlation functionals. 
+In the current implementation, the on-top pair-density functionals are translated (t) or fully translated (ft) :cite:`Carlson2015` LSDA-type or GA-type exchange correlation functionals.
 For example: tLSDA, tPBE, tBLYP, trevPBE and tOPBE for translated functionals, and ftLSDA, ftPBE, ftBLYP, ftrevPBE and ftOPBE for fully-translated functionals.
-Hybrid functionals (see keyword :kword:`LAMBda` ) 
+Hybrid functionals (see keyword :kword:`LAMBda`)
 and functionals with scaled exchange and correlation (see keyword :kword:`DFCF`) are also available.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
@@ -114,10 +114,10 @@ The :kword:`KSDFT` is the only required keyword.
   The functional choice follows. Specify the functional by prefixing
   ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`).
   Note that hybrid functional names (e.g. PBE0 or B3LYP) should not be used after ``KSDFT=T:`` or
-  ``KSDFT=FT:`` in this module. 
+  ``KSDFT=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT calculations.
-  Also note that the format of a number :math:`N` followed by :math:`N` lines, 
-  each of them containing a weight factor and a Libxc functional name, 
+  Also note that the format of a number :math:`N` followed by :math:`N` lines,
+  each of them containing a weight factor and a Libxc functional name,
   is not supported in this module. Examples of this keyword::
 
      KSDFT=T:PBE                 * A functional keyword, can be used for MC-PDFT calculations.
@@ -199,12 +199,12 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`LAMBda`
-  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation. 
-  In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy 
-  and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies 
-  (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy 
-  and the wave function energy. The weight of the wave function energy is given by the variable :math:`\lambda` 
-  (which is set by the :kword:`LAMBda` keyword), and the weight of the PDFT energy :math:`(1 - \lambda)`; 
+  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation.
+  In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy
+  and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies
+  (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy
+  and the wave function energy. The weight of the wave function energy is given by the variable :math:`\lambda`
+  (which is set by the :kword:`LAMBda` keyword), and the weight of the PDFT energy :math:`(1 - \lambda)`;
   for example, to run MC-PDFT with tPBE0, the value for :math:`\lambda` should be 0.25. The default is :math:`\lambda` = 0.0.
 
   Example of running tPBE0::
@@ -212,17 +212,19 @@ The :kword:`KSDFT` is the only required keyword.
      KSDFT = T:PBE
      LAMB  = 0.25
 
-  However, the following two examples will NOT give tPBE0 results::
+  .. compound::
 
-     KSDFT = T:PBE0
+    However, the following two examples will NOT give tPBE0 results::
 
-  or::
+       KSDFT = T:PBE0
 
-     KSDFT = T:PBE0
-     LAMB  = 0.25
+    or::
 
-  because hybrid functional names (e.g. PBE0 or B3LYP) should not be used 
-  after ``KSDFT=T:`` in this module.
+       KSDFT = T:PBE0
+       LAMB  = 0.25
+
+    because hybrid functional names (e.g. PBE0 or B3LYP) should not be used
+    after ``KSDFT=T:`` in this module.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMBDA" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
@@ -232,7 +234,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`FILEORB`
-  This keyword allows one to set a reference wave function file to be used instead of the default, 
+  This keyword allows one to set a reference wave function file to be used instead of the default,
   which is the :file: `JOBIPH` file; in particular, one can use an :file: `HDF5` file.
   If a MC-PDFT calculation is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
   Example: ``FileOrb = wavefunction.h5``
@@ -246,9 +248,9 @@ The :kword:`KSDFT` is the only required keyword.
 
 :kword:`NAC`
   This keyword is used to request the computation of nonadiabatic coupling vectors (which are often called NACs).
-  It must  be followed by two integers on the next line, 
-  specifying the states between which the coupling is required. 
-  Note that, unlike :kword:`SALA`, the numbering here is absolute, 
+  It must  be followed by two integers on the next line,
+  specifying the states between which the coupling is required.
+  Note that, unlike :kword:`SALA`, the numbering here is absolute,
   regardless of which roots are included in the state average.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="NAC" APPEAR="Nonadiabatic coupling: root selection" KIND="INTS" SIZE="2" LEVEL="BASIC">
@@ -262,7 +264,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`MECI`
-  The keyword is needed to calculate potentials for analytical gradients when calculating 
+  The keyword is needed to calculate potentials for analytical gradients when calculating
   minimum energy conical intersections (MECIs)
   This calculates the first derivative of the effective Hamiltonian matrix element rather
   than the NAC.

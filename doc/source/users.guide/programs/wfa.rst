@@ -45,6 +45,8 @@ is possible through the charge transfer number analysis :cite:`Plasser2012`,
 which has been integrated into |molcas| recently.
 Postprocessing is possible through the external `TheoDORE <https://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
 
+:program:`WFA` supports full use of spatial symmetry and can analyse transitions between different spin multiplicities.
+
 Installation
 ------------
 
@@ -298,7 +300,7 @@ Advanced keywords for fine grain output options and debug information:
               </KEYWORD>
 
 :kword:`ADDInfo`
-  Add info for verification runs with :command:`molcas verify`.
+  Add info for verification runs with :command:`pymolcas verify`.
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="ADDINFO" APPEAR="Add info" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword:ADDInfo <advanced>
@@ -395,8 +397,9 @@ Output listing                         Explanation
 ``Nr of entangled states (Z_HE)``      :math:`Z_{HE}=2^{S_{H|E}}`
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
+``QTa`` / ``QT2``                      Sum over absolute (:math:`Q^t_a`) or squared (:math:`Q^t_2`) transition charges
+``LOC`` / ``LOCa``                     Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions (LOC) or squareroots of the values (LOCa)
 ``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
-``LOC``                                Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`
 ``|<r_e - r_h>| [Ang]``                Linear e/h distance :math:`\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_{\text{exc}}`

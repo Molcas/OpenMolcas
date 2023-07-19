@@ -19,6 +19,8 @@ module InputData
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
+  use fciqmc_interface, only: DoFCIQMC, NonDiagonal
+  use fortran_strings, only: str
 
   implicit none
   private
@@ -224,6 +226,11 @@ contains
 #ifdef _ENABLE_CHEMPS2_DMRG_
     Logical(kind=iwp) :: dochemps2 = .false.
 #endif
+
+    ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
+    DoFCIQMC = .false.
+    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals
+    NonDiagonal = .false.
 
     rewind (LuIn)
     call RdNLst(LuIn,'CASPT2')
@@ -622,6 +629,10 @@ contains
         Input%doCumulant = .true.
         dochemps2 = .true.
 #endif
+      case ('FCIQ')
+        DoFciQMC = .true.
+      case ('NDIA')
+        NonDiagonal = .true.
 
       case ('EFFE')
         Input%JMS = .true.
@@ -729,6 +740,13 @@ contains
       call Quit_OnUserError()
     endif
 #endif
+
+    if ((DoFCIQMC .eqv. .true.) .and. (nStates > 1)) then
+      write (u6,*) 'FCIQMC supports only state-specific CASPT2.'
+      write (u6,*) 'You requested ' // str(nStates) // ' states.'
+      write (u6,*) 'Consult the manual for the keyword "Multistate".'
+      call Quit_OnUserError()
+    endif
 
     call mma_deallocate(Line)
 

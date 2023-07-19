@@ -237,10 +237,10 @@ C DIAGONALIZE THE SCALED S MATRIX:
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
       ! fingerprint eigenvalues
-      IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS,WORK(LEIG),1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ', FP
-      END IF
+      if (iprglb >= insane) then
+        fp = dnrm2_(nas,work(leig),1)
+        write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
+      end if
 
 C Form orthonormal vectors by scaling eigenvectors
       NIN=0
@@ -264,6 +264,7 @@ C Addition, for the scaled symmetric ON.
         SCA=WORK(LSCA-1+I)
         CALL DSCAL_(NIN,SCA,WORK(LVEC-1+I),NAS)
       END DO
+
       CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN

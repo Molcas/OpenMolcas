@@ -596,9 +596,9 @@ Keywords
                  0.01
                 DoMP2
 
-              The keyword FNOC has one compulsory argument: a real number in [-1,1] that if in [-1,0[ is to be interpreted as 
+              The keyword FNOC has one compulsory argument: a real number in [-1,1] that if in [-1,0[ is to be interpreted as
               an estimate of the percentage of correlation energy that we are willing to trade for the resulting speedup.
-              If the keyword RegfNO is included, the value specified (a real number) is used to regularize the calculation of the 
+              If the keyword RegfNO is included, the value specified (a real number) is used to regularize the calculation of the
               density matrix for the selection of the NOs, particularly useful for wavefunction models based on multiple active spaces.
               The keyword DoMP2 is also optional and used to compute the (estimated) correction for the truncation error.
               </HELP>
@@ -980,6 +980,39 @@ Keywords
               %%Keyword: PRSD <advanced>
               <HELP>
               Activate printing of CSFs in terms of determinants.
+              </HELP>
+              </KEYWORD>
+
+:kword:`FCIQmc`
+  Perform a FCIQMC-CASPT2 calculation with the |molcas|--M7 interface.
+  The keyword :kword:`MCM7` and :kword:`NDPT` should be used in
+  :program:`RASSCF`, the latter being optional if the calculation should be
+  performed in pseudo-canonical orbitals.
+  The program will skip the calculations of the :math:`n`-particle reduced
+  density matrix and prompt the user for interaction.
+  Multi-state calculations are currently not supported.
+  Always specify ``MULTi = 1 iroot``, where ``iroot`` is the root index.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FCIQMC" APPEAR="FCIQMC-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: FCIQmc <basic>
+              <HELP>
+              Perform a FCIQMC-CASPT2 calculation with the Molcas-M7 interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NDIAgonal`
+  Activiate FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
+  operator. As a consequence the entire eight-index 4 RDM needs to be
+  computed and contracted with the Fock matrix on the fly. Despite being
+  computationally more costly, very often the number of walkers required to
+  stabilise the dynamics is considerably smaller than running in pseudo-canonical
+  orbitals. This option is therefore highly recommended.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NDIAGONAL" APPEAR="NON-DIAGONAL-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NDIAgonal <basic>
+              <HELP>
+              Transform the CASPT2 intermediates which were computed in a given
+              basis to pseudo-canonical orbitals.
               </HELP>
               </KEYWORD>
 

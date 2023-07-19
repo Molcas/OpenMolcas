@@ -551,7 +551,7 @@ c Write NTOs to file in C1 symmetry
       Note='*  Spin-orbit Natural Transition Orbitals'
 c U real
       write(FNAME,'(6(a))')
-     &      'SONTORB.',trim(adjustl(STATENAME)),'.','PART','.','R'
+     &      'NTORB.SO.',trim(adjustl(STATENAME)),'.','PART','.','Re'
       write(6,'(4(a))')
      & '      NATURAL TRANSITION ORBITALS FOR SPIN-ORBIT STATE ',
      & trim(STATENAME),
@@ -561,7 +561,7 @@ c U real
      &           SVDS ,Dummy,iDummy,Note)
 c U imaginary
       write(FNAME,'(6(a))')
-     &      'SONTORB.',trim(adjustl(STATENAME)),'.','PART','.','I'
+     &      'NTORB.SO.',trim(adjustl(STATENAME)),'.','PART','.','Im'
       write(6,'(4(a))')
      & '      NATURAL TRANSITION ORBITALS FOR SPIN-ORBIT STATE ',
      & trim(STATENAME),
@@ -571,7 +571,7 @@ c U imaginary
      &           SVDS ,Dummy,iDummy,Note)
 c V real
       write(FNAME,'(6(a))')
-     &      'SONTORB.',trim(adjustl(STATENAME)),'.','HOLE','.','R'
+     &      'NTORB.SO.',trim(adjustl(STATENAME)),'.','HOLE','.','Re'
       write(6,'(4(a))')
      & '      NATURAL TRANSITION ORBITALS FOR SPIN-ORBIT STATE ',
      & trim(STATENAME),
@@ -581,7 +581,7 @@ c V real
      &           SVDS ,Dummy,iDummy,Note)
 c V imaginary
       write(FNAME,'(6(a))')
-     &      'SONTORB.',trim(adjustl(STATENAME)),'.','HOLE','.','I'
+     &      'NTORB.SO.',trim(adjustl(STATENAME)),'.','HOLE','.','Im'
       write(6,'(4(a))')
      & '      NATURAL TRANSITION ORBITALS FOR SPIN-ORBIT STATE ',
      & trim(STATENAME),
