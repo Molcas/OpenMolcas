@@ -10,9 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module CDTHlp
-Implicit none
-Private
-Public:: Mat, Vec
-Real*8, Allocatable:: Mat(:), Vec(:)
-End Module CDTHlp
+
+module CDTHlp
+
+implicit none
+private
+
+real*8, allocatable :: Mat(:), Vec(:)
+
+public :: Mat, Vec
+
+end module CDTHlp

@@ -11,98 +11,70 @@
 ! Copyright (C) 2008, Jonas Bostrom                                    *
 !***********************************************************************
 
-      Subroutine Construct_WDensII(EOcc,EVir,EFro,EDel)
+subroutine Construct_WDensII(EOcc,EVir,EFro,EDel)
 !
-!     Jonas Bostrom, October 2008
+! Jonas Bostrom, October 2008
 !
-!     Purpose: Construct the piece of the energy-weighted density
-!              usually labeled II.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 EOcc(*), EVir(*), EFro(*), EDel(*)
+! Purpose: Construct the piece of the energy-weighted density
+!          usually labeled II.
+
+implicit real*8(a-h,o-z)
+real*8 EOcc(*), EVir(*), EFro(*), EDel(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-!
-      Character*20 ThisNm
-      Character*25 SecNam
-      Parameter (SecNam = 'Construct_WDensII',                          &
-     &           ThisNm = 'Construct_WDensII')
-!
-      iDensActOcc(i,j,k) = ip_Density(k)                                &
-     &                   +  j-1                                         &
-     &                   + (nOrb(k) + nDel(k))                          &
-     &                   * (i + nFro(k) - 1)
-      iWDensActOcc(i,j,k) = ip_WDensity(k)                              &
-     &                    +  j-1                                        &
-     &                    + (nOrb(k) + nDel(k))                         &
-     &                    * (i-1 + nFro(k))
-      iDensVactVall(i,j,k) = ip_Density(k)                              &
-     &                     + j-1 + nFro(k) + nOcc(k)                    &
-     &                     + (nOrb(k) + nDel(k))                        &
-     &                     * (i-1 + nFro(k) + nOcc(k))
-      iWDensVactVall(i,j,k) = ip_WDensity(k)                            &
-     &                      + j-1 + nFro(k) + nOcc(k)                   &
-     &                      + (nOrb(k) + nDel(k))                       &
-     &                      * (i-1 + nFro(k) + nOcc(k))
-      iDensVallOcc(i,j,k) = ip_Density(k)                               &
-     &                    +  j-1                                        &
-     &                    + (nOrb(k) + nDel(k))                         &
-     &                    * (i-1 + nFro(k) + nOcc(k))
-      iWDensVallOcc(i,j,k) = ip_WDensity(k)                             &
-     &                    +  j-1                                        &
-     &                    + (nOrb(k) + nDel(k))                         &
-     &                    * (i-1 + nFro(k) + nOcc(k))
-!
-      Do iSym = 1, nSym
-!*******************************************************************
-!     Construct Wij(II)
-!*******************************************************************
-         Do iI = 1, nOcc(iSym)
-            E_i = EOcc(iOcc(iSym) + iI)
-            Do iJ = 1, nFro(iSym) + nOcc(iSym)
-               If(iJ .le. nFro(iSym)) Then
-                  E_j = EFro(iFro(iSym) + iJ)
-               Else
-                  E_j = EOcc(iOcc(iSym) + iJ - nFro(iSym))
-               End If
-               Work(iWDensActOcc(iI,iJ,iSym)) =                         &
-     &              Work(iWDensActOcc(iI,iJ,iSym))                      &
-     &           -  0.5d0 * Work(iDensActOcc(iI,iJ,iSym))               &
-     &           * (E_i + E_j)
-            End Do
-         End Do
-!********************************************************************
-!     Construct Wab(II)
-!********************************************************************
-         Do iA = 1, nVir(iSym)
-            E_a = EVir(iVir(iSym) + iA)
-            Do iB = 1, nVir(iSym) + nDel(iSym)
-               If(iB .gt. nVir(iSym)) Then
-                  E_b = EDel(iDel(iSym) + iB - nVir(iSym))
-               Else
-                  E_b = EVir(iVir(iSym) + iB)
-               End If
-               Work(iWDensVactVall(iA,iB,iSym)) =                       &
-     &              Work(iWDensVactVall(iA,iB,iSym))                    &
-     &           -  0.5d0 * Work(iDensVactVall(iA,iB,iSym))             &
-     &           * (E_a + E_b)
-            End Do
-!***********************************************************************
-!     Construct Wai(II) (The factor 2 in front of Pai is because Ppq is
-!                        already symmetrized here)
-!***********************************************************************
-            Do iI = 1, nFro(iSym) + nOcc(iSym)
-               If(iI .le. nFro(iSym)) Then
-                  E_i = EFro(iFro(iSym) + iI)
-               Else
-                  E_i = EOcc(iOcc(iSym) + iI - nFro(iSym))
-               End If
-               Work(iWDensVallOcc(iA,iI,iSym)) =                        &
-     &              Work(iWDensVallOcc(iA,iI,iSym))                     &
-     &           - 2.0d0 * Work(iDensVallOcc(iA,iI,iSym))               &
-     &           * (E_i)
-            End Do
-         End Do
-      End Do
-      End
+character*20 ThisNm
+character*25 SecNam
+parameter(SecNam='Construct_WDensII',ThisNm='Construct_WDensII')
+! Statement functions
+iDensActOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)-1)
+iWDensActOcc(i,j,k) = ip_WDensity(k)+j-1+(nOrb(k)+nDel(k))*(i-1+nFro(k))
+iDensVactVall(i,j,k) = ip_Density(k)+j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
+iWDensVactVall(i,j,k) = ip_WDensity(k)+j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
+iDensVallOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
+iWDensVallOcc(i,j,k) = ip_WDensity(k)+j-1+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
+
+do iSym=1,nSym
+  !*********************************************************************
+  ! Construct Wij(II)
+  !*********************************************************************
+  do iI=1,nOcc(iSym)
+    E_i = EOcc(iOcc(iSym)+iI)
+    do iJ=1,nFro(iSym)+nOcc(iSym)
+      if (iJ <= nFro(iSym)) then
+        E_j = EFro(iFro(iSym)+iJ)
+      else
+        E_j = EOcc(iOcc(iSym)+iJ-nFro(iSym))
+      end if
+      Work(iWDensActOcc(iI,iJ,iSym)) = Work(iWDensActOcc(iI,iJ,iSym))-0.5d0*Work(iDensActOcc(iI,iJ,iSym))*(E_i+E_j)
+    end do
+  end do
+  !*********************************************************************
+  ! Construct Wab(II)
+  !*********************************************************************
+  do iA=1,nVir(iSym)
+    E_a = EVir(iVir(iSym)+iA)
+    do iB=1,nVir(iSym)+nDel(iSym)
+      if (iB > nVir(iSym)) then
+        E_b = EDel(iDel(iSym)+iB-nVir(iSym))
+      else
+        E_b = EVir(iVir(iSym)+iB)
+      end if
+      Work(iWDensVactVall(iA,iB,iSym)) = Work(iWDensVactVall(iA,iB,iSym))-0.5d0*Work(iDensVactVall(iA,iB,iSym))*(E_a+E_b)
+    end do
+    !*******************************************************************
+    ! Construct Wai(II) (The factor 2 in front of Pai is because Ppq is
+    !                    already symmetrized here)
+    !*******************************************************************
+    do iI=1,nFro(iSym)+nOcc(iSym)
+      if (iI <= nFro(iSym)) then
+        E_i = EFro(iFro(iSym)+iI)
+      else
+        E_i = EOcc(iOcc(iSym)+iI-nFro(iSym))
+      end if
+      Work(iWDensVallOcc(iA,iI,iSym)) = Work(iWDensVallOcc(iA,iI,iSym))-2.0d0*Work(iDensVallOcc(iA,iI,iSym))*(E_i)
+    end do
+  end do
+end do
+
+end subroutine Construct_WDensII

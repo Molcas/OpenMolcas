@@ -8,98 +8,83 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SUBTR(XINT,WRK,LWRK,ISYM)
+
+subroutine CHO_SUBTR(XINT,WRK,LWRK,ISYM)
 !
-!     Purpose: driver for subtracting contributions from previous vectors
-!              from the qualified integrals (in XINT).
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 XINT(*), WRK(LWRK)
+! Purpose: driver for subtracting contributions from previous vectors
+!          from the qualified integrals (in XINT).
+
+implicit real*8(a-h,o-z)
+real*8 XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-
-      CHARACTER*9 SECNAM
-      PARAMETER (SECNAM = 'CHO_SUBTR')
-
-      LOGICAL LOCDBG, FXDMEM
-      PARAMETER (LOCDBG = .FALSE.)
+character*9 SECNAM
+parameter(SECNAM='CHO_SUBTR')
+logical LOCDBG, FXDMEM
+parameter(LOCDBG=.false.)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      SubRoutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
-      Real*8, Target::  xInt(*), Wrk(lWrk)
-      Logical DoTime, DoStat
-      End SubRoutine Cho_VecBuf_Subtr
-      End Interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+interface
+  subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
+    real*8, target :: xInt(*), Wrk(lWrk)
+    logical DoTime, DoStat
+  end subroutine Cho_VecBuf_Subtr
+end interface
 
-!     Return if nothing to do.
-!     ------------------------
+! Return if nothing to do.
+! ------------------------
 
-      IF (NUMCHO(ISYM) .LT. 1) THEN ! no prev. vectors.
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NUMCHO = ',   &
-     &                     NUMCHO(ISYM),' (sym. ',ISYM,')'
-         END IF
-         return
-      ELSE IF (NNBSTR(ISYM,2) .LT. 1) THEN ! nothing to do (this sym.)
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NNBSTR = ',   &
-     &                     NNBSTR(ISYM,2),' (sym. ',ISYM,')'
-         END IF
-         return
-      ELSE IF (NQUAL(ISYM) .LT. 1) THEN ! no qualifieds in this sym.
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': nothing done because NQUAL  = ',   &
-     &                     NQUAL(ISYM),' (sym. ',ISYM,')'
-         END IF
-         return
-      END IF
+if (NUMCHO(ISYM) < 1) then ! no prev. vectors.
+  if (LOCDBG) write(LUPRI,*) SECNAM,': nothing done because NUMCHO = ',NUMCHO(ISYM),' (sym. ',ISYM,')'
+  return
+else if (NNBSTR(ISYM,2) < 1) then ! nothing to do (this sym.)
+  if (LOCDBG) write(LUPRI,*) SECNAM,': nothing done because NNBSTR = ',NNBSTR(ISYM,2),' (sym. ',ISYM,')'
+  return
+else if (NQUAL(ISYM) < 1) then ! no qualifieds in this sym.
+  if (LOCDBG) write(LUPRI,*) SECNAM,': nothing done because NQUAL  = ',NQUAL(ISYM),' (sym. ',ISYM,')'
+  return
+end if
 
-!     Debug: read original diagonal and check that these elements are
-!            included in the integrals
-!     ---------------------------------------------------------------
+! Debug: read original diagonal and check that these elements are
+!        included in the integrals
+! ---------------------------------------------------------------
 
-      IF (CHO_DIACHK .OR. LOCDBG) THEN
-         KDIAG = 1
-         KEND  = KDIAG + NNBSTRT(1)
-         LWRK  = LWRK  - KEND + 1
-         IF (LWRK .LT. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': diagonal/integral check skipped ', &
-     &                     'due to insufficient memory'
-         ELSE
-            TOL  = TOL_DIACHK
-            NERR = 0
-            CALL CHO_CHKINTO(XINT,WRK(KDIAG),ISYM,NERR,TOL,.TRUE.)
-            IF (NERR .NE. 0) THEN
-               WRITE(LUPRI,*) SECNAM,': ',NERR,' diagonal errors found!'
-               WRITE(LUPRI,*) '          #tests: ',NQUAL(ISYM)
-!              WRITE(LUPRI,*) '          Printing integrals:'
-!              CALL CHO_OUTPUT(XINT,1,NNBSTR(ISYM,2),1,NQUAL(ISYM),
-!    &                         NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
-               CALL CHO_QUIT('Diagonal errors in '//SECNAM,104)
-            ELSE
-               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',&
-     &                     'and original diagonal: no errors !'
-            END IF
-         END IF
-      END IF
+if (CHO_DIACHK .or. LOCDBG) then
+  KDIAG = 1
+  KEND = KDIAG+NNBSTRT(1)
+  LWRK = LWRK-KEND+1
+  if (LWRK < 0) then
+    write(LUPRI,*) SECNAM,': diagonal/integral check skipped due to insufficient memory'
+  else
+    TOL = TOL_DIACHK
+    NERR = 0
+    call CHO_CHKINTO(XINT,WRK(KDIAG),ISYM,NERR,TOL,.true.)
+    if (NERR /= 0) then
+      write(LUPRI,*) SECNAM,': ',NERR,' diagonal errors found!'
+      write(LUPRI,*) '          #tests: ',NQUAL(ISYM)
+      !write(LUPRI,*) '          Printing integrals:'
+      !call CHO_OUTPUT(XINT,1,NNBSTR(ISYM,2),1,NQUAL(ISYM),NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
+      call CHO_QUIT('Diagonal errors in '//SECNAM,104)
+    else
+      write(LUPRI,*) SECNAM,': comparison of qual. integrals and original diagonal: no errors !'
+    end if
+  end if
+end if
 
-!     Subtract contributions for vectors in buffer.
-!     (Returns immediately if nothing to do.)
-!     ---------------------------------------------
+! Subtract contributions for vectors in buffer.
+! (Returns immediately if nothing to do.)
+! ---------------------------------------------
 
-      CALL CHO_VECBUF_SUBTR(XINT,WRK,LWRK,ISYM,.TRUE.,.TRUE.)
+call CHO_VECBUF_SUBTR(XINT,WRK,LWRK,ISYM,.true.,.true.)
 
-!     Subtract contributions for vectors on disk.
-!     -------------------------------------------
+! Subtract contributions for vectors on disk.
+! -------------------------------------------
 
-      IF (CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4) THEN
-         FXDMEM = CHO_IOVEC .EQ. 4
-         CALL CHO_SUBTR1(XINT,WRK,LWRK,ISYM,FXDMEM)
-      ELSE
-         CALL CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
-      END IF
-      END
+if ((CHO_IOVEC == 3) .or. (CHO_IOVEC == 4)) then
+  FXDMEM = CHO_IOVEC == 4
+  call CHO_SUBTR1(XINT,WRK,LWRK,ISYM,FXDMEM)
+else
+  call CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
+end if
+
+end subroutine CHO_SUBTR

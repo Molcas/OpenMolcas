@@ -8,33 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
+
+subroutine CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
 !
-!     Purpose: set info for vector IVEC of sym. ISYM.
-!
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
+! Purpose: set info for vector IVEC of sym. ISYM.
+
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*13 SECNAM
+parameter(SECNAM='CHO_SETVECINF')
 
-      CHARACTER*13 SECNAM
-      PARAMETER (SECNAM = 'CHO_SETVECINF')
+if (IVEC > MAXVEC) then
+  write(LUPRI,*) SECNAM,': too many Cholesky vectors!'
+  write(LUPRI,*) SECNAM,': symmetry: ',ISYM
+  write(LUPRI,*) SECNAM,': max. allowed is ',MAXVEC
+  write(LUPRI,*) SECNAM,': please increase max. allowed'
+  call CHO_QUIT('Too many Cholesky vectors in '//SECNAM,104)
+else if (IVEC == MAXVEC) then ! no set next addr.
+  INFVEC(IVEC,1,ISYM) = IAB   ! diag. index red. set 1
+  INFVEC(IVEC,2,ISYM) = IPASS ! global red. set
+else
+  INFVEC(IVEC,1,ISYM) = IAB   ! diag. index red. set 1
+  INFVEC(IVEC,2,ISYM) = IPASS ! global red. set
+  INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)+NNBSTR(ISYM,ILOC) ! next addr.
+end if
 
-      IF (IVEC .GT. MAXVEC) THEN
-         WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors!'
-         WRITE(LUPRI,*) SECNAM,': symmetry: ',ISYM
-         WRITE(LUPRI,*) SECNAM,': max. allowed is ',MAXVEC
-         WRITE(LUPRI,*) SECNAM,': please increase max. ',               &
-     &                  'allowed'
-         CALL CHO_QUIT('Too many Cholesky vectors in '                  &
-     &                 //SECNAM,104)
-      ELSE IF (IVEC .EQ. MAXVEC) THEN ! no set next addr.
-         INFVEC(IVEC,1,ISYM) = IAB    ! diag. index red. set 1
-         INFVEC(IVEC,2,ISYM) = IPASS  ! global red. set
-      ELSE
-         INFVEC(IVEC,1,ISYM)   = IAB   ! diag. index red. set 1
-         INFVEC(IVEC,2,ISYM)   = IPASS ! global red. set
-         INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)                    &
-     &                         + NNBSTR(ISYM,ILOC) ! next addr.
-      END IF
-
-      END
+end subroutine CHO_SETVECINF

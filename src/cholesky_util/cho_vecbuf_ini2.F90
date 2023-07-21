@@ -10,92 +10,78 @@
 !                                                                      *
 ! Copyright (C) 2016, Thomas Bondo Pedersen                            *
 !***********************************************************************
-#if defined (_CHO_DEBUGPRINT_)
+
+#ifdef _CHO_DEBUGPRINT_
 #define _DEBUGPRINT_
 #endif
-      SubRoutine Cho_VecBuf_Ini2()
+subroutine Cho_VecBuf_Ini2()
 !
-!     Thomas Bondo Pedersen, June 2006.
+! Thomas Bondo Pedersen, June 2006.
 !
-!     Purpose: read vectors from disk into buffer.
-!
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
-     &                     nVec_in_Buf
-      Implicit None
+! Purpose: read vectors from disk into buffer.
+
+use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+
+implicit none
 #include "cholesky.fh"
-
-      Character*15 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Ini2')
-
-      Logical LocDbg
-#if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
+character*15 SecNam
+parameter(SecNam='Cho_VecBuf_Ini2')
+logical LocDbg
+#ifdef _DEBUGPRINT_
+parameter(LocDbg=.true.)
 #else
-      Parameter (LocDbg = .false.)
+parameter(LocDbg=.false.)
 #endif
-      Logical DoRead
+logical DoRead
+integer iV1, iV2, iSym, nRead, iRedC
+integer mUsed(8)
+integer irc
 
-      Integer iV1, iV2, iSym, nRead, iRedC
-      Integer mUsed(8)
-      Integer irc
+! Check if buffer is allocated.
+! Check if there are any vectors.
+! -------------------------------
 
-!     Check if buffer is allocated.
-!     Check if there are any vectors.
-!     -------------------------------
+if (.not. allocated(CHVBUF)) then
+  if (LocDbg) write(Lupri,*) SecNam,': returning immediately: No buffer allocated!'
+  return
+end if
+if (NumChT < 1) then
+  write(Lupri,*) SecNam,': returning immediately: Buffer allocated, but no vectors!?!?'
+  return
+end if
 
-      If (.NOT.Allocated(CHVBUF)) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returning immediately: ',          &
-     &                     'No buffer allocated!'
-         End If
-         Return
-      End If
-      If (NumChT .lt. 1) Then
-         Write(Lupri,*) SecNam,': returning immediately: ',             &
-     &                  'Buffer allocated, but no vectors!?!?'
-         Return
-      End If
+! Read vectors.
+! -------------
 
-!     Read vectors.
-!     -------------
+DoRead = .true.
+iRedC = -1
+do iSym=1,nSym
+  iV1 = 1
+  iV2 = NumCho(iSym)
+  nRead = 0
+  mUsed(iSym) = 0
+  call Cho_VecRd1(CHVBUF(ip_ChVBuf_Sym(iSym)),l_ChVBuf_Sym(iSym),iV1,iV2,iSym,nRead,iRedC,mUsed(iSym),DoRead)
+  nVec_in_Buf(iSym) = nRead
+end do
 
-      DoRead = .true.
-      iRedC = -1
-      Do iSym = 1,nSym
-         iV1 = 1
-         iV2 = NumCho(iSym)
-         nRead = 0
-         mUsed(iSym) = 0
-         Call Cho_VecRd1(CHVBUF(ip_ChVBuf_Sym(iSym)),                   &
-     &                   l_ChVBuf_Sym(iSym),                            &
-     &                   iV1,iV2,iSym,nRead,iRedC,mUsed(iSym),DoRead)
-         nVec_in_Buf(iSym) = nRead
-      End Do
+! Debug:
+! Enable integrity checks.
+! Print info.
+! ------------------------
 
-!     Debug:
-!     Enable integrity checks.
-!     Print info.
-!     ------------------------
+if (LocDbg) then
+  call Cho_VecBuf_EnableIntegrityCheck(irc)
+  if (irc /= 0) then
+    write(LuPri,'(A,I9)') SecNam,': Cho_VecBuf_EnableIntegrityCheck returned code',irc
+    call Cho_Quit(SecNam//': integrity check init failed',104)
+  else
+    write(LuPri,'(A,A)') SecNam,': buffer integrity check enabled'
+  end if
+  write(Lupri,'(A,A,8I10)') SecNam,'(exit): NumCho:',(NumCho(iSym),iSym=1,nSym)
+  write(Lupri,'(A,A,8I10)') SecNam,'(exit): nVec_in_Buf:',(nVec_in_Buf(iSym),iSym=1,nSym)
+  write(Lupri,'(A,A,8I10)') SecNam,'(exit): buffer allocated:',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
+  write(Lupri,'(A,A,8I10)') SecNam,'(exit): memory used:',(mUsed(iSym),iSym=1,nSym)
+  call Cho_Flush(Lupri)
+end if
 
-      If (LocDbg) Then
-         Call Cho_VecBuf_EnableIntegrityCheck(irc)
-         If (irc.ne.0) Then
-            Write(LuPri,'(A,I9)')                                       &
-     &      SecNam,': Cho_VecBuf_EnableIntegrityCheck returned code',irc
-            Call Cho_Quit(SecNam//': integrity check init failed',104)
-         Else
-            Write(LuPri,'(A,A)')                                        &
-     &      SecNam,': buffer integrity check enabled'
-         End If
-         Write(Lupri,'(A,A,8I10)') SecNam,'(exit): NumCho:',            &
-     &                             (NumCho(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,A,8I10)') SecNam,'(exit): nVec_in_Buf:',       &
-     &                             (nVec_in_Buf(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,A,8I10)') SecNam,'(exit): buffer allocated:',  &
-     &                             (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,A,8I10)') SecNam,'(exit): memory used:',       &
-     &                             (mUsed(iSym),iSym=1,nSym)
-         Call Cho_Flush(Lupri)
-      End If
-
-      End
+end subroutine Cho_VecBuf_Ini2

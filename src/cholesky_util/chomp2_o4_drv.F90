@@ -10,75 +10,68 @@
 !                                                                      *
 ! Copyright (C) 2008, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
+
+subroutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
 !
-!     Thomas Bondo Pedersen, Jan. 2008.
-!     - based on ChoMP2_Drv() by T. B. Pedersen.
+! Thomas Bondo Pedersen, Jan. 2008.
+! - based on ChoMP2_Drv() by T. B. Pedersen.
 !
-!     Purpose: driver for computing the MP2 energy correction EMP2
-!              using Cholesky decomposed two-electron integrals
-!              in a quartic scaling fashion.
-!              Input must have been processed and MO coefficients
-!              and orbital energies must be passed as arguments.
+! Purpose: driver for computing the MP2 energy correction EMP2
+!          using Cholesky decomposed two-electron integrals
+!          in a quartic scaling fashion.
+!          Input must have been processed and MO coefficients
+!          and orbital energies must be passed as arguments.
 !
-!     Notes:
+! Notes:
 !
-!       - all MO Cholesky vector files generated here are deleted before
-!         exit, except for error terminations (i.e. no cleanup actions
-!         are taken!)
-!
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8 CMO(*), EOcc(*), EVir(*)
+!   - all MO Cholesky vector files generated here are deleted before
+!     exit, except for error terminations (i.e. no cleanup actions
+!     are taken!)
+
+use stdalloc
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
+character(len=6), parameter :: ThisNm = 'O4_Drv'
+character(len=13), parameter :: SecNam = 'ChoMP2_O4_Drv'
+real*8, parameter :: Chk_Mem_ChoMP2 = 0.123456789d0, Tol = 1.0D-15
+integer, parameter :: iFmt = 0
+logical Delete, DoAmpDiag
+logical, parameter :: Delete_def = .true.
+integer a, ai
+integer lU_AO(8)
+character(len=3) BaseName_AO
+real*8, allocatable :: Check(:), Diag(:)
+! Statement function
+MulD2h(k,l) = ieor(k-1,l-1)+1
 
-      Character(LEN=6), Parameter:: ThisNm = 'O4_Drv'
-      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_O4_Drv'
-
-      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
-      Integer, Parameter:: iFmt = 0
-
-      Logical Delete, DoAmpDiag
-      Logical, Parameter:: Delete_def = .true.
-
-      Integer a, ai
-      Integer lU_AO(8)
-
-      Character(LEN=3) BaseName_AO
-      Real*8, Allocatable:: Check(:), Diag(:)
-
-      MulD2h(k,l)=iEor(k-1,l-1)+1
-
-#if defined (_DEBUGPRINT_)
-      Verbose = .true.
+#ifdef _DEBUGPRINT_
+Verbose = .true.
 #endif
-      If (Verbose) Then
-         Call CWTime(CPUTot1,WallTot1)
-      End If
+if (Verbose) call CWTime(CPUTot1,WallTot1)
 
-!     Initializations.
-!     ----------------
+! Initializations.
+! ----------------
 
-      irc = 0
+irc = 0
 
-      EMP2 = 0.0d0
+EMP2 = 0.0d0
 
-      If (Verbose) Then
-         Call CWTime(CPUIni1,WallIni1)
-      End If
+if (Verbose) call CWTime(CPUIni1,WallIni1)
 
-      Call mma_allocate(Check,1,Label='Check')
-      Check(1) = Chk_Mem_ChoMP2
+call mma_allocate(Check,1,Label='Check')
+Check(1) = Chk_Mem_ChoMP2
 
-      FracMem = 0.0d0 ! no buffer allocated
-      Call Cho_X_Init(irc,FracMem)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Init returned ',irc
-         Call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
-      End If
+FracMem = 0.0d0 ! no buffer allocated
+call Cho_X_Init(irc,FracMem)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+end if
 
 !-TBP:
 ! Frankie,
@@ -86,74 +79,68 @@
 ! I don't use the batching info at all, though, so it should be save
 ! to remove it - unless you need it, of course.
 
-      Call ChoMP2_Setup(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_Setup returned ',irc
-         Go To 1  ! exit
-      End If
+call ChoMP2_Setup(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_Setup returned ',irc
+  Go To 1  ! exit
+end if
 
-      If (Verbose) Then
-         Call ChoMP2_Setup_Prt(irc)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
-            Go To 1  ! exit
-         End If
-         Call CWTime(CPUIni2,WallIni2)
-         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1, &
-     &                   WallIni2,WallIni1,iFmt)
-      End If
+if (Verbose) then
+  call ChoMP2_Setup_Prt(irc)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
+    Go To 1  ! exit
+  end if
+  call CWTime(CPUIni2,WallIni2)
+  call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
+end if
 
-!     Transform Cholesky vectors directly from reduced set to MO
-!     representation. Result vectors are stored on disk.
-!     Compute also amplitude diagonal here.
-!     ----------------------------------------------------------
+! Transform Cholesky vectors directly from reduced set to MO
+! representation. Result vectors are stored on disk.
+! Compute also amplitude diagonal here.
+! ----------------------------------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUTra1,WallTra1)
-      End If
+if (Verbose) call CWTime(CPUTra1,WallTra1)
 
-      lDiag = nT1am(1)
-      Do iSym = 2,nSym
-         lDiag = lDiag + nT1am(iSym)
-      End Do
+lDiag = nT1am(1)
+do iSym=2,nSym
+  lDiag = lDiag+nT1am(iSym)
+end do
 
-      Call mma_allocate(Diag,lDiag,Label='Diag')
+call mma_allocate(Diag,lDiag,Label='Diag')
 
-      Call ChoMP2_TraDrv(irc,CMO,Diag,.True.)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-         Go To 1  ! exit
-      End If
-      kD0 = 0
-      Do iSym = 1,nSym
-         Do iSymi = 1,nSym
-            iSyma = MulD2h(iSymi,iSym)
-            kD1 = kD0 + iT1Am(iSyma,iSymi)
-            Do i = 1,nOcc(iSymi)
-               kD2 = kD1 + nVir(iSyma)*(i-1)
-               Ei  = EOcc(iOcc(iSymi)+i)
-               Do a = 1,nVir(iSyma)
-                  ai = kD2 + a
-                  DE = 2.0d0*(EVir(iVir(iSyma)+a)-Ei)
-                  Diag(ai) = Diag(ai)/DE
-               End Do
-            End Do
-         End Do
-         kD0 = kD0 + nT1Am(iSym)
-      End Do
+call ChoMP2_TraDrv(irc,CMO,Diag,.true.)
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+  Go To 1  ! exit
+end if
+kD0 = 0
+do iSym=1,nSym
+  do iSymi=1,nSym
+    iSyma = MulD2h(iSymi,iSym)
+    kD1 = kD0+iT1Am(iSyma,iSymi)
+    do i=1,nOcc(iSymi)
+      kD2 = kD1+nVir(iSyma)*(i-1)
+      Ei = EOcc(iOcc(iSymi)+i)
+      do a=1,nVir(iSyma)
+        ai = kD2+a
+        DE = 2.0d0*(EVir(iVir(iSyma)+a)-Ei)
+        Diag(ai) = Diag(ai)/DE
+      end do
+    end do
+  end do
+  kD0 = kD0+nT1Am(iSym)
+end do
 
-      If (Verbose) Then
-         Call CWTime(CPUTra2,WallTra2)
-         Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1, &
-     &                   WallTra2,WallTra1,iFmt)
-      End If
+if (Verbose) then
+  call CWTime(CPUTra2,WallTra2)
+  call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1,WallTra2,WallTra1,iFmt)
+end if
 
-!     Decompose MP2 amplitudes (times -1).
-!     ------------------------------------
+! Decompose MP2 amplitudes (times -1).
+! ------------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUDec1,WallDec1)
-      End If
+if (Verbose) call CWTime(CPUDec1,WallDec1)
 
 !-TBP:
 ! Frankie,
@@ -165,59 +152,49 @@
 ! The number of vectors is always written to nMP2Vec(iSym) in
 ! chomp2.fh - this is overwritten too, if you do another CD!!
 
-      Delete = Delete_def ! delete transf. vector files after dec.
-      Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-         Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',           &
-     &                    ' ')
-      End If
-      Call mma_deallocate(Diag)
+Delete = Delete_def ! delete transf. vector files after dec.
+call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+  call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+end if
+call mma_deallocate(Diag)
 
-      If (Verbose) Then
-         Call CWTime(CPUDec2,WallDec2)
-         Call Cho_PrtTim('Cholesky MP2 decomposition',                  &
-     &                   CPUDec2,CPUDec1,                               &
-     &                   WallDec2,WallDec1,iFmt)
-      End If
+if (Verbose) then
+  call CWTime(CPUDec2,WallDec2)
+  call Cho_PrtTim('Cholesky MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
+end if
 
-!     Backtransform amplitude vectors to AO basis.
-!     Calculate also backtransformed amplitude diagonal.
-!     --------------------------------------------------
+! Backtransform amplitude vectors to AO basis.
+! Calculate also backtransformed amplitude diagonal.
+! --------------------------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUBT1,WallBT1)
-      End If
+if (Verbose) call CWTime(CPUBT1,WallBT1)
 
-      iTyp = 2 ! type of MO vectors (i.e. amp. vectors)
-      Delete = Delete_def ! delete amp. vectors after backtransf.
-      BaseName_AO = 'AAO' ! basename for multifiles of AO vectors
-      DoAmpDiag = .True. ! calculate backtransf. amp. diagonal
-      lDiag = 0
-      Do iSym = 1,nSym
-         Do iSymb = 1,nSym
-            iSyma = MulD2h(iSymb,iSym)
-            lDiag = lDiag + nBas(iSyma)*nBas(iSymb)
-         End Do
-      End Do
+iTyp = 2 ! type of MO vectors (i.e. amp. vectors)
+Delete = Delete_def ! delete amp. vectors after backtransf.
+BaseName_AO = 'AAO' ! basename for multifiles of AO vectors
+DoAmpDiag = .true. ! calculate backtransf. amp. diagonal
+lDiag = 0
+do iSym=1,nSym
+  do iSymb=1,nSym
+    iSyma = MulD2h(iSymb,iSym)
+    lDiag = lDiag+nBas(iSyma)*nBas(iSymb)
+  end do
+end do
 
-      Call mma_allocate(Diag,lDiag,Label='Diag')
-      Call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,    &
-     &                        Diag,lDiag,lU_AO,irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
-         Call ChoMP2_Quit(SecNam,                                       &
-     &                'MP2 amplitude vector backtransformation failed!',&
-     &                ' ')
-      End If
-      Call mma_deallocate(Diag)
+call mma_allocate(Diag,lDiag,Label='Diag')
+call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,Diag,lDiag,lU_AO,irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
+  call ChoMP2_Quit(SecNam,'MP2 amplitude vector backtransformation failed!',' ')
+end if
+call mma_deallocate(Diag)
 
-      If (Verbose) Then
-         Call CWTime(CPUBT2,WallBT2)
-         Call Cho_PrtTim('Cholesky MP2 backtransformation',             &
-     &                   CPUBT2,CPUBT1,                                 &
-     &                   WallBT2,WallBT1,iFmt)
-      End If
+if (Verbose) then
+  call CWTime(CPUBT2,WallBT2)
+  call Cho_PrtTim('Cholesky MP2 backtransformation',CPUBT2,CPUBT1,WallBT2,WallBT1,iFmt)
+end if
 
 !-TBP:
 ! Frankie,
@@ -230,37 +207,36 @@
 ! that all Cholesky information (from the AO integral CD) is
 ! then lost (f.ex. NumCho(iSym) becomes useless).
 
-!     Finalize Cholesky info.
-!     -----------------------
+! Finalize Cholesky info.
+! -----------------------
 
-      Call Cho_X_Final(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Final returned ',irc
-         Go To 1 ! exit
-      End If
+call Cho_X_Final(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  Go To 1 ! exit
+end if
 
-!     Close and delete files containing backtransformed amplitude
-!     vectors.
-!     -----------------------------------------------------------
+! Close and delete files containing backtransformed amplitude vectors.
+! --------------------------------------------------------------------
 
-      Do iSym = 1,nSym
-         Call daEras(lU_AO(iSym))
-      End Do
+do iSym=1,nSym
+  call daEras(lU_AO(iSym))
+end do
 
-!     Exit.
-!     -----
+! Exit.
+! -----
 
-    1 Continue
-      Diff = abs(Check(1)-Chk_Mem_ChoMP2)
-      If (Diff .gt. Tol) Then
-         Write(6,*) SecNam,': Memory Boundary Error!'
-         If (irc .eq. 0) irc = -9999
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUTot2,WallTot2)
-         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,                &
-     &                   WallTot2,WallTot1,iFmt)
-      End If
+1 continue
+Diff = abs(Check(1)-Chk_Mem_ChoMP2)
+if (Diff > Tol) then
+  write(6,*) SecNam,': Memory Boundary Error!'
+  if (irc == 0) irc = -9999
+end if
+if (Verbose) then
+  call CWTime(CPUTot2,WallTot2)
+  call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+end if
 
-      Call mma_deallocate(Check)
-      End
+call mma_deallocate(Check)
+
+end subroutine ChoMP2_O4_Drv

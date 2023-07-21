@@ -8,23 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
+
+subroutine Cho_P_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
 !
-!     Purpose: check diagonals in qualified integral columns.
-!
-      Implicit None
-      Real*8  xInt(*), Diag(*)
-      Integer iSym, nErr
-      Real*8  Tol
-      Logical Report
+! Purpose: check diagonals in qualified integral columns.
+
+implicit none
+real*8 xInt(*), Diag(*)
+integer iSym, nErr
+real*8 Tol
+logical Report
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         Call Cho_P_QualSwp()
-         Call Cho_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
-         Call Cho_P_QualSwp()
-      Else
-         Call Cho_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
-      End If
+if (Cho_Real_Par) then
+  call Cho_P_QualSwp()
+  call Cho_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
+  call Cho_P_QualSwp()
+else
+  call Cho_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
+end if
 
-      End
+end subroutine Cho_P_ChkInt

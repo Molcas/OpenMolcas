@@ -8,17 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function Cho_P_GetmPass(iLoc)
-      Implicit None
-      Integer iLoc
+
+integer function Cho_P_GetmPass(iLoc)
+
+implicit none
+integer iLoc
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
 
-      If (Cho_Real_Par) Then
-         Cho_P_GetmPass = nnBstRT_G(iLoc)
-      Else
-         Cho_P_GetmPass = nnBstRT(iLoc)
-      End If
+if (Cho_Real_Par) then
+  Cho_P_GetmPass = nnBstRT_G(iLoc)
+else
+  Cho_P_GetmPass = nnBstRT(iLoc)
+end if
 
-      End
+end function Cho_P_GetmPass

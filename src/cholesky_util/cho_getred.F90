@@ -8,86 +8,73 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETRED(IPASS,ILOC,LRSH)
+
+subroutine CHO_GETRED(IPASS,ILOC,LRSH)
 !
-!     Purpose: read index arrays for current reduced set (reduced set
-!              IPASS).
-!
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      INTEGER IPASS, ILOC
-      LOGICAL LRSH
+! Purpose: read index arrays for current reduced set (reduced set
+!          IPASS).
+
+use ChoArr, only: iSP2F
+use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
+
+implicit real*8(a-h,o-z)
+integer IPASS, ILOC
+logical LRSH
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_GETRED')
+logical LOCDBG
+parameter(LOCDBG=.false.)
+integer CHO_ISUMELM
+external CHO_ISUMELM
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETRED')
+#ifdef _DEBUGPRINT_
+! Test dimensions.
+! ----------------
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+if (size(nnBstRSh,1) /= NSYM) call CHO_QUIT('NSYM error in '//SECNAM,104)
 
-      INTEGER  CHO_ISUMELM
-      EXTERNAL CHO_ISUMELM
+if (size(nnBstRsh,2) /= NNSHL) call CHO_QUIT('NNSHL error in '//SECNAM,104)
 
-#if defined (_DEBUGPRINT_)
-!     Test dimensions.
-!     ----------------
+if (size(IndRed,1) /= NNBSTRT(1)) call CHO_QUIT('NNBSTRT(1) error in '//SECNAM,104)
 
-      IF (SIZE(nnBstRSh,1) .NE. NSYM) THEN
-         CALL CHO_QUIT('NSYM error in '//SECNAM,104)
-      END IF
-
-      IF (SIZE(nnBstRsh,2) .NE. NNSHL) THEN
-         CALL CHO_QUIT('NNSHL error in '//SECNAM,104)
-      END IF
-
-      IF (SIZE(IndRed,1) .NE. NNBSTRT(1)) THEN
-         CALL CHO_QUIT('NNBSTRT(1) error in '//SECNAM,104)
-      END IF
-
-      IF ((IPASS.LT.1) .OR. (IPASS.GT.SIZE(InfRed)) THEN
-         CALL CHO_QUIT('IPASS error in '//SECNAM,104)
-      END IF
+if ((IPASS < 1) .or. (IPASS > size(InfRed)) call CHO_QUIT('IPASS error in '//SECNAM,104)
 #endif
 
-!     Get first address.
-!     ------------------
+! Get first address.
+! ------------------
 
-      IADR1 = INFRED(IPASS)
-#if defined (_DEBUGPRINT_)
-      IF (IADR1 .LT. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',   &
-     &                  IPASS,': ',IADR1
-         CALL CHO_QUIT('Error in '//SECNAM,104)
-      END IF
+IADR1 = INFRED(IPASS)
+#ifdef _DEBUGPRINT_
+if (IADR1 < 0) then
+  write(LUPRI,*) SECNAM,': negative address for reduced set ',IPASS,': ',IADR1
+  call CHO_QUIT('Error in '//SECNAM,104)
+end if
 #endif
 
-      IF (LOCDBG) THEN
-         WRITE(LUPRI,*) SECNAM,': getting reduced set ',IPASS,          &
-     &                  ' at addr: ',IADR1
-      END IF
+if (LOCDBG) write(LUPRI,*) SECNAM,': getting reduced set ',IPASS,' at addr: ',IADR1
 
-!     Read index arrays.
-!     ------------------
+! Read index arrays.
+! ------------------
 
-      IOPT = 2
-      IADR = IADR1
-      LTOT = NSYM*NNSHL
-      CALL IDAFILE(LURED,IOPT,NNBSTRSH(:,:,ILOC),LTOT,IADR)
-      IOPT = 2
-      IADR = IADR1 + NSYM*NNSHL
-      LSAV = CHO_ISUMELM(NNBSTRSH(:,:,ILOC),NSYM*NNSHL)
-      LTOT = LSAV
-      CALL IDAFILE(LURED,IOPT,INDRED(:,ILOC),LTOT,IADR)
-      IF (LRSH .AND. IPASS.EQ.1) THEN
-         IOPT = 2
-         IADR = IADR1 + NSYM*NNSHL + LSAV
-         LTOT = LSAV
-         CALL IDAFILE(LURED,IOPT,INDRSH,LTOT,IADR)
-         IOPT = 2
-         IADR = IADR1 + NSYM*NNSHL + 2*LSAV
-         LTOT = NNSHL
-         CALL IDAFILE(LURED,IOPT,ISP2F,LTOT,IADR)
-      END IF
+IOPT = 2
+IADR = IADR1
+LTOT = NSYM*NNSHL
+call IDAFILE(LURED,IOPT,NNBSTRSH(:,:,ILOC),LTOT,IADR)
+IOPT = 2
+IADR = IADR1+NSYM*NNSHL
+LSAV = CHO_ISUMELM(NNBSTRSH(:,:,ILOC),NSYM*NNSHL)
+LTOT = LSAV
+call IDAFILE(LURED,IOPT,INDRED(:,ILOC),LTOT,IADR)
+if (LRSH .and. (IPASS == 1)) then
+  IOPT = 2
+  IADR = IADR1+NSYM*NNSHL+LSAV
+  LTOT = LSAV
+  call IDAFILE(LURED,IOPT,INDRSH,LTOT,IADR)
+  IOPT = 2
+  IADR = IADR1+NSYM*NNSHL+2*LSAV
+  LTOT = NNSHL
+  call IDAFILE(LURED,IOPT,ISP2F,LTOT,IADR)
+end if
 
-      END
+end subroutine CHO_GETRED

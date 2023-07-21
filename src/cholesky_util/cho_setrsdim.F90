@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETRSDIM(NDIMRS,MSYM,MRED,IRED,ILOC)
+
+subroutine CHO_SETRSDIM(NDIMRS,MSYM,MRED,IRED,ILOC)
 !
-!     Purpose: set reduced set dimension.
-!
-      Implicit Real*8 (a-h,o-z)
-      INTEGER NDIMRS(MSYM,MRED)
+! Purpose: set reduced set dimension.
+
+implicit real*8(a-h,o-z)
+integer NDIMRS(MSYM,MRED)
 #include "cholesky.fh"
 
-      IF (IRED .LE. MAXRED) THEN
-         CALL ICOPY(NSYM,NNBSTR(1,ILOC),1,NDIMRS(1,IRED),1)
-      END IF
+if (IRED <= MAXRED) call ICOPY(NSYM,NNBSTR(1,ILOC),1,NDIMRS(1,IRED),1)
 
-      END
+end subroutine CHO_SETRSDIM

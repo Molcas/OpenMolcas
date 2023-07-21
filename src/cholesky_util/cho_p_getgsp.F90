@@ -8,34 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_GetGSP(nGSP)
+
+subroutine Cho_P_GetGSP(nGSP)
 !
-!     Purpose: get global number of contributing shell pairs.
-!
-      Implicit None
-      Integer nGSP
+! Purpose: get global number of contributing shell pairs.
+
+implicit none
+integer nGSP
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         Call Cho_P_GetGSP_P(nGSP)
-      Else
-         Call Cho_P_GetGSP_S(nGSP)
-      End If
+if (Cho_Real_Par) then
+  call Cho_P_GetGSP_P(nGSP)
+else
+  call Cho_P_GetGSP_S(nGSP)
+end if
 
-      End
-      SubRoutine Cho_P_GetGSP_P(nGSP)
-      Implicit None
-      Integer nGSP
-#include "choglob.fh"
-
-      nGSP = nnShl_G
-
-      End
-      SubRoutine Cho_P_GetGSP_S(nGSP)
-      Implicit None
-      Integer nGSP
-#include "cholesky.fh"
-
-      nGSP = nnShl
-
-      End
+end subroutine Cho_P_GetGSP

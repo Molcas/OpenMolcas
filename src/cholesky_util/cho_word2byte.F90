@@ -25,29 +25,31 @@
 !> @param[out] Byte  \p iWord in bytes/kb/Mb/Gb/Tb
 !> @param[out] Unt   Unit of Byte ['``b ``', '``kb``', '``Mb``', '``Gb``', or '``Tb``']
 !***********************************************************************
-      SubRoutine Cho_Word2Byte(iWord,n,Byte,Unt)
-      Implicit None
-      Integer     iWord, n
-      Real*8      Byte
-      Character*2 Unt
 
-      Byte = DBLE(iWord)*DBLE(n)
-      Unt  = 'b '
-      If (ABS(Byte) .gt. 1.0d3) Then
-         Byte = Byte/1.024d3
-         Unt  = 'kb'
-         If (ABS(Byte) .gt. 1.0d3) Then
-            Byte = Byte/1.024d3
-            Unt  = 'Mb'
-            If (ABS(Byte) .gt. 1.0d3) Then
-               Byte = Byte/1.024d3
-               Unt  = 'Gb'
-               If (ABS(Byte) .gt. 1.0d3) Then
-                  Byte = Byte/1.024d3
-                  Unt  = 'Tb'
-               End If
-            End If
-         End If
-      End If
+subroutine Cho_Word2Byte(iWord,n,Byte,Unt)
 
-      End
+implicit none
+integer iWord, n
+real*8 Byte
+character*2 Unt
+
+Byte = dble(iWord)*dble(n)
+Unt = 'b '
+if (abs(Byte) > 1.0d3) then
+  Byte = Byte/1.024d3
+  Unt = 'kb'
+  if (abs(Byte) > 1.0d3) then
+    Byte = Byte/1.024d3
+    Unt = 'Mb'
+    if (abs(Byte) > 1.0d3) then
+      Byte = Byte/1.024d3
+      Unt = 'Gb'
+      if (abs(Byte) > 1.0d3) then
+        Byte = Byte/1.024d3
+        Unt = 'Tb'
+      end if
+    end if
+  end if
+end if
+
+end subroutine Cho_Word2Byte

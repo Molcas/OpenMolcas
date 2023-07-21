@@ -8,23 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_ISUMELM(IVEC,N)
+
+integer function CHO_ISUMELM(IVEC,N)
 !
-!     Purpose: sum elements of integer vector.
-!
-      IMPLICIT NONE
-      INTEGER IVEC(*)
-      INTEGER I, N, ISUM
+! Purpose: sum elements of integer vector.
 
-      IF (N .GT. 0) THEN
-         ISUM = IVEC(1)
-         DO I = 2,N
-            ISUM = ISUM + IVEC(I)
-         END DO
-      ELSE
-         ISUM = 0
-      END IF
+implicit none
+integer IVEC(*)
+integer I, N, ISUM
 
-      CHO_ISUMELM = ISUM
+if (N > 0) then
+  ISUM = IVEC(1)
+  do I=2,N
+    ISUM = ISUM+IVEC(I)
+  end do
+else
+  ISUM = 0
+end if
 
-      END
+CHO_ISUMELM = ISUM
+
+end function CHO_ISUMELM

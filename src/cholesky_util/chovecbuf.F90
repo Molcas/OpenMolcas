@@ -8,20 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
+
 ! Information about the Cholesky vector buffer
-!
-Module ChoVecBuf
-Implicit None
-Private
-Public:: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
-Public:: CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM
-Public:: nVec_in_Buf
+module ChoVecBuf
 
-Real*8, Allocatable, Target:: CHVBUF(:)
-Real*8, Allocatable, Target:: CHVBFI(:)
+implicit none
+private
 
-INTEGER ip_CHVBUF_SYM(8), l_CHVBUF_SYM(8)
-INTEGER ip_CHVBFI_SYM(8), l_CHVBFI_SYM(8)
-INTEGER nVec_in_Buf(8)
-End Module ChoVecBuf
+public :: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
+public :: CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM
+public :: nVec_in_Buf
+real*8, allocatable, target :: CHVBUF(:)
+real*8, allocatable, target :: CHVBFI(:)
+integer ip_CHVBUF_SYM(8), l_CHVBUF_SYM(8)
+integer ip_CHVBFI_SYM(8), l_CHVBFI_SYM(8)
+integer nVec_in_Buf(8)
+
+end module ChoVecBuf

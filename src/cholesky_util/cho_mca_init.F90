@@ -8,162 +8,154 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_INIT(SKIP_PRESCREEN)
+
+subroutine CHO_MCA_INIT(SKIP_PRESCREEN)
 !
-!     Purpose: initialization of Cholesky decomposition in MOLCAS.
-!
-      use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,  &
-     &                  iShP2RS, iShP2Q
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      LOGICAL SKIP_PRESCREEN
+! Purpose: initialization of Cholesky decomposition in MOLCAS.
+
+use index_arrays, only: iSO2Sh
+use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO, iShP2RS, iShP2Q
+use stdalloc
+
+implicit real*8(a-h,o-z)
+logical SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
+character*12 SECNAM
+parameter(SECNAM='CHO_MCA_INIT')
+!integer CHO_ISAO
+!external CHO_ISAO
+!integer CHO_ISAOSH
+!external CHO_ISAOSH
 
-      CHARACTER*12 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INIT')
+! Check that the number of shells is within limits.
+! -------------------------------------------------
 
-!     INTEGER  CHO_ISAO
-!     EXTERNAL CHO_ISAO
-!     INTEGER  CHO_ISAOSH
-!     EXTERNAL CHO_ISAOSH
+if (NSHELL < 1) then
+  write(LUPRI,*) 'NSHELL out of bounds: ',NSHELL
+  call CHO_QUIT('NSHELL out of bounds in '//SECNAM,102)
+end if
 
-!     Check that the number of shells is within limits.
-!     -------------------------------------------------
+! Compute total #shell pair.
+! --------------------------
 
-      IF (NSHELL .LT. 1) THEN
-         WRITE(LUPRI,*) 'NSHELL out of bounds: ',NSHELL
-         CALL CHO_QUIT('NSHELL out of bounds in '//SECNAM,102)
-      END IF
+NNSHL_TOT = NSHELL*(NSHELL+1)/2
+if (NNSHL_TOT < 1) then
+  write(LUPRI,*) 'NNSHL_TOT=NSHELL*(NSHELL+1)/2 is non-positive: ',NNSHL_TOT
+  write(LUPRI,*) 'Integer overflow ?'
+  call CHO_QUIT('NNSHL_TOT out of bounds in '//SECNAM,102)
+end if
 
-!     Compute total #shell pair.
-!     --------------------------
+! Compute contributing #shell pair by prescreening (if requested).
+! iSP2F(k): returns global shell pair of contributing shell pair k.
+!           (Allocated and defined in CHO_DIAPS.)
+! -----------------------------------------------------------------
 
-      NNSHL_TOT = NSHELL*(NSHELL + 1)/2
-      IF (NNSHL_TOT .LT. 1) THEN
-         WRITE(LUPRI,*)                                                 &
-     &   'NNSHL_TOT=NSHELL*(NSHELL+1)/2 is non-positive: ',             &
-     &   NNSHL_TOT
-         WRITE(LUPRI,*) 'Integer overflow ?'
-         CALL CHO_QUIT('NNSHL_TOT out of bounds in '//SECNAM,102)
-      END IF
+if (SKIP_PRESCREEN) then
+  if ((NNSHL < 1) .or. (NNSHL > NNSHL_TOT)) then
+    write(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',SKIP_PRESCREEN
+    write(LUPRI,*) 'NNSHL is out-of-bounds: ',NNSHL
+    write(LUPRI,*) 'Condition: 0 < NNSHL < ',NNSHL_TOT
+    call CHO_QUIT('Initialization error in '//SECNAM,102)
+  end if
+  if (size(iSP2F) /= NNSHL) then
+    write(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',SKIP_PRESCREEN
+    write(LUPRI,*) 'NNSHL is: ',NNSHL
+    write(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, SIZE(iSP2F)= ',size(iSP2F)
+    call CHO_QUIT('Initialization error in '//SECNAM,102)
+  end if
+else
+  call CHO_DIASP()
+end if
 
-!     Compute contributing #shell pair by prescreening (if requested).
-!     iSP2F(k): returns global shell pair of contributing shell pair k.
-!               (Allocated and defined in CHO_DIAPS.)
-!     -----------------------------------------------------------------
+! Get the number of symmetries.
+! -----------------------------
 
-      IF (SKIP_PRESCREEN) THEN
-         IF (NNSHL.LT.1 .OR. NNSHL.GT.NNSHL_TOT) THEN
-            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',          &
-     &                     SKIP_PRESCREEN
-            WRITE(LUPRI,*) 'NNSHL is out-of-bounds: ',NNSHL
-            WRITE(LUPRI,*) 'Condition: 0 < NNSHL < ',NNSHL_TOT
-            CALL CHO_QUIT('Initialization error in '//SECNAM,102)
-         END IF
-         IF (SIZE(iSP2F) .NE. NNSHL) THEN
-            WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',          &
-     &                     SKIP_PRESCREEN
-            WRITE(LUPRI,*) 'NNSHL is: ',NNSHL
-            WRITE(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, ',      &
-     &                     'SIZE(iSP2F)= ',SIZE(iSP2F)
-            CALL CHO_QUIT('Initialization error in '//SECNAM,102)
-         END IF
-      ELSE
-         CALL CHO_DIASP()
-      END IF
+call GET_ISCALAR('nSym',NSYM)  ! Get # irreps.
+if ((NSYM < 1) .or. (NSYM > 8)) then
+  write(LUPRI,*) 'NSYM out of bounds: ',NSYM
+  call CHO_QUIT('NSYM out of bounds in '//SECNAM,102)
+end if
 
-!     Get the number of symmetries.
-!     -----------------------------
+! NBAS(ISYM): # basis functions (SOs) in symmetry ISYM
+! IBAS(ISYM): offset to basis functions in symmetry ISYM
+! NBAST     : total number of basis functions
+! ------------------------------------------------------
 
-      CALL GET_ISCALAR('nSym',NSYM)  ! Get # irreps.
-      IF ((NSYM.LT.1) .OR. (NSYM.GT.8)) THEN
-         WRITE(LUPRI,*) 'NSYM out of bounds: ',NSYM
-         CALL CHO_QUIT('NSYM out of bounds in '//SECNAM,102)
-      END IF
+call GET_IARRAY('nBas',NBAS,NSYM)
+IBAS(1) = 0
+NBAST = NBAS(1)
+do ISYM=2,NSYM
+  IBAS(ISYM) = NBAST
+  NBAST = NBAST+NBAS(ISYM)
+end do
+if (NBAST < 1) then
+  write(LUPRI,*) 'NBAST out of bounds: ',NBAST
+  call CHO_QUIT('NBAST out of bounds in '//SECNAM,102)
+end if
 
-!     NBAS(ISYM): # basis functions (SOs) in symmetry ISYM
-!     IBAS(ISYM): offset to basis functions in symmetry ISYM
-!     NBAST     : total number of basis functions
-!     ------------------------------------------------------
+! Allocate shell based index arrays.
+! ----------------------------------
 
-      CALL GET_IARRAY('nBas',NBAS,NSYM)
-      IBAS(1) = 0
-      NBAST   = NBAS(1)
-      DO ISYM = 2,NSYM
-         IBAS(ISYM) = NBAST
-         NBAST = NBAST + NBAS(ISYM)
-      END DO
-      IF (NBAST .LT. 1) THEN
-         WRITE(LUPRI,*) 'NBAST out of bounds: ',NBAST
-         CALL CHO_QUIT('NBAST out of bounds in '//SECNAM,102)
-      END IF
+call mma_allocate(iBasSh,nSym,nShell,Label='iBasSh')
+call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
+call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
-!     Allocate shell based index arrays.
-!     ----------------------------------
+! ISOSHL(I): shell to which SO I belongs
+! --------------------------------------
 
-      Call mma_allocate(iBasSh,nSym,nShell,Label='iBasSh')
-      Call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
-      Call mma_allocate(nBstSh,nShell,Label='nBstSh')
+call mma_allocate(iSOShl,NBAST,Label='iSOShl')
+do ISYM=1,NSYM
+  do IA=1,NBAS(ISYM)
+    I = IBAS(ISYM)+IA
+    iSOShl(I) = ISO2SH(I)
+  end do
+end do
 
-!     ISOSHL(I): shell to which SO I belongs
-!     --------------------------------------
+! NBASSH(ISYM,ISHL): total dimension of shell ISHL, sym. ISYM
+! NBSTSH(ISHL): total dimension of shell ISHL
+! MXORSH      : max. shell dimension
+! -----------------------------------------------------------
 
-      Call mma_allocate(iSOShl,NBAST,Label='iSOShl')
-      DO ISYM = 1,NSYM
-         DO IA = 1,NBAS(ISYM)
-            I = IBAS(ISYM) + IA
-            iSOShl(I) = ISO2SH(I)
-         END DO
-      END DO
+call CHO_SETSH(IBASSH,NBASSH,NBSTSH,IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
-!     NBASSH(ISYM,ISHL): total dimension of shell ISHL, sym. ISYM
-!     NBSTSH(ISHL): total dimension of shell ISHL
-!     MXORSH      : max. shell dimension
-!     -----------------------------------------------------------
+MXORSH = NBSTSH(1)
+do ISHL=2,NSHELL
+  MXORSH = max(MXORSH,NBSTSH(ISHL))
+end do
 
-      CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,                              &
-     &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
+! MX2SH: max. dimension of contributing shell pair.
+! -------------------------------------------------
 
-      MXORSH = NBSTSH(1)
-      DO ISHL = 2,NSHELL
-         MXORSH = MAX(MXORSH,NBSTSH(ISHL))
-      END DO
+MX2SH = -1
+do IJSHL=1,NNSHL
+  IJ = iSP2F(IJSHL)
+  call CHO_INVPCK(IJ,I,J,.true.)
+  if (I == J) then
+    NUMIJ = NBSTSH(I)*(NBSTSH(I)+1)/2
+  else
+    NUMIJ = NBSTSH(I)*NBSTSH(J)
+  end if
+  MX2SH = max(MX2SH,NUMIJ)
+end do
+if (MX2SH < 1) then
+  write(LUPRI,*) 'Max. shell pair dimension non-positive: ',MX2SH
+  call CHO_QUIT('Initialization problem in '//SECNAM,102)
+end if
 
-!     MX2SH: max. dimension of contributing shell pair.
-!     -------------------------------------------------
+! If needed, allocate memory for extracting qualified columns
+! directly in reduced set from Seward.
+! -----------------------------------------------------------
 
-      MX2SH = -1
-      DO IJSHL = 1,NNSHL
-         IJ = iSP2F(IJSHL)
-         CALL CHO_INVPCK(IJ,I,J,.TRUE.)
-         IF (I .EQ. J) THEN
-            NUMIJ = NBSTSH(I)*(NBSTSH(I) + 1)/2
-         ELSE
-            NUMIJ = NBSTSH(I)*NBSTSH(J)
-         END IF
-         MX2SH = MAX(MX2SH,NUMIJ)
-      END DO
-      IF (MX2SH .LT. 1) THEN
-         WRITE(LUPRI,*) 'Max. shell pair dimension non-positive: ',     &
-     &                  MX2SH
-         CALL CHO_QUIT('Initialization problem in '//SECNAM,102)
-      END IF
+if (IFCSEW == 2) then
+  call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+  call mma_allocate(iShP2Q,2,Mx2Sh,Label='iShP2Q ')
+end if
 
-!     If needed, allocate memory for extracting qualified columns
-!     directly in reduced set from Seward.
-!     -----------------------------------------------------------
+! ISHLSO(I): index of SO I within its shell
+! -----------------------------------------
 
-      IF (IFCSEW .EQ. 2) THEN
-         Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
-         Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
-      END IF
+call mma_allocate(iShlSO,nBasT,Label='iShlSO')
+call CHO_SETSH2(iShlSO,iSOShl,NBSTSH,NBAST,NSHELL)
 
-!     ISHLSO(I): index of SO I within its shell
-!     -----------------------------------------
-
-      Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
-      CALL CHO_SETSH2(iShlSO,iSOShl,NBSTSH,NBAST,NSHELL)
-
-      END
+end subroutine CHO_MCA_INIT

@@ -10,24 +10,24 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Col_cp(X,nRow,nCol,S,nSRow,iSRow)
-!
-!     Thomas Bondo Pedersen, Dec. 2004.
-!
-!     Purpose: copy subblock of matrix.
-!
-      Implicit None
-      Integer nRow, nCol, nSRow
-      Integer iSRow(nSRow)
-      Real*8  X(nRow,nCol), S(nSRow,nCol)
 
-      Integer iCol, iSR, iR
+subroutine ChoMP2_Col_cp(X,nRow,nCol,S,nSRow,iSRow)
+!
+! Thomas Bondo Pedersen, Dec. 2004.
+!
+! Purpose: copy subblock of matrix.
 
-      Do iCol = 1,nCol
-         Do iSR = 1,nSRow
-            iR = iSRow(iSR)
-            S(iSR,iCol) = X(iR,iCol)
-         End Do
-      End Do
+implicit none
+integer nRow, nCol, nSRow
+integer iSRow(nSRow)
+real*8 X(nRow,nCol), S(nSRow,nCol)
+integer iCol, iSR, iR
 
-      End
+do iCol=1,nCol
+  do iSR=1,nSRow
+    iR = iSRow(iSR)
+    S(iSR,iCol) = X(iR,iCol)
+  end do
+end do
+
+end subroutine ChoMP2_Col_cp

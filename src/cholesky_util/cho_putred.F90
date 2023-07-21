@@ -8,41 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_PUTRED(IPASS,IRED)
+
+subroutine CHO_PUTRED(IPASS,IRED)
 !
-!     Purpose: write reduced set indices to disk and set address for
-!              next write.
-!
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, IndRSh, InfRed, IndRed
-      Implicit Real*8 (a-h,o-z)
+! Purpose: write reduced set indices to disk and set address for
+!          next write.
+
+use ChoArr, only: iSP2F
+use ChoSwp, only: nnBstRSh, IndRSh, InfRed, IndRed
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_PUTRED')
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_PUTRED')
+if (IPASS > MAXRED) then
+  write(LUPRI,*) SECNAM,': integral pass ',IPASS
+  write(LUPRI,*) SECNAM,': max. allowed is ',MAXRED
+  write(LUPRI,*) SECNAM,': please increase max. allowed!'
+  call CHO_QUIT('Too many integral passes in '//SECNAM,104)
+else if (IPASS == 1) then
+  call CHO_PUTRED1(INFRED,nnBstRSh(:,:,1),IndRed(:,1),INDRSH,iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,1)
+  if (MAXRED > 1) INFRED(IPASS+1) = INFRED(IPASS)+NSYM*NNSHL+2*NNBSTRT(1)+NNSHL
+else if (IPASS == MAXRED) then
+  call CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),INDRSH,iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
+else
+  call CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),INDRSH,iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
+  INFRED(IPASS+1) = INFRED(IPASS)+NSYM*NNSHL+NNBSTRT(IRED)
+end if
 
-      IF (IPASS .GT. MAXRED) THEN
-         WRITE(LUPRI,*) SECNAM,': integral pass ',IPASS
-         WRITE(LUPRI,*) SECNAM,': max. allowed is ',MAXRED
-         WRITE(LUPRI,*) SECNAM,': please increase max. allowed!'
-         CALL CHO_QUIT('Too many integral passes in '//SECNAM,104)
-      ELSE IF (IPASS .EQ. 1) THEN
-         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,1),IndRed(:,1),INDRSH,    &
-     &                    iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,1)
-         IF (MAXRED .GT. 1) THEN
-            INFRED(IPASS+1) = INFRED(IPASS)                             &
-     &                      + NSYM*NNSHL + 2*NNBSTRT(1) + NNSHL
-         END IF
-      ELSE IF (IPASS .EQ. MAXRED) THEN
-         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),     &
-     &                    INDRSH,                                       &
-     &                    iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
-      ELSE
-         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),     &
-     &                    INDRSH,                                       &
-     &                   iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
-         INFRED(IPASS+1) = INFRED(IPASS)                                &
-     &                   + NSYM*NNSHL + NNBSTRT(IRED)
-      END IF
-
-      END
+end subroutine CHO_PUTRED

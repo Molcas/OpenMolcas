@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_ReoQual(iQScr,IDK,nK)
-      use ChoSwp, only: iQuAB
-      Implicit None
-      Integer iQScr(*), IDK(*), nK(*)
+
+subroutine Cho_P_ReoQual(iQScr,IDK,nK)
+
+use ChoSwp, only: iQuAB
+
+implicit none
+integer iQScr(*), IDK(*), nK(*)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 
-      Call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
-      If (Cho_Real_Par) Then
-         Call Cho_P_QualSwp()
-         Call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
-         Call Cho_P_QualSwp()
-      End If
+call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
+if (Cho_Real_Par) then
+  call Cho_P_QualSwp()
+  call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
+  call Cho_P_QualSwp()
+end if
 
-      End
+end subroutine Cho_P_ReoQual

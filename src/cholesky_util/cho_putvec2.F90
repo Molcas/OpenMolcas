@@ -8,160 +8,144 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
+
+subroutine CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
 !
-!     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
-!              of symmetry ISYM to file.
+! Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
+!          of symmetry ISYM to file.
 !
-!     Version 2: handles several reduced set at a time.
-!
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 CHOVEC(*)
+! Version 2: handles several reduced set at a time.
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
+real*8 CHOVEC(*)
 #include "cholesky.fh"
+external ddot_
+character*11 SECNAM
+parameter(SECNAM='CHO_PUTVEC2')
+logical LOCDBG
+parameter(LOCDBG=.false.)
 
-      external ddot_
+! Return if no vectors.
+! ---------------------
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_PUTVEC2')
+if (NUMVEC < 1) then
+  if (LOCDBG) then
+    write(LUPRI,*) SECNAM,': WARNING: no vectors in this call!'
+    write(LUPRI,*) SECNAM,': NUMVEC = ',NUMVEC
+  end if
+  return
+end if
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+! Check symmetry.
+! ---------------
 
-!     Return if no vectors.
-!     ---------------------
+if ((ISYM < 1) .or. (ISYM > NSYM)) then
+  write(LUPRI,*) SECNAM,': symmetry out of bounds'
+  write(LUPRI,*) 'ISYM = ',ISYM
+  call CHO_QUIT('Symmetry out of bounds in '//SECNAM,104)
+end if
 
-      IF (NUMVEC .LT. 1) THEN
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': WARNING: no vectors in this call!'
-            WRITE(LUPRI,*) SECNAM,': NUMVEC = ',NUMVEC
-         END IF
-         return
-      END IF
+! Check vector index.
+! -------------------
 
-!     Check symmetry.
-!     ---------------
+IVEC2 = IVEC1+NUMVEC-1
+if ((IVEC1 < 1) .or. (IVEC1 > MAXVEC) .or. (IVEC2 < 1) .or. (IVEC2 > MAXVEC)) then
+  write(LUPRI,*) SECNAM,': vector index out of bounds'
+  write(LUPRI,*) 'IVEC1 = ',IVEC1,' IVEC2 = ',IVEC2
+  write(LUPRI,*) '...must be between 1 and ',MAXVEC
+  call CHO_QUIT('Vector index out of bounds in '//SECNAM,104)
+end if
 
-      IF ((ISYM.LT.1) .OR. (ISYM.GT.NSYM)) THEN
-         WRITE(LUPRI,*) SECNAM,': symmetry out of bounds'
-         WRITE(LUPRI,*) 'ISYM = ',ISYM
-         CALL CHO_QUIT('Symmetry out of bounds in '//SECNAM,104)
-      END IF
+! Check for overflow for WA file addressing.
+! ------------------------------------------
 
-!     Check vector index.
-!     -------------------
+if (CHO_ADRVEC == 1) then
+  IADR2 = INFVEC(IVEC2,4,ISYM)
+  if (INFVEC(IVEC1,4,ISYM) < 0) then
+    write(LUPRI,*) 'Error in ',SECNAM,':'
+    write(LUPRI,*) 'Illegal disk address for first vector: ',INFVEC(IVEC1,4,ISYM)
+    if (INFVEC(IVEC1,4,ISYM) < -1) write(LUPRI,*) '....is it an overflow?'
+    write(LUPRI,*) 'IVEC1 = ',IVEC1,' ISYM = ',ISYM
+    call CHO_QUIT('Illegal disk address in '//SECNAM,104)
+  else if (IADR2 < INFVEC(IVEC1,4,ISYM)) then
+    write(LUPRI,*) 'Error in ',SECNAM,':'
+    write(LUPRI,*) 'Illegal disk address for last vector: ',IADR2
+    if (IADR2 < -1) write(LUPRI,*) '....is it an overflow?'
+    write(LUPRI,*) 'IVEC2 = ',IVEC2,' ISYM = ',ISYM
+    call CHO_QUIT('Illegal disk address in '//SECNAM,104)
+  end if
+end if
 
-      IVEC2 = IVEC1 + NUMVEC - 1
-      IF ((IVEC1.LT.1) .OR. (IVEC1.GT.MAXVEC) .OR.                      &
-     &    (IVEC2.LT.1) .OR. (IVEC2.GT.MAXVEC)) THEN
-         WRITE(LUPRI,*) SECNAM,': vector index out of bounds'
-         WRITE(LUPRI,*) 'IVEC1 = ',IVEC1,' IVEC2 = ',IVEC2
-         WRITE(LUPRI,*) '...must be between 1 and ',MAXVEC
-         CALL CHO_QUIT('Vector index out of bounds in '                 &
-     &                 //SECNAM,104)
-      END IF
+! Call the low-level I/O routines.
+! CHO_ADRVEC=1: WA files.
+! CHO_ADRVEC=2: DA files.
+! Set (next) disk addresses.
+! --------------------------------
 
-!     Check for overflow for WA file addressing.
-!     ------------------------------------------
+if (CHO_ADRVEC == 1) then
+  IOPT = 1  ! synchronous write option
+  LTOT = 0
+  do IVEC=1,NUMVEC
+    JVEC = IVEC1+IVEC-1
+    JRED = INFVEC(JVEC,2,ISYM)
+    LTOT = LTOT+NDIMRS(ISYM,JRED)
+  end do
+  IADR = INFVEC(IVEC1,3,ISYM)
+  call DDAFILE(LUCHO(ISYM),IOPT,CHOVEC,LTOT,IADR)
+  do IVEC=1,NUMVEC-1
+    JVEC = IVEC1+IVEC-1
+    JRED = INFVEC(JVEC,2,ISYM)
+    INFVEC(JVEC+1,3,ISYM) = INFVEC(JVEC,3,ISYM)+NDIMRS(ISYM,JRED)
+  end do
+  IVEC = NUMVEC
+  JVEC = IVEC1+IVEC-1
+  if (JVEC < MAXVEC) then
+    JRED = INFVEC(JVEC,2,ISYM)
+    INFVEC(JVEC+1,3,ISYM) = INFVEC(JVEC,3,ISYM)+NDIMRS(ISYM,JRED)
+  end if
+else if (CHO_ADRVEC == 2) then
+  IOPT = 1  ! synchronous write option
+  KOFF = 1
+  do IVEC=1,NUMVEC-1
+    JVEC = IVEC1+IVEC-1
+    JRED = INFVEC(JVEC,2,ISYM)
+    LTOT = NDIMRS(ISYM,JRED)
+    IADR = INFVEC(JVEC,3,ISYM)
+    call DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
+    INFVEC(JVEC+1,3,ISYM) = IADR
+    KOFF = KOFF+LTOT
+  end do
+  IVEC = NUMVEC
+  JVEC = IVEC1+IVEC-1
+  JRED = INFVEC(JVEC,2,ISYM)
+  LTOT = NDIMRS(ISYM,JRED)
+  IADR = INFVEC(JVEC,3,ISYM)
+  call DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
+  if (JVEC < MAXVEC) INFVEC(JVEC+1,3,ISYM) = IADR
+else
+  call CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)
+end if
 
-      IF (CHO_ADRVEC .EQ. 1) THEN
-         IADR2 = INFVEC(IVEC2,4,ISYM)
-         IF (INFVEC(IVEC1,4,ISYM) .LT. 0) THEN
-            WRITE(LUPRI,*) 'Error in ',SECNAM,':'
-            WRITE(LUPRI,*) 'Illegal disk address for first vector: ',   &
-     &                     INFVEC(IVEC1,4,ISYM)
-            IF (INFVEC(IVEC1,4,ISYM) .LT. -1) THEN
-               WRITE(LUPRI,*) '....is it an overflow?'
-            END IF
-            WRITE(LUPRI,*) 'IVEC1 = ',IVEC1,' ISYM = ',ISYM
-            CALL CHO_QUIT('Illegal disk address in '//SECNAM,104)
-         ELSE IF (IADR2 .LT. INFVEC(IVEC1,4,ISYM)) THEN
-            WRITE(LUPRI,*) 'Error in ',SECNAM,':'
-            WRITE(LUPRI,*) 'Illegal disk address for last vector: ',    &
-     &                     IADR2
-            IF (IADR2 .LT. -1) THEN
-               WRITE(LUPRI,*) '....is it an overflow?'
-            END IF
-            WRITE(LUPRI,*) 'IVEC2 = ',IVEC2,' ISYM = ',ISYM
-            CALL CHO_QUIT('Illegal disk address in '//SECNAM,104)
-         END IF
-      END IF
+! Debug stuff.
+! ------------
 
-!     Call the low-level I/O routines.
-!     CHO_ADRVEC=1: WA files.
-!     CHO_ADRVEC=2: DA files.
-!     Set (next) disk addresses.
-!     --------------------------------
+if (LOCDBG) then
+  write(LUPRI,*)
+  write(LUPRI,*) SECNAM,':'
+  write(LUPRI,*) 'Vectors ',IVEC1,' to ',IVEC1+NUMVEC-1,' of symmetry ',ISYM,' written to unit ',LUCHO(ISYM)
+  KOFF = 1
+  do IVEC=1,NUMVEC
+    JVEC = IVEC1+IVEC-1
+    JRED = INFVEC(JVEC,2,ISYM)
+    LVEC = NDIMRS(ISYM,JRED)
+    JADR = INFVEC(JVEC,3,ISYM)
+    XNRM = sqrt(DDOT_(LVEC,CHOVEC(KOFF),1,CHOVEC(KOFF),1))
+    write(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',XNRM,' dimension: ',LVEC
+    KOFF = KOFF+LVEC
+  end do
+end if
 
-
-      IF (CHO_ADRVEC .EQ. 1) THEN
-         IOPT = 1  ! synchronous write option
-         LTOT = 0
-         DO IVEC = 1,NUMVEC
-            JVEC = IVEC1 + IVEC - 1
-            JRED = INFVEC(JVEC,2,ISYM)
-            LTOT = LTOT + NDIMRS(ISYM,JRED)
-         END DO
-         IADR = INFVEC(IVEC1,3,ISYM)
-         CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC,LTOT,IADR)
-         DO IVEC = 1,NUMVEC-1
-            JVEC = IVEC1 + IVEC - 1
-            JRED = INFVEC(JVEC,2,ISYM)
-            INFVEC(JVEC+1,3,ISYM) =                                     &
-     &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
-         END DO
-         IVEC = NUMVEC
-         JVEC = IVEC1 + IVEC - 1
-         IF (JVEC .LT. MAXVEC) THEN
-            JRED = INFVEC(JVEC,2,ISYM)
-            INFVEC(JVEC+1,3,ISYM) =                                     &
-     &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
-         END IF
-      ELSE IF (CHO_ADRVEC .EQ. 2) THEN
-         IOPT = 1  ! synchronous write option
-         KOFF = 1
-         DO IVEC = 1,NUMVEC-1
-            JVEC = IVEC1 + IVEC - 1
-            JRED = INFVEC(JVEC,2,ISYM)
-            LTOT = NDIMRS(ISYM,JRED)
-            IADR = INFVEC(JVEC,3,ISYM)
-            CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
-            INFVEC(JVEC+1,3,ISYM) = IADR
-            KOFF = KOFF + LTOT
-         END DO
-         IVEC = NUMVEC
-         JVEC = IVEC1 + IVEC - 1
-         JRED = INFVEC(JVEC,2,ISYM)
-         LTOT = NDIMRS(ISYM,JRED)
-         IADR = INFVEC(JVEC,3,ISYM)
-         CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
-         IF (JVEC .LT. MAXVEC) THEN
-            INFVEC(JVEC+1,3,ISYM) = IADR
-         END IF
-      ELSE
-         CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)
-      END IF
-
-!     Debug stuff.
-!     ------------
-
-      IF (LOCDBG) THEN
-         WRITE(LUPRI,*)
-         WRITE(LUPRI,*) SECNAM,':'
-         WRITE(LUPRI,*) 'Vectors ',IVEC1,' to ',IVEC1+NUMVEC-1,         &
-     &                  ' of symmetry ',ISYM,' written to unit ',       &
-     &                  LUCHO(ISYM)
-         KOFF = 1
-         DO IVEC = 1,NUMVEC
-            JVEC = IVEC1 + IVEC - 1
-            JRED = INFVEC(JVEC,2,ISYM)
-            LVEC = NDIMRS(ISYM,JRED)
-            JADR = INFVEC(JVEC,3,ISYM)
-            XNRM = SQRT(DDOT_(LVEC,CHOVEC(KOFF),1,CHOVEC(KOFF),1))
-            WRITE(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',  &
-     &                     XNRM,' dimension: ',LVEC
-            KOFF = KOFF + LVEC
-         END DO
-      END IF
-      END
+end subroutine CHO_PUTVEC2

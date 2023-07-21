@@ -8,101 +8,102 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_WRRSTC(IPASS)
+
+subroutine CHO_WRRSTC(IPASS)
 !
-!     Purpose: write decomposition restart info for integral pass IPASS.
+! Purpose: write decomposition restart info for integral pass IPASS.
 !
-!     NB!!!  The restart files are assumed open on entry.
-!
-      use ChoArr, only: IntMap
-      use ChoSwp, only: InfRed, InfVec
-      Implicit Real*8 (a-h,o-z)
+! NB!!!  The restart files are assumed open on entry.
+
+use ChoArr, only: IntMap
+use ChoSwp, only: InfRed, InfVec
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
+parameter(LSCR=10)
+real*8 DSCR(LSCR)
+integer JSCR(LSCR)
 
-      PARAMETER (LSCR = 10)
-      REAL*8  DSCR(LSCR)
-      INTEGER JSCR(LSCR)
+! Start address on file.
+! ----------------------
 
-!     Start address on file.
-!     ----------------------
+IADR = 0
 
-      IADR = 0
+! Write molecular and configuration info.
+! ---------------------------------------
 
-!     Write molecular and configuration info.
-!     ---------------------------------------
+IOPT = 1
+NWR = 4
+JSCR(1) = NSYM
+JSCR(2) = NSHELL
+JSCR(3) = NNSHL
+JSCR(4) = 0
+call IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
 
+IOPT = 1
+NWR = NSYM
+do ISYM=1,NSYM
+  JSCR(ISYM) = NBAS(ISYM)
+end do
+call IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+
+IOPT = 1
+NWR = 2
+if (SCDIAG) then
+  JSCR(1) = 1
+else
+  JSCR(1) = 0
+end if
+JSCR(2) = CHO_ADRVEC
+call IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+
+IOPT = 1
+NWR = 8
+DSCR(1) = THRCOM
+DSCR(2) = THRDIAG
+DSCR(3) = DAMP(1)
+DSCR(4) = DAMP(2)
+DSCR(5) = SPAN
+DSCR(6) = THRNEG
+DSCR(7) = WARNEG
+DSCR(8) = TOONEG
+call DDAFILE(LURST,IOPT,DSCR,NWR,IADR)
+
+! Write vector info.
+! ------------------
+
+IOPT = 1
+NWR = 1
+JSCR(1) = IPASS
+call IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+
+IOPT = 1
+call IDAFILE(LURST,IOPT,INFRED,IPASS,IADR)
+
+do ISYM=1,NSYM
+  IOPT = 1
+  NWR = 1
+  JSCR(1) = NUMCHO(ISYM)
+  call IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+  if (NUMCHO(ISYM) > 0) then
+    do J=1,size(INFVEC,2)
       IOPT = 1
-      NWR  = 4
-      JSCR(1) = NSYM
-      JSCR(2) = NSHELL
-      JSCR(3) = NNSHL
-      JSCR(4) = 0
-      CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+      NTOT = NUMCHO(ISYM)
+      call IDAFILE(LURST,IOPT,InfVec(:,J,ISYM),NTOT,IADR)
+    end do
+  end if
+end do
 
-      IOPT = 1
-      NWR  = NSYM
-      DO ISYM = 1,NSYM
-         JSCR(ISYM) = NBAS(ISYM)
-      END DO
-      CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+! Write integral shell pair map to disk.
+! --------------------------------------
 
-      IOPT = 1
-      NWR  = 2
-      IF (SCDIAG) THEN
-         JSCR(1) = 1
-      ELSE
-         JSCR(1) = 0
-      END IF
-      JSCR(2) = CHO_ADRVEC
-      CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
+IOPT = 1
+NDIM = 0
+if (allocated(IntMap)) then
+  NDIM = size(IntMap)
+  JADR = 0
+  call IDAFILE(LUMAP,IOPT,INTMAP,NDIM,JADR)
+end if
 
-      IOPT = 1
-      NWR  = 8
-      DSCR(1) = THRCOM
-      DSCR(2) = THRDIAG
-      DSCR(3) = DAMP(1)
-      DSCR(4) = DAMP(2)
-      DSCR(5) = SPAN
-      DSCR(6) = THRNEG
-      DSCR(7) = WARNEG
-      DSCR(8) = TOONEG
-      CALL DDAFILE(LURST,IOPT,DSCR,NWR,IADR)
-
-!     Write vector info.
-!     ------------------
-
-      IOPT = 1
-      NWR  = 1
-      JSCR(1) = IPASS
-      CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
-
-      IOPT = 1
-      CALL IDAFILE(LURST,IOPT,INFRED,IPASS,IADR)
-
-      DO ISYM = 1,NSYM
-         IOPT = 1
-         NWR  = 1
-         JSCR(1) = NUMCHO(ISYM)
-         CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
-         IF (NUMCHO(ISYM) .GT. 0) THEN
-            DO J = 1,SIZE(INFVEC,2)
-               IOPT = 1
-               NTOT = NUMCHO(ISYM)
-               CALL IDAFILE(LURST,IOPT,InfVec(:,J,ISYM),NTOT,IADR)
-            END DO
-         END IF
-      END DO
-
-!     Write integral shell pair map to disk.
-!     --------------------------------------
-
-      IOPT = 1
-      NDIM=0
-      IF (Allocated(IntMap)) THEN
-         NDIM = SIZE(IntMap)
-         JADR = 0
-         CALL IDAFILE(LUMAP,IOPT,INTMAP,NDIM,JADR)
-      END IF
-
-      END
+end subroutine CHO_WRRSTC

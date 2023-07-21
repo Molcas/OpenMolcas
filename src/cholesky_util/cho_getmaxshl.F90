@@ -8,34 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETMAXSHL(DIASH,SMAX,ISHLAB)
+
+subroutine CHO_GETMAXSHL(DIASH,SMAX,ISHLAB)
 !
-!     Purpose: Get max. shell pair and update DIASH.
-!
-      IMPLICIT NONE
-      REAL*8  DIASH(*)
-      REAL*8  SMAX
-      INTEGER ISHLAB
+! Purpose: Get max. shell pair and update DIASH.
+
+implicit none
+real*8 DIASH(*)
+real*8 SMAX
+integer ISHLAB
 #include "cholesky.fh"
+integer JSHLAB
+character*13 SECNAM
+parameter(SECNAM='CHO_GETMAXSHL')
 
-      INTEGER JSHLAB
+SMAX = -1.0d9
+ISHLAB = -1
+do JSHLAB=1,NNSHL
+  if (DIASH(JSHLAB) > SMAX) then
+    SMAX = DIASH(JSHLAB)
+    ISHLAB = JSHLAB
+  end if
+end do
 
-      CHARACTER*13 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETMAXSHL')
+if (ISHLAB < 1) then
+  call CHO_QUIT('Error in '//SECNAM,104)
+else
+  DIASH(ISHLAB) = 0.0d0
+end if
 
-      SMAX   = -1.0D9
-      ISHLAB = -1
-      DO JSHLAB = 1,NNSHL
-         IF (DIASH(JSHLAB) .GT. SMAX) THEN
-            SMAX   = DIASH(JSHLAB)
-            ISHLAB = JSHLAB
-         END IF
-      END DO
-
-      IF (ISHLAB .LT. 1) THEN
-         CALL CHO_QUIT('Error in '//SECNAM,104)
-      ELSE
-         DIASH(ISHLAB) = 0.0D0
-      END IF
-
-      END
+end subroutine CHO_GETMAXSHL

@@ -10,29 +10,27 @@
 !                                                                      *
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Integer Function Cho_iFindSmallest(iVec,n)
+
+integer function Cho_iFindSmallest(iVec,n)
 !
-!     Thomas Bondo Pedersen, June 2007.
+! Thomas Bondo Pedersen, June 2007.
 !
-!     Return index of smallest element in array iVec.
-!
-      Implicit None
-      Integer n
-      Integer iVec(n)
+! Return index of smallest element in array iVec.
 
-      Integer i, imin
+implicit none
+integer n
+integer iVec(n)
+integer i, imin
 
-      If (n .lt. 1) Then
-         imin = 0
-      Else
-         imin = n
-         Do i = n-1,1,-1
-            If (iVec(i) .lt. iVec(imin)) Then
-               imin = i
-            End If
-         End Do
-      End If
+if (n < 1) then
+  imin = 0
+else
+  imin = n
+  do i=n-1,1,-1
+    if (iVec(i) < iVec(imin)) imin = i
+  end do
+end if
 
-      Cho_iFindSmallest = imin
+Cho_iFindSmallest = imin
 
-      End
+end function Cho_iFindSmallest

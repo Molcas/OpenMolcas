@@ -10,72 +10,72 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_TraDrv(irc,CMO,Diag,DoDiag)
+
+subroutine ChoMP2g_TraDrv(irc,CMO,Diag,DoDiag)
 !
-!     Jonas Bostrom, Jan. 2010. (modified from ChoMP2_TraDrv)
+! Jonas Bostrom, Jan. 2010. (modified from ChoMP2_TraDrv)
 !
-!     Purpose: AO-to-MO (pq) transformation of Cholesky vectors
-!              performed directly in reduced sets. This assumes
-!              that the MP2 program has been appropriately initialized.
-!
-      use stdalloc
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Integer irc
-      Real*8  CMO(*), Diag(*)
-      Logical DoDiag, DoDiagbak
+! Purpose: AO-to-MO (pq) transformation of Cholesky vectors
+!          performed directly in reduced sets. This assumes
+!          that the MP2 program has been appropriately initialized.
+
+use stdalloc
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+integer irc
+real*8 CMO(*), Diag(*)
+logical DoDiag, DoDiagbak
 #include "cholesky.fh"
 #include "chomp2.fh"
+character(len=6), parameter :: ThisNm = 'TraDrv'
+character(len=14), parameter :: SecNam = 'ChoMP2g_TraDrv'
+real*8, allocatable :: COrb1(:), COrb2(:)
 
-      Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
-      Character(LEN=14), Parameter:: SecNam = 'ChoMP2g_TraDrv'
+irc = 0
 
-      Real*8, Allocatable:: COrb1(:), COrb2(:)
+! Reorder MO coefficients.
+! ------------------------
 
-      irc = 0
+DoDiagBak = DoDiag
+DoDiag = .false.
+nProdType = nMOType**2
+l_COrb = 0
+do iSym=1,nSym
+  nAdrOff(iSym) = 0
+end do
 
-!     Reorder MO coefficients.
-!     ------------------------
+do iSym=1,nSym
+  do i=1,nProdType
+    l_COrb = max(l_COrb,nMoAo(iSym,i))
+  end do
+end do
+call mma_allocate(COrb1,l_COrb,Label='COrb1')
+call mma_allocate(COrb2,l_COrb,Label='COrb2')
 
-      DoDiagBak = DoDiag
-      DoDiag = .false.
-      nProdType = nMOType**2
-      l_COrb = 0
-      Do iSym = 1, nSym
-         nAdrOff(iSym) = 0
-      End Do
-!
-      Do iSym = 1, nSym
-         Do i = 1, nProdType
-            l_COrb = max(l_COrb,nMoAo(iSym,i))
-         End Do
-      End Do
-      Call mma_allocate(COrb1,l_COrb,Label='COrb1')
-      Call mma_allocate(COrb2,l_COrb,Label='COrb2')
-!
-      DoDiag = .True.
-      Call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,2,3)
-      Call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,2,3)
-      DoDiag = .False.
-      Do iMoType = 1,3
-         Do jMOType =  1, 3
-            If((iMoType .eq. 2) .and. (jMoType .eq. 3)) Go To 50
+DoDiag = .true.
+call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,2,3)
+call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,2,3)
+DoDiag = .false.
+do iMoType=1,3
+  do jMOType=1,3
+    if ((iMoType == 2) .and. (jMoType == 3)) Go To 50
 
-            Call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMOType,jMOType)
-!           Transform vectors.
-!           ------------------
-            Call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType,jMoType)
+    call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMOType,jMOType)
+    ! Transform vectors.
+    ! ------------------
+    call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType,jMoType)
 
- 50         Continue
-         End Do
-      End Do
+50  continue
+  end do
+end do
 
-!     Deallocate reordered MO coefficients.
-!     -------------------------------------
+! Deallocate reordered MO coefficients.
+! -------------------------------------
 
-      DoDiag = DoDiagBak
+DoDiag = DoDiagBak
 
-      Call mma_deallocate(COrb2)
-      Call mma_deallocate(COrb1)
+call mma_deallocate(COrb2)
+call mma_deallocate(COrb1)
 
-      End
+end subroutine ChoMP2g_TraDrv

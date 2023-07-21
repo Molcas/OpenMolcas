@@ -10,68 +10,66 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
+
+subroutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Determine distribution of Shell Pairs according to their
-!     dimension.
-!
-      Use Para_Info, Only: MyRank, nProcs
-      use ChoSwp, only: nnBstRSh
-      use stdalloc
-      Implicit None
-      Integer l_mySP
-      Integer mySP(l_mySP)
-      Integer N_mySP
+! Determine distribution of Shell Pairs according to their
+! dimension.
+
+use Para_Info, only: MyRank, nProcs
+use ChoSwp, only: nnBstRSh
+use stdalloc
+
+implicit none
+integer l_mySP
+integer mySP(l_mySP)
+integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
+integer Cho_iFindSmallest
+external Cho_iFindSmallest
+integer iSP, iNode, n, iSym
+integer, allocatable :: ProcDim(:)
 
-      Integer  Cho_iFindSmallest
-      External Cho_iFindSmallest
-
-      Integer iSP, iNode, n, iSym
-      Integer, Allocatable:: ProcDim(:)
-
-#if defined (_DEBUGPRINT_)
-      If (l_mySP.lt.nnShl) Then
-         Call Cho_Quit('Dimension error in Cho_XCV_Distrib_SP',103)
-      End If
+#ifdef _DEBUGPRINT_
+if (l_mySP < nnShl) call Cho_Quit('Dimension error in Cho_XCV_Distrib_SP',103)
 #endif
 
-      If (Cho_Real_Par) Then
-         Call mma_allocate(ProcDim,nProcs,Label='ProcDim')
-         ProcDim(:)=0
+if (Cho_Real_Par) then
+  call mma_allocate(ProcDim,nProcs,Label='ProcDim')
+  ProcDim(:) = 0
 
-         N_mySP=0
-         Do iSP=1,nnShl
-            n=nnBstRSh(1,iSP,1)
-            Do iSym=2,nSym
-               n=n+nnBstRSh(iSym,iSP,1)
-            End Do
-            If (n.gt.0) Then
-               iNode=Cho_iFindSmallest(ProcDim,nProcs)
-               ProcDim(iNode)=ProcDim(iNode)+n
-               If (iNode-1.eq.myRank) Then
-                  N_mySP=N_mySP+1
-                  mySP(N_mySP)=iSP
-               End If
-            End If
-         End Do
+  N_mySP = 0
+  do iSP=1,nnShl
+    n = nnBstRSh(1,iSP,1)
+    do iSym=2,nSym
+      n = n+nnBstRSh(iSym,iSP,1)
+    end do
+    if (n > 0) then
+      iNode = Cho_iFindSmallest(ProcDim,nProcs)
+      ProcDim(iNode) = ProcDim(iNode)+n
+      if (iNode-1 == myRank) then
+        N_mySP = N_mySP+1
+        mySP(N_mySP) = iSP
+      end if
+    end if
+  end do
 
-         Call mma_deallocate(ProcDim)
-      Else
-         N_mySP=0
-         Do iSP=1,nnShl
-            n=nnBstRSh(1,iSP,1)
-            Do iSym=2,nSym
-               n=n+nnBstRSh(iSym,iSP,1)
-            End Do
-            If (n.gt.0) Then
-               N_mySP=N_mySP+1
-               mySP(N_mySP)=iSP
-            End If
-         End Do
-      End If
+  call mma_deallocate(ProcDim)
+else
+  N_mySP = 0
+  do iSP=1,nnShl
+    n = nnBstRSh(1,iSP,1)
+    do iSym=2,nSym
+      n = n+nnBstRSh(iSym,iSP,1)
+    end do
+    if (n > 0) then
+      N_mySP = N_mySP+1
+      mySP(N_mySP) = iSP
+    end if
+  end do
+end if
 
-      End
+end subroutine Cho_XCV_Distrib_SP

@@ -11,350 +11,282 @@
 ! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 !               Francesco Aquilante                                    *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,           &
-     &                                       LnT2am,LiT2am,             &
-     &                                       iBatch,jBatch)
+
+subroutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBatch)
 !
-!     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
+! Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
 !
-!     Purpose: compute (MINUS the) energy contribution from a
-!              batch of (ai|bj) integrals.
+! Purpose: compute (MINUS the) energy contribution from a
+!          batch of (ai|bj) integrals.
 !
-!     Modified by F. Aquilante to add contributions from T1 amplitudes
-!                              determined from Thouless formula
-!
-      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
-      Implicit Real*8 (a-h,o-z)
-      Real*8  EOcc(*), EVir(*), Xaibj(LnT2am)
-      Integer LiT2am(8)
+! Modified by F. Aquilante to add contributions from T1 amplitudes
+!                          determined from Thouless formula
+
+use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
+
+implicit real*8(a-h,o-z)
+real*8 EOcc(*), EVir(*), Xaibj(LnT2am)
+integer LiT2am(8)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+integer a, b, aibj, biaj, abij, baij
+! Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Integer a, b, aibj, biaj, abij, baij
+call Cho_GAdGOp(Xaibj,LnT2am,'+')
 
-      MulD2h(i,j)=iEor(i-1,j-1)+1
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+if (iBatch == jBatch) then
 
-      Call Cho_GAdGOp(Xaibj,LnT2am,'+')
+  if (ChoAlg == 2) then ! M(ab,ij)=(ai|bj) with i<=j.
+    do iSymj=1,nSym
+      iSymi = iSymj
+      do Lj=1,LnOcc(iSymj,jBatch)
+        j = iFirstS(iSymj,jBatch)+Lj-1
+        do Li=1,LnOcc(iSymi,iBatch)
+          i = iFirstS(iSymi,iBatch)+Li-1
+          ij = LiMatij(iSymi,iSymj,iBatch)+iTri(Li,Lj)
+          do iSymb=1,nSym
+            iSyma = iSymb
+            if (iSymj == iSymb) then
+              do b=1,nVir(iSymb)
+                abij = LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSyma,iSymb)+nVir(iSyma)*(b-1)
+                baij = LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSyma)-nVir(iSymb)+b
+                do a=1,nVir(iSyma)
+                  abij = abij+1
+                  baij = baij+nVir(iSymb)
+                  Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                  ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
+                  jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
+                  Xtmp = Xaibj(abij)
+                  Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                  Waibj = 2.0d0*Xtmp
+                  EOSMP2 = EOSMP2+Taibj*Waibj
+                  Waibj = Waibj-Xaibj(baij)
+                  Eaibj = Taibj*Waibj
+                  EMP2 = EMP2+Eaibj
+                  WREF = WREF+Eaibj/Dnom
+                end do
+              end do
+            else
+              do b=1,nVir(iSymb)
+                abij = LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSyma,iSymb)+nVir(iSyma)*(b-1)
+                baij = LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSyma)-nVir(iSymb)+b
+                do a=1,nVir(iSyma)
+                  abij = abij+1
+                  baij = baij+nVir(iSymb)
+                  Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                  Xtmp = Xaibj(abij)
+                  Taibj = Xtmp/Dnom
+                  Waibj = 2.0d0*Xtmp
+                  EOSMP2 = EOSMP2+Taibj*Waibj
+                  Waibj = Waibj-Xaibj(baij)
+                  Eaibj = Taibj*Waibj
+                  EMP2 = EMP2+Eaibj
+                  WREF = WREF+Eaibj/Dnom
+                end do
+              end do
+            end if
+          end do
+        end do
+      end do
+    end do
+    do iSymij=2,nSym
+      iSymab = iSymij
+      do iSym2=1,nSym
+        iSym1 = MulD2h(iSym2,iSymij)
+        iSymj = max(iSym1,iSym2)
+        iSymi = min(iSym1,iSym2)
+        do Lj=1,LnOcc(iSymj,jBatch)
+          j = iFirstS(iSymj,jBatch)+Lj-1
+          do Li=1,LnOcc(iSymi,iBatch)
+            i = iFirstS(iSymi,iBatch)+Li-1
+            ij = LiMatij(iSymi,iSymj,iBatch)+LnOcc(iSymi,iBatch)*(Lj-1)+Li
+            do iSymb=1,nSym
+              iSyma = MulD2h(iSymb,iSymab)
+              if ((iSymi == iSyma) .and. (iSymj == iSymb)) then
+                do b=1,nVir(iSymb)
+                  abij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSyma,iSymb)+nVir(iSyma)*(b-1)
+                  baij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSymb,iSyma)-nVir(iSymb)+b
+                  do a=1,nVir(iSyma)
+                    abij = abij+1
+                    baij = baij+nVir(iSymb)
+                    Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                    ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
+                    jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
+                    Xtmp = Xaibj(abij)
+                    Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                    Waibj = 2.0d0*Xtmp
+                    EOSMP2 = EOSMP2+Taibj*Waibj
+                    Waibj = Waibj-Xaibj(baij)
+                    Eaibj = Taibj*Waibj
+                    EMP2 = EMP2+Eaibj
+                    WREF = WREF+Eaibj/Dnom
+                  end do
+                end do
+              else
+                do b=1,nVir(iSymb)
+                  abij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSyma,iSymb)+nVir(iSyma)*(b-1)
+                  baij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSymb,iSyma)-nVir(iSymb)+b
+                  do a=1,nVir(iSyma)
+                    abij = abij+1
+                    baij = baij+nVir(iSymb)
+                    Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                    Xtmp = Xaibj(abij)
+                    Taibj = Xtmp/Dnom
+                    Waibj = 2.0d0*Xtmp
+                    EOSMP2 = EOSMP2+Taibj*Waibj
+                    Waibj = Waibj-Xaibj(baij)
+                    Eaibj = Taibj*Waibj
+                    EMP2 = EMP2+Eaibj
+                    WREF = WREF+Eaibj/Dnom
+                  end do
+                end do
+              end if
+            end do
+          end do
+        end do
+      end do
+    end do
+  else ! triangular storage, (ai|bj) with ai<=bj.
+    do iSymbj=1,nSym
+      iSymai = iSymbj
+      do iSymj=1,nSym
+        iSymb = MulD2h(iSymj,iSymbj)
+        do Lj=1,LnOcc(iSymj,jBatch)
+          j = iFirstS(iSymj,jBatch)+Lj-1
+          do b=1,nVir(iSymb)
+            Lbj = LiT1am(iSymb,iSymj,jBatch)+nVir(iSymb)*(Lj-1)+b
+            do iSymi=1,nSym
+              iSyma = MulD2h(iSymi,iSymai)
+              iSymaj = MulD2h(iSyma,iSymj)
+              iSymbi = iSymaj
+              if ((iSymi == iSyma) .and. (iSymj == iSymb)) then
+                do Li=1,LnOcc(iSymi,iBatch)
+                  i = iFirstS(iSymi,iBatch)+Li-1
+                  Lbi = LiT1am(iSymb,iSymi,iBatch)+nVir(iSymb)*(Li-1)+b
+                  do a=1,nVir(iSyma)
+                    Lai = LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(Li-1)+a
+                    Laj = LiT1am(iSyma,iSymj,jBatch)+nVir(iSyma)*(Lj-1)+a
+                    aibj = LiT2am(iSymai)+iTri(Lai,Lbj)
+                    biaj = LiT2am(iSymbi)+iTri(Lbi,Laj)
+                    Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                    ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
+                    jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
+                    Xtmp = Xaibj(aibj)
+                    Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                    Waibj = 2.0d0*Xtmp
+                    EOSMP2 = EOSMP2+Taibj*Waibj
+                    Waibj = Waibj-Xaibj(biaj)
+                    Eaibj = Taibj*Waibj
+                    EMP2 = EMP2+Eaibj
+                    WREF = WREF+Eaibj/Dnom
+                  end do
+                end do
+              else
+                do Li=1,LnOcc(iSymi,iBatch)
+                  i = iFirstS(iSymi,iBatch)+Li-1
+                  Lbi = LiT1am(iSymb,iSymi,iBatch)+nVir(iSymb)*(Li-1)+b
+                  do a=1,nVir(iSyma)
+                    Lai = LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(Li-1)+a
+                    Laj = LiT1am(iSyma,iSymj,jBatch)+nVir(iSyma)*(Lj-1)+a
+                    aibj = LiT2am(iSymai)+iTri(Lai,Lbj)
+                    biaj = LiT2am(iSymbi)+iTri(Lbi,Laj)
+                    Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                    Xtmp = Xaibj(aibj)
+                    Taibj = Xtmp/Dnom
+                    Waibj = 2.0d0*Xtmp
+                    EOSMP2 = EOSMP2+Taibj*Waibj
+                    Waibj = Waibj-Xaibj(biaj)
+                    Eaibj = Taibj*Waibj
+                    EMP2 = EMP2+Eaibj
+                    WREF = WREF+Eaibj/Dnom
+                  end do
+                end do
+              end if
+            end do
+          end do
+        end do
+      end do
+    end do
+  end if
 
-      If (iBatch .eq. jBatch) Then
+else ! rectangular storage (ai|bj) with ai<bj.
 
-         If (ChoAlg .eq. 2) Then ! M(ab,ij)=(ai|bj) with i<=j.
-            Do iSymj = 1,nSym
-               iSymi = iSymj
-               Do Lj = 1,LnOcc(iSymj,jBatch)
-                  j = iFirstS(iSymj,jBatch) + Lj - 1
-                  Do Li = 1,LnOcc(iSymi,iBatch)
-                     i = iFirstS(iSymi,iBatch) + Li - 1
-                     ij = LiMatij(iSymi,iSymj,iBatch) + iTri(Li,Lj)
-                     Do iSymb = 1,nSym
-                        iSyma = iSymb
-                        If (iSymj.eq.iSymb) Then
-                         Do b = 1,nVir(iSymb)
-                           abij = LiT2am(1)                             &
-     &                          + nMatab(1)*(ij-1)                      &
-     &                          + iMatab(iSyma,iSymb)                   &
-     &                          + nVir(iSyma)*(b-1)
-                           baij = LiT2am(1)                             &
-     &                          + nMatab(1)*(ij-1)                      &
-     &                          + iMatab(iSymb,iSyma)                   &
-     &                          - nVir(iSymb) + b
-                           Do a = 1,nVir(iSyma)
-                              abij = abij+1
-                              baij = baij+nVir(iSymb)
-                              Dnom = EVir(iVir(iSyma)+a)                &
-     &                             - EOcc(iOcc(iSymi)+i)                &
-     &                             + EVir(iVir(iSymb)+b)                &
-     &                             - EOcc(iOcc(iSymj)+j)
-                              ia = iOffT1(iSymi) + nOcc(iSymi)*(a-1) + i
-                              jb = iOffT1(iSymj) + nOcc(iSymj)*(b-1) + j
-                              Xtmp  = Xaibj(abij)
-                              Taibj = Xtmp/Dnom - Work(ia)*Work(jb)
-                              Waibj = 2.0D0*Xtmp
-                              EOSMP2= EOSMP2 + Taibj*Waibj
-                              Waibj = Waibj - Xaibj(baij)
-                              Eaibj = Taibj*Waibj
-                              EMP2  = EMP2 + Eaibj
-                              WREF  = WREF + Eaibj/Dnom
-                           End Do
-                         End Do
-                        Else
-                         Do b = 1,nVir(iSymb)
-                           abij = LiT2am(1)                             &
-     &                          + nMatab(1)*(ij-1)                      &
-     &                          + iMatab(iSyma,iSymb)                   &
-     &                          + nVir(iSyma)*(b-1)
-                           baij = LiT2am(1)                             &
-     &                          + nMatab(1)*(ij-1)                      &
-     &                          + iMatab(iSymb,iSyma)                   &
-     &                          - nVir(iSymb) + b
-                           Do a = 1,nVir(iSyma)
-                              abij = abij+1
-                              baij = baij+nVir(iSymb)
-                              Dnom = EVir(iVir(iSyma)+a)                &
-     &                             - EOcc(iOcc(iSymi)+i)                &
-     &                             + EVir(iVir(iSymb)+b)                &
-     &                             - EOcc(iOcc(iSymj)+j)
-                              Xtmp  = Xaibj(abij)
-                              Taibj = Xtmp/Dnom
-                              Waibj = 2.0D0*Xtmp
-                              EOSMP2= EOSMP2 + Taibj*Waibj
-                              Waibj = Waibj - Xaibj(baij)
-                              Eaibj = Taibj*Waibj
-                              EMP2  = EMP2 + Eaibj
-                              WREF  = WREF + Eaibj/Dnom
-                           End Do
-                         End Do
-                        EndIf
-                     End Do
-                  End Do
-               End Do
-            End Do
-            Do iSymij = 2,nSym
-               iSymab = iSymij
-               Do iSym2 = 1,nSym
-                  iSym1 = MulD2h(iSym2,iSymij)
-                  iSymj = max(iSym1,iSym2)
-                  iSymi = min(iSym1,iSym2)
-                  Do Lj = 1,LnOcc(iSymj,jBatch)
-                     j = iFirstS(iSymj,jBatch) + Lj - 1
-                     Do Li = 1,LnOcc(iSymi,iBatch)
-                        i = iFirstS(iSymi,iBatch) + Li - 1
-                        ij = LiMatij(iSymi,iSymj,iBatch)                &
-     &                     + LnOcc(iSymi,iBatch)*(Lj-1) + Li
-                        Do iSymb = 1,nSym
-                           iSyma = MulD2h(iSymb,iSymab)
-                           If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
-                            Do b = 1,nVir(iSymb)
-                              abij = LiT2am(iSymij)                     &
-     &                             + nMatab(iSymab)*(ij-1)              &
-     &                             + iMatab(iSyma,iSymb)                &
-     &                             + nVir(iSyma)*(b-1)
-                              baij = LiT2am(iSymij)                     &
-     &                             + nMatab(iSymab)*(ij-1)              &
-     &                             + iMatab(iSymb,iSyma)                &
-     &                             - nVir(iSymb) + b
-                              Do a = 1,nVir(iSyma)
-                                 abij = abij+1
-                                 baij = baij+nVir(iSymb)
-                                 Dnom = EVir(iVir(iSyma)+a)             &
-     &                                - EOcc(iOcc(iSymi)+i)             &
-     &                                + EVir(iVir(iSymb)+b)             &
-     &                                - EOcc(iOcc(iSymj)+j)
-                                 ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
-                                 jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
-                                 Xtmp  = Xaibj(abij)
-                                 Taibj = Xtmp/Dnom - Work(ia)*Work(jb)
-                                 Waibj = 2.0D0*Xtmp
-                                 EOSMP2= EOSMP2 + Taibj*Waibj
-                                 Waibj = Waibj - Xaibj(baij)
-                                 Eaibj = Taibj*Waibj
-                                 EMP2  = EMP2 + Eaibj
-                                 WREF  = WREF + Eaibj/Dnom
-                              End Do
-                            End Do
-                           Else
-                            Do b = 1,nVir(iSymb)
-                              abij = LiT2am(iSymij)                     &
-     &                             + nMatab(iSymab)*(ij-1)              &
-     &                             + iMatab(iSyma,iSymb)                &
-     &                             + nVir(iSyma)*(b-1)
-                              baij = LiT2am(iSymij)                     &
-     &                             + nMatab(iSymab)*(ij-1)              &
-     &                             + iMatab(iSymb,iSyma)                &
-     &                             - nVir(iSymb) + b
-                              Do a = 1,nVir(iSyma)
-                                 abij = abij+1
-                                 baij = baij+nVir(iSymb)
-                                 Dnom = EVir(iVir(iSyma)+a)             &
-     &                                - EOcc(iOcc(iSymi)+i)             &
-     &                                + EVir(iVir(iSymb)+b)             &
-     &                                - EOcc(iOcc(iSymj)+j)
-                                 Xtmp  = Xaibj(abij)
-                                 Taibj = Xtmp/Dnom
-                                 Waibj = 2.0D0*Xtmp
-                                 EOSMP2= EOSMP2 + Taibj*Waibj
-                                 Waibj = Waibj - Xaibj(baij)
-                                 Eaibj = Taibj*Waibj
-                                 EMP2  = EMP2 + Eaibj
-                                 WREF  = WREF + Eaibj/Dnom
-                              End Do
-                            End Do
-                           EndIf
-                        End Do
-                     End Do
-                  End Do
-               End Do
-            End Do
-         Else ! triangular storage, (ai|bj) with ai<=bj.
-            Do iSymbj = 1,nSym
-               iSymai = iSymbj
-               Do iSymj = 1,nSym
-                  iSymb = MulD2h(iSymj,iSymbj)
-                  Do Lj = 1,LnOcc(iSymj,jBatch)
-                     j = iFirstS(iSymj,jBatch) + Lj - 1
-                     Do b = 1,nVir(iSymb)
-                        Lbj = LiT1am(iSymb,iSymj,jBatch)                &
-     &                      + nVir(iSymb)*(Lj - 1) + b
-                        Do iSymi = 1,nSym
-                           iSyma  = MulD2h(iSymi,iSymai)
-                           iSymaj = MulD2h(iSyma,iSymj)
-                           iSymbi = iSymaj
-                           If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
-                            Do Li = 1,LnOcc(iSymi,iBatch)
-                              i   = iFirstS(iSymi,iBatch) + Li - 1
-                              Lbi = LiT1am(iSymb,iSymi,iBatch)          &
-     &                            + nVir(iSymb)*(Li - 1) + b
-                              Do a = 1,nVir(iSyma)
-                                 Lai = LiT1am(iSyma,iSymi,iBatch)       &
-     &                               + nVir(iSyma)*(Li - 1) + a
-                                 Laj = LiT1am(iSyma,iSymj,jBatch)       &
-     &                               + nVir(iSyma)*(Lj - 1) + a
-                                 aibj = LiT2am(iSymai) + iTri(Lai,Lbj)
-                                 biaj = LiT2am(iSymbi) + iTri(Lbi,Laj)
-                                 Dnom = EVir(iVir(iSyma)+a)             &
-     &                                - EOcc(iOcc(iSymi)+i)             &
-     &                                + EVir(iVir(iSymb)+b)             &
-     &                                - EOcc(iOcc(iSymj)+j)
-                                 ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
-                                 jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
-                                 Xtmp  = Xaibj(aibj)
-                                 Taibj = Xtmp/Dnom - Work(ia)*Work(jb)
-                                 Waibj = 2.0D0*Xtmp
-                                 EOSMP2= EOSMP2 + Taibj*Waibj
-                                 Waibj = Waibj - Xaibj(biaj)
-                                 Eaibj = Taibj*Waibj
-                                 EMP2  = EMP2 + Eaibj
-                                 WREF  = WREF + Eaibj/Dnom
-                              End Do
-                            End Do
-                           Else
-                            Do Li = 1,LnOcc(iSymi,iBatch)
-                              i   = iFirstS(iSymi,iBatch) + Li - 1
-                              Lbi = LiT1am(iSymb,iSymi,iBatch)          &
-     &                            + nVir(iSymb)*(Li - 1) + b
-                              Do a = 1,nVir(iSyma)
-                                 Lai = LiT1am(iSyma,iSymi,iBatch)       &
-     &                               + nVir(iSyma)*(Li - 1) + a
-                                 Laj = LiT1am(iSyma,iSymj,jBatch)       &
-     &                               + nVir(iSyma)*(Lj - 1) + a
-                                 aibj = LiT2am(iSymai) + iTri(Lai,Lbj)
-                                 biaj = LiT2am(iSymbi) + iTri(Lbi,Laj)
-                                 Dnom = EVir(iVir(iSyma)+a)             &
-     &                                - EOcc(iOcc(iSymi)+i)             &
-     &                                + EVir(iVir(iSymb)+b)             &
-     &                                - EOcc(iOcc(iSymj)+j)
-                                 Xtmp  = Xaibj(aibj)
-                                 Taibj = Xtmp/Dnom
-                                 Waibj = 2.0D0*Xtmp
-                                 EOSMP2= EOSMP2 + Taibj*Waibj
-                                 Waibj = Waibj - Xaibj(biaj)
-                                 Eaibj = Taibj*Waibj
-                                 EMP2  = EMP2 + Eaibj
-                                 WREF  = WREF + Eaibj/Dnom
-                              End Do
-                            End Do
-                           EndIf
-                        End Do
-                     End Do
-                  End Do
-               End Do
-            End Do
-         End If
+  EMP2_sav = EMP2
+  EMP2 = 0.0d0
+  WREF_sav = WREF
+  WREF = 0.0d0
+  EOSMP2_sav = EOSMP2
+  EOSMP2 = 0.0d0
+  do iSymbj=1,nSym
+    iSymai = iSymbj
+    do iSymj=1,nSym
+      iSymb = MulD2h(iSymj,iSymbj)
+      do Lj=1,LnOcc(iSymj,jBatch)
+        j = iFirstS(iSymj,jBatch)+Lj-1
+        do b=1,nVir(iSymb)
+          Lbj = LiT1am(iSymb,iSymj,jBatch)+nVir(iSymb)*(Lj-1)+b
+          do iSymi=1,nSym
+            iSyma = MulD2h(iSymi,iSymai)
+            iSymaj = MulD2h(iSyma,iSymj)
+            iSymbi = iSymaj
+            if ((iSymi == iSyma) .and. (iSymj == iSymb)) then
+              do Li=1,LnOcc(iSymi,iBatch)
+                i = iFirstS(iSymi,iBatch)+Li-1
+                Lbi = LiT1am(iSymb,iSymi,iBatch)+nVir(iSymb)*(Li-1)+b
+                do a=1,nVir(iSyma)
+                  Lai = LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(Li-1)+a
+                  Laj = LiT1am(iSyma,iSymj,jBatch)+nVir(iSyma)*(Lj-1)+a
+                  aibj = LiT2am(iSymai)+LnT1am(iSymai,iBatch)*(Lbj-1)+Lai
+                  biaj = LiT2am(iSymbi)+LnT1am(iSymbi,iBatch)*(Laj-1)+Lbi
+                  Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                  ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
+                  jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
+                  Xtmp = Xaibj(aibj)
+                  Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                  Waibj = 2.0d0*Xtmp
+                  EOSMP2 = EOSMP2+Taibj*Waibj
+                  Waibj = Waibj-Xaibj(biaj)
+                  Eaibj = Taibj*Waibj
+                  EMP2 = EMP2+Eaibj
+                  WREF = WREF+Eaibj/Dnom
+                end do
+              end do
+            else
+              do Li=1,LnOcc(iSymi,iBatch)
+                i = iFirstS(iSymi,iBatch)+Li-1
+                Lbi = LiT1am(iSymb,iSymi,iBatch)+nVir(iSymb)*(Li-1)+b
+                do a=1,nVir(iSyma)
+                  Lai = LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(Li-1)+a
+                  Laj = LiT1am(iSyma,iSymj,jBatch)+nVir(iSyma)*(Lj-1)+a
+                  aibj = LiT2am(iSymai)+LnT1am(iSymai,iBatch)*(Lbj-1)+Lai
+                  biaj = LiT2am(iSymbi)+LnT1am(iSymbi,iBatch)*(Laj-1)+Lbi
+                  Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
+                  Xtmp = Xaibj(aibj)
+                  Taibj = Xtmp/Dnom
+                  Waibj = 2.0d0*Xtmp
+                  EOSMP2 = EOSMP2+Taibj*Waibj
+                  Waibj = Waibj-Xaibj(biaj)
+                  Eaibj = Taibj*Waibj
+                  EMP2 = EMP2+Eaibj
+                  WREF = WREF+Eaibj/Dnom
+                end do
+              end do
+            end if
+          end do
+        end do
+      end do
+    end do
+  end do
+  EMP2 = EMP2_sav+2.0d0*EMP2
+  EOSMP2 = EOSMP2_sav+2.0d0*EOSMP2
+  WREF = WREF_sav+2.0d0*WREF
 
-      Else ! rectangular storage (ai|bj) with ai<bj.
+end if
 
-         EMP2_sav = EMP2
-         EMP2     = 0.0D0
-         WREF_sav = WREF
-         WREF     = 0.0D0
-         EOSMP2_sav = EOSMP2
-         EOSMP2     = 0.0D0
-         Do iSymbj = 1,nSym
-            iSymai = iSymbj
-            Do iSymj = 1,nSym
-               iSymb = MulD2h(iSymj,iSymbj)
-               Do Lj = 1,LnOcc(iSymj,jBatch)
-                  j = iFirstS(iSymj,jBatch) + Lj - 1
-                  Do b = 1,nVir(iSymb)
-                     Lbj = LiT1am(iSymb,iSymj,jBatch)                   &
-     &                   + nVir(iSymb)*(Lj - 1) + b
-                     Do iSymi = 1,nSym
-                        iSyma  = MulD2h(iSymi,iSymai)
-                        iSymaj = MulD2h(iSyma,iSymj)
-                        iSymbi = iSymaj
-                        If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
-                         Do Li = 1,LnOcc(iSymi,iBatch)
-                           i   = iFirstS(iSymi,iBatch) + Li - 1
-                           Lbi = LiT1am(iSymb,iSymi,iBatch)             &
-     &                         + nVir(iSymb)*(Li - 1) + b
-                           Do a = 1,nVir(iSyma)
-                              Lai = LiT1am(iSyma,iSymi,iBatch)          &
-     &                            + nVir(iSyma)*(Li - 1) + a
-                              Laj = LiT1am(iSyma,iSymj,jBatch)          &
-     &                            + nVir(iSyma)*(Lj - 1) + a
-                              aibj = LiT2am(iSymai)                     &
-     &                             + LnT1am(iSymai,iBatch)*(Lbj-1) + Lai
-                              biaj = LiT2am(iSymbi)                     &
-     &                             + LnT1am(iSymbi,iBatch)*(Laj-1) + Lbi
-                              Dnom = EVir(iVir(iSyma)+a)                &
-     &                             - EOcc(iOcc(iSymi)+i)                &
-     &                             + EVir(iVir(iSymb)+b)                &
-     &                             - EOcc(iOcc(iSymj)+j)
-                              ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1) +i
-                              jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1) +j
-                              Xtmp  = Xaibj(aibj)
-                              Taibj = Xtmp/Dnom - Work(ia)*Work(jb)
-                              Waibj = 2.0D0*Xtmp
-                              EOSMP2= EOSMP2 + Taibj*Waibj
-                              Waibj = Waibj - Xaibj(biaj)
-                              Eaibj = Taibj*Waibj
-                              EMP2  = EMP2 + Eaibj
-                              WREF  = WREF + Eaibj/Dnom
-                           End Do
-                         End Do
-                        Else
-                         Do Li = 1,LnOcc(iSymi,iBatch)
-                           i   = iFirstS(iSymi,iBatch) + Li - 1
-                           Lbi = LiT1am(iSymb,iSymi,iBatch)             &
-     &                         + nVir(iSymb)*(Li - 1) + b
-                           Do a = 1,nVir(iSyma)
-                              Lai = LiT1am(iSyma,iSymi,iBatch)          &
-     &                            + nVir(iSyma)*(Li - 1) + a
-                              Laj = LiT1am(iSyma,iSymj,jBatch)          &
-     &                            + nVir(iSyma)*(Lj - 1) + a
-                              aibj = LiT2am(iSymai)                     &
-     &                             + LnT1am(iSymai,iBatch)*(Lbj-1) + Lai
-                              biaj = LiT2am(iSymbi)                     &
-     &                             + LnT1am(iSymbi,iBatch)*(Laj-1) + Lbi
-                              Dnom = EVir(iVir(iSyma)+a)                &
-     &                             - EOcc(iOcc(iSymi)+i)                &
-     &                             + EVir(iVir(iSymb)+b)                &
-     &                             - EOcc(iOcc(iSymj)+j)
-                              Xtmp  = Xaibj(aibj)
-                              Taibj = Xtmp/Dnom
-                              Waibj = 2.0D0*Xtmp
-                              EOSMP2= EOSMP2 + Taibj*Waibj
-                              Waibj = Waibj - Xaibj(biaj)
-                              Eaibj = Taibj*Waibj
-                              EMP2  = EMP2 + Eaibj
-                              WREF  = WREF + Eaibj/Dnom
-                           End Do
-                         End Do
-                        EndIf
-                     End Do
-                  End Do
-               End Do
-            End Do
-         End Do
-         EMP2 = EMP2_sav + 2.0D0*EMP2
-         EOSMP2 = EOSMP2_sav + 2.0D0*EOSMP2
-         WREF = WREF_sav + 2.0D0*WREF
+EOSMP2 = 0.5d0*EOSMP2
 
-      End If
-
-      EOSMP2 = 0.5D0*EOSMP2
-
-      End
+end subroutine ChoMP2_Energy_Contr_T1

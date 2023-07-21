@@ -8,133 +8,125 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
+
+subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !
-!     Purpose: calculate shell-quadruple (IJ|KL) and return
-!              them in XINT.
+! Purpose: calculate shell-quadruple (IJ|KL) and return
+!          them in XINT.
 !
-!     Notes:
-!        LOCPRT: flag for printing the shell quadruple to output;
-!                output format differs depending on IFCSEW.
-!
-      use ChoArr, only: nBstSh, iSP2F
-      IMPLICIT REAL*8 (A-H,O-Z)
-      EXTERNAL Integral_WrOut_Cho
-      REAL*8   XINT(LINT)
-      LOGICAL  LOCPRT
+! Notes:
+!    LOCPRT: flag for printing the shell quadruple to output;
+!            output format differs depending on IFCSEW.
+
+use ChoArr, only: nBstSh, iSP2F
+
+implicit real*8(A-H,O-Z)
+external Integral_WrOut_Cho
+real*8 XINT(LINT)
+logical LOCPRT
 #include "itmax.fh"
 #include "cholesky.fh"
+character*13 SECNAM
+parameter(SECNAM='CHO_MCA_INT_1')
+! Statement function
+ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
-      CHARACTER*13 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1')
+! Initializations.
+! ----------------
 
-      ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
+call CHO_INVPCK(ISP2F(IJ),I,J,.true.)
+call CHO_INVPCK(ISP2F(KL),K,L,.true.)
 
-!     Initializations.
-!     ----------------
+SHCD = IJ
+SHAB = KL
+SHC = I
+SHD = J
+SHA = K
+SHB = L
 
-      CALL CHO_INVPCK(ISP2F(IJ),I,J,.TRUE.)
-      CALL CHO_INVPCK(ISP2F(KL),K,L,.TRUE.)
+! Calculate integrals.
+! --------------------
 
-      SHCD = IJ
-      SHAB = KL
-      SHC = I
-      SHD = J
-      SHA = K
-      SHB = L
+call EVAL_IJKL(I,J,K,L,XINT,LINT,Integral_WrOut_Cho)
 
-!     Calculate integrals.
-!     --------------------
+! Print integrals.
+! ----------------
 
-      CALL EVAL_IJKL(I,J,K,L,XINT,LINT,Integral_WrOut_Cho)
+if (LOCPRT) then
 
-!     Print integrals.
-!     ----------------
+  if (IFCSEW == 1) then
 
-      IF (LOCPRT) THEN
+    write(LUPRI,'(//,5X,A,A,4I5,A)') SECNAM,': shell quadruple ',I,J,K,L,':'
 
-         IF (IFCSEW.EQ.1) THEN
+    NUMI = NBSTSH(I)
+    NUMJ = NBSTSH(J)
+    NUMK = NBSTSH(K)
+    NUML = NBSTSH(L)
+    if (I == J) then
+      NUMIJ = NUMI*(NUMJ+1)/2
+    else
+      NUMIJ = NUMI*NUMJ
+    end if
 
-            WRITE(LUPRI,'(//,5X,A,A,4I5,A)')                            &
-     &      SECNAM,': shell quadruple ',I,J,K,L,':'
+    if (K == L) then
+      do LL=1,NUML
+        do KK=1,LL
+          KKLL = ITRI(KK,LL)
+          if (I == J) then
+            do JJ=1,NUMJ
+              do II=1,JJ
+                IIJJ = ITRI(II,JJ)
+                KOFF = NUMIJ*(KKLL-1)+IIJJ
+                write(LUPRI,*) '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',XINT(KOFF)
+              end do
+            end do
+          else
+            do JJ=1,NUMJ
+              do II=1,NUMI
+                IIJJ = NUMI*(JJ-1)+II
+                KOFF = NUMIJ*(KKLL-1)+IIJJ
+                write(LUPRI,*) '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',XINT(KOFF)
+              end do
+            end do
+          end if
+        end do
+      end do
+    else
+      do LL=1,NUML
+        do KK=1,NUMK
+          KKLL = NUMK*(LL-1)+KK
+          if (I == J) then
+            do JJ=1,NUMJ
+              do II=1,JJ
+                IIJJ = ITRI(II,JJ)
+                KOFF = NUMIJ*(KKLL-1)+IIJJ
+                write(LUPRI,*) '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',XINT(KOFF)
+              end do
+            end do
+          else
+            do JJ=1,NUMJ
+              do II=1,NUMI
+                IIJJ = NUMI*(JJ-1)+II
+                KOFF = NUMIJ*(KKLL-1)+IIJJ
+                write(LUPRI,*) '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',XINT(KOFF)
+              end do
+            end do
+          end if
+        end do
+      end do
+    end if
 
-            NUMI = NBSTSH(I)
-            NUMJ = NBSTSH(J)
-            NUMK = NBSTSH(K)
-            NUML = NBSTSH(L)
-            IF (I .EQ. J) THEN
-               NUMIJ = NUMI*(NUMJ + 1)/2
-            ELSE
-               NUMIJ = NUMI*NUMJ
-            END IF
+  else if ((IFCSEW == 2) .or. (IFCSEW == 3)) then
 
-            IF (K .EQ. L) THEN
-               DO LL = 1,NUML
-                  DO KK = 1,LL
-                     KKLL = ITRI(KK,LL)
-                     IF (I .EQ. J) THEN
-                        DO JJ = 1,NUMJ
-                           DO II = 1,JJ
-                              IIJJ = ITRI(II,JJ)
-                              KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)                            &
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
-     &                        XINT(KOFF)
-                           END DO
-                        END DO
-                     ELSE
-                        DO JJ = 1,NUMJ
-                           DO II = 1,NUMI
-                              IIJJ = NUMI*(JJ - 1) + II
-                              KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)                            &
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
-     &                        XINT(KOFF)
-                           END DO
-                        END DO
-                     END IF
-                  END DO
-               END DO
-            ELSE
-               DO LL = 1,NUML
-                  DO KK = 1,NUMK
-                     KKLL = NUMK*(LL - 1) + KK
-                     IF (I .EQ. J) THEN
-                        DO JJ = 1,NUMJ
-                           DO II = 1,JJ
-                              IIJJ = ITRI(II,JJ)
-                              KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)                            &
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
-     &                        XINT(KOFF)
-                           END DO
-                        END DO
-                     ELSE
-                        DO JJ = 1,NUMJ
-                           DO II = 1,NUMI
-                              IIJJ = NUMI*(JJ - 1) + II
-                              KOFF = NUMIJ*(KKLL - 1) + IIJJ
-                              WRITE(LUPRI,*)                            &
-     &                        '(',I,J,K,L,') [',II,JJ,KK,LL,'] = ',     &
-     &                        XINT(KOFF)
-                           END DO
-                        END DO
-                     END IF
-                  END DO
-               END DO
-            END IF
+    call CHO_PRTINT(IJ,KL,XINT,LINT)
 
-         ELSE IF (IFCSEW.EQ.2 .OR. IFCSEW.EQ.3) THEN
+  else
 
-            CALL CHO_PRTINT(IJ,KL,XINT,LINT)
+    write(LUPRI,*) SECNAM,': IFCSEW=',IFCSEW
+    call CHO_QUIT(SECNAM//': IFCSEW out of bounds!',103)
 
-         ELSE
+  end if
 
-            WRITE(LUPRI,*) SECNAM,': IFCSEW=',IFCSEW
-            CALL CHO_QUIT(SECNAM//': IFCSEW out of bounds!',103)
+end if
 
-         END IF
-
-      END IF
-
-      END
+end subroutine CHO_MCA_INT_1

@@ -10,480 +10,405 @@
 !                                                                      *
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine ChoMP2_fno_Fll(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
+
+subroutine ChoMP2_fno_Fll(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
 !
-!      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
-!
-!
-      use ChoMP2, only: LiMatij
-      Implicit Real*8 (a-h,o-z)
-      Logical Delete
-      Real*8  EOcc(*), EVir(*), Wrk(lWrk), P_ab(*), P_ii(*)
+!  F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
+
+use ChoMP2, only: LiMatij
+
+implicit real*8(a-h,o-z)
+logical Delete
+real*8 EOcc(*), EVir(*), Wrk(lWrk), P_ab(*), P_ii(*)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "chfnopt.fh"
+character*7 ThisNm
+character*14 SecNam
+parameter(SecNam='ChoMP2_fno_Fll',ThisNm='fno_Fll')
+integer nEnrVec(8), LnT2am, LiT2am(8), kP(8), lP(8)
+integer nVaJi, iVaJi(8)
+real*8 xsDnom
+! Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Character*7  ThisNm
-      Character*14 SecNam
-      Parameter (SecNam = 'ChoMP2_fno_Fll', ThisNm = 'fno_Fll')
+if (nBatch /= 1) then
+  irc = -1
+  return
+end if
 
-      Integer nEnrVec(8), LnT2am, LiT2am(8), kP(8), lP(8)
-      Integer nVaJi, iVaJi(8)
-      Real*8  xsDnom
+irc = 0
 
-      MulD2h(i,j)=iEor(i-1,j-1)+1
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+kP(1) = 1
+lP(1) = 0
+do iS=2,nSym
+  kP(iS) = kP(iS-1)+nVir(iS-1)**2
+  lP(iS) = lP(iS-1)+nOcc(iS-1)
+end do
 
-      If (nBatch .ne. 1) Then
-         irc = -1
-         Return
-      End If
+! Determine if vector files are to be deleted after use.
+! ------------------------------------------------------
 
-      irc = 0
+if (Delete) then
+  iClos = 3
+else
+  iClos = 2
+end if
 
-      kP(1)=1
-      lP(1)=0
-      Do iS=2,nSym
-         kP(iS)=kP(iS-1)+nVir(iS-1)**2
-         lP(iS)=lP(iS-1)+nOcc(iS-1)
-      End Do
+! Set number and type of vectors.
+! -------------------------------
 
-!     Determine if vector files are to be deleted after use.
-!     ------------------------------------------------------
+if (DecoMP2) then
+  iTyp = 2
+  call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+else
+  iTyp = 1
+  call iCopy(nSym,NumCho,1,nEnrVec,1)
+end if
 
-      If (Delete) Then
-         iClos = 3
-      Else
-         iClos = 2
-      End If
-
-!     Set number and type of vectors.
-!     -------------------------------
-
-      If (DecoMP2) Then
-         iTyp = 2
-         Call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
-      Else
-         iTyp = 1
-         Call iCopy(nSym,NumCho,1,nEnrVec,1)
-      End If
-
-!     Set (ai|bj) indices.
-!     --------------------
+! Set (ai|bj) indices.
+! --------------------
 
-      Call ChoMP2_Energy_GetInd(LnT2am,LiT2am,1,1)
-
-!     Allocate memory for integrals.
-!     ------------------------------
-
-      kXaibj = 1
-      kEnd0  = kXaibj + LnT2am
-      lWrk0  = lWrk   - kEnd0 + 1
-      If (lWrk0 .lt. 0) Then
-         Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
-      End If
-
-      If (ChoAlg.eq.2 .and. MP2_small) Then ! level 3 BLAS algorithm
-
-         kMabij = kXaibj ! rename pointer
-         Call FZero(Wrk(kMabij),LnT2am) ! initialize
-
-!        Loop over Cholesky symmetries.
-!        ------------------------------
-
-         Do iSym = 1,nSym
-
-            Nai = nT1am(iSym)
-            If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
-
-!              Reserve memory for reading a single vector.
-!              -------------------------------------------
+call ChoMP2_Energy_GetInd(LnT2am,LiT2am,1,1)
 
-               kVecai = kEnd0
-               kEnd1  = kVecai + Nai
-               lWrk1  = lWrk   - kEnd1 + 1
+! Allocate memory for integrals.
+! ------------------------------
 
-               If (lWrk1 .lt. Nai) Then
-                  Call ChoMP2_Quit(SecNam,'Insufficient memory',        &
-     &                             '[ChoAlg.2.1]')
-               End If
-
-!              Set up batch over Cholesky vectors.
-!              -----------------------------------
+kXaibj = 1
+kEnd0 = kXaibj+LnT2am
+lWrk0 = lWrk-kEnd0+1
+if (lWrk0 < 0) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 
-               nVec = min(lWrk1/Nai,nEnrVec(iSym))
-               If (nVec .lt. 1) Then ! should not happen
-                  Call ChoMP2_Quit(SecNam,'Insufficient memory',        &
-     &                             '[ChoAlg.2.2]')
-               End If
-               nBat = (nEnrVec(iSym)-1)/nVec + 1
-
-!              Open Cholesky vector files.
-!              ---------------------------
+if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 
-               Call ChoMP2_OpenF(1,iTyp,iSym)
+  kMabij = kXaibj ! rename pointer
+  call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-!              Start vector batch loop.
-!              ------------------------
+  ! Loop over Cholesky symmetries.
+  ! ------------------------------
 
-               Do iBat = 1,nBat
+  do iSym=1,nSym
 
-                  If (iBat .eq. nBat) Then
-                     NumVec = nEnrVec(iSym) - nVec*(nBat-1)
-                  Else
-                     NumVec = nVec
-                  End If
-                  iVec1 = nVec*(iBat-1) + 1
+    Nai = nT1am(iSym)
+    if ((Nai > 0) .and. (nEnrVec(iSym) > 0)) then
 
-!                 Set up index arrays for reordered vectors.
-!                 ------------------------------------------
+      ! Reserve memory for reading a single vector.
+      ! -------------------------------------------
 
-                  nVaJi = 0
-                  Do iSymi = 1,nSym
-                     iSyma = MulD2h(iSymi,iSym)
-                     iVaJi(iSymi) = nVaJi
-                     nVaJi = nVaJi                                      &
-     &                    + nVir(iSyma)*NumVec*nOcc(iSymi)
-                  End Do
+      kVecai = kEnd0
+      kEnd1 = kVecai+Nai
+      lWrk1 = lWrk-kEnd1+1
 
-!                 Pointer to reordered vectors: kVec.
-!                 -----------------------------------
+      if (lWrk1 < Nai) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.1]')
 
-                  kVec  = kEnd1
-                  kEnd2 = kVec  + nVaJi
-                  lWrk2 = lWrk  - kEnd2 + 1
-                  If (lWrk2 .lt. 0) Then ! should not happen
-                     Call ChoMP2_Quit(SecNam,                           &
-     &                                'Insufficient memory',            &
-     &                                '[ChoAlg.2.3]')
-                  End If
+      ! Set up batch over Cholesky vectors.
+      ! -----------------------------------
 
-!                 Read one vector at a time and reorder.
-!                 --------------------------------------
+      nVec = min(lWrk1/Nai,nEnrVec(iSym))
+      if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
+      nBat = (nEnrVec(iSym)-1)/nVec+1
 
-                  iVec0 = iVec1 - 1
-                  Do iVec = 1,NumVec
+      ! Open Cholesky vector files.
+      ! ---------------------------
 
-                     iOpt = 2
-                     lTot = nT1am(iSym)
-                     iAdr = nT1am(iSym)*(iVec0+iVec-1) + 1
-                     Call ddaFile(lUnit_F(iSym,iTyp),iOpt,              &
-     &                            Wrk(kVecai),lTot,iAdr)
+      call ChoMP2_OpenF(1,iTyp,iSym)
 
-                     Do iSymi = 1,nSym
-                        iSyma = MulD2h(iSymi,iSym)
-                        Do i = 1,nOcc(iSymi)
-                           kOff1 = kVecai                               &
-     &                           + iT1am(iSyma,iSymi)                   &
-     &                           + nVir(iSyma)*(i-1)
-                           kOff2 = kVec + iVaJi(iSymi)                  &
-     &                           + nVir(iSyma)*NumVec*(i-1)             &
-     &                           + nVir(iSyma)*(iVec-1)
-                           Call dCopy_(nVir(iSyma),Wrk(kOff1),1,        &
-     &                                Wrk(kOff2),1)
-                        End Do
-                     End Do
+      ! Start vector batch loop.
+      ! ------------------------
 
-                  End Do
+      do iBat=1,nBat
 
-!                 Compute M(ab,ii) .
-!                 ---------------------------------------
+        if (iBat == nBat) then
+          NumVec = nEnrVec(iSym)-nVec*(nBat-1)
+        else
+          NumVec = nVec
+        end if
+        iVec1 = nVec*(iBat-1)+1
 
-                  Do iSymj = 1,nSym
+        ! Set up index arrays for reordered vectors.
+        ! ------------------------------------------
 
-                     iSymb = MulD2h(iSymj,iSym)
+        nVaJi = 0
+        do iSymi=1,nSym
+          iSyma = MulD2h(iSymi,iSym)
+          iVaJi(iSymi) = nVaJi
+          nVaJi = nVaJi+nVir(iSyma)*NumVec*nOcc(iSymi)
+        end do
 
-                     If (nVir(iSymb) .gt. 0) Then
+        ! Pointer to reordered vectors: kVec.
+        ! -----------------------------------
 
-                        Do j = 1,nOcc(iSymj)
+        kVec = kEnd1
+        kEnd2 = kVec+nVaJi
+        lWrk2 = lWrk-kEnd2+1
+        if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
 
-                           i = j
+        ! Read one vector at a time and reorder.
+        ! --------------------------------------
 
-                           ij = LiMatij(iSymj,iSymj,1)                  &
-     &                        + iTri(i,j)
+        iVec0 = iVec1-1
+        do iVec=1,NumVec
 
-                           kOffi = kVec + iVaJi(iSymj)                  &
-     &                           + nVir(iSymb)*NumVec*(i-1)
-                           kOffj = kVec + iVaJi(iSymj)                  &
-     &                              + nVir(iSymb)*NumVec*(j-1)
-                           kOffM = kMabij + LiT2am(1)                   &
-     &                           + nMatab(1)*(ij-1)                     &
-     &                           + iMatab(iSymb,iSymb)
+          iOpt = 2
+          lTot = nT1am(iSym)
+          iAdr = nT1am(iSym)*(iVec0+iVec-1)+1
+          call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
-                           Call dGeMM_('N','T',                         &
-     &                          nVir(iSymb),nVir(iSymb),NumVec,         &
-     &                          1.0d0,Wrk(kOffi),nVir(iSymb),           &
-     &                                Wrk(kOffj),nVir(iSymb),           &
-     &                          1.0D0,Wrk(kOffM),nVir(iSymb))
+          do iSymi=1,nSym
+            iSyma = MulD2h(iSymi,iSym)
+            do i=1,nOcc(iSymi)
+              kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
+              kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
+              call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+            end do
+          end do
 
-                        End Do
+        end do
 
-                     End If
+        ! Compute M(ab,ii) .
+        !-------------------
 
-                  End Do
+        do iSymj=1,nSym
 
-               End Do
+          iSymb = MulD2h(iSymj,iSym)
 
-               Call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
+          if (nVir(iSymb) > 0) then
 
-!              Close (and possibly delete) Cholesky vector files.
-!              --------------------------------------------------
+            do j=1,nOcc(iSymj)
 
-               Call ChoMP2_OpenF(iClos,iTyp,iSym)
+              i = j
 
+              ij = LiMatij(iSymj,iSymj,1)+iTri(i,j)
 
-!              Compute Energy contribution.
-!              -------------------------------------
+              kOffi = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(i-1)
+              kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
+              kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-               Do iSymj = 1,nSym
+              call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),1.0d0, &
+                          Wrk(kOffM),nVir(iSymb))
 
-                  iSymb = MulD2h(iSymj,iSym)
+            end do
 
-                  If (nVir(iSymb) .gt. 0) Then
+          end if
 
-                     Do j = 1,nOcc(iSymj)
+        end do
 
-                        i = j
+      end do
 
-                        ij = LiMatij(iSymj,iSymj,1)                     &
-     &                     + iTri(i,j)
+      call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
 
-                        kOffM = kMabij + LiT2am(1)                      &
-     &                        + nMatab(1)*(ij-1)                        &
-     &                        + iMatab(iSymb,iSymb)
+      ! Close (and possibly delete) Cholesky vector files.
+      ! --------------------------------------------------
 
-                        Do jb=1,nVir(iSymb)
-                           Do ja=1,nVir(iSymb)
-                              Dnom = EVir(iVir(iSymb)+ja)               &
-     &                             + EVir(iVir(iSymb)+jb)               &
-     &                             - 2.0d0*EOcc(iOcc(iSymj)+j)
-                              xsDnom = Dnom/(Dnom**2+shf**2) !Reg shf
-                              kOffMM = kOffM                            &
-     &                               + nVir(iSymb)*(jb-1) +ja-1
-                              DeMP2 = DeMP2                             &
-!     &                              + Wrk(kOffMM)**2/Dnom
-     &                              + Wrk(kOffMM)**2*xsDnom
-                           End Do
-                        End Do
+      call ChoMP2_OpenF(iClos,iTyp,iSym)
 
-                     End Do
+      ! Compute Energy contribution.
+      ! ----------------------------
 
-                  End If
+      do iSymj=1,nSym
 
-               End Do
+        iSymb = MulD2h(iSymj,iSym)
 
-            End If
+        if (nVir(iSymb) > 0) then
 
-         End Do ! iSym
+          do j=1,nOcc(iSymj)
 
-      ElseIf (ChoAlg .eq. 2) Then ! level 3 BLAS algorithm
+            i = j
 
-         kMabij = kXaibj ! rename pointer
-         Call FZero(Wrk(kMabij),LnT2am) ! initialize
+            ij = LiMatij(iSymj,iSymj,1)+iTri(i,j)
 
-!        Loop over Cholesky symmetries.
-!        ------------------------------
+            kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-         Do iSym = 1,nSym
+            do jb=1,nVir(iSymb)
+              do ja=1,nVir(iSymb)
+                Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-2.0d0*EOcc(iOcc(iSymj)+j)
+                xsDnom = Dnom/(Dnom**2+shf**2) !Reg shf
+                kOffMM = kOffM+nVir(iSymb)*(jb-1)+ja-1
+                !DeMP2 = DeMP2+Wrk(kOffMM)**2/Dnom
+                DeMP2 = DeMP2+Wrk(kOffMM)**2*xsDnom
+              end do
+            end do
 
-            Nai = nT1am(iSym)
-            If (Nai.gt.0 .and. nEnrVec(iSym).gt.0) Then
+          end do
 
-!              Reserve memory for reading a single vector.
-!              -------------------------------------------
+        end if
 
-               kVecai = kEnd0
-               kEnd1  = kVecai + Nai
-               lWrk1  = lWrk   - kEnd1 + 1
+      end do
 
-               If (lWrk1 .lt. Nai) Then
-                  Call ChoMP2_Quit(SecNam,'Insufficient memory',        &
-     &                             '[ChoAlg.2.1]')
-               End If
+    end if
 
-!              Set up batch over Cholesky vectors.
-!              -----------------------------------
+  end do ! iSym
 
-               nVec = min(lWrk1/Nai,nEnrVec(iSym))
-               If (nVec .lt. 1) Then ! should not happen
-                  Call ChoMP2_Quit(SecNam,'Insufficient memory',        &
-     &                             '[ChoAlg.2.2]')
-               End If
-               nBat = (nEnrVec(iSym)-1)/nVec + 1
+else if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
-!              Open Cholesky vector files.
-!              ---------------------------
+  kMabij = kXaibj ! rename pointer
+  call FZero(Wrk(kMabij),LnT2am) ! initialize
 
-               Call ChoMP2_OpenF(1,iTyp,iSym)
+  ! Loop over Cholesky symmetries.
+  ! ------------------------------
 
-!              Start vector batch loop.
-!              ------------------------
+  do iSym=1,nSym
 
-               Do iBat = 1,nBat
+    Nai = nT1am(iSym)
+    if ((Nai > 0) .and. (nEnrVec(iSym) > 0)) then
 
-                  If (iBat .eq. nBat) Then
-                     NumVec = nEnrVec(iSym) - nVec*(nBat-1)
-                  Else
-                     NumVec = nVec
-                  End If
-                  iVec1 = nVec*(iBat-1) + 1
+      ! Reserve memory for reading a single vector.
+      ! -------------------------------------------
 
-!                 Set up index arrays for reordered vectors.
-!                 ------------------------------------------
+      kVecai = kEnd0
+      kEnd1 = kVecai+Nai
+      lWrk1 = lWrk-kEnd1+1
 
-                  nVaJi = 0
-                  Do iSymi = 1,nSym
-                     iSyma = MulD2h(iSymi,iSym)
-                     iVaJi(iSymi) = nVaJi
-                     nVaJi = nVaJi                                      &
-     &                    + nVir(iSyma)*NumVec*nOcc(iSymi)
-                  End Do
+      if (lWrk1 < Nai) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.1]')
 
-!                 Pointer to reordered vectors: kVec.
-!                 -----------------------------------
+      ! Set up batch over Cholesky vectors.
+      ! -----------------------------------
 
-                  kVec  = kEnd1
-                  kEnd2 = kVec  + nVaJi
-                  lWrk2 = lWrk  - kEnd2 + 1
-                  If (lWrk2 .lt. 0) Then ! should not happen
-                     Call ChoMP2_Quit(SecNam,                           &
-     &                                'Insufficient memory',            &
-     &                                '[ChoAlg.2.3]')
-                  End If
+      nVec = min(lWrk1/Nai,nEnrVec(iSym))
+      if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
+      nBat = (nEnrVec(iSym)-1)/nVec+1
 
-!                 Read one vector at a time and reorder.
-!                 --------------------------------------
+      ! Open Cholesky vector files.
+      ! ---------------------------
 
-                  iVec0 = iVec1 - 1
-                  Do iVec = 1,NumVec
+      call ChoMP2_OpenF(1,iTyp,iSym)
 
-                     iOpt = 2
-                     lTot = nT1am(iSym)
-                     iAdr = nT1am(iSym)*(iVec0+iVec-1) + 1
-                     Call ddaFile(lUnit_F(iSym,iTyp),iOpt,              &
-     &                            Wrk(kVecai),lTot,iAdr)
+      ! Start vector batch loop.
+      ! ------------------------
 
-                     Do iSymi = 1,nSym
-                        iSyma = MulD2h(iSymi,iSym)
-                        Do i = 1,nOcc(iSymi)
-                           kOff1 = kVecai                               &
-     &                           + iT1am(iSyma,iSymi)                   &
-     &                           + nVir(iSyma)*(i-1)
-                           kOff2 = kVec + iVaJi(iSymi)                  &
-     &                           + nVir(iSyma)*NumVec*(i-1)             &
-     &                           + nVir(iSyma)*(iVec-1)
-                           Call dCopy_(nVir(iSyma),Wrk(kOff1),1,        &
-     &                                Wrk(kOff2),1)
-                        End Do
-                     End Do
+      do iBat=1,nBat
 
-                  End Do
+        if (iBat == nBat) then
+          NumVec = nEnrVec(iSym)-nVec*(nBat-1)
+        else
+          NumVec = nVec
+        end if
+        iVec1 = nVec*(iBat-1)+1
 
-!                 Compute M(ab,ii) .
-!                 ---------------------------------------
+        ! Set up index arrays for reordered vectors.
+        ! ------------------------------------------
 
-                  Do iSymj = 1,nSym
+        nVaJi = 0
+        do iSymi=1,nSym
+          iSyma = MulD2h(iSymi,iSym)
+          iVaJi(iSymi) = nVaJi
+          nVaJi = nVaJi+nVir(iSyma)*NumVec*nOcc(iSymi)
+        end do
 
-                     iSymb = MulD2h(iSymj,iSym)
+        ! Pointer to reordered vectors: kVec.
+        ! -----------------------------------
 
-                     If (nVir(iSymb) .gt. 0) Then
+        kVec = kEnd1
+        kEnd2 = kVec+nVaJi
+        lWrk2 = lWrk-kEnd2+1
+        if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
 
-                        Do j = 1,nOcc(iSymj)
+        ! Read one vector at a time and reorder.
+        ! --------------------------------------
 
-                           i = j
+        iVec0 = iVec1-1
+        do iVec=1,NumVec
 
-                           ij = LiMatij(iSymj,iSymj,1)                  &
-     &                        + iTri(i,j)
+          iOpt = 2
+          lTot = nT1am(iSym)
+          iAdr = nT1am(iSym)*(iVec0+iVec-1)+1
+          call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
-                           kOffi = kVec + iVaJi(iSymj)                  &
-     &                           + nVir(iSymb)*NumVec*(i-1)
-                           kOffj = kVec + iVaJi(iSymj)                  &
-     &                              + nVir(iSymb)*NumVec*(j-1)
-                           kOffM = kMabij + LiT2am(1)                   &
-     &                           + nMatab(1)*(ij-1)                     &
-     &                           + iMatab(iSymb,iSymb)
+          do iSymi=1,nSym
+            iSyma = MulD2h(iSymi,iSym)
+            do i=1,nOcc(iSymi)
+              kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
+              kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
+              call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+            end do
+          end do
 
-                           Call dGeMM_('N','T',                         &
-     &                          nVir(iSymb),nVir(iSymb),NumVec,         &
-     &                          1.0d0,Wrk(kOffi),nVir(iSymb),           &
-     &                                Wrk(kOffj),nVir(iSymb),           &
-     &                          1.0D0,Wrk(kOffM),nVir(iSymb))
+        end do
 
-                        End Do
+        ! Compute M(ab,ii) .
+        ! ------------------
 
-                     End If
+        do iSymj=1,nSym
 
-                  End Do
+          iSymb = MulD2h(iSymj,iSym)
 
-               End Do
+          if (nVir(iSymb) > 0) then
 
-               Call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
+            do j=1,nOcc(iSymj)
 
-!              Close (and possibly delete) Cholesky vector files.
-!              --------------------------------------------------
+              i = j
 
-               Call ChoMP2_OpenF(iClos,iTyp,iSym)
+              ij = LiMatij(iSymj,iSymj,1)+iTri(i,j)
 
-!
-               Do iSymj = 1,nSym
+              kOffi = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(i-1)
+              kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
+              kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-                  iSymb = MulD2h(iSymj,iSym)
+              call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),1.0d0, &
+                          Wrk(kOffM),nVir(iSymb))
 
-                  If (nVir(iSymb) .gt. 0) Then
+            end do
 
-                     Do j = 1,nOcc(iSymj)
+          end if
 
-                        i = j
+        end do
 
-                        ij = LiMatij(iSymj,iSymj,1)                     &
-     &                     + iTri(i,j)
+      end do
 
-                        kOffM = kMabij + LiT2am(1)                      &
-     &                        + nMatab(1)*(ij-1)                        &
-     &                        + iMatab(iSymb,iSymb)
+      call Cho_GAdGOp(Wrk(kMabij),LnT2am,'+')
 
-!                       Compute T(a,b)[i] and energy contrib.
-!                       -------------------------------------
-                        Do jb=1,nVir(iSymb)
-                           Do ja=1,nVir(iSymb)
-                              Dnom = EVir(iVir(iSymb)+ja)               &
-     &                             + EVir(iVir(iSymb)+jb)               &
-     &                             - 2.0d0*EOcc(iOcc(iSymj)+j)
-                              xsDnom = Dnom/(Dnom**2+shf**2) !Reg shf
-                              kOffMM = kOffM                            &
-     &                               + nVir(iSymb)*(jb-1) +ja-1
-                              DeMP2 = DeMP2                             &
-!     &                              + Wrk(kOffMM)**2/Dnom
-     &                              + Wrk(kOffMM)**2*xsDnom
-!                              Wrk(kOffMM) = Wrk(kOffMM)/Dnom
-                               Wrk(kOffMM) = Wrk(kOffMM)*xsDnom
-                           End Do
-                        End Do
+      ! Close (and possibly delete) Cholesky vector files.
+      ! --------------------------------------------------
 
-                        P_ii(lP(iSymj)+i) = P_ii(lP(iSymj)+i)           &
-     &                                    + ddot_(nVir(iSymb)**2,       &
-     &                                             Wrk(kOffM),1,        &
-     &                                             Wrk(kOffM),1)
+      call ChoMP2_OpenF(iClos,iTyp,iSym)
 
-!                       Compute P(a,b) += sum_c T(a,c)*T(c,b)
-!                       -------------------------------------
-                        Call dGeMM_('N','N',nVir(iSymb),                &
-     &                             nVir(iSymb),nVir(iSymb),             &
-     &                       1.0d0,Wrk(kOffM),nVir(iSymb),              &
-     &                             Wrk(kOffM),nVir(iSymb),              &
-     &                       1.0D0,P_ab(kP(iSymb)),nVir(iSymb))
+      do iSymj=1,nSym
 
-                     End Do
+        iSymb = MulD2h(iSymj,iSym)
 
-                  End If
+        if (nVir(iSymb) > 0) then
 
-               End Do
+          do j=1,nOcc(iSymj)
 
-            End If
+            i = j
 
-         End Do ! iSym
+            ij = LiMatij(iSymj,iSymj,1)+iTri(i,j)
 
-      End If ! ChoAlg
+            kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-      End
+            ! Compute T(a,b)[i] and energy contrib.
+            ! -------------------------------------
+            do jb=1,nVir(iSymb)
+              do ja=1,nVir(iSymb)
+                Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-2.0d0*EOcc(iOcc(iSymj)+j)
+                xsDnom = Dnom/(Dnom**2+shf**2) !Reg shf
+                kOffMM = kOffM+nVir(iSymb)*(jb-1)+ja-1
+                !DeMP2 = DeMP2+Wrk(kOffMM)**2/Dnom
+                DeMP2 = DeMP2+Wrk(kOffMM)**2*xsDnom
+                !Wrk(kOffMM) = Wrk(kOffMM)/Dnom
+                Wrk(kOffMM) = Wrk(kOffMM)*xsDnom
+              end do
+            end do
+
+            P_ii(lP(iSymj)+i) = P_ii(lP(iSymj)+i)+ddot_(nVir(iSymb)**2,Wrk(kOffM),1,Wrk(kOffM),1)
+
+            ! Compute P(a,b) += sum_c T(a,c)*T(c,b)
+            ! -------------------------------------
+            call dGeMM_('N','N',nVir(iSymb),nVir(iSymb),nVir(iSymb),1.0d0,Wrk(kOffM),nVir(iSymb),Wrk(kOffM),nVir(iSymb),1.0d0, &
+                        P_ab(kP(iSymb)),nVir(iSymb))
+
+          end do
+
+        end if
+
+      end do
+
+    end if
+
+  end do ! iSym
+
+end if ! ChoAlg
+
+end subroutine ChoMP2_fno_Fll

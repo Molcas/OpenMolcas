@@ -8,26 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_GetQD(QD)
+
+subroutine Cho_P_GetQD(QD)
 !
-!     Purpose: copy qualified diagonal elements from global diagonal to
-!              array QD.
-!
-      use ChoSwp, only: iQuAB, IndRed_G, Diag_G
-      Implicit None
-      Real*8 QD(*)
+! Purpose: copy qualified diagonal elements from global diagonal to
+!          array QD.
+
+use ChoSwp, only: iQuAB, IndRed_G, Diag_G
+
+implicit none
+real*8 QD(*)
 #include "cholesky.fh"
 #include "choglob.fh"
+integer kQD, iSym, iQ, iAB
 
-      Integer kQD, iSym, iQ, iAB
+kQD = 0
+do iSym=1,nSym
+  do iQ=1,nQual(iSym)
+    iAB = IndRed_G(iQuAB(iQ,iSym),2)
+    QD(kQD+iQ) = Diag_G(iAB)
+  end do
+  kQD = kQD+nQual(iSym)
+end do
 
-      kQD = 0
-      Do iSym = 1,nSym
-         Do iQ = 1,nQual(iSym)
-            iAB = IndRed_G(iQuAB(iQ,iSym),2)
-            QD(kQD+iQ) = Diag_G(iAB)
-         End Do
-         kQD = kQD + nQual(iSym)
-      End Do
-
-      End
+end subroutine Cho_P_GetQD

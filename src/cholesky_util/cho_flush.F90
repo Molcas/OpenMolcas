@@ -8,13 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_FLUSH(LUNIT)
-!
-!     Purpose: flush unit LUNIT.
-!
-      IMPLICIT NONE
-      INTEGER LUNIT
 
-      CALL XFLUSH(LUNIT)
+subroutine CHO_FLUSH(LUNIT)
+!
+! Purpose: flush unit LUNIT.
 
-      END
+implicit none
+integer LUNIT
+
+call XFLUSH(LUNIT)
+
+end subroutine CHO_FLUSH

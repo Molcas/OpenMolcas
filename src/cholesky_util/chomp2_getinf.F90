@@ -10,22 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_GetInf(lnOrb,lnOcc,lnFro,lnDel,lnVir)
+
+subroutine ChoMP2_GetInf(lnOrb,lnOcc,lnFro,lnDel,lnVir)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: get info from conventional MP2 common blocks.
-!
-      Implicit Real*8 (a-h,o-z)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+! Purpose: get info from conventional MP2 common blocks.
+
+implicit real*8(a-h,o-z)
+integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
 
-      Do iSym = 1,nSym
-         lnOrb(iSym) = nOrb(iSym)
-         lnOcc(iSym) = nOcc(iSym)
-         lnFro(iSym) = nFro(iSym)
-         lnDel(iSym) = nDel(iSym)
-         lnVir(iSym) = nExt(iSym)
-      End Do
+do iSym=1,nSym
+  lnOrb(iSym) = nOrb(iSym)
+  lnOcc(iSym) = nOcc(iSym)
+  lnFro(iSym) = nFro(iSym)
+  lnDel(iSym) = nDel(iSym)
+  lnVir(iSym) = nExt(iSym)
+end do
 
-      End
+end subroutine ChoMP2_GetInf

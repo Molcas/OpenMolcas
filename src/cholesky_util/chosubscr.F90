@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-! Stuff for Cholesky vector subtraction screening (subscr):
-Module ChoSubScr
-Implicit None
-Private
-Public:: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
-Logical Cho_SScreen
-Real*8  SSTau, SubScrStat(2)
-Character(LEN=3) SSNorm
 
-Real*8, Allocatable:: DSubScr(:)
-Real*8, Allocatable:: DSPNm(:)
-End Module ChoSubScr
+! Stuff for Cholesky vector subtraction screening (subscr):
+module ChoSubScr
+
+implicit none
+private
+
+public :: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
+logical Cho_SScreen
+real*8 SSTau, SubScrStat(2)
+character(len=3) SSNorm
+real*8, allocatable :: DSubScr(:)
+real*8, allocatable :: DSPNm(:)
+
+end module ChoSubScr

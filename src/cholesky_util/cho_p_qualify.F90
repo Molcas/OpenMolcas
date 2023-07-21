@@ -8,65 +8,65 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_Qualify(Diag,Sync,iShlAB,iSyMax,Mem,Full)
+
+subroutine Cho_P_Qualify(Diag,Sync,iShlAB,iSyMax,Mem,Full)
 !
-!     Purpose: qualify global diagonal elements for decomposition in
-!              current reduced set.
-!              iShlAB is the shell pair from which to qualify.
-!              iSyMax is the symmetry block to which the largest
-!              diagonal belongs.
-!              Mem is the (total!) max. allowed
-!              memory for storing the qualified columns.
-!              If no more columns can be qualified on exit,
-!              FULL=.true. is returned. On entry, Diag is the local
-!              diagonal. The global diagonal is synchronized if
-!              Sync=.True. on entry.
-!
-      use ChoSwp, only: Diag_G
-      Implicit None
-      Real*8  Diag(*)
-      Logical Sync, Full
-      Integer iShlAB, iSyMax, Mem
+! Purpose: qualify global diagonal elements for decomposition in
+!          current reduced set.
+!          iShlAB is the shell pair from which to qualify.
+!          iSyMax is the symmetry block to which the largest
+!          diagonal belongs.
+!          Mem is the (total!) max. allowed
+!          memory for storing the qualified columns.
+!          If no more columns can be qualified on exit,
+!          FULL=.true. is returned. On entry, Diag is the local
+!          diagonal. The global diagonal is synchronized if
+!          Sync=.True. on entry.
+
+use ChoSwp, only: Diag_G
+
+implicit none
+real*8 Diag(*)
+logical Sync, Full
+integer iShlAB, iSyMax, Mem
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
+integer iLoc
+real*8 c1, c2, w1, w2
 
-      Integer iLoc
+call Cho_Timer(c1,w1)
 
-      Real*8 c1, c2, w1, w2
+if (Cho_Real_Par) then
 
-      Call Cho_Timer(c1,w1)
+  ! Sync global diagonal (if requested).
+  ! ------------------------------------
 
-      If (Cho_Real_Par) Then
+  if (Sync) then
+    iLoc = 2
+    call Cho_P_SyncDiag(Diag,iLoc)
+  end if
 
-!        Sync global diagonal (if requested).
-!        ------------------------------------
+  ! Swap local and global index arrays and use the original serial
+  ! routines for qualifying diagonals.
+  ! --------------------------------------------------------------
+  !-TODO/FIXME: the memory constraint is then based on the global
+  !             dimension, thus ensuring that all nodes find the same
+  !             qualified (and this is absolutely essential!). However,
+  !             one might find a more clever way of ensuring this....
 
-         If (Sync) Then
-            iLoc = 2
-            Call Cho_P_SyncDiag(Diag,iLoc)
-         End If
+  call Cho_P_IndxSwp()
+  call Cho_Qualify(Diag_G,iShlAB,iSyMax,Mem,Full)
+  call Cho_P_IndxSwp()
 
-!        Swap local and global index arrays and use the original serial
-!        routines for qualifying diagonals.
-!        --------------------------------------------------------------
-!-TODO/FIXME: the memory constraint is then based on the global
-!             dimension, thus ensuring that all nodes find the same
-!             qualified (and this is absolutely essential!). However,
-!             one might find a more clever way of ensuring this....
+else
 
-         Call Cho_P_IndxSwp()
-         Call Cho_Qualify(Diag_G,iShlAB,iSyMax,Mem,Full)
-         Call Cho_P_IndxSwp()
+  call Cho_Qualify(Diag,iShlAB,iSyMax,Mem,Full)
 
-      Else
+end if
 
-         Call Cho_Qualify(Diag,iShlAB,iSyMax,Mem,Full)
+call Cho_Timer(c2,w2)
+tMisc(1,1) = tMisc(1,1)+c2-c1
+tMisc(2,1) = tMisc(2,1)+w2-w1
 
-      End If
-
-      Call Cho_Timer(c2,w2)
-      tMisc(1,1)=tMisc(1,1)+c2-c1
-      tMisc(2,1)=tMisc(2,1)+w2-w1
-
-      End
+end subroutine Cho_P_Qualify

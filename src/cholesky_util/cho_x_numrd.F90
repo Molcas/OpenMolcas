@@ -32,59 +32,57 @@
 !> @param[in] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
 !> @param[in] Mem   Memory available for read
 !***********************************************************************
-      Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
+
+integer function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+integer iRed
 
-      Integer iRed
+if ((iSym < 1) .or. (iSym > nSym)) then
+  Cho_X_NumRd = -1
+else if (NumCho(iSym) < 1) then
+  Cho_X_NumRd = 0
+else if (NumCho(iSym) > MaxVec) then
+  Cho_X_NumRd = -2
+else if ((iVec1 < 1) .or. (iVec1 > NumCho(iSym))) then
+  Cho_X_NumRd = -3
+else if (Mem < 1) then
+  Cho_X_NumRd = 0
+else
+  NumRd = 0
+  Need = 0
+  iVec = iVec1-1
+  if (.not. allocated(nDimRS)) then
+    iLoc = 3
+    do while ((iVec < NumCho(iSym)) .and. (Need < Mem))
+      iVec = iVec+1
+      iRed = InfVec(iVec,2,iSym)
+      if (iRed /= iRedC) then
+        irc = 0
+        call Cho_X_SetRed(irc,iLoc,iRed)
+        if (irc /= 0) then
+          Cho_X_NumRd = -4
+          iRedC = -1
+          return
+        end if
+        iRedC = iRed
+      end if
+      Need = Need+nnBstR(iSym,iLoc)
+      if (Need <= Mem) NumRd = NumRd+1
+    end do
+  else
+    do while ((iVec < NumCho(iSym)) .and. (Need < Mem))
+      iVec = iVec+1
+      iRed = InfVec(iVec,2,iSym)
+      Need = Need+nDimRS(iSym,iRed)
+      if (Need <= Mem) NumRd = NumRd+1
+    end do
+  end if
+  Cho_X_NumRd = NumRd
+end if
 
-      If (iSym.lt.1 .or. iSym.gt.nSym) Then
-         Cho_X_NumRd = -1
-      Else If (NumCho(iSym).lt.1) Then
-         Cho_X_NumRd = 0
-      Else If (NumCho(iSym).gt.MaxVec) Then
-         Cho_X_NumRd = -2
-      Else If (iVec1.lt.1 .or. iVec1.gt.NumCho(iSym)) Then
-         Cho_X_NumRd = -3
-      Else If (Mem .lt. 1) Then
-         Cho_X_NumRd = 0
-      Else
-         NumRd = 0
-         Need  = 0
-         iVec  = iVec1 - 1
-         If (.NOT.Allocated(nDimRS)) Then
-            iLoc  = 3
-            Do While (iVec.lt.NumCho(iSym) .and. Need.lt.Mem)
-               iVec = iVec + 1
-               iRed = InfVec(iVec,2,iSym)
-               If (iRed .ne. iRedC) Then
-                  irc = 0
-                  Call Cho_X_SetRed(irc,iLoc,iRed)
-                  If (irc .ne. 0) Then
-                     Cho_X_NumRd = -4
-                     iRedC = -1
-                     Return
-                  End If
-                  iRedC = iRed
-               End If
-               Need = Need + nnBstR(iSym,iLoc)
-               If (Need .le. Mem) Then
-                  NumRd = NumRd + 1
-               End If
-            End Do
-         Else
-            Do While (iVec.lt.NumCho(iSym) .and. Need.lt.Mem)
-               iVec = iVec + 1
-               iRed = InfVec(iVec,2,iSym)
-               Need = Need + nDimRS(iSym,iRed)
-               If (Need .le. Mem) Then
-                  NumRd = NumRd + 1
-               End If
-            End Do
-         End If
-         Cho_X_NumRd = NumRd
-      End If
-
-      End
+end function Cho_X_NumRd

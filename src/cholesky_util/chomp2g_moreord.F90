@@ -11,54 +11,55 @@
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
 
-      SubRoutine ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMoType1,iMOType2)
+subroutine ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMoType1,iMOType2)
 !
-!     Jonas Bostrom, Jan. 2010. (modified from ChoMP2_MOReOrd)
+! Jonas Bostrom, Jan. 2010. (modified from ChoMP2_MOReOrd)
 !
-!     Purpose: Make CMO:s of appropriate length, transpose COrb2,
+! Purpose: Make CMO:s of appropriate length, transpose COrb2,
 !
-!              CMO(alpha,p) -> COrb1(p,alpha)
-!              CMO(alpha,q) -> COrb2(alpha,q)
-!
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Real*8 COrb1(*), COrb2(*), CMO(*)
-      Integer nOrb1(8), nOrb2(8)
-      Integer nOffOrb1(8), nOffOrb2(8)
+!          CMO(alpha,p) -> COrb1(p,alpha)
+!          CMO(alpha,q) -> COrb2(alpha,q)
+
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+real*8 COrb1(*), COrb2(*), CMO(*)
+integer nOrb1(8), nOrb2(8)
+integer nOffOrb1(8), nOffOrb2(8)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
 
-      Do iSym = 1, nSym
-         nOffOrb1(iSym) = 0
-         nOffOrb2(iSym) = 0
-         Do i = 1, iMOType1-1
-            nOffOrb1(iSym) = nOffOrb1(iSym) + nMo(iSym,i)
-         End Do
-         Do i = 1, iMOType2-1
-            nOffOrb2(iSym) = nOffOrb2(iSym) + nMo(iSym,i)
-         End Do
-         nOrb1(iSym) = nMo(iSym,iMOType1)
-         nOrb2(iSym) = nMo(iSym,iMOType2)
-      End Do
-!
-      iCount = 0
-      Do iSym = 1,nSym
-!
-         jCount = iCount + nOffOrb1(iSym)*nBas(iSym)
-!
-         Do i = 1,nOrb1(iSym)
-            kOff1 = jCount + nBas(iSym)*(i-1) + 1
-            kOff2 = iMoAo(iSym,iSym,iMoType1) + i
-           Call dCopy_(nBas(iSym),CMO(kOff1),1,COrb1(kOff2),nOrb1(iSym))
-         End Do
+do iSym=1,nSym
+  nOffOrb1(iSym) = 0
+  nOffOrb2(iSym) = 0
+  do i=1,iMOType1-1
+    nOffOrb1(iSym) = nOffOrb1(iSym)+nMo(iSym,i)
+  end do
+  do i=1,iMOType2-1
+    nOffOrb2(iSym) = nOffOrb2(iSym)+nMo(iSym,i)
+  end do
+  nOrb1(iSym) = nMo(iSym,iMOType1)
+  nOrb2(iSym) = nMo(iSym,iMOType2)
+end do
 
-         kOff1 = iCount + nOffOrb2(iSym)*nBas(iSym) + 1
-         kOff2 = iAoMo(iSym,iSym,iMoType2) + 1
-         Call dCopy_(nBas(isym)*nOrb2(iSym),CMO(kOff1),1,COrb2(kOff2),1)
+iCount = 0
+do iSym=1,nSym
 
-         iCount = iCount + nBas(iSym)*nBas(iSym)
+  jCount = iCount+nOffOrb1(iSym)*nBas(iSym)
 
-      End Do
+  do i=1,nOrb1(iSym)
+    kOff1 = jCount+nBas(iSym)*(i-1)+1
+    kOff2 = iMoAo(iSym,iSym,iMoType1)+i
+    call dCopy_(nBas(iSym),CMO(kOff1),1,COrb1(kOff2),nOrb1(iSym))
+  end do
 
-      End
+  kOff1 = iCount+nOffOrb2(iSym)*nBas(iSym)+1
+  kOff2 = iAoMo(iSym,iSym,iMoType2)+1
+  call dCopy_(nBas(isym)*nOrb2(iSym),CMO(kOff1),1,COrb2(kOff2),1)
+
+  iCount = iCount+nBas(iSym)*nBas(iSym)
+
+end do
+
+end subroutine ChoMP2g_MOReOrd

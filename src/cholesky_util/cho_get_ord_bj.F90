@@ -38,76 +38,73 @@
 !> @param[out] nVec    Number of resulting Cholesky vectors
 !> @param[out] Dmax    Max value of the remainder after the decomposition
 !***********************************************************************
-      SUBROUTINE CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
 
-      Integer nOV, MaxNVec, ID_bj(*), NVec
-      Real*8  thr, W(*), Dmax
+subroutine CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
 
-      Real*8, Allocatable:: Diag(:)
+use Constants
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer nOV, MaxNVec, ID_bj(*), NVec
+real*8 thr, W(*), Dmax
+real*8, allocatable :: Diag(:)
 
 ! Initialize
 ! ----------
-      nVec=0
-      If (nOV.lt.1) Then
-         Dmax=-9.987654321d0 ! dummy value
-         Return
-      End If
+nVec = 0
+if (nOV < 1) then
+  Dmax = -9.987654321d0 ! dummy value
+  return
+end if
 
 ! Allocate diagonal
 ! -----------------
-      Call mma_allocate(Diag,NOV,Label='Diag')
+call mma_allocate(Diag,NOV,Label='Diag')
 
 ! Compute diagonals
 ! -----------------
-      Do ip=1,nOV
-         If (W(ip).gt.zero) Then
-            Diag(ip)=half/W(ip)
-         Else ! tbp: perhaps we should stop it here (matrix not PSD)
-            Diag(ip)=zero
-         End If
-      End Do
+do ip=1,nOV
+  if (W(ip) > zero) then
+    Diag(ip) = half/W(ip)
+  else ! tbp: perhaps we should stop it here (matrix not PSD)
+    Diag(ip) = zero
+  end if
+end do
 
 ! Find ID (Jm) of max diagonal
 ! ----------------------------
-      Jm=1
-      Do ip=2,NOV
-         If (Diag(ip).gt.Diag(Jm)) Then
-            Jm=ip
-         End If
-      End Do
+Jm = 1
+do ip=2,NOV
+  if (Diag(ip) > Diag(Jm)) Jm = ip
+end do
 
 ! Find CD pattern using the diagonal update:
-!   Diag(p)[k] = Diag(p)[k-1]
-!              * ((W(p) - W(J[k-1]))/(W(p) + W(J[k-1])))^2
+!   Diag(p)[k] = Diag(p)[k-1] * ((W(p) - W(J[k-1]))/(W(p) + W(J[k-1])))^2
 ! -----------------------------------------------------------------
-      Do While (nVec.lt.MaxNVec .and. Diag(Jm).gt.thr)
-        ! update vector counter
-        nVec=nVec+1
-        ! save ID of vector = ID of current max diagonal
-        ID_bj(nVec)=Jm
-        ! update diagonals
-        Do ip=1,nOV
-           Diag(ip)=Diag(ip)*((W(ip)-W(Jm))/(W(ip)+W(Jm)))**2
-        End Do
-        ! find ID (Jm) of max updated diagonal
-        Jm=1
-        Do ip=2,nOV
-           If (Diag(ip).gt.Diag(Jm)) Then
-              Jm=ip
-           End If
-        End Do
-      End Do
+do while ((nVec < MaxNVec) .and. (Diag(Jm) > thr))
+  ! update vector counter
+  nVec = nVec+1
+  ! save ID of vector = ID of current max diagonal
+  ID_bj(nVec) = Jm
+  ! update diagonals
+  do ip=1,nOV
+    Diag(ip) = Diag(ip)*((W(ip)-W(Jm))/(W(ip)+W(Jm)))**2
+  end do
+  ! find ID (Jm) of max updated diagonal
+  Jm = 1
+  do ip=2,nOV
+    if (Diag(ip) > Diag(Jm)) Jm = ip
+  end do
+end do
 
 ! Set max diagonal (Dmax) to return to caller
 ! -------------------------------------------
-      Dmax=Diag(Jm)
+Dmax = Diag(Jm)
 
 ! Deallocate diagonal
 ! -------------------
-      Call mma_deallocate(Diag)
+call mma_deallocate(Diag)
 
-      Return
-      End
+return
+
+end subroutine CHO_GET_ORD_bj

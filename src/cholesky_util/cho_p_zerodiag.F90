@@ -8,40 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_ZeroDiag(Diag,iSym,iABG)
+
+subroutine Cho_P_ZeroDiag(Diag,iSym,iABG)
 !
-!     Purpose: zero diagonal element iABG (in global diagonal, rs1).
-!              For serial runs, this is trivial. For parallel runs, we
-!              need first to figure out if the treated diagonal element
-!              is in fact present among the qualified in the local
-!              diagonal.
+! Purpose: zero diagonal element iABG (in global diagonal, rs1).
+!          For serial runs, this is trivial. For parallel runs, we
+!          need first to figure out if the treated diagonal element
+!          is in fact present among the qualified in the local
+!          diagonal.
 !
-!     NB! If you wish to test the entire local diagonal (i.e. not just
-!         the qualified), use Cho_P_ZeroDiag_Rst instead.
-!
-      use ChoSwp, only: iQuAB_L, IndRed
-      use ChoArr, only: iL2G, nQual_L
-      Implicit None
-      Real*8  Diag(*)
-      Integer iSym, iABG
+! NB! If you wish to test the entire local diagonal (i.e. not just
+!     the qualified), use Cho_P_ZeroDiag_Rst instead.
+
+use ChoSwp, only: iQuAB_L, IndRed
+use ChoArr, only: iL2G, nQual_L
+
+implicit none
+real*8 Diag(*)
+integer iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
+integer iQ, iAB, jAB, kAB
 
-      Integer iQ, iAB, jAB, kAB
+if (Cho_Real_Par) then
+  do iQ=1,nQual_L(iSym)
+    iAB = iQuAB_L(iQ,iSym) ! addr in local current rs
+    jAB = IndRed(iAB,2)    ! addr in local rs1
+    kAB = iL2G(jAB)        ! addr in global rs1
+    if (kAB == iABG) then  ! found...
+      Diag(jAB) = 0.0d0    ! now zero local diagonal elm.
+      return
+    end if
+  end do
+else
+  Diag(iABG) = 0.0d0
+end if
 
-      If (Cho_Real_Par) Then
-         Do iQ = 1,nQual_L(iSym)
-            iAB = iQuAB_L(iQ,iSym) ! addr in local current rs
-            jAB = IndRed(iAB,2)  ! addr in local rs1
-            kAB = iL2G(jAB)      ! addr in global rs1
-            If (kAB .eq. iABG) Then ! found...
-               Diag(jAB) = 0.0d0    ! now zero local diagonal elm.
-               Return
-            End If
-         End Do
-      Else
-         Diag(iABG) = 0.0d0
-      End If
-
-      End
+end subroutine Cho_P_ZeroDiag

@@ -8,97 +8,93 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RSTOF(IRS2F,N,LRDIM,IRED)
-      use ChoArr, only: iSOShl, iShlSO, nBstSh
+
+subroutine CHO_RSTOF(IRS2F,N,LRDIM,IRED)
 !
-!     Purpose: set up mapping between reduced set and SO indices
-!              (i.e., full storage).
+! Purpose: set up mapping between reduced set and SO indices
+!          (i.e., full storage).
 !
-!     IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
-!     IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
-!
-      Implicit Real*8 (a-h,o-z)
-      INTEGER IRS2F(N,LRDIM)
+! IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
+! IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
+
+use ChoArr, only: iSOShl, iShlSO, nBstSh
+
+implicit real*8(a-h,o-z)
+integer IRS2F(N,LRDIM)
 #include "cholesky.fh"
 #include "choorb.fh"
+character*9 SECNAM
+parameter(SECNAM='CHO_RSTOF')
+integer CHO_RS2F
+external CHO_RS2F
+integer CHO_F2SP
+external CHO_F2SP
+! Statement functions
+MULD2H(I,J) = ieor(I-1,J-1)+1
+ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
-      CHARACTER*9 SECNAM
-      PARAMETER (SECNAM = 'CHO_RSTOF')
+if (N < 2) call CHO_QUIT('Dimension error [1] in '//SECNAM,104)
+if (LRDIM /= MMBSTRT) call CHO_QUIT('Dimension error [2] in '//SECNAM,104)
+call IZERO(IRS2F,N*MMBSTRT)
 
-      INTEGER  CHO_RS2F
-      EXTERNAL CHO_RS2F
-      INTEGER  CHO_F2SP
-      EXTERNAL CHO_F2SP
+do ISYMA=1,NSYM
+  if (NBAS(ISYMA) > 0) then
+    do ISYMB=1,ISYMA-1
+      ISYMAB = MULD2H(ISYMA,ISYMB)
+      do KB=1,NBAS(ISYMB)
+        IB = IBAS(ISYMB)+KB
+        LB = ISHLSO(IB)
+        ISHLB = ISOSHL(IB)
+        do KA=1,NBAS(ISYMA)
+          IA = IBAS(ISYMA)+KA
+          LA = ISHLSO(IA)
+          ISHLA = ISOSHL(IA)
+          if (ISHLA < ISHLB) then
+            LAB = NBSTSH(ISHLB)*(LA-1)+LB
+          else if (ISHLA == ISHLB) then
+            LAB = ITRI(LA,LB)
+          else
+            LAB = NBSTSH(ISHLA)*(LB-1)+LA
+          end if
+          ISHLAB = CHO_F2SP(ITRI(ISHLA,ISHLB))
+          if (ISHLAB > 0) then
+            IRS = CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
+            if (IRS > 0) then
+              IRS2F(1,IRS) = IA
+              IRS2F(2,IRS) = IB
+            end if
+          end if
+        end do
+      end do
+    end do
+    ISYMB = ISYMA
+    ISYMAB = 1
+    do KA=1,NBAS(ISYMA)
+      IA = IBAS(ISYMA)+KA
+      LA = ISHLSO(IA)
+      ISHLA = ISOSHL(IA)
+      do KB=1,KA
+        IB = IBAS(ISYMB)+KB
+        LB = ISHLSO(IB)
+        ISHLB = ISOSHL(IB)
+        if (ISHLA < ISHLB) then
+          LAB = NBSTSH(ISHLB)*(LA-1)+LB
+        else if (ISHLA == ISHLB) then
+          LAB = ITRI(LA,LB)
+        else
+          LAB = NBSTSH(ISHLA)*(LB-1)+LA
+        end if
+        ISHLAB = CHO_F2SP(ITRI(ISHLA,ISHLB))
+        if (ISHLAB > 0) then
+          IRS = CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
+          if (IRS > 0) then
+            IRS2F(1,IRS) = IA
+            IRS2F(2,IRS) = IB
+          end if
+        end if
+      end do
+    end do
+  end if
+end do
 
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
-      ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-
-      IF (N .LT. 2) THEN
-         CALL CHO_QUIT('Dimension error [1] in '//SECNAM,104)
-      END IF
-      IF (LRDIM .NE. MMBSTRT) THEN
-         CALL CHO_QUIT('Dimension error [2] in '//SECNAM,104)
-      END IF
-      CALL IZERO(IRS2F,N*MMBSTRT)
-
-      DO ISYMA = 1,NSYM
-         IF (NBAS(ISYMA) .GT. 0) THEN
-            DO ISYMB = 1,ISYMA-1
-               ISYMAB = MULD2H(ISYMA,ISYMB)
-               DO KB = 1,NBAS(ISYMB)
-                  IB = IBAS(ISYMB) + KB
-                  LB = ISHLSO(IB)
-                  ISHLB = ISOSHL(IB)
-                  DO KA = 1,NBAS(ISYMA)
-                     IA = IBAS(ISYMA) + KA
-                     LA = ISHLSO(IA)
-                     ISHLA  = ISOSHL(IA)
-                     IF (ISHLA .LT. ISHLB) THEN
-                        LAB = NBSTSH(ISHLB)*(LA - 1) + LB
-                     ELSE IF (ISHLA .EQ. ISHLB) THEN
-                        LAB = ITRI(LA,LB)
-                     ELSE
-                        LAB = NBSTSH(ISHLA)*(LB - 1) + LA
-                     END IF
-                     ISHLAB = CHO_F2SP(ITRI(ISHLA,ISHLB))
-                     IF (ISHLAB .GT. 0) THEN
-                        IRS = CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
-                        IF (IRS .GT. 0) THEN
-                           IRS2F(1,IRS) = IA
-                           IRS2F(2,IRS) = IB
-                        END IF
-                     END IF
-                  END DO
-               END DO
-            END DO
-            ISYMB  = ISYMA
-            ISYMAB = 1
-            DO KA = 1,NBAS(ISYMA)
-               IA = IBAS(ISYMA) + KA
-               LA = ISHLSO(IA)
-               ISHLA  = ISOSHL(IA)
-               DO KB = 1,KA
-                  IB = IBAS(ISYMB) + KB
-                  LB = ISHLSO(IB)
-                  ISHLB = ISOSHL(IB)
-                  IF (ISHLA .LT. ISHLB) THEN
-                     LAB = NBSTSH(ISHLB)*(LA - 1) + LB
-                  ELSE IF (ISHLA .EQ. ISHLB) THEN
-                     LAB = ITRI(LA,LB)
-                  ELSE
-                     LAB = NBSTSH(ISHLA)*(LB - 1) + LA
-                  END IF
-                  ISHLAB = CHO_F2SP(ITRI(ISHLA,ISHLB))
-                  IF (ISHLAB .GT. 0) THEN
-                     IRS = CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
-                     IF (IRS .GT. 0) THEN
-                        IRS2F(1,IRS) = IA
-                        IRS2F(2,IRS) = IB
-                     END IF
-                  END IF
-               END DO
-            END DO
-         END IF
-      END DO
-
-      END
+end subroutine CHO_RSTOF

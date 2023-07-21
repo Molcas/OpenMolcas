@@ -32,140 +32,131 @@
 !> @param[out] rc   Return code
 !> @param[out] Diag Array containing diagonal on exit
 !***********************************************************************
-      SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec, IndRed
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
 
-      Integer   rc
-      Real*8    Diag(*)
-      Character(LEN=17), Parameter :: SECNAM = 'Cho_X_CalcChoDiag'
+subroutine Cho_X_CalcChoDiag(rc,Diag)
 
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec, IndRed
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer rc
+real*8 Diag(*)
+character(len=17), parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 #include "cholesky.fh"
 #include "choorb.fh"
+real*8, allocatable :: Lrs(:,:)
 
-      Real*8, Allocatable:: Lrs(:,:)
+call fZero(Diag,nnBstRT(1))
 
-      Call fZero(Diag,nnBstRT(1))
+IREDC = -1  ! unknown reduced set
 
-
-      IREDC= -1  ! unknown reduced set
-
-      iLoc = 3 ! use scratch location in reduced index arrays
+iLoc = 3 ! use scratch location in reduced index arrays
 
 ! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
-      DO jSym=1,nSym
+do jSym=1,nSym
 
-         If (NumCho(jSym) .lt. 1) GOTO 1000
+  if (NumCho(jSym) < 1) goto 1000
 
-         JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
-         JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
-         Do JRED=JRED1,JRED2
+  JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
+  JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+  do JRED=JRED1,JRED2
 
-            CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+    call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-            If (nVrs.eq.0) GOTO 999  ! no vectors in that (jred,jsym)
+    if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
 
-            if (nVrs.lt.0) then
-               Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               rc = 77
-               Return
-            endif
+    if (nVrs < 0) then
+      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      rc = 77
+      return
+    end if
 
-            Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
-            if(irc.ne.0)then
-              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',   &
-     &                         '  rc= ',irc
-              rc = irc
-              Return
-            endif
+    call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
+    if (irc /= 0) then
+      write(6,*) SECNAM//'cho_X_setred non-zero return code.  rc= ',irc
+      rc = irc
+      return
+    end if
 
-            IREDC=JRED
+    IREDC = JRED
 
-            nRS = nDimRS(JSYM,JRED)
+    nRS = nDimRS(JSYM,JRED)
 
-            call mma_maxDBLE(LWORK)
+    call mma_maxDBLE(LWORK)
 
-            nVec  = Min(LWORK/Max(nRS,1),nVrs)
+    nVec = min(LWORK/max(nRS,1),nVrs)
 
-            If (nVec.lt.1) Then
-               WRITE(6,*) SECNAM//': Insufficient memory for batch'
-               WRITE(6,*) ' LWORK= ',LWORK
-               WRITE(6,*) ' jsym= ',jsym
-               WRITE(6,*) ' min. mem. need for reading= ',nRS
-               rc = 33
-               Return
-               nBatch = -9999  ! dummy assignment
-            End If
+    if (nVec < 1) then
+      write(6,*) SECNAM//': Insufficient memory for batch'
+      write(6,*) ' LWORK= ',LWORK
+      write(6,*) ' jsym= ',jsym
+      write(6,*) ' min. mem. need for reading= ',nRS
+      rc = 33
+      return
+      nBatch = -9999  ! dummy assignment
+    end if
 
-            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+    call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
-! --- BATCH over the vectors ----------------------------
+    ! BATCH over the vectors ----------------------------
 
-            nBatch = (nVrs-1)/nVec + 1
+    nBatch = (nVrs-1)/nVec+1
 
-            DO iBatch=1,nBatch
+    do iBatch=1,nBatch
 
-               If (iBatch.eq.nBatch) Then
-                  JNUM = nVrs - nVec*(nBatch-1)
-               else
-                  JNUM = nVec
-               endif
+      if (iBatch == nBatch) then
+        JNUM = nVrs-nVec*(nBatch-1)
+      else
+        JNUM = nVec
+      end if
 
-               JVEC = nVec*(iBatch-1) + iVrs
-               IVEC2 = JVEC - 1 + JNUM
+      JVEC = nVec*(iBatch-1)+iVrs
+      IVEC2 = JVEC-1+JNUM
 
-               CALL CHO_VECRD(Lrs,SIZE(Lrs),JVEC,IVEC2,JSYM,            &
-     &                        NUMV,IREDC,MUSED)
+      call CHO_VECRD(Lrs,size(Lrs),JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
-               If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  Call mma_deallocate(Lrs)
-                  rc=77
-                  Return
-               End If
+      if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+        call mma_deallocate(Lrs)
+        rc = 77
+        return
+      end if
 
+      ! ----------------------------------------------------------------
+      ! Compute the diagonals :   D(ab) = D(ab) + sum_J (Lab,J)^2
+      !
+      ! Stored in the 1st reduced set
 
-! ---------------------------------------------------------------------
-! --- Compute the diagonals :   D(ab) = D(ab) + sum_J (Lab,J)^2
-!
-! --- Stored in the 1st reduced set
+      do krs=1,nRS
 
-               Do krs=1,nRS
+        mrs = iiBstR(JSYM,iLoc)+krs
+        jrs = IndRed(mrs,iLoc) ! address in 1st red set
 
-                  mrs = iiBstR(JSYM,iLoc) + krs
-                  jrs = IndRed(mrs,iLoc) ! address in 1st red set
+        do jvc=1,JNUM
 
-                  Do jvc=1,JNUM
+          Diag(jrs) = Diag(jrs)+Lrs(krs,jvc)**2
+        end do
 
-                     Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
-                  End Do
+      end do
 
-               End Do
+      ! ----------------------------------------------------------------
+      ! ----------------------------------------------------------------
 
-! --------------------------------------------------------------------
-! --------------------------------------------------------------------
+    end do  ! end batch loop
 
-            END DO  ! end batch loop
+    ! free memory
+    call mma_deallocate(Lrs)
 
-! --- free memory
-            Call mma_deallocate(Lrs)
+999 continue
 
-999         Continue
+  end do   ! loop over red sets
 
+1000 continue
 
-         END DO   ! loop over red sets
+end do   !loop over JSYM
 
-1000     CONTINUE
+call Cho_GAdGOp(Diag(1),NNBSTRT(1),'+')
 
-      END DO   !loop over JSYM
+rc = 0
 
-
-      Call Cho_GAdGOp(Diag(1),NNBSTRT(1),'+')
-
-      rc  = 0
-
-      END
-
-!*************************************************************
-!*************************************************************
+end subroutine Cho_X_CalcChoDiag

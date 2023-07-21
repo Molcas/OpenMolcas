@@ -8,203 +8,185 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,                  &
-     &                          ERRMAX,ERRMIN,ERRRMS,NCMP,              &
-     &                          ISHLCD,ISHLAB)
+
+subroutine CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,ERRMAX,ERRMIN,ERRRMS,NCMP,ISHLCD,ISHLAB)
 !
-!     Purpose: calculate integrals in shell quadruple (CD|AB) from
-!              Cholesky vectors on disk and compare to those in
-!              XINT (for debugging).
+! Purpose: calculate integrals in shell quadruple (CD|AB) from
+!          Cholesky vectors on disk and compare to those in
+!          XINT (for debugging).
 !
-!     NOTE: this is *only* for debugging.
-!
-      use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 XINT(NCD,NAB), WRK(LWRK)
+! NOTE: this is *only* for debugging.
+
+use ChoArr, only: nBstSh, iSP2F
+use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
+character*14 SECNAM
+parameter(SECNAM='CHO_DBGINT_CHO')
+integer CHO_LREAD
+external CHO_LREAD
 
-      CHARACTER*14 SECNAM
-      PARAMETER (SECNAM = 'CHO_DBGINT_CHO')
+! Initializations.
+! ----------------
 
-      INTEGER  CHO_LREAD
-      EXTERNAL CHO_LREAD
+call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+ERRMAX = -1.0d12
+ERRMIN = 1.0d12
+ERRRMS = 0.0d0
+NCMP = 0
+LCDABT = NCD*NAB
 
-!     Initializations.
-!     ----------------
+if (ISHLC == ISHLD) then
+  NCDL = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+else
+  NCDL = NBSTSH(ISHLC)*NBSTSH(ISHLD)
+end if
+if (ISHLA == ISHLB) then
+  NABL = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+else
+  NABL = NBSTSH(ISHLA)*NBSTSH(ISHLB)
+end if
+if (NCDL > NCD) call CHO_QUIT('NCD error in '//SECNAM,104)
+if (NABL > NAB) call CHO_QUIT('NAB error in '//SECNAM,104)
+if ((NAB < 1) .or. (NCD < 1)) return
 
+! Save read-call counter.
+! -----------------------
 
-      CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-      CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-      ERRMAX = -1.0D12
-      ERRMIN =  1.0D12
-      ERRRMS = 0.0D0
-      NCMP   = 0
-      LCDABT = NCD*NAB
+NSCALL = NSYS_CALL
 
-      IF (ISHLC .EQ. ISHLD) THEN
-         NCDL = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-      ELSE
-         NCDL = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-      END IF
-      IF (ISHLA .EQ. ISHLB) THEN
-         NABL = NBSTSH(ISHLA)*(NBSTSH(ISHLA) + 1)/2
-      ELSE
-         NABL = NBSTSH(ISHLA)*NBSTSH(ISHLB)
-      END IF
-      IF (NCDL .GT. NCD) CALL CHO_QUIT('NCD error in '//SECNAM,104)
-      IF (NABL .GT. NAB) CALL CHO_QUIT('NAB error in '//SECNAM,104)
-      IF (NAB.LT.1 .OR. NCD.LT.1) RETURN
+! Get a copy of XINT.
+! -------------------
 
-!     Save read-call counter.
-!     -----------------------
+KXINT = 1
+KEND0 = KXINT+LCDABT
+LWRK0 = LWRK-KEND0
+if (LWRK0 <= 0) call CHO_QUIT('Insufficient memory in '//SECNAM//' [0]',101)
 
-      NSCALL = NSYS_CALL
+call DCOPY_(LCDABT,XINT,1,WRK(KXINT),1)
 
-!     Get a copy of XINT.
-!     -------------------
+! Start symmetry loop.
+! --------------------
 
-      KXINT = 1
-      KEND0 = KXINT + LCDABT
-      LWRK0 = LWRK  - KEND0
-      IF (LWRK0 .LE. 0) THEN
-         CALL CHO_QUIT('Insufficient memory in '//SECNAM//' [0]',101)
-      END IF
+do ISYM=1,NSYM
 
-      CALL DCOPY_(LCDABT,XINT,1,WRK(KXINT),1)
+  NUMCD = NNBSTRSH(ISYM,ISHLCD,2)
+  NUMAB = NNBSTRSH(ISYM,ISHLAB,2)
 
-!     Start symmetry loop.
-!     --------------------
+  if ((NUMCD > 0) .and. (NUMAB > 0) .and. (NUMCHO(ISYM) > 0)) then
 
-      DO ISYM = 1,NSYM
+    ! Allocate space for integrals and for Cholesky reading.
+    ! ------------------------------------------------------
 
-         NUMCD = NNBSTRSH(ISYM,ISHLCD,2)
-         NUMAB = NNBSTRSH(ISYM,ISHLAB,2)
+    LENint = NUMCD*NUMAB
+    LREAD = CHO_LREAD(ISYM,LWRK)
+    LVEC1 = NNBSTR(ISYM,2)
 
-         IF (NUMCD.GT.0 .AND. NUMAB.GT.0 .AND. NUMCHO(ISYM).GT.0) THEN
+    KINT = KEND0
+    KREAD = KINT+LENint
+    KVEC1 = KREAD+LREAD
+    KEND1 = KVEC1+LVEC1
+    LWRK1 = LWRK-KEND1+1
 
-!           Allocate space for integrals and for Cholesky reading.
-!           ------------------------------------------------------
+    if (LWRK1 <= 0) call CHO_QUIT('Insufficient memory in '//SECNAM,104)
 
-            LENint = NUMCD*NUMAB
-            LREAD  = CHO_LREAD(ISYM,LWRK)
-            LVEC1  = NNBSTR(ISYM,2)
+    ! Initialize integral array.
+    ! --------------------------
 
-            KINT  = KEND0
-            KREAD = KINT  + LENint
-            KVEC1 = KREAD + LREAD
-            KEND1 = KVEC1 + LVEC1
-            LWRK1 = LWRK  - KEND1 + 1
+    call FZERO(WRK(KINT),LENint)
 
-            IF (LWRK1 .LE. 0) THEN
-               CALL CHO_QUIT('Insufficient memory in '//SECNAM,104)
-            END IF
+    ! Set up batch over Cholesky vectors.
+    ! -----------------------------------
 
-!           Initialize integral array.
-!           --------------------------
+    MINM = NUMCD+NUMAB
+    NVEC = min(LWRK1/MINM,NUMCHO(ISYM))
+    if (NVEC < 1) call CHO_QUIT('Batch problem in '//SECNAM,104)
+    NBATCH = (NUMCHO(ISYM)-1)/NVEC+1
 
-            CALL FZERO(WRK(KINT),LENint)
+    ! Start batch loop.
+    ! -----------------
 
-!           Set up batch over Cholesky vectors.
-!           -----------------------------------
+    do IBATCH=1,NBATCH
 
-            MINM = NUMCD + NUMAB
-            NVEC = MIN(LWRK1/MINM,NUMCHO(ISYM))
-            IF (NVEC .LT. 1) THEN
-               CALL CHO_QUIT('Batch problem in '//SECNAM,104)
-            END IF
-            NBATCH = (NUMCHO(ISYM) - 1)/NVEC + 1
+      if (IBATCH == NBATCH) then
+        NUMV = NUMCHO(ISYM)-NVEC*(NBATCH-1)
+      else
+        NUMV = NVEC
+      end if
+      JVEC1 = NVEC*(IBATCH-1)+1
 
-!           Start batch loop.
-!           -----------------
+      KCHOCD = KEND1
+      KCHOAB = KCHOCD+NUMCD*NUMV
+      KEND2 = KCHOAB+NUMAB*NUMV
+      LWRK2 = LWRK-KEND2+1
 
-            DO IBATCH = 1,NBATCH
+      if (LWRK2 < 0) call CHO_QUIT('Batch error in '//SECNAM,104)
 
-               IF (IBATCH .EQ. NBATCH) THEN
-                  NUMV = NUMCHO(ISYM) - NVEC*(NBATCH - 1)
-               ELSE
-                  NUMV = NVEC
-               END IF
-               JVEC1 = NVEC*(IBATCH - 1) + 1
+      ! Read vectors.
+      ! -------------
 
-               KCHOCD = KEND1
-               KCHOAB = KCHOCD + NUMCD*NUMV
-               KEND2  = KCHOAB + NUMAB*NUMV
-               LWRK2  = LWRK   - KEND2 + 1
+      do IVEC=1,NUMV
+        JVEC = JVEC1+IVEC-1
+        call CHO_GETVEC(WRK(KVEC1),LVEC1,1,JVEC,ISYM,WRK(KREAD),LREAD)
+        KOFF1 = KVEC1+IIBSTRSH(ISYM,ISHLCD,2)
+        KOFF2 = KCHOCD+NUMCD*(IVEC-1)
+        call DCOPY_(NUMCD,WRK(KOFF1),1,WRK(KOFF2),1)
+        KOFF1 = KVEC1+IIBSTRSH(ISYM,ISHLAB,2)
+        KOFF2 = KCHOAB+NUMAB*(IVEC-1)
+        call DCOPY_(NUMAB,WRK(KOFF1),1,WRK(KOFF2),1)
+      end do
 
-               IF (LWRK2 .LT. 0) THEN
-                  CALL CHO_QUIT('Batch error in '//SECNAM,104)
-               END IF
+      ! Calculate contribution.
+      ! -----------------------
 
-!              Read vectors.
-!              -------------
+      call DGEMM_('N','T',NUMCD,NUMAB,NUMV,1.0d0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,1.0d0,WRK(KINT),NUMCD)
 
-               DO IVEC = 1,NUMV
-                  JVEC = JVEC1 + IVEC - 1
-                  CALL CHO_GETVEC(WRK(KVEC1),LVEC1,1,JVEC,ISYM,         &
-     &                            WRK(KREAD),LREAD)
-                  KOFF1 = KVEC1  + IIBSTRSH(ISYM,ISHLCD,2)
-                  KOFF2 = KCHOCD + NUMCD*(IVEC - 1)
-                  CALL DCOPY_(NUMCD,WRK(KOFF1),1,WRK(KOFF2),1)
-                  KOFF1 = KVEC1  + IIBSTRSH(ISYM,ISHLAB,2)
-                  KOFF2 = KCHOAB + NUMAB*(IVEC - 1)
-                  CALL DCOPY_(NUMAB,WRK(KOFF1),1,WRK(KOFF2),1)
-               END DO
+    end do
 
-!              Calculate contribution.
-!              -----------------------
+    ! Subtract contribution from full shell pair.
+    ! -------------------------------------------
 
-               CALL DGEMM_('N','T',NUMCD,NUMAB,NUMV,                    &
-     &                    1.0D0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,    &
-     &                    1.0D0,WRK(KINT),NUMCD)
+    do IAB=1,NUMAB
+      JAB = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLAB,2)+IAB
+      KAB = INDRED(INDRED(JAB,2),1)
+      do ICD=1,NUMCD
+        JCD = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLCD,2)+ICD
+        KCD = INDRED(INDRED(JCD,2),1)
+        ICDAB = KINT+NUMCD*(IAB-1)+ICD-1
+        KCDAB = KXINT+NCD*(KAB-1)+KCD-1
+        WRK(KCDAB) = WRK(KCDAB)-WRK(ICDAB)
+      end do
+    end do
 
-            END DO
+  end if
 
-!           Subtract contribution from full shell pair.
-!           -------------------------------------------
+end do
 
-            DO IAB = 1,NUMAB
-               JAB = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2) + IAB
-               KAB = INDRED(INDRED(JAB,2),1)
-               DO ICD = 1,NUMCD
-                  JCD = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLCD,2) + ICD
-                  KCD = INDRED(INDRED(JCD,2),1)
-                  ICDAB = KINT  + NUMCD*(IAB - 1) + ICD - 1
-                  KCDAB = KXINT + NCD*(KAB - 1)   + KCD - 1
-                  WRK(KCDAB) = WRK(KCDAB) - WRK(ICDAB)
-               END DO
-            END DO
+! Compare full shell pair.
+! ------------------------
 
-         END IF
+do KAB=1,NAB
+  do KCD=1,NCD
+    KCDAB = KXINT+NCD*(KAB-1)+KCD-1
+    DIFF = WRK(KCDAB)
+    NCMP = NCMP+1
+    if (NCMP == 1) then
+      ERRMAX = DIFF
+      ERRMIN = DIFF
+    else
+      if (abs(DIFF) > abs(ERRMAX)) ERRMAX = DIFF
+      if (abs(DIFF) < abs(ERRMIN)) ERRMIN = DIFF
+    end if
+    ERRRMS = ERRRMS+DIFF*DIFF
+  end do
+end do
 
-      END DO
+! Restore read-call counter.
+! --------------------------
 
-!     Compare full shell pair.
-!     ------------------------
+NSYS_CALL = NSCALL
 
-      DO KAB = 1,NAB
-         DO KCD = 1,NCD
-            KCDAB = KXINT + NCD*(KAB - 1) + KCD - 1
-            DIFF  = WRK(KCDAB)
-            NCMP  = NCMP + 1
-            IF (NCMP .EQ. 1) THEN
-               ERRMAX = DIFF
-               ERRMIN = DIFF
-            ELSE
-               IF (ABS(DIFF) .GT. ABS(ERRMAX)) THEN
-                  ERRMAX = DIFF
-               END IF
-               IF (ABS(DIFF) .LT. ABS(ERRMIN)) THEN
-                  ERRMIN = DIFF
-               END IF
-            END IF
-            ERRRMS = ERRRMS + DIFF*DIFF
-         END DO
-      END DO
-
-!     Restore read-call counter.
-!     --------------------------
-
-      NSYS_CALL = NSCALL
-
-      END
+end subroutine CHO_DBGINT_CHO

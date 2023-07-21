@@ -8,256 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2004,2007, Thomas Bondo Pedersen                       *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
+
+subroutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
-!     Thomas Bondo Pedersen, Dec. 2007.
+! Thomas Bondo Pedersen, Dec. 2007.
 !
-!     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
-!
-      use ChoMP2_dec, only: EOcc, EVir, iOption_MP2CD, NowSym
-      Implicit None
-      Integer nDim, nCol, l_Buf
-      Real*8  Col(nDim,nCol), Buf(l_Buf)
-      Integer iCol(nCol)
+! Purpose: compute specified (ai|bj) or MP2 amplitude columns.
+
+use ChoMP2_dec, only: EOcc, EVir, iOption_MP2CD, NowSym
+
+implicit none
+integer nDim, nCol, l_Buf
+real*8 Col(nDim,nCol), Buf(l_Buf)
+integer iCol(nCol)
 #include "chomp2.fh"
+character(len=3), parameter :: ThisNm = 'Col'
+character(len=10), parameter :: SecNam = 'ChoMP2_Col'
+integer iSym
 
-      Character(LEN=3), Parameter:: ThisNm = 'Col'
-      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Col'
+! Check input.
+! ------------
 
-      Integer iSym
+if ((nCol < 1) .or. (nDim < 1)) return
+iSym = NowSym
+if (nDim /= nT1am(iSym)) then
+  write(6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
+  write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
+  call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
+end if
 
-!     Check input.
-!     ------------
+! Calculate (ai|bj) integrals.
+! ----------------------------
 
-      If (nCol.lt.1 .or. nDim.lt.1) Return
-      iSym = NowSym
-      If (nDim .ne. nT1am(iSym)) Then
-         Write(6,*) SecNam,': inconsistent dimension. Expected: ',      &
-     &              nT1am(iSym),'   Received: ',nDim
-         Write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
-         Call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
-      End If
+call ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 
+! Postprocess integrals.
+! ----------------------
 
-!     Calculate (ai|bj) integrals.
-!     ----------------------------
+if (iOption_MP2CD == 2) call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir) ! generate amplitudes
 
-      Call ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
-
-!     Postprocess integrals.
-!     ----------------------
-
-      If (iOption_MP2CD .eq. 2) Then ! generate amplitudes
-         Call ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
-      End If
-
-      End
-      SubRoutine ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
-!
-!     Thomas Bondo Pedersen, Dec. 2007.
-!
-!     Purpose: scale integrals with orbital energies to get
-!              (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
-!
-      use ChoMP2_dec, only: NowSym
-      Implicit None
-      Integer nDim, nCol
-      Real*8  Col(nDim,nCol), EOcc(*), EVir(*)
-      Integer iCol(nCol)
-#include "chomp2.fh"
-#include "cholesky.fh"
-
-      Integer iSym, bj_, bj, b, iSymb, j, iSymj, iSymi, iSyma, i, ai0
-      Integer a, ai
-      Real*8  Ebj, DE
-
-      Integer MulD2h, k, l
-      MulD2h(k,l)=iEOr(k-1,l-1)+1
-
-      iSym = NowSym
-      Do bj_ = 1,nCol
-         bj = iCol(bj_)
-         Call ChoMP2_Col_Invai(bj,iSym,b,iSymb,j,iSymj)
-         Ebj = EVir(iVir(iSymb)+b) - EOcc(iOcc(iSymj)+j)
-         Do iSymi = 1,nSym
-            iSyma = MulD2h(iSymi,iSym)
-            Do i = 1,nOcc(iSymi)
-               ai0 = iT1am(iSyma,iSymi) + nVir(iSyma)*(i-1)
-               Do a = 1,nVir(iSyma)
-                  ai = ai0 + a
-                  DE = EVir(iVir(iSyma)+a) - EOcc(iOcc(iSymi)+i) + Ebj
-                  Col(ai,bj_) = Col(ai,bj_)/DE
-               End Do
-            End Do
-         End Do
-      End Do
-
-      End
-      SubRoutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
-!
-!     Thomas Bondo Pedersen, Dec. 2004.
-!     Renamed (from ChoMP2_Col), Thomas Bondo Pedersen, Dec. 2007.
-!
-!     Purpose: compute specified (ai|bj) columns.
-!
-      use ChoMP2, only: OldVec
-      use ChoMP2_dec, only: InCore, NowSym
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8  Col(nDim,nCol), Buf(l_Buf)
-      Integer iCol(nCol)
-#include "cholesky.fh"
-#include "chomp2.fh"
-
-      Character(LEN=6), Parameter:: ThisNm = 'IntCol'
-      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_IntCol'
-
-      Logical DoClose
-
-      Real*8, Allocatable:: Wrk(:)
-
-      iSym = NowSym
-      If (NumCho(iSym) .lt. 1) Then
-         Call FZero(Col,nDim*nCol)
-         Return
-      End If
-
-      irc = 0
-
-      If (InCore(iSym)) Then  ! old vectors available in core
-
-         Fac = 0.0D0
-         Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,                       &
-     &                        OldVec,NumCho(iSym),                      &
-     &                        Buf,l_Buf,Fac,irc)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-            Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[1]')
-         End If
-
-      Else ! old vectors must be read on disk
-
-         DoClose = .false.
-         If (lUnit_F(iSym,1) .lt. 1) Then
-            Call ChoMP2_OpenF(1,1,iSym)
-            DoClose = .true.
-         End If
-
-         Call mma_maxDBLE(lWrk)
-
-         If (l_Buf .gt. lWrk) Then ! use Buf as work space
-
-            nVec = min(l_Buf/(nDim+1),NumCho(iSym))
-            If (nVec .lt. 1) Then
-               Write(6,*) SecNam,': insufficient memory for batch!'
-               Call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
-               nBat = 0
-            Else
-               nBat = (NumCho(iSym) - 1)/nVec + 1
-            End If
-
-            Do iBat = 1,nBat
-
-               If (iBat .eq. nBat) Then
-                  NumV = NumCho(iSym) - nVec*(nBat - 1)
-               Else
-                  NumV = nVec
-               End If
-               iVec1 = nVec*(iBat - 1) + 1
-
-               iOpt = 2
-               lTot = nDim*NumV
-               iAdr = nDim*(iVec1 - 1) + 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,Buf(1),lTot,iAdr)
-
-               If (iBat .eq. 1) Then
-                  Fac = 0.0D0
-               Else
-                  Fac = 1.0D0
-               End If
-
-               lScr = l_Buf - lTot
-               If (lWrk .gt. lScr) Then
-                  lWsav = lWrk
-                  Call mma_allocate(Wrk,lWrk,Label='Wrk')
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
-     &                                 Buf(1),NumV,                     &
-     &                                 Wrk,lWrk,Fac,irc)
-                  Call mma_deallocate(Wrk)
-                  lWrk = lWsav
-               Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
-     &                                 Buf(1),NumV,                     &
-     &                                 Buf(1+lTot),lScr,Fac,irc)
-               End If
-               If (irc .ne. 0) Then
-                  Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-                  Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[2]')
-               End If
-
-            End Do
-
-         Else ! use Work as work space
-
-            Call mma_allocate(Wrk,lWrk,Label='Wrk')
-
-            nVec = min(lWrk/nDim,NumCho(iSym))
-            If (nVec .lt. 1) Then
-               Write(6,*) SecNam,': insufficient memory for batch!'
-               Call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
-               nBat = 0
-            Else
-               nBat = (NumCho(iSym) - 1)/nVec + 1
-            End If
-
-            Do iBat = 1,nBat
-
-               If (iBat .eq. nBat) Then
-                  NumV = NumCho(iSym) - nVec*(nBat - 1)
-               Else
-                  NumV = nVec
-               End If
-               iVec1 = nVec*(iBat - 1) + 1
-
-               iOpt = 2
-               lTot = nDim*NumV
-               iAdr = nDim*(iVec1 - 1) + 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,Wrk,lTot,iAdr)
-
-               If (iBat .eq. 1) Then
-                  Fac = 0.0D0
-               Else
-                  Fac = 1.0D0
-               End If
-
-               lScr = lWrk - lTot
-               If (l_Buf .gt. lScr) Then
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
-     &                                 Wrk,NumV,                        &
-     &                                 Buf(1),l_Buf,Fac,irc)
-               Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
-     &                                 Wrk,NumV,                        &
-     &                                 Wrk(1+lTot),lScr,Fac,irc)
-               End If
-               If (irc .ne. 0) Then
-                  Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-                  Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[3]')
-               End If
-
-            End Do
-
-            Call mma_deallocate(Wrk)
-
-         End If
-
-         If (DoClose) Then
-            Call ChoMP2_OpenF(2,1,iSym)
-            DoClose = .false.
-         End If
-
-      End If
-
-      End
+end subroutine ChoMP2_Col

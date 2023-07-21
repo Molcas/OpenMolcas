@@ -8,22 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_Distrib_Vec(Jin,Jfi,iDV,nV)
-      Implicit none
-      Integer  Jin, Jfi, nV
-      Integer  iDV(*)
+
+subroutine Cho_P_Distrib_Vec(Jin,Jfi,iDV,nV)
+
+implicit none
+integer Jin, Jfi, nV
+integer iDV(*)
 #include "cho_para_info.fh"
+integer J0, J
 
-      Integer J0, J
+if (Cho_Real_Par) then
+  call Cho_Distrib_Vec(Jin,Jfi,iDV,nV)
+else
+  J0 = Jin-1
+  nV = Jfi-J0
+  do J=1,nV
+    iDV(J) = J0+J
+  end do
+end if
 
-      If (Cho_Real_Par) Then
-         Call Cho_Distrib_Vec(Jin,Jfi,iDV,nV)
-      Else
-         J0 = Jin - 1
-         nV = Jfi - J0
-         Do J = 1,nV
-            iDV(J) = J0 + J
-         End Do
-      End If
-
-      End
+end subroutine Cho_P_Distrib_Vec

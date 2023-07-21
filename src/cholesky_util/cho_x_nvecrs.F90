@@ -33,100 +33,91 @@
 !> @param[out] iVec First vector in red. set \p iRed, sym. \p iSym
 !> @param[out] nVec Number of vectors in red. set \p iRed, sym. \p iSym
 !***********************************************************************
-      SubRoutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
-      use ChoSwp, only: InfVec
-      Implicit None
-      Integer iRed, iSym, iVec, nVec
+
+subroutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
+
+use ChoSwp, only: InfVec
+
+implicit none
+integer iRed, iSym, iVec, nVec
 #include "cholesky.fh"
+character*12 SecNam
+parameter(SecNam='Cho_X_nVecRS')
+logical Found
+integer irc, LastRed, jVec, jRed
 
-      Character*12 SecNam
-      Parameter (SecNam = 'Cho_X_nVecRS')
+! Check input.
+! ------------
 
-      Logical Found
+irc = 0
+if ((iSym < 1) .or. (iSym > nSym)) irc = -1
+if ((NumCho(iSym) < 0) .or. (NumCho(iSym) > MaxVec)) irc = -2
+if (NumCho(iSym) == 0) then
+  iVec = 0
+  nVec = 0
+  return
+end if
+LastRed = InfVec(NumCho(iSym),2,iSym)
+if (LastRed < 1) irc = -3
+if (iRed < 1) irc = -4
+if (irc /= 0) then
+  iVec = irc
+  nVec = irc
+  return
+end if
+if (iRed > LastRed) then
+  iVec = 0
+  nVec = 0
+  return
+end if
+nVec = 0
 
-      Integer irc, LastRed, jVec, jRed
+! Find first vector in reduced set iRed.
+! --------------------------------------
 
-!     Check input.
-!     ------------
+Found = .false.
+jVec = 0
+do while ((jVec < NumCho(iSym)) .and. (.not. Found))
+  jVec = jVec+1
+  jRed = InfVec(jVec,2,iSym)
+  if (jRed == iRed) then
+    iVec = jVec
+    Found = .true.
+  else if (jRed > iRed) then
+    jVec = NumCho(iSym)  ! break loop
+  end if
+end do
 
-      irc = 0
-      If (iSym.lt.1 .or. iSym.gt.nSym) Then
-         irc = -1
-      End If
-      If (NumCho(iSym).lt.0 .or. NumCho(iSym).gt.MaxVec) Then
-         irc = -2
-      End If
-      If (NumCho(iSym)==0) Then
-         iVec = 0
-         nVec = 0
-         Return
-      End If
-      LastRed = InfVec(NumCho(iSym),2,iSym)
-      If (LastRed .lt. 1) Then
-         irc = -3
-      End If
-      If (iRed .lt. 1) Then
-         irc = -4
-      End If
-      If (irc .ne. 0) Then
-         iVec = irc
-         nVec = irc
-         Return
-      End If
-      If (iRed .gt. LastRed) Then
-         iVec = 0
-         nVec = 0
-         Return
-      End If
-      nVec=0
+! No first vector <=> 0 vectors in reduced set iRed.
+! --------------------------------------------------
 
-!     Find first vector in reduced set iRed.
-!     --------------------------------------
+if (.not. Found) then
+  iVec = 0
+  nVec = 0
+  return
+end if
 
-      Found = .false.
-      jVec  = 0
-      Do While (jVec.lt.NumCho(iSym) .and. .not.Found)
-         jVec = jVec + 1
-         jRed = InfVec(jVec,2,iSym)
-         If (jRed .eq. iRed) Then
-            iVec  = jVec
-            Found = .true.
-         Else If (jRed .gt. iRed) Then
-            jVec = NumCho(iSym)  ! break loop
-         End If
-      End Do
+! Count number of vectors in reduced set iRed.
+! --------------------------------------------
 
-!     No first vector <=> 0 vectors in reduced set iRed.
-!     --------------------------------------------------
+nVec = 1
+jVec = iVec
+do while (jVec < NumCho(iSym))
+  jVec = jVec+1
+  jRed = InfVec(jVec,2,iSym)
+  if (jRed == iRed) then
+    nVec = nVec+1
+  else
+    jVec = NumCho(iSym) ! break loop
+  end if
+end do
 
-      If (.not. Found) Then
-         iVec = 0
-         nVec = 0
-         Return
-      End If
+#ifdef _DEBUGPRINT_
+! Debug: print result.
+! --------------------
 
-!     Count number of vectors in reduced set iRed.
-!     --------------------------------------------
-
-      nVec = 1
-      jVec = iVec
-      Do While (jVec .lt. NumCho(iSym))
-         jVec = jVec + 1
-         jRed = InfVec(jVec,2,iSym)
-         If (jRed .eq. iRed) Then
-            nVec = nVec + 1
-         Else
-            jVec = NumCho(iSym) ! break loop
-         End If
-      End Do
-
-#if defined (_DEBUGPRINT_)
-!     Debug: print result.
-!     --------------------
-
-      Write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ', &
-     &           iRed,' (sym. block ',iSym,')'
-      Write(6,*) SecNam,': first vector is: ',iVec
+write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ',iRed,' (sym. block ',iSym,')'
+write(6,*) SecNam,': first vector is: ',iVec
 #endif
 
-      End
+end subroutine Cho_X_nVecRS

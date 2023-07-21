@@ -8,248 +8,228 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
-#if defined (_MOLCAS_MPP_)
-      Use Para_Info, Only: MyRank, nProcs
-      use ChoSwp, only: InfVec_G, IndRed
-      use ChoArr, only: iL2G
-      use stdalloc
+
+subroutine Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: MyRank, nProcs
+use ChoSwp, only: InfVec_G, IndRed
+use ChoArr, only: iL2G
+use stdalloc
 #endif
-      Implicit Real*8 (a-h,o-z)
-      Real*8   Vec(*)
-      Integer  Jin, Jfi, iSym, iRed, iPass
 
-      Character*13 SecNam
-      Parameter (SecNam = 'Cho_VecTransp')
-
-#if defined (_MOLCAS_MPP_)
+implicit real*8(a-h,o-z)
+real*8 Vec(*)
+integer Jin, Jfi, iSym, iRed, iPass
+character*13 SecNam
+parameter(SecNam='Cho_VecTransp')
+#ifdef _MOLCAS_MPP_
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "mafdecls.fh"
-
 #ifndef _GA_
 #include "WrkSpc.fh"
 #endif
-
-      Logical LocDbg
-#if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
+logical LocDbg
+#ifdef _DEBUGPRINT_
+parameter(LocDbg=.true.)
 #else
-      Parameter (LocDbg = .false.)
+parameter(LocDbg=.false.)
 #endif
-
-
-      External  ga_create_irreg, ga_destroy
-      Logical   ga_create_irreg, ga_destroy, ok
-      Integer   g_a
+external ga_create_irreg, ga_destroy
+logical ga_create_irreg, ga_destroy, ok
+integer g_a
 !VVP:2014 DGA is here
 #ifndef _GA_
-      Logical   ga_create_local
-      Integer   ga_local_woff,nelm,iGAL
-      External  ga_local_woff,ga_create_local
+logical ga_create_local
+integer ga_local_woff, nelm, iGAL
+external ga_local_woff, ga_create_local
 #endif
-      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),             &
-     &                       nRSL(:), MapRS2RS(:)
-      Real*8, Allocatable:: VecR(:,:)
-!**************************************************************
+integer, allocatable :: Map(:), iAdrLG(:,:), iVecR(:), nRSL(:), MapRS2RS(:)
+real*8, allocatable :: VecR(:,:)
 
-      If (.not.Cho_Real_Par) Then
-         If (LocDbg) Then
-            Write(6,'(A,A,A)') 'Illegal call to ',SecNam,':'
-            Write(6,*)                                                  &
-     &      'Should only be called in parallel, but Cho_Real_Par = ',   &
-     &      Cho_Real_Par
-         End If
-         Call Cho_Quit('Illegal call to '//SecNam,103)
-      End If
+if (.not. Cho_Real_Par) then
+  if (LocDbg) then
+    write(6,'(A,A,A)') 'Illegal call to ',SecNam,':'
+    write(6,*) 'Should only be called in parallel, but Cho_Real_Par = ',Cho_Real_Par
+  end if
+  call Cho_Quit('Illegal call to '//SecNam,103)
+end if
 
-      If (iRed .eq. 2) Then
-         jRed=3
-      Else If (iRed .eq. 3) Then
-         jRed=2
-      Else
-         Call Cho_Quit('iRed must be 2 or 3 in '//SecNam,104)
-      End If
-      nRS_l = nnBstR(iSym,iRed)   ! local  red set dimension
-      nRS_g = nnBstR_G(iSym,iRed) ! global red set dimension
-      nV = Jfi - Jin + 1
-      nVR = 0
+if (iRed == 2) then
+  jRed = 3
+else if (iRed == 3) then
+  jRed = 2
+else
+  call Cho_Quit('iRed must be 2 or 3 in '//SecNam,104)
+end if
+nRS_l = nnBstR(iSym,iRed)   ! local  red set dimension
+nRS_g = nnBstR_G(iSym,iRed) ! global red set dimension
+nV = Jfi-Jin+1
+nVR = 0
 
-      call mma_allocate(iVecR,nV,Label='iVecR')
-      Call cho_p_distrib_vec(Jin,Jfi,iVecR,nVR)
-      Call mma_allocate(VecR,nRS_g,nVR+1,Label='VecR')
+call mma_allocate(iVecR,nV,Label='iVecR')
+call cho_p_distrib_vec(Jin,Jfi,iVecR,nVR)
+call mma_allocate(VecR,nRS_g,nVR+1,Label='VecR')
 
-      Call mma_allocate(nRSL,nProcs,Label='nRSL')
-      nRSL(:)=0
-      nRSL(1+MyRank) = nRS_l  ! MyRank starts from 0
-      Call Cho_GAIGOP(nRSL,nProcs,'+')
+call mma_allocate(nRSL,nProcs,Label='nRSL')
+nRSL(:) = 0
+nRSL(1+MyRank) = nRS_l  ! MyRank starts from 0
+call Cho_GAIGOP(nRSL,nProcs,'+')
 
-      MxRSL=nRSL(1)
-      Do i=2,nProcs
-         MxRSL=max(MxRSL,nRSL(i))
-      End Do
-      Call mma_allocate(iAdrLG,MxRSL,nProcs,Label='iAdrLG')
+MxRSL = nRSL(1)
+do i=2,nProcs
+  MxRSL = max(MxRSL,nRSL(i))
+end do
+call mma_allocate(iAdrLG,MxRSL,nProcs,Label='iAdrLG')
 
-      Call mma_allocate(Map,nProcs,Label='Map')
-      nProcs_eff = 0
-      iStart = 1
-      myStart = 0
-      Do i=1,nProcs
-         If (nRSL(i) .gt. 0) Then
-            nProcs_eff = nProcs_eff + 1
-            Map(nProcs_eff) = iStart
-            If ((i-1) .eq. myRank) myStart = iStart
-            iStart = iStart + nRSL(i)
-         End If
-      End Do
+call mma_allocate(Map,nProcs,Label='Map')
+nProcs_eff = 0
+iStart = 1
+myStart = 0
+do i=1,nProcs
+  if (nRSL(i) > 0) then
+    nProcs_eff = nProcs_eff+1
+    Map(nProcs_eff) = iStart
+    if ((i-1) == myRank) myStart = iStart
+    iStart = iStart+nRSL(i)
+  end if
+end do
 
-      If (LocDbg) Then
-         Write(LuPri,*)
-         Write(LuPri,*) SecNam,': debug info.'
-         Write(LuPri,*) '#nodes: ',nProcs,'  myRank: ',myRank
-         Write(LuPri,*) '#contributing nodes: ',nProcs_eff
-         Write(LuPri,*) 'Symmetry block: ',iSym
-         Write(LuPri,*) 'On this node:'
-         Write(LuPri,*) 'Vector dimension : ',nRS_l
-         Write(LuPri,*) 'Number of vectors: ',nV,' (',Jin,'-',Jfi,')'
-         Write(LuPri,*) 'Global vector dimension : ',nRS_g
-         Write(LuPri,*) 'Number of global vectors: ',nVR
-         Write(Lupri,*) 'MAP:'
-         Write(LuPri,*) (map(i),i=1,nProcs_eff)
-      End If
+if (LocDbg) then
+  write(LuPri,*)
+  write(LuPri,*) SecNam,': debug info.'
+  write(LuPri,*) '#nodes: ',nProcs,'  myRank: ',myRank
+  write(LuPri,*) '#contributing nodes: ',nProcs_eff
+  write(LuPri,*) 'Symmetry block: ',iSym
+  write(LuPri,*) 'On this node:'
+  write(LuPri,*) 'Vector dimension : ',nRS_l
+  write(LuPri,*) 'Number of vectors: ',nV,' (',Jin,'-',Jfi,')'
+  write(LuPri,*) 'Global vector dimension : ',nRS_g
+  write(LuPri,*) 'Number of global vectors: ',nVR
+  write(Lupri,*) 'MAP:'
+  write(LuPri,*) (map(i),i=1,nProcs_eff)
+end if
 !VVP:2014 Local rather than Global
 #ifdef _GA_
-      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,                &
-     &                     nProcs_eff,1,1,g_a)
+ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,nProcs_eff,1,1,g_a)
 #else
-      ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
+ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
 #endif
-      If (.not. ok) Call Cho_Quit(SecNam//': ga_create_irreg error',101)
+if (.not. ok) call Cho_Quit(SecNam//': ga_create_irreg error',101)
 
-      If (nRS_l .gt. 0) Then
-         myEnd = myStart + nRS_l - 1
-#ifdef _GA_
-         Call ga_put(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
-#else
-!VVP:2014 the minimal latency and scalable putC call
-         Call ga_putc(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
-#endif
-      End If
+if (nRS_l > 0) then
+  myEnd = myStart+nRS_l-1
+# ifdef _GA_
+  call ga_put(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
+# else
+  !VVP:2014 the minimal latency and scalable putC call
+  call ga_putc(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
+# endif
+end if
 #ifndef _GA_
-      nelm=nRS_g*nV
-      iGAL=ga_local_woff(g_a)
-      Call Cho_GAdGOP(Work(iGAL),nelm,'+')
+nelm = nRS_g*nV
+iGAL = ga_local_woff(g_a)
+call Cho_GAdGOP(Work(iGAL),nelm,'+')
 #else
-      Call Cho_GASync()
+call Cho_GASync()
 #endif
-      Jin0 = Jin - 1
-      Do i=1,nVR
-         jv=iVecR(i) - Jin0
-#ifdef _GA_
-         Call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
+Jin0 = Jin-1
+do i=1,nVR
+  jv = iVecR(i)-Jin0
+# ifdef _GA_
+  call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
+# else
+  !VVP:2014 the minimal latency and scalable getC call
+  call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
+# endif
+end do
+
+ok = ga_destroy(g_a)
+if (.not. ok) call Cho_Quit(SecNam//': ga_destroy error',101)
+
+! write the reordered vec on disk
+
+call Cho_P_IndxSwp()
+irc = -1
+call Cho_X_RSCopy(irc,1,jRed)
+if (irc /= 0) call Cho_Quit(SecNam//': Non-zero return code from Cho_X_RSCopy',104)
+
+call mma_allocate(MapRS2RS,nnBstR(iSym,1),Label='MapRS2RS')
+call Cho_RS2RS(mapRS2RS,size(mapRS2RS),jRed,iRed,iPass,iSym)
+call Cho_P_IndxSwp()
+
+iAdrLG(:,:) = 0
+do i=1,nRS_l
+  i1 = IndRed(iiBstR(iSym,iRed)+i,iRed) ! addr in local rs1
+  j1 = iL2G(i1) ! addr in global rs1
+  j = mapRS2RS(j1-iiBstR_G(iSym,1)) ! addr in glob. rs
+  iAdrLG(i,myRank+1) = j
+end do
+call Cho_GAIGOP(iAdrLG,size(iAdrLG),'+')
+
+call mma_deallocate(MapRS2RS)
+
+if (LocDbg) then
+  iCount = 0
+  do iNode=1,nProcs
+    do iRSL=1,nRSL(iNode)
+      iCount = iCount+1
+    end do
+  end do
+  if (iCount /= nRS_g) call Cho_Quit('nRSL error in '//SecNam,104)
+end if
+
+do j=1,nVR
+  call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
+  iCount = 0
+  do iNode=1,nProcs
+    do iRSL=1,nRSL(iNode)
+      VecR(iAdrLG(iRSL,iNode),j) = VecR(1+iCount,nVR+1)
+      iCount = iCount+1
+    end do
+  end do
+end do
+
+if (CHO_ADRVEC /= 1) then ! only WA files!!
+  call Cho_Quit('CHO_ADRVEC error in '//SecNam,102)
+else ! write to disk and update InfVec_G(*,3,iSym)
+  iVec1 = myNumCho(iSym)+1
+  lTot = nRS_g*nVR
+  if (lTot > 0) then
+    iOpt = 1
+    iAdr = InfVec_G(iVec1,3,iSym)
+    call dDAfile(LuCho_G(iSym),iOpt,VecR,lTot,iAdr)
+  end if
+  do iVec=1,nVR
+    jVec = iVec1+iVec-1
+    if (jVec < MaxVec) InfVec_G(jVec+1,3,iSym) = InfVec_G(jVec,3,iSym)+nRS_g
+  end do
+  LastV = myNumCho(iSym)+nVR
+  if (LastV > MaxVec) call Cho_Quit('Max. number of vectors exceeded in '//SecNam,104)
+end if
+myNumCho(iSym) = myNumCho(iSym)+nVR
+
+! deallocations
+
+call mma_deallocate(Map)
+call mma_deallocate(iAdrLG)
+call mma_deallocate(nRSL)
+call mma_deallocate(VecR)
+call mma_deallocate(iVecR)
 #else
-!VVP:2014 the minimal latency and scalable getC call
-         Call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
-#endif
-      End Do
+call Cho_Quit(SecNam//' should never be called in serial installation',103)
 
-      ok = ga_destroy(g_a)
-      If (.not. ok) Call Cho_Quit(SecNam//': ga_destroy error',101)
-
-! --- write the reordered vec on disk
-
-      Call Cho_P_IndxSwp()
-      irc=-1
-      Call Cho_X_RSCopy(irc,1,jRed)
-      If (irc .ne. 0) Then
-         Call Cho_Quit(SecNam//                                         &
-     &                 ': Non-zero return code from Cho_X_RSCopy',      &
-     &                 104)
-      End If
-
-      Call mma_allocate(MapRS2RS,nnBstR(iSym,1),Label='MapRS2RS')
-      Call Cho_RS2RS(mapRS2RS,SIZE(mapRS2RS),jRed,iRed,iPass,iSym)
-      Call Cho_P_IndxSwp()
-
-      iAdrLG(:,:)=0
-      Do i = 1,nRS_l
-         i1 = IndRed(iiBstR(iSym,iRed)+i,iRed) ! addr in local rs1
-         j1 = iL2G(i1) ! addr in global rs1
-         j = mapRS2RS(j1-iiBstR_G(iSym,1)) ! addr in glob. rs
-         iAdrLG(i,myRank+1) = j
-      End Do
-      Call Cho_GAIGOP(iAdrLG,SIZE(iAdrLG),'+')
-
-      Call mma_deallocate(MapRS2RS)
-
-      If (LocDbg) Then
-         iCount=0
-         Do iNode=1,nProcs
-            Do iRSL=1,nRSL(iNode)
-               iCount=iCount+1
-            End Do
-         End Do
-         If (iCount .ne. nRS_g) Then
-            Call Cho_Quit('nRSL error in '//SecNam,104)
-         End If
-      End If
-
-      Do j=1,nVR
-         Call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
-         iCount=0
-         Do iNode=1,nProcs
-            Do iRSL=1,nRSL(iNode)
-               VecR(iAdrLG(iRSL,iNode),j)=VecR(1+iCount,nVR+1)
-               iCount=iCount+1
-            End Do
-         End Do
-      End Do
-
-      If (CHO_ADRVEC .ne. 1) THEN ! only WA files!!
-         Call Cho_Quit('CHO_ADRVEC error in '//SecNam,102)
-      Else ! write to disk and update InfVec_G(*,3,iSym)
-         iVec1=myNumCho(iSym)+1
-         lTot=nRS_g*nVR
-         If (lTot .gt. 0) Then
-            iOpt=1
-            iAdr=InfVec_G(iVec1,3,iSym)
-            Call dDAfile(LuCho_G(iSym),iOpt,VecR,lTot,iAdr)
-         End If
-         Do iVec = 1,nVR
-            jVec = iVec1 + iVec - 1
-            If (jVec .lt. MaxVec) Then
-               InfVec_G(jVec+1,3,iSym)= InfVec_G(jVec,3,iSym) + nRS_g
-            End If
-         End Do
-         LastV = myNumCho(iSym) + nVR
-         If (LastV .gt. MaxVec) Then
-            Call Cho_Quit('Max. number of vectors exceeded in '//SecNam,&
-     &                    104)
-         End If
-      End If
-      myNumCho(iSym) = myNumCho(iSym) + nVR
-
-! --- deallocations
-
-      Call mma_deallocate(Map)
-      Call mma_deallocate(iAdrLG)
-      Call mma_deallocate(nRSL)
-      Call mma_deallocate(VecR)
-      Call mma_deallocate(iVecR)
-#else
-      Call Cho_Quit(SecNam//                                            &
-     &              ' should never be called in serial installation',   &
-     &              103)
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Vec)
-         Call Unused_integer(Jin)
-         Call Unused_integer(Jfi)
-         Call Unused_integer(iSym)
-         Call Unused_integer(iRed)
-         Call Unused_integer(iPass)
-      End If
+if (.false.) then
+  call Unused_real_array(Vec)
+  call Unused_integer(Jin)
+  call Unused_integer(Jfi)
+  call Unused_integer(iSym)
+  call Unused_integer(iRed)
+  call Unused_integer(iPass)
+end if
 #endif
 
-      End
+end subroutine Cho_VecTransp

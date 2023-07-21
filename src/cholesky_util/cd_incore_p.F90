@@ -34,34 +34,33 @@
 !> @param[in]     Thr    Decomposition threshold (precision)
 !> @param[out]    irc    Return code
 !***********************************************************************
-      SubRoutine CD_InCore_p(X,n,Vec,MxVec,iD,NumCho,Thr,irc)
-      Implicit None
-      Integer n, MxVec, NumCho, irc
-      Real*8  X(n,n)
-      Real*8  Vec(n,MxVec)
-      Real*8  Thr
-      Integer iD(MxVec)
 
-      Character*11 SecNam
-      Parameter (SecNam = 'CD_InCore_p')
+subroutine CD_InCore_p(X,n,Vec,MxVec,iD,NumCho,Thr,irc)
 
-      Real*8 DefThr
-      Parameter (DefThr = 1.0d-6)
-      Real*8 ThrNeg, ThrFail
-      Parameter (ThrNeg = -1.0d-13, ThrFail = -1.0d-8)
+implicit none
+integer n, MxVec, NumCho, irc
+real*8 X(n,n)
+real*8 Vec(n,MxVec)
+real*8 Thr
+integer iD(MxVec)
+character*11 SecNam
+parameter(SecNam='CD_InCore_p')
+real*8 DefThr
+parameter(DefThr=1.0d-6)
+real*8 ThrNeg, ThrFail
+parameter(ThrNeg=-1.0d-13,ThrFail=-1.0d-8)
 
+irc = 0
+NumCho = 0
+if (n < 1) Go To 1 ! exit (nothing to do)
+if (Thr < 0.0d0) Thr = DefThr
 
-      irc = 0
-      NumCho = 0
-      If (n .lt. 1) Go To 1 ! exit (nothing to do)
-      If (Thr .lt. 0.0d0) Thr = DefThr
+if (MxVec > 0) then
+  call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
+else
+  irc = -1
+end if
 
-      If (MxVec .gt. 0) Then
-         Call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,     &
-     &                     iD,irc)
-      Else
-         irc = -1
-      End If
+1 continue
 
-    1   Continue
-      End
+end subroutine CD_InCore_p

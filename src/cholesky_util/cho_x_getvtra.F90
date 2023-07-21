@@ -51,91 +51,77 @@
 !> @param[out]    ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
 !> @param[in]     DoRead  flag for reading the reduced vectors
 !***********************************************************************
-      subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,      &
-     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,          &
-     &                         DoRead)
-      use Constants, only: Zero
-      use Data_Structures, only: DSBA_Type, SBA_Type
-      use Definitions, only: wp, iwp
-      use stdalloc
-      implicit real(kind=wp) (a-h,o-z)
 
-      type (DSBA_Type) MOs(nDen)
-      type (SBA_Type) Chot(nDen)
+subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,nDen,kDen,MOs,ChoT,DoRead)
 
-      Real*8 RedVec(lRedVec)
-      integer(kind=iwp) :: nDen,kDen
-      logical :: DoRead
-      character(len=13), parameter:: SECNAM = 'Cho_X_GetVtra'
+use Constants, only: Zero
+use Data_Structures, only: DSBA_Type, SBA_Type
+use Definitions, only: wp, iwp
+use stdalloc
 
+implicit real(kind=wp) (a-h,o-z)
+type(DSBA_Type) MOs(nDen)
+type(SBA_Type) Chot(nDen)
+real*8 RedVec(lRedVec)
+integer(kind=iwp) :: nDen, kDen
+logical :: DoRead
+character(len=13), parameter :: SECNAM = 'Cho_X_GetVtra'
 #include "cholesky.fh"
 #include "choorb.fh"
 
-      MXUSD = 0
-      MUSED = 0
+MXUSD = 0
+MUSED = 0
 ! zeroing the target arrays
 !--------------------------
-      do jDen=kDen,nDen
-         ChoT(jDen)%A0(:) = Zero
-      end do
+do jDen=kDen,nDen
+  ChoT(jDen)%A0(:) = Zero
+end do
 !                                                                      *
 !***********************************************************************
-!***********************************************************************
 !                                                                      *
-      if (DoRead) then
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-        JVEC1 = IVEC1             ! Absolute starting index
-        IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
+if (DoRead) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  JVEC1 = IVEC1         ! Absolute starting index
+  IVEC2 = JVEC1+NUMV-1  ! Absolute ending index
 
-        do while (jVec1 <= iVec2)
-          call CHO_VECRD(RedVec, lRedVec, JVEC1, IVEC2, ISYM, JNUM,     &
-     &                   IREDC, MUSED)
-          MXUSD = MAX(MXUSD,MUSED)
+  do while (jVec1 <= iVec2)
+    call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
+    MXUSD = max(MXUSD,MUSED)
 
-          if (JNUM <= 0 .or. JNUM > (IVEC2-JVEC1+1)) then
-            irc = 77
-            return
-          end if
-
-          JVREF = JVEC1 - IVEC1 + 1 ! Relative index
-          call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,  &
-     &                  IREDC,iSwap,nDen,kDen,MOs,ChoT)
-          if (irc /= 0) then
-            return
-          end if
-
-          JVEC1 = jVec1 + JNUM
-
-        end do  ! end the while loop
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      else ! only MO transformation
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-        JNUM = NUMV
-        JVREF = 1
-        call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,    &
-     &               IREDC,iSwap,nDen,kDen,MOs,ChoT)
-        if (irc /= 0) then
-          return
-        endif
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      end if
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      irc = 0
-
+    if ((JNUM <= 0) .or. (JNUM > IVEC2-JVEC1+1)) then
+      irc = 77
       return
-      end
+    end if
+
+    JVREF = JVEC1-IVEC1+1 ! Relative index
+    call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,nDen,kDen,MOs,ChoT)
+    if (irc /= 0) return
+
+    JVEC1 = jVec1+JNUM
+
+  end do  ! end the while loop
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else ! only MO transformation
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  JNUM = NUMV
+  JVREF = 1
+  call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,nDen,kDen,MOs,ChoT)
+  if (irc /= 0) return
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+irc = 0
+
+return
+
+end subroutine Cho_X_getVtra

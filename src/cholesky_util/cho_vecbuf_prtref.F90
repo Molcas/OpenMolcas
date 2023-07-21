@@ -1,0 +1,51 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
+
+subroutine Cho_VecBuf_PrtRef(Txt)
+!
+! Thomas Bondo Pedersen, September 2012.
+!
+! Print reference norm and sum of vectors in buffer.
+! Txt is printed along with the reference values (for
+! identification).
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
+
+implicit none
+character*(*) Txt
+#include "cholesky.fh"
+integer iSym, jVec, jRed, nDim
+integer i, j
+real*8 RefNrm
+real*8 RefSm
+! Statement functions
+RefNrm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
+RefSm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
+
+if (.not. allocated(nDimRS)) call Cho_Quit('Cho_VecBuf_PrtRef: unable to print reference values',104)
+if (allocated(CHVBFI)) then
+  do iSym=1,nSym
+    do jVec=1,nVec_in_Buf(iSym)
+      jRed = InfVec(jVec,2,iSym)
+      nDim = nDimRS(iSym,jRed)
+      write(LuPri,'(A,A,I6,A,I2,A,I9,1P,2(A,D25.16))') Txt,' Cholesky vector',jVec,' sym.',iSym,' dim.',nDim,'  Norm=', &
+                                                       RefNrm(jVec,iSym),' Sum=',RefSm(jVec,iSym)
+    end do
+  end do
+else
+  write(LuPri,'(A,A)') Txt,' Cho_VecBuf_PrtRef: no reference values available!'
+end if
+
+end subroutine Cho_VecBuf_PrtRef

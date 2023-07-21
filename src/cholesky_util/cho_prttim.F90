@@ -8,67 +8,49 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_PRTTIM(SECTION,TCPU2,TCPU1,TWALL2,TWALL1,IOPT)
+
+subroutine CHO_PRTTIM(SECTION,TCPU2,TCPU1,TWALL2,TWALL1,IOPT)
 !
-!     Purpose: print timing for a section.
-!
-      IMPLICIT NONE
-      CHARACTER*(*) SECTION
-      REAL*8        TCPU1, TCPU2, TWALL1, TWALL2
-      INTEGER       IOPT
+! Purpose: print timing for a section.
+
+implicit none
+character*(*) SECTION
+real*8 TCPU1, TCPU2, TWALL1, TWALL2
+integer IOPT
 #include "cholesky.fh"
+integer IHRC, IMNC
+integer IHRW, IMNW
+integer LENSEC
+real*8 TCPUT, TWALLT, SECC, SECW
+character*80 STRING
 
-      INTEGER IHRC, IMNC
-      INTEGER IHRW, IMNW
-      INTEGER LENSEC
-      REAL*8  TCPUT, TWALLT, SECC, SECW
-      CHARACTER*80 STRING
+TCPUT = TCPU2-TCPU1
+TWALLT = TWALL2-TWALL1
+call CHO_CNVTIM(TCPUT,IHRC,IMNC,SECC)
+call CHO_CNVTIM(TWALLT,IHRW,IMNW,SECW)
 
-      TCPUT  = TCPU2  - TCPU1
-      TWALLT = TWALL2 - TWALL1
-      CALL CHO_CNVTIM(TCPUT,IHRC,IMNC,SECC)
-      CALL CHO_CNVTIM(TWALLT,IHRW,IMNW,SECW)
+if (IOPT == 0) then
+  LENSEC = len(SECTION)
+  write(LUPRI,'(/,A,A,A)') '***** ',SECTION(1:LENSEC),' completed *****'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A)') 'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,' seconds'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A,/)') 'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,' seconds'
+else if (IOPT == 1) then
+  LENSEC = len(SECTION)
+  write(LUPRI,'(///,A,A,A)') '***** ',SECTION(1:LENSEC),' completed *****'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A)') 'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,' seconds'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A,//)') 'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,' seconds'
+else if (IOPT == 2) then
+  LENSEC = min(len(SECTION),70)
+  write(STRING,'(A10,A)') 'Timing of ',SECTION(1:LENSEC)
+  LENSEC = LENSEC+10
+  call CHO_HEAD(STRING(1:LENSEC),'=',80,LUPRI)
+  write(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)') 'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,' seconds'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A)') 'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,' seconds'
+else
+  write(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)') 'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,' seconds'
+  write(LUPRI,'(A,I8,A,I2,A,F6.2,A)') 'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,' seconds'
+end if
 
-      IF (IOPT .EQ. 0) THEN
-         LENSEC = LEN(SECTION)
-         WRITE(LUPRI,'(/,A,A,A)')                                       &
-     &   '***** ',SECTION(1:LENSEC),' completed *****'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
-     &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,/)')                          &
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
-     &   ' seconds'
-      ELSE IF (IOPT .EQ. 1) THEN
-         LENSEC = LEN(SECTION)
-         WRITE(LUPRI,'(///,A,A,A)')                                     &
-     &   '***** ',SECTION(1:LENSEC),' completed *****'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
-     &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A,//)')                         &
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
-     &   ' seconds'
-      ELSE IF (IOPT .EQ. 2) THEN
-         LENSEC = MIN(LEN(SECTION),70)
-         WRITE(STRING,'(A10,A)') 'Timing of ',SECTION(1:LENSEC)
-         LENSEC = LENSEC + 10
-         CALL CHO_HEAD(STRING(1:LENSEC),'=',80,LUPRI)
-         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')                          &
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
-     &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
-     &   ' seconds'
-      ELSE
-         WRITE(LUPRI,'(/,A,I8,A,I2,A,F6.2,A)')                          &
-     &   'Total CPU  time:',IHRC,' hours ',IMNC,' minutes ',SECC,       &
-     &   ' seconds'
-         WRITE(LUPRI,'(A,I8,A,I2,A,F6.2,A)')                            &
-     &   'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,       &
-     &   ' seconds'
-      END IF
+call CHO_FLUSH(LUPRI)
 
-      CALL CHO_FLUSH(LUPRI)
-
-      END
+end subroutine CHO_PRTTIM

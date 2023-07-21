@@ -10,48 +10,43 @@
 !                                                                      *
 ! Copyright (C) 2008, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_GetPQInd(LnPQRSprod, LiPQRSprod,         &
-     &                                  iBatch,jBatch)
+
+subroutine ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,iBatch,jBatch)
 !
-!     Jonas Bostrom, june 2008
+! Jonas Bostrom, june 2008
 !
-!     Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
-!
-      use ChoMP2, only: LnPQprod
-      Implicit None
-      Integer iBatch, jBatch
-      Integer LnPQRSprod,LiPQRSprod(8)
+! Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
+
+use ChoMP2, only: LnPQprod
+
+implicit none
+integer iBatch, jBatch
+integer LnPQRSprod, LiPQRSprod(8)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
+integer iSym
+character*14 String
+character*22 SecNam
+parameter(SecNam='ChoMP2_Energy_GetPQInd')
 
-      Integer iSym
+if (iBatch == jBatch) then
+  LnPQRSprod = 0
+  if (ChoAlg == 1) then
+    do iSym=1,nSym
+      LiPQRSprod(iSym) = LnPQRSprod
+      LnPQRSprod = LnPQRSprod+LnPQprod(iSym,iBatch)*(LnPQprod(iSym,iBatch)+1)/2
+    end do
+  else
+    write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
+    call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',String)
+  end if
+else
+  LnPQRSprod = 0
+  do iSym=1,nSym
+    LiPQRSprod(iSym) = LnPQRSprod
+    LnPQRSprod = LnPQRSprod+LnPQprod(iSym,iBatch)*LnPQprod(iSym,jBatch)
+  end do
+end if
 
-      Character*14 String
-      Character*22 SecNam
-      Parameter (SecNam = 'ChoMP2_Energy_GetPQInd')
-
-      If (iBatch .eq. jBatch) Then
-         LnPQRSprod = 0
-         If (ChoAlg .eq. 1) Then
-            Do iSym = 1,nSym
-               LiPQRSprod(iSym) = LnPQRSprod
-               LnPQRSprod = LnPQRSprod                                  &
-     &                    + LnPQprod(iSym,iBatch)                       &
-     &                    * (LnPQprod(iSym,iBatch)+1)/2
-            End Do
-         Else
-            Write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',      &
-     &                       String)
-         End If
-      Else
-         LnPQRSprod = 0
-         Do iSym = 1,nSym
-            LiPQRSprod(iSym) = LnPQRSprod
-            LnPQRSprod = LnPQRSprod + LnPQprod(iSym,iBatch)*            &
-     &                                LnPQprod(iSym,jBatch)
-         End Do
-      End If
-
-      End
+end subroutine ChoMP2_Energy_GetPQInd

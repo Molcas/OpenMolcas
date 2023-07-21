@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_QUIT(STRING,IERR)
-!
-!     Purpose: echo message STRING and abort execution.
-!
-      Implicit Real*8 (a-h,o-z)
-      CHARACTER*(*) STRING
-#include "cholesky.fh"
-      WRITE(LUPRI,'(//,1X,A)') '***'
-      IF (IERR.EQ.0 .OR. IERR.EQ.100) THEN
-         WRITE(LUPRI,'(1X,A)')                                          &
-     &   '*** Execution stopped by Cholesky Decomposition Utility'
-         WRITE(LUPRI,'(1X,A,A)')                                        &
-     &   '*** Message: ',STRING
-      ELSE
-         WRITE(LUPRI,'(1X,A)')    '*** Error in Cholesky Core Routine'
-         WRITE(LUPRI,'(1X,A,A)')  '*** Message: ',STRING
-         WRITE(LUPRI,'(1X,A,I5)') '*** Code   : ',IERR
-      END IF
-      WRITE(LUPRI,'(1X,A,//)') '***'
-      CALL CHO_TRANSLATEERRORCODE(IERR,MOLCASCODE)
-      CALL QUIT(MOLCASCODE)
 
-      END
+subroutine CHO_QUIT(STRING,IERR)
+!
+! Purpose: echo message STRING and abort execution.
+
+implicit real*8(a-h,o-z)
+character*(*) STRING
+#include "cholesky.fh"
+
+write(LUPRI,'(//,1X,A)') '***'
+if ((IERR == 0) .or. (IERR == 100)) then
+  write(LUPRI,'(1X,A)') '*** Execution stopped by Cholesky Decomposition Utility'
+  write(LUPRI,'(1X,A,A)') '*** Message: ',STRING
+else
+  write(LUPRI,'(1X,A)') '*** Error in Cholesky Core Routine'
+  write(LUPRI,'(1X,A,A)') '*** Message: ',STRING
+  write(LUPRI,'(1X,A,I5)') '*** Code   : ',IERR
+end if
+write(LUPRI,'(1X,A,//)') '***'
+call CHO_TRANSLATEERRORCODE(IERR,MOLCASCODE)
+call QUIT(MOLCASCODE)
+
+end subroutine CHO_QUIT

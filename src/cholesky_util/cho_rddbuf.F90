@@ -8,51 +8,47 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,                &
-     &                      LENBUF,LMMBSTRT,NDUMP)
+
+subroutine CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,LMMBSTRT,NDUMP)
 !
-!     Purpose: read diagonal from disk and set first reduced set
-!              indices.
-!
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: iiBstRSh
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), BUF(LENBUF)
-      INTEGER   IBUF(4,LENBUF)
-      INTEGER   INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
+! Purpose: read diagonal from disk and set first reduced set
+!          indices.
+
+use ChoArr, only: iSP2F
+use ChoSwp, only: iiBstRSh
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), BUF(LENBUF)
+integer IBUF(4,LENBUF)
+integer INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_RDDBUF')
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_RDDBUF')
+if (LENBUF < LBUF) then
+  write(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'
+  write(LUPRI,'(1X,A,I10)') 'LENBUF = ',LENBUF
+  write(LUPRI,'(1X,A,I10,/)') 'LBUF   = ',LBUF
+  call CHO_QUIT('Buffer error in '//SECNAM,102)
+end if
 
-      IF (LENBUF .LT. LBUF) THEN
-         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,                             &
-     &                              ': LENBUF >= LBUF required!'
-         WRITE(LUPRI,'(1X,A,I10)')    'LENBUF = ',LENBUF
-         WRITE(LUPRI,'(1X,A,I10,/)')  'LBUF   = ',LBUF
-         CALL CHO_QUIT('Buffer error in '//SECNAM,102)
-      END IF
+IUNIT = LUSCR
+LUSCR = -1
+rewind(IUNIT)
 
-      IUNIT = LUSCR
-      LUSCR = -1
-      REWIND(IUNIT)
+do IDUMP=1,NDUMP
+  call CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
+  if (IDUMP == NDUMP) call CHO_CLOSE(IUNIT,'DELETE')
+  do L=1,LENGTH
+    if (IBUF(2,L) > 0) then
+      ISHLAB = IBUF(1,L)
+      ISYMAB = IBUF(3,L)
+      IAB = IIBSTR(ISYMAB,1)+IIBSTRSH(ISYMAB,ISHLAB,1)+IBUF(2,L)
+      DIAG(IAB) = BUF(L)
+      INDRSH(IAB) = ISP2F(ISHLAB)
+      INDRED(IAB,1) = IBUF(4,L)
+    end if
+  end do
+end do
 
-      DO IDUMP = 1,NDUMP
-         CALL CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
-         IF (IDUMP .EQ. NDUMP) THEN
-             CALL CHO_CLOSE(IUNIT,'DELETE')
-         END IF
-         DO L = 1,LENGTH
-            IF (IBUF(2,L) .GT. 0) THEN
-               ISHLAB = IBUF(1,L)
-               ISYMAB = IBUF(3,L)
-               IAB    = IIBSTR(ISYMAB,1) + IIBSTRSH(ISYMAB,ISHLAB,1)    &
-     &                + IBUF(2,L)
-               DIAG(IAB) = BUF(L)
-               INDRSH(IAB) = ISP2F(ISHLAB)
-               INDRED(IAB,1) = IBUF(4,L)
-            END IF
-         END DO
-      END DO
-
-      END
+end subroutine CHO_RDDBUF

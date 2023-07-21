@@ -10,132 +10,126 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine CD_Diag(CD_Vec,                                        &
-     &                   Restart,Converged,Thr,                         &
-     &                   ThrNeg,ThrFail,                                &
-     &                   DiaInp,Diag,Buf,                               &
-     &                   nDim,lBuf,                                     &
-     &                   ErrStat,NumCho,                                &
-     &                   irc)
+
+subroutine CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,DiaInp,Diag,Buf,nDim,lBuf,ErrStat,NumCho,irc)
 !
-!     Thomas Bondo Pedersen, October 2004.
+! Thomas Bondo Pedersen, October 2004.
 !
-!     Purpose: set up diagonal for general Cholesky decomposition.
+! Purpose: set up diagonal for general Cholesky decomposition.
 !
-!     NB!! ThrNeg and ThrFail are supposed to be negative with
-!          ThrFail < ThrNeg. Diagonals less than ThrNeg are zeroed,
-!          while diagonals less than ThrFail is taken as a sign of
-!          a non-positive definite matrix (i.e., decomposition will
-!          fail).
+! NB!! ThrNeg and ThrFail are supposed to be negative with
+!      ThrFail < ThrNeg. Diagonals less than ThrNeg are zeroed,
+!      while diagonals less than ThrFail is taken as a sign of
+!      a non-positive definite matrix (i.e., decomposition will
+!      fail).
 !
-!     Error codes, irc:
-!        0 : all OK
-!      201 : inconsistent input: Restart but NumCho < 0.
-!            (NumCho >= 0 is allowed with Restart.)
-!      202 : insufficient buffer size, lBuf.
-!      203 : too negative diagonal element found (i.e., matrix
-!            is non-positive definit).
-!
-      Implicit Real*8 (a-h,o-z)
-      External  CD_Vec ! external routine for vectors
-      Logical   Restart, Converged
-      REAL*8 DiaInp(nDim), Diag(nDim), Buf(lBuf)
-      REAL*8 ErrStat(3)
+! Error codes, irc:
+!    0 : all OK
+!  201 : inconsistent input: Restart but NumCho < 0.
+!        (NumCho >= 0 is allowed with Restart.)
+!  202 : insufficient buffer size, lBuf.
+!  203 : too negative diagonal element found (i.e., matrix
+!        is non-positive definite).
 
-      Character*7 SecNam
-      Parameter (SecNam = 'CD_Diag')
+implicit real*8(a-h,o-z)
+external CD_Vec ! external routine for vectors
+logical Restart, Converged
+real*8 DiaInp(nDim), Diag(nDim), Buf(lBuf)
+real*8 ErrStat(3)
+character*7 SecNam
+parameter(SecNam='CD_Diag')
 
+! Set variables.
+! --------------
 
-!     Set variables.
-!     --------------
+irc = 0
+if (nDim < 1) then
+  Converged = .true. ! in a sense, at least
+  Go To 1 ! exit (nothing to do)
+else
+  Converged = .false.
+end if
 
-      irc = 0
-      If (nDim .lt. 1) Then
-         Converged = .true. ! in a sense, at least
-         Go To 1 ! exit (nothing to do)
-      Else
-         Converged = .false.
-      End If
+! Set up diagonal.
+! ----------------
 
-!     Set up diagonal.
-!     ----------------
+call dCopy_(nDim,DiaInp,1,Diag,1)
 
-      Call dCopy_(nDim,DiaInp,1,Diag,1)
+if (Restart) then ! subtract previous vectors
+  if (NumCho > 0) then
 
-      If (Restart) Then ! subtract previous vectors
-         If (NumCho .gt. 0) Then
+    nVec = min(NumCho,lBuf/nDim)
+    if (nVec < 1) then
+      irc = 202
+      Go To 1 ! exit (insufficient buffer size)
+    else
+      nBatch = (NumCho-1)/nVec+1
+    end if
 
-            nVec = min(NumCho,lBuf/nDim)
-            If (nVec .lt. 1) Then
-               irc = 202
-               Go To 1 ! exit (insufficient buffer size)
-            Else
-               nBatch = (NumCho - 1)/nVec + 1
-            End If
+    do iBatch=1,nBatch
 
-            Do iBatch = 1,nBatch
+      if (iBatch == nBatch) then
+        NumV = NumCho-nVec*(nBatch-1)
+      else
+        NumV = nVec
+      end if
 
-               If (iBatch .eq. nBatch) Then
-                  NumV = NumCho - nVec*(nBatch - 1)
-               Else
-                  NumV = nVec
-               End If
+      iVec1 = nVec*(iBatch-1)+1
+      iOpt = 2
+      call CD_Vec(iVec1,NumV,Buf,lBuf,nDim,iOpt)
 
-               iVec1 = nVec*(iBatch - 1) + 1
-               iOpt  = 2
-               Call CD_Vec(iVec1,NumV,Buf,lBuf,nDim,iOpt)
+      do jVec=1,NumV
+        kOff = nDim*(jVec-1)
+        do i=1,nDim
+          ij = kOff+i
+          Diag(i) = Diag(i)-Buf(ij)*Buf(ij)
+        end do
+      end do
 
-               Do jVec = 1,NumV
-                  kOff = nDim*(jVec - 1)
-                  Do i = 1,nDim
-                     ij = kOff + i
-                     Diag(i) = Diag(i) - Buf(ij)*Buf(ij)
-                  End Do
-               End Do
+    end do
 
-            End Do
+  else if (NumCho < 0) then
 
-         Else If (NumCho .lt. 0) Then
+    irc = 201
+    Go To 1 ! exit (inconsistent input)
 
-            irc = 201
-            Go To 1 ! exit (inconsistent input)
+  end if
+end if
 
-         End If
-      End If
+! Zero negative diagonals (fail if too negative),
+! get error statistics (min, max, and rms error),
+! check convergence based on max diagonal.
+! -----------------------------------------------
 
-!     Zero negative diagonals (fail if too negative),
-!     get error statistics (min, max, and rms error),
-!     check convergence based on max diagonal.
-!     -----------------------------------------------
+if (Diag(1) < ThrNeg) then
+  if (Diag(1) < ThrFail) then
+    irc = 203
+    Go To 1 ! exit (too negative diagonal)
+  else
+    Diag(1) = 0.0d0
+  end if
+end if
+ErrStat(1) = Diag(1)
+ErrStat(2) = Diag(1)
+ErrStat(3) = Diag(1)*Diag(1)
+do i=2,nDim
+  if (Diag(1) < ThrNeg) then
+    if (Diag(1) < ThrFail) then
+      irc = 203
+      Go To 1 ! exit (too negative diagonal)
+    else
+      Diag(1) = 0.0d0
+    end if
+  end if
+  ErrStat(1) = min(ErrStat(1),Diag(i))
+  ErrStat(2) = max(ErrStat(2),Diag(i))
+  ErrStat(3) = ErrStat(3)+Diag(i)*Diag(i)
+end do
+xDim = dble(nDim)
+ErrStat(3) = sqrt(ErrStat(3))/xDim
 
-      If (Diag(1) .lt. ThrNeg) Then
-         If (Diag(1) .lt. ThrFail) Then
-            irc = 203
-            Go To 1 ! exit (too negative diagonal)
-         Else
-            Diag(1) = 0.0d0
-         End If
-      End If
-      ErrStat(1) = Diag(1)
-      ErrStat(2) = Diag(1)
-      ErrStat(3) = Diag(1)*Diag(1)
-      Do i = 2,nDim
-         If (Diag(1) .lt. ThrNeg) Then
-            If (Diag(1) .lt. ThrFail) Then
-               irc = 203
-               Go To 1 ! exit (too negative diagonal)
-            Else
-               Diag(1) = 0.0d0
-            End If
-         End If
-         ErrStat(1) = min(ErrStat(1),Diag(i))
-         ErrStat(2) = max(ErrStat(2),Diag(i))
-         ErrStat(3) = ErrStat(3) + Diag(i)*Diag(i)
-      End Do
-      xDim = dble(nDim)
-      ErrStat(3) = sqrt(ErrStat(3))/xDim
+Converged = ErrStat(2) <= Thr
 
-      Converged = ErrStat(2) .le. Thr
+1 continue
 
-    1   Continue
-      End
+end subroutine CD_Diag

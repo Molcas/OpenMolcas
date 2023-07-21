@@ -8,92 +8,91 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
 
-      Integer  l_MQ, nQShp
-      Real*8   MQ(l_MQ)
-      Integer  List_QShp(nQShp)
+subroutine Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
 
+use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer l_MQ, nQShp
+real*8 MQ(l_MQ)
+integer List_QShp(nQShp)
 #include "cholesky.fh"
 #include "choprint.fh"
+character(len=9), parameter :: SecNam = 'Cho_GetMQ'
+integer, parameter :: iOpt = 2
+integer, external :: Cho_P_LocalSP, Cho_F2SP
+real*8, allocatable :: Scr(:)
+integer, allocatable :: kOff_Shp(:)
 
-      Character(LEN=9), Parameter:: SecNam = 'Cho_GetMQ'
-      Integer, Parameter:: iOpt = 2
+nTot = nQual(1)
+do iSym=2,nSym
+  nTot = nTot+nQual(iSym)
+end do
+if (nTot < 1) return ! this test makes sense for parallel run
 
-      Integer, External:: Cho_P_LocalSP, Cho_F2SP
+call mma_allocate(kOff_Shp,nnShl,Label='kOff_Shp')
 
-      Real*8, Allocatable:: Scr(:)
-      Integer, Allocatable:: kOff_Shp(:)
+iQoff = 0
+do jSym=1,nSym
 
-      nTot = nQual(1)
-      Do iSym = 2,nSym
-         nTot = nTot + nQual(iSym)
-      End Do
-      If (nTot .lt. 1) Return ! this test makes sense for parallel run
+  if (nQual(jSym) < 1) goto 10 ! next symmetry
 
-      Call mma_allocate(kOff_Shp,nnShl,Label='kOff_Shp')
+  Lint = 0
+  do iShp=1,nQShp  ! set only the needed offsets
+    iL_ShpG = List_QShp(iShp) ! Shell pair
+    iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
+    kOff_Shp(iL_Shp) = Lint
+    Lint = Lint+nnBstRSh(jSym,iL_Shp,2)
+  end do
 
-      iQoff=0
-      Do jSym=1,nSym
+  call mma_allocate(Scr,Lint,Label='Scr')
 
-         If (nQual(jSym) .lt. 1) goto 10 ! next symmetry
+  ! Read the integrals
+  !-------------------
+  do jQ=1,nQual(jSym)
 
-         Lint = 0
-         Do iShp=1,nQShp  ! set only the needed offsets
-            iL_ShpG = List_QShp(iShp) ! Shell pair
-            iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
-            kOff_Shp(iL_Shp) = Lint
-            Lint = Lint + nnBstRSh(jSym,iL_Shp,2)
-         End Do
+    iAdr = nnBstr(jSym,2)*(jQ-1)
 
-         Call mma_allocate(Scr,Lint,Label='Scr')
+    do iShp=1,nQShp
 
-! --- Read the integrals
-! ----------------------
-         Do jQ=1,nQual(jSym)
+      iL_ShpG = List_QShp(iShp)
+      iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
+      ipS = 1+kOff_Shp(iL_Shp)
+      iShpAdr = iAdr+iiBstRSh(jSym,iL_Shp,2)
+      Lread = nnBstRSh(Jsym,iL_Shp,2)
+      call dDaFile(LuSel(JSym),iOpt,Scr(ipS),Lread,iShpAdr)
 
-            iAdr = nnBstr(jSym,2)*(jQ-1)
+    end do
 
-            Do iShp=1,nQShp
+    ! Extract the matrix of qualified integrals
+    !------------------------------------------
+    do iQ=1,nQual(jSym)
 
-               iL_ShpG = List_QShp(iShp)
-               iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
-               ipS = 1 + kOff_Shp(iL_Shp)
-               iShpAdr = iAdr + iiBstRSh(jSym,iL_Shp,2)
-               Lread = nnBstRSh(Jsym,iL_Shp,2)
-               Call dDaFile(LuSel(JSym),iOpt,Scr(ipS),Lread,iShpAdr)
+      iAB = iQuAB(iQ,jSym)  ! addr curr red set
+      isAB = iAB-iiBstR(jSym,2)  ! symm. reduction
+      iShABG = IndRsh(IndRed(iAB,2)) ! glob. SP it belongs to
+      iShAB = Cho_P_LocalSP(Cho_F2SP(iShABG)) ! local SP
+      iabSh = isAB-iiBstRSh(jSym,iShAB,2) ! addr within Shp
+      ipfr = kOff_Shp(iShAB)+iabSh
+      ipto = iQoff+nQual(jSym)*(jQ-1)+iQ
+      MQ(ipto) = Scr(ipfr)
 
-            End Do
+    end do
 
-! --- Extract the matrix of qualified integrals
-! ---------------------------------------------
-            Do iQ=1,nQual(jSym)
+  end do
 
-               iAB = iQuAB(iQ,jSym)  ! addr curr red set
-               isAB = iAB - iiBstR(jSym,2)  ! symm. reduction
-               iShABG = IndRsh(IndRed(iAB,2)) ! glob. SP it belongs to
-               iShAB = Cho_P_LocalSP(Cho_F2SP(iShABG)) ! local SP
-               iabSh = isAB - iiBstRSh(jSym,iShAB,2) ! addr within Shp
-               ipfr = kOff_Shp(iShAB) + iabSh
-               ipto = iQoff + nQual(jSym)*(jQ-1) + iQ
-               MQ(ipto) = Scr(ipfr)
+  iQoff = iQoff+nQual(jSym)**2
 
-             End Do
+  call mma_deallocate(Scr)
 
-         End Do
+10 continue
 
-         iQoff = iQoff + nQual(jSym)**2
+end do
 
-         Call mma_deallocate(Scr)
+call mma_deallocate(kOff_Shp)
 
-10       Continue
+return
 
-      End Do
-
-      Call mma_deallocate(kOff_Shp)
-
-      Return
-      End
+end subroutine Cho_GetMQ

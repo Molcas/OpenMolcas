@@ -8,214 +8,194 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_DBGINT_A()
+
+subroutine CHO_MCA_DBGINT_A()
 !
-!     Purpose: regenerate and check all integrals (or the number
-!              of columns specified in input).
+! Purpose: regenerate and check all integrals (or the number
+!          of columns specified in input).
 !
-!     NOTE: this is *not* meant for production calculations, only for
-!           debugging, as:
-!           1) full Cholesky vectors are read
-!           2) calculations are performed in full (no use of red. sets
-!              apart from first)
-!           3) full integral symmetry not used
-!              (only partial particle permutation symmetry)
-!
-      use ChoArr, only: nBstSh, iSP2F
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+! NOTE: this is *not* meant for production calculations, only for
+!       debugging, as:
+!       1) full Cholesky vectors are read
+!       2) calculations are performed in full (no use of red. sets
+!          apart from first)
+!       3) full integral symmetry not used
+!          (only partial particle permutation symmetry)
+
+use ChoArr, only: nBstSh, iSP2F
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
+character(len=16), parameter :: SECNAM = 'CHO_MCA_DBGINT_A'
+real*8 XLBAS(8)
+real*8, allocatable :: Int1(:), Wrk(:)
+! Statement function
+MULD2H(I,J) = ieor(I-1,J-1)+1
 
-      CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_A'
+! Force computation of full shell quadruple.
+! ------------------------------------------
 
-      Real*8 XLBAS(8)
+if (IFCSEW /= 1) then
+  write(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',IFCSEW,' to 1.'
+  write(LUPRI,*) SECNAM,': memory demands are significantly increased by this!'
+  IFCSEW = 1
+end if
 
-      Real*8, Allocatable:: Int1(:), Wrk(:)
+! Initializations.
+! ----------------
 
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
+GLMAX = 0.0d0
+GLMIN = 1.0d15
+GLRMS = 0.0d0
+XTCMP = 0.0d0
+XPECT = 0.0d0
 
-!     Force computation of full shell quadruple.
-!     ------------------------------------------
+! Make first reduced set the current reduced set.
+! -----------------------------------------------
 
-      IF (IFCSEW .NE. 1) THEN
-         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',     &
-     &                  IFCSEW,' to 1.'
-         WRITE(LUPRI,*) SECNAM,                                         &
-     &   ': memory demands are significantly increased by this!'
-         IFCSEW = 1
-      END IF
+call CHO_RSCOPY(1,2)
 
-!     Initializations.
-!     ----------------
+! Allocate memory for largest integral quadruple.
+! -----------------------------------------------
 
-      GLMAX = 0.0D0
-      GLMIN = 1.0D15
-      GLRMS = 0.0D0
-      XTCMP = 0.0D0
-      XPECT = 0.0D0
+LINTMX = MX2SH*MX2SH
+call mma_allocate(INT1,LINTMX,Label='INT1')
 
-!     Make first reduced set the current reduced set.
-!     -----------------------------------------------
+! Allocate max. memory.
+! ---------------------
 
-      CALL CHO_RSCOPY(1,2)
+call mma_maxDBLE(LWRK)
+call mma_allocate(WRK,LWRK/2,Label='WRK')
+call XSETMEM_INTS(LWRK/2)
 
-!     Allocate memory for largest integral quadruple.
-!     -----------------------------------------------
+! Print header.
+! -------------
 
-      LINTMX = MX2SH*MX2SH
-      Call mma_allocate(INT1,LINTMX,Label='INT1')
+call CHO_HEAD('Integral Error Analysis','=',80,LUPRI)
+write(LUPRI,'(/,A,/,A)') '    C     D     A     B   Abs. Min.    Abs. Max.      RMS', &
+                         '--------------------------------------------------------------'
 
-!     Allocate max. memory
-!     ----------------------------------------------------------
+! Loop over shell quadruples.
+! ---------------------------
 
-      Call mma_maxDBLE(LWRK)
-      Call mma_allocate(WRK,LWRK/2,Label='WRK')
-      CALL XSETMEM_INTS(LWRK/2)
+ISAB1 = 1
+if (NCOL_CHK > 0) then
+  ISAB2 = min(NCOL_CHK,NNSHL)
+else
+  ISAB2 = NNSHL
+end if
 
-!     Print header.
-!     -------------
+do ISHLAB=ISAB1,ISAB2
 
-      CALL CHO_HEAD('Integral Error Analysis','=',80,LUPRI)
-      WRITE(LUPRI,'(/,A,/,A)')                                          &
-     & '    C     D     A     B   Abs. Min.    Abs. Max.      RMS',     &
-     & '--------------------------------------------------------------'
+  call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+  if (ISHLB == ISHLA) then
+    NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+  else
+    NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
+  end if
 
-!     Loop over shell quadruples.
-!     ---------------------------
+  if (NCOL_CHK > 0) then
+    ISCD1 = 1
+    ISCD2 = NNSHL
+  else
+    ISCD1 = ISHLAB
+    ISCD2 = NNSHL
+  end if
 
-      ISAB1 = 1
-      IF (NCOL_CHK .GT. 0) THEN
-         ISAB2 = MIN(NCOL_CHK,NNSHL)
-      ELSE
-         ISAB2 = NNSHL
-      END IF
+  do ISHLCD=ISCD1,ISCD2
 
-      DO ISHLAB = ISAB1,ISAB2
+    call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+    if (ISHLD == ISHLC) then
+      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+    else
+      NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
+    end if
+    LINT1 = NUMCD*NUMAB ! actual space needed for (CD|AB)
 
-         CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-         IF (ISHLB .EQ. ISHLA) THEN
-            NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA) + 1)/2
-         ELSE
-            NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
-         END IF
+    ! Compute expected number of comparisons.
+    ! ---------------------------------------
 
-         IF (NCOL_CHK .GT. 0) THEN
-            ISCD1 = 1
-            ISCD2 = NNSHL
-         ELSE
-            ISCD1 = ISHLAB
-            ISCD2 = NNSHL
-         END IF
+    XPECTL = dble(LINT1)
+    XPECT = XPECT+XPECTL
 
-         DO ISHLCD = ISCD1,ISCD2
+    ! Calculate shell quadruple (CD|AB).
+    ! ----------------------------------
 
-            CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-            IF (ISHLD .EQ. ISHLC) THEN
-               NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-            ELSE
-               NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-            END IF
-            LINT1 = NUMCD*NUMAB ! actual space needed for (CD|AB)
+    INT1(1:LINT1) = 0.0d0
+    call CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.false.)
 
-!           Compute expected number of comparisons.
-!           ---------------------------------------
+    ! Calculate integrals from Cholesky vectors.
+    ! ------------------------------------------
 
-            XPECTL = DBLE(LINT1)
-            XPECT  = XPECT + XPECTL
+    call CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,ISHLCD,ISHLAB)
 
-!           Calculate shell quadruple (CD|AB).
-!           ----------------------------------
+    ! Write report.
+    ! -------------
 
-            INT1(1:LINT1)=0.0D0
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.FALSE.)
+    if (NCMP < 1) then
+      write(LUPRI,'(4(I5,1X),5X,A)') ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
+    else
+      RMS = sqrt(ERRRMS/dble(NCMP))
+      write(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
+    end if
 
-!           Calculate integrals from Cholesky vectors.
-!           ------------------------------------------
+    if (abs(ERRMAX) > abs(GLMAX)) GLMAX = ERRMAX
+    if (abs(ERRMIN) < abs(GLMIN)) GLMIN = ERRMIN
+    GLRMS = GLRMS+ERRRMS
+    if (NCMP > 0) XTCMP = XTCMP+dble(NCMP)
 
-            CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,                   &
-     &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,       &
-     &                          ISHLCD,ISHLAB)
+  end do
 
-!           Write report.
-!           -------------
+end do
 
-            IF (NCMP .LT. 1) THEN
-               WRITE(LUPRI,'(4(I5,1X),5X,A)')                           &
-     &         ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
-            ELSE
-               RMS = SQRT(ERRRMS/DBLE(NCMP))
-               WRITE(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))')                 &
-     &         ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
-            END IF
+! Print end of table.
+! -------------------
 
-            IF (ABS(ERRMAX) .GT. ABS(GLMAX)) THEN
-               GLMAX = ERRMAX
-            END IF
-            IF (ABS(ERRMIN) .LT. ABS(GLMIN)) THEN
-               GLMIN = ERRMIN
-            END IF
-            GLRMS = GLRMS + ERRRMS
-            IF (NCMP .GT. 0) XTCMP = XTCMP + DBLE(NCMP)
+write(LUPRI,'(A)') '--------------------------------------------------------------'
+if (XTCMP < 1.0d0) then
+  write(LUPRI,'(A,23X,A)') 'Total:',' !!! nothing compared !!! '
+else
+  GLRMS = sqrt(GLRMS/XTCMP)
+  write(LUPRI,'(A,18X,1P,3(D12.4,1X))') 'Total:',GLMIN,GLMAX,GLRMS
+end if
+write(LUPRI,'(A)') '--------------------------------------------------------------'
 
-         END DO
+! Release all memory allocated here (and release seward memory).
+! --------------------------------------------------------------
 
-      END DO
+call XRLSMEM_INTS()
+call mma_deallocate(WRK)
+call mma_deallocate(INT1)
 
-!     Print end of table.
-!     -------------------
+! Check total number of comparisons.
+! ----------------------------------
 
-      WRITE(LUPRI,'(A)')                                                &
-     & '--------------------------------------------------------------'
-      IF (XTCMP .LT. 1.0D0) THEN
-         WRITE(LUPRI,'(A,23X,A)')                                       &
-     &   'Total:',' !!! nothing compared !!! '
-      ELSE
-         GLRMS = SQRT(GLRMS/XTCMP)
-         WRITE(LUPRI,'(A,18X,1P,3(D12.4,1X))')                          &
-     &   'Total:',GLMIN,GLMAX,GLRMS
-      END IF
-      WRITE(LUPRI,'(A)')                                                &
-     & '--------------------------------------------------------------'
+do ISYM=1,NSYM
+  XLBAS(ISYM) = dble(NBAS(ISYM))
+end do
+XNINT = 0.0d0
+do ISYM=1,NSYM
+  XXLBST = 0.0d0
+  do ISYMB=1,NSYM
+    ISYMA = MULD2H(ISYMB,ISYM)
+    if (ISYMA == ISYMB) then
+      XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+1.0d0)/2.0d0
+    else if (ISYMA > ISYMB) then
+      XXLBST = XXLBST+XLBAS(ISYMA)*XLBAS(ISYMB)
+    end if
+  end do
+  XNINT = XNINT+XXLBST*(XXLBST+1.0d0)/2.0d0
+end do
 
-!     Release all memory allocated here (and release seward memory).
-!     --------------------------------------------------------------
+if (abs(XTCMP-XPECT) > 1.0D-15) then
+  write(LUPRI,'(/,A)') 'WARNING: not all integrals checked:'
+else
+  write(LUPRI,*)
+end if
+write(LUPRI,'(A,1P,D20.10)') 'Total number of integral comparisons    :',XTCMP
+write(LUPRI,'(A,1P,D20.10)') 'Total number expected (full shell pairs):',XPECT
+write(LUPRI,'(A,1P,D20.10)') 'Total number of unique integrals        :',XNINT
 
-      CALL XRLSMEM_INTS()
-      Call mma_deallocate(WRK)
-      Call mma_deallocate(INT1)
-
-!     Check total number of comparisons.
-!     ----------------------------------
-
-      DO ISYM = 1,NSYM
-         XLBAS(ISYM) = DBLE(NBAS(ISYM))
-      END DO
-      XNINT = 0.0D0
-      DO ISYM = 1,NSYM
-         XXLBST = 0.0D0
-         DO ISYMB = 1,NSYM
-            ISYMA = MULD2H(ISYMB,ISYM)
-            IF (ISYMA .EQ. ISYMB) THEN
-               XXLBST = XXLBST + XLBAS(ISYMA)*(XLBAS(ISYMA)+1.0D0)/2.0D0
-            ELSE IF (ISYMA .GT. ISYMB) THEN
-               XXLBST = XXLBST + XLBAS(ISYMA)*XLBAS(ISYMB)
-            END IF
-         END DO
-         XNINT = XNINT + XXLBST*(XXLBST + 1.0D0)/2.0D0
-      END DO
-
-      IF (ABS(XTCMP-XPECT) .GT. 1.0D-15) THEN
-         WRITE(LUPRI,'(/,A)')                                           &
-     &   'WARNING: not all integrals checked:'
-      ELSE
-         WRITE(LUPRI,*)
-      END IF
-      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
-     & 'Total number of integral comparisons    :',XTCMP
-      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
-     & 'Total number expected (full shell pairs):',XPECT
-      WRITE(LUPRI,'(A,1P,D20.10)')                                      &
-     & 'Total number of unique integrals        :',XNINT
-
-      END
+end subroutine CHO_MCA_DBGINT_A

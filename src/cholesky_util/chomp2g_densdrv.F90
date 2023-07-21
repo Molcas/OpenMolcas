@@ -11,43 +11,43 @@
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
 
-      SubRoutine ChoMP2g_DensDrv(irc,EOcc,EVir,EFro,CMO)
-
-!     Jonas Bostrom, Feb 2010
+subroutine ChoMP2g_DensDrv(irc,EOcc,EVir,EFro,CMO)
 !
-!     Purpose: To Compute MP2 density from Cholesky MO-vectors and
-!              decomposed MP2 amplitudes.
+! Jonas Bostrom, Feb 2010
+!
+! Purpose: To Compute MP2 density from Cholesky MO-vectors and
+!          decomposed MP2 amplitudes.
 
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+use stdalloc
 
-      Real*8 EOcc(*), EVir(*), EFro(*),CMO(*)
-      Character*7  ThisNm
-      Character*15 SecNam
-      Parameter (SecNam = 'ChoMP2g_DensDrv', ThisNm = 'DensDrv')
+implicit real*8(a-h,o-z)
+real*8 EOcc(*), EVir(*), EFro(*), CMO(*)
+character*7 ThisNm
+character*15 SecNam
+parameter(SecNam='ChoMP2g_DensDrv',ThisNm='DensDrv')
+integer lWrk
+real*8, allocatable :: Wrk(:)
 
-      Integer lWrk
-      Real*8, Allocatable:: Wrk(:)
+irc = 0
 
-      irc = 0
-
-      Call mma_maxDBLE(lWrk)
-!     Leave 5% of the memory unallocated
-!     ----------------------------------
+call mma_maxDBLE(lWrk)
+! Leave 5% of the memory unallocated
+! ----------------------------------
 #ifdef _I8_
-      lWrk = lWrk*19/20
+lWrk = lWrk*19/20
 #else
-      lWrk = lWrk-lWrk/20
+lWrk = lWrk-lWrk/20
 #endif
-      Call mma_allocate(Wrk,lWrk,Label='Wrk')
-!     Wrk(:)=0.0D0
+call mma_allocate(Wrk,lWrk,Label='Wrk')
+!Wrk(:) = 0.0D0
 
-      Call ChoMP2g_Reord_R(irc,Wrk,lWrk)
+call ChoMP2g_Reord_R(irc,Wrk,lWrk)
 
-      Call ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
-      Call ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
+call ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
+call ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
 
-      Call mma_deallocate(Wrk)
+call mma_deallocate(Wrk)
 
-      Call ChoMP2g_density3(irc,CMO)
-      End
+call ChoMP2g_density3(irc,CMO)
+
+end subroutine ChoMP2g_DensDrv

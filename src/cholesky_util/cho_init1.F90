@@ -8,54 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INIT1()
+
+subroutine CHO_INIT1()
 !
-!     Purpose: initialize counter arrays.
-!
-      use ChoSwp, only: InfRed, InfVec
-      Implicit Real*8 (a-h,o-z)
+! Purpose: initialize counter arrays.
+
+use ChoSwp, only: InfRed, InfVec
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
+character*9 SECNAM
+parameter(SECNAM='CHO_INIT1')
+integer CHO_ISUMELM
+external CHO_ISUMELM
 
-      CHARACTER*9 SECNAM
-      PARAMETER (SECNAM = 'CHO_INIT1')
+if (RSTCHO) then
 
-      INTEGER  CHO_ISUMELM
-      EXTERNAL CHO_ISUMELM
+  ! Read restart information.
+  ! -------------------------
 
-      IF (RSTCHO) THEN
+  call CHO_GETRSTC()
+  NUMCHT = CHO_ISUMELM(NUMCHO,NSYM)
 
-!        Read restart information.
-!        -------------------------
+else
 
-         CALL CHO_GETRSTC()
-         NUMCHT = CHO_ISUMELM(NUMCHO,NSYM)
+  ! Initialize vector info and counters.
+  ! ------------------------------------
 
-      ELSE
+  call IZERO(INFVEC,size(INFVEC))
+  call IZERO(NUMCHO,NSYM)
+  NUMCHT = 0
 
-!        Initialize vector info and counters.
-!        ------------------------------------
+  ! Initialize reduced set info.
+  ! ----------------------------
 
-         CALL IZERO(INFVEC,SIZE(INFVEC))
-         CALL IZERO(NUMCHO,NSYM)
-         NUMCHT = 0
+  call IZERO(INFRED,size(INFRED))
 
-!        Initialize reduced set info.
-!        ----------------------------
+  ! Initialize global integral pass counter.
+  ! ----------------------------------------
 
-         CALL IZERO(INFRED,SIZE(INFRED))
+  XNPASS = 0
 
-!        Initialize global integral pass counter.
-!        ----------------------------------------
+end if
 
-         XNPASS = 0
+! Parallel init.
+! --------------
 
-      END IF
+if (Cho_Real_Par) call IZERO(MYNUMCHO,NSYM)
 
-!     Parallel init.
-!     --------------
-
-      IF (Cho_Real_Par) CALL IZERO(MYNUMCHO,NSYM)
-
-      END
+end subroutine CHO_INIT1

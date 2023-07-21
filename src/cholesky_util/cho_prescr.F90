@@ -8,13 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_PreScr(Thr1,Thr2)
-      use Gateway_Info, only: ThrInt, CutInt
-!
-!     Purpose: read integral prescreening thresholds from common block.
-!
-      Real*8 Thr1, Thr2
-      Thr1 = CutInt
-      Thr2 = ThrInt
 
-      End
+subroutine Cho_PreScr(Thr1,Thr2)
+!
+! Purpose: read integral prescreening thresholds from common block.
+
+use Gateway_Info, only: ThrInt, CutInt
+
+real*8 Thr1, Thr2
+
+Thr1 = CutInt
+Thr2 = ThrInt
+
+end subroutine Cho_PreScr

@@ -8,52 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_MaxDX(Diag,Dmax)
+
+subroutine Cho_MaxDX(Diag,Dmax)
 !
-!     Purpose: get max. diagonal elements in each sym. block,
-!              qualified diagonals excluded.
-!
-      use ChoSwp, only: iQuAB, IndRed
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), Dmax(*)
+! Purpose: get max. diagonal elements in each sym. block,
+!          qualified diagonals excluded.
+
+use ChoSwp, only: iQuAB, IndRed
+use stdalloc
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
-      Real*8, Allocatable:: ExQ(:)
+real*8, allocatable :: ExQ(:)
 
-      MxQ = nQual(1)
-      Do jSym = 2,nSym
-         MxQ = max(MxQ,nQual(jSym))
-      End Do
-      Call mma_allocate(ExQ,MxQ,Label='ExQ')
+MxQ = nQual(1)
+do jSym=2,nSym
+  MxQ = max(MxQ,nQual(jSym))
+end do
+call mma_allocate(ExQ,MxQ,Label='ExQ')
 
-      Do jSym=1,nSym
+do jSym=1,nSym
 
-         Dmax(jSym) = 0.0d0
-         If (nQual(jSym) .lt. 1) goto 10  ! next symm
+  Dmax(jSym) = 0.0d0
+  if (nQual(jSym) < 1) goto 10  ! next symm
 
-         Do iQ=1,nQual(jSym)
-            iab=IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
-            ExQ(iQ) = Diag(iab)
-            Diag(iab) = 0.0d0
-         End Do
+  do iQ=1,nQual(jSym)
+    iab = IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
+    ExQ(iQ) = Diag(iab)
+    Diag(iab) = 0.0d0
+  end do
 
-         jRab1 = iiBstr(jSym,2) + 1
-         jRab2 = jRab1 + nnBstR(jSym,2) - 1
-         Do jRab=jRab1,jRab2
-            iRab = IndRed(jRab,2) ! addr in 1st red set
-            Dmax(jSym) = Max(Dmax(jSym),Diag(iRab))
-         End Do
+  jRab1 = iiBstr(jSym,2)+1
+  jRab2 = jRab1+nnBstR(jSym,2)-1
+  do jRab=jRab1,jRab2
+    iRab = IndRed(jRab,2) ! addr in 1st red set
+    Dmax(jSym) = max(Dmax(jSym),Diag(iRab))
+  end do
 
-! --- Restore the qualified
-         Do iQ=1,nQual(jSym)
-            iab=IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
-            Diag(iab) = ExQ(iQ)
-         End Do
+  ! Restore the qualified
+  do iQ=1,nQual(jSym)
+    iab = IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
+    Diag(iab) = ExQ(iQ)
+  end do
 
-10       Continue
+10 continue
 
-      End Do
+end do
 
-      Call mma_deallocate(ExQ)
+call mma_deallocate(ExQ)
 
-      End
+end subroutine Cho_MaxDX

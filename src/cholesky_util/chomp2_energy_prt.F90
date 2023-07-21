@@ -10,81 +10,71 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_Prt(Caller,Job,iBatch)
+
+subroutine ChoMP2_Energy_Prt(Caller,Job,iBatch)
 !
-!     Thomas Bondo Pedersen, March 2005.
+! Thomas Bondo Pedersen, March 2005.
 !
-!     Purpose: print progress reports for the MP2 energy evaluation.
-!
-      Implicit None
-      Character*17 Caller
-      Integer      Job, iBatch
+! Purpose: print progress reports for the MP2 energy evaluation.
+
+implicit none
+character*17 Caller
+integer Job, iBatch
 #include "chomp2.fh"
+real*8 CME_Time(2,2)
+save CME_Time
+character*17 SecNam
+parameter(SecNam='ChoMP2_Energy_Prt')
+character*10 ThisNam
+parameter(ThisNam='Energy_Prt')
+real*8 CPU, Wall, Ratio
 
-      Real*8 CME_Time(2,2)
-      Save CME_Time
+if (Job == 0) then
 
-      Character*17 SecNam
-      Parameter (SecNam = 'ChoMP2_Energy_Prt')
+  call FZero(CME_Time,2*2)
 
-      Character*10 ThisNam
-      Parameter (ThisNam = 'Energy_Prt')
+  write(6,'(/,4X,A,/,4X,A)') 'Evaluation of MP2 energy correction','==================================='
+  write(6,'(4X,A,A)') 'Evaluator: ',Caller
 
-      Real*8 CPU, Wall, Ratio
+  write(6,'(/,4X,A,/,4X,A,/,4X,A)') 'Batch      CPU       Wall    Ratio',' No.     seconds    seconds', &
+                                    '----------------------------------'
 
-      If (Job .eq. 0) Then
+  call xFlush(6)
 
-         Call FZero(CME_Time,2*2)
+else if (Job == 1) then
 
-         Write(6,'(/,4X,A,/,4X,A)')                                     &
-     &   'Evaluation of MP2 energy correction',                         &
-     &   '==================================='
-         Write(6,'(4X,A,A)')                                            &
-     &   'Evaluator: ',Caller
+  call CWTime(CME_Time(1,1),CME_Time(2,1))
 
-         Write(6,'(/,4X,A,/,4X,A,/,4X,A)')                              &
-     &   'Batch      CPU       Wall    Ratio',                          &
-     &   ' No.     seconds    seconds',                                 &
-     &   '----------------------------------'
+  call xFlush(6)
 
-         Call xFlush(6)
+else if (Job == 2) then
 
-      Else If (Job .eq. 1) Then
+  call CWTime(CME_Time(1,2),CME_Time(2,2))
+  CPU = CME_Time(1,2)-CME_Time(1,1)
+  Wall = CME_Time(2,2)-CME_Time(2,1)
+  if (abs(Wall) < 1.0D-8) then
+    if (abs(CPU) < 1.0D-8) then
+      Ratio = 1.0d0
+    else
+      Ratio = 1.0d15
+    end if
+  else
+    Ratio = CPU/Wall
+  end if
+  write(6,'(I9,2(1X,F10.2),1X,F6.3)') iBatch,CPU,Wall,Ratio
 
-         Call CWTime(CME_Time(1,1),CME_Time(2,1))
+  call xFlush(6)
 
-         Call xFlush(6)
+else if (Job == 3) then
 
-      Else If (Job .eq. 2) Then
+  write(6,'(4X,A)') '----------------------------------'
 
-         Call CWTime(CME_Time(1,2),CME_Time(2,2))
-         CPU   = CME_Time(1,2) - CME_Time(1,1)
-         Wall  = CME_Time(2,2) - CME_Time(2,1)
-         If (Abs(Wall) .lt. 1.0D-8) Then
-            If (Abs(CPU) .lt. 1.0D-8) Then
-               Ratio = 1.0D0
-            Else
-               Ratio = 1.0D15
-            End If
-         Else
-            Ratio = CPU/Wall
-         End If
-         Write(6,'(I9,2(1X,F10.2),1X,F6.3)') iBatch,CPU,Wall,Ratio
+  call xFlush(6)
 
-         Call xFlush(6)
+else
 
-      Else If (Job .eq. 3) Then
+  call ChoMP2_Quit(SecNam,'Input parameter "Job" is out of range',' ')
 
-         Write(6,'(4X,A)')                                              &
-     &   '----------------------------------'
+end if
 
-         Call xFlush(6)
-
-      Else
-
-         Call ChoMP2_Quit(SecNam,                                       &
-     &                    'Input parameter "Job" is out of range',' ')
-
-      End If
-
-      End
+end subroutine ChoMP2_Energy_Prt

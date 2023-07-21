@@ -8,41 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
+
+integer function CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
 !
-!     Purpose: return index in reduced set IRED (1,2,3) of
-!              element LAB in shell pair ISHLAB (sym. ISYMAB).
-!              If not included in this reduced set, 0 is returned.
-!
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
+! Purpose: return index in reduced set IRED (1,2,3) of
+!          element LAB in shell pair ISHLAB (sym. ISYMAB).
+!          If not included in this reduced set, 0 is returned.
+
+use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*8 SECNAM
+parameter(SECNAM='CHO_RS2F')
+integer K, K2
 
-      CHARACTER*8 SECNAM
-      PARAMETER (SECNAM = 'CHO_RS2F')
+CHO_RS2F = 0
 
-      INTEGER K, K2
+K = IIBSTR(ISYMAB,IRED)+IIBSTRSH(ISYMAB,ISHLAB,IRED)
+K2 = K+NNBSTRSH(ISYMAB,ISHLAB,IRED)
+if (IRED == 1) then
+  do while ((K < K2) .and. (CHO_RS2F == 0))
+    K = K+1
+    if (INDRED(K,1) == LAB) CHO_RS2F = K
+  end do
+else if ((IRED == 2) .or. (IRED == 3)) then
+  do while ((K < K2) .and. (CHO_RS2F == 0))
+    K = K+1
+    if (INDRED(INDRED(K,IRED),1) == LAB) CHO_RS2F = K
+  end do
+else
+  call CHO_QUIT('IRED error in '//SECNAM,104)
+end if
 
-      CHO_RS2F = 0
-
-      K  = IIBSTR(ISYMAB,IRED) + IIBSTRSH(ISYMAB,ISHLAB,IRED)
-      K2 = K + NNBSTRSH(ISYMAB,ISHLAB,IRED)
-      IF (IRED .EQ. 1) THEN
-         DO WHILE (K.LT.K2 .AND. CHO_RS2F.EQ.0)
-            K = K + 1
-            IF (INDRED(K,1) .EQ. LAB) THEN
-               CHO_RS2F = K
-            END IF
-         END DO
-      ELSE IF (IRED.EQ.2 .OR. IRED.EQ.3) THEN
-         DO WHILE (K.LT.K2 .AND. CHO_RS2F.EQ.0)
-            K = K + 1
-            IF (INDRED(INDRED(K,IRED),1) .EQ. LAB) THEN
-               CHO_RS2F = K
-            END IF
-         END DO
-      ELSE
-         CALL CHO_QUIT('IRED error in '//SECNAM,104)
-      END IF
-
-      END
+end function CHO_RS2F

@@ -8,78 +8,78 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,      &
-     &                         iLoc)
+
+subroutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,iLoc)
 !
-!     Purpose: read vector jVec, sym. iSym, from disk. Read only
-!              components from shell pairs in list LstSP. Use scratch
-!              location iLoc to set index arrays. On input, iRedC
-!              specifies the reduced set available at location iLoc:
-!              specify -1 if not set (or unknown). On exit, iRedC
-!              identifies the reduced set for which indices are
-!              available at location iLoc. NOTE: only WA files!!
-!
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
-      Implicit Real*8 (a-h,o-z)
-      Real*8  Vec(lVec)
-      Integer LstSP(nSP)
+! Purpose: read vector jVec, sym. iSym, from disk. Read only
+!          components from shell pairs in list LstSP. Use scratch
+!          location iLoc to set index arrays. On input, iRedC
+!          specifies the reduced set available at location iLoc:
+!          specify -1 if not set (or unknown). On exit, iRedC
+!          identifies the reduced set for which indices are
+!          available at location iLoc. NOTE: only WA files!!
+
+use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
+
+implicit real*8(a-h,o-z)
+real*8 Vec(lVec)
+integer LstSP(nSP)
 #include "cholesky.fh"
 
-      Character*13 SecNam
-      Parameter (SecNam = 'Cho_1VecRd_SP')
+character*13 SecNam
+parameter(SecNam='Cho_1VecRd_SP')
 
-      Integer  Cho_P_LocalSP
-      External Cho_P_LocalSP
+integer Cho_P_LocalSP
+external Cho_P_LocalSP
 
-!     Return if no vectors are available on disk.
-!     -------------------------------------------
+! Return if no vectors are available on disk.
+! -------------------------------------------
 
-      If (NumCho(iSym) .lt. 1) Return
+if (NumCho(iSym) < 1) return
 
-!     Check that vector storage mode is word-addressable (WA).
-!     --------------------------------------------------------
+! Check that vector storage mode is word-addressable (WA).
+! --------------------------------------------------------
 
-      If (Cho_AdrVec .ne. 1) Then
-         Write(Lupri,*) SecNam,': WA address mode is required!'
-         Write(Lupri,*) 'Cho_AdrVec is: ',Cho_AdrVec,                   &
-     &                  ' (should be 1)'
-         Call Cho_Quit('WA address mode is required in '//SecNam,104)
-      End If
+if (Cho_AdrVec /= 1) then
+  write(Lupri,*) SecNam,': WA address mode is required!'
+  write(Lupri,*) 'Cho_AdrVec is: ',Cho_AdrVec,' (should be 1)'
+  call Cho_Quit('WA address mode is required in '//SecNam,104)
+end if
 
-!     Get reduced set of this vector.
-!     -------------------------------
+! Get reduced set of this vector.
+! -------------------------------
 
-      If (jVec.gt.0 .and. jVec.le.NumCho(iSym)) Then
-         iRed = InfVec(jVec,2,iSym)
-      Else
-         Call Cho_Quit('Red. set error in '//SecNam,104)
-         iRed = -999999
-      End If
+if ((jVec > 0) .and. (jVec <= NumCho(iSym))) then
+  iRed = InfVec(jVec,2,iSym)
+else
+  call Cho_Quit('Red. set error in '//SecNam,104)
+  iRed = -999999
+end if
 
-!     Set reduced set (if needed).
-!     ----------------------------
+! Set reduced set (if needed).
+! ----------------------------
 
-      If (iRedC .ne. iRed) Then
-         Call Cho_X_SetRed(irc,iLoc,iRed)
-         If (irc .ne. 0) Then
-            Write(Lupri,*) SecNam,': Cho_X_SetRed returned ',irc
-            Call Cho_Quit('Error in '//SecNam,104)
-         End If
-         iRedC = iRed
-      End If
+if (iRedC /= iRed) then
+  call Cho_X_SetRed(irc,iLoc,iRed)
+  if (irc /= 0) then
+    write(Lupri,*) SecNam,': Cho_X_SetRed returned ',irc
+    call Cho_Quit('Error in '//SecNam,104)
+  end if
+  iRedC = iRed
+end if
 
-!     Read vector elements.
-!     ---------------------
+! Read vector elements.
+! ---------------------
 
-      iAdr0 = InfVec(jVec,3,iSym)
-      kV = 1
-      Do iSP = 1,nSP
-         iShlAB = Cho_P_LocalSP(LstSP(iSP))
-         iOpt = 2
-         lTot = nnBstRSh(iSym,iShlAB,iLoc)
-         iAdr = iAdr0 + iiBstRSh(iSym,iShlAB,iLoc)
-         Call dDAFile(LuCho(iSym),iOpt,Vec(kV),lTot,iAdr)
-         kV = kV + lTot
-      End Do
+iAdr0 = InfVec(jVec,3,iSym)
+kV = 1
+do iSP=1,nSP
+  iShlAB = Cho_P_LocalSP(LstSP(iSP))
+  iOpt = 2
+  lTot = nnBstRSh(iSym,iShlAB,iLoc)
+  iAdr = iAdr0+iiBstRSh(iSym,iShlAB,iLoc)
+  call dDAFile(LuCho(iSym),iOpt,Vec(kV),lTot,iAdr)
+  kV = kV+lTot
+end do
 
-      End
+end subroutine Cho_1VecRd_SP

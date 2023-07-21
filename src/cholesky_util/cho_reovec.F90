@@ -8,61 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_REOVEC(IRS2F,N,LRDIM,WRK,LWRK)
+
+subroutine CHO_REOVEC(IRS2F,N,LRDIM,WRK,LWRK)
 !
-!     Purpose: reorder Cholesky vectors on disk to full storage.
-!
-      Implicit Real*8 (a-h,o-z)
-      INTEGER   IRS2F(N,LRDIM)
-      REAL*8 WRK(LWRK)
+! Purpose: reorder Cholesky vectors on disk to full storage.
+
+implicit real*8(a-h,o-z)
+integer IRS2F(N,LRDIM)
+real*8 WRK(LWRK)
 #include "cholesky.fh"
 #include "choorb.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_REOVEC')
+integer CHO_ISAO
+external CHO_ISAO
+! Statement function
+ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_REOVEC')
+! Set up mapping from rs1 to full storage.
+! ----------------------------------------
 
-      INTEGER  CHO_ISAO
-      EXTERNAL CHO_ISAO
+if (N < 3) call CHO_QUIT('Dimension error [1] in '//SECNAM,104)
+if (LRDIM /= MMBSTRT) call CHO_QUIT('Dimension error [2] in '//SECNAM,104)
+call CHO_RSTOF(IRS2F,N,MMBSTRT,1)
+do IRS1=1,NNBSTRT(1)
+  IA = IRS2F(1,IRS1)
+  IB = IRS2F(2,IRS1)
+  ISYMA = CHO_ISAO(IA)
+  ISYMB = CHO_ISAO(IB)
+  JA = IA-IBAS(ISYMA)
+  JB = IB-IBAS(ISYMB)
+  if (ISYMA == ISYMB) then
+    JAB = ITRI(JA,JB)
+  else
+    JAB = NBAS(ISYMA)*(JB-1)+JA
+  end if
+  IRS2F(1,IRS1) = ISYMA
+  IRS2F(2,IRS1) = ISYMB
+  IRS2F(3,IRS1) = JAB
+end do
 
-      ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
+! Set up index arrays and open files for storing full vectors.
+! ------------------------------------------------------------
 
+call CHO_REOINI()
 
-!     Set up mapping from rs1 to full storage.
-!     ----------------------------------------
+! Reorder vectors on disk.
+! ------------------------
 
-      IF (N .LT. 3) THEN
-         CALL CHO_QUIT('Dimension error [1] in '//SECNAM,104)
-      END IF
-      IF (LRDIM .NE. MMBSTRT) THEN
-         CALL CHO_QUIT('Dimension error [2] in '//SECNAM,104)
-      END IF
-      CALL CHO_RSTOF(IRS2F,N,MMBSTRT,1)
-      DO IRS1 = 1,NNBSTRT(1)
-         IA = IRS2F(1,IRS1)
-         IB = IRS2F(2,IRS1)
-         ISYMA = CHO_ISAO(IA)
-         ISYMB = CHO_ISAO(IB)
-         JA = IA - IBAS(ISYMA)
-         JB = IB - IBAS(ISYMB)
-         IF (ISYMA .EQ. ISYMB) THEN
-            JAB = ITRI(JA,JB)
-         ELSE
-           JAB = NBAS(ISYMA)*(JB - 1) + JA
-         END IF
-         IRS2F(1,IRS1) = ISYMA
-         IRS2F(2,IRS1) = ISYMB
-         IRS2F(3,IRS1) = JAB
-      END DO
+call CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 
-!     Set up index arrays and open files for storing full vectors.
-!     ------------------------------------------------------------
-
-      CALL CHO_REOINI()
-
-!     Reorder vectors on disk.
-!     ------------------------
-
-      CALL CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
-
-
-      END
+end subroutine CHO_REOVEC

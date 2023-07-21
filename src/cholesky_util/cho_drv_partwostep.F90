@@ -10,600 +10,528 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_Drv_ParTwoStep(irc)
+
+subroutine Cho_Drv_ParTwoStep(irc)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Purpose: Parallel two-step decomposition of two-electron
-!              integrals.
-!
-      use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
-      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
-      use ChoSubScr, only: Cho_SScreen, SSTau
-      use stdalloc
-      Implicit None
-      Integer irc
+! Purpose: Parallel two-step decomposition of two-electron
+!          integrals.
+
+use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
+use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+use ChoSubScr, only: Cho_SScreen, SSTau
+use stdalloc
+
+implicit none
+integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
+integer iSec
+integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
+integer N2_VecRd_Bak
+integer Cho_DecAlg_Bak
+integer nSys_Call_Bak, nDGM_Call_Bak
+integer iSym, n, ni, nj, nnBlock, i1
+integer nB, nB_Max
+integer l_Z
+integer iBlock, jBlock, ijBlock
+integer MinQual_Bak, MaxQual_Bak, N1_Qual_Bak, N2_Qual_Bak
+integer MxShPr_Bak, iAlQua_Bak
+integer N_Subtr_Bak
+integer Mode_Screen_Bak, Cho_DecAlg_Def_Bak, ModRst_Bak
+real*8 tCPU0, tCPU1, tC0, tC1
+real*8 tWall0, tWall1, tW0, tW1
+real*8 C0, C1, W0, W1
+real*8 Thr_PreScreen_Bak, ThrDiag_Bak, Frac_ChVBuf_Bak, SSTau_Bak
+real*8 Thr_SimRI_Bak, Tol_DiaChk_Bak
+real*8 TimSec_Bak(4,nSection)
+real*8 tInteg_Bak(2,nInteg)
+real*8 tDecom_Bak(2,nDecom)
+real*8 tMisc_Bak(2,nMisc)
+real*8 Byte
+logical lConv, Free_Z
+logical Cho_1Center_Bak, Cho_No2Center_Bak, Cho_PreScreen_Bak
+logical ScDiag_Bak, Cho_SScreen_Bak, Cho_SimRI_Bak, HaltIt_Bak
+logical Did_DecDrv_Bak
+logical Cho_UseAbs_Bak, Cho_DiaChk_Bak, Cho_Fake_Par_Bak
+logical Cho_SimP_Bak, Cho_ReOrd_Bak, ChkOnly_Bak
+logical Cho_IntChk_Bak, Cho_MinChk_Bak, Cho_TrcNeg_Bak
+logical Cho_TstScreen_Bak, RstDia_Bak, RstCho_Bak
+logical Trace_Idle_Bak
+character(len=18), parameter :: SecNam = 'Cho_Drv_ParTwoStep'
+character(len=4), parameter :: myName = 'DPTS'
+character(len=2) Unt
+real*8, parameter :: DumTst = 0.123456789d0, DumTol = 1.0d-15
+real*8, allocatable :: Check(:), Err(:), Z(:)
+integer, allocatable :: NVT(:), nBlock(:), ZBlock(:,:)
+integer, allocatable :: nVBlock(:,:), iV1Block(:,:)
+integer iTri
+integer i, j
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Integer iSec
-      Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
-      Integer N2_VecRd_Bak
-      Integer Cho_DecAlg_Bak
-      Integer nSys_Call_Bak, nDGM_Call_Bak
-      Integer iSym, n, ni, nj, nnBlock, i1
-      Integer nB, nB_Max
-      Integer l_Z
-      Integer iBlock, jBlock, ijBlock
-      Integer MinQual_Bak, MaxQual_Bak, N1_Qual_Bak, N2_Qual_Bak
-      Integer MxShPr_Bak, iAlQua_Bak
-      Integer N_Subtr_Bak
-      Integer Mode_Screen_Bak, Cho_DecAlg_Def_Bak, ModRst_Bak
+! Preliminaries.
+! ==============
 
-      Real*8 tCPU0,  tCPU1,  tC0, tC1
-      Real*8 tWall0, tWall1, tW0, tW1
-      Real*8 C0, C1, W0, W1
-      Real*8 Thr_PreScreen_Bak, ThrDiag_Bak, Frac_ChVBuf_Bak, SSTau_Bak
-      Real*8 Thr_SimRI_Bak, Tol_DiaChk_Bak
-      Real*8 TimSec_Bak(4,nSection)
-      Real*8 tInteg_Bak(2,nInteg)
-      Real*8 tDecom_Bak(2,nDecom)
-      Real*8 tMisc_Bak(2,nMisc)
-      Real*8 Byte
-
-      Logical lConv, Free_Z
-      Logical Cho_1Center_Bak, Cho_No2Center_Bak, Cho_PreScreen_Bak
-      Logical ScDiag_Bak, Cho_SScreen_Bak, Cho_SimRI_Bak, HaltIt_Bak
-      Logical Did_DecDrv_Bak
-      Logical Cho_UseAbs_Bak, Cho_DiaChk_Bak, Cho_Fake_Par_Bak
-      Logical Cho_SimP_Bak, Cho_ReOrd_Bak, ChkOnly_Bak
-      Logical Cho_IntChk_Bak, Cho_MinChk_Bak, Cho_TrcNeg_Bak
-      Logical Cho_TstScreen_Bak, RstDia_Bak, RstCho_Bak
-      Logical Trace_Idle_Bak
-
-      Character(LEN=18), Parameter:: SecNam='Cho_Drv_ParTwoStep'
-      Character(LEN=4), Parameter:: myName='DPTS'
-      Character(LEN=2) Unt
-
-      Real*8, Parameter:: DumTst=0.123456789d0, DumTol=1.0d-15
-      Real*8, Allocatable:: Check(:), Err(:), Z(:)
-      Integer, Allocatable:: NVT(:), nBlock(:), ZBlock(:,:)
-      Integer, Allocatable:: nVBlock(:,:), iV1Block(:,:)
-
-      Integer iTri
-      Integer i, j
-
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-
-!     Preliminaries.
-!     ==============
-
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem('Start of '//SecNam)
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem('Start of '//SecNam)
 #endif
 
-      ! Start overall timing
-      If (iPrint .ge. Inf_Timing) Call Cho_Timer(tCPU0,tWall0)
+! Start overall timing
+if (iPrint >= Inf_Timing) call Cho_Timer(tCPU0,tWall0)
 
-      ! Init return code
-      irc=0
+! Init return code
+irc = 0
 
-      ! make a dummy allocation
-      Call mma_allocate(Check,1,Label='Check')
-      Check(1)=DumTst
+! make a dummy allocation
+call mma_allocate(Check,1,Label='Check')
+Check(1) = DumTst
 
-      lConv = .False.
+lConv = .false.
 
-!     Initialization.
-!     ===============
+! Initialization.
+! ===============
 
-      iSec=1
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-      End If
-      Call Cho_Init(.False.,.True.)
-      Call Cho_GASync()
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky initialization',                     &
-     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
-     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
-     &                   1)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After init')
+iSec = 1
+if (iPrint >= Inf_Timing) call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+call Cho_Init(.false.,.true.)
+call Cho_GASync()
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+  call Cho_PrtTim('Cholesky initialization',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After init')
 #endif
 
-!     Get diagonal.
-!     =============
+! Get diagonal.
+! =============
 
-      iSec=2
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')                                           &
-     &   '***** Starting Cholesky diagonal setup *****'
-         Call Cho_Flush(LuPri)
-      End If
-      Call Cho_GetDiag(lConv)
-      Call Cho_GASync()
-      If (lConv) Then
-         ! restart is not possible, so it cannot be converged!!
-         Write(LuPri,'(A,A)')                                           &
-     &   SecNam,': logical error: converged but not restart?!?!'
-         Call Cho_Quit('Error in '//SecNam,103)
-      End If
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky diagonal setup',                     &
-     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
-     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
-     &                   1)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After diagonal')
+iSec = 2
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+  write(LuPri,'(/,A)') '***** Starting Cholesky diagonal setup *****'
+  call Cho_Flush(LuPri)
+end if
+call Cho_GetDiag(lConv)
+call Cho_GASync()
+if (lConv) then
+  ! restart is not possible, so it cannot be converged!!
+  write(LuPri,'(A,A)') SecNam,': logical error: converged but not restart?!?!'
+  call Cho_Quit('Error in '//SecNam,103)
+end if
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+  call Cho_PrtTim('Cholesky diagonal setup',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After diagonal')
 #endif
 
-!     Cholesky decomposition in two steps.
-!     ====================================
+! Cholesky decomposition in two steps.
+! ====================================
 
-      ! Time the rest as "decomposition driver"
-      Call Cho_Timer(C0,W0)
+! Time the rest as "decomposition driver"
+call Cho_Timer(C0,W0)
 
-      iSec=3
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')                                           &
-     &   '***** Starting Cholesky decomposition *****'
-         Call Cho_Flush(LuPri)
-      End If
+iSec = 3
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+  write(LuPri,'(/,A)') '***** Starting Cholesky decomposition *****'
+  call Cho_Flush(LuPri)
+end if
 
-      ! Perform first CD step: get parent diagonals and Z vectors.
-      ! Z vectors contain more elements than needed at this stage!
-      ! (more elements than vectors). The final Z vectors are obtained
-      ! below (Cho_GetZ).
-      Call Cho_P_SetAddr()
-      Call Cho_DecDrv(Diag)
-      Call Cho_GASync()
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky map generation',                     &
-     &                   tC1,TimSec(1,iSec),                            &
-     &                   tW1,TimSec(3,iSec),                            &
-     &                   2)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After 1st step')
+! Perform first CD step: get parent diagonals and Z vectors.
+! Z vectors contain more elements than needed at this stage!
+! (more elements than vectors). The final Z vectors are obtained
+! below (Cho_GetZ).
+call Cho_P_SetAddr()
+call Cho_DecDrv(Diag)
+call Cho_GASync()
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(tC1,tW1)
+  call Cho_PrtTim('Cholesky map generation',tC1,TimSec(1,iSec),tW1,TimSec(3,iSec),2)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After 1st step')
 #endif
 
-      ! Shut down and re-initialize.
-      ! This is done to get rid of the vast amount of different data
-      ! generated by the parallel decomposition in particular.
-      ! In addition, it will make it easier to use the vector calculator
-      ! externally (i.e. after seward execution)
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC0,tW0)
-      End If
-      Call dCopy_(4*nSection,TimSec,1,Timsec_Bak,1)
-      Call dCopy_(2*nInteg,tInteg,1,tInteg_Bak,1)
-      Call dCopy_(2*nDecom,tDecom,1,tDecom_Bak,1)
-      Call dCopy_(2*nMisc,tMisc,1,tMisc_Bak,1)
-      Trace_Idle_Bak=Trace_Idle
-      Cho_UseAbs_Bak=Cho_UseAbs
-      Cho_DiaChk_Bak=Cho_DiaChk
-      Cho_Fake_Par_Bak=Cho_Fake_Par
-      Cho_SimP_Bak=Cho_SimP
-      Cho_ReOrd_Bak=Cho_ReOrd
-      ChkOnly_Bak=ChkOnly
-      Cho_IntChk_Bak=Cho_IntChk
-      Cho_MinChk_Bak=Cho_MinChk
-      Cho_TrcNeg_Bak=Cho_TrcNeg
-      Cho_TstScreen_Bak=Cho_TstScreen
-      RstDia_Bak=RstDia
-      RstCho_Bak=RstCho
-      Mode_Screen_Bak=Mode_Screen
-      Cho_DecAlg_Def_Bak=Cho_DecAlg_Def
-      ModRst_Bak=ModRst
-      N_Subtr_Bak=N_Subtr
-      Did_DecDrv_Bak=Did_DecDrv
-      HaltIt_Bak=HaltIt
-      Tol_DiaChk_Bak=Tol_DiaChk
-      Cho_1Center_Bak=Cho_1Center
-      Cho_No2Center_Bak=Cho_No2Center
-      Cho_PreScreen_Bak=Cho_PreScreen
-      Thr_PreScreen_Bak=Thr_PreScreen
-      ThrDiag_Bak=ThrDiag
-      ScDiag_Bak=ScDiag
-      MinQual_Bak=MinQual
-      MaxQual_Bak=MaxQual
-      N1_Qual_Bak=N1_Qual
-      N2_Qual_Bak=N2_Qual
-      MxShPr_Bak=MxShPr
-      iAlQua_Bak=iAlQua
-      Cho_IOVec_Bak=Cho_IOVec
-      Frac_ChVBuf_Bak=Frac_ChVBuf
-      Cho_SScreen_Bak=Cho_SScreen
-      SStau_Bak=SStau
-      Cho_SimRI_Bak=Cho_SimRI
-      Thr_SimRI_Bak=Thr_SimRI
-      Cho_DecAlg_Bak=Cho_DecAlg
-      BlockSize_Bak=BlockSize
-      iPrint_Bak=iPrint
-      Cho_IOVec_Bak=Cho_IOVec
-      N1_VecRd_Bak=N1_VecRd
-      N2_VecRd_Bak=N2_VecRd
-      nSys_Call_Bak=nSys_Call
-      nDGM_Call_Bak=nDGM_Call
-      Call Cho_P_WrDiag()
-      Call Cho_Final(.True.)
-      Call Cho_P_OpenVR(2)
-      Call Cho_X_Init(irc,0.0d0)
-      If (irc .ne. 0) Then
-         Write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
-         irc = 1
-         Go To 1 ! clear memory and return
-      End If
-      If (Cho_1Center) Then
-         If (.NOT.Allocated(iAtomShl)) Then
-            Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
-            Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
-            If (irc.ne.0) Then
-               Write(LuPri,'(A,A,I8)')                                  &
-     &         SecNam,': Cho_SetAtomShl returned code',irc
-               irc=1
-               Go To 1 ! clear memory and return
-            End If
-         End If
-      End If
-      Call dCopy_(4*nSection,TimSec_Bak,1,Timsec,1)
-      Call dCopy_(2*nInteg,tInteg_Bak,1,tInteg,1)
-      Call dCopy_(2*nDecom,tDecom_Bak,1,tDecom,1)
-      Call dCopy_(2*nMisc,tMisc_Bak,1,tMisc,1)
-      Trace_Idle=Trace_Idle_Bak
-      Cho_UseAbs=Cho_UseAbs_Bak
-      Cho_DiaChk=Cho_DiaChk_Bak
-      Cho_Fake_Par=Cho_Fake_Par_Bak
-      Cho_SimP=Cho_SimP_Bak
-      Cho_ReOrd=Cho_ReOrd_Bak
-      ChkOnly=ChkOnly_Bak
-      Cho_IntChk=Cho_IntChk_Bak
-      Cho_MinChk=Cho_MinChk_Bak
-      Cho_TrcNeg=Cho_TrcNeg_Bak
-      Cho_TstScreen=Cho_TstScreen_Bak
-      RstDia=RstDia_Bak
-      RstCho=RstCho_Bak
-      Mode_Screen=Mode_Screen_Bak
-      Cho_DecAlg_Def=Cho_DecAlg_Def_Bak
-      ModRst=ModRst_Bak
-      N_Subtr=N_Subtr_Bak
-      Did_DecDrv=Did_DecDrv_Bak
-      HaltIt=HaltIt_Bak
-      Tol_DiaChk=Tol_DiaChk_Bak
-      Cho_1Center=Cho_1Center_Bak
-      Cho_No2Center=Cho_No2Center_Bak
-      Cho_PreScreen=Cho_PreScreen_Bak
-      Thr_PreScreen=Thr_PreScreen_Bak
-      ThrDiag=ThrDiag_Bak
-      ScDiag=ScDiag_Bak
-      MinQual=MinQual_Bak
-      MaxQual=MaxQual_Bak
-      N1_Qual=N1_Qual_Bak
-      N2_Qual=N2_Qual_Bak
-      N1_VecRd=N1_VecRd_Bak
-      N2_VecRd=N2_VecRd_Bak
-      MxShPr=MxShPr_Bak
-      iAlQua=iAlQua_Bak
-      Cho_IOVec=Cho_IOVec_Bak
-      Frac_ChVBuf=Frac_ChVBuf_Bak
-      Cho_SScreen=Cho_SScreen_Bak
-      SStau=SStau_Bak
-      Cho_SimRI=Cho_SimRI_Bak
-      Thr_SimRI=Thr_SimRI_Bak
-      Cho_DecAlg=Cho_DecAlg_Bak
-      BlockSize=BlockSize_Bak
-      iPrint=iPrint_Bak
-      Cho_IOVec=Cho_IOVec_Bak
-      N1_VecRd=N1_VecRd_Bak
-      N2_VecRd=N2_VecRd_Bak
-      nSys_Call=nSys_Call_Bak
-      nDGM_Call=nDGM_Call_Bak
-      ! Allocate memory for extracting integral columns directly in
-      ! reduced set from Seward. Set Seward interface to 3 (to treat
-      ! columns shell pair-wise).
-      IFCSEW=3
-      Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
-      Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky reinitialization',tC1,tC0,tW1,tW0,2)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After re-init')
+! Shut down and re-initialize.
+! This is done to get rid of the vast amount of different data
+! generated by the parallel decomposition in particular.
+! In addition, it will make it easier to use the vector calculator
+! externally (i.e. after seward execution)
+if (iPrint >= Inf_Timing) call Cho_Timer(tC0,tW0)
+call dCopy_(4*nSection,TimSec,1,Timsec_Bak,1)
+call dCopy_(2*nInteg,tInteg,1,tInteg_Bak,1)
+call dCopy_(2*nDecom,tDecom,1,tDecom_Bak,1)
+call dCopy_(2*nMisc,tMisc,1,tMisc_Bak,1)
+Trace_Idle_Bak = Trace_Idle
+Cho_UseAbs_Bak = Cho_UseAbs
+Cho_DiaChk_Bak = Cho_DiaChk
+Cho_Fake_Par_Bak = Cho_Fake_Par
+Cho_SimP_Bak = Cho_SimP
+Cho_ReOrd_Bak = Cho_ReOrd
+ChkOnly_Bak = ChkOnly
+Cho_IntChk_Bak = Cho_IntChk
+Cho_MinChk_Bak = Cho_MinChk
+Cho_TrcNeg_Bak = Cho_TrcNeg
+Cho_TstScreen_Bak = Cho_TstScreen
+RstDia_Bak = RstDia
+RstCho_Bak = RstCho
+Mode_Screen_Bak = Mode_Screen
+Cho_DecAlg_Def_Bak = Cho_DecAlg_Def
+ModRst_Bak = ModRst
+N_Subtr_Bak = N_Subtr
+Did_DecDrv_Bak = Did_DecDrv
+HaltIt_Bak = HaltIt
+Tol_DiaChk_Bak = Tol_DiaChk
+Cho_1Center_Bak = Cho_1Center
+Cho_No2Center_Bak = Cho_No2Center
+Cho_PreScreen_Bak = Cho_PreScreen
+Thr_PreScreen_Bak = Thr_PreScreen
+ThrDiag_Bak = ThrDiag
+ScDiag_Bak = ScDiag
+MinQual_Bak = MinQual
+MaxQual_Bak = MaxQual
+N1_Qual_Bak = N1_Qual
+N2_Qual_Bak = N2_Qual
+MxShPr_Bak = MxShPr
+iAlQua_Bak = iAlQua
+Cho_IOVec_Bak = Cho_IOVec
+Frac_ChVBuf_Bak = Frac_ChVBuf
+Cho_SScreen_Bak = Cho_SScreen
+SStau_Bak = SStau
+Cho_SimRI_Bak = Cho_SimRI
+Thr_SimRI_Bak = Thr_SimRI
+Cho_DecAlg_Bak = Cho_DecAlg
+BlockSize_Bak = BlockSize
+iPrint_Bak = iPrint
+Cho_IOVec_Bak = Cho_IOVec
+N1_VecRd_Bak = N1_VecRd
+N2_VecRd_Bak = N2_VecRd
+nSys_Call_Bak = nSys_Call
+nDGM_Call_Bak = nDGM_Call
+call Cho_P_WrDiag()
+call Cho_Final(.true.)
+call Cho_P_OpenVR(2)
+call Cho_X_Init(irc,0.0d0)
+if (irc /= 0) then
+  write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
+  irc = 1
+  Go To 1 ! clear memory and return
+end if
+if (Cho_1Center) then
+  if (.not. allocated(iAtomShl)) then
+    call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
+    call Cho_SetAtomShl(irc,iAtomShl,size(iAtomShl))
+    if (irc /= 0) then
+      write(LuPri,'(A,A,I8)') SecNam,': Cho_SetAtomShl returned code',irc
+      irc = 1
+      Go To 1 ! clear memory and return
+    end if
+  end if
+end if
+call dCopy_(4*nSection,TimSec_Bak,1,Timsec,1)
+call dCopy_(2*nInteg,tInteg_Bak,1,tInteg,1)
+call dCopy_(2*nDecom,tDecom_Bak,1,tDecom,1)
+call dCopy_(2*nMisc,tMisc_Bak,1,tMisc,1)
+Trace_Idle = Trace_Idle_Bak
+Cho_UseAbs = Cho_UseAbs_Bak
+Cho_DiaChk = Cho_DiaChk_Bak
+Cho_Fake_Par = Cho_Fake_Par_Bak
+Cho_SimP = Cho_SimP_Bak
+Cho_ReOrd = Cho_ReOrd_Bak
+ChkOnly = ChkOnly_Bak
+Cho_IntChk = Cho_IntChk_Bak
+Cho_MinChk = Cho_MinChk_Bak
+Cho_TrcNeg = Cho_TrcNeg_Bak
+Cho_TstScreen = Cho_TstScreen_Bak
+RstDia = RstDia_Bak
+RstCho = RstCho_Bak
+Mode_Screen = Mode_Screen_Bak
+Cho_DecAlg_Def = Cho_DecAlg_Def_Bak
+ModRst = ModRst_Bak
+N_Subtr = N_Subtr_Bak
+Did_DecDrv = Did_DecDrv_Bak
+HaltIt = HaltIt_Bak
+Tol_DiaChk = Tol_DiaChk_Bak
+Cho_1Center = Cho_1Center_Bak
+Cho_No2Center = Cho_No2Center_Bak
+Cho_PreScreen = Cho_PreScreen_Bak
+Thr_PreScreen = Thr_PreScreen_Bak
+ThrDiag = ThrDiag_Bak
+ScDiag = ScDiag_Bak
+MinQual = MinQual_Bak
+MaxQual = MaxQual_Bak
+N1_Qual = N1_Qual_Bak
+N2_Qual = N2_Qual_Bak
+N1_VecRd = N1_VecRd_Bak
+N2_VecRd = N2_VecRd_Bak
+MxShPr = MxShPr_Bak
+iAlQua = iAlQua_Bak
+Cho_IOVec = Cho_IOVec_Bak
+Frac_ChVBuf = Frac_ChVBuf_Bak
+Cho_SScreen = Cho_SScreen_Bak
+SStau = SStau_Bak
+Cho_SimRI = Cho_SimRI_Bak
+Thr_SimRI = Thr_SimRI_Bak
+Cho_DecAlg = Cho_DecAlg_Bak
+BlockSize = BlockSize_Bak
+iPrint = iPrint_Bak
+Cho_IOVec = Cho_IOVec_Bak
+N1_VecRd = N1_VecRd_Bak
+N2_VecRd = N2_VecRd_Bak
+nSys_Call = nSys_Call_Bak
+nDGM_Call = nDGM_Call_Bak
+! Allocate memory for extracting integral columns directly in
+! reduced set from Seward. Set Seward interface to 3 (to treat
+! columns shell pair-wise).
+IFCSEW = 3
+call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+call mma_allocate(iShP2Q,2,Mx2Sh,Label='iShP2Q ')
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(tC1,tW1)
+  call Cho_PrtTim('Cholesky reinitialization',tC1,tC0,tW1,tW0,2)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After re-init')
 #endif
 
-      ! Get Z vectors in core
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC0,tW0)
-      End If
-      Call mma_allocate(NVT,nSym,Label='NVT')
-      Call Cho_X_GetTotV(NVT,SIZE(NVT))
-      Call Cho_ZMem(irc,l_Z,NVT,SIZE(NVT),iPrint.ge.Inf_Timing,.True.)
-      If (irc.ne.0) Then
-         Write(LuPri,'(A,A,I6)')                                        &
-     &   SecNam,': Cho_ZMem returned code',irc
-         If (irc.eq.999) Then
-            If (iPrint.lt.Inf_Timing) Then
-               Call Cho_ZMem(irc,l_Z,NVT,SIZE(NVT),.True.,.False.)
-            End If
-            Call mma_maxDBLE(l_Z)
-            Call Cho_Word2Byte(l_Z,8,Byte,Unt)
-            Write(LuPri,'(A,I12,A,F7.3,1X,A,A)')                        &
-     &      'Largest available memory block:',l_Z,' words (',           &
-     &      Byte,Unt,')'
-            Write(LuPri,'(A)')                                          &
-     &      '=> INSUFFICIENT MEMORY FOR STORING Z VECTORS!'
-            Write(LuPri,'(/,A,/,A)')                                    &
-     &      'You have the following options:',                          &
-     &      '(a) Increase available memory (MOLCAS_MEM),'
-            Write(LuPri,'(A)')                                          &
-     &      'and/or'
-            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A)')                    &
-     &      '(b) -SERIAL EXECUTION:',                                   &
-     &      '       Use the serial two-step algorithm by specifying ',  &
-     &      'the keywords',                                             &
-     &      '          ChoInput',                                       &
-     &      '          TwoStep',                                        &
-     &      '          EndChoInput',                                    &
-     &      '       in Seward input.'
-            Write(LuPri,'(A,/,A,A,/,A,/,A,/,A,/,A,/,A)')                &
-     &      '    -PARALLEL EXECUTION:',                                 &
-     &      '       Use the parallel one-step algorithm by specifying ',&
-     &      'the keywords',                                             &
-     &      '          ChoInput',                                       &
-     &      '          OneStep',                                        &
-     &      '          Parallel',                                       &
-     &      '          EndChoInput',                                    &
-     &      '       in Seward input.'
-            Call Cho_Quit(SecNam//': Insufficient memory for Z vectors',&
-     &                    101)
-         End If
-         irc=1
-         Go To 1 ! clear memory and return
-      End If
-      Call mma_allocate(Z,l_Z,Label='Z')
-      Call mma_allocate(nBlock,nSym,Label='nBlock')
-      nB_Max=0
-      Do iSym=1,nSym
-         nB=(NVT(iSym)-1)/BlockSize+1
-         nB_Max=max(nB_Max,nB)
-         nBlock(iSym)=nB
-      End Do
-      Call mma_allocate(nVBlock,nB_Max,nSym,Label='nVBlock')
-      Call mma_allocate(iV1Block,nB_Max,nSym,Label='iV1Block')
-      nVBlock(:,:)=0
-      iV1Block(:,:)=0
+! Get Z vectors in core
+if (iPrint >= Inf_Timing) call Cho_Timer(tC0,tW0)
+call mma_allocate(NVT,nSym,Label='NVT')
+call Cho_X_GetTotV(NVT,size(NVT))
+call Cho_ZMem(irc,l_Z,NVT,size(NVT),iPrint >= Inf_Timing,.true.)
+if (irc /= 0) then
+  write(LuPri,'(A,A,I6)') SecNam,': Cho_ZMem returned code',irc
+  if (irc == 999) then
+    if (iPrint < Inf_Timing) call Cho_ZMem(irc,l_Z,NVT,size(NVT),.true.,.false.)
+    call mma_maxDBLE(l_Z)
+    call Cho_Word2Byte(l_Z,8,Byte,Unt)
+    write(LuPri,'(A,I12,A,F7.3,1X,A,A)') 'Largest available memory block:',l_Z,' words (',Byte,Unt,')'
+    write(LuPri,'(A)') '=> INSUFFICIENT MEMORY FOR STORING Z VECTORS!'
+    write(LuPri,'(/,A,/,A)') 'You have the following options:','(a) Increase available memory (MOLCAS_MEM),'
+    write(LuPri,'(A)') 'and/or'
+    write(LuPri,'(A,/,A,/,A,/,A,/,A,/,A)') '(b) -SERIAL EXECUTION:', &
+                                           '       Use the serial two-step algorithm by specifying the keywords', &
+                                           '          ChoInput','          TwoStep','          EndChoInput', &
+                                           '       in Seward input.'
+    write(LuPri,'(A,/,A,/,A,/,A,/,A,/,A,/,A)') '    -PARALLEL EXECUTION:', &
+                                               '       Use the parallel one-step algorithm by specifying the keywords', &
+                                               '          ChoInput','          OneStep','          Parallel', &
+                                               '          EndChoInput','       in Seward input.'
+    call Cho_Quit(SecNam//': Insufficient memory for Z vectors',101)
+  end if
+  irc = 1
+  Go To 1 ! clear memory and return
+end if
+call mma_allocate(Z,l_Z,Label='Z')
+call mma_allocate(nBlock,nSym,Label='nBlock')
+nB_Max = 0
+do iSym=1,nSym
+  nB = (NVT(iSym)-1)/BlockSize+1
+  nB_Max = max(nB_Max,nB)
+  nBlock(iSym) = nB
+end do
+call mma_allocate(nVBlock,nB_Max,nSym,Label='nVBlock')
+call mma_allocate(iV1Block,nB_Max,nSym,Label='iV1Block')
+nVBlock(:,:) = 0
+iV1Block(:,:) = 0
 
-      Do iSym=1,nSym
-         i1=1
-         Do iBlock=1,nBlock(iSym)-1
-            nVBlock(iBlock,iSym)=BlockSize
-            iV1Block(iBlock,iSym)=i1
-            i1=i1+BlockSize
-         End Do
-         nVBlock(nBlock(iSym),iSym)=NVT(iSym)-BlockSize*(nBlock(iSym)-1)
-         iV1Block(nBlock(iSym),iSym)=i1
-      End Do
-      nnBlock=nB_Max*(nB_Max+1)/2
-      Call mma_allocate(ZBlock,nnBlock,nSym,Label='ZBlock')
-      ZBlock(:,:)=0
+do iSym=1,nSym
+  i1 = 1
+  do iBlock=1,nBlock(iSym)-1
+    nVBlock(iBlock,iSym) = BlockSize
+    iV1Block(iBlock,iSym) = i1
+    i1 = i1+BlockSize
+  end do
+  nVBlock(nBlock(iSym),iSym) = NVT(iSym)-BlockSize*(nBlock(iSym)-1)
+  iV1Block(nBlock(iSym),iSym) = i1
+end do
+nnBlock = nB_Max*(nB_Max+1)/2
+call mma_allocate(ZBlock,nnBlock,nSym,Label='ZBlock')
+ZBlock(:,:) = 0
 
-      n=1
-      Do iSym=1,nSym
-         Do jBlock=1,nBlock(iSym)
-            nj=nVBlock(jBlock,iSym)
-            ijBlock=iTri(jBlock,jBlock)
-            ZBlock(ijBlock,iSym)=n
-            n=n+nj*(nj+1)/2
-            Do iBlock=jBlock+1,nBlock(iSym)
-               ni=nVBlock(iBlock,iSym)
-               ijBlock=iTri(iBlock,jBlock)
-               ZBlock(ijBlock,iSym)=n
-               n=n+ni*nj
-            End Do
-         End Do
-      End Do
-      Call Cho_GetZ(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),              &
-     &              nVBlock,nB_Max,nSym,                                &
-     &              iV1Block,nB_Max,nSym,                               &
-     &              ZBlock,nnBlock,nSym,Z,l_Z)
-      If (irc .ne. 0) Then
-         Write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
-         irc = 1
-         Go To 1 ! clear memory and return
-      End If
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,  &
-     &                   2)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After GetZ')
+n = 1
+do iSym=1,nSym
+  do jBlock=1,nBlock(iSym)
+    nj = nVBlock(jBlock,iSym)
+    ijBlock = iTri(jBlock,jBlock)
+    ZBlock(ijBlock,iSym) = n
+    n = n+nj*(nj+1)/2
+    do iBlock=jBlock+1,nBlock(iSym)
+      ni = nVBlock(iBlock,iSym)
+      ijBlock = iTri(iBlock,jBlock)
+      ZBlock(ijBlock,iSym) = n
+      n = n+ni*nj
+    end do
+  end do
+end do
+call Cho_GetZ(irc,NVT,size(NVT),nBlock,size(nBlock),nVBlock,nB_Max,nSym,iV1Block,nB_Max,nSym,ZBlock,nnBlock,nSym,Z,l_Z)
+if (irc /= 0) then
+  write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
+  irc = 1
+  Go To 1 ! clear memory and return
+end if
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(tC1,tW1)
+  call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,2)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After GetZ')
 #endif
 
-      ! Perform second step: calculation of Cholesky vectors from Z
-      ! vectors and integrals.
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC0,tW0)
-      End If
-      Free_Z=.True.
-      Call Cho_X_CompVec(irc,NVT,SIZE(NVT),nBlock,SIZE(nBlock),         &
-     &                   nVBlock,nB_Max,nSym,                           &
-     &                   iV1Block,nB_Max,nSym,                          &
-     &                   ZBlock,nnBlock,nSym,Z,l_Z,                     &
-     &                   Free_Z)
-      If (Free_Z) Call mma_deallocate(Z)
-      If (irc .ne. 0) Then
-         Write(LuPri,*) SecNam,': Cho_X_CompVec returned code ',irc
-         irc = 1
-         Go To 1 ! clear memory and return
-      End If
-      ! Write restart files
-      Call Cho_PTS_WrRst(irc,NVT,SIZE(NVT))
-      If (irc .ne. 0) Then
-         Write(LuPri,*) SecNam,': Cho_PTS_WrRst returned code ',irc
-         irc = 1
-         Go To 1 ! clear memory and return
-      End If
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(tC1,tW1)
-         Call Cho_PrtTim('Cholesky vector generation',tC1,tC0,tW1,tW0,  &
-     &                   2)
-      End If
+! Perform second step: calculation of Cholesky vectors from Z
+! vectors and integrals.
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(tC0,tW0)
+end if
+Free_Z = .true.
+call Cho_X_CompVec(irc,NVT,size(NVT),nBlock,size(nBlock),nVBlock,nB_Max,nSym,iV1Block,nB_Max,nSym,ZBlock,nnBlock,nSym,Z,l_Z,Free_Z)
+if (Free_Z) call mma_deallocate(Z)
+if (irc /= 0) then
+  write(LuPri,*) SecNam,': Cho_X_CompVec returned code ',irc
+  irc = 1
+  Go To 1 ! clear memory and return
+end if
+! Write restart files
+call Cho_PTS_WrRst(irc,NVT,size(NVT))
+if (irc /= 0) then
+  write(LuPri,*) SecNam,': Cho_PTS_WrRst returned code ',irc
+  irc = 1
+  Go To 1 ! clear memory and return
+end if
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(tC1,tW1)
+  call Cho_PrtTim('Cholesky vector generation',tC1,tC0,tW1,tW0,2)
+end if
 
-      ! Final timing of decomposition section
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky decomposition',                      &
-     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
-     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
-     &                   1)
-      End If
+! Final timing of decomposition section
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+  call Cho_PrtTim('Cholesky decomposition',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+end if
 
-      ! time as "decomposition driver"
-      Call Cho_Timer(C1,W1)
-      tDecDrv(1)=C1-C0
-      tDecDrv(2)=W1-W0
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After 2nd step.')
+! time as "decomposition driver"
+call Cho_Timer(C1,W1)
+tDecDrv(1) = C1-C0
+tDecDrv(2) = W1-W0
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After 2nd step.')
 #endif
 
-!     Check diagonal.
-!     ===============
+! Check diagonal.
+! ===============
 
-      iSec=4
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')                                           &
-     &   '***** Starting Cholesky diagonal check *****'
-         Call Cho_Flush(LuPri)
-      End If
-      Call mma_allocate(Err,4,Label='Err')
-      iPrint_Bak=iPrint
-      If (iPrint.lt.Inf_Pass) Then
-         iPrint=-99999999 ! suppress printing in Cho_X_CheckDiag
-      End If
-      Call Cho_X_CheckDiag(irc,Err)
-      iPrint=iPrint_Bak
-      If (irc .ne. 0) Then
-         Write(LuPri,*) SecNam,': Cho_X_CheckDiag returned code ',irc
-         irc = 1
-         Go To 1 ! release memory and return
-      End If
-      If (Err(2) .gt. ThrCom) Then
-         Write(LuPri,'(/,A)')                                           &
-     &   'Cholesky decomposition failed!'
-         Write(LuPri,'(3X,A,1P,D15.6)')                                 &
-     &   'Largest integral diagonal..',Err(2)
-         Write(LuPri,'(3X,A,1P,D15.6)')                                 &
-     &   'Decomposition threshold....',ThrCom
-         irc=1
-         Go To 1 ! release memory and return
-      End If
-      Call mma_deallocate(Err)
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky diagonal check',                     &
-     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
-     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
-     &                   1)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After diagonal check.')
+iSec = 4
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+  write(LuPri,'(/,A)') '***** Starting Cholesky diagonal check *****'
+  call Cho_Flush(LuPri)
+end if
+call mma_allocate(Err,4,Label='Err')
+iPrint_Bak = iPrint
+if (iPrint < Inf_Pass) iPrint = -99999999 ! suppress printing in Cho_X_CheckDiag
+call Cho_X_CheckDiag(irc,Err)
+iPrint = iPrint_Bak
+if (irc /= 0) then
+  write(LuPri,*) SecNam,': Cho_X_CheckDiag returned code ',irc
+  irc = 1
+  Go To 1 ! release memory and return
+end if
+if (Err(2) > ThrCom) then
+  write(LuPri,'(/,A)') 'Cholesky decomposition failed!'
+  write(LuPri,'(3X,A,1P,D15.6)') 'Largest integral diagonal..',Err(2)
+  write(LuPri,'(3X,A,1P,D15.6)') 'Decomposition threshold....',ThrCom
+  irc = 1
+  Go To 1 ! release memory and return
+end if
+call mma_deallocate(Err)
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+  call Cho_PrtTim('Cholesky diagonal check',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After diagonal check.')
 #endif
 
-!     Finalization.
-!     =============
+! Finalization.
+! =============
 
-      iSec=8
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-         Write(LuPri,'(/,A)')                                           &
-     &   '***** Starting Cholesky finalization *****'
-         Call Cho_Flush(LuPri)
-      End If
-      Call Cho_TrcIdl_Final()
-      Call Cho_PTS_Final(NVT,SIZE(NVT))
-      If (iPrint .ge. Inf_Timing) Then
-         Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-         Call Cho_PrtTim('Cholesky finalization',                       &
-     &                   TimSec(2,iSec),TimSec(1,iSec),                 &
-     &                   TimSec(4,iSec),TimSec(3,iSec),                 &
-     &                   1)
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After finalization')
+iSec = 8
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+  write(LuPri,'(/,A)') '***** Starting Cholesky finalization *****'
+  call Cho_Flush(LuPri)
+end if
+call Cho_TrcIdl_Final()
+call Cho_PTS_Final(NVT,size(NVT))
+if (iPrint >= Inf_Timing) then
+  call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+  call Cho_PrtTim('Cholesky finalization',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After finalization')
 #endif
 
-!     Statistics.
-!     ===========
+! Statistics.
+! ===========
 
-      If (iPrint .ge. 1) Then
-         iSec = 9
-         If (iPrint .ge. Inf_Timing) Then
-            Call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
-            Write(LuPri,'(/,A)')                                        &
-     &      '***** Starting Cholesky statistics *****'
-            Call Cho_Flush(LUPRI)
-         End If
-         Call Cho_PTS_Stat()
-         Call Cho_GASync()
-         If (iPrint .ge. Inf_Timing) Then
-            Call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
-            Call Cho_PrtTim('Cholesky statistics',                      &
-     &                      TimSec(2,iSec),TimSec(1,iSec),              &
-     &                      TimSec(4,iSec),TimSec(3,iSec),              &
-     &                      1)
-         End If
-      End If
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem(SecNam//': After statistics')
+if (iPrint >= 1) then
+  iSec = 9
+  if (iPrint >= Inf_Timing) then
+    call Cho_Timer(TimSec(1,iSec),TimSec(3,iSec))
+    write(LuPri,'(/,A)') '***** Starting Cholesky statistics *****'
+    call Cho_Flush(LUPRI)
+  end if
+  call Cho_PTS_Stat()
+  call Cho_GASync()
+  if (iPrint >= Inf_Timing) then
+    call Cho_Timer(TimSec(2,iSec),TimSec(4,iSec))
+    call Cho_PrtTim('Cholesky statistics',TimSec(2,iSec),TimSec(1,iSec),TimSec(4,iSec),TimSec(3,iSec),1)
+  end if
+end if
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem(SecNam//': After statistics')
 #endif
 
-!     Wrap it up and return.
-!     ======================
+! Wrap it up and return.
+! ======================
 
-      Call mma_deallocate(iV1Block)
-      Call mma_deallocate(nVBlock)
-      Call mma_deallocate(ZBlock)
-      Call mma_deallocate(nBlock)
-      Call mma_deallocate(NVT)
+call mma_deallocate(iV1Block)
+call mma_deallocate(nVBlock)
+call mma_deallocate(ZBlock)
+call mma_deallocate(nBlock)
+call mma_deallocate(NVT)
 
-      ! Close vector and restart files
-      Call Cho_OpenVR(2,2)
+! Close vector and restart files
+call Cho_OpenVR(2,2)
 
-      ! error termination point
-    1 Continue
-      ! check memory
-      If (Abs(DumTst-Check(1)) .gt. DumTol) Then
-         Write(LuPri,*) SecNam,': memory has been out of bounds [2]'
-         irc=2
-      End If
+! error termination point
+1 continue
+! check memory
+if (abs(DumTst-Check(1)) > DumTol) then
+  write(LuPri,*) SecNam,': memory has been out of bounds [2]'
+  irc = 2
+end if
 
-      If (Allocated(Diag_Hidden)) Call mma_deallocate(Diag_Hidden)
-      If (Allocated(Diag_G_Hidden)) Call mma_deallocate(Diag_G_Hidden)
-      Diag   => Null()
-      Diag_G => Null()
-      Call mma_deallocate(Check)
+if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
+if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
+Diag => null()
+Diag_G => null()
+call mma_deallocate(Check)
 
-      ! Print total timing
-      If (iPrint.ge.Inf_Timing .and. irc.eq.0) Then
-         Call Cho_Timer(tCPU1,tWall1)
-         Call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,              &
-     &                   tWall1,tWall0,1)
-      End If
+! Print total timing
+if ((iPrint >= Inf_Timing) .and. (irc == 0)) then
+  call Cho_Timer(tCPU1,tWall1)
+  call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,tWall1,tWall0,1)
+end if
 
-      Call Cho_Flush(LuPri)
-#if defined (_DEBUGPRINT_)
-      Call Cho_PrtMaxMem('End of '//SecNam)
+call Cho_Flush(LuPri)
+#ifdef _DEBUGPRINT_
+call Cho_PrtMaxMem('End of '//SecNam)
 #endif
 
-      End
+end subroutine Cho_Drv_ParTwoStep

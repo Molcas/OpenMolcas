@@ -8,335 +8,301 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DECOM(DIAG,WRK,LWRK,IPASS,NUM)
+
+subroutine CHO_DECOM(DIAG,WRK,LWRK,IPASS,NUM)
 !
-!     Purpose: calculate Cholesky vectors from qualified integral
-!              columns (from disk).
-!
-      use ChoSwp, only: iQuAB, IndRed
-      use ChoVecBuf, only: nVec_in_Buf
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), WRK(LWRK)
+! Purpose: calculate Cholesky vectors from qualified integral
+!          columns (from disk).
+
+use ChoSwp, only: iQuAB, IndRed
+use ChoVecBuf, only: nVec_in_Buf
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "choprint.fh"
+character*9 SECNAM
+parameter(SECNAM='CHO_DECOM')
+logical LOCDBG
+parameter(LOCDBG=.false.)
+parameter(ZERO=0.0d0,ONE=1.0d0)
+logical LAST
+integer NUMCHO_OLD(8)
 
-      CHARACTER*9 SECNAM
-      PARAMETER (SECNAM = 'CHO_DECOM')
+LENLIN = 0  ! to avoid compiler warnings...
+if (IPRINT >= INF_PROGRESS) then
+  call CHO_HEAD(SECNAM//': Decomposition of Qualified Diagonals','=',80,LUPRI)
+  write(LUPRI,'(/,A,I5,A,I4,A)') 'Integral pass number',IPASS,' (',NUM,' shell pair distributions calculated)'
+  write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') 'Current  dim. : ',(NNBSTR(ISYM,2),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') 'Original dim. : ',(NNBSTR(ISYM,1),ISYM=1,NSYM)
+  write(LUPRI,'(/,A,/,A)') '           #Vectors             Treated Diagonal', &
+                           'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
+  LENLIN = 79
+  write(LUPRI,'(80A)') ('-',I=1,LENLIN)
+  call CHO_FLUSH(LUPRI)
+  call ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
+else if (IPRINT >= INF_PASS) then
+  write(LUPRI,'(/,A,I4)') 'Number of shell pair distributions calculated:',NUM
+  write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
+  write(LUPRI,'(A,8I8)') '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
+  call CHO_FLUSH(LUPRI)
+  call ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
+end if
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+! Decompose each symmetry block.
+! ------------------------------
 
-      PARAMETER (ZERO = 0.0D0, ONE = 1.0D0)
+do ISYM=1,NSYM
 
-      LOGICAL LAST
+  ! Cycle loop if nothing to do in this symmetry.
+  ! ---------------------------------------------
 
-      INTEGER NUMCHO_OLD(8)
+  if ((NQUAL(ISYM) < 1) .or. (NNBSTR(ISYM,2) < 1)) GO TO 100
 
-      LENLIN = 0  ! to avoid compiler warnings...
-      IF (IPRINT .GE. INF_PROGRESS) THEN
-         CALL CHO_HEAD(SECNAM//                                         &
-     &                 ': Decomposition of Qualified Diagonals','=',    &
-     &                 80,LUPRI)
-         WRITE(LUPRI,'(/,A,I5,A,I4,A)')                                 &
-     &   'Integral pass number',IPASS,' (',NUM,                         &
-     &   ' shell pair distributions calculated)'
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   'Current  dim. : ',(NNBSTR(ISYM,2),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   'Original dim. : ',(NNBSTR(ISYM,1),ISYM=1,NSYM)
-         WRITE(LUPRI,'(/,A,/,A,A)')                                     &
-     &   '           #Vectors             Treated Diagonal',            &
-     &   'Sym.     Sym.     Total     Index     Before      After',     &
-     &   '   Conv. Neg.   New Max'
-         LENLIN = 79
-         WRITE(LUPRI,'(80A)') ('-',I=1,LENLIN)
-         CALL CHO_FLUSH(LUPRI)
-         CALL ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
-      ELSE IF (IPRINT .GE. INF_PASS) THEN
-         WRITE(LUPRI,'(/,A,I4)')                                        &
-     &   'Number of shell pair distributions calculated:',NUM
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
-         CALL CHO_FLUSH(LUPRI)
-         CALL ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
-      END IF
+  ! Reserve space for qualified integral columns.
+  ! ---------------------------------------------
 
-!     Decompose each symmetry block.
-!     ------------------------------
+  LINT1 = NNBSTR(ISYM,2)*NQUAL(ISYM) ! integrals
 
-      DO ISYM = 1,NSYM
+  KINT1 = 1
+  KEND0 = KINT1+LINT1
+  LWRK0 = LWRK-KEND0+1
+  if (LWRK0 <= 0) call CHO_QUIT('[0] Insufficient memory in '//SECNAM,101)
 
-!        Cycle loop if nothing to do in this symmetry.
-!        ---------------------------------------------
+  ! Determine size of Cholesky vector (output) buffer.
+  ! --------------------------------------------------
 
-         IF ((NQUAL(ISYM).LT.1) .OR. (NNBSTR(ISYM,2).LT.1)) GO TO 100
+  NUMBUF = min(LWRK0/NNBSTR(ISYM,2),NQUAL(ISYM))
+  if (NUMBUF < 1) call CHO_QUIT('[1] Insufficient memory in '//SECNAM,101)
+  KCHO1 = KEND0
+  KEND1 = KCHO1+NNBSTR(ISYM,2)*NUMBUF
+  LWRK1 = LWRK-KEND1+1
+  if (LWRK1 < 0) call CHO_QUIT('Buffer allocation error in '//SECNAM,101)  ! should be redundant...
 
-!        Reserve space for qualified integral columns.
-!        ---------------------------------------------
+  ! Read qualified integral columns.
+  ! --------------------------------
 
-         LINT1 = NNBSTR(ISYM,2)*NQUAL(ISYM) ! integrals
+  call CHO_TIMER(C1,W1)
+  IOPT = 2
+  LTOT = NNBSTR(ISYM,2)*NQUAL(ISYM)
+  IADR = 0
+  call DDAFILE(LUSEL(ISYM),IOPT,WRK(KINT1),LTOT,IADR)
+  call CHO_TIMER(C2,W2)
+  TDECOM(1,1) = TDECOM(1,1)+C2-C1
+  TDECOM(2,1) = TDECOM(2,1)+W2-W1
 
-         KINT1 = 1
-         KEND0 = KINT1 + LINT1
-         LWRK0 = LWRK  - KEND0 + 1
-         IF (LWRK0 .LE. 0) THEN
-            CALL CHO_QUIT('[0] Insufficient memory in '//SECNAM,101)
-         END IF
+  ! Subtract contributions from previous vectors.
+  ! ---------------------------------------------
 
-!        Determine size of Cholesky vector (output) buffer.
-!        --------------------------------------------------
+  call CHO_SUBTR(WRK(KINT1),WRK(KEND0),LWRK0,ISYM)
 
-         NUMBUF = MIN(LWRK0/NNBSTR(ISYM,2),NQUAL(ISYM))
-         IF (NUMBUF .LT. 1) THEN
-            CALL CHO_QUIT('[1] Insufficient memory in '//SECNAM,101)
-         END IF
-         KCHO1 = KEND0
-         KEND1 = KCHO1 + NNBSTR(ISYM,2)*NUMBUF
-         LWRK1 = LWRK  - KEND1 + 1
-         IF (LWRK1 .LT. 0) THEN  ! should be redundant...
-            CALL CHO_QUIT('Buffer allocation error in '//SECNAM,101)
-         END IF
+  ! Debug: check diagonal elements in updated integrals.
+  ! ----------------------------------------------------
 
-!        Read qualified integral columns.
-!        --------------------------------
+  if (CHO_DIACHK .or. LOCDBG) then
+    TOL = TOL_DIACHK
+    NERR = 0
+    call CHO_CHKINT(WRK(KINT1),DIAG,ISYM,NERR,TOL,.true.)
+    if (NERR /= 0) then
+      write(LUPRI,*) SECNAM,': ',NERR,' diagonal errors found!'
+      write(LUPRI,*) '          #tests: ',NQUAL(ISYM)
+      !write(LUPRI,*) '          Printing integrals:'
+      !call CHO_OUTPUT(WRK(KINT1),1,NNBSTR(ISYM,2),1,NQUAL(ISYM),NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
+      call CHO_QUIT('Diagonal errors in '//SECNAM,104)
+    else
+      write(LUPRI,*) SECNAM,': comparison of qual. integrals and current diagonal: no errors !'
+    end if
+  end if
 
-         CALL CHO_TIMER(C1,W1)
-         IOPT = 2
-         LTOT = NNBSTR(ISYM,2)*NQUAL(ISYM)
-         IADR = 0
-         CALL DDAFILE(LUSEL(ISYM),IOPT,WRK(KINT1),LTOT,IADR)
-         CALL CHO_TIMER(C2,W2)
-         TDECOM(1,1) = TDECOM(1,1) + C2 - C1
-         TDECOM(2,1) = TDECOM(2,1) + W2 - W1
+  ! Decompose in loop over qualified columns.
+  ! -----------------------------------------
 
-!        Subtract contributions from previous vectors.
-!        ---------------------------------------------
+  IVEC = NUMCHO(ISYM)
+  IVECT = NUMCHT
+  IDUMP = 0
+  do ICHO=1,NQUAL(ISYM)
 
-         CALL CHO_SUBTR(WRK(KINT1),WRK(KEND0),LWRK0,ISYM)
+    ! Find max. diagonal among qualified.
+    ! -----------------------------------
 
-!        Debug: check diagonal elements in updated integrals.
-!        ----------------------------------------------------
+    IAB = 1
+    IABG = INDRED(IQUAB(IAB,ISYM),2)
+    XC = DIAG(IABG)
+    do I=2,NQUAL(ISYM)
+      KAB = INDRED(IQUAB(I,ISYM),2)
+      if (DIAG(KAB) > XC) then
+        IAB = I
+        IABG = KAB
+        XC = DIAG(KAB)
+      end if
+    end do
 
-         IF (CHO_DIACHK .OR. LOCDBG) THEN
-            TOL  = TOL_DIACHK
-            NERR = 0
-            CALL CHO_CHKINT(WRK(KINT1),DIAG,ISYM,NERR,TOL,.TRUE.)
-            IF (NERR .NE. 0) THEN
-               WRITE(LUPRI,*) SECNAM,': ',NERR,' diagonal errors found!'
-               WRITE(LUPRI,*) '          #tests: ',NQUAL(ISYM)
-!              WRITE(LUPRI,*) '          Printing integrals:'
-!              CALL CHO_OUTPUT(WRK(KINT1),
-!    &                         1,NNBSTR(ISYM,2),1,NQUAL(ISYM),
-!    &                         NNBSTR(ISYM,2),NQUAL(ISYM),1,LUPRI)
-               CALL CHO_QUIT('Diagonal errors in '//SECNAM,104)
-            ELSE
-               WRITE(LUPRI,*) SECNAM,': comparison of qual. integrals ',&
-     &                     'and current diagonal: no errors !'
-            END IF
-         END IF
+    ! Decompose if max. diagonal is still qualified.
+    ! ----------------------------------------------
 
-!        Decompose in loop over qualified columns.
-!        -----------------------------------------
+    LAST = (XC < DIAMIN(ISYM)) .or. (XC < THRCOM)
+    if (.not. LAST) then
 
-         IVEC  = NUMCHO(ISYM)
-         IVECT = NUMCHT
-         IDUMP = 0
-         DO ICHO = 1,NQUAL(ISYM)
+      ! Offset to max. diagonal column.
+      ! -------------------------------
 
-!           Find max. diagonal among qualified.
-!           -----------------------------------
+      KOFF0 = KINT1+NNBSTR(ISYM,2)*(IAB-1)-1
 
-            IAB  = 1
-            IABG = INDRED(IQUAB(IAB,ISYM),2)
-            XC   = DIAG(IABG)
-            DO I = 2,NQUAL(ISYM)
-               KAB = INDRED(IQUAB(I,ISYM),2)
-               IF (DIAG(KAB) .GT. XC) THEN
-                  IAB  = I
-                  IABG = KAB
-                  XC   = DIAG(KAB)
-               END IF
-            END DO
+      ! Scale column corresponding to max. diagonal to obtain
+      ! the Cholesky vector.
+      ! -----------------------------------------------------
 
-!           Decompose if max. diagonal is still qualified.
-!           ----------------------------------------------
+      FAC = ONE/sqrt(XC)
+      KOFF = KOFF0+1
+      call DSCAL_(NNBSTR(ISYM,2),FAC,WRK(KOFF),1)
 
-            LAST = (XC.LT.DIAMIN(ISYM)) .OR. (XC.LT.THRCOM)
-            IF (.NOT. LAST) THEN
+      ! Zero entries in Cholesky vector corresponding to zero diagonals.
+      ! ----------------------------------------------------------------
 
-!              Offset to max. diagonal column.
-!              -------------------------------
+      do I=1,NNBSTR(ISYM,2)
+        II = IIBSTR(ISYM,2)+I
+        JJ = INDRED(II,2)
+        if (DIAG(JJ) == ZERO) then
+          KOFF = KOFF0+I
+          WRK(KOFF) = ZERO
+        end if
+      end do
 
-               KOFF0 = KINT1 + NNBSTR(ISYM,2)*(IAB - 1) - 1
+      ! Update diagonal.
+      ! ----------------
 
-!              Scale column corresponding to max. diagonal to obtain
-!              the Cholesky vector.
-!              -----------------------------------------------------
+      do I=1,NNBSTR(ISYM,2)
+        II = IIBSTR(ISYM,2)+I
+        JJ = INDRED(II,2)
+        KOFF = KOFF0+I
+        DIAG(JJ) = DIAG(JJ)-WRK(KOFF)*WRK(KOFF)
+      end do
 
-               FAC  = ONE/SQRT(XC)
-               KOFF = KOFF0 + 1
-               CALL DSCAL_(NNBSTR(ISYM,2),FAC,WRK(KOFF),1)
+      ! Zero treated diagonal element and analyze updated diagonal.
+      ! -----------------------------------------------------------
 
-!              Zero entries in Cholesky vector corresponding to zero
-!              diagonals.
-!              -----------------------------------------------------
+      OLDIAG = DIAG(IABG)
+      DIAG(IABG) = ZERO
+      call CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XM,NNEGT,NNEG,NCONV)
 
-               DO I = 1,NNBSTR(ISYM,2)
-                  II = IIBSTR(ISYM,2) + I
-                  JJ = INDRED(II,2)
-                  IF (DIAG(JJ) .EQ. ZERO) THEN
-                     KOFF = KOFF0 + I
-                     WRK(KOFF) = ZERO
-                  END IF
-               END DO
+      ! Update total number of zeroed negative diagonals.
+      ! -------------------------------------------------
 
-!              Update diagonal.
-!              ----------------
+      NNZTOT = NNZTOT+NNEG
 
-               DO I = 1,NNBSTR(ISYM,2)
-                  II   = IIBSTR(ISYM,2) + I
-                  JJ   = INDRED(II,2)
-                  KOFF = KOFF0 + I
-                  DIAG(JJ) = DIAG(JJ) - WRK(KOFF)*WRK(KOFF)
-               END DO
+      ! Update DIAMIN from max. abs. diagonal element XM.
+      ! CHO_1CENTER: update from max. diagonal element among
+      !              qualified.
+      ! CHO_SIMP   : "simulate parallel algorithm" = do not
+      !              update DIAMIN.
+      ! ----------------------------------------------------
 
-!              Zero treated diagonal element and analyze updated diagonal.
-!              -----------------------------------------------------------
+      if (.not. CHO_SIMP) then
+        if (CHO_1CENTER) then
+          YM = DIAG(INDRED(IQUAB(1,ISYM),2))
+          do I=2,NQUAL(ISYM)
+            YM = max(YM,DIAG(INDRED(IQUAB(I,ISYM),2)))
+          end do
+        else
+          YM = XM
+        end if
+        DIAMIN(ISYM) = max(YM*SPAN,THRCOM)
+      end if
 
-               OLDIAG     = DIAG(IABG)
-               DIAG(IABG) = ZERO
-               CALL CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XM,NNEGT,NNEG,NCONV)
+      ! Subtract this Cholesky vector from integrals. If
+      ! the corresponding diagonal element is zero, the
+      ! column will no longer be qualified and subtraction
+      ! can safely be skipped.
+      ! --------------------------------------------------
 
-!              Update total number of zeroed negative diagonals.
-!              -------------------------------------------------
+      KOFF1 = KOFF0+1
+      do I=1,NQUAL(ISYM)
+        II = IQUAB(I,ISYM)
+        JJ = INDRED(II,2)
+        if (DIAG(JJ) /= ZERO) then
+          KOFF2 = KINT1+NNBSTR(ISYM,2)*(I-1)
+          KOFF3 = KOFF0+II-IIBSTR(ISYM,2)
+          FAC = -WRK(KOFF3)
+          call DAXPY_(NNBSTR(ISYM,2),FAC,WRK(KOFF1),1,WRK(KOFF2),1)
+        end if
+      end do
 
-               NNZTOT = NNZTOT + NNEG
+      ! Store Cholesky vector in buffer.
+      ! --------------------------------
 
-!              Update DIAMIN from max. abs. diagonal element XM.
-!              CHO_1CENTER: update from max. diagonal element among
-!                           qualified.
-!              CHO_SIMP   : "simulate parallel algorithm" = do not
-!                           update DIAMIN.
-!              ----------------------------------------------------
+      IDUMP = IDUMP+1
 
-               IF (.NOT. CHO_SIMP) THEN
-                  IF (CHO_1CENTER) THEN
-                     YM = DIAG(INDRED(IQUAB(1,ISYM),2))
-                     DO I = 2,NQUAL(ISYM)
-                        YM = MAX(YM,DIAG(INDRED(IQUAB(I,ISYM),2)))
-                     END DO
-                  ELSE
-                     YM = XM
-                  END IF
-                  DIAMIN(ISYM) = MAX(YM*SPAN,THRCOM)
-               END IF
+      KOFF1 = KOFF0+1
+      KOFF2 = KCHO1+NNBSTR(ISYM,2)*(IDUMP-1)
+      call DCOPY_(NNBSTR(ISYM,2),WRK(KOFF1),1,WRK(KOFF2),1)
 
-!              Subtract this Cholesky vector from integrals. If
-!              the corresponding diagonal element is zero, the
-!              column will no longer be qualified and subtraction
-!              can safely be skipped.
-!              --------------------------------------------------
+      ! Update Cholesky vector counters.
+      ! --------------------------------
 
-               KOFF1 = KOFF0 + 1
-               DO I = 1,NQUAL(ISYM)
-                  II = IQUAB(I,ISYM)
-                  JJ = INDRED(II,2)
-                  IF (DIAG(JJ) .NE. ZERO) THEN
-                     KOFF2 = KINT1 + NNBSTR(ISYM,2)*(I - 1)
-                     KOFF3 = KOFF0 + II - IIBSTR(ISYM,2)
-                     FAC   = -WRK(KOFF3)
-                     CALL DAXPY_(NNBSTR(ISYM,2),FAC,WRK(KOFF1),1,       &
-     &                                             WRK(KOFF2),1)
-                  END IF
-               END DO
+      IVEC = IVEC+1
+      IVECT = IVECT+1
 
-!              Store Cholesky vector in buffer.
-!              --------------------------------
+      ! Set info for this vector.
+      ! -------------------------
 
-               IDUMP = IDUMP + 1
+      call CHO_SETVECINF(IVEC,ISYM,IABG,IPASS,2)
 
-               KOFF1 = KOFF0 + 1
-               KOFF2 = KCHO1 + NNBSTR(ISYM,2)*(IDUMP - 1)
-               CALL DCOPY_(NNBSTR(ISYM,2),WRK(KOFF1),1,WRK(KOFF2),1)
+      ! Print progress report.
+      ! ----------------------
 
-!              Update Cholesky vector counters.
-!              --------------------------------
+      if (IPRINT >= INF_PROGRESS) write(LUPRI,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') ISYM,IVEC,IVECT,IABG,XC,OLDIAG,NCONV, &
+                                                                                             NNEG,XM
 
-               IVEC  = IVEC  + 1
-               IVECT = IVECT + 1
+    end if
 
-!              Set info for this vector.
-!              -------------------------
+    ! Dump vectors to disk when there is no more to be done, or
+    ! when the buffer is full.
+    ! ---------------------------------------------------------
 
-               CALL CHO_SETVECINF(IVEC,ISYM,IABG,IPASS,2)
+    if (LAST .or. (IDUMP == NUMBUF)) then
+      call CHO_TIMER(C1,W1)
+      IVEC1 = NUMCHO(ISYM)+1
+      call CHO_PUTVEC(WRK(KCHO1),NNBSTR(ISYM,2),IDUMP,IVEC1,ISYM)
+      call CHO_VECBUF_COPY(WRK(KCHO1),IDUMP,ISYM)
+      NUMCHO(ISYM) = NUMCHO(ISYM)+IDUMP
+      NUMCHT = NUMCHT+IDUMP
+      call CHO_TIMER(C2,W2)
+      TDECOM(1,2) = TDECOM(1,2)+C2-C1
+      TDECOM(2,2) = TDECOM(2,2)+W2-W1
+      if (LAST) then
+        GO TO 100   ! cycle symmetry loop
+      else
+        IVEC = NUMCHO(ISYM)
+        IVECT = NUMCHT
+        IDUMP = 0
+      end if
+    end if
 
-!              Print progress report.
-!              ----------------------
+  end do
 
-               IF (IPRINT .GE. INF_PROGRESS) THEN
-              WRITE(LUPRI,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')&
-     &            ISYM,IVEC,IVECT,IABG,XC,OLDIAG,NCONV,NNEG,XM
-               END IF
+  ! Cycle point: go to next symmetry.
+  ! ---------------------------------
 
-            END IF
+100 continue
+  if (IPRINT >= INF_PROGRESS) call CHO_FLUSH(LUPRI)
 
-!           Dump vectors to disk when there is no more to be done, or
-!           when the buffer is full.
-!           ---------------------------------------------------------
+end do
 
-            IF (LAST .OR. (IDUMP.EQ.NUMBUF)) THEN
-               CALL CHO_TIMER(C1,W1)
-               IVEC1 = NUMCHO(ISYM) + 1
-               CALL CHO_PUTVEC(WRK(KCHO1),NNBSTR(ISYM,2),IDUMP,IVEC1,   &
-     &                         ISYM)
-               CALL CHO_VECBUF_COPY(WRK(KCHO1),IDUMP,ISYM)
-               NUMCHO(ISYM) = NUMCHO(ISYM) + IDUMP
-               NUMCHT       = NUMCHT       + IDUMP
-               CALL CHO_TIMER(C2,W2)
-               TDECOM(1,2) = TDECOM(1,2) + C2 - C1
-               TDECOM(2,2) = TDECOM(2,2) + W2 - W1
-               IF (LAST) THEN
-                  GO TO 100   ! cycle symmetry loop
-               ELSE
-                  IVEC  = NUMCHO(ISYM)
-                  IVECT = NUMCHT
-                  IDUMP = 0
-               END IF
-            END IF
+if (IPRINT >= INF_PROGRESS) then
+  do ISYM=1,NSYM
+    NUMCHO_OLD(ISYM) = NUMCHO(ISYM)-NUMCHO_OLD(ISYM)
+  end do
+  write(LUPRI,'(80A)') ('-',I=1,LENLIN)
+  write(LUPRI,'(A,8I8)') '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
+else if (IPRINT >= INF_PASS) then
+  do ISYM=1,NSYM
+    NUMCHO_OLD(ISYM) = NUMCHO(ISYM)-NUMCHO_OLD(ISYM)
+  end do
+  write(LUPRI,'(A,8I8)') '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
+end if
 
-         END DO
-
-!        Cycle point: go to next symmetry.
-!        ---------------------------------
-
-  100    CONTINUE
-         IF (IPRINT .GE. INF_PROGRESS) CALL CHO_FLUSH(LUPRI)
-
-      END DO
-
-      IF (IPRINT .GE. INF_PROGRESS) THEN
-         DO ISYM = 1,NSYM
-            NUMCHO_OLD(ISYM) = NUMCHO(ISYM) - NUMCHO_OLD(ISYM)
-         END DO
-         WRITE(LUPRI,'(80A)') ('-',I=1,LENLIN)
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
-      ELSE IF (IPRINT .GE. INF_PASS) THEN
-         DO ISYM = 1,NSYM
-            NUMCHO_OLD(ISYM) = NUMCHO(ISYM) - NUMCHO_OLD(ISYM)
-         END DO
-         WRITE(LUPRI,'(A,8I8)')                                         &
-     &   '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
-      END IF
-
-      END
+end subroutine CHO_DECOM

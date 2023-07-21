@@ -10,80 +10,62 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_OpenF(iOpt,iTyp,iSym)
+
+subroutine ChoMP2_OpenF(iOpt,iTyp,iSym)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
-!              delete (iOpt=3) Cholesky vector files for MP2 program
-!              (full vectors).
-!              For iOpt=0, the units are initialized (to -1).
-!              iTyp=1: transformed Cholesky vectors.
-!              iTyp=2: vectors from (ai|bj) decomposition.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
+!          delete (iOpt=3) Cholesky vector files for MP2 program
+!          (full vectors).
+!          For iOpt=0, the units are initialized (to -1).
+!          iTyp=1: transformed Cholesky vectors.
+!          iTyp=2: vectors from (ai|bj) decomposition.
+
+implicit real*8(a-h,o-z)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
+character*12 SecNam
+parameter(SecNam='ChoMP2_OpenF')
+character*3 BaseNm
+character*4 FullNm
 
-      Character*12 SecNam
-      Parameter (SecNam = 'ChoMP2_OpenF')
+if ((iTyp < 1) .or. (iTyp > nTypF)) call ChoMP2_Quit(SecNam,'iTyp error',' ')
 
-      Character*3 BaseNm
-      Character*4 FullNm
+! Initialize units and return for iOpt=0.
+! ---------------------------------------
 
-      If (iTyp.lt.1 .or. iTyp.gt.nTypF) Then
-         Call ChoMP2_Quit(SecNam,'iTyp error',' ')
-      End If
+if (iOpt == 0) then
+  lUnit_F(iSym,iTyp) = -1
+  return
+end if
 
-!     Initialize units and return for iOpt=0.
-!     ---------------------------------------
+! Open or close files.
+! --------------------
 
-      If (iOpt .eq. 0) Then
-         lUnit_F(iSym,iTyp) = -1
-         Return
-      End If
+if (iOpt == 1) then
+  if ((nT1am(iSym) > 0) .or. (DoDens .and. (nPQ_prod(iSym) > 0))) then
+    if (lUnit_F(iSym,iTyp) < 1) then
+      call ChoMP2_GetBaseNm(BaseNm,iTyp)
+      write(FullNm,'(A3,I1)') BaseNm,iSym
+      lUnit_F(iSym,iTyp) = 7
+      call daName_MF_WA(lUnit_F(iSym,iTyp),FullNm)
+    end if
+  else
+    lUnit_F(iSym,iTyp) = -1
+  end if
+else if (iOpt == 2) then
+  if (lUnit_F(iSym,iTyp) > 0) then
+    call daClos(lUnit_F(iSym,iTyp))
+    lUnit_F(iSym,iTyp) = -1
+  end if
+else if (iOpt == 3) then
+  if (lUnit_F(iSym,iTyp) > 0) then
+    call daEras(lUnit_F(iSym,iTyp))
+    lUnit_F(iSym,iTyp) = -1
+  end if
+else
+  call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
+end if
 
-!     Open or close files.
-!     --------------------
-
-      If (iOpt .eq. 1) Then
-         If ((nT1am(iSym).gt.0) .or.                                    &
-     &       (DoDens .and. (nPQ_prod(iSym).gt.0))) Then
-            If (lUnit_F(iSym,iTyp) .lt. 1) Then
-               Call ChoMP2_GetBaseNm(BaseNm,iTyp)
-               Write(FullNm,'(A3,I1)') BaseNm,iSym
-               lUnit_F(iSym,iTyp) = 7
-               Call daName_MF_WA(lUnit_F(iSym,iTyp),FullNm)
-            End If
-         Else
-            lUnit_F(iSym,iTyp) = -1
-         End If
-      Else If (iOpt .eq. 2) Then
-         If (lUnit_F(iSym,iTyp) .gt. 0) Then
-            Call daClos(lUnit_F(iSym,iTyp))
-            lUnit_F(iSym,iTyp) = -1
-         End If
-      Else If (iOpt .eq. 3) Then
-         If (lUnit_F(iSym,iTyp) .gt. 0) Then
-            Call daEras(lUnit_F(iSym,iTyp))
-            lUnit_F(iSym,iTyp) = -1
-         End If
-      Else
-         Call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
-      End If
-
-      End
-      SubRoutine ChoMP2_GetBaseNm(BaseNm,iTyp)
-      Implicit None
-      Character*3 BaseNm
-      Integer     iTyp
-
-      If (iTyp .eq. 1) Then
-         BaseNm = '_AI'
-      Else If (iTyp .eq. 2) Then
-         BaseNm = '_CD'
-      Else
-         BaseNm = '_un'
-      End If
-
-      End
+end subroutine ChoMP2_OpenF

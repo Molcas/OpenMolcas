@@ -10,134 +10,111 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      subroutine Cho_X_Dealloc(irc)
 
-      use Definitions, only: iwp
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,&
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,      &
-     &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot, iSimRI
-
-      use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,   &
-     &                  nnBstRSh_Hidden, nnBstRSh,                      &
-     &                  nnBstRSh_L_Hidden, nnBstRSh_G,                  &
-     &                  iiBstRSh_Hidden, iiBstRSh,                      &
-     &                  iiBstRSh_L_Hidden, iiBstRSh_G,                  &
-     &                    IndRSh_Hidden,   IndRSh,                      &
-     &                    IndRSh_G_Hidden,   IndRSh_G,                  &
-     &                    InfRed_Hidden,   InfRed,                      &
-     &                    InfRed_G_Hidden,   InfRed_G,                  &
-     &                    InfVec_Hidden,   InfVec,                      &
-     &                    InfVec_G_Hidden,   InfVec_G,                  &
-     &                    IndRed_Hidden,   IndRed,                      &
-     &                    IndRed_G_Hidden,   IndRed_G,                  &
-     &                    InfVec_Bak
-      use stdalloc, only: mma_deallocate
-      use ChPari
+subroutine Cho_X_Dealloc(irc)
 !
-!     T.B. Pedersen, July 2004.
+! T.B. Pedersen, July 2004.
 !
-!     Purpose: deallocate ALL index arrays for the Cholesky utility.
-!              On exit, irc=0 signals sucessful completion.
-!
-      implicit none
-      integer(kind=iwp) :: irc
+! Purpose: deallocate ALL index arrays for the Cholesky utility.
+!          On exit, irc=0 signals sucessful completion.
 
-      character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
+use Definitions, only: iwp
+use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G, iShP2RS, iShP2Q, &
+                  iQL2G, LQ_Tot, iSimRI
+use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, nnBstRSh_Hidden, nnBstRSh, nnBstRSh_L_Hidden, nnBstRSh_G, &
+                  iiBstRSh_Hidden, iiBstRSh, iiBstRSh_L_Hidden, iiBstRSh_G, IndRSh_Hidden, IndRSh, IndRSh_G_Hidden, IndRSh_G, &
+                  InfRed_Hidden, InfRed, InfRed_G_Hidden, InfRed_G, InfVec_Hidden, InfVec, InfVec_G_Hidden, InfVec_G, &
+                  IndRed_Hidden, IndRed, IndRed_G_Hidden, IndRed_G, InfVec_Bak
+use stdalloc, only: mma_deallocate
+use ChPari
 
-      irc = 0
+implicit none
+integer(kind=iwp) :: irc
+character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
 
-!     Deallocate.
-!     -----------
+irc = 0
 
-      If (Allocated(InfRed_Hidden))                                     &
-     &    Call mma_deallocate(InfRed_Hidden)
-      If (Associated(InfRed)) InfRed=>Null()
+! Deallocate.
+! -----------
 
-      If (Allocated(InfVec_Hidden))                                     &
-     &    Call mma_deallocate(InfVec_Hidden)
-      If (Associated(InfVec)) InfVec=>Null()
+if (allocated(InfRed_Hidden)) call mma_deallocate(InfRed_Hidden)
+if (associated(InfRed)) InfRed => null()
 
-      If (Allocated(IndRed_Hidden))                                     &
-     &    Call mma_deallocate(IndRed_Hidden)
-      If (Associated(IndRed)) IndRed=>Null()
+if (allocated(InfVec_Hidden)) call mma_deallocate(InfVec_Hidden)
+if (associated(InfVec)) InfVec => null()
 
-      If (Allocated(IndRSh_Hidden))                                     &
-     &    Call mma_deallocate(IndRSh_Hidden)
-      If (Associated(IndRSh)) IndRSh=>Null()
+if (allocated(IndRed_Hidden)) call mma_deallocate(IndRed_Hidden)
+if (associated(IndRed)) IndRed => null()
 
-      If (Allocated(iScr)) Call mma_deallocate(iScr)
+if (allocated(IndRSh_Hidden)) call mma_deallocate(IndRSh_Hidden)
+if (associated(IndRSh)) IndRSh => null()
 
-      If (Allocated(iiBstRSh_Hidden))                                   &
-     &    Call mma_deallocate(iiBstRSh_Hidden)
-      If (Associated(iiBstRSh)) iiBstRSh=>Null()
+if (allocated(iScr)) call mma_deallocate(iScr)
 
-      If (Allocated(nnBstRSh_Hidden))                                   &
-     &    Call mma_deallocate(nnBstRSh_Hidden)
-      If (Associated(nnBstRSh)) nnBstRSh=>Null()
+if (allocated(iiBstRSh_Hidden)) call mma_deallocate(iiBstRSh_Hidden)
+if (associated(iiBstRSh)) iiBstRSh => null()
 
-      If (Allocated(IntMap)) Call mma_deallocate(IntMap)
+if (allocated(nnBstRSh_Hidden)) call mma_deallocate(nnBstRSh_Hidden)
+if (associated(nnBstRSh)) nnBstRSh => null()
 
-      If (Allocated(nDimRS)) Call mma_deallocate(nDimRS)
+if (allocated(IntMap)) call mma_deallocate(IntMap)
 
-      If (Allocated(iRS2F)) Call mma_deallocate(iRS2F)
+if (allocated(nDimRS)) call mma_deallocate(nDimRS)
 
-      If (Allocated(iSOShl)) Call mma_deallocate(iSOShl)
+if (allocated(iRS2F)) call mma_deallocate(iRS2F)
 
-      If (Allocated(iShlSO)) Call mma_deallocate(iShlSO)
+if (allocated(iSOShl)) call mma_deallocate(iSOShl)
 
-      If (Allocated(iQuAB_Hidden)) Call mma_deallocate(iQuAB_Hidden)
-      If (Associated(iQuAB)) iQuAB => Null()
+if (allocated(iShlSO)) call mma_deallocate(iShlSO)
 
-      If (Allocated(iBasSh)) Call mma_deallocate(iBasSh)
+if (allocated(iQuAB_Hidden)) call mma_deallocate(iQuAB_Hidden)
+if (associated(iQuAB)) iQuAB => null()
 
-      If (Allocated(nBasSh)) Call mma_deallocate(nBasSh)
+if (allocated(iBasSh)) call mma_deallocate(iBasSh)
 
-      If (Allocated(nBstSh)) Call mma_deallocate(nBstSh)
+if (allocated(nBasSh)) call mma_deallocate(nBasSh)
 
-      If (Allocated(iAtomShl)) Call mma_deallocate(iAtomShl)
+if (allocated(nBstSh)) call mma_deallocate(nBstSh)
 
-      If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
+if (allocated(iAtomShl)) call mma_deallocate(iAtomShl)
 
-      If (Allocated(iShP2RS)) Call mma_deallocate(iShP2RS)
+if (allocated(iSP2F)) call mma_deallocate(iSP2F)
 
-      If (Allocated(iShP2Q )) Call mma_deallocate(iShP2Q )
+if (allocated(iShP2RS)) call mma_deallocate(iShP2RS)
 
-      If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
-      If (Associated(iQuAB_L)) iQuAB_L => Null()
+if (allocated(iShP2Q)) call mma_deallocate(iShP2Q)
 
-      If (Allocated(iQL2G )) Call mma_deallocate(iQL2G )
+if (allocated(iQuAB_L_Hidden)) call mma_deallocate(iQuAB_L_Hidden)
+if (associated(iQuAB_L)) iQuAB_L => null()
 
-      If (Allocated(LQ_Tot)) Call mma_deallocate(LQ_Tot)
+if (allocated(iQL2G)) call mma_deallocate(iQL2G)
 
-      If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
+if (allocated(LQ_Tot)) call mma_deallocate(LQ_Tot)
 
-      If (Allocated(iSimRI)) Call mma_deallocate(iSimRI)
+if (allocated(InfVec_Bak)) call mma_deallocate(InfVec_Bak)
 
-      If (Allocated(InfVec_G_Hidden))                                   &
-     &    Call mma_deallocate(InfVec_G_Hidden)
-      If (Associated(InfVec_G)) InfVec_G=>Null()
+if (allocated(iSimRI)) call mma_deallocate(iSimRI)
 
-      If (Allocated(IndRed_G_Hidden))                                   &
-     &    Call mma_deallocate(IndRed_G_Hidden)
-      If (Associated(IndRed_G)) IndRed_G=>Null()
+if (allocated(InfVec_G_Hidden)) call mma_deallocate(InfVec_G_Hidden)
+if (associated(InfVec_G)) InfVec_G => null()
 
-      If (Allocated(InfRed_G_Hidden))                                   &
-     &    Call mma_deallocate(InfRed_G_Hidden)
-      If (Associated(InfRed_G)) InfRed_G=>Null()
+if (allocated(IndRed_G_Hidden)) call mma_deallocate(IndRed_G_Hidden)
+if (associated(IndRed_G)) IndRed_G => null()
 
-      If (Allocated(IndRSh_G_Hidden))                                   &
-     &    Call mma_deallocate(IndRSh_G_Hidden)
-      If (Associated(IndRSh_G)) IndRSh_G=>Null()
+if (allocated(InfRed_G_Hidden)) call mma_deallocate(InfRed_G_Hidden)
+if (associated(InfRed_G)) InfRed_G => null()
 
-      If (Allocated(iiBstRSh_L_Hidden))                                 &
-     &    Call mma_deallocate(iiBstRSh_L_Hidden)
-      If (Associated(iiBstRSh_G)) iiBstRSh_G=>Null()
+if (allocated(IndRSh_G_Hidden)) call mma_deallocate(IndRSh_G_Hidden)
+if (associated(IndRSh_G)) IndRSh_G => null()
 
-      If (Allocated(nnBstRSh_L_Hidden))                                 &
-     &    Call mma_deallocate(nnBstRSh_L_Hidden)
-      If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
+if (allocated(iiBstRSh_L_Hidden)) call mma_deallocate(iiBstRSh_L_Hidden)
+if (associated(iiBstRSh_G)) iiBstRSh_G => null()
 
-      If (Allocated(iL2G)) Call mma_deallocate(iL2G)
+if (allocated(nnBstRSh_L_Hidden)) call mma_deallocate(nnBstRSh_L_Hidden)
+if (associated(nnBstRSh_G)) nnBstRSh_G => null()
 
-      Return
-      End
+if (allocated(iL2G)) call mma_deallocate(iL2G)
+
+return
+
+end subroutine Cho_X_Dealloc

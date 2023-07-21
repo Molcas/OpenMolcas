@@ -10,156 +10,71 @@
 !                                                                      *
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_PFake_VDist()
+
+subroutine Cho_PFake_VDist()
 !
-!     Author: Thomas Bondo Pedersen, April 2007.
-!     Purpose: fake parallel distribution of vectors.
-!
-      Use Para_Info, Only: nProcs, Is_Real_Par
-      use ChoSwp, only: InfVec
-      use stdalloc
-      Implicit None
+! Author: Thomas Bondo Pedersen, April 2007.
+! Purpose: fake parallel distribution of vectors.
+
+use Para_Info, only: nProcs, Is_Real_Par
+use ChoSwp, only: InfVec
+use stdalloc
+
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
+character(len=15), parameter :: SecNam = 'Cho_PFake_VDist'
+integer iSym
+integer l_Wrk
+integer iRedC, iV, nV
+integer nRead
+integer, allocatable :: InfV(:,:), IDV(:)
+real*8, allocatable :: Wrk(:)
 
-      Character(LEN=15), Parameter:: SecNam = 'Cho_PFake_VDist'
+! Return if nothing to do.
+! ------------------------
 
-      Integer iSym
-      Integer l_Wrk
-      Integer iRedC, iV, nV
-      Integer nRead
+if ((nProcs == 1) .or. (.not. Is_Real_Par())) return ! serial run
+if (.not. CHO_FAKE_PAR) return ! true parallel run
 
-      Integer, Allocatable:: InfV(:,:), IDV(:)
-      Real*8, Allocatable:: Wrk(:)
+! Memory allocation.
+! ------------------
 
-!     Return if nothing to do.
-!     ------------------------
+call mma_allocate(InfV,2,MaxVec+1,Label='InfV')
+call mma_allocate(IDV,MaxVec,Label='IDV')
+call mma_maxDBLE(l_Wrk)
+call mma_allocate(Wrk,l_Wrk,Label='Wrk')
 
-      If (nProcs.eq.1 .or. .not.Is_Real_Par()) Return ! serial run
-      If (.not.CHO_FAKE_PAR) Return ! true parallel run
+! Distribute vectors in each symmetry:
+! read from LuCho files; put into LuCho_G files.
+! ----------------------------------------------
 
-!     Memory allocation.
-!     ------------------
+iRedC = -1
+do iSym=1,nSym
+  InfV(:,:) = 0
+  nV = 0
+  call Cho_Distrib_Vec(1,NumCho(iSym),IDV,nV)
+  iV = 0
+  do while (iV < nV)
+    nRead = 0
+    call Cho_PFake_GetVec(Wrk,size(Wrk),IDV(iV+1),nV-iV,InfV(:,iV+1),iSym,nRead,iRedC)
+    if (nRead < 1) call Cho_Quit('Insufficient memory in '//SecNam,101)
+    call Cho_PFake_PutVec(Wrk,InfV,nRead,iSym,iV+1)
+    iV = iV+nRead
+  end do
+# ifdef _DEBUGPRINT_
+  if (iV /= nV) call Cho_Quit('Logical error in '//SecNam,103)
+# endif
+  do iV=1,nV
+    InfVec(iV,3,iSym) = InfV(2,iV)
+  end do
+end do
 
-      Call mma_allocate(InfV,2,MaxVec+1,Label='InfV')
-      Call mma_allocate(IDV,MaxVec,Label='IDV')
-      Call mma_maxDBLE(l_Wrk)
-      Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+! Deallocation.
+! -------------
 
-!     Distribute vectors in each symmetry:
-!     read from LuCho files; put into LuCho_G files.
-!     ----------------------------------------------
+call mma_deallocate(Wrk)
+call mma_deallocate(IDV)
+call mma_deallocate(InfV)
 
-      iRedC = -1
-      Do iSym = 1,nSym
-         InfV(:,:)=0
-         nV = 0
-         Call Cho_Distrib_Vec(1,NumCho(iSym),IDV,nV)
-         iV = 0
-         Do While (iV .lt. nV)
-            nRead = 0
-            Call Cho_PFake_GetVec(Wrk,SIZE(Wrk),                        &
-     &                            IDV(iV+1),nV-iV,                      &
-     &                            InfV(:,iV+1),                         &
-     &                            iSym,nRead,iRedC)
-            If (nRead .lt. 1) Then
-               Call Cho_Quit('Insufficient memory in '//SecNam,101)
-            End If
-            Call Cho_PFake_PutVec(Wrk,InfV,nRead,iSym,iV+1)
-            iV = iV + nRead
-         End Do
-#if defined (_DEBUGPRINT_)
-         If (iV .ne. nV) Then
-            Call Cho_Quit('Logical error in '//SecNam,103)
-         End If
-#endif
-         Do iV = 1,nV
-            InfVec(iV,3,iSym)= InfV(2,iV)
-         End Do
-      End Do
-
-!     Deallocation.
-!     -------------
-
-      Call mma_deallocate(Wrk)
-      Call mma_deallocate(IDV)
-      Call mma_deallocate(InfV)
-
-      End
-      SubRoutine Cho_PFake_GetVec(Vec,lVec,IDV,lIDV,InfV,iSym,nRead,    &
-     &                            iRedC)
-      Implicit None
-      Integer lVec, lIDV
-      Real*8  Vec(lVec)
-      Integer IDV(lIDV)
-      Integer InfV(2,*)
-      Integer iSym, nRead, iRedC
-
-      Character*16 SecNam
-      Parameter (SecNam = 'Cho_PFake_GetVec')
-
-      Integer ipV, Mem, iVec, n, m
-
-      nRead = 0
-      ipV = 1
-      Mem = lVec
-      Do iVec = 1,lIDV
-         n = 0
-         m = 0
-         Call Cho_VecRd(Vec(ipV),Mem,IDV(iVec),IDV(iVec),iSym,          &
-     &                  n,iRedC,m)
-         If (n .eq. 1) Then
-            nRead = nRead + 1
-            ipV = ipV + m
-            Mem = Mem - m
-            InfV(1,iVec) = m
-         Else If (n .eq. 0) Then
-            Return
-         Else
-            Call Cho_Quit('Logical error in '//SecNam,103)
-         End If
-      End Do
-
-      End
-      SubRoutine Cho_PFake_PutVec(Vec,InfV,nVec,iSym,iV1)
-      Implicit None
-      Real*8 Vec(*)
-      Integer InfV(2,*)
-      Integer nVec, iSym, iV1
-#include "cholesky.fh"
-#include "choglob.fh"
-
-      Character*16 SecNam
-      Parameter (SecNam = 'Cho_PFake_PutVec')
-
-      Integer iOpt, lTot, iAdr
-      Integer iVec, iPos
-
-      If (nVec .lt. 1) Return
-
-      If (CHO_ADRVEC .eq. 1) Then
-         iOpt = 1
-         lTot = InfV(1,iV1)
-         Do iVec = iV1+1,iV1+nVec-1
-            lTot = lTot + InfV(1,iVec)
-         End Do
-         iAdr = InfV(2,iV1)
-         Call dDAFile(LuCho_G(iSym),iOpt,Vec,lTot,iAdr)
-         Do iVec = iV1+1,iV1+nVec
-            InfV(2,iVec) = InfV(2,iVec-1) + InfV(1,iVec-1)
-         End Do
-      Else If (CHO_ADRVEC .eq. 2) Then
-         iPos = 1
-         Do iVec = iV1,iV1+nVec-1
-            iOpt = 1
-            lTot = InfV(1,iVec)
-            iAdr = InfV(2,iVec)
-            Call dDAFile(LuCho_G(iSym),iOpt,Vec(iPos),lTot,iAdr)
-            iPos = iPos + InfV(1,iVec)
-            InfV(2,iVec+1) = iAdr
-         End Do
-      Else
-         Call Cho_Quit('Illegal CHO_ADRVEC in '//SecNam,102)
-      End If
-
-      End
+end subroutine Cho_PFake_VDist

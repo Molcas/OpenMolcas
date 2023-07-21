@@ -8,64 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETRSTC()
+
+subroutine CHO_GETRSTC()
 !
-!     Purpose: read and check decomposition restart info.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: read and check decomposition restart info.
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*11 SECNAM
+parameter(SECNAM='CHO_GETRSTC')
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETRSTC')
+! Read restart file, populating restart common block.
+! ---------------------------------------------------
 
-!     Read restart file, populating restart common block.
-!     ---------------------------------------------------
+IFAIL = 0
+call CHO_RDRSTC(IFAIL)
+if (IFAIL /= 0) then
+  write(LUPRI,'(A,A)') SECNAM,': error reading decomposition restart file.'
+  write(LUPRI,'(A,A,I10)') SECNAM,': return code from reading routine:',IFAIL
+  call CHO_QUIT('Error reading decomposition restart file',104)
+end if
 
-      IFAIL = 0
-      CALL CHO_RDRSTC(IFAIL)
-      IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A)')                                           &
-     &   SECNAM,': error reading decomposition restart file.'
-         WRITE(LUPRI,'(A,A,I10)')                                       &
-     &   SECNAM,': return code from reading routine:',IFAIL
-         CALL CHO_QUIT('Error reading decomposition restart file',104)
-      END IF
+! Check system info .
+! -------------------
 
-!     Check system info .
-!     -------------------
+IFAIL = 0
+call CHO_RSTMOL(IFAIL)
+if (IFAIL /= 0) then
+  write(LUPRI,'(A,A)') SECNAM,': decomposition restart failure.'
+  call CHO_QUIT('Decomposition restart failure in '//SECNAM,105)
+end if
 
-      IFAIL = 0
-      CALL CHO_RSTMOL(IFAIL)
-      IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A)')                                           &
-     &   SECNAM,': decomposition restart failure.'
-         CALL CHO_QUIT('Decomposition restart failure in '//SECNAM,105)
-      END IF
+! Check decomposition configuration.
+! ----------------------------------
 
-!     Check decomposition configuration.
-!     ----------------------------------
+IFAIL = 0
+call CHO_RSTCNF(IFAIL)
+if (IFAIL /= 0) then
+  write(LUPRI,'(A,A,I6,A)') SECNAM,':',IFAIL,' configuration discrepancies detected.'
+  if (MODRST == -1) then
+    write(LUPRI,'(A)') 'Recovery: using configuration from restart file.'
+    call CHO_RESETCNF()
+  else if (MODRST == 0) then
+    write(LUPRI,'(A)') 'Recovery: none, program stops.'
+    call CHO_QUIT('Restart configuration error in '//SECNAM,105)
+  else if (MODRST == 1) then
+    write(LUPRI,'(A)') 'Recovery: using input configuration.'
+  else
+    write(LUPRI,'(A,A,I6,A)') SECNAM,': restart model,',MODRST,', not recognized.'
+    call CHO_QUIT('Error in '//SECNAM,103)
+  end if
+end if
 
-      IFAIL = 0
-      CALL CHO_RSTCNF(IFAIL)
-      IF (IFAIL .NE. 0) THEN
-         WRITE(LUPRI,'(A,A,I6,A)')                                      &
-     &   SECNAM,':',IFAIL,' configuration discrepancies detected.'
-         IF (MODRST .EQ. -1) THEN
-            WRITE(LUPRI,'(A)')                                          &
-     &      'Recovery: using configuration from restart file.'
-            CALL CHO_RESETCNF
-         ELSE IF (MODRST .EQ. 0) THEN
-            WRITE(LUPRI,'(A)')                                          &
-     &      'Recovery: none, program stops.'
-            CALL CHO_QUIT('Restart configuration error in '//SECNAM,105)
-         ELSE IF (MODRST .EQ. 1) THEN
-            WRITE(LUPRI,'(A)')                                          &
-     &      'Recovery: using input configuration.'
-         ELSE
-            WRITE(LUPRI,'(A,A,I6,A)')                                   &
-     &      SECNAM,': restart model,',MODRST,', not recognized.'
-            CALL CHO_QUIT('Error in '//SECNAM,103)
-         END IF
-      END IF
-
-      END
+end subroutine CHO_GETRSTC

@@ -10,282 +10,212 @@
 !                                                                      *
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
+subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !
-!     Thomas Bondo Pedersen, December 2012.
+! Thomas Bondo Pedersen, December 2012.
 !
-!     Compute Laplace-SOS-MP2 energy.
-!
-      use stdalloc
-      Implicit None
-      Integer irc
-      Real*8  EMP2
-      Real*8  EOcc(*)
-      Real*8  EVir(*)
-      Logical Sorted
-      Logical DelOrig
+! Compute Laplace-SOS-MP2 energy.
+
+use stdalloc
+
+implicit none
+integer irc
+real*8 EMP2
+real*8 EOcc(*)
+real*8 EVir(*)
+logical Sorted
+logical DelOrig
 
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-
-      Character(LEN=17), Parameter:: SecNam='ChoLSOSMP2_Energy'
-
-      Integer  CheckDenomRange
-      Integer, External:: TestMinimaxLaplace
-
-#if defined (_DEBUGPRINT_)
-      Logical, Parameter:: Debug=.true.
+character(len=17), parameter :: SecNam = 'ChoLSOSMP2_Energy'
+integer CheckDenomRange
+integer, external :: TestMinimaxLaplace
+#ifdef _DEBUGPRINT_
+logical, parameter :: Debug = .true.
 #else
-      Logical, Parameter:: Debug=.false.
+logical, parameter :: Debug = .false.
 #endif
+logical Verb, FermiShift
+integer l_w
+real*8 ELOMO, EHOMO
+real*8 ELUMO, EHUMO
+real*8 EFermi
+real*8 xmin, xmax
+integer iSym
+integer i
+real*8, allocatable :: W(:), T(:)
 
-      Logical Verb, FermiShift
+!================
+! Initializations
+!================
 
-      Integer l_w
+call Untested('Laplace-SOS-MP2')
 
-      Real*8 ELOMO, EHOMO
-      Real*8 ELUMO, EHUMO
-      Real*8 EFermi
-      Real*8 xmin, xmax
+! init return code
+irc = 0
 
-      Integer iSym
-      Integer i
+! init flag for Fermi shift done
+FermiShift = .false.
 
-      Real*8, Allocatable:: W(:), T(:)
+! check that Laplace is requested
+if (.not. Laplace) then
+  call WarningMessage(1,SecNam//' was called - but this is not a Laplace calculation!')
+  call xFlush(6)
+  irc = -1
+  return
+end if
 
-!====================
-!     Initializations
-!====================
+! Debug: test minimax Laplace grid generation
+if (Debug) then
+  Verb = .false.
+  irc = TestMinimaxLaplace(1.0d-7,Verb)
+  if (irc /= 0) then
+    call WarningMessage(2,SecNam//': error detected in numerical Laplace transformation')
+    write(6,'(A,I6)') 'irc=',irc
+    call Abend()
+  end if
+end if
 
-      Call Untested('Laplace-SOS-MP2')
+!================================================
+! Parameters for numerical Laplace transformation
+!================================================
 
-      ! init return code
-      irc=0
-
-      ! init flag for Fermi shift done
-      FermiShift=.false.
-
-      ! check that Laplace is requested
-      If (.not.Laplace) Then
-         Call WarningMessage(1,SecNam//' was called - '                 &
-     &                       //'but this is not a Laplace calculation!')
-         Call xFlush(6)
-         irc=-1
-         Return
-      End If
-
-      ! Debug: test minimax Laplace grid generation
-      If (Debug) Then
-         Verb=.false.
-         irc=TestMinimaxLaplace(1.0d-7,Verb)
-         If (irc.ne.0) Then
-            Call WarningMessage(2,SecNam                                &
-     &         //': error detected in numerical Laplace transformation')
-            Write(6,'(A,I6)') 'irc=',irc
-            Call Abend()
-         End If
-      End If
-
-!====================================================
-!     Parameters for numerical Laplace transformation
-!====================================================
-
-      ! get max and min orbital energies
-      ELOMO=0.0d0
-      EHOMO=0.0d0
-      ELUMO=0.0d0
-      EHUMO=0.0d0
-      i=0
-      Do iSym=1,nSym
-         If (nOcc(iSym).gt.0) Then
-            If (i.eq.0) Then
-               i=1
-               ELOMO=EOcc(iOcc(iSym)+1)
-               EHOMO=EOcc(iOcc(iSym)+nOcc(iSym))
-            Else
-               ELOMO=min(ELOMO,EOcc(iOcc(iSym)+1))
-               EHOMO=max(EHOMO,EOcc(iOcc(iSym)+nOcc(iSym)))
-            End If
-         End If
-      End Do
-      If (i.eq.0) Then
-         Call WarningMessage(2,                                         &
-     &                        SecNam//': unable to determine LOMO,HOMO')
-         Call Abend()
-      End If
-      i=0
-      Do iSym=1,nSym
-         If (nVir(iSym).gt.0) Then
-            If (i.eq.0) Then
-               i=1
-               ELUMO=EVir(iVir(iSym)+1)
-               EHUMO=EVir(iVir(iSym)+nVir(iSym))
-            Else
-               ELUMO=min(ELUMO,EVir(iVir(iSym)+1))
-               EHUMO=max(EHUMO,EVir(iVir(iSym)+nVir(iSym)))
-            End If
-         End If
-      End Do
-      If (i.eq.0) Then
-         Call WarningMessage(2,                                         &
-     &                        SecNam//': unable to determine LUMO,HUMO')
-         Call Abend()
-      End If
+! get max and min orbital energies
+ELOMO = 0.0d0
+EHOMO = 0.0d0
+ELUMO = 0.0d0
+EHUMO = 0.0d0
+i = 0
+do iSym=1,nSym
+  if (nOcc(iSym) > 0) then
+    if (i == 0) then
+      i = 1
+      ELOMO = EOcc(iOcc(iSym)+1)
+      EHOMO = EOcc(iOcc(iSym)+nOcc(iSym))
+    else
+      ELOMO = min(ELOMO,EOcc(iOcc(iSym)+1))
+      EHOMO = max(EHOMO,EOcc(iOcc(iSym)+nOcc(iSym)))
+    end if
+  end if
+end do
+if (i == 0) then
+  call WarningMessage(2,SecNam//': unable to determine LOMO,HOMO')
+  call Abend()
+end if
+i = 0
+do iSym=1,nSym
+  if (nVir(iSym) > 0) then
+    if (i == 0) then
+      i = 1
+      ELUMO = EVir(iVir(iSym)+1)
+      EHUMO = EVir(iVir(iSym)+nVir(iSym))
+    else
+      ELUMO = min(ELUMO,EVir(iVir(iSym)+1))
+      EHUMO = max(EHUMO,EVir(iVir(iSym)+nVir(iSym)))
+    end if
+  end if
+end do
+if (i == 0) then
+  call WarningMessage(2,SecNam//': unable to determine LUMO,HUMO')
+  call Abend()
+end if
 !-tbp:
-      write(6,*) 'ELOMO,EHOMO=',ELOMO,EHOMO
-      write(6,*) 'ELUMO,EHUMO=',ELUMO,EHUMO
+write(6,*) 'ELOMO,EHOMO=',ELOMO,EHOMO
+write(6,*) 'ELUMO,EHUMO=',ELUMO,EHUMO
 
-      ! compute "Fermi energy" as the midpoint between HOMO and LUMO.
-      EFermi=0.5d0*(EHOMO+ELUMO)
+! compute "Fermi energy" as the midpoint between HOMO and LUMO.
+EFermi = 0.5d0*(EHOMO+ELUMO)
 
-      ! translate orbital energy origin to EFermi
-      Do iSym=1,nSym
-         Do i=1,nOcc(iSym)
-            EOcc(iOcc(iSym)+i)=EOcc(iOcc(iSym)+i)-EFermi
-         End Do
-         Do i=1,nVir(iSym)
-            EVir(iVir(iSym)+i)=EVir(iVir(iSym)+i)-EFermi
-         End Do
-      End Do
-      ELOMO=ELOMO-EFermi
-      EHOMO=EHOMO-EFermi
-      ELUMO=ELUMO-EFermi
-      EHUMO=EHUMO-EFermi
-      FermiShift=.true.
+! translate orbital energy origin to EFermi
+do iSym=1,nSym
+  do i=1,nOcc(iSym)
+    EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)-EFermi
+  end do
+  do i=1,nVir(iSym)
+    EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)-EFermi
+  end do
+end do
+ELOMO = ELOMO-EFermi
+EHOMO = EHOMO-EFermi
+ELUMO = ELUMO-EFermi
+EHUMO = EHUMO-EFermi
+FermiShift = .true.
 
-      ! compute range of orbital energy denominator
-      xmin=2.0d0*(ELUMO-EHOMO)
-      xmax=2.0d0*(EHUMO-ELOMO)
-      ! Debug: check range
-      If (Debug) Then
-         irc=CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,        &
-     &                                                iVir,nVir)
-         If (irc.ne.0) Then
-            Call WarningMessage(2,SecNam                                &
-     &         //': error detected in orbital energy denominator range')
-            Write(6,'(A,I6)') 'irc=',irc
-            Call Abend()
-         End If
-      End If
+! compute range of orbital energy denominator
+xmin = 2.0d0*(ELUMO-EHOMO)
+xmax = 2.0d0*(EHUMO-ELOMO)
+! Debug: check range
+if (Debug) then
+  irc = CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
+  if (irc /= 0) then
+    call WarningMessage(2,SecNam//': error detected in orbital energy denominator range')
+    write(6,'(A,I6)') 'irc=',irc
+    call Abend()
+  end if
+end if
 
-      ! get weights and grid points for numerical Laplace transform
-      If (Laplace_nGridPoints.eq.0) Then
-         l_w=Laplace_mGridPoints
-      Else
-         l_w=Laplace_nGridPoints
-      End If
-      Call mma_allocate(W,l_w,Label='W')
-      Call mma_allocate(T,l_w,Label='T')
-      Call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,        &
-     &                    l_w,W,T,irc)
-      If (irc.ne.0) Then
-         Write(6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
-         irc=1
-         Go To 1 ! exit after cleanup actions
-      End If
+! get weights and grid points for numerical Laplace transform
+if (Laplace_nGridPoints == 0) then
+  l_w = Laplace_mGridPoints
+else
+  l_w = Laplace_nGridPoints
+end if
+call mma_allocate(W,l_w,Label='W')
+call mma_allocate(T,l_w,Label='T')
+call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,l_w,W,T,irc)
+if (irc /= 0) then
+  write(6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
+  irc = 1
+  Go To 1 ! exit after cleanup actions
+end if
 
-!======================================
-!     Compute SOS-MP2 energy correction
-!======================================
+!==================================
+! Compute SOS-MP2 energy correction
+!==================================
 
-      If (Sorted) Then
-         Call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,                &
-     &                              W,T,EOcc,EVir,DelOrig,EMP2,irc)
-         If (irc .ne. 0) Then
-            Write(6,'(A,A,I6)')                                         &
-     &      SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
-            Go To 1 ! exit
-         End If
-      Else
-         If (nBatch .eq. 1) Then
-            Call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,             &
-     &                                 W,T,EOcc,EVir,DelOrig,EMP2,irc)
-            If (irc .ne. 0) Then
-               Write(6,'(A,A,I6)')                                      &
-     &         SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
-               Go To 1 ! exit after cleanup
-            End If
-         Else
-            Call WarningMessage(1,                                      &
-     &                        SecNam//': unsorted case not implemented')
-            irc=-2
-            Go To 1 ! exit after cleanup
-         End If
-      End If
+if (Sorted) then
+  call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
+  if (irc /= 0) then
+    write(6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
+    Go To 1 ! exit
+  end if
+else
+  if (nBatch == 1) then
+    call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
+    if (irc /= 0) then
+      write(6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
+      Go To 1 ! exit after cleanup
+    end if
+  else
+    call WarningMessage(1,SecNam//': unsorted case not implemented')
+    irc = -2
+    Go To 1 ! exit after cleanup
+  end if
+end if
 
-!============
-!     Cleanup
-!============
-    1 Continue ! errors jump to this point
+!========
+! Cleanup
+!========
+1 continue ! errors jump to this point
 
-      ! translate orbital energy origin from Fermi back to original
-      If (FermiShift) Then
-         Do iSym=1,nSym
-            Do i=1,nOcc(iSym)
-               EOcc(iOcc(iSym)+i)=EOcc(iOcc(iSym)+i)+EFermi
-            End Do
-            Do i=1,nVir(iSym)
-               EVir(iVir(iSym)+i)=EVir(iVir(iSym)+i)+EFermi
-            End Do
-         End Do
-      End If
+! translate orbital energy origin from Fermi back to original
+if (FermiShift) then
+  do iSym=1,nSym
+    do i=1,nOcc(iSym)
+      EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)+EFermi
+    end do
+    do i=1,nVir(iSym)
+      EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)+EFermi
+    end do
+  end do
+end if
 
-      ! deallocations
-      Call mma_deallocate(T)
-      Call mma_deallocate(W)
+! deallocations
+call mma_deallocate(T)
+call mma_deallocate(W)
 
-      End
-      Integer Function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,        &
-     &                                 iOcc,nOcc,iVir,nVir)
-      Implicit None
-      Real*8  xmin
-      Real*8  xmax
-      Integer nSym
-      Real*8  EOcc(nSym)
-      Real*8  EVir(nSym)
-      Integer iOcc(nSym)
-      Integer nOcc(nSym)
-      Integer iVir(nSym)
-      Integer nVir(nSym)
-
-      Real*8 Tol
-      Parameter (Tol=1.0d-12)
-
-      Real*8 e, emin, emax
-
-      Integer iSym, i
-      Integer aSym, a
-      Integer irc
-
-      emin=9.9d15
-      emax=-9.9d15
-      Do iSym=1,nSym
-         Do i=iOcc(iSym)+1,iOcc(iSym)+nOcc(iSym)
-            Do aSym=1,nSym
-               Do a=iVir(aSym)+1,iVir(aSym)+nVir(aSym)
-                  e=EVir(a)-EOcc(i)
-                  emin=min(emin,e)
-                  emax=max(emax,e)
-               End Do
-            End Do
-         End Do
-      End Do
-      emin=2.0d0*emin
-      emax=2.0d0*emax
-
-      irc=0
-      If (abs(emin-xmin).gt.Tol) irc=irc+1
-      If (abs(emax-xmax).gt.Tol) irc=irc+2
-
-!-tbp:
-      if (irc.ne.0) then
-         write(6,'(A,1P,2D25.16)') 'xmin,xmax=',xmin,xmax
-         write(6,'(A,1P,2D25.16)') 'emin,emax=',emin,emax
-         write(6,'(A,1P,2D25.16)') 'diff=     ',xmin-emin,xmax-emax
-      end if
-
-      CheckDenomRange=irc
-
-      End
+end subroutine ChoLSOSMP2_Energy

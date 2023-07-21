@@ -11,9 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine PLF_Cho_Diag(TInt,nInt,                                &
-     &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,            &
-     &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+
+subroutine PLF_Cho_Diag(TInt,nInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -27,114 +26,108 @@
 !          May '90                                                     *
 !                                                                      *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use ChoArr, only: iSOSHl, iShlSO, nBstSh
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+
+use SOAO_Info, only: iAOtSO
+use ChoArr, only: iSOSHl, iShlSO, nBstSh
+use Constants
+
+implicit real*8(A-H,O-Z)
 #include "cholesky.fh"
 #include "print.fh"
-!
-      Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nInt)
-      Integer iShell(4), iAO(4), kOp(4),                                &
-     &        iAOst(4), iSOs(4)
-      Logical Shijij
+real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nInt)
+integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
+logical Shijij
+external ddot_
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      external ddot_
-!
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-!
-      irout = 109
-      jprint = nprint(irout)
-      If (jPrint.ge.49) Then
-         r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-         r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-         Write (6,*) ' Sum=',r1
-         Write (6,*) ' Dot=',r2
-      End If
-      If (jPrint.ge.99) Call RecPrt(' In Plf_CD: AOInt',' ',            &
-     &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-!
-!     Allocate space to store integrals to gether with their
-!     Symmetry batch and sequence number.
-!     To avoid conflicts in using memory this is done in the
-!     subroutine PSOAO
-!
-!
-!     quadruple loop over elements of the basis functions angular
-!     description. loops are reduced to just produce unique SO integrals
-!     observe that we will walk through the memory in AOint in a
-!     sequential way.
-!
-      iAOsti=iAOst(1)
-      iAOstj=iAOst(2)
-      iAOstk=iAOst(3)
-      iAOstl=iAOst(4)
-      iAOi=iAO(1)
-      iAOj=iAO(2)
-      iAOk=iAO(3)
-      iAOl=iAO(4)
-!
-      Do 100 i1 = 1, iCmp
-         iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
-         Do 200 i2 = 1, jCmp
-            iSOs(2)=iAOtSO(iAOj+i2,kOp(2))+iAOstj
-            Do 300 i3 = 1, kCmp
-               iSOs(3)=iAOtSO(iAOk+i3,kOp(3))+iAOstk
-               Do 400 i4 = 1, lCmp
-                  iSOs(4)=iAOtSO(iAOl+i4,kOp(4))+iAOstl
-!
-                iSO =iSOs(1)
-                jSO =iSOs(2)
-                kSO =iSOs(3)
-                lSO =iSOs(4)
-!
-                nijkl = 0
-                Do 120 lSOl = lSO, lSO+lBas-1
-                   Do 220 kSOk = kSO, kSO+kBas-1
-                      iSOkl = iTri(kSOk,lSOl)
-                      Do 320 jSOj = jSO, jSO+jBas-1
-                         Do 420 iSOi = iSO, iSO+iBas-1
-                            nijkl = nijkl + 1
-                            iSOij = iTri(iSOi,jSOj)
-!
-                            If (iSOij.eq.iSOkl) Then
-                               ISHLI = ISOSHL(ISOI)
-                               ISHLJ = ISOSHL(JSOJ)
-                               NUMI  = NBSTSH(ISHLI)
-                               NUMJ  = NBSTSH(ISHLJ)
-                               IF (ISHLI.EQ.ISHLJ.AND.ISHLI.EQ.SHA) THEN
-                                  KIJ = ITRI(ISHLSO(ISOI),ISHLSO(JSOJ))
-                               ELSE
-                                 IF (ISHLI.EQ.SHA.AND.ISHLJ.EQ.SHB)     &
-     &                           THEN
-                                    KIJ = NUMI*(ISHLSO(JSOJ) - 1)       &
-     &                                  + ISHLSO(ISOI)
-                                 ELSE IF (ISHLJ.EQ.SHA.AND.ISHLI.EQ.SHB)&
-     &                           THEN
-                                    KIJ = NUMJ*(ISHLSO(ISOI) - 1)       &
-     &                                  + ISHLSO(JSOJ)
-                                 ELSE
-                                    CALL CHO_QUIT('Integral error',104)
-                                    KIJ = -999999
-                                 END IF
-                               END IF
-                               TInt(KIJ)=AOint(nijkl,i1,i2,i3,i4)
-                            End If
-!
-420                      Continue
-320                   Continue
-220                Continue
-120             Continue
-!
-400            Continue
-300         Continue
-200      Continue
-100   Continue
-!
-      Return
+irout = 109
+jprint = nprint(irout)
+if (jPrint >= 49) then
+  r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+  r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
+  write(6,*) ' Sum=',r1
+  write(6,*) ' Dot=',r2
+end if
+if (jPrint >= 99) call RecPrt(' In Plf_CD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+
+! Allocate space to store integrals to gether with their
+! Symmetry batch and sequence number.
+! To avoid conflicts in using memory this is done in the
+! subroutine PSOAO
+
+! quadruple loop over elements of the basis functions angular
+! description. loops are reduced to just produce unique SO integrals
+! observe that we will walk through the memory in AOint in a
+! sequential way.
+
+iAOsti = iAOst(1)
+iAOstj = iAOst(2)
+iAOstk = iAOst(3)
+iAOstl = iAOst(4)
+iAOi = iAO(1)
+iAOj = iAO(2)
+iAOk = iAO(3)
+iAOl = iAO(4)
+
+do i1=1,iCmp
+  iSOs(1) = iAOtSO(iAOi+i1,kOp(1))+iAOsti
+  do i2=1,jCmp
+    iSOs(2) = iAOtSO(iAOj+i2,kOp(2))+iAOstj
+    do i3=1,kCmp
+      iSOs(3) = iAOtSO(iAOk+i3,kOp(3))+iAOstk
+      do i4=1,lCmp
+        iSOs(4) = iAOtSO(iAOl+i4,kOp(4))+iAOstl
+
+        iSO = iSOs(1)
+        jSO = iSOs(2)
+        kSO = iSOs(3)
+        lSO = iSOs(4)
+
+        nijkl = 0
+        do lSOl=lSO,lSO+lBas-1
+          do kSOk=kSO,kSO+kBas-1
+            iSOkl = iTri(kSOk,lSOl)
+            do jSOj=jSO,jSO+jBas-1
+              do iSOi=iSO,iSO+iBas-1
+                nijkl = nijkl+1
+                iSOij = iTri(iSOi,jSOj)
+
+                if (iSOij == iSOkl) then
+                  ISHLI = ISOSHL(ISOI)
+                  ISHLJ = ISOSHL(JSOJ)
+                  NUMI = NBSTSH(ISHLI)
+                  NUMJ = NBSTSH(ISHLJ)
+                  if ((ISHLI == ISHLJ) .and. (ISHLI == SHA)) then
+                    KIJ = ITRI(ISHLSO(ISOI),ISHLSO(JSOJ))
+                  else
+                    if ((ISHLI == SHA) .and. (ISHLJ == SHB)) then
+                      KIJ = NUMI*(ISHLSO(JSOJ)-1)+ISHLSO(ISOI)
+                    else if ((ISHLJ == SHA) .and. (ISHLI == SHB)) then
+                      KIJ = NUMJ*(ISHLSO(ISOI)-1)+ISHLSO(JSOJ)
+                    else
+                      call CHO_QUIT('Integral error',104)
+                      KIJ = -999999
+                    end if
+                  end if
+                  TInt(KIJ) = AOint(nijkl,i1,i2,i3,i4)
+                end if
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
-       End If
-      End
+if (.false.) then
+  call Unused_integer_array(iShell)
+  call Unused_logical(Shijij)
+end if
+
+end subroutine PLF_Cho_Diag

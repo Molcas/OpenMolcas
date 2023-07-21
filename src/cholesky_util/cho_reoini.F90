@@ -8,30 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_REOINI()
-      use ChoReo
+
+subroutine CHO_REOINI()
 !
-!     Purpose: initializations for vector reordering.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: initializations for vector reordering.
+
+use ChoReo
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
-      Integer :: I, J, MULD2H
+integer :: I, J, MULD2H
+! Statement function
+MULD2H(I,J) = ieor(I-1,J-1)+1
 
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
+call IZERO(NNBST,NSYM)
+do ISYMA=1,NSYM
+  do ISYMB=1,ISYMA-1
+    NABPK(ISYMA,ISYMB) = NBAS(ISYMA)*NBAS(ISYMB)
+    NABPK(ISYMB,ISYMA) = NABPK(ISYMA,ISYMB)
+    ISYM = MULD2H(ISYMB,ISYMA)
+    NNBST(ISYM) = NNBST(ISYM)+NABPK(ISYMA,ISYMB)
+  end do
+  NABPK(ISYMA,ISYMA) = NBAS(ISYMA)*(NBAS(ISYMA)+1)/2
+  NNBST(1) = NNBST(1)+NABPK(ISYMA,ISYMA)
+end do
 
-      CALL IZERO(NNBST,NSYM)
-      DO ISYMA = 1,NSYM
-         DO ISYMB = 1,ISYMA-1
-            NABPK(ISYMA,ISYMB) = NBAS(ISYMA)*NBAS(ISYMB)
-            NABPK(ISYMB,ISYMA) = NABPK(ISYMA,ISYMB)
-            ISYM = MULD2H(ISYMB,ISYMA)
-            NNBST(ISYM) = NNBST(ISYM) + NABPK(ISYMA,ISYMB)
-         END DO
-         NABPK(ISYMA,ISYMA) = NBAS(ISYMA)*(NBAS(ISYMA) + 1)/2
-         NNBST(1) = NNBST(1) + NABPK(ISYMA,ISYMA)
-      END DO
+call CHO_OPFVEC(1,0)
 
-      CALL CHO_OPFVEC(1,0)
-
-      END
+end subroutine CHO_REOINI

@@ -10,76 +10,64 @@
 !                                                                      *
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Col_Invai(ai,iSymai,a,iSyma,i,iSymi)
+
+subroutine ChoMP2_Col_Invai(ai,iSymai,a,iSyma,i,iSymi)
 !
-!     Thomas Bondo Pedersen, Dec. 2007.
+! Thomas Bondo Pedersen, Dec. 2007.
 !
-!     Purpose: calculate indices a and i (incl. symmetries)
-!              from compound index ai of symmetry iSymai.
-!
-      Implicit None
-      Integer ai, iSymai, a, iSyma, i, iSymi
+! Purpose: calculate indices a and i (incl. symmetries)
+!          from compound index ai of symmetry iSymai.
+
+implicit none
+integer ai, iSymai, a, iSyma, i, iSymi
 #include "cholesky.fh"
 #include "chomp2.fh"
+integer iSym, i_, ai_1, ai_2
+#ifdef _DEBUGPRINT_
+character*16 SecNam
+parameter(SecNam='ChoMP2_Col_Invai')
+#endif
+integer MulD2h, k, l
+! Statement function
+MulD2h(k,l) = ieor(k-1,l-1)+1
 
-      Integer iSym, i_, ai_1, ai_2
+! Find iSyma and iSymi.
+! ---------------------
 
-#if defined (_DEBUGPRINT_)
-      Character*16 SecNam
-      Parameter (SecNam = 'ChoMP2_Col_Invai')
+iSymi = -999999
+iSyma = -999999
+iSym = nSym+1
+do while (iSym > 1)
+  iSym = iSym-1
+  iSymi = iSym
+  iSyma = MulD2h(iSymi,iSymai)
+  if ((nOcc(iSymi) > 0) .and. (nVir(iSyma) > 0) .and. (ai > iT1Am(iSyma,iSymi))) iSym = 0 ! Found! -- break loop
+end do
+
+#ifdef _DEBUGPRINT_
+if ((iSymi < 1) .or. (iSymi > nSym) .or. (iSyma < 1) .or. (iSyma > nSym)) call ChoMP2_Quit(SecNam,'bug detected','[1]')
+if ((nOcc(iSymi) < 1) .or. (nVir(iSyma) < 1)) call ChoMP2_Quit(SecNam,'bug detected','[2]')
 #endif
 
-      Integer MulD2h, k, l
-      MulD2h(k,l)=iEOr(k-1,l-1)+1
+! Find a and i.
+! -------------
 
-!     Find iSyma and iSymi.
-!     ---------------------
+i = -999999
+a = -999999
+i_ = 0
+do while (i_ < nOcc(iSymi))
+  i_ = i_+1
+  ai_1 = iT1Am(iSyma,iSymi)+nVir(iSyma)*(i_-1)+1
+  ai_2 = ai_1+nVir(iSyma)-1
+  if ((ai >= ai_1) .and. (ai <= ai_2)) then
+    i = i_
+    a = ai-ai_1+1
+    i_ = nOcc(iSymi)+1 ! Found! -- break loop
+  end if
+end do
 
-      iSymi = -999999
-      iSyma = -999999
-      iSym  = nSym + 1
-      Do While (iSym .gt. 1)
-         iSym  = iSym - 1
-         iSymi = iSym
-         iSyma = MulD2h(iSymi,iSymai)
-         If (nOcc(iSymi).gt.0 .and. nVir(iSyma).gt.0 .and.              &
-     &       ai.gt.iT1Am(iSyma,iSymi)) Then
-            iSym = 0 ! Found! -- break loop
-         End If
-      End Do
-
-#if defined (_DEBUGPRINT_)
-      If (iSymi.lt.1 .or. iSymi.gt.nSym .or.                            &
-     &    iSyma.lt.1 .or. iSyma.gt.nSym) Then
-         Call ChoMP2_Quit(SecNam,'bug detected','[1]')
-      End If
-      If (nOcc(iSymi).lt.1 .or. nVir(iSyma).lt.1) Then
-         Call ChoMP2_Quit(SecNam,'bug detected','[2]')
-      End If
+#ifdef _DEBUGPRINT_
+if ((i < 1) .or. (i > nOcc(iSymi)) .or. (a < 1) .or. (a > nVir(iSyma))) call ChoMP2_Quit(SecNam,'bug detected','[3]')
 #endif
 
-!     Find a and i.
-!     -------------
-
-      i  = -999999
-      a  = -999999
-      i_ = 0
-      Do While (i_ .lt. nOcc(iSymi))
-         i_ = i_ + 1
-         ai_1 = iT1Am(iSyma,iSymi) + nVir(iSyma)*(i_-1) + 1
-         ai_2 = ai_1 + nVir(iSyma) - 1
-         If (ai.ge.ai_1 .and. ai.le.ai_2) Then
-            i = i_
-            a = ai - ai_1 + 1
-            i_ = nOcc(iSymi) + 1 ! Found! -- break loop
-         End If
-      End Do
-
-#if defined (_DEBUGPRINT_)
-      If (i.lt.1 .or. i.gt.nOcc(iSymi) .or.                             &
-     &    a.lt.1 .or. a.gt.nVir(iSyma)) Then
-         Call ChoMP2_Quit(SecNam,'bug detected','[3]')
-      End If
-#endif
-
-      End
+end subroutine ChoMP2_Col_Invai

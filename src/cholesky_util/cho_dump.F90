@@ -10,254 +10,215 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine Cho_Dump(irc,Lunit)
+
+subroutine Cho_Dump(irc,Lunit)
 !
-!     T.B. Pedersen, March 2005.
+! T.B. Pedersen, March 2005.
 !
-!     Purpose: print all entries in include files
-!              choorb.fh
-!              cholesky.fh
-!              chosubscr.f90
+! Purpose: print all entries in include files
+!          choorb.fh
+!          cholesky.fh
+!          chosubscr.f90
 !
-!     On input, Lunit is the logical unit to print to...
-!
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,     &
-     &                     DSPNm
-      Implicit None
-      Integer irc, Lunit
+! On input, Lunit is the logical unit to print to...
+
+use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm
+
+implicit none
+integer irc, Lunit
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
+character*8 SecNam
+parameter(SecNam='Cho_Dump')
 
-      Character*8 SecNam
-      Parameter (SecNam = 'Cho_Dump')
+integer i, j
 
-      Integer i, j
+irc = 0
 
-      irc = 0
+write(Lunit,*)
+write(Lunit,*)
+write(Lunit,*) '>>> Output from ',SecNam,':'
+write(Lunit,*)
+call Cho_Flush(Lunit)
 
-      Write(Lunit,*)
-      Write(Lunit,*)
-      Write(Lunit,*) '>>> Output from ',SecNam,':'
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
+! choorb.fh.
+! -----------
 
-!     choorb.fh.
-!     -----------
+write(Lunit,*) '*** Contents of choorb.fh:'
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'iBas : ',(iBas(i),i=1,8)
+write(Lunit,*) 'nBas : ',(nBas(i),i=1,8)
+write(Lunit,*) 'XnBas: ',(XnBas(i),i=1,8)
+write(Lunit,*) 'nBasT: ',nBasT
+write(Lunit,*)
+call Cho_Flush(Lunit)
 
-      Write(Lunit,*) '*** Contents of choorb.fh:'
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'iBas : ',(iBas(i),i=1,8)
-      Write(Lunit,*) 'nBas : ',(nBas(i),i=1,8)
-      Write(Lunit,*) 'XnBas: ',(XnBas(i),i=1,8)
-      Write(Lunit,*) 'nBasT: ',nBasT
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
+! cholesky.fh.
+! -------------
 
-!     cholesky.fh.
-!     -------------
+write(Lunit,*) '*** Contents of cholesky.fh:'
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'ThrDef        : ',ThrDef
+write(Lunit,*) 'ThrCom        : ',ThrCom
+write(Lunit,*) 'ThrDiag       : ',ThrDiag
+write(Lunit,*) 'Tol_DiaChk    : ',Tol_DiaChk
+write(Lunit,*) 'ThrNeg        : ',ThrNeg
+write(Lunit,*) 'WarNeg        : ',WarNeg
+write(Lunit,*) 'TooNeg        : ',TooNeg
+write(Lunit,*) 'nSym          : ',nSym
+write(Lunit,*) 'lBuf          : ',lBuf
+write(Lunit,*) 'MinQual       : ',MinQual
+write(Lunit,*) 'MaxQual       : ',MaxQual
+write(Lunit,*) 'IFCSew        : ',IFCSew
+write(Lunit,*) 'Mode_Screen   : ',Mode_Screen
+write(Lunit,*) 'Cho_DecAlg    : ',Cho_DecAlg
+write(Lunit,*) 'Cho_DecAlg_Def: ',Cho_DecAlg_Def
+write(Lunit,*) 'iAlQua        : ',iAlQua
+write(Lunit,*) 'MxShPr        : ',MxShPr
+write(Lunit,*) 'ModRst        : ',ModRst
+write(Lunit,*) 'Run_Mode      : ',Run_Mode
+write(Lunit,*) 'ScDiag        : ',ScDiag
+write(Lunit,*) 'ChkOnly       : ',ChkOnly
+write(Lunit,*) 'Cho_IntChk    : ',Cho_IntChk
+write(Lunit,*) 'Cho_MinChk    : ',Cho_MinChk
+write(Lunit,*) 'Cho_UseAbs    : ',Cho_UseAbs
+write(Lunit,*) 'Cho_TrcNeg    : ',Cho_TrcNeg
+write(Lunit,*) 'Cho_ReOrd     : ',Cho_ReOrd
+write(Lunit,*) 'Cho_DiaChk    : ',Cho_DiaChk
+write(Lunit,*) 'Cho_TstScreen : ',Cho_TstScreen
+write(Lunit,*) 'Cho_1Center   : ',Cho_1Center
+write(Lunit,*) 'Cho_No2Center : ',Cho_No2Center
+write(Lunit,*) 'Cho_PreScreen : ',Cho_PreScreen
+write(Lunit,*) 'Cho_SimP      : ',Cho_SimP
+write(Lunit,*) 'Cho_Fake_Par  : ',Cho_Fake_Par
+write(Lunit,*) 'RstDia        : ',RstDia
+write(Lunit,*) 'RstCho        : ',RstCho
+write(Lunit,*) 'Did_DecDrv    : ',Did_DecDrv
+write(Lunit,*) 'HaltIt        : ',HaltIt
+write(Lunit,*) 'Trace_Idle    : ',Trace_Idle
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'LuCho: ',(LuCho(i),i=1,8)
+write(Lunit,*) 'LuSel: ',(LuSel(i),i=1,8)
+write(Lunit,*) 'LuTmp: ',(LuTmp(i),i=1,8)
+write(Lunit,*) 'LuPri: ',LuPri
+write(Lunit,*) 'LuScr: ',LuScr
+write(Lunit,*) 'LuRed: ',LuRed
+write(Lunit,*) 'LuRst: ',LuRst
+write(Lunit,*) 'LuMap: ',LuMap
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'nShell   : ',nShell
+write(Lunit,*) 'nnShl_Tot: ',nnShl_Tot
+write(Lunit,*) 'nnShl    : ',nnShl
+write(Lunit,*) 'MxORSh   : ',MxORSh
+write(Lunit,*) 'Mx2Sh    : ',Mx2Sh
+do j=1,3
+  write(Lunit,*) 'iiBstR : ',(iiBstR(i,j),i=1,8)
+end do
+do j=1,3
+  write(Lunit,*) 'nnBstR : ',(nnBstR(i,j),i=1,8)
+end do
+write(Lunit,*) 'nnBstRT: ',(nnBstRT(i),i=1,3)
+write(Lunit,*) 'mmBstRT: ',mmBstRT
+write(Lunit,*) 'nQual  : ',(nQual(i),i=1,8)
+write(Lunit,*) 'iOffQ  : ',(iOffQ(i),i=1,8)
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'DiaMax: ',(DiaMax(i),i=1,8)
+write(Lunit,*) 'DiaMin: ',(DiaMin(i),i=1,8)
+write(Lunit,*) 'Damp  : ',(Damp(i),i=1,2)
+write(Lunit,*) 'Span  : ',Span
+write(Lunit,*) 'XlDiag: ',XlDiag
+write(Lunit,*) 'DiaMnZ: ',DiaMnZ
+write(Lunit,*) 'Thr_PreScreen: ',Thr_PreScreen
+write(Lunit,*) 'iABMnZ: ',iABMnZ
+write(Lunit,*) 'nnZTot: ',nnZTot
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'NumCho   : ',(NumCho(i),i=1,8)
+write(Lunit,*) 'NumChT   : ',NumChT
+write(Lunit,*) 'MaxVec   : ',MaxVec
+write(Lunit,*) 'MaxRed   : ',MaxRed
+write(Lunit,*) 'BlockSize: ',BlockSize
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'ShA     : ',ShA
+write(Lunit,*) 'ShB     : ',ShB
+write(Lunit,*) 'ShAB    : ',ShAB
+write(Lunit,*) 'ShC     : ',ShC
+write(Lunit,*) 'ShD     : ',ShD
+write(Lunit,*) 'ShCD    : ',ShCD
+write(Lunit,*) 'nColAB  : ',nColAB
+write(Lunit,*) 'iOff_Col: ',(iOff_Col(i),i=1,8)
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'XThrCom    : ',XThrCom
+write(Lunit,*) 'XThrDiag   : ',XThrDiag
+write(Lunit,*) 'XDamp      : ',(XDamp(i),i=1,2)
+write(Lunit,*) 'XSpan      : ',XSpan
+write(Lunit,*) 'XThrNeg    : ',XThrNeg
+write(Lunit,*) 'XWarNeg    : ',XWarNeg
+write(Lunit,*) 'XTooNeg    : ',XTooNeg
+write(Lunit,*) 'XnSym      : ',XnSym
+write(Lunit,*) 'XnShell    : ',XnShell
+write(Lunit,*) 'XnnShl     : ',XnnShl
+write(Lunit,*) 'XnPass     : ',XnPass
+write(Lunit,*) 'XCho_AdrVec: ',XCho_AdrVec
+write(Lunit,*) 'XScDiag    : ',XScDiag
+write(Lunit,*)
+call Cho_Flush(Lunit)
+do j=1,nChkQ+1
+  write(Lunit,*) 'iChkQ   : ',(iChkQ(i,j),i=1,4)
+end do
+write(Lunit,*) 'nCol_Chk: ',nCol_Chk
+do j=1,nSection
+  write(Lunit,*) 'TimSec  : ',(TimSec(i,j),i=1,4)
+end do
+do j=1,nInteg
+  write(Lunit,*) 'tInteg  : ',(tInteg(i,j),i=1,2)
+end do
+do j=1,nDecom
+  write(Lunit,*) 'tDecom  : ',(tDecom(i,j),i=1,2)
+end do
+write(Lunit,*) 'tDecDrv : ',(tDecDrv(i),i=1,2)
+write(Lunit,*)
+write(Lunit,*) 'nVecRS1: ',(nVecRS1(i),i=1,8)
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'Cho_AdrVec: ',Cho_AdrVec
+write(Lunit,*) 'Cho_IOVec : ',Cho_IOVec
+write(Lunit,*) 'nSys_Call : ',nSys_Call
+write(Lunit,*) 'nDGM_Call : ',nDGM_Call
+write(Lunit,*) 'N1_VecRd  : ',N1_VecRd
+write(Lunit,*) 'N2_VecRd  : ',N2_VecRd
+write(Lunit,*) 'N_Subtr   : ',N_Subtr
+write(Lunit,*)
+call Cho_Flush(Lunit)
+write(Lunit,*) 'N1_Qual: ',N1_Qual
+write(Lunit,*) 'N2_Qual: ',N2_Qual
+write(Lunit,*)
+write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
+call Cho_Flush(Lunit)
 
-      Write(Lunit,*) '*** Contents of cholesky.fh:'
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'ThrDef        : ',ThrDef
-      Write(Lunit,*) 'ThrCom        : ',ThrCom
-      Write(Lunit,*) 'ThrDiag       : ',ThrDiag
-      Write(Lunit,*) 'Tol_DiaChk    : ',Tol_DiaChk
-      Write(Lunit,*) 'ThrNeg        : ',ThrNeg
-      Write(Lunit,*) 'WarNeg        : ',WarNeg
-      Write(Lunit,*) 'TooNeg        : ',TooNeg
-      Write(Lunit,*) 'nSym          : ',nSym
-      Write(Lunit,*) 'lBuf          : ',lBuf
-      Write(Lunit,*) 'MinQual       : ',MinQual
-      Write(Lunit,*) 'MaxQual       : ',MaxQual
-      Write(Lunit,*) 'IFCSew        : ',IFCSew
-      Write(Lunit,*) 'Mode_Screen   : ',Mode_Screen
-      Write(Lunit,*) 'Cho_DecAlg    : ',Cho_DecAlg
-      Write(Lunit,*) 'Cho_DecAlg_Def: ',Cho_DecAlg_Def
-      Write(Lunit,*) 'iAlQua        : ',iAlQua
-      Write(Lunit,*) 'MxShPr        : ',MxShPr
-      Write(Lunit,*) 'ModRst        : ',ModRst
-      Write(Lunit,*) 'Run_Mode      : ',Run_Mode
-      Write(Lunit,*) 'ScDiag        : ',ScDiag
-      Write(Lunit,*) 'ChkOnly       : ',ChkOnly
-      Write(Lunit,*) 'Cho_IntChk    : ',Cho_IntChk
-      Write(Lunit,*) 'Cho_MinChk    : ',Cho_MinChk
-      Write(Lunit,*) 'Cho_UseAbs    : ',Cho_UseAbs
-      Write(Lunit,*) 'Cho_TrcNeg    : ',Cho_TrcNeg
-      Write(Lunit,*) 'Cho_ReOrd     : ',Cho_ReOrd
-      Write(Lunit,*) 'Cho_DiaChk    : ',Cho_DiaChk
-      Write(Lunit,*) 'Cho_TstScreen : ',Cho_TstScreen
-      Write(Lunit,*) 'Cho_1Center   : ',Cho_1Center
-      Write(Lunit,*) 'Cho_No2Center : ',Cho_No2Center
-      Write(Lunit,*) 'Cho_PreScreen : ',Cho_PreScreen
-      Write(Lunit,*) 'Cho_SimP      : ',Cho_SimP
-      Write(Lunit,*) 'Cho_Fake_Par  : ',Cho_Fake_Par
-      Write(Lunit,*) 'RstDia        : ',RstDia
-      Write(Lunit,*) 'RstCho        : ',RstCho
-      Write(Lunit,*) 'Did_DecDrv    : ',Did_DecDrv
-      Write(Lunit,*) 'HaltIt        : ',HaltIt
-      Write(Lunit,*) 'Trace_Idle    : ',Trace_Idle
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'LuCho: ',(LuCho(i),i=1,8)
-      Write(Lunit,*) 'LuSel: ',(LuSel(i),i=1,8)
-      Write(Lunit,*) 'LuTmp: ',(LuTmp(i),i=1,8)
-      Write(Lunit,*) 'LuPri: ',LuPri
-      Write(Lunit,*) 'LuScr: ',LuScr
-      Write(Lunit,*) 'LuRed: ',LuRed
-      Write(Lunit,*) 'LuRst: ',LuRst
-      Write(Lunit,*) 'LuMap: ',LuMap
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'nShell   : ',nShell
-      Write(Lunit,*) 'nnShl_Tot: ',nnShl_Tot
-      Write(Lunit,*) 'nnShl    : ',nnShl
-      Write(Lunit,*) 'MxORSh   : ',MxORSh
-      Write(Lunit,*) 'Mx2Sh    : ',Mx2Sh
-      Do j = 1,3
-         Write(Lunit,*) 'iiBstR : ',(iiBstR(i,j),i=1,8)
-      End Do
-      Do j = 1,3
-         Write(Lunit,*) 'nnBstR : ',(nnBstR(i,j),i=1,8)
-      End Do
-      Write(Lunit,*) 'nnBstRT: ',(nnBstRT(i),i=1,3)
-      Write(Lunit,*) 'mmBstRT: ',mmBstRT
-      Write(Lunit,*) 'nQual  : ',(nQual(i),i=1,8)
-      Write(Lunit,*) 'iOffQ  : ',(iOffQ(i),i=1,8)
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'DiaMax: ',(DiaMax(i),i=1,8)
-      Write(Lunit,*) 'DiaMin: ',(DiaMin(i),i=1,8)
-      Write(Lunit,*) 'Damp  : ',(Damp(i),i=1,2)
-      Write(Lunit,*) 'Span  : ',Span
-      Write(Lunit,*) 'XlDiag: ',XlDiag
-      Write(Lunit,*) 'DiaMnZ: ',DiaMnZ
-      Write(Lunit,*) 'Thr_PreScreen: ',Thr_PreScreen
-      Write(Lunit,*) 'iABMnZ: ',iABMnZ
-      Write(Lunit,*) 'nnZTot: ',nnZTot
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'NumCho   : ',(NumCho(i),i=1,8)
-      Write(Lunit,*) 'NumChT   : ',NumChT
-      Write(Lunit,*) 'MaxVec   : ',MaxVec
-      Write(Lunit,*) 'MaxRed   : ',MaxRed
-      Write(Lunit,*) 'BlockSize: ',BlockSize
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'ShA     : ',ShA
-      Write(Lunit,*) 'ShB     : ',ShB
-      Write(Lunit,*) 'ShAB    : ',ShAB
-      Write(Lunit,*) 'ShC     : ',ShC
-      Write(Lunit,*) 'ShD     : ',ShD
-      Write(Lunit,*) 'ShCD    : ',ShCD
-      Write(Lunit,*) 'nColAB  : ',nColAB
-      Write(Lunit,*) 'iOff_Col: ',(iOff_Col(i),i=1,8)
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'XThrCom    : ',XThrCom
-      Write(Lunit,*) 'XThrDiag   : ',XThrDiag
-      Write(Lunit,*) 'XDamp      : ',(XDamp(i),i=1,2)
-      Write(Lunit,*) 'XSpan      : ',XSpan
-      Write(Lunit,*) 'XThrNeg    : ',XThrNeg
-      Write(Lunit,*) 'XWarNeg    : ',XWarNeg
-      Write(Lunit,*) 'XTooNeg    : ',XTooNeg
-      Write(Lunit,*) 'XnSym      : ',XnSym
-      Write(Lunit,*) 'XnShell    : ',XnShell
-      Write(Lunit,*) 'XnnShl     : ',XnnShl
-      Write(Lunit,*) 'XnPass     : ',XnPass
-      Write(Lunit,*) 'XCho_AdrVec: ',XCho_AdrVec
-      Write(Lunit,*) 'XScDiag    : ',XScDiag
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Do j = 1,nChkQ+1
-         Write(Lunit,*) 'iChkQ   : ',(iChkQ(i,j),i=1,4)
-      End Do
-      Write(Lunit,*) 'nCol_Chk: ',nCol_Chk
-      Do j = 1,nSection
-         Write(Lunit,*) 'TimSec  : ',(TimSec(i,j),i=1,4)
-      End Do
-      Do j = 1,nInteg
-         Write(Lunit,*) 'tInteg  : ',(tInteg(i,j),i=1,2)
-      End Do
-      Do j = 1,nDecom
-         Write(Lunit,*) 'tDecom  : ',(tDecom(i,j),i=1,2)
-      End Do
-      Write(Lunit,*) 'tDecDrv : ',(tDecDrv(i),i=1,2)
-      Write(Lunit,*)
-      Write(Lunit,*) 'nVecRS1: ',(nVecRS1(i),i=1,8)
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'Cho_AdrVec: ',Cho_AdrVec
-      Write(Lunit,*) 'Cho_IOVec : ',Cho_IOVec
-      Write(Lunit,*) 'nSys_Call : ',nSys_Call
-      Write(Lunit,*) 'nDGM_Call : ',nDGM_Call
-      Write(Lunit,*) 'N1_VecRd  : ',N1_VecRd
-      Write(Lunit,*) 'N2_VecRd  : ',N2_VecRd
-      Write(Lunit,*) 'N_Subtr   : ',N_Subtr
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'N1_Qual: ',N1_Qual
-      Write(Lunit,*) 'N2_Qual: ',N2_Qual
-      Write(Lunit,*)
-      Write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
-      Call Cho_Flush(Lunit)
+! choswp.f90 and choarr.f90.
+! --------------------------
 
-!     choswp.f90 and choarr.f90
-!     -----------
+call Cho_PrintPointers(irc,Lunit)
+if (irc /= 0) return
 
-      Call Cho_PrintPointers(irc,Lunit)
-      If (irc .ne. 0) Return
+! chosubscr.f90.
+! --------------
 
-!     chosubscr.f90.
-!     --------------
+write(Lunit,*) '*** Contents of chosubscr.f90:'
+write(Lunit,*)
+write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
+write(Lunit,*) 'SSTau      : ',SSTau
+write(Lunit,*) 'SubScrStat : ',(SubScrStat(i),i=1,2)
+write(Lunit,*) 'DSubScr    : ',size(DSubScr)
+write(Lunit,*) 'DSPNm      : ',size(DSPNm)
 
-      Write(Lunit,*) '*** Contents of chosubscr.f90:'
-      Write(Lunit,*)
-      Write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
-      Write(Lunit,*) 'SSTau      : ',SSTau
-      Write(Lunit,*) 'SubScrStat : ',(SubScrStat(i),i=1,2)
-      Write(Lunit,*) 'DSubScr    : ',SIZE(DSubScr)
-      Write(Lunit,*) 'DSPNm      : ',SIZE(DSPNm)
-
-      End
-      SubRoutine Cho_PrintPointers(irc,Lunit)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,&
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,      &
-     &                  InfVec, IndRed
-!
-!     Purpose: print all entries in choarr.f90 and choswp.f90
-!
-      Implicit None
-      Integer irc, Lunit
-
-      Write(Lunit,*) '*** Contents of choarr.f90 and choswp.f90:'
-      Write(Lunit,*) '    (dimension)'
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'InfRed  : ',SIZE(InfRed)
-      Write(Lunit,*) 'InfVec  : ',SIZE(InfVec)
-      Write(Lunit,*) 'IndRed  : ',SIZE(IndRed)
-      Write(Lunit,*) 'IndRSh  : ',SIZE(IndRsh)
-      Write(Lunit,*) 'iScr    : ',SIZE(iScr)
-      Write(Lunit,*) 'iiBstRSh: ',SIZE(iiBstRSh)
-      Write(Lunit,*) 'nnBstRSh: ',SIZE(nnBstRSh)
-      Write(Lunit,*) 'IntMap  : ',SIZE(IntMap)
-      Write(Lunit,*) 'nDimRS  : ',SIZE(nDimRS)
-      Write(Lunit,*) 'iRS2F   : ',SIZE(iRS2F)
-      Write(Lunit,*) 'iSOShl  : ',SIZE(iSOShl)
-      Write(Lunit,*) 'iShlSO  : ',SIZE(iShlSO)
-      Write(Lunit,*) 'iQuab   : ',SIZE(iQuab)
-      Write(Lunit,*) 'iBasSh  : ',SIZE(iBasSh)
-      Write(Lunit,*) 'nBasSh  : ',SIZE(nBasSh)
-      Write(Lunit,*) 'nBstSh  : ',SIZE(nBstSh)
-      Write(Lunit,*) 'iAtomShl: ',SIZE(iAtomShl)
-      Write(Lunit,*) 'iSP2F   : ',SIZE(iSP2F)
-      Write(Lunit,*)
-      Call Cho_Flush(Lunit)
-
-      irc = 0
-
-      End
+end subroutine Cho_Dump

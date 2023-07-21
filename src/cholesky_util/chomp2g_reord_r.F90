@@ -10,191 +10,171 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
-!
-!      Jonas Bostrom, Apr 2010
-!
-!      Purpose: To reorder R-vectors so it is practical to access
-!               one ia-piece at the time.
 
-      use ChoMP2, only: AdrR1, AdrR2
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
+subroutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
+!
+! Jonas Bostrom, Apr 2010
+!
+! Purpose: To reorder R-vectors so it is practical to access
+!          one ia-piece at the time.
+
+use ChoMP2, only: AdrR1, AdrR2
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-!
-      Character Fname*5
-      Real*8 Wrk(lWrk)
-!
-      Character*7  ThisNm
-      Character*15 SecNam
-      Parameter (SecNam = 'ChoMP2g_Reord_r', ThisNm = 'Reord_r')
-!
-      MulD2h(i,j)=iEor(i-1,j-1) + 1
-!
-      iTypR = 2
-      iVecOV = 6
-      maxvalue = 1000
+character Fname*5
+real*8 Wrk(lWrk)
+character*7 ThisNm
+character*15 SecNam
+parameter(SecNam='ChoMP2g_Reord_r',ThisNm='Reord_r')
+! Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-!     Do not delete vectors
-!     ---------------------
-      iClos = 2
+iTypR = 2
+iVecOV = 6
+maxvalue = 1000
 
-      iSeed = 7
-      LuRInv(1) = IsFreeUnit(iSeed)
-      Write(Fname,'(A4,I1)') 'TMPV',4
-      Call DaName_MF_WA(LuRInv(1),Fname)
-!
-      LuRInv(2) = IsFreeUnit(iSeed)
-      Write(Fname,'(A4,I1)') 'TMPV',5
-      Call DaName_MF_WA(LuRInv(2),Fname)
+! Do not delete vectors
+! ---------------------
+iClos = 2
 
-      iAdr1 = 1
-      iAdr2 = 1
-      Do iSymI = 1, nSym
-         Do iSymA = 1, nSym
-            iSym = MulD2h(iSymA,iSymI)
-            Do iI = 1, nOcc(iSymI)
-               AdrR1(iSymA,iSymI,iI) = iAdr1
-               iAdr1 = iAdr1 + nVir(iSymA)*nMP2Vec(iSym)
-            End Do
-            Do iA = 1, nVir(iSymA)
-               AdrR2(iSymA,iSymI,iA) = iAdr2
-               iAdr2 = iAdr2 + nOcc(iSymI)*nMP2Vec(iSym)
-            End Do
-         End Do
-      End Do
-!
-      Do iSym = 1, nSym
-         If(nMP2Vec(iSym) .eq. 0) Go To 10
-         nVec = Min(maxvalue,nMP2Vec(iSym))
-         If(nVec .lt. 1) Then
-            Call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
-         End If
-         nBatR = (nMP2Vec(iSym)-1)/nVec + 1
+iSeed = 7
+LuRInv(1) = IsFreeUnit(iSeed)
+write(Fname,'(A4,I1)') 'TMPV',4
+call DaName_MF_WA(LuRInv(1),Fname)
 
-!        Allocate memory for Ria-vectors
-!        -------------------------------
+LuRInv(2) = IsFreeUnit(iSeed)
+write(Fname,'(A4,I1)') 'TMPV',5
+call DaName_MF_WA(LuRInv(2),Fname)
 
-         lRia = nMoMo(iSym,iVecOV)*nVec
-         kRia1 = 1
-         kEndRia1 = kRia1 + lRia
+iAdr1 = 1
+iAdr2 = 1
+do iSymI=1,nSym
+  do iSymA=1,nSym
+    iSym = MulD2h(iSymA,iSymI)
+    do iI=1,nOcc(iSymI)
+      AdrR1(iSymA,iSymI,iI) = iAdr1
+      iAdr1 = iAdr1+nVir(iSymA)*nMP2Vec(iSym)
+    end do
+    do iA=1,nVir(iSymA)
+      AdrR2(iSymA,iSymI,iA) = iAdr2
+      iAdr2 = iAdr2+nOcc(iSymI)*nMP2Vec(iSym)
+    end do
+  end do
+end do
 
-         kRia2 = kEndRia1
+do iSym=1,nSym
+  if (nMP2Vec(iSym) == 0) Go To 10
+  nVec = min(maxvalue,nMP2Vec(iSym))
+  if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+  nBatR = (nMP2Vec(iSym)-1)/nVec+1
 
-!        Open Cholesky amplitude vectors
-!        -------------------------------
-         Call ChoMP2_OpenF(1,iTypR,iSym)
+  ! Allocate memory for Ria-vectors
+  ! -------------------------------
 
-         Do iBat = 1, nBatR
-            If(iBat .eq. nBatR) Then
-               NumVec = nMP2Vec(iSym) - nVec*(nBatR-1)
-            Else
-               NumVec = nVec
-            End If
-            iVec = nVec*(iBat-1) + 1
+  lRia = nMoMo(iSym,iVecOV)*nVec
+  kRia1 = 1
+  kEndRia1 = kRia1+lRia
 
-!           Read Amplitude vectors
-!           ----------------------
-            iOpt = 2
-            lTot = nMoMo(iSym,iVecOV)*NumVec
-            iAdr = nMoMo(iSym,iVecOV)*(iVec-1) + 1
-            Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
+  kRia2 = kEndRia1
 
-            Do iVec1 = 1, NumVec
-               Do iSymI = 1, nSym
-                  iSymA = MulD2h(iSymI,iSym)
-                  Do iI = 1, nOcc(iSymI)
-                     ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI) + &
-     &                         (iVec1-1)*nMoMo(iSym,iVecOV)
-                     iOffset2 = (iVec1-1)*nVir(iSymA) +                 &
-     &                          (iI-1)*NumVec*nVir(iSymA) +             &
-     &                           iT1am(iSymA,iSymI)*NumVec
-                     Call dCopy_(nVir(iSymA),Wrk(kRia1+iOffset1),1,     &
-     &                                      Wrk(kRia2+iOffset2),1)
-                  End Do
-               End Do
-            End Do
+  ! Open Cholesky amplitude vectors
+  ! -------------------------------
+  call ChoMP2_OpenF(1,iTypR,iSym)
 
-!           Put the reordered vectors on disk
-            iOpt = 1
-            Do iSymI = 1, nSym
-               iSymA = MulD2h(iSymI,iSym)
-               Do iI = 1, nOcc(iSymI)
-                  lTot = nVir(iSymA)*NumVec
-                  iAdr = AdrR1(iSymA,iSymI,iI)                          &
-     &                 + (iVec-1)*nVir(iSymA)
-                  iOffset2 = (iI-1)*NumVec*nVir(iSymA) +                &
-     &                        iT1am(iSymA,iSymI)*NumVec
-                  Call dDaFile(LuRInv(1),iOpt, Wrk(kRia2+iOffSet2),     &
-     &                         lTot,iAdr)
-               End Do
-            End Do
+  do iBat=1,nBatR
+    if (iBat == nBatR) then
+      NumVec = nMP2Vec(iSym)-nVec*(nBatR-1)
+    else
+      NumVec = nVec
+    end if
+    iVec = nVec*(iBat-1)+1
 
+    ! Read Amplitude vectors
+    ! ----------------------
+    iOpt = 2
+    lTot = nMoMo(iSym,iVecOV)*NumVec
+    iAdr = nMoMo(iSym,iVecOV)*(iVec-1)+1
+    call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
 
+    do iVec1=1,NumVec
+      do iSymI=1,nSym
+        iSymA = MulD2h(iSymI,iSym)
+        do iI=1,nOcc(iSymI)
+          ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI)+(iVec1-1)*nMoMo(iSym,iVecOV)
+          iOffset2 = (iVec1-1)*nVir(iSymA)+(iI-1)*NumVec*nVir(iSymA)+iT1am(iSymA,iSymI)*NumVec
+          call dCopy_(nVir(iSymA),Wrk(kRia1+iOffset1),1,Wrk(kRia2+iOffset2),1)
+        end do
+      end do
+    end do
 
-         End Do                 !iBat
-         Do iBat = 1, nBatR
-            If(iBat .eq. nBatR) Then
-               NumVec = nMP2Vec(iSym) - nVec*(nBatR-1)
-            Else
-               NumVec = nVec
-            End If
-            iVec = nVec*(iBat-1) + 1
+    ! Put the reordered vectors on disk
+    iOpt = 1
+    do iSymI=1,nSym
+      iSymA = MulD2h(iSymI,iSym)
+      do iI=1,nOcc(iSymI)
+        lTot = nVir(iSymA)*NumVec
+        iAdr = AdrR1(iSymA,iSymI,iI)+(iVec-1)*nVir(iSymA)
+        iOffset2 = (iI-1)*NumVec*nVir(iSymA)+iT1am(iSymA,iSymI)*NumVec
+        call dDaFile(LuRInv(1),iOpt,Wrk(kRia2+iOffSet2),lTot,iAdr)
+      end do
+    end do
 
-!           Read Amplitude vectors
-!           ----------------------
-            iOpt = 2
-            lTot = nMoMo(iSym,iVecOV)*NumVec
-            iAdr = nMoMo(iSym,iVecOV)*(iVec-1) + 1
-            Call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
-!
-            Do iSymI = 1, nSym
-               iSymA = MulD2h(iSymI,iSym)
-               Do iI = 1, nOcc(iSymI)
-                  Do iA = 1, nVir(iSymA)
+  end do     !iBat
+  do iBat=1,nBatR
+    if (iBat == nBatR) then
+      NumVec = nMP2Vec(iSym)-nVec*(nBatR-1)
+    else
+      NumVec = nVec
+    end if
+    iVec = nVec*(iBat-1)+1
 
-                     iOffSet1 = iA-1 + (iI-1)*nVir(iSymA)               &
-     &                        + iT1am(iSymA,iSymI)
-                     iOffSet2 = iI-1 + (iA-1)*NumVec*nOcc(iSymI)        &
-     &                        + iT1am(iSymA,iSymI)*NumVec
-                     Call dCopy_(NumVec,Wrk(kRia1+iOffset1),            &
-     &                          nMoMo(iSym,iVecOV),Wrk(kRia2+iOffset2), &
-     &                          nOcc(iSymI))
-                  End Do
-               End Do
-            End Do
-!
-!           Put the reordered vectors on disk
-            iOpt = 1
-            Do iSymI = 1, nSym
-               iSymA = MulD2h(iSymI,iSym)
-               Do iA = 1, nVir(iSymA)
-                  lTot = nOcc(iSymI)*NumVec
-                  iAdr = AdrR2(iSymA,iSymI,iA)                          &
-     &                 + (iVec-1)*nOcc(iSymI)
-                  iOffset2 = (iA-1)*NumVec*nOcc(iSymI) +                &
-     &                        iT1am(iSymA,iSymI)*NumVec
-                  Call dDaFile(LuRInv(2),iOpt, Wrk(kRia2+iOffset2),     &
-     &                         lTot,iAdr)
-               End Do
-            End Do
+    ! Read Amplitude vectors
+    ! ----------------------
+    iOpt = 2
+    lTot = nMoMo(iSym,iVecOV)*NumVec
+    iAdr = nMoMo(iSym,iVecOV)*(iVec-1)+1
+    call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
 
+    do iSymI=1,nSym
+      iSymA = MulD2h(iSymI,iSym)
+      do iI=1,nOcc(iSymI)
+        do iA=1,nVir(iSymA)
 
+          iOffSet1 = iA-1+(iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI)
+          iOffSet2 = iI-1+(iA-1)*NumVec*nOcc(iSymI)+iT1am(iSymA,iSymI)*NumVec
+          call dCopy_(NumVec,Wrk(kRia1+iOffset1),nMoMo(iSym,iVecOV),Wrk(kRia2+iOffset2),nOcc(iSymI))
+        end do
+      end do
+    end do
 
-         End Do                 !iBat
+    ! Put the reordered vectors on disk
+    iOpt = 1
+    do iSymI=1,nSym
+      iSymA = MulD2h(iSymI,iSym)
+      do iA=1,nVir(iSymA)
+        lTot = nOcc(iSymI)*NumVec
+        iAdr = AdrR2(iSymA,iSymI,iA)+(iVec-1)*nOcc(iSymI)
+        iOffset2 = (iA-1)*NumVec*nOcc(iSymI)+iT1am(iSymA,iSymI)*NumVec
+        call dDaFile(LuRInv(2),iOpt,Wrk(kRia2+iOffset2),lTot,iAdr)
+      end do
+    end do
 
-         Call ChoMP2_OpenF(iClos,iTypR,iSym)
+  end do    !iBat
 
+  call ChoMP2_OpenF(iClos,iTypR,iSym)
 
- 10      Continue
-      End Do !iSym
+10 continue
+end do !iSym
 
-      Call DaClos(LuRInv(1))
-      Call DaClos(LuRInv(2))
+call DaClos(LuRInv(1))
+call DaClos(LuRInv(2))
 
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
-      End
+if (.false.) call Unused_integer(irc)
+
+end subroutine ChoMP2g_Reord_R

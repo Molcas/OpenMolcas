@@ -8,71 +8,70 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_X_GenVec(irc,Diag)
-      use ChoSwp, only: iQuAB, pTemp, iQuAB_here
-      use stdalloc
-      Implicit None
-      Integer irc
-      Real*8  Diag(*)
+
+subroutine Cho_X_GenVec(irc,Diag)
+
+use ChoSwp, only: iQuAB, pTemp, iQuAB_here
+use stdalloc
+
+implicit none
+integer irc
+real*8 Diag(*)
 #include "cholesky.fh"
+character*12 SecNam
+parameter(SecNam='Cho_X_GenVec')
+integer MaxQual_SAVE
+integer iSym
 
-      Character*12 SecNam
-      Parameter (SecNam = 'Cho_X_GenVec')
+! Set return code.
+! ----------------
 
-      Integer MaxQual_SAVE
-      Integer iSym
+irc = 0
 
+! Re-allocate the iQuAB index array, save old allocation.
+! This is used to trick the integral extraction from Seward so as to
+! reduce the number of re-calculations of shell pairs.
+! ------------------------------------------------------------------
 
-!     Set return code.
-!     ----------------
+pTemp => iQuAB
+MaxQual_SAVE = MaxQual
 
-      irc = 0
+MaxQual = NumCho(1)
+do iSym=2,nSym
+  MaxQual = max(MaxQual,NumCho(iSym))
+end do
 
-!     Re-allocate the iQuAB index array, save old allocation.
-!     This is used to trick the integral extraction from Seward so as to
-!     reduce the number of re-calculations of shell pairs.
-!     ------------------------------------------------------------------
+call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+iQuAB => iQuAB_here
 
-      pTemp => iQuAB
-      MaxQual_SAVE  = MaxQual
+! Read initial diagonal.
+! ----------------------
 
-      MaxQual = NumCho(1)
-      Do iSym = 2,nSym
-         MaxQual = Max(MaxQual,NumCho(iSym))
-      End Do
+call Cho_IODiag(Diag,2)
 
-      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
-      iQuAB => iQuAB_here
+! Reinitialize the number of zeroed negative diagonals.
+! Turn on damped screening for second step.
+! -----------------------------------------------------
 
-!     Read initial diagonal.
-!     ----------------------
+nNZTot = 0
+MODE_SCREEN = 1
 
-      Call Cho_IODiag(Diag,2)
+! Generate vectors.
+! -----------------
 
-!     Reinitialize the number of zeroed negative diagonals.
-!     Turn on damped screening for second step.
-!     -----------------------------------------------------
+call Cho_GnVc_Drv(irc,Diag)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': Cho_GnVc_Drv returned ',irc
+  Go To 100 ! exit
+end if
 
-      nNZTot = 0
-      MODE_SCREEN = 1
+! De-allocations.
+! Restore original iQuAB array.
+! -----------------------------
 
-!     Generate vectors.
-!     -----------------
+100 continue
+call mma_deallocate(iQuAB_here)
+iQuAB => pTemp
+MaxQual = MaxQual_SAVE
 
-      Call Cho_GnVc_Drv(irc,Diag)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': Cho_GnVc_Drv returned ',irc
-         Go To 100 ! exit
-      End If
-
-!     De-allocations.
-!     Restore original iQuAB array.
-!     -----------------------------
-
-  100 Continue
-      Call mma_deallocate(iQuAB_here)
-      iQuAB => pTemp
-      MaxQual  = MaxQual_SAVE
-
-
-      End
+end subroutine Cho_X_GenVec

@@ -8,42 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_SetVecInf(nVec,iSym,iPass)
+
+subroutine Cho_P_SetVecInf(nVec,iSym,iPass)
 !
-!     Purpose: set global and local info for vectors.
-!
-      use ChoSwp, only: iQuAB, IndRed
-      Implicit None
-      Integer nVec, iSym, iPass
+! Purpose: set global and local info for vectors.
+
+use ChoSwp, only: iQuAB, IndRed
+
+implicit none
+integer nVec, iSym, iPass
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
-      Integer  Cho_P_IndxParentDiag
-      External Cho_P_IndxParentDiag
+integer Cho_P_IndxParentDiag
+external Cho_P_IndxParentDiag
+integer iV, iVec, iAB
 
-      Integer iV, iVec, iAB
+if (Cho_Real_Par) then
+  ! Set global vector information (by swapping index arrays)
+  call Cho_P_IndxSwp()
+  do iV=1,nVec
+    iVec = NumCho_G(iSym)+iV
+    iAB = IndRed(iQuAB(iV,iSym),2)
+    call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
+  end do
+  call Cho_P_IndxSwp()
+  ! Set local vector information
+  do iV=1,nVec
+    iVec = NumCho_G(iSym)+iV
+    iAB = Cho_P_IndxParentDiag(iV,iSym)
+    call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
+  end do
+else
+  do iV=1,nVec
+    iVec = NumCho(iSym)+iV
+    iAB = IndRed(iQuAB(iV,iSym),2)
+    call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
+  end do
+end if
 
-      If (Cho_Real_Par) Then
-! Set global vector information (by swapping index arrays)
-         Call Cho_P_IndxSwp()
-         Do iV = 1,nVec
-            iVec = NumCho_G(iSym) + iV
-            iAB = IndRed(iQuAB(iV,iSym),2)
-            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
-         End Do
-         Call Cho_P_IndxSwp()
-! Set local vector information
-         Do iV = 1,nVec
-            iVec = NumCho_G(iSym) + iV
-            iAB = Cho_P_IndxParentDiag(iV,iSym)
-            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
-         End Do
-      Else
-         Do iV = 1,nVec
-            iVec = NumCho(iSym) + iV
-            iAB = IndRed(iQuAB(iV,iSym),2)
-            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
-         End Do
-      End If
-
-      End
+end subroutine Cho_P_SetVecInf

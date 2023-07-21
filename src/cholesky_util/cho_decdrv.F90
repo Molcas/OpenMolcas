@@ -8,328 +8,300 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DECDRV(DIAG)
+
+subroutine CHO_DECDRV(DIAG)
 !
-!     Purpose: driver for the decomposition of the two-electron integral
-!              matrix based on the reduced diagonal.
-!
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfRed
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
+! Purpose: driver for the decomposition of the two-electron integral
+!          matrix based on the reduced diagonal.
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfRed
+use stdalloc
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-
-      INTEGER ISYLST(8)
-      REAL*8  DIAMAX_SIMP(8)
-
-      CHARACTER(LEN=10), PARAMETER:: SECNAM = 'CHO_DECDRV'
-
-      CHARACTER*7 FILSEL
-
-      CHARACTER*20 STRING
-
-      LOGICAL CONV, SYNC
-      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
-
-      INTEGER, EXTERNAL:: CHO_P_GETMPASS
-
-      Integer, Allocatable:: LSTQSP(:), KISYSH(:)
-      Real*8, Allocatable:: KDIASH(:), KWRK(:)
-
-!     Start timing.
-!     -------------
-
-      CALL CHO_TIMER(TCPU1,TWALL1)
-
-!     Initializations and static settings.
-!     IRED=2: points to current reduced set in index arrays.
-!     ------------------------------------------------------
-
-      IRED  = 2
-      CONV  = .FALSE.
-
-!     Initialize Cholesky vector buffer.
-!     ----------------------------------
-
-      CALL CHO_VECBUF_INIT(FRAC_CHVBUF,NNBSTR(1,1))
-      IF (LOCDBG .OR. IPRINT.GE.INF_VECBUF) THEN
-         CALL CHO_VECBUF_PRINT(LUPRI,NSYM)
-      END IF
-
-!     Allocate memory for shell pair based diagonal.
-!     It is important that the DIASH allocation is first, as memory is
-!     released by flushing back to and including this allocation.
-!     ----------------------------------------------------------------
-
-      CALL CHO_P_GETGSP(NGSP)
-      CALL mma_allocate(KDIASH,NGSP,Label='KDIASH')
-      CALL mma_allocate(KISYSH,NGSP,Label='KISYSH')
-
-!     Set first integral pass.
-!     ------------------------
-
-      SYNC = .FALSE.
-      NPOTSH = 0
-      CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
-      IF (NPOTSH .GT. 0) THEN
-         IF (CONV) THEN
-            CALL CHO_QUIT('Logical error [0.1] in '//SECNAM,103)
-         END IF
-      ELSE
-         IF (.NOT. CONV) THEN
-            CALL CHO_QUIT('Logical error [0.2] in '//SECNAM,103)
-         END IF
-      END IF
-
-!     Allocate shell pair list.
-!     -------------------------
-
-      Call mma_allocate(LSTQSP,MAX(NPOTSH,1),Label='LSTQSP')
-
-!     Loop over integral passes. Continue until convergence or
-!     until the max. number of integral passes has been reached.
-!     To each integral pass there is associated a reduced set,
-!     so the IPASS counter is also used as identifier of reduced
-!     set during I/O.
-!     ----------------------------------------------------------
-
-      IPASS = XNPASS
-      JPASS = 0
-      MPASS = CHO_P_GETMPASS(IRED)
-      DO WHILE ((.NOT.CONV) .AND. (JPASS.LT.MPASS))
-
-!        Update integral pass counter.
-!        -----------------------------
-
-         JPASS = JPASS + 1
-         IPASS = IPASS + 1
-
-!        Print.
-!        ------
-
-         IF (IPRINT .GE. INF_PASS) THEN
-             CALL CHO_TIMER(TLTOT1,WLTOT1)
-             WRITE(STRING,'(A13,I7)') 'Integral Pass',IPASS
-             CALL CHO_HEAD(STRING,'*',80,LUPRI)
-         END IF
-
-!        Update idle proc info.
-!        ----------------------
-
-         If (Trace_Idle) Then
-            nDim_Now=nnBstR(1,2)
-            Do iSym=2,nSym
-               nDim_Now=nDim_Now+nnBstR(iSym,2)
-            End Do
-            Call Cho_TrcIdl_Update(nDim_Now.lt.1)
-         End If
-
-!        Debug: print diagonal.
-!        ----------------------
-
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': debug: diagonal before pass ',     &
-     &                     IPASS
-            DO ISYM = 1,NSYM
-               ISYLST(ISYM) = ISYM
-            END DO
-            SYNC = .FALSE.
-            CALL CHO_P_PRTDIA(DIAG,SYNC,ISYLST,NSYM,IRED)
-            WRITE(LUPRI,*)
-            WRITE(LUPRI,*) SECNAM,': INFRED before pass ',IPASS
-            WRITE(LUPRI,'(10I8)') (INFRED(I),I=1,MIN(IPASS,MAXRED))
-         END IF
-
-!        Write index arrays for reduced set to disk
-!        and update disk address.
-!        ------------------------------------------
-
-         CALL CHO_P_PUTRED(IPASS,IRED)
-
-!        Maintain Cholesky vector buffer.
-!        The logicals request that statistics informations are updated
-!        in the maintainance routine.
-!        -------------------------------------------------------------
-
-         IRC = 0
-         IPASS_PREV = IPASS - 1
-         CALL CHO_VECBUF_MAINTAIN(IRC,IPASS_PREV,.TRUE.,.TRUE.)
-         IF (IRC .NE. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': CHO_VECBUF_MAINTAIN returned ',IRC
-            CALL CHO_QUIT('Error detected in '//SECNAM,IRC)
-         END IF
-
-!        Open scratch files for qualified integral columns.
-!        --------------------------------------------------
-
-         DO ISYM = 1,NSYM
-            IF (NNBSTR(ISYM,2) .GT. 0) THEN
-               LUSEL(ISYM) = 7
-               WRITE(FILSEL,'(A6,I1)') 'CHOSEL',ISYM
-               CALL DANAME_WA(LUSEL(ISYM),FILSEL)
-            ELSE
-               LUSEL(ISYM) = -1
-            END IF
-         END DO
-
-!        Get integral columns on disk stored in current reduced set.
-!        -----------------------------------------------------------
-
-         IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT1,WLINT1)
-         NUM = 0
-         CALL CHO_GETINT(DIAG,KDIASH,KISYSH,LSTQSP,NPOTSH,NUM)
-         CALL CHO_FLUSH(LUPRI)
-         IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT2,WLINT2)
-
-!        Decompose the qualified integral columns.
-!        -----------------------------------------
-
-         IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC1,WLDEC1)
-         IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6) &
-     &   THEN
-            CALL CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
-         ELSE
-            IF (CHO_SIMP) THEN
-               CALL CHO_MAXDX(DIAG,DIAMAX_SIMP)
-               DO ISYM = 1,NSYM
-                  DIAMIN(ISYM) = MAX(THRCOM,DIAMAX_SIMP(ISYM)*SPAN)
-               END DO
-            END IF
-            Call mma_maxDBLE(LWRK)
-            Call mma_allocate(KWRK,LWRK,Label='KWRK')
-            CALL CHO_DECOM(DIAG,KWRK,LWRK,IPASS,NUM)
-            Call mma_deallocate(KWRK)
-         END IF
-         CALL CHO_FLUSH(LUPRI)
-         IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC2,WLDEC2)
-
-!        Sync global vector counter.
-!        ---------------------------
-
-         CALL CHO_P_SYNCNUMCHO(NUMCHO,NSYM)
-
-!        Write restart info to disk.
-!        ---------------------------
-
-         CALL CHO_P_WRRSTC(IPASS)
-
-!        Close scratch files for qualified integral columns.
-!        ---------------------------------------------------
-
-         DO ISYM = 1,NSYM
-            IF (LUSEL(ISYM) .GT. 0) THEN
-               CALL DACLOS(LUSEL(ISYM))
-            END IF
-         END DO
-
-!        Sync diagonal.
-!        --------------
-
-         CALL CHO_P_SYNCDIAG(DIAG,2)
-
-!        Analyze diagonal.
-!        -----------------
-
-         IF (IPRINT .GE. INF_PASS) THEN
-            BIN1 = 1.0D2
-            STEP = 1.0D-1
-            NBIN = 18
-            SYNC = .FALSE.
-            CALL CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.FALSE.)
-         END IF
-
-!        Get next reduced set.
-!        ---------------------
-
-         SYNC = .FALSE.
-         CALL CHO_P_SETRED(DIAG,SYNC)
-         KRED = IPASS + 1
-         CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
-         IF (IPRINT .GE. INF_PASS) THEN
-            CALL CHO_P_PRTRED(2)
-            CALL CHO_FLUSH(LUPRI)
-         END IF
-
-!        Check convergence and, if not converged, set next integral
-!        pass.
-!        ----------------------------------------------------------
-
-         SYNC = .FALSE.
-         NPOTSH = 0
-         CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
-         IF (NPOTSH .GT. 0) THEN
-            IF (CONV) THEN
-               CALL CHO_QUIT('Logical error [1.1] in '//SECNAM,103)
-            END IF
-         ELSE
-            IF (.NOT. CONV) THEN
-               CALL CHO_QUIT('Logical error [1.2] in '//SECNAM,103)
-            END IF
-         END IF
-
-!        Update bookmarks: store largest diagonal (integral accuracy)
-!        and number of Cholesky vectors.
-!        ------------------------------------------------------------
-
-         Call Cho_P_UpdateBookmarks(iPass)
-
-!        Print idle report.
-!        ------------------
-
-         If (Trace_Idle) Then
-            Call Cho_TrcIdl_Report()
-         End If
-
-!        Print timing for this pass.
-!        ---------------------------
-
-         IF (IPRINT .GE. INF_PASS) THEN
-            TLINT = TLINT2 - TLINT1
-            WLINT = WLINT2 - WLINT1
-            TLDEC = TLDEC2 - TLDEC1
-            WLDEC = WLDEC2 - WLDEC1
-            CALL CHO_TIMER(TLTOT2,WLTOT2)
-            TLTOT = TLTOT2 - TLTOT1
-            WLTOT = WLTOT2 - WLTOT1
-            WRITE(LUPRI,'(/,A,I7,A)')                                   &
-     &      'Overall timings for integral pass',IPASS,                  &
-     &      ' (CPU/Wall in seconds):'
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
-     &      'Integrals (incl. qualified I/O etc.): ',TLINT,WLINT
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
-     &      'Decomposition of qualified columns  : ',TLDEC,WLDEC
-            WRITE(LUPRI,'(A,F12.2,1X,F12.2)')                           &
-     &      'Total (incl. restart info I/O etc.) : ',TLTOT,WLTOT
-         END IF
-
-      END DO
-
-!     Free memory for shell pair based diagonal.
-!     ------------------------------------------
-
-      Call mma_deallocate(LSTQSP)
-      Call mma_deallocate(KISYSH)
-      Call mma_deallocate(KDIASH)
-
-!     Shut down the Cholesky vector buffer.
-!     -------------------------------------
-
-      CALL CHO_VECBUF_FINAL()
-
-!     Set stuff for statistics.
-!     -------------------------
-
-      DID_DECDRV = .TRUE.
-      XNPASS     = IPASS
-
-!     Timing.
-!     -------
-
-      CALL CHO_TIMER(TCPU2,TWALL2)
-      TDECDRV(1) = TCPU2  - TCPU1
-      TDECDRV(2) = TWALL2 - TWALL1
-
-
-      END
+integer ISYLST(8)
+real*8 DIAMAX_SIMP(8)
+character(len=10), parameter :: SECNAM = 'CHO_DECDRV'
+character*7 FILSEL
+character*20 STRING
+logical CONV, SYNC
+logical, parameter :: LOCDBG = .false.
+integer, external :: CHO_P_GETMPASS
+integer, allocatable :: LSTQSP(:), KISYSH(:)
+real*8, allocatable :: KDIASH(:), KWRK(:)
+
+! Start timing.
+! -------------
+
+call CHO_TIMER(TCPU1,TWALL1)
+
+! Initializations and static settings.
+! IRED=2: points to current reduced set in index arrays.
+! ------------------------------------------------------
+
+IRED = 2
+CONV = .false.
+
+! Initialize Cholesky vector buffer.
+! ----------------------------------
+
+call CHO_VECBUF_INIT(FRAC_CHVBUF,NNBSTR(1,1))
+if (LOCDBG .or. (IPRINT >= INF_VECBUF)) call CHO_VECBUF_PRINT(LUPRI,NSYM)
+
+! Allocate memory for shell pair based diagonal.
+! It is important that the DIASH allocation is first, as memory is
+! released by flushing back to and including this allocation.
+! ----------------------------------------------------------------
+
+call CHO_P_GETGSP(NGSP)
+call mma_allocate(KDIASH,NGSP,Label='KDIASH')
+call mma_allocate(KISYSH,NGSP,Label='KISYSH')
+
+! Set first integral pass.
+! ------------------------
+
+SYNC = .false.
+NPOTSH = 0
+call CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
+if (NPOTSH > 0) then
+  if (CONV) call CHO_QUIT('Logical error [0.1] in '//SECNAM,103)
+else
+  if (.not. CONV) call CHO_QUIT('Logical error [0.2] in '//SECNAM,103)
+end if
+
+! Allocate shell pair list.
+! -------------------------
+
+call mma_allocate(LSTQSP,max(NPOTSH,1),Label='LSTQSP')
+
+! Loop over integral passes. Continue until convergence or
+! until the max. number of integral passes has been reached.
+! To each integral pass there is associated a reduced set,
+! so the IPASS counter is also used as identifier of reduced
+! set during I/O.
+! ----------------------------------------------------------
+
+IPASS = XNPASS
+JPASS = 0
+MPASS = CHO_P_GETMPASS(IRED)
+do while ((.not. CONV) .and. (JPASS < MPASS))
+
+  ! Update integral pass counter.
+  ! -----------------------------
+
+  JPASS = JPASS+1
+  IPASS = IPASS+1
+
+  ! Print.
+  ! ------
+
+  if (IPRINT >= INF_PASS) then
+    call CHO_TIMER(TLTOT1,WLTOT1)
+    write(STRING,'(A13,I7)') 'Integral Pass',IPASS
+    call CHO_HEAD(STRING,'*',80,LUPRI)
+  end if
+
+  ! Update idle proc info.
+  ! ----------------------
+
+  if (Trace_Idle) then
+    nDim_Now = nnBstR(1,2)
+    do iSym=2,nSym
+      nDim_Now = nDim_Now+nnBstR(iSym,2)
+    end do
+    call Cho_TrcIdl_Update(nDim_Now < 1)
+  end if
+
+  ! Debug: print diagonal.
+  ! ----------------------
+
+  if (LOCDBG) then
+    write(LUPRI,*) SECNAM,': debug: diagonal before pass ',IPASS
+    do ISYM=1,NSYM
+      ISYLST(ISYM) = ISYM
+    end do
+    SYNC = .false.
+    call CHO_P_PRTDIA(DIAG,SYNC,ISYLST,NSYM,IRED)
+    write(LUPRI,*)
+    write(LUPRI,*) SECNAM,': INFRED before pass ',IPASS
+    write(LUPRI,'(10I8)') (INFRED(I),I=1,min(IPASS,MAXRED))
+  end if
+
+  ! Write index arrays for reduced set to disk
+  ! and update disk address.
+  ! ------------------------------------------
+
+  call CHO_P_PUTRED(IPASS,IRED)
+
+  ! Maintain Cholesky vector buffer.
+  ! The logicals request that statistics informations are updated
+  ! in the maintainance routine.
+  ! -------------------------------------------------------------
+
+  IRC = 0
+  IPASS_PREV = IPASS-1
+  call CHO_VECBUF_MAINTAIN(IRC,IPASS_PREV,.true.,.true.)
+  if (IRC /= 0) then
+    write(LUPRI,*) SECNAM,': CHO_VECBUF_MAINTAIN returned ',IRC
+    call CHO_QUIT('Error detected in '//SECNAM,IRC)
+  end if
+
+  ! Open scratch files for qualified integral columns.
+  ! --------------------------------------------------
+
+  do ISYM=1,NSYM
+    if (NNBSTR(ISYM,2) > 0) then
+      LUSEL(ISYM) = 7
+      write(FILSEL,'(A6,I1)') 'CHOSEL',ISYM
+      call DANAME_WA(LUSEL(ISYM),FILSEL)
+    else
+      LUSEL(ISYM) = -1
+    end if
+  end do
+
+  ! Get integral columns on disk stored in current reduced set.
+  ! -----------------------------------------------------------
+
+  if (IPRINT >= INF_PASS) call CHO_TIMER(TLINT1,WLINT1)
+  NUM = 0
+  call CHO_GETINT(DIAG,KDIASH,KISYSH,LSTQSP,NPOTSH,NUM)
+  call CHO_FLUSH(LUPRI)
+  if (IPRINT >= INF_PASS) call CHO_TIMER(TLINT2,WLINT2)
+
+  ! Decompose the qualified integral columns.
+  ! -----------------------------------------
+
+  if (IPRINT >= INF_PASS) call CHO_TIMER(TLDEC1,WLDEC1)
+  if ((CHO_DECALG == 4) .or. (CHO_DECALG == 5) .or. (CHO_DECALG == 6)) then
+    call CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
+  else
+    if (CHO_SIMP) then
+      call CHO_MAXDX(DIAG,DIAMAX_SIMP)
+      do ISYM=1,NSYM
+        DIAMIN(ISYM) = max(THRCOM,DIAMAX_SIMP(ISYM)*SPAN)
+      end do
+    end if
+    call mma_maxDBLE(LWRK)
+    call mma_allocate(KWRK,LWRK,Label='KWRK')
+    call CHO_DECOM(DIAG,KWRK,LWRK,IPASS,NUM)
+    call mma_deallocate(KWRK)
+  end if
+  call CHO_FLUSH(LUPRI)
+  if (IPRINT >= INF_PASS) call CHO_TIMER(TLDEC2,WLDEC2)
+
+  ! Sync global vector counter.
+  ! ---------------------------
+
+  call CHO_P_SYNCNUMCHO(NUMCHO,NSYM)
+
+  ! Write restart info to disk.
+  ! ---------------------------
+
+  call CHO_P_WRRSTC(IPASS)
+
+  ! Close scratch files for qualified integral columns.
+  ! ---------------------------------------------------
+
+  do ISYM=1,NSYM
+    if (LUSEL(ISYM) > 0) call DACLOS(LUSEL(ISYM))
+  end do
+
+  ! Sync diagonal.
+  ! --------------
+
+  call CHO_P_SYNCDIAG(DIAG,2)
+
+  ! Analyze diagonal.
+  ! -----------------
+
+  if (IPRINT >= INF_PASS) then
+    BIN1 = 1.0d2
+    STEP = 1.0D-1
+    NBIN = 18
+    SYNC = .false.
+    call CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.false.)
+  end if
+
+  ! Get next reduced set.
+  ! ---------------------
+
+  SYNC = .false.
+  call CHO_P_SETRED(DIAG,SYNC)
+  KRED = IPASS+1
+  call CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
+  if (IPRINT >= INF_PASS) then
+    call CHO_P_PRTRED(2)
+    call CHO_FLUSH(LUPRI)
+  end if
+
+  ! Check convergence and, if not converged, set next integral pass.
+  ! ----------------------------------------------------------------
+
+  SYNC = .false.
+  NPOTSH = 0
+  call CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
+  if (NPOTSH > 0) then
+    if (CONV) call CHO_QUIT('Logical error [1.1] in '//SECNAM,103)
+  else
+    if (.not. CONV) call CHO_QUIT('Logical error [1.2] in '//SECNAM,103)
+  end if
+
+  ! Update bookmarks: store largest diagonal (integral accuracy)
+  ! and number of Cholesky vectors.
+  ! ------------------------------------------------------------
+
+  call Cho_P_UpdateBookmarks(iPass)
+
+  ! Print idle report.
+  ! ------------------
+
+  if (Trace_Idle) call Cho_TrcIdl_Report()
+
+  ! Print timing for this pass.
+  ! ---------------------------
+
+  if (IPRINT >= INF_PASS) then
+    TLINT = TLINT2-TLINT1
+    WLINT = WLINT2-WLINT1
+    TLDEC = TLDEC2-TLDEC1
+    WLDEC = WLDEC2-WLDEC1
+    call CHO_TIMER(TLTOT2,WLTOT2)
+    TLTOT = TLTOT2-TLTOT1
+    WLTOT = WLTOT2-WLTOT1
+    write(LUPRI,'(/,A,I7,A)') 'Overall timings for integral pass',IPASS,' (CPU/Wall in seconds):'
+    write(LUPRI,'(A,F12.2,1X,F12.2)') 'Integrals (incl. qualified I/O etc.): ',TLINT,WLINT
+    write(LUPRI,'(A,F12.2,1X,F12.2)') 'Decomposition of qualified columns  : ',TLDEC,WLDEC
+    write(LUPRI,'(A,F12.2,1X,F12.2)') 'Total (incl. restart info I/O etc.) : ',TLTOT,WLTOT
+  end if
+
+end do
+
+! Free memory for shell pair based diagonal.
+! ------------------------------------------
+
+call mma_deallocate(LSTQSP)
+call mma_deallocate(KISYSH)
+call mma_deallocate(KDIASH)
+
+! Shut down the Cholesky vector buffer.
+! -------------------------------------
+
+call CHO_VECBUF_FINAL()
+
+! Set stuff for statistics.
+! -------------------------
+
+DID_DECDRV = .true.
+XNPASS = IPASS
+
+! Timing.
+! -------
+
+call CHO_TIMER(TCPU2,TWALL2)
+TDECDRV(1) = TCPU2-TCPU1
+TDECDRV(2) = TWALL2-TWALL1
+
+end subroutine CHO_DECDRV

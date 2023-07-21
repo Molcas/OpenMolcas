@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INIMAP()
-      use ChoArr, only: IntMap
+
+subroutine CHO_INIMAP()
 !
-!     Purpose: initialize integral shell pair calculation map.
+! Purpose: initialize integral shell pair calculation map.
 !
-!     NB!!!!! file is assumed open (restart only)
-!
-      IMPLICIT NONE
+! NB!!!!! file is assumed open (restart only)
+
+use ChoArr, only: IntMap
+
+implicit none
 #include "cholesky.fh"
+integer IOPT, NDIM, IADR
 
-      INTEGER IOPT, NDIM, IADR
+if (RSTCHO) then
+  IOPT = 2
+  NDIM = size(INTMAP)
+  IADR = 0
+  call IDAFILE(LUMAP,IOPT,INTMAP,NDIM,IADR)
+else
+  call IZERO(INTMAP,size(INTMAP))
+end if
 
-      IF (RSTCHO) THEN
-         IOPT = 2
-         NDIM = SIZE(INTMAP)
-         IADR = 0
-         CALL IDAFILE(LUMAP,IOPT,INTMAP,NDIM,IADR)
-      ELSE
-         CALL IZERO(INTMAP,SIZE(INTMAP))
-      END IF
-
-      END
+end subroutine CHO_INIMAP

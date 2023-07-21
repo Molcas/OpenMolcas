@@ -8,69 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Integral_WrOut_Cho(                                    &
-#define _FIXED_FORMAT_
-#define _CALLING_
-#include "int_wrout_interface.fh"
-     &                             )
-!     calls the proper routines IndSft/PLF
-!     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
-!                      else  integral order within symblk: ijkl
-      Implicit Real*8 (A-H,O-Z)
-!
-#include "cholesky.fh"
+subroutine Integral_WrOut_Cho( &
+#                             define _CALLING_
+#                             include "int_wrout_interface.fh"
+                             )
+! calls the proper routines IndSft/PLF
+! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
+!                  else  integral order within symblk: ijkl
 
-      Character*18 SecNam
-      Parameter (SecNam = 'Integral_WrOut_Cho')
-!
+implicit real*8(A-H,O-Z)
+#include "cholesky.fh"
+character*18 SecNam
+parameter(SecNam='Integral_WrOut_Cho')
+#define _FIXED_FORMAT_
 #include "int_wrout_interface.fh"
-!
+
 ! call sorting routine
-!
-      If (IfcSew .eq. 1) Then
-         If (nSym.eq.1) Then
-           Call PLF_Cho(TInt,nTInt,                                     &
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
-     &              iBas,jBas,kBas,lBas,kOp)
-         Else
-           Call IndSft_Cho(TInt,nTInt,                                  &
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
-     &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
-         End If
-      Else If (IfcSew .eq. 2) Then
-         If (nSym.eq.1) Then
-           Call PLF_Cho_2(TInt,nTInt,                                   &
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
-     &              iBas,jBas,kBas,lBas,kOp)
-         Else
-           Call IndSft_Cho_2(TInt,nTInt,                                &
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
-     &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
-         End If
-      Else If (IfcSew .eq. 3) Then
-         If (nSym.eq.1) Then
-           Call PLF_Cho_3(TInt,nTInt,                                   &
-     &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),         &
-     &              iShell,iAO,iAOst,Shijij.and.IJeqKL,                 &
-     &              iBas,jBas,kBas,lBas,kOp)
-         Else
-           Call IndSft_Cho_3(TInt,nTInt,                                &
-     &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,         &
-     &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
-         End If
-      Else
-         Write(6,*)
-         Write(6,*)
-         Write(6,*) '!!!!!!!!!! IfcSew=',IfcSew,' !!!!!!!!!!'
-         Call Cho_Quit('IfcSew out of bounds in '//SecNam,105)
-      End If
-!
-      Return
-! Avoid unused argument warnings
-      IF (.False.) Then
-         Call Unused_integer(nSkal)
-         Call Unused_integer(mSym)
-      End If
-      End
+
+if (IfcSew == 1) then
+  if (nSym == 1) then
+    call PLF_Cho(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas,kOp)
+  else
+    call IndSft_Cho(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
+  end if
+else if (IfcSew == 2) then
+  if (nSym == 1) then
+    call PLF_Cho_2(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas, &
+                   kOp)
+  else
+    call IndSft_Cho_2(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
+  end if
+else if (IfcSew == 3) then
+  if (nSym == 1) then
+    call PLF_Cho_3(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas, &
+                   kOp)
+  else
+    call IndSft_Cho_3(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
+  end if
+else
+  write(6,*)
+  write(6,*)
+  write(6,*) '!!!!!!!!!! IfcSew=',IfcSew,' !!!!!!!!!!'
+  call Cho_Quit('IfcSew out of bounds in '//SecNam,105)
+end if
+
+return
+if (.false.) then
+  call Unused_integer(nSkal)
+  call Unused_integer(mSym)
+end if
+
+end subroutine Integral_WrOut_Cho

@@ -38,53 +38,52 @@
 !> @param[in]  Thr    Threshold allowed for RMS error
 !> @param[out] irc    Return code
 !***********************************************************************
-      SubRoutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 X(*), Vec(n,nVec), Y(lY)
-      Logical   Square
 
-      external ddot_
+subroutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
 
-!     Check input.
-!     ------------
+implicit real*8(a-h,o-z)
+real*8 X(*), Vec(n,nVec), Y(lY)
+logical Square
+external ddot_
 
-      If (n .lt. 1) Then ! nothing to do
-         irc = 0
-         Return
-      Else If (nVec.lt.0 .or. Thr.lt.0.0d0) Then ! input error
-         irc = -1
-         Return
-      End If
-      If (Square) Then
-         lX = n*n
-      Else
-         lX = n*(n+1)/2
-      End If
-      If (lY .lt. lX) Then ! insufficient memory
-         irc = -2
-         Return
-      End If
+! Check input.
+! ------------
 
-!     Compute Y(ij) = X(ij) - xf * sum_J L(iJ) * L(jJ).
-!     -------------------------------------------------
+if (n < 1) then ! nothing to do
+  irc = 0
+  return
+else if ((nVec < 0) .or. (Thr < 0.0d0)) then ! input error
+  irc = -1
+  return
+end if
+if (Square) then
+  lX = n*n
+else
+  lX = n*(n+1)/2
+end if
+if (lY < lX) then ! insufficient memory
+  irc = -2
+  return
+end if
 
-      Call dCopy_(lX,X,1,Y,1)
-      If (Square) Then
-         Call DGEMM_('N','T',n,n,nVec,                                  &
-     &              -xf,Vec,n,Vec,n,1.0d0,Y,n)
-      Else
-         Call dGeMM_Tri('N','T',n,n,nVec,                               &
-     &                  -xf,Vec,n,Vec,n,1.0d0,Y,n)
-      End If
+! Compute Y(ij) = X(ij) - xf * sum_J L(iJ) * L(jJ).
+! -------------------------------------------------
 
-!     Check RMS error.
-!     ----------------
+call dCopy_(lX,X,1,Y,1)
+if (Square) then
+  call DGEMM_('N','T',n,n,nVec,-xf,Vec,n,Vec,n,1.0d0,Y,n)
+else
+  call dGeMM_Tri('N','T',n,n,nVec,-xf,Vec,n,Vec,n,1.0d0,Y,n)
+end if
 
-      RMS = sqrt(dDot_(lX,Y,1,Y,1)/dble(lX))
-      If (RMS .gt. Thr) Then
-         irc = 1
-      Else
-         irc = 0
-      End If
+! Check RMS error.
+! ----------------
 
-      End
+RMS = sqrt(dDot_(lX,Y,1,Y,1)/dble(lX))
+if (RMS > Thr) then
+  irc = 1
+else
+  irc = 0
+end if
+
+end subroutine Cho_X_Test

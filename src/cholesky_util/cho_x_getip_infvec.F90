@@ -10,32 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_X_GetIP_InfVec(InfVcT)
+
+subroutine Cho_X_GetIP_InfVec(InfVcT)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Purpose: get pointer to InfVec array for all vectors.
-!
-      use ChoSwp, only: InfVec, InfVec_Bak
-      use ChPari
-      Implicit None
-      Integer, Pointer:: InfVct(:,:,:)
-#if defined (_MOLCAS_MPP_)
+! Purpose: get pointer to InfVec array for all vectors.
+
+use ChoSwp, only: InfVec
+#ifdef _MOLCAS_MPP_
+use ChoSwp, only: InfVec_Bak
+#endif
+use ChPari
+
+implicit none
+integer, pointer :: InfVct(:,:,:)
+#ifdef _MOLCAS_MPP_
 #include "cho_para_info.fh"
-#else
-      Logical Cho_Real_Par
-      Cho_Real_Par=.False.
+
+if (Cho_Real_Par) then
+  if (allocated(InfVec_Bak)) then
+    InfVcT => InfVec_Bak
+  else
+    call Cho_Quit('Initialization problem in Cho_X_GetIP_InfVec',103)
+  end if
+else
+#endif
+  InfVcT => InfVec
+#ifdef _MOLCAS_MPP_
+end if
 #endif
 
-      If (Cho_Real_Par) Then
-         If (Allocated(InfVec_Bak)) Then
-            InfVcT => InfVec_Bak
-          Else
-            Call Cho_Quit(                                              &
-     &               'Initialization problem in Cho_X_GetIP_InfVec',103)
-         End If
-      Else
-         InfVcT => InfVec
-      End If
-
-      End
+end subroutine Cho_X_GetIP_InfVec

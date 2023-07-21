@@ -10,151 +10,138 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
+
+subroutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: transform Cholesky vectors to (ai) MO basis for symmetry
-!              block iSym. Files are assumed open.
-!              If requested (DoDiag=.true.), compute (ai|ai) integral
-!              diagonal.
-!
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
-      Real*8  COcc(*), CVir(*), Diag(*), Wrk(lWrk)
-      Logical DoDiag
+! Purpose: transform Cholesky vectors to (ai) MO basis for symmetry
+!          block iSym. Files are assumed open.
+!          If requested (DoDiag=.true.), compute (ai|ai) integral
+!          diagonal.
+
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
+real*8 COcc(*), CVir(*), Diag(*), Wrk(lWrk)
+logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
+character*12 SecNam
+parameter(SecNam='ChoMP2_Tra_1')
+integer Cho_lRead
+external Cho_lRead
+integer ai
 
-      Character*12 SecNam
-      Parameter (SecNam = 'ChoMP2_Tra_1')
+! Check if anything to do.
+! ------------------------
 
-      Integer  Cho_lRead
-      External Cho_lRead
+if ((NumCho(iSym) < 1) .or. (nT1am(iSym) < 1)) return
 
-      Integer ai
+! Initialize Diag (if needed).
+! ----------------------------
 
-!     Check if anything to do.
-!     ------------------------
+if (DoDiag) call FZero(Diag,nT1am(iSym))
 
-      If (NumCho(iSym).lt.1 .or. nT1am(iSym).lt.1) Return
+! Allocate memory for half-transformed vector.
+! --------------------------------------------
 
-!     Initialize Diag (if needed).
-!     ----------------------------
+lHlfTr = nT1AOT(iSym)
 
-      If (DoDiag) Call FZero(Diag,nT1am(iSym))
+kHlfTr = 1
+kEnd0 = kHlfTr+lHlfTr
+lWrk0 = lWrk-kEnd0+1
+if (lWrk0 < (nT1am(iSym)+nnBstR(iSym,1))) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 
-!     Allocate memory for half-transformed vector.
-!     --------------------------------------------
+! Reserve memory for reading AO vectors.
+! --------------------------------------
 
-      lHlfTr = nT1AOT(iSym)
+lRead = Cho_lRead(iSym,lWrk0)
+if (lRead < 1) then
+  write(6,*) SecNam,': memory error: lRead = ',lRead
+  call ChoMP2_Quit(SecNam,'memory error',' ')
+  lWrk1 = 0 ! to avoid compiler warnings...
+else
+  lWrk1 = lWrk0-lRead
+  if (lWrk1 < nT1am(iSym)) then
+    lWrk1 = nT1am(iSym)
+    lRead = lWrk-nT1am(iSym)
+  end if
+end if
 
-      kHlfTr = 1
-      kEnd0  = kHlfTr + lHlfTr
-      lWrk0  = lWrk   - kEnd0 + 1
-      If (lWrk0 .lt. (nT1am(iSym)+nnBstR(iSym,1))) Then
-         Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
-      End If
+! Set up batch.
+! -------------
 
-!     Reserve memory for reading AO vectors.
-!     --------------------------------------
+nMOVec = min(lWrk1/nT1am(iSym),NumCho(iSym))
+if (nMOVec < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
+NumBat = (NumCho(iSym)-1)/nMOVec+1
 
-      lRead = Cho_lRead(iSym,lWrk0)
-      If (lRead .lt. 1) Then
-         Write(6,*) SecNam,': memory error: lRead = ',lRead
-         Call ChoMP2_Quit(SecNam,'memory error',' ')
-         lWrk1 = 0 ! to avoid compiler warnings...
-      Else
-         lWrk1 = lWrk0 - lRead
-         If (lWrk1 .lt. nT1am(iSym)) Then
-            lWrk1 = nT1am(iSym)
-            lRead = lWrk - nT1am(iSym)
-         End If
-      End If
+! Set reduced set handles.
+! ------------------------
 
-!     Set up batch.
-!     -------------
+iRedC = -1
+iLoc = 3
 
-      nMOVec = min(lWrk1/nT1am(iSym),NumCho(iSym))
-      If (nMOVec .lt. 1) Then
-         Call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
-      End If
-      NumBat = (NumCho(iSym) - 1)/nMOVec + 1
+! Transform each batch of vectors and compute diagonal contributions
+! (if requested).
+! ------------------------------------------------------------------
 
-!     Set reduced set handles.
-!     ------------------------
+do iBat=1,NumBat
 
-      iRedC = -1
-      iLoc  = 3
+  if (iBat == NumBat) then
+    NumV = NumCho(iSym)-nMOVec*(NumBat-1)
+  else
+    NumV = nMOVec
+  end if
+  iVec1 = nMOVec*(iBat-1)+1
+  iVec2 = iVec1+NumV-1
 
-!     Transform each batch of vectors and compute diagonal contributions
-!     (if requested).
-!     ------------------------------------------------------------------
+  lChoMO = nT1am(iSym)*NumV
 
-      Do iBat = 1,NumBat
+  kChoMO = kEnd0
+  kChoAO = kChoMO+lChoMO
+  lChoAO = lWrk0-kChoAO+1
 
-         If (iBat .eq. NumBat) Then
-            NumV = NumCho(iSym) - nMOVec*(NumBat - 1)
-         Else
-            NumV = nMOVec
-         End If
-         iVec1 = nMOVec*(iBat - 1) + 1
-         iVec2 = iVec1 + NumV - 1
+  kOffMO = kChoMO
+  jVec1 = iVec1
+  do while (jVec1 <= iVec2)
 
-         lChoMO = nT1am(iSym)*NumV
+    jNum = 0
+    call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,jNum,iRedC,mUsed)
+    if (jNum < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
 
-         kChoMO = kEnd0
-         kChoAO = kChoMO + lChoMO
-         lChoAO = lWrk0  - kChoAO + 1
+    kOff = kChoAO
+    do jVec=1,jNum
+      iVec = jVec1+jVec-1
+      iRed = InfVec(iVec,2,iSym)
+      if (iRedC /= iRed) then
+        irc = 0
+        call Cho_X_SetRed(irc,iLoc,iRed)
+        if (irc /= 0) call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',' ')
+        iRedC = iRed
+      end if
+      call ChoMP2_TraVec(Wrk(kOff),Wrk(kOffMO),COcc,CVir,Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc)
+      kOff = kOff+nnBstR(iSym,iLoc)
+      kOffMO = kOffMO+nT1am(iSym)
+    end do
 
-         kOffMO = kChoMO
-         jVec1  = iVec1
-         Do While (jVec1 .le. iVec2)
+    jVec1 = jVec1+jNum
 
-            jNum = 0
-            Call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,         &
-     &                     jNum,iRedC,mUsed)
-            If (jNum .lt. 1) Then
-               Call ChoMP2_Quit(SecNam,                                 &
-     &                          'insufficient memory','[2]')
-            End If
+  end do
 
-            kOff = kChoAO
-            Do jVec = 1,jNum
-               iVec = jVec1 + jVec - 1
-               iRed = InfVec(iVec,2,iSym)
-               If (iRedC .ne. iRed) Then
-                  irc = 0
-                  Call Cho_X_SetRed(irc,iLoc,iRed)
-                  If (irc .ne. 0) Then
-                     Call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',   &
-     &                                ' ')
-                  End If
-                  iRedC = iRed
-               End If
-               Call ChoMP2_TraVec(Wrk(kOff),Wrk(kOffMO),COcc,CVir,      &
-     &                            Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc)
-               kOff   = kOff   + nnBstR(iSym,iLoc)
-               kOffMO = kOffMO + nT1am(iSym)
-            End Do
+  iOpt = 1
+  iAdr = nT1am(iSym)*(iVec1-1)+1
+  call ddaFile(lUnit_F(iSym,1),iOpt,Wrk(kChoMO),lChoMO,iAdr)
 
-            jVec1 = jVec1 + jNum
+  if (DoDiag) then
+    do iVec=1,NumV
+      kOff = kChoMO+nT1am(iSym)*(iVec-1)-1
+      do ai=1,nT1am(iSym)
+        Diag(ai) = Diag(ai)+Wrk(kOff+ai)*Wrk(kOff+ai)
+      end do
+    end do
+  end if
 
-         End Do
+end do
 
-         iOpt = 1
-         iAdr = nT1am(iSym)*(iVec1 - 1) + 1
-         Call ddaFile(lUnit_F(iSym,1),iOpt,Wrk(kChoMO),lChoMO,iAdr)
-
-         If (DoDiag) Then
-            Do iVec = 1,NumV
-               kOff = kChoMO + nT1am(iSym)*(iVec-1) - 1
-               Do ai = 1,nT1am(iSym)
-                  Diag(ai) = Diag(ai) + Wrk(kOff+ai)*Wrk(kOff+ai)
-               End Do
-            End Do
-         End If
-
-      End Do
-
-      End
+end subroutine ChoMP2_Tra_1

@@ -33,182 +33,153 @@
 !>
 !> @param[out] irc Return code
 !***********************************************************************
-      SubRoutine Cho_X_CalculateGMat(irc)
-      use ChoSwp, only: InfVec
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
-      Character*(6) FileName
 
+subroutine Cho_X_CalculateGMat(irc)
+
+use ChoSwp, only: InfVec
+use Constants
+use stdalloc
+
+implicit real*8(A-H,O-Z)
+character*(6) FileName
 #include "cholesky.fh"
-
-#if defined (_DEBUGPRINT_)
-      real*8 ddot_
-      external ddot_
+#ifdef _DEBUGPRINT_
+real*8 ddot_
+external ddot_
 #endif
-
-      Logical isDF
-      Integer, Pointer:: InfVcT(:,:,:)
-      Integer, Allocatable:: NVT(:), iRS2RS(:)
-      Real*8, Allocatable:: Wrk(:), G(:)
+logical isDF
+integer, pointer :: InfVcT(:,:,:)
+integer, allocatable :: NVT(:), iRS2RS(:)
+real*8, allocatable :: Wrk(:), G(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
-      Integer, Pointer:: InfVcT(:,:,:)
-      Integer :: n, NVT(n)
-      End SubRoutine Cho_CGM_InfVec
-      End Interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+interface
+  subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
+    integer, pointer :: InfVcT(:,:,:)
+    integer :: n, NVT(n)
+  end subroutine Cho_CGM_InfVec
+end interface
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-!     Set return code.
-!     ----------------
+! Set return code.
+! ----------------
 
-      irc = 0
+irc = 0
 
-!     Refuse to perform calculation for DF.
-!     -------------------------------------
+! Refuse to perform calculation for DF.
+! -------------------------------------
 
-      Call DecideOnDF(isDF)
-      If (isDF) Then
-         irc = -1
-         Return
-      End If
+call DecideOnDF(isDF)
+if (isDF) then
+  irc = -1
+  return
+end if
 
+! Scratch location in index arrays.
+! ---------------------------------
 
-!     Scratch location in index arrays.
-!     ---------------------------------
+iLoc = 3 ! do NOT change (used implicitly by reading routine)
 
-      iLoc = 3 ! do NOT change (used implicitly by reading routine)
+! Get pointer to InfVec array for all vectors (needed for parallel
+! runs) and the total number of vectors.
+! ----------------------------------------------------------------
 
-!     Get pointer to InfVec array for all vectors (needed for parallel
-!     runs) and the total number of vectors.
-!     ----------------------------------------------------------------
+call mma_allocate(NVT,nSym,Label='NVT')
+call Cho_CGM_InfVec(InfVcT,NVT,size(NVT))
 
-      Call mma_allocate(NVT,nSym,Label='NVT')
-      Call Cho_CGM_InfVec(InfVcT,NVT,SIZE(NVT))
+! Copy rs1 to location 2.
+! -----------------------
 
-!     Copy rs1 to location 2.
-!     -----------------------
+call Cho_X_RSCopy(irc,1,2)
+if (irc /= 0) then
+  irc = 1
+  Go To 1 ! exit
+end if
 
-      Call Cho_X_RSCopy(irc,1,2)
-      If (irc .ne. 0) Then
-         irc = 1
-         Go To 1 ! exit
-      End If
+! Calculate triangular G matrix.
+! G(IJ)=sum_K L(I,K)*L(J,K).
+! ------------------------------
 
-!     Calculate triangular G matrix.
-!     G(IJ)=sum_K L(I,K)*L(J,K).
-!     ------------------------------
+iRedC = -1
+do iSym=1,nSym
 
-      iRedC = -1
-      Do iSym = 1,nSym
+  ! Open file.
+  ! ----------
 
-!        Open file.
-!        ----------
+  write(FileName,'(A4,I2.2)') 'AVEC',iSym-1
+  lUnit = 7
+  call DAName_MF_WA(lUnit,FileName)
+  iDisk = 0
 
-         Write (FileName,'(A4,I2.2)') 'AVEC',iSym-1
-         lUnit = 7
-         Call DAName_MF_WA(lUnit,FileName)
-         iDisk=0
+  l_iRS2RS = nnBstR(iSym,1)
+  call mma_allocate(iRS2RS,l_iRS2RS,Label='iRS2RS')
+  iRS2RS(:) = 0
+  l_G = NVT(iSym)*(NVT(iSym)+1)/2
+  call mma_allocate(G,l_G,Label='G')
+  call mma_MaxDBLE(l_Wrk)
+  call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+  Wrk(:) = Zero
+  G(:) = Zero
 
-         l_iRS2RS = nnBstR(iSym,1)
-         Call mma_allocate(iRS2RS,l_iRS2RS,Label="iRS2RS")
-         iRS2RS(:)=0
-         l_G = NVT(iSym)*(NVT(iSym)+1)/2
-         Call mma_allocate(G,l_G,Label='G')
-         Call mma_MaxDBLE(l_Wrk)
-         Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
-         Wrk(:)=Zero
-         G(:)=Zero
+  idRS2RS = -2
+  KK1 = 1
+  do while (KK1 <= NumCho(iSym))
+    nVRead = 0
+    mUsed = 0
+    call Cho_X_VecRd(Wrk,size(Wrk),KK1,NumCho(iSym),iSym,nVRead,iRedC,mUsed)
+    if (nVRead < 1) then
+      irc = 2
+      Go To 1 ! exit after deallocation
+    end if
+    kOffV = 0
+    do KKK=0,nVRead-1
+      KK = KK1+KKK
+      iRed = InfVec(KK,2,iSym)
+      if (iRedC /= iRed) then
+        call Cho_X_SetRed(irc,iLoc,iRed)
+        if (irc /= 0) then
+          irc = 3
+          Go To 1 ! exit after deallocation
+        end if
+        iRedC = iRed
+      end if
+      if (idRS2RS /= iRedC) then
+        call Cho_RS2RS(iRS2RS,size(iRS2RS),2,iLoc,iRedC,iSym)
+        idRS2RS = iRedC
+      end if
+      K = InfVec(KK,5,iSym)
+      do J=K,NVT(iSym)
+        iJ = iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
+        V_J = Wrk(kOffV+iJ)
+        do I=K,J
+          iI = iRS2RS(InfVcT(I,1,iSym)-iiBstR(iSym,1))
+          kG_IJ = iTri(I,J)
+          G(kG_IJ) = G(kG_IJ)+Wrk(kOffV+iI)*V_J
+        end do
+      end do
+      kOffV = kOffV+nnBstR(iSym,iLoc)
+    end do
+    KK1 = KK1+nVRead
+  end do
+  call Cho_GADGOP(G,size(G),'+')
+  iOpt = 1
+  call DDAFile(lUnit,iOpt,G,size(G),iDisk)
+# ifdef _DEBUGPRINT_
+  call TriPrt('G-matix',' ',G,NVT(iSym))
+  write(6,'(A,I2,A,1P,D16.7)') 'G matrix, sym.',iSym,': Norm = ',sqrt(dDot_(size(G),G,1,G,1))
+# endif
+  call mma_deallocate(Wrk)
+  call mma_deallocate(G)
+  call mma_deallocate(iRS2RS)
 
-         idRS2RS = -2
-         KK1 = 1
-         Do While (KK1 .le. NumCho(iSym))
-            nVRead = 0
-            mUsed = 0
-            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,       &
-     &                       nVRead,iRedC,mUsed)
-            If (nVRead .lt. 1) Then
-               irc = 2
-               Go To 1 ! exit after deallocation
-            End If
-            kOffV = 0
-            Do KKK = 0,nVRead-1
-               KK = KK1 + KKK
-               iRed = InfVec(KK,2,iSym)
-               If (iRedC .ne. iRed) Then
-                  Call Cho_X_SetRed(irc,iLoc,iRed)
-                  If (irc .ne. 0) Then
-                     irc = 3
-                     Go To 1 ! exit after deallocation
-                  End If
-                  iRedC = iRed
-               End If
-               If (idRS2RS .ne. iRedC) Then
-                  Call Cho_RS2RS(iRS2RS,SIZE(iRS2RS),2,iLoc,iRedC,iSym)
-                  idRS2RS = iRedC
-               End If
-               K = InfVec(KK,5,iSym)
-               Do J = K,NVT(iSym)
-                  iJ = iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                  V_J = Wrk(kOffV+iJ)
-                  Do I = K,J
-                     iI = iRS2RS(InfVcT(I,1,iSym)-iiBstR(iSym,1))
-                     kG_IJ = iTri(I,J)
-                     G(kG_IJ) = G(kG_IJ) + Wrk(kOffV+iI)*V_J
-                  End Do
-               End Do
-               kOffV = kOffV + nnBstR(iSym,iLoc)
-            End Do
-            KK1 = KK1 + nVRead
-         End Do
-         Call Cho_GADGOP(G,SIZE(G),'+')
-         iOpt = 1
-         Call DDAFile(lUnit,iOpt,G,SIZE(G),iDisk)
-#if defined (_DEBUGPRINT_)
-         Call TriPrt('G-matix',' ',G,NVT(iSym))
-         Write(6,'(A,I2,A,1P,D16.7)')                                   &
-     &   'G matrix, sym.',iSym,': Norm = ',                             &
-     &   sqrt(dDot_(SIZE(G),G,1,G,1))
-#endif
-         Call mma_deallocate(Wrk)
-         Call mma_deallocate(G)
-         Call mma_deallocate(iRS2RS)
+  ! Close file
+  ! ----------
+  call DAClos(lUnit)
+end do
 
-!        Close file
-!        ----------
-         Call DAClos(lUnit)
-      End Do
+1 continue
+call mma_deallocate(NVT)
 
-    1 Continue
-      Call mma_deallocate(NVT)
-
-      End
-!
-!**********************************************************************C
-!
-      SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
-      Implicit None
-      Integer, Pointer:: InfVcT(:,:,:)
-      Integer n
-      Integer NVT(n)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Interface
-      Subroutine Cho_X_GetIP_InfVec(InfVcT)
-      Integer, Pointer:: InfVct(:,:,:)
-      End Subroutine Cho_X_GetIP_InfVec
-      End Interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Cho_X_GetIP_InfVec(InfVcT)
-      Call Cho_X_GetTotV(NVT,n)
-
-      End
+end subroutine Cho_X_CalculateGMat

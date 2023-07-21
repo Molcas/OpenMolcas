@@ -44,226 +44,135 @@
 !> @param[out] irc Return code
 !> @param[out] Err min, max, average, and RMS error
 !***********************************************************************
-      SubRoutine Cho_X_CheckDiag(irc,Err)
-      use stdalloc
-      Implicit None
-      Integer irc
-      Real*8  Err(4)
+
+subroutine Cho_X_CheckDiag(irc,Err)
+
+use stdalloc
+
+implicit none
+integer irc
+real*8 Err(4)
 #include "cholesky.fh"
 #include "choprint.fh"
+character(len=15), parameter :: SecNam = 'Cho_X_CheckDiag'
+integer iPrThr
+parameter(iPrThr=-5)
+real*8 dDot_
+external ddot_
+integer i
+real*8, allocatable :: XD(:), CD(:), Bin(:), Stat(:)
 
-      Character(LEN=15), Parameter:: SecNam = 'Cho_X_CheckDiag'
+! Set return code.
+! ----------------
 
-      Integer iPrThr
-      Parameter (iPrThr=-5)
+irc = 0
+if (nnBstRT(1) < 1) then
+  call FZero(Err,4)
+  return
+end if
 
-      Real*8   dDot_
-      external ddot_
+! Allocations.
+! ------------
 
-      Integer i
-      Real*8, Allocatable::  XD(:), CD(:), Bin(:), Stat(:)
+call mma_allocate(XD,nnBstRT(1),Label='XD')
+call mma_allocate(CD,nnBstRT(1),Label='CD')
+call mma_allocate(Bin,16,Label='Bin')
+call mma_allocate(Stat,7,Label='Stat')
 
-!     Set return code.
-!     ----------------
+! Set bins for histograms.
+! ------------------------
 
-      irc = 0
-      If (nnBstRT(1) .lt. 1) Then
-         Call FZero(Err,4)
-         Return
-      End If
+Bin(1) = 1.0d0
+do i=1,size(Bin)-1
+  Bin(1+i) = Bin(i)*1.0d-1
+end do
 
-!     Allocations.
-!     ------------
+! Read exact diagonal.
+! --------------------
 
-      Call mma_allocate(XD,nnBstRT(1),Label='XD')
-      Call mma_allocate(CD,nnBstRT(1),Label='CD')
-      Call mma_allocate(Bin,16,Label='Bin')
-      Call mma_allocate(Stat,7,Label='Stat')
+call Cho_IODiag(XD,2)
 
-!     Set bins for histograms.
-!     ------------------------
+! Print histogram of exact diagonal and get statistics.
+! -----------------------------------------------------
 
-      Bin(1) = 1.0d0
-      Do i = 1,SIZE(Bin)-1
-         Bin(1+i) = Bin(i)*1.0d-1
-      End Do
+if (iPrint >= iPrThr) then
+  call Cho_Head('Analysis of Exact Integral Diagonal','=',80,6)
+  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),6)
+  call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
+  call Cho_PrtSt(XD,size(XD),Stat)
+end if
 
-!     Read exact diagonal.
-!     --------------------
+! Calculate Cholesky diagonal.
+! ----------------------------
 
-      Call Cho_IODiag(XD,2)
+call Cho_X_CalcChoDiag(irc,CD)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
+  Go To 1 ! return after dealloc
+end if
 
-!     Print histogram of exact diagonal and get statistics.
-!     -----------------------------------------------------
+! Print histogram of Cholesky diagonal and get statistics.
+! --------------------------------------------------------
 
-      If (iPrint.ge.iPrThr) Then
-         Call Cho_Head('Analysis of Exact Integral Diagonal','=',80,6)
-         Call Cho_AnaSize(XD,SIZE(XD),Bin,SIZE(Bin),6)
-         Call Statistics(XD,SIZE(XD),Stat,1,2,3,4,5,6,7)
-         Call Cho_PrtSt(XD,SIZE(XD),Stat)
-      End If
+if (iPrint >= iPrThr) then
+  call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,6)
+  call Cho_AnaSize(CD,size(CD),Bin,size(Bin),6)
+  call Statistics(CD,size(CD),Stat,1,2,3,4,5,6,7)
+  call Cho_PrtSt(CD,size(CD),Stat)
+end if
 
-!     Calculate Cholesky diagonal.
-!     ----------------------------
+! Subtract Cholesky diagonal from exact diagonal.
+! -----------------------------------------------
 
-      Call Cho_X_CalcChoDiag(irc,CD)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
-         Go To 1 ! return after dealloc
-      End If
+call dAXPY_(nnBstRT(1),-1.0d0,CD,1,XD,1)
 
-!     Print histogram of Cholesky diagonal and get statistics.
-!     --------------------------------------------------------
+! Print histogram of difference array and get statistics.
+! -------------------------------------------------------
 
-      If (iPrint.ge.iPrThr) Then
-         Call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80, &
-     &                 6)
-         Call Cho_AnaSize(CD,SIZE(CD),Bin,SIZE(Bin),6)
-         Call Statistics(CD,SIZE(CD),Stat,1,2,3,4,5,6,7)
-         Call Cho_PrtSt(CD,SIZE(CD),Stat)
-      End If
+if (iPrint >= iPrThr) then
+  call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,6)
+  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),6)
+end if
+call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
+if (iPrint >= iPrThr) call Cho_PrtSt(XD,size(XD),Stat)
 
-!     Subtract Cholesky diagonal from exact diagonal.
-!     -----------------------------------------------
+! Set Err array.
+! --------------
 
-      Call dAXPY_(nnBstRT(1),-1.0d0,CD,1,XD,1)
+Err(1) = Stat(3)
+Err(2) = Stat(4)
+Err(3) = Stat(1)
+Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
 
-!     Print histogram of difference array and get statistics.
-!     -------------------------------------------------------
+if (iPrint >= iPrThr) then
+  write(6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
+  write(6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
+  write(6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
+  write(6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
+end if
 
-      If (iPrint.ge.iPrThr) Then
-         Call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,&
-     &                 6)
-         Call Cho_AnaSize(XD,SIZE(XD),Bin,SIZE(Bin),6)
-      End If
-      Call Statistics(XD,SIZE(XD),Stat,1,2,3,4,5,6,7)
-      If (iPrint.ge.iPrThr) Then
-         Call Cho_PrtSt(XD,SIZE(XD),Stat)
-      End If
+! Error analysis for the 1-center diagonals only.
+! If this is a one-center calculation, use statistics from 1-center
+! diagonals only as elements of Err array.
+! -----------------------------------------------------------------
 
-!     Set Err array.
-!     --------------
+if (nSym == 1) then
+  call OneCenter_ChkDiag(XD,size(XD),Stat,iPrint >= iPrThr)
+  if (Cho_1Center) then
+    Err(1) = Stat(3)
+    Err(2) = Stat(4)
+    Err(3) = Stat(1)
+    Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
+  end if
+end if
 
-      Err(1) = Stat(3)
-      Err(2) = Stat(4)
-      Err(3) = Stat(1)
-      Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
+! Deallocations.
+! --------------
 
-      If (iPrint.ge.iPrThr) Then
-         Write(6,'(/,1X,A,1P,D15.6)')                                   &
-     &   'Minimum error   : ',Err(1)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'Maximum error   : ',Err(2)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'Average error   : ',Err(3)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'RMS error       : ',Err(4)
-      End If
+1 continue
+call mma_deallocate(Stat)
+call mma_deallocate(Bin)
+call mma_deallocate(CD)
+call mma_deallocate(XD)
 
-!     Error analysis for the 1-center diagonals only.
-!     If this is a one-center calculation, use statistics from 1-center
-!     diagonals only as elements of Err array.
-!     -----------------------------------------------------------------
-
-      If (nSym.eq.1) Then
-         Call OneCenter_ChkDiag(XD,SIZE(XD),Stat,iPrint.ge.iPrThr)
-         If (Cho_1Center) Then
-            Err(1) = Stat(3)
-            Err(2) = Stat(4)
-            Err(3) = Stat(1)
-            Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
-         End If
-      End If
-
-!     Deallocations.
-!     --------------
-
-    1 Continue
-      Call mma_deallocate(Stat)
-      Call mma_deallocate(Bin)
-      Call mma_deallocate(CD)
-      Call mma_deallocate(XD)
-
-      End
-      SubRoutine Cho_PrtSt(Vec,lVec,Stat)
-      Implicit None
-      Integer lVec
-      Real*8  Vec(lVec)
-      Real*8  Stat(7)
-
-      Real*8   dDot_
-      external ddot_
-
-      Write(6,'(/,1X,A,I15)')                                           &
-     & 'No. of elements: ',lVec
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Frobenius norm : ',sqrt(dDot_(lVec,Vec,1,Vec,1))
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Minimum value  : ',Stat(3)
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Maximum value  : ',Stat(4)
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Mean value     : ',Stat(1)
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Mean abs. value: ',Stat(2)
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Max. abs. value: ',Stat(5)
-      Write(6,'(1X,A,1P,D15.6)')                                        &
-     & 'Biased variance: ',Stat(6)
-      Write(6,'(1X,A,1P,D15.6,A)')                                      &
-     & 'Standard dev.  : ',Stat(7),' (unbiased variance)'
-
-      End
-      Subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
-      use ChoArr, only: iRS2F
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(l_D), Stat(7)
-      Logical DoPrint
-#include "Molcas.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-      Character*(LENIN8)  Name(maxbfn)
-      Character*(LENIN)  ctmp1, ctmp2
-      Real*8 Err(4)
-
-      Call Get_cArray('Unique Basis Names',Name,LENIN8*nBasT)
-
-      Do krs=1,nnBstRT(1)
-         ia = iRS2F(1,krs)
-         ctmp1=Name(ia)(1:LENIN)
-         ib = iRS2F(2,krs)
-         ctmp2=Name(ib)(1:LENIN)
-         If (ctmp1.ne.ctmp2) Diag(krs)=0.0d0
-      End Do
-
-      If (DoPrint) Then
-         Call Cho_Head('Analysis of Difference (1-Center only)','=',80, &
-     &                 6)
-      End If
-      Call Statistics(Diag,l_D,Stat,1,2,3,4,5,6,7)
-      If (DoPrint) Then
-         Call Cho_PrtSt(Diag,l_D,Stat)
-      End If
-
-!     Set Err array.
-!     --------------
-
-      Err(1) = Stat(3)
-      Err(2) = Stat(4)
-      Err(3) = Stat(1)
-      Err(4) = sqrt(dDot_(nnBstRT(1),Diag,1,                            &
-     &                              Diag,1)/dble(nnBstRT(1)))
-
-      If (DoPrint) Then
-         Write(6,'(/,1X,A,1P,D15.6)')                                   &
-     &   'Minimum error   : ',Err(1)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'Maximum error   : ',Err(2)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'Average error   : ',Err(3)
-         Write(6,'(1X,A,1P,D15.6)')                                     &
-     &   'RMS error       : ',Err(4)
-      End If
-
-      Return
-      End
+end subroutine Cho_X_CheckDiag

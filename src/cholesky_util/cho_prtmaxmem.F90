@@ -8,29 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_PrtMaxMem(Location)
+
+subroutine Cho_PrtMaxMem(Location)
 !
-!     Purpose: print max. available memory block.
-!
-      Implicit None
-      Character(LEN=*) Location
+! Purpose: print max. available memory block.
+
+implicit none
+character(len=*) Location
 #include "cholesky.fh"
+character(len=2) Unt
+integer l, lMax
+real*8 dlMax
 
-      Character(LEN=2) Unt
-      Integer l, lMax
-      Real*8 dlMax
+l = len(Location)
+if (l < 1) then
+  write(Lupri,'(/,A)') 'Largest memory block available @<UNKNOWN>:'
+else
+  write(Lupri,'(/,A,A,A)') 'Largest memory block available @',Location(1:l),':'
+end if
+call mma_maxDBLE(lMax)
+call Cho_Word2Byte(lMax,8,dlMax,Unt)
+write(Lupri,'(3X,I10,A,F10.3,A,A)') lMax,' 8-byte words; ',dlMax,' ',Unt
 
-      l = len(Location)
-      If (l .lt. 1) Then
-         Write(Lupri,'(/,A)')                                           &
-     &   'Largest memory block available @<UNKNOWN>:'
-      Else
-         Write(Lupri,'(/,A,A,A)')                                       &
-     &   'Largest memory block available @',Location(1:l),':'
-      End If
-      Call mma_maxDBLE(lMax)
-      Call Cho_Word2Byte(lMax,8,dlMax,Unt)
-      Write(Lupri,'(3X,I10,A,F10.3,A,A)')                               &
-     & lMax,' 8-byte words; ',dlMax,' ',Unt
-
-      End
+end subroutine Cho_PrtMaxMem

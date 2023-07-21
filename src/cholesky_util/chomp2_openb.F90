@@ -10,73 +10,70 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_OpenB(iOpt,iSym,iBatch)
+
+subroutine ChoMP2_OpenB(iOpt,iSym,iBatch)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
-!              delete (iOpt=3) Cholesky vector files for MP2 program
-!              (batch vectors).
-!              For iOpt=0, the units are initialized (to -1).
-!
-      use ChoMP2, only: LnT1am, lUnit
-      Implicit Real*8 (a-h,o-z)
+! Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
+!          delete (iOpt=3) Cholesky vector files for MP2 program
+!          (batch vectors).
+!          For iOpt=0, the units are initialized (to -1).
+
+use ChoMP2, only: LnT1am, lUnit
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "chomp2.fh"
+character*12 SecNam
+parameter(SecNam='ChoMP2_OpenB')
+character*2 BaseNm
+parameter(BaseNm='_I')
+character*6 BtchNm
 
-      Character*12 SecNam
-      Parameter (SecNam = 'ChoMP2_OpenB')
+! Initialize units and return for iOpt=0.
+! ---------------------------------------
 
-      Character*2 BaseNm
-      Parameter (BaseNm = '_I')
+if (iOpt == 0) then
+  lUnit(iSym,iBatch) = -1
+  return
+end if
 
-      Character*6 BtchNm
+! Open or close files.
+! --------------------
 
+if (iOpt == 1) then
+  if (LnT1am(iSym,iBatch) > 0) then
+    if (iBatch < 10) then
+      write(BtchNm,'(A2,I1,A2,I1)') BaseNm,iSym,'__',iBatch
+    else if (iBatch < 100) then
+      write(BtchNm,'(A2,I1,A1,I2)') BaseNm,iSym,'_',iBatch
+    else if (iBatch < 1000) then
+      write(BtchNm,'(A2,I1,I3)') BaseNm,iSym,iBatch
+    else ! note: due to restriction in filename length...
+      call ChoMP2_Quit(SecNam,'Too many batches','(Current max. is 999)')
+      BtchNm = '?!?!?!' ! too avoid compiler warnings...
+    end if
+    lU = 7
+    call daName_MF_WA(lU,BtchNm)
+  else
+    lU = -1
+  end if
+  lUnit(iSym,iBatch) = lU
+else if (iOpt == 2) then
+  lU = lUnit(iSym,iBatch)
+  if (lU > 0) then
+    call daClos(lU)
+    lUnit(iSym,iBatch) = -1
+  end if
+else if (iOpt == 3) then
+  lU = lUnit(iSym,iBatch)
+  if (lU > 0) then
+    call daEras(lU)
+    lUnit(iSym,iBatch) = -1
+  end if
+else
+  call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
+end if
 
-!     Initialize units and return for iOpt=0.
-!     ---------------------------------------
-
-      If (iOpt .eq. 0) Then
-         lUnit(iSym,iBatch) = -1
-         Return
-      End If
-
-!     Open or close files.
-!     --------------------
-
-      If (iOpt .eq. 1) Then
-         If (LnT1am(iSym,iBatch) .gt. 0) Then
-            If (iBatch .lt. 10) Then
-               Write(BtchNm,'(A2,I1,A2,I1)') BaseNm,iSym,'__',iBatch
-            Else If (iBatch .lt. 100) Then
-               Write(BtchNm,'(A2,I1,A1,I2)') BaseNm,iSym,'_',iBatch
-            Else If (iBatch .lt. 1000) Then
-               Write(BtchNm,'(A2,I1,I3)')    BaseNm,iSym,iBatch
-            Else ! note: due to restriction in filename length...
-               Call ChoMP2_Quit(SecNam,'Too many batches',              &
-     &                          '(Current max. is 999)')
-               BtchNm = '?!?!?!' ! too avoid compiler warnings...
-            End If
-            lU = 7
-            Call daName_MF_WA(lU,BtchNm)
-         Else
-            lU = -1
-         End If
-         lUnit(iSym,iBatch) = lU
-      Else If (iOpt .eq. 2) Then
-         lU = lUnit(iSym,iBatch)
-         If (lU .gt. 0) Then
-            Call daClos(lU)
-            lUnit(iSym,iBatch) = -1
-         End If
-      Else If (iOpt .eq. 3) Then
-         lU = lUnit(iSym,iBatch)
-         If (lU .gt. 0) Then
-            Call daEras(lU)
-            lUnit(iSym,iBatch) = -1
-         End If
-      Else
-         Call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
-      End If
-
-      End
+end subroutine ChoMP2_OpenB

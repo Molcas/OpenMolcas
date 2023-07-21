@@ -8,139 +8,131 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
+
+subroutine CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
 !
-!     Purpose: qualify diagonal elements for decomposition in
-!              current reduced set. ISYMAX is the symmetry block
-!              to which the largest diagonal belongs.
-!              MEM is the (total!) max. allowed
-!              memory for storing the qualified columns.
-!              If no more columns can be qualified on exit,
-!              FULL=.true. is returned.
-!
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
-      LOGICAL   FULL
+! Purpose: qualify diagonal elements for decomposition in
+!          current reduced set. ISYMAX is the symmetry block
+!          to which the largest diagonal belongs.
+!          MEM is the (total!) max. allowed
+!          memory for storing the qualified columns.
+!          If no more columns can be qualified on exit,
+!          FULL=.true. is returned.
+
+use ChoArr, only: iSP2F
+use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
+logical FULL
 #include "cholesky.fh"
-
-      INTEGER  CHO_IDOT
-      EXTERNAL CHO_IDOT
-
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_QUALIFY')
-
-      LOGICAL LOCDBG
-#if defined (_DEBUGPRINT_)
-      PARAMETER (LOCDBG = .TRUE.)
+integer CHO_IDOT
+external CHO_IDOT
+character*11 SECNAM
+parameter(SECNAM='CHO_QUALIFY')
+logical LOCDBG
+#ifdef _DEBUGPRINT_
+parameter(LOCDBG=.true.)
 #else
-      PARAMETER (LOCDBG = .FALSE.)
+parameter(LOCDBG=.false.)
 #endif
 
-!     Copy counter to offset array.
-!     -----------------------------
+! Copy counter to offset array.
+! -----------------------------
 
-      CALL ICOPY(NSYM,NQUAL,1,IOFFQ,1)
+call ICOPY(NSYM,NQUAL,1,IOFFQ,1)
 
-!     Check memory.
-!     -------------
+! Check memory.
+! -------------
 
-      MEM0 = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
-      LEFT = MEM - MEM0
-      IF (IALQUA .EQ. 0) THEN
-         MINM = NNBSTR(1,2)
-         DO ISYM = 1,NSYM
-            MINM = MAX(MINM,NNBSTR(ISYM,2))
-         END DO
-      ELSE
-         MINM = NNBSTR(ISYMAX,2)
-      END IF
-      FULL = LEFT .LT. MINM
-      IF (FULL) RETURN
+MEM0 = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
+LEFT = MEM-MEM0
+if (IALQUA == 0) then
+  MINM = NNBSTR(1,2)
+  do ISYM=1,NSYM
+    MINM = max(MINM,NNBSTR(ISYM,2))
+  end do
+else
+  MINM = NNBSTR(ISYMAX,2)
+end if
+FULL = LEFT < MINM
+if (FULL) return
 
-!     Qualify.
-!     --------
+! Qualify.
+! --------
 
-      IF (IALQUA .EQ. 0) THEN  ! qualify until full (dalton style)
-         DO ISYM = 1,NSYM
-            CALL CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-         END DO
-      ELSE IF (IALQUA .EQ. 1) THEN  ! qualify until full
-         CALL CHO_QUALIFY_1(DIAG,ISYMAX,ISHLAB,MEM,MEM0,LEFT)
-         DO ISYM = 1,ISYMAX-1
-            CALL CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-         END DO
-         DO ISYM = ISYMAX+1,NSYM
-            CALL CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-         END DO
-      ELSE ! qualify until full, then largest
-         CALL CHO_QUALIFY_2(DIAG,ISYMAX,ISHLAB,MEM,MEM0,LEFT)
-         DO ISYM = 1,ISYMAX-1
-            CALL CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-         END DO
-         DO ISYM = ISYMAX+1,NSYM
-            CALL CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
-         END DO
-      END IF
+if (IALQUA == 0) then  ! qualify until full (dalton style)
+  do ISYM=1,NSYM
+    call CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+  end do
+else if (IALQUA == 1) then  ! qualify until full
+  call CHO_QUALIFY_1(DIAG,ISYMAX,ISHLAB,MEM,MEM0,LEFT)
+  do ISYM=1,ISYMAX-1
+    call CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+  end do
+  do ISYM=ISYMAX+1,NSYM
+    call CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+  end do
+else ! qualify until full, then largest
+  call CHO_QUALIFY_2(DIAG,ISYMAX,ISHLAB,MEM,MEM0,LEFT)
+  do ISYM=1,ISYMAX-1
+    call CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+  end do
+  do ISYM=ISYMAX+1,NSYM
+    call CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+  end do
+end if
 
-!     Set FULL flag:
-!     FULL=.true. if a) not enough memory to qualify another column of
-!     any symmetry, or b) MAXQUAL reached in any symmetry.
-!     ----------------------------------------------------------------
+! Set FULL flag:
+! FULL=.true. if a) not enough memory to qualify another column of
+! any symmetry, or b) MAXQUAL reached in any symmetry.
+! ----------------------------------------------------------------
 
-      NEED = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
-      IF (NEED.LT.1 .OR. NEED.GT.MEM) THEN
-         CALL CHO_QUIT('Logical error (2) in '//SECNAM,104)
-      ELSE
-         LEFT = MEM - NEED
-         FULL = .FALSE.
-         ISYM = 0
-         DO WHILE (ISYM.LT.NSYM .AND. .NOT.FULL)
-            ISYM = ISYM + 1
-            IF (NQUAL(ISYM).LT.IOFFQ(ISYM) .OR. NQUAL(ISYM).LT.0 .OR.   &
-     &          NQUAL(ISYM).GT.MAXQUAL) THEN
-               CALL CHO_QUIT('Logical error (3) in '//SECNAM,104)
-            ELSE
-               FULL = NQUAL(ISYM) .EQ. MAXQUAL
-            END IF
-            IF (NNBSTR(ISYM,2) .GT. 0) THEN
-               FULL = FULL .OR. LEFT.LT.NNBSTR(ISYM,2)
-            END IF
-         END DO
-      END IF
+NEED = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
+if ((NEED < 1) .or. (NEED > MEM)) then
+  call CHO_QUIT('Logical error (2) in '//SECNAM,104)
+else
+  LEFT = MEM-NEED
+  FULL = .false.
+  ISYM = 0
+  do while ((ISYM < NSYM) .and. (.not. FULL))
+    ISYM = ISYM+1
+    if ((NQUAL(ISYM) < IOFFQ(ISYM)) .or. (NQUAL(ISYM) < 0) .or. (NQUAL(ISYM) > MAXQUAL)) then
+      call CHO_QUIT('Logical error (3) in '//SECNAM,104)
+    else
+      FULL = NQUAL(ISYM) == MAXQUAL
+    end if
+    if (NNBSTR(ISYM,2) > 0) FULL = FULL .or. (LEFT < NNBSTR(ISYM,2))
+  end do
+end if
 
-!     Debug: print.
-!     -------------
+! Debug: print.
+! -------------
 
-      IF (LOCDBG) THEN
-         CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-         WRITE(LUPRI,*)
-         WRITE(LUPRI,*)
-         WRITE(LUPRI,*) SECNAM,': qualified diagonals from shell-pair ',&
-     &                  ISHLA,ISHLB,':'
-         WRITE(LUPRI,*) 'Qualification algorithm: ',IALQUA
-         WRITE(LUPRI,*) 'Total memory for qualification: ',MEM,         &
-     &                  '  Memory left: ',LEFT
-         DO ISYM = 1,NSYM
-            NUM = NQUAL(ISYM) - IOFFQ(ISYM)
-            WRITE(LUPRI,*)
-            WRITE(LUPRI,*) 'Sym.,dimension,#qualified,threshold: ',     &
-     &                     ISYM,NNBSTRSH(ISYM,ISHLAB,2),NUM,DIAMIN(ISYM)
-            IF (NNBSTRSH(ISYM,ISHLAB,2) .GT. 0) THEN
-               I1 = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2) + 1
-               I2 = I1 + NNBSTRSH(ISYM,ISHLAB,2) - 1
-               WRITE(LUPRI,*) 'Diagonal (current reduced set):'
-               WRITE(LUPRI,'(5F15.8)') (DIAG(INDRED(I,2)), I=I1,I2)
-               K1 = IOFFQ(ISYM) + 1
-               K2 = NQUAL(ISYM)
-               WRITE(LUPRI,*) 'Qualified diagonals:'
-               WRITE(LUPRI,'(5F15.8)') (DIAG(INDRED(IQUAB(K,ISYM),2)),  &
-     &                                  K = K1,K2)
-            END IF
-         END DO
-         WRITE(LUPRI,*)
-         WRITE(LUPRI,*)
-      END IF
+if (LOCDBG) then
+  call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+  write(LUPRI,*)
+  write(LUPRI,*)
+  write(LUPRI,*) SECNAM,': qualified diagonals from shell-pair ',ISHLA,ISHLB,':'
+  write(LUPRI,*) 'Qualification algorithm: ',IALQUA
+  write(LUPRI,*) 'Total memory for qualification: ',MEM,'  Memory left: ',LEFT
+  do ISYM=1,NSYM
+    NUM = NQUAL(ISYM)-IOFFQ(ISYM)
+    write(LUPRI,*)
+    write(LUPRI,*) 'Sym.,dimension,#qualified,threshold: ',ISYM,NNBSTRSH(ISYM,ISHLAB,2),NUM,DIAMIN(ISYM)
+    if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then
+      I1 = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLAB,2)+1
+      I2 = I1+NNBSTRSH(ISYM,ISHLAB,2)-1
+      write(LUPRI,*) 'Diagonal (current reduced set):'
+      write(LUPRI,'(5F15.8)') (DIAG(INDRED(I,2)),I=I1,I2)
+      K1 = IOFFQ(ISYM)+1
+      K2 = NQUAL(ISYM)
+      write(LUPRI,*) 'Qualified diagonals:'
+      write(LUPRI,'(5F15.8)') (DIAG(INDRED(IQUAB(K,ISYM),2)),K=K1,K2)
+    end if
+  end do
+  write(LUPRI,*)
+  write(LUPRI,*)
+end if
 
-      END
+end subroutine CHO_QUALIFY

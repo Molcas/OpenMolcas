@@ -8,34 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Integral_WrOut_Cho_diag(                               &
-#define _FIXED_FORMAT_
-#define _CALLING_
+
+subroutine Integral_WrOut_Cho_diag( &
+#                                  define _CALLING_
+#                                  include "int_wrout_interface.fh"
+                                  )
+! calls the proper routines IndSft/PLF
+!    if IntOrd_jikl==.TRUE. integral order within symblk: jikl
+!                     else  integral order within symblk: ijkl
+
+implicit real*8(A-H,O-Z)
+# define _FIXED_FORMAT_
 #include "int_wrout_interface.fh"
-     &                                  )
-!     calls the proper routines IndSft/PLF
-!     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
-!                      else  integral order within symblk: ijkl
-      Implicit Real*8 (A-H,O-Z)
-!
-#include "int_wrout_interface.fh"
-!
+
 ! call sorting routine
-!
-      If (mSym.eq.1) Then
-        Call PLF_Cho_Diag(TInt,nTInt,                                   &
-     &           AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),            &
-     &           iShell,iAO,iAOst,Shijij.and.IJeqKL,                    &
-     &           iBas,jBas,kBas,lBas,kOp)
-      Else
-        Call IndSft_Cho_Diag(TInt,nTInt,                                &
-     &               iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,            &
-     &               iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
-      End If
-!
-      Return
-! Avoid unused argument warnings
-      IF (.False.) Then
-         Call Unused_integer(nSkal)
-      End If
-      End
+
+if (mSym == 1) then
+  call PLF_Cho_Diag(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas, &
+                    lBas,kOp)
+else
+  call IndSft_Cho_Diag(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
+end if
+
+return
+if (.false.) then
+  call Unused_integer(nSkal)
+end if
+
+end subroutine Integral_WrOut_Cho_diag

@@ -8,58 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETSTOR(VCSTOR)
+
+subroutine CHO_GETSTOR(VCSTOR)
 !
-!     Purpose: get total vector storage (in words).
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 VCSTOR(*)
+! Purpose: get total vector storage (in words).
+
+implicit real*8(a-h,o-z)
+real*8 VCSTOR(*)
 #include "cholesky.fh"
+character*11 SECNAM
+parameter(SECNAM='CHO_GETSTOR')
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETSTOR')
+do ISYM=1,NSYM
+  if (NUMCHO(ISYM) > MAXVEC) then
+    write(LUPRI,*) SECNAM,': too many Cholesky vectors in symmetry ',ISYM,': ',NUMCHO(ISYM)
+    call CHO_QUIT('Error in '//SECNAM,103)
+    VCSTOR(ISYM) = 0.0d0
+  else if (NUMCHO(ISYM) < 0) then
+    write(LUPRI,*) SECNAM,': negative #Cholesky vectors in symmetry ',ISYM,': ',NUMCHO(ISYM)
+    call CHO_QUIT('Error in '//SECNAM,103)
+    VCSTOR(ISYM) = 0.0d0
+  else
+    call CHO_GETSTOR_S(VCSTOR(ISYM),ISYM)
+  end if
+end do
 
-      DO ISYM = 1,NSYM
-         IF (NUMCHO(ISYM) .GT. MAXVEC) THEN
-            WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors ',       &
-     &                     'in symmetry ',ISYM,': ',NUMCHO(ISYM)
-            CALL CHO_QUIT('Error in '//SECNAM,103)
-            VCSTOR(ISYM) = 0.0D0
-         ELSE IF (NUMCHO(ISYM) .LT. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': negative #Cholesky vectors ',      &
-     &                     'in symmetry ',ISYM,': ',NUMCHO(ISYM)
-            CALL CHO_QUIT('Error in '//SECNAM,103)
-            VCSTOR(ISYM) = 0.0D0
-         ELSE
-            CALL CHO_GETSTOR_S(VCSTOR(ISYM),ISYM)
-         END IF
-      END DO
-
-      END
-      SUBROUTINE CHO_GETSTOR_S(VCSTOR,ISYM)
-!
-!     Purpose: get total vector storage (in words), symmetry ISYM.
-!
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
-#include "cholesky.fh"
-
-      IF (NUMCHO(ISYM) .LT. 1) THEN
-         VCSTOR = 0.0D0
-      ELSE
-         IF (.NOT.Allocated(nDimRS)) Then
-            IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
-            JRED = 3
-            CALL CHO_GETRED(IRED,JRED,.FALSE.)
-            CALL CHO_SETREDIND(JRED)
-            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))                  &
-     &             + DBLE(NNBSTR(ISYM,JRED))
-         ELSE
-            IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
-            VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))                  &
-     &             + DBLE(NDIMRS(ISYM,IRED))
-         END IF
-      END IF
-
-      END
+end subroutine CHO_GETSTOR

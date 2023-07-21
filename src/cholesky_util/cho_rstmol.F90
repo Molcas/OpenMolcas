@@ -8,48 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RSTMOL(NERR)
+
+subroutine CHO_RSTMOL(NERR)
 !
-!     Purpose: check restart molecular info.
-!
-      IMPLICIT NONE
-      INTEGER NERR
+! Purpose: check restart molecular info.
+
+implicit none
+integer NERR
 #include "cholesky.fh"
 #include "choorb.fh"
+integer ISYM
 
-      INTEGER ISYM
+NERR = 0
 
-      NERR = 0
+if (XNSYM /= NSYM) then
+  write(LUPRI,'(A,I3,A,I3)') 'RESTART ERROR: #irreps from restart file:',XNSYM,' Expected:',NSYM
+  NERR = NERR+1
+else
+  do ISYM=1,NSYM
+    if (XNBAS(ISYM) /= NBAS(ISYM)) then
+      write(LUPRI,'(A,I2,A,I9,A,I9)') 'RESTART ERROR: #basis functions (sym.',ISYM,') from restart file:',XNBAS(ISYM), &
+                                      ' Expected:',NBAS(ISYM)
+      NERR = NERR+1
+    end if
+  end do
+end if
 
-      IF (XNSYM .NE. NSYM) THEN
-         WRITE(LUPRI,'(A,I3,A,I3)')                                     &
-     &   'RESTART ERROR: #irreps from restart file:',XNSYM,             &
-     &   ' Expected:',NSYM
-         NERR = NERR + 1
-      ELSE
-         DO ISYM = 1,NSYM
-            IF (XNBAS(ISYM) .NE. NBAS(ISYM)) THEN
-               WRITE(LUPRI,'(A,I2,A,I9,A,I9)')                          &
-     &         'RESTART ERROR: #basis functions (sym.',ISYM,            &
-     &         ') from restart file:',XNBAS(ISYM),                      &
-     &         ' Expected:',NBAS(ISYM)
-               NERR = NERR + 1
-            END IF
-         END DO
-      END IF
+if (XNSHELL /= NSHELL) then
+  write(LUPRI,'(A,I9,A,I9)') 'RESTART ERROR: #shells from restart file:',XNSHELL,' Expected:',NSHELL
+  NERR = NERR+1
+end if
 
-      IF (XNSHELL .NE. NSHELL) THEN
-         WRITE(LUPRI,'(A,I9,A,I9)')                                     &
-     &   'RESTART ERROR: #shells from restart file:',XNSHELL,           &
-     &   ' Expected:',NSHELL
-         NERR = NERR + 1
-      END IF
+if (XNNSHL /= NNSHL) then
+  write(LUPRI,'(A,I9,A,I9)') 'RESTART ERROR: #shell pairs from restart file:',XNNSHL,' Expected:',NNSHL
+  NERR = NERR+1
+end if
 
-      IF (XNNSHL .NE. NNSHL) THEN
-         WRITE(LUPRI,'(A,I9,A,I9)')                                     &
-     &   'RESTART ERROR: #shell pairs from restart file:',XNNSHL,       &
-     &   ' Expected:',NNSHL
-         NERR = NERR + 1
-      END IF
-
-      END
+end subroutine CHO_RSTMOL

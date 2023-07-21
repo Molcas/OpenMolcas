@@ -8,12 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
+
 ! Stuff for decomposing (ai|bj) integrals or amplitudes in MP2:
-!
-Module chomp2_dec
-Public:: InCore, iOption_MP2CD, NowSym
-Logical InCore(8)
-Integer iOption_MP2CD, NowSym
-Real*8, Pointer, Contiguous :: EOcc(:) => null(), EVir(:) => null()
-End Module chomp2_dec
+module chomp2_dec
+
+public :: InCore, iOption_MP2CD, NowSym
+logical InCore(8)
+integer iOption_MP2CD, NowSym
+real*8, pointer, contiguous :: EOcc(:) => null(), EVir(:) => null()
+
+end module chomp2_dec

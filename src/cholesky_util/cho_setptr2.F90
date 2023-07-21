@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SetPtr2()
-!
-!     Purpose: set n_MySP
-!
-      use ChoArr, only: n_MySP
-      Implicit None
 
-      n_mySP  = 0
+subroutine Cho_SetPtr2()
+!
+! Purpose: set n_MySP
 
-      End
+use ChoArr, only: n_MySP
+
+implicit none
+
+n_mySP = 0
+
+end subroutine Cho_SetPtr2

@@ -8,52 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_ISAOSH(IAO,ISHL)
+
+integer function CHO_ISAOSH(IAO,ISHL)
 !
-!     Purpose: return symmetry of AO number IAO in shell ISHL.
-!
-#if defined (_DEBUGPRINT_)
-      use ChoArr, only: nBstSh
+! Purpose: return symmetry of AO number IAO in shell ISHL.
+
+#ifdef _DEBUGPRINT_
+use ChoArr, only: nBstSh
 #endif
-      use ChoArr, only: iBasSh
-      Implicit Real*8 (a-h,o-z)
+use ChoArr, only: iBasSh
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+integer CHO_IRANGE
+external CHO_IRANGE
+#ifdef _DEBUGPRINT_
+character*10 SECNAM
+parameter(SECNAM='CHO_ISAOSH')
 
-      INTEGER  CHO_IRANGE
-      EXTERNAL CHO_IRANGE
-
-#if defined (_DEBUGPRINT_)
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_ISAOSH')
-
-      IF ((ISHL.GT.NSHELL) .OR. (ISHL.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
-     &   SECNAM,': shell index out of bounds: ',ISHL
-         WRITE(LUPRI,'(A,I10,A,/)')                                     &
-     &   'Maximum possible: NSHELL = ',NSHELL,'(from common block)'
-         IF (NSHELL .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
-     &                    102)
-         ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
-     &                    103)
-         END IF
-      ELSE IF ((IAO.GT.NBSTSH(ISHL)) .OR. (IAO.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
-     &   SECNAM,': AO index out of bounds: ',IAO,' shell: ',ISHL
-         WRITE(LUPRI,'(A,I10,A,/)')                                     &
-     &   'Maximum possible: NBSTSH(ISHL) = ',NBSTSH(ISHL),              &
-     &   '(from common block)'
-         IF (NBSTSH(ISHL) .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
-     &                    102)
-         ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
-     &                    103)
-         END IF
-      END IF
+if ((ISHL > NSHELL) .or. (ISHL < 1)) then
+  write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': shell index out of bounds: ',ISHL
+  write(LUPRI,'(A,I10,A,/)') 'Maximum possible: NSHELL = ',NSHELL,'(from common block)'
+  if (NSHELL < 1) then
+    call CHO_QUIT('Initialization error detected in '//SECNAM,102)
+  else
+    call CHO_QUIT('Internal error detected in '//SECNAM,103)
+  end if
+else if ((IAO > NBSTSH(ISHL)) .or. (IAO < 1)) then
+  write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': AO index out of bounds: ',IAO,' shell: ',ISHL
+  write(LUPRI,'(A,I10,A,/)') 'Maximum possible: NBSTSH(ISHL) = ',NBSTSH(ISHL),'(from common block)'
+  if (NBSTSH(ISHL) < 1) then
+    call CHO_QUIT('Initialization error detected in '//SECNAM,102)
+  else
+    call CHO_QUIT('Internal error detected in '//SECNAM,103)
+  end if
+end if
 #endif
 
-      CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(1,ISHL),NSYM,.FALSE.)
+CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(1,ISHL),NSYM,.false.)
 
-      END
+end function CHO_ISAOSH

@@ -8,8 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+module ChoIni
+
 ! This is ONLY for internal use by the Cholesky (external)
 ! initialization and finalization routines:
-Module ChoIni
-      Integer, Parameter:: ChoIniCheck = -6543210
-End Module ChoIni
+
+integer, parameter :: ChoIniCheck = -6543210
+
+end module ChoIni

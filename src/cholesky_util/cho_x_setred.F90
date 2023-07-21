@@ -39,26 +39,29 @@
 !> @param[in]  iLoc location in index arrays
 !> @param[in]  iRed reduced set on disk
 !***********************************************************************
-      Subroutine Cho_X_SetRed(irc,iLoc,iRed)
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Cho_X_SetRed(irc,iLoc,iRed)
+
+use ChoSwp, only: IndRed
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 
-      If (iLoc.eq.2 .or. iLoc.eq.3) Then
-         If (iRed.lt.1 .or. iRed.gt.MaxRed) Then
-            irc = 2
-         Else
-            Call Cho_GetRed(iRed,iLoc,.false.)
-            Call Cho_SetRedInd(iLoc)
-            irc = 0
-            If (iRed .eq. 1) Then ! set correct IndRed array
-               Do iab = 1,SIZE(IndRed,1)
-                  IndRed(iab,iLoc) = iab
-               End Do
-            End If
-         End If
-      Else
-         irc = 1
-      End If
+if ((iLoc == 2) .or. (iLoc == 3)) then
+  if ((iRed < 1) .or. (iRed > MaxRed)) then
+    irc = 2
+  else
+    call Cho_GetRed(iRed,iLoc,.false.)
+    call Cho_SetRedInd(iLoc)
+    irc = 0
+    if (iRed == 1) then ! set correct IndRed array
+      do iab=1,size(IndRed,1)
+        IndRed(iab,iLoc) = iab
+      end do
+    end if
+  end if
+else
+  irc = 1
+end if
 
-      End
+end subroutine Cho_X_SetRed

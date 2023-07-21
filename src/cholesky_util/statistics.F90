@@ -36,57 +36,53 @@
 !> @param[in]  ip_Variance  Pointer to biased variance in \p Stat
 !> @param[in]  ip_VarianceU Pointer to unbiased variance in \p Stat
 !***********************************************************************
-      SubRoutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,  &
-     &                      ip_MaxAbs,ip_Variance,ip_VarianceU)
-      Implicit None
-      Integer n
-      Real*8  X(n), Stat(*)
-      Integer ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs
-      Integer ip_Variance, ip_VarianceU
 
-      Integer i
-      Real*8  xn, xn1
-      Real*8  xMean, xMeanAbs, xMin, xMax
-      Real*8  xVariance
+subroutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,ip_MaxAbs,ip_Variance,ip_VarianceU)
 
-      If (n .lt. 1) Return
+implicit none
+integer n
+real*8 X(n), Stat(*)
+integer ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs
+integer ip_Variance, ip_VarianceU
+integer i
+real*8 xn, xn1
+real*8 xMean, xMeanAbs, xMin, xMax
+real*8 xVariance
 
-      xn = 1.0d0/dble(n)
-      If (n .eq. 1) Then
-         xn1 = 9.99D15
-      Else
-         xn1 = 1.0d0/dble(n-1)
-      End If
+if (n < 1) return
 
-      xMean    = X(1)
-      xMeanAbs = abs(X(1))
-      xMax     = X(1)
-      xMin     = X(1)
-      Do i = 2,n
-         xMean    = xMean + X(i)
-         xMeanAbs = xMeanAbs + abs(X(i))
-         xMax     = max(xMax,X(i))
-         xMin     = min(xMin,X(i))
-      End Do
-      xMean = xMean*xn
+xn = 1.0d0/dble(n)
+if (n == 1) then
+  xn1 = 9.99d15
+else
+  xn1 = 1.0d0/dble(n-1)
+end if
 
-      If (ip_Mean    .gt. 0) Stat(ip_Mean)    = xMean
-      If (ip_MeanAbs .gt. 0) Stat(ip_MeanAbs) = xMeanAbs*xn
-      If (ip_Min     .gt. 0) Stat(ip_Min)     = xMin
-      If (ip_Max     .gt. 0) Stat(ip_Max)     = xMax
-      If (ip_MaxAbs  .gt. 0) Stat(ip_MaxAbs)  = max(abs(xMax),abs(xMin))
+xMean = X(1)
+xMeanAbs = abs(X(1))
+xMax = X(1)
+xMin = X(1)
+do i=2,n
+  xMean = xMean+X(i)
+  xMeanAbs = xMeanAbs+abs(X(i))
+  xMax = max(xMax,X(i))
+  xMin = min(xMin,X(i))
+end do
+xMean = xMean*xn
 
-      If (ip_Variance.gt.0 .or. ip_VarianceU.gt.0) Then
-         xVariance = (X(1)-xMean)**2
-         Do i = 2,n
-            xVariance = xVariance + (X(i)-xMean)**2
-         End Do
-         If (ip_VarianceU .gt. 0) Then
-            Stat(ip_VarianceU) = sqrt(xVariance*xn1)
-         End If
-         If (ip_Variance .gt. 0) Then
-            Stat(ip_Variance) = sqrt(xVariance*xn)
-         End If
-      End If
+if (ip_Mean > 0) Stat(ip_Mean) = xMean
+if (ip_MeanAbs > 0) Stat(ip_MeanAbs) = xMeanAbs*xn
+if (ip_Min > 0) Stat(ip_Min) = xMin
+if (ip_Max > 0) Stat(ip_Max) = xMax
+if (ip_MaxAbs > 0) Stat(ip_MaxAbs) = max(abs(xMax),abs(xMin))
 
-      End
+if ((ip_Variance > 0) .or. (ip_VarianceU > 0)) then
+  xVariance = (X(1)-xMean)**2
+  do i=2,n
+    xVariance = xVariance+(X(i)-xMean)**2
+  end do
+  if (ip_VarianceU > 0) Stat(ip_VarianceU) = sqrt(xVariance*xn1)
+  if (ip_Variance > 0) Stat(ip_Variance) = sqrt(xVariance*xn)
+end if
+
+end subroutine Statistics

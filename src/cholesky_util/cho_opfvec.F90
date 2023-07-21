@@ -8,51 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_OPFVEC(ISYM,IOPT)
-      use ChoReo
+
+subroutine CHO_OPFVEC(ISYM,IOPT)
 !
-!     Purpose: open/close files for full storage vectors, sym. ISYM.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: open/close files for full storage vectors, sym. ISYM.
+
+use ChoReo
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_OPFVEC')
+character*6 FNAME
+! Statement function
+MULD2H(I,J) = ieor(I-1,J-1)+1
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_OPFVEC')
+if (IOPT == 0) then
+  do ISYMA=1,NSYM
+    do ISYMB=1,ISYMA
+      LUFV(ISYMA,ISYMB) = -1
+      LUFV(ISYMB,ISYMA) = -1
+    end do
+  end do
+else if (IOPT == 1) then
+  do ISYMB=1,NSYM
+    ISYMA = MULD2H(ISYMB,ISYM)
+    if (ISYMA >= ISYMB) then
+      write(FNAME,'(A4,I1,I1)') REONAM,ISYMA,ISYMB
+      LUNIT = 7
+      call DANAME_MF_WA(LUNIT,FNAME)
+      LUFV(ISYMA,ISYMB) = LUNIT
+      LUFV(ISYMB,ISYMA) = LUNIT
+    end if
+  end do
+else if (IOPT == 2) then
+  do ISYMB=1,NSYM
+    ISYMA = MULD2H(ISYMB,ISYM)
+    if (ISYMA >= ISYMB) then
+      LUNIT = LUFV(ISYMA,ISYMB)
+      call DACLOS(LUNIT)
+      LUFV(ISYMA,ISYMB) = -1
+      LUFV(ISYMB,ISYMA) = -1
+    end if
+  end do
+else
+  call CHO_QUIT('IOPT error in '//SECNAM,104)
+end if
 
-      CHARACTER*6 FNAME
-
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
-
-      IF (IOPT .EQ. 0) THEN
-         DO ISYMA = 1,NSYM
-            DO ISYMB = 1,ISYMA
-               LUFV(ISYMA,ISYMB) = -1
-               LUFV(ISYMB,ISYMA) = -1
-            END DO
-         END DO
-      ELSE IF (IOPT .EQ. 1) THEN
-         DO ISYMB = 1,NSYM
-            ISYMA = MULD2H(ISYMB,ISYM)
-            IF (ISYMA .GE. ISYMB) THEN
-               WRITE(FNAME,'(A4,I1,I1)') REONAM,ISYMA,ISYMB
-               LUNIT = 7
-               CALL DANAME_MF_WA(LUNIT,FNAME)
-               LUFV(ISYMA,ISYMB) = LUNIT
-               LUFV(ISYMB,ISYMA) = LUNIT
-            END IF
-         END DO
-      ELSE IF (IOPT .EQ. 2) THEN
-         DO ISYMB = 1,NSYM
-            ISYMA = MULD2H(ISYMB,ISYM)
-            IF (ISYMA .GE. ISYMB) THEN
-               LUNIT = LUFV(ISYMA,ISYMB)
-               CALL DACLOS(LUNIT)
-               LUFV(ISYMA,ISYMB) = -1
-               LUFV(ISYMB,ISYMA) = -1
-            END IF
-         END DO
-      ELSE
-         CALL CHO_QUIT('IOPT error in '//SECNAM,104)
-      END IF
-
-      END
+end subroutine CHO_OPFVEC

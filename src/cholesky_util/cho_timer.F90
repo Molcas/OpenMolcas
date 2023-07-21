@@ -8,13 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_TIMER(TCPU,TWALL)
-!
-!     Purpose: timing (CPU and wall time).
-!
-      IMPLICIT NONE
-      REAL*8 TCPU, TWALL
 
-      CALL CWTIME(TCPU,TWALL)
+subroutine CHO_TIMER(TCPU,TWALL)
+!
+! Purpose: timing (CPU and wall time).
 
-      END
+implicit none
+real*8 TCPU, TWALL
+
+call CWTIME(TCPU,TWALL)
+
+end subroutine CHO_TIMER

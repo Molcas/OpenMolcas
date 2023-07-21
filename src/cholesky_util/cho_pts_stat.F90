@@ -8,33 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_PTS_Stat()
-      use ChoArr, only: IntMap
-      use stdalloc
-      Implicit None
+
+subroutine Cho_PTS_Stat()
+
+use ChoArr, only: IntMap
+use stdalloc
+
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
+integer iTmp
 
-      Integer iTmp
+if (.not. allocated(IntMap)) then
+  call mma_allocate(IntMap,nnShl,Label='IntMap')
+  iTmp = 0
+  call IDAFile(LuMap,2,IntMap,nnShl,iTmp)
+end if
 
-      If (.NOT.Allocated(IntMap)) Then
-         Call mma_allocate(IntMap,nnShl,Label='IntMap')
-         iTmp=0
-         Call IDAFile(LuMap,2,IntMap,nnShl,iTmp)
-      End If
+if (Cho_Real_Par) then
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+  iTmp = NumChT
+  NumChT = NumChT_G
+  call Cho_Stat()
+  NumChT = iTmp
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+else
+  call Cho_Stat()
+end if
 
-      If (Cho_Real_Par) Then
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-         iTmp = NumChT
-         NumChT = NumChT_G
-         Call Cho_Stat()
-         NumChT = iTmp
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-      Else
-         Call Cho_Stat()
-      End If
+if (allocated(IntMap)) call mma_deallocate(IntMap)
 
-      If (Allocated(IntMap)) Call mma_deallocate(IntMap)
-
-      End
+end subroutine Cho_PTS_Stat

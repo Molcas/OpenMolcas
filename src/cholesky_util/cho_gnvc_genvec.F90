@@ -8,428 +8,391 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,          &
-     &                           mSym,mPass,iPass1,NumPass)
+
+subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,mSym,mPass,iPass1,NumPass)
 !
-!     Purpose: generate Cholesky vectors from raw integral columns.
-!
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec, IndRed
-      use GnVcMp, only: RS2RS
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Integer lInt
-      Real*8  Diag(*), xInt(lInt)
-      Integer mSym,mPass
-      Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
-      Integer iPass1,NumPass
+! Purpose: generate Cholesky vectors from raw integral columns.
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec, IndRed
+use GnVcMp, only: RS2RS
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer lInt
+real*8 Diag(*), xInt(lInt)
+integer mSym, mPass
+integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
+integer iPass1, NumPass
 #include "cholesky.fh"
 #include "choprint.fh"
-
-      Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GenVec'
-
-      Integer NumCho_OLD(8), iOff1(8), iOff2(8)
-
-      Real*8, Allocatable:: Wrk(:), VecTmp(:)
-
-      mapRS2RS(i,j)=RS2RS(j)%Map(i)
-
-!     Check input.
-!     ------------
-
-      If (NumPass .lt. 1) return
-
-      If (mSym .ne. nSym) Then
-         Call Cho_Quit('Input error [1] in '//SecNam,103)
-      End If
-
-      If (iPass1 .lt. 1) Then
-         Call Cho_Quit('Input error [2] in '//SecNam,103)
-      End If
-
-      iPass2 = iPass1 + NumPass - 1
-      If (iPass2 .gt. mPass) Then
-         Call Cho_Quit('Input error [3] in '//SecNam,103)
-      End If
-
-      nPass = XnPass
-      If (mPass .ne. nPass) Then
-         Call Cho_Quit('Input error [4] in '//SecNam,103)
-      End If
-
-      NumVec = 0
-      Do iPass = iPass1,iPass2
-         Do iSym = 1,nSym
-            NumVec = NumVec + nVecRS(iSym,iPass)
-         End Do
-      End Do
-      If (NumVec .lt. 1) return ! exit
-
-!     Subtract previous vectors.
-!     --------------------------
-
-      Call mma_maxDBLE(l_Wrk)
-      Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
-      Do iSym = 1,nSym
-         kOff = iOff_Col(iSym) + 1
-         Call Cho_Subtr(xInt(kOff),Wrk,SIZE(Wrk),iSym)
-      End Do
-      Call mma_deallocate(Wrk)
-
-!     Initialize vector generation.
-!     -----------------------------
-
-      Do iSym = 1,nSym
-         iOff1(iSym) = iOff_Col(iSym) + 1
-         iOff2(iSym) = iOff_Col(iSym) + 1
-      End Do
-
-      l_VecTmp = 0
-      Do iPass = iPass1,iPass2
-         Do iSym = 1,nSym
-            Need = nnBstR(iSym,2)*nVecRS(iSym,iPass)
-            l_VecTmp = max(l_VecTmp,Need)
-         End Do
-      End Do
-      MxSubtr = 0
-      Do iPass = iPass1,iPass2
-         Do iSym = 1,nSym
-            nAB = 0
-            Do jPass = iPass+1,iPass2
-               nAB = nAB + nVecRS(iSym,jPass)
-            End Do
-            Need = nAB*nVecRS(iSym,iPass)
-            MxSubtr = max(MxSubtr,Need)
-         End Do
-      End Do
-      l_VecTmp = max(l_VecTmp,MxSubtr)
-      Call mma_allocate(VecTmp,l_VecTmp,Label='VecTmp')
-
-!     Copy reduced set iPass1 to location 3.
-!     --------------------------------------
-
-      irc = 0
-      Call Cho_X_RSCopy(irc,2,3)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
-         Call Cho_Quit('Error termination in '//SecNam,104)
-      End If
-
-!     Decomposition pass loop.
-!     ------------------------
-
-      Do iPass = iPass1,iPass2
-
-!        Print header.
-!        -------------
-
-         LenLin = 0 ! to avoid compiler warnings
-         If (iPrint .ge. INF_PROGRESS) Then
-            Call Cho_Head(SecNam//                                      &
-     &                    ': Generation of Vectors from Map','=',       &
-     &                    80,Lupri)
-            Write(Lupri,'(/,A,I5)')                                     &
-     &      'Integral pass number',iPass
-            Write(Lupri,'(A,8I8)')                                      &
-     &      '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')                                      &
-     &      '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')                                      &
-     &      'Current  dim. : ',(nnBstR(iSym,3),iSym=1,nSym)
-            Write(Lupri,'(A,8I8)')                                      &
-     &      'Original dim. : ',(nnBstR(iSym,1),iSym=1,nSym)
-            Write(Lupri,'(/,A,/,A,A)')                                  &
-     &      '           #Vectors             Treated Diagonal',         &
-     &      'Sym.     Sym.     Total     Index     Before      After',  &
-     &      '   Conv. Neg.   New Max'
-            LenLin = 79
-            Write(Lupri,'(80A)') ('-',i=1,LenLin)
-            Call Cho_Flush(Lupri)
-            Call iCopy(nSym,NumCho,1,NumCho_OLD,1)
-         Else If (iPrint .ge. INF_PASS) Then
-            Write(Lupri,'(/,A,I5)')                                     &
-     &      'Integral pass number',iPass
-            Write(LUPRI,'(A,8I8)')                                      &
-     &      '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
-            Write(LUPRI,'(A,8I8)')                                      &
-     &      '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
-            Call Cho_Flush(Lupri)
-            Call iCopy(nSym,NumCho,1,NumCho_OLD,1)
-         End If
-
-!        Zero entries in integral matrix that are not part of this
-!        reduced set.
-!        ---------------------------------------------------------
-
-         If (iPass .gt. iPass1) Then
-            Do iSym = 1,nSym
-               Do iV = 1,nVecRS(iSym,iPass)
-                  lTot = nnBstR(iSym,2)
-                  VecTmp(1:lTot)=0.0D0
-                  lOff0 = iOff1(iSym) + nnBstR(iSym,2)*(iV-1) - 1
-                  Do lAB = 1,nnBstR(iSym,3)
-                     jAB = IndRed(iiBstR(iSym,3)+lAB,3) - iiBstR(iSym,1)
-                     kAB = mapRS2RS(iSym,jAB)
-                     VecTmp(kAB) = xInt(lOff0+kAB)
-                  End Do
-                  Call dCopy_(lTot,VecTmp,1,xInt(lOff0+1),1)
-               End Do
-            End Do
-         End If
-
-!        Write reduced set info for this pass (index arrays are stored
-!        at location 3).
-!        -------------------------------------------------------------
-
-         Call Cho_P_PutRed(iPass,3)
-
-!        Start symmetry loop.
-!        --------------------
-
-         Do iSym = 1,nSym
-
-            If (nVecRS(iSym,iPass) .lt. 1) Go To 100 ! cycle sym. loop
-
-!           Generate vectors for this pass and symmetry.
-!           --------------------------------------------
-
-            Do iV = 1,nVecRS(iSym,iPass)
-
-               kOff0 = iOff1(iSym) + nnBstR(iSym,2)*(iV-1) - 1
-
-               iVec = iVecRS(iSym,iPass) + iV - 1
-               iAB  = InfVec(iVec,1,iSym) ! addr in 1st red. set
-
-               XC = Diag(iAB)
-               If (abs(Diag(iAB)) .gt. 1.0d-14) Then ! TODO/FIXME
-                  Fac = 1.0d0/sqrt(abs(Diag(iAB)))
-               Else
-                  Fac = 1.0d7
-               End If
-               kOff = kOff0 + 1
-               Call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
-
-               Do i = 1,nnBstR(iSym,2)
-                  ii = iiBstR(iSym,2) + i
-                  jj = IndRed(ii,2)
-                  If (Diag(jj) .eq. 0.0d0) Then
-                     xInt(kOff0+i) = 0.0d0
-                  End If
-               End Do
-
-               Do i = 1,nnBstR(iSym,2)
-                  ii = iiBstR(iSym,2) + i
-                  jj = IndRed(ii,2)
-                  Diag(jj) = Diag(jj) - xInt(kOff0+i)*xInt(kOff0+i)
-               End Do
-
-               olDiag    = Diag(iAB)
-               Diag(iAB) = 0.0d0
-               Call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
-               nNZTot = nNZTot + nNeg
-
-               kOff1 = kOff0 + 1
-               Do jV = iV+1,nVecRS(iSym,iPass)
-                  jVec = iVecRS(iSym,iPass) + jV - 1
-                  jAB  = InfVec(jVec,1,iSym)
-                  kOff2 = iOff1(iSym) + nnBstR(iSym,2)*(jV-1)
-                  Fac   = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
-                  Call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,         &
-     &                                          xInt(kOff2),1)
-               End Do
-
-               Call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
-
-               If (iPrint .ge. INF_PROGRESS) Then
-                  iVecT = NumChT + iV
-              Write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)')&
-     &            iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
-               End If
-
-            End Do
-
-!           Subtract contributions to later vectors.
-!           ----------------------------------------
-
-            nAB = nQual(iSym)
-            Do jPass = iPass1,iPass
-               nAB = nAB - nVecRS(iSym,jPass)
-            End Do
-            If (nAB .gt. 0) Then
-               ip_Scr = 1
-               iP = iPass
-               jVec0 = -1
-               Do While (iP.lt.iPass2 .and. jVec0.lt.0)
-                  iP = iP +1
-                  jVec0 = iVecRS(iSym,iP) - 1
-               End Do
-               If (jVec0 .lt. 0) Then ! should never happen
-                  Call Cho_Quit('jVec0 < 0 in '//SecNam,103)
-               End If
-               Do iV = 1,nVecRS(iSym,iPass)
-                  kOff1 = ip_Scr + nAB*(iV-1) - 1
-                  kOff2 = iOff1(iSym) + nnBstR(iSym,2)*(iV-1) - 1
-                  Do iAB = 1,nAB
-                     jVec = jVec0 + iAB
-                     jAB  = InfVec(jVec,1,iSym)
-                     kAB  = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-                     VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
-                  End Do
-               End Do
-               kOff1 = iOff1(iSym)
-               kOff2 = iOff1(iSym)                                      &
-     &               + nnBstR(iSym,2)*nVecRS(iSym,iPass)
-               Call DGEMM_('N','T',                                     &
-     &                    nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),        &
-     &                    -1.0d0,xInt(kOff1),nnBstR(iSym,2),            &
-     &                           VecTmp,nAB,                            &
-     &                     1.0d0,xInt(kOff2),nnBstR(iSym,2))
-            End If
-
-!           Reorder vectors to appropriate reduced set.
-!           Skipped for iPass1, as they are already in correct storage.
-!           -----------------------------------------------------------
-
-            If (iPass .gt. iPass1) Then
-               lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
-               Call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
-               Do iV = 1,nVecRS(iSym,iPass)
-                  kOff0 = iOff2(iSym) + nnBstR(iSym,3)*(iV-1) - 1
-                  lOff0 = nnBstR(iSym,2)*(iV-1)
-                  Do kAB = 1,nnBstR(iSym,3)
-                     jAB = IndRed(iiBstR(iSym,3)+kAB,3)
-                     lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-                     xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
-                  End Do
-               End Do
-            End If
-
-!           Update vector counters.
-!           -----------------------
-
-            NumCho(iSym) = NumCho(iSym) + nVecRS(iSym,iPass)
-            NumChT = NumChT + nVecRS(iSym,iPass)
-
-!           Update pointer arrays.
-!           iOff1: pointer to integral columns (in xInt).
-!           iOff2: pointer to vectors (also in xInt).
-!           ---------------------------------------------
-
-            iOff1(iSym) = iOff1(iSym)                                   &
-     &                  + nnBstR(iSym,2)*nVecRS(iSym,iPass)
-            iOff2(iSym) = iOff2(iSym)                                   &
-     &                  + nnBstR(iSym,3)*nVecRS(iSym,iPass)
-
-!           Cycle point for empty symmetry.
-!           -------------------------------
-
-  100       Continue
-            If (iPrint .ge. INF_PROGRESS) Call Cho_Flush(Lupri)
-
-         End Do ! symmetry
-
-!        Print.
-!        ------
-
-         If (iPrint .ge. INF_PROGRESS) Then
-            Do iSym = 1,nSym
-               NumCho_OLD(iSym) = NumCho(iSym) - NumCho_OLD(iSym)
-            End Do
-            Write(Lupri,'(80A)') ('-',I=1,LenLin)
-            Write(Lupri,'(A,8I8)')                                      &
-     &      '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
-            Call Cho_Flush(Lupri)
-         Else If (iPrint .GE. INF_PASS) Then
-            Do iSym = 1,nSym
-               NumCho_OLD(iSym) = NumCho(iSym) - NumCho_OLD(iSym)
-            End Do
-            Write(Lupri,'(A,8I8)')                                      &
-     &      '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
-            Call Cho_Flush(Lupri)
-         End If
-
-!        Analyze diagonal.
-!        -----------------
-
-         If (iPrint .ge. INF_PASS) Then
-            Bin1 = 1.0d2
-            Step = 1.0d-1
-            nBin = 18
-            Call Cho_AnaDia(Diag,Bin1,Step,nBin,.false.)
-         End If
-
-!        Set next (iPass+1) reduced set at location 2.
-!        Reduced set iPass1 is now stored at location 3.
-!        -----------------------------------------------
-
-         Call Cho_SetRed(Diag)
-         jPass = iPass + 1
-         Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
-         If (iPrint .ge. INF_PASS) Then
-            Call Cho_PrtRed(2)
-            Call Cho_Flush(Lupri)
-         End If
-
-!        Swap locations so that:
-!        location 2 contains reduced set iPass1 and
-!        location 3 contains next (iPass+1) reduced set.
-!        -----------------------------------------------
-
-         irc = 0
-         Call Cho_X_RSSwap(irc,2,3)
-         If (irc .ne. 0) Then
-            Write(Lupri,*) SecNam,': Cho_X_RSSwap returned ',irc
-            Call Cho_Quit('Error termination in '//SecNam,104)
-         End If
-
-      End Do ! integral pass
-
-!     Deallocate temporary vector array.
-!     ----------------------------------
-
-      Call mma_deallocate(VecTmp)
-
-!     Write vectors to disk.
-!     ----------------------
-
-      Call Cho_Timer(C1,W1)
-      Do iSym = 1,nSym
-         NumVec = nVecRS(iSym,iPass1)
-         Do iPass = iPass1+1,iPass2
-            NumVec = NumVec + nVecRS(iSym,iPass)
-         End Do
-         If (NumVec .gt. 0) Then
-            iPass = iPass1
-            iVec1 = iVecRS(iSym,iPass)
-            Do While (iVec1.lt.1 .and. iPass.lt.iPass2)
-               iPass = iPass + 1
-               iVec1 = iVecRS(iSym,iPass)
-            End Do
-            If (iVec1 .lt. 1) Then
-               Call Cho_Quit('Logical error in '//SecNam,103)
-            Else
-               Call Cho_PutVec2(xInt(iOff_Col(iSym)+1),NumVec,iVec1,    &
-     &                          iSym)
-            End If
-         End If
-      End Do
-      Call Cho_Timer(C2,W2)
-      tDecom(1,2) = tDecom(1,2) + C2 - C1
-      tDecom(2,2) = tDecom(2,2) + W2 - W1
-
-!     Write restart files.
-!     --------------------
-
-      Call Cho_P_WrRstC(iPass2)
-
-!     Store next (iPass2+1) reduced set at location 2.
-!     ------------------------------------------------
-
-      irc = 0
-      Call Cho_X_RSCopy(irc,3,2)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
-         Call Cho_Quit('Error termination in '//SecNam,104)
-      End If
-
-      End
+character(len=15), parameter :: SecNam = 'Cho_GnVc_GenVec'
+integer NumCho_OLD(8), iOff1(8), iOff2(8)
+real*8, allocatable :: Wrk(:), VecTmp(:)
+! Statement function
+mapRS2RS(i,j) = RS2RS(j)%Map(i)
+
+! Check input.
+! ------------
+
+if (NumPass < 1) return
+
+if (mSym /= nSym) call Cho_Quit('Input error [1] in '//SecNam,103)
+
+if (iPass1 < 1) call Cho_Quit('Input error [2] in '//SecNam,103)
+
+iPass2 = iPass1+NumPass-1
+if (iPass2 > mPass) call Cho_Quit('Input error [3] in '//SecNam,103)
+
+nPass = XnPass
+if (mPass /= nPass) call Cho_Quit('Input error [4] in '//SecNam,103)
+
+NumVec = 0
+do iPass=iPass1,iPass2
+  do iSym=1,nSym
+    NumVec = NumVec+nVecRS(iSym,iPass)
+  end do
+end do
+if (NumVec < 1) return ! exit
+
+! Subtract previous vectors.
+! --------------------------
+
+call mma_maxDBLE(l_Wrk)
+call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+do iSym=1,nSym
+  kOff = iOff_Col(iSym)+1
+  call Cho_Subtr(xInt(kOff),Wrk,size(Wrk),iSym)
+end do
+call mma_deallocate(Wrk)
+
+! Initialize vector generation.
+! -----------------------------
+
+do iSym=1,nSym
+  iOff1(iSym) = iOff_Col(iSym)+1
+  iOff2(iSym) = iOff_Col(iSym)+1
+end do
+
+l_VecTmp = 0
+do iPass=iPass1,iPass2
+  do iSym=1,nSym
+    Need = nnBstR(iSym,2)*nVecRS(iSym,iPass)
+    l_VecTmp = max(l_VecTmp,Need)
+  end do
+end do
+MxSubtr = 0
+do iPass=iPass1,iPass2
+  do iSym=1,nSym
+    nAB = 0
+    do jPass=iPass+1,iPass2
+      nAB = nAB+nVecRS(iSym,jPass)
+    end do
+    Need = nAB*nVecRS(iSym,iPass)
+    MxSubtr = max(MxSubtr,Need)
+  end do
+end do
+l_VecTmp = max(l_VecTmp,MxSubtr)
+call mma_allocate(VecTmp,l_VecTmp,Label='VecTmp')
+
+! Copy reduced set iPass1 to location 3.
+! --------------------------------------
+
+irc = 0
+call Cho_X_RSCopy(irc,2,3)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
+  call Cho_Quit('Error termination in '//SecNam,104)
+end if
+
+! Decomposition pass loop.
+! ------------------------
+
+do iPass=iPass1,iPass2
+
+  ! Print header.
+  ! -------------
+
+  LenLin = 0 ! to avoid compiler warnings
+  if (iPrint >= INF_PROGRESS) then
+    call Cho_Head(SecNam//': Generation of Vectors from Map','=',80,Lupri)
+    write(Lupri,'(/,A,I5)') 'Integral pass number',iPass
+    write(Lupri,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
+    write(Lupri,'(A,8I8)') '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
+    write(Lupri,'(A,8I8)') 'Current  dim. : ',(nnBstR(iSym,3),iSym=1,nSym)
+    write(Lupri,'(A,8I8)') 'Original dim. : ',(nnBstR(iSym,1),iSym=1,nSym)
+    write(Lupri,'(/,A,/,A)') '           #Vectors             Treated Diagonal', &
+                             'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
+    LenLin = 79
+    write(Lupri,'(80A)') ('-',i=1,LenLin)
+    call Cho_Flush(Lupri)
+    call iCopy(nSym,NumCho,1,NumCho_OLD,1)
+  else if (iPrint >= INF_PASS) then
+    write(Lupri,'(/,A,I5)') 'Integral pass number',iPass
+    write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
+    write(LUPRI,'(A,8I8)') '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
+    call Cho_Flush(Lupri)
+    call iCopy(nSym,NumCho,1,NumCho_OLD,1)
+  end if
+
+  ! Zero entries in integral matrix that are not part of this
+  ! reduced set.
+  ! ---------------------------------------------------------
+
+  if (iPass > iPass1) then
+    do iSym=1,nSym
+      do iV=1,nVecRS(iSym,iPass)
+        lTot = nnBstR(iSym,2)
+        VecTmp(1:lTot) = 0.0d0
+        lOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
+        do lAB=1,nnBstR(iSym,3)
+          jAB = IndRed(iiBstR(iSym,3)+lAB,3)-iiBstR(iSym,1)
+          kAB = mapRS2RS(iSym,jAB)
+          VecTmp(kAB) = xInt(lOff0+kAB)
+        end do
+        call dCopy_(lTot,VecTmp,1,xInt(lOff0+1),1)
+      end do
+    end do
+  end if
+
+  ! Write reduced set info for this pass (index arrays are stored
+  ! at location 3).
+  ! -------------------------------------------------------------
+
+  call Cho_P_PutRed(iPass,3)
+
+  ! Start symmetry loop.
+  ! --------------------
+
+  do iSym=1,nSym
+
+    if (nVecRS(iSym,iPass) < 1) Go To 100 ! cycle sym. loop
+
+    ! Generate vectors for this pass and symmetry.
+    ! --------------------------------------------
+
+    do iV=1,nVecRS(iSym,iPass)
+
+      kOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
+
+      iVec = iVecRS(iSym,iPass)+iV-1
+      iAB = InfVec(iVec,1,iSym) ! addr in 1st red. set
+
+      XC = Diag(iAB)
+      if (abs(Diag(iAB)) > 1.0d-14) then ! TODO/FIXME
+        Fac = 1.0d0/sqrt(abs(Diag(iAB)))
+      else
+        Fac = 1.0d7
+      end if
+      kOff = kOff0+1
+      call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
+
+      do i=1,nnBstR(iSym,2)
+        ii = iiBstR(iSym,2)+i
+        jj = IndRed(ii,2)
+        if (Diag(jj) == 0.0d0) xInt(kOff0+i) = 0.0d0
+      end do
+
+      do i=1,nnBstR(iSym,2)
+        ii = iiBstR(iSym,2)+i
+        jj = IndRed(ii,2)
+        Diag(jj) = Diag(jj)-xInt(kOff0+i)*xInt(kOff0+i)
+      end do
+
+      olDiag = Diag(iAB)
+      Diag(iAB) = 0.0d0
+      call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
+      nNZTot = nNZTot+nNeg
+
+      kOff1 = kOff0+1
+      do jV=iV+1,nVecRS(iSym,iPass)
+        jVec = iVecRS(iSym,iPass)+jV-1
+        jAB = InfVec(jVec,1,iSym)
+        kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)
+        Fac = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
+        call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,xInt(kOff2),1)
+      end do
+
+      call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
+
+      if (iPrint >= INF_PROGRESS) then
+        iVecT = NumChT+iV
+        write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
+      end if
+
+    end do
+
+    ! Subtract contributions to later vectors.
+    ! ----------------------------------------
+
+    nAB = nQual(iSym)
+    do jPass=iPass1,iPass
+      nAB = nAB-nVecRS(iSym,jPass)
+    end do
+    if (nAB > 0) then
+      ip_Scr = 1
+      iP = iPass
+      jVec0 = -1
+      do while ((iP < iPass2) .and. (jVec0 < 0))
+        iP = iP+1
+        jVec0 = iVecRS(iSym,iP)-1
+      end do
+      if (jVec0 < 0) call Cho_Quit('jVec0 < 0 in '//SecNam,103) ! should never happen
+      do iV=1,nVecRS(iSym,iPass)
+        kOff1 = ip_Scr+nAB*(iV-1)-1
+        kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
+        do iAB=1,nAB
+          jVec = jVec0+iAB
+          jAB = InfVec(jVec,1,iSym)
+          kAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+          VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
+        end do
+      end do
+      kOff1 = iOff1(iSym)
+      kOff2 = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
+      call DGEMM_('N','T',nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),-1.0d0,xInt(kOff1),nnBstR(iSym,2),VecTmp,nAB,1.0d0,xInt(kOff2), &
+                  nnBstR(iSym,2))
+    end if
+
+    ! Reorder vectors to appropriate reduced set.
+    ! Skipped for iPass1, as they are already in correct storage.
+    ! -----------------------------------------------------------
+
+    if (iPass > iPass1) then
+      lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
+      call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
+      do iV=1,nVecRS(iSym,iPass)
+        kOff0 = iOff2(iSym)+nnBstR(iSym,3)*(iV-1)-1
+        lOff0 = nnBstR(iSym,2)*(iV-1)
+        do kAB=1,nnBstR(iSym,3)
+          jAB = IndRed(iiBstR(iSym,3)+kAB,3)
+          lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+          xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
+        end do
+      end do
+    end if
+
+    ! Update vector counters.
+    ! -----------------------
+
+    NumCho(iSym) = NumCho(iSym)+nVecRS(iSym,iPass)
+    NumChT = NumChT+nVecRS(iSym,iPass)
+
+    ! Update pointer arrays.
+    ! iOff1: pointer to integral columns (in xInt).
+    ! iOff2: pointer to vectors (also in xInt).
+    ! ---------------------------------------------
+
+    iOff1(iSym) = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
+    iOff2(iSym) = iOff2(iSym)+nnBstR(iSym,3)*nVecRS(iSym,iPass)
+
+    ! Cycle point for empty symmetry.
+    ! -------------------------------
+
+100 continue
+    if (iPrint >= INF_PROGRESS) call Cho_Flush(Lupri)
+
+  end do ! symmetry
+
+  ! Print.
+  ! ------
+
+  if (iPrint >= INF_PROGRESS) then
+    do iSym=1,nSym
+      NumCho_OLD(iSym) = NumCho(iSym)-NumCho_OLD(iSym)
+    end do
+    write(Lupri,'(80A)') ('-',I=1,LenLin)
+    write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
+    call Cho_Flush(Lupri)
+  else if (iPrint >= INF_PASS) then
+    do iSym=1,nSym
+      NumCho_OLD(iSym) = NumCho(iSym)-NumCho_OLD(iSym)
+    end do
+    write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
+    call Cho_Flush(Lupri)
+  end if
+
+  ! Analyze diagonal.
+  ! -----------------
+
+  if (iPrint >= INF_PASS) then
+    Bin1 = 1.0d2
+    Step = 1.0d-1
+    nBin = 18
+    call Cho_AnaDia(Diag,Bin1,Step,nBin,.false.)
+  end if
+
+  ! Set next (iPass+1) reduced set at location 2.
+  ! Reduced set iPass1 is now stored at location 3.
+  ! -----------------------------------------------
+
+  call Cho_SetRed(Diag)
+  jPass = iPass+1
+  call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
+  if (iPrint >= INF_PASS) then
+    call Cho_PrtRed(2)
+    call Cho_Flush(Lupri)
+  end if
+
+  ! Swap locations so that:
+  ! location 2 contains reduced set iPass1 and
+  ! location 3 contains next (iPass+1) reduced set.
+  ! -----------------------------------------------
+
+  irc = 0
+  call Cho_X_RSSwap(irc,2,3)
+  if (irc /= 0) then
+    write(Lupri,*) SecNam,': Cho_X_RSSwap returned ',irc
+    call Cho_Quit('Error termination in '//SecNam,104)
+  end if
+
+end do ! integral pass
+
+! Deallocate temporary vector array.
+! ----------------------------------
+
+call mma_deallocate(VecTmp)
+
+! Write vectors to disk.
+! ----------------------
+
+call Cho_Timer(C1,W1)
+do iSym=1,nSym
+  NumVec = nVecRS(iSym,iPass1)
+  do iPass=iPass1+1,iPass2
+    NumVec = NumVec+nVecRS(iSym,iPass)
+  end do
+  if (NumVec > 0) then
+    iPass = iPass1
+    iVec1 = iVecRS(iSym,iPass)
+    do while ((iVec1 < 1) .and. (iPass < iPass2))
+      iPass = iPass+1
+      iVec1 = iVecRS(iSym,iPass)
+    end do
+    if (iVec1 < 1) then
+      call Cho_Quit('Logical error in '//SecNam,103)
+    else
+      call Cho_PutVec2(xInt(iOff_Col(iSym)+1),NumVec,iVec1,iSym)
+    end if
+  end if
+end do
+call Cho_Timer(C2,W2)
+tDecom(1,2) = tDecom(1,2)+C2-C1
+tDecom(2,2) = tDecom(2,2)+W2-W1
+
+! Write restart files.
+! --------------------
+
+call Cho_P_WrRstC(iPass2)
+
+! Store next (iPass2+1) reduced set at location 2.
+! ------------------------------------------------
+
+irc = 0
+call Cho_X_RSCopy(irc,3,2)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
+  call Cho_Quit('Error termination in '//SecNam,104)
+end if
+
+end subroutine Cho_GnVc_GenVec

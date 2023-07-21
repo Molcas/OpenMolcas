@@ -28,37 +28,38 @@
 !> @param[in]     n   Linear dimension of \p X
 !> @param[out]    irc Return code
 !***********************************************************************
-      Subroutine CCD_InCore(X,n,irc)
-      Implicit None
-      Integer n
-      Real*8  X(n,n)
-      Integer irc
 
-      Integer i, j, k
-      Real*8  Fac
+subroutine CCD_InCore(X,n,irc)
 
-      irc = 0
-      If (n .lt. 1) Return ! return (nothing to do)
+implicit none
+integer n
+real*8 X(n,n)
+integer irc
+integer i, j, k
+real*8 Fac
 
-      Do j=1,n
-         ! Check for negative diagonal
-         If (X(j,j).gt.0.0d0) Then
-            Fac=1.0d0/sqrt(X(j,j))
-         Else
-            irc=1
-            Return
-         End If
-         ! Compute vector j
-         Do i=j,n
-            X(i,j)=Fac*X(i,j)
-         End Do
-         ! Subtract from remaining columns
-         Do k=j+1,n
-            Fac=X(k,j)
-            Do i=k,n
-               X(i,k)=X(i,k)-X(i,j)*Fac
-            End Do
-         End DO
-      End Do
+irc = 0
+if (n < 1) return ! return (nothing to do)
 
-      End
+do j=1,n
+  ! Check for negative diagonal
+  if (X(j,j) > 0.0d0) then
+    Fac = 1.0d0/sqrt(X(j,j))
+  else
+    irc = 1
+    return
+  end if
+  ! Compute vector j
+  do i=j,n
+    X(i,j) = Fac*X(i,j)
+  end do
+  ! Subtract from remaining columns
+  do k=j+1,n
+    Fac = X(k,j)
+    do i=k,n
+      X(i,k) = X(i,k)-X(i,j)*Fac
+    end do
+  end do
+end do
+
+end subroutine CCD_InCore

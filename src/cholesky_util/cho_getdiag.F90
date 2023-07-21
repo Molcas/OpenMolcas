@@ -8,225 +8,212 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETDIAG(LCONV)
+
+subroutine CHO_GETDIAG(LCONV)
 !
-!     Purpose: get diagonal in first reduced set. On exit, DIAG
-!              points to the diagonal and flag LCONV tells
-!              if the diagonal is converged.
-!
-      use ChoArr, only: iSP2F, MySP, n_MySP, iSimRI
-      use ChoSwp, only: IndRSh, IndRSh_Hidden
-      use ChoSwp, only: IndRed, IndRed_Hidden
-      use ChoSwp, only: Diag, Diag_Hidden
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      LOGICAL LCONV
+! Purpose: get diagonal in first reduced set. On exit, DIAG
+!          points to the diagonal and flag LCONV tells
+!          if the diagonal is converged.
+
+use ChoArr, only: iSP2F, MySP, n_MySP, iSimRI
+use ChoSwp, only: IndRSh, IndRSh_Hidden
+use ChoSwp, only: IndRed, IndRed_Hidden
+use ChoSwp, only: Diag, Diag_Hidden
+use stdalloc
+
+implicit real*8(a-h,o-z)
+logical LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
+character*11 SECNAM
+parameter(SECNAM='CHO_GETDIAG')
+logical LOCDBG, DODUMMY, SYNC
+parameter(LOCDBG=.false.)
+integer ISYLST(8)
+integer, allocatable :: KIBUF(:)
+real*8, allocatable :: KBUF(:), KSCR(:), KWRK(:)
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETDIAG')
+if (RSTDIA) then
 
-      LOGICAL LOCDBG, DODUMMY, SYNC
-      PARAMETER (LOCDBG = .FALSE.)
+  ! Set mySP list.
+  ! Always the trivial list for serial runs (restart not possible
+  ! in parallel runs).
+  ! -------------------------------------------------------------
 
-      INTEGER ISYLST(8)
+  N_MYSP = NNSHL
+  l_MySP = 0
+  if (allocated(MYSP)) l_MySP = size(MySP)
+  if (l_MYSP == NNSHL) then
+    do ISP=1,N_MYSP
+      MYSP(ISP) = ISP
+    end do
+  else
+    call CHO_QUIT('MYSP allocation error in '//SECNAM,101)
+  end if
 
-      Integer, Allocatable:: KIBUF(:)
-      Real*8, Allocatable:: KBUF(:), KSCR(:), KWRK(:)
+  ! Read index array NNBSTRSH and set IIBSTRSH etc.
+  ! -----------------------------------------------
 
-      IF (RSTDIA) THEN
+  call CHO_RSTD_GETIND1()
 
-!        Set mySP list.
-!        Always the trivial list for serial runs (restart not possible
-!        in parallel runs).
-!        -------------------------------------------------------------
+  ! Allocate mapping arrays between reduced sets.
+  ! ---------------------------------------------
 
-         N_MYSP = NNSHL
-         l_MySP=0
-         If (Allocated(MYSP)) l_MySP=SIZE(MySP)
-         IF (l_MYSP .EQ. NNSHL) THEN
-            DO ISP = 1,N_MYSP
-               MYSP(ISP) = ISP
-            END DO
-         ELSE
-            CALL CHO_QUIT('MYSP allocation error in '//SECNAM,101)
-         END IF
+  MMBSTRT = NNBSTRT(1)
 
-!        Read index array NNBSTRSH and set IIBSTRSH etc.
-!        -----------------------------------------------
+  call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,Label='IndRed_Hidden')
+  IndRed => IndRed_Hidden
 
-         CALL CHO_RSTD_GETIND1()
+  call mma_allocate(IndRSh_Hidden,NNBSTRT(1),Label='IndRSh_Hidden')
+  IndRSh => IndRSh_Hidden
 
-!        Allocate mapping arrays between reduced sets.
-!        ---------------------------------------------
+  ! Read mapping arrays.
+  ! --------------------
 
-         MMBSTRT  = NNBSTRT(1)
+  call CHO_RSTD_GETIND2()
 
-         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,                  &
-     &                     Label='IndRed_Hidden')
-         IndRed => IndRed_Hidden
+  ! Check reduced to full shell pair mapping with the one on disk.
+  ! --------------------------------------------------------------
 
-         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),                    &
-     &                     Label='IndRSh_Hidden')
-         IndRSh => IndRSh_Hidden
+  NERR = -1
+  call CHO_RSTD_CHKSP2F(iSP2F,size(iSP2F),NERR)
+  if (NERR /= 0) then
+    write(LUPRI,*) SECNAM,': ',NERR,' errors detected in reduced-to-full shell pair mapping!'
+    call CHO_QUIT('SP2F error in '//SECNAM,102)
+  end if
 
-!        Read mapping arrays.
-!        --------------------
+  ! Allocation: diagonal.
+  ! ---------------------
 
-         CALL CHO_RSTD_GETIND2()
+  NEEDR = 1
+  NEEDI = 4*NEEDR
 
-!        Check reduced to full shell pair mapping with the one on disk.
-!        --------------------------------------------------------------
+  call mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
+  call mma_allocate(KBUF,NEEDR,Label='KBUF')
+  call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
-         NERR = -1
-         CALL CHO_RSTD_CHKSP2F(iSP2F,SIZE(iSP2F),NERR)
-         IF (NERR .NE. 0) THEN
-            WRITE(LUPRI,*) SECNAM,': ',NERR,' errors detected in ',     &
-     &                     'reduced-to-full shell pair mapping!'
-            CALL CHO_QUIT('SP2F error in '//SECNAM,102)
-         END IF
+  ! Read diagonal.
+  ! --------------
 
-!        Allocation: diagonal.
-!        ---------------------
+  call CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,NEEDR,NDUMP)
 
-         NEEDR = 1
-         NEEDI = 4*NEEDR
+  call mma_deallocate(KIBUF)
+  call mma_deallocate(KBUF)
 
-         CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
-         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
-         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
+else
 
-!        Read diagonal.
-!        --------------
+  ! Calculate diagonal and get 1st reduced set.
+  ! -------------------------------------------
 
-         CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,NEEDR,NDUMP)
+  call mma_maxDBLE(LMAX)
+  LMAX = LMAX/2-MX2SH
+  if (LMAX < 5*LBUF) LBUF = max(LMAX/5,1)
 
-         Call mma_deallocate(KIBUF)
-         Call mma_deallocate(KBUF)
+  LSCR = MX2SH
+  NEEDR = LBUF
+  NEEDI = 4*LBUF
 
-      ELSE
+  call mma_allocate(KBUF,NEEDR,Label='KBUF')
+  call mma_allocate(KSCR,LSCR,Label='KSCR')
+  call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
-!        Calculate diagonal and get 1st reduced set.
-!        -------------------------------------------
+  NDUMP = 0
 
-         Call mma_maxDBLE(LMAX)
-         LMAX = LMAX/2 - MX2SH
-         IF (LMAX .LT. 5*LBUF) THEN
-            LBUF = MAX(LMAX/5,1)
-         END IF
+  call CHO_CALCDIAG(KBUF,KIBUF,LBUF,KSCR,LSCR,NDUMP)
 
-         LSCR  = MX2SH
-         NEEDR = LBUF
-         NEEDI = 4*LBUF
+  call mma_deallocate(KIBUF)
+  call mma_deallocate(KBUF)
+  call mma_deallocate(KSCR)
 
-         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
-         Call mma_allocate(KSCR,LSCR ,Label='KSCR')
-         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
+  ! Allocate diagonal and mapping array between reduced sets.
+  ! Reallocate buffer.
+  ! ---------------------------------------------------------
 
-         NDUMP = 0
+  MMBSTRT = NNBSTRT(1)
+  call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,Label='IndRed_Hidden')
+  IndRed => IndRed_Hidden
+  call mma_allocate(IndRSh_Hidden,NNBSTRT(1),Label='IndRSh_Hidden')
+  IndRSh => IndRSh_Hidden
+  call mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
 
-         CALL CHO_CALCDIAG(KBUF,KIBUF,LBUF,KSCR,LSCR,NDUMP)
+  NEEDR = LBUF
+  NEEDI = 4*LBUF
+  call mma_allocate(KBUF,NEEDR,Label='KBUF')
+  call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
-         Call mma_deallocate(KIBUF)
-         Call mma_deallocate(KBUF)
-         Call mma_deallocate(KSCR)
+  ! Get diagonal in first reduced set.
+  ! ----------------------------------
 
-!        Allocate diagonal and mapping array between reduced sets.
-!        Reallocate buffer.
-!        ---------------------------------------------------------
+  call CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,LBUF,NDUMP)
 
-         MMBSTRT  = NNBSTRT(1)
-         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,                  &
-     &                     Label='IndRed_Hidden')
-         IndRed => IndRed_Hidden
-         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),                    &
-     &                     Label='IndRSh_Hidden')
-         IndRSh => IndRSh_Hidden
-         CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
+  ! Deallocate back to and including buffer.
+  ! ----------------------------------------
 
-         NEEDR = LBUF
-         NEEDI = 4*LBUF
-         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
-         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
+  call mma_deallocate(KIBUF)
+  call mma_deallocate(KBUF)
 
-!        Get diagonal in first reduced set.
-!        ----------------------------------
+end if
 
-         CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,LBUF,NDUMP)
+! Set local and global info. On exit, Diag points to the local diagonal.
+! ----------------------------------------------------------------------
 
-!        Deallocate back to and including buffer.
-!        ----------------------------------------
+call CHO_P_SETGL()
 
-         Call mma_deallocate(KIBUF)
-         Call mma_deallocate(KBUF)
+! Write local diagonal to disk.
+! -----------------------------
 
-      END IF
+IOPT = 1
+call CHO_IODIAG(Diag,IOPT)
 
-!     Set local and global info. On exit, Diag points to the local
-!     diagonal.
-!     -------------------------------------------------------------
+! Allocate memory for iscratch array for reading vectors.
+! -------------------------------------------------------
 
-      CALL CHO_P_SETGL()
+DODUMMY = .not. ((CHO_IOVEC == 1) .or. (CHO_IOVEC == 2) .or. (CHO_IOVEC == 3) .or. (CHO_IOVEC == 4) .or. &
+                 ((FRAC_CHVBUF > 0.0d0) .and. (FRAC_CHVBUF < 1.0d0)))
+call CHO_ALLO_ISCR(DODUMMY)
 
-!     Write local diagonal to disk.
-!     -----------------------------
+! Initialize reduced set dimension(s) used for reading vectors.
+! -------------------------------------------------------------
 
-      IOPT = 1
-      CALL CHO_IODIAG(Diag,IOPT)
+call CHO_INIRSDIM()
 
-!     Allocate memory for iscratch array for reading vectors.
-!     -------------------------------------------------------
+! For RI simulation, zero 1-center diagonals smaller than
+! THR_SIMRI. Indices of zeroed diagonals are stored in ip_ISIMRI.
+! ---------------------------------------------------------------
 
-      DODUMMY = .NOT.(CHO_IOVEC.EQ.1 .OR. CHO_IOVEC.EQ.2 .OR.           &
-     &                CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4 .OR.           &
-     &                (FRAC_CHVBUF.GT.0.0D0 .AND. FRAC_CHVBUF.LT.1.0D0))
-      CALL CHO_ALLO_ISCR(DODUMMY)
+if (CHO_SIMRI) then
+  call mma_allocate(iSimRI,NNBSTRT(1),Label='iSimRI')
+  call CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,ISIMRI)
+end if
 
-!     Initialize reduced set dimension(s) used for reading vectors.
-!     -------------------------------------------------------------
+! Update diagonal if restart, else just do analysis.
+! --------------------------------------------------
 
-      CALL CHO_INIRSDIM()
+LCONV = .false.
+if (RSTCHO) then
+  call mma_maxDBLE(LWRK)
+  call mma_allocate(KWRK,LWRK,Label='KWRK')
+  if (LOCDBG) then
+    write(LUPRI,*) SECNAM,': restart diagonal:'
+    do ISYM=1,NSYM
+      ISYLST(ISYM) = ISYM
+    end do
+    call CHO_PRTDIA(Diag,ISYLST,NSYM,1)
+  end if
+  call CHO_RESTART(Diag,KWRK,LWRK,.false.,LCONV)
+  call mma_deallocate(KWRK)
+  IPRTRED = 2  ! print flag for cho_prtred
+else
+  if (IPRINT >= INF_PASS) then
+    BIN1 = 1.0d2
+    STEP = 1.0D-1
+    NBIN = 18
+    SYNC = .false.
+    call CHO_P_ANADIA(Diag,SYNC,BIN1,STEP,NBIN,.true.)
+  end if
+  IPRTRED = 1  ! print flag for cho_prtred
+end if
+if (IPRINT >= INF_PASS) call CHO_P_PRTRED(IPRTRED)
 
-!     For RI simulation, zero 1-center diagonals smaller than
-!     THR_SIMRI. Indices of zeroed diagonals are stored in ip_ISIMRI.
-!     ---------------------------------------------------------------
-
-      IF (CHO_SIMRI) THEN
-         Call mma_allocate(iSimRI,NNBSTRT(1),Label='iSimRI')
-         CALL CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,ISIMRI)
-      END IF
-
-!     Update diagonal if restart, else just do analysis.
-!     --------------------------------------------------
-
-      LCONV = .FALSE.
-      IF (RSTCHO) THEN
-         Call mma_maxDBLE(LWRK)
-         Call mma_allocate(KWRK,LWRK,Label='KWRK')
-         IF (LOCDBG) THEN
-            WRITE(LUPRI,*) SECNAM,': restart diagonal:'
-            DO ISYM = 1,NSYM
-               ISYLST(ISYM) = ISYM
-            END DO
-            CALL CHO_PRTDIA(Diag,ISYLST,NSYM,1)
-         END IF
-         CALL CHO_RESTART(Diag,KWRK,LWRK,.FALSE.,LCONV)
-         Call mma_deallocate(KWRK)
-         IPRTRED = 2  ! print flag for cho_prtred
-      ELSE
-         IF (IPRINT .GE. INF_PASS) THEN
-            BIN1 = 1.0D2
-            STEP = 1.0D-1
-            NBIN = 18
-            SYNC = .FALSE.
-            CALL CHO_P_ANADIA(Diag,SYNC,BIN1,STEP,NBIN,.TRUE.)
-         END IF
-         IPRTRED = 1  ! print flag for cho_prtred
-      END IF
-      IF (IPRINT .GE. INF_PASS) THEN
-         CALL CHO_P_PRTRED(IPRTRED)
-      END IF
-
-      END
+end subroutine CHO_GETDIAG

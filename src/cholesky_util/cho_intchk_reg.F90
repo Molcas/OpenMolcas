@@ -8,41 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INTCHK_REG(LABEL,ISHLCD,ISHLAB)
+
+subroutine CHO_INTCHK_REG(LABEL,ISHLCD,ISHLAB)
 !
-!     Purpose: register a shell quadruple (CD|AB) for minimal integral
-!              check using LABEL to keep track of its origin.
-!
-      use ChoArr, only: iSP2F
-      Implicit Real*8 (a-h,o-z)
-      CHARACTER*8 LABEL
+! Purpose: register a shell quadruple (CD|AB) for minimal integral
+!          check using LABEL to keep track of its origin.
+
+use ChoArr, only: iSP2F
+
+implicit real*8(a-h,o-z)
+character*8 LABEL
 #include "cholesky.fh"
+character*14 SECNAM
+parameter(SECNAM='CHO_INTCHK_REG')
 
-      CHARACTER*14 SECNAM
-      PARAMETER (SECNAM = 'CHO_INTCHK_REG')
+! Check shell pair index.
+! -----------------------
 
-!     Check shell pair index.
-!     -----------------------
+if ((ISHLCD < 1) .or. (ISHLCD > NNSHL)) call CHO_QUIT('Shell index error 1 in '//SECNAM,103)
+if ((ISHLAB < 1) .or. (ISHLAB > NNSHL)) call CHO_QUIT('Shell index error 2 in '//SECNAM,103)
 
-      IF (ISHLCD.LT.1 .OR. ISHLCD.GT.NNSHL) THEN
-         CALL CHO_QUIT('Shell index error 1 in '//SECNAM,103)
-      END IF
-      IF (ISHLAB.LT.1 .OR. ISHLAB.GT.NNSHL) THEN
-         CALL CHO_QUIT('Shell index error 2 in '//SECNAM,103)
-      END IF
+! Registration.
+! -------------
 
-!     Registration.
-!     -------------
+call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+call CHO_INTCHK_ID_OF(LABEL,ID,1)
+if ((ID < 1) .or. (ID > NCHKQ)) ID = NCHKQ+1 ! junk yard
+ICHKQ(1,ID) = ISHLC
+ICHKQ(2,ID) = ISHLD
+ICHKQ(3,ID) = ISHLA
+ICHKQ(4,ID) = ISHLB
 
-      CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-      CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-      CALL CHO_INTCHK_ID_OF(LABEL,ID,1)
-      IF (ID.LT.1 .OR. ID.GT.NCHKQ) THEN
-         ID = NCHKQ + 1 ! junk yard
-      END IF
-      ICHKQ(1,ID) = ISHLC
-      ICHKQ(2,ID) = ISHLD
-      ICHKQ(3,ID) = ISHLA
-      ICHKQ(4,ID) = ISHLB
-
-      END
+end subroutine CHO_INTCHK_REG

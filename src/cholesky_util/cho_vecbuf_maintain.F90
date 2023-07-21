@@ -8,335 +8,310 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
+
+subroutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
 !
-!     Purpose: maintain Cholesky vector buffer:
+! Purpose: maintain Cholesky vector buffer:
 !
-!              1) reorder vectors in buffer to current reduced set
-!                 storage (defined by location 2),
+!          1) reorder vectors in buffer to current reduced set
+!             storage (defined by location 2),
 !
-!              2) if possible, read in new vectors and store in current
-!                 reduced set storage (defined by location 2).
+!          2) if possible, read in new vectors and store in current
+!             reduced set storage (defined by location 2).
 !
-!              It is assumed that all vectors in the buffer are stored
-!              according to the reduced set identified by iRed.
+!          It is assumed that all vectors in the buffer are stored
+!          according to the reduced set identified by iRed.
 !
-!     DoTime: time as vector I/O.
-!     DoStat: update statistics info (#calls to system for I/O).
+! DoTime: time as vector I/O.
+! DoStat: update statistics info (#calls to system for I/O).
 !
-!     Return code:  irc  = 0 : success
-!                   irc != 0 : failure
+! Return code:  irc  = 0 : success
+!               irc != 0 : failure
 !
-!     Index arrays from chovecbuf.f90 modified by this routine:
+! Index arrays from chovecbuf.f90 modified by this routine:
 !
-!     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
-!
-      use ChoArr, only: iScr
-      use ChoSwp, only: InfVec
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
-     &                     nVec_in_Buf
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Logical DoTime, DoStat
+! NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
+
+use ChoArr, only: iScr
+use ChoSwp, only: InfVec
+use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use stdalloc
+
+implicit real*8(a-h,o-z)
+logical DoTime, DoStat
 #include "cholesky.fh"
-
-      Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
-
-      Real*8, Pointer:: V2(:,:)=>Null(), V3(:,:)=>Null()
-
-      Integer iS, iE, lRow, lCol
-      Real*8, Allocatable:: VRd(:)
-
+character(len=19), parameter :: SecNam = 'Cho_VecBuf_Maintain'
+real*8, pointer :: V2(:,:) => null(), V3(:,:) => null()
+integer iS, iE, lRow, lCol
+real*8, allocatable :: VRd(:)
 !#define _DEBUGPRINT_
-#if defined (_DEBUGPRINT_)
-      Logical, Parameter:: LocDbg = .true.
+#ifdef _DEBUGPRINT_
+logical, parameter :: LocDbg = .true.
 #else
-      Logical, Parameter:: LocDbg = .false.
+logical, parameter :: LocDbg = .false.
 #endif
 
-!     Set return code.
-!     ----------------
+! Set return code.
+! ----------------
 
-      irc = 0
+irc = 0
 
-!     Return if there is no buffer to maintain.
-!     -----------------------------------------
+! Return if there is no buffer to maintain.
+! -----------------------------------------
 
-      If (.NOT.Allocated(CHVBUF)) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returning: no buffer to maintain!'
-         End If
-         Return
-      End If
+if (.not. allocated(CHVBUF)) then
+  if (LocDbg) write(Lupri,*) SecNam,': returning: no buffer to maintain!'
+  return
+end if
 
-!     Debug print.
-!     ------------
+! Debug print.
+! ------------
 
-      If (LocDbg) Then
-         Write(Lupri,*)
-         Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
-         Write(Lupri,*) 'iRed = ',iRed
-         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF),                    &
-     &                  '   ip_ChVBuf = ',1
-         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',                     &
-     &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',                     &
-     &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',                     &
-     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
-      End If
+if (LocDbg) then
+  write(Lupri,*)
+  write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
+  write(Lupri,*) 'iRed = ',iRed
+  write(Lupri,*) 'l_ChVBuf  = ',size(CHVBUF),'   ip_ChVBuf = ',1
+  write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
+  write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',(ip_ChVBuf_Sym(iSym),iSym=1,nSym)
+  write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
+end if
 
-!     If there are no vectors yet, return.
-!     ------------------------------------
+! If there are no vectors yet, return.
+! ------------------------------------
 
-      If (NumChT .lt. 1) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returning: no vectors!'
-            Write(Lupri,*) SecNam,': NumChT = ',NumChT
-         End If
-         Return
-      End If
+if (NumChT < 1) then
+  if (LocDbg) then
+    write(Lupri,*) SecNam,': returning: no vectors!'
+    write(Lupri,*) SecNam,': NumChT = ',NumChT
+  end if
+  return
+end if
 
-!     Check that iScr array has been allocated.
-!     -----------------------------------------
+! Check that iScr array has been allocated.
+! -----------------------------------------
 
-      If (.NOT.Allocated(iScr)) Then
-         Write(Lupri,*) SecNam,': iScr array not allocated!'
-         irc = 102
-         Return
-      End If
+if (.not. allocated(iScr)) then
+  write(Lupri,*) SecNam,': iScr array not allocated!'
+  irc = 102
+  return
+end if
 
-!     Start timing.
-!     -------------
+! Start timing.
+! -------------
 
-      If (DoTime) Call Cho_Timer(C1,W1)
+if (DoTime) call Cho_Timer(C1,W1)
 
-!     Set index arrays for reduced set iRed at location 3.
-!     ----------------------------------------------------
+! Set index arrays for reduced set iRed at location 3.
+! ----------------------------------------------------
 
-      If (iRed .lt. 1) Then
-         nErr = 0
-         Do iSym = 1,nSym
-            If (nVec_in_Buf(iSym) .ne. 0) Then
-               Write(Lupri,*) SecNam,': sym. block ',iSym,':'
-               Write(Lupri,*) '   iRed = ',iRed,                        &
-     &                        '   #vectors in buffer: ',                &
-     &                        nVec_in_Buf(iSym),' (should be 0)'
-               nErr = nErr + 1
-            End If
-         End Do
-         If (nErr .ne. 0) Then
-            irc = 103
-            Return
-         End If
-         iRedC = 1
-      Else
-         iRedC = iRed
-      End If
+if (iRed < 1) then
+  nErr = 0
+  do iSym=1,nSym
+    if (nVec_in_Buf(iSym) /= 0) then
+      write(Lupri,*) SecNam,': sym. block ',iSym,':'
+      write(Lupri,*) '   iRed = ',iRed,'   #vectors in buffer: ',nVec_in_Buf(iSym),' (should be 0)'
+      nErr = nErr+1
+    end if
+  end do
+  if (nErr /= 0) then
+    irc = 103
+    return
+  end if
+  iRedC = 1
+else
+  iRedC = iRed
+end if
 
-      Call Cho_X_SetRed(irc,3,iRedC)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': Cho_X_SetRed returned ',irc
-         irc = 104
-         Return
-      End If
+call Cho_X_SetRed(irc,3,iRedC)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': Cho_X_SetRed returned ',irc
+  irc = 104
+  return
+end if
 
-!     Reordering.
-!     ===========
+! Reordering.
+! ===========
 
-      Do iSym = 1,nSym
-         If (nnBstR(iSym,2).gt.0 .and. nVec_in_Buf(iSym).gt.0) Then
+do iSym=1,nSym
+  if ((nnBstR(iSym,2) > 0) .and. (nVec_in_Buf(iSym) > 0)) then
 
-!           Check reduced set dimensions.
-!           -----------------------------
+    ! Check reduced set dimensions.
+    ! -----------------------------
 
-            If (nnBstR(iSym,2) .gt. nnBstR(iSym,3)) Then
-               Write(Lupri,*) SecNam,': dimension of reduced set at 2 ',&
-     &                        ' is larger than that at 3'
-               Write(Lupri,*) 'Symmetry: ',iSym,'  ID of 3: ',iRedC
-               Write(Lupri,*) 'Dimension of reduced set 2: ',           &
-     &                        nnBstR(iSym,2)
-               Write(Lupri,*) 'Dimension of reduced set 3: ',           &
-     &                        nnBstR(iSym,3)
-               Write(Lupri,*) 'Unable to continue...'
-               irc = 104
-               Return
-            End If
+    if (nnBstR(iSym,2) > nnBstR(iSym,3)) then
+      write(Lupri,*) SecNam,': dimension of reduced set at 2 is larger than that at 3'
+      write(Lupri,*) 'Symmetry: ',iSym,'  ID of 3: ',iRedC
+      write(Lupri,*) 'Dimension of reduced set 2: ',nnBstR(iSym,2)
+      write(Lupri,*) 'Dimension of reduced set 3: ',nnBstR(iSym,3)
+      write(Lupri,*) 'Unable to continue...'
+      irc = 104
+      return
+    end if
 
-!           Define mapping from reduced set at location 2 to that at
-!           location 3.
-!           --------------------------------------------------------
+    ! Define mapping from reduced set at location 2 to that at
+    ! location 3.
+    ! --------------------------------------------------------
 
-            Call Cho_RS2RS(iScr,SIZE(iScr),2,3,iRedC,iSym)
+    call Cho_RS2RS(iScr,size(iScr),2,3,iRedC,iSym)
 
-!           Reorder vectors.
-!           ----------------
+    ! Reorder vectors.
+    ! ----------------
 
-            lRow = nnBstR(iSym,2)
-            lCol = nVec_in_Buf(iSym)
-            iS = ip_ChVBuf_Sym(iSym)
-            iE = iS - 1 + lRow*lCol
-            V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+    lRow = nnBstR(iSym,2)
+    lCol = nVec_in_Buf(iSym)
+    iS = ip_ChVBuf_Sym(iSym)
+    iE = iS-1+lRow*lCol
+    V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
-            lRow = nnBstR(iSym,3)
-            iE = iS - 1 + lRow*lCol
-            V3(1:lRow,1:lCol) => CHVBUF(iS:iE)
+    lRow = nnBstR(iSym,3)
+    iE = iS-1+lRow*lCol
+    V3(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
-            Do iVec = 1,nVec_in_Buf(iSym)
-               Do iRS2 = 1,nnBstR(iSym,2)
-                  jRS3 = iScr(iRS2)
-#if defined (_DEBUGPRINT_)
-                  If (iRS2.lt.1 .or. iRS2.gt.SIZE(iScr)) Then
-                     Write(LuPri,*) 'iRS2=',iRS2
-                     Write(LuPri,*) 'SIZE(iScr)=',SIZE(iScr)
-                     Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
-                  End If
-                  If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
-                     Write(LuPri,*) 'jRS3=',JRS3
-                     Write(LuPri,*) 'nnBstR(iSym,3)=',nnBstR(iSym,3)
-                     Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
-                  End If
-#endif
-                  V2(iRS2,iVec) = V3(jRS3,iVec)
-               End Do
-            End Do
+    do iVec=1,nVec_in_Buf(iSym)
+      do iRS2=1,nnBstR(iSym,2)
+        jRS3 = iScr(iRS2)
+#       ifdef _DEBUGPRINT_
+        if ((iRS2 < 1) .or. (iRS2 > size(iScr))) then
+          write(LuPri,*) 'iRS2=',iRS2
+          write(LuPri,*) 'SIZE(iScr)=',size(iScr)
+          call Cho_Quit('RS-2-RS map error in '//SecNam,104)
+        end if
+        if ((jRS3 < 1) .or. (jRS3 > nnBstR(iSym,3))) then
+          write(LuPri,*) 'jRS3=',JRS3
+          write(LuPri,*) 'nnBstR(iSym,3)=',nnBstR(iSym,3)
+          call Cho_Quit('RS-2-RS map error in '//SecNam,104)
+        end if
+#       endif
+        V2(iRS2,iVec) = V3(jRS3,iVec)
+      end do
+    end do
 
-         End If
-      End Do
-      V2=>Null()
-      V3=>Null()
+  end if
+end do
+V2 => null()
+V3 => null()
 
-!     Read in more vectors.
-!     =====================
+! Read in more vectors.
+! =====================
 
-      nSys = 0 ! #calls to reading routine (counter)
+nSys = 0 ! #calls to reading routine (counter)
 
-      Call mma_maxDBLE(l_VRd)
-      Call mma_allocate(VRd,l_VRd,Label='VRd')
-      Do iSym = 1,nSym
-         nDisk = NumCho(iSym) - nVec_in_Buf(iSym)
-#if defined (_DEBUGPRINT_)
-         If (nDisk .lt. 0) Then
-            Call Cho_Quit('nDisk < 0 in '//SecNam,103)
-         End If
-#endif
-         iMapC = -1
-         If (nnBstR(iSym,2).gt.0 .and. nDisk.gt.0) Then
+call mma_maxDBLE(l_VRd)
+call mma_allocate(VRd,l_VRd,Label='VRd')
+do iSym=1,nSym
+  nDisk = NumCho(iSym)-nVec_in_Buf(iSym)
+# ifdef _DEBUGPRINT_
+  if (nDisk < 0) call Cho_Quit('nDisk < 0 in '//SecNam,103)
+# endif
+  iMapC = -1
+  if ((nnBstR(iSym,2) > 0) .and. (nDisk > 0)) then
 
-!           Compute how many more vectors can be stored in buffer taking
-!           into account the number of vectors on disk.
-!           ------------------------------------------------------------
+    ! Compute how many more vectors can be stored in buffer taking
+    ! into account the number of vectors on disk.
+    ! ------------------------------------------------------------
 
-            Left = l_ChVBuf_Sym(iSym) - nnBstR(iSym,2)*nVec_in_Buf(iSym)
-            If (Left .ge. 0) Then
-               nVec = min(Left/nnBstR(iSym,2),nDisk)
-            Else
-               Call Cho_Quit('Left < 0 in '//SecNam,103)
-               nVec = 0
-            End If
-            iVec1 = nVec_in_Buf(iSym) + 1
-            iVec2 = iVec1 + nVec - 1
+    Left = l_ChVBuf_Sym(iSym)-nnBstR(iSym,2)*nVec_in_Buf(iSym)
+    if (Left >= 0) then
+      nVec = min(Left/nnBstR(iSym,2),nDisk)
+    else
+      call Cho_Quit('Left < 0 in '//SecNam,103)
+      nVec = 0
+    end if
+    iVec1 = nVec_in_Buf(iSym)+1
+    iVec2 = iVec1+nVec-1
 
-!           Read and reorder vectors.
-!           -------------------------
+    ! Read and reorder vectors.
+    ! -------------------------
 
-            iVec = iVec1
-            Do While (iVec .le. iVec2)
+    iVec = iVec1
+    do while (iVec <= iVec2)
 
-!              Read vectors.
-!              -------------
+      ! Read vectors.
+      ! -------------
 
-               nVRd  = 0
-               mUsed = 0
-               Call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,           &
-     &                        iRedC,mUsed)
-               If (nVRd .lt. 1) Then
-                  Call Cho_Quit('Insufficient memory for read in '      &
-     &                          //SecNam,101)
-               End If
-               nSys = nSys + 1
+      nVRd = 0
+      mUsed = 0
+      call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,iRedC,mUsed)
+      if (nVRd < 1) call Cho_Quit('Insufficient memory for read in '//SecNam,101)
+      nSys = nSys+1
 
-!              Reorder the vectors and store in buffer in current
-!              reduced set.
-!              --------------------------------------------------
+      ! Reorder the vectors and store in buffer in current
+      ! reduced set.
+      ! --------------------------------------------------
 
-               lRow = nnBstR(iSym,2)
-               lCol = nVec_in_Buf(iSym)+nVRd
-               iS = ip_ChVBuf_Sym(iSym)
-               iE = iS - 1 + lRow*lCol
+      lRow = nnBstR(iSym,2)
+      lCol = nVec_in_Buf(iSym)+nVRd
+      iS = ip_ChVBuf_Sym(iSym)
+      iE = iS-1+lRow*lCol
 
-               V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+      V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
-               iOff3 = 0
-               Do kVec = 1,nVRd
+      iOff3 = 0
+      do kVec=1,nVRd
 
-                  jVec = iVec + kVec - 1
-                  jRed = InfVec(jVec,2,iSym)
-                  If (jRed .ne. iRedC) Then
-                     Call Cho_X_SetRed(irc,3,jRed)
-                     If (irc .ne. 0) Then
-                        Write(Lupri,*)                                  &
-     &                  SecNam,': Cho_X_SetRed [2] returned ',irc
-                        irc = 104
-                        Return
-                     End If
-                     iRedC = jRed
-                  End If
+        jVec = iVec+kVec-1
+        jRed = InfVec(jVec,2,iSym)
+        if (jRed /= iRedC) then
+          call Cho_X_SetRed(irc,3,jRed)
+          if (irc /= 0) then
+            write(Lupri,*) SecNam,': Cho_X_SetRed [2] returned ',irc
+            irc = 104
+            return
+          end if
+          iRedC = jRed
+        end if
 
-                  If (jRed .ne. iMapC) Then
-                     Call Cho_RS2RS(iScr,SIZE(iScr),2,3,jRed,iSym)
-                     iMapC = jRed
-                  End If
+        if (jRed /= iMapC) then
+          call Cho_RS2RS(iScr,size(iScr),2,3,jRed,iSym)
+          iMapC = jRed
+        end if
 
-                  Do iRS2 = 1,nnBstR(iSym,2)
-                     jRS3 = iScr(iRS2)
-#if defined (_DEBUGPRINT_)
-                     If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
-                        Call Cho_Quit('RS-2-RS map error [2] in '       &
-     &                                //SecNam,104)
-                     End If
-#endif
-                     V2(iRS2,jVec) = VRd(iOff3+jRS3)
-                  End Do
+        do iRS2=1,nnBstR(iSym,2)
+          jRS3 = iScr(iRS2)
+#         ifdef _DEBUGPRINT_
+          if ((jRS3 < 1) .or. (jRS3 > nnBstR(iSym,3))) call Cho_Quit('RS-2-RS map error [2] in '//SecNam,104)
+#         endif
+          V2(iRS2,jVec) = VRd(iOff3+jRS3)
+        end do
 
-                  iOff3 = iOff3 + nnBstR(iSym,3)
+        iOff3 = iOff3+nnBstR(iSym,3)
 
-               End Do
+      end do
 
-!              Update counters.
-!              ----------------
+      ! Update counters.
+      ! ----------------
 
-               iVec = iVec + nVRd
-               nVec_in_Buf(iSym) = nVec_in_Buf(iSym) + nVRd
+      iVec = iVec+nVRd
+      nVec_in_Buf(iSym) = nVec_in_Buf(iSym)+nVRd
 
-            End Do
+    end do
 
-         End If
-      End Do
-      Call mma_deallocate(VRd)
+  end if
+end do
+call mma_deallocate(VRd)
 
-!     Update global timing.
-!     ---------------------
+! Update global timing.
+! ---------------------
 
-      If (DoStat) nSys_Call = nSys_Call + nSys
+if (DoStat) nSys_Call = nSys_Call+nSys
 
-!     Update global timing.
-!     ---------------------
+! Update global timing.
+! ---------------------
 
-      If (DoTime) Then
-         Call Cho_Timer(C2,W2)
-         tDecom(1,2) = tDecom(1,2) + C2 - C1
-         tDecom(2,2) = tDecom(2,2) + W2 - W1
-      End If
+if (DoTime) then
+  call Cho_Timer(C2,W2)
+  tDecom(1,2) = tDecom(1,2)+C2-C1
+  tDecom(2,2) = tDecom(2,2)+W2-W1
+end if
 
-!     Debug print.
-!     ------------
+! Debug print.
+! ------------
 
-      If (LocDbg) Then
-         Write(Lupri,*) 'After updating: '
-         Write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',                      &
-     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
-         Write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-      End If
+if (LocDbg) then
+  write(Lupri,*) 'After updating: '
+  write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
+  write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
+end if
 
-      End
+end subroutine Cho_VecBuf_Maintain

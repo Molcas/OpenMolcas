@@ -8,10 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module ChoSP
 
-Public :: nnShl_SP
+module ChoSP
 
-Integer nnShl_SP
+public :: nnShl_SP
 
-End Module ChoSP
+integer nnShl_SP
+
+end module ChoSP

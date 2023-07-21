@@ -8,31 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RSCOPY(IRS1,IRS2)
+
+subroutine CHO_RSCOPY(IRS1,IRS2)
 !
-!     Purpose: copy red. set info from location IRS1 to IRS2.
-!              Special action is taken with INDRED if IRS1=1 so that it
-!              will point as expected for the "current" reduced set.
-!
-      use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
-      IMPLICIT NONE
-      INTEGER IRS1, IRS2
-      INTEGER IAB
-      INTEGER MSYM
+! Purpose: copy red. set info from location IRS1 to IRS2.
+!          Special action is taken with INDRED if IRS1=1 so that it
+!          will point as expected for the "current" reduced set.
+
+use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
+
+implicit none
+integer IRS1, IRS2
+integer IAB
+integer MSYM
 #include "cholesky.fh"
 
-      MSYM=SIZE(iiBstRSh,1)
-      nnBstRSh(:,:,IRS2) = nnBstRSh(:,:,IRS1)
-      iiBstRSh(:,:,IRS2) = iiBstRSh(:,:,IRS1)
-      iiBstR    (1:MSYM,IRS2) = iiBstR    (1:MSYM,IRS1)
-      nnBstR    (1:MSYM,IRS2) = nnBstR    (1:MSYM,IRS1)
-      IF (IRS1 .EQ. 1) THEN
-         DO IAB = 1,SIZE(INDRED,1)
-            INDRED(IAB,IRS2) = IAB
-         END DO
-      ELSE
-         IndRed(:,iRS2) = IndRed(:,iRS1)
-      END IF
-      NNBSTRT(IRS2) = NNBSTRT(IRS1)
+MSYM = size(iiBstRSh,1)
+nnBstRSh(:,:,IRS2) = nnBstRSh(:,:,IRS1)
+iiBstRSh(:,:,IRS2) = iiBstRSh(:,:,IRS1)
+iiBstR(1:MSYM,IRS2) = iiBstR(1:MSYM,IRS1)
+nnBstR(1:MSYM,IRS2) = nnBstR(1:MSYM,IRS1)
+if (IRS1 == 1) then
+  do IAB=1,size(INDRED,1)
+    INDRED(IAB,IRS2) = IAB
+  end do
+else
+  IndRed(:,iRS2) = IndRed(:,iRS1)
+end if
+NNBSTRT(IRS2) = NNBSTRT(IRS1)
 
-      END
+end subroutine CHO_RSCOPY

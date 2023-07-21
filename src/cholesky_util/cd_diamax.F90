@@ -10,48 +10,49 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine CD_DiaMax(Diag,nDim,iPivot,iQual,nQual,DiaMin)
+
+subroutine CD_DiaMax(Diag,nDim,iPivot,iQual,nQual,DiaMin)
 !
-!     Thomas Bondo Pedersen, October 2004.
+! Thomas Bondo Pedersen, October 2004.
 !
-!     Purpose: find nQual largest elements in Diag and leave pointers to
-!              them in iQual. Only elements larger than DiaMin are
-!              returned (thus, nQual may be reduced here).
-!
-      Implicit None
-      Integer nDim, nQual
-      Real*8  Diag(nDim)
-      Real*8  DiaMin
-      Integer iPivot(nDim), iQual(nQual)
+! Purpose: find nQual largest elements in Diag and leave pointers to
+!          them in iQual. Only elements larger than DiaMin are
+!          returned (thus, nQual may be reduced here).
 
-      Integer i, j, iTmp, iMax
+implicit none
+integer nDim, nQual
+real*8 Diag(nDim)
+real*8 DiaMin
+integer iPivot(nDim), iQual(nQual)
 
-      Do i = 1,nDim
-         iPivot(i) = i
-      End Do
+integer i, j, iTmp, iMax
 
-      Do j = 1,nQual
-         Do i = nDim,j+1,-1
-            If (Diag(iPivot(i)) .gt. Diag(iPivot(i-1))) Then
-               iTmp = iPivot(i-1)
-               iPivot(i-1) = iPivot(i)
-               iPivot(i)   = iTmp
-            End If
-         End Do
-      End Do
+do i=1,nDim
+  iPivot(i) = i
+end do
 
-      Call iZero(iQual,nQual)
-      iMax  = nQual
-      i     = 0
-      nQual = 0
-      Do While (i .lt. iMax)
-         i = i + 1
-         If (Diag(iPivot(i)) .ge. DiaMin) Then
-            nQual = nQual + 1
-            iQual(nQual) = iPivot(i)
-         Else
-            i = iMax + 1
-         End If
-      End Do
+do j=1,nQual
+  do i=nDim,j+1,-1
+    if (Diag(iPivot(i)) > Diag(iPivot(i-1))) then
+      iTmp = iPivot(i-1)
+      iPivot(i-1) = iPivot(i)
+      iPivot(i) = iTmp
+    end if
+  end do
+end do
 
-      End
+call iZero(iQual,nQual)
+iMax = nQual
+i = 0
+nQual = 0
+do while (i < iMax)
+  i = i+1
+  if (Diag(iPivot(i)) >= DiaMin) then
+    nQual = nQual+1
+    iQual(nQual) = iPivot(i)
+  else
+    i = iMax+1
+  end if
+end do
+
+end subroutine CD_DiaMax

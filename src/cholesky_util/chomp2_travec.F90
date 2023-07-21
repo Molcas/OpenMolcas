@@ -10,141 +10,137 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,          &
-     &                         iSyCho,iSyCO,iSyCV,iLoc)
+
+subroutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: compute ai-vector from reduced set AO vector.
-!
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
-      Real*8 Scr(lScr)
+! Purpose: compute ai-vector from reduced set AO vector.
+
+use ChoArr, only: iRS2F
+use ChoSwp, only: IndRed
+
+implicit real*8(a-h,o-z)
+real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
+real*8 Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
+character*13 SecNam
+parameter(SecNam='ChoMP2_TraVec')
+real*8 Fac(0:1)
+data Fac/0.5d0,1.0d0/
+! Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_TraVec')
+if ((iLoc < 2) .or. (iLoc > 3)) then
+  write(6,*) SecNam,': illegal iLoc = ',iLoc
+  call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
+end if
+iSyScr = MulD2h(iSyCho,iSyCO)
+if (lScr < nT1AOT(iSyScr)) then
+  write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
+  write(6,*) SecNam,': needed                          = ',nT1AOT(iSyScr)
+  call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
+else
+  call FZero(Scr,nT1AOT(iSyScr))
+end if
 
-      Real*8 Fac(0:1)
-      Data Fac /0.5D0,1.0D0/
+! First half-transformation step:
+! Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COcc(i,beta)
+! ------------------------------------------------------
 
-      MulD2h(i,j)=iEor(i-1,j-1)+1
+if (iSyCho == 1) then
 
-      If (iLoc.lt.2 .or. iLoc.gt.3) Then
-         Write(6,*) SecNam,': illegal iLoc = ',iLoc
-         Call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
-      End If
-      iSyScr = MulD2h(iSyCho,iSyCO)
-      If (lScr .lt. nT1AOT(iSyScr)) Then
-         Write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-         Write(6,*) SecNam,': needed                          = ',      &
-     &              nT1AOT(iSyScr)
-         Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
-      Else
-         Call FZero(Scr,nT1AOT(iSyScr))
-      End If
+  do iAlBe=1,nnBstR(iSyCho,iLoc)
 
-!     First half-transformation step:
-!     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COcc(i,beta)
-!     ------------------------------------------------------
+    jAlBe = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
+    iAlpha = iRS2F(1,jAlBe)
+    iBeta = iRS2F(2,jAlBe)
 
-      If (iSyCho .eq. 1) Then
+    iSymAl = 1
+    do iSym=nSym,2,-1
+      if (iAlpha > iBas(iSym)) then
+        iSymAl = iSym
+        Go To 998
+      end if
+    end do
+998 iSymBe = iSymAl
+    iSymi = MulD2h(iSymBe,iSyCO)
 
-         Do iAlBe = 1,nnBstR(iSyCho,iLoc)
+    jAlpha = iAlpha-iBas(iSymAl)
+    jBeta = iBeta-iBas(iSymBe)
 
-            jAlBe  = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
-            iAlpha = iRS2F(1,jAlBe)
-            iBeta  = iRS2F(2,jAlBe)
+    AOVal = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
+    kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
+    kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
+    do i=1,nOcc(iSymi)
+      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COcc(kOffBe+i)
+      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COcc(kOffAl+i)
+    end do
 
-            iSymAl = 1
-            Do iSym = nSym,2,-1
-               If (iAlpha .gt. iBas(iSym)) Then
-                  iSymAl = iSym
-                  Go To 998
-               End If
-            End Do
-  998       iSymBe = iSymAl
-            iSymi  = MulD2h(iSymBe,iSyCO)
+  end do
 
-            jAlpha = iAlpha - iBas(iSymAl)
-            jBeta  = iBeta  - iBas(iSymBe)
+else
 
-            AOVal  = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
-            kOffAl = iT1AOT(iSymi,iSymAl) + nOcc(iSymi)*(jAlpha - 1)
-            kOffBe = iT1AOT(iSymi,iSymBe) + nOcc(iSymi)*(jBeta  - 1)
-            Do i = 1,nOcc(iSymi)
-               Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COcc(kOffBe+i)
-               Scr(kOffBe+i) = Scr(kOffBe+i) + AOVal*COcc(kOffAl+i)
-            End Do
+  do iAlBe=1,nnBstR(iSyCho,iLoc)
 
-         End Do
+    jAlBe = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
+    iAlpha = iRS2F(1,jAlBe)
+    iBeta = iRS2F(2,jAlBe)
 
-      Else
+    iSymAl = 1
+    do iSym=nSym,2,-1
+      if (iAlpha > iBas(iSym)) then
+        iSymAl = iSym
+        Go To 999
+      end if
+    end do
+999 iSymBe = MulD2h(iSymAl,iSyCho)
 
-         Do iAlBe = 1,nnBstR(iSyCho,iLoc)
+    jAlpha = iAlpha-iBas(iSymAl)
+    jBeta = iBeta-iBas(iSymBe)
 
-            jAlBe  = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
-            iAlpha = iRS2F(1,jAlBe)
-            iBeta  = iRS2F(2,jAlBe)
+    AOVal = VecAO(iAlBe)
 
-            iSymAl = 1
-            Do iSym = nSym,2,-1
-               If (iAlpha .gt. iBas(iSym)) Then
-                  iSymAl = iSym
-                  Go To 999
-               End If
-            End Do
-  999       iSymBe = MulD2h(iSymAl,iSyCho)
+    iSymi = MulD2h(iSymBe,iSyCO)
+    kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
+    kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
+    do i=1,nOcc(iSymi)
+      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COcc(kOffBe+i)
+    end do
 
-            jAlpha = iAlpha - iBas(iSymAl)
-            jBeta  = iBeta  - iBas(iSymBe)
+    iSymi = MulD2h(iSymAl,iSyCO)
+    kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
+    kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
+    do i=1,nOcc(iSymi)
+      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COcc(kOffAl+i)
+    end do
 
-            AOVal  = VecAO(iAlBe)
+  end do
 
-            iSymi  = MulD2h(iSymBe,iSyCO)
-            kOffAl = iT1AOT(iSymi,iSymAl) + nOcc(iSymi)*(jAlpha - 1)
-            kOffBe = iT1AOT(iSymi,iSymBe) + nOcc(iSymi)*(jBeta  - 1)
-            Do i = 1,nOcc(iSymi)
-               Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COcc(kOffBe+i)
-            End Do
+end if
 
-            iSymi  = MulD2h(iSymAl,iSyCO)
-            kOffAl = iT1AOT(iSymi,iSymAl) + nOcc(iSymi)*(jAlpha - 1)
-            kOffBe = iT1AOT(iSymi,iSymBe) + nOcc(iSymi)*(jBeta  - 1)
-            Do i = 1,nOcc(iSymi)
-               Scr(kOffBe+i) = Scr(kOffBe+i) + AOVal*COcc(kOffAl+i)
-            End Do
+! Second half-transformation step:
+! VecMO(a,i) = sum_alpha CVir(alpha,a)*Scr(i,alpha)
+! -------------------------------------------------
 
-         End Do
+do iSymi=1,nSym
 
-      End If
+  iSyma = MulD2h(iSymi,iSyCho)
+  iSymAl = MulD2h(iSyma,iSyCV)
 
-!     Second half-transformation step:
-!     VecMO(a,i) = sum_alpha CVir(alpha,a)*Scr(i,alpha)
-!     -------------------------------------------------
+  nTotAl = nBas(iSymAl)
+  nTota = nVir(iSyma)
+  nToti = nOcc(iSymi)
 
-      Do iSymi = 1,nSym
+  if ((nToti > 0) .and. (nTota > 0) .and. (nTotAl > 0)) then
+    kOff1 = iAOVir(iSymAl,iSyma)+1
+    kOff2 = iT1AOT(iSymi,iSymAl)+1
+    kOff3 = iT1am(iSyma,iSymi)+1
+    call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),1.0d0,CVir(kOff1),nTotAl,Scr(kOff2),nToti,0.0d0,VecMO(kOff3),nTota)
+  end if
 
-         iSyma  = MulD2h(iSymi,iSyCho)
-         iSymAl = MulD2h(iSyma,iSyCV)
+end do
 
-         nTotAl = nBas(iSymAl)
-         nTota  = nVir(iSyma)
-         nToti  = nOcc(iSymi)
-
-         If (nToti.gt.0 .and. nTota.gt.0 .and. nTotAl.gt.0) Then
-            kOff1 = iAOVir(iSymAl,iSyma) + 1
-            kOff2 = iT1AOT(iSymi,iSymAl) + 1
-            kOff3 = iT1am(iSyma,iSymi)   + 1
-            Call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),   &
-     &                 1.0D0,CVir(kOff1),nTotAl,Scr(kOff2),nToti,       &
-     &                 0.0D0,VecMO(kOff3),nTota)
-         End If
-
-      End Do
-
-      End
+end subroutine ChoMP2_TraVec

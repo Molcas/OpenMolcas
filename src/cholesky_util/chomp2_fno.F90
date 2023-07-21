@@ -10,54 +10,52 @@
 !                                                                      *
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine ChoMP2_FNO(irc,D_ab,D_ii,EOcc,EVir,Sorted,DelOrig)
+
+subroutine ChoMP2_FNO(irc,D_ab,D_ii,EOcc,EVir,Sorted,DelOrig)
 !
-!     F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
-!
-!
-      use stdalloc
-      Implicit None
-      Integer irc
-      Real*8  D_ab(*), D_ii(*)
-      Real*8  EOcc(*), EVir(*)
-      Logical Sorted, DelOrig
+! F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
+
+use stdalloc
+
+implicit none
+integer irc
+real*8 D_ab(*), D_ii(*)
+real*8 EOcc(*), EVir(*)
+logical Sorted, DelOrig
 #include "chomp2.fh"
+character(len=3), parameter :: ThisNm = 'FNO'
+character(len=10), parameter :: SecNam = 'ChoMP2_FNO'
+integer lWrk
+real*8, allocatable :: Wrk(:)
 
-      Character(LEN=3),  Parameter:: ThisNm = 'FNO'
-      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_FNO'
+irc = 0
 
-      Integer lWrk
+call mma_maxDBLE(lWrk)
+call mma_allocate(Wrk,lWrk,Label='Wrk')
 
-      Real*8, Allocatable:: Wrk(:)
+if (Sorted) then
+  call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
+    Go To 1 ! exit
+  end if
+else
+  if (nBatch == 1) then
+    call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
+    if (irc /= 0) then
+      write(6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
+      Go To 1 ! exit
+    end if
+  else
+    call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
+    if (irc /= 0) then
+      write(6,*) SecNam,': ChoMP2_fno_Org returned ',irc
+      Go To 1 ! exit
+    end if
+  end if
+end if
 
-      irc = 0
+1 continue
+call mma_deallocate(Wrk)
 
-      Call mma_maxDBLE(lWrk)
-      Call mma_allocate(Wrk,lWrk,Label='Wrk')
-
-      If (Sorted) Then
-         Call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
-            Go To 1 ! exit
-         End If
-      Else
-         If (nBatch .eq. 1) Then
-            Call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,        &
-     &                              Wrk,lWrk)
-            If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
-               Go To 1 ! exit
-            End If
-         Else
-            Call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,        &
-     &                              Wrk,lWrk)
-            If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_fno_Org returned ',irc
-               Go To 1 ! exit
-            End If
-         End If
-      End If
-
-    1 Call mma_deallocate(Wrk)
-      End
+end subroutine ChoMP2_FNO

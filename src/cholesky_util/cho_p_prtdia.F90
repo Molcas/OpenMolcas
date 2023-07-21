@@ -8,46 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_PrtDia(Diag,Sync,iSyLst,nSyLst,iLoc)
+
+subroutine Cho_P_PrtDia(Diag,Sync,iSyLst,nSyLst,iLoc)
 !
-!     Purpose: print global diagonal. Diag is the local diagonal and
-!              if Sync=.True. the global diagonal is
-!              synchronized before printing. Array iSyLst(nSyLst)
-!              specifies which symmetry blocks to print, and iLoc points
-!              to the memory location of the reduced set index arrays to
-!              use for printing (and synchronizing, if requested).
-!
-      use ChoSwp, only: Diag_G
-      Implicit None
-      Real*8  Diag(*)
-      Logical Sync
-      Integer nSyLst
-      Integer iSyLst(nSyLst)
-      Integer iLoc
+! Purpose: print global diagonal. Diag is the local diagonal and
+!          if Sync=.True. the global diagonal is
+!          synchronized before printing. Array iSyLst(nSyLst)
+!          specifies which symmetry blocks to print, and iLoc points
+!          to the memory location of the reduced set index arrays to
+!          use for printing (and synchronizing, if requested).
+
+use ChoSwp, only: Diag_G
+
+implicit none
+real*8 Diag(*)
+logical Sync
+integer nSyLst
+integer iSyLst(nSyLst)
+integer iLoc
 #include "cho_para_info.fh"
 #include "choglob.fh"
 
-      If (Cho_Real_Par) Then
+if (Cho_Real_Par) then
 
-!        Sync diagonal if requested.
-!        ---------------------------
+  ! Sync diagonal if requested.
+  ! ---------------------------
 
-         If (Sync) Then
-            Call Cho_P_SyncDiag(Diag,iLoc)
-         End If
+  if (Sync) call Cho_P_SyncDiag(Diag,iLoc)
 
-!        Swap local and global index arrays and use original serial routine
-!        to print diagonal.
-!        ------------------------------------------------------------------
+  ! Swap local and global index arrays and use original serial routine
+  ! to print diagonal.
+  ! ------------------------------------------------------------------
 
-         Call Cho_P_IndxSwp()
-         Call Cho_PrtDia(Diag_G,iSyLst,nSyLst,iLoc)
-         Call Cho_P_IndxSwp()
+  call Cho_P_IndxSwp()
+  call Cho_PrtDia(Diag_G,iSyLst,nSyLst,iLoc)
+  call Cho_P_IndxSwp()
 
-      Else
+else
 
-         Call Cho_PrtDia(Diag,iSyLst,nSyLst,iLoc)
+  call Cho_PrtDia(Diag,iSyLst,nSyLst,iLoc)
 
-      End If
+end if
 
-      End
+end subroutine Cho_P_PrtDia

@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_CLOSE(LUNIT,STAT)
-!
-!     Purpose: close sequential unformatted fortran file.
-!
-      IMPLICIT NONE
-      INTEGER  LUNIT
-      CHARACTER*(*) STAT
 
-      IF ((LUNIT.LT.1) .OR. (LUNIT.GT.99)) THEN
-         CALL CHO_QUIT('CHO_CLOSE: unit out of bounds!',104)
-      ELSE
-         CLOSE(LUNIT,STATUS=STAT)
-         LUNIT = -1
-      END IF
+subroutine CHO_CLOSE(LUNIT,STAT)
+!
+! Purpose: close sequential unformatted fortran file.
 
-      END
+implicit none
+integer LUNIT
+character*(*) STAT
+
+if ((LUNIT < 1) .or. (LUNIT > 99)) then
+  call CHO_QUIT('CHO_CLOSE: unit out of bounds!',104)
+else
+  close(LUNIT,STATUS=STAT)
+  LUNIT = -1
+end if
+
+end subroutine CHO_CLOSE

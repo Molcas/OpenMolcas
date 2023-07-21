@@ -31,67 +31,68 @@
 !>                       Note: in case of out of core, in the first call this array *must* be initialized to ``1.0d0``.
 !>                       For the in core case, it *must* also coincide with the first column of \p Y and *must* still be initialized in input.
 !***********************************************************************
-      SUBROUTINE CHO_GET_OED_cd(incore,nOV,W,NVec,ID_bj,JVec,Y,R)
-      Implicit Real*8 (a-h,o-z)
 
-      Logical incore
-      Integer nOV, NVec, JVec, ID_bj(*)
-      Real*8  W(*), Y(*), R(*)
+subroutine CHO_GET_OED_cd(incore,nOV,W,NVec,ID_bj,JVec,Y,R)
 
+implicit real*8(a-h,o-z)
+logical incore
+integer nOV, NVec, JVec, ID_bj(*)
+real*8 W(*), Y(*), R(*)
 #include "warnings.h"
 !******************************************************************
 
-      If (NVec.lt.1) Then
-         Write(6,*)'Error in CHO_GET_OED_cd : in input NVec < 1 .'
-         Call quit(_RC_CHO_LOG_)
-      EndIf
+if (NVec < 1) then
+  write(6,*) 'Error in CHO_GET_OED_cd : in input NVec < 1 .'
+  call quit(_RC_CHO_LOG_)
+end if
 
-      xtwo = sqrt(2.0d0)
+xtwo = sqrt(2.0d0)
 
 ! Compute  R(p,k) = R(p,k-1) * (W(p) - W(J[k-1]))/(W(p) + W(J[k-1]))
 ! ------------------------------------------------------------------
-      If (incore) Then
+if (incore) then
 
-         If (JVec.ne.1) Then
-            Write(6,*)'CHO_GET_OED_cd : JVec must be 1 if incore .'
-            Call quit(_RC_CHO_LOG_)
-         EndIf
-         Do Jk=2,NVec
-            kp = NOV*(Jk-1)
-            np = kp - NOV
-            Jm = ID_bj(Jk-1)
-            Do ip=1,NOV
-               Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-            End Do
-          End Do
+  if (JVec /= 1) then
+    write(6,*) 'CHO_GET_OED_cd : JVec must be 1 if incore .'
+    call quit(_RC_CHO_LOG_)
+  end if
+  do Jk=2,NVec
+    kp = NOV*(Jk-1)
+    np = kp-NOV
+    Jm = ID_bj(Jk-1)
+    do ip=1,NOV
+      Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
+    end do
+  end do
 
-      Else
+else
 
-         Jm = ID_bj(JVec-1)
-         Do ip=1,NOV
-            Y(ip) = R(ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-         End Do
-         Do Jk=2,NVec
-            kp = NOV*(Jk-1)
-            np = kp - NOV
-            Jm = ID_bj(JVec+Jk-3)
-            Do ip=1,NOV
-               Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-            End Do
-          End Do
-          call dcopy_(NOV,Y(1+NOV*(NVec-1)),1,R,1)
+  Jm = ID_bj(JVec-1)
+  do ip=1,NOV
+    Y(ip) = R(ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
+  end do
+  do Jk=2,NVec
+    kp = NOV*(Jk-1)
+    np = kp-NOV
+    Jm = ID_bj(JVec+Jk-3)
+    do ip=1,NOV
+      Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
+    end do
+  end do
+  call dcopy_(NOV,Y(1+NOV*(NVec-1)),1,R,1)
 
-      EndIf
+end if
 
 ! Compute  Y(p,k) = R(p,k) * sqrt(2*W(J[k]))/(W(p) + W(J[k]))
 ! -----------------------------------------------------------
-      Do Jk=1,NVec
-         kp = NOV*(Jk-1)
-         Jm = ID_bj(JVec+Jk-1)
-         Do ip=1,NOV
-            Y(kp+ip) = Y(kp+ip)*xtwo*sqrt(W(Jm))/(W(ip)+W(Jm))
-         End Do
-      End Do
+do Jk=1,NVec
+  kp = NOV*(Jk-1)
+  Jm = ID_bj(JVec+Jk-1)
+  do ip=1,NOV
+    Y(kp+ip) = Y(kp+ip)*xtwo*sqrt(W(Jm))/(W(ip)+W(Jm))
+  end do
+end do
 
-      Return
-      End
+return
+
+end subroutine CHO_GET_OED_cd

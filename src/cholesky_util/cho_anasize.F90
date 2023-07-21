@@ -8,99 +8,88 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_ANASIZE(VEC,LVEC,BIN,LBIN,LUPRI)
+
+subroutine CHO_ANASIZE(VEC,LVEC,BIN,LBIN,LUPRI)
 !
-!     Purpose: analyse vector (histogram).
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 VEC(LVEC), BIN(LBIN)
+! Purpose: analyse vector (histogram).
 
-      PARAMETER (ZERO = 0.0D0)
+implicit real*8(a-h,o-z)
+real*8 VEC(LVEC), BIN(LBIN)
+parameter(ZERO=0.0d0)
+parameter(MBIN=20)
+integer ICOUNT(MBIN)
+logical FOUND
 
-      PARAMETER (MBIN = 20)
-      INTEGER   ICOUNT(MBIN)
-      LOGICAL   FOUND
+! Return if nothing to do.
+! ------------------------
 
-!     Return if nothing to do.
-!     ------------------------
+if ((LVEC < 1) .or. (LBIN < 1)) return
 
-      IF ((LVEC.LT.1) .OR. (LBIN.LT.1)) RETURN
+! Ensure that BIN is in descending order.
+! ---------------------------------------
 
-!     Ensure that BIN is in descending order.
-!     ---------------------------------------
+IJOB = -1
+call CHO_ORDER(BIN,LBIN,IJOB)
 
-      IJOB = -1
-      CALL CHO_ORDER(BIN,LBIN,IJOB)
+! Test that BIN is positive.
+! --------------------------
 
-!     Test that BIN is positive.
-!     --------------------------
+if (BIN(1) <= ZERO) return
 
-      IF (BIN(1) .LE. ZERO) RETURN
+! Analysis.
+! ---------
 
-!     Analysis.
-!     ---------
+NBIN = min(LBIN,MBIN)
+call IZERO(ICOUNT,NBIN)
+NLOW = 0
+NZER = 0
+NNEG = 0
+XNEG = ZERO
 
-      NBIN = MIN(LBIN,MBIN)
-      CALL IZERO(ICOUNT,NBIN)
-      NLOW = 0
-      NZER = 0
-      NNEG = 0
-      XNEG = ZERO
+do I=1,LVEC
 
-      DO I = 1,LVEC
+  TEST = VEC(I)
 
-         TEST = VEC(I)
+  if (TEST < ZERO) then
+    NNEG = NNEG+1
+    XNEG = min(XNEG,TEST)
+  else if (TEST == ZERO) then
+    NZER = NZER+1
+  end if
 
-         IF (TEST .LT. ZERO) THEN
-            NNEG = NNEG + 1
-            XNEG = MIN(XNEG,TEST)
-         ELSE IF (TEST .EQ. ZERO) THEN
-            NZER = NZER + 1
-         END IF
+  IBIN = 0
+  FOUND = .false.
+  do while ((.not. FOUND) .and. (IBIN < NBIN))
+    IBIN = IBIN+1
+    if (TEST >= BIN(IBIN)) then
+      ICOUNT(IBIN) = ICOUNT(IBIN)+1
+      FOUND = .true.
+    end if
+  end do
+  if (.not. FOUND) NLOW = NLOW+1
 
-         IBIN  = 0
-         FOUND = .FALSE.
-         DO WHILE ((.NOT.FOUND) .AND. (IBIN.LT.NBIN))
-            IBIN = IBIN + 1
-            IF (TEST .GE. BIN(IBIN)) THEN
-               ICOUNT(IBIN) = ICOUNT(IBIN) + 1
-               FOUND = .TRUE.
-            END IF
-         END DO
-         IF (.NOT.FOUND) NLOW = NLOW + 1
+end do
 
-      END DO
+! Print.
+! ------
 
-!     Print.
-!     ------
+TOPCT = 1.0d2/dble(LVEC)
 
-      TOPCT = 1.0D2/DBLE(LVEC)
+JCOUNT = ICOUNT(1)
+write(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Larger than ',BIN(1),':',ICOUNT(1),dble(ICOUNT(1))*TOPCT,'%', &
+                                                              'Accumulated: ',dble(JCOUNT)*TOPCT,'%'
+do IBIN=2,NBIN
+  JCOUNT = JCOUNT+ICOUNT(IBIN)
+  write(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN), &
+                                                                  dble(ICOUNT(IBIN))*TOPCT,'%','Accumulated: ', &
+                                                                  dble(JCOUNT)*TOPCT,'%'
+end do
+JCOUNT = JCOUNT+NLOW
+write(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Smaller than ',BIN(NBIN),':',NLOW,dble(NLOW)*TOPCT,'%', &
+                                                            'Accumulated: ',dble(JCOUNT)*TOPCT,'%'
 
-      JCOUNT = ICOUNT(1)
-      WRITE(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')     &
-     & 'Larger than ',BIN(1),':',ICOUNT(1),                             &
-     & DBLE(ICOUNT(1))*TOPCT,'%','Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
-      DO IBIN = 2,NBIN
-         JCOUNT = JCOUNT + ICOUNT(IBIN)
-         WRITE(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')&
-     &   'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN),     &
-     &   DBLE(ICOUNT(IBIN))*TOPCT,'%',                                  &
-     &   'Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
-      END DO
-      JCOUNT = JCOUNT + NLOW
-      WRITE(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)')       &
-     & 'Smaller than ',BIN(NBIN),':',NLOW,                              &
-     & DBLE(NLOW)*TOPCT,'%','Accumulated: ',DBLE(JCOUNT)*TOPCT,'%'
+write(LUPRI,'(/,1X,A,I12,1X,F7.2,A)') 'Number of elements exactly 0.0D0 :',NZER,dble(NZER)*TOPCT,'%'
+write(LUPRI,'(1X,A,I12,1X,F7.2,A)') 'Number of negative elements      :',NNEG,dble(NNEG)*TOPCT,'%'
+if (NNEG > 0) write(LUPRI,'(1X,A,D12.4)') ' - numerically largest           :',XNEG
 
-      WRITE(LUPRI,'(/,1X,A,I12,1X,F7.2,A)')                             &
-     & 'Number of elements exactly 0.0D0 :',NZER,                       &
-     & DBLE(NZER)*TOPCT,'%'
-      WRITE(LUPRI,'(1X,A,I12,1X,F7.2,A)')                               &
-     & 'Number of negative elements      :',NNEG,                       &
-     & DBLE(NNEG)*TOPCT,'%'
-      IF (NNEG .GT. 0) THEN
-         WRITE(LUPRI,'(1X,A,D12.4)')                                    &
-     & ' - numerically largest           :',XNEG
-      END IF
-
-      END
+end subroutine CHO_ANASIZE

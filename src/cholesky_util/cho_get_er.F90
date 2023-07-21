@@ -47,284 +47,227 @@
 !> @param[out] W       value of the Edmiston--Ruedenberg functional
 !> @param[in]  timings switch on/off timings printout
 !***********************************************************************
-      SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Integer irc
-      Integer nOcc(*)
-      Real*8  CMO(*),ER(*),W
-      Logical timings
 
-      Integer iOcc(8),isMO(8)
-      Real*8  tread(2),tintg(2)
-      Character(LEN=10), Parameter:: SECNAM = 'CHO_get_ER'
+subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+use Constants
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer irc
+integer nOcc(*)
+real*8 CMO(*), ER(*), W
+logical timings
+integer iOcc(8), isMO(8)
+real*8 tread(2), tintg(2)
+character(len=10), parameter :: SECNAM = 'CHO_get_ER'
 #include "cholesky.fh"
 #include "choorb.fh"
+real*8, allocatable :: DLT(:), Lab(:), Dab(:), VJ(:)
 
-      Real*8, Allocatable:: DLT(:), Lab(:), Dab(:), VJ(:)
+JSYM = 1
+if (NumCho(JSYM) < 1) then
+  write(6,*) SECNAM//'No total symmetric vectors present'
+  irc = 77
+  return
+end if
 
-      JSYM=1
-      If (NumCho(JSYM).lt.1) Then
-         Write(6,*)SECNAM//'No total symmetric vectors present'
-         irc = 77
-         Return
-      EndIf
+call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+do i=1,2            ! 1 --> CPU   2 --> Wall
+  tread(i) = zero  !time for reading the vectors
+  tintg(i) = zero  !time for computing the functional
+end do
 
-      do i=1,2            ! 1 --> CPU   2 --> Wall
-         tread(i) = zero  !time for reading the vectors
-         tintg(i) = zero  !time for computing the functional
+! compute some offsets and other quantities
+MaxB = nBas(1)
+iOcc(1) = 0
+isMO(1) = 0
+do kSym=2,nSym
+  iOcc(kSym) = iOcc(kSym-1)+nOcc(kSym-1)
+  isMO(kSym) = isMO(kSym-1)+nBas(kSym-1)**2
+  MaxB = max(MaxB,nBas(kSym))
+end do
+
+MaxBB = MaxB*(MaxB+1)/2
+nOccT = iOcc(nSym)+nOcc(nSym)
+
+W = zero ! initialization of the ER-functional value
+call Fzero(ER(1),nOccT) ! and its orbital components
+
+call mma_allocate(DLT,MaxBB,Label='DLT')
+DLT(:) = Zero
+
+iLoc = 3 ! use scratch location in reduced index arrays
+
+JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
+JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+
+do JRED=JRED1,JRED2
+
+  ! Memory management section -----------------------------
+
+  call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+
+  if (nVrs == 0) goto 999
+
+  if (nVrs < 0) then
+    write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
+    call abend()
+  end if
+
+  call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
+  if (irc /= 0) then
+    write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+    call abend()
+  end if
+
+  nRS = nDimRS(JSYM,JRED)
+
+  call mma_allocate(Dab,nRS,Label='Dab')
+
+  call mma_maxDBLE(LWORK)
+
+  nVec = min(LWORK/(nRS+1),nVrs)
+
+  if (nVec < 1) then
+    write(6,*) SECNAM//': Insufficient memory for batch'
+    write(6,*) 'LWORK= ',LWORK
+    write(6,*) 'min. mem. need= ',nRS+1
+    irc = 33
+    call Abend()
+    nBatch = -9999  ! dummy assignment
+  end if
+
+  LREAD = nRS*nVec
+
+  call mma_allocate(Lab,LREAD,Label='Lab')
+  call mma_allocate(VJ,nVec,Label='VJ')
+
+  ! BATCH over the vectors in JSYM=1 ----------------------------
+
+  nBatch = (nVrs-1)/nVec+1
+
+  do iBatch=1,nBatch
+
+    if (iBatch == nBatch) then
+      JNUM = nVrs-nVec*(nBatch-1)
+    else
+      JNUM = nVec
+    end if
+
+    JVEC = nVec*(iBatch-1)+iVrs
+    IVEC2 = JVEC-1+JNUM
+
+    call CWTIME(TCR1,TWR1)
+
+    call CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+
+    if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+      irc = 77
+      return
+    end if
+
+    call CWTIME(TCR2,TWR2)
+    tread(1) = tread(1)+(TCR2-TCR1)
+    tread(2) = tread(2)+(TWR2-TWR1)
+
+    call CWTIME(TCI1,TWI1)
+
+    do kSym=1,nSym
+
+      do ik=1,nOcc(kSym)
+
+        ! Compute the i-th orbital component D[i](a,b) of the density
+        ! D[i](a,b) is stored as upper-triangular
+        do ib=1,nBas(kSym)
+
+          ipb = isMO(kSym)+nBas(kSym)*(ik-1)+ib
+
+          do ia=1,ib-1
+
+            ipa = isMO(kSym)+nBas(kSym)*(ik-1)+ia
+            ipab = ib*(ib-1)/2+ia
+            DLT(ipab) = CMO(ipa)*CMO(ipb)
+
+          end do
+
+          ipab = ib*(ib+1)/2
+          DLT(ipab) = half*CMO(ipb)**2  !diagonal scaled
+
+        end do
+
+        ! Transform the density to reduced storage
+        call switch_density(iLoc,DLT,Dab,kSym)
+
+        !  ( r >= s )
+        !---------------------------------------------------------
+        ! V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
+        !=========================================================
+
+        call DGEMV_('T',nRS,JNUM,TWO,Lab,nRS,Dab,1,ZERO,VJ,1)
+
+        !-------------------------------------------------------
+        ! ER[i] <- ER[i]  +  sum_J V[i](J)^2
+        !=======================================================
+        do jv=1,JNUM
+
+          ER(iOcc(kSym)+ik) = ER(iOcc(kSym)+ik)+VJ(jv)**2
+        end do
+
       end do
 
-! --- compute some offsets and other quantities
-      MaxB=nBas(1)
-      iOcc(1)=0
-      isMO(1)=0
-      Do kSym=2,nSym
-         iOcc(kSym) = iOcc(kSym-1) + nOcc(kSym-1)
-         isMO(kSym) = isMO(kSym-1) + nBas(kSym-1)**2
-         MaxB = Max(MaxB,nBas(kSym))
-      End Do
+    end do
 
-      MaxBB = MaxB*(MaxB+1)/2
-      nOccT = iOcc(nSym) + nOcc(nSym)
+    call CWTIME(TCI2,TWI2)
+    tintg(1) = tintg(1)+(TCI2-TCI1)
+    tintg(2) = tintg(2)+(TWI2-TWI1)
 
-      W = zero ! initialization of the ER-functional value
-      Call Fzero(ER(1),nOccT) ! and its orbital components
+  end do  !end batch loop
 
-      Call mma_allocate(DLT,MaxBB,Label='DLT')
-      DLT(:)=Zero
+  ! free memory
+  call mma_deallocate(VJ)
+  call mma_deallocate(Lab)
+  call mma_deallocate(Dab)
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+999 continue
 
-      JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
-      JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+end do   ! loop over red sets
 
-      Do JRED=JRED1,JRED2
+call mma_deallocate(DLT)
 
-! --- Memory management section -----------------------------
-! ---
-      CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+! Sync components
+call GAdGOp(ER,nOccT,'+')
 
-      if (nVrs.eq.0) goto 999
+! Compute the ER-functional from its orbital components
+W = Zero
+do ik=1,nOccT
+  W = W+ER(ik)
+end do
 
-      if (nVrs.lt.0) then
-         Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call abend()
-      endif
+call CWTIME(TOTCPU2,TOTWALL2)
+TOTCPU = TOTCPU2-TOTCPU1
+TOTWALL = TOTWALL2-TOTWALL1
 
-      Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
-      if(irc.ne.0)then
-        Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call abend()
-      endif
+! Write out timing information
+if (timings) then
 
-      nRS = nDimRS(JSYM,JRED)
+  write(6,*)
+  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*) 'Timing from ',SECNAM,'            CPU      WALL '
+  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(6,'(2x,A26,2f10.2)') 'COMPUTE (ii|ii)                           ',tintg(1),tintg(2)
+  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*)
 
-      Call mma_allocate(Dab,nRS,Label='Dab')
+end if
 
-      Call mma_maxDBLE(LWORK)
+irc = 0
 
-      nVec  = Min(LWORK/(nRS+1),nVrs)
+return
 
-      If (nVec.lt.1) Then
-         WRITE(6,*) SECNAM//': Insufficient memory for batch'
-         WRITE(6,*) 'LWORK= ',LWORK
-         WRITE(6,*) 'min. mem. need= ',nRS+1
-         irc = 33
-         CALL Abend()
-         nBatch = -9999  ! dummy assignment
-      End If
-
-      LREAD = nRS*nVec
-
-      Call mma_allocate(Lab,LREAD,Label='Lab')
-      Call mma_allocate(VJ,nVec,Label='VJ')
-
-! --- BATCH over the vectors in JSYM=1 ----------------------------
-
-      nBatch = (nVrs-1)/nVec + 1
-
-      DO iBatch=1,nBatch
-
-         If (iBatch.eq.nBatch) Then
-            JNUM = nVrs - nVec*(nBatch-1)
-         else
-            JNUM = nVec
-         endif
-
-         JVEC = nVec*(iBatch-1) + iVrs
-         IVEC2 = JVEC - 1 + JNUM
-
-         CALL CWTIME(TCR1,TWR1)
-
-         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
-
-         If (NUMV.le.0 .or. NUMV.ne.JNUM) then
-            irc=77
-            RETURN
-         End If
-
-         CALL CWTIME(TCR2,TWR2)
-         tread(1) = tread(1) + (TCR2 - TCR1)
-         tread(2) = tread(2) + (TWR2 - TWR1)
-
-         CALL CWTIME(TCI1,TWI1)
-
-         Do kSym=1,nSym
-
-            Do ik=1,nOcc(kSym)
-
-! --- Compute the i-th orbital component D[i](a,b) of the density
-! --- D[i](a,b) is stored as upper-triangular
-               Do ib=1,nBas(kSym)
-
-                  ipb = isMO(kSym) + nBas(kSym)*(ik-1) + ib
-
-                  Do ia=1,ib-1
-
-                     ipa = isMO(kSym) + nBas(kSym)*(ik-1) + ia
-                     ipab = ib*(ib-1)/2 + ia
-                     DLT(ipab) = CMO(ipa)*CMO(ipb)
-
-                  End Do
-
-                  ipab = ib*(ib+1)/2
-                  DLT(ipab) = half*CMO(ipb)**2  !diagonal scaled
-
-               End Do
-
-! --- Transform the density to reduced storage
-               Call switch_density(iLoc,DLT,Dab,kSym)
-
-!  ( r .ge. s )
-! ------------------------------------------------------------
-! --- V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
-!=============================================================
-
-               CALL DGEMV_('T',nRS,JNUM,                                &
-     &                    TWO,Lab,nRS,                                  &
-     &                    Dab,1,ZERO,VJ,1)
-
-
-! ----------------------------------------------------------
-! --- ER[i] <- ER[i]  +  sum_J V[i](J)^2
-!===========================================================
-               Do jv=1,JNUM
-
-                  ER(iOcc(kSym)+ik) = ER(iOcc(kSym)+ik) + VJ(jv)**2
-               End Do
-
-
-            End Do
-
-
-         End Do
-
-         CALL CWTIME(TCI2,TWI2)
-         tintg(1) = tintg(1) + (TCI2 - TCI1)
-         tintg(2) = tintg(2) + (TWI2 - TWI1)
-
-
-      END DO  !end batch loop
-
-! --- free memory
-      Call mma_deallocate(VJ)
-      Call mma_deallocate(Lab)
-      Call mma_deallocate(Dab)
-
-
-999   Continue
-
-      END DO   ! loop over red sets
-
-      Call mma_deallocate(DLT)
-
-! --- Sync components
-      Call GAdGOp(ER,nOccT,'+')
-
-! --- Compute the ER-functional from its orbital components
-      W = Zero
-      Do ik=1,nOccT
-         W = W + ER(ik)
-      End Do
-
-
-
-      CALL CWTIME(TOTCPU2,TOTWALL2)
-      TOTCPU = TOTCPU2 - TOTCPU1
-      TOTWALL= TOTWALL2 - TOTWALL1
-
-!
-!---- Write out timing information
-      if(timings)then
-
-      Write(6,*)
-      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)'Timing from ', SECNAM,'            CPU      WALL '
-      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '  &
-     &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COMPUTE (ii|ii)                  '  &
-     &                           //'         ',tintg(1),tintg(2)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
-     &                           //'         ',TOTCPU,TOTWALL
-      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)
-
-      endif
-
-
-      irc=0
-
-      Return
-      End
-
-
-
-      SUBROUTINE switch_density(iLoc,XLT,Xab,kSym)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Integer, External:: cho_isao
-      Integer iLoc, kSym
-      Real*8 XLT(*), Xab(*)
-
-#include "cholesky.fh"
-#include "choorb.fh"
-
-
-!***********************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-!***********************************************************************
-
-      jSym = 1 ! only total symmetric density
-
-      Do jRab=1,nnBstR(jSym,iLoc)
-
-         kRab = iiBstr(jSym,iLoc) + jRab
-         iRab = IndRed(kRab,iLoc)
-
-         iag   = iRS2F(1,iRab)  !global address
-         ibg   = iRS2F(2,iRab)
-
-         iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-         xf = dble(1-min(1,abs(iSyma-kSym)))
-
-         ias   = iag - ibas(iSyma)  !address within that symm block
-         ibs   = ibg - ibas(iSyma)
-         iab   = iTri(ias,ibs)
-
-         Xab(jRab) = xf*XLT(iab)
-
-      End Do  ! jRab loop
-
-      Return
-      End
+end subroutine CHO_get_ER

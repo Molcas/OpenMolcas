@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_SetShP2Q(irc,iLoc,iShlAB,nAB)
+
+subroutine Cho_P_SetShP2Q(irc,iLoc,iShlAB,nAB)
 !
-!     Purpose: set mapping from shell pair to qualified.
-!              Global reduced set index arrays are needed, so we swap
-!              local and global index arrays before (and after) calling
-!              the original serial routine.
-!
-      Implicit None
-      Integer irc, iLoc, iShlAB
-      Integer nAB(8)
+! Purpose: set mapping from shell pair to qualified.
+!          Global reduced set index arrays are needed, so we swap
+!          local and global index arrays before (and after) calling
+!          the original serial routine.
+
+implicit none
+integer irc, iLoc, iShlAB
+integer nAB(8)
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         Call Cho_P_IndxSwp()
-         Call Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
-         Call Cho_P_IndxSwp()
-      Else
-         Call Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
-      End If
+if (Cho_Real_Par) then
+  call Cho_P_IndxSwp()
+  call Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
+  call Cho_P_IndxSwp()
+else
+  call Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
+end if
 
-      End
+end subroutine Cho_P_SetShP2Q

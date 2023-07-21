@@ -8,167 +8,86 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
+
+subroutine CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 !
-!     Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
-!              return the global max. abs. in DGMAX.
-!
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
+! Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
+!          return the global max. abs. in DGMAX.
+
+use ChoSwp, only: IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
 #include "cholesky.fh"
-
-      CHARACTER*14 SECNAM
-      PARAMETER (SECNAM = 'CHO_MAXABSDIAG')
-
-      INTEGER AB, AB1, AB2
-
-      LOGICAL LOCDBG
-#if defined (_DEBUGPRINT_)
-      PARAMETER (LOCDBG = .TRUE.)
+character*14 SECNAM
+parameter(SECNAM='CHO_MAXABSDIAG')
+integer AB, AB1, AB2
+logical LOCDBG
+#ifdef _DEBUGPRINT_
+parameter(LOCDBG=.true.)
 #else
-      PARAMETER (LOCDBG = .FALSE.)
+parameter(LOCDBG=.false.)
 #endif
 
-      IF (CHO_1CENTER) THEN ! specialization for 1-center approximation
-         CALL CHO_MAXABSDIAG_1C(DIAG,IRED,DGMAX)
-         RETURN
-      END IF
+if (CHO_1CENTER) then ! specialization for 1-center approximation
+  call CHO_MAXABSDIAG_1C(DIAG,IRED,DGMAX)
+  return
+end if
 
-      IF (IRED .EQ. 1) THEN
-         DO ISYM = 1,NSYM
-            IF (NNBSTR(ISYM,IRED) .LT. 1) THEN
-               DIAMAX(ISYM) = 0.0D0
-            ELSE
-               DIAMAX(ISYM) = ABS(DIAG(IIBSTR(ISYM,IRED)+1))
-               AB1 = IIBSTR(ISYM,IRED) + 2
-               AB2 = IIBSTR(ISYM,IRED) + NNBSTR(ISYM,IRED)
-               DO AB = AB1,AB2
-                  DIAMAX(ISYM) = MAX(DIAMAX(ISYM),ABS(DIAG(AB)))
-               END DO
-            END IF
-            DIAMAXT(ISYM)=DIAMAX(ISYM)
-         END DO
-      ELSE IF ((IRED.EQ.2) .OR. (IRED.EQ.3)) THEN
-         DO ISYM = 1,NSYM
-            IF (NNBSTR(ISYM,IRED) .LT. 1) THEN
-               DIAMAX(ISYM) = 0.0D0
-            ELSE
-               AB = INDRED(IIBSTR(ISYM,IRED)+1,IRED)
-               DIAMAX(ISYM) = ABS(DIAG(AB))
-               AB1 = IIBSTR(ISYM,IRED) + 2
-               AB2 = IIBSTR(ISYM,IRED) + NNBSTR(ISYM,IRED)
-               DO IAB = AB1,AB2
-                  AB = INDRED(IAB,IRED)
-                  DIAMAX(ISYM) = MAX(DIAMAX(ISYM),ABS(DIAG(AB)))
-               END DO
-            END IF
-            IF (NNBSTR(ISYM,1) .LT. 1) THEN
-               DIAMAXT(ISYM) = 0.0D0
-            ELSE
-               DIAMAXT(ISYM) = ABS(DIAG(IIBSTR(ISYM,1)+1))
-               AB1 = IIBSTR(ISYM,1) + 2
-               AB2 = IIBSTR(ISYM,1) + NNBSTR(ISYM,1)
-               DO AB = AB1,AB2
-                  DIAMAXT(ISYM) = MAX(DIAMAXT(ISYM),ABS(DIAG(AB)))
-               END DO
-            END IF
-         END DO
-      ELSE
-         WRITE(LUPRI,*) SECNAM,': unknown reduced set, IRED = ',IRED
-         CALL CHO_QUIT('Unknown reduced set in '//SECNAM,104)
-      END IF
+if (IRED == 1) then
+  do ISYM=1,NSYM
+    if (NNBSTR(ISYM,IRED) < 1) then
+      DIAMAX(ISYM) = 0.0d0
+    else
+      DIAMAX(ISYM) = abs(DIAG(IIBSTR(ISYM,IRED)+1))
+      AB1 = IIBSTR(ISYM,IRED)+2
+      AB2 = IIBSTR(ISYM,IRED)+NNBSTR(ISYM,IRED)
+      do AB=AB1,AB2
+        DIAMAX(ISYM) = max(DIAMAX(ISYM),abs(DIAG(AB)))
+      end do
+    end if
+    DIAMAXT(ISYM) = DIAMAX(ISYM)
+  end do
+else if ((IRED == 2) .or. (IRED == 3)) then
+  do ISYM=1,NSYM
+    if (NNBSTR(ISYM,IRED) < 1) then
+      DIAMAX(ISYM) = 0.0d0
+    else
+      AB = INDRED(IIBSTR(ISYM,IRED)+1,IRED)
+      DIAMAX(ISYM) = abs(DIAG(AB))
+      AB1 = IIBSTR(ISYM,IRED)+2
+      AB2 = IIBSTR(ISYM,IRED)+NNBSTR(ISYM,IRED)
+      do IAB=AB1,AB2
+        AB = INDRED(IAB,IRED)
+        DIAMAX(ISYM) = max(DIAMAX(ISYM),abs(DIAG(AB)))
+      end do
+    end if
+    if (NNBSTR(ISYM,1) < 1) then
+      DIAMAXT(ISYM) = 0.0d0
+    else
+      DIAMAXT(ISYM) = abs(DIAG(IIBSTR(ISYM,1)+1))
+      AB1 = IIBSTR(ISYM,1)+2
+      AB2 = IIBSTR(ISYM,1)+NNBSTR(ISYM,1)
+      do AB=AB1,AB2
+        DIAMAXT(ISYM) = max(DIAMAXT(ISYM),abs(DIAG(AB)))
+      end do
+    end if
+  end do
+else
+  write(LUPRI,*) SECNAM,': unknown reduced set, IRED = ',IRED
+  call CHO_QUIT('Unknown reduced set in '//SECNAM,104)
+end if
 
-      DGMAX = DIAMAX(1)
-      DO ISYM = 2,NSYM
-         DGMAX = MAX(DGMAX,DIAMAX(ISYM))
-      END DO
+DGMAX = DIAMAX(1)
+do ISYM=2,NSYM
+  DGMAX = max(DGMAX,DIAMAX(ISYM))
+end do
 
-      IF (LOCDBG) THEN
-         WRITE(LUPRI,*) SECNAM,': in reduced set ',IRED,':'
-         WRITE(LUPRI,*) 'DIAMAX  = ',(DIAMAX(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,*) 'DIAMAXT = ',(DIAMAXT(ISYM),ISYM=1,NSYM)
-         WRITE(LUPRI,*) 'DGMAX   = ',DGMAX
-      END IF
+if (LOCDBG) then
+  write(LUPRI,*) SECNAM,': in reduced set ',IRED,':'
+  write(LUPRI,*) 'DIAMAX  = ',(DIAMAX(ISYM),ISYM=1,NSYM)
+  write(LUPRI,*) 'DIAMAXT = ',(DIAMAXT(ISYM),ISYM=1,NSYM)
+  write(LUPRI,*) 'DGMAX   = ',DGMAX
+end if
 
-      END
-      SubRoutine Cho_MaxAbsDiag_1C(Diag,iLoc,DGMax)
-!
-!     Specialization for 1-Center approximation: only find max for
-!     1-center diagonals.
-!
-      use ChoArr, only: iSP2F, iAtomShl
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
-#include "cholesky.fh"
-
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_MaxAbsDiag_1C')
-
-      Logical LocDbg
-#if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
-#else
-      Parameter (LocDbg = .false.)
-#endif
-
-      If (iLoc .eq. 1) Then
-         Do iSym = 1,nSym
-            DiaMax(iSym) = 0.0d0
-            Do iShlAB = 1,nnShl
-               Call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
-               If (iAtomShl(iShlA) .eq. iAtomShl(iShlB)) Then
-                  i1 = iiBstR(iSym,1) + iiBstRSh(iSym,iShlAB,1) + 1
-                  i2 = i1 + nnBstRSh(iSym,iShlAB,1) - 1
-                  Do i = i1,i2
-                     DiaMax(iSym)=max(DiaMax(iSym),Diag(i))
-                  End Do
-               End If
-            End Do
-            DiaMaxT(iSym)=DiaMax(iSym)
-         End Do
-      Else If (iLoc.eq.2 .or. iLoc.eq.3) Then
-         Do iSym = 1,nSym
-            DiaMax(iSym) = 0.0d0
-            Do iShlAB = 1,nnShl
-               Call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
-               If (iAtomShl(iShlA) .eq. iAtomShl(iShlB)) Then
-                  i1 = iiBstR(iSym,iLoc) + iiBstRSh(iSym,iShlAB,iLoc)   &
-     &               + 1
-                  i2 = i1 + nnBstRSh(iSym,iShlAB,iLoc) - 1
-                  Do i = i1,i2
-                     DiaMax(iSym)=max(DiaMax(iSym),Diag(IndRed(i,iLoc)))
-                  End Do
-               End If
-            End Do
-            DiaMaxT(iSym) = 0.0d0
-            Do iShlAB = 1,nnShl
-               Call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
-               If (iAtomShl(iShlA) .eq. iAtomShl(iShlB)) Then
-                  i1 = iiBstR(iSym,1) + iiBstRSh(iSym,iShlAB,1) + 1
-                  i2 = i1 + nnBstRSh(iSym,iShlAB,1) - 1
-                  Do i = i1,i2
-                     DiaMaxT(iSym)=max(DiaMaxT(iSym),Diag(i))
-                  End Do
-               End If
-            End Do
-         End Do
-      Else
-         Write(LuPri,*) SecNam,': unknown reduced set, iLoc = ',iLoc
-         Call Cho_Quit('Unknown reduced set in '//SecNam,104)
-      End If
-
-      DGMax = DiaMax(1)
-      Do iSym = 2,nSym
-         DGMax = max(DGMax,DiaMax(iSym))
-      End Do
-
-      If (LocDbg) Then
-         Write(LuPri,*) SecNam,': in reduced set ',iLoc,':'
-         Write(LuPri,*) 'DiaMax  = ',(DiaMax(iSym),iSym=1,nSym)
-         Write(LuPri,*) 'DiaMaxT = ',(DiaMaxT(iSym),iSym=1,nSym)
-         Write(LuPri,*) 'DGMax   = ',DGMax
-      End If
-
-      End
+end subroutine CHO_MAXABSDIAG

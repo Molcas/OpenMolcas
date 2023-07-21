@@ -8,31 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_IDOT(N,IVEC1,INC1,IVEC2,INC2)
-      IMPLICIT NONE
-      INTEGER N, INC1, INC2
-      INTEGER IVEC1(*), IVEC2(*)
 
-      INTEGER I, ISUM, I1, I2
+integer function CHO_IDOT(N,IVEC1,INC1,IVEC2,INC2)
 
-      CHO_IDOT = 0
-      IF (N.LT.1) RETURN
-      ISUM = 0
-      IF (INC1.EQ.1 .AND. INC2.EQ.1) THEN
-         DO I = 1,N
-            ISUM = ISUM + IVEC1(I)*IVEC2(I)
-         END DO
-      ELSE
-         I1 = 1
-         I2 = 1
-         IF (INC1 .LT. 0) I1 = (-N+1)*INC1 + 1
-         IF (INC2 .LT. 0) I2 = (-N+1)*INC2 + 1
-         DO I = 1,N
-            ISUM = ISUM + IVEC1(I1)*IVEC2(I2)
-            I1 = I1 + INC1
-            I2 = I2 + INC2
-         END DO
-      END IF
-      CHO_IDOT = ISUM
+implicit none
+integer N, INC1, INC2
+integer IVEC1(*), IVEC2(*)
+integer I, ISUM, I1, I2
 
-      END
+CHO_IDOT = 0
+if (N < 1) return
+ISUM = 0
+if ((INC1 == 1) .and. (INC2 == 1)) then
+  do I=1,N
+    ISUM = ISUM+IVEC1(I)*IVEC2(I)
+  end do
+else
+  I1 = 1
+  I2 = 1
+  if (INC1 < 0) I1 = (-N+1)*INC1+1
+  if (INC2 < 0) I2 = (-N+1)*INC2+1
+  do I=1,N
+    ISUM = ISUM+IVEC1(I1)*IVEC2(I2)
+    I1 = I1+INC1
+    I2 = I2+INC2
+  end do
+end if
+CHO_IDOT = ISUM
+
+end function CHO_IDOT

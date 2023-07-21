@@ -10,57 +10,33 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_InpMod(Mode)
+
+subroutine Cho_InpMod(Mode)
 !
-!     Thomas Bondo Pedersen, Jan. 2005.
+! Thomas Bondo Pedersen, Jan. 2005.
 !
-!     Purpose: modifiy Cholesky settings for
-!              Mode = 'LOW ' : low-accuracy decomposition
-!              Mode = 'MEDI' : medium-accuracy decomposition
-!              Mode = 'HIGH' : high-accuracy decomposition
-!              Mode = '1CCD' : set one-center approximation
-!              (All other Mode-values are ignored.)
-!
-      Implicit None
-      Character*4 Mode
+! Purpose: modify Cholesky settings for
+!          Mode = 'LOW ' : low-accuracy decomposition
+!          Mode = 'MEDI' : medium-accuracy decomposition
+!          Mode = 'HIGH' : high-accuracy decomposition
+!          Mode = '1CCD' : set one-center approximation
+!          (All other Mode-values are ignored.)
 
-      Character*4 Mod2
+implicit none
+character*4 Mode
+character*4 Mod2
 
-      Mod2 = Mode
-      Call Upcase(Mod2)
+Mod2 = Mode
+call Upcase(Mod2)
 
-      If (Mod2(1:3) .eq. 'LOW') Then
-         Call Cho_SetDecompositionThreshold(1.0d-4)
-      Else If (Mod2(1:4) .eq. 'MEDI') Then
-         Call Cho_SetDecompositionThreshold(1.0d-6)
-      Else If (Mod2(1:4) .eq. 'HIGH') Then
-         Call Cho_SetDecompositionThreshold(1.0d-8)
-      Else If (Mod2(1:4) .eq. '1CCD') Then
-         Call Cho_Set1CCD(.True.)
-      End If
+if (Mod2(1:3) == 'LOW') then
+  call Cho_SetDecompositionThreshold(1.0d-4)
+else if (Mod2(1:4) == 'MEDI') then
+  call Cho_SetDecompositionThreshold(1.0d-6)
+else if (Mod2(1:4) == 'HIGH') then
+  call Cho_SetDecompositionThreshold(1.0d-8)
+else if (Mod2(1:4) == '1CCD') then
+  call Cho_Set1CCD(.true.)
+end if
 
-      End
-      Subroutine Cho_SetDecompositionThreshold(Thr)
-      Implicit None
-      Real*8 Thr
-#include "cholesky.fh"
-
-      ThrCom=Thr
-
-      End
-      Subroutine Cho_Set1CCD(do1CCD)
-      Implicit None
-      Logical do1CCD
-#include "cholesky.fh"
-
-      Cho_1Center=do1CCD
-
-      End
-      Subroutine Cho_SetSpan(val)
-      Implicit None
-      Real*8 val
-#include "cholesky.fh"
-
-      Span=val
-
-      End
+end subroutine Cho_InpMod

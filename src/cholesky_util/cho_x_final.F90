@@ -22,76 +22,69 @@
 !>
 !> @param[out] irc Return code
 !***********************************************************************
-      Subroutine Cho_X_Final(irc)
-      use ChoArr, only: MySP
-      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,       &
-     &                   nRow_BkmThr, nCol_BkmThr
-      use ChoIni
-      use stdalloc, only: mma_deallocate
-      Implicit None
-      Integer irc
 
-      Character*11 SecNam
-      Parameter (SecNam = 'Cho_X_Final')
+subroutine Cho_X_Final(irc)
 
-      Integer ChoIsIni
+use ChoArr, only: MySP
+use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+use ChoIni
+use stdalloc, only: mma_deallocate
 
-!     Register entry.
-!     ---------------
+implicit none
+integer irc
+character*11 SecNam
+parameter(SecNam='Cho_X_Final')
+integer ChoIsIni
 
+! Set  error code.
+! ----------------
 
-!     Set  error code.
-!     ----------------
+irc = 0
 
-      irc = 0
+! Read initialization integer flag from runfile.
+! ----------------------------------------------
 
-!     Read initialization integer flag from runfile.
-!     ----------------------------------------------
+call Get_iScalar('ChoIni',ChoIsIni)
 
-      Call Get_iScalar('ChoIni',ChoIsIni)
+! Finalize if needed.
+! -------------------
 
-!     Finalize if needed.
-!     -------------------
+if (ChoIsIni == ChoIniCheck) then
 
-      If (ChoIsIni .eq. ChoIniCheck) Then
+  ! Close files.
+  ! ------------
 
-!        Close files.
-!        ------------
+  call Cho_OpenVR(2,2)
 
-         Call Cho_OpenVR(2,2)
+  ! Deallocate vector buffer.
+  ! -------------------------
 
-!        Deallocate vector buffer.
-!        -------------------------
+  call Cho_VecBuf_Final()
 
-         Call Cho_VecBuf_Final()
+  ! Deallocate memory.
+  ! ------------------
 
-!        Deallocate memory.
-!        ------------------
+  call Cho_X_Dealloc(irc)
+  if (irc /= 0) Go To 1
 
-         Call Cho_X_Dealloc(irc)
-         If (irc .ne. 0) Go To 1
+  if (allocated(MySP)) call mma_deallocate(MySP)
+  if (allocated(BkmVec)) then
+    call mma_deallocate(BkmVec)
+    nRow_BkmVec = 0
+    nCol_BkmVec = 0
+  end if
+  if (allocated(BkmThr)) then
+    call mma_deallocate(BkmThr)
+    nRow_BkmThr = 0
+    nCol_BkmThr = 0
+  end if
 
-         If (Allocated(MySP)) Call mma_deallocate(MySP)
-         If (Allocated(BkmVec)) Then
-            Call mma_deallocate(BkmVec)
-            nRow_BkmVec=0
-            nCol_BkmVec=0
-         End If
-         If (Allocated(BkmThr)) Then
-            Call mma_deallocate(BkmThr)
-            nRow_BkmThr=0
-            nCol_BkmThr=0
-         End If
+  ! Reset initialization integer on runfile to "not set".
+  ! -----------------------------------------------------
 
-!        Reset initialization integer on runfile to "not set".
-!        -----------------------------------------------------
+1 ChoIsIni = ChoIniCheck+1
+  call Put_iScalar('ChoIni',ChoIsIni)
 
-    1    ChoIsIni = ChoIniCheck + 1
-         Call Put_iScalar('ChoIni',ChoIsIni)
+end if
 
-      End If
-
-!     Register exit and return.
-!     -------------------------
-
-      End
+end subroutine Cho_X_Final

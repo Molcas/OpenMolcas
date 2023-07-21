@@ -8,79 +8,74 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
+
+subroutine CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
 !
-!     Purpose: calculate qualified integral columns from
-!              shell quadruple (ISHLC ISHLD|ISHLA ISHLB).
+! Purpose: calculate qualified integral columns from
+!          shell quadruple (ISHLC ISHLD|ISHLA ISHLB).
 !
-!     Version 4: avoid storage of full shell quadruple in interface to
-!                seward; get qualified directly as in Version 2 and 3!
-!                Changes from Version 3:
-!                - only one shell quadruple is computed (not an entire
-!                  column).
-!
-      use ChoArr, only: iSP2F
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 XINT(LINT)
+! Version 4: avoid storage of full shell quadruple in interface to
+!            seward; get qualified directly as in Version 2 and 3!
+!            Changes from Version 3:
+!            - only one shell quadruple is computed (not an entire
+!              column).
+
+use ChoArr, only: iSP2F
+
+implicit real*8(a-h,o-z)
+real*8 XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
+character*17 SECNAM
+parameter(SECNAM='CHO_MCA_CALCINT_4')
+integer CHO_ISUMELM
+external CHO_ISUMELM
+integer NAB(8)
+logical LOCDBG
+parameter(LOCDBG=.false.)
+parameter(INFINT=INF_INT,INFIN2=INF_IN2)
 
-      CHARACTER*17 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_CALCINT_4')
+! Set mapping from shell pair AB to qualified columns.
+! ----------------------------------------------------
 
-      INTEGER  CHO_ISUMELM
-      EXTERNAL CHO_ISUMELM
+IRC = 0
+ILOC = 2
+call CHO_SETSHP2Q_2(IRC,ILOC,ISHLAB,NAB)
+if (IRC /= 0) then
+  write(LUPRI,*) SECNAM,': CHO_SETSHP2Q_2 returned ',IRC
+  call CHO_QUIT('Error termination in '//SECNAM,IRC)
+end if
 
-      INTEGER NAB(8)
+! Print.
+! ------
 
-      LOGICAL   LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
-      PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
+if (IPRINT >= INF_IN2) then
+  call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+  call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+  NCOLAB = CHO_ISUMELM(NAB,NSYM)
+  write(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)') 'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,'):',NCOLAB, &
+                                                  ' columns have been qualified'
+  write(LUPRI,'(89A)') ('=',i=1,89)
+end if
 
-!     Set mapping from shell pair AB to qualified columns.
-!     ----------------------------------------------------
+! Set mapping from shell pair CD to reduced set.
+! ----------------------------------------------
 
-      IRC  = 0
-      ILOC = 2
-      CALL CHO_SETSHP2Q_2(IRC,ILOC,ISHLAB,NAB)
-      IF (IRC .NE. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': CHO_SETSHP2Q_2 returned ',IRC
-         CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
-      END IF
+IRC = 0
+ILOC = 2
+call CHO_SETSHP2RS_2(IRC,ILOC,ISHLCD,NAB)
+if (IRC /= 0) then
+  write(LUPRI,*) SECNAM,': CHO_SETSHP2RS_2 returned ',IRC
+  call CHO_QUIT('Error termination in '//SECNAM,IRC)
+end if
 
-!     Print.
-!     ------
+! Calculate integrals.
+! --------------------
 
-      IF (IPRINT .GE. INF_IN2) THEN
-         CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-         CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-         NCOLAB = CHO_ISUMELM(NAB,NSYM)
-         WRITE(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)')                &
-     &   'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,   &
-     &   '):',NCOLAB,' columns have been qualified'
-         WRITE(LUPRI,'(89A)') ('=',i=1,89)
-      END IF
+call CHO_TIMER(C1,W1)
+call CHO_MCA_INT_1(ISHLCD,ISHLAB,XINT,LINT,LOCDBG .or. (IPRINT >= 100))
+call CHO_TIMER(C2,W2)
+TINTEG(1,1) = TINTEG(1,1)+C2-C1
+TINTEG(2,1) = TINTEG(2,1)+W2-W1
 
-!     Set mapping from shell pair CD to reduced set.
-!     ----------------------------------------------
-
-      IRC  = 0
-      ILOC = 2
-      CALL CHO_SETSHP2RS_2(IRC,ILOC,ISHLCD,NAB)
-      IF (IRC .NE. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': CHO_SETSHP2RS_2 returned ',IRC
-         CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
-      END IF
-
-!     Calculate integrals.
-!     --------------------
-
-      CALL CHO_TIMER(C1,W1)
-      CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,                                 &
-     &                   XINT,LINT,                                     &
-     &                   LOCDBG.OR.(IPRINT.GE.100))
-      CALL CHO_TIMER(C2,W2)
-      TINTEG(1,1) = TINTEG(1,1) + C2 - C1
-      TINTEG(2,1) = TINTEG(2,1) + W2 - W1
-
-      END
+end subroutine CHO_MCA_CALCINT_4

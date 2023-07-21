@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+module ReMez_mod
+
 ! logical unit for printing in subroutine Remez (Laplace quadrature)
-Module ReMez_mod
-      Integer IW
-End Module ReMez_mod
+integer IW
+
+end module ReMez_mod

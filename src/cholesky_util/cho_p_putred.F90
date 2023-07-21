@@ -8,48 +8,47 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_PutRed(iPass,iLoc)
+
+subroutine Cho_P_PutRed(iPass,iLoc)
 !
-!     Purpose: write global and local reduced set index arrays
-!              to disk and set
-!              address for next write. iLoc specifies the location in
-!              the index arrays to write, and iPass identifies the
-!              reduced set (i.e. the integral pass).
-!
-      Implicit None
-      Integer iPass, iLoc
+! Purpose: write global and local reduced set index arrays
+!          to disk and set
+!          address for next write. iLoc specifies the location in
+!          the index arrays to write, and iPass identifies the
+!          reduced set (i.e. the integral pass).
+
+implicit none
+integer iPass, iLoc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
+integer iTmp
+real*8 c1, c2, w1, w2
 
-      Integer iTmp
+call Cho_Timer(c1,w1)
 
-      Real*8 c1, c2, w1, w2
+if (Cho_Real_Par) then
 
-      Call Cho_Timer(c1,w1)
+  ! Swap local and global reduced set indices and use original serial
+  ! routine to write global index arrays.
+  ! -----------------------------------------------------------------
 
-      If (Cho_Real_Par) Then
+  call Cho_P_IndxSwp()
+  iTmp = LuRed
+  LuRed = LuRed_G
+  call Cho_PutRed(iPass,iLoc)
+  LuRed = iTmp
+  call Cho_P_IndxSwp()
 
-!        Swap local and global reduced set indices and use original serial
-!        routine to write global index arrays.
-!        -----------------------------------------------------------------
+end if
 
-         Call Cho_P_IndxSwp()
-         iTmp = LuRed
-         LuRed = LuRed_G
-         Call Cho_PutRed(iPass,iLoc)
-         LuRed = iTmp
-         Call Cho_P_IndxSwp()
+! Write local index arrays.
+! -------------------------
 
-      End If
+call Cho_PutRed(iPass,iLoc)
 
-!     Write local index arrays.
-!     -------------------------
+call Cho_Timer(c2,w2)
+tMisc(1,2) = tMisc(1,2)+c2-c1
+tMisc(2,2) = tMisc(2,2)+w2-w1
 
-      Call Cho_PutRed(iPass,iLoc)
-
-      Call Cho_Timer(c2,w2)
-      tMisc(1,2)=tMisc(1,2)+c2-c1
-      tMisc(2,2)=tMisc(2,2)+w2-w1
-
-      End
+end subroutine Cho_P_PutRed

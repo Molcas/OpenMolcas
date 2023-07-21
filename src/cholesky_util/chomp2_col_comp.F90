@@ -10,58 +10,54 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,  &
-     &                           Fac,irc)
+
+subroutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,Fac,irc)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: compute columns from a set of vectors.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf)
-      Integer iCol(nCol)
+! Purpose: compute columns from a set of vectors.
 
-      irc = 0
-      If (nDim.lt.1 .or. nCol.lt.1) Return
-      If (nVec .lt. 1) Then
-         If (Fac .ne. 1.0D0) Call dScal_(nDim*nCol,Fac,Col,1)
-         Return
-      End iF
+implicit real*8(a-h,o-z)
+real*8 Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf)
+integer iCol(nCol)
 
-      If (nCol.gt.1 .and. lBuf.ge.nVec) Then
+irc = 0
+if ((nDim < 1) .or. (nCol < 1)) return
+if (nVec < 1) then
+  if (Fac /= 1.0d0) call dScal_(nDim*nCol,Fac,Col,1)
+  return
+end if
 
-         NumCol = min(lBuf/nVec,nCol)
-         NumBat = (nCol - 1)/NumCol + 1
+if ((nCol > 1) .and. (lBuf >= nVec)) then
 
-         Do iBat = 1,NumBat
+  NumCol = min(lBuf/nVec,nCol)
+  NumBat = (nCol-1)/NumCol+1
 
-            If (iBat .eq. NumBat) Then
-               NumC = nCol - NumCol*(NumBat-1)
-            Else
-               NumC = NumCol
-            End If
-            iC1 = NumCol*(iBat-1) + 1
+  do iBat=1,NumBat
 
-            If (lBuf .lt. NumC*nVec) Then
-               irc = -1
-               Return
-            End If
+    if (iBat == NumBat) then
+      NumC = nCol-NumCol*(NumBat-1)
+    else
+      NumC = NumCol
+    end if
+    iC1 = NumCol*(iBat-1)+1
 
-            Call ChoMP2_Col_cp(Vec,nDim,nVec,Buf,NumC,iCol(iC1))
-            Call DGEMM_('N','T',nDim,NumC,nVec,                         &
-     &                 1.0D0,Vec,nDim,Buf,NumC,                         &
-     &                 Fac,Col(1,iC1),nDim)
+    if (lBuf < NumC*nVec) then
+      irc = -1
+      return
+    end if
 
-         End Do
+    call ChoMP2_Col_cp(Vec,nDim,nVec,Buf,NumC,iCol(iC1))
+    call DGEMM_('N','T',nDim,NumC,nVec,1.0d0,Vec,nDim,Buf,NumC,Fac,Col(1,iC1),nDim)
 
-      Else
+  end do
 
-         Do iC = 1,nCol
-            Call dGeMV_('N',nDim,nVec,                                  &
-     &                 1.0D0,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,        &
-     &                 Fac,Col(1,iC),1)
-         End Do
+else
 
-      End If
+  do iC=1,nCol
+    call dGeMV_('N',nDim,nVec,1.0d0,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,Fac,Col(1,iC),1)
+  end do
 
-      End
+end if
+
+end subroutine ChoMP2_Col_Comp

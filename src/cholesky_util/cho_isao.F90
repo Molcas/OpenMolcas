@@ -8,36 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_ISAO(IAO)
+
+integer function CHO_ISAO(IAO)
 !
-!     Purpose: return symmetry of AO number IAO (in global list).
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: return symmetry of AO number IAO (in global list).
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
+integer CHO_IRANGE
+external CHO_IRANGE
+#ifdef _DEBUGPRINT_
+character*8 SECNAM
+parameter(SECNAM='CHO_ISAO')
 
-      INTEGER  CHO_IRANGE
-      EXTERNAL CHO_IRANGE
-
-#if defined (_DEBUGPRINT_)
-      CHARACTER*8 SECNAM
-      PARAMETER (SECNAM = 'CHO_ISAO')
-
-      IF ((IAO.GT.NBAST) .OR. (IAO.LT.1)) THEN
-         WRITE(LUPRI,'(//,1X,A,A,I10)')                                 &
-     &   SECNAM,': AO index out of bounds: ',IAO
-         WRITE(LUPRI,'(A,I10,A,/)')                                     &
-     &   'Maximum possible: NBAST = ',NBAST,'(from common block)'
-         IF (NBAST .LT. 1) THEN
-            CALL CHO_QUIT('Initialization error detected in '//SECNAM,  &
-     &                    102)
-         ELSE
-            CALL CHO_QUIT('Internal error detected in '//SECNAM,        &
-     &                    103)
-         END IF
-      END IF
+if ((IAO > NBAST) .or. (IAO < 1)) then
+  write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': AO index out of bounds: ',IAO
+  write(LUPRI,'(A,I10,A,/)') 'Maximum possible: NBAST = ',NBAST,'(from common block)'
+  if (NBAST < 1) then
+    call CHO_QUIT('Initialization error detected in '//SECNAM,102)
+  else
+    call CHO_QUIT('Internal error detected in '//SECNAM,103)
+  end if
+end if
 #endif
 
-      CHO_ISAO = CHO_IRANGE(IAO,IBAS,NSYM,.FALSE.)
+CHO_ISAO = CHO_IRANGE(IAO,IBAS,NSYM,.false.)
 
-      END
+end function CHO_ISAO

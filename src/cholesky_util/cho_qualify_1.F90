@@ -8,31 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
+
+subroutine CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
 !
-!     Purpose: qualify diagonals ("qualify until full").
-!
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
+! Purpose: qualify diagonals ("qualify until full").
+
+use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
 #include "cholesky.fh"
 
-      IF (NNBSTRSH(ISYM,ISHLAB,2) .GT. 0) THEN
-         I  = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2)
-         I2 = I + NNBSTRSH(ISYM,ISHLAB,2)
-         MAXQ = MIN(MAXQUAL-NQUAL(ISYM),LEFT/NNBSTR(ISYM,2))
-         NUMQ = 0
-         DO WHILE ((I.LT.I2) .AND. (NUMQ.LT.MAXQ))
-            I = I + 1
-            J = INDRED(I,2)
-            IF (DIAG(J) .GE. DIAMIN(ISYM)) THEN
-               NUMQ = NUMQ + 1
-               iQuAB(IOFFQ(ISYM)+NUMQ,ISYM)=I
-            END IF
-         END DO
-         NQUAL(ISYM) = NQUAL(ISYM) + NUMQ
-         MEM0 = MEM0 + NUMQ*NNBSTR(ISYM,2)
-         LEFT = MEM  - MEM0
-      END IF
+if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then
+  I = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLAB,2)
+  I2 = I+NNBSTRSH(ISYM,ISHLAB,2)
+  MAXQ = min(MAXQUAL-NQUAL(ISYM),LEFT/NNBSTR(ISYM,2))
+  NUMQ = 0
+  do while ((I < I2) .and. (NUMQ < MAXQ))
+    I = I+1
+    J = INDRED(I,2)
+    if (DIAG(J) >= DIAMIN(ISYM)) then
+      NUMQ = NUMQ+1
+      iQuAB(IOFFQ(ISYM)+NUMQ,ISYM) = I
+    end if
+  end do
+  NQUAL(ISYM) = NQUAL(ISYM)+NUMQ
+  MEM0 = MEM0+NUMQ*NNBSTR(ISYM,2)
+  LEFT = MEM-MEM0
+end if
 
-      END
+end subroutine CHO_QUALIFY_1

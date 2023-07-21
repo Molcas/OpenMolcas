@@ -10,45 +10,45 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_TraDrv(irc,CMO,Diag,DoDiag)
+
+subroutine ChoMP2_TraDrv(irc,CMO,Diag,DoDiag)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: AO-to-MO (ai) transformation of Cholesky vectors
-!              performed directly in reduced sets. This assumes
-!              that the MP2 program has been appropriately initialized.
-!
-      use stdalloc
-      Implicit None
-      Integer irc
-      Real*8  CMO(*), Diag(*)
-      Logical DoDiag
+! Purpose: AO-to-MO (ai) transformation of Cholesky vectors
+!          performed directly in reduced sets. This assumes
+!          that the MP2 program has been appropriately initialized.
+
+use stdalloc
+
+implicit none
+integer irc
+real*8 CMO(*), Diag(*)
+logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
+character(len=6), parameter :: ThisNm = 'TraDrv'
+character(len=13), parameter :: SecNam = 'ChoMP2_TraDrv'
+real*8, allocatable :: COcc(:), CVir(:)
 
-      Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
-      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_TraDrv'
+irc = 0
 
-      Real*8, Allocatable:: COcc(:), CVir(:)
+! Reorder MO coefficients.
+! ------------------------
 
-      irc = 0
+call mma_allocate(COcc,nT1AOT(1),Label='COcc')
+call mma_allocate(CVir,nAOVir(1),Label='CVir')
+call ChoMP2_MOReOrd(CMO,COcc,CVir)
 
-!     Reorder MO coefficients.
-!     ------------------------
+! Transform vectors.
+! ------------------
 
-      Call mma_allocate(COcc,nT1AOT(1),Label='COcc')
-      Call mma_allocate(CVir,nAOVir(1),Label='CVir')
-      Call ChoMP2_MOReOrd(CMO,COcc,CVir)
+call ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 
-!     Transform vectors.
-!     ------------------
+! Deallocate reordered MO coefficients.
+! -------------------------------------
 
-      Call ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
+call mma_deallocate(CVir)
+call mma_deallocate(COcc)
 
-!     Deallocate reordered MO coefficients.
-!     -------------------------------------
-
-      Call mma_deallocate(CVir)
-      Call mma_deallocate(COcc)
-
-      End
+end subroutine ChoMP2_TraDrv

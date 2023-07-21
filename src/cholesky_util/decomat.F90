@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2016, Giovanni Li Manni                                *
 !***********************************************************************
-      Subroutine DecoMat(MAT,dimens,eigenvec,NumV,rc)
+
+subroutine DecoMat(MAT,dimens,eigenvec,NumV,rc)
 !************ by G. Li Manni Stuttgart March 2016 *************
 !
 ! MAT:      copy of the D1A matrix (1RDM) in AO basis.
@@ -24,74 +25,52 @@
 !           Negative eigenvalues are set to zero and eigenvalue larger than 2.0d0 set to 2.0d0
 !
 ! NUMV    : Number of non negative eigenvalues
-      implicit none
-      integer dimens,NumV,rc,i,j
-      real*8 MAT(dimens,dimens),eigenvec(dimens,dimens)
-      real*8 eigenval(dimens)
 
-      Character*12 routine
-      Parameter (routine = 'DecoNegatMat')
+implicit none
+integer dimens, NumV, rc, i, j
+real*8 MAT(dimens,dimens), eigenvec(dimens,dimens)
+real*8 eigenval(dimens)
+character*12 routine
+parameter(routine='DecoNegatMat')
 
-      rc = 0
-      NumV = 0
+rc = 0
+NumV = 0
 
-      If (dimens .lt. 1) then
-       rc= -1
-       write(6,*) 'matrix size < 1'
-       Go To 10
-      end if
+if (dimens < 1) then
+  rc = -1
+  write(6,*) 'matrix size < 1'
+  Go To 10
+end if
 
 ! Step 1: diagonalize MAT. MAT is destroyed and replaced by the eigenvectors values.
 ! IMPORTANT: At this stage eigenvec is used as scratch.
-      call eigen_molcas(dimens,MAT,eigenval,eigenvec)
+call eigen_molcas(dimens,MAT,eigenval,eigenvec)
 ! Move MAT to eigenvec. where it belongs. I could not wait!
-      call dcopy_(dimens**2,MAT,1,eigenvec,1)
+call dcopy_(dimens**2,MAT,1,eigenvec,1)
 ! Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
 ! Count only the positive ones (counter NumV)
-      do j = 1, dimens
-       if(eigenval(j).gt.1.0d-12) then
-          NumV = NumV + 1
-          if(eigenval(j).gt.2.0d0) eigenval(j) = 2.0d0
-       else
-        eigenval(j) = 0.0d0
-       end if
-      end do
+do j=1,dimens
+  if (eigenval(j) > 1.0d-12) then
+    NumV = NumV+1
+    if (eigenval(j) > 2.0d0) eigenval(j) = 2.0d0
+  else
+    eigenval(j) = 0.0d0
+  end if
+end do
 ! Sort eigenvalues in decreasing order of occupation number
-      call IncrSort(eigenval,eigenvec,dimens)
+call IncrSort(eigenval,eigenvec,dimens)
 ! Compute sqrt(eigenvalues)
-      do i = 1, dimens
-          eigenval(i) = sqrt(eigenval(i))
-      end do
+do i=1,dimens
+  eigenval(i) = sqrt(eigenval(i))
+end do
 ! Generate Y = X(D**0.5)
-      do j = 1, dimens
-          do i = 1, dimens
-           eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
-          end do
-      end do
+do j=1,dimens
+  do i=1,dimens
+    eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
+  end do
+end do
 !***************** Exit ****************
-10    Continue
-      return
-      end subroutine
+10 continue
+return
 
-      SUBROUTINE IncrSort(EVal,EVec,dimens)
-      Implicit none
-      integer dimens, i, k, j, l
-      Real*8 EVal(dimens),EVec(dimens,dimens),swap
-      Do i = 1,dimens - 1
-         k = i
-         do j = i + 1, dimens
-            If (EVal(j).gt.EVal(k)) k = j
-         end do
-         If (k.ne.i) Then
-            Swap    = EVal(k)
-            EVal(k) = EVal(i)
-            EVal(i) = Swap
-            do l = 1, dimens
-               Swap      =   EVec(l,k)
-               EVec(L,K) =   EVec(l,i)
-               EVec(L,I) =   Swap
-            end do
-         End If
-      End Do
-      Return
-      End Subroutine
+end subroutine DecoMat

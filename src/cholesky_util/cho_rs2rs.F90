@@ -8,89 +8,89 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RS2RS(IMAP,LMAP,IRS2,IRS3,IRED3,ISYM)
+
+subroutine CHO_RS2RS(IMAP,LMAP,IRS2,IRS3,IRED3,ISYM)
 !
-!     Purpose: set up mapping between reduced sets stored at IRS2 and
-!              IRS3 (IRED3 is the reduced set id of IRS3).
+! Purpose: set up mapping between reduced sets stored at IRS2 and
+!          IRS3 (IRED3 is the reduced set id of IRS3).
 !
-!     WARNING: for IRED3 = 1, INDRED is reset here!!!!
-!
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      INTEGER IMAP(LMAP)
+! WARNING: for IRED3 = 1, INDRED is reset here!!!!
+
+use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+
+implicit real*8(a-h,o-z)
+integer IMAP(LMAP)
 #include "cholesky.fh"
+character*9 SECNAM
+parameter(SECNAM='CHO_RS2RS')
 
-      CHARACTER*9 SECNAM
-      PARAMETER (SECNAM = 'CHO_RS2RS')
+! Check input.
+! ------------
 
-!     Check input.
-!     ------------
+if ((IRS2 < 1) .or. (IRS2 > 3) .or. (IRS3 < 1) .or. (IRS3 > 3)) then
+  call CHO_QUIT('Index error in '//SECNAM,104)
+else if (LMAP < NNBSTR(ISYM,IRS2)) then
+  call CHO_QUIT('Dimension error in '//SECNAM,104)
+end if
 
-      IF (IRS2.LT.1 .OR. IRS2.GT.3 .OR.                                 &
-     &    IRS3.LT.1 .OR. IRS3.GT.3) THEN
-         CALL CHO_QUIT('Index error in '//SECNAM,104)
-      ELSE IF (LMAP .LT. NNBSTR(ISYM,IRS2)) THEN
-         CALL CHO_QUIT('Dimension error in '//SECNAM,104)
-      END IF
+! For IRED3 = 1, INDRED array addresses into shell pair. We hence
+! need to reset it (as warned about above).
+! ---------------------------------------------------------------
 
-!     For IRED3 = 1, INDRED array addresses into shell pair. We hence
-!     need to reset it (as warned about above).
-!     ---------------------------------------------------------------
+if (IRED3 == 1) then
+  I1 = IIBSTR(ISYM,IRS3)+1
+  I2 = I1+NNBSTR(ISYM,IRS3)-1
+  do I=I1,I2
+    IndRed(I,IRS3) = I
+  end do
+end if
 
-      IF (IRED3 .EQ. 1) THEN
-         I1 = IIBSTR(ISYM,IRS3) + 1
-         I2 = I1 + NNBSTR(ISYM,IRS3) - 1
-         DO I = I1,I2
-            IndRed(I,IRS3) = I
-         END DO
-      END IF
+! Set up mapping array.
+! ---------------------
 
-!     Set up mapping array.
-!     ---------------------
+call IZERO(IMAP,NNBSTR(ISYM,IRS2))
+do ISHLAB=1,NNSHL
+  N2 = NNBSTRSH(ISYM,ISHLAB,IRS2)
+  N3 = NNBSTRSH(ISYM,ISHLAB,IRS3)
+  if ((N2 > 0) .and. (N3 > 0)) then
+    if (N2 < N3) then
+      IAB1 = IIBSTRSH(ISYM,ISHLAB,IRS2)+1
+      IAB2 = IAB1+N2-1
+      LAST = 0
+      do IAB=IAB1,IAB2
+        JAB = INDRED(IIBSTR(ISYM,IRS2)+IAB,IRS2)
+        KAB = LAST
+        do while (KAB < NNBSTRSH(ISYM,ISHLAB,IRS3))
+          KAB = KAB+1
+          LAB = IIBSTRSH(ISYM,ISHLAB,IRS3)+KAB
+          MAB = INDRED(IIBSTR(ISYM,IRS3)+LAB,IRS3)
+          if (MAB == JAB) then
+            IMAP(IAB) = LAB
+            LAST = KAB
+            KAB = NNBSTRSH(ISYM,ISHLAB,IRS3)
+          end if
+        end do
+      end do
+    else
+      LAB1 = IIBSTRSH(ISYM,ISHLAB,IRS3)+1
+      LAB2 = LAB1+N3-1
+      LAST = 0
+      do LAB=LAB1,LAB2
+        MAB = INDRED(IIBSTR(ISYM,IRS3)+LAB,IRS3)
+        KAB = LAST
+        do while (KAB < NNBSTRSH(ISYM,ISHLAB,IRS2))
+          KAB = KAB+1
+          IAB = IIBSTRSH(ISYM,ISHLAB,IRS2)+KAB
+          JAB = INDRED(IIBSTR(ISYM,IRS2)+IAB,IRS2)
+          if (JAB == MAB) then
+            IMAP(IAB) = LAB
+            LAST = KAB
+            KAB = NNBSTRSH(ISYM,ISHLAB,IRS2)
+          end if
+        end do
+      end do
+    end if
+  end if
+end do
 
-      CALL IZERO(IMAP,NNBSTR(ISYM,IRS2))
-      DO ISHLAB = 1,NNSHL
-         N2 = NNBSTRSH(ISYM,ISHLAB,IRS2)
-         N3 = NNBSTRSH(ISYM,ISHLAB,IRS3)
-         IF (N2.GT.0 .AND. N3.GT.0) THEN
-            IF (N2 .LT. N3) THEN
-               IAB1 = IIBSTRSH(ISYM,ISHLAB,IRS2) + 1
-               IAB2 = IAB1 + N2 - 1
-               LAST = 0
-               DO IAB = IAB1,IAB2
-                  JAB = INDRED(IIBSTR(ISYM,IRS2)+IAB,IRS2)
-                  KAB = LAST
-                  DO WHILE (KAB .LT. NNBSTRSH(ISYM,ISHLAB,IRS3))
-                     KAB = KAB + 1
-                     LAB = IIBSTRSH(ISYM,ISHLAB,IRS3) + KAB
-                     MAB = INDRED(IIBSTR(ISYM,IRS3)+LAB,IRS3)
-                     IF (MAB .EQ. JAB) THEN
-                        IMAP(IAB) = LAB
-                        LAST = KAB
-                        KAB  = NNBSTRSH(ISYM,ISHLAB,IRS3)
-                     END IF
-                  END DO
-               END DO
-            ELSE
-               LAB1 = IIBSTRSH(ISYM,ISHLAB,IRS3) + 1
-               LAB2 = LAB1 + N3 - 1
-               LAST = 0
-               DO LAB = LAB1,LAB2
-                  MAB = INDRED(IIBSTR(ISYM,IRS3)+LAB,IRS3)
-                  KAB = LAST
-                  DO WHILE (KAB .LT. NNBSTRSH(ISYM,ISHLAB,IRS2))
-                     KAB = KAB + 1
-                     IAB = IIBSTRSH(ISYM,ISHLAB,IRS2) + KAB
-                     JAB = INDRED(IIBSTR(ISYM,IRS2)+IAB,IRS2)
-                     IF (JAB .EQ. MAB) THEN
-                        IMAP(IAB) = LAB
-                        LAST = KAB
-                        KAB  = NNBSTRSH(ISYM,ISHLAB,IRS2)
-                     END IF
-                  END DO
-               END DO
-            END IF
-         END IF
-      END DO
-
-      END
+end subroutine CHO_RS2RS

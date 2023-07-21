@@ -8,23 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RESETCNF
+
+subroutine CHO_RESETCNF()
 !
-!     Purpose: reset configuration of decomposition to that read from
-!              restart file. Original configuration will be saved in
-!              restart common block.
-!
-      IMPLICIT NONE
+! Purpose: reset configuration of decomposition to that read from
+!          restart file. Original configuration will be saved in
+!          restart common block.
+
+implicit none
 #include "cholesky.fh"
 
-      CALL CHO_DSWAP(THRCOM,XTHRCOM)
-      CALL CHO_DSWAP(THRDIAG,XTHRDIAG)
-      CALL CHO_DSWAP(DAMP(1),XDAMP(1))
-      CALL CHO_DSWAP(DAMP(2),XDAMP(2))
-      CALL CHO_DSWAP(SPAN,XSPAN)
-      CALL CHO_DSWAP(THRNEG,XTHRNEG)
-      CALL CHO_DSWAP(WARNEG,XWARNEG)
-      CALL CHO_DSWAP(TOONEG,XTOONEG)
-      CALL CHO_LSWAP(SCDIAG,XSCDIAG)
+call CHO_DSWAP(THRCOM,XTHRCOM)
+call CHO_DSWAP(THRDIAG,XTHRDIAG)
+call CHO_DSWAP(DAMP(1),XDAMP(1))
+call CHO_DSWAP(DAMP(2),XDAMP(2))
+call CHO_DSWAP(SPAN,XSPAN)
+call CHO_DSWAP(THRNEG,XTHRNEG)
+call CHO_DSWAP(WARNEG,XWARNEG)
+call CHO_DSWAP(TOONEG,XTOONEG)
+call CHO_LSWAP(SCDIAG,XSCDIAG)
 
-      END
+end subroutine CHO_RESETCNF

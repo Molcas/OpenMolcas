@@ -8,21 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_IniLQ(MaxQual,nSym)
-      use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
-      use ChoArr, only: iQL2G, nQual_L
-      use stdalloc
-      Implicit None
-      Integer MaxQual, nSym
+
+subroutine Cho_P_IniLQ(MaxQual,nSym)
+
+use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
+use ChoArr, only: iQL2G, nQual_L
+use stdalloc
+
+implicit none
+integer MaxQual, nSym
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         Call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,                 &
-     &                     Label='iQuAB_L_Hidden')
-         iQuAB_L => iQuAB_L_Hidden
-         Call mma_allocate(iQL2G,MaxQual,nSym,Label='iQL2G')
-      End If
+if (Cho_Real_Par) then
+  call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,Label='iQuAB_L_Hidden')
+  iQuAB_L => iQuAB_L_Hidden
+  call mma_allocate(iQL2G,MaxQual,nSym,Label='iQL2G')
+end if
 
-      nQual_L(:)=0
+nQual_L(:) = 0
 
-      End
+end subroutine Cho_P_IniLQ

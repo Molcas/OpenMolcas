@@ -8,244 +8,227 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_CALCINT_1(ISHLAB)
+
+subroutine CHO_MCA_CALCINT_1(ISHLAB)
 !
-!     Purpose: calculate qualified integral columns from
-!              shell pair distribution (**|ISHLA ISHLB).
+! Purpose: calculate qualified integral columns from
+!          shell pair distribution (**|ISHLA ISHLB).
 !
-!     Version 1: store full shell quadruple.
-!
-      use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+! Version 1: store full shell quadruple.
+
+use ChoArr, only: nBstSh, iSP2F
+use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
+use Constants
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
+character*17 SECNAM
+parameter(SECNAM='CHO_MCA_CALCINT_1')
+logical DOINTS, LOCDBG
+parameter(LOCDBG=.false.)
+parameter(INFINT=INF_INT,INFIN2=INF_IN2)
+integer NAB(8)
+real*8, allocatable :: Int4Sh(:), IntCol(:)
 
-      CHARACTER*17 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_CALCINT_1')
-
-      LOGICAL   DOINTS, LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
-      PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
-
-      INTEGER NAB(8)
-
-      Real*8, Allocatable:: Int4Sh(:), IntCol(:)
-
-#if defined (_DEBUGPRINT_)
-      Call mma_maxDBLE(LLEAK)
-      MEM_START = LLEAK
+#ifdef _DEBUGPRINT_
+call mma_maxDBLE(LLEAK)
+MEM_START = LLEAK
 #endif
 
-!     Initializations.
-!     ----------------
+! Initializations.
+! ----------------
 
-      CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
+call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
 
-      NAB(1) = NQUAL(1) - IOFFQ(1)
-      DO ISYM = 2,NSYM
-         NAB(ISYM) = NQUAL(ISYM) - IOFFQ(ISYM)
-      END DO
+NAB(1) = NQUAL(1)-IOFFQ(1)
+do ISYM=2,NSYM
+  NAB(ISYM) = NQUAL(ISYM)-IOFFQ(ISYM)
+end do
 
-      IOFF_COL(1) = 0
-      LCOL = NNBSTR(1,2)*NAB(1)
-      DO ISYM = 2,NSYM
-         IOFF_COL(ISYM) = LCOL
-         LCOL = LCOL + NNBSTR(ISYM,2)*NAB(ISYM)
-      END DO
+IOFF_COL(1) = 0
+LCOL = NNBSTR(1,2)*NAB(1)
+do ISYM=2,NSYM
+  IOFF_COL(ISYM) = LCOL
+  LCOL = LCOL+NNBSTR(ISYM,2)*NAB(ISYM)
+end do
 
-      IF (ISHLA .EQ. ISHLB) THEN
-         NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA) + 1)/2
-      ELSE
-         NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
-      END IF
-      MAXCD = 0
-      DO ISHLCD = 1,NNSHL
-         ISYM   = 1
-         DOINTS = (NAB(ISYM).GT.0) .AND.                                &
-     &            (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
-         DO WHILE ((ISYM.LT.NSYM) .AND. (.NOT.DOINTS))
-            ISYM   = ISYM + 1
-            DOINTS = (NAB(ISYM).GT.0) .AND.                             &
-     &               (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
-         END DO
-         IF (DOINTS) THEN
-            CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-            IF (ISHLC .EQ. ISHLD) THEN
-               NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-            ELSE
-               NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-            END IF
-            MAXCD = MAX(MAXCD,NUMCD)
-         END IF
-      END DO
-      L4SHMX = MAXCD*NUMAB
+if (ISHLA == ISHLB) then
+  NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+else
+  NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
+end if
+MAXCD = 0
+do ISHLCD=1,NNSHL
+  ISYM = 1
+  DOINTS = (NAB(ISYM) > 0) .and. (NNBSTRSH(ISYM,ISHLCD,2) > 0)
+  do while ((ISYM < NSYM) .and. (.not. DOINTS))
+    ISYM = ISYM+1
+    DOINTS = (NAB(ISYM) > 0) .and. (NNBSTRSH(ISYM,ISHLCD,2) > 0)
+  end do
+  if (DOINTS) then
+    call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+    if (ISHLC == ISHLD) then
+      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+    else
+      NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
+    end if
+    MAXCD = max(MAXCD,NUMCD)
+  end if
+end do
+L4SHMX = MAXCD*NUMAB
 
-      XXSHL = DBLE(NNSHL)
-      XSKIP = Zero
+XXSHL = dble(NNSHL)
+XSKIP = Zero
 
-      IF (IPRINT .GE. INFINT) WRITE(LUPRI,*)
+if (IPRINT >= INFINT) write(LUPRI,*)
 
-!     Allocate memory and initialize:
-!     qualified columns in reduced set,
-!     max. shell quadruple.
-!     ---------------------------------
+! Allocate memory and initialize:
+! qualified columns in reduced set,
+! max. shell quadruple.
+! ---------------------------------
 
-      Call mma_allocate(Int4Sh,L4SHMX,Label='Int4Sh')
-      Call mma_allocate(IntCol,LCOL,Label='IntCol')
-      IntCol(:)=Zero
+call mma_allocate(Int4Sh,L4SHMX,Label='Int4Sh')
+call mma_allocate(IntCol,LCOL,Label='IntCol')
+IntCol(:) = Zero
 
-!     Set memory used by seward.
-!     --------------------------
+! Set memory used by seward.
+! --------------------------
 
-      Call mma_maxDBLE(LINT)
-      CALL XSETMEM_INTS(LINT)
+call mma_maxDBLE(LINT)
+call XSETMEM_INTS(LINT)
 
-!     Loop over shell quadruples.
-!     ---------------------------
+! Loop over shell quadruples.
+! ---------------------------
 
-      DO ISHLCD = 1,NNSHL
+do ISHLCD=1,NNSHL
 
-!        Set left shell pair index.
-!        --------------------------
+  ! Set left shell pair index.
+  ! --------------------------
 
-         CALL CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.TRUE.)
-         IF (ISHLC .EQ. ISHLD) THEN
-            NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-         ELSE
-            NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-         END IF
+  call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
+  if (ISHLC == ISHLD) then
+    NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+  else
+    NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
+  end if
 
-!        Find out if this shell pair (CD) contributes to
-!        current reduced set.
-!        -----------------------------------------------
+  ! Find out if this shell pair (CD) contributes to
+  ! current reduced set.
+  ! -----------------------------------------------
 
-         ISYM   = 1
-         DOINTS = (NAB(ISYM).GT.0) .AND.                                &
-     &            (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
-         DO WHILE ((ISYM.LT.NSYM) .AND. (.NOT.DOINTS))
-            ISYM   = ISYM + 1
-            DOINTS = (NAB(ISYM).GT.0) .AND.                             &
-     &               (NNBSTRSH(ISYM,ISHLCD,2).GT.0)
-         END DO
+  ISYM = 1
+  DOINTS = (NAB(ISYM) > 0) .and. (NNBSTRSH(ISYM,ISHLCD,2) > 0)
+  do while ((ISYM < NSYM) .and. (.not. DOINTS))
+    ISYM = ISYM+1
+    DOINTS = (NAB(ISYM) > 0) .and. (NNBSTRSH(ISYM,ISHLCD,2) > 0)
+  end do
 
-         IF (DOINTS) THEN
+  if (DOINTS) then
 
-!           Print message.
-!           --------------
+    ! Print message.
+    ! --------------
 
-            IF (IPRINT .GE. INFINT) THEN
-                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')                &
-     &          'Invoking Seward for shell quadruple (',ISHLC,ISHLD,    &
-     &          '|',ISHLA,ISHLB,')'
-            END IF
+    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'Invoking Seward for shell quadruple (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                   ISHLB,')'
 
-!           Calculate integrals.
-!           --------------------
+    ! Calculate integrals.
+    ! --------------------
 
-            CALL CHO_TIMER(C1,W1)
-            L4SH = NUMCD*NUMAB
-            Int4Sh(1:L4SH)=Zero
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,                           &
-     &                         Int4SH,L4SH,                             &
-     &                         LOCDBG.OR.(IPRINT.GE.100))
-            CALL CHO_TIMER(C2,W2)
-            TINTEG(1,1) = TINTEG(1,1) + C2 - C1
-            TINTEG(2,1) = TINTEG(2,1) + W2 - W1
+    call CHO_TIMER(C1,W1)
+    L4SH = NUMCD*NUMAB
+    Int4Sh(1:L4SH) = Zero
+    call CHO_MCA_INT_1(ISHLCD,ISHLAB,Int4SH,L4SH,LOCDBG .or. (IPRINT >= 100))
+    call CHO_TIMER(C2,W2)
+    TINTEG(1,1) = TINTEG(1,1)+C2-C1
+    TINTEG(2,1) = TINTEG(2,1)+W2-W1
 
-!           Extract columns in reduced set.
-!           IAB: index AB within full shell pair.
-!           JAB: index AB within current reduced set.
-!           KAB: index AB within qualifieds.
-!           -----------------------------------------
+    ! Extract columns in reduced set.
+    ! IAB: index AB within full shell pair.
+    ! JAB: index AB within current reduced set.
+    ! KAB: index AB within qualifieds.
+    ! -----------------------------------------
 
-            DO ISYM = 1,NSYM
-               DO KAB = 1,NAB(ISYM)
+    do ISYM=1,NSYM
+      do KAB=1,NAB(ISYM)
 
-                  JAB = IQUAB(IOFFQ(ISYM)+KAB,ISYM)
-                  IAB = INDRED(INDRED(JAB,2),1)
+        JAB = IQUAB(IOFFQ(ISYM)+KAB,ISYM)
+        IAB = INDRED(INDRED(JAB,2),1)
 
-                  DO JCD0 = 1,NNBSTRSH(ISYM,ISHLCD,2)
+        do JCD0=1,NNBSTRSH(ISYM,ISHLCD,2)
 
-                     JCDS = IIBSTRSH(ISYM,ISHLCD,2) + JCD0
-                     JCD  = IIBSTR(ISYM,2) + JCDS
-                     ICD  = INDRED(INDRED(JCD,2),1)
+          JCDS = IIBSTRSH(ISYM,ISHLCD,2)+JCD0
+          JCD = IIBSTR(ISYM,2)+JCDS
+          ICD = INDRED(INDRED(JCD,2),1)
 
-                     KOFF1 = IOFF_COL(ISYM)                             &
-     &                     + NNBSTR(ISYM,2)*(KAB - 1) + JCDS
-                     KOFF2 = NUMCD*(IAB - 1) + ICD
+          KOFF1 = IOFF_COL(ISYM)+NNBSTR(ISYM,2)*(KAB-1)+JCDS
+          KOFF2 = NUMCD*(IAB-1)+ICD
 
-                     IntCol(KOFF1) = Int4Sh(KOFF2)
+          IntCol(KOFF1) = Int4Sh(KOFF2)
 
-                  END DO
+        end do
 
-               END DO
-            END DO
+      end do
+    end do
 
-         ELSE
+  else
 
-!           Update skip counter.
-!           --------------------
+    ! Update skip counter.
+    ! --------------------
 
-            XSKIP = XSKIP + One
+    XSKIP = XSKIP+One
 
-!           Print message.
-!           --------------
+    ! Print message.
+    ! --------------
 
-            IF (IPRINT .GE. INFINT) THEN
-                WRITE(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)')                &
-     &          'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,    &
-     &          '|',ISHLA,ISHLB,')'
-            END IF
+    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                   ISHLB,')'
 
-         END IF
+  end if
 
-      END DO
+end do
 
-!     Write the columns to disk.
-!     --------------------------
+! Write the columns to disk.
+! --------------------------
 
-      CALL CHO_TIMER(C1,W1)
-      DO ISYM = 1,NSYM
-         LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
-         IF (LTOT .GT. 0) THEN
-            IOPT = 1
-            KOFF = 1 + IOFF_COL(ISYM)
-            IADR = NNBSTR(ISYM,2)*IOFFQ(ISYM)
-            CALL DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
-         END IF
-      END DO
-      CALL CHO_TIMER(C2,W2)
-      TINTEG(1,2) = TINTEG(1,2) + C2 - C1
-      TINTEG(2,2) = TINTEG(2,2) + W2 - W1
+call CHO_TIMER(C1,W1)
+do ISYM=1,NSYM
+  LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
+  if (LTOT > 0) then
+    IOPT = 1
+    KOFF = 1+IOFF_COL(ISYM)
+    IADR = NNBSTR(ISYM,2)*IOFFQ(ISYM)
+    call DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
+  end if
+end do
+call CHO_TIMER(C2,W2)
+TINTEG(1,2) = TINTEG(1,2)+C2-C1
+TINTEG(2,2) = TINTEG(2,2)+W2-W1
 
-!     Free memory: both memory used by seward and used here.
-!     ------------------------------------------------------
+! Free memory: both memory used by seward and used here.
+! ------------------------------------------------------
 
-      CALL XRLSMEM_INTS()
-      Call mma_deallocate(IntCol)
-      Call mma_deallocate(Int4Sh)
+call XRLSMEM_INTS()
+call mma_deallocate(IntCol)
+call mma_deallocate(Int4Sh)
 
-!     Print skip statistics.
-!     ----------------------
+! Print skip statistics.
+! ----------------------
 
-      IF (IPRINT .GE. INFIN2) THEN
-         PCT = 1.0D2*XSKIP/XXSHL
-         WRITE(LUPRI,'(A,F7.2,A)')                                      &
-     &   'Skipped',PCT,'% of rows (shell pairs) in this distribution'
-      END IF
+if (IPRINT >= INFIN2) then
+  PCT = 1.0d2*XSKIP/XXSHL
+  write(LUPRI,'(A,F7.2,A)') 'Skipped',PCT,'% of rows (shell pairs) in this distribution'
+end if
 
-#if defined (_DEBUGPRINT_)
-      Call mma_maxDBLE(LLEAK)
-      MEM_END = LLEAK
-      LEAK = MEM_END - MEM_START
-      IF (LEAK .NE. 0) THEN
-         WRITE(LUPRI,'(//,A,A,I9)')                                     &
-     &   SECNAM,': Memory leak:',LEAK
-         CALL CHO_QUIT('Memory leak detected in '//SECNAM,104)
-      END IF
+#ifdef _DEBUGPRINT_
+call mma_maxDBLE(LLEAK)
+MEM_END = LLEAK
+LEAK = MEM_END-MEM_START
+if (LEAK /= 0) then
+  write(LUPRI,'(//,A,A,I9)') SECNAM,': Memory leak:',LEAK
+  call CHO_QUIT('Memory leak detected in '//SECNAM,104)
+end if
 #endif
 
-      END
+end subroutine CHO_MCA_CALCINT_1

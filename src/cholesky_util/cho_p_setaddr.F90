@@ -8,79 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_SetAddr()
+
+subroutine Cho_P_SetAddr()
 !
-!     Purpose: set initial disk adresses for local as well as global
-!              reduced sets.
-!
-      use ChoSwp, only: InfRed, InfRed_G
-      use ChoSwp, only: InfVec, InfVec_G
-      Implicit None
+! Purpose: set initial disk adresses for local as well as global
+!          reduced sets.
+
+use ChoSwp, only: InfRed, InfRed_G
+use ChoSwp, only: InfVec, InfVec_G
+
+implicit none
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
+character*13 SecNam
+parameter(SecNam='Cho_P_SetAddr')
+integer irc
 
-      Character*13 SecNam
-      Parameter (SecNam = 'Cho_P_SetAddr')
+if (Cho_Real_Par) then
 
-      Integer irc
+  ! The variable XnPass must be zero: restart is not possible.
+  ! ----------------------------------------------------------
 
-      If (Cho_Real_Par) Then
+  if (XnPass /= 0) call Cho_Quit('XnPass>0 error in '//SecNam,104)
 
-!        The variable XnPass must be zero: restart is not possible.
-!        ----------------------------------------------------------
+  ! Global.
+  ! -------
 
-         If (XnPass .ne. 0) Then
-            Call Cho_Quit('XnPass>0 error in '//SecNam,104)
-         End If
+  call Cho_P_SetAddr_2(InfRed_G,InfVec_G,MaxRed,MaxVec,size(InfVec,2),nSym,irc)
+  if (irc /= 0) then
+    write(Lupri,*) SecNam,': Cho_P_SetAddr_2 returned ',irc
+    call Cho_Quit('Error in '//SecNam,104)
+  end if
 
-!        Global.
-!        -------
+end if
 
-         Call Cho_P_SetAddr_2(InfRed_G,InfVec_G,                        &
-     &                        MaxRed,MaxVec,SIZE(InfVec,2),nSym,irc)
-         If (irc .ne. 0) Then
-            Write(Lupri,*) SecNam,': Cho_P_SetAddr_2 returned ',irc
-            Call Cho_Quit('Error in '//SecNam,104)
-         End If
+! Local.
+! ------
 
-      End If
+call Cho_SetAddr(InfRed,InfVec,MaxRed,MaxVec,size(InfVec,2),nSym)
 
-!     Local.
-!     ------
-
-      Call Cho_SetAddr(InfRed,InfVec,                                   &
-     &                 MaxRed,MaxVec,SIZE(InfVec,2),nSym)
-
-      End
-!***********************************************************************
-!***********************************************************************
-!***********************************************************************
-      SubRoutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,   &
-     &                           irc)
-      Implicit None
-      Integer MaxRed, MaxVec, N2, nSym, irc
-      Integer InfRed(MaxRed), InfVec(MaxVec,N2,nSym)
-
-      Integer iSym
-
-      irc = 0
-
-      If (MaxRed .gt. 0) Then
-         InfRed(1) = 0
-      Else
-         irc = 1
-         Return
-      End If
-
-      If (MaxVec.gt.0 .and. N2.ge.4) Then
-         Do iSym = 1,nSym
-            InfVec(1,3,iSym) = 0
-            InfVec(1,4,iSym) = 0
-         End Do
-      Else
-         irc = 2
-         Return
-      End If
-
-      End
+end subroutine Cho_P_SetAddr

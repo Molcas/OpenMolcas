@@ -36,28 +36,30 @@
 !>
 !> @param[out] irc return code
 !***********************************************************************
-      SubRoutine Cho_X_ReoVec(irc)
-      use stdalloc
-      Implicit None
-      Integer irc
+
+subroutine Cho_X_ReoVec(irc)
+
+use stdalloc
+
+implicit none
+integer irc
 #include "cholesky.fh"
+integer l_Wrk, iReo
+real*8, allocatable :: Wrk(:)
+integer, allocatable :: iRS2F(:,:)
 
-      Integer l_Wrk, iReo
-      Real*8, Allocatable:: Wrk(:)
-      Integer, Allocatable:: iRS2F(:,:)
+irc = 0
 
-      irc = 0
+call Get_iScalar('Cholesky Reorder',iReo)
+if (iReo == 0) then
+  call mma_allocate(iRS2F,3,nnBstRT(1),Label='iRS2F')
+  call mma_maxDBLE(l_Wrk)
+  call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+  call Cho_ReoVec(iRS2F,3,nnBstRT(1),Wrk,l_Wrk)
+  call mma_deallocate(Wrk)
+  call mma_deallocate(iRS2F)
+  iReo = 1
+  call Put_iScalar('Cholesky Reorder',iReo)
+end if
 
-      Call Get_iScalar('Cholesky Reorder',iReo)
-      If (iReo .eq. 0) Then
-         Call mma_allocate(iRS2F,3,nnBstRT(1),Label='iRS2F')
-         Call mma_maxDBLE(l_Wrk)
-         Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
-         Call Cho_ReoVec(iRS2F,3,nnBstRT(1),Wrk,l_Wrk)
-         Call mma_deallocate(Wrk)
-         Call mma_deallocate(iRS2F)
-         iReo = 1
-         Call Put_iScalar('Cholesky Reorder',iReo)
-      End If
-
-      End
+end subroutine Cho_X_ReoVec

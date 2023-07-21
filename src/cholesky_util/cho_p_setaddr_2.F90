@@ -1,0 +1,38 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,irc)
+
+implicit none
+integer MaxRed, MaxVec, N2, nSym, irc
+integer InfRed(MaxRed), InfVec(MaxVec,N2,nSym)
+integer iSym
+
+irc = 0
+
+if (MaxRed > 0) then
+  InfRed(1) = 0
+else
+  irc = 1
+  return
+end if
+
+if ((MaxVec > 0) .and. (N2 >= 4)) then
+  do iSym=1,nSym
+    InfVec(1,3,iSym) = 0
+    InfVec(1,4,iSym) = 0
+  end do
+else
+  irc = 2
+  return
+end if
+
+end subroutine Cho_P_SetAddr_2

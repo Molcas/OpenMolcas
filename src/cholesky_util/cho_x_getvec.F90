@@ -30,11 +30,13 @@
 !> @param[in]  Scr    scratch array for read
 !> @param[in]  lScr   dimension of \p Scr array
 !***********************************************************************
-      Subroutine Cho_X_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
-      Implicit None
-      Integer LenVec, NumVec, iVec1, iSym, lScr
-      Real*8  ChoVec(LenVec,NumVec), Scr(lScr)
 
-      Call Cho_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
+subroutine Cho_X_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
 
-      End
+implicit none
+integer LenVec, NumVec, iVec1, iSym, lScr
+real*8 ChoVec(LenVec,NumVec), Scr(lScr)
+
+call Cho_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
+
+end subroutine Cho_X_GetVec

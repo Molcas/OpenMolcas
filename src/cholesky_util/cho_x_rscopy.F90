@@ -30,15 +30,17 @@
 !> @param[in]  iRS location of reference reduced set
 !> @param[in]  jRS location of target reduced set
 !***********************************************************************
-      Subroutine Cho_X_RSCopy(irc,iRS,jRS)
-      Implicit None
-      Integer irc,iRS,jRS
 
-      If (iRS.lt.1 .or. iRS.gt.3 .or. jRS.lt.1 .or. jRS.gt.3) Then
-         irc = 1
-      Else
-         Call Cho_RSCopy(iRS,jRS)
-         irc = 0
-      End If
+subroutine Cho_X_RSCopy(irc,iRS,jRS)
 
-      End
+implicit none
+integer irc, iRS, jRS
+
+if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then
+  irc = 1
+else
+  call Cho_RSCopy(iRS,jRS)
+  irc = 0
+end if
+
+end subroutine Cho_X_RSCopy

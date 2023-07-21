@@ -8,374 +8,313 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
+
+subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 !
-!     Purpose: shell-driven calculation of the integral diagonal and
-!              setup of the first reduced set.
-!
-      use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
-      use ChoArr, only: MySP, n_MySP
-      use ChoSwp, only: nnBstRSh
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      INTEGER LENBUF, LENSCR
-      REAL*8 BUF(LENBUF), SCR(LENSCR)
-      INTEGER   IBUF(4,LENBUF)
+! Purpose: shell-driven calculation of the integral diagonal and
+!          setup of the first reduced set.
+
+use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
+use ChoArr, only: MySP, n_MySP
+use ChoSwp, only: nnBstRSh
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer LENBUF, LENSCR
+real*8 BUF(LENBUF), SCR(LENSCR)
+integer IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
+character(len=12), parameter :: SECNAM = 'CHO_CALCDIAG'
+integer, parameter :: INFO_DEBUG = 4, INFO_INSANE = 10
+real*8 SCRMAX(8), XNCD(1)
+integer, external :: CHO_ISAOSH
+real*8, allocatable :: NegCalcDiag(:)
+! Statement functions
+MULD2H(I,J) = ieor(I-1,J-1)+1
+ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
-      CHARACTER(LEN=12), PARAMETER:: SECNAM = 'CHO_CALCDIAG'
+! Check dimensions.
+! -----------------
 
-      Integer, PARAMETER:: INFO_DEBUG = 4, INFO_INSANE = 10
+if (LENBUF < LBUF) then
+  write(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'
+  write(LUPRI,'(1X,A,I10)') 'LENBUF = ',LENBUF
+  write(LUPRI,'(1X,A,I10,/)') 'LBUF   = ',LBUF
+  call CHO_QUIT('Buffer error in '//SECNAM,102)
+end if
+LSCR = MX2SH
+if (LENSCR < LSCR) then
+  write(LUPRI,'(//,1X,A,A)') SECNAM,': LENSCR >= MX2SH required!'
+  write(LUPRI,'(1X,A,I10)') 'LENSCR = ',LENSCR
+  write(LUPRI,'(1X,A,I10,/)') 'MX2SH  = ',LSCR
+  call CHO_QUIT('Scratch space error in '//SECNAM,102)
+end if
 
-      Real*8 SCRMAX(8), XNCD(1)
+! Open scratch files.
+! -------------------
 
-      INTEGER, EXTERNAL:: CHO_ISAOSH
+IUNIT = -1
+call CHO_OPEN(IUNIT,'_CHO_DIASCR2')
+JUNIT = -1
+call CHO_OPEN(JUNIT,'_CHO_DIASCR1')
+rewind(IUNIT)
+rewind(JUNIT)
 
-      Real*8, Allocatable:: NegCalcDiag(:)
+! Make JUNIT available outside this routine.
+! ------------------------------------------
 
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
-      ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
+LUSCR = JUNIT
 
-!     Check dimensions.
-!     -----------------
+! Initialize abs. max. diag. array.
+! ---------------------------------
 
-      IF (LENBUF .LT. LBUF) THEN
-         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'
-         WRITE(LUPRI,'(1X,A,I10)')    'LENBUF = ',LENBUF
-         WRITE(LUPRI,'(1X,A,I10,/)')  'LBUF   = ',LBUF
-         CALL CHO_QUIT('Buffer error in '//SECNAM,102)
-      END IF
-      LSCR = MX2SH
-      IF (LENSCR .LT. LSCR) THEN
-         WRITE(LUPRI,'(//,1X,A,A)') SECNAM,                             &
-     &   ': LENSCR >= MX2SH required!'
-         WRITE(LUPRI,'(1X,A,I10)')    'LENSCR = ',LENSCR
-         WRITE(LUPRI,'(1X,A,I10,/)')  'MX2SH  = ',LSCR
-         CALL CHO_QUIT('Scratch space error in '//SECNAM,102)
-      END IF
+call FZERO(DIAMAX,NSYM)
 
-!     Open scratch files.
-!     -------------------
+! Allocate array for storing 10 most negative diagonals
+! (there should be none, of course, but they do show up)
+! ------------------------------------------------------
 
-      IUNIT = -1
-      CALL CHO_OPEN(IUNIT,'_CHO_DIASCR2')
-      JUNIT = -1
-      CALL CHO_OPEN(JUNIT,'_CHO_DIASCR1')
-      REWIND(IUNIT)
-      REWIND(JUNIT)
+call mma_allocate(NegCalcDiag,10,Label='NegCalcDiag')
+NegCalcDiag(:) = 0.0d0
+n_NegCalcDiag = 0
 
-!     Make JUNIT available outside this routine.
-!     ------------------------------------------
+! Calculate diagonal in loop over shell-pairs.
+! CHO_NO2CENTER on: skip all 2-center diagonals.
+! ----------------------------------------------
 
-      LUSCR = JUNIT
+NIATOMSHL = 0
+if (allocated(IATOMSHL)) NIATOMSHL = size(IATOMSHL)
+if (CHO_NO2CENTER .and. (NIATOMSHL < NSHELL)) call CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',103)
 
-!     Initialize abs. max. diag. array.
-!     ---------------------------------
+XLDIAG = 0.0d0
+ICOUNT = 0
+NDUMP = 0
+N_MYSP = 0
+IOPT = 2
+call CHO_P_DISTRIB_SP(IOPT,MYSP,N_MYSP)
+call mma_maxDBLE(LINTD)
+call XSETMEM_INTS(LINTD) ! set memory for seward
+do I_MYSP=1,N_MYSP
 
-      CALL FZERO(DIAMAX,NSYM)
+  ISAB = MYSP(I_MYSP)
 
-!     Allocate array for storing 10 most negative diagonals
-!     (there should be none, of course, but they do show up)
-!     ------------------------------------------------------
+  ISHLAB = ISP2F(ISAB)
+  call CHO_INVPCK(ISHLAB,ISHLA,ISHLB,.true.)
 
-      Call mma_allocate(NegCalcDiag,10,Label='NegCalcDiag')
-      NegCalcDiag(:)=0.0D0
-      n_NegCalcDiag=0
+  if (CHO_NO2CENTER) then
+    if (IATOMSHL(ISHLA) /= IATOMSHL(ISHLB)) GO TO 1 ! cycle loop
+  end if
 
-!     Calculate diagonal in loop over shell-pairs.
-!     CHO_NO2CENTER on: skip all 2-center diagonals.
-!     ----------------------------------------------
+  NUMA = NBSTSH(ISHLA)
+  NUMB = NBSTSH(ISHLB)
+  if (ISHLA == ISHLB) then
+    NUMAB = NUMA*(NUMA+1)/2
+  else
+    NUMAB = NUMA*NUMB
+  end if
 
-      NIATOMSHL = 0
-      IF (ALLOCATED(IATOMSHL)) NIATOMSHL = SIZE(IATOMSHL)
-      IF (CHO_NO2CENTER .AND. NIATOMSHL.LT.NSHELL) THEN
-         CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',   &
-     &                 103)
-      END IF
+  SHA = ISHLA
+  SHB = ISHLB
 
-      XLDIAG = 0.0D0
-      ICOUNT = 0
-      NDUMP  = 0
-      N_MYSP = 0
-      IOPT = 2
-      CALL CHO_P_DISTRIB_SP(IOPT,MYSP,N_MYSP)
-      Call mma_maxDBLE(LINTD)
-      CALL XSETMEM_INTS(LINTD) ! set memory for seward
-      DO I_MYSP = 1,N_MYSP
+  call CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,NUMAB)
 
-         ISAB = MYSP(I_MYSP)
+  if (IPRINT >= INFO_INSANE) then
+    if ((ISHLA == 1) .and. (ISHLB == 1)) then
+      if (CHO_PRESCREEN) then
+        call CHO_HEAD(SECNAM//': Prescreened Diagonal','=',80,LUPRI)
+      else
+        call CHO_HEAD(SECNAM//': Unscreened Diagonal','=',80,LUPRI)
+      end if
+    end if
+    write(LUPRI,'(/,2X,A,I10,1X,I10,1X,I10)') 'Diagonal shell block A,B,AB = ',ISHLA,ISHLB,ITRI(ISHLA,ISHLB)
+    if (ISHLA == ISHLB) then
+      call CHO_OUTPAK(SCR,NUMA,1,LUPRI)
+    else
+      call CHO_OUTPUT(SCR,1,NUMA,1,NUMB,NUMA,NUMB,1,LUPRI)
+    end if
+  end if
 
-         ISHLAB = ISP2F(ISAB)
-         CALL CHO_INVPCK(ISHLAB,ISHLA,ISHLB,.TRUE.)
+  if (ISHLA == ISHLB) then
+    do IA=1,NUMA
+      ISYMA = CHO_ISAOSH(IA,ISHLA)
+      do IB=1,IA
+        ISYMB = CHO_ISAOSH(IB,ISHLB)
+        ISYMAB = MULD2H(ISYMB,ISYMA)
+        IAB = ITRI(IA,IB)
+        DIAAB = SCR(IAB)
+        if (DIAAB < 0.0d0) then
+          n_NegCalcDiag = n_NegCalcDiag+1
+          call UpdateMostNegative(size(NegCalcDiag),NegCalcDiag,DIAAB)
+        end if
+        if (DIAAB > THRDIAG) then
+          DIAMAX(ISYMAB) = max(DIAMAX(ISYMAB),DIAAB)
+          ICOUNT = ICOUNT+1
+          BUF(ICOUNT) = SCR(IAB)
+          IBUF(1,ICOUNT) = ISAB
+          IBUF(2,ICOUNT) = IAB
+          IBUF(3,ICOUNT) = ISYMAB
+          IBUF(4,ICOUNT) = IAB
+          if (ICOUNT == LBUF) then
+            call CHO_WRBUF(LBUF,BUF,IBUF,LBUF,IUNIT)
+            XLDIAG = XLDIAG+dble(LBUF)
+            ICOUNT = 0
+            NDUMP = NDUMP+1
+          end if
+        end if
+      end do
+    end do
+  else
+    do ISYMB=1,NSYM
+      do IBB=1,NBASSH(ISYMB,ISHLB)
+        IB = IBASSH(ISYMB,ISHLB)+IBB
+        do ISYMA=1,NSYM
+          do IAA=1,NBASSH(ISYMA,ISHLA)
+            IA = IBASSH(ISYMA,ISHLA)+IAA
+            ISYMAB = MULD2H(ISYMA,ISYMB)
+            IAB = NUMA*(IB-1)+IA
+            DIAAB = SCR(IAB)
+            if (DIAAB < 0.0d0) then
+              n_NegCalcDiag = n_NegCalcDiag+1
+              call UpdateMostNegative(size(NegCalcDiag),NegCalcDiag,DIAAB)
+            end if
+            if (DIAAB > THRDIAG) then
+              DIAMAX(ISYMAB) = max(DIAMAX(ISYMAB),DIAAB)
+              ICOUNT = ICOUNT+1
+              BUF(ICOUNT) = SCR(IAB)
+              IBUF(1,ICOUNT) = ISAB
+              IBUF(2,ICOUNT) = IAB
+              IBUF(3,ICOUNT) = ISYMAB
+              IBUF(4,ICOUNT) = IAB
+              if (ICOUNT == LBUF) then
+                call CHO_WRBUF(LBUF,BUF,IBUF,LBUF,IUNIT)
+                XLDIAG = XLDIAG+dble(LBUF)
+                ICOUNT = 0
+                NDUMP = NDUMP+1
+              end if
+            end if
+          end do
+        end do
+      end do
+    end do
+  end if
 
-         IF (CHO_NO2CENTER) THEN
-            IF (IATOMSHL(ISHLA) .NE. IATOMSHL(ISHLB)) THEN
-               GO TO 1 ! cycle loop
-            END IF
-         END IF
+1 continue ! for cycling loop
 
-         NUMA = NBSTSH(ISHLA)
-         NUMB = NBSTSH(ISHLB)
-         IF (ISHLA .EQ. ISHLB) THEN
-            NUMAB = NUMA*(NUMA + 1)/2
-         ELSE
-            NUMAB = NUMA*NUMB
-         END IF
+end do
+if (ICOUNT > 0) then ! flush buffer
+  if (ICOUNT > LBUF) call CHO_QUIT('Logical error in '//SECNAM,103)
+  call CHO_WRBUF(ICOUNT,BUF,IBUF,LBUF,IUNIT)
+  XLDIAG = XLDIAG+dble(ICOUNT)
+  ICOUNT = 0
+  NDUMP = NDUMP+1
+end if
+call XRLSMEM_INTS ! release memory (seward)
+call CHO_GADGOP(DIAMAX,NSYM,'max') ! sync abs. max. diag.
+n_NegCalcDiag_local = n_NegCalcDiag
+XNCD(1) = dble(n_NegCalcDiag)
+call CHO_GADGOP(XNCD,1,'+')
+n_NegCalcDiag = int(XNCD(1))
+if (n_NegCalcDiag > 0) then
+  call WarningMessage(1,'WARNING: negative integral diagonal elements computed')
+  write(LuPri,'(3X,A)') 'All negative integral diagonal elements have been removed (zeroed) - they are considered irrelevant!'
+  write(LuPri,'(3X,A,I10)') 'Number of negative elements computed:   ',n_NegCalcDiag
+  write(LuPri,'(3X,A,I10)') 'Number of negative elements (this node):',n_NegCalcDiag_local
+  if (n_NegCalcDiag_local > 0) then
+    ll = min(n_NegCalcDiag_local,size(NegCalcDiag))
+    write(LuPri,'(I5,A)') ll,' most negative elements (this node):'
+    write(LuPri,'(1P,10D12.4)') (NegCalcDiag(i),i=1,ll)
+  end if
+  call CHO_GADGOP(NegCalcDiag,1,'min')
+  write(LuPri,'(3X,A,1P,D12.4)') 'Most negative element overall: ',NegCalcDiag(1)
+end if
+call mma_deallocate(NegCalcDiag)
 
-         SHA = ISHLA
-         SHB = ISHLB
+if (IPRINT >= INFO_DEBUG) then
+  call CHO_HEAD(SECNAM//': Diagonal Info','=',80,LUPRI)
+  XXX = dble(NBAST)
+  XMDIA = XXX*(XXX+1.0d0)/2.0d0
+  XLDIA = XLDIAG
+  SAVD = 1.0d2*(XMDIA-XLDIA)/XMDIA
+  write(LUPRI,'(/,2X,A,1P,D15.6)') 'Screening threshold for initial diagonal: ',THRDIAG
+  write(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)') 'Dimension of unscreened initial diagonal: ',XMDIA, &
+                                           'Dimension of   screened initial diagonal: ',XLDIA
+  write(LUPRI,'(2X,A,7X,F8.3,A)') 'Saving from screening                   : ',SAVD,'%'
+  do ISYM=1,NSYM
+    write(LUPRI,'(2X,A,I2,12X,A,1P,D15.6)') 'Maximum diagonal, symmetry',ISYM,': ',DIAMAX(ISYM)
+  end do
+  write(LUPRI,'(2X,A,5X,I10)') 'Number of negative diagonals computed   : ',n_NegCalcDiag
+end if
 
-         CALL CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,NUMAB)
+! Read through the file to get first reduced set.
+! -----------------------------------------------
 
-         IF (IPRINT .GE. INFO_INSANE) THEN
-            IF ((ISHLA.EQ.1) .AND. (ISHLB.EQ.1)) THEN
-               IF (CHO_PRESCREEN) THEN
-                  CALL CHO_HEAD(SECNAM//': Prescreened Diagonal',       &
-     &                          '=',80,LUPRI)
-               ELSE
-                  CALL CHO_HEAD(SECNAM//': Unscreened Diagonal',        &
-     &                          '=',80,LUPRI)
-               END IF
-            END IF
-            WRITE(LUPRI,'(/,2X,A,I10,1X,I10,1X,I10)')                   &
-     &      'Diagonal shell block A,B,AB = ',ISHLA,ISHLB,               &
-     &                                       ITRI(ISHLA,ISHLB)
-            IF (ISHLA .EQ. ISHLB) THEN
-               CALL CHO_OUTPAK(SCR,NUMA,1,LUPRI)
-            ELSE
-               CALL CHO_OUTPUT(SCR,1,NUMA,1,NUMB,NUMA,NUMB,1,LUPRI)
-            END IF
-         END IF
+nnBstRSh(:,:,1) = 0
 
-         IF (ISHLA .EQ. ISHLB) THEN
-            DO IA = 1,NUMA
-               ISYMA  = CHO_ISAOSH(IA,ISHLA)
-               DO IB = 1,IA
-                  ISYMB  = CHO_ISAOSH(IB,ISHLB)
-                  ISYMAB = MULD2H(ISYMB,ISYMA)
-                  IAB    = ITRI(IA,IB)
-                  DIAAB  = SCR(IAB)
-                  IF (DIAAB .LT. 0.0D0) THEN
-                     n_NegCalcDiag=n_NegCalcDiag+1
-                     Call UpdateMostNegative(SIZE(NegCalcDiag),         &
-     &                                       NegCalcDiag,DIAAB)
-                  END IF
-                  IF (DIAAB .GT. THRDIAG) THEN
-                     DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
-                     ICOUNT = ICOUNT + 1
-                     BUF(ICOUNT)    = SCR(IAB)
-                     IBUF(1,ICOUNT) = ISAB
-                     IBUF(2,ICOUNT) = IAB
-                     IBUF(3,ICOUNT) = ISYMAB
-                     IBUF(4,ICOUNT) = IAB
-                     IF (ICOUNT .EQ. LBUF) THEN
-                        CALL CHO_WRBUF(LBUF,BUF,IBUF,LBUF,IUNIT)
-                        XLDIAG = XLDIAG + DBLE(LBUF)
-                        ICOUNT = 0
-                        NDUMP  = NDUMP + 1
-                     END IF
-                  END IF
-               END DO
-            END DO
-         ELSE
-            DO ISYMB = 1,NSYM
-               DO IBB = 1,NBASSH(ISYMB,ISHLB)
-                  IB = IBASSH(ISYMB,ISHLB) + IBB
-                  DO ISYMA = 1,NSYM
-                     DO IAA = 1,NBASSH(ISYMA,ISHLA)
-                        IA = IBASSH(ISYMA,ISHLA) + IAA
-                        ISYMAB = MULD2H(ISYMA,ISYMB)
-                        IAB    = NUMA*(IB - 1) + IA
-                        DIAAB  = SCR(IAB)
-                        IF (DIAAB .LT. 0.0D0) THEN
-                           n_NegCalcDiag=n_NegCalcDiag+1
-                           Call UpdateMostNegative(SIZE(NegCalcDiag),   &
-     &                                       NegCalcDiag,DIAAB)
-                        END IF
-                        IF (DIAAB .GT. THRDIAG) THEN
-                           DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
-                           ICOUNT = ICOUNT + 1
-                           BUF(ICOUNT)    = SCR(IAB)
-                           IBUF(1,ICOUNT) = ISAB
-                           IBUF(2,ICOUNT) = IAB
-                           IBUF(3,ICOUNT) = ISYMAB
-                           IBUF(4,ICOUNT) = IAB
-                           IF (ICOUNT .EQ. LBUF) THEN
-                              CALL CHO_WRBUF(LBUF,BUF,IBUF,LBUF,        &
-     &                                       IUNIT)
-                              XLDIAG = XLDIAG + DBLE(LBUF)
-                              ICOUNT = 0
-                              NDUMP  = NDUMP + 1
-                           END IF
-                        END IF
-                     END DO
-                  END DO
-               END DO
-            END DO
-         END IF
+rewind(IUNIT)
+rewind(JUNIT)
+if (SCDIAG) then ! screen diagonal
+  DEL1 = THRCOM*THRCOM/DAMP(1)
+  do ISYM=1,NSYM
+    if (abs(DIAMAX(ISYM)) > 0.0d0) then
+      SCRMAX(ISYM) = DEL1/DIAMAX(ISYM)
+    else
+      SCRMAX(ISYM) = 1.0d15
+    end if
+  end do
+  if (CHO_USEABS) then
+    do IDUMP=1,NDUMP
+      call CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
+      if (IDUMP == NDUMP) call CHO_CLOSE(IUNIT,'DELETE')
+      do L=1,LENGTH
+        DIAGAB = BUF(L)
+        ISYMAB = IBUF(3,L)
+        if (abs(DIAGAB) < SCRMAX(ISYMAB)) then
+          BUF(L) = 0.0d0
+          IBUF(2,L) = -1
+        else
+          ISHLAB = IBUF(1,L)
+          NNBSTRSH(ISYMAB,ISHLAB,1) = NNBSTRSH(ISYMAB,ISHLAB,1)+1
+          IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
+        end if
+      end do
+      call CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
+    end do
+  else
+    do IDUMP=1,NDUMP
+      call CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
+      if (IDUMP == NDUMP) call CHO_CLOSE(IUNIT,'DELETE')
+      do L=1,LENGTH
+        DIAGAB = BUF(L)
+        ISYMAB = IBUF(3,L)
+        if (DIAGAB < SCRMAX(ISYMAB)) then
+          BUF(L) = 0.0d0
+          IBUF(2,L) = -1
+        else
+          ISHLAB = IBUF(1,L)
+          NNBSTRSH(ISYMAB,ISHLAB,1) = NNBSTRSH(ISYMAB,ISHLAB,1)+1
+          IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
+        end if
+      end do
+      call CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
+    end do
+  end if
+else ! no screening at all
+  do IDUMP=1,NDUMP
+    call CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
+    if (IDUMP == NDUMP) call CHO_CLOSE(IUNIT,'DELETE')
+    do L=1,LENGTH
+      ISHLAB = IBUF(1,L)
+      ISYMAB = IBUF(3,L)
+      NNBSTRSH(ISYMAB,ISHLAB,1) = NNBSTRSH(ISYMAB,ISHLAB,1)+1
+      IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
+    end do
+    call CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
+  end do
+end if
 
-    1    CONTINUE ! for cycling loop
+call CHO_GAIGOP(NNBSTRSH(:,:,1),NSYM*NNSHL,'+') ! sync
+call CHO_SETREDIND(1)
 
-      END DO
-      IF (ICOUNT .GT. 0) THEN ! flush buffer
-         IF (ICOUNT .GT. LBUF) THEN
-            CALL CHO_QUIT('Logical error in '//SECNAM,103)
-         END IF
-         CALL CHO_WRBUF(ICOUNT,BUF,IBUF,LBUF,IUNIT)
-         XLDIAG = XLDIAG + DBLE(ICOUNT)
-         ICOUNT = 0
-         NDUMP  = NDUMP + 1
-      END IF
-      CALL XRLSMEM_INTS ! release memory (seward)
-      CALL CHO_GADGOP(DIAMAX,NSYM,'max') ! sync abs. max. diag.
-      n_NegCalcDiag_local=n_NegCalcDiag
-      XNCD(1)=dble(n_NegCalcDiag)
-      CALL CHO_GADGOP(XNCD,1,'+')
-      n_NegCalcDiag=int(XNCD(1))
-      If (n_NegCalcDiag.gt.0) Then
-         Call WarningMessage(1,                                         &
-     &          'WARNING: negative integral diagonal elements computed')
-         Write(LuPri,'(3X,A,A)')                                        &
-     &   'All negative integral diagonal elements have been',           &
-     &   ' removed (zeroed) - they are considered irrelevant!'
-         Write(LuPri,'(3X,A,I10)')                                      &
-     &   'Number of negative elements computed:   ',n_NegCalcDiag
-         Write(LuPri,'(3X,A,I10)')                                      &
-     &   'Number of negative elements (this node):',n_NegCalcDiag_local
-         If (n_NegCalcDiag_local.gt.0) Then
-            ll=min(n_NegCalcDiag_local,SIZE(NegCalcDiag))
-            Write(LuPri,'(I5,A)')                                       &
-     &      ll,' most negative elements (this node):'
-            Write(LuPri,'(1P,10D12.4)')                                 &
-     &      (NegCalcDiag(i),i=1,ll)
-         End If
-         Call CHO_GADGOP(NegCalcDiag,1,'min')
-         Write(LuPri,'(3X,A,1P,D12.4)')                                 &
-     &   'Most negative element overall: ',NegCalcDiag(1)
-      End If
-      Call mma_deallocate(NegCalcDiag)
-
-      IF (IPRINT .GE. INFO_DEBUG) THEN
-         CALL CHO_HEAD(SECNAM//': Diagonal Info','=',80,LUPRI)
-         XXX   = DBLE(NBAST)
-         XMDIA = XXX*(XXX + 1.0D0)/2.0D0
-         XLDIA = XLDIAG
-         SAVD  = 1.0D2*(XMDIA - XLDIA)/XMDIA
-         WRITE(LUPRI,'(/,2X,A,1P,D15.6)')                               &
-     &   'Screening threshold for initial diagonal: ',THRDIAG
-         WRITE(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)')                       &
-     &   'Dimension of unscreened initial diagonal: ',XMDIA,            &
-     &   'Dimension of   screened initial diagonal: ',XLDIA
-         WRITE(LUPRI,'(2X,A,7X,F8.3,A)')                                &
-     &   'Saving from screening                   : ',SAVD,'%'
-         DO ISYM = 1,NSYM
-            WRITE(LUPRI,'(2X,A,I2,12X,A,1P,D15.6)')                     &
-     &      'Maximum diagonal, symmetry',ISYM,': ',DIAMAX(ISYM)
-         END DO
-         WRITE(LUPRI,'(2X,A,5X,I10)')                                   &
-     &   'Number of negative diagonals computed   : ',n_NegCalcDiag
-      END IF
-
-!     Read through the file to get first reduced set.
-!     -----------------------------------------------
-
-      nnBstRSh(:,:,1) = 0
-
-      REWIND(IUNIT)
-      REWIND(JUNIT)
-      IF (SCDIAG) THEN ! screen diagonal
-         DEL1 = THRCOM*THRCOM/DAMP(1)
-         DO ISYM = 1,NSYM
-            IF (ABS(DIAMAX(ISYM)) .GT. 0.0D0) THEN
-               SCRMAX(ISYM) = DEL1/DIAMAX(ISYM)
-            ELSE
-               SCRMAX(ISYM) = 1.0D15
-            END IF
-         END DO
-         IF (CHO_USEABS) THEN
-            DO IDUMP = 1,NDUMP
-               CALL CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
-               IF (IDUMP .EQ. NDUMP) THEN
-                  CALL CHO_CLOSE(IUNIT,'DELETE')
-               END IF
-               DO L = 1,LENGTH
-                  DIAGAB = BUF(L)
-                  ISYMAB = IBUF(3,L)
-                  IF (ABS(DIAGAB) .LT. SCRMAX(ISYMAB)) THEN
-                     BUF(L)    = 0.0D0
-                     IBUF(2,L) = -1
-                  ELSE
-                     ISHLAB = IBUF(1,L)
-                     NNBSTRSH(ISYMAB,ISHLAB,1) =                        &
-     &                                     NNBSTRSH(ISYMAB,ISHLAB,1) + 1
-                     IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
-                  END IF
-               END DO
-               CALL CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
-            END DO
-         ELSE
-            DO IDUMP = 1,NDUMP
-               CALL CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
-               IF (IDUMP .EQ. NDUMP) THEN
-                  CALL CHO_CLOSE(IUNIT,'DELETE')
-               END IF
-               DO L = 1,LENGTH
-                  DIAGAB = BUF(L)
-                  ISYMAB = IBUF(3,L)
-                  IF (DIAGAB .LT. SCRMAX(ISYMAB)) THEN
-                     BUF(L)    = 0.0D0
-                     IBUF(2,L) = -1
-                  ELSE
-                     ISHLAB = IBUF(1,L)
-                     NNBSTRSH(ISYMAB,ISHLAB,1) =                        &
-     &                                     NNBSTRSH(ISYMAB,ISHLAB,1) + 1
-                     IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
-                  END IF
-               END DO
-               CALL CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
-            END DO
-         END IF
-      ELSE ! no screening at all
-         DO IDUMP = 1,NDUMP
-            CALL CHO_RDBUF(LENGTH,BUF,IBUF,LBUF,IUNIT)
-            IF (IDUMP .EQ. NDUMP) THEN
-               CALL CHO_CLOSE(IUNIT,'DELETE')
-            END IF
-            DO L = 1,LENGTH
-               ISHLAB = IBUF(1,L)
-               ISYMAB = IBUF(3,L)
-               NNBSTRSH(ISYMAB,ISHLAB,1) = NNBSTRSH(ISYMAB,ISHLAB,1) + 1
-               IBUF(2,L) = NNBSTRSH(ISYMAB,ISHLAB,1)
-            END DO
-            CALL CHO_WRBUF(LENGTH,BUF,IBUF,LBUF,JUNIT)
-         END DO
-      END IF
-
-      CALL CHO_GAIGOP(NNBSTRSH(:,:,1),NSYM*NNSHL,'+') ! sync
-      CALL CHO_SETREDIND(1)
-
-      END
-      Subroutine UpdateMostNegative(n,X,Val)
-      Implicit None
-      Integer n
-      Real*8  X(n)
-      Real*8  Val
-
-      Integer i, j
-
-      If (Val.ge.X(n)) Return
-      i=0
-      Do While (i.lt.n)
-         i=i+1
-         If (Val.lt.X(i)) Then
-            Do j=n,i+1,-1
-               X(j)=X(j-1)
-            End Do
-            X(i)=Val
-            i=n+1 ! break while loop
-         End If
-      End Do
-
-      End
+end subroutine CHO_CALCDIAG

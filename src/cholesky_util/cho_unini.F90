@@ -8,16 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_UNINI()
+
+subroutine CHO_UNINI()
 !
-!     Purpose: zero unit numbers.
-!
-      IMPLICIT NONE
+! Purpose: zero unit numbers.
+
+implicit none
 #include "cholesky.fh"
 
-      LURED  = 0
-      CALL IZERO(LUCHO,NSYM)
-      LURST  = 0
-      LUMAP  = 0
+LURED = 0
+call IZERO(LUCHO,NSYM)
+LURST = 0
+LUMAP = 0
 
-      END
+end subroutine CHO_UNINI

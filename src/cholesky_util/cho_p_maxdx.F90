@@ -8,31 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_MaxDX(Diag,Sync,Dmax)
+
+subroutine Cho_P_MaxDX(Diag,Sync,Dmax)
 !
-!     Purpose: get max. diagonal elements in each sym. block,
-!              qualified diagonals excluded.
-!
-      use ChoSwp, only: Diag_G
-      Implicit None
-      Real*8  Diag(*)
-      Logical Sync
-      Real*8  Dmax(*)
+! Purpose: get max. diagonal elements in each sym. block,
+!          qualified diagonals excluded.
+
+use ChoSwp, only: Diag_G
+
+implicit none
+real*8 Diag(*)
+logical Sync
+real*8 Dmax(*)
 #include "cho_para_info.fh"
 #include "choglob.fh"
+integer iLoc
 
-      Integer iLoc
+if (Cho_Real_Par) then
+  if (Sync) then
+    iLoc = 2
+    call Cho_P_SyncDiag(Diag,iLoc)
+  end if
+  call Cho_P_IndxSwp()
+  call Cho_MaxDX(Diag_G,Dmax)
+  call Cho_P_IndxSwp()
+else
+  call Cho_MaxDX(Diag,Dmax)
+end if
 
-      If (Cho_Real_Par) Then
-         If (Sync) Then
-            iLoc = 2
-            Call Cho_P_SyncDiag(Diag,iLoc)
-         End If
-         Call Cho_P_IndxSwp()
-         Call Cho_MaxDX(Diag_G,Dmax)
-         Call Cho_P_IndxSwp()
-      Else
-         Call Cho_MaxDX(Diag,Dmax)
-      End If
-
-      End
+end subroutine Cho_P_MaxDX

@@ -8,31 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SetGlob()
+
+subroutine Cho_SetGlob()
 !
-!     Purpose: define entries in choglob.fh
-!
-      Implicit None
+! Purpose: define entries in choglob.fh
+
+implicit none
 #include "choglob.fh"
+integer N, iSym
+integer, parameter :: iLarge = 999999
 
-      Integer N, iSym
+nnShl_G = 0
+mmBstRT_G = 0
 
-      Integer, Parameter:: iLarge=999999
+N = 8*nLoc_G
+call iZero(iiBstR_G,N)
+call iZero(nnBstR_G,N)
+call iZero(nnBstRT_G,nLoc_G)
+call iZero(NumCho_G,8)
+NumChT_G = 0
 
-      nnShl_G = 0
-      mmBstRT_G = 0
+do iSym=1,8
+  LuCho_G(iSym) = -iLarge
+end do
+LuRed_G = -iLarge
+LuRst_G = -iLarge
 
-      N = 8*nLoc_G
-      Call iZero(iiBstR_G,N)
-      Call iZero(nnBstR_G,N)
-      Call iZero(nnBstRT_G,nLoc_G)
-      Call iZero(NumCho_G,8)
-      NumChT_G = 0
-
-      Do iSym = 1,8
-         LuCho_G(iSym) = -iLarge
-      End Do
-      LuRed_G = -iLarge
-      LuRst_G = -iLarge
-
-      End
+end subroutine Cho_SetGlob

@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_RdQCol_Indx(xInt,IDCol,nRow,nCol,Lunit)
+
+subroutine Cho_RdQCol_Indx(xInt,IDCol,nRow,nCol,Lunit)
 !
-!     Purpose: read indexed qualified columns from WA file with unit
-!              Lunit. (WA=word-addressable)
-!
-      Implicit None
-      Integer nRow, nCol
-      Real*8  xInt(nRow,nCol)
-      Integer IDCol(nCol)
-      Integer Lunit
+! Purpose: read indexed qualified columns from WA file with unit
+!          Lunit. (WA=word-addressable)
 
-      Integer iCol, iOpt, iAdr, lTot
+implicit none
+integer nRow, nCol
+real*8 xInt(nRow,nCol)
+integer IDCol(nCol)
+integer Lunit
+integer iCol, iOpt, iAdr, lTot
 
-      If (nRow.lt.1 .or. nCol.lt.1) Return
+if ((nRow < 1) .or. (nCol < 1)) return
 
-      Do iCol = 1,nCol
-         iOpt = 2
-         lTot = nRow
-         iAdr = nRow*(IDCol(iCol)-1)
-         Call dDAFile(Lunit,iOpt,xInt(1,iCol),lTot,iAdr)
-      End Do
+do iCol=1,nCol
+  iOpt = 2
+  lTot = nRow
+  iAdr = nRow*(IDCol(iCol)-1)
+  call dDAFile(Lunit,iOpt,xInt(1,iCol),lTot,iAdr)
+end do
 
-      End
+end subroutine Cho_RdQCol_Indx

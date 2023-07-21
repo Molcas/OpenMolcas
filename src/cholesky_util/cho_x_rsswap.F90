@@ -31,29 +31,31 @@
 !> @param[in]  iRS location of reduced set
 !> @param[in]  jRS location of reduced set
 !***********************************************************************
-      Subroutine Cho_X_RSSwap(irc,iRS,jRS)
-      use ChoSwp, only: iiBstRSh, nnBstRSh, IndRed
-      Implicit None
-      Integer irc, iRS, jRS
+
+subroutine Cho_X_RSSwap(irc,iRS,jRS)
+
+use ChoSwp, only: iiBstRSh, nnBstRSh, IndRed
+
+implicit none
+integer irc, iRS, jRS
 #include "cholesky.fh"
+integer N, iTemp
 
-      Integer N, iTemp
+if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then
+  irc = 1
+else
+  if (iRS /= jRS) then
+    N = nSym*nnShl
+    call iSwap(N,iiBstRsh(:,:,iRS),1,iiBstRSh(:,:,jRS),1)
+    call iSwap(N,nnBstRsh(:,:,iRS),1,nnBstRSh(:,:,jRS),1)
+    call iSwap(nSym,iiBstR(1,iRS),1,iiBstR(1,jRS),1)
+    call iSwap(nSym,nnBstR(1,iRS),1,nnBstR(1,jRS),1)
+    call iSwap(nnBstRT(1),IndRed(:,iRs),1,IndRed(:,jRs),1)
+    iTemp = nnBstRT(iRS)
+    nnBstRT(iRS) = nnBstRT(jRS)
+    nnBstRT(jRS) = iTemp
+  end if
+  irc = 0
+end if
 
-      If (iRS.lt.1 .or. iRS.gt.3 .or. jRS.lt.1 .or. jRS.gt.3) Then
-         irc = 1
-      Else
-         If (iRS .ne. jRS) Then
-            N = nSym*nnShl
-            Call iSwap(N,iiBstRsh(:,:,iRS),1,iiBstRSh(:,:,jRS),1)
-            Call iSwap(N,nnBstRsh(:,:,iRS),1,nnBstRSh(:,:,jRS),1)
-            Call iSwap(nSym,iiBstR(1,iRS),1,iiBstR(1,jRS),1)
-            Call iSwap(nSym,nnBstR(1,iRS),1,nnBstR(1,jRS),1)
-            Call iSwap(nnBstRT(1),IndRed(:,iRs),1,IndRed(:,jRs),1)
-            iTemp = nnBstRT(iRS)
-            nnBstRT(iRS) = nnBstRT(jRS)
-            nnBstRT(jRS) = iTemp
-         End If
-         irc = 0
-      End If
-
-      End
+end subroutine Cho_X_RSSwap

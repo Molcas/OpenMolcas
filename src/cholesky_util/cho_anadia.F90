@@ -8,111 +8,99 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_ANADIA(DIAG,BIN1,STEP,NUMBIN,FULL)
+
+subroutine CHO_ANADIA(DIAG,BIN1,STEP,NUMBIN,FULL)
 !
-!     Purpose: analyze diagonal (histogram).
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
-      LOGICAL   FULL
+! Purpose: analyze diagonal (histogram).
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
+logical FULL
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_ANADIA')
+parameter(MAXBIN=50,NUMSTA=7)
+real*8 BIN(MAXBIN), STAT(NUMSTA)
+logical FOUND
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_ANADIA')
+! Print header.
+! -------------
 
-      PARAMETER (MAXBIN = 50, NUMSTA = 7)
-      REAL*8 BIN(MAXBIN), STAT(NUMSTA)
+call CHO_HEAD('Histogram of Diagonal Elements','=',80,LUPRI)
 
-      LOGICAL FOUND
+! Set up size bins for analysis of diagonal.
+! ------------------------------------------
 
-!     Print header.
-!     -------------
+if (NUMBIN < 1) then
+  MBIN = min(10,MAXBIN)
+  BINLOC = 1.0d2
+  STPLOC = 1.0D-2
+else
+  MBIN = min(NUMBIN,MAXBIN)
+  BINLOC = BIN1
+  STPLOC = STEP
+end if
 
-      CALL CHO_HEAD('Histogram of Diagonal Elements','=',80,LUPRI)
+BIN(1) = BINLOC
+do IBIN=2,MBIN
+  BIN(IBIN) = BIN(IBIN-1)*STPLOC
+end do
 
-!     Set up size bins for analysis of diagonal.
-!     ------------------------------------------
+! Set smallest BIN according to full.
+! -----------------------------------
 
-      IF (NUMBIN .LT. 1) THEN
-         MBIN = MIN(10,MAXBIN)
-         BINLOC = 1.0D2
-         STPLOC = 1.0D-2
-      ELSE
-         MBIN = MIN(NUMBIN,MAXBIN)
-         BINLOC = BIN1
-         STPLOC = STEP
-      END IF
+if (FULL) then
+  NBIN = MBIN
+else
+  NBIN = MBIN
+  IBIN = MBIN
+  FOUND = .false.
+  do while ((IBIN > 1) .and. (.not. FOUND))
+    IBIN = IBIN-1
+    if (THRCOM >= BIN(IBIN)) then
+      NBIN = IBIN+1
+    else
+      FOUND = .true.
+    end if
+  end do
+end if
 
-      BIN(1) = BINLOC
-      DO IBIN = 2,MBIN
-         BIN(IBIN) = BIN(IBIN-1)*STPLOC
-      END DO
+! Histogram.
+! ----------
 
-!     Set smallest BIN according to full.
-!     -----------------------------------
+call CHO_ANASIZE(DIAG,NNBSTRT(1),BIN,NBIN,LUPRI)
 
-      IF (FULL) THEN
-         NBIN = MBIN
-      ELSE
-         NBIN  = MBIN
-         IBIN  = MBIN
-         FOUND = .FALSE.
-         DO WHILE ((IBIN.GT.1) .AND. (.NOT.FOUND))
-            IBIN = IBIN - 1
-            IF (THRCOM .GE. BIN(IBIN)) THEN
-               NBIN = IBIN + 1
-            ELSE
-               FOUND = .TRUE.
-            END IF
-         END DO
-      END IF
+! Count converged.
+! ----------------
 
-!     Histogram.
-!     ----------
+NCONV = 0
+do IAB=1,NNBSTRT(1)
+  if (DIAG(IAB) <= THRCOM) NCONV = NCONV+1
+end do
+write(LUPRI,'(/,1X,A,I10,/,1X,A,I10)') 'Converged  : ',NCONV,'Unconverged: ',NNBSTRT(1)-NCONV
 
-      CALL CHO_ANASIZE(DIAG,NNBSTRT(1),BIN,NBIN,LUPRI)
+! Print total number of negative zeroed diagonal as well as the most
+! negative one.
+! ------------------------------------------------------------------
 
-!     Count converged.
-!     ----------------
+write(LUPRI,'(/,1X,A,5X,I10)') 'Total number of zeroed negative diagonals: ',NNZTOT
+if (NNZTOT > 0) then
+  if (IABMNZ < 1) then
+    write(LUPRI,'(1X,A)') 'WARNING: most negative zeroed diagonal has not been stored!'
+  else
+    write(LUPRI,'(1X,A,1P,D15.6)') '- most negative zeroed diagonal          : ',DIAMNZ
+  end if
+end if
 
-      NCONV = 0
-      DO IAB = 1,NNBSTRT(1)
-         IF (DIAG(IAB) .LE. THRCOM) NCONV = NCONV + 1
-      END DO
-      WRITE(LUPRI,'(/,1X,A,I10,/,1X,A,I10)')                            &
-     & 'Converged  : ',NCONV,'Unconverged: ',NNBSTRT(1)-NCONV
+! Print statistics.
+! -----------------
 
-!     Print total number of negative zeroed diagonal as well as the most
-!     negative one.
-!     ------------------------------------------------------------------
+call STATISTICS(DIAG,NNBSTRT(1),STAT,1,2,3,4,5,6,7)
+write(LUPRI,'(/,1X,A,1P,D15.6)') 'Minimum diagonal: ',STAT(3)
+write(LUPRI,'(1X,A,1P,D15.6)') 'Maximum diagonal: ',STAT(4)
+write(LUPRI,'(1X,A,1P,D15.6)') 'Mean value      : ',STAT(1)
+write(LUPRI,'(1X,A,1P,D15.6)') 'Mean abs. value : ',STAT(2)
+write(LUPRI,'(1X,A,1P,D15.6)') 'Biased variance : ',STAT(6)
+write(LUPRI,'(1X,A,1P,D15.6,A)') 'Standard dev.   : ',STAT(7),' (unbiased variance)'
 
-      WRITE(LUPRI,'(/,1X,A,5X,I10)')                                    &
-     & 'Total number of zeroed negative diagonals: ',NNZTOT
-      IF (NNZTOT .GT. 0) THEN
-         IF (IABMNZ .LT. 1) THEN
-            WRITE(LUPRI,'(1X,A)')                                       &
-     &     'WARNING: most negative zeroed diagonal has not been stored!'
-         ELSE
-            WRITE(LUPRI,'(1X,A,1P,D15.6)')                              &
-     &      '- most negative zeroed diagonal          : ',DIAMNZ
-         END IF
-      END IF
-
-!     Print statistics.
-!     -----------------
-
-      CALL STATISTICS(DIAG,NNBSTRT(1),STAT,1,2,3,4,5,6,7)
-      WRITE(LUPRI,'(/,1X,A,1P,D15.6)')                                  &
-     & 'Minimum diagonal: ',STAT(3)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
-     & 'Maximum diagonal: ',STAT(4)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
-     & 'Mean value      : ',STAT(1)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
-     & 'Mean abs. value : ',STAT(2)
-      WRITE(LUPRI,'(1X,A,1P,D15.6)')                                    &
-     & 'Biased variance : ',STAT(6)
-      WRITE(LUPRI,'(1X,A,1P,D15.6,A)')                                  &
-     & 'Standard dev.   : ',STAT(7),' (unbiased variance)'
-
-      END
+end subroutine CHO_ANADIA

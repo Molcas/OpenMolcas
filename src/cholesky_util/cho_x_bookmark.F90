@@ -37,115 +37,108 @@
 !> @param[out] delta Actual integral accuracy
 !> @param[out] irc   Return code
 !***********************************************************************
-      Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
-      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
-      use stdalloc
-      Implicit None
-      Real*8  Thr
-      Integer mSym
-      Integer nVec(mSym)
-      Real*8  delta(mSym)
-      Integer irc
+
+subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
+
+use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
+use stdalloc
+
+implicit none
+real*8 Thr
+integer mSym
+integer nVec(mSym)
+real*8 delta(mSym)
+integer irc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
+character*14 SecNam
+parameter(SecNam='Cho_X_Bookmark')
+logical Found
+logical DebugPrint
+parameter(DebugPrint=.false.)
+integer iSym
+integer iRS
+integer l
+integer n
+integer i, j
+integer nV
+real*8 del
+integer, allocatable :: BkmScr(:)
+! Statement functions
+nV(i,j) = BkmVec(i,j)
+del(i,j) = BkmThr(i,j)
 
-      Character*14 SecNam
-      Parameter (SecNam='Cho_X_Bookmark')
+! Set return code.
+! ----------------
 
-      Logical Found
-      Logical DebugPrint
-      Parameter (DebugPrint=.False.)
+irc = 0
 
-      Integer iSym
-      Integer iRS
-      Integer l
-      Integer n
+! Check that bookmarks are available.
+! -----------------------------------
 
-      Integer i, j
-      Integer nV
-      Real*8  del
+if ((.not. allocated(BkmVec)) .or. (.not. allocated(BkmThr))) then
+  irc = -1
+  return
+end if
 
-      Integer, Allocatable:: BkmScr(:)
+! Check input.
+! ------------
 
-      nV(i,j) =BkmVec(i,j)
-      del(i,j)=BkmThr(i,j)
+if ((sign(1.0d0,Thr) < 0.0d0) .or. (Thr < ThrCom) .or. (mSym < 1) .or. (mSym > nSym)) then
+  irc = 1
+  return
+end if
 
-!     Set return code.
-!     ----------------
+! Debug print.
+! ------------
 
-      irc=0
+if (DebugPrint) then
+  call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,6)
+  do iSym=1,nSym
+    write(6,'(A,I2,A)') 'Symmetry block',iSym,' Bookmarks (nVec,delta)'
+    write(6,'(5(1X,A,I6,A,D15.8,A))') ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
+  end do
+end if
 
-!     Check that bookmarks are available.
-!     -----------------------------------
+! Find largest accuracy below Thr.
+! --------------------------------
 
-      If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Then
-         irc=-1
-         Return
-      End If
+do iSym=1,mSym
+  iRS = 0
+  Found = .false.
+  do while ((iRS < nRow_BkmThr) .and. (.not. Found))
+    iRS = iRS+1
+    Found = del(iRS,iSym) <= Thr
+  end do
+  if (.not. Found) then
+    call Cho_Quit('Bug detected in '//SecNam,104)
+  else
+    nVec(iSym) = nV(iRS,iSym)
+    delta(iSym) = del(iRS,iSym)
+  end if
+end do
 
-!     Check input.
-!     ------------
+! Parallel run: take into account the distribution of vectors
+! across nodes. Set nVec to the number of vectors needed on this
+! node (process).
+if (Cho_Real_Par) then
+  l = nVec(1)
+  do iSym=2,mSym
+    l = max(l,nVec(iSym))
+  end do
+  call mma_Allocate(BkmScr,l,Label='BkmScr')
+  do iSym=1,mSym
+    call Cho_P_Distrib_Vec(1,nVec(iSym),BkmScr,n)
+    nVec(iSym) = n
+  end do
+  call mma_deallocate(BkmScr)
+end if
 
-      If (sign(1.0d0,Thr).lt.0.0d0 .or. Thr.lt.ThrCom .or.              &
-     &    mSym.lt.1 .or. mSym.gt.nSym) Then
-         irc=1
-         Return
-      End If
-
-!     Debug print.
-!     ------------
-
-      If (DebugPrint) Then
-         Call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,6)
-         Do iSym=1,nSym
-            Write(6,'(A,I2,A)') 'Symmetry block',iSym,                  &
-     &                          ' Bookmarks (nVec,delta)'
-            Write(6,'(5(1X,A,I6,A,D15.8,A))')                           &
-     &      ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
-         End Do
-      End If
-
-!     Find largest accuracy below Thr.
-!     --------------------------------
-
-      Do iSym=1,mSym
-         iRS=0
-         Found=.False.
-         Do While (iRS.lt.nRow_BkmThr .and. .not.Found)
-            iRS=iRS+1
-            Found=del(iRS,iSym).le.Thr
-         End Do
-         If (.not.Found) Then
-            Call Cho_Quit('Bug detected in '//SecNam,104)
-         Else
-            nVec(iSym)=nV(iRS,iSym)
-            delta(iSym)=del(iRS,iSym)
-         End If
-      End Do
-
-      ! Parallel run: take into account the distribution of vectors
-      ! across nodes. Set nVec to the number of vectors needed on this
-      ! node (process).
-      If (Cho_Real_Par) Then
-         l=nVec(1)
-         Do iSym=2,mSym
-            l=max(l,nVec(iSym))
-         End Do
-         Call mma_Allocate(BkmScr,l,Label='BkmScr')
-         Do iSym=1,mSym
-            Call Cho_P_Distrib_Vec(1,nVec(iSym),BkmScr,n)
-            nVec(iSym)=n
-         End Do
-         Call mma_deallocate(BkmScr)
-      End If
-
-#if defined (_DEBUGPRINT_)
-      ! Self test
-      Do iSym=1,mSym
-         If (nVec(iSym).gt.NumCho(iSym)) Then
-            Call Cho_Quit('Error in '//SecNam,104)
-         End If
-      End Do
+#ifdef _DEBUGPRINT_
+! Self test
+do iSym=1,mSym
+  if (nVec(iSym) > NumCho(iSym)) call Cho_Quit('Error in '//SecNam,104)
+end do
 #endif
 
-      End
+end subroutine Cho_X_Bookmark

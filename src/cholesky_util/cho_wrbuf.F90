@@ -8,14 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_WRBUF(LENGTH,BUF,IBUF,LENBUF,IUNIT)
-!
-!     Purpose: write buffer to disk.
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 BUF(LENBUF)
-      INTEGER   IBUF(4,LENBUF)
 
-      WRITE(IUNIT) LENGTH,BUF,IBUF
+subroutine CHO_WRBUF(LENGTH,BUF,IBUF,LENBUF,IUNIT)
+!
+! Purpose: write buffer to disk.
 
-      END
+implicit real*8(a-h,o-z)
+real*8 BUF(LENBUF)
+integer IBUF(4,LENBUF)
+
+write(IUNIT) LENGTH,BUF,IBUF
+
+end subroutine CHO_WRBUF

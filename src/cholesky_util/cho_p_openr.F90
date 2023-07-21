@@ -8,30 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_OpenR(iOpt)
+
+subroutine Cho_P_OpenR(iOpt)
 !
-!     Purpose: open (iOpt=1) or close (iOpt=2) files for storing global
-!              reduced set indices.
-!
-      Implicit None
-      Integer iOpt
+! Purpose: open (iOpt=1) or close (iOpt=2) files for storing global
+!          reduced set indices.
+
+implicit none
+integer iOpt
 #include "choglob.fh"
+character*11 SecNam
+parameter(SecNam='Cho_P_OpenR')
+character*5 FNRed
 
-      Character*11 SecNam
-      Parameter (SecNam = 'Cho_P_OpenR')
+if (iOpt == 1) then
+  LuRed_G = 7
+  FNRed = 'CHRED'
+  call DAName_MF_WA(LuRed_G,FNRed)
+else if (iOpt == 2) then
+  if (LuRed_G > 0) call DAClos(LuRed_G)
+else
+  call Cho_Quit('iOpt error in '//SecNam,104)
+end if
 
-      Character*5 FNRed
-
-      If (iOpt .eq. 1) Then
-         LuRed_G = 7
-         FNRed = 'CHRED'
-         Call DAName_MF_WA(LuRed_G,FNRed)
-      Else If (iOpt .eq. 2) Then
-         If (LuRed_G .gt. 0) Then
-            Call DAClos(LuRed_G)
-         End If
-      Else
-         Call Cho_Quit('iOpt error in '//SecNam,104)
-      End If
-
-      End
+end subroutine Cho_P_OpenR

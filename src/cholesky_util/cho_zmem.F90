@@ -10,121 +10,88 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
+
+subroutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Purpose: compute dimension of Z vector array and print it to
-!              output (if requested through DoPrint). Check if there
-!              is sufficient memory at this point (if DoCheck).
+! Purpose: compute dimension of Z vector array and print it to
+!          output (if requested through DoPrint). Check if there
+!          is sufficient memory at this point (if DoCheck).
 !
-!     Return codes:
+! Return codes:
 !
-!     irc=-1 : Input error (debug only)
-!     irc=0  : All ok
-!     irc=1  : Negative length of Z vector array (could be integer
-!              overflow)
-!     irc=999: Insufficient memory for Z vectors (only if DoCheck)
-!
-      Implicit None
-      Integer irc
-      Integer l_Z
-      Integer l_NVT
-      Integer NVT(l_NVT)
-      Logical DoPrint, DoCheck
+! irc=-1 : Input error (debug only)
+! irc=0  : All ok
+! irc=1  : Negative length of Z vector array (could be integer
+!          overflow)
+! irc=999: Insufficient memory for Z vectors (only if DoCheck)
+
+implicit none
+integer irc
+integer l_Z
+integer l_NVT
+integer NVT(l_NVT)
+logical DoPrint, DoCheck
 #include "cholesky.fh"
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
+character*8 SecNam
+parameter(SecNam='Cho_ZMem')
+#endif
+character*2 Unt
+integer iSym, l_Mx
+real*8 Byte, xl_Z
+real*8 Word(8)
+
+#ifdef _DEBUGPRINT_
+if (l_NVT < nSym) then
+  irc = -1
+  l_Z = -999999
+  return
+end if
+#endif
+
+irc = 0
+
+xl_Z = 0.0d0
+do iSym=1,nSym
+  Word(iSym) = dble(NVT(iSym))*(dble(NVT(iSym))+1.0d0)/2.0d0
+  xl_Z = xl_Z+Word(iSym)
+end do
+l_Z = int(xl_Z)
+
+if (DoPrint) then
+  call Cho_Head('Z Vector Storage Requirements','-',80,LuPri)
+  write(LuPri,*)
+  do iSym=1,nSym
+    call Cho_RWord2Byte(Word(iSym),Byte,Unt)
+    write(LuPri,'(A,I2,A,I8,A,F8.3,1X,A,A)') 'Symmetry',iSym,':   ',int(Word(iSym)),' words (',Byte,Unt,')'
+  end do
+  write(LuPri,'(A)') '------------------------------------------'
+  call Cho_RWord2Byte(xl_Z,Byte,Unt)
+  write(LuPri,'(A,I8,A,F8.3,1X,A,A)') 'Total:        ',l_Z,' words (',Byte,Unt,')'
+end if
 
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
-      Character*8 SecNam
-      Parameter (SecNam='Cho_ZMem')
-#endif
-      Character*2 Unt
-      Integer iSym, l_Mx
-      Real*8 Byte, xl_Z
-      Real*8 Word(8)
-
-#if defined (_DEBUGPRINT_)
-      If (l_NVT .lt. nSym) Then
-         irc=-1
-         l_Z=-999999
-         Return
-      End If
+if (l_Z < 0) then
+  write(Lupri,'(A,A)') SecNam,': dimension of Z vector array is negative!'
+  write(Lupri,'(A,I8)') 'l_Z=',l_Z
+  if (xl_Z > 0.0d0) then
+    write(LuPri,'(A)') 'This seems to be an integer overflow!'
+    call Cho_RWord2Byte(xl_Z,Byte,Unt)
+    write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, xl_Z=',xl_Z,' words (',Byte,Unt,')'
+  end if
+  irc = 1
+  return
+end if
 #endif
 
-      irc=0
+if (DoCheck) then
+  call mma_maxDBLE(l_Mx)
+  if (l_Z > l_Mx) then
+    irc = 999
+    return
+  end if
+end if
 
-      xl_Z=0.0d0
-      Do iSym=1,nSym
-         Word(iSym)=DBLE(NVT(iSym))*(DBLE(NVT(iSym))+1.0d0)/2.0d0
-         xl_Z=xl_Z+Word(iSym)
-      End Do
-      l_Z=INT(xl_Z)
-
-      If (DoPrint) Then
-         Call Cho_Head('Z Vector Storage Requirements','-',80,LuPri)
-         Write(LuPri,*)
-         Do iSym=1,nSym
-            Call Cho_RWord2Byte(Word(iSym),Byte,Unt)
-            Write(LuPri,'(A,I2,A,I8,A,F8.3,1X,A,A)')                    &
-     &      'Symmetry',iSym,':   ',INT(Word(iSym)),' words (',          &
-     &      Byte,Unt,')'
-         End Do
-         Write(LuPri,'(A)')                                             &
-     &   '------------------------------------------'
-         Call Cho_RWord2Byte(xl_Z,Byte,Unt)
-         Write(LuPri,'(A,I8,A,F8.3,1X,A,A)')                            &
-     &   'Total:        ',l_Z,' words (',Byte,Unt,')'
-      End If
-
-#if !defined (_I8_) || defined (_DEBUGPRINT_)
-      If (l_Z .lt. 0) Then
-         Write(Lupri,'(A,A)')                                           &
-     &   SecNam,': dimension of Z vector array is negative!'
-         Write(Lupri,'(A,I8)') 'l_Z=',l_Z
-         If (xl_Z .gt. 0.0d0) Then
-            Write(LuPri,'(A)') 'This seems to be an integer overflow!'
-            Call Cho_RWord2Byte(xl_Z,Byte,Unt)
-            Write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)')                  &
-     &      'In double precision, xl_Z=',xl_Z,                          &
-     &      ' words (',Byte,Unt,')'
-         End If
-         irc=1
-         Return
-      End If
-#endif
-
-      If (DoCheck) Then
-         Call mma_maxDBLE(l_Mx)
-         If (l_Z.gt.l_Mx) Then
-            irc=999
-            Return
-         End If
-      End If
-
-      End
-      SubRoutine Cho_RWord2Byte(Word,Byte,Unt)
-      Implicit None
-      Real*8  Word
-      Real*8  Byte
-      Character*2 Unt
-
-      Byte = Word*8.0d0
-      Unt  = 'b '
-      If (ABS(Byte) .gt. 1.0d3) Then
-         Byte = Byte/1.024d3
-         Unt  = 'kb'
-         If (ABS(Byte) .gt. 1.0d3) Then
-            Byte = Byte/1.024d3
-            Unt  = 'Mb'
-            If (ABS(Byte) .gt. 1.0d3) Then
-               Byte = Byte/1.024d3
-               Unt  = 'Gb'
-               If (ABS(Byte) .gt. 1.0d3) Then
-                  Byte = Byte/1.024d3
-                  Unt  = 'Tb'
-               End If
-            End If
-         End If
-      End If
-
-      End
+end subroutine Cho_ZMem

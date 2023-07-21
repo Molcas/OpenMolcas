@@ -10,156 +10,151 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_SrtDrv(irc,DelOrig)
+
+subroutine ChoMP2_SrtDrv(irc,DelOrig)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: presort Cholesky vectors according to batch structure in
-!              MP2 program.
+! Purpose: presort Cholesky vectors according to batch structure in
+!          MP2 program.
 !
-!     DelOrig: input : flag for deleting original vector files.
-!              output: flag to tell that at least 1 symmetry block has
-!                      in fact been deleted.
-!
-      use ChoMP2, only: LnT1am, lUnit
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Integer irc
-      Logical DelOrig
+! DelOrig: input : flag for deleting original vector files.
+!          output: flag to tell that at least 1 symmetry block has
+!                  in fact been deleted.
+
+use ChoMP2, only: LnT1am, lUnit
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer irc
+logical DelOrig
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
+character(len=6), parameter :: ThisNm = 'SrtDrv'
+character(len=13), parameter :: SecNam = 'ChoMP2_SrtDrv'
+integer lWrk
+real*8, allocatable :: Wrk(:)
 
-      Character(LEN=6), Parameter:: ThisNm = 'SrtDrv'
-      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_SrtDrv'
+irc = 0
+if (nBatch < 1) return
 
-      Integer lWrk
-      Real*8, Allocatable:: Wrk(:)
+! Allocate available memory.
+! --------------------------
 
-      irc = 0
-      If (nBatch .lt. 1) Return
+call mma_maxDBLE(lWrk)
+call mma_allocate(Wrk,lWrk,Label='Wrk')
 
+! Set vector type (i.e., transformed vectors or vectors from (ai|bj)
+! decomposition. Decide whether original files should be deleted.
+! ------------------------------------------------------------------
 
-!     Allocate available memory.
-!     --------------------------
+if (DecoMP2) then
+  iTyp = 2
+else
+  iTyp = 1
+end if
 
-      Call mma_maxDBLE(lWrk)
-      Call mma_allocate(Wrk,lWrk,Label='Wrk')
+if (DelOrig) then
+  iClos = 3
+else
+  iClos = 2
+end if
+DelOrig = .false.
 
-!     Set vector type (i.e., transformed vectors or vectors from (ai|bj)
-!     decomposition. Decide whether original files should be deleted.
-!     ------------------------------------------------------------------
+! Start symmetry loop.
+! --------------------
 
-      If (DecoMP2) Then
-         iTyp = 2
-      Else
-         iTyp = 1
-      End If
+do iSym=1,nSym
 
-      If (DelOrig) Then
-         iClos = 3
-      Else
-         iClos = 2
-      End If
-      DelOrig = .false.
+  ! Set number of vectors.
+  ! ----------------------
 
-!     Start symmetry loop.
-!     --------------------
+  if (iTyp == 1) then
+    nSrtVec = NumCho(iSym)
+  else if (iTyp == 2) then
+    nSrtVec = nMP2Vec(iSym)
+  else
+    irc = -1
+    Go To 1 ! exit
+  end if
 
-      Do iSym = 1,nSym
+  if ((nT1am(iSym) > 0) .and. (nSrtVec > 0)) then
 
-!        Set number of vectors.
-!        ----------------------
+    ! Set up vector batch.
+    ! --------------------
 
-         If (iTyp .eq. 1) Then
-            nSrtVec = NumCho(iSym)
-         Else If (iTyp .eq. 2) Then
-            nSrtVec = nMP2Vec(iSym)
-         Else
-            irc = -1
-            Go To 1 ! exit
-         End If
+    LnT1amx = 0
+    do iBatch=1,nBatch
+      LnT1amx = max(LnT1amx,LnT1am(iSym,iBatch))
+    end do
 
-         If (nT1am(iSym).gt.0 .and. nSrtVec.gt.0) Then
+    MinMem = nT1am(iSym)+LnT1amx
+    NumVec = min(lWrk/MinMem,nSrtVec)
+    if (NumVec < 1) then
+      irc = 1
+      Go To 1 ! exit
+    else
+      nBat = (nSrtVec-1)/NumVec+1
+    end if
 
-!           Set up vector batch.
-!           --------------------
+    ! Open full vector file.
+    ! ----------------------
 
-            LnT1amx = 0
-            Do iBatch = 1,nBatch
-               LnT1amx = max(LnT1amx,LnT1am(iSym,iBatch))
-            End Do
+    call ChoMP2_OpenF(1,iTyp,iSym)
 
-            MinMem = nT1am(iSym) + LnT1amx
-            NumVec = min(lWrk/MinMem,nSrtVec)
-            If (NumVec .lt. 1) Then
-               irc = 1
-               Go To 1 ! exit
-            Else
-               nBat = (nSrtVec - 1)/NumVec + 1
-            End If
+    ! Start batch loop.
+    ! -----------------
 
-!           Open full vector file.
-!           ----------------------
+    do iBat=1,nBat
 
-            Call ChoMP2_OpenF(1,iTyp,iSym)
+      if (iBat == nBat) then
+        NumV = nSrtVec-NumVec*(nBat-1)
+      else
+        NumV = NumVec
+      end if
+      iVec1 = NumVec*(iBat-1)+1
 
-!           Start batch loop.
-!           -----------------
+      ! Read batch of vectors.
+      ! ----------------------
 
-            Do iBat = 1,nBat
+      lChoMO = nT1am(iSym)*NumV
 
-               If (iBat .eq. nBat) Then
-                  NumV = nSrtVec - NumVec*(nBat-1)
-               Else
-                  NumV = NumVec
-               End If
-               iVec1 = NumVec*(iBat-1) + 1
+      kChoMO = 1
 
-!              Read batch of vectors.
-!              ----------------------
+      iOpt = 2
+      lTot = lChoMO
+      iAdr = nT1am(iSym)*(iVec1-1)+1
+      call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO,iAdr)
 
-               lChoMO = nT1am(iSym)*NumV
+      ! Sort and write to disk.
+      ! -----------------------
 
-               kChoMO = 1
+      kSort = 1+lChoMO
+      lSort = lWrk-lChoMO
+      do iBatch=1,nBatch
+        lTot = LnT1am(iSym,iBatch)*NumV
+        if (lSort < lTot) call ChoMP2_Quit(SecNam,'sort batch error','[0]')
+        call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,iBatch)
+        call ChoMP2_OpenB(1,iSym,iBatch)
+        iOpt = 1
+        iAdr = LnT1am(iSym,iBatch)*(iVec1-1)+1
+        call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kSort),lTot,iAdr)
+        call ChoMP2_OpenB(2,iSym,iBatch)
+      end do
 
-               iOpt = 2
-               lTot = lChoMO
-               iAdr = nT1am(iSym)*(iVec1-1) + 1
-               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO, &
-     &                      iAdr)
+    end do
 
-!              Sort and write to disk.
-!              -----------------------
+    ! Close (and possibly delete) full vector file.
+    ! ---------------------------------------------
 
-               kSort  = 1 + lChoMO
-               lSort  = lWrk  - lChoMO
-               Do iBatch = 1,nBatch
-                  lTot = LnT1am(iSym,iBatch)*NumV
-                  If (lSort .lt. lTot) Then
-                     Call ChoMP2_Quit(SecNam,'sort batch error','[0]')
-                  End If
-                  Call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,     &
-     &                            iBatch)
-                  Call ChoMP2_OpenB(1,iSym,iBatch)
-                  iOpt = 1
-                  iAdr = LnT1am(iSym,iBatch)*(iVec1-1) + 1
-                  Call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kSort),lTot, &
-     &                         iAdr)
-                  Call ChoMP2_OpenB(2,iSym,iBatch)
-               End Do
+    call ChoMP2_OpenF(iClos,iTyp,iSym)
+    DelOrig = iClos == 3
 
-            End Do
+  end if
 
-!           Close (and possibly delete) full vector file.
-!           ---------------------------------------------
+end do
 
-            Call ChoMP2_OpenF(iClos,iTyp,iSym)
-            DelOrig = iClos .eq. 3
+1 call mma_deallocate(Wrk)
 
-         End If
-
-      End Do
-
-    1 Call mma_deallocate(Wrk)
-      End
+end subroutine ChoMP2_SrtDrv

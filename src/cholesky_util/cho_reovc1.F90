@@ -8,146 +8,143 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
-      use ChoReO
+
+subroutine CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 !
-!     Purpose: reorder Cholesky vectors on disk to full storage.
-!
-      Implicit Real*8 (a-h,o-z)
-      INTEGER   N,LRDIM,LWRK
-      INTEGER   IRS2F(N,LRDIM)
-      REAL*8 WRK(LWRK)
+! Purpose: reorder Cholesky vectors on disk to full storage.
+
+use ChoReO
+
+implicit real*8(a-h,o-z)
+integer N, LRDIM, LWRK
+integer IRS2F(N,LRDIM)
+real*8 WRK(LWRK)
 #include "cholesky.fh"
+character(len=10), parameter :: SECNAM = 'CHO_REOVC1'
+integer IOFF(8,8), I, J, MulD2h
+! Statement function
+MULD2H(I,J) = ieor(I-1,J-1)+1
 
-      CHARACTER(LEN=10), PARAMETER::SECNAM = 'CHO_REOVC1'
-      INTEGER IOFF(8,8), I, J, MulD2h
+if (N < 3) call CHO_QUIT('Dimension error in '//SECNAM,104)
 
-      MULD2H(I,J)=IEOR(I-1,J-1)+1
+! Save read-call counter.
+! -----------------------
 
-      IF (N .LT. 3) THEN
-         CALL CHO_QUIT('Dimension error in '//SECNAM,104)
-      END IF
+NSCALL = NSYS_CALL
 
-!     Save read-call counter.
-!     -----------------------
+! Make rs1 the "current" reduced set (for reading).
+! -------------------------------------------------
 
-      NSCALL = NSYS_CALL
+call CHO_RSCOPY(1,2)
 
-!     Make rs1 the "current" reduced set (for reading).
-!     -------------------------------------------------
+! Loop over Cholesky vector symmetries.
+! -------------------------------------
 
-      CALL CHO_RSCOPY(1,2)
+do ISYM=1,NSYM
+  if (NUMCHO(ISYM) > 0) then
 
-!     Loop over Cholesky vector symmetries.
-!     -------------------------------------
+    ! Open files.
+    ! -----------
 
-      DO ISYM = 1,NSYM
-         IF (NUMCHO(ISYM) .GT. 0) THEN
+    call CHO_OPFVEC(ISYM,1)
 
-!           Open files.
-!           -----------
+    ! Set up vector batch.
+    ! --------------------
 
-            CALL CHO_OPFVEC(ISYM,1)
+    MINMEM = NNBSTR(ISYM,2)+NNBST(ISYM)
+    if (MINMEM < 1) then
+      write(LUPRI,*) SECNAM,': MINMEM = ',MINMEM
+      call CHO_QUIT('NNBST error in '//SECNAM,104)
+      NVEC = 0
+    else
+      NVEC = min(LWRK/MINMEM,NUMCHO(ISYM))
+    end if
 
-!           Set up vector batch.
-!           --------------------
+    if (NVEC < 1) then
+      write(LUPRI,*) SECNAM,': NVEC   = ',NVEC
+      write(LUPRI,*) SECNAM,': LWRK   = ',LWRK
+      write(LUPRI,*) SECNAM,': MINMEM = ',MINMEM
+      write(LUPRI,*) SECNAM,': NUMCHO = ',NUMCHO(ISYM)
+      write(LUPRI,*) SECNAM,': ISYM   = ',ISYM
+      call CHO_QUIT('Batch error in '//SECNAM,101)
+      NBATCH = 0
+    else
+      NBATCH = (NUMCHO(ISYM)-1)/NVEC+1
+    end if
 
-            MINMEM = NNBSTR(ISYM,2) + NNBST(ISYM)
-            IF (MINMEM .LT. 1) THEN
-               WRITE(LUPRI,*) SECNAM,': MINMEM = ',MINMEM
-               CALL CHO_QUIT('NNBST error in '//SECNAM,104)
-               NVEC = 0
-            ELSE
-               NVEC = MIN(LWRK/MINMEM,NUMCHO(ISYM))
-            END IF
+    ! Start batch loop over vectors.
+    ! ------------------------------
 
-            IF (NVEC .LT. 1) THEN
-               WRITE(LUPRI,*) SECNAM,': NVEC   = ',NVEC
-               WRITE(LUPRI,*) SECNAM,': LWRK   = ',LWRK
-               WRITE(LUPRI,*) SECNAM,': MINMEM = ',MINMEM
-               WRITE(LUPRI,*) SECNAM,': NUMCHO = ',NUMCHO(ISYM)
-               WRITE(LUPRI,*) SECNAM,': ISYM   = ',ISYM
-               CALL CHO_QUIT('Batch error in '//SECNAM,101)
-               NBATCH = 0
-            ELSE
-               NBATCH = (NUMCHO(ISYM) - 1)/NVEC + 1
-            END IF
+    do IBATCH=1,NBATCH
 
-!           Start batch loop over vectors.
-!           ------------------------------
+      if (IBATCH == NBATCH) then
+        NUMV = NUMCHO(ISYM)-NVEC*(NBATCH-1)
+      else
+        NUMV = NVEC
+      end if
+      IVEC1 = NVEC*(IBATCH-1)+1
 
-            DO IBATCH = 1,NBATCH
+      ! Read batch of reduced vectors.
+      ! ------------------------------
 
-               IF (IBATCH .EQ. NBATCH) THEN
-                  NUMV = NUMCHO(ISYM) - NVEC*(NBATCH - 1)
-               ELSE
-                  NUMV = NVEC
-               END IF
-               IVEC1 = NVEC*(IBATCH - 1) + 1
+      KCHO1 = 1
+      KREAD = KCHO1+NNBSTR(ISYM,2)*NUMV
+      LREAD = LWRK-KREAD+1
+      call CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,ISYM,WRK(KREAD),LREAD)
 
-!              Read batch of reduced vectors.
-!              ------------------------------
+      ! Reorder.
+      ! --------
 
-               KCHO1 = 1
-               KREAD = KCHO1 + NNBSTR(ISYM,2)*NUMV
-               LREAD = LWRK - KREAD + 1
-               CALL CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,    &
-     &                         ISYM,WRK(KREAD),LREAD)
+      KCHO2 = KREAD
+      call IZERO(IOFF,64)
+      ICOUNT = KCHO2-1
+      do ISYMB=1,NSYM
+        ISYMA = MULD2H(ISYMB,ISYM)
+        if (ISYMA >= ISYMB) then
+          IOFF(ISYMA,ISYMB) = ICOUNT
+          IOFF(ISYMB,ISYMA) = ICOUNT
+          ICOUNT = ICOUNT+NABPK(ISYMA,ISYMB)*NUMV
+        end if
+      end do
 
-!              Reorder.
-!              --------
+      call FZERO(WRK(KCHO2),NNBST(ISYM)*NUMV)
+      do IVEC=1,NUMV
+        KOFF1 = KCHO1+NNBSTR(ISYM,2)*(IVEC-1)-1
+        do IRS=1,NNBSTR(ISYM,2)
+          I = IIBSTR(ISYM,2)+IRS
+          ISYMA = IRS2F(1,I)
+          ISYMB = IRS2F(2,I)
+          IAB = IRS2F(3,I)
+          KOFF = KOFF1+IRS
+          LOFF = IOFF(ISYMA,ISYMB)+NABPK(ISYMA,ISYMB)*(IVEC-1)+IAB
+          WRK(LOFF) = WRK(KOFF)
+        end do
+      end do
 
-               KCHO2 = KREAD
-               CALL IZERO(IOFF,64)
-               ICOUNT = KCHO2 - 1
-               DO ISYMB = 1,NSYM
-                  ISYMA = MULD2H(ISYMB,ISYM)
-                  IF (ISYMA .GE. ISYMB) THEN
-                     IOFF(ISYMA,ISYMB) = ICOUNT
-                     IOFF(ISYMB,ISYMA) = ICOUNT
-                     ICOUNT = ICOUNT + NABPK(ISYMA,ISYMB)*NUMV
-                  END IF
-               END DO
+      ! Write full vectors to disk.
+      ! ---------------------------
 
-               CALL FZERO(WRK(KCHO2),NNBST(ISYM)*NUMV)
-               DO IVEC = 1,NUMV
-                  KOFF1 = KCHO1 + NNBSTR(ISYM,2)*(IVEC - 1) - 1
-                  DO IRS = 1,NNBSTR(ISYM,2)
-                     I = IIBSTR(ISYM,2) + IRS
-                     ISYMA = IRS2F(1,I)
-                     ISYMB = IRS2F(2,I)
-                     IAB   = IRS2F(3,I)
-                     KOFF  = KOFF1 + IRS
-                     LOFF  = IOFF(ISYMA,ISYMB)                          &
-     &                     + NABPK(ISYMA,ISYMB)*(IVEC - 1) + IAB
-                     WRK(LOFF) = WRK(KOFF)
-                  END DO
-               END DO
+      do ISYMB=1,NSYM
+        ISYMA = MULD2H(ISYMB,ISYM)
+        if (ISYMA >= ISYMB) then
+          KOFF = IOFF(ISYMA,ISYMB)+1
+          call CHO_WRFVEC(WRK(KOFF),ISYMA,ISYMB,IVEC1,NUMV)
+        end if
+      end do
 
-!              Write full vectors to disk.
-!              ---------------------------
+    end do
 
-               DO ISYMB = 1,NSYM
-                  ISYMA = MULD2H(ISYMB,ISYM)
-                  IF (ISYMA .GE. ISYMB) THEN
-                     KOFF = IOFF(ISYMA,ISYMB) + 1
-                     CALL CHO_WRFVEC(WRK(KOFF),ISYMA,ISYMB,IVEC1,NUMV)
-                  END IF
-               END DO
+    ! Close files.
+    ! ------------
 
-            END DO
+    call CHO_OPFVEC(ISYM,2)
 
-!           Close files.
-!           ------------
+  end if
+end do
 
-            CALL CHO_OPFVEC(ISYM,2)
+! Restore read-call counter.
+! --------------------------
 
-         END IF
-      END DO
+NSYS_CALL = NSCALL
 
-!     Restore read-call counter.
-!     --------------------------
-
-      NSYS_CALL = NSCALL
-
-      END
+end subroutine CHO_REOVC1

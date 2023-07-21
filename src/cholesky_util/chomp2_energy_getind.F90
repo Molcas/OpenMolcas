@@ -10,53 +10,50 @@
 !                                                                      *
 ! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
+
+subroutine ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
 !
-!     Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
+! Thomas Bondo Pedersen, Dec. 2004 / Feb. 2005.
 !
-!     Purpose: setup (ai|bj) index arrays for batch i,j.
-!              For iBatch=jBatch and ChoAlg=2, (ai|bj) is stored as
-!              the matrix M(ab,ij) with i<=j.
-!
-      use ChoMP2, only: LnT1am, LnMatij
-      Implicit None
-      Integer LnT2am, iBatch, jBatch
-      Integer LiT2am(8)
+! Purpose: setup (ai|bj) index arrays for batch i,j.
+!          For iBatch=jBatch and ChoAlg=2, (ai|bj) is stored as
+!          the matrix M(ab,ij) with i<=j.
+
+use ChoMP2, only: LnT1am, LnMatij
+
+implicit none
+integer LnT2am, iBatch, jBatch
+integer LiT2am(8)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
+integer iSym
+character*14 String
+character*20 SecNam
+parameter(SecNam='ChoMP2_Energy_GetInd')
 
-      Integer iSym
+if (iBatch == jBatch) then
+  LnT2am = 0
+  if (ChoAlg == 1) then
+    do iSym=1,nSym
+      LiT2am(iSym) = LnT2am
+      LnT2am = LnT2am+LnT1am(iSym,iBatch)*(LnT1am(iSym,iBatch)+1)/2
+    end do
+  else if (ChoAlg == 2) then
+    do iSym=1,nSym
+      LiT2am(iSym) = LnT2am
+      LnT2am = LnT2am+nMatab(iSym)*LnMatij(iSym,iBatch)
+    end do
+  else
+    write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
+    call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',String)
+  end if
+else
+  LnT2am = 0
+  do iSym=1,nSym
+    LiT2am(iSym) = LnT2am
+    LnT2am = LnT2am+LnT1am(iSym,iBatch)*LnT1am(iSym,jBatch)
+  end do
+end if
 
-      Character*14 String
-      Character*20 SecNam
-      Parameter (SecNam = 'ChoMP2_Energy_GetInd')
-
-      If (iBatch .eq. jBatch) Then
-         LnT2am = 0
-         If (ChoAlg .eq. 1) Then
-            Do iSym = 1,nSym
-               LiT2am(iSym) = LnT2am
-               LnT2am = LnT2am                                          &
-     &                + LnT1am(iSym,iBatch)*(LnT1am(iSym,iBatch)+1)/2
-            End Do
-         Else If (ChoAlg .eq. 2) Then
-            Do iSym = 1,nSym
-               LiT2am(iSym) = LnT2am
-               LnT2am = LnT2am                                          &
-     &                + nMatab(iSym)*LnMatij(iSym,iBatch)
-            End Do
-         Else
-            Write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-            Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',      &
-     &                       String)
-         End If
-      Else
-         LnT2am = 0
-         Do iSym = 1,nSym
-            LiT2am(iSym) = LnT2am
-            LnT2am = LnT2am + LnT1am(iSym,iBatch)*LnT1am(iSym,jBatch)
-         End Do
-      End If
-
-      End
+end subroutine ChoMP2_Energy_GetInd

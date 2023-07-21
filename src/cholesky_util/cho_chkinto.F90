@@ -8,18 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_CHKINTO(XINT,DIAG,ISYM,NERR,TOL,REPORT)
+
+subroutine CHO_CHKINTO(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 !
-!     Purpose: check diagonals in qualified integral columns against
-!              original diagonal (read in here).
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 XINT(*), DIAG(*)
-      LOGICAL   REPORT
+! Purpose: check diagonals in qualified integral columns against
+!          original diagonal (read in here).
+
+implicit real*8(a-h,o-z)
+real*8 XINT(*), DIAG(*)
+logical REPORT
 #include "cholesky.fh"
 
-      IOPT = 2
-      CALL CHO_IODIAG(DIAG,IOPT)
-      CALL CHO_P_CHKINT(XINT,DIAG,ISYM,NERR,TOL,REPORT)
+IOPT = 2
+call CHO_IODIAG(DIAG,IOPT)
+call CHO_P_CHKINT(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 
-      END
+end subroutine CHO_CHKINTO

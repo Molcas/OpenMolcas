@@ -8,103 +8,94 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,        &
-     &                           mSym,mPass,mmShl,iPass1,NumPass,NumSP)
+
+subroutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,mSym,mPass,mmShl,iPass1,NumPass,NumSP)
 !
-!     Purpose: compute integrals for NumPass integral passes starting at
-!              pass iPass1.
-!
-      use ChoSwp, only: IndRSh, InfVec
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8  xInt(lInt)
-      Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
+! Purpose: compute integrals for NumPass integral passes starting at
+!          pass iPass1.
+
+use ChoSwp, only: IndRSh, InfVec
+use stdalloc
+
+implicit real*8(a-h,o-z)
+real*8 xInt(lInt)
+integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
+character(len=15), parameter :: SecNam = 'Cho_GnVc_GetInt'
+integer, allocatable :: SPTmp(:)
+integer, external :: Cho_F2SP
 
-      Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GetInt'
+! Initialization and input check.
+! -------------------------------
 
-      Integer, Allocatable:: SPTmp(:)
+if (NumPass < 1) then
+  NumSP = 0
+  return
+end if
 
-      Integer, External:: Cho_F2SP
+if (mSym /= nSym) call Cho_Quit('Input error [1] in '//SecNam,103)
 
-!     Initialization and input check.
-!     -------------------------------
+if (iPass1 < 1) call Cho_Quit('Input error [2] in '//SecNam,103)
 
-      If (NumPass .lt. 1) Then
-         NumSP = 0
-         return
-      End If
+iPass2 = iPass1+NumPass-1
+if (iPass2 > mPass) call Cho_Quit('Input error [3] in '//SecNam,103)
 
-      If (mSym .ne. nSym) Then
-         Call Cho_Quit('Input error [1] in '//SecNam,103)
-      End If
+if (mmShl < nnShl) call Cho_Quit('Input error [4] in '//SecNam,103)
 
-      If (iPass1 .lt. 1) Then
-         Call Cho_Quit('Input error [2] in '//SecNam,103)
-      End If
+! Set up list of shell pairs to compute.
+! --------------------------------------
 
-      iPass2 = iPass1 + NumPass - 1
-      If (iPass2 .gt. mPass) Then
-         Call Cho_Quit('Input error [3] in '//SecNam,103)
-      End If
+call mma_allocate(SPTmp,nnShl,Label='SPTmp')
+SPTmp(:) = 0
+NumSP = 0
+do iPass=iPass1,iPass2
+  do iSym=1,nSym
+    iV1 = iVecRS(iSym,iPass)
+    iV2 = iV1+nVecRS(iSym,iPass)-1
+    do iV=iV1,iV2
+      iAB = InfVec(iV,1,iSym) ! addr in 1st reduced set
+      jShAB = IndRsh(iAB) ! shell pair (full)
+      iShAB = Cho_F2SP(jShAB) ! reduced shell pair
+      if (iShAB > 0) then
+        if (SPTmp(iShAB) == 0) then ! register SP
+          SPTmp(iShAB) = 1
+          NumSP = NumSP+1
+          ListSP(NumSP) = iShAB
+        end if
+      else
+        call Cho_Quit('SP not found in reduced list!',103)
+      end if
+    end do
+  end do
+end do
+call mma_deallocate(SPTmp)
 
-      If (mmShl .lt. nnShl) Then
-         Call Cho_Quit('Input error [4] in '//SecNam,103)
-      End If
+! Set memory used by Seward.
+! --------------------------
 
-!     Set up list of shell pairs to compute.
-!     --------------------------------------
+call mma_maxDBLE(lSewInt)
+call xSetMem_Ints(lSewInt)
 
-      Call mma_allocate(SPTmp,nnShl,Label='SPTmp')
-      SPTmp(:)=0
-      NumSP = 0
-      Do iPass = iPass1,iPass2
-         Do iSym = 1,nSym
-            iV1 = iVecRS(iSym,iPass)
-            iV2 = iV1 + nVecRS(iSym,iPass) - 1
-            Do iV = iV1,iV2
-               iAB   = InfVec(iV,1,iSym) ! addr in 1st reduced set
-               jShAB = IndRsh(iAB) ! shell pair (full)
-               iShAB = Cho_F2SP(jShAB) ! reduced shell pair
-               If (iShAB .gt. 0) Then
-                  If (SPTmp(iShAB) .eq. 0) Then ! register SP
-                     SPTmp(iShAB) = 1
-                     NumSP = NumSP + 1
-                     ListSP(NumSP) = iShAB
-                  End If
-               Else
-                  Call Cho_Quit('SP not found in reduced list!',103)
-               End If
-            End Do
-         End Do
-      End Do
-      Call mma_deallocate(SPTmp)
+! Loop through shell pair list.
+! -----------------------------
 
-!     Set memory used by Seward.
-!     --------------------------
+do iSP=1,NumSP
 
-      Call mma_maxDBLE(lSewInt)
-      Call xSetMem_Ints(lSewInt)
+  ! Get shell pair index.
+  ! ---------------------
 
-!     Loop through shell pair list.
-!     -----------------------------
+  iShAB = ListSP(iSP)
 
-      Do iSP = 1,NumSP
+  ! Compute integral distribution (**|A B).
+  ! ---------------------------------------
 
-!        Get shell pair index.
-!        ---------------------
+  call Cho_MCA_CalcInt_3(xInt,lInt,iShAB)
 
-         iShAB = ListSP(iSP)
+end do
 
-!        Compute integral distribution (**|A B).
-!        ---------------------------------------
+! Deallocation.
+! -------------
 
-         Call Cho_MCA_CalcInt_3(xInt,lInt,iShAB)
+call xRlsMem_Ints()
 
-      End Do
-
-!     Deallocation.
-!     -------------
-
-      Call xRlsMem_Ints
-      End
+end subroutine Cho_GnVc_GetInt

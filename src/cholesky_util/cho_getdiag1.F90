@@ -8,67 +8,64 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
+
+subroutine CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
 !
-!     Purpose: read diagonal in first reduced set.
-!
-      use ChoSwp, only: IndRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), BUF(LENBUF)
-      INTEGER   IBUF(4,LENBUF)
+! Purpose: read diagonal in first reduced set.
+
+use ChoSwp, only: IndRSh, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), BUF(LENBUF)
+integer IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
+character*12 SECNAM
+parameter(SECNAM='CHO_GETDIAG1')
+logical LOCDBG
+parameter(LOCDBG=.false.)
+integer ISYLST(8)
+parameter(INFOD=INF_DIAG)
+parameter(TINY=1.0D-14)
 
-      CHARACTER*12 SECNAM
-      PARAMETER (SECNAM = 'CHO_GETDIAG1')
+! Read diagonal from file.
+! ------------------------
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+if (RSTDIA) then
+  IOPT = 2
+  call CHO_IODIAG(DIAG,IOPT)
+else
+  call FZERO(DIAG,NNBSTRT(1))
+  call IZERO(INDRSH,NNBSTRT(1))
+  call IZERO(INDRED,NNBSTRT(1))
+  call CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,MMBSTRT,NDUMP)
+  call CHO_GADGOP(DIAG,NNBSTRT(1),'+')
+  call CHO_GAIGOP(INDRSH,NNBSTRT(1),'+')
+  call CHO_GAIGOP(INDRED,NNBSTRT(1),'+')
+end if
 
-      INTEGER ISYLST(8)
+! Copy info to current reduced set (IRED=2).
+! Also set up IRED=3 (although it should be redundant).
+! -----------------------------------------------------
 
-      PARAMETER (INFOD = INF_DIAG)
-      PARAMETER (TINY  = 1.0D-14)
+do IRS=2,3
+  call CHO_RSCOPY(1,IRS)
+end do
 
-!     Read diagonal from file.
-!     ------------------------
+! Print.
+! ------
 
-      IF (RSTDIA) THEN
-         IOPT = 2
-         CALL CHO_IODIAG(DIAG,IOPT)
-      ELSE
-         CALL FZERO(DIAG,NNBSTRT(1))
-         CALL IZERO(INDRSH,NNBSTRT(1))
-         CALL IZERO(INDRED,NNBSTRT(1))
-         CALL CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,                   &
-     &                   LENBUF,MMBSTRT,NDUMP)
-         CALL CHO_GADGOP(DIAG,NNBSTRT(1),'+')
-         CALL CHO_GAIGOP(INDRSH,NNBSTRT(1),'+')
-         CALL CHO_GAIGOP(INDRED,NNBSTRT(1),'+')
-      END IF
+if (LOCDBG .or. (IPRINT >= INFOD)) then
+  do ISYM=1,NSYM
+    ISYLST(ISYM) = ISYM
+  end do
+  NSYLST = NSYM
+  IRED = 1
+  call CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
+  if (LOCDBG) then
+    IRED = 2
+    call CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
+  end if
+end if
 
-!     Copy info to current reduced set (IRED=2).
-!     Also set up IRED=3 (although it should be redundant).
-!     -----------------------------------------------------
-
-      DO IRS = 2,3
-         CALL CHO_RSCOPY(1,IRS)
-      END DO
-
-!     Print.
-!     ------
-
-      IF (LOCDBG .OR. (IPRINT.GE.INFOD)) THEN
-         DO ISYM = 1,NSYM
-            ISYLST(ISYM) = ISYM
-         END DO
-         NSYLST = NSYM
-         IRED = 1
-         CALL CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
-         IF (LOCDBG) THEN
-            IRED = 2
-            CALL CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
-         END IF
-      END IF
-
-      END
+end subroutine CHO_GETDIAG1

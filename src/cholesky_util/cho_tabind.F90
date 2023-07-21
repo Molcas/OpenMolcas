@@ -8,58 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LEOINP,NEOINP,&
-     &                            WORD)
+
+integer function CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LEOINP,NEOINP,WORD)
 !
-!     Purpose: table lookup.
-!              First, try to find WORD in TABLE. If success, return ID,
-!              else, check if WORD is a special string
-!              in EOINP (if any supplied). If success, return NTABLE+1,
-!              else, return -1.
-!
-      IMPLICIT NONE
-      INTEGER LKEY, NTABLE, LEOINP, NEOINP
-      CHARACTER*(*) TABLE(NTABLE)  ! <-- character*(lkey)
-      CHARACTER*(*) EOINP(NEOINP)  ! <-- character*(leoinp)
-      CHARACTER*(*) WORD           ! <-- character*(lkey)
+! Purpose: table lookup.
+!          First, try to find WORD in TABLE. If success, return ID,
+!          else, check if WORD is a special string
+!          in EOINP (if any supplied). If success, return NTABLE+1,
+!          else, return -1.
 
-      INTEGER IJUMP, LCMP
+implicit none
+integer LKEY, NTABLE, LEOINP, NEOINP
+character*(*) TABLE(NTABLE)  ! <-- character*(lkey)
+character*(*) EOINP(NEOINP)  ! <-- character*(leoinp)
+character*(*) WORD           ! <-- character*(lkey)
+integer IJUMP, LCMP
+logical Test
 
-      Logical Test
+! Find entry.
+! -----------
 
-!     Find entry.
-!     -----------
+if ((LKEY > 0) .and. (NTABLE > 0)) then
+  IJUMP = 1
+  Test = IJUMP <= NTABLE
+  if (Test) Test = TABLE(IJUMP) /= WORD
+  do while (Test)
+    IJUMP = IJUMP+1
+    Test = IJUMP <= NTABLE
+    if (Test) Test = TABLE(IJUMP) /= WORD
+  end do
+  if (IJUMP > NTABLE) then
+    if ((LEOINP > 0) .and. (NEOINP > 0)) then
+      LCMP = min(LEOINP,LKEY)
+      IJUMP = 1
+      do while ((IJUMP <= NEOINP) .and. (EOINP(IJUMP)(1:LCMP) /= WORD(1:LCMP)))
+        IJUMP = IJUMP+1
+      end do
+      if (IJUMP > NEOINP) then
+        CHO_TABIND = -1
+      else
+        CHO_TABIND = NTABLE+1
+      end if
+    else
+      CHO_TABIND = -1
+    end if
+  else
+    CHO_TABIND = IJUMP
+  end if
+else
+  CHO_TABIND = -1
+end if
 
-      IF (LKEY.GT.0 .AND. NTABLE.GT.0) THEN
-         IJUMP = 1
-         Test = IJUMP.LE.NTABLE
-         If (Test) Test=TABLE(IJUMP).NE.WORD
-         DO WHILE (Test)
-            IJUMP = IJUMP + 1
-            Test = IJUMP.LE.NTABLE
-            If (Test) Test=TABLE(IJUMP).NE.WORD
-         END DO
-         IF (IJUMP .GT. NTABLE) THEN
-            IF (LEOINP.GT.0 .AND. NEOINP.GT.0) THEN
-               LCMP  = MIN(LEOINP,LKEY)
-               IJUMP = 1
-               DO WHILE (IJUMP.LE.NEOINP .AND.                          &
-     &                   EOINP(IJUMP)(1:LCMP).NE.WORD(1:LCMP))
-                  IJUMP = IJUMP + 1
-               END DO
-               IF (IJUMP .GT. NEOINP) THEN
-                  CHO_TABIND = -1
-               ELSE
-                  CHO_TABIND = NTABLE + 1
-               END IF
-            ELSE
-               CHO_TABIND = -1
-            END IF
-         ELSE
-            CHO_TABIND = IJUMP
-         END IF
-      ELSE
-         CHO_TABIND = -1
-      END IF
-
-      END
+end function CHO_TABIND

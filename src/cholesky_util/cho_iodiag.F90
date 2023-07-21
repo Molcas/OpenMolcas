@@ -8,55 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_IODIAG(DIAG,IOPT)
-      IMPLICIT NONE
-      REAL*8  DIAG(*)
-      INTEGER IOPT
 
-      CHARACTER*7 FNAME
-      PARAMETER (FNAME = 'CHODIAG')
+subroutine CHO_IODIAG(DIAG,IOPT)
 
-      CALL CHO_IODIAG_1(DIAG,IOPT,FNAME)
+implicit none
+real*8 DIAG(*)
+integer IOPT
+character*7 FNAME
+parameter(FNAME='CHODIAG')
 
-      END
-!
-      SUBROUTINE CHO_IOCHODIAG(DIAG,IOPT)
-      IMPLICIT NONE
-      REAL*8  DIAG(*)
-      INTEGER IOPT
+call CHO_IODIAG_1(DIAG,IOPT,FNAME)
 
-      CHARACTER*5 FNAME
-      PARAMETER (FNAME = 'CDIAG')
-
-      CALL CHO_IODIAG_1(DIAG,IOPT,FNAME)
-
-      END
-!
-      SUBROUTINE CHO_IODIAG_1(DIAG,IOPT,FNAME)
-!
-!     Purpose: write/read a copy of diagonal to disk (1st reduced set).
-!              The file is opened and closed here.
-!              IOPT=1: write
-!              IOPT=2: read
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 DIAG(*)
-      CHARACTER*(*) FNAME
-#include "cholesky.fh"
-
-      CHARACTER*12 SECNAM
-      PARAMETER (SECNAM = 'CHO_IODIAG_1')
-
-      LUNIT = 7
-      CALL DANAME(LUNIT,FNAME)
-      IF (IOPT.EQ.1 .OR. IOPT.EQ.2) THEN
-         LENGTH = NNBSTRT(1)
-         IADR   = 0
-         CALL DDAFILE(LUNIT,IOPT,DIAG,LENGTH,IADR)
-      ELSE   ! error
-         WRITE(LUPRI,*) SECNAM,': IOPT out of bounds: ',IOPT
-         CALL CHO_QUIT('Error in '//SECNAM,104)
-      END IF
-      CALL DACLOS(LUNIT)
-
-      END
+end subroutine CHO_IODIAG

@@ -8,142 +8,132 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DIACHO(DIAG,ISYM,WRK,LWRK)
+
+subroutine CHO_DIACHO(DIAG,ISYM,WRK,LWRK)
 !
-!     Purpose: update (i.e. subtract contributions from vectors on disk)
-!              of symmetry block ISYM of diagonal in red. set 1.
-!              This emulates the actual procedure during decomposition.
-!
-      use ChoSwp, only: InfVec, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), WRK(LWRK)
+! Purpose: update (i.e. subtract contributions from vectors on disk)
+!          of symmetry block ISYM of diagonal in red. set 1.
+!          This emulates the actual procedure during decomposition.
+
+use ChoSwp, only: InfVec, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), WRK(LWRK)
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_DIACHO')
+logical SCDIAG_SAVE
+parameter(N2=INFVEC_N2)
+parameter(ZERO=0.0d0)
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_DIACHO')
+! Return if nothing to do.
+! ------------------------
 
-      LOGICAL SCDIAG_SAVE
+if (NNBSTR(ISYM,1) < 1) return
+if (NUMCHO(ISYM) < 1) return
 
-      PARAMETER (N2 = INFVEC_N2)
-      PARAMETER (ZERO = 0.0D0)
+! Save read-call counter.
+! -----------------------
 
-!     Return if nothing to do.
-!     ------------------------
+NSCALL = NSYS_CALL
 
-      IF (NNBSTR(ISYM,1) .LT. 1) RETURN
-      IF (NUMCHO(ISYM)   .LT. 1) RETURN
+! Set pointer to scratch for reduced set indices.
+! -----------------------------------------------
 
-!     Save read-call counter.
-!     -----------------------
+ILOC = 3
 
-      NSCALL = NSYS_CALL
+! Set up rs1 indices at location ILOC.
+! Set IREDC to identify this.
+! ------------------------------------
 
-!     Set pointer to scratch for reduced set indices.
-!     -----------------------------------------------
+call CHO_RSCOPY(1,ILOC)
+IREDC = 1
 
-      ILOC  = 3
+! Start read buffer batch loop.
+! -----------------------------
 
-!     Set up rs1 indices at location ILOC.
-!     Set IREDC to identify this.
-!     ------------------------------------
+IVEC1 = 1
+do while (IVEC1 <= NUMCHO(ISYM))
 
-      CALL CHO_RSCOPY(1,ILOC)
-      IREDC = 1
+  ! Read as many vectors as possible into buffer (entire WRK).
+  ! ----------------------------------------------------------
 
-!     Start read buffer batch loop.
-!     -----------------------------
+  NVRD = 0
+  MUSED = 0
+  call CHO_VECRD(WRK,LWRK,IVEC1,NUMCHO(ISYM),ISYM,NVRD,IREDC,MUSED)
+  if (NVRD < 1) call CHO_QUIT('Insufficient scratch space for read in '//SECNAM,101)
 
-      IVEC1 = 1
-      DO WHILE (IVEC1 .LE. NUMCHO(ISYM))
+  ! Initialize vector offset.
+  ! -------------------------
 
-!        Read as many vectors as possible into buffer (entire WRK).
-!        ----------------------------------------------------------
+  KOFFV = 0
 
-         NVRD  = 0
-         MUSED = 0
-         CALL CHO_VECRD(WRK,LWRK,IVEC1,NUMCHO(ISYM),ISYM,               &
-     &                  NVRD,IREDC,MUSED)
-         IF (NVRD .LT. 1) THEN
-            CALL CHO_QUIT('Insufficient scratch space for read in '     &
-     &                    //SECNAM,101)
-         END IF
+  ! Loop over vectors in core.
+  ! --------------------------
 
-!        Initialize vector offset.
-!        -------------------------
+  do JVEC=1,NVRD
 
-         KOFFV = 0
+    ! Set index arrays for current reduced set (if not already set).
+    ! --------------------------------------------------------------
 
-!        Loop over vectors in core.
-!        --------------------------
+    JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
+    if (JRED /= IREDC) then
+      if (JRED == 1) then
+        call CHO_RSCOPY(1,ILOC)
+      else
+        call CHO_GETRED(JRED,ILOC,.false.)
+        call CHO_SETREDIND(ILOC)
+      end if
+      IREDC = JRED
+    end if
 
-         DO JVEC = 1,NVRD
+    ! Compute contributions to diagonal.
+    ! Zero the diagonal element associated with this vector.
+    ! ------------------------------------------------------
 
-!           Set index arrays for current reduced set (if not already
-!           set).
-!           --------------------------------------------------------
+    do JAB=1,NNBSTR(ISYM,ILOC)
+      IAB = INDRED(IIBSTR(ISYM,ILOC)+JAB,ILOC) ! address in rs1
+      KAB = KOFFV+JAB ! vector address
+      DIAG(IAB) = DIAG(IAB)-WRK(KAB)*WRK(KAB)
+    end do
+    IABG = INFVEC(IVEC1+JVEC-1,1,ISYM)
+    call CHO_P_ZERODIAG_RST(DIAG,ISYM,IABG)
 
-            JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
-            IF (JRED .NE. IREDC) THEN
-               IF (JRED .EQ. 1) THEN
-                  CALL CHO_RSCOPY(1,ILOC)
-               ELSE
-                  CALL CHO_GETRED(JRED,ILOC,.FALSE.)
-                  CALL CHO_SETREDIND(ILOC)
-               END IF
-               IREDC = JRED
-            END IF
+    ! Check diagonal.
+    ! ---------------
 
-!           Compute contributions to diagonal.
-!           Zero the diagonal element associated with this vector.
-!           ------------------------------------------------------
+    if (CHO_DECALG == 4) then
+      SCDIAG_SAVE = SCDIAG
+      SCDIAG = .false. ! do NOT screen
+      DMX = 1.0d0
+      call CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NCONV,XMAX,XMIN,XM)
+      SCDIAG = SCDIAG_SAVE
+    else
+      call CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XM,NNEGT,NNEG,NCONV)
+    end if
 
-            DO JAB = 1,NNBSTR(ISYM,ILOC)
-               IAB = INDRED(IIBSTR(ISYM,ILOC)+JAB,ILOC) ! address in rs1
-               KAB = KOFFV + JAB ! vector address
-               DIAG(IAB) = DIAG(IAB) - WRK(KAB)*WRK(KAB)
-            END DO
-            IABG = INFVEC(IVEC1+JVEC-1,1,ISYM)
-            CALL CHO_P_ZERODIAG_RST(DIAG,ISYM,IABG)
+    ! Update vector offset.
+    ! ---------------------
 
-!           Check diagonal.
-!           ---------------
+    KOFFV = KOFFV+NNBSTR(ISYM,ILOC)
 
-            IF (CHO_DECALG .EQ. 4) THEN
-               SCDIAG_SAVE = SCDIAG
-               SCDIAG = .FALSE. ! do NOT screen
-               DMX = 1.0D0
-               CALL CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NCONV,XMAX,  &
-     &                            XMIN,XM)
-               SCDIAG = SCDIAG_SAVE
-            ELSE
-               CALL CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XM,NNEGT,NNEG,NCONV)
-            END IF
+  end do
 
+  ! Check memory.
+  ! -------------
 
-!           Update vector offset.
-!           ---------------------
+  if (KOFFV /= MUSED) call CHO_QUIT('Memory error detected in '//SECNAM,101)
 
-            KOFFV = KOFFV + NNBSTR(ISYM,ILOC)
+  ! Update vector counter.
+  ! ----------------------
 
-         END DO
+  IVEC1 = IVEC1+NVRD
 
-!        Check memory.
-!        -------------
+end do
 
-         IF (KOFFV .NE. MUSED) THEN
-            CALL CHO_QUIT('Memory error detected in '//SECNAM,101)
-         END IF
+! Restore read-call counter.
+! --------------------------
 
-!        Update vector counter.
-!        ----------------------
+NSYS_CALL = NSCALL
 
-         IVEC1 = IVEC1 + NVRD
-
-      END DO
-
-!     Restore read-call counter.
-!     --------------------------
-
-      NSYS_CALL = NSCALL
-
-      END
+end subroutine CHO_DIACHO

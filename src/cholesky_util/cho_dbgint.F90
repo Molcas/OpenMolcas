@@ -8,19 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DBGINT()
+
+subroutine CHO_DBGINT()
 !
-!     Purpose: regenerate and check integrals as specified in input.
-!
-      IMPLICIT NONE
+! Purpose: regenerate and check integrals as specified in input.
+
+implicit none
 #include "cholesky.fh"
 
+if (CHO_MINCHK) then ! minimal check
+  call CHO_MCA_DBGINT_S(ICHKQ,NCHKQ,.true.)
+else ! check all (or the number of col. from input)
+  call CHO_MCA_DBGINT_A()
+end if
 
-      IF (CHO_MINCHK) THEN ! minimal check
-         CALL CHO_MCA_DBGINT_S(ICHKQ,NCHKQ,.TRUE.)
-      ELSE ! check all (or the number of col. from input)
-         CALL CHO_MCA_DBGINT_A()
-      END IF
-
-
-      END
+end subroutine CHO_DBGINT

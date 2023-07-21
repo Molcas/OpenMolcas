@@ -8,249 +8,233 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
+
+subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
 !
-!     Purpose: subtract contributions to qualified columns from the
-!              vectors stored in the buffer (if any).
+! Purpose: subtract contributions to qualified columns from the
+!          vectors stored in the buffer (if any).
 !
-!     DoTime: time as vector subtraction.
-!     DpStat: update statistics info (#calls to dGeMM).
-!
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
-      use ChoArr, only: LQ
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
-     &                     nVec_in_Buf
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,     &
-     &                     DSPNm, SSNorm
-      Implicit Real*8 (a-h,o-z)
-      Real*8, Target::  xInt(*), Wrk(lWrk)
-      Logical DoTime, DoStat
+! DoTime: time as vector subtraction.
+! DpStat: update statistics info (#calls to dGeMM).
+
+use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+use ChoArr, only: LQ
+use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
+
+implicit real*8(a-h,o-z)
+real*8, target :: xInt(*), Wrk(lWrk)
+logical DoTime, DoStat
 #include "cholesky.fh"
-
-      Character(LEN=16), Parameter:: SecNam = 'Cho_VecBuf_Subtr'
-
-#if defined (_DEBUGPRINT_)
-      Logical, Parameter:: LocDbg = .true.
+character(len=16), parameter :: SecNam = 'Cho_VecBuf_Subtr'
+#ifdef _DEBUGPRINT_
+logical, parameter :: LocDbg = .true.
 #else
-      Logical, Parameter:: LocDbg = .false.
+logical, parameter :: LocDbg = .false.
 #endif
+real*8, parameter :: xMOne = -1.0d0, One = 1.0d0
+real*8, pointer :: V(:,:) => null(), U(:,:) => null(), W(:,:) => null()
 
-      Real*8, Parameter:: xMOne = -1.0d0, One = 1.0d0
+! Return if nothing to do.
+! ------------------------
 
-      Real*8, Pointer:: V(:,:)=>Null(), U(:,:)=>Null(), W(:,:)=>Null()
+if (l_ChVBuf_Sym(iSym) < 1) then
+  if (LocDbg) then
+    write(Lupri,*) SecNam,': returns immediately!'
+    write(Lupri,*) ' -- no buffer allocated for sym. ',iSym
+  end if
+  return
+end if
+if (nVec_in_Buf(iSym) < 1) then
+  if (LocDbg) then
+    write(Lupri,*) SecNam,': returns immediately!'
+    write(Lupri,*) ' -- buffer is empty for sym. ',iSym
+  end if
+  return
+end if
+if (nQual(iSym) < 1) then
+  if (LocDbg) then
+    write(Lupri,*) SecNam,': returns immediately!'
+    write(Lupri,*) ' -- no qualified columns of sym. ',iSym
+  end if
+  return
+end if
+if (nnBstR(iSym,2) < 1) then
+  if (LocDbg) then
+    write(Lupri,*) SecNam,': returns immediately!'
+    write(Lupri,*) ' -- empty symmetry block (sym. ',iSym,')'
+  end if
+  return
+end if
 
-!     Return if nothing to do.
-!     ------------------------
+! Start timing.
+! -------------
 
-      If (l_ChVBuf_Sym(iSym) .lt. 1) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returns immediately!'
-            Write(Lupri,*) ' -- no buffer allocated for sym. ',iSym
-         End If
-         Return
-      End If
-      If (nVec_in_Buf(iSym) .lt. 1) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returns immediately!'
-            Write(Lupri,*) ' -- buffer is empty for sym. ',iSym
-         End If
-         Return
-      End If
-      If (nQual(iSym) .lt. 1) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returns immediately!'
-            Write(Lupri,*) ' -- no qualified columns of sym. ',iSym
-         End If
-         Return
-      End If
-      If (nnBstR(iSym,2) .lt. 1) Then
-         If (LocDbg) Then
-            Write(Lupri,*) SecNam,': returns immediately!'
-            Write(Lupri,*) ' -- empty symmetry block (sym. ',iSym,')'
-         End If
-         Return
-      End If
+if (DoTime) call Cho_Timer(C1,W1)
 
-!     Start timing.
-!     -------------
+! Initialize.
+! -----------
 
-      If (DoTime) Call Cho_Timer(C1,W1)
+xTot = 0.0d0
+xDon = 0.0d0
 
-!     Initialize.
-!     -----------
+! Set up vector batch.
+! --------------------
 
-      xTot = 0.0d0
-      xDon = 0.0d0
+nVec = min(lWrk/nQual(iSym),nVec_in_Buf(iSym))
+if (nVec < 1) then
+  call Cho_Quit('Insufficient memory for batch in '//SecNam,101)
+  nBatch = -999999 ! avoid compiler warnings
+else
+  nBatch = (nVec_in_Buf(iSym)-1)/nVec+1
+end if
 
-!     Set up vector batch.
-!     --------------------
+! Map the integral array, xInt, onto the pointer U
+! ------------------------------------------------
 
-      nVec = min(lWrk/nQual(iSym),nVec_in_Buf(iSym))
-      If (nVec .lt. 1) Then
-         Call Cho_Quit('Insufficient memory for batch in '//SecNam,101)
-         nBatch = -999999 ! avoid compiler warnings
-      Else
-         nBatch = (nVec_in_Buf(iSym)-1)/nVec + 1
-      End If
+lRow = nnBstR(iSym,2)
+lCol = nQual(iSym)
+iS = 1
+iE = iS-1+lRow*lCol
 
-!     Map the integral array, xInt, onto the pointer U
-!     ------------------------------------------------
+U(1:lRow,1:lCol) => xInt(iS:iE)
 
-      lRow = nnBstR(iSym,2)
-      lCol = nQual(iSym)
+! Start batch loop.
+! -----------------
+
+do iBatch=1,nBatch
+
+  ! Set info for this batch.
+  ! ------------------------
+
+  if (iBatch == nBatch) then
+    NumV = nVec_in_Buf(iSym)-nVec*(nBatch-1)
+  else
+    NumV = nVec
+  end if
+  iVec0 = nVec*(iBatch-1)
+
+# ifdef _DEBUGPRINT_
+  Need = nQual(iSym)*NumV
+  if (lWrk < Need) call Cho_Quit('Batch setup error in '//SecNam,104)
+# endif
+
+  lRow = nnBstR(iSym,2)
+  lCol = iVec0+NumV
+  iS = ip_ChVBuf_Sym(iSym)
+  iE = iS-1+lRow*lCol
+
+  V(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
+  ! Screened or unscreened subtraction section.
+  ! The screened version uses level 2 blas, while the unscreened
+  ! one employs level 3 blas.
+  ! ------------------------------------------------------------
+
+  if (Cho_SScreen) then
+
+    lRow = NumV
+    lCol = nQual(iSym)
+    iS = 1
+    iE = iS-1+lRow*lCol
+
+    W(1:lRow,1:lCol) => Wrk(iS:iE)
+
+    ! Copy out sub-blocks corresponding to qualified diagonals:
+    ! L(#J,{ab})
+    ! ---------------------------------------------------------
+
+    do jVec=1,NumV
+      do iAB=1,nQual(iSym)
+        jAB = iQuAB(iAB,iSym)-iiBstR(iSym,2)
+        W(jVec,iAB) = V(jAB,jVec+iVec0)
+      end do
+    end do
+
+    ! Subtract:
+    ! (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
+    ! for each ab in {ab}.
+    ! ----------------------------------------------------
+
+    call Cho_SubScr_Dia(V(:,iVec0+1),NumV,iSym,2,SSNorm)
+
+    do iAB=1,nQual(iSym)
+      do iShGD=1,nnShl
+        nGD = nnBstRSh(iSym,iShGD,2)
+        if (nGD < 1) cycle
+        iGD = iiBstRSh(iSym,iShGD,2)
+        xTot = xTot+1.0d0
+        jAB = iQuab(iAB,iSym)-iiBstR(iSym,2)
+        Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
+        if (Tst <= SSTau) cycle
+        xDon = xDon+1.0d0
+        call dGeMV_('N',nGD,NumV,xMOne,V(1+iGD:,iVec0+1),nnBstR(iSym,2),W(:,iAB),1,One,U(1+iGD:,iAB),1)
+      end do
+    end do
+
+  else ! unscreened subtraction
+
+    if (associated(LQ(iSym)%Array)) then
+
+      ! If the qualified block, L({ab},#J), is already in core,
+      ! use this block.
+      ! -------------------------------------------------------
+
+      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,xMOne,V(:,iVec0+1),nnBstR(iSym,2),LQ(iSym)%Array(:,iVec0+1), &
+                  size(LQ(iSym)%Array,1),One,U,nnBstR(iSym,2))
+
+    else
+
+      lRow = nQual(iSym)
+      lCol = NumV
       iS = 1
-      iE = iS - 1 + lRow*lCol
+      iE = iS-1+lRow*lCol
 
-      U(1:lRow,1:lCol) => xInt(iS:iE)
+      W(1:lRow,1:lCol) => WrK(iS:iE)
 
-!     Start batch loop.
-!     -----------------
+      ! Copy out sub-blocks corresponding to qualified diagonals:
+      ! L({ab},#J).
+      ! ---------------------------------------------------------
 
-      Do iBatch = 1,nBatch
+      do jVec=1,NumV
+        do iAB=1,nQual(iSym)
+          jAB = iQuAB(iAB,iSym)-iiBstR(iSym,2)
+          W(iAB,jVec) = V(jAB,jVec+iVec0)
+        end do
+      end do
 
-!        Set info for this batch.
-!        ------------------------
+      ! Subtract:
+      ! (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
+      ! ----------------------------------------------------
 
-         If (iBatch .eq. nBatch) Then
-            NumV = nVec_in_Buf(iSym) - nVec*(nBatch-1)
-         Else
-            NumV = nVec
-         End If
-         iVec0 = nVec*(iBatch-1)
+      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,xMOne,V(:,iVec0+1),nnBstR(iSym,2),W,nQual(iSym),One,U,nnBstR(iSym,2))
 
-#if defined (_DEBUGPRINT_)
-         Need = nQual(iSym)*NumV
-         If (lWrk .lt. Need) Then
-            Call Cho_Quit('Batch setup error in '//SecNam,104)
-         End If
-#endif
+    end if
 
-         lRow = nnBstR(iSym,2)
-         lCol = iVec0 + NumV
-         iS   = ip_ChVBuf_Sym(iSym)
-         iE   = iS - 1 + lRow*lCol
+  end if
 
-         V(1:lRow,1:lCol) => CHVBUF(iS:iE)
+  V => null()
+  U => null()
+  W => null()
 
-!        Screened or unscreened subtraction section.
-!        The screened version uses level 2 blas, while the unscreened
-!        one employs level 3 blas.
-!        ------------------------------------------------------------
+end do
 
-         If (Cho_SScreen) Then
+! Update statistics info.
+! -----------------------
 
-            lRow = NumV
-            lCol = nQual(iSym)
-            iS   = 1
-            iE   = iS - 1 + lRow*lCol
+if (DoStat) nDGM_Call = nDGM_Call+nBatch
+if (Cho_SScreen) then
+  SubScrStat(1) = SubScrStat(1)+xTot
+  SubScrStat(2) = SubScrStat(2)+xDon
+end if
 
-            W(1:lRow,1:lCol) => Wrk(iS:iE)
+! Update global timing.
+! ---------------------
 
-!           Copy out sub-blocks corresponding to qualified diagonals:
-!           L(#J,{ab})
-!           ---------------------------------------------------------
+if (DoTime) then
+  call Cho_Timer(C2,W2)
+  tDecom(1,3) = tDecom(1,3)+C2-C1
+  tDecom(2,3) = tDecom(2,3)+W2-W1
+end if
 
-            Do jVec = 1,NumV
-               Do iAB = 1,nQual(iSym)
-                  jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-                  W(jVec,iAB) = V(jAB,jVec+iVec0)
-               End Do
-            End Do
-
-!           Subtract:
-!           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
-!           for each ab in {ab}.
-!           ----------------------------------------------------
-
-            Call Cho_SubScr_Dia(V(:,iVec0+1),NumV,iSym,2,SSNorm)
-
-            Do iAB = 1,nQual(iSym)
-               Do iShGD = 1,nnShl
-                  nGD = nnBstRSh(iSym,iShGD,2)
-                  If (nGD < 1 ) Cycle
-                  iGD = iiBstRSh(iSym,iShGD,2)
-                  xTot = xTot + 1.0d0
-                  jAB = iQuab(iAB,iSym) - iiBstR(iSym,2)
-                  Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
-                  If (Tst<=SSTau) Cycle
-                  xDon = xDon + 1.0d0
-                  Call dGeMV_('N',nGD,NumV,                             &
-     &                       xMOne,V(1+iGD:,iVec0+1),nnBstR(iSym,2),    &
-     &                       W(:,iAB),1,One,U(1+iGD:,iAB),1)
-               End Do
-            End Do
-
-         Else ! unscreened subtraction
-
-            If (Associated(LQ(iSym)%Array)) Then
-
-!              If the qualified block, L({ab},#J), is already in core,
-!              use this block.
-!              -------------------------------------------------------
-
-
-               Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,     &
-     &                    xMOne,V(:,iVec0+1),nnBstR(iSym,2),            &
-     &                          LQ(iSym)%Array(:,iVec0+1),              &
-     &                          SIZE(LQ(iSym)%Array,1),                 &
-     &                    One,U,nnBstR(iSym,2))
-
-            Else
-
-               lRow = nQual(iSym)
-               lCol = NumV
-               iS   = 1
-               iE   = iS - 1 + lRow*lCol
-
-               W(1:lRow,1:lCol) => WrK(iS:iE)
-
-!              Copy out sub-blocks corresponding to qualified diagonals:
-!              L({ab},#J).
-!              ---------------------------------------------------------
-
-               Do jVec = 1,NumV
-                  Do iAB = 1,nQual(iSym)
-                     jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-                     W(iAB,jVec) = V(jAB,jVec+iVec0)
-                  End Do
-               End Do
-
-!              Subtract:
-!              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
-!              ----------------------------------------------------
-
-
-               Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,     &
-     &                    xMOne,V(:,iVec0+1),nnBstR(iSym,2),            &
-     &                          W,nQual(iSym),                          &
-     &                    One,U,nnBstR(iSym,2))
-
-            End If
-
-         End If
-
-         V=>Null()
-         U=>Null()
-         W=>Null()
-
-      End Do
-
-!     Update statistics info.
-!     -----------------------
-
-      If (DoStat) nDGM_Call = nDGM_Call + nBatch
-      If (Cho_SScreen) Then
-         SubScrStat(1) = SubScrStat(1) + xTot
-         SubScrStat(2) = SubScrStat(2) + xDon
-      End If
-
-!     Update global timing.
-!     ---------------------
-
-      If (DoTime) Then
-         Call Cho_Timer(C2,W2)
-         tDecom(1,3) = tDecom(1,3) + C2 - C1
-         tDecom(2,3) = tDecom(2,3) + W2 - W1
-      End If
-
-      End
+end subroutine Cho_VecBuf_Subtr

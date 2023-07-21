@@ -8,18 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SetDecAlg_Def()
+
+subroutine Cho_SetDecAlg_Def()
 !
-!     Set default decomposition algorithm.
-!
-      Implicit None
+! Set default decomposition algorithm.
+
+implicit none
 #include "cholesky.fh"
 
 !SVC This is what CHO_DECALG means according to TBP:
 !     1 - serial one-step (the original algorithm)
 !     2 - serial two-step (the original two-step algorithm)
 !     3 - naive (mainly for test purposes; should never be used)
-!     4 - parallel one-step (parallel modifications of the original one-step, can also run in serial - but gives a different result than the original serial one-step)
+!     4 - parallel one-step (parallel modifications of the original one-step, can also run in serial - but gives a different result
+!         than the original serial one-step)
 !     5 - parallel two-step (a two-step algorithm different from the serial one; can also run in serial)
 !     6 - parallel naive (again, mainly for testing)
 
@@ -28,6 +30,6 @@
 ! has been changed to 4, i.e. the parallel one-step algorithm. The default
 ! should be changed back to 5 if and when DGA and/or Cholesky have been adapted.
 
-      Cho_DecAlg_Def=4
+Cho_DecAlg_Def = 4
 
-      End
+end subroutine Cho_SetDecAlg_Def

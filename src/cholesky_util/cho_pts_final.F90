@@ -10,22 +10,22 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_PTS_Final(NVT,l_NVT)
+
+subroutine Cho_PTS_Final(NVT,l_NVT)
 !
-!     Thomas Bondo Pedersen, April 2010.
-!
-      Implicit None
-      Integer l_NVT
-      Integer NVT(l_NVT)
+! Thomas Bondo Pedersen, April 2010.
+
+implicit none
+integer l_NVT
+integer NVT(l_NVT)
 #include "choglob.fh"
+integer i
 
-      Integer i
+call iCopy(l_NVT,NVT,1,NumCho_G,1)
+NumChT_G = NumCho_G(1)
+do i=2,l_NVT
+  NumChT_G = NumChT_G+NumCho_G(i)
+end do
+call Cho_Final(.false.)
 
-      Call iCopy(l_NVT,NVT,1,NumCho_G,1)
-      NumChT_G=NumCho_G(1)
-      Do i=2,l_NVT
-         NumChT_G=NumChT_G+NumCho_G(i)
-      End Do
-      Call Cho_Final(.False.)
-
-      End
+end subroutine Cho_PTS_Final

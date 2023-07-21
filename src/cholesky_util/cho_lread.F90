@@ -8,45 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION CHO_LREAD(ISYM,LWRK)
+
+integer function CHO_LREAD(ISYM,LWRK)
 !
-!     Purpose: return a reasonable scratch space dimension for reading
-!              previous vectors using cho_getvec.
-!
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
+! Purpose: return a reasonable scratch space dimension for reading
+!          previous vectors using cho_getvec.
+
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+integer MNVECRS1
+parameter(MNVECRS1=5)
 
-      INTEGER MNVECRS1
-      PARAMETER (MNVECRS1 = 5)
+if (CHO_IOVEC == 1) then
+  if ((NVECRS1(ISYM) < 1) .and. (NUMCHO(ISYM) > 0)) then
+    NVECRS1(ISYM) = 1
+    JVEC = 1
+    IRED = INFVEC(JVEC,2,ISYM)
+    do while (JVEC < NUMCHO(ISYM))
+      JVEC = JVEC+1
+      JRED = INFVEC(JVEC,2,ISYM)
+      if (JRED == IRED) then
+        NVECRS1(ISYM) = NVECRS1(ISYM)+1
+      else
+        JVEC = NUMCHO(ISYM)
+      end if
+    end do
+  end if
+  LEN1 = LWRK/3-1
+  LEN2 = max(NVECRS1(ISYM),MNVECRS1)*NNBSTR(ISYM,1)
+  LEN3 = min(LEN1,LEN2)
+  LMIN = 2*NNBSTR(ISYM,1)
+  CHO_LREAD = max(LEN3,LMIN)+1
+else if ((CHO_IOVEC == 2) .or. (CHO_IOVEC == 3) .or. (CHO_IOVEC == 4)) then
+  LEN1 = LWRK/3-1
+  LMIN = 2*NNBSTR(ISYM,1)
+  CHO_LREAD = max(LEN1,LMIN)+1
+else
+  CHO_LREAD = 2*NNBSTR(ISYM,1)
+end if
 
-      IF (CHO_IOVEC .EQ. 1) THEN
-         IF (NVECRS1(ISYM).LT.1 .AND. NUMCHO(ISYM).GT.0) THEN
-            NVECRS1(ISYM) = 1
-            JVEC = 1
-            IRED = INFVEC(JVEC,2,ISYM)
-            DO WHILE (JVEC .LT. NUMCHO(ISYM))
-               JVEC = JVEC + 1
-               JRED = INFVEC(JVEC,2,ISYM)
-               IF (JRED .EQ. IRED) THEN
-                  NVECRS1(ISYM) = NVECRS1(ISYM) + 1
-               ELSE
-                  JVEC = NUMCHO(ISYM)
-               END IF
-            END DO
-         END IF
-         LEN1 = LWRK/3 - 1
-         LEN2 = MAX(NVECRS1(ISYM),MNVECRS1)*NNBSTR(ISYM,1)
-         LEN3 = MIN(LEN1,LEN2)
-         LMIN = 2*NNBSTR(ISYM,1)
-         CHO_LREAD = MAX(LEN3,LMIN) + 1
-      ELSE IF (CHO_IOVEC.EQ.2 .OR. CHO_IOVEC.EQ.3 .OR. CHO_IOVEC.EQ.4)  &
-     & THEN
-         LEN1 = LWRK/3 - 1
-         LMIN = 2*NNBSTR(ISYM,1)
-         CHO_LREAD = MAX(LEN1,LMIN) + 1
-      ELSE
-         CHO_LREAD = 2*NNBSTR(ISYM,1)
-      END IF
-
-      END
+end function CHO_LREAD

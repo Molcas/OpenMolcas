@@ -8,32 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETSH(IBASSH,NBASSH,NBSTSH,IBAS,NBAS,ISOSHL,       &
-     &                     NSYM,NSHELL,NBAST)
-      IMPLICIT NONE
-      INTEGER NSYM, NSHELL, NBAST
-      INTEGER IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL)
-      INTEGER NBSTSH(NSHELL)
-      INTEGER ISOSHL(NBAST)
-      INTEGER IBAS(NSYM), NBAS(NSYM)
 
-      INTEGER ISYM, IA, ISHL
+subroutine CHO_SETSH(IBASSH,NBASSH,NBSTSH,IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
-      CALL IZERO(NBASSH,NSYM*NSHELL)
-      DO ISYM = 1,NSYM
-         DO IA = 1,NBAS(ISYM)
-            ISHL = ISOSHL(IBAS(ISYM)+IA)
-            NBASSH(ISYM,ISHL) = NBASSH(ISYM,ISHL) + 1
-         END DO
-      END DO
+implicit none
+integer NSYM, NSHELL, NBAST
+integer IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL)
+integer NBSTSH(NSHELL)
+integer ISOSHL(NBAST)
+integer IBAS(NSYM), NBAS(NSYM)
+integer ISYM, IA, ISHL
 
-      DO ISHL = 1,NSHELL
-         IBASSH(1,ISHL) = 0
-         NBSTSH(ISHL) = NBASSH(1,ISHL)
-         DO ISYM = 2,NSYM
-            IBASSH(ISYM,ISHL) = NBSTSH(ISHL)
-            NBSTSH(ISHL) = NBSTSH(ISHL) + NBASSH(ISYM,ISHL)
-         END DO
-      END DO
+call IZERO(NBASSH,NSYM*NSHELL)
+do ISYM=1,NSYM
+  do IA=1,NBAS(ISYM)
+    ISHL = ISOSHL(IBAS(ISYM)+IA)
+    NBASSH(ISYM,ISHL) = NBASSH(ISYM,ISHL)+1
+  end do
+end do
 
-      END
+do ISHL=1,NSHELL
+  IBASSH(1,ISHL) = 0
+  NBSTSH(ISHL) = NBASSH(1,ISHL)
+  do ISYM=2,NSYM
+    IBASSH(ISYM,ISHL) = NBSTSH(ISHL)
+    NBSTSH(ISHL) = NBSTSH(ISHL)+NBASSH(ISYM,ISHL)
+  end do
+end do
+
+end subroutine CHO_SETSH

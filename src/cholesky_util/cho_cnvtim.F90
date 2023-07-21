@@ -8,21 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_CNVTIM(TIM,IHR,IMN,SEC)
+
+subroutine CHO_CNVTIM(TIM,IHR,IMN,SEC)
 !
-!     Purpose: convert TIM to hours/minutes/seconds
-!
-      IMPLICIT NONE
-      REAL*8  TIM
-      INTEGER IHR, IMN
-      REAL*8  XHR, XMN, SEC
+! Purpose: convert TIM to hours/minutes/seconds
 
-      XHR = TIM/3.6D3
-      IHR = INT(XHR)
+implicit none
+real*8 TIM
+integer IHR, IMN
+real*8 XHR, XMN, SEC
 
-      XMN = (TIM - 3.6D3*DBLE(IHR))/6.0D1
-      IMN = INT(XMN)
+XHR = TIM/3.6d3
+IHR = int(XHR)
 
-      SEC = TIM - 3.6D3*DBLE(IHR) - 6.0D1*DBLE(IMN)
+XMN = (TIM-3.6d3*dble(IHR))/6.0d1
+IMN = int(XMN)
 
-      END
+SEC = TIM-3.6d3*dble(IHR)-6.0d1*dble(IMN)
+
+end subroutine CHO_CNVTIM

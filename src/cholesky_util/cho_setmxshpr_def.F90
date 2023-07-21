@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SetMxShPr_Def(MxShPr_Def)
-      Implicit None
-      Integer MxShPr_Def
+
+subroutine Cho_SetMxShPr_Def(MxShPr_Def)
+
+implicit none
+integer MxShPr_Def
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         MxShPr_Def = 1
-      Else
-         MxShPr_Def = 0
-      End If
+if (Cho_Real_Par) then
+  MxShPr_Def = 1
+else
+  MxShPr_Def = 0
+end if
 
-      End
+end subroutine Cho_SetMxShPr_Def

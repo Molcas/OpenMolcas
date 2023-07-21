@@ -10,35 +10,34 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module ChoSwp
-Implicit none
-Private
-Public:: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, pTemp, iQuAB_here, &
-         nnBstRSh, nnBstRSh_Hidden, nnBstRSh_G, nnBstRSh_L_Hidden, pTemp3, &
-         iiBstRSh, iiBstRSh_Hidden, iiBstRSh_G, iiBstRSh_L_Hidden, &
-         IndRSh, IndRSh_Hidden, IndRSh_G, IndRSh_G_Hidden, pTemp1, &
-         InfRed, InfRed_Hidden, InfRed_G, InfRed_G_Hidden, &
-         InfVec, InfVec_Hidden, InfVec_G, InfVec_G_Hidden, InfVec_Bak, &
-         IndRed, IndRed_Hidden, IndRed_G, IndRed_G_Hidden, &
-         Diag, Diag_Hidden, Diag_G, Diag_G_Hidden
 
+module ChoSwp
 
-Integer, Allocatable, Target:: iQuAB_Hidden(:,:), iQuAB_L_Hidden(:,:), iQuAB_here(:,:)
-Integer, Pointer:: iQuAB(:,:)=>Null() , iQuAB_L(:,:)=>Null(), pTemp(:,:)=>Null()
+implicit none
+private
 
-Integer, Allocatable, Target:: nnBstRSh_Hidden(:,:,:), nnBstRSh_L_Hidden(:,:,:)
-Integer, Allocatable, Target:: iiBstRSh_Hidden(:,:,:), iiBstRSh_L_Hidden(:,:,:)
-Integer, Pointer:: nnBstRSh(:,:,:)=>Null(), nnBstRSh_G(:,:,:)=>Null(), pTemp3(:,:,:)=>Null()
-Integer, Pointer:: iiBstRSh(:,:,:)=>Null(), iiBstRSh_G(:,:,:)=>Null()
-Integer, Pointer:: IndRSh(:)=>Null(), IndRSh_G(:)=>Null(), pTemp1(:)=>Null()
-Integer, Allocatable, Target:: IndRSh_Hidden(:), IndRSh_G_Hidden(:)
-Integer, Pointer:: InfRed(:)=>Null(), InfRed_G(:)=>Null()
-Integer, Allocatable, Target:: InfRed_Hidden(:), InfRed_G_Hidden(:)
-Integer, Pointer:: InfVec(:,:,:)=>Null(), InfVec_G(:,:,:)=>Null()
-Integer, Allocatable, Target:: InfVec_Hidden(:,:,:), InfVec_G_Hidden(:,:,:)
-Integer, Allocatable, Target:: InfVec_Bak(:,:,:)
-Integer, Pointer:: IndRed(:,:)=>Null(), IndRed_G(:,:)=>Null()
-Integer, Allocatable, Target:: IndRed_Hidden(:,:), IndRed_G_Hidden(:,:)
-Real*8, Pointer:: Diag(:)=>Null(), Diag_G(:)=>Null()
-Real*8, Allocatable, Target:: Diag_Hidden(:), Diag_G_Hidden(:)
-End Module ChoSwp
+public :: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, pTemp, iQuAB_here, nnBstRSh, nnBstRSh_Hidden, nnBstRSh_G, &
+          nnBstRSh_L_Hidden, pTemp3, iiBstRSh, iiBstRSh_Hidden, iiBstRSh_G, iiBstRSh_L_Hidden, IndRSh, IndRSh_Hidden, IndRSh_G, &
+          IndRSh_G_Hidden, pTemp1, InfRed, InfRed_Hidden, InfRed_G, InfRed_G_Hidden, InfVec, InfVec_Hidden, InfVec_G, &
+          InfVec_G_Hidden, InfVec_Bak, IndRed, IndRed_Hidden, IndRed_G, IndRed_G_Hidden, Diag, Diag_Hidden, Diag_G, Diag_G_Hidden
+
+integer, allocatable, target :: iQuAB_Hidden(:,:), iQuAB_L_Hidden(:,:), iQuAB_here(:,:)
+integer, pointer :: iQuAB(:,:) => null(), iQuAB_L(:,:) => null(), pTemp(:,:) => null()
+
+integer, allocatable, target :: nnBstRSh_Hidden(:,:,:), nnBstRSh_L_Hidden(:,:,:)
+integer, allocatable, target :: iiBstRSh_Hidden(:,:,:), iiBstRSh_L_Hidden(:,:,:)
+integer, pointer :: nnBstRSh(:,:,:) => null(), nnBstRSh_G(:,:,:) => null(), pTemp3(:,:,:) => null()
+integer, pointer :: iiBstRSh(:,:,:) => null(), iiBstRSh_G(:,:,:) => null()
+integer, pointer :: IndRSh(:) => null(), IndRSh_G(:) => null(), pTemp1(:) => null()
+integer, allocatable, target :: IndRSh_Hidden(:), IndRSh_G_Hidden(:)
+integer, pointer :: InfRed(:) => null(), InfRed_G(:) => null()
+integer, allocatable, target :: InfRed_Hidden(:), InfRed_G_Hidden(:)
+integer, pointer :: InfVec(:,:,:) => null(), InfVec_G(:,:,:) => null()
+integer, allocatable, target :: InfVec_Hidden(:,:,:), InfVec_G_Hidden(:,:,:)
+integer, allocatable, target :: InfVec_Bak(:,:,:)
+integer, pointer :: IndRed(:,:) => null(), IndRed_G(:,:) => null()
+integer, allocatable, target :: IndRed_Hidden(:,:), IndRed_G_Hidden(:,:)
+real*8, pointer :: Diag(:) => null(), Diag_G(:) => null()
+real*8, allocatable, target :: Diag_Hidden(:), Diag_G_Hidden(:)
+
+end module ChoSwp

@@ -8,27 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_Allo_iScr(DoDummy)
+
+subroutine Cho_Allo_iScr(DoDummy)
 !
-!     Purpose: allocate iScr array for reading and reordering vectors.
-!              If (DoDummy): make dummy (length 1) allocation.
-!
-      use ChoArr, only: iScr
-      use stdalloc
-      Implicit None
-      Logical DoDummy
+! Purpose: allocate iScr array for reading and reordering vectors.
+!          If (DoDummy): make dummy (length 1) allocation.
+
+use ChoArr, only: iScr
+use stdalloc
+
+implicit none
+logical DoDummy
 #include "cholesky.fh"
+integer iSym, l_iScr
 
-      Integer iSym, l_iScr
+if (DoDummy) then
+  l_iScr = 1
+else
+  l_iScr = nnBstR(1,1)
+  do iSym=2,nSym
+    l_iScr = max(l_iScr,nnBstR(iSym,1))
+  end do
+end if
+call mma_allocate(iScr,l_iScr,Label='iScr')
 
-      If (DoDummy) Then
-         l_iScr = 1
-      Else
-         l_iScr = nnBstR(1,1)
-         Do iSym = 2,nSym
-            l_iScr = max(l_iScr,nnBstR(iSym,1))
-         End Do
-      End If
-      Call mma_allocate(iScr,l_iScr,Label='iScr')
-
-      End
+end subroutine Cho_Allo_iScr

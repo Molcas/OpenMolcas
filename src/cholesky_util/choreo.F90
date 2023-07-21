@@ -8,12 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
+
 ! Data for Cholesky vector reordering.
-!
-Module ChoReO
-      INTEGER NNBST(8)
-      INTEGER NABPK(8,8)
-      INTEGER LUFV(8,8)
-      CHARACTER(LEN=4), PARAMETER:: REONAM = 'CHFV'
-End Module ChoReO
+module ChoReO
+
+integer NNBST(8)
+integer NABPK(8,8)
+integer LUFV(8,8)
+character(len=4), parameter :: REONAM = 'CHFV'
+
+end module ChoReO

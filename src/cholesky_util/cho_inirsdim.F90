@@ -8,28 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INIRSDIM()
+
+subroutine CHO_INIRSDIM()
 !
-!     Purpose: initialize reduced set dimension.
-!
-      use ChoArr, only: nDimRS
-      Implicit Real*8 (a-h,o-z)
+! Purpose: initialize reduced set dimension.
+
+use ChoArr, only: nDimRS
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 
-      IF (RSTCHO) THEN
-         ILOC = 3
-         DO IRS = 1,XNPASS
-            CALL CHO_GETRED(IRS,ILOC,.FALSE.)
-            CALL CHO_SETREDIND(ILOC)
-            CALL ICOPY(NSYM,NNBSTR(:,ILOC),1,nDimRS(:,iRS),1)
-         END DO
-         NSET = XNPASS
-      ELSE
-         CALL ICOPY(NSYM,NNBSTR(1,1),1,nDimRS,1)
-         NSET = 1
-      END IF
+if (RSTCHO) then
+  ILOC = 3
+  do IRS=1,XNPASS
+    call CHO_GETRED(IRS,ILOC,.false.)
+    call CHO_SETREDIND(ILOC)
+    call ICOPY(NSYM,NNBSTR(:,ILOC),1,nDimRS(:,iRS),1)
+  end do
+  NSET = XNPASS
+else
+  call ICOPY(NSYM,NNBSTR(1,1),1,nDimRS,1)
+  NSET = 1
+end if
 
-      NUM   = NSYM*(MAXRED - NSET)
-      CALL IZERO(nDimRS(1,NSET+1),NUM)
+NUM = NSYM*(MAXRED-NSET)
+call IZERO(nDimRS(1,NSET+1),NUM)
 
-      END
+end subroutine CHO_INIRSDIM

@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_DSWAP(X,Y)
-!
-!     Purpose: swap X and Y, double precision version.
-!
-      IMPLICIT NONE
-      REAL*8  X, Y, TEMP
 
-      TEMP = X
-      X    = Y
-      Y    = TEMP
+subroutine CHO_DSWAP(X,Y)
+!
+! Purpose: swap X and Y, double precision version.
 
-      END
+implicit none
+real*8 X, Y, TEMP
+
+TEMP = X
+X = Y
+Y = TEMP
+
+end subroutine CHO_DSWAP

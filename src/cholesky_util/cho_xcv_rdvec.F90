@@ -10,119 +10,70 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,   &
-     &                         J1,J2,iSym)
-!
-!     Thomas Bondo Pedersen, April 2010.
-!
-!     Purpose: Read partial Cholesky vectors J1 to J2 on disk.
-!              (Parallel two-step algorithm)
-!
-#if defined (_DEBUGPRINT_)
-      use ChoSwp, only: nnBstRSh
-#endif
-      Implicit None
-      Integer irc
-      Integer l_Vec
-      Real*8  Vec(l_Vec)
-      Integer NVT
-      Integer n_myRankSP
-      Integer myRankSP(n_myRankSP)
-      Integer J1, J2, iSym
 
-#if defined (_DEBUGPRINT_)
+subroutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,J1,J2,iSym)
+!
+! Thomas Bondo Pedersen, April 2010.
+!
+! Purpose: Read partial Cholesky vectors J1 to J2 on disk.
+!          (Parallel two-step algorithm)
+
+#ifdef _DEBUGPRINT_
+use ChoSwp, only: nnBstRSh
+#endif
+
+implicit none
+integer irc
+integer l_Vec
+real*8 Vec(l_Vec)
+integer NVT
+integer n_myRankSP
+integer myRankSP(n_myRankSP)
+integer J1, J2, iSym
+#ifdef _DEBUGPRINT_
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-
-      Integer i, n
+integer i, n
 #endif
 
-      irc=0
-      If (n_myRankSP.eq.0 .or. (J2-J1+1).eq.0) Then
-         Return ! nothing to do
-      End If
+irc = 0
+if ((n_myRankSP == 0) .or. (J2-J1+1 == 0)) return ! nothing to do
 
-#if defined (_DEBUGPRINT_)
-      If (n_myRankSP.lt.1 .or. n_myRankSP.gt.nnShl .or. iSym.lt.1 .or.  &
-     &    iSym.gt.nSym .or. NVT.lt.1) Then
-         irc=-1
-         Return
-      End If
-      If (J1.lt.1 .or. J1.gt.NVT .or. J2.lt.1 .or. J2.gt.NVT .or.       &
-     &    J1.gt.J2 .or. (J2-J1+1).gt.NVT) Then
-         irc=-2
-         Return
-      End If
-      n=nnBstRSh(iSym,myRankSP(1),2)*(J2-J1+1)
-      Do i=2,n_myRankSP
-         n=n+nnBstRSh(iSym,myRankSP(i),2)*(J2-J1+1)
-      End Do
-      If (l_Vec.lt.n) Then
-         irc=-3
-         Return
-      End If
+#ifdef _DEBUGPRINT_
+if ((n_myRankSP < 1) .or. (n_myRankSP > nnShl) .or. (iSym < 1) .or. (iSym > nSym) .or. (NVT < 1)) then
+  irc = -1
+  return
+end if
+if ((J1 < 1) .or. (J1 > NVT) .or. (J2 < 1) .or. (J2 > NVT) .or. (J1 > J2) .or. (J2-J1+1 > NVT)) then
+  irc = -2
+  return
+end if
+n = nnBstRSh(iSym,myRankSP(1),2)*(J2-J1+1)
+do i=2,n_myRankSP
+  n = n+nnBstRSh(iSym,myRankSP(i),2)*(J2-J1+1)
+end do
+if (l_Vec < n) then
+  irc = -3
+  return
+end if
 
-      If (.not.Cho_Real_Par) Then
-         If (NVT.ne.NumCho(iSym)) Then
-            irc=-4
-            Return
-         End If
-         n=0
-         Do i=1,n_myRankSP
-            If (myRankSP(i).ne.i) Then
-               n=n+1
-            End If
-         End Do
-         If (n.ne.0) Then
-            irc=-5
-            Return
-         End If
-      End If
+if (.not. Cho_Real_Par) then
+  if (NVT /= NumCho(iSym)) then
+    irc = -4
+    return
+  end if
+  n = 0
+  do i=1,n_myRankSP
+    if (myRankSP(i) /= i) n = n+1
+  end do
+  if (n /= 0) then
+    irc = -5
+    return
+  end if
+end if
 #endif
 
-      ! Block read on temp files
-      Call Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
+! Block read on temp files
+call Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 
-      End
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-! BLOCK READ
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SubRoutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,        &
-     &                          J1,J2,iSym)
-!
-!     Read the vector blocks.
-!
-      use ChoSwp, only: nnBstRSh
-      Implicit None
-      Integer irc
-      Real*8  Vec(*)
-      Integer n_myRankSP
-      Integer myRankSP(n_myRankSP)
-      Integer NVT
-      Integer J1, J2, iSym
-#include "cholesky.fh"
-
-      Integer iOpt
-      Parameter (iOpt=2)
-
-      Integer kV, n, i
-      Integer lTot, iAdr, iAdr0
-      Integer iSP
-
-      irc=0
-
-      n=J2-J1+1
-      iAdr0=0
-      kV=1
-      Do i=1,n_myRankSP
-         iSP=myRankSP(i)
-         lTot=nnBstRSh(iSym,iSP,2)*n
-         If (lTot.gt.0) Then
-            iAdr=iAdr0+nnBstRSh(iSym,iSP,2)*(J1-1)
-            Call DDAFile(LuTmp(iSym),iOpt,Vec(kV),lTot,iAdr)
-            kV=kV+lTot
-         End If
-         iAdr0=iAdr0+nnBstRSh(iSym,iSP,2)*NVT
-      End Do
-
-      End
+end subroutine Cho_XCV_RdVec

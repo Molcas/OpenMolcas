@@ -8,17 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SubScr_Final()
+
+subroutine Cho_SubScr_Final()
 !
-!     Purpose: finalize (de-allocate memory) screening in vector
-!              subtraction.
-!
-      use ChoSubScr, only: DSubScr, DSPNm
-      use stdalloc
-      Implicit None
+! Purpose: finalize (de-allocate memory) screening in vector
+!          subtraction.
 
-      If (Allocated(DSPNm)) Call mma_deallocate(DSPNm)
+use ChoSubScr, only: DSubScr, DSPNm
+use stdalloc
 
-      If (Allocated(DSubScr)) Call mma_deallocate(DSubScr)
+implicit none
 
-      End
+if (allocated(DSPNm)) call mma_deallocate(DSPNm)
+
+if (allocated(DSubScr)) call mma_deallocate(DSubScr)
+
+end subroutine Cho_SubScr_Final

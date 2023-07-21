@@ -8,34 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETDAMP()
+
+subroutine CHO_SETDAMP()
 !
-!     Purpose: set screening damping, unless user-defined.
-!
-      IMPLICIT NONE
+! Purpose: set screening damping, unless user-defined.
+
+implicit none
 #include "cholesky.fh"
-      INTEGER I
+integer I
 
-      DO I = 1,2
-         IF (DAMP(I) .LT. 0.0D0) THEN
-            IF (THRCOM .GT. 9.99D-3) THEN ! >= 1.0D-2
-               DAMP(I) = 1.0D7
-            ELSE IF (THRCOM .GT. 9.99D-4) THEN ! >= 1.0D-3
-               DAMP(I) = 1.0D6
-            ELSE IF (THRCOM .GT. 9.99D-5) THEN ! >= 1.0D-4
-               DAMP(I) = 1.0D5
-            ELSE IF (THRCOM .GT. 9.99D-6) THEN ! >= 1.0D-5
-               DAMP(I) = 1.0D4
-            ELSE IF (THRCOM .GT. 9.99D-7) THEN ! >= 1.0D-6
-               DAMP(I) = 1.0D3
-            ELSE IF (THRCOM .GT. 9.99D-8) THEN ! >= 1.0D-7
-               DAMP(I) = 1.0D2
-            ELSE IF (THRCOM .GT. 9.99D-9) THEN ! >= 1.0D-8
-               DAMP(I) = 1.0D1
-            ELSE
-               DAMP(I) = 1.0D0
-            END IF
-         END IF
-      END DO
+do I=1,2
+  if (DAMP(I) < 0.0d0) then
+    if (THRCOM > 9.99D-3) then ! >= 1.0D-2
+      DAMP(I) = 1.0d7
+    else if (THRCOM > 9.99D-4) then ! >= 1.0D-3
+      DAMP(I) = 1.0d6
+    else if (THRCOM > 9.99D-5) then ! >= 1.0D-4
+      DAMP(I) = 1.0d5
+    else if (THRCOM > 9.99D-6) then ! >= 1.0D-5
+      DAMP(I) = 1.0d4
+    else if (THRCOM > 9.99D-7) then ! >= 1.0D-6
+      DAMP(I) = 1.0d3
+    else if (THRCOM > 9.99D-8) then ! >= 1.0D-7
+      DAMP(I) = 1.0d2
+    else if (THRCOM > 9.99D-9) then ! >= 1.0D-8
+      DAMP(I) = 1.0d1
+    else
+      DAMP(I) = 1.0d0
+    end if
+  end if
+end do
 
-      END
+end subroutine CHO_SETDAMP

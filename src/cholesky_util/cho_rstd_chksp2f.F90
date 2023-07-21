@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_RstD_ChkSP2F(iSP2F,l_iSP2F,nErr)
-      use stdalloc
-      Implicit None
-      Integer l_iSP2F, nErr
-      Integer iSP2F(l_iSP2F)
 
-      Integer i
+subroutine Cho_RstD_ChkSP2F(iSP2F,l_iSP2F,nErr)
 
-      Integer, Allocatable:: iChk(:)
+use stdalloc
 
-      Call mma_allocate(iChk,l_iSP2F,Label='iChk')
+implicit none
+integer l_iSP2F, nErr
+integer iSP2F(l_iSP2F)
+integer i
+integer, allocatable :: iChk(:)
 
-      Call Cho_RstD_GetInd3(iChk,l_iSP2F)
+call mma_allocate(iChk,l_iSP2F,Label='iChk')
 
-      nErr = 0
-      Do i = 1, l_iSP2F
-         If (iChk(i) .ne. iSP2F(i)) nErr = nErr + 1
-      End Do
+call Cho_RstD_GetInd3(iChk,l_iSP2F)
 
-      Call mma_deallocate(iChk)
+nErr = 0
+do i=1,l_iSP2F
+  if (iChk(i) /= iSP2F(i)) nErr = nErr+1
+end do
 
-      End
+call mma_deallocate(iChk)
+
+end subroutine Cho_RstD_ChkSP2F

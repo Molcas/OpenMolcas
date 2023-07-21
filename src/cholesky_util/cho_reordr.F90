@@ -10,344 +10,320 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,    &
-     &                      IREDC,iSwap,ipChoV,iSkip)
+
+subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV,iSkip)
 !***********************************************************
-!   Author: F. Aquilante
+! Author: F. Aquilante
 !
-!   Purpose:  SCR(lscr) contains JNUM cholesky vectors
-!             starting from JVEC1 and stored in reduced
-!             sets. The routine performs a reallocation
-!             of these elements in a set of target
-!             arrays identified by the pointers ipChoV.
-!             In the target arrays, the vectors are
-!             stored in full dimension and as a
-!             subset of a a given NUMV number of vectors.
-!             Each pointer should thereby point to a
-!             location where the corresponding Cholesky
-!             vector of a given unique symmetry pair
-!             of indices has to be stored
+! Purpose:  SCR(lscr) contains JNUM cholesky vectors
+!           starting from JVEC1 and stored in reduced
+!           sets. The routine performs a reallocation
+!           of these elements in a set of target
+!           arrays identified by the pointers ipChoV.
+!           In the target arrays, the vectors are
+!           stored in full dimension and as a
+!           subset of a a given NUMV number of vectors.
+!           Each pointer should thereby point to a
+!           location where the corresponding Cholesky
+!           vector of a given unique symmetry pair
+!           of indices has to be stored
 !
-!   Input:
-!       Ivec1 =  first vector to be copied
-!       JNum  =  # of vectors to be copied
+! Input:
+!     Ivec1 =  first vector to be copied
+!     JNum  =  # of vectors to be copied
 !
-!       NumV  =  total # of vectors in the target arrays
+!     NumV  =  total # of vectors in the target arrays
 !
-!       iSwap :   = 0   L(a,b,J) is returned
-!                       (in LT-storage if sym(a)=sym(b))
-!                 = 1   L(a,J,b) is returned
-!                 = 2   L(a,J,b) is returned
-!                       (in SQ-storage if sym(a)=sym(b))
+!     iSwap :   = 0   L(a,b,J) is returned
+!                     (in LT-storage if sym(a)=sym(b))
+!               = 1   L(a,J,b) is returned
+!               = 2   L(a,J,b) is returned
+!                     (in SQ-storage if sym(a)=sym(b))
 !
-!       iSkip(syma)=0 : skip the symmetry block a.
-!                    Any vector L(ab) or L(ba) with syma x symb=JSYM
-!                    won't be returned in the target array
+!     iSkip(syma)=0 : skip the symmetry block a.
+!                  Any vector L(ab) or L(ba) with syma x symb=JSYM
+!                  won't be returned in the target array
 !
-!       IREDC :  reduced set in core at the moment of
-!                the call to the routine.
-!                Can be set to -1 by the calling routine
+!     IREDC :  reduced set in core at the moment of
+!              the call to the routine.
+!              Can be set to -1 by the calling routine
 !
 !********************************************************
-      use ChoArr, only: nDimRS, iRS2F
-      use ChoSwp, only: InfVec, IndRed
-      Implicit Real*8 (a-h,o-z)
-      Real*8  Scr(lscr)
-      Integer ipChoV(*),iSkip(*)
 
+use ChoArr, only: nDimRS, iRS2F
+use ChoSwp, only: InfVec, IndRed
+
+implicit real*8(a-h,o-z)
+real*8 Scr(lscr)
+integer ipChoV(*), iSkip(*)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      Integer  cho_isao
-      External cho_isao
-
-!***********************************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-!*****
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-!***********************************************************************
+integer cho_isao
+external cho_isao
+! Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 !*********************************************************
 !
-!    From Reduced sets to full storage
-!    ---------------------------------
+! From Reduced sets to full storage
+! ---------------------------------
 !
-!    iSwap = 0
+! iSwap = 0
 !
-!     L{a,b,J} ---> L(a,b,J)
+!  L{a,b,J} ---> L(a,b,J)
 !
-!    iSwap = 1
+! iSwap = 1
 !
-!     L{a,b,J} ---> L(a,J,b)
+!  L{a,b,J} ---> L(a,J,b)
 !
-!    iSwap = 2
+! iSwap = 2
 !
-!     L{a,b,J} ---> L(ab,J)  ! with squaring of the
-!                            ! "diagonal" symmetry blocks
+!  L{a,b,J} ---> L(ab,J)  ! with squaring of the
+!                         ! "diagonal" symmetry blocks
 !
 !*********************************************************
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+iLoc = 3 ! use scratch location in reduced index arrays
 
+if ((jSym == 1) .and. (iSwap == 0)) then  ! L(ab),J
 
-      IF (jSym.eq.1 .and. iSwap.eq.0) Then  ! L(ab),J
+  NREAD = 0
+  kchov = 0
+  kchov2 = 0
+  do JVEC=1,JNUM
 
-         NREAD = 0
-         kchov = 0
-         kchov2= 0
-         DO JVEC=1,JNUM
+    JRED = InfVec(JVEC1-1+JVEC,2,jSym)
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+    if (JRED /= IREDC) then ! JRED is not the rs in core
+      call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
+      IREDC = JRED
+    end if
 
-            IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
-               Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
-               IREDC = JRED
-            END IF
+    kscr = NREAD
+    NREAD = NREAD+nDimRS(jSym,JRED)
 
-            kscr = NREAD
-            NREAD= NREAD + nDimRS(jSym,JRED)
+    do jRab=1,nnBstR(jSym,iLoc)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc)
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,iLoc)
+      iag = iRS2F(1,iRab)  !global address
+      ibg = iRS2F(2,iRab)
 
-               iag   = iRS2F(1,iRab)  !global address
-               ibg   = iRS2F(2,iRab)
+      iSyma = cho_isao(iag)  !symmetry block
 
-               iSyma = cho_isao(iag)  !symmetry block
+      kscr = kscr+1
 
-               kscr  = kscr + 1
+      if (iSkip(iSyma) /= 0) then
 
-               If(iSkip(iSyma).ne.0)Then
+        ias = iag-ibas(iSyma)  !addr within that symm block
+        ibs = ibg-ibas(iSyma)
 
-                ias   = iag - ibas(iSyma)  !addr within that symm block
-                ibs   = ibg - ibas(iSyma)
+        iabf = iTri(ias,ibs)
+        kchov = (JVEC-1)*nBas(iSyma)*(nBas(iSyma)+1)/2+iabf+ipChoV(iSyma)-1
 
-                iabf  = iTri(ias,ibs)
-                kchov = (JVEC-1)*nBas(iSyma)*(nBas(iSyma)+1)/2 + iabf   &
-     &                + ipChoV(iSyma) - 1
+        Work(kchov) = Scr(kscr)
 
-                Work(kchov) = Scr(kscr)
+      end if
 
-               EndIf
+    end do
 
-            End Do
+  end do
 
-         END DO
+else if ((jSym == 1) .and. (iSwap == 1)) then  ! LaJ,b
 
+  NREAD = 0
+  kchov = 0
+  kchov2 = 0
+  do JVEC=1,JNUM
 
-      ELSEIF (jSym.eq.1 .and. iSwap.eq.1) Then  ! LaJ,b
+    JRED = InfVec(JVEC1-1+JVEC,2,jSym)
 
-         NREAD = 0
-         kchov = 0
-         kchov2= 0
-         DO JVEC=1,JNUM
+    if (JRED /= IREDC) then ! JRED is not the rs in core
+      call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
+      IREDC = JRED
+    end if
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+    kscr = NREAD
+    NREAD = NREAD+nDimRS(jSym,JRED)
 
-            IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
-               Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
-               IREDC = JRED
-            END IF
+    do jRab=1,nnBstR(jSym,iLoc)
 
-            kscr = NREAD
-            NREAD= NREAD + nDimRS(jSym,JRED)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      iag = iRS2F(1,iRab)  !global address
+      ibg = iRS2F(2,iRab)
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,iLoc)
+      iSyma = cho_isao(iag)  !symmetry block
 
-               iag   = iRS2F(1,iRab)  !global address
-               ibg   = iRS2F(2,iRab)
+      kscr = kscr+1
 
-               iSyma = cho_isao(iag)  !symmetry block
+      if (iSkip(iSyma) /= 0) then
 
-               kscr  = kscr + 1
+        ias = iag-ibas(iSyma)  !addr within that symm block
+        ibs = ibg-ibas(iSyma)
 
-               If(iSkip(iSyma).ne.0)Then
+        kchov1 = nBas(iSyma)*NUMV*(ibs-1)+nBas(iSyma)*(jVref+JVEC-2)+ias+ipChoV(iSyma)-1
+        kchov2 = nBas(iSyma)*NUMV*(ias-1)+nBas(iSyma)*(jVref+JVEC-2)+ibs+ipChoV(iSyma)-1
 
-                ias   = iag - ibas(iSyma)  !addr within that symm block
-                ibs   = ibg - ibas(iSyma)
+        Work(kchov1) = Scr(kscr)
+        Work(kchov2) = Scr(kscr)
 
-                kchov1 = nBas(iSyma)*NUMV*(ibs-1)                       &
-     &                 + nBas(iSyma)*(jVref+JVEC-2) + ias               &
-     &                 + ipChoV(iSyma) - 1
-                kchov2 = nBas(iSyma)*NUMV*(ias-1)                       &
-     &                 + nBas(iSyma)*(jVref+JVEC-2) + ibs               &
-     &                 + ipChoV(iSyma) - 1
+      end if
 
-                Work(kchov1) = Scr(kscr)
-                Work(kchov2) = Scr(kscr)
+    end do
 
-               EndIf
+  end do
 
-            End Do
+else if ((jSym == 1) .and. (iSwap == 2)) then  ! L[ab],J
 
-         END DO
+  NREAD = 0
+  kchov = 0
+  kchov2 = 0
+  do JVEC=1,JNUM
 
+    JRED = InfVec(JVEC1-1+JVEC,2,jSym)
 
-      ELSEIF (jSym.eq.1 .and. iSwap.eq.2) Then  ! L[ab],J
+    if (JRED /= IREDC) then ! JRED is not the rs in core
+      call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
+      IREDC = JRED
+    end if
 
-         NREAD = 0
-         kchov = 0
-         kchov2= 0
-         DO JVEC=1,JNUM
+    kscr = NREAD
+    NREAD = NREAD+nDimRS(jSym,JRED)
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+    do jRab=1,nnBstR(jSym,iLoc)
 
-            IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
-               Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
-               IREDC = JRED
-            END IF
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc)
 
-            kscr = NREAD
-            NREAD= NREAD + nDimRS(jSym,JRED)
+      iag = iRS2F(1,iRab)  !global address
+      ibg = iRS2F(2,iRab)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      iSyma = cho_isao(iag)  !symmetry block
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,iLoc)
+      kscr = kscr+1
 
-               iag   = iRS2F(1,iRab)  !global address
-               ibg   = iRS2F(2,iRab)
+      if (iSkip(iSyma) /= 0) then
 
-               iSyma = cho_isao(iag)  !symmetry block
+        ias = iag-ibas(iSyma)  !addr within that symm block
+        ibs = ibg-ibas(iSyma)
 
-               kscr  = kscr + 1
+        kchov1 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)+nBas(iSyma)*(ibs-1)+ias+ipChoV(iSyma)-1
+        kchov2 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)+nBas(iSyma)*(ias-1)+ibs+ipChoV(iSyma)-1
 
-               If(iSkip(iSyma).ne.0)Then
+        Work(kchov1) = Scr(kscr)
+        Work(kchov2) = Scr(kscr)
 
-                ias   = iag - ibas(iSyma)  !addr within that symm block
-                ibs   = ibg - ibas(iSyma)
+      end if
 
-                kchov1 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)               &
-     &                 + nBas(iSyma)*(ibs-1) + ias                      &
-     &                 + ipChoV(iSyma) - 1
-                kchov2 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)               &
-     &                 + nBas(iSyma)*(ias-1) + ibs                      &
-     &                 + ipChoV(iSyma) - 1
+    end do
 
-                Work(kchov1) = Scr(kscr)
-                Work(kchov2) = Scr(kscr)
+  end do
 
-               EndIf
+else if ((jSym > 1) .and. (iSwap == 0)) then
 
-            End Do
+  NREAD = 0
+  kchov = 0
+  kchov2 = 0
+  do JVEC=1,JNUM
 
-         END DO
+    JRED = InfVec(JVEC1-1+JVEC,2,jSym)
 
+    if (JRED /= IREDC) then ! JRED is not the rs in core
+      call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
+      IREDC = JRED
+    end if
 
-      ELSEIF (jSym.gt.1 .and. iSwap.eq.0) Then
+    kscr = NREAD
+    NREAD = NREAD+nDimRS(jSym,JRED)
 
-         NREAD = 0
-         kchov = 0
-         kchov2= 0
-         DO JVEC=1,JNUM
+    do jRab=1,nnBstR(jSym,iLoc)
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc)
 
-            IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
-               Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
-               IREDC = JRED
-            END IF
+      iag = iRS2F(1,iRab)  !global address
+      ibg = iRS2F(2,iRab)
 
-            kscr = NREAD
-            NREAD= NREAD + nDimRS(jSym,JRED)
+      iSyma = cho_isao(iag)  !symmetry block
+      iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      kscr = kscr+1
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,iLoc)
+      if (iSkip(iSyma) /= 0) then
 
-               iag   = iRS2F(1,iRab)  !global address
-               ibg   = iRS2F(2,iRab)
+        ias = iag-ibas(iSyma)  !addr within that symm block
+        ibs = ibg-ibas(iSymb)
 
-               iSyma = cho_isao(iag)  !symmetry block
-               iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
+        kchov = nBas(iSyma)*nBas(iSymb)*(JVEC-1)+nBas(iSyma)*(ibs-1)+ias+ipChoV(iSyma)-1
 
-               kscr  = kscr + 1
+        Work(kchov) = Scr(kscr)
 
-               If(iSkip(iSyma).ne.0)Then
+      end if
 
-                ias   = iag - ibas(iSyma)  !addr within that symm block
-                ibs   = ibg - ibas(iSymb)
+    end do
 
-                kchov = nBas(iSyma)*nBas(iSymb)*(JVEC-1)                &
-     &                + nBas(iSyma)*(ibs-1) + ias                       &
-     &                + ipChoV(iSyma) - 1
+  end do
 
-                Work(kchov) = Scr(kscr)
+else if ((jSym > 1) .and. (iSwap == 1)) then
 
-               EndIf
+  NREAD = 0
+  kchov = 0
+  kchov2 = 0
+  do JVEC=1,JNUM
 
-            End Do
+    JRED = InfVec(JVEC1-1+JVEC,2,jSym)
 
-         END DO
+    if (JRED /= IREDC) then ! JRED is not the rs in core
+      call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
+      IREDC = JRED
+    end if
 
+    kscr = NREAD
+    NREAD = NREAD+nDimRS(jSym,JRED)
 
-      ELSEIF (jSym.gt.1 .and. iSwap.eq.1) Then
+    do jRab=1,nnBstR(jSym,iLoc)
 
-         NREAD = 0
-         kchov = 0
-         kchov2= 0
-         DO JVEC=1,JNUM
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc)
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+      iag = iRS2F(1,iRab)  !global address
+      ibg = iRS2F(2,iRab)
 
-            IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
-               Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
-               IREDC = JRED
-            END IF
+      iSyma = cho_isao(iag)  !symmetry block
+      iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
 
-            kscr = NREAD
-            NREAD= NREAD + nDimRS(jSym,JRED)
+      kscr = kscr+1
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      if (iSkip(iSyma) /= 0) then
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,iLoc)
+        ias = iag-ibas(iSyma)  !addr within that symm block
+        ibs = ibg-ibas(iSymb)
 
-               iag   = iRS2F(1,iRab)  !global address
-               ibg   = iRS2F(2,iRab)
+        kchov = nBas(iSyma)*NUMV*(ibs-1)+nBas(iSyma)*(jVref+JVEC-2)+ias+ipChoV(iSyma)-1
 
-               iSyma = cho_isao(iag)  !symmetry block
-               iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
+        Work(kchov) = Scr(kscr)
 
-               kscr  = kscr + 1
+      end if
 
-               If(iSkip(iSyma).ne.0)Then
+    end do
 
-                ias   = iag - ibas(iSyma)  !addr within that symm block
-                ibs   = ibg - ibas(iSymb)
+  end do
 
-                kchov = nBas(iSyma)*NUMV*(ibs-1)                        &
-     &                + nBas(iSyma)*(jVref+JVEC-2) + ias                &
-     &                + ipChoV(iSyma) - 1
+else
 
-                Work(kchov) = Scr(kscr)
+  write(6,*) 'Wrong parameters combination. JSYM,iSwap= ',JSYM,iSwap
+  irc = 66
+  return
 
-               EndIf
+end if
 
-            End Do
+irc = 0
 
-         END DO
+return
 
-
-      ELSE
-
-       write(6,*)'Wrong parameters combination. JSYM,iSwap= ',JSYM,iSwap
-       irc = 66
-       Return
-
-      ENDIF
-
-
-      irc=0
-
-      Return
-      END
-
-!*************************************************************
+end subroutine CHO_REORDR

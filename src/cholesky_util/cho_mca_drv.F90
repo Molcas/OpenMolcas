@@ -8,83 +8,79 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_DRV()
+
+subroutine CHO_MCA_DRV()
 !
-!     Purpose: MOLCAS interface to Cholesky decomposition driver.
-!
-      use ChoArr, only: MySP
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+! Purpose: MOLCAS interface to Cholesky decomposition driver.
+
+use ChoArr, only: MySP
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*11 SECNAM
+parameter(SECNAM='CHO_MCA_DRV')
+logical INDEXATION, DOFOCK, DOGRAD
+logical VERBOSE, FREEK2
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DRV')
+call STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 
-      LOGICAL INDEXATION, DOFOCK, DOGRAD
-      LOGICAL VERBOSE, FREEK2
+! Initialize integral program (this does some memory
+! allocations; thus, DO NOT move this.
+! --------------------------------------------------
 
-      CALL STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
-
-!     Initialize integral program (this does some memory
-!     allocations; thus, DO NOT move this.
-!     --------------------------------------------------
-
-#if defined (_DEBUGPRINT_)
-      CALL CHO_PRESCR(CUTINT1,THRINT1)
+#ifdef _DEBUGPRINT_
+call CHO_PRESCR(CUTINT1,THRINT1)
 #endif
 
-      Call Set_Basis_Mode('Valence')
-      Call Setup_iSD()
-      NSHELL     = -1
-      INDEXATION = .TRUE.
-      THRAO      = 0.0D0
-      DOFOCK     = .FALSE.
-      DOGRAD     = .FALSE.
-      CALL SETUP_INTS(NSHELL,INDEXATION,THRAO,DOFOCK,DOGRAD)
+call Set_Basis_Mode('Valence')
+call Setup_iSD()
+NSHELL = -1
+INDEXATION = .true.
+THRAO = 0.0d0
+DOFOCK = .false.
+DOGRAD = .false.
+call SETUP_INTS(NSHELL,INDEXATION,THRAO,DOFOCK,DOGRAD)
 
-#if defined (_DEBUGPRINT_)
-      CALL CHO_PRESCR(CUTINT2,THRINT2)
-      WRITE(LUPRI,*) SECNAM,': CutInt before Setup_Ints: ',CUTINT1
-      WRITE(LUPRI,*) SECNAM,': CutInt after  Setup_Ints: ',CUTINT2
-      WRITE(LUPRI,*) SECNAM,': ThrInt before Setup_Ints: ',THRINT1
-      WRITE(LUPRI,*) SECNAM,': ThrInt after  Setup_Ints: ',THRINT2
-      IF (CUTINT2.NE.CUTINT1 .OR. THRINT2.NE.THRINT1) THEN
-         CALL CHO_QUIT('Initialization error in '//SECNAM,102)
-      END IF
+#ifdef _DEBUGPRINT_
+call CHO_PRESCR(CUTINT2,THRINT2)
+write(LUPRI,*) SECNAM,': CutInt before Setup_Ints: ',CUTINT1
+write(LUPRI,*) SECNAM,': CutInt after  Setup_Ints: ',CUTINT2
+write(LUPRI,*) SECNAM,': ThrInt before Setup_Ints: ',THRINT1
+write(LUPRI,*) SECNAM,': ThrInt after  Setup_Ints: ',THRINT2
+if ((CUTINT2 /= CUTINT1) .or. (THRINT2 /= THRINT1)) call CHO_QUIT('Initialization error in '//SECNAM,102)
 #endif
 
-!     Start the Cholesky decomposition program.
-!     -----------------------------------------
+! Start the Cholesky decomposition program.
+! -----------------------------------------
 
-      ICODE = 0
-      CALL CHO_DRV(ICODE)
-      IF (ICODE .NE. 0) THEN
-         WRITE(LUPRI,*) SECNAM,': decomposition driver returned code ', &
-     &                  ICODE
-         CALL CHO_QUIT('Decomposition failed!',104)
-      END IF
+ICODE = 0
+call CHO_DRV(ICODE)
+if (ICODE /= 0) then
+  write(LUPRI,*) SECNAM,': decomposition driver returned code ',ICODE
+  call CHO_QUIT('Decomposition failed!',104)
+end if
 
-!     Finalize integral program.
-!     --------------------------
+! Finalize integral program.
+! --------------------------
 
-      VERBOSE = .FALSE.
-      FREEK2  = .TRUE.
-      CALL TERM_INTS(VERBOSE,FREEK2)
+VERBOSE = .false.
+FREEK2 = .true.
+call TERM_INTS(VERBOSE,FREEK2)
 
-!     Halt execution if requested.
-!     ----------------------------
+! Halt execution if requested.
+! ----------------------------
 
-      IF (HALTIT) THEN
-         WRITE(LUPRI,*) SECNAM,': halting execution after ',            &
-     &                  'decomposition as requested...'
-         CALL GASYNC
-         CALL CHO_QUIT('End of Test (in '//SECNAM//')',100)
-      END IF
+if (HALTIT) then
+  write(LUPRI,*) SECNAM,': halting execution after decomposition as requested...'
+  call GASYNC()
+  call CHO_QUIT('End of Test (in '//SECNAM//')',100)
+end if
 
-      CALL GASYNC()
-      Call Free_iSD()
+call GASYNC()
+call Free_iSD()
 
-      If (Allocated(MySP)) Call mma_deallocate(MySP)
-      Call Cho_X_dealloc(irc)
+if (allocated(MySP)) call mma_deallocate(MySP)
+call Cho_X_dealloc(irc)
 
-      END
+end subroutine CHO_MCA_DRV

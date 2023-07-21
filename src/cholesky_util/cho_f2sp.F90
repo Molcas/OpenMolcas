@@ -10,29 +10,30 @@
 !                                                                      *
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Integer Function Cho_F2SP(iSP)
-!
-!     Thomas Bondo Pedersen, March 2006.
-!
-!     Purpose: return reduced shell pair index for full shell pair index
-!              iSP. If not found, 0 is returned.
-!              Note: nnShl_SP is used to avoid problems in parallel runs
-!              when swapping nnShl and nnShl_G. If properly set,
-!              nnShl_SP = nnShl_G.
-!
-      use ChoArr, only: iSP2F
-      use ChoSP, only: nnShl_SP
-      Implicit None
-      Integer iSP
 
-      Integer jSP
+integer function Cho_F2SP(iSP)
+!
+! Thomas Bondo Pedersen, March 2006.
+!
+! Purpose: return reduced shell pair index for full shell pair index
+!          iSP. If not found, 0 is returned.
+!          Note: nnShl_SP is used to avoid problems in parallel runs
+!          when swapping nnShl and nnShl_G. If properly set,
+!          nnShl_SP = nnShl_G.
 
-      Cho_F2SP = 0
-      Do jSP = 1,nnShl_SP
-         If (iSP2F(jSP) .eq. iSP) Then
-            Cho_F2SP = jSP
-            Return
-         End If
-      End Do
+use ChoArr, only: iSP2F
+use ChoSP, only: nnShl_SP
 
-      End
+implicit none
+integer iSP
+integer jSP
+
+Cho_F2SP = 0
+do jSP=1,nnShl_SP
+  if (iSP2F(jSP) == iSP) then
+    Cho_F2SP = jSP
+    exit
+  end if
+end do
+
+end function Cho_F2SP

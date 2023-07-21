@@ -8,27 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_WrDiag()
+
+subroutine Cho_P_WrDiag()
 !
-!     Purpose: store global diagonal on disk (Parallel only).
-!              NB: on exit, initial global diagonal is stored!
-!
-      use ChoSwp, only: Diag_G
-      use stdalloc
-      Implicit None
+! Purpose: store global diagonal on disk (Parallel only).
+!          NB: on exit, initial global diagonal is stored!
+
+use ChoSwp, only: Diag_G
+use stdalloc
+
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-      Real*8, Allocatable:: Diag_L(:)
+real*8, allocatable :: Diag_L(:)
 
-      If (Cho_Real_Par) Then
-         Call mma_allocate(Diag_L,nnBstRT(1),Label='Diag_L')
-         Call Cho_IODiag(Diag_L,2)
-         Call Cho_P_SyncDiag(Diag_L,1)
-         Call Cho_P_IndxSwp()
-         Call Cho_IODiag(Diag_G,1)
-         Call Cho_P_IndxSwp()
-         Call mma_deallocate(Diag_L)
-      End If
+if (Cho_Real_Par) then
+  call mma_allocate(Diag_L,nnBstRT(1),Label='Diag_L')
+  call Cho_IODiag(Diag_L,2)
+  call Cho_P_SyncDiag(Diag_L,1)
+  call Cho_P_IndxSwp()
+  call Cho_IODiag(Diag_G,1)
+  call Cho_P_IndxSwp()
+  call mma_deallocate(Diag_L)
+end if
 
-      End
+end subroutine Cho_P_WrDiag

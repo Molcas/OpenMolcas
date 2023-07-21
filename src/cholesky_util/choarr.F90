@@ -10,44 +10,47 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module ChoArr
-Implicit none
-Private
-Public:: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, &
-         nDimRS, iL2G, iShP2RS, iShP2Q, iOff_Batch, nDim_Batch, iQL2G, LQ, LQ_Tot, &
-         nQual_L, Idle, MySP, n_MySP, iSimRI
-Integer, Allocatable:: iSOShl(:)
-Integer, Allocatable:: iShlSO(:)
-Integer, Allocatable:: iBasSh(:,:)
-Integer, Allocatable:: nBasSh(:,:)
-Integer, Allocatable:: nBstSh(:)
-Integer, Allocatable:: iSP2F(:)
-Integer, Allocatable:: iAtomShl(:)
-Integer, Allocatable:: iRS2F(:,:)
-Integer, Allocatable:: IntMap(:)
-Integer, Allocatable:: iScr(:)
-Integer, Allocatable:: nDimRS(:,:)
-Integer, Allocatable:: iL2G(:)
-Integer, Allocatable:: iShP2RS(:,:)
-Integer, Allocatable:: iShP2Q(:,:)
-Integer, Allocatable:: iSimRI(:)
 
-Integer, Allocatable:: iOff_Batch(:,:)
-Integer:: nDim_Batch(8)
+module ChoArr
 
-Integer, Allocatable:: iQL2G(:,:)
+implicit none
+private
 
-Type rPointers
-     Real*8, Pointer:: Array(:,:)=>Null()
-End Type rPointers
+integer, allocatable :: iSOShl(:)
+integer, allocatable :: iShlSO(:)
+integer, allocatable :: iBasSh(:,:)
+integer, allocatable :: nBasSh(:,:)
+integer, allocatable :: nBstSh(:)
+integer, allocatable :: iSP2F(:)
+integer, allocatable :: iAtomShl(:)
+integer, allocatable :: iRS2F(:,:)
+integer, allocatable :: IntMap(:)
+integer, allocatable :: iScr(:)
+integer, allocatable :: nDimRS(:,:)
+integer, allocatable :: iL2G(:)
+integer, allocatable :: iShP2RS(:,:)
+integer, allocatable :: iShP2Q(:,:)
+integer, allocatable :: iSimRI(:)
 
-Type (rPointers):: LQ(8)
-Real*8, Allocatable, Target:: LQ_Tot(:)
+integer, allocatable :: iOff_Batch(:,:)
+integer :: nDim_Batch(8)
 
-Integer:: nQual_L(8)
+integer, allocatable :: iQL2G(:,:)
 
-Integer, Allocatable:: Idle(:)
-Integer, Allocatable:: MySP(:)
-Integer:: n_MySP
+type rPointers
+  real*8, pointer :: Array(:,:) => null()
+end type rPointers
 
-End Module ChoArr
+type(rPointers) :: LQ(8)
+real*8, allocatable, target :: LQ_Tot(:)
+
+integer :: nQual_L(8)
+
+integer, allocatable :: Idle(:)
+integer, allocatable :: MySP(:)
+integer :: n_MySP
+
+public :: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, nDimRS, iL2G, iShP2RS, iShP2Q, iOff_Batch, &
+          nDim_Batch, iQL2G, LQ, LQ_Tot, nQual_L, Idle, MySP, n_MySP, iSimRI
+
+end module ChoArr

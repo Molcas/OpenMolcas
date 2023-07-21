@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_VecBuf_Final()
+
+subroutine Cho_VecBuf_Final()
 !
-!     Purpose: deallocate and finalize vector buffer.
-!
-      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,         &
-     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,         &
-     &                     nVec_in_Buf
-      use stdalloc
-      Implicit None
+! Purpose: deallocate and finalize vector buffer.
+
+use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use stdalloc
+
+implicit none
 #include "cholesky.fh"
 
-      If (Allocated(CHVBUF)) Call mma_deallocate(CHVBUF)
-      If (Allocated(CHVBFI)) Call mma_deallocate(CHVBFI)
+if (allocated(CHVBUF)) call mma_deallocate(CHVBUF)
+if (allocated(CHVBFI)) call mma_deallocate(CHVBFI)
 
-      Call iZero(ip_ChVBuf_Sym,nSym)
-      Call iZero(l_ChVBuf_Sym,nSym)
-      Call iZero(ip_ChVBFI_Sym,nSym)
-      Call iZero(l_ChVBFI_Sym,nSym)
-      Call iZero(nVec_in_Buf,nSym)
+call iZero(ip_ChVBuf_Sym,nSym)
+call iZero(l_ChVBuf_Sym,nSym)
+call iZero(ip_ChVBFI_Sym,nSym)
+call iZero(l_ChVBFI_Sym,nSym)
+call iZero(nVec_in_Buf,nSym)
 
-      End
+end subroutine Cho_VecBuf_Final

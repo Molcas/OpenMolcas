@@ -8,39 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
+
+subroutine CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
 !
-!     Purpose: call Seward to calculate diagonal shell (AB|AB).
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      EXTERNAL  Integral_WrOut_Cho_diag
-      REAL*8 SCR(LSCR)
+! Purpose: call Seward to calculate diagonal shell (AB|AB).
+
+implicit real*8(A-H,O-Z)
+external Integral_WrOut_Cho_diag
+real*8 SCR(LSCR)
 #include "itmax.fh"
 #include "cholesky.fh"
-#if defined (_DEBUGPRINT_)
-      CHARACTER*15 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DIAGINT')
+#ifdef _DEBUGPRINT_
+character*15 SECNAM
+parameter(SECNAM='CHO_MCA_DIAGINT')
 #endif
 
-      CALL FZERO(SCR,LSCR)
+call FZERO(SCR,LSCR)
 
-#if defined (_DEBUGPRINT_)
-      CALL CHO_PRESCR(CUTINT1,THRINT1)
+#ifdef _DEBUGPRINT_
+call CHO_PRESCR(CUTINT1,THRINT1)
 #endif
 
-      CALL EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,                  &
-     &               Integral_WrOut_Cho_diag)
+call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,Integral_WrOut_Cho_diag)
 
-#if defined (_DEBUGPRINT_)
-      CALL CHO_PRESCR(CUTINT2,THRINT2)
-      IF (CUTINT2.NE.CUTINT1 .OR. THRINT2.NE.THRINT1) THEN
-         WRITE(LUPRI,*) SECNAM,': CutInt before Eval_Ints_: ',CUTINT1
-         WRITE(LUPRI,*) SECNAM,': CutInt after  Eval_Ints_: ',CUTINT2
-         WRITE(LUPRI,*) SECNAM,': ThrInt before Eval_Ints_: ',THRINT1
-         WRITE(LUPRI,*) SECNAM,': ThrInt after  Eval_Ints_: ',THRINT2
-         CALL CHO_QUIT('Integral prescreening error detected in '       &
-     &                 //SECNAM,102)
-      END IF
+#ifdef _DEBUGPRINT_
+call CHO_PRESCR(CUTINT2,THRINT2)
+if ((CUTINT2 /= CUTINT1) .or. (THRINT2 /= THRINT1)) then
+  write(LUPRI,*) SECNAM,': CutInt before Eval_Ints_: ',CUTINT1
+  write(LUPRI,*) SECNAM,': CutInt after  Eval_Ints_: ',CUTINT2
+  write(LUPRI,*) SECNAM,': ThrInt before Eval_Ints_: ',THRINT1
+  write(LUPRI,*) SECNAM,': ThrInt after  Eval_Ints_: ',THRINT2
+  call CHO_QUIT('Integral prescreening error detected in '//SECNAM,102)
+end if
 #endif
 
-      END
+end subroutine CHO_MCA_DIAGINT

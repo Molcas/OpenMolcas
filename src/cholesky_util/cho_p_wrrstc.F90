@@ -8,35 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_WrRstC(iPass)
+
+subroutine Cho_P_WrRstC(iPass)
 !
-!     Purpose: write global restart info to disk.
-!
-      Implicit None
-      Integer iPass
+! Purpose: write global restart info to disk.
+
+implicit none
+integer iPass
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
+integer iTmp
+real*8 c1, c2, w1, w2
 
-      Integer iTmp
+call Cho_Timer(c1,w1)
+if (Cho_Real_Par) then
+  call Cho_P_IndxSwp()
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+  iTmp = LuRst
+  LuRst = LuRst_G
+  call Cho_WrRstC(iPass)
+  LuRst = iTmp
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+  call Cho_P_IndxSwp()
+else
+  call Cho_WrRstC(iPass)
+end if
+call Cho_Timer(c2,w2)
+tMisc(1,3) = tMisc(1,3)+c2-c1
+tMisc(2,3) = tMisc(2,3)+w2-w1
 
-      Real*8 c1, c2, w1, w2
-
-      Call Cho_Timer(c1,w1)
-      If (Cho_Real_Par) Then
-         Call Cho_P_IndxSwp()
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-         iTmp = LuRst
-         LuRst = LuRst_G
-         Call Cho_WrRstC(iPass)
-         LuRst = iTmp
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-         Call Cho_P_IndxSwp()
-      Else
-         Call Cho_WrRstC(iPass)
-      End If
-      Call Cho_Timer(c2,w2)
-      tMisc(1,3)=tMisc(1,3)+c2-c1
-      tMisc(2,3)=tMisc(2,3)+w2-w1
-
-      End
+end subroutine Cho_P_WrRstC

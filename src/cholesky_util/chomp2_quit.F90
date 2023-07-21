@@ -10,16 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Quit(SecNam,Str1,Str2)
-!
-!     Thomas Bondo Pedersen, Jan. 2005.
-!
-!     Purpose: stop execution using ChoMP2_Quit and print the trace
-!              stack.
-!
-      Implicit None
-      Character*(*) SecNam, Str1, Str2
 
-      Call SysAbendMsg(SecNam,Str1,Str2)
+subroutine ChoMP2_Quit(SecNam,Str1,Str2)
+!
+! Thomas Bondo Pedersen, Jan. 2005.
+!
+! Purpose: stop execution using ChoMP2_Quit and print the trace
+!          stack.
 
-      End
+implicit none
+character*(*) SecNam, Str1, Str2
+
+call SysAbendMsg(SecNam,Str1,Str2)
+
+end subroutine ChoMP2_Quit

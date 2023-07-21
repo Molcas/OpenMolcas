@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 ! saved info for parallel runs
-Module ChPari
-      Integer NumCho_Bak(8)
-End Module ChPari
+module ChPari
+
+integer NumCho_Bak(8)
+
+end module ChPari

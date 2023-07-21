@@ -8,22 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RSTD_GETIND2()
+
+subroutine CHO_RSTD_GETIND2()
 !
-!     Purpose: read mapping arrays for diagonal restart.
-!
-      use ChoSwp, only: IndRSh, IndRed
-      Implicit Real*8 (a-h,o-z)
+! Purpose: read mapping arrays for diagonal restart.
+
+use ChoSwp, only: IndRSh, IndRed
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
 
-      LEN0 = NSYM*NNSHL
-      LEN1 = NNBSTRT(1)
-      LEN2 = LEN1
-      IOPT = 2
-      IADR = LEN0
-      CALL IDAFILE(LURED,IOPT,INDRED,LEN1,IADR)
-      IOPT = 2
-      IADR = LEN0 + LEN1
-      CALL IDAFILE(LURED,IOPT,INDRSH,LEN2,IADR)
+LEN0 = NSYM*NNSHL
+LEN1 = NNBSTRT(1)
+LEN2 = LEN1
+IOPT = 2
+IADR = LEN0
+call IDAFILE(LURED,IOPT,INDRED,LEN1,IADR)
+IOPT = 2
+IADR = LEN0+LEN1
+call IDAFILE(LURED,IOPT,INDRSH,LEN2,IADR)
 
-      END
+end subroutine CHO_RSTD_GETIND2

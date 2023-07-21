@@ -10,13 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
+
 ! info for Cholesky bookmarks
-Module ChoBkm
-Implicit none
-Private
-Public:: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
-Integer, Allocatable:: BkmVec(:,:)
-Real*8, Allocatable:: BkmThr(:,:)
-Integer:: nRow_BkmVec=0, nCol_BkmVec=0
-Integer:: nRow_BkmThr=0, nCol_BkmThr=0
-End Module ChoBkm
+module ChoBkm
+
+implicit none
+private
+
+integer, allocatable :: BkmVec(:,:)
+real*8, allocatable :: BkmThr(:,:)
+integer :: nRow_BkmVec = 0, nCol_BkmVec = 0
+integer :: nRow_BkmThr = 0, nCol_BkmThr = 0
+
+public :: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+
+end module ChoBkm

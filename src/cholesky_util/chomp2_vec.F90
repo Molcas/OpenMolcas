@@ -10,61 +10,61 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
+
+subroutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
-!
-      use ChoMP2_dec, only: NowSym
-      Implicit None
-      Integer iVec1, nVec, lBuf, nDim, iOpt
-      Real*8  Buf(lBuf)
+! Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
+
+use ChoMP2_dec, only: NowSym
+
+implicit none
+integer iVec1, nVec, lBuf, nDim, iOpt
+real*8 Buf(lBuf)
 #include "chomp2.fh"
+character(len=3), parameter :: ThisNm = 'Vec'
+character(len=10), parameter :: SecNam = 'ChoMP2_Vec'
+integer :: iSym, iJob, lTot, iAdr
+logical DoClose
 
-      Character(LEN=3), Parameter::  ThisNm = 'Vec'
-      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Vec'
-      Integer :: iSym, iJob, lTot, iAdr
+iSym = NowSym
+DoClose = .false.
 
-      Logical DoClose
+if (iOpt == 1) then
 
-      iSym = NowSym
-      DoClose = .false.
+  if (lUnit_F(iSym,2) < 1) then
+    call ChoMP2_OpenF(1,2,iSym)
+    DoClose = .true.
+  end if
 
-      If (iOpt .eq. 1) Then
+  iJob = 1
+  lTot = nDim*nVec
+  iAdr = nDim*(iVec1-1)+1
+  call ddaFile(lUnit_F(iSym,2),iJob,Buf,lTot,iAdr)
 
-         If (lUnit_F(iSym,2) .lt. 1) Then
-            Call ChoMP2_OpenF(1,2,iSym)
-            DoClose = .true.
-         End If
+else if (iOpt == 2) then
 
-         iJob = 1
-         lTot = nDim*nVec
-         iAdr = nDim*(iVec1 - 1) + 1
-         Call ddaFile(lUnit_F(iSym,2),iJob,Buf,lTot,iAdr)
+  if (lUnit_F(iSym,2) < 1) then
+    call ChoMP2_OpenF(1,2,iSym)
+    DoClose = .true.
+  end if
 
-      Else If (iOpt .eq. 2) Then
+  iJob = 2
+  lTot = nDim*nVec
+  iAdr = nDim*(iVec1-1)+1
+  call ddaFile(lUnit_F(iSym,2),iJob,Buf,lTot,iAdr)
 
-         If (lUnit_F(iSym,2) .lt. 1) Then
-            Call ChoMP2_OpenF(1,2,iSym)
-            DoClose = .true.
-         End If
+else
 
-         iJob = 2
-         lTot = nDim*nVec
-         iAdr = nDim*(iVec1 - 1) + 1
-         Call ddaFile(lUnit_F(iSym,2),iJob,Buf,lTot,iAdr)
+  write(6,*) SecNam,': illegal option: iOpt = ',iOpt
+  call ChoMP2_Quit(SecNam,'illegal option',' ')
 
-      Else
+end if
 
-         Write(6,*) SecNam,': illegal option: iOpt = ',iOpt
-         Call ChoMP2_Quit(SecNam,'illegal option',' ')
+if (DoClose) then
+  call ChoMP2_OpenF(2,2,iSym)
+  DoClose = .false.
+end if
 
-      End If
-
-      If (DoClose) Then
-         Call ChoMP2_OpenF(2,2,iSym)
-         DoClose = .false.
-      End If
-
-      End
+end subroutine ChoMP2_Vec

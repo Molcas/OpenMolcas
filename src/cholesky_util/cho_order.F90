@@ -8,50 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_ORDER(VEC,LVEC,IJOB)
+
+subroutine CHO_ORDER(VEC,LVEC,IJOB)
 !
-!     Purpose: sort elements of VEC in
-!              IJOB = -1: descending order
-!              IJOB =  1: ascending  order
-!              (all other IJOB values are ignored)
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 VEC(LVEC)
+! Purpose: sort elements of VEC in
+!          IJOB = -1: descending order
+!          IJOB =  1: ascending  order
+!          (all other IJOB values are ignored)
 
-      IF (IJOB .EQ. -1) THEN
+implicit real*8(a-h,o-z)
+real*8 VEC(LVEC)
 
-         DO I = 1,LVEC-1
-            VMAX = VEC(I)
-            IMAX = I
-            DO J = I+1,LVEC
-               IF (VEC(J) .GT. VMAX) THEN
-                  VMAX = VEC(J)
-                  IMAX = J
-               END IF
-            END DO
-            IF (IMAX .NE. I) THEN
-               VEC(IMAX) = VEC(I)
-               VEC(I)    = VMAX
-            END IF
-         END DO
+if (IJOB == -1) then
 
-      ELSE IF (IJOB .EQ. 1) THEN
+  do I=1,LVEC-1
+    VMAX = VEC(I)
+    IMAX = I
+    do J=I+1,LVEC
+      if (VEC(J) > VMAX) then
+        VMAX = VEC(J)
+        IMAX = J
+      end if
+    end do
+    if (IMAX /= I) then
+      VEC(IMAX) = VEC(I)
+      VEC(I) = VMAX
+    end if
+  end do
 
-         DO I = 1,LVEC-1
-            VMIN = VEC(I)
-            IMIN = I
-            DO J = I+1,LVEC
-               IF (VEC(J) .LT. VMIN) THEN
-                  VMIN = VEC(J)
-                  IMIN = J
-               END IF
-            END DO
-            IF (IMIN .NE. I) THEN
-               VEC(IMIN) = VEC(I)
-               VEC(I)    = VMIN
-            END IF
-         END DO
+else if (IJOB == 1) then
 
-      END IF
+  do I=1,LVEC-1
+    VMIN = VEC(I)
+    IMIN = I
+    do J=I+1,LVEC
+      if (VEC(J) < VMIN) then
+        VMIN = VEC(J)
+        IMIN = J
+      end if
+    end do
+    if (IMIN /= I) then
+      VEC(IMIN) = VEC(I)
+      VEC(I) = VMIN
+    end if
+  end do
 
-      END
+end if
+
+end subroutine CHO_ORDER

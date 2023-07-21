@@ -10,56 +10,34 @@
 !                                                                      *
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine Cho_P_UpdateBookmarks(iRS)
+
+subroutine Cho_P_UpdateBookmarks(iRS)
 !
-!     Thomas Bondo Pedersen, August 2012.
+! Thomas Bondo Pedersen, August 2012.
 !
-!     Update bookmarks for reduced set (integral pass) iRS:
-!        - integral accuracy (max diagonal)
-!        - number of Cholesky vectors
+! Update bookmarks for reduced set (integral pass) iRS:
+!    - integral accuracy (max diagonal)
+!    - number of Cholesky vectors
 !
-!     Note: it is assumed that array DiaMax and number of Cholesky
-!     vectors are properly updated before calling this routine.
-!
-      use ChoBkm, only: BkmVec, BkmThr, nCol_BkmVec, nCol_BkmThr
-      Implicit None
-      Integer iRS
+! Note: it is assumed that array DiaMax and number of Cholesky
+! vectors are properly updated before calling this routine.
+
+use ChoBkm, only: BkmVec, BkmThr, nCol_BkmVec, nCol_BkmThr
+
+implicit none
+integer iRS
 #include "cho_para_info.fh"
 #include "choglob.fh"
 #include "cholesky.fh"
 
-      If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Return
+if ((.not. allocated(BkmVec)) .or. (.not. allocated(BkmThr))) return
 
-      If (Cho_Real_Par) Then
-         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho_G,DiaMaxT,     &
-     &                            BkmVec,BkmThr)
-      Else
-         Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho,DiaMaxT,       &
-     &                            BkmVec,BkmThr)
-      End If
-      nCol_BkmVec=nCol_BkmVec+1
-      nCol_BkmThr=nCol_BkmThr+1
+if (Cho_Real_Par) then
+  call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho_G,DiaMaxT,BkmVec,BkmThr)
+else
+  call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho,DiaMaxT,BkmVec,BkmThr)
+end if
+nCol_BkmVec = nCol_BkmVec+1
+nCol_BkmThr = nCol_BkmThr+1
 
-      End
-      Subroutine Cho_UpdateBookmarks(iRS,nSym,nRS,nVec,delta,nBkmVec,   &
-     &                               BkmThr)
-      Implicit None
-      Integer iRS
-      Integer nRS
-      Integer nSym
-      Integer nVec(nSym)
-      Real*8  delta(nSym)
-      Integer nBkmVec(nSym,nRS)
-      Real*8  BkmThr(nSym,nRS)
-
-      Integer iSym
-
-      Do iSym=1,nSym
-         nBkmVec(iSym,iRS)=nVec(iSym)
-      End Do
-
-      Do iSym=1,nSym
-         BkmThr(iSym,iRS)=delta(iSym)
-      End Do
-
-      End
+end subroutine Cho_P_UpdateBookmarks

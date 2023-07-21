@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      FUNCTION CHO_DSUMELM(VEC,N)
+
+function CHO_DSUMELM(VEC,N)
 !
-!     Purpose: sum elements of double precision vector.
-!
-      IMPLICIT NONE
-      REAL*8  CHO_DSUMELM
-      REAL*8  VEC(*), DSUM
-      INTEGER I, N
+! Purpose: sum elements of double precision vector.
 
-      IF (N .GT. 0) THEN
-         DSUM = VEC(1)
-         DO I = 2,N
-            DSUM = DSUM + VEC(I)
-         END DO
-      ELSE
-         DSUM = 0.0D0
-      END IF
+implicit none
+real*8 CHO_DSUMELM
+real*8 VEC(*), DSUM
+integer I, N
 
-      CHO_DSUMELM = DSUM
+if (N > 0) then
+  DSUM = VEC(1)
+  do I=2,N
+    DSUM = DSUM+VEC(I)
+  end do
+else
+  DSUM = 0.0d0
+end if
 
-      END
+CHO_DSUMELM = DSUM
+
+end function CHO_DSUMELM

@@ -55,119 +55,105 @@
 !> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 !> @param[in]  DoRead  flag for reading reduced vectors from disk
 !***********************************************************************
-      Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,     &
-     &                          iSwap,IREDC,ipChoV,iSkip,DoRead)
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 RedVec(lRedVec)
-      Integer   ipVec(8),nnBSF(8,8),n2BSF(8,8)
-      Integer   ipChoV(*),iSkip(*)
-      Logical   DoRead
-      Character*14 SECNAM
-      Parameter (SECNAM = 'Cho_X_GetVfull')
 
+subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
+
+implicit real*8(a-h,o-z)
+real*8 RedVec(lRedVec)
+integer ipVec(8), nnBSF(8,8), n2BSF(8,8)
+integer ipChoV(*), iSkip(*)
+logical DoRead
+character*14 SECNAM
+parameter(SECNAM='Cho_X_GetVfull')
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+! Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-!*************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-!*****
-      MXUSD = 0
-      MUSED = 0
+MXUSD = 0
+MUSED = 0
 
-      do i=1,nSym
-         ipVec(i) = ipChoV(i)
-      end do
+do i=1,nSym
+  ipVec(i) = ipChoV(i)
+end do
 
+call set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
 
-      Call set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
+if (iSwap == 0) then
 
+  do iSymq=1,nSym
+    iSymp = muld2h(iSym,iSymq)
+    if (nnBSF(iSymp,iSymq) > 0) then
+      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),nnBSF(iSymp,iSymq)*NUMV)
+    end if
+  end do
 
-      if(iSwap.eq.0)then
+else if ((iSwap == 1) .or. (iSwap == 2)) then
 
-       Do iSymq=1,nSym
-         iSymp = muld2h(iSym,iSymq)
-         if(nnBSF(iSymp,iSymq).gt.0)then
-          if (iSymp.ge.iSymq .and. iSkip(iSymp).ne.0 ) then
-            Call FZero(Work(ipChoV(iSymp)),nnBSF(iSymp,iSymq)*NUMV)
-          endif
-         endif
-       End Do
+  do iSymq=1,nSym
+    iSymp = muld2h(iSym,iSymq)
+    if (n2BSF(iSymp,iSymq) > 0) then
+      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),n2BSF(iSymp,iSymq)*NUMV)
+    end if
+  end do
 
-      elseif(iSwap.eq.1 .or. iSwap.eq.2)then
+else
 
-       Do iSymq=1,nSym
-         iSymp = muld2h(iSym,iSymq)
-         if(n2BSF(iSymp,iSymq).gt.0)then
-          if (iSymp.ge.iSymq .and. iSkip(iSymp).ne.0 ) then
-            Call FZero(Work(ipChoV(iSymp)),n2BSF(iSymp,iSymq)*NUMV)
-          endif
-         endif
-       End Do
+  write(6,*) 'Wrong parameter! iSwap= ',iSwap
+  irc = 66
+  return
 
-      else
+end if
 
-         write(6,*)'Wrong parameter! iSwap= ',iSwap
-         irc = 66
-         Return
+if (DoRead) then
 
-      endif
+  JVEC1 = IVEC1
+  IVEC2 = JVEC1+NUMV-1
 
+  do while (jVec1 <= iVec2)
+    call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
+    MXUSD = max(MXUSD,MUSED)
 
-      If (DoRead) Then
+    if ((JNUM <= 0) .or. (JNUM > IVEC2-JVEC1+1)) then
+      irc = 77
+      return
+    end if
 
-       JVEC1 = IVEC1
-       IVEC2 = JVEC1 + NUMV - 1
+    jVref = JVEC1-IVEC1+1
+    call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,iSkip)
 
-       Do While (jVec1.le.iVec2)
-        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,                 &
-     &                   JNUM,IREDC,MUSED)
-        MXUSD = MAX(MXUSD,MUSED)
+    if (irc /= 0) return
 
-          If (JNUM.le.0 .or. JNUM.gt.(IVEC2-JVEC1+1)) then
-             irc=77
-             RETURN
-          End If
+    jVec1 = jVec1+JNUM
 
-        jVref = JVEC1 - IVEC1 + 1
-        Call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,  &
-     &                 IREDC,iSwap,ipVec,iSkip)
+    do i=1,nSym
+      j = mulD2h(i,ISYM)
+      if ((j >= i) .and. (iSkip(j) /= 0)) then
+        if (iSwap == 0) then
+          ipVec(j) = ipVec(j)+nnBSF(j,i)*JNUM
+        else if (iSwap == 1) then
+          ipVec(j) = ipChoV(j)
+        else if (iSwap == 2) then
+          ipVec(j) = ipVec(j)+n2BSF(j,i)*JNUM
+        end if
+      end if
+    end do
 
-        if (irc.ne.0) then
-           return
-        endif
+  end do  ! end the while loop
 
-        jVec1 = jVec1 + JNUM
+else ! only reorder
 
-        do i=1,nSym
-           j=mulD2h(i,ISYM)
-           IF ( j.ge.i .and. iSkip(j).ne.0 ) THEN
-              if(iSwap.eq.0)then
-                ipVec(j) = ipVec(j) + nnBSF(j,i)*JNUM
-              elseif(iSwap.eq.1)then
-                ipVec(j) = ipChoV(j)
-              elseif(iSwap.eq.2)then
-                ipVec(j) = ipVec(j) + n2BSF(j,i)*JNUM
-              endif
-           ENDIF
-         end do
+  JNUM = NUMV
 
-       End Do  ! end the while loop
+  call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,iSkip)
 
-      Else ! only reorder
+  if (irc /= 0) return
 
-       JNUM=NUMV
+end if
 
-       Call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC, &
-     &                iSwap,ipVec,iSkip)
+irc = 0
 
-        if (irc.ne.0) then
-           return
-        endif
+return
 
-      End If
-
-      irc=0
-
-      RETURN
-      END
+end subroutine Cho_X_getVfull

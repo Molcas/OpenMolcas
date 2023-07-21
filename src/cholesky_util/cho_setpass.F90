@@ -8,45 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETPASS(DIAG,DIASH,ISYSH,IRED,CONV,NPOTSH)
+
+subroutine CHO_SETPASS(DIAG,DIASH,ISYSH,IRED,CONV,NPOTSH)
 !
-!     Purpose: Check convergence and, if not converged, set up
-!              integral pass.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*), DIASH(*)
-      INTEGER   ISYSH(*)
-      LOGICAL   CONV
+! Purpose: Check convergence and, if not converged, set up
+!          integral pass.
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*), DIASH(*)
+integer ISYSH(*)
+logical CONV
 #include "cholesky.fh"
 
-!     Initialize the potential number of shell pairs that can
-!     contribute.
-!     -------------------------------------------------------
+! Initialize the potential number of shell pairs that can
+! contribute.
+! -------------------------------------------------------
 
-      NPOTSH = 0
+NPOTSH = 0
 
-!     Find max. abs. diagonal in each symmetry and the global max.
-!     ------------------------------------------------------------
+! Find max. abs. diagonal in each symmetry and the global max.
+! ------------------------------------------------------------
 
-      DGMAX = -1.0D15
-      CALL CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
+DGMAX = -1.0d15
+call CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 
-!     If not converged, set next integral pass.
-!     -----------------------------------------
+! If not converged, set next integral pass.
+! -----------------------------------------
 
-      CONV = DGMAX .LT. THRCOM
-      IF (.NOT. CONV) THEN
-         CALL CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
-         DO ISYM = 1,NSYM
-            DIAMIN(ISYM) = MAX(DIAMAX(ISYM)*SPAN,THRCOM)
-         END DO
-         DO ISHLAB = 1,NNSHL
-            IF (DIASH(ISHLAB) .GT. THRCOM) THEN
-               NPOTSH = NPOTSH + 1
-            ELSE
-               DIASH(ISHLAB) = 0.0D0
-            END IF
-         END DO
-      END IF
+CONV = DGMAX < THRCOM
+if (.not. CONV) then
+  call CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
+  do ISYM=1,NSYM
+    DIAMIN(ISYM) = max(DIAMAX(ISYM)*SPAN,THRCOM)
+  end do
+  do ISHLAB=1,NNSHL
+    if (DIASH(ISHLAB) > THRCOM) then
+      NPOTSH = NPOTSH+1
+    else
+      DIASH(ISHLAB) = 0.0d0
+    end if
+  end do
+end if
 
-      END
+end subroutine CHO_SETPASS

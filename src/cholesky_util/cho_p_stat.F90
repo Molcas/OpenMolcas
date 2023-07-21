@@ -8,27 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_Stat()
-      Implicit None
+
+subroutine Cho_P_Stat()
+
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-      Integer iTmp, jTmp
+integer iTmp, jTmp
 
-      If (Cho_Real_Par) Then
-         Call Cho_P_IndxSwp()
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-         jTmp = NumChT
-         NumChT = NumChT_G
-         iTmp = LuRed
-         LuRed = LuRed_G
-         Call Cho_Stat()
-         LuRed = iTmp
-         NumChT = jTmp
-         Call iSwap(nSym,NumCho,1,NumCho_G,1)
-         Call Cho_P_IndxSwp()
-      Else
-         Call Cho_Stat()
-      End If
+if (Cho_Real_Par) then
+  call Cho_P_IndxSwp()
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+  jTmp = NumChT
+  NumChT = NumChT_G
+  iTmp = LuRed
+  LuRed = LuRed_G
+  call Cho_Stat()
+  LuRed = iTmp
+  NumChT = jTmp
+  call iSwap(nSym,NumCho,1,NumCho_G,1)
+  call Cho_P_IndxSwp()
+else
+  call Cho_Stat()
+end if
 
-      End
+end subroutine Cho_P_Stat

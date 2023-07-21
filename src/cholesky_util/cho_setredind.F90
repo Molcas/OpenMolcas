@@ -8,46 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETREDIND(IRED)
+
+subroutine CHO_SETREDIND(IRED)
 !
-!     Purpose: set index arrays for reduced set IRED. The counter
-!              array NNBSTRSH must be set on entry.
-!
-      use ChoSwp, only: iiBstRSh, nnBstRSh
-      Implicit Real*8 (a-h,o-z)
+! Purpose: set index arrays for reduced set IRED. The counter
+!          array NNBSTRSH must be set on entry.
+
+use ChoSwp, only: iiBstRSh, nnBstRSh
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*13 SECNAM
+parameter(SECNAM='CHO_SETREDIND')
 
-      CHARACTER*13 SECNAM
-      PARAMETER (SECNAM = 'CHO_SETREDIND')
+J = IRED
 
-      J = IRED
-
-#if defined (_DEBUGPRINT_)
-      MSYM = SIZE(iiBstRSh,1)
-      MMSHL= SIZE(iiBstRSh,2)
-      IF ((NNSHL.NE.MMSHL) .OR. (NSYM.NE.MSYM))                         &
-     & CALL CHO_QUIT('[1] Dimension error in '//SECNAM,104)
-      IF ((J.LT.1) .OR. (J.GT.3))                                       &
-     & CALL CHO_QUIT('[2] Dimension error in '//SECNAM,104)
+#ifdef _DEBUGPRINT_
+MSYM = size(iiBstRSh,1)
+MMSHL = size(iiBstRSh,2)
+if ((NNSHL /= MMSHL) .or. (NSYM /= MSYM)) call CHO_QUIT('[1] Dimension error in '//SECNAM,104)
+if ((J < 1) .or. (J > 3)) call CHO_QUIT('[2] Dimension error in '//SECNAM,104)
 #endif
 
-      IF (NNSHL .LT. 1) THEN ! may occur in parallel runs
-         NNBSTRT(J) = 0
-         CALL IZERO(IIBSTR(1,J),NSYM)
-         CALL IZERO(NNBSTR(1,J),NSYM)
-         RETURN
-      END IF
+if (NNSHL < 1) then ! may occur in parallel runs
+  NNBSTRT(J) = 0
+  call IZERO(IIBSTR(1,J),NSYM)
+  call IZERO(NNBSTR(1,J),NSYM)
+  return
+end if
 
-      NNBSTRT(J) = 0
-      DO ISYM = 1,NSYM
-         IIBSTRSH(ISYM,1,J) = 0
-         NNBSTR(ISYM,J) = NNBSTRSH(ISYM,1,J)
-         DO ISHLAB = 2,NNSHL
-            IIBSTRSH(ISYM,ISHLAB,J) = NNBSTR(ISYM,J)
-            NNBSTR(ISYM,J) = NNBSTR(ISYM,J) + NNBSTRSH(ISYM,ISHLAB,J)
-         END DO
-         IIBSTR(ISYM,J) = NNBSTRT(J)
-         NNBSTRT(J) = NNBSTRT(J) + NNBSTR(ISYM,J)
-      END DO
+NNBSTRT(J) = 0
+do ISYM=1,NSYM
+  IIBSTRSH(ISYM,1,J) = 0
+  NNBSTR(ISYM,J) = NNBSTRSH(ISYM,1,J)
+  do ISHLAB=2,NNSHL
+    IIBSTRSH(ISYM,ISHLAB,J) = NNBSTR(ISYM,J)
+    NNBSTR(ISYM,J) = NNBSTR(ISYM,J)+NNBSTRSH(ISYM,ISHLAB,J)
+  end do
+  IIBSTR(ISYM,J) = NNBSTRT(J)
+  NNBSTRT(J) = NNBSTRT(J)+NNBSTR(ISYM,J)
+end do
 
-      END
+end subroutine CHO_SETREDIND

@@ -8,110 +8,103 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
+
+subroutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
 !
-!     Purpose: extract elements corresponding to qualified columns of
-!              vectors on disk.
-!
-      use ChoSwp, only: nnBstRSh
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8  QVec(l_QVec)
-      Integer LstQSP(nQSP)
-      Integer iV1(mSym), nV(mSym)
+! Purpose: extract elements corresponding to qualified columns of
+!          vectors on disk.
+
+use ChoSwp, only: nnBstRSh
+use stdalloc
+
+implicit real*8(a-h,o-z)
+real*8 QVec(l_QVec)
+integer LstQSP(nQSP)
+integer iV1(mSym), nV(mSym)
 #include "cholesky.fh"
+character(len=16), parameter :: SecNam = 'Cho_VecDsk_GetLQ'
+integer nVecTot(8)
+integer, external :: Cho_P_LocalSP
+real*8, allocatable :: Scr(:)
+integer, allocatable :: iQuAB_2(:)
 
-      Character(LEN=16), Parameter:: SecNam = 'Cho_VecDsk_GetLQ'
+! Check input.
+! ------------
 
-      Integer nVecTot(8)
+if (nQSP < 1) return
 
-      Integer, External:: Cho_P_LocalSP
+if (mSym < nSym) call Cho_Quit('mSym<nSym in '//SecNam,104)
 
-      Real*8, Allocatable:: Scr(:)
-      Integer, Allocatable:: iQuAB_2(:)
+nVT = nV(1)
+do iSym=2,nSym
+  nVT = nVT+nV(iSym)
+end do
+if (nVT < 1) return
 
-!     Check input.
-!     ------------
+do iSym=1,nSym
+  if (nV(iSym) > 0) then
+    if (iV1(iSym) < 1) call Cho_Quit('iV1<1 in '//SecNam,104)
+  end if
+end do
 
-      If (nQSP .lt. 1) Return
+! Allocate memory for reading.
+! ----------------------------
 
-      If (mSym .lt. nSym) Then
-         Call Cho_Quit('mSym<nSym in '//SecNam,104)
-      End If
+l_Scr = 0
+do iSym=1,nSym
+  if ((nV(iSym) > 0) .and. (nQual(iSym) > 0)) then
+    lDim = 0
+    do iQSP=1,nQSP
+      iShlAB = Cho_P_LocalSP(LstQSP(iQSP))
+      lDim = lDim+nnBstRSh(iSym,iShlAB,1)
+    end do
+    l_Scr = max(l_Scr,lDim)
+  end if
+end do
+call mma_allocate(Scr,l_Scr,Label='Scr')
 
-      nVT = nV(1)
-      Do iSym = 2,nSym
-         nVT = nVT + nV(iSym)
-      End Do
-      If (nVT .lt. 1) Return
+! Allocate extra mapping from qualified to reduced set.
+! -----------------------------------------------------
 
-      Do iSym = 1,nSym
-         If (nV(iSym) .gt. 0) Then
-            If (iV1(iSym) .lt. 1) Then
-               Call Cho_Quit('iV1<1 in '//SecNam,104)
-            End If
-         End If
-      End Do
+l_iQuAB_2 = nQual(1)
+do iSym=2,nSym
+  l_iQuAB_2 = max(l_iQuAB_2,nQual(iSym))
+end do
+call mma_allocate(iQuAB_2,l_iQuAB_2,Label='iQuAB_2')
 
-!     Allocate memory for reading.
-!     ----------------------------
+! Extract in each symmetry block.
+! -------------------------------
 
-      l_Scr = 0
-      Do iSym = 1,nSym
-         If (nV(iSym).gt.0 .and. nQual(iSym).gt.0) Then
-            lDim = 0
-            Do iQSP = 1,nQSP
-               iShlAB = Cho_P_LocalSP(LstQSP(iQSP))
-               lDim = lDim + nnBstRSh(iSym,iShlAB,1)
-            End Do
-            l_Scr = max(l_Scr,lDim)
-         End If
-      End Do
-      Call mma_allocate(Scr,l_Scr,Label='Scr')
+call Cho_P_GetGV(nVecTot,nSym)
 
-!     Allocate extra mapping from qualified to reduced set.
-!     -----------------------------------------------------
+jLoc = 2
+iLoc = 3
+iRedC = -1
+kOffQ = 0
+do iSym=1,nSym
+  iRedQ = -2
+  if ((nV(iSym) > 0) .and. (nQual(iSym) > 0)) then
+    iV2 = iV1(iSym)+nV(iSym)-1
+    do jV=iV1(iSym),iV2
+      call Cho_1VecRd_SP(Scr,l_Scr,jV,iSym,LstQSP,nQSP,iRedC,iLoc)
+      if (iRedQ /= iRedC) then
+        call Cho_SetQ2(iQuAB_2,LstQSP,nQSP,iSym,jLoc,iLoc)
+        iRedQ = iRedC
+      end if
+      kQ = kOffQ+nQual(iSym)*(jV-1)
+      do iQ=1,nQual(iSym)
+        iAB = iQuAB_2(iQ)
+        QVec(kQ+iQ) = Scr(iAB)
+      end do
+    end do
+  end if
+  kOffQ = kOffQ+nQual(iSym)*nVecTot(iSym)
+end do
 
-      l_iQuAB_2 = nQual(1)
-      Do iSym = 2,nSym
-         l_iQuAB_2 = max(l_iQuAB_2,nQual(iSym))
-      End Do
-      Call mma_allocate(iQuAB_2,l_iQuAB_2,Label='iQuAB_2')
+! Deallocations.
+! --------------
 
-!     Extract in each symmetry block.
-!     -------------------------------
+call mma_deallocate(iQuAB_2)
+call mma_deallocate(Scr)
 
-      Call Cho_P_GetGV(nVecTot,nSym)
-
-      jLoc = 2
-      iLoc = 3
-      iRedC = -1
-      kOffQ = 0
-      Do iSym = 1,nSym
-         iRedQ = -2
-         If (nV(iSym).gt.0 .and. nQual(iSym).gt.0) Then
-            iV2 = iV1(iSym) + nV(iSym) - 1
-            Do jV = iV1(iSym),iV2
-               Call Cho_1VecRd_SP(Scr,l_Scr,jV,iSym,LstQSP,nQSP,iRedC,  &
-     &                            iLoc)
-               If (iRedQ .ne. iRedC) Then
-                  Call Cho_SetQ2(iQuAB_2,LstQSP,nQSP,iSym,jLoc,iLoc)
-                  iRedQ = iRedC
-               End If
-               kQ = kOffQ + nQual(iSym)*(jV-1)
-               Do iQ = 1,nQual(iSym)
-                  iAB = iQuAB_2(iQ)
-                  QVec(kQ+iQ) = Scr(iAB)
-               End Do
-            End Do
-         End If
-         kOffQ = kOffQ + nQual(iSym)*nVecTot(iSym)
-      End Do
-
-!     Deallocations.
-!     --------------
-
-      Call mma_deallocate(iQuAB_2)
-      Call mma_deallocate(Scr)
-
-      End
+end subroutine Cho_VecDsk_GetLQ

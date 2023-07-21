@@ -10,79 +10,73 @@
 !                                                                      *
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_DiaSP()
+
+subroutine Cho_DiaSP()
 !
-!     Thomas Bondo Pedersen, March 2006.
+! Thomas Bondo Pedersen, March 2006.
 !
-!     Purpose: prescreening of diagonal.
-!
-      use ChoArr, only: iSP2F
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+! Purpose: prescreening of diagonal.
+
+use ChoArr, only: iSP2F
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+real*8, allocatable :: TMax(:,:)
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Real*8, Allocatable:: TMax(:,:)
+if (Cho_PreScreen) then ! prescreening with approx. diagonal
 
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+  call mma_allocate(Tmax,nShell,nShell,Label='nShell')
 
-      If (Cho_PreScreen) Then ! prescreening with approx. diagonal
+  call Shell_MxSchwz(nShell,Tmax)
+  Tmax_All = Tmax(1,1)
+  do i=2,nShell
+    do j=1,i
+      Tmax_All = max(Tmax_All,Tmax(i,j))
+    end do
+  end do
 
-         Call mma_allocate(Tmax,nShell,nShell,Label='nShell')
+  Tau = Thr_PreScreen
+  nnShl = 0
+  do i=1,nShell
+    do j=1,i
+      if (Tmax_All*Tmax(i,j) > Tau) nnShl = nnShl+1
+    end do
+  end do
+  call mma_allocate(iSP2F,nnShl,Label='iSP2F')
 
-         Call Shell_MxSchwz(nShell,Tmax)
-         Tmax_All = Tmax(1,1)
-         Do i = 2,nShell
-            Do j = 1,i
-               Tmax_All = max(Tmax_All,Tmax(i,j))
-            End Do
-         End Do
+  ij = 0
+  do i=1,nShell
+    do j=1,i
+      if (Tmax_All*Tmax(i,j) > Tau) then
+        ij = ij+1
+        iSP2F(ij) = iTri(i,j)
+      end if
+    end do
+  end do
 
-         Tau = Thr_PreScreen
-         nnShl = 0
-         Do i = 1,nShell
-            Do j = 1,i
-               If (Tmax_All*Tmax(i,j) .gt. Tau) Then
-                  nnShl = nnShl + 1
-               End If
-            End Do
-         End Do
-         Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
+  call mma_deallocate(TMax)
 
-         ij = 0
-         Do i = 1,nShell
-            Do j = 1,i
-               If (Tmax_All*Tmax(i,j) .gt. Tau) Then
-                  ij = ij + 1
-                  iSP2F(ij) = iTri(i,j)
-               End If
-            End Do
-         End Do
+else ! no prescreening, include all shell pairs.
 
-         Call mma_deallocate(TMax)
+  nnShl = nnShl_Tot
+  call mma_allocate(iSP2F,nnShl,Label='iSP2F')
 
-      Else ! no prescreening, include all shell pairs.
+  do ij=1,nnShl
+    iSP2F(ij) = ij
+  end do
 
-         nnShl = nnShl_Tot
-         Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
+end if
 
-         Do ij = 1,nnShl
-            iSP2F(ij) = ij
-         End Do
-
-      End If
-
-#if defined (_DEBUGPRINT_)
-      If (.not.Cho_PreScreen) Tau = 0.0d0
-      Write(LuPri,*) '>>> Exit from Cho_DiaSP:'
-      Write(LuPri,*) '    Screening threshold               : ',Tau
-      Write(LuPri,*) '    Total number of shell pairs       : ',        &
-     &                nnShl_Tot
-      Write(LuPri,*) '    Contributing number of shell pairs: ',        &
-     &                nnShl
-      If (nnShl_Tot .ne. 0) Then
-         Write(LuPri,*) '    Screening-%: ',                            &
-     &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
-      End If
+#ifdef _DEBUGPRINT_
+if (.not. Cho_PreScreen) Tau = 0.0d0
+write(LuPri,*) '>>> Exit from Cho_DiaSP:'
+write(LuPri,*) '    Screening threshold               : ',Tau
+write(LuPri,*) '    Total number of shell pairs       : ',nnShl_Tot
+write(LuPri,*) '    Contributing number of shell pairs: ',nnShl
+if (nnShl_Tot /= 0) write(LuPri,*) '    Screening-%: ',1.0d2*dble(nnShl_Tot-nnShl)/dble(nnShl_Tot)
 #endif
 
-      End
+end subroutine Cho_DiaSP

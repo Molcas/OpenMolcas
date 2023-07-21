@@ -8,47 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
-      Implicit None
-      Integer l_QVec, nQSP
-      Real*8, Target::  QVec(l_Qvec)
-      Integer LstQSP(nQSP)
+subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+
+implicit none
+integer l_QVec, nQSP
+real*8, target :: QVec(l_Qvec)
+integer LstQSP(nQSP)
 #include "cho_para_info.fh"
-
-      Character*11 SecNam
-      Parameter (SecNam = 'Cho_P_GetLQ')
+character*11 SecNam
+parameter(SecNam='Cho_P_GetLQ')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      SubRoutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-      Integer l_QVec, nQSP
-      Real*8, Target::  QVec(l_Qvec)
-      Integer LstQSP(nQSP)
-      End SubRoutine Cho_GetLQ
-      End Interface
+interface
+  subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+    integer l_QVec, nQSP
+    real*8, target :: QVec(l_Qvec)
+    integer LstQSP(nQSP)
+  end subroutine Cho_GetLQ
+end interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
-! --- In parallel:
-! --- This code only works if MxShpr is set to 1
-! ---      otherwise each node computes a slice
-! ---      of QVec and thus a more sophisticated
-! ---      "synchronization" would be needed
+! In parallel:
+! This code only works if MxShpr is set to 1
+!      otherwise each node computes a slice
+!      of QVec and thus a more sophisticated
+!      "synchronization" would be needed
 
-      If (Cho_Real_Par) Then
-         If (nQSP .gt. 1) Then
-            Call Cho_Quit('Oops! Bug detected in '//SecNam,103)
-         End If
-         Call FZero(QVec,l_Qvec)
-         Call Cho_p_QualSwp()
-         Call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-         Call Cho_p_QualSwp()
-         Call Cho_GAdGOp(QVec,l_QVec,'+') ! sync. array
-      Else
-         Call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-      End If
+if (Cho_Real_Par) then
+  if (nQSP > 1) call Cho_Quit('Oops! Bug detected in '//SecNam,103)
+  call FZero(QVec,l_Qvec)
+  call Cho_p_QualSwp()
+  call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+  call Cho_p_QualSwp()
+  call Cho_GAdGOp(QVec,l_QVec,'+') ! sync. array
+else
+  call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+end if
 
-      End
+end subroutine Cho_P_GetLQ

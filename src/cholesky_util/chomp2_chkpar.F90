@@ -10,20 +10,24 @@
 !                                                                      *
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Logical Function ChoMP2_ChkPar()
+
+logical function ChoMP2_ChkPar()
 !
-!     Thomas Bondo Pedersen, Nov. 2006.
+! Thomas Bondo Pedersen, Nov. 2006.
 !
-!     Purpose: return true if parallel run (nProcs>1), else return
-!              false.
-!
-#if defined (_MOLCAS_MPP_)
-      Use Para_Info, Only: nProcs, Is_Real_Par
+! Purpose: return true if parallel run (nProcs>1), else return
+!          false.
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: nProcs, Is_Real_Par
 #endif
-      Implicit None
-#if defined (_MOLCAS_MPP_)
-      ChoMP2_ChkPar=nProcs.gt.1 .and. Is_Real_Par()
+
+implicit none
+
+#ifdef _MOLCAS_MPP_
+ChoMP2_ChkPar = (nProcs > 1) .and. Is_Real_Par()
 #else
-      ChoMP2_ChkPar=.False.
+ChoMP2_ChkPar = .false.
 #endif
-      End
+
+end function ChoMP2_ChkPar

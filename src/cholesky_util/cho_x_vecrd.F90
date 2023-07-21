@@ -40,20 +40,21 @@
 !> @param[in,out] iRedC reduced set stored at location ``3`` on entry as well as exit
 !> @param[out]    mUsed amount of memory actually used (in ``real*8`` words)
 !***********************************************************************
-      Subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)
-      Implicit None
-      Integer lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
-      Real*8  Scr(lScr)
+
+subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)
+
+implicit none
+integer lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
+real*8 Scr(lScr)
 #include "cholesky.fh"
+integer l_jVec2
 
-      Integer l_jVec2
+if ((iSym < 1) .or. (iSym > 8)) then
+  jNum = 0
+  mUsed = 0
+else
+  l_jVec2 = min(NumCho(iSym),jVec2)
+  call Cho_VecRd(Scr,lScr,jVec1,l_jVec2,iSym,jNum,iRedC,mUsed)
+end if
 
-      If (iSym.lt.1 .or. iSym.gt.8) Then
-         jNum = 0
-         mUsed = 0
-      Else
-         l_jVec2 = min(NumCho(iSym),jVec2)
-         Call Cho_VecRd(Scr,lScr,jVec1,l_jVec2,iSym,jNum,iRedC,mUsed)
-      End If
-
-      End
+end subroutine Cho_X_VecRd

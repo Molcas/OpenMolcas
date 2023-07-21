@@ -10,249 +10,233 @@
 !                                                                      *
 ! Copyright (C) 2008, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
+
+subroutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
 !
-!     Thomas Bondo Pedersen, Jan. 2008.
+! Thomas Bondo Pedersen, Jan. 2008.
 !
-!     Purpose: check backtransformation of vectors (MO->AO).
-!              A summary is printed at the end of this routine.
+! Purpose: check backtransformation of vectors (MO->AO).
+!          A summary is printed at the end of this routine.
 !
-!     The check is simple, comparing the quantities
+! The check is simple, comparing the quantities
 !
-!        X(J) = sum_alpha,beta L(J;alpha,beta)
-!        Y(J) = sum_ai L(ai,J)*P(a)*P(i)
+!    X(J) = sum_alpha,beta L(J;alpha,beta)
+!    Y(J) = sum_ai L(ai,J)*P(a)*P(i)
 !
-!     where
+! where
 !
-!        P(i) = sum_alpha COcc(i,alpha)
-!        P(a) = sum_alpha CVir(alpha,a)
+!    P(i) = sum_alpha COcc(i,alpha)
+!    P(a) = sum_alpha CVir(alpha,a)
 !
-!     The reported abs. min., abs. max, average, and RMS errors
-!     are calculated from the vector
+! The reported abs. min., abs. max, average, and RMS errors
+! are calculated from the vector
 !
-!        D(J) = X(J) - Y(J)
-!
-      use Constants
-      use stdalloc
-      Implicit None
-      Integer iTyp
-      Real*8  COcc(*), CVir(*)
-      Integer lU_AO(*)
+!    D(J) = X(J) - Y(J)
+
+use Constants
+use stdalloc
+
+implicit none
+integer iTyp
+real*8 COcc(*), CVir(*)
+integer lU_AO(*)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
+real*8, external :: ddot_
+real*8 Err(4,8)
+real*8 AbsMinErr, AbsMaxErr, AvgErr, RMSErr
+integer nMP2Vec_Tot
+integer iSym, iSyma, iSymi, iSymAl, iSymBe
+integer i, a, Al, AlBe, nAlBe, na, J
+integer kP, kP_, kC
+integer iOpt, lTot, iAdr
+integer nOcc_Max
+real*8, allocatable :: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:), V(:)
+integer MulD2h, k, l
+! Statement function
+MulD2h(k,l) = ieor(k-1,l-1)+1
 
-      Real*8, External:: ddot_
+! Initializations.
+! ----------------
 
-      Real*8  Err(4,8)
-      Real*8  AbsMinErr, AbsMaxErr, AvgErr, RMSErr
-      Integer nMP2Vec_Tot
+nMP2Vec_Tot = 0
 
-      Integer iSym, iSyma, iSymi, iSymAl, iSymBe
-      Integer i, a, Al, AlBe, nAlBe, na, J
-      Integer kP, kP_, kC
-      Integer iOpt, lTot, iAdr
-      Integer nOcc_Max
+AvgErr = Zero
+RMSErr = Zero
 
-      Real*8, Allocatable:: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:),   &
-     &                      V(:)
+nOcc_Max = nOcc(1)
+do iSym=2,nSym
+  nOcc_Max = max(nOcc_Max,nOcc(iSym))
+end do
 
-      Integer MulD2h, k, l
-      MulD2h(k,l)=iEOr(k-1,l-1)+1
+call mma_allocate(POcc,nOccT,Label='POcc')
+call mma_allocate(PVir,nVirT,Label='PVir')
+call mma_allocate(Q,nOcc_Max,Label='Q')
 
-!     Initializations.
-!     ----------------
+! P(i) = sum_alpha COcc(i,alpha)
+! ------------------------------
 
-      nMP2Vec_Tot = 0
+POcc(:) = Zero
+do iSymi=1,nSym
+  iSymAl = iSymi
+  if ((nOcc(iSymi) > 0) .and. (nBas(iSymAl) > 0)) then
+    kP = iOcc(iSymi)
+    do Al=1,nBas(iSymAl)
+      kC = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(Al-1)
+      do i=1,nOcc(iSymi)
+        POcc(kP+i) = POcc(kP+i)+COcc(kC+i)
+      end do
+    end do
+  end if
+end do
 
-      AvgErr = Zero
-      RMSErr = Zero
+! P(a) = sum_alpha CVir(alpha,a)
+! ------------------------------
 
-      nOcc_Max = nOcc(1)
-      Do iSym = 2,nSym
-         nOcc_Max = max(nOcc_Max,nOcc(iSym))
-      End Do
+PVir(:) = Zero
+do iSyma=1,nSym
+  iSymAl = iSyma
+  if ((nVir(iSyma) > 0) .and. (nBas(iSymAl) > 0)) then
+    kP_ = iVir(iSyma)
+    do a=1,nVir(iSyma)
+      kP = kP_+a
+      kC = iAOVir(iSymAl,iSyma)+nBas(iSymAl)*(a-1)
+      do Al=1,nBas(iSyma)
+        PVir(kP) = PVir(kP)+CVir(kC+Al)
+      end do
+    end do
+  end if
+end do
 
-      Call mma_allocate(POcc,nOccT,Label='POcc')
-      Call mma_allocate(PVir,nVirT,Label='PVir')
-      Call mma_allocate(Q,nOcc_Max,Label='Q')
+! Check each symmetry block.
+! --------------------------
 
-!     P(i) = sum_alpha COcc(i,alpha)
-!     ------------------------------
+do iSym=1,nSym
 
-      POcc(:)=Zero
-      Do iSymi = 1,nSym
-         iSymAl = iSymi
-         If (nOcc(iSymi).gt.0 .and. nBas(iSymAl).gt.0) Then
-            kP = iOcc(iSymi)
-            Do Al = 1,nBas(iSymAl)
-               kC = iT1AOT(iSymi,iSymAl) + nOcc(iSymi)*(Al-1)
-               Do i = 1,nOcc(iSymi)
-                  POcc(kP+i) = POcc(kP+i) + COcc(kC+i)
-               End Do
-            End Do
-         End If
-      End Do
+  if (nMP2Vec(iSym) > 0) then
 
-!     P(a) = sum_alpha CVir(alpha,a)
-!     ------------------------------
+    ! Allocation.
+    ! -----------
 
-      PVir(:)=Zero
-      Do iSyma = 1,nSym
-         iSymAl = iSyma
-         If (nVir(iSyma).gt.0 .and. nBas(iSymAl).gt.0) Then
-            kP_ = iVir(iSyma)
-            Do a = 1,nVir(iSyma)
-               kP = kP_ + a
-               kC = iAOVir(iSymAl,iSyma) + nBas(iSymAl)*(a-1)
-               Do Al = 1,nBas(iSyma)
-                  PVir(kP) = PVir(kP) + CVir(kC+Al)
-               End Do
-            End Do
-         End If
-      End Do
+    call mma_allocate(X,nMP2Vec(iSym),Label='X')
+    call mma_allocate(Y,nMP2Vec(iSym),Label='Y')
 
-!     Check each symmetry block.
-!     --------------------------
+    ! Zero result arrays.
+    ! -------------------
 
-      Do iSym = 1,nSym
+    X(:) = Zero
+    Y(:) = Zero
 
-         If (nMP2Vec(iSym) .gt. 0) Then
+    ! X(J) = sum_alpha,beta L(J;alpha,beta)
+    ! -------------------------------------
 
-!           Allocation.
-!           -----------
+    nAlBe = 0
+    do iSymBe=1,nSym
+      iSymAl = MulD2h(iSymBe,iSym)
+      nAlBe = nAlBe+nBas(iSymAl)*nBas(iSymBe)
+    end do
 
-            Call mma_allocate(X,nMP2Vec(iSym),Label='X')
-            Call mma_allocate(Y,nMP2Vec(iSym),Label='Y')
+    call mma_allocate(V,nMP2Vec(iSym),Label='V')
+    do AlBe=1,nAlBe
+      iOpt = 2
+      lTot = nMP2Vec(iSym)
+      iAdr = nMP2Vec(iSym)*(AlBe-1)+1
+      call ddaFile(lU_AO(iSym),iOpt,V,lTot,iAdr)
+      call dAXPY_(nMP2Vec(iSym),1.0d0,V,1,X,1)
+    end do
+    call mma_deallocate(V)
 
-!           Zero result arrays.
-!           -------------------
+    ! Y(J) = sum_ai L(ai,J)*P(a)*P(i)
+    ! -------------------------------
 
-            X(:)=Zero
-            Y(:)=Zero
+    call mma_allocate(V,nT1Am(iSym),Label='V')
+    iOpt = 1
+    call ChoMP2_OpenF(iOpt,iTyp,iSym)
+    do J=1,nMP2Vec(iSym)
+      iOpt = 2
+      lTot = nT1Am(iSym)
+      iAdr = nT1Am(iSym)*(J-1)+1
+      call ddaFile(lUnit_F(iSym,iTyp),iOpt,V,lTot,iAdr)
+      do iSymi=1,nSym
+        iSyma = MulD2h(iSymi,iSym)
+        na = max(nVir(iSyma),1)
+        call dGeMV_('T',nVir(iSyma),nOcc(iSymi),1.0d0,V(1+iT1Am(iSyma,iSymi)),na,PVir(1+iVir(iSyma)),1,0.0d0,Q,1)
+        Y(J) = Y(J)+dDot_(nOcc(iSymi),Q,1,POcc(1+iOcc(iSymi)),1)
+      end do
+    end do
+    iOpt = 2
+    call ChoMP2_OpenF(iOpt,iTyp,iSym)
+    call mma_deallocate(V)
 
-!           X(J) = sum_alpha,beta L(J;alpha,beta)
-!           -------------------------------------
+    ! Calculate errors.
+    ! -----------------
 
-            nAlBe = 0
-            Do iSymBe = 1,nSym
-               iSymAl = MulD2h(iSymBe,iSym)
-               nAlBe = nAlBe + nBas(iSymAl)*nBas(iSymBe)
-            End Do
+    call mma_allocate(D,nMP2Vec(iSym),Label='D')
+    call dCopy_(nMP2Vec(iSym),X,1,D,1)
+    call dAXPY_(nMP2Vec(iSym),-1.0d0,Y,1,D,1)
+    Err(1,iSym) = abs(D(1))
+    Err(2,iSym) = abs(D(1))
+    Err(3,iSym) = D(1)
+    do J=1,nMP2Vec(iSym)-1
+      Err(1,iSym) = min(Err(1,iSym),abs(D(1+J)))
+      Err(2,iSym) = max(Err(2,iSym),abs(D(1+J)))
+      Err(3,iSym) = Err(3,iSym)+D(1+J)
+    end do
+    AvgErr = AvgErr+Err(3,iSym)
+    Err(3,iSym) = Err(3,iSym)/dble(nMP2Vec(iSym))
+    Err(4,iSym) = dDot_(nMP2Vec(iSym),D,1,D,1)
+    RMSErr = RMSErr+Err(4,iSym)
+    Err(4,iSym) = Err(4,iSym)/dble(nMP2Vec(iSym))
+    Err(4,iSym) = sqrt(Err(4,iSym))
+    call mma_deallocate(D)
 
-            Call mma_allocate(V,nMP2Vec(iSym),Label='V')
-            Do AlBe = 1,nAlBe
-               iOpt = 2
-               lTot = nMP2Vec(iSym)
-               iAdr = nMP2Vec(iSym)*(AlBe-1) + 1
-               Call ddaFile(lU_AO(iSym),iOpt,V,lTot,iAdr)
-              Call dAXPY_(nMP2Vec(iSym),1.0d0,V,1,X,1)
-            End Do
-            Call mma_deallocate(V)
+    ! Deallocation.
+    ! -------------
 
-!           Y(J) = sum_ai L(ai,J)*P(a)*P(i)
-!           -------------------------------
+    call mma_deallocate(Y)
+    call mma_deallocate(X)
 
-            Call mma_allocate(V,nT1Am(iSym),Label='V')
-            iOpt = 1
-            Call ChoMP2_OpenF(iOpt,iTyp,iSym)
-            Do J = 1,nMP2Vec(iSym)
-               iOpt = 2
-               lTot = nT1Am(iSym)
-               iAdr = nT1Am(iSym)*(J-1) + 1
-               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,V,lTot,iAdr)
-               Do iSymi = 1,nSym
-                  iSyma = MulD2h(iSymi,iSym)
-                  na = max(nVir(iSyma),1)
-                  Call dGeMV_('T',nVir(iSyma),nOcc(iSymi),              &
-     &                       1.0d0,V(1+iT1Am(iSyma,iSymi)),na,          &
-     &                             PVir(1+iVir(iSyma)),1,               &
-     &                       0.0d0,Q,1)
-                  Y(J) = Y(J) + dDot_(nOcc(iSymi),Q,1,                  &
-     &                                POcc(1+iOcc(iSymi)),1)
-               End Do
-            End Do
-            iOpt = 2
-            Call ChoMP2_OpenF(iOpt,iTyp,iSym)
-            Call mma_deallocate(V)
+  else
 
-!           Calculate errors.
-!           -----------------
+    call FZero(Err(1,iSym),4)
 
-            Call mma_allocate(D,nMP2Vec(iSym),Label='D')
-            Call dCopy_(nMP2Vec(iSym),X,1,D,1)
-            Call dAXPY_(nMP2Vec(iSym),-1.0d0,Y,1,D,1)
-            Err(1,iSym) = abs(D(1))
-            Err(2,iSym) = abs(D(1))
-            Err(3,iSym) =     D(1)
-            Do J = 1,nMP2Vec(iSym)-1
-               Err(1,iSym) = min(Err(1,iSym),abs(D(1+J)))
-               Err(2,iSym) = max(Err(2,iSym),abs(D(1+J)))
-               Err(3,iSym) =     Err(3,iSym)   + D(1+J)
-            End Do
-            AvgErr = AvgErr + Err(3,iSym)
-            Err(3,iSym) = Err(3,iSym)/dble(nMP2Vec(iSym))
-            Err(4,iSym) = dDot_(nMP2Vec(iSym),D,1,D,1)
-            RMSErr = RMSErr + Err(4,iSym)
-            Err(4,iSym) = Err(4,iSym)/dble(nMP2Vec(iSym))
-            Err(4,iSym) = sqrt(Err(4,iSym))
-            Call mma_deallocate(D)
+  end if
 
-!           Deallocation.
-!           -------------
+  if (iSym == 1) then
+    AbsMinErr = Err(1,iSym)
+    AbsMaxErr = Err(2,iSym)
+    nMP2Vec_Tot = max(nMP2Vec(iSym),0)
+  else
+    AbsMinErr = min(AbsMinErr,Err(1,iSym))
+    AbsMaxErr = max(AbsMaxErr,Err(2,iSym))
+    nMP2Vec_Tot = nMP2Vec_Tot+max(nMP2Vec(iSym),0)
+  end if
 
-            Call mma_deallocate(Y)
-            Call mma_deallocate(X)
+end do
 
-         Else
+AvgErr = AvgErr/dble(nMP2Vec_Tot)
+RMSErr = RMSErr/dble(nMP2Vec_Tot)
+RMSErr = sqrt(RMSErr)
 
-            Call FZero(Err(1,iSym),4)
+! Report.
+! -------
 
-         End If
+call Cho_Head('MO Vector Backtransformation Check','=',80,6)
+write(6,'(/,2X,A,/,2X,A)') 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error       RMS Error', &
+                           '----------------------------------------------------------------------------'
+do iSym=1,nSym
+  write(6,'(4X,I2,4X,1P,4(3X,D14.6))') iSym,(Err(i,iSym),i=1,4)
+end do
+write(6,'(2X,A)') '----------------------------------------------------------------------------'
+write(6,'(2X,A,2X,1P,4(3X,D14.6))') 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
+write(6,'(2X,A,/)') '----------------------------------------------------------------------------'
 
-         If (iSym .eq. 1) Then
-            AbsMinErr = Err(1,iSym)
-            AbsMaxErr = Err(2,iSym)
-            nMP2Vec_Tot = max(nMP2Vec(iSym),0)
-         Else
-            AbsMinErr = min(AbsMinErr,Err(1,iSym))
-            AbsMaxErr = max(AbsMaxErr,Err(2,iSym))
-            nMP2Vec_Tot = nMP2Vec_Tot + max(nMP2Vec(iSym),0)
-         End If
+! Free memory.
+! ------------
 
-      End Do
+call mma_deallocate(Q)
+call mma_deallocate(PVir)
+call mma_deallocate(POcc)
 
-      AvgErr = AvgErr/dble(nMP2Vec_Tot)
-      RMSErr = RMSErr/dble(nMP2Vec_Tot)
-      RMSErr = sqrt(RMSErr)
-
-!     Report.
-!     -------
-
-      Call Cho_Head('MO Vector Backtransformation Check','=',80,6)
-      Write(6,'(/,2X,A,A,/,2X,A,A)')                                    &
-     & 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error',   &
-     & '        RMS Error',                                             &
-     & '-----------------------------------------------------------',   &
-     & '-----------------'
-      Do iSym = 1,nSym
-         Write(6,'(4X,I2,4X,1P,4(3X,D14.6))')                           &
-     &   iSym,(Err(i,iSym),i=1,4)
-      End Do
-      Write(6,'(2X,A,A)')                                               &
-     & '-----------------------------------------------------------',   &
-     & '-----------------'
-      Write(6,'(2X,A,2X,1P,4(3X,D14.6))')                               &
-     & 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
-      Write(6,'(2X,A,A,/)')                                             &
-     & '-----------------------------------------------------------',   &
-     & '-----------------'
-
-!     Free memory.
-!     ------------
-
-      Call mma_deallocate(Q)
-      Call mma_deallocate(PVir)
-      Call mma_deallocate(POcc)
-
-      End
+end subroutine ChoMP2_CheckBackTra

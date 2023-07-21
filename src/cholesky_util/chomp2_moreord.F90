@@ -10,38 +10,39 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_MOReOrd(CMO,COcc,CVir)
+
+subroutine ChoMP2_MOReOrd(CMO,COcc,CVir)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: reorder MOs,
+! Purpose: reorder MOs,
 !
-!              CMO(alpha,i) -> COcc(i,alpha)
-!              CMO(alpha,a) -> CVir(alpha,a)
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 COcc(*), CVir(*), CMO(*)
+!          CMO(alpha,i) -> COcc(i,alpha)
+!          CMO(alpha,a) -> CVir(alpha,a)
+
+implicit real*8(a-h,o-z)
+real*8 COcc(*), CVir(*), CMO(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
 
-      iCount = 0
-      Do iSym = 1,nSym
+iCount = 0
+do iSym=1,nSym
 
-         jCount = iCount + nBas(iSym)*nFro(iSym)
+  jCount = iCount+nBas(iSym)*nFro(iSym)
 
-         Do i = 1,nOcc(iSym)
-            kOff1 = jCount + nBas(iSym)*(i-1) + 1
-            kOff2 = iT1AOT(iSym,iSym) + i
-            Call dCopy_(nBas(iSym),CMO(kOff1),1,COcc(kOff2),nOcc(iSym))
-         End Do
+  do i=1,nOcc(iSym)
+    kOff1 = jCount+nBas(iSym)*(i-1)+1
+    kOff2 = iT1AOT(iSym,iSym)+i
+    call dCopy_(nBas(iSym),CMO(kOff1),1,COcc(kOff2),nOcc(iSym))
+  end do
 
-         kOff1 = jCount + nBas(iSym)*nOcc(iSym) + 1
-         kOff2 = iAOVir(iSym,iSym) + 1
-         Call dCopy_(nBas(isym)*nVir(iSym),CMO(kOff1),1,CVir(kOff2),1)
+  kOff1 = jCount+nBas(iSym)*nOcc(iSym)+1
+  kOff2 = iAOVir(iSym,iSym)+1
+  call dCopy_(nBas(isym)*nVir(iSym),CMO(kOff1),1,CVir(kOff2),1)
 
-         iCount = iCount + nBas(iSym)*nBas(iSym)
+  iCount = iCount+nBas(iSym)*nBas(iSym)
 
-      End Do
+end do
 
-      End
+end subroutine ChoMP2_MOReOrd

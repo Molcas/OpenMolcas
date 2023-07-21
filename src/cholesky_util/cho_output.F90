@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1971, Nelson H. F. Beebe                               *
 !***********************************************************************
-      SUBROUTINE CHO_OUTPUT(AMATRX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,    &
-     &                      COLDIM,NCTL,LUPRI)
+
+subroutine CHO_OUTPUT(AMATRX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,COLDIM,NCTL,LUPRI)
 !.......................................................................
 !
 ! OUTPUT PRINTS A REAL MATRIX IN FORMATTED FORM WITH NUMBERED ROWS
@@ -46,63 +46,67 @@
 ! REVISED; FEBRUARY 26, 1971
 !
 !.......................................................................
-!
-      Implicit Real*8 (a-h,o-z)
-      INTEGER   ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,COLDIM,BEGIN,KCOL
-      REAL*8 AMATRX(ROWDIM,COLDIM)
-      CHARACTER*1 ASA(3), BLANK, CTL
-      CHARACTER   PFMT*20, COLUMN*8
-      PARAMETER (ZERO=0.D00, KCOLP=4, KCOLN=6)
-      PARAMETER (FFMIN=1.D-3, FFMAX = 1.D3)
-      DATA COLUMN/'Column  '/, BLANK/' '/, ASA/' ', '0', '-'/
-!
-      IF (ROWHI.LT.ROWLOW) GO TO 3
-      IF (COLHI.LT.COLLOW) GO TO 3
-!
-      AMAX = ZERO
-      DO J = COLLOW,COLHI
-         DO I = ROWLOW,ROWHI
-            AMAX = MAX( AMAX, ABS(AMATRX(I,J)) )
-         END DO
-      END DO
-      IF (AMAX .EQ. ZERO) THEN
-         WRITE (LUPRI,'(/T6,A)') 'Zero matrix.'
-         GO TO 3
-      END IF
-      IF (FFMIN .LE. AMAX .AND. AMAX .LE. FFMAX) THEN
-!        use F output format
-         PFMT = '(A1,I7,2X,8F15.8)'
-      ELSE
-!        use 1PD output format
-         PFMT = '(A1,I7,2X,1P,8D15.6)'
-      END IF
-!
-      IF (NCTL .LT. 0) THEN
-         KCOL = KCOLN
-      ELSE
-         KCOL = KCOLP
-      END IF
-      MCTL = ABS(NCTL)
-      IF ((MCTL.LE.3).AND.(MCTL.GT.0)) THEN
-         CTL = ASA(MCTL)
-      ELSE
-         CTL = BLANK
-      END IF
-!
-      LAST = MIN(COLHI,COLLOW+KCOL-1)
-      DO 2 BEGIN = COLLOW,COLHI,KCOL
-         WRITE (LUPRI,1000) (COLUMN,I,I = BEGIN,LAST)
-         DO 1 K = ROWLOW,ROWHI
-            DO 4 I = BEGIN,LAST
-               IF (AMATRX(K,I).NE.ZERO) GO TO 5
-    4       CONTINUE
-         GO TO 1
-    5       WRITE (LUPRI,PFMT) CTL,K,(AMATRX(K,I), I = BEGIN,LAST)
-    1    CONTINUE
-         LAST = MIN(LAST+KCOL,COLHI)
-    2 CONTINUE
-    3 RETURN
- 1000 FORMAT (/12X,6(3X,A6,I4,2X),(3X,A6,I4))
-!2000 FORMAT (A1,'Row',I4,2X,1P,8D15.6)
-!2000 FORMAT (A1,I7,2X,1P,8D15.6)
-      END
+
+implicit real*8(a-h,o-z)
+integer ROWLOW, ROWHI, COLLOW, COLHI, ROWDIM, COLDIM, BEGIN, KCOL
+real*8 AMATRX(ROWDIM,COLDIM)
+character*1 ASA(3), BLANK, CTL
+character PFMT*20, COLUMN*8
+parameter(ZERO=0.d00,KCOLP=4,KCOLN=6)
+parameter(FFMIN=1.D-3,FFMAX=1.d3)
+data COLUMN/'Column  '/,BLANK/' '/,ASA/' ','0','-'/
+
+if (ROWHI < ROWLOW) GO TO 3
+if (COLHI < COLLOW) GO TO 3
+
+AMAX = ZERO
+do J=COLLOW,COLHI
+  do I=ROWLOW,ROWHI
+    AMAX = max(AMAX,abs(AMATRX(I,J)))
+  end do
+end do
+if (AMAX == ZERO) then
+  write(LUPRI,'(/T6,A)') 'Zero matrix.'
+  GO TO 3
+end if
+if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
+  ! use F output format
+  PFMT = '(A1,I7,2X,8F15.8)'
+else
+  ! use 1PD output format
+  PFMT = '(A1,I7,2X,1P,8D15.6)'
+end if
+
+if (NCTL < 0) then
+  KCOL = KCOLN
+else
+  KCOL = KCOLP
+end if
+MCTL = abs(NCTL)
+if ((MCTL <= 3) .and. (MCTL > 0)) then
+  CTL = ASA(MCTL)
+else
+  CTL = BLANK
+end if
+
+LAST = min(COLHI,COLLOW+KCOL-1)
+do BEGIN=COLLOW,COLHI,KCOL
+  write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
+  do K=ROWLOW,ROWHI
+    do I=BEGIN,LAST
+      if (AMATRX(K,I) /= ZERO) GO TO 5
+    end do
+    GO TO 1
+5   write(LUPRI,PFMT) CTL,K,(AMATRX(K,I),I=BEGIN,LAST)
+1   continue
+  end do
+  LAST = min(LAST+KCOL,COLHI)
+end do
+
+3 return
+
+1000 format(/12X,6(3X,A6,I4,2X),(3X,A6,I4))
+!2000 format(A1,'Row',I4,2X,1P,8D15.6)
+!2000 format(A1,I7,2X,1P,8D15.6)
+
+end subroutine CHO_OUTPUT

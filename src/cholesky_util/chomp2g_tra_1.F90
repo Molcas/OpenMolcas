@@ -10,166 +10,148 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2g_Tra_1(COrb1,COrb2,Diag,DoDiag,Wrk,lWrk,iSym,   &
-     &                         iMoType1, iMoType2)
+
+subroutine ChoMP2g_Tra_1(COrb1,COrb2,Diag,DoDiag,Wrk,lWrk,iSym,iMoType1,iMoType2)
 !
-!     Thomas Bondo Pedersen, Dec. 2010.
+! Thomas Bondo Pedersen, Dec. 2010.
 !
-!     Purpose: transform Cholesky vectors to (pq) MO basis for symmetry
-!              block iSym. Files are assumed open.
-!              If requested (DoDiag=.true.), compute (pq|pq) integral
-!              diagonal.
-!
-      use ChoSwp, only: InfVec
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
-      Logical DoDiag
+! Purpose: transform Cholesky vectors to (pq) MO basis for symmetry
+!          block iSym. Files are assumed open.
+!          If requested (DoDiag=.true.), compute (pq|pq) integral
+!          diagonal.
+
+use ChoSwp, only: InfVec
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+real*8 COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
+logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
+character*12 SecNam
+parameter(SecNam='ChoMP2_Tra_1')
+integer Cho_lRead
+external Cho_lRead
+integer pq
 
-      Character*12 SecNam
-      Parameter (SecNam = 'ChoMP2_Tra_1')
+! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
+iVecType = iMoType2+(iMoType1-1)*nMoType
 
-      Integer  Cho_lRead
-      External Cho_lRead
+! Check if anything to do.
+! ------------------------
 
-      Integer pq
+if ((NumCho(iSym) < 1) .or. (nMoMo(iSym,iVecType) < 1)) return
 
-!     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
-      iVecType = iMoType2 + (iMoType1-1)*nMoType
+! Initialize Diag (if needed).
+! ----------------------------
 
-!     Check if anything to do.
-!     ------------------------
+if (DoDiag) call FZero(Diag,nMoMo(iSym,iVecType))
 
-      If (NumCho(iSym).lt.1 .or. nMoMo(iSym,iVecType).lt.1) Return
+! Allocate memory for half-transformed vector.
+! --------------------------------------------
 
-!     Initialize Diag (if needed).
-!     ----------------------------
+lHlfTr = nMoAo(iSym,iMoType1)
 
-      If (DoDiag) Call FZero(Diag,nMoMo(iSym,iVecType))
+kHlfTr = 1
+kEnd0 = kHlfTr+lHlfTr
+lWrk0 = lWrk-kEnd0+1
+if (lWrk0 < (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 
-!     Allocate memory for half-transformed vector.
-!     --------------------------------------------
+! Reserve memory for reading AO vectors.
+! --------------------------------------
 
-      lHlfTr = nMoAo(iSym,iMoType1)
+lRead = Cho_lRead(iSym,lWrk0)
+if (lRead < 1) then
+  write(6,*) SecNam,': memory error: lRead = ',lRead
+  call ChoMP2_Quit(SecNam,'memory error',' ')
+  lWrk1 = 0 ! to avoid compiler warnings...
+else
+  lWrk1 = lWrk0-lRead
+  if (lWrk1 < nMoMo(iSym,iVecType)) then
+    lWrk1 = nMoMo(iSym,iVecType)
+    lRead = lWrk-nMoMo(iSym,iVecType)
+  end if
+end if
 
-      kHlfTr = 1
-      kEnd0  = kHlfTr + lHlfTr
-      lWrk0  = lWrk   - kEnd0 + 1
-      If (lWrk0 .lt. (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) Then
-         Call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
-      End If
+! Set up batch.
+! -------------
 
-!     Reserve memory for reading AO vectors.
-!     --------------------------------------
+nMOVec = min(lWrk1/nMoMo(iSym,iVecType),NumCho(iSym))
+if (nMOVec < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
+NumBat = (NumCho(iSym)-1)/nMOVec+1
 
-      lRead = Cho_lRead(iSym,lWrk0)
-      If (lRead .lt. 1) Then
-         Write(6,*) SecNam,': memory error: lRead = ',lRead
-         Call ChoMP2_Quit(SecNam,'memory error',' ')
-         lWrk1 = 0 ! to avoid compiler warnings...
-      Else
-         lWrk1 = lWrk0 - lRead
-         If (lWrk1 .lt. nMoMo(iSym,iVecType)) Then
-            lWrk1 = nMoMo(iSym,iVecType)
-            lRead = lWrk - nMoMo(iSym,iVecType)
-         End If
-      End If
+! Set reduced set handles.
+! ------------------------
 
-!     Set up batch.
-!     -------------
+iRedC = -1
+iLoc = 3
 
-      nMOVec = min(lWrk1/nMoMo(iSym,iVecType),NumCho(iSym))
-      If (nMOVec .lt. 1) Then
-         Call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
-      End If
-      NumBat = (NumCho(iSym) - 1)/nMOVec + 1
+! Transform each batch of vectors and compute diagonal contributions
+! (if requested).
+! ------------------------------------------------------------------
 
-!     Set reduced set handles.
-!     ------------------------
+do iBat=1,NumBat
 
-      iRedC = -1
-      iLoc  = 3
+  if (iBat == NumBat) then
+    NumV = NumCho(iSym)-nMOVec*(NumBat-1)
+  else
+    NumV = nMOVec
+  end if
+  iVec1 = nMOVec*(iBat-1)+1
+  iVec2 = iVec1+NumV-1
 
-!     Transform each batch of vectors and compute diagonal contributions
-!     (if requested).
-!     ------------------------------------------------------------------
+  lChoMO = nMoMo(iSym,iVecType)*NumV
 
-      Do iBat = 1,NumBat
+  kChoMO = kEnd0
+  kChoAO = kChoMO+lChoMO
+  lChoAO = lWrk0-kChoAO+1
 
-         If (iBat .eq. NumBat) Then
-            NumV = NumCho(iSym) - nMOVec*(NumBat - 1)
-         Else
-            NumV = nMOVec
-         End If
-         iVec1 = nMOVec*(iBat - 1) + 1
-         iVec2 = iVec1 + NumV - 1
+  kOffMO = kChoMO
+  jVec1 = iVec1
+  do while (jVec1 <= iVec2)
 
-         lChoMO = nMoMo(iSym,iVecType)*NumV
+    jNum = 0
+    call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,jNum,iRedC,mUsed)
+    if (jNum < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
 
-         kChoMO = kEnd0
-         kChoAO = kChoMO + lChoMO
-         lChoAO = lWrk0  - kChoAO + 1
+    kOff = kChoAO
+    do jVec=1,jNum
+      iVec = jVec1+jVec-1
+      iRed = InfVec(iVec,2,iSym)
+      if (iRedC /= iRed) then
+        irc = 0
+        call Cho_X_SetRed(irc,iLoc,iRed)
+        if (irc /= 0) call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',' ')
+        iRedC = iRed
+      end if
 
-         kOffMO = kChoMO
-         jVec1  = iVec1
-         Do While (jVec1 .le. iVec2)
+      call ChoMP2g_TraVec(Wrk(kOff),Wrk(kOffMO),COrb1,COrb2,Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc,iMoType1,iMoType2)
+      kOff = kOff+nnBstR(iSym,iLoc)
+      kOffMO = kOffMO+nMoMo(iSym,iVecType)
+    end do
 
-            jNum = 0
-            Call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,         &
-     &                     jNum,iRedC,mUsed)
-            If (jNum .lt. 1) Then
-               Call ChoMP2_Quit(SecNam,                                 &
-     &                          'insufficient memory','[2]')
-            End If
+    jVec1 = jVec1+jNum
 
-            kOff = kChoAO
-            Do jVec = 1,jNum
-               iVec = jVec1 + jVec - 1
-               iRed = InfVec(iVec,2,iSym)
-               If (iRedC .ne. iRed) Then
-                  irc = 0
-                  Call Cho_X_SetRed(irc,iLoc,iRed)
-                  If (irc .ne. 0) Then
-                     Call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',   &
-     &                                ' ')
-                  End If
-                  iRedC = iRed
-               End If
-!
-               Call ChoMP2g_TraVec(Wrk(kOff),Wrk(kOffMO),COrb1,COrb2,   &
-     &                            Wrk(kHlfTr),lHlfTr,iSym,1,1,iLoc,     &
-     &                            iMoType1,iMoType2)
-               kOff   = kOff   + nnBstR(iSym,iLoc)
-               kOffMO = kOffMO + nMoMo(iSym,iVecType)
-            End Do
+  end do
 
-            jVec1 = jVec1 + jNum
+  iOpt = 1
+  iAdr = nAdrOff(iSym)+nMoMo(iSym,iVecType)*(iVec1-1)+1
+  iAdrOff(iSym,iVecType) = nAdrOff(iSym)
+  call ddaFile(lUnit_F(iSym,1),iOpt,Wrk(kChoMO),lChoMO,iAdr)
 
-         End Do
+  if (DoDiag) then
+    do iVec=1,NumV
+      kOff = kChoMO+nMoMo(iSym,iVecType)*(iVec-1)-1
+      do pq=1,nMoMo(iSym,iVecType)
+        Diag(pq) = Diag(pq)+Wrk(kOff+pq)*Wrk(kOff+pq)
+      end do
+    end do
+  end if
 
+end do
+! When we reach this point we have written all vectors of the present
+! type for this symmetry and need to remember were we should continue
+! to write the next type.
+if (iVecType /= 9) nAdrOff(iSym) = iAdr-1
 
-         iOpt = 1
-         iAdr = nAdrOff(iSym) +                                         &
-     &          nMoMo(iSym,iVecType)*(iVec1 - 1) + 1
-         iAdrOff(iSym,iVecType) = nAdrOff(iSym)
-         Call ddaFile(lUnit_F(iSym,1),iOpt,Wrk(kChoMO),lChoMO,iAdr)
-
-         If (DoDiag) Then
-            Do iVec = 1,NumV
-               kOff = kChoMO + nMoMo(iSym,iVecType)*(iVec-1) - 1
-               Do pq = 1,nMoMo(iSym,iVecType)
-                  Diag(pq) = Diag(pq) + Wrk(kOff+pq)*Wrk(kOff+pq)
-               End Do
-            End Do
-         End If
-
-      End Do
-!     When we reach this point we have written all vectors of the present
-!     type for this symmetry and need to remember were we should continue
-!     to write the next type.
-      If(iVecType.ne.9) Then
-         nAdrOff(iSym) = iAdr-1
-      End If
-      End
+end subroutine ChoMP2g_Tra_1

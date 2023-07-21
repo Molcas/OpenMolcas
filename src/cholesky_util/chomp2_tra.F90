@@ -10,54 +10,54 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
+
+subroutine ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: transform Cholesky vectors to (ai) MO basis.
-!
-      use stdalloc
-      Implicit None
-      Real*8  COcc(*), CVir(*), Diag(*)
-      Logical DoDiag
+! Purpose: transform Cholesky vectors to (ai) MO basis.
+
+use stdalloc
+
+implicit none
+real*8 COcc(*), CVir(*), Diag(*)
+logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
+character(len=10), parameter :: SecNam = 'ChoMP2_Tra'
+integer kOffD, iSym, lW
+real*8, allocatable :: TraMax(:)
 
-      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
+! Allocate remaining memory.
+! --------------------------
 
-      Integer kOffD, iSym, lW
-      Real*8, Allocatable:: TraMax(:)
+call mma_maxDBLE(lw)
+call mma_allocate(TraMax,lw,Label='TraMax')
 
-!     Allocate remaining memory.
-!     --------------------------
+kOffD = 1
+do iSym=1,nSym
 
-      Call mma_maxDBLE(lw)
-      Call mma_allocate(TraMax,lw,Label='TraMax')
+  ! Open files for MO vectors.
+  ! --------------------------
 
-      kOffD = 1
-      Do iSym = 1,nSym
+  call ChoMP2_OpenF(1,1,iSym)
 
-!        Open files for MO vectors.
-!        --------------------------
+  ! Transform vectors.
+  ! ------------------
 
-         Call ChoMP2_OpenF(1,1,iSym)
+  call ChoMP2_Tra_1(COcc,CVir,Diag(kOffD),DoDiag,TraMax,lW,iSym)
+  if (DoDiag) kOffD = kOffD+nT1am(iSym)
 
-!        Transform vectors.
-!        ------------------
+  ! Close files for MO vectors.
+  ! ---------------------------
 
-         Call ChoMP2_Tra_1(COcc,CVir,Diag(kOffD),DoDiag,TraMax,lW,iSym)
-         If (DoDiag) kOffD = kOffD + nT1am(iSym)
+  call ChoMP2_OpenF(2,1,iSym)
 
-!        Close files for MO vectors.
-!        ---------------------------
+end do
 
-         Call ChoMP2_OpenF(2,1,iSym)
+! Free memory.
+! ------------
 
-      End Do
+call mma_deallocate(TraMax)
 
-!     Free memory.
-!     ------------
-
-      Call mma_deallocate(TraMax)
-
-      End
+end subroutine ChoMP2_Tra

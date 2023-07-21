@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_CALCINT(ISHLAB)
+
+subroutine CHO_MCA_CALCINT(ISHLAB)
 !
-!     Purpose: calculate qualified integral columns from
-!              shell pair distribution (**|ISHLA ISHLB).
-!
-      IMPLICIT NONE
-      INTEGER ISHLAB
+! Purpose: calculate qualified integral columns from
+!          shell pair distribution (**|ISHLA ISHLB).
+
+implicit none
+integer ISHLAB
 #include "cholesky.fh"
+character*15 SECNAM
+parameter(SECNAM='CHO_MCA_CALCINT')
 
-      CHARACTER*15 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_CALCINT')
+if (IFCSEW == 1) then ! store full shell quadruple
+  call CHO_MCA_CALCINT_1(ISHLAB)
+else if (IFCSEW == 2) then ! store only reduced sets
+  call CHO_MCA_CALCINT_2(ISHLAB)
+else ! this is an error
+  call CHO_QUIT('IFCSEW out of bounds in '//SECNAM,105)
+end if
 
-      IF (IFCSEW .EQ. 1) THEN ! store full shell quadruple
-         CALL CHO_MCA_CALCINT_1(ISHLAB)
-      ELSE IF (IFCSEW .EQ. 2) THEN ! store only reduced sets
-         CALL CHO_MCA_CALCINT_2(ISHLAB)
-      ELSE ! this is an error
-         CALL CHO_QUIT('IFCSEW out of bounds in '//SECNAM,105)
-      END IF
-
-      END
+end subroutine CHO_MCA_CALCINT

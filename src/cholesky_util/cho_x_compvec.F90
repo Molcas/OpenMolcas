@@ -10,593 +10,464 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_X_CompVec(irc,                                     &
-     &                         NVT,l_NVT,                               &
-     &                         nBlock,l_nBlock,                         &
-     &                         nV,l_nV1,l_nV2,                          &
-     &                         iV1,l_iV11,l_iV12,                       &
-     &                         ip_Z,l_Z1,l_Z2,Z,l_Z,                    &
-     &                         Free_Z)
+
+subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV12,ip_Z,l_Z1,l_Z2,Z,l_Z,Free_Z)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Purpose: Compute Cholesky vectors from Z vectors in core
-!              and integrals computed on the fly:
+! Purpose: Compute Cholesky vectors from Z vectors in core
+!          and integrals computed on the fly:
 !
-!              L(uv,J) = 1/Z(J,J)
-!                      * [ (uv|J) - sum[K=1,J-1] L(uv,K)*Z(J,K) ]
+!          L(uv,J) = 1/Z(J,J)
+!                  * [ (uv|J) - sum[K=1,J-1] L(uv,K)*Z(J,K) ]
 !
-!     NVT(i): total number of Cholesky vectors (all nodes), sym. i
-!     nBlock(i): number of vector blocks, sym. i
-!     nV(i,j): number of vectors in block i of sym. j
-!     iV1(i,j): index of first vector in block i of sym. j
-!     ip_Z(i,j): pointer to Z block i of sym. j
+! NVT(i): total number of Cholesky vectors (all nodes), sym. i
+! nBlock(i): number of vector blocks, sym. i
+! nV(i,j): number of vectors in block i of sym. j
+! iV1(i,j): index of first vector in block i of sym. j
+! ip_Z(i,j): pointer to Z block i of sym. j
 !
-!     If (Free_Z): Z array will be de-allocated here using ip_Z(1,1) as
-!     start point of the array - i.e. assuming that the Z blocks are
-!     stored as one coherent array. If this is not the case, simply put
-!     Free_Z=.False. Letting this routine deallocate Z maximizes the
-!     memory available for vector distribution.
+! If (Free_Z): Z array will be de-allocated here using ip_Z(1,1) as
+! start point of the array - i.e. assuming that the Z blocks are
+! stored as one coherent array. If this is not the case, simply put
+! Free_Z=.False. Letting this routine deallocate Z maximizes the
+! memory available for vector distribution.
 !
-!     Vectors are distributed across nodes and stored according to
-!     reduced set 1 (all of them!).
-!
-#if defined (_DEBUGPRINT_)
-      use ChoArr, only: iSP2F
+! Vectors are distributed across nodes and stored according to
+! reduced set 1 (all of them!).
+
+#ifdef _DEBUGPRINT_
+use ChoArr, only: iSP2F
 #endif
-      use ChoArr, only: iOff_Batch, nDim_Batch
-      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
-      use stdalloc
-      Implicit None
-      Integer irc
-      Integer l_NVT
-      Integer l_nBlock
-      Integer l_nV1, l_nV2
-      Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2, l_Z
-      Integer NVT(l_NVT)
-      Integer nBlock(l_nBlock)
-      Integer nV(l_NV1,l_NV2)
-      Integer iV1(l_IV11,l_iV12)
-      Integer ip_Z(l_Z1,l_Z2)
-      Real*8  Z(l_Z)
-      Logical Free_Z
+use ChoArr, only: iOff_Batch, nDim_Batch
+use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
+use stdalloc
+
+implicit none
+integer irc
+integer l_NVT
+integer l_nBlock
+integer l_nV1, l_nV2
+integer l_iV11, l_iV12
+integer l_Z1, l_Z2, l_Z
+integer NVT(l_NVT)
+integer nBlock(l_nBlock)
+integer nV(l_NV1,l_NV2)
+integer iV1(l_IV11,l_iV12)
+integer ip_Z(l_Z1,l_Z2)
+real*8 Z(l_Z)
+logical Free_Z
 #include "cholesky.fh"
 #include "choprint.fh"
-
-      Character*2  Unt
-      Character*13 SecNam
-      Parameter (SecNam='Cho_X_CompVec')
-
-      Integer  Cho_F2SP
-      External Cho_F2SP
-
-#if defined (_DEBUGPRINT_)
-      Integer nBlock_Max, nnB
-      Integer nTot, nTot2
-      Integer myDebugInfo
-      Parameter (myDebugInfo=100)
-      Real*8  Tol
-      Parameter (Tol=1.0d-14)
+character*2 Unt
+character*13 SecNam
+parameter(SecNam='Cho_X_CompVec')
+integer Cho_F2SP
+external Cho_F2SP
+#ifdef _DEBUGPRINT_
+integer nBlock_Max, nnB
+integer nTot, nTot2
+integer myDebugInfo
+parameter(myDebugInfo=100)
+real*8 Tol
+parameter(Tol=1.0d-14)
 #endif
-
-      Integer iAdr(8)
-      Integer iSym, n
-      Integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
-      Integer l_Int
-      Integer kOffI, kOffZ
-      Integer jBlock, kBlock
-      Integer J_inBlock, K_inBlock
-      Integer kI, kL, kZ
-      Integer ldL, ldZ
-      Integer l_Wrk
-      Integer MaxQual_SAVE
-      Integer, Pointer:: InfVcT(:,:,:)
-      Integer l_Zd, incZd
-      Integer kZd
-      Integer iCountSP
-      Integer lTot, Left
-      Integer nBatch
-
-      Real*8 C0, C1, W0, W1
-      Real*8 X0, X1, Y0, Y1
-      Real*8 Byte, PMem, PDone
-      Real*8 TotMem, TotCPU, TotWall
-
-      Integer i, j, k
-      Integer iTri
-
-      Integer, Allocatable:: XCVTMP(:), XCVLSP(:), XCVnBt(:)
-      Real*8, Allocatable:: XCVZd(:), XCVInt(:)
+integer iAdr(8)
+integer iSym, n
+integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
+integer l_Int
+integer kOffI, kOffZ
+integer jBlock, kBlock
+integer J_inBlock, K_inBlock
+integer kI, kL, kZ
+integer ldL, ldZ
+integer l_Wrk
+integer MaxQual_SAVE
+integer, pointer :: InfVcT(:,:,:)
+integer l_Zd, incZd
+integer kZd
+integer iCountSP
+integer lTot, Left
+integer nBatch
+real*8 C0, C1, W0, W1
+real*8 X0, X1, Y0, Y1
+real*8 Byte, PMem, PDone
+real*8 TotMem, TotCPU, TotWall
+integer i, j, k
+integer iTri
+integer, allocatable :: XCVTMP(:), XCVLSP(:), XCVnBt(:)
+real*8, allocatable :: XCVZd(:), XCVInt(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      Subroutine Cho_X_GetIP_InfVec(InfVcT)
-      Integer, Pointer:: InfVct(:,:,:)
-      End Subroutine Cho_X_GetIP_InfVec
-      End Interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+interface
+  subroutine Cho_X_GetIP_InfVec(InfVcT)
+    integer, pointer :: InfVct(:,:,:)
+  end subroutine Cho_X_GetIP_InfVec
+end interface
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+! Init return code
+irc = 0
 
-      ! Init return code
-      irc=0
-
-#if defined (_DEBUGPRINT_)
-      ! Check input
-      If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.                      &
-     &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.                        &
-     &    l_Z2.lt.nSym) Then
-         irc=-2
-         Return
-      End If
-      nBlock_Max=nBlock(1)
-      Do iSym=2,nSym
-         nBlock_Max=max(nBlock_Max,nBlock(iSym))
-      End Do
-      nnB=nBlock_Max*(nBlock_Max+1)/2
-      If (l_nV1.lt.nBlock_Max .or. l_iV11.lt.nBlock_Max .or.            &
-     &    l_Z1.lt.nnB) Then
-         irc=-1
-         Return
-      End If
+#ifdef _DEBUGPRINT_
+! Check input
+if ((l_NVT < nSym) .or. (l_nBlock < nSym) .or. (l_nV2 < nSym) .or. (l_iV12 < nSym) .or. (l_Z2 < nSym)) then
+  irc = -2
+  return
+end if
+nBlock_Max = nBlock(1)
+do iSym=2,nSym
+  nBlock_Max = max(nBlock_Max,nBlock(iSym))
+end do
+nnB = nBlock_Max*(nBlock_Max+1)/2
+if ((l_nV1 < nBlock_Max) .or. (l_iV11 < nBlock_Max) .or. (l_Z1 < nnB)) then
+  irc = -1
+  return
+end if
 #endif
 
-      ! Parallel runs: open tmp vector files
-      Call Cho_XCV_TmpFiles(irc,1)
-      If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')                                      &
-     &   SecNam,': [1] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
-         irc=1
-         Return
-      End If
+! Parallel runs: open tmp vector files
+call Cho_XCV_TmpFiles(irc,1)
+if (irc /= 0) then
+  write(LuPri,'(A,A,I8,A)') SecNam,': [1] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
+  irc = 1
+  return
+end if
 
-      ! Get pointer to InfVec array for all vectors
-      Call Cho_X_GetIP_InfVec(InfVcT)
+! Get pointer to InfVec array for all vectors
+call Cho_X_GetIP_InfVec(InfVcT)
 
-      ! Copy reduced set 1 to location 2.
-      ! I.e. make rs1 the "current" reduced set.
-      Call Cho_X_RSCopy(irc,1,2)
-      If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')                                      &
-     &   SecNam,': Error in Cho_X_RSCopy! (Return code:',irc,')'
-         irc=1
-         Return
-      End If
+! Copy reduced set 1 to location 2.
+! I.e. make rs1 the "current" reduced set.
+call Cho_X_RSCopy(irc,1,2)
+if (irc /= 0) then
+  write(LuPri,'(A,A,I8,A)') SecNam,': Error in Cho_X_RSCopy! (Return code:',irc,')'
+  irc = 1
+  return
+end if
 
-      ! Allocate tmp array to keep track of which shell pairs are
-      ! computed on this node.
-      Call mma_allocate(XCVTMP,nnShl,Label='XCVTMP')
+! Allocate tmp array to keep track of which shell pairs are
+! computed on this node.
+call mma_allocate(XCVTMP,nnShl,Label='XCVTMP')
 
-      ! Allocate and set list of parent shell pairs to compute
-      ! NOTE: the tmp array allocated above is used here!!!
-      XCVTMP(:)=0
-      nSP=0
-      Do iSym=1,nSym
-         Do J=1,NVT(iSym)
-            iSP=Cho_F2SP(IndRSh(InfVcT(J,1,iSym))) ! Parent SP
-            If (iSP.gt.0 .and. iSP.le.nnShl) Then
-               If (XCVTMP(iSP) .eq. 0) Then
-                  nSP=nSP+1
-               End If
-               XCVTMP(iSP)=XCVTMP(iSP)+1
-            Else
-               Call Cho_Quit(SecNam//': Parent SP error!!',103)
-            End If
-         End Do
-      End Do
-      Call mma_allocate(XCVLSP,nSP,Label='XCVLSP')
-      nSP=0
-      Do iSP=1,nnShl
-         If (XCVTMP(iSP).gt.0) Then
-            XCVLSP(nSP)=iSP
-            nSP=nSP+1
-         End If
-      End Do
-#if defined (_DEBUGPRINT_)
-      If (nSP.ne.SIZE(XCVLSP)) Then
-         Call Cho_Quit('SP counting error [1] in '//SecNam,103)
-      End If
-      nTot=NVT(1)
-      Do iSym=2,nSym
-         nTot=nTot+NVT(iSym)
-      End Do
-      nTot2=0
-      Do i=1,nSP
-         nTot2=nTot2+XCVTMP(XCVLSP(i))
-      End Do
-      If (iPrint.ge.myDebugInfo) Then
-         Call Cho_Head('Shell pair info from '//SecNam,'*',80,LuPri)
-         Write(LuPri,'(/,A,I8,/)')                                      &
-     &   'Number of shell pairs giving rise to vectors:',nSP
-         Do i=1,nSP
-            iSP=XCVLSP(i)
-            Call Cho_InvPck(iSP2F(iSP),j,k,.True.)
-            Write(Lupri,'(A,I8,A,I4,A,I4,A,I8,A)')                      &
-     &      'Shell pair',iSP,' (shells',j,',',k,                        &
-     &      ') gives rise to',XCVTMP(iSP),                              &
-     &      ' vectors'
-         End Do
-         Write(LuPri,'(A,I8,/,A,I8,/,A,I8)')                            &
-     &   'Total number of vectors (from SP).................',nTot2,    &
-     &   'Total number of vectors (from NVT)................',nTot,     &
-     &   'Difference........................................',nTot2-nTot
-      End If
-      If (nTot.ne.nTot2) Then
-         Call Cho_Quit('SP counting error [2] in '//SecNam,103)
-      End If
+! Allocate and set list of parent shell pairs to compute
+! NOTE: the tmp array allocated above is used here!!!
+XCVTMP(:) = 0
+nSP = 0
+do iSym=1,nSym
+  do J=1,NVT(iSym)
+    iSP = Cho_F2SP(IndRSh(InfVcT(J,1,iSym))) ! Parent SP
+    if ((iSP > 0) .and. (iSP <= nnShl)) then
+      if (XCVTMP(iSP) == 0) nSP = nSP+1
+      XCVTMP(iSP) = XCVTMP(iSP)+1
+    else
+      call Cho_Quit(SecNam//': Parent SP error!!',103)
+    end if
+  end do
+end do
+call mma_allocate(XCVLSP,nSP,Label='XCVLSP')
+nSP = 0
+do iSP=1,nnShl
+  if (XCVTMP(iSP) > 0) then
+    XCVLSP(nSP) = iSP
+    nSP = nSP+1
+  end if
+end do
+#ifdef _DEBUGPRINT_
+if (nSP /= size(XCVLSP)) call Cho_Quit('SP counting error [1] in '//SecNam,103)
+nTot = NVT(1)
+do iSym=2,nSym
+  nTot = nTot+NVT(iSym)
+end do
+nTot2 = 0
+do i=1,nSP
+  nTot2 = nTot2+XCVTMP(XCVLSP(i))
+end do
+if (iPrint >= myDebugInfo) then
+  call Cho_Head('Shell pair info from '//SecNam,'*',80,LuPri)
+  write(LuPri,'(/,A,I8,/)') 'Number of shell pairs giving rise to vectors:',nSP
+  do i=1,nSP
+    iSP = XCVLSP(i)
+    call Cho_InvPck(iSP2F(iSP),j,k,.true.)
+    write(Lupri,'(A,I8,A,I4,A,I4,A,I8,A)') 'Shell pair',iSP,' (shells',j,',',k,') gives rise to',XCVTMP(iSP),' vectors'
+  end do
+  write(LuPri,'(A,I8,/,A,I8,/,A,I8)') 'Total number of vectors (from SP).................',nTot2, &
+                                      'Total number of vectors (from NVT)................',nTot, &
+                                      'Difference........................................',nTot2-nTot
+end if
+if (nTot /= nTot2) call Cho_Quit('SP counting error [2] in '//SecNam,103)
 #endif
 
-      ! Re-allocate and set qualification arrays
-      pTemp => iQuAB
-      MaxQual_SAVE=MaxQual
-      MaxQual=NVT(1)
-      Do iSym=2,nSym
-         MaxQual=max(MaxQual,NVT(iSym))
-      End Do
-      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
-      iQuAB => iQuAB_here
-      Do iSym=1,nSym
-         nQual(iSym)=NVT(iSym)
-         Do J=1,nQual(iSym)
-            iQuAB(J,iSym)=InfVcT(J,1,iSym) ! parent product for vector J
-         End Do
-      End Do
+! Re-allocate and set qualification arrays
+pTemp => iQuAB
+MaxQual_SAVE = MaxQual
+MaxQual = NVT(1)
+do iSym=2,nSym
+  MaxQual = max(MaxQual,NVT(iSym))
+end do
+call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+iQuAB => iQuAB_here
+do iSym=1,nSym
+  nQual(iSym) = NVT(iSym)
+  do J=1,nQual(iSym)
+    iQuAB(J,iSym) = InfVcT(J,1,iSym) ! parent product for vector J
+  end do
+end do
 
-      ! Modify diagonal of Z matrix
-      ! Z(J,J) <- 1/Z(J,J)
-      ! If Z memory should not be de-allocated, save a backup of the
-      ! diagonal.
-      If (Free_Z) Then
-         l_Zd=1
-         incZd=0
-      Else
-         l_Zd=NVT(1)
-         Do iSym=2,nSym
-            l_Zd=l_Zd+NVT(iSym)
-         End Do
-         incZd=1
-      End If
-      Call mma_allocate(XCVZd,l_Zd,Label='XCVZd')
-      kZd=1
-      Do iSym=1,nSym
-         Do jBlock=1,nBlock(iSym)
-            kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
-            Do J_inBlock=1,nV(jBlock,iSym)
-#if defined (_DEBUGPRINT_)
-               ! Check for division by zero or negative diagonal
-               ! This would be a bug....
-               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol       &
-     &            .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)      &
-     &         Then
-                  Write(LuPri,'(//,A,A)') SecNam,': Ooooops!'
-                  Write(LuPri,'(A)')                                    &
-     &            '....division by small or negative number....'
-                  Write(LuPri,'(A,I8)') 'iSym=',iSym
-                  Write(LuPri,'(A,I8)') 'jBlock=',jBlock
-                  Write(LuPri,'(A,I8)') 'J=',                           &
-     &            iV1(jBlock,iSym)+J_inBlock-1
-                  Write(LuPri,'(A,1P,D15.6)')                           &
-     &            'Z(J,J)=',Z(kOffZ+iTri(J_inBlock,J_inBlock))
-                  Write(LuPri,'(A,1P,D15.6)')                           &
-     &            'Tolerance=',Tol
-                  Call Cho_Quit(                                        &
-     &            'Division by small or negative number in '//SecNam,   &
-     &            103)
-               End If
-#endif
-               XCVZd(kZd)=Z(kOffZ+iTri(J_inBlock,J_inBlock))
-               Z(kOffZ+iTri(J_inBlock,J_inBlock))=1.0d0/XCVZd(kZd)
-               kZd=kZd+incZd
-            End Do
-         End Do
-      End Do
+! Modify diagonal of Z matrix
+! Z(J,J) <- 1/Z(J,J)
+! If Z memory should not be de-allocated, save a backup of the
+! diagonal.
+if (Free_Z) then
+  l_Zd = 1
+  incZd = 0
+else
+  l_Zd = NVT(1)
+  do iSym=2,nSym
+    l_Zd = l_Zd+NVT(iSym)
+  end do
+  incZd = 1
+end if
+call mma_allocate(XCVZd,l_Zd,Label='XCVZd')
+kZd = 1
+do iSym=1,nSym
+  do jBlock=1,nBlock(iSym)
+    kOffZ = ip_Z(iTri(jBlock,jBlock),iSym)-1
+    do J_inBlock=1,nV(jBlock,iSym)
+#     ifdef _DEBUGPRINT_
+      ! Check for division by zero or negative diagonal
+      ! This would be a bug....
+      if ((abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))) < Tol) .or. (Z(kOffZ+iTri(J_inBlock,J_inBlock)) < -Tol)) then
+        write(LuPri,'(//,A,A)') SecNam,': Ooooops!'
+        write(LuPri,'(A)') '....division by small or negative number....'
+        write(LuPri,'(A,I8)') 'iSym=',iSym
+        write(LuPri,'(A,I8)') 'jBlock=',jBlock
+        write(LuPri,'(A,I8)') 'J=',iV1(jBlock,iSym)+J_inBlock-1
+        write(LuPri,'(A,1P,D15.6)') 'Z(J,J)=',Z(kOffZ+iTri(J_inBlock,J_inBlock))
+        write(LuPri,'(A,1P,D15.6)') 'Tolerance=',Tol
+        call Cho_Quit('Division by small or negative number in '//SecNam,103)
+      end if
+#     endif
+      XCVZd(kZd) = Z(kOffZ+iTri(J_inBlock,J_inBlock))
+      Z(kOffZ+iTri(J_inBlock,J_inBlock)) = 1.0d0/XCVZd(kZd)
+      kZd = kZd+incZd
+    end do
+  end do
+end do
 
-      ! Distribute shell pairs across nodes according to dimension
-      ! (helps load balance the linear algebra part below)
-      Call Cho_XCV_Distrib_SP(XCVTMP,SIZE(XCVTMP),iCountSP)
+! Distribute shell pairs across nodes according to dimension
+! (helps load balance the linear algebra part below)
+call Cho_XCV_Distrib_SP(XCVTMP,size(XCVTMP),iCountSP)
 
-      ! Allocate batch dimension array
-      Call mma_allocate(XCVnBt,max(iCountSP,1),Label='XCVnBt')
+! Allocate batch dimension array
+call mma_allocate(XCVnBt,max(iCountSP,1),Label='XCVnBt')
 
-      ! Allocate offset array for batched SP loop
-      Call mma_allocate(iOff_Batch,nSym,nnShl,Label='iOff_Batch')
+! Allocate offset array for batched SP loop
+call mma_allocate(iOff_Batch,nSym,nnShl,Label='iOff_Batch')
 
-      ! Split remaining memory in two parts.
-      ! One for integrals/vectors, one for Seward.
-      Call mma_maxDBLE(l_Wrk)
-      If (l_Wrk.lt.3) Then
-         Call Cho_Quit('Insufficient memory in '//SecNam,101)
-      End If
-      l_Int=INT(DBLE(l_Wrk)*2.0d0/3.0d0)
-      Call mma_allocate(XCVInt,l_Int,Label='XCVInt')
-      Call mma_MaxDBLE(l_Wrk)
-      Call xSetMem_Ints(l_Wrk)
+! Split remaining memory in two parts.
+! One for integrals/vectors, one for Seward.
+call mma_maxDBLE(l_Wrk)
+if (l_Wrk < 3) call Cho_Quit('Insufficient memory in '//SecNam,101)
+l_Int = int(dble(l_Wrk)*2.0d0/3.0d0)
+call mma_allocate(XCVInt,l_Int,Label='XCVInt')
+call mma_MaxDBLE(l_Wrk)
+call xSetMem_Ints(l_Wrk)
 
-      ! Print
-      If (iPrint.ge.Inf_Pass) Then
-         Call Cho_Head('Generation of Cholesky vectors','=',80,LuPri)
-         Call Cho_Word2Byte(l_Int,8,Byte,Unt)
-         Write(LuPri,'(/,A,I12,A,F10.3,1X,A,A)')                        &
-     &   'Memory available for integrals/vectors..',l_Int,' (',Byte,Unt,&
-     &   ')'
-         Call Cho_Word2Byte(l_Wrk,8,Byte,Unt)
-         Write(LuPri,'(A,I12,A,F10.3,1X,A,A)')                          &
-     &   'Memory available for Seward.............',l_Wrk,' (',Byte,Unt,&
-     &   ')'
-         Write(LuPri,'(A,I12)')                                         &
-     &   'Number of shell pairs, total (nnShl)....',nnShl
-         Write(LuPri,'(A,I12)')                                         &
-     &   'Number of shell pairs, this node........',iCountSP
-         Write(LuPri,'(//,65X,A)') 'Time/min'
-         Write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)')          &
-     &   'Batch','iSP1','iSP2','%Done','Memory','CPU','Wall'
-         Write(LuPri,'(A,A)')                                           &
-     &   '------------------------------------------------------------',&
-     &   '----------------'
-         Call Cho_Flush(LuPri)
-         TotMem=0.0d0
-         TotCPU=0.0d0
-         TotWall=0.0d0
-      End If
+! Print
+if (iPrint >= Inf_Pass) then
+  call Cho_Head('Generation of Cholesky vectors','=',80,LuPri)
+  call Cho_Word2Byte(l_Int,8,Byte,Unt)
+  write(LuPri,'(/,A,I12,A,F10.3,1X,A,A)') 'Memory available for integrals/vectors..',l_Int,' (',Byte,Unt,')'
+  call Cho_Word2Byte(l_Wrk,8,Byte,Unt)
+  write(LuPri,'(A,I12,A,F10.3,1X,A,A)') 'Memory available for Seward.............',l_Wrk,' (',Byte,Unt,')'
+  write(LuPri,'(A,I12)') 'Number of shell pairs, total (nnShl)....',nnShl
+  write(LuPri,'(A,I12)') 'Number of shell pairs, this node........',iCountSP
+  write(LuPri,'(//,65X,A)') 'Time/min'
+  write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)') 'Batch','iSP1','iSP2','%Done','Memory','CPU','Wall'
+  write(LuPri,'(A)') '----------------------------------------------------------------------------'
+  call Cho_Flush(LuPri)
+  TotMem = 0.0d0
+  TotCPU = 0.0d0
+  TotWall = 0.0d0
+end if
 
-      ! Compute Cholesky vectors in batched loop over shell pairs
-      Call iZero(iAdr,nSym) ! disk addresses
-      iSP_1=1
-      nBatch=0
-      Do While (iSP_1.le.iCountSP)
-         If (iPrint.ge.Inf_Pass) Then
-            Call Cho_Timer(X0,Y0)
-         End If
-         ! Set batch info
-         Left=l_Int
-         nSP_Max=iCountSP-iSP_1+1
-         nSP_this_batch=0
-         Do While (Left.gt.0 .and. nSP_this_batch.lt.nSP_Max)
-            iSP=iSP_1+nSP_this_batch
-            n=nnBstRSh(1,XCVTMP(iSP),2)*NVT(1)
-            Do iSym=2,nSym
-               n=n+nnBstRSh(iSym,XCVTMP(iSP),2)*NVT(iSym)
-            End Do
-            If (n.le.Left) Then
-               Left=Left-n
-               nSP_this_batch=nSP_this_batch+1
-            Else
-               Left=0 ! break while loop
-            End If
-         End Do
-         If (nSP_this_batch.lt.1) Then
-            Call Cho_Quit(                                              &
-     &         SecNam//': Insufficient memory for shell pair batch',101)
-         End If
-         iSP_2=iSP_1+nSP_this_batch-1
-         Do iSym=1,nSym
-            nDim_Batch(iSym)=0
-            Do iSP_=iSP_1,iSP_2
-               iSP=XCVTMP(iSP_)
-               iOff_Batch(iSym,iSP)=nDim_Batch(iSym)
-               nDim_Batch(iSym)=nDim_Batch(iSym)+nnBstRSh(iSym,iSP,2)
-            End Do
-         End Do
-         ! Calculate integrals (uv|J) for uv in shell pair batch and
-         ! for all J (shell pairs that give rise to vectors are
-         ! listed in ListSP).
-         Call Cho_XCV_GetInt(irc,XCVTMP(iSP_1),nSP_this_batch,          &
-     &                       XCVLSP,SIZE(XCVLSP),                       &
-     &                       NVT,l_NVT,XCVInt,SIZE(XCVInt))
-         If (irc .ne. 0) Then
-            Write(LuPri,'(A,A,I8)')                                     &
-     &      SecNam,': Cho_XCV_GetInt returned code',irc
-            Call Cho_Quit(SecNam//': Error in Cho_XCV_GetInt',104)
-         End If
-         ! Convert integrals into Cholesky vectors in each symmetry
-         Call Cho_Timer(C0,W0)
-         kOffI=1
-         Do iSym=1,nSym
-            ldL=max(nDim_Batch(iSym),1)
-            Do jBlock=1,nBlock(iSym)
-               kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
-               Do J_inBlock=1,nV(jBlock,iSym)
-                  ! Convert integral column into Cholesky vector
-                  ! L(uv,J)=(uv|J)/Z(J,J)
-                  ! Note that the inverse was taken before the integral
-                  ! loop - i.e. Z(J,J) <- 1/Z(J,J)
-                  J=iV1(jBlock,iSym)+J_inBlock-1
-                  kL=kOffI+nDim_Batch(iSym)*(J-1)
-                  Call dScal_(nDim_Batch(iSym),                         &
-     &                       Z(kOffZ+iTri(J_inBlock,J_inBlock)),        &
-     &                       XCVInt(kL),1)
-                  ! Subtract from subsequent columns in current block
-                  ! using BLAS1
-                  ! (uv|K) <- (uv|K) - L(uv,J)*Z(K,J), K>J (in jBlock)
-                  Do K_inBlock=J_inBlock+1,nV(jBlock,iSym)
-                     K=iV1(jBlock,iSym)+K_inBlock-1
-                     Call dAXPY_(nDim_Batch(iSym),                      &
-     &                    -Z(kOffZ+iTri(K_inBlock,J_inBlock)),          &
-     &                    XCVInt(kL),1,                                 &
-     &                    XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
-                  End Do
-               End Do
-               ! Subtract from subsequent blocks using BLAS3
-               ! (uv|K) <- (uv|K) - sum[J] L(uv,J)*Z(K,J),
-               ! K>J (K in kBlock>jBlock containing J)
-               kL=kOffI+nDim_Batch(iSym)*(iV1(jBlock,iSym)-1)
-               Do kBlock=jBlock+1,nBlock(iSym)
-                  kI=kOffI+nDim_Batch(iSym)*(iV1(kBlock,iSym)-1)
-                  kZ=ip_Z(iTri(kBlock,jBlock),iSym)
-                  ldZ=max(nV(kBlock,iSym),1)
-                  Call dGeMM_('N','T',                                  &
-     &                        nDim_Batch(iSym),nV(kBlock,iSym),         &
-     &                        nV(jBlock,iSym),                          &
-     &                        -1.0d0,XCVInt(kL),ldL,                    &
-     &                               Z(kZ),ldZ,                         &
-     &                         1.0d0,XCVInt(kI),ldL)
-               End Do
-            End Do
-            nDGM_Call=nDGM_Call+nBlock(iSym)*(nBlock(iSym)-1)/2
-            kOffI=kOffI+nDim_Batch(iSym)*NVT(iSym)
-         End Do
-         Call Cho_Timer(C1,W1)
-         tDecom(1,3)=tDecom(1,3)+(C1-C0)
-         tDecom(2,3)=tDecom(2,3)+(W1-W0)
-         ! Write vectors to temp files
-         Call Cho_Timer(C0,W0)
-         kL=1
-         Do iSym=1,nSym
-            lTot=nDim_Batch(iSym)*NVT(iSym)
-            If (lTot.gt.0) Then
-               Call DDAFile(LuTmp(iSym),1,XCVInt(kL),lTot,iAdr(iSym))
-               kL=kL+lTot
-            End If
-         End Do
-         Call Cho_Timer(C1,W1)
-         tDecom(1,2)=tDecom(1,2)+(C1-C0)
-         tDecom(2,2)=tDecom(2,2)+(W1-W0)
-         ! Print
-         If (iPrint.ge.Inf_Pass) Then
-            Call Cho_Timer(X1,Y1)
-            PDone=1.0d2*DBLE(iSP_2)/DBLE(iCountSP)
-            lTot=nDim_Batch(1)*NVT(1)
-            Do iSym=2,nSym
-               lTot=lTot+nDim_Batch(iSym)*NVT(iSym)
-            End Do
-            Call Cho_Word2Byte(lTot,8,Byte,Unt)
-            PMem=1.0d2*DBLE(lTot)/DBLE(l_Int)
-            Write(LuPri,                                                &
-     &'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)')&
-     &      nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem,'%)',         &
-     &      (X1-X0)/6.0d1,(Y1-Y0)/6.0d1
-            Call Cho_Flush(LuPri)
-            TotMem=TotMem+DBLE(lTot)
-            TotCPU=TotCPU+(X1-X0)/6.0d1
-            TotWall=TotWall+(Y1-Y0)/6.0d1
-         End If
-         ! Update counters and save batch dimension
-         iSP_1=iSP_1+nSP_this_batch
-         nBatch=nBatch+1
-         XCVnBt(nBatch)=nSP_this_batch
-      End Do
-      If (iPrint.ge.Inf_Pass) Then
-         Write(LuPri,'(A,A)')                                           &
-     &   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ',&
-     &   '- - - - - - - - '
-         Call Cho_RWord2Byte(TotMem,Byte,Unt)
-         Write(LuPri,'(32X,F10.3,1X,A,12X,F9.2,1X,F9.2)')               &
-     &   Byte,Unt,TotCPU,TotWall
-         Write(LuPri,'(A,A)')                                           &
-     &   '------------------------------------------------------------',&
-     &   '----------------'
-         Call Cho_Flush(LuPri)
-      End If
+! Compute Cholesky vectors in batched loop over shell pairs
+call iZero(iAdr,nSym) ! disk addresses
+iSP_1 = 1
+nBatch = 0
+do while (iSP_1 <= iCountSP)
+  if (iPrint >= Inf_Pass) call Cho_Timer(X0,Y0)
+  ! Set batch info
+  Left = l_Int
+  nSP_Max = iCountSP-iSP_1+1
+  nSP_this_batch = 0
+  do while ((Left > 0) .and. (nSP_this_batch < nSP_Max))
+    iSP = iSP_1+nSP_this_batch
+    n = nnBstRSh(1,XCVTMP(iSP),2)*NVT(1)
+    do iSym=2,nSym
+      n = n+nnBstRSh(iSym,XCVTMP(iSP),2)*NVT(iSym)
+    end do
+    if (n <= Left) then
+      Left = Left-n
+      nSP_this_batch = nSP_this_batch+1
+    else
+      Left = 0 ! break while loop
+    end if
+  end do
+  if (nSP_this_batch < 1) call Cho_Quit(SecNam//': Insufficient memory for shell pair batch',101)
+  iSP_2 = iSP_1+nSP_this_batch-1
+  do iSym=1,nSym
+    nDim_Batch(iSym) = 0
+    do iSP_=iSP_1,iSP_2
+      iSP = XCVTMP(iSP_)
+      iOff_Batch(iSym,iSP) = nDim_Batch(iSym)
+      nDim_Batch(iSym) = nDim_Batch(iSym)+nnBstRSh(iSym,iSP,2)
+    end do
+  end do
+  ! Calculate integrals (uv|J) for uv in shell pair batch and
+  ! for all J (shell pairs that give rise to vectors are
+  ! listed in ListSP).
+  call Cho_XCV_GetInt(irc,XCVTMP(iSP_1),nSP_this_batch,XCVLSP,size(XCVLSP),NVT,l_NVT,XCVInt,size(XCVInt))
+  if (irc /= 0) then
+    write(LuPri,'(A,A,I8)') SecNam,': Cho_XCV_GetInt returned code',irc
+    call Cho_Quit(SecNam//': Error in Cho_XCV_GetInt',104)
+  end if
+  ! Convert integrals into Cholesky vectors in each symmetry
+  call Cho_Timer(C0,W0)
+  kOffI = 1
+  do iSym=1,nSym
+    ldL = max(nDim_Batch(iSym),1)
+    do jBlock=1,nBlock(iSym)
+      kOffZ = ip_Z(iTri(jBlock,jBlock),iSym)-1
+      do J_inBlock=1,nV(jBlock,iSym)
+        ! Convert integral column into Cholesky vector
+        ! L(uv,J)=(uv|J)/Z(J,J)
+        ! Note that the inverse was taken before the integral
+        ! loop - i.e. Z(J,J) <- 1/Z(J,J)
+        J = iV1(jBlock,iSym)+J_inBlock-1
+        kL = kOffI+nDim_Batch(iSym)*(J-1)
+        call dScal_(nDim_Batch(iSym),Z(kOffZ+iTri(J_inBlock,J_inBlock)),XCVInt(kL),1)
+        ! Subtract from subsequent columns in current block
+        ! using BLAS1
+        ! (uv|K) <- (uv|K) - L(uv,J)*Z(K,J), K>J (in jBlock)
+        do K_inBlock=J_inBlock+1,nV(jBlock,iSym)
+          K = iV1(jBlock,iSym)+K_inBlock-1
+          call dAXPY_(nDim_Batch(iSym),-Z(kOffZ+iTri(K_inBlock,J_inBlock)),XCVInt(kL),1,XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
+        end do
+      end do
+      ! Subtract from subsequent blocks using BLAS3
+      ! (uv|K) <- (uv|K) - sum[J] L(uv,J)*Z(K,J),
+      ! K>J (K in kBlock>jBlock containing J)
+      kL = kOffI+nDim_Batch(iSym)*(iV1(jBlock,iSym)-1)
+      do kBlock=jBlock+1,nBlock(iSym)
+        kI = kOffI+nDim_Batch(iSym)*(iV1(kBlock,iSym)-1)
+        kZ = ip_Z(iTri(kBlock,jBlock),iSym)
+        ldZ = max(nV(kBlock,iSym),1)
+        call dGeMM_('N','T',nDim_Batch(iSym),nV(kBlock,iSym),nV(jBlock,iSym),-1.0d0,XCVInt(kL),ldL,Z(kZ),ldZ,1.0d0,XCVInt(kI),ldL)
+      end do
+    end do
+    nDGM_Call = nDGM_Call+nBlock(iSym)*(nBlock(iSym)-1)/2
+    kOffI = kOffI+nDim_Batch(iSym)*NVT(iSym)
+  end do
+  call Cho_Timer(C1,W1)
+  tDecom(1,3) = tDecom(1,3)+(C1-C0)
+  tDecom(2,3) = tDecom(2,3)+(W1-W0)
+  ! Write vectors to temp files
+  call Cho_Timer(C0,W0)
+  kL = 1
+  do iSym=1,nSym
+    lTot = nDim_Batch(iSym)*NVT(iSym)
+    if (lTot > 0) then
+      call DDAFile(LuTmp(iSym),1,XCVInt(kL),lTot,iAdr(iSym))
+      kL = kL+lTot
+    end if
+  end do
+  call Cho_Timer(C1,W1)
+  tDecom(1,2) = tDecom(1,2)+(C1-C0)
+  tDecom(2,2) = tDecom(2,2)+(W1-W0)
+  ! Print
+  if (iPrint >= Inf_Pass) then
+    call Cho_Timer(X1,Y1)
+    PDone = 1.0d2*dble(iSP_2)/dble(iCountSP)
+    lTot = nDim_Batch(1)*NVT(1)
+    do iSym=2,nSym
+      lTot = lTot+nDim_Batch(iSym)*NVT(iSym)
+    end do
+    call Cho_Word2Byte(lTot,8,Byte,Unt)
+    PMem = 1.0d2*dble(lTot)/dble(l_Int)
+    write(LuPri,'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)') nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem, &
+                                                                                    '%)',(X1-X0)/6.0d1,(Y1-Y0)/6.0d1
+    call Cho_Flush(LuPri)
+    TotMem = TotMem+dble(lTot)
+    TotCPU = TotCPU+(X1-X0)/6.0d1
+    TotWall = TotWall+(Y1-Y0)/6.0d1
+  end if
+  ! Update counters and save batch dimension
+  iSP_1 = iSP_1+nSP_this_batch
+  nBatch = nBatch+1
+  XCVnBt(nBatch) = nSP_this_batch
+end do
+if (iPrint >= Inf_Pass) then
+  write(LuPri,'(A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - '
+  call Cho_RWord2Byte(TotMem,Byte,Unt)
+  write(LuPri,'(32X,F10.3,1X,A,12X,F9.2,1X,F9.2)') Byte,Unt,TotCPU,TotWall
+  write(LuPri,'(A)') '----------------------------------------------------------------------------'
+  call Cho_Flush(LuPri)
+end if
 
-      ! If not deallocate Z matrix then reconstruct diagonal of Z matrix
-      ! Z(J,J) <- 1/Z(J,J)
-      If (.Not.Free_Z) Then
-         kZd=0
-         Do iSym=1,nSym
-            Do jBlock=1,nBlock(iSym)
-               kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
-               Do J_inBlock=1,nV(jBlock,iSym)
-                  J=iV1(jBlock,iSym)+J_inBlock-1
-                  Z(kOffZ+iTri(J_inBlock,J_inBlock))=XCVZd(kZd+J)
-               End Do
-            End Do
-            kZd=kZd+NVT(iSym)
-         End Do
-      End If
+! If not deallocate Z matrix then reconstruct diagonal of Z matrix
+! Z(J,J) <- 1/Z(J,J)
+if (.not. Free_Z) then
+  kZd = 0
+  do iSym=1,nSym
+    do jBlock=1,nBlock(iSym)
+      kOffZ = ip_Z(iTri(jBlock,jBlock),iSym)-1
+      do J_inBlock=1,nV(jBlock,iSym)
+        J = iV1(jBlock,iSym)+J_inBlock-1
+        Z(kOffZ+iTri(J_inBlock,J_inBlock)) = XCVZd(kZd+J)
+      end do
+    end do
+    kZd = kZd+NVT(iSym)
+  end do
+end if
 
-      ! Deallocations
-      Call xRlsMem_Ints()
-      Call mma_deallocate(XCVInt)
-      Call mma_deallocate(iOff_Batch)
-      Call mma_deallocate(XCVZd)
-      iQuAB => Null()
-      Call mma_deallocate(iQuAB_here)
-      Call mma_deallocate(XCVLSP)
+! Deallocations
+call xRlsMem_Ints()
+call mma_deallocate(XCVInt)
+call mma_deallocate(iOff_Batch)
+call mma_deallocate(XCVZd)
+iQuAB => null()
+call mma_deallocate(iQuAB_here)
+call mma_deallocate(XCVLSP)
 
-      ! Reset qualification array pointers and MaxQual
-      iQuAB => pTemp
-      MaxQual=MaxQual_SAVE
+! Reset qualification array pointers and MaxQual
+iQuAB => pTemp
+MaxQual = MaxQual_SAVE
 
-      ! Parallel runs: distribute vectors across nodes (store on files)
-      ! Serial runs: write vectors to permanent files
-      Call Cho_Timer(C0,W0)
-      Call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,                 &
-     &                               XCVTMP,iCountSP,NVT,l_NVT)
-      If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8)')                                        &
-     &   SecNam,': Cho_XCV_DistributeVectors returned code',irc
-         Call Cho_Quit(SecNam//': Error in Cho_XCV_DistributeVectors',  &
-     &                 104)
-      End If
-      Call Cho_Timer(C1,W1)
-      tDecom(1,2)=tDecom(1,2)+(C1-C0)
-      tDecom(2,2)=tDecom(2,2)+(W1-W0)
+! Parallel runs: distribute vectors across nodes (store on files)
+! Serial runs: write vectors to permanent files
+call Cho_Timer(C0,W0)
+call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,XCVTMP,iCountSP,NVT,l_NVT)
+if (irc /= 0) then
+  write(LuPri,'(A,A,I8)') SecNam,': Cho_XCV_DistributeVectors returned code',irc
+  call Cho_Quit(SecNam//': Error in Cho_XCV_DistributeVectors',104)
+end if
+call Cho_Timer(C1,W1)
+tDecom(1,2) = tDecom(1,2)+(C1-C0)
+tDecom(2,2) = tDecom(2,2)+(W1-W0)
 
-      ! Deallocations
-      Call mma_deallocate(XCVnBt)
-      Call mma_deallocate(XCVTMP)
+! Deallocations
+call mma_deallocate(XCVnBt)
+call mma_deallocate(XCVTMP)
 
-      ! Parallel runs: close and erase tmp vector files
-      Call Cho_XCV_TmpFiles(irc,3)
-      If (irc .ne. 0) Then
-         Write(LuPri,'(A,A,I8,A)')                                      &
-     &   SecNam,': [3] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
-         Call Cho_Quit(SecNam//': Error in Cho_XCV_TmpFiles',104)
-      End If
+! Parallel runs: close and erase tmp vector files
+call Cho_XCV_TmpFiles(irc,3)
+if (irc /= 0) then
+  write(LuPri,'(A,A,I8,A)') SecNam,': [3] Error in Cho_XCV_TmpFiles! (Return code:',irc,')'
+  call Cho_Quit(SecNam//': Error in Cho_XCV_TmpFiles',104)
+end if
 
-      End
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-! TMP FILE HANDLERS (OPEN, CLOSE, DELETE)
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SubRoutine Cho_XCV_TmpFiles(irc,iOpt)
-      Implicit None
-      Integer irc, iOpt
-      irc=0
-      If (iOpt.eq.1) Then
-         Call Cho_XCV_OpenTmpFiles()
-      Else If (iOpt.eq.2) Then
-         Call Cho_XCV_CloseAndKeepTmpFiles()
-      Else If (iOpt.eq.3) Then
-         Call Cho_XCV_CloseAndEraseTmpFiles()
-      Else
-         irc=1
-         Return
-      End If
-      End
-      SubRoutine Cho_XCV_OpenTmpFiles()
-      Implicit None
-#include "cholesky.fh"
-      Integer iSym
-      Character*6 Filename
-      Do iSym=1,nSym
-         LuTmp(iSym)=7
-         Write(Filename,'(A4,I2.2)') 'VTMP',iSym
-         Call DAName_MF_WA(LuTmp(iSym),Filename)
-      End Do
-      End
-      SubRoutine Cho_XCV_CloseAndKeepTmpFiles()
-      Implicit None
-#include "cholesky.fh"
-      Integer iSym
-      Do iSym=1,nSym
-         If (LuTmp(iSym).gt.0) Then
-            Call DAClos(LuTmp(iSym))
-            LuTmp(iSym)=0
-         End If
-      End Do
-      End
-      SubRoutine Cho_XCV_CloseAndEraseTmpFiles()
-      Implicit None
-#include "cholesky.fh"
-      Integer iSym
-      Do iSym=1,nSym
-         If (LuTmp(iSym).gt.0) Then
-            Call DAEras(LuTmp(iSym))
-            LuTmp(iSym)=0
-         End If
-      End Do
-      End
+end subroutine Cho_X_CompVec

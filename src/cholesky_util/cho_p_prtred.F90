@@ -8,17 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_PrtRed(iOpt)
-      Implicit None
-      Integer iOpt
+
+subroutine Cho_P_PrtRed(iOpt)
+
+implicit none
+integer iOpt
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Then
-         Call Cho_P_IndxSwp()
-         Call Cho_PrtRed(iOpt)
-         Call Cho_P_IndxSwp()
-      Else
-         Call Cho_PrtRed(iOpt)
-      End If
+if (Cho_Real_Par) then
+  call Cho_P_IndxSwp()
+  call Cho_PrtRed(iOpt)
+  call Cho_P_IndxSwp()
+else
+  call Cho_PrtRed(iOpt)
+end if
 
-      End
+end subroutine Cho_P_PrtRed

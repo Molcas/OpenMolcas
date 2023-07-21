@@ -10,78 +10,76 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_DecChk_Int(irc,lUnit,Col,Nai,Nbj,ibj1,NumVec,   &
-     &                             Work,lWork,Fac)
+
+subroutine ChoMP2_DecChk_Int(irc,lUnit,Col,Nai,Nbj,ibj1,NumVec,Work,lWork,Fac)
 !
-!     Thomas Bondo Pedersen, Jan. 2005.
+! Thomas Bondo Pedersen, Jan. 2005.
 !
-!     Purpose: compute consecutive columns of (ai|bj) matrix from
-!              vectors on file (unit: lUnit)
-!              vectors from MP2 decomposition).
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  Col(Nai,Nbj),Work(lWork)
+! Purpose: compute consecutive columns of (ai|bj) matrix from
+!          vectors on file (unit: lUnit)
+!          vectors from MP2 decomposition).
 
-      irc = 0
+implicit real*8(a-h,o-z)
+real*8 Col(Nai,Nbj), Work(lWork)
 
-!     Check dimensions.
-!     -----------------
+irc = 0
 
-      If (Nai.lt.1 .or. Nbj.lt.1 .or. Nbj.gt.Nai) Then
-         irc = -1
-         return
-      End If
-      ibj2 = ibj1 + Nbj - 1
-      If (ibj1.lt.1 .or. ibj2.gt.Nai) Then
-         irc = -2
-         Return
-      End If
+! Check dimensions.
+! -----------------
 
-!     Scale result array.
-!     -------------------
+if ((Nai < 1) .or. (Nbj < 1) .or. (Nbj > Nai)) then
+  irc = -1
+  return
+end if
+ibj2 = ibj1+Nbj-1
+if ((ibj1 < 1) .or. (ibj2 > Nai)) then
+  irc = -2
+  return
+end if
 
-      Call dScal_(Nai*Nbj,Fac,Col,1)
-      If (NumVec .lt. 1) Return
+! Scale result array.
+! -------------------
 
-!     Set up batch.
-!     -------------
-      nVec = min(lWork/Nai,NumVec)
-      If (nVec .lt. 1) Then
-         irc = 1
-         Return
-      End If
-      nBat = (NumVec - 1)/nVec + 1
+call dScal_(Nai*Nbj,Fac,Col,1)
+if (NumVec < 1) return
 
-!     Start batch loop.
-!     -----------------
+! Set up batch.
+! -------------
+nVec = min(lWork/Nai,NumVec)
+if (nVec < 1) then
+  irc = 1
+  return
+end if
+nBat = (NumVec-1)/nVec+1
 
-      Do iBat = 1,nBat
+! Start batch loop.
+! -----------------
 
-!        Set batch info.
-!        ---------------
+do iBat=1,nBat
 
-         If (iBat .eq. nBat) Then
-            NumV = NumVec - nVec*(nBat - 1)
-         Else
-            NumV = nVec
-         End If
-         iVec1 = nVec*(iBat - 1) + 1
+  ! Set batch info.
+  ! ---------------
 
-!        Read vectors.
-!        -------------
+  if (iBat == nBat) then
+    NumV = NumVec-nVec*(nBat-1)
+  else
+    NumV = nVec
+  end if
+  iVec1 = nVec*(iBat-1)+1
 
-         iOpt = 2
-         lTot = Nai*NumV
-         iAdr = Nai*(iVec1 - 1) + 1
-         Call ddaFile(lUnit,iOpt,Work,lTot,iAdr)
+  ! Read vectors.
+  ! -------------
 
-!        Compute integrals.
-!        ------------------
+  iOpt = 2
+  lTot = Nai*NumV
+  iAdr = Nai*(iVec1-1)+1
+  call ddaFile(lUnit,iOpt,Work,lTot,iAdr)
 
-         Call DGEMM_('N','T',Nai,Nbj,NumV,                              &
-     &              1.0d0,Work,Nai,Work(ibj1),Nai,                      &
-     &              1.0d0,Col,Nai)
+  ! Compute integrals.
+  ! ------------------
 
-      End Do
+  call DGEMM_('N','T',Nai,Nbj,NumV,1.0d0,Work,Nai,Work(ibj1),Nai,1.0d0,Col,Nai)
 
-      End
+end do
+
+end subroutine ChoMP2_DecChk_Int

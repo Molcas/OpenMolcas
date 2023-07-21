@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_LSWAP(X,Y)
-!
-!     Purpose: swap X and Y, logical version.
-!
-      IMPLICIT NONE
-      LOGICAL  X, Y, TEMP
 
-      TEMP = X
-      X    = Y
-      Y    = TEMP
+subroutine CHO_LSWAP(X,Y)
+!
+! Purpose: swap X and Y, logical version.
 
-      END
+implicit none
+logical X, Y, TEMP
+
+TEMP = X
+X = Y
+Y = TEMP
+
+end subroutine CHO_LSWAP

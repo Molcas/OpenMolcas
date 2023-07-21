@@ -8,46 +8,47 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_AnaDia(Diag,Sync,Bin1,Step,NumBin,Full)
+
+subroutine Cho_P_AnaDia(Diag,Sync,Bin1,Step,NumBin,Full)
 !
-!     Purpose: analyze global diagonal (histogram). Diag is the local
-!              diagonal. If Sync=.True. the global diagonal is
-!              synchronized before analysis.
-!
-      use ChoSwp, only: Diag_G
-      Implicit None
-      Real*8  Diag(*)
-      Logical Sync
-      Real*8  Bin1, Step
-      Integer NumBin
-      Logical Full
+! Purpose: analyze global diagonal (histogram). Diag is the local
+!          diagonal. If Sync=.True. the global diagonal is
+!          synchronized before analysis.
+
+use ChoSwp, only: Diag_G
+
+implicit none
+real*8 Diag(*)
+logical Sync
+real*8 Bin1, Step
+integer NumBin
+logical Full
 #include "choglob.fh"
 #include "cho_para_info.fh"
+integer iLoc
 
-      Integer iLoc
+if (Cho_Real_Par) then
 
-      If (Cho_Real_Par) Then
+  ! If requested, sync diagonal.
+  ! ----------------------------
 
-!        If requested, sync diagonal.
-!        ----------------------------
+  if (Sync) then
+    iLoc = 2
+    call Cho_P_SyncDiag(Diag,iLoc)
+  end if
 
-         If (Sync) Then
-            iLoc = 2
-            Call Cho_P_SyncDiag(Diag,iLoc)
-         End If
+  ! Swap local and global index arrays and use original serial
+  ! serial to perform analysis of the global diagonal.
+  ! ----------------------------------------------------------
 
-!        Swap local and global index arrays and use original serial
-!        serial to perform analysis of the global diagonal.
-!        ----------------------------------------------------------
+  call Cho_P_IndxSwp()
+  call Cho_AnaDia(Diag_G,Bin1,Step,NumBin,Full)
+  call Cho_P_IndxSwp()
 
-         Call Cho_P_IndxSwp()
-         Call Cho_AnaDia(Diag_G,Bin1,Step,NumBin,Full)
-         Call Cho_P_IndxSwp()
+else
 
-      Else
+  call Cho_AnaDia(Diag,Bin1,Step,NumBin,Full)
 
-         Call Cho_AnaDia(Diag,Bin1,Step,NumBin,Full)
+end if
 
-      End If
-
-      End
+end subroutine Cho_P_AnaDia

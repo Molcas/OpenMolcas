@@ -10,27 +10,28 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_TrcIdl_Init()
+
+subroutine Cho_TrcIdl_Init()
 !
-!     Thomas Bondo Pedersen, May 2010.
+! Thomas Bondo Pedersen, May 2010.
 !
-!     Allocate and init array for tracing idle processors
-!
-      Use Para_Info, Only: nProcs
-      use ChoArr, only: Idle
-      use stdalloc
-      Implicit None
+! Allocate and init array for tracing idle processors
+
+use Para_Info, only: nProcs
+use ChoArr, only: Idle
+use stdalloc
+
+implicit none
 #include "cho_para_info.fh"
+integer l_Idle
 
-      Integer l_Idle
+if (Cho_Real_Par) then
+  l_Idle = nProcs
+else
+  l_Idle = 1
+end if
+call mma_allocate(Idle,l_Idle,Label='Idle')
 
-      If (Cho_Real_Par) Then
-         l_Idle=nProcs
-      Else
-         l_Idle=1
-      End If
-      Call mma_allocate(Idle,l_Idle,Label='Idle')
+Idle(:) = 0
 
-      Idle(:)=0
-
-      End
+end subroutine Cho_TrcIdl_Init

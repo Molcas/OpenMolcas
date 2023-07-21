@@ -8,28 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_OPEN(LUNIT,FNAME)
+
+subroutine CHO_OPEN(LUNIT,FNAME)
 !
-!     Purpose: open sequential unformatted fortran file.
-!
-      IMPLICIT NONE
-      INTEGER  LUNIT
-      CHARACTER*(*) FNAME
+! Purpose: open sequential unformatted fortran file.
 
-      INTEGER  LOCUNT, ISEED
+implicit none
+integer LUNIT
+character*(*) FNAME
+integer LOCUNT, ISEED
+integer ISFREEUNIT
 
-      INTEGER ISFREEUNIT
+if ((LUNIT < 1) .or. (LUNIT > 99)) then
+  LOCUNT = 7
+else
+  LOCUNT = LUNIT
+end if
 
-      IF ((LUNIT.LT.1) .OR. (LUNIT.GT.99)) THEN
-         LOCUNT = 7
-      ELSE
-         LOCUNT = LUNIT
-      END IF
+ISEED = LOCUNT
+LOCUNT = ISFREEUNIT(ISEED)
+call molcas_binaryopen_vanilla(Locunt,Fname)
+!open(LOCUNT,FILE=FNAME,STATUS='UNKNOWN',FORM='UNFORMATTED')
+LUNIT = LOCUNT
 
-      ISEED  = LOCUNT
-      LOCUNT = ISFREEUNIT(ISEED)
-      call molcas_binaryopen_vanilla(Locunt, Fname)
-!      OPEN(LOCUNT,FILE=FNAME,STATUS='UNKNOWN',FORM='UNFORMATTED')
-      LUNIT = LOCUNT
-
-      END
+end subroutine CHO_OPEN

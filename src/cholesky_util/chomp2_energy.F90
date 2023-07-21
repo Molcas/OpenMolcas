@@ -10,56 +10,57 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
+
+subroutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !
-!     Thomas Bondo Pedersen, Dec. 2004.
+! Thomas Bondo Pedersen, Dec. 2004.
 !
-!     Purpose: compute MP2 energy correction from MO Cholesky vectors,
-!              constructing (ai|bj) integrals on the fly. Flag Sorted
-!              refers to whether or not the MO vectors have been sorted
-!              into the sizes of the batches over occupied orbitals.
-!
-      use stdalloc
-      Implicit None
-      Real*8  EMP2
-      Real*8  EOcc(*), EVir(*)
-      Integer irc
-      Logical Sorted, DelOrig
+! Purpose: compute MP2 energy correction from MO Cholesky vectors,
+!          constructing (ai|bj) integrals on the fly. Flag Sorted
+!          refers to whether or not the MO vectors have been sorted
+!          into the sizes of the batches over occupied orbitals.
+
+use stdalloc
+
+implicit none
+real*8 EMP2
+real*8 EOcc(*), EVir(*)
+integer irc
+logical Sorted, DelOrig
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
+character(len=6), parameter :: ThisNm = 'Energy'
+character(len=13), parameter :: SecNam = 'ChoMP2_Energy'
+integer lWrk
+real*8, allocatable :: Wrk(:)
 
-      Character(LEN=6), Parameter:: ThisNm = 'Energy'
-      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_Energy'
+irc = 0
 
-      Integer lWrk
-      Real*8, Allocatable:: Wrk(:)
+call mma_maxDBLE(lWrk)
+call mma_allocate(Wrk,lWrk,Label='Wrk')
 
-      irc = 0
+if (Sorted) then
+  call ChoMP2_Energy_Srt(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_Energy_Srt returned ',irc
+    Go To 1 ! exit
+  end if
+else
+  if (nBatch == 1) then
+    call ChoMP2_Energy_Fll(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
+    if (irc /= 0) then
+      write(6,*) SecNam,': ChoMP2_Energy_Fll returned ',irc
+      Go To 1 ! exit
+    end if
+  else
+    call ChoMP2_Energy_Org(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
+    if (irc /= 0) then
+      write(6,*) SecNam,': ChoMP2_Energy_Org returned ',irc
+      Go To 1 ! exit
+    end if
+  end if
+end if
 
-      Call mma_maxDBLE(lWrk)
-      Call mma_allocate(Wrk,lWrk,Label='Wrk')
+1 call mma_deallocate(Wrk)
 
-      If (Sorted) Then
-         Call ChoMP2_Energy_Srt(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_Energy_Srt returned ',irc
-            Go To 1 ! exit
-         End If
-      Else
-         If (nBatch .eq. 1) Then
-            Call ChoMP2_Energy_Fll(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
-            If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_Energy_Fll returned ',irc
-               Go To 1 ! exit
-            End If
-         Else
-            Call ChoMP2_Energy_Org(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
-            If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoMP2_Energy_Org returned ',irc
-               Go To 1 ! exit
-            End If
-         End If
-      End If
-
-    1 Call mma_deallocate(Wrk)
-      End
+end subroutine ChoMP2_Energy

@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_HEAD(STRING,LINE,LENMAX,LUNIT)
+
+subroutine CHO_HEAD(STRING,LINE,LENMAX,LUNIT)
 !
-!     Purpose: print a header.
-!
-      IMPLICIT NONE
-      CHARACTER*(*) STRING
-      CHARACTER*1   LINE
-      INTEGER       LENMAX, LUNIT
+! Purpose: print a header.
 
-      INTEGER LENSTR, LENTOT, I
+implicit none
+character*(*) STRING
+character*1 LINE
+integer LENMAX, LUNIT
+integer LENSTR, LENTOT, I
 
-      LENSTR = LEN(STRING)
-      LENTOT = MIN(LENSTR,LENMAX-2)
-      IF (LENTOT .GT. 0) THEN
-         WRITE(LUNIT,'(//,2X,A)') STRING(1:LENTOT)
-         WRITE(LUNIT,'(2X,80A)') (LINE,I=1,LENTOT)
-      ELSE
-         WRITE(LUNIT,'(//,2X,A,/)') STRING(1:LENSTR)
-      END IF
+LENSTR = len(STRING)
+LENTOT = min(LENSTR,LENMAX-2)
+if (LENTOT > 0) then
+  write(LUNIT,'(//,2X,A)') STRING(1:LENTOT)
+  write(LUNIT,'(2X,80A)') (LINE,I=1,LENTOT)
+else
+  write(LUNIT,'(//,2X,A,/)') STRING(1:LENSTR)
+end if
 
-      END
+end subroutine CHO_HEAD

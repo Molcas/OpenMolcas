@@ -38,44 +38,33 @@
 !>
 !> @return Tolerance integer for use with ::Add_Info
 !***********************************************************************
-      Integer Function Cho_X_GetTol(iTolDef)
-      use ChoIni
-      Implicit None
-      Integer iTolDef
+
+integer function Cho_X_GetTol(iTolDef)
+
+use ChoIni
+
+implicit none
+integer iTolDef
 #include "cholesky.fh"
+real*8, external :: Get_LDFAccuracy
+logical DidCholesky, DidLDF
+real*8 ThrAbs, d
+integer ChoIsIni
 
-      Real*8, External:: Get_LDFAccuracy
+call DecideOnCholesky(DidCholesky)
+if (DidCholesky) then
+  call DecideOnLocalDF(DidLDF)
+  if (DidLDF) then
+    ThrAbs = abs(Get_LDFAccuracy())
+  else
+    call Get_iScalar('ChoIni',ChoIsIni)
+    if (ChoIsIni /= ChoIniCheck) call Get_dScalar('Cholesky Threshold',ThrCom) ! not initialized
+    ThrAbs = abs(ThrCom)
+  end if
+  d = -log(ThrAbs)/log(1.0d1)
+  Cho_X_GetTol = nint(d)
+else
+  Cho_X_GetTol = iTolDef
+end if
 
-      Logical DidCholesky, DidLDF
-      Real*8  ThrAbs, d
-      Integer ChoIsIni
-
-      Call DecideOnCholesky(DidCholesky)
-      If (DidCholesky) Then
-         Call DecideOnLocalDF(DidLDF)
-         If (DidLDF) Then
-            ThrAbs = Abs(Get_LDFAccuracy())
-         Else
-            Call Get_iScalar('ChoIni',ChoIsIni)
-            If (ChoIsIni .ne. ChoIniCheck) Then ! not initialized
-               Call Get_dScalar('Cholesky Threshold',ThrCom)
-            End If
-            ThrAbs = Abs(ThrCom)
-         End If
-         d = -log(ThrAbs)/log(1.0d1)
-         Cho_X_GetTol = nint(d)
-      Else
-         Cho_X_GetTol = iTolDef
-      End If
-
-      End
-      Real*8 Function Get_LDFAccuracy()
-      Implicit None
-#include "localdf.fh"
-      Logical  LDF_X_IsSet
-      External LDF_X_IsSet
-      If (.not.LDF_X_IsSet()) Then
-         Call Get_dScalar('LDF Accuracy',Thr_Accuracy)
-      End If
-      Get_LDFAccuracy=Thr_Accuracy
-      End
+end function Cho_X_GetTol

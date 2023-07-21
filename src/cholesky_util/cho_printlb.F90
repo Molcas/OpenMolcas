@@ -8,27 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_PrintLB()
-      Use Para_Info, Only: MyRank, nProcs
-      use stdalloc
-      Implicit None
+
+subroutine Cho_PrintLB()
+
+use Para_Info, only: MyRank, nProcs
+use stdalloc
+
+implicit none
 #include "cholesky.fh"
+integer i
+integer, allocatable :: LB(:)
 
-      Integer i
-      Integer, Allocatable:: LB(:)
+call mma_allocate(LB,[0,nProcs-1],Label='LB')
+LB(:) = 0
 
-      Call mma_allocate(LB,[0,nProcs-1],Label='LB')
-      LB(:)=0
+LB(myRank) = nnBstRT(1)
+call Cho_GAIGop(LB,nProcs,'+')
+call Cho_Head('Cholesky vector dimension on each node','=',80,LuPri)
+do i=0,nProcs-1
+  write(LuPri,'(2X,A,I4,5X,A,I7)') 'Node:',i,'Dimension:',LB(i)
+end do
 
-      LB(myRank) = nnBstRT(1)
-      Call Cho_GAIGop(LB,nProcs,'+')
-      Call Cho_Head('Cholesky vector dimension on each node','=',80,    &
-     &              LuPri)
-      Do i = 0,nProcs-1
-         Write(LuPri,'(2X,A,I4,5X,A,I7)')                               &
-     &   'Node:',i,'Dimension:',LB(i)
-      End Do
+call mma_deallocate(LB)
 
-      Call mma_deallocate(LB)
-
-      End
+end subroutine Cho_PrintLB

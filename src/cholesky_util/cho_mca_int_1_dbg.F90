@@ -8,50 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_INT_1_DBG(DIAG,LEVEL)
+
+subroutine CHO_MCA_INT_1_DBG(DIAG,LEVEL)
 !
-!     Purpose: debug seward interface routine CHO_MCA_INT_1.
+! Purpose: debug seward interface routine CHO_MCA_INT_1.
 !
-!     LEVEL =  1: test diagonal, reduced set 1 (i.e. initial).
-!              2: test diagonal, reduced set 2 (i.e. current).
-!              3: test symmetry of integral matrix (shell quadruple-based)
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Diag(*)
+! LEVEL =  1: test diagonal, reduced set 1 (i.e. initial).
+!          2: test diagonal, reduced set 2 (i.e. current).
+!          3: test symmetry of integral matrix (shell quadruple-based)
+
+implicit real*8(a-h,o-z)
+real*8 Diag(*)
 #include "cholesky.fh"
+character*17 SECNAM
+parameter(SECNAM='CHO_MCA_INT_1_DBG')
+logical LOCDIAG, LOCSYM
 
-      CHARACTER*17 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1_DBG')
+call CHO_HEAD('Debugging CHO_MCA_INT_1','=',80,LUPRI)
+write(LUPRI,'(A,I2)') 'Debug level',LEVEL
 
-      LOGICAL LOCDIAG, LOCSYM
+if (LEVEL == 1) then
+  LOCDIAG = .true.
+  LOCSYM = .false.
+  IRED = 1
+else if (LEVEL == 2) then
+  LOCDIAG = .true.
+  LOCSYM = .false.
+  IRED = 2
+else if (LEVEL == 3) then
+  LOCDIAG = .false.
+  LOCSYM = .true.
+else
+  LOCDIAG = .false.
+  LOCSYM = .false.
+  write(LUPRI,'(A)') 'Debug level not recognized --- debug cancelled!'
+end if
 
-      CALL CHO_HEAD('Debugging CHO_MCA_INT_1','=',80,LUPRI)
-      WRITE(LUPRI,'(A,I2)') 'Debug level',LEVEL
+if (LOCDIAG) call CHO_MCA_INT_1_DBG1(DIAG,IRED)
 
-      IF (LEVEL .EQ. 1) THEN
-         LOCDIAG = .TRUE.
-         LOCSYM  = .FALSE.
-         IRED    = 1
-      ELSE IF (LEVEL .EQ. 2) THEN
-         LOCDIAG = .TRUE.
-         LOCSYM  = .FALSE.
-         IRED    = 2
-      ELSE IF (LEVEL .EQ. 3) THEN
-         LOCDIAG = .FALSE.
-         LOCSYM  = .TRUE.
-      ELSE
-         LOCDIAG = .FALSE.
-         LOCSYM  = .FALSE.
-         WRITE(LUPRI,'(A)') 'Debug level not recognized ---',           &
-     &                      ' debug cancelled!'
-      END IF
+if (LOCSYM) call CHO_MCA_INT_1_DBG2()
 
-      IF (LOCDIAG) THEN
-         CALL CHO_MCA_INT_1_DBG1(DIAG,IRED)
-      END IF
-
-      IF (LOCSYM) THEN
-         CALL CHO_MCA_INT_1_DBG2()
-      END IF
-
-      END
+end subroutine CHO_MCA_INT_1_DBG

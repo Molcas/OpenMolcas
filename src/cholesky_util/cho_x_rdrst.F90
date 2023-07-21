@@ -10,198 +10,179 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_X_RdRst(ifail)
+
+subroutine Cho_X_RdRst(ifail)
 !
-!     T.B. Pedersen, july 2004.
+! T.B. Pedersen, july 2004.
 !
-!     Purpose: read decomposition info and store in common
-!              block. If ifail != 0 on exit, some error occurred and,
-!              most likely, some of the restart info is not
-!              defined/initialized.
-!
-      use ChoSwp, only: InfRed, InfRed_Hidden
-      use ChoSwp, only: InfVec, InfVec_Hidden
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+! Purpose: read decomposition info and store in common
+!          block. If ifail != 0 on exit, some error occurred and,
+!          most likely, some of the restart info is not
+!          defined/initialized.
+
+use ChoSwp, only: InfRed, InfRed_Hidden
+use ChoSwp, only: InfVec, InfVec_Hidden
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "choorb.fh"
 #include "cholesky.fh"
+character*11 SecNam
+parameter(SecNam='Cho_X_RdRst')
+parameter(lScr=8)
+real*8 dScr(lScr)
+integer jScr(lScr)
 
-      Character*11 SecNam
-      Parameter (SecNam = 'Cho_X_RdRst')
+! Set return code.
+! ----------------
 
-      Parameter (lScr = 8)
-      Real*8  dScr(lScr)
-      Integer jScr(lScr)
+ifail = 0
 
-!     Set return code.
-!     ----------------
+! Read molecular info.
+! --------------------
 
-      ifail = 0
+iAdr = 0
 
-!     Read molecular info.
-!     --------------------
+iOpt = 2
+nRd = 4
+call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
+nShell = jScr(2)
+nnShl = jScr(3)
+if (jScr(2) < 1) then
+  write(6,'(A,A,I10)') SecNam,': #shells from restart file:',jScr(2)
+  ifail = 1
+  Go To 100
+end if
+nSP_UpLim = nShell*(nShell+1)/2
+if ((jScr(3) < 1) .or. (jScr(3) > nSP_UpLim)) then
+  write(6,'(A,A,I10)') SecNam,': #shell pairs from restart file:',jScr(3)
+  ifail = 1
+  Go To 100
+end if
+if (jScr(1) /= nSym) then
+  write(6,'(A,A,I10)') SecNam,': #irreps from restart file:',jScr(1)
+  ifail = 1
+  Go To 100
+else
+  iOpt = 2
+  call iDAFile(LuRst,iOpt,jScr,nSym,iAdr)
+  do iSym=1,nSym
+    if (jScr(iSym) /= nBas(iSym)) then
+      write(6,'(A,A,I2,A,I10)') SecNam,': #basis functions in sym.',iSym,' from restart file:',jScr(iSym)
+      ifail = 2
+      Go To 100
+    end if
+  end do
+end if
 
-      iAdr = 0
+! Read decomposition configuration info.
+! --------------------------------------
 
-      iOpt = 2
-      nRd  = 4
-      Call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
-      nShell = jScr(2)
-      nnShl  = jScr(3)
-      If (jScr(2) .lt. 1) Then
-         Write(6,'(A,A,I10)')                                           &
-     &   SecNam,': #shells from restart file:',jScr(2)
-         ifail = 1
-         Go To 100
-      End If
-      nSP_UpLim = nShell*(nShell+1)/2
-      If (jScr(3).lt.1 .or. jScr(3).gt.nSP_UpLim) Then
-         Write(6,'(A,A,I10)')                                           &
-     &   SecNam,': #shell pairs from restart file:',jScr(3)
-         ifail = 1
-         Go To 100
-      End If
-      If (jScr(1) .ne. nSym) Then
-         Write(6,'(A,A,I10)')                                           &
-     &   SecNam,': #irreps from restart file:',jScr(1)
-         ifail = 1
-         Go To 100
-      Else
-         iOpt = 2
-         Call iDAFile(LuRst,iOpt,jScr,nSym,iAdr)
-         Do iSym = 1,nSym
-            If (jScr(iSym) .ne. nBas(iSym)) Then
-               Write(6,'(A,A,I2,A,I10)')                                &
-     &         SecNam,': #basis functions in sym.',iSym,                &
-     &         ' from restart file:',jScr(iSym)
-               ifail = 2
-               Go To 100
-            End If
-         End Do
-      End If
+iOpt = 2
+nRd = 2
+call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
+if (jScr(1) == 0) then
+  XScDiag = .false.
+else if (jScr(1) == 1) then
+  XScDiag = .true.
+else
+  write(6,'(A,A,I10)') SECNAM,': integer flag for screening not recognized:',jScr(1)
+  ifail = 2
+  Go To 100
+end if
+if ((jScr(2) > 0) .and. (jScr(2) < 3)) then
+  XCho_AdrVec = jScr(2)
+else
+  write(6,'(A,A,I10)') SECNAM,': vector file address mode not recognized:',jScr(2)
+  ifail = 3
+  Go To 100
+end if
+if (XCho_AdrVec /= Cho_AdrVec) then
+  write(6,'(A,A,I10)') SECNAM,': vector file address mode from restart file:',XCho_AdrVec
+  write(6,'(A,A,I10)') SECNAM,': vector file address mode from runfile     :',Cho_AdrVec
+  ifail = 3
+  Go To 100
+end if
 
-!     Read decomposition configuration info.
-!     --------------------------------------
+iOpt = 2
+nRd = 8
+call dDAFile(LuRst,iOpt,dScr,nRd,iAdr)
+XThrCom = dScr(1)
+XThrDiag = dScr(2)
+XDamp(1) = dScr(3)
+XDamp(2) = dScr(4)
+XSpan = dScr(5)
+XThrNeg = dScr(6)
+XWarNeg = dScr(7)
+XTooNeg = dScr(8)
+ThrCom = XThrCom
+ThrDiag = XThrDiag
+Damp(1) = XDamp(1)
+Damp(2) = XDamp(2)
+Span = XSpan
+ThrNeg = XThrNeg
+WarNeg = XWarNeg
+TooNeg = XTooNeg
 
-      iOpt = 2
-      nRd  = 2
-      Call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
-      If (jScr(1) .EQ. 0) Then
-         XScDiag = .false.
-      Else If (jScr(1) .EQ. 1) Then
-         XScDiag = .true.
-      Else
-         WRITE(6,'(A,A,I10)')                                           &
-     &   SECNAM,': integer flag for screening not recognized:',jScr(1)
-         ifail = 2
-         Go To 100
-      End If
-      If (jScr(2).gt.0 .and. jScr(2).lt.3) Then
-         XCho_AdrVec = jScr(2)
-      Else
-         WRITE(6,'(A,A,I10)')                                           &
-     &   SECNAM,': vector file address mode not recognized:',jScr(2)
-         ifail = 3
-         Go To 100
-      End If
-      If (XCho_AdrVec .ne. Cho_AdrVec) Then
-         WRITE(6,'(A,A,I10)')                                           &
-     &   SECNAM,': vector file address mode from restart file:',        &
-     &   XCho_AdrVec
-         WRITE(6,'(A,A,I10)')                                           &
-     &   SECNAM,': vector file address mode from runfile     :',        &
-     &   Cho_AdrVec
-         ifail = 3
-         Go To 100
-      End If
+! Allocate InfVec array.
+! ----------------------
 
-      iOpt = 2
-      nRd  = 8
-      Call dDAFile(LuRst,iOpt,dScr,nRd,iAdr)
-      XThrCom  = dScr(1)
-      XThrDiag = dScr(2)
-      XDamp(1) = dScr(3)
-      XDamp(2) = dScr(4)
-      XSpan    = dScr(5)
-      XThrNeg  = dScr(6)
-      XWarNeg  = dScr(7)
-      XTooNeg  = dScr(8)
-      ThrCom   = XThrCom
-      ThrDiag  = XThrDiag
-      Damp(1)  = XDamp(1)
-      Damp(2)  = XDamp(2)
-      Span     = XSpan
-      ThrNeg   = XThrNeg
-      WarNeg   = XWarNeg
-      TooNeg   = XTooNeg
+call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,Label='InfVec_Hidden')
+InfVec => InfVec_Hidden
 
-!     Allocate InfVec array.
-!     ----------------------
+! Allocate and initialize (read) InfRed array.
+! --------------------------------------------
 
-      Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,            &
-     &                  Label='InfVec_Hidden')
-      InfVec => InfVec_Hidden
+iOpt = 2
+nRd = 1
+call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
+MaxRed = jScr(1)
+XnPass = MaxRed
+if (MaxRed < 1) then
+  write(6,'(A,A,I10)') SecNam,': #reduced sets from restart file:',MaxRed
+  ifail = 4
+  Go To 100
+else
+  call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
+  InfRed => InfRed_Hidden
+  iOpt = 2
+  call iDAFile(LuRst,iOpt,InfRed,size(InfRed),iAdr)
+  if (InfRed(1) /= 0) then
+    write(6,'(A,A,I10)') SecNam,': disk address of 1st reduced set:',InfRed(1)
+    ifail = 5
+    Go To 100
+  end if
+end if
 
-!     Allocate and initialize (read) InfRed array.
-!     --------------------------------------------
+! Read InfVec array.
+! ------------------
 
-      iOpt = 2
-      nRd  = 1
-      Call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
-      MaxRed = jScr(1)
-      XnPass = MaxRed
-      IF (MaxRed .lt. 1) Then
-         Write(6,'(A,A,I10)')                                           &
-     &   SecNam,': #reduced sets from restart file:',MaxRed
-         ifail = 4
-         Go To 100
-      Else
-         Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
-         InfRed => InfRed_Hidden
-         iOpt = 2
-         Call iDAFile(LuRst,iOpt,InfRed,SIZE(InfRed),iAdr)
-         If (InfRed(1) .ne. 0) Then
-            Write(6,'(A,A,I10)')                                        &
-     &      SecNam,': disk address of 1st reduced set:',InfRed(1)
-            ifail = 5
-            Go To 100
-         End If
-      End If
+do iSym=1,nSym
+  iOpt = 2
+  nRd = 1
+  call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
+  if (jScr(1) /= NumCho(iSym)) then
+    write(6,'(A,A,I2,A,I10)') SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
+    write(6,'(A,A,I10)') SecNam,': ....and from restart file: ',jScr(iSym)
+    ifail = 6
+    Go To 100
+  else
+    if (NumCho(iSym) < 1) then
+      call iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
+    else
+      InfVec(:,:,iSym) = 0
+      do j=1,size(InfVec,2)
+        iOpt = 2
+        call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),iAdr)
+      end do
+    end if
+  end if
+end do
 
-!     Read InfVec array.
-!     ------------------
+! Return.
+! -------
 
-      Do iSym = 1,nSym
-         iOpt = 2
-         nRd  = 1
-         Call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
-         If (jScr(1) .ne. NumCho(iSym)) Then
-            Write(6,'(A,A,I2,A,I10)')                                   &
-     &      SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
-            Write(6,'(A,A,I10)')                                        &
-     &      SecNam,': ....and from restart file: ',jScr(iSym)
-            ifail = 6
-            Go To 100
-         Else
-            If (NumCho(iSym) .lt. 1) Then
-               Call iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
-            Else
-               InfVec(:,:,iSym) = 0
-               Do j = 1,SIZE(InfVec,2)
-                  iOpt = 2
-                  Call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),&
-     &                         iAdr)
-               End Do
-            End If
-         End If
-      End Do
+100 continue ! failures jump to this point
+if (ifail /= 0) write(6,'(A,A)') SecNam,': refusing to read more restart info!'
 
-!     Return.
-!     -------
-
-  100 If (ifail .ne. 0) Then  ! failures jump to this point
-         Write(6,'(A,A)')                                               &
-     &   SecNam,': refusing to read more restart info!'
-      End If
-
-      End
+end subroutine Cho_X_RdRst

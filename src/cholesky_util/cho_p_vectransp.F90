@@ -8,12 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
-      Implicit None
-      Real*8   Vec(*)
-      Integer  Jin, Jfi, iSym, iRed, iPass
+
+subroutine Cho_P_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
+
+implicit none
+real*8 Vec(*)
+integer Jin, Jfi, iSym, iRed, iPass
 #include "cho_para_info.fh"
 
-      If (Cho_Real_Par) Call Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
+if (Cho_Real_Par) call Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
-      End
+end subroutine Cho_P_VecTransp

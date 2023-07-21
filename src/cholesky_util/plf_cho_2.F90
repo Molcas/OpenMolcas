@@ -11,9 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine PLF_Cho_2(TInt,lInt,                                   &
-     &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,            &
-     &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+
+subroutine PLF_Cho_2(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -27,213 +26,195 @@
 !          May '90                                                     *
 !                                                                      *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use ChoArr, only: iSOShl, iShlSO, nBstSh, iShP2RS, iShP2Q
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+
+use SOAO_Info, only: iAOtSO
+use ChoArr, only: iSOShl, iShlSO, nBstSh, iShP2RS, iShP2Q
+use Constants
+
+implicit real*8(A-H,O-Z)
 #include "cholesky.fh"
 #include "print.fh"
-!
-      Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
-      Integer iShell(4), iAO(4), kOp(4),                                &
-     &        iAOst(4), iSOs(4)
-      Logical Shijij
+real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
+integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
+logical Shijij
+external ddot_
+integer ABCD, CDAB, CD, AB, A, B, C, D
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      external ddot_
+irout = 109
+jprint = nprint(irout)
+if (jPrint >= 49) then
+  r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+  r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
+  write(6,*) ' Sum=',r1
+  write(6,*) ' Dot=',r2
+end if
+if (jPrint >= 99) call RecPrt(' In Plf_Cho_2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 
-      INTEGER ABCD, CDAB, CD, AB, A, B, C, D
-!
-      iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-!
-      irout = 109
-      jprint = nprint(irout)
-      If (jPrint.ge.49) Then
-         r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-         r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-         Write (6,*) ' Sum=',r1
-         Write (6,*) ' Dot=',r2
-      End If
-      If (jPrint.ge.99) Call RecPrt(' In Plf_Cho_2: AOInt',' ',         &
-     &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+NUMC = NBSTSH(SHC)
+NUMD = NBSTSH(SHD)
+NUMA = NBSTSH(SHA)
+NUMB = NBSTSH(SHB)
 
-      NUMC = NBSTSH(SHC)
-      NUMD = NBSTSH(SHD)
-      NUMA = NBSTSH(SHA)
-      NUMB = NBSTSH(SHB)
-
-      ISHLCD = SHCD
-      ISHLAB = SHAB
+ISHLCD = SHCD
+ISHLAB = SHAB
 
 ! to avoid stupid compiler warnings:
 
-      C = 0
-      D = 0
-      A = 0
-      B = 0
+C = 0
+D = 0
+A = 0
+B = 0
 
-      NTELM = 0
-!
-!     Allocate space to store integrals to gether with their
-!     Symmetry batch and sequence number.
-!     To avoid conflicts in using memory this is done in the
-!     subroutine PSOAO
-!
-!
-!     quadruple loop over elements of the basis functions angular
-!     description. loops are reduced to just produce unique SO integrals
-!     observe that we will walk through the memory in AOint in a
-!     sequential way.
-!
-      iAOsti=iAOst(1)
-      iAOstj=iAOst(2)
-      iAOstk=iAOst(3)
-      iAOstl=iAOst(4)
-      iAOi=iAO(1)
-      iAOj=iAO(2)
-      iAOk=iAO(3)
-      iAOl=iAO(4)
-!
-      Do 100 i1 = 1, iCmp
-         iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
-         Do 200 i2 = 1, jCmp
-            iSOs(2)=iAOtSO(iAOj+i2,kOp(2))+iAOstj
-            Do 300 i3 = 1, kCmp
-               iSOs(3)=iAOtSO(iAOk+i3,kOp(3))+iAOstk
-               Do 400 i4 = 1, lCmp
-                  iSOs(4)=iAOtSO(iAOl+i4,kOp(4))+iAOstl
-!
-                iSO =iSOs(1)
-                jSO =iSOs(2)
-                kSO =iSOs(3)
-                lSO =iSOs(4)
-!
-                nijkl = 0
-                Do 120 lSOl = lSO, lSO+lBas-1
-                   Do 220 kSOk = kSO, kSO+kBas-1
-                      Do 320 jSOj = jSO, jSO+jBas-1
-                         Do 420 iSOi = iSO, iSO+iBas-1
-!
-                            nijkl = nijkl + 1
-                            NTELM = NTELM + 1
-!
-                            ISHLI = ISOSHL(ISOI)
-                            ISHLJ = ISOSHL(JSOJ)
-                            ISHLK = ISOSHL(KSOK)
-                            ISHLL = ISOSHL(LSOL)
+NTELM = 0
 
-                            IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)       &
-     &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
-                               C = ISHLSO(ISOI)
-                               D = ISHLSO(JSOJ)
-                               A = ISHLSO(KSOK)
-                               B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
-     &                      .AND.(ISHLK.EQ.SHA).AND.(ISHLL.EQ.SHB)) THEN
-                               C = ISHLSO(JSOJ)
-                               D = ISHLSO(ISOI)
-                               A = ISHLSO(KSOK)
-                               B = ISHLSO(LSOL)
-                            ELSE IF ((ISHLI.EQ.SHC).AND.(ISHLJ.EQ.SHD)  &
-     &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
-                               C = ISHLSO(ISOI)
-                               D = ISHLSO(JSOJ)
-                               A = ISHLSO(LSOL)
-                               B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLJ.EQ.SHC).AND.(ISHLI.EQ.SHD)  &
-     &                      .AND.(ISHLL.EQ.SHA).AND.(ISHLK.EQ.SHB)) THEN
-                               C = ISHLSO(JSOJ)
-                               D = ISHLSO(ISOI)
-                               A = ISHLSO(LSOL)
-                               B = ISHLSO(KSOK)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
-     &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
-                               C = ISHLSO(KSOK)
-                               D = ISHLSO(LSOL)
-                               A = ISHLSO(ISOI)
-                               B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
-     &                      .AND.(ISHLI.EQ.SHA).AND.(ISHLJ.EQ.SHB)) THEN
-                               C = ISHLSO(LSOL)
-                               D = ISHLSO(KSOK)
-                               A = ISHLSO(ISOI)
-                               B = ISHLSO(JSOJ)
-                            ELSE IF ((ISHLK.EQ.SHC).AND.(ISHLL.EQ.SHD)  &
-     &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
-                               C = ISHLSO(KSOK)
-                               D = ISHLSO(LSOL)
-                               A = ISHLSO(JSOJ)
-                               B = ISHLSO(ISOI)
-                            ELSE IF ((ISHLL.EQ.SHC).AND.(ISHLK.EQ.SHD)  &
-     &                      .AND.(ISHLJ.EQ.SHA).AND.(ISHLI.EQ.SHB)) THEN
-                               C = ISHLSO(LSOL)
-                               D = ISHLSO(KSOK)
-                               A = ISHLSO(JSOJ)
-                               B = ISHLSO(ISOI)
-                            ELSE
-                               WRITE(LUPRI,*)                           &
-     &                         'Shell quadruple requested: ',           &
-     &                         SHC,SHD,SHA,SHB
-                               WRITE(LUPRI,*)                           &
-     &                         'Shell quadruple of element ',NTELM,':', &
-     &                         ISHLI,ISHLJ,ISHLK,ISHLL
-                               CALL CHO_QUIT(                           &
-     &                                     'Logical error in PLF_Cho_2',&
-     &                                     103)
-                            END IF
+! Allocate space to store integrals to gether with their
+! Symmetry batch and sequence number.
+! To avoid conflicts in using memory this is done in the
+! subroutine PSOAO
 
-                            IF (SHA .EQ. SHB) THEN
-                               AB = ITRI(A,B)
-                            ELSE
-                               AB = NUMA*(B - 1) + A
-                            END IF
-                            IF (SHC .EQ. SHD) THEN
-                               CD = ITRI(C,D)
-                            ELSE
-                               CD = NUMC*(D - 1) + C
-                            END IF
+! quadruple loop over elements of the basis functions angular
+! description. loops are reduced to just produce unique SO integrals
+! observe that we will walk through the memory in AOint in a
+! sequential way.
 
-                            ICD = ISHP2RS(1,CD)
-                            IAB = ISHP2Q(1,AB)
-                            IF (ICD.GT.0 .AND. IAB.GT.0) THEN
-                               CDAB = nnBstR(1,2)*(IAB-1) + ICD
-                               TINT(CDAB) = AOint(nijkl,i1,i2,i3,i4)
-                            END IF
+iAOsti = iAOst(1)
+iAOstj = iAOst(2)
+iAOstk = iAOst(3)
+iAOstl = iAOst(4)
+iAOi = iAO(1)
+iAOj = iAO(2)
+iAOk = iAO(3)
+iAOl = iAO(4)
 
-                            IF (ISHLCD .EQ. ISHLAB) THEN
-                               IF (SHC.EQ.SHD .OR. SHC.EQ.SHA) THEN
-                                  IAB = ISHP2RS(1,AB)
-                                  ICD = ISHP2Q(1,CD)
-                                  IF (ICD.GT.0 .AND. IAB.GT.0) THEN
-                                     ABCD = nnBstR(1,2)*(ICD-1) + IAB
-                                     TINT(ABCD) = AOint(nijkl,          &
-     &                                                  i1,i2,i3,i4)
-                                  END IF
-                               ELSE IF (SHC.EQ.SHB) THEN
-                                  AB  = NUMB*(A - 1) + B
-                                  CD  = NUMD*(C - 1) + D
-                                  IAB = ISHP2RS(1,AB)
-                                  ICD = ISHP2Q(1,CD)
-                                  IF (ICD.GT.0 .AND. IAB.GT.0) THEN
-                                     ABCD = nnBstR(1,2)*(ICD-1) + IAB
-                                     TINT(ABCD) = AOint(nijkl,          &
-     &                                                  i1,i2,i3,i4)
-                                  END IF
-                               END IF
-                            END IF
+do i1=1,iCmp
+  iSOs(1) = iAOtSO(iAOi+i1,kOp(1))+iAOsti
+  do i2=1,jCmp
+    iSOs(2) = iAOtSO(iAOj+i2,kOp(2))+iAOstj
+    do i3=1,kCmp
+      iSOs(3) = iAOtSO(iAOk+i3,kOp(3))+iAOstk
+      do i4=1,lCmp
+        iSOs(4) = iAOtSO(iAOl+i4,kOp(4))+iAOstl
 
-420                      Continue
-320                   Continue
-220                Continue
-120             Continue
+        iSO = iSOs(1)
+        jSO = iSOs(2)
+        kSO = iSOs(3)
+        lSO = iSOs(4)
 
-400            Continue
-300         Continue
-200      Continue
-100   Continue
-      Return
+        nijkl = 0
+        do lSOl=lSO,lSO+lBas-1
+          do kSOk=kSO,kSO+kBas-1
+            do jSOj=jSO,jSO+jBas-1
+              do iSOi=iSO,iSO+iBas-1
+
+                nijkl = nijkl+1
+                NTELM = NTELM+1
+
+                ISHLI = ISOSHL(ISOI)
+                ISHLJ = ISOSHL(JSOJ)
+                ISHLK = ISOSHL(KSOK)
+                ISHLL = ISOSHL(LSOL)
+
+                if ((ISHLI == SHC) .and. (ISHLJ == SHD) .and. (ISHLK == SHA) .and. (ISHLL == SHB)) then
+                  C = ISHLSO(ISOI)
+                  D = ISHLSO(JSOJ)
+                  A = ISHLSO(KSOK)
+                  B = ISHLSO(LSOL)
+                else if ((ISHLJ == SHC) .and. (ISHLI == SHD) .and. (ISHLK == SHA) .and. (ISHLL == SHB)) then
+                  C = ISHLSO(JSOJ)
+                  D = ISHLSO(ISOI)
+                  A = ISHLSO(KSOK)
+                  B = ISHLSO(LSOL)
+                else if ((ISHLI == SHC) .and. (ISHLJ == SHD) .and. (ISHLL == SHA) .and. (ISHLK == SHB)) then
+                  C = ISHLSO(ISOI)
+                  D = ISHLSO(JSOJ)
+                  A = ISHLSO(LSOL)
+                  B = ISHLSO(KSOK)
+                else if ((ISHLJ == SHC) .and. (ISHLI == SHD) .and. (ISHLL == SHA) .and. (ISHLK == SHB)) then
+                  C = ISHLSO(JSOJ)
+                  D = ISHLSO(ISOI)
+                  A = ISHLSO(LSOL)
+                  B = ISHLSO(KSOK)
+                else if ((ISHLK == SHC) .and. (ISHLL == SHD) .and. (ISHLI == SHA) .and. (ISHLJ == SHB)) then
+                  C = ISHLSO(KSOK)
+                  D = ISHLSO(LSOL)
+                  A = ISHLSO(ISOI)
+                  B = ISHLSO(JSOJ)
+                else if ((ISHLL == SHC) .and. (ISHLK == SHD) .and. (ISHLI == SHA) .and. (ISHLJ == SHB)) then
+                  C = ISHLSO(LSOL)
+                  D = ISHLSO(KSOK)
+                  A = ISHLSO(ISOI)
+                  B = ISHLSO(JSOJ)
+                else if ((ISHLK == SHC) .and. (ISHLL == SHD) .and. (ISHLJ == SHA) .and. (ISHLI == SHB)) then
+                  C = ISHLSO(KSOK)
+                  D = ISHLSO(LSOL)
+                  A = ISHLSO(JSOJ)
+                  B = ISHLSO(ISOI)
+                else if ((ISHLL == SHC) .and. (ISHLK == SHD) .and. (ISHLJ == SHA) .and. (ISHLI == SHB)) then
+                  C = ISHLSO(LSOL)
+                  D = ISHLSO(KSOK)
+                  A = ISHLSO(JSOJ)
+                  B = ISHLSO(ISOI)
+                else
+                  write(LUPRI,*) 'Shell quadruple requested: ',SHC,SHD,SHA,SHB
+                  write(LUPRI,*) 'Shell quadruple of element ',NTELM,':',ISHLI,ISHLJ,ISHLK,ISHLL
+                  call CHO_QUIT('Logical error in PLF_Cho_2',103)
+                end if
+
+                if (SHA == SHB) then
+                  AB = ITRI(A,B)
+                else
+                  AB = NUMA*(B-1)+A
+                end if
+                if (SHC == SHD) then
+                  CD = ITRI(C,D)
+                else
+                  CD = NUMC*(D-1)+C
+                end if
+
+                ICD = ISHP2RS(1,CD)
+                IAB = ISHP2Q(1,AB)
+                if ((ICD > 0) .and. (IAB > 0)) then
+                  CDAB = nnBstR(1,2)*(IAB-1)+ICD
+                  TINT(CDAB) = AOint(nijkl,i1,i2,i3,i4)
+                end if
+
+                if (ISHLCD == ISHLAB) then
+                  if ((SHC == SHD) .or. (SHC == SHA)) then
+                    IAB = ISHP2RS(1,AB)
+                    ICD = ISHP2Q(1,CD)
+                    if ((ICD > 0) .and. (IAB > 0)) then
+                      ABCD = nnBstR(1,2)*(ICD-1)+IAB
+                      TINT(ABCD) = AOint(nijkl,i1,i2,i3,i4)
+                    end if
+                  else if (SHC == SHB) then
+                    AB = NUMB*(A-1)+B
+                    CD = NUMD*(C-1)+D
+                    IAB = ISHP2RS(1,AB)
+                    ICD = ISHP2Q(1,CD)
+                    if ((ICD > 0) .and. (IAB > 0)) then
+                      ABCD = nnBstR(1,2)*(ICD-1)+IAB
+                      TINT(ABCD) = AOint(nijkl,i1,i2,i3,i4)
+                    end if
+                  end if
+                end if
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
-       End If
-      End
+if (.false.) then
+  call Unused_integer_array(iShell)
+  call Unused_logical(Shijij)
+end if
+
+end subroutine PLF_Cho_2

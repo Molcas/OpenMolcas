@@ -8,79 +8,77 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_OPENVR(IOPT,ID)
+
+subroutine CHO_OPENVR(IOPT,ID)
 !
-!     Purpose: open (IOPT=1) or close (IOPT=2) files for vector
-!              and reduced set storage as well as restart files.
-!              ID=1: open local files (for parallel run)
-!              ID=2: open global files (as in serial run)
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: open (IOPT=1) or close (IOPT=2) files for vector
+!          and reduced set storage as well as restart files.
+!          ID=1: open local files (for parallel run)
+!          ID=2: open global files (as in serial run)
+
+implicit real*8(a-h,o-z)
 #include "cholesky.fh"
+character*10 SECNAM
+parameter(SECNAM='CHO_OPENVR')
+character*5 FNRED
+character*6 FNVEC(8), FRST, FMAP
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_OPENVR')
+if (IOPT == 1) then
+  FMAP = 'CHOMAP'
+  if (ID == 1) then
+    FNRED = 'CHRDL'
+    do ISYM=1,NSYM
+      write(FNVEC(ISYM),'(A5,I1)') 'CHVCL',ISYM
+    end do
+    FRST = 'CHRSTL'
+  else
+    FNRED = 'CHRED'
+    do ISYM=1,NSYM
+      write(FNVEC(ISYM),'(A5,I1)') 'CHVEC',ISYM
+    end do
+    FRST = 'CHORST'
+  end if
+  LURED = 7
+  call DANAME_MF_WA(LURED,FNRED)
+  if (CHO_ADRVEC == 1) then
+    do ISYM=1,NSYM
+      LUCHO(ISYM) = 7
+      call DANAME_MF_WA(LUCHO(ISYM),FNVEC(ISYM))
+    end do
+  else if (CHO_ADRVEC == 2) then
+    do ISYM=1,NSYM
+      LUCHO(ISYM) = 7
+      call DANAME_MF(LUCHO(ISYM),FNVEC(ISYM))
+    end do
+  else
+    call CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM//'. Perhaps the NOCHO keyword is needed?',102)
+  end if
+  LURST = 7
+  call DANAME_MF_WA(LURST,FRST)
+  LUMAP = 7
+  call DANAME(LUMAP,FMAP)
+else if (IOPT == 2) then
+  if (LURED > 0) then
+    call DACLOS(LURED)
+    LURED = 0
+  end if
+  do ISYM=1,NSYM
+    if (LUCHO(ISYM) > 0) then
+      call DACLOS(LUCHO(ISYM))
+      LUCHO(ISYM) = 0
+    end if
+  end do
+  if (LURST > 0) then
+    call DACLOS(LURST)
+    LURST = 0
+  end if
+  if (LUMAP > 0) then
+    call DACLOS(LUMAP)
+    LUMAP = 0
+  end if
+else
+  write(LUPRI,*) SECNAM,': IOPT out of bounds: ',IOPT
+  call CHO_QUIT('Error in '//SECNAM,104)
+end if
 
-      CHARACTER*5 FNRED
-      CHARACTER*6 FNVEC(8), FRST, FMAP
-
-      IF (IOPT .EQ. 1) THEN
-         FMAP = 'CHOMAP'
-         IF (ID .EQ. 1) THEN
-            FNRED = 'CHRDL'
-            DO ISYM = 1,NSYM
-               WRITE(FNVEC(ISYM),'(A5,I1)') 'CHVCL',ISYM
-            END DO
-            FRST = 'CHRSTL'
-         ELSE
-            FNRED = 'CHRED'
-            DO ISYM = 1,NSYM
-               WRITE(FNVEC(ISYM),'(A5,I1)') 'CHVEC',ISYM
-            END DO
-            FRST = 'CHORST'
-         END IF
-         LURED = 7
-         CALL DANAME_MF_WA(LURED,FNRED)
-         IF (CHO_ADRVEC .EQ. 1) THEN
-            DO ISYM = 1,NSYM
-               LUCHO(ISYM) = 7
-               CALL DANAME_MF_WA(LUCHO(ISYM),FNVEC(ISYM))
-            END DO
-         ELSE IF (CHO_ADRVEC .EQ. 2) THEN
-            DO ISYM = 1,NSYM
-               LUCHO(ISYM) = 7
-               CALL DANAME_MF(LUCHO(ISYM),FNVEC(ISYM))
-            END DO
-         ELSE
-            CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM//      &
-     &                    '. Perhaps the NOCHO keyword is needed?',102)
-         END IF
-         LURST = 7
-         CALL DANAME_MF_WA(LURST,FRST)
-         LUMAP = 7
-         CALL DANAME(LUMAP,FMAP)
-      ELSE IF (IOPT .EQ. 2) THEN
-         IF (LURED .GT. 0) THEN
-            CALL DACLOS(LURED)
-            LURED = 0
-         END IF
-         DO ISYM = 1,NSYM
-            IF (LUCHO(ISYM) .GT. 0) THEN
-               CALL DACLOS(LUCHO(ISYM))
-               LUCHO(ISYM) = 0
-            END IF
-         END DO
-         IF (LURST .GT. 0) THEN
-            CALL DACLOS(LURST)
-            LURST = 0
-         END IF
-         IF (LUMAP .GT. 0) THEN
-            CALL DACLOS(LUMAP)
-            LUMAP = 0
-         END IF
-      ELSE
-         WRITE(LUPRI,*) SECNAM,': IOPT out of bounds: ',IOPT
-         CALL CHO_QUIT('Error in '//SECNAM,104)
-      END IF
-
-      END
+end subroutine CHO_OPENVR

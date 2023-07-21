@@ -10,36 +10,37 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_TrcIdl_Update(IAmIdle)
+
+subroutine Cho_TrcIdl_Update(IAmIdle)
 !
-!     Thomas Bondo Pedersen, May 2010.
+! Thomas Bondo Pedersen, May 2010.
 !
-!     Update array for tracing idle processors
-!
-      Use Para_Info, Only: MyRank
-      use ChoArr, only: Idle
-      Implicit None
-      Logical IAmIdle
+! Update array for tracing idle processors
+
+use Para_Info, only: MyRank
+use ChoArr, only: Idle
+
+implicit none
+logical IAmIdle
 #include "cho_para_info.fh"
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
 #include "cholesky.fh"
 #endif
 
-#if defined (_DEBUGPRINT_)
-      If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
-         Write(LuPri,'(A)')                                             &
-     &   'Cho_TrcIdl_Update should not be called in this run!'
-         Write(LuPri,*) 'Trace_Idle=',Trace_Idle
-         Call Cho_Quit('Illegal call to Cho_TrcIdl_Update',103)
-      End If
+#ifdef _DEBUGPRINT_
+if ((.not. allocated(Idle)) .or. (.not. Trace_Idle)) then
+  write(LuPri,'(A)') 'Cho_TrcIdl_Update should not be called in this run!'
+  write(LuPri,*) 'Trace_Idle=',Trace_Idle
+  call Cho_Quit('Illegal call to Cho_TrcIdl_Update',103)
+end if
 #endif
 
-      If (IAmIdle) Then
-         If (Cho_Real_Par) Then
-            Idle(1+myRank) = Idle(1+myRank)+1
-         Else
-            Idle(1)=Idle(1)+1
-         End If
-      End If
+if (IAmIdle) then
+  if (Cho_Real_Par) then
+    Idle(1+myRank) = Idle(1+myRank)+1
+  else
+    Idle(1) = Idle(1)+1
+  end if
+end if
 
-      End
+end subroutine Cho_TrcIdl_Update

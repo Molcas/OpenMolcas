@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_Distrib_Vec(Jin,Jfi,iDV,nV)
+
+subroutine Cho_Distrib_Vec(Jin,Jfi,iDV,nV)
 !
-!     Unless you know exactly what you are doing,
-!     do NOT call this routine directly; use Cho_P_Distrib_Vec instead!
-!
-      Use Para_Info, Only: MyRank, nProcs
-      Implicit None
-      Integer  Jin, Jfi, nV
-      Integer  iDV(*)
+! Unless you know exactly what you are doing,
+! do NOT call this routine directly; use Cho_P_Distrib_Vec instead!
 
-      Integer i, iNode
+use Para_Info, only: MyRank, nProcs
 
-      nV=0
-      Do i=Jin,Jfi
-         iNode=MOD(i-1,nProcs)
-         If (myRank .eq. iNode) Then
-            nV = nV + 1
-            iDV(nV) = i
-         End If
-      End Do
+implicit none
+integer Jin, Jfi, nV
+integer iDV(*)
+integer i, iNode
 
-      End
+nV = 0
+do i=Jin,Jfi
+  iNode = mod(i-1,nProcs)
+  if (myRank == iNode) then
+    nV = nV+1
+    iDV(nV) = i
+  end if
+end do
+
+end subroutine Cho_Distrib_Vec

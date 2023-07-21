@@ -10,335 +10,294 @@
 !                                                                      *
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
+
+subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !
-!     Thomas Bondo Pedersen, October 2004.
+! Thomas Bondo Pedersen, October 2004.
 !
-!     Purpose: driver for computing the MP2 energy correction EMP2
-!              using Cholesky decomposed two-electron integrals.
-!              Input must have been processed and MO coefficients
-!              and orbital energies must be passed as arguments.
+! Purpose: driver for computing the MP2 energy correction EMP2
+!          using Cholesky decomposed two-electron integrals.
+!          Input must have been processed and MO coefficients
+!          and orbital energies must be passed as arguments.
 !
-!     Notes:
+! Notes:
 !
-!       - all MO Cholesky vector files generated here are deleted before
-!         exit, except for error terminations (i.e. no cleanup actions
-!         are taken!)
-!
-      use ChoMP2, only: EFrozT, EOccuT, EVirtT
-      use stdalloc
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Real*8 CMO(*), EOcc(*), EVir(*)
+!   - all MO Cholesky vector files generated here are deleted before
+!     exit, except for error terminations (i.e. no cleanup actions
+!     are taken!)
+
+use ChoMP2, only: EFrozT, EOccuT, EVirtT
+use stdalloc
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+character*3 ThisNm
+character*10 SecNam
+parameter(SecNam='ChoMP2_Drv',ThisNm='Drx')
+real*8, parameter :: Chk_Mem_ChoMP2 = 0.123456789d0, Tol = 1.0D-15
+integer, parameter :: iFmt = 0
+logical DoSort, Delete
+logical, parameter :: Delete_def = .true.
+real*8, allocatable :: Check(:), Diag(:)
 
-      Character*3  ThisNm
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_Drv', ThisNm = 'Drx')
-
-      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
-      Integer, Parameter:: iFmt = 0
-
-      Logical DoSort, Delete
-      Logical, Parameter:: Delete_def = .true.
-
-      Real*8, Allocatable:: Check(:), Diag(:)
-
-#if defined (_DEBUGPRINT_)
-      Verbose = .true.
+#ifdef _DEBUGPRINT_
+Verbose = .true.
 #endif
-      If (Verbose) Then
-         Call CWTime(CPUTot1,WallTot1)
-      End If
+if (Verbose) call CWTime(CPUTot1,WallTot1)
 
-!     Initializations.
-!     ----------------
+! Initializations.
+! ----------------
 
-      irc = 0
+irc = 0
 
-      EMP2 = 0.0d0
-      If(DoDens) Then
-         EMP2_dens = 0.0d0
-      End If
+EMP2 = 0.0d0
+if (DoDens) EMP2_dens = 0.0d0
 
-      If (Verbose) Then
-         Call CWTime(CPUIni1,WallIni1)
-      End If
+if (Verbose) call CWTime(CPUIni1,WallIni1)
 
-      Call mma_allocate(Check,1,Label='Check')
-      Check(1) = Chk_Mem_ChoMP2
+call mma_allocate(Check,1,Label='Check')
+Check(1) = Chk_Mem_ChoMP2
 
-      FracMem = 0.0d0 ! no buffer allocated
-      Call Cho_X_Init(irc,FracMem)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Init returned ',irc
-         Call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
-      End If
+FracMem = 0.0d0 ! no buffer allocated
+call Cho_X_Init(irc,FracMem)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+end if
 
-      Call ChoMP2_Setup(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_Setup returned ',irc
-         Go To 1  ! exit
-      End If
+call ChoMP2_Setup(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_Setup returned ',irc
+  Go To 1  ! exit
+end if
 
-      If(DoDens) Then
-!        Write(6,*) 'Run ChoMP2g_setup'
-         Call ChoMP2g_Setup(irc, EOcc, EVir)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2g_Setup returned ',irc
-            Go To 1             ! exit
-         End If
-      End If
+if (DoDens) then
+  !write(6,*) 'Run ChoMP2g_setup'
+  call ChoMP2g_Setup(irc,EOcc,EVir)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2g_Setup returned ',irc
+    Go To 1             ! exit
+  end if
+end if
 
-      If (Verbose) Then
-         Call ChoMP2_Setup_Prt(irc)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
-            Go To 1  ! exit
-         End If
-         Call CWTime(CPUIni2,WallIni2)
-         Call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1, &
-     &                   WallIni2,WallIni1,iFmt)
-      End If
+if (Verbose) then
+  call ChoMP2_Setup_Prt(irc)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
+    Go To 1  ! exit
+  end if
+  call CWTime(CPUIni2,WallIni2)
+  call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
+end if
 
-!     Transform Cholesky vectors directly from reduced set to MO
-!     representation. Result vectors are stored on disk.
-!     If decomposition of (ai|bj) is requested, compute also the
-!     (ai|ai) diagonal here.
-!     ----------------------------------------------------------
+! Transform Cholesky vectors directly from reduced set to MO
+! representation. Result vectors are stored on disk.
+! If decomposition of (ai|bj) is requested, compute also the
+! (ai|ai) diagonal here.
+! ----------------------------------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUTra1,WallTra1)
-      End If
-      If (DecoMP2) Then
-         lDiag = nT1am(1)
-         Do iSym = 2,nSym
-            lDiag = lDiag + nT1am(iSym)
-         End Do
-      Else If(DoDens) Then
-         lDiag = nMoMo(1,6)
-         Do iSym = 2, nSym
-            lDiag = lDiag + nMoMo(iSym,6)
-         End Do
-      Else
-         lDiag = 1
-      End If
-      Call mma_allocate(Diag,lDiag,Label='Diag')
-!
-      If(.not.DoDens) Then
-         Call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-            Go To 1             ! exit
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUTra2,WallTra2)
-            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,      &
-     &                       CPUTra1,WallTra2,WallTra1,iFmt)
-         End If
-      Else If(DoDens) Then
-         Call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
-            Go To 1             ! exit
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUTra2,WallTra2)
-            Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,      &
-     &                       CPUTra1,WallTra2,WallTra1,iFmt)
-         End If
-      End If
+if (Verbose) call CWTime(CPUTra1,WallTra1)
+if (DecoMP2) then
+  lDiag = nT1am(1)
+  do iSym=2,nSym
+    lDiag = lDiag+nT1am(iSym)
+  end do
+else if (DoDens) then
+  lDiag = nMoMo(1,6)
+  do iSym=2,nSym
+    lDiag = lDiag+nMoMo(iSym,6)
+  end do
+else
+  lDiag = 1
+end if
+call mma_allocate(Diag,lDiag,Label='Diag')
 
-!     Finalize Cholesky info (to release memory).
-!     Retain essential info: LuPri, nSym, and NumCho(*).
-!     --------------------------------------------------
+if (.not. DoDens) then
+  call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+    Go To 1             ! exit
+  end if
+  if (Verbose) then
+    call CWTime(CPUTra2,WallTra2)
+    call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1,WallTra2,WallTra1,iFmt)
+  end if
+else if (DoDens) then
+  call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
+    Go To 1             ! exit
+  end if
+  if (Verbose) then
+    call CWTime(CPUTra2,WallTra2)
+    call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1,WallTra2,WallTra1,iFmt)
+  end if
+end if
 
-      nSym_Sav = nSym
-      Call iCopy(nSym,NumCho,1,nMP2Vec,1)
+! Finalize Cholesky info (to release memory).
+! Retain essential info: LuPri, nSym, and NumCho(*).
+! --------------------------------------------------
 
-      Call Cho_X_Final(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Final returned ',irc
-         Go To 1 ! exit
-      End If
+nSym_Sav = nSym
+call iCopy(nSym,NumCho,1,nMP2Vec,1)
 
-      LuPri = 6
-      nSym  = nSym_Sav
-      Call iCopy(nSym,nMP2Vec,1,NumCho,1)
+call Cho_X_Final(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  Go To 1 ! exit
+end if
 
-!     Decompose (ai|bj) integrals, if requested.
-!     Set number of vectors to be used in energy calculation.
-!     -------------------------------------------------------
+LuPri = 6
+nSym = nSym_Sav
+call iCopy(nSym,nMP2Vec,1,NumCho,1)
 
-      If (DecoMP2) Then
-         If (Verbose) Then
-            Call CWTime(CPUDec1,WallDec1)
-         End If
-         Delete = Delete_def ! delete transf. vector files after dec.
-         Call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-            Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUDec2,WallDec2)
-            Call Cho_PrtTim('Cholesky MP2 decomposition',               &
-     &                      CPUDec2,CPUDec1,                            &
-     &                      WallDec2,WallDec1,iFmt)
-         End If
-      Else If(DoDens) Then
-         If (Verbose) Then
-            Call CWTime(CPUDec1,WallDec1)
-         End If
-         Call ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
-         Delete = .false.    ! do not delete transf. vectors.
-         Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-            Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUDec2,WallDec2)
-            Call Cho_PrtTim('Cholesky MP2 decomposition',               &
-     &                      CPUDec2,CPUDec1,                            &
-     &                      WallDec2,WallDec1,iFmt)
-         End If
-      Else
-         Call iCopy(nSym,NumCho,1,nMP2Vec,1)
-      End If
-      Call mma_deallocate(Diag)
+! Decompose (ai|bj) integrals, if requested.
+! Set number of vectors to be used in energy calculation.
+! -------------------------------------------------------
 
-!     Presort Cholesky vectors if needed.
-!     -----------------------------------
+if (DecoMP2) then
+  if (Verbose) call CWTime(CPUDec1,WallDec1)
+  Delete = Delete_def ! delete transf. vector files after dec.
+  call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+    call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+  end if
+  if (Verbose) then
+    call CWTime(CPUDec2,WallDec2)
+    call Cho_PrtTim('Cholesky MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
+  end if
+else if (DoDens) then
+  if (Verbose) call CWTime(CPUDec1,WallDec1)
+  call ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
+  Delete = .false.    ! do not delete transf. vectors.
+  call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+    call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+  end if
+  if (Verbose) then
+    call CWTime(CPUDec2,WallDec2)
+    call Cho_PrtTim('Cholesky MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
+  end if
+else
+  call iCopy(nSym,NumCho,1,nMP2Vec,1)
+end if
+call mma_deallocate(Diag)
 
-      DoSort = nBatch .gt. 1
-      If (DoSort.and. (.not.DoDens)) Then
-         If (Verbose) Then
-            Call CWTime(CPUSrt1,WallSrt1)
-         End If
-         Delete = Delete_def
-         Call ChoMP2_SrtDrv(irc,Delete)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_SrtDrv returned ',irc
-            If (Delete) Then ! full vectors not available
-               Call ChoMP2_Quit(SecNam,'MP2 presort failed!',' ')
-            Else
-               Write(6,*) SecNam,                                       &
-     &                    ': trying to use full vectors instead...'
-            End If
-            DoSort = .false.
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUSrt2,WallSrt2)
-            Call Cho_PrtTim('Cholesky MP2 presort',                     &
-     &                      CPUSrt2,CPUSrt1,                            &
-     &                      WallSrt2,WallSrt1,iFmt)
-         End If
-      End If
+! Presort Cholesky vectors if needed.
+! -----------------------------------
 
-!     FNO section: MP2 pseudodensity
-!     ------------------------------
+DoSort = nBatch > 1
+if (DoSort .and. (.not. DoDens)) then
+  if (Verbose) call CWTime(CPUSrt1,WallSrt1)
+  Delete = Delete_def
+  call ChoMP2_SrtDrv(irc,Delete)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_SrtDrv returned ',irc
+    if (Delete) then ! full vectors not available
+      call ChoMP2_Quit(SecNam,'MP2 presort failed!',' ')
+    else
+      write(6,*) SecNam,': trying to use full vectors instead...'
+    end if
+    DoSort = .false.
+  end if
+  if (Verbose) then
+    call CWTime(CPUSrt2,WallSrt2)
+    call Cho_PrtTim('Cholesky MP2 presort',CPUSrt2,CPUSrt1,WallSrt2,WallSrt1,iFmt)
+  end if
+end if
 
-      If (DoFNO.and.(.not.DoDens)) Then
-         If (Verbose) Then
-            Call CWTime(CPUDab1,WallDab1)
-         End If
-         Delete = Delete_def
-         Call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),                 &
-     &                       EOcc,EVir,DoSort,Delete)
-         call dscal_(l_Dii,-1.0d0,Work(ip_Dii),1)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_FNO returned ',irc
-            Go To 1 ! exit
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUDab2,WallDab2)
-            Call Cho_PrtTim('Cholesky MP2 FNO section ',                &
-     &                      CPUDab2,CPUDab1,                            &
-     &                      WallDab2,WallDab1,iFmt)
-         End If
-         Go To 1 ! exit
-      End If
+! FNO section: MP2 pseudodensity
+! ------------------------------
 
-!     Compute MP2 Density and energy correction.
-!     ------------------------------------------
-      If (DoDens) Then
-         If (Verbose) Then
-            Call CWTime(CPUEnr1,WallEnr1)
-         End If
-         Delete = .false.
-         Call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
-            Go To 1             ! exit
-         End If
-      End If
+if (DoFNO .and. (.not. DoDens)) then
+  if (Verbose) call CWTime(CPUDab1,WallDab1)
+  Delete = Delete_def
+  call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),EOcc,EVir,DoSort,Delete)
+  call dscal_(l_Dii,-1.0d0,Work(ip_Dii),1)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_FNO returned ',irc
+    Go To 1 ! exit
+  end if
+  if (Verbose) then
+    call CWTime(CPUDab2,WallDab2)
+    call Cho_PrtTim('Cholesky MP2 FNO section ',CPUDab2,CPUDab1,WallDab2,WallDab1,iFmt)
+  end if
+  Go To 1 ! exit
+end if
 
-!     Compute some matrices for Mp2-gradients
-!     ---------------------------------------
-      If(DoGrdt) Then
-         If (Verbose) Then
-            Call CWTime(CPUEnr1,WallEnr1)
-         End If
-         Call ChoMP2g_GradSetup(irc,CMO)
-         If(irc .ne. 0) Then
-            Write(6,*) SecNam, ':ChoMP2g_GradSetup returned ', irc
-            Go To 1 ! exit
-         End If
-         If (Verbose) Then
-            Call CWTime(CPUEnr2,WallEnr2)
-            Call Cho_PrtTim('Cholesky Grad setup',                      &
-     &                      CPUEnr2,CPUEnr1,                            &
-     &                      WallEnr2,WallEnr1,iFmt)
-         End If
-      End If
+! Compute MP2 Density and energy correction.
+! ------------------------------------------
+if (DoDens) then
+  if (Verbose) call CWTime(CPUEnr1,WallEnr1)
+  Delete = .false.
+  call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
+    Go To 1             ! exit
+  end if
+end if
 
+! Compute some matrices for Mp2-gradients
+! ---------------------------------------
+if (DoGrdt) then
+  if (Verbose) call CWTime(CPUEnr1,WallEnr1)
+  call ChoMP2g_GradSetup(irc,CMO)
+  if (irc /= 0) then
+    write(6,*) SecNam,':ChoMP2g_GradSetup returned ',irc
+    Go To 1 ! exit
+  end if
+  if (Verbose) then
+    call CWTime(CPUEnr2,WallEnr2)
+    call Cho_PrtTim('Cholesky Grad setup',CPUEnr2,CPUEnr1,WallEnr2,WallEnr1,iFmt)
+  end if
+end if
 
-!     Compute MP2 energy correction.
-!     ------------------------------
+! Compute MP2 energy correction.
+! ------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUEnr1,WallEnr1)
-      End If
-      Delete = Delete_def
-      If (Laplace .and. SOS_MP2) Then
-         Call ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoLSOSMP2_Energy returned ',irc
-            Go To 1 ! exit
-         End If
-      Else
-         Call ChoMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoMP2_Energy returned ',irc
-            Go To 1 ! exit
-         End If
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUEnr2,WallEnr2)
-         Call Cho_PrtTim('Cholesky MP2 energy',                         &
-     &                   CPUEnr2,CPUEnr1,                               &
-     &                   WallEnr2,WallEnr1,iFmt)
-      End If
+if (Verbose) call CWTime(CPUEnr1,WallEnr1)
+Delete = Delete_def
+if (Laplace .and. SOS_MP2) then
+  call ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoLSOSMP2_Energy returned ',irc
+    Go To 1 ! exit
+  end if
+else
+  call ChoMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoMP2_Energy returned ',irc
+    Go To 1 ! exit
+  end if
+end if
+if (Verbose) then
+  call CWTime(CPUEnr2,WallEnr2)
+  call Cho_PrtTim('Cholesky MP2 energy',CPUEnr2,CPUEnr1,WallEnr2,WallEnr1,iFmt)
+end if
 
-!     Exit.
-!     -----
+! Exit.
+! -----
 
-    1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
-      If (Diff .gt. Tol) Then
-         Write(6,*) SecNam,': Memory Boundary Error!'
-         If (irc .eq. 0) irc = -9999
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUTot2,WallTot2)
-         Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,                &
-     &                   WallTot2,WallTot1,iFmt)
-      End If
-      Call ChoMP2_deallocate(irc)
-      Call mma_deallocate(Check)
-      Return
-      End
+1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
+if (Diff > Tol) then
+  write(6,*) SecNam,': Memory Boundary Error!'
+  if (irc == 0) irc = -9999
+end if
+if (Verbose) then
+  call CWTime(CPUTot2,WallTot2)
+  call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+end if
+call ChoMP2_deallocate(irc)
+call mma_deallocate(Check)
+
+return
+
+end subroutine ChoMP2_Drv

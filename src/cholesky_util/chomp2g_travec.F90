@@ -10,152 +10,142 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,       &
-     &                         iSyCho,iSyCO,iSyCV,iLoc,                 &
-     &                         iMoType1,iMoType2)
+
+subroutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc,iMoType1,iMoType2)
 !
-!     Jonas Bostrom, Feb 2010
+! Jonas Bostrom, Feb 2010
 !
-!     Purpose: compute pq-vector from reduced set AO vector.
-!
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
-      Real*8 Scr(lScr)
+! Purpose: compute pq-vector from reduced set AO vector.
+
+use ChoArr, only: iRS2F
+use ChoSwp, only: IndRed
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
+real*8 Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
+character*13 SecNam
+parameter(SecNam='ChoMP2_TraVec')
+real*8 Fac(0:1)
+data Fac/0.5d0,1.0d0/
+! Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_TraVec')
+! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
+iVecType = iMoType2+(iMoType1-1)*nMoType
 
-      Real*8 Fac(0:1)
-      Data Fac /0.5D0,1.0D0/
+if ((iLoc < 2) .or. (iLoc > 3)) then
+  write(6,*) SecNam,': illegal iLoc = ',iLoc
+  call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
+end if
+iSyScr = MulD2h(iSyCho,iSyCO)
+if (lScr < nMoAo(iSyScr,iMoType1)) then
+  write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
+  write(6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
+  call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
+else
+  call FZero(Scr,nMoAo(iSyScr,iMoType1))
+end if
 
-      MulD2h(i,j)=iEor(i-1,j-1)+1
+! First half-transformation step:
+! Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COrb1(i,beta)
+! ------------------------------------------------------
 
-!     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
-      iVecType = iMoType2 + (iMoType1-1)*nMoType
+if (iSyCho == 1) then
 
-      If (iLoc.lt.2 .or. iLoc.gt.3) Then
-         Write(6,*) SecNam,': illegal iLoc = ',iLoc
-         Call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
-      End If
-      iSyScr = MulD2h(iSyCho,iSyCO)
-      If (lScr .lt. nMoAo(iSyScr,iMoType1)) Then
-         Write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-         Write(6,*) SecNam,': needed                          = ',      &
-     &              nMoAo(iSyScr,iMoType1)
-         Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
-      Else
-         Call FZero(Scr,nMoAo(iSyScr,iMoType1))
-      End If
+  do iAlBe=1,nnBstR(iSyCho,iLoc)
 
-!     First half-transformation step:
-!     Scr(i,alpha) = sum_beta VecAO(alpha,beta)*COrb1(i,beta)
-!     ------------------------------------------------------
+    jAlBe = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
+    iAlpha = iRS2F(1,jAlBe)
+    iBeta = iRS2F(2,jAlBe)
 
-      If (iSyCho .eq. 1) Then
+    iSymAl = 1
+    do iSym=nSym,2,-1
+      if (iAlpha > iBas(iSym)) then
+        iSymAl = iSym
+        Go To 998
+      end if
+    end do
+998 iSymBe = iSymAl
+    iSymP = MulD2h(iSymBe,iSyCO)
 
-         Do iAlBe = 1,nnBstR(iSyCho,iLoc)
+    jAlpha = iAlpha-iBas(iSymAl)
+    jBeta = iBeta-iBas(iSymBe)
 
-            jAlBe  = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
-            iAlpha = iRS2F(1,jAlBe)
-            iBeta  = iRS2F(2,jAlBe)
+    AOVal = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
+    kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
+    kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
+    do i=1,nMo(iSymP,iMoType1)
+      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COrb1(kOffBe+i)
+      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COrb1(kOffAl+i)
+    end do
 
-            iSymAl = 1
-            Do iSym = nSym,2,-1
-               If (iAlpha .gt. iBas(iSym)) Then
-                  iSymAl = iSym
-                  Go To 998
-               End If
-            End Do
-  998       iSymBe = iSymAl
-            iSymP  = MulD2h(iSymBe,iSyCO)
+  end do
 
-            jAlpha = iAlpha - iBas(iSymAl)
-            jBeta  = iBeta  - iBas(iSymBe)
+else
 
-            AOVal  = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1) +  nMo(iSymP,iMoType1)&
-     &                                       * (jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1) + nMo(iSymP,iMoType1) &
-     &                                       * (jBeta  - 1)
-            Do i = 1,nMo(iSymP,iMoType1)
-               Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COrb1(kOffBe+i)
-               Scr(kOffBe+i) = Scr(kOffBe+i) + AOVal*COrb1(kOffAl+i)
-            End Do
+  do iAlBe=1,nnBstR(iSyCho,iLoc)
 
-         End Do
+    jAlBe = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
+    iAlpha = iRS2F(1,jAlBe)
+    iBeta = iRS2F(2,jAlBe)
 
-      Else
+    iSymAl = 1
+    do iSym=nSym,2,-1
+      if (iAlpha > iBas(iSym)) then
+        iSymAl = iSym
+        Go To 999
+      end if
+    end do
+999 iSymBe = MulD2h(iSymAl,iSyCho)
 
-         Do iAlBe = 1,nnBstR(iSyCho,iLoc)
+    jAlpha = iAlpha-iBas(iSymAl)
+    jBeta = iBeta-iBas(iSymBe)
 
-            jAlBe  = IndRed(iiBstR(iSyCho,iLoc)+iAlBe,iLoc)
-            iAlpha = iRS2F(1,jAlBe)
-            iBeta  = iRS2F(2,jAlBe)
+    AOVal = VecAO(iAlBe)
 
-            iSymAl = 1
-            Do iSym = nSym,2,-1
-               If (iAlpha .gt. iBas(iSym)) Then
-                  iSymAl = iSym
-                  Go To 999
-               End If
-            End Do
-  999       iSymBe = MulD2h(iSymAl,iSyCho)
+    iSymP = MulD2h(iSymBe,iSyCO)
+    kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
+    kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
+    do i=1,nMo(iSymP,iMoType1)
+      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COrb1(kOffBe+i)
+    end do
 
-            jAlpha = iAlpha - iBas(iSymAl)
-            jBeta  = iBeta  - iBas(iSymBe)
+    iSymP = MulD2h(iSymAl,iSyCO)
+    kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
+    kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
+    do i=1,nMo(iSymP,iMoType1)
+      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COrb1(kOffAl+i)
+    end do
 
-            AOVal  = VecAO(iAlBe)
+  end do
 
-            iSymP  = MulD2h(iSymBe,iSyCO)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)                       &
-     &             + nMo(iSymP,iMoType1)*(jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)                       &
-     &             + nMo(iSymP,iMoType1)*(jBeta  - 1)
-            Do i = 1,nMo(iSymP,iMoType1)
-               Scr(kOffAl+i) = Scr(kOffAl+i) + AOVal*COrb1(kOffBe+i)
-            End Do
+end if
 
-            iSymP  = MulD2h(iSymAl,iSyCO)
-            kOffAl = iMoAo(iSymP,iSymAl,iMoType1)                       &
-     &             + nMo(iSymP,iMoType1)*(jAlpha - 1)
-            kOffBe = iMoAo(iSymP,iSymBe,iMoType1)                       &
-     &             + nMo(iSymP,iMoType1)*(jBeta  - 1)
-            Do i = 1,nMo(iSymP,iMoType1)
-               Scr(kOffBe+i) = Scr(kOffBe+i) + AOVal*COrb1(kOffAl+i)
-            End Do
+! Second half-transformation step:
+! VecMO(q,p) = sum_alpha COrb2(alpha,q)*Scr(p,alpha)
+! -------------------------------------------------
 
-         End Do
+do iSymp=1,nSym
 
-      End If
+  iSymq = MulD2h(iSymp,iSyCho)
+  iSymAl = MulD2h(iSymq,iSyCV)
 
-!     Second half-transformation step:
-!     VecMO(q,p) = sum_alpha COrb2(alpha,q)*Scr(p,alpha)
-!     -------------------------------------------------
+  nTotAl = nBas(iSymAl)
+  nTotq = nMo(iSymq,iMoType2)
+  nTotp = nMo(iSymp,iMoType1)
 
-      Do iSymp = 1,nSym
+  if ((nTotp > 0) .and. (nTotq > 0) .and. (nTotAl > 0)) then
+    kOff1 = iAoMo(iSymAl,iSymq,iMoType2)+1
+    kOff2 = iMoAo(iSymp,iSymAl,iMoType1)+1
+    kOff3 = iMoMo(iSymq,iSymp,iVecType)+1
+    call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),nBas(iSymAl),1.0d0,COrb2(kOff1),nTotAl,Scr(kOff2),nTotp,0.0d0, &
+                VecMO(kOff3),nTotq)
+  end if
 
-         iSymq  = MulD2h(iSymp,iSyCho)
-         iSymAl = MulD2h(iSymq,iSyCV)
+end do
 
-         nTotAl = nBas(iSymAl)
-         nTotq  = nMo(iSymq,iMoType2)
-         nTotp  = nMo(iSymp,iMoType1)
-
-         If (nTotp.gt.0 .and. nTotq.gt.0 .and. nTotAl.gt.0) Then
-            kOff1 = iAoMo(iSymAl,iSymq,iMoType2) + 1
-            kOff2 = iMoAo(iSymp,iSymAl,iMoType1) + 1
-            kOff3 = iMoMo(iSymq,iSymp,iVecType)   + 1
-            Call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),&
-     &                 nBas(iSymAl),1.0D0,COrb2(kOff1),nTotAl,          &
-     &                 Scr(kOff2),nTotp,0.0D0,VecMO(kOff3),nTotq)
-         End If
-
-      End Do
-
-      End
+end subroutine ChoMP2g_TraVec

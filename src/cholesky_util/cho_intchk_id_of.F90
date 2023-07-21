@@ -8,37 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INTCHK_ID_OF(LABEL,ID,IOPT)
+
+subroutine CHO_INTCHK_ID_OF(LABEL,ID,IOPT)
 !
-!     Purpose: for minimal integral checking,
-!              IOPT=-1 : return label corresponding to id ID.
-!              else    : return index of shell quadruple corresponding
-!                        to check label LABEL.
-!
-      IMPLICIT NONE
-      CHARACTER*8 LABEL
-      INTEGER ID, IOPT
+! Purpose: for minimal integral checking,
+!          IOPT=-1 : return label corresponding to id ID.
+!          else    : return index of shell quadruple corresponding
+!                    to check label LABEL.
+
+implicit none
+character*8 LABEL
+integer ID, IOPT
 #include "cholesky.fh"
+integer CHO_TABIND
+external CHO_TABIND
+integer NTABLE
+parameter(NTABLE=12)
+character*8 TABLE(NTABLE)
+data TABLE/'EXCL RS1','MAX|XRS1','MIN|XRS1','NEG DIAG','MAX|NEG ','MIN|NEG ','NEG->ZER','MAX|NEGZ','MIN|NEGZ','MAX DIAG', &
+           'MIN DIAG','MAX|MIN '/
 
-      INTEGER  CHO_TABIND
-      EXTERNAL CHO_TABIND
+if (IOPT == -1) then
+  if ((ID < 1) .or. (ID > NTABLE)) then
+    LABEL = 'UNKNOWN '
+  else
+    LABEL = TABLE(ID)
+  end if
+else
+  ID = CHO_TABIND(TABLE,8,NTABLE,' ',0,0,LABEL)
+end if
 
-      INTEGER     NTABLE
-      PARAMETER   (NTABLE = 12)
-      CHARACTER*8 TABLE(NTABLE)
-      DATA TABLE  /'EXCL RS1','MAX|XRS1','MIN|XRS1',                    &
-     &             'NEG DIAG','MAX|NEG ','MIN|NEG ',                    &
-     &             'NEG->ZER','MAX|NEGZ','MIN|NEGZ',                    &
-     &             'MAX DIAG','MIN DIAG','MAX|MIN '/
-
-      IF (IOPT .EQ. -1) THEN
-         IF (ID.LT.1 .OR. ID.GT.NTABLE) THEN
-            LABEL = 'UNKNOWN '
-         ELSE
-            LABEL = TABLE(ID)
-         END IF
-      ELSE
-         ID = CHO_TABIND(TABLE,8,NTABLE,' ',0,0,LABEL)
-      END IF
-
-      END
+end subroutine CHO_INTCHK_ID_OF

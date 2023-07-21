@@ -8,212 +8,182 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_MCA_INT_1_DBG1(DIAG,IRED)
+
+subroutine CHO_MCA_INT_1_DBG1(DIAG,IRED)
 !
-!     Purpose: test diagonal, reduced set IRED. Note that the
-!              diagonal *must* be the original diagonal stored
-!              in reduced set 1.
-!
-      use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Integer IRED
-      Real*8 DIAG(*)
+! Purpose: test diagonal, reduced set IRED. Note that the
+!          diagonal *must* be the original diagonal stored
+!          in reduced set 1.
+
+use ChoArr, only: nBstSh, iSP2F
+use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
+use Constants
+use stdalloc
+
+implicit real*8(a-h,o-z)
+integer IRED
+real*8 DIAG(*)
 #include "cholesky.fh"
+character(len=18), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG1'
+logical, parameter :: PRTINT = .false.
+real*8, allocatable :: xINT(:)
 
-      CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
+write(LUPRI,*)
+write(LUPRI,*)
+write(LUPRI,*) SECNAM,': testing diagonal, reduced set ',IRED
+write(LUPRI,*)
 
-      LOGICAL, PARAMETER:: PRTINT = .FALSE.
+! Force computation of full shell quadruple.
+! ------------------------------------------
 
-      Real*8, Allocatable:: xINT(:)
+if (IFCSEW /= 1) then
+  write(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',IFCSEW,' to 1.'
+  IFCSEW = 1
+end if
 
-      WRITE(LUPRI,*)
-      WRITE(LUPRI,*)
-      WRITE(LUPRI,*) SECNAM,': testing diagonal, reduced set ',IRED
-      WRITE(LUPRI,*)
+LINT1 = MX2SH*MX2SH
+call mma_allocate(xINT,LINT1,Label='INT')
+call mma_maxDBLE(LSEW)
+call XSETMEM_INTS(LSEW)
 
-!     Force computation of full shell quadruple.
-!     ------------------------------------------
+NERR = 0
+NTST = 0
+do ISHLAB=1,NNSHL
 
-      IF (IFCSEW .NE. 1) THEN
-         WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',     &
-     &                  IFCSEW,' to 1.'
-         IFCSEW = 1
-      END IF
+  ! Allocate memory for shell quadruple (AB|AB).
+  ! --------------------------------------------
 
-      LINT1 = MX2SH*MX2SH
-      Call mma_allocate(xINT,LINT1,Label='INT')
-      Call mma_maxDBLE(LSEW)
-      CALL XSETMEM_INTS(LSEW)
+  call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+  if (ISHLB == ISHLA) then
+    NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLB)+1)/2
+  else
+    NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
+  end if
+  LINT = NUMAB*NUMAB
 
-      NERR = 0
-      NTST = 0
-      DO ISHLAB = 1,NNSHL
+  ! Calculate integrals.
+  ! --------------------
 
-!        Allocate memory for shell quadruple (AB|AB).
-!        --------------------------------------------
+  xINT(1:LINT) = Zero
+  call CHO_MCA_INT_1(ISHLAB,ISHLAB,xINT,LINT,PRTINT)
 
-         CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
-         IF (ISHLB .EQ. ISHLA) THEN
-            NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLB) + 1)/2
-         ELSE
-            NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
-         END IF
-         LINT = NUMAB*NUMAB
+  ! Look up all diagonal elements in DIAG and compare to
+  ! values just calculated.
+  ! ----------------------------------------------------
 
-!        Calculate integrals.
-!        --------------------
+  IERR = 0
+  if (IRED == 1) then
 
-         xINT(1:LINT)=Zero
-         CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,xINT,LINT,PRTINT)
+    do ISYM=1,NSYM
 
-!        Look up all diagonal elements in DIAG and compare to
-!        values just calculated.
-!        ----------------------------------------------------
+      JAB1 = IIBSTR(ISYM,1)+IIBSTRSH(ISYM,ISHLAB,1)+1
+      JAB2 = JAB1+NNBSTRSH(ISYM,ISHLAB,1)-1
 
-         IERR = 0
-         IF (IRED .EQ. 1) THEN
+      do JAB=JAB1,JAB2   ! loop over elements in diagonal
 
-            DO ISYM = 1,NSYM
+        if ((JAB < 1) .or. (JAB > NNBSTRT(1))) then
+          write(LUPRI,*) SECNAM,': JAB = ',JAB
+          write(LUPRI,*) SECNAM,': should be between 1 and ',NNBSTRT(1)
+          call CHO_QUIT(SECNAM//': index error (IRED=1)',103)
+        end if
 
-               JAB1 = IIBSTR(ISYM,1) + IIBSTRSH(ISYM,ISHLAB,1)          &
-     &              + 1
-               JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,1) - 1
+        JSHLAB = INDRSH(JAB)
+        if (JSHLAB /= ISP2F(ISHLAB)) then
+          write(LUPRI,*) SECNAM,': test is meaningless!'
+          write(LUPRI,*) SECNAM,': JSHLAB must equal ','ISP2F(ISHLAB)'
+          write(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',JSHLAB,ISP2F(ISHLAB)
+          call CHO_QUIT(SECNAM//': shell bug (IRED=1)',103)
+        end if
 
-               DO JAB = JAB1,JAB2   ! loop over elements in diagonal
+        IAB = INDRED(JAB,1)
+        if ((IAB < 1) .or. (IAB > NUMAB)) then
+          write(LUPRI,*) SECNAM,': IAB = ',IAB
+          write(LUPRI,*) SECNAM,': should be between 1 and ',NUMAB
+          call CHO_QUIT(SECNAM//': index error (IRED=1)',103)
+        end if
 
-                  IF ((JAB.LT.1) .OR. (JAB.GT.NNBSTRT(1))) THEN
-                     WRITE(LUPRI,*) SECNAM,': JAB = ',JAB
-                     WRITE(LUPRI,*) SECNAM,                             &
-     &                              ': should be between 1 and ',       &
-     &                              NNBSTRT(1)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',    &
-     &                             103)
-                  END IF
+        KABAB = NUMAB*(IAB-1)+IAB
+        DIFF = DIAG(JAB)-xINT(KABAB)
+        if (abs(DIFF) > 1.0D-14) then
+          write(LUPRI,*) SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',ISHLA,ISHLB,JAB,IAB,DIFF
+          IERR = IERR+1
+        end if
 
-                  JSHLAB = INDRSH(JAB)
-                  IF (JSHLAB .NE. ISP2F(ISHLAB)) THEN
-                     WRITE(LUPRI,*) SECNAM,': test is meaningless!'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',      &
-     &                              'ISP2F(ISHLAB)'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',  &
-     &                              JSHLAB,ISP2F(ISHLAB)
-                     CALL CHO_QUIT(SECNAM//': shell bug (IRED=1)',      &
-     &                             103)
-                  END IF
+        NTST = NTST+1
 
-                  IAB = INDRED(JAB,1)
-                  IF ((IAB.LT.1) .OR. (IAB.GT.NUMAB)) THEN
-                     WRITE(LUPRI,*) SECNAM,': IAB = ',IAB
-                     WRITE(LUPRI,*) SECNAM,                             &
-     &                             ': should be between 1 and ',NUMAB
-                     CALL CHO_QUIT(SECNAM//': index error (IRED=1)',    &
-     &                             103)
-                  END IF
+      end do
 
-                  KABAB = NUMAB*(IAB - 1) + IAB
-                  DIFF  = DIAG(JAB) - xINT(KABAB)
-                  IF (ABS(DIFF) .GT. 1.0D-14) THEN
-                     WRITE(LUPRI,*)                                     &
-     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',             &
-     &               ISHLA,ISHLB,JAB,IAB,DIFF
-                     IERR = IERR + 1
-                  END IF
+    end do
 
-                  NTST = NTST + 1
+    write(LUPRI,*) SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
 
-               END DO
+    NERR = NERR+IERR
 
-            END DO
+  else if ((IRED == 2) .or. (IRED == 3)) then
 
-            WRITE(LUPRI,*)                                              &
-     &      SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
+    do ISYM=1,NSYM
 
-            NERR = NERR + IERR
+      JAB1 = IIBSTR(ISYM,IRED)+IIBSTRSH(ISYM,ISHLAB,IRED)+1
+      JAB2 = JAB1+NNBSTRSH(ISYM,ISHLAB,IRED)-1
 
-         ELSE IF ((IRED.EQ.2) .OR. (IRED.EQ.3)) THEN
+      do JAB=JAB1,JAB2   ! loop over elements in diagonal
 
-            DO ISYM = 1,NSYM
+        if ((JAB < 1) .or. (JAB > NNBSTRT(IRED))) then
+          write(LUPRI,*) SECNAM,': JAB = ',JAB
+          write(LUPRI,*) SECNAM,': should be between 1 and ',NNBSTRT(IRED)
+          call CHO_QUIT(SECNAM//': index error (IRED>1)',103)
+        end if
 
-               JAB1 = IIBSTR(ISYM,IRED) + IIBSTRSH(ISYM,ISHLAB,IRED)    &
-     &              + 1
-               JAB2 = JAB1 + NNBSTRSH(ISYM,ISHLAB,IRED) - 1
+        JSHLAB = INDRSH(INDRED(JAB,IRED))
+        if (JSHLAB /= ISP2F(ISHLAB)) then
+          write(LUPRI,*) SECNAM,': test is meaningless!'
+          write(LUPRI,*) SECNAM,': JSHLAB must equal ISP2F(ISHLAB)'
+          write(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',JSHLAB,ISP2F(ISHLAB)
+          call CHO_QUIT(SECNAM//': shell bug (IRED>1)',103)
+        end if
 
-               DO JAB = JAB1,JAB2   ! loop over elements in diagonal
+        KAB = INDRED(JAB,IRED)  ! index in red. set 1
+        if ((KAB < 1) .or. (KAB > NNBSTRT(1))) then
+          write(LUPRI,*) SECNAM,': KAB = ',KAB
+          write(LUPRI,*) SECNAM,': should be between 1 and ',NNBSTRT(1)
+          call CHO_QUIT(SECNAM//': index error (IRED>1)',103)
+        end if
 
-                  IF ((JAB.LT.1) .OR. (JAB.GT.NNBSTRT(IRED))) THEN
-                     WRITE(LUPRI,*) SECNAM,': JAB = ',JAB
-                     WRITE(LUPRI,*) SECNAM,                             &
-     &                              ': should be between 1 and ',       &
-     &                              NNBSTRT(IRED)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
-     &                             103)
-                  END IF
+        IAB = INDRED(KAB,1)
+        if ((IAB < 1) .or. (IAB > NUMAB)) then
+          write(LUPRI,*) SECNAM,': IAB = ',IAB
+          write(LUPRI,*) SECNAM,': should be between 1 and ',NUMAB
+          call CHO_QUIT(SECNAM//': index error (IRED>1)',103)
+        end if
 
-                  JSHLAB = INDRSH(INDRED(JAB,IRED))
-                  IF (JSHLAB .NE. ISP2F(ISHLAB)) THEN
-                     WRITE(LUPRI,*) SECNAM,': test is meaningless!'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB must equal ',      &
-     &                              'ISP2F(ISHLAB)'
-                     WRITE(LUPRI,*) SECNAM,': JSHLAB,ISP2F(ISHLAB): ',  &
-     &                              JSHLAB,ISP2F(ISHLAB)
-                     CALL CHO_QUIT(SECNAM//': shell bug (IRED>1)',      &
-     &                             103)
-                  END IF
+        KABAB = NUMAB*(IAB-1)+IAB
+        DIFF = DIAG(KAB)-xINT(KABAB)
+        if (abs(DIFF) > 1.0D-14) then
+          write(LUPRI,*) SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',ISHLA,ISHLB,JAB,IAB,DIFF
+          IERR = IERR+1
+        end if
 
-                  KAB = INDRED(JAB,IRED)  ! index in red. set 1
-                  IF ((KAB.LT.1) .OR. (KAB.GT.NNBSTRT(1))) THEN
-                     WRITE(LUPRI,*) SECNAM,': KAB = ',KAB
-                     WRITE(LUPRI,*) SECNAM,                             &
-     &                              ': should be between 1 and ',       &
-     &                              NNBSTRT(1)
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
-     &                             103)
-                  END IF
+        NTST = NTST+1
 
-                  IAB = INDRED(KAB,1)
-                  IF ((IAB.LT.1) .OR. (IAB.GT.NUMAB)) THEN
-                     WRITE(LUPRI,*) SECNAM,': IAB = ',IAB
-                     WRITE(LUPRI,*) SECNAM,                             &
-     &                             ': should be between 1 and ',NUMAB
-                     CALL CHO_QUIT(SECNAM//': index error (IRED>1)',    &
-     &                             103)
-                  END IF
+      end do
 
-                  KABAB = NUMAB*(IAB - 1) + IAB
-                  DIFF  = DIAG(KAB) - xINT(KABAB)
-                  IF (ABS(DIFF) .GT. 1.0D-14) THEN
-                     WRITE(LUPRI,*)                                     &
-     &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',             &
-     &               ISHLA,ISHLB,JAB,IAB,DIFF
-                     IERR = IERR + 1
-                  END IF
+    end do
 
-                  NTST = NTST + 1
+    write(LUPRI,*) SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
 
-               END DO
+    NERR = NERR+IERR
 
-            END DO
+  else
 
-            WRITE(LUPRI,*)                                              &
-     &      SECNAM,': ISHLA,ISHLB,#errors: ',ISHLA,ISHLB,IERR
+    call CHO_QUIT(SECNAM//': IRED out of bounds!',104)
 
-            NERR = NERR + IERR
+  end if
 
-         ELSE
+end do
 
-            CALL CHO_QUIT(SECNAM//': IRED out of bounds!',104)
+call XRLSMEM_INTS()
+call mma_deallocate(xINT)
 
-         END IF
+write(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,' #errors: ',NERR
 
-      END DO
-
-      CALL XRLSMEM_INTS()
-      Call mma_deallocate(xINT)
-
-      WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,             &
-     &               ' #errors: ',NERR
-
-      END
+end subroutine CHO_MCA_INT_1_DBG1

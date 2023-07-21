@@ -10,15 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module GnVcMp
-Implicit none
-Private
-Public:: RS2RS
 
-Type Map
-  Integer, Allocatable :: Map(:)
-End Type Map
+module GnVcMp
 
-Type (Map):: RS2RS(8)
+implicit none
+private
 
-End Module GnVcMp
+public :: RS2RS
+
+type Map
+  integer, allocatable :: Map(:)
+end type Map
+
+type(Map) :: RS2RS(8)
+
+end module GnVcMp

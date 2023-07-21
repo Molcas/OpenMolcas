@@ -86,123 +86,92 @@
 !> @param[in,out] NumCho  Number of Cholesky vectors
 !> @param[out]    irc     Return code
 !***********************************************************************
-      SubRoutine ChoDec(CD_Col,CD_Vec,                                  &
-     &                  Restart,Thr,Span,MxQual,                        &
-     &                  Diag,Qual,Buf,                                  &
-     &                  iPivot,iQual,                                   &
-     &                  nDim,lBuf,                                      &
-     &                  ErrStat,NumCho,                                 &
-     &                  irc)
-      Implicit Real*8 (a-h,o-z)
-      External  CD_Col    ! external routine for matrix columns
-      External  CD_Vec    ! external routine for Cholesky vectors
-      Logical   Restart
-      Real*8 Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
-      Integer   iPivot(nDim), iQual(MxQual)
-      REAL*8 ErrStat(3)
 
-      Logical   Converged
+subroutine ChoDec(CD_Col,CD_Vec,Restart,Thr,Span,MxQual,Diag,Qual,Buf,iPivot,iQual,nDim,lBuf,ErrStat,NumCho,irc)
 
-      Character*6 SecNam
-      Parameter (SecNam = 'ChoDec')
+implicit real*8(a-h,o-z)
+external CD_Col    ! external routine for matrix columns
+external CD_Vec    ! external routine for Cholesky vectors
+logical Restart
+real*8 Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
+integer iPivot(nDim), iQual(MxQual)
+real*8 ErrStat(3)
+logical Converged
+character*6 SecNam
+parameter(SecNam='ChoDec')
+parameter(DefThr=1.0d-6,DefSpan=1.0d-2) ! defaults
+parameter(ThrNeg=-1.0d-13,ThrFail=-1.0d-8)
 
-      Parameter (DefThr = 1.0d-6, DefSpan = 1.0d-2) ! defaults
-      Parameter (ThrNeg = -1.0d-13, ThrFail = -1.0d-8)
+! Initialize variables.
+! ---------------------
 
+irc = 0
+ErrStat(1) = 9.876543210d15
+ErrStat(2) = -9.876543210d15
+ErrStat(3) = -9.876543210d15
+if (.not. Restart) NumCho = 0
+Converged = .false.
 
-!     Initialize variables.
-!     ---------------------
+! Check dimensions.
+! -----------------
 
-      irc = 0
-      ErrStat(1) =  9.876543210d15
-      ErrStat(2) = -9.876543210d15
-      ErrStat(3) = -9.876543210d15
-      If (.not. Restart) NumCho = 0
-      Converged = .false.
+if (nDim < 1) then
+  irc = 0
+  Go To 1  ! exit (nothing to do)
+end if
+if (MxQual < 1) then
+  irc = -1
+  Go To 1  ! exit (qualification not possible)
+end if
+mQual = min(MxQual,nDim)
+MinBuf = nDim+mQual
+if (lBuf < MinBuf) then
+  irc = -2
+  Go To 1 ! exit (buffer too small)
+end if
 
-!     Check dimensions.
-!     -----------------
+! Check configuration.
+! --------------------
 
-      If (nDim .lt. 1) Then
-         irc = 0
-         Go To 1  ! exit (nothing to do)
-      End If
-      If (MxQual .lt. 1) Then
-         irc = -1
-         Go To 1  ! exit (qualification not possible)
-      End If
-      mQual  = min(MxQual,nDim)
-      MinBuf = nDim + mQual
-      If (lBuf .lt. MinBuf) Then
-         irc = -2
-         Go To 1 ! exit (buffer too small)
-      End If
+if (Thr < 0.0d0) Thr = DefThr  ! reset threshold
+if ((Span < 0.0d0) .or. (Span > 1.0d0)) Span = DefSpan ! reset span factor
 
-!     Check configuration.
-!     --------------------
+! Set up a (possibly updated) copy of the diagonal.
+! Test diagonal for negative elements.
+! -------------------------------------------------
 
-      If (Thr .lt. 0.0d0) Then
-         Thr = DefThr  ! reset threshold
-      End If
-      If (Span.lt.0.0d0 .or. Span.gt.1.0d0) Then
-         Span = DefSpan ! reset span factor
-      End If
+call CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
+if (irc /= 0) Go To 1 ! exit (initial diagonal error)
 
-!     Set up a (possibly updated) copy of the diagonal.
-!     Test diagonal for negative elements.
-!     -------------------------------------------------
+! Only do decomposition if not converged!
+! ---------------------------------------
 
-      Call CD_Diag(CD_Vec,                                              &
-     &             Restart,Converged,Thr,                               &
-     &             ThrNeg,ThrFail,                                      &
-     &             Diag,Qual(1,0),Buf,                                  &
-     &             nDim,lBuf,                                           &
-     &             ErrStat,NumCho,                                      &
-     &             irc)
-      If (irc .ne. 0) Go To 1 ! exit (initial diagonal error)
+if (.not. Converged) then
 
-!     Only do decomposition if not converged!
-!     ---------------------------------------
+  ! Cholesky decompose.
+  ! -------------------
 
-      If (.not. Converged) Then
+  MxNumCho = nDim ! generate as many vectors as needed
+  call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,mQual,ThrNeg,ThrFail,Qual(1,0),Qual(1,1),Buf,iPivot,iQual,nDim,lBuf,NumCho,irc)
+  if (irc /= 0) Go To 1  ! exit (decomposition error)
 
-!        Cholesky decompose.
-!        -------------------
+  ! Check diagonal and set up error statistics.
+  ! -------------------------------------------
 
-         MxNumCho = nDim ! generate as many vectors as needed
-         Call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,                     &
-     &                      Thr,Span,mQual,                             &
-     &                      ThrNeg,ThrFail,                             &
-     &                      Qual(1,0),Qual(1,1),Buf,                    &
-     &                      iPivot,iQual,                               &
-     &                      nDim,lBuf,                                  &
-     &                      NumCho,                                     &
-     &                      irc)
-         If (irc .ne. 0) Go To 1  ! exit (decomposition error)
+  call CD_Diag(CD_Vec,.true.,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
+  if (irc /= 0) then
+    irc = irc+200 ! makes the error code 400 + n
+    Go To 1 ! exit (check error)
+  else if (.not. Converged) then
+    irc = 1
+    Go To 1 ! exit (decomposition failure)
+  end if
 
-!        Check diagonal and set up error statistics.
-!        -------------------------------------------
+end if
 
+! That's it!
+! ----------
 
-         Call CD_Diag(CD_Vec,                                           &
-     &                .true.,Converged,Thr,                             &
-     &                ThrNeg,ThrFail,                                   &
-     &                Diag,Qual(1,0),Buf,                               &
-     &                nDim,lBuf,                                        &
-     &                ErrStat,NumCho,                                   &
-     &                irc)
-         If (irc .ne. 0) Then
-            irc = irc + 200 ! makes the error code 400 + n
-            Go To 1 ! exit (check error)
-         Else If (.not. Converged) Then
-            irc = 1
-            Go To 1 ! exit (decomposition failure)
-         End If
+1 continue
 
-      End If
-
-!     That's it!
-!     ----------
-
-    1 Continue
-      End
+end subroutine ChoDec

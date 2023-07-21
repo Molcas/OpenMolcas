@@ -8,35 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_ReoQual(iQuAB,MxQ,nSym,iQScr,IDK,nK,nQ)
+
+subroutine Cho_ReoQual(iQuAB,MxQ,nSym,iQScr,IDK,nK,nQ)
 !
-!     Purpose: reorder iQuAB array to IDK ordering.
-!
-      Implicit None
-      Integer MxQ, nSym
-      Integer iQuAB(MxQ,nSym)
-      Integer iQScr(MxQ)
-      Integer IDK(*)
-      Integer nK(nSym)
-      Integer nQ(nSym)
+! Purpose: reorder iQuAB array to IDK ordering.
 
-      Integer iSym, kID
-      Integer iK, lK
+implicit none
+integer MxQ, nSym
+integer iQuAB(MxQ,nSym)
+integer iQScr(MxQ)
+integer IDK(*)
+integer nK(nSym)
+integer nQ(nSym)
+integer iSym, kID
+integer iK, lK
 
-      kID = 0
-      Do iSym = 1,nSym
-         If (nQ(iSym) .gt. 0) Then
-            Call iCopy(nQ(iSym),iQuAB(1,iSym),1,iQScr,1)
-            Do iK = 1,nK(iSym)
-               lK = IDK(kID+iK)
-               iQuAB(iK,iSym) = iQScr(lK)
-            End Do
-            kID = kID + nQ(iSym)
-         Else
-            Do iK = 1,nK(iSym)
-               iQuAB(iK,iSym) = 0
-            End Do
-         End If
-      End Do
+kID = 0
+do iSym=1,nSym
+  if (nQ(iSym) > 0) then
+    call iCopy(nQ(iSym),iQuAB(1,iSym),1,iQScr,1)
+    do iK=1,nK(iSym)
+      lK = IDK(kID+iK)
+      iQuAB(iK,iSym) = iQScr(lK)
+    end do
+    kID = kID+nQ(iSym)
+  else
+    do iK=1,nK(iSym)
+      iQuAB(iK,iSym) = 0
+    end do
+  end if
+end do
 
-      End
+end subroutine Cho_ReoQual

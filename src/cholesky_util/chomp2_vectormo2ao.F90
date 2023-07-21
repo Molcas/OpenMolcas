@@ -10,30 +10,30 @@
 !                                                                      *
 ! Copyright (C) 2007,2008, Thomas Bondo Pedersen                       *
 !***********************************************************************
-      SubRoutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag, &
-     &                              Diag,lDiag,lU_AO,irc)
+
+subroutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,Diag,lDiag,lU_AO,irc)
 !
-!     Thomas Bondo Pedersen, Dec. 2007 - Jan. 2008.
+! Thomas Bondo Pedersen, Dec. 2007 - Jan. 2008.
 !
-!     Purpose: backtransform vectors from MO to AO basis.
+! Purpose: backtransform vectors from MO to AO basis.
 !
-!     Input:
-!        iTyp......... specifies type of vectors (iTyp is used to open
-!                      MO vector files through ChoMP2_OpenF()).
-!        Delete....... Flag specifiyng whether MO vector files are to
-!                      be deleted before exiting this routine.
-!        BaseName_AO.. Base name (3 characters) for the files containing
-!                      AO vectors. Symmetry index will be appended!
-!        CMO.......... MO coefficient array
-!        DoDiag....... if .True., calculate AO diagonal elements as
-!                      D(ab) = sum_J L(J,ab)*L(J,ab)
-!     Output:
-!        Diag......... Contains the diagonal if requested (flag DoDiag).
-!        lDiag........ Dimension of Diag
-!        lU_AO........ Array containing units of open AO vector files.
-!        irc.......... return code.
-!                      = 0 if successful, non-zero otherwise
-!                      (must be checked by caller).
+! Input:
+!    iTyp......... specifies type of vectors (iTyp is used to open
+!                  MO vector files through ChoMP2_OpenF()).
+!    Delete....... Flag specifiyng whether MO vector files are to
+!                  be deleted before exiting this routine.
+!    BaseName_AO.. Base name (3 characters) for the files containing
+!                  AO vectors. Symmetry index will be appended!
+!    CMO.......... MO coefficient array
+!    DoDiag....... if .True., calculate AO diagonal elements as
+!                  D(ab) = sum_J L(J,ab)*L(J,ab)
+! Output:
+!    Diag......... Contains the diagonal if requested (flag DoDiag).
+!    lDiag........ Dimension of Diag
+!    lU_AO........ Array containing units of open AO vector files.
+!    irc.......... return code.
+!                  = 0 if successful, non-zero otherwise
+!                  (must be checked by caller).
 !
 !***********************************************************************
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -46,118 +46,112 @@
 !*** CHOLESKY MP2 INFORMATION MUST BE INITIALIZED WHEN CALLING THIS
 !    ROUTINE.
 !    --> I.e. ChoMP2_Setup() must have been called.
-!*** AO VECTORS ARE STORED IN LOWER TRIANGULAR [M(I,J), I.GE.J] FORMAT.
+!*** AO VECTORS ARE STORED IN LOWER TRIANGULAR [M(I,J), I >= J] FORMAT.
 !    --> I.e. vectors are stored as L(J,ab) where a>=b
 !*** DIAGONAL IS STORED IN LOWER TRIANGULAR FORMAT.
 !    --> I.e. diagonal is stored as D(ab) where a>=b (same as vectors).
 !***********************************************************************
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !***********************************************************************
-!
-      use stdalloc
-      Implicit None
-      Integer     iTyp
-      Logical     Delete
-      Character*3 BaseName_AO
-      Real*8      CMO(*)
-      Logical     DoDiag
-      Integer     lDiag
-      Real*8      Diag(lDiag)
-      Integer     lU_AO(*)
-      Integer     irc
+
+use stdalloc
+
+implicit none
+integer iTyp
+logical Delete
+character*3 BaseName_AO
+real*8 CMO(*)
+logical DoDiag
+integer lDiag
+real*8 Diag(lDiag)
+integer lU_AO(*)
+integer irc
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-
-      Character(LEN=18), Parameter:: SecNam = 'ChoMP2_VectorMO2AO'
-      Character(LEN=11), Parameter:: ThisNm = 'VectorMO2AO'
-
-      Character(LEN=4) FullName_AO
-
-      Integer iSym, iSyma, iSymb, iCount, iOpen, iClose
-
-#if defined (_DEBUGPRINT_)
-      Logical, Parameter:: Debug = .True.
+character(len=18), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
+character(len=11), parameter :: ThisNm = 'VectorMO2AO'
+character(len=4) FullName_AO
+integer iSym, iSyma, iSymb, iCount, iOpen, iClose
+#ifdef _DEBUGPRINT_
+logical, parameter :: Debug = .true.
 #else
-      Logical, Parameter:: Debug = .False.
+logical, parameter :: Debug = .false.
 #endif
+real*8, allocatable :: COcc(:), CVir(:)
+integer MulD2h, k, l
+! Statement function
+MulD2h(k,l) = ieor(k-1,l-1)+1
 
-      Real*8, Allocatable:: COcc(:), CVir(:)
+! Initializations.
+! ----------------
 
-      Integer MulD2h, k, l
-      MulD2h(k,l)=iEOr(k-1,l-1)+1
+irc = 0
+do iSym=1,nSym
+  lU_AO(iSym) = -999999
+end do
+if (DoDiag) then
+  iCount = 0
+  do iSym=1,nSym
+    do iSymb=1,nSym
+      iSyma = MulD2h(iSymb,iSym)
+      iCount = iCount+nBas(iSyma)*nBas(iSymb)
+    end do
+  end do
+  if (iCount /= lDiag) then
+    write(6,*) SecNam,': WARNING: inconsistent diagonal allocation!'
+    if (iCount > lDiag) then
+      write(6,*) '   - insufficient memory, will return now...'
+      irc = 1
+      return
+    else
+      write(6,*) '   - sufficient memory, going to continue...'
+    end if
+  end if
+end if
 
-!     Initializations.
-!     ----------------
+! Reorder CMO. This also removes frozen orbitals.
+! -----------------------------------------------
 
-      irc = 0
-      Do iSym = 1,nSym
-         lU_AO(iSym) = -999999
-      End Do
-      If (DoDiag) Then
-         iCount = 0
-         Do iSym = 1,nSym
-            Do iSymb = 1,nSym
-               iSyma = MulD2h(iSymb,iSym)
-               iCount = iCount + nBas(iSyma)*nBas(iSymb)
-            End Do
-         End Do
-         If (iCount .ne. lDiag) Then
-            Write(6,*) SecNam,': WARNING: ',                            &
-     &                 'inconsistent diagonal allocation!'
-            If (iCount .gt. lDiag) Then
-               Write(6,*) '   - insufficient memory, will return now...'
-               irc = 1
-               Return
-            Else
-               Write(6,*) '   - sufficient memory, going to continue...'
-            End If
-         End If
-      End If
+call mma_allocate(COcc,nT1AOT(1),Label='COcc')
+call mma_allocate(CVir,nAOVir(1),Label='CVir')
+call ChoMP2_MOReOrd(CMO,COcc,CVir)
 
-!     Reorder CMO. This also removes frozen orbitals.
-!     -----------------------------------------------
+! Backtransform.
+! --------------
 
-      Call mma_allocate(COcc,nT1AOT(1),Label='COcc')
-      Call mma_allocate(CVir,nAOVir(1),Label='CVir')
-      Call ChoMP2_MOReOrd(CMO,COcc,CVir)
+call ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
 
-!     Backtransform.
-!     --------------
+! Open AO vector files (i.e. get units to return).
+! ------------------------------------------------
 
-      Call ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
+do iSym=1,nSym
+  write(FullName_AO,'(A3,I1)') BaseName_AO,iSym
+  lU_AO(iSym) = 7
+  call daName_MF_WA(lU_AO(iSym),FullName_AO)
+end do
 
-!     Open AO vector files (i.e. get units to return).
-!     ------------------------------------------------
+! Debug: check backtransformation.
+! --------------------------------
 
-      Do iSym = 1,nSym
-         Write(FullName_AO,'(A3,I1)') BaseName_AO,iSym
-         lU_AO(iSym) = 7
-         Call daName_MF_WA(lU_AO(iSym),FullName_AO)
-      End Do
+if (Debug) call ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
 
-!     Debug: check backtransformation.
-!     --------------------------------
+! Delete MO files if requested.
+! -----------------------------
 
-      If (Debug) Then
-         Call ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
-      End If
+if (Delete) then
+  iOpen = 1
+  iClose = 3
+  do iSym=1,nSym
+    call ChoMP2_OpenF(iOpen,iTyp,iSym)
+    call ChoMP2_OpenF(iClose,iTyp,iSym)
+  end do
+end if
 
-!     Delete MO files if requested.
-!     -----------------------------
+! Deallocate and exit.
+! --------------------
 
-      If (Delete) Then
-         iOpen = 1
-         iClose = 3
-         Do iSym = 1,nSym
-            Call ChoMP2_OpenF(iOpen,iTyp,iSym)
-            Call ChoMP2_OpenF(iClose,iTyp,iSym)
-         End Do
-      End If
+call mma_deallocate(CVir)
+call mma_deallocate(COcc)
 
-!     Deallocate and exit.
-!     --------------------
-
-      Call mma_deallocate(CVir)
-      Call mma_deallocate(COcc)
-      End
+end subroutine ChoMP2_VectorMO2AO

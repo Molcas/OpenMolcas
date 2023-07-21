@@ -10,52 +10,54 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
+
+subroutine ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
 !
-!     Jonas Bostrom, Jan. 2010.
+! Jonas Bostrom, Jan. 2010.
 !
-!     Purpose: Construct diagonal for decomposition of amplitude
-!              vectors.
-!
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Integer irc
-      Real*8  Diag(*), EOcc(*), EVir(*)
+! Purpose: Construct diagonal for decomposition of amplitude
+!          vectors.
+
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+integer irc
+real*8 Diag(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
+character(len=7), parameter :: ThisNm = 'AmpDiag'
+character(len=15), parameter :: SecNam = 'ChoMP2g_AmpDiag'
+! Statement function
+MulD2h(k,l) = ieor(k-1,l-1)+1
 
-      Character(LEN=7), Parameter:: ThisNm = 'AmpDiag'
-      Character(LEN=15), Parameter:: SecNam = 'ChoMP2g_AmpDiag'
+irc = 0
 
-      MulD2h(k,l)=iEor(k-1,l-1)+1
+! Initialization.
+! ---------------
 
-      irc = 0
+iVecType = 6
+kD0 = 0
 
-!     Initialization.
-!     ------------------------
+! Construct Diagonal.
+! -------------------
 
-      iVecType = 6
-      kD0 = 0
+do iSym=1,nSym
+  do iSymI=1,nSym
+    iSymA = MulD2h(iSymI,iSym)
+    kD1 = kD0+iMoMo(iSymA,iSymI,iVecType)
+    do iI=1,nOcc(iSymI)
+      kD2 = kD1+nVir(iSymA)*(iI-1)
+      Ei = EOcc(iOcc(iSymI)+iI)
+      do iA=1,nVir(iSymA)
+        iAI = kD2+iA
+        DE = 2.0d0*(EVir(iVir(iSymA)+iA)-Ei)
+        Diag(iAI) = Diag(iAI)/DE
+      end do
+    end do
+  end do
+  kD0 = kD0+nMoMo(iSym,iVecType)
+end do
 
-!     Construct Diagonal
-!     ------------------------
+return
 
-      Do iSym = 1, nSym
-            Do iSymI = 1,nSym
-               iSymA = MulD2h(iSymI,iSym)
-               kD1 = kD0 + iMoMo(iSymA,iSymI,iVecType)
-               Do iI = 1, nOcc(iSymI)
-                  kD2 = kD1 + nVir(iSymA)*(iI-1)
-                  Ei = EOcc(iOcc(iSymI) +iI)
-                  Do iA = 1, nVir(iSymA)
-                     iAI = kD2 + iA
-                     DE = 2.0d0*(EVir(iVir(iSymA)+iA)-Ei)
-                     Diag(iAI) = Diag(iAI)/DE
-                  End Do
-               End Do
-            End Do
-            kD0 = kD0 + nMoMo(iSym,iVecType)
-         End Do
-
-      Return
-      End
+end subroutine ChoMP2g_AmpDiag

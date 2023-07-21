@@ -8,23 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_SETSH2(ISHLSO,ISOSHL,NBSTSH,NBAST,NSHELL)
-      IMPLICIT NONE
-      INTEGER NBAST, NSHELL
-      INTEGER ISHLSO(NBAST), ISOSHL(NBAST), NBSTSH(NSHELL)
 
-      INTEGER I, ICOUNT, ISHL
+subroutine CHO_SETSH2(ISHLSO,ISOSHL,NBSTSH,NBAST,NSHELL)
 
-      DO ISHL = 1,NSHELL
-         ICOUNT = 0
-         I      = 0
-         DO WHILE ((I.LT.NBAST) .AND. (ICOUNT.LT.NBSTSH(ISHL)))
-            I = I + 1
-            IF (ISOSHL(I) .EQ. ISHL) THEN
-               ICOUNT = ICOUNT + 1
-               ISHLSO(I) = ICOUNT
-            END IF
-         END DO
-      END DO
+implicit none
+integer NBAST, NSHELL
+integer ISHLSO(NBAST), ISOSHL(NBAST), NBSTSH(NSHELL)
+integer I, ICOUNT, ISHL
 
-      END
+do ISHL=1,NSHELL
+  ICOUNT = 0
+  I = 0
+  do while ((I < NBAST) .and. (ICOUNT < NBSTSH(ISHL)))
+    I = I+1
+    if (ISOSHL(I) == ISHL) then
+      ICOUNT = ICOUNT+1
+      ISHLSO(I) = ICOUNT
+    end if
+  end do
+end do
+
+end subroutine CHO_SETSH2

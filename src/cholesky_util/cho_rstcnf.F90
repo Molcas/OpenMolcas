@@ -8,115 +8,99 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_RSTCNF(NERR)
+
+subroutine CHO_RSTCNF(NERR)
 !
-!     Purpose: check restart configuration info.
-!
-      IMPLICIT NONE
-      INTEGER NERR
+! Purpose: check restart configuration info.
+
+implicit none
+integer NERR
 #include "cholesky.fh"
+integer I, J
+character*3 SWITCH(2)
+data SWITCH/' ON','OFF'/
+real*8 ERRTOL, ERR
+parameter(ERRTOL=1.0D-14)
 
-      INTEGER I, J
+NERR = 0
 
-      CHARACTER*3 SWITCH(2)
-      DATA SWITCH /' ON','OFF'/
+if (CHO_ADRVEC /= XCHO_ADRVEC) then
+  write(LUPRI,'(A,I9,/,A,I9)') 'RESTART: addressing mode for vectors from restart file:',XCHO_ADRVEC, &
+                               '         addressing mode for vectors from input       :',CHO_ADRVEC
+  write(LUPRI,'(A,A)') '         Restart will fail - please specify correct address mode.'
+  call CHO_QUIT('Cholesky restart failure in CHO_RSTCNF',105)
+end if
 
-      REAL*8 ERRTOL, ERR
-      PARAMETER (ERRTOL = 1.0D-14)
+ERR = abs(THRCOM-XTHRCOM)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: decomposition threshold from restart file: ',XTHRCOM, &
+                                     '         decomposition threshold from input       : ',THRCOM
+  NERR = NERR+1
+end if
 
-      NERR = 0
+ERR = abs(THRDIAG-XTHRDIAG)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: init. diag. screening from restart file: ',XTHRDIAG, &
+                                     '         init. diag. screening from input       : ',THRDIAG
+  NERR = NERR+1
+end if
 
-      IF (CHO_ADRVEC .NE. XCHO_ADRVEC) THEN
-         WRITE(LUPRI,'(A,I9,/,A,I9)')                                   &
-     &   'RESTART: addressing mode for vectors from restart file:',     &
-     &   XCHO_ADRVEC,                                                   &
-     &   '         addressing mode for vectors from input       :',     &
-     &   CHO_ADRVEC
-         WRITE(LUPRI,'(A,A)')                                           &
-     &   '         Restart will fail - please specify correct address ',&
-     &   'mode.'
-         CALL CHO_QUIT('Cholesky restart failure in CHO_RSTCNF',105)
-      END IF
+ERR = abs(DAMP(1)-XDAMP(1))
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: 1st screening damping from restart file: ',XDAMP(1), &
+                                     '         1st screening damping from input       : ',DAMP(1)
+  NERR = NERR+1
+end if
 
-      ERR = ABS(THRCOM - XTHRCOM)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: decomposition threshold from restart file: ',XTHRCOM,&
-     &   '         decomposition threshold from input       : ',THRCOM
-         NERR = NERR + 1
-      END IF
+ERR = abs(DAMP(2)-XDAMP(2))
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: 2nd screening damping from restart file: ',XDAMP(2), &
+                                     '         2nd screening damping from input       : ',DAMP(2)
+  NERR = NERR+1
+end if
 
-      ERR = ABS(THRDIAG - XTHRDIAG)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: init. diag. screening from restart file: ',XTHRDIAG, &
-     &   '         init. diag. screening from input       : ',THRDIAG
-         NERR = NERR + 1
-      END IF
+if (SCDIAG .neqv. XSCDIAG) then
+  if (XSCDIAG) then
+    I = 1
+  else
+    I = 2
+  end if
+  if (SCDIAG) then
+    J = 1
+  else
+    J = 2
+  end if
+  write(LUPRI,'(A,A,/,A,A)') 'RESTART: diag. screening from restart file: ',SWITCH(I), &
+                             '         diag. screening from input       : ',SWITCH(J)
+  NERR = NERR+1
+end if
 
-      ERR = ABS(DAMP(1) - XDAMP(1))
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: 1st screening damping from restart file: ',XDAMP(1), &
-     &   '         1st screening damping from input       : ',DAMP(1)
-         NERR = NERR + 1
-      END IF
+ERR = abs(THRNEG-XTHRNEG)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: neg. diag. threshold from restart file: ',XTHRNEG, &
+                                     '         neg. diag. threshold from input       : ',THRNEG
+  NERR = NERR+1
+end if
 
-      ERR = ABS(DAMP(2) - XDAMP(2))
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: 2nd screening damping from restart file: ',XDAMP(2), &
-     &   '         2nd screening damping from input       : ',DAMP(2)
-         NERR = NERR + 1
-      END IF
+ERR = abs(WARNEG-XWARNEG)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: neg. diag. warn thr. from restart file: ',XWARNEG, &
+                                     '         neg. diag. warn thr. from input       : ',WARNEG
+  NERR = NERR+1
+end if
 
-      IF (SCDIAG .NEQV. XSCDIAG) THEN
-         IF (XSCDIAG) THEN
-            I = 1
-         ELSE
-            I = 2
-         END IF
-         IF (SCDIAG) THEN
-            J = 1
-         ELSE
-            J = 2
-         END IF
-         WRITE(LUPRI,'(A,A,/,A,A)')                                     &
-     &   'RESTART: diag. screening from restart file: ',SWITCH(I),      &
-     &   '         diag. screening from input       : ',SWITCH(J)
-         NERR = NERR + 1
-      END IF
+ERR = abs(TOONEG-XTOONEG)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: too neg. diag. thr. from restart file: ',XTOONEG, &
+                                     '         too neg. diag. thr. from input       : ',TOONEG
+  NERR = NERR+1
+end if
 
-      ERR = ABS(THRNEG - XTHRNEG)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: neg. diag. threshold from restart file: ',XTHRNEG,   &
-     &   '         neg. diag. threshold from input       : ',THRNEG
-         NERR = NERR + 1
-      END IF
+ERR = abs(SPAN-XSPAN)
+if (ERR > ERRTOL) then
+  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: span factor from restart file: ',XSPAN, &
+                                     '         span factor from input       : ',SPAN
+  NERR = NERR+1
+end if
 
-      ERR = ABS(WARNEG - XWARNEG)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: neg. diag. warn thr. from restart file: ',XWARNEG,   &
-     &   '         neg. diag. warn thr. from input       : ',WARNEG
-         NERR = NERR + 1
-      END IF
-
-      ERR = ABS(TOONEG - XTOONEG)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: too neg. diag. thr. from restart file: ',XTOONEG,    &
-     &   '         too neg. diag. thr. from input       : ',TOONEG
-         NERR = NERR + 1
-      END IF
-
-      ERR = ABS(SPAN - XSPAN)
-      IF (ERR .GT. ERRTOL) THEN
-         WRITE(LUPRI,'(A,D16.8,/,A,D16.8)')                             &
-     &   'RESTART: span factor from restart file: ',XSPAN,              &
-     &   '         span factor from input       : ',SPAN
-         NERR = NERR + 1
-      END IF
-
-      END
+end subroutine CHO_RSTCNF

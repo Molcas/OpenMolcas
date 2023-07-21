@@ -10,16 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_TrcIdl_Final()
-!
-!     Thomas Bondo Pedersen, May 2010.
-!
-!     Deallocate array for tracing idle processors
-!
-      use ChoArr, only: Idle
-      use stdalloc
-      Implicit None
 
-      If (Allocated(Idle)) Call mma_deallocate(Idle)
+subroutine Cho_TrcIdl_Final()
+!
+! Thomas Bondo Pedersen, May 2010.
+!
+! Deallocate array for tracing idle processors
 
-      End
+use ChoArr, only: Idle
+use stdalloc
+
+implicit none
+
+if (allocated(Idle)) call mma_deallocate(Idle)
+
+end subroutine Cho_TrcIdl_Final

@@ -10,35 +10,34 @@
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Cho_X_GetTotV(nV,n)
+
+subroutine Cho_X_GetTotV(nV,n)
 !
-!     Thomas Bondo Pedersen, April 2010.
+! Thomas Bondo Pedersen, April 2010.
 !
-!     Purpose: return total number of vectors (over all nodes).
-!
-      use ChPari
-      Implicit None
-      Integer n
-      Integer nV(n)
+! Purpose: return total number of vectors (over all nodes).
+
+use ChPari
+
+implicit none
+integer n
+integer nV(n)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
+integer iSym
 
-      Integer iSym
-
-#if defined (_DEBUGPRINT_)
-      If (n .lt. nSym) Then
-         Call Cho_Quit('Illegal input variable in Cho_X_GetTotV',104)
-      End If
+#ifdef _DEBUGPRINT_
+if (n < nSym) call Cho_Quit('Illegal input variable in Cho_X_GetTotV',104)
 #endif
 
-      If (Cho_Real_Par) Then
-         Do iSym = 1,nSym
-            nV(iSym)=NumCho_Bak(iSym)
-         End Do
-      Else
-         Do iSym = 1,nSym
-            nV(iSym)=NumCho(iSym)
-         End Do
-      End If
+if (Cho_Real_Par) then
+  do iSym=1,nSym
+    nV(iSym) = NumCho_Bak(iSym)
+  end do
+else
+  do iSym=1,nSym
+    nV(iSym) = NumCho(iSym)
+  end do
+end if
 
-      End
+end subroutine Cho_X_GetTotV

@@ -8,37 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_INVPCK(IJ,I,J,LOW)
+
+subroutine CHO_INVPCK(IJ,I,J,LOW)
 !
-!     Purpose: invert triangular packing index ij to
-!              rectangular indices i and j.
-!              Flag LOW specifies packing convention:
-!              LOW = T: i>=j
-!              LOW = F: i<=j
-!
-      Implicit Real*8 (a-h,o-z)
-      LOGICAL LOW
+! Purpose: invert triangular packing index ij to
+!          rectangular indices i and j.
+!          Flag LOW specifies packing convention:
+!          LOW = T: i>=j
+!          LOW = F: i<=j
 
-      PARAMETER (ONE = 1.0D0, TWO = 2.0D0, THREE = 3.0D0, EIGHT = 8.0D0)
+implicit real*8(a-h,o-z)
+logical LOW
+parameter(ONE=1.0d0,TWO=2.0d0,THREE=3.0d0,EIGHT=8.0d0)
 
-      IF (IJ .GT. 0) THEN
+if (IJ > 0) then
 
-         XX = EIGHT*DBLE(IJ) - THREE
-         XI = (ONE + SQRT(XX))/TWO
-         I  = INT(XI)
-         J  = IJ - I*(I - 1)/2
+  XX = EIGHT*dble(IJ)-THREE
+  XI = (ONE+sqrt(XX))/TWO
+  I = int(XI)
+  J = IJ-I*(I-1)/2
 
-         IF (.NOT. LOW) THEN
-            ITMP = I
-            I = J
-            J = ITMP
-         END IF
+  if (.not. LOW) then
+    ITMP = I
+    I = J
+    J = ITMP
+  end if
 
-      ELSE
+else
 
-         I = -1
-         J = -2
+  I = -1
+  J = -2
 
-      END IF
+end if
 
-      END
+end subroutine CHO_INVPCK

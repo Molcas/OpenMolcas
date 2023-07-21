@@ -10,58 +10,57 @@
 !                                                                      *
 ! Copyright (C) 2004, Jonas Bostrom                                    *
 !***********************************************************************
-      SubRoutine ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType1,iMoType2)
+
+subroutine ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType1,iMoType2)
 !
-!     Jonas Bostrom, Dec. 2004.
+! Jonas Bostrom, Dec. 2004.
 !
-!     Purpose: transform Cholesky vectors to (pq) MO basis.
-!
-      use stdalloc
-      use ChoMP2g
-      Implicit Real*8 (a-h,o-z)
-      Real*8  COrb1(*), COrb2(*), Diag(*)
-      Logical DoDiag
+! Purpose: transform Cholesky vectors to (pq) MO basis.
+
+use stdalloc
+use ChoMP2g
+
+implicit real*8(a-h,o-z)
+real*8 COrb1(*), COrb2(*), Diag(*)
+logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
+character(len=10), parameter :: SecNam = 'ChoMP2_Tra'
+real*8, allocatable :: TraMax(:)
 
-      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
+! Allocate remaining memory.
+! --------------------------
 
-      Real*8, Allocatable:: TraMax(:)
+! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
+iVecType = iMoType2+(iMoType1-1)*nMoType
 
-!     Allocate remaining memory.
-!     --------------------------
+call mma_maxDBLE(lw)
+call mma_allocate(TraMax,lW,Label='TraMax')
 
-!     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
-      iVecType = iMoType2 + (iMoType1-1)*nMoType
+kOffD = 1
+do iSym=1,nSym
 
-      Call mma_maxDBLE(lw)
-      Call mma_allocate(TraMax,lW,Label='TraMax')
+  ! Open files for MO vectors.
+  ! --------------------------
 
-      kOffD = 1
-      Do iSym = 1,nSym
+  call ChoMP2_OpenF(1,1,iSym)
 
-!        Open files for MO vectors.
-!        --------------------------
+  ! Transform vectors.
+  ! ------------------
 
-         Call ChoMP2_OpenF(1,1,iSym)
+  call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,TraMax,lW,iSym,iMoType1,iMoType2)
+  kOffD = kOffD+nMoMo(iSym,iVecType)
 
-!        Transform vectors.
-!        ------------------
+  ! Close files for MO vectors.
+  ! ---------------------------
 
-         Call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,TraMax,lW,   &
-     &                     iSym,iMoType1,iMoType2)
-         kOffD = kOffD + nMoMo(iSym,iVecType)
+  call ChoMP2_OpenF(2,1,iSym)
 
-!        Close files for MO vectors.
-!        ---------------------------
+end do
 
-         Call ChoMP2_OpenF(2,1,iSym)
+! Free memory.
+! ------------
 
-      End Do
+call mma_deallocate(TraMax)
 
-!     Free memory.
-!     ------------
-
-      Call mma_deallocate(TraMax)
-
-      End
+end subroutine ChoMP2g_Tra

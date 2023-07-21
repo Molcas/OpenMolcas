@@ -8,140 +8,132 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_P_SetGL()
+
+subroutine Cho_P_SetGL()
 !
-!     Purpose: set global and local index arrays and diagonal.
-!              If a sequencial run:
-!                 Diag   => Diag_Hidden
-!                 Diag_G => Null()
-!              If a parallel run:
-!                 Diag   => Diag_G_Hidden
-!                 Diag_G => Diag_Hidden
+! Purpose: set global and local index arrays and diagonal.
+!          If a sequencial run:
+!             Diag   => Diag_Hidden
+!             Diag_G => Null()
+!          If a parallel run:
+!             Diag   => Diag_G_Hidden
+!             Diag_G => Diag_Hidden
 !
-!              Diag_Hidden is allocated in the calling routine, while
-!              Diag_G_Hidden is allocated here if needed.
-!
-      use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
-      use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
-      use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
-      use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
-      use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
-      use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
-      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
-      use ChoArr, only: iL2G, MySP, n_MySP
-      use stdalloc
-      Implicit None
+!          Diag_Hidden is allocated in the calling routine, while
+!          Diag_G_Hidden is allocated here if needed.
+
+use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
+use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
+use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
+use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
+use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
+use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
+use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+use ChoArr, only: iL2G, MySP, n_MySP
+use stdalloc
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
+character*11 SecNam
+parameter(SecNam='Cho_P_SetGL')
+integer i, N, iSP, iSym, iShlAB, i1, i2, irc
 
-      Character*11 SecNam
-      Parameter (SecNam = 'Cho_P_SetGL')
+! If not parallel, return.
+! ------------------------
 
-      Integer i, N, iSP, iSym, iShlAB, i1, i2, irc
+if (.not. Cho_Real_Par) then
+  Diag => Diag_Hidden
+  return
+end if
 
+! Set global data (choglob.fh).
+! ------------------------------
 
-!     If not parallel, return.
-!     ------------------------
+Diag_G => Diag_Hidden
 
-      If (.not.Cho_Real_Par) Then
-         Diag => Diag_Hidden
-         Return
-      End If
+nnShl_G = nnShl
+mmBstRT_G = mmBstRT
 
-!     Set global data (choglob.fh).
-!     ------------------------------
+N = 8*3
+call iCopy(N,iiBstR,1,iiBstR_G,1)
+call iCopy(N,nnBstR,1,nnBstR_G,1)
+call iCopy(3,nnBstRT,1,nnBstRT_G,1)
 
-      Diag_G => Diag_Hidden
+InfRed_G => InfRed
 
-      nnShl_G = nnShl
-      mmBstRT_G = mmBstRT
+InfVec_G => InfVec
 
-      N = 8*3
-      Call iCopy(N,iiBstR,1,iiBstR_G,1)
-      Call iCopy(N,nnBstR,1,nnBstR_G,1)
-      Call iCopy(3,nnBstRT,1,nnBstRT_G,1)
+iiBstRSh_G => iiBstRSh
 
-      InfRed_G => InfRed
+nnBstRSh_G => nnBstRSh
 
-      InfVec_G => InfVec
+IndRed_G => IndRed
 
-      iiBstRSh_G => iiBstRSh
+IndRSh_G => IndRSh
 
-      nnBstRSh_G => nnBstRSh
+! Reallocate and reset local data.
+! --------------------------------
 
-      IndRed_G => IndRed
+call mma_allocate(InfRed_G_Hidden,size(InfRed),Label='InfRed_G_Hidden')
+InfRed => InfRed_G_Hidden
 
-      IndRSh_G => IndRSh
+call mma_allocate(InfVec_G_Hidden,size(InfVec,1),size(InfVec,2),size(InfVec,3),Label='InfVec_G_Hidden')
+InfVec => InfVec_G_Hidden
 
-!     Reallocate and reset local data.
-!     --------------------------------
+nnShl = n_mySP
+call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,Label='iiBstRSh_L_Hidden')
+iiBstRSh => iiBstRSh_L_Hidden
+call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,Label='nnBstRSh_L_Hidden')
+nnBstRSh => nnBstRSh_L_Hidden
 
-      Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),                   &
-     &                  Label='InfRed_G_Hidden')
-      InfRed => InfRed_G_Hidden
+do iSP=1,nnShl
+  iShlAB = mySP(iSP)
+  do iSym=1,nSym
+    nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
+  end do
+end do
+call Cho_SetRedInd(1)
+mmBstRT = nnBstRT(1)
 
-      Call mma_allocate(InfVec_G_Hidden,SIZE(InfVec,1),SIZE(InfVec,2),  &
-     &                  SIZE(InfVec,3),Label='InfVec_G_Hidden')
-      InfVec => InfVec_G_Hidden
+call mma_allocate(IndRed_G_Hidden,mmBstRT,3,Label='IndRed_G_Hidden')
+IndRed => IndRed_G_Hidden
+call mma_allocate(IndRSh_G_Hidden,mmBstRT,Label='IndRSh_G_Hidden')
+IndRSh => IndRSh_G_Hidden
+call mma_allocate(iL2G,mmBstRT,Label='iL2G')
 
-      nnShl = n_mySP
-      Call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,                &
-     &                  Label='iiBstRSh_L_Hidden')
-      iiBstRSh => iiBstRSh_L_Hidden
-      Call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,                &
-     &                  Label='nnBstRSh_L_Hidden')
-      nnBstRSh => nnBstRSh_L_Hidden
+N = 0
+do iSym=1,nSym
+  do iSP=1,nnShl
+    iShlAB = mySP(iSP)
+    i1 = iiBstR_G(iSym,1)+iiBstRSh_G(iSym,iShlAB,1)+1
+    i2 = i1+nnBstRSh_G(iSym,iShlAB,1)-1
+    do i=i1,i2
+      N = N+1
+      IndRed(N,1) = IndRed_G(i,1)
+      IndRSh(N) = IndRSh_G(i)
+      iL2G(N) = i
+    end do
+  end do
+end do
+call Cho_X_RSCopy(irc,1,2)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': [1] Cho_X_RSCopy returned ',irc
+  call Cho_Quit('Error in '//SecNam,104)
+end if
+call Cho_X_RSCopy(irc,2,3)
+if (irc /= 0) then
+  write(Lupri,*) SecNam,': [2] Cho_X_RSCopy returned ',irc
+  call Cho_Quit('Error in '//SecNam,104)
+end if
 
-      Do iSP = 1,nnShl
-         iShlAB = mySP(iSP)
-         Do iSym = 1,nSym
-            nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
-         End Do
-      End Do
-      Call Cho_SetRedInd(1)
-      mmBstRT = nnBstRT(1)
+! Allocate and set local diagonal.
+! --------------------------------
 
-      Call mma_allocate(IndRed_G_Hidden,mmBstRT,3,                      &
-     &                  Label='IndRed_G_Hidden')
-      IndRed => IndRed_G_Hidden
-      Call mma_allocate(IndRSh_G_Hidden,mmBstRT,                        &
-     &                  Label='IndRSh_G_Hidden')
-      IndRSh => IndRSh_G_Hidden
-      call mma_allocate(iL2G,mmBstRT,Label='iL2G')
+call mma_allocate(Diag_G_Hidden,mmBstRT,Label='Diag_G_Hidden')
+Diag => Diag_G_Hidden
+do i=1,mmBstRT
+  Diag(i) = Diag_G(iL2G(i))
+end do
 
-      N = 0
-      Do iSym = 1,nSym
-         Do iSP = 1,nnShl
-            iShlAB = mySP(iSP)
-            i1 = iiBstR_G(iSym,1) + iiBstRSh_G(iSym,iShlAB,1) + 1
-            i2 = i1 + nnBstRSh_G(iSym,iShlAB,1) - 1
-            Do i = i1,i2
-               N = N + 1
-               IndRed(N,1) = IndRed_G(i,1)
-               IndRSh(N) = IndRSh_G(i)
-               iL2G(N) = i
-            End Do
-         End Do
-      End Do
-      Call Cho_X_RSCopy(irc,1,2)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': [1] Cho_X_RSCopy returned ',irc
-         Call Cho_Quit('Error in '//SecNam,104)
-      End If
-      Call Cho_X_RSCopy(irc,2,3)
-      If (irc .ne. 0) Then
-         Write(Lupri,*) SecNam,': [2] Cho_X_RSCopy returned ',irc
-         Call Cho_Quit('Error in '//SecNam,104)
-      End If
-
-!     Allocate and set local diagonal.
-!     --------------------------------
-
-      Call mma_allocate(Diag_G_Hidden,mmBstRT,Label='Diag_G_Hidden')
-      Diag => Diag_G_Hidden
-      Do i = 1,mmBstRT
-         Diag(i) = Diag_G(iL2G(i))
-      End Do
-
-      End
+end subroutine Cho_P_SetGL

@@ -8,124 +8,104 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_SetAtomShl(irc,iAtomShl,n)
-      use ChoArr, only: iSOShl
-      use stdalloc
+
+subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 !
-!     Purpose: set mapping from shell to atom (i.e., center).
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: set mapping from shell to atom (i.e., center).
+
+use ChoArr, only: iSOShl
+use stdalloc
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-      Integer iAtomShl(n)
+integer iAtomShl(n)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-
-      Character(LEN=14), Parameter:: SecNam = 'Cho_SetAtomShl'
-
-      Character(LEN=LENIN8) AtomLabel(MxBas)
-
-      Integer, Parameter:: Info_Debug = 4
-
-#if defined (_DEBUGPRINT_)
-      Logical, Parameter:: Debug = .True.
+character(len=14), parameter :: SecNam = 'Cho_SetAtomShl'
+character(len=LENIN8) AtomLabel(MxBas)
+integer, parameter :: Info_Debug = 4
+#ifdef _DEBUGPRINT_
+logical, parameter :: Debug = .true.
 #else
-      Logical, Parameter:: Debug = .False.
+logical, parameter :: Debug = .false.
 #endif
+integer, allocatable :: nBas_per_Atom(:)
+integer, allocatable :: nBas_Start(:)
 
-      Integer, Allocatable:: nBas_per_Atom(:)
-      Integer, Allocatable:: nBas_Start(:)
+if (Debug) write(Lupri,*) '>>> Enter ',SecNam
 
-      If (Debug) Then
-         Write(Lupri,*) '>>> Enter ',SecNam
-      End If
+! Check.
+! ------
 
-!     Check.
-!     ------
+irc = 0
+if (nSym /= 1) then ! does not work with symmetry
+  irc = 1
+  if (Debug) write(Lupri,*) '>>> Exit ',SecNam,' (error exit: symmetry not allowed!)'
+  return
+end if
+if (n < nShell) call Cho_Quit(SecNam//': iAtomShl not allocated correctly!',104)
 
-      irc = 0
-      If (nSym .ne. 1) Then ! does not work with symmetry
-         irc = 1
-         If (Debug) Then
-            Write(Lupri,*) '>>> Exit ',SecNam,                          &
-     &      ' (error exit: symmetry not allowed!)'
-         End If
-         Return
-      End If
-      If (n .lt. nShell) Then
-         Call Cho_Quit(SecNam//': iAtomShl not allocated correctly!',   &
-     &                 104)
-      End If
+! Get number of atoms.
+! --------------------
 
-!     Get number of atoms.
-!     --------------------
+!call Get_nAtoms_All(nAtom)
+call Get_iScalar('Bfn Atoms',nAtom)
 
-!     Call Get_nAtoms_All(nAtom)
-      Call Get_iScalar('Bfn Atoms',nAtom)
+! Get atomic labels and basis function labels.
+! --------------------------------------------
 
-!     Get atomic labels and basis function labels.
-!     --------------------------------------------
+call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 
-      Call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
+! Allocate and get index arrays for indexation of basis functions on
+! each atom.
+! ------------------------------------------------------------------
 
-!     Allocate and get index arrays for indexation of basis functions on
-!     each atom.
-!     ------------------------------------------------------------------
+call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
+call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
+call BasFun_Atom(nBas_per_Atom,nBas_Start,AtomLabel,nBasT,nAtom,Debug)
 
-      Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
-      Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
-      Call BasFun_Atom(nBas_per_Atom,nBas_Start,                        &
-     &                 AtomLabel,nBasT,nAtom,Debug)
+! Set shell-to-atom mapping.
+! --------------------------
 
-!     Set shell-to-atom mapping.
-!     --------------------------
+do iAtom=1,nAtom
+  i1 = nBas_Start(iAtom)
+  i2 = i1+nBas_per_Atom(iAtom)-1
+  do i=i1,i2
+    iAtomShl(iSOShl(i)) = iAtom
+  end do
+end do
 
-      Do iAtom = 1,nAtom
-         i1 = nBas_Start(iAtom)
-         i2 = i1 + nBas_per_Atom(iAtom) - 1
-         Do i = i1,i2
-            iAtomShl(iSOShl(i)) = iAtom
-         End Do
-      End Do
+if ((iPrint >= Info_Debug) .or. Debug) then
+  nErr = 0
+  write(Lupri,*)
+  write(Lupri,*) SecNam,': shell-to-atom mapping:'
+  numSh = 7
+  nBatch = (nShell-1)/numSh+1
+  do iBatch=1,nBatch
+    if (iBatch == nBatch) then
+      nSh = nShell-numSh*(nBatch-1)
+    else
+      nSh = numSh
+    end if
+    iSh0 = numSh*(iBatch-1)
+    iSh1 = iSh0+1
+    iSh2 = iSh0+nSh
+    write(Lupri,'(/,A,7(1X,I9))') 'Shell:',(iSh,iSh=iSh1,iSh2)
+    write(Lupri,'(A,7(1X,I9))') 'Atom :',(iAtomShl(iSh),iSh=iSh1,iSh2)
+    do iSh=iSh1,iSh2
+      if ((iAtomShl(iSh) < 1) .or. (iAtomShl(iSh) > nAtom)) nErr = nErr+1
+    end do
+  end do
+  if (nErr /= 0) call Cho_Quit(SecNam//': shell-to-atom init failed!',104)
+end if
 
-      If (iPrint.ge.Info_Debug .or. Debug) Then
-         nErr = 0
-         Write(Lupri,*)
-         Write(Lupri,*) SecNam,': shell-to-atom mapping:'
-         numSh  = 7
-         nBatch = (nShell-1)/numSh + 1
-         Do iBatch = 1,nBatch
-            If (iBatch .eq. nBatch) Then
-               nSh = nShell - numSh*(nBatch-1)
-            Else
-               nSh = numSh
-            End If
-            iSh0 = numSh*(iBatch-1)
-            iSh1 = iSh0 + 1
-            iSh2 = iSh0 + nSh
-            Write(Lupri,'(/,A,7(1X,I9))')                               &
-     &      'Shell:',(iSh,iSh=iSh1,iSh2)
-            Write(Lupri,'(A,7(1X,I9))')                                 &
-     &      'Atom :',(iAtomShl(iSh),iSh=iSh1,iSh2)
-            Do iSh = iSh1,iSh2
-               If (iAtomShl(iSh).lt.1 .or. iAtomShl(iSh).gt.nAtom) Then
-                  nErr = nErr + 1
-               End If
-            End Do
-         End Do
-         If (nErr .ne. 0) Then
-            Call Cho_Quit(SecNam//': shell-to-atom init failed!',104)
-         End If
-      End If
+! Deallocations.
+! --------------
 
-!     Deallocations.
-!     --------------
+call mma_deallocate(nBas_Start)
+call mma_deallocate(nBas_per_Atom)
 
-      Call mma_deallocate(nBas_Start)
-      Call mma_deallocate(nBas_per_Atom)
+if (Debug) write(Lupri,*) '>>> Exit ',SecNam
 
-      If (Debug) Then
-         Write(Lupri,*) '>>> Exit ',SecNam
-      End If
-
-      End
+end subroutine Cho_SetAtomShl

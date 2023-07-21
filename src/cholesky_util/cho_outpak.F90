@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1973, Nelson H. F. Beebe                               *
 !***********************************************************************
-      SUBROUTINE CHO_OUTPAK(AMATRX,NROW,NCTL,LUPRI)
+
+subroutine CHO_OUTPAK(AMATRX,NROW,NCTL,LUPRI)
 !.......................................................................
 !
 ! OUTPAK PRINTS A REAL SYMMETRIC MATRIX STORED IN ROW-PACKED LOWER
@@ -47,71 +48,73 @@
 !          FLORIDA, GAINESVILLE
 !..........VERSION = 09/05/73/03
 !.......................................................................
-!
-      Implicit Real*8 (a-h,o-z)
-      REAL*8 AMATRX(*)
-      INTEGER BEGIN
-      CHARACTER*1 ASA(3),BLANK,CTL
-      CHARACTER   PFMT*20, COLUMN*8
-      PARAMETER (ZERO=0.D00, KCOLP=4, KCOLN=6)
-      PARAMETER (FFMIN=1.D-3, FFMAX = 1.D3)
-      DATA COLUMN/'Column  '/, ASA/' ', '0', '-'/, BLANK/' '/
-!
-      IF (NCTL .LT. 0) THEN
-         KCOL = KCOLN
-      ELSE
-         KCOL = KCOLP
-      END IF
-      MCTL = ABS(NCTL)
-      IF ((MCTL.LE.3).AND.(MCTL.GT.0)) THEN
-         CTL = ASA(MCTL)
-      ELSE
-         CTL = BLANK
-      END IF
-!
-      J = NROW*(NROW+1)/2
-      AMAX = ZERO
-      DO 5 I=1,J
-         AMAX = MAX( AMAX, ABS(AMATRX(I)) )
-    5 CONTINUE
-      IF (AMAX .EQ. ZERO) THEN
-         WRITE (LUPRI,'(/T6,A)') 'Zero matrix.'
-         GO TO 200
-      END IF
-      IF (FFMIN .LE. AMAX .AND. AMAX .LE. FFMAX) THEN
-!        use F output format
-         PFMT = '(A1,I7,2X,8F15.8)'
-      ELSE
-!        use 1PD output format
-         PFMT = '(A1,I7,2X,1P,8D15.6)'
-      END IF
-!
+
+implicit real*8(a-h,o-z)
+real*8 AMATRX(*)
+integer BEGIN
+character*1 ASA(3), BLANK, CTL
+character PFMT*20, COLUMN*8
+parameter(ZERO=0.d00,KCOLP=4,KCOLN=6)
+parameter(FFMIN=1.D-3,FFMAX=1.d3)
+data COLUMN/'Column  '/,ASA/' ','0','-'/,BLANK/' '/
+
+if (NCTL < 0) then
+  KCOL = KCOLN
+else
+  KCOL = KCOLP
+end if
+MCTL = abs(NCTL)
+if ((MCTL <= 3) .and. (MCTL > 0)) then
+  CTL = ASA(MCTL)
+else
+  CTL = BLANK
+end if
+
+J = NROW*(NROW+1)/2
+AMAX = ZERO
+do I=1,J
+  AMAX = max(AMAX,abs(AMATRX(I)))
+end do
+if (AMAX == ZERO) then
+  write(LUPRI,'(/T6,A)') 'Zero matrix.'
+  GO TO 200
+end if
+if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
+  ! use F output format
+  PFMT = '(A1,I7,2X,8F15.8)'
+else
+  ! use 1PD output format
+  PFMT = '(A1,I7,2X,1P,8D15.6)'
+end if
+
 ! LAST IS THE LAST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED
-!
-      LAST = MIN(NROW,KCOL)
-!
+
+LAST = min(NROW,KCOL)
+
 ! BEGIN IS THE FIRST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED.
-!
+
 !.....BEGIN NON STANDARD DO LOOP.
-      BEGIN= 1
- 1050 NCOL = 1
-         WRITE (LUPRI,1000) (COLUMN,I,I = BEGIN,LAST)
-         DO 40 K = BEGIN,NROW
-            KTOTAL = (K*(K-1))/2 + BEGIN - 1
-            DO 10 I = 1,NCOL
-               IF (AMATRX(KTOTAL+I) .NE. ZERO) GO TO 20
-   10       CONTINUE
-            GO TO 30
-   20       WRITE (LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)
-   30       IF (K .LT. (BEGIN+KCOL-1)) NCOL = NCOL + 1
-   40    CONTINUE
-         LAST = MIN(LAST+KCOL,NROW)
-         BEGIN= BEGIN + NCOL
-      IF (BEGIN.LE.NROW) GO TO 1050
-  200 CONTINUE
-      RETURN
-!
- 1000 FORMAT (/12X,6(3X,A6,I4,2X),(3X,A6,I4))
-!2000 FORMAT (A1,'Row',I4,2X,1P,8D15.6)
-!2000 FORMAT (A1,I7,2X,1P,8D15.6)
-      END
+BEGIN = 1
+1050 NCOL = 1
+write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
+do K=BEGIN,NROW
+  KTOTAL = (K*(K-1))/2+BEGIN-1
+  do I=1,NCOL
+    if (AMATRX(KTOTAL+I) /= ZERO) GO TO 20
+  end do
+  GO TO 30
+20 write(LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)
+30 if (K < (BEGIN+KCOL-1)) NCOL = NCOL+1
+end do
+LAST = min(LAST+KCOL,NROW)
+BEGIN = BEGIN+NCOL
+if (BEGIN <= NROW) GO TO 1050
+200 continue
+
+return
+
+1000 format(/12X,6(3X,A6,I4,2X),(3X,A6,I4))
+!2000 format(A1,'Row',I4,2X,1P,8D15.6)
+!2000 format(A1,I7,2X,1P,8D15.6)
+
+end subroutine CHO_OUTPAK
