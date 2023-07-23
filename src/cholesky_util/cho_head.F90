@@ -13,11 +13,13 @@ subroutine CHO_HEAD(STRING,LINE,LENMAX,LUNIT)
 !
 ! Purpose: print a header.
 
+use Definitions, only: iwp
+
 implicit none
-character*(*) STRING
-character*1 LINE
-integer LENMAX, LUNIT
-integer LENSTR, LENTOT, I
+character(len=*) :: STRING
+character :: LINE
+integer(kind=iwp) :: LENMAX, LUNIT
+integer(kind=iwp) :: I, LENSTR, LENTOT
 
 LENSTR = len(STRING)
 LENTOT = min(LENSTR,LENMAX-2)

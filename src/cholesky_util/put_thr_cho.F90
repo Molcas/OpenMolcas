@@ -12,8 +12,10 @@
 subroutine Put_thr_Cho(ThrCom)
 
 use RICD_Info, only: Do_RI, Thrshld_CD
+use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: ThrCom
 
 if (.not. Do_RI) Thrshld_CD = ThrCom
 

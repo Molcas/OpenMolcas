@@ -22,16 +22,17 @@ subroutine CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 
 use ChoArr, only: iScr
 use ChoSwp, only: InfVec
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(LENVEC,NUMVEC)
-real*8 SCR(LSCR)
+implicit none
+integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 #include "cholesky.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_GETVEC1')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer IOFF(0:1)
+integer(kind=iwp) :: IAB, IBATCH, IBVEC1, ILOC, IOFF(0:1), IRED, IRED1, IRED2, IREDC, IVEC2, JNUM, JNUM_RD, JRED, JVEC, JVEC1, &
+                     JVEC2, JVEC_END, KBVEC1, KJUNK, KOFF, KSCR, KVEC, KVEC1, LEFT, LTOT, MINL, MUSED, NBATCH, NUMV, NVEC
+logical(kind=iwp), parameter :: LOCDBG=.false.
+character(len=*), parameter :: SECNAM = 'CHO_GETVEC1'
 
 ! Some initializations.
 ! ---------------------
@@ -44,7 +45,7 @@ KSCR = KJUNK+1
 LEFT = LSCR-KSCR+1
 if (LEFT <= 0) call CHO_QUIT('Insufficient scratch space in '//SECNAM,101)
 
-SCR(KJUNK) = 0.0d0
+SCR(KJUNK) = Zero
 IOFF(0) = KJUNK
 
 ! Get reduced sets of first and last vector.

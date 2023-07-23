@@ -37,20 +37,20 @@ subroutine CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
 !          iD(k) on exit contains the index of the diagonal
 !                from which the k-th Cholesky vector was generated
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, MxVec, NumCho, irc
-real*8 X(n,n), Vec(n,MxVec)
-real*8 Thr, ThrNeg, ThrFail
-integer iD(MxVec)
-integer i, imax, j
-integer iPass
-real*8 Xmax, Factor, xFac, Acc
+integer(kind=iwp) :: n, MxVec, NumCho, iD(MxVec), irc
+real(kind=wp) :: X(n,n), Vec(n,MxVec), Thr, ThrNeg, ThrFail
+integer(kind=iwp) :: i, imax, iPass, j
+real(kind=wp) :: Acc, Factor, xFac, Xmax
 
 irc = 0
 
 NumCho = 0
-Acc = min(1.0D-12,thr*1.0D-2)
-xFac = 0.0d0  ! dummy set
+Acc = min(1.0e-12_wp,thr*1.0e-2_wp)
+xFac = Zero  ! dummy set
 do iPass=1,n
 
   if (X(1,1) < ThrNeg) then
@@ -59,12 +59,12 @@ do iPass=1,n
       return
     else
       do j=1,n
-        X(j,1) = 0.0d0
-        X(1,j) = 0.0d0
+        X(j,1) = Zero
+        X(1,j) = Zero
       end do
     end if
   end if
-  Xmax = 0.0d0
+  Xmax = Zero
   imax = 0
   do i=1,n
     if (X(i,i) < ThrNeg) then
@@ -73,8 +73,8 @@ do iPass=1,n
         return
       else
         do j=1,n
-          X(j,i) = 0.0d0
-          X(i,j) = 0.0d0
+          X(j,i) = Zero
+          X(i,j) = Zero
         end do
       end if
     end if
@@ -85,7 +85,7 @@ do iPass=1,n
   end do
 
   if (Xmax <= Thr) return ! converged
-  xFac = 1.0d0/sqrt(abs(Xmax))
+  xFac = One/sqrt(abs(Xmax))
 
   if (NumCho == MxVec) then ! too many vectors
     irc = 102
@@ -100,8 +100,8 @@ do iPass=1,n
 
   NumCho = NumCho+1
   do i=1,n
-    if (X(i,i) == 0.0d0) then
-      Vec(i,NumCho) = 0.0d0
+    if (X(i,i) == Zero) then
+      Vec(i,NumCho) = Zero
     else
       Vec(i,NumCho) = xFac*X(i,imax)
     end if
@@ -110,7 +110,7 @@ do iPass=1,n
   do i=1,n
     X(i,i) = X(i,i)-Vec(i,NumCho)**2
   end do
-  X(imax,imax) = 0.0d0
+  X(imax,imax) = Zero
   iD(NumCho) = imax
 
 end do

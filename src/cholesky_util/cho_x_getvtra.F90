@@ -54,20 +54,19 @@
 
 subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,nDen,kDen,MOs,ChoT,DoRead)
 
-use Constants, only: Zero
 use Data_Structures, only: DSBA_Type, SBA_Type
+use Constants, only: Zero
 use Definitions, only: wp, iwp
-use stdalloc
 
-implicit real(kind=wp) (a-h,o-z)
-type(DSBA_Type) MOs(nDen)
-type(SBA_Type) Chot(nDen)
-real*8 RedVec(lRedVec)
-integer(kind=iwp) :: nDen, kDen
-logical :: DoRead
-character(len=13), parameter :: SECNAM = 'Cho_X_GetVtra'
+implicit none
+integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, nDen, kDen
+real(kind=wp) :: RedVec(lRedVec)
+type(DSBA_Type) :: MOs(nDen)
+type(SBA_Type) :: ChoT(nDen)
+logical(kind=iwp) :: DoRead
 #include "cholesky.fh"
 #include "choorb.fh"
+integer(kind=iwp) :: IVEC2, jDen, JNUM, JVEC1, JVREF, MUSED, MXUSD
 
 MXUSD = 0
 MUSED = 0

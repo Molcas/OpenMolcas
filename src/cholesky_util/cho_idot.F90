@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_IDOT(N,IVEC1,INC1,IVEC2,INC2)
+function CHO_IDOT(N,IVEC1,INC1,IVEC2,INC2)
+
+use Definitions, only: iwp
 
 implicit none
-integer N, INC1, INC2
-integer IVEC1(*), IVEC2(*)
-integer I, ISUM, I1, I2
+integer(kind=iwp) :: CHO_IDOT
+integer(kind=iwp) :: N, IVEC1(*), INC1, IVEC2(*), INC2
+integer(kind=iwp) :: I, I1, I2, ISUM
 
 CHO_IDOT = 0
 if (N < 1) return

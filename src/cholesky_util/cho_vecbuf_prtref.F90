@@ -22,15 +22,15 @@ subroutine Cho_VecBuf_PrtRef(Txt)
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
 implicit none
-character*(*) Txt
+character(len=*) :: Txt
 #include "cholesky.fh"
-integer iSym, jVec, jRed, nDim
-integer i, j
-real*8 RefNrm
-real*8 RefSm
+integer(kind=iwp) :: iSym, jRed, jVec, nDim
 ! Statement functions
+real(kind=wp) :: RefNrm, RefSm
+integer(kind=iwp) :: i, j
 RefNrm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
 RefSm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 

@@ -12,19 +12,20 @@
 subroutine Cho_TestBookmark_1CInit(AllocatedHere)
 
 use ChoArr, only: iAtomShl
-use stdalloc
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp, u6
 
 implicit none
-logical AllocatedHere
+logical(kind=iwp) :: AllocatedHere
 #include "cholesky.fh"
-integer irc
+integer(kind=iwp) :: irc
 
 if (.not. allocated(iAtomShl)) then
   call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
   irc = -1
   call Cho_SetAtomShl(irc,iAtomShl,size(iAtomShl))
   if (irc /= 0) then
-    write(6,'(A,I4)') 'Cho_TestBookmark_1Cinit: Cho_SetAtomShl returned',irc
+    write(u6,'(A,I4)') 'Cho_TestBookmark_1Cinit: Cho_SetAtomShl returned',irc
     call Cho_Quit('shell-to-atom init failed!',104)
   end if
   AllocatedHere = .true.

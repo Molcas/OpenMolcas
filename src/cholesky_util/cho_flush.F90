@@ -13,8 +13,10 @@ subroutine CHO_FLUSH(LUNIT)
 !
 ! Purpose: flush unit LUNIT.
 
+use Definitions, only: iwp
+
 implicit none
-integer LUNIT
+integer(kind=iwp) :: LUNIT
 
 call XFLUSH(LUNIT)
 

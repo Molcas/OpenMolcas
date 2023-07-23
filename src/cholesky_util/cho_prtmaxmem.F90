@@ -13,12 +13,14 @@ subroutine Cho_PrtMaxMem(Location)
 !
 ! Purpose: print max. available memory block.
 
+use Definitions, only: wp, iwp
+
 implicit none
-character(len=*) Location
+character(len=*) :: Location
 #include "cholesky.fh"
-character(len=2) Unt
-integer l, lMax
-real*8 dlMax
+integer(kind=iwp) :: l, lMax
+real(kind=wp) :: dlMax
+character(len=2) :: Unt
 
 l = len(Location)
 if (l < 1) then

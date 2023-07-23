@@ -11,13 +11,12 @@
 
 subroutine CHO_SETSH(IBASSH,NBASSH,NBSTSH,IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
+use Definitions, only: iwp
+
 implicit none
-integer NSYM, NSHELL, NBAST
-integer IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL)
-integer NBSTSH(NSHELL)
-integer ISOSHL(NBAST)
-integer IBAS(NSYM), NBAS(NSYM)
-integer ISYM, IA, ISHL
+integer(kind=iwp) :: NSYM, NSHELL, IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL), NBSTSH(NSHELL), IBAS(NSYM), NBAS(NSYM), NBAST, &
+                     ISOSHL(NBAST)
+integer(kind=iwp) :: IA, ISHL, ISYM
 
 call IZERO(NBASSH,NSYM*NSHELL)
 do ISYM=1,NSYM

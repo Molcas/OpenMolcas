@@ -21,10 +21,14 @@ subroutine CHO_VECRD(SCR,LSCR,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
 ! NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 !       but execution is NOT stopped here!!!
 
-implicit real*8(a-h,o-z)
-real*8 SCR(LSCR)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LSCR, JVEC1, IVEC2, ISYM, JNUM, IREDC, MUSED
+real(kind=wp) :: SCR(LSCR)
 #include "cholesky.fh"
-logical DOREAD
+integer(kind=iwp) :: JN, JV1, KS, LFT, MU
+logical(kind=iwp) :: DOREAD
 
 ! Initialize.
 ! -----------

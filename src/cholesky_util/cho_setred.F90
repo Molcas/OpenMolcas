@@ -14,14 +14,17 @@ subroutine CHO_SETRED(DIAG)
 ! Purpose: set next reduced set. A copy of the previous set
 !          is stored in location 3.
 
-use ChoArr, only: iSP2F, iAtomShl
-use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
+use ChoArr, only: iAtomShl, iSP2F
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 DIAG(*)
+implicit none
+real(kind=wp) :: DIAG(*)
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_SETRED')
+integer(kind=iwp) :: IAB, INEG, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, KAB, MSYM, NNEG
+real(kind=wp) :: TST, XM
+character(len=*), parameter :: SECNAM = 'CHO_SETRED'
 
 MSYM = size(iiBstRSh,1)
 
@@ -41,7 +44,7 @@ if (CHO_TRCNEG) then
     JAB2 = JAB1+NNBSTR(ISYM,1)-1
     INEG = 0
     do JAB=JAB1,JAB2
-      if (DIAG(JAB) < 0.0d0) INEG = INEG+1
+      if (DIAG(JAB) < Zero) INEG = INEG+1
     end do
     NNEG = NNEG+INEG
     write(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,': ',INEG
@@ -128,7 +131,7 @@ if (SCDIAG) then  ! do screening
               JAB2 = JAB1+NNBSTRSH(ISYM,ISHLAB,3)-1
               do JAB=JAB1,JAB2
                 IAB = INDRED(JAB,3)
-                if (DIAG(IAB) > 0.0d0) then ! neg=>conv
+                if (DIAG(IAB) > Zero) then ! neg=>conv
                   TST = sqrt(DIAG(IAB)*XM)*DAMP(2)
                   if (TST > THRCOM) then
                     KAB = KAB+1
@@ -278,7 +281,7 @@ else ! no screening; remove zero diagonals and check convergence
             JAB2 = JAB1+NNBSTRSH(ISYM,ISHLAB,3)-1
             do JAB=JAB1,JAB2
               IAB = INDRED(JAB,3)
-              if (abs(DIAG(IAB)) > 0.0d0) then
+              if (abs(DIAG(IAB)) > Zero) then
                 KAB = KAB+1
                 INDRED(KAB,2) = IAB
                 NNBSTRSH(ISYM,ISHLAB,2) = NNBSTRSH(ISYM,ISHLAB,2)+1
@@ -312,7 +315,7 @@ else ! no screening; remove zero diagonals and check convergence
             JAB2 = JAB1+NNBSTRSH(ISYM,ISHLAB,3)-1
             do JAB=JAB1,JAB2
               IAB = INDRED(JAB,3)
-              if (DIAG(IAB) > 0.0d0) then
+              if (DIAG(IAB) > Zero) then
                 KAB = KAB+1
                 INDRED(KAB,2) = IAB
                 NNBSTRSH(ISYM,ISHLAB,2) = NNBSTRSH(ISYM,ISHLAB,2)+1
@@ -345,7 +348,7 @@ if (CHO_TRCNEG) then
     INEG = 0
     do JAB=JAB1,JAB2
       IAB = INDRED(JAB,2)
-      if (DIAG(IAB) < 0.0d0) INEG = INEG+1
+      if (DIAG(IAB) < Zero) INEG = INEG+1
     end do
     NNEG = NNEG+INEG
     write(LUPRI,*) SECNAM,': #negative in symmetry ',ISYM,': ',INEG

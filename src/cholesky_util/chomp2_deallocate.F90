@@ -17,35 +17,37 @@ subroutine ChoMP2_deallocate(irc)
 !
 ! Purpose: to deallocate memory of the  Cholesky MP2 program.
 
-use ChoMP2, only: ChoMP2_allocated
-use ChoMP2, only: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am
-use ChoMP2, only: LnMatij, LiMatij, lUnit, NumBatOrb, LnBatOrb
-use ChoMP2, only: LnPQprod, LiPQprod
-use stdalloc
+use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, LiMatij, LiPQprod, LiT1am, LnBatOrb, LnMatij, LnOcc, LnPQprod, LnT1am, lUnit, &
+                  NumBatOrb, NumOcc
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc
 #include "chomp2.fh"
 
 irc = 0
 
 call ChoMP2g_deallocate(irc)
 
-if (.not. ChoMP2_allocated) return
+if (ChoMP2_allocated) then
 
-call mma_deallocate(LiPQprod)
-call mma_deallocate(LnPQprod)
-call mma_deallocate(LnBatOrb)
-call mma_deallocate(NumBatOrb)
-call mma_deallocate(lUnit)
-call mma_deallocate(LiMatij)
-call mma_deallocate(LnMatij)
-call mma_deallocate(LiT1am)
-call mma_deallocate(LnT1am)
-call mma_deallocate(LnOcc)
-call mma_deallocate(NumOcc)
-call mma_deallocate(iFirstS)
-call mma_deallocate(iFirst)
+  call mma_deallocate(LiPQprod)
+  call mma_deallocate(LnPQprod)
+  call mma_deallocate(LnBatOrb)
+  call mma_deallocate(NumBatOrb)
+  call mma_deallocate(lUnit)
+  call mma_deallocate(LiMatij)
+  call mma_deallocate(LnMatij)
+  call mma_deallocate(LiT1am)
+  call mma_deallocate(LnT1am)
+  call mma_deallocate(LnOcc)
+  call mma_deallocate(NumOcc)
+  call mma_deallocate(iFirstS)
+  call mma_deallocate(iFirst)
 
-ChoMP2_allocated = .false.
+  ChoMP2_allocated = .false.
+
+end if
 
 end subroutine ChoMP2_deallocate

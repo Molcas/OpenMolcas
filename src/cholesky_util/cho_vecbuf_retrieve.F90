@@ -32,21 +32,24 @@ subroutine Cho_VecBuf_Retrieve(Vec,lVec,jVec1,iVec2,iSym,jNum,iRedC,mUsed)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Vec(lVec)
+implicit none
+integer(kind=iwp) :: lVec, jVec1, iVec2, iSym, jNum, iRedC, mUsed
+real(kind=wp) :: Vec(lVec)
 #include "cholesky.fh"
-external ddot_
-character*19 SecNam
-parameter(SecNam='Cho_VecBuf_Retrieve')
-logical Full
-logical LocDbg
+logical(kind=iwp) :: Full
 #ifdef _DEBUGPRINT_
-parameter(LocDbg=.true.)
+#define _DBG_ .true.
 #else
-parameter(LocDbg=.false.)
+#define _DBG_ .false.
 #endif
+integer(kind=iwp) :: iLoc, irc, iV2, iVec, jAdr, jRed, jVec, kB, kOffV, lTot, nErr, nTst
+real(kind=wp) :: xNrm
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Retrieve'
+real(kind=wp), external :: ddot_
 
 ! Initialize.
 ! -----------

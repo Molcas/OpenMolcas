@@ -19,12 +19,13 @@ subroutine Cho_X_DefineInfVec_5(isDF)
 
 use Para_Info, only: Is_Real_Par
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
 implicit none
-logical isDF
+logical(kind=iwp) :: isDF
 #include "cholesky.fh"
-integer iSym, i
-logical doDefine
+integer(kind=iwp) :: i, iSym
+logical(kind=iwp) :: doDefine
 
 ! Define in case of
 ! 1) serial Cholesky

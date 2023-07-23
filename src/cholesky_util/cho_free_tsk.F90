@@ -11,8 +11,10 @@
 
 subroutine Cho_Free_Tsk(ID)
 
+use Definitions, only: iwp
+
 implicit none
-integer ID
+integer(kind=iwp) :: ID
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

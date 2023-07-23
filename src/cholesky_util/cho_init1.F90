@@ -14,15 +14,13 @@ subroutine CHO_INIT1()
 ! Purpose: initialize counter arrays.
 
 use ChoSwp, only: InfRed, InfVec
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-character*9 SECNAM
-parameter(SECNAM='CHO_INIT1')
-integer CHO_ISUMELM
-external CHO_ISUMELM
+integer(kind=iwp), external :: CHO_ISUMELM
 
 if (RSTCHO) then
 

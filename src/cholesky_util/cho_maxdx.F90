@@ -14,13 +14,16 @@ subroutine Cho_MaxDX(Diag,Dmax)
 ! Purpose: get max. diagonal elements in each sym. block,
 !          qualified diagonals excluded.
 
-use ChoSwp, only: iQuAB, IndRed
-use stdalloc
+use ChoSwp, only: IndRed, iQuAB
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), Dmax(*)
+implicit none
+real(kind=wp) :: Diag(*), Dmax(*)
 #include "cholesky.fh"
-real*8, allocatable :: ExQ(:)
+integer(kind=iwp) :: iab, iQ, iRab, jRab, jRab1, jRab2, jSym, MxQ
+real(kind=wp), allocatable :: ExQ(:)
 
 MxQ = nQual(1)
 do jSym=2,nSym
@@ -30,13 +33,13 @@ call mma_allocate(ExQ,MxQ,Label='ExQ')
 
 do jSym=1,nSym
 
-  Dmax(jSym) = 0.0d0
+  Dmax(jSym) = Zero
   if (nQual(jSym) < 1) goto 10  ! next symm
 
   do iQ=1,nQual(jSym)
     iab = IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
     ExQ(iQ) = Diag(iab)
-    Diag(iab) = 0.0d0
+    Diag(iab) = Zero
   end do
 
   jRab1 = iiBstr(jSym,2)+1

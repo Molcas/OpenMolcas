@@ -17,11 +17,12 @@ subroutine ChoMP2_Col_cp(X,nRow,nCol,S,nSRow,iSRow)
 !
 ! Purpose: copy subblock of matrix.
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nRow, nCol, nSRow
-integer iSRow(nSRow)
-real*8 X(nRow,nCol), S(nSRow,nCol)
-integer iCol, iSR, iR
+integer(kind=iwp) :: nRow, nCol, nSRow, iSRow(nSRow)
+real(kind=wp) :: X(nRow,nCol), S(nSRow,nCol)
+integer(kind=iwp) :: iCol, iR, iSR
 
 do iCol=1,nCol
   do iSR=1,nSRow

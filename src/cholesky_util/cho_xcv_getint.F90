@@ -23,17 +23,13 @@ subroutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,NVT,l_nVT,xInt,l_I
 ! trivial array [i.e. mySP(i)=i].
 
 use ChoArr, only: nDim_Batch
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer l_ListCD, l_ListSP, l_NVT, l_Int
-integer ListCD(l_ListCD)
-integer ListSP(l_ListSP)
-integer NVT(l_NVT)
-real*8 xInt(l_Int)
+integer(kind=iwp) :: irc, l_ListCD, ListCD(l_ListCD), l_ListSP, ListSP(l_ListSP), l_NVT, NVT(l_NVT), l_Int
+real(kind=wp) :: xInt(l_Int)
 #include "cholesky.fh"
-integer iSym, n
-integer iSP, iCD
+integer(kind=iwp) :: iCD, iSP, iSym, n
 
 ! Set return code
 irc = 0

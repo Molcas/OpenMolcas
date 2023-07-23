@@ -14,15 +14,19 @@
 
 subroutine LVCLR(A,INCA,N)
 
-implicit real*8(A-H,O-Z)
-real*8 A(*)
-parameter(ZERO=0.0D+00)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INCA, N
+real(kind=wp) :: A(*)
+integer(kind=iwp) :: L, LA
 
 ! ----- ZERO OUT VECTOR -A-, USING INCREMENT -INCA- -----
 
 if (INCA /= 1) GO TO 100
 do L=1,N
-  A(L) = ZERO
+  A(L) = Zero
 end do
 
 return
@@ -31,7 +35,7 @@ return
 LA = 1-INCA
 do L=1,N
   LA = LA+INCA
-  A(LA) = ZERO
+  A(LA) = Zero
 end do
 
 return

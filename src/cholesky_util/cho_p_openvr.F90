@@ -14,19 +14,18 @@ subroutine Cho_P_OpenVR(iOpt)
 ! Purpose: open (iOpt=1) or close (iOpt=2) local and global storage
 !          files.
 
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
+use Definitions, only: iwp
 
 implicit none
-integer iOpt
+integer(kind=iwp) :: iOpt
 #include "cholesky.fh"
-integer ID
 #include "cho_para_info.fh"
 #include "choglob.fh"
-integer iSym
-character*5 FNRed
-character*6 FNRst, FNVec(8)
-character*12 SecNam
-parameter(SecNam='Cho_P_OpenVR')
+integer(kind=iwp) :: ID, iSym
+character(len=6) :: FNRst, FNVec(8)
+character(len=5) :: FNRed
+character(len=*), parameter :: SecNam = 'Cho_P_OpenVR'
 
 ! Local files.
 ! ------------

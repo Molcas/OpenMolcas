@@ -22,28 +22,25 @@ subroutine ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
 ! Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
 !       instead !!
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer iTyp
-real*8 COcc(*), CVir(*)
-character(len=3) BaseName_AO
-logical DoDiag
-real*8 Diag(*)
+integer(kind=iwp) :: iTyp
+real(kind=wp) :: COcc(*), CVir(*), Diag(*)
+character(len=3) :: BaseName_AO
+logical(kind=iwp) :: DoDiag
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-character(len=14), parameter :: SecNam = 'ChoMP2_BackTra'
-character(len=4) FullName_AO
-integer iSym, iSymb, iSyma, iSymi, iSymAl, iSymBe
-integer nAB(8), iAB(8,8), nAB_Tot
-integer lU_AO, l_Buf
-integer MaxInCore, nVecInCore, nVecOnDisk, iVec, iOpt, iAdr, lVec
-integer kCVir, kCOcc, kMOVec, kAOVec, kTemp, kDiag
-integer na, ni, nAl, AlBe, kD
-integer MulD2h, k, l
-real*8, allocatable :: AOVec(:), Temp(:), MOVec(:), Buf(:)
+integer(kind=iwp) :: AlBe, iAB(8,8), iAdr, iOpt, iSym, iSyma, iSymAl, iSymb, iSymBe, iSymi, iVec, kAOVec, kCOcc, kCVir, kD, kDiag, &
+                     kMOVec, kTemp, l_Buf, lU_AO, lVec, MaxInCore, na, nAB(8), nAB_Tot, nAl, ni, nVecInCore, nVecOnDisk
+character(len=4) :: FullName_AO
+real(kind=wp), allocatable :: AOVec(:), Buf(:), MOVec(:), Temp(:)
+character(len=*), parameter :: SecNam = 'ChoMP2_BackTra'
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Set up index arrays.
@@ -64,7 +61,7 @@ end do
 ! Backtransform.
 ! --------------
 
-if (DoDiag) call dCopy_(nAB_Tot,[0.0d0],0,Diag,1)
+if (DoDiag) call dCopy_(nAB_Tot,[Zero],0,Diag,1)
 
 kDiag = 0
 do iSym=1,nSym
@@ -108,7 +105,7 @@ do iSym=1,nSym
       na = max(nVir(iSyma),1)
       nAl = max(nBas(iSymAl),1)
       ni = max(nOcc(iSymi),1)
-      call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),1.0d0,MOVec(kMOVec),na,CVir(kCVir),nAl,0.0d0,Temp(kTemp),ni)
+      call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),One,MOVec(kMOVec),na,CVir(kCVir),nAl,Zero,Temp(kTemp),ni)
     end do
 
     do iSymBe=1,nSym
@@ -119,7 +116,7 @@ do iSym=1,nSym
       kAOVec = 1+iAB(iSymAl,iSymBe)
       ni = max(nOcc(iSymi),1)
       nAl = max(nBas(iSymAl),1)
-      call DGEMM_('T','N',nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),1.0d0,Temp(kTemp),ni,COcc(kCOcc),ni,0.0d0,AOVec(kAOVec),nAl)
+      call DGEMM_('T','N',nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),One,Temp(kTemp),ni,COcc(kCOcc),ni,Zero,AOVec(kAOVec),nAl)
     end do
 
     if (DoDiag) then

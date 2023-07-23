@@ -28,7 +28,7 @@
 !> values depending on what the user expects:
 !>
 !> - \p MaxNVec = \p nOV if the user specifies a meaningful \p thr
-!> - \p thr = ``0.0d0``  if the user requires a given number of vectors (or percentage of \p nOV)
+!> - \p thr = ``0.0``    if the user requires a given number of vectors (or percentage of \p nOV)
 !>
 !> @param[in]  nOV     Number of (occ,vir) pairs matching a given compound symmetry
 !> @param[in]  MaxNVec Max number of Cholesky vectors
@@ -41,19 +41,21 @@
 
 subroutine CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
 
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer nOV, MaxNVec, ID_bj(*), NVec
-real*8 thr, W(*), Dmax
-real*8, allocatable :: Diag(:)
+implicit none
+integer(kind=iwp) :: nOV, MaxNVec, ID_bj(*), NVec
+real(kind=wp) :: thr, W(*), Dmax
+integer(kind=iwp) :: ip, Jm
+real(kind=wp), allocatable :: Diag(:)
 
 ! Initialize
 ! ----------
 nVec = 0
 if (nOV < 1) then
-  Dmax = -9.987654321d0 ! dummy value
+  Dmax = -9.987654321_wp ! dummy value
   return
 end if
 
@@ -64,10 +66,10 @@ call mma_allocate(Diag,NOV,Label='Diag')
 ! Compute diagonals
 ! -----------------
 do ip=1,nOV
-  if (W(ip) > zero) then
-    Diag(ip) = half/W(ip)
+  if (W(ip) > Zero) then
+    Diag(ip) = Half/W(ip)
   else ! tbp: perhaps we should stop it here (matrix not PSD)
-    Diag(ip) = zero
+    Diag(ip) = Zero
   end if
 end do
 

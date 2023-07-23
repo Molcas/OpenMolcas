@@ -27,24 +27,29 @@ subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     are taken!)
 
 use ChoMP2, only: EFrozT, EOccuT, EVirtT
-use stdalloc
-use ChoMP2g
+use ChoMP2g, only: nMoMo
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*), EOcc(*), EVir(*)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-character*3 ThisNm
-character*10 SecNam
-parameter(SecNam='ChoMP2_Drv',ThisNm='Drx')
-real*8, parameter :: Chk_Mem_ChoMP2 = 0.123456789d0, Tol = 1.0D-15
-integer, parameter :: iFmt = 0
-logical DoSort, Delete
-logical, parameter :: Delete_def = .true.
-real*8, allocatable :: Check(:), Diag(:)
+integer(kind=iwp) :: iSym, lDiag, nSym_Sav
+real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &
+                 CPUTra1, CPUTra2, Diff, FracMem, WallDab1, WallDab2, WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, &
+                 WallSrt1, WallSrt2, WallTot1, WallTot2, WallTra1, WallTra2
+logical(kind=iwp) :: Delete, DoSort
+real(kind=wp), allocatable :: Check(:), Diag(:)
+integer(kind=iwp), parameter :: iFmt = 0
+real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
+logical(kind=iwp), parameter :: Delete_def = .true.
+character(len=*), parameter :: SecNam = 'ChoMP2_Drv'
 
 #ifdef _DEBUGPRINT_
 Verbose = .true.
@@ -56,32 +61,32 @@ if (Verbose) call CWTime(CPUTot1,WallTot1)
 
 irc = 0
 
-EMP2 = 0.0d0
-if (DoDens) EMP2_dens = 0.0d0
+EMP2 = Zero
+if (DoDens) EMP2_dens = Zero
 
 if (Verbose) call CWTime(CPUIni1,WallIni1)
 
 call mma_allocate(Check,1,Label='Check')
 Check(1) = Chk_Mem_ChoMP2
 
-FracMem = 0.0d0 ! no buffer allocated
+FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  write(u6,*) SecNam,': Cho_X_Init returned ',irc
   call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
 end if
 
 call ChoMP2_Setup(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_Setup returned ',irc
+  write(u6,*) SecNam,': ChoMP2_Setup returned ',irc
   Go To 1  ! exit
 end if
 
 if (DoDens) then
-  !write(6,*) 'Run ChoMP2g_setup'
+  !write(u6,*) 'Run ChoMP2g_setup'
   call ChoMP2g_Setup(irc,EOcc,EVir)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2g_Setup returned ',irc
+    write(u6,*) SecNam,': ChoMP2g_Setup returned ',irc
     Go To 1             ! exit
   end if
 end if
@@ -89,7 +94,7 @@ end if
 if (Verbose) then
   call ChoMP2_Setup_Prt(irc)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
     Go To 1  ! exit
   end if
   call CWTime(CPUIni2,WallIni2)
@@ -121,7 +126,7 @@ call mma_allocate(Diag,lDiag,Label='Diag')
 if (.not. DoDens) then
   call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
     Go To 1             ! exit
   end if
   if (Verbose) then
@@ -131,7 +136,7 @@ if (.not. DoDens) then
 else if (DoDens) then
   call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
     Go To 1             ! exit
   end if
   if (Verbose) then
@@ -149,11 +154,11 @@ call iCopy(nSym,NumCho,1,nMP2Vec,1)
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  write(u6,*) SecNam,': Cho_X_Final returned ',irc
   Go To 1 ! exit
 end if
 
-LuPri = 6
+LuPri = u6
 nSym = nSym_Sav
 call iCopy(nSym,nMP2Vec,1,NumCho,1)
 
@@ -166,7 +171,7 @@ if (DecoMP2) then
   Delete = Delete_def ! delete transf. vector files after dec.
   call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
     call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
   end if
   if (Verbose) then
@@ -179,7 +184,7 @@ else if (DoDens) then
   Delete = .false.    ! do not delete transf. vectors.
   call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
     call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
   end if
   if (Verbose) then
@@ -200,11 +205,11 @@ if (DoSort .and. (.not. DoDens)) then
   Delete = Delete_def
   call ChoMP2_SrtDrv(irc,Delete)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_SrtDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2_SrtDrv returned ',irc
     if (Delete) then ! full vectors not available
       call ChoMP2_Quit(SecNam,'MP2 presort failed!',' ')
     else
-      write(6,*) SecNam,': trying to use full vectors instead...'
+      write(u6,*) SecNam,': trying to use full vectors instead...'
     end if
     DoSort = .false.
   end if
@@ -221,9 +226,9 @@ if (DoFNO .and. (.not. DoDens)) then
   if (Verbose) call CWTime(CPUDab1,WallDab1)
   Delete = Delete_def
   call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),EOcc,EVir,DoSort,Delete)
-  call dscal_(l_Dii,-1.0d0,Work(ip_Dii),1)
+  call dscal_(l_Dii,-One,Work(ip_Dii),1)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_FNO returned ',irc
+    write(u6,*) SecNam,': ChoMP2_FNO returned ',irc
     Go To 1 ! exit
   end if
   if (Verbose) then
@@ -240,7 +245,7 @@ if (DoDens) then
   Delete = .false.
   call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
+    write(u6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
     Go To 1             ! exit
   end if
 end if
@@ -251,7 +256,7 @@ if (DoGrdt) then
   if (Verbose) call CWTime(CPUEnr1,WallEnr1)
   call ChoMP2g_GradSetup(irc,CMO)
   if (irc /= 0) then
-    write(6,*) SecNam,':ChoMP2g_GradSetup returned ',irc
+    write(u6,*) SecNam,':ChoMP2g_GradSetup returned ',irc
     Go To 1 ! exit
   end if
   if (Verbose) then
@@ -268,13 +273,13 @@ Delete = Delete_def
 if (Laplace .and. SOS_MP2) then
   call ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoLSOSMP2_Energy returned ',irc
+    write(u6,*) SecNam,': ChoLSOSMP2_Energy returned ',irc
     Go To 1 ! exit
   end if
 else
   call ChoMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Energy returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Energy returned ',irc
     Go To 1 ! exit
   end if
 end if
@@ -288,7 +293,7 @@ end if
 
 1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
 if (Diff > Tol) then
-  write(6,*) SecNam,': Memory Boundary Error!'
+  write(u6,*) SecNam,': Memory Boundary Error!'
   if (irc == 0) irc = -9999
 end if
 if (Verbose) then

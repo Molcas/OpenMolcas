@@ -13,14 +13,15 @@ subroutine CHO_RSTCNF(NERR)
 !
 ! Purpose: check restart configuration info.
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer NERR
+integer(kind=iwp) :: NERR
 #include "cholesky.fh"
-integer I, J
-character*3 SWITCH(2)
-data SWITCH/' ON','OFF'/
-real*8 ERRTOL, ERR
-parameter(ERRTOL=1.0D-14)
+integer(kind=iwp) :: I, J
+real(kind=wp) :: ERR
+real(kind=wp), parameter :: ERRTOL = 1.0e-14_wp
+character(len=*), parameter :: SWITCH(2) = [' ON','OFF']
 
 NERR = 0
 

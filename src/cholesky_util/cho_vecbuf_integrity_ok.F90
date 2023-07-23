@@ -11,7 +11,7 @@
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-logical function Cho_VecBuf_Integrity_OK(Tol,Report)
+function Cho_VecBuf_Integrity_OK(Tol,Report)
 !
 ! Thomas Bondo Pedersen, September 2012.
 !
@@ -21,21 +21,21 @@ logical function Cho_VecBuf_Integrity_OK(Tol,Report)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use ChoVecBuf, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Tol
-logical Report
+logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
+real(kind=wp) :: Tol
+logical(kind=iwp) :: Report
 #include "cholesky.fh"
-logical OK
-real*8 dDot_, Cho_dSumElm
-external ddot_, Cho_dSumElm
-real*8 Nrm, Sm
-integer nErr, iSym, jVec, jRed, n, ipV
-integer i, j
-real*8 RefNrm
-real*8 RefSm
+integer(kind=iwp) :: ipV, iSym, jRed, jVec, n, nErr
+logical(kind=iwp) :: OK
+real(kind=wp) :: Nrm, Sm
+real(kind=wp), external :: Cho_dSumElm, dDot_
 ! Statement functions
+real(kind=wp) :: RefNrm, RefSm
+integer(kind=iwp) :: i, j
 RefNrm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
 RefSm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 

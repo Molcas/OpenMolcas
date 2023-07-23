@@ -9,18 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_ISAO(IAO)
+function CHO_ISAO(IAO)
 !
 ! Purpose: return symmetry of AO number IAO (in global list).
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: CHO_ISAO
+integer(kind=iwp) :: IAO
 #include "cholesky.fh"
 #include "choorb.fh"
-integer CHO_IRANGE
-external CHO_IRANGE
+integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
-character*8 SECNAM
-parameter(SECNAM='CHO_ISAO')
+character(len=8), parameter :: SECNAM = 'CHO_ISAO'
 
 if ((IAO > NBAST) .or. (IAO < 1)) then
   write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': AO index out of bounds: ',IAO

@@ -13,13 +13,15 @@ subroutine Cho_P_WrRstC(iPass)
 !
 ! Purpose: write global restart info to disk.
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer iPass
+integer(kind=iwp) :: iPass
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iTmp
-real*8 c1, c2, w1, w2
+integer(kind=iwp) :: iTmp
+real(kind=wp) :: c1, c2, w1, w2
 
 call Cho_Timer(c1,w1)
 if (Cho_Real_Par) then

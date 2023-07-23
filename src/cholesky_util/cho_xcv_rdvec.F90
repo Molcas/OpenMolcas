@@ -21,19 +21,15 @@ subroutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,J1,J2,iSym)
 #ifdef _DEBUGPRINT_
 use ChoSwp, only: nnBstRSh
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer l_Vec
-real*8 Vec(l_Vec)
-integer NVT
-integer n_myRankSP
-integer myRankSP(n_myRankSP)
-integer J1, J2, iSym
+integer(kind=iwp) :: irc, l_Vec, NVT, n_myRankSP, myRankSP(n_myRankSP), J1, J2, iSym
+real(kind=wp) :: Vec(l_Vec)
 #ifdef _DEBUGPRINT_
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-integer i, n
+integer(kind=iwp) :: i, n
 #endif
 
 irc = 0

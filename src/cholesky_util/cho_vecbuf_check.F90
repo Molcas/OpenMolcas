@@ -17,14 +17,16 @@ subroutine Cho_VecBuf_Check()
 !
 ! Check buffer integrity and stop if corrupted.
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "cholesky.fh"
-real*8 Tol
-logical Verbose
-character*1 Txt
-integer irc
+integer(kind=iwp) :: irc
+real(kind=wp) :: Tol
+logical(kind=iwp) :: Verbose
+character :: Txt
 
-Tol = 1.0d-12
+Tol = 1.0e-12_wp
 Verbose = .false.
 Txt = ' '
 call Cho_VecBuf_CheckIntegrity(Tol,Verbose,Txt,irc)

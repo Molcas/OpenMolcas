@@ -14,21 +14,18 @@ subroutine CHO_FINAL(WriteBookmarks)
 ! Purpose: Cholesky finalizations.
 
 use ChoArr, only: iSOShl
-use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
+use ChoIni, only: CHOINICHECK
 use stdalloc, only: mma_allocate, mma_deallocate
-use ChoIni
+use Definitions, only: wp, iwp
 
 implicit none
-logical WriteBookmarks
+logical(kind=iwp) :: WriteBookmarks
 #include "cholesky.fh"
 #include "choorb.fh"
-integer, allocatable :: BkmDim(:), iScratch(:)
-real*8, allocatable :: Scratch(:)
-integer CHOISINI, IREO, l
-integer NUMV(8)
-#ifdef _DEBUGPRINT_
-integer is1CCD
-#endif
+integer(kind=iwp) :: CHOISINI, IREO, l, NUMV(8)
+integer(kind=iwp), allocatable :: BkmDim(:), iScratch(:)
+real(kind=wp), allocatable :: Scratch(:)
 
 ! Write NUMCHO array, shell indices, and threshold to runfile.
 ! ------------------------------------------------------------
@@ -39,14 +36,7 @@ call PUT_IARRAY('iSOShl',ISOSHL,NBAST)
 call PUT_DSCALAR('Cholesky Threshold',THRCOM)
 #ifdef _DEBUGPRINT_
 ! This is needed in order for bookmark tests in cho_x_init to work
-if (WriteBookmarks) then
-  if (Cho_1Center) then
-    is1CCD = 1
-  else
-    is1CCD = 0
-  end if
-  call Put_iScalar('1C-CD',is1CCD)
-end if
+if (WriteBookmarks) call Put_lScalar('1C-CD',Cho_1Center)
 #endif
 
 ! Write bookmarks to runfile.

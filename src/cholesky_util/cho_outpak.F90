@@ -49,14 +49,19 @@ subroutine CHO_OUTPAK(AMATRX,NROW,NCTL,LUPRI)
 !..........VERSION = 09/05/73/03
 !.......................................................................
 
-implicit real*8(a-h,o-z)
-real*8 AMATRX(*)
-integer BEGIN
-character*1 ASA(3), BLANK, CTL
-character PFMT*20, COLUMN*8
-parameter(ZERO=0.d00,KCOLP=4,KCOLN=6)
-parameter(FFMIN=1.D-3,FFMAX=1.d3)
-data COLUMN/'Column  '/,ASA/' ','0','-'/,BLANK/' '/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: AMATRX(*)
+integer(kind=iwp) :: NROW, NCTL, LUPRI
+integer(kind=iwp) :: BEGIN, I, J, K, KCOL, KTOTAL, LAST, MCTL, NCOL
+real(kind=wp) :: AMAX
+character(len=20) :: PFMT
+character :: CTL
+integer(kind=iwp), parameter :: KCOLN = 6, KCOLP = 4
+real(kind=wp), parameter :: FFMAX = 1.0e3_wp, FFMIN = 1.0e-3_wp
+character(len=*), parameter :: ASA(3) = [' ','0','-'], BLNK = ' ', COLUMN = 'Column  '
 
 if (NCTL < 0) then
   KCOL = KCOLN
@@ -67,15 +72,15 @@ MCTL = abs(NCTL)
 if ((MCTL <= 3) .and. (MCTL > 0)) then
   CTL = ASA(MCTL)
 else
-  CTL = BLANK
+  CTL = BLNK
 end if
 
 J = NROW*(NROW+1)/2
-AMAX = ZERO
+AMAX = Zero
 do I=1,J
   AMAX = max(AMAX,abs(AMATRX(I)))
 end do
-if (AMAX == ZERO) then
+if (AMAX == Zero) then
   write(LUPRI,'(/T6,A)') 'Zero matrix.'
   GO TO 200
 end if
@@ -100,7 +105,7 @@ write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
 do K=BEGIN,NROW
   KTOTAL = (K*(K-1))/2+BEGIN-1
   do I=1,NCOL
-    if (AMATRX(KTOTAL+I) /= ZERO) GO TO 20
+    if (AMATRX(KTOTAL+I) /= Zero) GO TO 20
   end do
   GO TO 30
 20 write(LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)

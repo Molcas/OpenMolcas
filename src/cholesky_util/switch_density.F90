@@ -15,15 +15,18 @@ subroutine switch_density(iLoc,XLT,Xab,kSym)
 
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
-use stdalloc
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer, external :: cho_isao
-integer iLoc, kSym
-real*8 XLT(*), Xab(*)
+implicit none
+integer(kind=iwp) :: iLoc, kSym
+real(kind=wp) :: XLT(*), Xab(*)
 #include "cholesky.fh"
 #include "choorb.fh"
+integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jRab, jSym, kRab
+real(kind=wp) :: xf
+integer(kind=iwp), external :: cho_isao
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 jSym = 1 ! only total symmetric density
@@ -38,7 +41,7 @@ do jRab=1,nnBstR(jSym,iLoc)
 
   iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
 
-  xf = dble(1-min(1,abs(iSyma-kSym)))
+  xf = real(1-min(1,abs(iSyma-kSym)),kind=wp)
 
   ias = iag-ibas(iSyma)  !address within that symm block
   ibs = ibg-ibas(iSyma)

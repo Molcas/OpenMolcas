@@ -13,10 +13,11 @@ subroutine Cho_P_GetMaxShl(DiaSh,Smax,iShlAB)
 !
 ! Purpose: get max shell pair and update DiaSh.
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 DiaSh(*)
-real*8 Smax
-integer iShlAB
+real(kind=wp) :: DiaSh(*), Smax
+integer(kind=iwp) :: iShlAB
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

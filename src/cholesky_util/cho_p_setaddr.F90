@@ -14,16 +14,15 @@ subroutine Cho_P_SetAddr()
 ! Purpose: set initial disk adresses for local as well as global
 !          reduced sets.
 
-use ChoSwp, only: InfRed, InfRed_G
-use ChoSwp, only: InfVec, InfVec_G
+use ChoSwp, only: InfRed, InfRed_G, InfVec, InfVec_G
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
-character*13 SecNam
-parameter(SecNam='Cho_P_SetAddr')
-integer irc
+integer(kind=iwp) :: irc
+character(len=*), parameter :: SecNam = 'Cho_P_SetAddr'
 
 if (Cho_Real_Par) then
 

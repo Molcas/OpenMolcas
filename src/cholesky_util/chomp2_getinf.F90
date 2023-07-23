@@ -17,9 +17,12 @@ subroutine ChoMP2_GetInf(lnOrb,lnOcc,lnFro,lnDel,lnVir)
 !
 ! Purpose: get info from conventional MP2 common blocks.
 
-implicit real*8(a-h,o-z)
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
+integer(kind=iwp) :: iSym
 
 do iSym=1,nSym
   lnOrb(iSym) = nOrb(iSym)

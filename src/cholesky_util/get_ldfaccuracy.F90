@@ -11,12 +11,14 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-real*8 function Get_LDFAccuracy()
+function Get_LDFAccuracy()
+
+use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: Get_LDFAccuracy
 #include "localdf.fh"
-logical LDF_X_IsSet
-external LDF_X_IsSet
+logical(kind=iwp), external :: LDF_X_IsSet
 
 if (.not. LDF_X_IsSet()) call Get_dScalar('LDF Accuracy',Thr_Accuracy)
 Get_LDFAccuracy = Thr_Accuracy

@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_LREAD(ISYM,LWRK)
+function CHO_LREAD(ISYM,LWRK)
 !
 ! Purpose: return a reasonable scratch space dimension for reading
 !          previous vectors using cho_getvec.
 
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: CHO_LREAD
+integer(kind=iwp) :: ISYM, LWRK
 #include "cholesky.fh"
-integer MNVECRS1
-parameter(MNVECRS1=5)
+integer(kind=iwp) :: IRED, JRED, JVEC, LEN1, LEN2, LEN3, LMIN
+integer(kind=iwp), parameter :: MNVECRS1 = 5
 
 if (CHO_IOVEC == 1) then
   if ((NVECRS1(ISYM) < 1) .and. (NUMCHO(ISYM) > 0)) then

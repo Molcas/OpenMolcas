@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Cho_IndxParentDiag_P(iQ,iSym)
+function Cho_IndxParentDiag_P(iQ,iSym)
 
-use ChoSwp, only: iQuAB, IndRed_G
+use ChoSwp, only: IndRed_G, iQuAB
+use Definitions, only: iwp
 
 implicit none
-integer iQ, iSym
+integer(kind=iwp) :: Cho_IndxParentDiag_P
+integer(kind=iwp) :: iQ, iSym
 #include "cholesky.fh"
 #include "choglob.fh"
 

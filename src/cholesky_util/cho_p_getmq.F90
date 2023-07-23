@@ -11,13 +11,13 @@
 
 subroutine Cho_P_GetMQ(MQ,l_MQ,LstQSP,nQSP)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer l_MQ, nQSP
-real*8 MQ(l_MQ)
-integer LstQSP(nQSP)
+integer(kind=iwp) :: l_MQ, nQSP, LstQSP(nQSP)
+real(kind=wp) :: MQ(l_MQ)
 #include "cho_para_info.fh"
-character*11 SecNam
-parameter(SecNam='Cho_P_GetMQ')
+character(len=*), parameter :: SecNam = 'Cho_P_GetMQ'
 
 ! In parallel:
 ! This code only works if MxShpr is set to 1

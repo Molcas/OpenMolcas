@@ -20,17 +20,20 @@ subroutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 
 use ChoMP2, only: OldVec
 use ChoMP2_dec, only: InCore, NowSym
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 Col(nDim,nCol), Buf(l_Buf)
-integer iCol(nCol)
+implicit none
+integer(kind=iwp) :: nDim, nCol, iCol(nCol), l_Buf
+real(kind=wp) :: Col(nDim,nCol), Buf(l_Buf)
 #include "cholesky.fh"
 #include "chomp2.fh"
-character(len=6), parameter :: ThisNm = 'IntCol'
-character(len=13), parameter :: SecNam = 'ChoMP2_IntCol'
-logical DoClose
-real*8, allocatable :: Wrk(:)
+integer(kind=iwp) :: iAdr, iBat, iOpt, irc, iSym, iVec1, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
+real(kind=wp) :: Fac
+logical(kind=iwp) :: DoClose
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'ChoMP2_IntCol'
 
 iSym = NowSym
 if (NumCho(iSym) < 1) then
@@ -42,10 +45,10 @@ irc = 0
 
 if (InCore(iSym)) then  ! old vectors available in core
 
-  Fac = 0.0d0
+  Fac = Zero
   call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,OldVec,NumCho(iSym),Buf,l_Buf,Fac,irc)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
     call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[1]')
   end if
 
@@ -63,7 +66,7 @@ else ! old vectors must be read on disk
 
     nVec = min(l_Buf/(nDim+1),NumCho(iSym))
     if (nVec < 1) then
-      write(6,*) SecNam,': insufficient memory for batch!'
+      write(u6,*) SecNam,': insufficient memory for batch!'
       call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
       nBat = 0
     else
@@ -85,9 +88,9 @@ else ! old vectors must be read on disk
       call ddaFile(lUnit_F(iSym,1),iOpt,Buf(1),lTot,iAdr)
 
       if (iBat == 1) then
-        Fac = 0.0d0
+        Fac = Zero
       else
-        Fac = 1.0d0
+        Fac = One
       end if
 
       lScr = l_Buf-lTot
@@ -101,7 +104,7 @@ else ! old vectors must be read on disk
         call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf(1),NumV,Buf(1+lTot),lScr,Fac,irc)
       end if
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+        write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
         call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[2]')
       end if
 
@@ -113,7 +116,7 @@ else ! old vectors must be read on disk
 
     nVec = min(lWrk/nDim,NumCho(iSym))
     if (nVec < 1) then
-      write(6,*) SecNam,': insufficient memory for batch!'
+      write(u6,*) SecNam,': insufficient memory for batch!'
       call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
       nBat = 0
     else
@@ -135,9 +138,9 @@ else ! old vectors must be read on disk
       call ddaFile(lUnit_F(iSym,1),iOpt,Wrk,lTot,iAdr)
 
       if (iBat == 1) then
-        Fac = 0.0d0
+        Fac = Zero
       else
-        Fac = 1.0d0
+        Fac = ONe
       end if
 
       lScr = lWrk-lTot
@@ -147,7 +150,7 @@ else ! old vectors must be read on disk
         call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Wrk,NumV,Wrk(1+lTot),lScr,Fac,irc)
       end if
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+        write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
         call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[3]')
       end if
 

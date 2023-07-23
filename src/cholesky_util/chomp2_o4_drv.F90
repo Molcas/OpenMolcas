@@ -28,25 +28,29 @@ subroutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*), EOcc(*), EVir(*)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
-character(len=6), parameter :: ThisNm = 'O4_Drv'
-character(len=13), parameter :: SecNam = 'ChoMP2_O4_Drv'
-real*8, parameter :: Chk_Mem_ChoMP2 = 0.123456789d0, Tol = 1.0D-15
-integer, parameter :: iFmt = 0
-logical Delete, DoAmpDiag
-logical, parameter :: Delete_def = .true.
-integer a, ai
-integer lU_AO(8)
-character(len=3) BaseName_AO
+integer(kind=iwp) :: a, ai, i, iSym, iSyma, iSymb, iSymi, iTyp, kD0, kD1, kD2, lDiag, lU_AO(8)
+real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Diff, Ei, FracMem, &
+                 WallBT1, WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
+logical(kind=iwp) :: Delete, DoAmpDiag
+character(len=3) ::BaseName_AO
 real*8, allocatable :: Check(:), Diag(:)
+integer(kind=iwp), parameter :: iFmt = 0
+real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
+logical(kind=iwp), parameter :: Delete_def = .true.
+character(len=*), parameter :: SecNam = 'ChoMP2_O4_Drv'
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 #ifdef _DEBUGPRINT_
@@ -59,17 +63,17 @@ if (Verbose) call CWTime(CPUTot1,WallTot1)
 
 irc = 0
 
-EMP2 = 0.0d0
+EMP2 = Zero
 
 if (Verbose) call CWTime(CPUIni1,WallIni1)
 
 call mma_allocate(Check,1,Label='Check')
 Check(1) = Chk_Mem_ChoMP2
 
-FracMem = 0.0d0 ! no buffer allocated
+FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  write(u6,*) SecNam,': Cho_X_Init returned ',irc
   call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
 end if
 
@@ -81,14 +85,14 @@ end if
 
 call ChoMP2_Setup(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_Setup returned ',irc
+  write(u6,*) SecNam,': ChoMP2_Setup returned ',irc
   Go To 1  ! exit
 end if
 
 if (Verbose) then
   call ChoMP2_Setup_Prt(irc)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
     Go To 1  ! exit
   end if
   call CWTime(CPUIni2,WallIni2)
@@ -111,7 +115,7 @@ call mma_allocate(Diag,lDiag,Label='Diag')
 
 call ChoMP2_TraDrv(irc,CMO,Diag,.true.)
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+  write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
   Go To 1  ! exit
 end if
 kD0 = 0
@@ -124,7 +128,7 @@ do iSym=1,nSym
       Ei = EOcc(iOcc(iSymi)+i)
       do a=1,nVir(iSyma)
         ai = kD2+a
-        DE = 2.0d0*(EVir(iVir(iSyma)+a)-Ei)
+        DE = Two*(EVir(iVir(iSyma)+a)-Ei)
         Diag(ai) = Diag(ai)/DE
       end do
     end do
@@ -155,7 +159,7 @@ if (Verbose) call CWTime(CPUDec1,WallDec1)
 Delete = Delete_def ! delete transf. vector files after dec.
 call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
+  write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
   call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
 end if
 call mma_deallocate(Diag)
@@ -186,7 +190,7 @@ end do
 call mma_allocate(Diag,lDiag,Label='Diag')
 call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,Diag,lDiag,lU_AO,irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
+  write(u6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
   call ChoMP2_Quit(SecNam,'MP2 amplitude vector backtransformation failed!',' ')
 end if
 call mma_deallocate(Diag)
@@ -212,7 +216,7 @@ end if
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  write(u6,*) SecNam,': Cho_X_Final returned ',irc
   Go To 1 ! exit
 end if
 
@@ -229,7 +233,7 @@ end do
 1 continue
 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
 if (Diff > Tol) then
-  write(6,*) SecNam,': Memory Boundary Error!'
+  write(u6,*) SecNam,': Memory Boundary Error!'
   if (irc == 0) irc = -9999
 end if
 if (Verbose) then

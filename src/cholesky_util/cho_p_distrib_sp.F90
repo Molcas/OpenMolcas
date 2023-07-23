@@ -19,10 +19,10 @@ subroutine Cho_P_Distrib_SP(iOpt,mySP,N_mySP)
 ! iOpt=1: each node has same number of ShellPairs.
 ! iOpt=2: each node has same dimension.
 
+use Definitions, only: iwp
+
 implicit none
-integer iOpt
-integer mySP(*)
-integer N_mySP
+integer(kind=iwp) :: iOpt, mySP(*), N_mySP
 #include "cholesky.fh"
 
 N_mySP = 0

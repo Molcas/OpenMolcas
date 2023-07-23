@@ -17,8 +17,9 @@ subroutine Integral_WrOut_Cho_diag( &
 !    if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                     else  integral order within symblk: ijkl
 
-implicit real*8(A-H,O-Z)
-# define _FIXED_FORMAT_
+use Definitions, only: wp, iwp
+
+implicit none
 #include "int_wrout_interface.fh"
 
 ! call sorting routine

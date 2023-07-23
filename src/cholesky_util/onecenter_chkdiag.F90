@@ -15,28 +15,33 @@
 subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 
 use ChoArr, only: iRS2F
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 Diag(l_D), Stat(7)
-logical DoPrint
+implicit none
+integer(kind=iwp) :: l_D
+real(kind=wp) :: Diag(l_D), Stat(7)
+logical(kind=iwp) :: DoPrint
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character*(LENIN8) Name(maxbfn)
-character*(LENIN) ctmp1, ctmp2
-real*8 Err(4)
+integer(kind=iwp) :: ia, ib, krs
+real(kind=wp) :: Err(4)
+character(len=LenIn8) :: BName(maxbfn)
+character(len=LenIn) :: ctmp1, ctmp2
+real(kind=wp), external :: dDot_
 
-call Get_cArray('Unique Basis Names',Name,LENIN8*nBasT)
+call Get_cArray('Unique Basis Names',BName,LENIN8*nBasT)
 
 do krs=1,nnBstRT(1)
   ia = iRS2F(1,krs)
-  ctmp1 = Name(ia)(1:LENIN)
+  ctmp1 = BName(ia)(1:LENIN)
   ib = iRS2F(2,krs)
-  ctmp2 = Name(ib)(1:LENIN)
-  if (ctmp1 /= ctmp2) Diag(krs) = 0.0d0
+  ctmp2 = BName(ib)(1:LENIN)
+  if (ctmp1 /= ctmp2) Diag(krs) = Zero
 end do
 
-if (DoPrint) call Cho_Head('Analysis of Difference (1-Center only)','=',80,6)
+if (DoPrint) call Cho_Head('Analysis of Difference (1-Center only)','=',80,u6)
 call Statistics(Diag,l_D,Stat,1,2,3,4,5,6,7)
 if (DoPrint) call Cho_PrtSt(Diag,l_D,Stat)
 
@@ -46,13 +51,13 @@ if (DoPrint) call Cho_PrtSt(Diag,l_D,Stat)
 Err(1) = Stat(3)
 Err(2) = Stat(4)
 Err(3) = Stat(1)
-Err(4) = sqrt(dDot_(nnBstRT(1),Diag,1,Diag,1)/dble(nnBstRT(1)))
+Err(4) = sqrt(dDot_(nnBstRT(1),Diag,1,Diag,1)/real(nnBstRT(1),kind=wp))
 
 if (DoPrint) then
-  write(6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
-  write(6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
-  write(6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
-  write(6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
+  write(u6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
+  write(u6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
+  write(u6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
+  write(u6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
 end if
 
 return

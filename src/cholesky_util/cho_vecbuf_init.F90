@@ -9,9 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#ifdef _CHO_DEBUGPRINT_
-#define _DEBUGPRINT_
-#endif
 subroutine Cho_VecBuf_Init(Frac,lVec)
 !
 ! Purpose: allocate and initialize vector buffer.
@@ -22,23 +19,25 @@ subroutine Cho_VecBuf_Init(Frac,lVec)
 !          (RUN_MODE stored in cholesky.fh)
 
 use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
-use stdalloc
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Frac
-integer lVec(*)
+real(kind=wp) :: Frac
+integer(kind=iwp) :: lVec(*)
 #include "cholesky.fh"
-character*15 SecNam
-parameter(SecNam='Cho_VecBuf_Init')
-logical LocDbg
-#ifdef _DEBUGPRINT_
-parameter(LocDbg=.true.)
-#else
-parameter(LocDbg=.false.)
+integer(kind=iwp) :: l_Max, MF
+real(kind=wp) :: xMF
+character(len=2) :: Unt
+#ifdef _CHO_DEBUGPRINT_
+#define _DEBUGPRINT_
 #endif
-character*2 Unt
-integer l_Max, MF
-real*8 xMF
+#ifdef _DEBUGPRINT_
+#define _DBG_ .true.
+#else
+#define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init'
 
 if (LocDbg) then
   call mma_maxDBLE(l_max)

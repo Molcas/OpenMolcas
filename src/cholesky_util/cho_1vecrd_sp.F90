@@ -19,18 +19,16 @@ subroutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,iLoc)
 !          identifies the reduced set for which indices are
 !          available at location iLoc. NOTE: only WA files!!
 
-use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
+use ChoSwp, only: iiBstRSh, InfVec, nnBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Vec(lVec)
-integer LstSP(nSP)
+implicit none
+integer(kind=iwp) :: lVec, jVec, iSym, nSP, LstSP(nSP), iRedC, iLoc
+real(kind=wp) :: Vec(lVec)
 #include "cholesky.fh"
-
-character*13 SecNam
-parameter(SecNam='Cho_1VecRd_SP')
-
-integer Cho_P_LocalSP
-external Cho_P_LocalSP
+integer(kind=iwp) :: iAdr, iAdr0, iOpt, irc, iRed, iShlAB, iSP, kV, lTot
+character(len=*), parameter :: SecNam = 'Cho_1VecRd_SP'
+integer(kind=iwp), external :: Cho_P_LocalSP
 
 ! Return if no vectors are available on disk.
 ! -------------------------------------------

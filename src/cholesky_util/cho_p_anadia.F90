@@ -16,16 +16,15 @@ subroutine Cho_P_AnaDia(Diag,Sync,Bin1,Step,NumBin,Full)
 !          synchronized before analysis.
 
 use ChoSwp, only: Diag_G
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-logical Sync
-real*8 Bin1, Step
-integer NumBin
-logical Full
+real(kind=wp) :: Diag(*), Bin1, Step
+logical(kind=iwp) :: Sync, Full
+integer(kind=iwp) :: NumBin
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iLoc
+integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then
 

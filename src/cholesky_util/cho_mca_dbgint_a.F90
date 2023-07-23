@@ -22,16 +22,21 @@ subroutine CHO_MCA_DBGINT_A()
 !       3) full integral symmetry not used
 !          (only partial particle permutation symmetry)
 
-use ChoArr, only: nBstSh, iSP2F
-use stdalloc
+use ChoArr, only: iSP2F, nBstSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
 #include "choorb.fh"
-character(len=16), parameter :: SECNAM = 'CHO_MCA_DBGINT_A'
-real*8 XLBAS(8)
-real*8, allocatable :: Int1(:), Wrk(:)
+integer(kind=iwp) :: ISAB1, ISAB2, ISCD1, ISCD2, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, &
+                     LWRK, NCMP, NUMAB, NUMCD
+real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
+real(kind=wp), allocatable :: Int1(:), Wrk(:)
+character(len=*), parameter :: SECNAM = 'CHO_MCA_DBGINT_A'
 ! Statement function
+integer(kind=iwp) :: MULD2H, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 
 ! Force computation of full shell quadruple.
@@ -46,11 +51,11 @@ end if
 ! Initializations.
 ! ----------------
 
-GLMAX = 0.0d0
-GLMIN = 1.0d15
-GLRMS = 0.0d0
-XTCMP = 0.0d0
-XPECT = 0.0d0
+GLMAX = Zero
+GLMIN = 1.0e15_wp
+GLRMS = Zero
+XTCMP = Zero
+XPECT = Zero
 
 ! Make first reduced set the current reduced set.
 ! -----------------------------------------------
@@ -117,13 +122,13 @@ do ISHLAB=ISAB1,ISAB2
     ! Compute expected number of comparisons.
     ! ---------------------------------------
 
-    XPECTL = dble(LINT1)
+    XPECTL = real(LINT1,kind=wp)
     XPECT = XPECT+XPECTL
 
     ! Calculate shell quadruple (CD|AB).
     ! ----------------------------------
 
-    INT1(1:LINT1) = 0.0d0
+    INT1(1:LINT1) = Zero
     call CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.false.)
 
     ! Calculate integrals from Cholesky vectors.
@@ -137,14 +142,14 @@ do ISHLAB=ISAB1,ISAB2
     if (NCMP < 1) then
       write(LUPRI,'(4(I5,1X),5X,A)') ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
     else
-      RMS = sqrt(ERRRMS/dble(NCMP))
+      RMS = sqrt(ERRRMS/real(NCMP,kind=wp))
       write(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
     end if
 
     if (abs(ERRMAX) > abs(GLMAX)) GLMAX = ERRMAX
     if (abs(ERRMIN) < abs(GLMIN)) GLMIN = ERRMIN
     GLRMS = GLRMS+ERRRMS
-    if (NCMP > 0) XTCMP = XTCMP+dble(NCMP)
+    if (NCMP > 0) XTCMP = XTCMP+real(NCMP,kind=wp)
 
   end do
 
@@ -154,7 +159,7 @@ end do
 ! -------------------
 
 write(LUPRI,'(A)') '--------------------------------------------------------------'
-if (XTCMP < 1.0d0) then
+if (XTCMP < One) then
   write(LUPRI,'(A,23X,A)') 'Total:',' !!! nothing compared !!! '
 else
   GLRMS = sqrt(GLRMS/XTCMP)
@@ -173,23 +178,23 @@ call mma_deallocate(INT1)
 ! ----------------------------------
 
 do ISYM=1,NSYM
-  XLBAS(ISYM) = dble(NBAS(ISYM))
+  XLBAS(ISYM) = real(NBAS(ISYM),kind=wp)
 end do
-XNINT = 0.0d0
+XNINT = Zero
 do ISYM=1,NSYM
-  XXLBST = 0.0d0
+  XXLBST = Zero
   do ISYMB=1,NSYM
     ISYMA = MULD2H(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
-      XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+1.0d0)/2.0d0
+      XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then
       XXLBST = XXLBST+XLBAS(ISYMA)*XLBAS(ISYMB)
     end if
   end do
-  XNINT = XNINT+XXLBST*(XXLBST+1.0d0)/2.0d0
+  XNINT = XNINT+XXLBST*(XXLBST+One)*Half
 end do
 
-if (abs(XTCMP-XPECT) > 1.0D-15) then
+if (abs(XTCMP-XPECT) > 1.0e-15_wp) then
   write(LUPRI,'(/,A)') 'WARNING: not all integrals checked:'
 else
   write(LUPRI,*)

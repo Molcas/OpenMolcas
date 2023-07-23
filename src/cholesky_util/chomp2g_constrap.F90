@@ -9,24 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,type,iSym,nVec,Ap,lAp,Dens,lDens,factor)
+subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,typ,iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
-use ChoMP2g
+use ChoMP2g, only: iAdrOff, LuVVec, LuWVec, nMoMo
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, lScr, iSym, nVec, lAp, lDens
+real(kind=wp) :: Scr(lScr), Ap(lAp), Dens(lDens), factor
+character :: typ(4)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-real*8 Scr(lScr), Ap(lAp), Dens(lDens)
-character type(1:4)
-logical DoX, DoY, DoZ
-integer iOffp(8), iOffAp(8)
-integer nOrb1(8,4), iOrbType(4)
-character*8 ThisNm
-character*16 SecNam
-parameter(SecNam='ChoMP2g_ConstrAP',ThisNm='ConstrAP')
+integer(kind=iwp) :: iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq, iBat, iCol, iIP, iIQ, iIR, iOffAp(8), iOffL, &
+                     iOffL1, iOffp(8), iOffY, iOffY1, iOffZ, iOffZ1, iOpt, iOrbType(4), iPQ, iRP, iRQ, iSym1, iSymI, iSymP, iSymQ, &
+                     iSymR, iTypL, iVec, iVec1, kEndLip, kEndLiq, kEndLir, kEndLpq, kEndLrp, kEndLrq, kEndX, kEndY, kLip, kLiq, &
+                     kLir, kLpq, kLrp, kLrq, kX, kY, kZ, lLip, lLiq, lLir, lLpq, lLrp, lLrq, lTot, lX, lY, nBatL, nI, nIP, nIQ, &
+                     nIR, nOrb1(8,4), nP, nPQ, nQ, nR, nRow, nRP, nRQ, nTypes, NumVec
+real(kind=wp) :: yfactor
+logical(kind=iwp) :: DoX, DoY, DoZ
+character(len=*), parameter :: SecNam = 'ChoMP2g_ConstrAP'
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !************************************
 
@@ -42,23 +48,23 @@ iTypL = 1
 ! Read the char-array Type = 'pqri'
 ! ---------------------------------
 do i=1,nTypes
-  if (type(i) == 'f') then
+  if (typ(i) == 'f') then
     iOrbType(i) = 1
     do iSym1=1,nSym
       nOrb1(iSym1,i) = nFro(iSym1)
     end do
-  else if (type(i) == 'o') then
+  else if (typ(i) == 'o') then
     iOrbType(i) = 2
     do iSym1=1,nSym
       nOrb1(iSym1,i) = nOcc(iSym1)
     end do
-  else if (type(i) == 'v') then
+  else if (typ(i) == 'v') then
     iOrbType(i) = 3
     do iSym1=1,nSym
       nOrb1(iSym1,i) = nVir(iSym1)
     end do
   else
-    write(6,*) 'Forbidden Type pqrs in',SecNam
+    write(u6,*) 'Forbidden Type pqrs in',SecNam
     irc = -1
     return
   end if
@@ -94,19 +100,19 @@ iAdrLrq = iAdrOff(iSym,iRQ)
 ! Set
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'iPQ',iPQ
-write(6,*) 'iIQ',iIQ
-write(6,*) 'iIR',iIR
-write(6,*) 'iIP',iIP
-write(6,*) 'iRQ',iRQ
-write(6,*) 'iRP',iRP
+write(u6,*) 'iPQ',iPQ
+write(u6,*) 'iIQ',iIQ
+write(u6,*) 'iIR',iIR
+write(u6,*) 'iIP',iIP
+write(u6,*) 'iRQ',iRQ
+write(u6,*) 'iRP',iRP
 
-write(6,*) 'nPQ',nPQ
-write(6,*) 'nIQ',nIQ
-write(6,*) 'nIR',nIR
-write(6,*) 'nIP',nIP
-write(6,*) 'nRQ',nRQ
-write(6,*) 'nRP',nRP
+write(u6,*) 'nPQ',nPQ
+write(u6,*) 'nIQ',nIQ
+write(u6,*) 'nIR',nIR
+write(u6,*) 'nIP',nIP
+write(u6,*) 'nRQ',nRQ
+write(u6,*) 'nRP',nRP
 #endif
 ! Decide what type of intermediate vectors is needed
 ! --------------------------------------------------
@@ -118,7 +124,7 @@ if (iSym /= 1) DoX = .false.
 if ((nPQ == 0) .or. (nIR == 0)) DoX = .false.
 if ((nRP == 0) .or. (nIQ == 0)) DoY = .false.
 if ((nIP == 0) .or. (nRQ == 0)) DoZ = .false.
-if (type(1) == type(2)) DoZ = .false.
+if (typ(1) == typ(2)) DoZ = .false.
 
 if (DoY .or. DoZ) then
   iOffp(1) = 0
@@ -216,7 +222,7 @@ do iBat=1,nBatL
   ! ------------------
   if (DoX) then
     nRow = 1
-    call dGemm_('T','N',nRow,NumVec,nPQ,1.0d0,Dens(1),nPQ,Scr(kLpq),nPQ,0.0d0,Scr(kX+iVec-1),nRow)
+    call dGemm_('T','N',nRow,NumVec,nPQ,One,Dens(1),nPQ,Scr(kLpq),nPQ,Zero,Scr(kX+iVec-1),nRow)
   end if
 
   ! Construct Y-vector
@@ -235,7 +241,7 @@ do iBat=1,nBatL
         if (nQ*nP*nI*nR == 0) Go To 101
         iOffL = (iVec1-1)*nIQ+iOffL1
         iOffY = (iVec1-1)*nIP+iOffY1
-        call dGemm_('T','N',nP,nI,nQ,1.0d0,Dens(1+iOffP(iSymP)),nQ,Scr(kLiq+iOffL),nQ,0.0d0,Scr(kY+iOffY),nP)
+        call dGemm_('T','N',nP,nI,nQ,One,Dens(1+iOffP(iSymP)),nQ,Scr(kLiq+iOffL),nQ,Zero,Scr(kY+iOffY),nP)
 101     continue
         iOffL1 = iOffL1+nQ*nI
         iOffY1 = iOffY1+nP*nI
@@ -264,7 +270,7 @@ do iBat=1,nBatL
         if (nQ*nP*nI*nR == 0) Go To 102
         iOffL = (iVec1-1)*nIP+iOffL1
         iOffZ = (iVec1-1)*nIQ+iOffZ1
-        call dGemm_('N','N',nQ,nI,nP,1.0d0,Dens(1+iOffP(iSymQ)),nQ,Scr(kLip+iOffL),nP,0.0d0,Scr(kZ+iOffZ),nQ)
+        call dGemm_('N','N',nQ,nI,nP,One,Dens(1+iOffP(iSymQ)),nQ,Scr(kLip+iOffL),nP,Zero,Scr(kZ+iOffZ),nQ)
 102     continue
         iOffL1 = iOffL1+nP*nI
         iOffZ1 = iOffZ1+nQ*nI
@@ -319,7 +325,7 @@ do iBat=1,nBatL
 
   if (DoX) then
     iCol = 1
-    call dGemm_('N','N',nIR,iCol,NumVec,4.0d0*factor,Scr(kLir),nIR,Scr(kX+iVec-1),NumVec,1.0d0,Ap(1),nIR)
+    call dGemm_('N','N',nIR,iCol,NumVec,Four*factor,Scr(kLir),nIR,Scr(kX+iVec-1),NumVec,One,Ap(1),nIR)
   end if
 
   if (DoY) then
@@ -332,8 +338,8 @@ do iBat=1,nBatL
       call dDaFile(LuVVec,iOpt,Scr(kY),lTot,iAdr)
     end if
 
-    yfactor = 1.0d0*factor
-    if (.not. DoZ) yfactor = yfactor*2.0d0
+    yfactor = factor
+    if (.not. DoZ) yfactor = yfactor*Two
     do iVec1=1,NumVec
       iOffL1 = 0
       iOffY1 = 0
@@ -348,7 +354,7 @@ do iBat=1,nBatL
         if (nI*nR*nP*nQ == 0) Go To 201
         iOffL = (iVec1-1)*nRP+iOffL1
         iOffY = (iVec1-1)*nIP+iOffY1
-        call dGemm_('T','N',nR,nI,nP,-1.0d0*yfactor,Scr(kLrp+iOffL),nP,Scr(kY+iOffY),nP,1.0d0,Ap(1+iOffAP(iSymI)),nR)
+        call dGemm_('T','N',nR,nI,nP,-yfactor,Scr(kLrp+iOffL),nP,Scr(kY+iOffY),nP,One,Ap(1+iOffAP(iSymI)),nR)
 201     continue
         iOffL1 = iOffL1+nR*nP
         iOffY1 = iOffY1+nI*nP
@@ -380,7 +386,7 @@ do iBat=1,nBatL
         if (nI*nR*nQ*nP == 0) Go To 202
         iOffL = (iVec1-1)*nRQ+iOffL1
         iOffZ = (iVec1-1)*nIQ+iOffZ1
-        call dGemm_('T','N',nR,nI,nQ,-1.0d0*factor,Scr(kLrq+iOffL),nQ,Scr(kZ+iOffZ),nQ,1.0d0,Ap(1+iOffAP(iSymI)),nR)
+        call dGemm_('T','N',nR,nI,nQ,-factor,Scr(kLrq+iOffL),nQ,Scr(kZ+iOffZ),nQ,One,Ap(1+iOffAP(iSymI)),nR)
 202     continue
         iOffL1 = iOffL1+nR*nQ
         iOffZ1 = iOffZ1+nI*nQ

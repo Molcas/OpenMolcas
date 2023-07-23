@@ -47,20 +47,20 @@
 
 subroutine Cho_X_CheckDiag(irc,Err)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp,u6
 
 implicit none
-integer irc
-real*8 Err(4)
+integer(kind=iwp) :: irc
+real(kind=wp) :: Err(4)
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=15), parameter :: SecNam = 'Cho_X_CheckDiag'
-integer iPrThr
-parameter(iPrThr=-5)
-real*8 dDot_
-external ddot_
-integer i
-real*8, allocatable :: XD(:), CD(:), Bin(:), Stat(:)
+integer(kind=iwp) :: i
+real(kind=wp), allocatable :: Bin(:), CD(:), Stat(:), XD(:)
+integer(kind=iwp), parameter :: iPrThr = -5
+character(len=*), parameter :: SecNam = 'Cho_X_CheckDiag'
+real(kind=wp), external :: ddot_
 
 ! Set return code.
 ! ----------------
@@ -82,9 +82,9 @@ call mma_allocate(Stat,7,Label='Stat')
 ! Set bins for histograms.
 ! ------------------------
 
-Bin(1) = 1.0d0
+Bin(1) = One
 do i=1,size(Bin)-1
-  Bin(1+i) = Bin(i)*1.0d-1
+  Bin(1+i) = Bin(i)*1.0e-1_wp
 end do
 
 ! Read exact diagonal.
@@ -96,8 +96,8 @@ call Cho_IODiag(XD,2)
 ! -----------------------------------------------------
 
 if (iPrint >= iPrThr) then
-  call Cho_Head('Analysis of Exact Integral Diagonal','=',80,6)
-  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),6)
+  call Cho_Head('Analysis of Exact Integral Diagonal','=',80,u6)
+  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),u6)
   call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
   call Cho_PrtSt(XD,size(XD),Stat)
 end if
@@ -107,7 +107,7 @@ end if
 
 call Cho_X_CalcChoDiag(irc,CD)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
+  write(u6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
   Go To 1 ! return after dealloc
 end if
 
@@ -115,8 +115,8 @@ end if
 ! --------------------------------------------------------
 
 if (iPrint >= iPrThr) then
-  call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,6)
-  call Cho_AnaSize(CD,size(CD),Bin,size(Bin),6)
+  call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,u6)
+  call Cho_AnaSize(CD,size(CD),Bin,size(Bin),u6)
   call Statistics(CD,size(CD),Stat,1,2,3,4,5,6,7)
   call Cho_PrtSt(CD,size(CD),Stat)
 end if
@@ -124,14 +124,14 @@ end if
 ! Subtract Cholesky diagonal from exact diagonal.
 ! -----------------------------------------------
 
-call dAXPY_(nnBstRT(1),-1.0d0,CD,1,XD,1)
+call dAXPY_(nnBstRT(1),-One,CD,1,XD,1)
 
 ! Print histogram of difference array and get statistics.
 ! -------------------------------------------------------
 
 if (iPrint >= iPrThr) then
-  call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,6)
-  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),6)
+  call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,u6)
+  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),u6)
 end if
 call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
 if (iPrint >= iPrThr) call Cho_PrtSt(XD,size(XD),Stat)
@@ -142,13 +142,13 @@ if (iPrint >= iPrThr) call Cho_PrtSt(XD,size(XD),Stat)
 Err(1) = Stat(3)
 Err(2) = Stat(4)
 Err(3) = Stat(1)
-Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
+Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
 
 if (iPrint >= iPrThr) then
-  write(6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
-  write(6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
-  write(6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
-  write(6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
+  write(u6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
+  write(u6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
+  write(u6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
+  write(u6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
 end if
 
 ! Error analysis for the 1-center diagonals only.
@@ -162,7 +162,7 @@ if (nSym == 1) then
     Err(1) = Stat(3)
     Err(2) = Stat(4)
     Err(3) = Stat(1)
-    Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
+    Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
   end if
 end if
 

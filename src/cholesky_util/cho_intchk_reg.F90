@@ -15,12 +15,14 @@ subroutine CHO_INTCHK_REG(LABEL,ISHLCD,ISHLAB)
 !          check using LABEL to keep track of its origin.
 
 use ChoArr, only: iSP2F
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-character*8 LABEL
+implicit none
+character(len=8) :: LABEL
+integer(kind=iwp) :: ISHLCD, ISHLAB
 #include "cholesky.fh"
-character*14 SECNAM
-parameter(SECNAM='CHO_INTCHK_REG')
+integer(kind=iwp) :: ID, ISHLA, ISHLB, ISHLC, ISHLD
+character(len=*), parameter :: SECNAM = 'CHO_INTCHK_REG'
 
 ! Check shell pair index.
 ! -----------------------

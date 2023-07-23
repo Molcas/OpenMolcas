@@ -13,16 +13,15 @@
 
 subroutine Cho_PFake_PutVec(Vec,InfV,nVec,iSym,iV1)
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 Vec(*)
-integer InfV(2,*)
-integer nVec, iSym, iV1
+real(kind=wp) :: Vec(*)
+integer(kind=iwp) :: InfV(2,*), nVec, iSym, iV1
 #include "cholesky.fh"
 #include "choglob.fh"
-character*16 SecNam
-parameter(SecNam='Cho_PFake_PutVec')
-integer iOpt, lTot, iAdr
-integer iVec, iPos
+integer(kind=iwp) :: iAdr, iOpt, iPos, iVec, lTot
+character(len=*), parameter :: SecNam = 'Cho_PFake_PutVec'
 
 if (nVec < 1) return
 

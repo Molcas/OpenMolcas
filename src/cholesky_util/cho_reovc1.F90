@@ -13,16 +13,18 @@ subroutine CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 !
 ! Purpose: reorder Cholesky vectors on disk to full storage.
 
-use ChoReO
+use ChoReO, only: NABPK, NNBST
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer N, LRDIM, LWRK
-integer IRS2F(N,LRDIM)
-real*8 WRK(LWRK)
+implicit none
+integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
+real(kind=wp) :: WRK(LWRK)
 #include "cholesky.fh"
-character(len=10), parameter :: SECNAM = 'CHO_REOVC1'
-integer IOFF(8,8), I, J, MulD2h
+integer(kind=iwp) :: IAB, IBATCH, ICOUNT, IOFF(8,8), IRS, ISYM, ISYMA, ISYMB, IVEC, IVEC1, KCHO1, KCHO2, KOFF, KOFF1, KREAD, LOFF, &
+                     LREAD, MINMEM, NBATCH, NSCALL, NUMV, NVEC
+character(len=*), parameter :: SECNAM = 'CHO_REOVC1'
 ! Statement function
+integer(kind=iwp) :: MULD2H, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 
 if (N < 3) call CHO_QUIT('Dimension error in '//SECNAM,104)

@@ -18,36 +18,29 @@ subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !
 ! Compute Laplace-SOS-MP2 energy.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc
-real*8 EMP2
-real*8 EOcc(*)
-real*8 EVir(*)
-logical Sorted
-logical DelOrig
-
+integer(kind=iwp) :: irc
+real(kind=wp) :: EMP2, EOcc(*), EVir(*)
+logical(kind=iwp) :: Sorted, DelOrig
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-character(len=17), parameter :: SecNam = 'ChoLSOSMP2_Energy'
-integer CheckDenomRange
-integer, external :: TestMinimaxLaplace
+integer(kind=iwp) :: CheckDenomRange, i, iSym, l_w
+logical(kind=iwp) :: FermiShift, Verb
+real(kind=wp) :: EFermi, EHOMO, EHUMO, ELOMO, ELUMO, xmax, xmin
+real(kind=wp), allocatable :: W(:), T(:)
 #ifdef _DEBUGPRINT_
-logical, parameter :: Debug = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: Debug = .false.
+#define _DBG_ .false.
 #endif
-logical Verb, FermiShift
-integer l_w
-real*8 ELOMO, EHOMO
-real*8 ELUMO, EHUMO
-real*8 EFermi
-real*8 xmin, xmax
-integer iSym
-integer i
-real*8, allocatable :: W(:), T(:)
+logical(kind=iwp), parameter :: Debug = _DBG_
+character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy'
+integer(kind=iwp), external :: TestMinimaxLaplace
 
 !================
 ! Initializations
@@ -64,7 +57,7 @@ FermiShift = .false.
 ! check that Laplace is requested
 if (.not. Laplace) then
   call WarningMessage(1,SecNam//' was called - but this is not a Laplace calculation!')
-  call xFlush(6)
+  call xFlush(u6)
   irc = -1
   return
 end if
@@ -72,10 +65,10 @@ end if
 ! Debug: test minimax Laplace grid generation
 if (Debug) then
   Verb = .false.
-  irc = TestMinimaxLaplace(1.0d-7,Verb)
+  irc = TestMinimaxLaplace(1.0e-7_wp,Verb)
   if (irc /= 0) then
     call WarningMessage(2,SecNam//': error detected in numerical Laplace transformation')
-    write(6,'(A,I6)') 'irc=',irc
+    write(u6,'(A,I6)') 'irc=',irc
     call Abend()
   end if
 end if
@@ -85,10 +78,10 @@ end if
 !================================================
 
 ! get max and min orbital energies
-ELOMO = 0.0d0
-EHOMO = 0.0d0
-ELUMO = 0.0d0
-EHUMO = 0.0d0
+ELOMO = Zero
+EHOMO = Zero
+ELUMO = Zero
+EHUMO = Zero
 i = 0
 do iSym=1,nSym
   if (nOcc(iSym) > 0) then
@@ -124,11 +117,11 @@ if (i == 0) then
   call Abend()
 end if
 !-tbp:
-write(6,*) 'ELOMO,EHOMO=',ELOMO,EHOMO
-write(6,*) 'ELUMO,EHUMO=',ELUMO,EHUMO
+write(u6,*) 'ELOMO,EHOMO=',ELOMO,EHOMO
+write(u6,*) 'ELUMO,EHUMO=',ELUMO,EHUMO
 
 ! compute "Fermi energy" as the midpoint between HOMO and LUMO.
-EFermi = 0.5d0*(EHOMO+ELUMO)
+EFermi = Half*(EHOMO+ELUMO)
 
 ! translate orbital energy origin to EFermi
 do iSym=1,nSym
@@ -146,14 +139,14 @@ EHUMO = EHUMO-EFermi
 FermiShift = .true.
 
 ! compute range of orbital energy denominator
-xmin = 2.0d0*(ELUMO-EHOMO)
-xmax = 2.0d0*(EHUMO-ELOMO)
+xmin = Two*(ELUMO-EHOMO)
+xmax = Two*(EHUMO-ELOMO)
 ! Debug: check range
 if (Debug) then
   irc = CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
   if (irc /= 0) then
     call WarningMessage(2,SecNam//': error detected in orbital energy denominator range')
-    write(6,'(A,I6)') 'irc=',irc
+    write(u6,'(A,I6)') 'irc=',irc
     call Abend()
   end if
 end if
@@ -168,7 +161,7 @@ call mma_allocate(W,l_w,Label='W')
 call mma_allocate(T,l_w,Label='T')
 call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,l_w,W,T,irc)
 if (irc /= 0) then
-  write(6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
+  write(u6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
   irc = 1
   Go To 1 ! exit after cleanup actions
 end if
@@ -180,14 +173,14 @@ end if
 if (Sorted) then
   call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
   if (irc /= 0) then
-    write(6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
+    write(u6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
     Go To 1 ! exit
   end if
 else
   if (nBatch == 1) then
     call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
     if (irc /= 0) then
-      write(6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
+      write(u6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
       Go To 1 ! exit after cleanup
     end if
   else

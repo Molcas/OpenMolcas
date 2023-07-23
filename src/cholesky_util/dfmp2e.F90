@@ -17,18 +17,25 @@ subroutine DfMP2E(NVar,NOcc,NCore,E,EMin,EMax)
 ! Function : Define MP2 energy
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-parameter(TWO=2.0D+00)
-real*8 E(NVar)
-integer IDX(NVar)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: NVar, NOcc, NCore
+real(kind=wp) :: E(NVar), EMin, EMax
+integer(kind=iwp) :: I
+integer(kind=iwp), allocatable :: IDX(:)
+
+call mma_allocate(IDX,NVar,Label='IDX')
 do I=1,NVar
   IDX(I) = I
 end do
 !call OrdV(E,IDX,NVar)
 
-EMin = TWO*(E(IDX(NCore+NOcc+1))-E(IDX(NCore+NOcc)))
-EMax = TWO*(E(IDX(NVar))-E(IDX(NCore+1)))
+EMin = Two*(E(IDX(NCore+NOcc+1))-E(IDX(NCore+NOcc)))
+EMax = Two*(E(IDX(NVar))-E(IDX(NCore+1)))
+call mma_deallocate(IDX)
 
 return
 

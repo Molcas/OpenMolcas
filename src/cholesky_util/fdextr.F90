@@ -17,14 +17,23 @@ subroutine FdExtr(K_Lap,T,Coeff,R,Theta,DD,StpBA)
 ! Function : Find extrema in each interval
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: iwp, wp
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00,ONE=1.0D+00,PT5=5.0D-01,MxIter=10000,Thrs=1.0D-09,TWO=2.0D+00)
-real*8 Coeff(40), T(40), DD(82)
-logical Dbg, StpBA
-IDim = 2*K_Lap
-IDimEnd = IDim+1
+implicit none
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: T(40), Coeff(40), R, Theta, DD(82)
+logical(kind=iwp) :: StpBA
+integer(kind=iwp) :: I, IDimEnd, IDr, IDrEnd, Iter, IX, J
+real(kind=wp) :: DFX, DifX, DrDif, DrInv, Dum, FF, FFF, FMax, FNew, FX, X, X1, X2, XErr1, XErr2, XErr3, XM1, XM2, XM3, XMx, XNew, &
+                 XXMax
+logical(kind=iwp) :: Dbg
+integer(kind=iwp), parameter :: MxIter = 10000
+real(kind=wp), parameter :: Thrs = 1.0e-9_wp
+real(kind=wp), external :: GetDr1, GetDr2, QuadErr
+
+IDimEnd = 2*K_Lap+1
 Dbg = .false.
 StpBA = .false.
 do I=1,IDimEnd
@@ -32,7 +41,7 @@ do I=1,IDimEnd
   ! ===== End points =====
 
   if (I == 1) then
-    XXMax = ONE
+    XXMax = One
     goto 888
   else if (I == IDimEnd) then
     XXMax = R
@@ -43,11 +52,11 @@ do I=1,IDimEnd
 
   X1 = T(I-1)
   X2 = T(I)
-  X = (X1+X2)*PT5
+  X = (X1+X2)*Half
 
   ! ===== Solve Equations =====
 
-  Theta = ONE
+  Theta = One
   do Iter=1,MxIter
     FX = GetDr1(K_Lap,X,Coeff)
     DFX = GetDr2(K_Lap,X,Coeff)
@@ -57,10 +66,10 @@ do I=1,IDimEnd
     if (Dbg) write(IW,*) Iter,XNew,Difx
     if (DifX < Thrs) goto 777
     FNew = GetDr1(K_Lap,XNew,Coeff)
-    FFF = (ONE-Theta*PT5)*FX
+    FFF = (One-Theta*Half)*FX
     if (abs(FNew) >= abs(FFF)) then
       if (Dbg) write(IW,*) FNew,FFF
-      Theta = Theta*PT5
+      Theta = Theta*Half
       goto 100
     end if
     X = XNew
@@ -71,15 +80,15 @@ do I=1,IDimEnd
   !StpBA = .true.
   !return
 
-  FMax = ZERO
-  XXMax = ZERO
+  FMax = Zero
+  XXMax = Zero
 
   IX = -1
-  XErr2 = 9.99D+02
+  XErr2 = 9.99e2_wp
   XErr3 = XErr2
   IDr = 1000
   IDrEnd = IDr+1
-  DrInv = ONE/dble(IDr)
+  DrInv = One/real(IDr,kind=wp)
   DrDif = (X2-X1)*DrInv
 
   do J=1,IDrEnd
@@ -108,7 +117,7 @@ do I=1,IDimEnd
   Dum = X1+IX*DrDif
   XM3 = QuadErr(K_Lap,Dum,Coeff)
 
-  XErr1 = (XM3-XM1)/(TWO*(XM3-TWO*XM2+XM1))
+  XErr1 = (XM3-XM1)/(Two*(XM3-Two*XM2+XM1))
   XErr2 = XErr1*DrInv-XXMax
   XMx = max(abs(XM1),abs(XM3))
   if (abs(XM2) <= XMx) goto 888

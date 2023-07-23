@@ -14,12 +14,13 @@ subroutine Cho_P_OpenR(iOpt)
 ! Purpose: open (iOpt=1) or close (iOpt=2) files for storing global
 !          reduced set indices.
 
+use Definitions, only: iwp
+
 implicit none
-integer iOpt
+integer(kind=iwp) :: iOpt
 #include "choglob.fh"
-character*11 SecNam
-parameter(SecNam='Cho_P_OpenR')
-character*5 FNRed
+character(len=5) :: FNRed
+character(len=*), parameter :: SecNam = 'Cho_P_OpenR'
 
 if (iOpt == 1) then
   LuRed_G = 7

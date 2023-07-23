@@ -13,12 +13,16 @@ subroutine CHO_ANASIZE(VEC,LVEC,BIN,LBIN,LUPRI)
 !
 ! Purpose: analyse vector (histogram).
 
-implicit real*8(a-h,o-z)
-real*8 VEC(LVEC), BIN(LBIN)
-parameter(ZERO=0.0d0)
-parameter(MBIN=20)
-integer ICOUNT(MBIN)
-logical FOUND
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LVEC, LBIN, LUPRI
+real(kind=wp) :: VEC(LVEC), BIN(LBIN)
+integer(kind=iwp), parameter :: MBIN = 20
+integer(kind=iwp) :: I, IBIN, ICOUNT(MBIN), IJOB, JCOUNT, NBIN, NLOW, NNEG, NZER
+real(kind=wp) :: TEST, TOPCT, XNEG
+logical(kind=iwp) :: FOUND
 
 ! Return if nothing to do.
 ! ------------------------
@@ -34,7 +38,7 @@ call CHO_ORDER(BIN,LBIN,IJOB)
 ! Test that BIN is positive.
 ! --------------------------
 
-if (BIN(1) <= ZERO) return
+if (BIN(1) <= Zero) return
 
 ! Analysis.
 ! ---------
@@ -44,16 +48,16 @@ call IZERO(ICOUNT,NBIN)
 NLOW = 0
 NZER = 0
 NNEG = 0
-XNEG = ZERO
+XNEG = Zero
 
 do I=1,LVEC
 
   TEST = VEC(I)
 
-  if (TEST < ZERO) then
+  if (TEST < Zero) then
     NNEG = NNEG+1
     XNEG = min(XNEG,TEST)
-  else if (TEST == ZERO) then
+  else if (TEST == Zero) then
     NZER = NZER+1
   end if
 
@@ -73,23 +77,23 @@ end do
 ! Print.
 ! ------
 
-TOPCT = 1.0d2/dble(LVEC)
+TOPCT = 1.0e2_wp/real(LVEC,kind=wp)
 
 JCOUNT = ICOUNT(1)
-write(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Larger than ',BIN(1),':',ICOUNT(1),dble(ICOUNT(1))*TOPCT,'%', &
-                                                              'Accumulated: ',dble(JCOUNT)*TOPCT,'%'
+write(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Larger than ',BIN(1),':',ICOUNT(1),real(ICOUNT(1),kind=wp)*TOPCT, &
+                                                              '%','Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
 do IBIN=2,NBIN
   JCOUNT = JCOUNT+ICOUNT(IBIN)
   write(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN), &
-                                                                  dble(ICOUNT(IBIN))*TOPCT,'%','Accumulated: ', &
-                                                                  dble(JCOUNT)*TOPCT,'%'
+                                                                  real(ICOUNT(IBIN),kind=wp)*TOPCT,'%','Accumulated: ', &
+                                                                  real(JCOUNT,kind=wp)*TOPCT,'%'
 end do
 JCOUNT = JCOUNT+NLOW
-write(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Smaller than ',BIN(NBIN),':',NLOW,dble(NLOW)*TOPCT,'%', &
-                                                            'Accumulated: ',dble(JCOUNT)*TOPCT,'%'
+write(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Smaller than ',BIN(NBIN),':',NLOW,real(NLOW,kind=wp)*TOPCT,'%', &
+                                                            'Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
 
-write(LUPRI,'(/,1X,A,I12,1X,F7.2,A)') 'Number of elements exactly 0.0D0 :',NZER,dble(NZER)*TOPCT,'%'
-write(LUPRI,'(1X,A,I12,1X,F7.2,A)') 'Number of negative elements      :',NNEG,dble(NNEG)*TOPCT,'%'
+write(LUPRI,'(/,1X,A,I12,1X,F7.2,A)') 'Number of elements exactly 0.0   :',NZER,real(NZER,kind=wp)*TOPCT,'%'
+write(LUPRI,'(1X,A,I12,1X,F7.2,A)') 'Number of negative elements      :',NNEG,real(NNEG,kind=wp)*TOPCT,'%'
 if (NNEG > 0) write(LUPRI,'(1X,A,D12.4)') ' - numerically largest           :',XNEG
 
 end subroutine CHO_ANASIZE

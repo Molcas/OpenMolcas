@@ -13,16 +13,19 @@
 
 subroutine CD_Tester_Diff(X,n,Err)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 X(n*n), Err(3)
-integer i
-real*8 xn2
+integer(kind=iwp) :: n
+real(kind=wp) :: X(n*n), Err(3)
+integer(kind=iwp) :: i
+real(kind=wp) :: xn2
+real(kind=wp), parameter :: dum = 9.876543210e15_wp
 
 if (n < 1) then
-  Err(1) = 9.876543210d15
-  Err(2) = -9.876543210d15
-  Err(3) = 9.876543210d15
+  Err(1) = dum
+  Err(2) = -dum
+  Err(3) = dum
 else
   Err(1) = x(1)
   Err(2) = x(1)
@@ -32,7 +35,7 @@ else
     Err(2) = max(Err(2),x(i))
     Err(3) = Err(3)+x(i)*x(i)
   end do
-  xn2 = dble(n)*dble(n)
+  xn2 = real(n,kind=wp)*real(n,kind=wp)
   Err(3) = Err(3)/xn2
 end if
 

@@ -11,10 +11,12 @@
 
 subroutine Cho_P_getGV_S(numV,mSym)
 
+use Definitions, only: iwp
+
 implicit none
-integer mSym, numV(mSym)
+integer(kind=iwp) :: mSym, numV(mSym)
 #include "cholesky.fh"
-integer i
+integer(kind=iwp) :: i
 
 do i=1,mSym
   numV(i) = numCho(i)

@@ -13,15 +13,11 @@ subroutine Cho_ReoQual(iQuAB,MxQ,nSym,iQScr,IDK,nK,nQ)
 !
 ! Purpose: reorder iQuAB array to IDK ordering.
 
+use Definitions, only: iwp
+
 implicit none
-integer MxQ, nSym
-integer iQuAB(MxQ,nSym)
-integer iQScr(MxQ)
-integer IDK(*)
-integer nK(nSym)
-integer nQ(nSym)
-integer iSym, kID
-integer iK, lK
+integer(kind=iwp) :: MxQ, nSym, iQuAB(MxQ,nSym), iQScr(MxQ), IDK(*), nK(nSym), nQ(nSym)
+integer(kind=iwp) :: iK, iSym, kID, lK
 
 kID = 0
 do iSym=1,nSym

@@ -13,9 +13,11 @@ subroutine CHO_CLOSE(LUNIT,STAT)
 !
 ! Purpose: close sequential unformatted fortran file.
 
+use Definitions, only: iwp
+
 implicit none
-integer LUNIT
-character*(*) STAT
+integer(kind=iwp) :: LUNIT
+character(len=*) :: STAT
 
 if ((LUNIT < 1) .or. (LUNIT > 99)) then
   call CHO_QUIT('CHO_CLOSE: unit out of bounds!',104)

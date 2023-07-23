@@ -19,18 +19,20 @@ subroutine CHO_MCA_CALCINT_2(ISHLAB)
 
 use ChoArr, only: iSP2F, MySP
 use ChoSwp, only: nnBstRSh
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ISHLAB
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=17), parameter :: SECNAM = 'CHO_MCA_CALCINT_2'
-logical DOINTS
-logical, parameter :: LOCDBG = .false.
-integer, parameter :: INFINT = INF_INT, INFIN2 = INF_IN2
-integer NAB(8)
-real*8, allocatable :: IntCol(:)
+integer(kind=iwp) :: IADR, ILOC, IOPT, IRC, ISCD, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, KOFF, LCOL, LINT, LTOT, NAB(8)
+real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
+logical(kind=iwp) :: DOINTS
+real(kind=wp), allocatable :: IntCol(:)
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_2'
 
 #ifdef _DEBUGPRINT_
 call mma_maxDBLE(MEM_START)
@@ -53,10 +55,10 @@ do ISYM=2,NSYM
   LCOL = LCOL+NNBSTR(ISYM,2)*NAB(ISYM)
 end do
 
-XXSHL = dble(NNSHL)
+XXSHL = real(NNSHL,kind=wp)
 XSKIP = Zero
 
-if (IPRINT >= INFINT) write(LUPRI,*)
+if (IPRINT >= INF_INT) write(LUPRI,*)
 
 ! Allocate memory and initialize:
 ! qualified columns in reduced set,
@@ -110,8 +112,8 @@ do ISHLCD=1,NNSHL
     ! Print message.
     ! --------------
 
-    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'Invoking Seward for shell quadruple (',ISHLC,ISHLD,'|',ISHLA, &
-                                                                   ISHLB,')'
+    if (IPRINT >= INF_INT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'Invoking Seward for shell quadruple (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                    ISHLB,')'
 
     ! Set mapping from shell pair CD to reduced set.
     ! ----------------------------------------------
@@ -143,8 +145,8 @@ do ISHLCD=1,NNSHL
     ! Print message.
     ! --------------
 
-    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,'|',ISHLA, &
-                                                                   ISHLB,')'
+    if (IPRINT >= INF_INT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                    ISHLB,')'
 
   end if
 
@@ -176,8 +178,8 @@ call mma_deallocate(IntCol)
 ! Print skip statistics.
 ! ----------------------
 
-if (IPRINT >= INFIN2) then
-  PCT = 1.0d2*XSKIP/XXSHL
+if (IPRINT >= INF_IN2) then
+  PCT = 1.0e2_wp*XSKIP/XXSHL
   write(LUPRI,'(A,F7.2,A)') 'Skipped',PCT,'% of rows (shell pairs) in this distribution'
 end if
 

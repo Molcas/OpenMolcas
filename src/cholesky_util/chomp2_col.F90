@@ -18,15 +18,14 @@ subroutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 ! Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 
 use ChoMP2_dec, only: EOcc, EVir, iOption_MP2CD, NowSym
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nDim, nCol, l_Buf
-real*8 Col(nDim,nCol), Buf(l_Buf)
-integer iCol(nCol)
+integer(kind=iwp) :: nDim, nCol, iCol(nCol), l_Buf
+real(kind=wp) :: Col(nDim,nCol), Buf(l_Buf)
 #include "chomp2.fh"
-character(len=3), parameter :: ThisNm = 'Col'
-character(len=10), parameter :: SecNam = 'ChoMP2_Col'
-integer iSym
+integer(kind=iwp) :: iSym
+character(len=*), parameter :: SecNam = 'ChoMP2_Col'
 
 ! Check input.
 ! ------------
@@ -34,8 +33,8 @@ integer iSym
 if ((nCol < 1) .or. (nDim < 1)) return
 iSym = NowSym
 if (nDim /= nT1am(iSym)) then
-  write(6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
-  write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
+  write(u6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
+  write(u6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
   call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
 end if
 

@@ -18,16 +18,19 @@ subroutine ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
 ! Purpose: Construct diagonal for decomposition of amplitude
 !          vectors.
 
-use ChoMP2g
+use ChoMP2g, only: iMoMo, nMoMo
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc
-real*8 Diag(*), EOcc(*), EVir(*)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: Diag(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
-character(len=7), parameter :: ThisNm = 'AmpDiag'
-character(len=15), parameter :: SecNam = 'ChoMP2g_AmpDiag'
+integer(kind=iwp) :: iA, iAI, iI, iSym, iSymA, iSymI, iVecType, kD0, kD1, kD2
+real(kind=wp) :: DE, Ei
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 irc = 0
@@ -50,7 +53,7 @@ do iSym=1,nSym
       Ei = EOcc(iOcc(iSymI)+iI)
       do iA=1,nVir(iSymA)
         iAI = kD2+iA
-        DE = 2.0d0*(EVir(iVir(iSymA)+iA)-Ei)
+        DE = Two*(EVir(iVir(iSymA)+iA)-Ei)
         Diag(iAI) = Diag(iAI)/DE
       end do
     end do

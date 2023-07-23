@@ -20,25 +20,26 @@ subroutine CHO_SUBTR1(XINT,WRK,LWRK,ISYM,FXDMEM)
 ! Screening in subtraction introduced Jan. 2006, TBP.
 
 use ChoArr, only: iScr, LQ
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
+use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
+use ChoSwp, only: iiBstRSh, InfVec, iQuAB, nnBstRSh
 use ChoVecBuf, only: nVec_in_Buf
-use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 XINT(*), WRK(LWRK)
-logical FXDMEM
+implicit none
+integer(kind=iwp) :: LWRK, ISYM
+real(kind=wp) :: XINT(*), WRK(LWRK)
+logical(kind=iwp) :: FXDMEM
 #include "cholesky.fh"
 #include "choprint.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_SUBTR1')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer IOFF(0:1), IVSTAT(2,2)
-real*8 TIMLOC(2,3)
-parameter(INFO=INF_SUBTR1)
-parameter(XMONE=-1.0d0,ZERO=0.0d0,ONE=1.0d0)
-integer CHO_X_NUMRD
-external CHO_X_NUMRD
+integer(kind=iwp) :: I, IAB, IBATCH, ILOC, IMAPC, IOFF(0:1), IREDC, ISHGD, IVEC1, IVEC1_1, IVSTAT(2,2), J, JAB, JRED, JRED1, &
+                     JRED2, JVEC1, JVEC2, KCHO1, KCHO2, KEND0, KEND1, KEND2, KJUNK, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, &
+                     KREAD, KVEC, KVEC1, LEFT, LNUM, LREAD, LRED, LVEC, LVEC1, LWRK0, LWRK1, LWRK2, MINLFT, MMEM, MUSED, MUST, &
+                     NBATCH, NGD, NUMBAT, NUMRD, NUMSMN, NUMSUB, NUMV, NVEC, NVEC_TO_READ, NVRD
+real(kind=wp) :: C1, C2, SCRPCT, TIMLOC(2,3), TST, W1, W2, X1, X2, XAVERD, XAVEVC, XDON, XM, XREAD, XTOT
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_SUBTR1'
+integer(kind=iwp), external :: CHO_X_NUMRD
 
 ! Return if nothing to do.
 ! ------------------------
@@ -71,7 +72,7 @@ if (LWRK0 < MUST) then
   call CHO_QUIT('Insufficient memory in '//SECNAM//' [0]',101)
 end if
 
-WRK(KJUNK) = ZERO
+WRK(KJUNK) = Zero
 IOFF(0) = KJUNK
 
 ! Split memory for subtraction of previous vectors:
@@ -91,9 +92,9 @@ IOFF(0) = KJUNK
 KREAD = KEND0 ! pointer to read buffer
 IREDC = -1    ! id of red. set index array at location 3
 
-X1 = dble(N1_VECRD)
-X2 = dble(N2_VECRD)
-XM = dble(LWRK0)
+X1 = real(N1_VECRD,kind=wp)
+X2 = real(N2_VECRD,kind=wp)
+XM = real(LWRK0,kind=wp)
 XREAD = XM*X1/X2  ! initial guess for buffer size (from input)
 LREAD = int(XREAD)
 LEFT = LWRK0-LREAD
@@ -129,8 +130,8 @@ end if
 
 NUMRD = 0
 NUMBAT = 0
-XTOT = 0.0d0
-XDON = 0.0d0
+XTOT = Zero
+XDON = Zero
 call IZERO(IVSTAT,4)
 call FZERO(TIMLOC,6)
 
@@ -316,15 +317,15 @@ do while (IVEC1 <= NUMCHO(ISYM))
         do ISHGD=1,NNSHL
           NGD = NNBSTRSH(ISYM,ISHGD,2)
           if (NGD > 0) then
-            XTOT = XTOT+1.0d0
+            XTOT = XTOT+One
             JAB = IQUAB(IAB,ISYM)-IIBSTR(ISYM,2)
             TST = sqrt(DSPNM(ISHGD)*DSUBSCR(JAB))
             if (TST > SSTAU) then
-              XDON = XDON+1.0d0
+              XDON = XDON+One
               KOFF1 = KCHO1+IIBSTRSH(ISYM,ISHGD,2)
               KOFF2 = KCHO2+NUMV*(IAB-1)
               KOFF3 = NNBSTR(ISYM,2)*(IAB-1)+IIBSTRSH(ISYM,ISHGD,2)+1
-              call DGEMV_('N',NGD,NUMV,XMONE,WRK(KOFF1),NNBSTR(ISYM,2),WRK(KOFF2),1,ONE,XINT(KOFF3),1)
+              call DGEMV_('N',NGD,NUMV,-One,WRK(KOFF1),NNBSTR(ISYM,2),WRK(KOFF2),1,One,XINT(KOFF3),1)
             end if
           end if
         end do
@@ -338,8 +339,8 @@ do while (IVEC1 <= NUMCHO(ISYM))
         ! core, use this block.
         ! -------------------------------------------------
 
-        call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,XMONE,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%Array(:,IVEC1_1), &
-                    size(LQ(ISYM)%Array,1),ONE,XINT,NNBSTR(ISYM,2))
+        call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%Array(:,IVEC1_1), &
+                    size(LQ(ISYM)%Array,1),One,XINT,NNBSTR(ISYM,2))
 
       else
 
@@ -360,7 +361,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
         ! (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
         ! ----------------------------------------------------
 
-        call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,XMONE,WRK(KCHO1),NNBSTR(ISYM,2),WRK(KCHO2),NQUAL(ISYM),ONE,XINT, &
+        call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),WRK(KCHO2),NQUAL(ISYM),One,XINT, &
                     NNBSTR(ISYM,2))
 
       end if
@@ -397,16 +398,16 @@ end if
 ! Print statistics.
 ! -----------------
 
-if (LOCDBG .or. (IPRINT >= INFO)) then
+if (LOCDBG .or. (IPRINT >= INF_SUBTR1)) then
   if (NUMRD == 0) then
-    XAVERD = -9.99999d5
+    XAVERD = -9.99999e5_wp
   else
-    XAVERD = dble(NUMCHO(ISYM))/dble(NUMRD)
+    XAVERD = real(NUMCHO(ISYM),kind=wp)/real(NUMRD,kind=wp)
   end if
   if (NUMBAT == 0) then
-    XAVEVC = -9.99999d5
+    XAVEVC = -9.99999e5_wp
   else
-    XAVEVC = dble(NUMCHO(ISYM))/dble(NUMBAT)
+    XAVEVC = real(NUMCHO(ISYM),kind=wp)/real(NUMBAT,kind=wp)
   end if
   write(LUPRI,'(A)') '*****'
   write(LUPRI,'(A,A,I2,A)') SECNAM,' statistics, symmetry',ISYM,':'
@@ -418,10 +419,10 @@ if (LOCDBG .or. (IPRINT >= INFO)) then
   if (CHO_SSCREEN) then
     write(LUPRI,'(A,F12.2)') 'Number of calls to DGEMV                             : ',XDON
     write(LUPRI,'(A,1P,D12.2)') 'Screening threshold                                  : ',SSTAU
-    if (XTOT > 0.0d0) then
-      SCRPCT = 1.0d2*(XTOT-XDON)/XTOT
+    if (XTOT > Zero) then
+      SCRPCT = 1.0e2_wp*(XTOT-XDON)/XTOT
     else
-      SCRPCT = 1.0d15
+      SCRPCT = 1.0e15_wp
     end if
     write(LUPRI,'(A,F12.2,A)') 'Screening percent                                    : ',SCRPCT,'%'
   else

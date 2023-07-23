@@ -21,15 +21,15 @@ subroutine ChoMP2_OpenB(iOpt,iSym,iBatch)
 !          For iOpt=0, the units are initialized (to -1).
 
 use ChoMP2, only: LnT1am, lUnit
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: iOpt, iSym, iBatch
 #include "cholesky.fh"
 #include "chomp2.fh"
-character*12 SecNam
-parameter(SecNam='ChoMP2_OpenB')
-character*2 BaseNm
-parameter(BaseNm='_I')
-character*6 BtchNm
+integer(kind=iwp) :: lU
+character(len=6) :: BtchNm
+character(len=*), parameter :: BaseNm = '_I', SecNam = 'ChoMP2_OpenB'
 
 ! Initialize units and return for iOpt=0.
 ! ---------------------------------------

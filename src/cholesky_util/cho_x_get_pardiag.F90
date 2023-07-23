@@ -32,16 +32,19 @@ subroutine CHO_X_GET_PARDIAG(jSym,iSO_ab)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use ChoArr, only: iRS2F
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer iSO_ab(2,*)
+implicit none
+integer(kind=iwp) :: jSym, iSO_ab(2,*)
 #include "cholesky.fh"
+integer(kind=iwp) :: iOff, jRab, jv, kRab
 #ifdef _MOLCAS_MPP_
-integer, allocatable :: ip_List(:), ip_Aux(:,:)
+integer(kind=iwp) :: iRank, kv, nTot
+integer(kind=iwp), allocatable :: ip_List(:), ip_Aux(:,:)
 #endif
 
 iOff = 0

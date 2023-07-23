@@ -9,13 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_ISUMELM(IVEC,N)
+function CHO_ISUMELM(IVEC,N)
 !
 ! Purpose: sum elements of integer vector.
 
+use Definitions, only: iwp
+
 implicit none
-integer IVEC(*)
-integer I, N, ISUM
+integer(kind=iwp) :: CHO_ISUMELM
+integer(kind=iwp) :: IVEC(*), N
+integer(Kind=iwp) :: I, ISUM
 
 if (N > 0) then
   ISUM = IVEC(1)

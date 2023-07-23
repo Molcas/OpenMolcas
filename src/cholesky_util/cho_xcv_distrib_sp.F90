@@ -20,18 +20,16 @@ subroutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
 
 use Para_Info, only: MyRank, nProcs
 use ChoSwp, only: nnBstRSh
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer l_mySP
-integer mySP(l_mySP)
-integer N_mySP
+integer(kind=iwp) :: l_mySP, mySP(l_mySP), N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-integer Cho_iFindSmallest
-external Cho_iFindSmallest
-integer iSP, iNode, n, iSym
-integer, allocatable :: ProcDim(:)
+integer(kind=iwp) :: iNode, iSP, iSym, n
+integer(kind=iwp), allocatable :: ProcDim(:)
+integer(kind=iwp), external :: Cho_iFindSmallest
 
 #ifdef _DEBUGPRINT_
 if (l_mySP < nnShl) call Cho_Quit('Dimension error in Cho_XCV_Distrib_SP',103)

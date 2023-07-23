@@ -47,25 +47,30 @@ subroutine CHO_OUTPUT(AMATRX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,COLDIM,NCTL,LUPRI)
 !
 !.......................................................................
 
-implicit real*8(a-h,o-z)
-integer ROWLOW, ROWHI, COLLOW, COLHI, ROWDIM, COLDIM, BEGIN, KCOL
-real*8 AMATRX(ROWDIM,COLDIM)
-character*1 ASA(3), BLANK, CTL
-character PFMT*20, COLUMN*8
-parameter(ZERO=0.d00,KCOLP=4,KCOLN=6)
-parameter(FFMIN=1.D-3,FFMAX=1.d3)
-data COLUMN/'Column  '/,BLANK/' '/,ASA/' ','0','-'/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ROWLOW, ROWHI, COLLOW, COLHI, ROWDIM, COLDIM, NCTL, LUPRI
+real(kind=wp) :: AMATRX(ROWDIM,COLDIM)
+integer(kind=iwp) :: BEGIN, I, J, K, KCOL, LAST, MCTL
+real(kind=wp) :: AMAX
+character(len=20) :: PFMT
+character :: CTL
+integer(kind=iwp), parameter :: KCOLN = 6, KCOLP = 4
+real(kind=wp), parameter :: FFMAX = 1.0e3_wp, FFMIN = 1.0e-3_wp
+character(len=*), parameter :: ASA(3) = [' ','0','-'], BLNK = ' ', COLUMN = 'Column  '
 
 if (ROWHI < ROWLOW) GO TO 3
 if (COLHI < COLLOW) GO TO 3
 
-AMAX = ZERO
+AMAX = Zero
 do J=COLLOW,COLHI
   do I=ROWLOW,ROWHI
     AMAX = max(AMAX,abs(AMATRX(I,J)))
   end do
 end do
-if (AMAX == ZERO) then
+if (AMAX == Zero) then
   write(LUPRI,'(/T6,A)') 'Zero matrix.'
   GO TO 3
 end if
@@ -86,7 +91,7 @@ MCTL = abs(NCTL)
 if ((MCTL <= 3) .and. (MCTL > 0)) then
   CTL = ASA(MCTL)
 else
-  CTL = BLANK
+  CTL = BLNK
 end if
 
 LAST = min(COLHI,COLLOW+KCOL-1)
@@ -94,7 +99,7 @@ do BEGIN=COLLOW,COLHI,KCOL
   write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
   do K=ROWLOW,ROWHI
     do I=BEGIN,LAST
-      if (AMATRX(K,I) /= ZERO) GO TO 5
+      if (AMATRX(K,I) /= Zero) GO TO 5
     end do
     GO TO 1
 5   write(LUPRI,PFMT) CTL,K,(AMATRX(K,I),I=BEGIN,LAST)

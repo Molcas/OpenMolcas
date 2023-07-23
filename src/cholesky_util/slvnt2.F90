@@ -25,16 +25,23 @@ subroutine SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
 !     VVMax  : Maximum mean of VV array
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-parameter(TOL=1.0D-22,ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00,PT5=0.5D+00,TLim=2.0D-05)
-logical Error, NG, Dbg, StopBA
-real*8 Coeff(40), CofOld(40), T(40), TOld(40), VV(40), W(40), DD(82), A(40,40)
+implicit none
+integer(kind=iwp) :: K_Lap
+logical(kind=iwp) :: StopBA
+real(kind=wp) :: R, Coeff(40), T(40), Theta2, VVMax
+integer(kind=iwp) :: I, IDim, J, New2
+real(kind=wp) :: A(40,40), CofOld(40), DD(82), Eprel, EprINv, Eps, Eps0, Eps1, TCpy, Temp, Theta, Theta2Mx, TOld(40), VV(40), W(40)
+logical(kind=iwp) :: Error, NG, Dbg
+real(kind=wp), parameter :: TLim = 2.0e-5_wp, TOL = 1.0e-22_wp
+real(kind=wp), external :: FindMx
 
 IDim = 2*K_Lap
 New2 = 10
-Theta2Mx = ONE
+Theta2Mx = One
 NG = .false.
 Dbg = .false.
 if (Dbg) write(IW,*) 'theta2',Theta2
@@ -51,12 +58,12 @@ Eps0 = FindMx(IDim,VV)
 Eps1 = Eps0
 
 if (Eps0 > TOL) then
-  Eps = 1.0D-03
+  Eps = 1.0e-3_wp
   do J=1,IDim
     Eprel = T(J)*Eps
-    EprInv = ONE/Eprel
+    EprInv = One/Eprel
     TCpy = T(J)
-    T(J) = T(J)*(ONE+Eps)
+    T(J) = T(J)*(One+Eps)
     call SlvNt1(K_Lap,New2,Coeff,T)
     call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
     if (StopBA) return
@@ -93,7 +100,7 @@ if (Eps0 > TOL) then
   Eps1 = FindMx(IDim,VV)
   if (Dbg) write(IW,*) 'eps1',Eps1
   if (Eps1 < Eps0) then
-    Theta2 = TWO*Theta2
+    Theta2 = Two*Theta2
     if (Theta2 > Theta2Mx) Theta2 = Theta2Mx
   end if
   goto 999
@@ -102,7 +109,7 @@ if (Eps0 > TOL) then
   if (Theta2 < TLim) then
     write(IW,'(A)') ' Theta2 becomes too small.'
   else
-    Theta2 = Theta2*PT5
+    Theta2 = Theta2*Half
     goto 222
   end if
 

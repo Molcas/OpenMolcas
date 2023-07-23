@@ -39,23 +39,22 @@
 
 subroutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,ip_MaxAbs,ip_Variance,ip_VarianceU)
 
+use Constants, only: One
+use Definitions, only: iwp, wp
+
 implicit none
-integer n
-real*8 X(n), Stat(*)
-integer ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs
-integer ip_Variance, ip_VarianceU
-integer i
-real*8 xn, xn1
-real*8 xMean, xMeanAbs, xMin, xMax
-real*8 xVariance
+integer(kind=iwp) :: n, ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs, ip_Variance, ip_VarianceU
+real(kind=wp) :: X(n), Stat(*)
+integer(kind=iwp) :: i
+real(kind=wp) :: xMax, xMean, xMeanAbs, xMin, xn, xn1, xVariance
 
 if (n < 1) return
 
-xn = 1.0d0/dble(n)
+xn = One/real(n,kind=wp)
 if (n == 1) then
-  xn1 = 9.99d15
+  xn1 = 9.99e15_wp
 else
-  xn1 = 1.0d0/dble(n-1)
+  xn1 = One/real(n-1,kind=wp)
 end if
 
 xMean = X(1)

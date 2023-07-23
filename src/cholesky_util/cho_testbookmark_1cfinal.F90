@@ -12,7 +12,7 @@
 subroutine Cho_TestBookmark_1CFinal()
 
 use ChoArr, only: iAtomShl
-use stdalloc
+use stdalloc, only: mma_deallocate
 
 implicit none
 

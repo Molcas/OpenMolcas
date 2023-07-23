@@ -19,28 +19,27 @@ subroutine Cho_PTS_WrRst(irc,NVT,l_NVT)
 
 use ChoSwp, only: InfRed, InfVec
 #ifdef _DEBUGPRINT_
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer irc
-integer l_NVT
-integer NVT(l_NVT)
+integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT)
 #include "cholesky.fh"
+integer(kind=iwp) :: iAdr, iSym, iV
+integer(kind=iwp), pointer :: InfVcT(:,:,:)
 #ifdef _DEBUGPRINT_
-character(len=13), parameter :: SecNam = 'Cho_PTS_WrRst'
-integer, allocatable :: IDV(:)
-integer myNumCho(8)
+integer(kind=iwp) :: myNumCho(8)
+integer(kind=iwp), allocatable :: IDV(:)
+character(len=*), parameter :: SecNam = 'Cho_PTS_WrRst'
 #endif
-integer iSym
-integer, pointer :: InfVcT(:,:,:)
-integer iV, iAdr
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
-    integer, pointer :: InfVct(:,:,:)
+    import :: iwp
+    integer(kind=iwp), pointer :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 

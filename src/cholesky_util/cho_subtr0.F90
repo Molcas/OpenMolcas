@@ -19,21 +19,22 @@ subroutine CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
 !
 ! Screening in subtraction introduced Jan. 2006, TBP.
 
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 use ChoArr, only: LQ
+use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
+use ChoSwp, only: iiBstRSh, iQuAB, nnBstRSh
 use ChoVecBuf, only: nVec_in_Buf
-use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 XINT(*), WRK(LWRK)
+implicit none
+integer(kind=iwp) :: LWRK, ISYM
+real(kind=wp) :: XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_SUBTR0')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer CHO_LREAD
-external CHO_LREAD
-parameter(XMONE=-1.0d0,ONE=1.0d0)
+integer(kind=iwp) :: IAB, IBATCH, ISHGD, IVEC1, J, JAB, KCHO1, KCHO2, KEND2, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, LREAD, &
+                     LWRK1, LWRK2, MMEM, NBATCH, NGD, NUMV, NVEC, NVEC_TO_READ
+real(kind=wp) :: C1, C2, TST, W1, W2, XDON, XTOT
+character(len=*), parameter :: SECNAM = 'CHO_SUBTR0'
+integer(kind=iwp), external :: CHO_LREAD
 
 ! Return if nothing to do.
 ! ------------------------
@@ -47,8 +48,8 @@ if (NVEC_TO_READ < 0) call CHO_QUIT('Vector buffer error in '//SECNAM,104)
 ! Initialize.
 ! -----------
 
-XTOT = 0.0d0
-XDON = 0.0d0
+XTOT = Zero
+XDON = Zero
 
 ! Reserve space needed for reading previous vectors.
 ! --------------------------------------------------
@@ -128,15 +129,15 @@ do IBATCH=1,NBATCH
       do ISHGD=1,NNSHL
         NGD = NNBSTRSH(ISYM,ISHGD,2)
         if (NGD > 0) then
-          XTOT = XTOT+1.0d0
+          XTOT = XTOT+One
           JAB = IQUAB(IAB,ISYM)-IIBSTR(ISYM,2)
           TST = sqrt(DSPNM(ISHGD)*DSUBSCR(JAB))
           if (TST > SSTAU) then
-            XDON = XDON+1.0d0
+            XDON = XDON+One
             KOFF1 = KCHO1+IIBSTRSH(ISYM,ISHGD,2)
             KOFF2 = KCHO2+NUMV*(IAB-1)
             KOFF3 = NNBSTR(ISYM,2)*(IAB-1)+IIBSTRSH(ISYM,ISHGD,2)+1
-            call DGEMV_('N',NGD,NUMV,XMONE,WRK(KOFF1),NNBSTR(ISYM,2),WRK(KOFF2),1,ONE,XINT(KOFF3),1)
+            call DGEMV_('N',NGD,NUMV,-One,WRK(KOFF1),NNBSTR(ISYM,2),WRK(KOFF2),1,One,XINT(KOFF3),1)
           end if
         end if
       end do
@@ -150,8 +151,8 @@ do IBATCH=1,NBATCH
       ! use this block.
       ! -------------------------------------------------------
 
-      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,XMONE,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%Array(:,IVEC1), &
-                  size(LQ(ISYM)%Array,1),ONE,XINT,NNBSTR(ISYM,2))
+      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%Array(:,IVEC1), &
+                  size(LQ(ISYM)%Array,1),One,XINT,NNBSTR(ISYM,2))
 
     else
 
@@ -171,7 +172,7 @@ do IBATCH=1,NBATCH
       ! (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
       ! ----------------------------------------------------
 
-      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,XMONE,WRK(KCHO1),NNBSTR(ISYM,2),WRK(KCHO2),NQUAL(ISYM),ONE,XINT, &
+      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),WRK(KCHO2),NQUAL(ISYM),One,XINT, &
                   NNBSTR(ISYM,2))
 
     end if

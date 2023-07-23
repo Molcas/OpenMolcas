@@ -17,12 +17,14 @@ subroutine Cho_SetShP2Q_2(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use ChoArr, only: iSP2F, nBstSh, iShP2Q
+use ChoArr, only: iShP2Q, iSP2F, nBstSh
 use ChoSwp, only: iQuAB, IndRSh, IndRed
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer nAB(*)
+implicit none
+integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
 #include "cholesky.fh"
+integer(kind=iwp) :: iAB, iQ, iShlA, iShlB, iSym, jAB, kAB, kShlAB, l_iShP2Q, lTst, NumAB
 
 ! Check allocations.
 ! ------------------

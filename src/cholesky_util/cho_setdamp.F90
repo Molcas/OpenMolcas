@@ -13,28 +13,31 @@ subroutine CHO_SETDAMP()
 !
 ! Purpose: set screening damping, unless user-defined.
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
 #include "cholesky.fh"
-integer I
+integer(kind=iwp) :: I
 
 do I=1,2
-  if (DAMP(I) < 0.0d0) then
-    if (THRCOM > 9.99D-3) then ! >= 1.0D-2
-      DAMP(I) = 1.0d7
-    else if (THRCOM > 9.99D-4) then ! >= 1.0D-3
-      DAMP(I) = 1.0d6
-    else if (THRCOM > 9.99D-5) then ! >= 1.0D-4
-      DAMP(I) = 1.0d5
-    else if (THRCOM > 9.99D-6) then ! >= 1.0D-5
-      DAMP(I) = 1.0d4
-    else if (THRCOM > 9.99D-7) then ! >= 1.0D-6
-      DAMP(I) = 1.0d3
-    else if (THRCOM > 9.99D-8) then ! >= 1.0D-7
-      DAMP(I) = 1.0d2
-    else if (THRCOM > 9.99D-9) then ! >= 1.0D-8
-      DAMP(I) = 1.0d1
+  if (DAMP(I) < Zero) then
+    if (THRCOM > 9.99e-3_wp) then ! >= 1.0e-2
+      DAMP(I) = 1.0e7_wp
+    else if (THRCOM > 9.99e-4_wp) then ! >= 1.0e-3
+      DAMP(I) = 1.0e6_wp
+    else if (THRCOM > 9.99e-5_wp) then ! >= 1.0e-4
+      DAMP(I) = 1.0e5_wp
+    else if (THRCOM > 9.99e-6_wp) then ! >= 1.0e-5
+      DAMP(I) = 1.0e4_wp
+    else if (THRCOM > 9.99e-7_wp) then ! >= 1.0e-6
+      DAMP(I) = 1.0e3_wp
+    else if (THRCOM > 9.99e-8_wp) then ! >= 1.0e-7
+      DAMP(I) = 1.0e2_wp
+    else if (THRCOM > 9.99e-9_wp) then ! >= 1.0e-8
+      DAMP(I) = 1.0e1_wp
     else
-      DAMP(I) = 1.0d0
+      DAMP(I) = One
     end if
   end if
 end do

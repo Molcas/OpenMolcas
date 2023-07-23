@@ -13,36 +13,31 @@ subroutine CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,LUPRI)
 !
 ! Purpose: get next keyword and convert it to internal IDKEY.
 
-implicit real*8(a-h,o-z)
-character*(*) OPTION(NOPTION)  ! <-- character*(loption)
-character*14 SECNAM
-parameter(SECNAM='CHO_MCA_GETKEY')
-parameter(LBLINE=180,LKWORD=180)
-character*(LBLINE) BLINE
-character*(LKWORD) KWORD, KEY
-character*(LKWORD) GET_LN
-external GET_LN
-character*1 COMMENT
-parameter(COMMENT='*')
-integer CHO_TABIND
-external CHO_TABIND
-logical USE_OBS, USE_ALI
-parameter(NTABLE=58,LKEY=4,NEOINP=1)
-character*(LKEY) TABLE(NTABLE)
-character*(LKEY) EOINP(NEOINP)
-parameter(NOBSOL=1,NALIAS=12)
-character*(LKEY) OBSOL(NOBSOL)
-character*(LKEY) ALIAS(NALIAS,2)
-data TABLE/'THRC','PRIN','BUFF','THRD','DMP1','DMP2','SPAN','MINQ','MXSH','SCRE','NOSC','QUAL','THRN','WARN','TOON','CHEC','CHKA', &
-           'RSTD','RSTC','RSTM','MAXQ','CHOM','REDM','CHKS','CHKM','ABSO','NOAB','TRCN','IOVE','REOR','HALT','FRAC','QFRA','MXSU', &
-           'ADDR','IFCS','ONES','TWOS','NAIV','VBUF','DIAC','TSTS','SSCR','NOSS','SSTH','SSNO','1-CE','NO2-','NOPR','PRES','PRET', &
-           'PARA','SIMP','SIMR','FAKE','TRUE','BLOC','IDLE'/
-data EOINP/'ENDC'/
-data OBSOL/'XXXX'/
-data ALIAS/'PREC','THSI','THSU','STOP','MEMQ','IOMO','DYNA','1CEN','NO2C','THRP','1CCD','1C-C','THRC','DMP1','DMP2','HALT','QFRA', &
-           'ADDR','VBUF','1-CE','NO2-','PRET','1-CE','1-CE'/
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: LUNIT, LOPTION, NOPTION, IDKEY, LUPRI
+character(len=LOPTION) :: OPTION(NOPTION)
+integer(kind=iwp), parameter :: LBLINE = 180, LKEY = 4, LKWORD = 180, NALIAS = 12, NEOINP = 1, NOBSOL = 1, NTABLE = 58
+integer(kind=iwp) :: I, IALIAS, IOBSOL, IOPTION, LAST
+character(len=LBLINE) :: BLINE
+character(len=LKWORD) :: KWORD, KEY
 ! Set flags for using obsolete/alias keywords:
-parameter(USE_OBS=.false.,USE_ALI=.true.)
+logical(kind=iwp), parameter :: USE_ALI = .true., USE_OBS = .false.
+character(len=*), parameter :: COMMENT = '*', SECNAM = 'CHO_MCA_GETKEY'
+character(len=LKEY), parameter :: ALIAS(NALIAS,2) = reshape(['PREC','THSI','THSU','STOP','MEMQ','IOMO','DYNA','1CEN','NO2C', &
+                                                             'THRP','1CCD','1C-C', &
+                                                             'THRC','DMP1','DMP2','HALT','QFRA','ADDR','VBUF','1-CE','NO2-', &
+                                                             'PRET','1-CE','1-CE'],[NALIAS,2]),&
+                                  EOINP(NEOINP) = ['ENDC'], OBSOL(NOBSOL) = ['XXXX'], &
+                                  TABLE(NTABLE) = ['THRC','PRIN','BUFF','THRD','DMP1','DMP2','SPAN','MINQ','MXSH','SCRE','NOSC', &
+                                                   'QUAL','THRN','WARN','TOON','CHEC','CHKA','RSTD','RSTC','RSTM','MAXQ','CHOM', &
+                                                   'REDM','CHKS','CHKM','ABSO','NOAB','TRCN','IOVE','REOR','HALT','FRAC','QFRA', &
+                                                   'MXSU','ADDR','IFCS','ONES','TWOS','NAIV','VBUF','DIAC','TSTS','SSCR','NOSS', &
+                                                   'SSTH','SSNO','1-CE','NO2-','NOPR','PRES','PRET','PARA','SIMP','SIMR','FAKE', &
+                                                   'TRUE','BLOC','IDLE']
+integer(kind=iwp), external :: ICLAST, CHO_TABIND
+character(len=LKWORD), external :: GET_LN
 
 ! Check that we are in sync with caller.
 ! --------------------------------------
@@ -105,7 +100,7 @@ end if
 
 IALIAS = 0
 if (USE_ALI) then
-  IALIAS = CHO_TABIND(ALIAS(1,1),LKEY,NALIAS,' ',0,0,KWORD(1:LKEY))
+  IALIAS = CHO_TABIND(ALIAS(:,1),LKEY,NALIAS,' ',0,0,KWORD(1:LKEY))
   if ((IALIAS > 0) .and. (IALIAS <= NALIAS)) then
     KWORD(1:LKEY) = ALIAS(IALIAS,2)
   else

@@ -17,17 +17,15 @@ subroutine Cho_XCV_WrVec_Ser(irc,Vec,iSP)
 !     Simply write the partial vectors to disk at the appropriate
 !     addresses on the vector files.
 
-use ChoSwp, only: nnBstRSh, iiBstRSh
+use ChoSwp, only: iiBstRSh, nnBstRSh
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-real*8 Vec(*)
-integer iSP
+integer(kind=iwp) :: irc, iSP
+real(kind=wp) :: Vec(*)
 #include "cholesky.fh"
-integer iOpt
-parameter(iOpt=1)
-integer iSym, kV
-integer lTot, iAdr, iAdr0, j
+integer(kind=iwp) :: iAdr, iAdr0, iSym, j, kV, lTot
+integer(kind=iwp), parameter :: iOpt = 1
 
 irc = 0
 

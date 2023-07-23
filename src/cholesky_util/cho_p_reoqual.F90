@@ -12,9 +12,10 @@
 subroutine Cho_P_ReoQual(iQScr,IDK,nK)
 
 use ChoSwp, only: iQuAB
+use Definitions, only: iwp
 
 implicit none
-integer iQScr(*), IDK(*), nK(*)
+integer(kind=iwp) :: iQScr(*), IDK(*), nK(*)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 

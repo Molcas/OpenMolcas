@@ -48,24 +48,29 @@ subroutine CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,nDen,kDe
 !
 !********************************************************
 
-use ChoArr, only: nDimRS, iRS2F
-use ChoSwp, only: InfVec, IndRed
+use ChoArr, only: iRS2F, nDimRS
+use ChoSwp, only: IndRed, InfVec
 use Data_Structures, only: DSBA_Type, SBA_Type
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer irc, nDen, kDen, lScr
-real*8 Scr(lscr)
-type(DSBA_Type) MOs(nDen)
-type(SBA_Type) ChoT(nDen)
-integer, external :: cho_isao
-character(Len=8), parameter :: SECNAM = 'CHO_VTRA'
-real*8 :: Fac(0:1) = [0.5d0,1.0d0]
+implicit none
+integer(kind=iwp) :: irc, lScr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSWap, nDen, kDen
+real(kind=wp) :: Scr(lscr)
+type(DSBA_Type) :: MOs(nDen)
+type(SBA_Type) :: ChoT(nDen)
 #include "cholesky.fh"
 #include "choorb.fh"
-integer, allocatable :: nPorb(:,:)
-logical Skip3, Skip2, Skip1
+integer(kind=iwp) :: iag, ias, ibg, ibs, iDen, iE, ij, iLoc, iRab, iSym, iSymb, jRab, JRED, JVEC, kRab, kscr, kVEC, LVEC, n1, NREAD
+real(kind=wp) :: xfd
+integer(kind=iwp), allocatable :: nPorb(:,:)
+real(kind=wp), parameter :: Fac(0:1) = [Half,One]
+character(len=*), parameter :: SECNAM = 'CHO_VTRA'
+integer(kind=iwp), external :: cho_isao
 ! Statement functions
+integer(kind=iwp) :: MulD2h, i, iSyma, j, jDen
+logical(kind=iwp) :: Skip1, Skip2, Skip3
 MulD2h(i,j) = ieor(i-1,j-1)+1
 Skip1(jDen,iSyma) = .not. associated(ChoT(jDen)%SB(iSyma)%A1)
 Skip2(jDen,iSyma) = .not. associated(ChoT(jDen)%SB(iSyma)%A2)
@@ -523,7 +528,7 @@ select case (iSwap)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    write(6,*) SECNAM//': invalid argument. Iswap= ',Iswap
+    write(u6,*) SECNAM//': invalid argument. Iswap= ',Iswap
     irc = 66
     return
 

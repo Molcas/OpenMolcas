@@ -14,9 +14,11 @@ subroutine CHO_RSTD_GETIND1()
 ! Purpose: read and set some index arrays for diagonal restart.
 
 use ChoSwp, only: nnBstRSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
+integer(kind=iwp) :: IADR, IOPT, IRED, LTOT
 
 ! Read info.
 ! ----------

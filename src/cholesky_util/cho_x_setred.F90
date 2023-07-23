@@ -43,9 +43,12 @@
 subroutine Cho_X_SetRed(irc,iLoc,iRed)
 
 use ChoSwp, only: IndRed
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, iLoc, iRed
 #include "cholesky.fh"
+integer(kind=iwp) :: iab
 
 if ((iLoc == 2) .or. (iLoc == 3)) then
   if ((iRed < 1) .or. (iRed > MaxRed)) then

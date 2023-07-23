@@ -13,12 +13,13 @@ subroutine CHO_WRFVEC(VEC,ISYMA,ISYMB,IVEC1,NUMV)
 !
 ! Purpose: write full storage vectors to disk.
 
-use ChoReO
+use ChoReO, only: LUFV, NABPK
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 VEC(*)
-integer ISYMA, ISYMB, IVEC1, NUMV
-integer IOPT, IADR, NTOT
+real(kind=wp) :: VEC(*)
+integer(kind=iwp) :: ISYMA, ISYMB, IVEC1, NUMV
+integer(kind=iwp) :: IADR, IOPT, NTOT
 
 IOPT = 1
 IADR = NABPK(ISYMA,ISYMB)*(IVEC1-1)+1

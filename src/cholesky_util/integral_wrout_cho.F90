@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine Integral_WrOut_Cho( &
 #                             define _CALLING_
 #                             include "int_wrout_interface.fh"
@@ -16,12 +17,12 @@ subroutine Integral_WrOut_Cho( &
 ! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                  else  integral order within symblk: ijkl
 
-implicit real*8(A-H,O-Z)
-#include "cholesky.fh"
-character*18 SecNam
-parameter(SecNam='Integral_WrOut_Cho')
-#define _FIXED_FORMAT_
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_wrout_interface.fh"
+#include "cholesky.fh"
+character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
 
 ! call sorting routine
 
@@ -46,9 +47,9 @@ else if (IfcSew == 3) then
     call IndSft_Cho_3(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
   end if
 else
-  write(6,*)
-  write(6,*)
-  write(6,*) '!!!!!!!!!! IfcSew=',IfcSew,' !!!!!!!!!!'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '!!!!!!!!!! IfcSew=',IfcSew,' !!!!!!!!!!'
   call Cho_Quit('IfcSew out of bounds in '//SecNam,105)
 end if
 

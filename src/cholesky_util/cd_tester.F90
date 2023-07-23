@@ -37,25 +37,28 @@
 
 subroutine CD_Tester(irc,PDM,n,Verbose)
 
-use CDTHLP
-use stdalloc
+use CDTHLP, only: Mat, Vec
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer irc, n
-real*8 PDM(n*(n+1)/2)
-external CD_Tester_Col
-external CD_Tester_Vec
-logical Verbose
-character(len=9), parameter :: SecNam = 'CD_Tester'
-logical Restart
-real*8, allocatable :: Diag(:), Buf(:), Qual(:), ES(:)
-integer, allocatable :: Pivot(:), iQual(:)
+implicit none
+integer(kind=iwp) :: irc, n
+real(kind=wp) :: PDM(n*(n+1)/2)
+logical(kind=iwp) :: Verbose
+integer(kind=iwp) :: irc_sav, jrc, l_Buf, l_ES, l_iQual, l_Pivot, l_Qual, MxQual, NumCho
+real(kind=wp) :: Span, Thr
+logical(kind=iwp) :: Restart
+real(kind=wp), allocatable :: Buf(:), Diag(:), ES(:), Qual(:)
+integer(kind=iwp), allocatable :: iQual(:), Pivot(:)
+character(len=*), parameter :: SecNam = 'CD_Tester'
+external :: CD_Tester_Col, CD_Tester_Vec
 
 irc = 0
 if (n < 1) then
   if (Verbose) then
-    write(6,*) SecNam,': nothing tested! Dimension is: n = ',n
-    call xFlush(6)
+    write(u6,*) SecNam,': nothing tested! Dimension is: n = ',n
+    call xFlush(u6)
   end if
   Go To 1
 end if
@@ -64,19 +67,19 @@ end if
 ! ============
 
 Restart = .false.
-Thr = 1.0d-12
-Span = 1.0d-2
+Thr = 1.0e-12_wp
+Span = 1.0e-2_wp
 MxQual = max(n/10,1)
 NumCho = 0
 
 irc_sav = irc
 if (Verbose) then
-  write(6,*)
-  write(6,*) '          >>>>>>>>>>>><<<<<<<<<<<<'
-  write(6,*) '          >>>> Testing ChoDec <<<<'
-  write(6,*) '          >>>>>>>>>>>><<<<<<<<<<<<'
-  write(6,*)
-  call xFlush(6)
+  write(u6,*)
+  write(u6,*) '          >>>>>>>>>>>><<<<<<<<<<<<'
+  write(u6,*) '          >>>> Testing ChoDec <<<<'
+  write(u6,*) '          >>>>>>>>>>>><<<<<<<<<<<<'
+  write(u6,*)
+  call xFlush(u6)
 end if
 
 call mma_allocate(Mat,n*n,Label='Mat')
@@ -100,26 +103,26 @@ call CD_Tester_Diag(PDM,Diag,n)
 jrc = 0
 call ChoDec(CD_Tester_Col,CD_Tester_Vec,Restart,Thr,Span,MxQual,Diag,Qual,Buf,Pivot,iQual,n,l_Buf,ES,NumCho,jrc)
 if (jrc == 0) then
-  call DGEMM_('N','T',n,n,NumCho,-1.0d0,Vec,n,Vec,n,1.0d0,Mat,n)
+  call DGEMM_('N','T',n,n,NumCho,-One,Vec,n,Vec,n,One,Mat,n)
   call CD_Tester_ES(Mat,n,ES)
   call CD_Tester_Diff(Mat,n,ES(4))
   call CD_Tester_Final(jrc,NumCho,n,Thr,ES,Verbose)
   if (jrc /= 0) irc = irc+1
 else
   if (Verbose) then
-    write(6,*) SecNam,': ChoDec returned error code ',jrc
-    write(6,*) '<=> decomposition failed, no test performed!'
-    call xFlush(6)
+    write(u6,*) SecNam,': ChoDec returned error code ',jrc
+    write(u6,*) '<=> decomposition failed, no test performed!'
+    call xFlush(u6)
   end if
   irc = irc+1
 end if
 if (Verbose) then
   if (irc == irc_sav) then
-    write(6,*) 'ChoDec succeeded....'
+    write(u6,*) 'ChoDec succeeded....'
   else
-    write(6,*) 'ChoDec failed....'
+    write(u6,*) 'ChoDec failed....'
   end if
-  call xFlush(6)
+  call xFlush(u6)
 end if
 
 ! Test in-core decomposition.
@@ -127,12 +130,12 @@ end if
 
 if (Verbose) then
   irc_sav = irc
-  write(6,*)
-  write(6,*) '          >>>>>>>>>>>><<<<<<<<<<<<<<<'
-  write(6,*) '          >>>> Testing CD_InCore <<<<'
-  write(6,*) '          >>>>>>>>>>>><<<<<<<<<<<<<<<'
-  write(6,*)
-  call xFlush(6)
+  write(u6,*)
+  write(u6,*) '          >>>>>>>>>>>><<<<<<<<<<<<<<<'
+  write(u6,*) '          >>>> Testing CD_InCore <<<<'
+  write(u6,*) '          >>>>>>>>>>>><<<<<<<<<<<<<<<'
+  write(u6,*)
+  call xFlush(u6)
 end if
 
 call CD_Tester_CPPF(PDM,Mat,n)
@@ -141,27 +144,27 @@ NumCho = 0
 call CD_InCore(Mat,n,Vec,n,NumCho,Thr,jrc)
 if (jrc == 0) then
   call CD_Tester_CPPF(PDM,Mat,n)
-  call DGEMM_('N','T',n,n,NumCho,-1.0d0,Vec,n,Vec,n,1.0d0,Mat,n)
+  call DGEMM_('N','T',n,n,NumCho,-One,Vec,n,Vec,n,One,Mat,n)
   call CD_Tester_ES(Mat,n,ES)
   call CD_Tester_Diff(Mat,n,ES(4))
   call CD_Tester_Final(jrc,NumCho,n,Thr,ES,Verbose)
   if (jrc /= 0) irc = irc+2
 else
   if (Verbose) then
-    write(6,*) SecNam,': CD_InCore returned error code ',jrc
-    write(6,*) '<=> decomposition failed, no test performed!'
-    call xFlush(6)
+    write(u6,*) SecNam,': CD_InCore returned error code ',jrc
+    write(u6,*) '<=> decomposition failed, no test performed!'
+    call xFlush(u6)
   end if
   irc = irc+2
 end if
 if (Verbose) then
   if (irc == irc_sav) then
-    write(6,*) 'CD_InCore succeeded....'
+    write(u6,*) 'CD_InCore succeeded....'
   else
-    write(6,*) 'CD_InCore failed....'
+    write(u6,*) 'CD_InCore failed....'
   end if
-  write(6,*)
-  call xFlush(6)
+  write(u6,*)
+  call xFlush(u6)
 end if
 
 call mma_deallocate(iQual)

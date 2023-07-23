@@ -18,15 +18,18 @@ subroutine Construct_WDensII(EOcc,EVir,EFro,EDel)
 ! Purpose: Construct the piece of the energy-weighted density
 !          usually labeled II.
 
-implicit real*8(a-h,o-z)
-real*8 EOcc(*), EVir(*), EFro(*), EDel(*)
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: EOcc(*), EVir(*), EFro(*), EDel(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-character*20 ThisNm
-character*25 SecNam
-parameter(SecNam='Construct_WDensII',ThisNm='Construct_WDensII')
+integer(kind=iwp) :: iA, iB, iI, iJ, iSym
+real(kind=wp) :: E_a, E_b, E_i, E_j
 ! Statement functions
+integer(kind=iwp) :: iDensActOcc, iWDensActOcc, iDensVactVall, iWDensVactVall, iDensVallOcc, iWDensVallOcc, i, j, k
 iDensActOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)-1)
 iWDensActOcc(i,j,k) = ip_WDensity(k)+j-1+(nOrb(k)+nDel(k))*(i-1+nFro(k))
 iDensVactVall(i,j,k) = ip_Density(k)+j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
@@ -46,7 +49,7 @@ do iSym=1,nSym
       else
         E_j = EOcc(iOcc(iSym)+iJ-nFro(iSym))
       end if
-      Work(iWDensActOcc(iI,iJ,iSym)) = Work(iWDensActOcc(iI,iJ,iSym))-0.5d0*Work(iDensActOcc(iI,iJ,iSym))*(E_i+E_j)
+      Work(iWDensActOcc(iI,iJ,iSym)) = Work(iWDensActOcc(iI,iJ,iSym))-Half*Work(iDensActOcc(iI,iJ,iSym))*(E_i+E_j)
     end do
   end do
   !*********************************************************************
@@ -60,7 +63,7 @@ do iSym=1,nSym
       else
         E_b = EVir(iVir(iSym)+iB)
       end if
-      Work(iWDensVactVall(iA,iB,iSym)) = Work(iWDensVactVall(iA,iB,iSym))-0.5d0*Work(iDensVactVall(iA,iB,iSym))*(E_a+E_b)
+      Work(iWDensVactVall(iA,iB,iSym)) = Work(iWDensVactVall(iA,iB,iSym))-Half*Work(iDensVactVall(iA,iB,iSym))*(E_a+E_b)
     end do
     !*******************************************************************
     ! Construct Wai(II) (The factor 2 in front of Pai is because Ppq is
@@ -72,7 +75,7 @@ do iSym=1,nSym
       else
         E_i = EOcc(iOcc(iSym)+iI-nFro(iSym))
       end if
-      Work(iWDensVallOcc(iA,iI,iSym)) = Work(iWDensVallOcc(iA,iI,iSym))-2.0d0*Work(iDensVallOcc(iA,iI,iSym))*(E_i)
+      Work(iWDensVallOcc(iA,iI,iSym)) = Work(iWDensVallOcc(iA,iI,iSym))-Two*Work(iDensVallOcc(iA,iI,iSym))*(E_i)
     end do
   end do
 end do

@@ -14,19 +14,16 @@ subroutine CHO_MCA_INIT(SKIP_PRESCREEN)
 ! Purpose: initialization of Cholesky decomposition in MOLCAS.
 
 use index_arrays, only: iSO2Sh
-use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO, iShP2RS, iShP2Q
-use stdalloc
+use ChoArr, only: iBasSh, iShlSO, iShP2Q, iShP2RS, iSOShl, iSP2F, nBasSh, nBstSh
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-logical SKIP_PRESCREEN
+implicit none
+logical(kind=iwp) :: SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-character*12 SECNAM
-parameter(SECNAM='CHO_MCA_INIT')
-!integer CHO_ISAO
-!external CHO_ISAO
-!integer CHO_ISAOSH
-!external CHO_ISAOSH
+integer(kind=iwp) :: I, IA, IJ, IJSHL, ISHL, ISYM, J, NUMIJ
+character(len=*), parameter :: SECNAM = 'CHO_MCA_INIT'
 
 ! Check that the number of shells is within limits.
 ! -------------------------------------------------

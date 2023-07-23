@@ -17,25 +17,30 @@ subroutine CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,ERRMAX,ERRMIN,ERRRMS,NCMP,ISHLCD
 !
 ! NOTE: this is *only* for debugging.
 
-use ChoArr, only: nBstSh, iSP2F
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use ChoArr, only: iSP2F, nBstSh
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 XINT(NCD,NAB), WRK(LWRK)
+implicit none
+integer(kind=iwp) :: NCD, NAB, LWRK, NCMP, ISHLCD, ISHLAB
+real(kind=wp) :: XINT(NCD,NAB), WRK(LWRK), ERRMAX, ERRMIN, ERRRMS
 #include "cholesky.fh"
-character*14 SECNAM
-parameter(SECNAM='CHO_DBGINT_CHO')
-integer CHO_LREAD
-external CHO_LREAD
+integer(kind=iwp) :: IAB, IBATCH, ICD, ICDAB, ISHLA, ISHLB, ISHLC, ISHLD, ISYM, IVEC, JAB, JCD, JVEC, JVEC1, KAB, KCD, KCDAB, &
+                     KCHOAB, KCHOCD, KEND0, KEND1, KEND2, KINT, KOFF1, KOFF2, KREAD, KVEC1, KXINT, LCDABT, LENint, LREAD, LVEC1, &
+                     LWRK0, LWRK1, LWRK2, MINM, NABL, NBATCH, NCDL, NSCALL, NUMAB, NUMCD, NUMV, NVEC
+real(kind=wp) :: DIFF
+character(len=*), parameter :: SECNAM = 'CHO_DBGINT_CHO'
+integer(kind=iwp), external :: CHO_LREAD
 
 ! Initializations.
 ! ----------------
 
 call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
 call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
-ERRMAX = -1.0d12
-ERRMIN = 1.0d12
-ERRRMS = 0.0d0
+ERRMAX = -1.0e12_wp
+ERRMIN = 1.0e12_wp
+ERRRMS = Zero
 NCMP = 0
 LCDABT = NCD*NAB
 
@@ -142,7 +147,7 @@ do ISYM=1,NSYM
       ! Calculate contribution.
       ! -----------------------
 
-      call DGEMM_('N','T',NUMCD,NUMAB,NUMV,1.0d0,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,1.0d0,WRK(KINT),NUMCD)
+      call DGEMM_('N','T',NUMCD,NUMAB,NUMV,One,WRK(KCHOCD),NUMCD,WRK(KCHOAB),NUMAB,One,WRK(KINT),NUMCD)
 
     end do
 

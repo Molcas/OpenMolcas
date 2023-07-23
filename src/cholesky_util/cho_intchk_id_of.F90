@@ -16,17 +16,16 @@ subroutine CHO_INTCHK_ID_OF(LABEL,ID,IOPT)
 !          else    : return index of shell quadruple corresponding
 !                    to check label LABEL.
 
+use Definitions, only: iwp
+
 implicit none
-character*8 LABEL
-integer ID, IOPT
+character(len=8) :: LABEL
+integer(kind=iwp) :: ID, IOPT
 #include "cholesky.fh"
-integer CHO_TABIND
-external CHO_TABIND
-integer NTABLE
-parameter(NTABLE=12)
-character*8 TABLE(NTABLE)
-data TABLE/'EXCL RS1','MAX|XRS1','MIN|XRS1','NEG DIAG','MAX|NEG ','MIN|NEG ','NEG->ZER','MAX|NEGZ','MIN|NEGZ','MAX DIAG', &
-           'MIN DIAG','MAX|MIN '/
+integer(kind=iwp), parameter :: NTABLE = 12
+character(len=*), parameter :: TABLE(NTABLE) = ['EXCL RS1','MAX|XRS1','MIN|XRS1','NEG DIAG','MAX|NEG ','MIN|NEG ','NEG->ZER', &
+                                                'MAX|NEGZ','MIN|NEGZ','MAX DIAG','MIN DIAG','MAX|MIN ']
+integer(kind=iwp), external :: CHO_TABIND
 
 if (IOPT == -1) then
   if ((ID < 1) .or. (ID > NTABLE)) then

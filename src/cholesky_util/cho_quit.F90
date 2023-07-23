@@ -13,9 +13,13 @@ subroutine CHO_QUIT(STRING,IERR)
 !
 ! Purpose: echo message STRING and abort execution.
 
-implicit real*8(a-h,o-z)
-character*(*) STRING
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: STRING
+integer(kind=iwp) :: IERR
 #include "cholesky.fh"
+integer(kind=iwp) :: MOLCASCODE
 
 write(LUPRI,'(//,1X,A)') '***'
 if ((IERR == 0) .or. (IERR == 100)) then

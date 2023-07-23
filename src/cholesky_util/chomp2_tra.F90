@@ -17,16 +17,16 @@ subroutine ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 !
 ! Purpose: transform Cholesky vectors to (ai) MO basis.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 COcc(*), CVir(*), Diag(*)
-logical DoDiag
+real(kind=wp) :: COcc(*), CVir(*), Diag(*)
+logical(kind=iwp) :: DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-character(len=10), parameter :: SecNam = 'ChoMP2_Tra'
-integer kOffD, iSym, lW
-real*8, allocatable :: TraMax(:)
+integer(kind=iwp) :: iSym, kOffD, lW
+real(kind=wp), allocatable :: TraMax(:)
 
 ! Allocate remaining memory.
 ! --------------------------

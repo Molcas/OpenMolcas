@@ -15,23 +15,21 @@ subroutine Cho_VecBuf_Init_I(Frac,lVec,LocDbg)
 !          (Internal run mode.)
 
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
-use stdalloc
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Frac
-integer lVec(*)
-logical LocDbg
+real(kind=wp) :: Frac
+integer(kind=iwp) :: lVec(*)
+logical(kind=iwp) :: LocDbg
 #include "cholesky.fh"
-character*17 SecNam
-parameter(SecNam='Cho_VecBuf_Init_I')
-character*2 Unt
-real*8 xMemMax(8), x
-integer lVecTot
-integer l_Max
-integer iSym, MemEach, MemLeft
-integer :: l_ChVBuf = 0
-logical Enough
-integer, external :: Cho_iSumElm
+integer(kind=iwp) :: iSym, l_ChVBuf = 0, l_Max, lVecTot, MemEach, MemLeft
+real(kind=wp) :: x, xMemMax(8)
+logical(kind=iwp) :: Enough
+character(len=2) :: Unt
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init_I'
+integer(kind=iwp), external :: Cho_iSumElm
 
 if (LocDbg) then
   write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
@@ -43,20 +41,20 @@ end if
 
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym out of bounds in '//SecNam,102)
 
-x = dble(MaxVec)
+x = real(MaxVec,kind=wp)
 lVecTot = lVec(1)
-xMemMax(1) = dble(lVec(1))*x
+xMemMax(1) = real(lVec(1),kind=wp)*x
 do iSym=2,nSym
   lVecTot = max(lVecTot,lVec(iSym))
-  xMemMax(iSym) = dble(lVec(iSym))*x
+  xMemMax(iSym) = real(lVec(iSym),kind=wp)*x
 end do
 
-if ((Frac <= 0.0d0) .or. (Frac > 1.0d0) .or. (lVecTot < 1)) then
+if ((Frac <= Zero) .or. (Frac > One) .or. (lVecTot < 1)) then
   call iZero(ip_ChVBuf_Sym,nSym)
   call iZero(l_ChVBuf_Sym,nSym)
 else
   call mma_MaxDBLE(l_Max)
-  l_ChVBuf = int(Frac*dble(l_Max))
+  l_ChVBuf = int(Frac*real(l_Max,kind=wp))
   if ((l_ChVBuf < nSym) .or. (l_ChVBuf < lVecTot)) then
     l_ChVBuf = 0
     call iZero(ip_ChVBuf_Sym,nSym)
@@ -75,10 +73,10 @@ else
     else
       MemLeft = l_ChVBuf-nSym*MemEach
       l_ChVBuf_Sym(1) = MemEach+MemLeft
-      if (dble(l_ChVBuf_Sym(1)) > xMemMax(1)) l_ChVBuf_Sym(1) = int(xMemMax(1))
+      if (real(l_ChVBuf_Sym(1),kind=wp) > xMemMax(1)) l_ChVBuf_Sym(1) = int(xMemMax(1))
       do iSym=2,nSym
         l_ChVBuf_Sym(iSym) = MemEach
-        if (dble(l_ChVBuf_Sym(iSym)) > xMemMax(iSym)) l_ChVBuf_Sym(iSym) = int(xMemMax(iSym))
+        if (real(l_ChVBuf_Sym(iSym),kind=wp) > xMemMax(iSym)) l_ChVBuf_Sym(iSym) = int(xMemMax(iSym))
       end do
     end if
     l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)

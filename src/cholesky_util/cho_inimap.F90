@@ -16,10 +16,11 @@ subroutine CHO_INIMAP()
 ! NB!!!!! file is assumed open (restart only)
 
 use ChoArr, only: IntMap
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
-integer IOPT, NDIM, IADR
+integer(kind=iwp) :: IADR, IOPT, NDIM
 
 if (RSTCHO) then
   IOPT = 2

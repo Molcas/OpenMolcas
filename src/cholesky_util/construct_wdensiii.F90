@@ -18,21 +18,21 @@ subroutine Construct_WDensIII(Xaibj,LnPQRSprod,LiPQRSprod,iBatch,jBatch,nOccLeft
 ! Purpose: Construct the piece of the energy-weighted density
 !          usually labeled III.
 
-use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
+use ChoMP2, only: iFirstS, LiPQprod, LnBatOrb, LnPQprod
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer LnPQRSprod
-real*8 Xaibj(LnPQRSprod)
-integer LiPQRSprod(8)
-integer iBatch, jBatch
-integer nOccLeftI(8), nOccLeftJ(8)
+implicit none
+integer(kind=iwp) :: LnPQRSprod, LiPQRSprod(8), iBatch, jBatch, nOccLeftI(8), nOccLeftJ(8)
+real(kind=wp) :: Xaibj(LnPQRSprod)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-character*20 ThisNm
-character*25 SecNam
-parameter(SecNam='Construct_WDensIII',ThisNm='Construct_WDensIII')
+integer(kind=iwp) :: iI, iJ, iP, ip_piqj, ip_pqij, iQ, iSymI, iSymIJ, iSymJ, iSymP, iSymPI, iSymPQ, iSymQ, iSymQJ, Lj, Lji, LjOrb, &
+                     Ljq, Lp, Lpi, LpOrb, Lpq
+real(kind=wp) :: X
 ! Statement functions
+integer(kind=iwp) :: MulD2h, iTri, iDensAllAll,iWDensOccOcc, i, j, k
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 iDensAllAll(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i-1)
@@ -68,14 +68,14 @@ do iSymJ=1,nSym
               ip_piqj = LiPQRSprod(iSymPI)+LnPQprod(iSymPI,iBatch)*(Ljq-1)+Lpi
             end if
 
-            X = 2.0d0*Xaibj(ip_pqij)-Xaibj(ip_piqj)
+            X = Two*Xaibj(ip_pqij)-Xaibj(ip_piqj)
             Work(iWDensOccOcc(iI,iJ,iSymJ)) = Work(iWDensOccOcc(iI,iJ,iSymJ))-X*Work(iDensAllAll(iP,iQ,iSymQ))
             ! Debug Comments -------------------------------------------
-            !write(6,*) 'IJPQ',iI,iJ,iP,iQ
-            !write(6,*) 'Symm',iSymI,iSymJ,iSymP,iSymQ
-            !write(6,*) 'pqij',Xaibj(ip_pqij)
-            !write(6,*) 'piqj',Xaibj(ip_piqj)
-            !write(6,*) 'Dens',Work(iDensAllAll(iP,iQ,iSymQ))
+            !write(u6,*) 'IJPQ',iI,iJ,iP,iQ
+            !write(u6,*) 'Symm',iSymI,iSymJ,iSymP,iSymQ
+            !write(u6,*) 'pqij',Xaibj(ip_pqij)
+            !write(u6,*) 'piqj',Xaibj(ip_piqj)
+            !write(u6,*) 'Dens',Work(iDensAllAll(iP,iQ,iSymQ))
             !------------------------------------------------------------
 
           end do

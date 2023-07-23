@@ -15,11 +15,13 @@ subroutine CHO_SETREDIND(IRED)
 !          array NNBSTRSH must be set on entry.
 
 use ChoSwp, only: iiBstRSh, nnBstRSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IRED
 #include "cholesky.fh"
-character*13 SECNAM
-parameter(SECNAM='CHO_SETREDIND')
+integer(kind=iwp) :: ISHLAB, ISYM, J
+character(len=*), parameter :: SECNAM = 'CHO_SETREDIND'
 
 J = IRED
 

@@ -17,19 +17,23 @@ subroutine CkAltD(K_Lap,DD,NG)
 ! Function : Check the alternation of array DD
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00)
-real*8 DD(82)
-logical NG
+implicit none
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: DD(82)
+logical(kind=iwp) :: NG
+integer(kind=iwp) :: I, IDimEnd
+real(kind=wp) :: A
 
 IDimEnd = 2*K_Lap
 NG = .false.
 
 do I=1,IDimEnd
   A = DD(I)*DD(I+1)
-  if (A >= ZERO) then
+  if (A >= Zero) then
     NG = .true.
     write(IW,'(A,I3)') 'DD sign is wrong at I =',I
   end if

@@ -17,23 +17,28 @@ subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
 ! DoTime: time as vector subtraction.
 ! DpStat: update statistics info (#calls to dGeMM).
 
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 use ChoArr, only: LQ
+use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
+use ChoSwp, only: iiBstRSh, iQuAB, nnBstRSh
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
-use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8, target :: xInt(*), Wrk(lWrk)
-logical DoTime, DoStat
+implicit none
+integer(kind=iwp) :: lWrk, iSym
+real(kind=wp), target :: xInt(*), Wrk(lWrk)
+logical(kind=iwp) :: DoTime, DoStat
 #include "cholesky.fh"
-character(len=16), parameter :: SecNam = 'Cho_VecBuf_Subtr'
+integer(kind=iwp) :: iAB, iBatch, iE, iGD, iS, iShGD, iVec0, jAB, jVec, lCol, lRow, nBatch, nGD, NumV, nVec
+real(kind=wp) :: C1, C2, Tst, W1, W2, xDon, xTot
+real(kind=wp), pointer :: U(:,:), V(:,:), W(:,:)
 #ifdef _DEBUGPRINT_
-logical, parameter :: LocDbg = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: LocDbg = .false.
+#define _DBG_ .false.
 #endif
-real*8, parameter :: xMOne = -1.0d0, One = 1.0d0
-real*8, pointer :: V(:,:) => null(), U(:,:) => null(), W(:,:) => null()
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Subtr'
 
 ! Return if nothing to do.
 ! ------------------------
@@ -75,8 +80,8 @@ if (DoTime) call Cho_Timer(C1,W1)
 ! Initialize.
 ! -----------
 
-xTot = 0.0d0
-xDon = 0.0d0
+xTot = Zero
+xDon = Zero
 
 ! Set up vector batch.
 ! --------------------
@@ -163,12 +168,12 @@ do iBatch=1,nBatch
         nGD = nnBstRSh(iSym,iShGD,2)
         if (nGD < 1) cycle
         iGD = iiBstRSh(iSym,iShGD,2)
-        xTot = xTot+1.0d0
+        xTot = xTot+One
         jAB = iQuab(iAB,iSym)-iiBstR(iSym,2)
         Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
         if (Tst <= SSTau) cycle
-        xDon = xDon+1.0d0
-        call dGeMV_('N',nGD,NumV,xMOne,V(1+iGD:,iVec0+1),nnBstR(iSym,2),W(:,iAB),1,One,U(1+iGD:,iAB),1)
+        xDon = xDon+One
+        call dGeMV_('N',nGD,NumV,-One,V(1+iGD:,iVec0+1),nnBstR(iSym,2),W(:,iAB),1,One,U(1+iGD:,iAB),1)
       end do
     end do
 
@@ -180,7 +185,7 @@ do iBatch=1,nBatch
       ! use this block.
       ! -------------------------------------------------------
 
-      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,xMOne,V(:,iVec0+1),nnBstR(iSym,2),LQ(iSym)%Array(:,iVec0+1), &
+      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,-One,V(:,iVec0+1),nnBstR(iSym,2),LQ(iSym)%Array(:,iVec0+1), &
                   size(LQ(iSym)%Array,1),One,U,nnBstR(iSym,2))
 
     else
@@ -207,17 +212,18 @@ do iBatch=1,nBatch
       ! (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
       ! ----------------------------------------------------
 
-      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,xMOne,V(:,iVec0+1),nnBstR(iSym,2),W,nQual(iSym),One,U,nnBstR(iSym,2))
+      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,-One,V(:,iVec0+1),nnBstR(iSym,2),W,nQual(iSym),One,U,nnBstR(iSym,2))
 
     end if
 
   end if
 
-  V => null()
-  U => null()
-  W => null()
+  nullify(V)
+  nullify(W)
 
 end do
+
+nullify(U)
 
 ! Update statistics info.
 ! -----------------------

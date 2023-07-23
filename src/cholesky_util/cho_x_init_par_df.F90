@@ -14,22 +14,23 @@ subroutine Cho_X_Init_Par_DF(irc)
 ! Purpose: setup for parallel DF.
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
+use Definitions, only: iwp, u6
 
 implicit none
-integer irc
-character(len=17), parameter :: SecNam = 'Cho_X_Init_Par_DF'
+integer(kind=iwp) :: irc
 #ifdef _DEBUGPRINT_
-logical, parameter :: LocDbg = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: LocDbg = .false.
+#define _DBG_ .false.
 #endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_X_Init_Par_DF'
 #ifdef _MOLCAS_MPP_
 #include "cholesky.fh"
-integer nV(8)
-integer iSym
-logical isSerial
+integer(kind=iwp) :: iSym, nV(8)
+logical(kind=iwp) :: isSerial
 
 irc = 0
 
@@ -39,14 +40,14 @@ irc = 0
 isSerial = (nProcs == 1) .or. (.not. Is_Real_Par())
 if (isSerial) then
   if (LocDbg) then
-    write(6,*) SecNam,': serial run, nothing to do...'
-    write(6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+    write(u6,*) SecNam,': serial run, nothing to do...'
+    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
   end if
   return
 else
   if (LocDbg) then
-    write(6,*) SecNam,': parallel run...'
-    write(6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+    write(u6,*) SecNam,': parallel run...'
+    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
   end if
 end if
 
@@ -65,16 +66,16 @@ end do
 ! ------------
 
 if (LocDbg) then
-  write(6,*)
-  write(6,*) 'Output from ',SecNam,':'
-  write(6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
-  write(6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
+  write(u6,*)
+  write(u6,*) 'Output from ',SecNam,':'
+  write(u6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
+  write(u6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
 end if
 
 #else
 
 irc = 0
-if (LocDbg) write(6,*) SecNam,': serial run, nothing to do...'
+if (LocDbg) write(u6,*) SecNam,': serial run, nothing to do...'
 
 #endif
 

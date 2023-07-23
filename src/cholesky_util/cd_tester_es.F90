@@ -13,15 +13,18 @@
 
 subroutine CD_Tester_ES(X,n,Err)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 X(n,n), Err(3)
-integer i
+integer(kind=iwp) :: n
+real(kind=wp) :: X(n,n), Err(3)
+integer(kind=iwp) :: i
+real(kind=wp), parameter :: dum = 9.876543210e15_wp
 
 if (n < 1) then
-  Err(1) = 9.876543210d15
-  Err(2) = -9.876543210d15
-  Err(3) = 9.876543210d15
+  Err(1) = dum
+  Err(2) = -dum
+  Err(3) = dum
 else
   Err(1) = X(1,1)
   Err(2) = X(1,1)
@@ -31,7 +34,7 @@ else
     Err(2) = max(Err(2),X(i,i))
     Err(3) = Err(3)+X(i,i)*X(i,i)
   end do
-  Err(3) = sqrt(Err(3)/dble(n))
+  Err(3) = sqrt(Err(3)/real(n,kind=wp))
 end if
 
 end subroutine CD_Tester_ES

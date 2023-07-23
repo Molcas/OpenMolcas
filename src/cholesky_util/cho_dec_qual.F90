@@ -42,17 +42,17 @@
 
 subroutine Cho_Dec_Qual(Diag,Lab,Q,Kab,iD,NumV,QDiag)
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), Lab(*), Q(*), QDiag(*)
-real*8 Kab(*)
-integer iD(*), NumV(*)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Diag(*), Lab(*), Q(*), Kab(*), QDiag(*)
+integer(kind=iwp) :: iD(*), NumV(*)
 #include "cholesky.fh"
-real*8 Dmax(8)
-integer nVecG(8)
-logical Sync
-character*12 SecNam
-parameter(SecNam='Cho_Dec_Qual')
-parameter(xone=-1.0d0,one=1.0d0)
+integer(kind=iwp) :: ipD, ipQ, ipQD, ipSQK, ipSQL, iQ, irc, jSym, mQ, nVecG(8)
+real(kind=wp) :: Dmax(8), Thr
+logical(kind=iwp) :: Sync
+character(len=*), parameter :: SecNam = 'Cho_Dec_Qual'
 
 irc = 0
 
@@ -79,7 +79,7 @@ do jSym=1,nSym
 
   ! Do the subtraction  Q({ab}|{cd}) -= sum_J  L({ab},J) * L({cd},J)
   ! -----------------------------------------------------------------
-  call DGEMM_('N','T',nQual(jSym),nQual(jSym),nVecG(jSym),xone,Lab(ipSQL),mQ,Lab(ipSQL),mQ,one,Q(ipQ),mQ)
+  call DGEMM_('N','T',nQual(jSym),nQual(jSym),nVecG(jSym),-One,Lab(ipSQL),mQ,Lab(ipSQL),mQ,One,Q(ipQ),mQ)
 
   ! Extract diagonal of updated Q({ab}|{cd})
   ! ----------------------------------------
@@ -102,7 +102,7 @@ do jSym=1,nSym
   call CD_InCore_p(Q(ipQ),nQual(jSym),Kab(ipSQK),nQual(jSym),iD(ipD),NumV(jSym),Thr,irc)
 
   if (irc /= 0) then
-    write(6,*) SecNam,' non-zero rc on exit from CD_InCore_p: ',irc
+    write(u6,*) SecNam,' non-zero rc on exit from CD_InCore_p: ',irc
     call Cho_Quit('Decomposition error in '//SecNam,104)
   end if
 

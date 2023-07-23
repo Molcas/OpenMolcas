@@ -13,7 +13,7 @@ subroutine Cho_X_Init_Par_GenBak()
 
 use Para_Info, only: Is_Real_Par
 use ChoSwp, only: InfVec, InfVec_Bak
-use ChPari
+use ChPari, only: NumCho_Bak
 use stdalloc, only: mma_allocate
 
 implicit none

@@ -17,21 +17,24 @@ subroutine CHO_RESTART(DIAG,WRK,LWRK,DSKDIA,LCONV)
 !          this routine is called. Reduced set 2, on the
 !          other hand, is set up here.
 
-use ChoArr, only: nDimRS, iSP2F, iAtomShl, MySP, iSimRI
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
+use ChoArr, only: iAtomShl, iSimRI, iSP2F, MySP, nDimRS
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), WRK(LWRK)
-logical DSKDIA, LCONV
+implicit none
+integer(kind=iwp) :: LWRK
+real(kind=wp) :: Diag(*), WRK(LWRK)
+logical(kind=iwp) :: DSKDIA, LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
-external ddot_
-character*11 SECNAM
-parameter(SECNAM='CHO_RESTART')
-integer CHO_F2SP
-external CHO_F2SP
-logical SYNC, SCDIAG_SAVE
-parameter(XMONE=-1.0d0,ZERO=0.0d0)
+integer(kind=iwp) :: I0AB, IAB, IAB1, IAB2, IMNAB, IMXAB, IOPT, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JMXAB, JSHLAB, KDIAG, KEND1, &
+                     KOFF, KRED, LWRK1, NBIN, NCONV, NCONVT, NDIM, NNEG, NNEGT, NSCR, NTOT, NVEC
+real(kind=wp) :: AVEERR, BIN1, DMX, ERR, ERRMN, ERRMX, EXAMN, EXAMX, RMSERR, SAV, STEP, XAMAX, XDIM, XMAX, XMIN, XX
+logical(kind=iwp) :: SCDIAG_SAVE, SYNC
+character(len=*), parameter :: SECNAM = 'CHO_RESTART'
+integer(kind=iwp), external :: CHO_F2SP
+real(kind=wp), external :: CHO_DSUMELM, ddot_
 
 ! Read diagonal (in reduced set 1).
 ! ---------------------------------
@@ -48,8 +51,8 @@ if (IPRINT >= INF_PASS) write(LUPRI,'(/,A,I10,/)') 'Number of diagonal elements 
 ! -------------------------------
 
 if (IPRINT >= INF_PASS) then
-  BIN1 = 1.0d2
-  STEP = 1.0D-1
+  BIN1 = 1.0e2_wp
+  STEP = 1.0e-1_wp
   NBIN = 18
   SYNC = .false.
   call CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.true.)
@@ -95,10 +98,10 @@ do ISYM=1,NSYM
     ! Find min. and max. error and save original value.
     ! -------------------------------------------------
 
-    ERRMX = -1.0d10
-    ERRMN = 1.0d10
-    EXAMX = ZERO
-    EXAMN = ZERO
+    ERRMX = -1.0e10_wp
+    ERRMN = 1.0e10_wp
+    EXAMX = Zero
+    EXAMN = Zero
     do JAB=1,NDIM
       IAB = INDRED(IIBSTR(ISYM,2)+JAB,2)
       SAV = WRK(KDIAG-1+IAB-IIBSTR(ISYM,1))
@@ -122,7 +125,7 @@ do ISYM=1,NSYM
     if (CHO_DECALG == 4) then
       SCDIAG_SAVE = SCDIAG
       SCDIAG = .false. ! do NOT screen (no zeroing of diags)
-      DMX = 1.0d0
+      DMX = One
       call CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NSCR,XMAX,XMIN,XAMAX)
       SCDIAG = SCDIAG_SAVE
     else
@@ -142,7 +145,7 @@ do ISYM=1,NSYM
     ! --------------------------------
 
     KOFF = IIBSTR(ISYM,1)+1
-    XDIM = dble(NDIM)
+    XDIM = real(NDIM,kind=wp)
     RMSERR = sqrt(DDOT_(NDIM,DIAG(KOFF),1,DIAG(KOFF),1)/XDIM)
     AVEERR = CHO_DSUMELM(DIAG(KOFF),NDIM)/XDIM
 
@@ -188,8 +191,8 @@ call CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,2)
 
 call CHO_P_SYNCDIAG(DIAG,2)
 if (IPRINT >= INF_PASS) then
-  BIN1 = 1.0d2
-  STEP = 1.0D-1
+  BIN1 = 1.0e2_wp
+  STEP = 1.0e-1_wp
   NBIN = 18
   SYNC = .false.
   call CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.false.)
@@ -226,7 +229,7 @@ if (CHO_MINCHK) then
   end if
   JMXAB = 0
   I0AB = 0
-  XX = 0.0d0
+  XX = Zero
   do ISHLAB=1,NNSHL
     NTOT = 0
     do ISYM=1,NSYM

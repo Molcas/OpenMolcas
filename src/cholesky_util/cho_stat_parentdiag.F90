@@ -21,28 +21,24 @@ subroutine Cho_Stat_ParentDiag()
 !          symmetry!
 
 use ChoSwp, only: InfVec
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character(len=19), parameter :: SecNam = 'Cho_Stat_ParentDiag'
-character(len=LENIN8) AtomLabel(MxBas)
-logical Debug
-integer, external :: Cho_iSumElm
-integer, parameter :: numAt = 6
-real*8 Ratio(numAt)
-real*8 RClass(3)
-integer iClass(4)
-integer nPseudo
-integer, allocatable :: nBas_per_Atom(:)
-integer, allocatable :: nBas_Start(:)
-integer, allocatable :: iBF2Atom(:)
-real*8, allocatable :: Coord(:,:)
-integer, allocatable :: mapRS2F(:,:)
-integer, allocatable :: nPC1(:)
-real*8, allocatable :: RC2(:)
+integer(kind=iwp), parameter :: numAt = 6
+integer(kind=iwp) :: i, i1, i2, iA, iAt, iAt0, iAt1, iAt2, iAtA, iAtB, iAtom, iB, iBatch, iClass(4), iRS1, iVec, nAt, nAtom, &
+                     nBatch, nChk, nPseudo, nTot1, nTot2
+real(kind=wp) :: R, Ratio(numAt), Rave, RClass(3), Rmax, Rmin
+logical(kind=iwp) :: Debug
+character(len=LenIn8) :: AtomLabel(MxBas)
+integer(kind=iwp), allocatable :: iBF2Atom(:), mapRS2F(:,:), nBas_per_Atom(:), nBas_Start(:), nPC1(:)
+real(kind=wp), allocatable :: Coord(:,:), RC2(:)
+character(len=*), parameter :: SecNam = 'Cho_Stat_ParentDiag'
+integer(kind=iwp), external :: Cho_iSumElm
 
 ! Set debug flag.
 ! ---------------
@@ -74,7 +70,7 @@ call Get_iScalar('Pseudo atoms',nPseudo)
 ! Get atomic labels and basis function labels.
 ! --------------------------------------------
 
-call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
+call Get_cArray('Unique Basis Names',AtomLabel,LenIn8*nBasT)
 
 ! Allocate and get index arrays for indexation of basis functions on
 ! each atom.
@@ -107,7 +103,7 @@ if (Debug) then
   write(Lupri,*)
   write(Lupri,*) SecNam,': mapping from basis function to atom:'
   do i=1,nBasT
-    write(Lupri,*) 'Basis function ',i,' is centered on atom ',iBF2Atom(i),' labeled ',AtomLabel(i)(1:LENIN)
+    write(Lupri,*) 'Basis function ',i,' is centered on atom ',iBF2Atom(i),' labeled ',AtomLabel(i)(1:LenIn)
   end do
 end if
 
@@ -126,11 +122,11 @@ call mma_allocate(RC2,NumChT,Label='RC2')
 ! Compute statistics.
 ! -------------------
 
-Rmin = 1.0d15
-Rmax = -1.0d15
-Rave = 0.0d0
+Rmin = 1.0e15_wp
+Rmax = -1.0e15_wp
+Rave = Zero
 nPC1(:) = 0
-RC2(:) = 0.0d0
+RC2(:) = Zero
 do iVec=1,NumChT
   iRS1 = InfVec(iVec,1,1)
   iA = mapRS2F(1,iRS1)
@@ -150,7 +146,7 @@ end do
 nTot1 = Cho_iSumElm(nPC1,nAtom)
 nTot2 = NumChT-nTot1
 if (nTot2 > 0) then
-  Rave = Rave/dble(nTot2)
+  Rave = Rave/real(nTot2,kind=wp)
 else if (nTot2 < 0) then
   call SysAbendMsg(SecNam,'Setup error!','nTot2 < 0')
 end if
@@ -159,8 +155,10 @@ end if
 ! --------------------------
 
 write(Lupri,'(//,2X,A,/,2X,A)') 'Parent Diagonals','----------------'
-write(Lupri,'(/,A,I9,A,F7.2,A)') 'Number of vectors from 1-center diagonals:',nTot1,' (',1.0d2*dble(nTot1)/dble(NumChT),'%)'
-write(Lupri,'(A,I9,A,F7.2,A)') 'Number of vectors from 2-center diagonals:',nTot2,' (',1.0d2*dble(nTot2)/dble(NumChT),'%)'
+write(Lupri,'(/,A,I9,A,F7.2,A)') 'Number of vectors from 1-center diagonals:',nTot1,' (', &
+                                 1.0e2_wp*real(nTot1,kind=wp)/real(NumChT,kind=wp),'%)'
+write(Lupri,'(A,I9,A,F7.2,A)') 'Number of vectors from 2-center diagonals:',nTot2,' (', &
+                               1.0e2_wp*real(nTot2,kind=wp)/real(NumChT,kind=wp),'%)'
 
 ! Print statistics for 1-center vectors.
 ! --------------------------------------
@@ -181,12 +179,12 @@ do iBatch=1,nBatch
     iAt = iAt0+i
     if (nBas_per_Atom(iAt) < 1) then
       if (nPC1(iAt) > 0) call SysAbendMsg(SecNam,'No basis functions, but >0 vectors !?!?',' ')
-      Ratio(i) = 0.0d0
+      Ratio(i) = Zero
     else
-      Ratio(i) = dble(nPC1(iAt))/dble(nBas_per_Atom(iAt))
+      Ratio(i) = real(nPC1(iAt),kind=wp)/real(nBas_per_Atom(iAt),kind=wp)
     end if
   end do
-  write(Lupri,'(/,A,6(6X,A))') 'Label              ',(AtomLabel(nBas_Start(i))(1:LENIN),i=iAt1,iAt2)
+  write(Lupri,'(/,A,6(6X,A))') 'Label              ',(AtomLabel(nBas_Start(i))(1:LenIn),i=iAt1,iAt2)
   write(Lupri,'(A,6(1X,I9))') 'Center no.         ',(i,i=iAt1,iAt2)
   write(Lupri,'(A,6(1X,I9))') 'Vectors (M)        ',(nPC1(i),i=iAt1,iAt2)
   write(Lupri,'(A,6(1X,I9))') 'Basis functions (N)',(nBas_per_Atom(i),i=iAt1,iAt2)
@@ -199,13 +197,13 @@ end do
 
 if (nTot2 > 0) then
   write(Lupri,'(/,1X,A)') 'Vectors from 2-center diagonals:'
-  RClass(1) = Rave-(Rave-Rmin)/2.0d0
+  RClass(1) = Rave-(Rave-Rmin)*Half
   RClass(2) = Rave
-  RClass(3) = Rave+(Rmax-Rave)/2.0d0
+  RClass(3) = Rave+(Rmax-Rave)*Half
   call iCopy(4,[0],0,iClass,1)
   nChk = 0
   do iVec=1,NumChT
-    if (RC2(iVec) > 0.0d0) then
+    if (RC2(iVec) > Zero) then
       nChk = nChk+1
       if (RC2(iVec) <= RClass(1)) then
         iClass(1) = iClass(1)+1
@@ -227,7 +225,7 @@ if (nTot2 > 0) then
     ! --- TODO/FIX  figure out if with ghost atoms is just a mistmatch
     !               or there is really a bug
 
-    write(6,*) SecNam//': Warning! (nChk /= nTot2); could be due to the presence of ghost atoms.'
+    write(u6,*) SecNam//': Warning! (nChk /= nTot2); could be due to the presence of ghost atoms.'
   end if
   write(Lupri,'(/,A,1P,3D15.5)') 'Min, average, and max center distance: ',Rmin,Rave,Rmax
   write(Lupri,'(A,D12.2,A,I9)') '#vectors with center distance                R <= ',RClass(1),': ',iClass(1)

@@ -11,9 +11,6 @@
 ! Copyright (C) 2016, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-#ifdef _CHO_DEBUGPRINT_
-#define _DEBUGPRINT_
-#endif
 subroutine Cho_VecBuf_Ini2()
 !
 ! Thomas Bondo Pedersen, June 2006.
@@ -21,21 +18,22 @@ subroutine Cho_VecBuf_Ini2()
 ! Purpose: read vectors from disk into buffer.
 
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
-character*15 SecNam
-parameter(SecNam='Cho_VecBuf_Ini2')
-logical LocDbg
-#ifdef _DEBUGPRINT_
-parameter(LocDbg=.true.)
-#else
-parameter(LocDbg=.false.)
+integer(kind=iwp) :: irc, iRedC, iSym, iV1, iV2, mUsed(8), nRead
+logical(kind=iwp) :: DoRead
+#ifdef _CHO_DEBUGPRINT_
+#define _DEBUGPRINT_
 #endif
-logical DoRead
-integer iV1, iV2, iSym, nRead, iRedC
-integer mUsed(8)
-integer irc
+#ifdef _DEBUGPRINT_
+#define _DBG_ .true.
+#else
+#define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Ini2'
 
 ! Check if buffer is allocated.
 ! Check if there are any vectors.

@@ -11,8 +11,10 @@
 
 subroutine Cho_P_PrtRed(iOpt)
 
+use Definitions, only: iwp
+
 implicit none
-integer iOpt
+integer(kind=iwp) :: iOpt
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

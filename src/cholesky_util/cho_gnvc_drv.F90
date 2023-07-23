@@ -16,23 +16,28 @@ subroutine Cho_GnVc_Drv(irc,Diag)
 !          reasonable, since it is naturally done along with the
 !          diagonal.
 
-use ChoSwp, only: iQuAB, InfVec
+use ChoSwp, only: InfVec, iQuAB
 use GnVcMp, only: RS2RS
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc
-real*8 Diag(*)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=12), parameter :: SecNam = 'Cho_GnVc_Drv'
-character(len=2) Unt
-character(len=26) String
-integer LastRed(8), nScrV(8)
-integer, allocatable :: LISTSP(:), nVecRS(:,:), iVecRS(:,:)
-real*8, allocatable :: Wrk(:), xInt(:)
+integer(kind=iwp) :: iAB, iPass, iPass1, iPass2, iSym, iV, iV1, iV2, iVec1, jAB, jPass, jRed, kAB, l_Int, l_Wrk, l_WrkT, &
+                     LastRed(8), lThis, nBatch, nPass, nScrV(8), nTotVec, NumInt, NumPass, NumSP, nVec
+real(kind=wp) :: dl_Int, dl_WrkT, tCPU1, tCPU2, TlDec, TlDec1, TlDec2, TlInt, TlInt1, TlInt2, TlTot, TlTot1, TlTot2, tWall1, &
+                 tWall2, WlDec, WlDec1, WlDec2, WlInt, WlInt1, WlInt2, WlTot, WlTot1, WlTot2
+character(len=26) :: String
+character(len=2) :: Unt
+integer(kind=iwp), allocatable :: iVecRS(:,:), LISTSP(:), nVecRS(:,:)
+real(kind=wp), allocatable :: Wrk(:), xInt(:)
+character(len=*), parameter :: SecNam = 'Cho_GnVc_Drv'
 ! Statement function
+integer(kind=iwp) :: mapRS2RS, i, j
 mapRS2RS(i,j) = RS2RS(j)%Map(i)
 
 ! Start timing.

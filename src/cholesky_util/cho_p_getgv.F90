@@ -11,8 +11,10 @@
 
 subroutine Cho_P_getGV(numV,nSym)
 
+use Definitions, only: iwp
+
 implicit none
-integer nSym, numV(nSym)
+integer(kind=iwp) :: nSym, numV(nSym)
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

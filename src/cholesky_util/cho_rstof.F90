@@ -17,19 +17,18 @@ subroutine CHO_RSTOF(IRS2F,N,LRDIM,IRED)
 ! IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
 ! IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
 
-use ChoArr, only: iSOShl, iShlSO, nBstSh
+use ChoArr, only: iShlSO, iSOShl, nBstSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer IRS2F(N,LRDIM)
+implicit none
+integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), IRED
 #include "cholesky.fh"
 #include "choorb.fh"
-character*9 SECNAM
-parameter(SECNAM='CHO_RSTOF')
-integer CHO_RS2F
-external CHO_RS2F
-integer CHO_F2SP
-external CHO_F2SP
+integer(kind=iwp) :: IA, IB, IRS, ISHLA, ISHLAB, ISHLB, ISYMA, ISYMAB, ISYMB, KA, KB, LA, LAB, LB
+character(len=*), parameter :: SECNAM = 'CHO_RSTOF'
+integer(kind=iwp), external :: CHO_F2SP, CHO_RS2F
 ! Statement functions
+integer(kind=iwp) :: MULD2H, ITRI, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 

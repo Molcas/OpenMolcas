@@ -17,12 +17,20 @@ subroutine AltErr(K_Lap,Coeff,T,VV,Eps)
 ! Function : Calculate errors in each points of alternant
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-real*8 VV(40), T(40), Coeff(40)
-IDim = 2*K_Lap
-Eps = 0.0D+00
-J = IDim
-do I=1,IDim
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: Coeff(40), T(40), VV(40), Eps
+integer(kind=iwp) :: I, I_Dim, J
+real(kind=wp) :: X
+real(kind=wp), external :: QuadErr
+
+I_Dim = 2*K_Lap
+Eps = Zero
+J = I_Dim
+do I=1,I_Dim
   X = T(J)
   VV(I) = QuadErr(K_Lap,X,Coeff)
   Eps = max(Eps,abs(VV(I)))

@@ -20,22 +20,23 @@ subroutine CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
 !          FULL=.true. is returned.
 
 use ChoArr, only: iSP2F
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
-logical FULL
+implicit none
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: ISHLAB, ISYMAX, MEM
+logical(kind=iwp) :: FULL
 #include "cholesky.fh"
-integer CHO_IDOT
-external CHO_IDOT
-character*11 SECNAM
-parameter(SECNAM='CHO_QUALIFY')
-logical LOCDBG
 #ifdef _DEBUGPRINT_
-parameter(LOCDBG=.true.)
+#define _DBG_ .true.
 #else
-parameter(LOCDBG=.false.)
+#define _DBG_ .false.
 #endif
+integer(kind=iwp) :: I, I1, I2, ISHLA, ISHLB, ISYM, K, K1, K2, LEFT, MEM0, MINM, NEED, NUM
+logical(kind=iwp), parameter :: LOCDBG = _DBG_
+character(len=*), parameter :: SECNAM = 'CHO_QUALIFY'
+integer(kind=iwp), external :: CHO_IDOT
 
 ! Copy counter to offset array.
 ! -----------------------------

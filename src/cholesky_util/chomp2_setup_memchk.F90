@@ -11,20 +11,22 @@
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-logical function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,nSym,nBatch,Mem)
+function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,nSym,nBatch,Mem)
 !
 ! Thomas Bondo Pedersen, Nov. 2004.
 !
 ! Purpose: Check memory availability.
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: ChoMP2_Setup_MemChk
+integer(kind=iwp) :: nSym, nBatch, LnT1am(nSym,nBatch), LnPQprod(nSym,nBatch), NumVec(nSym), nFrac(nSym), Mem
 #include "chomp2_cfg.fh"
-integer LnT1am(nSym,nBatch)
-integer LnPQprod(nSym,nBatch)
-integer NumVec(nSym), nFrac(nSym)
-integer LnT2am, LiT2am(8)
-integer LnPQRSprod, LiPQRSprod(8)
-logical Accepted
+integer(kind=iwp) :: iBatch, iSym, jBatch, LiPQRSprod(8), LiT2am(8), LnPQRSprod, LnT2am, Nai, NumV
+real(kind=wp) :: xDiff, xDim, xInt, xLeft, xMem, xNeed
+logical(kind=iwp) :: Accepted
 
 if (Mem < 1) then
   Accepted = .false.
@@ -34,16 +36,16 @@ else
 end if
 
 if (Laplace .and. SOS_MP2) then
-  xMem = dble(mem)
-  xNeed = 0.0d0
+  xMem = real(mem,kind=wp)
+  xNeed = Zero
   do iBatch=1,nBatch
     do iSym=1,nSym
       Nai = LnT1am(iSym,iBatch)
-      if ((Nai > 0) .and. (NumVec(iSym) > 0)) xNeed = max(xNeed,dble(Nai)*dble(NumVec(iSym)))
+      if ((Nai > 0) .and. (NumVec(iSym) > 0)) xNeed = max(xNeed,real(Nai,kind=wp)*real(NumVec(iSym),kind=wp))
     end do
   end do
   xLeft = xMem-xNeed
-  if (xLeft < 1.0d0) then
+  if (xLeft < Zero) then
     Accepted = .false.
     Go To 1 ! exit
   end if
@@ -54,33 +56,33 @@ else
       Go To 1 ! exit
     end if
   end do
-  xMem = dble(mem)
+  xMem = real(mem,kind=wp)
   do jBatch=1,nBatch
     do iBatch=1,jBatch
       call ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
       if (.false.) call ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,iBatch,jBatch)
       if (.false.) then
-        xInt = dble(LnPQRSprod)
+        xInt = real(LnPQRSprod,kind=wp)
       else
-        xInt = dble(LnT2am)
+        xInt = real(LnT2am,kind=wp)
       end if
       xLeft = xMem-xInt
-      if ((xInt < 1.0d0) .or. (xLeft < 1.0d0)) then
+      if ((xInt < One) .or. (xLeft < One)) then
         Accepted = .false.
         Go To 1 ! exit
       end if
       do iSym=1,nSym
         if (iBatch == jBatch) then
           if (.false.) then
-            xDim = dble(LnPQprod(iSym,iBatch))
+            xDim = real(LnPQprod(iSym,iBatch),kind=wp)
           else
-            xDim = dble(LnT1am(iSym,iBatch))
+            xDim = real(LnT1am(iSym,iBatch),kind=wp)
           end if
         else
           if (.false.) then
-            xDim = dble(LnPQprod(iSym,iBatch))+dble(LnPQprod(iSym,iBatch))
+            xDim = real(LnPQprod(iSym,iBatch))+real(LnPQprod(iSym,iBatch),kind=wp)
           else
-            xDim = dble(LnT1am(iSym,iBatch))+dble(LnT1am(iSym,jBatch))
+            xDim = real(LnT1am(iSym,iBatch))+real(LnT1am(iSym,jBatch),kind=wp)
           end if
         end if
         if (nFrac(iSym) > NumVec(iSym)) then
@@ -88,9 +90,9 @@ else
         else
           NumV = NumVec(iSym)/nFrac(iSym)
         end if
-        xNeed = xDim*dble(NumV)
+        xNeed = xDim*real(NumV,kind=wp)
         xDiff = xLeft-xNeed
-        if (xDiff < 1.0d0) then
+        if (xDiff < One) then
           Accepted = .false.
           Go To 1 ! exit
         end if

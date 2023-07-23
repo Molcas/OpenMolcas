@@ -21,16 +21,18 @@ subroutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
 !
 !          Any other norm is taken to be 'Max'.
 
-use ChoSwp, only: nnBstRSh, iiBstRSh
-use ChoSubScr, only: DSubScr, DSPNm
+use ChoSubScr, only: DSPNm, DSubScr
+use ChoSwp, only: iiBstRSh, nnBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 ChoVec(*)
-character*(*) DSPNorm
+implicit none
+real(kind=wp) :: ChoVec(*)
+integer(kind=iwp) :: nVec, iSym, iLoc
+character(len=*) :: DSPNorm
 #include "cholesky.fh"
-character*14 SecNam
-parameter(SecNam='Cho_SubScr_Dia')
-character*3 myDSPNorm
+integer(kind=iwp) :: iAB, iAB1, iAB2, iSP, iVec, kOff, lstr
+character(len=3) :: myDSPNorm
+character(len=*), parameter :: SecNam = 'Cho_SubScr_Dia'
 
 #ifdef _DEBUGPRINT_
 if ((iLoc < 1) .or. (iLoc > 3)) call Cho_Quit('iLoc error in '//SecNam,104)

@@ -13,11 +13,13 @@ subroutine CHO_OPEN(LUNIT,FNAME)
 !
 ! Purpose: open sequential unformatted fortran file.
 
+use Definitions, only: iwp
+
 implicit none
-integer LUNIT
-character*(*) FNAME
-integer LOCUNT, ISEED
-integer ISFREEUNIT
+integer(kind=iwp) :: LUNIT
+character(len=*) :: FNAME
+integer(kind=iwp) :: ISEED, LOCUNT
+integer(kind=iwp), external :: ISFREEUNIT
 
 if ((LUNIT < 1) .or. (LUNIT > 99)) then
   LOCUNT = 7

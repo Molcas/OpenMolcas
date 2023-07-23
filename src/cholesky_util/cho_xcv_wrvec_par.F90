@@ -17,18 +17,14 @@ subroutine Cho_XCV_WrVec_Par(irc,Vec,NVT,myRankSP,SP)
 !     Write the vectors in blocks.
 
 use ChoSwp, only: nnBstRSh
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-real*8 Vec(*)
-integer NVT(*)
-integer myRankSP(*)
-integer SP
+integer(kind=iwp) :: irc, NVT(*), myRankSP(*), SP
+real(kind=wp) :: Vec(*)
 #include "cholesky.fh"
-integer, parameter :: iOpt = 1
-integer iSym, kV, j
-integer lTot, iAdr
-integer iSP
+integer(kind=iwp) :: iAdr, iSP, iSym, j, kV, lTot
+integer(kind=iwp), parameter :: iOpt = 1
 
 irc = 0
 

@@ -18,28 +18,17 @@ subroutine ChoLSOSMP2_Energy_Fll(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! Compute Laplace-SOS-MP2 energy correction from full Cholesky
 ! vectors (i.e., not batched).
 
-use stdalloc
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer N
-real*8 w(N)
-real*8 t(N)
-real*8 EOcc(*)
-real*8 EVir(*)
-logical Delete
-real*8 EMP2
-integer irc
+integer(kind=iwp) :: N, irc
+real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
+logical(kind=iwp) :: Delete
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-character(len=21), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll'
-integer nEnrVec(8)
-integer l_X
-integer l_V
-integer iSym
-integer Nai
-integer need
-integer l
+integer(kind=iwp) :: iSym, l, l_V, l_X, Nai, need, nEnrVec(8)
+character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll'
 
 ! check if there is enough memory to read through vector files
 ! only once
@@ -62,10 +51,10 @@ call mma_maxDBLE(l)
 l = l-100
 if ((l < 1) .or. (need >= l)) then ! not enough memory for one read
   call ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-  if (irc /= 0) write(6,'(A,A,I10)') SecNam,': Cho_LSOSMP2_Energy_Fll2 returned',irc
+  if (irc /= 0) write(u6,'(A,A,I10)') SecNam,': Cho_LSOSMP2_Energy_Fll2 returned',irc
 else ! enough memory for one read through vector files
   call ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-  if (irc /= 0) write(6,'(A,A,I10)') SecNam,': Cho_LSOSMP2_Energy_Fll1 returned',irc
+  if (irc /= 0) write(u6,'(A,A,I10)') SecNam,': Cho_LSOSMP2_Energy_Fll1 returned',irc
 end if
 
 end subroutine ChoLSOSMP2_Energy_Fll

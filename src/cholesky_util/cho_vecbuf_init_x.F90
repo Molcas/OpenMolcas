@@ -15,24 +15,22 @@ subroutine Cho_VecBuf_Init_X(Frac,LocDbg)
 !          (External run mode.)
 
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
-use stdalloc
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Frac
-logical LocDbg
+real(kind=wp) :: Frac
+logical(kind=iwp) :: LocDbg
 #include "cholesky.fh"
-character(len=17), parameter :: SecNam = 'Cho_VecBuf_Init_X'
-integer, external :: Cho_iSumElm
-logical DoRead
-integer i, iSym, l_Max, Left, jNum, iRedC, mUsed
-integer, parameter :: lScr = 1
-real*8 Scr(lScr)
-integer nErr
-real*8 Diff
-real*8, parameter :: Scr_Check = 1.23456789d0, Tol = 1.0d-15
-character*2 Unt
-real*8 Byte
-integer :: l_ChVBuf = 0
+integer(kind=iwp), parameter :: lScr = 1
+integer(kind=iwp) :: i, iRedC, iSym, jNum, l_ChVBuf = 0, l_Max, Left, mUsed, nErr
+real(kind=wp) :: Byte, Diff, Scr(lScr)
+logical(kind=iwp) :: DoRead
+character(len=2) :: Unt
+real(kind=wp), parameter :: Scr_Check = 1.23456789_wp, Tol = 1.0e-15_wp
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init_X'
+integer(kind=iwp), external :: Cho_iSumElm
 
 if (LocDbg) then
   do i=1,lScr
@@ -46,12 +44,12 @@ end if
 
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym out of bounds in '//SecNam,102)
 
-if ((Frac <= 0.0d0) .or. (Frac > 1.0d0)) then
+if ((Frac <= Zero) .or. (Frac > One)) then
   call iZero(l_ChvBuf_Sym,nSym)
   call iZero(ip_ChvBuf_Sym,nSym)
 else
   call mma_maxDBLE(l_max)
-  Left = int(Frac*dble(l_Max))
+  Left = int(Frac*real(l_Max,kind=wp))
   iRedC = -1
   DoRead = .false.
   do iSym=1,nSym

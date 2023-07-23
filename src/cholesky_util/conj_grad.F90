@@ -74,12 +74,16 @@ subroutine Conj_Grad(Done,lVector,Prec,X,XTemp,R,RTemp,P,PTemp,Z,ZTemp,AP,Tolera
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-logical Done
-real*8 Z(1:lVector), ZTemp(1:lVector), AP(1:lVector)
-real*8 Prec(1:lVector), X(1:lVector), XTemp(1:lVector)
-real*8 R(1:lVector), RTemp(1:lVector), P(1:lVector)
-real*8 PTemp(1:lVector)
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: Done
+integer(kind=iwp) :: lVector
+real(kind=wp) :: Prec(lVector), X(lVector), XTemp(lVector), R(lVector), RTemp(lVector), P(lVector), PTemp(lVector), Z(lVector), &
+                 ZTemp(lVector), AP(lVector), Tolerance, res
+integer(kind=iwp) :: i
+real(kind=wp) :: Alfa, Beta
+real(kind=wp), external :: ddot_
 
 ! Copy the vectors into the temporary ones. ipXTemp, ipRTemp etc. will
 ! then contain x_k, r_k etc.

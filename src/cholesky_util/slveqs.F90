@@ -18,22 +18,28 @@ subroutine SlvEqs(N,A,X,B,Error)
 !            Solve AX = B
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00,ONE=1.0D+00,G_Eps=1.0D-19)
-logical Error
-real*8 A(40,40), B(40), X(40)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(40,40), X(40), B(40)
+logical(kind=iwp) :: Error
+integer(kind=iwp) :: I, II, J, K
+real(kind=wp) :: P, PInv, S, SInv, Temp
+real(kind=wp), parameter :: G_Eps = 1.0e-19_wp
 
 Error = .false.
 do I=1,N
   do K=I,N
-    S = ZERO
+    S = Zero
     do J=I,N
       Temp = A(K,J)*A(K,J)
       S = S+Temp
     end do
-    if (S == ZERO) goto 999
+    if (S == Zero) goto 999
     S = sqrt(S)
-    SInv = ONE/S
+    SInv = One/S
     B(K) = B(K)*SInv
     do J=1,N
       A(K,J) = A(K,J)*SInv
@@ -59,16 +65,16 @@ do I=1,N
     B(I) = B(K)
     B(K) = S
   end if
-  if ((abs(P) < G_Eps) .and. (P == ZERO)) goto 999
+  if ((abs(P) < G_Eps) .and. (P == Zero)) goto 999
 
-  PInv = ONE/P
+  PInv = One/P
   B(I) = B(I)*PInv
   do J=I+1,N
     A(I,J) = A(I,J)*PInv
   end do
   do K=I+1,N
     S = A(K,I)
-    if (S /= ZERO) then
+    if (S /= Zero) then
       Temp = S*B(I)
       B(K) = B(K)-Temp
       do J=I+1,N

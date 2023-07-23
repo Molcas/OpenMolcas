@@ -13,13 +13,16 @@ subroutine CHO_QUALIFY_2(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
 !
 ! Purpose: qualify diagonals ("qualify until full, then largest").
 
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+implicit none
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: ISYM, ISHLAB, MEM, MEM0, LEFT
 #include "cholesky.fh"
-character*13 SECNAM
-parameter(SECNAM='CHO_QUALIFY_2')
+integer(kind=iwp) :: I, I1, I2, II, II1, IMAX, J, JJ, JJ1, K, K1, K2, KKMN, MAXQ, NDIM, NUMQ
+real(kind=wp) :: XMAX, XMIN
+character(len=*), parameter :: SECNAM = 'CHO_QUALIFY_2'
 
 NDIM = NNBSTRSH(ISYM,ISHLAB,2)
 if (NDIM > 0) then

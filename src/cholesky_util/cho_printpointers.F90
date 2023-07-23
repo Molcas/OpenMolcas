@@ -15,11 +15,12 @@ subroutine Cho_PrintPointers(irc,Lunit)
 !
 ! Purpose: print all entries in choarr.f90 and choswp.f90
 
-use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F, iShlSO, iRS2F, IntMap, iScr, nDimRS
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec, IndRed
+use ChoArr, only: iAtomShl, iBasSh, IntMap, iRS2F, iScr, iShlSO, iSOShl, iSP2F, nBasSh, nBstSh, nDimRS
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, InfRed, InfVec, iQuAB, nnBstRSh
+use Definitions, only: iwp
 
 implicit none
-integer irc, Lunit
+integer(kind=iwp) :: irc, Lunit
 
 write(Lunit,*) '*** Contents of choarr.f90 and choswp.f90:'
 write(Lunit,*) '    (dimension)'

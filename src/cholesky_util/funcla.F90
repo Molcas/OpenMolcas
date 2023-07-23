@@ -14,9 +14,14 @@
 
 function FuncLa(X,Delta)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp
 
-FuncLa = exp((-Delta+1.0D+00)*X)
+implicit none
+real(kind=wp) :: FuncLa
+real(kind=wp) :: X, Delta
+
+FuncLa = exp((-Delta+One)*X)
 
 return
 

@@ -11,11 +11,12 @@
 
 subroutine CHO_IOCHODIAG(DIAG,IOPT)
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 DIAG(*)
-integer IOPT
-character*5 FNAME
-parameter(FNAME='CDIAG')
+real(kind=wp) :: DIAG(*)
+integer(kind=iwp) :: IOPT
+character(len=*), parameter :: FNAME = 'CDIAG'
 
 call CHO_IODIAG_1(DIAG,IOPT,FNAME)
 

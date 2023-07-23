@@ -14,12 +14,20 @@
 
 function FindMx(n,X)
 !-----------------------------------------------------------------------
-! Function : Find Maximumnorm in X(IDim)
+! Function : Find Maximum norm in X(n)
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-real*8 X(n)
-XMax = 0.0D+00
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: FindMx
+integer(kind=iwp) :: n
+real(kind=wp) :: X(n)
+integer(kind=iwp) :: I
+real(kind=wp) :: XMax
+
+XMax = Zero
 do I=1,n
   XMax = max(XMax,abs(X(I)))
 end do

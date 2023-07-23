@@ -9,19 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
+function CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
 !
 ! Purpose: return index in reduced set IRED (1,2,3) of
 !          element LAB in shell pair ISHLAB (sym. ISYMAB).
 !          If not included in this reduced set, 0 is returned.
 
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: CHO_RS2F
+integer(kind=iwp) :: LAB, ISHLAB, ISYMAB, IRED
 #include "cholesky.fh"
-character*8 SECNAM
-parameter(SECNAM='CHO_RS2F')
-integer K, K2
+integer(kind=iwp) :: K, K2
+character(len=*), parameter :: SECNAM = 'CHO_RS2F'
 
 CHO_RS2F = 0
 

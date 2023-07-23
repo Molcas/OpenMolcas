@@ -15,18 +15,19 @@ subroutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
 !          vectors on disk.
 
 use ChoSwp, only: nnBstRSh
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 QVec(l_QVec)
-integer LstQSP(nQSP)
-integer iV1(mSym), nV(mSym)
+implicit none
+integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP), mSym, iV1(mSym), nV(mSym)
+real(kind=wp) :: QVec(l_QVec)
 #include "cholesky.fh"
-character(len=16), parameter :: SecNam = 'Cho_VecDsk_GetLQ'
-integer nVecTot(8)
-integer, external :: Cho_P_LocalSP
-real*8, allocatable :: Scr(:)
-integer, allocatable :: iQuAB_2(:)
+integer(kind=iwp) :: iAB, iLoc, iQ, iQSP, iRedC, iRedQ, iShlAB, iSym, iV2, jLoc, jV, kOffQ, kQ, l_iQuAB_2, l_Scr, lDim, &
+                     nVecTot(8), nVT
+integer(kind=iwp), allocatable :: iQuAB_2(:)
+real(kind=wp), allocatable :: Scr(:)
+character(len=*), parameter :: SecNam = 'Cho_VecDsk_GetLQ'
+integer(kind=iwp), external :: Cho_P_LocalSP
 
 ! Check input.
 ! ------------

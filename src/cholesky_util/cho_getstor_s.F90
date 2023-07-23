@@ -15,21 +15,26 @@ subroutine CHO_GETSTOR_S(VCSTOR,ISYM)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: VCSTOR
+integer(kind=iwp) :: ISYM
 #include "cholesky.fh"
+integer(kind=iwp) :: IRED, JRED
 
 if (NUMCHO(ISYM) < 1) then
-  VCSTOR = 0.0d0
+  VCSTOR = Zero
 else if (.not. allocated(nDimRS)) then
   IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
   JRED = 3
   call CHO_GETRED(IRED,JRED,.false.)
   call CHO_SETREDIND(JRED)
-  VCSTOR = dble(INFVEC(NUMCHO(ISYM),4,ISYM))+dble(NNBSTR(ISYM,JRED))
+  VCSTOR = real(INFVEC(NUMCHO(ISYM),4,ISYM),kind=wp)+real(NNBSTR(ISYM,JRED),kind=wp)
 else
   IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
-  VCSTOR = dble(INFVEC(NUMCHO(ISYM),4,ISYM))+dble(NDIMRS(ISYM,IRED))
+  VCSTOR = real(INFVEC(NUMCHO(ISYM),4,ISYM),kind=wp)+real(NDIMRS(ISYM,IRED),kind=wp)
 end if
 
 end subroutine CHO_GETSTOR_S

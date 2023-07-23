@@ -13,19 +13,23 @@ subroutine ChoMP2_RHSlagr_2(EOcc,EVir,EFro,EDel,Xaibj,LnPQRSprod,LiPQRSprod,iBat
                             nFroLeftI,nFroLeftJ)
 ! This will calculate the righthandside of the mp2lagrangian.
 
-use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
+use ChoMP2, only: iFirstS, LiPQprod, LnBatOrb, LnPQprod
+use Constants, only: One, Two, Three
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 EOcc(*), EVir(*), EFro(*), EDel(*), Xaibj(LnPQRSprod)
-integer LiPQRSprod(8)
-integer nOccLeftI(8), nOccLeftJ(8)
-integer nOrbLeftI(8), nOrbLeftJ(8)
-integer nFroLeftI(8), nFroLeftJ(8)
+implicit none
+integer(kind=iwp) :: LnPQRSprod, LiPQRSprod(8), iBatch, jBatch, nOccLeftI(8), nOccLeftJ(8), nOrbLeftI(8), nOrbLeftJ(8), &
+                     nFroLeftI(8), nFroLeftJ(8)
+real(kind=wp) :: EOcc(*), EVir(*), EFro(*), EDel(*), Xaibj(LnPQRSprod)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iA, iB, iC, iI, iJ, iK, iP, ip_aiai, ip_ibac, ip_icab, ip_iiaa, ip_ijak, ip_ikaj, iSymA, iSymAI, iSymAQ, &
+                     iSymI, iSymIP, iSymIQ, iSymP, iSymQ, LA, Laa, Lab, Lai, Lak, LaORb, Lap, Li, Lia, Lib, Lii, Lik, LiOrb, Lip
+real(kind=wp) :: A, DiagEn, DiagInt, E_Occ, E_Vir
 ! Statement functions
+integer(kind=iwp) :: MulD2h, iTri, iDensVir, iDensOcc, iMp2Lagr, iDiaA, i, j, k
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 iDensVir(i,j,k) = ip_Density(k)+nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
@@ -73,7 +77,7 @@ do iSymIP=1,nSym
               ip_iiaa = LiPQRSprod(iSymAI)+LnPQprod(iSymAI,iBatch)*(Laa-1)+Lii
               ip_aiai = LiPQRSprod(iSymAI)+LnPQprod(iSymAI,iBatch)*(Lia-1)+Lai
             end if
-            DiagInt = 3.0d0*Xaibj(ip_aiai)-Xaibj(ip_iiaa)
+            DiagInt = Three*Xaibj(ip_aiai)-Xaibj(ip_iiaa)
             if (iI <= nFro(iSymI)) then
               E_Occ = EFro(iFro(iSymI)+iI)
             else
@@ -86,14 +90,14 @@ do iSymIP=1,nSym
             end if
 
             DiagEn = E_Vir-E_Occ
-            Work(iDiaA(iA,iI,iSymI)) = Work(iDiaA(iA,iI,iSymI))+1.0d0/(DiagInt+DiagEn)
+            Work(iDiaA(iA,iI,iSymI)) = Work(iDiaA(iA,iI,iSymI))+One/(DiagInt+DiagEn)
             !-----------------------------------------------------------
-            !write(6,*) 'IA',iI,iA
-            !write(6,*) 'Symm',iSymI,iSymA
-            !write(6,*) 'iiaa',Xaibj(ip_iiaa)
-            !write(6,*) 'iaia',Xaibj(ip_aiai)
-            !write(6,*) 'DiagInt',DiagInt
-            !write(6,*) 'DiagEn',DiagEn
+            !write(u6,*) 'IA',iI,iA
+            !write(u6,*) 'Symm',iSymI,iSymA
+            !write(u6,*) 'iiaa',Xaibj(ip_iiaa)
+            !write(u6,*) 'iaia',Xaibj(ip_aiai)
+            !write(u6,*) 'DiagInt',DiagInt
+            !write(u6,*) 'DiagEn',DiagEn
             !-----------------------------------------------------------
           end if
           do iP=1,nOrb(iSymP)+nDel(iSymP)
@@ -112,15 +116,15 @@ do iSymIP=1,nSym
                   ip_ijak = LiPQRSprod(iSymIP)+LnPQprod(iSymIP,iBatch)*(Lak-1)+Lip
                   ip_ikaj = LiPQRSprod(iSymIQ)+LnPQprod(iSymIQ,iBatch)*(Lap-1)+Lik
                 end if
-                A = 2.0d0*Xaibj(ip_ijak)-Xaibj(ip_ikaj)
+                A = Two*Xaibj(ip_ijak)-Xaibj(ip_ikaj)
                 Work(iMp2Lagr(iA,iK,iSymQ)) = Work(iMp2Lagr(iA,iK,iSymQ))+Work(iDensOcc(iJ,iI,iSymI))*A
                 !----- Debug Comments -----------------------
                 !if (iP <= nFro(iSymP)+nOcc(iSymP)) then
-                !  write(6,*) 'AIJK',iA,iI,iJ,iK
-                !  write(6,*) 'aijk',Xaibj(ip_ijak)
-                !  write(6,*) 'akji',Xaibj(ip_ikaj)
-                !  write(6,*) 'A',A
-                !  write(6,*) 'Density',Work(iDensOcc(iJ,iI,iSymI))
+                !  write(u6,*) 'AIJK',iA,iI,iJ,iK
+                !  write(u6,*) 'aijk',Xaibj(ip_ijak)
+                !  write(u6,*) 'akji',Xaibj(ip_ikaj)
+                !  write(u6,*) 'A',A
+                !  write(u6,*) 'Density',Work(iDensOcc(iJ,iI,iSymI))
                 !end if
                 !--------------------------------------------
               end do
@@ -138,18 +142,18 @@ do iSymIP=1,nSym
                   ip_icab = LiPQRSprod(iSymIP)+LnPQprod(iSymIP,iBatch)*(Lab-1)+Lip
                   ip_ibac = LiPQRSprod(iSymIQ)+LnPQprod(iSymIQ,iBatch)*(Lap-1)+Lib
                 end if
-                A = 2.0d0*Xaibj(ip_icab)-Xaibj(ip_ibac)
+                A = Two*Xaibj(ip_icab)-Xaibj(ip_ibac)
                 Work(iMp2Lagr(iC,iI,iSymI)) = Work(iMp2Lagr(iC,iI,iSymI))+Work(iDensVir(iB,iA,iSymA))*A
                 !------ Debug Comments ---------------------------------
-                !write(6,*) 'AIBC',iA,iI,iB,iC
-                !write(6,*) 'Symm',iSymA,iSymI,iSymQ,iSymP
-                !write(6,*) 'icab',Xaibj(ip_icab)
-                !write(6,*) 'ibac',Xaibj(ip_ibac)
-                !write(6,*) 'adress',iMp2Lagr(iC,iI,iSymI)-ip_Mp2Lagr(1)
-                !write(6,*) 'DensAdress',iDensVir(iB,iA,iSymA)-ip_Density(1)
-                !write(6,*) 'Dens',Work(iDensVir(iB,iA,iSymA))
-                !write(6,*) 'A',A
-                !write(6,*) 'Bidrag',A*Work(iDensVir(iB,iA,iSymA))
+                !write(u6,*) 'AIBC',iA,iI,iB,iC
+                !write(u6,*) 'Symm',iSymA,iSymI,iSymQ,iSymP
+                !write(u6,*) 'icab',Xaibj(ip_icab)
+                !write(u6,*) 'ibac',Xaibj(ip_ibac)
+                !write(u6,*) 'adress',iMp2Lagr(iC,iI,iSymI)-ip_Mp2Lagr(1)
+                !write(u6,*) 'DensAdress',iDensVir(iB,iA,iSymA)-ip_Density(1)
+                !write(u6,*) 'Dens',Work(iDensVir(iB,iA,iSymA))
+                !write(u6,*) 'A',A
+                !write(u6,*) 'Bidrag',A*Work(iDensVir(iB,iA,iSymA))
                 !-------------------------------------------------------
               end do
             end if

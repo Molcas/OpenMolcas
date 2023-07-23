@@ -11,8 +11,10 @@
 
 subroutine Cho_TranslateErrorCode(iErr,MolcasCode)
 
+use Definitions, only: iwp
+
 implicit none
-integer iErr, MolcasCode
+integer(kind=iwp) :: iErr, MolcasCode
 #include "warnings.h"
 
 if (iErr == 3) then ! special code used in parallel

@@ -13,11 +13,12 @@ subroutine Cho_P_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
 !
 ! Purpose: check diagonals in qualified integral columns.
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 xInt(*), Diag(*)
-integer iSym, nErr
-real*8 Tol
-logical Report
+real(kind=wp) :: xInt(*), Diag(*), Tol
+integer(kind=iwp) :: iSym, nErr
+logical(kind=iwp) :: Report
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

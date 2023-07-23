@@ -14,24 +14,27 @@ subroutine Cho_MaxAbsDiag_1C(Diag,iLoc,DGMax)
 ! Specialization for 1-Center approximation: only find max for
 ! 1-center diagonals.
 
-use ChoArr, only: iSP2F, iAtomShl
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use ChoArr, only: iAtomShl, iSP2F
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+implicit none
+real(kind=wp) :: Diag(*), DGMax
+integer(kind=iwp) :: iLoc
 #include "cholesky.fh"
-character*17 SecNam
-parameter(SecNam='Cho_MaxAbsDiag_1C')
-logical LocDbg
+integer(kind=iwp) :: i, i1, i2, iShlA, iShlAB, iShlB, iSym
 #ifdef _DEBUGPRINT_
-parameter(LocDbg=.true.)
+#define _DBG_ .true.
 #else
-parameter(LocDbg=.false.)
+#define _DBG_ .false.
 #endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_MaxAbsDiag_1C'
 
 if (iLoc == 1) then
   do iSym=1,nSym
-    DiaMax(iSym) = 0.0d0
+    DiaMax(iSym) = Zero
     do iShlAB=1,nnShl
       call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
       if (iAtomShl(iShlA) == iAtomShl(iShlB)) then
@@ -46,7 +49,7 @@ if (iLoc == 1) then
   end do
 else if ((iLoc == 2) .or. (iLoc == 3)) then
   do iSym=1,nSym
-    DiaMax(iSym) = 0.0d0
+    DiaMax(iSym) = Zero
     do iShlAB=1,nnShl
       call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
       if (iAtomShl(iShlA) == iAtomShl(iShlB)) then
@@ -57,7 +60,7 @@ else if ((iLoc == 2) .or. (iLoc == 3)) then
         end do
       end if
     end do
-    DiaMaxT(iSym) = 0.0d0
+    DiaMaxT(iSym) = Zero
     do iShlAB=1,nnShl
       call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
       if (iAtomShl(iShlA) == iAtomShl(iShlB)) then

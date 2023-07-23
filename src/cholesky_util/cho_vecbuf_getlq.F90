@@ -16,13 +16,14 @@ subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
 
 use ChoSwp, only: iQuAB
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8, target :: QVec(l_QVec)
+implicit none
+integer(kind=iwp) :: l_QVec
+real(kind=wp), target :: QVec(l_QVec)
 #include "cholesky.fh"
-real*8, pointer :: BVec(:,:), Q(:,:)
-integer nVecTot(8)
-integer iS, iE, lRow, lCol
+integer(kind=iwp) :: iAB, iE, iQ, iS, iSym, iVec, kOffQ, lCol, lRow, nVecTot(8)
+real(kind=wp), pointer :: BVec(:,:), Q(:,:)
 
 ! Check if there is any buffer at all.
 ! ------------------------------------

@@ -19,14 +19,15 @@ subroutine Cho_P_SetRed(Diag,Sync)
 !          Note that Diag is not referenced if Sync=.False.
 
 use ChoSwp, only: Diag_G
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-logical Sync
+real(kind=wp) :: Diag(*)
+logical(kind=iwp) :: Sync
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iLoc
+integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then
 

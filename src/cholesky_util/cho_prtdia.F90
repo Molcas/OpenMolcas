@@ -15,14 +15,15 @@ subroutine CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
 !          first (IRED=1) or current (IRED=2) reduced set.
 
 use ChoArr, only: iSP2F
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
-integer ISYLST(NSYLST)
+implicit none
+integer(kind=iwp) :: NSYLST, ISYLST(NSYLST), IRED
+real(kind=wp) :: Diag(*)
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_PRTDIA')
+integer(kind=iwp) :: IAB, IAB1, IAB2, ILST, ISHLAB, ISYM, JAB
+character(len=*), parameter :: SECNAM = 'CHO_PRTDIA'
 
 ! Check dimension of symmetry list.
 ! ---------------------------------

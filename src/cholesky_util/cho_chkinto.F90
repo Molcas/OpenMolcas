@@ -14,10 +14,14 @@ subroutine CHO_CHKINTO(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 ! Purpose: check diagonals in qualified integral columns against
 !          original diagonal (read in here).
 
-implicit real*8(a-h,o-z)
-real*8 XINT(*), DIAG(*)
-logical REPORT
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: XINT(*), DIAG(*), TOL
+integer(kind=iwp) :: ISYM, NERR
+logical(kind=iwp) :: REPORT
 #include "cholesky.fh"
+integer(kind=iwp) :: IOPT
 
 IOPT = 2
 call CHO_IODIAG(DIAG,IOPT)

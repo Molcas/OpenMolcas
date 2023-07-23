@@ -13,10 +13,12 @@ subroutine CHO_SETRSDIM(NDIMRS,MSYM,MRED,IRED,ILOC)
 !
 ! Purpose: set reduced set dimension.
 
-implicit real*8(a-h,o-z)
-integer NDIMRS(MSYM,MRED)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: MSYM, MRED, NDIMRS(MSYM,MRED), IRED, ILOC
 #include "cholesky.fh"
 
-if (IRED <= MAXRED) call ICOPY(NSYM,NNBSTR(1,ILOC),1,NDIMRS(1,IRED),1)
+if (IRED <= MAXRED) call ICOPY(NSYM,NNBSTR(:,ILOC),1,NDIMRS(:,IRED),1)
 
 end subroutine CHO_SETRSDIM

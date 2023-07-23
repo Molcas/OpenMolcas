@@ -20,30 +20,27 @@ subroutine CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
 ! IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 ! record bookmarks during Cholesky decomposition.
 
-use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iShlSO, IntMap
-use ChoArr, only: nDimRS, MySP
-use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh, iiBstRSh_Hidden, iiBstRSh, InfRed_Hidden, InfRed, InfVec_Hidden, &
-                  InfVec
-use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+use ChoArr, only: iAtomShl, iBasSh, IntMap, iShlSO, iSOShl, MySP, nBasSh, nBstSh, nDimRS
+use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden, InfRed, InfRed_Hidden, InfVec, InfVec_Hidden, iQuAB, iQuAB_Hidden, nnBstRSh, &
+                  nnBstRSh_Hidden
+use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
 use ChoSubScr, only: Cho_SScreen, SSTau
 use ChoSP, only: nnShl_SP
 use stdalloc, only: mma_allocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-logical SKIP_PRESCREEN
-logical ALLOCATE_BOOKMARKS
+logical(kind=iwp) :: SKIP_PRESCREEN, ALLOCATE_BOOKMARKS
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-real*8 XXB(8)
-character(len=1), parameter :: LINE = '='
-character(len=8), parameter :: SECNAM = 'CHO_INIT'
-character(len=17), parameter :: STRING = 'Information from '
-real*8, parameter :: GBLIM = 2.147483648d9
-integer :: I, J, MulD2h
-integer :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
-real*8 :: XA, XB, XXBMx, XXBT
+integer(kind=iwp) :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
+real(kind=wp) :: XA, XB, XXB(8), XXBMx, XXBT
+real(kind=wp), parameter :: GBLIM = 2.147483648e9_wp
+character(len=*), parameter :: LINE = '=', SECNAM = 'CHO_INIT', STRING = 'Information from '
 ! Statement function
+integer(kind=iwp) :: I, J, MulD2h
 MULD2H(I,J) = ieor(I-1,J-1)+1
 
 ! Check settings for parallel runs.
@@ -69,7 +66,7 @@ if (TRACE_IDLE) call CHO_TRCIDL_INIT()
 
 if (SKIP_PRESCREEN) CHO_PRESCREEN = .false.
 if (CHO_PRESCREEN) then
-  if (THR_PRESCREEN < 0.0d0) THR_PRESCREEN = min(1.0d-14,THRCOM)
+  if (THR_PRESCREEN < Zero) THR_PRESCREEN = min(1.0e-14_wp,THRCOM)
 end if
 
 ! Get info from Seward.
@@ -109,7 +106,7 @@ call IZERO(NVECRS1,NSYM)
 
 DID_DECDRV = .false.
 
-DIAMNZ = 0.0d0
+DIAMNZ = Zero
 IABMNZ = 0
 NNZTOT = 0
 
@@ -133,18 +130,18 @@ call CHO_INIMAP()
 ! -----------------------------------------------------------
 
 if ((MAXRED < 1) .or. (MAXVEC < 1)) then
-  XXBMX = -1.0d8
-  XXBT = 0.0d0
+  XXBMX = -1.0e8_wp
+  XXBT = Zero
   do ISYM=1,NSYM
-    XXB(ISYM) = 0.0d0
+    XXB(ISYM) = Zero
     do ISYMB=1,NSYM
       ISYMA = MULD2H(ISYMB,ISYM)
       if (ISYMA == ISYMB) then
-        XA = dble(NBAS(ISYMA))
-        XXB(ISYM) = XXB(ISYM)+XA*(XA+1.0d0)/2.0d0
+        XA = real(NBAS(ISYMA),kind=wp)
+        XXB(ISYM) = XXB(ISYM)+XA*(XA+One)*Half
       else if (ISYMA > ISYMB) then
-        XA = dble(NBAS(ISYMA))
-        XB = dble(NBAS(ISYMB))
+        XA = real(NBAS(ISYMA),kind=wp)
+        XB = real(NBAS(ISYMB),kind=wp)
         XXB(ISYM) = XXB(ISYM)+XA*XB
       end if
     end do
@@ -218,7 +215,7 @@ call CHO_INIT1()
 ! --------------------------------------------------
 
 if (CHO_SSCREEN) then
-  if (SSTAU < 0.0d0) SSTAU = THRCOM*1.0D-6
+  if (SSTAU < Zero) SSTAU = THRCOM*1.0e-6_wp
 end if
 
 ! Print header and configuration.

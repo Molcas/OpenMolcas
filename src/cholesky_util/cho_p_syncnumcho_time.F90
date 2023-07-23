@@ -11,8 +11,10 @@
 
 subroutine Cho_P_SyncNumCho_Time(c,w)
 
+use Definitions, only: wp
+
 implicit none
-real*8 c, w
+real(kind=wp) :: c, w
 #include "cholesky.fh"
 
 tMisc(1,5) = tMisc(1,5)+c

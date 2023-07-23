@@ -16,27 +16,23 @@ subroutine Cho_SimRI_Z1CDia(Diag,Thr,Indx)
 !          On exit, Indx(i)=1 if diagonal i was zeroed, else
 !          Indx(i)=0 (thus, Indx must have same dimension as Diag).
 
-use ChoArr, only: iSP2F, iAtomShl
-use ChoSwp, only: nnBstRSh, iiBstRSh
+use ChoArr, only: iAtomShl, iSP2F
+use ChoSwp, only: iiBstRSh, nnBstRSh
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-real*8 Thr
-integer Indx(*)
+real(kind=wp) :: Diag(*), Thr
+integer(kind=iwp) :: Indx(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-integer iShlAB, iShlA, iShlB
-integer iAB1, iAB2, iAB
-integer n
-real*8 zmx
-real*8 Zero
-parameter(Zero=0.0d0)
-integer Inf_SimRI
-parameter(Inf_SimRI=0)
+integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlAB, iShlB, n
+real(kind=wp) :: zmx
+integer(kind=iwp), parameter :: Inf_SimRI = 0
 
 call iZero(Indx,nnBstR(1,1))
 
-zmx = 0.0d0
+zmx = Zero
 n = 0
 do iShlAB=1,nnShl
   call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
@@ -48,7 +44,7 @@ do iShlAB=1,nnShl
         zmx = max(zmx,Diag(iAB))
         n = n+1
         Indx(iAB) = 1
-        Diag(iAB) = 0.0d0
+        Diag(iAB) = Zero
       end if
     end do
   end if

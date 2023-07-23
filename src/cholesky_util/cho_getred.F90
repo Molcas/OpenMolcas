@@ -15,18 +15,17 @@ subroutine CHO_GETRED(IPASS,ILOC,LRSH)
 !          IPASS).
 
 use ChoArr, only: iSP2F
-use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
+use ChoSwp, only: IndRed, IndRSh, InfRed, nnBstRsh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer IPASS, ILOC
-logical LRSH
+implicit none
+integer(kind=iwp) :: IPASS, ILOC
+logical(kind=iwp) :: LRSH
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_GETRED')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer CHO_ISUMELM
-external CHO_ISUMELM
+integer(kind=iwp) :: IADR, IADR1, IOPT, LSAV, LTOT
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GETRED'
+integer(kind=iwp), external :: CHO_ISUMELM
 
 #ifdef _DEBUGPRINT_
 ! Test dimensions.

@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-logical function ChoMP2_ChkPar()
+function ChoMP2_ChkPar()
 !
 ! Thomas Bondo Pedersen, Nov. 2006.
 !
@@ -19,10 +19,12 @@ logical function ChoMP2_ChkPar()
 !          false.
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Definitions, only: iwp
 
 implicit none
+logical(kind=iwp) :: ChoMP2_ChkPar
 
 #ifdef _MOLCAS_MPP_
 ChoMP2_ChkPar = (nProcs > 1) .and. Is_Real_Par()

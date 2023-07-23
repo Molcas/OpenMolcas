@@ -15,11 +15,12 @@ subroutine Cho_PTS_Final(NVT,l_NVT)
 !
 ! Thomas Bondo Pedersen, April 2010.
 
+use Definitions, only: iwp
+
 implicit none
-integer l_NVT
-integer NVT(l_NVT)
+integer(kind=iwp) :: l_NVT, NVT(l_NVT)
 #include "choglob.fh"
-integer i
+integer(kind=iwp) :: i
 
 call iCopy(l_NVT,NVT,1,NumCho_G,1)
 NumChT_G = NumCho_G(1)

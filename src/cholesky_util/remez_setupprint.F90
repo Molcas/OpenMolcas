@@ -14,16 +14,16 @@
 
 subroutine Remez_SetupPrint(print_to_molcas_log)
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Definitions, only: iwp, u6
 
 implicit none
-logical print_to_molcas_log
-integer ini
-integer isFreeUnit
-external isFreeUnit
+logical(kind=iwp) :: print_to_molcas_log
+integer(kind=iwp) :: ini
+integer(kind=iwp), external :: isFreeUnit
 
 if (print_to_molcas_log) then
-  IW = 6
+  IW = u6
 else
   ini = 7
   IW = isFreeUnit(ini)

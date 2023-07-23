@@ -26,22 +26,22 @@ subroutine Cho_X_SetInc(irc)
 !          cho_para_info.fh
 !          and some in the Module choarr.f90
 
-use ChoArr, only: nDim_Batch, nQual_L, n_MySP
-use ChoBkm, only: nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
-use ChoVecBuf, only: ip_CHVBUF_SYM, l_CHVBUF_SYM, ip_CHVBFI_SYM, l_CHVBFI_SYM, nVec_in_Buf
-use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
-use ChPari
+use ChoArr, only: n_MySP, nDim_Batch, nQual_L
+use ChoBkm, only: nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
+use ChoSubScr, only: Cho_SScreen, SSNorm, SSTau, SubScrStat
+use ChoVecBuf, only: ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use ChPari, only: NumCho_Bak
+use Constants, only: Zero
+use Definitions, only: iwp, wp
 
 implicit none
-integer irc
+integer(kind=iwp) :: irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-integer iLarge
-parameter(iLarge=99999999)
-real*8 Large, Small
-parameter(Large=1.0d15,Small=1.0D-15)
+integer(kind=iwp), parameter :: iLarge = 99999999
+real(kind=wp), parameter :: Large = 1.0e15_wp, Small = 1.0e-15_wp
 
 ! Set return code.
 ! ----------------
@@ -184,7 +184,7 @@ N_Subtr = 0
 N1_Qual = -iLarge
 N2_Qual = iLarge
 
-Frac_ChVBuf = 0.0d0
+Frac_ChVBuf = Zero
 
 nDim_Batch(:) = 0
 
@@ -208,9 +208,9 @@ call iZero(nVec_in_Buf,8)
 ! -------------
 
 Cho_SScreen = .false.
-SSTau = 0.0d0
-SubScrStat(1) = 0.0d0
-SubScrStat(2) = 0.0d0
+SSTau = Zero
+SubScrStat(1) = Zero
+SubScrStat(2) = Zero
 SSNorm = 'tbp'
 
 ! Module chpari

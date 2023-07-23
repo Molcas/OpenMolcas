@@ -21,34 +21,33 @@ subroutine CHO_TRDENS(irc,DLT,Salpha,istate,jstate,iType,DoExch,labB)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type, SBA_Type, Allocate_DT, Deallocate_DT
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-implicit real(kind=wp) (A-H,O-Z)
-integer(kind=iwp), intent(inout) :: irc
-type(SBA_Type), target :: Ya(1)
+implicit none
+integer(kind=iwp), intent(out) :: irc
 type(DSBA_Type), intent(in) :: DLT, Salpha(1)
+integer(kind=iwp), intent(in) :: istate, jstate, iType
+logical(kind=iwp), intent(in) :: DoExch, labB
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "debug.fh"
-integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
-                     NUMV, nVec, nVrs, iSym, iCase, LuT_, LuT2, LuT1, LuT, dimX
-real(kind=wp) :: dimX_real(1)
-integer(kind=iwp), intent(in) :: iType, istate, jstate
-integer(kind=iwp), external :: isFreeUnit
-real(kind=wp) :: TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, &
-                 TWR1, TWR2
-logical, intent(in) :: DoExch, labB
-logical :: add
+integer(kind=iwp) :: dimX, i, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, &
+                     k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
+real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
+                 TWC1, TWC2, TWR1, TWR2
+logical(kind=iwp) :: add, DoRead
 character(len=50) :: CFmt
+character(len=20) :: filnam1, filnam2
+character(len=13) :: filnam
+type(SBA_Type), target :: Ya(1)
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_TRDENS'
-character(len=13) :: filnam
-character(len=20) :: filnam1, filnam2
-logical :: DoRead
+integer(kind=iwp), external :: isFreeUnit
+real(kind=wp), external :: ddot_
 
 #ifdef _DEBUGPRINT_
 Debug = .true.
@@ -81,7 +80,7 @@ if (DoExch) then
   iSym = 1
   nRS = nDimRS(JSYM,1)
   dimX = nBas(iSym)*nBas(iSym)*NumCho(JSYM)
-  dimX_real(1) = dble(dimX)
+  dimX_real(1) = real(dimX,kind=wp)
   iAddr = 0
   call dDaFile(LuT2,1,dimX_real,1,iAddr)
   call DACLOS(LuT2)

@@ -11,7 +11,14 @@
 
 module ReMez_mod
 
+use Definitions, only: iwp
+
+implicit none
+private
+
 ! logical unit for printing in subroutine Remez (Laplace quadrature)
-integer IW
+integer(kind=iwp) :: IW
+
+public :: IW
 
 end module ReMez_mod

@@ -19,28 +19,32 @@ subroutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc)
 
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
-real*8 Scr(lScr)
+implicit none
+integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
+real(kind=wp) :: VecAO(*), VecMO(*), COcc(*), CVir(*), Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-character*13 SecNam
-parameter(SecNam='ChoMP2_TraVec')
-real*8 Fac(0:1)
-data Fac/0.5d0,1.0d0/
+integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, kOff3, &
+                     kOffAl, kOffBe, nTota, nTotAl, nToti
+real(kind=wp) :: AOVal
+real(kind=wp), parameter :: Fac(0:1) = [Half,One]
+character(len=*), parameter :: SecNam = 'ChoMP2_TraVec'
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if ((iLoc < 2) .or. (iLoc > 3)) then
-  write(6,*) SecNam,': illegal iLoc = ',iLoc
+  write(u6,*) SecNam,': illegal iLoc = ',iLoc
   call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
 end if
 iSyScr = MulD2h(iSyCho,iSyCO)
 if (lScr < nT1AOT(iSyScr)) then
-  write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-  write(6,*) SecNam,': needed                          = ',nT1AOT(iSyScr)
+  write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
+  write(u6,*) SecNam,': needed                          = ',nT1AOT(iSyScr)
   call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
 else
   call FZero(Scr,nT1AOT(iSyScr))
@@ -138,7 +142,7 @@ do iSymi=1,nSym
     kOff1 = iAOVir(iSymAl,iSyma)+1
     kOff2 = iT1AOT(iSymi,iSymAl)+1
     kOff3 = iT1am(iSyma,iSymi)+1
-    call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),1.0d0,CVir(kOff1),nTotAl,Scr(kOff2),nToti,0.0d0,VecMO(kOff3),nTota)
+    call DGEMM_('T','T',nVir(iSyma),nOcc(iSymi),nBas(iSymAl),One,CVir(kOff1),nTotAl,Scr(kOff2),nToti,Zero,VecMO(kOff3),nTota)
   end if
 
 end do

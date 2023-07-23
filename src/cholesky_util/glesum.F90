@@ -26,13 +26,19 @@ function GLeSum(K,X,W,Delta)
 !----------------------------------------------------------------------*
 !======================================================================*
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00,ONE=1.0D+00)
-real*8 W(20), X(20)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-Dum = ZERO
+implicit none
+real(kind=wp) :: GLeSum
+integer(kind=iwp) :: K
+real(kind=wp) :: X(20), W(20), Delta
+integer(kind=iwp) :: I
+real(kind=wp) :: A, Derv, Dum, Val, Varl
+
+Dum = Zero
 do I=1,K
-  A = ONE/(ONE-X(I))
+  A = One/(One-X(I))
   Varl = X(I)*A
   Derv = Varl*A
   Val = Derv*exp(-Delta*Varl)

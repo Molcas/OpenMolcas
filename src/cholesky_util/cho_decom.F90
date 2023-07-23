@@ -14,20 +14,23 @@ subroutine CHO_DECOM(DIAG,WRK,LWRK,IPASS,NUM)
 ! Purpose: calculate Cholesky vectors from qualified integral
 !          columns (from disk).
 
-use ChoSwp, only: iQuAB, IndRed
+use ChoSwp, only: IndRed, iQuAB
 use ChoVecBuf, only: nVec_in_Buf
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), WRK(LWRK)
+implicit none
+integer(kind=iwp) :: LWRK, IPASS, NUM
+real(kind=wp) :: Diag(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*9 SECNAM
-parameter(SECNAM='CHO_DECOM')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-parameter(ZERO=0.0d0,ONE=1.0d0)
-logical LAST
-integer NUMCHO_OLD(8)
+integer(kind=iwp) :: I, IAB, IABG, IADR, ICHO, IDUMP, II, IOPT, ISYM, IVEC, IVEC1, IVECT, JJ, KAB, KCHO1, KEND0, KEND1, KINT1, &
+                     KOFF, KOFF0, KOFF1, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, &
+                     NUMCHO_OLD(8)
+real(kind=wp) :: C1, C2, FAC, OLDIAG, TOL, W1, W2, XC, XM, XMAX, XMIN, YM
+logical(kind=iwp) :: LAST
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_DECOM'
 
 LENLIN = 0  ! to avoid compiler warnings...
 if (IPRINT >= INF_PROGRESS) then
@@ -156,7 +159,7 @@ do ISYM=1,NSYM
       ! the Cholesky vector.
       ! -----------------------------------------------------
 
-      FAC = ONE/sqrt(XC)
+      FAC = One/sqrt(XC)
       KOFF = KOFF0+1
       call DSCAL_(NNBSTR(ISYM,2),FAC,WRK(KOFF),1)
 
@@ -166,9 +169,9 @@ do ISYM=1,NSYM
       do I=1,NNBSTR(ISYM,2)
         II = IIBSTR(ISYM,2)+I
         JJ = INDRED(II,2)
-        if (DIAG(JJ) == ZERO) then
+        if (DIAG(JJ) == Zero) then
           KOFF = KOFF0+I
-          WRK(KOFF) = ZERO
+          WRK(KOFF) = Zero
         end if
       end do
 
@@ -186,7 +189,7 @@ do ISYM=1,NSYM
       ! -----------------------------------------------------------
 
       OLDIAG = DIAG(IABG)
-      DIAG(IABG) = ZERO
+      DIAG(IABG) = Zero
       call CHO_CHKDIA(DIAG,ISYM,XMIN,XMAX,XM,NNEGT,NNEG,NCONV)
 
       ! Update total number of zeroed negative diagonals.
@@ -223,7 +226,7 @@ do ISYM=1,NSYM
       do I=1,NQUAL(ISYM)
         II = IQUAB(I,ISYM)
         JJ = INDRED(II,2)
-        if (DIAG(JJ) /= ZERO) then
+        if (DIAG(JJ) /= Zero) then
           KOFF2 = KINT1+NNBSTR(ISYM,2)*(I-1)
           KOFF3 = KOFF0+II-IIBSTR(ISYM,2)
           FAC = -WRK(KOFF3)

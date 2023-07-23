@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-integer function Cho_F2SP(iSP)
+function Cho_F2SP(iSP)
 !
 ! Thomas Bondo Pedersen, March 2006.
 !
@@ -23,10 +23,12 @@ integer function Cho_F2SP(iSP)
 
 use ChoArr, only: iSP2F
 use ChoSP, only: nnShl_SP
+use Definitions, only: iwp
 
 implicit none
-integer iSP
-integer jSP
+integer(kind=iwp) :: Cho_F2SP
+integer(kind=iwp) :: iSP
+integer(kind=iwp) :: jSP
 
 Cho_F2SP = 0
 do jSP=1,nnShl_SP

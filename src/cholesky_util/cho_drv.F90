@@ -20,8 +20,10 @@ subroutine Cho_Drv(iReturn)
 !          initialized and the relevant index info (#irreps, basis
 !          functions, shells, etc.) must have been set up.
 
+use Definitions, only: iwp
+
 implicit none
-integer iReturn
+integer(kind=iwp) :: iReturn
 #include "cholesky.fh"
 
 iReturn = 0

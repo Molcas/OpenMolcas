@@ -26,7 +26,7 @@ subroutine MinimaxLaplace(Verbose,N,xmin,xmax,l_wt,w,t,irc)
 ! Verbose   -- boolean to control printing
 ! N         -- number of grid points requested. If N=0 on input,
 !              the number of points required to get an accuracy
-!              of 1.0d-6 (in the Laplace transform) is used. In
+!              of 1.0e-6 (in the Laplace transform) is used. In
 !              this case, N is the required number of grid points
 !              on return.
 ! xmin,xmax -- range of x values to be covered.
@@ -43,38 +43,31 @@ subroutine MinimaxLaplace(Verbose,N,xmin,xmax,l_wt,w,t,irc)
 !               1: l_wt is too small to store full result and only
 !                  l_wt grid weights/points are returned.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical Verbose
-integer N
-real*8 xmin
-real*8 xmax
-integer l_wt
-real*8 w(l_wt)
-real*8 t(l_wt)
-integer irc
-integer mGrid
-parameter(mGrid=20) ! limited by Remez implementation
-character*8 DefaultGrid
-parameter(DefaultGrid='MICRO   ')
-integer l_Coeff
-real*8, allocatable :: Coeff(:)
-integer K_Lap
-character*8 Demand
-logical Inf
-integer i
+logical(kind=iwp) :: Verbose
+integer(kind=iwp) :: N, l_wt, irc
+real(kind=wp) :: xmin, xmax, w(l_wt), t(l_wt)
+integer(kind=iwp) :: i, K_Lap, l_Coeff
+logical(kind=iwp) :: Inf
+character(len=8) :: Demand
+real(kind=wp), allocatable :: Coeff(:)
+integer(kind=iwp), parameter :: mGrid = 20 ! limited by Remez implementation
+character(len=*), parameter :: DefaultGrid = 'MICRO   '
 
 irc = 0
 if ((N < 0) .or. (N > mGrid)) then
   irc = -1
   return
 end if
-if (xmin < 0.0d0) then
+if (xmin < Zero) then
   irc = -2
   return
 end if
-if ((xmax-xmin) < 0.0d0) then
+if ((xmax-xmin) < Zero) then
   irc = -3
   return
 end if
@@ -96,7 +89,7 @@ call Remez(Verbose,K_Lap,xmin,xmax,Coeff,Demand,Inf)
 if (K_Lap < 0) then
   call mma_Deallocate(Coeff)
   irc = -1
-  write(6,'(A,I10)') 'MinimaxLaplace: Remez returned K_Lap=',K_Lap
+  write(u6,'(A,I10)') 'MinimaxLaplace: Remez returned K_Lap=',K_Lap
   return
 end if
 if (N == 0) N = K_Lap

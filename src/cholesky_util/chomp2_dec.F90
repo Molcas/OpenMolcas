@@ -12,9 +12,15 @@
 ! Stuff for decomposing (ai|bj) integrals or amplitudes in MP2:
 module chomp2_dec
 
-public :: InCore, iOption_MP2CD, NowSym
-logical InCore(8)
-integer iOption_MP2CD, NowSym
-real*8, pointer, contiguous :: EOcc(:) => null(), EVir(:) => null()
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iOption_MP2CD, NowSym
+real(kind=wp), pointer, contiguous :: EOcc(:) => null(), EVir(:) => null()
+logical(kind=iwp) :: InCore(8)
+
+public :: EOcc, EVir, InCore, iOption_MP2CD, NowSym
 
 end module chomp2_dec

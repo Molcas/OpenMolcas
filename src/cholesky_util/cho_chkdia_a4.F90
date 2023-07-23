@@ -22,26 +22,26 @@ subroutine Cho_ChkDia_A4(Diag,Dmax,iSym,nNeg,nNegT,nConv,xM,yM,zM)
 !          zM = max. abs. element in Diag
 
 use ChoSwp, only: IndRed
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*), Dmax
-integer iSym, nNeg, nNegT, nConv
-real*8 xM, yM, zM
+real(kind=wp) :: Diag(*), Dmax, xM, yM, zM
+integer(kind=iwp) :: iSym, nNeg, nNegT, nConv
 #include "cholesky.fh"
-character*13 SecNam
-parameter(SecNam='Cho_ChkDia_A4')
-real*8 Tst
-integer i, j, j1, j2
+integer(kind=iwp) :: i, j, j1, j2
+real(kind=wp) :: Tst
+character(len=*), parameter :: SecNam = 'Cho_ChkDia_A4'
 
 nNeg = 0
 nNegT = 0
 nConv = 0
 if (nnBstR(iSym,2) > 0) then
-  xM = -9.9d9
-  yM = 9.9d9
+  xM = -9.9e9_wp
+  yM = 9.9e9_wp
 else
-  xM = 0.0d0
-  yM = 0.0d0
+  xM = Zero
+  yM = Zero
 end if
 
 j1 = iiBstR(iSym,2)+1
@@ -50,7 +50,7 @@ do j=j1,j2
   i = IndRed(j,2) ! addr in 1st reduced set
   xM = max(xM,Diag(i))
   yM = min(yM,Diag(i))
-  if (Diag(i) < 0.0d0) then
+  if (Diag(i) < Zero) then
     nNegT = nNegT+1
     if (Diag(i) < ThrNeg) then
       nNeg = nNeg+1
@@ -60,7 +60,7 @@ do j=j1,j2
         call Cho_Quit('Diagonal too negative in '//SecNam,104)
       end if
       if (Diag(i) < WarNeg) write(Lupri,'(A,A,I12,1X,1P,D16.8,A)') SecNam,': Negative diagonal: ',i,Diag(i),' (zeroed)'
-      Diag(i) = 0.0d0
+      Diag(i) = Zero
     end if
   end if
 end do
@@ -72,7 +72,7 @@ do j=j1,j2
   Tst = sqrt(abs(Diag(i))*Dmax)*Damp(2)
   if (Tst <= ThrCom) then
     nConv = nConv+1
-    if (ScDiag) Diag(i) = 0.0d0
+    if (ScDiag) Diag(i) = Zero
   end if
 end do
 

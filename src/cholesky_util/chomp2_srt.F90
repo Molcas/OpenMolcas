@@ -17,16 +17,18 @@ subroutine ChoMP2_Srt(Vec,Srt,nVec,iSym,iBatch)
 !
 ! Purpose: copy out subblock of vectors.
 
-use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am
-use ChoMP2, only: LnBatOrb
-use ChoMP2, only: LnPQprod, LiPQprod
+use ChoMP2, only: iFirstS, LiPQprod, LiT1am, LnBatOrb, LnOcc, LnPQprod, LnT1am
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Vec(*), Srt(*)
+implicit none
+real(kind=wp) :: Vec(*), Srt(*)
+integer(kind=iwp) :: nVec, iSym, iBatch
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-! Stametemnt function
+integer(kind=iwp) :: iSyma, iSymi, iVec, kOff0, kOff1, kOff2, kOff3, lCp
+! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if (.not. DoDens) then

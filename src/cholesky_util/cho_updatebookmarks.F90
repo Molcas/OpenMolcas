@@ -13,15 +13,12 @@
 
 subroutine Cho_UpdateBookmarks(iRS,nSym,nRS,nVec,delta,nBkmVec,BkmThr)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer iRS
-integer nRS
-integer nSym
-integer nVec(nSym)
-real*8 delta(nSym)
-integer nBkmVec(nSym,nRS)
-real*8 BkmThr(nSym,nRS)
-integer iSym
+integer(kind=iwp) :: iRS, nSym, nRS, nVec(nSym), nBkmVec(nSym,nRS)
+real(kind=wp) :: delta(nSym), BkmThr(nSym,nRS)
+integer(kind=iwp) :: iSym
 
 do iSym=1,nSym
   nBkmVec(iSym,iRS) = nVec(iSym)

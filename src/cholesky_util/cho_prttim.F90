@@ -13,16 +13,16 @@ subroutine CHO_PRTTIM(SECTION,TCPU2,TCPU1,TWALL2,TWALL1,IOPT)
 !
 ! Purpose: print timing for a section.
 
+use Definitions, only: wp, iwp
+
 implicit none
-character*(*) SECTION
-real*8 TCPU1, TCPU2, TWALL1, TWALL2
-integer IOPT
+character(len=*) :: SECTION
+real(kind=wp) :: TCPU1, TCPU2, TWALL1, TWALL2
+integer(kind=iwp) :: IOPT
 #include "cholesky.fh"
-integer IHRC, IMNC
-integer IHRW, IMNW
-integer LENSEC
-real*8 TCPUT, TWALLT, SECC, SECW
-character*80 STRING
+integer(kind=iwp) :: IHRC, IHRW, IMNC, IMNW, LENSEC
+real(kind=wp) :: SECC, SECW, TCPUT, TWALLT
+character(len=80) :: STRING
 
 TCPUT = TCPU2-TCPU1
 TWALLT = TWALL2-TWALL1

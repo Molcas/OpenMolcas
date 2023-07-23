@@ -14,18 +14,23 @@ subroutine CHO_MCA_INT_1_DBG2()
 ! Purpose: test symmetry of integral matrix.
 
 use ChoArr, only: iSP2F, nBstSh
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
-character(len=18), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG2'
-logical, parameter :: PRTINT = .false.
-real*8, parameter :: THR = 1.0D-14
-integer, external :: CHO_ISAOSH
-real*8, allocatable, target :: INT1(:)
-real*8, pointer :: pINT1(:) => null(), pINT2(:) => null()
+integer(kind=iwp) :: IA, IAB, IABCD, IABMN, IABMX, IB, IC, ICD, ICDMN, ICDMX, ID, IERR, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, &
+                     ISHLD, ISYMA, ISYMAB, ISYMB, ISYMC, ISYMCD, ISYMD, ITST, LINT, LINTT, LSEW, NERR, NTST, NUMAB, NUMCD
+real(kind=wp) :: ERRMAX, ERRMIN, TST
+real(kind=wp), allocatable, target :: INT1(:)
+real(kind=wp), pointer :: pINT1(:), pINT2(:)
+real(kind=wp), parameter :: THR = 1.0e-14_wp
+logical(kind=iwp), parameter :: PRTINT = .false.
+character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG2'
+integer(kind=iwp), external :: CHO_ISAOSH
 ! Statement functions
+integer(kind=iwp) :: MULD2H, ITRI, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
@@ -119,7 +124,7 @@ do ISHLAB=1,NNSHL
               end if
               IABCD = NUMCD*(IAB-1)+ICD
               TST = abs(pINT1(IABCD))
-              if ((TST > 0.0d0) .and. (ISYMCD /= ISYMAB)) then
+              if ((TST > Zero) .and. (ISYMCD /= ISYMAB)) then
                 write(LUPRI,*) 'Symmetry break!!'
                 write(LUPRI,*) 'element ',ICD,IAB,' is non-zero: ',pINT1(IABCD)
                 write(LUPRI,*) 'Symmetry is: ',MULD2H(ISYMCD,ISYMAB)
@@ -135,8 +140,8 @@ end do
 
 call XRLSMEM_INTS()
 call mma_deallocate(INT1)
-pINT1 => null()
-pINT2 => null()
+nullify(pINT1)
+nullify(pINT2)
 
 write(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,' #errors: ',NERR
 

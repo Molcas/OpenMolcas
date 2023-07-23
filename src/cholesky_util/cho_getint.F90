@@ -16,23 +16,21 @@ subroutine CHO_GETINT(DIAG,DIASH,ISYSH,LSTQSP,NPOTSH,ICOUNT)
 ! DIASH(ij): max. diagonal in shell pair i,j
 ! NPOTSH   : the number of shell pairs that can be qualified.
 
-use ChoArr, only: iSP2F, IntMap
-use stdalloc
+use ChoArr, only: IntMap, iSP2F
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), DIASH(*)
-integer ISYSH(*)
-integer LSTQSP(NPOTSH)
+implicit none
+real(kind=wp) :: Diag(*), DIASH(*)
+integer(kind=iwp) :: ISYSH(*), NPOTSH, LSTQSP(NPOTSH), ICOUNT
 #include "cholesky.fh"
 #include "choprint.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_GETINT')
-parameter(ZERO=0.0d0)
-logical DODECO, FULL, SYNC, LOCDBG
-parameter(LOCDBG=.false.)
-integer MEMQ(1)
-integer CHO_ISUMELM
-external CHO_ISUMELM
+integer(kind=iwp) :: i, ISHLA, ISHLAB, ISHLB, ISYM, ISYMAB, LMAX, MCOUNT, MEMQ(1), MXDIM, NSEL
+real(kind=wp) :: SMAX, XMMQ
+logical(kind=iwp) :: DODECO, FULL, SYNC
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GETINT'
+integer(kind=iwp), external :: CHO_ISUMELM
 
 !-tbp: some debugging...
 !if (LOCDBG) then
@@ -59,7 +57,7 @@ do ISYM=2,NSYM
   MXDIM = max(MXDIM,NNBSTR(ISYM,2))
 end do
 call mma_maxDBLE(LMAX)
-XMMQ = dble(N1_QUAL)*dble(LMAX)/dble(N2_QUAL)
+XMMQ = real(N1_QUAL,kind=wp)*real(LMAX,kind=wp)/real(N2_QUAL,kind=wp)
 MEMQ(1) = int(XMMQ)
 call CHO_GAIGOP(MEMQ,1,'min')
 if (MEMQ(1) < MXDIM) then
@@ -89,7 +87,7 @@ do while ((.not. DODECO) .and. (ICOUNT < MCOUNT))
   call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
   ISYMAB = ISYSH(ISHLAB)
 
-  if ((SMAX == ZERO) .or. (abs(SMAX) < DIAMIN(ISYMAB))) then
+  if ((SMAX == Zero) .or. (abs(SMAX) < DIAMIN(ISYMAB))) then
 
     ! Diagonal too small to be qualified for decomposition.
     ! -----------------------------------------------------

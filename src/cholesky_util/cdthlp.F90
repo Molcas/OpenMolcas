@@ -13,10 +13,12 @@
 
 module CDTHlp
 
+use Definitions, only: wp
+
 implicit none
 private
 
-real*8, allocatable :: Mat(:), Vec(:)
+real(kind=wp), allocatable :: Mat(:), Vec(:)
 
 public :: Mat, Vec
 

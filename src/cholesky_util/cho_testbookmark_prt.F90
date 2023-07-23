@@ -11,10 +11,12 @@
 
 subroutine Cho_TestBookmark_Prt(TestNumber,PassFail)
 
-implicit none
-integer TestNumber
-character*(*) PassFail
+use Definitions, only: iwp, u6
 
-write(6,'(A,I3,1X,A)') 'Test',TestNumber,PassFail
+implicit none
+integer(kind=iwp) :: TestNumber
+character(len=*) :: PassFail
+
+write(u6,'(A,I3,1X,A)') 'Test',TestNumber,PassFail
 
 end subroutine Cho_TestBookmark_Prt

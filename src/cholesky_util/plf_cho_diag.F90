@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PLF_Cho_Diag(TInt,nInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+subroutine PLF_Cho_Diag(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -28,17 +28,22 @@ subroutine PLF_Cho_Diag(TInt,nInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOs
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use ChoArr, only: iSOSHl, iShlSO, nBstSh
-use Constants
+use ChoArr, only: iShlSO, iSOSHl, nBstSh
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
+real(kind=wp) :: TInt(lInt), AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
+logical(kind=iwp) :: Shijij
 #include "cholesky.fh"
 #include "print.fh"
-real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nInt)
-integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
-logical Shijij
-external ddot_
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, irout, ISHLI, ISHLJ, iSO, iSOi, &
+                     iSOij, iSOkl, iSOs(4), jprint, jSO, jSOj, KIJ, kSO, kSOk, lSO, lSOl, nijkl, NUMI, NUMJ
+real(kind=wp) :: r1, r2
+real(kind=wp), external :: ddot_
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 irout = 109
@@ -46,8 +51,8 @@ jprint = nprint(irout)
 if (jPrint >= 49) then
   r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
   r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-  write(6,*) ' Sum=',r1
-  write(6,*) ' Dot=',r2
+  write(u6,*) ' Sum=',r1
+  write(u6,*) ' Dot=',r2
 end if
 if (jPrint >= 99) call RecPrt(' In Plf_CD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 

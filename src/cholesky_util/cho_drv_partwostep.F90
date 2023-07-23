@@ -18,57 +18,35 @@ subroutine Cho_Drv_ParTwoStep(irc)
 ! Purpose: Parallel two-step decomposition of two-electron
 !          integrals.
 
-use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
-use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+use ChoArr, only: iAtomShl, iShP2Q,iShP2RS
 use ChoSubScr, only: Cho_SScreen, SSTau
-use stdalloc
+use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
+integer(kind=iwp) :: irc
 #include "choprint.fh"
 #include "cholesky.fh"
-integer iSec
-integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
-integer N2_VecRd_Bak
-integer Cho_DecAlg_Bak
-integer nSys_Call_Bak, nDGM_Call_Bak
-integer iSym, n, ni, nj, nnBlock, i1
-integer nB, nB_Max
-integer l_Z
-integer iBlock, jBlock, ijBlock
-integer MinQual_Bak, MaxQual_Bak, N1_Qual_Bak, N2_Qual_Bak
-integer MxShPr_Bak, iAlQua_Bak
-integer N_Subtr_Bak
-integer Mode_Screen_Bak, Cho_DecAlg_Def_Bak, ModRst_Bak
-real*8 tCPU0, tCPU1, tC0, tC1
-real*8 tWall0, tWall1, tW0, tW1
-real*8 C0, C1, W0, W1
-real*8 Thr_PreScreen_Bak, ThrDiag_Bak, Frac_ChVBuf_Bak, SSTau_Bak
-real*8 Thr_SimRI_Bak, Tol_DiaChk_Bak
-real*8 TimSec_Bak(4,nSection)
-real*8 tInteg_Bak(2,nInteg)
-real*8 tDecom_Bak(2,nDecom)
-real*8 tMisc_Bak(2,nMisc)
-real*8 Byte
-logical lConv, Free_Z
-logical Cho_1Center_Bak, Cho_No2Center_Bak, Cho_PreScreen_Bak
-logical ScDiag_Bak, Cho_SScreen_Bak, Cho_SimRI_Bak, HaltIt_Bak
-logical Did_DecDrv_Bak
-logical Cho_UseAbs_Bak, Cho_DiaChk_Bak, Cho_Fake_Par_Bak
-logical Cho_SimP_Bak, Cho_ReOrd_Bak, ChkOnly_Bak
-logical Cho_IntChk_Bak, Cho_MinChk_Bak, Cho_TrcNeg_Bak
-logical Cho_TstScreen_Bak, RstDia_Bak, RstCho_Bak
-logical Trace_Idle_Bak
-character(len=18), parameter :: SecNam = 'Cho_Drv_ParTwoStep'
-character(len=4), parameter :: myName = 'DPTS'
-character(len=2) Unt
-real*8, parameter :: DumTst = 0.123456789d0, DumTol = 1.0d-15
-real*8, allocatable :: Check(:), Err(:), Z(:)
-integer, allocatable :: NVT(:), nBlock(:), ZBlock(:,:)
-integer, allocatable :: nVBlock(:,:), iV1Block(:,:)
-integer iTri
-integer i, j
+integer(kind=iwp) :: BlockSize_Bak, Cho_DecAlg_Bak, Cho_DecAlg_Def_Bak, Cho_IOVec_Bak, i1, iAlQua_Bak, iBlock, ijBlock, &
+                     iPrint_Bak, iSec, iSym, jBlock, l_Z, MaxQual_Bak, MinQual_Bak, Mode_Screen_Bak, ModRst_Bak, MxShPr_Bak, n, &
+                     N1_Qual_Bak, N1_VecRD_Bak, N2_Qual_Bak, N2_VecRd_Bak, N_Subtr_Bak, nB, nB_Max, nDGM_Call_Bak, ni, nj, &
+                     nnBlock, nSys_Call_Bak
+real(kind=wp) :: Byte, C0, C1, Frac_ChVBuf_Bak, SSTau_Bak, tC0, tC1, tCPU0, tCPU1, tDecom_Bak(2,nDecom), Thr_PreScreen_Bak, &
+                 Thr_SimRI_Bak, ThrDiag_Bak, TimSec_Bak(4,nSection), tInteg_Bak(2,nInteg), tMisc_Bak(2,nMisc), Tol_DiaChk_Bak, &
+                 tW0, tW1, tWall0, tWall1, W0, W1
+logical(kind=iwp) :: ChkOnly_Bak, Cho_1Center_Bak, Cho_DiaChk_Bak, Cho_Fake_Par_Bak, Cho_IntChk_Bak, Cho_MinChk_Bak, &
+                     Cho_No2Center_Bak, Cho_PreScreen_Bak, Cho_ReOrd_Bak, Cho_SimP_Bak, Cho_SimRI_Bak, Cho_SScreen_Bak, &
+                     Cho_TrcNeg_Bak, Cho_TstScreen_Bak, Cho_UseAbs_Bak, Did_DecDrv_Bak, Free_Z, HaltIt_Bak, lConv, RstCho_Bak, &
+                     RstDia_Bak, ScDiag_Bak, Trace_Idle_Bak
+character(len=2) :: Unt
+integer(kind=iwp), allocatable :: iV1Block(:,:), nBlock(:), nVBlock(:,:), NVT(:), ZBlock(:,:)
+real(kind=wp), allocatable :: Check(:), Err(:), Z(:)
+real(kind=wp), parameter :: DumTst = 0.123456789_wp, DumTol = 1.0e-15_wp
+character(len=*), parameter :: myName = 'DPTS', SecNam = 'Cho_Drv_ParTwoStep'
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Preliminaries.
@@ -216,7 +194,7 @@ nDGM_Call_Bak = nDGM_Call
 call Cho_P_WrDiag()
 call Cho_Final(.true.)
 call Cho_P_OpenVR(2)
-call Cho_X_Init(irc,0.0d0)
+call Cho_X_Init(irc,Zero)
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
   irc = 1

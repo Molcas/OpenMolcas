@@ -11,8 +11,13 @@
 
 module ChoSP
 
-public :: nnShl_SP
+use Definitions, only: iwp
 
-integer nnShl_SP
+implicit none
+private
+
+integer(kind=iwp) :: nnShl_SP
+
+public :: nnShl_SP
 
 end module ChoSP

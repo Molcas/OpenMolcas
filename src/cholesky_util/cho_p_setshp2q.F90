@@ -16,9 +16,10 @@ subroutine Cho_P_SetShP2Q(irc,iLoc,iShlAB,nAB)
 !          local and global index arrays before (and after) calling
 !          the original serial routine.
 
+use Definitions, only: iwp
+
 implicit none
-integer irc, iLoc, iShlAB
-integer nAB(8)
+integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(8)
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

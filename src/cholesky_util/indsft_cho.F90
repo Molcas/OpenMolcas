@@ -27,23 +27,26 @@ subroutine IndSft_Cho(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst
 
 use Symmetry_Info, only: nIrrep
 use SOAO_Info, only: iAOtSO, iOffSO
-use ChoArr, only: iSOShl, iShlSO, nBstSh
+use ChoArr, only: iShlSO, iSOShl, nBstSh
 use sort_data, only: nSkip
-use Constants
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs)
+real(kind=wp) :: TInt(lInt), SOint(ijkl,nSOint)
+logical(kind=iwp) :: Shijij
 #include "cholesky.fh"
 #include "print.fh"
-real*8 SOint(ijkl,nSOint), TInt(lInt)
-integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
-logical Shijij, Shij, Shkl, qijij, qij, qkl
-integer A, B, C, D, AB, CD, CDAB, ABCD
-! local array
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-data tr1,tr2/0.0d0,0.0d0/
-save tr1, tr2
-external ddot_
+integer(kind=iwp) :: A, B, C, D, AB, CD, CDAB, ABCD, i1, i12, i2, i3, i34, i4, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, &
+                     iSO, iSOi, iSym(0:7), ix, j1, j12, j2, j2max, j3, j4, jCmpMx, jprint, jSO, jSOj, jSym(0:7), k12, k34, kSO, &
+                     kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, NCDAB, nijkl, NTELM, NUMA, NUMAB, NUMB, NUMC, NUMCD, &
+                     NUMD
+real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
+logical(kind=iwp) :: Shij, Shkl, qijij, qij, qkl
+real(kind=wp), external :: ddot_
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irout = 39
@@ -55,8 +58,8 @@ if (jPrint >= 49) then
   r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
   tr1 = tr1+r1
   tr2 = tr2+r2
-  write(6,*) ' Sum=',r1,tr1
-  write(6,*) ' Dot=',r2,tr2
+  write(u6,*) ' Sum=',r1,tr1
+  write(u6,*) ' Dot=',r2,tr2
 end if
 if (jprint >= 99) call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 memSO2 = 0

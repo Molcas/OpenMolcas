@@ -13,20 +13,16 @@ subroutine CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
 !
 ! Purpose: read diagonal in first reduced set.
 
-use ChoSwp, only: IndRSh, IndRed
+use ChoSwp, only: IndRed, IndRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), BUF(LENBUF)
-integer IBUF(4,LENBUF)
+implicit none
+integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), NDUMP
+real(kind=wp) :: Diag(*), BUF(LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*12 SECNAM
-parameter(SECNAM='CHO_GETDIAG1')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer ISYLST(8)
-parameter(INFOD=INF_DIAG)
-parameter(TINY=1.0D-14)
+integer(kind=iwp) :: IOPT, IRED, IRS, ISYLST(8), ISYM, NSYLST
+logical(kind=iwp), parameter :: LOCDBG = .false.
 
 ! Read diagonal from file.
 ! ------------------------
@@ -55,7 +51,7 @@ end do
 ! Print.
 ! ------
 
-if (LOCDBG .or. (IPRINT >= INFOD)) then
+if (LOCDBG .or. (IPRINT >= INF_DIAG)) then
   do ISYM=1,NSYM
     ISYLST(ISYM) = ISYM
   end do

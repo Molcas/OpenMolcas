@@ -11,11 +11,12 @@
 
 subroutine Cho_P_Distrib_Vec(Jin,Jfi,iDV,nV)
 
+use Definitions, only: iwp
+
 implicit none
-integer Jin, Jfi, nV
-integer iDV(*)
+integer(kind=iwp) :: Jin, Jfi, iDV(*), nV
 #include "cho_para_info.fh"
-integer J0, J
+integer(kind=iwp) :: J, J0
 
 if (Cho_Real_Par) then
   call Cho_Distrib_Vec(Jin,Jfi,iDV,nV)

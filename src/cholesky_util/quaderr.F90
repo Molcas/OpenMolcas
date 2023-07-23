@@ -17,13 +17,19 @@ function QuadErr(K_Lap,X,Coeff)
 ! Function : Calculate the error between Exponensial sum and 1/x
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-parameter(ONE=1.0D+00)
-real*8 Coeff(40)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: QuadErr
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: X, Coeff(40)
+real(kind=wp) :: S
+real(kind=wp), external :: ExpSum
 
 S = ExpSum(X,K_Lap,Coeff)
 
-QuadErr = S-ONE/X
+QuadErr = S-One/X
 
 return
 

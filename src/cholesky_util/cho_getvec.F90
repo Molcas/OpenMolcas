@@ -19,16 +19,17 @@ subroutine CHO_GETVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 
 use ChoArr, only: iScr
 use ChoSwp, only: InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(LENVEC,NUMVEC)
-real*8 SCR(LSCR)
+implicit none
+integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 #include "cholesky.fh"
-external ddot_
-character*10 SECNAM
-parameter(SECNAM='CHO_GETVEC')
-logical LOCDBG
-parameter(LOCDBG=.false.)
+integer(kind=iwp) :: IFAIL, IVEC, IVEC2, JADR, JVEC
+real(kind=wp) :: XNRM
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GETVEC'
+real(kind=wp), external :: ddot_
 
 ! Return if no vectors requested.
 ! -------------------------------

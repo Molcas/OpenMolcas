@@ -20,18 +20,18 @@ subroutine Cho_X_RdRst(ifail)
 !          most likely, some of the restart info is not
 !          defined/initialized.
 
-use ChoSwp, only: InfRed, InfRed_Hidden
-use ChoSwp, only: InfVec, InfVec_Hidden
-use stdalloc
+use ChoSwp, only: InfRed, InfRed_Hidden, InfVec, InfVec_Hidden
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ifail
 #include "choorb.fh"
 #include "cholesky.fh"
-character*11 SecNam
-parameter(SecNam='Cho_X_RdRst')
-parameter(lScr=8)
-real*8 dScr(lScr)
-integer jScr(lScr)
+integer(kind=iwp), parameter :: lScr = 8
+integer(kind=iwp) :: iAdr, iOpt, iSym, j, jScr(lScr), nRd, nSP_UpLim
+real(kind=wp) :: dScr(lScr)
+character(len=*), parameter :: SecNam = 'Cho_X_RdRst'
 
 ! Set return code.
 ! ----------------
@@ -49,18 +49,18 @@ call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
 nShell = jScr(2)
 nnShl = jScr(3)
 if (jScr(2) < 1) then
-  write(6,'(A,A,I10)') SecNam,': #shells from restart file:',jScr(2)
+  write(u6,'(A,A,I10)') SecNam,': #shells from restart file:',jScr(2)
   ifail = 1
   Go To 100
 end if
 nSP_UpLim = nShell*(nShell+1)/2
 if ((jScr(3) < 1) .or. (jScr(3) > nSP_UpLim)) then
-  write(6,'(A,A,I10)') SecNam,': #shell pairs from restart file:',jScr(3)
+  write(u6,'(A,A,I10)') SecNam,': #shell pairs from restart file:',jScr(3)
   ifail = 1
   Go To 100
 end if
 if (jScr(1) /= nSym) then
-  write(6,'(A,A,I10)') SecNam,': #irreps from restart file:',jScr(1)
+  write(u6,'(A,A,I10)') SecNam,': #irreps from restart file:',jScr(1)
   ifail = 1
   Go To 100
 else
@@ -68,7 +68,7 @@ else
   call iDAFile(LuRst,iOpt,jScr,nSym,iAdr)
   do iSym=1,nSym
     if (jScr(iSym) /= nBas(iSym)) then
-      write(6,'(A,A,I2,A,I10)') SecNam,': #basis functions in sym.',iSym,' from restart file:',jScr(iSym)
+      write(u6,'(A,A,I2,A,I10)') SecNam,': #basis functions in sym.',iSym,' from restart file:',jScr(iSym)
       ifail = 2
       Go To 100
     end if
@@ -86,20 +86,20 @@ if (jScr(1) == 0) then
 else if (jScr(1) == 1) then
   XScDiag = .true.
 else
-  write(6,'(A,A,I10)') SECNAM,': integer flag for screening not recognized:',jScr(1)
+  write(u6,'(A,A,I10)') SECNAM,': integer flag for screening not recognized:',jScr(1)
   ifail = 2
   Go To 100
 end if
 if ((jScr(2) > 0) .and. (jScr(2) < 3)) then
   XCho_AdrVec = jScr(2)
 else
-  write(6,'(A,A,I10)') SECNAM,': vector file address mode not recognized:',jScr(2)
+  write(u6,'(A,A,I10)') SECNAM,': vector file address mode not recognized:',jScr(2)
   ifail = 3
   Go To 100
 end if
 if (XCho_AdrVec /= Cho_AdrVec) then
-  write(6,'(A,A,I10)') SECNAM,': vector file address mode from restart file:',XCho_AdrVec
-  write(6,'(A,A,I10)') SECNAM,': vector file address mode from runfile     :',Cho_AdrVec
+  write(u6,'(A,A,I10)') SECNAM,': vector file address mode from restart file:',XCho_AdrVec
+  write(u6,'(A,A,I10)') SECNAM,': vector file address mode from runfile     :',Cho_AdrVec
   ifail = 3
   Go To 100
 end if
@@ -139,7 +139,7 @@ call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
 MaxRed = jScr(1)
 XnPass = MaxRed
 if (MaxRed < 1) then
-  write(6,'(A,A,I10)') SecNam,': #reduced sets from restart file:',MaxRed
+  write(u6,'(A,A,I10)') SecNam,': #reduced sets from restart file:',MaxRed
   ifail = 4
   Go To 100
 else
@@ -148,7 +148,7 @@ else
   iOpt = 2
   call iDAFile(LuRst,iOpt,InfRed,size(InfRed),iAdr)
   if (InfRed(1) /= 0) then
-    write(6,'(A,A,I10)') SecNam,': disk address of 1st reduced set:',InfRed(1)
+    write(u6,'(A,A,I10)') SecNam,': disk address of 1st reduced set:',InfRed(1)
     ifail = 5
     Go To 100
   end if
@@ -162,8 +162,8 @@ do iSym=1,nSym
   nRd = 1
   call iDAFile(LuRst,iOpt,jScr,nRd,iAdr)
   if (jScr(1) /= NumCho(iSym)) then
-    write(6,'(A,A,I2,A,I10)') SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
-    write(6,'(A,A,I10)') SecNam,': ....and from restart file: ',jScr(iSym)
+    write(u6,'(A,A,I2,A,I10)') SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
+    write(u6,'(A,A,I10)') SecNam,': ....and from restart file: ',jScr(iSym)
     ifail = 6
     Go To 100
   else
@@ -183,6 +183,6 @@ end do
 ! -------
 
 100 continue ! failures jump to this point
-if (ifail /= 0) write(6,'(A,A)') SecNam,': refusing to read more restart info!'
+if (ifail /= 0) write(u6,'(A,A)') SecNam,': refusing to read more restart info!'
 
 end subroutine Cho_X_RdRst

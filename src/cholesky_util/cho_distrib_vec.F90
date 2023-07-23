@@ -15,11 +15,11 @@ subroutine Cho_Distrib_Vec(Jin,Jfi,iDV,nV)
 ! do NOT call this routine directly; use Cho_P_Distrib_Vec instead!
 
 use Para_Info, only: MyRank, nProcs
+use Definitions, only: iwp
 
 implicit none
-integer Jin, Jfi, nV
-integer iDV(*)
-integer i, iNode
+integer(kind=iwp) :: Jin, Jfi, iDV(*), nV
+integer(kind=iwp) :: i, iNode
 
 nV = 0
 do i=Jin,Jfi

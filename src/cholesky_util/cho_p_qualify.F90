@@ -24,16 +24,17 @@ subroutine Cho_P_Qualify(Diag,Sync,iShlAB,iSyMax,Mem,Full)
 !          Sync=.True. on entry.
 
 use ChoSwp, only: Diag_G
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-logical Sync, Full
-integer iShlAB, iSyMax, Mem
+real(kind=wp) :: Diag(*)
+logical(kind=iwp) :: Sync, Full
+integer(kind=iwp) :: iShlAB, iSyMax, Mem
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
-integer iLoc
-real*8 c1, c2, w1, w2
+integer(kind=iwp) :: iLoc
+real(kind=wp) :: c1, c2, w1, w2
 
 call Cho_Timer(c1,w1)
 

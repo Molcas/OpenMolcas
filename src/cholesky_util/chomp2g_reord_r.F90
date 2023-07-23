@@ -19,19 +19,23 @@ subroutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
 !          one ia-piece at the time.
 
 use ChoMP2, only: AdrR1, AdrR2
-use ChoMP2g
+use ChoMP2g, only: LuRInv, nMoMo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, lWrk
+real(kind=wp) :: Wrk(lWrk)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character Fname*5
-real*8 Wrk(lWrk)
-character*7 ThisNm
-character*15 SecNam
-parameter(SecNam='ChoMP2g_Reord_r',ThisNm='Reord_r')
+integer(kind=iwp) :: iA, iAdr, iAdr1, iAdr2, iBat, iClos, iI, ioffset1, iOffset2, iOpt, iSeed, iSym, iSymA, iSymI, iTypR, iVec, &
+                     iVec1, iVecOV, kEndRia1, kRia1, kRia2, lRia, lTot, maxvalue, nBatR, NumVec, nVec
+character(len=5) :: Fname
+character(len=*), parameter :: SecNam = 'ChoMP2g_Reord_r'
+integer(kind=iwp), external :: IsFreeUnit
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iTypR = 2

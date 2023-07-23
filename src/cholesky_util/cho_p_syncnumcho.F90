@@ -14,13 +14,14 @@ subroutine Cho_P_SyncNumCho(NumCho,nSym)
 ! Purpose: sync global NumCho_G vector counter. On entry, NumCho is
 !          the local counter (unchanged).
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nSym
-integer NumCho(nSym)
+integer(kind=iwp) :: nSym, NumCho(nSym)
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iSym
-real*8 c1, c2, w1, w2
+integer(kind=iwp) :: iSym
+real(kind=wp) :: c1, c2, w1, w2
 
 if (Cho_Real_Par) then
   call Cho_Timer(c1,w1)

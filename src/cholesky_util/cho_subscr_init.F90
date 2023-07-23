@@ -13,12 +13,13 @@ subroutine Cho_SubScr_Init()
 !
 ! Purpose: initialize screening in vector subtraction.
 
-use ChoSubScr, only: DSubScr, DSPNm
-use stdalloc
+use ChoSubScr, only: DSPNm, DSubScr
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
-integer l_DSubScr
+integer(kind=iwp) :: iSym, l_DSubScr
 
 l_DSubScr = nnBstR(1,1)
 do iSym=2,nSym

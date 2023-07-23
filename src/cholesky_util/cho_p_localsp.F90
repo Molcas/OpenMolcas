@@ -9,17 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Cho_P_LocalSP(iShlAB)
+function Cho_P_LocalSP(iShlAB)
 !
 ! Purpose: return local shell pair corresponding to global shell
 !          pair iShlAB (returns 0 if not found).
 
 use ChoArr, only: MySP, n_MySP
+use Definitions, only: iwp
 
 implicit none
-integer iShlAB
+integer(kind=iwp) :: Cho_P_LocalSP
+integer(kind=iwp) :: iShlAB
 #include "cho_para_info.fh"
-integer iSP
+integer(kind=iwp) :: iSP
 
 if (Cho_Real_Par) then
   Cho_P_LocalSP = 0

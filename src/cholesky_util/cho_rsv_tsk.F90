@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function Cho_Rsv_Tsk(ID,i)
+function Cho_Rsv_Tsk(ID,i)
+
+use Definitions, only: iwp
 
 implicit none
-integer ID, i
+logical(kind=iwp) :: Cho_Rsv_Tsk
+integer(kind=iwp) :: ID, i
 #include "cho_para_info.fh"
-logical Rsv_Tsk
-external Rsv_Tsk
-logical Cho_Rsv_Tsk_
-external Cho_Rsv_Tsk_
+logical(kind=iwp), external :: Cho_Rsv_Tsk_, Rsv_Tsk
 
 if (Cho_Real_Par) then
   Cho_Rsv_Tsk = Rsv_Tsk(ID,i)

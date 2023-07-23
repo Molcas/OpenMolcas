@@ -11,39 +11,31 @@
 
 subroutine Cho_TestBookmark(irc,verbose,is1CCD)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc
-logical verbose
-logical is1CCD
+integer(kind=iwp) :: irc
+logical(kind=iwp) :: verbose, is1CCD
 #include "cholesky.fh"
-character*16 SecNam
-parameter(SecNam='Cho_TestBookmark')
-logical dealloc
-integer nVec(8)
-integer jrc
-integer iSym
-integer NumChoBak(8)
-integer NumChTBak
-real*8 delta(8)
-real*8 Thr
-real*8 ThrComBak
-real*8 ErrMx
-real*8, allocatable :: BkmDia(:), BkmDiaX(:)
-logical Cho_1Center_Bak
+logical(kind=iwp) :: Cho_1Center_Bak, dealloc
+integer(kind=iwp) :: iSym, jrc, NumChoBak(8), NumChTBak, nVec(8)
+real(kind=wp) :: delta(8), ErrMx, Thr, ThrComBak
+real(kind=wp), allocatable :: BkmDia(:), BkmDiaX(:)
+character(len=*), parameter :: SecNam = 'Cho_TestBookmark'
 
 irc = 0
 
-if (verbose) call Cho_Head('Output from '//SecNam,'=',80,6)
+if (verbose) call Cho_Head('Output from '//SecNam,'=',80,u6)
 
 ! test 1: asking for accuracy below decomposition threshold
 !         should result in failure (return code 1)
-Thr = ThrCom*1.0d-1
+Thr = ThrCom*1.0e-1_wp
 call Cho_X_Bookmark(Thr,nSym,nVec,delta,jrc)
 if (jrc == -1) then ! bookmarks not available
   irc = -1
-  if (verbose) write(6,'(A)') 'Cho_X_Bookmark returned -1 [not available]. No further testing performed!'
+  if (verbose) write(u6,'(A)') 'Cho_X_Bookmark returned -1 [not available]. No further testing performed!'
   return
 end if
 if (jrc == 1) then
@@ -55,7 +47,7 @@ end if
 
 ! test 2: asking for negative accuracy
 !         should result in failure (return code 1)
-Thr = -1.0d-12
+Thr = -1.0e-12_wp
 call Cho_X_Bookmark(Thr,nSym,nVec,delta,jrc)
 if (jrc == 1) then
   if (verbose) call Cho_TestBookmark_Prt(2,'passed')
@@ -86,10 +78,10 @@ end if
 
 ! test 4: a threshold above the decomposition threshold
 !         should result in fewer vectors and less accuracy.
-if (ThrCom < 1.0d-4) then
-  Thr = max(ThrCom*1.0d3,1.0d-14)
+if (ThrCom < 1.0e-4_wp) then
+  Thr = max(ThrCom*1.0e3_wp,1.0e-14_wp)
 else
-  Thr = max(ThrCom*1.0d2,1.0d-14)
+  Thr = max(ThrCom*1.0e2_wp,1.0e-14_wp)
 end if
 call Cho_X_Bookmark(Thr,nSym,nVec,delta,jrc)
 if (jrc == 0) then
@@ -124,7 +116,7 @@ else
   NumChTBak = NumChT
   ThrComBak = ThrCom
   NumChT = 0
-  ThrCom = 0.0d0
+  ThrCom = Zero
   do iSym=1,nSym
     NumCho(iSym) = nVec(iSym)
     NumChT = NumChT+NumCho(iSym)
@@ -135,7 +127,7 @@ else
   if (jrc == 0) then
     call mma_allocate(BkmDiaX,nnBstRT(1),Label='BkmDiaX')
     call Cho_IODiag(BkmDiaX,2)
-    call dAXPY_(nnBstRT(1),-1.0d0,BkmDia,1,BkmDiaX,1)
+    call dAXPY_(nnBstRT(1),-One,BkmDia,1,BkmDiaX,1)
     if (Cho_1Center) then
       call Cho_TestBookmark_1CInit(dealloc)
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
@@ -146,7 +138,7 @@ else
     call FZero(DiaMax,nSym)
     call FZero(DiaMaxT,nSym)
     call mma_deallocate(BkmDiaX)
-    if (abs(ErrMx-ThrCom) > 1.0d-12) then
+    if (abs(ErrMx-ThrCom) > 1.0e-12_wp) then
       irc = irc+1
       if (verbose) call Cho_TestBookmark_Prt(5,'failed')
     else

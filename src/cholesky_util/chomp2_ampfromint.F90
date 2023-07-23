@@ -19,18 +19,17 @@ subroutine ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
 !          (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
 
 use ChoMP2_dec, only: NowSym
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDim, nCol
-real*8 Col(nDim,nCol), EOcc(*), EVir(*)
-integer iCol(nCol)
+integer(kind=iwp) :: nDim, nCol, iCol(nCol)
+real(kind=wp) :: Col(nDim,nCol), EOcc(*), EVir(*)
 #include "chomp2.fh"
 #include "cholesky.fh"
-integer iSym, bj_, bj, b, iSymb, j, iSymj, iSymi, iSyma, i, ai0
-integer a, ai
-real*8 Ebj, DE
-integer MulD2h, k, l
+integer(kind=iwp) :: a, ai, ai0, b, bj, bj_, i, iSym, iSyma, iSymb, iSymi, iSymj, j
+real(kind=wp) :: DE, Ebj
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 iSym = NowSym

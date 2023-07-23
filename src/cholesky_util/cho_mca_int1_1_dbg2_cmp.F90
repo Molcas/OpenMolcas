@@ -11,13 +11,19 @@
 
 subroutine CHO_MCA_INT1_1_DBG2_CMP(XINT1,XINT2,NI,NJ,ERRMIN,IMN,JMN,ERRMAX,IMX,JMX,ITST,IERR,THR,PRTERR,LUPRI)
 
-implicit real*8(a-h,o-z)
-real*8 XINT1(NI,NJ), XINT2(NJ,NI)
-logical PRTERR
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NI, NJ, IMN, JMN, IMX, JMX, ITST, IERR, LUPRI
+real(kind=wp) :: XINT1(NI,NJ), XINT2(NJ,NI), ERRMIN, ERRMAX, THR
+logical(kind=iwp) :: PRTERR
+integer(kind=iwp) :: I, J, JERR
+real(kind=wp) :: DIFF
 
 if ((NI < 1) .or. (NJ < 1)) then
-  ERRMAX = 0.0d0
-  ERRMIN = 0.0d0
+  ERRMAX = Zero
+  ERRMIN = Zero
   IMN = 0
   JMN = 0
   IMX = 0
@@ -61,7 +67,7 @@ if ((JERR /= 0) .and. (NI == NJ)) then
   do J=1,NJ
     do I=1,NI
       DIFF = XINT1(I,J)-XINT2(I,J)
-      if (abs(DIFF) > 1.0D-14) JERR = JERR+1
+      if (abs(DIFF) > 1.0e-14_wp) JERR = JERR+1
     end do
   end do
   if (JERR /= 0) then

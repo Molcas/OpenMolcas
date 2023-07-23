@@ -9,18 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Cho_P_IndxParentDiag(iQ,iSym)
+function Cho_P_IndxParentDiag(iQ,iSym)
 !
 ! Purpose: return index in global 1st reduced set of qualified iQ,
 !          sym. iSym.
 
+use Definitions, only: iwp
+
 implicit none
-integer iQ, iSym
+integer(kind=iwp) :: Cho_P_IndxParentDiag
+integer(kind=iwp) :: iQ, iSym
 #include "cho_para_info.fh"
-integer Cho_IndxParentDiag_S
-external Cho_IndxParentDiag_S
-integer Cho_IndxParentDiag_P
-external Cho_IndxParentDiag_P
+integer(kind=iwp), external :: Cho_IndxParentDiag_P, Cho_IndxParentDiag_S
 
 if (Cho_Real_Par) then
   Cho_P_IndxParentDiag = Cho_IndxParentDiag_P(iQ,iSym)

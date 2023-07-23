@@ -13,16 +13,17 @@ subroutine CHO_GETMAXSHL(DIASH,SMAX,ISHLAB)
 !
 ! Purpose: Get max. shell pair and update DIASH.
 
-implicit none
-real*8 DIASH(*)
-real*8 SMAX
-integer ISHLAB
-#include "cholesky.fh"
-integer JSHLAB
-character*13 SECNAM
-parameter(SECNAM='CHO_GETMAXSHL')
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-SMAX = -1.0d9
+implicit none
+real(kind=wp) :: DIASH(*), SMAX
+integer(kind=iwp) :: ISHLAB
+#include "cholesky.fh"
+integer(kind=iwp) :: JSHLAB
+character(len=*), parameter :: SECNAM = 'CHO_GETMAXSHL'
+
+SMAX = -1.0e9_wp
 ISHLAB = -1
 do JSHLAB=1,NNSHL
   if (DIASH(JSHLAB) > SMAX) then
@@ -34,7 +35,7 @@ end do
 if (ISHLAB < 1) then
   call CHO_QUIT('Error in '//SECNAM,104)
 else
-  DIASH(ISHLAB) = 0.0d0
+  DIASH(ISHLAB) = Zero
 end if
 
 end subroutine CHO_GETMAXSHL

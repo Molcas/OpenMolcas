@@ -15,13 +15,14 @@ subroutine Cho_P_WrDiag()
 !          NB: on exit, initial global diagonal is stored!
 
 use ChoSwp, only: Diag_G
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-real*8, allocatable :: Diag_L(:)
+real(kind=wp), allocatable :: Diag_L(:)
 
 if (Cho_Real_Par) then
   call mma_allocate(Diag_L,nnBstRT(1),Label='Diag_L')

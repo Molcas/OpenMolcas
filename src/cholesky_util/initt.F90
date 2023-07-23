@@ -17,19 +17,23 @@ subroutine InitT(K_Lap,T,RIni,RNew)
 ! Function : Set the initial T()
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-parameter(ONE=1.0D+00)
-real*8 T(40)
-logical Dbg
+implicit none
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: T(40), RIni, RNew
+integer(kind=iwp) :: I
+real(kind=wp) :: Val
+logical(kind=iwp) :: Dbg
 
 Dbg = .false.
-Val = (RNew-ONE)/(RIni-ONE)
+Val = (RNew-One)/(RIni-One)
 
 if (Dbg) write(IW,'(A)') 'T(I)'
 do I=1,2*K_Lap
-  T(I) = ONE+(T(I)-ONE)*Val
+  T(I) = One+(T(I)-One)*Val
   if (Dbg) write(IW,'(I3,2X,F20.14)') I,T(I)
 end do
 

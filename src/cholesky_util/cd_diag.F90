@@ -30,14 +30,19 @@ subroutine CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,DiaInp,Diag,Buf,n
 !  202 : insufficient buffer size, lBuf.
 !  203 : too negative diagonal element found (i.e., matrix
 !        is non-positive definite).
+!
+! CD_Vec : external routine for vectors
 
-implicit real*8(a-h,o-z)
-external CD_Vec ! external routine for vectors
-logical Restart, Converged
-real*8 DiaInp(nDim), Diag(nDim), Buf(lBuf)
-real*8 ErrStat(3)
-character*7 SecNam
-parameter(SecNam='CD_Diag')
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+external :: CD_Vec
+logical(kind=iwp) :: Restart, Converged
+integer(kind=iwp) :: nDim, lBuf, NumCho, irc
+real(kind=wp) :: Thr, ThrNeg, ThrFail, DiaInp(nDim), Diag(nDim), Buf(lBuf), ErrStat(3)
+integer(kind=iwp) :: i, iBatch, ij, iOpt, iVec1, jVec, kOff, nBatch, NumV, nVec
+real(kind=wp) :: xDim
 
 ! Set variables.
 ! --------------
@@ -106,7 +111,7 @@ if (Diag(1) < ThrNeg) then
     irc = 203
     Go To 1 ! exit (too negative diagonal)
   else
-    Diag(1) = 0.0d0
+    Diag(1) = Zero
   end if
 end if
 ErrStat(1) = Diag(1)
@@ -118,14 +123,14 @@ do i=2,nDim
       irc = 203
       Go To 1 ! exit (too negative diagonal)
     else
-      Diag(1) = 0.0d0
+      Diag(1) = Zero
     end if
   end if
   ErrStat(1) = min(ErrStat(1),Diag(i))
   ErrStat(2) = max(ErrStat(2),Diag(i))
   ErrStat(3) = ErrStat(3)+Diag(i)*Diag(i)
 end do
-xDim = dble(nDim)
+xDim = real(nDim,kind=wp)
 ErrStat(3) = sqrt(ErrStat(3))/xDim
 
 Converged = ErrStat(2) <= Thr

@@ -54,33 +54,29 @@ subroutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,Diag,lDiag,lU_A
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !***********************************************************************
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iTyp
-logical Delete
-character*3 BaseName_AO
-real*8 CMO(*)
-logical DoDiag
-integer lDiag
-real*8 Diag(lDiag)
-integer lU_AO(*)
-integer irc
+integer(kind=iwp) :: iTyp, lDiag, lU_AO(*), irc
+logical(kind=iwp) :: Delete, DoDiag
+character(len=3) :: BaseName_AO
+real(kind=wp) :: CMO(*), Diag(lDiag)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-character(len=18), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
-character(len=11), parameter :: ThisNm = 'VectorMO2AO'
-character(len=4) FullName_AO
-integer iSym, iSyma, iSymb, iCount, iOpen, iClose
+integer(kind=iwp) :: iClose, iCount, iOpen, iSym, iSyma, iSymb
+character(len=4) :: FullName_AO
+real(kind=wp), allocatable :: COcc(:), CVir(:)
 #ifdef _DEBUGPRINT_
-logical, parameter :: Debug = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: Debug = .false.
+#define _DBG_ .false.
 #endif
-real*8, allocatable :: COcc(:), CVir(:)
-integer MulD2h, k, l
+logical(kind=iwp), parameter :: Debug = _DBG_
+character(len=*), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Initializations.
@@ -99,13 +95,13 @@ if (DoDiag) then
     end do
   end do
   if (iCount /= lDiag) then
-    write(6,*) SecNam,': WARNING: inconsistent diagonal allocation!'
+    write(u6,*) SecNam,': WARNING: inconsistent diagonal allocation!'
     if (iCount > lDiag) then
-      write(6,*) '   - insufficient memory, will return now...'
+      write(u6,*) '   - insufficient memory, will return now...'
       irc = 1
       return
     else
-      write(6,*) '   - sufficient memory, going to continue...'
+      write(u6,*) '   - sufficient memory, going to continue...'
     end if
   end if
 end if

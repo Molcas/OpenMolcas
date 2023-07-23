@@ -34,22 +34,18 @@
 
 subroutine CD_InCore(X,n,Vec,MxVec,NumCho,Thr,irc)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, MxVec, NumCho, irc
-real*8 X(n,n)
-real*8 Vec(n,MxVec)
-real*8 Thr
-character*9 SecNam
-parameter(SecNam='CD_InCore')
-real*8 DefThr
-parameter(DefThr=1.0d-6)
-real*8 ThrNeg, ThrFail
-parameter(ThrNeg=-1.0d-13,ThrFail=-1.0d-8)
+integer(kind=iwp) :: n, MxVec, NumCho, irc
+real(kind=wp) :: X(n,n), Vec(n,MxVec), Thr
+real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -1.0e-13_wp
 
 irc = 0
 NumCho = 0
 if (n < 1) Go To 1 ! exit (nothing to do)
-if (Thr < 0.0d0) Thr = DefThr
+if (Thr < Zero) Thr = DefThr
 
 if (MxVec > 0) then
   call CD_InCore_1(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,irc)

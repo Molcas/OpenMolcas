@@ -17,52 +17,53 @@ subroutine ChoMP2_Setup_Prt(irc)
 !
 ! Purpose: print setup for Cholesky MP2.
 
-use ChoMP2, only: iFirst, NumOcc, LnOcc, NumBatOrb, LnBatOrb
+use ChoMP2, only: iFirst, LnBatOrb, LnOcc, NumBatOrb, NumOcc
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
-integer iCount(8)
+integer(kind=iwp) :: iBatch, iCount(8), iSym
 
 irc = 0
 
 iCount(:) = 0
 
-call Cho_Head('Cholesky MP2 Setup','=',80,6)
+call Cho_Head('Cholesky MP2 Setup','=',80,u6)
 ! The values but not the names 'occupied' are updated to work
 ! also for batching over all orbitals
 if (nBatch > 1) then
-  write(6,'(A,I6,A,I6,A)') 'The list of',nBatOrbT,' occupied orbitals has been split in',nBatch,' batches:'
+  write(u6,'(A,I6,A,I6,A)') 'The list of',nBatOrbT,' occupied orbitals has been split in',nBatch,' batches:'
 else if (nBatch == 1) then
-  write(6,'(A,I6,A)') 'The list of',nBatOrbT,' occupied orbitals is not split:'
+  write(u6,'(A,I6,A)') 'The list of',nBatOrbT,' occupied orbitals is not split:'
 else
-  write(6,*) 'Oops, #batches over occupied orbitals is non-positive: ',nBatch
+  write(u6,*) 'Oops, #batches over occupied orbitals is non-positive: ',nBatch
   irc = -101
   return
 end if
 
-write(6,'(/,3X,A)') ' Batch  First   Last #Occ/irrep'
+write(u6,'(/,3X,A)') ' Batch  First   Last #Occ/irrep'
 if (nSym == 1) then
-  write(6,'(3X,A)') '-------------------------------'
+  write(u6,'(3X,A)') '-------------------------------'
 else if (nSym == 2) then
-  write(6,'(3X,A)') '-----------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------'
 else if (nSym == 4) then
-  write(6,'(3X,A)') '-------------------------------------------------'
+  write(u6,'(3X,A)') '-------------------------------------------------'
 else if (nSym == 8) then
-  write(6,'(3X,A)') '-----------------------------------------------------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------------------------------------------------'
 else
-  write(6,*) 'Oops, #irreps is out of bounds: ',nSym
+  write(u6,*) 'Oops, #irreps is out of bounds: ',nSym
   irc = -102
   return
 end if
 do iBatch=1,nBatch
   if (.false.) then
-    write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))') iBatch,iFirst(iBatch),iFirst(iBatch)+NumBatOrb(iBatch)-1, &
-                                            (LnBatOrb(iSym,iBatch),iSym=1,nSym)
+    write(u6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))') iBatch,iFirst(iBatch),iFirst(iBatch)+NumBatOrb(iBatch)-1, &
+                                             (LnBatOrb(iSym,iBatch),iSym=1,nSym)
   else
-    write(6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))') iBatch,iFirst(iBatch),iFirst(iBatch)+NumOcc(iBatch)-1,(LnOcc(iSym,iBatch),iSym=1,nSym)
+    write(u6,'(3X,I6,1X,I6,1X,I6,8(1X,I6))') iBatch,iFirst(iBatch),iFirst(iBatch)+NumOcc(iBatch)-1,(LnOcc(iSym,iBatch),iSym=1,nSym)
   end if
   do iSym=1,nSym
     if (.false.) then
@@ -73,63 +74,63 @@ do iBatch=1,nBatch
   end do
 end do
 if (nSym == 1) then
-  write(6,'(3X,A)') '-------------------------------'
+  write(u6,'(3X,A)') '-------------------------------'
 else if (nSym == 2) then
-  write(6,'(3X,A)') '-----------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------'
 else if (nSym == 4) then
-  write(6,'(3X,A)') '-------------------------------------------------'
+  write(u6,'(3X,A)') '-------------------------------------------------'
 else if (nSym == 8) then
-  write(6,'(3X,A)') '-----------------------------------------------------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------------------------------------------------'
 end if
-write(6,'(3X,A,14X,8(1X,I6))') 'Total:',(iCount(iSym),iSym=1,nSym)
+write(u6,'(3X,A,14X,8(1X,I6))') 'Total:',(iCount(iSym),iSym=1,nSym)
 if (nSym == 1) then
-  write(6,'(3X,A)') '-------------------------------'
+  write(u6,'(3X,A)') '-------------------------------'
 else if (nSym == 2) then
-  write(6,'(3X,A)') '-----------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------'
 else if (nSym == 4) then
-  write(6,'(3X,A)') '-------------------------------------------------'
+  write(u6,'(3X,A)') '-------------------------------------------------'
 else if (nSym == 8) then
-  write(6,'(3X,A)') '-----------------------------------------------------------------------------'
+  write(u6,'(3X,A)') '-----------------------------------------------------------------------------'
 end if
 do iSym=1,nSym
   if (.false.) then
     if (iCount(iSym) /= nOcc(iSym)+nVir(iSym)+nFro(iSym)+nDel(iSym)) then
-      write(6,*) 'Oops, #Occ/irrep is incorrect....'
+      write(u6,*) 'Oops, #Occ/irrep is incorrect....'
       irc = -103
       return
     end if
   else
     if (iCount(iSym) /= nOcc(iSym)) then
-      write(6,*) 'Oops, #Occ/irrep is incorrect....'
+      write(u6,*) 'Oops, #Occ/irrep is incorrect....'
       irc = -103
       return
     end if
   end if
 end do
-if ((nBatch > 1) .and. ForceBatch) write(6,'(/,A)') 'Notice: batching has been requested by user.'
+if ((nBatch > 1) .and. ForceBatch) write(u6,'(/,A)') 'Notice: batching has been requested by user.'
 
-write(6,'(//,A)') 'The following tasks will be performed:'
-write(6,'(A)') ' * AO-to-MO transformation of original Cholesky vectors.'
-if (DecoMP2) write(6,'(A)') ' * Cholesky decomposition of (ai|bj) integrals.'
+write(u6,'(//,A)') 'The following tasks will be performed:'
+write(u6,'(A)') ' * AO-to-MO transformation of original Cholesky vectors.'
+if (DecoMP2) write(u6,'(A)') ' * Cholesky decomposition of (ai|bj) integrals.'
 if (nBatch > 1) then
   if (DecoMP2) then
-    write(6,'(A)') ' * Presort of Cholesky vectors from (ai|bj) decomposition.'
+    write(u6,'(A)') ' * Presort of Cholesky vectors from (ai|bj) decomposition.'
   else
-    write(6,'(A)') ' * Presort of MO Cholesky vectors.'
+    write(u6,'(A)') ' * Presort of MO Cholesky vectors.'
   end if
 end if
 if (Laplace .and. SOS_MP2) then
-  write(6,'(A)') ' * Calculation of Laplace-SOS-MP2 correlation energy.'
+  write(u6,'(A)') ' * Calculation of Laplace-SOS-MP2 correlation energy.'
   if (Laplace_nGridPoints == 0) then
-    write(6,'(A)') '   Numerical Laplace integration quadrature: default'
+    write(u6,'(A)') '   Numerical Laplace integration quadrature: default'
   else
-    write(6,'(A,I8)') '   Numerical Laplace integration quadrature:',Laplace_nGridPoints
+    write(u6,'(A,I8)') '   Numerical Laplace integration quadrature:',Laplace_nGridPoints
   end if
 else
-  write(6,'(A)') ' * On-the-fly assembly of (ai|bj) integrals and calculation of MP2 energy correction.'
-  write(6,'(A,I3,A)') '   [Cholesky algorithm:',ChoAlg,']'
+  write(u6,'(A)') ' * On-the-fly assembly of (ai|bj) integrals and calculation of MP2 energy correction.'
+  write(u6,'(A,I3,A)') '   [Cholesky algorithm:',ChoAlg,']'
 end if
 
-call xFlush(6)
+call xFlush(u6)
 
 end subroutine ChoMP2_Setup_Prt

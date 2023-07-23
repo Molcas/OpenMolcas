@@ -11,27 +11,21 @@
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-integer function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
+function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
+
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 xmin
-real*8 xmax
-integer nSym
-real*8 EOcc(nSym)
-real*8 EVir(nSym)
-integer iOcc(nSym)
-integer nOcc(nSym)
-integer iVir(nSym)
-integer nVir(nSym)
-real*8 Tol
-parameter(Tol=1.0d-12)
-real*8 e, emin, emax
-integer iSym, i
-integer aSym, a
-integer irc
+integer(kind=iwp) :: CheckDenomRange
+integer(kind=iwp) :: nSym, iOcc(nSym), nOcc(nSym), iVir(nSym), nVir(nSym)
+real(kind=wp) :: xmin, xmax, EOcc(nSym), EVir(nSym)
+integer(kind=iwp) :: a, aSym, i, irC, iSym
+real(kind=wp) :: e, emax, emin
+real(kind=wp), parameter :: Tol = 1.0e-12_wp
 
-emin = 9.9d15
-emax = -9.9d15
+emin = 9.9e15_wp
+emax = -9.9e15_wp
 do iSym=1,nSym
   do i=iOcc(iSym)+1,iOcc(iSym)+nOcc(iSym)
     do aSym=1,nSym
@@ -43,8 +37,8 @@ do iSym=1,nSym
     end do
   end do
 end do
-emin = 2.0d0*emin
-emax = 2.0d0*emax
+emin = Two*emin
+emax = Two*emax
 
 irc = 0
 if (abs(emin-xmin) > Tol) irc = irc+1
@@ -52,9 +46,9 @@ if (abs(emax-xmax) > Tol) irc = irc+2
 
 !-tbp:
 if (irc /= 0) then
-  write(6,'(A,1P,2D25.16)') 'xmin,xmax=',xmin,xmax
-  write(6,'(A,1P,2D25.16)') 'emin,emax=',emin,emax
-  write(6,'(A,1P,2D25.16)') 'diff=     ',xmin-emin,xmax-emax
+  write(u6,'(A,1P,2D25.16)') 'xmin,xmax=',xmin,xmax
+  write(u6,'(A,1P,2D25.16)') 'emin,emax=',emin,emax
+  write(u6,'(A,1P,2D25.16)') 'diff=     ',xmin-emin,xmax-emax
 end if
 
 CheckDenomRange = irc

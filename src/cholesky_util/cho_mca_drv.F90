@@ -14,14 +14,16 @@ subroutine CHO_MCA_DRV()
 ! Purpose: MOLCAS interface to Cholesky decomposition driver.
 
 use ChoArr, only: MySP
-use stdalloc
+use stdalloc, only: mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_MCA_DRV')
-logical INDEXATION, DOFOCK, DOGRAD
-logical VERBOSE, FREEK2
+integer(kind=iwp) :: ICODE, irc
+real(kind=wp) :: THRAO
+logical(kind=iwp) :: DOFOCK, DOGRAD, FREEK2, INDEXATION, VERBOSE
+character(len=*), parameter :: SECNAM = 'CHO_MCA_DRV'
 
 call STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 
@@ -37,7 +39,7 @@ call Set_Basis_Mode('Valence')
 call Setup_iSD()
 NSHELL = -1
 INDEXATION = .true.
-THRAO = 0.0d0
+THRAO = Zero
 DOFOCK = .false.
 DOGRAD = .false.
 call SETUP_INTS(NSHELL,INDEXATION,THRAO,DOFOCK,DOGRAD)

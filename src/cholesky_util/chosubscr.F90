@@ -12,14 +12,16 @@
 ! Stuff for Cholesky vector subtraction screening (subscr):
 module ChoSubScr
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
-logical Cho_SScreen
-real*8 SSTau, SubScrStat(2)
-character(len=3) SSNorm
-real*8, allocatable :: DSubScr(:)
-real*8, allocatable :: DSPNm(:)
+logical(kind=iwp) :: Cho_SScreen
+real(kind=wp) :: SSTau, SubScrStat(2)
+character(len=3) :: SSNorm
+real(kind=wp), allocatable :: DSPNm(:), DSubScr(:)
+
+public :: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
 
 end module ChoSubScr

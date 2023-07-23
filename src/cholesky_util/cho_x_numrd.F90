@@ -33,14 +33,17 @@
 !> @param[in] Mem   Memory available for read
 !***********************************************************************
 
-integer function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
+function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: Cho_X_NumRd
+integer(kind=iwp) :: iVec1, iSym, iRedC, Mem
 #include "cholesky.fh"
-integer iRed
+integer(kind=iwp) :: iLoc, irc, iRed, iVec, Need, NumRd
 
 if ((iSym < 1) .or. (iSym > nSym)) then
   Cho_X_NumRd = -1

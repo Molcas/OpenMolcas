@@ -18,19 +18,19 @@ subroutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,LnOcc,NumBatOrb,LnBatOrb,LnT
 !
 ! Purpose: set local index arrays and counters.
 
-implicit real*8(a-h,o-z)
-integer iFirst(mBatch), NumOcc(mBatch)
-integer iFirstS(mSym,mBatch), LnOcc(mSym,mBatch)
-integer LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch)
-integer LnMatij(mSym,mBatch), LiMatij(mSym,mSym,mBatch)
-integer NumBatOrb(mBatch), LnBatOrb(mSym,mBatch)
-integer LnPQprod(mSym,mBatch), LiPQprod(mSym,mSym,mBatch)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: mBatch, iFirst(mBatch), mSym, iFirstS(mSym,mBatch), NumOcc(mBatch), LnOcc(mSym,mBatch), NumBatOrb(mBatch), &
+                     LnBatOrb(mSym,mBatch), LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch), LnPQprod(mSym,mBatch), &
+                     LiPQprod(mSym,mSym,mBatch), LnMatij(mSym,mBatch), LiMatij(mSym,mSym,mBatch)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-integer Cho_iRange
-external Cho_iRange
+integer(kind=iwp) :: iBatch, iSym, iSyma, iSymi, iSymj, Left, Num
+integer(kind=iwp), external :: Cho_iRange
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if (mBatch /= nBatch) call ChoMP2_Quit('ChoMP2_Setup_Index','mBatch !=  nBatch','Error')

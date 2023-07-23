@@ -12,11 +12,12 @@
 subroutine Cho_Init_Tsk_(ID,n)
 
 use Para_Info, only: Is_Real_Par, Set_Do_Parallel
+use Definitions, only: iwp
 
 implicit none
-integer ID, n
+integer(kind=iwp) :: ID, n
 #include "cho_para_info.fh"
-logical Parallel_Mode
+logical(kind=iwp) :: Parallel_Mode
 
 Parallel_Mode = Is_Real_Par()
 

@@ -11,11 +11,14 @@
 
 subroutine Cho_GAdGOp(X,n,Op)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, iv, kv
-real*8 X(n)
-character*(*) Op
+integer(kind=iwp) :: n
+real(kind=wp) :: X(n)
+character(len=*) :: Op
 #include "cho_para_info.fh"
+integer(kind=iwp) :: iv, kv
 
 if (Cho_Real_Par) then
   iv = 0

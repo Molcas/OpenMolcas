@@ -11,8 +11,10 @@
 
 subroutine Cho_SetMxShPr_Def(MxShPr_Def)
 
+use Definitions, only: iwp
+
 implicit none
-integer MxShPr_Def
+integer(kind=iwp) :: MxShPr_Def
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

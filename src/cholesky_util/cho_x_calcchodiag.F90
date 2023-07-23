@@ -36,16 +36,19 @@
 subroutine Cho_X_CalcChoDiag(rc,Diag)
 
 use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec, IndRed
-use stdalloc
+use ChoSwp, only: IndRed, InfVec, IndRed
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer rc
-real*8 Diag(*)
-character(len=17), parameter :: SECNAM = 'Cho_X_CalcChoDiag'
+implicit none
+integer(kind=iwp) :: rc
+real(kind=wp) :: Diag(*)
 #include "cholesky.fh"
 #include "choorb.fh"
-real*8, allocatable :: Lrs(:,:)
+integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, krs, LWORK, mrs, &
+                     MUSED, nBatch, nRS, NUMV, nVec, nVrs
+real(kind=wp), allocatable :: Lrs(:,:)
+character(len=*), parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 
 call fZero(Diag,nnBstRT(1))
 
@@ -67,14 +70,14 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       rc = 77
       return
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code.  rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code.  rc= ',irc
       rc = irc
       return
     end if
@@ -88,10 +91,10 @@ do jSym=1,nSym
     nVec = min(LWORK/max(nRS,1),nVrs)
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) ' LWORK= ',LWORK
-      write(6,*) ' jsym= ',jsym
-      write(6,*) ' min. mem. need for reading= ',nRS
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) ' LWORK= ',LWORK
+      write(u6,*) ' jsym= ',jsym
+      write(u6,*) ' min. mem. need for reading= ',nRS
       rc = 33
       return
       nBatch = -9999  ! dummy assignment

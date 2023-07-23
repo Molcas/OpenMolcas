@@ -35,21 +35,26 @@ subroutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
 use ChoArr, only: iScr
 use ChoSwp, only: InfVec
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical DoTime, DoStat
+implicit none
+integer(kind=iwp) :: irc, iRed
+logical(kind=iwp) :: DoTime, DoStat
 #include "cholesky.fh"
-character(len=19), parameter :: SecNam = 'Cho_VecBuf_Maintain'
-real*8, pointer :: V2(:,:) => null(), V3(:,:) => null()
-integer iS, iE, lRow, lCol
-real*8, allocatable :: VRd(:)
+integer(kind=iwp) :: iE, iMapC, iOff3, iRedC, iRS2, iS, iSym, iVec, iVec1, iVec2, jRed, jRS3, jVec, kVec, l_VRd, lCol, Left, lRow, &
+                     mUsed, nDisk, nErr, nSys, nVec, nVRd
+real(kind=wp) :: C1, C2, W1, W2
+real(kind=wp), pointer :: V2(:,:), V3(:,:)
+real(kind=wp), allocatable :: VRd(:)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-logical, parameter :: LocDbg = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: LocDbg = .false.
+#define _DBG_ .false.
 #endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Maintain'
 
 ! Set return code.
 ! ----------------
@@ -189,8 +194,8 @@ do iSym=1,nSym
 
   end if
 end do
-V2 => null()
-V3 => null()
+nullify(V2)
+nullify(V3)
 
 ! Read in more vectors.
 ! =====================
@@ -289,6 +294,7 @@ do iSym=1,nSym
 
   end if
 end do
+nullify(V2)
 call mma_deallocate(VRd)
 
 ! Update global timing.

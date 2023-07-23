@@ -18,17 +18,16 @@ subroutine ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,iBatch,jBatch)
 ! Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
 
 use ChoMP2, only: LnPQprod
+use Definitions, only: iwp
 
 implicit none
-integer iBatch, jBatch
-integer LnPQRSprod, LiPQRSprod(8)
+integer(kind=iwp) :: LnPQRSprod, LiPQRSprod(8), iBatch, jBatch
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-integer iSym
-character*14 String
-character*22 SecNam
-parameter(SecNam='ChoMP2_Energy_GetPQInd')
+integer(kind=iwp) :: iSym
+character(len=14) :: String
+character(len=*), parameter :: SecNam='ChoMP2_Energy_GetPQInd'
 
 if (iBatch == jBatch) then
   LnPQRSprod = 0

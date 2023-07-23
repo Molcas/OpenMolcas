@@ -11,13 +11,13 @@
 
 subroutine Cho_RstD_ChkSP2F(iSP2F,l_iSP2F,nErr)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer l_iSP2F, nErr
-integer iSP2F(l_iSP2F)
-integer i
-integer, allocatable :: iChk(:)
+integer(kind=iwp) :: l_iSP2F, iSP2F(l_iSP2F), nErr
+integer(kind=iwp) :: i
+integer(kind=iwp), allocatable :: iChk(:)
 
 call mma_allocate(iChk,l_iSP2F,Label='iChk')
 

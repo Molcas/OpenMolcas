@@ -13,46 +13,46 @@ subroutine Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
-use ChoSwp, only: InfVec_G, IndRed
 use ChoArr, only: iL2G
-use stdalloc
+use ChoSwp, only: IndRed, InfVec_G, IndRed
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 #endif
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Vec(*)
-integer Jin, Jfi, iSym, iRed, iPass
-character*13 SecNam
-parameter(SecNam='Cho_VecTransp')
+implicit none
+real(kind=wp) :: Vec(*)
+integer(kind=iwp) :: Jin, Jfi, iSym, iRed, iPass
+character(len=*), parameter :: SecNam = 'Cho_VecTransp'
 #ifdef _MOLCAS_MPP_
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "mafdecls.fh"
+integer(kind=iwp) :: g_a, i, i1, iAdr, iCount, iNode, iOpt, irc, iRSL, iStart, iVec, iVec1, j, j1, Jin0, jRed, jv, jVec, LastV, &
+                     lTot, MxRSL, MyEnd, myStart, nProcs_eff, nRS_g, nRS_l, nV, nVR
+logical(kind=iwp) :: ok
+integer(kind=iwp), allocatable :: iAdrLG(:,:), iVecR(:), Map(:), MapRS2RS(:), nRSL(:)
+real(kind=wp), allocatable :: VecR(:,:)
+#ifdef _DEBUGPRINT_
+#define _DBG_ .true.
+#else
+#define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+logical(kind=iwp), external :: ga_create_irreg, ga_destroy
 #ifndef _GA_
 #include "WrkSpc.fh"
-#endif
-logical LocDbg
-#ifdef _DEBUGPRINT_
-parameter(LocDbg=.true.)
-#else
-parameter(LocDbg=.false.)
-#endif
-external ga_create_irreg, ga_destroy
-logical ga_create_irreg, ga_destroy, ok
-integer g_a
 !VVP:2014 DGA is here
-#ifndef _GA_
-logical ga_create_local
-integer ga_local_woff, nelm, iGAL
-external ga_local_woff, ga_create_local
+integer(kind=iwp) ::  iGAL, nelm
+integer(kind=iwp), external :: ga_local_woff
+logical(kind=iwp), external :: ga_create_local
 #endif
-integer, allocatable :: Map(:), iAdrLG(:,:), iVecR(:), nRSL(:), MapRS2RS(:)
-real*8, allocatable :: VecR(:,:)
 
 if (.not. Cho_Real_Par) then
   if (LocDbg) then
-    write(6,'(A,A,A)') 'Illegal call to ',SecNam,':'
-    write(6,*) 'Should only be called in parallel, but Cho_Real_Par = ',Cho_Real_Par
+    write(u6,'(A,A,A)') 'Illegal call to ',SecNam,':'
+    write(u6,*) 'Should only be called in parallel, but Cho_Real_Par = ',Cho_Real_Par
   end if
   call Cho_Quit('Illegal call to '//SecNam,103)
 end if

@@ -35,30 +35,29 @@ subroutine ChoMP2_DecDrv(irc,DelOrig,Diag,CD_Type)
 ! files.
 
 use ChoMP2, only: OldVec
-use ChoMP2_dec, only: Incore, NowSym, iOption_MP2CD
+use ChoMP2_dec, only: Incore, iOption_MP2CD, NowSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc
-logical DelOrig
-real*8 Diag(*)
-character(len=*) CD_Type
-external ChoMP2_Col, ChoMP2_Vec
-integer :: IOPTION, ISYM, LERRSTAT, nBin, kOffD, nDim, iBin, iTyp, MxQual, LEFT, lB, nInc, lTot, iOpt, iAdr
-real*8 :: THR, XMN, XMX, RMS
+integer(kind=iwp) :: irc
+logical(kind=iwp) :: DelOrig
+real(kind=wp) :: Diag(*)
+character(len=*) :: CD_Type
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character(len=6), parameter :: ThisNm = 'DecDrv'
-character(len=13), parameter :: SecNam = 'ChoMP2_DecDrv'
-logical, parameter :: Restart = .false.
-logical Failed, ConventionalCD
-integer, parameter :: nOption = 2
-character(len=18) Option
-integer iClos(2)
-integer MxCDVec(8)
-real*8, allocatable :: ErrStat(:), Bin(:), Qual(:), Buf(:)
-integer, allocatable :: iQual(:), iPivot(:)
+integer(kind=iwp) :: iAdr, iBin, iClos(2), iOpt, IOPTION, ISYM, iTyp, kOffD, lB, LEFT, LERRSTAT, lTot, MxCDVec(8), MxQual, nBin, &
+                     nDim, nInc
+real(kind=wp) :: THR, XMN, XMX, RMS
+logical(kind=iwp) :: Failed, ConventionalCD
+character(len=18) :: Option
+integer(kind=iwp), allocatable :: iPivot(:), iQual(:)
+real(kind=wp), allocatable :: Bin(:), Buf(:), ErrStat(:), Qual(:)
+integer(kind=iwp), parameter :: nOption = 2
+logical(kind=iwp), parameter :: Restart = .false.
+character(len=*), parameter :: SecNam = 'ChoMP2_DecDrv'
+external :: ChoMP2_Col, ChoMP2_Vec
 
 ! Initializations.
 ! ----------------
@@ -86,7 +85,7 @@ else
 end if
 if ((iOption < 1) .or. (iOption > nOption)) then
   irc = -98
-  write(6,*) SecNam,': illegal input option (argument CD_Type)'
+  write(u6,*) SecNam,': illegal input option (argument CD_Type)'
   return
 end if
 iOption_MP2CD = iOption  ! copy to include file chomp2_dec.fh
@@ -129,12 +128,12 @@ iClos(2) = 2     ! signals close and keep result vectors
 ! ------
 
 if (Verbose) then
-  write(6,*)
-  call Cho_Head('Cholesky decomposition of '//Option,'=',80,6)
-  write(6,'(/,1X,A)') 'Configuration of decomposition:'
-  write(6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
-  write(6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
-  if (ChkDecoMP2) write(6,'(1X,A)') 'Full decomposition check activated.'
+  write(u6,*)
+  call Cho_Head('Cholesky decomposition of '//Option,'=',80,u6)
+  write(u6,'(/,1X,A)') 'Configuration of decomposition:'
+  write(u6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
+  write(u6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
+  if (ChkDecoMP2) write(u6,'(1X,A)') 'Full decomposition check activated.'
 end if
 
 ! Start symmetry loop.
@@ -148,17 +147,17 @@ do iSym=1,nSym
 
     ConventionalCD = (MxCDVec(iSym) < 1) .or. (MxCDVec(iSym) >= nDim)
     if (Verbose .and. (nBin > 0)) then
-      Bin(1) = 1.0d2
+      Bin(1) = 1.0e2_wp
       do iBin=2,nBin
-        Bin(iBin) = Bin(iBin-1)*1.0D-1
+        Bin(iBin) = Bin(iBin-1)*1.0e-1_wp
       end do
       if (ConventionalCD) then
-        write(6,'(//,1X,A,I2,A,I9)') '>>> Conventional Cholesky decomposition of symmetry block ',iSym,', dimension: ',nDim
+        write(u6,'(//,1X,A,I2,A,I9)') '>>> Conventional Cholesky decomposition of symmetry block ',iSym,', dimension: ',nDim
       else
-        write(6,'(//,1X,A,I2,A,I9)') '>>> MaxVec Cholesky decomposition of symmetry block ',iSym,', dimension: ',nDim
+        write(u6,'(//,1X,A,I2,A,I9)') '>>> MaxVec Cholesky decomposition of symmetry block ',iSym,', dimension: ',nDim
       end if
-      write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
-      call Cho_AnaSize(Diag(kOffD),nDim,Bin,nBin,6)
+      write(u6,'(/,1X,A)') 'Analysis of initial diagonal:'
+      call Cho_AnaSize(Diag(kOffD),nDim,Bin,nBin,u6)
     end if
 
     ! Open files.
@@ -191,11 +190,11 @@ do iSym=1,nSym
       lTstQua = nDim*(MxQual+1)
     end do
     if (MxQual < 1) then
-      write(6,*) SecNam,': MxQual causes integer overflow!'
-      write(6,*) SecNam,': parameters:'
-      write(6,*) 'Symmetry block: ',iSym
-      write(6,*) 'Dimension     : ',nDim
-      write(6,*) 'MxQual        : ',MxQual
+      write(u6,*) SecNam,': MxQual causes integer overflow!'
+      write(u6,*) SecNam,': parameters:'
+      write(u6,*) 'Symmetry block: ',iSym
+      write(u6,*) 'Dimension     : ',nDim
+      write(u6,*) 'MxQual        : ',MxQual
       irc = -99
       Go To 1 ! exit
     end if
@@ -229,14 +228,14 @@ do iSym=1,nSym
       call ChoDec(ChoMP2_Col,ChoMP2_Vec,Restart,Thr,Span,MxQual,Diag(kOffD),Qual,Buf,iPivot,iQual,nDim,lBuf,ErrStat,nMP2Vec(iSym), &
                   irc)
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
+        write(u6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
         Go To 1 ! exit...
       end if
     else
       call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),Restart,Thr,Span,MxQual,Diag(kOffD),Qual,Buf,iPivot,iQual,nDim,lBuf, &
                         ErrStat,nMP2Vec(iSym),irc)
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoDec_MxVec returned ',irc,'   Symmetry block: ',iSym
+        write(u6,*) SecNam,': ChoDec_MxVec returned ',irc,'   Symmetry block: ',iSym
         Go To 1 ! exit...
       end if
     end if
@@ -244,11 +243,11 @@ do iSym=1,nSym
     XMx = ErrStat(2)
     RMS = ErrStat(3)
     if (Verbose) then
-      write(6,'(/,1X,A)') '- decomposition completed!'
-      write(6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
-      if (.not. ConventionalCD) write(6,'(1X,A,I9)') 'Max. number of vectors allowed: ',MxCDVec(iSym)
-      write(6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
-      write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+      write(u6,'(/,1X,A)') '- decomposition completed!'
+      write(u6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
+      if (.not. ConventionalCD) write(u6,'(1X,A,I9)') 'Max. number of vectors allowed: ',MxCDVec(iSym)
+      write(u6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
+      write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
     end if
     if (ConventionalCD) then
       Failed = (abs(Xmn) > Thr) .or. (abs(XMx) > thr) .or. (RMS > Thr)
@@ -257,10 +256,10 @@ do iSym=1,nSym
     end if
     if (Failed) then
       if (.not. Verbose) then
-        write(6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
-        write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+        write(u6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
+        write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
       end if
-      write(6,'(A,A,A,A)') SecNam,': decomposition of ',Option,' failed!'
+      write(u6,'(A,A,A,A)') SecNam,': decomposition of ',Option,' failed!'
       irc = -9999
       Go To 1 ! exit
     end if
@@ -269,44 +268,44 @@ do iSym=1,nSym
     ! ----------------------------------
 
     if (ChkDecoMP2) then
-      write(6,*)
-      write(6,'(A,A,A)') SecNam,': Checking decomposition of ',Option
-      write(6,*) 'Symmetry block: ',iSym
-      write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
-      write(6,*) 'Error statistics for diagonal [min,max,rms]:'
-      write(6,*) ErrStat(:)
+      write(u6,*)
+      write(u6,'(A,A,A)') SecNam,': Checking decomposition of ',Option
+      write(u6,*) 'Symmetry block: ',iSym
+      write(u6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
+      write(u6,*) 'Error statistics for diagonal [min,max,rms]:'
+      write(u6,*) ErrStat(:)
       call ChoMP2_DecChk(irc,iSym,Qual,nDim,MxQual,Buf,lBuf,ErrStat)
       if (irc /= 0) then
         if (irc == -123456) then
-          write(6,*) ' -- Sorry, full decomposition check not yet implemented --'
+          write(u6,*) ' -- Sorry, full decomposition check not yet implemented --'
           irc = 0
         else
-          write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
+          write(u6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
           call ChoMP2_Quit(SecNam,'decomposition failed!',' ')
         end if
       else
         XMn = ErrStat(1)
         XMx = ErrStat(2)
         RMS = ErrStat(3)
-        write(6,'(A,A,A)') 'Error statistics for ',Option,' [min,max,rms]:'
-        write(6,*) XMn,XMx,RMS
+        write(u6,'(A,A,A)') 'Error statistics for ',Option,' [min,max,rms]:'
+        write(u6,*) XMn,XMx,RMS
         Failed = Failed .or. (abs(Xmn) > Thr) .or. (abs(XMx) > Thr) .or. (RMS > Thr)
         if (ConventionalCD) then
           if (Failed) then
-            write(6,*) '==> DECOMPOSITION FAILURE <=='
+            write(u6,*) '==> DECOMPOSITION FAILURE <=='
             irc = -9999
             Go To 1 ! exit
           else
-            write(6,*) '==> DECOMPOSITION SUCCESS <=='
+            write(u6,*) '==> DECOMPOSITION SUCCESS <=='
           end if
         else
           if (Failed) then
-            write(6,*) '==> DECOMPOSITION SUCCESS <== (by definition)'
+            write(u6,*) '==> DECOMPOSITION SUCCESS <== (by definition)'
           else
-            write(6,*) '==> DECOMPOSITION SUCCESS <=='
+            write(u6,*) '==> DECOMPOSITION SUCCESS <=='
           end if
         end if
-        call xFlush(6)
+        call xFlush(u6)
       end if
     end if
 
@@ -333,7 +332,7 @@ do iSym=1,nSym
 
   else
 
-    if (Verbose) write(6,'(//,1X,A,I2,A)') '>>> Symmetry block',iSym,' is empty!'
+    if (Verbose) write(u6,'(//,1X,A,I2,A)') '>>> Symmetry block',iSym,' is empty!'
 
   end if
 

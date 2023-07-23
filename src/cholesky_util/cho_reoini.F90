@@ -13,13 +13,15 @@ subroutine CHO_REOINI()
 !
 ! Purpose: initializations for vector reordering.
 
-use ChoReo
+use ChoReo, only: NABPK, NNBST
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
 #include "choorb.fh"
-integer :: I, J, MULD2H
+integer(kind=iwp) :: ISYM, ISYMA, ISYMB
 ! Statement function
+integer(kind=iwp) :: MULD2H, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 
 call IZERO(NNBST,NSYM)

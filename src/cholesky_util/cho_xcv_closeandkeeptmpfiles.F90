@@ -13,9 +13,11 @@
 
 subroutine Cho_XCV_CloseAndKeepTmpFiles()
 
+use Definitions, only: iwp
+
 implicit none
 #include "cholesky.fh"
-integer iSym
+integer(kind=iwp) :: iSym
 
 do iSym=1,nSym
   if (LuTmp(iSym) > 0) then

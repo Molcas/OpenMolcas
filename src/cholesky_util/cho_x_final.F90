@@ -26,15 +26,14 @@
 subroutine Cho_X_Final(irc)
 
 use ChoArr, only: MySP
-use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
-use ChoIni
+use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
+use ChoIni, only: ChoIniCheck
 use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer irc
-character*11 SecNam
-parameter(SecNam='Cho_X_Final')
-integer ChoIsIni
+integer(kind=iwp) :: irc
+integer(kind=iwp) :: ChoIsIni
 
 ! Set  error code.
 ! ----------------

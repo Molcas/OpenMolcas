@@ -15,12 +15,13 @@ subroutine CHO_PUTRED(IPASS,IRED)
 !          next write.
 
 use ChoArr, only: iSP2F
-use ChoSwp, only: nnBstRSh, IndRSh, InfRed, IndRed
+use ChoSwp, only: IndRed, IndRSh, InfRed, nnBstRSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IPASS, IRED
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_PUTRED')
+character(len=*), parameter :: SECNAM = 'CHO_PUTRED'
 
 if (IPASS > MAXRED) then
   write(LUPRI,*) SECNAM,': integral pass ',IPASS

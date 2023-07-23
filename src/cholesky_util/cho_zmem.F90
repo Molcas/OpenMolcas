@@ -27,21 +27,19 @@ subroutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
 !          overflow)
 ! irc=999: Insufficient memory for Z vectors (only if DoCheck)
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer irc
-integer l_Z
-integer l_NVT
-integer NVT(l_NVT)
-logical DoPrint, DoCheck
+integer(kind=iwp) :: irc, l_Z, l_NVT, NVT(l_NVT)
+logical(kind=iwp) :: DoPrint, DoCheck
 #include "cholesky.fh"
+integer(kind=iwp) :: iSym, l_Mx
+real(kind=wp) :: Byte, Word(8), xl_Z
+character(len=2) :: Unt
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
-character*8 SecNam
-parameter(SecNam='Cho_ZMem')
+character(len=*), parameter :: SecNam = 'Cho_ZMem'
 #endif
-character*2 Unt
-integer iSym, l_Mx
-real*8 Byte, xl_Z
-real*8 Word(8)
 
 #ifdef _DEBUGPRINT_
 if (l_NVT < nSym) then
@@ -53,9 +51,9 @@ end if
 
 irc = 0
 
-xl_Z = 0.0d0
+xl_Z = Zero
 do iSym=1,nSym
-  Word(iSym) = dble(NVT(iSym))*(dble(NVT(iSym))+1.0d0)/2.0d0
+  Word(iSym) = real(NVT(iSym),kind=wp)*(real(NVT(iSym),kind=wp)+One)*Half
   xl_Z = xl_Z+Word(iSym)
 end do
 l_Z = int(xl_Z)
@@ -76,7 +74,7 @@ end if
 if (l_Z < 0) then
   write(Lupri,'(A,A)') SecNam,': dimension of Z vector array is negative!'
   write(Lupri,'(A,I8)') 'l_Z=',l_Z
-  if (xl_Z > 0.0d0) then
+  if (xl_Z > Zero) then
     write(LuPri,'(A)') 'This seems to be an integer overflow!'
     call Cho_RWord2Byte(xl_Z,Byte,Unt)
     write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, xl_Z=',xl_Z,' words (',Byte,Unt,')'

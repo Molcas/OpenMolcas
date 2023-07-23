@@ -12,16 +12,15 @@
 subroutine Cho_X_GenVec(irc,Diag)
 
 use ChoSwp, only: iQuAB, pTemp, iQuAB_here
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-real*8 Diag(*)
+integer(kind=iwp) :: irc
+real(kind=wp) :: Diag(*)
 #include "cholesky.fh"
-character*12 SecNam
-parameter(SecNam='Cho_X_GenVec')
-integer MaxQual_SAVE
-integer iSym
+integer(kind=iwp) :: iSym, MaxQual_SAVE
+character(len=*), parameter :: SecNam = 'Cho_X_GenVec'
 
 ! Set return code.
 ! ----------------

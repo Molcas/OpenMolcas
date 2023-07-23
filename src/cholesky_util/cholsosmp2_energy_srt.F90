@@ -18,53 +18,31 @@ subroutine ChoLSOSMP2_Energy_Srt(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
 ! vectors (i.e., occupied orbitals processed in batches).
 
-use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
-use Constants
-use stdalloc
+use ChoMP2, only: iFirstS, LiT1am, LnOcc, LnT1am, lUnit
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer N
-real*8 w(N)
-real*8 t(N)
-real*8 EOcc(*)
-real*8 EVir(*)
-logical Delete
-real*8 EMP2
-integer irc
+integer(kind=iwp) :: N, irc
+real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
+logical(kind=iwp) :: Delete
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character(len=21), parameter :: SecNam = 'ChoLSOSMP2_Energy_Srt'
-real*8, external :: dDot_
+integer(kind=iwp) :: a, blast, bsize, i, iAddr, iBatch, iBlock, ii, iOpt, ip0, ip1, ipi, ipj, ipX, iSym, iSyma, iSymi, iVec, &
+                     jBlock, l_Tot, l_X, lenX, Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
+real(kind=wp) :: Eq, lX, tq, wq, xb, xbp, xM, xn
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
-character*2 Unt
-real*8 Byte
+real(kind=wp) :: Byte
+character(len=2) :: Unt
 #endif
-integer nEnrVec(8)
-integer iSym
-integer l_X
-integer Nai
-integer nBlock
-integer iOpt, iAddr, l_Tot
-integer q
-integer iBlock, jBlock
-integer iSymi, iSyma
-integer i, a, ii
-integer ipi, ipj
-integer nVeci, nVecj
-integer iVec
-integer ip0, ip1
-integer ipX, lenX
-integer iBatch
-integer bsize
-integer blast
-real*8 lX, xM, xn, xb, xbp
-real*8 tq, Eq, wq
-real*8, allocatable :: X(:), V(:)
-integer j, k
-real*8 epsi, epsa
-integer MulD2h
+real(kind=wp), allocatable :: V(:), X(:)
+character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Srt'
+real(kind=wp), external :: dDot_
 ! Statement functions
+real(kind=wp) :: epsi, epsa
+integer(kind=iwp) :: MulD2h, j, k
 epsi(j,k) = EOcc(iOcc(k)+j)
 epsa(j,k) = EVir(iVir(k)+j)
 MulD2h(j,k) = ieor(j-1,k-1)+1
@@ -103,11 +81,11 @@ do iSym=1,nSym
     bsize = min(Laplace_BlockSize,nEnrVec(iSym))
     nBlock = (nEnrVec(iSym)-1)/bsize+1
     blast = nEnrVec(iSym)-bsize*(nBlock-1)
-    xM = dble(nEnrVec(iSym))
-    xn = dble(nBlock)
-    xb = dble(bsize)
-    xbp = dble(blast)
-    lX = max(lX,0.5d0*(xM*(xM+1.0d0)+(xn-1.0d0)*xb*(xb-1.0d0)+xbp*(xbp-1.0d0)))
+    xM = real(nEnrVec(iSym),kind=wp)
+    xn = real(nBlock,kind=wp)
+    xb = real(bsize,kind=wp)
+    xbp = real(blast,kind=wp)
+    lX = max(lX,Half*(xM*(xM+One)+(xn-One)*xb*(xb-One)+xbp*(xbp-One)))
   end if
 end do
 l_X = int(lX)
@@ -115,7 +93,7 @@ l_X = int(lX)
 if (l_X < 0) then
   write(Lupri,'(A,A)') SecNam,': dimension of X matrix is negative!'
   write(Lupri,'(A,I15)') 'l_X=',l_X
-  if (lX > 0.0d0) then
+  if (lX > Zero) then
     write(LuPri,'(A)') 'This seems to be an integer overflow!'
     call Cho_RWord2Byte(lX,Byte,Unt)
     write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, lX=',lX,' words (',Byte,Unt,')'
@@ -138,11 +116,11 @@ call mma_allocate(V,Nai,Label='V')
 ! compute energy correction
 do q=1,N
   ! init energy for this q
-  Eq = 0.0d0
+  Eq = Zero
   ! scale grid point by 1/2
-  tq = 0.5d0*t(q)
+  tq = Half*t(q)
   ! scale weight by 2 (only lower blocks of X computed)
-  wq = 2.0d0*w(q)
+  wq = Two*w(q)
   do iSym=1,nSym
     if (nEnrVec(iSym) > 0) then
       ! init X for this symmetry
@@ -153,7 +131,7 @@ do q=1,N
 #     ifdef _DEBUGPRINT_
       if (lenX > l_X) then
         call WarningMessage(2,SecNam//': insufficient X allocation')
-        write(6,'(A,2(1X,I10))') 'lenX,l_X=',lenX,l_X
+        write(u6,'(A,2(1X,I10))') 'lenX,l_X=',lenX,l_X
         call Abend()
       end if
 #     endif
@@ -171,7 +149,7 @@ do q=1,N
 #         ifdef _DEBUGPRINT_
           if (l_Tot > size(V)) then
             call WarningMessage(2,SecNam//': insufficient V allocation')
-            write(6,'(A,2(1X,I10))') 'l_Tot,SIZE(V)=',l_Tot,size(V)
+            write(u6,'(A,2(1X,I10))') 'l_Tot,SIZE(V)=',l_Tot,size(V)
             call Abend()
           end if
 #         endif
@@ -212,14 +190,14 @@ do q=1,N
               else
                 nVeci = Laplace_BlockSize
               end if
-              call dGEMM_('T','N',nVeci,nVecj,Nai,1.0d0,V(ipi),Nai,V(ipj),Nai,1.0d0,X(ipX),nVeci)
+              call dGEMM_('T','N',nVeci,nVecj,Nai,One,V(ipi),Nai,V(ipj),Nai,One,X(ipX),nVeci)
               ipX = ipX+nVeci*nVecj
             end do
           end do
 #         ifdef _DEBUGPRINT_
           if (lenX /= (ipX-1)) then
             call WarningMessage(2,SecNam//': dimension problem [1]')
-            write(6,'(A,I10,A,I10)') 'lenX=',lenX,' ipX-1=',ipX-1
+            write(u6,'(A,I10,A,I10)') 'lenX=',lenX,' ipX-1=',ipX-1
             call Abend()
           end if
 #         endif
@@ -241,7 +219,7 @@ do q=1,N
             nVeci = Laplace_BlockSize
           end if
           if (iBlock == jBlock) then
-            Eq = Eq+0.5d0*dDot_(nVeci*nVecj,X(ipX),1,X(ipX),1)
+            Eq = Eq+Half*dDot_(nVeci*nVecj,X(ipX),1,X(ipX),1)
           else
             Eq = Eq+dDot_(nVeci*nVecj,X(ipX),1,X(ipX),1)
           end if
@@ -251,7 +229,7 @@ do q=1,N
 #     ifdef _DEBUGPRINT_
       if (lenX /= (ipX-1)) then
         call WarningMessage(2,SecNam//': dimension problem [2]')
-        write(6,'(A,I10,A,I10)') 'lenX=',lenX,' ipX-1=',ipX-1
+        write(u6,'(A,I10,A,I10)') 'lenX=',lenX,' ipX-1=',ipX-1
         call Abend()
       end if
 #     endif

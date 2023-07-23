@@ -15,12 +15,13 @@ subroutine CHO_RSCOPY(IRS1,IRS2)
 !          Special action is taken with INDRED if IRS1=1 so that it
 !          will point as expected for the "current" reduced set.
 
-use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Definitions, only: iwp
 
 implicit none
-integer IRS1, IRS2
-integer IAB
-integer MSYM
+integer(kind=iwp) :: IRS1, IRS2
+integer(kind=iwp) :: IAB
+integer(kind=iwp) :: MSYM
 #include "cholesky.fh"
 
 MSYM = size(iiBstRSh,1)

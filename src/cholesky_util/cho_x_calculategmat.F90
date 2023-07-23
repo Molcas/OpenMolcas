@@ -37,30 +37,36 @@
 subroutine Cho_X_CalculateGMat(irc)
 
 use ChoSwp, only: InfVec
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-character*(6) FileName
+implicit none
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
+integer(kind=iwp) :: iDisk, idRS2RS, iI, iJ, iLoc, iOpt, iRed, iRedC, iSym, K, kG_IJ, KK, KK1, KKK, kOffV, l_G, l_iRS2RS, l_Wrk, &
+                     lUnit, mUSed, nVRead
+real(kind=wp) :: V_J
+logical(kind=iwp) :: isDF
+character(len=6) :: FileName
+integer(kind=iwp), pointer :: InfVcT(:,:,:)
+integer(kind=iwp), allocatable :: iRS2RS(:), NVT(:)
+real(kind=wp), allocatable :: G(:), Wrk(:)
 #ifdef _DEBUGPRINT_
-real*8 ddot_
-external ddot_
+real(kind=wp), external :: ddot_
 #endif
-logical isDF
-integer, pointer :: InfVcT(:,:,:)
-integer, allocatable :: NVT(:), iRS2RS(:)
-real*8, allocatable :: Wrk(:), G(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
-    integer, pointer :: InfVcT(:,:,:)
-    integer :: n, NVT(n)
+    import :: iwp
+    integer(kind=iwp), pointer :: InfVcT(:,:,:)
+    integer(kind=iwp) :: n, NVT(n)
   end subroutine Cho_CGM_InfVec
 end interface
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Set return code.
@@ -168,7 +174,7 @@ do iSym=1,nSym
   call DDAFile(lUnit,iOpt,G,size(G),iDisk)
 # ifdef _DEBUGPRINT_
   call TriPrt('G-matix',' ',G,NVT(iSym))
-  write(6,'(A,I2,A,1P,D16.7)') 'G matrix, sym.',iSym,': Norm = ',sqrt(dDot_(size(G),G,1,G,1))
+  write(u6,'(A,I2,A,1P,D16.7)') 'G matrix, sym.',iSym,': Norm = ',sqrt(dDot_(size(G),G,1,G,1))
 # endif
   call mma_deallocate(Wrk)
   call mma_deallocate(G)

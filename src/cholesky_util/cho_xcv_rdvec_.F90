@@ -16,20 +16,14 @@ subroutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 ! Read the vector blocks.
 
 use ChoSwp, only: nnBstRSh
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-real*8 Vec(*)
-integer n_myRankSP
-integer myRankSP(n_myRankSP)
-integer NVT
-integer J1, J2, iSym
+integer(kind=iwp) :: irc, n_myRankSP, myRankSP(n_myRankSP), NVT, J1, J2, iSym
+real(kind=wp) :: Vec(*)
 #include "cholesky.fh"
-integer iOpt
-parameter(iOpt=2)
-integer kV, n, i
-integer lTot, iAdr, iAdr0
-integer iSP
+integer(kind=iwp) :: i, iAdr, iAdr0, iSP, kV, lTot, n
+integer(kind=iwp), parameter :: iOpt = 2
 
 irc = 0
 

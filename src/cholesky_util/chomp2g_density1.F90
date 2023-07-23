@@ -19,20 +19,34 @@ subroutine ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 !          decomposed MP2 amplitudes.
 
 use ChoMP2, only: AdrR1, AdrR2
-use ChoMP2g
+use ChoMP2g, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, lLagr, lPab, &
+                   lPai, lPaK, lPij, lPiK, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, lWaK, lWij, lWiK, lWJK, nMoMo
+use Constants, only: Zero, One, Two, Four, Eight, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, lWrk
+real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character*16 SecNam
-parameter(SecNam='ChoMP2g_density1')
-character Fname*5
-real*8 Wrk(lWrk), EOcc(*), EVir(*), EFro(*)
-real*8 X(0:1)
-data X/0.0d0,1.0d0/
+integer(kind=iwp) :: iAdr, iB, iB1, iBBlock, iBRel, iClos, iI, iJ, iK, iOff, iOff1, iOffAmp, iOffL, iOffL1, iOffLic, iOffRic, &
+                     iOffU, iOffU1, iOffV, iOffV1, iOffX, iOpt, iSeed, iSym, iSymA, iSymB, iSymC, iSymI, iSymJ, iSymJC, iSymK, &
+                     iTypL, iTypR, iVecFV, iVecOF, iVecOO, iVecOV, iVecVV, jBat, jSym, jVec, jVec1, kAmp, kBat, kEndAmp, &
+                     kEndFLagr, kEndLab, kEndLagr, kEndLic, kEndLij, kEndliK, kEndLji, kEndLKa, kEndPab, kEndPai, kEndPaK, &
+                     kEndPij, kEndPiK, kEndRia, kEndRia2, kEndRib, kEndRic, kEndRjc, kEndU, kEndWab, kEndWai, kEndWaK, kEndWij, &
+                     kEndWiK, kEndWJK, kEndX, kLab, kLia, kLic, kLij, kLiK, kLji, kLKa, kRia, kRia2, kRib, kRic, kRjc, kU, kV, &
+                     kVec, kVec1, kX, lAmp, lLab, lLic, lLij, lLiK, lLji, lLKa, lRia, lRia2, lRib, lRic, lRjc, lScr, lTot, lU, lV, &
+                     lX, maxvalue, nB, nBatL, nBatMax, nBatR, nBBlock, nFroMax, nMoMoMax, nMP2VecMax, nOccMax, NumB, NumChoMax, &
+                     NumIC, NumLVecJ, NumRVecJ, NumVecJ, NumVecK, nVec, nVirMax
+real(kind=wp) :: E_i, E_K, Fac
+character(len=5) :: Fname
+real(kind=wp), parameter :: X(0:1) = [Zero,One]
+character(len=*), parameter :: SecNam = 'ChoMP2g_density1'
+integer(kind=iwp), external :: IsFreeUnit
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 maxvalue = 200
@@ -324,8 +338,8 @@ do iSym=1,nSym
         ! Construct X^JK-vector
         ! ---------------------
         iOffX = NumVecK*(jVec-1)
-        call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),1.0d0,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kRia2),nMoMo(iSym,iVecOV), &
-                    0.0d0,Wrk(kX+iOffX),NumVecK)
+        call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),One,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kRia2),nMoMo(iSym,iVecOV), &
+                    Zero,Wrk(kX+iOffX),NumVecK)
 
       end do
 
@@ -364,7 +378,7 @@ do iSym=1,nSym
 
         iOffX = NumVecK*(jVec-1)
         Fac = X(min((jBat-1),1))
-        call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,1.0d0,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kX+iOffX),NumVecK,Fac, &
+        call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,One,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kX+iOffX),NumVecK,Fac, &
                     Wrk(kU),nMoMo(iSym,iVecOV))
       end do
 
@@ -406,8 +420,8 @@ do iSym=1,nSym
         if (nOcc(iSymI)*nVir(iSymA) == 0) Go To 121
         do iI=1,nOcc(iSymI)
           iOff = (iI-1)*nVir(iSymA)+iOff1
-          call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumVecK,4.0d0,Wrk(kRia+iOff),nMoMo(iSym,iVecOV),Wrk(kU+iOff),nMoMo(iSym, &
-                      iVecOV),1.0d0,Wrk(kPab(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumVecK,Four,Wrk(kRia+iOff),nMoMo(iSym,iVecOV),Wrk(kU+iOff), &
+                      nMoMo(iSym,iVecOV),One,Wrk(kPab(iSymA)),nVir(iSymA))
         end do
 121     continue
         iOff1 = iOff1+nOcc(iSymI)*nVir(iSymA)
@@ -422,8 +436,8 @@ do iSym=1,nSym
           iSymB = MulD2h(iSymK,iSym)
           if (nOcc(iSymK)*nVir(iSymB) == 0) Go To 122
           iOff = nMoMo(iSym,iVecOV)*(kVec1-1)+iOff1
-          call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),-4.0d0,Wrk(kU+iOff),nVir(iSymB),Wrk(kRia+iOff),nVir(iSymB), &
-                      1.0d0,Wrk(kPij(iSymK)),nOcc(iSymI))
+          call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),-Four,Wrk(kU+iOff),nVir(iSymB),Wrk(kRia+iOff),nVir(iSymB), &
+                      One,Wrk(kPij(iSymK)),nOcc(iSymI))
 122       continue
           iOff1 = iOff1+nOcc(iSymI)*nVir(iSymB)
         end do
@@ -468,8 +482,8 @@ do iSym=1,nSym
         ! Construct X^JK-vector
         ! ---------------------
         iOffX = NumVecK*(jVec-1)
-        call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),1.0d0,Wrk(kLia),nMoMo(iSym,iVecOV),Wrk(kRia2),nMoMo(iSym,iVecOV), &
-                    0.0d0,Wrk(kX+iOffX),NumVecK)
+        call dGemm_('T','N',NumVecK,NumVecJ,nMoMo(iSym,iVecOV),One,Wrk(kLia),nMoMo(iSym,iVecOV),Wrk(kRia2),nMoMo(iSym,iVecOV), &
+                    Zero,Wrk(kX+iOffX),NumVecK)
       end do
 
       iOpt = 1
@@ -507,8 +521,8 @@ do iSym=1,nSym
 
         iOffX = NumVecK*(jVec-1)
         Fac = X(min((jBat-1),1))
-        call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,1.0d0,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kX+iOffX),NumVecK,Fac, &
-                    Wrk(kU),nMoMo(iSym,iVecOV))
+        call dGemm_('N','T',nMoMo(iSym,iVecOV),NumVecK,NumVecJ,One,Wrk(kRia),nMoMo(iSym,iVecOV),Wrk(kX+iOffX),NumVecK,Fac,Wrk(kU), &
+                    nMoMo(iSym,iVecOV))
       end do
 
       iOpt = 1
@@ -583,8 +597,8 @@ do iSym=1,nSym
           if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymB) == 0) Go To 131
           iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
           iOffL = nMoMo(iSym,iVecFV)*(kVec1-1)+iOffL1
-          call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymB),-4.0d0,Wrk(kU+iOffU),nVir(iSymB),Wrk(kLKa+iOffL),nVir(iSymB), &
-                      1.0d0,Wrk(kPiK(iSymK)),nOcc(iSymI))
+          call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymB),-Four,Wrk(kU+iOffU),nVir(iSymB),Wrk(kLKa+iOffL),nVir(iSymB),One, &
+                      Wrk(kPiK(iSymK)),nOcc(iSymI))
 131       continue
           iOffU1 = iOffU1+nOcc(iSymI)*nVir(iSymB)
           iOffL1 = iOffL1+nFro(iSymK)*nVir(iSymB)
@@ -603,8 +617,8 @@ do iSym=1,nSym
           if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymB) == 0) Go To 135
           iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
           iOffL = nMoMo(iSym,iVecFV)*(kVec1-1)+iOffL1
-          call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymB),4.0d0,Wrk(kU+iOffU),nVir(iSymB),Wrk(kLKa+iOffL),nVir(iSymB), &
-                      1.0d0,Wrk(kWiK(iSymK)),nOcc(iSymI))
+          call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymB),Four,Wrk(kU+iOffU),nVir(iSymB),Wrk(kLKa+iOffL),nVir(iSymB),One, &
+                      Wrk(kWiK(iSymK)),nOcc(iSymI))
 135       continue
           iOffU1 = iOffU1+nOcc(iSymI)*nVir(iSymB)
           iOffL1 = iOffL1+nFro(iSymK)*nVir(iSymB)
@@ -622,9 +636,9 @@ do iSym=1,nSym
           if (nOcc(iSymI)*nVir(iSymA)*nVir(iSymB) == 0) Go To 132
           iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
           iOffL = nMoMo(iSym,iVecVV)*(kVec1-1)+iOffL1
-          call dGemm_('T','N',nVir(iSymA),nOcc(iSymI),nVir(iSymB),4.0d0,Wrk(kLab+iOffL),nVir(iSymB),Wrk(kU+iOffU),nVir(iSymB), &
-                      1.0d0,Wrk(kLagr(iSymA)),nVir(iSymA))
-!
+          call dGemm_('T','N',nVir(iSymA),nOcc(iSymI),nVir(iSymB),Four,Wrk(kLab+iOffL),nVir(iSymB),Wrk(kU+iOffU),nVir(iSymB),One, &
+                      Wrk(kLagr(iSymA)),nVir(iSymA))
+
 132       continue
           iOffU1 = iOffU1+nOcc(iSymI)*nVir(iSymB)
           iOffL1 = iOffL1+nVir(iSymA)*nVir(iSymB)
@@ -642,8 +656,8 @@ do iSym=1,nSym
         do iJ=1,nOcc(iSymJ)
           iOffU = (iJ-1)*nVir(iSymA)+iOffU1
           iOffL = (iJ-1)*nOcc(iSymI)+iOffL1
-          call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumVecK,-4.0d0,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLij+iOffL), &
-                      nMoMo(iSym,iVecOO),1.0d0,Wrk(kLagr(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumVecK,-Four,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLij+iOffL), &
+                      nMoMo(iSym,iVecOO),One,Wrk(kLagr(iSymA)),nVir(iSymA))
         end do
 133     continue
         iOffU1 = iOffU1+nOcc(iSymJ)*nVir(iSymA)
@@ -661,8 +675,8 @@ do iSym=1,nSym
         do iJ=1,nOcc(iSymJ)
           iOffU = (iJ-1)*nVir(iSymA)+iOffU1
           iOffL = (iJ-1)*nOcc(iSymI)+iOffL1
-          call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumVecK,8.0d0,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLij+iOffL), &
-                      nMoMo(iSym,iVecOO),1.0d0,Wrk(kWai(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumVecK,Eight,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLij+iOffL), &
+                      nMoMo(iSym,iVecOO),One,Wrk(kWai(iSymA)),nVir(iSymA))
         end do
 1331    continue
         iOffU1 = iOffU1+nOcc(iSymJ)*nVir(iSymA)
@@ -677,8 +691,8 @@ do iSym=1,nSym
         if (nOcc(iSymI)*nVir(iSymA) == 0) Go To 151
         do iI=1,nOcc(iSymI)
           iOff = (iI-1)*nVir(iSymA)+iOff1
-          call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumVecK,4.0d0,Wrk(kLia+iOff),nMoMo(iSym,iVecOV),Wrk(kU+iOff), &
-                      nMoMo(iSym,iVecOV),1.0d0,Wrk(kWab(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumVecK,Four,Wrk(kLia+iOff),nMoMo(iSym,iVecOV),Wrk(kU+iOff), &
+                      nMoMo(iSym,iVecOV),One,Wrk(kWab(iSymA)),nVir(iSymA))
         end do
 151     continue
         iOff1 = iOff1+nOcc(iSymI)*nVir(iSymA)
@@ -693,8 +707,8 @@ do iSym=1,nSym
           iSymB = MulD2h(iSymK,iSym)
           if (nOcc(iSymK)*nVir(iSymB) == 0) Go To 152
           iOff = nMoMo(iSym,iVecOV)*(kVec1-1)+iOff1
-          call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),4.0d0,Wrk(kU+iOff),nVir(iSymB),Wrk(kLia+iOff),nVir(iSymB), &
-                      1.0d0,Wrk(kWij(iSymK)),nOcc(iSymI))
+          call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),Four,Wrk(kU+iOff),nVir(iSymB),Wrk(kLia+iOff),nVir(iSymB),One, &
+                      Wrk(kWij(iSymK)),nOcc(iSymI))
 152       continue
         end do
       end do
@@ -710,8 +724,8 @@ do iSym=1,nSym
         do iJ=1,nOcc(iSymJ)
           iOffU = (iJ-1)*nVir(iSymA)+iOffU1
           iOffL = (iJ-1)*nFro(iSymI)+iOffL1
-          call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumVecK,-4.0d0,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLiK+iOffL), &
-                      nMoMo(iSym,iVecOF),1.0d0,Wrk(kFLagr(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumVecK,-Four,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLiK+iOffL), &
+                      nMoMo(iSym,iVecOF),One,Wrk(kFLagr(iSymA)),nVir(iSymA))
         end do
 134     continue
         iOffU1 = iOffU1+nOcc(iSymJ)*nVir(iSymA)
@@ -729,8 +743,8 @@ do iSym=1,nSym
         do iJ=1,nOcc(iSymJ)
           iOffU = (iJ-1)*nVir(iSymA)+iOffU1
           iOffL = (iJ-1)*nFro(iSymI)+iOffL1
-          call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumVecK,8.0d0,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLiK+iOffL), &
-                      nMoMo(iSym,iVecOF),1.0d0,Wrk(kWaK(iSymA)),nVir(iSymA))
+          call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumVecK,Eight,Wrk(kU+iOffU),nMoMo(iSym,iVecOV),Wrk(kLiK+iOffL), &
+                      nMoMo(iSym,iVecOF),One,Wrk(kWaK(iSymA)),nVir(iSymA))
         end do
 1341    continue
         iOffU1 = iOffU1+nOcc(iSymJ)*nVir(iSymA)
@@ -944,7 +958,7 @@ do jSym=1,nSym
                 call dDaFile(LuRInv(2),iOpt,Wrk(kRib),lTot,iAdr)
                 iOffAmp = (iBrel-1)*nVir(iSymC)*nOcc(iSymI)
                 Fac = X(min((kBat-1),1))
-                call dGemm_('N','T',nVir(iSymC),nOcc(iSymI),NumVecK,1.0d0,Wrk(kRjc),nVir(iSymC),Wrk(kRib),nOcc(iSymI),Fac, &
+                call dGemm_('N','T',nVir(iSymC),nOcc(iSymI),NumVecK,One,Wrk(kRjc),nVir(iSymC),Wrk(kRib),nOcc(iSymI),Fac, &
                             Wrk(kAmp+iOffAmp),nVir(iSymC))
               end do
             end do
@@ -954,16 +968,16 @@ do jSym=1,nSym
             if (NumRVecJ > 0) then
               iOffRic = iT1am(iSymC,iSymI)
               iOffU = iT1am(iSymB,iSymJ)+(iJ-1)*nVir(iSymB)+(iB1-1)
-              call dGemm_('T','N',NumB,NumRVecJ,NumIC,1.0d0,Wrk(kAmp),NumIC,Wrk(kRic+iOffRic),nMoMo(jSym,iVecOV),1.0d0, &
-                          Wrk(kU+iOffU),nMoMo(jSym,iVecOV))
+              call dGemm_('T','N',NumB,NumRVecJ,NumIC,One,Wrk(kAmp),NumIC,Wrk(kRic+iOffRic),nMoMo(jSym,iVecOV),One,Wrk(kU+iOffU), &
+                          nMoMo(jSym,iVecOV))
             end if
             ! Calculate the contribution to V^J_jb
             ! ------------------------------------
             if (NumLVecJ > 0) then
               iOffLic = iT1am(iSymC,iSymI)
               iOffV = iT1am(iSymB,iSymJ)+(iJ-1)*nVir(iSymB)+(iB1-1)
-              call dGemm_('T','N',NumB,NumLVecJ,NumIC,1.0d0,Wrk(kAmp),NumIC,Wrk(kLic+iOffLic),nMoMo(jSym,iVecOV),1.0d0, &
-                          Wrk(kV+iOffV),nMoMo(jSym,iVecOV))
+              call dGemm_('T','N',NumB,NumLVecJ,NumIC,One,Wrk(kAmp),NumIC,Wrk(kLic+iOffLic),nMoMo(jSym,iVecOV),One,Wrk(kV+iOffV), &
+                          nMoMo(jSym,iVecOV))
             end if
 
           end do
@@ -1091,8 +1105,8 @@ do jSym=1,nSym
       if (nOcc(iSymJ)*nVir(iSymA)*NumRVecJ == 0) Go To 221
       do iI=1,nOcc(iSymJ)
         iOff = (iI-1)*nVir(iSymA)+iOff1
-        call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumRVecJ,-2.0d0,Wrk(kRic+iOff),nMoMo(jSym,iVecOV),Wrk(kU+iOff), &
-                    nMoMo(jSym,iVecOV),1.0d0,Wrk(kPab(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumRVecJ,-Two,Wrk(kRic+iOff),nMoMo(jSym,iVecOV),Wrk(kU+iOff), &
+                    nMoMo(jSym,iVecOV),One,Wrk(kPab(iSymA)),nVir(iSymA))
       end do
 221   continue
       iOff1 = iOff1+nOcc(iSymJ)*nVir(iSymA)
@@ -1108,7 +1122,7 @@ do jSym=1,nSym
         iSymB = MulD2h(iSymJ,jSym)
         if (nOcc(iSymJ)*nVir(iSymB) == 0) Go To 222
         iOff = nMoMo(jSym,iVecOV)*(jVec1-1)+iOff1
-        call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),2.0d0,Wrk(kU+iOff),nVir(iSymB),Wrk(kRic+iOff),nVir(iSymB),1.0d0, &
+        call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),Two,Wrk(kU+iOff),nVir(iSymB),Wrk(kRic+iOff),nVir(iSymB),One, &
                     Wrk(kPij(iSymJ)),nOcc(iSymJ))
 222     continue
         iOff1 = iOff1+nOcc(iSymJ)*nVir(iSymB)
@@ -1127,7 +1141,7 @@ do jSym=1,nSym
         if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymA) == 0) Go To 231
         iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
         iOffL = nMoMo(jSym,iVecFV)*(jVec1-1)+iOffL1
-        call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymA),2.0d0,Wrk(kV+iOffV),nVir(iSymA),Wrk(kLKa+iOffL),nVir(iSymA),1.0d0, &
+        call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymA),Two,Wrk(kV+iOffV),nVir(iSymA),Wrk(kLKa+iOffL),nVir(iSymA),One, &
                     Wrk(kPiK(iSymK)),nOcc(iSymI))
 231     continue
         iOffV1 = iOffV1+nOcc(iSymI)*nVir(iSymA)
@@ -1147,8 +1161,8 @@ do jSym=1,nSym
         if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymA) == 0) Go To 273
         iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
         iOffL = nMoMo(jSym,iVecFV)*(jVec1-1)+iOffL1
-        call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymA),-2.0d0,Wrk(kV+iOffV),nVir(iSymA),Wrk(kLKa+iOffL),nVir(iSymA), &
-                    1.0d0,Wrk(kWiK(iSymK)),nOcc(iSymI))
+        call dGemm_('T','N',nOcc(iSymI),nFro(iSymK),nVir(iSymA),-Two,Wrk(kV+iOffV),nVir(iSymA),Wrk(kLKa+iOffL),nVir(iSymA),One, &
+                    Wrk(kWiK(iSymK)),nOcc(iSymI))
 273     continue
         iOffV1 = iOffV1+nOcc(iSymI)*nVir(iSymA)
         iOffL1 = iOffL1+nFro(iSymK)*nVir(iSymA)
@@ -1167,8 +1181,8 @@ do jSym=1,nSym
         if (nOcc(iSymI)*nVir(iSymB)*nVir(iSymA) == 0) Go To 223
         iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
         iOffL = nMoMo(jSym,iVecVV)*(jVec1-1)+iOffL1
-        call dGemm_('T','N',nVir(iSymA),nOcc(iSymI),nVir(iSymB),-2.0d0,Wrk(kLab+iOffL),nVir(iSymB),Wrk(kV+iOffV),nVir(iSymB), &
-                    1.0d0,Wrk(kLagr(iSymA)),nVir(iSymA))
+        call dGemm_('T','N',nVir(iSymA),nOcc(iSymI),nVir(iSymB),-Two,Wrk(kLab+iOffL),nVir(iSymB),Wrk(kV+iOffV),nVir(iSymB),One, &
+                    Wrk(kLagr(iSymA)),nVir(iSymA))
 223     continue
         iOffL1 = iOffL1+nVir(iSymA)*nVir(iSymB)
         iOffV1 = iOffV1+nOcc(iSymI)*nVir(iSymB)
@@ -1187,8 +1201,8 @@ do jSym=1,nSym
       do iJ=1,nOcc(iSymJ)
         iOffV = (iJ-1)*nVir(iSymA)+iOffV1
         iOffL = (iJ-1)*nOcc(iSymI)+iOffL1
-        call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumLVecJ,2.0d0,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLji+iOffL), &
-                    nMoMo(jSym,iVecOO),1.0d0,Wrk(kLagr(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumLVecJ,Two,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLji+iOffL), &
+                    nMoMo(jSym,iVecOO),One,Wrk(kLagr(iSymA)),nVir(iSymA))
       end do
 233   continue
       iOffV1 = iOffV1+nOcc(iSymJ)*nVir(iSymA)
@@ -1207,8 +1221,8 @@ do jSym=1,nSym
       do iJ=1,nOcc(iSymJ)
         iOffV = (iJ-1)*nVir(iSymA)+iOffV1
         iOffL = (iJ-1)*nOcc(iSymI)+iOffL1
-        call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumLVecJ,-4.0d0,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLji+iOffL), &
-                    nMoMo(jSym,iVecOO),1.0d0,Wrk(kWai(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nOcc(iSymI),NumLVecJ,-Four,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLji+iOffL), &
+                    nMoMo(jSym,iVecOO),One,Wrk(kWai(iSymA)),nVir(iSymA))
       end do
 2331  continue
       iOffV1 = iOffV1+nOcc(iSymJ)*nVir(iSymA)
@@ -1223,8 +1237,8 @@ do jSym=1,nSym
       if (nOcc(iSymJ)*nVir(iSymA)*NumLVecJ == 0) Go To 251
       do iI=1,nOcc(iSymJ)
         iOff = (iI-1)*nVir(iSymA)+iOff1
-        call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumLVecJ,-2.0d0,Wrk(kLic+iOff),nMoMo(jSym,iVecOV),Wrk(kV+iOff), &
-                    nMoMo(jSym,iVecOV),1.0d0,Wrk(kWab(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nVir(iSymA),NumLVecJ,-Two,Wrk(kLic+iOff),nMoMo(jSym,iVecOV),Wrk(kV+iOff), &
+                    nMoMo(jSym,iVecOV),One,Wrk(kWab(iSymA)),nVir(iSymA))
       end do
 251   continue
       iOff1 = iOff1+nOcc(iSymJ)*nVir(iSymA)
@@ -1240,7 +1254,7 @@ do jSym=1,nSym
         iSymB = MulD2h(iSymJ,jSym)
         if (nOcc(iSymJ)*nVir(iSymB) == 0) Go To 252
         iOff = nMoMo(jSym,iVecOV)*(jVec1-1)+iOff1
-        call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),-2.0d0,Wrk(kV+iOff),nVir(iSymB),Wrk(kLic+iOff),nVir(iSymB),1.0d0, &
+        call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),-Two,Wrk(kV+iOff),nVir(iSymB),Wrk(kLic+iOff),nVir(iSymB),One, &
                     Wrk(kWij(iSymJ)),nOcc(iSymJ))
 252     continue
         iOff1 = iOff1+nOcc(iSymJ)*nVir(iSymB)
@@ -1258,8 +1272,8 @@ do jSym=1,nSym
       do iJ=1,nOcc(iSymJ)
         iOffV = (iJ-1)*nVir(iSymA)+iOffV1
         iOffL = (iJ-1)*nFro(iSymI)+iOffL1
-        call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumLVecJ,2.0d0,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLiK+iOffL), &
-                    nMoMo(jSym,iVecOF),1.0d0,Wrk(kFLagr(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumLVecJ,Two,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLiK+iOffL), &
+                    nMoMo(jSym,iVecOF),One,Wrk(kFLagr(iSymA)),nVir(iSymA))
       end do
 2341  continue
       iOffV1 = iOffV1+nOcc(iSymJ)*nVir(iSymA)
@@ -1277,8 +1291,8 @@ do jSym=1,nSym
       do iJ=1,nOcc(iSymJ)
         iOffV = (iJ-1)*nVir(iSymA)+iOffV1
         iOffL = (iJ-1)*nFro(iSymI)+iOffL1
-        call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumLVecJ,-4.0d0,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLiK+iOffL), &
-                    nMoMo(jSym,iVecOF),1.0d0,Wrk(kWaK(iSymA)),nVir(iSymA))
+        call dGemm_('N','T',nVir(iSymA),nFro(iSymI),NumLVecJ,-Four,Wrk(kV+iOffV),nMoMo(jSym,iVecOV),Wrk(kLiK+iOffL), &
+                    nMoMo(jSym,iVecOF),One,Wrk(kWaK(iSymA)),nVir(iSymA))
       end do
 234   continue
       iOffV1 = iOffV1+nOcc(iSymJ)*nVir(iSymA)
@@ -1336,20 +1350,20 @@ do iSym=1,nSym
     lScr = lWrk-kEndFLagr
     ! Construct Lagr(i)
     ! -----------------
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'oovo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPij(1)),lPij,-0.5d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'oovo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPij(1)),lPij,-Half)
 
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'fovo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPiK(1)),lPiK,-1.0d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'fovo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPiK(1)),lPiK,-One)
     ! Construct FLagr(i)
     ! ------------------
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'oovf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPij(1)),lPij,-0.5d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'oovf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPij(1)),lPij,-Half)
 
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'fovf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPiK(1)),lPiK,-1.0d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'fovf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPiK(1)),lPiK,-One)
     ! Construct Lagr(ii)
     ! ------------------
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'vvvo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPab(1)),lPab,-0.5d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'vvvo',iSym,nVec,Wrk(kLagr(1)),lLagr,Wrk(kPab(1)),lPab,-Half)
     ! Construct FLagr(ii)
     ! -------------------
-    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'vvvf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPab(1)),lPab,-0.5d0)
+    call ChoMP2g_ConstrAP(irc,Wrk(kEndFLagr),lScr,'vvvf',iSym,nVec,Wrk(kFLagr(1)),lFLagr,Wrk(kPab(1)),lPab,-Half)
 
     call ChoMP2_OpenF(iClos,1,iSym)
     call DaClos(LuUVec)
@@ -1360,47 +1374,47 @@ do iSym=1,nSym
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Pab'
+write(u6,*) 'Pab'
 do i=1,lPab
-  write(6,*) Wrk(kPab(1)+i-1)
+  write(u6,*) Wrk(kPab(1)+i-1)
 end do
-write(6,*) 'lWab'
+write(u6,*) 'lWab'
 do i=1,lWab
-  write(6,*) Wrk(kWab(1)+i-1)
+  write(u6,*) Wrk(kWab(1)+i-1)
 end do
-write(6,*) 'Pij'
+write(u6,*) 'Pij'
 do i=1,lPij
-  write(6,*) Wrk(kPij(1)+i-1)
+  write(u6,*) Wrk(kPij(1)+i-1)
 end do
-write(6,*) 'Wij'
+write(u6,*) 'Wij'
 do i=1,lWij
-  write(6,*) Wrk(kWij(1)+i-1)
+  write(u6,*) Wrk(kWij(1)+i-1)
 end do
-write(6,*) 'WiK'
+write(u6,*) 'WiK'
 do i=1,lWiK
-  write(6,*) Wrk(kWiK(1)+i-1)
+  write(u6,*) Wrk(kWiK(1)+i-1)
 end do
-write(6,*) 'WaK'
+write(u6,*) 'WaK'
 do i=1,lWaK
-  write(6,*) Wrk(kWaK(1)+i-1)
+  write(u6,*) Wrk(kWaK(1)+i-1)
 end do
-write(6,*) 'Wai'
+write(u6,*) 'Wai'
 do i=1,lWai
-  write(6,*) Wrk(kWai(1)+i-1)
+  write(u6,*) Wrk(kWai(1)+i-1)
 end do
-write(6,*) 'PiK'
+write(u6,*) 'PiK'
 do i=1,lPiK
-  write(6,*) Wrk(kPiK(1)+i-1)
+  write(u6,*) Wrk(kPiK(1)+i-1)
 end do
 
-write(6,*) 'Lagr'
+write(u6,*) 'Lagr'
 do i=1,lLagr
-  write(6,*) Wrk(kLagr(1)+i-1)
+  write(u6,*) Wrk(kLagr(1)+i-1)
 end do
 
-write(6,*) 'FLagr'
+write(u6,*) 'FLagr'
 do i=1,lFLagr
-  write(6,*) Wrk(kFLagr(1)+i-1)
+  write(u6,*) Wrk(kFLagr(1)+i-1)
 end do
 #endif
 

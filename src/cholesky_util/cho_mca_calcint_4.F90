@@ -21,19 +21,18 @@ subroutine CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
 !              column).
 
 use ChoArr, only: iSP2F
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 XINT(LINT)
+implicit none
+integer(kind=iwp) :: LINT, ISHLCD, ISHLAB
+real(kind=wp) :: XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*17 SECNAM
-parameter(SECNAM='CHO_MCA_CALCINT_4')
-integer CHO_ISUMELM
-external CHO_ISUMELM
-integer NAB(8)
-logical LOCDBG
-parameter(LOCDBG=.false.)
-parameter(INFINT=INF_INT,INFIN2=INF_IN2)
+integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLD, NAB(8)
+real(kind=wp) :: C1, C2, W1, W2
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_4'
+integer(kind=iwp), external :: CHO_ISUMELM
 
 ! Set mapping from shell pair AB to qualified columns.
 ! ----------------------------------------------------

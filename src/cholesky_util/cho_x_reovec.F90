@@ -39,14 +39,15 @@
 
 subroutine Cho_X_ReoVec(irc)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
-integer l_Wrk, iReo
-real*8, allocatable :: Wrk(:)
-integer, allocatable :: iRS2F(:,:)
+integer(kind=iwp) :: iReo, l_Wrk
+integer(kind=iwp), allocatable :: iRS2F(:,:)
+real(kind=wp), allocatable :: Wrk(:)
 
 irc = 0
 

@@ -9,22 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_ISAOSH(IAO,ISHL)
+function CHO_ISAOSH(IAO,ISHL)
 !
 ! Purpose: return symmetry of AO number IAO in shell ISHL.
 
+use ChoArr, only: iBasSh
 #ifdef _DEBUGPRINT_
 use ChoArr, only: nBstSh
 #endif
-use ChoArr, only: iBasSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: CHO_ISAOSH
+integer(kind=iwp) :: IAO, ISHL
 #include "cholesky.fh"
-integer CHO_IRANGE
-external CHO_IRANGE
+integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
-character*10 SECNAM
-parameter(SECNAM='CHO_ISAOSH')
+character(len=*), parameter :: SECNAM = 'CHO_ISAOSH'
 
 if ((ISHL > NSHELL) .or. (ISHL < 1)) then
   write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': shell index out of bounds: ',ISHL

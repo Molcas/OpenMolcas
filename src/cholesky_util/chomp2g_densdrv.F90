@@ -18,15 +18,14 @@ subroutine ChoMP2g_DensDrv(irc,EOcc,EVir,EFro,CMO)
 ! Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !          decomposed MP2 amplitudes.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 EOcc(*), EVir(*), EFro(*), CMO(*)
-character*7 ThisNm
-character*15 SecNam
-parameter(SecNam='ChoMP2g_DensDrv',ThisNm='DensDrv')
-integer lWrk
-real*8, allocatable :: Wrk(:)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: EOcc(*), EVir(*), EFro(*), CMO(*)
+integer(kind=iwp) :: lWrk
+real(kind=wp), allocatable :: Wrk(:)
 
 irc = 0
 
@@ -39,7 +38,7 @@ lWrk = lWrk*19/20
 lWrk = lWrk-lWrk/20
 #endif
 call mma_allocate(Wrk,lWrk,Label='Wrk')
-!Wrk(:) = 0.0D0
+!Wrk(:) = Zero
 
 call ChoMP2g_Reord_R(irc,Wrk,lWrk)
 

@@ -14,10 +14,11 @@
 
 subroutine Remez_ShutDownPrint(print_to_molcas_log)
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Definitions, only: iwp
 
 implicit none
-logical print_to_molcas_log
+logical(kind=iwp) :: print_to_molcas_log
 
 if ((.not. print_to_molcas_log) .and. (IW > 0)) then
   close(IW)

@@ -16,20 +16,18 @@ subroutine Cho_PFake_VDist()
 ! Author: Thomas Bondo Pedersen, April 2007.
 ! Purpose: fake parallel distribution of vectors.
 
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 use ChoSwp, only: InfVec
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
-character(len=15), parameter :: SecNam = 'Cho_PFake_VDist'
-integer iSym
-integer l_Wrk
-integer iRedC, iV, nV
-integer nRead
-integer, allocatable :: InfV(:,:), IDV(:)
-real*8, allocatable :: Wrk(:)
+integer(kind=iwp) :: iRedC, iSym, iV, l_Wrk, nRead, nV
+integer(kind=iwp), allocatable :: IDV(:), InfV(:,:)
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'Cho_PFake_VDist'
 
 ! Return if nothing to do.
 ! ------------------------

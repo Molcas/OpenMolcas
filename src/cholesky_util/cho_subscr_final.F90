@@ -14,8 +14,8 @@ subroutine Cho_SubScr_Final()
 ! Purpose: finalize (de-allocate memory) screening in vector
 !          subtraction.
 
-use ChoSubScr, only: DSubScr, DSPNm
-use stdalloc
+use ChoSubScr, only: DSPNm, DSubScr
+use stdalloc, only: mma_deallocate
 
 implicit none
 

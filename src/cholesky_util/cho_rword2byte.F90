@@ -13,24 +13,26 @@
 
 subroutine Cho_RWord2Byte(Word,Byte,Unt)
 
-implicit none
-real*8 Word
-real*8 Byte
-character*2 Unt
+use Constants, only: Eight
+use Definitions, only: wp
 
-Byte = Word*8.0d0
+implicit none
+real(kind=wp) :: Word, Byte
+character(len=2) :: Unt
+
+Byte = Word*Eight
 Unt = 'b '
-if (abs(Byte) > 1.0d3) then
-  Byte = Byte/1.024d3
+if (abs(Byte) > 1.0e3_wp) then
+  Byte = Byte/1.024e3_wp
   Unt = 'kb'
-  if (abs(Byte) > 1.0d3) then
-    Byte = Byte/1.024d3
+  if (abs(Byte) > 1.0e3_wp) then
+    Byte = Byte/1.024e3_wp
     Unt = 'Mb'
-    if (abs(Byte) > 1.0d3) then
-      Byte = Byte/1.024d3
+    if (abs(Byte) > 1.0e3_wp) then
+      Byte = Byte/1.024e3_wp
       Unt = 'Gb'
-      if (abs(Byte) > 1.0d3) then
-        Byte = Byte/1.024d3
+      if (abs(Byte) > 1.0e3_wp) then
+        Byte = Byte/1.024e3_wp
         Unt = 'Tb'
       end if
     end if

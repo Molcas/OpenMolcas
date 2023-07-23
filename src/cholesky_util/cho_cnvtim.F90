@@ -13,17 +13,20 @@ subroutine CHO_CNVTIM(TIM,IHR,IMN,SEC)
 !
 ! Purpose: convert TIM to hours/minutes/seconds
 
-implicit none
-real*8 TIM
-integer IHR, IMN
-real*8 XHR, XMN, SEC
+use Definitions, only: wp, iwp
 
-XHR = TIM/3.6d3
+implicit none
+real(kind=wp) :: TIM, SEC
+integer(kind=iwp) :: IHR, IMN
+real(kind=wp) :: XHR, XMN
+real(kind=wp), parameter :: hour_s = 3600.0_wp, min_s = 60.0_wp
+
+XHR = TIM/hour_s
 IHR = int(XHR)
 
-XMN = (TIM-3.6d3*dble(IHR))/6.0d1
+XMN = (TIM-hour_s*real(IHR,kind=wp))/min_s
 IMN = int(XMN)
 
-SEC = TIM-3.6d3*dble(IHR)-6.0d1*dble(IMN)
+SEC = TIM-hour_s*real(IHR,kind=wp)-min_s*real(IMN,kind=wp)
 
 end subroutine CHO_CNVTIM

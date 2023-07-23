@@ -25,7 +25,7 @@ subroutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,MxQual,ThrNeg,ThrFail,D
 ! To use criterion 1) only (standard procedure),
 ! simply set MxNumCho = nDim.
 ! To use criterion 2) only,
-! simply set Thr=1.0d-20 (i.e. zero)
+! simply set Thr=1.0e-20 (i.e. zero)
 !
 ! Note: do *not* call this routine directly;
 !       use ChoDec(...) or ChoDec_MxVec instead
@@ -39,15 +39,21 @@ subroutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,MxQual,ThrNeg,ThrFail,D
 !  302 : insufficient buffer size, lBuf
 !  303 : too negative diagonal encountered
 !        (matrix non-positive definite!)
+!
+! CD_Col : external routine for matrix columns
+! CD_Vec : external routine for Cholesky vectors
 
-implicit real*8(a-h,o-z)
-external CD_Col    ! external routine for matrix columns
-external CD_Vec    ! external routine for Cholesky vectors
-real*8 Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
-integer iPivot(nDim), iQual(MxQual)
-character*13 SecNam
-parameter(SecNam='CD_Decomposer')
-logical Last
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+external :: CD_Col, CD_Vec
+integer(kind=iwp) :: MxNumCho, MxQual, nDim, iPivot(nDim), iQual(MxQual), lBuf, NumCho, irc
+real(kind=wp) :: Thr, Span, ThrNeg, ThrFail, Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
+integer(kind=iwp) :: i, iBatch, iCho, iChoMx, iDump, iOpt, iPass, iVec1, ix, jVec, kOff, kOff1, kOff2, kOffQ, kOffV, lVec, MinBuf, &
+                     mPass, MxVec, nBatch, nQual, NumV, nVec
+real(kind=wp) :: DiaMin, Dmax, Dx, Factor, xm
+logical(kind=iwp) :: Last
 
 irc = 0
 
@@ -130,7 +136,7 @@ do while (iPass < mPass)
           end do
         end do
 
-        call DGEMM_('N','N',nDim,nQual,NumV,-1.0d0,Buf(kOffV),nDim,Buf(kOffQ),NumV,1.0d0,Qual(1,1),nDim)
+        call DGEMM_('N','N',nDim,nQual,NumV,-One,Buf(kOffV),nDim,Buf(kOffQ),NumV,One,Qual(1,1),nDim)
 
       end do
 
@@ -163,10 +169,10 @@ do while (iPass < mPass)
         ! Calculate new vector.
         ! ---------------------
 
-        Factor = 1.0d0/sqrt(Dx)
+        Factor = One/sqrt(Dx)
         do i=1,nDim
-          if (Diag(i) == 0.0d0) then
-            Qual(i,ix) = 0.0d0
+          if (Diag(i) == Zero) then
+            Qual(i,ix) = Zero
           else
             Qual(i,ix) = Factor*Qual(i,ix)
           end if
@@ -185,7 +191,7 @@ do while (iPass < mPass)
         ! Zero treated diagonal and find new DiaMin.
         ! ------------------------------------------
 
-        Diag(iQual(ix)) = 0.0d0
+        Diag(iQual(ix)) = Zero
         DiaMin = max(xm*Span,Thr)
 
         ! Zero negative diagonals (quit if too negative).
@@ -197,7 +203,7 @@ do while (iPass < mPass)
               irc = 303
               Go To 1 ! exit (too negative diagonal)
             else
-              Diag(i) = 0.0d0
+              Diag(i) = Zero
             end if
           end if
         end do
@@ -206,7 +212,7 @@ do while (iPass < mPass)
         ! --------------------------------------------
 
         do i=1,nQual
-          if (Diag(iQual(i)) /= 0.0d0) then
+          if (Diag(iQual(i)) /= Zero) then
             Factor = -Qual(iQual(i),ix)
             call dAXPY_(nDim,Factor,Qual(1,ix),1,Qual(1,i),1)
           end if

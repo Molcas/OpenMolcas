@@ -39,17 +39,20 @@
 !> @return Tolerance integer for use with ::Add_Info
 !***********************************************************************
 
-integer function Cho_X_GetTol(iTolDef)
+function Cho_X_GetTol(iTolDef)
 
-use ChoIni
+use ChoIni, only: ChoIniCheck
+use Constants, only: Ten
+use Definitions, only: wp, iwp
 
 implicit none
-integer iTolDef
+integer(kind=iwp) :: Cho_X_GetTol
+integer(kind=iwp) :: iTolDef
 #include "cholesky.fh"
-real*8, external :: Get_LDFAccuracy
-logical DidCholesky, DidLDF
-real*8 ThrAbs, d
-integer ChoIsIni
+integer(kind=iwp) :: ChoIsIni
+real(kind=wp) :: d, ThrAbs
+logical(kind=iwp) :: DidCholesky, DidLDF
+real(kind=wp), external :: Get_LDFAccuracy
 
 call DecideOnCholesky(DidCholesky)
 if (DidCholesky) then
@@ -61,7 +64,7 @@ if (DidCholesky) then
     if (ChoIsIni /= ChoIniCheck) call Get_dScalar('Cholesky Threshold',ThrCom) ! not initialized
     ThrAbs = abs(ThrCom)
   end if
-  d = -log(ThrAbs)/log(1.0d1)
+  d = -log(ThrAbs)/log(Ten)
   Cho_X_GetTol = nint(d)
 else
   Cho_X_GetTol = iTolDef

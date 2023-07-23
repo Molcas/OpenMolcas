@@ -23,13 +23,12 @@ subroutine Cho_P_SetPass(Diag,Sync,DiaSh,iSySh,iLoc,Conv,nPotSh)
 !          the decomposition threshold.
 
 use ChoSwp, only: Diag_G
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-logical Sync, Conv
-real*8 DiaSh(*)
-integer iSySh(*)
-integer iLoc, nPotSh
+real(kind=wp) :: Diag(*), DiaSh(*)
+logical(kind=iwp) :: Sync, Conv
+integer(kind=iwp) :: iSySh(*), iLoc, nPotSh
 #include "cho_para_info.fh"
 #include "choglob.fh"
 

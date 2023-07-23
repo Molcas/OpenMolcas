@@ -11,12 +11,13 @@
 
 subroutine Cho_P_IniLQ(MaxQual,nSym)
 
-use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
 use ChoArr, only: iQL2G, nQual_L
-use stdalloc
+use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer MaxQual, nSym
+integer(kind=iwp) :: MaxQual, nSym
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

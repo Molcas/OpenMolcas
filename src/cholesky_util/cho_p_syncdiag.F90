@@ -15,17 +15,18 @@ subroutine Cho_P_SyncDiag(Diag,iLoc)
 !          and iLoc tells which memory location to use for reduced
 !          set index arrays.
 
-use ChoSwp, only: IndRed, Diag_G
 use ChoArr, only: iL2G
+use ChoSwp, only: Diag_G, IndRed
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-integer iLoc
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: iLoc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-integer i, j
-real*8 c1, c2, w1, w2
+integer(kind=iwp) :: i, j
+real(kind=wp) :: c1, c2, w1, w2
 
 ! Skip if serial run.
 ! -------------------

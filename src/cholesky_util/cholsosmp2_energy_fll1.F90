@@ -19,44 +19,25 @@ subroutine ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! vectors (i.e., not batched), reading the vectors only once
 ! at the expense of memory.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer N
-real*8 w(N)
-real*8 t(N)
-real*8 EOcc(*)
-real*8 EVir(*)
-logical Delete
-real*8 EMP2
-integer irc
+integer(kind=iwp) :: N, irc
+real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
+logical(kind=iwp) :: Delete
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-character(len=22), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll1'
-real*8, external :: dDot_
-integer nEnrVec(8)
-integer iClos
-integer iTyp
-integer iSym
-integer l_X
-integer Nai
-integer nBlock
-integer iOpt, iAddr, l_Tot
-integer q
-integer iBlock, jBlock
-integer iSymi, iSyma
-integer i, a
-integer ipi, ipj
-integer nVeci, nVecj
-integer iVec
-integer ip0, ip1
-real*8 tq, Eq
-real*8, allocatable :: X(:), V(:,:)
-integer j, k
-real*8 epsi, epsa
-integer MulD2h
+integer(kind=iwp) :: a, i, iAddr, iBlock, iClos, iOpt, ip0, ip1, ipi, ipj, iSym, iSyma, iSymi, iTyp, iVec, jBlock, l_Tot, l_X, &
+                     Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
+real(kind=wp) :: Eq, tq
+real(kind=wp), allocatable :: V(:,:), X(:)
+real(kind=wp), external :: dDot_
 ! Statement functions
+real(kind=wp) :: epsi, epsa
+integer(kind=iwp) :: MulD2h, j, k
 epsi(j,k) = EOcc(iOcc(k)+j)
 epsa(j,k) = EVir(iVir(k)+j)
 MulD2h(j,k) = ieor(j-1,k-1)+1
@@ -65,7 +46,7 @@ MulD2h(j,k) = ieor(j-1,k-1)+1
 irc = 0
 
 ! init energy
-EMP2 = 0.0d0
+EMP2 = Zero
 
 ! check input (incl. common block variables)
 if (nBatch /= 1) then
@@ -119,9 +100,9 @@ do iSym=1,nSym
     ! loop over Laplace grid
     do q=1,N
       ! init energy for this q
-      Eq = 0.0d0
+      Eq = Zero
       ! scale grid point by 1/2
-      tq = 0.5d0*t(q)
+      tq = Half*t(q)
       ! scale vectors
       call dCopy_(l_Tot,V(:,1),1,V(:,2),1)
       do iVec=1,nEnrVec(iSym)
@@ -154,9 +135,9 @@ do iSym=1,nSym
           else
             nVeci = Laplace_BlockSize
           end if
-          call dGEMM_('T','N',nVeci,nVecj,Nai,1.0d0,V(ipi,2),Nai,V(ipj,2),Nai,0.0d0,X,nVeci)
+          call dGEMM_('T','N',nVeci,nVecj,Nai,One,V(ipi,2),Nai,V(ipj,2),Nai,Zero,X,nVeci)
           if (iBlock == jBlock) then
-            Eq = Eq+0.5d0*dDot_(nVeci*nVecj,X,1,X,1)
+            Eq = Eq+Half*dDot_(nVeci*nVecj,X,1,X,1)
           else
             Eq = Eq+dDot_(nVeci*nVecj,X,1,X,1)
           end if
@@ -174,6 +155,6 @@ do iSym=1,nSym
 end do
 
 ! Scale energy (only half of X computed)
-EMP2 = 2.0d0*EMP2
+EMP2 = Two*EMP2
 
 end subroutine ChoLSOSMP2_Energy_Fll1

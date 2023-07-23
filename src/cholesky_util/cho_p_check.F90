@@ -17,14 +17,15 @@ subroutine Cho_P_Check(irc)
 !             Cholesky decomposition should be implemented later. Thus,
 !             this subroutine is, in effect, a TODO-list.
 
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 use ChoSubScr, only: Cho_SScreen
+use Definitions, only: iwp
 
 implicit none
-integer irc
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-logical WriteBlank
+logical(kind=iwp) :: WriteBlank
 
 irc = 0
 WriteBlank = .true.

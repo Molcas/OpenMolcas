@@ -11,11 +11,13 @@
 
 subroutine Cho_GAiGOp(X,n,Op)
 
+use Definitions, only: iwp
+
 implicit none
-integer n, iv, kv
-integer X(n)
-character*(*) Op
+integer(kind=iwp) :: n, X(n)
+character(len=*) :: Op
 #include "cho_para_info.fh"
+integer(kind=iwp) :: iv, kv
 
 if (Cho_Real_Par) then
   iv = 0

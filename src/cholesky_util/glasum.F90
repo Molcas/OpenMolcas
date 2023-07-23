@@ -26,13 +26,19 @@ function GLaSum(K,X,W,Delta)
 !----------------------------------------------------------------------*
 !======================================================================*
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00,ONE=1.0D+00)
-real*8 W(20), X(20)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-Dum = ZERO
+implicit none
+real(kind=wp) ::GLaSum
+integer(kind=iwp) :: K
+real(kind=wp) :: X(20), W(20), Delta
+integer(kind=iwp) :: I
+real(kind=wp) :: Dum, Val
+
+Dum = Zero
 do I=1,K
-  Val = exp((-Delta+ONE)*X(I))
+  Val = exp((-Delta+One)*X(I))
   Dum = Dum+W(I)*Val
 end do
 GLaSum = Dum

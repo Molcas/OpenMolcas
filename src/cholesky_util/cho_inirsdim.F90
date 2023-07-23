@@ -14,9 +14,11 @@ subroutine CHO_INIRSDIM()
 ! Purpose: initialize reduced set dimension.
 
 use ChoArr, only: nDimRS
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
+integer(kind=iwp) :: ILOC, IRS, NSET, NUM
 
 if (RSTCHO) then
   ILOC = 3

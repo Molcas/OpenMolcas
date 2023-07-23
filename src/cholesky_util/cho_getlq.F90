@@ -15,23 +15,21 @@ subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 !          the Cholesky vectors in buffer and/or on disk.
 
 use ChoVecBuf, only: nVec_in_Buf
+use Definitions, only: wp, iwp
 
 implicit none
-integer l_QVec, nQSP
-real*8, target :: QVec(l_Qvec)
-integer LstQSP(nQSP)
+integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
+real(kind=wp), target :: QVec(l_Qvec)
 #include "cholesky.fh"
-character*9 SecNam
-parameter(SecNam='Cho_GetLQ')
-integer iV1(8), nV(8)
-integer nTot, iSym
+integer(kind=iwp) :: iSym, iV1(8), nTot, nV(8)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
-    integer l_QVec
-    real*8, target :: QVec(l_QVec)
+    import :: wp, iwp
+    integer(kind=iwp) :: l_QVec
+    real(kind=wp), target :: QVec(l_QVec)
   end subroutine Cho_VecBuf_GetLQ
 end interface
 !                                                                      *

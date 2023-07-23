@@ -19,13 +19,12 @@ subroutine CD_DiaMax(Diag,nDim,iPivot,iQual,nQual,DiaMin)
 !          them in iQual. Only elements larger than DiaMin are
 !          returned (thus, nQual may be reduced here).
 
-implicit none
-integer nDim, nQual
-real*8 Diag(nDim)
-real*8 DiaMin
-integer iPivot(nDim), iQual(nQual)
+use Definitions, only: wp, iwp
 
-integer i, j, iTmp, iMax
+implicit none
+integer(kind=iwp) :: nDim, iPivot(nDim), nQual, iQual(nQual)
+real(kind=wp) :: Diag(nDim), DiaMin
+integer(kind=iwp) :: i, iMax, iTmp, j
 
 do i=1,nDim
   iPivot(i) = i

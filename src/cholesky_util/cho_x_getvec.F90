@@ -33,9 +33,11 @@
 
 subroutine Cho_X_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer LenVec, NumVec, iVec1, iSym, lScr
-real*8 ChoVec(LenVec,NumVec), Scr(lScr)
+integer(kind=iwp) :: LenVec, NumVec, iVec1, iSym, lScr
+real(kind=wp) :: ChoVec(LenVec,NumVec), Scr(lScr)
 
 call Cho_GetVec(ChoVec,LenVec,NumVec,iVec1,iSym,Scr,lScr)
 

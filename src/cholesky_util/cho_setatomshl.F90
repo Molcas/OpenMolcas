@@ -14,24 +14,26 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 ! Purpose: set mapping from shell to atom (i.e., center).
 
 use ChoArr, only: iSOShl
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, n, iAtomShl(n)
 #include "Molcas.fh"
-integer iAtomShl(n)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-character(len=14), parameter :: SecNam = 'Cho_SetAtomShl'
-character(len=LENIN8) AtomLabel(MxBas)
-integer, parameter :: Info_Debug = 4
+integer(kind=iwp) :: i, i1, i2, iAtom, iBatch, iSh, iSh0, iSh1, iSh2, nAtom, nBatch, nErr, nSh, numSh
+integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
+character(len=LenIn8), allocatable :: AtomLabel(:)
+integer(kind=iwp), parameter :: Info_Debug = 4
 #ifdef _DEBUGPRINT_
-logical, parameter :: Debug = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: Debug = .false.
+#define _DBG_ .false.
 #endif
-integer, allocatable :: nBas_per_Atom(:)
-integer, allocatable :: nBas_Start(:)
+logical(kind=iwp), parameter :: Debug = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_SetAtomShl'
 
 if (Debug) write(Lupri,*) '>>> Enter ',SecNam
 
@@ -55,7 +57,8 @@ call Get_iScalar('Bfn Atoms',nAtom)
 ! Get atomic labels and basis function labels.
 ! --------------------------------------------
 
-call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
+call mma_allocate(AtomLabel,nBasT,Label='AtomLabel')
+call Get_cArray('Unique Basis Names',AtomLabel,LenIn8*nBasT)
 
 ! Allocate and get index arrays for indexation of basis functions on
 ! each atom.
@@ -64,6 +67,7 @@ call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
 call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
 call BasFun_Atom(nBas_per_Atom,nBas_Start,AtomLabel,nBasT,nAtom,Debug)
+call mma_deallocate(AtomLabel)
 
 ! Set shell-to-atom mapping.
 ! --------------------------

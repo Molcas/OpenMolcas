@@ -15,16 +15,19 @@ subroutine CHO_PUTVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM)
 !          of symmetry ISYM to file.
 
 use ChoSwp, only: InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(LENVEC,NUMVEC)
+implicit none
+integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM
+real(kind=wp) :: CHOVEC(LENVEC,NUMVEC)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-external ddot_
-character*10 SECNAM
-parameter(SECNAM='CHO_PUTVEC')
-logical LOCDBG, CHK_OVERFLOW
-parameter(LOCDBG=.false.)
+integer(kind=iwp) :: IADR, IADR2, IOPT, IVEC, IVEC2, JADR, JVEC, LTOT
+real(kind=wp) :: XNRM
+logical(kind=iwp) :: CHK_OVERFLOW
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_PUTVEC'
+real(kind=wp), external :: ddot_
 
 CHK_OVERFLOW = .not. Cho_Real_Par
 

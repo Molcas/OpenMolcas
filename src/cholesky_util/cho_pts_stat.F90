@@ -12,13 +12,14 @@
 subroutine Cho_PTS_Stat()
 
 use ChoArr, only: IntMap
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iTmp
+integer(kind=iwp) :: iTmp
 
 if (.not. allocated(IntMap)) then
   call mma_allocate(IntMap,nnShl,Label='IntMap')

@@ -15,26 +15,28 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 
 use ChoArr, only: LQ_Tot, LQ
 use ChoVecBuf, only: nVec_in_Buf
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
-integer LstQSP(NumSP)
+implicit none
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: NumSP, LstQSP(NumSP), iPass
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=12), parameter :: SecNam = 'Cho_Decom_A4'
-integer NumCho_Old(8), nQual_Old(8)
-integer NumV(8), nkVec(8)
-real*8, allocatable :: KVScr(:), MQ(:), KVec(:), QDiag(:), xInt(:), Wrk1(:)
-integer, allocatable :: IDKVec(:), iQScr(:)
+integer(kind=iwp) :: I, iEn, iK, iRed, iSt, iSym, iVec1, Jfi, Jin, jK, jVec, kI, kID, kK1, kK2, kK_1, kK_2, kQD, kV, l_IDKVec, &
+                     l_KVec, l_LQ, l_Wrk1, l_xInt, LenLin, lK, MxQ, nkVec(8), nQual_Old(8), NumCho_Old(8), NumV(8)
+real(kind=wp) :: C1, C2, W1, W2
+integer(kind=iwp), allocatable :: IDKVec(:), iQScr(:)
+real(kind=wp), allocatable :: KVec(:), KVScr(:), MQ(:), QDiag(:), Wrk1(:), xInt(:)
+character(len=*), parameter :: SecNam = 'Cho_Decom_A4'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-    integer l_QVec, nQSP
-    real*8, target :: QVec(l_Qvec)
-    integer LstQSP(nQSP)
+    import :: wp, iwp
+    integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
+    real(kind=wp), target :: QVec(l_Qvec)
   end subroutine Cho_P_GetLQ
 end interface
 !                                                                      *

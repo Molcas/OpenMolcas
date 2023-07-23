@@ -30,54 +30,40 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 ! to ip_Z.
 
 use ChoSwp, only: InfVec
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer l_NVT
-integer l_nBlock
-integer l_nV1, l_nV2
-integer l_iV11, l_iV12
-integer l_Z1, l_Z2, l_Z
-integer NVT(l_NVT)
-integer nBlock(l_nBlock)
-integer nV(l_NV1,l_NV2)
-integer iV1(l_IV11,l_iV12)
-integer ip_Z(l_Z1,l_Z2)
-real*8 Z(l_Z)
+integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp) :: Z(l_Z)
 #include "cholesky.fh"
 #ifdef _DEBUGPRINT_
 #include "choprint.fh"
 #endif
-integer iSym
-integer iLoc, iRedC, iRed
-integer l_Wrk
-integer idRS2RS, KK1, nVRead, mUsed, kOffV
-integer KK, KKK, iJ
-integer jBlock, kBlock
-integer kOffZ
-integer J_inBlock, K_inBlock
-integer Cho_iRange
-external Cho_iRange
-character(len=8), parameter :: SecNam = 'Cho_GetZ'
-real*8 C0, C1, W0, W1
+integer(kind=iwp) :: i, idRS2RS, iJ, iLoc, iRed, iRedC, iSym, j, J_inBlock, jBlock, k, K_inBlock, kBlock, KK, KK1, KKK, kOffV, &
+                     kOffZ, l_Wrk, mUsed, nVRead
+real(kind=wp) :: C0, C1, W0, W1
+integer(kind=iwp), pointer :: InfVct(:,:,:)
+integer(kind=iwp), allocatable :: iRS2RS(:)
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'Cho_GetZ'
+integer(kind=iwp), external :: Cho_iRange
 #ifdef _DEBUGPRINT_
-integer nBlock_Max, nnB, n
-integer, parameter :: myDebugInfo = 100
-real*8, parameter :: Tol = 1.0d-14
+integer(kind=iwp) :: n, nBlock_Max, nnB
+integer(kind=iwp), parameter :: myDebugInfo = 100
+real(kind=wp), parameter :: Tol = 1.0e-14_wp
 #endif
-integer, pointer :: InfVct(:,:,:)
-integer i, j, k, iTri
-integer, allocatable :: iRS2RS(:)
-real*8, allocatable :: Wrk(:)
 ! Statement function
+integer(kind=iwp) :: iTri
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
-    integer, pointer :: InfVct(:,:,:)
+    import :: iwp
+    integer(kind=iwp), pointer :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 !                                                                      *

@@ -14,15 +14,15 @@ subroutine Cho_P_SetVecInf(nVec,iSym,iPass)
 ! Purpose: set global and local info for vectors.
 
 use ChoSwp, only: iQuAB, IndRed
+use Definitions, only: iwp
 
 implicit none
-integer nVec, iSym, iPass
+integer(kind=iwp) :: nVec, iSym, iPass
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
-integer Cho_P_IndxParentDiag
-external Cho_P_IndxParentDiag
-integer iV, iVec, iAB
+integer(kind=iwp) :: iV, iVec, iAB
+integer(kind=iwp), external :: Cho_P_IndxParentDiag
 
 if (Cho_Real_Par) then
   ! Set global vector information (by swapping index arrays)

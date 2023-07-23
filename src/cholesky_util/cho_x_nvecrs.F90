@@ -37,14 +37,14 @@
 subroutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
 
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
 implicit none
-integer iRed, iSym, iVec, nVec
+integer(kind=iwp) :: iRed, iSym, iVec, nVec
 #include "cholesky.fh"
-character*12 SecNam
-parameter(SecNam='Cho_X_nVecRS')
-logical Found
-integer irc, LastRed, jVec, jRed
+integer(kind=iwp) :: irc, jRed, jVec, LastRed
+logical(kind=iwp) :: Found
+character(len=*), parameter :: SecNam = 'Cho_X_nVecRS'
 
 ! Check input.
 ! ------------
@@ -116,8 +116,8 @@ end do
 ! Debug: print result.
 ! --------------------
 
-write(6,*) SecNam,': there are ',nVec,' vectors in reduced set ',iRed,' (sym. block ',iSym,')'
-write(6,*) SecNam,': first vector is: ',iVec
+write(u6,*) SecNam,': there are ',nVec,' vectors in reduced set ',iRed,' (sym. block ',iSym,')'
+write(u6,*) SecNam,': first vector is: ',iVec
 #endif
 
 end subroutine Cho_X_nVecRS

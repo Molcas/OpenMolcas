@@ -28,32 +28,35 @@
 !> @param[in]     JVec   Starting Cholesky vector
 !> @param[in,out] Y      Matrix (\p nOV,\p NVec) of the Cholesky vectors for the decomposition of the orbital energy denominators
 !> @param[in,out] R      Matrix (\p nOV) of the previous products, to be used for out of core decomposition.
-!>                       Note: in case of out of core, in the first call this array *must* be initialized to ``1.0d0``.
+!>                       Note: in case of out of core, in the first call this array *must* be initialized to ``1.0``.
 !>                       For the in core case, it *must* also coincide with the first column of \p Y and *must* still be initialized in input.
 !***********************************************************************
 
 subroutine CHO_GET_OED_cd(incore,nOV,W,NVec,ID_bj,JVec,Y,R)
 
-implicit real*8(a-h,o-z)
-logical incore
-integer nOV, NVec, JVec, ID_bj(*)
-real*8 W(*), Y(*), R(*)
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp) :: incore
+integer(kind=iwp) :: nOV, NVec, ID_bj(*), JVec
+real(kind=wp) :: W(*), Y(*), R(*)
 #include "warnings.h"
+integer(kind=iwp) :: ip, Jk, Jm, kp, np
+real(kind=wp), parameter :: xtwo = sqrt(Two)
 !******************************************************************
 
 if (NVec < 1) then
-  write(6,*) 'Error in CHO_GET_OED_cd : in input NVec < 1 .'
+  write(u6,*) 'Error in CHO_GET_OED_cd : in input NVec < 1 .'
   call quit(_RC_CHO_LOG_)
 end if
-
-xtwo = sqrt(2.0d0)
 
 ! Compute  R(p,k) = R(p,k-1) * (W(p) - W(J[k-1]))/(W(p) + W(J[k-1]))
 ! ------------------------------------------------------------------
 if (incore) then
 
   if (JVec /= 1) then
-    write(6,*) 'CHO_GET_OED_cd : JVec must be 1 if incore .'
+    write(u6,*) 'CHO_GET_OED_cd : JVec must be 1 if incore .'
     call quit(_RC_CHO_LOG_)
   end if
   do Jk=2,NVec

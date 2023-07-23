@@ -31,20 +31,22 @@
 
 subroutine CCD_InCore(X,n,irc)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 X(n,n)
-integer irc
-integer i, j, k
-real*8 Fac
+integer(kind=iwp) :: n, irc
+real(kind=wp) :: X(n,n)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: Fac
 
 irc = 0
 if (n < 1) return ! return (nothing to do)
 
 do j=1,n
   ! Check for negative diagonal
-  if (X(j,j) > 0.0d0) then
-    Fac = 1.0d0/sqrt(X(j,j))
+  if (X(j,j) > Zero) then
+    Fac = One/sqrt(X(j,j))
   else
     irc = 1
     return

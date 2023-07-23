@@ -19,8 +19,13 @@ subroutine ChoMP2_DecChk_Int(irc,lUnit,Col,Nai,Nbj,ibj1,NumVec,Work,lWork,Fac)
 !          vectors on file (unit: lUnit)
 !          vectors from MP2 decomposition).
 
-implicit real*8(a-h,o-z)
-real*8 Col(Nai,Nbj), Work(lWork)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: irc, lUnit, Nai, Nbj, ibj1, NumVec, lWork
+real(kind=wp) :: Col(Nai,Nbj), Work(lWork), Fac
+integer(kind=iwp) :: iAdr, iBat, ibj2, iOpt, iVec1, lTot, nBat, NumV, nVec
 
 irc = 0
 
@@ -78,7 +83,7 @@ do iBat=1,nBat
   ! Compute integrals.
   ! ------------------
 
-  call DGEMM_('N','T',Nai,Nbj,NumV,1.0d0,Work,Nai,Work(ibj1),Nai,1.0d0,Col,Nai)
+  call DGEMM_('N','T',Nai,Nbj,NumV,One,Work,Nai,Work(ibj1),Nai,One,Col,Nai)
 
 end do
 

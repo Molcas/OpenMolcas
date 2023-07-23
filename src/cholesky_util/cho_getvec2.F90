@@ -25,16 +25,16 @@ subroutine CHO_GETVEC2(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 
 use ChoArr, only: iScr
 use ChoSwp, only: InfVec
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(LENVEC,NUMVEC)
-real*8 SCR(LSCR)
+implicit none
+integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 #include "cholesky.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_GETVEC2')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-integer IOFF(0:1)
+integer(kind=iwp) :: IAB, ILOC, IMAPC, IOFF(0:1), IREDC, IVEC2, JRED, JRED1, JRED2, JVEC1, JVEC2, KJUNK, KOFF, KSCR, KVEC, KVEC1, &
+                     LEFT, LNUM, LRED, LVEC, LVEC1, MUSED, NVRD
+character(len=*), parameter :: SECNAM = 'CHO_GETVEC2'
 
 ! Some initializations.
 ! ---------------------
@@ -48,7 +48,7 @@ KSCR = KJUNK+1
 LEFT = LSCR-KSCR+1
 if (LEFT < 1) call CHO_QUIT('Insufficient scratch space in '//SECNAM,101)
 
-SCR(KJUNK) = 0.0d0
+SCR(KJUNK) = Zero
 IOFF(0) = KJUNK
 
 ! Start buffer batch loop.

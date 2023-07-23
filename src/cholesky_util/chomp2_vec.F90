@@ -18,15 +18,15 @@ subroutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
 ! Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
 
 use ChoMP2_dec, only: NowSym
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iVec1, nVec, lBuf, nDim, iOpt
-real*8 Buf(lBuf)
+integer(kind=iwp) :: iVec1, nVec, lBuf, nDim, iOpt
+real(kind=wp) :: Buf(lBuf)
 #include "chomp2.fh"
-character(len=3), parameter :: ThisNm = 'Vec'
-character(len=10), parameter :: SecNam = 'ChoMP2_Vec'
-integer :: iSym, iJob, lTot, iAdr
-logical DoClose
+integer(kind=iwp) :: iAdr, iJob, iSym, lTot
+logical(kind=iwp) :: DoClose
+character(len=*), parameter :: SecNam = 'ChoMP2_Vec'
 
 iSym = NowSym
 DoClose = .false.
@@ -57,7 +57,7 @@ else if (iOpt == 2) then
 
 else
 
-  write(6,*) SecNam,': illegal option: iOpt = ',iOpt
+  write(u6,*) SecNam,': illegal option: iOpt = ',iOpt
   call ChoMP2_Quit(SecNam,'illegal option',' ')
 
 end if

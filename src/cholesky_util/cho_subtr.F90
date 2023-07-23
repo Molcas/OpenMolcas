@@ -14,20 +14,26 @@ subroutine CHO_SUBTR(XINT,WRK,LWRK,ISYM)
 ! Purpose: driver for subtracting contributions from previous vectors
 !          from the qualified integrals (in XINT).
 
-implicit real*8(a-h,o-z)
-real*8 XINT(*), WRK(LWRK)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LWRK, ISYM
+real(kind=wp) :: XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-character*9 SECNAM
-parameter(SECNAM='CHO_SUBTR')
-logical LOCDBG, FXDMEM
-parameter(LOCDBG=.false.)
+integer(kind=iwp) :: KDIAG, KEND, NERR
+real(kind=wp) :: TOL
+logical(kind=iwp) :: FXDMEM
+logical(kind=iwp), parameter :: LOCDBG=.false.
+character(len=*), parameter :: SECNAM = 'CHO_SUBTR'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
-    real*8, target :: xInt(*), Wrk(lWrk)
-    logical DoTime, DoStat
+    import :: wp, iwp
+    integer(kind=iwp) :: lWrk, iSym
+    real(kind=wp), target :: xInt(*), Wrk(lWrk)
+    logical(kind=iwp) :: DoTime, DoStat
   end subroutine Cho_VecBuf_Subtr
 end interface
 

@@ -21,11 +21,17 @@ function GetDr2(K_Lap,X,Coeff)
 !  I=1
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-parameter(ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00)
-real*8 Coeff(40)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-Dum = ZERO
+implicit none
+real(kind=wp) :: GetDr2
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: X, Coeff(40)
+integer(kind=iwp) :: I, Idx
+real(kind=wp) :: Alpha, Dum, Omega
+
+Dum = Zero
 do I=1,K_Lap
   Idx = 2*I-1
   Omega = Coeff(Idx)
@@ -33,7 +39,7 @@ do I=1,K_Lap
   Dum = Dum+Omega*Alpha*Alpha*exp(-Alpha*X)
 end do
 
-GetDr2 = TWO/(X*X*X)-Dum
+GetDr2 = Two/(X*X*X)-Dum
 
 return
 

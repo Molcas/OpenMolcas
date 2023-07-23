@@ -19,9 +19,10 @@ subroutine Cho_TrcIdl_Update(IAmIdle)
 
 use Para_Info, only: MyRank
 use ChoArr, only: Idle
+use Definitions, only: iwp
 
 implicit none
-logical IAmIdle
+logical(kind=iwp) :: IAmIdle
 #include "cho_para_info.fh"
 #ifdef _DEBUGPRINT_
 #include "cholesky.fh"

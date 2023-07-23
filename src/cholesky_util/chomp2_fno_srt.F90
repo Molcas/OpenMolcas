@@ -15,24 +15,26 @@ subroutine ChoMP2_fno_Srt(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
 !
 !  F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 
-use ChoMP2, only: LnOcc, LnT1am, LiT1am, LiMatij, lUnit
+use ChoMP2, only: LiMatij, LiT1am, LnOcc, LnT1am, lUnit
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical Delete
-real*8 EOcc(*), EVir(*), Wrk(lWrk), P_ab(*), P_ii(*)
+implicit none
+integer(kind=iwp) :: irc, lWrk
+logical(kind=iwp) :: Delete
+real(kind=wp) :: P_ab(*), P_ii(*),  EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "chfnopt.fh"
-character*10 ThisNm
-character*17 SecNam
-parameter(SecNam='ChoMP2_fno_Srt',ThisNm='fno_Srt')
-integer nEnrVec(8), LnT2am, LiT2am(8), kP(8), lP(8)
-integer nVaJi, iVaJi(8)
-integer iDummy
-parameter(iDummy=-999999)
-real*8 xsDnom
+integer(kind=iwp) :: iAdr, iBat, iBatch, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iVaJi(8), iVec, iVec0, iVec1, ja, jb, &
+                     jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, kXaibj, &
+                     LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec
+real(kind=wp) :: Dnom, xsDnom
+character(len=*), parameter :: SecNam = 'ChoMP2_fno_Srt'
+real(kind=wp), external :: ddot_
 ! Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -175,7 +177,7 @@ if (MP2_small) then
                   kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
                   kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-                  call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),1.0d0, &
+                  call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,One,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),One, &
                               Wrk(kOffM),nVir(iSymb))
 
                 end do
@@ -211,7 +213,7 @@ if (MP2_small) then
                 ! -------------------------------------
                 do jb=1,nVir(iSymb)
                   do ja=1,nVir(iSymb)
-                    Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-2.0d0*EOcc(iOcc(iSymj)+j)
+                    Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-Two*EOcc(iOcc(iSymj)+j)
                     xsDnom = Dnom/(Dnom**2+shf**2)
                     kOffMM = kOffM+nVir(iSymb)*(jb-1)+ja-1
                     !DeMP2 = DeMP2+Wrk(kOffMM)**2/Dnom
@@ -368,7 +370,7 @@ do iBatch=1,nBatch
                 kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
                 kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-                call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),1.0d0, &
+                call dGeMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,One,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),One, &
                             Wrk(kOffM),nVir(iSymb))
 
               end do
@@ -402,7 +404,7 @@ do iBatch=1,nBatch
                 ! -------------------------------------
                 do jb=1,nVir(iSymb)
                   do ja=1,nVir(iSymb)
-                    Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-2.0d0*EOcc(iOcc(iSymj)+j)
+                    Dnom = EVir(iVir(iSymb)+ja)+EVir(iVir(iSymb)+jb)-Two*EOcc(iOcc(iSymj)+j)
                     xsDnom = Dnom/(Dnom**2+shf**2)
                     kOffMM = kOffM+nVir(iSymb)*(jb-1)+ja-1
                     !DeMP2 = DeMP2+Wrk(kOffMM)**2/Dnom
@@ -416,7 +418,7 @@ do iBatch=1,nBatch
 
                 ! Compute P(a,b) += sum_c T(a,c)*T(c,b)
                 ! -------------------------------------
-                call dGeMM_('N','N',nVir(iSymb),nVir(iSymb),nVir(iSymb),1.0d0,Wrk(kOffM),nVir(iSymb),Wrk(kOffM),nVir(iSymb),1.0d0, &
+                call dGeMM_('N','N',nVir(iSymb),nVir(iSymb),nVir(iSymb),One,Wrk(kOffM),nVir(iSymb),Wrk(kOffM),nVir(iSymb),One, &
                             P_ab(kP(iSymb)),nVir(iSymb))
 
               end do

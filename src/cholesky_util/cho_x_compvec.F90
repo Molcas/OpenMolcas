@@ -40,72 +40,44 @@ subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11
 use ChoArr, only: iSP2F
 #endif
 use ChoArr, only: iOff_Batch, nDim_Batch
-use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
-use stdalloc
+use ChoSwp, only: IndRSh, iQuAB, iQuAB_here, nnBstRSh, pTemp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer l_NVT
-integer l_nBlock
-integer l_nV1, l_nV2
-integer l_iV11, l_iV12
-integer l_Z1, l_Z2, l_Z
-integer NVT(l_NVT)
-integer nBlock(l_nBlock)
-integer nV(l_NV1,l_NV2)
-integer iV1(l_IV11,l_iV12)
-integer ip_Z(l_Z1,l_Z2)
-real*8 Z(l_Z)
-logical Free_Z
+integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp) :: Z(l_Z)
+logical(kind=iwp) :: Free_Z
 #include "cholesky.fh"
 #include "choprint.fh"
-character*2 Unt
-character*13 SecNam
-parameter(SecNam='Cho_X_CompVec')
-integer Cho_F2SP
-external Cho_F2SP
+integer(kind=iwp) :: iAdr(8), iCountSP, incZd, iSp, iSP_, iSP_1, iSP_2, iSym, J_inBlock, jBlock, K, K_inBlock, kBlock, kI, kL, &
+                     kOffI, kOffZ, kZ, kZd, l_Int, l_Wrk, l_Zd, ldL, ldZ, Left, lTot, MaxQual_SAVE, n, nBatch, nSP, nSP_Max, &
+                     nSP_this_batch
+real(kind=wp) :: Byte, C0, C1, PDone, PMem, TotCPU, TotMem, TotWall, W0, W1, X0, X1, Y0, Y1
+character(len=2) :: Unt
+integer(kind=iwp), pointer :: InfVcT(:,:,:)
+integer(kind=iwp), allocatable :: XCVLSP(:), XCVnBt(:), XCVTMP(:)
+real(kind=wp), allocatable :: XCVInt(:), XCVZd(:)
+character(len=*), parameter :: SecNam = 'Cho_X_CompVec'
+integer(kind=iwp), external :: Cho_F2SP
 #ifdef _DEBUGPRINT_
-integer nBlock_Max, nnB
-integer nTot, nTot2
-integer myDebugInfo
-parameter(myDebugInfo=100)
-real*8 Tol
-parameter(Tol=1.0d-14)
+integer(kind=iwp) :: nBlock_Max, nnB, nTot, nTot2
+integer(kind=iwp), parameter :: myDebugInfo = 100
+real(kind=wp), parameter :: Tol = 1.0e-14_wp
 #endif
-integer iAdr(8)
-integer iSym, n
-integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
-integer l_Int
-integer kOffI, kOffZ
-integer jBlock, kBlock
-integer J_inBlock, K_inBlock
-integer kI, kL, kZ
-integer ldL, ldZ
-integer l_Wrk
-integer MaxQual_SAVE
-integer, pointer :: InfVcT(:,:,:)
-integer l_Zd, incZd
-integer kZd
-integer iCountSP
-integer lTot, Left
-integer nBatch
-real*8 C0, C1, W0, W1
-real*8 X0, X1, Y0, Y1
-real*8 Byte, PMem, PDone
-real*8 TotMem, TotCPU, TotWall
-integer i, j, k
-integer iTri
-integer, allocatable :: XCVTMP(:), XCVLSP(:), XCVnBt(:)
-real*8, allocatable :: XCVZd(:), XCVInt(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
-    integer, pointer :: InfVct(:,:,:)
+    import :: iwp
+    integer(kind=iwp), pointer :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Init return code
@@ -251,7 +223,7 @@ do iSym=1,nSym
       end if
 #     endif
       XCVZd(kZd) = Z(kOffZ+iTri(J_inBlock,J_inBlock))
-      Z(kOffZ+iTri(J_inBlock,J_inBlock)) = 1.0d0/XCVZd(kZd)
+      Z(kOffZ+iTri(J_inBlock,J_inBlock)) = One/XCVZd(kZd)
       kZd = kZd+incZd
     end do
   end do
@@ -271,7 +243,7 @@ call mma_allocate(iOff_Batch,nSym,nnShl,Label='iOff_Batch')
 ! One for integrals/vectors, one for Seward.
 call mma_maxDBLE(l_Wrk)
 if (l_Wrk < 3) call Cho_Quit('Insufficient memory in '//SecNam,101)
-l_Int = int(dble(l_Wrk)*2.0d0/3.0d0)
+l_Int = int(real(l_Wrk,kind=wp)/OneHalf)
 call mma_allocate(XCVInt,l_Int,Label='XCVInt')
 call mma_MaxDBLE(l_Wrk)
 call xSetMem_Ints(l_Wrk)
@@ -289,9 +261,9 @@ if (iPrint >= Inf_Pass) then
   write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)') 'Batch','iSP1','iSP2','%Done','Memory','CPU','Wall'
   write(LuPri,'(A)') '----------------------------------------------------------------------------'
   call Cho_Flush(LuPri)
-  TotMem = 0.0d0
-  TotCPU = 0.0d0
-  TotWall = 0.0d0
+  TotMem = Zero
+  TotCPU = Zero
+  TotWall = Zero
 end if
 
 ! Compute Cholesky vectors in batched loop over shell pairs
@@ -366,7 +338,7 @@ do while (iSP_1 <= iCountSP)
         kI = kOffI+nDim_Batch(iSym)*(iV1(kBlock,iSym)-1)
         kZ = ip_Z(iTri(kBlock,jBlock),iSym)
         ldZ = max(nV(kBlock,iSym),1)
-        call dGeMM_('N','T',nDim_Batch(iSym),nV(kBlock,iSym),nV(jBlock,iSym),-1.0d0,XCVInt(kL),ldL,Z(kZ),ldZ,1.0d0,XCVInt(kI),ldL)
+        call dGeMM_('N','T',nDim_Batch(iSym),nV(kBlock,iSym),nV(jBlock,iSym),-One,XCVInt(kL),ldL,Z(kZ),ldZ,One,XCVInt(kI),ldL)
       end do
     end do
     nDGM_Call = nDGM_Call+nBlock(iSym)*(nBlock(iSym)-1)/2
@@ -391,19 +363,19 @@ do while (iSP_1 <= iCountSP)
   ! Print
   if (iPrint >= Inf_Pass) then
     call Cho_Timer(X1,Y1)
-    PDone = 1.0d2*dble(iSP_2)/dble(iCountSP)
+    PDone = 1.0e2_wp*real(iSP_2,kind=wp)/real(iCountSP,kind=wp)
     lTot = nDim_Batch(1)*NVT(1)
     do iSym=2,nSym
       lTot = lTot+nDim_Batch(iSym)*NVT(iSym)
     end do
     call Cho_Word2Byte(lTot,8,Byte,Unt)
-    PMem = 1.0d2*dble(lTot)/dble(l_Int)
+    PMem = 1.0e2_wp*real(lTot,kind=wp)/real(l_Int,kind=wp)
     write(LuPri,'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)') nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem, &
-                                                                                    '%)',(X1-X0)/6.0d1,(Y1-Y0)/6.0d1
+                                                                                   '%)',(X1-X0)/6.0e1_wp,(Y1-Y0)/6.0e1_wp
     call Cho_Flush(LuPri)
-    TotMem = TotMem+dble(lTot)
-    TotCPU = TotCPU+(X1-X0)/6.0d1
-    TotWall = TotWall+(Y1-Y0)/6.0d1
+    TotMem = TotMem+real(lTot,kind=wp)
+    TotCPU = TotCPU+(X1-X0)/6.0e1_wp
+    TotWall = TotWall+(Y1-Y0)/6.0e1_wp
   end if
   ! Update counters and save batch dimension
   iSP_1 = iSP_1+nSP_this_batch

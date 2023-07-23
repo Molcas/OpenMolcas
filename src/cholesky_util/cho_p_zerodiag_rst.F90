@@ -16,16 +16,18 @@ subroutine Cho_P_ZeroDiag_Rst(Diag,iSym,iABG)
 !          need first to figure out if the treated diagonal element
 !          is in fact present in the local diagonal.
 
-use ChoSwp, only: IndRed
 use ChoArr, only: iL2G
+use ChoSwp, only: IndRed
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-integer iSym, iABG
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-integer iAB1, iAB2, iAB, jAB, kAB
+integer(kind=iwp) :: iAB, iAB1, iAB2, jAB, kAB
 
 if (Cho_Real_Par) then
   iAB1 = iiBstR(iSym,2)+1
@@ -34,12 +36,12 @@ if (Cho_Real_Par) then
     jAB = IndRed(iAB,2)   ! addr in local rs1
     kAB = iL2G(jAB)       ! addr in global rs1
     if (kAB == iABG) then ! found...
-      Diag(jAB) = 0.0d0   ! now zero local diagonal elm.
+      Diag(jAB) = Zero    ! now zero local diagonal elm.
       return
     end if
   end do
 else
-  Diag(iABG) = 0.0d0
+  Diag(iABG) = Zero
 end if
 
 end subroutine Cho_P_ZeroDiag_Rst

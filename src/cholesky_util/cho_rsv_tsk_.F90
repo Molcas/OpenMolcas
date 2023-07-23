@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function Cho_Rsv_Tsk_(ID,i)
+function Cho_Rsv_Tsk_(ID,i)
 
 use Para_Info, only: Is_Real_Par, Set_Do_Parallel
+use Definitions, only: iwp
 
 implicit none
-integer ID, i
+logical(kind=iwp) :: Cho_Rsv_Tsk_
+integer(kind=iwp) :: ID, i
 #include "cho_para_info.fh"
-logical Parallel_Mode
-logical Rsv_Tsk
-external Rsv_Tsk
+logical(kind=iwp) :: Parallel_Mode
+logical(kind=iwp), external :: Rsv_Tsk
 
 Parallel_Mode = Is_Real_Par()
 

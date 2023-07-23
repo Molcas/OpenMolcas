@@ -28,24 +28,26 @@
 
 subroutine Cho_Word2Byte(iWord,n,Byte,Unt)
 
-implicit none
-integer iWord, n
-real*8 Byte
-character*2 Unt
+use Definitions, only: wp, iwp
 
-Byte = dble(iWord)*dble(n)
+implicit none
+integer(kind=iwp) :: iWord, n
+real(kind=wp) :: Byte
+character(len=2) :: Unt
+
+Byte = real(iWord,kind=wp)*real(n,kind=wp)
 Unt = 'b '
-if (abs(Byte) > 1.0d3) then
-  Byte = Byte/1.024d3
+if (abs(Byte) > 1.0e3_wp) then
+  Byte = Byte/1.024e3_wp
   Unt = 'kb'
-  if (abs(Byte) > 1.0d3) then
-    Byte = Byte/1.024d3
+  if (abs(Byte) > 1.0e3_wp) then
+    Byte = Byte/1.024e3_wp
     Unt = 'Mb'
-    if (abs(Byte) > 1.0d3) then
-      Byte = Byte/1.024d3
+    if (abs(Byte) > 1.0e3_wp) then
+      Byte = Byte/1.024e3_wp
       Unt = 'Gb'
-      if (abs(Byte) > 1.0d3) then
-        Byte = Byte/1.024d3
+      if (abs(Byte) > 1.0e3_wp) then
+        Byte = Byte/1.024e3_wp
         Unt = 'Tb'
       end if
     end if

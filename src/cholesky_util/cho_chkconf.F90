@@ -14,18 +14,18 @@ subroutine CHO_CHKCONF(NCONFL,VERBOSE)
 ! Purpose: check configuration, return the number of errors NCONFL.
 
 use ChoSubScr, only: Cho_SScreen, SSTau
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer NCONFL
-logical VERBOSE
+integer(kind=iwp) :: NCONFL
+logical(kind=iwp) :: VERBOSE
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "cho_para_info.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_CHKCONF')
-logical REPORT
-integer NNN, MMM, INEGRR
-real*8 XLBUF, XMBUF
+integer(kind=iwp) :: INEGRR, MMM, NNN
+logical(kind=iwp) :: REPORT
+real(kind=wp) :: XLBUF, XMBUF
 
 ! Initialize.
 ! -----------
@@ -151,7 +151,7 @@ end if
 ! Decomposition threshold.
 ! ------------------------
 
-if (THRCOM < 0.0d0) then
+if (THRCOM < Zero) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6,A,D15.6,A)') 'Decomposition threshold not positive: ',THRCOM,' (default value: ',THRDEF,')'
   NCONFL = NCONFL+1
 end if
@@ -171,7 +171,7 @@ end if
 ! -------------------------------------------
 
 if (CHO_SSCREEN) then
-  if (SSTAU < 0.0d0) then
+  if (SSTAU < Zero) then
     if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Screening threshold for vector subtraction not positive: ',SSTAU
     NCONFL = NCONFL+1
   end if
@@ -184,8 +184,8 @@ if (LBUF < 1) then
   if (REPORT) write(LUPRI,'(A,I8)') 'Buffer length < 1: ',LBUF
   NCONFL = NCONFL+1
 else
-  XLBUF = dble(LBUF)
-  XMBUF = dble(NBAST)*(dble(NBAST)+1.0d0)/2.0d0
+  XLBUF = real(LBUF,kind=wp)
+  XMBUF = real(NBAST)*(real(NBAST)+One)*Half
   if (XLBUF > XMBUF) LBUF = nint(XMBUF) ! make sure LBUF is not too large
 end if
 
@@ -224,12 +224,12 @@ end if
 ! Memory fraction used for vector buffer.
 ! ---------------------------------------
 
-if (FRAC_CHVBUF < 0.0d0) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.0D0'
-  FRAC_CHVBUF = 0.0d0
-else if (FRAC_CHVBUF > 0.9d0) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.9D0'
-  FRAC_CHVBUF = 0.9d0
+if (FRAC_CHVBUF < Zero) then
+  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.0'
+  FRAC_CHVBUF = Zero
+else if (FRAC_CHVBUF > 0.9_wp) then
+  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.9'
+  FRAC_CHVBUF = 0.9_wp
 end if
 
 ! Threshold for discarding elements of initial diagonal.
@@ -246,11 +246,11 @@ end if
 ! Damping factors.
 ! ----------------
 
-if (DAMP(1) < 1.0d0) then
+if (DAMP(1) < One) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'First damping factor < 1: ',DAMP(1)
   NCONFL = NCONFL+1
 end if
-if (DAMP(2) < 1.0d0) then
+if (DAMP(2) < One) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Second damping factor < 1: ',DAMP(2)
   NCONFL = NCONFL+1
 end if
@@ -258,12 +258,12 @@ end if
 ! Span factor.
 ! ------------
 
-if (SPAN > 1.0d0) then
+if (SPAN > One) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Span factor > 1: ',SPAN
   NCONFL = NCONFL+1
-else if (abs(1.0d0-SPAN) < 1.0d-4) then
+else if (abs(One-SPAN) < 1.0e-4_wp) then
   if (REPORT) write(LUPRI,'(A)') 'Span factor is too close to 1. Will use 0.9999 instead.'
-  SPAN = 0.9999d0
+  SPAN = 0.9999_wp
 end if
 
 ! Max. #shell pairs allowed before proceeding to deco.
@@ -299,17 +299,17 @@ end if
 ! -------------------------------
 
 INEGRR = 0
-if (THRNEG > 0.0d0) then
+if (THRNEG > Zero) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for zeroing neg. diag. > 0: ',THRNEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1
 end if
-if (WARNEG > 0.0d0) then
+if (WARNEG > Zero) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for warning about neg. diag.  > 0: ',WARNEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1
 end if
-if (TOONEG > 0.0d0) then
+if (TOONEG > Zero) then
   if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for shutdown due to neg. diag.  > 0: ',TOONEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1

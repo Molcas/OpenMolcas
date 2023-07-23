@@ -13,10 +13,14 @@ function CHO_DSUMELM(VEC,N)
 !
 ! Purpose: sum elements of double precision vector.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 CHO_DSUMELM
-real*8 VEC(*), DSUM
-integer I, N
+real(kind=wp) :: VEC(*)
+integer(kind=iwp) :: N
+integer(kind=iwp) :: I
+real(kind=wp) :: CHO_DSUMELM, DSUM
 
 if (N > 0) then
   DSUM = VEC(1)
@@ -24,7 +28,7 @@ if (N > 0) then
     DSUM = DSUM+VEC(I)
   end do
 else
-  DSUM = 0.0d0
+  DSUM = Zero
 end if
 
 CHO_DSUMELM = DSUM

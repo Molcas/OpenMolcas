@@ -17,14 +17,14 @@ subroutine Cho_X_GetTotV(nV,n)
 !
 ! Purpose: return total number of vectors (over all nodes).
 
-use ChPari
+use ChPari, only: NumCho_Bak
+use Definitions, only: iwp
 
 implicit none
-integer n
-integer nV(n)
+integer(kind=iwp) :: n, nV(n)
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-integer iSym
+integer(kind=iwp) :: iSym
 
 #ifdef _DEBUGPRINT_
 if (n < nSym) call Cho_Quit('Illegal input variable in Cho_X_GetTotV',104)

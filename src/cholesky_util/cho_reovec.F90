@@ -13,16 +13,18 @@ subroutine CHO_REOVEC(IRS2F,N,LRDIM,WRK,LWRK)
 !
 ! Purpose: reorder Cholesky vectors on disk to full storage.
 
-implicit real*8(a-h,o-z)
-integer IRS2F(N,LRDIM)
-real*8 WRK(LWRK)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
+real(kind=wp) :: WRK(LWRK)
 #include "cholesky.fh"
 #include "choorb.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_REOVEC')
-integer CHO_ISAO
-external CHO_ISAO
+integer(kind=iwp) :: IA, IB, IRS1, ISYMA, ISYMB, JA, JAB, JB
+character(len=*), parameter :: SECNAM = 'CHO_REOVEC'
+integer(kind=iwp), external :: CHO_ISAO
 ! Statement function
+integer(kind=iwp) :: ITRI, I, J
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
 ! Set up mapping from rs1 to full storage.

@@ -12,30 +12,25 @@
 subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
 
 use ChoMP2, only: Pointer_2D
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "corbinf.fh"
-integer, intent(in) :: nTriDens
-real*8, intent(inout) :: TriDens(nTriDens)
+implicit none
+integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
+real(kind=wp), intent(inout) :: TriDens(nTriDens)
 type(Pointer_2D), intent(in) :: MP2X_e(8)
-real*8, intent(in) :: CMO(*)
-integer, intent(in) :: mSym
-integer, intent(in) :: nOrbAll(8), nOccAll(8)
-logical, intent(in) :: Diagonalize
-integer ipSymRec(8)
-integer ipSymTri(8)
-integer ipSymLin(8)
-character(len=30) Note
-real*8, allocatable :: AORecBlock(:), TmpRecBlock(:)
-real*8, allocatable :: AOTriBlock(:)
-real*8, allocatable :: MOTriBlock(:)
-real*8, allocatable :: EigenVecBlock(:), EigenValBlock(:)
-real*8, allocatable :: EigenVecTot(:), EigenValTot(:)
-real*8, allocatable :: Energies(:)
-integer, allocatable :: IndT(:,:)
+real(kind=wp), intent(in) :: CMO(*)
+logical(kind=iwp), intent(in) :: Diagonalize
+#include "corbinf.fh"
+integer(kind=iwp) :: indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+character(len=30) :: Note
+real*8, allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
+                       Energies(:), MOTriBlock(:), TmpRecBlock(:)
+integer(kind=iwp), allocatable :: IndT(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
@@ -96,10 +91,10 @@ do iSym=1,mSym
       end do
     end if
     ! Transform the symmetryblock to AO-density
-    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),1.0d0,CMO(ipSymRec(iSym)+1),nOrbAll(iSym),MP2X_e(iSym)%A, &
-                nOrbAll(iSym),0.0d0,TmpRecBlock,nOrbAll(iSym))
-    call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),1.0d0,TmpRecBlock,nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
-                nOrbAll(iSym),0.0d0,AORecBlock,nOrbAll(iSym))
+    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym),MP2X_e(iSym)%A, &
+                nOrbAll(iSym),Zero,TmpRecBlock,nOrbAll(iSym))
+    call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,TmpRecBlock,nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
+                nOrbAll(iSym),Zero,AORecBlock,nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
     call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
     call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,AOTriBlock,1,TriDens(1+ipSymTri(iSym)),1)
@@ -107,11 +102,11 @@ do iSym=1,mSym
     if (Diagonalize) then
       ! Make a normal folded matrix
 
-      index = 0
+      indx = 0
       do i=1,nOrbAll(iSym)
         do j=1,i
-          MOTriBlock(1+index) = MP2X_e(iSym)%A(j,i)
-          index = index+1
+          MOTriBlock(1+indx) = MP2X_e(iSym)%A(j,i)
+          indx = indx+1
         end do
       end do
 
@@ -124,13 +119,13 @@ do iSym=1,mSym
       call SortEig(EigenValBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym),-1,.false.)
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'The sorted eigenvalues are'
+      write(u6,*) 'The sorted eigenvalues are'
       do i=1,nOrbAll(iSym)
-        write(6,*) EigenValBlock(i)
+        write(u6,*) EigenValBlock(i)
       end do
-      write(6,*) 'Eigenvectors sorted'
+      write(u6,*) 'Eigenvectors sorted'
       do i=1,nOrbAll(iSym)**2
-        write(6,*) EigenVecBlock(i)
+        write(u6,*) EigenVecBlock(i)
       end do
 #     endif
 

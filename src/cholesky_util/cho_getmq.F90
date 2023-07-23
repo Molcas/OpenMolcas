@@ -11,20 +11,21 @@
 
 subroutine Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
 
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
-use stdalloc
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer l_MQ, nQShp
-real*8 MQ(l_MQ)
-integer List_QShp(nQShp)
+implicit none
+integer(kind=iwp) :: l_MQ, nQShp, List_QShp(nQShp)
+real(kind=wp) :: MQ(l_MQ)
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=9), parameter :: SecNam = 'Cho_GetMQ'
-integer, parameter :: iOpt = 2
-integer, external :: Cho_P_LocalSP, Cho_F2SP
-real*8, allocatable :: Scr(:)
-integer, allocatable :: kOff_Shp(:)
+integer(kind=iwp) :: iAB, iabSh, iAdr, iL_Shp, iL_ShpG, ipfr, ipS, ipto, iQ, iQoff, isAB, iShAB, iShABG, iShp, iShpAdr, iSym, jQ, &
+                     jSym, Lint, Lread, nTot
+integer(kind=iwp), allocatable :: kOff_Shp(:)
+real(kind=wp), allocatable :: Scr(:)
+integer(kind=iwp), parameter :: iOpt = 2
+integer(kind=iwp), external :: Cho_F2SP, Cho_P_LocalSP
 
 nTot = nQual(1)
 do iSym=2,nSym

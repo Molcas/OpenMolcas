@@ -89,26 +89,26 @@
 
 subroutine ChoDec(CD_Col,CD_Vec,Restart,Thr,Span,MxQual,Diag,Qual,Buf,iPivot,iQual,nDim,lBuf,ErrStat,NumCho,irc)
 
-implicit real*8(a-h,o-z)
-external CD_Col    ! external routine for matrix columns
-external CD_Vec    ! external routine for Cholesky vectors
-logical Restart
-real*8 Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
-integer iPivot(nDim), iQual(MxQual)
-real*8 ErrStat(3)
-logical Converged
-character*6 SecNam
-parameter(SecNam='ChoDec')
-parameter(DefThr=1.0d-6,DefSpan=1.0d-2) ! defaults
-parameter(ThrNeg=-1.0d-13,ThrFail=-1.0d-8)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+external :: CD_Col, CD_Vec
+logical(kind=iwp) :: Restart
+integer(kind=iwp) :: MxQual, nDim, iPivot(nDim), iQual(MxQual), lBuf, NumCho, irc
+real(kind=wp) :: Thr, Span, Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf), ErrStat(3)
+integer(kind=iwp) :: MinBuf, mQual, MxNumCho
+logical(kind=iwp) :: Converged
+real(kind=wp), parameter :: DefThr = 1.0e-6_wp, DefSpan = 1.0e-2_wp, dum = 9.876543210e15_wp, ThrFail = -1.0e-8_wp, &
+                            ThrNeg = -1.0e-13_wp
 
 ! Initialize variables.
 ! ---------------------
 
 irc = 0
-ErrStat(1) = 9.876543210d15
-ErrStat(2) = -9.876543210d15
-ErrStat(3) = -9.876543210d15
+ErrStat(1) = dum
+ErrStat(2) = -dum
+ErrStat(3) = -dum
 if (.not. Restart) NumCho = 0
 Converged = .false.
 
@@ -133,8 +133,8 @@ end if
 ! Check configuration.
 ! --------------------
 
-if (Thr < 0.0d0) Thr = DefThr  ! reset threshold
-if ((Span < 0.0d0) .or. (Span > 1.0d0)) Span = DefSpan ! reset span factor
+if (Thr < Zero) Thr = DefThr  ! reset threshold
+if ((Span < Zero) .or. (Span > One)) Span = DefSpan ! reset span factor
 
 ! Set up a (possibly updated) copy of the diagonal.
 ! Test diagonal for negative elements.

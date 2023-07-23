@@ -33,28 +33,23 @@ subroutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
 !
 !    D(J) = X(J) - Y(J)
 
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iTyp
-real*8 COcc(*), CVir(*)
-integer lU_AO(*)
+integer(kind=iwp) :: iTyp, lU_AO(*)
+real(kind=wp) :: COcc(*), CVir(*)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-real*8, external :: ddot_
-real*8 Err(4,8)
-real*8 AbsMinErr, AbsMaxErr, AvgErr, RMSErr
-integer nMP2Vec_Tot
-integer iSym, iSyma, iSymi, iSymAl, iSymBe
-integer i, a, Al, AlBe, nAlBe, na, J
-integer kP, kP_, kC
-integer iOpt, lTot, iAdr
-integer nOcc_Max
-real*8, allocatable :: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:), V(:)
-integer MulD2h, k, l
+integer(kind=iwp) :: a, Al, AlBe, i, iAdr, iOpt, iSym, iSyma, iSymAl, iSymBe, iSymi, J, kC, kP, kP_, lTot, na, nAlBe, nMP2Vec_Tot, &
+                     nOcc_Max
+real(kind=wp) :: AbsMaxErr, AbsMinErr, AvgErr, Err(4,8), RMSErr
+real(kind=wp), allocatable :: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:), V(:)
+real(kind=wp), external :: ddot_
 ! Statement function
+integer(kind=iwp) :: MulD2h, k, l
 MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Initializations.
@@ -143,7 +138,7 @@ do iSym=1,nSym
       lTot = nMP2Vec(iSym)
       iAdr = nMP2Vec(iSym)*(AlBe-1)+1
       call ddaFile(lU_AO(iSym),iOpt,V,lTot,iAdr)
-      call dAXPY_(nMP2Vec(iSym),1.0d0,V,1,X,1)
+      call dAXPY_(nMP2Vec(iSym),One,V,1,X,1)
     end do
     call mma_deallocate(V)
 
@@ -161,7 +156,7 @@ do iSym=1,nSym
       do iSymi=1,nSym
         iSyma = MulD2h(iSymi,iSym)
         na = max(nVir(iSyma),1)
-        call dGeMV_('T',nVir(iSyma),nOcc(iSymi),1.0d0,V(1+iT1Am(iSyma,iSymi)),na,PVir(1+iVir(iSyma)),1,0.0d0,Q,1)
+        call dGeMV_('T',nVir(iSyma),nOcc(iSymi),One,V(1+iT1Am(iSyma,iSymi)),na,PVir(1+iVir(iSyma)),1,Zero,Q,1)
         Y(J) = Y(J)+dDot_(nOcc(iSymi),Q,1,POcc(1+iOcc(iSymi)),1)
       end do
     end do
@@ -174,7 +169,7 @@ do iSym=1,nSym
 
     call mma_allocate(D,nMP2Vec(iSym),Label='D')
     call dCopy_(nMP2Vec(iSym),X,1,D,1)
-    call dAXPY_(nMP2Vec(iSym),-1.0d0,Y,1,D,1)
+    call dAXPY_(nMP2Vec(iSym),-One,Y,1,D,1)
     Err(1,iSym) = abs(D(1))
     Err(2,iSym) = abs(D(1))
     Err(3,iSym) = D(1)
@@ -184,10 +179,10 @@ do iSym=1,nSym
       Err(3,iSym) = Err(3,iSym)+D(1+J)
     end do
     AvgErr = AvgErr+Err(3,iSym)
-    Err(3,iSym) = Err(3,iSym)/dble(nMP2Vec(iSym))
+    Err(3,iSym) = Err(3,iSym)/real(nMP2Vec(iSym),kind=wp)
     Err(4,iSym) = dDot_(nMP2Vec(iSym),D,1,D,1)
     RMSErr = RMSErr+Err(4,iSym)
-    Err(4,iSym) = Err(4,iSym)/dble(nMP2Vec(iSym))
+    Err(4,iSym) = Err(4,iSym)/real(nMP2Vec(iSym),kind=wp)
     Err(4,iSym) = sqrt(Err(4,iSym))
     call mma_deallocate(D)
 
@@ -215,22 +210,22 @@ do iSym=1,nSym
 
 end do
 
-AvgErr = AvgErr/dble(nMP2Vec_Tot)
-RMSErr = RMSErr/dble(nMP2Vec_Tot)
+AvgErr = AvgErr/real(nMP2Vec_Tot,kind=wp)
+RMSErr = RMSErr/real(nMP2Vec_Tot,kind=wp)
 RMSErr = sqrt(RMSErr)
 
 ! Report.
 ! -------
 
-call Cho_Head('MO Vector Backtransformation Check','=',80,6)
-write(6,'(/,2X,A,/,2X,A)') 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error       RMS Error', &
+call Cho_Head('MO Vector Backtransformation Check','=',80,u6)
+write(u6,'(/,2X,A,/,2X,A)') 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error       RMS Error', &
                            '----------------------------------------------------------------------------'
 do iSym=1,nSym
-  write(6,'(4X,I2,4X,1P,4(3X,D14.6))') iSym,(Err(i,iSym),i=1,4)
+  write(u6,'(4X,I2,4X,1P,4(3X,D14.6))') iSym,(Err(i,iSym),i=1,4)
 end do
-write(6,'(2X,A)') '----------------------------------------------------------------------------'
-write(6,'(2X,A,2X,1P,4(3X,D14.6))') 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
-write(6,'(2X,A,/)') '----------------------------------------------------------------------------'
+write(u6,'(2X,A)') '----------------------------------------------------------------------------'
+write(u6,'(2X,A,2X,1P,4(3X,D14.6))') 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
+write(u6,'(2X,A,/)') '----------------------------------------------------------------------------'
 
 ! Free memory.
 ! ------------

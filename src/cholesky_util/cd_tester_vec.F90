@@ -14,13 +14,13 @@
 subroutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
 
 use CDTHLP, only: Vec
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iVec1, nVec, lBuf, nDim, iOpt
-real*8 Buf(lBuf)
-integer kOff, lTot
-character*13 SecNam
-parameter(SecNam='CD_Tester_Vec')
+integer(kind=iwp) :: iVec1, nVec, lBuf, nDim, iOpt
+real(kind=wp) :: Buf(lBuf)
+integer(kind=iwp) :: kOff, lTot
+character(len=*), parameter :: SecNam = 'CD_Tester_Vec'
 
 if (iOpt == 1) then
   kOff = 1+nDim*(iVec1-1)
@@ -31,12 +31,12 @@ else if (iOpt == 2) then
   lTot = nDim*nVec
   call dCopy_(lTot,Vec(kOff),1,Buf,1)
 else
-  write(6,*)
-  write(6,*) 'WARNING! WARNING! WARNING! WARNING!'
-  write(6,*) SecNam,': illegal option: iOpt = ',iOpt
-  write(6,*) 'WARNING! WARNING! WARNING! WARNING!'
-  write(6,*)
-  call xFlush(6)
+  write(u6,*)
+  write(u6,*) 'WARNING! WARNING! WARNING! WARNING!'
+  write(u6,*) SecNam,': illegal option: iOpt = ',iOpt
+  write(u6,*) 'WARNING! WARNING! WARNING! WARNING!'
+  write(u6,*)
+  call xFlush(u6)
 end if
 
 end subroutine CD_Tester_Vec

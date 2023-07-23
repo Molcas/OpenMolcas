@@ -16,8 +16,13 @@ subroutine CHO_ORDER(VEC,LVEC,IJOB)
 !          IJOB =  1: ascending  order
 !          (all other IJOB values are ignored)
 
-implicit real*8(a-h,o-z)
-real*8 VEC(LVEC)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LVEC, IJOB
+real(kind=wp) :: VEC(LVEC)
+integer(kind=iwp) :: I, IMAX, IMIN, J
+real(kind=wp) :: VMAX, VMIN
 
 if (IJOB == -1) then
 

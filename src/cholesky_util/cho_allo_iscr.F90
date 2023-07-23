@@ -15,12 +15,13 @@ subroutine Cho_Allo_iScr(DoDummy)
 !          If (DoDummy): make dummy (length 1) allocation.
 
 use ChoArr, only: iScr
-use stdalloc
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-logical DoDummy
+logical(kind=iwp) :: DoDummy
 #include "cholesky.fh"
-integer iSym, l_iScr
+integer(kind=iwp) :: iSym, l_iScr
 
 if (DoDummy) then
   l_iScr = 1

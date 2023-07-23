@@ -13,10 +13,12 @@ subroutine CHO_GETRSTC()
 !
 ! Purpose: read and check decomposition restart info.
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "cholesky.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_GETRSTC')
+integer(kind=iwp) :: IFAIL
+character(len=*), parameter :: SECNAM = 'CHO_GETRSTC'
 
 ! Read restart file, populating restart common block.
 ! ---------------------------------------------------

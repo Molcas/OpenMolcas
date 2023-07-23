@@ -11,11 +11,13 @@
 
 subroutine Cho_PreScr(Thr1,Thr2)
 !
-! Purpose: read integral prescreening thresholds from common block.
+! Purpose: read integral prescreening thresholds from module.
 
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: CutInt, ThrInt
+use Definitions, only: wp
 
-real*8 Thr1, Thr2
+implicit none
+real(kind=wp) :: Thr1, Thr2
 
 Thr1 = CutInt
 Thr2 = ThrInt

@@ -17,13 +17,15 @@ subroutine CHO_WRRSTC(IPASS)
 
 use ChoArr, only: IntMap
 use ChoSwp, only: InfRed, InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IPASS
 #include "cholesky.fh"
 #include "choorb.fh"
-parameter(LSCR=10)
-real*8 DSCR(LSCR)
-integer JSCR(LSCR)
+integer(kind=iwp), parameter :: LSCR = 10
+integer(kind=iwp) :: IADR, IOPT, ISYM, J, JADR, JSCR(LSCR), NDIM, NTOT, NWR
+real(kind=wp) :: DSCR(LSCR)
 
 ! Start address on file.
 ! ----------------------

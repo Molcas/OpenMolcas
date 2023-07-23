@@ -19,32 +19,36 @@ subroutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,iSyCho,iSyCO,iSyCV,iL
 
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
-use ChoMP2g
+use ChoMP2g, only: iAoMo, iMoAo, iMoMo, nMo, nMoAo, nMoType
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
-real*8 Scr(lScr)
+implicit none
+integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc, iMoType1, iMoType2
+real(kind=wp) :: VecAO(*), VecMO(*), COrb1(*), COrb2(*), Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-character*13 SecNam
-parameter(SecNam='ChoMP2_TraVec')
-real*8 Fac(0:1)
-data Fac/0.5d0,1.0d0/
+integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
+                     kOff2, kOff3, kOffAl, kOffBe, nTotAl, nTotp, nTotq
+real(kind=wp) :: AOVal
+real(kind=wp), parameter :: Fac(0:1) = [Half,One]
+character(len=*), parameter :: SecNam = 'ChoMP2_TraVec'
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 ! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
 iVecType = iMoType2+(iMoType1-1)*nMoType
 
 if ((iLoc < 2) .or. (iLoc > 3)) then
-  write(6,*) SecNam,': illegal iLoc = ',iLoc
+  write(u6,*) SecNam,': illegal iLoc = ',iLoc
   call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
 end if
 iSyScr = MulD2h(iSyCho,iSyCO)
 if (lScr < nMoAo(iSyScr,iMoType1)) then
-  write(6,*) SecNam,': insufficient scratch space lScr = ',lScr
-  write(6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
+  write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
+  write(u6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
   call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
 else
   call FZero(Scr,nMoAo(iSyScr,iMoType1))
@@ -142,7 +146,7 @@ do iSymp=1,nSym
     kOff1 = iAoMo(iSymAl,iSymq,iMoType2)+1
     kOff2 = iMoAo(iSymp,iSymAl,iMoType1)+1
     kOff3 = iMoMo(iSymq,iSymp,iVecType)+1
-    call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),nBas(iSymAl),1.0d0,COrb2(kOff1),nTotAl,Scr(kOff2),nTotp,0.0d0, &
+    call DGEMM_('T','T',nMo(iSymq,iMoType2),nMo(iSymp,iMoType1),nBas(iSymAl),One,COrb2(kOff1),nTotAl,Scr(kOff2),nTotp,Zero, &
                 VecMO(kOff3),nTotq)
   end if
 

@@ -14,14 +14,15 @@
 ! info for Cholesky bookmarks
 module ChoBkm
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-integer, allocatable :: BkmVec(:,:)
-real*8, allocatable :: BkmThr(:,:)
-integer :: nRow_BkmVec = 0, nCol_BkmVec = 0
-integer :: nRow_BkmThr = 0, nCol_BkmThr = 0
+integer(kind=iwp) :: nCol_BkmThr = 0, nCol_BkmVec = 0, nRow_BkmThr = 0, nRow_BkmVec = 0
+integer(kind=iwp), allocatable :: BkmVec(:,:)
+real(kind=wp), allocatable :: BkmThr(:,:)
 
-public :: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+public :: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
 
 end module ChoBkm

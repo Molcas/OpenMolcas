@@ -14,12 +14,12 @@
 subroutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
 
 use CDTHLP, only: Mat
+use Definitions, only: wp, iwp
 
-!implicit none
-integer nDim, nCol, lBuf
-real*8 Col(nDim,nCol), Buf(lBuf)
-integer iCol(nCol)
-integer i, kOff
+implicit none
+integer(kind=iwp) :: nDim, nCol, iCol(nCol), lBuf
+real(kind=wp) :: Col(nDim,nCol), Buf(lBuf)
+integer(kind=iwp) :: i, kOff
 
 do i=1,nCol
   kOff = 1+nDim*(iCol(i)-1)

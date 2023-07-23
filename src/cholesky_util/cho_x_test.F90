@@ -41,10 +41,16 @@
 
 subroutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
 
-implicit real*8(a-h,o-z)
-real*8 X(*), Vec(n,nVec), Y(lY)
-logical Square
-external ddot_
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, wp
+
+implicit none
+integer(kind=iwp) :: n, nVec, lY, irc
+real(kind=wp) :: X(*), Vec(n,nVec), xf, Y(lY), Thr
+logical(kind=iwp) :: Square
+integer(kind=iwp) :: lX
+real(kind=wp) :: RMS
+real(kind=wp), external :: ddot_
 
 ! Check input.
 ! ------------
@@ -52,7 +58,7 @@ external ddot_
 if (n < 1) then ! nothing to do
   irc = 0
   return
-else if ((nVec < 0) .or. (Thr < 0.0d0)) then ! input error
+else if ((nVec < 0) .or. (Thr < Zero)) then ! input error
   irc = -1
   return
 end if
@@ -71,15 +77,15 @@ end if
 
 call dCopy_(lX,X,1,Y,1)
 if (Square) then
-  call DGEMM_('N','T',n,n,nVec,-xf,Vec,n,Vec,n,1.0d0,Y,n)
+  call DGEMM_('N','T',n,n,nVec,-xf,Vec,n,Vec,n,One,Y,n)
 else
-  call dGeMM_Tri('N','T',n,n,nVec,-xf,Vec,n,Vec,n,1.0d0,Y,n)
+  call dGeMM_Tri('N','T',n,n,nVec,-xf,Vec,n,Vec,n,One,Y,n)
 end if
 
 ! Check RMS error.
 ! ----------------
 
-RMS = sqrt(dDot_(lX,Y,1,Y,1)/dble(lX))
+RMS = sqrt(dDot_(lX,Y,1,Y,1)/real(lX,kind=wp))
 if (RMS > Thr) then
   irc = 1
 else

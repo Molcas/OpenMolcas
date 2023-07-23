@@ -11,21 +11,21 @@
 
 subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer l_QVec, nQSP
-real*8, target :: QVec(l_Qvec)
-integer LstQSP(nQSP)
+integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
+real(kind=wp), target :: QVec(l_Qvec)
 #include "cho_para_info.fh"
-character*11 SecNam
-parameter(SecNam='Cho_P_GetLQ')
+character(len=*), parameter :: SecNam = 'Cho_P_GetLQ'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-    integer l_QVec, nQSP
-    real*8, target :: QVec(l_Qvec)
-    integer LstQSP(nQSP)
+    import :: wp, iwp
+    integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
+    real(kind=wp), target :: QVec(l_Qvec)
   end subroutine Cho_GetLQ
 end interface
 !                                                                      *

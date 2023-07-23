@@ -11,11 +11,13 @@
 
 subroutine Cho_P_Stat()
 
+use Definitions, only: iwp
+
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-integer iTmp, jTmp
+integer(kind=iwp) :: iTmp, jTmp
 
 if (Cho_Real_Par) then
   call Cho_P_IndxSwp()

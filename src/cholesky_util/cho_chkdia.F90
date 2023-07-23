@@ -14,7 +14,7 @@ subroutine CHO_CHKDIA(DIAG,ISYM,XM,YM,ZM,NNEGT,NNEG,NCONV)
 ! Purpose: 1) find min. in updated diagonal, XM (sym. ISYM only)
 !          2) find max. in updated diagonal, YM (sym. ISYM only)
 !          3) find abs. max. in updated diagonal, ZM (sym. ISYM only)
-!          4) count #diagonals < 0.0D0, NNEGT
+!          4) count #diagonals < 0.0, NNEGT
 !          5) count #diagonals < THRNEG, NNEGT
 !          6) count #screenable diagonals, NCONV
 !
@@ -23,13 +23,16 @@ subroutine CHO_CHKDIA(DIAG,ISYM,XM,YM,ZM,NNEGT,NNEG,NCONV)
 !          c) Keep track of most negative zeroed diagonal.
 
 use ChoSwp, only: IndRed
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+implicit none
+real(kind=wp) :: Diag(*), XM, YM, ZM
+integer(kind=iwp) :: ISYM, NNEGT, NNEG, NCONV
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_CHKDIA')
-parameter(ZERO=0.0d0)
+integer(kind=iwp) :: IAB, JAB, JAB1, JAB2
+real(kind=wp) :: TST
+character(len=*), parameter :: SECNAM = 'CHO_CHKDIA'
 
 ! Initialization.
 ! ---------------
@@ -45,9 +48,9 @@ if (NNBSTR(ISYM,2) > 0) then
   YM = DIAG(INDRED(JAB1,2))
   ZM = abs(YM)
 else
-  XM = ZERO
-  YM = ZERO
-  ZM = ZERO
+  XM = Zero
+  YM = Zero
+  ZM = Zero
   return
 end if
 
@@ -58,7 +61,7 @@ do JAB=JAB1,JAB2
   IAB = INDRED(JAB,2)  ! get address in first red. set
   XM = min(XM,DIAG(IAB))
   YM = max(YM,DIAG(IAB))
-  if (DIAG(IAB) < ZERO) then
+  if (DIAG(IAB) < Zero) then
     NNEGT = NNEGT+1
     if (DIAG(IAB) < THRNEG) then
       NNEG = NNEG+1
@@ -72,7 +75,7 @@ do JAB=JAB1,JAB2
         DIAMNZ = DIAG(IAB)
         IABMNZ = IAB
       end if
-      DIAG(IAB) = ZERO
+      DIAG(IAB) = Zero
     end if
   end if
 end do
@@ -91,7 +94,7 @@ if (SCDIAG) then
     TST = sqrt(abs(DIAG(IAB))*ZM)*DAMP(2)
     if (TST <= THRCOM) then
       NCONV = NCONV+1
-      DIAG(IAB) = ZERO
+      DIAG(IAB) = Zero
     end if
   end do
 else

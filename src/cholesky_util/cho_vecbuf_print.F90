@@ -15,14 +15,14 @@ subroutine Cho_VecBuf_Print(Lupri,nSym)
 !          unit Lupri (if Lupri<1 nothing is printed).
 
 use ChoVecBuf, only: CHVBUF, l_CHVBUF_SYM
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lupri, nSym
-character*16 SecNam
-parameter(SecNam='Cho_VecBuf_Print')
-integer iSym
-real*8 xGb
-character*2 Unt
+integer(kind=iwp) :: Lupri, nSym
+integer(kind=iwp) :: iSym
+real(kind=wp) :: xGb
+character(len=2) :: Unt
+character(len=*), parameter :: SecNam = 'Cho_VecBuf_Print'
 
 if (Lupri < 1) return
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym error in '//SecNam,104)

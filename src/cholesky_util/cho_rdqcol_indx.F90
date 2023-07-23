@@ -14,12 +14,12 @@ subroutine Cho_RdQCol_Indx(xInt,IDCol,nRow,nCol,Lunit)
 ! Purpose: read indexed qualified columns from WA file with unit
 !          Lunit. (WA=word-addressable)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nRow, nCol
-real*8 xInt(nRow,nCol)
-integer IDCol(nCol)
-integer Lunit
-integer iCol, iOpt, iAdr, lTot
+integer(kind=iwp) :: nCol, IDCol(nCol), nRow, Lunit
+real(kind=wp) :: xInt(nRow,nCol)
+integer(kind=iwp) :: iAdr, iCol, iOpt, lTot
 
 if ((nRow < 1) .or. (nCol < 1)) return
 

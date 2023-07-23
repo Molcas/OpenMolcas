@@ -20,19 +20,18 @@ subroutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !          refers to whether or not the MO vectors have been sorted
 !          into the sizes of the batches over occupied orbitals.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 EMP2
-real*8 EOcc(*), EVir(*)
-integer irc
-logical Sorted, DelOrig
+integer(kind=iwp) :: irc
+real(kind=wp) :: EMP2, EOcc(*), EVir(*)
+logical(kind=iwp) :: Sorted, DelOrig
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-character(len=6), parameter :: ThisNm = 'Energy'
-character(len=13), parameter :: SecNam = 'ChoMP2_Energy'
-integer lWrk
-real*8, allocatable :: Wrk(:)
+integer(kind=iwp) :: lWrk
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'ChoMP2_Energy'
 
 irc = 0
 
@@ -42,20 +41,20 @@ call mma_allocate(Wrk,lWrk,Label='Wrk')
 if (Sorted) then
   call ChoMP2_Energy_Srt(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Energy_Srt returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Energy_Srt returned ',irc
     Go To 1 ! exit
   end if
 else
   if (nBatch == 1) then
     call ChoMP2_Energy_Fll(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
     if (irc /= 0) then
-      write(6,*) SecNam,': ChoMP2_Energy_Fll returned ',irc
+      write(u6,*) SecNam,': ChoMP2_Energy_Fll returned ',irc
       Go To 1 ! exit
     end if
   else
     call ChoMP2_Energy_Org(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
     if (irc /= 0) then
-      write(6,*) SecNam,': ChoMP2_Energy_Org returned ',irc
+      write(u6,*) SecNam,': ChoMP2_Energy_Org returned ',irc
       Go To 1 ! exit
     end if
   end if

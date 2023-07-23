@@ -11,8 +11,10 @@
 
 subroutine Cho_Init_Tsk(ID,n)
 
+use Definitions, only: iwp
+
 implicit none
-integer ID, n
+integer(kind=iwp) :: ID, n
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) then

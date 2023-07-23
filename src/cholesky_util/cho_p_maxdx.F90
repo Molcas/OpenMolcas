@@ -15,14 +15,14 @@ subroutine Cho_P_MaxDX(Diag,Sync,Dmax)
 !          qualified diagonals excluded.
 
 use ChoSwp, only: Diag_G
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-logical Sync
-real*8 Dmax(*)
+real(kind=wp) :: Diag(*), Dmax(*)
+logical(kind=iwp) :: Sync
 #include "cho_para_info.fh"
 #include "choglob.fh"
-integer iLoc
+integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then
   if (Sync) then

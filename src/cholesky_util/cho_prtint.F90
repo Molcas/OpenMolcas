@@ -17,23 +17,17 @@ subroutine Cho_PrtInt(iSCD,iSAB,xInt,lInt)
 !
 ! Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 
-use ChoArr, only: iSP2F, nBstSh, iShP2RS, iShP2Q, nDim_Batch
+use ChoArr, only: iShP2Q, iShP2RS, iSP2F, nBstSh, nDim_Batch
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer iSCD, iSAB
-integer lInt
-real*8 xInt(lInt)
+integer(kind=iwp) :: iSCD, iSAB, lInt
+real(kind=wp) :: xInt(lInt)
 #include "cholesky.fh"
-character*10 SecNam
-parameter(SecNam='Cho_PrtInt')
-integer nRow(8)
-integer iSC, iSD, iSA, iSB
-integer nCD, nAB
-integer AB, CD
-integer iAB, iCD
-integer iSym
-integer kOffI
-real*8 xNorm
+integer(kind=iwp) :: AB, CD, iAB, iCD, iSA, iSB, iSC, iSD, iSym, kOffI, nAB, nCD, nRow(8)
+real(kind=wp) :: xNorm
+character(len=*), parameter :: SecNam = 'Cho_PrtInt'
 
 ! Set row dimension
 if (IfcSew == 2) then
@@ -72,7 +66,7 @@ do AB=1,nAB
   if (iAB > 0) then
     iSym = iShP2Q(2,AB)
     kOffI = iOff_Col(iSym)+nRow(iSym)*(iAB-1)
-    xNorm = 0.0d0
+    xNorm = Zero
     do CD=1,nCD
       iCD = iShP2RS(1,CD)
       if (iCD > 0) then

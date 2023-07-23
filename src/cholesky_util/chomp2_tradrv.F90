@@ -19,17 +19,16 @@ subroutine ChoMP2_TraDrv(irc,CMO,Diag,DoDiag)
 !          performed directly in reduced sets. This assumes
 !          that the MP2 program has been appropriately initialized.
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-real*8 CMO(*), Diag(*)
-logical DoDiag
+integer(kind=iwp) :: irc
+real(kind=wp) :: CMO(*), Diag(*)
+logical(kind=iwp) :: DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-character(len=6), parameter :: ThisNm = 'TraDrv'
-character(len=13), parameter :: SecNam = 'ChoMP2_TraDrv'
-real*8, allocatable :: COcc(:), CVir(:)
+real(kind=wp), allocatable :: COcc(:), CVir(:)
 
 irc = 0
 

@@ -18,14 +18,14 @@ subroutine Cho_SetQ2(iQuAB2,LstSP,nSP,iSym,jLoc,iLoc)
 !          The qualified index array iQuAB (pointer in choswp.f90)
 !          is assumed to refer to index arrays at location jLoc>1.
 
-use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer iQuAB2(*)
-integer LstSP(nSP)
+implicit none
+integer(kind=iwp) :: iQuAB2(*), nSP, LstSP(nSP), iSym, jLoc, iLoc
 #include "cholesky.fh"
-integer Cho_P_LocalSP, Cho_F2SP
-external Cho_P_LocalSP, Cho_F2SP
+integer(kind=iwp) :: iAB, iAB0, iAB1, iC, iQ, iSP, jAB, jAB1, jShlAB, jShlAB_Ref, kShlAB
+integer(kind=iwp), external :: Cho_F2SP, Cho_P_LocalSP
 
 iC = 0
 jShlAB_Ref = -1

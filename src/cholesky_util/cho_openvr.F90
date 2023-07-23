@@ -16,12 +16,15 @@ subroutine CHO_OPENVR(IOPT,ID)
 !          ID=1: open local files (for parallel run)
 !          ID=2: open global files (as in serial run)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IOPT, ID
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_OPENVR')
-character*5 FNRED
-character*6 FNVEC(8), FRST, FMAP
+integer(kind=iwp) :: ISYM
+character(len=6) :: FMAP, FNVEC(8), FRST
+character(len=5) :: FNRED
+character(len=*), parameter :: SECNAM = 'CHO_OPENVR'
 
 if (IOPT == 1) then
   FMAP = 'CHOMAP'

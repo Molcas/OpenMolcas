@@ -23,17 +23,18 @@ subroutine CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       Thus, to be certain that enough memory is available,
 !       use LSCR = 2 x dimension of first reduced set.
 
-use ChoSwp, only: InfVec, IndRed
+use ChoSwp, only: IndRed, InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(LENVEC,NUMVEC)
-real*8 SCR(LSCR)
+implicit none
+integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 #include "cholesky.fh"
-external ddot_
-character*11 SECNAM
-parameter(SECNAM='CHO_GETVEC0')
-logical LOCDBG
-parameter(LOCDBG=.false.)
+integer(kind=iwp) :: IAB, ILOC, IRED, IREDC, IVEC, JAB, JNUM, JRED, JVEC, KAB, KEND1, KREAD, KRED1, KREDU, LSCR1, MUSED
+real(kind=wp) :: XNRM
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GETVEC0'
+real(kind=wp), external :: ddot_
 
 ! Initialize output array.
 ! ------------------------

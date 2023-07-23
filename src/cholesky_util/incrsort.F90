@@ -13,9 +13,13 @@
 
 subroutine IncrSort(EVal,EVec,dimens)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimens, i, k, j, l
-real*8 EVal(dimens), EVec(dimens,dimens), swap
+integer(kind=iwp) :: dimens
+real(kind=wp) :: EVal(dimens), EVec(dimens,dimens)
+integer(kind=iwp) :: i, k, j, l
+real(kind=wp) :: swap
 
 do i=1,dimens-1
   k = i

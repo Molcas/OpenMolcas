@@ -14,25 +14,26 @@ subroutine Cho_X_Init_Par_Cho(irc)
 ! Purpose: setup for parallel Cholesky.
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 use ChoSwp, only: InfVec
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use Definitions, only: iwp, u6
 
 implicit none
-integer irc
-character(len=18), parameter :: SecNam = 'Cho_X_Init_Par_Cho'
+integer(kind=iwp) :: irc
 #ifdef _DEBUGPRINT_
-logical, parameter :: LocDbg = .true.
+#define _DBG_ .true.
 #else
-logical, parameter :: LocDbg = .false.
+#define _DBG_ .false.
 #endif
+logical(kind=iwp), parameter :: LocDbg = _DBG_
+character(len=*), parameter :: SecNam = 'Cho_X_Init_Par_Cho'
 #ifdef _MOLCAS_MPP_
 #include "cholesky.fh"
-integer nV(8)
-integer iSym, i, j
-logical isSerial
-integer, allocatable :: IDV(:), myInfV(:)
+integer(kind=iwp) :: i, iSym, j, nV(8)
+logical(kind=iwp) :: isSerial
+integer(kind=iwp), allocatable :: IDV(:), myInfV(:)
 
 irc = 0
 
@@ -42,14 +43,14 @@ irc = 0
 isSerial = (nProcs == 1) .or. (.not. Is_Real_Par())
 if (isSerial) then
   if (LocDbg) then
-    write(6,*) SecNam,': serial run, nothing to do...'
-    write(6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+    write(u6,*) SecNam,': serial run, nothing to do...'
+    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
   end if
   return
 else
   if (LocDbg) then
-    write(6,*) SecNam,': parallel run...'
-    write(6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+    write(u6,*) SecNam,': parallel run...'
+    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
   end if
 end if
 
@@ -90,16 +91,16 @@ end do
 ! ------------
 
 if (LocDbg) then
-  write(6,*)
-  write(6,*) 'Output from ',SecNam,':'
-  write(6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
-  write(6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
+  write(u6,*)
+  write(u6,*) 'Output from ',SecNam,':'
+  write(u6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
+  write(u6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
 end if
 
 #else
 
 irc = 0
-if (LocDbg) write(6,*) SecNam,': serial run, nothing to do...'
+if (LocDbg) write(u6,*) SecNam,': serial run, nothing to do...'
 
 #endif
 

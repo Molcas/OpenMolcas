@@ -13,10 +13,12 @@
 
 subroutine Cho_XCV_OpenTmpFiles()
 
+use Definitions, only: iwp
+
 implicit none
 #include "cholesky.fh"
-integer iSym
-character*6 Filename
+integer(kind=iwp) :: iSym
+character(len=6) :: Filename
 
 do iSym=1,nSym
   LuTmp(iSym) = 7

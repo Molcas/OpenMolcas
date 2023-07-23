@@ -16,18 +16,19 @@ subroutine Cho_SetShP2RS(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use ChoArr, only: nBstSh, iSP2F, iShP2RS, MySP
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use ChoArr, only: iShP2RS, iSP2F, MySP, nBstSh
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
 #ifdef _DEBUGPRINT_
 use ChoSwp, only: IndRSh
 #endif
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer nAB(*)
+implicit none
+integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
 #include "cholesky.fh"
+integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlB, iSym, jAB, kAB, l_iShP2RS, lTst, NumAB
 #ifdef _DEBUGPRINT_
-character*13 SecNam
-parameter(SecNam='Cho_SetShP2RS')
+character(len=*), parameter :: SecNam = 'Cho_SetShP2RS'
 #endif
 
 ! Check allocations.

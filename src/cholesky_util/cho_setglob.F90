@@ -13,10 +13,12 @@ subroutine Cho_SetGlob()
 !
 ! Purpose: define entries in choglob.fh
 
+use Definitions, only: iwp
+
 implicit none
 #include "choglob.fh"
-integer N, iSym
-integer, parameter :: iLarge = 999999
+integer(kind=iwp) :: iSym, N
+integer(kind=iwp), parameter :: iLarge = 999999
 
 nnShl_G = 0
 mmBstRT_G = 0

@@ -11,9 +11,16 @@
 
 module ChoIni
 
+use Definitions, only: iwp
+
+implicit none
+private
+
 ! This is ONLY for internal use by the Cholesky (external)
 ! initialization and finalization routines:
 
-integer, parameter :: ChoIniCheck = -6543210
+integer(kind=iwp), parameter :: ChoIniCheck = -6543210
+
+public :: ChoIniCheck
 
 end module ChoIni

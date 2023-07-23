@@ -14,22 +14,25 @@ subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,mSym,mPass,iPass1,NumPas
 ! Purpose: generate Cholesky vectors from raw integral columns.
 
 use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec, IndRed
+use ChoSwp, only: IndRed, InfVec
 use GnVcMp, only: RS2RS
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer lInt
-real*8 Diag(*), xInt(lInt)
-integer mSym, mPass
-integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
-integer iPass1, NumPass
+implicit none
+integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
+real(kind=wp) :: Diag(*), xInt(lInt)
 #include "cholesky.fh"
 #include "choprint.fh"
-character(len=15), parameter :: SecNam = 'Cho_GnVc_GenVec'
-integer NumCho_OLD(8), iOff1(8), iOff2(8)
-real*8, allocatable :: Wrk(:), VecTmp(:)
+integer(kind=iwp) :: iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
+                     jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
+                     nBin, nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec
+real(kind=wp) :: Bin1, C1, C2, Fac,olDiag, Step, W1, W2, XC, xM, xMax, xMin
+real(kind=wp), allocatable :: VecTmp(:), Wrk(:)
+character(len=*), parameter :: SecNam = 'Cho_GnVc_GenVec'
 ! Statement function
+integer(kind=iwp) :: mapRS2RS, i, j
 mapRS2RS(i,j) = RS2RS(j)%Map(i)
 
 ! Check input.
@@ -143,7 +146,7 @@ do iPass=iPass1,iPass2
     do iSym=1,nSym
       do iV=1,nVecRS(iSym,iPass)
         lTot = nnBstR(iSym,2)
-        VecTmp(1:lTot) = 0.0d0
+        VecTmp(1:lTot) = Zero
         lOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
         do lAB=1,nnBstR(iSym,3)
           jAB = IndRed(iiBstR(iSym,3)+lAB,3)-iiBstR(iSym,1)
@@ -179,10 +182,10 @@ do iPass=iPass1,iPass2
       iAB = InfVec(iVec,1,iSym) ! addr in 1st red. set
 
       XC = Diag(iAB)
-      if (abs(Diag(iAB)) > 1.0d-14) then ! TODO/FIXME
-        Fac = 1.0d0/sqrt(abs(Diag(iAB)))
+      if (abs(Diag(iAB)) > 1.0e-14_wp) then ! TODO/FIXME
+        Fac = One/sqrt(abs(Diag(iAB)))
       else
-        Fac = 1.0d7
+        Fac = 1.0e7_wp
       end if
       kOff = kOff0+1
       call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
@@ -190,7 +193,7 @@ do iPass=iPass1,iPass2
       do i=1,nnBstR(iSym,2)
         ii = iiBstR(iSym,2)+i
         jj = IndRed(ii,2)
-        if (Diag(jj) == 0.0d0) xInt(kOff0+i) = 0.0d0
+        if (Diag(jj) == Zero) xInt(kOff0+i) = Zero
       end do
 
       do i=1,nnBstR(iSym,2)
@@ -200,7 +203,7 @@ do iPass=iPass1,iPass2
       end do
 
       olDiag = Diag(iAB)
-      Diag(iAB) = 0.0d0
+      Diag(iAB) = Zero
       call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
       nNZTot = nNZTot+nNeg
 
@@ -250,7 +253,7 @@ do iPass=iPass1,iPass2
       end do
       kOff1 = iOff1(iSym)
       kOff2 = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
-      call DGEMM_('N','T',nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),-1.0d0,xInt(kOff1),nnBstR(iSym,2),VecTmp,nAB,1.0d0,xInt(kOff2), &
+      call DGEMM_('N','T',nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),-One,xInt(kOff1),nnBstR(iSym,2),VecTmp,nAB,One,xInt(kOff2), &
                   nnBstR(iSym,2))
     end if
 
@@ -316,8 +319,8 @@ do iPass=iPass1,iPass2
   ! -----------------
 
   if (iPrint >= INF_PASS) then
-    Bin1 = 1.0d2
-    Step = 1.0d-1
+    Bin1 = 1.0e2_wp
+    Step = 1.0e-1_wp
     nBin = 18
     call Cho_AnaDia(Diag,Bin1,Step,nBin,.false.)
   end if

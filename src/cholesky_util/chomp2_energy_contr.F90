@@ -22,16 +22,21 @@ subroutine ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBatch)
 ! Modified by F. Aquilante to compute separately the Opposite-Spin
 !                          contribution to the MP2 energy
 
-use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, LiMatij
+use ChoMP2, only: iFirstS, LiMatij, LiT1am, LnOcc, LnT1am
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 EOcc(*), EVir(*), Xaibj(LnT2am)
-integer LiT2am(8)
+implicit none
+integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
+real(kind=wp) :: EMP2, EOcc(*), EVir(*), Xaibj(LnT2am)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-integer a, b, aibj, biaj, abij, baij
+integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, iSymi, &
+                     iSymij, iSymj, Lai, Laj, Lbi, Lbj, Li, Lj
+real(kind=wp) :: Dnom, Eaibj, EMP2_sav, EOSMP2_sav, Taibj, Waibj, WREF_sav
 ! Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -62,7 +67,7 @@ if (iBatch == jBatch) then
                 baij = baij+nVir(iSymb)
                 Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
                 Taibj = Xaibj(abij)/Dnom
-                Waibj = 2.0d0*Xaibj(abij)
+                Waibj = Two*Xaibj(abij)
                 EOSMP2 = EOSMP2+Taibj*Waibj
                 Waibj = Waibj-Xaibj(baij)
                 Eaibj = Taibj*Waibj
@@ -95,7 +100,7 @@ if (iBatch == jBatch) then
                   baij = baij+nVir(iSymb)
                   Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
                   Taibj = Xaibj(abij)/Dnom
-                  Waibj = 2.0d0*Xaibj(abij)
+                  Waibj = Two*Xaibj(abij)
                   EOSMP2 = EOSMP2+Taibj*Waibj
                   Waibj = Waibj-Xaibj(baij)
                   Eaibj = Taibj*Waibj
@@ -131,7 +136,7 @@ if (iBatch == jBatch) then
                   biaj = LiT2am(iSymbi)+iTri(Lbi,Laj)
                   Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
                   Taibj = Xaibj(aibj)/Dnom
-                  Waibj = 2.0d0*Xaibj(aibj)
+                  Waibj = Two*Xaibj(aibj)
                   EOSMP2 = EOSMP2+Taibj*Waibj
                   Waibj = Waibj-Xaibj(biaj)
                   Eaibj = Taibj*Waibj
@@ -149,11 +154,11 @@ if (iBatch == jBatch) then
 else ! rectangular storage (ai|bj) with ai<bj.
 
   EMP2_sav = EMP2
-  EMP2 = 0.0d0
+  EMP2 = Zero
   WREF_sav = WREF
-  WREF = 0.0d0
+  WREF = Zero
   EOSMP2_sav = EOSMP2
-  EOSMP2 = 0.0d0
+  EOSMP2 = Zero
   do iSymbj=1,nSym
     iSymai = iSymbj
     do iSymj=1,nSym
@@ -176,7 +181,7 @@ else ! rectangular storage (ai|bj) with ai<bj.
                 biaj = LiT2am(iSymbi)+LnT1am(iSymbi,iBatch)*(Laj-1)+Lbi
                 Dnom = EVir(iVir(iSyma)+a)-EOcc(iOcc(iSymi)+i)+EVir(iVir(iSymb)+b)-EOcc(iOcc(iSymj)+j)
                 Taibj = Xaibj(aibj)/Dnom
-                Waibj = 2.0d0*Xaibj(aibj)
+                Waibj = Two*Xaibj(aibj)
                 EOSMP2 = EOSMP2+Taibj*Waibj
                 Waibj = Waibj-Xaibj(biaj)
                 Eaibj = Taibj*Waibj
@@ -189,12 +194,12 @@ else ! rectangular storage (ai|bj) with ai<bj.
       end do
     end do
   end do
-  EMP2 = EMP2_sav+2.0d0*EMP2
-  EOSMP2 = EOSMP2_sav+2.0d0*EOSMP2
-  WREF = WREF_sav+2.0d0*WREF
+  EMP2 = EMP2_sav+Two*EMP2
+  EOSMP2 = EOSMP2_sav+Two*EOSMP2
+  WREF = WREF_sav+Two*WREF
 
 end if
 
-EOSMP2 = 0.5d0*EOSMP2
+EOSMP2 = Half*EOSMP2
 
 end subroutine ChoMP2_Energy_Contr

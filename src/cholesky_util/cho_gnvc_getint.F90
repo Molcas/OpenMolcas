@@ -14,16 +14,18 @@ subroutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,mSym,mPass,mmShl,iPass
 ! Purpose: compute integrals for NumPass integral passes starting at
 !          pass iPass1.
 
-use ChoSwp, only: IndRSh, InfVec
-use stdalloc
+use ChoSwp, only: InfVec, IndRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 xInt(lInt)
-integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
+implicit none
+integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), mmShl, ListSP(mmShl), iPass1, NumPass, NumSP
+real(kind=wp) :: xInt(lInt)
 #include "cholesky.fh"
-character(len=15), parameter :: SecNam = 'Cho_GnVc_GetInt'
-integer, allocatable :: SPTmp(:)
-integer, external :: Cho_F2SP
+integer(kind=iwp) :: iAB, iPass, iPass2, iShAB, iSP, iSym, iV, iV1, iV2, jShAB, lSewInt
+integer(kind=iwp), allocatable :: SPTmp(:)
+character(len=*), parameter :: SecNam = 'Cho_GnVc_GetInt'
+integer(kind=iwp), external :: Cho_F2SP
 
 ! Initialization and input check.
 ! -------------------------------

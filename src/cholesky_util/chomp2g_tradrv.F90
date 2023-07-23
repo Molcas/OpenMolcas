@@ -19,18 +19,19 @@ subroutine ChoMP2g_TraDrv(irc,CMO,Diag,DoDiag)
 !          performed directly in reduced sets. This assumes
 !          that the MP2 program has been appropriately initialized.
 
-use stdalloc
-use ChoMP2g
+use ChoMP2g, only: nAdrOff, nMoAo, nMoType
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc
-real*8 CMO(*), Diag(*)
-logical DoDiag, DoDiagbak
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: CMO(*), Diag(*)
+logical(kind=iwp) :: DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-character(len=6), parameter :: ThisNm = 'TraDrv'
-character(len=14), parameter :: SecNam = 'ChoMP2g_TraDrv'
-real*8, allocatable :: COrb1(:), COrb2(:)
+integer(kind=iwp) :: i, iMoType, iSym, jMOType, l_COrb, nProdType
+logical(kind=iwp) :: DoDiagbak
+real(kind=wp), allocatable :: COrb1(:), COrb2(:)
 
 irc = 0
 

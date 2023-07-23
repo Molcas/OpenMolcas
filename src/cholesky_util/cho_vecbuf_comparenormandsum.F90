@@ -25,27 +25,18 @@ subroutine Cho_VecBuf_CompareNormAndSum(n,nVec,Vec,J1,iSym,irc)
 !    irc>0: number of vectors for which differences are detected.
 
 use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
 implicit none
-integer n
-integer nVec
-real*8 Vec(n,nVec)
-integer J1
-integer iSym
-integer irc
-real*8 dDot_, Cho_dSumElm
-external ddot_, Cho_dSumElm
-real*8 Tol
-parameter(Tol=1.0d-12)
-integer J0
-integer mVec
-integer J
-real*8 Nrm
-real*8 Sm
-integer k, l
-real*8 RefNorm
-real*8 RefSum
+integer(kind=iwp) :: n, nVec, J1, iSym, irc
+real(kind=wp) :: Vec(n,nVec)
+integer(kind=iwp) :: J, J0, mVec
+real(kind=wp) :: Nrm, Sm
+real(kind=wp), parameter :: Tol = 1.0e-12_wp
+real(kind=wp), external :: Cho_dSumElm, dDot_
 ! Statement functions
+real(kind=wp) :: RefNorm, RefSum
+integer(kind=iwp) :: k, l
 RefNorm(k,l) = CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1))
 RefSum(k,l) = CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1)+1)
 

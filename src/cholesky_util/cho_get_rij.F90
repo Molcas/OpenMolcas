@@ -46,42 +46,43 @@ subroutine CHO_get_Rij(irc,MO,nOcc,Rij,timings)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type, SBA_Type
-use Data_Structures, only: Allocate_DT, Deallocate_DT
-use Constants
-use stdalloc
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer irc
-type(DSBA_Type) MO
-integer nOcc(*)
-real*8 Rij(*)
-logical timings
-logical, parameter :: DoRead = .false.
-integer iOcc(8), iOcs(8), iSkip(8)
-real*8 tread(2), tintg(2), tmotr(2)
-character(len=11), parameter :: SECNAM = 'CHO_get_Rij'
+implicit none
+integer(kind=iwp) :: irc, nOcc(*)
+type(DSBA_Type) :: MO
+real(kind=wp) :: Rij(*)
+logical(kind=iwp) :: timings
 #include "cholesky.fh"
 #include "choorb.fh"
+integer(kind=iwp) :: i, iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, iSyma, IVEC2, iVrs, JNUM, jpR, JRED, &
+                     JRED1, JRED2, JSYM, jv, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, &
+                     nOcs, nRS, NUMV, nVec, nVrs
+real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, TCT1, TCT2, tintg(2), tmotr(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, &
+                 tread(2), TWI1, TWI2, TWR1, TWR2, TWT1, TWT2
 type(SBA_Type) :: Laq(1)
-real*8, allocatable, target :: Lab(:)
-real*8, pointer :: pLab(:,:,:) => null()
-real*8, pointer :: pLjj(:) => null()
+real(kind=wp), allocatable, target :: Lab(:)
+real(kind=wp), pointer :: pLab(:,:,:), pLjj(:)
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=*), parameter :: SECNAM = 'CHO_get_Rij'
 
 IREDC = -1
 
 JSYM = 1
 if (NumCho(JSYM) < 1) then
-  write(6,*) SECNAM//': No total symmetric vectors present'
+  write(u6,*) SECNAM//': No total symmetric vectors present'
   irc = 77
   return
 end if
 
 do kS=1,nSym
   if ((nOcc(kS) > nBas(kS)) .or. (nOcc(kS) < 0)) then
-    write(6,*) SECNAM//': Wrong nOcc in symmetry ',kS
-    write(6,*) 'nOcc(',kS,')= ',nOcc(kS)
-    write(6,*) 'nBas(',kS,')= ',nBas(kS)
+    write(u6,*) SECNAM//': Wrong nOcc in symmetry ',kS
+    write(u6,*) 'nOcc(',kS,')= ',nOcc(kS)
+    write(u6,*) 'nBas(',kS,')= ',nBas(kS)
     irc = 79
     return
   end if
@@ -90,9 +91,9 @@ end do
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
 do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = zero  !time for reading the vectors
-  tmotr(i) = zero  !time for MO transformation of the vectors
-  tintg(i) = zero  !time for computing the functional
+  tread(i) = Zero  !time for reading the vectors
+  tmotr(i) = Zero  !time for MO transformation of the vectors
+  tintg(i) = Zero  !time for computing the functional
 end do
 
 ! compute some offsets and other quantities
@@ -133,13 +134,13 @@ do JRED=JRED1,JRED2
   if (nVrs == 0) goto 999
 
   if (nVrs < 0) then
-    write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
+    write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
     call abend()
   end if
 
   call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
   if (irc /= 0) then
-    write(6,*) SECNAM//': cho_X_setred non-zero return code. rc= ',irc
+    write(u6,*) SECNAM//': cho_X_setred non-zero return code. rc= ',irc
     call abend()
   end if
 
@@ -154,9 +155,9 @@ do JRED=JRED1,JRED2
   nVec = min(LWORK/(Maj+Mneed),nVrs)
 
   if (nVec < 1) then
-    write(6,*) SECNAM//': Insufficient memory for batch'
-    write(6,*) 'LWORK= ',LWORK
-    write(6,*) 'min. mem. need= ',Maj+Mneed
+    write(u6,*) SECNAM//': Insufficient memory for batch'
+    write(u6,*) 'LWORK= ',LWORK
+    write(u6,*) 'min. mem. need= ',Maj+Mneed
     irc = 33
     call Abend()
     nBatch = -9999  ! dummy assignment
@@ -252,7 +253,7 @@ do JRED=JRED1,JRED2
 
           jpR = iOcs(kSym)+nOcc(kSym)*(lj-1)+1
 
-          call DGEMV_('N',nOcc(kSym),JNUM,ONE,pLab(:,:,lj),nOcc(kSym),pLjj,1,ONE,Rij(jpR),1)
+          call DGEMV_('N',nOcc(kSym),JNUM,One,pLab(:,:,lj),nOcc(kSym),pLjj,1,One,Rij(jpR),1)
 
         end do
 
@@ -261,8 +262,8 @@ do JRED=JRED1,JRED2
         tintg(2) = tintg(2)+(TWI2-TWI1)
 
       end if
-      pLjj => null()
-      pLab => null()
+      nullify(pLjj)
+      nullify(pLab)
 
     end do
 
@@ -287,16 +288,16 @@ TOTWALL = TOTWALL2-TOTWALL1
 ! Write out timing information
 if (timings) then
 
-  write(6,*)
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*) 'Timing from ',SECNAM,'           CPU      WALL  '
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'TRANSFORM VECTORS                         ',tmotr(1),tmotr(2)
-  write(6,'(2x,A26,2f10.2)') 'COMPUTE Rij = (ij|jj)                     ',tintg(1),tintg(2)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*) 'Timing from ',SECNAM,'           CPU      WALL  '
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'TRANSFORM VECTORS                         ',tmotr(1),tmotr(2)
+  write(u6,'(2x,A26,2f10.2)') 'COMPUTE Rij = (ij|jj)                     ',tintg(1),tintg(2)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

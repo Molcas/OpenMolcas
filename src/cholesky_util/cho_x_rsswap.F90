@@ -34,12 +34,13 @@
 
 subroutine Cho_X_RSSwap(irc,iRS,jRS)
 
-use ChoSwp, only: iiBstRSh, nnBstRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Definitions, only: iwp
 
 implicit none
-integer irc, iRS, jRS
+integer(kind=iwp) :: irc, iRS, jRS
 #include "cholesky.fh"
-integer N, iTemp
+integer(kind=iwp) :: N, iTemp
 
 if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then
   irc = 1

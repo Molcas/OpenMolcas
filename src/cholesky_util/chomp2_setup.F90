@@ -17,26 +17,26 @@ subroutine ChoMP2_Setup(irc)
 !
 ! Purpose: setup of Cholesky MP2 program.
 
-use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
-use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
-use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
-use ChoMP2, only: LnPQprod, LiPQprod
-use stdalloc
+use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, LiMatij, LiPQprod, LiT1am, LnBatOrb, LnMatij, LnOcc, LnPQprod, LnT1am, lUnit, &
+                  NumBatOrb, NumOcc
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character*12 SecNam
-parameter(SecNam='ChoMP2_Setup')
-character*2 Unt
-integer NumVec(8), nFrac(8)
-logical Accepted
-integer bsize, blast
-real*8 lX
-logical ChoMP2_Setup_MemChk
+integer(kind=iwp) :: blast, bsize, iSym, iSyma, iSymAl, iSymb, iSymi, iSymP, iSymQ, iTyp, l_X, lAvail, lWork, mBatch, nBlock, &
+                     nFrac(8), nPQProdx, nT1amx, NumVec(8)
+real(kind=wp) :: Byte, lX, xb, xbp, xM, xn
+logical(kind=iwp) :: Accepted, ChoMP2_Setup_MemChk
+character(len=2) :: Unt
+character(len=*), parameter :: SecNam = 'ChoMP2_Setup'
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 irc = 0
@@ -44,7 +44,7 @@ irc = 0
 ! Setup index arrays and counters.
 ! --------------------------------
 
-if ((DecoMP2 .or. DoDens) .and. (ThrMP2 <= 0.0d0)) call Get_dScalar('Cholesky Threshold',ThrMP2)
+if ((DecoMP2 .or. DoDens) .and. (ThrMP2 <= Zero)) call Get_dScalar('Cholesky Threshold',ThrMP2)
 
 call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
 iOcc(1) = 0
@@ -236,24 +236,24 @@ do while ((nBatch < mBatch) .and. (.not. Accepted))
     ! vectors for the PCG-algorithm.
     lAvail = lWork-nPQprodx-l_Mp2Lagr*9
   else if (Laplace .and. SOS_MP2) then
-    lX = 0.0d0
+    lX = Zero
     do iSym=1,nSym
       if ((nT1am(iSym) > 0) .and. (NumVec(iSym) > 0)) then
         bsize = min(Laplace_BlockSize,NumVec(iSym))
         nBlock = (NumVec(iSym)-1)/bsize+1
         blast = NumVec(iSym)-bsize*(nBlock-1)
-        xM = dble(NumVec(iSym))
-        xn = dble(nBlock)
-        xb = dble(bsize)
-        xbp = dble(blast)
-        lX = max(lX,0.5d0*(xM*(xM+1.0d0)+(xn-1.0d0)*xb*(xb-1.0d0)+xbp*(xbp-1.0d0)))
+        xM = real(NumVec(iSym),kind=wp)
+        xn = real(nBlock,kind=wp)
+        xb = real(bsize,kind=wp)
+        xbp = real(blast,kind=wp)
+        lX = max(lX,Half*(xM*(xM+One)+(xn-One)*xb*(xb-One)+xbp*(xbp-One)))
       end if
     end do
     l_X = int(lX)
     if (l_X < 0) then
       write(Lupri,'(A,A)') SecNam,': dimension of X matrix is negative!'
       write(Lupri,'(A,I15)') 'l_X=',l_X
-      if (lX > 0.0d0) then
+      if (lX > Zero) then
         write(LuPri,'(A)') 'This seems to be an integer overflow!'
         call Cho_RWord2Byte(lX,Byte,Unt)
         write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, lX=',lX,' words (',Byte,Unt,')'
@@ -284,7 +284,7 @@ do while ((nBatch < mBatch) .and. (.not. Accepted))
 end do
 
 if (.not. Accepted) then
-  write(6,*) 'Accepted = false'
+  write(u6,*) 'Accepted = false'
   irc = -1
   return
 end if

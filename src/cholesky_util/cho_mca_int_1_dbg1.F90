@@ -15,18 +15,22 @@ subroutine CHO_MCA_INT_1_DBG1(DIAG,IRED)
 !          diagonal *must* be the original diagonal stored
 !          in reduced set 1.
 
-use ChoArr, only: nBstSh, iSP2F
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-use Constants
-use stdalloc
+use ChoArr, only: iSP2F, nBstSh
+use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer IRED
-real*8 DIAG(*)
+implicit none
+real(kind=wp) :: DIAG(*)
+integer(kind=iwp) :: IRED
 #include "cholesky.fh"
-character(len=18), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG1'
-logical, parameter :: PRTINT = .false.
-real*8, allocatable :: xINT(:)
+integer(kind=iwp) :: IAB, IERR, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, JSHLAB, KAB, KABAB, LINT, LINT1, LSEW, NERR, NTST, &
+                     NUMAB
+real(kind=wp) :: DIFF
+real(kind=wp), allocatable :: xINT(:)
+logical(kind=iwp), parameter :: PRTINT = .false.
+character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG1'
 
 write(LUPRI,*)
 write(LUPRI,*)
@@ -104,7 +108,7 @@ do ISHLAB=1,NNSHL
 
         KABAB = NUMAB*(IAB-1)+IAB
         DIFF = DIAG(JAB)-xINT(KABAB)
-        if (abs(DIFF) > 1.0D-14) then
+        if (abs(DIFF) > 1.0e-14_wp) then
           write(LUPRI,*) SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',ISHLA,ISHLB,JAB,IAB,DIFF
           IERR = IERR+1
         end if
@@ -158,7 +162,7 @@ do ISHLAB=1,NNSHL
 
         KABAB = NUMAB*(IAB-1)+IAB
         DIFF = DIAG(KAB)-xINT(KABAB)
-        if (abs(DIFF) > 1.0D-14) then
+        if (abs(DIFF) > 1.0e-14_wp) then
           write(LUPRI,*) SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',ISHLA,ISHLB,JAB,IAB,DIFF
           IERR = IERR+1
         end if

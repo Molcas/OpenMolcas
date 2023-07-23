@@ -13,15 +13,13 @@
 
 subroutine Cho_PFake_GetVec(Vec,lVec,IDV,lIDV,InfV,iSym,nRead,iRedC)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lVec, lIDV
-real*8 Vec(lVec)
-integer IDV(lIDV)
-integer InfV(2,*)
-integer iSym, nRead, iRedC
-character*16 SecNam
-parameter(SecNam='Cho_PFake_GetVec')
-integer ipV, Mem, iVec, n, m
+integer(kind=iwp) :: lVec, lIDV, IDV(lIDV), InfV(2,*), iSym, nRead, iRedC
+real(kind=wp) :: Vec(lVec)
+integer(kind=iwp) :: ipV, iVec, m, Mem, n
+character(len=*), parameter :: SecNam = 'Cho_PFake_GetVec'
 
 nRead = 0
 ipV = 1

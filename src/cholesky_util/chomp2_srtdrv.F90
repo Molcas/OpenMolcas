@@ -23,18 +23,19 @@ subroutine ChoMP2_SrtDrv(irc,DelOrig)
 !                  in fact been deleted.
 
 use ChoMP2, only: LnT1am, lUnit
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc
-logical DelOrig
+implicit none
+integer(kind=iwp) :: irc
+logical(kind=iwp) :: DelOrig
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-character(len=6), parameter :: ThisNm = 'SrtDrv'
-character(len=13), parameter :: SecNam = 'ChoMP2_SrtDrv'
-integer lWrk
-real*8, allocatable :: Wrk(:)
+integer(kind=iwp) :: iAdr, iBat, iBatch, iClos, iOpt, iSym, iTyp, iVec1, kChoMO, kSort, lChoMO, LnT1amx, lSort, lTot, lWrk, &
+                     MinMem, nBat, nSrtVec, NumV, NumVec
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'ChoMP2_SrtDrv'
 
 irc = 0
 if (nBatch < 1) return

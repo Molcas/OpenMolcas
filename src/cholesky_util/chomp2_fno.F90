@@ -15,18 +15,17 @@ subroutine ChoMP2_FNO(irc,D_ab,D_ii,EOcc,EVir,Sorted,DelOrig)
 !
 ! F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc
-real*8 D_ab(*), D_ii(*)
-real*8 EOcc(*), EVir(*)
-logical Sorted, DelOrig
+integer(kind=iwp) :: irc
+real(kind=wp) :: D_ab(*), D_ii(*), EOcc(*), EVir(*)
+logical(kind=iwp) :: Sorted, DelOrig
 #include "chomp2.fh"
-character(len=3), parameter :: ThisNm = 'FNO'
-character(len=10), parameter :: SecNam = 'ChoMP2_FNO'
-integer lWrk
-real*8, allocatable :: Wrk(:)
+integer(kind=iwp) :: lWrk
+real(kind=wp), allocatable :: Wrk(:)
+character(len=*), parameter :: SecNam = 'ChoMP2_FNO'
 
 irc = 0
 
@@ -36,20 +35,20 @@ call mma_allocate(Wrk,lWrk,Label='Wrk')
 if (Sorted) then
   call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
+    write(u6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
     Go To 1 ! exit
   end if
 else
   if (nBatch == 1) then
     call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
     if (irc /= 0) then
-      write(6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
+      write(u6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
       Go To 1 ! exit
     end if
   else
     call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
     if (irc /= 0) then
-      write(6,*) SecNam,': ChoMP2_fno_Org returned ',irc
+      write(u6,*) SecNam,': ChoMP2_fno_Org returned ',irc
       Go To 1 ! exit
     end if
   end if

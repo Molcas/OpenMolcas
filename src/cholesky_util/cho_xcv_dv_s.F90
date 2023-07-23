@@ -14,31 +14,19 @@
 
 subroutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
 
-use ChoSwp, only: nnBstRSh, iiBstRSh
-use stdalloc
+use ChoSwp, only: iiBstRSh, nnBstRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer nSP_Batch
-integer SP_BatchDim(nSP_Batch)
-integer n_mySP
-integer id_mySP(n_mySP)
+integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*12 SecNam
-parameter(SecNam='Cho_XCV_DV_S')
-real*8 X0, X1, Y0, Y1
-integer iSym, iSP, iSP1, iSP2, J1, nDim
-integer ip_Mem, l_Mem
-integer ip_V, ip_T
-integer max_vector_dim, max_block_dim
-integer nVec_per_batch, nVec_this_batch
-integer iBatch, nBatch
-integer kV, kT, kOffV, kOffT
-integer lTot, iAdr, iAdr0
-integer iSP_Batch, nSP_this_batch
-integer i, j
-real*8, allocatable :: DVSVEC(:)
+integer(kind=iwp) :: i, iAdr, iAdr0, iBatch, ip_Mem, ip_T, ip_V, iSP, iSP1, iSP2, iSP_Batch, iSym, j, J1, kOffT, kOffV, kT, kV, &
+                     l_Mem, lTot, max_block_dim, max_vector_dim, nBatch, nDim, nSP_this_batch, nVec_per_batch, nVec_this_batch
+real(kind=wp) :: X0, X1, Y0, Y1
+real(kind=wp), allocatable :: DVSVEC(:)
+character(len=*), parameter :: SecNam = 'Cho_XCV_DV_S'
 
 ! Init return code
 irc = 0

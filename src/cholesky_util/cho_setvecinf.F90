@@ -14,11 +14,12 @@ subroutine CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
 ! Purpose: set info for vector IVEC of sym. ISYM.
 
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IVEC, ISYM, IAB, IPASS, ILOC
 #include "cholesky.fh"
-character*13 SECNAM
-parameter(SECNAM='CHO_SETVECINF')
+character(len=*), parameter :: SECNAM = 'CHO_SETVECINF'
 
 if (IVEC > MAXVEC) then
   write(LUPRI,*) SECNAM,': too many Cholesky vectors!'

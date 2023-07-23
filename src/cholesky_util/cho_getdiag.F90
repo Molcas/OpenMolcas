@@ -15,24 +15,24 @@ subroutine CHO_GETDIAG(LCONV)
 !          points to the diagonal and flag LCONV tells
 !          if the diagonal is converged.
 
-use ChoArr, only: iSP2F, MySP, n_MySP, iSimRI
-use ChoSwp, only: IndRSh, IndRSh_Hidden
-use ChoSwp, only: IndRed, IndRed_Hidden
-use ChoSwp, only: Diag, Diag_Hidden
-use stdalloc
+use ChoArr, only: iSimRI, iSP2F, MySP, n_MySP
+use ChoSwp, only: Diag, Diag_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical LCONV
+implicit none
+logical(kind=iwp) :: LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_GETDIAG')
-logical LOCDBG, DODUMMY, SYNC
-parameter(LOCDBG=.false.)
-integer ISYLST(8)
-integer, allocatable :: KIBUF(:)
-real*8, allocatable :: KBUF(:), KSCR(:), KWRK(:)
+integer(kind=iwp) :: IOPT, IPRTRED, ISP, ISYLST(8), ISYM, l_MySP, LMAX, LSCR, LWRK, NBIN, NDUMP, NEEDI, NEEDR, NERR
+real(kind=wp) :: BIN1, STEP
+logical(kind=iwp) :: DODUMMY, SYNC
+integer(kind=iwp), allocatable :: KIBUF(:)
+real(kind=wp), allocatable :: KBUF(:), KSCR(:), KWRK(:)
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GETDIAG'
 
 if (RSTDIA) then
 
@@ -170,7 +170,7 @@ call CHO_IODIAG(Diag,IOPT)
 ! -------------------------------------------------------
 
 DODUMMY = .not. ((CHO_IOVEC == 1) .or. (CHO_IOVEC == 2) .or. (CHO_IOVEC == 3) .or. (CHO_IOVEC == 4) .or. &
-                 ((FRAC_CHVBUF > 0.0d0) .and. (FRAC_CHVBUF < 1.0d0)))
+                 ((FRAC_CHVBUF > Zero) .and. (FRAC_CHVBUF < One)))
 call CHO_ALLO_ISCR(DODUMMY)
 
 ! Initialize reduced set dimension(s) used for reading vectors.
@@ -206,8 +206,8 @@ if (RSTCHO) then
   IPRTRED = 2  ! print flag for cho_prtred
 else
   if (IPRINT >= INF_PASS) then
-    BIN1 = 1.0d2
-    STEP = 1.0D-1
+    BIN1 = 1.0e2_wp
+    STEP = 1.0e-1_wp
     NBIN = 18
     SYNC = .false.
     call CHO_P_ANADIA(Diag,SYNC,BIN1,STEP,NBIN,.true.)

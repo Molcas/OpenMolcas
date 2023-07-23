@@ -16,22 +16,24 @@ subroutine CHO_DECDRV(DIAG)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfRed
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+implicit none
+real(kind=wp) ::  Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-integer ISYLST(8)
-real*8 DIAMAX_SIMP(8)
-character(len=10), parameter :: SECNAM = 'CHO_DECDRV'
-character*7 FILSEL
-character*20 STRING
-logical CONV, SYNC
-logical, parameter :: LOCDBG = .false.
-integer, external :: CHO_P_GETMPASS
-integer, allocatable :: LSTQSP(:), KISYSH(:)
-real*8, allocatable :: KDIASH(:), KWRK(:)
+integer(kind=iwp) :: I, IPASS, IPASS_PREV, IRC, IRED, ISYLST(8), iSym, JPASS, KRED, LWRK, MPASS, NBIN, nDim_Now, NGSP, NPOTSH, NUM
+real(kind=wp) :: BIN1, DIAMAX_SIMP(8), STEP, TCPU1, TCPU2, TLDEC, TLDEC1, TLDEC2, TLINT, TLINT1, TLINT2, TLTOT, TLTOT1, TLTOT2, &
+                 TWALL1, TWALL2, WLDEC, WLDEC1, WLDEC2, WLINT, WLINT1, WLINT2, WLTOT, WLTOT1, WLTOT2
+logical(kind=iwp) :: CONV, SYNC
+character(len=20) :: STRING
+character(len=7) :: FILSEL
+integer(kind=iwp), allocatable :: KISYSH(:), LSTQSP(:)
+real(kind=wp), allocatable :: KDIASH(:), KWRK(:)
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_DECDRV'
+integer(kind=iwp), external :: CHO_P_GETMPASS
 
 ! Start timing.
 ! -------------
@@ -218,8 +220,8 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
   ! -----------------
 
   if (IPRINT >= INF_PASS) then
-    BIN1 = 1.0d2
-    STEP = 1.0D-1
+    BIN1 = 1.0e2_wp
+    STEP = 1.0e-1_wp
     NBIN = 18
     SYNC = .false.
     call CHO_P_ANADIA(DIAG,SYNC,BIN1,STEP,NBIN,.false.)

@@ -43,11 +43,13 @@
 
 subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
-real*8 Scr(lScr)
+integer(kind=iwp) :: lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
+real(kind=wp) :: Scr(lScr)
 #include "cholesky.fh"
-integer l_jVec2
+integer(kind=iwp) :: l_jVec2
 
 if ((iSym < 1) .or. (iSym > 8)) then
   jNum = 0

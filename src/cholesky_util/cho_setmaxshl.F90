@@ -15,14 +15,15 @@ subroutine CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
 
 use ChoArr, only: iSP2F, iAtomShl
 use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-use Constants
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 DIAG(*), DIASH(*)
-integer ISYSH(*)
+implicit none
+real(kind=wp) :: DIAG(*), DIASH(*)
+integer(kind=iwp) :: ISYSH(*), IRED
 #include "cholesky.fh"
-character*13 SECNAM
-parameter(SECNAM='CHO_SETMAXSHL')
+integer(kind=iwp) :: IAB, IAB1, IAB2, ISAB, ISHLA, ISHLAB, ISHLB, ISYMAB, JAB, JAB1, JAB2
+character(len=*), parameter ::SECNAM = 'CHO_SETMAXSHL'
 
 ! Initialize the largest diagonal in each shell pair.
 ! ---------------------------------------------------
@@ -73,7 +74,7 @@ if (CHO_1CENTER .and. (.not. CHO_NO2CENTER)) then
   do ISAB=1,NNSHL
     ISHLAB = ISP2F(ISAB)
     call CHO_INVPCK(ISHLAB,ISHLA,ISHLB,.true.)
-    if (IATOMSHL(ISHLA) /= IATOMSHL(ISHLB)) DIASH(ISAB) = 0.0d0
+    if (IATOMSHL(ISHLA) /= IATOMSHL(ISHLB)) DIASH(ISAB) = Zero
   end do
 end if
 

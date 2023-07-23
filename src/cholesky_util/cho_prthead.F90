@@ -14,18 +14,19 @@ subroutine CHO_PRTHEAD(SKIPH)
 ! Purpose: print Cholesky header.
 
 use ChoSubScr, only: Cho_SScreen, SSTau
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical SKIPH
+implicit none
+logical(kind=iwp) :: SKIPH
 #include "cholesky.fh"
 #include "choprint.fh"
-parameter(NADRMODE=2,NALG=6)
-character*12 ALGORITHM(0:NALG)
-character*13 ADRMODE(0:NADRMODE)
-character*15 USED(2)
-data ALGORITHM/'     unknown','    one-step','    two-step','       naive','par one-step','par two-step','   par naive'/
-data ADRMODE/'      unknown','   word addr.','  direct acc.'/
-data USED/'(screening off)','(screening on) '/
+integer(kind=iwp) :: I, IADRMODE, IALG, IUSE
+real(kind=wp) :: X1, X2, XF, XF2
+integer(kind=iwp), parameter :: NADRMODE = 2, NALG = 6
+character(len=*), parameter :: ADRMODE(0:NADRMODE) = ['      unknown','   word addr.','  direct acc.'], &
+                               ALGORITHM(0:NALG) = ['     unknown','    one-step','    two-step','       naive','par one-step', &
+                                                    'par two-step','   par naive'], &
+                               USED(2) = ['(screening off)','(screening on) ']
 
 if (LUPRI < 1) call CHO_QUIT('LUPRI undefined in Cholesky decomposition',101)
 
@@ -91,11 +92,11 @@ if (IPRINT >= INF_INIT) then
   write(LUPRI,'(A,I12)') 'Min. #qualified required for decomposition: ',MINQUAL
   write(LUPRI,'(A,I12)') 'Max. #qualified per symmetry              : ',MAXQUAL
   if (N2_QUAL == 0) then
-    XF = -9.99999999d15
+    XF = -9.99999999e15_wp
   else
-    X1 = dble(N1_QUAL)
-    X2 = dble(N2_QUAL)
-    XF = 1.0d2*X1/X2
+    X1 = real(N1_QUAL,kind=wp)
+    X2 = real(N2_QUAL,kind=wp)
+    XF = 1.0e2_wp*X1/X2
   end if
   write(LUPRI,'(A,5X,F7.4,A)') 'Max. memory fraction for qualified columns: ',XF,'%'
   if (MXSHPR == 0) then
@@ -123,7 +124,7 @@ if (IPRINT >= INF_INIT) then
   end if
   IADRMODE = max(min(CHO_ADRVEC,NADRMODE),0)
   write(LUPRI,'(A,A13)') 'Address mode for Cholesky vector I/O      : ',ADRMODE(IADRMODE)
-  XF2 = 1.0d2*FRAC_CHVBUF
+  XF2 = 1.0e2_wp*FRAC_CHVBUF
   write(LUPRI,'(A,5X,F7.4,A)') 'Memory fraction used as vector buffer     : ',XF2,'%'
   if (CHO_SSCREEN) write(LUPRI,'(A,1P,D12.4)') 'Screening threshold for vector subtraction: ',SSTAU
   if (CHO_DECALG == 5) write(LUPRI,'(A,I12)') 'Block size (blocked Z vector array)       : ',BLOCKSIZE

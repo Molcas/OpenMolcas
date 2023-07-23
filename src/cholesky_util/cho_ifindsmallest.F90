@@ -11,16 +11,18 @@
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-integer function Cho_iFindSmallest(iVec,n)
+function Cho_iFindSmallest(iVec,n)
 !
 ! Thomas Bondo Pedersen, June 2007.
 !
 ! Return index of smallest element in array iVec.
 
+use Definitions, only: iwp
+
 implicit none
-integer n
-integer iVec(n)
-integer i, imin
+integer(kind=iwp) :: Cho_iFindSmallest
+integer(kind=iwp) :: n, iVec(n)
+integer(kind=iwp) :: i, imin
 
 if (n < 1) then
   imin = 0

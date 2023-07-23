@@ -21,18 +21,20 @@ subroutine ChoMP2_Read_Batch(LnPQRSprod,LiPQRSprod,Wrk,lWrk,iBatch,jBatch,kXpqrs
 !          jBatch=iBatch).
 
 use ChoMP2, only: LnPQprod
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 Wrk(lWrk)
+implicit none
+integer(kind=iwp) :: LnPQRSprod,LiPQRSprod(8), lWrk, iBatch, jBatch, kXpqrs
+real(kind=wp) :: Wrk(lWrk)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character*15 ThisNm
-character*25 SecNam
-parameter(SecNam='ChoMP2_Read_Batch',ThisNm='Read_Batch')
-integer nEnrVec(8), LnPQRSprod, LiPQRSprod(8)
-real*8 X(0:1)
-data X/0.0d0,1.0d0/
+integer(kind=iwp) :: iAdr, iBat, iOpt, iSym, iTyp, iVec, iVec1, jVec, kEnd0, kEnd1, kEnd2, kOff, kRead, kVai, kVbj, kXint, lTot, &
+                     lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec
+real(kind=wp) :: Fac
+real(kind=wp), parameter :: X(0:1) = [Zero,One]
+character(len=*), parameter :: SecNam = 'ChoMP2_Read_Batch'
 
 ! Set number and type of vectors.
 ! -------------------------------
@@ -55,7 +57,7 @@ if (lWrk0 < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 ! --------------------------------------------------------
 
 if (ChoAlg == 2) then
-  write(6,*) 'No support for Cholesky algorithm 2'
+  write(u6,*) 'No support for Cholesky algorithm 2'
 else
 
   ! Loop over Cholesky vector symmetries.
@@ -157,9 +159,9 @@ else
         Fac = X(min((iBat-1),1))
         kXint = kXpqrs+LiPQRSprod(iSym)
         if (iBatch == jBatch) then
-          call dGeMM_Tri('N','T',Nai,Nai,NumV,1.0d0,Wrk(kVai),Nai,Wrk(kVai),Nai,Fac,Wrk(kXint),Nai)
+          call dGeMM_Tri('N','T',Nai,Nai,NumV,One,Wrk(kVai),Nai,Wrk(kVai),Nai,Fac,Wrk(kXint),Nai)
         else
-          call DGEMM_('N','T',Nai,Nbj,NumV,1.0d0,Wrk(kVai),Nai,Wrk(kVbj),Nbj,Fac,Wrk(kXint),Nai)
+          call DGEMM_('N','T',Nai,Nbj,NumV,One,Wrk(kVai),Nai,Wrk(kVbj),Nbj,Fac,Wrk(kXint),Nai)
         end if
       end do           ! Cholesky vector batch
 

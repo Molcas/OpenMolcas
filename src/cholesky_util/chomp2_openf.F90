@@ -22,13 +22,15 @@ subroutine ChoMP2_OpenF(iOpt,iTyp,iSym)
 !          iTyp=1: transformed Cholesky vectors.
 !          iTyp=2: vectors from (ai|bj) decomposition.
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iOpt, iTyp, iSym
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-character*12 SecNam
-parameter(SecNam='ChoMP2_OpenF')
-character*3 BaseNm
-character*4 FullNm
+character(len=4) :: FullNm
+character(len=3) :: BaseNm
+character(len=*), parameter :: SecNam = 'ChoMP2_OpenF'
 
 if ((iTyp < 1) .or. (iTyp > nTypF)) call ChoMP2_Quit(SecNam,'iTyp error',' ')
 

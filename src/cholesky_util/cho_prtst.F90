@@ -14,21 +14,21 @@
 
 subroutine Cho_PrtSt(Vec,lVec,Stat)
 
-implicit none
-integer lVec
-real*8 Vec(lVec)
-real*8 Stat(7)
-real*8 dDot_
-external ddot_
+use Definitions, only: wp, iwp, u6
 
-write(6,'(/,1X,A,I15)') 'No. of elements: ',lVec
-write(6,'(1X,A,1P,D15.6)') 'Frobenius norm : ',sqrt(dDot_(lVec,Vec,1,Vec,1))
-write(6,'(1X,A,1P,D15.6)') 'Minimum value  : ',Stat(3)
-write(6,'(1X,A,1P,D15.6)') 'Maximum value  : ',Stat(4)
-write(6,'(1X,A,1P,D15.6)') 'Mean value     : ',Stat(1)
-write(6,'(1X,A,1P,D15.6)') 'Mean abs. value: ',Stat(2)
-write(6,'(1X,A,1P,D15.6)') 'Max. abs. value: ',Stat(5)
-write(6,'(1X,A,1P,D15.6)') 'Biased variance: ',Stat(6)
-write(6,'(1X,A,1P,D15.6,A)') 'Standard dev.  : ',Stat(7),' (unbiased variance)'
+implicit none
+integer(kind=iwp) :: lVec
+real(kind=wp) :: Vec(lVec), Stat(7)
+real(kind=wp), external :: dDot_
+
+write(u6,'(/,1X,A,I15)') 'No. of elements: ',lVec
+write(u6,'(1X,A,1P,D15.6)') 'Frobenius norm : ',sqrt(dDot_(lVec,Vec,1,Vec,1))
+write(u6,'(1X,A,1P,D15.6)') 'Minimum value  : ',Stat(3)
+write(u6,'(1X,A,1P,D15.6)') 'Maximum value  : ',Stat(4)
+write(u6,'(1X,A,1P,D15.6)') 'Mean value     : ',Stat(1)
+write(u6,'(1X,A,1P,D15.6)') 'Mean abs. value: ',Stat(2)
+write(u6,'(1X,A,1P,D15.6)') 'Max. abs. value: ',Stat(5)
+write(u6,'(1X,A,1P,D15.6)') 'Biased variance: ',Stat(6)
+write(u6,'(1X,A,1P,D15.6,A)') 'Standard dev.  : ',Stat(7),' (unbiased variance)'
 
 end subroutine Cho_PrtSt

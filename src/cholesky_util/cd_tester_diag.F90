@@ -13,10 +13,12 @@
 
 subroutine CD_Tester_Diag(PDM,Diag,n)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 PDM(n*(n+1)/2), Diag(n)
-integer i, ii
+integer(kind=iwp) :: n
+real(kind=wp) :: PDM(n*(n+1)/2), Diag(n)
+integer(kind=iwp) :: i, ii
 
 do i=1,n
   ii = i*(i-3)/2+2*i

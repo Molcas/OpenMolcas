@@ -19,17 +19,19 @@ subroutine Cho_CompVec(Diag,xInt,VecK,QDiag,Wrk,lWrk,iSym,iPass)
 !          routine. QDiag contains the qualified diagonals.
 
 use ChoSwp, only: IndRed
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
+implicit none
+integer(kind=iwp) :: lWrk, iSym, iPass
+real(kind=wp) :: Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*11 SecNam
-parameter(SecNam='Cho_CompVec')
-logical LocDbg
-parameter(LocDbg=.false.)
-integer Cho_P_IndxParentDiag
-external Cho_P_IndxParentDiag
+integer(kind=iwp) :: i, iABG, iVec, iVecT, j, jAB, jAB1, kInt, kK0, kOff, kOff0, nConv, nErr, nNeg, nNegT
+real(kind=wp) :: Fac, OlDiag, QDmax, Tol, xC, xM, yM, zM
+logical(kind=iwp), parameter :: LocDbg = .false.
+character(len=*), parameter :: SecNam = 'Cho_CompVec'
+integer(kind=iwp), external :: Cho_P_IndxParentDiag
 
 ! Subtract previous vectors.
 ! --------------------------
@@ -72,7 +74,7 @@ do i=1,nQual(iSym)
   ! ---------------
 
   xC = QDiag(i)
-  Fac = 1.0d0/sqrt(abs(xC))
+  Fac = One/sqrt(abs(xC))
   kOff = kOff0+1
   call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
 
@@ -81,7 +83,7 @@ do i=1,nQual(iSym)
 
   do jAB=1,nnBstR(iSym,2)
     jAB1 = IndRed(iiBstR(iSym,2)+jAB,2)
-    if (Diag(jAB1) == 0.0d0) xInt(kOff0+jAB) = 0.0d0
+    if (Diag(jAB1) == Zero) xInt(kOff0+jAB) = Zero
   end do
 
   ! Update diagonal.
@@ -100,7 +102,7 @@ do i=1,nQual(iSym)
     QDiag(j) = QDiag(j)-VecK(kK0+j)**2
   end do
   OlDiag = QDiag(i)
-  QDiag(i) = 0.0d0
+  QDiag(i) = Zero
 
   ! Get index (1st reduced set) of the parent diagonal for this
   ! vector (global index!).

@@ -11,8 +11,10 @@
 
 subroutine Cho_Inp_SetDecAlg(ForceParallel)
 
+use Definitions, only: iwp
+
 implicit none
-logical ForceParallel
+logical(kind=iwp) :: ForceParallel
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 

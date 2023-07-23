@@ -13,9 +13,11 @@ subroutine Cho_X_Init_Par(irc,isDF)
 !
 ! Purpose: setup for parallel Cholesky/DF.
 
+use Definitions, only: iwp
+
 implicit none
-integer irc
-logical isDF
+integer(kind=iwp) :: irc
+logical(kind=iwp) :: isDF
 
 if (isDF) then
   call Cho_X_Init_Par_DF(irc)

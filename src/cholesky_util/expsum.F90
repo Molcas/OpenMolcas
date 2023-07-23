@@ -26,10 +26,17 @@ function ExpSum(X,K,Coeff)
 !----------------------------------------------------------------------*
 !======================================================================*
 
-implicit real*8(A-H,O-Z)
-real*8 Coeff(40)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-Dum = 0.0D+00
+implicit none
+real(kind=wp) :: ExpSum
+real(kind=wp) :: X, Coeff(40)
+integer(kind=iwp) :: K
+integer(kind=iwp) :: I, Idx
+real(kind=wp) :: Alpha, Dum, Omega
+
+Dum = Zero
 do I=1,K
   Idx = 2*I-1
   Omega = Coeff(Idx)

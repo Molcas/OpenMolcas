@@ -31,24 +31,19 @@ subroutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(3) = rms error
 
 use ChoMP2_dec, only: iOption_MP2CD
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc, iSym
-integer nDim, nCol
-real*8 Col(nDim,nCol)
-integer lWrk
-real*8 Wrk(lWrk)
-real*8 ErrStat(3)
-character*6 ThisNm
-character*13 SecNam
-parameter(SecNam='ChoMP2_DecChk',ThisNm='DecChk')
+integer(kind=iwp) :: irc, iSym, nDim, nCol, lWrk
+real(kind=wp) :: Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
+character(len=*), parameter :: SecNam = 'ChoMP2_DecChk'
 
 if (iOption_MP2CD == 1) then ! (ai|bj) int
   call ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 else if (iOption_MP2CD == 2) then ! MP2 amp
   call ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 else
-  write(6,*) SecNam,': WARNING! Unknown option, iOption_MP2CD = ',iOption_MP2CD
+  write(u6,*) SecNam,': WARNING! Unknown option, iOption_MP2CD = ',iOption_MP2CD
   irc = -123456
 end if
 

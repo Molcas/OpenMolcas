@@ -25,17 +25,19 @@ subroutine CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED,DOREAD)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 SCR(LSCR)
-logical DOREAD
+implicit none
+integer(kind=iwp) :: LSCR, JVEC1, IVEC2, ISYM, JNUM, IREDC, MUSED
+real(kind=wp) :: SCR(LSCR)
+logical(kind=iwp) :: DOREAD
 #include "cholesky.fh"
-external ddot_
-character*10 SECNAM
-parameter(SECNAM='CHO_VECRD1')
-logical LOCDBG
-parameter(LOCDBG=.false.)
-logical FULL
+integer(kind=iwp) :: IADR, ILOC, IOPT, IVEC, JADR, JRED, JVEC, KOFFV, KSCR, LENR, LTOT, NTST
+real(kind=wp) :: XNRM
+logical(kind=iwp) :: FULL
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_VECRD1'
+real(kind=wp), external :: ddot_
 
 JRED = 0  ! fix compiler warning
 

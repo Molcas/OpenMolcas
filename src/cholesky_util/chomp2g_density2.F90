@@ -19,19 +19,29 @@ subroutine ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
 !          contributions to the 1-pdm.
 
 use ChoMP2, only: MP2D, MP2W
-use ChoMP2g
+use ChoMP2g, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, LuVVec, &
+                   LuWVec, nMoMo
+use Constants, only: Zero, One, Two, Three, Four, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc, lWrk
+real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character Fname*5
-real*8 Wrk(lWrk), EOcc(*), EVir(*), EFro(*)
-integer kCGVec(9), kEndCGVec(9), kDiag(2), nOccAll(8)
-logical Done
-character*8 ThisNm
-character*16 SecNam
-parameter(SecNam='ChoMP2g_Density2',ThisNm='Density2')
+integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, iOff, iOff1, iOff2, iOffL, iOpt, iOrb, iOrbI, &
+                     iSeed, iSym, iSym1, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, &
+                     iVecVO, iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, &
+                     kEndLij, kEndLiK, kEndLip, kEndLJK, kEndLKa, kEndLKi, kEndU, kEndVip, kLab, kLfa, kLia, kLij, kLiK, kLip, &
+                     kLJK, kLKa, kLKi, kU, kVip, kWij2, lCGFVec, lCGOVec, lCGVec, lDiag, lFDiag, lLab, lLfa, lLia, lLij, lLiK, &
+                     lLip, lLJK, lLKa, lLKi, lScr, lTot, lU, lVip, lWij2, maxvalue, nA, nBatL, nCGvec, nI, nIter, nOccAll(8), &
+                     NumVec, nVec
+real(kind=wp) :: Ea, Eb, Ei, Ej, Eps, Res, term
+logical(kind=iwp) :: Done
+character(len=5) :: Fname
+character(len=*), parameter :: SecNam = 'ChoMP2g_Density2'
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Do not delete vectors after use.
 ! --------------------------------
@@ -47,7 +57,7 @@ iVecOF = 4
 
 ! Setup the conjugate gradient procedure
 ! --------------------------------------
-Eps = 1D-8
+Eps = 1.0e-8_wp
 Done = .false.
 nIter = 100
 
@@ -115,13 +125,13 @@ do iBat=1,nBatL
   do iVec1=1,NumVec
     do i=1,nMoMo(iSym,iVecFV)
       iOffL = (iVec1-1)*nMoMo(iSym,iVecFV)
-      Wrk(kDiag(1)+i-1) = Wrk(kDiag(1)+i-1)+3.0d0*Wrk(kLfa+i-1+iOffL)**2
+      Wrk(kDiag(1)+i-1) = Wrk(kDiag(1)+i-1)+Three*Wrk(kLfa+i-1+iOffL)**2
     end do
   end do
   do iVec1=1,NumVec
     do i=1,nMoMo(iSym,iVecOV)
       iOffL = (iVec1-1)*nMoMo(iSym,iVecOV)
-      Wrk(kDiag(2)+i-1) = Wrk(kDiag(2)+i-1)+3.0d0*Wrk(kLia+i-1+iOffL)**2
+      Wrk(kDiag(2)+i-1) = Wrk(kDiag(2)+i-1)+Three*Wrk(kLia+i-1+iOffL)**2
     end do
   end do
 
@@ -132,18 +142,18 @@ do iBat=1,nBatL
     do iI=1,nI
       Ei = EFro(iFro(iSym1)+iI)
       do iA=1,nA
-        index = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index1
         Ea = EVir(iVir(iSym1)+iA)
-        Wrk(kDiag(1)+index) = Wrk(kDiag(1)+index)+Ea-Ei
+        Wrk(kDiag(1)+indx) = Wrk(kDiag(1)+indx)+Ea-Ei
       end do
     end do
     nI = nOcc(iSym1)
     do iI=1,nI
       Ei = EOcc(iOcc(iSym1)+iI)
       do iA=1,nA
-        index = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index1
         Ea = EVir(iVir(iSym1)+iA)
-        Wrk(kDiag(2)+index) = Wrk(kDiag(2)+index)+Ea-Ei
+        Wrk(kDiag(2)+indx) = Wrk(kDiag(2)+indx)+Ea-Ei
       end do
     end do
     index1 = index1+nOcc(iSym1)*nVir(iSym1)
@@ -231,12 +241,12 @@ do iIter=1,nIter
 
     ! Construct The Frozen part of A*P
     ! --------------------------------
-    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'fvvf',iSym,nVec,Wrk(kCGVec(9)),lCGFVec,Wrk(kCGVec(5)),lCGFVec,1.0d0)
-    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'ovvf',iSym,nVec,Wrk(kCGVec(9)),lCGFVec,Wrk(kCGVec(5)+iOff),lCGOVec,1.0d0)
+    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'fvvf',iSym,nVec,Wrk(kCGVec(9)),lCGFVec,Wrk(kCGVec(5)),lCGFVec,One)
+    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'ovvf',iSym,nVec,Wrk(kCGVec(9)),lCGFVec,Wrk(kCGVec(5)+iOff),lCGOVec,One)
     ! Construct The Occupied part of A*P
     ! ----------------------------------
-    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'fvvo',iSym,nVec,Wrk(kCGVec(9)+iOff),lCGOVec,Wrk(kCGVec(5)),lCGFVec,1.0d0)
-    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'ovvo',iSym,nVec,Wrk(kCGVec(9)+iOff),lCGOVec,Wrk(kCGVec(5)+iOff),lCGOVec,1.0d0)
+    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'fvvo',iSym,nVec,Wrk(kCGVec(9)+iOff),lCGOVec,Wrk(kCGVec(5)),lCGFVec,One)
+    call ChoMP2g_Constrap(irc,Wrk(kEndCGVec(9)),lScr,'ovvo',iSym,nVec,Wrk(kCGVec(9)+iOff),lCGOVec,Wrk(kCGVec(5)+iOff),lCGOVec,One)
 
     call ChoMP2_OpenF(iClos,1,iSym)
     call DaClos(LuVVec)
@@ -251,18 +261,18 @@ do iIter=1,nIter
     do iI=1,nI
       Ei = EFro(iFro(iSym1)+iI)
       do iA=1,nA
-        index = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index1
         Ea = EVir(iVir(iSym1)+iA)
-        Wrk(kCGVec(9)+index) = Wrk(kCGVec(9)+index)+(Ea-Ei)*Wrk(kCGVec(5)+index)
+        Wrk(kCGVec(9)+indx) = Wrk(kCGVec(9)+indx)+(Ea-Ei)*Wrk(kCGVec(5)+indx)
       end do
     end do
     nI = nOcc(iSym1)
     do iI=1,nI
       Ei = EOcc(iOcc(iSym1)+iI)
       do iA=1,nA
-        index = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index1
         Ea = EVir(iVir(iSym1)+iA)
-        Wrk(kCGVec(9)+index+iOff) = Wrk(kCGVec(9)+index+iOff)+(Ea-Ei)*Wrk(kCGVec(5)+index+iOff)
+        Wrk(kCGVec(9)+indx+iOff) = Wrk(kCGVec(9)+indx+iOff)+(Ea-Ei)*Wrk(kCGVec(5)+indx+iOff)
       end do
     end do
     index1 = index1+(nFro(iSym1)+nOcc(iSym1))*nVir(iSym1)
@@ -272,12 +282,12 @@ do iIter=1,nIter
                  Wrk(kCGVec(6)),Wrk(kCGVec(1)),Wrk(kCGVec(2)),Wrk(kCGVec(9)),Eps,Res)
   if (Done) Go To 100
 end do
-write(6,*) '***************WARNING************************'
-write(6,*) ''
-write(6,*) 'Too many iterations, this is what you get after:'
-write(6,*) nIter,' Iterations'
-write(6,*) 'The residual is',res,'and not',Eps
-write(6,*) '**********************************************'
+write(u6,*) '***************WARNING************************'
+write(u6,*) ''
+write(u6,*) 'Too many iterations, this is what you get after:'
+write(u6,*) nIter,' Iterations'
+write(u6,*) 'The residual is',res,'and not',Eps
+write(u6,*) '**********************************************'
 
 100 continue
 
@@ -350,7 +360,7 @@ do iSym=1,nsym
     do iJ=1,nOcc(iSym)
       Ej = EOcc(iOcc(iSym)+iJ)
       Wrk(kWij(iSym)+iJ-1+nOcc(iSym)*(iI-1)) = Wrk(kWij(iSym)+iJ-1+nOcc(iSym)*(iI-1))- &
-                                               0.5d0*Wrk(kPij(iSym)+iJ-1+nOcc(iSym)*(iI-1))*(Ei+Ej)
+                                               Half*Wrk(kPij(iSym)+iJ-1+nOcc(iSym)*(iI-1))*(Ei+Ej)
     end do
   end do
   do iA=1,nVir(iSym)
@@ -358,23 +368,21 @@ do iSym=1,nsym
     do iB=1,nVir(iSym)
       Eb = EVir(iVir(iSym)+iB)
       Wrk(kWab(iSym)+iB-1+nVir(iSym)*(iA-1)) = Wrk(kWab(iSym)+iB-1+nVir(iSym)*(iA-1))- &
-                                               0.5d0*Wrk(kPab(iSym)+iB-1+nVir(iSym)*(iA-1))*(Ea+Eb)
+                                               Half*Wrk(kPab(iSym)+iB-1+nVir(iSym)*(iA-1))*(Ea+Eb)
     end do
   end do
   do iI=1,nFro(iSym)
     Ei = Efro(iFro(iSym)+iI)
     iOrbI = iI
     do iA=1,nVir(iSym)
-      Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1))- &
-                                               2.0d0*Wrk(kPaK(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
+      Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1))-Two*Wrk(kPaK(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
     end do
   end do
   do iI=1,nOcc(iSym)
     Ei = EOcc(iOcc(iSym)+iI)
     iOrbI = nFro(iSYm)+iI
     do iA=1,nVir(iSym)
-      Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1))- &
-                                               2.0d0*Wrk(kPai(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
+      Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1))-Two*Wrk(kPai(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
     end do
   end do
 
@@ -513,30 +521,30 @@ do iBat=1,nBatL
   ! Construct U^J intermediate vectors
   ! ----------------------------------
   if (NumVec*nMoMo(iSym,iVecOO) == 0) Go To 101
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOO),1.0d0,Wrk(kPij(iSym)),1,Wrk(kLij),nMoMo(iSym,iVecOO),1.0d0,Wrk(kU),1)
+  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOO),One,Wrk(kPij(iSym)),1,Wrk(kLij),nMoMo(iSym,iVecOO),One,Wrk(kU),1)
 101 continue
 
   if (NumVec*nMoMo(iSym,iVecFO) == 0) Go To 102
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFO),2.0d0,Wrk(kPiK(iSym)),1,Wrk(kLKi),nMoMo(iSym,iVecFO),1.0d0,Wrk(kU),1)
+  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFO),Two,Wrk(kPiK(iSym)),1,Wrk(kLKi),nMoMo(iSym,iVecFO),One,Wrk(kU),1)
 102 continue
 
   if (NumVec*nMoMo(iSym,iVecOV) == 0) Go To 103
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOV),2.0d0,Wrk(kPai(iSym)),1,Wrk(kLia),nMoMo(iSym,iVecOV),1.0d0,Wrk(kU),1)
+  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOV),Two,Wrk(kPai(iSym)),1,Wrk(kLia),nMoMo(iSym,iVecOV),One,Wrk(kU),1)
 103 continue
 
   if (NumVec*nMoMo(iSym,iVecFV) == 0) Go To 104
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFV),2.0d0,Wrk(kPaK(iSym)),1,Wrk(kLfa),nMoMo(iSym,iVecFV),1.0d0,Wrk(kU),1)
+  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFV),Two,Wrk(kPaK(iSym)),1,Wrk(kLfa),nMoMo(iSym,iVecFV),One,Wrk(kU),1)
 104 continue
 
   if (NumVec*nMoMo(iSym,iVecVV) == 0) Go To 105
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecVV),1.0d0,Wrk(kPab(iSym)),1,Wrk(kLab),nMoMo(iSym,iVecVV),1.0d0,Wrk(kU),1)
+  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecVV),One,Wrk(kPab(iSym)),1,Wrk(kLab),nMoMo(iSym,iVecVV),One,Wrk(kU),1)
 105 continue
 
   ! Construct contribution to Wij
   ! -----------------------------
 
   if (nMoMo(iSym,iVecOO) == 0) Go To 111
-  call dGemm_('N','N',nMoMo(iSym,iVecOO),1,NumVec,-2.0d0,Wrk(kLij),nMoMo(iSym,iVecOO),Wrk(kU),NumVec,1.0d0,Wrk(kWij(iSym)), &
+  call dGemm_('N','N',nMoMo(iSym,iVecOO),1,NumVec,-Two,Wrk(kLij),nMoMo(iSym,iVecOO),Wrk(kU),NumVec,One,Wrk(kWij(iSym)), &
               nMoMo(iSym,iVecOO))
 111 continue
 
@@ -544,7 +552,7 @@ do iBat=1,nBatL
   ! -----------------------------
 
   if (nMoMo(iSym,iVecOF) == 0) Go To 112
-  call dGemm_('N','N',nMoMo(iSym,iVecOF),1,NumVec,-4.0d0,Wrk(kLKi),nMoMo(iSym,iVecOF),Wrk(kU),NumVec,1.0d0,Wrk(kWiK(iSym)), &
+  call dGemm_('N','N',nMoMo(iSym,iVecOF),1,NumVec,-Four,Wrk(kLKi),nMoMo(iSym,iVecOF),Wrk(kU),NumVec,One,Wrk(kWiK(iSym)), &
               nMoMo(iSym,iVecOF))
 112 continue
 
@@ -552,7 +560,7 @@ do iBat=1,nBatL
   ! -----------------------------
 
   if (nMoMo(iSym,iVecFF) == 0) Go To 113
-  call dGemm_('N','N',nMoMo(iSym,iVecFF),1,NumVec,-2.0d0,Wrk(kLJK),nMoMo(iSym,iVecFF),Wrk(kU),NumVec,1.0d0,Wrk(kWJK(iSym)), &
+  call dGemm_('N','N',nMoMo(iSym,iVecFF),1,NumVec,-Two,Wrk(kLJK),nMoMo(iSym,iVecFF),Wrk(kU),NumVec,One,Wrk(kWJK(iSym)), &
               nMoMo(iSym,iVecFF))
 113 continue
 
@@ -606,7 +614,7 @@ kEndVip = kVip+lVip
 lWij2 = nOccAll(iSym)*nOccAll(iSym)
 kWij2 = kEndVip
 do i=1,lWij2
-  Wrk(kWij2+i-1) = 0.0d0
+  Wrk(kWij2+i-1) = Zero
 end do
 
 do iBat=1,nBatL
@@ -678,7 +686,7 @@ do iBat=1,nBatL
 
   do iVec1=1,NumVec
     iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
-    call dGemm_('N','N',nOrb(iSym),nOccAll(iSym),nOrb(iSym),1.0d0,MP2D(iSym)%A,nOrb(iSym),Wrk(kLip+iOff),nOrb(iSym),0.0d0, &
+    call dGemm_('N','N',nOrb(iSym),nOccAll(iSym),nOrb(iSym),One,MP2D(iSym)%A,nOrb(iSym),Wrk(kLip+iOff),nOrb(iSym),Zero, &
                 Wrk(kVip+iOff),nOrb(iSym))
   end do
 
@@ -687,7 +695,7 @@ do iBat=1,nBatL
 
   do iVec1=1,NumVec
     iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
-    call dGemm_('T','N',nOccAll(iSym),nOccAll(iSym),nOrb(iSym),1.0d0,Wrk(kLip+iOff),nOrb(iSym),Wrk(kVip+iOff),nOrb(iSym),1.0d0, &
+    call dGemm_('T','N',nOccAll(iSym),nOccAll(iSym),nOrb(iSym),One,Wrk(kLip+iOff),nOrb(iSym),Wrk(kVip+iOff),nOrb(iSym),One, &
                 Wrk(kWij2),nOccAll(iSym))
   end do
 end do
@@ -698,7 +706,7 @@ call ChoMP2_OpenF(iClos,1,iSym)
 ! -------------------------------------------
 do iSym1=1,nSym
   do i=1,nOcc(iSym1)+nFro(iSym1)
-    MP2D(iSym1)%A(i,i) = MP2D(iSym1)%A(i,i)+2.0d0
+    MP2D(iSym1)%A(i,i) = MP2D(iSym1)%A(i,i)+Two
   end do
 end do
 
@@ -709,16 +717,16 @@ do i=1,nFro(iSym)
   iOrb = i
   do j=1,nFro(iSym)
     jOrb = j
-    term = 0.0d0
+    term = Zero
     if (i == j) term = Efro(iFro(iSym)+i)
-    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWJK(iSym)+j-1+nFro(iSym)*(i-1))+2.0d0*term-Wrk(kWij2+j-1+nOccAll(iSym)*(i-1))
+    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWJK(iSym)+j-1+nFro(iSym)*(i-1))+Two*term-Wrk(kWij2+j-1+nOccAll(iSym)*(i-1))
   end do
 end do
 do i=1,nOcc(iSym)
   iOrb = nFro(iSym)+i
   do j=1,nFro(iSym)
     jOrb = j
-    MP2W(iSym)%A(jOrb,iOrb) = -0.5d0*Wrk(kWiK(iSym)+i-1+nOcc(iSym)*(j-1))-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
+    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWiK(iSym)+i-1+nOcc(iSym)*(j-1))-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
     MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
   end do
 end do
@@ -726,9 +734,9 @@ do i=1,nOcc(iSym)
   iOrb = nFro(iSym)+i
   do j=1,nOcc(iSym)
     jOrb = nFro(iSym)+j
-    term = 0.0d0
+    term = Zero
     if (i == j) term = EOcc(iOcc(iSym)+i)
-    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWij(iSym)+j-1+nOcc(iSym)*(i-1))+2.0d0*term-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
+    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWij(iSym)+j-1+nOcc(iSym)*(i-1))+Two*term-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
   end do
 end do
 
@@ -736,7 +744,7 @@ do i=1,nFro(iSym)
   iOrb = i
   do j=1,nVir(iSym)
     jOrb = nFro(iSym)+nOcc(iSym)+j
-    MP2W(iSym)%A(jOrb,iOrb) = -0.5d0*Wrk(kWaK(iSym)+j-1+nVir(iSym)*(i-1))
+    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWaK(iSym)+j-1+nVir(iSym)*(i-1))
     MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
   end do
 end do
@@ -745,7 +753,7 @@ do i=1,nOcc(iSym)
   iOrb = nFro(iSym)+i
   do j=1,nVir(iSym)
     jOrb = nFro(iSym)+nOcc(iSym)+j
-    MP2W(iSym)%A(jOrb,iOrb) = -0.5d0*Wrk(kWai(iSym)+j-1+nVir(iSym)*(i-1))
+    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWai(iSym)+j-1+nVir(iSym)*(i-1))
     MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
   end do
 end do
@@ -759,11 +767,11 @@ do i=1,nVir(iSym)
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Full One-electron Density Matrix'
+write(u6,*) 'Full One-electron Density Matrix'
 do iSym=1,nSym
   call RecPrt('MP2D',' ',MP2D(iSym)%A,nOrb(iSym),nOrb(iSym))
 end do
-write(6,*) 'Full One-electron energy weighted D Matrix'
+write(u6,*) 'Full One-electron energy weighted D Matrix'
 do iSym=1,nSym
   call RecPrt('MP2W',' ',MP2W(iSym)%A,nOrb(iSym),nOrb(iSym))
 end do

@@ -9,10 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Cho_P_GetmPass(iLoc)
+function Cho_P_GetmPass(iLoc)
+
+use Definitions, only: iwp
 
 implicit none
-integer iLoc
+integer(kind=iwp) :: Cho_P_GetmPass
+integer(kind=iwp) :: iLoc
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"

@@ -13,9 +13,11 @@ subroutine CHO_WRBUF(LENGTH,BUF,IBUF,LENBUF,IUNIT)
 !
 ! Purpose: write buffer to disk.
 
-implicit real*8(a-h,o-z)
-real*8 BUF(LENBUF)
-integer IBUF(4,LENBUF)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LENGTH, LENBUF, IBUF(4,LENBUF), IUNIT
+real(kind=wp) :: BUF(LENBUF)
 
 write(IUNIT) LENGTH,BUF,IBUF
 

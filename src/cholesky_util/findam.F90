@@ -17,11 +17,17 @@ subroutine FindAM(n,X,XMax,IMax)
 ! Function : Find Absolute Maximum in X(n)    XMax = X(IMax)
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-real*8 X(n)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, IMax
+real(kind=wp) :: X(n), XMax
+integer(kind=iwp) :: I
+real(kind=wp) :: XVal
 
 IMax = 1
-XMax = 0.0D+00
+XMax = Zero
 
 do I=1,n
   XVal = abs(X(I))

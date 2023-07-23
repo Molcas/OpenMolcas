@@ -18,15 +18,17 @@ subroutine CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 CHOVEC(*)
+implicit none
+real(kind=wp) :: CHOVEC(*)
+integer(kind=iwp) :: NUMVEC, IVEC1, ISYM
 #include "cholesky.fh"
-external ddot_
-character*11 SECNAM
-parameter(SECNAM='CHO_PUTVEC2')
-logical LOCDBG
-parameter(LOCDBG=.false.)
+integer(kind=iwp) :: IADR, IADR2, IOPT, IVEC, IVEC2, JADR, JRED, JVEC, KOFF, LTOT, LVEC
+real(kind=wp) :: XNRM
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_PUTVEC2'
+real(kind=wp), external :: ddot_
 
 ! Return if no vectors.
 ! ---------------------

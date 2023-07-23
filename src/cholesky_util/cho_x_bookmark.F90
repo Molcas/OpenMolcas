@@ -40,31 +40,24 @@
 
 subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
 
-use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
-use stdalloc
+use ChoBkm, only: BkmThr, BkmVec, nRow_BkmThr
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Thr
-integer mSym
-integer nVec(mSym)
-real*8 delta(mSym)
-integer irc
+integer(kind=iwp) :: mSym, nVec(mSym), irc
+real(kind=wp) :: Thr, delta(mSym)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-character*14 SecNam
-parameter(SecNam='Cho_X_Bookmark')
-logical Found
-logical DebugPrint
-parameter(DebugPrint=.false.)
-integer iSym
-integer iRS
-integer l
-integer n
-integer i, j
-integer nV
-real*8 del
-integer, allocatable :: BkmScr(:)
+integer(kind=iwp) :: iRS, iSym, l, n
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: BkmScr(:)
+logical(kind=iwp), parameter :: DebugPrint = .false.
+character(len=*), parameter :: SecNam = 'Cho_X_Bookmark'
 ! Statement functions
+integer(kind=iwp) :: nV, i, j
+real(kind=wp) :: del
 nV(i,j) = BkmVec(i,j)
 del(i,j) = BkmThr(i,j)
 
@@ -84,7 +77,7 @@ end if
 ! Check input.
 ! ------------
 
-if ((sign(1.0d0,Thr) < 0.0d0) .or. (Thr < ThrCom) .or. (mSym < 1) .or. (mSym > nSym)) then
+if ((sign(One,Thr) < Zero) .or. (Thr < ThrCom) .or. (mSym < 1) .or. (mSym > nSym)) then
   irc = 1
   return
 end if
@@ -93,10 +86,10 @@ end if
 ! ------------
 
 if (DebugPrint) then
-  call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,6)
+  call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,u6)
   do iSym=1,nSym
-    write(6,'(A,I2,A)') 'Symmetry block',iSym,' Bookmarks (nVec,delta)'
-    write(6,'(5(1X,A,I6,A,D15.8,A))') ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
+    write(u6,'(A,I2,A)') 'Symmetry block',iSym,' Bookmarks (nVec,delta)'
+    write(u6,'(5(1X,A,I6,A,D15.8,A))') ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
   end do
 end if
 

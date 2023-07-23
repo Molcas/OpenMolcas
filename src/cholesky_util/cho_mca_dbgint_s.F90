@@ -20,19 +20,23 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 !          apart from first)
 
 use ChoArr, only: nBstSh
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer ISHLQ(4,NSHLQ)
-logical PRTLAB
+implicit none
+integer(kind=iwp) :: NSHLQ, ISHLQ(4,NSHLQ)
+logical(kind=iwp) :: PRTLAB
 #include "cholesky.fh"
 #include "choorb.fh"
-character(len=16), parameter :: SECNAM = 'CHO_MCA_DBGINT_S'
-integer, external :: CHO_F2SP
-real*8 XLBAS(8)
-character(len=8) LABEL
-real*8, allocatable :: INT1(:), WRK(:)
+integer(kind=iwp) :: ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
+real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XCMP, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
+character(len=8) :: LABEL
+real(kind=wp), allocatable :: INT1(:), WRK(:)
+character(len=*), parameter :: SECNAM = 'CHO_MCA_DBGINT_S'
+integer(kind=iwp), external :: CHO_F2SP
 ! Statement functions
+integer(kind=iwp) :: MULD2H, ITRI, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
@@ -53,11 +57,11 @@ end if
 ! Initializations.
 ! ----------------
 
-GLMAX = 0.0d0
-GLMIN = 1.0d15
-GLRMS = 0.0d0
-XTCMP = 0.0d0
-XPECT = 0.0d0
+GLMAX = Zero
+GLMIN = 1.0e15_wp
+GLRMS = Zero
+XTCMP = Zero
+XPECT = Zero
 
 ! Make first reduced set the current reduced set.
 ! -----------------------------------------------
@@ -111,7 +115,7 @@ do I=1,NSHLQ
     ! Compute expected number of comparisons.
     ! ---------------------------------------
 
-    XPECTL = dble(LINT1)
+    XPECTL = real(LINT1,kind=wp)
     XPECT = XPECT+XPECTL
 
     ! Calculate shell quadruple (CD|AB).
@@ -121,7 +125,7 @@ do I=1,NSHLQ
     ISHLAB = CHO_F2SP(ITRI(ISHLA,ISHLB))
     if ((ISHLAB < 1) .or. (ISHLCD < 1)) call CHO_QUIT('CHO_F2SP<1 in '//SECNAM,103)
 
-    INT1(1:LINT1) = 0.0d0
+    INT1(1:LINT1) = Zero
     call CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.false.)
 
     ! Calculate integrals from Cholesky vectors.
@@ -135,7 +139,7 @@ do I=1,NSHLQ
     if (NCMP < 1) then
       write(LUPRI,'(4(I5,1X),5X,A)') ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
     else
-      XCMP = dble(NCMP)
+      XCMP = real(NCMP,kind=wp)
       XTCMP = XTCMP+XCMP
       RMS = sqrt(ERRRMS/XCMP)
       if (PRTLAB) then
@@ -158,7 +162,7 @@ end do
 ! -------------------
 
 write(LUPRI,'(A)') '--------------------------------------------------------------'
-if (XTCMP < 1.0d0) then
+if (XTCMP < One) then
   write(LUPRI,'(A,23X,A)') 'Total:',' !!! nothing compared !!! '
 else
   GLRMS = sqrt(GLRMS/XTCMP)
@@ -177,23 +181,23 @@ call mma_deallocate(INT1)
 ! ----------------------------------
 
 do ISYM=1,NSYM
-  XLBAS(ISYM) = dble(NBAS(ISYM))
+  XLBAS(ISYM) = real(NBAS(ISYM),kind=wp)
 end do
-XNINT = 0.0d0
+XNINT = Zero
 do ISYM=1,NSYM
-  XXLBST = 0.0d0
+  XXLBST = Zero
   do ISYMB=1,NSYM
     ISYMA = MULD2H(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
-      XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+1.0d0)/2.0d0
+      XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then
       XXLBST = XXLBST+XLBAS(ISYMA)*XLBAS(ISYMB)
     end if
   end do
-  XNINT = XNINT+XXLBST*(XXLBST+1.0d0)/2.0d0
+  XNINT = XNINT+XXLBST*(XXLBST+One)*Half
 end do
 
-if (abs(XTCMP-XPECT) > 1.0D-15) then
+if (abs(XTCMP-XPECT) > 1.0e-15_wp) then
   write(LUPRI,'(/,A)') 'WARNING: not all integrals checked:'
 else
   write(LUPRI,*)

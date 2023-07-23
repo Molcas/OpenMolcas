@@ -14,19 +14,21 @@
 
 subroutine Laplace_PRSQ(V,M,N,NDIM)
 
-!use IO_Files
-use ReMez_mod
+use ReMez_mod, only: IW
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 V(NDIM,M)
+implicit none
+integer(kind=iwp) :: M, N, NDIM
+real(kind=wp) :: V(NDIM,M)
+integer(kind=iwp) :: I, IMAX, IMIN, J, NMAX
 
 ! ----- PRINT OUT A SQUARE MATRIX -----
-! -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING REAL*8 -NDIM-
+! -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING REAL -NDIM-
 
-MAX = 10
+NMAX = 10
 IMAX = 0
 100 IMIN = IMAX+1
-IMAX = IMAX+MAX
+IMAX = IMAX+NMAX
 if (IMAX > M) IMAX = M
 write(IW,9008)
 write(IW,9028) (I,I=IMIN,IMAX)

@@ -22,17 +22,16 @@ subroutine Cho_Dump(irc,Lunit)
 !
 ! On input, Lunit is the logical unit to print to...
 
-use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm
+use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSTau, SubScrStat
+use Definitions, only: iwp
 
 implicit none
-integer irc, Lunit
+integer(kind=iwp) :: irc, Lunit
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-character*8 SecNam
-parameter(SecNam='Cho_Dump')
-
-integer i, j
+integer(kind=iwp) :: i, j
+character(len=*), parameter :: SecNam = 'Cho_Dump'
 
 irc = 0
 

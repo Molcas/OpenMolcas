@@ -52,24 +52,26 @@ subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer irc
-integer nOcc(*)
-real*8 CMO(*), ER(*), W
-logical timings
-integer iOcc(8), isMO(8)
-real*8 tread(2), tintg(2)
-character(len=10), parameter :: SECNAM = 'CHO_get_ER'
+implicit none
+integer(kind=iwp) :: irc, nOcc(*)
+real(kind=wp) :: CMO(*), ER(*), W
+logical(kind=iwp) :: timings
 #include "cholesky.fh"
 #include "choorb.fh"
-real*8, allocatable :: DLT(:), Lab(:), Dab(:), VJ(:)
+integer(kind=iwp) :: i, ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, &
+                     jv, JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs, TCI1, TCI2, TCR1, &
+                     TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, TWI1, TWI2, TWR1, TWR2
+real(kind=wp) :: tintg(2), tread(2)
+real(kind=wp), allocatable :: Dab(:), DLT(:), Lab(:), VJ(:)
+character(len=*), parameter :: SECNAM = 'CHO_get_ER'
 
 JSYM = 1
 if (NumCho(JSYM) < 1) then
-  write(6,*) SECNAM//'No total symmetric vectors present'
+  write(u6,*) SECNAM//'No total symmetric vectors present'
   irc = 77
   return
 end if
@@ -77,8 +79,8 @@ end if
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
 do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = zero  !time for reading the vectors
-  tintg(i) = zero  !time for computing the functional
+  tread(i) = Zero  !time for reading the vectors
+  tintg(i) = Zero  !time for computing the functional
 end do
 
 ! compute some offsets and other quantities
@@ -94,7 +96,7 @@ end do
 MaxBB = MaxB*(MaxB+1)/2
 nOccT = iOcc(nSym)+nOcc(nSym)
 
-W = zero ! initialization of the ER-functional value
+W = Zero ! initialization of the ER-functional value
 call Fzero(ER(1),nOccT) ! and its orbital components
 
 call mma_allocate(DLT,MaxBB,Label='DLT')
@@ -114,13 +116,13 @@ do JRED=JRED1,JRED2
   if (nVrs == 0) goto 999
 
   if (nVrs < 0) then
-    write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
+    write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
     call abend()
   end if
 
   call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
   if (irc /= 0) then
-    write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+    write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
     call abend()
   end if
 
@@ -133,9 +135,9 @@ do JRED=JRED1,JRED2
   nVec = min(LWORK/(nRS+1),nVrs)
 
   if (nVec < 1) then
-    write(6,*) SECNAM//': Insufficient memory for batch'
-    write(6,*) 'LWORK= ',LWORK
-    write(6,*) 'min. mem. need= ',nRS+1
+    write(u6,*) SECNAM//': Insufficient memory for batch'
+    write(u6,*) 'LWORK= ',LWORK
+    write(u6,*) 'min. mem. need= ',nRS+1
     irc = 33
     call Abend()
     nBatch = -9999  ! dummy assignment
@@ -195,7 +197,7 @@ do JRED=JRED1,JRED2
           end do
 
           ipab = ib*(ib+1)/2
-          DLT(ipab) = half*CMO(ipb)**2  !diagonal scaled
+          DLT(ipab) = Half*CMO(ipb)**2  !diagonal scaled
 
         end do
 
@@ -207,7 +209,7 @@ do JRED=JRED1,JRED2
         ! V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
         !=========================================================
 
-        call DGEMV_('T',nRS,JNUM,TWO,Lab,nRS,Dab,1,ZERO,VJ,1)
+        call DGEMV_('T',nRS,JNUM,Two,Lab,nRS,Dab,1,Zero,VJ,1)
 
         !-------------------------------------------------------
         ! ER[i] <- ER[i]  +  sum_J V[i](J)^2
@@ -254,15 +256,15 @@ TOTWALL = TOTWALL2-TOTWALL1
 ! Write out timing information
 if (timings) then
 
-  write(6,*)
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*) 'Timing from ',SECNAM,'            CPU      WALL '
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COMPUTE (ii|ii)                           ',tintg(1),tintg(2)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*) 'Timing from ',SECNAM,'            CPU      WALL '
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COMPUTE (ii|ii)                           ',tintg(1),tintg(2)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,*) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

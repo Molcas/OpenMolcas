@@ -13,8 +13,11 @@ subroutine CHO_DSWAP(X,Y)
 !
 ! Purpose: swap X and Y, double precision version.
 
+use Definitions, only: wp
+
 implicit none
-real*8 X, Y, TEMP
+real(kind=wp) :: X, Y
+real(kind=wp) :: TEMP
 
 TEMP = X
 X = Y

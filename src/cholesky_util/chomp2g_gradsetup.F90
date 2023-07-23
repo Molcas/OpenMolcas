@@ -22,36 +22,36 @@ subroutine ChoMP2g_GradSetup(irc,CMO)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use Constants
-use stdalloc
-use ChoMP2g
+use ChoMP2g, only: iAdrOff, nMoMo
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Eight, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: CMO(*)
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8), nLRo(8), nLRb(8), iOffD(8), iAdrR(8), iOff_WJL(8), nB3(8), &
-        iOffB3(8,8), iOffCMOo(8), iAdrB(8)
-real*8 CMO(*)
-character(len=5) fname
-character(len=6) fname2
-character(len=8) label
-character(len=9), parameter :: ThisNm = 'GradSetup'
-character(len=17), parameter :: SecNam = 'ChoMP2g_GradSetup'
-integer LuB(2), LuA(2)
-real*8, allocatable :: CMO_Inv(:), CMO_o(:), CMO_v(:)
-real*8, allocatable :: MP2Density(:), SCFDensity(:), SMat(:)
-real*8, allocatable :: MP2TTotDensity(:)
-real*8, allocatable :: MP2TDensity(:)
-real*8, allocatable :: SCFTDensity(:)
-real*8, allocatable :: STMat(:)
-real*8, allocatable :: CJK(:), CKi(:), CKa(:), CiK(:), Cij(:)
-real*8, allocatable :: Cia(:), CaK(:), Cai(:), Cab(:), Cpq(:)
-real*8, allocatable :: Ria(:), Cpn(:), Rin(:), Cmn(:), Rmn(:)
-real*8, allocatable :: Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
-real*8, allocatable :: B3jl(:), B3kl(:), B3kl_s(:)
-real*8, allocatable :: B1kl(:), B2kl(:)
-real*8, allocatable :: A1(:), A2(:)
+integer(kind=iwp) :: i, iAdr, iAdr1, iAdr2, iAdrB(8), iAdrR(8), iB3, iClos, iCMOo, iComp, iiJ, iiK, iJ, iK, indx, iOff, iOff0, &
+                     iOff1, iOff2, iOff3, iOff_A, iOff_A2, iOff_JL, iOff_Ria, iOff_Rin, iOff_Rmn, iOff_WJL(8), iOffA, iOffB, &
+                     iOffB1, iOffB2, iOffB3(8,8), iOffBB, iOffCInv(8), iOffCMOo(8), iOffD(8), iOffFF, iOffFO, iOffFV, iOffL, &
+                     iOffLRb(8,8), iOffLRo(8,8), iOffOF, iOffOO, iOffOV, iOffR, iOffVF, iOffVO, iOffVV, iOffZ, iOpt, iRd, iSeed, &
+                     iSym, iSymlbl, iTypL, iTypR, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, iVecVO, iVecVV, iWr, j, &
+                     jAdr, jSym, k, k_o, k_v, kl, kl_s, kSym, l, lA1, lA2, lB1kl, lB2kl, lB3jl, lB3kl, lB3kl_s, lCab, lCai, lCaK, &
+                     lCia, lCij, lCiK, lCJK, lCKa, lCKi, lCmn, lCpn, lCpq, lk, lRecDens, lRia, lRin, lRmn, lSym, lTot, lTriDens, &
+                     LuA(2), LuB(2), LuBTmp, lUkn, LuLVec, LuRVec, LuXVec, LuYVec, lVkn, lWJL, lWmjKJ, maxvalue, mSym, mSym2, &
+                     nB3(8), nBas2, nBB, nJ, nK, nLRb(8), nLRo(8), nOccAll(8), nOccBas, nOO, nOrbBas, nVec, nVirBas
+real(kind=wp) :: Fac, Fact
+character(len=8) :: label
+character(len=6) :: fname2
+character(len=5) :: fname
+real(kind=wp), allocatable :: A1(:), A2(:), B1kl(:), B2kl(:), B3jl(:), B3kl(:), B3kl_s(:), Cab(:), Cai(:), CaK(:), Cia(:), Cij(:), &
+                              CiK(:), CJK(:), CKa(:), CKi(:), Cmn(:), CMO_Inv(:), CMO_o(:), CMO_v(:), Cpn(:), Cpq(:), &
+                              MP2Density(:), MP2TDensity(:), MP2TTotDensity(:), Ria(:), Rin(:), Rmn(:), SCFDensity(:), &
+                              SCFTDensity(:), SMat(:), STMat(:), Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
+character(len=*), parameter :: SecNam = 'ChoMP2g_GradSetup'
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -112,7 +112,7 @@ end do
 !***********************************************************************
 !                                                                      *
 call mma_allocate(CMO_inv,nOrbBas,Label='CMO_Inv')
-CMO_inv(:) = 0.0d0
+CMO_inv(:) = Zero
 call mma_allocate(CMO_o,nOccBas,Label='CMO_o')
 call mma_allocate(CMO_v,nVirBas,Label='CMO_v')
 !                                                                      *
@@ -149,7 +149,7 @@ call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 !***********************************************************************
 !                                                                      *
 ! Compute the differential MP2 density
-MP2TDensity(:) = 2.0d0*(MP2TTotDensity(:)-SCFTDensity(:))
+MP2TDensity(:) = Two*(MP2TTotDensity(:)-SCFTDensity(:))
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -157,24 +157,24 @@ MP2TDensity(:) = 2.0d0*(MP2TTotDensity(:)-SCFTDensity(:))
 ! triangular storage is folded, i.e off diagonal element are
 ! multiplied with 2.
 
-index = 0
+indx = 0
 iOff = 0
 do iSym=1,nSym
   do i=1,nBas(iSym)
     do j=1,i-1
-      index = index+1
-      MP2Density(j+nBas(iSym)*(i-1)+iOff) = MP2TDensity(index)/2.0d0
-      MP2Density(i+nBas(iSym)*(j-1)+iOff) = MP2TDensity(index)/2.0d0
-      SCFDensity(j+nBas(iSym)*(i-1)+iOff) = SCFTDensity(index)/2.0d0
-      SCFDensity(i+nBas(iSym)*(j-1)+iOff) = SCFTDensity(index)/2.0d0
-      Smat(j+nBas(iSym)*(i-1)+iOff) = STmat(index)
-      Smat(i+nBas(iSym)*(j-1)+iOff) = STmat(index)
+      indx = indx+1
+      MP2Density(j+nBas(iSym)*(i-1)+iOff) = MP2TDensity(indx)*Half
+      MP2Density(i+nBas(iSym)*(j-1)+iOff) = MP2TDensity(indx)*Half
+      SCFDensity(j+nBas(iSym)*(i-1)+iOff) = SCFTDensity(indx)*Half
+      SCFDensity(i+nBas(iSym)*(j-1)+iOff) = SCFTDensity(indx)*Half
+      Smat(j+nBas(iSym)*(i-1)+iOff) = STmat(indx)
+      Smat(i+nBas(iSym)*(j-1)+iOff) = STmat(indx)
 
     end do
-    index = index+1
-    MP2Density(i+nBas(iSym)*(i-1)+iOff) = MP2TDensity(index)
-    SCFDensity(i+nBas(iSym)*(i-1)+iOff) = SCFTDensity(index)
-    Smat(i+nBas(iSym)*(i-1)+iOff) = STmat(index)
+    indx = indx+1
+    MP2Density(i+nBas(iSym)*(i-1)+iOff) = MP2TDensity(indx)
+    SCFDensity(i+nBas(iSym)*(i-1)+iOff) = SCFTDensity(indx)
+    Smat(i+nBas(iSym)*(i-1)+iOff) = STmat(indx)
 
   end do
   iOff = iOff+nBas(iSym)**2
@@ -195,7 +195,7 @@ call mma_deallocate(STMat)
 iOff1 = 1
 iOff2 = 1
 do iSym=1,nSym
-  call dGemm_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),1.0d0,CMO(iOff2),nBas(iSym),Smat(iOff1),nBas(iSym),0.0d0,CMO_inv(iOff2), &
+  call dGemm_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),One,CMO(iOff2),nBas(iSym),Smat(iOff1),nBas(iSym),Zero,CMO_inv(iOff2), &
               nOrb(iSym))
 
   iOff1 = iOff1+nBas(iSym)**2
@@ -514,13 +514,13 @@ do iSym=1,nSym
         ! (C^-1)^T x C_pq^J = C_nq^J
 
         iOff1 = nLRo(iSym)*(iJ-1)+iOffLRo(iSym,jSym)
-        call dGemm_('T','N',nBas(jSym),nOrb(kSym),nOrb(jSym),1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),Cpq(1+iOff1),nOrb(jSym), &
-                    0.0d0,Cpn,nBas(jSym))
+        call dGemm_('T','N',nBas(jSym),nOrb(kSym),nOrb(jSym),One,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),Cpq(1+iOff1),nOrb(jSym), &
+                    Zero,Cpn,nBas(jSym))
 
         ! C_nq^J x  (C^-1) = C_nm^J
 
         iOff2 = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
-        call dGemm_('N','N',nBas(jSym),nBas(kSym),nOrb(kSym),1.0d0,Cpn,nBas(jSym),CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),0.0d0, &
+        call dGemm_('N','N',nBas(jSym),nBas(kSym),nOrb(kSym),One,Cpn,nBas(jSym),CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),Zero, &
                     Cmn(1+iOff2),nBas(jSym))
 
       end do
@@ -535,13 +535,13 @@ do iSym=1,nSym
 
         iOff = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
         iOff0 = iOffD(kSym)
-        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(kSym),1.0d0,Cmn(1+iOff),nBas(jSym),MP2Density(1+iOff0),nBas(kSym),0.0d0, &
+        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(kSym),One,Cmn(1+iOff),nBas(jSym),MP2Density(1+iOff0),nBas(kSym),Zero, &
                     Ukn(1+iOff),nBas(jSym))
 
         ! D(HF)_kn x C_nm^J = V_km^J, Eq. (42)
 
         iOff0 = iOffD(jSym)
-        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(jSym),1.0d0,SCFDensity(1+iOff0),nBas(jSym),Cmn(1+iOff),nBas(jSym),0.0d0, &
+        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(jSym),One,SCFDensity(1+iOff0),nBas(jSym),Cmn(1+iOff),nBas(jSym),Zero, &
                     Vkn(1+iOff),nBas(jSym))
 
       end do
@@ -590,15 +590,15 @@ do iSym=1,nSym
             iOff_Ria = iOff_Ria+nVir(jSym)*nOcc(kSym)
             iOff2 = iOff_Rin
             iOff_Rin = iOff_Rin+nBas(jSym)*nOcc(kSym)
-            call dGemm_('N','N',nBas(jSym),nOcc(kSym),nVir(jSym),1.0d0,CMO_v,nBas(jSym),Ria(1+iOff1),nVir(jSym),0.0d0, &
-                        Rin(1+iOff2),nBas(jSym))
+            call dGemm_('N','N',nBas(jSym),nOcc(kSym),nVir(jSym),One,CMO_v,nBas(jSym),Ria(1+iOff1),nVir(jSym),Zero,Rin(1+iOff2), &
+                        nBas(jSym))
 
             ! R_ni^K x C_mi^T = R_nm^K
 
             iOff3 = iOff_Rmn
             iOff_Rmn = iOff_Rmn+nBas(jSym)*nBas(kSym)
-            call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),1.0d0,Rin(1+iOff2),nBas(jSym),CMO_o,nBas(kSym),0.0d0, &
-                        Rmn(1+iOff3),nBas(jSym))
+            call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),One,Rin(1+iOff2),nBas(jSym),CMO_o,nBas(kSym),Zero,Rmn(1+iOff3), &
+                        nBas(jSym))
 
           end do ! jSym
         end do   ! iK
@@ -615,7 +615,7 @@ do iSym=1,nSym
 
         if (iSym == lSym) then
           iOffZ = iOff_WJL(iSym)+nMP2Vec(iSym)*(iiJ-1)+iiK-1
-          call dGemm_('T','N',nK,nJ,nLRb(iSym),1.0d0,Rmn,nLRb(iSym),Cmn,nLRb(iSym),0.0d0,WJL(1+iOffZ),nMP2Vec(iSym))
+          call dGemm_('T','N',nK,nJ,nLRb(iSym),One,Rmn,nLRb(iSym),Cmn,nLRb(iSym),Zero,WJL(1+iOffZ),nMP2Vec(iSym))
         end if
         !                                                              *
         !***************************************************************
@@ -634,18 +634,18 @@ do iSym=1,nSym
 
               ! C_mn^J x R_ni^K = W_mi^JK, see Eq. (44)
 
-              call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),1.0d0,Cmn(1+iOffL),nBas(jSym),Rin(1+iOffR),nBas(kSym),0.0d0, &
-                          WmjKJ,nBas(jSym))
+              call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),One,Cmn(1+iOffL),nBas(jSym),Rin(1+iOffR),nBas(kSym),Zero,WmjKJ, &
+                          nBas(jSym))
 
-              Fac = 1.0d0
-              if ((iK == 1) .and. (iiK == 1)) Fac = 0.0d0
+              Fac = One
+              if ((iK == 1) .and. (iiK == 1)) Fac = Zero
 
               ! R_nm^K x W_mi^JK, last two summation in Eqs. 40 and 41
 
               mSym2 = ieor(lSym-1,jSym-1)+1
               iOffB = nB3(iSym)*(iJ-1)+iOffB3(iSym,mSym2)
               iOffR = nLRb(lSym)*(iK-1)+iOffLRb(lSym,mSym2)
-              call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),1.0d0,Rmn(1+iOffR),nBas(mSym2),WmjKJ,nBas(jSym),Fac, &
+              call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),One,Rmn(1+iOffR),nBas(mSym2),WmjKJ,nBas(jSym),Fac, &
                           B3jl(1+iOffB),nBas(mSym2))
 
             end do ! jSym
@@ -667,7 +667,7 @@ do iSym=1,nSym
 
         ! Complete the 3rd RHS term in Eq. 40
 
-        call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),-8.0d0,B3jl(1+iOffB1),nBas(jSym),CMO_o(1+iOff),nBas(kSym),0.0d0, &
+        call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),-Eight,B3jl(1+iOffB1),nBas(jSym),CMO_o(1+iOff),nBas(kSym),Zero, &
                     B3kl(1+iOffB2),nBas(jSym))
 
       end do ! jSym
@@ -752,8 +752,8 @@ do iSym=1,nSym
       ! U_km^K x V_km^J, 1st term RHS eq. 41
 
       iOffA = iiK-1+(iiJ-1)*NumCho(iSym)+iOff_A
-      Fact = 1.0d0
-      call dGemm_('T','N',nK,nJ,nLRb(iSym),Fact,Ukn,nLRb(iSym),Vkn,nLRb(iSym),0.0d0,A1(1+iOffA),NumCho(iSym))
+      Fact = One
+      call dGemm_('T','N',nK,nJ,nLRb(iSym),Fact,Ukn,nLRb(iSym),Vkn,nLRb(iSym),Zero,A1(1+iOffA),NumCho(iSym))
 
     end do
     !                                                                  *
@@ -770,10 +770,10 @@ do iSym=1,nSym
 
       ! R_mn_K x W_JK, 2nd RHS term Eq. 35
 
-      Fac = 1.0d0
-      if (iiK == 1) Fac = 0.0d0
+      Fac = One
+      if (iiK == 1) Fac = Zero
       iOffZ = iOff_WJL(iSym)+iiK-1+(iiJ-1)*nMp2Vec(iSym)
-      call dGemm_('N','N',nLRb(iSym),nJ,nK,-8.0d0,Rmn,nLRb(iSym),WJL(1+iOffZ),nMP2Vec(iSym),Fac,B2kl,nLRb(iSym))
+      call dGemm_('N','N',nLRb(iSym),nJ,nK,-Eight,Rmn,nLRb(iSym),WJL(1+iOffZ),nMP2Vec(iSym),Fac,B2kl,nLRb(iSym))
     end do
 
     ! Write to disk
@@ -828,14 +828,14 @@ do iSym=1,nSym
 
         iOff1 = iOff+iOffLRb(iSym,jSym)
         iOff2 = iOffD(kSym)
-        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(kSym),1.0d0,Vkn(1+iOff1),nBas(jSym),MP2Density(1+iOff2),nBas(kSym),0.0d0, &
+        call dGemm_('N','N',nBas(jSym),nBas(kSym),nBas(kSym),One,Vkn(1+iOff1),nBas(jSym),MP2Density(1+iOff2),nBas(kSym),Zero, &
                     B1kl(1+iOff1),nBas(jSym))
       end do
     end do
 
     ! Compound 2nd and 3rd RHS term in Eq. 40.
 
-    call DaXpY_(nLRb(iSym)*nJ,1.0d0,B3kl,1,B1kl,1)
+    call DaXpY_(nLRb(iSym)*nJ,One,B3kl,1,B1kl,1)
 
     ! Write compounded terms to disk
 
@@ -864,8 +864,8 @@ iSym = 1
 iOff_A2 = 0
 do iSym=1,nSym
   iOff1 = iOff_WJL(iSym)
-  Fact = -8.0d0
-  call dGemm_('T','N',NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),Fact,WJL(1+iOff1),nMP2Vec(iSym),WJL(1+iOff1),nMP2Vec(iSym),0.0d0, &
+  Fact = -Eight
+  call dGemm_('T','N',NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),Fact,WJL(1+iOff1),nMP2Vec(iSym),WJL(1+iOff1),nMP2Vec(iSym),Zero, &
               A2(1+iOff_A2),NumCho(iSym))
 
   iOff_A2 = iOff_A2+NumCho(iSym)**2
@@ -900,8 +900,8 @@ do iSym=1,nSym
       ! This is the second term of the RHS of Eq. (41)
 
       iOffA = iiJ-1+(iiK-1)*NumCho(iSym)+iOff_A
-      Fact = 1.0d0
-      call dGemm_('T','N',nJ,nK,nLRb(iSym),Fact,B3kl_s,nLRb(iSym),Cmn,nLRb(iSym),1.0d0,A1(1+iOffA),NumCho(iSym))
+      Fact = One
+      call dGemm_('T','N',nJ,nK,nLRb(iSym),Fact,B3kl_s,nLRb(iSym),Cmn,nLRb(iSym),One,A1(1+iOffA),NumCho(iSym))
 
     end do
 

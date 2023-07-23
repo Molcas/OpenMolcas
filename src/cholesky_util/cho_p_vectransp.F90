@@ -11,9 +11,11 @@
 
 subroutine Cho_P_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 Vec(*)
-integer Jin, Jfi, iSym, iRed, iPass
+real(kind=wp) :: Vec(*)
+integer(kind=iwp) :: Jin, Jfi, iSym, iRed, iPass
 #include "cho_para_info.fh"
 
 if (Cho_Real_Par) call Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)

@@ -22,39 +22,43 @@ subroutine DecoMat(MAT,dimens,eigenvec,NumV,rc)
 ! EIGENVEC: First it is used as scratch inside eigen_molcas. Next it will contains eigenvectors
 !           of the eigen-decomposed matrix in Cholesky form. Instead of eigenvectors X such that MAT = XDX^t,
 !           eigenvectors are presented as Y = X(D**0.5) such that MAT = YY^t.
-!           Negative eigenvalues are set to zero and eigenvalue larger than 2.0d0 set to 2.0d0
+!           Negative eigenvalues are set to zero and eigenvalue larger than 2.0 set to 2.0
 !
 ! NUMV    : Number of non negative eigenvalues
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer dimens, NumV, rc, i, j
-real*8 MAT(dimens,dimens), eigenvec(dimens,dimens)
-real*8 eigenval(dimens)
-character*12 routine
-parameter(routine='DecoNegatMat')
+integer(kind=iwp) :: dimens, NumV, rc
+real(kind=wp) :: MAT(dimens,dimens), eigenvec(dimens,dimens)
+integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: eigenval(:)
 
 rc = 0
 NumV = 0
 
 if (dimens < 1) then
   rc = -1
-  write(6,*) 'matrix size < 1'
+  write(u6,*) 'matrix size < 1'
   Go To 10
 end if
 
 ! Step 1: diagonalize MAT. MAT is destroyed and replaced by the eigenvectors values.
 ! IMPORTANT: At this stage eigenvec is used as scratch.
+call mma_allocate(eigenval,dimens,Label='eigenval')
 call eigen_molcas(dimens,MAT,eigenval,eigenvec)
 ! Move MAT to eigenvec. where it belongs. I could not wait!
 call dcopy_(dimens**2,MAT,1,eigenvec,1)
-! Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
+! Set to zero negative eigenvalue and to TWO values larger than 2.0.
 ! Count only the positive ones (counter NumV)
 do j=1,dimens
-  if (eigenval(j) > 1.0d-12) then
+  if (eigenval(j) > 1.0e-12_wp) then
     NumV = NumV+1
-    if (eigenval(j) > 2.0d0) eigenval(j) = 2.0d0
+    if (eigenval(j) > Two) eigenval(j) = Two
   else
-    eigenval(j) = 0.0d0
+    eigenval(j) = Zero
   end if
 end do
 ! Sort eigenvalues in decreasing order of occupation number
@@ -69,6 +73,7 @@ do j=1,dimens
     eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
   end do
 end do
+call mma_deallocate(eigenval)
 !***************** Exit ****************
 10 continue
 return

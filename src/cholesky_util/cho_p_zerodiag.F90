@@ -20,16 +20,18 @@ subroutine Cho_P_ZeroDiag(Diag,iSym,iABG)
 ! NB! If you wish to test the entire local diagonal (i.e. not just
 !     the qualified), use Cho_P_ZeroDiag_Rst instead.
 
-use ChoSwp, only: iQuAB_L, IndRed
 use ChoArr, only: iL2G, nQual_L
+use ChoSwp, only: IndRed, iQuAB_L
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Diag(*)
-integer iSym, iABG
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-integer iQ, iAB, jAB, kAB
+integer(kind=iwp) :: iAB, iQ, jAB, kAB
 
 if (Cho_Real_Par) then
   do iQ=1,nQual_L(iSym)
@@ -37,12 +39,12 @@ if (Cho_Real_Par) then
     jAB = IndRed(iAB,2)    ! addr in local rs1
     kAB = iL2G(jAB)        ! addr in global rs1
     if (kAB == iABG) then  ! found...
-      Diag(jAB) = 0.0d0    ! now zero local diagonal elm.
+      Diag(jAB) = Zero     ! now zero local diagonal elm.
       return
     end if
   end do
 else
-  Diag(iABG) = 0.0d0
+  Diag(iABG) = Zero
 end if
 
 end subroutine Cho_P_ZeroDiag

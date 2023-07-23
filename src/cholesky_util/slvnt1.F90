@@ -18,52 +18,57 @@ subroutine SlvNt1(K_Lap,NTimes,Coeff,T)
 !            obtain omega & alpha
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-parameter(TOL=1.0D-22,ONE=1.0D+00,TWO=2.0D+00,THTMIN=1.0D-04,PT5=0.5D+00)
-real*8 Coeff(40), CoeffOld(40), W(40), VV(40), T(40), A(40,40)
-logical Error, Dbg
+implicit none
+integer(kind=iwp) :: K_Lap, NTimes
+real(kind=wp) :: Coeff(40), T(40)
+integer(kind=iwp) :: I, I_Dim, IRes, Iter
+real(kind=wp) :: A(40,40), CoeffOld(40), Eps0, Eps1, Theta, VV(40), W(40)
+logical(kind=iwp) :: Dbg, Error
+real(kind=wp), parameter :: THTMIN = 1.0e-4_wp, TOL = 1.0e-22_wp
 
-Theta = 1.0D+00
+Theta = One
 Dbg = .false.
-IDim = 2*K_Lap
+I_Dim = 2*K_Lap
 
 do Iter=1,NTimes
   IRes = 1
   call AltErr(K_Lap,Coeff,T,VV,Eps0)
   if (Eps0 > Tol) then
-    call PtDiff(IDim,Coeff,T,A)
+    call PtDiff(I_Dim,Coeff,T,A)
 
     if (Dbg) then
       write(IW,'(A)') 'Check values of derivatives'
-      call Laplace_PRSQ(A,IDim,IDim,IDim)
+      call Laplace_PRSQ(A,I_Dim,I_Dim,I_Dim)
     end if
 
-    call SlvEqs(IDim,A,W,VV,Error)
+    call SlvEqs(I_Dim,A,W,VV,Error)
     if (Dbg) then
       write(IW,*) 'Check solutions of equations',Error
-      do I=1,IDim
+      do I=1,I_Dim
         write(IW,*) I,W(I)
       end do
     end if
     if (.not. Error) goto 555
-    call DCOPY_(IDim,Coeff,1,CoeffOld,1)
+    call DCOPY_(I_Dim,Coeff,1,CoeffOld,1)
 
 222 continue
-    do I=1,IDim
+    do I=1,I_Dim
       Coeff(I) = CoeffOld(I)-Theta*W(I)
     end do
     call AltErr(K_Lap,Coeff,T,VV,Eps1)
     if (Eps1 < Eps0) then
-      Theta = TWO*Theta
-      if (Theta > ONE) Theta = ONE
+      Theta = Two*Theta
+      if (Theta > One) Theta = One
       goto 888
     end if
     if (Theta < THTMIN) then
       goto 888
     else
-      Theta = Theta*PT5
+      Theta = Theta*Half
       goto 222
     end if
 555 continue

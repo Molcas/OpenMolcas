@@ -18,12 +18,13 @@ subroutine Cho_VecBuf_Copy(Vec,nVec,iSym)
 !          include the nVec vectors in array Vec.
 
 use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Vec(*)
-integer nVec, iSym
+real(kind=wp) :: Vec(*)
+integer(kind=iwp) :: nVec, iSym
 #include "cholesky.fh"
-integer mUsed, Left, nCopy, lCopy, kOff
+integer(kind=iwp) :: kOff, lCopy, Left, mUsed, nCopy
 
 ! Check if there is anything to do at all.
 ! 1) any buffer allocated?

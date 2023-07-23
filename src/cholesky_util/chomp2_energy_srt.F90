@@ -18,24 +18,27 @@ subroutine ChoMP2_Energy_Srt(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 ! Purpose: compute MP2 energy contribution using presorted MO
 !          Cholesky vectors on disk.
 
-use ChoMP2, only: LnOcc, LnT1am, LiT1am, LiMatij, lUnit
+use ChoMP2, only: LiMatij, LiT1am, LnOcc, LnT1am, lUnit
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical Delete
-real*8 EOcc(*), EVir(*), Wrk(lWrk)
+implicit none
+integer(kind=iwp) :: irc, lWrk
+logical(kind=iwp) :: Delete
+real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character*10 ThisNm
-character*17 SecNam
-parameter(SecNam='ChoMP2_Energy_Srt',ThisNm='Energy_Srt')
-integer nEnrVec(8), LnT2am, LiT2am(8)
-integer nVaJi, iVaJi(8)
-integer iDummy
-parameter(iDummy=-999999)
-real*8 X(0:1)
-data X/0.0d0,1.0d0/
+integer(kind=iwp) :: iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iVaJi(8), iVec, iVec0, iVec1, &
+                     jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kVai, kVbj, kVec, kVecai, kXaibj, &
+                     kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec, nVaJi, &
+                     nVec
+real(kind=wp) :: Fac
+integer(kind=iwp), parameter :: iDummy = -999999
+real(kind=wp), parameter :: X(0:1) = [Zero,One]
+character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Srt'
 ! Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -53,7 +56,7 @@ end if
 ! Initialize MP2 energy correction.
 ! ---------------------------------
 
-EMP2 = 0.0d0
+EMP2 = Zero
 
 ! Print header of status table.
 ! -----------------------------
@@ -186,7 +189,7 @@ do iBatch=1,nBatch
                     kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
                     kOffM = kMabij+LiT2am(1)+nMatab(1)*(ij-1)+iMatab(iSymb,iSymb)
 
-                    call DGEMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),1.0d0, &
+                    call DGEMM_('N','T',nVir(iSymb),nVir(iSymb),NumVec,One,Wrk(kOffi),nVir(iSymb),Wrk(kOffj),nVir(iSymb),One, &
                                 Wrk(kOffM),nVir(iSymb))
 
                   end do
@@ -209,8 +212,8 @@ do iBatch=1,nBatch
                         kOffj = kVec+iVaJi(iSymj)+nVir(iSymb)*NumVec*(j-1)
                         kOffM = kMabij+LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSyma,iSymb)
 
-                        call DGEMM_('N','T',nVir(iSyma),nVir(iSymb),NumVec,1.0d0,Wrk(kOffi),nVir(iSyma),Wrk(kOffj),nVir(iSymb), &
-                                    1.0d0,Wrk(kOffM),nVir(iSyma))
+                        call DGEMM_('N','T',nVir(iSyma),nVir(iSymb),NumVec,One,Wrk(kOffi),nVir(iSyma),Wrk(kOffj),nVir(iSymb),One, &
+                                    Wrk(kOffM),nVir(iSyma))
 
                       end do
                     end do
@@ -306,9 +309,9 @@ do iBatch=1,nBatch
             Fac = X(min((iBat-1),1))
             kXint = kXaibj+LiT2am(iSym)
             if (iBatch == jBatch) then
-              call dGeMM_Tri('N','T',Nai,Nai,NumV,1.0d0,Wrk(kVai),Nai,Wrk(kVai),Nai,Fac,Wrk(kXint),Nai)
+              call dGeMM_Tri('N','T',Nai,Nai,NumV,One,Wrk(kVai),Nai,Wrk(kVai),Nai,Fac,Wrk(kXint),Nai)
             else
-              call DGEMM_('N','T',Nai,Nbj,NumV,1.0d0,Wrk(kVai),Nai,Wrk(kVbj),Nbj,Fac,Wrk(kXint),Nai)
+              call DGEMM_('N','T',Nai,Nbj,NumV,One,Wrk(kVai),Nai,Wrk(kVbj),Nbj,Fac,Wrk(kXint),Nai)
             end if
 
           end do ! Cholesky vector batch

@@ -13,44 +13,23 @@
 
 module ChoArr
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-integer, allocatable :: iSOShl(:)
-integer, allocatable :: iShlSO(:)
-integer, allocatable :: iBasSh(:,:)
-integer, allocatable :: nBasSh(:,:)
-integer, allocatable :: nBstSh(:)
-integer, allocatable :: iSP2F(:)
-integer, allocatable :: iAtomShl(:)
-integer, allocatable :: iRS2F(:,:)
-integer, allocatable :: IntMap(:)
-integer, allocatable :: iScr(:)
-integer, allocatable :: nDimRS(:,:)
-integer, allocatable :: iL2G(:)
-integer, allocatable :: iShP2RS(:,:)
-integer, allocatable :: iShP2Q(:,:)
-integer, allocatable :: iSimRI(:)
-
-integer, allocatable :: iOff_Batch(:,:)
-integer :: nDim_Batch(8)
-
-integer, allocatable :: iQL2G(:,:)
-
 type rPointers
-  real*8, pointer :: Array(:,:) => null()
+  real(kind=wp), pointer :: Array(:,:) => null()
 end type rPointers
 
+integer(kind=iwp) :: n_MySP, nDim_Batch(8), nQual_L(8)
+integer(kind=iwp), allocatable :: iAtomShl(:), iBasSh(:,:), Idle(:), iL2G(:), IntMap(:), iOff_Batch(:,:), iQL2G(:,:), iRS2F(:,:), &
+                                  iScr(:), iShlSO(:), iShP2Q(:,:), iShP2RS(:,:), iSimRI(:), iSOShl(:), iSP2F(:), MySP(:), &
+                                  nBasSh(:,:), nBstSh(:), nDimRS(:,:)
+real(kind=wp), allocatable, target :: LQ_Tot(:)
 type(rPointers) :: LQ(8)
-real*8, allocatable, target :: LQ_Tot(:)
 
-integer :: nQual_L(8)
-
-integer, allocatable :: Idle(:)
-integer, allocatable :: MySP(:)
-integer :: n_MySP
-
-public :: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, nDimRS, iL2G, iShP2RS, iShP2Q, iOff_Batch, &
-          nDim_Batch, iQL2G, LQ, LQ_Tot, nQual_L, Idle, MySP, n_MySP, iSimRI
+public :: iAtomShl, iBasSh, Idle, iL2G, IntMap, iOff_Batch, iQL2G, iRS2F, iScr, iShlSO, iShP2Q, iShP2RS, iSimRI, iSOShl, iSP2F, &
+          LQ, LQ_Tot, MySP, n_MySP, nBasSh, nBstSh, nDim_Batch, nDimRS, nQual_L
 
 end module ChoArr

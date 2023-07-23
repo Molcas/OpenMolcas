@@ -18,36 +18,31 @@ subroutine ChoMP2g_Density3(irc,CMO)
 !     Purpose: Finalize MP2 Density.                                   *
 !***********************************************************************
 
-use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
-use Constants
-use stdalloc
-use ChoMP2g
+use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc
-real*8 CMO(*)
+implicit none
+integer(kind=iwp) :: irc
+real(kind=wp) :: CMO(*)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-character(len=8), parameter :: ThisNm = 'Density3'
-character(len=16), parameter :: SecNam = 'ChoMP2g_Density3'
-integer nOccAll(8), nOrbAll(8)
-real*8, allocatable :: AOTriDens(:), WAOTriDens(:)
+integer(kind=iwp) :: i, iSym, j, lTriDens, nOccAll(8), nOrbAll(8)
+real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
-
     use ChoMP2, only: Pointer_2D
-
-    integer, intent(in) :: nTriDens
-    real*8, intent(inout) :: TriDens(nTriDens)
+    import :: wp, iwp
+    integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
+    real(kind=wp), intent(inout) :: TriDens(nTriDens)
     type(Pointer_2D), intent(in) :: MP2X_e(8)
-    real*8, intent(in) :: CMO(*)
-    integer, intent(in) :: mSym
-    integer, intent(in) :: nOrbAll(8), nOccAll(8)
-    logical, intent(in) :: Diagonalize
+    real(kind=wp), intent(in) :: CMO(*)
+    logical(kind=iwp), intent(in) :: Diagonalize
   end subroutine Build_Mp2Dens
 end interface
 

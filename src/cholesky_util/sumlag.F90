@@ -14,10 +14,18 @@
 
 function SumLag(K_Lap,W,X,Delta)
 
-implicit real*8(A-H,O-Z)
-real*8 W(K_Lap), X(K_Lap)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-Dum = 0.0D+00
+implicit none
+real(kind=wp) :: SumLag
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: W(K_Lap), X(K_Lap), Delta
+integer(kind=iwp) :: I
+real(kind=wp) :: Dum
+real(kind=wp), external :: FuncLa
+
+Dum = Zero
 do I=1,K_Lap
   Dum = Dum+W(I)*FuncLa(X(I),Delta)
 end do

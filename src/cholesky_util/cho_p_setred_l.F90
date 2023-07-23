@@ -14,19 +14,15 @@ subroutine Cho_P_SetRed_L()
 ! Purpose: set next local reduced set. The next global reduced set
 !          must be available at (global) index array location 2.
 
-use ChoSwp, only: nnBstRSh, nnBstRSh_G
-use ChoSwp, only: iiBstRSh, iiBstRSh_G
-use ChoSwp, only: IndRed, IndRed_G
 use ChoArr, only: iL2G, MySP
+use ChoSwp, only: iiBstRSh, iiBstRSh_G, IndRed, IndRed_G, nnBstRSh, nnBstRSh_G
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
-character*14 SecNam
-parameter(SecNam='Cho_P_SetRed_L')
-integer irc, iC, nDim
-integer i, j, k, i0, k0, l, ll
-integer iSym, iSP, iShlAB
+integer(kind=iwp) :: i, i0, iC, irc, iShlAB, iSP, iSym, j, k, k0, l, ll, nDim
+character(len=*), parameter :: SecNam = 'Cho_P_SetRed_L'
 
 ! Copy current local reduced set (at location 2) to location 3.
 ! -------------------------------------------------------------

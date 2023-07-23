@@ -13,21 +13,24 @@ subroutine CHO_GETSTOR(VCSTOR)
 !
 ! Purpose: get total vector storage (in words).
 
-implicit real*8(a-h,o-z)
-real*8 VCSTOR(*)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VCSTOR(*)
 #include "cholesky.fh"
-character*11 SECNAM
-parameter(SECNAM='CHO_GETSTOR')
+integer(kind=iwp) :: ISYM
+character(len=*), parameter :: SECNAM = 'CHO_GETSTOR'
 
 do ISYM=1,NSYM
   if (NUMCHO(ISYM) > MAXVEC) then
     write(LUPRI,*) SECNAM,': too many Cholesky vectors in symmetry ',ISYM,': ',NUMCHO(ISYM)
     call CHO_QUIT('Error in '//SECNAM,103)
-    VCSTOR(ISYM) = 0.0d0
+    VCSTOR(ISYM) = Zero
   else if (NUMCHO(ISYM) < 0) then
     write(LUPRI,*) SECNAM,': negative #Cholesky vectors in symmetry ',ISYM,': ',NUMCHO(ISYM)
     call CHO_QUIT('Error in '//SECNAM,103)
-    VCSTOR(ISYM) = 0.0d0
+    VCSTOR(ISYM) = Zero
   else
     call CHO_GETSTOR_S(VCSTOR(ISYM),ISYM)
   end if

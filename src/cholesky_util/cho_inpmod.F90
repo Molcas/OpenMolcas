@@ -22,19 +22,21 @@ subroutine Cho_InpMod(Mode)
 !          Mode = '1CCD' : set one-center approximation
 !          (All other Mode-values are ignored.)
 
+use Definitions, only: wp
+
 implicit none
-character*4 Mode
-character*4 Mod2
+character(len=4) :: Mode
+character(len=4) :: Mod2
 
 Mod2 = Mode
 call Upcase(Mod2)
 
 if (Mod2(1:3) == 'LOW') then
-  call Cho_SetDecompositionThreshold(1.0d-4)
+  call Cho_SetDecompositionThreshold(1.0e-4_wp)
 else if (Mod2(1:4) == 'MEDI') then
-  call Cho_SetDecompositionThreshold(1.0d-6)
+  call Cho_SetDecompositionThreshold(1.0e-6_wp)
 else if (Mod2(1:4) == 'HIGH') then
-  call Cho_SetDecompositionThreshold(1.0d-8)
+  call Cho_SetDecompositionThreshold(1.0e-8_wp)
 else if (Mod2(1:4) == '1CCD') then
   call Cho_Set1CCD(.true.)
 end if

@@ -19,14 +19,14 @@ subroutine Cho_TrcIdl_Report()
 
 use Para_Info, only: nProcs
 use ChoArr, only: Idle
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-integer i
-integer nIdle
-integer, allocatable :: TIloc(:)
+integer(kind=iwp) :: i, nIdle
+integer(kind=iwp), allocatable :: TIloc(:)
 
 #ifdef _DEBUGPRINT_
 if ((.not. allocated(Idle)) .or. (.not. Trace_Idle)) then
@@ -56,7 +56,8 @@ if (Cho_Real_Par) then
   if (nIdle == 0) then
     write(LuPri,'(A)') 'No idle procs to report'
   else
-    write(LuPri,'(I4,A,I4,A,F7.2,A)') nIdle,' of',nProcs,' procs have been idle (',1.0d2*dble(nIdle)/dble(nProcs),' %)'
+    write(LuPri,'(I4,A,I4,A,F7.2,A)') nIdle,' of',nProcs,' procs have been idle (', &
+                                      1.0e2_wp*real(nIdle,kind=wp)/real(nProcs,kind=wp),' %)'
     write(LuPri,'(A)') 'List of idle procs:'
     do i=0,nProcs-1
       if (TIloc(i) > 0) write(LuPri,'(I4,A,I8,A)') i,' (Idle counter:',TIloc(i),')'

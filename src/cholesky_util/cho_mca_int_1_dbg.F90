@@ -17,12 +17,14 @@ subroutine CHO_MCA_INT_1_DBG(DIAG,LEVEL)
 !          2: test diagonal, reduced set 2 (i.e. current).
 !          3: test symmetry of integral matrix (shell quadruple-based)
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Diag(*)
+integer(kind=iwp) :: Level
 #include "cholesky.fh"
-character*17 SECNAM
-parameter(SECNAM='CHO_MCA_INT_1_DBG')
-logical LOCDIAG, LOCSYM
+integer(kind=iwp) :: IRED
+logical(kind=iwp) :: LOCDIAG, LOCSYM
 
 call CHO_HEAD('Debugging CHO_MCA_INT_1','=',80,LUPRI)
 write(LUPRI,'(A,I2)') 'Debug level',LEVEL

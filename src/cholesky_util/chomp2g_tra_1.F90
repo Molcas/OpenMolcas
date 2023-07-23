@@ -21,18 +21,19 @@ subroutine ChoMP2g_Tra_1(COrb1,COrb2,Diag,DoDiag,Wrk,lWrk,iSym,iMoType1,iMoType2
 !          diagonal.
 
 use ChoSwp, only: InfVec
-use ChoMP2g
+use ChoMP2g, only: iAdrOff, nAdrOff, nMoAo, nMoMo, nMoType
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
-logical DoDiag
+implicit none
+integer(kind=iwp) :: lWrk, iSym, iMoType1, iMoType2
+real(kind=wp) :: COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
+logical(kind=iwp) :: DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-character*12 SecNam
-parameter(SecNam='ChoMP2_Tra_1')
-integer Cho_lRead
-external Cho_lRead
-integer pq
+integer(kind=iwp) :: iAdr, iBat, iLoc, iOpt, irc, iRed, iRedC, iVec, iVec1, iVec2, iVecType, jNum, jVec, jVec1, kChoAO, kChoMO, &
+                     kEnd0, kHlfTr, kOff, kOffMO, lChoAO, lChoMO, lHlfTr, lRead, lWrk0, lWrk1, mUsed, nMOVec, NumBat, NumV, pq
+character(len=*), parameter :: SecNam = 'ChoMP2_Tra_1'
+integer(kind=iwp), external :: Cho_lRead
 
 ! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
 iVecType = iMoType2+(iMoType1-1)*nMoType
@@ -62,7 +63,7 @@ if (lWrk0 < (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) call ChoMP2_Quit(SecNam,'insu
 
 lRead = Cho_lRead(iSym,lWrk0)
 if (lRead < 1) then
-  write(6,*) SecNam,': memory error: lRead = ',lRead
+  write(u6,*) SecNam,': memory error: lRead = ',lRead
   call ChoMP2_Quit(SecNam,'memory error',' ')
   lWrk1 = 0 ! to avoid compiler warnings...
 else

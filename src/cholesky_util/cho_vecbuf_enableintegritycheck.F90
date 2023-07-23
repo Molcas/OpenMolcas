@@ -20,21 +20,16 @@ subroutine Cho_VecBuf_EnableIntegrityCheck(irc)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM, nVec_in_Buf
-use stdalloc
+use ChoVecBuf, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
+integer(kind=iwp) :: irc
 #include "cholesky.fh"
 #include "choprint.fh"
-real*8 dDot_, Cho_dSumElm
-external dDot_, Cho_dSumElm
-integer ip
-integer iSym
-integer jVec
-integer jRed
-integer ipV
-integer l_ChVBfI
+real(kind=wp), external :: Cho_dSumElm, dDot_
+integer(kind=iwp) :: ip, ipV, iSym, jRed, jVec, l_ChVBfI
 
 ! Set return code
 irc = 0

@@ -14,27 +14,31 @@ subroutine CHO_PRTRED(IOPT)
 ! Purpose: print information about reduced set.
 
 use ChoSwp, only: nnBstRSh
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IOPT
 #include "choorb.fh"
 #include "cholesky.fh"
-real*8 XBAS(8), XXBAS(8)
-integer NSHP(2)
-logical CONTRIB(2)
+integer(kind=iwp) :: IRED, ISHLAB, ISYM, ISYMA, ISYMB, NRED, NSHP(2)
+real(kind=wp) :: PCT1, PCT2, XBAS(8), XXBAS(8), XXBAST
+logical(kind=iwp) :: CONTRIB(2)
 ! Statement function
+integer(kind=iwp) :: MULD2H, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 
 do ISYM=1,NSYM
-  XBAS(ISYM) = dble(NBAS(ISYM))
+  XBAS(ISYM) = real(NBAS(ISYM),kind=wp)
 end do
 
-XXBAST = 0.0d0
+XXBAST = Zero
 do ISYM=1,NSYM
-  XXBAS(ISYM) = 0.0d0
+  XXBAS(ISYM) = Zero
   do ISYMB=1,NSYM
     ISYMA = MULD2H(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
-      XXBAS(ISYM) = XXBAS(ISYM)+XBAS(ISYMA)*(XBAS(ISYMA)+1.0d0)/2.0d0
+      XXBAS(ISYM) = XXBAS(ISYM)+XBAS(ISYMA)*(XBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then
       XXBAS(ISYM) = XXBAS(ISYM)+XBAS(ISYMA)*XBAS(ISYMB)
     end if
@@ -64,9 +68,9 @@ end do
 call CHO_HEAD('Reduced Set Information','=',80,LUPRI)
 
 if (NNSHL_TOT == 0) then
-  PCT1 = 9.9d9
+  PCT1 = 9.9e9_wp
 else
-  PCT1 = 1.0d2*dble(NSHP(1))/dble(NNSHL_TOT)
+  PCT1 = 1.0e2_wp*real(NSHP(1),kind=wp)/real(NNSHL_TOT,kind=wp)
 end if
 if (IOPT == 1) then
   write(LUPRI,'(/,A,/,A)') 'Sym.          Full   First Red. Set','-----------------------------------'
@@ -79,9 +83,9 @@ if (IOPT == 1) then
   write(LUPRI,'(/,A,I10,A,I10,A,F7.2,A)') 'First Reduced Set:',NSHP(1),' of',NNSHL_TOT,' shell pairs contribute (',PCT1,'%)'
 else
   if (NNSHL_TOT == 0) then
-    PCT2 = 9.9d9
+    PCT2 = 9.9e9_wp
   else
-    PCT2 = 1.0d2*dble(NSHP(2))/dble(NNSHL_TOT)
+    PCT2 = 1.0e2_wp*real(NSHP(2),kind=wp)/real(NNSHL_TOT,kind=wp)
   end if
   write(LUPRI,'(/,A,/,A,/,A)') '                          Reduced Set','Sym.          Full      First    Current', &
                                '----------------------------------------'

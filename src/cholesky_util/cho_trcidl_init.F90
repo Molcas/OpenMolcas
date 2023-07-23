@@ -19,11 +19,12 @@ subroutine Cho_TrcIdl_Init()
 
 use Para_Info, only: nProcs
 use ChoArr, only: Idle
-use stdalloc
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
 #include "cho_para_info.fh"
-integer l_Idle
+integer(kind=iwp) :: l_Idle
 
 if (Cho_Real_Par) then
   l_Idle = nProcs

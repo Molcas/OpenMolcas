@@ -22,28 +22,29 @@ subroutine CHO_MCA_CALCINT_3(XINT,LINT,ISHLAB)
 
 use ChoArr, only: iSP2F
 use ChoSwp, only: nnBstRSh
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 XINT(LINT)
+implicit none
+integer(kind=iwp) :: LINT, ISHLAB
+real(kind=wp) :: XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
-character*17 SECNAM
-parameter(SECNAM='CHO_MCA_CALCINT_3')
-integer NAB(8)
-integer CHO_ISUMELM
-logical DOINTS, LOCDBG
-parameter(LOCDBG=.false.)
-parameter(INFINT=INF_INT,INFIN2=INF_IN2)
+integer(kind=iwp) :: CHO_ISUMELM, i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
+real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
+logical(kind=iwp) :: DOINTS
+logical(kind=iwp), parameter :: LOCDBG = .false.
+character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_3'
 
 ! Initializations.
 ! ----------------
 
 call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
 
-XXSHL = dble(NNSHL)
-XSKIP = 0.0d0
+XXSHL = real(NNSHL,kind=wp)
+XSKIP = Zero
 
-if (IPRINT >= INFINT) write(LUPRI,*)
+if (IPRINT >= INF_INT) write(LUPRI,*)
 
 ! Set mapping from shell pair AB to qualified columns.
 ! ----------------------------------------------------
@@ -91,8 +92,8 @@ do ISHLCD=1,NNSHL
     ! Print message.
     ! --------------
 
-    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'Invoking Seward for shell quadruple (',ISHLC,ISHLD,'|',ISHLA, &
-                                                                   ISHLB,')'
+    if (IPRINT >= INF_INT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'Invoking Seward for shell quadruple (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                    ISHLB,')'
 
     ! Set mapping from shell pair CD to reduced set.
     ! ----------------------------------------------
@@ -119,13 +120,13 @@ do ISHLCD=1,NNSHL
     ! Update skip counter.
     ! --------------------
 
-    XSKIP = XSKIP+1.0d0
+    XSKIP = XSKIP+One
 
     ! Print message.
     ! --------------
 
-    if (IPRINT >= INFINT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,'|',ISHLA, &
-                                                                   ISHLB,')'
+    if (IPRINT >= INF_INT) write(LUPRI,'(A,I5,1X,I5,A,I5,1X,I5,A)') 'NOTICE: skipping shell quadruple    (',ISHLC,ISHLD,'|',ISHLA, &
+                                                                    ISHLB,')'
 
   end if
 
@@ -134,8 +135,8 @@ end do
 ! Print skip statistics.
 ! ----------------------
 
-if (IPRINT >= INFIN2) then
-  PCT = 1.0d2*XSKIP/XXSHL
+if (IPRINT >= INF_IN2) then
+  PCT = 1.0e2_wp*XSKIP/XXSHL
   write(LUPRI,'(A,F7.2,A)') 'Skipped',PCT,'% of rows (shell pairs) in this distribution'
   call CHO_FLUSH(LUPRI)
 end if

@@ -25,45 +25,32 @@ subroutine Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l
 !                 calculation seems converged
 !          irc>0: calculation not converged
 
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer irc
-integer l_NVT
-integer l_nBlock
-integer l_nV1, l_nV2
-integer l_iV11, l_iV12
-integer l_Z1, l_Z2, l_Z
-integer NVT(l_NVT)
-integer nBlock(l_nBlock)
-integer nV(l_NV1,l_NV2)
-integer iV1(l_IV11,l_iV12)
-integer ip_Z(l_Z1,l_Z2)
-real*8 Z(l_Z)
-logical Report
+integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp) :: Z(l_Z)
+logical(kind=iwp) :: Report
 #include "cholesky.fh"
-character(len=18), parameter :: SecNam = 'Cho_CheckDiagFromZ'
-integer iSym
-integer jBlock, kblock
-integer J_inBlock, K_inBlock
-integer kOffZ
-integer iD
-integer n1, n2, n3, n4, n5
-integer nTot
-real*8 Dmax, Damax, Dmin, Damin
-integer, pointer :: InfVct(:,:,:)
-integer i, j
-integer iTri
-real*8, allocatable :: IntDia(:)
+integer(kind=iwp) :: iD, iSym, J_inBlock, jBlock, K_inBlock, kblock, kOffZ, n1, n2, n3, n4, n5, nTot
+real(kind=wp) :: Damax, Damin, Dmax, Dmin
+integer(kind=iwp), pointer :: InfVct(:,:,:)
+real(kind=wp), allocatable :: IntDia(:)
+character(len=*), parameter :: SecNam = 'Cho_CheckDiagFromZ'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
-    integer, pointer :: InfVct(:,:,:)
+    import :: iwp
+    integer(kind=iwp), pointer :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Get pointer to global InfVec array
@@ -112,10 +99,10 @@ n2 = 0
 n3 = 0
 n4 = 0
 n5 = 0
-Dmax = -9.0d9
-Damax = 0.0d0
-Dmin = 9.0d9
-Damin = 9.0d9
+Dmax = -9.0e9_wp
+Damax = Zero
+Dmin = 9.0e9_wp
+Damin = 9.0e9_wp
 do iSym=1,nSym
   do J=1,NVT(iSym)
     iD = InfVcT(J,1,iSym)
@@ -124,7 +111,7 @@ do iSym=1,nSym
     Dmin = min(Dmin,IntDia(iD))
     Damin = min(Damin,abs(IntDia(iD)))
     if (IntDia(iD) <= ThrCom) n1 = n1+1
-    if (IntDia(iD) < 0.0d0) n2 = n2+1
+    if (IntDia(iD) < Zero) n2 = n2+1
     if (IntDia(iD) < ThrNeg) n3 = n3+1
     if (IntDia(iD) < WarNeg) n4 = n4+1
     if (IntDia(iD) < TooNeg) n5 = n5+1

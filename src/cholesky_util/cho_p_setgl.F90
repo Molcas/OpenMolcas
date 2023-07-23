@@ -22,22 +22,19 @@ subroutine Cho_P_SetGL()
 !          Diag_Hidden is allocated in the calling routine, while
 !          Diag_G_Hidden is allocated here if needed.
 
-use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
-use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
-use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
-use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
-use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
-use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
-use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
 use ChoArr, only: iL2G, MySP, n_MySP
-use stdalloc
+use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden, IndRed, IndRed_G, &
+                  IndRed_G_Hidden, IndRSh, IndRSh_G, IndRsh_G_Hidden, InfRed, InfRed_G, InfRed_G_Hidden, InfVec, InfVec_G, &
+                  InfVec_G_Hidden, nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
+
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-character*11 SecNam
-parameter(SecNam='Cho_P_SetGL')
-integer i, N, iSP, iSym, iShlAB, i1, i2, irc
+integer(kind=iwp) :: i, i1, i2, irc, iShlAB, iSP, iSym, N
+character(len=*), parameter :: SecNam = 'Cho_P_SetGL'
 
 ! If not parallel, return.
 ! ------------------------

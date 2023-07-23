@@ -21,10 +21,10 @@ use ChoSwp, only: InfVec
 #ifdef _MOLCAS_MPP_
 use ChoSwp, only: InfVec_Bak
 #endif
-use ChPari
+use Definitions, only: iwp
 
 implicit none
-integer, pointer :: InfVct(:,:,:)
+integer(kind=iwp), pointer :: InfVct(:,:,:)
 #ifdef _MOLCAS_MPP_
 #include "cho_para_info.fh"
 

@@ -13,8 +13,11 @@ subroutine CHO_LSWAP(X,Y)
 !
 ! Purpose: swap X and Y, logical version.
 
+use Definitions, only: iwp
+
 implicit none
-logical X, Y, TEMP
+logical(kind=iwp) :: X, Y
+logical(kind=iwp) :: TEMP
 
 TEMP = X
 X = Y

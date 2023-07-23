@@ -18,53 +18,32 @@ subroutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP,NVT,l_NVT)
 #ifndef _GA_
 use Para_Info, only: nProcs
 #endif
-use ChoSwp, only: nnBstRSh, iiBstRSh
-use stdalloc
+use ChoSwp, only: iiBstRSh, nnBstRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer irc
-integer nSP_Batch
-integer SP_BatchDim(nSP_Batch)
-integer n_mySP
-integer id_mySP(n_mySP)
-integer l_NVT
-integer NVT(l_NVT)
+integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP), l_NVT, NVT(l_NVT)
 #ifdef _MOLCAS_MPP_
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
-character*12 SecNam
-parameter(SecNam='Cho_XCV_DV_P')
-integer iOpt
-parameter(iOpt=1)
-logical ga_create, ga_destroy
-external ga_create, ga_destroy
-logical ok
-real*8 X0, X1, Y0, Y1
-integer g_a
-integer iSym
-integer l_Mem
-integer max_vector_dim
-integer nVec_per_batch, nVec_this_batch
-integer iBatch, nBatch
-integer l_V
-integer l_numV
-integer l_IDV
-integer kV, myStart, myEnd
-integer my_nV
-integer lTot, iAdr, iAdr0, nDim
-integer J0, J1, J2
+integer(kind=iwp) :: g_a, iAdr, iAdr0, iBatch, iSP, iSP1, iSP2, iSP_, iSP_Batch, iSym, J0, J1, J2, kV, l_IDV, l_Mem, l_numV, l_V, &
+                     lTot, max_vector_dim, my_nV, myEnd, myStart, nBatch, nDim, nSP_this_batch, nVec_per_batch, nVec_this_batch
+real(kind=wp) :: X0, X1, Y0, Y1
+logical(kind=iwp) :: ok
 #ifndef _GA_
-integer Jst, Jen
+integer(kind=iwp) :: Jen, Jst
 #else
-integer i, j
+integer(kind=iwp) :: i, j
 #endif
-integer iSP, iSP_, iSP1, iSP2
-integer iSP_Batch
-integer nSP_this_batch
-integer, allocatable :: GAMNCH(:), GANUMV(:), GADIST(:)
-real*8, allocatable :: GAVEC(:)
+integer(kind=iwp), allocatable :: GADIST(:), GAMNCH(:), GANUMV(:)
+real(kind=wp), allocatable :: GAVEC(:)
+integer(kind=iwp), parameter :: iOpt = 1
+character(len=*), parameter :: SecNam = 'Cho_XCV_DV_P'
+logical(kind=iwp), external :: ga_create, ga_destroy
 
 ! Init return code
 irc = 0

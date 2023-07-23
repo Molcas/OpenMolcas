@@ -19,18 +19,17 @@ subroutine ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
 !          For iBatch=jBatch and ChoAlg=2, (ai|bj) is stored as
 !          the matrix M(ab,ij) with i<=j.
 
-use ChoMP2, only: LnT1am, LnMatij
+use ChoMP2, only: LnMatij, LnT1am
+use Definitions, only: iwp
 
 implicit none
-integer LnT2am, iBatch, jBatch
-integer LiT2am(8)
+integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-integer iSym
-character*14 String
-character*20 SecNam
-parameter(SecNam='ChoMP2_Energy_GetInd')
+integer(kind=iwp) :: iSym
+character(len=14) :: String
+character(len=*), parameter :: SecNam = 'ChoMP2_Energy_GetInd'
 
 if (iBatch == jBatch) then
   LnT2am = 0

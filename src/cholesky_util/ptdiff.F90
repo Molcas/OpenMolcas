@@ -12,19 +12,24 @@
 !               2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine PtDiff(IDim,Coeff,T,A)
+subroutine PtDiff(I_Dim,Coeff,T,A)
 !-----------------------------------------------------------------------
 ! Function : Calculate derivative
 !            j = odd  ; A(I,J) = EXP(-X*Coeff(J+1))
 !            j = even ; A(I,J) = -X*Coeff(J-1)*EXP(-X*Coeff(J))
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-real*8 Coeff(40), T(40), A(40,40)
+use Definitions, only: wp, iwp
 
-do I=1,IDim
-  do J=1,IDim
-    X = T(IDim+1-I)
+implicit none
+integer(kind=iwp) :: I_Dim
+real(kind=wp) :: Coeff(40), T(40), A(40,40)
+integer(kind=iwp) :: I, J
+real(kind=wp) :: X
+
+do I=1,I_Dim
+  do J=1,I_Dim
+    X = T(I_Dim+1-I)
     if (mod(J,2) == 1) then
       A(I,J) = exp(-X*Coeff(J+1))
     else

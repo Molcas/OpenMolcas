@@ -16,14 +16,14 @@ subroutine CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,LMMBSTRT,NDUMP)
 
 use ChoArr, only: iSP2F
 use ChoSwp, only: iiBstRSh
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), BUF(LENBUF)
-integer IBUF(4,LENBUF)
-integer INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
+implicit none
+integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LMMBSTRT, INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3), NDUMP
+real(kind=wp) :: Diag(*), BUF(LENBUF)
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_RDDBUF')
+integer(kind=iwp) :: IAB, IDUMP, ISHLAB, ISYMAB, IUNIT, L, LENGTH
+character(len=*), parameter:: SECNAM = 'CHO_RDDBUF'
 
 if (LENBUF < LBUF) then
   write(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'

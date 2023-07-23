@@ -13,14 +13,16 @@ subroutine CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
 !
 ! Purpose: call Seward to calculate diagonal shell (AB|AB).
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut_Cho_diag
-real*8 SCR(LSCR)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ISHLA, ISHLB, LSCR
+real(kind=wp) :: SCR(LSCR)
 #include "itmax.fh"
 #include "cholesky.fh"
+integer(kind=iwp), external :: Integral_WrOut_Cho_diag
 #ifdef _DEBUGPRINT_
-character*15 SECNAM
-parameter(SECNAM='CHO_MCA_DIAGINT')
+character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
 
 call FZERO(SCR,LSCR)

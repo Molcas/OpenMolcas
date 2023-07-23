@@ -11,10 +11,12 @@
 
 subroutine Cho_P_getGV_P(numV,nSym)
 
+use Definitions, only: iwp
+
 implicit none
-integer nSym, numV(nSym)
+integer(kind=iwp) :: nSym, numV(nSym)
 #include "choglob.fh"
-integer i
+integer(kind=iwp) :: i
 
 do i=1,nSym
   numV(i) = numCho_G(i)

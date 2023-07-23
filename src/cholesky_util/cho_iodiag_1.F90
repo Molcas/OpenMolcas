@@ -16,12 +16,15 @@ subroutine CHO_IODIAG_1(DIAG,IOPT,FNAME)
 !          IOPT=1: write
 !          IOPT=2: read
 
-implicit real*8(a-h,o-z)
-real*8 DIAG(*)
-character*(*) FNAME
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: DIAG(*)
+integer(kind=iwp) :: IOPT
+character(len=*) :: FNAME
 #include "cholesky.fh"
-character*12 SECNAM
-parameter(SECNAM='CHO_IODIAG_1')
+integer(kind=iwp) :: IADR, LENGTH, LUNIT
+character(len=*), parameter :: SECNAM = 'CHO_IODIAG_1'
 
 LUNIT = 7
 call DANAME(LUNIT,FNAME)

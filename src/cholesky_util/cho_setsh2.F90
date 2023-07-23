@@ -11,10 +11,11 @@
 
 subroutine CHO_SETSH2(ISHLSO,ISOSHL,NBSTSH,NBAST,NSHELL)
 
+use Definitions, only: iwp
+
 implicit none
-integer NBAST, NSHELL
-integer ISHLSO(NBAST), ISOSHL(NBAST), NBSTSH(NSHELL)
-integer I, ICOUNT, ISHL
+integer(kind=iwp) :: NBAST, ISHLSO(NBAST), ISOSHL(NBAST), NSHELL, NBSTSH(NSHELL)
+integer(kind=iwp) :: I, ICOUNT, ISHL
 
 do ISHL=1,NSHELL
   ICOUNT = 0

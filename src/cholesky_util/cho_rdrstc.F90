@@ -19,17 +19,16 @@ subroutine CHO_RDRSTC(IFAIL)
 ! NB!!!! the restart files MUST be open on entry...
 
 use ChoSwp, only: InfRed, InfVec
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IFAIL
 #include "cholesky.fh"
 #include "choorb.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_RDRSTC')
-character*6 FRST
-parameter(FRST='CHORST')
-parameter(LSCR=8)
-real*8 DSCR(LSCR)
-integer JSCR(LSCR)
+integer(kind=iwp), parameter :: LSCR = 8
+integer(kind=iwp) :: IADR, IOPT, ISYM, J, JSCR(LSCR), NRD
+real(kind=wp) :: DSCR(LSCR)
+character(len=*), parameter :: SECNAM = 'CHO_RDRSTC'
 
 ! Set return code.
 ! ----------------

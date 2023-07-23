@@ -29,22 +29,24 @@ subroutine CHO_DRV_Inner(IRETURN)
 !    1 -- decomposition failed
 !    2 -- memory has been out of bounds
 
-use Para_Info, only: nProcs, Is_Real_Par
-use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+use Para_Info, only: Is_Real_Par, nProcs
 use ChoSubScr, only: Cho_SScreen
-use stdalloc
+use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: IRETURN
 #include "cholesky.fh"
 #include "choprint.fh"
-logical, parameter :: LOCDBG = .false.
-logical, parameter :: SKIP_PRESCREEN = .false., ALLOC_BKM = .true.
-logical LCONV
-character(len=8), parameter :: SECNAM = 'CHO_DRV_'
-real*8, parameter :: DUMTST = 0.123456789d0, DUMTOL = 1.0D-15
-real*8, allocatable :: Check(:)
-real*8, allocatable :: KWRK(:)
-integer, allocatable :: KIRS1F(:)
+integer(kind=iwp) :: IRC, ISEC, LIRS1F, LWRK
+real(kind=wp) :: TC, TCPU0, TCPU1, TST, TW, TWALL0, TWALL1
+logical(kind=iwp) :: LCONV
+real(kind=wp), allocatable :: Check(:), KWRK(:)
+integer(kind=iwp), allocatable :: KIRS1F(:)
+real(kind=wp), parameter :: DUMTOL = 1.0e-15_wp, DUMTST = 0.123456789_wp
+logical(kind=iwp), parameter :: ALLOC_BKM = .true., SKIP_PRESCREEN = .false.
+character(len=*), parameter :: SECNAM = 'CHO_DRV_'
 
 #ifdef _DEBUGPRINT_
 call CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')

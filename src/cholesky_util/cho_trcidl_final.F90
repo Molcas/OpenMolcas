@@ -18,7 +18,7 @@ subroutine Cho_TrcIdl_Final()
 ! Deallocate array for tracing idle processors
 
 use ChoArr, only: Idle
-use stdalloc
+use stdalloc, only: mma_deallocate
 
 implicit none
 

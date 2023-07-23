@@ -13,8 +13,10 @@ subroutine CHO_TIMER(TCPU,TWALL)
 !
 ! Purpose: timing (CPU and wall time).
 
+use Definitions, only: wp
+
 implicit none
-real*8 TCPU, TWALL
+real(kind=wp) :: TCPU, TWALL
 
 call CWTIME(TCPU,TWALL)
 

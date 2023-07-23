@@ -13,15 +13,17 @@
 
 module GnVcMp
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-public :: RS2RS
-
 type Map
-  integer, allocatable :: Map(:)
+  integer(kind=iwp), allocatable :: Map(:)
 end type Map
 
 type(Map) :: RS2RS(8)
+
+public :: RS2RS
 
 end module GnVcMp

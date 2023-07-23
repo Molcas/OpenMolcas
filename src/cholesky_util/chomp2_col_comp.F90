@@ -17,14 +17,18 @@ subroutine ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Vec,nVec,Buf,lBuf,Fac,irc)
 !
 ! Purpose: compute columns from a set of vectors.
 
-implicit real*8(a-h,o-z)
-real*8 Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf)
-integer iCol(nCol)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim, nCol, iCol(nCol), nVec, lBuf, irc
+real(kind=wp) :: Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf), Fac
+integer(kind=iwp) :: iBat, iC, iC1, NumBat, NumC, NumCol
 
 irc = 0
 if ((nDim < 1) .or. (nCol < 1)) return
 if (nVec < 1) then
-  if (Fac /= 1.0d0) call dScal_(nDim*nCol,Fac,Col,1)
+  if (Fac /= One) call dScal_(nDim*nCol,Fac,Col,1)
   return
 end if
 
@@ -48,14 +52,14 @@ if ((nCol > 1) .and. (lBuf >= nVec)) then
     end if
 
     call ChoMP2_Col_cp(Vec,nDim,nVec,Buf,NumC,iCol(iC1))
-    call DGEMM_('N','T',nDim,NumC,nVec,1.0d0,Vec,nDim,Buf,NumC,Fac,Col(1,iC1),nDim)
+    call DGEMM_('N','T',nDim,NumC,nVec,One,Vec,nDim,Buf,NumC,Fac,Col(1,iC1),nDim)
 
   end do
 
 else
 
   do iC=1,nCol
-    call dGeMV_('N',nDim,nVec,1.0d0,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,Fac,Col(1,iC),1)
+    call dGeMV_('N',nDim,nVec,One,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,Fac,Col(1,iC),1)
   end do
 
 end if

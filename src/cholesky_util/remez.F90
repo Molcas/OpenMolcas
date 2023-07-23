@@ -44,27 +44,29 @@ subroutine Remez(Vrbse,K_Lap,EMin,EMax,Coeff,Demand,Inf)
 !----------------------------------------------------------------------*
 !======================================================================*
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: Zero, One, Two, Ten
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-logical Vrbse
-logical Inf
-parameter(ItrEnd=50,ZERO=0.0D+00,ONE=1.0D+00,MxList=30)
-character*8 Demand
-logical Verbose
-!tbp  dimension Alpha(20), Omega(20), Xi(40), Coeff(40), V(40), T(40), DD(82), CofOld(40), RList(MxList), IRMax(20), RMin(20), &
-!               RMax(20)
-real*8 Coeff(40), T(40), DD(82), CofOld(40), RList(MxList), RMin(20), RMax(20)
-integer IRMax(20)
-data RList/2.0D+00,5.0D+00,1.0D+01,2.0D+01,3.0D+01,4.0D+01,5.0D+01,6.0D+01,7.0D+01,8.0D+01,9.0D+01,1.0D+02,2.0D+02,3.0D+02, &
-           4.0D+02,5.0D+02,6.0D+02,7.0D+02,8.0D+02,9.0D+02,1.0D+03,2.0D+03,3.0D+03,4.0D+03,5.0D+03,6.0D+03,7.0D+03,8.0D+03, &
-           9.0D+03,1.0D+04/
-data RMin/2.0D+00,2.0D+00,2.0D+00,2.0D+00,2.0D+00,2.0D+00,2.0D+00,1.0D+01,1.0D+01,1.0D+01,1.0D+01,1.0D+01,1.0D+01,1.0D+01,1.0D+01, &
-          1.0D+01,2.0D+01,4.0D+01,5.0D+01,6.0D+01/
-data RMax/8.667D+00,4.154D+01,1.468D+02,4.361D+02,1.154D+03,2.802D+03,6.373D+03,1.375D+04,2.839D+04,5.650D+04,1.090D+05,2.045D+05, &
-          3.738D+05,6.692D+05,1.175D+06,2.080D+06,3.450D+06,5.754D+06,9.494D+06,1.550D+07/
-data IRMax/3,7,13,16,22,23,27,31,31,31,31,31,31,31,31,31,31,31,31,31/
-logical Change, Dbg, SkpRem, StopBA
+implicit none
+logical(kind=iwp) :: Vrbse, Inf
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: EMin, EMax, Coeff(40)
+integer(kind=iwp) :: I, I_Dim, Idx, IMax, IMes, InitR, Iter, J
+real(kind=wp) :: CofOld(40), DCofMx, DD(82), DDMax, EDiff, EMinIv, R, RIni, RLim, RMax0, T(40), Theta, Theta2, VVMax
+logical(kind=iwp) :: Change, Dbg, SkpRem, StopBA, Verbose
+character(len=8) :: Demand
+integer(kind=iwp), parameter :: IRMax(20) = [3,7,13,16,22,23,27,31,31,31,31,31,31,31,31,31,31,31,31,31], ItrEnd = 50, MxList = 30
+real(kind=wp), parameter :: RList(MxList) = [2.0e0_wp,5.0e0_wp,1.0e1_wp,2.0e1_wp,3.0e1_wp,4.0e1_wp,5.0e1_wp,6.0e1_wp,7.0e1_wp, &
+                                             8.0e1_wp,9.0e1_wp,1.0e2_wp,2.0e2_wp,3.0e2_wp,4.0e2_wp,5.0e2_wp,6.0e2_wp,7.0e2_wp, &
+                                             8.0e2_wp,9.0e2_wp,1.0e3_wp,2.0e3_wp,3.0e3_wp,4.0e3_wp,5.0e3_wp,6.0e3_wp,7.0e3_wp, &
+                                             8.0e3_wp,9.0e3_wp,1.0e4_wp], &
+                            RMin(20) = [Two,Two,Two,Two,Two,Two,Two,Ten,Ten,Ten,Ten,Ten,Ten,Ten,Ten,Ten,2.0e1_wp,4.0e1_wp, &
+                                        5.0e1_wp,6.0e1_wp], &
+                            RMax(20) = [8.667e0_wp,4.154e1_wp,1.468e2_wp,4.361e2_wp,1.154e3_wp,2.802e3_wp,6.373e3_wp,1.375e4_wp, &
+                                        2.839e4_wp,5.650e4_wp,1.090e5_wp,2.045e5_wp,3.738e5_wp,6.692e5_wp,1.175e6_wp,2.080e6_wp, &
+                                        3.450e6_wp,5.754e6_wp,9.494e6_wp,1.550e7_wp]
+real(kind=wp), external :: FindMx
 
 call Untested('Laplace quadrature generation (subroutine remez)')
 
@@ -99,13 +101,13 @@ end if
 ! ===== Set initial values =====
 !       InitR : initial R
 
-EMinIv = ONE/EMin
+EMinIv = One/EMin
 R = EMax*EMinIv
 
 J = MxList
 do I=1,MxList
   EDiff = R-RList(J)
-  if (EDiff > ZERO) then
+  if (EDiff > Zero) then
     InitR = J
     goto 100
   end if
@@ -117,7 +119,7 @@ InitR = 1
 ! ===== Determine K_Lap value (If K_Lap isn't determined.) =====
 
 if (K_Lap == 0) call DfineK(K_Lap,R,InitR,Demand)
-IDim = 2*K_Lap
+I_Dim = 2*K_Lap
 
 RMax0 = RMax(K_Lap)
 write(IW,'(1X,A,I3/)') '# of quadrature points =',K_Lap
@@ -168,8 +170,8 @@ end if
 
 ! ===== Start Remez step =====
 
-Theta = ZERO
-Theta2 = ONE
+Theta = Zero
+Theta2 = One
 
 write(IW,'(A,F5.0/)') ' Remez step starts from ',RIni
 call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
@@ -187,7 +189,7 @@ end if
 ! ===== Iteration =====
 
 do Iter=1,ItrEnd
-  call DCOPY_(IDim,Coeff,1,CofOld,1)
+  call DCOPY_(I_Dim,Coeff,1,CofOld,1)
   call SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
   if (StopBA) then
     Change = .true.
@@ -200,7 +202,7 @@ do Iter=1,ItrEnd
   if (Dbg) then
     write(IW,'(/A,I3)') 'Iter =',Iter
     call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-    do J=1,IDim+1
+    do J=1,I_Dim+1
       write(IW,'(A,I2,A,F20.17,2X,A,F20.14)') ' Error(',J,') = ',DD(J),' X = ',DD(2*K_Lap+1+J)
     end do
     write(IW,*)
@@ -209,15 +211,15 @@ do Iter=1,ItrEnd
   ! ===== Check convergence =====
   ! CofOld is updated by the mean of Coeff
 
-  do J=1,IDim
+  do J=1,I_Dim
     CofOld(J) = abs(CofOld(J)-Coeff(J))
   end do
-  call FindAM(IDim+1,DD,DDMax,IMax)
-  DCofMx = FindMx(IDim,CofOld)
+  call FindAM(I_Dim+1,DD,DDMax,IMax)
+  DCofMx = FindMx(I_Dim,CofOld)
 
   if (Dbg) then
     call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-    call FindAM(IDim+1,DD,DDMax,IMax)
+    call FindAM(I_Dim+1,DD,DDMax,IMax)
     if (Iter == 1) write(IW,'(A,5X,A,15X,A,17X,A)') ' Iter','Max Change','Max DD','Max error'
     write(IW,'(I3,3(2X,E23.15E3),A,I2,A)') Iter,DCofMx,VVMax,DDMax,' (',IMax,')'
   else
@@ -225,7 +227,7 @@ do Iter=1,ItrEnd
     write(IW,'(I3,2(2X,E23.15E3))') Iter,DCofMx,VVMax
   end if
 
-  if ((VVMax < 5.0D-16) .and. (DCofMx < 1.0D-05)) goto 777
+  if ((VVMax < 5.0e-16_wp) .and. (DCofMx < 1.0e-5_wp)) goto 777
 
   !call TStat(" Check T",1)
 end do
@@ -240,7 +242,7 @@ if (StopBA) then
   Change = .true.
   goto 999
 end if
-call FindAM(IDim+1,DD,DDMax,IMax)
+call FindAM(I_Dim+1,DD,DDMax,IMax)
 call ChkAcc(K_Lap,InitR,DDMax,R,Change)
 
 ! ===== Change parameters =====
@@ -267,18 +269,18 @@ do I=1,K_Lap
 end do
 write(IW,*)
 call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-do I=1,IDim+1
+do I=1,I_Dim+1
   write(IW,'(A,I2,A,F20.17,2X,A,F20.14)') ' Error(',I,') = ',DD(I),' X = ',DD(2*K_Lap+1+I)
 end do
 write(IW,*)
-do I=1,IDim
+do I=1,I_Dim
   write(IW,'(A,I2,A,F20.15)') ' Xi(',I,') = ',T(I)
 end do
 write(IW,'()')
 
 ! ===== Maltiple the scaling parameter (EMinIv = 1/EMin) =====
 
-call DSCAL_(IDim,EMinIv,Coeff,1)
+call DSCAL_(I_Dim,EMinIv,Coeff,1)
 write(IW,'(/A/)') ' Final solution '
 do I=1,K_Lap
   Idx = 2*I-1

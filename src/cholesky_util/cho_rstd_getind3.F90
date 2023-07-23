@@ -11,11 +11,12 @@
 
 subroutine Cho_RstD_GetInd3(iSP2F,l_iSP2F)
 
+use Definitions, only: iwp
+
 implicit none
-integer l_iSP2F
-integer iSP2F(l_iSP2F)
+integer(kind=iwp) :: l_iSP2F, iSP2F(l_iSP2F)
 #include "cholesky.fh"
-integer iOpt, iAdr
+integer(kind=iwp) :: iAdr, iOpt
 
 iOpt = 2
 iAdr = nSym*nnShl+2*nnBstRT(1)

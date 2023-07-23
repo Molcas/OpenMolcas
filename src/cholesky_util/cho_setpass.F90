@@ -14,11 +14,16 @@ subroutine CHO_SETPASS(DIAG,DIASH,ISYSH,IRED,CONV,NPOTSH)
 ! Purpose: Check convergence and, if not converged, set up
 !          integral pass.
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), DIASH(*)
-integer ISYSH(*)
-logical CONV
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Diag(*), DIASH(*)
+integer(kind=iwp) :: ISYSH(*), IRED, NPOTSH
+logical(kind=iwp) :: CONV
 #include "cholesky.fh"
+integer(kind=iwp) :: ISHLAB, ISYM
+real(kind=wp) :: DGMAX
 
 ! Initialize the potential number of shell pairs that can
 ! contribute.
@@ -29,7 +34,7 @@ NPOTSH = 0
 ! Find max. abs. diagonal in each symmetry and the global max.
 ! ------------------------------------------------------------
 
-DGMAX = -1.0d15
+DGMAX = -1.0e15_wp
 call CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 
 ! If not converged, set next integral pass.
@@ -45,7 +50,7 @@ if (.not. CONV) then
     if (DIASH(ISHLAB) > THRCOM) then
       NPOTSH = NPOTSH+1
     else
-      DIASH(ISHLAB) = 0.0d0
+      DIASH(ISHLAB) = Zero
     end if
   end do
 end if

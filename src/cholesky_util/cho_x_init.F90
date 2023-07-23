@@ -55,39 +55,35 @@
 
 subroutine Cho_X_Init(irc,BufFrac)
 
-use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO, iRS2F, nDimRS, MySP, n_MySP
-use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
-use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
-use ChoSwp, only: IndRSh, IndRSh_Hidden
-use ChoSwp, only: IndRed, IndRed_Hidden
-use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec, nRow_BkmThr, nCol_BkmThr
+use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, iSP2F, MySP, n_MySP, nBasSh, nBstSh, nDimRS
+use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
+use ChoIni, only: ChoIniCheck
 use ChoSP, only: nnShl_SP
-use ChoIni
+use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, nnBstRSh, nnBstRSh_Hidden
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer irc
-real*8 BufFrac
+integer(kind=iwp) :: irc
+real(kind=wp) :: BufFrac
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-real*8 Frac
-integer iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, Numij
-character(len=10), parameter :: SecNam = 'Cho_X_Init'
+integer(kind=iwp) :: ChoIsIni, iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, l, Numij
+real(kind=wp) :: Frac
+logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF, isLocalDF
 #ifdef _DEBUGPRINT_
-character*2 Unt
+character(len=2) :: Unt
 #endif
-logical DidCholesky
-logical, save :: FirstCall = .true.
-logical isDF, isLocalDF, DoDummy
-integer ChoIsIni, l
-integer, external :: Cho_iSumElm
-integer, allocatable :: BkmDim(:)
+integer(kind=iwp), allocatable :: BkmDim(:)
+integer(kind=iwp), external :: Cho_iSumElm
+character(len=*), parameter :: SecNam = 'Cho_X_Init'
 
 #ifdef _DEBUGPRINT_
 call mma_maxDBLE(l_Max)
 call Cho_Word2Byte(l_Max,8,Byte,Unt)
-write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',l_Max,' = ',Byte,Unt
+write(u6,*) '>>>>> Available memory on entry to ',SecNam,': ',l_Max,' = ',Byte,Unt
 #endif
 
 ! Check that this is a Cholesky run.
@@ -144,7 +140,7 @@ Run_Mode = Run_External
 ! Set output unit used by the decomposition core routines.
 ! --------------------------------------------------------
 
-LuPri = 6
+LuPri = u6
 
 ! Set print level to -5 (ensuring that Cho_X_Checkdiag will
 ! print information, if called). All other routines will be
@@ -158,7 +154,7 @@ iPrint = -5
 
 call Get_iScalar('nSym',nSym)
 if ((nSym < 1) .or. (nSym > 8)) then
-  write(6,*) SecNam,': nSym out of bounds: ',nSym
+  write(u6,*) SecNam,': nSym out of bounds: ',nSym
   Go To 101
 end if
 
@@ -197,7 +193,7 @@ do iSym=2,nSym
   nBasT = nBasT+nBas(iSym)
 end do
 if (nBasT < 1) then
-  write(6,*) SecNam,': nBasT out of bounds: ',nBasT
+  write(u6,*) SecNam,': nBasT out of bounds: ',nBasT
   Go To 101
 end if
 call mma_allocate(iSOShl,nBasT,Label='iSOShl')
@@ -397,7 +393,7 @@ end if
 ! Allocate and initialize (i.e. read vectors) vector buffer.
 ! ----------------------------------------------------------
 
-Frac = min(max(BufFrac,0.0d0),1.0d0)
+Frac = min(max(BufFrac,Zero),One)
 call Cho_VecBuf_Init(Frac,nnBstR(1,1)) ! allocate
 call Cho_VecBuf_Ini2() ! read
 
@@ -415,33 +411,33 @@ Go To 1
 99 continue ! Local DF not implemented
 ! TODO/FIXME: compute Cholesky vectors from LDF coefficients here?
 irc = -2
-write(6,'(//,A,A,//)') SecNam,': Local DF not implemented!'
+write(u6,'(//,A,A,//)') SecNam,': Local DF not implemented!'
 Go To 1
 
 100 continue ! Cholesky flag not found on runfile
 irc = -1
-write(6,'(//,A,A,//)') SecNam,': two-electron integrals not Cholesky decomposed!'
+write(u6,'(//,A,A,//)') SecNam,': two-electron integrals not Cholesky decomposed!'
 Go To 1
 
 101 continue ! Bad info obtained from runfile
 irc = 1
-write(6,'(//,A,A,//)') SecNam,': WARNING: error reading runfile!'
+write(u6,'(//,A,A,//)') SecNam,': WARNING: error reading runfile!'
 Go To 1
 
 102 continue ! restart info corrupted
 irc = 2
-write(6,'(//,A,A)') SecNam,': WARNING: error reading restart info!'
-write(6,'(A,A,I6,//)') SecNam,': return code from read:',ierr
+write(u6,'(//,A,A)') SecNam,': WARNING: error reading restart info!'
+write(u6,'(A,A,I6,//)') SecNam,': return code from read:',ierr
 Go To 1
 
 103 continue ! include file inconsistency detected
 irc = 3
-write(6,'(//,A,A,//)') SecNam,': WARNING: include file inconsistency detected!'
+write(u6,'(//,A,A,//)') SecNam,': WARNING: include file inconsistency detected!'
 Go To 1
 
 104 continue ! error in parallel setup
 irc = 4
-write(6,'(//,A,A,//)') SecNam,': WARNING: error in parallel setup!'
+write(u6,'(//,A,A,//)') SecNam,': WARNING: error in parallel setup!'
 Go To 1
 
 ! Return.
@@ -451,8 +447,8 @@ Go To 1
 #ifdef _DEBUGPRINT_
 call mma_maxDBLE(l_Max)
 call Cho_Word2Byte(l_Max,8,Byte,Unt)
-write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',l_Max,' = ',Byte,Unt
-call xFlush(6)
+write(u6,*) '>>>>> Available memory on exit from ',SecNam,': ',l_Max,' = ',Byte,Unt
+call xFlush(u6)
 #endif
 
 end subroutine Cho_X_Init

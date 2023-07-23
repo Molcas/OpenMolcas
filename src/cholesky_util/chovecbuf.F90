@@ -12,16 +12,14 @@
 ! Information about the Cholesky vector buffer
 module ChoVecBuf
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
-public :: CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM
-public :: nVec_in_Buf
-real*8, allocatable, target :: CHVBUF(:)
-real*8, allocatable, target :: CHVBFI(:)
-integer ip_CHVBUF_SYM(8), l_CHVBUF_SYM(8)
-integer ip_CHVBFI_SYM(8), l_CHVBFI_SYM(8)
-integer nVec_in_Buf(8)
+integer(kind=iwp) :: ip_CHVBFI_SYM(8), ip_CHVBUF_SYM(8), l_CHVBFI_SYM(8), l_CHVBUF_SYM(8), nVec_in_Buf(8)
+real(kind=wp), allocatable, target :: CHVBFI(:), CHVBUF(:)
+
+public :: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
 
 end module ChoVecBuf

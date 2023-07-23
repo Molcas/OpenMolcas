@@ -15,16 +15,18 @@ subroutine CHO_DIACHO(DIAG,ISYM,WRK,LWRK)
 !          of symmetry block ISYM of diagonal in red. set 1.
 !          This emulates the actual procedure during decomposition.
 
-use ChoSwp, only: InfVec, IndRed
+use ChoSwp, only: IndRed, InfVec
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*), WRK(LWRK)
+implicit none
+integer(kind=iwp) :: ISYM, LWRK
+real(kind=wp) :: Diag(*), WRK(LWRK)
 #include "cholesky.fh"
-character*10 SECNAM
-parameter(SECNAM='CHO_DIACHO')
-logical SCDIAG_SAVE
-parameter(N2=INFVEC_N2)
-parameter(ZERO=0.0d0)
+integer(kind=iwp) :: IAB, IABG, ILOC, IREDC, IVEC1, JAB, JRED, JVEC, KAB, KOFFV, MUSED, NCONV, NNEG, NNEGT, NSCALL, NVRD
+real(kind=wp) :: DMX, XM, XMAX, XMIN
+logical(kind=iwp) :: SCDIAG_SAVE
+character(len=*), parameter :: SECNAM = 'CHO_DIACHO'
 
 ! Return if nothing to do.
 ! ------------------------
@@ -105,7 +107,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
     if (CHO_DECALG == 4) then
       SCDIAG_SAVE = SCDIAG
       SCDIAG = .false. ! do NOT screen
-      DMX = 1.0d0
+      DMX = One
       call CHO_CHKDIA_A4(DIAG,DMX,ISYM,NNEG,NNEGT,NCONV,XMAX,XMIN,XM)
       SCDIAG = SCDIAG_SAVE
     else

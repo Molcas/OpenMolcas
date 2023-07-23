@@ -17,19 +17,23 @@ subroutine CkAltT(K_Lap,R,T,NG)
 ! Function : Check the alternation of array T
 !-----------------------------------------------------------------------
 
-use ReMez_mod
+use ReMez_mod, only: IW
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-parameter(ONE=1.0D+00)
-real*8 T(40)
-logical NG
+implicit none
+integer(kind=iwp) :: K_Lap
+real(kind=wp) :: R, T(40)
+logical(kind=iwp) :: NG
+integer(kind=iwp) :: I, IDimEnd
+real(kind=wp) :: A, B
 
 IDimEnd = 2*K_Lap+1
 NG = .false.
 
 do I=1,IDimEnd
   if (I == 1) then
-    A = ONE
+    A = One
   else
     A = T(I-1)
   end if

@@ -18,17 +18,14 @@ subroutine Cho_P_IndxSwp()
 !     pointers, not actual data (except for the statically allocated
 !     index arrays which amount to swapping 51 integers in total).
 
-use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
-use ChoSwp, only: iiBstRSh, iiBstRSh_G
-use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
-use ChoSwp, only: InfRed, InfRed_G
-use ChoSwp, only: InfVec, InfVec_G
-use ChoSwp, only: IndRed, IndRed_G, pTemp
+use ChoSwp, only: iiBstRSh, iiBstRSh_G, IndRed, IndRed_G, IndRSh, IndRSh_G, InfRed, InfRed_G, InfVec, InfVec_G, nnBstRSh, &
+                  nnBstRSh_G, pTemp, pTemp1, pTemp3
+use Definitions, only: iwp
 
 implicit none
 #include "cholesky.fh"
 #include "choglob.fh"
-integer iTmp, N
+integer(kind=iwp) :: iTmp, N
 
 iTmp = nnShl_G
 nnShl_G = nnShl

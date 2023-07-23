@@ -11,11 +11,12 @@
 
 subroutine UpdateMostNegative(n,X,Val)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 X(n)
-real*8 Val
-integer i, j
+integer(kind=iwp) :: n
+real(kind=wp) :: X(n), Val
+integer(kind=iwp) :: i, j
 
 if (Val >= X(n)) return
 i = 0

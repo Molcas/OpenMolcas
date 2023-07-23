@@ -14,24 +14,27 @@ subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 ! Purpose: shell-driven calculation of the integral diagonal and
 !          setup of the first reduced set.
 
-use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
-use ChoArr, only: MySP, n_MySP
+use ChoArr, only: iAtomShl, iBasSh, iSP2F, MySP, n_MySP, nBasSh, nBstSh
 use ChoSwp, only: nnBstRSh
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer LENBUF, LENSCR
-real*8 BUF(LENBUF), SCR(LENSCR)
-integer IBUF(4,LENBUF)
+implicit none
+integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LENSCR, NDUMP
+real(kind=wp) :: BUF(LENBUF), SCR(LENSCR)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-character(len=12), parameter :: SECNAM = 'CHO_CALCDIAG'
-integer, parameter :: INFO_DEBUG = 4, INFO_INSANE = 10
-real*8 SCRMAX(8), XNCD(1)
-integer, external :: CHO_ISAOSH
-real*8, allocatable :: NegCalcDiag(:)
+integer(kind=iwp) :: I_MYSP, IA, IAA, IAB, IB, IBB, ICOUNT, IDUMP, IOPT, ISAB, ISHLA, ISHLAB, ISHLB, ISYM, ISYMA, ISYMAB, ISYMB, &
+                     IUNIT, JUNIT, L, LENGTH, LINTD, ll, LSCR, n_NegCalcDiag, n_NegCalcDiag_local, NIATOMSHL, NUMA, NUMAB, NUMB
+real(kind=wp) :: DEL1, DIAAB, DIAGAB, SAVD, SCRMAX(8), XLDIA, XMDIA, XNCD(1), XXX
+real(kind=wp), allocatable :: NegCalcDiag(:)
+integer(kind=iwp), parameter :: INFO_DEBUG = 4, INFO_INSANE = 10
+character(len=*), parameter :: SECNAM = 'CHO_CALCDIAG'
+integer(kind=iwp), external :: CHO_ISAOSH
 ! Statement functions
+integer(kind=iwp) :: MULD2H, ITRI, I, J
 MULD2H(I,J) = ieor(I-1,J-1)+1
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
@@ -77,7 +80,7 @@ call FZERO(DIAMAX,NSYM)
 ! ------------------------------------------------------
 
 call mma_allocate(NegCalcDiag,10,Label='NegCalcDiag')
-NegCalcDiag(:) = 0.0d0
+NegCalcDiag(:) = Zero
 n_NegCalcDiag = 0
 
 ! Calculate diagonal in loop over shell-pairs.
@@ -88,7 +91,7 @@ NIATOMSHL = 0
 if (allocated(IATOMSHL)) NIATOMSHL = size(IATOMSHL)
 if (CHO_NO2CENTER .and. (NIATOMSHL < NSHELL)) call CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',103)
 
-XLDIAG = 0.0d0
+XLDIAG = Zero
 ICOUNT = 0
 NDUMP = 0
 N_MYSP = 0
@@ -144,7 +147,7 @@ do I_MYSP=1,N_MYSP
         ISYMAB = MULD2H(ISYMB,ISYMA)
         IAB = ITRI(IA,IB)
         DIAAB = SCR(IAB)
-        if (DIAAB < 0.0d0) then
+        if (DIAAB < Zero) then
           n_NegCalcDiag = n_NegCalcDiag+1
           call UpdateMostNegative(size(NegCalcDiag),NegCalcDiag,DIAAB)
         end if
@@ -158,7 +161,7 @@ do I_MYSP=1,N_MYSP
           IBUF(4,ICOUNT) = IAB
           if (ICOUNT == LBUF) then
             call CHO_WRBUF(LBUF,BUF,IBUF,LBUF,IUNIT)
-            XLDIAG = XLDIAG+dble(LBUF)
+            XLDIAG = XLDIAG+real(LBUF,kind=wp)
             ICOUNT = 0
             NDUMP = NDUMP+1
           end if
@@ -175,7 +178,7 @@ do I_MYSP=1,N_MYSP
             ISYMAB = MULD2H(ISYMA,ISYMB)
             IAB = NUMA*(IB-1)+IA
             DIAAB = SCR(IAB)
-            if (DIAAB < 0.0d0) then
+            if (DIAAB < Zero) then
               n_NegCalcDiag = n_NegCalcDiag+1
               call UpdateMostNegative(size(NegCalcDiag),NegCalcDiag,DIAAB)
             end if
@@ -189,7 +192,7 @@ do I_MYSP=1,N_MYSP
               IBUF(4,ICOUNT) = IAB
               if (ICOUNT == LBUF) then
                 call CHO_WRBUF(LBUF,BUF,IBUF,LBUF,IUNIT)
-                XLDIAG = XLDIAG+dble(LBUF)
+                XLDIAG = XLDIAG+real(LBUF,kind=wp)
                 ICOUNT = 0
                 NDUMP = NDUMP+1
               end if
@@ -206,14 +209,14 @@ end do
 if (ICOUNT > 0) then ! flush buffer
   if (ICOUNT > LBUF) call CHO_QUIT('Logical error in '//SECNAM,103)
   call CHO_WRBUF(ICOUNT,BUF,IBUF,LBUF,IUNIT)
-  XLDIAG = XLDIAG+dble(ICOUNT)
+  XLDIAG = XLDIAG+real(ICOUNT,kind=wp)
   ICOUNT = 0
   NDUMP = NDUMP+1
 end if
 call XRLSMEM_INTS ! release memory (seward)
 call CHO_GADGOP(DIAMAX,NSYM,'max') ! sync abs. max. diag.
 n_NegCalcDiag_local = n_NegCalcDiag
-XNCD(1) = dble(n_NegCalcDiag)
+XNCD(1) = real(n_NegCalcDiag,kind=wp)
 call CHO_GADGOP(XNCD,1,'+')
 n_NegCalcDiag = int(XNCD(1))
 if (n_NegCalcDiag > 0) then
@@ -233,10 +236,10 @@ call mma_deallocate(NegCalcDiag)
 
 if (IPRINT >= INFO_DEBUG) then
   call CHO_HEAD(SECNAM//': Diagonal Info','=',80,LUPRI)
-  XXX = dble(NBAST)
-  XMDIA = XXX*(XXX+1.0d0)/2.0d0
+  XXX = real(NBAST,kind=wp)
+  XMDIA = XXX*(XXX+One)*Half
   XLDIA = XLDIAG
-  SAVD = 1.0d2*(XMDIA-XLDIA)/XMDIA
+  SAVD = 1.0e2_wp*(XMDIA-XLDIA)/XMDIA
   write(LUPRI,'(/,2X,A,1P,D15.6)') 'Screening threshold for initial diagonal: ',THRDIAG
   write(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)') 'Dimension of unscreened initial diagonal: ',XMDIA, &
                                            'Dimension of   screened initial diagonal: ',XLDIA
@@ -257,10 +260,10 @@ rewind(JUNIT)
 if (SCDIAG) then ! screen diagonal
   DEL1 = THRCOM*THRCOM/DAMP(1)
   do ISYM=1,NSYM
-    if (abs(DIAMAX(ISYM)) > 0.0d0) then
+    if (abs(DIAMAX(ISYM)) > Zero) then
       SCRMAX(ISYM) = DEL1/DIAMAX(ISYM)
     else
-      SCRMAX(ISYM) = 1.0d15
+      SCRMAX(ISYM) = 1.0e15_wp
     end if
   end do
   if (CHO_USEABS) then
@@ -271,7 +274,7 @@ if (SCDIAG) then ! screen diagonal
         DIAGAB = BUF(L)
         ISYMAB = IBUF(3,L)
         if (abs(DIAGAB) < SCRMAX(ISYMAB)) then
-          BUF(L) = 0.0d0
+          BUF(L) = Zero
           IBUF(2,L) = -1
         else
           ISHLAB = IBUF(1,L)
@@ -289,7 +292,7 @@ if (SCDIAG) then ! screen diagonal
         DIAGAB = BUF(L)
         ISYMAB = IBUF(3,L)
         if (DIAGAB < SCRMAX(ISYMAB)) then
-          BUF(L) = 0.0d0
+          BUF(L) = Zero
           IBUF(2,L) = -1
         else
           ISHLAB = IBUF(1,L)

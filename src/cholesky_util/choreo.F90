@@ -12,9 +12,14 @@
 ! Data for Cholesky vector reordering.
 module ChoReO
 
-integer NNBST(8)
-integer NABPK(8,8)
-integer LUFV(8,8)
-character(len=4), parameter :: REONAM = 'CHFV'
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: LUFV(8,8), NABPK(8,8), NNBST(8)
+character(len=*), parameter :: REONAM = 'CHFV'
+
+public :: LUFV, NABPK, NNBST, REONAM
 
 end module ChoReO

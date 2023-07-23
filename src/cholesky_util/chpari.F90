@@ -12,6 +12,13 @@
 ! saved info for parallel runs
 module ChPari
 
-integer NumCho_Bak(8)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: NumCho_Bak(8)
+
+public :: NumCho_Bak
 
 end module ChPari

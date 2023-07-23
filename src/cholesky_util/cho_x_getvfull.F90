@@ -58,17 +58,18 @@
 
 subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
 
-implicit real*8(a-h,o-z)
-real*8 RedVec(lRedVec)
-integer ipVec(8), nnBSF(8,8), n2BSF(8,8)
-integer ipChoV(*), iSkip(*)
-logical DoRead
-character*14 SECNAM
-parameter(SECNAM='Cho_X_GetVfull')
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, ipChoV(*), iSkip(*)
+real(kind=wp) :: RedVec(lRedVec)
+logical(kind=iwp) :: DoRead
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ipVec(8), iSymp, iSymq, IVEC2, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 MXUSD = 0
@@ -100,7 +101,7 @@ else if ((iSwap == 1) .or. (iSwap == 2)) then
 
 else
 
-  write(6,*) 'Wrong parameter! iSwap= ',iSwap
+  write(u6,*) 'Wrong parameter! iSwap= ',iSwap
   irc = 66
   return
 

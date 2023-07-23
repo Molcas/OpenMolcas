@@ -17,13 +17,15 @@ subroutine Cho_P_PutRed(iPass,iLoc)
 !          the index arrays to write, and iPass identifies the
 !          reduced set (i.e. the integral pass).
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer iPass, iLoc
+integer(kind=iwp) :: iPass, iLoc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-integer iTmp
-real*8 c1, c2, w1, w2
+integer(kind=iwp) :: iTmp
+real(kind=wp) :: c1, c2, w1, w2
 
 call Cho_Timer(c1,w1)
 

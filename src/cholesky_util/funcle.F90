@@ -18,11 +18,16 @@ function FuncLe(X,Delta)
 !            H.Koch,A.Sanchez de Meras (J.Chem.Phys. 113,508)
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-parameter(ONE=1.0D+00)
+use Constants, only: One
+use Definitions, only: wp
 
-Varl = X/(ONE-X)
-Derv = ONE/((ONE-X)*(ONE-X))
+implicit none
+real(kind=wp) :: FuncLe
+real(kind=wp) :: X, Delta
+real(kind=wp) :: DerV, Varl
+
+Varl = X/(One-X)
+Derv = One/((One-X)*(One-X))
 FuncLe = Derv*exp(-Delta*Varl)
 
 return

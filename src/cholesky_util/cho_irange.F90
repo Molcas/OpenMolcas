@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function CHO_IRANGE(I,BIN,NBIN,LOWER)
+function CHO_IRANGE(I,BIN,NBIN,LOWER)
 !
 ! Purpose: return range to which I belongs.
 !          It is assumed that BIN is sorted
@@ -37,10 +37,13 @@ integer function CHO_IRANGE(I,BIN,NBIN,LOWER)
 !
 !          else the largest bin (IBIN in the case above).
 
+use Definitions, only: iwp
+
 implicit none
-integer I, NBIN, BIN(*)
-logical LOWER
-integer IBIN, JBIN, JBIN1
+integer(kind=iwp) :: CHO_IRANGE
+integer(kind=iwp) :: I, BIN(*), NBIN
+logical(kind=iwp) :: LOWER
+integer(kind=iwp) :: IBIN, JBIN, JBIN1
 
 CHO_IRANGE = 0
 

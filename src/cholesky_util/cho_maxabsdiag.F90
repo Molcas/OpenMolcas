@@ -15,19 +15,21 @@ subroutine CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 !          return the global max. abs. in DGMAX.
 
 use ChoSwp, only: IndRed
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Diag(*)
+implicit none
+real(kind=wp) :: Diag(*), DGMax
+integer(kind=iwp) :: IRED
 #include "cholesky.fh"
-character*14 SECNAM
-parameter(SECNAM='CHO_MAXABSDIAG')
-integer AB, AB1, AB2
-logical LOCDBG
+integer(kind=iwp) :: AB, AB1, AB2, IAB, ISYM
 #ifdef _DEBUGPRINT_
-parameter(LOCDBG=.true.)
+#define _DBG_ .true.
 #else
-parameter(LOCDBG=.false.)
+#define _DBG_ .false.
 #endif
+logical(kind=iwp), parameter :: LOCDBG = _DBG_
+character(len=*), parameter :: SECNAM = 'CHO_MAXABSDIAG'
 
 if (CHO_1CENTER) then ! specialization for 1-center approximation
   call CHO_MAXABSDIAG_1C(DIAG,IRED,DGMAX)
@@ -37,7 +39,7 @@ end if
 if (IRED == 1) then
   do ISYM=1,NSYM
     if (NNBSTR(ISYM,IRED) < 1) then
-      DIAMAX(ISYM) = 0.0d0
+      DIAMAX(ISYM) = Zero
     else
       DIAMAX(ISYM) = abs(DIAG(IIBSTR(ISYM,IRED)+1))
       AB1 = IIBSTR(ISYM,IRED)+2
@@ -51,7 +53,7 @@ if (IRED == 1) then
 else if ((IRED == 2) .or. (IRED == 3)) then
   do ISYM=1,NSYM
     if (NNBSTR(ISYM,IRED) < 1) then
-      DIAMAX(ISYM) = 0.0d0
+      DIAMAX(ISYM) = Zero
     else
       AB = INDRED(IIBSTR(ISYM,IRED)+1,IRED)
       DIAMAX(ISYM) = abs(DIAG(AB))
@@ -63,7 +65,7 @@ else if ((IRED == 2) .or. (IRED == 3)) then
       end do
     end if
     if (NNBSTR(ISYM,1) < 1) then
-      DIAMAXT(ISYM) = 0.0d0
+      DIAMAXT(ISYM) = Zero
     else
       DIAMAXT(ISYM) = abs(DIAG(IIBSTR(ISYM,1)+1))
       AB1 = IIBSTR(ISYM,1)+2

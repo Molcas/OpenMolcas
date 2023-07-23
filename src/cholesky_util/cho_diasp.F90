@@ -18,12 +18,16 @@ subroutine Cho_DiaSP()
 ! Purpose: prescreening of diagonal.
 
 use ChoArr, only: iSP2F
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "cholesky.fh"
-real*8, allocatable :: TMax(:,:)
+integer(kind=iwp) :: i, ij, j
+real(kind=wp) :: Tau, Tmax_All
+real(kind=wp), allocatable :: TMax(:,:)
 ! Statement function
+integer(kind=iwp) :: iTri
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (Cho_PreScreen) then ! prescreening with approx. diagonal
@@ -71,12 +75,12 @@ else ! no prescreening, include all shell pairs.
 end if
 
 #ifdef _DEBUGPRINT_
-if (.not. Cho_PreScreen) Tau = 0.0d0
+if (.not. Cho_PreScreen) Tau = Zero
 write(LuPri,*) '>>> Exit from Cho_DiaSP:'
 write(LuPri,*) '    Screening threshold               : ',Tau
 write(LuPri,*) '    Total number of shell pairs       : ',nnShl_Tot
 write(LuPri,*) '    Contributing number of shell pairs: ',nnShl
-if (nnShl_Tot /= 0) write(LuPri,*) '    Screening-%: ',1.0d2*dble(nnShl_Tot-nnShl)/dble(nnShl_Tot)
+if (nnShl_Tot /= 0) write(LuPri,*) '    Screening-%: ',1.0e2_wp*real(nnShl_Tot-nnShl,kind=wp)/real(nnShl_Tot,kind=wp)
 #endif
 
 end subroutine Cho_DiaSP

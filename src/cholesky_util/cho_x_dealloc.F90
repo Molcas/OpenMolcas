@@ -18,19 +18,17 @@ subroutine Cho_X_Dealloc(irc)
 ! Purpose: deallocate ALL index arrays for the Cholesky utility.
 !          On exit, irc=0 signals sucessful completion.
 
-use Definitions, only: iwp
-use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G, iShP2RS, iShP2Q, &
-                  iQL2G, LQ_Tot, iSimRI
-use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, nnBstRSh_Hidden, nnBstRSh, nnBstRSh_L_Hidden, nnBstRSh_G, &
-                  iiBstRSh_Hidden, iiBstRSh, iiBstRSh_L_Hidden, iiBstRSh_G, IndRSh_Hidden, IndRSh, IndRSh_G_Hidden, IndRSh_G, &
-                  InfRed_Hidden, InfRed, InfRed_G_Hidden, InfRed_G, InfVec_Hidden, InfVec, InfVec_G_Hidden, InfVec_G, &
-                  IndRed_Hidden, IndRed, IndRed_G_Hidden, IndRed_G, InfVec_Bak
+use ChoArr, only: iAtomShl, iBasSh, iL2G, IntMap, iQL2G, iRS2F, iScr, iShlSO, iShP2Q, iShP2RS, iSimRI, iSOShl, iSP2F, LQ_Tot, &
+                  nBasSh, nBstSh, nDimRS
+use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRSh_Hidden, iiBstRSh_L_Hidden, IndRed, IndRed_G, IndRed_G_Hidden, IndRed_Hidden, &
+                  IndRSh, IndRSh_G, IndRSh_G_Hidden, IndRSh_Hidden, InfRed, InfRed_G, InfRed_G_Hidden, InfRed_Hidden, InfVec, &
+                  InfVec_Bak, InfVec_G, InfVec_G_Hidden, InfVec_Hidden, iQuAB, iQuAB_Hidden, iQuAB_L, iQuAB_L_Hidden, nnBstRSh, &
+                  nnBstRSh_G, nnBstRSh_Hidden, nnBstRSh_L_Hidden
 use stdalloc, only: mma_deallocate
-use ChPari
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc
-character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
 
 irc = 0
 

@@ -17,14 +17,19 @@ subroutine CHO_INVPCK(IJ,I,J,LOW)
 !          LOW = T: i>=j
 !          LOW = F: i<=j
 
-implicit real*8(a-h,o-z)
-logical LOW
-parameter(ONE=1.0d0,TWO=2.0d0,THREE=3.0d0,EIGHT=8.0d0)
+use Constants, only: One, Three, Eight, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IJ, I, J
+logical(kind=iwp) :: LOW
+integer(kind=iwp) :: ITMP
+real(kind=wp) :: XI, XX
 
 if (IJ > 0) then
 
-  XX = EIGHT*dble(IJ)-THREE
-  XI = (ONE+sqrt(XX))/TWO
+  XX = Eight*real(IJ,kind=wp)-Three
+  XI = (One+sqrt(XX))*Half
   I = int(XI)
   J = IJ-I*(I-1)/2
 
