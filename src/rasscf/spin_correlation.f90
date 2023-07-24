@@ -15,14 +15,16 @@ module spin_correlation
   use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use CI_solver_util, only: rdm_from_runfile
-  use rasscf_data, only : NRoots, iAdr15, nacpar, nacpr2
+  use rasscf_data, only : LRoots, iAdr15, nacpar, nacpr2
   use index_symmetry, only : one_el_idx_flatten, two_el_idx_flatten
+  use general_data, only: JobIPH
 
   implicit none
   private
   public :: spin_correlation_driver
   integer, allocatable, public, save :: orb_range_p(:), orb_range_q(:)
   integer, public :: same_orbs
+  logical, public :: tRootGrad = .false.
 
 
 contains
@@ -35,13 +37,15 @@ contains
     real(wp), allocatable :: spin_correlations(:)
     real(wp) :: dmat(nacpar), dspn(nacpar), pamat(nacpr2), psmat(nacpr2)
     integer :: jDisk, i, j
+    logical :: disk_pointer_moved
 
     jDisk = iAdr15(3)
     call mma_allocate(spin_correlations, size(iroot))
     spin_correlations(:) = 0.0_wp
 
     write(u6,'(a)') new_line('a')
-    do i = 1, NRoots
+    do i = 1, LRoots
+      disk_pointer_moved = .False.
       do j = 1, size(iroot)
         if (iroot(j) == i) then
           call rdm_from_runfile(dmat, dspn, psmat, pamat, jDisk)
@@ -51,6 +55,13 @@ contains
             ' Spin Correlation:  ', spin_correlations(j)
         end if
       end do
+      if (.not. disk_pointer_moved) then
+        ! dummy write to move jDisk pointer
+        call ddafile(JOBIPH, 0, dmat, NACPAR, jDisk)
+        call ddafile(JOBIPH, 0, dspn, NACPAR, jDisk)
+        call ddafile(JOBIPH, 0, psmat, NACPR2, jDisk)
+        call ddafile(JOBIPH, 0, pamat, NACPR2, jDisk)
+      end if
     end do
 
     ! for testing purposes

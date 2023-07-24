@@ -10,8 +10,9 @@
 !***********************************************************************
 
 ! This is just an encapsulation of the common block in
-! src/Include/rasscf.fh
 ! src/Include/rasdim.fh
+! src/Include/rasscf.fh
+! src/Include/output_ras.fh
 ! into a data module
 
 module rasscf_data
@@ -20,5 +21,6 @@ implicit none
 
 #include "rasdim.fh"
 #include "rasscf.fh"
+#include "output_ras.fh"
 
 end module rasscf_data

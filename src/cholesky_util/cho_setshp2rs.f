@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_SetShP2RS(irc,iLoc,iShlAB,nAB)
-C
-C     Purpose: set mapping from shell pair iShlAB to current
-C              reduced set (stored at location iLoc = 2 or 3).
-C              If a non-zero code (irc) is returned, nothing has been
-C              set!!
-C
+!
+!     Purpose: set mapping from shell pair iShlAB to current
+!              reduced set (stored at location iLoc = 2 or 3).
+!              If a non-zero code (irc) is returned, nothing has been
+!              set!!
+!
       use ChoArr, only: nBstSh, iSP2F, iShP2RS, MySP
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
 #endif
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer nAB(*)
 #include "cholesky.fh"
 
@@ -29,8 +29,8 @@ C
       Parameter (SecNam = 'Cho_SetShP2RS')
 #endif
 
-C     Check allocations.
-C     ------------------
+!     Check allocations.
+!     ------------------
 
       Call Cho_InvPck(iSP2F(mySP(iShlAB)),iShlA,iShlB,.True.)
       If (iShlA .eq. iShlB) Then
@@ -46,20 +46,20 @@ C     ------------------
          Return
       End If
 
-C     Check iLoc.
-C     -----------
+!     Check iLoc.
+!     -----------
 
       If (iLoc.lt.2 .or. iLoc.gt.3) Then
          irc = 104
          Return
       End If
 
-C     Set mapping array.
-C     iShP2RS(1,AB) = index in current reduced set, symmetry reduced.
-C     iShP2RS(2,AB) = symmetry block.
-C     Zeros are returned if the element AB is not a member of the
-C     current reduced set.
-C     ---------------------------------------------------------------
+!     Set mapping array.
+!     iShP2RS(1,AB) = index in current reduced set, symmetry reduced.
+!     iShP2RS(2,AB) = symmetry block.
+!     Zeros are returned if the element AB is not a member of the
+!     current reduced set.
+!     ---------------------------------------------------------------
 
       iShP2RS(:,1:NumAB)=0
 
@@ -103,8 +103,8 @@ C     ---------------------------------------------------------------
          End If
       End Do
 
-C     Set return code 0: all ok!
-C     --------------------------
+!     Set return code 0: all ok!
+!     --------------------------
 
       irc = 0
 

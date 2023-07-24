@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_SetLQ()
-C
-C     Purpose: set local qualified indices from known global qualified.
-C
-C     The local indices are stored in ChoArr.f90 and ChoSwp.f90:
-C
-C     nQual_L(iSym)   : #qualified, irrep iSym (=1,2,..,nSym)
-C     iQuAB_L(iQ,iSym): address of qualified iQ of sym. iSym in current
-C                       local reduced set (i.e. reduced set at location
-C                       2). Not symmetry reduced, i.e. includes the
-C                       offset iiBstR(iSym,2).
-C     iQL2G(iQ,iSym)  : returns index of the qualified in the global
-C                       list.
-C
+!
+!     Purpose: set local qualified indices from known global qualified.
+!
+!     The local indices are stored in ChoArr.f90 and ChoSwp.f90:
+!
+!     nQual_L(iSym)   : #qualified, irrep iSym (=1,2,..,nSym)
+!     iQuAB_L(iQ,iSym): address of qualified iQ of sym. iSym in current
+!                       local reduced set (i.e. reduced set at location
+!                       2). Not symmetry reduced, i.e. includes the
+!                       offset iiBstR(iSym,2).
+!     iQL2G(iQ,iSym)  : returns index of the qualified in the global
+!                       list.
+!
       use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
       use ChoArr, only: iL2G, iQL2G, nQual_L
       Implicit None

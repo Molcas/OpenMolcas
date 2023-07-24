@@ -42,9 +42,9 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-Call Allocate_DT(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
-Call Allocate_DT(MOs,nBas,nBas,nSym)
+call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DT(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
+call Allocate_DT(MOs,nBas,nBas,nSym)
 
 do i=1,nSym
   if (nBas(i) > 0) then
@@ -70,8 +70,8 @@ do i=1,nSym
 end do
 
 nDen = 1
-Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
-Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
 
 call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
 

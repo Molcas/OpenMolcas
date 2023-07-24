@@ -21,8 +21,8 @@ subroutine genCxCTL(iStop,Cartesian,rDelta)
 !         2013, November                                               *
 !***********************************************************************
 
-use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
-use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ, Numerical, nLambda, iRef, nDimBC, mTROld, mTtAtm, nWndw, iter
+use Slapaf_Info, only: BMx, BSet, Coor, Curvilinear, Free_Slapaf, HSet, iRef, iter, mTROld, mTtAtm, nDimBC, nLambda, Numerical, &
+                       nWndw, PrQ, qInt, Shift
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

@@ -160,6 +160,9 @@ C density.
         WRITE(6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
         WRITE(6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
         WRITE(6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
+        ! these active orbital energies are not the ones used in
+        ! MKFG3. Depending on whether the OUTO=canonical flag was set
+        ! in &RASSCF, it will differ from the EPSA array in mkfg3.f
         WRITE(6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
         WRITE(6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
         WRITE(6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'

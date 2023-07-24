@@ -43,6 +43,7 @@ subroutine MP2_Driver(ireturn)
 
 use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
                         LuIntM, MBPT2_Clean, NamAct, nBas
+use ChoMP2_dec, only: pEOcc => EOcc, pEVir => EVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -129,11 +130,12 @@ call PrInp_MBPT2(EOcc,EVir,iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Copy pointers to orbital energies to chomp2_dec.fh
+! Set pointers to orbital energies.
 ! Needed for amplitude Cholesky decomposition.
 
 if (DoCholesky) then
-  call ChoMP2_SetPtsOen(EOcc,EVir)
+  pEOcc => EOcc(:)
+  pEVir => EVir(:)
 end if
 !                                                                      *
 !***********************************************************************
@@ -472,6 +474,10 @@ contains
 subroutine finalize()
   call MBPT2_Clean()
   if (DoT1amp) call mma_deallocate(T1amp)
+  if (DoCholesky) then
+    nullify(pEOcc)
+    nullify(pEVir)
+  end if
   ireturn = 0
 end subroutine finalize
 

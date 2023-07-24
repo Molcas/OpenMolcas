@@ -83,7 +83,7 @@ call open_molcas_info()
 !if (Exist) then
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(u6,*) 'Add_Info: can not create info file'
+!    write(u6,*) 'Add_Info: cannot create info file'
 !    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if
@@ -108,7 +108,7 @@ call open_molcas_info()
 !else
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(u6,*) 'Add_Info: can not create a new file'
+!    write(u6,*) 'Add_Info: cannot create a new file'
 !    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if

@@ -201,7 +201,7 @@
       Do i = 1, nSym
          If (nFro(i).ne.0) Then
             Call WarningMessage(2,
-     &               'MCLR module can not handle frozen orbitals!')
+     &               'MCLR module cannot handle frozen orbitals!')
             Call Abend()
          End If
       End Do
@@ -211,7 +211,7 @@
       Do i = 1, nSym
          If (nDel(i).ne.0) Then
             Call WarningMessage(2,
-     &               'MCLR module can not handle deleted orbitals!')
+     &               'MCLR module cannot handle deleted orbitals!')
             Call Abend()
          End If
       End Do

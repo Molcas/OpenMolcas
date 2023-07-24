@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_SimRI_Z1CDia(Diag,Thr,Indx)
-C
-C     Purpose: Zero 1-center diagonals smaller then Thr.
-C              Diag is the diagonal (1st reduced set).
-C              On exit, Indx(i)=1 if diagonal i was zeroed, else
-C              Indx(i)=0 (thus, Indx must have same dimension as Diag).
-C
+!
+!     Purpose: Zero 1-center diagonals smaller then Thr.
+!              Diag is the diagonal (1st reduced set).
+!              On exit, Indx(i)=1 if diagonal i was zeroed, else
+!              Indx(i)=0 (thus, Indx must have same dimension as Diag).
+!
       use ChoArr, only: iSP2F, iAtomShl
       use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None

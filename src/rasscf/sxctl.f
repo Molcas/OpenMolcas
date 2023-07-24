@@ -419,7 +419,7 @@ c           IF (NACTEL.GT.0) THEN
            END IF
         End If
 
-* IPT2 = 1 for OUTO, CANOnical option...
+        ! IPT2 = 1 for OUTO, CANOnical option...
         IF(IPT2.NE.0)
      &  CALL FCKPT2(CMO,WORK(LCMON),FI,FA,
      &              WORK(LFTR),WORK(LVEC),

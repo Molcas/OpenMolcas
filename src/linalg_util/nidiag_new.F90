@@ -41,8 +41,8 @@ implicit none
 ! H    - Matrix to be diagonalized                                     *
 ! U    - Eigenvectors                                                  *
 !----------------------------------------------------------------------*
-integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(inout) :: H(*)
+integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
@@ -133,7 +133,7 @@ if (info /= 0) then
 end if
 
 do i=1,n
-  Call VecPhase(U(1,i),nv)
+  call VecPhase(U(1,i),nv)
 end do
 !----------------------------------------------------------------------*
 !                                                                      *

@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_TrcIdl_Init()
-C
-C     Thomas Bondo Pedersen, May 2010.
-C
-C     Allocate and init array for tracing idle processors
-C
+!
+!     Thomas Bondo Pedersen, May 2010.
+!
+!     Allocate and init array for tracing idle processors
+!
       Use Para_Info, Only: nProcs
       use ChoArr, only: Idle
+      use stdalloc
       Implicit None
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       Integer l_Idle
 

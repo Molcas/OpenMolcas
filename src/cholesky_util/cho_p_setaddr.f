@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_SetAddr()
-C
-C     Purpose: set initial disk adresses for local as well as global
-C              reduced sets.
-C
+!
+!     Purpose: set initial disk adresses for local as well as global
+!              reduced sets.
+!
       use ChoSwp, only: InfRed, InfRed_G
       use ChoSwp, only: InfVec, InfVec_G
       Implicit None
@@ -27,15 +27,15 @@ C
 
       If (Cho_Real_Par) Then
 
-C        The variable XnPass must be zero: restart is not possible.
-C        ----------------------------------------------------------
+!        The variable XnPass must be zero: restart is not possible.
+!        ----------------------------------------------------------
 
          If (XnPass .ne. 0) Then
             Call Cho_Quit('XnPass>0 error in '//SecNam,104)
          End If
 
-C        Global.
-C        -------
+!        Global.
+!        -------
 
          Call Cho_P_SetAddr_2(InfRed_G,InfVec_G,
      &                        MaxRed,MaxVec,SIZE(InfVec,2),nSym,irc)
@@ -46,16 +46,16 @@ C        -------
 
       End If
 
-C     Local.
-C     ------
+!     Local.
+!     ------
 
       Call Cho_SetAddr(InfRed,InfVec,
      &                 MaxRed,MaxVec,SIZE(InfVec,2),nSym)
 
       End
-************************************************************************
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
+!***********************************************************************
       SubRoutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,
      &                           irc)
       Implicit None

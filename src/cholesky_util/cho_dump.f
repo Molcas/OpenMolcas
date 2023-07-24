@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine Cho_Dump(irc,Lunit)
-C
-C     T.B. Pedersen, March 2005.
-C
-C     Purpose: print all entries in include files
-C              choorb.fh
-C              cholesky.fh
-C              chosubscr.f90
-C
-C     On input, Lunit is the logical unit to print to...
-C
+!
+!     T.B. Pedersen, March 2005.
+!
+!     Purpose: print all entries in include files
+!              choorb.fh
+!              cholesky.fh
+!              chosubscr.f90
+!
+!     On input, Lunit is the logical unit to print to...
+!
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
      &                     DSPNm
       Implicit None
@@ -42,8 +42,8 @@ C
       Write(Lunit,*)
       Call Cho_Flush(Lunit)
 
-C     choorb.fh.
-C     -----------
+!     choorb.fh.
+!     -----------
 
       Write(Lunit,*) '*** Contents of choorb.fh:'
       Write(Lunit,*)
@@ -55,8 +55,8 @@ C     -----------
       Write(Lunit,*)
       Call Cho_Flush(Lunit)
 
-C     cholesky.fh.
-C     -------------
+!     cholesky.fh.
+!     -------------
 
       Write(Lunit,*) '*** Contents of cholesky.fh:'
       Write(Lunit,*)
@@ -204,14 +204,14 @@ C     -------------
       Write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
       Call Cho_Flush(Lunit)
 
-C     choswp.f90 and choarr.f90
-C     -----------
+!     choswp.f90 and choarr.f90
+!     -----------
 
       Call Cho_PrintPointers(irc,Lunit)
       If (irc .ne. 0) Return
 
-C     chosubscr.f90.
-C     --------------
+!     chosubscr.f90.
+!     --------------
 
       Write(Lunit,*) '*** Contents of chosubscr.f90:'
       Write(Lunit,*)
@@ -227,9 +227,9 @@ C     --------------
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
      &                  InfVec, IndRed
-C
-C     Purpose: print all entries in choarr.f90 and choswp.f90
-C
+!
+!     Purpose: print all entries in choarr.f90 and choswp.f90
+!
       Implicit None
       Integer irc, Lunit
 

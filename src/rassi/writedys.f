@@ -10,10 +10,13 @@
 *                                                                      *
 * Copyright (C) 2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
+*               2023, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
 !     Subroutine to correctly bunch together spin-free Dyson orbitals
 !     and pass them to the molden_dysorb interface for .molden export
+
+!     IFG: Added DysOrb export, not sure it's correct
 
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -37,6 +40,7 @@
       DIMENSION CMO(NZ*NSTATE)
 
       Character*30 Filename
+      Character*80 TITLE
 
 !+++  J. Creutzberg, J. Norell  - 2018 (.molden export )
 
@@ -70,14 +74,19 @@
 
 ! If at least one orbital was found, export it/them
         IF(ORBNUM.GT.0) THEN
-         Write(filename,'(A16,I0)') 'Dyson.SF.molden.',JSTATE
+         Write(filename,'(A,I0)') 'MD_DYS.SF.',JSTATE
          Call Molden_DysOrb(filename,DYSEN,AMPS,CMO,ORBNUM,NZ)
+
+         Write(filename,'(A,I0)') 'DYSORB.SF.',JSTATE
+         LUNIT=IsFreeUnit(50)
+         Write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ',
+     &                         JSTATE
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,
+     &                    DYSEN,Trim(TITLE),NZ)
+         Close(LUNIT)
         END IF
 
       END DO ! JSTATE
 
       RETURN
       END
-
-
-

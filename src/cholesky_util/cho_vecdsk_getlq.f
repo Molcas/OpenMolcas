@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
-C
-C     Purpose: extract elements corresponding to qualified columns of
-C              vectors on disk.
-C
+!
+!     Purpose: extract elements corresponding to qualified columns of
+!              vectors on disk.
+!
       use ChoSwp, only: nnBstRSh
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8  QVec(l_QVec)
       Integer LstQSP(nQSP)
       Integer iV1(mSym), nV(mSym)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=16), Parameter:: SecNam = 'Cho_VecDsk_GetLQ'
 
@@ -30,8 +30,8 @@ C
       Real*8, Allocatable:: Scr(:)
       Integer, Allocatable:: iQuAB_2(:)
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       If (nQSP .lt. 1) Return
 
@@ -53,8 +53,8 @@ C     ------------
          End If
       End Do
 
-C     Allocate memory for reading.
-C     ----------------------------
+!     Allocate memory for reading.
+!     ----------------------------
 
       l_Scr = 0
       Do iSym = 1,nSym
@@ -69,8 +69,8 @@ C     ----------------------------
       End Do
       Call mma_allocate(Scr,l_Scr,Label='Scr')
 
-C     Allocate extra mapping from qualified to reduced set.
-C     -----------------------------------------------------
+!     Allocate extra mapping from qualified to reduced set.
+!     -----------------------------------------------------
 
       l_iQuAB_2 = nQual(1)
       Do iSym = 2,nSym
@@ -78,8 +78,8 @@ C     -----------------------------------------------------
       End Do
       Call mma_allocate(iQuAB_2,l_iQuAB_2,Label='iQuAB_2')
 
-C     Extract in each symmetry block.
-C     -------------------------------
+!     Extract in each symmetry block.
+!     -------------------------------
 
       Call Cho_P_GetGV(nVecTot,nSym)
 
@@ -108,8 +108,8 @@ C     -------------------------------
          kOffQ = kOffQ + nQual(iSym)*nVecTot(iSym)
       End Do
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
       Call mma_deallocate(iQuAB_2)
       Call mma_deallocate(Scr)

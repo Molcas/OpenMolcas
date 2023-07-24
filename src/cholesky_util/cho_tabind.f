@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       INTEGER FUNCTION CHO_TABIND(TABLE,LKEY,NTABLE,EOINP,LEOINP,NEOINP,
      &                            WORD)
-C
-C     Purpose: table lookup.
-C              First, try to find WORD in TABLE. If success, return ID,
-C              else, check if WORD is a special string
-C              in EOINP (if any supplied). If success, return NTABLE+1,
-C              else, return -1.
-C
+!
+!     Purpose: table lookup.
+!              First, try to find WORD in TABLE. If success, return ID,
+!              else, check if WORD is a special string
+!              in EOINP (if any supplied). If success, return NTABLE+1,
+!              else, return -1.
+!
       IMPLICIT NONE
       INTEGER LKEY, NTABLE, LEOINP, NEOINP
       CHARACTER*(*) TABLE(NTABLE)  ! <-- character*(lkey)
@@ -27,8 +27,8 @@ C
 
       Logical Test
 
-C     Find entry.
-C     -----------
+!     Find entry.
+!     -----------
 
       IF (LKEY.GT.0 .AND. NTABLE.GT.0) THEN
          IJUMP = 1

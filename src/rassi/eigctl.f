@@ -2335,6 +2335,9 @@ C                                                                      C
           END IF
          END DO ! J
         END DO ! I
+        CALL CollapseOutput(0,'Dyson amplitudes Biorth. corrected'//
+     &                        '(spin-free states):')
+        WRITE(6,*)
        END IF
 ! +++ J. Norell
 

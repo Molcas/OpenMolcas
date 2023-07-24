@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
-C
-C     Purpose: calculate shell-quadruple (IJ|KL) and return
-C              them in XINT.
-C
-C     Notes:
-C        LOCPRT: flag for printing the shell quadruple to output;
-C                output format differs depending on IFCSEW.
-C
+!
+!     Purpose: calculate shell-quadruple (IJ|KL) and return
+!              them in XINT.
+!
+!     Notes:
+!        LOCPRT: flag for printing the shell quadruple to output;
+!                output format differs depending on IFCSEW.
+!
       use ChoArr, only: nBstSh, iSP2F
       IMPLICIT REAL*8 (A-H,O-Z)
       EXTERNAL Integral_WrOut_Cho
@@ -30,8 +30,8 @@ C
 
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       CALL CHO_INVPCK(ISP2F(IJ),I,J,.TRUE.)
       CALL CHO_INVPCK(ISP2F(KL),K,L,.TRUE.)
@@ -43,13 +43,13 @@ C     ----------------
       SHA = K
       SHB = L
 
-C     Calculate integrals.
-C     --------------------
+!     Calculate integrals.
+!     --------------------
 
       CALL EVAL_IJKL(I,J,K,L,XINT,LINT,Integral_WrOut_Cho)
 
-C     Print integrals.
-C     ----------------
+!     Print integrals.
+!     ----------------
 
       IF (LOCPRT) THEN
 

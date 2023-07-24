@@ -1,40 +1,71 @@
 Citation for |openmolcas| and |molcas|
 ======================================
 
-The recommended citations for |openmolcas| are:
+The recommended citation for |openmolcas| is:
 
-  **OpenMolcas:** Ignacio Fdez. Galván, Morgane Vacher, Ali Alavi, Celestino
-  Angeli, Francesco Aquilante, Jochen Autschbach, Jie J. Bao, Sergey I. Bokarev,
-  Nikolay A. Bogdanov, Rebecca K. Carlson, Liviu F. Chibotaru, Joel Creutzberg,
-  Nike Dattani, Mickaël G. Delcey, Sijia S. Dong, Andreas Dreuw, Leon Freitag,
-  Luis Manuel Frutos, Laura Gagliardi, Frédéric Gendron, Angelo Giussani, Leticia
-  González, Gilbert Grell, Meiyuan Guo, Chad E. Hoyer, Marcus Johansson,
-  Sebastian Keller, Stefan Knecht, Goran Kovačević, Erik Källman, Giovanni Li
-  Manni, Marcus Lundberg, Yingjin Ma, Sebastian Mai, João Pedro Malhado, Per Åke
-  Malmqvist, Philipp Marquetand, Stefanie A. Mewes, Jesper Norell, Massimo
-  Olivucci, Markus Oppel, Quan Manh Phung, Kristin Pierloot, Felix Plasser,
-  Markus Reiher, Andrew M. Sand, Igor Schapiro, Prachi Sharma, Christopher J.
-  Stein, Lasse Kragh Sørensen, Donald G. Truhlar, Mihkel Ugandi, Liviu Ungur,
-  Alessio Valentini, Steven Vancoillie, Valera Veryazov, Oskar Weser, Tomasz A.
-  Wesołowski, Per-Olof Widmark, Sebastian Wouters, Alexander Zech, J. Patrick
-  Zobel, Roland Lindh. "OpenMolcas: From Source Code to Insight." *Journal of
-  Chemical Theory and Computation*, **15** (2019), 5925--5964.
-  `doi:10.1021/acs.jctc.9b00532 <https://doi.org/10.1021/acs.jctc.9b00532>`_
+  **OpenMolcas v23.02:** Giovanni Li Manni, Ignacio Fdez. Galván, Ali Alavi,
+  Flavia Aleotti, Francesco Aquilante, Jochen Autschbach, Davide Avagliano,
+  Alberto Baiardi, Jie J. Bao, Stefano Battaglia, Letitia Birnoschi, Alejandro
+  Blanco-González, Sergey I. Bokarev, Ria Broer, Roberto Cacciari, Paul B.
+  Calio, Rebecca K. Carlson, Rafael Carvalho Couto, Luis Cerdán, Liviu F.
+  Chibotaru, Nicholas F. Chilton, Jonathan Richard Church, Irene Conti, Sonia
+  Coriani, Juliana Cuéllar-Zuquin, Razan E. Daoud, Nike Dattani, Piero Decleva,
+  Coen de Graaf, Mickaël G. Delcey, Luca De Vico, Werner Dobrautz, Sijia S.
+  Dong, Rulin Feng, Nicolas Ferré, Michael Filatov(Gulak), Laura Gagliardi,
+  Marco Garavelli, Leticia González, Yafu Guan, Meiyuan Guo, Matthew R.
+  Hennefarth, Matthew R. Hermes, Chad E. Hoyer, Miquel Huix-Rotllant, Vishal
+  Kumar Jaiswal, Andy Kaiser, Danil S. Kaliakin, Marjan Khamesian, Daniel S.
+  King, Vladislav Kochetov, Marek Krośnicki, Arpit Arun Kumaar, Ernst D.
+  Larsson, Susi Lehtola, Marie-Bernadette Lepetit, Hans Lischka, Pablo López
+  Ríos, Marcus Lundberg, Dongxia Ma, Sebastian Mai, Philipp Marquetand,
+  Isabella C. D. Merritt, Francesco Montorsi, Maximilian Mörchen, Artur Nenov,
+  Vu Ha Anh Nguyen, Yoshio Nishimoto, Meagan S. Oakley, Massimo Olivucci,
+  Markus Oppel, Daniele Padula, Riddhish Pandharkar, Quan Manh Phung, Felix
+  Plasser, Gerardo Raggi, Elisa Rebolini, Markus Reiher, Ivan Rivalta, Daniel
+  Roca-Sanjuán, Thies Romig, Arta Anushirwan Safari, Aitor Sánchez-Mansilla,
+  Andrew M. Sand, Igor Schapiro, Thais R. Scott, Javier Segarra-Martí,
+  Francesco Segatta, Dumitru-Claudiu Sergentu, Prachi Sharma, Ron Shepard,
+  Yinan Shu, Jakob K. Staab, Tjerk P. Straatsma, Lasse Kragh Sørensen, Bruno
+  Nunes Cabral Tenorio, Donald G. Truhlar, Liviu Ungur, Morgane Vacher, Valera
+  Veryazov, Torben Arne Voß, Oskar Weser, Dihua Wu, Xuchun Yang, David Yarkony,
+  Chen Zhou, J. Patrick Zobel, Roland Lindh. "The OpenMolcas *Web*: A
+  Community-Driven Approach to Advancing Computational Chemistry." *Journal of
+  Chemical Theory and Computation*, **??** (2023), ??--??.
+  `doi:10.1021/acs.jctc.3c00182 <https://doi.org/10.1021/acs.jctc.3c00182>`_
 
-  **Applications:** Francesco Aquilante, Jochen Autschbach, Alberto Baiardi,
-  Stefano Battaglia, Veniamin A. Borin, Liviu F. Chibotaru, Irene Conti, Luca De
-  Vico, Mikael Delcey, Ignacio Fdez. Galván, Nicolas Ferré, Leon Freitag, Marco
-  Garavelli, Xuejun Gong, Stefan Knecht, Ernst D. Larsson, Roland Lindh, Marcus
-  Lundberg, Per Åke Malmqvist, Artur Nenov, Jesper Norell, Michael Odelius,
-  Massimo Olivucci, Thomas B. Pedersen, Laura Pedraza-González, Quan M. Phung,
-  Kristine Pierloot, Markus Reiher, Igor Schapiro, Javier Segarra-Martí,
-  Francesco Segatta, Luis Seijo, Saumik Sen, Dumitru-Claudiu Sergentu,
-  Christopher J. Stein, Liviu Ungur, Morgane Vacher, Alessio Valentini, Valera
-  Veryazov. "Modern quantum chemistry with [Open]Molcas." *The Journal of
-  Chemical Physics*, **152** (2020), 214117. `doi:10.1063/5.0004835
-  <https://doi.org/10.1063/5.0004835>`_
+Earlier citations for |openmolcas| and |molcas| are:
 
-Earlier citations for |molcas| are:
+  **OpenMolcas v19.11 Applications:** Francesco Aquilante, Jochen Autschbach,
+  Alberto Baiardi, Stefano Battaglia, Veniamin A. Borin, Liviu F. Chibotaru,
+  Irene Conti, Luca De Vico, Mikael Delcey, Ignacio Fdez. Galván, Nicolas
+  Ferré, Leon Freitag, Marco Garavelli, Xuejun Gong, Stefan Knecht, Ernst D.
+  Larsson, Roland Lindh, Marcus Lundberg, Per Åke Malmqvist, Artur Nenov,
+  Jesper Norell, Michael Odelius, Massimo Olivucci, Thomas B. Pedersen, Laura
+  Pedraza-González, Quan M. Phung, Kristine Pierloot, Markus Reiher, Igor
+  Schapiro, Javier Segarra-Martí, Francesco Segatta, Luis Seijo, Saumik Sen,
+  Dumitru-Claudiu Sergentu, Christopher J. Stein, Liviu Ungur, Morgane Vacher,
+  Alessio Valentini, Valera Veryazov. "Modern quantum chemistry with
+  [Open]Molcas." *The Journal of Chemical Physics*, **152** (2020), 214117.
+  `doi:10.1063/5.0004835 <https://doi.org/10.1063/5.0004835>`_
+
+  **OpenMolcas v19.11:** Ignacio Fdez. Galván, Morgane Vacher, Ali Alavi,
+  Celestino Angeli, Francesco Aquilante, Jochen Autschbach, Jie J. Bao, Sergey
+  I. Bokarev, Nikolay A. Bogdanov, Rebecca K. Carlson, Liviu F. Chibotaru, Joel
+  Creutzberg, Nike Dattani, Mickaël G. Delcey, Sijia S. Dong, Andreas Dreuw,
+  Leon Freitag, Luis Manuel Frutos, Laura Gagliardi, Frédéric Gendron, Angelo
+  Giussani, Leticia González, Gilbert Grell, Meiyuan Guo, Chad E. Hoyer, Marcus
+  Johansson, Sebastian Keller, Stefan Knecht, Goran Kovačević, Erik Källman,
+  Giovanni Li Manni, Marcus Lundberg, Yingjin Ma, Sebastian Mai, João Pedro
+  Malhado, Per Åke Malmqvist, Philipp Marquetand, Stefanie A. Mewes, Jesper
+  Norell, Massimo Olivucci, Markus Oppel, Quan Manh Phung, Kristin Pierloot,
+  Felix Plasser, Markus Reiher, Andrew M. Sand, Igor Schapiro, Prachi Sharma,
+  Christopher J. Stein, Lasse Kragh Sørensen, Donald G. Truhlar, Mihkel Ugandi,
+  Liviu Ungur, Alessio Valentini, Steven Vancoillie, Valera Veryazov, Oskar
+  Weser, Tomasz A. Wesołowski, Per-Olof Widmark, Sebastian Wouters, Alexander
+  Zech, J. Patrick Zobel, Roland Lindh. "OpenMolcas: From Source Code to
+  Insight." *Journal of Chemical Theory and Computation*, **15** (2019),
+  5925--5964. `doi:10.1021/acs.jctc.9b00532
+  <https://doi.org/10.1021/acs.jctc.9b00532>`_
 
   **Molcas 8:** F. Aquilante, J. Autschbach, R. K. Carlson, L. F. Chibotaru, M.
   G. Delcey, L. De Vico, I. Fdez. Galván, N. Ferré, L. M. Frutos, L. Gagliardi,
@@ -77,32 +108,38 @@ The following people have contributed to the development of the
 
 ..
 
-  Christian Ander, Kerstin Andersson, János G. Ángyán, Francesco Aquilante,
-  Jochen Autschbach, Jie J. Bao, Maria Barysz, Stefano Battaglia, Eugeniusz
-  Bednarz, Nelson H. F. Beebe, Anders Bernhardsson, Margareta R. A. Blomberg,
-  Piotr Borowski, Jonas Boström, Per Boussard, John Burkardt, Yannick Carissan,
-  Liviu Chibotaru, Christophe Chipot, Aron Cohen, David L. Cooper, Maurizio
-  Cossi, Joel Creutzberg, Oleh Danyliv, Mickaël G. Delcey, Ajitha Devarajan, Luca
-  De Vico, Michael Diedenhofen, Sijia S. Dong, Thomas Dresselhaus, Daniel
-  Fairhead, Ignacio Fdez. Galván, Nicolas Ferré, Timo Fleig, Leon Freitag, Luis
-  Manuel Frutos, Markus P. Fülscher, Alexander Gaenko, Laura Gagliardi, Walter
-  Gautschi, Giovanni Ghigo, Coen de Graaf, Gene H. Golub, Sergey Gusarov, Daniel
-  Hagberg, Jun-ya Hasegawa, José Manuel Hermida-Ramón, Bernd Artur Heß, Asbjørn
-  Holt, Chad E. Hoyer, Denis Jelovina, Marcus Johansson, Erik Källman, Gunnar
-  Karlström, Stefan Knecht, Jesper Wisborg Krogh, Teodoro Laino, Giovanni Li
-  Manni, Roland Lindh, Johan Lorentzon, Dongxia Ma, Yingjin Ma, Per Åke
-  Malmqvist, Neil Martinsen-Burrell, Andy May, Manuela Merchán, Samuel Mikes,
-  Abdul Rehaman Moughal Shahi, Thomas Müller, Takahito Nakajima, Naoki Nakatani,
-  Pavel Neogrády, Jesper Norell, Anders Öhrn, Jeppe Olsen, Markus Oppel, Thomas
-  Bondo Pedersen, Daoling Peng, Kurt Pfingst, Quan Phung, Michal Pitoňák, Felix
-  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Gerardo Raggi, Markus Reiher, H.
-  Rieger, Björn O. Roos, Ulf Ryde, Pawel Salek, Andrew M. Sand, Michael A.
-  Saunders, Igor Schapiro, Bernd Schimmelpfennig, Martin Schütz, Luis Seijo, Luis
-  Serrano-Andrés, Kamal Sharkas, Grigory A. Shamov, Prachi Sharma, Per E. M.
-  Siegbahn, Pär Söderhjelm, Lasse Kragh Sørensen, Jonna Stålring, Hermann Stoll,
-  Bingbing Suo, Ben Swerts, Akio Takatsuka, Thorstein Thorsteinsson, Takashi
-  Tsuchiya, Liviu Ungur, Morgane Vacher, Alessio Valentini, Valérie Vallet,
-  Steven Vancoillie, Valera Veryazov, Victor P. Vysotskiy, Ulf Wahlgren, Yubin
-  Wang, Mark A. Watson, Hans-Joachim Werner, Oskar Weser, Per-Olof Widmark,
+  Christian Ander, Kerstin Andersson, János G. Ángyán, Imaad Ansari, Francesco
+  Aquilante, Jochen Autschbach, Jie J. Bao, Maria Barysz, Stefano Battaglia,
+  Eugeniusz Bednarz, Nelson H. F. Beebe, Anders Bernhardsson, Margareta R. A.
+  Blomberg, Sergey I. Bokarev, Piotr Borowski, Jonas Boström, Per Boussard,
+  John Burkardt, Paul B. Calio, Yannick Carissan, Liviu Chibotaru, Christophe
+  Chipot, Jonathan R. Church, Aron Cohen, David L. Cooper, Sonia Coriani,
+  Maurizio Cossi, Joel Creutzberg, Oleh Danyliv, Nike Dattani, Danjo De Chavez,
+  Mickaël G. Delcey, Ajitha Devarajan, Luca De Vico, Michael Diedenhofen,
+  Werner Dobrautz, Sijia S. Dong, Thomas Dresselhaus, Thomas J. Duignan, Daniel
+  Fairhead, Ignacio Fdez. Galván, Rulin Feng, Nicolas Ferré, Timo Fleig, Niclas
+  Forsberg, Leon Freitag, Luis Manuel Frutos, Markus P. Fülscher, Alexander
+  Gaenko, Laura Gagliardi, Walter Gautschi, Giovanni Ghigo, Coen de Graaf,
+  Joseph Golab, Gene H. Golub, Sergey Gusarov, Daniel Hagberg, Jun-ya Hasegawa,
+  Matthew R. Hermes, José Manuel Hermida-Ramón, Bernd Artur Heß, Asbjørn Holt,
+  Chad E. Hoyer, Denis Jelovina, Marcus Johansson, Andy Kaiser, Erik Källman,
+  Gunnar Karlström, Stefan Knecht, Vladislav Kochetov, Jesper Wisborg Krogh,
+  Teodoro Laino, Susi Lehtola, Giovanni Li Manni, Roland Lindh, Johan
+  Lorentzon, Dongxia Ma, Yingjin Ma, Per Åke Malmqvist, Neil Martinsen-Burrell,
+  Andy May, Manuela Merchán, Isabella C. D. Merritt, Deyan Mihaylov, Samuel
+  Mikes, Abdul Rehaman Moughal Shahi, Thomas Müller, Takahito Nakajima, Naoki
+  Nakatani, Pavel Neogrády, Yoshio Nishimoto, Jesper Norell, Anders Öhrn, Jeppe
+  Olsen, Markus Oppel, Thomas Bondo Pedersen, Daoling Peng, Kurt Pfingst, Quan
+  Phung, Michal Pitoňák, Felix Plasser, Christian Pomelli, Ben Pritchard, Juraj
+  Raab, Gerardo Raggi, Markus Reiher, H. Rieger, Björn O. Roos, Ulf Ryde,
+  Andrzej J. Sadlej, Arta Safari, Pawel Salek, Andrew M. Sand, Michael A.
+  Saunders, Igor Schapiro, Bernd Schimmelpfennig, Martin Schütz, Thais Scott,
+  Luis Seijo, Luis Serrano-Andrés, Kamal Sharkas, Grigory A. Shamov, Prachi
+  Sharma, Per E. M. Siegbahn, Pär Söderhjelm, Lasse Kragh Sørensen, Jonna
+  Stålring, Hermann Stoll, Tjerk P. Straatsma, Bingbing Suo, Ben Swerts, Akio
+  Takatsuka, Bruno N. C. Tenorio, Thorstein Thorsteinsson, Takashi Tsuchiya,
+  Liviu Ungur, Morgane Vacher, Alessio Valentini, Valérie Vallet, Steven
+  Vancoillie, Valera Veryazov, Victor P. Vysotskiy, Ulf Wahlgren, Yubin Wang,
+  Mark A. Watson, Hans-Joachim Werner, Oskar Weser, Per-Olof Widmark,
   Małgorzata Wierzbowska, Alexander Wolf, Sebastian Wouters, Felipe Zapata,
-  Alexander Zech, Yan Zhao, J. Patrick Zobel.
+  Alexander Zech, Yan Zhao, Chen Zhou, J. Patrick Zobel.

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
       Implicit None
@@ -18,9 +18,9 @@
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_GetLQ')
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       SubRoutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
       Integer l_QVec, nQSP
@@ -28,15 +28,15 @@
       Integer LstQSP(nQSP)
       End SubRoutine Cho_GetLQ
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
-C --- In parallel:
-C --- This code only works if MxShpr is set to 1
-C ---      otherwise each node computes a slice
-C ---      of QVec and thus a more sophisticated
-C ---      "synchronization" would be needed
+! --- In parallel:
+! --- This code only works if MxShpr is set to 1
+! ---      otherwise each node computes a slice
+! ---      of QVec and thus a more sophisticated
+! ---      "synchronization" would be needed
 
       If (Cho_Real_Par) Then
          If (nQSP .gt. 1) Then

@@ -13,6 +13,7 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb,usual,verbose,debug
+      use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -112,14 +113,13 @@
         end If
 
 c Modify the Fock matrix if needed
-        IF (FOCKTYPE.NE.'STANDARD') THEN
-           CALL NEWFOCK(WORK(LFIFA))
-        END IF
+c You don't have to be beautiful to turn me on
+        CALL NEWFOCK(WORK(LFIFA),WORK(LCMO))
 
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC) GoTo 100
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -256,13 +256,15 @@ c Modify the Fock matrix if needed
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      if (IfChol) then
+      if (.not. DoFCIQMC) then
+          if (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-        call TRACHO3(WORK(LCMO))
-      else
+              call TRACHO3(WORK(LCMO))
+          else
 * TRACTL(0) computes transformed 2-body MO integrals
-        call TRACTL(0)
+              call TRACTL(0)
+          end if
       end if
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0

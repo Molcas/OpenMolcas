@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_X_Init_Par(irc,isDF)
-C
-C     Purpose: setup for parallel Cholesky/DF.
-C
+!
+!     Purpose: setup for parallel Cholesky/DF.
+!
       Implicit None
       Integer irc
       Logical isDF
@@ -25,9 +25,9 @@ C
 
       End
       SubRoutine Cho_X_Init_Par_DF(irc)
-C
-C     Purpose: setup for parallel DF.
-C
+!
+!     Purpose: setup for parallel DF.
+!
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
 #endif
@@ -50,8 +50,8 @@ C
 
       irc = 0
 
-C     Return if serial.
-C     -----------------
+!     Return if serial.
+!     -----------------
 
       isSerial = nProcs.eq.1 .or. .not.Is_Real_Par()
       If (isSerial) Then
@@ -67,9 +67,9 @@ C     -----------------
          End If
       End If
 
-C     Reset number of vectors to the number on this node as stored on
-C     the runfile.
-C     ---------------------------------------------------------------
+!     Reset number of vectors to the number on this node as stored on
+!     the runfile.
+!     ---------------------------------------------------------------
 
       Call iCopy(nSym,NumCho,1,nV,1)
       Call Get_iArray('nVec_RI',NumCho,nSym)
@@ -78,8 +78,8 @@ C     ---------------------------------------------------------------
          NumChT = NumChT + NumCho(iSym)
       End Do
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       If (LocDbg) Then
          Write(6,*)
@@ -99,12 +99,13 @@ C     ------------
 
       End
       SubRoutine Cho_X_Init_Par_Cho(irc)
-C
-C     Purpose: setup for parallel Cholesky.
-C
+!
+!     Purpose: setup for parallel Cholesky.
+!
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use ChoSwp, only: InfVec
+      use stdalloc
 #endif
       Implicit None
       Integer irc
@@ -119,7 +120,6 @@ C
 
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer nV(8)
       Integer iSym, i, j
@@ -130,8 +130,8 @@ C
 
       irc = 0
 
-C     Return if serial.
-C     -----------------
+!     Return if serial.
+!     -----------------
 
       isSerial = nProcs.eq.1 .or. .not.Is_Real_Par()
       If (isSerial) Then
@@ -147,8 +147,8 @@ C     -----------------
          End If
       End If
 
-C     Reset vector info to fit vectors stored on this node.
-C     -----------------------------------------------------
+!     Reset vector info to fit vectors stored on this node.
+!     -----------------------------------------------------
 
       Do iSym = 1,nSym
          nV(iSym) = 0
@@ -171,8 +171,8 @@ C     -----------------------------------------------------
          End If
       End Do
 
-C     Reset number of vectors.
-C     ------------------------
+!     Reset number of vectors.
+!     ------------------------
 
       Call iSwap(nSym,NumCho,1,nV,1)
       NumChT = NumCho(1)
@@ -180,8 +180,8 @@ C     ------------------------
          NumChT = NumChT + NumCho(iSym)
       End Do
 
-C     Debug print.
-C     ------------
+!     Debug print.
+!     ------------
 
       If (LocDbg) Then
          Write(6,*)
@@ -203,10 +203,10 @@ C     ------------
       SubRoutine Cho_X_Init_Par_GenBak()
       Use Para_Info, Only: Is_Real_Par
       use ChoSwp, only: InfVec, InfVec_Bak
+      use ChPari
+      use stdalloc, only: mma_allocate
       Implicit None
 #include "cholesky.fh"
-#include "chpari.fh"
-#include "stdalloc.fh"
 
       NumCho_Bak(:)=0
       If (Is_Real_Par()) Then

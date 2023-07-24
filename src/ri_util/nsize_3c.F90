@@ -74,7 +74,7 @@ else
         if (kIrrep > lIrrep) then
           nKL = nKL+nK*nL
         else if (kIrrep == lIrrep) then
-          nKL = nKL+nTri_ELem(nK)
+          nKL = nKL+nTri_Elem(nK)
         end if
 
       end do

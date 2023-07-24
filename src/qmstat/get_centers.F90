@@ -31,7 +31,7 @@ Lu = IsFreeUnit(40)
 call Opnfl('MPPROP',Lu,Exists)
 if (.not. Exists) then
   write(u6,*)
-  write(u6,*) ' Can not locate output file from MpProp. '
+  write(u6,*) ' Cannot locate output file from MpProp. '
   call Quit(_RC_IO_ERROR_READ_)
 end if
 rewind(Lu)

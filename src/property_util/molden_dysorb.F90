@@ -175,6 +175,13 @@ do iCnttp=1,nCnttp
   if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
     do l=0,dbsc(iCnttp)%nVal-1
       ishell = dbsc(iCnttp)%iVal+l
+      if (Shells(ishell)%Transf .and. (.not. Shells(iShell)%Prjct)) then
+        if (jPL >= 2) then
+          write(u6,*) 'Sorry, Molden does not support contaminants'
+        end if
+        call End1()
+        return
+      end if
       call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
     end do
   end if
@@ -271,7 +278,7 @@ kk = 0
 do iCnttp=1,nCnttp             ! loop over unique basis sets
   if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
 
-  do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
+  do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
     mdc = mdc+1
     nDeg = nIrrep/dc(mdc)%nStab
     do iDeg=1,nDeg             ! loop over centers
@@ -552,7 +559,6 @@ do iContr=1,nB
     if (Cent(k,iContr) /= 0) Cent2(iContr) = Cent2(iContr)+1
   end do
 end do
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -597,7 +603,6 @@ do iIrrep=0,nIrrep-1 ! For all the irreps of symmetrized functions
   end do ! iB=1,nBas(iIrrep)
 end do ! iIrrep=0,nIrrep-1
 call mma_deallocate(label)
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *

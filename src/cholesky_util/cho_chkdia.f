@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_CHKDIA(DIAG,ISYM,XM,YM,ZM,NNEGT,NNEG,NCONV)
-C
-C     Purpose: 1) find min. in updated diagonal, XM (sym. ISYM only)
-C              2) find max. in updated diagonal, YM (sym. ISYM only)
-C              3) find abs. max. in updated diagonal, ZM (sym. ISYM only)
-C              4) count #diagonals < 0.0D0, NNEGT
-C              5) count #diagonals < THRNEG, NNEGT
-C              6) count #screenable diagonals, NCONV
-C
-C     -- also: a) zero negative diagonals < THRNEG (from cholesky.fh)
-C              b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
-C              c) Keep track of most negative zeroed diagonal.
-C
+!
+!     Purpose: 1) find min. in updated diagonal, XM (sym. ISYM only)
+!              2) find max. in updated diagonal, YM (sym. ISYM only)
+!              3) find abs. max. in updated diagonal, ZM (sym. ISYM only)
+!              4) count #diagonals < 0.0D0, NNEGT
+!              5) count #diagonals < THRNEG, NNEGT
+!              6) count #screenable diagonals, NCONV
+!
+!     -- also: a) zero negative diagonals < THRNEG (from cholesky.fh)
+!              b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
+!              c) Keep track of most negative zeroed diagonal.
+!
       use ChoSwp, only: IndRed
-#include "implicit.fh"
-      DIMENSION DIAG(*)
+      Implicit Real*8 (a-h,o-z)
+      Real*8 Diag(*)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM
@@ -31,8 +31,8 @@ C
 
       PARAMETER (ZERO = 0.0D0)
 
-C     Initialization.
-C     ---------------
+!     Initialization.
+!     ---------------
 
       NNEGT = 0
       NNEG  = 0
@@ -51,8 +51,8 @@ C     ---------------
          RETURN
       END IF
 
-C     Find min. and max. diagonal and zero too negative diagonals.
-C     ------------------------------------------------------------
+!     Find min. and max. diagonal and zero too negative diagonals.
+!     ------------------------------------------------------------
 
       DO JAB = JAB1,JAB2
          IAB = INDRED(JAB,2)  ! get address in first red. set
@@ -84,13 +84,13 @@ C     ------------------------------------------------------------
       END DO
       ZM = MAX(ABS(XM),ABS(YM))
 
-C     Screen diagonal (if requested) and count the screenables as
-C     converged.
-C     NOTE: the screening is actually identical to setting up
-C           reduced sets. However, doing the screening here will
-C           force entries in later vectors of this integral pass
-C           to have zero entries at screened diagonals.
-C     -----------------------------------------------------------
+!     Screen diagonal (if requested) and count the screenables as
+!     converged.
+!     NOTE: the screening is actually identical to setting up
+!           reduced sets. However, doing the screening here will
+!           force entries in later vectors of this integral pass
+!           to have zero entries at screened diagonals.
+!     -----------------------------------------------------------
 
       IF (SCDIAG) THEN
          DO JAB = JAB1,JAB2

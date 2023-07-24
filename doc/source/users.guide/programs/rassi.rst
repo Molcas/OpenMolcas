@@ -1225,7 +1225,7 @@ Keywords
 
 :kword:`TRDC`
   Prints out COMPLEX valued components of the transition dipole vector
-  for spin-orbit calculations,
+  for spin--orbit calculations,
   otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
@@ -1275,7 +1275,7 @@ Keywords
 :kword:`DYSOn`
   Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
-  Calculations are performed for spin-free states, and for spin-orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin-orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin-orbit states see the :kword:`DYSExport` keyword.
+  Calculations are performed for spin-free states, and for spin--orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin--orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin--orbit states see the :kword:`DYSExport` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSON" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DYSON <advanced>
@@ -1285,9 +1285,9 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSExport`
-  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin--orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin--orbit states are always energy ordered.
 
-  Dyson amplitudes for the spin-orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keywpord), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
+  Dyson amplitudes for the spin--orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keyword), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
@@ -1332,11 +1332,11 @@ Keywords
               </KEYWORD>
 
 :kword:`NTOCalc`
-  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other).
+  Enables natural transition orbital (NTO) calculation of two states from two :file:`JobIph` files (which can be identical to each other).
   The NTO calculations can be performed for states with different spatial symmetries.
-  To perform an NTO calculation, two JobIph files, which by convention are named :file:`JOB001` and :file:`JOB002`, are needed. Since NTO calculations are performed usually between the ground state and an excited state, :file:`JOB001` is used to provide the information for the ground state, and :file:`JOB002` is used to provide the information for excited states. This way of storing information was chosen so that NTO calculations can be performed either for states with the same symmetry or states with different symmetries, but in the former case, if two states are obtained in a single SA-CASSCF or SA-RASSCF calculation, one may make a copy of the JobIph file to get the second JobIph file. The two states are specified in the keyword :kword:`NROF` to tell the program for which two states the NTO calculation is to be performed.
-  The NTO files are named as :file:`$Project.NTOrb.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`, where :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs, and where :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated, and where :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs. In addition, Molden files for the orbitals named :file:`$Project.nto.molden.I_J.Spin.NTOType` are also generated.
-  One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each JobIph file (in the line starting with ``JobIph:``). If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
+  To perform an NTO calculation, two :file:`JobIph` files, which by convention are named :file:`JOB001` and :file:`JOB002`, are needed. Since NTO calculations are performed usually between the ground state and an excited state, :file:`JOB001` is used to provide the information for the ground state, and :file:`JOB002` is used to provide the information for excited states. This way of storing information was chosen so that NTO calculations can be performed either for states with the same symmetry or states with different symmetries, but in the former case, if two states are obtained in a single SA-CASSCF or SA-RASSCF calculation, one may make a copy of the :file:`JobIph` file to get the second :file:`JobIph` file. The two states are specified in the keyword :kword:`NROF` to tell the program for which two states the NTO calculation is to be performed.
+  The NTO files are named as :file:`$Project.NTOrb.SF.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`, where :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs, and where :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated, and where :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs. In addition, Molden files for the orbitals named :file:`$Project.nto.molden.SF.I_J.Spin.NTOType` are also generated.
+  One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each :file:`JobIph` file (in the line starting with ``JobIph:``). If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
   For more information and examples of this method, please refer to the Minnesota OpenMolcas webpage\ [#fn1]_.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/

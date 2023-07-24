@@ -1,55 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-*  CHO_get_ER
-*
-*> @brief
-*>   Compute the Edmiston--Ruedenberg functional for a given set of occupied MOs
-*> @author F. Aquilante
-*>
-*> @details
-*> Computes the Edmiston--Ruedenberg functional
-*>
-*> \f[ W = \sum_i \mathit{ER}[i] = \sum_i (ii|ii) \f]
-*>
-*> for a given set of occupied MOs.
-*>
-*> The functional orbital components \p ER(i) are
-*> computed by using the Cholesky representation \f$ L_{ab,J} \f$
-*> of the AO two-electron integrals, namely
-*>
-*> \f[ \mathit{ER}[i] = \sum_J V[i]_J V[i]_J \f]
-*>
-*> where
-*>
-*> \f[ V[i]_J = \sum_{ab} D[i]_{ab} L_{ab,J} \f]
-*>
-*> and
-*>
-*> \f[ D[i]_{a,b} = C[i]_a C[i]_b \f]
-*>
-*> @note
-*> Requires initialization of the Cholesky information.
-*>
-*> @param[out] irc     return code
-*> @param[in]  CMO     MOs matrix, stored as \p C(a,k)
-*> @param[in]  nOcc    number of occupied orbitals in each symmetry
-*> @param[out] ER      orbital components of the ER functional}
-*> @param[out] W       value of the Edmiston--Ruedenberg functional
-*> @param[in]  timings switch on/off timings printout
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+!  CHO_get_ER
+!
+!> @brief
+!>   Compute the Edmiston--Ruedenberg functional for a given set of occupied MOs
+!> @author F. Aquilante
+!>
+!> @details
+!> Computes the Edmiston--Ruedenberg functional
+!>
+!> \f[ W = \sum_i \mathit{ER}[i] = \sum_i (ii|ii) \f]
+!>
+!> for a given set of occupied MOs.
+!>
+!> The functional orbital components \p ER(i) are
+!> computed by using the Cholesky representation \f$ L_{ab,J} \f$
+!> of the AO two-electron integrals, namely
+!>
+!> \f[ \mathit{ER}[i] = \sum_J V[i]_J V[i]_J \f]
+!>
+!> where
+!>
+!> \f[ V[i]_J = \sum_{ab} D[i]_{ab} L_{ab,J} \f]
+!>
+!> and
+!>
+!> \f[ D[i]_{a,b} = C[i]_a C[i]_b \f]
+!>
+!> @note
+!> Requires initialization of the Cholesky information.
+!>
+!> @param[out] irc     return code
+!> @param[in]  CMO     MOs matrix, stored as \p C(a,k)
+!> @param[in]  nOcc    number of occupied orbitals in each symmetry
+!> @param[out] ER      orbital components of the ER functional}
+!> @param[out] W       value of the Edmiston--Ruedenberg functional
+!> @param[in]  timings switch on/off timings printout
+!***********************************************************************
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Integer nOcc(*)
@@ -60,10 +62,8 @@
       Real*8  tread(2),tintg(2)
       Character(LEN=10), Parameter:: SECNAM = 'CHO_get_ER'
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: DLT(:), Lab(:), Dab(:), VJ(:)
 
@@ -81,7 +81,7 @@
          tintg(i) = zero  !time for computing the functional
       end do
 
-C --- compute some offsets and other quantities
+! --- compute some offsets and other quantities
       MaxB=nBas(1)
       iOcc(1)=0
       isMO(1)=0
@@ -107,8 +107,8 @@ C --- compute some offsets and other quantities
 
       Do JRED=JRED1,JRED2
 
-C --- Memory management section -----------------------------
-C ---
+! --- Memory management section -----------------------------
+! ---
       CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
       if (nVrs.eq.0) goto 999
@@ -146,7 +146,7 @@ C ---
       Call mma_allocate(Lab,LREAD,Label='Lab')
       Call mma_allocate(VJ,nVec,Label='VJ')
 
-C --- BATCH over the vectors in JSYM=1 ----------------------------
+! --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
@@ -180,8 +180,8 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
             Do ik=1,nOcc(kSym)
 
-C --- Compute the i-th orbital component D[i](a,b) of the density
-C --- D[i](a,b) is stored as upper-triangular
+! --- Compute the i-th orbital component D[i](a,b) of the density
+! --- D[i](a,b) is stored as upper-triangular
                Do ib=1,nBas(kSym)
 
                   ipb = isMO(kSym) + nBas(kSym)*(ik-1) + ib
@@ -199,22 +199,22 @@ C --- D[i](a,b) is stored as upper-triangular
 
                End Do
 
-C --- Transform the density to reduced storage
+! --- Transform the density to reduced storage
                Call switch_density(iLoc,DLT,Dab,kSym)
 
-C  ( r .ge. s )
-C ------------------------------------------------------------
-C --- V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
-C=============================================================
+!  ( r .ge. s )
+! ------------------------------------------------------------
+! --- V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
+!=============================================================
 
                CALL DGEMV_('T',nRS,JNUM,
      &                    TWO,Lab,nRS,
      &                    Dab,1,ZERO,VJ,1)
 
 
-C ----------------------------------------------------------
-C --- ER[i] <- ER[i]  +  sum_J V[i](J)^2
-C===========================================================
+! ----------------------------------------------------------
+! --- ER[i] <- ER[i]  +  sum_J V[i](J)^2
+!===========================================================
                Do jv=1,JNUM
 
                   ER(iOcc(kSym)+ik) = ER(iOcc(kSym)+ik) + VJ(jv)**2
@@ -233,7 +233,7 @@ C===========================================================
 
       END DO  !end batch loop
 
-C --- free memory
+! --- free memory
       Call mma_deallocate(VJ)
       Call mma_deallocate(Lab)
       Call mma_deallocate(Dab)
@@ -245,10 +245,10 @@ C --- free memory
 
       Call mma_deallocate(DLT)
 
-C --- Sync components
+! --- Sync components
       Call GAdGOp(ER,nOccT,'+')
 
-C --- Compute the ER-functional from its orbital components
+! --- Compute the ER-functional from its orbital components
       W = Zero
       Do ik=1,nOccT
          W = W + ER(ik)
@@ -260,8 +260,8 @@ C --- Compute the ER-functional from its orbital components
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
 
-*
-*---- Write out timing information
+!
+!---- Write out timing information
       if(timings)then
 
       Write(6,*)
@@ -290,6 +290,7 @@ C --- Compute the ER-functional from its orbital components
       SUBROUTINE switch_density(iLoc,XLT,Xab,kSym)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer, External:: cho_isao
       Integer iLoc, kSym
@@ -297,12 +298,11 @@ C --- Compute the ER-functional from its orbital components
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
 
-************************************************************************
+!***********************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
+!***********************************************************************
 
       jSym = 1 ! only total symmetric density
 

@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_XCV_WrVec(irc,Vec,l_Vec,NVT,l_NVT,
      &                         myRankSP,l_myRankSP,SP)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: write partial Cholesky vectors to disk.
-C              (Parallel two-step algorithm)
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: write partial Cholesky vectors to disk.
+!              (Parallel two-step algorithm)
+!
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: nnBstRSh
 #endif
@@ -80,14 +80,14 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C SERIAL VERSION
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! SERIAL VERSION
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SubRoutine Cho_XCV_WrVec_Ser(irc,Vec,iSP)
-C
-C     Simply write the partial vectors to disk at the appropriate
-C     addresses on the vector files.
-C
+!
+!     Simply write the partial vectors to disk at the appropriate
+!     addresses on the vector files.
+!
       use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None
       Integer irc
@@ -117,13 +117,13 @@ C
       End Do
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C PARALLEL VERSION
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! PARALLEL VERSION
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SubRoutine Cho_XCV_WrVec_Par(irc,Vec,NVT,myRankSP,SP)
-C
-C     Write the vectors in blocks.
-C
+!
+!     Write the vectors in blocks.
+!
       use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc

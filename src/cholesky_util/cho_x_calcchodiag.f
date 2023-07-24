@@ -1,40 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-*               Thomas Bondo Pedersen                                  *
-************************************************************************
-*  Cho_X_CalcChoDiag
-*
-*> @brief
-*>   Calculate integral diagonal from Cholesky vectors
-*> @author Francesco Aquilante
-*> @modified_by Thomas Bondo Pedersen
-*>
-*> @details
-*> This routine calculates the integral diagonal from Cholesky
-*> vectors,
-*>
-*> \f[ (ab|ab) = \sum_J L_{ab,J}^2 \quad (a,b: \text{AO-indices}) \f]
-*>
-*> The diagonal calculation is parallelized.
-*> The diagonal is returned in first reduced set storage and must
-*> be allocated before calling this routine.
-*> Return code is ``0`` if successful execution.
-*>
-*> @param[out] rc   Return code
-*> @param[out] Diag Array containing diagonal on exit
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!               Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  Cho_X_CalcChoDiag
+!
+!> @brief
+!>   Calculate integral diagonal from Cholesky vectors
+!> @author Francesco Aquilante
+!> @modified_by Thomas Bondo Pedersen
+!>
+!> @details
+!> This routine calculates the integral diagonal from Cholesky
+!> vectors,
+!>
+!> \f[ (ab|ab) = \sum_J L_{ab,J}^2 \quad (a,b: \text{AO-indices}) \f]
+!>
+!> The diagonal calculation is parallelized.
+!> The diagonal is returned in first reduced set storage and must
+!> be allocated before calling this routine.
+!> Return code is ``0`` if successful execution.
+!>
+!> @param[out] rc   Return code
+!> @param[out] Diag Array containing diagonal on exit
+!***********************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -43,7 +44,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:,:)
 
@@ -54,7 +54,7 @@
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
-C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
+! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
 
          If (NumCho(jSym) .lt. 1) GOTO 1000
@@ -101,7 +101,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
-C --- BATCH over the vectors ----------------------------
+! --- BATCH over the vectors ----------------------------
 
             nBatch = (nVrs-1)/nVec + 1
 
@@ -126,10 +126,10 @@ C --- BATCH over the vectors ----------------------------
                End If
 
 
-C ---------------------------------------------------------------------
-C --- Compute the diagonals :   D(ab) = D(ab) + sum_J (Lab,J)^2
-C
-C --- Stored in the 1st reduced set
+! ---------------------------------------------------------------------
+! --- Compute the diagonals :   D(ab) = D(ab) + sum_J (Lab,J)^2
+!
+! --- Stored in the 1st reduced set
 
                Do krs=1,nRS
 
@@ -143,12 +143,12 @@ C --- Stored in the 1st reduced set
 
                End Do
 
-C --------------------------------------------------------------------
-C --------------------------------------------------------------------
+! --------------------------------------------------------------------
+! --------------------------------------------------------------------
 
             END DO  ! end batch loop
 
-C --- free memory
+! --- free memory
             Call mma_deallocate(Lrs)
 
 999         Continue
@@ -167,5 +167,5 @@ C --- free memory
 
       END
 
-**************************************************************
-**************************************************************
+!*************************************************************
+!*************************************************************

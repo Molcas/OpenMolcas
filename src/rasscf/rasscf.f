@@ -1116,7 +1116,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
-         write(6,*) "Wrote MO coeffs for next iteration to IterOrb."
+         write(6,*) "MO coeffs for next iteration written to IterOrb."
 
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
@@ -1294,18 +1294,20 @@ c      Call rasscf_xml(Iter)
 *
       Call Timing(dum1,dum2,Gucci_1,dum3)
 
-       If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*) ' In RASSCF bf SXCTL'
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-       end if
+      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,*) ' In RASSCF bf SXCTL'
+       CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &             ' ',Work(LDMAT),NAC)
+       CALL TRIPRT('Averaged two-body density matrix, P',
+     &             ' ',WORK(LPMAT),NACPAR)
+       CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &             ' ',WORK(LPA),NACPAR)
+      end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
+
+
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*)
        Write(LF,*) ' FI+FA in RASSCF after SXCTL'
@@ -1773,6 +1775,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),

@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_VecBuf_Retrieve(Vec,lVec,jVec1,iVec2,iSym,
      &                               jNum,iRedC,mUsed)
-C
-C     Thomas Bondo Pedersen, June 2006.
-C
-C     Purpose: copy as many vectors as possible from buffer to array
-C              Vec, starting at vector jVec1 and copying at most until
-C              vector iVec2. On exit, jNum is the number of vectors
-C              copied. On entry as well as on exit, iRedC identifies the
-C              reduced set stored at location 3 (use "-1" if none or
-C              unknown). On exit, mUsed is the actual amount of memory
-C              used (in array Vec).
-C
-C     NOTE: if no vectors can be copied, jNum=0 and mUsed=0 are returned
-C           but execution is NOT stopped here!!!
-C
-C     NOTE: it is assumed that the vectors are stored in their
-C           respective reduced sets (thus, should only be used with
-C           RUN_MODE = RUN_EXTERNAL).
-C
+!
+!     Thomas Bondo Pedersen, June 2006.
+!
+!     Purpose: copy as many vectors as possible from buffer to array
+!              Vec, starting at vector jVec1 and copying at most until
+!              vector iVec2. On exit, jNum is the number of vectors
+!              copied. On entry as well as on exit, iRedC identifies the
+!              reduced set stored at location 3 (use "-1" if none or
+!              unknown). On exit, mUsed is the actual amount of memory
+!              used (in array Vec).
+!
+!     NOTE: if no vectors can be copied, jNum=0 and mUsed=0 are returned
+!           but execution is NOT stopped here!!!
+!
+!     NOTE: it is assumed that the vectors are stored in their
+!           respective reduced sets (thus, should only be used with
+!           RUN_MODE = RUN_EXTERNAL).
+!
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
@@ -51,15 +51,15 @@ C
       Parameter (LocDbg = .false.)
 #endif
 
-C     Initialize.
-C     -----------
+!     Initialize.
+!     -----------
 
       jNum = 0
       mUsed = 0
 
-C     Check that a buffer has been allocated and contains vectors in the
-C     requested range.
-C     ------------------------------------------------------------------
+!     Check that a buffer has been allocated and contains vectors in the
+!     requested range.
+!     ------------------------------------------------------------------
 
       If (l_ChvBuf_Sym(iSym) .lt. 1) Then
          If (LocDbg) Then
@@ -80,8 +80,8 @@ C     ------------------------------------------------------------------
          Return
       End If
 
-C     Count how many vectors can be copied.
-C     -------------------------------------
+!     Count how many vectors can be copied.
+!     -------------------------------------
 
       lTot = 0
       Full = lTot .ge. lVec
@@ -125,8 +125,8 @@ C     -------------------------------------
          End Do
       End If
 
-C     Copy vectors (if any).
-C     ----------------------
+!     Copy vectors (if any).
+!     ----------------------
 
       If (lTot .gt. 0) Then
          kB = ip_ChVBuf_Sym(iSym)
@@ -201,13 +201,13 @@ C     ----------------------
          End If
       End If
 
-C     Set memory used.
-C     ----------------
+!     Set memory used.
+!     ----------------
 
       mUsed = lTot
 
-C     Debug: print.
-C     -------------
+!     Debug: print.
+!     -------------
 
       If (LocDbg) Then
          Write(Lupri,*)

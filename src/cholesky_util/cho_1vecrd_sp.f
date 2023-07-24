@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,
      &                         iLoc)
-C
-C     Purpose: read vector jVec, sym. iSym, from disk. Read only
-C              components from shell pairs in list LstSP. Use scratch
-C              location iLoc to set index arrays. On input, iRedC
-C              specifies the reduced set available at location iLoc:
-C              specify -1 if not set (or unknown). On exit, iRedC
-C              identifies the reduced set for which indices are
-C              available at location iLoc. NOTE: only WA files!!
-C
+!
+!     Purpose: read vector jVec, sym. iSym, from disk. Read only
+!              components from shell pairs in list LstSP. Use scratch
+!              location iLoc to set index arrays. On input, iRedC
+!              specifies the reduced set available at location iLoc:
+!              specify -1 if not set (or unknown). On exit, iRedC
+!              identifies the reduced set for which indices are
+!              available at location iLoc. NOTE: only WA files!!
+!
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8  Vec(lVec)
@@ -31,13 +31,13 @@ C
       Integer  Cho_P_LocalSP
       External Cho_P_LocalSP
 
-C     Return if no vectors are available on disk.
-C     -------------------------------------------
+!     Return if no vectors are available on disk.
+!     -------------------------------------------
 
       If (NumCho(iSym) .lt. 1) Return
 
-C     Check that vector storage mode is word-addressable (WA).
-C     --------------------------------------------------------
+!     Check that vector storage mode is word-addressable (WA).
+!     --------------------------------------------------------
 
       If (Cho_AdrVec .ne. 1) Then
          Write(Lupri,*) SecNam,': WA address mode is required!'
@@ -46,8 +46,8 @@ C     --------------------------------------------------------
          Call Cho_Quit('WA address mode is required in '//SecNam,104)
       End If
 
-C     Get reduced set of this vector.
-C     -------------------------------
+!     Get reduced set of this vector.
+!     -------------------------------
 
       If (jVec.gt.0 .and. jVec.le.NumCho(iSym)) Then
          iRed = InfVec(jVec,2,iSym)
@@ -56,8 +56,8 @@ C     -------------------------------
          iRed = -999999
       End If
 
-C     Set reduced set (if needed).
-C     ----------------------------
+!     Set reduced set (if needed).
+!     ----------------------------
 
       If (iRedC .ne. iRed) Then
          Call Cho_X_SetRed(irc,iLoc,iRed)
@@ -68,8 +68,8 @@ C     ----------------------------
          iRedC = iRed
       End If
 
-C     Read vector elements.
-C     ---------------------
+!     Read vector elements.
+!     ---------------------
 
       iAdr0 = InfVec(jVec,3,iSym)
       kV = 1

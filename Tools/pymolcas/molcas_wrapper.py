@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2021, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2021,2023, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -23,10 +23,10 @@ try:
 except ImportError:
   text_type = str
 
-from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
+from os import environ, access, W_OK, X_OK, listdir, remove, rmdir, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
-from shutil import copy2, move, rmtree, Error
+from shutil import copy2, move, Error
 from subprocess import check_output, STDOUT, CalledProcessError
 from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
@@ -97,7 +97,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.23'
+  version = 'py2.25'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -143,6 +143,7 @@ class Molcas_wrapper(object):
     self._loop_level = 0
     self._nest_level = 0
     self._last_module = True
+    self._created_scratch = False
     self.parnell = join(self.molcas, 'bin', 'parnell.exe')
     if (self.input_filename):
       self.read_input(self.input_filename)
@@ -305,8 +306,11 @@ class Molcas_wrapper(object):
     if ((self.scratch is None) or (self.scratch == '')):
       raise MolcasException('"WorkDir" is not defined')
     if (not self.only_validate):
+      before = exists(self.scratch)
       if (self.parallel_task(['base', self.scratch]) != 0):
         raise MolcasException('parnell failed to create a WorkDir at {0}'.format(self.scratch))
+      if (exists(self.scratch) and not before):
+        self._created_scratch = True
     # Get output directory
     self.output = get_utf8('MOLCAS_OUTPUT', default=get_utf8('PBS_O_WORKDIR', default=self.currdir))
     if (not isabs(self.output)):
@@ -343,8 +347,9 @@ class Molcas_wrapper(object):
     if (get_utf8('GeoDir', default='') == ''):
       set_utf8('GeoDir', join(self.scratch, self.project+'.GEO'))
     self.save_mode = get_utf8('MOLCAS_SAVE', default='repl').lower()
-    if (get_utf8('MOLCAS_NEW_WORKDIR', default='NO').upper() == 'YES'):
-      self.delete_scratch(True)
+    self._is_empty = self._is_scratch_empty()
+    if ((get_utf8('MOLCAS_NEW_WORKDIR', default='NO').upper() == 'YES') and not self._is_empty):
+      self.delete_scratch(force=True)
     self._is_empty = self._is_scratch_empty()
     self._ready = True
 
@@ -693,7 +698,7 @@ class Molcas_wrapper(object):
     if (self._resources != (0,0,0)):
       print('    Timing: Wall={0:.2f} User={1:.2f} System={2:.2f}'.format(*self._resources))
     if (get_utf8('MOLCAS_KEEP_WORKDIR', default='YES').upper() == 'NO'):
-      self.delete_scratch()
+      self.delete_scratch(remove_it=self._created_scratch)
 
   def _final_rc(self, rc):
     rc_form = re_compile('rc={0}\s(.*)'.format(rc))
@@ -947,28 +952,20 @@ class Molcas_wrapper(object):
     rc = teed_call(parnell + task, cwd=cwd, stdout=output, stderr=error)
     return rc
 
-  def delete_scratch(self, force=False):
-    if (not self.is_serial):
-      line = '*** WorkDir is not cleaned in parallel environment! ***'
-    #TODO: use parnell
-    elif (self._ready or force):
+  def delete_scratch(self, force=False, remove_it=False):
+    if (self._ready or force):
       if (realpath(self.scratch) == realpath(self.currdir)):
         line = '*** WorkDir and CurrDir are the same, not cleaned! ***'
       else:
-        # WorkDir may be a link and not a real directory, so remove its contents
-        try:
-          filelist = listdir(self.scratch)
-        except:
-          filelist = []
-        for i in [join(self.scratch, x) for x in filelist]:
-          if (isdir(i)):
-            rmtree(i)
-          else:
-            remove(i)
-        line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
-    print('*'*len(line))
-    print(line)
-    print('*'*len(line))
+        self.parallel_task(['w'])
+        action = 'cleaned'
+        if (remove_it):
+          rmdir(self.scratch)
+          action = 'removed'
+        line = '*** WorkDir at {0} {1} ***'.format(self.scratch, action)
+      print('*'*len(line))
+      print(line)
+      print('*'*len(line))
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
@@ -1229,12 +1226,24 @@ class Molcas_module(object):
           if (exists(j)):
             if (isfile(j)):
               if (self.parent.save_mode == 'repl'):
-                action(i, j)
+                try:
+                  action(i, j)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
               elif (self.parent.save_mode == 'orig'):
                 orig = j+'.orig'
                 if (not exists(orig)):
                   move(j, orig)
-                action(i, j)
+                try:
+                  action(i, j)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
               elif (self.parent.save_mode == 'incr'):
                 fmt = '{0}.#{1}#'
                 n = 1
@@ -1242,13 +1251,23 @@ class Molcas_module(object):
                 while (exists(jj)):
                   n += 1
                   jj = fmt.format(j, n)
-                action(i, jj)
-              files.append(bi)
+                try:
+                  action(i, jj)
+                  files.append(bi)
+                # use SameFileError workaround again
+                except Error as e:
+                  if ('same file' not in text_type(e)):
+                    raise
             else:
               pass
           else:
-            action(i, j)
-            files.append(bi)
+            try:
+              action(i, j)
+              files.append(bi)
+            # use SameFileError workaround again
+            except Error as e:
+              if ('same file' not in text_type(e)):
+                raise
     return files
 
   def _delete_files(self):

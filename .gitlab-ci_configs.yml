@@ -64,7 +64,6 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    tests: ".all"
   tags:
     - docker
 
@@ -114,7 +113,7 @@
     CXX: "icpc"
     FC: "ifort"
   tags:
-    - intel_license
+    - docker
 
 .intel13:
   image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
@@ -269,7 +268,6 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    tests: ".all"
     MPI_FLAGS: "--allow-run-as-root --oversubscribe"
     MOLCAS_NPROCS: "2"
   tags:

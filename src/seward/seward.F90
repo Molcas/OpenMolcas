@@ -346,9 +346,11 @@ if (.not. Test) then
         if (Cholesky) then ! Cholesky decomposition
           call Cho_MCA_Drv()
           call Get_iArray('NumCho',nChoV,nIrrep)
-          write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
-          write(u6,*)
-          write(u6,*)
+          if (nPrint(iRout) >= 6) then
+            write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+            write(u6,*)
+            write(u6,*)
+          end if
         else if (Do_RI) then
           if (LocalDF) then
             call Drv2El_LocalDF()

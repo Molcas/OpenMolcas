@@ -1,22 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine ChoLSOSMP2_Energy_Fll(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Compute Laplace-SOS-MP2 energy correction from full Cholesky
-C     vectors (i.e., not batched).
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Compute Laplace-SOS-MP2 energy correction from full Cholesky
+!     vectors (i.e., not batched).
+!
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -30,7 +31,6 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll'
 
@@ -77,17 +77,18 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Compute Laplace-SOS-MP2 energy correction from full Cholesky
-C     vectors (i.e., not batched), reading the vectors only once
-C     at the expense of memory.
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Compute Laplace-SOS-MP2 energy correction from full Cholesky
+!     vectors (i.e., not batched), reading the vectors only once
+!     at the expense of memory.
+!
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -100,7 +101,6 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=22), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll1'
 
@@ -259,18 +259,20 @@ C
       EMP2=2.0d0*EMP2
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     Compute Laplace-SOS-MP2 energy correction from unsorted Cholesky
-C     vectors (i.e., no batching). This uses the exact same loop
-C     ordering as the sorted algorithm and thus reads through the
-C     vector files once for each grid point.
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     Compute Laplace-SOS-MP2 energy correction from unsorted Cholesky
+!     vectors (i.e., no batching). This uses the exact same loop
+!     ordering as the sorted algorithm and thus reads through the
+!     vector files once for each grid point.
+!
+      use Constants
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -281,11 +283,9 @@ C
       Real*8  EMP2
       Integer irc
 
-#include "real.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=22), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll2'
 

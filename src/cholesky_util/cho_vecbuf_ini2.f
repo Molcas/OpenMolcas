@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016, Thomas Bondo Pedersen                            *
+!***********************************************************************
 #if defined (_CHO_DEBUGPRINT_)
 #define _DEBUGPRINT_
 #endif
       SubRoutine Cho_VecBuf_Ini2()
-C
-C     Thomas Bondo Pedersen, June 2006.
-C
-C     Purpose: read vectors from disk into buffer.
-C
+!
+!     Thomas Bondo Pedersen, June 2006.
+!
+!     Purpose: read vectors from disk into buffer.
+!
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     nVec_in_Buf
       Implicit None
@@ -39,9 +39,9 @@ C
       Integer mUsed(8)
       Integer irc
 
-C     Check if buffer is allocated.
-C     Check if there are any vectors.
-C     -------------------------------
+!     Check if buffer is allocated.
+!     Check if there are any vectors.
+!     -------------------------------
 
       If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
@@ -56,8 +56,8 @@ C     -------------------------------
          Return
       End If
 
-C     Read vectors.
-C     -------------
+!     Read vectors.
+!     -------------
 
       DoRead = .true.
       iRedC = -1
@@ -72,10 +72,10 @@ C     -------------
          nVec_in_Buf(iSym) = nRead
       End Do
 
-C     Debug:
-C     Enable integrity checks.
-C     Print info.
-C     ------------------------
+!     Debug:
+!     Enable integrity checks.
+!     Print info.
+!     ------------------------
 
       If (LocDbg) Then
          Call Cho_VecBuf_EnableIntegrityCheck(irc)

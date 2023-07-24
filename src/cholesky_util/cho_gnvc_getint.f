@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,
      &                           mSym,mPass,mmShl,iPass1,NumPass,NumSP)
-C
-C     Purpose: compute integrals for NumPass integral passes starting at
-C              pass iPass1.
-C
+!
+!     Purpose: compute integrals for NumPass integral passes starting at
+!              pass iPass1.
+!
       use ChoSwp, only: IndRSh, InfVec
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GetInt'
 
@@ -27,8 +27,8 @@ C
 
       Integer, External:: Cho_F2SP
 
-C     Initialization and input check.
-C     -------------------------------
+!     Initialization and input check.
+!     -------------------------------
 
       If (NumPass .lt. 1) Then
          NumSP = 0
@@ -52,8 +52,8 @@ C     -------------------------------
          Call Cho_Quit('Input error [4] in '//SecNam,103)
       End If
 
-C     Set up list of shell pairs to compute.
-C     --------------------------------------
+!     Set up list of shell pairs to compute.
+!     --------------------------------------
 
       Call mma_allocate(SPTmp,nnShl,Label='SPTmp')
       SPTmp(:)=0
@@ -80,31 +80,31 @@ C     --------------------------------------
       End Do
       Call mma_deallocate(SPTmp)
 
-C     Set memory used by Seward.
-C     --------------------------
+!     Set memory used by Seward.
+!     --------------------------
 
       Call mma_maxDBLE(lSewInt)
       Call xSetMem_Ints(lSewInt)
 
-C     Loop through shell pair list.
-C     -----------------------------
+!     Loop through shell pair list.
+!     -----------------------------
 
       Do iSP = 1,NumSP
 
-C        Get shell pair index.
-C        ---------------------
+!        Get shell pair index.
+!        ---------------------
 
          iShAB = ListSP(iSP)
 
-C        Compute integral distribution (**|A B).
-C        ---------------------------------------
+!        Compute integral distribution (**|A B).
+!        ---------------------------------------
 
          Call Cho_MCA_CalcInt_3(xInt,lInt,iShAB)
 
       End Do
 
-C     Deallocation.
-C     -------------
+!     Deallocation.
+!     -------------
 
       Call xRlsMem_Ints
       End

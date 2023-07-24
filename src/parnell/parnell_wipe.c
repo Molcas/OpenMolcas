@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2010, Steven Vancoillie                                *
+*               2023, Ignacio Fdez. Galvan                             *
 ***********************************************************************/
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:38:16 stevenv"
@@ -35,8 +36,11 @@ parnell_status_t parnell_wipe(void) {
   }
 
   while ((entry = readdir(cwd_ptr))) {
-    if (stat(entry->d_name, &info) == 0) {
-      if (S_ISREG(info.st_mode))
+    /* skip dot entries */
+    if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+      continue;
+    if (lstat(entry->d_name, &info) == 0) {
+      if (S_ISREG(info.st_mode) || S_ISLNK(info.st_mode)||S_ISDIR(info.st_mode))
         parnell_unlink(entry->d_name);
     } else {
       /* if error other than "No such file or directory", report it */

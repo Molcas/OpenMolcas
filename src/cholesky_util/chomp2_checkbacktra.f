@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
-C
-C     Thomas Bondo Pedersen, Jan. 2008.
-C
-C     Purpose: check backtransformation of vectors (MO->AO).
-C              A summary is printed at the end of this routine.
-C
-C     The check is simple, comparing the quantities
-C
-C        X(J) = sum_alpha,beta L(J;alpha,beta)
-C        Y(J) = sum_ai L(ai,J)*P(a)*P(i)
-C
-C     where
-C
-C        P(i) = sum_alpha COcc(i,alpha)
-C        P(a) = sum_alpha CVir(alpha,a)
-C
-C     The reported abs. min., abs. max, average, and RMS errors
-C     are calculated from the vector
-C
-C        D(J) = X(J) - Y(J)
-C
+!
+!     Thomas Bondo Pedersen, Jan. 2008.
+!
+!     Purpose: check backtransformation of vectors (MO->AO).
+!              A summary is printed at the end of this routine.
+!
+!     The check is simple, comparing the quantities
+!
+!        X(J) = sum_alpha,beta L(J;alpha,beta)
+!        Y(J) = sum_ai L(ai,J)*P(a)*P(i)
+!
+!     where
+!
+!        P(i) = sum_alpha COcc(i,alpha)
+!        P(a) = sum_alpha CVir(alpha,a)
+!
+!     The reported abs. min., abs. max, average, and RMS errors
+!     are calculated from the vector
+!
+!        D(J) = X(J) - Y(J)
+!
+      use Constants
+      use stdalloc
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
       Integer lU_AO(*)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Real*8, External:: ddot_
 
@@ -60,8 +60,8 @@ C
       Integer MulD2h, k, l
       MulD2h(k,l)=iEOr(k-1,l-1)+1
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       nMP2Vec_Tot = 0
 
@@ -77,8 +77,8 @@ C     ----------------
       Call mma_allocate(PVir,nVirT,Label='PVir')
       Call mma_allocate(Q,nOcc_Max,Label='Q')
 
-C     P(i) = sum_alpha COcc(i,alpha)
-C     ------------------------------
+!     P(i) = sum_alpha COcc(i,alpha)
+!     ------------------------------
 
       POcc(:)=Zero
       Do iSymi = 1,nSym
@@ -94,8 +94,8 @@ C     ------------------------------
          End If
       End Do
 
-C     P(a) = sum_alpha CVir(alpha,a)
-C     ------------------------------
+!     P(a) = sum_alpha CVir(alpha,a)
+!     ------------------------------
 
       PVir(:)=Zero
       Do iSyma = 1,nSym
@@ -112,27 +112,27 @@ C     ------------------------------
          End If
       End Do
 
-C     Check each symmetry block.
-C     --------------------------
+!     Check each symmetry block.
+!     --------------------------
 
       Do iSym = 1,nSym
 
          If (nMP2Vec(iSym) .gt. 0) Then
 
-C           Allocation.
-C           -----------
+!           Allocation.
+!           -----------
 
             Call mma_allocate(X,nMP2Vec(iSym),Label='X')
             Call mma_allocate(Y,nMP2Vec(iSym),Label='Y')
 
-C           Zero result arrays.
-C           -------------------
+!           Zero result arrays.
+!           -------------------
 
             X(:)=Zero
             Y(:)=Zero
 
-C           X(J) = sum_alpha,beta L(J;alpha,beta)
-C           -------------------------------------
+!           X(J) = sum_alpha,beta L(J;alpha,beta)
+!           -------------------------------------
 
             nAlBe = 0
             Do iSymBe = 1,nSym
@@ -150,8 +150,8 @@ C           -------------------------------------
             End Do
             Call mma_deallocate(V)
 
-C           Y(J) = sum_ai L(ai,J)*P(a)*P(i)
-C           -------------------------------
+!           Y(J) = sum_ai L(ai,J)*P(a)*P(i)
+!           -------------------------------
 
             Call mma_allocate(V,nT1Am(iSym),Label='V')
             iOpt = 1
@@ -176,8 +176,8 @@ C           -------------------------------
             Call ChoMP2_OpenF(iOpt,iTyp,iSym)
             Call mma_deallocate(V)
 
-C           Calculate errors.
-C           -----------------
+!           Calculate errors.
+!           -----------------
 
             Call mma_allocate(D,nMP2Vec(iSym),Label='D')
             Call dCopy_(nMP2Vec(iSym),X,1,D,1)
@@ -198,8 +198,8 @@ C           -----------------
             Err(4,iSym) = sqrt(Err(4,iSym))
             Call mma_deallocate(D)
 
-C           Deallocation.
-C           -------------
+!           Deallocation.
+!           -------------
 
             Call mma_deallocate(Y)
             Call mma_deallocate(X)
@@ -226,8 +226,8 @@ C           -------------
       RMSErr = RMSErr/dble(nMP2Vec_Tot)
       RMSErr = sqrt(RMSErr)
 
-C     Report.
-C     -------
+!     Report.
+!     -------
 
       Call Cho_Head('MO Vector Backtransformation Check','=',80,6)
       Write(6,'(/,2X,A,A,/,2X,A,A)')
@@ -248,8 +248,8 @@ C     -------
      & '-----------------------------------------------------------',
      & '-----------------'
 
-C     Free memory.
-C     ------------
+!     Free memory.
+!     ------------
 
       Call mma_deallocate(Q)
       Call mma_deallocate(PVir)

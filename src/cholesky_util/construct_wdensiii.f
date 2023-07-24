@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Jonas Bostrom                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Jonas Bostrom                                    *
+!***********************************************************************
 
       SubRoutine Construct_WDensIII(Xaibj,LnPQRSprod,LiPQRSprod,iBatch,
      &                              jBatch,nOccLeftI,nOccLeftJ)
-*
-*     Jonas Bostrom, October 2008
-*
-*     Purpose: Construct the piece of the energy-weighted density
-*              usually labeled III.
-*
+!
+!     Jonas Bostrom, October 2008
+!
+!     Purpose: Construct the piece of the energy-weighted density
+!              usually labeled III.
+!
       use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
       Integer LnPQRSprod
       Real*8  Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -29,12 +29,12 @@
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-*
+!
       Character*20 ThisNm
       Character*25 SecNam
       Parameter (SecNam = 'Construct_WDensIII',
      &           ThisNm = 'Construct_WDensIII')
-*
+!
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       iDensAllAll(i,j,k) = ip_Density(k)
@@ -45,7 +45,7 @@
      &                    +  j-1
      &                    + (nOrb(k) + nDel(k))
      &                    * (i-1)
-*
+!
       iSymPQ = 1
       iSymIJ = 1
       Do iSymJ = 1, nSym
@@ -84,7 +84,7 @@
      &                      +  nVir(iSymI) + nDel(iSymI))
      &                      * (Lj-1)
      &                      + iI
-*
+!
                         If(iBatch.eq.jBatch) Then
                            ip_pqij = LiPQRSprod(iSymPQ)
      &                             + iTri(Lji,Lpq)
@@ -98,18 +98,18 @@
      &                             + LnPQprod(iSymPI,iBatch)
      &                             * (Ljq-1) + Lpi
                         End If
-*
+!
                         X = 2.0d0 * Xaibj(ip_pqij) - Xaibj(ip_piqj)
                         Work(iWDensOccOcc(iI,iJ,iSymJ)) =
      &                       Work(iWDensOccOcc(iI,iJ,iSymJ))
      &                     - X * Work(iDensAllAll(iP,iQ,iSymQ))
-*----------- Debug Comments -------------------------------------------
-*                        Write(6,*) 'IJPQ', iI, iJ, iP, iQ
-*                        Write(6,*) 'Symm',iSymI, iSymJ, iSymP, iSymQ
-*                        Write(6,*) 'pqij', Xaibj(ip_pqij)
-*                        Write(6,*) 'piqj', Xaibj(ip_piqj)
-*                        Write(6,*) 'Dens',Work(iDensAllAll(iP,iQ,iSymQ))
-*-----------------------------------------------------------------------
+!----------- Debug Comments -------------------------------------------
+!                        Write(6,*) 'IJPQ', iI, iJ, iP, iQ
+!                        Write(6,*) 'Symm',iSymI, iSymJ, iSymP, iSymQ
+!                        Write(6,*) 'pqij', Xaibj(ip_pqij)
+!                        Write(6,*) 'piqj', Xaibj(ip_piqj)
+!                        Write(6,*) 'Dens',Work(iDensAllAll(iP,iQ,iSymQ))
+!-----------------------------------------------------------------------
 
                      End Do
                   End Do
@@ -117,6 +117,6 @@
             End Do
          End Do
       End Do
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(nOccLeftI)
       End

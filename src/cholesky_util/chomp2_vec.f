@@ -1,29 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
-C
-#include "implicit.fh"
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
+!
+      use ChoMP2_dec, only: NowSym
+      Implicit None
+      Integer iVec1, nVec, lBuf, nDim, iOpt
       Real*8  Buf(lBuf)
-#include "chomp2_dec.fh"
 #include "chomp2.fh"
 
-      Character*3  ThisNm
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_Vec', ThisNm = 'Vec')
+      Character(LEN=3), Parameter::  ThisNm = 'Vec'
+      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Vec'
+      Integer :: iSym, iJob, lTot, iAdr
 
       Logical DoClose
 

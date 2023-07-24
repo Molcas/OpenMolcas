@@ -97,7 +97,7 @@
          End If
       End If
 !
-!     Note that the DFT energy can not be computed as a trace.
+!     Note that the DFT energy cannot be computed as a trace.
 !
 #ifdef _DEBUGPRINT_
       If(nD==2) Then

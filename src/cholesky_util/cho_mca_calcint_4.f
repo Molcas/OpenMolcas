@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
-C
-C     Purpose: calculate qualified integral columns from
-C              shell quadruple (ISHLC ISHLD|ISHLA ISHLB).
-C
-C     Version 4: avoid storage of full shell quadruple in interface to
-C                seward; get qualified directly as in Version 2 and 3!
-C                Changes from Version 3:
-C                - only one shell quadruple is computed (not an entire
-C                  column).
-C
+!
+!     Purpose: calculate qualified integral columns from
+!              shell quadruple (ISHLC ISHLD|ISHLA ISHLB).
+!
+!     Version 4: avoid storage of full shell quadruple in interface to
+!                seward; get qualified directly as in Version 2 and 3!
+!                Changes from Version 3:
+!                - only one shell quadruple is computed (not an entire
+!                  column).
+!
       use ChoArr, only: iSP2F
-#include "implicit.fh"
-      DIMENSION XINT(LINT)
+      Implicit Real*8 (a-h,o-z)
+      REAL*8 XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
 
@@ -37,8 +37,8 @@ C
       PARAMETER (LOCDBG = .FALSE.)
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
-C     Set mapping from shell pair AB to qualified columns.
-C     ----------------------------------------------------
+!     Set mapping from shell pair AB to qualified columns.
+!     ----------------------------------------------------
 
       IRC  = 0
       ILOC = 2
@@ -48,8 +48,8 @@ C     ----------------------------------------------------
          CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
       END IF
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       IF (IPRINT .GE. INF_IN2) THEN
          CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
@@ -61,8 +61,8 @@ C     ------
          WRITE(LUPRI,'(89A)') ('=',i=1,89)
       END IF
 
-C     Set mapping from shell pair CD to reduced set.
-C     ----------------------------------------------
+!     Set mapping from shell pair CD to reduced set.
+!     ----------------------------------------------
 
       IRC  = 0
       ILOC = 2
@@ -72,8 +72,8 @@ C     ----------------------------------------------
          CALL CHO_QUIT('Error termination in '//SECNAM,IRC)
       END IF
 
-C     Calculate integrals.
-C     --------------------
+!     Calculate integrals.
+!     --------------------
 
       CALL CHO_TIMER(C1,W1)
       CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,

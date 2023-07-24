@@ -1,39 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_GetZ(irc,
      &                    NVT,l_NVT,
      &                    nBlock,l_nBlock,
      &                    nV,l_nV1,l_nV2,
      &                    iV1,l_iV11,l_iV12,
      &                    ip_Z,l_Z1,l_Z2,Z,l_Z)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: get the Z vectors in core.
-C
-C     Input:
-C        NVT(i): total no. of vectors in symmetry i
-C        nBlock(i): no. of vector blocks in symmetry i
-C        nV(j,i): number of vectors in block j of symmetry i
-C        iV1(j,i): first vector in block j of symmetry i
-C        ip_Z(j,i): pointer to triangular block j of symmetry i
-C                   (here, j is a compound index j=iTri(k,l) for
-C                    block k,l)
-C
-C     On exit, the Z vector blocks are stored in memory according
-C     to ip_Z.
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: get the Z vectors in core.
+!
+!     Input:
+!        NVT(i): total no. of vectors in symmetry i
+!        nBlock(i): no. of vector blocks in symmetry i
+!        nV(j,i): number of vectors in block j of symmetry i
+!        iV1(j,i): first vector in block j of symmetry i
+!        ip_Z(j,i): pointer to triangular block j of symmetry i
+!                   (here, j is a compound index j=iTri(k,l) for
+!                    block k,l)
+!
+!     On exit, the Z vector blocks are stored in memory according
+!     to ip_Z.
+!
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -48,7 +49,6 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Real*8  Z(l_Z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #if defined(_DEBUGPRINT_)
 #include "choprint.fh"
 #endif
@@ -83,19 +83,19 @@ C
       Real*8, Allocatable:: Wrk(:)
 
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Cho_X_GetIP_InfVec(InfVcT)
       Integer, Pointer:: InfVct(:,:,:)
       End Subroutine Cho_X_GetIP_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     Set return code.
-C     ----------------
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Set return code.
+!     ----------------
 
       irc = 0
 
@@ -170,8 +170,8 @@ C     ----------------
       End If
 #endif
 
-C     Zero result array.
-C     ------------------
+!     Zero result array.
+!     ------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
@@ -184,19 +184,19 @@ C     ------------------
          End Do
       End Do
 
-C     Scratch location in index arrays.
-C     ---------------------------------
+!     Scratch location in index arrays.
+!     ---------------------------------
 
       iLoc=3 ! do NOT change (used implicitly by reading routine)
 
-C     Get pointer to InfVec array for all vectors.
-C     Needed for parallel runs.
-C     --------------------------------------------
+!     Get pointer to InfVec array for all vectors.
+!     Needed for parallel runs.
+!     --------------------------------------------
 
       Call Cho_X_GetIP_InfVec(InfVcT)
 
-C     Copy rs1 to location 2.
-C     -----------------------
+!     Copy rs1 to location 2.
+!     -----------------------
 
       ! Note: location 2 must contain rs1 throughout this routine! It is
       ! an assumption which is never checked, so do NOT change this call
@@ -209,8 +209,8 @@ C     -----------------------
          Go To 1 ! exit after deallocation
       End If
 
-C     Get Z vectors.
-C     --------------
+!     Get Z vectors.
+!     --------------
 
       iRedC = -1
       Do iSym = 1,nSym
@@ -284,8 +284,8 @@ C     --------------
 
       End Do
 
-C     Synchronize result array across nodes.
-C     --------------------------------------
+!     Synchronize result array across nodes.
+!     --------------------------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
@@ -299,8 +299,8 @@ C     --------------------------------------
       End Do
 
 #if defined (_DEBUGPRINT_)
-C     Check that diagonal elements of Z are strictly positive.
-C     --------------------------------------------------------
+!     Check that diagonal elements of Z are strictly positive.
+!     --------------------------------------------------------
 
       If (iPrint.ge.myDebugInfo) Then
          Call Cho_Head(SecNam//': Diagonal of Z Vector Matrix','=',80,
@@ -348,19 +348,19 @@ C     --------------------------------------------------------
       End If
 #endif
 
-C     Exit. If error termination.
-C     -----------------------------------------------
+!     Exit. If error termination.
+!     -----------------------------------------------
 
     1 Continue
 
 #ifndef _DEBUGPRINT_
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(NVT)
 #endif
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C Routine for checking integral diagonal diagonal
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! Routine for checking integral diagonal diagonal
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SubRoutine Cho_CheckDiagFromZ(irc,
      &                              NVT,l_NVT,
      &                              nBlock,l_nBlock,
@@ -368,19 +368,20 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &                              iV1,l_iV11,l_iV12,
      &                              ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                              Report)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: Check integral diagonal from Z vectors:
-C
-C              (J|J) = sum[K=1,J] Z(J,K)*Z(J,K)
-C
-C              Return codes
-C              irc=0: all is fine
-C              irc<0: too negative diagonals encountered, but otherwise
-C                     calculation seems converged
-C              irc>0: calculation not converged
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: Check integral diagonal from Z vectors:
+!
+!              (J|J) = sum[K=1,J] Z(J,K)*Z(J,K)
+!
+!              Return codes
+!              irc=0: all is fine
+!              irc<0: too negative diagonals encountered, but otherwise
+!                     calculation seems converged
+!              irc>0: calculation not converged
+!
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -396,7 +397,6 @@ C
       Real*8  Z(l_Z)
       Logical Report
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
 
@@ -415,17 +415,17 @@ C
       Integer iTri
 
       Real*8, Allocatable:: IntDia(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Cho_X_GetIP_InfVec(InfVcT)
       Integer, Pointer:: InfVct(:,:,:)
       End Subroutine Cho_X_GetIP_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
       ! Get pointer to global InfVec array

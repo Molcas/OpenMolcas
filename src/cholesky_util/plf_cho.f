@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
       Subroutine PLF_Cho(TInt,lInt,
      &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
      &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
-************************************************************************
-*                                                                      *
-*  object: to sift and index the petite list format integrals.         *
-*                                                                      *
-*          the indices has been scrambled before calling this routine. *
-*          Hence we must take special care in order to regain the can- *
-*          onical order.                                               *
-*                                                                      *
-*                                                                      *
-*  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
-*          May '90                                                     *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  object: to sift and index the petite list format integrals.         *
+!                                                                      *
+!          the indices has been scrambled before calling this routine. *
+!          Hence we must take special care in order to regain the can- *
+!          onical order.                                               *
+!                                                                      *
+!                                                                      *
+!  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
+!          May '90                                                     *
+!                                                                      *
+!***********************************************************************
       use SOAO_Info, only: iAOtSO
       use ChoArr, only: iSOShl, iShlSO, nBstSh
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "real.fh"
 #include "print.fh"
-*
+!
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
       Integer iShell(4), iAO(4), kOp(4),
      &        iAOst(4), iSOs(4)
@@ -42,9 +42,9 @@
       external ddot_
 
       INTEGER ABCD, CDAB, CD, AB, A, B, C, D
-*
+!
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-*
+!
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -81,7 +81,7 @@
       ISHLCD = ITRI(SHC,SHD)
       ISHLAB = ITRI(SHA,SHB)
 
-C to avoid stupid compiler warnings:
+! to avoid stupid compiler warnings:
 
       C = 0
       D = 0
@@ -89,18 +89,18 @@ C to avoid stupid compiler warnings:
       B = 0
 
       NTELM = 0
-*
-*     Allocate space to store integrals to gether with their
-*     Symmetry batch and sequence number.
-*     To avoid conflicts in using memory this is done in the
-*     subroutine PSOAO
-*
-*
-*     quadruple loop over elements of the basis functions angular
-*     description. loops are reduced to just produce unique SO integrals
-*     observe that we will walk through the memory in AOint in a
-*     sequential way.
-*
+!
+!     Allocate space to store integrals to gether with their
+!     Symmetry batch and sequence number.
+!     To avoid conflicts in using memory this is done in the
+!     subroutine PSOAO
+!
+!
+!     quadruple loop over elements of the basis functions angular
+!     description. loops are reduced to just produce unique SO integrals
+!     observe that we will walk through the memory in AOint in a
+!     sequential way.
+!
       iAOsti=iAOst(1)
       iAOstj=iAOst(2)
       iAOstk=iAOst(3)
@@ -109,7 +109,7 @@ C to avoid stupid compiler warnings:
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
+!
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
          Do 200 i2 = 1, jCmp
@@ -118,21 +118,21 @@ C to avoid stupid compiler warnings:
                iSOs(3)=iAOtSO(iAOk+i3,kOp(3))+iAOstk
                Do 400 i4 = 1, lCmp
                   iSOs(4)=iAOtSO(iAOl+i4,kOp(4))+iAOstl
-*
+!
                 iSO =iSOs(1)
                 jSO =iSOs(2)
                 kSO =iSOs(3)
                 lSO =iSOs(4)
-*
+!
                 nijkl = 0
                 Do 120 lSOl = lSO, lSO+lBas-1
                    Do 220 kSOk = kSO, kSO+kBas-1
                       Do 320 jSOj = jSO, jSO+jBas-1
                          Do 420 iSOi = iSO, iSO+iBas-1
-*
+!
                             nijkl = nijkl + 1
                             NTELM = NTELM + 1
-*
+!
                             ISHLI = ISOSHL(ISOI)
                             ISHLJ = ISOSHL(JSOJ)
                             ISHLK = ISOSHL(KSOK)
@@ -241,7 +241,7 @@ C to avoid stupid compiler warnings:
 200      Continue
 100   Continue
       Return
-* Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)

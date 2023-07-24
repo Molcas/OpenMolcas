@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_MaxDX(Diag,Dmax)
-C
-C     Purpose: get max. diagonal elements in each sym. block,
-C              qualified diagonals excluded.
-C
+!
+!     Purpose: get max. diagonal elements in each sym. block,
+!              qualified diagonals excluded.
+!
       use ChoSwp, only: iQuAB, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: ExQ(:)
 
       MxQ = nQual(1)
@@ -44,7 +44,7 @@ C
             Dmax(jSym) = Max(Dmax(jSym),Diag(iRab))
          End Do
 
-C --- Restore the qualified
+! --- Restore the qualified
          Do iQ=1,nQual(jSym)
             iab=IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
             Diag(iab) = ExQ(iQ)

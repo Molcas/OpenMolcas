@@ -102,7 +102,7 @@ use Symmetry_Info, only: Mul
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
-use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen, VJ
+use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -1429,7 +1429,6 @@ if (DoExchange) then
       end do
     end do
   end do
-  call mma_allocate(VJ,2*nIJMax,Label='VJ')
 end if
 
 call mma_deallocate(iShp_rs)

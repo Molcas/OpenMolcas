@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_X_RdRst(ifail)
-C
-C     T.B. Pedersen, july 2004.
-C
-C     Purpose: read decomposition info and store in common
-C              block. If ifail != 0 on exit, some error occurred and,
-C              most likely, some of the restart info is not
-C              defined/initialized.
-C
+!
+!     T.B. Pedersen, july 2004.
+!
+!     Purpose: read decomposition info and store in common
+!              block. If ifail != 0 on exit, some error occurred and,
+!              most likely, some of the restart info is not
+!              defined/initialized.
+!
       use ChoSwp, only: InfRed, InfRed_Hidden
       use ChoSwp, only: InfVec, InfVec_Hidden
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_RdRst')
@@ -33,13 +33,13 @@ C
       Real*8  dScr(lScr)
       Integer jScr(lScr)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       ifail = 0
 
-C     Read molecular info.
-C     --------------------
+!     Read molecular info.
+!     --------------------
 
       iAdr = 0
 
@@ -80,8 +80,8 @@ C     --------------------
          End Do
       End If
 
-C     Read decomposition configuration info.
-C     --------------------------------------
+!     Read decomposition configuration info.
+!     --------------------------------------
 
       iOpt = 2
       nRd  = 2
@@ -135,15 +135,15 @@ C     --------------------------------------
       WarNeg   = XWarNeg
       TooNeg   = XTooNeg
 
-C     Allocate InfVec array.
-C     ----------------------
+!     Allocate InfVec array.
+!     ----------------------
 
       Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,
      &                  Label='InfVec_Hidden')
       InfVec => InfVec_Hidden
 
-C     Allocate and initialize (read) InfRed array.
-C     --------------------------------------------
+!     Allocate and initialize (read) InfRed array.
+!     --------------------------------------------
 
       iOpt = 2
       nRd  = 1
@@ -168,8 +168,8 @@ C     --------------------------------------------
          End If
       End If
 
-C     Read InfVec array.
-C     ------------------
+!     Read InfVec array.
+!     ------------------
 
       Do iSym = 1,nSym
          iOpt = 2
@@ -196,8 +196,8 @@ C     ------------------
          End If
       End Do
 
-C     Return.
-C     -------
+!     Return.
+!     -------
 
   100 If (ifail .ne. 0) Then  ! failures jump to this point
          Write(6,'(A,A)')

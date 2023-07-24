@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_MCA_INT_1_DBG1(DIAG,IRED)
-C
-C     Purpose: test diagonal, reduced set IRED. Note that the
-C              diagonal *must* be the original diagonal stored
-C              in reduced set 1.
-C
+!
+!     Purpose: test diagonal, reduced set IRED. Note that the
+!              diagonal *must* be the original diagonal stored
+!              in reduced set 1.
+!
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
-#include "implicit.fh"
+      use Constants
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
       Integer IRED
       Real*8 DIAG(*)
-#include "real.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
 
@@ -34,8 +34,8 @@ C
       WRITE(LUPRI,*) SECNAM,': testing diagonal, reduced set ',IRED
       WRITE(LUPRI,*)
 
-C     Force computation of full shell quadruple.
-C     ------------------------------------------
+!     Force computation of full shell quadruple.
+!     ------------------------------------------
 
       IF (IFCSEW .NE. 1) THEN
          WRITE(LUPRI,*) SECNAM,': WARNING: resetting IFCSEW from ',
@@ -52,8 +52,8 @@ C     ------------------------------------------
       NTST = 0
       DO ISHLAB = 1,NNSHL
 
-C        Allocate memory for shell quadruple (AB|AB).
-C        --------------------------------------------
+!        Allocate memory for shell quadruple (AB|AB).
+!        --------------------------------------------
 
          CALL CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.TRUE.)
          IF (ISHLB .EQ. ISHLA) THEN
@@ -63,15 +63,15 @@ C        --------------------------------------------
          END IF
          LINT = NUMAB*NUMAB
 
-C        Calculate integrals.
-C        --------------------
+!        Calculate integrals.
+!        --------------------
 
          xINT(1:LINT)=Zero
          CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,xINT,LINT,PRTINT)
 
-C        Look up all diagonal elements in DIAG and compare to
-C        values just calculated.
-C        ----------------------------------------------------
+!        Look up all diagonal elements in DIAG and compare to
+!        values just calculated.
+!        ----------------------------------------------------
 
          IERR = 0
          IF (IRED .EQ. 1) THEN

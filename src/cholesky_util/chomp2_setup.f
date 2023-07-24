@@ -1,32 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
+!***********************************************************************
       SubRoutine ChoMP2_Setup(irc)
-C
-C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
-C
-C     Purpose: setup of Cholesky MP2 program.
-C
+!
+!     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
+!
+!     Purpose: setup of Cholesky MP2 program.
+!
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
       use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
       use ChoMP2, only: LnPQprod, LiPQprod
-#include "implicit.fh"
+      use stdalloc
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam='ChoMP2_Setup')
@@ -45,8 +44,8 @@ C
 
       irc = 0
 
-C     Setup index arrays and counters.
-C     --------------------------------
+!     Setup index arrays and counters.
+!     --------------------------------
 
       If ((DecoMP2 .or. DoDens) .and. ThrMP2.le.0.0D0) Then
          Call Get_dScalar('Cholesky Threshold',ThrMP2)
@@ -84,7 +83,7 @@ C     --------------------------------
             nBatOrbT = nBatOrbT + nOcc(iSym)
          End If
       End Do
-*
+!
       Do iSym = 1,nSym
          nT1am(iSym) = 0
          Do iSymi = 1,nSym
@@ -94,7 +93,7 @@ C     --------------------------------
      &                  + nVir(iSyma)*nOcc(iSymi)
          End Do
       End Do
-*
+!
       If(.false.) Then
          Do iSym = 1, nSym
             nPQ_prod(iSym) = 0
@@ -159,16 +158,16 @@ C     --------------------------------
          Call iZero(iMatab,64)
       End If
 
-C     If batching over occuped orbitals is forced by user, there better
-C     be orbitals to batch over!
-C     -----------------------------------------------------------------
+!     If batching over occuped orbitals is forced by user, there better
+!     be orbitals to batch over!
+!     -----------------------------------------------------------------
 
       If (ForceBatch .and. nBatOrbT.eq.1) ForceBatch = .false.
 
-C     Setup batches over occupied orbitals.
-C     -------------------------------------
+!     Setup batches over occupied orbitals.
+!     -------------------------------------
 
-*     nPQ_prodx will be the largest number of products in one symmetry
+!     nPQ_prodx will be the largest number of products in one symmetry
       nPQProdx = 0
       If(.false.) Then
          nPQProdx = nPQ_Prod(1)
@@ -176,7 +175,7 @@ C     -------------------------------------
             nPQProdx = max(nPQProdx,nPQ_Prod(iSym))
          End Do
       End If
-*
+!
       nT1amx = nT1am(1)
       Do iSym = 2,nSym
          nT1amx = max(nT1amx,nT1am(iSym))
@@ -191,8 +190,8 @@ C     -------------------------------------
       End If
       Call Cho_GAiGOp(NumVec,nSym,'max')
 
-*     nBatOrbT is the total numbers of orbitals to batch over,
-*     if densities are not to be computed this is set equal to nOccT
+!     nBatOrbT is the total numbers of orbitals to batch over,
+!     if densities are not to be computed this is set equal to nOccT
 
       If (nBatOrbT .lt. 6) Then
          mBatch = nBatOrbT
@@ -202,7 +201,7 @@ C     -------------------------------------
       Accepted = .false.
       nBatch = 0
       Do While (nBatch.lt.mBatch .and. .not.Accepted)
-*
+!
          nBatch = nBatch + 1
          If (nBatch .eq. mBatch) Then
             nBatch = nBatOrbT
@@ -214,7 +213,7 @@ C     -------------------------------------
                nFrac(iSym) = max(min(NumVec(iSym),20),1)
             End Do
          End If
-*
+!
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
 
@@ -234,10 +233,10 @@ C     -------------------------------------
             Call mma_allocate(LiMatij,   1,   1,     1,Label='LiMatij')
          End If
 
-*     Generalization of NumOcc for arbitrary quantity to batch over
-*     Would be good to kill NumOcc safely and only use one...
+!     Generalization of NumOcc for arbitrary quantity to batch over
+!     Would be good to kill NumOcc safely and only use one...
          Call mma_allocate(NumBatOrb,nBatch,Label='NumBatOrb')
-*     Generalization of LnOcc for arbitrary quantity to batch over.
+!     Generalization of LnOcc for arbitrary quantity to batch over.
          Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
          If(.false.) Then
             Call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
@@ -259,8 +258,8 @@ C     -------------------------------------
 
          Call mma_maxDBLE(lWork)
          If(.false.) Then
-*           All Memory available minus one full vector and some small
-*           vectors for the PCG-algorithm.
+!           All Memory available minus one full vector and some small
+!           vectors for the PCG-algorithm.
             lAvail = lWork - nPQprodx-l_Mp2Lagr*9
          Else If (Laplace .and. SOS_MP2) Then
             lX=0.0d0
@@ -300,9 +299,9 @@ C     -------------------------------------
             lAvail = lWork - nT1amx ! all minus one vector (for reading)
          End If
          Call GAiGOp_Scal(lAvail,'min')
-*        The argument LnPQprod is only used for the case where full
-*        Lpq-vectors are transformed for densities. Will be a dummy arg
-*        for regular MP2.
+!        The argument LnPQprod is only used for the case where full
+!        Lpq-vectors are transformed for densities. Will be a dummy arg
+!        for regular MP2.
          Accepted = ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
      &                                  nSym,nBatch,lAvail)
 
@@ -327,8 +326,8 @@ C     -------------------------------------
          Return
       End If
 
-C     Initialize file units.
-C     ----------------------
+!     Initialize file units.
+!     ----------------------
 
       Do iSym = 1,nSym
          Do iTyp = 1,nTypF
@@ -337,19 +336,19 @@ C     ----------------------
       End Do
 
       End
-*
+!
       SubRoutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,
      &                              LnOcc,NumBatOrb,LnBatOrb,
      &                              LnT1am,LiT1am,
      &                              LnPQprod,LiPQprod,
      &                              LnMatij,LiMatij,
      &                              mSym,mBatch)
-C
-C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
-C
-C     Purpose: set local index arrays and counters.
-C
-#include "implicit.fh"
+!
+!     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
+!
+!     Purpose: set local index arrays and counters.
+!
+      Implicit Real*8 (a-h,o-z)
       Integer iFirst(mBatch), NumOcc(mBatch)
       Integer iFirstS(mSym,mBatch), LnOcc(mSym,mBatch)
       Integer LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch)
@@ -390,12 +389,12 @@ C
          LnMatij(:,:)=0
          LiMatij(:,:,:)=0
       End If
-*
+!
       Num = nBatOrbT/nBatch
-*
-*     I am not sure if NumOcc is used somewhere else so I will
-*     define it as before even if Im using NumInBat for setting up
-*     indices in this routine. //Jonas
+!
+!     I am not sure if NumOcc is used somewhere else so I will
+!     define it as before even if Im using NumInBat for setting up
+!     indices in this routine. //Jonas
       Do iBatch = 1,nBatch
          If(.false.) Then
             NumBatOrb(iBatch) = Num
@@ -404,7 +403,7 @@ C
             NumBatOrb(iBatch) = Num
          End If
       End Do
-*
+!
       Left = nBatOrbT - nBatch*Num
       Do iBatch = nBatch,nBatch-Left+1,-1
          If(.false.) Then
@@ -414,7 +413,7 @@ C
             NumBatOrb(iBatch) = NumBatOrb(iBatch) + 1
          End If
       End Do
-*
+!
       iFirst(1) = 1
       Do i = 1,NumBatOrb(1)
          iSym = Cho_iRange(i,iBatOrb,nSym,.false.)
@@ -444,7 +443,7 @@ C
             End If
          End Do
       End Do
-*
+!
       Do iBatch = 1,nBatch
          Do iSym = 1,nSym
             Do iSymi = 1,nSym
@@ -463,7 +462,7 @@ C
          End Do
       End Do
 
-*
+!
       If (ChoAlg .eq. 2) Then
          Do iBatch = 1,nBatch
             Do iSym = 1,nSym
@@ -487,12 +486,12 @@ C
       End
       Logical Function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
      &                                     nSym,nBatch,Mem)
-C
-C     Thomas Bondo Pedersen, Nov. 2004.
-C
-C     Purpose: Check memory availability.
-C
-#include "implicit.fh"
+!
+!     Thomas Bondo Pedersen, Nov. 2004.
+!
+!     Purpose: Check memory availability.
+!
+      Implicit Real*8 (a-h,o-z)
 #include "chomp2_cfg.fh"
       Integer LnT1am(nSym,nBatch)
       Integer LnPQprod(nSym,nBatch)
@@ -586,13 +585,13 @@ C
     1 ChoMP2_Setup_MemChk = Accepted
       End
       SubRoutine ChoMP2_Setup_Prt(irc)
-C
-C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
-C
-C     Purpose: print setup for Cholesky MP2.
-C
+!
+!     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
+!
+!     Purpose: print setup for Cholesky MP2.
+!
       Use ChoMP2, only: iFirst, NumOcc, LnOcc, NumBatOrb, LnBatOrb
-#include "implicit.fh"
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
@@ -605,8 +604,8 @@ C
       iCount(:)=0
 
       Call Cho_Head('Cholesky MP2 Setup','=',80,6)
-*     The values but not the names 'occupied' are updated to work
-*     also for batching over all orbitals
+!     The values but not the names 'occupied' are updated to work
+!     also for batching over all orbitals
       If (nBatch .gt. 1) Then
          Write(6,'(A,I6,A,I6,A)')
      &   'The list of',nBatOrbT,' occupied orbitals has been split in',

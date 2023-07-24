@@ -1,37 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
 
       SUBROUTINE CHO_X_GET_PARDIAG(jSym,iSO_ab)
 
-************************************************************************
-*      Returns an array of the "a" and "b" indices that give rise to the
-*      parent diagonal from which a given J-index has been originated
-*      by the (molecular) Cholesky decomposition procedure
-*
-*        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
-*                                   within its symm. block.
-*                                   (Note: there is an integer function
-*                                   "cho_isao(ia)" that returns the
-*                                   irrep to which "a" belongs)
-*
-*        "Location 2" of iSO_ab returns the same kind of info for "b"
-*
-*
-*  Author: F. Aquilante
-*
-************************************************************************
+!***********************************************************************
+!      Returns an array of the "a" and "b" indices that give rise to the
+!      parent diagonal from which a given J-index has been originated
+!      by the (molecular) Cholesky decomposition procedure
+!
+!        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
+!                                   within its symm. block.
+!                                   (Note: there is an integer function
+!                                   "cho_isao(ia)" that returns the
+!                                   irrep to which "a" belongs)
+!
+!        "Location 2" of iSO_ab returns the same kind of info for "b"
+!
+!
+!  Author: F. Aquilante
+!
+!***********************************************************************
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank, nProcs
+      use stdalloc
 #endif
       use ChoArr, only: iRS2F
       use ChoSwp, only: InfVec
@@ -40,7 +41,6 @@
 
 #include "cholesky.fh"
 #ifdef _MOLCAS_MPP_
-#include "stdalloc.fh"
       Integer, Allocatable:: ip_List(:), ip_Aux(:,:)
 #endif
 

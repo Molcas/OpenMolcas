@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CHO_GETRSTC()
-C
-C     Purpose: read and check decomposition restart info.
-C
-#include "implicit.fh"
+!
+!     Purpose: read and check decomposition restart info.
+!
+      Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETRSTC')
 
-C     Read restart file, populating restart common block.
-C     ---------------------------------------------------
+!     Read restart file, populating restart common block.
+!     ---------------------------------------------------
 
       IFAIL = 0
       CALL CHO_RDRSTC(IFAIL)
@@ -31,8 +31,8 @@ C     ---------------------------------------------------
          CALL CHO_QUIT('Error reading decomposition restart file',104)
       END IF
 
-C     Check system info .
-C     -------------------
+!     Check system info .
+!     -------------------
 
       IFAIL = 0
       CALL CHO_RSTMOL(IFAIL)
@@ -42,8 +42,8 @@ C     -------------------
          CALL CHO_QUIT('Decomposition restart failure in '//SECNAM,105)
       END IF
 
-C     Check decomposition configuration.
-C     ----------------------------------
+!     Check decomposition configuration.
+!     ----------------------------------
 
       IFAIL = 0
       CALL CHO_RSTCNF(IFAIL)

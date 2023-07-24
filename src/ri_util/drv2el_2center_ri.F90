@@ -13,7 +13,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !***********************************************************************
@@ -259,5 +261,3 @@ call CWTime(TCpu2,TWall2)
 return
 
 end subroutine Drv2El_2Center_RI
-
-#endif

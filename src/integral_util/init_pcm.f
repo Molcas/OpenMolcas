@@ -19,6 +19,7 @@
 ************************************************************************
       Use Iso_C_Binding
       use PCM_arrays
+      use Isotopes, only: MaxAtomNum, PTab
       use UnixInfo, only: ProgName
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -28,7 +29,6 @@
 #include "stdalloc.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
-#include "periodic_table.fh"
       Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
       Integer, Allocatable:: ANr(:), LcANr(:)
 *
@@ -119,8 +119,11 @@ cpcm_solvent end
       Call Get_Name_All(Elements)
       Call mma_Allocate(ANr,nAtoms,Label='ANr')
       Do i = 1, nAtoms
-         Do j = 0, Num_Elem
-            If (PTab(j).eq.Elements(i)) ANr(i)=j
+         Do j = 0, MaxAtomNum
+            If (PTab(j).eq.Elements(i)) Then
+               ANr(i)=j
+               Exit
+            End If
          End Do
       End Do
       Call mma_allocate(LcCoor,3,nAtoms,Label='LcCoor')

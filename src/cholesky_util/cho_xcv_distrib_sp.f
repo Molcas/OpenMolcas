@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Determine distribution of Shell Pairs according to their
-C     dimension.
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Determine distribution of Shell Pairs according to their
+!     dimension.
+!
       Use Para_Info, Only: MyRank, nProcs
       use ChoSwp, only: nnBstRSh
+      use stdalloc
       Implicit None
       Integer l_mySP
       Integer mySP(l_mySP)
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer  Cho_iFindSmallest
       External Cho_iFindSmallest

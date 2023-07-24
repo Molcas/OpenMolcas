@@ -23,6 +23,7 @@
 !               in this array contains:
 !    - %A: mass number (protons + neutrons)
 !    - %m: isotopic mass in Da
+!    - %x: relative natural abundance (total: 1.0)
 !
 ! The "default" isotope for each element is simply the first item in
 ! the %Isotopes member.
@@ -36,7 +37,7 @@ implicit none
 private
 type Iso_t
   integer(kind=iwp) :: A
-  real(kind=wp) :: m
+  real(kind=wp) :: m, x
 end type Iso_t
 type Element_t
   character(len=2) :: Symbol
@@ -188,7 +189,7 @@ subroutine Initialize_Isotopes()
       ElementList(NumElem)%Natural = NumNat
       call mma_Allocate(ElementList(NumElem)%Isotopes,NumIso)
       do i=1,NumIso
-        ElementList(NumElem)%Isotopes(i) = Iso_t(nint(Tab(1,i)),Tab(2,i))
+        ElementList(NumElem)%Isotopes(i) = Iso_t(nint(Tab(1,i)),Tab(2,i),Tab(3,i))
       end do
       cycle
     end if

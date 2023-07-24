@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_Stat_ParentDiag()
-C
-C     Thomas Bondo Pedersen, February 2006.
-C
-C     Purpose: print statistics about the diagonals from which the
-C              Cholesky vectors are computed. I.e., whether they are
-C              one-center or two-center diagonals. Does not work with
-C              symmetry!
-C
+!
+!     Thomas Bondo Pedersen, February 2006.
+!
+!     Purpose: print statistics about the diagonals from which the
+!              Cholesky vectors are computed. I.e., whether they are
+!              one-center or two-center diagonals. Does not work with
+!              symmetry!
+!
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=19), Parameter:: SecNam = 'Cho_Stat_ParentDiag'
 
@@ -48,8 +48,8 @@ C
       Integer, Allocatable:: nPC1(:)
       Real*8,  Allocatable:: RC2(:)
 
-C     Set debug flag.
-C     ---------------
+!     Set debug flag.
+!     ---------------
 
 #if defined (_DEBUGPRINT_)
       Debug = .True.
@@ -57,49 +57,49 @@ C     ---------------
       Debug = .False.
 #endif
 
-C     Symmetry not allowed.
-C     ---------------------
+!     Symmetry not allowed.
+!     ---------------------
 
       If (nSym .ne. 1) Return
 
-C     Check if anything to do.
-C     ------------------------
+!     Check if anything to do.
+!     ------------------------
 
       If (NumCho(1) .ne. NumChT) Then
          Call SysAbendMsg(SecNam,'NumChT .ne. NumCho(1)',' ')
       End If
       If (NumChT .lt. 1) Return
 
-C     Get number of atoms.
-C     --------------------
+!     Get number of atoms.
+!     --------------------
 
-C     Call Get_nAtoms_All(nAtom)
+!     Call Get_nAtoms_All(nAtom)
       Call Get_iScalar('Bfn Atoms',nAtom)
       Call Get_iScalar('Pseudo atoms',nPseudo)
 
-C     Get atomic labels and basis function labels.
-C     --------------------------------------------
+!     Get atomic labels and basis function labels.
+!     --------------------------------------------
 
       Call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 
-C     Allocate and get index arrays for indexation of basis functions on
-C     each atom.
-C     ------------------------------------------------------------------
+!     Allocate and get index arrays for indexation of basis functions on
+!     each atom.
+!     ------------------------------------------------------------------
 
       Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
       Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
       Call BasFun_Atom(nBas_per_Atom,nBas_Start,
      &                 AtomLabel,nBasT,nAtom,Debug)
 
-C     Allocate and get nuclear coordinates.
-C     -------------------------------------
+!     Allocate and get nuclear coordinates.
+!     -------------------------------------
 
       Call mma_allocate(Coord,3,nAtom,Label='Coord')
-C     Call Get_dArray('Unique Coordinates',Coord,3*nAtom)
+!     Call Get_dArray('Unique Coordinates',Coord,3*nAtom)
       Call Get_dArray('Bfn Coordinates',Coord,3*nAtom)
 
-C     Allocate and set mapping from basis function to atom.
-C     -----------------------------------------------------
+!     Allocate and set mapping from basis function to atom.
+!     -----------------------------------------------------
 
       Call mma_Allocate(iBF2Atom,nBasT,Label='iBF2Atom')
       Do iAtom = 1,nAtom
@@ -119,20 +119,20 @@ C     -----------------------------------------------------
          End Do
       End If
 
-C     Allocate and set mapping from 1st reduced set to full storage.
-C     --------------------------------------------------------------
+!     Allocate and set mapping from 1st reduced set to full storage.
+!     --------------------------------------------------------------
 
       Call mma_allocate(mapRS2F,2,nnBstRT(1),Label='mapRS2F')
       Call Cho_RStoF(mapRS2F,2,nnBstRT(1),1)
 
-C     Allocate counters.
-C     ------------------
+!     Allocate counters.
+!     ------------------
 
       Call mma_allocate(nPC1,nAtom,Label='nPC1')
       Call mma_allocate(RC2,NumChT,Label='RC2')
 
-C     Compute statistics.
-C     -------------------
+!     Compute statistics.
+!     -------------------
 
       Rmin = 1.0d15
       Rmax = -1.0d15
@@ -165,8 +165,8 @@ C     -------------------
          Call SysAbendMsg(SecNam,'Setup error!','nTot2 < 0')
       End If
 
-C     Print overall statisctics.
-C     --------------------------
+!     Print overall statisctics.
+!     --------------------------
 
       Write(Lupri,'(//,2X,A,/,2X,A)')
      & 'Parent Diagonals','----------------'
@@ -177,8 +177,8 @@ C     --------------------------
      & 'Number of vectors from 2-center diagonals:',nTot2,
      & ' (',1.0d2*dble(nTot2)/dble(NumChT),'%)'
 
-C     Print statistics for 1-center vectors.
-C     --------------------------------------
+!     Print statistics for 1-center vectors.
+!     --------------------------------------
 
       Write(Lupri,'(/,1X,A)')
      & 'Vectors from 1-center diagonals:'
@@ -219,8 +219,8 @@ C     --------------------------------------
          If (iBatch .ne. nBatch) Write(Lupri,*)
       End Do
 
-C     Print statistics for 2-center vectors.
-C     --------------------------------------
+!     Print statistics for 2-center vectors.
+!     --------------------------------------
 
       If (nTot2 .gt. 0) Then
          Write(Lupri,'(/,1X,A)')
@@ -245,14 +245,14 @@ C     --------------------------------------
             End If
          End Do
          If (nChk .ne. nTot2) Then
-C FAQ
-C --- Replace the call to SysAbendMsg with just a warning.
-C
-C            Call SysAbendMsg(SecNam,'nChk .ne. nTot2',' ')
-C
-C --- TODO/FIX  figure out if with ghost atoms is just a mistmatch
-C               or there is really a bug
-C
+! FAQ
+! --- Replace the call to SysAbendMsg with just a warning.
+!
+!            Call SysAbendMsg(SecNam,'nChk .ne. nTot2',' ')
+!
+! --- TODO/FIX  figure out if with ghost atoms is just a mistmatch
+!               or there is really a bug
+!
             write(6,*) SecNam//': Warning! (nChk .ne. nTot2); could be',
      &' due to the presence of ghost atoms.'
          End If
@@ -272,8 +272,8 @@ C
      &   ': ',iClass(4)
       End If
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
       Call mma_deallocate(RC2)
       Call mma_deallocate(nPC1)

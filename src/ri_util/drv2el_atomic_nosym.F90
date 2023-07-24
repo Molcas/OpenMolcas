@@ -13,7 +13,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
 !***********************************************************************
@@ -371,5 +373,3 @@ iWROpt = iWROpt_Save
 return
 
 end subroutine Drv2El_Atomic_NoSym
-
-#endif

@@ -1,24 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
-C
-C     Thomas Bondo Pedersen, Dec. 2004.
-C
-C     Purpose: compute MP2 energy correction from MO Cholesky vectors,
-C              constructing (ai|bj) integrals on the fly. Flag Sorted
-C              refers to whether or not the MO vectors have been sorted
-C              into the sizes of the batches over occupied orbitals.
-C
+!
+!     Thomas Bondo Pedersen, Dec. 2004.
+!
+!     Purpose: compute MP2 energy correction from MO Cholesky vectors,
+!              constructing (ai|bj) integrals on the fly. Flag Sorted
+!              refers to whether or not the MO vectors have been sorted
+!              into the sizes of the batches over occupied orbitals.
+!
+      use stdalloc
       Implicit None
       Real*8  EMP2
       Real*8  EOcc(*), EVir(*)
@@ -26,7 +27,6 @@ C
       Logical Sorted, DelOrig
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'Energy'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_Energy'

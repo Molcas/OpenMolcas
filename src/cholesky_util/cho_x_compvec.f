@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Cho_X_CompVec(irc,
      &                         NVT,l_NVT,
      &                         nBlock,l_nBlock,
@@ -17,35 +17,36 @@
      &                         iV1,l_iV11,l_iV12,
      &                         ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                         Free_Z)
-C
-C     Thomas Bondo Pedersen, April 2010.
-C
-C     Purpose: Compute Cholesky vectors from Z vectors in core
-C              and integrals computed on the fly:
-C
-C              L(uv,J) = 1/Z(J,J)
-C                      * [ (uv|J) - sum[K=1,J-1] L(uv,K)*Z(J,K) ]
-C
-C     NVT(i): total number of Cholesky vectors (all nodes), sym. i
-C     nBlock(i): number of vector blocks, sym. i
-C     nV(i,j): number of vectors in block i of sym. j
-C     iV1(i,j): index of first vector in block i of sym. j
-C     ip_Z(i,j): pointer to Z block i of sym. j
-C
-C     If (Free_Z): Z array will be de-allocated here using ip_Z(1,1) as
-C     start point of the array - i.e. assuming that the Z blocks are
-C     stored as one coherent array. If this is not the case, simply put
-C     Free_Z=.False. Letting this routine deallocate Z maximizes the
-C     memory available for vector distribution.
-C
-C     Vectors are distributed across nodes and stored according to
-C     reduced set 1 (all of them!).
-C
+!
+!     Thomas Bondo Pedersen, April 2010.
+!
+!     Purpose: Compute Cholesky vectors from Z vectors in core
+!              and integrals computed on the fly:
+!
+!              L(uv,J) = 1/Z(J,J)
+!                      * [ (uv|J) - sum[K=1,J-1] L(uv,K)*Z(J,K) ]
+!
+!     NVT(i): total number of Cholesky vectors (all nodes), sym. i
+!     nBlock(i): number of vector blocks, sym. i
+!     nV(i,j): number of vectors in block i of sym. j
+!     iV1(i,j): index of first vector in block i of sym. j
+!     ip_Z(i,j): pointer to Z block i of sym. j
+!
+!     If (Free_Z): Z array will be de-allocated here using ip_Z(1,1) as
+!     start point of the array - i.e. assuming that the Z blocks are
+!     stored as one coherent array. If this is not the case, simply put
+!     Free_Z=.False. Letting this routine deallocate Z maximizes the
+!     memory available for vector distribution.
+!
+!     Vectors are distributed across nodes and stored according to
+!     reduced set 1 (all of them!).
+!
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: iSP2F
 #endif
       use ChoArr, only: iOff_Batch, nDim_Batch
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -61,7 +62,6 @@ C
       Real*8  Z(l_Z)
       Logical Free_Z
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*2  Unt
@@ -108,17 +108,17 @@ C
 
       Integer, Allocatable:: XCVTMP(:), XCVLSP(:), XCVnBt(:)
       Real*8, Allocatable:: XCVZd(:), XCVInt(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
       Subroutine Cho_X_GetIP_InfVec(InfVcT)
       Integer, Pointer:: InfVct(:,:,:)
       End Subroutine Cho_X_GetIP_InfVec
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -549,9 +549,9 @@ C
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C TMP FILE HANDLERS (OPEN, CLOSE, DELETE)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! TMP FILE HANDLERS (OPEN, CLOSE, DELETE)
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SubRoutine Cho_XCV_TmpFiles(irc,iOpt)
       Implicit None
       Integer irc, iOpt

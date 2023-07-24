@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #if defined (_CHO_DEBUGPRINT_)
 #define _DEBUGPRINT_
 #endif
       SubRoutine Cho_VecBuf_Init(Frac,lVec)
-C
-C     Purpose: allocate and initialize vector buffer.
-C              RUN_MODE=RUN_INTERNAL: buffer used during decomposition.
-C              RUN_MODE=RUN_EXTERNAL: buffer used after decomposition,
-C                                     i.e. vectors are available on
-C                                     disk.
-C              (RUN_MODE stored in cholesky.fh)
-C
+!
+!     Purpose: allocate and initialize vector buffer.
+!              RUN_MODE=RUN_INTERNAL: buffer used during decomposition.
+!              RUN_MODE=RUN_EXTERNAL: buffer used after decomposition,
+!                                     i.e. vectors are available on
+!                                     disk.
+!              (RUN_MODE stored in cholesky.fh)
+!
       use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
+      use stdalloc
       Implicit None
       Real*8  Frac
       Integer lVec(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init')
@@ -71,18 +71,18 @@ C
 
       End
       SubRoutine Cho_VecBuf_Init_I(Frac,lVec,LocDbg)
-C
-C     Purpose: allocate and initialize vector buffer.
-C              (Internal run mode.)
-C
+!
+!     Purpose: allocate and initialize vector buffer.
+!              (Internal run mode.)
+!
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     nVec_in_Buf
+      use stdalloc
       Implicit None
       Real*8  Frac
       Integer lVec(*)
       Logical LocDbg
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_I')
@@ -181,16 +181,16 @@ C
 
       End
       SubRoutine Cho_VecBuf_Init_X(Frac,LocDbg)
-C
-C     Purpose: allocate and initialize vector buffer.
-C              (External run mode.)
-C
+!
+!     Purpose: allocate and initialize vector buffer.
+!              (External run mode.)
+!
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
+      use stdalloc
       Implicit None
       Real*8  Frac
       Logical LocDbg
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=17), Parameter:: SecNam = 'Cho_VecBuf_Init_X'
 
