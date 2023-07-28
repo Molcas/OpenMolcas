@@ -64,24 +64,26 @@ if (ChoIsIni == ChoIniCheck) then
   ! ------------------
 
   call Cho_X_Dealloc(irc)
-  if (irc /= 0) Go To 1
+  if (irc == 0) then
 
-  if (allocated(MySP)) call mma_deallocate(MySP)
-  if (allocated(BkmVec)) then
-    call mma_deallocate(BkmVec)
-    nRow_BkmVec = 0
-    nCol_BkmVec = 0
-  end if
-  if (allocated(BkmThr)) then
-    call mma_deallocate(BkmThr)
-    nRow_BkmThr = 0
-    nCol_BkmThr = 0
+    if (allocated(MySP)) call mma_deallocate(MySP)
+    if (allocated(BkmVec)) then
+      call mma_deallocate(BkmVec)
+      nRow_BkmVec = 0
+      nCol_BkmVec = 0
+    end if
+    if (allocated(BkmThr)) then
+      call mma_deallocate(BkmThr)
+      nRow_BkmThr = 0
+      nCol_BkmThr = 0
+    end if
+
   end if
 
   ! Reset initialization integer on runfile to "not set".
   ! -----------------------------------------------------
 
-1 ChoIsIni = ChoIniCheck+1
+  ChoIsIni = ChoIniCheck+1
   call Put_iScalar('ChoIni',ChoIsIni)
 
 end if

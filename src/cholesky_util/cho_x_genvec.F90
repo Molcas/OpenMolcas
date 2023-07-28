@@ -59,16 +59,12 @@ MODE_SCREEN = 1
 ! -----------------
 
 call Cho_GnVc_Drv(irc,Diag)
-if (irc /= 0) then
-  write(Lupri,*) SecNam,': Cho_GnVc_Drv returned ',irc
-  Go To 100 ! exit
-end if
+if (irc /= 0) write(Lupri,*) SecNam,': Cho_GnVc_Drv returned ',irc
 
 ! De-allocations.
 ! Restore original iQuAB array.
 ! -----------------------------
 
-100 continue
 call mma_deallocate(iQuAB_here)
 iQuAB => pTemp
 MaxQual = MaxQual_SAVE

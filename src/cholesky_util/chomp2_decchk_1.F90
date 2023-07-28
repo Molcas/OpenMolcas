@@ -52,7 +52,7 @@ irc = 0
 if ((nDim < 1) .or. (nCol < 1)) return
 if (nDim /= nT1am(iSym)) then
   irc = -1
-  Go To 1 ! exit
+  return ! exit
 end if
 
 ! Initialize.
@@ -94,7 +94,7 @@ do iBatCol=1,nBatCol
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,' [1]'
     irc = 1
-    Go To 1
+    return
   end if
 
   ! Compute "old" and subtract "new".
@@ -110,7 +110,7 @@ do iBatCol=1,nBatCol
     if (irc /= 0) then
       write(u6,*) SecNam,': ChoMP2_DecChk_Int returned ',irc,' [2]'
       irc = 2
-      Go To 1
+      return
     end if
   end if
 
@@ -132,7 +132,5 @@ end do
 
 xdim = real(Nai,kind=wp)**2
 ErrStat(3) = sqrt(ErrStat(3)/xdim)
-
-1 continue
 
 end subroutine ChoMP2_DecChk_1

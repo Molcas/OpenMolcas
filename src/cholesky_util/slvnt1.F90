@@ -34,7 +34,7 @@ Theta = One
 Dbg = .false.
 I_Dim = 2*K_Lap
 
-do Iter=1,NTimes
+outer: do Iter=1,NTimes
   IRes = 1
   call AltErr(K_Lap,Coeff,T,VV,Eps0)
   if (Eps0 > Tol) then
@@ -52,32 +52,30 @@ do Iter=1,NTimes
         write(IW,*) I,W(I)
       end do
     end if
-    if (.not. Error) goto 555
-    call DCOPY_(I_Dim,Coeff,1,CoeffOld,1)
+    if (Error) then
+      call DCOPY_(I_Dim,Coeff,1,CoeffOld,1)
 
-222 continue
-    do I=1,I_Dim
-      Coeff(I) = CoeffOld(I)-Theta*W(I)
-    end do
-    call AltErr(K_Lap,Coeff,T,VV,Eps1)
-    if (Eps1 < Eps0) then
-      Theta = Two*Theta
-      if (Theta > One) Theta = One
-      goto 888
+      do
+        do I=1,I_Dim
+          Coeff(I) = CoeffOld(I)-Theta*W(I)
+        end do
+        call AltErr(K_Lap,Coeff,T,VV,Eps1)
+        if (Eps1 < Eps0) then
+          Theta = Two*Theta
+          if (Theta > One) Theta = One
+          cycle outer
+        end if
+        if (Theta < THTMIN) then
+          cycle outer
+        else
+          Theta = Theta*Half
+        end if
+      end do
     end if
-    if (Theta < THTMIN) then
-      goto 888
-    else
-      Theta = Theta*Half
-      goto 222
-    end if
-555 continue
   end if
   IRes = 0
-888 continue
-  if (IRes == 0) goto 999
-end do
-999 continue
+  if (IRes == 0) exit
+end do outer
 
 return
 

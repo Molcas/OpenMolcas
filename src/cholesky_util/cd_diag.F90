@@ -50,7 +50,7 @@ real(kind=wp) :: xDim
 irc = 0
 if (nDim < 1) then
   Converged = .true. ! in a sense, at least
-  Go To 1 ! exit (nothing to do)
+  return ! exit (nothing to do)
 else
   Converged = .false.
 end if
@@ -66,7 +66,7 @@ if (Restart) then ! subtract previous vectors
     nVec = min(NumCho,lBuf/nDim)
     if (nVec < 1) then
       irc = 202
-      Go To 1 ! exit (insufficient buffer size)
+      return ! exit (insufficient buffer size)
     else
       nBatch = (NumCho-1)/nVec+1
     end if
@@ -96,7 +96,7 @@ if (Restart) then ! subtract previous vectors
   else if (NumCho < 0) then
 
     irc = 201
-    Go To 1 ! exit (inconsistent input)
+    return ! exit (inconsistent input)
 
   end if
 end if
@@ -109,7 +109,7 @@ end if
 if (Diag(1) < ThrNeg) then
   if (Diag(1) < ThrFail) then
     irc = 203
-    Go To 1 ! exit (too negative diagonal)
+    return ! exit (too negative diagonal)
   else
     Diag(1) = Zero
   end if
@@ -121,7 +121,7 @@ do i=2,nDim
   if (Diag(1) < ThrNeg) then
     if (Diag(1) < ThrFail) then
       irc = 203
-      Go To 1 ! exit (too negative diagonal)
+      return ! exit (too negative diagonal)
     else
       Diag(1) = Zero
     end if
@@ -134,7 +134,5 @@ xDim = real(nDim,kind=wp)
 ErrStat(3) = sqrt(ErrStat(3))/xDim
 
 Converged = ErrStat(2) <= Thr
-
-1 continue
 
 end subroutine CD_Diag

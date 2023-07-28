@@ -72,7 +72,7 @@ do iSymI=1,nSym
 end do
 
 do iSym=1,nSym
-  if (nMP2Vec(iSym) == 0) Go To 10
+  if (nMP2Vec(iSym) == 0) cycle
   nVec = min(maxvalue,nMP2Vec(iSym))
   if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
   nBatR = (nMP2Vec(iSym)-1)/nVec+1
@@ -172,7 +172,6 @@ do iSym=1,nSym
 
   call ChoMP2_OpenF(iClos,iTypR,iSym)
 
-10 continue
 end do !iSym
 
 call DaClos(LuRInv(1))

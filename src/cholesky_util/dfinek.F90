@@ -85,17 +85,16 @@ if (InitR == 31) then
         K_Lap = 19
         ErrVal = ErLst3(14)
         write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
-        goto 100
+        return
       else if (R <= 1.0e5_wp) then
         ErrVal = ErLst3(15)
         write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
-        goto 100
+        return
       end if
     end if
     write(IW,'(/A)') '!!! Caution !!!'
     write(IW,'(A,E11.4E2,A)') 'In this R value, we can only guarantee',ErrVal,' accuracy.'
   end if
-100 continue
   return
 end if
 

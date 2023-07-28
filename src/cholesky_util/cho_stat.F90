@@ -452,106 +452,104 @@ if (CHO_TSTSCREEN .and. (.not. (CHO_FAKE_PAR .and. (NPROCS > 1) .and. Is_Real_Pa
   if (NTAU < 1) then
     write(LUPRI,*) SECNAM,': screening test requested, but NTAU is non-positive!'
     write(LUPRI,*) SECNAM,': test is skipped!'
-    GO TO 199 ! skip
-  end if
-  TAU(1) = THRCOM
-  do ITAU=2,NTAU
-    TAU(ITAU) = TAU(ITAU-1)*DTAU
-  end do
+  else
+    TAU(1) = THRCOM
+    do ITAU=2,NTAU
+      TAU(ITAU) = TAU(ITAU-1)*DTAU
+    end do
 
-  call CHO_HEAD('RS Screening Statistics (TEST)','-',80,LUPRI)
-  write(LUPRI,'(/,A,A)') 'Norm used for diagonal shell pairs: ',SSNORM
-  call CHO_SUBSCR_INIT()
+    call CHO_HEAD('RS Screening Statistics (TEST)','-',80,LUPRI)
+    write(LUPRI,'(/,A,A)') 'Norm used for diagonal shell pairs: ',SSNORM
+    call CHO_SUBSCR_INIT()
 
-  ILOC = 3
+    ILOC = 3
 
-  do ISYM=1,NSYM
-    if (NUMCHO(ISYM) > 0) then
+    do ISYM=1,NSYM
+      if (NUMCHO(ISYM) > 0) then
 
-      LRED = INFVEC(NUMCHO(ISYM),2,ISYM)
-      do IRED=1,LRED
+        LRED = INFVEC(NUMCHO(ISYM),2,ISYM)
+        do IRED=1,LRED
 
-        IVEC1 = 0
-        NVEC = 0
-        call CHO_X_NVECRS(IRED,ISYM,IVEC1,NVEC)
-        if ((NVEC > 0) .and. (NDIMRS(ISYM,IRED) > 0)) then
+          IVEC1 = 0
+          NVEC = 0
+          call CHO_X_NVECRS(IRED,ISYM,IVEC1,NVEC)
+          if ((NVEC > 0) .and. (NDIMRS(ISYM,IRED) > 0)) then
 
-          call mma_maxDBLE(LRDVT)
-          NUMVEC = min(LRDVT/NDIMRS(ISYM,IRED),NVEC)
-          if (NUMVEC < 1) call CHO_QUIT('Insufficient memory for TstScreen in '//SECNAM,104)
-          NBATCH = (NVEC-1)/NUMVEC+1
+            call mma_maxDBLE(LRDVT)
+            NUMVEC = min(LRDVT/NDIMRS(ISYM,IRED),NVEC)
+            if (NUMVEC < 1) call CHO_QUIT('Insufficient memory for TstScreen in '//SECNAM,104)
+            NBATCH = (NVEC-1)/NUMVEC+1
 
-          do IBATCH=1,NBATCH
+            do IBATCH=1,NBATCH
 
-            if (IBATCH == NBATCH) then
-              NUMV = NVEC-NUMVEC*(NBATCH-1)
-            else
-              NUMV = NUMVEC
-            end if
-            LRDVEC = NDIMRS(ISYM,IRED)*NUMV
-            call mma_allocate(KRDVEC,LRDVEC,Label='KRDVEC')
-
-            JVEC1 = IVEC1+NUMVEC*(IBATCH-1)
-            JVEC2 = JVEC1+NUMV-1
-            JNUM = 0
-            MUSD = 0
-            call CHO_VECRD(KRDVEC,LRDVEC,JVEC1,JVEC2,ISYM,JNUM,IREDC,MUSD)
-            if (JNUM /= NUMV) call CHO_QUIT('Logical error in '//SECNAM,103)
-
-            if (IREDC /= IRED) then
-              call CHO_X_SETRED(IRC,ILOC,IRED)
-              if (IRC /= 0) then
-                write(LUPRI,*) SECNAM,': CHO_X_SETRED returned ',IRC
-                call CHO_QUIT('Error in '//SECNAM,104)
+              if (IBATCH == NBATCH) then
+                NUMV = NVEC-NUMVEC*(NBATCH-1)
+              else
+                NUMV = NUMVEC
               end if
-              IREDC = IRED
-            end if
+              LRDVEC = NDIMRS(ISYM,IRED)*NUMV
+              call mma_allocate(KRDVEC,LRDVEC,Label='KRDVEC')
 
-            call CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,SSNORM)
-            XT = Zero
-            call FZERO(XC,NTAU)
-            do ISHAB=1,NNSHL
-              if (NNBSTRSH(ISYM,ISHAB,ILOC) > 0) then
-                do ISHGD=ISHAB,NNSHL
-                  if (NNBSTRSH(ISYM,ISHGD,ILOC) > 0) then
-                    TST = DSPNM(ISHAB)*DSPNM(ISHGD)
-                    TST = sqrt(TST)
-                    XT = XT+One
-                    do ITAU=1,NTAU
-                      if (TST > TAU(ITAU)) XC(ITAU) = XC(ITAU)+One
-                    end do
-                  end if
-                end do
+              JVEC1 = IVEC1+NUMVEC*(IBATCH-1)
+              JVEC2 = JVEC1+NUMV-1
+              JNUM = 0
+              MUSD = 0
+              call CHO_VECRD(KRDVEC,LRDVEC,JVEC1,JVEC2,ISYM,JNUM,IREDC,MUSD)
+              if (JNUM /= NUMV) call CHO_QUIT('Logical error in '//SECNAM,103)
+
+              if (IREDC /= IRED) then
+                call CHO_X_SETRED(IRC,ILOC,IRED)
+                if (IRC /= 0) then
+                  write(LUPRI,*) SECNAM,': CHO_X_SETRED returned ',IRC
+                  call CHO_QUIT('Error in '//SECNAM,104)
+                end if
+                IREDC = IRED
               end if
+
+              call CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,SSNORM)
+              XT = Zero
+              call FZERO(XC,NTAU)
+              do ISHAB=1,NNSHL
+                if (NNBSTRSH(ISYM,ISHAB,ILOC) > 0) then
+                  do ISHGD=ISHAB,NNSHL
+                    if (NNBSTRSH(ISYM,ISHGD,ILOC) > 0) then
+                      TST = DSPNM(ISHAB)*DSPNM(ISHGD)
+                      TST = sqrt(TST)
+                      XT = XT+One
+                      do ITAU=1,NTAU
+                        if (TST > TAU(ITAU)) XC(ITAU) = XC(ITAU)+One
+                      end do
+                    end if
+                  end do
+                end if
+              end do
+
+              write(LUPRI,'(/,1X,A,I6,A,I2,A)') '*** Statistics for reduced set',IRED,'    Symmetry',ISYM,' ***'
+              write(LUPRI,'(1X,A,I6,A,I6)') '    Batch no.',IBATCH,' of',NBATCH
+              write(LUPRI,'(1X,A,9X,I6)') '       No. vectors     : ',NUMV
+              write(LUPRI,'(1X,A,9X,I6,9X,I6)') '       Vector range    : ',JVEC1,JVEC2
+              write(LUPRI,'(1X,A,1P,D15.7)') '       Shell quadruples: ',XT
+              if (XT < One) call CHO_QUIT('XT non-positive in '//SECNAM,103)
+              FAC = 1.0e2_wp/XT
+              do ITAU=1,NTAU
+                PCT = FAC*(XT-XC(ITAU))
+                write(LUPRI,'(1X,A,1P,D15.7,A,D15.7,A)') '       Threshold: ',TAU(ITAU),'  Screening percent: ',PCT,'%'
+              end do
+              call CHO_FLUSH(LUPRI)
+
+              call mma_deallocate(KRDVEC)
+
             end do
 
-            write(LUPRI,'(/,1X,A,I6,A,I2,A)') '*** Statistics for reduced set',IRED,'    Symmetry',ISYM,' ***'
-            write(LUPRI,'(1X,A,I6,A,I6)') '    Batch no.',IBATCH,' of',NBATCH
-            write(LUPRI,'(1X,A,9X,I6)') '       No. vectors     : ',NUMV
-            write(LUPRI,'(1X,A,9X,I6,9X,I6)') '       Vector range    : ',JVEC1,JVEC2
-            write(LUPRI,'(1X,A,1P,D15.7)') '       Shell quadruples: ',XT
-            if (XT < One) call CHO_QUIT('XT non-positive in '//SECNAM,103)
-            FAC = 1.0e2_wp/XT
-            do ITAU=1,NTAU
-              PCT = FAC*(XT-XC(ITAU))
-              write(LUPRI,'(1X,A,1P,D15.7,A,D15.7,A)') '       Threshold: ',TAU(ITAU),'  Screening percent: ',PCT,'%'
-            end do
-            call CHO_FLUSH(LUPRI)
+          end if
 
-            call mma_deallocate(KRDVEC)
+        end do
 
-          end do
+      end if
+    end do
 
-        end if
-
-      end do
-
-    end if
-  end do
-
-  call CHO_SUBSCR_FINAL()
-
-199 continue ! skip point
+    call CHO_SUBSCR_FINAL()
+  end if ! skip point
 
   CHO_SSCREEN = CHO_SSCREEN_SAVE
 

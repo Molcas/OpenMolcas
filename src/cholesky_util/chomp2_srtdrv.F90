@@ -77,7 +77,8 @@ do iSym=1,nSym
     nSrtVec = nMP2Vec(iSym)
   else
     irc = -1
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
 
   if ((nT1am(iSym) > 0) .and. (nSrtVec > 0)) then
@@ -94,7 +95,8 @@ do iSym=1,nSym
     NumVec = min(lWrk/MinMem,nSrtVec)
     if (NumVec < 1) then
       irc = 1
-      Go To 1 ! exit
+      call Finish_this()
+      return
     else
       nBat = (nSrtVec-1)/NumVec+1
     end if
@@ -156,6 +158,14 @@ do iSym=1,nSym
 
 end do
 
-1 call mma_deallocate(Wrk)
+call Finish_this()
+
+contains
+
+subroutine Finish_this()
+
+  call mma_deallocate(Wrk)
+
+end subroutine Finish_this
 
 end subroutine ChoMP2_SrtDrv

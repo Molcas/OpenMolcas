@@ -26,6 +26,7 @@ integer(kind=iwp) :: K, InitR
 real(kind=wp) :: Error, R
 logical(kind=iwp) :: Change
 real(kind=wp) :: ErrMax, ErrMin
+logical(kind=iwp) :: Skip
 real(kind=wp), parameter :: E2(7) = [2.128e-2_wp,2.080e-4_wp,1.833e-6_wp,1.542e-8_wp,1.261e-10_wp,1.012e-12_wp,8.020e-15_wp], &
                             E5(7) = [7.075e-2_wp,3.437e-3_wp,1.500e-4_wp,6.258e-6_wp,2.543e-7_wp,1.016e-8_wp,4.007e-10_wp], &
                             E10(16) = [8.556e-2_wp,8.752e-3_wp,7.145e-4_wp,5.577e-5_wp,4.243e-6_wp,3.173e-7_wp,2.344e-8_wp, &
@@ -120,144 +121,119 @@ real(kind=wp), parameter :: E2(7) = [2.128e-2_wp,2.080e-4_wp,1.833e-6_wp,1.542e-
                                          8.0e2_wp,9.0e2_wp,1.0e3_wp,2.0e3_wp,3.0e3_wp,4.0e3_wp,5.0e3_wp,6.0e3_wp,7.0e3_wp, &
                                          8.0e3_wp,9.0e3_wp,1.0e4_wp]
 
-goto(20,50,110,120,130,140,150,160,170,180,190,210,220,230,240,250,260,270,280,290,310,320,330,340,350,360,370,380,390,410,999), &
-    InitR
+Skip = .false.
+select case (InitR)
+  ! probably default should be 31...
+  ! this is what you get when you use computed gotos
+  case default ! (1)
+    ErrMin = E2(K)
+    ErrMax = E5(K)
+  case (2)
+    ErrMin = E5(K)
+    ErrMax = E10(K)
+  case (3)
+    ErrMin = E10(K)
+    ErrMax = E20(K)
+  case (4)
+    ErrMin = E20(K)
+    ErrMax = E30(K)
+  case (5)
+    ErrMin = E30(K)
+    ErrMax = E40(K)
+  case (6)
+    ErrMin = E40(K)
+    ErrMax = E50(K)
+  case (7)
+    ErrMin = E50(K)
+    ErrMax = E60(K)
+  case (8)
+    ErrMin = E60(K)
+    ErrMax = E70(K)
+  case (9)
+    ErrMin = E70(K)
+    ErrMax = E80(K)
+  case (10)
+    ErrMin = E80(K)
+    ErrMax = E90(K)
+  case (11)
+    ErrMin = E90(K)
+    ErrMax = E100(K)
+  case (12)
+    ErrMin = E100(K)
+    ErrMax = E200(K)
+  case (13)
+    ErrMin = E200(K)
+    ErrMax = E300(K)
+  case (14)
+    ErrMin = E300(K)
+    ErrMax = E400(K)
+  case (15)
+    ErrMin = E400(K)
+    ErrMax = E500(K)
+  case (16)
+    ErrMin = E500(K)
+    ErrMax = E600(K)
+  case (17)
+    ErrMin = E600(K)
+    ErrMax = E700(K)
+  case (18)
+    ErrMin = E700(K)
+    ErrMax = E800(K)
+  case (19)
+    ErrMin = E800(K)
+    ErrMax = E900(K)
+  case (20)
+    ErrMin = E900(K)
+    ErrMax = E1000(K)
+  case (21)
+    ErrMin = E1000(K)
+    ErrMax = E2000(K)
+  case (22)
+    ErrMin = E2000(K)
+    ErrMax = E3000(K)
+  case (23)
+    ErrMin = E3000(K)
+    ErrMax = E4000(K)
+  case (24)
+    ErrMin = E4000(K)
+    ErrMax = E5000(K)
+  case (25)
+    ErrMin = E5000(K)
+    ErrMax = E6000(K)
+  case (26)
+    ErrMin = E6000(K)
+    ErrMax = E7000(K)
+  case (27)
+    ErrMin = E7000(K)
+    ErrMax = E8000(K)
+  case (28)
+    ErrMin = E8000(K)
+    ErrMax = E9000(K)
+  case (29)
+    ErrMin = E9000(K)
+    ErrMax = E10000(K)
+  case (30)
+    ErrMin = E10000(K)
+    ErrMax = ERMax(K)
+  case (31)
+    Skip = .true.
+end select
 
-20 continue
-ErrMin = E2(K)
-ErrMax = E5(K)
-goto 900
-50 continue
-ErrMin = E5(K)
-ErrMax = E10(K)
-goto 900
-110 continue
-ErrMin = E10(K)
-ErrMax = E20(K)
-goto 900
-120 continue
-ErrMin = E20(K)
-ErrMax = E30(K)
-goto 900
-130 continue
-ErrMin = E30(K)
-ErrMax = E40(K)
-goto 900
-140 continue
-ErrMin = E40(K)
-ErrMax = E50(K)
-goto 900
-150 continue
-ErrMin = E50(K)
-ErrMax = E60(K)
-goto 900
-160 continue
-ErrMin = E60(K)
-ErrMax = E70(K)
-goto 900
-170 continue
-ErrMin = E70(K)
-ErrMax = E80(K)
-goto 900
-180 continue
-ErrMin = E80(K)
-ErrMax = E90(K)
-goto 900
-190 continue
-ErrMin = E90(K)
-ErrMax = E100(K)
-goto 900
-210 continue
-ErrMin = E100(K)
-ErrMax = E200(K)
-goto 900
-220 continue
-ErrMin = E200(K)
-ErrMax = E300(K)
-goto 900
-230 continue
-ErrMin = E300(K)
-ErrMax = E400(K)
-goto 900
-240 continue
-ErrMin = E400(K)
-ErrMax = E500(K)
-goto 900
-250 continue
-ErrMin = E500(K)
-ErrMax = E600(K)
-goto 900
-260 continue
-ErrMin = E600(K)
-ErrMax = E700(K)
-goto 900
-270 continue
-ErrMin = E700(K)
-ErrMax = E800(K)
-goto 900
-280 continue
-ErrMin = E800(K)
-ErrMax = E900(K)
-goto 900
-290 continue
-ErrMin = E900(K)
-ErrMax = E1000(K)
-goto 900
-310 continue
-ErrMin = E1000(K)
-ErrMax = E2000(K)
-goto 900
-320 continue
-ErrMin = E2000(K)
-ErrMax = E3000(K)
-goto 900
-330 continue
-ErrMin = E3000(K)
-ErrMax = E4000(K)
-goto 900
-340 continue
-ErrMin = E4000(K)
-ErrMax = E5000(K)
-goto 900
-350 continue
-ErrMin = E5000(K)
-ErrMax = E6000(K)
-goto 900
-360 continue
-ErrMin = E6000(K)
-ErrMax = E7000(K)
-goto 900
-370 continue
-ErrMin = E7000(K)
-ErrMax = E8000(K)
-goto 900
-380 continue
-ErrMin = E8000(K)
-ErrMax = E9000(K)
-goto 900
-390 continue
-ErrMin = E9000(K)
-ErrMax = E10000(K)
-goto 900
-410 continue
-ErrMin = E10000(K)
-ErrMax = ERMax(K)
-
-900 continue
-write(IW,'(/A/)') ' Check the accuracy of the convergence'
-write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',RList(InitR),'Maximum error = ',ErrMin
-write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',R,'Maximum error = ',Error
-write(IW,'(A,F10.3,2X,A,E18.9E2/)') ' R =',RList(InitR+1),'Maximum error = ',ErrMax
-if ((Error > ErrMin) .and. (Error < ErrMax)) then
-  write(IW,'(A)') ' Convergence is GOOD.'
-  Change = .false.
-else
-  write(IW,'(A)') ' Convergence is not good.'
-  InitR = InitR+1
-  Change = .true.
+if (.not. Skip) then
+  write(IW,'(/A/)') ' Check the accuracy of the convergence'
+  write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',RList(InitR),'Maximum error = ',ErrMin
+  write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',R,'Maximum error = ',Error
+  write(IW,'(A,F10.3,2X,A,E18.9E2/)') ' R =',RList(InitR+1),'Maximum error = ',ErrMax
+  if ((Error > ErrMin) .and. (Error < ErrMax)) then
+    write(IW,'(A)') ' Convergence is GOOD.'
+    Change = .false.
+  else
+    write(IW,'(A)') ' Convergence is not good.'
+    InitR = InitR+1
+    Change = .true.
+  end if
 end if
 
-999 continue
 return
 
 end subroutine ChkAcc

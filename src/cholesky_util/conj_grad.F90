@@ -106,21 +106,20 @@ call daxpy_(lVector,-Alfa,AP(1),1,R(1),1)
 Res = sqrt(ddot_(lVector,R(1),1,R(1),1))
 if (Res < Tolerance) then
   Done = .true.
-  goto 100
+else
+
+  ! Now we calculate z_k+1 =
+  do i=1,lVector
+    Z(i) = R(i)*Prec(i)
+  end do
+
+  ! Now we calculate beta = (r_k+1 * z_k+1) / (r_k * z_k)
+  Beta = ddot_(lVector,R(1),1,Z(1),1)/ddot_(lVector,RTemp(1),1,ZTemp(1),1)
+
+  ! Now we calculate P_k+1
+  call dcopy_(lVector,Z(1),1,P(1),1)
+  call daxpy_(lVector,Beta,PTemp(1),1,P(1),1)
+
 end if
-
-! Now we calculate z_k+1 =
-do i=1,lVector
-  Z(i) = R(i)*Prec(i)
-end do
-
-! Now we calculate beta = (r_k+1 * z_k+1) / (r_k * z_k)
-Beta = ddot_(lVector,R(1),1,Z(1),1)/ddot_(lVector,RTemp(1),1,ZTemp(1),1)
-
-! Now we calculate P_k+1
-call dcopy_(lVector,Z(1),1,P(1),1)
-call daxpy_(lVector,Beta,PTemp(1),1,P(1),1)
-
-100 return
 
 end subroutine Conj_Grad

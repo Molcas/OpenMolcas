@@ -45,11 +45,10 @@ do I=1,IDimEnd
   if (A >= B) then
     write(IW,'(A,I3)') 'The sign of T is wrong at I =',I
     NG = .true.
-    goto 999
+    exit
   end if
 end do
 
-999 continue
 return
 
 end subroutine CkAltT

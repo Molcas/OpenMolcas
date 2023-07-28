@@ -196,7 +196,8 @@ do iSym=1,nSym
       write(u6,*) 'Dimension     : ',nDim
       write(u6,*) 'MxQual        : ',MxQual
       irc = -99
-      Go To 1 ! exit
+      call Finish_this()
+      return
     end if
 #   endif
 
@@ -229,14 +230,16 @@ do iSym=1,nSym
                   irc)
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
-        Go To 1 ! exit...
+        call Finish_this()
+        return
       end if
     else
       call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),Restart,Thr,Span,MxQual,Diag(kOffD),Qual,Buf,iPivot,iQual,nDim,lBuf, &
                         ErrStat,nMP2Vec(iSym),irc)
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoDec_MxVec returned ',irc,'   Symmetry block: ',iSym
-        Go To 1 ! exit...
+        call Finish_this()
+        return
       end if
     end if
     XMn = ErrStat(1)
@@ -261,7 +264,8 @@ do iSym=1,nSym
       end if
       write(u6,'(A,A,A,A)') SecNam,': decomposition of ',Option,' failed!'
       irc = -9999
-      Go To 1 ! exit
+      call Finish_this()
+      return
     end if
 
     ! If requested, check decomposition.
@@ -294,7 +298,8 @@ do iSym=1,nSym
           if (Failed) then
             write(u6,*) '==> DECOMPOSITION FAILURE <=='
             irc = -9999
-            Go To 1 ! exit
+            call Finish_this()
+            return
           else
             write(u6,*) '==> DECOMPOSITION SUCCESS <=='
           end if
@@ -338,16 +343,25 @@ do iSym=1,nSym
 
 end do
 
-1 continue
-if (irc /= 0) then ! make sure files are closed before exit
-  do iSym=1,nSym
-    do iTyp=1,2
-      call ChoMP2_OpenF(2,iTyp,iSym)
-    end do
-  end do
-end if
+call Finish_this()
 
-call mma_deallocate(Bin)
-call mma_deallocate(ErrStat)
+contains
+
+subroutine Finish_this()
+
+  integer(kind=iwp) :: iSym, iTyp
+
+  if (irc /= 0) then ! make sure files are closed before exit
+    do iSym=1,nSym
+      do iTyp=1,2
+        call ChoMP2_OpenF(2,iTyp,iSym)
+      end do
+    end do
+  end if
+
+  call mma_deallocate(Bin)
+  call mma_deallocate(ErrStat)
+
+end subroutine Finish_this
 
 end subroutine ChoMP2_DecDrv

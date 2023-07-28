@@ -26,13 +26,12 @@ integer(kind=iwp) :: nSym, nBatch, LnT1am(nSym,nBatch), LnPQprod(nSym,nBatch), N
 #include "chomp2_cfg.fh"
 integer(kind=iwp) :: iBatch, iSym, jBatch, LiPQRSprod(8), LiT2am(8), LnPQRSprod, LnT2am, Nai, NumV
 real(kind=wp) :: xDiff, xDim, xInt, xLeft, xMem, xNeed
-logical(kind=iwp) :: Accepted
 
 if (Mem < 1) then
-  Accepted = .false.
-  Go To 1 ! exit
+  ChoMP2_Setup_MemChk = .false.
+  return
 else
-  Accepted = .true.
+  ChoMP2_Setup_MemChk = .true.
 end if
 
 if (Laplace .and. SOS_MP2) then
@@ -46,14 +45,14 @@ if (Laplace .and. SOS_MP2) then
   end do
   xLeft = xMem-xNeed
   if (xLeft < Zero) then
-    Accepted = .false.
-    Go To 1 ! exit
+    ChoMP2_Setup_MemChk = .false.
+    return
   end if
 else
   do iSym=1,nSym
     if (nFrac(iSym) < 1) then
-      Accepted = .false.
-      Go To 1 ! exit
+      ChoMP2_Setup_MemChk = .false.
+      return
     end if
   end do
   xMem = real(mem,kind=wp)
@@ -68,8 +67,8 @@ else
       end if
       xLeft = xMem-xInt
       if ((xInt < One) .or. (xLeft < One)) then
-        Accepted = .false.
-        Go To 1 ! exit
+        ChoMP2_Setup_MemChk = .false.
+        return
       end if
       do iSym=1,nSym
         if (iBatch == jBatch) then
@@ -93,14 +92,12 @@ else
         xNeed = xDim*real(NumV,kind=wp)
         xDiff = xLeft-xNeed
         if (xDiff < One) then
-          Accepted = .false.
-          Go To 1 ! exit
+          ChoMP2_Setup_MemChk = .false.
+          return
         end if
       end do
     end do
   end do
 end if
-
-1 ChoMP2_Setup_MemChk = Accepted
 
 end function ChoMP2_Setup_MemChk

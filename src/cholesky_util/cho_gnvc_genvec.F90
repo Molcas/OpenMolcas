@@ -169,130 +169,130 @@ do iPass=iPass1,iPass2
 
   do iSym=1,nSym
 
-    if (nVecRS(iSym,iPass) < 1) Go To 100 ! cycle sym. loop
+    if (nVecRS(iSym,iPass) >= 1) then
 
-    ! Generate vectors for this pass and symmetry.
-    ! --------------------------------------------
+      ! Generate vectors for this pass and symmetry.
+      ! --------------------------------------------
 
-    do iV=1,nVecRS(iSym,iPass)
-
-      kOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
-
-      iVec = iVecRS(iSym,iPass)+iV-1
-      iAB = InfVec(iVec,1,iSym) ! addr in 1st red. set
-
-      XC = Diag(iAB)
-      if (abs(Diag(iAB)) > 1.0e-14_wp) then ! TODO/FIXME
-        Fac = One/sqrt(abs(Diag(iAB)))
-      else
-        Fac = 1.0e7_wp
-      end if
-      kOff = kOff0+1
-      call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
-
-      do i=1,nnBstR(iSym,2)
-        ii = iiBstR(iSym,2)+i
-        jj = IndRed(ii,2)
-        if (Diag(jj) == Zero) xInt(kOff0+i) = Zero
-      end do
-
-      do i=1,nnBstR(iSym,2)
-        ii = iiBstR(iSym,2)+i
-        jj = IndRed(ii,2)
-        Diag(jj) = Diag(jj)-xInt(kOff0+i)*xInt(kOff0+i)
-      end do
-
-      olDiag = Diag(iAB)
-      Diag(iAB) = Zero
-      call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
-      nNZTot = nNZTot+nNeg
-
-      kOff1 = kOff0+1
-      do jV=iV+1,nVecRS(iSym,iPass)
-        jVec = iVecRS(iSym,iPass)+jV-1
-        jAB = InfVec(jVec,1,iSym)
-        kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)
-        Fac = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
-        call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,xInt(kOff2),1)
-      end do
-
-      call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
-
-      if (iPrint >= INF_PROGRESS) then
-        iVecT = NumChT+iV
-        write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
-      end if
-
-    end do
-
-    ! Subtract contributions to later vectors.
-    ! ----------------------------------------
-
-    nAB = nQual(iSym)
-    do jPass=iPass1,iPass
-      nAB = nAB-nVecRS(iSym,jPass)
-    end do
-    if (nAB > 0) then
-      ip_Scr = 1
-      iP = iPass
-      jVec0 = -1
-      do while ((iP < iPass2) .and. (jVec0 < 0))
-        iP = iP+1
-        jVec0 = iVecRS(iSym,iP)-1
-      end do
-      if (jVec0 < 0) call Cho_Quit('jVec0 < 0 in '//SecNam,103) ! should never happen
       do iV=1,nVecRS(iSym,iPass)
-        kOff1 = ip_Scr+nAB*(iV-1)-1
-        kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
-        do iAB=1,nAB
-          jVec = jVec0+iAB
+
+        kOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
+
+        iVec = iVecRS(iSym,iPass)+iV-1
+        iAB = InfVec(iVec,1,iSym) ! addr in 1st red. set
+
+        XC = Diag(iAB)
+        if (abs(Diag(iAB)) > 1.0e-14_wp) then ! TODO/FIXME
+          Fac = One/sqrt(abs(Diag(iAB)))
+        else
+          Fac = 1.0e7_wp
+        end if
+        kOff = kOff0+1
+        call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
+
+        do i=1,nnBstR(iSym,2)
+          ii = iiBstR(iSym,2)+i
+          jj = IndRed(ii,2)
+          if (Diag(jj) == Zero) xInt(kOff0+i) = Zero
+        end do
+
+        do i=1,nnBstR(iSym,2)
+          ii = iiBstR(iSym,2)+i
+          jj = IndRed(ii,2)
+          Diag(jj) = Diag(jj)-xInt(kOff0+i)*xInt(kOff0+i)
+        end do
+
+        olDiag = Diag(iAB)
+        Diag(iAB) = Zero
+        call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
+        nNZTot = nNZTot+nNeg
+
+        kOff1 = kOff0+1
+        do jV=iV+1,nVecRS(iSym,iPass)
+          jVec = iVecRS(iSym,iPass)+jV-1
           jAB = InfVec(jVec,1,iSym)
-          kAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-          VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
+          kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)
+          Fac = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
+          call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,xInt(kOff2),1)
         end do
+
+        call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
+
+        if (iPrint >= INF_PROGRESS) then
+          iVecT = NumChT+iV
+          write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
+        end if
+
       end do
-      kOff1 = iOff1(iSym)
-      kOff2 = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
-      call DGEMM_('N','T',nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),-One,xInt(kOff1),nnBstR(iSym,2),VecTmp,nAB,One,xInt(kOff2), &
-                  nnBstR(iSym,2))
-    end if
 
-    ! Reorder vectors to appropriate reduced set.
-    ! Skipped for iPass1, as they are already in correct storage.
-    ! -----------------------------------------------------------
+      ! Subtract contributions to later vectors.
+      ! ----------------------------------------
 
-    if (iPass > iPass1) then
-      lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
-      call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
-      do iV=1,nVecRS(iSym,iPass)
-        kOff0 = iOff2(iSym)+nnBstR(iSym,3)*(iV-1)-1
-        lOff0 = nnBstR(iSym,2)*(iV-1)
-        do kAB=1,nnBstR(iSym,3)
-          jAB = IndRed(iiBstR(iSym,3)+kAB,3)
-          lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-          xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
+      nAB = nQual(iSym)
+      do jPass=iPass1,iPass
+        nAB = nAB-nVecRS(iSym,jPass)
+      end do
+      if (nAB > 0) then
+        ip_Scr = 1
+        iP = iPass
+        jVec0 = -1
+        do while ((iP < iPass2) .and. (jVec0 < 0))
+          iP = iP+1
+          jVec0 = iVecRS(iSym,iP)-1
         end do
-      end do
+        if (jVec0 < 0) call Cho_Quit('jVec0 < 0 in '//SecNam,103) ! should never happen
+        do iV=1,nVecRS(iSym,iPass)
+          kOff1 = ip_Scr+nAB*(iV-1)-1
+          kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
+          do iAB=1,nAB
+            jVec = jVec0+iAB
+            jAB = InfVec(jVec,1,iSym)
+            kAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+            VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
+          end do
+        end do
+        kOff1 = iOff1(iSym)
+        kOff2 = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
+        call DGEMM_('N','T',nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),-One,xInt(kOff1),nnBstR(iSym,2),VecTmp,nAB,One,xInt(kOff2), &
+                    nnBstR(iSym,2))
+      end if
+
+      ! Reorder vectors to appropriate reduced set.
+      ! Skipped for iPass1, as they are already in correct storage.
+      ! -----------------------------------------------------------
+
+      if (iPass > iPass1) then
+        lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
+        call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
+        do iV=1,nVecRS(iSym,iPass)
+          kOff0 = iOff2(iSym)+nnBstR(iSym,3)*(iV-1)-1
+          lOff0 = nnBstR(iSym,2)*(iV-1)
+          do kAB=1,nnBstR(iSym,3)
+            jAB = IndRed(iiBstR(iSym,3)+kAB,3)
+            lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+            xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
+          end do
+        end do
+      end if
+
+      ! Update vector counters.
+      ! -----------------------
+
+      NumCho(iSym) = NumCho(iSym)+nVecRS(iSym,iPass)
+      NumChT = NumChT+nVecRS(iSym,iPass)
+
+      ! Update pointer arrays.
+      ! iOff1: pointer to integral columns (in xInt).
+      ! iOff2: pointer to vectors (also in xInt).
+      ! ---------------------------------------------
+
+      iOff1(iSym) = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
+      iOff2(iSym) = iOff2(iSym)+nnBstR(iSym,3)*nVecRS(iSym,iPass)
     end if
-
-    ! Update vector counters.
-    ! -----------------------
-
-    NumCho(iSym) = NumCho(iSym)+nVecRS(iSym,iPass)
-    NumChT = NumChT+nVecRS(iSym,iPass)
-
-    ! Update pointer arrays.
-    ! iOff1: pointer to integral columns (in xInt).
-    ! iOff2: pointer to vectors (also in xInt).
-    ! ---------------------------------------------
-
-    iOff1(iSym) = iOff1(iSym)+nnBstR(iSym,2)*nVecRS(iSym,iPass)
-    iOff2(iSym) = iOff2(iSym)+nnBstR(iSym,3)*nVecRS(iSym,iPass)
 
     ! Cycle point for empty symmetry.
     ! -------------------------------
 
-100 continue
     if (iPrint >= INF_PROGRESS) call Cho_Flush(Lupri)
 
   end do ! symmetry

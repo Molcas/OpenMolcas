@@ -280,16 +280,16 @@ do iIter=1,nIter
 
   call Conj_Grad(Done,lCGVec,Wrk(kDiag(1)),Wrk(kCGVec(7)),Wrk(kCGVec(8)),Wrk(kCGVec(3)),Wrk(kCGVec(4)),Wrk(kCGVec(5)), &
                  Wrk(kCGVec(6)),Wrk(kCGVec(1)),Wrk(kCGVec(2)),Wrk(kCGVec(9)),Eps,Res)
-  if (Done) Go To 100
+  if (Done) exit
 end do
-write(u6,*) '***************WARNING************************'
-write(u6,*) ''
-write(u6,*) 'Too many iterations, this is what you get after:'
-write(u6,*) nIter,' Iterations'
-write(u6,*) 'The residual is',res,'and not',Eps
-write(u6,*) '**********************************************'
-
-100 continue
+if (.not. Done) then
+  write(u6,*) '***************WARNING************************'
+  write(u6,*) ''
+  write(u6,*) 'Too many iterations, this is what you get after:'
+  write(u6,*) nIter,' Iterations'
+  write(u6,*) 'The residual is',res,'and not',Eps
+  write(u6,*) '**********************************************'
+end if
 
 ! Construct MP2 Density contribution from parts of the matrix
 ! -----------------------------------------------------------
@@ -520,49 +520,38 @@ do iBat=1,nBatL
 
   ! Construct U^J intermediate vectors
   ! ----------------------------------
-  if (NumVec*nMoMo(iSym,iVecOO) == 0) Go To 101
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOO),One,Wrk(kPij(iSym)),1,Wrk(kLij),nMoMo(iSym,iVecOO),One,Wrk(kU),1)
-101 continue
+  if (NumVec*nMoMo(iSym,iVecOO) /= 0) call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOO),One,Wrk(kPij(iSym)),1,Wrk(kLij), &
+                                                  nMoMo(iSym,iVecOO),One,Wrk(kU),1)
 
-  if (NumVec*nMoMo(iSym,iVecFO) == 0) Go To 102
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFO),Two,Wrk(kPiK(iSym)),1,Wrk(kLKi),nMoMo(iSym,iVecFO),One,Wrk(kU),1)
-102 continue
+  if (NumVec*nMoMo(iSym,iVecFO) /= 0) call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFO),Two,Wrk(kPiK(iSym)),1,Wrk(kLKi), &
+                                                  nMoMo(iSym,iVecFO),One,Wrk(kU),1)
 
-  if (NumVec*nMoMo(iSym,iVecOV) == 0) Go To 103
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOV),Two,Wrk(kPai(iSym)),1,Wrk(kLia),nMoMo(iSym,iVecOV),One,Wrk(kU),1)
-103 continue
+  if (NumVec*nMoMo(iSym,iVecOV) /= 0) call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecOV),Two,Wrk(kPai(iSym)),1,Wrk(kLia), &
+                                                  nMoMo(iSym,iVecOV),One,Wrk(kU),1)
 
-  if (NumVec*nMoMo(iSym,iVecFV) == 0) Go To 104
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFV),Two,Wrk(kPaK(iSym)),1,Wrk(kLfa),nMoMo(iSym,iVecFV),One,Wrk(kU),1)
-104 continue
+  if (NumVec*nMoMo(iSym,iVecFV) /= 0) call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecFV),Two,Wrk(kPaK(iSym)),1,Wrk(kLfa), &
+                                                  nMoMo(iSym,iVecFV),One,Wrk(kU),1)
 
-  if (NumVec*nMoMo(iSym,iVecVV) == 0) Go To 105
-  call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecVV),One,Wrk(kPab(iSym)),1,Wrk(kLab),nMoMo(iSym,iVecVV),One,Wrk(kU),1)
-105 continue
+  if (NumVec*nMoMo(iSym,iVecVV) /= 0) call dGemm_('N','N',1,NumVec,nMoMo(iSym,iVecVV),One,Wrk(kPab(iSym)),1,Wrk(kLab), &
+                                                  nMoMo(iSym,iVecVV),One,Wrk(kU),1)
 
   ! Construct contribution to Wij
   ! -----------------------------
 
-  if (nMoMo(iSym,iVecOO) == 0) Go To 111
-  call dGemm_('N','N',nMoMo(iSym,iVecOO),1,NumVec,-Two,Wrk(kLij),nMoMo(iSym,iVecOO),Wrk(kU),NumVec,One,Wrk(kWij(iSym)), &
-              nMoMo(iSym,iVecOO))
-111 continue
+  if (nMoMo(iSym,iVecOO) /= 0) call dGemm_('N','N',nMoMo(iSym,iVecOO),1,NumVec,-Two,Wrk(kLij),nMoMo(iSym,iVecOO),Wrk(kU),NumVec, &
+                                           One,Wrk(kWij(iSym)),nMoMo(iSym,iVecOO))
 
   ! Construct Contribution to WiK
   ! -----------------------------
 
-  if (nMoMo(iSym,iVecOF) == 0) Go To 112
-  call dGemm_('N','N',nMoMo(iSym,iVecOF),1,NumVec,-Four,Wrk(kLKi),nMoMo(iSym,iVecOF),Wrk(kU),NumVec,One,Wrk(kWiK(iSym)), &
-              nMoMo(iSym,iVecOF))
-112 continue
+  if (nMoMo(iSym,iVecOF) /= 0) call dGemm_('N','N',nMoMo(iSym,iVecOF),1,NumVec,-Four,Wrk(kLKi),nMoMo(iSym,iVecOF),Wrk(kU),NumVec, &
+                                           One,Wrk(kWiK(iSym)),nMoMo(iSym,iVecOF))
 
   ! Construct Contribution to WJK
   ! -----------------------------
 
-  if (nMoMo(iSym,iVecFF) == 0) Go To 113
-  call dGemm_('N','N',nMoMo(iSym,iVecFF),1,NumVec,-Two,Wrk(kLJK),nMoMo(iSym,iVecFF),Wrk(kU),NumVec,One,Wrk(kWJK(iSym)), &
-              nMoMo(iSym,iVecFF))
-113 continue
+  if (nMoMo(iSym,iVecFF) /= 0) call dGemm_('N','N',nMoMo(iSym,iVecFF),1,NumVec,-Two,Wrk(kLJK),nMoMo(iSym,iVecFF),Wrk(kU),NumVec, &
+                                           One,Wrk(kWJK(iSym)),nMoMo(iSym,iVecFF))
 
 end do
 

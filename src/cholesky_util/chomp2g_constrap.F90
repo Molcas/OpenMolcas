@@ -238,11 +238,11 @@ do iBat=1,nBatL
         nP = nOrb1(iSymP,1)
         nQ = nOrb1(iSymQ,2)
         nR = nOrb1(iSymI,3)
-        if (nQ*nP*nI*nR == 0) Go To 101
-        iOffL = (iVec1-1)*nIQ+iOffL1
-        iOffY = (iVec1-1)*nIP+iOffY1
-        call dGemm_('T','N',nP,nI,nQ,One,Dens(1+iOffP(iSymP)),nQ,Scr(kLiq+iOffL),nQ,Zero,Scr(kY+iOffY),nP)
-101     continue
+        if (nQ*nP*nI*nR /= 0) then
+          iOffL = (iVec1-1)*nIQ+iOffL1
+          iOffY = (iVec1-1)*nIP+iOffY1
+          call dGemm_('T','N',nP,nI,nQ,One,Dens(1+iOffP(iSymP)),nQ,Scr(kLiq+iOffL),nQ,Zero,Scr(kY+iOffY),nP)
+        end if
         iOffL1 = iOffL1+nQ*nI
         iOffY1 = iOffY1+nP*nI
       end do
@@ -267,11 +267,11 @@ do iBat=1,nBatL
         nP = nOrb1(iSymP,1)
         nQ = nOrb1(iSymQ,2)
         nR = nOrb1(iSymI,3)
-        if (nQ*nP*nI*nR == 0) Go To 102
-        iOffL = (iVec1-1)*nIP+iOffL1
-        iOffZ = (iVec1-1)*nIQ+iOffZ1
-        call dGemm_('N','N',nQ,nI,nP,One,Dens(1+iOffP(iSymQ)),nQ,Scr(kLip+iOffL),nP,Zero,Scr(kZ+iOffZ),nQ)
-102     continue
+        if (nQ*nP*nI*nR /= 0) then
+          iOffL = (iVec1-1)*nIP+iOffL1
+          iOffZ = (iVec1-1)*nIQ+iOffZ1
+          call dGemm_('N','N',nQ,nI,nP,One,Dens(1+iOffP(iSymQ)),nQ,Scr(kLip+iOffL),nP,Zero,Scr(kZ+iOffZ),nQ)
+        end if
         iOffL1 = iOffL1+nP*nI
         iOffZ1 = iOffZ1+nQ*nI
       end do
@@ -351,11 +351,11 @@ do iBat=1,nBatL
         nP = nOrb1(iSymP,1)
         nQ = nOrb1(iSymP,2)
 
-        if (nI*nR*nP*nQ == 0) Go To 201
-        iOffL = (iVec1-1)*nRP+iOffL1
-        iOffY = (iVec1-1)*nIP+iOffY1
-        call dGemm_('T','N',nR,nI,nP,-yfactor,Scr(kLrp+iOffL),nP,Scr(kY+iOffY),nP,One,Ap(1+iOffAP(iSymI)),nR)
-201     continue
+        if (nI*nR*nP*nQ /= 0) then
+          iOffL = (iVec1-1)*nRP+iOffL1
+          iOffY = (iVec1-1)*nIP+iOffY1
+          call dGemm_('T','N',nR,nI,nP,-yfactor,Scr(kLrp+iOffL),nP,Scr(kY+iOffY),nP,One,Ap(1+iOffAP(iSymI)),nR)
+        end if
         iOffL1 = iOffL1+nR*nP
         iOffY1 = iOffY1+nI*nP
       end do
@@ -383,11 +383,11 @@ do iBat=1,nBatL
         nR = nOrb1(iSymR,3)
         nQ = nOrb1(iSymQ,2)
         nP = nOrb1(iSymQ,1)
-        if (nI*nR*nQ*nP == 0) Go To 202
-        iOffL = (iVec1-1)*nRQ+iOffL1
-        iOffZ = (iVec1-1)*nIQ+iOffZ1
-        call dGemm_('T','N',nR,nI,nQ,-factor,Scr(kLrq+iOffL),nQ,Scr(kZ+iOffZ),nQ,One,Ap(1+iOffAP(iSymI)),nR)
-202     continue
+        if (nI*nR*nQ*nP /= 0) then
+          iOffL = (iVec1-1)*nRQ+iOffL1
+          iOffZ = (iVec1-1)*nIQ+iOffZ1
+          call dGemm_('T','N',nR,nI,nQ,-factor,Scr(kLrq+iOffL),nQ,Scr(kZ+iOffZ),nQ,One,Ap(1+iOffAP(iSymI)),nR)
+        end if
         iOffL1 = iOffL1+nR*nQ
         iOffZ1 = iOffZ1+nI*nQ
       end do

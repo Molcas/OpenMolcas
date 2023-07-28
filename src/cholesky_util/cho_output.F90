@@ -61,8 +61,8 @@ integer(kind=iwp), parameter :: KCOLN = 6, KCOLP = 4
 real(kind=wp), parameter :: FFMAX = 1.0e3_wp, FFMIN = 1.0e-3_wp
 character(len=*), parameter :: ASA(3) = [' ','0','-'], BLNK = ' ', COLUMN = 'Column  '
 
-if (ROWHI < ROWLOW) GO TO 3
-if (COLHI < COLLOW) GO TO 3
+if (ROWHI < ROWLOW) return
+if (COLHI < COLLOW) return
 
 AMAX = Zero
 do J=COLLOW,COLHI
@@ -72,43 +72,43 @@ do J=COLLOW,COLHI
 end do
 if (AMAX == Zero) then
   write(LUPRI,'(/T6,A)') 'Zero matrix.'
-  GO TO 3
-end if
-if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
-  ! use F output format
-  PFMT = '(A1,I7,2X,8F15.8)'
 else
-  ! use 1PD output format
-  PFMT = '(A1,I7,2X,1P,8D15.6)'
-end if
+  if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
+    ! use F output format
+    PFMT = '(A1,I7,2X,8F15.8)'
+  else
+    ! use 1PD output format
+    PFMT = '(A1,I7,2X,1P,8D15.6)'
+  end if
 
-if (NCTL < 0) then
-  KCOL = KCOLN
-else
-  KCOL = KCOLP
-end if
-MCTL = abs(NCTL)
-if ((MCTL <= 3) .and. (MCTL > 0)) then
-  CTL = ASA(MCTL)
-else
-  CTL = BLNK
-end if
+  if (NCTL < 0) then
+    KCOL = KCOLN
+  else
+    KCOL = KCOLP
+  end if
+  MCTL = abs(NCTL)
+  if ((MCTL <= 3) .and. (MCTL > 0)) then
+    CTL = ASA(MCTL)
+  else
+    CTL = BLNK
+  end if
 
-LAST = min(COLHI,COLLOW+KCOL-1)
-do BEGIN=COLLOW,COLHI,KCOL
-  write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
-  do K=ROWLOW,ROWHI
-    do I=BEGIN,LAST
-      if (AMATRX(K,I) /= Zero) GO TO 5
+  LAST = min(COLHI,COLLOW+KCOL-1)
+  do BEGIN=COLLOW,COLHI,KCOL
+    write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
+    do K=ROWLOW,ROWHI
+      do I=BEGIN,LAST
+        if (AMATRX(K,I) /= Zero) then
+          write(LUPRI,PFMT) CTL,K,(AMATRX(K,J),J=BEGIN,LAST)
+          exit
+        end if
+      end do
     end do
-    GO TO 1
-5   write(LUPRI,PFMT) CTL,K,(AMATRX(K,I),I=BEGIN,LAST)
-1   continue
+    LAST = min(LAST+KCOL,COLHI)
   end do
-  LAST = min(LAST+KCOL,COLHI)
-end do
+end if
 
-3 return
+return
 
 1000 format(/12X,6(3X,A6,I4,2X),(3X,A6,I4))
 !2000 format(A1,'Row',I4,2X,1P,8D15.6)

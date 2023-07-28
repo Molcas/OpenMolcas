@@ -219,76 +219,77 @@ do iSym=1,nSym
   ! Cycle loop if nothing to do in this symmetry.
   ! ---------------------------------------------
 
-  if (nQual(iSym) < 1) Go To 100
+  if (nQual(iSym) >= 1) then
 
-  ! Set vector information.
-  ! -----------------------
+    ! Set vector information.
+    ! -----------------------
 
-  call Cho_P_SetVecInf(nQual(iSym),iSym,iPass)
+    call Cho_P_SetVecInf(nQual(iSym),iSym,iPass)
 
-  ! Allocate memory for integrals/vectors.
-  ! --------------------------------------
+    ! Allocate memory for integrals/vectors.
+    ! --------------------------------------
 
-  l_xInt = max(nnBstR(iSym,2)*nQual(iSym),1)
-  call mma_allocate(xInt,l_xInt,Label='xInt')
+    l_xInt = max(nnBstR(iSym,2)*nQual(iSym),1)
+    call mma_allocate(xInt,l_xInt,Label='xInt')
 
-  if (nnBstR(iSym,2) > 0) then
+    if (nnBstR(iSym,2) > 0) then
 
-    ! Read integral columns from disk, ordered according to IDK.
-    ! ----------------------------------------------------------
+      ! Read integral columns from disk, ordered according to IDK.
+      ! ----------------------------------------------------------
+
+      call Cho_Timer(C1,W1)
+      call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),nQual(iSym),LuSel(iSym))
+      call Cho_Timer(C2,W2)
+      tDecom(1,1) = tDecom(1,1)+C2-C1
+      tDecom(2,1) = tDecom(2,1)+W2-W1
+
+      ! Compute vectors.
+      ! ----------------
+
+      call mma_maxDBLE(l_Wrk1)
+      call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
+
+      call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),Wrk1,size(Wrk1),iSym,iPass)
+
+      call mma_deallocate(Wrk1)
+
+      ! Write vectors to disk and update vector counters.
+      ! -------------------------------------------------
+
+      call Cho_Timer(C1,W1)
+      iVec1 = NumCho(iSym)+1
+      call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),iVec1,iSym)
+      call Cho_VecBuf_Copy(xInt,nQual(iSym),iSym)
+      NumCho(iSym) = NumCho(iSym)+nQual(iSym)
+      NumChT = NumChT+nQual(iSym)
+      call Cho_Timer(C2,W2)
+      tDecom(1,2) = tDecom(1,2)+C2-C1
+      tDecom(2,2) = tDecom(2,2)+W2-W1
+
+    end if
+
+    ! Transpose vectors on disk (parallel only).
+    ! ------------------------------------------
 
     call Cho_Timer(C1,W1)
-    call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),nQual(iSym),LuSel(iSym))
-    call Cho_Timer(C2,W2)
-    tDecom(1,1) = tDecom(1,1)+C2-C1
-    tDecom(2,1) = tDecom(2,1)+W2-W1
-
-    ! Compute vectors.
-    ! ----------------
-
-    call mma_maxDBLE(l_Wrk1)
-    call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
-
-    call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),Wrk1,size(Wrk1),iSym,iPass)
-
-    call mma_deallocate(Wrk1)
-
-    ! Write vectors to disk and update vector counters.
-    ! -------------------------------------------------
-
-    call Cho_Timer(C1,W1)
-    iVec1 = NumCho(iSym)+1
-    call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),iVec1,iSym)
-    call Cho_VecBuf_Copy(xInt,nQual(iSym),iSym)
-    NumCho(iSym) = NumCho(iSym)+nQual(iSym)
-    NumChT = NumChT+nQual(iSym)
+    iRed = 2
+    Jin = NumV(iSym)+1
+    Jfi = NumV(iSym)+nQual(iSym)
+    call Cho_P_VecTransp(xInt,Jin,Jfi,iSym,iRed,iPass)
     call Cho_Timer(C2,W2)
     tDecom(1,2) = tDecom(1,2)+C2-C1
     tDecom(2,2) = tDecom(2,2)+W2-W1
 
+    ! Deallocate memory for integrals/vectors.
+    ! ----------------------------------------
+
+    call mma_deallocate(xInt)
+
   end if
-
-  ! Transpose vectors on disk (parallel only).
-  ! ------------------------------------------
-
-  call Cho_Timer(C1,W1)
-  iRed = 2
-  Jin = NumV(iSym)+1
-  Jfi = NumV(iSym)+nQual(iSym)
-  call Cho_P_VecTransp(xInt,Jin,Jfi,iSym,iRed,iPass)
-  call Cho_Timer(C2,W2)
-  tDecom(1,2) = tDecom(1,2)+C2-C1
-  tDecom(2,2) = tDecom(2,2)+W2-W1
-
-  ! Deallocate memory for integrals/vectors.
-  ! ----------------------------------------
-
-  call mma_deallocate(xInt)
 
   ! Empty symmetry blocks jump here.
   ! --------------------------------
 
-100 continue
   kV = kV+nQual(iSym)**2
   kI = kI+nQual_Old(iSym)
   kQD = kQD+nQual_Old(iSym)

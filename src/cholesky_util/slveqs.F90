@@ -37,7 +37,7 @@ do I=1,N
       Temp = A(K,J)*A(K,J)
       S = S+Temp
     end do
-    if (S == Zero) goto 999
+    if (S == Zero) return
     S = sqrt(S)
     SInv = One/S
     B(K) = B(K)*SInv
@@ -65,7 +65,7 @@ do I=1,N
     B(I) = B(K)
     B(K) = S
   end if
-  if ((abs(P) < G_Eps) .and. (P == Zero)) goto 999
+  if ((abs(P) < G_Eps) .and. (P == Zero)) return
 
   PInv = One/P
   B(I) = B(I)*PInv
@@ -98,7 +98,6 @@ end do
 
 Error = .true.
 
-999 continue
 return
 
 end subroutine SlvEqs

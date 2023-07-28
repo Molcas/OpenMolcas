@@ -25,8 +25,8 @@ logical(kind=iwp), intent(in) :: Diagonalize
 #include "corbinf.fh"
 integer(kind=iwp) :: indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
-real*8, allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
-                       Energies(:), MOTriBlock(:), TmpRecBlock(:)
+real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
+                              Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), allocatable :: IndT(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 ! Statement function

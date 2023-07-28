@@ -60,14 +60,13 @@ call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,2,3)
 DoDiag = .false.
 do iMoType=1,3
   do jMOType=1,3
-    if ((iMoType == 2) .and. (jMoType == 3)) Go To 50
+    if ((iMoType == 2) .and. (jMoType == 3)) cycle
 
     call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMOType,jMOType)
     ! Transform vectors.
     ! ------------------
     call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType,jMoType)
 
-50  continue
   end do
 end do
 

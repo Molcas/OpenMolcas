@@ -89,7 +89,7 @@ do while (iPass < mPass)
 
     if (nQual < 1) then ! this would be a bug...
       irc = 301
-      Go To 1  ! exit
+      return ! exit
     end if
 
     ! Get qualified columns from external routine.
@@ -106,7 +106,7 @@ do while (iPass < mPass)
       nVec = min(NumCho,lBuf/MinBuf)
       if (nVec < 1) then  ! insufficient buffer size
         irc = 302
-        Go To 1 ! exit
+        return ! exit
       else
         nBatch = (NumCho-1)/nVec+1
       end if
@@ -201,7 +201,7 @@ do while (iPass < mPass)
           if (Diag(i) < ThrNeg) then
             if (Diag(i) < ThrFail) then
               irc = 303
-              Go To 1 ! exit (too negative diagonal)
+              return ! exit (too negative diagonal)
             else
               Diag(i) = Zero
             end if
@@ -258,7 +258,5 @@ do while (iPass < mPass)
   end if
 
 end do
-
-1 continue
 
 end subroutine CD_Decomposer

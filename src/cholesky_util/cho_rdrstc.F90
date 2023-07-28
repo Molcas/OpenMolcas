@@ -49,7 +49,8 @@ XNNSHL = JSCR(3)
 if ((XNSYM < 1) .or. (XNSYM > 8)) then
   write(LUPRI,'(A,A,I10)') SECNAM,': #irreps from restart file: ',XNSYM
   IFAIL = 1
-  GO TO 100
+  call Finish_this()
+  return
 else
   IOPT = 2
   call IDAFILE(LURST,IOPT,XNBAS,XNSYM,IADR)
@@ -68,7 +69,8 @@ else if (JSCR(1) == 1) then
 else
   write(LUPRI,'(A,A,I10)') SECNAM,': integer flag for screening not recognized:',JSCR(1)
   IFAIL = 2
-  GO TO 100
+  call Finish_this()
+  return
 end if
 XCHO_ADRVEC = JSCR(2)
 
@@ -94,7 +96,8 @@ XNPASS = JSCR(1)
 if ((XNPASS < 1) .or. (XNPASS > MAXRED)) then
   write(LUPRI,'(A,A,I10)') SECNAM,': #reduced sets in restart:',XNPASS
   IFAIL = 3
-  GO TO 100
+  call Finish_this()
+  return
 else
   IOPT = 2
   INFRED(:) = 0
@@ -102,7 +105,8 @@ else
   if (INFRED(1) /= 0) then
     write(LUPRI,'(A,A,I10)') SECNAM,': disk address of 1st reduced set:',INFRED(1)
     IFAIL = 4
-    GO TO 100
+    call Finish_this()
+    return
   end if
 end if
 
@@ -114,7 +118,8 @@ do ISYM=1,NSYM
   if ((NUMCHO(ISYM) < 0) .or. (NUMCHO(ISYM) > MAXVEC)) then
     write(LUPRI,'(A,A,I2,A,I10)') SECNAM,': #Cholesky vectors (sym.',ISYM,'): ',NUMCHO(ISYM)
     IFAIL = 5
-    GO TO 100
+    call Finish_this()
+    return
   else if (NUMCHO(ISYM) == 0) then
     INFVEC(:,:,ISYM) = 0
   else
@@ -126,7 +131,15 @@ do ISYM=1,NSYM
   end if
 end do
 
-100 continue ! failures jump to this point
-if (IFAIL /= 0) write(LUPRI,'(A,A)') SECNAM,': refusing to read more restart info!'
+call Finish_this()
+
+contains
+
+! failures jump to this point
+subroutine Finish_this()
+
+  if (IFAIL /= 0) write(LUPRI,'(A,A)') SECNAM,': refusing to read more restart info!'
+
+end subroutine Finish_this
 
 end subroutine CHO_RDRSTC

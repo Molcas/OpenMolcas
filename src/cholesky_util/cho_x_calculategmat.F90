@@ -101,7 +101,8 @@ call Cho_CGM_InfVec(InfVcT,NVT,size(NVT))
 call Cho_X_RSCopy(irc,1,2)
 if (irc /= 0) then
   irc = 1
-  Go To 1 ! exit
+  call Finish_this()
+  return
 end if
 
 ! Calculate triangular G matrix.
@@ -137,7 +138,9 @@ do iSym=1,nSym
     call Cho_X_VecRd(Wrk,size(Wrk),KK1,NumCho(iSym),iSym,nVRead,iRedC,mUsed)
     if (nVRead < 1) then
       irc = 2
-      Go To 1 ! exit after deallocation
+      ! exit after deallocation
+      call Finish_this()
+      return
     end if
     kOffV = 0
     do KKK=0,nVRead-1
@@ -147,7 +150,9 @@ do iSym=1,nSym
         call Cho_X_SetRed(irc,iLoc,iRed)
         if (irc /= 0) then
           irc = 3
-          Go To 1 ! exit after deallocation
+          ! exit after deallocation
+          call Finish_this()
+          return
         end if
         iRedC = iRed
       end if
@@ -185,7 +190,14 @@ do iSym=1,nSym
   call DAClos(lUnit)
 end do
 
-1 continue
-call mma_deallocate(NVT)
+call Finish_this()
+
+contains
+
+subroutine Finish_this()
+
+  call mma_deallocate(NVT)
+
+end subroutine Finish_this
 
 end subroutine Cho_X_CalculateGMat

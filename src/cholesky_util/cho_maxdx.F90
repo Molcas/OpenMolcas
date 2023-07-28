@@ -34,7 +34,7 @@ call mma_allocate(ExQ,MxQ,Label='ExQ')
 do jSym=1,nSym
 
   Dmax(jSym) = Zero
-  if (nQual(jSym) < 1) goto 10  ! next symm
+  if (nQual(jSym) < 1) cycle  ! next symm
 
   do iQ=1,nQual(jSym)
     iab = IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
@@ -54,8 +54,6 @@ do jSym=1,nSym
     iab = IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
     Diag(iab) = ExQ(iQ)
   end do
-
-10 continue
 
 end do
 

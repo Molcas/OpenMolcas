@@ -66,10 +66,10 @@ if (iSyCho == 1) then
     do iSym=nSym,2,-1
       if (iAlpha > iBas(iSym)) then
         iSymAl = iSym
-        Go To 998
+        exit
       end if
     end do
-998 iSymBe = iSymAl
+    iSymBe = iSymAl
     iSymi = MulD2h(iSymBe,iSyCO)
 
     jAlpha = iAlpha-iBas(iSymAl)
@@ -97,10 +97,10 @@ else
     do iSym=nSym,2,-1
       if (iAlpha > iBas(iSym)) then
         iSymAl = iSym
-        Go To 999
+        exit
       end if
     end do
-999 iSymBe = MulD2h(iSymAl,iSyCho)
+    iSymBe = MulD2h(iSymAl,iSyCho)
 
     jAlpha = iAlpha-iBas(iSymAl)
     jBeta = iBeta-iBas(iSymBe)

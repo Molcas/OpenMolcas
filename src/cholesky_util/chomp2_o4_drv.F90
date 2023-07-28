@@ -40,11 +40,11 @@ real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: a, ai, i, iSym, iSyma, iSymb, iSymi, iTyp, kD0, kD1, kD2, lDiag, lU_AO(8)
-real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Diff, Ei, FracMem, &
-                 WallBT1, WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
+real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Ei, FracMem, WallBT1, &
+                 WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
 logical(kind=iwp) :: Delete, DoAmpDiag
 character(len=3) ::BaseName_AO
-real*8, allocatable :: Check(:), Diag(:)
+real(kind=wp), allocatable :: Check(:), Diag(:)
 integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
@@ -86,14 +86,16 @@ end if
 call ChoMP2_Setup(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_Setup returned ',irc
-  Go To 1  ! exit
+  call Finish_this()
+  return
 end if
 
 if (Verbose) then
   call ChoMP2_Setup_Prt(irc)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
-    Go To 1  ! exit
+    call Finish_this()
+    return
   end if
   call CWTime(CPUIni2,WallIni2)
   call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
@@ -116,7 +118,8 @@ call mma_allocate(Diag,lDiag,Label='Diag')
 call ChoMP2_TraDrv(irc,CMO,Diag,.true.)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-  Go To 1  ! exit
+  call Finish_this()
+  return
 end if
 kD0 = 0
 do iSym=1,nSym
@@ -217,7 +220,8 @@ end if
 call Cho_X_Final(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Final returned ',irc
-  Go To 1 ! exit
+  call Finish_this()
+  return
 end if
 
 ! Close and delete files containing backtransformed amplitude vectors.
@@ -227,20 +231,28 @@ do iSym=1,nSym
   call daEras(lU_AO(iSym))
 end do
 
+call Finish_this()
+
+contains
+
 ! Exit.
 ! -----
+subroutine Finish_this()
 
-1 continue
-Diff = abs(Check(1)-Chk_Mem_ChoMP2)
-if (Diff > Tol) then
-  write(u6,*) SecNam,': Memory Boundary Error!'
-  if (irc == 0) irc = -9999
-end if
-if (Verbose) then
-  call CWTime(CPUTot2,WallTot2)
-  call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
-end if
+  real(kind=wp) :: Diff
 
-call mma_deallocate(Check)
+  Diff = abs(Check(1)-Chk_Mem_ChoMP2)
+  if (Diff > Tol) then
+    write(u6,*) SecNam,': Memory Boundary Error!'
+    if (irc == 0) irc = -9999
+  end if
+  if (Verbose) then
+    call CWTime(CPUTot2,WallTot2)
+    call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+  end if
+
+  call mma_deallocate(Check)
+
+end subroutine Finish_this
 
 end subroutine ChoMP2_O4_Drv

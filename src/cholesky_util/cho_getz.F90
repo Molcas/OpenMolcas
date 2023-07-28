@@ -169,7 +169,7 @@ call Cho_X_RSCopy(irc,1,2)
 if (irc /= 0) then
   write(LuPri,'(A,A,I5)') SecNam,': Cho_X_RSCopy returned code',irc
   irc = 1
-  Go To 1 ! exit after deallocation
+  return ! exit
 end if
 
 ! Get Z vectors.
@@ -191,7 +191,7 @@ do iSym=1,nSym
     call Cho_X_VecRd(Wrk,size(Wrk),KK1,NumCho(iSym),iSym,nVRead,iRedC,mUsed)
     if (nVRead < 1) then
       irc = 2
-      Go To 1 ! exit after deallocation
+      return ! exit
     end if
     call Cho_Timer(C1,W1)
     tDecom(1,2) = tDecom(1,2)+(C1-C0)
@@ -205,7 +205,7 @@ do iSym=1,nSym
         call Cho_X_SetRed(irc,iLoc,iRed)
         if (irc /= 0) then
           irc = 3
-          Go To 1 ! exit after deallocation
+          return ! exit
         end if
         iRedC = iRed
       end if
@@ -283,17 +283,15 @@ do iSym=1,nSym
 end do
 if (n /= 0) then
   irc = 20
-  Go To 1 ! return
+  return ! return
 end if
 ! Check diagonal elements
 call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV12,ip_Z,l_Z1,l_Z2,Z,l_Z,iPrint >= myDebugInfo)
-if (irc /= 0) Go To 1 ! return
+if (irc /= 0) return ! return
 #endif
 
 ! Exit. If error termination.
-! -----------------------------------------------
-
-1 continue
+! ---------------------------
 
 #ifndef _DEBUGPRINT_
 ! Avoid unused argument warnings

@@ -42,40 +42,40 @@ NumV = 0
 if (dimens < 1) then
   rc = -1
   write(u6,*) 'matrix size < 1'
-  Go To 10
+else
+
+  ! Step 1: diagonalize MAT. MAT is destroyed and replaced by the eigenvectors values.
+  ! IMPORTANT: At this stage eigenvec is used as scratch.
+  call mma_allocate(eigenval,dimens,Label='eigenval')
+  call eigen_molcas(dimens,MAT,eigenval,eigenvec)
+  ! Move MAT to eigenvec. where it belongs. I could not wait!
+  call dcopy_(dimens**2,MAT,1,eigenvec,1)
+  ! Set to zero negative eigenvalue and to TWO values larger than 2.0.
+  ! Count only the positive ones (counter NumV)
+  do j=1,dimens
+    if (eigenval(j) > 1.0e-12_wp) then
+      NumV = NumV+1
+      if (eigenval(j) > Two) eigenval(j) = Two
+    else
+    eigenval(j) = Zero
+    end if
+  end do
+  ! Sort eigenvalues in decreasing order of occupation number
+  call IncrSort(eigenval,eigenvec,dimens)
+  ! Compute sqrt(eigenvalues)
+  do i=1,dimens
+    eigenval(i) = sqrt(eigenval(i))
+  end do
+  ! Generate Y = X(D**0.5)
+  do j=1,dimens
+    do i=1,dimens
+      eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
+    end do
+  end do
+  call mma_deallocate(eigenval)
+
 end if
 
-! Step 1: diagonalize MAT. MAT is destroyed and replaced by the eigenvectors values.
-! IMPORTANT: At this stage eigenvec is used as scratch.
-call mma_allocate(eigenval,dimens,Label='eigenval')
-call eigen_molcas(dimens,MAT,eigenval,eigenvec)
-! Move MAT to eigenvec. where it belongs. I could not wait!
-call dcopy_(dimens**2,MAT,1,eigenvec,1)
-! Set to zero negative eigenvalue and to TWO values larger than 2.0.
-! Count only the positive ones (counter NumV)
-do j=1,dimens
-  if (eigenval(j) > 1.0e-12_wp) then
-    NumV = NumV+1
-    if (eigenval(j) > Two) eigenval(j) = Two
-  else
-    eigenval(j) = Zero
-  end if
-end do
-! Sort eigenvalues in decreasing order of occupation number
-call IncrSort(eigenval,eigenvec,dimens)
-! Compute sqrt(eigenvalues)
-do i=1,dimens
-  eigenval(i) = sqrt(eigenval(i))
-end do
-! Generate Y = X(D**0.5)
-do j=1,dimens
-  do i=1,dimens
-    eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
-  end do
-end do
-call mma_deallocate(eigenval)
-!***************** Exit ****************
-10 continue
 return
 
 end subroutine DecoMat

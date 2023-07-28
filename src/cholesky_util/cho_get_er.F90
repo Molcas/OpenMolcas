@@ -113,7 +113,7 @@ do JRED=JRED1,JRED2
 
   call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-  if (nVrs == 0) goto 999
+  if (nVrs == 0) cycle
 
   if (nVrs < 0) then
     write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
@@ -233,8 +233,6 @@ do JRED=JRED1,JRED2
   call mma_deallocate(VJ)
   call mma_deallocate(Lab)
   call mma_deallocate(Dab)
-
-999 continue
 
 end do   ! loop over red sets
 

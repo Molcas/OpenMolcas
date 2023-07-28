@@ -66,95 +66,96 @@ if (DoDiag) call dCopy_(nAB_Tot,[Zero],0,Diag,1)
 kDiag = 0
 do iSym=1,nSym
 
-  if (nAB(iSym) < 1) Go To 100     ! cycle loop
-  if (nMP2Vec(iSym) < 1) Go To 100 ! cycle loop
+  if ((nAB(iSym) >= 1) .and. (nMP2Vec(iSym) >= 1)) then
 
-  iOpt = 1
-  call ChoMP2_OpenF(iOpt,iTyp,iSym)
-  write(FullName_AO,'(A3,I1)') BaseName_AO,iSym
-  lU_AO = 7
-  call daName_MF_WA(lU_AO,FullName_AO)
+    iOpt = 1
+    call ChoMP2_OpenF(iOpt,iTyp,iSym)
+    write(FullName_AO,'(A3,I1)') BaseName_AO,iSym
+    lU_AO = 7
+    call daName_MF_WA(lU_AO,FullName_AO)
 
-  call mma_allocate(AOVec,nAB(iSym),Label='AOVec')
-  call mma_allocate(Temp,nT1AOT(iSym),Label='Temp')
-  call mma_allocate(MOVec,nT1Am(iSym),Label='MOVec')
+    call mma_allocate(AOVec,nAB(iSym),Label='AOVec')
+    call mma_allocate(Temp,nT1AOT(iSym),Label='Temp')
+    call mma_allocate(MOVec,nT1Am(iSym),Label='MOVec')
 
-  call mma_maxDBLE(l_Buf)
-  if (l_Buf < nAB(iSym)) then
-    call ChoMP2_Quit(SecNam,'Insufficient memory!',' ')
-  else
-    call mma_allocate(Buf,l_Buf,Label='Buf')
-  end if
-  MaxInCore = min(l_Buf/nAB(iSym),nMP2Vec(iSym))
+    call mma_maxDBLE(l_Buf)
+    if (l_Buf < nAB(iSym)) then
+      call ChoMP2_Quit(SecNam,'Insufficient memory!',' ')
+    else
+      call mma_allocate(Buf,l_Buf,Label='Buf')
+    end if
+    MaxInCore = min(l_Buf/nAB(iSym),nMP2Vec(iSym))
 
-  nVecOnDisk = 0
-  nVecInCore = 0
-  do iVec=1,nMP2Vec(iSym)
+    nVecOnDisk = 0
+    nVecInCore = 0
+    do iVec=1,nMP2Vec(iSym)
 
+      iOpt = 2
+      iAdr = nT1Am(iSym)*(iVec-1)+1
+      lVec = nT1Am(iSym)
+      call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,iAdr)
+
+      do iSymi=1,nSym
+        iSyma = MulD2h(iSymi,iSym)
+        iSymAl = iSyma
+        kCVir = iAOVir(iSymAl,iSyma)+1
+        kMOVec = 1+iT1Am(iSyma,iSymi)
+        kTemp = 1+iT1AOT(iSymi,iSymAl)
+        na = max(nVir(iSyma),1)
+        nAl = max(nBas(iSymAl),1)
+        ni = max(nOcc(iSymi),1)
+        call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),One,MOVec(kMOVec),na,CVir(kCVir),nAl,Zero,Temp(kTemp),ni)
+      end do
+
+      do iSymBe=1,nSym
+        iSymAl = MulD2h(iSymBe,iSym)
+        iSymi = iSymBe
+        kTemp = 1+iT1AOT(iSymi,iSymAl)
+        kCOcc = iT1AOT(iSymi,iSymBe)+1
+        kAOVec = 1+iAB(iSymAl,iSymBe)
+        ni = max(nOcc(iSymi),1)
+        nAl = max(nBas(iSymAl),1)
+        call DGEMM_('T','N',nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),One,Temp(kTemp),ni,COcc(kCOcc),ni,Zero,AOVec(kAOVec),nAl)
+      end do
+
+      if (DoDiag) then
+        do AlBe=1,nAB(iSym)
+          kD = kDiag+AlBe
+          Diag(kD) = Diag(kD)+AOVec(AlBe)**2
+        end do
+      end if
+
+      call dCopy_(nAB(iSym),AOVec,1,Buf(1+nVecInCore),MaxInCore)
+      nVecInCore = nVecInCore+1
+
+      if ((nVecInCore == MaxInCore) .or. (iVec == nMP2Vec(iSym))) then
+        do AlBe=1,nAB(iSym)
+          iOpt = 1
+          iAdr = nMP2Vec(iSym)*(AlBe-1)+nVecOnDisk+1
+          lVec = nVecInCore
+          call ddaFile(lU_AO,iOpt,Buf(1+MaxInCore*(AlBe-1)),lVec,iAdr)
+        end do
+        nVecOnDisk = nVecOnDisk+nVecInCore
+        nVecInCore = 0
+      end if
+
+    end do
+#   ifdef _DEBUGPRINT_
+    if ((nVecOnDisk /= nMP2Vec(iSym)) .or. (nVecInCore /= 0)) call ChoMP2_Quit(SecNam,'Logical bug detected!',' [1]')
+#   endif
+
+    call mma_deallocate(Buf)
+    call mma_deallocate(MOVec)
+    call mma_deallocate(Temp)
+    call mma_deallocate(AOVec)
+
+    call daClos(lU_AO)
     iOpt = 2
-    iAdr = nT1Am(iSym)*(iVec-1)+1
-    lVec = nT1Am(iSym)
-    call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,iAdr)
+    call ChoMP2_OpenF(iOpt,iTyp,iSym)
 
-    do iSymi=1,nSym
-      iSyma = MulD2h(iSymi,iSym)
-      iSymAl = iSyma
-      kCVir = iAOVir(iSymAl,iSyma)+1
-      kMOVec = 1+iT1Am(iSyma,iSymi)
-      kTemp = 1+iT1AOT(iSymi,iSymAl)
-      na = max(nVir(iSyma),1)
-      nAl = max(nBas(iSymAl),1)
-      ni = max(nOcc(iSymi),1)
-      call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),One,MOVec(kMOVec),na,CVir(kCVir),nAl,Zero,Temp(kTemp),ni)
-    end do
+  end if
 
-    do iSymBe=1,nSym
-      iSymAl = MulD2h(iSymBe,iSym)
-      iSymi = iSymBe
-      kTemp = 1+iT1AOT(iSymi,iSymAl)
-      kCOcc = iT1AOT(iSymi,iSymBe)+1
-      kAOVec = 1+iAB(iSymAl,iSymBe)
-      ni = max(nOcc(iSymi),1)
-      nAl = max(nBas(iSymAl),1)
-      call DGEMM_('T','N',nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),One,Temp(kTemp),ni,COcc(kCOcc),ni,Zero,AOVec(kAOVec),nAl)
-    end do
-
-    if (DoDiag) then
-      do AlBe=1,nAB(iSym)
-        kD = kDiag+AlBe
-        Diag(kD) = Diag(kD)+AOVec(AlBe)**2
-      end do
-    end if
-
-    call dCopy_(nAB(iSym),AOVec,1,Buf(1+nVecInCore),MaxInCore)
-    nVecInCore = nVecInCore+1
-
-    if ((nVecInCore == MaxInCore) .or. (iVec == nMP2Vec(iSym))) then
-      do AlBe=1,nAB(iSym)
-        iOpt = 1
-        iAdr = nMP2Vec(iSym)*(AlBe-1)+nVecOnDisk+1
-        lVec = nVecInCore
-        call ddaFile(lU_AO,iOpt,Buf(1+MaxInCore*(AlBe-1)),lVec,iAdr)
-      end do
-      nVecOnDisk = nVecOnDisk+nVecInCore
-      nVecInCore = 0
-    end if
-
-  end do
-# ifdef _DEBUGPRINT_
-  if ((nVecOnDisk /= nMP2Vec(iSym)) .or. (nVecInCore /= 0)) call ChoMP2_Quit(SecNam,'Logical bug detected!',' [1]')
-# endif
-
-  call mma_deallocate(Buf)
-  call mma_deallocate(MOVec)
-  call mma_deallocate(Temp)
-  call mma_deallocate(AOVec)
-
-  call daClos(lU_AO)
-  iOpt = 2
-  call ChoMP2_OpenF(iOpt,iTyp,iSym)
-
-  100 continue ! cycle loop point
+  ! cycle loop point
 
   if (DoDiag) kDiag = kDiag+nAB(iSym)
 

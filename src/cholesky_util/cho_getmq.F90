@@ -38,7 +38,7 @@ call mma_allocate(kOff_Shp,nnShl,Label='kOff_Shp')
 iQoff = 0
 do jSym=1,nSym
 
-  if (nQual(jSym) < 1) goto 10 ! next symmetry
+  if (nQual(jSym) < 1) cycle ! next symmetry
 
   Lint = 0
   do iShp=1,nQShp  ! set only the needed offsets
@@ -87,8 +87,6 @@ do jSym=1,nSym
   iQoff = iQoff+nQual(jSym)**2
 
   call mma_deallocate(Scr)
-
-10 continue
 
 end do
 

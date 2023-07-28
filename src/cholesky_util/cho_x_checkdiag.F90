@@ -108,68 +108,68 @@ end if
 call Cho_X_CalcChoDiag(irc,CD)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
-  Go To 1 ! return after dealloc
-end if
+else
 
-! Print histogram of Cholesky diagonal and get statistics.
-! --------------------------------------------------------
+  ! Print histogram of Cholesky diagonal and get statistics.
+  ! --------------------------------------------------------
 
-if (iPrint >= iPrThr) then
-  call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,u6)
-  call Cho_AnaSize(CD,size(CD),Bin,size(Bin),u6)
-  call Statistics(CD,size(CD),Stat,1,2,3,4,5,6,7)
-  call Cho_PrtSt(CD,size(CD),Stat)
-end if
-
-! Subtract Cholesky diagonal from exact diagonal.
-! -----------------------------------------------
-
-call dAXPY_(nnBstRT(1),-One,CD,1,XD,1)
-
-! Print histogram of difference array and get statistics.
-! -------------------------------------------------------
-
-if (iPrint >= iPrThr) then
-  call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,u6)
-  call Cho_AnaSize(XD,size(XD),Bin,size(Bin),u6)
-end if
-call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
-if (iPrint >= iPrThr) call Cho_PrtSt(XD,size(XD),Stat)
-
-! Set Err array.
-! --------------
-
-Err(1) = Stat(3)
-Err(2) = Stat(4)
-Err(3) = Stat(1)
-Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
-
-if (iPrint >= iPrThr) then
-  write(u6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
-  write(u6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
-  write(u6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
-  write(u6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
-end if
-
-! Error analysis for the 1-center diagonals only.
-! If this is a one-center calculation, use statistics from 1-center
-! diagonals only as elements of Err array.
-! -----------------------------------------------------------------
-
-if (nSym == 1) then
-  call OneCenter_ChkDiag(XD,size(XD),Stat,iPrint >= iPrThr)
-  if (Cho_1Center) then
-    Err(1) = Stat(3)
-    Err(2) = Stat(4)
-    Err(3) = Stat(1)
-    Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
+  if (iPrint >= iPrThr) then
+    call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,u6)
+    call Cho_AnaSize(CD,size(CD),Bin,size(Bin),u6)
+    call Statistics(CD,size(CD),Stat,1,2,3,4,5,6,7)
+    call Cho_PrtSt(CD,size(CD),Stat)
   end if
+
+  ! Subtract Cholesky diagonal from exact diagonal.
+  ! -----------------------------------------------
+
+  call dAXPY_(nnBstRT(1),-One,CD,1,XD,1)
+
+  ! Print histogram of difference array and get statistics.
+  ! -------------------------------------------------------
+
+  if (iPrint >= iPrThr) then
+    call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,u6)
+    call Cho_AnaSize(XD,size(XD),Bin,size(Bin),u6)
+  end if
+  call Statistics(XD,size(XD),Stat,1,2,3,4,5,6,7)
+  if (iPrint >= iPrThr) call Cho_PrtSt(XD,size(XD),Stat)
+
+  ! Set Err array.
+  ! --------------
+
+  Err(1) = Stat(3)
+  Err(2) = Stat(4)
+  Err(3) = Stat(1)
+  Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
+
+  if (iPrint >= iPrThr) then
+    write(u6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
+    write(u6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
+    write(u6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
+    write(u6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
+  end if
+
+  ! Error analysis for the 1-center diagonals only.
+  ! If this is a one-center calculation, use statistics from 1-center
+  ! diagonals only as elements of Err array.
+  ! -----------------------------------------------------------------
+
+  if (nSym == 1) then
+    call OneCenter_ChkDiag(XD,size(XD),Stat,iPrint >= iPrThr)
+    if (Cho_1Center) then
+      Err(1) = Stat(3)
+      Err(2) = Stat(4)
+      Err(3) = Stat(1)
+      Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/real(nnBstRT(1),kind=wp))
+    end if
+  end if
+
 end if
 
 ! Deallocations.
 ! --------------
 
-1 continue
 call mma_deallocate(Stat)
 call mma_deallocate(Bin)
 call mma_deallocate(CD)

@@ -51,22 +51,21 @@ character(len=*), parameter :: SecNam = 'CD_InCore_p_w'
 
 irc = 0
 NumCho = 0
-if (n < 1) Go To 1 ! exit (nothing to do)
-if (Thr < Zero) Thr = DefThr
+if (n >= 1) then
+  if (Thr < Zero) Thr = DefThr
 
-do k=1,n
-  if (Wg(k) < Zero) then
-    write(u6,*) SecNam//': negative weights!'
-    call Abend()
+  do k=1,n
+    if (Wg(k) < Zero) then
+      write(u6,*) SecNam//': negative weights!'
+      call Abend()
+    end if
+  end do
+
+  if (MxVec > 0) then
+    call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
+  else
+    irc = -1
   end if
-end do
-
-if (MxVec > 0) then
-  call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
-else
-  irc = -1
 end if
-
-1 continue
 
 end subroutine CD_InCore_p_w

@@ -24,20 +24,16 @@ integer(kind=iwp) :: L, LA
 
 ! ----- ZERO OUT VECTOR -A-, USING INCREMENT -INCA- -----
 
-if (INCA /= 1) GO TO 100
-do L=1,N
-  A(L) = Zero
-end do
-
-return
-
-100 continue
-LA = 1-INCA
-do L=1,N
-  LA = LA+INCA
-  A(LA) = Zero
-end do
-
-return
+if (INCA /= 1) then
+  LA = 1-INCA
+  do L=1,N
+    LA = LA+INCA
+    A(LA) = Zero
+  end do
+else
+  do L=1,N
+    A(L) = Zero
+  end do
+end if
 
 end subroutine LVCLR

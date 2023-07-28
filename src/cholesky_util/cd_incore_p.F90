@@ -47,15 +47,14 @@ real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -
 
 irc = 0
 NumCho = 0
-if (n < 1) Go To 1 ! exit (nothing to do)
-if (Thr < Zero) Thr = DefThr
+if (n >= 1) then
+  if (Thr < Zero) Thr = DefThr
 
-if (MxVec > 0) then
-  call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
-else
-  irc = -1
+  if (MxVec > 0) then
+    call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
+  else
+    irc = -1
+  end if
 end if
-
-1 continue
 
 end subroutine CD_InCore_p

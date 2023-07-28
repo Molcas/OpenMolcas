@@ -212,587 +212,483 @@ IPRINT = IPRINT-1
 ! ------------------------
 
 FORCEPARALLEL = .false.
-if (DFONLY) GO TO 2000
+if (.not. DFONLY) then
 
-! Loop through keyword input.
-! ---------------------------
-
-1000 continue
-
-! Read next keyword and get corresponding ID.
-! -------------------------------------------
-
-IDKEY = 0
-call CHO_MCA_GETKEY(LUNIT,OPTION,len(OPTION),NOPTION,IDKEY,LUPRI)
-
-if ((IDKEY >= 1) .and. (IDKEY <= NOPTION)) then  ! key found
-
-  ! Branch for further processing.
-  ! ------------------------------
-
-  if (IDKEY == 1) GO TO 1
-  if (IDKEY == 2) GO TO 2
-  if (IDKEY == 3) GO TO 3
-  if (IDKEY == 4) GO TO 4
-  if (IDKEY == 5) GO TO 5
-  if (IDKEY == 6) GO TO 6
-  if (IDKEY == 7) GO TO 7
-  if (IDKEY == 8) GO TO 8
-  if (IDKEY == 9) GO TO 9
-  if (IDKEY == 10) GO TO 10
-  if (IDKEY == 11) GO TO 11
-  if (IDKEY == 12) GO TO 12
-  if (IDKEY == 13) GO TO 13
-  if (IDKEY == 14) GO TO 14
-  if (IDKEY == 15) GO TO 15
-  if (IDKEY == 16) GO TO 16
-  if (IDKEY == 17) GO TO 17
-  if (IDKEY == 18) GO TO 18
-  if (IDKEY == 19) GO TO 19
-  if (IDKEY == 20) GO TO 20
-  if (IDKEY == 21) GO TO 21
-  if (IDKEY == 22) GO TO 22
-  if (IDKEY == 23) GO TO 23
-  if (IDKEY == 24) GO TO 24
-  if (IDKEY == 25) GO TO 25
-  if (IDKEY == 26) GO TO 26
-  if (IDKEY == 27) GO TO 27
-  if (IDKEY == 28) GO TO 28
-  if (IDKEY == 29) GO TO 29
-  if (IDKEY == 30) GO TO 30
-  if (IDKEY == 31) GO TO 31
-  if (IDKEY == 32) GO TO 32
-  if (IDKEY == 33) GO TO 33
-  if (IDKEY == 34) GO TO 34
-  if (IDKEY == 35) GO TO 35
-  if (IDKEY == 36) GO TO 36
-  if (IDKEY == 37) GO TO 37
-  if (IDKEY == 38) GO TO 38
-  if (IDKEY == 39) GO TO 39
-  if (IDKEY == 40) GO TO 40
-  if (IDKEY == 41) GO TO 41
-  if (IDKEY == 42) GO TO 42
-  if (IDKEY == 43) GO TO 43
-  if (IDKEY == 44) GO TO 44
-  if (IDKEY == 45) GO TO 45
-  if (IDKEY == 46) GO TO 46
-  if (IDKEY == 47) GO TO 47
-  if (IDKEY == 48) GO TO 48
-  if (IDKEY == 49) GO TO 49
-  if (IDKEY == 50) GO TO 50
-  if (IDKEY == 51) GO TO 51
-  if (IDKEY == 52) GO TO 52
-  if (IDKEY == 53) GO TO 53
-  if (IDKEY == 54) GO TO 54
-  if (IDKEY == 55) GO TO 55
-  if (IDKEY == 56) GO TO 56
-  if (IDKEY == 57) GO TO 57
-  if (IDKEY == 58) GO TO 58
-
-  ! If this section is executed, it's most likely a bug.
-  ! ----------------------------------------------------
-
-  write(LUPRI,*) 'IDKEY = ',IDKEY,' is formally legal, but:'
-  write(LUPRI,*) 'Did you forget to change the computed goto in ',SECNAM,'?'
-  call CHO_QUIT('Illegal address in computed GOTO in '//SECNAM,105)
-
-  ! Read decomposition threshold.
-  ! -----------------------------
-
-1 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,THRCOM)
-  GO TO 1000
-
-  ! Read print level.
-  ! -----------------
-
-2 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,IPRINT)
-  GO TO 1000
-
-  ! Read buffer length for diagonal calculation.
-  ! --------------------------------------------
-
-3 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,LBUF)
-  GO TO 1000
-
-  ! Read threshold for discarding initial diagonal elements.
-  ! --------------------------------------------------------
-
-4 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,THRDIAG)
-  GO TO 1000
-
-  ! Read damping factor for 1st reduced set.
-  ! ----------------------------------------
-
-5 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,DAMP(1))
-  GO TO 1000
-
-  ! Read damping factor for later reduced set.
-  ! ------------------------------------------
-
-6 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,DAMP(2))
-  GO TO 1000
-
-  ! Read span factor.
-  ! -----------------
-
-7 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,SPAN)
-  SPAN = min(abs(SPAN),One)
-  GO TO 1000
-
-  ! Read minimum number of qualifieds for decomposition.
-  ! ----------------------------------------------------
-
-8 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MINQUAL)
-  GO TO 1000
-
-  ! Read maximum number of shell pair distributions that should
-  ! be calculated before passing to decomposition.
-  ! -----------------------------------------------------------
-
-9 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MXSHPR)
-  GO TO 1000
-
-  ! Turn on screening.
-  ! ------------------
-
-10 continue
-  SCDIAG = .true.
-  GO TO 1000
-
-  ! Turn off screening.
-  ! -------------------
-
-11 continue
-  SCDIAG = .false.
-  GO TO 1000
-
-  ! Read algorithm ID for qualification procedure,
-  ! 1: qualify from 1 to max.
-  ! 2: qualify the largest qualifiables
-  ! ----------------------------------------------
-
-12 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,IALQUA)
-  GO TO 1000
-
-  ! Read threshold for zeroing (small) negative diagonals.
-  ! Diag < THRNEG => Diag = 0.
-  ! ------------------------------------------------------
-
-13 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,THRNEG)
-  GO TO 1000
-
-  ! Read threshold for warning about negative diagonals.
-  ! Diag < WARNEG => Diag = 0, but issue warning.
-  ! ----------------------------------------------------
-
-14 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,WARNEG)
-  GO TO 1000
-
-  ! Read threshold for shutdown due to negative diagonals.
-  ! Diag < TOONEG => shutdown.
-  ! ------------------------------------------------------
-
-15 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,TOONEG)
-  GO TO 1000
-
-  ! Check configuration only.
-  ! -------------------------
-
-16 continue
-  CHKONLY = .true.
-  GO TO 1000
-
-  ! Check all integrals after decomposition.
-  ! ----------------------------------------
-
-17 continue
-  CHO_INTCHK = .true.
-  CHO_MINCHK = .false.
-  NCOL_CHK = 0  ! => all
-  GO TO 1000
-
-  ! Restart diagonal.
-  ! -----------------
-
-18 continue
-  RSTDIA = .true.
-  GO TO 1000
-
-  ! Restart decomposition using default model.
-  ! ------------------------------------------
-
-19 continue
-  if (.not. RSTCHO) then
-    RSTCHO = .true.
-    MODRST = -1  ! use configuration from restart file
-  end if
-  GO TO 1000
-
-  ! Read restart model and set restart.
-  ! -----------------------------------
-
-20 continue
-  RSTCHO = .true.
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MODRST)
-  if (MODRST < 0) then
-    MODRST = -1  ! use configuration from restart file
-  else if (MODRST > 0) then
-    MODRST = 1   ! use configuration from input
-  end if
-  GO TO 1000
-
-  ! Read max. #qualifieds per symmetry.
-  ! -----------------------------------
-
-21 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MAXQUAL)
-  GO TO 1000
-
-  ! Read max. #Cholesky vectors per symmetry.
-  ! -----------------------------------------
-
-22 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MAXVEC)
-  GO TO 1000
-
-  ! Read max. #reduced sets.
-  ! ------------------------
-
-23 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,MAXRED)
-  GO TO 1000
-
-  ! Read number of integral columns to check.
-  ! -----------------------------------------
-
-24 continue
-  CHO_INTCHK = .true.
-  CHO_MINCHK = .false.
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,NCOL_CHK)
-  GO TO 1000
-
-  ! Minimal integral check.
-  ! -----------------------
-
-25 continue
-  CHO_INTCHK = .true.
-  CHO_MINCHK = .true.
-  GO TO 1000
-
-  ! Use abs. value to set up reduced sets.
-  ! --------------------------------------
-
-26 continue
-  CHO_USEABS = .true.
-  GO TO 1000
-
-  ! Do not use abs. value to set up reduced sets.
-  ! ---------------------------------------------
-
-27 continue
-  CHO_USEABS = .false.
-  GO TO 1000
-
-  ! Turn on tracing of negative diagonals.
-  ! --------------------------------------
-
-28 continue
-  CHO_TRCNEG = .true.
-  GO TO 1000
-
-  ! Read I/O model used for reading Cholesky vectors.
-  ! -------------------------------------------------
-
-29 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,CHO_IOVEC)
-  GO TO 1000
-
-  ! Set vector reordering.
-  ! ----------------------
-
-30 continue
-  CHO_REORD = .true.
-  GO TO 1000
-
-  ! Halt execution after decomposition.
-  ! -----------------------------------
-
-31 continue
-  HALTIT = .true.
-  GO TO 1000
-
-  ! Set fraction of memory to be used as vector buffer during subtraction.
-  ! ----------------------------------------------------------------------
-
-32 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I(1,INTSCR,2)
-  N1_VECRD = INTSCR(1)
-  N2_VECRD = INTSCR(2)
-  GO TO 1000
-
-  ! Set fraction of memory to be used for qualified columns.
-  ! --------------------------------------------------------
-
-33 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I(1,INTSCR,2)
-  N1_QUAL = INTSCR(1)
-  N2_QUAL = INTSCR(2)
-  GO TO 1000
-
-  ! Set max. #vectors in subtraction of prev. vectors.
-  ! --------------------------------------------------
-
-34 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,N_SUBTR)
-  GO TO 1000
-
-  ! Set address mode for vector I/O: WA (=1) or DA (=2).
-  ! ----------------------------------------------------
-
-35 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,CHO_ADRVEC)
-  GO TO 1000
-
-  ! Set model used to interface to integral code.
-  ! ---------------------------------------------
-
-36 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,IFCSEW)
-  if (IFCSEW < 1) then
-    IFCSEW = 1
-  else if (IFCSEW > 2) then
-    IFCSEW = 2
-  end if
-  GO TO 1000
-
-  ! One-step (conventional) decomposition.
-  ! --------------------------------------
-
-37 continue
-  CHO_DECALG = 1
-  DECALG_USRDEF = .true.
-  GO TO 1000
-
-  ! Two-step (generate map, then vectors) decomposition.
-  ! ----------------------------------------------------
-
-38 continue
-  CHO_DECALG = 2
-  DECALG_USRDEF = .true.
-  GO TO 1000
-
-  ! Naive decomposition (remove diagonals as soon as smaller than threshold).
-  ! -------------------------------------------------------------------------
-
-39 continue
-  CHO_DECALG = 3
-  DECALG_USRDEF = .true.
-  GO TO 1000
-
-  ! Set memory fraction used for vector buffer.
-  ! -------------------------------------------
-
-40 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,FRAC_CHVBUF)
-  GO TO 1000
-
-  ! Turn on diagonal checking of qualified columns both before
-  ! and after subtraction of previous vectors. Set tolerance in checking.
-  ! ---------------------------------------------------------------------
-
-41 continue
-  CHO_DIACHK = .true.
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,TOL_DIACHK)
-  GO TO 1000
-
-  ! Test vector subtraction screening.
-  ! ----------------------------------
-
-42 continue
-  CHO_TSTSCREEN = .true.
-  GO TO 1000
-
-  ! Use screening in vector subtraction.
-  ! ------------------------------------
-
-43 continue
-  CHO_SSCREEN = .true.
-  GO TO 1000
-
-  ! Do not use screening in vector subtraction.
-  ! -------------------------------------------
-
-44 continue
-  CHO_SSCREEN = .false.
-  GO TO 1000
-
-  ! Threshold for screening in vector subtraction.
-  ! ----------------------------------------------
-
-45 continue
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,SSTAU)
-  GO TO 1000
-
-  ! Threshold for screening in vector subtraction.
-  ! ----------------------------------------------
-
-46 continue
-  LINE = GET_LN(LUNIT)
-  call GET_S(1,SSNORM,1)
-  GO TO 1000
-
-  ! Decompose 1-center diagonals only. 2-center diagonals are
-  ! still included, but never explicitly decomposed.
-  ! ---------------------------------------------------------
-
-47 continue
-  CHO_1CENTER = .true.
-  GO TO 1000
-
-  ! Decompose 1-center diagonals only. 2-center diagonals are
-  ! never included.
-  ! ---------------------------------------------------------
-
-48 continue
-  CHO_1CENTER = .true.
-  CHO_NO2CENTER = .true.
-  GO TO 1000
-
-  ! Turn off diagonal prescreening.
-  ! -------------------------------
-
-49 continue
-  CHO_PRESCREEN = .false.
-  GO TO 1000
-
-  ! Turn on diagonal prescreening.
-  ! ------------------------------
-
-50 continue
-  CHO_PRESCREEN = .true.
-  GO TO 1000
-
-  ! Set diagonal prescreening threshold.
-  ! ------------------------------------
-
-51 continue
-  CHO_PRESCREEN = .true.
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,THR_PRESCREEN)
-  GO TO 1000
-
-  ! Use "parallel" decomposition algorithm.
-  ! ---------------------------------------
-
-52 continue
-  FORCEPARALLEL = .true.
-  GO TO 1000
-
-  ! Use "parallel" decomposition algorithm.
-  ! ---------------------------------------
-
-53 continue
-  CHO_SIMP = .true.
-  GO TO 1000
-
-  ! Simulate RI.
-  ! Activate 1-center decomposition.
-  ! Read threshold for removing 1-center diagonals in map generation.
-  ! -----------------------------------------------------------------
-
-54 continue
-  CHO_SIMRI = .true.
-  CHO_1CENTER = .true.
-  LINE = GET_LN(LUNIT)
-  call GET_F1(1,THR_SIMRI)
-  GO TO 1000
-
-  ! Activate fake parallel:
-  ! Run parallel decomposition, then distribute vectors if parallel.
-  ! ----------------------------------------------------------------
-
-55 continue
-  CHO_FAKE_PAR = .true.
-  FAKE_USRDEF = .true.
-  GO TO 1000
-
-  ! Activate true parallel decomposition (deactivate fake).
-  ! -------------------------------------------------------
-
-56 continue
-  CHO_FAKE_PAR = .false.
-  FAKE_USRDEF = .true.
-  GO TO 1000
-
-  ! Read BlockSize (Z vectors).
+  ! Loop through keyword input.
   ! ---------------------------
 
-57 continue
-  LINE = GET_LN(LUNIT)
-  call GET_I1(1,BLOCKSIZE)
-  GO TO 1000
+  do
 
-  ! Turn on tracing of idle nodes.
-  ! ------------------------------
+    ! Read next keyword and get corresponding ID.
+    ! -------------------------------------------
 
-58 continue
-  TRACE_IDLE = .true.
-  GO TO 1000
+    IDKEY = 0
+    call CHO_MCA_GETKEY(LUNIT,OPTION,len(OPTION),NOPTION,IDKEY,LUPRI)
 
-else if (IDKEY == NOPTION+1) then  ! end of input
-  GO TO 2000
-else if (IDKEY == -5) then ! some internal error
-  GO TO 1300
-else if (IDKEY == -1) then ! keyword error
-  GO TO 1200
-else  ! catch all out-of-bound errors
-  GO TO 1100
+    if ((IDKEY >= 1) .and. (IDKEY <= NOPTION)) then  ! key found
+
+      ! Branch for further processing.
+      ! ------------------------------
+
+      select case (IDKEY)
+
+        case (1)
+          ! Read decomposition threshold.
+          ! -----------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,THRCOM)
+
+        case (2)
+          ! Read print level.
+          ! -----------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,IPRINT)
+
+        case (3)
+          ! Read buffer length for diagonal calculation.
+          ! --------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,LBUF)
+
+        case (4)
+          ! Read threshold for discarding initial diagonal elements.
+          ! --------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,THRDIAG)
+
+        case (5)
+          ! Read damping factor for 1st reduced set.
+          ! ----------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,DAMP(1))
+
+        case (6)
+          ! Read damping factor for later reduced set.
+          ! ------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,DAMP(2))
+
+        case (7)
+          ! Read span factor.
+          ! -----------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,SPAN)
+          SPAN = min(abs(SPAN),One)
+
+        case (8)
+          ! Read minimum number of qualifieds for decomposition.
+          ! ----------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MINQUAL)
+
+        case (9)
+          ! Read maximum number of shell pair distributions that should
+          ! be calculated before passing to decomposition.
+          ! -----------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MXSHPR)
+
+        case (10)
+          ! Turn on screening.
+          ! ------------------
+
+          SCDIAG = .true.
+
+        case (11)
+          ! Turn off screening.
+          ! -------------------
+
+          SCDIAG = .false.
+
+        case (12)
+          ! Read algorithm ID for qualification procedure,
+          ! 1: qualify from 1 to max.
+          ! 2: qualify the largest qualifiables
+          ! ----------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,IALQUA)
+
+        case (13)
+          ! Read threshold for zeroing (small) negative diagonals.
+          ! Diag < THRNEG => Diag = 0.
+          ! ------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,THRNEG)
+
+        case (14)
+          ! Read threshold for warning about negative diagonals.
+          ! Diag < WARNEG => Diag = 0, but issue warning.
+          ! ----------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,WARNEG)
+
+        case (15)
+          ! Read threshold for shutdown due to negative diagonals.
+          ! Diag < TOONEG => shutdown.
+          ! ------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,TOONEG)
+
+        case (16)
+          ! Check configuration only.
+          ! -------------------------
+
+          CHKONLY = .true.
+
+        case (17)
+          ! Check all integrals after decomposition.
+          ! ----------------------------------------
+
+          CHO_INTCHK = .true.
+          CHO_MINCHK = .false.
+          NCOL_CHK = 0  ! => all
+
+        case (18)
+          ! Restart diagonal.
+          ! -----------------
+
+          RSTDIA = .true.
+
+        case (19)
+          ! Restart decomposition using default model.
+          ! ------------------------------------------
+
+          if (.not. RSTCHO) then
+            RSTCHO = .true.
+            MODRST = -1  ! use configuration from restart file
+          end if
+
+        case (20)
+          ! Read restart model and set restart.
+          ! -----------------------------------
+
+          RSTCHO = .true.
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MODRST)
+          if (MODRST < 0) then
+            MODRST = -1  ! use configuration from restart file
+          else if (MODRST > 0) then
+            MODRST = 1   ! use configuration from input
+          end if
+
+        case (21)
+          ! Read max. #qualifieds per symmetry.
+          ! -----------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MAXQUAL)
+
+        case (22)
+          ! Read max. #Cholesky vectors per symmetry.
+          ! -----------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MAXVEC)
+
+        case (23)
+          ! Read max. #reduced sets.
+          ! ------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,MAXRED)
+
+        case (24)
+          ! Read number of integral columns to check.
+          ! -----------------------------------------
+
+          CHO_INTCHK = .true.
+          CHO_MINCHK = .false.
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,NCOL_CHK)
+
+        case (25)
+          ! Minimal integral check.
+          ! -----------------------
+
+          CHO_INTCHK = .true.
+          CHO_MINCHK = .true.
+
+        case (26)
+          ! Use abs. value to set up reduced sets.
+          ! --------------------------------------
+
+          CHO_USEABS = .true.
+
+        case (27)
+          ! Do not use abs. value to set up reduced sets.
+          ! ---------------------------------------------
+
+          CHO_USEABS = .false.
+
+        case (28)
+          ! Turn on tracing of negative diagonals.
+          ! --------------------------------------
+
+          CHO_TRCNEG = .true.
+
+        case (29)
+          ! Read I/O model used for reading Cholesky vectors.
+          ! -------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,CHO_IOVEC)
+
+        case (30)
+          ! Set vector reordering.
+          ! ----------------------
+
+          CHO_REORD = .true.
+
+        case (31)
+          ! Halt execution after decomposition.
+          ! -----------------------------------
+
+          HALTIT = .true.
+
+        case (32)
+          ! Set fraction of memory to be used as vector buffer during subtraction.
+          ! ----------------------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I(1,INTSCR,2)
+          N1_VECRD = INTSCR(1)
+          N2_VECRD = INTSCR(2)
+
+        case (33)
+          ! Set fraction of memory to be used for qualified columns.
+          ! --------------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I(1,INTSCR,2)
+          N1_QUAL = INTSCR(1)
+          N2_QUAL = INTSCR(2)
+
+        case (34)
+          ! Set max. #vectors in subtraction of prev. vectors.
+          ! --------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,N_SUBTR)
+
+        case (35)
+          ! Set address mode for vector I/O: WA (=1) or DA (=2).
+          ! ----------------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,CHO_ADRVEC)
+
+        case (36)
+          ! Set model used to interface to integral code.
+          ! ---------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,IFCSEW)
+          if (IFCSEW < 1) then
+            IFCSEW = 1
+          else if (IFCSEW > 2) then
+            IFCSEW = 2
+          end if
+
+        case (37)
+          ! One-step (conventional) decomposition.
+          ! --------------------------------------
+
+          CHO_DECALG = 1
+          DECALG_USRDEF = .true.
+
+        case (38)
+          ! Two-step (generate map, then vectors) decomposition.
+          ! ----------------------------------------------------
+
+          CHO_DECALG = 2
+          DECALG_USRDEF = .true.
+
+        case (39)
+          ! Naive decomposition (remove diagonals as soon as smaller than threshold).
+          ! -------------------------------------------------------------------------
+
+          CHO_DECALG = 3
+          DECALG_USRDEF = .true.
+
+        case (40)
+          ! Set memory fraction used for vector buffer.
+          ! -------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,FRAC_CHVBUF)
+
+        case (41)
+          ! Turn on diagonal checking of qualified columns both before
+          ! and after subtraction of previous vectors. Set tolerance in checking.
+          ! ---------------------------------------------------------------------
+
+          CHO_DIACHK = .true.
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,TOL_DIACHK)
+
+        case (42)
+          ! Test vector subtraction screening.
+          ! ----------------------------------
+
+          CHO_TSTSCREEN = .true.
+
+        case (43)
+          ! Use screening in vector subtraction.
+          ! ------------------------------------
+
+          CHO_SSCREEN = .true.
+
+        case (44)
+          ! Do not use screening in vector subtraction.
+          ! -------------------------------------------
+
+          CHO_SSCREEN = .false.
+
+        case (45)
+          ! Threshold for screening in vector subtraction.
+          ! ----------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,SSTAU)
+
+        case (46)
+          ! Threshold for screening in vector subtraction.
+          ! ----------------------------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_S(1,SSNORM,1)
+
+        case (47)
+          ! Decompose 1-center diagonals only. 2-center diagonals are
+          ! still included, but never explicitly decomposed.
+          ! ---------------------------------------------------------
+
+          CHO_1CENTER = .true.
+
+        case (48)
+          ! Decompose 1-center diagonals only. 2-center diagonals are
+          ! never included.
+          ! ---------------------------------------------------------
+
+          CHO_1CENTER = .true.
+          CHO_NO2CENTER = .true.
+
+        case (49)
+          ! Turn off diagonal prescreening.
+          ! -------------------------------
+
+          CHO_PRESCREEN = .false.
+
+        case (50)
+          ! Turn on diagonal prescreening.
+          ! ------------------------------
+
+          CHO_PRESCREEN = .true.
+
+        case (51)
+          ! Set diagonal prescreening threshold.
+          ! ------------------------------------
+
+          CHO_PRESCREEN = .true.
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,THR_PRESCREEN)
+
+        case (52)
+          ! Use "parallel" decomposition algorithm.
+          ! ---------------------------------------
+
+          FORCEPARALLEL = .true.
+
+        case (53)
+          ! Use "parallel" decomposition algorithm.
+          ! ---------------------------------------
+
+          CHO_SIMP = .true.
+
+        case (54)
+          ! Simulate RI.
+          ! Activate 1-center decomposition.
+          ! Read threshold for removing 1-center diagonals in map generation.
+          ! -----------------------------------------------------------------
+
+          CHO_SIMRI = .true.
+          CHO_1CENTER = .true.
+          LINE = GET_LN(LUNIT)
+          call GET_F1(1,THR_SIMRI)
+
+        case (55)
+          ! Activate fake parallel:
+          ! Run parallel decomposition, then distribute vectors if parallel.
+          ! ----------------------------------------------------------------
+
+          CHO_FAKE_PAR = .true.
+          FAKE_USRDEF = .true.
+
+        case (56)
+          ! Activate true parallel decomposition (deactivate fake).
+          ! -------------------------------------------------------
+
+          CHO_FAKE_PAR = .false.
+          FAKE_USRDEF = .true.
+
+        case (57)
+          ! Read BlockSize (Z vectors).
+          ! ---------------------------
+
+          LINE = GET_LN(LUNIT)
+          call GET_I1(1,BLOCKSIZE)
+
+        case (58)
+          ! Turn on tracing of idle nodes.
+          ! ------------------------------
+
+          TRACE_IDLE = .true.
+
+        case default
+
+          ! If this section is executed, it's most likely a bug.
+          ! ----------------------------------------------------
+
+          write(LUPRI,*) 'IDKEY = ',IDKEY,' is formally legal, but:'
+          write(LUPRI,*) 'Did you forget to change the select case ',SECNAM,'?'
+          call CHO_QUIT('Illegal address in select case in '//SECNAM,105)
+
+      end select
+
+    else if (IDKEY == NOPTION+1) then  ! end of input
+      exit
+    else if (IDKEY == -5) then ! some internal error
+      write(LUPRI,*) SECNAM,': internal error detected, IDKEY = ',IDKEY
+      IRC = 103
+      call CHO_QUIT('Error in '//SECNAM,IRC)
+    else if (IDKEY == -1) then ! keyword error
+      write(LUPRI,*) SECNAM,': keyword error detected, IDKEY = ',IDKEY
+      IRC = 105
+      call CHO_QUIT('Error in '//SECNAM,IRC)
+    else  ! catch all out-of-bound errors
+      write(LUPRI,*) SECNAM,': IDKEY out of bounds: ',IDKEY
+      IRC = 104
+      call CHO_QUIT('Error in '//SECNAM,IRC)
+    end if
+  end do
 end if
 
 ! Post processing.
 ! ----------------
 
-2000 continue
 if (FAKE_USRDEF) then
   call CHO_PARCONF(CHO_FAKE_PAR) ! reset parallel configuration
   if (.not. DECALG_USRDEF) then ! reset default decomposition alg
@@ -820,28 +716,6 @@ call PUT_THR_CHO(THRCOM)
 
 ! Normal exit.
 ! ------------
-
-return
-
-! Error exits.
-! ------------
-
-1100 continue ! IDKEY out of bounds
-write(LUPRI,*) SECNAM,': IDKEY out of bounds: ',IDKEY
-IRC = 104
-GO TO 9999
-
-1200 continue ! keyword error
-write(LUPRI,*) SECNAM,': keyword error detected, IDKEY = ',IDKEY
-IRC = 105
-GO TO 9999
-
-1300 continue ! some internal error
-write(LUPRI,*) SECNAM,': internal error detected, IDKEY = ',IDKEY
-IRC = 103
-GO TO 9999
-
-9999 call CHO_QUIT('Error in '//SECNAM,IRC)
 
 return
 

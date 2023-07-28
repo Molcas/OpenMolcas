@@ -107,7 +107,7 @@ do I_MYSP=1,N_MYSP
   call CHO_INVPCK(ISHLAB,ISHLA,ISHLB,.true.)
 
   if (CHO_NO2CENTER) then
-    if (IATOMSHL(ISHLA) /= IATOMSHL(ISHLB)) GO TO 1 ! cycle loop
+    if (IATOMSHL(ISHLA) /= IATOMSHL(ISHLB)) cycle
   end if
 
   NUMA = NBSTSH(ISHLA)
@@ -202,8 +202,6 @@ do I_MYSP=1,N_MYSP
       end do
     end do
   end if
-
-1 continue ! for cycling loop
 
 end do
 if (ICOUNT > 0) then ! flush buffer

@@ -34,27 +34,15 @@ call mma_allocate(Wrk,lWrk,Label='Wrk')
 
 if (Sorted) then
   call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
-  if (irc /= 0) then
-    write(u6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
-    Go To 1 ! exit
-  end if
+  if (irc /= 0) write(u6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
+else if (nBatch == 1) then
+  call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
+  if (irc /= 0) write(u6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
 else
-  if (nBatch == 1) then
-    call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
-    if (irc /= 0) then
-      write(u6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
-      Go To 1 ! exit
-    end if
-  else
-    call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
-    if (irc /= 0) then
-      write(u6,*) SecNam,': ChoMP2_fno_Org returned ',irc
-      Go To 1 ! exit
-    end if
-  end if
+  call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
+  if (irc /= 0) write(u6,*) SecNam,': ChoMP2_fno_Org returned ',irc
 end if
 
-1 continue
 call mma_deallocate(Wrk)
 
 end subroutine ChoMP2_FNO

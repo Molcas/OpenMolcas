@@ -51,18 +51,21 @@ nnShl = jScr(3)
 if (jScr(2) < 1) then
   write(u6,'(A,A,I10)') SecNam,': #shells from restart file:',jScr(2)
   ifail = 1
-  Go To 100
+  call Finish_this()
+  return
 end if
 nSP_UpLim = nShell*(nShell+1)/2
 if ((jScr(3) < 1) .or. (jScr(3) > nSP_UpLim)) then
   write(u6,'(A,A,I10)') SecNam,': #shell pairs from restart file:',jScr(3)
   ifail = 1
-  Go To 100
+  call Finish_this()
+  return
 end if
 if (jScr(1) /= nSym) then
   write(u6,'(A,A,I10)') SecNam,': #irreps from restart file:',jScr(1)
   ifail = 1
-  Go To 100
+  call Finish_this()
+  return
 else
   iOpt = 2
   call iDAFile(LuRst,iOpt,jScr,nSym,iAdr)
@@ -70,7 +73,8 @@ else
     if (jScr(iSym) /= nBas(iSym)) then
       write(u6,'(A,A,I2,A,I10)') SecNam,': #basis functions in sym.',iSym,' from restart file:',jScr(iSym)
       ifail = 2
-      Go To 100
+      call Finish_this()
+      return
     end if
   end do
 end if
@@ -88,20 +92,23 @@ else if (jScr(1) == 1) then
 else
   write(u6,'(A,A,I10)') SECNAM,': integer flag for screening not recognized:',jScr(1)
   ifail = 2
-  Go To 100
+  call Finish_this()
+  return
 end if
 if ((jScr(2) > 0) .and. (jScr(2) < 3)) then
   XCho_AdrVec = jScr(2)
 else
   write(u6,'(A,A,I10)') SECNAM,': vector file address mode not recognized:',jScr(2)
   ifail = 3
-  Go To 100
+  call Finish_this()
+  return
 end if
 if (XCho_AdrVec /= Cho_AdrVec) then
   write(u6,'(A,A,I10)') SECNAM,': vector file address mode from restart file:',XCho_AdrVec
   write(u6,'(A,A,I10)') SECNAM,': vector file address mode from runfile     :',Cho_AdrVec
   ifail = 3
-  Go To 100
+  call Finish_this()
+  return
 end if
 
 iOpt = 2
@@ -141,7 +148,8 @@ XnPass = MaxRed
 if (MaxRed < 1) then
   write(u6,'(A,A,I10)') SecNam,': #reduced sets from restart file:',MaxRed
   ifail = 4
-  Go To 100
+  call Finish_this()
+  return
 else
   call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
   InfRed => InfRed_Hidden
@@ -150,7 +158,8 @@ else
   if (InfRed(1) /= 0) then
     write(u6,'(A,A,I10)') SecNam,': disk address of 1st reduced set:',InfRed(1)
     ifail = 5
-    Go To 100
+    call Finish_this()
+    return
   end if
 end if
 
@@ -165,7 +174,8 @@ do iSym=1,nSym
     write(u6,'(A,A,I2,A,I10)') SecNam,': #Cholesky vectors (sym.',iSym,'): ',NumCho(iSym)
     write(u6,'(A,A,I10)') SecNam,': ....and from restart file: ',jScr(iSym)
     ifail = 6
-    Go To 100
+    call Finish_this()
+    return
   else
     if (NumCho(iSym) < 1) then
       call iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
@@ -182,7 +192,15 @@ end do
 ! Return.
 ! -------
 
-100 continue ! failures jump to this point
-if (ifail /= 0) write(u6,'(A,A)') SecNam,': refusing to read more restart info!'
+call Finish_this()
+
+contains
+
+! failures jump to this point
+subroutine Finish_this()
+
+  if (ifail /= 0) write(u6,'(A,A)') SecNam,': refusing to read more restart info!'
+
+end subroutine Finish_this
 
 end subroutine Cho_X_RdRst

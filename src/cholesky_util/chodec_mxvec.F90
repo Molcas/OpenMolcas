@@ -125,21 +125,21 @@ Converged = .false.
 
 if (nDim < 1) then
   irc = 0
-  Go To 1  ! exit (nothing to do)
+  return ! exit (nothing to do)
 end if
 if (MxQual < 1) then
   irc = -1
-  Go To 1  ! exit (qualification not possible)
+  return ! exit (qualification not possible)
 end if
 mQual = min(MxQual,nDim)
 MinBuf = nDim+mQual
 if (lBuf < MinBuf) then
   irc = -2
-  Go To 1 ! exit (buffer too small)
+  return ! exit (buffer too small)
 end if
 if (MxVec < 1) then
   irc = -3
-  Go To 1 ! exit (MxVec too small)
+  return ! exit (MxVec too small)
 end if
 MxNumCho = min(MxVec,nDim)
 
@@ -154,7 +154,7 @@ if ((Span < Zero) .or. (Span > One)) Span = DefSpan ! reset span factor
 ! -------------------------------------------------
 
 call CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
-if (irc /= 0) Go To 1 ! exit (initial diagonal error)
+if (irc /= 0) return ! exit (initial diagonal error)
 
 ! Only do decomposition if not converged!
 ! ---------------------------------------
@@ -165,7 +165,7 @@ if ((.not. Converged) .and. (NumCho < MxNumCho)) then
   ! -------------------
 
   call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,mQual,ThrNeg,ThrFail,Qual(1,0),Qual(1,1),Buf,iPivot,iQual,nDim,lBuf,NumCho,irc)
-  if (irc /= 0) Go To 1  ! exit (decomposition error)
+  if (irc /= 0) return ! exit (decomposition error)
 
   ! Check diagonal and set up error statistics.
   ! -------------------------------------------
@@ -173,11 +173,11 @@ if ((.not. Converged) .and. (NumCho < MxNumCho)) then
   call CD_Diag(CD_Vec,.true.,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
   if (irc /= 0) then
     irc = irc+200 ! makes the error code 400 + n
-    Go To 1 ! exit (check error)
+    return ! exit (check error)
   else if (.not. Converged) then
     if (NumCho < MxNumCho) then
       irc = 1
-      Go To 1 ! exit (decomposition failure)
+      return ! exit (decomposition failure)
     else if (NumCho > MxNumCho) then
       call SysAbendMsg(SecNam,'Logical error!',' ')
     end if
@@ -187,7 +187,5 @@ end if
 
 ! That's it!
 ! ----------
-
-1 continue
 
 end subroutine ChoDec_MxVec

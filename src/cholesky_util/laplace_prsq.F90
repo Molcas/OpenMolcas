@@ -27,15 +27,17 @@ integer(kind=iwp) :: I, IMAX, IMIN, J, NMAX
 
 NMAX = 10
 IMAX = 0
-100 IMIN = IMAX+1
-IMAX = IMAX+NMAX
-if (IMAX > M) IMAX = M
-write(IW,9008)
-write(IW,9028) (I,I=IMIN,IMAX)
-do J=1,N
-  write(IW,9048) J,(V(J,I),I=IMIN,IMAX)
+do
+  IMIN = IMAX+1
+  IMAX = IMAX+NMAX
+  if (IMAX > M) IMAX = M
+  write(IW,9008)
+  write(IW,9028) (I,I=IMIN,IMAX)
+  do J=1,N
+    write(IW,9048) J,(V(J,I),I=IMIN,IMAX)
+  end do
+  if (IMAX >= M) exit
 end do
-if (IMAX < M) GO TO 100
 
 return
 

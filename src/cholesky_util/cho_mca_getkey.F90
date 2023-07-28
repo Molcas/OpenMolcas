@@ -45,7 +45,7 @@ character(len=LKWORD), external :: GET_LN
 if (NOPTION /= NTABLE) then
   write(LUPRI,*) SECNAM,': NOPTION = ',NOPTION,' NTABLE = ',NTABLE
   IDKEY = -5
-  GO TO 2000
+  return
 end if
 
 ! Other internal checks.
@@ -54,7 +54,7 @@ end if
 if (LKEY > LKWORD) then
   write(LUPRI,*) SECNAM,': LKEY = ',LKEY,' LKWORD = ',LKWORD
   IDKEY = -5
-  GO TO 2000
+  return
 end if
 
 ! Set blank line.
@@ -68,32 +68,31 @@ end do
 ! obsolete).
 ! --------------------------------------------------------
 
-1 KEY = GET_LN(LUNIT)
-KWORD = KEY
-call UPCASE(KWORD)
-KWORD = adjustl(KWORD)
-do while ((KWORD(1:1) == COMMENT) .or. (KWORD == BLINE))
+do
   KEY = GET_LN(LUNIT)
   KWORD = KEY
   call UPCASE(KWORD)
   KWORD = adjustl(KWORD)
-end do
+  do while ((KWORD(1:1) == COMMENT) .or. (KWORD == BLINE))
+    KEY = GET_LN(LUNIT)
+    KWORD = KEY
+    call UPCASE(KWORD)
+    KWORD = adjustl(KWORD)
+  end do
 
-LAST = ICLAST(KWORD,len(KWORD))
-do I=LAST+1,LKEY
-  KWORD(I:I) = ' '
-end do
+  LAST = ICLAST(KWORD,len(KWORD))
+  do I=LAST+1,LKEY
+    KWORD(I:I) = ' '
+  end do
 
-! Check for obsolete keyword.
-! ---------------------------
+  ! Check for obsolete keyword.
+  ! ---------------------------
 
-if (USE_OBS) then
+  if (.not. USE_OBS) exit
   IOBSOL = CHO_TABIND(OBSOL,LKEY,NOBSOL,' ',0,0,KWORD(1:LKEY))
-  if ((IOBSOL > 0) .and. (IOBSOL <= NOBSOL)) then
-    write(LUPRI,*) '*** NOTICE: Cholesky keyword "',KWORD(1:LKEY),'" is obsolete and will be disregarded.'
-    GO TO 1
-  end if
-end if
+  if ((IOBSOL <= 0) .or. (IOBSOL > NOBSOL)) exit
+  write(LUPRI,*) '*** NOTICE: Cholesky keyword "',KWORD(1:LKEY),'" is obsolete and will be disregarded.'
+end do
 
 ! Check for alias.
 ! ----------------
@@ -138,7 +137,6 @@ end if
 ! Normal exit point.
 ! ------------------
 
-2000 continue
 return
 
 end subroutine CHO_MCA_GETKEY

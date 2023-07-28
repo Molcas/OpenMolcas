@@ -28,7 +28,7 @@ logical(kind=iwp) :: StpBA
 integer(kind=iwp) :: I, IDimEnd, IDr, IDrEnd, Iter, IX, J
 real(kind=wp) :: DFX, DifX, DrDif, DrInv, Dum, FF, FFF, FMax, FNew, FX, X, X1, X2, XErr1, XErr2, XErr3, XM1, XM2, XM3, XMx, XNew, &
                  XXMax
-logical(kind=iwp) :: Dbg
+logical(kind=iwp) :: Conv, Dbg
 integer(kind=iwp), parameter :: MxIter = 10000
 real(kind=wp), parameter :: Thrs = 1.0e-9_wp
 real(kind=wp), external :: GetDr1, GetDr2, QuadErr
@@ -42,93 +42,97 @@ do I=1,IDimEnd
 
   if (I == 1) then
     XXMax = One
-    goto 888
   else if (I == IDimEnd) then
     XXMax = R
-    goto 888
+  else
+
+    ! ===== Initial values (midpoint)
+
+    X1 = T(I-1)
+    X2 = T(I)
+    X = (X1+X2)*Half
+
+    ! ===== Solve Equations =====
+
+    Conv = .false.
+    Theta = One
+    outer: do Iter=1,MxIter
+      FX = GetDr1(K_Lap,X,Coeff)
+      DFX = GetDr2(K_Lap,X,Coeff)
+      do
+        XNew = X-Theta*FX/DFX
+        DifX = abs(XNew-X)
+        if (Dbg) write(IW,*) Iter,XNew,Difx
+        if (DifX < Thrs) then
+          Conv = .true.
+          exit outer
+        end if
+        FNew = GetDr1(K_Lap,XNew,Coeff)
+        FFF = (One-Theta*Half)*FX
+        if (abs(FNew) < abs(FFF)) exit
+        if (Dbg) write(IW,*) FNew,FFF
+        Theta = Theta*Half
+      end do
+      X = XNew
+    end do outer
+
+    if (Conv) then
+      XXMax = XNew
+    else
+      write(IW,'(A)') '*************** Max Iteration in FdExtr'
+      write(IW,'(A,I3,A,E23.15E3)') 'I =',I,' Max DifX. =',DifX
+      !StpBA = .true.
+      !return
+
+      FMax = Zero
+      XXMax = Zero
+
+      IX = -1
+      XErr2 = 9.99e2_wp
+      XErr3 = XErr2
+      IDr = 1000
+      IDrEnd = IDr+1
+      DrInv = One/real(IDr,kind=wp)
+      DrDif = (X2-X1)*DrInv
+
+      do J=1,IDrEnd
+        X = X1+(J-1)*DrDif
+        FF = QuadErr(K_Lap,X,Coeff)
+        XErr1 = XErr2
+        XErr2 = XErr3
+        XErr3 = FF
+        if (abs(FF) > abs(FMax)) then
+          FMax = FF
+          XXMax = X
+          IX = J
+        end if
+      end do
+      XXMax = -XXMax
+
+      if ((IX /= 1) .and. (IX == IDrEnd)) then
+
+        Dum = X1+(IX-2)*DrDif
+        XM1 = QuadErr(K_Lap,Dum,Coeff)
+
+        Dum = X1+(IX-1)*DrDif
+        XM2 = QuadErr(K_Lap,Dum,Coeff)
+
+        Dum = X1+IX*DrDif
+        XM3 = QuadErr(K_Lap,Dum,Coeff)
+
+        XErr1 = (XM3-XM1)/(Two*(XM3-Two*XM2+XM1))
+        XErr2 = XErr1*DrInv-XXMax
+        XMx = max(abs(XM1),abs(XM3))
+        if (abs(XM2) > XMx) then
+          XXMax = XErr2
+          XXMax = XNew
+        end if
+      end if
+    end if
   end if
-
-  ! ===== Initial values (midpoint)
-
-  X1 = T(I-1)
-  X2 = T(I)
-  X = (X1+X2)*Half
-
-  ! ===== Solve Equations =====
-
-  Theta = One
-  do Iter=1,MxIter
-    FX = GetDr1(K_Lap,X,Coeff)
-    DFX = GetDr2(K_Lap,X,Coeff)
-100 continue
-    XNew = X-Theta*FX/DFX
-    DifX = abs(XNew-X)
-    if (Dbg) write(IW,*) Iter,XNew,Difx
-    if (DifX < Thrs) goto 777
-    FNew = GetDr1(K_Lap,XNew,Coeff)
-    FFF = (One-Theta*Half)*FX
-    if (abs(FNew) >= abs(FFF)) then
-      if (Dbg) write(IW,*) FNew,FFF
-      Theta = Theta*Half
-      goto 100
-    end if
-    X = XNew
-  end do
-
-  write(IW,'(A)') '*************** Max Iteration in FdExtr'
-  write(IW,'(A,I3,A,E23.15E3)') 'I =',I,' Max DifX. =',DifX
-  !StpBA = .true.
-  !return
-
-  FMax = Zero
-  XXMax = Zero
-
-  IX = -1
-  XErr2 = 9.99e2_wp
-  XErr3 = XErr2
-  IDr = 1000
-  IDrEnd = IDr+1
-  DrInv = One/real(IDr,kind=wp)
-  DrDif = (X2-X1)*DrInv
-
-  do J=1,IDrEnd
-    X = X1+(J-1)*DrDif
-    FF = QuadErr(K_Lap,X,Coeff)
-    XErr1 = XErr2
-    XErr2 = XErr3
-    XErr3 = FF
-    if (abs(FF) > abs(FMax)) then
-      FMax = FF
-      XXMax = X
-      IX = J
-    end if
-  end do
-  XXMax = -XXMax
-
-  if (IX == 1) goto 888
-  if (IX == IDrEnd) goto 888
-
-  Dum = X1+(IX-2)*DrDif
-  XM1 = QuadErr(K_Lap,Dum,Coeff)
-
-  Dum = X1+(IX-1)*DrDif
-  XM2 = QuadErr(K_Lap,Dum,Coeff)
-
-  Dum = X1+IX*DrDif
-  XM3 = QuadErr(K_Lap,Dum,Coeff)
-
-  XErr1 = (XM3-XM1)/(Two*(XM3-Two*XM2+XM1))
-  XErr2 = XErr1*DrInv-XXMax
-  XMx = max(abs(XM1),abs(XM3))
-  if (abs(XM2) <= XMx) goto 888
-  XXMax = XErr2
-
-777 continue
-  XXMax = XNew
 
   ! ===== Save data =====
 
-888 continue
   FMax = QuadErr(K_Lap,XXMax,Coeff)
   DD(I) = FMax
   DD(I+IDimEnd) = XXMax

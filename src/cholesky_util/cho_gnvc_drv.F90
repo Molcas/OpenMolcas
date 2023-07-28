@@ -56,7 +56,8 @@ irc = 0
 call Cho_X_RSCopy(irc,1,2)
 if (irc /= 0) then
   write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
-  Go To 100 ! exit
+  call Finish_this()
+  return
 end if
 
 ! Allocate memory for shell pair list.
@@ -126,7 +127,8 @@ if (l_WrkT < 2) then
   write(Lupri,*) SecNam,': max. allocatable memory is ',l_WrkT
   write(Lupri,*) 'Please increase available memory.'
   irc = 101
-  Go To 100 ! exit
+  call Finish_this()
+  return
 else
   l_Wrk = l_WrkT/2
 end if
@@ -169,7 +171,8 @@ do while (iPass < nPass)
   if (nBatch > nPass) then
     write(Lupri,*) SecNam,': batch counter exceeds pass counter: ',nBatch,' > ',nPass
     irc = 103
-    Go To 100 ! exit
+    call Finish_this()
+    return
   end if
 
   ! Set up this batch based on current reduced set.
@@ -199,7 +202,8 @@ do while (iPass < nPass)
     write(Lupri,*) SecNam,': at least  ',lThis,' double precision words needed.'
     write(Lupri,*) SecNam,': available ',l_Wrk,' double precision words.'
     irc = 101
-    Go To 100 ! exit
+    call Finish_this()
+    return
   end if
 
   ! Print.
@@ -327,21 +331,30 @@ end do ! integral pass loop
 ! Exit after deallocating memory.
 ! -------------------------------
 
-100 continue
-Did_DecDrv = .true.
-
-call mma_deallocate(Wrk)
-do iSym=1,nSym
-  call mma_deallocate(RS2RS(iSym)%Map)
-end do
-call mma_deallocate(iVecRS)
-call mma_deallocate(nVecRS)
-call mma_deallocate(ListSP)
-
-call Cho_Timer(tCPU2,tWall2)
-tDecDrv(1) = tDecDrv(1)+tCPU2-tCPU1
-tDecDrv(2) = tDecDrv(2)+tWall2-tWall1
+call Finish_this()
 
 return
+
+contains
+
+subroutine Finish_this()
+
+  integer(kind=iwp) :: iSym
+
+  Did_DecDrv = .true.
+
+  call mma_deallocate(Wrk)
+  do iSym=1,nSym
+    call mma_deallocate(RS2RS(iSym)%Map)
+  end do
+  call mma_deallocate(iVecRS)
+  call mma_deallocate(nVecRS)
+  call mma_deallocate(ListSP)
+
+  call Cho_Timer(tCPU2,tWall2)
+  tDecDrv(1) = tDecDrv(1)+tCPU2-tCPU1
+  tDecDrv(2) = tDecDrv(2)+tWall2-tWall1
+
+end subroutine Finish_this
 
 end subroutine Cho_GnVc_Drv

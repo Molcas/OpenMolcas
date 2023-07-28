@@ -60,7 +60,7 @@ if (n < 1) then
     write(u6,*) SecNam,': nothing tested! Dimension is: n = ',n
     call xFlush(u6)
   end if
-  Go To 1
+  return
 end if
 
 ! Test ChoDec.
@@ -175,7 +175,5 @@ call mma_deallocate(Diag)
 call mma_deallocate(Buf)
 call mma_deallocate(Vec)
 call mma_deallocate(Mat)
-
-1 continue
 
 end subroutine CD_Tester

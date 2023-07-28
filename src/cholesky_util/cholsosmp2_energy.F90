@@ -163,7 +163,9 @@ call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,l_w,W,T,irc)
 if (irc /= 0) then
   write(u6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
   irc = 1
-  Go To 1 ! exit after cleanup actions
+  ! exit after cleanup actions
+  call Finish_this()
+  return
 end if
 
 !==================================
@@ -174,41 +176,54 @@ if (Sorted) then
   call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
   if (irc /= 0) then
     write(u6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
 else
   if (nBatch == 1) then
     call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,W,T,EOcc,EVir,DelOrig,EMP2,irc)
     if (irc /= 0) then
       write(u6,'(A,A,I6)') SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
-      Go To 1 ! exit after cleanup
+      ! exit after cleanup
+      call Finish_this()
+      return
     end if
   else
     call WarningMessage(1,SecNam//': unsorted case not implemented')
     irc = -2
-    Go To 1 ! exit after cleanup
+    ! exit after cleanup
+    call Finish_this()
+    return
   end if
 end if
+
+call Finish_this()
+
+contains
 
 !========
 ! Cleanup
 !========
-1 continue ! errors jump to this point
+subroutine Finish_this()
 
-! translate orbital energy origin from Fermi back to original
-if (FermiShift) then
-  do iSym=1,nSym
-    do i=1,nOcc(iSym)
-      EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)+EFermi
-    end do
-    do i=1,nVir(iSym)
-      EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)+EFermi
-    end do
-  end do
-end if
+  integer(kind=iwp) :: i, iSym
 
-! deallocations
-call mma_deallocate(T)
-call mma_deallocate(W)
+  ! translate orbital energy origin from Fermi back to original
+  if (FermiShift) then
+    do iSym=1,nSym
+      do i=1,nOcc(iSym)
+        EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)+EFermi
+      end do
+      do i=1,nVir(iSym)
+        EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)+EFermi
+      end do
+    end do
+  end if
+
+  ! deallocations
+  call mma_deallocate(T)
+  call mma_deallocate(W)
+
+end subroutine Finish_this
 
 end subroutine ChoLSOSMP2_Energy

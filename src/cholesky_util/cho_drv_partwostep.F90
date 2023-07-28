@@ -198,7 +198,9 @@ call Cho_X_Init(irc,Zero)
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
   irc = 1
-  Go To 1 ! clear memory and return
+  ! clear memory and return
+  call Finish_this()
+  return
 end if
 if (Cho_1Center) then
   if (.not. allocated(iAtomShl)) then
@@ -207,7 +209,9 @@ if (Cho_1Center) then
     if (irc /= 0) then
       write(LuPri,'(A,A,I8)') SecNam,': Cho_SetAtomShl returned code',irc
       irc = 1
-      Go To 1 ! clear memory and return
+      ! clear memory and return
+      call Finish_this()
+      return
     end if
   end if
 end if
@@ -303,7 +307,9 @@ if (irc /= 0) then
     call Cho_Quit(SecNam//': Insufficient memory for Z vectors',101)
   end if
   irc = 1
-  Go To 1 ! clear memory and return
+  ! clear memory and return
+  call Finish_this()
+  return
 end if
 call mma_allocate(Z,l_Z,Label='Z')
 call mma_allocate(nBlock,nSym,Label='nBlock')
@@ -351,7 +357,9 @@ call Cho_GetZ(irc,NVT,size(NVT),nBlock,size(nBlock),nVBlock,nB_Max,nSym,iV1Block
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
   irc = 1
-  Go To 1 ! clear memory and return
+  ! clear memory and return
+  call Finish_this()
+  return
 end if
 if (iPrint >= Inf_Timing) then
   call Cho_Timer(tC1,tW1)
@@ -372,14 +380,18 @@ if (Free_Z) call mma_deallocate(Z)
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_X_CompVec returned code ',irc
   irc = 1
-  Go To 1 ! clear memory and return
+  ! clear memory and return
+  call Finish_this()
+  return
 end if
 ! Write restart files
 call Cho_PTS_WrRst(irc,NVT,size(NVT))
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_PTS_WrRst returned code ',irc
   irc = 1
-  Go To 1 ! clear memory and return
+  ! clear memory and return
+  call Finish_this()
+  return
 end if
 if (iPrint >= Inf_Timing) then
   call Cho_Timer(tC1,tW1)
@@ -417,14 +429,18 @@ iPrint = iPrint_Bak
 if (irc /= 0) then
   write(LuPri,*) SecNam,': Cho_X_CheckDiag returned code ',irc
   irc = 1
-  Go To 1 ! release memory and return
+  ! release memory and return
+  call Finish_this()
+  return
 end if
 if (Err(2) > ThrCom) then
   write(LuPri,'(/,A)') 'Cholesky decomposition failed!'
   write(LuPri,'(3X,A,1P,D15.6)') 'Largest integral diagonal..',Err(2)
   write(LuPri,'(3X,A,1P,D15.6)') 'Decomposition threshold....',ThrCom
   irc = 1
-  Go To 1 ! release memory and return
+  ! release memory and return
+  call Finish_this
+  return
 end if
 call mma_deallocate(Err)
 if (iPrint >= Inf_Timing) then
@@ -487,29 +503,36 @@ call mma_deallocate(NVT)
 ! Close vector and restart files
 call Cho_OpenVR(2,2)
 
+call Finish_this()
+
+contains
+
 ! error termination point
-1 continue
-! check memory
-if (abs(DumTst-Check(1)) > DumTol) then
-  write(LuPri,*) SecNam,': memory has been out of bounds [2]'
-  irc = 2
-end if
+subroutine Finish_this()
 
-if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
-if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-Diag => null()
-Diag_G => null()
-call mma_deallocate(Check)
+  ! check memory
+  if (abs(DumTst-Check(1)) > DumTol) then
+    write(LuPri,*) SecNam,': memory has been out of bounds [2]'
+    irc = 2
+  end if
 
-! Print total timing
-if ((iPrint >= Inf_Timing) .and. (irc == 0)) then
-  call Cho_Timer(tCPU1,tWall1)
-  call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,tWall1,tWall0,1)
-end if
+  if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
+  if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
+  Diag => null()
+  Diag_G => null()
+  call mma_deallocate(Check)
 
-call Cho_Flush(LuPri)
-#ifdef _DEBUGPRINT_
-call Cho_PrtMaxMem('End of '//SecNam)
-#endif
+  ! Print total timing
+  if ((iPrint >= Inf_Timing) .and. (irc == 0)) then
+    call Cho_Timer(tCPU1,tWall1)
+    call Cho_PrtTim('Cholesky Procedure',tCPU1,tCPU0,tWall1,tWall0,1)
+  end if
+
+  call Cho_Flush(LuPri)
+# ifdef _DEBUGPRINT_
+  call Cho_PrtMaxMem('End of '//SecNam)
+# endif
+
+end subroutine Finish_this
 
 end subroutine Cho_Drv_ParTwoStep

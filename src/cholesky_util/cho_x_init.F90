@@ -90,7 +90,10 @@ write(u6,*) '>>>>> Available memory on entry to ',SecNam,': ',l_Max,' = ',Byte,U
 ! ----------------------------------
 
 call DecideOnCholesky(DidCholesky)
-if (.not. DidCholesky) Go To 100
+if (.not. DidCholesky) then
+  call Finish_this(-1)
+  return
+end if
 
 ! Check if already initialized.
 ! -----------------------------
@@ -101,7 +104,8 @@ else ! might be already done
   call Get_iScalar('ChoIni',ChoIsIni)
   if (ChoIsIni == ChoIniCheck) then ! already done
     irc = 0
-    Go To 1
+    call Finish_this(0)
+    return
   end if
 end if
 
@@ -111,7 +115,10 @@ end if
 call DecideOnDF(isDF)
 if (isDF) then
   call DecideOnLocalDF(isLocalDF)
-  if (isLocalDF) Go To 99
+  if (isLocalDF) then
+    call Finish_this(-2)
+    return
+  end if
 end if
 
 ! Define all entries in include files choorb.fh, cholesky.fh,
@@ -119,7 +126,10 @@ end if
 ! -------------------------------------------------------------
 
 call Cho_X_SetInc(irc)
-if (irc /= 0) Go To 103  ! include file inconsistency detected
+if (irc /= 0) then  ! include file inconsistency detected
+  call Finish_this(3)
+  return
+end if
 
 ! Set parallel info (picked up from para_info).
 ! -------------------------------------------------
@@ -155,7 +165,8 @@ iPrint = -5
 call Get_iScalar('nSym',nSym)
 if ((nSym < 1) .or. (nSym > 8)) then
   write(u6,*) SecNam,': nSym out of bounds: ',nSym
-  Go To 101
+  call Finish_this(1)
+  return
 end if
 
 ! Get Cho_AdrVec: addressing of vector files (1=WA, 2=DA).
@@ -194,7 +205,8 @@ do iSym=2,nSym
 end do
 if (nBasT < 1) then
   write(u6,*) SecNam,': nBasT out of bounds: ',nBasT
-  Go To 101
+  call Finish_this(1)
+  return
 end if
 call mma_allocate(iSOShl,nBasT,Label='iSOShl')
 call Get_iArray('ISOSHL',iSOShl,nBasT)
@@ -237,7 +249,10 @@ end do
 
 ierr = 0
 call Cho_X_RdRst(ierr)
-if (ierr /= 0) Go To 102
+if (ierr /= 0) then
+  call Finish_this(2)
+  return
+end if
 nnShl_Tot = nShell*(nShell+1)/2
 call Cho_X_DefineInfVec_5(isDF)
 
@@ -375,7 +390,10 @@ call Cho_Allo_iScr(DoDummy)
 ! ------------------------
 
 call Cho_X_Init_Par(irc,isDF)
-if (irc /= 0) Go To 104
+if (irc /= 0) then
+  call Finish_this(4)
+  return
+end if
 
 #ifdef _DEBUGPRINT_
 ! Debug: test bookmarks.
@@ -403,52 +421,56 @@ call Cho_VecBuf_Ini2() ! read
 ChoIsIni = ChoIniCheck
 call Put_iScalar('ChoIni',ChoIsIni)
 irc = 0
-Go To 1
+call Finish_this(0)
 
-! Error branches.
-! ===============
+contains
 
-99 continue ! Local DF not implemented
-! TODO/FIXME: compute Cholesky vectors from LDF coefficients here?
-irc = -2
-write(u6,'(//,A,A,//)') SecNam,': Local DF not implemented!'
-Go To 1
+subroutine Finish_this(num)
 
-100 continue ! Cholesky flag not found on runfile
-irc = -1
-write(u6,'(//,A,A,//)') SecNam,': two-electron integrals not Cholesky decomposed!'
-Go To 1
+  integer(kind=iwp), intent(in) :: num
 
-101 continue ! Bad info obtained from runfile
-irc = 1
-write(u6,'(//,A,A,//)') SecNam,': WARNING: error reading runfile!'
-Go To 1
+  ! Error branches.
+  ! ===============
+  select case (num)
+    case (-2)
+      ! Local DF not implemented
+      ! TODO/FIXME: compute Cholesky vectors from LDF coefficients here?
+      irc = -2
+      write(u6,'(//,A,A,//)') SecNam,': Local DF not implemented!'
+    case (-1)
+      ! Cholesky flag not found on runfile
+      irc = -1
+      write(u6,'(//,A,A,//)') SecNam,': two-electron integrals not Cholesky decomposed!'
+    case (1)
+      ! Bad info obtained from runfile
+      irc = 1
+      write(u6,'(//,A,A,//)') SecNam,': WARNING: error reading runfile!'
+    case (2)
+      ! restart info corrupted
+      irc = 2
+      write(u6,'(//,A,A)') SecNam,': WARNING: error reading restart info!'
+      write(u6,'(A,A,I6,//)') SecNam,': return code from read:',ierr
+    case (3)
+      ! include file inconsistency detected
+      irc = 3
+      write(u6,'(//,A,A,//)') SecNam,': WARNING: include file inconsistency detected!'
+    case (4)
+      ! error in parallel setup
+      irc = 4
+      write(u6,'(//,A,A,//)') SecNam,': WARNING: error in parallel setup!'
+    case default
+  end select
 
-102 continue ! restart info corrupted
-irc = 2
-write(u6,'(//,A,A)') SecNam,': WARNING: error reading restart info!'
-write(u6,'(A,A,I6,//)') SecNam,': return code from read:',ierr
-Go To 1
+  ! Return.
+  ! =======
 
-103 continue ! include file inconsistency detected
-irc = 3
-write(u6,'(//,A,A,//)') SecNam,': WARNING: include file inconsistency detected!'
-Go To 1
+# ifdef _DEBUGPRINT_
+  call mma_maxDBLE(l_Max)
+  call Cho_Word2Byte(l_Max,8,Byte,Unt)
+  write(u6,*) '>>>>> Available memory on exit from ',SecNam,': ',l_Max,' = ',Byte,Unt
+  call xFlush(u6)
+# endif
 
-104 continue ! error in parallel setup
-irc = 4
-write(u6,'(//,A,A,//)') SecNam,': WARNING: error in parallel setup!'
-Go To 1
-
-! Return.
-! =======
-
-1 continue
-#ifdef _DEBUGPRINT_
-call mma_maxDBLE(l_Max)
-call Cho_Word2Byte(l_Max,8,Byte,Unt)
-write(u6,*) '>>>>> Available memory on exit from ',SecNam,': ',l_Max,' = ',Byte,Unt
-call xFlush(u6)
-#endif
+end subroutine Finish_this
 
 end subroutine Cho_X_Init

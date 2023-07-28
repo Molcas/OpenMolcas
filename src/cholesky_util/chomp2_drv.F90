@@ -42,7 +42,7 @@ real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iSym, lDiag, nSym_Sav
 real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &
-                 CPUTra1, CPUTra2, Diff, FracMem, WallDab1, WallDab2, WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, &
+                 CPUTra1, CPUTra2, FracMem, WallDab1, WallDab2, WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, &
                  WallSrt1, WallSrt2, WallTot1, WallTot2, WallTra1, WallTra2
 logical(kind=iwp) :: Delete, DoSort
 real(kind=wp), allocatable :: Check(:), Diag(:)
@@ -79,7 +79,8 @@ end if
 call ChoMP2_Setup(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_Setup returned ',irc
-  Go To 1  ! exit
+  call Finish_this()
+  return
 end if
 
 if (DoDens) then
@@ -87,7 +88,8 @@ if (DoDens) then
   call ChoMP2g_Setup(irc,EOcc,EVir)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2g_Setup returned ',irc
-    Go To 1             ! exit
+    call Finish_this()
+    return
   end if
 end if
 
@@ -95,7 +97,8 @@ if (Verbose) then
   call ChoMP2_Setup_Prt(irc)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_Setup_Prt returned ',irc
-    Go To 1  ! exit
+    call Finish_this()
+    return
   end if
   call CWTime(CPUIni2,WallIni2)
   call Cho_PrtTim('Cholesky MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
@@ -127,7 +130,8 @@ if (.not. DoDens) then
   call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-    Go To 1             ! exit
+    call Finish_this()
+    return
   end if
   if (Verbose) then
     call CWTime(CPUTra2,WallTra2)
@@ -137,7 +141,8 @@ else if (DoDens) then
   call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
-    Go To 1             ! exit
+    call Finish_this()
+    return
   end if
   if (Verbose) then
     call CWTime(CPUTra2,WallTra2)
@@ -155,7 +160,8 @@ call iCopy(nSym,NumCho,1,nMP2Vec,1)
 call Cho_X_Final(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Final returned ',irc
-  Go To 1 ! exit
+  call Finish_this()
+  return
 end if
 
 LuPri = u6
@@ -229,13 +235,15 @@ if (DoFNO .and. (.not. DoDens)) then
   call dscal_(l_Dii,-One,Work(ip_Dii),1)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_FNO returned ',irc
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
   if (Verbose) then
     call CWTime(CPUDab2,WallDab2)
     call Cho_PrtTim('Cholesky MP2 FNO section ',CPUDab2,CPUDab1,WallDab2,WallDab1,iFmt)
   end if
-  Go To 1 ! exit
+  call Finish_this()
+  return
 end if
 
 ! Compute MP2 Density and energy correction.
@@ -246,7 +254,8 @@ if (DoDens) then
   call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
-    Go To 1             ! exit
+    call Finish_this()
+    return
   end if
 end if
 
@@ -257,7 +266,8 @@ if (DoGrdt) then
   call ChoMP2g_GradSetup(irc,CMO)
   if (irc /= 0) then
     write(u6,*) SecNam,':ChoMP2g_GradSetup returned ',irc
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
   if (Verbose) then
     call CWTime(CPUEnr2,WallEnr2)
@@ -274,13 +284,15 @@ if (Laplace .and. SOS_MP2) then
   call ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoLSOSMP2_Energy returned ',irc
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
 else
   call ChoMP2_Energy(irc,EMP2,EOcc,EVir,DoSort,Delete)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_Energy returned ',irc
-    Go To 1 ! exit
+    call Finish_this()
+    return
   end if
 end if
 if (Verbose) then
@@ -288,21 +300,30 @@ if (Verbose) then
   call Cho_PrtTim('Cholesky MP2 energy',CPUEnr2,CPUEnr1,WallEnr2,WallEnr1,iFmt)
 end if
 
-! Exit.
-! -----
-
-1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
-if (Diff > Tol) then
-  write(u6,*) SecNam,': Memory Boundary Error!'
-  if (irc == 0) irc = -9999
-end if
-if (Verbose) then
-  call CWTime(CPUTot2,WallTot2)
-  call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
-end if
-call ChoMP2_deallocate(irc)
-call mma_deallocate(Check)
+call Finish_this()
 
 return
+
+contains
+
+! Exit.
+! -----
+subroutine Finish_this()
+
+  real(kind=wp) :: Diff
+
+  Diff = abs(Check(1)-Chk_Mem_ChoMP2)
+  if (Diff > Tol) then
+    write(u6,*) SecNam,': Memory Boundary Error!'
+    if (irc == 0) irc = -9999
+  end if
+  if (Verbose) then
+    call CWTime(CPUTot2,WallTot2)
+    call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+  end if
+  call ChoMP2_deallocate(irc)
+  call mma_deallocate(Check)
+
+end subroutine Finish_this
 
 end subroutine ChoMP2_Drv

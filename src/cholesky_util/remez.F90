@@ -54,7 +54,7 @@ integer(kind=iwp) :: K_Lap
 real(kind=wp) :: EMin, EMax, Coeff(40)
 integer(kind=iwp) :: I, I_Dim, Idx, IMax, IMes, InitR, Iter, J
 real(kind=wp) :: CofOld(40), DCofMx, DD(82), DDMax, EDiff, EMinIv, R, RIni, RLim, RMax0, T(40), Theta, Theta2, VVMax
-logical(kind=iwp) :: Change, Dbg, SkpRem, StopBA, Verbose
+logical(kind=iwp) :: Change, Conv, Dbg, SkpRem, StopBA, Verbose
 character(len=8) :: Demand
 integer(kind=iwp), parameter :: IRMax(20) = [3,7,13,16,22,23,27,31,31,31,31,31,31,31,31,31,31,31,31,31], ItrEnd = 50, MxList = 30
 real(kind=wp), parameter :: RList(MxList) = [2.0e0_wp,5.0e0_wp,1.0e1_wp,2.0e1_wp,3.0e1_wp,4.0e1_wp,5.0e1_wp,6.0e1_wp,7.0e1_wp, &
@@ -104,17 +104,16 @@ end if
 EMinIv = One/EMin
 R = EMax*EMinIv
 
+InitR = 1
 J = MxList
 do I=1,MxList
   EDiff = R-RList(J)
   if (EDiff > Zero) then
     InitR = J
-    goto 100
+    exit
   end if
   J = J-1
 end do
-InitR = 1
-100 continue
 
 ! ===== Determine K_Lap value (If K_Lap isn't determined.) =====
 
@@ -153,103 +152,107 @@ if (SkpRem) then
   write(IW,'(/A)') ' Remez step skipped.'
   if (IMes == 0) write(IW,'(A,F8.3,A)') ' Because R is smaller than',RLim,'.'
   if (IMes == 1) write(IW,'(A,F8.3,A)') ' Because R is larger than',RMax(K_Lap),'.'
-  goto 999
-end if
+else
 
-! ===== Set initial values (Omega,Alpha,T) =====
+  ! ===== Set initial values (Omega,Alpha,T) =====
 
-call SetExp(K_Lap,InitR,R,RIni,Coeff,T)
+  call SetExp(K_Lap,InitR,R,RIni,Coeff,T)
 
-if (Dbg) then
-  write(IW,'(/A/)') 'Initial data for Remez algorithm'
-  do I=1,K_Lap
-    Idx = 2*I-1
-    write(IW,'(A,I3,A,F21.18,2X,A,I3,A,F20.16)') ' Omega(',I,') = ',Coeff(Idx),'Alpha(',I,') = ',Coeff(Idx+1)
-  end do
-end if
+  if (Dbg) then
+    write(IW,'(/A/)') 'Initial data for Remez algorithm'
+    do I=1,K_Lap
+      Idx = 2*I-1
+      write(IW,'(A,I3,A,F21.18,2X,A,I3,A,F20.16)') ' Omega(',I,') = ',Coeff(Idx),'Alpha(',I,') = ',Coeff(Idx+1)
+    end do
+  end if
 
-! ===== Start Remez step =====
+  ! ===== Start Remez step =====
 
-Theta = Zero
-Theta2 = One
+  Theta = Zero
+  Theta2 = One
 
-write(IW,'(A,F5.0/)') ' Remez step starts from ',RIni
-call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-if (Dbg) then
-  write(IW,'(A/)') ' Error output (initial)'
-  do I=1,2*(2*K_Lap+1)
-    write(IW,*) 'dd',I,DD(I)
-  end do
-end if
-if (StopBA) then
-  Change = .true.
-  goto 999
-end if
-
-! ===== Iteration =====
-
-do Iter=1,ItrEnd
-  call DCOPY_(I_Dim,Coeff,1,CofOld,1)
-  call SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
+  write(IW,'(A,F5.0/)') ' Remez step starts from ',RIni
+  call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
+  if (Dbg) then
+    write(IW,'(A/)') ' Error output (initial)'
+    do I=1,2*(2*K_Lap+1)
+      write(IW,*) 'dd',I,DD(I)
+    end do
+  end if
   if (StopBA) then
     Change = .true.
-    goto 999
-  end if
-  !call TStat(" Newton2",1)
-  call SlvNt1(K_Lap,100,Coeff,T)
-  !call TStat(" Newton1",1)
-
-  if (Dbg) then
-    write(IW,'(/A,I3)') 'Iter =',Iter
-    call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-    do J=1,I_Dim+1
-      write(IW,'(A,I2,A,F20.17,2X,A,F20.14)') ' Error(',J,') = ',DD(J),' X = ',DD(2*K_Lap+1+J)
-    end do
-    write(IW,*)
-  end if
-
-  ! ===== Check convergence =====
-  ! CofOld is updated by the mean of Coeff
-
-  do J=1,I_Dim
-    CofOld(J) = abs(CofOld(J)-Coeff(J))
-  end do
-  call FindAM(I_Dim+1,DD,DDMax,IMax)
-  DCofMx = FindMx(I_Dim,CofOld)
-
-  if (Dbg) then
-    call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-    call FindAM(I_Dim+1,DD,DDMax,IMax)
-    if (Iter == 1) write(IW,'(A,5X,A,15X,A,17X,A)') ' Iter','Max Change','Max DD','Max error'
-    write(IW,'(I3,3(2X,E23.15E3),A,I2,A)') Iter,DCofMx,VVMax,DDMax,' (',IMax,')'
   else
-    if (Iter == 1) write(IW,'(A,5X,A,15X,A)') ' Iter','Max Change','Max DD'
-    write(IW,'(I3,2(2X,E23.15E3))') Iter,DCofMx,VVMax
+
+    ! ===== Iteration =====
+
+    Conv = .false.
+    do Iter=1,ItrEnd
+      call DCOPY_(I_Dim,Coeff,1,CofOld,1)
+      call SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
+      if (StopBA) then
+        Change = .true.
+        exit
+      end if
+      !call TStat(" Newton2",1)
+      call SlvNt1(K_Lap,100,Coeff,T)
+      !call TStat(" Newton1",1)
+
+      if (Dbg) then
+        write(IW,'(/A,I3)') 'Iter =',Iter
+        call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
+        do J=1,I_Dim+1
+          write(IW,'(A,I2,A,F20.17,2X,A,F20.14)') ' Error(',J,') = ',DD(J),' X = ',DD(2*K_Lap+1+J)
+        end do
+        write(IW,*)
+      end if
+
+      ! ===== Check convergence =====
+      ! CofOld is updated by the mean of Coeff
+
+      do J=1,I_Dim
+        CofOld(J) = abs(CofOld(J)-Coeff(J))
+      end do
+      call FindAM(I_Dim+1,DD,DDMax,IMax)
+      DCofMx = FindMx(I_Dim,CofOld)
+
+      if (Dbg) then
+        call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
+        call FindAM(I_Dim+1,DD,DDMax,IMax)
+        if (Iter == 1) write(IW,'(A,5X,A,15X,A,17X,A)') ' Iter','Max Change','Max DD','Max error'
+        write(IW,'(I3,3(2X,E23.15E3),A,I2,A)') Iter,DCofMx,VVMax,DDMax,' (',IMax,')'
+      else
+        if (Iter == 1) write(IW,'(A,5X,A,15X,A)') ' Iter','Max Change','Max DD'
+        write(IW,'(I3,2(2X,E23.15E3))') Iter,DCofMx,VVMax
+      end if
+
+      if ((VVMax < 5.0e-16_wp) .and. (DCofMx < 1.0e-5_wp)) then
+        Conv = .true.
+        exit
+      end if
+
+      !call TStat(" Check T",1)
+    end do
+
+    if (.not. Change) then
+      if (.not. Conv) write(IW,'(A,I3,A)') ' The number of iterations exceeded ',ItrEnd,' .'
+
+      ! ===== Check the result =====
+
+      call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
+      if (StopBA) then
+        Change = .true.
+      else
+        call FindAM(I_Dim+1,DD,DDMax,IMax)
+        call ChkAcc(K_Lap,InitR,DDMax,R,Change)
+
+        ! ===== Change parameters =====
+        ! If the convergence isn't good, the larger R's parameters are used.
+
+        write(IW,'(/A,I6)') ' Iteration =',Iter
+      end if
+    end if
   end if
-
-  if ((VVMax < 5.0e-16_wp) .and. (DCofMx < 1.0e-5_wp)) goto 777
-
-  !call TStat(" Check T",1)
-end do
-
-write(IW,'(A,I3,A)') ' The number of iterations exceeded ',ItrEnd,' .'
-
-! ===== Check the result =====
-
-777 continue
-call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
-if (StopBA) then
-  Change = .true.
-  goto 999
 end if
-call FindAM(I_Dim+1,DD,DDMax,IMax)
-call ChkAcc(K_Lap,InitR,DDMax,R,Change)
-
-! ===== Change parameters =====
-! If the convergence isn't good, the larger R's parameters are used.
-
-write(IW,'(/A,I6)') ' Iteration =',Iter
-999 continue
 if (Change .or. SkpRem) then
   write(IW,'(1X,A)') 'Change!!'
   call SetExp(K_Lap,InitR,R,RIni,Coeff,T)

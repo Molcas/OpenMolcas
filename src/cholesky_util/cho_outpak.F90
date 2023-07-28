@@ -82,39 +82,41 @@ do I=1,J
 end do
 if (AMAX == Zero) then
   write(LUPRI,'(/T6,A)') 'Zero matrix.'
-  GO TO 200
-end if
-if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
-  ! use F output format
-  PFMT = '(A1,I7,2X,8F15.8)'
 else
-  ! use 1PD output format
-  PFMT = '(A1,I7,2X,1P,8D15.6)'
-end if
+  if ((FFMIN <= AMAX) .and. (AMAX <= FFMAX)) then
+    ! use F output format
+    PFMT = '(A1,I7,2X,8F15.8)'
+  else
+    ! use 1PD output format
+    PFMT = '(A1,I7,2X,1P,8D15.6)'
+  end if
 
-! LAST IS THE LAST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED
+  ! LAST IS THE LAST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED
 
-LAST = min(NROW,KCOL)
+  LAST = min(NROW,KCOL)
 
-! BEGIN IS THE FIRST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED.
+  ! BEGIN IS THE FIRST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED.
 
-!.....BEGIN NON STANDARD DO LOOP.
-BEGIN = 1
-1050 NCOL = 1
-write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
-do K=BEGIN,NROW
-  KTOTAL = (K*(K-1))/2+BEGIN-1
-  do I=1,NCOL
-    if (AMATRX(KTOTAL+I) /= Zero) GO TO 20
+  !.....BEGIN NON STANDARD DO LOOP.
+  BEGIN = 1
+  do
+    NCOL = 1
+    write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
+    do K=BEGIN,NROW
+      KTOTAL = (K*(K-1))/2+BEGIN-1
+      do I=1,NCOL
+        if (AMATRX(KTOTAL+I) /= Zero) then
+          write(LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)
+          exit
+        end if
+      end do
+      if (K < (BEGIN+KCOL-1)) NCOL = NCOL+1
+    end do
+    LAST = min(LAST+KCOL,NROW)
+    BEGIN = BEGIN+NCOL
+    if (BEGIN > NROW) exit
   end do
-  GO TO 30
-20 write(LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)
-30 if (K < (BEGIN+KCOL-1)) NCOL = NCOL+1
-end do
-LAST = min(LAST+KCOL,NROW)
-BEGIN = BEGIN+NCOL
-if (BEGIN <= NROW) GO TO 1050
-200 continue
+end if
 
 return
 
