@@ -65,6 +65,7 @@ subroutine CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FL
 !
 !***********************************************************************
 
+use Cholesky, only: nBas, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck
@@ -81,9 +82,6 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
                      iSymr_Occ, iSyms, iVec, jB, jD, jDen, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(8), KSQ1(8), KTOT, l, lChoV, &
                      LKV, lScr, LVK, LWORK, MaxSym, Naa, nBatch, NBL, NK, np, npp, nq, nr, NumV, nVec

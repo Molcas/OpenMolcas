@@ -17,13 +17,11 @@ subroutine CHO_RSTOF(IRS2F,N,LRDIM,IRED)
 ! IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
 ! IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
 
-use Cholesky, only: iShlSO, iSOShl, nBstSh
+use Cholesky, only: iBas, iShlSO, iSOShl, mmBstRT, nBas, nBstSh, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), IRED
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: IA, IB, IRS, ISHLA, ISHLAB, ISHLB, ISYMA, ISYMAB, ISYMB, KA, KB, LA, LAB, LB
 character(len=*), parameter :: SECNAM = 'CHO_RSTOF'
 integer(kind=iwp), external :: CHO_F2SP, CHO_RS2F

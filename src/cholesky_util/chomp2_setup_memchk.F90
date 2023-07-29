@@ -17,13 +17,13 @@ function ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,nSym,nBatch,Mem)
 !
 ! Purpose: Check memory availability.
 
+use ChoMP2, only: Laplace, SOS_mp2
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: ChoMP2_Setup_MemChk
 integer(kind=iwp) :: nSym, nBatch, LnT1am(nSym,nBatch), LnPQprod(nSym,nBatch), NumVec(nSym), nFrac(nSym), Mem
-#include "chomp2_cfg.fh"
 integer(kind=iwp) :: iBatch, iSym, jBatch, LiPQRSprod(8), LiT2am(8), LnPQRSprod, LnT2am, Nai, NumV
 real(kind=wp) :: xDiff, xDim, xInt, xLeft, xMem, xNeed
 

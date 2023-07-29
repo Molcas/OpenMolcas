@@ -13,13 +13,12 @@ function CHO_ISAO(IAO)
 !
 ! Purpose: return symmetry of AO number IAO (in global list).
 
+use Cholesky, only: IBAS, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_ISAO
 integer(kind=iwp) :: IAO
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
 character(len=8), parameter :: SECNAM = 'CHO_ISAO'

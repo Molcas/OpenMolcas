@@ -14,6 +14,7 @@
 subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 
 use MBPT2_Global, only: nBas
+use ChoMP2, only: ChoAlg, DoDens, DoFNO, DoMP2, vkept, XEMP2
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,7 +24,6 @@ real(kind=wp), intent(inout) :: CMOI(*), EOcc(*), EVir(*)
 logical(kind=iwp) :: DoDens_
 integer(kind=iwp) :: ChoAlg_
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 DoDens_ = DoDens
 DoDens = .false.

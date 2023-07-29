@@ -13,12 +13,11 @@ subroutine CHO_RSTMOL(NERR)
 !
 ! Purpose: check restart molecular info.
 
+use Cholesky, only: LUPRI, NBAS, NNSHL, NSHELL, NSYM, XNBAS, XNNSHL, XNSHELL, XNSYM
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: NERR
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ISYM
 
 NERR = 0

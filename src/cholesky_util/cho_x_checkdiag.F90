@@ -39,7 +39,7 @@
 !> Return code is ``0`` if successful execution. If \p irc is non-zero,
 !> the contents or \p Err are ill-defined.
 !> Results will only be printed to output if \c iPrint is ``-5`` or
-!> greater (\c iPrint stored in choprint.inc).
+!> greater.
 !>
 !> @param[out] irc Return code
 !> @param[out] Err min, max, average, and RMS error
@@ -47,6 +47,7 @@
 
 subroutine Cho_X_CheckDiag(irc,Err)
 
+use Cholesky, only: Cho_1Center, IPRINT, nnBstRT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp,u6
@@ -54,8 +55,6 @@ use Definitions, only: wp, iwp,u6
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: Err(4)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: i
 real(kind=wp), allocatable :: Bin(:), CD(:), Stat(:), XD(:)
 integer(kind=iwp), parameter :: iPrThr = -5

@@ -18,7 +18,9 @@ subroutine ChoLSOSMP2_Energy_Srt(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
 ! vectors (i.e., occupied orbitals processed in batches).
 
-use ChoMP2, only: iFirstS, LiT1am, LnOcc, LnT1am, lUnit
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: DecoMP2, iFirstS, iOcc, iVir, Laplace_BlockSize, Laplace_nGridPoints, LiT1am, LnOcc, LnT1am, lUnit, nBatch, &
+                  nMP2Vec, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
@@ -27,9 +29,6 @@ implicit none
 integer(kind=iwp) :: N, irc
 real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
 logical(kind=iwp) :: Delete
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: a, blast, bsize, i, iAddr, iBatch, iBlock, ii, iOpt, ip0, ip1, ipi, ipj, ipX, iSym, iSyma, iSymi, iVec, &
                      jBlock, l_Tot, l_X, lenX, Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
 real(kind=wp) :: Eq, lX, tq, wq, xb, xbp, xM, xn

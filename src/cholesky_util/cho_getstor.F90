@@ -13,12 +13,12 @@ subroutine CHO_GETSTOR(VCSTOR)
 !
 ! Purpose: get total vector storage (in words).
 
+use Cholesky, only: LuPri, MaxVec, nSym, NumCho
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: VCSTOR(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: ISYM
 character(len=*), parameter :: SECNAM = 'CHO_GETSTOR'
 

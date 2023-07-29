@@ -13,8 +13,9 @@ subroutine CHO_DBGINT()
 !
 ! Purpose: regenerate and check integrals as specified in input.
 
+use Cholesky, only: CHO_MINCHK, ICHKQ, NCHKQ
+
 implicit none
-#include "cholesky.fh"
 
 if (CHO_MINCHK) then ! minimal check
   call CHO_MCA_DBGINT_S(ICHKQ,NCHKQ,.true.)

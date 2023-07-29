@@ -33,6 +33,8 @@ subroutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
 !
 !    D(J) = X(J) - Y(J)
 
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: iAOVir, iOcc, iT1am, iT1AOT, iVir, lUnit_F, nMP2Vec, nOcc, nOccT, nT1am, nVir, nVirT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -40,9 +42,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iTyp, lU_AO(*)
 real(kind=wp) :: COcc(*), CVir(*)
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: a, Al, AlBe, i, iAdr, iOpt, iSym, iSyma, iSymAl, iSymBe, iSymi, J, kC, kP, kP_, lTot, na, nAlBe, nMP2Vec_Tot, &
                      nOcc_Max
 real(kind=wp) :: AbsMaxErr, AbsMinErr, AvgErr, Err(4,8), RMSErr

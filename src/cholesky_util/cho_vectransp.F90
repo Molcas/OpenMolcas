@@ -13,7 +13,8 @@ subroutine Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
-use Cholesky, only: iL2G, IndRed, InfVec_G, IndRed
+use Cholesky, only: Cho_AdrVec, Cho_Real_Par, iiBstR, iiBstR_G, iL2G, IndRed, InfVec_G, IndRed, LuCho_G, LuPri, MaxVec, myNumCho, &
+                    nnBstR, nnBstR_G
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: u6
 #endif
@@ -24,9 +25,6 @@ real(kind=wp) :: Vec(*)
 integer(kind=iwp) :: Jin, Jfi, iSym, iRed, iPass
 character(len=*), parameter :: SecNam = 'Cho_VecTransp'
 #ifdef _MOLCAS_MPP_
-#include "cho_para_info.fh"
-#include "cholesky.fh"
-#include "choglob.fh"
 #include "mafdecls.fh"
 integer(kind=iwp) :: g_a, i, i1, iAdr, iCount, iNode, iOpt, irc, iRSL, iStart, iVec, iVec1, j, j1, Jin0, jRed, jv, jVec, LastV, &
                      lTot, MxRSL, MyEnd, myStart, nProcs_eff, nRS_g, nRS_l, nV, nVR

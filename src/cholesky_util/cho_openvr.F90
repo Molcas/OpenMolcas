@@ -16,11 +16,11 @@ subroutine CHO_OPENVR(IOPT,ID)
 !          ID=1: open local files (for parallel run)
 !          ID=2: open global files (as in serial run)
 
+use Cholesky, only: Cho_AdrVec, LuCho, LuMap, LuPri, LuRed, LuRst, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IOPT, ID
-#include "cholesky.fh"
 integer(kind=iwp) :: ISYM
 character(len=6) :: FMAP, FNVEC(8), FRST
 character(len=5) :: FNRED

@@ -18,15 +18,13 @@ subroutine Cho_P_PrtDia(Diag,Sync,iSyLst,nSyLst,iLoc)
 !          to the memory location of the reduced set index arrays to
 !          use for printing (and synchronizing, if requested).
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 logical(kind=iwp) :: Sync
 integer(kind=iwp) :: nSyLst, iSyLst(nSyLst), iLoc
-#include "cho_para_info.fh"
-#include "choglob.fh"
 
 if (Cho_Real_Par) then
 

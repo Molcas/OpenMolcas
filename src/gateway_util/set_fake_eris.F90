@@ -12,13 +12,13 @@
 subroutine Set_Fake_ERIs()
 
 use Basis_Info, only: nBas
-use RICD_Info, only: Cholesky, Do_RI
+use RICD_Info, only: Chol => Cholesky, Do_RI
+use Cholesky, only: CHO_ADRVEC, NumCho, ThrCom
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: i, nBasT, nVec_RI(8)
 integer(kind=iwp), allocatable :: iSOShl(:)
 
@@ -26,7 +26,7 @@ write(u6,*)
 write(u6,*) '   *** Skipping anything related to ERIs ***'
 write(u6,*)
 
-if (.not. (Cholesky .or. Do_RI)) return
+if (.not. (Chol .or. Do_RI)) return
 
 call NameRun('AUXRFIL')
 

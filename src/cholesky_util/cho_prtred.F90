@@ -13,14 +13,12 @@ subroutine CHO_PRTRED(IOPT)
 !
 ! Purpose: print information about reduced set.
 
-use Cholesky, only: nnBstRSh
+use Cholesky, only: LuPri, NBAS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nSym
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IOPT
-#include "choorb.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: IRED, ISHLAB, ISYM, ISYMA, ISYMB, NRED, NSHP(2)
 real(kind=wp) :: PCT1, PCT2, XBAS(8), XXBAS(8), XXBAST
 logical(kind=iwp) :: CONTRIB(2)

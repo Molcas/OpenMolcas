@@ -21,14 +21,13 @@ subroutine Cho_ChkDia_A4(Diag,Dmax,iSym,nNeg,nNegT,nConv,xM,yM,zM)
 !          yM = min. element in Diag
 !          zM = max. abs. element in Diag
 
-use Cholesky, only: IndRed
+use Cholesky, only: Damp, iiBstR, IndRed, LuPri, nnBstR, SCDIAG, ThrCom, ThrNeg, TOONEG, WARNEG
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), Dmax, xM, yM, zM
 integer(kind=iwp) :: iSym, nNeg, nNegT, nConv
-#include "cholesky.fh"
 integer(kind=iwp) :: i, j, j1, j2
 real(kind=wp) :: Tst
 character(len=*), parameter :: SecNam = 'Cho_ChkDia_A4'

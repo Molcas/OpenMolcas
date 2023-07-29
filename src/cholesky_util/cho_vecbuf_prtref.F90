@@ -19,12 +19,11 @@ subroutine Cho_VecBuf_PrtRef(Txt)
 ! Txt is printed along with the reference values (for
 ! identification).
 
-use Cholesky, only: CHVBFI, InfVec, ip_CHVBFI_SYM, nDimRS, nVec_in_Buf
+use Cholesky, only: CHVBFI, InfVec, ip_CHVBFI_SYM, LuPri, nDimRS, nSym, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
 character(len=*) :: Txt
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, jRed, jVec, nDim
 ! Statement functions
 real(kind=wp) :: RefNrm, RefSm

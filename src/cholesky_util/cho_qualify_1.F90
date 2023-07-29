@@ -13,13 +13,12 @@ subroutine CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
 !
 ! Purpose: qualify diagonals ("qualify until full").
 
-use Cholesky, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Cholesky, only: DiaMin, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, MaxQual, nnBstR, nnBstRSh, nQual
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: ISYM, ISHLAB, MEM, MEM0, LEFT
-#include "cholesky.fh"
 integer(kind=iwp) :: I, I2, J, MAXQ, NUMQ
 
 if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then

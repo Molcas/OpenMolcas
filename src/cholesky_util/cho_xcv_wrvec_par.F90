@@ -16,13 +16,12 @@ subroutine Cho_XCV_WrVec_Par(irc,Vec,NVT,myRankSP,SP)
 ! PARALLEL VERSION
 !     Write the vectors in blocks.
 
-use Cholesky, only: nnBstRSh
+use Cholesky, only: LuTmp, nnBstRSh, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, NVT(*), myRankSP(*), SP
 real(kind=wp) :: Vec(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAdr, iSP, iSym, j, kV, lTot
 integer(kind=iwp), parameter :: iOpt = 1
 

@@ -38,7 +38,7 @@ subroutine CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,POrb,nChM,W_P
 !
 !***********************************************************************
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -55,9 +55,6 @@ real(kind=wp), intent(in) :: FactXI, ExFac
 type(DSBA_Type), intent(in) :: DLT(2), POrb(3), CMO
 logical(kind=iwp), intent(in) :: DoActive
 real(kind=wp), intent(_OUT_) :: W_PWXY(*)
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, iSymw, IVEC2, iVrs, JNUM, &
                      JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kMOs, l, LREAD, LWORK, mTvec, mTvec1, mTvec2, mTvec3, mTvec4, MUSED, &
                      NAch, nAux(8), nAv, nAw, nBatch, nDen, NK, nMOs, nnA(8,8), nPorb(8), nRS, NUMV, nVec, nVrs

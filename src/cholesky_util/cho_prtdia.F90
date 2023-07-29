@@ -14,13 +14,12 @@ subroutine CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
 ! Purpose: print requested symmetry block(s) of diagonal in
 !          first (IRED=1) or current (IRED=2) reduced set.
 
-use Cholesky, only: iiBstRSh, IndRed, IndRSh, iSP2F, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, IndRSh, iSP2F, LuPri, nnBstRSh, nnShl, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NSYLST, ISYLST(NSYLST), IRED
 real(kind=wp) :: Diag(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IAB1, IAB2, ILST, ISHLAB, ISYM, JAB
 character(len=*), parameter :: SECNAM = 'CHO_PRTDIA'
 

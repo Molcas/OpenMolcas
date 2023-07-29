@@ -22,15 +22,13 @@ subroutine Cho_P_SetPass(Diag,Sync,DiaSh,iSySh,iLoc,Conv,nPotSh)
 !          shell pairs whose max. diagonal element is larger than
 !          the decomposition threshold.
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), DiaSh(*)
 logical(kind=iwp) :: Sync, Conv
 integer(kind=iwp) :: iSySh(*), iLoc, nPotSh
-#include "cho_para_info.fh"
-#include "choglob.fh"
 
 if (Cho_Real_Par) then
 

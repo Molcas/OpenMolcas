@@ -16,13 +16,13 @@ subroutine CHO_IODIAG_1(DIAG,IOPT,FNAME)
 !          IOPT=1: write
 !          IOPT=2: read
 
+use Cholesky, only: LuPri, nnBstRT
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DIAG(*)
 integer(kind=iwp) :: IOPT
 character(len=*) :: FNAME
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, LENGTH, LUNIT
 character(len=*), parameter :: SECNAM = 'CHO_IODIAG_1'
 

@@ -18,12 +18,12 @@ subroutine ChoMP2_Col_Invai(ai,iSymai,a,iSyma,i,iSymi)
 ! Purpose: calculate indices a and i (incl. symmetries)
 !          from compound index ai of symmetry iSymai.
 
+use Cholesky, only: nSym
+use ChoMP2, only: iT1am, nOcc, nVir
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ai, iSymai, a, iSyma, i, iSymi
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iSym, i_, ai_1, ai_2
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SecNam = 'ChoMP2_Col_Invai'

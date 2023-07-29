@@ -11,12 +11,12 @@
 
 subroutine Cho_SetGlob()
 !
-! Purpose: define entries in choglob.fh
+! Purpose: define entries in Cholesky.
 
+use Cholesky, only: iiBstR_G, LuCho_G, LuRed_G, LuRst_G, mmBstRT_G, nLoc_G, nnBstR_G, nnBstRT_G, nnShl_G, NumCho_G, NumChT_G
 use Definitions, only: iwp
 
 implicit none
-#include "choglob.fh"
 integer(kind=iwp) :: iSym, N
 integer(kind=iwp), parameter :: iLarge = 999999
 

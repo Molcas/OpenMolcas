@@ -20,15 +20,14 @@ subroutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
 !          If requested (DoDiag=.true.), compute (ai|ai) integral
 !          diagonal.
 
-use Cholesky, only: InfVec
+use Cholesky, only: InfVec, nnBstR, NumCho
+use ChoMP2, only: lUnit_F, nT1am, nT1AOT
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: lWrk, iSym
 real(kind=wp) :: COcc(*), CVir(*), Diag(*), Wrk(lWrk)
 logical(kind=iwp) :: DoDiag
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: ai, iAdr, iBat, iLoc, iOpt, irc, iRed, iRedC, iVec, iVec1, iVec2, jNum, jVec, jVec1, kChoAO, kChoMO, kEnd0, &
                      kHlfTr, kOff, kOffMO, lChoAO, lChoMO, lHlfTr, lRead, lWrk0, lWrk1, mUsed, nMOVec, NumBat, NumV
 character(len=*), parameter :: SecNam = 'ChoMP2_Tra_1'

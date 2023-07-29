@@ -17,16 +17,14 @@ subroutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc)
 !
 ! Purpose: compute ai-vector from reduced set AO vector.
 
-use Cholesky, only: IndRed, iRS2F
+use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
+use ChoMp2, only: iAOVir, iT1am, iT1AOT, nOcc, nT1AOT, nVir
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
 real(kind=wp) :: VecAO(*), VecMO(*), COcc(*), CVir(*), Scr(lScr)
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, kOff3, &
                      kOffAl, kOffBe, nTota, nTotAl, nToti
 real(kind=wp) :: AOVal

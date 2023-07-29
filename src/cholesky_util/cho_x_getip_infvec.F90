@@ -19,15 +19,14 @@ subroutine Cho_X_GetIP_InfVec(InfVcT)
 
 use Cholesky, only: InfVec
 #ifdef _MOLCAS_MPP_
-use Cholesky, only: InfVec_Bak
+use Cholesky, only: Cho_Real_Par, InfVec_Bak
 #endif
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), pointer :: InfVct(:,:,:)
-#ifdef _MOLCAS_MPP_
-#include "cho_para_info.fh"
 
+#ifdef _MOLCAS_MPP_
 if (Cho_Real_Par) then
   if (allocated(InfVec_Bak)) then
     InfVcT => InfVec_Bak

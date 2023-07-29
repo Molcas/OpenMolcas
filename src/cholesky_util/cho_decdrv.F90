@@ -14,14 +14,13 @@ subroutine CHO_DECDRV(DIAG)
 ! Purpose: driver for the decomposition of the two-electron integral
 !          matrix based on the reduced diagonal.
 
-use Cholesky, only: InfRed, nDimRS
+use Cholesky, only: CHO_DECALG, CHO_SIMP, DIAMIN, DID_DECDRV, FRAC_CHVBUF, INF_PASS, INF_VECBUF, InfRed, IPRINT, LuPri, LuSel, &
+                    MaxRed, nDimRS, nnBstR, nSym, NumCho, TDECDRV, ThrCom, Trace_Idle, Span, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) ::  Diag(*)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I, IPASS, IPASS_PREV, IRC, IRED, ISYLST(8), iSym, JPASS, KRED, LWRK, MPASS, NBIN, nDim_Now, NGSP, NPOTSH, NUM
 real(kind=wp) :: BIN1, DIAMAX_SIMP(8), STEP, TCPU1, TCPU2, TLDEC, TLDEC1, TLDEC2, TLINT, TLINT1, TLINT2, TLTOT, TLTOT1, TLTOT2, &
                  TWALL1, TWALL2, WLDEC, WLDEC1, WLDEC2, WLINT, WLINT1, WLINT2, WLTOT, WLTOT1, WLTOT2

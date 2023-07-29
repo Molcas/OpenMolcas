@@ -25,13 +25,11 @@ subroutine Cho_XCV_DistributeVectors(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP,NVT,l
 ! Victor P. Vysotskiy, 2014:
 ! Number of 'ga_get' has been remarkably reduced by using the stripped mode
 
+use Cholesky, only: Cho_Real_Par, INF_PASS, IPRINT, LuPri
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_idSP, idSP(n_idSP), l_NVT, NVT(l_NVT)
-#include "cho_para_info.fh"
-#include "choprint.fh"
-#include "cholesky.fh"
 real(kind=wp) :: C0, C1, W0, W1
 
 irc = 0

@@ -12,6 +12,7 @@
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
 use Fock_util_global, only: Estimate, Update
+use Cholesky, only: timings
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -21,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
 real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
 real(kind=wp), intent(out) :: Etwo
-#include "chotime.fh"
 integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
 real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
 !character(len=80) :: KSDFT

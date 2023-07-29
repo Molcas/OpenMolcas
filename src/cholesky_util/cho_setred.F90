@@ -14,13 +14,13 @@ subroutine CHO_SETRED(DIAG)
 ! Purpose: set next reduced set. A copy of the previous set
 !          is stored in location 3.
 
-use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
+use Cholesky, only: Cho_TrcNeg, Cho_UseAbs, Damp, iAtomShl, iiBstR, iiBstRSh, IndRed, iSP2F, LuPri, Mode_Screen, nnBstR, nnBstRSh, &
+                    nnBstRT, nnShl, nSym, ScDiag, ThrCom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DIAG(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, INEG, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, KAB, MSYM, NNEG
 real(kind=wp) :: TST, XM
 character(len=*), parameter :: SECNAM = 'CHO_SETRED'

@@ -11,13 +11,13 @@
 
 subroutine Cho_GAdGOp(X,n,Op)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: X(n)
 character(len=*) :: Op
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iv, kv
 
 if (Cho_Real_Par) then

@@ -15,21 +15,25 @@ subroutine Cho_Dump(irc,Lunit)
 !
 ! T.B. Pedersen, March 2005.
 !
-! Purpose: print all entries in include files
-!          choorb.fh
-!          cholesky.fh
-!          and some in the module Cholesky
+! Purpose: print some entries in the module Cholesky
 !
 ! On input, Lunit is the logical unit to print to...
 
-use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, SSTau, SubScrStat
+use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho_DecAlg_Def, Cho_DiaChk, Cho_Fake_Par, Cho_IntChk, &
+                    Cho_IOVec, Cho_MinChk, Cho_No2Center, Cho_PreScreen, Cho_Reord, Cho_SimP, Cho_SScreen, Cho_TrcNeg, &
+                    Cho_TstScreen, Cho_UseAbs, Damp, DiaMax, DiaMin, DiaMnZ, Did_DecDrv, DSPNm, DSubScr, Frac_ChVBuf, HaltIt, &
+                    iABMnZ, iAlQua, iBas, iChkQ, IFCSew, iiBstR, iOff_Col, iOffQ, lBuf, LuCho, LuMap, LuPri, LuRed, LuRst, LuScr, &
+                    LuSel, LuTmp, MaxQual, MaxRed, MaxVec, MinQual, mmBstRT, Mode_Screen, ModRst, Mx2Sh, MxORSh, MxShPr, N1_Qual, &
+                    N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nBas, nBasT, nChkQ, nCol_Chk, nColAB, nDecom, nDGM_call, nInteg, nnBstR, &
+                    nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual, nSection, nShell, nSym, nSys_call, NumCho, NumChT, nVecRS1, RstCho, &
+                    RstDia, Run_Mode, ScDiag, ShA, ShAB, ShB, ShC, ShCD, ShD, Span, SSTau, SubScrStat, tDecDrv, tDecom, &
+                    Thr_PreScreen, ThrCom, ThrDef, ThrDiag, ThrNeg, TimSec, tInteg, Tol_DiaChk, TooNeg, Trace_Idle, WarNeg, &
+                    XCho_AdrVec, XDamp, XlDiag, XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, &
+                    XTooNeg, XWarNeg
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, Lunit
-#include "choorb.fh"
-#include "choprint.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: i, j
 character(len=*), parameter :: SecNam = 'Cho_Dump'
 
@@ -41,23 +45,13 @@ write(Lunit,*) '>>> Output from ',SecNam,':'
 write(Lunit,*)
 call Cho_Flush(Lunit)
 
-! choorb.fh.
-! -----------
-
-write(Lunit,*) '*** Contents of choorb.fh:'
+write(Lunit,*) '*** Contents of Choleksy:'
 write(Lunit,*)
 call Cho_Flush(Lunit)
 write(Lunit,*) 'iBas : ',(iBas(i),i=1,8)
 write(Lunit,*) 'nBas : ',(nBas(i),i=1,8)
 write(Lunit,*) 'XnBas: ',(XnBas(i),i=1,8)
 write(Lunit,*) 'nBasT: ',nBasT
-write(Lunit,*)
-call Cho_Flush(Lunit)
-
-! cholesky.fh.
-! -------------
-
-write(Lunit,*) '*** Contents of cholesky.fh:'
 write(Lunit,*)
 call Cho_Flush(Lunit)
 write(Lunit,*) 'ThrDef        : ',ThrDef
@@ -203,13 +197,9 @@ write(Lunit,*)
 write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
 call Cho_Flush(Lunit)
 
-! Cholesky.
-! ---------
-
 call Cho_PrintPointers(irc,Lunit)
 if (irc /= 0) return
 
-write(Lunit,*) '*** Contents of Cholesky:'
 write(Lunit,*)
 write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
 write(Lunit,*) 'SSTau      : ',SSTau

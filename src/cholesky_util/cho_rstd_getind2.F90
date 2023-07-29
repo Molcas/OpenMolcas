@@ -13,11 +13,10 @@ subroutine CHO_RSTD_GETIND2()
 !
 ! Purpose: read mapping arrays for diagonal restart.
 
-use Cholesky, only: IndRed, IndRSh
+use Cholesky, only: IndRed, IndRSh, LuRed, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, IOPT, LEN0, LEN1, LEN2
 
 LEN0 = NSYM*NNSHL

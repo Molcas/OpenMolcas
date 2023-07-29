@@ -25,6 +25,7 @@ subroutine Cho_VecBuf_CheckIntegrity(Tol,Verbose,Txt,irc)
 !
 ! A simpler interface is given by Subroutine Cho_VecBuf_Check.
 
+use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,7 +33,6 @@ real(kind=wp) :: Tol
 logical(kind=iwp) :: Verbose
 character(len=*) :: Txt
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
 logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
 
 if (Cho_VecBuf_Integrity_OK(Tol,Verbose)) then

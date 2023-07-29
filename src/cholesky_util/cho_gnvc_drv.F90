@@ -17,7 +17,8 @@ subroutine Cho_GnVc_Drv(irc,Diag)
 !          diagonal.
 
 use Data_Structures, only: Alloc1DiArray_Type
-use Cholesky, only: InfVec, iQuAB
+use Cholesky, only: DID_DECDRV, iiBstR, INF_PASS, InfVec, iOff_col, IPRINT, iQuAB, LuPri, nnBstR, nnShl, nQual, nSym, NumCho, &
+                    NumChT, TDECDRV, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -25,8 +26,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: Diag(*)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: iAB, iPass, iPass1, iPass2, iSym, iV, iV1, iV2, iVec1, jAB, jPass, jRed, kAB, l_Int, l_Wrk, l_WrkT, &
                      LastRed(8), lThis, nBatch, nPass, nScrV(8), nTotVec, NumInt, NumPass, NumSP, nVec
 real(kind=wp) :: dl_Int, dl_WrkT, tCPU1, tCPU2, TlDec, TlDec1, TlDec2, TlInt, TlInt1, TlInt2, TlTot, TlTot1, TlTot2, tWall1, &

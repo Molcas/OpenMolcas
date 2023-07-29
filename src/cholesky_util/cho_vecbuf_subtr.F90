@@ -17,8 +17,8 @@ subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
 ! DoTime: time as vector subtraction.
 ! DpStat: update statistics info (#calls to dGeMM).
 
-use Cholesky, only: Cho_SScreen, CHVBUF, DSPNm, DSubScr, iiBstRSh, ip_CHVBUF_SYM, iQuAB, l_CHVBUF_SYM, LQ, nnBstRSh, nVec_in_Buf, &
-                    SSNorm, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, CHVBUF, DSPNm, DSubScr, iiBstR, iiBstRSh, ip_CHVBUF_SYM, iQuAB, l_CHVBUF_SYM, LQ, LuPri, &
+                    nDGM_call, nnBstR, nnBstRSh, nnShl, nQual, nVec_in_Buf, SSNorm, SSTau, SubScrStat, TDECOM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,7 +26,6 @@ implicit none
 integer(kind=iwp) :: lWrk, iSym
 real(kind=wp), target :: xInt(*), Wrk(lWrk)
 logical(kind=iwp) :: DoTime, DoStat
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iBatch, iE, iGD, iS, iShGD, iVec0, jAB, jVec, lCol, lRow, nBatch, nGD, NumV, nVec
 real(kind=wp) :: C1, C2, Tst, W1, W2, xDon, xTot
 real(kind=wp), pointer :: U(:,:), V(:,:), W(:,:)

@@ -11,14 +11,13 @@
 
 subroutine Cho_X_GenVec(irc,Diag)
 
-use Cholesky, only: iQuAB, pTemp, iQuAB_here
+use Cholesky, only: iQuAB, pTemp, iQuAB_here, LuPri, MaxQual, Mode_Screen, nnZTot, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: Diag(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, MaxQual_SAVE
 character(len=*), parameter :: SecNam = 'Cho_X_GenVec'
 

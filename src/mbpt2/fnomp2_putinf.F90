@@ -14,6 +14,7 @@
 subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X,Y)
 ! Purpose: put info in MP2 common blocks.
 
+use ChoMP2, only: DoFNO, ip_Dab, ip_Dii, l_Dab, l_Dii
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,7 +23,6 @@ real(kind=wp), intent(in) :: X(*), Y(*)
 integer(kind=iwp) :: iSym
 integer(kind=iwp), external :: ip_of_Work
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 nSym = mSym
 

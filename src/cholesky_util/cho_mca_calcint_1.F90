@@ -16,15 +16,14 @@ subroutine CHO_MCA_CALCINT_1(ISHLAB)
 !
 ! Version 1: store full shell quadruple.
 
-use Cholesky, only: iiBstRSh, IndRed, iQuAB, iSP2F, nBstSh, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, INF_IN2, INF_INT, iOff_Col, iOffQ, IPRINT, iQuAB, iSP2F, nBstSh, LuPri, LuSel, &
+                    nnBstR, nnBstRSh, nnShl, nQual, nSym, TINTEG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ISHLAB
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: IAB, IADR, ICD, IOPT, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, JAB, JCD, JCD0, JCDS, KAB, KOFF, KOFF1, &
                      KOFF2, L4SH, L4SHMX, LCOL, LINT, LTOT, MAXCD, NAB(8), NUMAB, NUMCD
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL

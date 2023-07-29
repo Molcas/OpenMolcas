@@ -28,6 +28,8 @@ subroutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: iOcc, iT1am, iVir, nOcc, nT1am, nVir, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -35,10 +37,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: a, ai, i, iSym, iSyma, iSymb, iSymi, iTyp, kD0, kD1, kD2, lDiag, lU_AO(8)
 real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Ei, FracMem, WallBT1, &
                  WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
@@ -157,7 +155,7 @@ if (Verbose) call CWTime(CPUDec1,WallDec1)
 ! decomposition of, say, integrals (or squared integrals), then
 ! the vector files will be overwritten!!
 ! The number of vectors is always written to nMP2Vec(iSym) in
-! chomp2.fh - this is overwritten too, if you do another CD!!
+! ChoMP2 - this is overwritten too, if you do another CD!!
 
 Delete = Delete_def ! delete transf. vector files after dec.
 call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
@@ -208,7 +206,7 @@ end if
 ! You can now read the AO vectors from the units lU_AO(iSym)
 ! using ddaFile(). The files are word-addressable so that it
 ! is possible to read from the file as if addressing an array.
-! The number of vectors is nMP2Vec(iSym) stored in chomp2.fh.
+! The number of vectors is nMP2Vec(iSym) stored in ChoMP2.
 ! To save memory, you may want to finalize Cholesky info before
 ! continuing with the backtransformed vectors - but remember
 ! that all Cholesky information (from the AO integral CD) is

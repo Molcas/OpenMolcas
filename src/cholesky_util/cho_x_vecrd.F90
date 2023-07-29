@@ -29,7 +29,7 @@
 !> (in ``real*8`` words) actually used.
 !>
 !> @note
-!> cholesky.fh must be initialized.
+!> The Cholesky module must be initialized.
 !>
 !> @param[out]    Scr   contains the vectors on exit
 !> @param[in]     lScr  dimension of \p Scr
@@ -43,12 +43,12 @@
 
 subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)
 
+use Cholesky, only: NumCho
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
 real(kind=wp) :: Scr(lScr)
-#include "cholesky.fh"
 integer(kind=iwp) :: l_jVec2
 
 if ((iSym < 1) .or. (iSym > 8)) then

@@ -16,7 +16,8 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
-use ChoMP2, only: Incore, NowSym, OldVec
+use Cholesky, only: NumCho
+use ChoMP2, only: Incore, lUnit_F, NowSym, nT1am, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -30,8 +31,6 @@ real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose
 real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Col'
-#include "cholesky.fh"
-#include "chomp2.fh"
 
 if ((nCol < 1) .or. (nDim < 1)) return
 

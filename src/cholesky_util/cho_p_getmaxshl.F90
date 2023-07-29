@@ -13,12 +13,12 @@ subroutine Cho_P_GetMaxShl(DiaSh,Smax,iShlAB)
 !
 ! Purpose: get max shell pair and update DiaSh.
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DiaSh(*), Smax
 integer(kind=iwp) :: iShlAB
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   ! Swap local and global reduced set index arrays and use original

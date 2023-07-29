@@ -29,15 +29,14 @@ subroutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(2) = max error
 !          ErrStat(3) = rms error
 
-use ChoMP2, only: EOcc, EVir, Incore, OldVec
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: EOcc, EVir, Incore, iOcc, iT1am, iVir, lUnit_F, nMP2Vec, nOcc, nT1am, nVir, OldVec
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, iSym, nDim, nCol, lWrk
 real(kind=wp) :: Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: a, b, i, iai, iai0, iBatCol, ibj, ibj0, ibj1, iCol, iSyma, iSymb, iSymi, iSymj, j, kai, kbj, lU, Nai, &
                      nBatCol, Nbj, NumCol, NumVec
 real(kind=wp) :: DE, Ebj, Fac, xdim

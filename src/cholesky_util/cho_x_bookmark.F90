@@ -40,7 +40,7 @@
 
 subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
 
-use Cholesky, only: BkmThr, BkmVec, nRow_BkmThr
+use Cholesky, only: BkmThr, BkmVec, Cho_Real_Par, nRow_BkmThr, nSym, ThrCom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,8 +48,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: mSym, nVec(mSym), irc
 real(kind=wp) :: Thr, delta(mSym)
-#include "cho_para_info.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iRS, iSym, l, n
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: BkmScr(:)

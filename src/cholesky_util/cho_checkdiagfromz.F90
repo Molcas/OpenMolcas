@@ -25,6 +25,7 @@ subroutine Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l
 !                 calculation seems converged
 !          irc>0: calculation not converged
 
+use Cholesky, only: LuPri, nnBstRT, nSym, ThrCom, ThrNeg, TOONEG, WARNEG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -34,7 +35,6 @@ integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, 
                      iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
 real(kind=wp) :: Z(l_Z)
 logical(kind=iwp) :: Report
-#include "cholesky.fh"
 integer(kind=iwp) :: iD, iSym, J_inBlock, jBlock, K_inBlock, kblock, kOffZ, n1, n2, n3, n4, n5, nTot
 real(kind=wp) :: Damax, Damin, Dmax, Dmin
 integer(kind=iwp), pointer :: InfVct(:,:,:)

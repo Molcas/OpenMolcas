@@ -15,6 +15,7 @@ subroutine ChoMP2_FNO(irc,D_ab,D_ii,EOcc,EVir,Sorted,DelOrig)
 !
 ! F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
 
+use ChoMP2, only: nBatch
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -22,7 +23,6 @@ implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: D_ab(*), D_ii(*), EOcc(*), EVir(*)
 logical(kind=iwp) :: Sorted, DelOrig
-#include "chomp2.fh"
 integer(kind=iwp) :: lWrk
 real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'ChoMP2_FNO'

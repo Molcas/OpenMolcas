@@ -18,15 +18,13 @@ subroutine Cho_CompVec(Diag,xInt,VecK,QDiag,Wrk,lWrk,iSym,iPass)
 !          Wrk (dimension lWrk) is work space allocated in calling
 !          routine. QDiag contains the qualified diagonals.
 
-use Cholesky, only: IndRed
+use Cholesky, only: Cho_DiaChk, iiBstR, IndRed, INF_PROGRESS, IPRINT, LuPri, nnBstR, nnZTot, nQual, NumCho, NumChT, Tol_DiaChk
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lWrk, iSym, iPass
 real(kind=wp) :: Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: i, iABG, iVec, iVecT, j, jAB, jAB1, kInt, kK0, kOff, kOff0, nConv, nErr, nNeg, nNegT
 real(kind=wp) :: Fac, OlDiag, QDmax, Tol, xC, xM, yM, zM
 logical(kind=iwp), parameter :: LocDbg = .false.

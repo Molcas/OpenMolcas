@@ -13,13 +13,13 @@ subroutine Cho_P_ChkInt(xInt,Diag,iSym,nErr,Tol,Report)
 !
 ! Purpose: check diagonals in qualified integral columns.
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: xInt(*), Diag(*), Tol
 integer(kind=iwp) :: iSym, nErr
 logical(kind=iwp) :: Report
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Cho_P_QualSwp()

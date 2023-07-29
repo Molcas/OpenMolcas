@@ -20,11 +20,11 @@ subroutine Cho_Drv(iReturn)
 !          initialized and the relevant index info (#irreps, basis
 !          functions, shells, etc.) must have been set up.
 
+use Cholesky, only: Cho_DecAlg
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iReturn
-#include "cholesky.fh"
 
 iReturn = 0
 if (Cho_DecAlg == 5) then ! parallel two-step algorithm

@@ -15,8 +15,9 @@ subroutine CHO_RESETCNF()
 !          restart file. Original configuration will be saved in
 !          restart common block.
 
+use Cholesky, only: DAMP, SCDIAG, SPAN, THRCOM, THRDIAG, THRNEG, TOONEG, WARNEG, XDAMP, XSCDIAG, XSPAN, XTHRCOM, XTHRDIAG, &
+                    XTHRNEG, XTOONEG, XWARNEG
 implicit none
-#include "cholesky.fh"
 
 call CHO_DSWAP(THRCOM,XTHRCOM)
 call CHO_DSWAP(THRDIAG,XTHRDIAG)

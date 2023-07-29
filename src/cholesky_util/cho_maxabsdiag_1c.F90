@@ -14,14 +14,13 @@ subroutine Cho_MaxAbsDiag_1C(Diag,iLoc,DGMax)
 ! Specialization for 1-Center approximation: only find max for
 ! 1-center diagonals.
 
-use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
+use Cholesky, only: DiaMax, DiaMaxT, iAtomShl, iiBstR, iiBstRSh, IndRed, iSP2F, LuPri, nnBstRSh, nnShl, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), DGMax
 integer(kind=iwp) :: iLoc
-#include "cholesky.fh"
 integer(kind=iwp) :: i, i1, i2, iShlA, iShlAB, iShlB, iSym
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.

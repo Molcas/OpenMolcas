@@ -18,7 +18,7 @@ subroutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP,NVT,l_NVT)
 #ifndef _GA_
 use Para_Info, only: nProcs
 #endif
-use Cholesky, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, INF_PROGRESS, IPRINT, LuCho, LuPri, LuTmp, nnBstR, nnBstRSh, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 #endif
@@ -27,8 +27,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP), l_NVT, NVT(l_NVT)
 #ifdef _MOLCAS_MPP_
-#include "cholesky.fh"
-#include "choprint.fh"
 #include "mafdecls.fh"
 integer(kind=iwp) :: g_a, iAdr, iAdr0, iBatch, iSP, iSP1, iSP2, iSP_, iSP_Batch, iSym, J0, J1, J2, kV, l_IDV, l_Mem, l_numV, l_V, &
                      lTot, max_vector_dim, my_nV, myEnd, myStart, nBatch, nDim, nSP_this_batch, nVec_per_batch, nVec_this_batch

@@ -15,11 +15,11 @@ subroutine Cho_PTS_Final(NVT,l_NVT)
 !
 ! Thomas Bondo Pedersen, April 2010.
 
+use Cholesky, only: NumCho_G, NumChT_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: l_NVT, NVT(l_NVT)
-#include "choglob.fh"
 integer(kind=iwp) :: i
 
 call iCopy(l_NVT,NVT,1,NumCho_G,1)

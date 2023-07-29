@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cho_P_getGV_S(numV,mSym)
+subroutine Cho_P_getGV_S(numV,nSym)
 
+use Cholesky, only: NumCho
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mSym, numV(mSym)
-#include "cholesky.fh"
+integer(kind=iwp) :: nSym, numV(nSym)
 integer(kind=iwp) :: i
 
-do i=1,mSym
+do i=1,nSym
   numV(i) = numCho(i)
 end do
 

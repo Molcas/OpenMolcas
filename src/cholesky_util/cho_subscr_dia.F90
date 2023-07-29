@@ -21,14 +21,13 @@ subroutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
 !
 !          Any other norm is taken to be 'Max'.
 
-use Cholesky, only: DSPNm, DSubScr, iiBstRSh, nnBstRSh
+use Cholesky, only: DSPNm, DSubScr, iiBstRSh, LuPri, nnBstR, nnBstRSh, nnShl
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: ChoVec(*)
 integer(kind=iwp) :: nVec, iSym, iLoc
 character(len=*) :: DSPNorm
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iAB1, iAB2, iSP, iVec, kOff, lstr
 character(len=3) :: myDSPNorm
 character(len=*), parameter :: SecNam = 'Cho_SubScr_Dia'

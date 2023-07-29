@@ -14,12 +14,11 @@ subroutine Cho_P_SetRed_L()
 ! Purpose: set next local reduced set. The next global reduced set
 !          must be available at (global) index array location 2.
 
-use Cholesky, only: iiBstRSh, iiBstRSh_G, iL2G, IndRed, IndRed_G, MySP, nnBstRSh, nnBstRSh_G
+use Cholesky, only: iiBstR, iiBstR_G, iiBstRSh, iiBstRSh_G, iL2G, IndRed, IndRed_G, LuPri, MySP, nnBstR, nnBstRSh, nnBstRSh_G, &
+                    nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: i, i0, iC, irc, iShlAB, iSP, iSym, j, k, k0, l, ll, nDim
 character(len=*), parameter :: SecNam = 'Cho_P_SetRed_L'
 

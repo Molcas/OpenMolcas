@@ -99,7 +99,8 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings, ThrCom
 use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, V2
 use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen
@@ -121,9 +122,6 @@ logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
 real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
 real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
 #include "Molcas.fh"
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "print.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_

@@ -13,7 +13,7 @@ function CHO_ISAOSH(IAO,ISHL)
 !
 ! Purpose: return symmetry of AO number IAO in shell ISHL.
 
-use Cholesky, only: iBasSh
+use Cholesky, only: iBasSh, nSym
 #ifdef _DEBUGPRINT_
 use Cholesky, only: nBstSh
 #endif
@@ -22,7 +22,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: CHO_ISAOSH
 integer(kind=iwp) :: IAO, ISHL
-#include "cholesky.fh"
 integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SECNAM = 'CHO_ISAOSH'

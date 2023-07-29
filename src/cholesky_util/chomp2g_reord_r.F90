@@ -18,16 +18,13 @@ subroutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
 ! Purpose: To reorder R-vectors so it is practical to access
 !          one ia-piece at the time.
 
-use ChoMP2, only: AdrR1, AdrR2, LuRInv, nMoMo
+use Cholesky, only: nSym
+use ChoMP2, only: AdrR1, AdrR2, iT1am, lUnit_F, LuRInv, nMoMo, nMP2Vec, nOcc, nVir
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, lWrk
 real(kind=wp) :: Wrk(lWrk)
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iA, iAdr, iAdr1, iAdr2, iBat, iClos, iI, ioffset1, iOffset2, iOpt, iSeed, iSym, iSymA, iSymI, iTypR, iVec, &
                      iVec1, iVecOV, kEndRia1, kRia1, kRia2, lRia, lTot, maxvalue, nBatR, NumVec, nVec
 character(len=5) :: Fname

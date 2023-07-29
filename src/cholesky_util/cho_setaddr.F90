@@ -14,12 +14,12 @@ subroutine CHO_SETADDR(INFRED,INFVEC,MRED,MVEC,M2,MSYM)
 ! Purpose: set first disk addresses for reduced set info and
 !          vectors.
 
+use Cholesky, only: Cho_AdrVec, LuCho, nnBstR, nnBstRT, nnShl, nSym, NumCho, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: MRED, INFRED(MRED), MVEC, M2, MSYM, INFVEC(MVEC,M2,MSYM)
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, IOPT, IPASS, IRED, ISYM, JPASS, LSA
 real(kind=wp), allocatable :: KSA(:)
 character(len=*), parameter :: SECNAM = 'CHO_SETADDR'

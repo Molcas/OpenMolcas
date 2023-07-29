@@ -16,7 +16,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ID, n
-#include "cho_para_info.fh"
 logical(kind=iwp) :: Parallel_Mode
 
 Parallel_Mode = Is_Real_Par()

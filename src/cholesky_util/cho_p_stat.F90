@@ -11,12 +11,10 @@
 
 subroutine Cho_P_Stat()
 
+use Cholesky, only: Cho_Real_Par, LuRed, LuRed_G, nSym, NumCho, NumCho_G, NumChT, NumChT_G
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iTmp, jTmp
 
 if (Cho_Real_Par) then

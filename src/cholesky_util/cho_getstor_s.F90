@@ -13,14 +13,13 @@ subroutine CHO_GETSTOR_S(VCSTOR,ISYM)
 !
 ! Purpose: get total vector storage (in words), symmetry ISYM.
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nDimRS, nnBstR, NumCho
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: VCSTOR
 integer(kind=iwp) :: ISYM
-#include "cholesky.fh"
 integer(kind=iwp) :: IRED, JRED
 
 if (NUMCHO(ISYM) < 1) then

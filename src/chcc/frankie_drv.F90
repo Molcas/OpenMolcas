@@ -12,11 +12,11 @@
 subroutine frankie_drv(NChHere)
 
 use chcc_global, only: nfr, no, nv, printkey
+use Cholesky, only: NumCho
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: NChHere
-#include "cholesky.fh"
 
 ! ----------------------------------------------------------------------
 

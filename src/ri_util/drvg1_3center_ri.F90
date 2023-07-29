@@ -50,6 +50,7 @@ use Symmetry_Info, only: nIrrep
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, DoCholExch, iAdrCVec, iBDsh, iMP2prpt, iOff_Ymnij, LuCVector, MxChVInShl, &
                    nAdens, nAvec, nChOrb, nIJ1, nIJR, nJdens, nKdens, nKvec, NumAuxVec, nYmnij, tavec, tbvec, Timings_default, &
                    Yij, Ymnij
+use Cholesky, only: nSym, timings, ThrCom
 use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -62,9 +63,7 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
-#include "cholesky.fh"
 #include "setup.fh"
-#include "chotime.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

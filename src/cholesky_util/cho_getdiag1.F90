@@ -13,14 +13,12 @@ subroutine CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
 !
 ! Purpose: read diagonal in first reduced set.
 
-use Cholesky, only: IndRed, IndRSh
+use Cholesky, only: IndRed, IndRSh, INF_DIAG, IPRINT, mmBstRT, nnBstRT, nSym, RstDia
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), NDUMP
 real(kind=wp) :: Diag(*), BUF(LENBUF)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: IOPT, IRED, IRS, ISYLST(8), ISYM, NSYLST
 logical(kind=iwp), parameter :: LOCDBG = .false.
 

@@ -11,11 +11,11 @@
 
 subroutine Cho_Init_Tsk(ID,n)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ID, n
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Init_Tsk(ID,n)

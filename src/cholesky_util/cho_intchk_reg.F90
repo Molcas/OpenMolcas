@@ -14,13 +14,12 @@ subroutine CHO_INTCHK_REG(LABEL,ISHLCD,ISHLAB)
 ! Purpose: register a shell quadruple (CD|AB) for minimal integral
 !          check using LABEL to keep track of its origin.
 
-use Cholesky, only: iSP2F
+use Cholesky, only: iChkq, iSP2F, nChkq, nnShl
 use Definitions, only: iwp
 
 implicit none
 character(len=8) :: LABEL
 integer(kind=iwp) :: ISHLCD, ISHLAB
-#include "cholesky.fh"
 integer(kind=iwp) :: ID, ISHLA, ISHLB, ISHLC, ISHLD
 character(len=*), parameter :: SECNAM = 'CHO_INTCHK_REG'
 

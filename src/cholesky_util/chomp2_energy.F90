@@ -20,6 +20,7 @@ subroutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !          refers to whether or not the MO vectors have been sorted
 !          into the sizes of the batches over occupied orbitals.
 
+use ChoMP2, only: nBatch
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -27,8 +28,6 @@ implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EMP2, EOcc(*), EVir(*)
 logical(kind=iwp) :: Sorted, DelOrig
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
 integer(kind=iwp) :: lWrk
 real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy'

@@ -20,16 +20,14 @@ subroutine ChoMP2_Read_Batch(LnPQRSprod,LiPQRSprod,Wrk,lWrk,iBatch,jBatch,kXpqrs
 !          multiply them into two integral batches (or one batch if
 !          jBatch=iBatch).
 
-use ChoMP2, only: LnPQprod
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: ChoAlg, LnPQprod, lUnit_F, nBatch, nPQ_prod
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: LnPQRSprod,LiPQRSprod(8), lWrk, iBatch, jBatch, kXpqrs
 real(kind=wp) :: Wrk(lWrk)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iBat, iOpt, iSym, iTyp, iVec, iVec1, jVec, kEnd0, kEnd1, kEnd2, kOff, kRead, kVai, kVbj, kXint, lTot, &
                      lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec
 real(kind=wp) :: Fac

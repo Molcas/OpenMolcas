@@ -21,6 +21,7 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 ! Author:  F. Aquilante  (Geneva, Jun. 2008)
 
 use MBPT2_Global, only: nBas
+use ChoMP2, only: EOSMP2, shf, Wref, XEMP2
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -46,7 +47,6 @@ real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
 character(len=LenIn8), allocatable :: UBName(:)
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 irc = 0
 EMP2 = Zero
@@ -54,6 +54,7 @@ EFRO = Zero
 EOSF = Zero
 iDo = 0
 jDo = 0
+shf = Zero
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *

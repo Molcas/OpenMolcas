@@ -14,12 +14,11 @@ subroutine CHO_PUTRED(IPASS,IRED)
 ! Purpose: write reduced set indices to disk and set address for
 !          next write.
 
-use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, nnBstRSh
+use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, LuPri, MaxRed, mmBstRT, nnBstRSh, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IPASS, IRED
-#include "cholesky.fh"
 character(len=*), parameter :: SECNAM = 'CHO_PUTRED'
 
 if (IPASS > MAXRED) then

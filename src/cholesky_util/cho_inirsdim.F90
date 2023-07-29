@@ -13,11 +13,10 @@ subroutine CHO_INIRSDIM()
 !
 ! Purpose: initialize reduced set dimension.
 
-use Cholesky, only: nDimRS
+use Cholesky, only: MaxRed, nDimRS, nnBstR, nSym, RstCho, XnPass
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: ILOC, IRS, NSET, NUM
 
 if (RSTCHO) then

@@ -13,11 +13,12 @@ subroutine CHO_RSTCNF(NERR)
 !
 ! Purpose: check restart configuration info.
 
+use Cholesky, only: Cho_AdrVec, Damp, LuPri, ScDiag, Span, ThrCom, ThrDiag, ThrNeg, TooNeg, WarNeg, XCho_AdrVec, XDamp, XScDiag, &
+                    XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NERR
-#include "cholesky.fh"
 integer(kind=iwp) :: I, J
 real(kind=wp) :: ERR
 real(kind=wp), parameter :: ERRTOL = 1.0e-14_wp

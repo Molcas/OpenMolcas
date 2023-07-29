@@ -35,15 +35,13 @@
 
 subroutine Cho_X_CalcChoDiag(rc,Diag)
 
-use Cholesky, only: IndRed, InfVec, IndRed, nDimRS
+use Cholesky, only: iiBstR, IndRed, InfVec, IndRed, nDimRS, nnBstRT, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: rc
 real(kind=wp) :: Diag(*)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, krs, LWORK, mrs, &
                      MUSED, nBatch, nRS, NUMV, nVec, nVrs
 real(kind=wp), allocatable :: Lrs(:,:)

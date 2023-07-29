@@ -22,16 +22,14 @@ subroutine ChoMP2_SrtDrv(irc,DelOrig)
 !          output: flag to tell that at least 1 symmetry block has
 !                  in fact been deleted.
 
-use ChoMP2, only: LnT1am, lUnit
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: DecoMP2, LnT1am, lUnit, lUnit_F, nBatch, nMP2Vec, nT1am
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
 logical(kind=iwp) :: DelOrig
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iAdr, iBat, iBatch, iClos, iOpt, iSym, iTyp, iVec1, kChoMO, kSort, lChoMO, LnT1amx, lSort, lTot, lWrk, &
                      MinMem, nBat, nSrtVec, NumV, NumVec
 real(kind=wp), allocatable :: Wrk(:)

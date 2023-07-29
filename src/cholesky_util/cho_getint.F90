@@ -16,15 +16,14 @@ subroutine CHO_GETINT(DIAG,DIASH,ISYSH,LSTQSP,NPOTSH,ICOUNT)
 ! DIASH(ij): max. diagonal in shell pair i,j
 ! NPOTSH   : the number of shell pairs that can be qualified.
 
-use Cholesky, only: IntMap, iSP2F
+use Cholesky, only: DiaMin, INF_IN2, IntMap, iOffq, IPRINT, iSP2F, LuPri, MinQual, MXSHPR, N1_Qual, N2_Qual, NCOLAB, nnBstR, &
+                    nQual, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), DIASH(*)
 integer(kind=iwp) :: ISYSH(*), NPOTSH, LSTQSP(NPOTSH), ICOUNT
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: i, ISHLA, ISHLAB, ISHLB, ISYM, ISYMAB, LMAX, MCOUNT, MEMQ(1), MXDIM, NSEL
 real(kind=wp) :: SMAX, XMMQ
 logical(kind=iwp) :: DODECO, FULL, SYNC

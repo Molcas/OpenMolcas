@@ -14,6 +14,8 @@
 subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X,Y,isFNO)
 ! Purpose: put info in MP2 common blocks.
 
+use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoFNO, EOSMP2, ForceBatch, ip_Dab, ip_Dii, l_Dab, l_Dii, &
+                  MxQual_Def, MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrMP2, Verbose
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -24,7 +26,6 @@ logical(kind=iwp), intent(in) :: isFNO
 integer(kind=iwp) :: iSym
 integer(kind=iwp), external :: ip_of_Work
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 nSym = mSym
 

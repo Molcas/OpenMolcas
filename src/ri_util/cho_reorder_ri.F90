@@ -13,15 +13,13 @@ subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use Cholesky, only: iRS2F
+use Cholesky, only: iBas, iiBstR, iRS2F, nBas, nBasT, nnBstR, nnShl, nnShl_tot, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lVec, nVec, iSym
 real(kind=wp), intent(inout) :: Vec(lVec,nVec)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ia, ib, iRS, iRS_tot, iSyma, iSymb, iVec, kFrom, liF2RS, lScr, na, nab, nb
 integer(kind=iwp), allocatable :: iF2RS(:)
 real(kind=wp), allocatable :: Scr(:)

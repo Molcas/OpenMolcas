@@ -14,13 +14,12 @@ function CHO_LREAD(ISYM,LWRK)
 ! Purpose: return a reasonable scratch space dimension for reading
 !          previous vectors using cho_getvec.
 
-use Cholesky, only: InfVec
+use Cholesky, only: CHO_IOVEC, InfVec, nnBstR, NumCho, NVecRS1
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_LREAD
 integer(kind=iwp) :: ISYM, LWRK
-#include "cholesky.fh"
 integer(kind=iwp) :: IRED, JRED, JVEC, LEN1, LEN2, LEN3, LMIN
 integer(kind=iwp), parameter :: MNVECRS1 = 5
 

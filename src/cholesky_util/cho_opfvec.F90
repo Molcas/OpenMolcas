@@ -13,12 +13,11 @@ subroutine CHO_OPFVEC(ISYM,IOPT)
 !
 ! Purpose: open/close files for full storage vectors, sym. ISYM.
 
-use Cholesky, only: LUFV, REONAM
+use Cholesky, only: LUFV, nSym, REONAM
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISYM, IOPT
-#include "cholesky.fh"
 integer(kind=iwp) :: ISYMA, ISYMB, LUNIT
 character(len=6) :: FNAME
 character(len=*), parameter :: SECNAM = 'CHO_OPFVEC'

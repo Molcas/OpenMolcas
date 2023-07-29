@@ -18,14 +18,13 @@ subroutine Cho_VecBuf_EnableIntegrityCheck(irc)
 ! Enable integrity check of buffer: allocate and store norm and sum
 ! of each vector in the buffer.
 
-use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nDimRS, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, IPRINT, l_CHVBFI_SYM, LuPri, nDimRS, nSym, nVec_in_Buf, &
+                    RUN_EXTERNAL, RUN_MODE
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
-#include "choprint.fh"
 real(kind=wp), external :: Cho_dSumElm, dDot_
 integer(kind=iwp) :: ip, ipV, iSym, jRed, jVec, l_ChVBfI
 

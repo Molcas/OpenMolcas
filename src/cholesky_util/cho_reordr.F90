@@ -50,14 +50,12 @@ subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV
 !
 !********************************************************
 
-use Cholesky, only: IndRed, InfVec, iRS2F, nDimRS
+use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, lscr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSwap, ipChoV(*), iSkip(*)
 real(kind=wp) :: Scr(lscr)
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iabf, iag, ias, ibg, ibs, iLoc, iRab, iSyma, iSymb, jRab, JRED, JVEC, kchov, kchov1, kchov2, kRab, kscr, NREAD
 integer(kind=iwp), external :: cho_isao

@@ -19,14 +19,12 @@ subroutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
 ! dimension.
 
 use Para_Info, only: MyRank, nProcs
-use Cholesky, only: nnBstRSh
+use Cholesky, only: Cho_Real_Par, nnBstRSh, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: l_mySP, mySP(l_mySP), N_mySP
-#include "cho_para_info.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iNode, iSP, iSym, n
 integer(kind=iwp), allocatable :: ProcDim(:)
 integer(kind=iwp), external :: Cho_iFindSmallest

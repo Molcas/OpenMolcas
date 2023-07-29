@@ -20,14 +20,14 @@ subroutine Cho_X_RdRst(ifail)
 !          most likely, some of the restart info is not
 !          defined/initialized.
 
-use Cholesky, only: InfRed, InfRed_Hidden, InfVec, InfVec_Hidden
+use Cholesky, only: Cho_AdrVec, Damp, InfRed, InfRed_Hidden, InfVec, InfVec_Hidden, InfVec_N2, LuRst, MaxRed, MaxVec, nBas, nnShl, &
+                    nShell, nSym, NumCho, Span, ThrCom, ThrDiag, ThrNeg, TooNeg, WarNeg, XCho_AdrVec, XnPass, XDamp, XScDiag, &
+                    XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ifail
-#include "choorb.fh"
-#include "cholesky.fh"
 integer(kind=iwp), parameter :: lScr = 8
 integer(kind=iwp) :: iAdr, iOpt, iSym, j, jScr(lScr), nRd, nSP_UpLim
 real(kind=wp) :: dScr(lScr)

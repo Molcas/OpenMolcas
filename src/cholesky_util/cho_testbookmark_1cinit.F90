@@ -11,13 +11,12 @@
 
 subroutine Cho_TestBookmark_1CInit(AllocatedHere)
 
-use Cholesky, only: iAtomShl
+use Cholesky, only: iAtomShl, nShell
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp) :: AllocatedHere
-#include "cholesky.fh"
 integer(kind=iwp) :: irc
 
 if (.not. allocated(iAtomShl)) then

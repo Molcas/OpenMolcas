@@ -20,15 +20,13 @@ subroutine Cho_Stat_ParentDiag()
 !          one-center or two-center diagonals. Does not work with
 !          symmetry!
 
-use Cholesky, only: InfVec
+use Cholesky, only: InfVec, LuPri, nBasT, nnBstRT, nSym, NumCho, NumChT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp), parameter :: numAt = 6
 integer(kind=iwp) :: i, i1, i2, iA, iAt, iAt0, iAt1, iAt2, iAtA, iAtB, iAtom, iB, iBatch, iClass(4), iRS1, iVec, nAt, nAtom, &
                      nBatch, nChk, nPseudo, nTot1, nTot2

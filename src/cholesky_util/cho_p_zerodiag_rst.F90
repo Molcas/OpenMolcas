@@ -16,16 +16,13 @@ subroutine Cho_P_ZeroDiag_Rst(Diag,iSym,iABG)
 !          need first to figure out if the treated diagonal element
 !          is in fact present in the local diagonal.
 
-use Cholesky, only: iL2G, IndRed
+use Cholesky, only: Cho_Real_Par, iiBstR, iL2G, IndRed, nnBstR
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: iSym, iABG
-#include "cho_para_info.fh"
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iAB, iAB1, iAB2, jAB, kAB
 
 if (Cho_Real_Par) then

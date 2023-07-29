@@ -14,14 +14,11 @@ subroutine Cho_P_WrDiag()
 ! Purpose: store global diagonal on disk (Parallel only).
 !          NB: on exit, initial global diagonal is stored!
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G, nnBstRT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 real(kind=wp), allocatable :: Diag_L(:)
 
 if (Cho_Real_Par) then

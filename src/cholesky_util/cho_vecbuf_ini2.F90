@@ -17,11 +17,10 @@ subroutine Cho_VecBuf_Ini2()
 !
 ! Purpose: read vectors from disk into buffer.
 
-use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, LuPri, nSym, NumCho, NumChT, nVec_in_Buf
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: irc, iRedC, iSym, iV1, iV2, mUsed(8), nRead
 logical(kind=iwp) :: DoRead
 #ifdef _CHO_DEBUGPRINT_

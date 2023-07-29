@@ -22,14 +22,11 @@ subroutine Cho_P_UpdateBookmarks(iRS)
 ! Note: it is assumed that array DiaMax and number of Cholesky
 ! vectors are properly updated before calling this routine.
 
-use Cholesky, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec
+use Cholesky, only: BkmThr, BkmVec, Cho_Real_Par, DiaMaxT, MaxRed, nCol_BkmThr, nCol_BkmVec, nSym, NumCho, NumCho_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRS
-#include "cho_para_info.fh"
-#include "choglob.fh"
-#include "cholesky.fh"
 
 if ((.not. allocated(BkmVec)) .or. (.not. allocated(BkmThr))) return
 

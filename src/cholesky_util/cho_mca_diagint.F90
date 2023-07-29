@@ -19,11 +19,10 @@ implicit none
 integer(kind=iwp) :: ISHLA, ISHLB, LSCR
 real(kind=wp) :: SCR(LSCR)
 #include "itmax.fh"
-#include "cholesky.fh"
-integer(kind=iwp), external :: Integral_WrOut_Cho_diag
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
+external :: Integral_WrOut_Cho_diag
 
 call FZERO(SCR,LSCR)
 

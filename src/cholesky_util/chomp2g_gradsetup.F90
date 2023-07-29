@@ -22,7 +22,8 @@ subroutine ChoMP2g_GradSetup(irc,CMO)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use ChoMP2, only: iAdrOff, nMoMo
+use Cholesky, only: nBas, nSym, NumCho
+use ChoMP2, only: iAdrOff, lUnit_F, nFro, nMoMo, nMP2Vec, nOcc, nOrb, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Half
 use Definitions, only: wp, iwp
@@ -30,9 +31,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: CMO(*)
-#include "chomp2.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iAdr, iAdr1, iAdr2, iAdrB(8), iAdrR(8), iB3, iClos, iCMOo, iComp, iiJ, iiK, iJ, iK, indx, iOff, iOff0, &
                      iOff1, iOff2, iOff3, iOff_A, iOff_A2, iOff_JL, iOff_Ria, iOff_Rin, iOff_Rmn, iOff_WJL(8), iOffA, iOffB, &
                      iOffB1, iOffB2, iOffB3(8,8), iOffBB, iOffCInv(8), iOffCMOo(8), iOffD(8), iOffFF, iOffFO, iOffFV, iOffL, &

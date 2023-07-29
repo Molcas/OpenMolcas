@@ -23,14 +23,13 @@ subroutine CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED,DOREAD)
 ! NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 !       but execution is NOT stopped here!!!
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: Cho_AdrVec, InfVec, LuCho, LuPri, nDimRS, nnBstR
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LSCR, JVEC1, IVEC2, ISYM, JNUM, IREDC, MUSED
 real(kind=wp) :: SCR(LSCR)
 logical(kind=iwp) :: DOREAD
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, ILOC, IOPT, IVEC, JADR, JRED, JVEC, KOFFV, KSCR, LENR, LTOT, NTST
 real(kind=wp) :: XNRM
 logical(kind=iwp) :: FULL

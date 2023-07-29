@@ -17,10 +17,10 @@ subroutine Cho_VecBuf_Check()
 !
 ! Check buffer integrity and stop if corrupted.
 
+use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: irc
 real(kind=wp) :: Tol
 logical(kind=iwp) :: Verbose

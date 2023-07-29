@@ -42,12 +42,13 @@
       use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max,qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter, TrDD, TrDh, TrDP
       use k2_arrays, only: DeDe
-      use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
+      use InfSCF, only: AccCon, Aufb, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
                         Two_Thresholds, TStop, TemFac, Teee, Scrmbl, S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,      &
                         nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, MiniDn, MinDMX, kOV, FckAuf,     &
                         MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, nD,          &
                         FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,   &
                         FMOMax, MSYMON, Iter_Start, nnB, nBB
+      use Cholesky, only: ChFracMem
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut

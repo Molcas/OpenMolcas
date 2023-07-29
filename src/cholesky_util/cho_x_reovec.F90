@@ -39,12 +39,12 @@
 
 subroutine Cho_X_ReoVec(irc)
 
+use Cholesky, only: nnBstRT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
 integer(kind=iwp) :: iReo, l_Wrk
 integer(kind=iwp), allocatable :: iRS2F(:,:)
 real(kind=wp), allocatable :: Wrk(:)

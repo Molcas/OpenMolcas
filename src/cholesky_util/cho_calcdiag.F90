@@ -14,7 +14,9 @@ subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 ! Purpose: shell-driven calculation of the integral diagonal and
 !          setup of the first reduced set.
 
-use Cholesky, only: iAtomShl, iBasSh, iSP2F, MySP, n_MySP, nBasSh, nBstSh, nnBstRSh
+use Cholesky, only: CHO_NO2CENTER, Cho_PreScreen, CHO_USEABS, Damp, DiaMax, iAtomShl, iBasSh, IPRINT, iSP2F, lBuf, LuPri, LuScr, &
+                    Mx2Sh, MySP, n_MySP, NBAST, nBasSh, nBstSh, nnBstRSh, nnShl, nShell, nSym, SCDIAG, ShA, ShB, ThrCom, ThrDiag, &
+                    XlDiag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -22,9 +24,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LENSCR, NDUMP
 real(kind=wp) :: BUF(LENBUF), SCR(LENSCR)
-#include "cholesky.fh"
-#include "choprint.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: I_MYSP, IA, IAA, IAB, IB, IBB, ICOUNT, IDUMP, IOPT, ISAB, ISHLA, ISHLAB, ISHLB, ISYM, ISYMA, ISYMAB, ISYMB, &
                      IUNIT, JUNIT, L, LENGTH, LINTD, ll, LSCR, n_NegCalcDiag, n_NegCalcDiag_local, NIATOMSHL, NUMA, NUMAB, NUMB
 real(kind=wp) :: DEL1, DIAAB, DIAGAB, SAVD, SCRMAX(8), XLDIA, XMDIA, XNCD(1), XXX

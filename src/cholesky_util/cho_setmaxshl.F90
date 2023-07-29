@@ -13,14 +13,13 @@ subroutine CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
 !
 ! Purpose: set max. shell pair data for selection procedure.
 
-use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
+use Cholesky, only: CHO_1CENTER, CHO_NO2CENTER, iAtomShl, iiBstR, iiBstRSh, IndRed, iSP2F, LuPri, nnBstRSh, nnShl, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DIAG(*), DIASH(*)
 integer(kind=iwp) :: ISYSH(*), IRED
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IAB1, IAB2, ISAB, ISHLA, ISHLAB, ISHLB, ISYMAB, JAB, JAB1, JAB2
 character(len=*), parameter ::SECNAM = 'CHO_SETMAXSHL'
 

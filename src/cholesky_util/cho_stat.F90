@@ -14,15 +14,15 @@ subroutine CHO_STAT()
 ! Purpose: print statistics from decomposition.
 
 use Para_Info, only: Is_Real_Par, nProcs
-use Cholesky, only: Cho_SScreen, DSPNm, InfVec, IntMap, nDimRS, nnBstRSh, SSNorm, SSTau, SubScrStat
+use Cholesky, only: CHO_DECALG, CHO_FAKE_PAR, CHO_INTCHK, CHO_REORD, Cho_SScreen, CHO_TSTSCREEN, DID_DECDRV, DSPNm, DSPNM, &
+                    INF_INIT, INF_TIMING, InfVec, IntMap, IPRINT, LuPri, NBAS, NBAST, NDECOM, nDGM_call, nDimRS, nDimRS, NINTEG, &
+                    NMISC, nnBstR, nnBstRSh, nnBstRSh, nnBstRT, nnShl, nShell, nSym, nSys_call, NumCho, NumChT, RstCho, RstDia, &
+                    SSNorm, SSTau, SubScrStat, TDECDRV, TDECOM, ThrCom, TIMSEC, TINTEG, TMISC, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Eight
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choprint.fh"
-#include "choorb.fh"
 integer(kind=iwp), parameter :: NTAU = 5
 integer(kind=iwp) :: IBATCH, ICAL, IHC, IHW, ILOC, IMC, IMW, IPRSAV, IRC, IRED, IREDC, ISHAB, ISHGD, ISHLAB, ISYM, ITAU, IVEC1, &
                      JNUM, JSYM, JVEC1, JVEC2, KSYM, LRDVEC, LRDVT, LRED, MAXCAL, MUSD, N, NBATCH, NCAL, NCALL, NN, NREP, NTOT, &

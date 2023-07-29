@@ -17,6 +17,7 @@ subroutine ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType1,iMoType2)
 !
 ! Purpose: transform Cholesky vectors to (pq) MO basis.
 
+use Cholesky, only: nSym
 use ChoMP2, only: nMoMo, nMoType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -25,8 +26,6 @@ implicit none
 real(kind=wp) :: COrb1(*), COrb2(*), Diag(*)
 logical(kind=iwp) :: DoDiag
 integer(kind=iwp) :: iMoType1, iMoType2
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iSym, iVecType, kOffD, lw
 real(kind=wp), allocatable :: TraMax(:)
 

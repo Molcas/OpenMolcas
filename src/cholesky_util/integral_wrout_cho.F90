@@ -17,11 +17,11 @@ subroutine Integral_WrOut_Cho( &
 ! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                  else  integral order within symblk: ijkl
 
+use Cholesky, only: IfcSew, nSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"
-#include "cholesky.fh"
 character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
 
 ! call sorting routine

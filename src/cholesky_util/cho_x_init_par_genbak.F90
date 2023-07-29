@@ -12,11 +12,10 @@
 subroutine Cho_X_Init_Par_GenBak()
 
 use Para_Info, only: Is_Real_Par
-use Cholesky, only: InfVec, InfVec_Bak, NumCho_Bak
+use Cholesky, only: InfVec, InfVec_Bak, nSym, NumCho, NumCho_Bak
 use stdalloc, only: mma_allocate
 
 implicit none
-#include "cholesky.fh"
 
 NumCho_Bak(:) = 0
 if (Is_Real_Par()) then

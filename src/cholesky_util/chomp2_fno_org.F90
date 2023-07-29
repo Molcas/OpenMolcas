@@ -15,18 +15,16 @@ subroutine ChoMP2_fno_Org(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
 !
 !  F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 
-use ChoMP2, only: iFirstS, LiMatij, LnOcc, LnT1am
-use Constants, only: One, Two
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: ChoAlg, DecoMP2, DeMP2, iFirstS, iMatab, iOcc, iT1am, iVir, LiMatij, LnOcc, LnT1am, lUnit_F, MP2_small, nBatch, &
+                  nMatab, nMP2Vec, nOcc, nT1am, nVir, shf
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: P_ab(*), P_ii(*), EOcc(*), EVir(*), Wrk(lWrk)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "chfnopt.fh"
 integer(kind=iwp) :: i0, iAdr, iBat, iBatch, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iTyp, iVaJi(8), iVec, iVec0, iVec1, &
                      ja, jb, jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, &
                      kXaibj, LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec
@@ -46,6 +44,8 @@ do iS=2,nSym
   kP(iS) = kP(iS-1)+nVir(iS-1)**2
   lP(iS) = lP(iS-1)+nOcc(iS-1)
 end do
+
+DeMP2 = Zero
 
 ! Set number and type of vectors.
 ! -------------------------------

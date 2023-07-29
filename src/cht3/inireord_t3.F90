@@ -14,6 +14,7 @@ subroutine IniReord_t3(NaGrp)
 ! a tlac primitivnej hlavicky pre Reord procesz
 
 use ChT3_global, only: gen_files, LunAux, nc, nfr, no, nv, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb
+use Cholesky, only: NumCho
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,7 +24,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: NaGrp
-#include "cholesky.fh"
 integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: jal1, jal2

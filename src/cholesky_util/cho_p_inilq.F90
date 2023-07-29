@@ -11,13 +11,12 @@
 
 subroutine Cho_P_IniLQ(MaxQual,nSym)
 
-use Cholesky, only: iQL2G, iQuAB_L, iQuAB_L_Hidden, nQual_L
+use Cholesky, only: Cho_Real_Par, iQL2G, iQuAB_L, iQuAB_L_Hidden, nQual_L
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MaxQual, nSym
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,Label='iQuAB_L_Hidden')

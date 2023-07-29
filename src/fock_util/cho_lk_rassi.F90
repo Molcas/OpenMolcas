@@ -35,7 +35,8 @@ subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 !
 !*********************************************************************
 
-use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRsh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_interface, only: cho_lr_MOs
@@ -58,10 +59,7 @@ real(kind=wp), intent(_OUT_) :: TUVX(*)
 integer(kind=iwp), intent(in) :: nScreen
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
-#include "chotime.fh"
 #include "rassi.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jaSkip, jden, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kDen, &

@@ -13,10 +13,10 @@ subroutine CHO_GETRSTC()
 !
 ! Purpose: read and check decomposition restart info.
 
+use Cholesky, only: LuPri, ModRst
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: IFAIL
 character(len=*), parameter :: SECNAM = 'CHO_GETRSTC'
 

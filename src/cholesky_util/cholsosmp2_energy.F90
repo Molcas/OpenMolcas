@@ -18,6 +18,8 @@ subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !
 ! Compute Laplace-SOS-MP2 energy.
 
+use Cholesky, only: nSym
+use ChoMP2, only: iOcc, iVir, Laplace, Laplace_mGridPoints, Laplace_nGridPoints, nBatch, nOcc, nVir, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -26,9 +28,6 @@ implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EMP2, EOcc(*), EVir(*)
 logical(kind=iwp) :: Sorted, DelOrig
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: CheckDenomRange, i, iSym, l_w
 logical(kind=iwp) :: FermiShift, Verb
 real(kind=wp) :: EFermi, EHOMO, EHUMO, ELOMO, ELUMO, xmax, xmin

@@ -18,15 +18,14 @@ subroutine ChoLSOSMP2_Energy_Fll(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! Compute Laplace-SOS-MP2 energy correction from full Cholesky
 ! vectors (i.e., not batched).
 
+use Cholesky, only: NumCho, nSym
+use ChoMP2, only: DecoMP2, Laplace_BlockSize, nMP2Vec, nT1am
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: N, irc
 real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
 logical(kind=iwp) :: Delete
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, l, l_V, l_X, Nai, need, nEnrVec(8)
 character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll'
 

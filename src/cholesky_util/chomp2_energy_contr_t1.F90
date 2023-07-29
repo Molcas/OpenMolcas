@@ -22,16 +22,14 @@ subroutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBat
 ! Modified by F. Aquilante to add contributions from T1 amplitudes
 !                          determined from Thouless formula
 
-use ChoMP2, only: iFirstS, LiMatij, LiT1am, LnOcc, LnT1am
+use Cholesky, only: nSym
+use ChoMP2, only: ChoAlg, EOSMP2, iFirstS, iMatab, iOcc, iOffT1, iVir, LiMatij, LiT1am, LnOcc, LnT1am, nMatab, nOcc, nVir, Wref
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Xaibj(LnT2am)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, ia, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, &
                      iSymi, iSymij, iSymj, jb, Lai, Laj, Lbi, Lbj, Li, Lj

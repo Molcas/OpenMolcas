@@ -13,11 +13,11 @@
 
 subroutine Cho_SetSpan(val)
 
+use Cholesky, only: Span
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: val
-#include "cholesky.fh"
 
 Span = val
 

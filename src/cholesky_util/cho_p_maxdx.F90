@@ -14,14 +14,12 @@ subroutine Cho_P_MaxDX(Diag,Sync,Dmax)
 ! Purpose: get max. diagonal elements in each sym. block,
 !          qualified diagonals excluded.
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), Dmax(*)
 logical(kind=iwp) :: Sync
-#include "cho_para_info.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then

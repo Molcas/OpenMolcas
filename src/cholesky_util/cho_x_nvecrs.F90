@@ -36,12 +36,11 @@
 
 subroutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
 
-use Cholesky, only: InfVec
+use Cholesky, only: InfVec, MaxVec, nSym, NumCho
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRed, iSym, iVec, nVec
-#include "cholesky.fh"
 integer(kind=iwp) :: irc, jRed, jVec, LastRed
 logical(kind=iwp) :: Found
 character(len=*), parameter :: SecNam = 'Cho_X_nVecRS'

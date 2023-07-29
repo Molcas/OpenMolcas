@@ -19,7 +19,7 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 !       2) calculations are performed in full (no use of red. sets
 !          apart from first)
 
-use Cholesky, only: nBstSh
+use Cholesky, only: IFCSew, LuPri, Mx2Sh, nBas, nBstSh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -27,8 +27,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: NSHLQ, ISHLQ(4,NSHLQ)
 logical(kind=iwp) :: PRTLAB
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
 real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XCMP, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
 character(len=8) :: LABEL

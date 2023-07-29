@@ -30,7 +30,8 @@ subroutine CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nScreen,dmpk,d
 !
 !*********************************************************************
 
-use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
@@ -49,9 +50,6 @@ integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen), nScreen
 type(DSBA_Type), intent(inout) :: FLT(nDen), KLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), PLT(nDen)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, ISYM, iSyma, iTmp, IVEC2, iVrs, jDen, jK, &

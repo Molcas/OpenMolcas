@@ -14,7 +14,7 @@
 
 subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 
-use Cholesky, only: iRS2F
+use Cholesky, only: iRS2F, nBasT, nnBstRT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -23,8 +23,6 @@ integer(kind=iwp) :: l_D
 real(kind=wp) :: Diag(l_D), Stat(7)
 logical(kind=iwp) :: DoPrint
 #include "Molcas.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ia, ib, krs
 real(kind=wp) :: Err(4)
 character(len=LenIn8) :: BName(maxbfn)

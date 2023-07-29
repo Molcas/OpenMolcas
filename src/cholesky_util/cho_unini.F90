@@ -13,8 +13,9 @@ subroutine CHO_UNINI()
 !
 ! Purpose: zero unit numbers.
 
+use Cholesky, only: LuCho, LuMap, LuRed, LuRst, nSym
+
 implicit none
-#include "cholesky.fh"
 
 LURED = 0
 call IZERO(LUCHO,NSYM)

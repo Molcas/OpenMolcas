@@ -13,13 +13,12 @@ subroutine CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 !
 ! Purpose: reorder Cholesky vectors on disk to full storage.
 
-use Cholesky, only: NABPK, NNBST
+use Cholesky, only: iiBstR, LuPri, NABPK, NNBST, nnBstR, nSys_call, nSym, NumCho
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
 real(kind=wp) :: WRK(LWRK)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IBATCH, ICOUNT, IOFF(8,8), IRS, ISYM, ISYMA, ISYMB, IVEC, IVEC1, KCHO1, KCHO2, KOFF, KOFF1, KREAD, LOFF, &
                      LREAD, MINMEM, NBATCH, NSCALL, NUMV, NVEC
 character(len=*), parameter :: SECNAM = 'CHO_REOVC1'

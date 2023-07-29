@@ -14,11 +14,11 @@ subroutine CHO_MCA_CALCINT(ISHLAB)
 ! Purpose: calculate qualified integral columns from
 !          shell pair distribution (**|ISHLA ISHLB).
 
+use Cholesky, only: IFCSEW
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISHLAB
-#include "cholesky.fh"
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT'
 
 if (IFCSEW == 1) then ! store full shell quadruple

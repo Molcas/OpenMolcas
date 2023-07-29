@@ -15,17 +15,20 @@ subroutine CHO_INP(DFONLY,LUNIT,LUOUT)
 !          Else, read and process input for Cholesky decomposition
 !          from unit LUNIT. LUOUT is the unit of the output file
 !          which is stored internally in the Cholesky program as
-!          LUPRI (in cholesky.fh).
+!          LUPRI
 
-use Cholesky, only: Cho_SScreen, SSNorm, SSTau, SubScrStat
+use Cholesky, only: BLOCKSIZE, CHKONLY, CHO_1CENTER, CHO_ADRVEC, CHO_DECALG, CHO_DECALG_DEF, CHO_DIACHK, CHO_FAKE_PAR, CHO_INTCHK, &
+                    CHO_IOVEC, CHO_MINCHK, CHO_NO2CENTER, CHO_PRESCREEN, CHO_REORD, CHO_SIMP, CHO_SIMRI, Cho_SScreen, CHO_TRCNEG, &
+                    CHO_TSTSCREEN, CHO_USEABS, Damp, FRAC_CHVBUF, HALTIT, IALQUA, IFCSEW, IPRINT, LBUF, LuPri, MaxQual, MaxRed, &
+                    MaxVec, MinQual, ModRst, MXSHPR, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, NCOL_CHK, RstCho, RstDia, &
+                    RUN_INTERNAL, RUN_MODE, SCDIAG, Span, SSNorm, SSTau, SubScrStat, Thr_PreScreen, THR_SIMRI, ThrCom, ThrDef, &
+                    ThrDiag, Tol_DiaChk, Trace_Idle, ThrNeg, TOONEG, WARNEG, XlDiag
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: DFONLY
 integer(kind=iwp) :: LUNIT, LUOUT
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp), parameter :: LINTSCR = 2, NOPTION = 58
 integer(kind=iwp) :: IDKEY, INTSCR(LINTSCR), IRC, MXSHPR_DEF
 logical(kind=iwp) :: DECALG_USRDEF, FAKE_USRDEF, FORCEPARALLEL, MXSHPR_USRDEF

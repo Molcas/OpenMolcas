@@ -15,11 +15,10 @@ subroutine CHO_INIMAP()
 !
 ! NB!!!!! file is assumed open (restart only)
 
-use Cholesky, only: IntMap
+use Cholesky, only: IntMap, LuMap, RstCho
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, IOPT, NDIM
 
 if (RSTCHO) then

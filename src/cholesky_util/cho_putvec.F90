@@ -14,14 +14,12 @@ subroutine CHO_PUTVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM)
 ! Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
 !          of symmetry ISYM to file.
 
-use Cholesky, only: InfVec
+use Cholesky, only: Cho_AdrVec, Cho_Real_Par, InfVec, LuCho, LuPri, MaxVec, nnBstR, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM
 real(kind=wp) :: CHOVEC(LENVEC,NUMVEC)
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: IADR, IADR2, IOPT, IVEC, IVEC2, JADR, JVEC, LTOT
 real(kind=wp) :: XNRM
 logical(kind=iwp) :: CHK_OVERFLOW

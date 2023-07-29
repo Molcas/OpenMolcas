@@ -18,18 +18,16 @@ subroutine ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !          decomposed MP2 amplitudes.
 
-use ChoMP2, only: AdrR1, AdrR2, iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, &
-                  lLagr, lPab, lPai, lPaK, lPij, lPiK, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, lWaK, lWij, lWiK, lWJK, nMoMo
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: AdrR1, AdrR2, iAdrOff, iFro, iOcc, iT1am, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, &
+                  kWiK, kWJK, lFLagr, lLagr, lPab, lPai, lPaK, lPij, lPiK, lUnit_F, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, &
+                  lWaK, lWij, lWiK, lWJK, nFro, nMoMo, nMP2Vec, nOcc, nVir
 use Constants, only: Zero, One, Two, Four, Eight, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, lWrk
 real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iAdr, iB, iB1, iBBlock, iBRel, iClos, iI, iJ, iK, iOff, iOff1, iOffAmp, iOffL, iOffL1, iOffLic, iOffRic, &
                      iOffU, iOffU1, iOffV, iOffV1, iOffX, iOpt, iSeed, iSym, iSymA, iSymB, iSymC, iSymI, iSymJ, iSymJC, iSymK, &
                      iTypL, iTypR, iVecFV, iVecOF, iVecOO, iVecOV, iVecVV, jBat, jSym, jVec, jVec1, kAmp, kBat, kEndAmp, &

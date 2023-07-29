@@ -14,13 +14,12 @@ subroutine Cho_Allo_iScr(DoDummy)
 ! Purpose: allocate iScr array for reading and reordering vectors.
 !          If (DoDummy): make dummy (length 1) allocation.
 
-use Cholesky, only: iScr
+use Cholesky, only: iScr, nnBstR, nSym
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: DoDummy
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, l_iScr
 
 if (DoDummy) then

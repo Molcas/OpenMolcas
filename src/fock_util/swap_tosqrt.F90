@@ -14,7 +14,7 @@
 
 subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
-use Cholesky, only: iRS2F
+use Cholesky, only: iBas, iiBstR, iRS2F, nnBstR
 use Symmetry_Info, only: Mul
 use Data_Structures, only: NDSBA_Type
 use Definitions, only: wp, iwp
@@ -25,8 +25,6 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: iLoc, nRS, JSYM
 type(NDSBA_Type), intent(_OUT_) :: XLT
 real(kind=wp), intent(in) :: Xab(nRS)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iag, ias, ibg, ibs, iSyma, iSymb, jRab, kRab
 integer(kind=iwp), external :: cho_isao
 

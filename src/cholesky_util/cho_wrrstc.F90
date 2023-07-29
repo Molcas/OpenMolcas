@@ -15,13 +15,12 @@ subroutine CHO_WRRSTC(IPASS)
 !
 ! NB!!!  The restart files are assumed open on entry.
 
-use Cholesky, only: InfRed, InfVec, IntMap
+use Cholesky, only: CHO_ADRVEC, Damp, InfRed, InfVec, IntMap, LuMap, LuRst, nBas, nnShl, nShell, nSym, NumCho, SCDIAG, Span, &
+                    ThrCom, ThrDiag, ThrNeg, TOONEG, WARNEG
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IPASS
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp), parameter :: LSCR = 10
 integer(kind=iwp) :: IADR, IOPT, ISYM, J, JADR, JSCR(LSCR), NDIM, NTOT, NWR
 real(kind=wp) :: DSCR(LSCR)

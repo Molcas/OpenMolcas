@@ -17,14 +17,13 @@ subroutine ChoMP2_Setup_Prt(irc)
 !
 ! Purpose: print setup for Cholesky MP2.
 
-use ChoMP2, only: iFirst, LnBatOrb, LnOcc, NumBatOrb, NumOcc
+use Cholesky, only: nSym
+use ChoMP2, only: ChoAlg, DecoMP2, ForceBatch, iFirst, Laplace, Laplace_nGridPoints, LnBatOrb, LnOcc, nBatch, nBatOrbT, nDel, &
+                  nFro, nOcc, NumBatOrb, NumOcc, nVir, SOS_MP2
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iBatch, iCount(8), iSym
 
 irc = 0

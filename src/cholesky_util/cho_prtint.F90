@@ -17,14 +17,13 @@ subroutine Cho_PrtInt(iSCD,iSAB,xInt,lInt)
 !
 ! Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 
-use Cholesky, only: iShP2Q, iShP2RS, iSP2F, nBstSh, nDim_Batch
+use Cholesky, only: IFCSEW, iOff_col, iShP2Q, iShP2RS, iSP2F, LuPri, nBstSh, nDim_Batch, nnBstR, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iSCD, iSAB, lInt
 real(kind=wp) :: xInt(lInt)
-#include "cholesky.fh"
 integer(kind=iwp) :: AB, CD, iAB, iCD, iSA, iSB, iSC, iSD, iSym, kOffI, nAB, nCD, nRow(8)
 real(kind=wp) :: xNorm
 character(len=*), parameter :: SecNam = 'Cho_PrtInt'

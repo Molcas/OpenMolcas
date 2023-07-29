@@ -13,13 +13,12 @@ subroutine CHO_MCA_INT_1_DBG2()
 !
 ! Purpose: test symmetry of integral matrix.
 
-use Cholesky, only: iSP2F, nBstSh
+use Cholesky, only: IFCSew, iSP2F, LuPri, Mx2Sh, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: IA, IAB, IABCD, IABMN, IABMX, IB, IC, ICD, ICDMN, ICDMX, ID, IERR, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, &
                      ISHLD, ISYMA, ISYMAB, ISYMB, ISYMC, ISYMCD, ISYMD, ITST, LINT, LINTT, LSEW, NERR, NTST, NUMAB, NUMCD
 real(kind=wp) :: ERRMAX, ERRMIN, TST

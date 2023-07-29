@@ -18,18 +18,17 @@ subroutine CHO_CHKDIA(DIAG,ISYM,XM,YM,ZM,NNEGT,NNEG,NCONV)
 !          5) count #diagonals < THRNEG, NNEGT
 !          6) count #screenable diagonals, NCONV
 !
-! -- also: a) zero negative diagonals < THRNEG (from cholesky.fh)
-!          b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
+! -- also: a) zero negative diagonals < THRNEG
+!          b) screen diagonal if requested (flag SCDIAG)
 !          c) Keep track of most negative zeroed diagonal.
 
-use Cholesky, only: IndRed
+use Cholesky, only: Damp, DIAMNZ, IABMNZ, iiBstR, IndRed, LuPri, nnBstR, ScDiag, ThrCom, ThrNeg, TooNeg, WarNeg
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), XM, YM, ZM
 integer(kind=iwp) :: ISYM, NNEGT, NNEG, NCONV
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, JAB, JAB1, JAB2
 real(kind=wp) :: TST
 character(len=*), parameter :: SECNAM = 'CHO_CHKDIA'

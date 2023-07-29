@@ -11,14 +11,12 @@
 
 function Cho_P_GetmPass(iLoc)
 
+use Cholesky, only: Cho_Real_Par, nnBstRT, nnBstRT_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_P_GetmPass
 integer(kind=iwp) :: iLoc
-#include "cholesky.fh"
-#include "cho_para_info.fh"
-#include "choglob.fh"
 
 if (Cho_Real_Par) then
   Cho_P_GetmPass = nnBstRT_G(iLoc)

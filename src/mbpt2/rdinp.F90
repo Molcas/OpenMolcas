@@ -36,6 +36,10 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 
 use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
                         Thr_ghs, Title
+use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens, DoFNO, DoGrdt, DoMP2, DoT1amp, EOSMP2, FNOMP2, &
+                  ForceBatch, Laplace, Laplace_BlockSize, Laplace_BlockSize_Def, Laplace_mGridPoints, Laplace_nGridPoints, LovMP2, &
+                  MxQual_Def, MxQualMP2, nActa, NoGamma, OED_Thr, set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrLov, ThrMP2, vkept, &
+                  Verbose
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -62,7 +66,6 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
 character(len=180), external :: Get_Ln
-#include "chomp2_cfg.fh"
 #include "corbinf.fh"
 #include "warnings.h"
 #include "Molcas.fh"

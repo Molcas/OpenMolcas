@@ -50,7 +50,7 @@
 
 subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -59,12 +59,10 @@ implicit none
 integer(kind=iwp) :: irc, nOcc(*)
 real(kind=wp) :: CMO(*), ER(*), W
 logical(kind=iwp) :: timings
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, &
-                     jv, JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs, TCI1, TCI2, TCR1, &
-                     TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, TWI1, TWI2, TWR1, TWR2
-real(kind=wp) :: tintg(2), tread(2)
+                     jv, JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs
+real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, tintg(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWI1, TWI2, &
+                 TWR1, TWR2
 real(kind=wp), allocatable :: Dab(:), DLT(:), Lab(:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_get_ER'
 

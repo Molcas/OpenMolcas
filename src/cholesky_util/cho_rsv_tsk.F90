@@ -11,12 +11,12 @@
 
 function Cho_Rsv_Tsk(ID,i)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: Cho_Rsv_Tsk
 integer(kind=iwp) :: ID, i
-#include "cho_para_info.fh"
 logical(kind=iwp), external :: Cho_Rsv_Tsk_, Rsv_Tsk
 
 if (Cho_Real_Par) then

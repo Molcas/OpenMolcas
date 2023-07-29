@@ -17,13 +17,11 @@ subroutine Cho_PFake_VDist()
 ! Purpose: fake parallel distribution of vectors.
 
 use Para_Info, only: Is_Real_Par, nProcs
-use Cholesky, only: InfVec
+use Cholesky, only: Cho_Fake_Par, InfVec, MaxVec, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iRedC, iSym, iV, l_Wrk, nRead, nV
 integer(kind=iwp), allocatable :: IDV(:), InfV(:,:)
 real(kind=wp), allocatable :: Wrk(:)

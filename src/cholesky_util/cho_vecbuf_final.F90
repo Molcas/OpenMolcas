@@ -13,11 +13,10 @@ subroutine Cho_VecBuf_Final()
 !
 ! Purpose: deallocate and finalize vector buffer.
 
-use Cholesky, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nSym, nVec_in_Buf
 use stdalloc, only: mma_deallocate
 
 implicit none
-#include "cholesky.fh"
 
 if (allocated(CHVBUF)) call mma_deallocate(CHVBUF)
 if (allocated(CHVBFI)) call mma_deallocate(CHVBFI)

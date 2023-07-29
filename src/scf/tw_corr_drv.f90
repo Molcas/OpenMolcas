@@ -55,6 +55,7 @@
 !****************************************************************************
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
       use InfSCF, only: nBT, nSym, nFro, nOcc, nDel, nBas
+      use ChoMP2, only: ChoAlg, DoDens
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Half
       Implicit None
@@ -64,7 +65,6 @@
       Integer nExt(8)
       Integer i, nElk
       Real*8 TW, TW0
-#include "chomp2_cfg.fh"
       Real*8 Grad(1)
       Real*8, Allocatable :: DMAT(:,:), F_DFT(:)
 
@@ -115,6 +115,7 @@
 !     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
 !                                                                           *
 !****************************************************************************
+      use ChoMP2, only: MP2_small
       use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -122,7 +123,6 @@
       Integer iRC, nSym
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),nDel(nSym)
       Real*8  CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
-#include "chfnopt.fh"
 !
       Integer i, ifr, ioff, ip_X, ip_Y, iSkip, iSym, iTo, jD, jOcc, jp,jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT, &
               nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV, j, jOff
@@ -352,13 +352,13 @@
 !
 !     Purpose: put info in MP2 common blocks.
 !
+      Use ChoMP2, only: DoFNO, ip_Dab, ip_Dii, l_Dab, l_Dii
       Implicit None
       Integer mSym
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer ip_X, ip_Y
 !
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 !
       Integer iSym
 !

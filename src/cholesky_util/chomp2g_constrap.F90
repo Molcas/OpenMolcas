@@ -11,7 +11,8 @@
 
 subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,typ,iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
-use ChoMP2, only: iAdrOff, LuVVec, LuWVec, nMoMo
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: iAdrOff, lUnit_F, LuVVec, LuWVec, nFro, nMoMo, nOcc, nVir
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
@@ -19,10 +20,6 @@ implicit none
 integer(kind=iwp) :: irc, lScr, iSym, nVec, lAp, lDens
 real(kind=wp) :: Scr(lScr), Ap(lAp), Dens(lDens), factor
 character :: typ(4)
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq, iBat, iCol, iIP, iIQ, iIR, iOffAp(8), iOffL, &
                      iOffL1, iOffp(8), iOffY, iOffY1, iOffZ, iOffZ1, iOpt, iOrbType(4), iPQ, iRP, iRQ, iSym1, iSymI, iSymP, iSymQ, &
                      iSymR, iTypL, iVec, iVec1, kEndLip, kEndLiq, kEndLir, kEndLpq, kEndLrp, kEndLrq, kEndX, kEndY, kLip, kLiq, &

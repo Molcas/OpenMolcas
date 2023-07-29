@@ -14,6 +14,7 @@ subroutine CHO_SETPASS(DIAG,DIASH,ISYSH,IRED,CONV,NPOTSH)
 ! Purpose: Check convergence and, if not converged, set up
 !          integral pass.
 
+use Cholesky, only: DiaMax, DiaMin, nnShl, nSym, Span, ThrCom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -21,7 +22,6 @@ implicit none
 real(kind=wp) :: Diag(*), DIASH(*)
 integer(kind=iwp) :: ISYSH(*), IRED, NPOTSH
 logical(kind=iwp) :: CONV
-#include "cholesky.fh"
 integer(kind=iwp) :: ISHLAB, ISYM
 real(kind=wp) :: DGMAX
 

@@ -15,7 +15,7 @@ subroutine Cho_X_Init_Par_Cho(irc)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
-use Cholesky, only: InfVec
+use Cholesky, only: InfVec, nSym, NumCho, NumChT
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Definitions, only: iwp, u6
@@ -30,7 +30,6 @@ integer(kind=iwp) :: irc
 logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_X_Init_Par_Cho'
 #ifdef _MOLCAS_MPP_
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iSym, j, nV(8)
 logical(kind=iwp) :: isSerial
 integer(kind=iwp), allocatable :: IDV(:), myInfV(:)

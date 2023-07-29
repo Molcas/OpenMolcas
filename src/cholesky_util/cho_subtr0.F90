@@ -19,14 +19,14 @@ subroutine CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
 !
 ! Screening in subtraction introduced Jan. 2006, TBP.
 
-use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, iiBstRSh, iQuAB, LQ, nnBstRSh, nVec_in_Buf, SSNorm, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, iiBstR, iiBstRSh, iQuAB, LQ, LuPri, nDGM_call, nnBstR, nnBstRSh, nnShl, nQual, &
+                    NumCho, nVec_in_Buf, SSNorm, SSTau, SubScrStat, TDECOM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LWRK, ISYM
 real(kind=wp) :: XINT(*), WRK(LWRK)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IBATCH, ISHGD, IVEC1, J, JAB, KCHO1, KCHO2, KEND2, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, LREAD, &
                      LWRK1, LWRK2, MMEM, NBATCH, NGD, NUMV, NVEC, NVEC_TO_READ
 real(kind=wp) :: C1, C2, TST, W1, W2, XDON, XTOT

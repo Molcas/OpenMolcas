@@ -13,14 +13,13 @@ subroutine CHO_CHKINT(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 !
 ! Purpose: check diagonals in qualified integral columns.
 
-use Cholesky, only: IndRed, iQuAB
+use Cholesky, only: iiBstR, IndRed, iQuAB, LuPri, nnBstR, nQual
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: XINT(*), DIAG(*), TOL
 integer(kind=iwp) :: ISYM, NERR
 logical(kind=iwp) :: REPORT
-#include "cholesky.fh"
 integer(kind=iwp) :: I, II, IK, JJ, KK
 real(kind=wp) :: DF
 character(len=*), parameter :: SECNAM = 'CHO_CHKINT'

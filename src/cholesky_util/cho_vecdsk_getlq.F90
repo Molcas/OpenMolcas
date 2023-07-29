@@ -14,14 +14,13 @@ subroutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
 ! Purpose: extract elements corresponding to qualified columns of
 !          vectors on disk.
 
-use Cholesky, only: nnBstRSh
+use Cholesky, only: nnBstRSh, nQual, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP), mSym, iV1(mSym), nV(mSym)
 real(kind=wp) :: QVec(l_QVec)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iLoc, iQ, iQSP, iRedC, iRedQ, iShlAB, iSym, iV2, jLoc, jV, kOffQ, kQ, l_iQuAB_2, l_Scr, lDim, &
                      nVecTot(8), nVT
 integer(kind=iwp), allocatable :: iQuAB_2(:)

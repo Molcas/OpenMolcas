@@ -22,16 +22,14 @@ subroutine ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBatch)
 ! Modified by F. Aquilante to compute separately the Opposite-Spin
 !                          contribution to the MP2 energy
 
-use ChoMP2, only: iFirstS, LiMatij, LiT1am, LnOcc, LnT1am
+use Cholesky, only: nSym
+use ChoMP2, only: ChoAlg, DoT1amp, EOSMP2, iFirstS, iMatab, iOcc, iVir, LiMatij, LiT1am, LnOcc, LnT1am, nMatab, nVir, Wref
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Xaibj(LnT2am)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, iSymi, &
                      iSymij, iSymj, Lai, Laj, Lbi, Lbj, Li, Lj
 real(kind=wp) :: Dnom, Eaibj, EMP2_sav, EOSMP2_sav, Taibj, Waibj, WREF_sav

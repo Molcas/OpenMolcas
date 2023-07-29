@@ -18,7 +18,8 @@ subroutine ChoMP2_Energy_Fll(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 ! Purpose: compute MP2 energy contribution using original
 !          Cholesky vectors on disk for the case nBatch=1.
 
-use ChoMP2, only: LiMatij
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: ChoAlg, DecoMP2, iMatab, iT1am, LiMatij, lUnit_F, nBatch, nMatab, nMP2Vec, nOcc, nT1am, nVir, Wref
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,9 +27,6 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iBat, iClos, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, iVec0, &
                      iVec1, kEnd0, kEnd1, kEnd2, kMabij, kXaibj, kOff1, kOff2, kOffi, kOffj, kOffM, kVec, kVecai, kXint, &
                      LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumV, NumVec, nVaJi, nVec
@@ -84,6 +82,7 @@ if (lWrk0 < 0) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 ! ---------------------------------
 
 EMP2 = Zero
+Wref = Zero
 
 ! Special code for ChoAlg=2:
 ! compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.

@@ -13,12 +13,10 @@ subroutine CHO_REOINI()
 !
 ! Purpose: initializations for vector reordering.
 
-use Cholesky, only: NABPK, NNBST
+use Cholesky, only: NABPK, NBAS, NNBST, nSym
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ISYM, ISYMA, ISYMB
 ! Statement function
 integer(kind=iwp) :: MULD2H, I, J

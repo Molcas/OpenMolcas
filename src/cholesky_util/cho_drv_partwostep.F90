@@ -18,15 +18,19 @@ subroutine Cho_Drv_ParTwoStep(irc)
 ! Purpose: Parallel two-step decomposition of two-electron
 !          integrals.
 
-use Cholesky, only: Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iAtomShl, iShP2Q,iShP2RS, SSTau
+use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_DecAlg, Cho_DecAlg_Def, Cho_DiaChk, Cho_Fake_Par, Cho_IntChk, Cho_IOVec, &
+                    Cho_MinChk, Cho_No2Center, Cho_PreScreen, Cho_ReOrd, Cho_SimP, Cho_SimRI, Cho_SScreen, Cho_TrcNeg, &
+                    Cho_TstScreen, CHo_UseAbs, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, Did_DecDrv, Frac_ChvBuf, HaltIt, iAlQua, &
+                    iAtomShl, IFCSew, INF_PASS, INF_TIMING, IPRINT, iShP2Q, iShP2RS, LuPri, MaxQual, MinQual, Mode_Screen, ModRst, &
+                    Mx2Sh, MxShPr, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nDecom, nDGM_call, nInteg, nMisc, nSection, &
+                    nShell, nSym, nSys_call, RstCho, RstDia, ScDiag, SSTau, tDecDrv, tDecom, Thr_PreScreen, Thr_SimRI, ThrCom, &
+                    ThrDiag, TimSec, tInteg, tMisc, Tol_DiaChk, Trace_Idle
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "choprint.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: BlockSize_Bak, Cho_DecAlg_Bak, Cho_DecAlg_Def_Bak, Cho_IOVec_Bak, i1, iAlQua_Bak, iBlock, ijBlock, &
                      iPrint_Bak, iSec, iSym, jBlock, l_Z, MaxQual_Bak, MinQual_Bak, Mode_Screen_Bak, ModRst_Bak, MxShPr_Bak, n, &
                      N1_Qual_Bak, N1_VecRD_Bak, N2_Qual_Bak, N2_VecRd_Bak, N_Subtr_Bak, nB, nB_Max, nDGM_Call_Bak, ni, nj, &

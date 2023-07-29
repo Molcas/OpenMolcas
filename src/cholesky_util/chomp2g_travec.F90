@@ -17,7 +17,7 @@ subroutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,iSyCho,iSyCO,iSyCV,iL
 !
 ! Purpose: compute pq-vector from reduced set AO vector.
 
-use Cholesky, only: IndRed, iRS2F
+use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
 use ChoMP2, only: iAoMo, iMoAo, iMoMo, nMo, nMoAo, nMoType
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -25,9 +25,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc, iMoType1, iMoType2
 real(kind=wp) :: VecAO(*), VecMO(*), COrb1(*), COrb2(*), Scr(lScr)
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
                      kOff2, kOff3, kOffAl, kOffBe, nTotAl, nTotp, nTotq
 real(kind=wp) :: AOVal

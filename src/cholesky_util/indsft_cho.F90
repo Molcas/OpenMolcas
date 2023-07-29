@@ -27,7 +27,7 @@ subroutine IndSft_Cho(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst
 
 use Symmetry_Info, only: nIrrep
 use SOAO_Info, only: iAOtSO, iOffSO
-use Cholesky, only: iShlSO, iSOShl, nBstSh
+use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use sort_data, only: nSkip
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -36,7 +36,6 @@ implicit none
 integer(kind=iwp) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs)
 real(kind=wp) :: TInt(lInt), SOint(ijkl,nSOint)
 logical(kind=iwp) :: Shijij
-#include "cholesky.fh"
 #include "print.fh"
 integer(kind=iwp) :: A, B, C, D, AB, CD, CDAB, ABCD, i1, i12, i2, i3, i34, i4, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, &
                      iSO, iSOi, iSym(0:7), ix, j1, j12, j2, j2max, j3, j4, jCmpMx, jprint, jSO, jSOj, jSym(0:7), k12, k34, kSO, &

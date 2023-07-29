@@ -15,13 +15,12 @@ subroutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 !
 ! Read the vector blocks.
 
-use Cholesky, only: nnBstRSh
+use Cholesky, only: LuTmp, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, n_myRankSP, myRankSP(n_myRankSP), NVT, J1, J2, iSym
 real(kind=wp) :: Vec(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iAdr, iAdr0, iSP, kV, lTot, n
 integer(kind=iwp), parameter :: iOpt = 2
 

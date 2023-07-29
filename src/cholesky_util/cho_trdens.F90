@@ -19,7 +19,7 @@ subroutine CHO_TRDENS(irc,DLT,Salpha,istate,jstate,iType,DoExch,labB)
 !
 !***********************************************************************
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -30,9 +30,6 @@ integer(kind=iwp), intent(out) :: irc
 type(DSBA_Type), intent(in) :: DLT, Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "debug.fh"
 integer(kind=iwp) :: dimX, i, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, &
                      k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs

@@ -11,12 +11,12 @@
 
 subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
 real(kind=wp), target :: QVec(l_Qvec)
-#include "cho_para_info.fh"
 character(len=*), parameter :: SecNam = 'Cho_P_GetLQ'
 !                                                                      *
 !***********************************************************************

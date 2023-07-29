@@ -14,7 +14,8 @@ subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,RS2RS,mSym,mPass,iPass1,
 ! Purpose: generate Cholesky vectors from raw integral columns.
 
 use Data_Structures, only: Alloc1DiArray_Type
-use Cholesky, only: IndRed, InfVec, nDimRS
+use Cholesky, only: iiBstR, IndRed, INF_PASS, INF_PROGRESS, InfVec, iOff_Col, IPRINT, LuPri, MaxRed, nDimRS, nnBstR, nnZTot, &
+                    nQual, nSym, NumCho, NumChT, tDecom, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -23,8 +24,6 @@ implicit none
 integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
 real(kind=wp) :: Diag(*), xInt(lInt)
 type(Alloc1DiArray_Type) :: RS2RS(8)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
                      jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
                      nBin, nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec

@@ -22,11 +22,11 @@ subroutine RdInp_Motra()
 
 use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iortho, iPrint, iRFpert, iVecTyp, nBas, &
                         nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
+use Cholesky, only: tv2disk
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-#include "chotraw.fh"
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
 character(len=180) :: Line
 logical(kind=iwp) :: Skip

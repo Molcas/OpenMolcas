@@ -13,11 +13,11 @@
 
 subroutine Cho_Set1CCD(do1CCD)
 
+use Cholesky, only: Cho_1Center
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: do1CCD
-#include "cholesky.fh"
 
 Cho_1Center = do1CCD
 

@@ -25,7 +25,7 @@
 !> No special action is taken to redefine the \c IndRed array for first reduced set.
 !>
 !> @note
-!> cholesky.fh must have been initialized.
+!> The CHolesky module must have been initialized.
 !>
 !> @param[out] irc return code
 !> @param[in]  iRS location of reduced set
@@ -34,12 +34,11 @@
 
 subroutine Cho_X_RSSwap(irc,iRS,jRS)
 
-use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, nnBstR, nnBstRSh, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, iRS, jRS
-#include "cholesky.fh"
 integer(kind=iwp) :: N, iTemp
 
 if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then

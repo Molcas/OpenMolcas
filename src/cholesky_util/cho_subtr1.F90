@@ -19,7 +19,9 @@ subroutine CHO_SUBTR1(XINT,WRK,LWRK,ISYM,FXDMEM)
 !
 ! Screening in subtraction introduced Jan. 2006, TBP.
 
-use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, iiBstRSh, InfVec, iQuAB, iScr, LQ, nnBstRSh, nVec_in_Buf, SSNorm, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, iiBstR, iiBstRSh, INF_SUBTR1, InfVec, IPRINT, iQuAB, iScr, LQ, LuPri, MaxQual, &
+                    N1_Qual, N2_Qual, N1_VecRd, N2_VecRd, N_Subtr, nDGM_call, nnBstR, nnBstRSh, nnShl, nQual, nSys_call, NumCho, &
+                    nVec_in_Buf, SSNorm, SSTau, SubScrStat, TDECOM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -27,8 +29,6 @@ implicit none
 integer(kind=iwp) :: LWRK, ISYM
 real(kind=wp) :: XINT(*), WRK(LWRK)
 logical(kind=iwp) :: FXDMEM
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I, IAB, IBATCH, ILOC, IMAPC, IOFF(0:1), IREDC, ISHGD, IVEC1, IVEC1_1, IVSTAT(2,2), J, JAB, JRED, JRED1, &
                      JRED2, JVEC1, JVEC2, KCHO1, KCHO2, KEND0, KEND1, KEND2, KJUNK, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, &
                      KREAD, KVEC, KVEC1, LEFT, LNUM, LREAD, LRED, LVEC, LVEC1, LWRK0, LWRK1, LWRK2, MINLFT, MMEM, MUSED, MUST, &

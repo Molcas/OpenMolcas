@@ -11,8 +11,9 @@
 
 subroutine Cho_GASync()
 
+use Cholesky, only: Cho_Real_Par
+
 implicit none
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) call GASync()
 

@@ -11,11 +11,11 @@
 
 subroutine Cho_x_setab(iS,jS)
 
+use Cholesky, only: SHA, SHB
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS
-#include "cholesky.fh"
 
 SHA = iS
 SHB = jS

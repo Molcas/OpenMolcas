@@ -18,13 +18,12 @@ subroutine Cho_P_Check(irc)
 !             this subroutine is, in effect, a TODO-list.
 
 use Para_Info, only: Is_Real_Par, nProcs
-use Cholesky, only: Cho_SScreen
+use Cholesky, only: Cho_AdrVec, Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Real_Par, Cho_ReOrd, Cho_SimRI, Cho_SScreen, &
+                    Cho_TstScreen, IFCSew, LuPri, MxShPr, RstCho, RstDia
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 logical(kind=iwp) :: WriteBlank
 
 irc = 0

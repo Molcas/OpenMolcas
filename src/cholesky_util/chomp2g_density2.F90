@@ -18,17 +18,15 @@ subroutine ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Purpose: Solve the CPHF-equations to obtain occ-vir
 !          contributions to the 1-pdm.
 
-use ChoMP2, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, LuVVec, &
-                  LuWVec, MP2D, MP2W, nMoMo
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: iAdrOff, iFro, iOcc, iVir, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, &
+                  lFLagr, lUnit_F, LuVVec, LuWVec, MP2D, MP2W, nFro, nMoMo, nOcc, nOrb, nVir
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, lWrk
 real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
-#include "chomp2.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, iOff, iOff1, iOff2, iOffL, iOpt, iOrb, iOrbI, &
                      iSeed, iSym, iSym1, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, &
                      iVecVO, iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, &

@@ -19,14 +19,12 @@ subroutine ChoMP2_Energy_GetInd(LnT2am,LiT2am,iBatch,jBatch)
 !          For iBatch=jBatch and ChoAlg=2, (ai|bj) is stored as
 !          the matrix M(ab,ij) with i<=j.
 
-use ChoMP2, only: LnMatij, LnT1am
+use Cholesky, only: nSym
+use ChoMP2, only: ChoAlg, LnMatij, LnT1am, nMatab
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iSym
 character(len=14) :: String
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_GetInd'

@@ -32,7 +32,8 @@ subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CM
 !
 !*********************************************************************
 
-use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
@@ -56,8 +57,6 @@ real(kind=wp), intent(inout) :: MO_Int(*)
 integer(kind=iwp), intent(in) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
 logical(kind=iwp), intent(in) :: DoAct, Fake_CMO2
 #include "warnings.h"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
                      iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
                      IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &

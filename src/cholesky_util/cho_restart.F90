@@ -17,7 +17,9 @@ subroutine CHO_RESTART(DIAG,WRK,LWRK,DSKDIA,LCONV)
 !          this routine is called. Reduced set 2, on the
 !          other hand, is set up here.
 
-use Cholesky, only: iAtomShl, iiBstRSh, IndRed, IndRSh, iSimRI, iSP2F, MySP, nDimRS, nnBstRSh
+use Cholesky, only: Cho_1Center, Cho_DecAlg, Cho_MinChk, Cho_SimRI, IABMNZ, iAtomShl, iiBstR, iiBstRSh, IndRed, IndRSh, INF_PASS, &
+                    IPRINT, iSimRI, iSP2F, LuPri, MaxRed, MySP, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nSym, NumCho, ScDiag, &
+                    Thr_SimRI, ThrCom, XnPass
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -25,8 +27,6 @@ implicit none
 integer(kind=iwp) :: LWRK
 real(kind=wp) :: Diag(*), WRK(LWRK)
 logical(kind=iwp) :: DSKDIA, LCONV
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I0AB, IAB, IAB1, IAB2, IMNAB, IMXAB, IOPT, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JMXAB, JSHLAB, KDIAG, KEND1, &
                      KOFF, KRED, LWRK1, NBIN, NCONV, NCONVT, NDIM, NNEG, NNEGT, NSCR, NTOT, NVEC
 real(kind=wp) :: AVEERR, BIN1, DMX, ERR, ERRMN, ERRMX, EXAMN, EXAMX, RMSERR, SAV, STEP, XAMAX, XDIM, XMAX, XMIN, XX

@@ -35,13 +35,12 @@
 
 function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, MaxVec, nDimRS, nnBstR, nSym, NumCho
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_X_NumRd
 integer(kind=iwp) :: iVec1, iSym, iRedC, Mem
-#include "cholesky.fh"
 integer(kind=iwp) :: iLoc, irc, iRed, iVec, Need, NumRd
 
 if ((iSym < 1) .or. (iSym > nSym)) then

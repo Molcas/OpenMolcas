@@ -42,13 +42,13 @@
 
 subroutine Cho_Dec_Qual(Diag,Lab,Q,Kab,iD,NumV,QDiag)
 
+use Cholesky, only: Cho_1Center, nQual, nSym, Span, ThrCom
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Diag(*), Lab(*), Q(*), Kab(*), QDiag(*)
 integer(kind=iwp) :: iD(*), NumV(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: ipD, ipQ, ipQD, ipSQK, ipSQL, iQ, irc, jSym, mQ, nVecG(8)
 real(kind=wp) :: Dmax(8), Thr
 logical(kind=iwp) :: Sync

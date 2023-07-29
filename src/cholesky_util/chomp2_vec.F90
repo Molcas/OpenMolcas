@@ -17,13 +17,12 @@ subroutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
 !
 ! Purpose: write (iOpt=1) or read (iOpt=2) "new" vectors to buffer.
 
-use ChoMP2, only: NowSym
+use ChoMP2, only: lUnit_F, NowSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iVec1, nVec, lBuf, nDim, iOpt
 real(kind=wp) :: Buf(lBuf)
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iJob, iSym, lTot
 logical(kind=iwp) :: DoClose
 character(len=*), parameter :: SecNam = 'ChoMP2_Vec'

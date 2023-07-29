@@ -19,11 +19,11 @@ subroutine Cho_ParConf(Fake)
 !          nodes).
 
 use Para_Info, only: Is_Real_Par
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: Fake
-#include "cho_para_info.fh"
 
 Cho_Real_Par = Is_Real_Par() .and. (.not. Fake)
 

@@ -16,15 +16,13 @@ subroutine Cho_SimRI_Z1CDia(Diag,Thr,Indx)
 !          On exit, Indx(i)=1 if diagonal i was zeroed, else
 !          Indx(i)=0 (thus, Indx must have same dimension as Diag).
 
-use Cholesky, only: iAtomShl, iiBstRSh, iSP2F, nnBstRSh
+use Cholesky, only: iAtomShl, iiBstR, iiBstRSh, IPRINT, iSP2F, LuPri, nnBstR, nnBstRSh, nnShl
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), Thr
 integer(kind=iwp) :: Indx(*)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlAB, iShlB, n
 real(kind=wp) :: zmx
 integer(kind=iwp), parameter :: Inf_SimRI = 0

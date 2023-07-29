@@ -15,16 +15,15 @@ subroutine CHO_GETDIAG(LCONV)
 !          points to the diagonal and flag LCONV tells
 !          if the diagonal is converged.
 
-use Cholesky, only: Diag, Diag_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, iSimRI, iSP2F, MySP, n_MySP
+use Cholesky, only: Cho_IOVec, Cho_SimRI, Diag, Diag_Hidden, Frac_ChVBuf, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, INF_PASS, &
+                    IPRINT, iSimRI, iSP2F, lBuf, LuPri, mmBstrT, Mx2Sh, MySP, n_MySP, nnBstRT, nnShl, nSym, RstCho, RstDia, &
+                    Thr_SimRI
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: LCONV
-#include "cholesky.fh"
-#include "choprint.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: IOPT, IPRTRED, ISP, ISYLST(8), ISYM, l_MySP, LMAX, LSCR, LWRK, NBIN, NDUMP, NEEDI, NEEDR, NERR
 real(kind=wp) :: BIN1, STEP
 logical(kind=iwp) :: DODUMMY, SYNC

@@ -19,7 +19,7 @@ subroutine Cho_XCV_RdVec(irc,Vec,l_Vec,NVT,myRankSP,n_myRankSP,J1,J2,iSym)
 !          (Parallel two-step algorithm)
 
 #ifdef _DEBUGPRINT_
-use Cholesky, only: nnBstRSh
+use Cholesky, only: Cho_Real_Par, nnBstRSh, nnShl, nSym, NumCho
 #endif
 use Definitions, only: wp, iwp
 
@@ -27,8 +27,6 @@ implicit none
 integer(kind=iwp) :: irc, l_Vec, NVT, n_myRankSP, myRankSP(n_myRankSP), J1, J2, iSym
 real(kind=wp) :: Vec(l_Vec)
 #ifdef _DEBUGPRINT_
-#include "cho_para_info.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: i, n
 #endif
 

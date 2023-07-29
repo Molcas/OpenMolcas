@@ -11,11 +11,11 @@
 
 subroutine Cho_P_GetGSP_P(nGSP)
 
+use Cholesky, only: nnShl_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nGSP
-#include "choglob.fh"
 
 nGSP = nnShl_G
 

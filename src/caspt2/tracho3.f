@@ -20,7 +20,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 ************************************************************************
 *  Author : P. A. Malmqvist

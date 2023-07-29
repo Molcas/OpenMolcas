@@ -18,15 +18,14 @@ subroutine Cho_TrcIdl_Update(IAmIdle)
 ! Update array for tracing idle processors
 
 use Para_Info, only: MyRank
-use Cholesky, only: Idle
+use Cholesky, only: Cho_Real_Par, Idle
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri, Trace_Idle
+#endif
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: IAmIdle
-#include "cho_para_info.fh"
-#ifdef _DEBUGPRINT_
-#include "cholesky.fh"
-#endif
 
 #ifdef _DEBUGPRINT_
 if ((.not. allocated(Idle)) .or. (.not. Trace_Idle)) then

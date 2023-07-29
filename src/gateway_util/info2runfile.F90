@@ -27,7 +27,8 @@ use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI, LocalDF
+use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI, LocalDF
+use Cholesky, only: Cho_1Center
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -36,7 +37,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-#include "cholesky.fh"
 #include "rctfld.fh"
 #include "embpcharg.fh"
 #include "localdf.fh"
@@ -88,7 +88,7 @@ if (PCM) then
 end if
 iOption = ibset(iOption,5)
 ! 2el-integrals from the Cholesky vectors
-if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
+if (Chol .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
 if (Do_RI) then
   iOption = ibset(iOption,10)
@@ -103,7 +103,7 @@ if (Do_RI) then
   call Put_iScalar('DF Mode',iLocalDF)
 end if
 ! 1C-CD
-if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
+if (Chol .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
 if (Do_DCCD) iOption = ibset(iOption,13)
 call Put_iScalar('System BitSwitch',iOption)

@@ -11,11 +11,11 @@
 
 subroutine Cho_P_getGV_P(numV,nSym)
 
+use Cholesky, only: NumCho_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nSym, numV(nSym)
-#include "choglob.fh"
 integer(kind=iwp) :: i
 
 do i=1,nSym

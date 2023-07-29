@@ -22,14 +22,12 @@ subroutine CHO_MCA_DBGINT_A()
 !       3) full integral symmetry not used
 !          (only partial particle permutation symmetry)
 
-use Cholesky, only: iSP2F, nBstSh
+use Cholesky, only: IFCSEW, iSP2F, LuPri, MX2SH, NBAS, nBstSh, nCol_chk, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ISAB1, ISAB2, ISCD1, ISCD2, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, &
                      LWRK, NCMP, NUMAB, NUMCD
 real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST

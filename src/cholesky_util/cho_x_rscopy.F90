@@ -24,7 +24,7 @@
 !> has been done!
 !>
 !> @note
-!> cholesky.fh must have been initialized.
+!> The Cholesky module must have been initialized.
 !>
 !> @param[out] irc return code
 !> @param[in]  iRS location of reference reduced set

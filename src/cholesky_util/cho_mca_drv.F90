@@ -13,13 +13,12 @@ subroutine CHO_MCA_DRV()
 !
 ! Purpose: MOLCAS interface to Cholesky decomposition driver.
 
-use Cholesky, only: MySP
+use Cholesky, only: HaltIt, Lupri, MySP, nShell
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: ICODE, irc
 real(kind=wp) :: THRAO
 logical(kind=iwp) :: DOFOCK, DOGRAD, FREEK2, INDEXATION, VERBOSE

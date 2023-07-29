@@ -20,15 +20,13 @@ subroutine ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMoType1,iMOType2)
 !          CMO(alpha,p) -> COrb1(p,alpha)
 !          CMO(alpha,q) -> COrb2(alpha,q)
 
+use Cholesky, only: nBas, nSym
 use ChoMP2, only: iAoMo, iMoAo, nMo
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CMO(*), COrb1(*), COrb2(*)
 integer(kind=iwp) :: iMoType1, iMOType2
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2, nOffOrb1(8), nOffOrb2(8), nOrb1(8), nOrb2(8)
 
 do iSym=1,nSym

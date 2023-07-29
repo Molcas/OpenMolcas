@@ -27,13 +27,13 @@ subroutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
 !          overflow)
 ! irc=999: Insufficient memory for Z vectors (only if DoCheck)
 
+use Cholesky, only: LuPri, nSym
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, l_Z, l_NVT, NVT(l_NVT)
 logical(kind=iwp) :: DoPrint, DoCheck
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, l_Mx
 real(kind=wp) :: Byte, Word(8), xl_Z
 character(len=2) :: Unt

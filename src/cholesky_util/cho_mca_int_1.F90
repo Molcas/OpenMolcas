@@ -18,7 +18,7 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !    LOCPRT: flag for printing the shell quadruple to output;
 !            output format differs depending on IFCSEW.
 
-use Cholesky, only: iSP2F, nBstSh
+use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,10 +26,9 @@ integer(kind=iwp) :: IJ, KL, LINT
 real(kind=wp) :: XINT(LINT)
 logical(kind=iwp) :: LOCPRT
 #include "itmax.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: II, IIJJ, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'
-integer(kind=iwp), external :: Integral_WrOut_Cho
+external :: Integral_WrOut_Cho
 ! Statement function
 integer(kind=iwp) :: ITRI, I, J
 ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J

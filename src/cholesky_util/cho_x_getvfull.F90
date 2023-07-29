@@ -58,14 +58,13 @@
 
 subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
 
+use Cholesky, only: nBas, nSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, ipChoV(*), iSkip(*)
 real(kind=wp) :: RedVec(lRedVec)
 logical(kind=iwp) :: DoRead
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipVec(8), iSymp, iSymq, IVEC2, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
 ! Statement function
@@ -79,7 +78,7 @@ do i=1,nSym
   ipVec(i) = ipChoV(i)
 end do
 
-call set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
+call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
 if (iSwap == 0) then
 

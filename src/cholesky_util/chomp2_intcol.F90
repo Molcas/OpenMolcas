@@ -18,7 +18,8 @@ subroutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified (ai|bj) columns.
 
-use ChoMP2, only: InCore, NowSym, OldVec
+use Cholesky, only: NumCho
+use ChoMP2, only: InCore, lUnit_F, NowSym, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -26,8 +27,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nDim, nCol, iCol(nCol), l_Buf
 real(kind=wp) :: Col(nDim,nCol), Buf(l_Buf)
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iBat, iOpt, irc, iSym, iVec1, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
 real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose

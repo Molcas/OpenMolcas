@@ -30,14 +30,13 @@ subroutine CHO_DRV_Inner(IRETURN)
 !    2 -- memory has been out of bounds
 
 use Para_Info, only: Is_Real_Par, nProcs
-use Cholesky, only: Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
+use Cholesky, only: Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Reord, Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, &
+                    INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IRETURN
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: IRC, ISEC, LIRS1F, LWRK
 real(kind=wp) :: TC, TCPU0, TCPU1, TST, TW, TWALL0, TWALL1
 logical(kind=iwp) :: LCONV

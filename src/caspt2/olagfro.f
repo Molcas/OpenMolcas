@@ -397,7 +397,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 

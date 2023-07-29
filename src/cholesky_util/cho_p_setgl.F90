@@ -22,16 +22,14 @@ subroutine Cho_P_SetGL()
 !          Diag_Hidden is allocated in the calling routine, while
 !          Diag_G_Hidden is allocated here if needed.
 
-use Cholesky, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden, iL2G, IndRed, IndRed_G, &
-                    IndRed_G_Hidden, IndRSh, IndRSh_G, IndRsh_G_Hidden, InfRed, InfRed_G, InfRed_G_Hidden, InfVec, InfVec_G, &
-                    InfVec_G_Hidden, MySP, n_MySP, nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
+use Cholesky, only: Cho_Real_Par, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iiBstR, iiBstR_G, iiBstRSh, iiBstRSh_G, &
+                    iiBstRsh_L_Hidden, iL2G, IndRed, IndRed_G, IndRed_G_Hidden, IndRSh, IndRSh_G, IndRsh_G_Hidden, InfRed, &
+                    InfRed_G, InfRed_G_Hidden, InfVec, InfVec_G, InfVec_G_Hidden, LuPri, mmBstRT, mmBstRT_G, MySP, n_MySP, nnBstR, &
+                    nnBstR_G, nnBstRSh, nnBstRSh_G, nnBstRT, nnBstRT_G, nnBstRsh_L_Hidden, nnShl, nnShl_G, nSym
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: i, i1, i2, irc, iShlAB, iSP, iSym, N
 character(len=*), parameter :: SecNam = 'Cho_P_SetGL'
 
@@ -43,8 +41,8 @@ if (.not. Cho_Real_Par) then
   return
 end if
 
-! Set global data (choglob.fh).
-! ------------------------------
+! Set global data Cholesky.
+! -------------------------
 
 Diag_G => Diag_Hidden
 

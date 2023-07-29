@@ -40,8 +40,8 @@ subroutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,Diag,lDiag,lU_A
 !***********************************************************************
 !*** CHOLESKY INFORMATION MUST BE INITIALIZED WHEN CALLING THIS ROUTINE.
 !    --> I.e. Cho_X_Init() must have been called.
-!    --> It is actually sufficient that choorb.fh + nSym in
-!        cholesky.fh are available (which they are when Cho_X_Init()
+!    --> It is actually sufficient that nBas + nSym in
+!        cholesky are available (which they are when Cho_X_Init()
 !        has been called).
 !*** CHOLESKY MP2 INFORMATION MUST BE INITIALIZED WHEN CALLING THIS
 !    ROUTINE.
@@ -54,6 +54,8 @@ subroutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,Diag,lDiag,lU_A
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !***********************************************************************
 
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: nAOVir, nT1AOT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -62,9 +64,6 @@ integer(kind=iwp) :: iTyp, lDiag, lU_AO(*), irc
 logical(kind=iwp) :: Delete, DoDiag
 character(len=3) :: BaseName_AO
 real(kind=wp) :: CMO(*), Diag(lDiag)
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iClose, iCount, iOpen, iSym, iSyma, iSymb
 character(len=4) :: FullName_AO
 real(kind=wp), allocatable :: COcc(:), CVir(:)

@@ -17,7 +17,6 @@ use Definitions, only: iwp
 implicit none
 logical(kind=iwp) :: Cho_Rsv_Tsk_
 integer(kind=iwp) :: ID, i
-#include "cho_para_info.fh"
 logical(kind=iwp) :: Parallel_Mode
 logical(kind=iwp), external :: Rsv_Tsk
 

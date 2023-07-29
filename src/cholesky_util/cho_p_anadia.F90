@@ -15,15 +15,13 @@ subroutine Cho_P_AnaDia(Diag,Sync,Bin1,Step,NumBin,Full)
 !          diagonal. If Sync=.True. the global diagonal is
 !          synchronized before analysis.
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), Bin1, Step
 logical(kind=iwp) :: Sync, Full
 integer(kind=iwp) :: NumBin
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then

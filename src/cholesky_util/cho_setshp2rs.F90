@@ -16,7 +16,7 @@ subroutine Cho_SetShP2RS(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use Cholesky, only: iiBstRSh, IndRed, iShP2RS, iSP2F, MySP, nBstSh, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, iShP2RS, iSP2F, MySP, nBstSh, nnBstRSh, nSym
 #ifdef _DEBUGPRINT_
 use Cholesky, only: IndRSh
 #endif
@@ -24,7 +24,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlB, iSym, jAB, kAB, l_iShP2RS, lTst, NumAB
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SecNam = 'Cho_SetShP2RS'

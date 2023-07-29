@@ -16,15 +16,13 @@ subroutine Cho_VecBuf_Init(Frac,lVec)
 !          RUN_MODE=RUN_EXTERNAL: buffer used after decomposition,
 !                                 i.e. vectors are available on
 !                                 disk.
-!          (RUN_MODE stored in cholesky.fh)
 
-use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
+use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM, LuPri, nSym, RUN_INTERNAL, RUN_EXTERNAL, RUN_MODE
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Frac
 integer(kind=iwp) :: lVec(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: l_Max, MF
 real(kind=wp) :: xMF
 character(len=2) :: Unt

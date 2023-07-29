@@ -18,14 +18,12 @@ subroutine Cho_P_Distrib_SP_byDim(mySP,N_mySP)
 ! Determine distribution of ShellPairs by dimension.
 
 use Para_Info, only: MyRank, nProcs
-use Cholesky, only: iSP2F, nBstSh
+use Cholesky, only: Cho_Real_Par, iSP2F, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: mySP(*), N_mySP
-#include "cho_para_info.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iA, iAB, iB, iNode, iSP, n
 integer(kind=iwp), allocatable :: ProcDim(:)
 integer(kind=iwp), external :: Cho_iFindSmallest

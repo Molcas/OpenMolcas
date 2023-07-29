@@ -15,15 +15,12 @@ subroutine Cho_P_SyncDiag(Diag,iLoc)
 !          and iLoc tells which memory location to use for reduced
 !          set index arrays.
 
-use Cholesky, only: Diag_G, iL2G, IndRed
+use Cholesky, only: Cho_Real_Par, Diag_G, iL2G, IndRed, nnBstRT, nnBstRT_G, TMISC
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: iLoc
-#include "cho_para_info.fh"
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: i, j
 real(kind=wp) :: c1, c2, w1, w2
 

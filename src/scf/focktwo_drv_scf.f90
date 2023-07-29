@@ -12,6 +12,7 @@
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       use ChoSCF, only: ALGO
+      use Cholesky, only: timings
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -28,7 +29,6 @@
       Real*8 TotCPU, TotCPU1, TotCPU2
       Real*8 TotWall, TotWall1, TotWall2
 
-#include "chotime.fh"
       Real*8, Allocatable :: FSQ(:,:)
       Real*8, Allocatable :: W1(:), W2(:)
       Real*8, Allocatable :: tFLT(:,:)

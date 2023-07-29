@@ -17,13 +17,11 @@ subroutine Cho_X_GetTotV(nV,n)
 !
 ! Purpose: return total number of vectors (over all nodes).
 
-use Cholesky, only: NumCho_Bak
+use Cholesky, only: Cho_Real_Par, nSym, NumCho, NumCho_Bak
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: n, nV(n)
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iSym
 
 #ifdef _DEBUGPRINT_

@@ -14,14 +14,13 @@ subroutine CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 ! Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
 !          return the global max. abs. in DGMAX.
 
-use Cholesky, only: IndRed
+use Cholesky, only: Cho_1Center, DiaMax, DiaMaxT, iiBstR, IndRed, LuPri, nnBstR, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), DGMax
 integer(kind=iwp) :: IRED
-#include "cholesky.fh"
 integer(kind=iwp) :: AB, AB1, AB2, IAB, ISYM
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.

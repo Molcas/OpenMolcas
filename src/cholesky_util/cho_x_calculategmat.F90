@@ -36,14 +36,13 @@
 
 subroutine Cho_X_CalculateGMat(irc)
 
-use Cholesky, only: InfVec
+use Cholesky, only: iiBstR, InfVec, nnBstR, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
 integer(kind=iwp) :: iDisk, idRS2RS, iI, iJ, iLoc, iOpt, iRed, iRedC, iSym, K, kG_IJ, KK, KK1, KKK, kOffV, l_G, l_iRS2RS, l_Wrk, &
                      lUnit, mUSed, nVRead
 real(kind=wp) :: V_J

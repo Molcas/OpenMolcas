@@ -17,24 +17,29 @@ subroutine ChoMP2_Setup(irc)
 !
 ! Purpose: setup of Cholesky MP2 program.
 
-use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, LiMatij, LiPQprod, LiT1am, LnBatOrb, LnMatij, LnOcc, LnPQprod, LnT1am, lUnit, &
-                  NumBatOrb, NumOcc
+use Cholesky, only: LuPri, nBas, nSym, NumCho
+use ChoMP2, only: ChoAlg, ChoMP2_allocated, DecoMP2, DoDens, ForceBatch, iAOVir, iBatOrb, iDel, iFirst, iFirstS, iFro, iMatab, &
+                  iOcc, iT1am, iT1AOT, iVir, Laplace, Laplace_BlockSize, LiMatij, LiPQprod, LiT1am, LnBatOrb, LnMatij, LnOcc, &
+                  LnPQprod, LnT1am, lUnit, nAOVir, nBatch, nBatOrbT, nDel, nDelT, nFro, nFroT, nMatab, nOcc, nOccT, nOrb, nT1am, &
+                  nT1AOT, nTypF, NumBatOrb, NumOcc, nVir, nVirT, SOS_mp2, ThrMP2
+#ifdef _DISABLED_
+use ChoMP2, only: iPQ_prod, L_Mp2Lagr, nPQ_prod, nPQ_prodab, nPQ_prodia, nPQ_prodij
+#endif
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-integer(kind=iwp) :: blast, bsize, iSym, iSyma, iSymAl, iSymb, iSymi, iSymP, iSymQ, iTyp, l_X, lAvail, lWork, mBatch, nBlock, &
-                     nFrac(8), nPQProdx, nT1amx, NumVec(8)
+integer(kind=iwp) :: blast, bsize, iSym, iSyma, iSymAl, iSymb, iSymi, iTyp, l_X, lAvail, lWork, mBatch, nBlock, nFrac(8), nT1amx, &
+                     NumVec(8)
 real(kind=wp) :: Byte, lX, xb, xbp, xM, xn
 logical(kind=iwp) :: Accepted, ChoMP2_Setup_MemChk
 character(len=2) :: Unt
 character(len=*), parameter :: SecNam = 'ChoMP2_Setup'
+#ifdef _DISABLED_
+integer(kind=iwp) :: iSymP, iSymQ, nPQprodx
+#endif
 ! Statement function
 integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
@@ -56,11 +61,11 @@ nOccT = nOcc(1)
 nVirT = nVir(1)
 nFroT = nFro(1)
 nDelT = nDel(1)
-if (.false.) then
-  nBatOrbT = nVir(1)+nOcc(1)+nFro(1)+nDel(1)
-else
-  nBatOrbT = nOcc(1)
-end if
+#ifdef _DISABLED_
+nBatOrbT = nVir(1)+nOcc(1)+nFro(1)+nDel(1)
+#else
+nBatOrbT = nOcc(1)
+#endif
 do iSym=2,nSym
   iOcc(iSym) = nOccT
   iVir(iSym) = nVirT
@@ -71,11 +76,11 @@ do iSym=2,nSym
   nVirT = nVirT+nVir(iSym)
   nFroT = nFroT+nFro(iSym)
   nDelT = nDelT+nDel(iSym)
-  if (.false.) then
-    nBatOrbT = nBatOrbT+nOcc(iSym)+nVir(iSym)+nFro(iSym)+nDel(iSym)
-  else
-    nBatOrbT = nBatOrbT+nOcc(iSym)
-  end if
+# ifdef _DISABLED_
+  nBatOrbT = nBatOrbT+nOcc(iSym)+nVir(iSym)+nFro(iSym)+nDel(iSym)
+# else
+  nBatOrbT = nBatOrbT+nOcc(iSym)
+# endif
 end do
 
 do iSym=1,nSym
@@ -87,25 +92,24 @@ do iSym=1,nSym
   end do
 end do
 
-if (.false.) then
-  do iSym=1,nSym
-    nPQ_prod(iSym) = 0
-    nPQ_prodij(iSym) = 0
-    nPQ_prodia(iSym) = 0
-    nPQ_prodab(iSym) = 0
-    do iSymQ=1,nSym
-      iSymP = MulD2h(iSymQ,iSym)
-      iPQ_prod(iSymP,iSymQ) = nPQ_prod(iSym)
+#ifdef _DISABLED_
+do iSym=1,nSym
+  nPQ_prod(iSym) = 0
+  nPQ_prodij(iSym) = 0
+  nPQ_prodia(iSym) = 0
+  nPQ_prodab(iSym) = 0
+  do iSymQ=1,nSym
+    iSymP = MulD2h(iSymQ,iSym)
+    iPQ_prod(iSymP,iSymQ) = nPQ_prod(iSym)
 
-      nPQ_prod(iSym) = nPQ_Prod(iSym)+(nOcc(iSymP)+nVir(iSymP)+nFro(iSymP)+nDel(iSymP))*(nOcc(iSymQ)+nVir(iSymQ)+nFro(iSymQ)+ &
-                       nDel(iSymQ))
-      nPQ_prodij(iSym) = nPQ_Prodij(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nFro(iSymQ)+nOcc(iSymQ))
-      nPQ_prodia(iSym) = nPQ_Prodia(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
-      nPQ_prodab(iSym) = nPQ_Prodab(iSym)+(nVir(iSymP)+nDel(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
-    end do
+    nPQ_prod(iSym) = nPQ_Prod(iSym)+(nOcc(iSymP)+nVir(iSymP)+nFro(iSymP)+nDel(iSymP))*(nOcc(iSymQ)+nVir(iSymQ)+nFro(iSymQ)+ &
+                     nDel(iSymQ))
+    nPQ_prodij(iSym) = nPQ_Prodij(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nFro(iSymQ)+nOcc(iSymQ))
+    nPQ_prodia(iSym) = nPQ_Prodia(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
+    nPQ_prodab(iSym) = nPQ_Prodab(iSym)+(nVir(iSymP)+nDel(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
   end do
-
-end if
+end do
+#endif
 
 do iSym=1,nSym
   nT1AOT(iSym) = 0
@@ -149,13 +153,13 @@ if (ForceBatch .and. (nBatOrbT == 1)) ForceBatch = .false.
 ! -------------------------------------
 
 ! nPQ_prodx will be the largest number of products in one symmetry
+#ifdef _DISABLED_
 nPQProdx = 0
-if (.false.) then
-  nPQProdx = nPQ_Prod(1)
-  do iSym=2,nSym
-    nPQProdx = max(nPQProdx,nPQ_Prod(iSym))
-  end do
-end if
+nPQProdx = nPQ_Prod(1)
+do iSym=2,nSym
+  nPQProdx = max(nPQProdx,nPQ_Prod(iSym))
+end do
+#endif
 
 nT1amx = nT1am(1)
 do iSym=2,nSym
@@ -219,23 +223,24 @@ do while ((nBatch < mBatch) .and. (.not. Accepted))
   call mma_allocate(NumBatOrb,nBatch,Label='NumBatOrb')
   ! Generalization of LnOcc for arbitrary quantity to batch over.
   call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
-  if (.false.) then
-    call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
-    call mma_allocate(LiPQprod,nSym,nSym,nBatch,Label='LiPQprod')
-  else
-    call mma_allocate(LnPQprod,1,1,Label='LnPQprod')
-    call mma_allocate(LiPQprod,1,1,1,Label='LiPQprod')
-  end if
+# ifdef _DISABLED_
+  call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
+  call mma_allocate(LiPQprod,nSym,nSym,nBatch,Label='LiPQprod')
+# else
+  call mma_allocate(LnPQprod,1,1,Label='LnPQprod')
+  call mma_allocate(LiPQprod,1,1,1,Label='LiPQprod')
+# endif
 
   call ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,LnOcc,NumBatOrb,LnBatOrb,LnT1am,LiT1am,LnPQprod,LiPQprod,LnMatij,LiMatij,nSym, &
                           nBatch)
 
   call mma_maxDBLE(lWork)
-  if (.false.) then
-    ! All Memory available minus one full vector and some small
-    ! vectors for the PCG-algorithm.
-    lAvail = lWork-nPQprodx-l_Mp2Lagr*9
-  else if (Laplace .and. SOS_MP2) then
+# ifdef _DISABLED_
+  ! All Memory available minus one full vector and some small
+  ! vectors for the PCG-algorithm.
+  lAvail = lWork-nPQprodx-l_Mp2Lagr*9
+# else
+  if (Laplace .and. SOS_MP2) then
     lX = Zero
     do iSym=1,nSym
       if ((nT1am(iSym) > 0) .and. (NumVec(iSym) > 0)) then
@@ -266,6 +271,7 @@ do while ((nBatch < mBatch) .and. (.not. Accepted))
   else
     lAvail = lWork-nT1amx ! all minus one vector (for reading)
   end if
+# endif
   call GAiGOp_Scal(lAvail,'min')
   ! The argument LnPQprod is only used for the case where full
   ! Lpq-vectors are transformed for densities. Will be a dummy arg

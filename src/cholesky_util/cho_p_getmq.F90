@@ -11,12 +11,12 @@
 
 subroutine Cho_P_GetMQ(MQ,l_MQ,LstQSP,nQSP)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_MQ, nQSP, LstQSP(nQSP)
 real(kind=wp) :: MQ(l_MQ)
-#include "cho_para_info.fh"
 character(len=*), parameter :: SecNam = 'Cho_P_GetMQ'
 
 ! In parallel:

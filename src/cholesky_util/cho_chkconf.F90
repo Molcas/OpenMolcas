@@ -13,16 +13,16 @@ subroutine CHO_CHKCONF(NCONFL,VERBOSE)
 !
 ! Purpose: check configuration, return the number of errors NCONFL.
 
-use Cholesky, only: Cho_SScreen, SSTau
+use Cholesky, only: BLOCKSIZE, CHO_1CENTER, CHO_DECALG, CHO_IOVEC, CHO_NDECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_Real_Par, &
+                    CHO_SIMRI, Cho_SScreen, Damp, FRAC_CHVBUF, IALQUA, IFCSEW, lBuf, LuPri, MaxQual, MaxRed, MaxVec, MinQual, &
+                    MXSHPR, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, NALQUA, NBAST, nShell, nSym, RstCho, SCDIAG, Span, &
+                    SSTau, Thr_PreScreen, ThrCom, ThrDef, ThrDiag, ThrNeg, TOONEG, WARNEG
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NCONFL
 logical(kind=iwp) :: VERBOSE
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: INEGRR, MMM, NNN
 logical(kind=iwp) :: REPORT
 real(kind=wp) :: XLBUF, XMBUF

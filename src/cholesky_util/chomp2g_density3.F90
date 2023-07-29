@@ -18,7 +18,8 @@ subroutine ChoMP2g_Density3(irc,CMO)
 !     Purpose: Finalize MP2 Density.                                   *
 !***********************************************************************
 
-use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e
+use Cholesky, only: nSym
+use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e, nDel, nFro, nOcc, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -26,9 +27,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: CMO(*)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: i, iSym, j, lTriDens, nOccAll(8), nOrbAll(8)
 real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
 !                                                                      *

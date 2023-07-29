@@ -18,12 +18,11 @@ subroutine Cho_X_DefineInfVec_5(isDF)
 !          The routine does nothing in case of parallel DF.
 
 use Para_Info, only: Is_Real_Par
-use Cholesky, only: InfVec
+use Cholesky, only: InfVec, nSym, NumCho
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: isDF
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iSym
 logical(kind=iwp) :: doDefine
 

@@ -11,14 +11,11 @@
 
 subroutine Cho_PTS_Stat()
 
-use Cholesky, only: IntMap
+use Cholesky, only: Cho_Real_Par, IntMap, LuMap, nnShl, nSym, NumCho, NumCho_G, NumChT, NumChT_G
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iTmp
 
 if (.not. allocated(IntMap)) then

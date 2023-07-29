@@ -25,7 +25,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "chomp2.fh"
 integer(kind=iwp) :: iSym
 
 irc = 0

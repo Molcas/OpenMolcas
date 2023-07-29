@@ -19,14 +19,13 @@ subroutine CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
 !          If no more columns can be qualified on exit,
 !          FULL=.true. is returned.
 
-use Cholesky, only: iiBstRSh, IndRed, iQuAB, iSP2F, nnBstRSh
+use Cholesky, only: DiaMin, IALQUA, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, iSP2F, LuPri, MaxQual, nnBstR, nnBstRSh, nQual, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: ISHLAB, ISYMAX, MEM
 logical(kind=iwp) :: FULL
-#include "cholesky.fh"
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.
 #else

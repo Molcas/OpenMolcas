@@ -20,18 +20,19 @@ subroutine CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
 ! IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 ! record bookmarks during Cholesky decomposition.
 
-use Cholesky, only: BkmThr, BkmVec, Cho_SScreen, iAtomShl, iBasSh, iiBstRSh, iiBstRSh_Hidden, InfRed, InfRed_Hidden, InfVec, &
-                    InfVec_Hidden, IntMap, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, MySP, nBasSh, nBstSh, nCol_BkmThr, nCol_BkmVec, &
-                    nDimRS, nnBstRSh, nnBstRSh_Hidden, nnShl_SP, nRow_BkmThr, nRow_BkmVec, SSTau
+use Cholesky, only: BkmThr, BkmVec, CHKONLY, CHO_1CENTER, CHO_DECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_SScreen, DIAMNZ, &
+                    DID_DECDRV, IABMNZ, iAtomShl, iBas, iBasSh, ICHKQ, iiBstRSh, iiBstRSh_Hidden, INF_INIT, InfRed, InfRed_Hidden, &
+                    InfVec, InfVec_Hidden, INFVEC_N2, IntMap, IPRINT, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, LuPri, MaxQual, MaxRed, &
+                    MaxVec, MODE_SCREEN, MX2SH, MXORSH, MySP, nBas, nBasSh, nBasT, nBstSh, NCHKQ, nCol_BkmThr, nCol_BkmVec, &
+                    NDECOM, nDGM_call, nDimRS, NINTEG, NMISC, nnBstRSh, nnBstRSh_Hidden, nnShl, nnShl_SP, nnShl_tot, NNZTOT, &
+                    nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, nVecRS1, RstCho, SSTau, TDECDRV, TDECOM, Thr_PreScreen, &
+                    ThrCom, TINTEG, TMISC, Trace_Idle
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: SKIP_PRESCREEN, ALLOCATE_BOOKMARKS
-#include "choorb.fh"
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
 real(kind=wp) :: XA, XB, XXB(8), XXBMx, XXBT
 real(kind=wp), parameter :: GBLIM = 2.147483648e9_wp

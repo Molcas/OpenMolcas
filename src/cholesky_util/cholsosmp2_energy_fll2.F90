@@ -20,6 +20,8 @@ subroutine ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! ordering as the sorted algorithm and thus reads through the
 ! vector files once for each grid point.
 
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: DecoMP2, iOcc, iT1am, iVir, Laplace_BlockSize, Laplace_nGridPoints, lUNit_F, nMP2Vec, nOcc, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
@@ -28,9 +30,6 @@ implicit none
 integer(kind=iwp) :: N, irc
 real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
 logical(kind=iwp) :: Delete
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: a, blast, bsize, i, iAddr, iBlock, iOpt, ip0, ip1, ipi, ipj, ipX, iSym, iSyma, iSymi, iTyp, iVec, jBlock, &
                      l_Tot, l_X, lenX, Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
 real(kind=wp) :: Eq, lX, tq, wq, xb, xbp, xM, xn

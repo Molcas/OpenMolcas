@@ -17,15 +17,16 @@ subroutine ChoMP2_Srt(Vec,Srt,nVec,iSym,iBatch)
 !
 ! Purpose: copy out subblock of vectors.
 
-use ChoMP2, only: iFirstS, LiPQprod, LiT1am, LnBatOrb, LnOcc, LnPQprod, LnT1am
+use Cholesky, only: nSym
+use ChoMP2, only: DoDens, iFirstS, iT1am, LiT1am, LnOcc, LnT1am, nT1am, nVir
+#ifdef _BUG_
+use ChoMP2, only: iPQ_prod, LiPQprod, LnBatOrb, LnPQprod, nDel, nFro, nOcc, nPQ_prod
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Vec(*), Srt(*)
 integer(kind=iwp) :: nVec, iSym, iBatch
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
 integer(kind=iwp) :: iSyma, iSymi, iVec, kOff0, kOff1, kOff2, kOff3, lCp
 ! Statement function
 integer(kind=iwp) :: MulD2h, i, j
@@ -51,6 +52,7 @@ if (.not. DoDens) then
 
   end do
 else
+# ifdef _BUG_
   ! Special sorting for Mp2-density calculations where all integrals
   ! are used (for pure energy calculations only integrals of type
   ! (occ,vir|occ,vir) are needed).
@@ -70,6 +72,11 @@ else
       end if
     end do
   end do
+# else
+  ! BUG: iPQ_prod was never initialized
+  call WarningMessage(2,'Sorry, but there is a bug in ChoMP2_Srt')
+  call Abend()
+# endif
 end if
 
 end subroutine ChoMP2_Srt

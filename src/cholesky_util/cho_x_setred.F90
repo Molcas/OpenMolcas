@@ -20,12 +20,12 @@
 !> Reads information for reduced set \p iRed (= ``1``, ``2``, ..., \c MaxRed)
 !> and sets up the index arrays
 !>
-!> - \p nnBstRT(iLoc)      &rarr; stored in cholesky.fh
-!> - \p nnBstR(:,iLoc)     &rarr; stored in cholesky.fh
-!> - \p iiBstR(:,iLoc)     &rarr; stored in cholesky.fh
-!> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via Cholesky
-!> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via Cholesky
-!> - \p IndRed(:,iLoc)     &rarr; accesible via Cholesky
+!> - \p nnBstRT(iLoc)      &rarr; accessible via Cholesky
+!> - \p nnBstR(:,iLoc)     &rarr; accessible via Cholesky
+!> - \p iiBstR(:,iLoc)     &rarr; accessible via Cholesky
+!> - \p nnBstRSh(:,:,iLoc) &rarr; accessible via Cholesky
+!> - \p iiBstRSh(:,:,iLoc) &rarr; accessible via Cholesky
+!> - \p IndRed(:,iLoc)     &rarr; accessible via Cholesky
 !>
 !> On succesful completion, \p irc = ``0`` is returned.
 !> Note that the only allowed \p iLoc values are ``2`` and ``3``; any other
@@ -42,12 +42,11 @@
 
 subroutine Cho_X_SetRed(irc,iLoc,iRed)
 
-use Cholesky, only: IndRed
+use Cholesky, only: IndRed, MaxRed
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, iLoc, iRed
-#include "cholesky.fh"
 integer(kind=iwp) :: iab
 
 if ((iLoc == 2) .or. (iLoc == 3)) then

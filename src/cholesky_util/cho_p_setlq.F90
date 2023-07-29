@@ -23,13 +23,10 @@ subroutine Cho_P_SetLQ()
 ! iQL2G(iQ,iSym)  : returns index of the qualified in the global
 !                   list.
 
-use Cholesky, only: iL2G, IndRed, IndRed_G, iQL2G, iQuAB, iQuAB_L, nQual_L
+use Cholesky, only: Cho_Real_Par, iiBstR, iL2G, IndRed, IndRed_G, iQL2G, iQuAB, iQuAB_L, nnBstR, nQual, nQual_L, nSym
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: i, i2, iQ, iQG, iSym, j, k, nQL
 
 if (.not. Cho_Real_Par) return ! not truly parallel...

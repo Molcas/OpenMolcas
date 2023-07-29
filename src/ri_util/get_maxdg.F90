@@ -17,7 +17,7 @@ subroutine Get_maxDG(SDG,nnSkal,MxBasSh)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use Cholesky, only: iRS2F, iSOShl
+use Cholesky, only: iiBstR, iRS2F, iSOShl, MxOrSh, nnBstR, nnBstRT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -26,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nnSkal
 real(kind=wp), intent(inout) :: SDG(nnSkal)
 integer(kind=iwp), intent(out) :: MxBasSh
-#include "cholesky.fh"
 integer(kind=iwp) :: iabSh, iag, iaSh, ibg, ibSh, iLoc, jRab, jSym, kRab
 real(kind=wp), allocatable :: Diag(:)
 

@@ -17,7 +17,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: Cho_IndxParentDiag_S
 integer(kind=iwp) :: iQ, iSym
-#include "cholesky.fh"
 
 Cho_IndxParentDiag_S = IndRed(iQuAB(iQ,iSym),2)
 

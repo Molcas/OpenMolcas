@@ -29,7 +29,7 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 ! On exit, the Z vector blocks are stored in memory according
 ! to ip_Z.
 
-use Cholesky, only: InfVec
+use Cholesky, only: iiBstR, InfVec, LuPri, nnBstR, nSym, nSys_call, NumCho, TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -37,10 +37,6 @@ implicit none
 integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
                      iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
 real(kind=wp) :: Z(l_Z)
-#include "cholesky.fh"
-#ifdef _DEBUGPRINT_
-#include "choprint.fh"
-#endif
 integer(kind=iwp) :: i, idRS2RS, iJ, iLoc, iRed, iRedC, iSym, j, J_inBlock, jBlock, k, K_inBlock, kBlock, KK, KK1, KKK, kOffV, &
                      kOffZ, l_Wrk, mUsed, nVRead
 real(kind=wp) :: C0, C1, W0, W1

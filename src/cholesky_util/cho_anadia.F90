@@ -13,13 +13,13 @@ subroutine CHO_ANADIA(DIAG,BIN1,STEP,NUMBIN,FULL)
 !
 ! Purpose: analyze diagonal (histogram).
 
+use Cholesky, only: DIAMNZ, IABMNZ, LuPri, nnBstRT, nnZTot, ThrCom
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), BIN1, STEP
 integer(kind=iwp) :: NUMBIN
 logical(kind=iwp) :: FULL
-#include "cholesky.fh"
 integer(kind=iwp), parameter :: MAXBIN = 50, NUMSTA = 7
 integer(kind=iwp) :: IAB, IBIN, MBIN, NBIN, NCONV
 real(kind=wp) :: BIN(MAXBIN), BINLOC, STAT(NUMSTA), STPLOC

@@ -13,11 +13,11 @@
 
 subroutine Cho_SetDecompositionThreshold(Thr)
 
+use Cholesky, only: ThrCom
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: Thr
-#include "cholesky.fh"
 
 ThrCom = Thr
 

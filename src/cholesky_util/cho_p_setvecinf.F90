@@ -13,14 +13,11 @@ subroutine Cho_P_SetVecInf(nVec,iSym,iPass)
 !
 ! Purpose: set global and local info for vectors.
 
-use Cholesky, only: iQuAB, IndRed
+use Cholesky, only: Cho_Real_Par, iQuAB, IndRed, NumCho, NumCho_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nVec, iSym, iPass
-#include "cholesky.fh"
-#include "cho_para_info.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iV, iVec, iAB
 integer(kind=iwp), external :: Cho_P_IndxParentDiag
 

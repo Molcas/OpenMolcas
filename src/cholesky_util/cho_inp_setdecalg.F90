@@ -11,12 +11,11 @@
 
 subroutine Cho_Inp_SetDecAlg(ForceParallel)
 
+use Cholesky, only: Cho_DecAlg, Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: ForceParallel
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par .or. ForceParallel) then
   if (Cho_DecAlg == 1) then

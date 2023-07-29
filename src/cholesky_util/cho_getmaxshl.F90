@@ -13,13 +13,13 @@ subroutine CHO_GETMAXSHL(DIASH,SMAX,ISHLAB)
 !
 ! Purpose: Get max. shell pair and update DIASH.
 
+use Cholesky, only: nnShl
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DIASH(*), SMAX
 integer(kind=iwp) :: ISHLAB
-#include "cholesky.fh"
 integer(kind=iwp) :: JSHLAB
 character(len=*), parameter :: SECNAM = 'CHO_GETMAXSHL'
 

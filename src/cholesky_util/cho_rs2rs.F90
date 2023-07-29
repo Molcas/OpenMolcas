@@ -16,12 +16,11 @@ subroutine CHO_RS2RS(IMAP,LMAP,IRS2,IRS3,IRED3,ISYM)
 !
 ! WARNING: for IRED3 = 1, INDRED is reset here!!!!
 
-use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, nnBstR, nnBstRSh, nnShl
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: LMAP, IMAP(LMAP), IRS2, IRS3, IRED3, ISYM
-#include "cholesky.fh"
 integer(kind=iwp) :: I, I1, I2, IAB, IAB1, IAB2, ISHLAB, JAB, KAB, LAB, LAB1, LAB2, LAST, MAB, N2, N3
 character(len=*), parameter :: SECNAM = 'CHO_RS2RS'
 

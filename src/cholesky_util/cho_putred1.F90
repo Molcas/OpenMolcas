@@ -14,12 +14,12 @@ subroutine CHO_PUTRED1(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,MRED,MSYM,MMSHL,LMMBS
 ! Purpose: write index arrays for current reduced set (reduced set
 !          IPASS).
 
+use Cholesky, only: LuPri, LuRed, MaxRed, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MRED, INFRED(MRED), MSYM, MMSHL, NNBSTRSH(MSYM,MMSHL), LMMBSTRT, INDRED(LMMBSTRT), INDRSH(LMMBSTRT), &
                      ISP2F(MMSHL), IPASS, ILOC
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, IADR1, IOPT, LTOT
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_PUTRED1'

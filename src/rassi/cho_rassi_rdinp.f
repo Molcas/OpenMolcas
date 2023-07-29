@@ -17,6 +17,7 @@
 *
 ************************************************************************
       Use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
+      Use Cholesky, only: timings
       Implicit Real*8 (A-H,O-Z)
 #include "rassi.fh"
 #include "print.fh"
@@ -25,7 +26,6 @@
       Logical  DFonly
 *
 #include "chorassi.fh"
-#include "chotime.fh"
 *
       iRout=1
       iPrint=nPrint(iRout)

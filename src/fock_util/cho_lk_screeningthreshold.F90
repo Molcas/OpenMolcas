@@ -21,6 +21,7 @@ function Cho_LK_ScreeningThreshold(delta)
 ! The Cholesky environment must have been set up prior to calling
 ! this function [by calling Cho_X_Init(..)]
 
+use Cholesky, only: ThrCom
 use Constants, only: Zero, One
 use Definitions, only: wp
 #ifdef _DEBUGPRINT_
@@ -30,7 +31,6 @@ use Definitions, only: u6
 implicit none
 real(kind=wp) :: Cho_LK_ScreeningThreshold
 real(kind=wp), intent(in) :: delta
-#include "cholesky.fh"
 real(kind=wp) :: thr
 real(kind=wp), parameter :: thr0 = 1.0e-6_wp
 

@@ -14,15 +14,14 @@ subroutine CHO_DECOM(DIAG,WRK,LWRK,IPASS,NUM)
 ! Purpose: calculate Cholesky vectors from qualified integral
 !          columns (from disk).
 
-use Cholesky, only: IndRed, iQuAB, nVec_in_Buf
+use Cholesky, only: Cho_1Center, Cho_DiaChk, Cho_Simp, DiaMin, iiBstR, IndRed, INF_PASS, INF_PROGRESS, IPRINT, iQuAB, LuPri, &
+                    LuSel, nnBstR, nnZTot, nQual, nSym, NumCho, NumChT, nVec_in_Buf, Span, TDECOM, ThrCom, Tol_DiaChk
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LWRK, IPASS, NUM
 real(kind=wp) :: Diag(*), WRK(LWRK)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I, IAB, IABG, IADR, ICHO, IDUMP, II, IOPT, ISYM, IVEC, IVEC1, IVECT, JJ, KAB, KCHO1, KEND0, KEND1, KINT1, &
                      KOFF, KOFF0, KOFF1, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, &
                      NUMCHO_OLD(8)

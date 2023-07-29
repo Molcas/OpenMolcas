@@ -16,11 +16,11 @@ subroutine Cho_P_SetShP2Q(irc,iLoc,iShlAB,nAB)
 !          local and global index arrays before (and after) calling
 !          the original serial routine.
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(8)
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Cho_P_IndxSwp()

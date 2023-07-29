@@ -23,14 +23,13 @@ subroutine CHO_GETVEC2(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       disk and should not be smaller than NNBSTR(ISYM,1)+1,
 !       preferably more.
 
-use Cholesky, only: InfVec, iScr
+use Cholesky, only: Cho_AdrVec, InfVec, iScr, nnBstR, nSys_call
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
 real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, ILOC, IMAPC, IOFF(0:1), IREDC, IVEC2, JRED, JRED1, JRED2, JVEC1, JVEC2, KJUNK, KOFF, KSCR, KVEC, KVEC1, &
                      LEFT, LNUM, LRED, LVEC, LVEC1, MUSED, NVRD
 character(len=*), parameter :: SECNAM = 'CHO_GETVEC2'

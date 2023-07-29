@@ -11,11 +11,10 @@
 
 subroutine Cho_P_QualSwp()
 
-use Cholesky, only: iQuAB, iQuAB_L, nQual_L, pTemp
+use Cholesky, only: iQuAB, iQuAB_L, nQual, nQual_L, nSym, pTemp
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: i, scr
 
 ! Swap nQual array  local <-> global

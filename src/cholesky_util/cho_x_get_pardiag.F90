@@ -34,12 +34,11 @@ subroutine CHO_X_GET_PARDIAG(jSym,iSO_ab)
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-use Cholesky, only: InfVec, iRS2F
+use Cholesky, only: iiBstR, InfVec, iRS2F, NumCho
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: jSym, iSO_ab(2,*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iOff, jRab, jv, kRab
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iRank, kv, nTot

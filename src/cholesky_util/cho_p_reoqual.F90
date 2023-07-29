@@ -11,13 +11,11 @@
 
 subroutine Cho_P_ReoQual(iQScr,IDK,nK)
 
-use Cholesky, only: iQuAB
+use Cholesky, only: Cho_Real_Par, iQuAB, MaxQual, nQual, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iQScr(*), IDK(*), nK(*)
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 
 call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
 if (Cho_Real_Par) then

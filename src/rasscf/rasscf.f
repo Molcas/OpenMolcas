@@ -122,8 +122,6 @@
 #endif
 
 * --------- Cholesky stuff:
-#include "chopar.fh"
-#include "chotime.fh"
 #include "qmat.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP

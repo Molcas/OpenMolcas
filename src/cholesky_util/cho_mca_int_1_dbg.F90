@@ -17,12 +17,12 @@ subroutine CHO_MCA_INT_1_DBG(DIAG,LEVEL)
 !          2: test diagonal, reduced set 2 (i.e. current).
 !          3: test symmetry of integral matrix (shell quadruple-based)
 
+use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: Level
-#include "cholesky.fh"
 integer(kind=iwp) :: IRED
 logical(kind=iwp) :: LOCDIAG, LOCSYM
 

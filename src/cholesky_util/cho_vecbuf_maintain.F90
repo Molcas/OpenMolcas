@@ -32,14 +32,14 @@ subroutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
 !
 ! NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 
-use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, iScr, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, iScr, l_CHVBUF_SYM, LuPri, nnBstR, nSym, nSys_call, NumCho, NumChT, &
+                    nVec_in_Buf, TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, iRed
 logical(kind=iwp) :: DoTime, DoStat
-#include "cholesky.fh"
 integer(kind=iwp) :: iE, iMapC, iOff3, iRedC, iRS2, iS, iSym, iVec, iVec1, iVec2, jRed, jRS3, jVec, kVec, l_VRd, lCol, Left, lRow, &
                      mUsed, nDisk, nErr, nSys, nVec, nVRd
 real(kind=wp) :: C1, C2, W1, W2

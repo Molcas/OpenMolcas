@@ -11,6 +11,7 @@
 
 subroutine Cho_TestBookmark(irc,verbose,is1CCD)
 
+use Cholesky, only: Cho_1Center, DiaMax, DiaMaxT, nnBstRT, nSym, NumCho, NumChT, ThrCom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -18,7 +19,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: irc
 logical(kind=iwp) :: verbose, is1CCD
-#include "cholesky.fh"
 logical(kind=iwp) :: Cho_1Center_Bak, dealloc
 integer(kind=iwp) :: iSym, jrc, NumChoBak(8), NumChTBak, nVec(8)
 real(kind=wp) :: delta(8), ErrMx, Thr, ThrComBak

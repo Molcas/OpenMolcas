@@ -13,14 +13,12 @@
 
 subroutine switch_density(iLoc,XLT,Xab,kSym)
 
-use Cholesky, only: IndRed, iRS2F
+use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nnBstR
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iLoc, kSym
 real(kind=wp) :: XLT(*), Xab(*)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jRab, jSym, kRab
 real(kind=wp) :: xf
 integer(kind=iwp), external :: cho_isao

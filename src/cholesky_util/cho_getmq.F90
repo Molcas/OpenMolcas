@@ -11,15 +11,13 @@
 
 subroutine Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
 
-use Cholesky, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, IndRSh, iQuAB, LuSel, nnBstR, nnBstRSh, nnShl, nQual, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_MQ, nQShp, List_QShp(nQShp)
 real(kind=wp) :: MQ(l_MQ)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: iAB, iabSh, iAdr, iL_Shp, iL_ShpG, ipfr, ipS, ipto, iQ, iQoff, isAB, iShAB, iShABG, iShp, iShpAdr, iSym, jQ, &
                      jSym, Lint, Lread, nTot
 integer(kind=iwp), allocatable :: kOff_Shp(:)

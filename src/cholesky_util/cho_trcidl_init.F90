@@ -18,12 +18,11 @@ subroutine Cho_TrcIdl_Init()
 ! Allocate and init array for tracing idle processors
 
 use Para_Info, only: nProcs
-use Cholesky, only: Idle
+use Cholesky, only: Cho_Real_Par, Idle
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-#include "cho_para_info.fh"
 integer(kind=iwp) :: l_Idle
 
 if (Cho_Real_Par) then

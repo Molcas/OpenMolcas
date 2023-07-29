@@ -17,15 +17,14 @@ subroutine CHO_MCA_CALCINT_2(ISHLAB)
 ! Version 2: avoid storage of full shell quadruple in interface to
 !            seward; get qualified directly!
 
-use Cholesky, only: iSP2F, MySP, nnBstRSh
+use Cholesky, only: INF_IN2, INF_INT, iOff_col, iOffq, IPRINT, iSP2F, LuPri, LuSel, MySP, nnBstR, nnBstRSh, nnShl, nQual, nSym, &
+                    TINTEG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ISHLAB
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: IADR, ILOC, IOPT, IRC, ISCD, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, KOFF, LCOL, LINT, LTOT, NAB(8)
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS

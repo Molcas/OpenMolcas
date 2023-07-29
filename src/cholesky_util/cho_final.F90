@@ -13,14 +13,13 @@ subroutine CHO_FINAL(WriteBookmarks)
 !
 ! Purpose: Cholesky finalizations.
 
-use Cholesky, only: BkmThr, BkmVec, CHOINICHECK, iSOShl, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
+use Cholesky, only: BkmThr, BkmVec, Cho_AdrVec, Cho_Reord, CHOINICHECK, iSOShl, nBasT, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, &
+                    nRow_BkmVec, nSym, ThrCom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: WriteBookmarks
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: CHOISINI, IREO, l, NUMV(8)
 integer(kind=iwp), allocatable :: BkmDim(:), iScratch(:)
 real(kind=wp), allocatable :: Scratch(:)

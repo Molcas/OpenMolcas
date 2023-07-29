@@ -19,6 +19,7 @@ subroutine ChoMP2g_TraDrv(irc,CMO,Diag,DoDiag)
 !          performed directly in reduced sets. This assumes
 !          that the MP2 program has been appropriately initialized.
 
+use Cholesky, only: nSym
 use ChoMP2, only: nAdrOff, nMoAo, nMoType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -27,8 +28,6 @@ implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: CMO(*), Diag(*)
 logical(kind=iwp) :: DoDiag
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: i, iMoType, iSym, jMOType, l_COrb, nProdType
 logical(kind=iwp) :: DoDiagbak
 real(kind=wp), allocatable :: COrb1(:), COrb2(:)

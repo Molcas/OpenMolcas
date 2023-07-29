@@ -19,14 +19,13 @@ function Cho_VecBuf_Integrity_OK(Tol,Report)
 ! vectors in the buffer and compare these values to the table
 ! generated at buffer initialization.
 
-use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nDimRS, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, LuPri, nDimRS, nSym, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
 real(kind=wp) :: Tol
 logical(kind=iwp) :: Report
-#include "cholesky.fh"
 integer(kind=iwp) :: ipV, iSym, jRed, jVec, n, nErr
 logical(kind=iwp) :: OK
 real(kind=wp) :: Nrm, Sm

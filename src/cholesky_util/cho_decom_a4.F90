@@ -13,15 +13,14 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 !
 ! Purpose: decompose qualified columns ("parallel" algorithm).
 
-use Cholesky, only: LQ_Tot, LQ, nVec_in_Buf
+use Cholesky, only: INF_PASS, INF_PROGRESS, IPRINT, LQ_Tot, LQ, LuPri, LuSel, nnBstR, nQual, nSym, NumCho, NumChT, nVec_in_Buf, &
+                    TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: NumSP, LstQSP(NumSP), iPass
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I, iEn, iK, iRed, iSt, iSym, iVec1, Jfi, Jin, jK, jVec, kI, kID, kK1, kK2, kK_1, kK_2, kQD, kV, l_IDKVec, &
                      l_KVec, l_LQ, l_Wrk1, l_xInt, LenLin, lK, MxQ, nkVec(8), nQual_Old(8), NumCho_Old(8), NumV(8)
 real(kind=wp) :: C1, C2, W1, W2

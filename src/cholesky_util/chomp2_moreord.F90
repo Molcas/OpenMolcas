@@ -20,13 +20,12 @@ subroutine ChoMP2_MOReOrd(CMO,COcc,CVir)
 !          CMO(alpha,i) -> COcc(i,alpha)
 !          CMO(alpha,a) -> CVir(alpha,a)
 
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: iAOVir, iT1AOT, nFro, nOcc, nVir
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: COcc(*), CVir(*), CMO(*)
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2
 
 iCount = 0

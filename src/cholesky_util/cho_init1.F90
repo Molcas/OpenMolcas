@@ -13,13 +13,10 @@ subroutine CHO_INIT1()
 !
 ! Purpose: initialize counter arrays.
 
-use Cholesky, only: InfRed, InfVec
+use Cholesky, only: Cho_Real_Par, InfRed, InfVec, myNumCho, nSym, NumCho, NumChT, RstCho, XnPass
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp), external :: CHO_ISUMELM
 
 if (RSTCHO) then

@@ -34,7 +34,9 @@ subroutine ChoMP2_DecDrv(irc,DelOrig,Diag,CD_Type)
 ! Other input such as orbital energies are read from mbpt2 include
 ! files.
 
-use ChoMP2, only: Incore, iOption_MP2CD, NowSym, OldVec
+use Cholesky, only: lBuf, nSym, NumCho, Span
+use ChoMP2, only: ChkDecoMP2, Incore, iOption_MP2CD, lUnit_F, MxQual_Def, MxQualMP2, nMP2Vec, NowSym, nT1am, OldVec, SpanMP2, &
+                  ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -43,9 +45,6 @@ integer(kind=iwp) :: irc
 logical(kind=iwp) :: DelOrig
 real(kind=wp) :: Diag(*)
 character(len=*) :: CD_Type
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iBin, iClos(2), iOpt, IOPTION, ISYM, iTyp, kOffD, lB, LEFT, LERRSTAT, lTot, MxCDVec(8), MxQual, nBin, &
                      nDim, nInc
 real(kind=wp) :: THR, XMN, XMX, RMS

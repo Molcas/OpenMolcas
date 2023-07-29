@@ -18,7 +18,8 @@ subroutine ChoMP2_Energy_Srt(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 ! Purpose: compute MP2 energy contribution using presorted MO
 !          Cholesky vectors on disk.
 
-use ChoMP2, only: LiMatij, LiT1am, LnOcc, LnT1am, lUnit
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: ChoAlg, DecoMP2, iMatab, LiMatij, LiT1am, LnOcc, LnT1am, lUnit, nBatch, nMatab, nMP2Vec, nVir, Verbose, Wref
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,9 +27,6 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iVaJi(8), iVec, iVec0, iVec1, &
                      jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kVai, kVbj, kVec, kVecai, kXaibj, &
                      kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec, nVaJi, &
@@ -57,6 +55,7 @@ end if
 ! ---------------------------------
 
 EMP2 = Zero
+Wref = Zero
 
 ! Print header of status table.
 ! -----------------------------

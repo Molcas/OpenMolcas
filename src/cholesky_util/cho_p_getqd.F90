@@ -14,13 +14,11 @@ subroutine Cho_P_GetQD(QD)
 ! Purpose: copy qualified diagonal elements from global diagonal to
 !          array QD.
 
-use Cholesky, only: Diag_G, IndRed_G, iQuAB
+use Cholesky, only: Diag_G, IndRed_G, iQuAB, nQual, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: QD(*)
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iAB, iQ, iSym, kQD
 
 kQD = 0

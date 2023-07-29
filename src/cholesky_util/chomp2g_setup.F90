@@ -18,8 +18,10 @@ subroutine ChoMP2g_Setup(irc,EOcc,EVir)
 ! Purpose: Do some additional setup only needed for
 !          MP2-gradients or properties.
 
-use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT, iAdrOff, iAoMo, iMoAo, iMoMo, MP2D, MP2D_e, &
-                  MP2D_e_full, MP2D_full, MP2W, MP2W_e, MP2W_e_full, MP2W_full, nAoMo, nMo, nMoAo, nMoMo, nMoType, nOccVirt
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT, iAdrOff, iAoMo, iDel, iFro, iMoAo, iMoMo, iOcc, iVir, &
+                  MP2D, MP2D_e, MP2D_e_full, MP2D_full, MP2W, MP2W_e, MP2W_e_full, MP2W_full, nAoMo, nDel, nFro, nFroT, nMo, &
+                  nMoAo, nMoMo, nMoType, nOcc, nOccT, nOccVirt, nOrb, nVir, nVirT
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -27,9 +29,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EOcc(*), EVir(*)
-#include "chomp2.fh"
-#include "choorb.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
 ! Statement function
 integer(kind=iwp) :: MulD2h, i, j

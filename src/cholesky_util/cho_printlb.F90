@@ -12,11 +12,11 @@
 subroutine Cho_PrintLB()
 
 use Para_Info, only: MyRank, nProcs
+use Cholesky, only: LuPri, nnBstRT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: i
 integer(kind=iwp), allocatable :: LB(:)
 

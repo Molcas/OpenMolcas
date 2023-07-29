@@ -19,6 +19,8 @@ subroutine ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! vectors (i.e., not batched), reading the vectors only once
 ! at the expense of memory.
 
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: DecoMP2, iOcc, iT1am, iVir, Laplace_BlockSize, Laplace_nGridPoints, lUnit_f, nBatch, nMP2Vec, nOcc, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
@@ -27,9 +29,6 @@ implicit none
 integer(kind=iwp) :: N, irc
 real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
 logical(kind=iwp) :: Delete
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: a, i, iAddr, iBlock, iClos, iOpt, ip0, ip1, ipi, ipj, iSym, iSyma, iSymi, iTyp, iVec, jBlock, l_Tot, l_X, &
                      Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
 real(kind=wp) :: Eq, tq

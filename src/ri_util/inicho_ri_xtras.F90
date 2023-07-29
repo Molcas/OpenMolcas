@@ -13,13 +13,13 @@
 
 subroutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
 
-use Cholesky, only: iiBstRSh, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, iRS2F, nnBstRSh, nDimRS
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, iRS2F, MaxRed, mmBstRT, nnBstR, nnBstRSh, &
+                    nnBstRT, nnShl, nDimRS, nSym
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, iTOffs(3,nIrrep), nShij, iShij(2,nShij)
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iCount, iiBst(8), iSym, nnBst(8), nnBstT
 logical(kind=iwp) :: DoDummy
 

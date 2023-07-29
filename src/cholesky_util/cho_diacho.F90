@@ -15,14 +15,13 @@ subroutine CHO_DIACHO(DIAG,ISYM,WRK,LWRK)
 !          of symmetry block ISYM of diagonal in red. set 1.
 !          This emulates the actual procedure during decomposition.
 
-use Cholesky, only: IndRed, InfVec
+use Cholesky, only: Cho_DecAlg, iiBstR, IndRed, InfVec, nnBstR, nSys_call, NumCho, SCDIAG
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ISYM, LWRK
 real(kind=wp) :: Diag(*), WRK(LWRK)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IABG, ILOC, IREDC, IVEC1, JAB, JRED, JVEC, KAB, KOFFV, MUSED, NCONV, NNEG, NNEGT, NSCALL, NVRD
 real(kind=wp) :: DMX, XM, XMAX, XMIN
 logical(kind=iwp) :: SCDIAG_SAVE

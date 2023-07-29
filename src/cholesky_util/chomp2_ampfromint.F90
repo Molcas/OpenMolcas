@@ -18,14 +18,13 @@ subroutine ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
 ! Purpose: scale integrals with orbital energies to get
 !          (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
 
-use ChoMP2, only: NowSym
+use Cholesky, only: nSym
+use ChoMP2, only: iOcc, iT1am, iVir, nOcc, NowSym, nVir
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nDim, nCol, iCol(nCol)
 real(kind=wp) :: Col(nDim,nCol), EOcc(*), EVir(*)
-#include "chomp2.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: a, ai, ai0, b, bj, bj_, i, iSym, iSyma, iSymb, iSymi, iSymj, j
 real(kind=wp) :: DE, Ebj
 ! Statement function

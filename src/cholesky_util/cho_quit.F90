@@ -13,12 +13,12 @@ subroutine CHO_QUIT(STRING,IERR)
 !
 ! Purpose: echo message STRING and abort execution.
 
+use Cholesky, only: LuPri
 use Definitions, only: iwp
 
 implicit none
 character(len=*) :: STRING
 integer(kind=iwp) :: IERR
-#include "cholesky.fh"
 integer(kind=iwp) :: MOLCASCODE
 
 write(LUPRI,'(//,1X,A)') '***'

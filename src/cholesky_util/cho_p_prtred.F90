@@ -11,11 +11,11 @@
 
 subroutine Cho_P_PrtRed(iOpt)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iOpt
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Cho_P_IndxSwp()

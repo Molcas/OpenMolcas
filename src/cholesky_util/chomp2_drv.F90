@@ -26,7 +26,9 @@ subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
-use ChoMP2, only: EFrozT, EOccuT, EVirtT, nMoMo
+use Cholesky, only: LuPri, nSym, NumCho
+use ChoMP2, only: DecoMP2, DoDens, DoFNO, DoGrdt, EFrozT, EMP2_dens, EOccuT, EVirtT, ip_Dab, ip_Dii, l_Dii, Laplace, nBatch, &
+                  nMoMo, nMP2Vec, nT1am, SOS_mp2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -34,10 +36,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
-#include "choorb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iSym, lDiag, nSym_Sav
 real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &

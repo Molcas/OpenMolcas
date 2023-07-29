@@ -20,16 +20,13 @@ subroutine Cho_P_ZeroDiag(Diag,iSym,iABG)
 ! NB! If you wish to test the entire local diagonal (i.e. not just
 !     the qualified), use Cho_P_ZeroDiag_Rst instead.
 
-use Cholesky, only: iL2G, IndRed, iQuAB_L, nQual_L
+use Cholesky, only: Cho_Real_Par, iL2G, IndRed, iQuAB_L, nQual_L
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 integer(kind=iwp) :: iSym, iABG
-#include "cho_para_info.fh"
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iAB, iQ, jAB, kAB
 
 if (Cho_Real_Par) then

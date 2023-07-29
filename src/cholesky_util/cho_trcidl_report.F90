@@ -18,13 +18,11 @@ subroutine Cho_TrcIdl_Report()
 ! Report idle status for all processors
 
 use Para_Info, only: nProcs
-use Cholesky, only: Idle
+use Cholesky, only: Cho_Real_Par, Idle, LuPri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: i, nIdle
 integer(kind=iwp), allocatable :: TIloc(:)
 

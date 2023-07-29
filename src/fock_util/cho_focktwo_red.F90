@@ -62,6 +62,7 @@ subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ
 !
 !***********************************************************************
 
+use Cholesky, only: nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, Map_to_SBA, SBA_type
@@ -77,8 +78,6 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
                      iSymr_Occ, iSyms, iVec, jD, jDen, jR, jS, jSR, jSym, JVEC, k, KSQ1(8), kTOT, l, lScr, LWORK, MaxSym, Naa, nB, &
                      nBatch, nD, nG, Nmax, np, nq, nr, NumB, NumV, nVec

@@ -13,11 +13,11 @@ subroutine Cho_PrtMaxMem(Location)
 !
 ! Purpose: print max. available memory block.
 
+use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
 character(len=*) :: Location
-#include "cholesky.fh"
 integer(kind=iwp) :: l, lMax
 real(kind=wp) :: dlMax
 character(len=2) :: Unt

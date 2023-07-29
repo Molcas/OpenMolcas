@@ -44,7 +44,7 @@
 
 subroutine CHO_get_Rij(irc,MO,nOcc,Rij,timings)
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -55,8 +55,6 @@ integer(kind=iwp) :: irc, nOcc(*)
 type(DSBA_Type) :: MO
 real(kind=wp) :: Rij(*)
 logical(kind=iwp) :: timings
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, iSyma, IVEC2, iVrs, JNUM, jpR, JRED, &
                      JRED1, JRED2, JSYM, jv, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, &
                      nOcs, nRS, NUMV, nVec, nVrs

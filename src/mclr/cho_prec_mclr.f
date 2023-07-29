@@ -25,7 +25,7 @@
 *           the full list of integrals!                                *
 *                                                                      *
 ************************************************************************
-      use Cholesky, only: InfVec, nDimRS
+      use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
       use Data_structures, only: DSBA_Type, Allocate_DT
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
@@ -42,8 +42,6 @@
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
 #include "real.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character*50 CFmt

@@ -15,25 +15,26 @@ subroutine Cho_X_SetInc(irc)
 !
 ! T.B. Pedersen, July 2004.
 !
-! Purpose: define all entries in include files
-!          choprint.fh
-!          choorb.fh
-!          cholesky.fh
-!          chosew.fh
-!          cho_para_info.fh
-!          and some in the module Cholesky
+! Purpose: define some entries in the module Cholesky
 
-use Cholesky, only: Cho_SScreen, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, n_MySP, nCol_BkmThr, nCol_BkmVec, &
-                    nDim_Batch, nQual_L, nRow_BkmThr, nRow_BkmVec, NumCho_Bak, nVec_in_Buf, SSNorm, SSTau, SubScrStat
+use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho_DecAlg_Def, Cho_DiaChk, Cho_Fake_Par, Cho_IntChk, &
+                    Cho_IOVec, Cho_MinChk, Cho_No2Center, Cho_PreScreen, Cho_Real_Par, Cho_ReOrd, Cho_SimP, Cho_SimRI, &
+                    Cho_SScreen, Cho_TrcNeg, Cho_TstScreen, Cho_UseAbs, Damp, DiaMax, DiaMaxT, DiaMin, DiaMin, DiaMnZ, Did_DecDrv, &
+                    Frac_ChVBuf, Haltit, iABMnZ, iAlQua, iBas, iChkQ, IFCSew, iiBstR, iOff_Col, iOffQ, ip_CHVBFI_SYM, &
+                    ip_CHVBUF_SYM, IPRINT, l_CHVBFI_SYM, l_CHVBUF_SYM, lBuf, LuCho, LuMap, LuPri, LuRed, LuRst, LuScr, LuSel, &
+                    LuTmp, MaxQual, MaxRed, MaxVec, MinQual, mmBstRT, Mode_Screen, ModRst, Mx2Sh, MxORSh, MxShPr, N1_Qual, &
+                    N1_VecRd, N2_Qual, N2_VecRd, n_MySP, N_Subtr, nBas, nBasT, nChkQ, nCol_BkmThr, nCol_BkmVec, nCol_Chk, nColAB, &
+                    nDecom, nDGM_call, nDim_Batch, nInteg, nMisc, nnBstR, nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual_L, nRow_BkmThr, &
+                    nRow_BkmVec, nSection, nShell, nSym, nSys_call, NumCho, NumCho_Bak, NumChT, nVec_in_Buf, nVecRS1, RstCho, &
+                    RstDia, Run_Mode, ScDiag, ShA, ShAB, ShB, ShC, ShCD, ShD, Span, SSNorm, SSTau, SubScrStat, tDecDrv, tDecom, &
+                    Thr_PreScreen, Thr_SimRI, ThrCom, ThrDiag, ThrNeg, TimSec, tInteg, tMisc, Tol_DiaChk, TooNeg, Trace_Idle, &
+                    WarNeg, XCho_AdrVec, XDamp, XlDiag, XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, &
+                    XThrNeg, XTooNeg, XWarNeg
 use Constants, only: Zero
 use Definitions, only: iwp, wp
 
 implicit none
 integer(kind=iwp) :: irc
-#include "choorb.fh"
-#include "choprint.fh"
-#include "cholesky.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp), parameter :: iLarge = 99999999
 real(kind=wp), parameter :: Large = 1.0e15_wp, Small = 1.0e-15_wp
 
@@ -42,21 +43,12 @@ real(kind=wp), parameter :: Large = 1.0e15_wp, Small = 1.0e-15_wp
 
 irc = 0
 
-! choprint.fh.
-! -------------
-
 iPrint = -iLarge
-
-! choorb.fh.
-! -----------
 
 call iZero(iBas,8)
 call iZero(nBas,8)
 call iZero(XnBas,8)
 nBasT = 0
-
-! cholesky.fh.
-! -------------
 
 ThrCom = Large
 ThrDiag = Large
@@ -189,9 +181,6 @@ n_MySP = 0
 Cho_SimRI = .false.
 Thr_SimRI = -Large
 
-! Cholesky.
-! ---------
-
 call iZero(ip_ChVBuf_Sym,8)
 call iZero(l_ChVBuf_Sym,8)
 call iZero(ip_ChVBfI_Sym,8)
@@ -206,13 +195,7 @@ SSNorm = 'tbp'
 
 call iZero(NumCho_Bak,8)
 
-! cho_para_info.fh.
-! -----------------
-
 Cho_Real_Par = .false.
-
-! Cholesky
-! --------
 
 nRow_BkmVec = 0
 nCol_BkmVec = 0

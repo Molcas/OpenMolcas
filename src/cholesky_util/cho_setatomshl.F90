@@ -13,16 +13,13 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 !
 ! Purpose: set mapping from shell to atom (i.e., center).
 
-use Cholesky, only: iSOShl
+use Cholesky, only: IPRINT, iSOShl, LuPri, nBasT, nShell, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, n, iAtomShl(n)
 #include "Molcas.fh"
-#include "cholesky.fh"
-#include "choprint.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, i1, i2, iAtom, iBatch, iSh, iSh0, iSh1, iSh2, nAtom, nBatch, nErr, nSh, numSh
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 character(len=LenIn8), allocatable :: AtomLabel(:)

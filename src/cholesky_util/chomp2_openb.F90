@@ -25,8 +25,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iOpt, iSym, iBatch
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: lU
 character(len=6) :: BtchNm
 character(len=*), parameter :: BaseNm = '_I', SecNam = 'ChoMP2_OpenB'

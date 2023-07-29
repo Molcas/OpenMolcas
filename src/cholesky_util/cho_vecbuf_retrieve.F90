@@ -30,13 +30,12 @@ subroutine Cho_VecBuf_Retrieve(Vec,lVec,jVec1,iVec2,iSym,jNum,iRedC,mUsed)
 !       respective reduced sets (thus, should only be used with
 !       RUN_MODE = RUN_EXTERNAL).
 
-use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nDimRS, nVec_in_Buf
+use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, LuPri, nDimRS, nnBstR, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lVec, jVec1, iVec2, iSym, jNum, iRedC, mUsed
 real(kind=wp) :: Vec(lVec)
-#include "cholesky.fh"
 logical(kind=iwp) :: Full
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.

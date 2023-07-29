@@ -13,8 +13,9 @@ subroutine Cho_SetDecAlg_Def()
 !
 ! Set default decomposition algorithm.
 
+use Cholesky, only: Cho_DecAlg_Def
+
 implicit none
-#include "cholesky.fh"
 
 !SVC This is what CHO_DECALG means according to TBP:
 !     1 - serial one-step (the original algorithm)

@@ -42,7 +42,8 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 !
 !*********************************************************************
 
-use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRsh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
@@ -64,9 +65,6 @@ real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat, ExFac
 integer(kind=iwp), intent(in) :: nFIorb(8), nAorb(8), nChM(8), nScreen
 logical(kind=iwp), intent(in) :: DoActive
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &

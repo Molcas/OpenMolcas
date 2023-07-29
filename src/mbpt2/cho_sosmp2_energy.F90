@@ -18,6 +18,8 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 !          MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
 
 use Symmetry_Info, only: Mul
+use Cholesky, only: nSym
+use ChoMP2, only: lUnit_F, nMP2Vec, nOcc, nT1am, nVir, OED_Thr, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -34,9 +36,6 @@ integer(kind=iwp), allocatable :: iD_bj(:)
 real(kind=wp), allocatable :: W(:), Wrk(:), Y(:,:)
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Energy'
 real(kind=wp), external :: ddot_
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
 
 irc = 0
 

@@ -41,14 +41,13 @@
 
 function Cho_X_GetTol(iTolDef)
 
-use Cholesky, only: ChoIniCheck
+use Cholesky, only: ChoIniCheck, ThrCom
 use Constants, only: Ten
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: Cho_X_GetTol
 integer(kind=iwp) :: iTolDef
-#include "cholesky.fh"
 integer(kind=iwp) :: ChoIsIni
 real(kind=wp) :: d, ThrAbs
 logical(kind=iwp) :: DidCholesky, DidLDF

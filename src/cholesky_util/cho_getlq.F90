@@ -14,13 +14,12 @@ subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 ! Purpose: extract elements corresponding to qualified columns from
 !          the Cholesky vectors in buffer and/or on disk.
 
-use Cholesky, only: nVec_in_Buf
+use Cholesky, only: nQual, nSym, NumCho, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
 real(kind=wp), target :: QVec(l_Qvec)
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, iV1(8), nTot, nV(8)
 !                                                                      *
 !***********************************************************************

@@ -15,13 +15,12 @@ function CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
 !          element LAB in shell pair ISHLAB (sym. ISYMAB).
 !          If not included in this reduced set, 0 is returned.
 
-use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, nnBstRSh
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_RS2F
 integer(kind=iwp) :: LAB, ISHLAB, ISYMAB, IRED
-#include "cholesky.fh"
 integer(kind=iwp) :: K, K2
 character(len=*), parameter :: SECNAM = 'CHO_RS2F'
 

@@ -13,13 +13,14 @@ subroutine CHO_PRTHEAD(SKIPH)
 !
 ! Purpose: print Cholesky header.
 
-use Cholesky, only: Cho_SScreen, SSTau
+use Cholesky, only: BlockSize, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho_IOVec, Cho_No2Center, Cho_PreScreen, Cho_SimRI, &
+                    Cho_SScreen, Cho_UseAbs, Damp, Frac_ChvBuf, iAlQua, INF_INIT, IPRINT, LuPri, MaxQual, MaxRed, MaxVec, MinQual, &
+                    MxShPR, N1_Qual, N2_Qual, RstCho, RstDia, ScDiag, Span, SSTau, Thr_PreScreen, Thr_SimRI, ThrCom, ThrDiag, &
+                    ThrNeg, TooNeg, WarNeg
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: SKIPH
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: I, IADRMODE, IALG, IUSE
 real(kind=wp) :: X1, X2, XF, XF2
 integer(kind=iwp), parameter :: NADRMODE = 2, NALG = 6

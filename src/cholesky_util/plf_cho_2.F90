@@ -28,12 +28,11 @@ subroutine PLF_Cho_2(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,S
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use Cholesky, only: iShlSO, iShP2Q, iShP2RS, iSOShl, nBstSh
+use Cholesky, only: iShlSO, iShP2Q, iShP2RS, iSOShl, LuPri, nBstSh, nnBstR, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "cholesky.fh"
 #include "print.fh"
 integer(kind=iwp) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp) :: TInt(lInt), AOint(ijkl,iCmp,jCmp,kCmp,lCmp)

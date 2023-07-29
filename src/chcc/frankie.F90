@@ -12,12 +12,12 @@
 subroutine frankie(nfro,no,nv,printkey)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Cholesky, only: timings
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nfro, no, nv, printkey
-#include "chotime.fh"
 integer(kind=iwp) :: idum(1), nbas, ndel, nocc, norb, rc
 real(kind=wp) :: FracMem
 type(DSBA_Type) :: CMO

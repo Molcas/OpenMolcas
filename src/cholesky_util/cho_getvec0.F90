@@ -23,13 +23,12 @@ subroutine CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       Thus, to be certain that enough memory is available,
 !       use LSCR = 2 x dimension of first reduced set.
 
-use Cholesky, only: IndRed, InfVec
+use Cholesky, only: iiBstR, IndRed, InfVec, LuPri, nnBstR, nSys_call
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
 real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, ILOC, IRED, IREDC, IVEC, JAB, JNUM, JRED, JVEC, KAB, KEND1, KREAD, KRED1, KREDU, LSCR1, MUSED
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.

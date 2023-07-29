@@ -14,16 +14,14 @@ subroutine CHO_GETVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 ! Purpose: read Cholesky vectors IVEC=IVEC1,....,IVEC1+NUMVEC-1
 !          of symmetry ISYM from file. The vectors are returned
 !          in the "current" reduced set. The algorithm used for
-!          reading is taken from input (via cholesky.fh header
-!          file).
+!          reading is taken from input (via Cholesky module).
 
-use Cholesky, only: InfVec, iScr
+use Cholesky, only: CHO_IOVEC, InfVec, iScr, LuCho, LuPri, MaxVec, nnBstR, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
 real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
-#include "cholesky.fh"
 integer(kind=iwp) :: IFAIL, IVEC, IVEC2, JADR, JVEC
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.

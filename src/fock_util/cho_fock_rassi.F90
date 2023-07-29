@@ -35,7 +35,7 @@ subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 !
 !*********************************************************************
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
@@ -49,10 +49,7 @@ implicit none
 type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "chotime.fh"
 #include "rassi.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, IVEC2, iVrs, jDen, JNUM, &
                      JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, MUSED, NAv, NAw, &
                      nBatch, nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc

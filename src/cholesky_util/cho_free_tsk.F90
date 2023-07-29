@@ -11,11 +11,11 @@
 
 subroutine Cho_Free_Tsk(ID)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ID
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Free_Tsk(ID)

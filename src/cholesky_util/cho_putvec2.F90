@@ -16,13 +16,12 @@ subroutine CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
 !
 ! Version 2: handles several reduced set at a time.
 
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: CHO_ADRVEC, InfVec, LuCho, LuPri, MaxVec, nDimRS, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CHOVEC(*)
 integer(kind=iwp) :: NUMVEC, IVEC1, ISYM
-#include "cholesky.fh"
 integer(kind=iwp) :: IADR, IADR2, IOPT, IVEC, IVEC2, JADR, JRED, JVEC, KOFF, LTOT, LVEC
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.

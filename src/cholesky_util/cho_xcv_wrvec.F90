@@ -18,17 +18,16 @@ subroutine Cho_XCV_WrVec(irc,Vec,l_Vec,NVT,l_NVT,myRankSP,l_myRankSP,SP)
 ! Purpose: write partial Cholesky vectors to disk.
 !          (Parallel two-step algorithm)
 
+use Cholesky, only: Cho_Real_Par
 #ifdef _DEBUGPRINT_
-use Cholesky, only: nnBstRSh
+use Cholesky, only: nnBstRSh, nnShl, nSym, NumCho
 #endif
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, l_Vec, l_NVT, NVT(l_NVT), l_myRankSP, myRankSP(l_myRankSP), SP
 real(kind=wp) :: Vec(l_Vec)
-#include "cho_para_info.fh"
 #ifdef _DEBUGPRINT_
-#include "cholesky.fh"
 integer(kind=iwp) :: iSP, iSym, n
 
 if ((l_NVT < nSym) .or. (l_myRankSP < nnShl)) then

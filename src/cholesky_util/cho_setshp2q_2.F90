@@ -17,12 +17,11 @@ subroutine Cho_SetShP2Q_2(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use Cholesky, only: IndRed, IndRSh, iQuAB, iShP2Q, iSP2F, nBstSh
+use Cholesky, only: IndRed, IndRSh, iQuAB, iShP2Q, iSP2F, nBstSh, nQual, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iQ, iShlA, iShlB, iSym, jAB, kAB, kShlAB, l_iShP2Q, lTst, NumAB
 
 ! Check allocations.

@@ -20,15 +20,13 @@ subroutine CHO_MCA_CALCINT_3(XINT,LINT,ISHLAB)
 !            - addressing of qualified columns
 !            - integrals returned in core (no I/O)
 
-use Cholesky, only: iSP2F, nnBstRSh
+use Cholesky, only: INF_IN2, INF_INT, IPRINT, iSP2F, LuPri, NCOLAB, nnBstRSh, nnShl, nSym, TINTEG
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LINT, ISHLAB
 real(kind=wp) :: XINT(LINT)
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: CHO_ISUMELM, i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS

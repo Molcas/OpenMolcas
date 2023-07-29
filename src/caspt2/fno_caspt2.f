@@ -20,6 +20,7 @@
 *                                                                           *
 *****************************************************************************
       use InputData, only: Input
+      use ChoMP2, only: DeMP2, MP2_small, shf
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
@@ -31,7 +32,6 @@
       Integer irc,IFQCAN
       Real*8  EMP2, vfrac
       Logical DoMP2
-#include "chfnopt.fh"
 *
       Integer ns_V(8), nAct(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
@@ -294,12 +294,16 @@
 C
 C     Purpose: put info in MP2 common blocks.
 C
+      Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
+     &                  DoFNO, EOSMP2, ForceBatch, ip_Dab, ip_Dii,
+     &                  l_Dab, l_Dii, MxQual_Def, MxQualMP2, OED_Thr,
+     &                  set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrMP2,
+     &                  Verbose
 #include "implicit.fh"
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer ip_X, ip_Y
 C
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 C
 C
       nSym = mSym

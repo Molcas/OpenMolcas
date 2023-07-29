@@ -28,7 +28,7 @@ subroutine PLF_Cho(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shi
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use Cholesky, only: iShlSO, iSOShl, nBstSh
+use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -36,7 +36,6 @@ implicit none
 integer(kind=iwp) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp) :: TInt(lInt), AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 logical(kind=iwp) :: Shijij
-#include "cholesky.fh"
 #include "print.fh"
 real(kind=wp), external :: ddot_
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, &

@@ -22,6 +22,8 @@ subroutine ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
 ! Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
 !       instead !!
 
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: iAOVir, iT1am, iT1AOT, lUnit_F, nMP2Vec, nOcc, nT1am, nT1AOT, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -31,9 +33,6 @@ integer(kind=iwp) :: iTyp
 real(kind=wp) :: COcc(*), CVir(*), Diag(*)
 character(len=3) :: BaseName_AO
 logical(kind=iwp) :: DoDiag
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: AlBe, iAB(8,8), iAdr, iOpt, iSym, iSyma, iSymAl, iSymb, iSymBe, iSymi, iVec, kAOVec, kCOcc, kCVir, kD, kDiag, &
                      kMOVec, kTemp, l_Buf, lU_AO, lVec, MaxInCore, na, nAB(8), nAB_Tot, nAl, ni, nVecInCore, nVecOnDisk
 character(len=4) :: FullName_AO

@@ -15,7 +15,7 @@ subroutine CHO_MCA_INT_1_DBG1(DIAG,IRED)
 !          diagonal *must* be the original diagonal stored
 !          in reduced set 1.
 
-use Cholesky, only: iiBstRSh, IndRed, IndRSh, iSP2F, nBstSh, nnBstRSh
+use Cholesky, only: IFCSew, iiBstR, iiBstRSh, IndRed, IndRSh, iSP2F, LuPri, Mx2Sh, nBstSh, nnBstRSh, nnBstrT, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -23,7 +23,6 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: DIAG(*)
 integer(kind=iwp) :: IRED
-#include "cholesky.fh"
 integer(kind=iwp) :: IAB, IERR, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, JSHLAB, KAB, KABAB, LINT, LINT1, LSEW, NERR, NTST, &
                      NUMAB
 real(kind=wp) :: DIFF

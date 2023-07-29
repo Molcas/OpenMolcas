@@ -48,7 +48,7 @@ subroutine CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,nDen,kDe
 !
 !********************************************************
 
-use Cholesky, only: IndRed, InfVec, iRS2F, nDimRS
+use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR, nSym
 use Data_Structures, only: DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Half
@@ -59,8 +59,6 @@ integer(kind=iwp) :: irc, lScr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSWap, nD
 real(kind=wp) :: Scr(lscr)
 type(DSBA_Type) :: MOs(nDen)
 type(SBA_Type) :: ChoT(nDen)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iag, ias, ibg, ibs, iDen, iE, ij, iLoc, iRab, iSym, iSymb, jRab, JRED, JVEC, kRab, kscr, kVEC, LVEC, n1, NREAD
 real(kind=wp) :: xfd
 integer(kind=iwp), allocatable :: nPorb(:,:)

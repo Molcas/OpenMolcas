@@ -14,12 +14,11 @@ subroutine CHO_SETREDIND(IRED)
 ! Purpose: set index arrays for reduced set IRED. The counter
 !          array NNBSTRSH must be set on entry.
 
-use Cholesky, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, nnBstR, nnBstRSh, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IRED
-#include "cholesky.fh"
 integer(kind=iwp) :: ISHLAB, ISYM, J
 character(len=*), parameter :: SECNAM = 'CHO_SETREDIND'
 

@@ -13,13 +13,12 @@
 
 subroutine Cho_PFake_PutVec(Vec,InfV,nVec,iSym,iV1)
 
+use Cholesky, only: Cho_AdrVec, LuCho_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Vec(*)
 integer(kind=iwp) :: InfV(2,*), nVec, iSym, iV1
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iAdr, iOpt, iPos, iVec, lTot
 character(len=*), parameter :: SecNam = 'Cho_PFake_PutVec'
 

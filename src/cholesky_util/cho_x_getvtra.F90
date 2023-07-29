@@ -64,8 +64,6 @@ real(kind=wp) :: RedVec(lRedVec)
 type(DSBA_Type) :: MOs(nDen)
 type(SBA_Type) :: ChoT(nDen)
 logical(kind=iwp) :: DoRead
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: IVEC2, jDen, JNUM, JVEC1, JVREF, MUSED, MXUSD
 
 MXUSD = 0

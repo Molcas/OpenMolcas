@@ -14,13 +14,12 @@ subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
 ! Purpose: extract elements corresponding to qualified diagonals
 !          from vectors in buffer.
 
-use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, iQuAB, nVec_in_Buf
+use Cholesky, only: CHVBUF, iiBstR, ip_CHVBUF_SYM, iQuAB, nnBstR, nQual, nSym, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l_QVec
 real(kind=wp), target :: QVec(l_QVec)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAB, iE, iQ, iS, iSym, iVec, kOffQ, lCol, lRow, nVecTot(8)
 real(kind=wp), pointer :: BVec(:,:), Q(:,:)
 

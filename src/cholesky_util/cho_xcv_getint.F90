@@ -22,13 +22,12 @@ subroutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,NVT,l_nVT,xInt,l_I
 ! correspond to parent diagonals. Also, mySP should be be set to a
 ! trivial array [i.e. mySP(i)=i].
 
-use Cholesky, only: nDim_Batch
+use Cholesky, only: iOff_col, nDim_Batch, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, l_ListCD, ListCD(l_ListCD), l_ListSP, ListSP(l_ListSP), l_NVT, NVT(l_NVT), l_Int
 real(kind=wp) :: xInt(l_Int)
-#include "cholesky.fh"
 integer(kind=iwp) :: iCD, iSP, iSym, n
 
 ! Set return code

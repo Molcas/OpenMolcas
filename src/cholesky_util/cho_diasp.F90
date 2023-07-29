@@ -17,12 +17,11 @@ subroutine Cho_DiaSP()
 !
 ! Purpose: prescreening of diagonal.
 
-use Cholesky, only: iSP2F
+use Cholesky, only: Cho_PreScreen, iSP2F, nnShl, nnShl_tot, nShell, Thr_PreScreen
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: Tau, Tmax_All
 real(kind=wp), allocatable :: TMax(:,:)

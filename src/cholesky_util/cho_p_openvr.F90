@@ -15,13 +15,11 @@ subroutine Cho_P_OpenVR(iOpt)
 !          files.
 
 use Para_Info, only: Is_Real_Par, nProcs
+use Cholesky, only: Cho_AdrVec, Cho_Fake_Par, Cho_Real_Par, LuCho, LuCho_G, LuPri, LuRed_G, LuRst_G, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iOpt
-#include "cholesky.fh"
-#include "cho_para_info.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: ID, iSym
 character(len=6) :: FNRst, FNVec(8)
 character(len=5) :: FNRed

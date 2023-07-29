@@ -14,12 +14,12 @@ subroutine CHO_SUBTR(XINT,WRK,LWRK,ISYM)
 ! Purpose: driver for subtracting contributions from previous vectors
 !          from the qualified integrals (in XINT).
 
+use Cholesky, only: Cho_DiaChk, Cho_IOVec, LuPri, nnBstR, nnBstRT, nQual, NumCho, Tol_DiaChk
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LWRK, ISYM
 real(kind=wp) :: XINT(*), WRK(LWRK)
-#include "cholesky.fh"
 integer(kind=iwp) :: KDIAG, KEND, NERR
 real(kind=wp) :: TOL
 logical(kind=iwp) :: FXDMEM

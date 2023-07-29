@@ -19,7 +19,9 @@ subroutine ChoMP2_Energy_Org(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 !          sorted according to batches over occupied orbitals)
 !          Cholesky vectors on disk.
 
-use ChoMP2, only: iFirstS, LiMatij, LnOcc, LnT1am
+use Cholesky, only: nSym, NumCho
+use ChoMP2, only: ChoAlg, DecoMP2, iFirstS, iMatab, iT1am, LiMatij, LnOcc, LnT1am, lUnit_F, nBatch, nMatab, nMP2Vec, nT1am, nVir, &
+                  Verbose, Wref
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -27,9 +29,6 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: i0, iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, &
                      iVec0, iVec1, jBatch, jVec, kEnd0, kEnd1, kEnd2, kMabij, kOff, kOff1, kOff2, kOffi, kOffj, kOffM, kRead, &
                      kVai, kVbj, kVec, kVecai, kXaibj, kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, &
@@ -60,6 +59,7 @@ end if
 ! ---------------------------------
 
 EMP2 = Zero
+Wref = Zero
 
 ! Print header of status table.
 ! -----------------------------

@@ -14,14 +14,13 @@ subroutine Cho_MaxDX(Diag,Dmax)
 ! Purpose: get max. diagonal elements in each sym. block,
 !          qualified diagonals excluded.
 
-use Cholesky, only: IndRed, iQuAB
+use Cholesky, only: iiBstR, IndRed, iQuAB, nnBstR, nQual, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*), Dmax(*)
-#include "cholesky.fh"
 integer(kind=iwp) :: iab, iQ, iRab, jRab, jRab1, jRab2, jSym, MxQ
 real(kind=wp), allocatable :: ExQ(:)
 

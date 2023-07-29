@@ -13,11 +13,11 @@ subroutine Cho_P_GetGSP(nGSP)
 !
 ! Purpose: get global number of contributing shell pairs.
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nGSP
-#include "cho_para_info.fh"
 
 if (Cho_Real_Par) then
   call Cho_P_GetGSP_P(nGSP)

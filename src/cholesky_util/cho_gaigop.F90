@@ -11,12 +11,12 @@
 
 subroutine Cho_GAiGOp(X,n,Op)
 
+use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: n, X(n)
 character(len=*) :: Op
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iv, kv
 
 if (Cho_Real_Par) then

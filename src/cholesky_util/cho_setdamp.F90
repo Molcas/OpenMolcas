@@ -13,11 +13,11 @@ subroutine CHO_SETDAMP()
 !
 ! Purpose: set screening damping, unless user-defined.
 
+use Cholesky, only: Damp, ThrCom
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: I
 
 do I=1,2

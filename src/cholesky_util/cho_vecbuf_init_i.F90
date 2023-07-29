@@ -14,7 +14,7 @@ subroutine Cho_VecBuf_Init_I(Frac,lVec,LocDbg)
 ! Purpose: allocate and initialize vector buffer.
 !          (Internal run mode.)
 
-use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, LuPri, MaxVec, nSym, nVec_in_Buf
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -23,7 +23,6 @@ implicit none
 real(kind=wp) :: Frac
 integer(kind=iwp) :: lVec(*)
 logical(kind=iwp) :: LocDbg
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym, l_ChVBuf = 0, l_Max, lVecTot, MemEach, MemLeft
 real(kind=wp) :: x, xMemMax(8)
 logical(kind=iwp) :: Enough

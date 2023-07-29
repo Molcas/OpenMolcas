@@ -20,7 +20,7 @@ use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_
 #endif
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use Cholesky, only: InfVec, nDimRS
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings, tv2disk
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,10 +48,6 @@ logical(kind=iwp), parameter :: DoRead = .false.
 character(len=10), parameter :: SECNAM = 'CHO_TR_drv'
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: ddot_
-#include "chotime.fh"
-#include "chotraw.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 
 #ifndef _HDF5_QCM_
 #include "macros.fh"

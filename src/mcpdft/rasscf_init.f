@@ -22,6 +22,7 @@
 ************************************************************************
       Subroutine RasScf_Init_m()
       Use Fock_util_global, only: DoCholesky
+      Use Cholesky, only: ChFracMem
       Use KSDFT_Info, Only: CoefR, CoefX
       use mcpdft_output, only:  set_print_level
 
@@ -34,7 +35,6 @@
 #include "lucia_ini.fh"
 #include "WrkSpc.fh"
 
-#include "chopar.fh"
 *----------------------------------------------------------------------*
 
 * Set print levels, and adjust them if needed:

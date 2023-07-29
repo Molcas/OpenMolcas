@@ -14,7 +14,7 @@
 
 subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,add)
 
-use Cholesky, only: IndRed, iRS2F
+use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nnBstR
 use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type
 use Constants, only: Zero
@@ -26,8 +26,6 @@ integer(kind=iwp), intent(in) :: iLoc, nRS, nDen, JSYM
 type(DSBA_Type), intent(inout) :: XLT(nDen)
 real(kind=wp), intent(in) :: Xab(nRS,nDen)
 logical(kind=iwp), intent(in) :: add
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jDen, jRab, kRab
 integer(kind=iwp), external :: cho_isao
 

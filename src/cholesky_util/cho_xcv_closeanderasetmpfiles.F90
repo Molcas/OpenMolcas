@@ -13,10 +13,10 @@
 
 subroutine Cho_XCV_CloseAndEraseTmpFiles()
 
+use Cholesky, only: LuTmp, nSym
 use Definitions, only: iwp
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: iSym
 
 do iSym=1,nSym

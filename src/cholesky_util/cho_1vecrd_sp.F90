@@ -19,13 +19,12 @@ subroutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,iLoc)
 !          identifies the reduced set for which indices are
 !          available at location iLoc. NOTE: only WA files!!
 
-use Cholesky, only: iiBstRSh, InfVec, nnBstRSh
+use Cholesky, only: Cho_AdrVec, iiBstRSh, InfVec, LuCho, LuPri, nnBstRSh, NumCho
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lVec, jVec, iSym, nSP, LstSP(nSP), iRedC, iLoc
 real(kind=wp) :: Vec(lVec)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAdr, iAdr0, iOpt, irc, iRed, iShlAB, iSP, kV, lTot
 character(len=*), parameter :: SecNam = 'Cho_1VecRd_SP'
 integer(kind=iwp), external :: Cho_P_LocalSP

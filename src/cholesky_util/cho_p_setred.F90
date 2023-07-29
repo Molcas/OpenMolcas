@@ -18,15 +18,12 @@ subroutine Cho_P_SetRed(Diag,Sync)
 !          Cholesky) points to the global diagonal.
 !          Note that Diag is not referenced if Sync=.False.
 
-use Cholesky, only: Diag_G
+use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Diag(*)
 logical(kind=iwp) :: Sync
-#include "cholesky.fh"
-#include "choglob.fh"
-#include "cho_para_info.fh"
 integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then

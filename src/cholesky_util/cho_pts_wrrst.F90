@@ -17,7 +17,7 @@ subroutine Cho_PTS_WrRst(irc,NVT,l_NVT)
 !
 ! Purpose: Write restart files (parallel two-step algorithm).
 
-use Cholesky, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec, LuCho, LuMap, LuRed, LuRst, MaxVec, nnBstR, NumCho, nSym
 #ifdef _DEBUGPRINT_
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
@@ -25,7 +25,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT)
-#include "cholesky.fh"
 integer(kind=iwp) :: iAdr, iSym, iV
 integer(kind=iwp), pointer :: InfVcT(:,:,:)
 #ifdef _DEBUGPRINT_

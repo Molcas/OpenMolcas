@@ -18,15 +18,14 @@ subroutine ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
 ! Purpose: Construct diagonal for decomposition of amplitude
 !          vectors.
 
-use ChoMP2, only: iMoMo, nMoMo
+use Cholesky, only: nSym
+use ChoMP2, only: iMoMo, iOcc, iVir, nMoMo, nOcc, nVir
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: Diag(*), EOcc(*), EVir(*)
-#include "cholesky.fh"
-#include "chomp2.fh"
 integer(kind=iwp) :: iA, iAI, iI, iSym, iSymA, iSymI, iVecType, kD0, kD1, kD2
 real(kind=wp) :: DE, Ei
 ! Statement function

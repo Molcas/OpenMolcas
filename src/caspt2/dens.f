@@ -1923,7 +1923,6 @@ C
 C
 #include "warnings.h"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 C
       Dimension DPT2AO(*),SSDM(*)
       Character*4096 RealName

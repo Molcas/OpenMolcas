@@ -39,7 +39,8 @@ subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11
 #ifdef _DEBUGPRINT_
 use Cholesky, only: iSP2F
 #endif
-use Cholesky, only: IndRSh, iOff_Batch, iQuAB, iQuAB_here, nDim_Batch, nnBstRSh, pTemp
+use Cholesky, only: IndRSh, INF_PASS, iOff_Batch, IPRINT, iQuAB, iQuAB_here, LuPri, LuTmp, MaxQual, nDGM_call, nDim_Batch, &
+                    nnBstRSh, nnShl, nQual, nSym, pTemp, TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, OneHalf
 use Definitions, only: wp, iwp
@@ -49,8 +50,6 @@ integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, 
                      iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
 real(kind=wp) :: Z(l_Z)
 logical(kind=iwp) :: Free_Z
-#include "cholesky.fh"
-#include "choprint.fh"
 integer(kind=iwp) :: iAdr(8), iCountSP, incZd, iSp, iSP_, iSP_1, iSP_2, iSym, J_inBlock, jBlock, K, K_inBlock, kBlock, kI, kL, &
                      kOffI, kOffZ, kZ, kZd, l_Int, l_Wrk, l_Zd, ldL, ldZ, Left, lTot, MaxQual_SAVE, n, nBatch, nSP, nSP_Max, &
                      nSP_this_batch

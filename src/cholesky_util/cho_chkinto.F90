@@ -20,7 +20,6 @@ implicit none
 real(kind=wp) :: XINT(*), DIAG(*), TOL
 integer(kind=iwp) :: ISYM, NERR
 logical(kind=iwp) :: REPORT
-#include "cholesky.fh"
 integer(kind=iwp) :: IOPT
 
 IOPT = 2

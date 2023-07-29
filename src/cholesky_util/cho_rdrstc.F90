@@ -18,13 +18,12 @@ subroutine CHO_RDRSTC(IFAIL)
 !
 ! NB!!!! the restart files MUST be open on entry...
 
-use Cholesky, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec, LuPri, LuRst, MaxRed, MaxVec, nSym, NumCho, XCho_AdrVec, XDamp, XNBAS, XnnShl, XnPass, &
+                    XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IFAIL
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp), parameter :: LSCR = 8
 integer(kind=iwp) :: IADR, IOPT, ISYM, J, JSCR(LSCR), NRD
 real(kind=wp) :: DSCR(LSCR)
