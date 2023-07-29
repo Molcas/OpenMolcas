@@ -34,8 +34,7 @@ subroutine ChoMP2_DecDrv(irc,DelOrig,Diag,CD_Type)
 ! Other input such as orbital energies are read from mbpt2 include
 ! files.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: Incore, iOption_MP2CD, NowSym
+use ChoMP2, only: Incore, iOption_MP2CD, NowSym, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

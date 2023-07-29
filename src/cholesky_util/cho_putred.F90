@@ -14,8 +14,7 @@ subroutine CHO_PUTRED(IPASS,IRED)
 ! Purpose: write reduced set indices to disk and set address for
 !          next write.
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: IndRed, IndRSh, InfRed, nnBstRSh
+use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

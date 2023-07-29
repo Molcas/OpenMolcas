@@ -16,7 +16,7 @@ subroutine Cho_XCV_WrVec_Par(irc,Vec,NVT,myRankSP,SP)
 ! PARALLEL VERSION
 !     Write the vectors in blocks.
 
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

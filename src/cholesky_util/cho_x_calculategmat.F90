@@ -36,7 +36,7 @@
 
 subroutine Cho_X_CalculateGMat(irc)
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

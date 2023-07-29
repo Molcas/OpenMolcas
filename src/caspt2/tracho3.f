@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHO3(CMO)
       USE CHOVEC_IO
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"

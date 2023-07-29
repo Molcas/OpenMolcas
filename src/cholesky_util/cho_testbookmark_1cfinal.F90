@@ -11,7 +11,7 @@
 
 subroutine Cho_TestBookmark_1CFinal()
 
-use ChoArr, only: iAtomShl
+use Cholesky, only: iAtomShl
 use stdalloc, only: mma_deallocate
 
 implicit none

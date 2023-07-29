@@ -13,8 +13,7 @@ subroutine CHO_GETSTOR_S(VCSTOR,ISYM)
 !
 ! Purpose: get total vector storage (in words), symmetry ISYM.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

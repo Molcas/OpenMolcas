@@ -28,8 +28,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate

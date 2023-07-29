@@ -16,10 +16,9 @@ subroutine Cho_SetShP2RS_2(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use ChoArr, only: iOff_Batch, iShP2RS, iSP2F, MySP, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iOff_Batch, iShP2RS, iSP2F, MySP, nBstSh, nnBstRSh
 #ifdef _DEBUGPRINT_
-use ChoSwp, only: IndRSh
+use Cholesky, only: IndRSh
 #endif
 use Definitions, only: iwp
 

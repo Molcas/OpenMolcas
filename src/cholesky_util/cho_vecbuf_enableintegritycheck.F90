@@ -18,9 +18,7 @@ subroutine Cho_VecBuf_EnableIntegrityCheck(irc)
 ! Enable integrity check of buffer: allocate and store norm and sum
 ! of each vector in the buffer.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nDimRS, nVec_in_Buf
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 

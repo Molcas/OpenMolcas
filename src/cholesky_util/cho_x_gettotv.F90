@@ -17,7 +17,7 @@ subroutine Cho_X_GetTotV(nV,n)
 !
 ! Purpose: return total number of vectors (over all nodes).
 
-use ChPari, only: NumCho_Bak
+use Cholesky, only: NumCho_Bak
 use Definitions, only: iwp
 
 implicit none

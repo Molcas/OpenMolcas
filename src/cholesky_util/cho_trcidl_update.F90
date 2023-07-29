@@ -18,7 +18,7 @@ subroutine Cho_TrcIdl_Update(IAmIdle)
 ! Update array for tracing idle processors
 
 use Para_Info, only: MyRank
-use ChoArr, only: Idle
+use Cholesky, only: Idle
 use Definitions, only: iwp
 
 implicit none

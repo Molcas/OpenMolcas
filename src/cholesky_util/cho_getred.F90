@@ -14,8 +14,7 @@ subroutine CHO_GETRED(IPASS,ILOC,LRSH)
 ! Purpose: read index arrays for current reduced set (reduced set
 !          IPASS).
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: IndRed, IndRSh, InfRed, nnBstRsh
+use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, nnBstRSh
 use Definitions, only: iwp
 
 implicit none
@@ -33,7 +32,7 @@ integer(kind=iwp), external :: CHO_ISUMELM
 
 if (size(nnBstRSh,1) /= NSYM) call CHO_QUIT('NSYM error in '//SECNAM,104)
 
-if (size(nnBstRsh,2) /= NNSHL) call CHO_QUIT('NNSHL error in '//SECNAM,104)
+if (size(nnBstRSh,2) /= NNSHL) call CHO_QUIT('NNSHL error in '//SECNAM,104)
 
 if (size(IndRed,1) /= NNBSTRT(1)) call CHO_QUIT('NNBSTRT(1) error in '//SECNAM,104)
 

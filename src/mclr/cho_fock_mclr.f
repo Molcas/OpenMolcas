@@ -17,8 +17,7 @@
 *  Author : M. G. Delcey                                               *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec, nBasSh, nDimRS
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"

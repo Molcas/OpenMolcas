@@ -11,7 +11,7 @@
 
 subroutine Cho_PTS_Stat()
 
-use ChoArr, only: IntMap
+use Cholesky, only: IntMap
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

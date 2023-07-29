@@ -29,8 +29,7 @@ subroutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(2) = max error
 !          ErrStat(3) = rms error
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: EOcc, EVir, Incore
+use ChoMP2, only: EOcc, EVir, Incore, OldVec
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

@@ -22,8 +22,7 @@ subroutine CHO_FOCK_DFT_RED(irc,DLT,FLT)
 !
 !********************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Data_Structures, only: DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

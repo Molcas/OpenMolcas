@@ -14,9 +14,7 @@ subroutine CHO_STAT()
 ! Purpose: print statistics from decomposition.
 
 use Para_Info, only: Is_Real_Par, nProcs
-use ChoArr, only: IntMap, nDimRS
-use ChoSwp, only: InfVec, nnBstRSh
-use ChoSubScr, only: Cho_SScreen, DSPNm, SSNorm, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, DSPNm, InfVec, IntMap, nDimRS, nnBstRSh, SSNorm, SSTau, SubScrStat
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Eight
 use Definitions, only: wp, iwp

@@ -13,7 +13,7 @@ subroutine CHO_INIRSDIM()
 !
 ! Purpose: initialize reduced set dimension.
 
-use ChoArr, only: nDimRS
+use Cholesky, only: nDimRS
 use Definitions, only: iwp
 
 implicit none

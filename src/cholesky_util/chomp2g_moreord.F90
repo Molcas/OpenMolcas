@@ -20,7 +20,7 @@ subroutine ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMoType1,iMOType2)
 !          CMO(alpha,p) -> COrb1(p,alpha)
 !          CMO(alpha,q) -> COrb2(alpha,q)
 
-use ChoMP2g, only: iAoMo, iMoAo, nMo
+use ChoMP2, only: iAoMo, iMoAo, nMo
 use Definitions, only: wp, iwp
 
 implicit none

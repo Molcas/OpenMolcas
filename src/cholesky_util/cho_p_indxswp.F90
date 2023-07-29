@@ -18,8 +18,8 @@ subroutine Cho_P_IndxSwp()
 !     pointers, not actual data (except for the statically allocated
 !     index arrays which amount to swapping 51 integers in total).
 
-use ChoSwp, only: iiBstRSh, iiBstRSh_G, IndRed, IndRed_G, IndRSh, IndRSh_G, InfRed, InfRed_G, InfVec, InfVec_G, nnBstRSh, &
-                  nnBstRSh_G, pTemp, pTemp1, pTemp3
+use Cholesky, only: iiBstRSh, iiBstRSh_G, IndRed, IndRed_G, IndRSh, IndRSh_G, InfRed, InfRed_G, InfVec, InfVec_G, nnBstRSh, &
+                    nnBstRSh_G, pTemp, pTemp1, pTemp3
 use Definitions, only: iwp
 
 implicit none

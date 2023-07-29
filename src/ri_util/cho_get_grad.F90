@@ -99,9 +99,9 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
+use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRSh
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, V2
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

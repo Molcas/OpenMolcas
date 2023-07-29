@@ -13,7 +13,7 @@ subroutine Cho_SetPtr2()
 !
 ! Purpose: set n_MySP
 
-use ChoArr, only: n_MySP
+use Cholesky, only: n_MySP
 
 implicit none
 

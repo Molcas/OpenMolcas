@@ -37,10 +37,9 @@ subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11
 ! reduced set 1 (all of them!).
 
 #ifdef _DEBUGPRINT_
-use ChoArr, only: iSP2F
+use Cholesky, only: iSP2F
 #endif
-use ChoArr, only: iOff_Batch, nDim_Batch
-use ChoSwp, only: IndRSh, iQuAB, iQuAB_here, nnBstRSh, pTemp
+use Cholesky, only: IndRSh, iOff_Batch, iQuAB, iQuAB_here, nDim_Batch, nnBstRSh, pTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, OneHalf
 use Definitions, only: wp, iwp
@@ -411,7 +410,7 @@ call xRlsMem_Ints()
 call mma_deallocate(XCVInt)
 call mma_deallocate(iOff_Batch)
 call mma_deallocate(XCVZd)
-iQuAB => null()
+nullify(iQuAB)
 call mma_deallocate(iQuAB_here)
 call mma_deallocate(XCVLSP)
 

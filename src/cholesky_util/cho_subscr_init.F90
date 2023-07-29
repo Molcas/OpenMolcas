@@ -13,7 +13,7 @@ subroutine Cho_SubScr_Init()
 !
 ! Purpose: initialize screening in vector subtraction.
 
-use ChoSubScr, only: DSPNm, DSubScr
+use Cholesky, only: DSPNm, DSubScr
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

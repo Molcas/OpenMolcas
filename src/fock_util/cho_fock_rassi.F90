@@ -35,8 +35,7 @@ subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type

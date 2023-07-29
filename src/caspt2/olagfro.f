@@ -388,8 +388,7 @@ C
      *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK)
 
       USE CHOVEC_IO
-      use ChoSwp, only: InfVec
-      use ChoArr, only: nDimRS
+      use Cholesky, only: InfVec, nDimRS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 

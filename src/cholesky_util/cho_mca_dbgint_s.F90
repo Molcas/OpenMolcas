@@ -19,7 +19,7 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 !       2) calculations are performed in full (no use of red. sets
 !          apart from first)
 
-use ChoArr, only: nBstSh
+use Cholesky, only: nBstSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp

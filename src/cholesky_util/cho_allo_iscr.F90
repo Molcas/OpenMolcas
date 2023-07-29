@@ -14,7 +14,7 @@ subroutine Cho_Allo_iScr(DoDummy)
 ! Purpose: allocate iScr array for reading and reordering vectors.
 !          If (DoDummy): make dummy (length 1) allocation.
 
-use ChoArr, only: iScr
+use Cholesky, only: iScr
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

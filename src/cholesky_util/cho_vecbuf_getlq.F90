@@ -14,8 +14,7 @@ subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
 ! Purpose: extract elements corresponding to qualified diagonals
 !          from vectors in buffer.
 
-use ChoSwp, only: iQuAB
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, iQuAB, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
@@ -61,7 +60,7 @@ do iSym=1,nSym
   end if
 end do
 
-BVec => null()
-Q => null()
+nullify(BVec)
+nullify(Q)
 
 end subroutine Cho_VecBuf_GetLQ

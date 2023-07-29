@@ -20,7 +20,7 @@ subroutine CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
 !            - only one shell quadruple is computed (not an entire
 !              column).
 
-use ChoArr, only: iSP2F
+use Cholesky, only: iSP2F
 use Definitions, only: wp, iwp
 
 implicit none

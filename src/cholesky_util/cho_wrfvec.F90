@@ -13,7 +13,7 @@ subroutine CHO_WRFVEC(VEC,ISYMA,ISYMB,IVEC1,NUMV)
 !
 ! Purpose: write full storage vectors to disk.
 
-use ChoReO, only: LUFV, NABPK
+use Cholesky, only: LUFV, NABPK
 use Definitions, only: wp, iwp
 
 implicit none

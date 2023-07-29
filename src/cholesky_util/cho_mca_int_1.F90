@@ -18,7 +18,7 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !    LOCPRT: flag for printing the shell quadruple to output;
 !            output format differs depending on IFCSEW.
 
-use ChoArr, only: iSP2F, nBstSh
+use Cholesky, only: iSP2F, nBstSh
 use Definitions, only: wp, iwp
 
 implicit none

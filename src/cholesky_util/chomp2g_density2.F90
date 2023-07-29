@@ -18,9 +18,8 @@ subroutine ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Purpose: Solve the CPHF-equations to obtain occ-vir
 !          contributions to the 1-pdm.
 
-use ChoMP2, only: MP2D, MP2W
-use ChoMP2g, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, LuVVec, &
-                   LuWVec, nMoMo
+use ChoMP2, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, LuVVec, &
+                  LuWVec, MP2D, MP2W, nMoMo
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 

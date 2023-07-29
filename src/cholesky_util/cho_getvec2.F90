@@ -23,8 +23,7 @@ subroutine CHO_GETVEC2(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       disk and should not be smaller than NNBSTR(ISYM,1)+1,
 !       preferably more.
 
-use ChoArr, only: iScr
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, iScr
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

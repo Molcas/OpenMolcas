@@ -13,16 +13,16 @@
 
 subroutine Cho_PrintPointers(irc,Lunit)
 !
-! Purpose: print all entries in choarr.f90 and choswp.f90
+! Purpose: print entries in the Cholesky module
 
-use ChoArr, only: iAtomShl, iBasSh, IntMap, iRS2F, iScr, iShlSO, iSOShl, iSP2F, nBasSh, nBstSh, nDimRS
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, InfRed, InfVec, iQuAB, nnBstRSh
+use Cholesky, only: iAtomShl, iBasSh, iiBstRSh, IndRed, IndRSh, InfRed, InfVec, IntMap, iQuAB, iRS2F, iScr, iShlSO, iSOShl, iSP2F, &
+                    nBasSh, nBstSh, nDimRS, nnBstRSh
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: irc, Lunit
 
-write(Lunit,*) '*** Contents of choarr.f90 and choswp.f90:'
+write(Lunit,*) '*** Contents of Cholesky:'
 write(Lunit,*) '    (dimension)'
 write(Lunit,*)
 call Cho_Flush(Lunit)

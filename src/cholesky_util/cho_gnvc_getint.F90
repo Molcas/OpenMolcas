@@ -14,7 +14,7 @@ subroutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,mSym,mPass,mmShl,iPass
 ! Purpose: compute integrals for NumPass integral passes starting at
 !          pass iPass1.
 
-use ChoSwp, only: InfVec, IndRSh
+use Cholesky, only: InfVec, IndRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

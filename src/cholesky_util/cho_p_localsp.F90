@@ -14,7 +14,7 @@ function Cho_P_LocalSP(iShlAB)
 ! Purpose: return local shell pair corresponding to global shell
 !          pair iShlAB (returns 0 if not found).
 
-use ChoArr, only: MySP, n_MySP
+use Cholesky, only: MySP, n_MySP
 use Definitions, only: iwp
 
 implicit none

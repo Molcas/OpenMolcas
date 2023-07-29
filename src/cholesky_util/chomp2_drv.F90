@@ -26,8 +26,7 @@ subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
-use ChoMP2, only: EFrozT, EOccuT, EVirtT
-use ChoMP2g, only: nMoMo
+use ChoMP2, only: EFrozT, EOccuT, EVirtT, nMoMo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

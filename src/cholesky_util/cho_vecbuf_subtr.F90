@@ -17,10 +17,8 @@ subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
 ! DoTime: time as vector subtraction.
 ! DpStat: update statistics info (#calls to dGeMM).
 
-use ChoArr, only: LQ
-use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
-use ChoSwp, only: iiBstRSh, iQuAB, nnBstRSh
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: Cho_SScreen, CHVBUF, DSPNm, DSubScr, iiBstRSh, ip_CHVBUF_SYM, iQuAB, l_CHVBUF_SYM, LQ, nnBstRSh, nVec_in_Buf, &
+                    SSNorm, SSTau, SubScrStat
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -179,14 +177,14 @@ do iBatch=1,nBatch
 
   else ! unscreened subtraction
 
-    if (associated(LQ(iSym)%Array)) then
+    if (associated(LQ(iSym)%A)) then
 
       ! If the qualified block, L({ab},#J), is already in core,
       ! use this block.
       ! -------------------------------------------------------
 
-      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,-One,V(:,iVec0+1),nnBstR(iSym,2),LQ(iSym)%Array(:,iVec0+1), &
-                  size(LQ(iSym)%Array,1),One,U,nnBstR(iSym,2))
+      call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,-One,V(:,iVec0+1),nnBstR(iSym,2),LQ(iSym)%A(:,iVec0+1), &
+                  size(LQ(iSym)%A,1),One,U,nnBstR(iSym,2))
 
     else
 

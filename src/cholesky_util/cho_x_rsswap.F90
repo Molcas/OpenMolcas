@@ -34,7 +34,7 @@
 
 subroutine Cho_X_RSSwap(irc,iRS,jRS)
 
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
 use Definitions, only: iwp
 
 implicit none
@@ -47,8 +47,8 @@ if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then
 else
   if (iRS /= jRS) then
     N = nSym*nnShl
-    call iSwap(N,iiBstRsh(:,:,iRS),1,iiBstRSh(:,:,jRS),1)
-    call iSwap(N,nnBstRsh(:,:,iRS),1,nnBstRSh(:,:,jRS),1)
+    call iSwap(N,iiBstRSh(:,:,iRS),1,iiBstRSh(:,:,jRS),1)
+    call iSwap(N,nnBstRSh(:,:,iRS),1,nnBstRSh(:,:,jRS),1)
     call iSwap(nSym,iiBstR(1,iRS),1,iiBstR(1,jRS),1)
     call iSwap(nSym,nnBstR(1,iRS),1,nnBstR(1,jRS),1)
     call iSwap(nnBstRT(1),IndRed(:,iRs),1,IndRed(:,jRs),1)

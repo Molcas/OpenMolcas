@@ -18,7 +18,7 @@ subroutine Cho_X_DefineInfVec_5(isDF)
 !          The routine does nothing in case of parallel DF.
 
 use Para_Info, only: Is_Real_Par
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: iwp
 
 implicit none

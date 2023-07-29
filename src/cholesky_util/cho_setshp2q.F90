@@ -17,10 +17,9 @@ subroutine Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
-use ChoArr, only: iShP2Q, iSP2F, nBstSh
-use ChoSwp, only: IndRed, iQuAB
+use Cholesky, only: IndRed, iQuAB, iShP2Q, iSP2F, nBstSh
 #ifdef _DEBUGPRINT_
-use ChoSwp, only: IndRSh
+use Cholesky, only: IndRSh
 #endif
 use Definitions, only: iwp
 

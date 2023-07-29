@@ -13,8 +13,7 @@
 
 subroutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
 
-use ChoArr, only: iRS2F, nDimRS
-use ChoSwp, only: iiBstRSh, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, iRS2F, nnBstRSh, nDimRS
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

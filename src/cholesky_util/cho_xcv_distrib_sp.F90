@@ -19,7 +19,7 @@ subroutine Cho_XCV_Distrib_SP(mySP,l_mySP,N_mySP)
 ! dimension.
 
 use Para_Info, only: MyRank, nProcs
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

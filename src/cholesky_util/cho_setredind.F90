@@ -14,7 +14,7 @@ subroutine CHO_SETREDIND(IRED)
 ! Purpose: set index arrays for reduced set IRED. The counter
 !          array NNBSTRSH must be set on entry.
 
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

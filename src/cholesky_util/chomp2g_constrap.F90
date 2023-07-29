@@ -11,7 +11,7 @@
 
 subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,typ,iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
-use ChoMP2g, only: iAdrOff, LuVVec, LuWVec, nMoMo
+use ChoMP2, only: iAdrOff, LuVVec, LuWVec, nMoMo
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 

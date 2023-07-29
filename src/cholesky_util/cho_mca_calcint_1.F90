@@ -16,8 +16,7 @@ subroutine CHO_MCA_CALCINT_1(ISHLAB)
 !
 ! Version 1: store full shell quadruple.
 
-use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iQuAB, iSP2F, nBstSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

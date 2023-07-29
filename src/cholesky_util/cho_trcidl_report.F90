@@ -18,7 +18,7 @@ subroutine Cho_TrcIdl_Report()
 ! Report idle status for all processors
 
 use Para_Info, only: nProcs
-use ChoArr, only: Idle
+use Cholesky, only: Idle
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

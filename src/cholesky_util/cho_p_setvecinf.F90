@@ -13,7 +13,7 @@ subroutine Cho_P_SetVecInf(nVec,iSym,iPass)
 !
 ! Purpose: set global and local info for vectors.
 
-use ChoSwp, only: iQuAB, IndRed
+use Cholesky, only: iQuAB, IndRed
 use Definitions, only: iwp
 
 implicit none

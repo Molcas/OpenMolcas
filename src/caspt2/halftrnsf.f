@@ -49,8 +49,7 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-      use ChoArr, only: iRS2F, nDimRS
-      use ChoSwp, only: InfVec, IndRed
+      use Cholesky, only: InfVec, IndRed, iRS2F, nDimRS
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)

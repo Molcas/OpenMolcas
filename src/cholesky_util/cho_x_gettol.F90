@@ -41,7 +41,7 @@
 
 function Cho_X_GetTol(iTolDef)
 
-use ChoIni, only: ChoIniCheck
+use Cholesky, only: ChoIniCheck
 use Constants, only: Ten
 use Definitions, only: wp, iwp
 

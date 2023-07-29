@@ -18,8 +18,7 @@ subroutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
 ! Purpose: To reorder R-vectors so it is practical to access
 !          one ia-piece at the time.
 
-use ChoMP2, only: AdrR1, AdrR2
-use ChoMP2g, only: LuRInv, nMoMo
+use ChoMP2, only: AdrR1, AdrR2, LuRInv, nMoMo
 use Definitions, only: wp, iwp
 
 implicit none

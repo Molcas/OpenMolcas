@@ -13,7 +13,7 @@ subroutine CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 !
 ! Purpose: reorder Cholesky vectors on disk to full storage.
 
-use ChoReO, only: NABPK, NNBST
+use Cholesky, only: NABPK, NNBST
 use Definitions, only: wp, iwp
 
 implicit none

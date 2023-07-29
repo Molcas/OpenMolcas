@@ -16,8 +16,7 @@ subroutine Cho_SimRI_Z1CDia(Diag,Thr,Indx)
 !          On exit, Indx(i)=1 if diagonal i was zeroed, else
 !          Indx(i)=0 (thus, Indx must have same dimension as Diag).
 
-use ChoArr, only: iAtomShl, iSP2F
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iAtomShl, iiBstRSh, iSP2F, nnBstRSh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

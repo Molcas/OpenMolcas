@@ -27,7 +27,7 @@ subroutine IndSft_Cho_3(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAO
 
 use Symmetry_Info, only: nIrrep
 use SOAO_Info, only: iAOtSO, iOffSO
-use ChoArr, only: iShlSO, iShP2Q, iShP2RS, iSOShl, nBstSh, nDim_Batch
+use Cholesky, only: iShlSO, iShP2Q, iShP2RS, iSOShl, nBstSh, nDim_Batch
 use sort_data, only: nSkip
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -16,7 +16,7 @@ subroutine CHO_RS2RS(IMAP,LMAP,IRS2,IRS3,IRED3,ISYM)
 !
 ! WARNING: for IRED3 = 1, INDRED is reset here!!!!
 
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

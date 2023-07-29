@@ -37,7 +37,7 @@
 
 subroutine CD_Tester(irc,PDM,n,Verbose)
 
-use CDTHLP, only: Mat, Vec
+use CD_Tester_mod, only: Mat, Vec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6

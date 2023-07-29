@@ -18,7 +18,7 @@ subroutine Cho_P_Check(irc)
 !             this subroutine is, in effect, a TODO-list.
 
 use Para_Info, only: Is_Real_Par, nProcs
-use ChoSubScr, only: Cho_SScreen
+use Cholesky, only: Cho_SScreen
 use Definitions, only: iwp
 
 implicit none

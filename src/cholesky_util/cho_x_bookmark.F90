@@ -40,7 +40,7 @@
 
 subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
 
-use ChoBkm, only: BkmThr, BkmVec, nRow_BkmThr
+use Cholesky, only: BkmThr, BkmVec, nRow_BkmThr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -14,8 +14,7 @@
 
 subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,add)
 
-use ChoArr, only: iRS2F
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed, iRS2F
 use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type
 use Constants, only: Zero

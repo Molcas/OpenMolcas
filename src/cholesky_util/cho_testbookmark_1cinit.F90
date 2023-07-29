@@ -11,7 +11,7 @@
 
 subroutine Cho_TestBookmark_1CInit(AllocatedHere)
 
-use ChoArr, only: iAtomShl
+use Cholesky, only: iAtomShl
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 

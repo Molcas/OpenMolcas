@@ -14,7 +14,7 @@ subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 ! Purpose: extract elements corresponding to qualified columns from
 !          the Cholesky vectors in buffer and/or on disk.
 
-use ChoVecBuf, only: nVec_in_Buf
+use Cholesky, only: nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none

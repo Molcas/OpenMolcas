@@ -25,9 +25,7 @@
 
 subroutine Cho_X_Final(irc)
 
-use ChoArr, only: MySP
-use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
-use ChoIni, only: ChoIniCheck
+use Cholesky, only: BkmThr, BkmVec, ChoIniCheck, MySP, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 

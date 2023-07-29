@@ -1912,8 +1912,7 @@ C
       Subroutine CnstAB_SSDM(DPT2AO,SSDM)
 C
       use ChoVec_io
-      use ChoSwp, only: InfVec
-      use ChoArr, only: nDimRS
+      use Cholesky, only: InfVec, nDimRS
 C
       Implicit Real*8 (A-H,O-Z)
 C

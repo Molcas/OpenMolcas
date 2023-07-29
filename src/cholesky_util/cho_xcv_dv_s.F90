@@ -14,7 +14,7 @@
 
 subroutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
 
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

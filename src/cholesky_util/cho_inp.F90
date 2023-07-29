@@ -17,7 +17,7 @@ subroutine CHO_INP(DFONLY,LUNIT,LUOUT)
 !          which is stored internally in the Cholesky program as
 !          LUPRI (in cholesky.fh).
 
-use ChoSubScr, only: Cho_SScreen, SSNorm, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, SSNorm, SSTau, SubScrStat
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

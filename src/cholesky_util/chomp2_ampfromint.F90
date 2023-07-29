@@ -18,7 +18,7 @@ subroutine ChoMP2_AmpFromInt(Col,nDim,iCol,nCol,EOcc,EVir)
 ! Purpose: scale integrals with orbital energies to get
 !          (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
 
-use ChoMP2_dec, only: NowSym
+use ChoMP2, only: NowSym
 use Definitions, only: wp, iwp
 
 implicit none

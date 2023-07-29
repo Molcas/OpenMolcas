@@ -17,7 +17,7 @@ subroutine CHO_RSTOF(IRS2F,N,LRDIM,IRED)
 ! IRS2F(1,irs) = alpha (SO index, not symmmetry reduced)
 ! IRS2F(2,irs) = beta  (SO index, not symmmetry reduced)
 
-use ChoArr, only: iShlSO, iSOShl, nBstSh
+use Cholesky, only: iShlSO, iSOShl, nBstSh
 use Definitions, only: iwp
 
 implicit none

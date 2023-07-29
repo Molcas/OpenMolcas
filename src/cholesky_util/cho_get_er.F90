@@ -50,8 +50,7 @@
 
 subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6

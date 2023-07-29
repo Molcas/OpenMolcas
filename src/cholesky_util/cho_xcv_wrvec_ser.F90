@@ -17,7 +17,7 @@ subroutine Cho_XCV_WrVec_Ser(irc,Vec,iSP)
 !     Simply write the partial vectors to disk at the appropriate
 !     addresses on the vector files.
 
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

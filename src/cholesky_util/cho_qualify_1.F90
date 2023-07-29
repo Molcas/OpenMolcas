@@ -13,7 +13,7 @@ subroutine CHO_QUALIFY_1(DIAG,ISYM,ISHLAB,MEM,MEM0,LEFT)
 !
 ! Purpose: qualify diagonals ("qualify until full").
 
-use ChoSwp, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

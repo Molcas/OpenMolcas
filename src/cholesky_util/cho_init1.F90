@@ -13,7 +13,7 @@ subroutine CHO_INIT1()
 !
 ! Purpose: initialize counter arrays.
 
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec
 use Definitions, only: iwp
 
 implicit none

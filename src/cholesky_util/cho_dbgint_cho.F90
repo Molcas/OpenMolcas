@@ -17,8 +17,7 @@ subroutine CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,ERRMAX,ERRMIN,ERRRMS,NCMP,ISHLCD
 !
 ! NOTE: this is *only* for debugging.
 
-use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iSP2F, nBstSh, nnBstRSh
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

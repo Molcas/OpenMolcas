@@ -14,8 +14,7 @@ subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 ! Purpose: shell-driven calculation of the integral diagonal and
 !          setup of the first reduced set.
 
-use ChoArr, only: iAtomShl, iBasSh, iSP2F, MySP, n_MySP, nBasSh, nBstSh
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: iAtomShl, iBasSh, iSP2F, MySP, n_MySP, nBasSh, nBstSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp

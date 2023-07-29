@@ -36,11 +36,11 @@ real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
 !                                                                      *
 interface
   subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
-    use ChoMP2, only: Pointer_2D
+    use Data_Structures, only: V2
     import :: wp, iwp
     integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
     real(kind=wp), intent(inout) :: TriDens(nTriDens)
-    type(Pointer_2D), intent(in) :: MP2X_e(8)
+    type(V2), intent(in) :: MP2X_e(8)
     real(kind=wp), intent(in) :: CMO(*)
     logical(kind=iwp), intent(in) :: Diagonalize
   end subroutine Build_Mp2Dens

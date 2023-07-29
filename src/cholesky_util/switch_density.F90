@@ -13,8 +13,7 @@
 
 subroutine switch_density(iLoc,XLT,Xab,kSym)
 
-use ChoArr, only: iRS2F
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed, iRS2F
 use Definitions, only: wp, iwp
 
 implicit none

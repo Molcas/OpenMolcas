@@ -21,8 +21,7 @@ subroutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
 !
 !          Any other norm is taken to be 'Max'.
 
-use ChoSubScr, only: DSPNm, DSubScr
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: DSPNm, DSubScr, iiBstRSh, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

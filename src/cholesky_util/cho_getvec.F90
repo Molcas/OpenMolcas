@@ -17,8 +17,7 @@ subroutine CHO_GETVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !          reading is taken from input (via cholesky.fh header
 !          file).
 
-use ChoArr, only: iScr
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, iScr
 use Definitions, only: wp, iwp
 
 implicit none

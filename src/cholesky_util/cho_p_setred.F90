@@ -15,10 +15,10 @@ subroutine Cho_P_SetRed(Diag,Sync)
 !          diagonal (if requested through flag Sync).
 !          Global as well as local reduced sets are set.
 !          Diag is the local diagonal, whereas Diag_G (defined in
-!          choswp.f90) points to the global diagonal.
+!          Cholesky) points to the global diagonal.
 !          Note that Diag is not referenced if Sync=.False.
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none

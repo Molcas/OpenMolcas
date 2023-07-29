@@ -15,7 +15,7 @@ function CHO_RS2F(LAB,ISHLAB,ISYMAB,IRED)
 !          element LAB in shell pair ISHLAB (sym. ISYMAB).
 !          If not included in this reduced set, 0 is returned.
 
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

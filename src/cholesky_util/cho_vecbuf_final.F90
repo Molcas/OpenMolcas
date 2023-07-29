@@ -13,7 +13,7 @@ subroutine Cho_VecBuf_Final()
 !
 ! Purpose: deallocate and finalize vector buffer.
 
-use ChoVecBuf, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
 use stdalloc, only: mma_deallocate
 
 implicit none

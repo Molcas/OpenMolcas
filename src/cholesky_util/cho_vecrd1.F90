@@ -23,8 +23,7 @@ subroutine CHO_VECRD1(SCR,LSCR,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED,DOREAD)
 ! NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 !       but execution is NOT stopped here!!!
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Definitions, only: wp, iwp
 
 implicit none

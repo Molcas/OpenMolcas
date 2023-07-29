@@ -15,7 +15,7 @@ subroutine Cho_P_AnaDia(Diag,Sync,Bin1,Step,NumBin,Full)
 !          diagonal. If Sync=.True. the global diagonal is
 !          synchronized before analysis.
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none

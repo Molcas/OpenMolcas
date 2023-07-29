@@ -13,8 +13,7 @@ subroutine Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
-use ChoArr, only: iL2G
-use ChoSwp, only: IndRed, InfVec_G, IndRed
+use Cholesky, only: iL2G, IndRed, InfVec_G, IndRed
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: u6
 #endif

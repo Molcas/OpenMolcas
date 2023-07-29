@@ -11,8 +11,7 @@
 
 subroutine Cho_P_IniLQ(MaxQual,nSym)
 
-use ChoArr, only: iQL2G, nQual_L
-use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
+use Cholesky, only: iQL2G, iQuAB_L, iQuAB_L_Hidden, nQual_L
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

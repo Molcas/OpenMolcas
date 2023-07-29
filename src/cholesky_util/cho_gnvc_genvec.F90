@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,mSym,mPass,iPass1,NumPass)
+subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,RS2RS,mSym,mPass,iPass1,NumPass)
 !
 ! Purpose: generate Cholesky vectors from raw integral columns.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: IndRed, InfVec
-use GnVcMp, only: RS2RS
+use Data_Structures, only: Alloc1DiArray_Type
+use Cholesky, only: IndRed, InfVec, nDimRS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -23,6 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
 real(kind=wp) :: Diag(*), xInt(lInt)
+type(Alloc1DiArray_Type) :: RS2RS(8)
 #include "cholesky.fh"
 #include "choprint.fh"
 integer(kind=iwp) :: iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
@@ -33,7 +33,7 @@ real(kind=wp), allocatable :: VecTmp(:), Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_GenVec'
 ! Statement function
 integer(kind=iwp) :: mapRS2RS, i, j
-mapRS2RS(i,j) = RS2RS(j)%Map(i)
+mapRS2RS(i,j) = RS2RS(j)%A(i)
 
 ! Check input.
 ! ------------

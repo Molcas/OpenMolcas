@@ -14,7 +14,7 @@ function CHO_LREAD(ISYM,LWRK)
 ! Purpose: return a reasonable scratch space dimension for reading
 !          previous vectors using cho_getvec.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: iwp
 
 implicit none

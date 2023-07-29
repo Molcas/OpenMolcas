@@ -14,8 +14,7 @@ subroutine CHO_DECDRV(DIAG)
 ! Purpose: driver for the decomposition of the two-electron integral
 !          matrix based on the reduced diagonal.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfRed
+use Cholesky, only: InfRed, nDimRS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

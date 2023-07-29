@@ -17,7 +17,7 @@ subroutine Get_maxDG(SDG,nnSkal,MxBasSh)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use ChoArr, only: iRS2F, iSOShl
+use Cholesky, only: iRS2F, iSOShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

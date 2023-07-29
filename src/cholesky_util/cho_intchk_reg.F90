@@ -14,7 +14,7 @@ subroutine CHO_INTCHK_REG(LABEL,ISHLCD,ISHLAB)
 ! Purpose: register a shell quadruple (CD|AB) for minimal integral
 !          check using LABEL to keep track of its origin.
 
-use ChoArr, only: iSP2F
+use Cholesky, only: iSP2F
 use Definitions, only: iwp
 
 implicit none

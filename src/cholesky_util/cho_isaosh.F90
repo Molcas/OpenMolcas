@@ -13,9 +13,9 @@ function CHO_ISAOSH(IAO,ISHL)
 !
 ! Purpose: return symmetry of AO number IAO in shell ISHL.
 
-use ChoArr, only: iBasSh
+use Cholesky, only: iBasSh
 #ifdef _DEBUGPRINT_
-use ChoArr, only: nBstSh
+use Cholesky, only: nBstSh
 #endif
 use Definitions, only: iwp
 

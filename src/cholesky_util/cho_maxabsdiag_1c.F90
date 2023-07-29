@@ -14,8 +14,7 @@ subroutine Cho_MaxAbsDiag_1C(Diag,iLoc,DGMax)
 ! Specialization for 1-Center approximation: only find max for
 ! 1-center diagonals.
 
-use ChoArr, only: iAtomShl, iSP2F
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

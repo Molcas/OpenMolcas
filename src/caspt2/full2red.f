@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE full2red(XLT,Xab)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
+      use Cholesky, only: IndRed, iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -52,8 +51,7 @@ c Offsets to symmetry block in the LT matrix
       Return
       End
       SUBROUTINE red2full(XLT,Xab)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
+      use Cholesky, only: IndRed, iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao

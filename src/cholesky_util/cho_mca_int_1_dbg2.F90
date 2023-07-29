@@ -13,7 +13,7 @@ subroutine CHO_MCA_INT_1_DBG2()
 !
 ! Purpose: test symmetry of integral matrix.
 
-use ChoArr, only: iSP2F, nBstSh
+use Cholesky, only: iSP2F, nBstSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

@@ -18,9 +18,8 @@ subroutine ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !          decomposed MP2 amplitudes.
 
-use ChoMP2, only: AdrR1, AdrR2
-use ChoMP2g, only: iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, lLagr, lPab, &
-                   lPai, lPaK, lPij, lPiK, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, lWaK, lWij, lWiK, lWJK, nMoMo
+use ChoMP2, only: AdrR1, AdrR2, iAdrOff, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, lFLagr, &
+                  lLagr, lPab, lPai, lPaK, lPij, lPiK, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, lWaK, lWij, lWiK, lWJK, nMoMo
 use Constants, only: Zero, One, Two, Four, Eight, Half
 use Definitions, only: wp, iwp
 

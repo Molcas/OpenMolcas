@@ -15,7 +15,7 @@ subroutine Cho_X_Init_Par_Cho(irc)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Definitions, only: iwp, u6

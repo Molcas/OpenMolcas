@@ -13,7 +13,7 @@ subroutine CHO_REOINI()
 !
 ! Purpose: initializations for vector reordering.
 
-use ChoReo, only: NABPK, NNBST
+use Cholesky, only: NABPK, NNBST
 use Definitions, only: iwp
 
 implicit none

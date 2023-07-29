@@ -11,7 +11,7 @@
 
 subroutine Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
 
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

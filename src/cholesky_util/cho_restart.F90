@@ -17,8 +17,7 @@ subroutine CHO_RESTART(DIAG,WRK,LWRK,DSKDIA,LCONV)
 !          this routine is called. Reduced set 2, on the
 !          other hand, is set up here.
 
-use ChoArr, only: iAtomShl, iSimRI, iSP2F, MySP, nDimRS
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use Cholesky, only: iAtomShl, iiBstRSh, IndRed, IndRSh, iSimRI, iSP2F, MySP, nDimRS, nnBstRSh
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

@@ -15,8 +15,7 @@ subroutine CHO_GETDIAG(LCONV)
 !          points to the diagonal and flag LCONV tells
 !          if the diagonal is converged.
 
-use ChoArr, only: iSimRI, iSP2F, MySP, n_MySP
-use ChoSwp, only: Diag, Diag_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden
+use Cholesky, only: Diag, Diag_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, iSimRI, iSP2F, MySP, n_MySP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

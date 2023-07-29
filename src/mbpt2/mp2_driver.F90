@@ -43,7 +43,7 @@ subroutine MP2_Driver(ireturn)
 
 use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
                         LuIntM, MBPT2_Clean, NamAct, nBas
-use ChoMP2_dec, only: pEOcc => EOcc, pEVir => EVir
+use ChoMP2, only: pEOcc => EOcc, pEVir => EVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

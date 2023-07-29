@@ -14,7 +14,7 @@ subroutine Cho_VecDsk_GetLQ(QVec,l_QVec,LstQSP,nQSP,iV1,nV,mSym)
 ! Purpose: extract elements corresponding to qualified columns of
 !          vectors on disk.
 
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -17,9 +17,9 @@ subroutine Cho_X_GetIP_InfVec(InfVcT)
 !
 ! Purpose: get pointer to InfVec array for all vectors.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 #ifdef _MOLCAS_MPP_
-use ChoSwp, only: InfVec_Bak
+use Cholesky, only: InfVec_Bak
 #endif
 use Definitions, only: iwp
 

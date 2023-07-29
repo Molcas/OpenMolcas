@@ -20,17 +20,11 @@ subroutine Cho_X_SetInc(irc)
 !          choorb.fh
 !          cholesky.fh
 !          chosew.fh
-!          chovecbuf.f90
-!          chosubscr.fh
-!          chpari.fh
 !          cho_para_info.fh
-!          and some in the Module choarr.f90
+!          and some in the module Cholesky
 
-use ChoArr, only: n_MySP, nDim_Batch, nQual_L
-use ChoBkm, only: nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
-use ChoSubScr, only: Cho_SScreen, SSNorm, SSTau, SubScrStat
-use ChoVecBuf, only: ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, nVec_in_Buf
-use ChPari, only: NumCho_Bak
+use Cholesky, only: Cho_SScreen, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, n_MySP, nCol_BkmThr, nCol_BkmVec, &
+                    nDim_Batch, nQual_L, nRow_BkmThr, nRow_BkmVec, NumCho_Bak, nVec_in_Buf, SSNorm, SSTau, SubScrStat
 use Constants, only: Zero
 use Definitions, only: iwp, wp
 
@@ -195,8 +189,8 @@ n_MySP = 0
 Cho_SimRI = .false.
 Thr_SimRI = -Large
 
-! chovecbuf.f90.
-! --------------
+! Cholesky.
+! ---------
 
 call iZero(ip_ChVBuf_Sym,8)
 call iZero(l_ChVBuf_Sym,8)
@@ -204,17 +198,11 @@ call iZero(ip_ChVBfI_Sym,8)
 call iZero(l_ChVBfI_Sym,8)
 call iZero(nVec_in_Buf,8)
 
-! chosubscr.fh.
-! -------------
-
 Cho_SScreen = .false.
 SSTau = Zero
 SubScrStat(1) = Zero
 SubScrStat(2) = Zero
 SSNorm = 'tbp'
-
-! Module chpari
-! -------------
 
 call iZero(NumCho_Bak,8)
 
@@ -223,8 +211,8 @@ call iZero(NumCho_Bak,8)
 
 Cho_Real_Par = .false.
 
-! chobkm.f90
-! ----------
+! Cholesky
+! --------
 
 nRow_BkmVec = 0
 nCol_BkmVec = 0

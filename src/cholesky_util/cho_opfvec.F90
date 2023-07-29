@@ -13,7 +13,7 @@ subroutine CHO_OPFVEC(ISYM,IOPT)
 !
 ! Purpose: open/close files for full storage vectors, sym. ISYM.
 
-use ChoReo, only: LUFV, REONAM
+use Cholesky, only: LUFV, REONAM
 use Definitions, only: iwp
 
 implicit none

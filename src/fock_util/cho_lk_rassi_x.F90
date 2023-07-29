@@ -31,13 +31,13 @@ subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,dmpk)
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRsh
 use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif

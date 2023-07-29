@@ -23,8 +23,9 @@
 !> This routine is also used for setting up the environment in
 !> density fitting (DF or RI) runs.
 !> Index arrays are allocated and initialized.
-!> All information is stored in the include files
-!> cholesky.fh, choorb.fh, choarr.f90, and choswp.f90.
+!> All information is stored in the module
+!> Cholesky and include files
+!> cholesky.fh, choorb.fh.
 !>
 !> \p BufFrac is the fraction of total available memory that will be
 !> allocated as Cholesky vector buffer. For example, \p BufFrac = ``0.35``
@@ -55,11 +56,9 @@
 
 subroutine Cho_X_Init(irc,BufFrac)
 
-use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, iSP2F, MySP, n_MySP, nBasSh, nBstSh, nDimRS
-use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
-use ChoIni, only: ChoIniCheck
-use ChoSP, only: nnShl_SP
-use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, nnBstRSh, nnBstRSh_Hidden
+use Cholesky, only: BkmThr, BkmVec, ChoIniCheck, iBasSh, iiBstRSh, iiBstRSh_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, &
+                    iRS2F, iShlSO, iSOShl, iSP2F, MySP, n_MySP, nBasSh, nBstSh, nCol_BkmThr, nCol_BkmVec, nDimRS, nnBstRSh, &
+                    nnBstRSh_Hidden, nnShl_SP, nRow_BkmThr, nRow_BkmVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -257,7 +256,7 @@ nnShl_Tot = nShell*(nShell+1)/2
 call Cho_X_DefineInfVec_5(isDF)
 
 ! nnShl_SP makes it possible to use function Cho_F2SP.
-! (Stored in module ChoSP)
+! (Stored in module Cholesky)
 ! ----------------------------------------------------
 
 nnShl_SP = nnShl

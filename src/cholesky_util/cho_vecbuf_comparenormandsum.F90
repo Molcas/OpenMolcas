@@ -24,7 +24,7 @@ subroutine Cho_VecBuf_CompareNormAndSum(n,nVec,Vec,J1,iSym,irc)
 !    irc=0: no differences detected.
 !    irc>0: number of vectors for which differences are detected.
 
-use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none

@@ -11,7 +11,7 @@
 
 subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
 
-use ChoMP2, only: Pointer_2D
+use Data_Structures, only: V2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
 real(kind=wp), intent(inout) :: TriDens(nTriDens)
-type(Pointer_2D), intent(in) :: MP2X_e(8)
+type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
 #include "corbinf.fh"

@@ -18,7 +18,7 @@ subroutine CHO_RDRSTC(IFAIL)
 !
 ! NB!!!! the restart files MUST be open on entry...
 
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec
 use Definitions, only: wp, iwp
 
 implicit none

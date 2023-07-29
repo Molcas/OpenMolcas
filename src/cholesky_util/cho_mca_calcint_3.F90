@@ -20,8 +20,7 @@ subroutine CHO_MCA_CALCINT_3(XINT,LINT,ISHLAB)
 !            - addressing of qualified columns
 !            - integrals returned in core (no I/O)
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: iSP2F, nnBstRSh
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

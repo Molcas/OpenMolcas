@@ -19,10 +19,7 @@ subroutine CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
 !
 ! Screening in subtraction introduced Jan. 2006, TBP.
 
-use ChoArr, only: LQ
-use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSNorm, SSTau, SubScrStat
-use ChoSwp, only: iiBstRSh, iQuAB, nnBstRSh
-use ChoVecBuf, only: nVec_in_Buf
+use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, iiBstRSh, iQuAB, LQ, nnBstRSh, nVec_in_Buf, SSNorm, SSTau, SubScrStat
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -145,14 +142,14 @@ do IBATCH=1,NBATCH
 
   else ! unscreened subtraction
 
-    if (associated(LQ(ISYM)%Array)) then
+    if (associated(LQ(ISYM)%A)) then
 
       ! If the qualified block, L({ab},#J), is already in core,
       ! use this block.
       ! -------------------------------------------------------
 
-      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%Array(:,IVEC1), &
-                  size(LQ(ISYM)%Array,1),One,XINT,NNBSTR(ISYM,2))
+      call DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,-One,WRK(KCHO1),NNBSTR(ISYM,2),LQ(ISYM)%A(:,IVEC1),size(LQ(ISYM)%A,1), &
+                  One,XINT,NNBSTR(ISYM,2))
 
     else
 

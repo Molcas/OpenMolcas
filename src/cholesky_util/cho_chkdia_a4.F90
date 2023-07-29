@@ -21,7 +21,7 @@ subroutine Cho_ChkDia_A4(Diag,Dmax,iSym,nNeg,nNegT,nConv,xM,yM,zM)
 !          yM = min. element in Diag
 !          zM = max. abs. element in Diag
 
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

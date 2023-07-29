@@ -14,8 +14,7 @@ subroutine CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,LMMBSTRT,NDUMP)
 ! Purpose: read diagonal from disk and set first reduced set
 !          indices.
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: iiBstRSh
+use Cholesky, only: iiBstRsh, iSP2F
 use Definitions, only: wp, iwp
 
 implicit none

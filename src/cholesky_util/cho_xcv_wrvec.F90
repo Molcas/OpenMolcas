@@ -19,7 +19,7 @@ subroutine Cho_XCV_WrVec(irc,Vec,l_Vec,NVT,l_NVT,myRankSP,l_myRankSP,SP)
 !          (Parallel two-step algorithm)
 
 #ifdef _DEBUGPRINT_
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 #endif
 use Definitions, only: wp, iwp
 

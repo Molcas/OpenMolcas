@@ -22,7 +22,7 @@ subroutine Cho_P_UpdateBookmarks(iRS)
 ! Note: it is assumed that array DiaMax and number of Cholesky
 ! vectors are properly updated before calling this routine.
 
-use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec
+use Cholesky, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec
 use Definitions, only: iwp
 
 implicit none

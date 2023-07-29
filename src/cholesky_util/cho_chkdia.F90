@@ -22,7 +22,7 @@ subroutine CHO_CHKDIA(DIAG,ISYM,XM,YM,ZM,NNEGT,NNEG,NCONV)
 !          b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
 !          c) Keep track of most negative zeroed diagonal.
 
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

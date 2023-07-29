@@ -13,7 +13,7 @@ subroutine CHO_CHKCONF(NCONFL,VERBOSE)
 !
 ! Purpose: check configuration, return the number of errors NCONFL.
 
-use ChoSubScr, only: Cho_SScreen, SSTau
+use Cholesky, only: Cho_SScreen, SSTau
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

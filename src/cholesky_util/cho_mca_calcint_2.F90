@@ -17,8 +17,7 @@ subroutine CHO_MCA_CALCINT_2(ISHLAB)
 ! Version 2: avoid storage of full shell quadruple in interface to
 !            seward; get qualified directly!
 
-use ChoArr, only: iSP2F, MySP
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: iSP2F, MySP, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

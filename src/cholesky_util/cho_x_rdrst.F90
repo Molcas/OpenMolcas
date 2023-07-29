@@ -20,7 +20,7 @@ subroutine Cho_X_RdRst(ifail)
 !          most likely, some of the restart info is not
 !          defined/initialized.
 
-use ChoSwp, only: InfRed, InfRed_Hidden, InfVec, InfVec_Hidden
+use Cholesky, only: InfRed, InfRed_Hidden, InfVec, InfVec_Hidden
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 

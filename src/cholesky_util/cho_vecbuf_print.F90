@@ -14,7 +14,7 @@ subroutine Cho_VecBuf_Print(Lupri,nSym)
 ! Purpose: print allocation information of Cholesky vector buffer to
 !          unit Lupri (if Lupri<1 nothing is printed).
 
-use ChoVecBuf, only: CHVBUF, l_CHVBUF_SYM
+use Cholesky, only: CHVBUF, l_CHVBUF_SYM
 use Definitions, only: wp, iwp
 
 implicit none

@@ -15,7 +15,7 @@ subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
+use Cholesky, only: iSP2F, iBasSh, nBasSh, nBstSh
 use Definitions, only: iwp
 
 implicit none

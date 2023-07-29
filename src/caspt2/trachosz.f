@@ -13,7 +13,7 @@
       SUBROUTINE TRACHOSZ
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
       use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 * ----------------------------------------------------------------

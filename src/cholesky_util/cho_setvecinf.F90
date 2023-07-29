@@ -13,7 +13,7 @@ subroutine CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
 !
 ! Purpose: set info for vector IVEC of sym. ISYM.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: iwp
 
 implicit none

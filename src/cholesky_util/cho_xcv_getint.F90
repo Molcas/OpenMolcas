@@ -22,7 +22,7 @@ subroutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,NVT,l_nVT,xInt,l_I
 ! correspond to parent diagonals. Also, mySP should be be set to a
 ! trivial array [i.e. mySP(i)=i].
 
-use ChoArr, only: nDim_Batch
+use Cholesky, only: nDim_Batch
 use Definitions, only: wp, iwp
 
 implicit none

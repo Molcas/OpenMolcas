@@ -15,7 +15,7 @@ subroutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 !
 ! Read the vector blocks.
 
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

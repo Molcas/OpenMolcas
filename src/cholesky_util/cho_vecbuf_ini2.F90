@@ -17,7 +17,7 @@ subroutine Cho_VecBuf_Ini2()
 !
 ! Purpose: read vectors from disk into buffer.
 
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
 use Definitions, only: iwp
 
 implicit none

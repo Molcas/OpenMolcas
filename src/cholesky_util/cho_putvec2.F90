@@ -16,8 +16,7 @@ subroutine CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
 !
 ! Version 2: handles several reduced set at a time.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Definitions, only: wp, iwp
 
 implicit none

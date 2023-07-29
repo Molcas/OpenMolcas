@@ -48,8 +48,7 @@ subroutine CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,nDen,kDe
 !
 !********************************************************
 
-use ChoArr, only: iRS2F, nDimRS
-use ChoSwp, only: IndRed, InfVec
+use Cholesky, only: IndRed, InfVec, iRS2F, nDimRS
 use Data_Structures, only: DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Half

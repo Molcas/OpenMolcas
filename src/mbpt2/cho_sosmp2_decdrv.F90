@@ -20,8 +20,7 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 ! DelOrig: flag for deleting files with original vectors after
 !          decomposition completes.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: Incore, NowSym
+use ChoMP2, only: Incore, NowSym, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

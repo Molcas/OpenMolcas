@@ -14,7 +14,7 @@ subroutine CHO_PUTVEC(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM)
 ! Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
 !          of symmetry ISYM to file.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: wp, iwp
 
 implicit none

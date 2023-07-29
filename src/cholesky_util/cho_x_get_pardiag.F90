@@ -34,8 +34,7 @@ subroutine CHO_X_GET_PARDIAG(jSym,iSO_ab)
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-use ChoArr, only: iRS2F
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, iRS2F
 use Definitions, only: iwp
 
 implicit none

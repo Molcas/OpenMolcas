@@ -15,8 +15,7 @@ subroutine CHO_MCA_INT_1_DBG1(DIAG,IRED)
 !          diagonal *must* be the original diagonal stored
 !          in reduced set 1.
 
-use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, IndRSh, iSP2F, nBstSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

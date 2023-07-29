@@ -29,7 +29,7 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 ! On exit, the Z vector blocks are stored in memory according
 ! to ip_Z.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

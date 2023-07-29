@@ -13,7 +13,7 @@ subroutine CHO_CHKINT(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 !
 ! Purpose: check diagonals in qualified integral columns.
 
-use ChoSwp, only: IndRed, iQuAB
+use Cholesky, only: IndRed, iQuAB
 use Definitions, only: wp, iwp
 
 implicit none

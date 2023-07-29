@@ -15,7 +15,7 @@ subroutine CHO_RSCOPY(IRS1,IRS2)
 !          Special action is taken with INDRED if IRS1=1 so that it
 !          will point as expected for the "current" reduced set.
 
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

@@ -18,9 +18,7 @@ subroutine Cho_Drv_ParTwoStep(irc)
 ! Purpose: Parallel two-step decomposition of two-electron
 !          integrals.
 
-use ChoArr, only: iAtomShl, iShP2Q,iShP2RS
-use ChoSubScr, only: Cho_SScreen, SSTau
-use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
+use Cholesky, only: Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iAtomShl, iShP2Q,iShP2RS, SSTau
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -518,8 +516,8 @@ subroutine Finish_this()
 
   if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
   if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-  Diag => null()
-  Diag_G => null()
+  nullify(Diag)
+  nullify(Diag_G)
   call mma_deallocate(Check)
 
   ! Print total timing

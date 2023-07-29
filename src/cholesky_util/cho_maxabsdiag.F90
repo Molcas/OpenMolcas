@@ -14,7 +14,7 @@ subroutine CHO_MAXABSDIAG(DIAG,IRED,DGMAX)
 ! Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
 !          return the global max. abs. in DGMAX.
 
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

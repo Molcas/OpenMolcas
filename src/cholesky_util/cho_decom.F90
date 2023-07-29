@@ -14,8 +14,7 @@ subroutine CHO_DECOM(DIAG,WRK,LWRK,IPASS,NUM)
 ! Purpose: calculate Cholesky vectors from qualified integral
 !          columns (from disk).
 
-use ChoSwp, only: IndRed, iQuAB
-use ChoVecBuf, only: nVec_in_Buf
+use Cholesky, only: IndRed, iQuAB, nVec_in_Buf
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

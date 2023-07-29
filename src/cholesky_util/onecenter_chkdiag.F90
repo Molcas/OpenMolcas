@@ -14,7 +14,7 @@
 
 subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 
-use ChoArr, only: iRS2F
+use Cholesky, only: iRS2F
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

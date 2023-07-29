@@ -17,7 +17,7 @@ subroutine Cho_DiaSP()
 !
 ! Purpose: prescreening of diagonal.
 
-use ChoArr, only: iSP2F
+use Cholesky, only: iSP2F
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

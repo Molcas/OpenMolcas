@@ -29,7 +29,7 @@ use RI_glob, only: iAdrCVec, nChOrb, nIJ1, nIJR, NumAuxVec
 use Symmetry_Info, only: Mul
 use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6

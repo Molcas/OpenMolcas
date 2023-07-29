@@ -18,7 +18,7 @@ subroutine ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
 ! Purpose: Construct diagonal for decomposition of amplitude
 !          vectors.
 
-use ChoMP2g, only: iMoMo, nMoMo
+use ChoMP2, only: iMoMo, nMoMo
 use Constants, only: Two
 use Definitions, only: wp, iwp
 

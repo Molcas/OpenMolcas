@@ -20,12 +20,9 @@ subroutine CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
 ! IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 ! record bookmarks during Cholesky decomposition.
 
-use ChoArr, only: iAtomShl, iBasSh, IntMap, iShlSO, iSOShl, MySP, nBasSh, nBstSh, nDimRS
-use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden, InfRed, InfRed_Hidden, InfVec, InfVec_Hidden, iQuAB, iQuAB_Hidden, nnBstRSh, &
-                  nnBstRSh_Hidden
-use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
-use ChoSubScr, only: Cho_SScreen, SSTau
-use ChoSP, only: nnShl_SP
+use Cholesky, only: BkmThr, BkmVec, Cho_SScreen, iAtomShl, iBasSh, iiBstRSh, iiBstRSh_Hidden, InfRed, InfRed_Hidden, InfVec, &
+                    InfVec_Hidden, IntMap, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, MySP, nBasSh, nBstSh, nCol_BkmThr, nCol_BkmVec, &
+                    nDimRS, nnBstRSh, nnBstRSh_Hidden, nnShl_SP, nRow_BkmThr, nRow_BkmVec, SSTau
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -74,8 +71,8 @@ end if
 
 call CHO_MCA_INIT(SKIP_PRESCREEN)
 
-! Initialize module ChoSP (enabling use of function CHO_F2SP).
-! ---------------------------------------------------------
+! Initialize nnShl_SP (enabling use of function CHO_F2SP).
+! --------------------------------------------------------
 
 NNSHL_SP = NNSHL
 

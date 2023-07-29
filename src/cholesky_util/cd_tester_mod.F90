@@ -11,25 +11,15 @@
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
 
-module ChoArr
+module CD_Tester_mod
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 private
 
-type rPointers
-  real(kind=wp), pointer :: Array(:,:) => null()
-end type rPointers
+real(kind=wp), allocatable :: Mat(:), Vec(:)
 
-integer(kind=iwp) :: n_MySP, nDim_Batch(8), nQual_L(8)
-integer(kind=iwp), allocatable :: iAtomShl(:), iBasSh(:,:), Idle(:), iL2G(:), IntMap(:), iOff_Batch(:,:), iQL2G(:,:), iRS2F(:,:), &
-                                  iScr(:), iShlSO(:), iShP2Q(:,:), iShP2RS(:,:), iSimRI(:), iSOShl(:), iSP2F(:), MySP(:), &
-                                  nBasSh(:,:), nBstSh(:), nDimRS(:,:)
-real(kind=wp), allocatable, target :: LQ_Tot(:)
-type(rPointers) :: LQ(8)
+public :: Mat, Vec
 
-public :: iAtomShl, iBasSh, Idle, iL2G, IntMap, iOff_Batch, iQL2G, iRS2F, iScr, iShlSO, iShP2Q, iShP2RS, iSimRI, iSOShl, iSP2F, &
-          LQ, LQ_Tot, MySP, n_MySP, nBasSh, nBstSh, nDim_Batch, nDimRS, nQual_L
-
-end module ChoArr
+end module CD_Tester_mod

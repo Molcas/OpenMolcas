@@ -14,7 +14,7 @@ subroutine Cho_VecBuf_Init_I(Frac,lVec,LocDbg)
 ! Purpose: allocate and initialize vector buffer.
 !          (Internal run mode.)
 
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

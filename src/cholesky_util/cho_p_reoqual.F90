@@ -11,7 +11,7 @@
 
 subroutine Cho_P_ReoQual(iQScr,IDK,nK)
 
-use ChoSwp, only: iQuAB
+use Cholesky, only: iQuAB
 use Definitions, only: iwp
 
 implicit none

@@ -36,7 +36,7 @@
 
 subroutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: iwp
 
 implicit none

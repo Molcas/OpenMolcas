@@ -16,8 +16,8 @@ subroutine Cho_GnVc_Drv(irc,Diag)
 !          reasonable, since it is naturally done along with the
 !          diagonal.
 
-use ChoSwp, only: InfVec, iQuAB
-use GnVcMp, only: RS2RS
+use Data_Structures, only: Alloc1DiArray_Type
+use Cholesky, only: InfVec, iQuAB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -33,12 +33,13 @@ real(kind=wp) :: dl_Int, dl_WrkT, tCPU1, tCPU2, TlDec, TlDec1, TlDec2, TlInt, Tl
                  tWall2, WlDec, WlDec1, WlDec2, WlInt, WlInt1, WlInt2, WlTot, WlTot1, WlTot2
 character(len=26) :: String
 character(len=2) :: Unt
+type(Alloc1DiArray_Type) :: RS2RS(8)
 integer(kind=iwp), allocatable :: iVecRS(:,:), LISTSP(:), nVecRS(:,:)
 real(kind=wp), allocatable :: Wrk(:), xInt(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_Drv'
 ! Statement function
 integer(kind=iwp) :: mapRS2RS, i, j
-mapRS2RS(i,j) = RS2RS(j)%Map(i)
+mapRS2RS(i,j) = RS2RS(j)%A(i)
 
 ! Start timing.
 ! -------------
@@ -115,7 +116,7 @@ end do
 ! --------------------------------
 
 do iSym=1,nSym
-  call mma_allocate(RS2RS(iSym)%Map,nnBstR(iSym,1),Label='RS2RS(iSym)%Map')
+  call mma_allocate(RS2RS(iSym)%A,nnBstR(iSym,1),Label='RS2RS(iSym)%A')
 end do
 
 ! Split remaining memory.
@@ -240,7 +241,7 @@ do while (iPass < nPass)
   call Cho_X_RSCopy(irc,1,3)
   if (irc /= 0) call Cho_Quit(SecNam//': non-zero return code from Cho_X_RSCopy',104)
   do iSym=1,nSym
-    call Cho_RS2RS(RS2RS(iSym)%Map,size(RS2RS(iSym)%Map),3,2,iPass1,iSym)
+    call Cho_RS2RS(RS2RS(iSym)%A,size(RS2RS(iSym)%A),3,2,iPass1,iSym)
   end do
 
   ! Set up "qualified column" index arrays.
@@ -294,7 +295,7 @@ do while (iPass < nPass)
   ! -----------------
 
   if (iPrint >= INF_PASS) call Cho_Timer(TlDec1,WlDec1)
-  call Cho_GnVc_GenVec(Diag,xInt,size(xInt),nVecRS,iVecRS,nSym,nPass,iPass1,NumPass)
+  call Cho_GnVc_GenVec(Diag,xInt,size(xInt),nVecRS,iVecRS,RS2RS,nSym,nPass,iPass1,NumPass)
   if (iPrint >= INF_PASS) call Cho_Timer(TlDec2,WlDec2)
 
   ! Deallocate memory.
@@ -345,7 +346,7 @@ subroutine Finish_this()
 
   call mma_deallocate(Wrk)
   do iSym=1,nSym
-    call mma_deallocate(RS2RS(iSym)%Map)
+    call mma_deallocate(RS2RS(iSym)%A)
   end do
   call mma_deallocate(iVecRS)
   call mma_deallocate(nVecRS)

@@ -17,9 +17,8 @@ subroutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,iSyCho,iSyCO,iSyCV,iL
 !
 ! Purpose: compute pq-vector from reduced set AO vector.
 
-use ChoArr, only: iRS2F
-use ChoSwp, only: IndRed
-use ChoMP2g, only: iAoMo, iMoAo, iMoMo, nMo, nMoAo, nMoType
+use Cholesky, only: IndRed, iRS2F
+use ChoMP2, only: iAoMo, iMoAo, iMoMo, nMo, nMoAo, nMoType
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 

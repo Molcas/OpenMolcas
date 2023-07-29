@@ -14,10 +14,9 @@
 
 subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmShl_tot)
 
-use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, nDimRS
-use ChoSwp, only: IndRed, IndRSh
 use Symmetry_Info, only: Mul
-use Data_Structures, only: L_Full_Type
+use Cholesky, only: iBasSh, IndRed, IndRSh, iRS2F, iShlSO, iSOShl, nDimRS
+use Cholesky_Structures, only: L_Full_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

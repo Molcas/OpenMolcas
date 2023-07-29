@@ -18,7 +18,7 @@ subroutine Cho_P_PrtDia(Diag,Sync,iSyLst,nSyLst,iLoc)
 !          to the memory location of the reduced set index arrays to
 !          use for printing (and synchronizing, if requested).
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none

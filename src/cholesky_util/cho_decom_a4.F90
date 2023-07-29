@@ -13,8 +13,7 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 !
 ! Purpose: decompose qualified columns ("parallel" algorithm).
 
-use ChoArr, only: LQ_Tot, LQ
-use ChoVecBuf, only: nVec_in_Buf
+use Cholesky, only: LQ_Tot, LQ, nVec_in_Buf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -100,10 +99,10 @@ iSt = 1
 do iSym=1,nSym
   if (nQual(iSym)*NumV(iSym) > 0) then
     iEn = iEn+nQual(iSym)*NumV(iSym)
-    LQ(iSym)%Array(1:nQual(iSym),1:NumV(iSym)) => LQ_Tot(iSt:iEn)
+    LQ(iSym)%A(1:nQual(iSym),1:NumV(iSym)) => LQ_Tot(iSt:iEn)
     iSt = iEn+1
   else
-    LQ(iSym)%Array => null()
+    nullify(LQ(iSym)%A)
   end if
 end do
 
@@ -181,10 +180,10 @@ kID = 0
 do iSym=1,nSym
   if (nQual(iSym) < 1) cycle
   do jVec=1,NumV(iSym)
-    call dCopy_(nQual(iSym),LQ(iSym)%Array(:,jVec),1,KVScr,1)
+    call dCopy_(nQual(iSym),LQ(iSym)%A(:,jVec),1,KVScr,1)
     do iK=1,nKVec(iSym)
       lK = IDKVec(kID+iK)
-      LQ(iSym)%Array(iK,jVec) = KVScr(lK)
+      LQ(iSym)%A(iK,jVec) = KVScr(lK)
     end do
   end do
   kID = kID+nQual(iSym)

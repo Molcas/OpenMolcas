@@ -20,8 +20,7 @@ subroutine CHO_GETVEC1(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 ! NOTE: the scratch array SCR(LSCR) is used to read vectors from
 !       disk and should not be smaller than NNBSTR(ISYM,1)+1.
 
-use ChoArr, only: iScr
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, iScr
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

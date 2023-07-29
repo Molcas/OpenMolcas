@@ -16,7 +16,7 @@ subroutine CHO_GETINT(DIAG,DIASH,ISYSH,LSTQSP,NPOTSH,ICOUNT)
 ! DIASH(ij): max. diagonal in shell pair i,j
 ! NPOTSH   : the number of shell pairs that can be qualified.
 
-use ChoArr, only: IntMap, iSP2F
+use Cholesky, only: IntMap, iSP2F
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

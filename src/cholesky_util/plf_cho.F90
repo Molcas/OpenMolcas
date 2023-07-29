@@ -28,7 +28,7 @@ subroutine PLF_Cho(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shi
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use ChoArr, only: iShlSO, iSOShl, nBstSh
+use Cholesky, only: iShlSO, iSOShl, nBstSh
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 

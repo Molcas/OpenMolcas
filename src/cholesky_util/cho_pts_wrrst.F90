@@ -17,7 +17,7 @@ subroutine Cho_PTS_WrRst(irc,NVT,l_NVT)
 !
 ! Purpose: Write restart files (parallel two-step algorithm).
 
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec
 #ifdef _DEBUGPRINT_
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif

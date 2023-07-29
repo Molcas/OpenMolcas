@@ -25,8 +25,7 @@
 *           the full list of integrals!                                *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec, nDimRS
       use Data_structures, only: DSBA_Type, Allocate_DT
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type

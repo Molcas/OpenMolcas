@@ -17,7 +17,7 @@ subroutine Cho_PrtInt(iSCD,iSAB,xInt,lInt)
 !
 ! Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 
-use ChoArr, only: iShP2Q, iShP2RS, iSP2F, nBstSh, nDim_Batch
+use Cholesky, only: iShP2Q, iShP2RS, iSP2F, nBstSh, nDim_Batch
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

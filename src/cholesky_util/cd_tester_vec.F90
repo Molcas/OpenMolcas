@@ -13,7 +13,7 @@
 
 subroutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
 
-use CDTHLP, only: Vec
+use CD_Tester_mod, only: Vec
 use Definitions, only: wp, iwp, u6
 
 implicit none

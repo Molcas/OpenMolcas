@@ -19,9 +19,7 @@ function Cho_VecBuf_Integrity_OK(Tol,Report)
 ! vectors in the buffer and compare these values to the table
 ! generated at buffer initialization.
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBFI, CHVBUF, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, CHVBUF, InfVec, ip_CHVBFI_SYM, ip_CHVBUF_SYM, l_CHVBFI_SYM, nDimRS, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none

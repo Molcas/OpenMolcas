@@ -20,7 +20,7 @@ subroutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
 !          If requested (DoDiag=.true.), compute (ai|ai) integral
 !          diagonal.
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -11,7 +11,7 @@
 
 function Cho_IndxParentDiag_S(iQ,iSym)
 
-use ChoSwp, only: IndRed, iQuAB
+use Cholesky, only: IndRed, iQuAB
 use Definitions, only: iwp
 
 implicit none

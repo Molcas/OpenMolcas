@@ -50,8 +50,7 @@ subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV
 !
 !********************************************************
 
-use ChoArr, only: iRS2F, nDimRS
-use ChoSwp, only: IndRed, InfVec
+use Cholesky, only: IndRed, InfVec, iRS2F, nDimRS
 use Definitions, only: wp, iwp, u6
 
 implicit none

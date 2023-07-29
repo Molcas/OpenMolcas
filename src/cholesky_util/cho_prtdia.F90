@@ -14,8 +14,7 @@ subroutine CHO_PRTDIA(DIAG,ISYLST,NSYLST,IRED)
 ! Purpose: print requested symmetry block(s) of diagonal in
 !          first (IRED=1) or current (IRED=2) reduced set.
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, IndRSh, iSP2F, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

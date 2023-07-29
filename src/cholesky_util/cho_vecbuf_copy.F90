@@ -17,7 +17,7 @@ subroutine Cho_VecBuf_Copy(Vec,nVec,iSym)
 !     NB!  It is important that the vector counter NumCho does NOT
 !          include the nVec vectors in array Vec.
 
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none

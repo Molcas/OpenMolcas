@@ -30,8 +30,7 @@ subroutine CHO_DRV_Inner(IRETURN)
 !    2 -- memory has been out of bounds
 
 use Para_Info, only: Is_Real_Par, nProcs
-use ChoSubScr, only: Cho_SScreen
-use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
+use Cholesky, only: Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -341,8 +340,8 @@ end if
 
 if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
 if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-DIag => null()
-Diag_G => null()
+nullify(DIag)
+nullify(Diag_G)
 call mma_deallocate(Check)
 
 if (IPRINT >= INF_TIMING) then

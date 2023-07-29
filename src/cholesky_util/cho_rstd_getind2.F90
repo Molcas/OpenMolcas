@@ -13,7 +13,7 @@ subroutine CHO_RSTD_GETIND2()
 !
 ! Purpose: read mapping arrays for diagonal restart.
 
-use ChoSwp, only: IndRed, IndRSh
+use Cholesky, only: IndRed, IndRSh
 use Definitions, only: iwp
 
 implicit none

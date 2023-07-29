@@ -18,9 +18,8 @@ subroutine ChoMP2g_Setup(irc,EOcc,EVir)
 ! Purpose: Do some additional setup only needed for
 !          MP2-gradients or properties.
 
-use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT, MP2D, MP2D_e, MP2D_e_full, MP2D_full, MP2W, MP2W_e, &
-                  MP2W_e_full, MP2W_full
-use ChoMP2g, only: iAdrOff, iAoMo, iMoAo, iMoMo, nAoMo, nMo, nMoAo, nMoMo, nMoType, nOccVirt
+use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT, iAdrOff, iAoMo, iMoAo, iMoMo, MP2D, MP2D_e, &
+                  MP2D_e_full, MP2D_full, MP2W, MP2W_e, MP2W_e_full, MP2W_full, nAoMo, nMo, nMoAo, nMoMo, nMoType, nOccVirt
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

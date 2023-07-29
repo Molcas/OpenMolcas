@@ -19,7 +19,7 @@ subroutine Cho_1VecRd_SP(Vec,lVec,jVec,iSym,LstSP,nSP,iRedC,iLoc)
 !          identifies the reduced set for which indices are
 !          available at location iLoc. NOTE: only WA files!!
 
-use ChoSwp, only: iiBstRSh, InfVec, nnBstRSh
+use Cholesky, only: iiBstRSh, InfVec, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

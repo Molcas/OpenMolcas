@@ -17,8 +17,7 @@ subroutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc)
 !
 ! Purpose: compute ai-vector from reduced set AO vector.
 
-use ChoArr, only: iRS2F
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed, iRS2F
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 

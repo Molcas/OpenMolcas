@@ -15,10 +15,10 @@ subroutine Cho_SetQ2(iQuAB2,LstSP,nSP,iSym,jLoc,iLoc)
 !          reduced set indexed by arrays at location iLoc>1,
 !          counting only shell pairs that contain qualified
 !          diagonals (in the order in which they were qualified).
-!          The qualified index array iQuAB (pointer in choswp.f90)
+!          The qualified index array iQuAB (pointer in Cholesky)
 !          is assumed to refer to index arrays at location jLoc>1.
 
-use ChoSwp, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh
 use Definitions, only: iwp
 
 implicit none

@@ -13,7 +13,7 @@
 
 subroutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
 
-use CDTHLP, only: Mat
+use CD_Tester_mod, only: Mat
 use Definitions, only: wp, iwp
 
 implicit none

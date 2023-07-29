@@ -14,7 +14,7 @@ subroutine Cho_P_GetQD(QD)
 ! Purpose: copy qualified diagonal elements from global diagonal to
 !          array QD.
 
-use ChoSwp, only: Diag_G, IndRed_G, iQuAB
+use Cholesky, only: Diag_G, IndRed_G, iQuAB
 use Definitions, only: wp, iwp
 
 implicit none

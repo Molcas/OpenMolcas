@@ -42,12 +42,12 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Cholesky, only: IndRed, InfVec, nBasSh, nDimRS, nnBstRsh
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif

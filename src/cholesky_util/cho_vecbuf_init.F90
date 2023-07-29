@@ -18,7 +18,7 @@ subroutine Cho_VecBuf_Init(Frac,lVec)
 !                                 disk.
 !          (RUN_MODE stored in cholesky.fh)
 
-use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
+use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
 use Definitions, only: wp, iwp
 
 implicit none

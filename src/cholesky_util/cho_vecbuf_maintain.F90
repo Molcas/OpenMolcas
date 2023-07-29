@@ -28,13 +28,11 @@ subroutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
 ! Return code:  irc  = 0 : success
 !               irc != 0 : failure
 !
-! Index arrays from chovecbuf.f90 modified by this routine:
+! Index arrays from Cholesky modified by this routine:
 !
 ! NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 
-use ChoArr, only: iScr
-use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nVec_in_Buf
+use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, iScr, l_CHVBUF_SYM, nVec_in_Buf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -13,7 +13,7 @@ subroutine CHO_PRTHEAD(SKIPH)
 !
 ! Purpose: print Cholesky header.
 
-use ChoSubScr, only: Cho_SScreen, SSTau
+use Cholesky, only: Cho_SScreen, SSTau
 use Definitions, only: wp, iwp
 
 implicit none

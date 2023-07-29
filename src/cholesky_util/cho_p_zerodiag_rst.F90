@@ -16,8 +16,7 @@ subroutine Cho_P_ZeroDiag_Rst(Diag,iSym,iABG)
 !          need first to figure out if the treated diagonal element
 !          is in fact present in the local diagonal.
 
-use ChoArr, only: iL2G
-use ChoSwp, only: IndRed
+use Cholesky, only: iL2G, IndRed
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

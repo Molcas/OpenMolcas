@@ -20,7 +20,7 @@ subroutine Cho_Stat_ParentDiag()
 !          one-center or two-center diagonals. Does not work with
 !          symmetry!
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6

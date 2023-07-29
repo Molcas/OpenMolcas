@@ -22,7 +22,7 @@ subroutine Cho_P_SetPass(Diag,Sync,DiaSh,iSySh,iLoc,Conv,nPotSh)
 !          shell pairs whose max. diagonal element is larger than
 !          the decomposition threshold.
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none

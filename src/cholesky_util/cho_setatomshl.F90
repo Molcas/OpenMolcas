@@ -13,7 +13,7 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 !
 ! Purpose: set mapping from shell to atom (i.e., center).
 
-use ChoArr, only: iSOShl
+use Cholesky, only: iSOShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

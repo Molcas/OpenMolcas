@@ -14,7 +14,7 @@
 
 subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
-use ChoArr, only: iRS2F
+use Cholesky, only: iRS2F
 use Symmetry_Info, only: Mul
 use Data_Structures, only: NDSBA_Type
 use Definitions, only: wp, iwp

@@ -13,7 +13,7 @@ subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use ChoArr, only: iRS2F
+use Cholesky, only: iRS2F
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -35,8 +35,7 @@ subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 use Index_Functions, only: iTri
 use RICD_Info, only: Thrshld_CD
 use Para_Info, only: Is_Real_Par
-use ChoArr, only: iSP2F
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec, iSP2F
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
@@ -116,7 +115,7 @@ do iSym=1,nIrrep-1
 end do
 
 ! Other initializations. Most importantly, allocate InfRed and
-! InfVec arrays (defined in choswp.f90).
+! InfVec arrays (defined in Cholesky module).
 ! We skip diagonal prescreening, as it has already been done.
 ! Instead, allocate and set the mapping from reduced to full shell
 ! pairs here.

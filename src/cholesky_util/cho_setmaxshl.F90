@@ -13,8 +13,7 @@ subroutine CHO_SETMAXSHL(DIAG,DIASH,ISYSH,IRED)
 !
 ! Purpose: set max. shell pair data for selection procedure.
 
-use ChoArr, only: iSP2F, iAtomShl
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

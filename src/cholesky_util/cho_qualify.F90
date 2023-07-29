@@ -19,8 +19,7 @@ subroutine CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
 !          If no more columns can be qualified on exit,
 !          FULL=.true. is returned.
 
-use ChoArr, only: iSP2F
-use ChoSwp, only: iiBstRSh, IndRed, iQuAB, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iQuAB, iSP2F, nnBstRSh
 use Definitions, only: wp, iwp
 
 implicit none

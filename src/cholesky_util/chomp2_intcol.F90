@@ -18,8 +18,7 @@ subroutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified (ai|bj) columns.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: InCore, NowSym
+use ChoMP2, only: InCore, NowSym, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

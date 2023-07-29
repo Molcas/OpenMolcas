@@ -20,8 +20,7 @@ subroutine Cho_P_ZeroDiag(Diag,iSym,iABG)
 ! NB! If you wish to test the entire local diagonal (i.e. not just
 !     the qualified), use Cho_P_ZeroDiag_Rst instead.
 
-use ChoArr, only: iL2G, nQual_L
-use ChoSwp, only: IndRed, iQuAB_L
+use Cholesky, only: iL2G, IndRed, iQuAB_L, nQual_L
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

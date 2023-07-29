@@ -16,8 +16,7 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: NowSym, InCore
+use ChoMP2, only: Incore, NowSym, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

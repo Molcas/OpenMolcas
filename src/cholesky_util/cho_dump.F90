@@ -18,11 +18,11 @@ subroutine Cho_Dump(irc,Lunit)
 ! Purpose: print all entries in include files
 !          choorb.fh
 !          cholesky.fh
-!          chosubscr.f90
+!          and some in the module Cholesky
 !
 ! On input, Lunit is the logical unit to print to...
 
-use ChoSubScr, only: Cho_SScreen, DSPNm, DSubScr, SSTau, SubScrStat
+use Cholesky, only: Cho_SScreen, DSPNm, DSubScr, SSTau, SubScrStat
 use Definitions, only: iwp
 
 implicit none
@@ -203,16 +203,13 @@ write(Lunit,*)
 write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
 call Cho_Flush(Lunit)
 
-! choswp.f90 and choarr.f90.
-! --------------------------
+! Cholesky.
+! ---------
 
 call Cho_PrintPointers(irc,Lunit)
 if (irc /= 0) return
 
-! chosubscr.f90.
-! --------------
-
-write(Lunit,*) '*** Contents of chosubscr.f90:'
+write(Lunit,*) '*** Contents of Cholesky:'
 write(Lunit,*)
 write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
 write(Lunit,*) 'SSTau      : ',SSTau

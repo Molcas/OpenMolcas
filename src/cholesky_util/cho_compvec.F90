@@ -18,7 +18,7 @@ subroutine Cho_CompVec(Diag,xInt,VecK,QDiag,Wrk,lWrk,iSym,iPass)
 !          Wrk (dimension lWrk) is work space allocated in calling
 !          routine. QDiag contains the qualified diagonals.
 
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 

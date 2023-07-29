@@ -11,8 +11,7 @@
 
 subroutine Cho_P_QualSwp()
 
-use ChoSwp, only: iQuAB, iQuAB_L, pTemp
-use ChoArr, only: nQual_L
+use Cholesky, only: iQuAB, iQuAB_L, nQual_L, pTemp
 use Definitions, only: iwp
 
 implicit none

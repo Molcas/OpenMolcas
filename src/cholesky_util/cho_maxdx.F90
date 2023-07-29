@@ -14,7 +14,7 @@ subroutine Cho_MaxDX(Diag,Dmax)
 ! Purpose: get max. diagonal elements in each sym. block,
 !          qualified diagonals excluded.
 
-use ChoSwp, only: IndRed, iQuAB
+use Cholesky, only: IndRed, iQuAB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

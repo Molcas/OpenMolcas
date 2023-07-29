@@ -11,7 +11,7 @@
 
 subroutine Cho_X_GenVec(irc,Diag)
 
-use ChoSwp, only: iQuAB, pTemp, iQuAB_here
+use Cholesky, only: iQuAB, pTemp, iQuAB_here
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -13,9 +13,7 @@ subroutine CHO_FINAL(WriteBookmarks)
 !
 ! Purpose: Cholesky finalizations.
 
-use ChoArr, only: iSOShl
-use ChoBkm, only: BkmThr, BkmVec, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
-use ChoIni, only: CHOINICHECK
+use Cholesky, only: BkmThr, BkmVec, CHOINICHECK, iSOShl, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, nRow_BkmVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -23,7 +23,7 @@ subroutine CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       Thus, to be certain that enough memory is available,
 !       use LSCR = 2 x dimension of first reduced set.
 
-use ChoSwp, only: IndRed, InfVec
+use Cholesky, only: IndRed, InfVec
 use Definitions, only: wp, iwp
 
 implicit none

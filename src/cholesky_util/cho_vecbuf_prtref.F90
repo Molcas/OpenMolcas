@@ -19,9 +19,7 @@ subroutine Cho_VecBuf_PrtRef(Txt)
 ! Txt is printed along with the reference values (for
 ! identification).
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
-use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
+use Cholesky, only: CHVBFI, InfVec, ip_CHVBFI_SYM, nDimRS, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none

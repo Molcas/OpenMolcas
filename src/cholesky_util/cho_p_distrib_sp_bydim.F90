@@ -18,7 +18,7 @@ subroutine Cho_P_Distrib_SP_byDim(mySP,N_mySP)
 ! Determine distribution of ShellPairs by dimension.
 
 use Para_Info, only: MyRank, nProcs
-use ChoArr, only: iSP2F, nBstSh
+use Cholesky, only: iSP2F, nBstSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

@@ -13,7 +13,7 @@ subroutine CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
 !
 ! Purpose: read diagonal in first reduced set.
 
-use ChoSwp, only: IndRed, IndRSh
+use Cholesky, only: IndRed, IndRSh
 use Definitions, only: wp, iwp
 
 implicit none

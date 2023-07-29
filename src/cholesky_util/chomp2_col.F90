@@ -17,7 +17,7 @@ subroutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 
-use ChoMP2_dec, only: EOcc, EVir, iOption_MP2CD, NowSym
+use ChoMP2, only: EOcc, EVir, iOption_MP2CD, NowSym
 use Definitions, only: wp, iwp, u6
 
 implicit none

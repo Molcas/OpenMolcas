@@ -30,7 +30,7 @@ subroutine ChoMP2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(2) = max error
 !          ErrStat(3) = rms error
 
-use ChoMP2_dec, only: iOption_MP2CD
+use ChoMP2, only: iOption_MP2CD
 use Definitions, only: wp, iwp, u6
 
 implicit none

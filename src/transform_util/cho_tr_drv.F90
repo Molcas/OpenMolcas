@@ -18,10 +18,9 @@ subroutine CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,Xint,lXint)
 #ifdef _HDF5_QCM_
 use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_write_cholesky, HID_T
 #endif
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
+use Cholesky, only: InfVec, nDimRS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

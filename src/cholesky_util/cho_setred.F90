@@ -14,8 +14,7 @@ subroutine CHO_SETRED(DIAG)
 ! Purpose: set next reduced set. A copy of the previous set
 !          is stored in location 3.
 
-use ChoArr, only: iAtomShl, iSP2F
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iAtomShl, iiBstRSh, IndRed, iSP2F, nnBstRSh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

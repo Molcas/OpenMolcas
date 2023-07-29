@@ -17,8 +17,7 @@ subroutine RI_XDiag(Diag,nDiag)
 ! Purpose: compute exact integral diagonal.
 
 use Index_Functions, only: nTri_Elem
-use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstRSh, IndRed, iSP2F, nBstSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

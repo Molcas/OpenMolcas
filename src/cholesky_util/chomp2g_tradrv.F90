@@ -19,7 +19,7 @@ subroutine ChoMP2g_TraDrv(irc,CMO,Diag,DoDiag)
 !          performed directly in reduced sets. This assumes
 !          that the MP2 program has been appropriately initialized.
 
-use ChoMP2g, only: nAdrOff, nMoAo, nMoType
+use ChoMP2, only: nAdrOff, nMoAo, nMoType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

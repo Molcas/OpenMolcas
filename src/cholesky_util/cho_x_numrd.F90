@@ -35,8 +35,7 @@
 
 function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS
 use Definitions, only: iwp
 
 implicit none

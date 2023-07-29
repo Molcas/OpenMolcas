@@ -22,10 +22,9 @@ subroutine Cho_P_SetGL()
 !          Diag_Hidden is allocated in the calling routine, while
 !          Diag_G_Hidden is allocated here if needed.
 
-use ChoArr, only: iL2G, MySP, n_MySP
-use ChoSwp, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden, IndRed, IndRed_G, &
-                  IndRed_G_Hidden, IndRSh, IndRSh_G, IndRsh_G_Hidden, InfRed, InfRed_G, InfRed_G_Hidden, InfVec, InfVec_G, &
-                  InfVec_G_Hidden, nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
+use Cholesky, only: Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden, iL2G, IndRed, IndRed_G, &
+                    IndRed_G_Hidden, IndRSh, IndRSh_G, IndRsh_G_Hidden, InfRed, InfRed_G, InfRed_G_Hidden, InfVec, InfVec_G, &
+                    InfVec_G_Hidden, MySP, n_MySP, nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

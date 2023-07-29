@@ -21,8 +21,7 @@ function Cho_F2SP(iSP)
 !          when swapping nnShl and nnShl_G. If properly set,
 !          nnShl_SP = nnShl_G.
 
-use ChoArr, only: iSP2F
-use ChoSP, only: nnShl_SP
+use Cholesky, only: iSP2F, nnShl_SP
 use Definitions, only: iwp
 
 implicit none

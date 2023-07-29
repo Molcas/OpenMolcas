@@ -20,8 +20,8 @@ subroutine ChoMP2g_Tra_1(COrb1,COrb2,Diag,DoDiag,Wrk,lWrk,iSym,iMoType1,iMoType2
 !          If requested (DoDiag=.true.), compute (pq|pq) integral
 !          diagonal.
 
-use ChoSwp, only: InfVec
-use ChoMP2g, only: iAdrOff, nAdrOff, nMoAo, nMoMo, nMoType
+use Cholesky, only: InfVec
+use ChoMP2, only: iAdrOff, nAdrOff, nMoAo, nMoMo, nMoType
 use Definitions, only: wp, iwp, u6
 
 implicit none

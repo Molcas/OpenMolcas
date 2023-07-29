@@ -13,7 +13,7 @@ subroutine Cho_P_SetLQ()
 !
 ! Purpose: set local qualified indices from known global qualified.
 !
-! The local indices are stored in ChoArr.f90 and ChoSwp.f90:
+! The local indices are stored in the Cholesky module:
 !
 ! nQual_L(iSym)   : #qualified, irrep iSym (=1,2,..,nSym)
 ! iQuAB_L(iQ,iSym): address of qualified iQ of sym. iSym in current
@@ -23,8 +23,7 @@ subroutine Cho_P_SetLQ()
 ! iQL2G(iQ,iSym)  : returns index of the qualified in the global
 !                   list.
 
-use ChoArr, only: iL2G, iQL2G, nQual_L
-use ChoSwp, only: IndRed, IndRed_G, iQuAB, iQuAB_L
+use Cholesky, only: iL2G, IndRed, IndRed_G, iQL2G, iQuAB, iQuAB_L, nQual_L
 use Definitions, only: iwp
 
 implicit none

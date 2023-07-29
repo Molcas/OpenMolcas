@@ -15,8 +15,7 @@ subroutine CHO_WRRSTC(IPASS)
 !
 ! NB!!!  The restart files are assumed open on entry.
 
-use ChoArr, only: IntMap
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: InfRed, InfVec, IntMap
 use Definitions, only: wp, iwp
 
 implicit none

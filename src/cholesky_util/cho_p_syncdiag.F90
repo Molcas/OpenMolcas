@@ -15,8 +15,7 @@ subroutine Cho_P_SyncDiag(Diag,iLoc)
 !          and iLoc tells which memory location to use for reduced
 !          set index arrays.
 
-use ChoArr, only: iL2G
-use ChoSwp, only: Diag_G, IndRed
+use Cholesky, only: Diag_G, iL2G, IndRed
 use Definitions, only: wp, iwp
 
 implicit none

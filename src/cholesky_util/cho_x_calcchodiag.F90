@@ -35,8 +35,7 @@
 
 subroutine Cho_X_CalcChoDiag(rc,Diag)
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: IndRed, InfVec, IndRed
+use Cholesky, only: IndRed, InfVec, IndRed, nDimRS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

@@ -23,7 +23,7 @@ subroutine Cho_P_Qualify(Diag,Sync,iShlAB,iSyMax,Mem,Full)
 !          diagonal. The global diagonal is synchronized if
 !          Sync=.True. on entry.
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none

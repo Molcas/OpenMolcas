@@ -13,7 +13,7 @@ subroutine CHO_PRTRED(IOPT)
 !
 ! Purpose: print information about reduced set.
 
-use ChoSwp, only: nnBstRSh
+use Cholesky, only: nnBstRSh
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

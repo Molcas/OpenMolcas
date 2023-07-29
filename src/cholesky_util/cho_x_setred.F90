@@ -23,9 +23,9 @@
 !> - \p nnBstRT(iLoc)      &rarr; stored in cholesky.fh
 !> - \p nnBstR(:,iLoc)     &rarr; stored in cholesky.fh
 !> - \p iiBstR(:,iLoc)     &rarr; stored in cholesky.fh
-!> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via choswp.f90
-!> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via choswp.f90
-!> - \p IndRed(:,iLoc)     &rarr; accesible via choswp.f90
+!> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via Cholesky
+!> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via Cholesky
+!> - \p IndRed(:,iLoc)     &rarr; accesible via Cholesky
 !>
 !> On succesful completion, \p irc = ``0`` is returned.
 !> Note that the only allowed \p iLoc values are ``2`` and ``3``; any other
@@ -42,7 +42,7 @@
 
 subroutine Cho_X_SetRed(irc,iLoc,iRed)
 
-use ChoSwp, only: IndRed
+use Cholesky, only: IndRed
 use Definitions, only: iwp
 
 implicit none

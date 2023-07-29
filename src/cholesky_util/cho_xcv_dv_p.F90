@@ -18,7 +18,7 @@ subroutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP,NVT,l_NVT)
 #ifndef _GA_
 use Para_Info, only: nProcs
 #endif
-use ChoSwp, only: iiBstRSh, nnBstRSh
+use Cholesky, only: iiBstRSh, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 #endif

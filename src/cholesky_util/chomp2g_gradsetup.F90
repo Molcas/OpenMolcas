@@ -22,7 +22,7 @@ subroutine ChoMP2g_GradSetup(irc,CMO)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use ChoMP2g, only: iAdrOff, nMoMo
+use ChoMP2, only: iAdrOff, nMoMo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Half
 use Definitions, only: wp, iwp

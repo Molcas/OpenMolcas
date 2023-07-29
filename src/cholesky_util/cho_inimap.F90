@@ -15,7 +15,7 @@ subroutine CHO_INIMAP()
 !
 ! NB!!!!! file is assumed open (restart only)
 
-use ChoArr, only: IntMap
+use Cholesky, only: IntMap
 use Definitions, only: iwp
 
 implicit none

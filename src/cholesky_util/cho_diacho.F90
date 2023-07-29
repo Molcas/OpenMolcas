@@ -15,7 +15,7 @@ subroutine CHO_DIACHO(DIAG,ISYM,WRK,LWRK)
 !          of symmetry block ISYM of diagonal in red. set 1.
 !          This emulates the actual procedure during decomposition.
 
-use ChoSwp, only: IndRed, InfVec
+use Cholesky, only: IndRed, InfVec
 use Constants, only: One
 use Definitions, only: wp, iwp
 

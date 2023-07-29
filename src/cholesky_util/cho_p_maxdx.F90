@@ -14,7 +14,7 @@ subroutine Cho_P_MaxDX(Diag,Sync,Dmax)
 ! Purpose: get max. diagonal elements in each sym. block,
 !          qualified diagonals excluded.
 
-use ChoSwp, only: Diag_G
+use Cholesky, only: Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
