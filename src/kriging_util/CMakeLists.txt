@@ -24,13 +24,12 @@ set (sources
      hessian_kriging_layer.F90
      kriging_model.F90
      kriging_mod.F90
+     kriging_procedures.F90
      matderiv.F90
      matern.F90
      pgek.F90
      predict.F90
-     set_l_array.F90
      set_l_kriging.F90
-     setup_kriging.F90
      start_kriging.F90
      trans_k.F90
 )

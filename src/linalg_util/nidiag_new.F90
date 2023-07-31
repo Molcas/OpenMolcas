@@ -41,8 +41,8 @@ implicit none
 ! H    - Matrix to be diagonalized                                     *
 ! U    - Eigenvectors                                                  *
 !----------------------------------------------------------------------*
-integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(inout) :: H(*)
+integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *

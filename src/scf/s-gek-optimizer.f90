@@ -32,6 +32,7 @@ use SCF_Arrays, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Four, Six
 use Kriging_mod, only: blAI, mblAI, blaAI, blavAI
+use Kriging_procedures, only: Setup_Kriging
 use Constants, only: Two
 Implicit None
 Integer, Intent(In):: mOV
@@ -74,18 +75,6 @@ Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 Real*8, Allocatable:: Vec(:,:)
 Real*8, Allocatable:: Val(:)
-
-Interface
-
-   Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
-   Use Kriging_mod, only: nSet
-   Integer, Intent(in) :: nRaw, nInter
-   Real*8, Intent(in) :: qInt(nInter,nRaw), Grad(nInter,nRaw,nSet), Energy(nRaw,nSet)
-   Real*8, Intent(inout), Optional:: Hessian_HMF(nInter,nInter), HDiag(nInter)
-   End Subroutine SetUp_Kriging
-
-End Interface
-
 
 Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_

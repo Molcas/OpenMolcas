@@ -10,7 +10,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Do_Lebedev(L_Eff,mPt,R)
 !***********************************************************************
@@ -72,5 +74,3 @@ call Abend()
 !                                                                      *
 
 end subroutine Do_Lebedev
-
-#endif

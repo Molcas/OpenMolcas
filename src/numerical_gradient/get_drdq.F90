@@ -18,8 +18,7 @@ subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
 ! the 'UDC' file.                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: BMx, Degen
-use Slapaf_Parameters, only: iRow_c, Curvilinear
+use Slapaf_Info, only: BMx, Curvilinear, Degen, iRow_c
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

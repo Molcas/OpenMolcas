@@ -625,6 +625,7 @@ c compatibility with the present version: of aniso_i.input file
      &                               esfs_au, U, MM, MS, DM, angmom,
      &                               edmom, amfi, HSO )
 
+      Use Constants, only: Angstrom
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)         :: nss, nstate, multiplicity(nstate)
@@ -641,7 +642,6 @@ c compatibility with the present version: of aniso_i.input file
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "angstr.fh"
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
       Integer                     :: data_file_format
       Integer                     :: i,IsFreeUnit,Lu,Lutmp
@@ -752,7 +752,7 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(40(I0,1x))')  nAtoms
       DO iAt=1,nAtoms
         WRITE(Lu,'(i3,1x,A8,1x,3(ES22.14,1x))')
-     &                    iAt, AtomLbl(iAt), (Angstr*XYZ(l,iAt),l=1,3)
+     &                    iAt, AtomLbl(iAt), (Angstrom*XYZ(l,iAt),l=1,3)
       END DO
       WRITE(Lu,'(        A)')
       !-------------------------------------------------------------

@@ -57,7 +57,7 @@ call Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nAtom,lSlapaf)
 call Get_iScalar('Multiplicity',iMult)
 
 if (lTest) then
-  write(u6,*) ' Calling ThermoChem,  iMult=',iMult
+  write(u6,*) ' Calling ThermoChem_,  iMult=',iMult
   write(u6,*) ' UserP=',UserP,'  nsRot=',nsRot,'  nAtom=',nAtom
   write(u6,*) ' TotalM,TRotA,TRotB,TRotC==',TotalM,TRotA,TRotB,TRotC
   write(u6,'(A,I3,A,256F8.2)') ' nFreq=',nFreq,'  Freq(i)==',EVal(1:nFreq)
