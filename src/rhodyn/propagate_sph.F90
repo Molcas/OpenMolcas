@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2022-2023, Vladislav Kochetov                          *
+!               2023, Thies Romig                                      *
 !***********************************************************************
 
 subroutine propagate_sph()
@@ -20,9 +21,9 @@ subroutine propagate_sph()
 use integrators, only: rk4_sph
 use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime, flag_fdm, flag_pulse, hamiltonian, &
                        hamiltoniant, initialtime, ipglob, ispin, len_sph, list_so_proj, list_so_sf, list_so_spin, list_sf_spin, &
-                       lroots, method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
+                       method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
                        out3_fmt, out_fdmr, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
-                       Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr
+                       Y1, Y2, q_max, mirr
 
 use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices, W3J, &
                         W6J
@@ -127,25 +128,9 @@ do l=1,len_sph
   end do
   end if
 end do
-! prepare averaging
-! call mma_allocate(Y1_av,d,d,1000)
-! call mma_allocate(Y2_av,d,d,1000)
-! do l=1, len_sph
-!  k = k_ranks(l)
-!  do a=1, k_max+1
-!   if (k==a-1)
-!    Y1_av(:,:,a)=Y1_av(:,:,a)+Y1(:,:,l)
-!    Y2_av(:,:,a)=Y2_av(:,:,a)+Y2(:,:,l)
-!   end if
-!  end do
-! end do
-! prepare mask matrix for mirror
+
+! prepare mask matrix for mirroring
 call mma_allocate(mirr,d,d)
-!mirr = cOne
-!do a=1,d
-!mirr(1:lroots(1),1:lroots(1)) = -cOne
-!mirr(lroots(1)+1:d,lroots(1)+1:d) = -cOne
-!end do
 do a=1,d
   sa = nint(2*list_sf_spin(a))
   do b=1,d
@@ -153,21 +138,6 @@ do a=1,d
     mirr(a,b) = (-1)**((sa-sb)/2+1)
   end do
 end do
-! prepare mask matrices
-call mma_allocate(irs1,d,d)
-call mma_allocate(ics1,d,d)
-call mma_allocate(irs2,d,d)
-call mma_allocate(ics2,d,d)
-irs1 = cZero
-ics1 = cZero
-do a=1,d
-  irs1(:,1:lroots(1)) = cOne
-  ics1(1:lroots(1),:) = cOne
-end do
-irs2(:,:) = cOne
-irs2(:,:) = irs2-irs1
-ics2(:,:) = cOne
-ics2(:,:) = ics2-ics1
 
 ! initialize parameters for solution of Liouville equation
 ii = 1 ! counts output of populations
@@ -258,13 +228,7 @@ call mma_deallocate(midk4)
 call mma_deallocate(dgl)
 call mma_deallocate(Y1)
 call mma_deallocate(Y2)
-call mma_deallocate(ics1)
-call mma_deallocate(irs1)
-call mma_deallocate(ics2)
-call mma_deallocate(irs2)
 call mma_deallocate(mirr)
-!call mma_deallocate(Y1_av)
-!call mma_deallocate(Y2_av)
 
 if (flag_pulse) close(lu_pls)
 close(lu_sf)
