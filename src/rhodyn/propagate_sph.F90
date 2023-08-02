@@ -19,17 +19,15 @@ subroutine propagate_sph()
 !***********************************************************************
 
 use integrators, only: rk4_sph
-use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime, flag_fdm, flag_pulse, hamiltonian, &
-                       hamiltoniant, initialtime, ipglob, ispin, len_sph, list_so_proj, list_so_sf, list_so_spin, list_sf_spin, &
-                       method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
-                       out3_fmt, out_fdmr, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
-                       Y1, Y2, q_max, mirr
-
-use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices, W3J, &
-                        W6J
+use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
+                       hamiltoniant, initialtime, ipglob, ispin, k_max, k_ranks, len_sph, list_so_proj, list_so_sf, list_so_spin, &
+                       list_sf_spin, lu_pls, lu_sf, method, midk1, midk2, midk3, midk4, mirr, n, nconftot, Nstate, Nstep, &
+                       Ntime_tmp_dm, Npop, out3_fmt, out_fdmr, out_tfdm, q_max, q_proj, threshold, time_fdm, timestep, tout, v_so, &
+                       v_so_red, Y1, Y2
+use rhodyn_utils, only: check_hermicity, compare_matrices, dashes, print_c_matrix, werdm, werdm_back, werso, werso_back, W3J, W6J
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: cZero, cOne, auToFs, One, Two
+use Constants, only: cZero, auToFs, One
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -22,11 +22,10 @@ subroutine equation_sph(time,rhot,res)
 !  rhot   : density matrix at current time
 !  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
-use rhodyn_data, only: d, hamiltonian, hamiltoniant, ipglob, flag_pulse, k_max, len_sph, k_ranks, q_proj, &
-                       Y1, Y2, q_max, mirr, lroots, threshold, n
-use rhodyn_utils, only: get_kq_order, compare_matrices
-use linalg_mod, only: mult
-use Constants, only: Zero, One, cOne, cZero, Onei
+use rhodyn_data, only: d, flag_pulse, hamiltonian, hamiltoniant, ipglob, k_max, k_ranks, len_sph, lroots, mirr, n, q_max, q_proj, &
+                       Y1, Y2
+use rhodyn_utils, only: get_kq_order
+use Constants, only: cOne, cZero, Onei
 use Definitions, only: wp, iwp, u6
 
 implicit none
