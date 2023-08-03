@@ -38,14 +38,14 @@ def basis_func_id(cnlm,element):
 #
     if l==0:
         func_id='s'
-    if l==1:
+    elif l==1:
         if m==0:
             func_id='pz'
         if m==1:
             func_id='px'
         if m==-1:
             func_id='py'
-    if l==2:
+    elif l==2:
         if m==0:
             func_id='d0'
         if m==1:
@@ -56,7 +56,7 @@ def basis_func_id(cnlm,element):
             func_id='d+2'
         if m==-2:
             func_id='d-2'
-    if l==3:
+    elif l==3:
         if m==0:
             func_id='f0'
         if m==1:
@@ -71,7 +71,7 @@ def basis_func_id(cnlm,element):
             func_id='f+3'
         if m==-3:
             func_id='f-3'
-    if l==4:
+    elif l==4:
         if m==0:
             func_id='g0'
         if m==1:
@@ -90,6 +90,8 @@ def basis_func_id(cnlm,element):
             func_id='g+4'
         if m==-4:
             func_id='g-4'
+    else:
+        func_id='UKN'
     return '{}{}{}{}'.format(list_element[c-1]," ",n+l, func_id)
 # The following order of D, F en G functions is expected:
 # 5D: D 0, D+1, D-1, D+2, D-2

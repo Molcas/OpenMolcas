@@ -45,7 +45,8 @@ is possible through the charge transfer number analysis :cite:`Plasser2012`,
 which has been integrated into |molcas| recently.
 Postprocessing is possible through the external `TheoDORE <https://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
 
-:program:`WFA` supports full use of spatial symmetry and can analyse transitions between different spin multiplicities.
+:program:`WFA` supports full use of spatial symmetry and can analyse transitions between
+different spin multiplicities and particle numbers.
 
 Installation
 ------------
@@ -59,7 +60,7 @@ Use, e.g., the following commands for installation: ::
   FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ..
 
 To obtain the required libraries, you can use on Ubuntu: ::
-    
+
   sudo apt install libhdf5-dev libhdf5-cpp-103
 
 Alternatively, you can link against the dynamic HDF5 libraries distributed
@@ -179,6 +180,8 @@ Basic Keywords:
 
 :kword:`ATLIsts`
   Define the fragments in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style analysis.
+  *Note:* If symmetry is turned on, then |molcas| may reorder the atoms.
+  In this case it is essential to take the order |molcas| produced (seen for example in the Molden files).
 
   The first entry is the number of fragments.
   Then enter the atomic indices of the fragment followed by a \*.
@@ -188,6 +191,11 @@ Basic Keywords:
     2
     1 2 4 *
     3 *
+
+  *Note:* This input can be generated automatically via TheoDORE by suppling a file with
+  coordinates coord.mol and running ::
+
+    theodore theoinp -a coord.mol
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="ATLISTS" APPEAR="Fragment definition" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword:ATLIsts <basic>
