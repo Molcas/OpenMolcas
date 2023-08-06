@@ -21,16 +21,14 @@ integer(kind=iwp) :: nDim, nCol, iCol(nCol), lBuf
 real(kind=wp) :: Col(nDim,nCol), Buf(lBuf)
 integer(kind=iwp) :: i, kOff
 
+#include "macros.fh"
+unused_var(Buf)
+
 do i=1,nCol
   kOff = 1+nDim*(iCol(i)-1)
   call dCopy_(nDim,Mat(kOff),1,Col(1,i),1)
 end do
 
 return
-
-#ifdef _WARNING_WORKAROUND_
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Buf)
-#endif
 
 end subroutine CD_Tester_Col

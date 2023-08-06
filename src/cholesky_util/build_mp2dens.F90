@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
+subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
 
 use Data_Structures, only: V2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -17,7 +17,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
+integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8)
 real(kind=wp), intent(inout) :: TriDens(nTriDens)
 type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
@@ -175,7 +175,5 @@ if (Diagonalize) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nOccAll)
 
 end subroutine Build_Mp2Dens

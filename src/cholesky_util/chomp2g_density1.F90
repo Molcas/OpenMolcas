@@ -46,6 +46,9 @@ integer(kind=iwp), external :: IsFreeUnit
 integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
+#include "macros.fh"
+unused_var(EVir(1))
+
 maxvalue = 200
 
 ! Do not delete vectors
@@ -1410,8 +1413,5 @@ do i=1,lFLagr
   write(u6,*) Wrk(kFLagr(1)+i-1)
 end do
 #endif
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(EVir)
 
 end subroutine ChoMP2g_density1

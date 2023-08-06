@@ -216,17 +216,16 @@ call mma_deallocate(nRSL)
 call mma_deallocate(VecR)
 call mma_deallocate(iVecR)
 #else
+
+#include "macros.fh"
+unused_var(Vec(1))
+unused_var(Jin)
+unused_var(Jfi)
+unused_var(iSym)
+unused_var(iRed)
+unused_var(iPass)
 call Cho_Quit(SecNam//' should never be called in serial installation',103)
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Vec)
-  call Unused_integer(Jin)
-  call Unused_integer(Jfi)
-  call Unused_integer(iSym)
-  call Unused_integer(iRed)
-  call Unused_integer(iPass)
-end if
 #endif
 
 end subroutine Cho_VecTransp

@@ -40,7 +40,7 @@ lWrk = lWrk-lWrk/20
 call mma_allocate(Wrk,lWrk,Label='Wrk')
 !Wrk(:) = Zero
 
-call ChoMP2g_Reord_R(irc,Wrk,lWrk)
+call ChoMP2g_Reord_R(Wrk,lWrk)
 
 call ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 call ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)

@@ -215,16 +215,16 @@ end do
 call mma_deallocate(GANUMV)
 call mma_deallocate(GAMNCH)
 #else
+
+#include "macros.fh"
+unused_var(SP_BatchDim)
+unused_var(id_mySP)
+unused_var(NVT)
+
 irc = 999 ! should never be called in serial installation
 
 return
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(SP_BatchDim)
-  call Unused_integer_array(id_mySP)
-  call Unused_integer_array(NVT)
-end if
 #endif
 
 end subroutine Cho_XCV_DV_P

@@ -99,7 +99,7 @@ else if ((K_Lap < 0) .or. (K_Lap > 20)) then
 end if
 
 ! ===== Set initial values =====
-!       InitR : initial R
+! InitR : initial R
 
 EMinIv = One/EMin
 R = EMax*EMinIv
@@ -129,7 +129,7 @@ write(IW,'(4X,A,2X,F14.8)') 'Max =',EMax
 write(IW,'(4X,A,F16.8)') 'R   =',R
 
 ! ===== Check the R value =====
-!   R <= RMin(K_Lap) or R > RMax(K_Lap)
+! R <= RMin(K_Lap) or R > RMax(K_Lap)
 
 if (R <= RMin(K_Lap)) then
   SkpRem = .true.
@@ -156,7 +156,7 @@ else
 
   ! ===== Set initial values (Omega,Alpha,T) =====
 
-  call SetExp(K_Lap,InitR,R,RIni,Coeff,T)
+  call SetExp(K_Lap,InitR,RIni,Coeff,T)
 
   if (Dbg) then
     write(IW,'(/A/)') 'Initial data for Remez algorithm'
@@ -255,7 +255,7 @@ else
 end if
 if (Change .or. SkpRem) then
   write(IW,'(1X,A)') 'Change!!'
-  call SetExp(K_Lap,InitR,R,RIni,Coeff,T)
+  call SetExp(K_Lap,InitR,RIni,Coeff,T)
 end if
 
 ! ===== Determine Xi =====
@@ -281,7 +281,7 @@ do I=1,I_Dim
 end do
 write(IW,'()')
 
-! ===== Maltiple the scaling parameter (EMinIv = 1/EMin) =====
+! ===== Multiply the scaling parameter (EMinIv = 1/EMin) =====
 
 call DSCAL_(I_Dim,EMinIv,Coeff,1)
 write(IW,'(/A/)') ' Final solution '

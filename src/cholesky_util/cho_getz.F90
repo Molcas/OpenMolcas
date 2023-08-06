@@ -66,6 +66,11 @@ end interface
 !***********************************************************************
 !                                                                      *
 
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(NVT)
+#endif
+
 ! Set return code.
 ! ----------------
 
@@ -284,14 +289,6 @@ end if
 ! Check diagonal elements
 call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV12,ip_Z,l_Z1,l_Z2,Z,l_Z,iPrint >= myDebugInfo)
 if (irc /= 0) return ! return
-#endif
-
-! Exit. If error termination.
-! ---------------------------
-
-#ifndef _DEBUGPRINT_
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(NVT)
 #endif
 
 end subroutine Cho_GetZ

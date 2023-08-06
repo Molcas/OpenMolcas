@@ -26,9 +26,7 @@ implicit none
 #include "macros.fh"
 unused_var(iBas)
 unused_var(kBas)
-unused_var(IJeqKL)
 unused_var(iSOSym)
-unused_var(nSkal)
 
 if (mSym == 1) then
   call PLF_RI_2(AOInt,ijkl,iCmp(2),iCmp(4),iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,SO2Ind,iOffA,nSOs)

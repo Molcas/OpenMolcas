@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PLF_Cho_2(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+subroutine PLF_Cho_2(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -34,13 +34,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "print.fh"
-integer(kind=iwp) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
+integer(kind=iwp) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp) :: TInt(lInt), AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i2, i3, i4, IAB, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, &
                      ICD, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jprint, jSO, jSOj, kSO, kSOk, &
                      lSO, lSOl, nijkl, NTELM, NUMA, NUMB, NUMC, NUMD
 real(kind=wp) :: r1, r2
-logical(kind=iwp) :: Shijij
 real(kind=wp), external :: ddot_
 ! Statement function
 integer(kind=iwp) :: iTri, i, j
@@ -215,10 +214,5 @@ do i1=1,iCmp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iShell)
-  call Unused_logical(Shijij)
-end if
 
 end subroutine PLF_Cho_2

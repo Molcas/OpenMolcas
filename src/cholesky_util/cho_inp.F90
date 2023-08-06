@@ -722,8 +722,8 @@ call PUT_THR_CHO(THRCOM)
 
 return
 
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_character(Line)
-#endif
+! "Line" is unused, but the function it comes from (Get_Ln) has side effects
+#include "macros.fh"
+unused_var(Line)
 
 end subroutine CHO_INP

@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine IndSft_Cho_2(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,iSOSym,nSOs)
+subroutine IndSft_Cho_2(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
@@ -33,7 +33,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs)
+integer(kind=iwp) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint
 real(kind=wp) :: TInt(lInt), SOint(ijkl,nSOint)
 logical(kind=iwp) :: Shijij
 #include "print.fh"
@@ -322,7 +322,5 @@ do i1=1,iCmp(1)
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iSOSym)
 
 end subroutine IndSft_Cho_2

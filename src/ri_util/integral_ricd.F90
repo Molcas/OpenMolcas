@@ -23,11 +23,9 @@ implicit none
 #include "macros.fh"
 unused_var(iShell)
 unused_var(Shijij)
-unused_var(IJeqKL)
 unused_var(SOInt(1))
 unused_var(nSOint)
 unused_var(iSOSym)
-unused_var(nSkal)
 
 if (mSym == 1) then
   ! note that iTOffs is being abused for something else

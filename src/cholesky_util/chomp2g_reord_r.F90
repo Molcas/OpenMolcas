@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
 
-subroutine ChoMP2g_Reord_R(irc,Wrk,lWrk)
+subroutine ChoMP2g_Reord_R(Wrk,lWrk)
 !
 ! Jonas Bostrom, Apr 2010
 !
@@ -23,7 +23,7 @@ use ChoMP2, only: AdrR1, AdrR2, iT1am, lUnit_F, LuRInv, nMoMo, nMP2Vec, nOcc, nV
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, lWrk
+integer(kind=iwp) :: lWrk
 real(kind=wp) :: Wrk(lWrk)
 integer(kind=iwp) :: iA, iAdr, iAdr1, iAdr2, iBat, iClos, iI, ioffset1, iOffset2, iOpt, iSeed, iSym, iSymA, iSymI, iTypR, iVec, &
                      iVec1, iVecOV, kEndRia1, kRia1, kRia2, lRia, lTot, maxvalue, nBatR, NumVec, nVec
@@ -172,8 +172,5 @@ end do !iSym
 
 call DaClos(LuRInv(1))
 call DaClos(LuRInv(2))
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(irc)
 
 end subroutine ChoMP2g_Reord_R

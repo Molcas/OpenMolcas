@@ -12,7 +12,7 @@
 !               2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine SetExp(K,InitR,R,RIni,Coeff,T)
+subroutine SetExp(K,InitR,RIni,Coeff,T)
 !======================================================================*
 !----------------------------------------------------------------------*
 !
@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), parameter :: KMAX = 20, KMAX2 = 2*KMAX
 integer(kind=iwp) :: K, InitR
-real(kind=wp) :: R, RIni, Coeff(KMAX2), T(KMAX2)
+real(kind=wp) :: RIni, Coeff(KMAX2), T(KMAX2)
 integer(kind=iwp) :: I, I_Dim
 real(kind=wp) :: Alpha(KMAX), Omega(KMAX), Xi(KMAX2)
 logical(kind=iwp) :: Dbg
@@ -26361,7 +26361,5 @@ call DCOPY_(K,Alpha,1,Coeff(2),2)
 call DCOPY_(I_Dim,Xi,1,T,1)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(R)
 
 end subroutine SetExp

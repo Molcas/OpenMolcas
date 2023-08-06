@@ -22,18 +22,17 @@ use Definitions, only: wp, iwp
 implicit none
 #include "int_wrout_interface.fh"
 
+#include "macros.fh"
+unused_var(iSOSym)
+
 ! call sorting routine
 
 if (mSym == 1) then
-  call PLF_Cho_Diag(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas, &
-                    lBas,kOp)
+  call PLF_Cho_Diag(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 else
-  call IndSft_Cho_Diag(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
+  call IndSft_Cho_Diag(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint)
 end if
 
 return
-if (.false.) then
-  call Unused_integer(nSkal)
-end if
 
 end subroutine Integral_WrOut_Cho_diag

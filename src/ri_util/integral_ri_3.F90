@@ -26,8 +26,8 @@ implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
+unused_var(Shijij)
 unused_var(iSOSym)
-unused_var(nSkal)
 
 !                                                                      *
 !***********************************************************************
@@ -37,13 +37,13 @@ if (LDF) then
   !*********************************************************************
   !                                                                    *
   if (mSym == 1) then
-    call PLF_LDF_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas,kOp,TInt, &
-                   nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO,nSkal_Valence,mSym,iSSOff(0,0,klS))
+    call PLF_LDF_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,iTOffs,ShlSO, &
+                   nBasSh,SOShl,nSO,nSkal_Valence,mSym,iSSOff(0,0,klS))
   else
     call WarningMessage(2,'Not implemented yet!')
     call Abend()
-    !call IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,iTOffs,ShlSO, &
-    !                 nBasSh,SOShl,nSO,nSkal_Valence,mSym,iSSOff(:,:,klS))
+    !call IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOInt,nSOint,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
+    !                 nSkal_Valence,mSym,iSSOff(:,:,klS))
   end if
   !                                                                    *
   !*********************************************************************

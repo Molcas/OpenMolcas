@@ -19,7 +19,7 @@ subroutine ChoMP2g_Density3(irc,CMO)
 !***********************************************************************
 
 use Cholesky, only: nSym
-use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e, nDel, nFro, nOcc, nOrb
+use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e, nDel, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -27,16 +27,16 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: CMO(*)
-integer(kind=iwp) :: i, iSym, j, lTriDens, nOccAll(8), nOrbAll(8)
+integer(kind=iwp) :: i, iSym, j, lTriDens, nOrbAll(8)
 real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
+  subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
     use Data_Structures, only: V2
     import :: wp, iwp
-    integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8), nOccAll(8)
+    integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8)
     real(kind=wp), intent(inout) :: TriDens(nTriDens)
     type(V2), intent(in) :: MP2X_e(8)
     real(kind=wp), intent(in) :: CMO(*)
@@ -50,7 +50,6 @@ end interface
 irc = 0
 
 do iSym=1,8
-  nOccAll(iSym) = nOcc(iSym)+nFro(iSym)
   nOrbAll(iSym) = nOrb(iSym)+nDel(iSym)
 end do
 
@@ -78,8 +77,8 @@ call mma_allocate(WAOTriDens,lTriDens,Label='WAOTriDens')
 AOTriDens(:) = Zero
 WAOTriDens(:) = Zero
 
-call Build_Mp2Dens(AOTriDens,lTriDens,MP2D_e,CMO,nSym,nOrbAll,nOccAll,.true.)
-call Build_Mp2Dens(WAOTriDens,lTriDens,MP2W_e,CMO,nSym,nOrbAll,nOccAll,.false.)
+call Build_Mp2Dens(AOTriDens,lTriDens,MP2D_e,CMO,nSym,nOrbAll,.true.)
+call Build_Mp2Dens(WAOTriDens,lTriDens,MP2W_e,CMO,nSym,nOrbAll,.false.)
 
 call Put_dArray('D1aoVar',AOTriDens,lTriDens)
 call Put_dArray('FockOcc',WAOTriDens,lTriDens)
