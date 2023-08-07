@@ -43,12 +43,19 @@ contains
     call mma_allocate(spin_correlations, size(iroot))
     spin_correlations(:) = 0.0_wp
 
+    ! the following disk pointer logic is neccessary, because a user may
+    ! optimise less roots than included in the Davidson matrix, e.g.
+    ! roots (1, 2, 5, 8, 10). In &RASSCF RDMs for all Lroots
+    ! will be computed, hence the memory reference here needs to be
+    ! incremented accordingly to compute the SSCR for the correct roots.
+
     write(u6,'(a)') new_line('a')
     do i = 1, LRoots
       disk_pointer_moved = .False.
       do j = 1, size(iroot)
         if (iroot(j) == i) then
           call rdm_from_runfile(dmat, dspn, psmat, pamat, jDisk)
+          disk_pointer_moved = .true.
           spin_correlations(j) = correlation_func(orb_range_p, orb_range_q, &
                                                   dmat, psmat, pamat)
           write(u6,'(a,i2,a,f12.8)') '::    RASSCF root number ', iroot(j), &
