@@ -13,6 +13,8 @@ subroutine CHO_MCA_INT_1_DBG2()
 !
 ! Purpose: test symmetry of integral matrix.
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: IFCSew, iSP2F, LuPri, Mx2Sh, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -28,10 +30,6 @@ real(kind=wp), parameter :: THR = 1.0e-14_wp
 logical(kind=iwp), parameter :: PRTINT = .false.
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1_DBG2'
 integer(kind=iwp), external :: CHO_ISAOSH
-! Statement functions
-integer(kind=iwp) :: MULD2H, ITRI, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
-ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
 write(LUPRI,*)
 write(LUPRI,*)
@@ -105,7 +103,7 @@ do ISHLAB=1,NNSHL
         ISYMB = CHO_ISAOSH(IB,ISHLB)
         do IA=1,NBSTSH(ISHLA)
           ISYMA = CHO_ISAOSH(IA,ISHLA)
-          ISYMAB = MULD2H(ISYMA,ISYMB)
+          ISYMAB = MUL(ISYMA,ISYMB)
           if (ISHLB == ISHLA) then
             IAB = ITRI(IA,IB)
           else
@@ -115,7 +113,7 @@ do ISHLAB=1,NNSHL
             ISYMD = CHO_ISAOSH(ID,ISHLD)
             do IC=1,NBSTSH(ISHLC)
               ISYMC = CHO_ISAOSH(IC,ISHLC)
-              ISYMCD = MULD2H(ISYMC,ISYMD)
+              ISYMCD = MUL(ISYMC,ISYMD)
               if (ISHLC == ISHLD) then
                 ICD = ITRI(IC,ID)
               else
@@ -126,7 +124,7 @@ do ISHLAB=1,NNSHL
               if ((TST > Zero) .and. (ISYMCD /= ISYMAB)) then
                 write(LUPRI,*) 'Symmetry break!!'
                 write(LUPRI,*) 'element ',ICD,IAB,' is non-zero: ',pINT1(IABCD)
-                write(LUPRI,*) 'Symmetry is: ',MULD2H(ISYMCD,ISYMAB)
+                write(LUPRI,*) 'Symmetry is: ',MUL(ISYMCD,ISYMAB)
               end if
             end do
           end do

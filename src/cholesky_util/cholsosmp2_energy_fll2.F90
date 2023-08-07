@@ -20,6 +20,7 @@ subroutine ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! ordering as the sorted algorithm and thus reads through the
 ! vector files once for each grid point.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: DecoMP2, iOcc, iT1am, iVir, Laplace_BlockSize, Laplace_nGridPoints, lUNit_F, nMP2Vec, nOcc, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -40,12 +41,6 @@ character(len=2) :: Unt
 real(kind=wp), allocatable :: V(:), X(:)
 character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll2'
 real(kind=wp), external :: dDot_
-! Statement functions
-real(kind=wp) :: epsi, epsa
-integer(kind=iwp) :: MulD2h, j, k
-epsi(j,k) = EOcc(iOcc(k)+j)
-epsa(j,k) = EVir(iVir(k)+j)
-MulD2h(j,k) = ieor(j-1,k-1)+1
 
 ! init return code
 irc = 0
@@ -140,13 +135,13 @@ do q=1,N
         ip0 = Nai*(iVec-1)
         do iSymi=1,nSym
           if (nOcc(iSymi) > 0) then
-            iSyma = MulD2h(iSym,iSymi)
+            iSyma = Mul(iSym,iSymi)
             ip1 = ip0+iT1am(iSyma,iSymi)
             do i=1,nOcc(iSymi)
-              call dScal_(nVir(iSyma),exp(epsi(i,iSymi)*tq),V(ip1+nVir(iSyma)*(i-1)+1),1)
+              call dScal_(nVir(iSyma),exp(EOcc(iOcc(iSymi)+i)*tq),V(ip1+nVir(iSyma)*(i-1)+1),1)
             end do
             do a=1,nVir(iSyma)
-              call dScal_(nOcc(iSymi),exp(-epsa(a,iSyma)*tq),V(ip1+a),nVir(iSyma))
+              call dScal_(nOcc(iSymi),exp(-EVir(iVir(iSyma)+a)*tq),V(ip1+a),nVir(iSyma))
             end do
           end if
         end do

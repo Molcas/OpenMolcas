@@ -17,6 +17,7 @@ subroutine ChoMP2g_TraVec(VecAO,VecMO,COrb1,COrb2,Scr,lScr,iSyCho,iSyCO,iSyCV,iL
 !
 ! Purpose: compute pq-vector from reduced set AO vector.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
 use ChoMP2, only: iAoMo, iMoAo, iMoMo, nMo, nMoAo, nMoType
 use Constants, only: Zero, One, Half
@@ -25,14 +26,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc, iMoType1, iMoType2
 real(kind=wp) :: VecAO(*), VecMO(*), COrb1(*), COrb2(*), Scr(lScr)
-integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
+integer(kind=iwp) :: i, iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
                      kOff2, kOff3, kOffAl, kOffBe, nTotAl, nTotp, nTotq
 real(kind=wp) :: AOVal
 real(kind=wp), parameter :: Fac(0:1) = [Half,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_TraVec'
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 ! Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
 iVecType = iMoType2+(iMoType1-1)*nMoType
@@ -41,7 +39,7 @@ if ((iLoc < 2) .or. (iLoc > 3)) then
   write(u6,*) SecNam,': illegal iLoc = ',iLoc
   call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
 end if
-iSyScr = MulD2h(iSyCho,iSyCO)
+iSyScr = Mul(iSyCho,iSyCO)
 if (lScr < nMoAo(iSyScr,iMoType1)) then
   write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
   write(u6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
@@ -70,7 +68,7 @@ if (iSyCho == 1) then
       end if
     end do
     iSymBe = iSymAl
-    iSymP = MulD2h(iSymBe,iSyCO)
+    iSymP = Mul(iSymBe,iSyCO)
 
     jAlpha = iAlpha-iBas(iSymAl)
     jBeta = iBeta-iBas(iSymBe)
@@ -100,21 +98,21 @@ else
         exit
       end if
     end do
-    iSymBe = MulD2h(iSymAl,iSyCho)
+    iSymBe = Mul(iSymAl,iSyCho)
 
     jAlpha = iAlpha-iBas(iSymAl)
     jBeta = iBeta-iBas(iSymBe)
 
     AOVal = VecAO(iAlBe)
 
-    iSymP = MulD2h(iSymBe,iSyCO)
+    iSymP = Mul(iSymBe,iSyCO)
     kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
     kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
     do i=1,nMo(iSymP,iMoType1)
       Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COrb1(kOffBe+i)
     end do
 
-    iSymP = MulD2h(iSymAl,iSyCO)
+    iSymP = Mul(iSymAl,iSyCO)
     kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
     kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
     do i=1,nMo(iSymP,iMoType1)
@@ -131,8 +129,8 @@ end if
 
 do iSymp=1,nSym
 
-  iSymq = MulD2h(iSymp,iSyCho)
-  iSymAl = MulD2h(iSymq,iSyCV)
+  iSymq = Mul(iSymp,iSyCho)
+  iSymAl = Mul(iSymq,iSyCV)
 
   nTotAl = nBas(iSymAl)
   nTotq = nMo(iSymq,iMoType2)

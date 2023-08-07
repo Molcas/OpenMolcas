@@ -33,6 +33,7 @@ subroutine ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
 !
 !    D(J) = X(J) - Y(J)
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use ChoMP2, only: iAOVir, iOcc, iT1am, iT1AOT, iVir, lUnit_F, nMP2Vec, nOcc, nOccT, nT1am, nVir, nVirT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -47,9 +48,6 @@ integer(kind=iwp) :: a, Al, AlBe, i, iAdr, iOpt, iSym, iSyma, iSymAl, iSymBe, iS
 real(kind=wp) :: AbsMaxErr, AbsMinErr, AvgErr, Err(4,8), RMSErr
 real(kind=wp), allocatable :: POcc(:), PVir(:), Q(:), X(:), Y(:), D(:), V(:)
 real(kind=wp), external :: ddot_
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Initializations.
 ! ----------------
@@ -127,7 +125,7 @@ do iSym=1,nSym
 
     nAlBe = 0
     do iSymBe=1,nSym
-      iSymAl = MulD2h(iSymBe,iSym)
+      iSymAl = Mul(iSymBe,iSym)
       nAlBe = nAlBe+nBas(iSymAl)*nBas(iSymBe)
     end do
 
@@ -153,7 +151,7 @@ do iSym=1,nSym
       iAdr = nT1Am(iSym)*(J-1)+1
       call ddaFile(lUnit_F(iSym,iTyp),iOpt,V,lTot,iAdr)
       do iSymi=1,nSym
-        iSyma = MulD2h(iSymi,iSym)
+        iSyma = Mul(iSymi,iSym)
         na = max(nVir(iSyma),1)
         call dGeMV_('T',nVir(iSyma),nOcc(iSymi),One,V(1+iT1Am(iSyma,iSymi)),na,PVir(1+iVir(iSyma)),1,Zero,Q,1)
         Y(J) = Y(J)+dDot_(nOcc(iSymi),Q,1,POcc(1+iOcc(iSymi)),1)

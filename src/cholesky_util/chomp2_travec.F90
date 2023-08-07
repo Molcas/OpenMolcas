@@ -17,6 +17,7 @@ subroutine ChoMP2_TraVec(VecAO,VecMO,COcc,CVir,Scr,lScr,iSyCho,iSyCO,iSyCV,iLoc)
 !
 ! Purpose: compute ai-vector from reduced set AO vector.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
 use ChoMp2, only: iAOVir, iT1am, iT1AOT, nOcc, nT1AOT, nVir
 use Constants, only: Zero, One, Half
@@ -25,20 +26,17 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
 real(kind=wp) :: VecAO(*), VecMO(*), COcc(*), CVir(*), Scr(lScr)
-integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, kOff3, &
-                     kOffAl, kOffBe, nTota, nTotAl, nToti
+integer(kind=iwp) :: i, iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, &
+                     kOff3, kOffAl, kOffBe, nTota, nTotAl, nToti
 real(kind=wp) :: AOVal
 real(kind=wp), parameter :: Fac(0:1) = [Half,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_TraVec'
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if ((iLoc < 2) .or. (iLoc > 3)) then
   write(u6,*) SecNam,': illegal iLoc = ',iLoc
   call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
 end if
-iSyScr = MulD2h(iSyCho,iSyCO)
+iSyScr = Mul(iSyCho,iSyCO)
 if (lScr < nT1AOT(iSyScr)) then
   write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
   write(u6,*) SecNam,': needed                          = ',nT1AOT(iSyScr)
@@ -67,7 +65,7 @@ if (iSyCho == 1) then
       end if
     end do
     iSymBe = iSymAl
-    iSymi = MulD2h(iSymBe,iSyCO)
+    iSymi = Mul(iSymBe,iSyCO)
 
     jAlpha = iAlpha-iBas(iSymAl)
     jBeta = iBeta-iBas(iSymBe)
@@ -97,21 +95,21 @@ else
         exit
       end if
     end do
-    iSymBe = MulD2h(iSymAl,iSyCho)
+    iSymBe = Mul(iSymAl,iSyCho)
 
     jAlpha = iAlpha-iBas(iSymAl)
     jBeta = iBeta-iBas(iSymBe)
 
     AOVal = VecAO(iAlBe)
 
-    iSymi = MulD2h(iSymBe,iSyCO)
+    iSymi = Mul(iSymBe,iSyCO)
     kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
     kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
     do i=1,nOcc(iSymi)
       Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COcc(kOffBe+i)
     end do
 
-    iSymi = MulD2h(iSymAl,iSyCO)
+    iSymi = Mul(iSymAl,iSyCO)
     kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
     kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
     do i=1,nOcc(iSymi)
@@ -128,8 +126,8 @@ end if
 
 do iSymi=1,nSym
 
-  iSyma = MulD2h(iSymi,iSyCho)
-  iSymAl = MulD2h(iSyma,iSyCV)
+  iSyma = Mul(iSymi,iSyCho)
+  iSymAl = Mul(iSyma,iSyCV)
 
   nTotAl = nBas(iSymAl)
   nTota = nVir(iSyma)

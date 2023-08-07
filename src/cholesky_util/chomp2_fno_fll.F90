@@ -15,6 +15,8 @@ subroutine ChoMP2_fno_Fll(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
 !
 !  F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: ChoAlg, DecoMP2, DeMP2, iOcc, iMatab, iT1am, iVir, LiMatij, lUnit_F, MP2_small, nBatch, nMP2Vec, nMatab, nOcc, &
                   nT1am, nVir, shf
@@ -25,16 +27,12 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: P_ab(*), P_ii(*),  EOcc(*), EVir(*), Wrk(lWrk)
-integer(kind=iwp) :: iAdr, iBat, iClos, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iTyp, iVaJi(8), iVec, iVec0, iVec1, ja, &
-                     jb, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, kXaibj, &
+integer(kind=iwp) :: i, iAdr, iBat, iClos, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iTyp, iVaJi(8), iVec, iVec0, iVec1, j, &
+                     ja, jb, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, kXaibj, &
                      LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec
 real(kind=wp) :: Dnom, xsDnom
 character(len=*), parameter :: SecNam = 'ChoMP2_fno_Fll'
 real(kind=wp), external :: ddot_
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (nBatch /= 1) then
   irc = -1
@@ -136,7 +134,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 
         nVaJi = 0
         do iSymi=1,nSym
-          iSyma = MulD2h(iSymi,iSym)
+          iSyma = Mul(iSymi,iSym)
           iVaJi(iSymi) = nVaJi
           nVaJi = nVaJi+nVir(iSyma)*NumVec*nOcc(iSymi)
         end do
@@ -161,7 +159,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
           call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
           do iSymi=1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             do i=1,nOcc(iSymi)
               kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
               kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -176,7 +174,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 
         do iSymj=1,nSym
 
-          iSymb = MulD2h(iSymj,iSym)
+          iSymb = Mul(iSymj,iSym)
 
           if (nVir(iSymb) > 0) then
 
@@ -213,7 +211,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 
       do iSymj=1,nSym
 
-        iSymb = MulD2h(iSymj,iSym)
+        iSymb = Mul(iSymj,iSym)
 
         if (nVir(iSymb) > 0) then
 
@@ -296,7 +294,7 @@ else if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
         nVaJi = 0
         do iSymi=1,nSym
-          iSyma = MulD2h(iSymi,iSym)
+          iSyma = Mul(iSymi,iSym)
           iVaJi(iSymi) = nVaJi
           nVaJi = nVaJi+nVir(iSyma)*NumVec*nOcc(iSymi)
         end do
@@ -321,7 +319,7 @@ else if (ChoAlg == 2) then ! level 3 BLAS algorithm
           call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
           do iSymi=1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             do i=1,nOcc(iSymi)
               kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
               kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -336,7 +334,7 @@ else if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
         do iSymj=1,nSym
 
-          iSymb = MulD2h(iSymj,iSym)
+          iSymb = Mul(iSymj,iSym)
 
           if (nVir(iSymb) > 0) then
 
@@ -370,7 +368,7 @@ else if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
       do iSymj=1,nSym
 
-        iSymb = MulD2h(iSymj,iSym)
+        iSymb = Mul(iSymj,iSym)
 
         if (nVir(iSymb) > 0) then
 

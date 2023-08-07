@@ -22,6 +22,7 @@ subroutine CHO_MCA_DBGINT_A()
 !       3) full integral symmetry not used
 !          (only partial particle permutation symmetry)
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: IFCSEW, iSP2F, LuPri, MX2SH, NBAS, nBstSh, nCol_chk, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -33,9 +34,6 @@ integer(kind=iwp) :: ISAB1, ISAB2, ISCD1, ISCD2, ISHLA, ISHLAB, ISHLB, ISHLC, IS
 real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
 real(kind=wp), allocatable :: Int1(:), Wrk(:)
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DBGINT_A'
-! Statement function
-integer(kind=iwp) :: MULD2H, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
 
 ! Force computation of full shell quadruple.
 ! ------------------------------------------
@@ -182,7 +180,7 @@ XNINT = Zero
 do ISYM=1,NSYM
   XXLBST = Zero
   do ISYMB=1,NSYM
-    ISYMA = MULD2H(ISYMB,ISYM)
+    ISYMA = MUL(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
       XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then

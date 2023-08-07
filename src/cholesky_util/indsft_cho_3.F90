@@ -26,6 +26,7 @@ subroutine IndSft_Cho_3(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAO
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO, iOffSO
 use Cholesky, only: iOff_col, iShlSO, iShP2Q, iShP2RS, iSOShl, LuPri, nBstSh, nDim_Batch, ShA, ShAB, ShB, ShC, ShCD, ShD
 use sort_data, only: nSkip
@@ -38,15 +39,12 @@ real(kind=wp) :: TInt(lInt), SOint(ijkl,nSOint)
 logical(kind=iwp) :: Shijij
 #include "print.fh"
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i12, i2, i3, i34, i4, IAB, ICD, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, &
-                     ISHLK, ISHLL, iSO, iSOi, iSym(0:7), ISYM_AB, ISYM_CD, ISYM_RS, ix, j1, j12, j2, j2max, j3, j4, jCmpMx, &
+                     ISHLK, ISHLL, iSO, iSOi, iSym(0:7), ISYM_AB, ISYM_CD, ISYM_RS, ix, j, j1, j12, j2, j2max, j3, j4, jCmpMx, &
                      jprint, jSO, jSOj, jSym(0:7), k12, k34, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, nijkl, &
                      NTELM, NUMA, NUMB, NUMC, NUMD
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl
 real(kind=wp), external :: ddot_
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irout = 39
 jprint = nprint(irout)

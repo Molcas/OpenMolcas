@@ -53,11 +53,6 @@ logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: BkmScr(:)
 logical(kind=iwp), parameter :: DebugPrint = .false.
 character(len=*), parameter :: SecNam = 'Cho_X_Bookmark'
-! Statement functions
-integer(kind=iwp) :: nV, i, j
-real(kind=wp) :: del
-nV(i,j) = BkmVec(i,j)
-del(i,j) = BkmThr(i,j)
 
 ! Set return code.
 ! ----------------
@@ -87,7 +82,7 @@ if (DebugPrint) then
   call Cho_Head(SecNam//': Bookmarks (nVec,delta)','-',80,u6)
   do iSym=1,nSym
     write(u6,'(A,I2,A)') 'Symmetry block',iSym,' Bookmarks (nVec,delta)'
-    write(u6,'(5(1X,A,I6,A,D15.8,A))') ('(',nV(iRS,iSym),',',del(iRS,iSym),')',iRS=1,nRow_BkmThr)
+    write(u6,'(5(1X,A,I6,A,D15.8,A))') ('(',BkmVec(iRS,iSym),',',BkmThr(iRS,iSym),')',iRS=1,nRow_BkmThr)
   end do
 end if
 
@@ -99,13 +94,13 @@ do iSym=1,mSym
   Found = .false.
   do while ((iRS < nRow_BkmThr) .and. (.not. Found))
     iRS = iRS+1
-    Found = del(iRS,iSym) <= Thr
+    Found = BkmThr(iRS,iSym) <= Thr
   end do
   if (.not. Found) then
     call Cho_Quit('Bug detected in '//SecNam,104)
   else
-    nVec(iSym) = nV(iRS,iSym)
-    delta(iSym) = del(iRS,iSym)
+    nVec(iSym) = BkmVec(iRS,iSym)
+    delta(iSym) = BkmThr(iRS,iSym)
   end if
 end do
 

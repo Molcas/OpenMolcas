@@ -20,6 +20,7 @@ subroutine CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
 ! IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 ! record bookmarks during Cholesky decomposition.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: BkmThr, BkmVec, CHKONLY, CHO_1CENTER, CHO_DECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_SScreen, DIAMNZ, &
                     DID_DECDRV, IABMNZ, iAtomShl, iBas, iBasSh, ICHKQ, iiBstRSh, iiBstRSh_Hidden, INF_INIT, InfRed, InfRed_Hidden, &
                     InfVec, InfVec_Hidden, INFVEC_N2, IntMap, IPRINT, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, LuPri, MaxQual, MaxRed, &
@@ -33,13 +34,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: SKIP_PRESCREEN, ALLOCATE_BOOKMARKS
-integer(kind=iwp) :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
+integer(kind=iwp) :: I, IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
 real(kind=wp) :: XA, XB, XXB(8), XXBMx, XXBT
 real(kind=wp), parameter :: GBLIM = 2.147483648e9_wp
 character(len=*), parameter :: LINE = '=', SECNAM = 'CHO_INIT', STRING = 'Information from '
-! Statement function
-integer(kind=iwp) :: I, J, MulD2h
-MULD2H(I,J) = ieor(I-1,J-1)+1
 
 ! Check settings for parallel runs.
 ! Return code: 3 will cause verification to accept this as a passed
@@ -133,7 +131,7 @@ if ((MAXRED < 1) .or. (MAXVEC < 1)) then
   do ISYM=1,NSYM
     XXB(ISYM) = Zero
     do ISYMB=1,NSYM
-      ISYMA = MULD2H(ISYMB,ISYM)
+      ISYMA = MUL(ISYMB,ISYM)
       if (ISYMA == ISYMB) then
         XA = real(NBAS(ISYMA),kind=wp)
         XXB(ISYM) = XXB(ISYM)+XA*(XA+One)*Half

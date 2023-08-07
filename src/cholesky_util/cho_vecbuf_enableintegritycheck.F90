@@ -51,11 +51,11 @@ end if
 ! Allocate and store norm and sum of each vector in the buffer
 l_ChVBfI = 0
 do iSym=1,nSym
-  l_ChVBfI_Sym(iSym) = 2*nVec_in_Buf(iSym)
+  l_ChVBfI_Sym(iSym) = nVec_in_Buf(iSym)
   l_ChVBfI = l_ChVBfI+l_ChVBfI_Sym(iSym)
 end do
 if (l_ChVBfI > 0) then
-  call mma_allocate(CHVBFI,l_ChVBfI,Label='CHVBFI')
+  call mma_allocate(CHVBFI,2,l_ChVBfI,Label='CHVBFI')
   ip = 1
   do iSym=1,nSym
     ip_ChVBfI_Sym(iSym) = ip
@@ -66,10 +66,10 @@ if (l_ChVBfI > 0) then
     ip = ip_ChvBfI_Sym(iSym)
     do jVec=1,nVec_in_Buf(iSym)
       jRed = InfVec(jVec,2,iSym)
-      CHVBFI(ip) = sqrt(dDot_(nDimRS(iSym,jRed),CHVBUF(ipV),1,CHVBUF(ipV),1))
-      CHVBFI(ip+1) = Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
+      CHVBFI(1,ip) = sqrt(dDot_(nDimRS(iSym,jRed),CHVBUF(ipV),1,CHVBUF(ipV),1))
+      CHVBFI(2,ip) = Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
       ipV = ipV+nDimRS(iSym,jRed)
-      ip = ip+2
+      ip = ip+1
     end do
   end do
   if (iPrint > 2) call Cho_VecBuf_PrtRef('@NABLE')

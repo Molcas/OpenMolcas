@@ -13,6 +13,7 @@ subroutine CHO_OPFVEC(ISYM,IOPT)
 !
 ! Purpose: open/close files for full storage vectors, sym. ISYM.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: LUFV, nSym, REONAM
 use Definitions, only: iwp
 
@@ -21,9 +22,6 @@ integer(kind=iwp) :: ISYM, IOPT
 integer(kind=iwp) :: ISYMA, ISYMB, LUNIT
 character(len=6) :: FNAME
 character(len=*), parameter :: SECNAM = 'CHO_OPFVEC'
-! Statement function
-integer(kind=iwp) :: MULD2H, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
 
 if (IOPT == 0) then
   do ISYMA=1,NSYM
@@ -34,7 +32,7 @@ if (IOPT == 0) then
   end do
 else if (IOPT == 1) then
   do ISYMB=1,NSYM
-    ISYMA = MULD2H(ISYMB,ISYM)
+    ISYMA = MUL(ISYMB,ISYM)
     if (ISYMA >= ISYMB) then
       write(FNAME,'(A4,I1,I1)') REONAM,ISYMA,ISYMB
       LUNIT = 7
@@ -45,7 +43,7 @@ else if (IOPT == 1) then
   end do
 else if (IOPT == 2) then
   do ISYMB=1,NSYM
-    ISYMA = MULD2H(ISYMB,ISYM)
+    ISYMA = MUL(ISYMB,ISYM)
     if (ISYMA >= ISYMB) then
       LUNIT = LUFV(ISYMA,ISYMB)
       call DACLOS(LUNIT)

@@ -18,6 +18,7 @@ subroutine ChoMP2g_Setup(irc,EOcc,EVir)
 ! Purpose: Do some additional setup only needed for
 !          MP2-gradients or properties.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT, iAdrOff, iAoMo, iDel, iFro, iMoAo, iMoMo, iOcc, iVir, &
                   MP2D, MP2D_e, MP2D_e_full, MP2D_full, MP2W, MP2W_e, MP2W_e_full, MP2W_full, nAoMo, nDel, nFro, nFroT, nMo, &
@@ -29,10 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EOcc(*), EVir(*)
-integer(kind=iwp) :: iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: i, iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
 
 nMOType = 3
 call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
@@ -63,7 +61,7 @@ do iMoType=1,nMoType
     do iSym=1,nSym
       nMoMo(iSym,iProdType) = 0
       do iSymP=1,nSym
-        iSymQ = MulD2h(iSymP,iSym)
+        iSymQ = Mul(iSymP,iSym)
         iMoMo(iSymq,iSymp,iProdType) = nMoMo(iSym,iProdType)
         nMoMo(iSym,iProdType) = nMoMo(iSym,iProdType)+nMO(iSymP,iMOType)*nMO(iSymQ,jMOType)
       end do
@@ -74,7 +72,7 @@ do iMoType=1,nMoType
   do iSym=1,nSym
     nMoAo(iSym,iMoType) = 0
     do iSymAl=1,nSym
-      iSymP = MulD2h(iSymAl,iSym)
+      iSymP = Mul(iSymAl,iSym)
       iMoAo(iSymP,iSymAl,iMoType) = nMoAo(iSym,iMoType)
       nMoAo(iSym,iMoType) = nMoAo(iSym,iMoType)+nBas(iSymAl)*nMO(iSymP,iMoType)
     end do
@@ -84,7 +82,7 @@ do iMoType=1,nMoType
   do iSym=1,nSym
     nAoMo(iSym,iMoType) = 0
     do iSymQ=1,nSym
-      iSymAl = MulD2h(iSymQ,iSym)
+      iSymAl = Mul(iSymQ,iSym)
       iAoMo(iSymAl,iSymQ,iMoType) = nAoMo(iSym,iMoType)
       nAoMo(iSym,iMoType) = nAoMo(iSym,iMoType)+nBas(iSymAl)*nMO(iSymQ,iMoType)
     end do

@@ -11,6 +11,7 @@
 
 subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
 
+use Index_Functions, only: iTri
 use Data_Structures, only: V2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -23,19 +24,16 @@ type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
 #include "corbinf.fh"
-integer(kind=iwp) :: indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+integer(kind=iwp) :: i, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, j, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), allocatable :: IndT(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 nOrbAllTot = nOrbAll(1)
 nOrbAllMax = nOrbAll(1)
 lRecTot = nOrbAll(1)*nOrbAll(1)

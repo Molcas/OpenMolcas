@@ -27,6 +27,7 @@ subroutine PLF_Cho_Diag(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Cholesky, only: iShlSO, iSOSHl, nBstSh, ShA, ShB
 use Constants, only: One
@@ -40,9 +41,6 @@ integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAO
                      iSOij, iSOkl, iSOs(4), jprint, jSO, jSOj, KIJ, kSO, kSOk, lSO, lSOl, nijkl, NUMI, NUMJ
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: ddot_
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 irout = 109
 jprint = nprint(irout)

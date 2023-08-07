@@ -48,6 +48,7 @@ subroutine CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,nDen,kDe
 !
 !********************************************************
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR, nSym
 use Data_Structures, only: DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -59,19 +60,13 @@ integer(kind=iwp) :: irc, lScr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSWap, nD
 real(kind=wp) :: Scr(lscr)
 type(DSBA_Type) :: MOs(nDen)
 type(SBA_Type) :: ChoT(nDen)
-integer(kind=iwp) :: iag, ias, ibg, ibs, iDen, iE, ij, iLoc, iRab, iSym, iSymb, jRab, JRED, JVEC, kRab, kscr, kVEC, LVEC, n1, NREAD
+integer(kind=iwp) :: iag, ias, ibg, ibs, iDen, iE, ij, iLoc, iRab, iSym, iSyma, iSymb, jDen, jRab, JRED, JVEC, kRab, kscr, kVEC, &
+                     LVEC, n1, NREAD
 real(kind=wp) :: xfd
 integer(kind=iwp), allocatable :: nPorb(:,:)
 real(kind=wp), parameter :: Fac(0:1) = [Half,One]
 character(len=*), parameter :: SECNAM = 'CHO_VTRA'
 integer(kind=iwp), external :: cho_isao
-! Statement functions
-integer(kind=iwp) :: MulD2h, i, iSyma, j, jDen
-logical(kind=iwp) :: Skip1, Skip2, Skip3
-MulD2h(i,j) = ieor(i-1,j-1)+1
-Skip1(jDen,iSyma) = .not. associated(ChoT(jDen)%SB(iSyma)%A1)
-Skip2(jDen,iSyma) = .not. associated(ChoT(jDen)%SB(iSyma)%A2)
-Skip3(jDen,iSyma) = .not. associated(ChoT(jDen)%SB(iSyma)%A3)
 
 call mma_allocate(nPorb,8,nDen,Label='nPorb')
 do iDen=1,nDen
@@ -156,7 +151,7 @@ select case (iSwap)
           ! ----------------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
             ! C(1,b)
             call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(JDen)%SB(iSyma)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A3(:,ias,LVEC),1)
@@ -179,7 +174,7 @@ select case (iSwap)
           ibg = iRS2F(2,iRab)
 
           iSyma = cho_isao(iag)  !symmetry block
-          iSymb = muld2h(jSym,iSyma)
+          iSymb = mul(jSym,iSyma)
 
           kscr = kscr+1
 
@@ -190,7 +185,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
             call DAXPY_(nPorb(iSyma,jDen),Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC),1)
 
@@ -200,7 +195,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSymb)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSymb)%A3)) cycle
 
             call DAXPY_(nPorb(iSymb,jDen),Scr(kscr),MOs(jDen)%SB(iSymb)%A2(:,ibs),1,ChoT(jDen)%SB(iSymb)%A3(:,ias,LVEC),1)
 
@@ -255,7 +250,7 @@ select case (iSwap)
           ! ----------------------------------------
           do jDen=kDen,nDen
 
-            if (skip2(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A2)) cycle
 
             iE = size(ChoT(jDen)%SB(iSyma)%A2,1)
             call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A2(ias:iE,LVEC), &
@@ -279,7 +274,7 @@ select case (iSwap)
           ibg = iRS2F(2,iRab)
 
           iSyma = cho_isao(iag)  !symmetry block
-          iSymb = muld2h(jSym,iSyma)
+          iSymb = mul(jSym,iSyma)
 
           kscr = kscr+1
 
@@ -290,7 +285,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip2(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A2)) cycle
 
             iE = size(ChoT(jDen)%SB(iSyma)%A2,1)
             call DAXPY_(nPorb(iSymb,jDen),Scr(kscr),MOs(jDen)%SB(iSymb)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A2(ias:iE,LVEC), &
@@ -302,7 +297,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip2(jDen,iSymb)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSymb)%A2)) cycle
 
             iE = size(ChoT(jDen)%SB(iSymb)%A2,1)
             call DAXPY_(nPorb(iSyma,jDen),Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSymb)%A2(ibs:iE,LVEC), &
@@ -359,7 +354,7 @@ select case (iSwap)
           ! ----------------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
             call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ias),1)
 
@@ -380,7 +375,7 @@ select case (iSwap)
           ibg = iRS2F(2,iRab)
 
           iSyma = cho_isao(iag)  !symmetry block
-          iSymb = muld2h(jSym,iSyma)  !(syma>symb)
+          iSymb = mul(jSym,iSyma)  !(syma>symb)
 
           kscr = kscr+1
 
@@ -391,7 +386,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
             call DAXPY_(nPorb(iSyma,jDen),Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs),1)
 
@@ -401,7 +396,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip3(jDen,iSymb)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSymb)%A3)) cycle
 
             call DAXPY_(nPorb(iSymb,jDen),Scr(kscr),MOs(jDen)%SB(iSymb)%A2(:,ibs),1,ChoT(jDen)%SB(iSymb)%A3(:,LVEC,ias),1)
 
@@ -456,7 +451,7 @@ select case (iSwap)
           ! ----------------------------------------
           do jDen=kDen,nDen
 
-            if (skip1(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A1)) cycle
 
             n1 = size(ChoT(jDen)%SB(iSyma)%A3,1)
             ij = ias+n1*(LVEC-1)
@@ -482,7 +477,7 @@ select case (iSwap)
           ibg = iRS2F(2,iRab)
 
           iSyma = cho_isao(iag)  !symmetry block
-          iSymb = muld2h(jSym,iSyma)
+          iSymb = mul(jSym,iSyma)
 
           kscr = kscr+1
 
@@ -493,7 +488,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip1(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSyma)%A1)) cycle
 
             n1 = size(ChoT(jDen)%SB(iSyma)%A3,1)
             ij = ias+n1*(LVEC-1)
@@ -505,7 +500,7 @@ select case (iSwap)
           ! -----------------------------------
           do jDen=kDen,nDen
 
-            if (skip1(jDen,iSyma)) cycle
+            if (.not. associated(ChoT(jDen)%SB(iSymb)%A1)) cycle
 
             n1 = size(ChoT(jDen)%SB(iSymb)%A3,1)
             ij = ibs+n1*(LVEC-1)

@@ -20,16 +20,11 @@ subroutine Cho_VecBuf_PrtRef(Txt)
 ! identification).
 
 use Cholesky, only: CHVBFI, InfVec, ip_CHVBFI_SYM, LuPri, nDimRS, nSym, nVec_in_Buf
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 character(len=*) :: Txt
 integer(kind=iwp) :: iSym, jRed, jVec, nDim
-! Statement functions
-real(kind=wp) :: RefNrm, RefSm
-integer(kind=iwp) :: i, j
-RefNrm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
-RefSm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
 if (.not. allocated(nDimRS)) call Cho_Quit('Cho_VecBuf_PrtRef: unable to print reference values',104)
 if (allocated(CHVBFI)) then
@@ -38,7 +33,7 @@ if (allocated(CHVBFI)) then
       jRed = InfVec(jVec,2,iSym)
       nDim = nDimRS(iSym,jRed)
       write(LuPri,'(A,A,I6,A,I2,A,I9,1P,2(A,D25.16))') Txt,' Cholesky vector',jVec,' sym.',iSym,' dim.',nDim,'  Norm=', &
-                                                       RefNrm(jVec,iSym),' Sum=',RefSm(jVec,iSym)
+                                                       CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Sum=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
     end do
   end do
 else

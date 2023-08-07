@@ -11,6 +11,7 @@
 
 subroutine ChoMP2g_ConstrAP(irc,Scr,lScr,typ,iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: iAdrOff, lUnit_F, LuVVec, LuWVec, nFro, nMoMo, nOcc, nVir
 use Constants, only: Zero, One, Two, Four
@@ -20,7 +21,7 @@ implicit none
 integer(kind=iwp) :: irc, lScr, iSym, nVec, lAp, lDens
 real(kind=wp) :: Scr(lScr), Ap(lAp), Dens(lDens), factor
 character :: typ(4)
-integer(kind=iwp) :: iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq, iBat, iCol, iIP, iIQ, iIR, iOffAp(8), iOffL, &
+integer(kind=iwp) :: i, iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq, iBat, iCol, iIP, iIQ, iIR, iOffAp(8), iOffL, &
                      iOffL1, iOffp(8), iOffY, iOffY1, iOffZ, iOffZ1, iOpt, iOrbType(4), iPQ, iRP, iRQ, iSym1, iSymI, iSymP, iSymQ, &
                      iSymR, iTypL, iVec, iVec1, kEndLip, kEndLiq, kEndLir, kEndLpq, kEndLrp, kEndLrq, kEndX, kEndY, kLip, kLiq, &
                      kLir, kLpq, kLrp, kLrq, kX, kY, kZ, lLip, lLiq, lLir, lLpq, lLrp, lLrq, lTot, lX, lY, nBatL, nI, nIP, nIQ, &
@@ -28,10 +29,6 @@ integer(kind=iwp) :: iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq,
 real(kind=wp) :: yfactor
 logical(kind=iwp) :: DoX, DoY, DoZ
 character(len=*), parameter :: SecNam = 'ChoMP2g_ConstrAP'
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-!************************************
 
 ! Setup some lengths
 ! ------------------
@@ -229,7 +226,7 @@ do iBat=1,nBatL
       iOffL1 = 0
       iOffY1 = 0
       do iSymI=1,nSym
-        iSymP = MulD2h(iSym,iSymI)
+        iSymP = Mul(iSym,iSymI)
         iSymQ = iSymP
         nI = nOrb1(iSymI,4)
         nP = nOrb1(iSymP,1)
@@ -258,7 +255,7 @@ do iBat=1,nBatL
       iOffL1 = 0
       iOffZ1 = 0
       do iSymI=1,nSym
-        iSymP = MulD2h(iSym,iSymI)
+        iSymP = Mul(iSym,iSymI)
         iSymQ = iSymP
         nI = nOrb1(iSymI,4)
         nP = nOrb1(iSymP,1)
@@ -341,7 +338,7 @@ do iBat=1,nBatL
       iOffL1 = 0
       iOffY1 = 0
       do iSymI=1,nSym
-        iSymP = MulD2h(iSym,iSymI)
+        iSymP = Mul(iSym,iSymI)
         iSymR = iSymI
         nI = nOrb1(iSymI,4)
         nR = nOrb1(iSymR,3)
@@ -374,7 +371,7 @@ do iBat=1,nBatL
       iOffL1 = 0
       iOffZ1 = 0
       do iSymI=1,nSym
-        iSymQ = MulD2h(iSym,iSymI)
+        iSymQ = Mul(iSym,iSymI)
         iSymR = iSymI
         nI = nOrb1(iSymI,4)
         nR = nOrb1(iSymR,3)

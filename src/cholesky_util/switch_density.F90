@@ -13,6 +13,7 @@
 
 subroutine switch_density(iLoc,XLT,Xab,kSym)
 
+use Index_Functions, only: iTri
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nnBstR
 use Definitions, only: wp, iwp
 
@@ -22,9 +23,6 @@ real(kind=wp) :: XLT(*), Xab(*)
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jRab, jSym, kRab
 real(kind=wp) :: xf
 integer(kind=iwp), external :: cho_isao
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 jSym = 1 ! only total symmetric density
 

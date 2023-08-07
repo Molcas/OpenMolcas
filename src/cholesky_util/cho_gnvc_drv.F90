@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: iAB, iPass, iPass1, iPass2, iSym, iV, iV1, iV2, iVec1, jAB, jPass, jRed, kAB, l_Int, l_Wrk, l_WrkT, &
+integer(kind=iwp) :: i, iAB, iPass, iPass1, iPass2, iSym, iV, iV1, iV2, iVec1, jAB, jPass, jRed, kAB, l_Int, l_Wrk, l_WrkT, &
                      LastRed(8), lThis, nBatch, nPass, nScrV(8), nTotVec, NumInt, NumPass, NumSP, nVec
 real(kind=wp) :: dl_Int, dl_WrkT, tCPU1, tCPU2, TlDec, TlDec1, TlDec2, TlInt, TlInt1, TlInt2, TlTot, TlTot1, TlTot2, tWall1, &
                  tWall2, WlDec, WlDec1, WlDec2, WlInt, WlInt1, WlInt2, WlTot, WlTot1, WlTot2
@@ -36,9 +36,6 @@ type(Alloc1DiArray_Type) :: RS2RS(8)
 integer(kind=iwp), allocatable :: iVecRS(:,:), LISTSP(:), nVecRS(:,:)
 real(kind=wp), allocatable :: Wrk(:), xInt(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_Drv'
-! Statement function
-integer(kind=iwp) :: mapRS2RS, i, j
-mapRS2RS(i,j) = RS2RS(j)%A(i)
 
 ! Start timing.
 ! -------------
@@ -258,7 +255,7 @@ do while (iPass < nPass)
       do iV=iV1,iV2
         iAB = InfVec(iV,1,iSym) ! addr in 1st red. set
         jAB = iAB-iiBstR(iSym,1)
-        kAB = mapRS2RS(iSym,jAB) ! addr in curr. red. set
+        kAB = RS2RS(jAB)%A(iSym) ! addr in curr. red. set
 #       ifdef _DEBUGPRINT_
         if ((kAB < 1) .or. (kAB > nnBstR(iSym,2))) then
           write(Lupri,*) SecNam,': illegal kAB = ',kAB

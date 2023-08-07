@@ -36,6 +36,7 @@ subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11
 ! Vectors are distributed across nodes and stored according to
 ! reduced set 1 (all of them!).
 
+use Index_Functions, only: iTri
 #ifdef _DEBUGPRINT_
 use Cholesky, only: iSP2F
 #endif
@@ -50,7 +51,7 @@ integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, 
                      iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
 real(kind=wp) :: Z(l_Z)
 logical(kind=iwp) :: Free_Z
-integer(kind=iwp) :: iAdr(8), iCountSP, incZd, iSp, iSP_, iSP_1, iSP_2, iSym, J_inBlock, jBlock, K, K_inBlock, kBlock, kI, kL, &
+integer(kind=iwp) :: iAdr(8), iCountSP, incZd, iSp, iSP_, iSP_1, iSP_2, iSym, J, J_inBlock, jBlock, K, K_inBlock, kBlock, kI, kL, &
                      kOffI, kOffZ, kZ, kZd, l_Int, l_Wrk, l_Zd, ldL, ldZ, Left, lTot, MaxQual_SAVE, n, nBatch, nSP, nSP_Max, &
                      nSP_this_batch
 real(kind=wp) :: Byte, C0, C1, PDone, PMem, TotCPU, TotMem, TotWall, W0, W1, X0, X1, Y0, Y1
@@ -74,9 +75,6 @@ interface
     integer(kind=iwp), pointer :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Init return code
 irc = 0

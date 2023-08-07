@@ -17,6 +17,7 @@ subroutine ChoMP2_Setup(irc)
 !
 ! Purpose: setup of Cholesky MP2 program.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: LuPri, nBas, nSym, NumCho
 use ChoMP2, only: ChoAlg, ChoMP2_allocated, DecoMP2, DoDens, ForceBatch, iAOVir, iBatOrb, iDel, iFirst, iFirstS, iFro, iMatab, &
                   iOcc, iT1am, iT1AOT, iVir, Laplace, Laplace_BlockSize, LiMatij, LiPQprod, LiT1am, LnBatOrb, LnMatij, LnOcc, &
@@ -40,9 +41,6 @@ character(len=*), parameter :: SecNam = 'ChoMP2_Setup'
 #ifdef _DISABLED_
 integer(kind=iwp) :: iSymP, iSymQ, nPQprodx
 #endif
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 irc = 0
 
@@ -86,7 +84,7 @@ end do
 do iSym=1,nSym
   nT1am(iSym) = 0
   do iSymi=1,nSym
-    iSyma = MulD2h(iSymi,iSym)
+    iSyma = Mul(iSymi,iSym)
     iT1am(iSyma,iSymi) = nT1am(iSym)
     nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
   end do
@@ -99,7 +97,7 @@ do iSym=1,nSym
   nPQ_prodia(iSym) = 0
   nPQ_prodab(iSym) = 0
   do iSymQ=1,nSym
-    iSymP = MulD2h(iSymQ,iSym)
+    iSymP = Mul(iSymQ,iSym)
     iPQ_prod(iSymP,iSymQ) = nPQ_prod(iSym)
 
     nPQ_prod(iSym) = nPQ_Prod(iSym)+(nOcc(iSymP)+nVir(iSymP)+nFro(iSymP)+nDel(iSymP))*(nOcc(iSymQ)+nVir(iSymQ)+nFro(iSymQ)+ &
@@ -114,7 +112,7 @@ end do
 do iSym=1,nSym
   nT1AOT(iSym) = 0
   do iSymAl=1,nSym
-    iSymi = MulD2h(iSymAl,iSym)
+    iSymi = Mul(iSymAl,iSym)
     iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
     nT1AOT(iSym) = nT1AOT(iSym)+nOcc(iSymi)*nBas(iSymAl)
   end do
@@ -123,7 +121,7 @@ end do
 do iSym=1,nSym
   nAOVir(iSym) = 0
   do iSyma=1,nSym
-    iSymAl = MulD2h(iSyma,iSym)
+    iSymAl = Mul(iSyma,iSym)
     iAOVir(iSymAl,iSyma) = nAOVir(iSym)
     nAOVir(iSym) = nAOVir(iSym)+nBas(iSymAl)*nVir(iSyma)
   end do
@@ -133,7 +131,7 @@ if (ChoAlg == 2) then
   do iSym=1,nSym
     nMatab(iSym) = 0
     do iSymb=1,nSym
-      iSyma = MulD2h(iSymb,iSym)
+      iSyma = Mul(iSymb,iSym)
       iMatab(iSyma,iSymb) = nMatab(iSym)
       nMatab(iSym) = nMatab(iSym)+nVir(iSyma)*nVir(iSymb)
     end do

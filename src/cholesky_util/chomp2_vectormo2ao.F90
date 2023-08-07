@@ -54,6 +54,7 @@ subroutine ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoDiag,Diag,lDiag,lU_A
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use ChoMP2, only: nAOVir, nT1AOT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -74,9 +75,6 @@ real(kind=wp), allocatable :: COcc(:), CVir(:)
 #endif
 logical(kind=iwp), parameter :: Debug = _DBG_
 character(len=*), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Initializations.
 ! ----------------
@@ -89,7 +87,7 @@ if (DoDiag) then
   iCount = 0
   do iSym=1,nSym
     do iSymb=1,nSym
-      iSyma = MulD2h(iSymb,iSym)
+      iSyma = Mul(iSymb,iSym)
       iCount = iCount+nBas(iSyma)*nBas(iSymb)
     end do
   end do

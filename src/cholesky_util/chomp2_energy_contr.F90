@@ -22,6 +22,8 @@ subroutine ChoMP2_Energy_Contr(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBatch)
 ! Modified by F. Aquilante to compute separately the Opposite-Spin
 !                          contribution to the MP2 energy
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym
 use ChoMP2, only: ChoAlg, DoT1amp, EOSMP2, iFirstS, iMatab, iOcc, iVir, LiMatij, LiT1am, LnOcc, LnT1am, nMatab, nVir, Wref
 use Constants, only: Zero, Two, Half
@@ -30,13 +32,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Xaibj(LnT2am)
-integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, iSymi, &
-                     iSymij, iSymj, Lai, Laj, Lbi, Lbj, Li, Lj
+integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, i, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, &
+                     iSymi, iSymij, iSymj, j, Lai, Laj, Lbi, Lbj, Li, Lj
 real(kind=wp) :: Dnom, Eaibj, EMP2_sav, EOSMP2_sav, Taibj, Waibj, WREF_sav
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (DoT1amp) then
   call ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBatch)
@@ -80,7 +78,7 @@ if (iBatch == jBatch) then
     do iSymij=2,nSym
       iSymab = iSymij
       do iSym2=1,nSym
-        iSym1 = MulD2h(iSym2,iSymij)
+        iSym1 = Mul(iSym2,iSymij)
         iSymj = max(iSym1,iSym2)
         iSymi = min(iSym1,iSym2)
         do Lj=1,LnOcc(iSymj,jBatch)
@@ -89,7 +87,7 @@ if (iBatch == jBatch) then
             i = iFirstS(iSymi,iBatch)+Li-1
             ij = LiMatij(iSymi,iSymj,iBatch)+LnOcc(iSymi,iBatch)*(Lj-1)+Li
             do iSymb=1,nSym
-              iSyma = MulD2h(iSymb,iSymab)
+              iSyma = Mul(iSymb,iSymab)
               do b=1,nVir(iSymb)
                 abij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSyma,iSymb)+nVir(iSyma)*(b-1)
                 baij = LiT2am(iSymij)+nMatab(iSymab)*(ij-1)+iMatab(iSymb,iSyma)-nVir(iSymb)+b
@@ -115,14 +113,14 @@ if (iBatch == jBatch) then
     do iSymbj=1,nSym
       iSymai = iSymbj
       do iSymj=1,nSym
-        iSymb = MulD2h(iSymj,iSymbj)
+        iSymb = Mul(iSymj,iSymbj)
         do Lj=1,LnOcc(iSymj,jBatch)
           j = iFirstS(iSymj,jBatch)+Lj-1
           do b=1,nVir(iSymb)
             Lbj = LiT1am(iSymb,iSymj,jBatch)+nVir(iSymb)*(Lj-1)+b
             do iSymi=1,nSym
-              iSyma = MulD2h(iSymi,iSymai)
-              iSymaj = MulD2h(iSyma,iSymj)
+              iSyma = Mul(iSymi,iSymai)
+              iSymaj = Mul(iSyma,iSymj)
               iSymbi = iSymaj
               do Li=1,LnOcc(iSymi,iBatch)
                 i = iFirstS(iSymi,iBatch)+Li-1
@@ -160,14 +158,14 @@ else ! rectangular storage (ai|bj) with ai<bj.
   do iSymbj=1,nSym
     iSymai = iSymbj
     do iSymj=1,nSym
-      iSymb = MulD2h(iSymj,iSymbj)
+      iSymb = Mul(iSymj,iSymbj)
       do Lj=1,LnOcc(iSymj,jBatch)
         j = iFirstS(iSymj,jBatch)+Lj-1
         do b=1,nVir(iSymb)
           Lbj = LiT1am(iSymb,iSymj,jBatch)+nVir(iSymb)*(Lj-1)+b
           do iSymi=1,nSym
-            iSyma = MulD2h(iSymi,iSymai)
-            iSymaj = MulD2h(iSyma,iSymj)
+            iSyma = Mul(iSymi,iSymai)
+            iSymaj = Mul(iSyma,iSymj)
             iSymbi = iSymaj
             do Li=1,LnOcc(iSymi,iBatch)
               i = iFirstS(iSymi,iBatch)+Li-1

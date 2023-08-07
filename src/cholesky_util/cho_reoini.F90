@@ -13,21 +13,19 @@ subroutine CHO_REOINI()
 !
 ! Purpose: initializations for vector reordering.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: NABPK, NBAS, NNBST, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISYM, ISYMA, ISYMB
-! Statement function
-integer(kind=iwp) :: MULD2H, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
 
 call IZERO(NNBST,NSYM)
 do ISYMA=1,NSYM
   do ISYMB=1,ISYMA-1
     NABPK(ISYMA,ISYMB) = NBAS(ISYMA)*NBAS(ISYMB)
     NABPK(ISYMB,ISYMA) = NABPK(ISYMA,ISYMB)
-    ISYM = MULD2H(ISYMB,ISYMA)
+    ISYM = MUL(ISYMB,ISYMA)
     NNBST(ISYM) = NNBST(ISYM)+NABPK(ISYMA,ISYMB)
   end do
   NABPK(ISYMA,ISYMA) = NBAS(ISYMA)*(NBAS(ISYMA)+1)/2

@@ -18,6 +18,7 @@ subroutine Cho_Drv_ParTwoStep(irc)
 ! Purpose: Parallel two-step decomposition of two-electron
 !          integrals.
 
+use Index_Functions, only: iTri
 use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_DecAlg, Cho_DecAlg_Def, Cho_DiaChk, Cho_Fake_Par, Cho_IntChk, Cho_IOVec, &
                     Cho_MinChk, Cho_No2Center, Cho_PreScreen, Cho_ReOrd, Cho_SimP, Cho_SimRI, Cho_SScreen, Cho_TrcNeg, &
                     Cho_TstScreen, CHo_UseAbs, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, Did_DecDrv, Frac_ChvBuf, HaltIt, iAlQua, &
@@ -47,9 +48,6 @@ integer(kind=iwp), allocatable :: iV1Block(:,:), nBlock(:), nVBlock(:,:), NVT(:)
 real(kind=wp), allocatable :: Check(:), Err(:), Z(:)
 real(kind=wp), parameter :: DumTst = 0.123456789_wp, DumTol = 1.0e-15_wp
 character(len=*), parameter :: myName = 'DPTS', SecNam = 'Cho_Drv_ParTwoStep'
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Preliminaries.
 ! ==============

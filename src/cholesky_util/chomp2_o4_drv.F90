@@ -28,6 +28,7 @@ subroutine ChoMP2_O4_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use ChoMP2, only: iOcc, iT1am, iVir, nOcc, nT1am, nVir, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -47,9 +48,6 @@ integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
 character(len=*), parameter :: SecNam = 'ChoMP2_O4_Drv'
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 #ifdef _DEBUGPRINT_
 Verbose = .true.
@@ -122,7 +120,7 @@ end if
 kD0 = 0
 do iSym=1,nSym
   do iSymi=1,nSym
-    iSyma = MulD2h(iSymi,iSym)
+    iSyma = Mul(iSymi,iSym)
     kD1 = kD0+iT1Am(iSyma,iSymi)
     do i=1,nOcc(iSymi)
       kD2 = kD1+nVir(iSyma)*(i-1)
@@ -183,7 +181,7 @@ DoAmpDiag = .true. ! calculate backtransf. amp. diagonal
 lDiag = 0
 do iSym=1,nSym
   do iSymb=1,nSym
-    iSyma = MulD2h(iSymb,iSym)
+    iSyma = Mul(iSymb,iSym)
     lDiag = lDiag+nBas(iSyma)*nBas(iSymb)
   end do
 end do

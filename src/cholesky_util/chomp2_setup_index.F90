@@ -18,6 +18,7 @@ subroutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,LnOcc,NumBatOrb,LnBatOrb,LnT
 !
 ! Purpose: set local index arrays and counters.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym
 use ChoMP2, only: ChoAlg, iBatOrb, nBatch, nBatOrbT, nDel, nFro, nOcc, nVir
 use Definitions, only: iwp
@@ -26,11 +27,8 @@ implicit none
 integer(kind=iwp) :: mBatch, iFirst(mBatch), mSym, iFirstS(mSym,mBatch), NumOcc(mBatch), LnOcc(mSym,mBatch), NumBatOrb(mBatch), &
                      LnBatOrb(mSym,mBatch), LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch), LnPQprod(mSym,mBatch), &
                      LiPQprod(mSym,mSym,mBatch), LnMatij(mSym,mBatch), LiMatij(mSym,mSym,mBatch)
-integer(kind=iwp) :: iBatch, iSym, iSyma, iSymi, iSymj, Left, Num
+integer(kind=iwp) :: i, iBatch, iSym, iSyma, iSymi, iSymj, Left, Num
 integer(kind=iwp), external :: Cho_iRange
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if (mBatch /= nBatch) call ChoMP2_Quit('ChoMP2_Setup_Index','mBatch !=  nBatch','Error')
 if (mSym /= nSym) call ChoMP2_Quit('ChoMP2_Setup_Index','mSym !=  nSym','Error')
@@ -105,7 +103,7 @@ end do
 do iBatch=1,nBatch
   do iSym=1,nSym
     do iSymi=1,nSym
-      iSyma = MulD2h(iSymi,iSym)
+      iSyma = Mul(iSymi,iSym)
       LiT1am(iSyma,iSymi,iBatch) = LnT1am(iSym,iBatch)
       LnT1am(iSym,iBatch) = LnT1am(iSym,iBatch)+nVir(iSyma)*LnOcc(iSymi,iBatch)
       if (.false.) then
@@ -120,7 +118,7 @@ if (ChoAlg == 2) then
   do iBatch=1,nBatch
     do iSym=1,nSym
       do iSymj=1,nSym
-        iSymi = MulD2h(iSymj,iSym)
+        iSymi = Mul(iSymj,iSym)
         if (iSymi == iSymj) then
           LiMatij(iSymi,iSymi,iBatch) = LnMatij(iSym,iBatch)
           LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)+LnOcc(iSymi,iBatch)*(LnOcc(iSymi,iBatch)+1)/2

@@ -17,6 +17,7 @@ subroutine Cho_DiaSP()
 !
 ! Purpose: prescreening of diagonal.
 
+use Index_Functions, only: iTri
 use Cholesky, only: Cho_PreScreen, iSP2F, nnShl, nnShl_tot, nShell, Thr_PreScreen
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -25,9 +26,6 @@ implicit none
 integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: Tau, Tmax_All
 real(kind=wp), allocatable :: TMax(:,:)
-! Statement function
-integer(kind=iwp) :: iTri
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (Cho_PreScreen) then ! prescreening with approx. diagonal
 

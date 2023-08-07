@@ -14,6 +14,8 @@ subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 ! Purpose: shell-driven calculation of the integral diagonal and
 !          setup of the first reduced set.
 
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use Cholesky, only: CHO_NO2CENTER, Cho_PreScreen, CHO_USEABS, Damp, DiaMax, iAtomShl, iBasSh, IPRINT, iSP2F, lBuf, LuPri, LuScr, &
                     Mx2Sh, MySP, n_MySP, NBAST, nBasSh, nBstSh, nnBstRSh, nnShl, nShell, nSym, SCDIAG, ShA, ShB, ThrCom, ThrDiag, &
                     XlDiag
@@ -24,17 +26,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LENSCR, NDUMP
 real(kind=wp) :: BUF(LENBUF), SCR(LENSCR)
-integer(kind=iwp) :: I_MYSP, IA, IAA, IAB, IB, IBB, ICOUNT, IDUMP, IOPT, ISAB, ISHLA, ISHLAB, ISHLB, ISYM, ISYMA, ISYMAB, ISYMB, &
-                     IUNIT, JUNIT, L, LENGTH, LINTD, ll, LSCR, n_NegCalcDiag, n_NegCalcDiag_local, NIATOMSHL, NUMA, NUMAB, NUMB
+integer(kind=iwp) :: I, I_MYSP, IA, IAA, IAB, IB, IBB, ICOUNT, IDUMP, IOPT, ISAB, ISHLA, ISHLAB, ISHLB, ISYM, ISYMA, ISYMAB, &
+                     ISYMB, IUNIT, JUNIT, L, LENGTH, LINTD, ll, LSCR, n_NegCalcDiag, n_NegCalcDiag_local, NIATOMSHL, NUMA, NUMAB, &
+                     NUMB
 real(kind=wp) :: DEL1, DIAAB, DIAGAB, SAVD, SCRMAX(8), XLDIA, XMDIA, XNCD(1), XXX
 real(kind=wp), allocatable :: NegCalcDiag(:)
 integer(kind=iwp), parameter :: INFO_DEBUG = 4, INFO_INSANE = 10
 character(len=*), parameter :: SECNAM = 'CHO_CALCDIAG'
 integer(kind=iwp), external :: CHO_ISAOSH
-! Statement functions
-integer(kind=iwp) :: MULD2H, ITRI, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
-ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
 ! Check dimensions.
 ! -----------------
@@ -142,7 +141,7 @@ do I_MYSP=1,N_MYSP
       ISYMA = CHO_ISAOSH(IA,ISHLA)
       do IB=1,IA
         ISYMB = CHO_ISAOSH(IB,ISHLB)
-        ISYMAB = MULD2H(ISYMB,ISYMA)
+        ISYMAB = MUL(ISYMB,ISYMA)
         IAB = ITRI(IA,IB)
         DIAAB = SCR(IAB)
         if (DIAAB < Zero) then
@@ -173,7 +172,7 @@ do I_MYSP=1,N_MYSP
         do ISYMA=1,NSYM
           do IAA=1,NBASSH(ISYMA,ISHLA)
             IA = IBASSH(ISYMA,ISHLA)+IAA
-            ISYMAB = MULD2H(ISYMA,ISYMB)
+            ISYMAB = MUL(ISYMA,ISYMB)
             IAB = NUMA*(IB-1)+IA
             DIAAB = SCR(IAB)
             if (DIAAB < Zero) then

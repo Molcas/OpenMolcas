@@ -30,11 +30,6 @@ integer(kind=iwp) :: ipV, iSym, jRed, jVec, n, nErr
 logical(kind=iwp) :: OK
 real(kind=wp) :: Nrm, Sm
 real(kind=wp), external :: Cho_dSumElm, dDot_
-! Statement functions
-real(kind=wp) :: RefNrm, RefSm
-integer(kind=iwp) :: i, j
-RefNrm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
-RefSm(i,j) = CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
 nErr = 0
 if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
@@ -46,13 +41,15 @@ if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
         n = nDimRS(iSym,jRed)
         Nrm = sqrt(dDot_(n,CHVBUF(ipV),1,CHVBUF(ipV),1))
         Sm = Cho_dSumElm(CHVBUF(ipV),n)
-        OK = (abs(Nrm-RefNrm(jVec,iSym)) < Tol) .and. (abs(Sm-RefSm(jVec,iSym)) < Tol)
+        OK = (abs(Nrm-CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec)) < Tol) .and. (abs(Sm-CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)) < Tol)
         if (.not. OK) then
           nErr = nErr+1
           if (Report) then
             write(LuPri,'(A,I7,A,I2,A,I9)') 'Buffer corrupted: vector',jVec,' sym.',iSym,' dim.',n
-            write(LuPri,'(3X,1P,3(A,D25.16))') 'Norm=',Nrm,' Reference=',RefNrm(jVec,iSym),' Diff=',Nrm-RefNrm(jVec,iSym)
-            write(LuPri,'(3X,1P,3(A,D25.16))') 'Sum= ',Sm,' Reference=',RefSm(jVec,iSym),' Diff=',Sm-RefSm(jVec,iSym)
+            write(LuPri,'(3X,1P,3(A,D25.16))') 'Norm=',Nrm,' Reference=',CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
+                                               Nrm-CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec)
+            write(LuPri,'(3X,1P,3(A,D25.16))') 'Sum= ',Sm,' Reference=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
+                                               Sm-CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
           end if
         end if
         ipV = ipV+n

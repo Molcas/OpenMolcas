@@ -13,15 +13,13 @@
 
 subroutine CD_Tester_CPPF(PDM,X,n)
 
+use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: PDM(n*(n+1)/2), X(n,n)
 integer(kind=iwp) :: i, j
-! Statement function
-integer(kind=iwp) :: iTri
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 do j=1,n
   X(j,j) = PDM(iTri(j,j))

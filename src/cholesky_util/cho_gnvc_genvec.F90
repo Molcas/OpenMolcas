@@ -24,15 +24,12 @@ implicit none
 integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
 real(kind=wp) :: Diag(*), xInt(lInt)
 type(Alloc1DiArray_Type) :: RS2RS(8)
-integer(kind=iwp) :: iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
+integer(kind=iwp) :: i, iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
                      jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
                      nBin, nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec
 real(kind=wp) :: Bin1, C1, C2, Fac,olDiag, Step, W1, W2, XC, xM, xMax, xMin
 real(kind=wp), allocatable :: VecTmp(:), Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_GenVec'
-! Statement function
-integer(kind=iwp) :: mapRS2RS, i, j
-mapRS2RS(i,j) = RS2RS(j)%A(i)
 
 ! Check input.
 ! ------------
@@ -149,7 +146,7 @@ do iPass=iPass1,iPass2
         lOff0 = iOff1(iSym)+nnBstR(iSym,2)*(iV-1)-1
         do lAB=1,nnBstR(iSym,3)
           jAB = IndRed(iiBstR(iSym,3)+lAB,3)-iiBstR(iSym,1)
-          kAB = mapRS2RS(iSym,jAB)
+          kAB = RS2RS(jAB)%A(iSym)
           VecTmp(kAB) = xInt(lOff0+kAB)
         end do
         call dCopy_(lTot,VecTmp,1,xInt(lOff0+1),1)
@@ -211,7 +208,7 @@ do iPass=iPass1,iPass2
           jVec = iVecRS(iSym,iPass)+jV-1
           jAB = InfVec(jVec,1,iSym)
           kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)
-          Fac = -xInt(kOff0+mapRS2RS(iSym,jAB-iiBstR(iSym,1)))
+          Fac = -xInt(kOff0+RS2RS(jAB-iiBstR(iSym,1))%A(iSym))
           call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,xInt(kOff2),1)
         end do
 
@@ -246,7 +243,7 @@ do iPass=iPass1,iPass2
           do iAB=1,nAB
             jVec = jVec0+iAB
             jAB = InfVec(jVec,1,iSym)
-            kAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+            kAB = RS2RS(jAB-iiBstR(iSym,1))%A(iSym)
             VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
           end do
         end do
@@ -268,7 +265,7 @@ do iPass=iPass1,iPass2
           lOff0 = nnBstR(iSym,2)*(iV-1)
           do kAB=1,nnBstR(iSym,3)
             jAB = IndRed(iiBstR(iSym,3)+kAB,3)
-            lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
+            lAB = RS2RS(jAB-iiBstR(iSym,1))%A(iSym)
             xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
           end do
         end do

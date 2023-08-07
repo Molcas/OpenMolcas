@@ -13,6 +13,7 @@ subroutine CHO_PRTRED(IOPT)
 !
 ! Purpose: print information about reduced set.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: LuPri, NBAS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nSym
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -22,9 +23,6 @@ integer(kind=iwp) :: IOPT
 integer(kind=iwp) :: IRED, ISHLAB, ISYM, ISYMA, ISYMB, NRED, NSHP(2)
 real(kind=wp) :: PCT1, PCT2, XBAS(8), XXBAS(8), XXBAST
 logical(kind=iwp) :: CONTRIB(2)
-! Statement function
-integer(kind=iwp) :: MULD2H, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
 
 do ISYM=1,NSYM
   XBAS(ISYM) = real(NBAS(ISYM),kind=wp)
@@ -34,7 +32,7 @@ XXBAST = Zero
 do ISYM=1,NSYM
   XXBAS(ISYM) = Zero
   do ISYMB=1,NSYM
-    ISYMA = MULD2H(ISYMB,ISYM)
+    ISYMA = MUL(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
       XXBAS(ISYM) = XXBAS(ISYM)+XBAS(ISYMA)*(XBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then

@@ -110,7 +110,7 @@ integer(kind=iwp), pointer :: iiBstRSh(:,:,:) => null(), iiBstRSh_G(:,:,:) => nu
                               iQuAB_L(:,:) => null(), nnBstRSh(:,:,:) => null(), nnBstRSh_G(:,:,:) => null(), &
                               pTemp(:,:) => null(), pTemp1(:) => null(), pTemp3(:,:,:) => null()
 real(kind=wp), allocatable :: DSPNm(:), DSubScr(:)
-real(kind=wp), allocatable, target :: BkmThr(:,:), CHVBFI(:), CHVBUF(:), Diag_G_Hidden(:), Diag_Hidden(:), LQ_Tot(:)
+real(kind=wp), allocatable, target :: BkmThr(:,:), CHVBFI(:,:), CHVBUF(:), Diag_G_Hidden(:), Diag_Hidden(:), LQ_Tot(:)
 real(kind=wp), pointer :: Diag(:) => null(), Diag_G(:) => null()
 integer(kind=iwp), parameter :: ChoIniCheck = -6543210, INF_DIAG = 6, INF_IN2 = 5, INF_INIT = 3, INF_INT = 6, INF_PASS = 3, &
                                 INF_PROGRESS = 4, INF_SUBTR1 = 6, INF_TIMING = 2, INF_VECBUF = 3

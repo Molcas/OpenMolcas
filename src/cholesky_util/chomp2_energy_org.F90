@@ -19,6 +19,8 @@ subroutine ChoMP2_Energy_Org(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 !          sorted according to batches over occupied orbitals)
 !          Cholesky vectors on disk.
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: ChoAlg, DecoMP2, iFirstS, iMatab, iT1am, LiMatij, LnOcc, LnT1am, lUnit_F, nBatch, nMatab, nMP2Vec, nT1am, nVir, &
                   Verbose, Wref
@@ -29,18 +31,14 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-integer(kind=iwp) :: i0, iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, &
-                     iVec0, iVec1, jBatch, jVec, kEnd0, kEnd1, kEnd2, kMabij, kOff, kOff1, kOff2, kOffi, kOffj, kOffM, kRead, &
+integer(kind=iwp) :: i, i0, iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, &
+                     iVec0, iVec1, j, jBatch, jVec, kEnd0, kEnd1, kEnd2, kMabij, kOff, kOff1, kOff2, kOffi, kOffj, kOffM, kRead, &
                      kVai, kVbj, kVec, kVecai, kXaibj, kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, &
                      Nbj, nEnrVec(8), NumV, NumVec, nVaJi, nVec
 real(kind=wp) :: Fac
 integer(kind=iwp), parameter :: iDummy = -999999
 real(kind=wp), parameter :: X(0:1) = [Zero,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Org'
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irc = 0
 
@@ -137,7 +135,7 @@ do iBatch=1,nBatch
 
             nVaJi = 0
             do iSymi=1,nSym
-              iSyma = MulD2h(iSymi,iSym)
+              iSyma = Mul(iSymi,iSym)
               iVaJi(iSymi) = nVaJi
               nVaJi = nVaJi+nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
             end do
@@ -162,7 +160,7 @@ do iBatch=1,nBatch
               call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
               do iSymi=1,nSym
-                iSyma = MulD2h(iSymi,iSym)
+                iSyma = Mul(iSymi,iSym)
                 i0 = iFirstS(iSymi,iBatch)-1
                 do i=1,LnOcc(iSymi,iBatch)
                   kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i0+i-1)
@@ -179,7 +177,7 @@ do iBatch=1,nBatch
 
             do iSymj=1,nSym
 
-              iSymb = MulD2h(iSymj,iSym)
+              iSymb = Mul(iSymj,iSym)
 
               if (nVir(iSymb) > 0) then
 
@@ -200,8 +198,8 @@ do iBatch=1,nBatch
 
                 do iSymi=1,iSymj-1
 
-                  iSyma = MulD2h(iSymi,iSym)
-                  iSymab = MulD2h(iSyma,iSymb)
+                  iSyma = Mul(iSymi,iSym)
+                  iSymab = Mul(iSyma,iSymb)
                   iSymij = iSymab
 
                   if ((LnOcc(iSymi,iBatch) > 0) .and. (nVir(iSyma) > 0)) then

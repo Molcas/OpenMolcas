@@ -18,6 +18,7 @@ subroutine ChoMP2g_Reord_R(Wrk,lWrk)
 ! Purpose: To reorder R-vectors so it is practical to access
 !          one ia-piece at the time.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym
 use ChoMP2, only: AdrR1, AdrR2, iT1am, lUnit_F, LuRInv, nMoMo, nMP2Vec, nOcc, nVir
 use Definitions, only: wp, iwp
@@ -30,9 +31,6 @@ integer(kind=iwp) :: iA, iAdr, iAdr1, iAdr2, iBat, iClos, iI, ioffset1, iOffset2
 character(len=5) :: Fname
 character(len=*), parameter :: SecNam = 'ChoMP2g_Reord_r'
 integer(kind=iwp), external :: IsFreeUnit
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iTypR = 2
 iVecOV = 6
@@ -55,7 +53,7 @@ iAdr1 = 1
 iAdr2 = 1
 do iSymI=1,nSym
   do iSymA=1,nSym
-    iSym = MulD2h(iSymA,iSymI)
+    iSym = Mul(iSymA,iSymI)
     do iI=1,nOcc(iSymI)
       AdrR1(iSymA,iSymI,iI) = iAdr1
       iAdr1 = iAdr1+nVir(iSymA)*nMP2Vec(iSym)
@@ -103,7 +101,7 @@ do iSym=1,nSym
 
     do iVec1=1,NumVec
       do iSymI=1,nSym
-        iSymA = MulD2h(iSymI,iSym)
+        iSymA = Mul(iSymI,iSym)
         do iI=1,nOcc(iSymI)
           ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI)+(iVec1-1)*nMoMo(iSym,iVecOV)
           iOffset2 = (iVec1-1)*nVir(iSymA)+(iI-1)*NumVec*nVir(iSymA)+iT1am(iSymA,iSymI)*NumVec
@@ -115,7 +113,7 @@ do iSym=1,nSym
     ! Put the reordered vectors on disk
     iOpt = 1
     do iSymI=1,nSym
-      iSymA = MulD2h(iSymI,iSym)
+      iSymA = Mul(iSymI,iSym)
       do iI=1,nOcc(iSymI)
         lTot = nVir(iSymA)*NumVec
         iAdr = AdrR1(iSymA,iSymI,iI)+(iVec-1)*nVir(iSymA)
@@ -141,7 +139,7 @@ do iSym=1,nSym
     call dDaFile(lUnit_F(iSym,iTypR),iOpt,Wrk(kRia1),lTot,iAdr)
 
     do iSymI=1,nSym
-      iSymA = MulD2h(iSymI,iSym)
+      iSymA = Mul(iSymI,iSym)
       do iI=1,nOcc(iSymI)
         do iA=1,nVir(iSymA)
 
@@ -155,7 +153,7 @@ do iSym=1,nSym
     ! Put the reordered vectors on disk
     iOpt = 1
     do iSymI=1,nSym
-      iSymA = MulD2h(iSymI,iSym)
+      iSymA = Mul(iSymI,iSym)
       do iA=1,nVir(iSymA)
         lTot = nOcc(iSymI)*NumVec
         iAdr = AdrR2(iSymA,iSymI,iA)+(iVec-1)*nOcc(iSymI)

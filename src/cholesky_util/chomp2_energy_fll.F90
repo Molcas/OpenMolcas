@@ -18,6 +18,8 @@ subroutine ChoMP2_Energy_Fll(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 ! Purpose: compute MP2 energy contribution using original
 !          Cholesky vectors on disk for the case nBatch=1.
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: ChoAlg, DecoMP2, iMatab, iT1am, LiMatij, lUnit_F, nBatch, nMatab, nMP2Vec, nOcc, nT1am, nVir, Wref
 use Constants, only: Zero, One
@@ -27,16 +29,12 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-integer(kind=iwp) :: iAdr, iBat, iClos, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, iVec0, &
-                     iVec1, kEnd0, kEnd1, kEnd2, kMabij, kXaibj, kOff1, kOff2, kOffi, kOffj, kOffM, kVec, kVecai, kXint, &
+integer(kind=iwp) :: i, iAdr, iBat, iClos, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iTyp, iVaJi(8), iVec, &
+                     iVec0, iVec1, j, kEnd0, kEnd1, kEnd2, kMabij, kXaibj, kOff1, kOff2, kOffi, kOffj, kOffM, kVec, kVecai, kXint, &
                      LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumV, NumVec, nVaJi, nVec
 real(kind=wp) :: Fac
 real(kind=wp), parameter :: X(0:1) = [Zero,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Fll'
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (nBatch /= 1) then
   irc = -1
@@ -141,7 +139,7 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
         nVaJi = 0
         do iSymi=1,nSym
-          iSyma = MulD2h(iSymi,iSym)
+          iSyma = Mul(iSymi,iSym)
           iVaJi(iSymi) = nVaJi
           nVaJi = nVaJi+nVir(iSyma)*NumVec*nOcc(iSymi)
         end do
@@ -166,7 +164,7 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
           call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kVecai),lTot,iAdr)
 
           do iSymi=1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             do i=1,nOcc(iSymi)
               kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
               kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -182,7 +180,7 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
         do iSymj=1,nSym
 
-          iSymb = MulD2h(iSymj,iSym)
+          iSymb = Mul(iSymj,iSym)
 
           if (nVir(iSymb) > 0) then
 
@@ -203,8 +201,8 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
             do iSymi=1,iSymj-1
 
-              iSyma = MulD2h(iSymi,iSym)
-              iSymab = MulD2h(iSyma,iSymb)
+              iSyma = Mul(iSymi,iSym)
+              iSymab = Mul(iSyma,iSymb)
               iSymij = iSymab
 
               if ((nOcc(iSymi) > 0) .and. (nVir(iSyma) > 0)) then

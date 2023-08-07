@@ -19,6 +19,7 @@ subroutine ChoLSOSMP2_Energy_Fll1(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! vectors (i.e., not batched), reading the vectors only once
 ! at the expense of memory.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: DecoMP2, iOcc, iT1am, iVir, Laplace_BlockSize, Laplace_nGridPoints, lUnit_f, nBatch, nMP2Vec, nOcc, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -34,12 +35,6 @@ integer(kind=iwp) :: a, i, iAddr, iBlock, iClos, iOpt, ip0, ip1, ipi, ipj, iSym,
 real(kind=wp) :: Eq, tq
 real(kind=wp), allocatable :: V(:,:), X(:)
 real(kind=wp), external :: dDot_
-! Statement functions
-real(kind=wp) :: epsi, epsa
-integer(kind=iwp) :: MulD2h, j, k
-epsi(j,k) = EOcc(iOcc(k)+j)
-epsa(j,k) = EVir(iVir(k)+j)
-MulD2h(j,k) = ieor(j-1,k-1)+1
 
 ! init return code
 irc = 0
@@ -107,13 +102,13 @@ do iSym=1,nSym
       do iVec=1,nEnrVec(iSym)
         ip0 = Nai*(iVec-1)
         do iSymi=1,nSym
-          iSyma = MulD2h(iSym,iSymi)
+          iSyma = Mul(iSym,iSymi)
           ip1 = ip0+iT1am(iSyma,iSymi)
           do i=1,nOcc(iSymi)
-            call dScal_(nVir(iSyma),exp(epsi(i,iSymi)*tq),V(ip1+nVir(iSyma)*(i-1)+1,2),1)
+            call dScal_(nVir(iSyma),exp(EOcc(iOcc(iSym)+i)*tq),V(ip1+nVir(iSyma)*(i-1)+1,2),1)
           end do
           do a=1,nVir(iSyma)
-            call dScal_(nOcc(iSymi),exp(-epsa(a,iSyma)*tq),V(ip1+a,2),nVir(iSyma))
+            call dScal_(nOcc(iSymi),exp(-EVir(iVir(iSyma)+a)*tq),V(ip1+a,2),nVir(iSyma))
           end do
         end do
       end do

@@ -34,11 +34,6 @@ integer(kind=iwp) :: J, J0, mVec
 real(kind=wp) :: Nrm, Sm
 real(kind=wp), parameter :: Tol = 1.0e-12_wp
 real(kind=wp), external :: Cho_dSumElm, dDot_
-! Statement functions
-real(kind=wp) :: RefNorm, RefSum
-integer(kind=iwp) :: k, l
-RefNorm(k,l) = CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1))
-RefSum(k,l) = CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1)+1)
 
 irc = 0
 if (allocated(CHVBFI)) then
@@ -47,7 +42,7 @@ if (allocated(CHVBFI)) then
   do J=1,mVec
     Nrm = sqrt(dDot_(n,Vec(1,J),1,Vec(1,J),1))
     Sm = Cho_dSumElm(Vec(1,J),n)
-    if ((abs(RefNorm(J0+J,iSym)-Nrm) > Tol) .or. (abs(RefSum(J0+J,iSym)-Sm) > Tol)) irc = irc+1
+    if ((abs(CHVBFI(1,ip_ChVBfI_Sym(iSym)+J0+J)-Nrm) > Tol) .or. (abs(CHVBFI(2,ip_ChVBfI_Sym(iSym)+J0+J)-Sm) > Tol)) irc = irc+1
   end do
 end if
 

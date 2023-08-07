@@ -29,6 +29,7 @@ subroutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(2) = max error
 !          ErrStat(3) = rms error
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: EOcc, EVir, Incore, iOcc, iT1am, iVir, lUnit_F, nMP2Vec, nOcc, nT1am, nVir, OldVec
 use Constants, only: Zero, One
@@ -42,9 +43,6 @@ integer(kind=iwp) :: a, b, i, iai, iai0, iBatCol, ibj, ibj0, ibj1, iCol, iSyma, 
 real(kind=wp) :: DE, Ebj, Fac, xdim
 character(len=*), parameter :: SecNam = 'ChoMP2_DecChk_2'
 real(kind=wp), external :: ddot_
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 irc = 0
 
@@ -109,7 +107,7 @@ do iBatCol=1,nBatCol
     call ChoMP2_Col_Invai(ibj,iSym,b,iSymb,j,iSymj)
     Ebj = EVir(iVir(iSymb)+b)-Eocc(iOcc(iSymj)+j)
     do iSymi=1,nSym
-      iSyma = MulD2h(iSymi,iSym)
+      iSyma = Mul(iSymi,iSym)
       do i=1,nOcc(iSymi)
         iai0 = iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
         do a=1,nVir(iSyma)

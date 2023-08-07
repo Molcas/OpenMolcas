@@ -15,6 +15,8 @@ subroutine ChoMP2_fno_Srt(irc,Delete,P_ab,P_ii,EOcc,EVir,Wrk,lWrk)
 !
 !  F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: ChoAlg, DecoMP2, DeMP2, iMatab, iOcc, iVir, LiMatij, LiT1am, LnOcc, LnT1am, lUnit, MP2_small, nBatch, nMatab, &
                   nMP2Vec, nOcc, nVir, shf
@@ -25,16 +27,12 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: P_ab(*), P_ii(*),  EOcc(*), EVir(*), Wrk(lWrk)
-integer(kind=iwp) :: iAdr, iBat, iBatch, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iVaJi(8), iVec, iVec0, iVec1, ja, jb, &
-                     jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, kXaibj, &
-                     LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec
+integer(kind=iwp) :: i, iAdr, iBat, iBatch, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iVaJi(8), iVec, iVec0, iVec1, j, ja, &
+                     jb, jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, &
+                     kXaibj, LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec
 real(kind=wp) :: Dnom, xsDnom
 character(len=*), parameter :: SecNam = 'ChoMP2_fno_Srt'
 real(kind=wp), external :: ddot_
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irc = 0
 
@@ -123,7 +121,7 @@ if (MP2_small) then
 
             nVaJi = 0
             do iSymi=1,nSym
-              iSyma = MulD2h(iSymi,iSym)
+              iSyma = Mul(iSymi,iSym)
               iVaJi(iSymi) = nVaJi
               nVaJi = nVaJi+nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
             end do
@@ -148,7 +146,7 @@ if (MP2_small) then
               call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kVecai),lTot,iAdr)
 
               do iSymi=1,nSym
-                iSyma = MulD2h(iSymi,iSym)
+                iSyma = Mul(iSymi,iSym)
                 do i=1,LnOcc(iSymi,iBatch)
                   kOff1 = kVecai+LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(i-1)
                   kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -163,7 +161,7 @@ if (MP2_small) then
 
             do iSymj=1,nSym
 
-              iSymb = MulD2h(iSymj,iSym)
+              iSymb = Mul(iSymj,iSym)
 
               if (nVir(iSymb) > 0) then
 
@@ -197,7 +195,7 @@ if (MP2_small) then
 
           do iSymj=1,nSym
 
-            iSymb = MulD2h(iSymj,iSym)
+            iSymb = Mul(iSymj,iSym)
 
             if (nVir(iSymb) > 0) then
 
@@ -316,7 +314,7 @@ do iBatch=1,nBatch
 
           nVaJi = 0
           do iSymi=1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             iVaJi(iSymi) = nVaJi
             nVaJi = nVaJi+nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
           end do
@@ -341,7 +339,7 @@ do iBatch=1,nBatch
             call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kVecai),lTot,iAdr)
 
             do iSymi=1,nSym
-              iSyma = MulD2h(iSymi,iSym)
+              iSyma = Mul(iSymi,iSym)
               do i=1,LnOcc(iSymi,iBatch)
                 kOff1 = kVecai+LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(i-1)
                 kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -356,7 +354,7 @@ do iBatch=1,nBatch
 
           do iSymj=1,nSym
 
-            iSymb = MulD2h(iSymj,iSym)
+            iSymb = Mul(iSymj,iSym)
 
             if (nVir(iSymb) > 0) then
 
@@ -388,7 +386,7 @@ do iBatch=1,nBatch
 
           do iSymj=1,nSym
 
-            iSymb = MulD2h(iSymj,iSym)
+            iSymb = Mul(iSymj,iSym)
 
             if (nVir(iSymb) > 0) then
 

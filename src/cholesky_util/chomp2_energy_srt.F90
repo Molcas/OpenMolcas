@@ -18,6 +18,8 @@ subroutine ChoMP2_Energy_Srt(irc,Delete,EMP2,EOcc,EVir,Wrk,lWrk)
 ! Purpose: compute MP2 energy contribution using presorted MO
 !          Cholesky vectors on disk.
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: ChoAlg, DecoMP2, iMatab, LiMatij, LiT1am, LnOcc, LnT1am, lUnit, nBatch, nMatab, nMP2Vec, nVir, Verbose, Wref
 use Constants, only: Zero, One
@@ -27,18 +29,14 @@ implicit none
 integer(kind=iwp) :: irc, lWrk
 logical(kind=iwp) :: Delete
 real(kind=wp) :: EMP2, EOcc(*), EVir(*), Wrk(lWrk)
-integer(kind=iwp) :: iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iVaJi(8), iVec, iVec0, iVec1, &
-                     jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kVai, kVbj, kVec, kVecai, kXaibj, &
-                     kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec, nVaJi, &
-                     nVec
+integer(kind=iwp) :: i, iAdr, iBat, iBatch, ij, iOpt, iSym, iSyma, iSymab, iSymb, iSymi, iSymij, iSymj, iVaJi(8), iVec, iVec0, &
+                     iVec1, j, jBatch, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kVai, kVbj, kVec, kVecai, &
+                     kXaibj, kXint, LiT2am(8), LnT2am, lTot, lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, &
+                     NumVec, nVaJi, nVec
 real(kind=wp) :: Fac
 integer(kind=iwp), parameter :: iDummy = -999999
 real(kind=wp), parameter :: X(0:1) = [Zero,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Srt'
-! Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irc = 0
 
@@ -134,7 +132,7 @@ do iBatch=1,nBatch
 
             nVaJi = 0
             do iSymi=1,nSym
-              iSyma = MulD2h(iSymi,iSym)
+              iSyma = Mul(iSymi,iSym)
               iVaJi(iSymi) = nVaJi
               nVaJi = nVaJi+nVir(iSyma)*NumVec*LnOcc(iSymi,iBatch)
             end do
@@ -159,7 +157,7 @@ do iBatch=1,nBatch
               call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kVecai),lTot,iAdr)
 
               do iSymi=1,nSym
-                iSyma = MulD2h(iSymi,iSym)
+                iSyma = Mul(iSymi,iSym)
                 do i=1,LnOcc(iSymi,iBatch)
                   kOff1 = kVecai+LiT1am(iSyma,iSymi,iBatch)+nVir(iSyma)*(i-1)
                   kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
@@ -175,7 +173,7 @@ do iBatch=1,nBatch
 
             do iSymj=1,nSym
 
-              iSymb = MulD2h(iSymj,iSym)
+              iSymb = Mul(iSymj,iSym)
 
               if (nVir(iSymb) > 0) then
 
@@ -196,8 +194,8 @@ do iBatch=1,nBatch
 
                 do iSymi=1,iSymj-1
 
-                  iSyma = MulD2h(iSymi,iSym)
-                  iSymab = MulD2h(iSyma,iSymb)
+                  iSyma = Mul(iSymi,iSym)
+                  iSymab = Mul(iSyma,iSymb)
                   iSymij = iSymab
 
                   if ((LnOcc(iSymi,iBatch) > 0) .and. (nVir(iSyma) > 0)) then

@@ -27,6 +27,7 @@ subroutine PLF_Cho(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use Constants, only: One
@@ -41,9 +42,6 @@ integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i2, i3, i4, iAOi, iAOj,
                      irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jprint, jSO, jSOj, kSO, kSOk, lSO, &
                      lSOl, NCDAB, nijkl, NTELM, NUMA, NUMAB, NUMB, NUMC, NUMCD, NUMD
 real(kind=wp) :: r1, r2
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 irout = 109
 jprint = nprint(irout)

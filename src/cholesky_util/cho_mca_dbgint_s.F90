@@ -19,6 +19,8 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 !       2) calculations are performed in full (no use of red. sets
 !          apart from first)
 
+use Symmetry_Info, only: Mul
+use Index_Functions, only: iTri
 use Cholesky, only: IFCSew, LuPri, Mx2Sh, nBas, nBstSh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -27,16 +29,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: NSHLQ, ISHLQ(4,NSHLQ)
 logical(kind=iwp) :: PRTLAB
-integer(kind=iwp) :: ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
+integer(kind=iwp) :: I, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
 real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XCMP, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
 character(len=8) :: LABEL
 real(kind=wp), allocatable :: INT1(:), WRK(:)
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DBGINT_S'
 integer(kind=iwp), external :: CHO_F2SP
-! Statement functions
-integer(kind=iwp) :: MULD2H, ITRI, I, J
-MULD2H(I,J) = ieor(I-1,J-1)+1
-ITRI(I,J) = max(I,J)*(max(I,J)-3)/2+I+J
 
 ! Return if nothing specified.
 ! ----------------------------
@@ -185,7 +183,7 @@ XNINT = Zero
 do ISYM=1,NSYM
   XXLBST = Zero
   do ISYMB=1,NSYM
-    ISYMA = MULD2H(ISYMB,ISYM)
+    ISYMA = MUL(ISYMB,ISYM)
     if (ISYMA == ISYMB) then
       XXLBST = XXLBST+XLBAS(ISYMA)*(XLBAS(ISYMA)+One)*Half
     else if (ISYMA > ISYMB) then

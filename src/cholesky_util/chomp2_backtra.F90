@@ -22,6 +22,7 @@ subroutine ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
 ! Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
 !       instead !!
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use ChoMP2, only: iAOVir, iT1am, iT1AOT, lUnit_F, nMP2Vec, nOcc, nT1am, nT1AOT, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,9 +39,6 @@ integer(kind=iwp) :: AlBe, iAB(8,8), iAdr, iOpt, iSym, iSyma, iSymAl, iSymb, iSy
 character(len=4) :: FullName_AO
 real(kind=wp), allocatable :: AOVec(:), Buf(:), MOVec(:), Temp(:)
 character(len=*), parameter :: SecNam = 'ChoMP2_BackTra'
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Set up index arrays.
 ! --------------------
@@ -50,7 +48,7 @@ nAB_Tot = 0
 do iSym=1,nSym
   nAB(iSym) = 0
   do iSymb=1,nSym
-    iSyma = MulD2h(iSymb,iSym)
+    iSyma = Mul(iSymb,iSym)
     iAB(iSyma,iSymb) = nAB(iSym)
     nAB(iSym) = nAB(iSym)+nBas(iSyma)*nBas(iSymb)
   end do
@@ -95,7 +93,7 @@ do iSym=1,nSym
       call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,iAdr)
 
       do iSymi=1,nSym
-        iSyma = MulD2h(iSymi,iSym)
+        iSyma = Mul(iSymi,iSym)
         iSymAl = iSyma
         kCVir = iAOVir(iSymAl,iSyma)+1
         kMOVec = 1+iT1Am(iSyma,iSymi)
@@ -107,7 +105,7 @@ do iSym=1,nSym
       end do
 
       do iSymBe=1,nSym
-        iSymAl = MulD2h(iSymBe,iSym)
+        iSymAl = Mul(iSymBe,iSym)
         iSymi = iSymBe
         kTemp = 1+iT1AOT(iSymi,iSymAl)
         kCOcc = iT1AOT(iSymi,iSymBe)+1

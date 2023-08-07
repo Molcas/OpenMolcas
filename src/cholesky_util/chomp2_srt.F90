@@ -17,6 +17,7 @@ subroutine ChoMP2_Srt(Vec,Srt,nVec,iSym,iBatch)
 !
 ! Purpose: copy out subblock of vectors.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym
 use ChoMP2, only: DoDens, iFirstS, iT1am, LiT1am, LnOcc, LnT1am, nT1am, nVir
 #ifdef _BUG_
@@ -28,9 +29,6 @@ implicit none
 real(kind=wp) :: Vec(*), Srt(*)
 integer(kind=iwp) :: nVec, iSym, iBatch
 integer(kind=iwp) :: iSyma, iSymi, iVec, kOff0, kOff1, kOff2, kOff3, lCp
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 if (.not. DoDens) then
   do iVec=1,nVec
@@ -40,7 +38,7 @@ if (.not. DoDens) then
 
     do iSymi=1,nSym
 
-      iSyma = MulD2h(iSymi,iSym)
+      iSyma = Mul(iSymi,iSym)
       if ((LnOcc(iSymi,iBatch) > 0) .and. (nVir(iSyma) > 0)) then
         lCp = nVir(iSyma)*LnOcc(iSymi,iBatch)
         kOff2 = kOff0+iT1am(iSyma,iSymi)+nVir(iSyma)*(iFirstS(iSymi,iBatch)-1)
@@ -63,7 +61,7 @@ else
 
     do iSymI=1,nSym
 
-      iSymA = MulD2h(iSymI,iSym)
+      iSymA = Mul(iSymI,iSym)
       if ((LnBatOrb(iSymI,iBatch) > 0) .and. (nFro(iSymA)+nOcc(iSymA)+nVir(iSymA)+nDel(iSymA) > 0)) then
         lCp = (nFro(iSymA)+nOcc(iSymA)+nVir(iSymA)+nDel(iSymA))*LnBatOrb(iSymI,iBatch)
         kOff2 = kOff0+iPQ_prod(iSymA,iSymI)+(nFro(iSymA)+nOcc(iSymA)+nVir(iSymA)+nDel(iSymA))*(iFirstS(iSymi,iBatch)-1)

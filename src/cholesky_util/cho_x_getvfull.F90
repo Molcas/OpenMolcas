@@ -58,6 +58,7 @@
 
 subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
 use Definitions, only: wp, iwp, u6
 
@@ -66,10 +67,7 @@ integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, ipChoV(*), i
 real(kind=wp) :: RedVec(lRedVec)
 logical(kind=iwp) :: DoRead
 #include "WrkSpc.fh"
-integer(kind=iwp) :: ipVec(8), iSymp, iSymq, IVEC2, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: i, ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
 
 MXUSD = 0
 MUSED = 0
@@ -83,7 +81,7 @@ call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 if (iSwap == 0) then
 
   do iSymq=1,nSym
-    iSymp = muld2h(iSym,iSymq)
+    iSymp = mul(iSym,iSymq)
     if (nnBSF(iSymp,iSymq) > 0) then
       if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),nnBSF(iSymp,iSymq)*NUMV)
     end if
@@ -92,7 +90,7 @@ if (iSwap == 0) then
 else if ((iSwap == 1) .or. (iSwap == 2)) then
 
   do iSymq=1,nSym
-    iSymp = muld2h(iSym,iSymq)
+    iSymp = mul(iSym,iSymq)
     if (n2BSF(iSymp,iSymq) > 0) then
       if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),n2BSF(iSymp,iSymq)*NUMV)
     end if
@@ -128,7 +126,7 @@ if (DoRead) then
     jVec1 = jVec1+JNUM
 
     do i=1,nSym
-      j = mulD2h(i,ISYM)
+      j = mul(i,ISYM)
       if ((j >= i) .and. (iSkip(j) /= 0)) then
         if (iSwap == 0) then
           ipVec(j) = ipVec(j)+nnBSF(j,i)*JNUM

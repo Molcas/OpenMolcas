@@ -18,6 +18,7 @@ subroutine ChoMP2_Col_Invai(ai,iSymai,a,iSyma,i,iSymi)
 ! Purpose: calculate indices a and i (incl. symmetries)
 !          from compound index ai of symmetry iSymai.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym
 use ChoMP2, only: iT1am, nOcc, nVir
 use Definitions, only: iwp
@@ -28,9 +29,6 @@ integer(kind=iwp) :: iSym, i_, ai_1, ai_2
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SecNam = 'ChoMP2_Col_Invai'
 #endif
-! Statement function
-integer(kind=iwp) :: MulD2h, k, l
-MulD2h(k,l) = ieor(k-1,l-1)+1
 
 ! Find iSyma and iSymi.
 ! ---------------------
@@ -41,7 +39,7 @@ iSym = nSym+1
 do while (iSym > 1)
   iSym = iSym-1
   iSymi = iSym
-  iSyma = MulD2h(iSymi,iSymai)
+  iSyma = Mul(iSymi,iSymai)
   if ((nOcc(iSymi) > 0) .and. (nVir(iSyma) > 0) .and. (ai > iT1Am(iSyma,iSymi))) iSym = 0 ! Found! -- break loop
 end do
 

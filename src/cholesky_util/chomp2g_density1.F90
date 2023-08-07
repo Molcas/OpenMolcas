@@ -18,6 +18,7 @@ subroutine ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !          decomposed MP2 amplitudes.
 
+use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: AdrR1, AdrR2, iAdrOff, iFro, iOcc, iT1am, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, &
                   kWiK, kWJK, lFLagr, lLagr, lPab, lPai, lPaK, lPij, lPiK, lUnit_F, LuRInv, LuUVec, LuVVec, LuWVec, lWab, lWai, &
@@ -28,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc, lWrk
 real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
-integer(kind=iwp) :: iAdr, iB, iB1, iBBlock, iBRel, iClos, iI, iJ, iK, iOff, iOff1, iOffAmp, iOffL, iOffL1, iOffLic, iOffRic, &
+integer(kind=iwp) :: i, iAdr, iB, iB1, iBBlock, iBRel, iClos, iI, iJ, iK, iOff, iOff1, iOffAmp, iOffL, iOffL1, iOffLic, iOffRic, &
                      iOffU, iOffU1, iOffV, iOffV1, iOffX, iOpt, iSeed, iSym, iSymA, iSymB, iSymC, iSymI, iSymJ, iSymJC, iSymK, &
                      iTypL, iTypR, iVecFV, iVecOF, iVecOO, iVecOV, iVecVV, jBat, jSym, jVec, jVec1, kAmp, kBat, kEndAmp, &
                      kEndFLagr, kEndLab, kEndLagr, kEndLic, kEndLij, kEndliK, kEndLji, kEndLKa, kEndPab, kEndPai, kEndPaK, &
@@ -42,9 +43,6 @@ character(len=5) :: Fname
 real(kind=wp), parameter :: X(0:1) = [Zero,One]
 character(len=*), parameter :: SecNam = 'ChoMP2g_density1'
 integer(kind=iwp), external :: IsFreeUnit
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 #include "macros.fh"
 unused_var(EVir(1))
@@ -416,7 +414,7 @@ do iSym=1,nSym
       ! -------------------------------------------
       iOff1 = 0
       do iSymI=1,nSym
-        iSymA = MulD2h(iSym,iSymI)
+        iSymA = Mul(iSym,iSymI)
         if (nOcc(iSymI)*nVir(iSymA) /= 0) then
           do iI=1,nOcc(iSymI)
             iOff = (iI-1)*nVir(iSymA)+iOff1
@@ -433,7 +431,7 @@ do iSym=1,nSym
         iOff1 = 0
         do iSymK=1,nSym
           iSymI = iSymK
-          iSymB = MulD2h(iSymK,iSym)
+          iSymB = Mul(iSymK,iSym)
           if (nOcc(iSymK)*nVir(iSymB) /= 0) then
             iOff = nMoMo(iSym,iVecOV)*(kVec1-1)+iOff1
             call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),-Four,Wrk(kU+iOff),nVir(iSymB),Wrk(kRia+iOff),nVir(iSymB), &
@@ -593,7 +591,7 @@ do iSym=1,nSym
         iOffL1 = 0
         do iSymK=1,nSym
           iSymI = iSymK
-          iSymB = MulD2h(iSymK,iSym)
+          iSymB = Mul(iSymK,iSym)
           if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymB) /= 0) then
             iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
             iOffL = nMoMo(iSym,iVecFV)*(kVec1-1)+iOffL1
@@ -613,7 +611,7 @@ do iSym=1,nSym
         iOffL1 = 0
         do iSymK=1,nSym
           iSymI = iSymK
-          iSymB = MulD2h(iSymK,iSym)
+          iSymB = Mul(iSymK,iSym)
           if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymB) /= 0) then
             iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
             iOffL = nMoMo(iSym,iVecFV)*(kVec1-1)+iOffL1
@@ -632,7 +630,7 @@ do iSym=1,nSym
         iOffL1 = 0
         do iSymA=1,nSym
           iSymI = iSymA
-          iSymB = MulD2h(iSymA,iSym)
+          iSymB = Mul(iSymA,iSym)
           if (nOcc(iSymI)*nVir(iSymA)*nVir(iSymB) /= 0) then
             iOffU = nMoMo(iSym,iVecOV)*(kVec1-1)+iOffU1
             iOffL = nMoMo(iSym,iVecVV)*(kVec1-1)+iOffL1
@@ -649,7 +647,7 @@ do iSym=1,nSym
       iOffU1 = 0
       iOffL1 = 0
       do iSymJ=1,nSym
-        iSymA = MulD2h(iSym,iSymJ)
+        iSymA = Mul(iSym,iSymJ)
         iSymI = iSymA
         if (nOcc(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
           do iJ=1,nOcc(iSymJ)
@@ -668,7 +666,7 @@ do iSym=1,nSym
       iOffU1 = 0
       iOffL1 = 0
       do iSymJ=1,nSym
-        iSymA = MulD2h(iSym,iSymJ)
+        iSymA = Mul(iSym,iSymJ)
         iSymI = iSymA
         if (nOcc(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
           do iJ=1,nOcc(iSymJ)
@@ -686,7 +684,7 @@ do iSym=1,nSym
       ! ---------------------------------------
       iOff1 = 0
       do iSymI=1,nSym
-        iSymA = MulD2h(iSym,iSymI)
+        iSymA = Mul(iSym,iSymI)
         if (nOcc(iSymI)*nVir(iSymA) /= 0) then
           do iI=1,nOcc(iSymI)
             iOff = (iI-1)*nVir(iSymA)+iOff1
@@ -703,7 +701,7 @@ do iSym=1,nSym
         iOff1 = 0
         do iSymK=1,nSym
           iSymI = iSymK
-          iSymB = MulD2h(iSymK,iSym)
+          iSymB = Mul(iSymK,iSym)
           if (nOcc(iSymK)*nVir(iSymB) /= 0) then
             iOff = nMoMo(iSym,iVecOV)*(kVec1-1)+iOff1
             call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),Four,Wrk(kU+iOff),nVir(iSymB),Wrk(kLia+iOff),nVir(iSymB),One, &
@@ -717,7 +715,7 @@ do iSym=1,nSym
       iOffU1 = 0
       iOffL1 = 0
       do iSymJ=1,nSym
-        iSymA = MulD2h(iSym,iSymJ)
+        iSymA = Mul(iSym,iSymJ)
         iSymI = iSymA
         if (nFro(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
           do iJ=1,nOcc(iSymJ)
@@ -736,7 +734,7 @@ do iSym=1,nSym
       iOffU1 = 0
       iOffL1 = 0
       do iSymJ=1,nSym
-        iSymA = MulD2h(iSym,iSymJ)
+        iSymA = Mul(iSym,iSymJ)
         iSymI = iSymA
         if (nFro(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
           do iJ=1,nOcc(iSymJ)
@@ -917,13 +915,13 @@ do jSym=1,nSym
 
     do iSymJ=1,nSym
 
-      iSymB = MulD2h(jSym,iSymJ)
+      iSymB = Mul(jSym,iSymJ)
       if (nVir(iSymB) == 0) cycle
       nBBlock = (nVir(iSymB)-1)/nB+1
 
       do iSymI=1,nSym
-        iSymC = MulD2h(jSym,iSymI)
-        iSymJC = MulD2h(iSymJ,iSymC)
+        iSymC = Mul(jSym,iSymI)
+        iSymJC = Mul(iSymJ,iSymC)
         NumIC = nOcc(iSymI)*nVir(iSymC)
         if (nOcc(iSymI)*nVir(iSymC)*(NumRVecJ+NumLVecJ) == 0) cycle
         do iJ=1,nOcc(iSymJ)
@@ -1098,7 +1096,7 @@ do jSym=1,nSym
 
     iOff1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       if (nOcc(iSymJ)*nVir(iSymA)*NumRVecJ /= 0) then
         do iI=1,nOcc(iSymJ)
           iOff = (iI-1)*nVir(iSymA)+iOff1
@@ -1116,7 +1114,7 @@ do jSym=1,nSym
       iOff1 = 0
       do iSymJ=1,nSym
         iSymI = iSymJ
-        iSymB = MulD2h(iSymJ,jSym)
+        iSymB = Mul(iSymJ,jSym)
         if (nOcc(iSymJ)*nVir(iSymB) /= 0) then
           iOff = nMoMo(jSym,iVecOV)*(jVec1-1)+iOff1
           call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),Two,Wrk(kU+iOff),nVir(iSymB),Wrk(kRic+iOff),nVir(iSymB),One, &
@@ -1134,7 +1132,7 @@ do jSym=1,nSym
       iOffL1 = 0
       do iSymK=1,nSym
         iSymI = iSymK
-        iSymA = MulD2h(iSymK,jSym)
+        iSymA = Mul(iSymK,jSym)
         if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymA) /= 0) then
           iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
           iOffL = nMoMo(jSym,iVecFV)*(jVec1-1)+iOffL1
@@ -1154,7 +1152,7 @@ do jSym=1,nSym
       iOffL1 = 0
       do iSymK=1,nSym
         iSymI = iSymK
-        iSymA = MulD2h(iSymK,jSym)
+        iSymA = Mul(iSymK,jSym)
         if (nOcc(iSymI)*nFro(iSymK)*nVir(iSymA) /= 0) then
           iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
           iOffL = nMoMo(jSym,iVecFV)*(jVec1-1)+iOffL1
@@ -1174,7 +1172,7 @@ do jSym=1,nSym
       iOffL1 = 0
       do iSymI=1,nSym
         iSymA = iSymI
-        iSymB = MulD2h(iSymI,jSym)
+        iSymB = Mul(iSymI,jSym)
         if (nOcc(iSymI)*nVir(iSymB)*nVir(iSymA) /= 0) then
           iOffV = nMoMo(jSym,iVecOV)*(jVec1-1)+iOffV1
           iOffL = nMoMo(jSym,iVecVV)*(jVec1-1)+iOffL1
@@ -1192,7 +1190,7 @@ do jSym=1,nSym
     iOffV1 = 0
     iOffL1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       iSymI = iSymA
       if (nOcc(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
         do iJ=1,nOcc(iSymJ)
@@ -1212,7 +1210,7 @@ do jSym=1,nSym
     iOffV1 = 0
     iOffL1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       iSymI = iSymA
       if (nOcc(iSymI)*nVir(iSymA)*nOcc(iSymJ)*NumLVecJ /= 0) then
         do iJ=1,nOcc(iSymJ)
@@ -1230,7 +1228,7 @@ do jSym=1,nSym
     ! ---------------------------------------------
     iOff1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       if (nOcc(iSymJ)*nVir(iSymA)*NumLVecJ /= 0) then
         do iI=1,nOcc(iSymJ)
           iOff = (iI-1)*nVir(iSymA)+iOff1
@@ -1248,7 +1246,7 @@ do jSym=1,nSym
       iOff1 = 0
       do iSymJ=1,nSym
         iSymI = iSymJ
-        iSymB = MulD2h(iSymJ,jSym)
+        iSymB = Mul(iSymJ,jSym)
         if (nOcc(iSymJ)*nVir(iSymB) /= 0) then
           iOff = nMoMo(jSym,iVecOV)*(jVec1-1)+iOff1
           call dGemm_('T','N',nOcc(iSymJ),nOcc(iSymI),nVir(iSymB),-Two,Wrk(kV+iOff),nVir(iSymB),Wrk(kLic+iOff),nVir(iSymB),One, &
@@ -1263,7 +1261,7 @@ do jSym=1,nSym
     iOffV1 = 0
     iOffL1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       iSymI = iSymA
       if (nFro(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
         do iJ=1,nOcc(iSymJ)
@@ -1282,7 +1280,7 @@ do jSym=1,nSym
     iOffV1 = 0
     iOffL1 = 0
     do iSymJ=1,nSym
-      iSymA = MulD2h(jSym,iSymJ)
+      iSymA = Mul(jSym,iSymJ)
       iSymI = iSymA
       if (nFro(iSymI)*nVir(iSymA)*nOcc(iSymJ) /= 0) then
         do iJ=1,nOcc(iSymJ)
