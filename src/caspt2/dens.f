@@ -202,6 +202,8 @@ C
         If (do_csf) Then
           CALL GETMEM('DPTCanti','ALLO','REAL',ipDPTCanti,nDPTAO)
           Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTCanti),1)
+        Else
+          ipDPTCanti = ipDPTC !! not used
         End If
 C
         !! Work(LDPT) -> Work(ipDPT2)
@@ -416,6 +418,7 @@ C
         End If
         Do iSym = 1, nSym
           nOcc  = nIsh(iSym)+nAsh(iSym)
+          ipT2AO = 1
           If (.not.IfChol.or.iALGO.ne.1) Then
             lT2AO = nOcc*nOcc*nBasT*nBasT
             Call GetMem('T2AO','Allo','Real',ipT2AO,lT2AO)

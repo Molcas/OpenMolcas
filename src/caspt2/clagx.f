@@ -3746,9 +3746,9 @@ C SVC: set up a CSF string length as LENCSF
       LENCSF=MIN(LENCSF,256)
       LENCSF=MAX(LENCSF,10)
 
- 100  FORMAT(2X,A10,2X,A16,2X,A,2(2X,A13))
- 200  FORMAT(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
-     &       2X,A,2(2X,F13.6))
+C100  FORMAT(2X,A10,2X,A16,2X,A,2(2X,A13))
+C200  FORMAT(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
+C    &       2X,A,2(2X,F13.6))
 
 C Size of occup/spin coupling part of line:
 C     WRITE(6,*)' Occupation of active orbitals, and spin coupling'
