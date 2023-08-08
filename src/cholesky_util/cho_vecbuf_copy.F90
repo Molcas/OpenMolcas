@@ -46,8 +46,8 @@ if (nVec_in_Buf(iSym) == NumCho(iSym)) then
   nCopy = min(Left/nnBstR(iSym,2),nVec)
   if (nCopy > 0) then
     lCopy = nnBstR(iSym,2)*nCopy
-    kOff = ip_ChVBuf_Sym(iSym)+mUsed
-    call dCopy_(lCopy,Vec,1,CHVBUF(kOff),1)
+    kOff = ip_ChVBuf_Sym(iSym)+mUsed-1
+    CHVBUF(kOff+1:kOff+lCopy) = Vec(1:lCopy)
     nVec_in_Buf(iSym) = nVec_in_Buf(iSym)+nCopy
   end if
 end if

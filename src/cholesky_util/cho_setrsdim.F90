@@ -19,6 +19,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: MSYM, MRED, NDIMRS(MSYM,MRED), IRED, ILOC
 
-if (IRED <= MAXRED) call ICOPY(NSYM,NNBSTR(:,ILOC),1,NDIMRS(:,IRED),1)
+if (IRED <= MAXRED) NDIMRS(1:NSYM,IRED) = NNBSTR(1:NSYM,ILOC)
 
 end subroutine CHO_SETRSDIM

@@ -12,6 +12,7 @@
 subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
 use Cholesky, only: Cho_Real_Par
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -40,7 +41,7 @@ end interface
 
 if (Cho_Real_Par) then
   if (nQSP > 1) call Cho_Quit('Oops! Bug detected in '//SecNam,103)
-  call FZero(QVec,l_Qvec)
+  QVec(:) = Zero
   call Cho_p_QualSwp()
   call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
   call Cho_p_QualSwp()

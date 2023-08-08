@@ -30,7 +30,7 @@ use Cholesky, only: LuPri, nSym, NumCho
 use ChoMP2, only: DecoMP2, DoDens, DoFNO, DoGrdt, EFrozT, EMP2_dens, EOccuT, EVirtT, ip_Dab, ip_Dii, l_Dii, Laplace, nBatch, &
                   nMoMo, nMP2Vec, nT1am, SOS_mp2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -152,7 +152,7 @@ end if
 ! --------------------------------------------------
 
 nSym_Sav = nSym
-call iCopy(nSym,NumCho,1,nMP2Vec,1)
+nMP2Vec(1:nSym) = NumCho(1:nSym)
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
@@ -163,7 +163,7 @@ end if
 
 LuPri = u6
 nSym = nSym_Sav
-call iCopy(nSym,nMP2Vec,1,NumCho,1)
+NumCho(1:nSym) = nMP2Vec(1:nSym)
 
 ! Decompose (ai|bj) integrals, if requested.
 ! Set number of vectors to be used in energy calculation.
@@ -195,7 +195,7 @@ else if (DoDens) then
     call Cho_PrtTim('Cholesky MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
   end if
 else
-  call iCopy(nSym,NumCho,1,nMP2Vec,1)
+  nMP2Vec(1:nSym) = NumCho(1:nSym)
 end if
 call mma_deallocate(Diag)
 
@@ -229,7 +229,7 @@ if (DoFNO .and. (.not. DoDens)) then
   if (Verbose) call CWTime(CPUDab1,WallDab1)
   Delete = Delete_def
   call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),EOcc,EVir,DoSort,Delete)
-  call dscal_(l_Dii,-One,Work(ip_Dii),1)
+  Work(ip_Dii:ip_Dii+l_Dii-1) = -Work(ip_Dii:ip_Dii+l_Dii-1)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_FNO returned ',irc
     call Finish_this()

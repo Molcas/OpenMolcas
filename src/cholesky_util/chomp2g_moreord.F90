@@ -53,9 +53,9 @@ do iSym=1,nSym
     call dCopy_(nBas(iSym),CMO(kOff1),1,COrb1(kOff2),nOrb1(iSym))
   end do
 
-  kOff1 = iCount+nOffOrb2(iSym)*nBas(iSym)+1
-  kOff2 = iAoMo(iSym,iSym,iMoType2)+1
-  call dCopy_(nBas(isym)*nOrb2(iSym),CMO(kOff1),1,COrb2(kOff2),1)
+  kOff1 = iCount+nOffOrb2(iSym)*nBas(iSym)
+  kOff2 = iAoMo(iSym,iSym,iMoType2)
+  COrb2(kOff2+1:kOff2+nBas(iSym)*nOrb2(iSym)) = CMO(kOff1+1:kOff1+nBas(iSym)*nOrb2(iSym))
 
   iCount = iCount+nBas(iSym)*nBas(iSym)
 

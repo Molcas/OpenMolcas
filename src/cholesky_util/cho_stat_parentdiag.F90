@@ -198,7 +198,7 @@ if (nTot2 > 0) then
   RClass(1) = Rave-(Rave-Rmin)*Half
   RClass(2) = Rave
   RClass(3) = Rave+(Rmax-Rave)*Half
-  call iCopy(4,[0],0,iClass,1)
+  iClass(:) = 0
   nChk = 0
   do iVec=1,NumChT
     if (RC2(iVec) > Zero) then

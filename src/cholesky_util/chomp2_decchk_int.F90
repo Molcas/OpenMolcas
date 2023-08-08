@@ -45,7 +45,7 @@ end if
 ! Scale result array.
 ! -------------------
 
-call dScal_(Nai*Nbj,Fac,Col,1)
+Col(:,:) = Fac*Col(:,:)
 if (NumVec < 1) return
 
 ! Set up batch.

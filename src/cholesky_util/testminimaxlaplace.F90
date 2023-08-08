@@ -32,7 +32,7 @@ function TestMinimaxLaplace(Tolerance,Verbose)
 !     3: weights wrong, grid points wrong
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -98,8 +98,8 @@ end if
 if (irc /= 0) then
   irc = -1
 else
-  call dAXPY_(N,-One,tmlwr,1,tmlw,1)
-  call dAXPY_(N,-One,tmltr,1,tmlt,1)
+  tmlw(1:N) = tmlw(1:N)-tmlwr(1:N)
+  tmlt(1:N) = tmlt(1:N)-tmltr(1:N)
   RMSw = sqrt(dDot_(N,tmlw,1,tmlw,1)/real(N,kind=wp))
   RMSt = sqrt(dDot_(N,tmlt,1,tmlt,1)/real(N,kind=wp))
   if (Verbose) then

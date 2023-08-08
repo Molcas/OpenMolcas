@@ -11,7 +11,7 @@
 
 subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: V2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -24,7 +24,7 @@ type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
 #include "corbinf.fh"
-integer(kind=iwp) :: i, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, j, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+integer(kind=iwp) :: i, iLen, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, j, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
@@ -95,7 +95,8 @@ do iSym=1,mSym
                 nOrbAll(iSym),Zero,AORecBlock,nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
     call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
-    call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,AOTriBlock,1,TriDens(1+ipSymTri(iSym)),1)
+    iLen = nTri_Elem(nOrbAll(iSym))
+    TriDens(ipSymTri(iSym)+1:ipSymTri(iSym)+iLen) = AOTriBlock(1:iLen)
 
     if (Diagonalize) then
       ! Make a normal folded matrix
@@ -127,8 +128,10 @@ do iSym=1,mSym
       end do
 #     endif
 
-      call dcopy_(nOrbAll(iSym)**2,EigenVecBlock,1,EigenVecTot(1+ipSymRec(iSym)),1)
-      call dcopy_(nOrbAll(iSym),EigenValBlock,1,EigenValTot(1+ipSymLin(iSym)),1)
+      iLen = nOrbAll(iSym)**2
+      EigenVecTot(ipSymRec(iSym)+1:ipSymRec(iSym)+iLen) = EigenVecBlock(1:iLen)
+      iLen = nOrbAll(iSym)
+      EigenValTot(ipSymLin(iSym)+1:ipSymLin(iSym)+iLen) = EigenValBlock(1:iLen)
 
     end if
 

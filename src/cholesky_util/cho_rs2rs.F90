@@ -48,7 +48,7 @@ end if
 ! Set up mapping array.
 ! ---------------------
 
-call IZERO(IMAP,NNBSTR(ISYM,IRS2))
+IMAP(1:NNBSTR(ISYM,IRS2)) = 0
 do ISHLAB=1,NNSHL
   N2 = NNBSTRSH(ISYM,ISHLAB,IRS2)
   N3 = NNBSTRSH(ISYM,ISHLAB,IRS3)

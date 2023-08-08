@@ -33,8 +33,8 @@ integer(kind=iwp) :: iSyma, iSymi, iVec, kOff0, kOff1, kOff2, kOff3, lCp
 if (.not. DoDens) then
   do iVec=1,nVec
 
-    kOff0 = nT1am(iSym)*(iVec-1)+1
-    kOff1 = LnT1am(iSym,iBatch)*(iVec-1)+1
+    kOff0 = nT1am(iSym)*(iVec-1)
+    kOff1 = LnT1am(iSym,iBatch)*(iVec-1)
 
     do iSymi=1,nSym
 
@@ -43,7 +43,7 @@ if (.not. DoDens) then
         lCp = nVir(iSyma)*LnOcc(iSymi,iBatch)
         kOff2 = kOff0+iT1am(iSyma,iSymi)+nVir(iSyma)*(iFirstS(iSymi,iBatch)-1)
         kOff3 = kOff1+LiT1am(iSyma,iSymi,iBatch)
-        call dCopy_(lCp,Vec(kOff2),1,Srt(kOff3),1)
+        Srt(kOff3+1:kOff3+lCp) = Vec(kOff2+1:kOff2+lCp)
       end if
 
     end do
@@ -56,8 +56,8 @@ else
   ! (occ,vir|occ,vir) are needed).
   do iVec=1,nVec
 
-    kOff0 = nPQ_prod(iSym)*(iVec-1)+1
-    kOff1 = LnPQprod(iSym,iBatch)*(iVec-1)+1
+    kOff0 = nPQ_prod(iSym)*(iVec-1)
+    kOff1 = LnPQprod(iSym,iBatch)*(iVec-1)
 
     do iSymI=1,nSym
 
@@ -66,7 +66,7 @@ else
         lCp = (nFro(iSymA)+nOcc(iSymA)+nVir(iSymA)+nDel(iSymA))*LnBatOrb(iSymI,iBatch)
         kOff2 = kOff0+iPQ_prod(iSymA,iSymI)+(nFro(iSymA)+nOcc(iSymA)+nVir(iSymA)+nDel(iSymA))*(iFirstS(iSymi,iBatch)-1)
         kOff3 = kOff1+LiPQprod(iSyma,iSymi,iBatch)
-        call dCopy_(lCp,Vec(kOff2),1,Srt(kOff3),1)
+        Srt(kOff3+1:kOff3+lCp) = Vec(kOff2+1:kOff2+lCp)
       end if
     end do
   end do

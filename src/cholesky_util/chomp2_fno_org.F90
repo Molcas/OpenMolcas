@@ -51,10 +51,10 @@ DeMP2 = Zero
 
 if (DecoMP2) then
   iTyp = 2
-  call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+  nEnrVec(1:nSym) = nMP2Vec(1:nSym)
 else
   iTyp = 1
-  call iCopy(nSym,NumCho,1,nEnrVec,1)
+  nEnrVec(1:nSym) = NumCho(1:nSym)
 end if
 
 if (MP2_small) then
@@ -76,7 +76,7 @@ if (MP2_small) then
     if (ChoAlg == 2) then
 
       kMabij = kXaibj  ! rename pointer
-      call FZero(Wrk(kMabij),LnT2am) ! initialize
+      Wrk(kMabij:kMabij+LnT2am-1) = Zero ! initialize
 
       ! Loop over Cholesky vector symmetries.
       ! -------------------------------------
@@ -154,7 +154,7 @@ if (MP2_small) then
                 do i=1,LnOcc(iSymi,iBatch)
                   kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i0+i-1)
                   kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
-                  call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+                  Wrk(kOff2:kOff2+nVir(iSyma)-1) = Wrk(kOff1:kOff1+nVir(iSyma)-1)
                 end do
               end do
 
@@ -271,7 +271,7 @@ do iBatch=1,nBatch
   if (ChoAlg == 2) then
 
     kMabij = kXaibj  ! rename pointer
-    call FZero(Wrk(kMabij),LnT2am) ! initialize
+    Wrk(kMabij:kMabij+LnT2am-1) = Zero ! initialize
 
     ! Loop over Cholesky vector symmetries.
     ! -------------------------------------
@@ -349,7 +349,7 @@ do iBatch=1,nBatch
               do i=1,LnOcc(iSymi,iBatch)
                 kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i0+i-1)
                 kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
-                call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+                Wrk(kOff2:kOff2+nVir(iSyma)-1) = Wrk(kOff1:kOff1+nVir(iSyma)-1)
               end do
             end do
 

@@ -24,7 +24,7 @@ real(kind=wp) :: c1, c2, w1, w2
 
 if (Cho_Real_Par) then
   call Cho_Timer(c1,w1)
-  call iCopy(nSym,NumCho,1,NumCho_G,1)
+  NumCho_G(1:nSym) = NumCho(1:nSym)
   call Cho_GAIGop(NumCho_G,nSym,'max')
   NumChT_G = NumCho_G(1)
   do iSym=2,nSym

@@ -58,7 +58,7 @@ end if
 ! Set up diagonal.
 ! ----------------
 
-call dCopy_(nDim,DiaInp,1,Diag,1)
+Diag(:) = DiaInp(:)
 
 if (Restart) then ! subtract previous vectors
   if (NumCho > 0) then

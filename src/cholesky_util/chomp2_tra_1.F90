@@ -22,6 +22,7 @@ subroutine ChoMP2_Tra_1(COcc,CVir,Diag,DoDiag,Wrk,lWrk,iSym)
 
 use Cholesky, only: InfVec, nnBstR, NumCho
 use ChoMP2, only: lUnit_F, nT1am, nT1AOT
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -41,7 +42,7 @@ if ((NumCho(iSym) < 1) .or. (nT1am(iSym) < 1)) return
 ! Initialize Diag (if needed).
 ! ----------------------------
 
-if (DoDiag) call FZero(Diag,nT1am(iSym))
+if (DoDiag) Diag(1:nT1am(iSym)) = Zero
 
 ! Allocate memory for half-transformed vector.
 ! --------------------------------------------

@@ -18,7 +18,7 @@ integer(kind=iwp) :: NSYM, NSHELL, IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL), NBS
                      ISOSHL(NBAST)
 integer(kind=iwp) :: IA, ISHL, ISYM
 
-call IZERO(NBASSH,NSYM*NSHELL)
+NBASSH(:,:) = 0
 do ISYM=1,NSYM
   do IA=1,NBAS(ISYM)
     ISHL = ISOSHL(IBAS(ISYM)+IA)

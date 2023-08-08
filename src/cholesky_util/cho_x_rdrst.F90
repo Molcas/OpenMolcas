@@ -178,7 +178,7 @@ do iSym=1,nSym
     return
   else
     if (NumCho(iSym) < 1) then
-      call iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
+      InfVec(:,:,iSym) = 0
     else
       InfVec(:,:,iSym) = 0
       do j=1,size(InfVec,2)

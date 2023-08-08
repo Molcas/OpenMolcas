@@ -125,13 +125,13 @@ do iPass=iPass1,iPass2
     LenLin = 79
     write(Lupri,'(80A)') ('-',i=1,LenLin)
     call Cho_Flush(Lupri)
-    call iCopy(nSym,NumCho,1,NumCho_OLD,1)
+    NumCho_OLD(1:nSym) = NumCho(1:nSym)
   else if (iPrint >= INF_PASS) then
     write(Lupri,'(/,A,I5)') 'Integral pass number',iPass
     write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
     write(LUPRI,'(A,8I8)') '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
     call Cho_Flush(Lupri)
-    call iCopy(nSym,NumCho,1,NumCho_OLD,1)
+    NumCho_OLD(1:nSym) = NumCho(1:nSym)
   end if
 
   ! Zero entries in integral matrix that are not part of this
@@ -149,7 +149,7 @@ do iPass=iPass1,iPass2
           kAB = RS2RS(jAB)%A(iSym)
           VecTmp(kAB) = xInt(lOff0+kAB)
         end do
-        call dCopy_(lTot,VecTmp,1,xInt(lOff0+1),1)
+        XInt(lOff0+1:lOff0+lTot) = VecTmp(1:lTot)
       end do
     end do
   end if
@@ -183,8 +183,7 @@ do iPass=iPass1,iPass2
         else
           Fac = 1.0e7_wp
         end if
-        kOff = kOff0+1
-        call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
+        xInt(kOff0:kOff0+nnBstR(iSym,2)) = Fac*xInt(kOff0:kOff0+nnBstR(iSym,2))
 
         do i=1,nnBstR(iSym,2)
           ii = iiBstR(iSym,2)+i
@@ -203,13 +202,12 @@ do iPass=iPass1,iPass2
         call Cho_ChkDia(Diag,iSym,xMin,xMax,xM,nNegT,nNeg,nConv)
         nNZTot = nNZTot+nNeg
 
-        kOff1 = kOff0+1
         do jV=iV+1,nVecRS(iSym,iPass)
           jVec = iVecRS(iSym,iPass)+jV-1
           jAB = InfVec(jVec,1,iSym)
-          kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)
+          kOff2 = iOff1(iSym)+nnBstR(iSym,2)*(jV-1)-1
           Fac = -xInt(kOff0+RS2RS(jAB-iiBstR(iSym,1))%A(iSym))
-          call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff1),1,xInt(kOff2),1)
+          xInt(kOff2+1:kOff2+nnBstR(iSym,2)) = xInt(kOff2+1:kOff2+nnBstR(iSym,2))+Fac*xInt(kOff0+1:kOff0+nnBstR(iSym,2))
         end do
 
         call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
@@ -259,7 +257,7 @@ do iPass=iPass1,iPass2
 
       if (iPass > iPass1) then
         lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
-        call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
+        VecTmp(1:lTot) = xInt(iOff1(iSym):iOff1(iSym)+lTot-1)
         do iV=1,nVecRS(iSym,iPass)
           kOff0 = iOff2(iSym)+nnBstR(iSym,3)*(iV-1)-1
           lOff0 = nnBstR(iSym,2)*(iV-1)

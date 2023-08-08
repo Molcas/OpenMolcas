@@ -148,7 +148,7 @@ l_Wrk = min(l_Wrk,lNdMx)
 ! Reinitialize vector counters.
 ! -----------------------------
 
-call iZero(NumCho,nSym)
+NumCho(1:nSym) = 0
 NumChT = 0
 
 ! Start batch loop over integral passes.
@@ -214,7 +214,7 @@ do while (iPass < nPass)
     write(Lupri,'(A,I10,A,F10.3,A,A)') 'Total memory available           : ',l_WrkT,' 8-byte words; ',dl_WrkT,' ',Unt
     call Cho_Word2Byte(l_Int,8,dl_Int,Unt)
     write(Lupri,'(A,I10,A,F10.3,A,A)') 'Memory used for integrals/vectors: ',l_Int,' 8-byte words; ',dl_Int,' ',Unt
-    call iZero(nScrV,nSym)
+    nScrV(1:nSym) = 0
     do i=iPass1,iPass+NumPass
       do iSym=1,nSym
         nScrV(iSym) = nScrV(iSym)+nVecRS(iSym,i)
@@ -246,7 +246,7 @@ do while (iPass < nPass)
   !                  reduced set.
   ! ----------------------------------------------------------
 
-  call iZero(nQual,nSym)
+  nQual(1:nSym) = 0
   iPass2 = iPass1+NumPass-1
   do jPass=iPass1,iPass2
     do iSym=1,nSym

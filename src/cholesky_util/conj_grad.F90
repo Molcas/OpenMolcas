@@ -79,28 +79,28 @@ use Definitions, only: wp, iwp
 implicit none
 logical(kind=iwp) :: Done
 integer(kind=iwp) :: lVector
-real(kind=wp) :: Prec(lVector), X(lVector), XTemp(lVector), R(lVector), RTemp(lVector), P(lVector), PTemp(lVector), Z(lVector), &
-                 ZTemp(lVector), AP(lVector), Tolerance, res
+real(kind=wp) :: AP(lVector), P(lVector), Prec(lVector), PTemp(lVector), R(lVector), res, RTemp(lVector), Tolerance, X(lVector), &
+                 XTemp(lVector), Z(lVector), ZTemp(lVector)
 integer(kind=iwp) :: i
 real(kind=wp) :: Alfa, Beta
 real(kind=wp), external :: ddot_
 
 ! Copy the vectors into the temporary ones. ipXTemp, ipRTemp etc. will
 ! then contain x_k, r_k etc.
-call dcopy_(lVector,X(1),1,XTemp(1),1)
-call dcopy_(lVector,R(1),1,RTemp(1),1)
-call dcopy_(lVector,P(1),1,PTemp(1),1)
-call dcopy_(lVector,Z(1),1,ZTemp(1),1)
+XTemp(:) = X(:)
+RTemp(:) = R(:)
+PTemp(:) = P(:)
+ZTemp(:) = Z(:)
 
 ! Now we calculate Alfa = (r_k * z_k) / (p_k * [A * p_k])
 Alfa = ddot_(lVector,RTemp(1),1,ZTemp(1),1)/ddot_(lVector,PTemp(1),1,AP(1),1)
 
 ! Now we calculate x_k+1 = x_k + alfa * p_k
 
-call daxpy_(lVector,Alfa,PTemp(1),1,X(1),1)
+X(:) = X(:)+Alfa*PTemp(:)
 
 ! Now we calculate r_k+1 = r_k - alfa * [A * p_k]
-call daxpy_(lVector,-Alfa,AP(1),1,R(1),1)
+R(:) = R(:)-Alfa*AP(:)
 
 ! At this point we can both see if we are done and
 Res = sqrt(ddot_(lVector,R(1),1,R(1),1))
@@ -117,8 +117,7 @@ else
   Beta = ddot_(lVector,R(1),1,Z(1),1)/ddot_(lVector,RTemp(1),1,ZTemp(1),1)
 
   ! Now we calculate P_k+1
-  call dcopy_(lVector,Z(1),1,P(1),1)
-  call daxpy_(lVector,Beta,PTemp(1),1,P(1),1)
+  P(:) = Z(:)+Beta*PTemp(:)
 
 end if
 

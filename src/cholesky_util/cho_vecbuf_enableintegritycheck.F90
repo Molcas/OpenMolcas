@@ -75,8 +75,8 @@ if (l_ChVBfI > 0) then
   if (iPrint > 2) call Cho_VecBuf_PrtRef('@NABLE')
   write(LuPri,'(A)') 'Cholesky vector buffer integrity checks enabled'
 else
-  call iZero(l_ChVBfI_Sym,nSym)
-  call iZero(ip_ChVBfI_Sym,nSym)
+  l_ChVBfI_Sym(1:nSym) = 0
+  ip_ChVBfI_Sym(1:nSym) = 0
 end if
 
 end subroutine Cho_VecBuf_EnableIntegrityCheck

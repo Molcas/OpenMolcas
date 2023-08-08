@@ -82,7 +82,7 @@ else
       Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
     end do
   end do
-  call dcopy_(NOV,Y(1+NOV*(NVec-1)),1,R,1)
+  R(1:NOV) = Y(NOV*(NVec-1)+1:NOV*NVec)
 
 end if
 

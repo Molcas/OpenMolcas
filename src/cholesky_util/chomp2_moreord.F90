@@ -39,9 +39,9 @@ do iSym=1,nSym
     call dCopy_(nBas(iSym),CMO(kOff1),1,COcc(kOff2),nOcc(iSym))
   end do
 
-  kOff1 = jCount+nBas(iSym)*nOcc(iSym)+1
-  kOff2 = iAOVir(iSym,iSym)+1
-  call dCopy_(nBas(isym)*nVir(iSym),CMO(kOff1),1,CVir(kOff2),1)
+  kOff1 = jCount+nBas(iSym)*nOcc(iSym)
+  kOff2 = iAOVir(iSym,iSym)
+  CVir(kOff2+1:kOff2+nBas(iSym)*nVir(iSym)) = CMO(kOff1+1:kOff1+nBas(iSym)*nVir(iSym))
 
   iCount = iCount+nBas(iSym)*nBas(iSym)
 

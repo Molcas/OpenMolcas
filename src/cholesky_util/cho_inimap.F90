@@ -27,7 +27,7 @@ if (RSTCHO) then
   IADR = 0
   call IDAFILE(LUMAP,IOPT,INTMAP,NDIM,IADR)
 else
-  call IZERO(INTMAP,size(INTMAP))
+  INTMAP(:) = 0
 end if
 
 end subroutine CHO_INIMAP

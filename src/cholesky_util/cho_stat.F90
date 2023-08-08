@@ -504,7 +504,7 @@ if (CHO_TSTSCREEN .and. (.not. (CHO_FAKE_PAR .and. (NPROCS > 1) .and. Is_Real_Pa
 
               call CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,SSNORM)
               XT = Zero
-              call FZERO(XC,NTAU)
+              XC(:) = Zero
               do ISHAB=1,NNSHL
                 if (NNBSTRSH(ISYM,ISHAB,ILOC) > 0) then
                   do ISHGD=ISHAB,NNSHL

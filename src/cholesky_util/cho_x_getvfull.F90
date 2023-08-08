@@ -60,6 +60,7 @@ subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,
 
 use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -83,7 +84,7 @@ if (iSwap == 0) then
   do iSymq=1,nSym
     iSymp = mul(iSym,iSymq)
     if (nnBSF(iSymp,iSymq) > 0) then
-      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),nnBSF(iSymp,iSymq)*NUMV)
+      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) Work(ipChoV(iSymp):ipChoV(iSymp)+nnBSF(iSymp,iSymq)*NUMV-1) = Zero
     end if
   end do
 
@@ -92,7 +93,7 @@ else if ((iSwap == 1) .or. (iSwap == 2)) then
   do iSymq=1,nSym
     iSymp = mul(iSym,iSymq)
     if (n2BSF(iSymp,iSymq) > 0) then
-      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) call FZero(Work(ipChoV(iSymp)),n2BSF(iSymp,iSymq)*NUMV)
+      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) Work(ipChoV(iSymp):ipChoV(iSymp)+n2BSF(iSymp,iSymq)*NUMV-1) = Zero
     end if
   end do
 

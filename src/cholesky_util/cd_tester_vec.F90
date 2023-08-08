@@ -23,13 +23,13 @@ integer(kind=iwp) :: kOff, lTot
 character(len=*), parameter :: SecNam = 'CD_Tester_Vec'
 
 if (iOpt == 1) then
-  kOff = 1+nDim*(iVec1-1)
+  kOff = nDim*(iVec1-1)
   lTot = nDim*nVec
-  call dCopy_(lTot,Buf,1,Vec(kOff),1)
+  Vec(kOff+1:kOff+lTot) = Buf(1:lTot)
 else if (iOpt == 2) then
-  kOff = 1+nDim*(iVec1-1)
+  kOff = nDim*(iVec1-1)
   lTot = nDim*nVec
-  call dCopy_(lTot,Vec(kOff),1,Buf,1)
+  Buf(1:lTot) = Vec(kOff+1:kOff+lTot)
 else
   write(u6,*)
   write(u6,*) 'WARNING! WARNING! WARNING! WARNING!'

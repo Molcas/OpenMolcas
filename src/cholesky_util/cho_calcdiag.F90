@@ -70,7 +70,7 @@ LUSCR = JUNIT
 ! Initialize abs. max. diag. array.
 ! ---------------------------------
 
-call FZERO(DIAMAX,NSYM)
+DIAMAX(1:NSYM) = Zero
 
 ! Allocate array for storing 10 most negative diagonals
 ! (there should be none, of course, but they do show up)

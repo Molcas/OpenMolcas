@@ -43,7 +43,7 @@
 subroutine Cho_Dec_Qual(Diag,Lab,Q,Kab,iD,NumV,QDiag)
 
 use Cholesky, only: Cho_1Center, nQual, nSym, Span, ThrCom
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -59,7 +59,7 @@ irc = 0
 ! Determine the max diagonal (qualified excluded)
 ! For 1-center decomposition, this is done later.
 if (Cho_1Center) then
-  call fZero(Dmax,nSym)
+  Dmax(1:nSym) = Zero
 else
   Sync = .false.
   call Cho_P_MaxDX(Diag,Sync,Dmax)

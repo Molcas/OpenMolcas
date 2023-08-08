@@ -179,7 +179,7 @@ if (LocDbg) then
 end if
 
 do j=1,nVR
-  call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
+  VecR(:,nVr+1) = VecR(:,j)
   iCount = 0
   do iNode=1,nProcs
     do iRSL=1,nRSL(iNode)

@@ -12,6 +12,7 @@
 subroutine Cho_P_GetMQ(MQ,l_MQ,LstQSP,nQSP)
 
 use Cholesky, only: Cho_Real_Par
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,7 +29,7 @@ character(len=*), parameter :: SecNam = 'Cho_P_GetMQ'
 
 if (Cho_Real_Par) then
   if (nQSP > 1) call Cho_Quit('Oops! Bug detected in '//SecNam,103)
-  call FZero(MQ,l_MQ)
+  MQ(:) = Zero
   call Cho_p_QualSwp()
   call Cho_GetMQ(MQ,l_MQ,LstQSP,nQSP)
   call Cho_p_QualSwp()

@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp) :: l_NVT, NVT(l_NVT)
 integer(kind=iwp) :: i
 
-call iCopy(l_NVT,NVT,1,NumCho_G,1)
+NumCho_G(1:l_NVT) = NVT(:)
 NumChT_G = NumCho_G(1)
 do i=2,l_NVT
   NumChT_G = NumChT_G+NumCho_G(i)

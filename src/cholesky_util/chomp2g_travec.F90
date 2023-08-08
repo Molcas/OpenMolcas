@@ -45,7 +45,7 @@ if (lScr < nMoAo(iSyScr,iMoType1)) then
   write(u6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
   call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
 else
-  call FZero(Scr,nMoAo(iSyScr,iMoType1))
+  Scr(1:nMoAo(iSyScr,iMoType1)) = Zero
 end if
 
 ! First half-transformation step:

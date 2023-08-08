@@ -87,7 +87,7 @@ do ISYM=1,NSYM
     ! Save a copy of the original diagonal.
     ! -------------------------------------
 
-    call DCOPY_(NDIM,DIAG(IIBSTR(ISYM,1)+1),1,WRK(KDIAG),1)
+    WRK(KDIAG:KDIAG+NDIM-1) = DIAG(IIBSTR(ISYM,1)+1:IIBSTR(ISYM,1)+NDIM)
 
     ! Calculate Cholesky diagonal.
     ! ----------------------------

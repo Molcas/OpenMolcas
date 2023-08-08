@@ -105,7 +105,7 @@ do iSym=1,nSym
         do iI=1,nOcc(iSymI)
           ioffset1 = (iI-1)*nVir(iSymA)+iT1am(iSymA,iSymI)+(iVec1-1)*nMoMo(iSym,iVecOV)
           iOffset2 = (iVec1-1)*nVir(iSymA)+(iI-1)*NumVec*nVir(iSymA)+iT1am(iSymA,iSymI)*NumVec
-          call dCopy_(nVir(iSymA),Wrk(kRia1+iOffset1),1,Wrk(kRia2+iOffset2),1)
+          Wrk(kRia2+iOffset2:kRia2+iOffset2+nVir(iSymA)-1) = Wrk(kRia1+iOffset1:kRia1+iOffset1+nVir(iSymA)-1)
         end do
       end do
     end do

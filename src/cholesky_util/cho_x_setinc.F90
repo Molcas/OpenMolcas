@@ -23,13 +23,12 @@ use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho
                     Frac_ChVBuf, Haltit, iABMnZ, iAlQua, iBas, iChkQ, IFCSew, iiBstR, iOff_Col, iOffQ, ip_CHVBFI_SYM, &
                     ip_CHVBUF_SYM, IPRINT, l_CHVBFI_SYM, l_CHVBUF_SYM, lBuf, LuCho, LuMap, LuPri, LuRed, LuRst, LuScr, LuSel, &
                     LuTmp, MaxQual, MaxRed, MaxVec, MinQual, mmBstRT, Mode_Screen, ModRst, Mx2Sh, MxORSh, MxShPr, N1_Qual, &
-                    N1_VecRd, N2_Qual, N2_VecRd, n_MySP, N_Subtr, nBas, nBasT, nChkQ, nCol_BkmThr, nCol_BkmVec, nCol_Chk, nColAB, &
-                    nDecom, nDGM_call, nDim_Batch, nInteg, nMisc, nnBstR, nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual_L, nRow_BkmThr, &
-                    nRow_BkmVec, nSection, nShell, nSym, nSys_call, NumCho, NumCho_Bak, NumChT, nVec_in_Buf, nVecRS1, RstCho, &
-                    RstDia, Run_Mode, ScDiag, ShA, ShAB, ShB, ShC, ShCD, ShD, Span, SSNorm, SSTau, SubScrStat, tDecDrv, tDecom, &
-                    Thr_PreScreen, Thr_SimRI, ThrCom, ThrDiag, ThrNeg, TimSec, tInteg, tMisc, Tol_DiaChk, TooNeg, Trace_Idle, &
-                    WarNeg, XCho_AdrVec, XDamp, XlDiag, XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, &
-                    XThrNeg, XTooNeg, XWarNeg
+                    N1_VecRd, N2_Qual, N2_VecRd, n_MySP, N_Subtr, nBas, nBasT, nCol_BkmThr, nCol_BkmVec, nCol_Chk, nColAB, &
+                    nDGM_call, nDim_Batch, nnBstR, nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual_L, nRow_BkmThr, nRow_BkmVec, nShell, &
+                    nSym, nSys_call, NumCho, NumCho_Bak, NumChT, nVec_in_Buf, nVecRS1, RstCho, RstDia, Run_Mode, ScDiag, ShA, &
+                    ShAB, ShB, ShC, ShCD, ShD, Span, SSNorm, SSTau, SubScrStat, tDecDrv, tDecom, Thr_PreScreen, Thr_SimRI, ThrCom, &
+                    ThrDiag, ThrNeg, TimSec, tInteg, tMisc, Tol_DiaChk, TooNeg, Trace_Idle, WarNeg, XCho_AdrVec, XDamp, XlDiag, &
+                    XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use Constants, only: Zero
 use Definitions, only: iwp, wp
 
@@ -45,9 +44,9 @@ irc = 0
 
 iPrint = -iLarge
 
-call iZero(iBas,8)
-call iZero(nBas,8)
-call iZero(XnBas,8)
+iBas(:) = 0
+nBas(:) = 0
+XnBas(:) = 0
 nBasT = 0
 
 ThrCom = Large
@@ -88,9 +87,9 @@ Did_DecDrv = .false.
 HaltIt = .false.
 Trace_Idle = .false.
 
-call iZero(LuCho,8)
-call iZero(LuSel,8)
-call iZero(LuTmp,8)
+LuCho(:) = 0
+LuSel(:) = 0
+LuTmp(:) = 0
 LuPri = 0
 LuScr = 0
 LuRed = 0
@@ -102,17 +101,17 @@ nnShl_Tot = 0
 nnShl = 0
 MxORSh = 0
 Mx2Sh = 0
-call iZero(iiBstR,8*3)
-call iZero(nnBstR,8*3)
-call iZero(nnBstRT,3)
+iiBstR(:,:) = 0
+nnBstR(:,:) = 0
+nnBstRT(:) = 0
 mmBstRT = 0
 nQual_L(:) = 0
-call iZero(iOffQ,8)
+iOffQ(:) = 0
 
-call FZero(DiaMax,8)
-call FZero(DiaMaxT,8)
-call FZero(DiaMin,8)
-call FZero(Damp,2)
+DiaMax(:) = Zero
+DiaMaxT(:) = Zero
+DiaMin(:) = Zero
+Damp(:) = Zero
 Span = Large
 XlDiag = Large
 DiaMnZ = Large
@@ -120,7 +119,7 @@ Thr_PreScreen = -Large
 iABMnZ = -iLarge
 nnZTot = 0
 
-call iZero(NumCho,8)
+NumCho(:) = 0
 NumChT = 0
 MaxVec = 0
 MaxRed = 0
@@ -133,11 +132,11 @@ ShD = -iLarge
 ShAB = -iLarge
 ShCD = -iLarge
 nColAB = -iLarge
-call iZero(iOff_Col,8)
+iOff_Col(:) = 0
 
 XThrCom = Large
 XThrDiag = Large
-call FZero(XDamp,2)
+XDamp(:) = Zero
 XSpan = Large
 XThrNeg = Large
 XWarNeg = Large
@@ -149,15 +148,15 @@ XnPass = 0
 XScDiag = .false.
 XCho_AdrVec = -iLarge
 
-call iZero(iChkQ,4*(nChkQ+1))
+iChkQ(:,:) = 0
 nCol_Chk = -iLarge
-call FZero(TimSec,4*nSection)
-call FZero(tInteg,2*nInteg)
-call FZero(tDecom,2*nDecom)
-call FZero(tMisc,2*nMisc)
-call FZero(tDecDrv,2)
+TimSec(:,:) = Zero
+tInteg(:,:) = Zero
+tDecom(:,:) = Zero
+tMisc(:,:) = Zero
+tDecDrv(:) = Zero
 
-call iZero(nVecRS1,8)
+nVecRS1(:) = 0
 
 Cho_AdrVec = -iLarge
 Cho_IOVec = -iLarge
@@ -181,11 +180,11 @@ n_MySP = 0
 Cho_SimRI = .false.
 Thr_SimRI = -Large
 
-call iZero(ip_ChVBuf_Sym,8)
-call iZero(l_ChVBuf_Sym,8)
-call iZero(ip_ChVBfI_Sym,8)
-call iZero(l_ChVBfI_Sym,8)
-call iZero(nVec_in_Buf,8)
+ip_ChVBuf_Sym(:) = 0
+l_ChVBuf_Sym(:) = 0
+ip_ChVBfI_Sym(:) = 0
+l_ChVBfI_Sym(:) = 0
+nVec_in_Buf(:) = 0
 
 Cho_SScreen = .false.
 SSTau = Zero
@@ -193,7 +192,7 @@ SubScrStat(1) = Zero
 SubScrStat(2) = Zero
 SSNorm = 'tbp'
 
-call iZero(NumCho_Bak,8)
+NumCho_Bak(:) = 0
 
 Cho_Real_Par = .false.
 

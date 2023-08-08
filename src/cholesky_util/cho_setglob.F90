@@ -13,26 +13,22 @@ subroutine Cho_SetGlob()
 !
 ! Purpose: define entries in Cholesky.
 
-use Cholesky, only: iiBstR_G, LuCho_G, LuRed_G, LuRst_G, mmBstRT_G, nLoc_G, nnBstR_G, nnBstRT_G, nnShl_G, NumCho_G, NumChT_G
+use Cholesky, only: iiBstR_G, LuCho_G, LuRed_G, LuRst_G, mmBstRT_G, nnBstR_G, nnBstRT_G, nnShl_G, NumCho_G, NumChT_G
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iSym, N
 integer(kind=iwp), parameter :: iLarge = 999999
 
 nnShl_G = 0
 mmBstRT_G = 0
 
-N = 8*nLoc_G
-call iZero(iiBstR_G,N)
-call iZero(nnBstR_G,N)
-call iZero(nnBstRT_G,nLoc_G)
-call iZero(NumCho_G,8)
+iiBstR_G(:,:) = 0
+nnBstR_G(:,:) = 0
+nnBstRT_G(:) = 0
+NumCho_G(:) = 0
 NumChT_G = 0
 
-do iSym=1,8
-  LuCho_G(iSym) = -iLarge
-end do
+LuCho_G(:) = -iLarge
 LuRed_G = -iLarge
 LuRst_G = -iLarge
 

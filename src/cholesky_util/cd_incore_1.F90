@@ -35,7 +35,7 @@ implicit none
 integer(kind=iwp) :: n, MxVec, NumCho, irc
 real(kind=wp) :: X(n,n), Vec(n,MxVec), Thr, ThrNeg, ThrFail
 integer(kind=iwp) :: i, imax, iPass, j
-real(kind=wp) :: Acc, Factor, xFac, Xmax
+real(kind=wp) :: Acc, xFac, Xmax
 
 irc = 0
 
@@ -84,8 +84,7 @@ do iPass=1,n
   end if
 
   do j=1,NumCho
-    Factor = -Vec(imax,j)
-    call dAXPY_(n,Factor,Vec(1,j),1,X(1,imax),1)
+    X(:,imax) = X(:,imax)-Vec(imax,j)*Vec(:,j)
   end do
   X(imax,imax) = Xmax
 

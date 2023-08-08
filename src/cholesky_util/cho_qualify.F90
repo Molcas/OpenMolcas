@@ -39,7 +39,7 @@ integer(kind=iwp), external :: CHO_IDOT
 ! Copy counter to offset array.
 ! -----------------------------
 
-call ICOPY(NSYM,NQUAL,1,IOFFQ,1)
+IOFFQ(1:NSYM) = NQUAL(1:NSYM)
 
 ! Check memory.
 ! -------------

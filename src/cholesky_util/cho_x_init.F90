@@ -325,12 +325,12 @@ call Cho_RSCopy(1,2)
 ! -------------------------------
 
 call mma_allocate(nDimRS,nSym,MaxRed,Label='nDimRS')
-call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
+nDimRS(:,1) = nnBstR(1:nSym,1)
 iLoc = 3
 do iRed=2,MaxRed
   call Cho_GetRed(iRed,iLoc,.false.)
   call Cho_SetRedInd(iLoc)
-  call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
+  nDimRS(:,iRed) = nnBstR(1:nSym,iLoc)
 end do
 
 ! Copy reduced set 1 to location 3.

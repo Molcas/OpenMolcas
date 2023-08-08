@@ -135,7 +135,7 @@ do iSym=1,nSym
       lTot = nMP2Vec(iSym)
       iAdr = nMP2Vec(iSym)*(AlBe-1)+1
       call ddaFile(lU_AO(iSym),iOpt,V,lTot,iAdr)
-      call dAXPY_(nMP2Vec(iSym),One,V,1,X,1)
+      X(:) = X(:)+V(:)
     end do
     call mma_deallocate(V)
 
@@ -165,8 +165,7 @@ do iSym=1,nSym
     ! -----------------
 
     call mma_allocate(D,nMP2Vec(iSym),Label='D')
-    call dCopy_(nMP2Vec(iSym),X,1,D,1)
-    call dAXPY_(nMP2Vec(iSym),-One,Y,1,D,1)
+    D(:) = X(:)-Y(:)
     Err(1,iSym) = abs(D(1))
     Err(2,iSym) = abs(D(1))
     Err(3,iSym) = D(1)
@@ -191,7 +190,7 @@ do iSym=1,nSym
 
   else
 
-    call FZero(Err(1,iSym),4)
+    Err(:,iSym) = Zero
 
   end if
 

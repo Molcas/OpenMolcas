@@ -29,9 +29,10 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 ! On exit, the Z vector blocks are stored in memory according
 ! to ip_Z.
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, LuPri, nnBstR, nSym, nSys_call, NumCho, TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -140,9 +141,9 @@ end if
 
 do iSym=1,nSym
   do kBlock=1,nBlock(iSym)
-    call FZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2)
+    Z(ip_Z(iTri(kBlock,kBlock),iSym):ip_Z(iTri(kBlock,kBlock),iSym)+nTri_Elem(nV(kBlock,iSym))-1) = Zero
     do jBlock=kBlock+1,nBlock(iSym)
-      call FZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),nV(jBlock,iSym)*nV(kBlock,iSym))
+      Z(ip_Z(iTri(jBlock,kBlock),iSym):ip_Z(iTri(jBlock,kBlock),iSym)+nV(jBlock,iSym)*nV(kBlock,iSym)-1) = Zero
     end do
   end do
 end do

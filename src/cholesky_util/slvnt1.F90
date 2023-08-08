@@ -53,7 +53,7 @@ outer: do Iter=1,NTimes
       end do
     end if
     if (Error) then
-      call DCOPY_(I_Dim,Coeff,1,CoeffOld,1)
+      CoeffOld(1:I_Dim) = Coeff(1:I_Dim)
 
       do
         do I=1,I_Dim

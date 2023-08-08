@@ -61,10 +61,10 @@ end if
 ! set number and type of vectors
 if (DecoMP2) then
   iTyp = 2
-  call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+  nEnrVec(1:nSym) = nMP2Vec(1:nSym)
 else
   iTyp = 1
-  call iCopy(nSym,NumCho,1,nEnrVec,1)
+  nEnrVec(1:nSym) = NumCho(1:nSym)
 end if
 
 ! allocate X
@@ -138,7 +138,8 @@ do q=1,N
             iSyma = Mul(iSym,iSymi)
             ip1 = ip0+iT1am(iSyma,iSymi)
             do i=1,nOcc(iSymi)
-              call dScal_(nVir(iSyma),exp(EOcc(iOcc(iSymi)+i)*tq),V(ip1+nVir(iSyma)*(i-1)+1),1)
+              V(ip1+nVir(iSyma)*(i-1)+1:ip1+nVir(iSyma)*i) = exp(EOcc(iOcc(iSymi)+i)*tq)* &
+                                                             V(ip1+nVir(iSyma)*(i-1)+1:ip1+nVir(iSyma)*i)
             end do
             do a=1,nVir(iSyma)
               call dScal_(nOcc(iSymi),exp(-EVir(iVir(iSyma)+a)*tq),V(ip1+a),nVir(iSyma))
@@ -147,8 +148,7 @@ do q=1,N
         end do
       end do
       ! loop over vector blocks to compute
-      ! X(J,K) +=
-      ! sum_ai L(ai,J)*L(ai,K)*exp(-(e(a)-e(i))*t(q)/2)
+      ! X(J,K) += sum_ai L(ai,J)*L(ai,K)*exp(-(e(a)-e(i))*t(q)/2)
       ipX = 1
       do jBlock=1,nBlock
         ipj = 1+Nai*Laplace_BlockSize*(jBlock-1)

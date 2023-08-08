@@ -33,8 +33,8 @@ if ((J < 1) .or. (J > 3)) call CHO_QUIT('[2] Dimension error in '//SECNAM,104)
 
 if (NNSHL < 1) then ! may occur in parallel runs
   NNBSTRT(J) = 0
-  call IZERO(IIBSTR(1,J),NSYM)
-  call IZERO(NNBSTR(1,J),NSYM)
+  IIBSTR(1:NSYM,J) = 0
+  NNBSTR(1:NSYM,J) = 0
   return
 end if
 

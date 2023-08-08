@@ -18,7 +18,7 @@ use Cholesky, only: LuCho, LuMap, LuRed, LuRst, nSym
 implicit none
 
 LURED = 0
-call IZERO(LUCHO,NSYM)
+LUCHO(1:NSYM) = 0
 LURST = 0
 LUMAP = 0
 

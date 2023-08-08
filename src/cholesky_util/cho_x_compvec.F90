@@ -263,7 +263,7 @@ if (iPrint >= Inf_Pass) then
 end if
 
 ! Compute Cholesky vectors in batched loop over shell pairs
-call iZero(iAdr,nSym) ! disk addresses
+iAdr(1:nSym) = 0 ! disk addresses
 iSP_1 = 1
 nBatch = 0
 do while (iSP_1 <= iCountSP)
@@ -317,13 +317,15 @@ do while (iSP_1 <= iCountSP)
         ! loop - i.e. Z(J,J) <- 1/Z(J,J)
         J = iV1(jBlock,iSym)+J_inBlock-1
         kL = kOffI+nDim_Batch(iSym)*(J-1)
-        call dScal_(nDim_Batch(iSym),Z(kOffZ+iTri(J_inBlock,J_inBlock)),XCVInt(kL),1)
+        XCVInt(kL:kL+nDim_Batch(iSym)-1) = Z(kOffZ+iTri(J_inBlock,J_inBlock))*XCVInt(kL:kL+nDim_Batch(iSym)-1)
         ! Subtract from subsequent columns in current block
         ! using BLAS1
         ! (uv|K) <- (uv|K) - L(uv,J)*Z(K,J), K>J (in jBlock)
         do K_inBlock=J_inBlock+1,nV(jBlock,iSym)
           K = iV1(jBlock,iSym)+K_inBlock-1
-          call dAXPY_(nDim_Batch(iSym),-Z(kOffZ+iTri(K_inBlock,J_inBlock)),XCVInt(kL),1,XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
+          XCVInt(kOffI+nDim_Batch(iSym)*(K-1):kOffI+nDim_Batch(iSym)*K-1) = &
+            XCVInt(kOffI+nDim_Batch(iSym)*(K-1):kOffI+nDim_Batch(iSym)*K-1)- &
+            Z(kOffZ+iTri(K_inBlock,J_inBlock))*XCVInt(kL:kL+nDim_Batch(iSym)-1)
         end do
       end do
       ! Subtract from subsequent blocks using BLAS3

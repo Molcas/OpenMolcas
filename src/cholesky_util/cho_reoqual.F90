@@ -22,7 +22,7 @@ integer(kind=iwp) :: iK, iSym, kID, lK
 kID = 0
 do iSym=1,nSym
   if (nQ(iSym) > 0) then
-    call iCopy(nQ(iSym),iQuAB(1,iSym),1,iQScr,1)
+    iQScr(1:nQ(iSym)) = iQuAB(1:nQ(iSym),iSym)
     do iK=1,nK(iSym)
       lK = IDK(kID+iK)
       iQuAB(iK,iSym) = iQScr(lK)

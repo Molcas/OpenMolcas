@@ -69,7 +69,7 @@ KEND0 = KXINT+LCDABT
 LWRK0 = LWRK-KEND0
 if (LWRK0 <= 0) call CHO_QUIT('Insufficient memory in '//SECNAM//' [0]',101)
 
-call DCOPY_(LCDABT,XINT,1,WRK(KXINT),1)
+WRK(1:LCDABT) = reshape(XINT(:,:),[LCDABT])
 
 ! Start symmetry loop.
 ! --------------------
@@ -99,7 +99,7 @@ do ISYM=1,NSYM
     ! Initialize integral array.
     ! --------------------------
 
-    call FZERO(WRK(KINT),LENint)
+    WRK(KINT:KINT+LENint-1) = Zero
 
     ! Set up batch over Cholesky vectors.
     ! -----------------------------------
@@ -136,10 +136,10 @@ do ISYM=1,NSYM
         call CHO_GETVEC(WRK(KVEC1),LVEC1,1,JVEC,ISYM,WRK(KREAD),LREAD)
         KOFF1 = KVEC1+IIBSTRSH(ISYM,ISHLCD,2)
         KOFF2 = KCHOCD+NUMCD*(IVEC-1)
-        call DCOPY_(NUMCD,WRK(KOFF1),1,WRK(KOFF2),1)
+        WRK(KOFF2:KOFF2+NUMCD-1) = WRK(KOFF1:KOFF1+NUMCD-1)
         KOFF1 = KVEC1+IIBSTRSH(ISYM,ISHLAB,2)
         KOFF2 = KCHOAB+NUMAB*(IVEC-1)
-        call DCOPY_(NUMAB,WRK(KOFF1),1,WRK(KOFF2),1)
+        WRK(KOFF2:KOFF2+NUMAB-1) = WRK(KOFF1:KOFF1+NUMAB-1)
       end do
 
       ! Calculate contribution.

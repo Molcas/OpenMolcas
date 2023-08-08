@@ -43,7 +43,7 @@ character(len=*), parameter :: SecNam = 'ChoMP2_BackTra'
 ! Set up index arrays.
 ! --------------------
 
-call iCopy(8*8,[0],0,iAB,1)
+iAB(:,:) = 0
 nAB_Tot = 0
 do iSym=1,nSym
   nAB(iSym) = 0
@@ -58,7 +58,7 @@ end do
 ! Backtransform.
 ! --------------
 
-if (DoDiag) call dCopy_(nAB_Tot,[Zero],0,Diag,1)
+if (DoDiag) Diag(1:nAB_Tot) = Zero
 
 kDiag = 0
 do iSym=1,nSym

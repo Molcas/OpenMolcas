@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), parameter :: KMAX = 20, KMAX2 = 2*KMAX
 integer(kind=iwp) :: K, InitR
-real(kind=wp) :: RIni, Coeff(KMAX2), T(KMAX2)
+real(kind=wp) :: RIni, Coeff(2,KMAX), T(KMAX2)
 integer(kind=iwp) :: I, I_Dim
 real(kind=wp) :: Alpha(KMAX), Omega(KMAX), Xi(KMAX2)
 logical(kind=iwp) :: Dbg
@@ -26356,9 +26356,9 @@ if (Dbg) then
     write(IW,'(A,I2,A,F25.14)') 'Xi(',I,')    = ',Xi(I)
   end do
 end if
-call DCOPY_(K,Omega,1,Coeff(1),2)
-call DCOPY_(K,Alpha,1,Coeff(2),2)
-call DCOPY_(I_Dim,Xi,1,T,1)
+Coeff(1,1:K) = Omega(1:K)
+Coeff(2,1:K) = Alpha(1:K)
+T(1:I_Dim) = Xi(1:I_Dim)
 
 return
 

@@ -49,10 +49,9 @@ Diag_G => Diag_Hidden
 nnShl_G = nnShl
 mmBstRT_G = mmBstRT
 
-N = 8*3
-call iCopy(N,iiBstR,1,iiBstR_G,1)
-call iCopy(N,nnBstR,1,nnBstR_G,1)
-call iCopy(3,nnBstRT,1,nnBstRT_G,1)
+iiBstR_G(:,:) = iiBstR(:,:)
+nnBstR_G(:,:) = nnBstR(:,:)
+nnBstRT_G(:) = nnBstRT(:)
 
 InfRed_G => InfRed
 

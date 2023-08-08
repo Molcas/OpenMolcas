@@ -23,8 +23,7 @@ implicit none
 integer(kind=iwp) :: LWRK, IPASS, NUM
 real(kind=wp) :: Diag(*), WRK(LWRK)
 integer(kind=iwp) :: I, IAB, IABG, IADR, ICHO, IDUMP, II, IOPT, ISYM, IVEC, IVEC1, IVECT, JJ, KAB, KCHO1, KEND0, KEND1, KINT1, &
-                     KOFF, KOFF0, KOFF1, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, &
-                     NUMCHO_OLD(8)
+                     KOFF, KOFF0, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, NUMCHO_OLD(8)
 real(kind=wp) :: C1, C2, FAC, OLDIAG, TOL, W1, W2, XC, XM, XMAX, XMIN, YM
 logical(kind=iwp) :: LAST
 logical(kind=iwp), parameter :: LOCDBG = .false.
@@ -44,14 +43,14 @@ if (IPRINT >= INF_PROGRESS) then
   LENLIN = 79
   write(LUPRI,'(80A)') ('-',I=1,LENLIN)
   call CHO_FLUSH(LUPRI)
-  call ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
+  NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)
 else if (IPRINT >= INF_PASS) then
   write(LUPRI,'(/,A,I4)') 'Number of shell pair distributions calculated:',NUM
   write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
   write(LUPRI,'(A,8I8)') '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
   write(LUPRI,'(A,8I8)') '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
   call CHO_FLUSH(LUPRI)
-  call ICOPY(NSYM,NUMCHO,1,NUMCHO_OLD,1)
+  NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)
 end if
 
 ! Decompose each symmetry block.
@@ -158,8 +157,8 @@ do ISYM=1,NSYM
         ! -----------------------------------------------------
 
         FAC = One/sqrt(XC)
-        KOFF = KOFF0+1
-        call DSCAL_(NNBSTR(ISYM,2),FAC,WRK(KOFF),1)
+        KOFF = KOFF0
+        WRK(KOFF+1:KOFF+NNBSTR(ISYM,2)) = FAC*WRK(KOFF+1:KOFF+NNBSTR(ISYM,2))
 
         ! Zero entries in Cholesky vector corresponding to zero diagonals.
         ! ----------------------------------------------------------------
@@ -220,15 +219,14 @@ do ISYM=1,NSYM
         ! can safely be skipped.
         ! --------------------------------------------------
 
-        KOFF1 = KOFF0+1
         do I=1,NQUAL(ISYM)
           II = IQUAB(I,ISYM)
           JJ = INDRED(II,2)
           if (DIAG(JJ) /= Zero) then
-            KOFF2 = KINT1+NNBSTR(ISYM,2)*(I-1)
+            KOFF2 = KINT1+NNBSTR(ISYM,2)*(I-1)-1
             KOFF3 = KOFF0+II-IIBSTR(ISYM,2)
             FAC = -WRK(KOFF3)
-            call DAXPY_(NNBSTR(ISYM,2),FAC,WRK(KOFF1),1,WRK(KOFF2),1)
+            WRK(KOFF2+1:KOFF2+NNBSTR(ISYM,2)) = WRK(KOFF2+1:KOFF2+NNBSTR(ISYM,2))-WRK(KOFF3)*WRK(KOFF0+1:KOFF0+NNBSTR(ISYM,2))
           end if
         end do
 
@@ -237,9 +235,8 @@ do ISYM=1,NSYM
 
         IDUMP = IDUMP+1
 
-        KOFF1 = KOFF0+1
-        KOFF2 = KCHO1+NNBSTR(ISYM,2)*(IDUMP-1)
-        call DCOPY_(NNBSTR(ISYM,2),WRK(KOFF1),1,WRK(KOFF2),1)
+        KOFF2 = KCHO1+NNBSTR(ISYM,2)*(IDUMP-1)-1
+        WRK(KOFF2+1:KOFF2+NNBSTR(ISYM,2)) = WRK(KOFF0+1:KOFF0+NNBSTR(ISYM,2))
 
         ! Update Cholesky vector counters.
         ! --------------------------------

@@ -44,7 +44,7 @@ if (BIN(1) <= Zero) return
 ! ---------
 
 NBIN = min(LBIN,MBIN)
-call IZERO(ICOUNT,NBIN)
+ICOUNT(1:NBIN) = 0
 NLOW = 0
 NZER = 0
 NNEG = 0

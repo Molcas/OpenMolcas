@@ -24,10 +24,9 @@ use Symmetry_Info, only: Mul
 use Cholesky, only: BkmThr, BkmVec, CHKONLY, CHO_1CENTER, CHO_DECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_SScreen, DIAMNZ, &
                     DID_DECDRV, IABMNZ, iAtomShl, iBas, iBasSh, ICHKQ, iiBstRSh, iiBstRSh_Hidden, INF_INIT, InfRed, InfRed_Hidden, &
                     InfVec, InfVec_Hidden, INFVEC_N2, IntMap, IPRINT, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, LuPri, MaxQual, MaxRed, &
-                    MaxVec, MODE_SCREEN, MX2SH, MXORSH, MySP, nBas, nBasSh, nBasT, nBstSh, NCHKQ, nCol_BkmThr, nCol_BkmVec, &
-                    NDECOM, nDGM_call, nDimRS, NINTEG, NMISC, nnBstRSh, nnBstRSh_Hidden, nnShl, nnShl_SP, nnShl_tot, NNZTOT, &
-                    nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, nVecRS1, RstCho, SSTau, TDECDRV, TDECOM, Thr_PreScreen, &
-                    ThrCom, TINTEG, TMISC, Trace_Idle
+                    MaxVec, MODE_SCREEN, MX2SH, MXORSH, MySP, nBas, nBasSh, nBasT, nBstSh, nCol_BkmThr, nCol_BkmVec, nDGM_call, &
+                    nDimRS, nnBstRSh, nnBstRSh_Hidden, nnShl, nnShl_SP, nnShl_tot, NNZTOT, nRow_BkmThr, nRow_BkmVec, nShell, nSym, &
+                    nSys_call, nVecRS1, RstCho, SSTau, TDECDRV, TDECOM, Thr_PreScreen, ThrCom, TINTEG, TMISC, Trace_Idle
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -93,12 +92,12 @@ call mma_allocate(MySP,nnShl,Label='MySP')
 ! Initialize timings etc.
 ! -----------------------
 
-call FZERO(TDECDRV,2)
-call FZERO(TINTEG,2*NINTEG)
-call FZERO(TDECOM,2*NDECOM)
-call FZERO(TMISC,2*NMISC)
-call IZERO(ICHKQ,4*(NCHKQ+1))
-call IZERO(NVECRS1,NSYM)
+TDECDRV(:) = Zero
+TINTEG(:,:) = Zero
+TDECOM(:,:) = Zero
+TMISC(:,:) = Zero
+ICHKQ(:,:) = 0
+NVECRS1(1:NSYM) = 0
 
 DID_DECDRV = .false.
 

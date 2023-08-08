@@ -49,7 +49,7 @@ subroutine Cho_X_CheckDiag(irc,Err)
 
 use Cholesky, only: Cho_1Center, IPRINT, nnBstRT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp,u6
 
 implicit none
@@ -66,7 +66,7 @@ real(kind=wp), external :: ddot_
 
 irc = 0
 if (nnBstRT(1) < 1) then
-  call FZero(Err,4)
+  Err(:) = Zero
   return
 end if
 
@@ -122,7 +122,7 @@ else
   ! Subtract Cholesky diagonal from exact diagonal.
   ! -----------------------------------------------
 
-  call dAXPY_(nnBstRT(1),-One,CD,1,XD,1)
+  XD(:) = XD(:)-CD(:)
 
   ! Print histogram of difference array and get statistics.
   ! -------------------------------------------------------

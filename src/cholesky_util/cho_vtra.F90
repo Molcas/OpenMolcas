@@ -154,10 +154,10 @@ select case (iSwap)
             if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
             ! C(1,b)
-            call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(JDen)%SB(iSyma)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A3(:,ias,LVEC),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,ias,LVEC) = ChoT(jDen)%SB(iSyma)%A3(:,ias,LVEC)+xfd*Scr(kscr)*MOs(JDen)%SB(iSyma)%A2(:,ibs)
 
             ! C(1,a)
-            call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(JDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC) = ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC)+xfd*Scr(kscr)*MOs(JDen)%SB(iSyma)%A2(:,ias)
 
           end do  ! loop over densities
 
@@ -187,7 +187,7 @@ select case (iSwap)
 
             if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
-            call DAXPY_(nPorb(iSyma,jDen),Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC) = ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC)+Scr(kscr)*MOs(jDen)%SB(iSyma)%A2(:,ias)
 
           end do
 
@@ -197,7 +197,7 @@ select case (iSwap)
 
             if (.not. associated(ChoT(jDen)%SB(iSymb)%A3)) cycle
 
-            call DAXPY_(nPorb(iSymb,jDen),Scr(kscr),MOs(jDen)%SB(iSymb)%A2(:,ibs),1,ChoT(jDen)%SB(iSymb)%A3(:,ias,LVEC),1)
+            ChoT(jDen)%SB(iSymb)%A3(:,ias,LVEC) = ChoT(jDen)%SB(iSymb)%A3(:,ias,LVEC)+Scr(kscr)*MOs(jDen)%SB(iSymb)%A2(:,ibs)
 
           end do
 
@@ -356,9 +356,9 @@ select case (iSwap)
 
             if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
-            call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ibs),1,ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ias),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ias) = ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ias)+xfd*Scr(kscr)*MOs(jDen)%SB(iSyma)%A2(:,ibs)
 
-            call DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs) = ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs)+xfd*Scr(kscr)*MOs(jDen)%SB(iSyma)%A2(:,ias)
 
           end do  ! loop over densities
 
@@ -388,7 +388,7 @@ select case (iSwap)
 
             if (.not. associated(ChoT(jDen)%SB(iSyma)%A3)) cycle
 
-            call DAXPY_(nPorb(iSyma,jDen),Scr(kscr),MOs(jDen)%SB(iSyma)%A2(:,ias),1,ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs),1)
+            ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs) = ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs)+Scr(kscr)*MOs(jDen)%SB(iSyma)%A2(:,ias)
 
           end do
 
@@ -398,7 +398,7 @@ select case (iSwap)
 
             if (.not. associated(ChoT(jDen)%SB(iSymb)%A3)) cycle
 
-            call DAXPY_(nPorb(iSymb,jDen),Scr(kscr),MOs(jDen)%SB(iSymb)%A2(:,ibs),1,ChoT(jDen)%SB(iSymb)%A3(:,LVEC,ias),1)
+            ChoT(jDen)%SB(iSymb)%A3(:,LVEC,ias) = ChoT(jDen)%SB(iSymb)%A3(:,LVEC,ias)+Scr(kscr)*MOs(jDen)%SB(iSymb)%A2(:,ibs)
 
           end do
 

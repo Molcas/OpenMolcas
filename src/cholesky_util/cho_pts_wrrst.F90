@@ -68,7 +68,7 @@ do iSym=1,nSym
     irc = 1
   end if
 end do
-call iCopy(nSym,NumCho,1,myNumCho,1)
+myNumCho(1:nSym) = NumCho(1:nSym)
 call Cho_GAIGOp(myNumCho,nSym,'+')
 do iSym=1,nSym
   if (myNumCho(iSym) /= NVT(iSym)) then

@@ -32,14 +32,14 @@ else
   ! Initialize vector info and counters.
   ! ------------------------------------
 
-  call IZERO(INFVEC,size(INFVEC))
-  call IZERO(NUMCHO,NSYM)
+  INFVEC(:,:,:) = 0
+  NUMCHO(1:NSYM) = 0
   NUMCHT = 0
 
   ! Initialize reduced set info.
   ! ----------------------------
 
-  call IZERO(INFRED,size(INFRED))
+  INFRED(:) = 0
 
   ! Initialize global integral pass counter.
   ! ----------------------------------------
@@ -51,6 +51,6 @@ end if
 ! Parallel init.
 ! --------------
 
-if (Cho_Real_Par) call IZERO(MYNUMCHO,NSYM)
+if (Cho_Real_Par) MYNUMCHO(1:NSYM) = 0
 
 end subroutine CHO_INIT1

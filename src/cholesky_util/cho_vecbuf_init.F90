@@ -49,8 +49,8 @@ if (LocDbg) then
   call Cho_Flush(Lupri)
 end if
 
-call iZero(l_ChVBfI_Sym,nSym)
-call iZero(ip_ChVBfI_Sym,nSym)
+l_ChVBfI_Sym(1:nSym) = 0
+ip_ChVBfI_Sym(1:nSym) = 0
 
 if (RUN_MODE == RUN_INTERNAL) then
   call Cho_VecBuf_Init_I(Frac,lVec,LocDbg)

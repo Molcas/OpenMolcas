@@ -58,14 +58,14 @@ if (iPrint >= Inf_Progress) then
   LenLin = 79
   write(Lupri,'(80A)') ('-',I=1,LenLin)
   call Cho_Flush(Lupri)
-  call iCopy(nSym,NumCho,1,NumCho_Old,1)
+  NumCho_Old(1:nSym) = NumCho(1:nSym)
 else if (iPrint >= Inf_Pass) then
   write(Lupri,'(/,A,I4)') 'Number of shell pair distributions calculated:',NumSP
   write(Lupri,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') '#vec. in buff.: ',(nVec_in_Buf(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') '#qualified    : ',(nQual(iSym),iSym=1,nSym)
   call Cho_Flush(Lupri)
-  call iCopy(nSym,NumCho,1,NumCho_Old,1)
+  NumCho_Old(1:nSym) = NumCho(1:nSym)
 end if
 
 ! Allocations.
@@ -144,8 +144,8 @@ kK2 = kK1
 kID = 0
 do iSym=1,nSym
   do iK=1,nKVec(iSym)
-    kK_1 = kK1+nQual(iSym)*(iK-1)+1
-    call dCopy_(nQual(iSym),KVec(kK_1),1,KVScr,1)
+    kK_1 = kK1+nQual(iSym)*(iK-1)
+    KVScr(1:nQual(iSym)) = KVec(kK_1+1:kK_1+nQual(iSym))
     kK_2 = kK2+nKVec(iSym)*(iK-1)
     do jK=1,nKVec(iSym)
       lK = IDKVec(kID+jK)
@@ -163,7 +163,7 @@ end do
 kID = 0
 kQD = 0
 do iSym=1,nSym
-  call dCopy_(nQual(iSym),QDiag(kQD+1),1,KVScr,1)
+  KVScr(1:nQual(iSym)) = QDiag(kQD+1:kQD+nQual(iSym))
   do iK=1,nKVec(iSym)
     lK = IDKVec(kID+iK)
     QDiag(kQD+iK) = KVScr(lK)
@@ -179,7 +179,7 @@ kID = 0
 do iSym=1,nSym
   if (nQual(iSym) < 1) cycle
   do jVec=1,NumV(iSym)
-    call dCopy_(nQual(iSym),LQ(iSym)%A(:,jVec),1,KVScr,1)
+    KVScr(1:nQual(iSym)) = LQ(iSym)%A(:,jVec)
     do iK=1,nKVec(iSym)
       lK = IDKVec(kID+iK)
       LQ(iSym)%A(iK,jVec) = KVScr(lK)
@@ -194,13 +194,13 @@ call mma_deallocate(KVScr)
 ! Local as well as global are reordered.
 ! -------------------------------------------------
 
-call iCopy(nSym,nQual,1,nQual_Old,1)
+nQual_Old(1:nSym) = nQual(1:nSym)
 call mma_allocate(iQScr,MxQ,Label='iQScr')
 
 call Cho_P_ReoQual(iQScr,IDKVec,nKVec)
 
 call mma_deallocate(iQScr)
-call iCopy(nSym,nKVec,1,nQual,1)
+nQual(1:nSym) = nKVec(1:nSym)
 
 call Cho_Timer(C2,W2)
 tDecom(1,4) = tDecom(1,4)+C2-C1

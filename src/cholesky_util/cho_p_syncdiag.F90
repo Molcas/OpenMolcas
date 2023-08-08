@@ -16,6 +16,7 @@ subroutine Cho_P_SyncDiag(Diag,iLoc)
 !          set index arrays.
 
 use Cholesky, only: Cho_Real_Par, Diag_G, iL2G, IndRed, nnBstRT, nnBstRT_G, TMISC
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -33,7 +34,7 @@ call Cho_Timer(c1,w1)
 ! Zero all entries in global diagonal.
 ! ------------------------------------
 
-call FZero(Diag_G,nnBstRT_G(1))
+Diag_G(1:nnBstRT_G(1)) = Zero
 
 ! Copy elements from local to global diagonal.
 ! --------------------------------------------

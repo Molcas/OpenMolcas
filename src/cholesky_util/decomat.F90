@@ -49,7 +49,7 @@ else
   call mma_allocate(eigenval,dimens,Label='eigenval')
   call eigen_molcas(dimens,MAT,eigenval,eigenvec)
   ! Move MAT to eigenvec. where it belongs. I could not wait!
-  call dcopy_(dimens**2,MAT,1,eigenvec,1)
+  eigenvec(:,:) = MAT(:,:)
   ! Set to zero negative eigenvalue and to TWO values larger than 2.0.
   ! Count only the positive ones (counter NumV)
   do j=1,dimens

@@ -86,7 +86,7 @@ do iSym=2,nSym
   lPab = lPab+nVir(iSym)*nVir(iSym)
 end do
 kEndPab = kPab(1)+lPab
-call FZero(Wrk(kPab(1)),lPab)
+Wrk(kPab(1):kEndPab-1) = Zero
 
 ! Allocate Memory for Wab-Vector
 ! ------------------------------
@@ -97,7 +97,7 @@ do iSym=2,nSym
   lWab = lWab+nVir(iSym)*nVir(iSym)
 end do
 kEndWab = kWab(1)+lWab
-call FZero(Wrk(kWab(1)),lWab)
+Wrk(kWab(1):kEndWab-1) = Zero
 
 ! Allocate memory for Pij-Vector
 ! ------------------------------
@@ -109,7 +109,7 @@ do iSym=2,nSym
   lPij = lPij+nOcc(iSym)*nOcc(iSym)
 end do
 kEndPij = kPij(1)+lPij
-call FZero(Wrk(kPij(1)),lPij)
+Wrk(kPij(1):kEndPij-1) = Zero
 
 ! Allocate memory for Wij-Vector
 ! ------------------------------
@@ -121,7 +121,7 @@ do iSym=2,nSym
   lWij = lWij+nOcc(iSym)*nOcc(iSym)
 end do
 kEndWij = kWij(1)+lWij
-call FZero(Wrk(kWij(1)),lWij)
+Wrk(kWij(1):kEndWij-1) = Zero
 
 ! Allocate memory for Pai-Vector
 ! ------------------------------
@@ -133,7 +133,7 @@ do iSym=2,nSym
   lPai = lPai+nVir(iSym)*nOcc(iSym)
 end do
 kEndPai = kPai(1)+lPai
-call FZero(Wrk(kPai(1)),lPai)
+Wrk(kPai(1):kEndPai-1) = Zero
 
 ! Allocate memory for Wai-Vector
 ! ------------------------------
@@ -145,7 +145,7 @@ do iSym=2,nSym
   lWai = lWai+nVir(iSym)*nOcc(iSym)
 end do
 kEndWai = kWai(1)+lWai
-call FZero(Wrk(kWai(1)),lWai)
+Wrk(kWai(1):kEndWai-1) = Zero
 
 ! Allocate memory for PaK-Vector
 ! ------------------------------
@@ -157,7 +157,7 @@ do iSym=2,nSym
   lPaK = lPaK+nVir(iSym)*nFro(iSym)
 end do
 kEndPaK = kPaK(1)+lPaK
-call FZero(Wrk(kPaK(1)),lPaK)
+Wrk(kPaK(1):kEndPaK-1) = Zero
 
 ! Allocate memory for WaK-Vector
 ! ------------------------------
@@ -169,7 +169,7 @@ do iSym=2,nSym
   lWaK = lWaK+nVir(iSym)*nOcc(iSym)
 end do
 kEndWaK = kWaK(1)+lWaK
-call FZero(Wrk(kWaK(1)),lWaK)
+Wrk(kWaK(1):kEndWaK-1) = Zero
 
 ! Allocate memory for PiK-vector (occ-fro)
 ! ----------------------------------------
@@ -181,7 +181,7 @@ do iSym=2,nSym
   lPiK = lPiK+nOcc(iSym)*nFro(iSym)
 end do
 kEndPiK = kPiK(1)+lPiK
-call FZero(Wrk(kPiK(1)),lPiK)
+Wrk(kPiK(1):kEndPiK-1) = Zero
 
 ! Allocate memory for WiK-vector (occ-fro)
 ! ----------------------------------------
@@ -193,7 +193,7 @@ do iSym=2,nSym
   lWiK = lWiK+nOcc(iSym)*nFro(iSym)
 end do
 kEndWiK = kWiK(1)+lWiK
-call FZero(Wrk(kWiK(1)),lWiK)
+Wrk(kWiK(1):kEndWiK-1) = Zero
 
 ! Allocate memory for WJK-vector (fro-fro)
 ! ----------------------------------------
@@ -205,7 +205,7 @@ do iSym=2,nSym
   lWJK = lWJK+nFro(iSym)*nFro(iSym)
 end do
 kEndWJK = kWJK(1)+lWJK
-call FZero(Wrk(kWJK(1)),lWJK)
+Wrk(kWJK(1):kEndWJK-1) = Zero
 
 ! Allocate memory for Lagr-vector
 ! ------------------------------
@@ -217,7 +217,7 @@ do iSym=2,nSym
   lLagr = lLagr+nOcc(iSym)*nVir(iSym)
 end do
 kEndLagr = kLagr(1)+lLagr
-call FZero(Wrk(kLagr(1)),lLagr)
+Wrk(kLagr(1):kEndLagr-1) = Zero
 
 ! Allocate memory for FrozenLagr-vector
 ! -------------------------------------
@@ -229,7 +229,7 @@ do iSym=2,nSym
   lFLagr = lFLagr+nFro(iSym)*nVir(iSym)
 end do
 kEndFLagr = kFLagr(1)+lFLagr
-call FZero(Wrk(kFlagr(1)),lFLagr)
+Wrk(kFlagr(1):kEndFlagr-1) = Zero
 
 nVec = min(maxvalue,max(nMP2VecMax,NumChoMax))
 if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
@@ -303,7 +303,7 @@ do iSym=1,nSym
     ! Calculate Intermediate vectors U
     ! --------------------------------
     do kBat=1,nBatR
-      call FZero(Wrk(kX),lX)
+      Wrk(kX:kX+lX-1) = Zero
       if (kBat == nBatR) then
         NumVecK = nMP2Vec(iSym)-nVec*(nBatR-1)
       else
@@ -447,7 +447,7 @@ do iSym=1,nSym
     ! Calculate Intermediate vectors U*
     ! ---------------------------------
     do kBat=1,nBatL
-      call FZero(Wrk(kX),lX)
+      Wrk(kX:kX+lX-1) = Zero
       if (kBat == nBatL) then
         NumVecK = NumCho(iSym)-nVec*(nBatL-1)
       else
@@ -784,7 +784,7 @@ end if
 lAmp = nVirMax*nB*nOccMax
 kAmp = kEndFLagr
 kEndAmp = kAmp+lAmp
-call FZero(Wrk(kAmp),lAmp)
+Wrk(kAmp:kEndAmp-1) = Zero
 
 ! Allocate memory for Rjc^K
 ! -------------------------
@@ -880,8 +880,8 @@ do jSym=1,nSym
 
   nBatMax = max(nBatR,nBatL)
   do jBat=1,nBatMax
-    call fZero(Wrk(kU),lU)
-    call fZero(Wrk(kV),lV)
+    Wrk(kU:kU+lU-1) = Zero
+    Wrk(kV:kV+lV-1) = Zero
     if (jBat == nBatR) then
       NumRVecJ = nMP2Vec(jSym)-nVec*(nBatR-1)
     else if (jBat > nBatR) then

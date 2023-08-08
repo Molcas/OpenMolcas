@@ -64,10 +64,10 @@ end if
 
 if (DecoMP2) then
   iTyp = 2
-  call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+  nEnrVec(1:nSym) = nMP2Vec(1:nSym)
 else
   iTyp = 1
-  call iCopy(nSym,NumCho,1,nEnrVec,1)
+  nEnrVec(1:nSym) = NumCho(1:nSym)
 end if
 
 ! Set (ai|bj) indices.
@@ -86,7 +86,7 @@ if (lWrk0 < 0) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
 if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 
   kMabij = kXaibj ! rename pointer
-  call FZero(Wrk(kMabij),LnT2am) ! initialize
+  Wrk(kMabij:kMabij+LnT2am-1) = Zero ! initialize
 
   ! Loop over Cholesky symmetries.
   ! ------------------------------
@@ -163,7 +163,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
             do i=1,nOcc(iSymi)
               kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
               kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
-              call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+              Wrk(kOff2:kOff2+nVir(iSyma)-1) = Wrk(kOff1:kOff1+nVir(iSyma)-1)
             end do
           end do
 
@@ -246,7 +246,7 @@ if ((ChoAlg == 2) .and. MP2_small) then ! level 3 BLAS algorithm
 else if (ChoAlg == 2) then ! level 3 BLAS algorithm
 
   kMabij = kXaibj ! rename pointer
-  call FZero(Wrk(kMabij),LnT2am) ! initialize
+  Wrk(kMabij:kMabij+LnT2am-1) = Zero ! initialize
 
   ! Loop over Cholesky symmetries.
   ! ------------------------------
@@ -323,7 +323,7 @@ else if (ChoAlg == 2) then ! level 3 BLAS algorithm
             do i=1,nOcc(iSymi)
               kOff1 = kVecai+iT1am(iSyma,iSymi)+nVir(iSyma)*(i-1)
               kOff2 = kVec+iVaJi(iSymi)+nVir(iSyma)*NumVec*(i-1)+nVir(iSyma)*(iVec-1)
-              call dCopy_(nVir(iSyma),Wrk(kOff1),1,Wrk(kOff2),1)
+              Wrk(kOff2:kOff2+nVir(iSyma)-1) = Wrk(kOff1:kOff1+nVir(iSyma)-1)
             end do
           end do
 

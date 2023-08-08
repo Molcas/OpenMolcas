@@ -49,15 +49,15 @@ do iSym=2,nSym
 end do
 
 if ((Frac <= Zero) .or. (Frac > One) .or. (lVecTot < 1)) then
-  call iZero(ip_ChVBuf_Sym,nSym)
-  call iZero(l_ChVBuf_Sym,nSym)
+  ip_ChVBuf_Sym(1:nSym) = 0
+  l_ChVBuf_Sym(1:nSym) = 0
 else
   call mma_MaxDBLE(l_Max)
   l_ChVBuf = int(Frac*real(l_Max,kind=wp))
   if ((l_ChVBuf < nSym) .or. (l_ChVBuf < lVecTot)) then
     l_ChVBuf = 0
-    call iZero(ip_ChVBuf_Sym,nSym)
-    call iZero(l_ChVBuf_Sym,nSym)
+    ip_ChVBuf_Sym(1:nSym) = 0
+    l_ChVBuf_Sym(1:nSym) = 0
   else
     MemEach = l_ChVBuf/nSym
     Enough = MemEach > lVec(1)
@@ -89,7 +89,7 @@ else
   end if
 end if
 
-call iZero(nVec_in_Buf,nSym)
+nVec_in_Buf(1:nSym) = 0
 
 if (LocDbg) then
   call Cho_Word2Byte(l_ChVBuf,8,x,Unt)

@@ -21,10 +21,10 @@ implicit none
 if (allocated(CHVBUF)) call mma_deallocate(CHVBUF)
 if (allocated(CHVBFI)) call mma_deallocate(CHVBFI)
 
-call iZero(ip_ChVBuf_Sym,nSym)
-call iZero(l_ChVBuf_Sym,nSym)
-call iZero(ip_ChVBFI_Sym,nSym)
-call iZero(l_ChVBFI_Sym,nSym)
-call iZero(nVec_in_Buf,nSym)
+ip_ChVBuf_Sym(1:nSym) = 0
+l_ChVBuf_Sym(1:nSym) = 0
+ip_ChVBFI_Sym(1:nSym) = 0
+l_ChVBFI_Sym(1:nSym) = 0
+nVec_in_Buf(1:nSym) = 0
 
 end subroutine Cho_VecBuf_Final

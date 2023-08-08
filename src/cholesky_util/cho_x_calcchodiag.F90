@@ -37,6 +37,7 @@ subroutine Cho_X_CalcChoDiag(rc,Diag)
 
 use Cholesky, only: iiBstR, IndRed, InfVec, IndRed, nDimRS, nnBstRT, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -47,7 +48,7 @@ integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, J
 real(kind=wp), allocatable :: Lrs(:,:)
 character(len=*), parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 
-call fZero(Diag,nnBstRT(1))
+Diag(1:nnBstRT(1)) = Zero
 
 IREDC = -1  ! unknown reduced set
 

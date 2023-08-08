@@ -13,7 +13,7 @@ subroutine Cho_TestBookmark(irc,verbose,is1CCD)
 
 use Cholesky, only: Cho_1Center, DiaMax, DiaMaxT, nnBstRT, nSym, NumCho, NumChT, ThrCom
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -127,7 +127,7 @@ else
   if (jrc == 0) then
     call mma_allocate(BkmDiaX,nnBstRT(1),Label='BkmDiaX')
     call Cho_IODiag(BkmDiaX,2)
-    call dAXPY_(nnBstRT(1),-One,BkmDia,1,BkmDiaX,1)
+    BkmDiaX(:) = BkmDiaX(:)-BkmDia(:)
     if (Cho_1Center) then
       call Cho_TestBookmark_1CInit(dealloc)
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
@@ -135,8 +135,8 @@ else
     else
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
     end if
-    call FZero(DiaMax,nSym)
-    call FZero(DiaMaxT,nSym)
+    DiaMax(1:nSym) = Zero
+    DiaMaxT(1:nSym) = Zero
     call mma_deallocate(BkmDiaX)
     if (abs(ErrMx-ThrCom) > 1.0e-12_wp) then
       irc = irc+1

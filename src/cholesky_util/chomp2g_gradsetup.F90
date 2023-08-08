@@ -453,38 +453,38 @@ do iSym=1,nSym
       do jSym=1,nSym
         kSym = ieor(iSym-1,jSym-1)+1
         do i=1,nFro(kSym)
-          iOff1 = nMoMo(iSym,iVecFF)*(iJ-1)+(i-1)*nFro(jSym)
-          call dCopy_(nFro(jSym),CJK(1+iOff1+iOffFF),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffFF+nMoMo(iSym,iVecFF)*(iJ-1)+(i-1)*nFro(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CJK(iOff1+1:iOff1+nFro(jSym))
           iOff3 = iOff3+nFro(jSym)
-          iOff1 = nMoMo(iSym,iVecOF)*(iJ-1)+(i-1)*nOcc(jSym)
-          call dCopy_(nOcc(jSym),Cki(1+iOff1+iOffOF),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffOF+nMoMo(iSym,iVecOF)*(iJ-1)+(i-1)*nOcc(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cki(iOff1+1:iOff1+nOcc(jSym))
           iOff3 = iOff3+nOcc(jSym)
-          iOff1 = nMoMo(iSym,iVecVF)*(iJ-1)+(i-1)*nVir(jSym)
-          call dCopy_(nVir(jSym),Cka(1+iOff1+iOffVF),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffVF+nMoMo(iSym,iVecVF)*(iJ-1)+(i-1)*nVir(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cka(iOff1+1:iOff1+nVir(jSym))
           iOff3 = iOff3+nVir(jSym)
         end do
 
         do i=1,nOcc(kSym)
-          iOff1 = nMoMo(iSym,iVecFO)*(iJ-1)+(i-1)*nFro(jSym)
-          call dCopy_(nFro(jSym),CiK(1+iOff1+iOffFO),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffFO+nMoMo(iSym,iVecFO)*(iJ-1)+(i-1)*nFro(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CiK(iOff1+1:iOff1+nFro(jSym))
           iOff3 = iOff3+nFro(jSym)
-          iOff1 = nMoMo(iSym,iVecOO)*(iJ-1)+(i-1)*nOcc(jSym)
-          call dCopy_(nOcc(jSym),Cij(1+iOff1+iOffOO),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffOO+nMoMo(iSym,iVecOO)*(iJ-1)+(i-1)*nOcc(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cij(iOff1+1:iOff1+nOcc(jSym))
           iOff3 = iOff3+nOcc(jSym)
-          iOff1 = nMoMo(iSym,iVecVO)*(iJ-1)+(i-1)*nVir(jSym)
-          call dCopy_(nVir(jSym),Cia(1+iOff1+iOffVO),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffVO+nMoMo(iSym,iVecVO)*(iJ-1)+(i-1)*nVir(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cia(iOff1+1:iOff1+nVir(jSym))
           iOff3 = iOff3+nVir(jSym)
         end do
 
         do i=1,nVir(kSym)
-          iOff1 = nMoMo(iSym,iVecFV)*(iJ-1)+(i-1)*nFro(jSym)
-          call dCopy_(nFro(jSym),CaK(1+iOff1+iOffFV),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffFV+nMoMo(iSym,iVecFV)*(iJ-1)+(i-1)*nFro(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CaK(iOff1+1:iOff1+nFro(jSym))
           iOff3 = iOff3+nFro(jSym)
-          iOff1 = nMoMo(iSym,iVecOV)*(iJ-1)+(i-1)*nOcc(jSym)
-          call dCopy_(nOcc(jSym),Cai(1+iOff1+iOffOV),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffOV+nMoMo(iSym,iVecOV)*(iJ-1)+(i-1)*nOcc(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cai(iOff1+1:iOff1+nOcc(jSym))
           iOff3 = iOff3+nOcc(jSym)
-          iOff1 = nMoMo(iSym,iVecVV)*(iJ-1)+(i-1)*nVir(jSym)
-          call dCopy_(nVir(jSym),Cab(1+iOff1+iOffVV),1,Cpq(1+iOff3+iOffBB),1)
+          iOff1 = iOffVV+nMoMo(iSym,iVecVV)*(iJ-1)+(i-1)*nVir(jSym)
+          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cab(iOff1+1:iOff1+nVir(jSym))
           iOff3 = iOff3+nVir(jSym)
         end do
 
@@ -833,7 +833,7 @@ do iSym=1,nSym
 
     ! Compound 2nd and 3rd RHS term in Eq. 40.
 
-    call DaXpY_(nLRb(iSym)*nJ,One,B3kl,1,B1kl,1)
+    B1kl(1:nLRb(iSym)*nJ) = B1kl(1:nLRb(iSym)*nJ)+B3kl(1:nLRb(iSym)*nJ)
 
     ! Write compounded terms to disk
 

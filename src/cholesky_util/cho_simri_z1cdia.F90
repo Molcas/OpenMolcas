@@ -27,7 +27,7 @@ integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlAB, iShlB, n
 real(kind=wp) :: zmx
 integer(kind=iwp), parameter :: Inf_SimRI = 0
 
-call iZero(Indx,nnBstR(1,1))
+Indx(1:nnBstR(1,1)) = 0
 
 zmx = Zero
 n = 0

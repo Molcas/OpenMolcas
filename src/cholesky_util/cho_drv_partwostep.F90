@@ -141,10 +141,10 @@ call Cho_PrtMaxMem(SecNam//': After 1st step')
 ! In addition, it will make it easier to use the vector calculator
 ! externally (i.e. after seward execution)
 if (iPrint >= Inf_Timing) call Cho_Timer(tC0,tW0)
-call dCopy_(4*nSection,TimSec,1,Timsec_Bak,1)
-call dCopy_(2*nInteg,tInteg,1,tInteg_Bak,1)
-call dCopy_(2*nDecom,tDecom,1,tDecom_Bak,1)
-call dCopy_(2*nMisc,tMisc,1,tMisc_Bak,1)
+TimSec_Bak(:,:) = TimSec(:,:)
+tInteg_Bak(:,:) = tInteg(:,:)
+tDecom_Bak(:,:) = tDecom(:,:)
+tMisc_Bak(:,:) = tMisc(:,:)
 Trace_Idle_Bak = Trace_Idle
 Cho_UseAbs_Bak = Cho_UseAbs
 Cho_DiaChk_Bak = Cho_DiaChk
@@ -215,10 +215,10 @@ if (Cho_1Center) then
     end if
   end if
 end if
-call dCopy_(4*nSection,TimSec_Bak,1,Timsec,1)
-call dCopy_(2*nInteg,tInteg_Bak,1,tInteg,1)
-call dCopy_(2*nDecom,tDecom_Bak,1,tDecom,1)
-call dCopy_(2*nMisc,tMisc_Bak,1,tMisc,1)
+TimSec(:,:) = TimSec_Bak(:,:)
+tInteg(:,:) = tInteg_Bak(:,:)
+tDecom(:,:) = tDecom_Bak(:,:)
+tMisc(:,:) = tMisc_Bak(:,:)
 Trace_Idle = Trace_Idle_Bak
 Cho_UseAbs = Cho_UseAbs_Bak
 Cho_DiaChk = Cho_DiaChk_Bak

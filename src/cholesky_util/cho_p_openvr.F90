@@ -87,7 +87,7 @@ else
         end do
       else
         call Cho_Quit('CHO_ADRVEC out of bounds in '//SecNam,102)
-        call iZero(LuCho_G,nSym)
+        LuCho_G(1:nSym) = 0
       end if
       ! Swap units so that
       !    LuCho_G points to 'CHVEC'

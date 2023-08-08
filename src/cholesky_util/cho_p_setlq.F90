@@ -31,8 +31,8 @@ integer(kind=iwp) :: i, i2, iQ, iQG, iSym, j, k, nQL
 
 if (.not. Cho_Real_Par) return ! not truly parallel...
 
-call iZero(iQuAB_L,size(iQuAB_L))
-call iZero(iQL2G,size(iQL2G))
+iQuAB_L(:,:) = 0
+iQL2G(:,:) = 0
 do iSym=1,nSym
   nQL = 0
   do iQ=1,nQual(iSym)

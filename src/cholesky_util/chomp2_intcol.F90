@@ -35,7 +35,7 @@ character(len=*), parameter :: SecNam = 'ChoMP2_IntCol'
 
 iSym = NowSym
 if (NumCho(iSym) < 1) then
-  call FZero(Col,nDim*nCol)
+  Col(:,:) = Zero
   return
 end if
 

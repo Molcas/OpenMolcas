@@ -13,6 +13,7 @@ subroutine CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
 !
 ! Purpose: call Seward to calculate diagonal shell (AB|AB).
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -24,7 +25,7 @@ character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
 external :: Integral_WrOut_Cho_diag
 
-call FZERO(SCR,LSCR)
+SCR(:) = Zero
 
 #ifdef _DEBUGPRINT_
 call CHO_PRESCR(CUTINT1,THRINT1)

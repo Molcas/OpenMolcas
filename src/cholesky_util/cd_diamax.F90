@@ -40,7 +40,7 @@ do j=1,nQual
   end do
 end do
 
-call iZero(iQual,nQual)
+iQual(:) = 0
 iMax = nQual
 i = 0
 nQual = 0

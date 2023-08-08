@@ -187,7 +187,7 @@ else
 
     Conv = .false.
     do Iter=1,ItrEnd
-      call DCOPY_(I_Dim,Coeff,1,CofOld,1)
+      CofOld(1:I_Dim) = Coeff(1:I_Dim)
       call SlvNt2(K_Lap,R,Coeff,T,Theta2,VVMax,StopBA)
       if (StopBA) then
         Change = .true.
@@ -283,7 +283,7 @@ write(IW,'()')
 
 ! ===== Multiply the scaling parameter (EMinIv = 1/EMin) =====
 
-call DSCAL_(I_Dim,EMinIv,Coeff,1)
+Coeff(1:I_Dim) = EMinIV*Coeff(1:I_Dim)
 write(IW,'(/A/)') ' Final solution '
 do I=1,K_Lap
   Idx = 2*I-1

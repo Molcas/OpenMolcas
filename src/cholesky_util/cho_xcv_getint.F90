@@ -23,6 +23,7 @@ subroutine Cho_XCV_GetInt(irc,ListCD,l_ListCD,ListSP,l_ListSP,NVT,l_nVT,xInt,l_I
 ! trivial array [i.e. mySP(i)=i].
 
 use Cholesky, only: iOff_col, nDim_Batch, nSym
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -47,7 +48,7 @@ if (n > l_Int) then
 end if
 
 ! Calculate integrals
-call FZero(xInt,n)
+xInt(1:n) = Zero
 do iSP=1,l_ListSP
   do iCD=1,l_ListCD
     call Cho_MCA_CalcInt_4(xInt,n,ListCD(iCD),ListSP(iSP))

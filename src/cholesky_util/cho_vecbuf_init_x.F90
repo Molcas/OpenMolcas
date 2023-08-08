@@ -44,8 +44,8 @@ end if
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym out of bounds in '//SecNam,102)
 
 if ((Frac <= Zero) .or. (Frac > One)) then
-  call iZero(l_ChvBuf_Sym,nSym)
-  call iZero(ip_ChvBuf_Sym,nSym)
+  l_ChvBuf_Sym(1:nSym) = 0
+  ip_ChvBuf_Sym(1:nSym) = 0
 else
   call mma_maxDBLE(l_max)
   Left = int(Frac*real(l_Max,kind=wp))
@@ -61,8 +61,8 @@ else
   l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
   if (l_ChVBuf < 1) then
     l_ChVBuf = 0
-    call iZero(l_ChvBuf_Sym,nSym)
-    call iZero(ip_ChvBuf_Sym,nSym)
+    l_ChvBuf_Sym(1:nSym) = 0
+    ip_ChvBuf_Sym(1:nSym) = 0
   else
     call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
 

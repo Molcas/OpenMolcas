@@ -32,9 +32,9 @@ character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll'
 ! check if there is enough memory to read through vector files
 ! only once
 if (DecoMP2) then
-  call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+  nEnrVec(1:nSym) = nMP2Vec(1:nSym)
 else
-  call iCopy(nSym,NumCho,1,nEnrVec,1)
+  nEnrVec(1:nSym) = NumCho(1:nSym)
 end if
 l_X = 0
 l_V = 0

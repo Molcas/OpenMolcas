@@ -28,7 +28,7 @@ integer(kind=iwp) :: iBat, iC, iC1, NumBat, NumC, NumCol
 irc = 0
 if ((nDim < 1) .or. (nCol < 1)) return
 if (nVec < 1) then
-  if (Fac /= One) call dScal_(nDim*nCol,Fac,Col,1)
+  if (Fac /= One) Col(:,:) = Fac*Col(:,:)
   return
 end if
 

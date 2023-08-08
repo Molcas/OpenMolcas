@@ -63,14 +63,14 @@ nIter = 100
 lFDiag = nMoMo(1,iVecFV)
 kDiag(1) = kFLagr(1)+lFLagr
 kEndFDiag = kDiag(1)+lFDiag
-call FZero(Wrk(kDiag(1)),lFDiag)
+Wrk(kDiag(1):kEndFDiag-1) = Zero
 
 ! Allocate memory for Occupied Diagonal of A
 ! ------------------------------------------
 lDiag = nMoMo(1,iVecOV)
 kDiag(2) = kEndFDiag
 kEndDiag = kDiag(2)+lDiag
-call FZero(Wrk(kDiag(2)),lDiag)
+Wrk(kDiag(2):kEndDiag-1) = Zero
 
 iSym = 1
 nOccAll(iSym) = nFro(iSym)+nOcc(iSym)
@@ -185,13 +185,13 @@ lCGVec = lCGOVec+lCGFVec
 
 kCGVec(1) = kEndDiag
 kEndCGVec(1) = kCGVec(1)+lCGVec
-call FZero(Wrk(kCGVec(1)),lCGVec)
+Wrk(kCGVec(1):kEndCGVec(1)-1) = Zero
 nCGvec = 9
 
 do i=2,nCGVec
   kCGVec(i) = kEndCGVec(i-1)
   kEndCGVec(i) = kCGVec(i)+lCGVec
-  call FZero(Wrk(kCGVec(i)),lCGVec)
+  Wrk(kCGVec(i):kEndCGVec(i)-1) = Zero
 end do
 
 ! Calculate inital values for the CG-vectors needing that
@@ -210,7 +210,7 @@ do i=1,lCGOVec
 end do
 
 do iIter=1,nIter
-  call FZero(Wrk(kCGVec(9)),lCGVec)
+  Wrk(kCGVec(9):kCGVec(9)+lCGVec-1) = Zero
 
   ! Calculate A*p
   ! -------------
@@ -443,7 +443,7 @@ do iBat=1,nBatL
     NumVec = nVec
   end if
   iVec = nVec*(iBat-1)+1
-  call FZero(Wrk(kU),lU)
+  Wrk(kU:kU+lU-1) = Zero
 
   ! Read Lij^J-vectors from disk
   ! ----------------------------
@@ -644,28 +644,28 @@ do iBat=1,nBatL
   ! Put the Lpq-vectors together to one large vector
   ! ------------------------------------------------
 
-  iOff2 = 0
+  iOff2 = kLip
   do iVec1=1,NumVec
     do i=1,nFro(iSym)
-      iOff1 = nMoMo(iSym,iVecFF)*(iVec1-1)+(i-1)*nFro(iSym)
-      call dCopy_(nFro(iSym),Wrk(kLJK+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLJK+nMoMo(iSym,iVecFF)*(iVec1-1)+(i-1)*nFro(iSym)
+      Wrk(iOff2:iOff2+nFro(iSym)-1) = Wrk(iOff1:iOff1+nFro(iSym)-1)
       iOff2 = iOff2+nFro(iSym)
-      iOff1 = nMoMo(iSym,iVecOF)*(iVec1-1)+(i-1)*nOcc(iSym)
-      call dCopy_(nOcc(iSym),Wrk(kLKi+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLKi+nMoMo(iSym,iVecOF)*(iVec1-1)+(i-1)*nOcc(iSym)
+      Wrk(iOff2:iOff2+nOcc(iSym)-1) = Wrk(iOff1:iOff1+nOcc(iSym)-1)
       iOff2 = iOff2+nOcc(iSym)
-      iOff1 = nMoMo(iSym,iVecVF)*(iVec1-1)+(i-1)*nVir(iSym)
-      call dCopy_(nVir(iSym),Wrk(kLKa+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLKa+nMoMo(iSym,iVecVF)*(iVec1-1)+(i-1)*nVir(iSym)
+      Wrk(iOff2:iOff2+nVir(iSym)-1) = Wrk(iOff1:iOff1+nVir(iSym)-1)
       iOff2 = iOff2+nVir(iSym)
     end do
     do i=1,nOcc(iSym)
-      iOff1 = nMoMo(iSym,iVecFO)*(iVec1-1)+(i-1)*nFro(iSym)
-      call dCopy_(nFro(iSym),Wrk(kLiK+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLiK+nMoMo(iSym,iVecFO)*(iVec1-1)+(i-1)*nFro(iSym)
+      Wrk(iOff2:iOff2+nFro(iSym)-1) = Wrk(iOff1:iOff1+nFro(iSym)-1)
       iOff2 = iOff2+nFro(iSym)
-      iOff1 = nMoMo(iSym,iVecOO)*(iVec1-1)+(i-1)*nOcc(iSym)
-      call dCopy_(nOcc(iSym),Wrk(kLij+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLij+nMoMo(iSym,iVecOO)*(iVec1-1)+(i-1)*nOcc(iSym)
+      Wrk(iOff2:iOff2+nOcc(iSym)-1) = Wrk(iOff1:iOff1+nOcc(iSym)-1)
       iOff2 = iOff2+nOcc(iSym)
-      iOff1 = nMoMo(iSym,iVecVO)*(iVec1-1)+(i-1)*nVir(iSym)
-      call dCopy_(nVir(iSym),Wrk(kLia+iOff1),1,Wrk(kLip+iOff2),1)
+      iOff1 = kLia+nMoMo(iSym,iVecVO)*(iVec1-1)+(i-1)*nVir(iSym)
+      Wrk(iOff2:iOff2+nVir(iSym)-1) = Wrk(iOff1:iOff1+nVir(iSym)-1)
       iOff2 = iOff2+nVir(iSym)
     end do
   end do

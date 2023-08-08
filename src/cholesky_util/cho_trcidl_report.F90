@@ -45,7 +45,7 @@ if (Cho_Real_Par) then
   end if
 # endif
   call mma_allocate(TIloc,[0,nProcs-1],Label='TILoc')
-  call iCopy(nProcs,Idle,1,TIloc,1)
+  TIloc(:) = Idle(1:nProcs)
   call Cho_GAIGOp(TIloc,nProcs,'+')
   nIdle = 0
   do i=0,nProcs-1

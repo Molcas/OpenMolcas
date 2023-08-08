@@ -28,7 +28,7 @@ character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Prt', ThisNam = 'Energy_P
 
 if (Job == 0) then
 
-  call FZero(CME_Time,2*2)
+  CME_Time(:,:) = Zero
 
   write(u6,'(/,4X,A,/,4X,A)') 'Evaluation of MP2 energy correction','==================================='
   write(u6,'(4X,A,A)') 'Evaluator: ',Caller

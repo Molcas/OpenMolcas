@@ -33,6 +33,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 use Cholesky, only: Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Reord, Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, &
                     INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -120,7 +121,7 @@ ISEC = 3
 if (LCONV) then
   if (RSTCHO) then
     write(LUPRI,'(//,10X,A,A,A,//)') '***** ',SECNAM,': restarted calculation converged. *****'
-    call FZERO(TIMSEC(1,ISEC),4)
+    TIMSEC(:,ISEC) = Zero
   else
     write(LUPRI,'(A,A)') SECNAM,': logical error: converged but not restart?!?!'
     call CHO_QUIT('Error in '//SECNAM,103)
@@ -174,7 +175,7 @@ call CHO_PRTMAXMEM('CHO_DRV_ [AFTER DECOMPOSITION]')
 
 ISEC = 4
 if (LCONV) then
-  call FZERO(TIMSEC(1,ISEC),4)
+  TIMSEC(:,ISEC) = Zero
 else
   if (IPRINT >= INF_TIMING) then
     call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
@@ -225,7 +226,7 @@ if (CHO_INTCHK) then
   call CHO_PRTMAXMEM('CHO_DRV_ [AFTER INTEGRAL CHECK]')
 # endif
 else
-  call FZERO(TIMSEC(1,ISEC),4)
+  TIMSEC(:,ISEC) = Zero
 end if
 
 ! REORDER VECTORS.
@@ -254,7 +255,7 @@ if (CHO_REORD) then
   call CHO_PRTMAXMEM('CHO_DRV_ [AFTER VECTOR REORDERING]')
 # endif
 else
-  call FZERO(TIMSEC(1,ISEC),4)
+  TIMSEC(:,ISEC) = Zero
 end if
 
 ! FAKE PARALLEL: DISTRIBUTE VECTORS.
@@ -279,7 +280,7 @@ if (CHO_FAKE_PAR .and. (NPROCS > 1) .and. Is_Real_Par()) then
   call CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_PFAKE_VDIST]')
 # endif
 else
-  call FZERO(TIMSEC(1,ISEC),4)
+  TIMSEC(:,ISEC) = Zero
 end if
 
 ! FINALIZATIONS.

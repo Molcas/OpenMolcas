@@ -48,7 +48,7 @@ if (Dbg) write(IW,*) 'theta2',Theta2
 
 call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
 if (StopBA) return
-call DCOPY_(I_Dim,Coeff,1,CofOld,1)
+CofOld(1:I_Dim) = Coeff(1:I_Dim)
 
 do I=1,I_Dim
   VV(I) = DD(I)+DD(I+1)
@@ -71,12 +71,12 @@ if (Eps0 > TOL) then
       Temp = DD(I)+DD(I+1)-VV(I)
       A(I,J) = Temp*EprInv
     end do
-    call DCOPY_(I_Dim,CofOld,1,Coeff,1)
+    Coeff(1:I_Dim) = CofOld(1:I_Dim)
     T(J) = TCpy
   end do
   call SlvEqs(I_Dim,A,W,VV,Error)
   if (Error) then
-    call DCOPY_(I_Dim,T,1,TOld,1)
+    TOld(1:I_Dim) = T(1:I_Dim)
 
     do
       do I=1,I_Dim
@@ -87,9 +87,9 @@ if (Eps0 > TOL) then
         write(IW,'(A)') '!! wrong T-values !!'
         call AbortG()
         New2 = 100
-        call DCOPY_(I_Dim,TOld,1,T,1)
+        T(1:I_Dim) = TOld(1:I_Dim)
       else
-        call DCOPY_(I_Dim,CofOld,1,Coeff,1)
+        Coeff(1:I_Dim) = CofOld(1:I_Dim)
         call SlvNt1(K_Lap,New2,Coeff,T)
         call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
         if (StopBA) return

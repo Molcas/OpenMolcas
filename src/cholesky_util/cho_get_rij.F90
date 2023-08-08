@@ -105,7 +105,7 @@ end do
 
 nOcs = iOcs(nSym)+nOcc(nSym)**2
 
-call FZero(Rij(1),nOcs)
+Rij(1:nOcs) = Zero
 
 do kS=1,nSym
   iSkip(kS) = min(nOcc(kS),1) ! initialize skipping flags

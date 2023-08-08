@@ -30,7 +30,7 @@ integer(kind=iwp), external :: CHO_F2SP, CHO_RS2F
 
 if (N < 2) call CHO_QUIT('Dimension error [1] in '//SECNAM,104)
 if (LRDIM /= MMBSTRT) call CHO_QUIT('Dimension error [2] in '//SECNAM,104)
-call IZERO(IRS2F,N*MMBSTRT)
+IRS2F(:,1:MMBSTRT) = 0
 
 do ISYMA=1,NSYM
   if (NBAS(ISYMA) > 0) then

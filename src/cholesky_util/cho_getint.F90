@@ -42,7 +42,7 @@ integer(kind=iwp), external :: CHO_ISUMELM
 ! Initializations.
 ! ----------------
 
-call IZERO(NQUAL,NSYM)
+NQUAL(1:NSYM) = 0
 ICOUNT = 0
 if (MXSHPR > 0) then
   MCOUNT = min(NPOTSH,MXSHPR)

@@ -142,7 +142,7 @@ if (lTot > 0) then
       end do
     end if
   end if
-  call dCopy_(lTot,CHVBUF(kB),1,Vec,1)
+  Vec(1:lTot) = CHVBUF(kB:kB+lTot-1)
   ! Check copy operation (may fail if molcas is compiled for
   ! 64 bit but linked to a 32 bit blas library)
   ! Note: check is not done unless it is enabled when the buffer

@@ -14,6 +14,7 @@ subroutine CHO_GETDIAG1(DIAG,BUF,IBUF,LENBUF,NDUMP)
 ! Purpose: read diagonal in first reduced set.
 
 use Cholesky, only: IndRed, IndRSh, INF_DIAG, IPRINT, mmBstRT, nnBstRT, nSym, RstDia
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,9 +30,9 @@ if (RSTDIA) then
   IOPT = 2
   call CHO_IODIAG(DIAG,IOPT)
 else
-  call FZERO(DIAG,NNBSTRT(1))
-  call IZERO(INDRSH,NNBSTRT(1))
-  call IZERO(INDRED,NNBSTRT(1))
+  DIAG(1:NNBSTRT(1)) = Zero
+  INDRSH(1:NNBSTRT(1)) = 0
+  INDRED(1:NNBSTRT(1),1) = 0
   call CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,MMBSTRT,NDUMP)
   call CHO_GADGOP(DIAG,NNBSTRT(1),'+')
   call CHO_GAIGOP(INDRSH,NNBSTRT(1),'+')

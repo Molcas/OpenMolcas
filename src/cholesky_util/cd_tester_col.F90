@@ -25,8 +25,8 @@ integer(kind=iwp) :: i, kOff
 unused_var(Buf)
 
 do i=1,nCol
-  kOff = 1+nDim*(iCol(i)-1)
-  call dCopy_(nDim,Mat(kOff),1,Col(1,i),1)
+  kOff = nDim*(iCol(i)-1)
+  Col(:,i) = Mat(kOff+1:kOff+nDim)
 end do
 
 return

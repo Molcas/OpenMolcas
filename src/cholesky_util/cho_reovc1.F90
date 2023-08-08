@@ -15,6 +15,7 @@ subroutine CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 
 use Symmetry_Info, only: Mul
 use Cholesky, only: iiBstR, LuPri, NABPK, NNBST, nnBstR, nSys_call, nSym, NumCho
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -95,7 +96,7 @@ do ISYM=1,NSYM
       ! --------
 
       KCHO2 = KREAD
-      call IZERO(IOFF,64)
+      IOFF(:,:) = 0
       ICOUNT = KCHO2-1
       do ISYMB=1,NSYM
         ISYMA = MUL(ISYMB,ISYM)
@@ -106,7 +107,7 @@ do ISYM=1,NSYM
         end if
       end do
 
-      call FZERO(WRK(KCHO2),NNBST(ISYM)*NUMV)
+      WRK(KCHO2:KCHO2+NNBST(ISYM)*NUMV-1) = Zero
       do IVEC=1,NUMV
         KOFF1 = KCHO1+NNBSTR(ISYM,2)*(IVEC-1)-1
         do IRS=1,NNBSTR(ISYM,2)

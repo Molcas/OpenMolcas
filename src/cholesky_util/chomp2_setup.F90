@@ -137,8 +137,8 @@ if (ChoAlg == 2) then
     end do
   end do
 else
-  call iZero(nMatab,8)
-  call iZero(iMatab,64)
+  nMatab(:) = 0
+  iMatab(:,:) = 0
 end if
 
 ! If batching over occuped orbitals is forced by user, there better
@@ -169,7 +169,7 @@ if (DecoMP2) then
     NumVec(iSym) = min(NumCho(iSym),nT1am(iSym))
   end do
 else
-  call iCopy(nSym,NumCho,1,NumVec,1)
+  NumVec(1:nSym) = NumCho(1:nSym)
 end if
 call Cho_GAiGOp(NumVec,nSym,'max')
 

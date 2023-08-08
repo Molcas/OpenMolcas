@@ -55,7 +55,7 @@ end if
 ! the runfile.
 ! ---------------------------------------------------------------
 
-call iCopy(nSym,NumCho,1,nV,1)
+nV(1:nSym) = NumCho(1:nSym)
 call Get_iArray('nVec_RI',NumCho,nSym)
 NumChT = NumCho(1)
 do iSym=2,nSym

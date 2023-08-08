@@ -36,10 +36,10 @@ end if
 
 nDim = nSym*nnShl
 IndRed(:,2) = 0
-call iZero(iiBstRSh(:,:,2),nDim)
-call iZero(nnBstRSh(:,:,2),nDim)
-call iZero(iiBstR(:,2),nSym)
-call iZero(nnBstR(:,2),nSym)
+iiBstRSh(:,:,2) = 0
+nnBstRSh(:,:,2) = 0
+iiBstR(:,2) = 0
+nnBstR(:,2) = 0
 nnBstRT(2) = 0
 
 ! Set local nnBstRSh counter at location 2.

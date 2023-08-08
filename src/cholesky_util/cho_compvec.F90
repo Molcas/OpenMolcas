@@ -73,8 +73,8 @@ do i=1,nQual(iSym)
 
   xC = QDiag(i)
   Fac = One/sqrt(abs(xC))
-  kOff = kOff0+1
-  call dScal_(nnBstR(iSym,2),Fac,xInt(kOff),1)
+  kOff = kOff0
+  xInt(kOff+1:kOff+nnBstR(iSym,2)) = Fac*xInt(kOff+1:kOff+nnBstR(iSym,2))
 
   ! Zero elements corresponding to zero diagonals.
   ! ----------------------------------------------
@@ -129,11 +129,11 @@ do i=1,nQual(iSym)
   ! M([gd],{ab}_j) -= K({ab}_j,i)*L([gd],NumCho+i)
   ! -----------------------------------------------------
 
-  kOff = kOff0+1
+  kOff = kOff0
   do j=i+1,nQual(iSym)
     Fac = -VecK(kK0+j)
-    kInt = nnBstR(iSym,2)*(j-1)+1
-    call dAXPY_(nnBstR(iSym,2),Fac,xInt(kOff),1,xInt(kInt),1)
+    kInt = nnBstR(iSym,2)*(j-1)
+    xInt(kInt+1:kInt+nnBstR(iSym,2)) = xInt(kInt+1:kInt+nnBstR(iSym,2))+Fac*xInt(kOff+1:kOff+nnBstR(iSym,2))
   end do
 
   ! Print.

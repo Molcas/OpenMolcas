@@ -75,7 +75,7 @@ end if
 ! Compute Y(ij) = X(ij) - xf * sum_J L(iJ) * L(jJ).
 ! -------------------------------------------------
 
-call dCopy_(lX,X,1,Y,1)
+Y(1:lX) = X(1:lX)
 if (Square) then
   call DGEMM_('N','T',n,n,nVec,-xf,Vec,n,Vec,n,One,Y,n)
 else

@@ -56,7 +56,7 @@ end if
 ! -------------------------------------------------------
 
 iShP2Q(:,1:NumAB) = 0
-call iZero(nAB,nSym)
+nAB(1:nSym) = 0
 
 do iSym=1,nSym
   do iQ=1,nQual(iSym)

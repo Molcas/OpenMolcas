@@ -24,6 +24,7 @@ subroutine CHO_GETVEC0(CHOVEC,LENVEC,NUMVEC,IVEC1,ISYM,SCR,LSCR)
 !       use LSCR = 2 x dimension of first reduced set.
 
 use Cholesky, only: iiBstR, IndRed, InfVec, LuPri, nnBstR, nSys_call
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -38,7 +39,7 @@ real(kind=wp), external :: ddot_
 ! Initialize output array.
 ! ------------------------
 
-call FZERO(CHOVEC,LENVEC*NUMVEC)
+CHOVEC(:,:) = Zero
 
 ! Read reduced set index arrays for first vector.
 ! -----------------------------------------------
@@ -98,7 +99,7 @@ do JVEC=1,NUMVEC
                    ' dim.: ',NNBSTR(ISYM,3)
   end if
 
-  call FZERO(SCR(KRED1),NNBSTR(ISYM,1))
+  SCR(KRED1:KRED1+NNBSTR(ISYM,1)-1) = Zero
   if (IRED > 1) then
     do JAB=1,NNBSTR(ISYM,3)   ! sort into rs1 ordering
       KAB = IIBSTR(ISYM,3)+JAB

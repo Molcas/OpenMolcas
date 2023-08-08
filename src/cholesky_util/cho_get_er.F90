@@ -94,7 +94,7 @@ MaxBB = MaxB*(MaxB+1)/2
 nOccT = iOcc(nSym)+nOcc(nSym)
 
 W = Zero ! initialization of the ER-functional value
-call Fzero(ER(1),nOccT) ! and its orbital components
+ER(1:nOccT) = Zero ! and its orbital components
 
 call mma_allocate(DLT,MaxBB,Label='DLT')
 DLT(:) = Zero

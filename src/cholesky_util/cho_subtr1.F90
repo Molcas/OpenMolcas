@@ -129,8 +129,8 @@ NUMRD = 0
 NUMBAT = 0
 XTOT = Zero
 XDON = Zero
-call IZERO(IVSTAT,4)
-call FZERO(TIMLOC,6)
+IVSTAT(:,:) = 0
+TIMLOC(:,:) = 0
 
 ! Start buffer batch loop.
 ! ------------------------

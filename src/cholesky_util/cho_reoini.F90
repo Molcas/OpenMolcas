@@ -20,7 +20,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ISYM, ISYMA, ISYMB
 
-call IZERO(NNBST,NSYM)
+NNBST(1:NSYM) = 0
 do ISYMA=1,NSYM
   do ISYMB=1,ISYMA-1
     NABPK(ISYMA,ISYMB) = NBAS(ISYMA)*NBAS(ISYMB)

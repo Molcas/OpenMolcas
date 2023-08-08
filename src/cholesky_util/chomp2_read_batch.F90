@@ -38,7 +38,7 @@ character(len=*), parameter :: SecNam = 'ChoMP2_Read_Batch'
 ! -------------------------------
 
 iTyp = 1
-call iCopy(nSym,NumCho,1,nEnrVec,1)
+nEnrVec(1:nSym) = NumCho(1:nSym)
 
 ! Allocate memory for integrals.
 ! ------------------------------

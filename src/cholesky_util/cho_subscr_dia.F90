@@ -22,6 +22,7 @@ subroutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
 !          Any other norm is taken to be 'Max'.
 
 use Cholesky, only: DSPNm, DSubScr, iiBstRSh, LuPri, nnBstR, nnBstRSh, nnShl
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,8 +42,8 @@ if (.not. Cho_SScreen) call Cho_Quit('Cho_SScreen is .False. in '//SecNam,104)
 ! Initialize and check for early return.
 ! --------------------------------------
 
-call FZero(DSubScr,nnBstR(iSym,iLoc))
-call FZero(DSPNm,nnShl)
+DSubScr(1:nnBstR(iSym,iLoc)) = Zero
+DSPNm(1:nnShl) = Zero
 if ((nVec < 1) .or. (nnBstR(iSym,iLoc) < 1)) return
 
 ! Compute diagonal.

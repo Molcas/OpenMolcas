@@ -213,16 +213,15 @@ do while (iPass < mPass)
 
         do i=1,nQual
           if (Diag(iQual(i)) /= Zero) then
-            Factor = -Qual(iQual(i),ix)
-            call dAXPY_(nDim,Factor,Qual(1,ix),1,Qual(1,i),1)
+            Qual(:,i) = Qual(:,i)-Qual(iQual(i),ix)*Qual(:,ix)
           end if
         end do
 
         ! Store vector in buffer.
         ! -----------------------
 
-        kOff = nDim*iDump+1
-        call dCopy_(nDim,Qual(1,ix),1,Buf(kOff),1)
+        kOff = nDim*iDump
+        Buf(kOff+1:kOff+nDim) = Qual(:,ix)
 
         ! Update counter.
         ! ---------------

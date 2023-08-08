@@ -24,15 +24,15 @@ if (RSTCHO) then
   do IRS=1,XNPASS
     call CHO_GETRED(IRS,ILOC,.false.)
     call CHO_SETREDIND(ILOC)
-    call ICOPY(NSYM,NNBSTR(:,ILOC),1,nDimRS(:,iRS),1)
+    nDimRS(1:NSYM,iRS) = NNBSTR(1:NSYM,ILOC)
   end do
   NSET = XNPASS
 else
-  call ICOPY(NSYM,NNBSTR(1,1),1,nDimRS,1)
+  nDimRS(1:NSYM,1) = NNBSTR(1:NSYM,1)
   NSET = 1
 end if
 
 NUM = NSYM*(MAXRED-NSET)
-call IZERO(nDimRS(1,NSET+1),NUM)
+nDimRS(:,NSET+1:MAXRED) = 0
 
 end subroutine CHO_INIRSDIM
