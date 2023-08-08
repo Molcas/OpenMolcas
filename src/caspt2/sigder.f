@@ -73,14 +73,10 @@ C
       Call GETMEM('WRK','ALLO','REAL',ipWRK,MaxLen)
       Call DCopy_(MaxLen,[0.0D+00],0,Work(ipWRK),1)
 C
-      idSD = 1
       Do iCase = 1, 11
         Do iSym = 1, nSym
-          idSDMat(iSym,iCase) = idSD
           nAS = nASUP(iSym,iCase)
-          CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
           idSDer = idSDMat(iSym,iCase)
-          ! idSDMat(iSym,iCase))
           CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer)
         End Do
       End Do

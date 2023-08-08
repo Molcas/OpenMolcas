@@ -186,7 +186,7 @@ module InputData
     !           orbital rotations. This is automatically set for
     !           the case with IPEA shift. Otherwise, just for debug
     !           purpose
-    ! Logical :: INVAR  = .True.
+    Logical :: INVAR  = .True.
     ! GRDT      used for single-point gradient calculation
     Logical :: GRDT = .False.
     ! NAC       compute NAC or interstate coupling vectors
@@ -663,8 +663,8 @@ contains
       case('DORT')
         Input%DORTHO = .true.
 
-      ! case('INVA')
-      ! Input%INVAR = .false.
+      case('INVA')
+        Input%INVAR = .false.
 
       case('GRDT')
         Input%GRDT  = .true.

@@ -16,7 +16,8 @@ subroutine procinp_caspt2
   use caspt2_output, only: iPrGlb, terse, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
+  use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
+                             if_invar, iRoot1, iRoot2
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -519,15 +520,11 @@ subroutine procinp_caspt2
   ! at the moment the calculation of analytic gradients has many
   ! technical restrictions and we need to make sure that we do not
   ! run into a unsupported combination of keywords, these are:
-  ! 1. no ipea shift
-  ! 2. no symmetry
-  ! 3. all CASSCF roots included in QD-CASPT2 gradients
-  ! 4. QD-CASPT2 gradients only with CD/DF
+  ! 1. no symmetry
+  ! 2. all CASSCF roots included in QD-CASPT2 gradients
+  ! 3. QD-CASPT2 gradients only with CD/DF
 
-  ! CASPT2 is invariant with respect to rotations in active space?
-  INVAR = .true.
   call put_iScalar('mp2prpt',0)
-  if (ipea_shift /= 0.0_wp) INVAR = .false.
 
   ! check if numerical gradients were requested in GATEWAY
   call qpg_iScalar('DNG', DNG_available)
@@ -547,6 +544,7 @@ subroutine procinp_caspt2
   end if
 
   ! check first if the user specifically asked for analytic gradients
+  do_lindep = .False.
   if (input%GRDT) then
     do_grad = Input%GRDT
 
@@ -564,11 +562,7 @@ subroutine procinp_caspt2
       call quit_onUserError
     end if
 
-    ! no analytic gradients available with IPEA
-    if (.not. INVAR) then
-      call warningMessage(2,'Analytic gradients not available with IPEA shift.')
-      call quit_onUserError
-    end if
+    if (ipea_shift.ne.0.0D+00) do_lindep = .True.
 
     ! only allow analytic gradients either with nstate = nroots or with sadref
     if ((nState /= nRoots) .and. (.not. ifsadref)) then
@@ -607,7 +601,7 @@ subroutine procinp_caspt2
     if (nProcs == 1) then
 #endif
       ! check the hard constraints first
-      if ((.not. DNG) .and. (nSym == 1) .and. INVAR) then
+      if ((.not. DNG) .and. (nSym == 1)) then
         do_grad = .true.
 
         ! check weaker constraints, if not met, revert to numerical gradients
@@ -640,6 +634,8 @@ subroutine procinp_caspt2
 
   IFSADREF = input%SADREF
   IFDORTHO = input%DORTHO
+  if_invar = input%INVAR
+  if (ipea_shift /= 0.0_wp) if_invar = .false.
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.

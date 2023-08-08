@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRPCTL(UEFF)
+      SUBROUTINE PRPCTL(UEFF,U0)
       USE PT2WFN
       use caspt2_output, only:iPrGlb,usual,verbose
       use OneDat, only: sNoNuc, sNoOri
@@ -36,7 +36,7 @@
       Character(Len=80) Note
       Integer IndType(56)
       Real*8 Dummy(2),DUM(1)
-      Dimension UEFF(*)
+      Dimension UEFF(*),U0(*)
 
 
 #ifdef _MOLCAS_MPP_
@@ -95,7 +95,7 @@ C This density matrix may be approximated in several ways, see DENS.
       CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
       CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
       CALL MKLIST(iWORK(LLISTS))
-      CALL DENS(IVECX,WORK(LDMAT),UEFF)
+      CALL DENS(IVECX,WORK(LDMAT),UEFF,U0)
       CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
 
 C Compute natural orbitals of CASPT2 wave function.
