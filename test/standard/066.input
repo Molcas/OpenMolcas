@@ -17,6 +17,7 @@
   Basis = H.DZ....
   Group = NoSymm
   RICD
+  NUMErical
 
 >>> DoWhile
 
