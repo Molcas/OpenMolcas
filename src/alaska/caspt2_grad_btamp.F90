@@ -23,7 +23,7 @@ integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nBasI, nBasJ, nBasK, nBasL, iOf
 real(kind=wp), intent(in) :: CMOPT2(*)
 real(kind=wp), intent(_OUT_) :: WRK1(*), WRK2(*), G_toc(*)
 integer(kind=iwp) :: iBas, iBas0, iRec, jBas, jBas0, kBas, kBas0, lBas, lBas0, Loc
-integer(kind=iwp), parameter :: LuGamma = 60 ! this should not be hard-coded
+integer(kind=iwp), parameter :: LuGamma = 65 ! this should not be hard-coded
 real(kind=wp), parameter :: SCAL = 0.125_wp
 
 ! Transform T_{ij}^{rho sigma} to T_{mu nu}^{rho sigma}

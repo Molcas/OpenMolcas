@@ -1210,7 +1210,7 @@ C
         Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
       End If
 C
-      !! Finally, add to the full CI derivative array
+      !! Finally, add to the total CI derivative array
       Call DaXpY_(nConf*nState,1.0D+00,Work(ipCLag),1,CLag,1)
 C     IDCIEX = ISAV
 C

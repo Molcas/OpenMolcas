@@ -627,6 +627,8 @@ C Local print level (if any)
 *     Also put on RUNFILE (in the future...):
 *----------------------------------------------------------------------*
       Call Put_dArray('RASSCF orbitals',CMO,NTOT2)
+      !! Fix https://molcasforum.univie.ac.at/viewtopic.php?id=1009
+      IF (IPRLEV.LT.USUAL) Call Put_dArray('RASSCF OrbE',FDIAG,NTOT)
 *----------------------------------------------------------------------*
 *     compute properties and Mulliken's orbital populations            *
 *----------------------------------------------------------------------*

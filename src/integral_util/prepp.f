@@ -265,7 +265,7 @@ C           If(.not.DoCholesky) Then
                !! use the Gamma_On flag.
                !! Just to avoid error termination.
                !! Actual working arrys are allocated in drvg1.f
-               LuGamma=60
+               LuGamma=65
                Call DaName_MF_WA(LuGamma,'GAMMA')
                If (DoCholesky) Call mma_allocate(G_Toc,1,Label='G_Toc')
                Call mma_allocate(SO2cI,1,1,Label='SO2cI')

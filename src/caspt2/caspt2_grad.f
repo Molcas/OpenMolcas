@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_gradient, only: do_nac
+      use caspt2_gradient, only: do_nac,LUGRAD,LUSTD,iStpGrd
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -21,20 +21,34 @@ C
 #include "caspt2_grad.fh"
 #include "pt2_guga.fh"
 C
+      character(len=128) :: FileName
+      Logical Exists
 
       ! Define logical unit numbers for gradients files
       LUPT2    = 17 ! MCLR
-      LUGAMMA  = 60 ! ERI derivatives ALASKA
-      LUCMOPT2 = 61 ! Back-transform ALASKA
+      LUGAMMA  = 65 ! ERI derivatives ALASKA or 3-center RI/CD
+      LUCMOPT2 = 66 ! Back-transform ALASKA
+      LUSTD    = 67 ! S and T derivatives in CASPT2
+      LUAPT2   = 68 ! A_PT2, 2-center derivatives for RI/CD
+      LUPT2GRD = 69 ! CASPT2 gradient and property
 
-      ! S and T derivatives in CASPT2
-      LUSTD = 62
       CALL DANAME_MF_wa(LUSTD,'LUSTD')
+      If (IfChol) CALL DANAME_MF_wa(LUAPT2,'A_PT2')
 
-      ! A_PT2, a bunch of data for MCLR
-      LUAPT2 = 77
-      CALL DANAME_MF_wa(LUAPT2,'A_PT2')
-
+      !! LUPT2GRD is the global name (in Include/caspt2.fh)
+      !! LUGRAD is the local name in the CASPT2 module
+      LUGRAD = LUPT2GRD
+      !! Check if this is not the first (MS-)CASPT2 call
+      !! If this is the first call, compute CASPT2 energies;
+      !! otherwise read many things from the PT2GRD file.
+      !! PT2GRD file is always deleted when a RASSCF is finished
+      !! This is written in Driver/rasscf.prgm.src, but I'm not sure
+      !! this is the right way to manipulate files...
+      FileName = 'PT2GRD'
+      Call f_inquire(FileName,Exists)
+      If (Exists) iStpGrd = 0
+      ! Not sure none/mf/mf_wa
+      CALL DANAME_MF_wa(LUGRAD,'PT2GRD')
 
       !! nStLag is the number of states involved in the Lagrangian
       !! nStLag = nState for (X)MS/XDW/RMS-CASPT2
@@ -104,11 +118,6 @@ C
         Call DCopy_(nState**2,[0.0D+00],0,Work(ipOMGDER),1)
       End If
 C
-      !! LuGamma should be 60, but this record is used in MCLR, so
-      !! have to use a different value. This number has to be consistent
-      !! with that in ALASKA (integral_util/prepp.f).
-C     LuGamma = 60
-C
       !! Some Lagrangians for each state are constructed in ipCLag or
       !! ipOLag. The full (sum over all states, in particular for
       !! MS-CASPT2) configuration and orbital Lagrangians are then
@@ -116,7 +125,6 @@ C
       !! ipCLagFull, for instance, will be identical.
       ipCLagFull = ipCLag + nCLag
       ipOLagFull = ipOLag + nOLag
-
 
       If (do_nac) Then
         Call GETMEM('DPT2Canti','ALLO','REAL',ipDPT2Canti,nBasSq)
@@ -132,7 +140,8 @@ C-----------------------------------------------------------------------
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb, verbose
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_gradient, only: do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
+     *                           LUSTD
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -349,8 +358,9 @@ C
 
       ! close gradient files
       Close (LuPT2)
-      Call DaClos(LUAPT2)
-      Call DaClos(LUSTD)
+C
+      If (IfChol) Call DaClos(LUAPT2)
+      Call DaClos(LUGRAD)
 C
  9000 CONTINUE
 C
@@ -396,6 +406,8 @@ C     write(6,*) "LuGamma is ", LuGamma
 C     write(6,*) "bshift =", bshift
 C     Call Put_dScalar('BSHIFT',BSHIFT)
 C
+      !! Close files
+      Call DaClos(LUSTD)
 C
       Return
 C

@@ -267,7 +267,7 @@ if (Method_chk == 'CASPT2  ') then
   !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
   !close(LuCMOPT2)
   ! Read A_PT2 from LUAPT2
-  LUAPT2 = 77
+  LUAPT2 = 68
   call daname_mf_wa(LUAPT2,'A_PT2')
   id = 0
   call ddafile(LUAPT2,2,A_PT2,nBasASq,id)

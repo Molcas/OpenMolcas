@@ -147,7 +147,7 @@ if (Method_chk == 'CASPT2  ') then
   !! not CASSCF but quasi-canonical orbitals.
   call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
   call PrgmTranslate('CMOPT2',RealName,lRealName)
-  LuCMOPT2 = 61
+  LuCMOPT2 = 66
   call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
   do i=1,nBasT*nBasT
     read(LuCMOPT2) CMOPT2(i)
@@ -193,7 +193,7 @@ if (Method_chk == 'CASPT2  ') then
   call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
   call PrgmTranslate('GAMMA',RealName,lRealName)
-  LuGamma = 60
+  LuGamma = 65
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
 
   call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')

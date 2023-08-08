@@ -79,5 +79,5 @@
      &                     idSDMat(8,13),                               &
      &                     INVAR,IFSSDM
 
-      INTEGER LUPT2, LUGAMMA, LUCMOPT2, LUSTD
-      COMMON/UNITS_caspt2_grad/ LUPT2, LUGAMMA, LUCMOPT2, LUSTD
+      INTEGER LUPT2, LUGAMMA, LUCMOPT2
+      COMMON/UNITS_caspt2_grad/ LUPT2, LUGAMMA, LUCMOPT2

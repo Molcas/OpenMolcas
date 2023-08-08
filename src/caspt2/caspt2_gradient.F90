@@ -16,11 +16,17 @@ module caspt2_gradient
   use definitions, only: iwp,wp
 
   ! gradients and NAC switches
-  logical(kind=iwp) :: do_grad = .false.
-  logical(kind=iwp) :: do_nac  = .false.
-  logical(kind=iwp) :: do_csf  = .false. ! CSF term in deriv. coup.
-  integer(kind=iwp) :: iRoot1  = 0_iwp
-  integer(kind=iwp) :: iRoot2  = 0_iwp
-  integer(kind=iwp) :: nStpGrd = 1_iwp
+  logical(kind=iwp) :: do_grad  = .false.
+  logical(kind=iwp) :: do_nac   = .false.
+  logical(kind=iwp) :: do_csf   = .false. ! CSF term in deriv. coup.
+  integer(kind=iwp) :: iRoot1   = 0_iwp
+  integer(kind=iwp) :: iRoot2   = 0_iwp
+  integer(kind=iwp) :: nStpGrd  = 1_iwp
+
+  ! for removing the weired loop
+  integer(kind=iwp) :: iStpGrd  = 1_iwp
+  integer(kind=iwp) :: LUSTD    = 0_iwp
+  integer(kind=iwp) :: LUGRAD   = 0_iwp
+  integer(kind=iwp) :: IDSAVGRD = 0_iwp
 
 end module caspt2_gradient

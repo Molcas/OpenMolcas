@@ -548,7 +548,7 @@ if (Method == 'CASPT2') then
   call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
 
   call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGAMMA2 = 62
+! LuGAMMA2 = 67
   call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
 end if
 !                                                                      *

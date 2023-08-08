@@ -19,6 +19,7 @@
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
+      use caspt2_gradient, only: LUSTD
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

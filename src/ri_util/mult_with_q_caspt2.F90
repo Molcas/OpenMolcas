@@ -106,7 +106,7 @@ do iSym=1,nSym
   !end if
 
   ! Read A_PT2 from LUAPT2
-  LUAPT2 = 77
+  LUAPT2 = 68
   call daname_mf_wa(LUAPT2,'A_PT2')
   id = 0
   call ddafile(LUAPT2,2,A_t,l_A_t,id)
@@ -169,11 +169,11 @@ do iSym=1,nSym
   ip_B = 1+l_B_t
   ip_B2 = ip_B+l_B_t
 
-  LUGAMMA = 60
+  LUGAMMA = 65
   call PrgmTranslate('GAMMA',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBas2*8,'OLD',is_error)
 
-  LuGamma2 = 62
+  LuGamma2 = 67
   call PrgmTranslate('GAMMA2',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,NumAux*8,'REPLACE',is_error)
 

@@ -338,6 +338,7 @@ C
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only:ipea_shift, real_shift, imag_shift
+      use caspt2_gradient, only:LUSTD
 C
       Implicit Real*8 (A-H,O-Z)
 C
