@@ -50,7 +50,19 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
 ! Real(kind=wp), Allocatable :: H0(:,:), U0(:,:)
   Real(kind=wp) :: H0(*), U0(*), H0Sav(*)
 
+! For verification only
+  INTEGER LAXITY,Cho_X_GetTol
+  EXTERNAL Cho_X_GetTol
+
   IDSAVGRD = 0
+
+  if (iStpGrd == 0) then
+    ! just for verification
+    LAXITY=8
+    IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
+    Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
+  end if
+
   iStpGrd = 2_iwp
 
 ! For (X)Multi-State, a long loop over root states.

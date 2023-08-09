@@ -25,6 +25,8 @@ C
       character(len=128) :: FileName
       Logical Exists
 
+      iStpGrd = 1
+
       ! Define logical unit numbers for gradients files
       LUPT2    = 17 ! MCLR
       LUGAMMA  = 65 ! ERI derivatives ALASKA or 3-center RI/CD

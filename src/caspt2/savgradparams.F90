@@ -47,6 +47,33 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     IORW = 2 !! Read
   End If
 
+  !! Save internal contractions-related quantities
+  !! 1. Some integers
+  !! - Number of independent vectors
+  CALL IDAFILE(LUGRAD,IORW,NINDEP(1,1),8*MXCASE,IDSAVGRD)
+  !! - Number of active indices
+  CALL IDAFILE(LUGRAD,IORW,NASUP(1,1),8*MXCASE,IDSAVGRD)
+  !! - Number of inactive + secondary indices
+  CALL IDAFILE(LUGRAD,IORW,NISUP(1,1),8*MXCASE,IDSAVGRD)
+
+  !! 2. RDMs
+  !! - NG1, NG2, NG3
+  Call mma_allocate(IWRK1,4,Label='IWRK1')
+  If (IORW.eq.1) Then
+    IWRK1(1) = NG1
+    IWRK1(2) = NG2
+    IWRK1(3) = NG3
+    IWRK1(4) = NG3TOT
+    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
+  Else If (IORW.eq.2) Then
+    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
+    NG1    = IWRK1(1)
+    NG2    = IWRK1(2)
+    NG3    = IWRK1(3)
+    NG3TOT = IWRK1(4)
+  End If
+  Call mma_deallocate(IWRK1)
+
   NMAX = 0
 
   Do ISYM = 1, NSYM
@@ -68,33 +95,6 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   NMAX = MAX(NMAX,NG3)
 
   Call mma_allocate(WRK1,NMAX,Label='WRK1')
-
-  !! Save internal contractions-related quantities
-  !! 1. Some integers
-  !! - Number of independent vectors
-  CALL IDAFILE(LUGRAD,IORW,NINDEP(1,1),8*MXCASE,IDSAVGRD)
-  !! - Number of active indices
-  CALL IDAFILE(LUGRAD,IORW,NASUP(1,1),8*MXCASE,IDSAVGRD)
-  !! - Number of inactive + secondary indices
-  CALL IDAFILE(LUGRAD,IORW,NISUP(1,1),8*MXCASE,IDSAVGRD)
-
-  !! 2. RDMs
-  !! - NG1, NG2, NG3
-  Call mma_allocate(IWRK1,NMAX,Label='IWRK1')
-  If (IORW.eq.1) Then
-    IWRK1(1) = NG1
-    IWRK1(2) = NG2
-    IWRK1(3) = NG3
-    IWRK1(4) = NG3TOT
-    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
-  Else If (IORW.eq.2) Then
-    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
-    NG1    = IWRK1(1)
-    NG2    = IWRK1(2)
-    NG3    = IWRK1(3)
-    NG3TOT = IWRK1(4)
-  End If
-  Call mma_deallocate(IWRK1)
 
   CALL mma_allocate(idxG3,6,NG3,label='idxG3')
   If (IORW.eq.1) Then
@@ -210,12 +210,21 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     End Do
   End Do
 
+  !! 4. E2TOT
+  If (IORW.eq.1) Then
+    WRK1(1) = E2TOT
+    CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
+  Else
+    CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
+    E2TOT = WRK1(1)
+  End If
+
   call mma_deallocate(WRK1)
 
   !! quasi-canonical active orbital energy
 ! CALL DDAFILE(LUGRAD,IORW,EPSA,NASHT,IDSAVGRD)
 
-  !! Save T-amplitude (IRHS = LURHS(1) = 51)
+  !! 5. Save T-amplitude (IRHS = LURHS(1) = 51)
   Call SaveReadT1()
 
 Contains
@@ -293,6 +302,5 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   CALL DDAFILE(LUGRAD,IORW,UEFF  ,NSTATE**2,ID)
   CALL DDAFILE(LUGRAD,IORW,U0    ,NSTATE**2,ID)
   CALL DDAFILE(LUGRAD,IORW,H0    ,NSTATE**2,ID)
-
 
 End Subroutine SavGradParams2

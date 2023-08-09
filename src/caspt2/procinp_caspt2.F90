@@ -606,6 +606,7 @@ subroutine procinp_caspt2
 
         ! check weaker constraints, if not met, revert to numerical gradients
         if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
+        if (ipea_shift /= 0.0_wp .and. (.not. ifChol)) do_grad = .false.
         if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
       end if
 #ifdef _MOLCAS_MPP_

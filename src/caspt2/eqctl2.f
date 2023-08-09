@@ -34,6 +34,9 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 
+      INTEGER Cho_X_GetTol
+      EXTERNAL Cho_X_GetTol
+
 
       If (iStpGrd.EQ.1) Then
         IF (IPRGLB.GE.VERBOSE) THEN
@@ -187,6 +190,10 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
       If (iStpGrd.EQ.2) Then
         CALL RHS_ZERO(IVECR)
         ICONV = 0
+        !! Just for verification
+        LAXITY=8
+        IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
+        Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
       End If
 
       ! IF (ICONV .NE. 0) GOTO 100

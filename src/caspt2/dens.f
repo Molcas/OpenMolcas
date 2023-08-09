@@ -197,6 +197,9 @@ C
         If (nFroT.ne.0) Then
           CALL GETMEM('DIA   ','ALLO','REAL',ipDIA ,nBsqT)
           CALL GETMEM('DI    ','ALLO','REAL',ipDI  ,nBsqT)
+        Else
+          ipDIA = 1
+          ipDI  = 1
         End If
 C
         If (do_csf) Then
@@ -408,8 +411,9 @@ C
         !! Construct orbital Lagrangian that comes from the derivative
         !! of ERIs. Also, do the Fock transformation of the DPT2 and
         !! DPT2C densities.
+        ipA_PT2 = 1
+        NumChoTot = 0
         If (IfChol) Then
-          NumChoTot = 0
           Do iSym = 1, nSym
             NumChoTot = NumChoTot + NumCho_PT2(iSym)
           End Do
@@ -878,6 +882,7 @@ C
 C           Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
 C    *                  Work(ipWRK1),1)
             Call LoadCI_XMS('N',1,WORK(LCI),iState,U0)
+C           Call LoadCI(WORK(LCI),iState)
             call POLY1(WORK(LCI))
             call GETDREF(WORK(ipWRK2))
             Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
