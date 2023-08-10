@@ -13,7 +13,8 @@ use Definitions, only: iwp
 Implicit None
 Private
 Logical(kind=iwp) :: DoIntegrals=.True.
+Logical(kind=iwp) :: DoFock=.False.
 
-Public :: DoIntegrals
+Public :: DoIntegrals, DoFock
 
-End Module Int_options
+End Module Int_Options

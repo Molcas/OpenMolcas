@@ -28,7 +28,7 @@
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
-     &           DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
+     &           FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -49,7 +49,7 @@
       use Phase_Info
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals
+      use Int_Options, only: DoIntegrals, DoFock
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -76,7 +76,7 @@
      &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
      &        Batch_On_Disk, W2Disc,
-     &        IntOnly, DoFock,FckNoClmb, FckNoExch, NoInts,
+     &        IntOnly, FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -786,7 +786,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SoInt,nSoInt,Wrk,nWork2,
      &           Shijij, W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
-     &           DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
+     &           FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -806,7 +806,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Center_Info
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals
+      use Int_Options, only: DoIntegrals, DoFock
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -830,7 +830,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
      &        Batch_On_Disk, W2Disc, DoAOBatch, All_Spherical,
-     &        IntOnly, DoFock,FckNoClmb, FckNoExch, NoInts
+     &        IntOnly, FckNoClmb, FckNoExch, NoInts
       Data Copy/.True./, NoCopy/.False./
 #include "SysDef.fh"
       External EQ, lEmpty

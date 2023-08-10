@@ -32,7 +32,7 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
-use Int_Options, only: DoIntegrals
+use Int_Options, only: DoIntegrals, DoFock
 
 implicit none
 external :: Integral_WrOut
@@ -40,7 +40,7 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoFock, DoGrad, FckNoClmb(1), FckNoExch(1), &
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, FckNoClmb(1), FckNoExch(1), &
                      Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
@@ -58,10 +58,10 @@ call StatusLine(' Seward:',SLine)
 !                                                                      *
 ! Set variables in module Int_Options
 DoIntegrals = .true. ! Default value
+DoFock = .false.     ! Default value
 
 ExFac = One
 Nr_Dens = 1
-DoFock = .false.
 DoGrad = .false.
 FckNoClmb = .false.
 FckNoExch = .false.
@@ -181,7 +181,7 @@ do
           call mma_allocate(Dens,mDens,label='Dens')
           call mma_allocate(Fock,mDens,label='Fock')
           call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch, &
-                                   Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount,DoFock)
+                                   Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount)
           call mma_deallocate(TInt)
           call mma_deallocate(Dens)
           call mma_deallocate(Fock)
