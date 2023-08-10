@@ -41,7 +41,7 @@ integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
                      lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Cnt, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
+real(kind=wp) :: TInt(nTInt), A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
@@ -263,7 +263,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine,Cnt)
+    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then

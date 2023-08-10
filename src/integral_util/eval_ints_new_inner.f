@@ -12,8 +12,7 @@
 *               1995, Martin Schuetz                                   *
 ************************************************************************
       SubRoutine Eval_Ints_New_Inner
-     &                         (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          Integ_Proc,Quad_ijkl)
+     &                         (iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals, parallel region          *
@@ -411,8 +410,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux)
+     & Shijij,nHRRAB,nHRRCD,Aux,nAux)
 *
                   Else
 *
@@ -442,8 +440,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux)
+     & Shijij,nHRRAB,nHRRCD,Aux,nAux)
 *
                   End If
 *                                                                      *

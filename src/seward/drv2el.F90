@@ -34,12 +34,13 @@ use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
 use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
+use Int_Options, only: TskCount=>Quad_ijkl
 
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
-                 TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
+                 TMax_all, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, DoGrad, Triangular
 character(len=72) :: SLine

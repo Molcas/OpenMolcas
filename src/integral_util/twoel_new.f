@@ -25,7 +25,7 @@
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
-     &           Shijij,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -48,7 +48,7 @@
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
-      use Int_Options, only: Disc_Mx, Disc
+      use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -781,7 +781,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SoInt,nSoInt,Wrk,nWork2,
-     &           Shijij, Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -803,7 +803,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
-      use Int_Options, only: Disc_Mx, Disc
+      use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"

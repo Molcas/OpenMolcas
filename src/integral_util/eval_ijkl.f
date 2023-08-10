@@ -58,7 +58,7 @@
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx, Disc
-      use Int_Options, only: iTOffs
+      use Int_Options, only: iTOffs, Quad_ijkl
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -133,10 +133,10 @@
       PreSch=.True.       ! Default value
       Disc_Mx=Zero        ! Default value
       Disc=Zero           ! Default Value
+      Quad_ijkl=Zero      ! Default Value
 
       NoInts=.True.
       Tmax=Zero
-      Quad_ijkl=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -427,7 +427,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     & Shijij,nHRRAB,nHRRCD,Aux,nAux)
 *
                   Else
 *
@@ -457,7 +457,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     & Shijij,nHRRAB,nHRRCD,Aux,nAux)
 *
                   End If
 *                                                                      *

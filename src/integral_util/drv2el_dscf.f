@@ -47,7 +47,7 @@
       use Integral_Interfaces, only: DeDe_SCF
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Exfac, Thize, W2Disc
-      use Int_Options, only: Disc_Mx, Disc
+      use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -264,8 +264,8 @@
 !***********************************************************************
 !                                                                      *
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-         Call Eval_Ints_New_Inner
-     &                  (iS,jS,kS,lS,TInt,nTInt,No_Routine,Count)
+
+         Call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 
  14      Continue
          Count=Count+One
