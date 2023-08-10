@@ -19,7 +19,7 @@
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           Data1,mData1,nData1,Data2,mData2,nData2,
      &           IJeqKL,kOp,
-     &           Disc_Mx,Disc,Thize,
+     &           Disc_Mx,Disc,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
@@ -49,7 +49,7 @@
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: ExFac
+      use Int_Options, only: ExFac, Thize
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -776,7 +776,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           Data1,mData1,nData1,Data2,mData2,nData2,
      &           IJeqKL,kOp,
-     &           Disc_Mx,Disc,Thize,
+     &           Disc_Mx,Disc,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
@@ -805,7 +805,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: ExFac
+      use Int_Options, only: ExFac, Thize
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"

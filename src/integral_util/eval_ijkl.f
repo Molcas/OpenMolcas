@@ -58,13 +58,14 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use Int_Options, only: Thize
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
 #include "iTOffs.fh"
 *
 *     subroutine parameters
-      Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4), Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax, kOp(4) ,Map4(4)
       Logical Shijij, W2Disc,PreSch,NoInts
@@ -129,15 +130,15 @@
       DoFock=.False.      ! Default value
       FckNoClmb=.False.   ! Default value
       FckNoExch=.False.   ! Default value
+      Thize=Zero          ! Default value
 
       NoInts=.True.
       Tmax=Zero
-      Thize=0.0D0
       W2Disc=.False.
       PreSch=.True.
-      Disc_Mx=0.0D0
-      Disc=0.0D0
-      Quad_ijkl=0.0D0
+      Disc_Mx=Zero
+      Disc=Zero
+      Quad_ijkl=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -14,7 +14,7 @@
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
-     &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
+     &                          W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
 *                                                                      *
@@ -30,7 +30,6 @@
 *                                                                      *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
 *                                construction                          *
-*          Thize               : int threshold for disk write (SD)     *
 *          W2Disc,PreSch       : booleans 1st iter / prescreening      *
 *          Disc_Mx             : # ints to write on disk (semidirect)  *
 *          iDisk               : act. position in file TMPINT          *
@@ -75,7 +74,7 @@
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
-      Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4), Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
@@ -411,7 +410,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
+     &                            IJeqKL,kOp,Disc_Mx,Disc,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
@@ -442,7 +441,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
+     &                            IJeqKL,kOp,Disc_Mx,Disc,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,

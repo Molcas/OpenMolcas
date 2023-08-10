@@ -18,7 +18,8 @@ Logical(kind=iwp) :: DoFock=.False.
 Logical(kind=iwp) :: FckNoClmb=.False.
 Logical(kind=iwp) :: FckNoExch=.False.
 Real(kind=wp) :: ExFac=Zero
+Real(kind=wp) :: Thize=Zero
 
-Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac
+Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize
 
 End Module Int_Options
