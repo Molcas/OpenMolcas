@@ -59,6 +59,7 @@
 *             Total rehack May 1999                                    *
 *             Wrapper with old parameter list, Jan 2000                *
 ************************************************************************
+      use Int_Options, only: DoIntegrals
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 #include "real.fh"
@@ -67,7 +68,7 @@
       Real*8  Thize,Disc_Mx,Disc, TInt(nTInt),ExFac(nDens)
       Integer iTOffs(8,8,8)
       Logical W2Disc,PreSch,FckNoClmb(nDens),FckNoExch(nDens),
-     &        DoIntegrals,DoFock
+     &        DoFock
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,9 +81,11 @@
       Thize=Zero
       Disc_Mx=Zero
 *
+*     Set Int_Options variables
+      DoIntegrals=.True.   ! Default value
+
       PreSch=.True.
       DoFock=.False.
-      DoIntegrals=.True.
 *
       nij=max(iis,jjs)*(max(iis,jjs)+1)/2+min(iis,jjs)
       nkl=max(kks,lls)*(max(kks,lls)+1)/2+min(kks,lls)
@@ -100,7 +103,7 @@
      &                Dens,Fock,lDens,ExFac,nDens,
      &                FckNoClmb,FckNoExch,
      &                Thize,W2Disc,PreSch,Disc_Mx,Disc, ! New arguments
-     &                Quad_ijkl,DoIntegrals,DoFock)     ! New arguments
+     &                Quad_ijkl,DoFock)     ! New arguments
 *                                                                      *
 ************************************************************************
 *                                                                      *

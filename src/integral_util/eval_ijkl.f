@@ -57,6 +57,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
+      use Int_Options, only: DoIntegrals
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -71,7 +72,7 @@
       Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax, kOp(4) ,Map4(4)
-      Logical Shijij, W2Disc,PreSch,NoInts, DoIntegrals,DoFock
+      Logical Shijij, W2Disc,PreSch,NoInts, DoFock
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -128,6 +129,9 @@
       iRout=9
       iPrint=nPrint(iRout)
 *
+*     Set Int_option variables
+      DoIntegrals=.True.  ! Default value
+
       NoInts=.True.
       Tmax=Zero
       Thize=0.0D0
@@ -136,7 +140,6 @@
       Disc_Mx=0.0D0
       Disc=0.0D0
       Quad_ijkl=0.0D0
-      DoIntegrals=.True.
       DoFock=.False.
       FckNoClmb(1)=.False.
       FckNoExch(1)=.False.
@@ -238,7 +241,6 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       If (nSO.eq.0) Then
         Return
       End If
-      If (.Not.DoIntegrals) nSO = 0
 *
       iS = iShelV(1)
       jS = iShelV(2)
@@ -433,7 +435,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   Else
@@ -466,7 +468,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   End If

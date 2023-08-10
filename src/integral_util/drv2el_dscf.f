@@ -47,6 +47,7 @@
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
+      use Int_Options, only: DoIntegrals
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -61,7 +62,7 @@
       Real*8 TInt(nTInt)
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
      &        PreSch, Free_K2, Verbose, Indexation,
-     &        DoIntegrals, DoFock, DoGrad, Triangular
+     &        DoFock, DoGrad, Triangular
       Integer iTOffs(8,8,8)
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
@@ -79,8 +80,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Nr_Dens=1
+*     Set Int_Options varibles
       DoIntegrals=.False.
+
+      Nr_Dens=1
       NoExch=ExFac.eq.Zero
 *                                                                      *
 ************************************************************************
@@ -272,7 +275,7 @@
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
      &                   [NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
-     &                   Count,DoIntegrals,DoFock)
+     &                   Count,DoFock)
 
  14      Continue
          Count=Count+One

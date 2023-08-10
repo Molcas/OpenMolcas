@@ -31,6 +31,7 @@ use Integral_Interfaces, only: DeDe_SCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
+use Int_Options, only: DoIntegrals
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
@@ -38,7 +39,7 @@ integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp
                      lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, &
                      nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
+logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -54,9 +55,11 @@ character(len=80) :: Line
 !***********************************************************************
 !                                                                      *
 call xFlush(u6)
+! set Int_Options variables
+DoIntegrals = .false.
+
 ExFac = One
 Nr_Dens = 1
-DoIntegrals = .false.
 NoCoul = .false.
 NoExch = .false.
 !W2Disc = .false.
@@ -260,7 +263,7 @@ do
 
   if (lNoSkip) then
     call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize, &
-                             W2Disc,PreSch,Disc_Mx,Disc,Cnt,DoIntegrals,DoFock)
+                             W2Disc,PreSch,Disc_Mx,Disc,Cnt,DoFock)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then

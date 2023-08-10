@@ -17,7 +17,7 @@
      &                          Dens,Fock,lDens,ExFac,nDens,
      &                          FckNoClmb,FckNoExch,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
-     &                          Quad_ijkl,DoIntegrals,DoFock)
+     &                          Quad_ijkl,DoFock)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals, parallel region          *
@@ -80,6 +80,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
+      use Int_Options, only: DoIntegrals
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
@@ -91,7 +92,7 @@
      &        ipMem1,MemMax,
      &        iTOffs(8,8,8),Map4(4), kOp(4)
       Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb(nDens),
-     &        FckNoExch(nDens), DoIntegrals,DoFock
+     &        FckNoExch(nDens), DoFock
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -439,7 +440,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   Else
@@ -472,7 +473,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   End If
