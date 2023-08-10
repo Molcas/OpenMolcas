@@ -83,6 +83,10 @@
       DoFock=.True.
       FckNoExch=ExFac.eq.Zero
       W2Disc=.False.     ! Default value
+*     Disc_Mx = file size in Real*8 128=1024/8
+      Disc_Mx= DBLE(nDisc)*128.D00
+*     Subtract for the last buffer
+      Disc_Mx= Disc_Mx - lBuf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,10 +97,6 @@
       If (Semi_Direct) Then
          Call Init_SemiDSCF(FstItr,Thize,Cutint)
       Endif
-*     Disc_Mx = file size in Real*8 128=1024/8
-      Disc_Mx= DBLE(nDisc)*128.D00
-*     Subtract for the last buffer
-      Disc_Mx= Disc_Mx - lBuf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -266,7 +266,7 @@
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,
-     &                   Disc_Mx,Disc,Count)
+     &                   Disc,Count)
 
  14      Continue
          Count=Count+One

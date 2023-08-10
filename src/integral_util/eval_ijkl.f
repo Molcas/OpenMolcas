@@ -58,14 +58,14 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: Thize, W2Disc, PreSch
+      use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
 #include "iTOffs.fh"
 *
 *     subroutine parameters
-      Real*8  Coor(3,4), Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4), Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax, kOp(4) ,Map4(4)
       Logical Shijij, NoInts
@@ -133,10 +133,10 @@
       Thize=Zero          ! Default value
       W2Disc=.False.      ! Default value
       PreSch=.True.       ! Default value
+      Disc_Mx=Zero        ! Default value
 
       NoInts=.True.
       Tmax=Zero
-      Disc_Mx=Zero
       Disc=Zero
       Quad_ijkl=Zero
 *                                                                      *
@@ -414,7 +414,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      *                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
+     &                            IJeqKL,kOp,Disc,Thize,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
@@ -444,7 +444,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
+     &                            IJeqKL,kOp,Disc,Thize,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,

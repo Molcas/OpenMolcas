@@ -34,14 +34,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc, PreSch
+use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
                      lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
+real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
@@ -61,12 +61,13 @@ call xFlush(u6)
 ! set variables in module Int_Options
 DoIntegrals = .false.
 DoFock = .true.
-FckNoClmb = .false. ! Default Value
-FckNoExch = .false. ! Default Value
+FckNoClmb = .false. ! Default value
+FckNoExch = .false. ! Default value
 ExFac = One
 Thize = 1.0e-6_wp
 W2Disc = .true.
 PreSch = .false.
+Disc_Mx = Zero      ! Default value
 
 
 ! Handle both the valence and the fragment basis set
@@ -191,7 +192,6 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Disc_Mx = Zero
 
 Disc = Zero
 ThrInt = CutInt   ! Integral neglect threshold from SCF
@@ -264,7 +264,7 @@ do
 
   if (lNoSkip) then
     call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine, &
-                             Disc_Mx,Disc,Cnt)
+                             Disc,Cnt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then
