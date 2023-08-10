@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,PreSch,FstItr)
+      SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -59,7 +59,7 @@
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Real*8 TInt(nTInt)
       Logical FstItr, Semi_Direct,Rsv_GTList,
-     &        PreSch, Free_K2, Verbose, Indexation,
+     &        Free_K2, Verbose, Indexation,
      &        DoGrad, Triangular
       Integer iTOffs(8,8,8)
       Character*72 SLine
@@ -266,7 +266,7 @@
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,
-     &                   PreSch,Disc_Mx,Disc,Count)
+     &                   Disc_Mx,Disc,Count)
 
  14      Continue
          Count=Count+One

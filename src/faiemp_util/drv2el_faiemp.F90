@@ -34,7 +34,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc
+use Int_Options, only: ExFac, Thize, W2Disc, PreSch
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
@@ -42,7 +42,7 @@ integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp
                      lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: PreSch, FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
+logical(kind=iwp) :: FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -66,6 +66,7 @@ FckNoExch = .false. ! Default Value
 ExFac = One
 Thize = 1.0e-6_wp
 W2Disc = .true.
+PreSch = .false.
 
 
 ! Handle both the valence and the fragment basis set
@@ -190,7 +191,6 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-PreSch = .false.
 Disc_Mx = Zero
 
 Disc = Zero
@@ -264,7 +264,7 @@ do
 
   if (lNoSkip) then
     call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine, &
-                             PreSch,Disc_Mx,Disc,Cnt)
+                             Disc_Mx,Disc,Cnt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then

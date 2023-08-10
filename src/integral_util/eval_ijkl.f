@@ -58,7 +58,7 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: Thize, W2Disc
+      use Int_Options, only: Thize, W2Disc, PreSch
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -68,7 +68,7 @@
       Real*8  Coor(3,4), Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax, kOp(4) ,Map4(4)
-      Logical Shijij, PreSch,NoInts
+      Logical Shijij, NoInts
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -131,11 +131,11 @@
       FckNoClmb=.False.   ! Default value
       FckNoExch=.False.   ! Default value
       Thize=Zero          ! Default value
-      W2Disc=.False.      ! Default Value
+      W2Disc=.False.      ! Default value
+      PreSch=.True.       ! Default value
 
       NoInts=.True.
       Tmax=Zero
-      PreSch=.True.
       Disc_Mx=Zero
       Disc=Zero
       Quad_ijkl=Zero
@@ -429,7 +429,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,PreSch,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
 *
                   Else
 *
@@ -459,7 +459,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,PreSch,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
+     & Shijij,Quad_ijkl,nHRRAB,nHRRCD,Aux,nAux)
 *
                   End If
 *                                                                      *
