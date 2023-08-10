@@ -15,7 +15,6 @@
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
      &                          Dens,Fock,lDens,ExFac,nDens,
-     &                          FckNoClmb,FckNoExch,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
@@ -37,8 +36,6 @@
 *                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
 *                                construction                          *
-*          FckNoClmb           : no Coulomb contributions to Fock mat. *
-*          FckNoExch           : no exchange contributions to Fock mat.*
 *          Thize               : int threshold for disk write (SD)     *
 *          W2Disc,PreSch       : booleans 1st iter / prescreening      *
 *          Disc_Mx             : # ints to write on disk (semidirect)  *
@@ -91,7 +88,7 @@
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
      &        iTOffs(8,8,8),Map4(4), kOp(4)
-      Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb,FckNoExch
+      Logical Shijij, W2Disc,PreSch,NoInts
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -439,7 +436,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb,FckNoExch,Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac(1))
 *
                   Else
 *
@@ -471,7 +468,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb,FckNoExch,Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac(1))
 *
                   End If
 *                                                                      *

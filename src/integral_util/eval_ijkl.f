@@ -57,7 +57,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock
+      use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -65,7 +65,6 @@
 *
       Parameter (nDens=1, lDens=1)
       Real*8 Fock(lDens), Dens(lDens), ExFac(nDens)
-      Logical FckNoClmb, FckNoExch
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -132,6 +131,8 @@
 *     Set variables in module Int_Options
       DoIntegrals=.True.  ! Default value
       DoFock=.False.      ! Default value
+      FckNoClmb=.False.   ! Default value
+      FckNoExch=.False.   ! Default value
 
       NoInts=.True.
       Tmax=Zero
@@ -141,8 +142,6 @@
       Disc_Mx=0.0D0
       Disc=0.0D0
       Quad_ijkl=0.0D0
-      FckNoClmb=.False.
-      FckNoExch=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -435,8 +434,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb,FckNoExch,Aux,nAux,
-     & ExFac(1))
+     & Aux,nAux,ExFac(1))
 *
                   Else
 *
@@ -468,8 +466,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb,FckNoExch,Aux,nAux,
-     & ExFac(1))
+     & Aux,nAux,ExFac(1))
 *
                   End If
 *                                                                      *

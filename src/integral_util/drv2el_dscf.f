@@ -13,7 +13,7 @@
 *               1995, Martin Schuetz                                   *
 ************************************************************************
       SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,
-     &                       FstItr,NoCoul,ExFac)
+     &                       FstItr, ExFac)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -47,7 +47,7 @@
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
-      use Int_Options, only: DoIntegrals, DoFock
+      use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -55,7 +55,6 @@
 #include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Logical NoCoul,NoExch
 *
       Parameter(nTInt=1)
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
@@ -83,9 +82,9 @@
 *     Set variables in module Int_Options
       DoIntegrals=.False.
       DoFock=.True.
+      FckNoExch=ExFac.eq.Zero
 
       Nr_Dens=1
-      NoExch=ExFac.eq.Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -248,10 +247,10 @@
            If (AInt.lt.CutInt) Go To 14
          Else
 
-           If(NoCoul) then
+           If(FckNoClmb) then
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
      &                 DMax(js,ls)/Four,DMax(js,ks)/Four)
-           Else If(NoExch) then
+           Else If(FckNoExch) then
               Dtst=Max(DMax(is,js),DMax(ks,ls))
            Else
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
@@ -273,7 +272,6 @@
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                   [NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count)
 

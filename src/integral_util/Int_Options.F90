@@ -14,7 +14,9 @@ Implicit None
 Private
 Logical(kind=iwp) :: DoIntegrals=.True.
 Logical(kind=iwp) :: DoFock=.False.
+Logical(kind=iwp) :: FckNoClmb=.False.
+Logical(kind=iwp) :: FckNoExch=.False.
 
-Public :: DoIntegrals, DoFock
+Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch
 
 End Module Int_Options

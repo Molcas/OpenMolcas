@@ -32,7 +32,7 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
-use Int_Options, only: DoIntegrals, DoFock
+use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
 
 implicit none
 external :: Integral_WrOut
@@ -40,7 +40,7 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, FckNoClmb, FckNoExch, Triangular
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
@@ -58,12 +58,12 @@ call StatusLine(' Seward:',SLine)
 ! Set variables in module Int_Options
 DoIntegrals = .true. ! Default value
 DoFock = .false.     ! Default value
+FckNoClmb = .false.  ! Default value
+FckNoExch = .false.  ! Default value
 
 ExFac = One
 Nr_Dens = 1
 DoGrad = .false.
-FckNoClmb = .false.
-FckNoExch = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -179,7 +179,7 @@ do
           call mma_allocate(TInt,nTInt,label='TInt')
           call mma_allocate(Dens,mDens,label='Dens')
           call mma_allocate(Fock,mDens,label='Fock')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch, &
+          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens, &
                                    Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount)
           call mma_deallocate(TInt)
           call mma_deallocate(Dens)
