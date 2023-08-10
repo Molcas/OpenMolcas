@@ -63,8 +63,8 @@
 *
 *     Dummy definitions
 *
-      Parameter (nDens=1, lDens=1)
-      Real*8 Fock(lDens), Dens(lDens), ExFac(nDens)
+      Parameter (lDens=1)
+      Real*8 Fock(lDens), Dens(lDens), ExFac
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -434,7 +434,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac)
 *
                   Else
 *
@@ -466,7 +466,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac)
 *
                   End If
 *                                                                      *

@@ -83,8 +83,6 @@
       DoIntegrals=.False.
       DoFock=.True.
       FckNoExch=ExFac.eq.Zero
-
-      Nr_Dens=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -271,7 +269,7 @@
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
-     &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
+     &                   pDq,pFq,mDens,ExFac,
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count)
 

@@ -14,7 +14,7 @@
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
-     &                          Dens,Fock,lDens,ExFac,nDens,
+     &                          Dens,Fock,lDens,ExFac,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
@@ -31,7 +31,6 @@
 *                                                                      *
 *          Dens                : 1-particle density matrix             *
 *          lDens               : length of density/Fock matrices       *
-*          nDens               : # of density/Fock matrices            *
 *          ExFac               : another scaling factor passed to      *
 *                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
@@ -82,8 +81,8 @@
       External Integ_Proc
 *     subroutine parameters
       Integer lDens
-      Real*8  Coor(3,4),Thize,Fock(lDens,nDens),Dens(lDens,nDens),
-     &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4),Thize,Fock(lDens),Dens(lDens),
+     &        ExFac, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
@@ -436,7 +435,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac)
 *
                   Else
 *
@@ -468,7 +467,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac(1))
+     & Aux,nAux,ExFac)
 *
                   End If
 *                                                                      *

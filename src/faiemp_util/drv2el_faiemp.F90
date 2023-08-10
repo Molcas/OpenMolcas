@@ -36,7 +36,7 @@ use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
-                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, &
+                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
@@ -62,7 +62,6 @@ FckNoClmb = .false. ! Default Value
 FckNoExch = .false. ! Default Value
 
 ExFac = One
-Nr_Dens = 1
 !W2Disc = .false.
 W2Disc = .true.
 
@@ -262,7 +261,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,Thize, &
+    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,ExFac,Thize, &
                              W2Disc,PreSch,Disc_Mx,Disc,Cnt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
