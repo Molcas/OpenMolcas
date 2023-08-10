@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          iTOffs,Integ_Proc,ExFac,
+     &                          iTOffs,Integ_Proc,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
@@ -28,8 +28,6 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*          ExFac               : another scaling factor passed to      *
-*                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
 *                                construction                          *
 *          Thize               : int threshold for disk write (SD)     *
@@ -77,7 +75,7 @@
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
-      Real*8  Coor(3,4),Thize, ExFac, Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
@@ -429,7 +427,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac)
+     & Aux,nAux)
 *
                   Else
 *
@@ -460,7 +458,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac)
+     & Aux,nAux)
 *
                   End If
 *                                                                      *

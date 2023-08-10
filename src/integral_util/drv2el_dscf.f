@@ -13,7 +13,7 @@
 *               1995, Martin Schuetz                                   *
 ************************************************************************
       SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,
-     &                       FstItr, ExFac)
+     &                       FstItr)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -47,6 +47,7 @@
       use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use Int_Options, only: Exfac
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -266,10 +267,8 @@
 !                                                                      *
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
-     &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,No_Routine,ExFac,
-     &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
-     &                   Count)
+     &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,
+     &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,Count)
 
  14      Continue
          Count=Count+One

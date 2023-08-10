@@ -61,9 +61,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
-*     Dummy definitions
-*
-      Real*8 ExFac
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -432,7 +429,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac)
+     & Aux,nAux)
 *
                   Else
 *
@@ -463,7 +460,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & Aux,nAux,ExFac)
+     & Aux,nAux)
 *
                   End If
 *                                                                      *

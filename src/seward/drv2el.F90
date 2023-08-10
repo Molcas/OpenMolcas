@@ -33,11 +33,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+use Int_Options, only: ExFac
 
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
+real(kind=wp) :: A_int, Disc, Dix_Mx, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, Triangular
@@ -60,8 +61,8 @@ DoIntegrals = .true. ! Default value
 DoFock = .false.     ! Default value
 FckNoClmb = .false.  ! Default value
 FckNoExch = .false.  ! Default value
-
 ExFac = One
+
 DoGrad = .false.
 !                                                                      *
 !***********************************************************************
@@ -175,7 +176,7 @@ do
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
           call mma_allocate(TInt,nTInt,label='TInt')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,ExFac, &
+          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut, &
                                    Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount)
           call mma_deallocate(TInt)
         end if

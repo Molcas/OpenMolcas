@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Int_Options
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
+use Constants, only: Zero
 Implicit None
 Private
 Logical(kind=iwp) :: DoIntegrals=.True.
 Logical(kind=iwp) :: DoFock=.False.
 Logical(kind=iwp) :: FckNoClmb=.False.
 Logical(kind=iwp) :: FckNoExch=.False.
+Real(kind=wp) :: ExFac=Zero
 
-Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac
 
 End Module Int_Options

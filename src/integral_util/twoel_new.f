@@ -27,7 +27,7 @@
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
-     &           Aux,nAux,ExFac)
+     &           Aux,nAux)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -49,6 +49,7 @@
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use Int_Options, only: ExFac
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -783,7 +784,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SoInt,nSoInt,Wrk,nWork2,
      &           Shijij, W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
-     &           Aux,nAux,ExFac)
+     &           Aux,nAux)
 ************************************************************************
 *                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
@@ -804,6 +805,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use Int_Options, only: ExFac
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"

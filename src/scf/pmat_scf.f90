@@ -35,7 +35,7 @@
       use Constants, only: Zero, One, Two
       use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO, EDFT
-      use Int_Options, only: FckNoClmb
+      use Int_Options, only: FckNoClmb, Exfac_Int=>ExFac
       Implicit None
       External EFP_On
 #include "rctfld.fh"
@@ -65,10 +65,10 @@
 #include "SysDef.fh"
 !
       Interface
-        SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,FstItr,ExFac)
+        SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,FstItr)
         Integer nDens, nDisc
         Real*8, Target:: Dens(nDens), TwoHam(nDens)
-        Real*8 Thize, ExFac
+        Real*8 Thize
         Logical FstItr, PreSch
         End Subroutine Drv2El_dscf
       End Interface
@@ -371,9 +371,11 @@
 ! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
 ! to be used.
 
+      ExFac_Int=ExFac
       If (n2==1) Then
          FckNoClmb=.False.
-         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,0,Thize,PreSch,FstItr,ExFac)
+         ExFac_Int=ExFac
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,0,Thize,PreSch,FstItr)
       Else
 !
 !        Compute the Coulomb potential for the total density and
@@ -387,16 +389,19 @@
          FckNoClmb=.False.
          Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 !
-         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,Zero)
+         ExFac_Int=Zero
+         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr)
 !
 !        alpha exchange
          FckNoClmb=.TRUE.
          Temp(:,2)=Zero
-         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,ExFac)
+         ExFac_Int=ExFac
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr)
          Temp(:,1)=Two*Temp(:,1)
 !
 !        beta exchange
-         Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,ExFac)
+         ExFac_Int=ExFac
+         Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr)
          Temp(:,2)=Two*Temp(:,2)
 !
 !        Add together J and K contributions to form the correct
