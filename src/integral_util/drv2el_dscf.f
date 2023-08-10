@@ -47,6 +47,7 @@
       use Integral_Interfaces, only: DeDe_SCF
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Exfac, Thize, W2Disc
+      use Int_Options, only: Disc_Mx, Disc
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -87,6 +88,7 @@
       Disc_Mx= DBLE(nDisc)*128.D00
 *     Subtract for the last buffer
       Disc_Mx= Disc_Mx - lBuf
+      Disc = Zero        ! Default value
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,7 +119,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Disc = Zero
       TskHi=Zero
       TskLw=Zero
 *                                                                      *
@@ -265,8 +266,7 @@
 !                                                                      *
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
-     &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,
-     &                   Disc,Count)
+     &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,Count)
 
  14      Continue
          Count=Count+One

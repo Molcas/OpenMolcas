@@ -33,12 +33,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx
+use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
 
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-real(kind=wp) :: A_int, Disc, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, DoGrad, Triangular
@@ -65,6 +65,7 @@ ExFac = One
 Thize = Zero         ! Default value
 PreSch = .true.      ! Default value
 Disc_Mx = Zero       ! Default value
+Disc = Zero          ! Default value
 
 DoGrad = .false.
 !                                                                      *
@@ -83,9 +84,6 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-Disc = Zero
-Disc_Mx = Zero
 TskHi = Zero
 TskLw = Zero
 !                                                                      *
@@ -178,7 +176,7 @@ do
         if (A_Int >= CutInt) then
           call mma_allocate(TInt,nTInt,label='TInt')
           call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut, &
-                                   Disc,TskCount)
+                                   TskCount)
           call mma_deallocate(TInt)
         end if
       end if

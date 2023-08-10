@@ -20,10 +20,11 @@ Logical(kind=iwp) :: FckNoExch=.False.
 Real(kind=wp) :: ExFac=Zero
 Real(kind=wp) :: Thize=Zero
 Real(kind=wp) :: Disc_Mx=Zero
+Real(kind=wp) :: Disc=Zero
 Logical(kind=iwp) :: W2Disc=.False.
 Logical(kind=iwp) :: PreSch=.True.
 
 Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, &
-          PreSch, Disc_Mx
+          PreSch, Disc_Mx, Disc
 
 End Module Int_Options

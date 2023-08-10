@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          iTOffs,Integ_Proc,Disc,Quad_ijkl)
+     &                          iTOffs,Integ_Proc,Quad_ijkl)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals, parallel region          *
@@ -26,20 +26,12 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*          Ind,nInd            : auxiliary index list for Fock matrix  *
-*                                construction                          *
-*          iDisk               : act. position in file TMPINT          *
-*                                                                      *
 *  Auxiliary:                                                          *
 *          ipMem1              : base pointer to Scratch space for     *
 *                                Integral batch, which is further      *
 *                                partitioned within this subroutine    *
 *          MemMax              : amount of wrkspace for processing of  *
 *                                integral batch                        *
-*                                                                      *
-*  Output: Fock                : 2el Hamiltonian                       *
-*          Disc                : # ints written to disk (semidirect)   *
-*                                                                      *
 *                                                                      *
 *  Local:                                                              *
 *          Coor                : coordinates of four centers           *
@@ -70,7 +62,7 @@
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
-      Real*8  Coor(3,4), Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4), TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
@@ -406,7 +398,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc,
+     &                            IJeqKL,kOp,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
@@ -437,7 +429,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc,
+     &                            IJeqKL,kOp,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
