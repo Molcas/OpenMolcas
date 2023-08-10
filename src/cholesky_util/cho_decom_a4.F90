@@ -13,8 +13,8 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 !
 ! Purpose: decompose qualified columns ("parallel" algorithm).
 
-use Cholesky, only: INF_PASS, INF_PROGRESS, IPRINT, LQ_Tot, LQ, LuPri, LuSel, nnBstR, nQual, nSym, NumCho, NumChT, nVec_in_Buf, &
-                    TDECOM
+use Cholesky, only: Cho_Real_Par, INF_PASS, INF_PROGRESS, IPRINT, LQ_Tot, LQ, LuPri, LuSel, nnBstR, nQual, nSym, NumCho, NumChT, &
+                    nVec_in_Buf, TDECOM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -57,14 +57,14 @@ if (iPrint >= Inf_Progress) then
                            'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
   LenLin = 79
   write(Lupri,'(80A)') ('-',I=1,LenLin)
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
   NumCho_Old(1:nSym) = NumCho(1:nSym)
 else if (iPrint >= Inf_Pass) then
   write(Lupri,'(/,A,I4)') 'Number of shell pair distributions calculated:',NumSP
   write(Lupri,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') '#vec. in buff.: ',(nVec_in_Buf(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') '#qualified    : ',(nQual(iSym),iSym=1,nSym)
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
   NumCho_Old(1:nSym) = NumCho(1:nSym)
 end if
 
@@ -90,7 +90,7 @@ call mma_allocate(QDiag,l_IDKVec,Label='QDiag')
 ! previous Cholesky vectors (if any).
 ! ----------------------------------------------------------
 
-call Cho_Timer(C1,W1)
+call CWTime(C1,W1)
 call mma_allocate(LQ_Tot,l_LQ,Label='LQ_Tot')
 
 iEn = 0
@@ -106,14 +106,14 @@ do iSym=1,nSym
 end do
 
 call Cho_P_GetLQ(LQ_Tot,l_LQ,LstQSP,NumSP)
-call Cho_Timer(C2,W2)
+call CWTime(C2,W2)
 tDecom(1,2) = tDecom(1,2)+C2-C1
 tDecom(2,2) = tDecom(2,2)+W2-W1
 
 ! Extract qualified diagonal integral block.
 ! ------------------------------------------
 
-call Cho_Timer(C1,W1)
+call CWTime(C1,W1)
 
 call mma_allocate(MQ,l_KVec,Label='MQ')
 call Cho_P_GetMQ(MQ,size(MQ),LstQSP,NumSP)
@@ -202,7 +202,7 @@ call Cho_P_ReoQual(iQScr,IDKVec,nKVec)
 call mma_deallocate(iQScr)
 nQual(1:nSym) = nKVec(1:nSym)
 
-call Cho_Timer(C2,W2)
+call CWTime(C2,W2)
 tDecom(1,4) = tDecom(1,4)+C2-C1
 tDecom(2,4) = tDecom(2,4)+W2-W1
 
@@ -235,9 +235,9 @@ do iSym=1,nSym
       ! Read integral columns from disk, ordered according to IDK.
       ! ----------------------------------------------------------
 
-      call Cho_Timer(C1,W1)
+      call CWTime(C1,W1)
       call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),nQual(iSym),LuSel(iSym))
-      call Cho_Timer(C2,W2)
+      call CWTime(C2,W2)
       tDecom(1,1) = tDecom(1,1)+C2-C1
       tDecom(2,1) = tDecom(2,1)+W2-W1
 
@@ -254,13 +254,13 @@ do iSym=1,nSym
       ! Write vectors to disk and update vector counters.
       ! -------------------------------------------------
 
-      call Cho_Timer(C1,W1)
+      call CWTime(C1,W1)
       iVec1 = NumCho(iSym)+1
       call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),iVec1,iSym)
       call Cho_VecBuf_Copy(xInt,nQual(iSym),iSym)
       NumCho(iSym) = NumCho(iSym)+nQual(iSym)
       NumChT = NumChT+nQual(iSym)
-      call Cho_Timer(C2,W2)
+      call CWTime(C2,W2)
       tDecom(1,2) = tDecom(1,2)+C2-C1
       tDecom(2,2) = tDecom(2,2)+W2-W1
 
@@ -269,12 +269,12 @@ do iSym=1,nSym
     ! Transpose vectors on disk (parallel only).
     ! ------------------------------------------
 
-    call Cho_Timer(C1,W1)
+    call CWTime(C1,W1)
     iRed = 2
     Jin = NumV(iSym)+1
     Jfi = NumV(iSym)+nQual(iSym)
-    call Cho_P_VecTransp(xInt,Jin,Jfi,iSym,iRed,iPass)
-    call Cho_Timer(C2,W2)
+    if (Cho_Real_Par) call Cho_VecTransp(xInt,Jin,Jfi,iSym,iRed,iPass)
+    call CWTime(C2,W2)
     tDecom(1,2) = tDecom(1,2)+C2-C1
     tDecom(2,2) = tDecom(2,2)+W2-W1
 
@@ -306,15 +306,11 @@ call mma_deallocate(KVec)
 ! ------
 
 if (iPrint >= Inf_Progress) then
-  do iSym=1,nSym
-    NumCho_Old(iSym) = NumCho(iSym)-NumCho_Old(iSym)
-  end do
+  NumCho_Old(1:nSym) = NumCho(1:nSym)-NumCho_Old(1:nSym)
   write(Lupri,'(80A)') ('-',I=1,LenLin)
   write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
 else if (iPrint >= Inf_Pass) then
-  do iSym=1,nSym
-    NumCho_Old(iSym) = NumCho(iSym)-NumCho_Old(iSym)
-  end do
+  NumCho_Old(1:nSym) = NumCho(1:nSym)-NumCho_Old(1:nSym)
   write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
 end if
 

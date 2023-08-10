@@ -13,16 +13,16 @@
 
 subroutine CD_Tester_Diag(PDM,Diag,n)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n
-real(kind=wp) :: PDM(n*(n+1)/2), Diag(n)
-integer(kind=iwp) :: i, ii
+real(kind=wp) :: PDM(nTri_Elem(n)), Diag(n)
+integer(kind=iwp) :: i
 
 do i=1,n
-  ii = i*(i-3)/2+2*i
-  Diag(i) = PDM(ii)
+  Diag(i) = PDM(iTri(i,i))
 end do
 
 end subroutine CD_Tester_Diag

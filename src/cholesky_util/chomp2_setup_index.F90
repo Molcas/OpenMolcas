@@ -19,6 +19,7 @@ subroutine ChoMP2_Setup_Index(iFirst,iFirstS,NumOcc,LnOcc,NumBatOrb,LnBatOrb,LnT
 ! Purpose: set local index arrays and counters.
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym
 use ChoMP2, only: ChoAlg, iBatOrb, nBatch, nBatOrbT, nDel, nFro, nOcc, nVir
 use Definitions, only: iwp
@@ -30,8 +31,8 @@ integer(kind=iwp) :: mBatch, iFirst(mBatch), mSym, iFirstS(mSym,mBatch), NumOcc(
 integer(kind=iwp) :: i, iBatch, iSym, iSyma, iSymi, iSymj, Left, Num
 integer(kind=iwp), external :: Cho_iRange
 
-if (mBatch /= nBatch) call ChoMP2_Quit('ChoMP2_Setup_Index','mBatch !=  nBatch','Error')
-if (mSym /= nSym) call ChoMP2_Quit('ChoMP2_Setup_Index','mSym !=  nSym','Error')
+if (mBatch /= nBatch) call SysAbendMsg('ChoMP2_Setup_Index','mBatch !=  nBatch','Error')
+if (mSym /= nSym) call SysAbendMsg('ChoMP2_Setup_Index','mSym !=  nSym','Error')
 
 iFirst(:) = 0
 iFirstS(:,:) = 0
@@ -121,7 +122,7 @@ if (ChoAlg == 2) then
         iSymi = Mul(iSymj,iSym)
         if (iSymi == iSymj) then
           LiMatij(iSymi,iSymi,iBatch) = LnMatij(iSym,iBatch)
-          LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)+LnOcc(iSymi,iBatch)*(LnOcc(iSymi,iBatch)+1)/2
+          LnMatij(iSym,iBatch) = LnMatij(iSym,iBatch)+nTri_Elem(LnOcc(iSymi,iBatch))
         else if (iSymi < iSymj) then
           LiMatij(iSymi,iSymj,iBatch) = LnMatij(iSym,iBatch)
           LiMatij(iSymj,iSymi,iBatch) = LnMatij(iSym,iBatch)

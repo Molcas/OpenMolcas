@@ -30,7 +30,7 @@ integer(kind=iwp) :: lWrk, iSym, iMoType1, iMoType2
 real(kind=wp) :: COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
 logical(kind=iwp) :: DoDiag
 integer(kind=iwp) :: iAdr, iBat, iLoc, iOpt, irc, iRed, iRedC, iVec, iVec1, iVec2, iVecType, jNum, jVec, jVec1, kChoAO, kChoMO, &
-                     kEnd0, kHlfTr, kOff, kOffMO, lChoAO, lChoMO, lHlfTr, lRead, lWrk0, lWrk1, mUsed, nMOVec, NumBat, NumV, pq
+                     kEnd0, kHlfTr, kOff, kOffMO, lChoAO, lChoMO, lHlfTr, lRead, lWrk0, lWrk1, mUsed, nMOVec, NumBat, NumV
 character(len=*), parameter :: SecNam = 'ChoMP2_Tra_1'
 integer(kind=iwp), external :: Cho_lRead
 
@@ -55,7 +55,7 @@ lHlfTr = nMoAo(iSym,iMoType1)
 kHlfTr = 1
 kEnd0 = kHlfTr+lHlfTr
 lWrk0 = lWrk-kEnd0+1
-if (lWrk0 < (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
+if (lWrk0 < (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) call SysAbendMsg(SecNam,'insufficient memory','[0]')
 
 ! Reserve memory for reading AO vectors.
 ! --------------------------------------
@@ -63,7 +63,7 @@ if (lWrk0 < (nMoMo(iSym,iVecType)+nnBstR(iSym,1))) call ChoMP2_Quit(SecNam,'insu
 lRead = Cho_lRead(iSym,lWrk0)
 if (lRead < 1) then
   write(u6,*) SecNam,': memory error: lRead = ',lRead
-  call ChoMP2_Quit(SecNam,'memory error',' ')
+  call SysAbendMsg(SecNam,'memory error',' ')
   lWrk1 = 0 ! to avoid compiler warnings...
 else
   lWrk1 = lWrk0-lRead
@@ -77,7 +77,7 @@ end if
 ! -------------
 
 nMOVec = min(lWrk1/nMoMo(iSym,iVecType),NumCho(iSym))
-if (nMOVec < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
+if (nMOVec < 1) call SysAbendMsg(SecNam,'insufficient memory','[1]')
 NumBat = (NumCho(iSym)-1)/nMOVec+1
 
 ! Set reduced set handles.
@@ -112,7 +112,7 @@ do iBat=1,NumBat
 
     jNum = 0
     call Cho_VecRd(Wrk(kChoAO),lChoAO,jVec1,iVec2,iSym,jNum,iRedC,mUsed)
-    if (jNum < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
+    if (jNum < 1) call SysAbendMsg(SecNam,'insufficient memory','[2]')
 
     kOff = kChoAO
     do jVec=1,jNum
@@ -121,7 +121,7 @@ do iBat=1,NumBat
       if (iRedC /= iRed) then
         irc = 0
         call Cho_X_SetRed(irc,iLoc,iRed)
-        if (irc /= 0) call ChoMP2_Quit(SecNam,'error in Cho_X_SetRed',' ')
+        if (irc /= 0) call SysAbendMsg(SecNam,'error in Cho_X_SetRed',' ')
         iRedC = iRed
       end if
 
@@ -142,9 +142,7 @@ do iBat=1,NumBat
   if (DoDiag) then
     do iVec=1,NumV
       kOff = kChoMO+nMoMo(iSym,iVecType)*(iVec-1)-1
-      do pq=1,nMoMo(iSym,iVecType)
-        Diag(pq) = Diag(pq)+Wrk(kOff+pq)*Wrk(kOff+pq)
-      end do
+      Diag(1:nMoMo(iSym,iVecType)) = Diag(1:nMoMo(iSym,iVecType))+Wrk(kOff+1:kOff+nMoMo(iSym,iVecType))**2
     end do
   end if
 

@@ -17,6 +17,7 @@ subroutine Cho_PrtInt(iSCD,iSAB,xInt,lInt)
 !
 ! Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: IFCSEW, iOff_col, iShP2Q, iShP2RS, iSP2F, LuPri, nBstSh, nDim_Batch, nnBstR, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -30,30 +31,24 @@ character(len=*), parameter :: SecNam = 'Cho_PrtInt'
 
 ! Set row dimension
 if (IfcSew == 2) then
-  do iSym=1,nSym
-    nRow(iSym) = nnBstR(iSym,2)
-  end do
+  nRow(1:nSym) = nnBstR(1:nSym,2)
 else if (IfcSew == 3) then
-  do iSym=1,nSym
-    nRow(iSym) = nDim_Batch(iSym)
-  end do
+  nRow(1:nSym) = nDim_Batch(1:nSym)
 else
   call Cho_Quit(SecNam//': Illegal IfcSew',103)
-  do iSym=1,nSym ! avoid compiler warnings
-    nRow(iSym) = 0
-  end do
+  nRow(1:nSym) = 0 ! avoid compiler warnings
 end if
 
 ! Get full shell pair dimensions
 call Cho_InvPck(iSP2F(iSCD),iSC,iSD,.true.)
 if (iSC == iSD) then
-  nCD = nBstSh(iSC)*(nBstSh(iSC)+1)/2
+  nCD = nTri_Elem(nBstSh(iSC))
 else
   nCD = nBstSh(iSC)*nBstSh(iSD)
 end if
 call Cho_InvPck(iSP2F(iSAB),iSA,iSB,.true.)
 if (iSA == iSB) then
-  nAB = nBstSh(iSA)*(nBstSh(iSA)+1)/2
+  nAB = nTri_Elem(nBstSh(iSA))
 else
   nAB = nBstSh(iSA)*nBstSh(iSB)
 end if

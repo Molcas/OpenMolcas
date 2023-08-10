@@ -17,26 +17,22 @@ subroutine CHO_INVPCK(IJ,I,J,LOW)
 !          LOW = T: i>=j
 !          LOW = F: i<=j
 
-use Constants, only: One, Three, Eight, Half
-use Definitions, only: wp, iwp
+use Index_Functions, only: iTri_Rev
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IJ, I, J
+integer(kind=iwp) :: IJ, I, J, RES(2)
 logical(kind=iwp) :: LOW
-integer(kind=iwp) :: ITMP
-real(kind=wp) :: XI, XX
 
 if (IJ > 0) then
 
-  XX = Eight*real(IJ,kind=wp)-Three
-  XI = (One+sqrt(XX))*Half
-  I = int(XI)
-  J = IJ-I*(I-1)/2
-
-  if (.not. LOW) then
-    ITMP = I
-    I = J
-    J = ITMP
+  RES = iTri_Rev(IJ)
+  if (LOW) then
+    I = RES(1)
+    J = RES(2)
+  else
+    I = RES(2)
+    J = RES(1)
   end if
 
 else

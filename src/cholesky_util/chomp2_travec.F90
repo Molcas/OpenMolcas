@@ -26,21 +26,21 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
 real(kind=wp) :: VecAO(*), VecMO(*), COcc(*), CVir(*), Scr(lScr)
-integer(kind=iwp) :: i, iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, &
-                     kOff3, kOffAl, kOffBe, nTota, nTotAl, nToti
+integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, kOff3, &
+                     kOffAl, kOffBe, nTota, nTotAl, nToti
 real(kind=wp) :: AOVal
 real(kind=wp), parameter :: Fac(0:1) = [Half,One]
 character(len=*), parameter :: SecNam = 'ChoMP2_TraVec'
 
 if ((iLoc < 2) .or. (iLoc > 3)) then
   write(u6,*) SecNam,': illegal iLoc = ',iLoc
-  call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
+  call SysAbendMsg(SecNam,'iLoc out of bounds!',' ')
 end if
 iSyScr = Mul(iSyCho,iSyCO)
 if (lScr < nT1AOT(iSyScr)) then
   write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
   write(u6,*) SecNam,': needed                          = ',nT1AOT(iSyScr)
-  call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
+  call SysAbendMsg(SecNam,'Insufficient scratch space',' ')
 else
   Scr(1:nT1AOT(iSyScr)) = Zero
 end if
@@ -73,10 +73,8 @@ if (iSyCho == 1) then
     AOVal = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
     kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
     kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
-    do i=1,nOcc(iSymi)
-      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COcc(kOffBe+i)
-      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COcc(kOffAl+i)
-    end do
+    Scr(kOffAl+1:kOffAl+nOcc(iSymi)) = Scr(kOffAl+1:kOffAl+nOcc(iSymi))+AOVal*COcc(kOffBe+1:kOffBe+nOcc(iSymi))
+    Scr(kOffBe+1:kOffBe+nOcc(iSymi)) = Scr(kOffBe+1:kOffBe+nOcc(iSymi))+AOVal*COcc(kOffAl+1:kOffAl+nOcc(iSymi))
 
   end do
 
@@ -105,16 +103,12 @@ else
     iSymi = Mul(iSymBe,iSyCO)
     kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
     kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
-    do i=1,nOcc(iSymi)
-      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COcc(kOffBe+i)
-    end do
+    Scr(kOffAl+1:kOffAl+nOcc(iSymi)) = Scr(kOffAl+1:kOffAl+nOcc(iSymi))+AOVal*COcc(kOffBe+1:kOffBe+nOcc(iSymi))
 
     iSymi = Mul(iSymAl,iSyCO)
     kOffAl = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(jAlpha-1)
     kOffBe = iT1AOT(iSymi,iSymBe)+nOcc(iSymi)*(jBeta-1)
-    do i=1,nOcc(iSymi)
-      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COcc(kOffAl+i)
-    end do
+    Scr(kOffBe+1:kOffBe+nOcc(iSymi)) = Scr(kOffBe+1:kOffBe+nOcc(iSymi))+AOVal*COcc(kOffAl+1:kOffAl+nOcc(iSymi))
 
   end do
 

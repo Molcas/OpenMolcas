@@ -29,7 +29,6 @@ real(kind=wp) :: SMAX, XMMQ
 logical(kind=iwp) :: DODECO, FULL, SYNC
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GETINT'
-integer(kind=iwp), external :: CHO_ISUMELM
 
 !-tbp: some debugging...
 !if (LOCDBG) then
@@ -98,7 +97,7 @@ do while ((.not. DODECO) .and. (ICOUNT < MCOUNT))
       call CHO_QUIT('Severe error in '//SECNAM,104)
     else
       ICOUNT = ICOUNT-1
-      NSEL = CHO_ISUMELM(NQUAL,NSYM)
+      NSEL = sum(NQUAL(1:NSYM))
       DODECO = NSEL > 0
     end if
 
@@ -115,8 +114,8 @@ do while ((.not. DODECO) .and. (ICOUNT < MCOUNT))
     ! current reduced set; write these to disk on temporary file(s).
     ! --------------------------------------------------------------
 
-    NSEL = CHO_ISUMELM(NQUAL,NSYM)
-    NCOLAB = NSEL-CHO_ISUMELM(IOFFQ,NSYM)
+    NSEL = sum(NQUAL(1:NSYM))
+    NCOLAB = NSEL-sum(IOFFQ(1:NSYM))
 
     if (NCOLAB > 0) then
 
@@ -165,7 +164,7 @@ end do
 ! ------------------------------------------------------------------
 
 if (.not. DODECO) then
-  NSEL = CHO_ISUMELM(NQUAL,NSYM)
+  NSEL = sum(NQUAL(1:NSYM))
   if (NSEL < 1) then
     write(LUPRI,*) SECNAM,': logical error: unable to qualify diagonals'
     write(LUPRI,*) SECNAM,': Flag DODECO is ',DODECO

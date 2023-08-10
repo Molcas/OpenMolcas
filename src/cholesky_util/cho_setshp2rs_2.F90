@@ -16,6 +16,7 @@ subroutine Cho_SetShP2RS_2(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, iOff_Batch, iShP2RS, iSP2F, MySP, nBstSh, nnBstRSh, nSym
 #ifdef _DEBUGPRINT_
 use Cholesky, only: IndRSh
@@ -34,7 +35,7 @@ character(len=*), parameter :: SecNam = 'Cho_SetShP2RS_2'
 
 call Cho_InvPck(iSP2F(mySP(iShlAB)),iShlA,iShlB,.true.)
 if (iShlA == iShlB) then
-  NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
+  NumAB = nTri_Elem(nBstSh(iShlA))
 else
   NumAB = nBstSh(iShlA)*nBstSh(iShlB)
 end if

@@ -18,18 +18,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: l_MQ, nQShp, List_QShp(nQShp)
 real(kind=wp) :: MQ(l_MQ)
-integer(kind=iwp) :: iAB, iabSh, iAdr, iL_Shp, iL_ShpG, ipfr, ipS, ipto, iQ, iQoff, isAB, iShAB, iShABG, iShp, iShpAdr, iSym, jQ, &
-                     jSym, Lint, Lread, nTot
+integer(kind=iwp) :: iAB, iabSh, iAdr, iL_Shp, iL_ShpG, ipfr, ipS, ipto, iQ, iQoff, isAB, iShAB, iShABG, iShp, iShpAdr, jQ, jSym, &
+                     Lint, Lread
 integer(kind=iwp), allocatable :: kOff_Shp(:)
 real(kind=wp), allocatable :: Scr(:)
 integer(kind=iwp), parameter :: iOpt = 2
 integer(kind=iwp), external :: Cho_F2SP, Cho_P_LocalSP
 
-nTot = nQual(1)
-do iSym=2,nSym
-  nTot = nTot+nQual(iSym)
-end do
-if (nTot < 1) return ! this test makes sense for parallel run
+if (sum(nQual(1:nSym)) < 1) return ! this test makes sense for parallel run
 
 call mma_allocate(kOff_Shp,nnShl,Label='kOff_Shp')
 

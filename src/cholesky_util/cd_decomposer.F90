@@ -212,9 +212,7 @@ do while (iPass < mPass)
         ! --------------------------------------------
 
         do i=1,nQual
-          if (Diag(iQual(i)) /= Zero) then
-            Qual(:,i) = Qual(:,i)-Qual(iQual(i),ix)*Qual(:,ix)
-          end if
+          if (Diag(iQual(i)) /= Zero) Qual(:,i) = Qual(:,i)-Qual(iQual(i),ix)*Qual(:,ix)
         end do
 
         ! Store vector in buffer.

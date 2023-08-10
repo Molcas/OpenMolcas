@@ -49,7 +49,7 @@ if (iOpt == 1) then
     else if (iBatch < 1000) then
       write(BtchNm,'(A2,I1,I3)') BaseNm,iSym,iBatch
     else ! note: due to restriction in filename length...
-      call ChoMP2_Quit(SecNam,'Too many batches','(Current max. is 999)')
+      call SysAbendMsg(SecNam,'Too many batches','(Current max. is 999)')
       BtchNm = '?!?!?!' ! too avoid compiler warnings...
     end if
     lU = 7
@@ -71,7 +71,7 @@ else if (iOpt == 3) then
     lUnit(iSym,iBatch) = -1
   end if
 else
-  call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
+  call SysAbendMsg(SecNam,'iOpt out of bounds',' ')
 end if
 
 end subroutine ChoMP2_OpenB

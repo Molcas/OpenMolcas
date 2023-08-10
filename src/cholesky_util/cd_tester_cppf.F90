@@ -13,12 +13,12 @@
 
 subroutine CD_Tester_CPPF(PDM,X,n)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n
-real(kind=wp) :: PDM(n*(n+1)/2), X(n,n)
+real(kind=wp) :: PDM(nTri_Elem(n)), X(n,n)
 integer(kind=iwp) :: i, j
 
 do j=1,n

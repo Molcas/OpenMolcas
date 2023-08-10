@@ -43,7 +43,7 @@ if (iBatch == jBatch) then
     end do
   else
     write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-    call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',String)
+    call SysAbendMsg(SecNam,'ChoAlg out-of-bounds error!',String)
   end if
 else
   LnT2am = 0

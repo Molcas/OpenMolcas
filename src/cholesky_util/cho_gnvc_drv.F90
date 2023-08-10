@@ -40,7 +40,7 @@ character(len=*), parameter :: SecNam = 'Cho_GnVc_Drv'
 ! Start timing.
 ! -------------
 
-call Cho_Timer(tCPU1,tWall1)
+call CWTime(tCPU1,tWall1)
 
 ! Set return code.
 ! ----------------
@@ -136,10 +136,7 @@ end if
 
 lNdMx = 0
 do iPass=1,nPass
-  lNeed = nnBstR(1,2)*nVecRS(1,iPass)
-  do iSym=2,nSym
-    lNeed = lNeed+nnBstR(iSym,2)*nVecRS(iSym,iPass)
-  end do
+  lNeed = sum(nnBstR(1:nSym,2)*nVecRS(1:nSym,iPass))
   lNdMx = max(lNdMx,lNeed)
 end do
 l_Wrk = min(l_Wrk,lNdMx)
@@ -158,7 +155,7 @@ iPass = 0
 nBatch = 0
 do while (iPass < nPass)
 
-  if (iPrint >= INF_PASS) call Cho_Timer(TlTot1,WlTot1)
+  if (iPrint >= INF_PASS) call CWTime(TlTot1,WlTot1)
 
   ! Update batch counter.
   ! ---------------------
@@ -182,10 +179,7 @@ do while (iPass < nPass)
   lThis = 0
   do while (jRed < nPass)
     jRed = jRed+1
-    lThis = nnBstR(1,2)*nVecRS(1,jRed)
-    do iSym=2,nSym
-      lThis = lThis+nnBstR(iSym,2)*nVecRS(iSym,jRed)
-    end do
+    lThis = sum(nnBstR(1:nSym,2)*nVecRS(1:nSym,jRed))
     l_Int = l_Int+lThis
     if (l_Int > l_Wrk) then
       l_Int = l_Int-lThis ! reset memory need
@@ -216,12 +210,10 @@ do while (iPass < nPass)
     write(Lupri,'(A,I10,A,F10.3,A,A)') 'Memory used for integrals/vectors: ',l_Int,' 8-byte words; ',dl_Int,' ',Unt
     nScrV(1:nSym) = 0
     do i=iPass1,iPass+NumPass
-      do iSym=1,nSym
-        nScrV(iSym) = nScrV(iSym)+nVecRS(iSym,i)
-      end do
+      nScrV(1:nSym) = nScrV(1:nSym)+nVecRS(1:nSym,i)
     end do
     write(Lupri,'(A,8I8)') '#vec. gener.  : ',(nScrV(i),i=1,nSym)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
   end if
 
   ! Allocate memory for integral columns and initialize.
@@ -281,18 +273,18 @@ do while (iPass < nPass)
   ! Compute all integrals needed for NumPass passes.
   ! ------------------------------------------------
 
-  if (iPrint >= INF_PASS) call Cho_Timer(TlInt1,WlInt1)
+  if (iPrint >= INF_PASS) call CWTime(TlInt1,WlInt1)
   NumSP = 0
   call Cho_GnVc_GetInt(xInt,size(xInt),nVecRS,iVecRS,ListSP,nSym,nPass,nnShl,iPass1,NumPass,NumSP)
   if (NumSP < 1) call Cho_Quit('No shell pairs calculated!',104)
-  if (iPrint >= INF_PASS) call Cho_Timer(TlInt2,WlInt2)
+  if (iPrint >= INF_PASS) call CWTime(TlInt2,WlInt2)
 
   ! Generate vectors.
   ! -----------------
 
-  if (iPrint >= INF_PASS) call Cho_Timer(TlDec1,WlDec1)
+  if (iPrint >= INF_PASS) call CWTime(TlDec1,WlDec1)
   call Cho_GnVc_GenVec(Diag,xInt,size(xInt),nVecRS,iVecRS,RS2RS,nSym,nPass,iPass1,NumPass)
-  if (iPrint >= INF_PASS) call Cho_Timer(TlDec2,WlDec2)
+  if (iPrint >= INF_PASS) call CWTime(TlDec2,WlDec2)
 
   ! Deallocate memory.
   ! ------------------
@@ -307,7 +299,7 @@ do while (iPass < nPass)
     WlInt = WlInt2-WlInt1
     TlDec = TlDec2-TlDec1
     WlDec = WlDec2-WlDec1
-    call Cho_Timer(TlTot2,WlTot2)
+    call CWTime(TlTot2,WlTot2)
     TlTot = TlTot2-TlTot1
     WlTot = WlTot2-WlTot1
     write(Lupri,'(/,A,I7,A)') 'Overall timings for integral pass batch',nBatch,' (CPU/Wall in seconds):'
@@ -315,7 +307,7 @@ do while (iPass < nPass)
     write(Lupri,'(A,F12.2,1X,F12.2)') 'Decomposition: ',TlDec,WlDec
     write(Lupri,'(A,F12.2,1X,F12.2)') 'Total        : ',TlTot,WlTot
     write(Lupri,'(A,I7,A,I7,A)') 'Integral passes treated:',iPass1,' to',iPass1-1+NumPass
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
   end if
 
   ! Update pass counter.
@@ -348,7 +340,7 @@ subroutine Finish_this()
   call mma_deallocate(nVecRS)
   call mma_deallocate(ListSP)
 
-  call Cho_Timer(tCPU2,tWall2)
+  call CWTime(tCPU2,tWall2)
   tDecDrv(1) = tDecDrv(1)+tCPU2-tCPU1
   tDecDrv(2) = tDecDrv(2)+tWall2-tWall1
 

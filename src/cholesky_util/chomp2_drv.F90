@@ -37,7 +37,7 @@ implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iSym, lDiag, nSym_Sav
+integer(kind=iwp) :: lDiag, nSym_Sav
 real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &
                  CPUTra1, CPUTra2, FracMem, WallDab1, WallDab2, WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, &
                  WallSrt1, WallSrt2, WallTot1, WallTot2, WallTra1, WallTra2
@@ -70,7 +70,7 @@ FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Init returned ',irc
-  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+  call SysAbendMsg(SecNam,'Cholesky initialization error',' ')
 end if
 
 call ChoMP2_Setup(irc)
@@ -109,15 +109,9 @@ end if
 
 if (Verbose) call CWTime(CPUTra1,WallTra1)
 if (DecoMP2) then
-  lDiag = nT1am(1)
-  do iSym=2,nSym
-    lDiag = lDiag+nT1am(iSym)
-  end do
+  lDiag = sum(nT1am(1:nSym))
 else if (DoDens) then
-  lDiag = nMoMo(1,6)
-  do iSym=2,nSym
-    lDiag = lDiag+nMoMo(iSym,6)
-  end do
+  lDiag = sum(nMoMo(1:nSym,6))
 else
   lDiag = 1
 end if
@@ -175,7 +169,7 @@ if (DecoMP2) then
   call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-    call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+    call SysAbendMsg(SecNam,'MP2 decomposition failed!',' ')
   end if
   if (Verbose) then
     call CWTime(CPUDec2,WallDec2)
@@ -188,7 +182,7 @@ else if (DoDens) then
   call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-    call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+    call SysAbendMsg(SecNam,'MP2 decomposition failed!',' ')
   end if
   if (Verbose) then
     call CWTime(CPUDec2,WallDec2)
@@ -210,7 +204,7 @@ if (DoSort .and. (.not. DoDens)) then
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_SrtDrv returned ',irc
     if (Delete) then ! full vectors not available
-      call ChoMP2_Quit(SecNam,'MP2 presort failed!',' ')
+      call SysAbendMsg(SecNam,'MP2 presort failed!',' ')
     else
       write(u6,*) SecNam,': trying to use full vectors instead...'
     end if

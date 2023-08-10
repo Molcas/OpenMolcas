@@ -55,9 +55,9 @@ integer(kind=iwp) :: irc, nOcc(*)
 type(DSBA_Type) :: MO
 real(kind=wp) :: Rij(*)
 logical(kind=iwp) :: timings
-integer(kind=iwp) :: i, iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, iSyma, IVEC2, iVrs, JNUM, jpR, JRED, &
-                     JRED1, JRED2, JSYM, jv, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, &
-                     nOcs, nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, IVEC2, iVrs, JNUM, jpR, JRED, JRED1, JRED2, &
+                     JSYM, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, nOcs, nRS, NUMV, &
+                     nVec, nVrs
 real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, TCT1, TCT2, tintg(2), tmotr(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, &
                  tread(2), TWI1, TWI2, TWR1, TWR2, TWT1, TWT2
 type(SBA_Type) :: Laq(1)
@@ -87,11 +87,10 @@ end do
 
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = Zero  !time for reading the vectors
-  tmotr(i) = Zero  !time for MO transformation of the vectors
-  tintg(i) = Zero  !time for computing the functional
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = Zero  !time for reading the vectors
+tmotr(:) = Zero  !time for MO transformation of the vectors
+tintg(:) = Zero  !time for computing the functional
 
 ! compute some offsets and other quantities
 iOcc(1) = 0
@@ -112,10 +111,7 @@ do kS=1,nSym
 end do
 
 ! Memory need for 1 of the half-transformed vectors : L(aj)
-Maj = 0
-do iSyma=1,nSym
-  Maj = Maj+nBas(iSyma)*nOcc(iSyma)
-end do
+Maj = sum(nBas(1:nSym)*nOcc(1:nSym))
 
 iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -238,11 +234,7 @@ do JRED=JRED1,JRED2
 
         do lj=1,nOcc(kSym)
 
-          do jv=1,JNUM
-
-            pLjj(jv) = pLab(lj,jv,lj)
-
-          end do
+          pLjj(1:JNUM) = pLab(lj,1:JNUM,lj)
 
           !-------------------------------------------------------------
           ! Compute   R(i,j) = sum_K  L(i,K)[j] * L(K)[j]

@@ -76,9 +76,7 @@ do iSymi=1,nSym
     kP = iOcc(iSymi)
     do Al=1,nBas(iSymAl)
       kC = iT1AOT(iSymi,iSymAl)+nOcc(iSymi)*(Al-1)
-      do i=1,nOcc(iSymi)
-        POcc(kP+i) = POcc(kP+i)+COcc(kC+i)
-      end do
+      POcc(kP+1:kP+nOcc(iSymi)) = POcc(kP+1:kP+nOcc(iSymi))+COcc(kC+1:kC+nOcc(iSymi))
     end do
   end if
 end do
@@ -94,9 +92,7 @@ do iSyma=1,nSym
     do a=1,nVir(iSyma)
       kP = kP_+a
       kC = iAOVir(iSymAl,iSyma)+nBas(iSymAl)*(a-1)
-      do Al=1,nBas(iSyma)
-        PVir(kP) = PVir(kP)+CVir(kC+Al)
-      end do
+      PVir(kP) = PVir(kP)+sum(CVir(kC+1:kC+nBas(iSyma)))
     end do
   end if
 end do

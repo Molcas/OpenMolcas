@@ -29,9 +29,7 @@ do iSym=1,nSym
     end do
     kID = kID+nQ(iSym)
   else
-    do iK=1,nK(iSym)
-      iQuAB(iK,iSym) = 0
-    end do
+    iQuAB(1:nK(iSym),iSym) = 0
   end if
 end do
 

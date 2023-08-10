@@ -16,6 +16,7 @@ subroutine CHO_MCA_CALCINT_1(ISHLAB)
 !
 ! Version 1: store full shell quadruple.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, INF_IN2, INF_INT, iOff_Col, iOffQ, IPRINT, iQuAB, iSP2F, nBstSh, LuPri, LuSel, &
                     nnBstR, nnBstRSh, nnShl, nQual, nSym, TINTEG
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -42,10 +43,8 @@ MEM_START = LLEAK
 
 call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
 
-NAB(1) = NQUAL(1)-IOFFQ(1)
-do ISYM=2,NSYM
-  NAB(ISYM) = NQUAL(ISYM)-IOFFQ(ISYM)
-end do
+NAB(1) = 0 ! dummy initialization
+NAB(1:NSYM) = NQUAL(1:NSYM)-IOFFQ(1:NSYM)
 
 IOFF_COL(1) = 0
 LCOL = NNBSTR(1,2)*NAB(1)
@@ -55,7 +54,7 @@ do ISYM=2,NSYM
 end do
 
 if (ISHLA == ISHLB) then
-  NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+  NUMAB = nTri_Elem(NBSTSH(ISHLA))
 else
   NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
 end if
@@ -70,7 +69,7 @@ do ISHLCD=1,NNSHL
   if (DOINTS) then
     call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
     if (ISHLC == ISHLD) then
-      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+      NUMCD = nTri_Elem(NBSTSH(ISHLC))
     else
       NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
     end if
@@ -109,7 +108,7 @@ do ISHLCD=1,NNSHL
 
   call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
   if (ISHLC == ISHLD) then
-    NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+    NUMCD = nTri_Elem(NBSTSH(ISHLC))
   else
     NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
   end if
@@ -136,11 +135,11 @@ do ISHLCD=1,NNSHL
     ! Calculate integrals.
     ! --------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
     L4SH = NUMCD*NUMAB
     Int4Sh(1:L4SH) = Zero
     call CHO_MCA_INT_1(ISHLCD,ISHLAB,Int4SH,L4SH,LOCDBG .or. (IPRINT >= 100))
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1
     TINTEG(2,1) = TINTEG(2,1)+W2-W1
 
@@ -192,7 +191,7 @@ end do
 ! Write the columns to disk.
 ! --------------------------
 
-call CHO_TIMER(C1,W1)
+call CWTIME(C1,W1)
 do ISYM=1,NSYM
   LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
   if (LTOT > 0) then
@@ -202,7 +201,7 @@ do ISYM=1,NSYM
     call DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
   end if
 end do
-call CHO_TIMER(C2,W2)
+call CWTIME(C2,W2)
 TINTEG(1,2) = TINTEG(1,2)+C2-C1
 TINTEG(2,2) = TINTEG(2,2)+W2-W1
 

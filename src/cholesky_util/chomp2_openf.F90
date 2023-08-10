@@ -31,7 +31,7 @@ character(len=4) :: FullNm
 character(len=3) :: BaseNm
 character(len=*), parameter :: SecNam = 'ChoMP2_OpenF'
 
-if ((iTyp < 1) .or. (iTyp > nTypF)) call ChoMP2_Quit(SecNam,'iTyp error',' ')
+if ((iTyp < 1) .or. (iTyp > nTypF)) call SysAbendMsg(SecNam,'iTyp error',' ')
 
 ! Initialize units and return for iOpt=0.
 ! ---------------------------------------
@@ -66,7 +66,7 @@ else if (iOpt == 3) then
     lUnit_F(iSym,iTyp) = -1
   end if
 else
-  call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
+  call SysAbendMsg(SecNam,'iOpt out of bounds',' ')
 end if
 
 end subroutine ChoMP2_OpenF

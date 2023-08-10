@@ -30,7 +30,6 @@ integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLD, NAB(8)
 real(kind=wp) :: C1, C2, W1, W2
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_4'
-integer(kind=iwp), external :: CHO_ISUMELM
 
 ! Set mapping from shell pair AB to qualified columns.
 ! ----------------------------------------------------
@@ -49,7 +48,7 @@ end if
 if (IPRINT >= INF_IN2) then
   call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
   call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
-  NCOLAB = CHO_ISUMELM(NAB,NSYM)
+  NCOLAB = sum(NAB(1:NSYM))
   write(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)') 'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,'):',NCOLAB, &
                                                   ' columns have been qualified'
   write(LUPRI,'(89A)') ('=',i=1,89)
@@ -69,9 +68,9 @@ end if
 ! Calculate integrals.
 ! --------------------
 
-call CHO_TIMER(C1,W1)
+call CWTIME(C1,W1)
 call CHO_MCA_INT_1(ISHLCD,ISHLAB,XINT,LINT,LOCDBG .or. (IPRINT >= 100))
-call CHO_TIMER(C2,W2)
+call CWTIME(C2,W2)
 TINTEG(1,1) = TINTEG(1,1)+C2-C1
 TINTEG(2,1) = TINTEG(2,1)+W2-W1
 

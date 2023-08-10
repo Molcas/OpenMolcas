@@ -33,7 +33,7 @@ integer(kind=iwp) :: iShlAB, iSyMax, Mem
 integer(kind=iwp) :: iLoc
 real(kind=wp) :: c1, c2, w1, w2
 
-call Cho_Timer(c1,w1)
+call CWTime(c1,w1)
 
 if (Cho_Real_Par) then
 
@@ -63,7 +63,7 @@ else
 
 end if
 
-call Cho_Timer(c2,w2)
+call CWTime(c2,w2)
 tMisc(1,1) = tMisc(1,1)+c2-c1
 tMisc(2,1) = tMisc(2,1)+w2-w1
 

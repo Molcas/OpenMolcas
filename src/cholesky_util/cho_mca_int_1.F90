@@ -18,7 +18,7 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !    LOCPRT: flag for printing the shell quadruple to output;
 !            output format differs depending on IFCSEW.
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
 
@@ -63,7 +63,7 @@ if (LOCPRT) then
     NUMK = NBSTSH(K)
     NUML = NBSTSH(L)
     if (I == J) then
-      NUMIJ = NUMI*(NUMJ+1)/2
+      NUMIJ = nTri_Elem(NUMI)
     else
       NUMIJ = NUMI*NUMJ
     end if

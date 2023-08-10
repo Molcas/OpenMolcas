@@ -51,6 +51,7 @@ subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV
 !********************************************************
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Index_Functions, only: iTri
 use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR
 use Definitions, only: wp, iwp, u6
@@ -119,7 +120,7 @@ if ((jSym == 1) .and. (iSwap == 0)) then  ! L(ab),J
         ibs = ibg-ibas(iSyma)
 
         iabf = iTri(ias,ibs)
-        kchov = (JVEC-1)*nBas(iSyma)*(nBas(iSyma)+1)/2+iabf+ipChoV(iSyma)-1
+        kchov = (JVEC-1)*nTri_Elem(nBas(iSyma))+iabf+ipChoV(iSyma)-1
 
         Work(kchov) = Scr(kscr)
 

@@ -48,8 +48,8 @@ C
       Character*28 SecNam
       Parameter (SecNam='LDF_CheckAllOverlapIntegrals')
 
-      Real*8   dDot_, Cho_dSumElm, LDF_AtomicDistance
-      external ddot_, Cho_dSumElm, LDF_AtomicDistance
+      Real*8   dDot_, LDF_AtomicDistance
+      external ddot_, LDF_AtomicDistance
 
       Integer  LDF_nBas_Atom, LDF_nBasAux_Pair_wLD, LDF_nBasAux_Pair
       External LDF_nBas_Atom, LDF_nBasAux_Pair_wLD, LDF_nBasAux_Pair
@@ -107,7 +107,7 @@ C
             ipS=iWork(ip_SBlocks-1+AB)
             If (doPrint) Then
                SNrm=sqrt(dDot_(nAB,Work(ipS),1,Work(ipS),1))
-               SSm=Cho_dSumElm(Work(ipS),nAB)
+               SSm=sum(Work(ipS:ipS+nAB-1))
             End If
             Call LDF_ComputeOverlapFromAuxInt(AB,
      &                                1.0d0,l_C,Work(ip_C),ip_AuxIntVec,
@@ -133,7 +133,7 @@ C
                Nrm=dDot_(nAB,Work(ipS),1,Work(ipS),1)
                RMS=sqrt(Nrm/dble(nAB))
                Nrm=sqrt(Nrm)
-               Sm=Cho_dSumElm(Work(ipS),nAB)
+               Sm=sum(Work(ipS:ipS+nAB-1))
             End If
             If (SNrm.gt.0.0d0) Then
                RNrm=Nrm/SNrm

@@ -103,7 +103,7 @@ end if
 ! Start timing.
 ! -------------
 
-if (DoTime) call Cho_Timer(C1,W1)
+if (DoTime) call CWTime(C1,W1)
 
 ! Set index arrays for reduced set iRed at location 3.
 ! ----------------------------------------------------
@@ -304,7 +304,7 @@ if (DoStat) nSys_Call = nSys_Call+nSys
 ! ---------------------
 
 if (DoTime) then
-  call Cho_Timer(C2,W2)
+  call CWTime(C2,W2)
   tDecom(1,2) = tDecom(1,2)+C2-C1
   tDecom(2,2) = tDecom(2,2)+W2-W1
 end if

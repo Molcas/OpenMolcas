@@ -29,10 +29,7 @@ character(len=*), parameter :: SECNAM = 'CHO_SETADDR'
 
 if (XNPASS == 0) then
   INFRED(1) = 0
-  do ISYM=1,NSYM
-    INFVEC(1,3,ISYM) = 0
-    INFVEC(1,4,ISYM) = 0
-  end do
+  INFVEC(1,3:4,1:NSYM) = 0
 else if (XNPASS > 0) then
   IRED = 3
   IPASS = XNPASS
@@ -45,8 +42,7 @@ else if (XNPASS > 0) then
   end if
   do ISYM=1,NSYM
     if (NUMCHO(ISYM) == 0) then
-      INFVEC(1,3,ISYM) = 0
-      INFVEC(1,4,ISYM) = 0
+      INFVEC(1,3:4,ISYM) = 0
     else if (NUMCHO(ISYM) > 0) then
       if (CHO_ADRVEC == 1) then
         JPASS = INFVEC(NUMCHO(ISYM),2,ISYM)

@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc
-real(kind=wp), external :: Cho_dSumElm, dDot_
+real(kind=wp), external :: dDot_
 integer(kind=iwp) :: ip, ipV, iSym, jRed, jVec, l_ChVBfI
 
 ! Set return code
@@ -49,11 +49,8 @@ if (.not. allocated(nDimRS)) then
 end if
 
 ! Allocate and store norm and sum of each vector in the buffer
-l_ChVBfI = 0
-do iSym=1,nSym
-  l_ChVBfI_Sym(iSym) = nVec_in_Buf(iSym)
-  l_ChVBfI = l_ChVBfI+l_ChVBfI_Sym(iSym)
-end do
+l_ChVBfI_Sym(1:nSym) = nVec_in_Buf(1:nSym)
+l_ChVBfI = sum(l_ChVBfI_Sym(1:nSym))
 if (l_ChVBfI > 0) then
   call mma_allocate(CHVBFI,2,l_ChVBfI,Label='CHVBFI')
   ip = 1
@@ -67,7 +64,7 @@ if (l_ChVBfI > 0) then
     do jVec=1,nVec_in_Buf(iSym)
       jRed = InfVec(jVec,2,iSym)
       CHVBFI(1,ip) = sqrt(dDot_(nDimRS(iSym,jRed),CHVBUF(ipV),1,CHVBUF(ipV),1))
-      CHVBFI(2,ip) = Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
+      CHVBFI(2,ip) = sum(CHVBUF(ipV:ipV+nDimRS(iSym,jRed)-1))
       ipV = ipV+nDimRS(iSym,jRed)
       ip = ip+1
     end do

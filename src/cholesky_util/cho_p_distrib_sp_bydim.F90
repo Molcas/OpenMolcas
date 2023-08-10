@@ -17,6 +17,7 @@ subroutine Cho_P_Distrib_SP_byDim(mySP,N_mySP)
 !
 ! Determine distribution of ShellPairs by dimension.
 
+use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use Cholesky, only: Cho_Real_Par, iSP2F, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,7 +39,7 @@ if (Cho_Real_Par) then
     iAB = iSP2F(iSP)
     call Cho_InvPck(iAB,iA,iB,.true.)
     if (iA == iB) then
-      n = nBstSh(iA)*(nBstSh(iA)+1)/2
+      n = nTri_Elem(nBstSh(iA))
     else
       n = nBstSh(iA)*nBstSh(iB)
     end if

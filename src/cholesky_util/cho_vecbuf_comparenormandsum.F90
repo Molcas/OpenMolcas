@@ -33,7 +33,7 @@ real(kind=wp) :: Vec(n,nVec)
 integer(kind=iwp) :: J, J0, mVec
 real(kind=wp) :: Nrm, Sm
 real(kind=wp), parameter :: Tol = 1.0e-12_wp
-real(kind=wp), external :: Cho_dSumElm, dDot_
+real(kind=wp), external :: dDot_
 
 irc = 0
 if (allocated(CHVBFI)) then
@@ -41,7 +41,7 @@ if (allocated(CHVBFI)) then
   mVec = min(J0+nVec,nVec_in_Buf(iSym))-J0
   do J=1,mVec
     Nrm = sqrt(dDot_(n,Vec(1,J),1,Vec(1,J),1))
-    Sm = Cho_dSumElm(Vec(1,J),n)
+    Sm = sum(Vec(:,J))
     if ((abs(CHVBFI(1,ip_ChVBfI_Sym(iSym)+J0+J)-Nrm) > Tol) .or. (abs(CHVBFI(2,ip_ChVBfI_Sym(iSym)+J0+J)-Sm) > Tol)) irc = irc+1
   end do
 end if

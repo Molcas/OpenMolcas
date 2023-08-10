@@ -31,16 +31,15 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: ExpSum
-real(kind=wp) :: X, Coeff(40)
+real(kind=wp) :: X, Coeff(2,20)
 integer(kind=iwp) :: K
-integer(kind=iwp) :: I, Idx
+integer(kind=iwp) :: I
 real(kind=wp) :: Alpha, Dum, Omega
 
 Dum = Zero
 do I=1,K
-  Idx = 2*I-1
-  Omega = Coeff(Idx)
-  Alpha = Coeff(Idx+1)
+  Omega = Coeff(1,I)
+  Alpha = Coeff(2,I)
   Dum = Dum+Omega*exp(-X*Alpha)
 end do
 ExpSum = Dum

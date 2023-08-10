@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc, iMoType1, iMoType2
 real(kind=wp) :: VecAO(*), VecMO(*), COrb1(*), COrb2(*), Scr(lScr)
-integer(kind=iwp) :: i, iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
+integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSymAl, iSymBe, iSymP, iSymq, iSyScr, iVecType, jAlBe, jAlpha, jBeta, kOff1, &
                      kOff2, kOff3, kOffAl, kOffBe, nTotAl, nTotp, nTotq
 real(kind=wp) :: AOVal
 real(kind=wp), parameter :: Fac(0:1) = [Half,One]
@@ -37,13 +37,13 @@ iVecType = iMoType2+(iMoType1-1)*nMoType
 
 if ((iLoc < 2) .or. (iLoc > 3)) then
   write(u6,*) SecNam,': illegal iLoc = ',iLoc
-  call ChoMP2_Quit(SecNam,'iLoc out of bounds!',' ')
+  call SysAbendMsg(SecNam,'iLoc out of bounds!',' ')
 end if
 iSyScr = Mul(iSyCho,iSyCO)
 if (lScr < nMoAo(iSyScr,iMoType1)) then
   write(u6,*) SecNam,': insufficient scratch space lScr = ',lScr
   write(u6,*) SecNam,': needed                          = ',nMoAo(iSyScr,iMoType1)
-  call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
+  call SysAbendMsg(SecNam,'Insufficient scratch space',' ')
 else
   Scr(1:nMoAo(iSyScr,iMoType1)) = Zero
 end if
@@ -76,10 +76,10 @@ if (iSyCho == 1) then
     AOVal = Fac(min(abs(iAlpha-iBeta),1))*VecAO(iAlBe)
     kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
     kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
-    do i=1,nMo(iSymP,iMoType1)
-      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COrb1(kOffBe+i)
-      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COrb1(kOffAl+i)
-    end do
+    Scr(kOffAl+1:kOffAl+nMo(iSymP,iMoType1)) = Scr(kOffAl+1:kOffAl+nMo(iSymP,iMoType1))+ &
+                                               AOVal*COrb1(kOffBe+1:kOffBe+nMo(iSymP,iMoType1))
+    Scr(kOffBe+1:kOffBe+nMo(iSymP,iMoType1)) = Scr(kOffBe+1:kOffBe+nMo(iSymP,iMoType1))+ &
+                                               AOVal*COrb1(kOffAl+1:kOffAl+nMo(iSymP,iMoType1))
 
   end do
 
@@ -108,16 +108,14 @@ else
     iSymP = Mul(iSymBe,iSyCO)
     kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
     kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
-    do i=1,nMo(iSymP,iMoType1)
-      Scr(kOffAl+i) = Scr(kOffAl+i)+AOVal*COrb1(kOffBe+i)
-    end do
+    Scr(kOffAl+1:kOffAl+nMo(iSymP,iMoType1)) = Scr(kOffAl+1:kOffAl+nMo(iSymP,iMoType1))+ &
+                                               AOVal*COrb1(kOffBe+1:kOffBe+nMo(iSymP,iMoType1))
 
     iSymP = Mul(iSymAl,iSyCO)
     kOffAl = iMoAo(iSymP,iSymAl,iMoType1)+nMo(iSymP,iMoType1)*(jAlpha-1)
     kOffBe = iMoAo(iSymP,iSymBe,iMoType1)+nMo(iSymP,iMoType1)*(jBeta-1)
-    do i=1,nMo(iSymP,iMoType1)
-      Scr(kOffBe+i) = Scr(kOffBe+i)+AOVal*COrb1(kOffAl+i)
-    end do
+    Scr(kOffBe+1:kOffBe+nMo(iSymP,iMoType1)) = Scr(kOffBe+1:kOffBe+nMo(iSymP,iMoType1))+ &
+                                               AOVal*COrb1(kOffAl+1:kOffAl+nMo(iSymP,iMoType1))
 
   end do
 

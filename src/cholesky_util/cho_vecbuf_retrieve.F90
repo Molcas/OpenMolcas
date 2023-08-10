@@ -167,9 +167,9 @@ if (lTot > 0) then
       kB = kB+nDimRS(iSym,jRed)
     end do
     if (nErr > 0) then
-      call Cho_Flush(LuPri)
+      call XFlush(LuPri)
       write(LuPri,'(A,I9,A)') 'Cho_VecBuf_Retrieve: buffer copy failed for',nErr,' vectors. Going to check buffer integrity...'
-      call Cho_Flush(LuPri)
+      call XFlush(LuPri)
       call Cho_VecBuf_Check()
       write(LuPri,'(A)') 'Buffer integrity checked: OK --- error occurs in the copy operation.'
 #     ifdef _I8_
@@ -209,7 +209,7 @@ if (LocDbg) then
       if (nTst /= mUsed) call Cho_Quit('Vector dimension error in '//SecNam,104)
     end if
   end if
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 end subroutine Cho_VecBuf_Retrieve

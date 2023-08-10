@@ -73,9 +73,7 @@ integer(kind=iwp) :: i, ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MU
 MXUSD = 0
 MUSED = 0
 
-do i=1,nSym
-  ipVec(i) = ipChoV(i)
-end do
+ipVec(1:nSym) = ipChoV(1:nSym)
 
 call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 

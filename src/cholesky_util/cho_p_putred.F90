@@ -25,7 +25,7 @@ integer(kind=iwp) :: iPass, iLoc
 integer(kind=iwp) :: iTmp
 real(kind=wp) :: c1, c2, w1, w2
 
-call Cho_Timer(c1,w1)
+call CWTime(c1,w1)
 
 if (Cho_Real_Par) then
 
@@ -47,7 +47,7 @@ end if
 
 call Cho_PutRed(iPass,iLoc)
 
-call Cho_Timer(c2,w2)
+call CWTime(c2,w2)
 tMisc(1,2) = tMisc(1,2)+c2-c1
 tMisc(2,2) = tMisc(2,2)+w2-w1
 

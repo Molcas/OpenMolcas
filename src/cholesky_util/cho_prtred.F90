@@ -24,9 +24,7 @@ integer(kind=iwp) :: IRED, ISHLAB, ISYM, ISYMA, ISYMB, NRED, NSHP(2)
 real(kind=wp) :: PCT1, PCT2, XBAS(8), XXBAS(8), XXBAST
 logical(kind=iwp) :: CONTRIB(2)
 
-do ISYM=1,NSYM
-  XBAS(ISYM) = real(NBAS(ISYM),kind=wp)
-end do
+XBAS(1:NSYM) = real(NBAS(1:NSYM),kind=wp)
 
 XXBAST = Zero
 do ISYM=1,NSYM

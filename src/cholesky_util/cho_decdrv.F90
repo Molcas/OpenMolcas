@@ -14,8 +14,9 @@ subroutine CHO_DECDRV(DIAG)
 ! Purpose: driver for the decomposition of the two-electron integral
 !          matrix based on the reduced diagonal.
 
-use Cholesky, only: CHO_DECALG, CHO_SIMP, DIAMIN, DID_DECDRV, FRAC_CHVBUF, INF_PASS, INF_VECBUF, InfRed, IPRINT, LuPri, LuSel, &
-                    MaxRed, nDimRS, nnBstR, nSym, NumCho, TDECDRV, ThrCom, Trace_Idle, Span, XnPass
+use Cholesky, only: CHO_DECALG, Cho_Real_Par, CHO_SIMP, DIAMIN, DID_DECDRV, FRAC_CHVBUF, INF_PASS, INF_VECBUF, InfRed, IPRINT, &
+                    LuPri, LuSel, MaxRed, nDimRS, nnBstR, nnBstRT, nnBstRT_G, nnShl, nnShl_G, nSym, NumCho, TDECDRV, ThrCom, &
+                    Trace_Idle, Span, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,12 +32,11 @@ integer(kind=iwp), allocatable :: KISYSH(:), LSTQSP(:)
 real(kind=wp), allocatable :: KDIASH(:), KWRK(:)
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_DECDRV'
-integer(kind=iwp), external :: CHO_P_GETMPASS
 
 ! Start timing.
 ! -------------
 
-call CHO_TIMER(TCPU1,TWALL1)
+call CWTIME(TCPU1,TWALL1)
 
 ! Initializations and static settings.
 ! IRED=2: points to current reduced set in index arrays.
@@ -56,7 +56,11 @@ if (LOCDBG .or. (IPRINT >= INF_VECBUF)) call CHO_VECBUF_PRINT(LUPRI,NSYM)
 ! released by flushing back to and including this allocation.
 ! ----------------------------------------------------------------
 
-call CHO_P_GETGSP(NGSP)
+if (Cho_Real_Par) then
+  NGSP = nnShl_G
+else
+  NGSP = nnShl
+end if
 call mma_allocate(KDIASH,NGSP,Label='KDIASH')
 call mma_allocate(KISYSH,NGSP,Label='KISYSH')
 
@@ -86,7 +90,11 @@ call mma_allocate(LSTQSP,max(NPOTSH,1),Label='LSTQSP')
 
 IPASS = XNPASS
 JPASS = 0
-MPASS = CHO_P_GETMPASS(IRED)
+if (Cho_Real_Par) then
+  MPASS = nnBstRT_G(IRED)
+else
+  MPASS = nnBstRT(IRED)
+end if
 do while ((.not. CONV) .and. (JPASS < MPASS))
 
   ! Update integral pass counter.
@@ -99,7 +107,7 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
   ! ------
 
   if (IPRINT >= INF_PASS) then
-    call CHO_TIMER(TLTOT1,WLTOT1)
+    call CWTIME(TLTOT1,WLTOT1)
     write(STRING,'(A13,I7)') 'Integral Pass',IPASS
     call CHO_HEAD(STRING,'*',80,LUPRI)
   end if
@@ -108,10 +116,7 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
   ! ----------------------
 
   if (Trace_Idle) then
-    nDim_Now = nnBstR(1,2)
-    do iSym=2,nSym
-      nDim_Now = nDim_Now+nnBstR(iSym,2)
-    end do
+    nDim_Now = sum(nnBstR(1:nSym,2))
     call Cho_TrcIdl_Update(nDim_Now < 1)
   end if
 
@@ -165,16 +170,16 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
   ! Get integral columns on disk stored in current reduced set.
   ! -----------------------------------------------------------
 
-  if (IPRINT >= INF_PASS) call CHO_TIMER(TLINT1,WLINT1)
+  if (IPRINT >= INF_PASS) call CWTIME(TLINT1,WLINT1)
   NUM = 0
   call CHO_GETINT(DIAG,KDIASH,KISYSH,LSTQSP,NPOTSH,NUM)
-  call CHO_FLUSH(LUPRI)
-  if (IPRINT >= INF_PASS) call CHO_TIMER(TLINT2,WLINT2)
+  call XFLUSH(LUPRI)
+  if (IPRINT >= INF_PASS) call CWTIME(TLINT2,WLINT2)
 
   ! Decompose the qualified integral columns.
   ! -----------------------------------------
 
-  if (IPRINT >= INF_PASS) call CHO_TIMER(TLDEC1,WLDEC1)
+  if (IPRINT >= INF_PASS) call CWTIME(TLDEC1,WLDEC1)
   if ((CHO_DECALG == 4) .or. (CHO_DECALG == 5) .or. (CHO_DECALG == 6)) then
     call CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
   else
@@ -189,8 +194,8 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
     call CHO_DECOM(DIAG,KWRK,LWRK,IPASS,NUM)
     call mma_deallocate(KWRK)
   end if
-  call CHO_FLUSH(LUPRI)
-  if (IPRINT >= INF_PASS) call CHO_TIMER(TLDEC2,WLDEC2)
+  call XFLUSH(LUPRI)
+  if (IPRINT >= INF_PASS) call CWTIME(TLDEC2,WLDEC2)
 
   ! Sync global vector counter.
   ! ---------------------------
@@ -234,7 +239,7 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
   call CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
   if (IPRINT >= INF_PASS) then
     call CHO_P_PRTRED(2)
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
 
   ! Check convergence and, if not converged, set next integral pass.
@@ -268,7 +273,7 @@ do while ((.not. CONV) .and. (JPASS < MPASS))
     WLINT = WLINT2-WLINT1
     TLDEC = TLDEC2-TLDEC1
     WLDEC = WLDEC2-WLDEC1
-    call CHO_TIMER(TLTOT2,WLTOT2)
+    call CWTIME(TLTOT2,WLTOT2)
     TLTOT = TLTOT2-TLTOT1
     WLTOT = WLTOT2-WLTOT1
     write(LUPRI,'(/,A,I7,A)') 'Overall timings for integral pass',IPASS,' (CPU/Wall in seconds):'
@@ -300,7 +305,7 @@ XNPASS = IPASS
 ! Timing.
 ! -------
 
-call CHO_TIMER(TCPU2,TWALL2)
+call CWTIME(TCPU2,TWALL2)
 TDECDRV(1) = TCPU2-TCPU1
 TDECDRV(2) = TWALL2-TWALL1
 

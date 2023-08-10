@@ -13,6 +13,9 @@ subroutine CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
 !
 ! Purpose: call Seward to calculate diagonal shell (AB|AB).
 
+#ifdef _DEBUGPRINT_
+use Cholesky, only: CutInt, ThrInt
+#endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -28,13 +31,15 @@ external :: Integral_WrOut_Cho_diag
 SCR(:) = Zero
 
 #ifdef _DEBUGPRINT_
-call CHO_PRESCR(CUTINT1,THRINT1)
+CUTINT1 = CutInt
+THRINT1 = ThrInt
 #endif
 
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,Integral_WrOut_Cho_diag)
 
 #ifdef _DEBUGPRINT_
-call CHO_PRESCR(CUTINT2,THRINT2)
+CUTINT2 = CutInt
+THRINT2 = ThrInt
 if ((CUTINT2 /= CUTINT1) .or. (THRINT2 /= THRINT1)) then
   write(LUPRI,*) SECNAM,': CutInt before Eval_Ints_: ',CUTINT1
   write(LUPRI,*) SECNAM,': CutInt after  Eval_Ints_: ',CUTINT2

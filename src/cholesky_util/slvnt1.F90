@@ -56,9 +56,7 @@ outer: do Iter=1,NTimes
       CoeffOld(1:I_Dim) = Coeff(1:I_Dim)
 
       do
-        do I=1,I_Dim
-          Coeff(I) = CoeffOld(I)-Theta*W(I)
-        end do
+        Coeff(1:I_Dim) = CoeffOld(1:I_Dim)-Theta*W(1:I_Dim)
         call AltErr(K_Lap,Coeff,T,VV,Eps1)
         if (Eps1 < Eps0) then
           Theta = Two*Theta

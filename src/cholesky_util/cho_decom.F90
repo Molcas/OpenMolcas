@@ -42,14 +42,14 @@ if (IPRINT >= INF_PROGRESS) then
                            'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
   LENLIN = 79
   write(LUPRI,'(80A)') ('-',I=1,LENLIN)
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
   NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)
 else if (IPRINT >= INF_PASS) then
   write(LUPRI,'(/,A,I4)') 'Number of shell pair distributions calculated:',NUM
   write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NUMCHO(ISYM),ISYM=1,NSYM)
   write(LUPRI,'(A,8I8)') '#vec. in buff.: ',(NVEC_IN_BUF(ISYM),ISYM=1,NSYM)
   write(LUPRI,'(A,8I8)') '#qualified    : ',(NQUAL(ISYM),ISYM=1,NSYM)
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
   NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)
 end if
 
@@ -86,12 +86,12 @@ do ISYM=1,NSYM
     ! Read qualified integral columns.
     ! --------------------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
     IOPT = 2
     LTOT = NNBSTR(ISYM,2)*NQUAL(ISYM)
     IADR = 0
     call DDAFILE(LUSEL(ISYM),IOPT,WRK(KINT1),LTOT,IADR)
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TDECOM(1,1) = TDECOM(1,1)+C2-C1
     TDECOM(2,1) = TDECOM(2,1)+W2-W1
 
@@ -262,13 +262,13 @@ do ISYM=1,NSYM
       ! ---------------------------------------------------------
 
       if (LAST .or. (IDUMP == NUMBUF)) then
-        call CHO_TIMER(C1,W1)
+        call CWTIME(C1,W1)
         IVEC1 = NUMCHO(ISYM)+1
         call CHO_PUTVEC(WRK(KCHO1),NNBSTR(ISYM,2),IDUMP,IVEC1,ISYM)
         call CHO_VECBUF_COPY(WRK(KCHO1),IDUMP,ISYM)
         NUMCHO(ISYM) = NUMCHO(ISYM)+IDUMP
         NUMCHT = NUMCHT+IDUMP
-        call CHO_TIMER(C2,W2)
+        call CWTIME(C2,W2)
         TDECOM(1,2) = TDECOM(1,2)+C2-C1
         TDECOM(2,2) = TDECOM(2,2)+W2-W1
         if (LAST) then
@@ -286,20 +286,16 @@ do ISYM=1,NSYM
   ! Cycle point: go to next symmetry.
   ! ---------------------------------
 
-  if (IPRINT >= INF_PROGRESS) call CHO_FLUSH(LUPRI)
+  if (IPRINT >= INF_PROGRESS) call XFLUSH(LUPRI)
 
 end do
 
 if (IPRINT >= INF_PROGRESS) then
-  do ISYM=1,NSYM
-    NUMCHO_OLD(ISYM) = NUMCHO(ISYM)-NUMCHO_OLD(ISYM)
-  end do
+  NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)-NUMCHO_OLD(1:NSYM)
   write(LUPRI,'(80A)') ('-',I=1,LENLIN)
   write(LUPRI,'(A,8I8)') '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
 else if (IPRINT >= INF_PASS) then
-  do ISYM=1,NSYM
-    NUMCHO_OLD(ISYM) = NUMCHO(ISYM)-NUMCHO_OLD(ISYM)
-  end do
+  NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)-NUMCHO_OLD(1:NSYM)
   write(LUPRI,'(A,8I8)') '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
 end if
 

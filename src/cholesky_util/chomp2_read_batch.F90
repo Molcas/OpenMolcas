@@ -46,7 +46,7 @@ nEnrVec(1:nSym) = NumCho(1:nSym)
 kXpqrs = 1
 kEnd0 = kXpqrs+LnPQRSprod
 lWrk0 = lWrk-kEnd0+1
-if (lWrk0 < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
+if (lWrk0 < 1) call SysAbendMsg(SecNam,'insufficient memory','[0]')
 
 ! Special code for iBatch=jBatch and ChoAlg=2:
 ! compute M(ab,ij) = (ai|bj) with i<=j using level 3 BLAS.
@@ -74,7 +74,7 @@ else
       if (nBatch /= 1) then
         kEnd1 = kRead+nPQ_prod(iSym)
         lWrk1 = lWrk-kEnd1+1
-        if (lWrk1 < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[0.1]')
+        if (lWrk1 < 1) call SysAbendMsg(SecNam,'insufficient memory','[0.1]')
       else
         kEnd1 = kRead
         lWrk1 = lWrk0
@@ -89,7 +89,7 @@ else
         MinMem = Nai+Nbj
       end if
       NumVec = min(lWrk1/MinMem,nEnrVec(iSym))
-      if (NumVec < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
+      if (NumVec < 1) call SysAbendMsg(SecNam,'insufficient memory','[1]')
       nBat = (nEnrVec(iSym)-1)/NumVec+1
 
       ! Open Cholesky vector file.
@@ -122,7 +122,7 @@ else
             kEnd2 = kVbj+Nbj*NumV
           end if
           lWrk2 = lWrk-kEnd2+1
-          if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'insufficient memory','[2]') ! this would be a bug...
+          if (lWrk2 < 0) call SysAbendMsg(SecNam,'insufficient memory','[2]') ! this would be a bug...
         end if
 
         ! Read vectors, copy out sub-blocks.

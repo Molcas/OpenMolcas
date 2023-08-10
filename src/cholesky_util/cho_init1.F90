@@ -14,10 +14,8 @@ subroutine CHO_INIT1()
 ! Purpose: initialize counter arrays.
 
 use Cholesky, only: Cho_Real_Par, InfRed, InfVec, myNumCho, nSym, NumCho, NumChT, RstCho, XnPass
-use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), external :: CHO_ISUMELM
 
 if (RSTCHO) then
 
@@ -25,7 +23,7 @@ if (RSTCHO) then
   ! -------------------------
 
   call CHO_GETRSTC()
-  NUMCHT = CHO_ISUMELM(NUMCHO,NSYM)
+  NUMCHT = sum(NUMCHO(1:NSYM))
 
 else
 

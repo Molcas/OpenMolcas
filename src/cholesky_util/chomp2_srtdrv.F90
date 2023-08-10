@@ -135,7 +135,7 @@ do iSym=1,nSym
       lSort = lWrk-lChoMO
       do iBatch=1,nBatch
         lTot = LnT1am(iSym,iBatch)*NumV
-        if (lSort < lTot) call ChoMP2_Quit(SecNam,'sort batch error','[0]')
+        if (lSort < lTot) call SysAbendMsg(SecNam,'sort batch error','[0]')
         call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,iBatch)
         call ChoMP2_OpenB(1,iSym,iBatch)
         iOpt = 1

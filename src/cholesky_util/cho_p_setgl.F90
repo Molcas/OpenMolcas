@@ -82,9 +82,7 @@ nnBstRSh => nnBstRSh_L_Hidden
 
 do iSP=1,nnShl
   iShlAB = mySP(iSP)
-  do iSym=1,nSym
-    nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
-  end do
+  nnBstRSh(1:nSym,iSP,1) = nnBstRSh_G(1:nSym,iShlAB,1)
 end do
 call Cho_SetRedInd(1)
 mmBstRT = nnBstRT(1)

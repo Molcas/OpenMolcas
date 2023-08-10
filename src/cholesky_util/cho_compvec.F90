@@ -150,6 +150,6 @@ do i=1,nQual(iSym)
 
 end do
 
-if (iPrint >= Inf_Progress) call Cho_Flush(Lupri)
+if (iPrint >= Inf_Progress) call XFlush(Lupri)
 
 end subroutine Cho_CompVec

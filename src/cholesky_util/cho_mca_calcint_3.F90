@@ -27,7 +27,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: LINT, ISHLAB
 real(kind=wp) :: XINT(LINT)
-integer(kind=iwp) :: CHO_ISUMELM, i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
+integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS
 logical(kind=iwp), parameter :: LOCDBG = .false.
@@ -58,7 +58,7 @@ end if
 ! ------
 
 if (IPRINT >= INF_IN2) then
-  NCOLAB = CHO_ISUMELM(NAB,NSYM)
+  NCOLAB = sum(NAB(1:NSYM))
   write(LUPRI,'(/,A,I5,1X,I5,A,I9,A)') 'Calculating shell pair (**|',ISHLA,ISHLB,'):',NCOLAB,' columns have been qualified'
   write(LUPRI,'(80A)') ('=',i=1,77)
 end if
@@ -106,9 +106,9 @@ do ISHLCD=1,NNSHL
     ! Calculate integrals.
     ! --------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
     call CHO_MCA_INT_1(ISHLCD,ISHLAB,XINT,LINT,LOCDBG .or. (IPRINT >= 100))
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1
     TINTEG(2,1) = TINTEG(2,1)+W2-W1
 
@@ -135,7 +135,7 @@ end do
 if (IPRINT >= INF_IN2) then
   PCT = 1.0e2_wp*XSKIP/XXSHL
   write(LUPRI,'(A,F7.2,A)') 'Skipped',PCT,'% of rows (shell pairs) in this distribution'
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
 
 end subroutine CHO_MCA_CALCINT_3

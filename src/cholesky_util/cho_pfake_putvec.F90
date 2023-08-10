@@ -26,10 +26,7 @@ if (nVec < 1) return
 
 if (CHO_ADRVEC == 1) then
   iOpt = 1
-  lTot = InfV(1,iV1)
-  do iVec=iV1+1,iV1+nVec-1
-    lTot = lTot+InfV(1,iVec)
-  end do
+  lTot = sum(InfV(1,iV1:iV1+nVec-1))
   iAdr = InfV(2,iV1)
   call dDAFile(LuCho_G(iSym),iOpt,Vec,lTot,iAdr)
   do iVec=iV1+1,iV1+nVec

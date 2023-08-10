@@ -195,7 +195,7 @@ if (LOCDBG) then
       write(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,' of symmetry ',ISYM,' can be read'
     end if
   end if
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
 
 end subroutine CHO_VECRD1

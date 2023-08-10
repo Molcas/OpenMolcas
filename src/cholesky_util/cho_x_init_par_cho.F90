@@ -81,10 +81,7 @@ end do
 ! ------------------------
 
 call iSwap(nSym,NumCho,1,nV,1)
-NumChT = NumCho(1)
-do iSym=2,nSym
-  NumChT = NumChT+NumCho(iSym)
-end do
+NumChT = sum(NumCho(1:nSym))
 
 ! Debug print.
 ! ------------

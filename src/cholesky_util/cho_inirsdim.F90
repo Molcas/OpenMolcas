@@ -17,7 +17,7 @@ use Cholesky, only: MaxRed, nDimRS, nnBstR, nSym, RstCho, XnPass
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ILOC, IRS, NSET, NUM
+integer(kind=iwp) :: ILOC, IRS, NSET
 
 if (RSTCHO) then
   ILOC = 3
@@ -32,7 +32,6 @@ else
   NSET = 1
 end if
 
-NUM = NSYM*(MAXRED-NSET)
 nDimRS(:,NSET+1:MAXRED) = 0
 
 end subroutine CHO_INIRSDIM

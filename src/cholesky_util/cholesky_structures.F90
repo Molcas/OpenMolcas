@@ -82,17 +82,18 @@ contains
 
 subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
+  use Index_Functions, only: iTri, nTri_Elem
   use Cholesky, only: nBasSh, nnBstRSh
 
   type(L_Full_Type), target, intent(out) :: Adam
-  integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+2)/2), JNUM, JSYM, nSym
+  integer(kind=iwp) :: nShell, iShp_rs(nTri_Elem(nShell)), JNUM, JSYM, nSym
   integer(kind=iwp), intent(out), optional :: Memory(2)
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, MemSPB, n1, n2
 
   LFULL = 0
   do iaSh=1,nShell
     do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
+      iShp = iTri(iaSh,ibSh)
 
       if (iShp_rs(iShp) <= 0) cycle
 
@@ -127,14 +128,14 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
   call mma_allocate(Adam%A0,LFULL,Label='Adam%A0')
 
-  call mma_allocate(Adam%SPB,nSym,nShell*(nShell+1)/2,2,label='Adam%SPB')
+  call mma_allocate(Adam%SPB,nSym,nTri_Elem(nShell),2,label='Adam%SPB')
 # include "macros.fh"
   unused_proc(mma_allocate(Adam%SPB,[0,0],[0,0],[0,0]))
 
   iE = 0
   do iaSh=1,nShell
     do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
+      iShp = iTri(iaSh,ibSh)
 
       if (iShp_rs(iShp) <= 0) cycle
 
@@ -177,12 +178,14 @@ end subroutine Allocate_L_Full
 
 subroutine Deallocate_L_Full(Adam)
 
+  use Index_Functions, only: iTri
+
   type(L_Full_Type), intent(inout) :: Adam
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma
 
   do iaSh=1,Adam%nShell
     do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
+      iShp = iTri(iaSh,ibSh)
 
       do iSyma=1,Adam%nSym
 

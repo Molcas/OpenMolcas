@@ -29,16 +29,13 @@ logical(kind=iwp) :: DoRead
 character(len=2) :: Unt
 real(kind=wp), parameter :: Scr_Check = 1.23456789_wp, Tol = 1.0e-15_wp
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init_X'
-integer(kind=iwp), external :: Cho_iSumElm
 
 if (LocDbg) then
-  do i=1,lScr
-    Scr(i) = Scr_Check
-  end do
+  Scr(:) = Scr_Check
   write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
   write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
   write(Lupri,'(A,I8)') 'nSym: ',nSym
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym out of bounds in '//SecNam,102)
@@ -58,7 +55,7 @@ else
     Left = Left-mUsed
     l_ChVBuf_Sym(iSym) = mUsed
   end do
-  l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
+  l_ChVBuf = sum(l_ChVBuf_Sym(1:nSym))
   if (l_ChVBuf < 1) then
     l_ChVBuf = 0
     l_ChvBuf_Sym(1:nSym) = 0
@@ -85,7 +82,7 @@ if (LocDbg) then
   write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',(ip_ChVBuf_Sym(iSym),iSym=1,nSym)
   write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 end subroutine Cho_VecBuf_Init_X

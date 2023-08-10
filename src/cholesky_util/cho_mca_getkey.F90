@@ -18,9 +18,8 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: LUNIT, LOPTION, NOPTION, IDKEY, LUPRI
 character(len=LOPTION) :: OPTION(NOPTION)
-integer(kind=iwp), parameter :: LBLINE = 180, LKEY = 4, LKWORD = 180, NALIAS = 12, NEOINP = 1, NOBSOL = 1, NTABLE = 58
+integer(kind=iwp), parameter :: LKEY = 4, LKWORD = 180, NALIAS = 12, NEOINP = 1, NOBSOL = 1, NTABLE = 58
 integer(kind=iwp) :: I, IALIAS, IOBSOL, IOPTION, LAST
-character(len=LBLINE) :: BLINE
 character(len=LKWORD) :: KWORD, KEY
 ! Set flags for using obsolete/alias keywords:
 logical(kind=iwp), parameter :: USE_ALI = .true., USE_OBS = .false.
@@ -57,13 +56,6 @@ if (LKEY > LKWORD) then
   return
 end if
 
-! Set blank line.
-! ---------------
-
-do I=1,LBLINE
-  BLINE(I:I) = ' '
-end do
-
 ! Read keyword (the check for comment/blank line should be
 ! obsolete).
 ! --------------------------------------------------------
@@ -73,7 +65,7 @@ do
   KWORD = KEY
   call UPCASE(KWORD)
   KWORD = adjustl(KWORD)
-  do while ((KWORD(1:1) == COMMENT) .or. (KWORD == BLINE))
+  do while ((KWORD(1:1) == COMMENT) .or. (KWORD == ''))
     KEY = GET_LN(LUNIT)
     KWORD = KEY
     call UPCASE(KWORD)

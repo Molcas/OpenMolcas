@@ -41,6 +41,7 @@
 
 subroutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, wp
 
@@ -63,9 +64,9 @@ else if ((nVec < 0) .or. (Thr < Zero)) then ! input error
   return
 end if
 if (Square) then
-  lX = n*n
+  lX = n**2
 else
-  lX = n*(n+1)/2
+  lX = nTri_Elem(n)
 end if
 if (lY < lX) then ! insufficient memory
   irc = -2

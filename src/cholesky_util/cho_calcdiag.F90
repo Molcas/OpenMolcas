@@ -14,7 +14,7 @@ subroutine CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 ! Purpose: shell-driven calculation of the integral diagonal and
 !          setup of the first reduced set.
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Cholesky, only: CHO_NO2CENTER, Cho_PreScreen, CHO_USEABS, Damp, DiaMax, iAtomShl, iBasSh, IPRINT, iSP2F, lBuf, LuPri, LuScr, &
                     Mx2Sh, MySP, n_MySP, NBAST, nBasSh, nBstSh, nnBstRSh, nnShl, nShell, nSym, SCDIAG, ShA, ShB, ThrCom, ThrDiag, &
@@ -110,7 +110,7 @@ do I_MYSP=1,N_MYSP
   NUMA = NBSTSH(ISHLA)
   NUMB = NBSTSH(ISHLB)
   if (ISHLA == ISHLB) then
-    NUMAB = NUMA*(NUMA+1)/2
+    NUMAB = nTri_Elem(NUMA)
   else
     NUMAB = NUMA*NUMB
   end if

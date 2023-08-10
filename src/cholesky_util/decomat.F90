@@ -33,7 +33,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: dimens, NumV, rc
 real(kind=wp) :: MAT(dimens,dimens), eigenvec(dimens,dimens)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: j
 real(kind=wp), allocatable :: eigenval(:)
 
 rc = 0
@@ -63,14 +63,10 @@ else
   ! Sort eigenvalues in decreasing order of occupation number
   call IncrSort(eigenval,eigenvec,dimens)
   ! Compute sqrt(eigenvalues)
-  do i=1,dimens
-    eigenval(i) = sqrt(eigenval(i))
-  end do
+  eigenval(:) = sqrt(eigenval(:))
   ! Generate Y = X(D**0.5)
   do j=1,dimens
-    do i=1,dimens
-      eigenvec(i,j) = eigenvec(i,j)*eigenval(j)
-    end do
+    eigenvec(:,j) = eigenvec(:,j)*eigenval(j)
   end do
   call mma_deallocate(eigenval)
 

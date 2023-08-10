@@ -117,20 +117,12 @@ call Cho_X_GetIP_InfVec(InfVcT)
 do iSym=1,nSym
   ! InfVec(iV,1,iSym): parent diagonal in rs1 of vector iV of
   ! symmetry iSym
-  do iV=1,NVT(iSym)
-    InfVec(iV,1,iSym) = InfVcT(iV,1,iSym)
-  end do
-  do iV=NVT(iSym)+1,MaxVec
-    InfVec(iV,1,iSym) = 0
-  end do
+  InfVec(1:NVT(iSym),1,iSym) = InfVcT(1:NVT(iSym),1,iSym)
+  InfVec(NVT(iSym)+1:MaxVec,1,iSym) = 0
   ! InfVec(iV,2,iSym): reduced set of vector iV of
   ! symmetry iSym (always rs1 in this implementation)
-  do iV=1,NVT(iSym)
-    InfVec(iV,2,iSym) = 1
-  end do
-  do iV=NVT(iSym)+1,MaxVec
-    InfVec(iV,2,iSym) = 0
-  end do
+  InfVec(1:NVT(iSym),2,iSym) = 1
+  InfVec(NVT(iSym)+1:MaxVec,2,iSym) = 0
   ! InfVec(iV,3,iSym): disk address of vector iV of
   ! symmetry iSym (always rs1 in this implementation)
   ! Note: this information is for the vectors on this
@@ -140,9 +132,7 @@ do iSym=1,nSym
     InfVec(iV,3,iSym) = iAdr
     iAdr = iAdr+nnBstR(iSym,1)
   end do
-  do iV=NumCho(iSym)+1,MaxVec
-    InfVec(iV,3,iSym) = -1
-  end do
+  InfVec(NumCho(iSym)+1:MaxVec,3,iSym) = -1
   ! InfVec(iV,4,iSym): WA disk address of vector iV of
   ! symmetry iSym (redundant? Oh yes, but used for statistics...)
   iAdr = 0
@@ -150,9 +140,7 @@ do iSym=1,nSym
     InfVec(iV,4,iSym) = iAdr
     iAdr = iAdr+nnBstR(iSym,1)
   end do
-  do iV=NVT(iSym)+1,MaxVec
-    InfVec(iV,4,iSym) = -1
-  end do
+  InfVec(NVT(iSym)+1:MaxVec,4,iSym) = -1
   ! InfVec(iV,5,iSym): is defined automatically by Cho_X_Init
   ! No need to set it here - use a dummy value
   InfVec(:,5,iSym) = -1

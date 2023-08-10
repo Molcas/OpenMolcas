@@ -44,8 +44,8 @@ do while (iSym > 1)
 end do
 
 #ifdef _DEBUGPRINT_
-if ((iSymi < 1) .or. (iSymi > nSym) .or. (iSyma < 1) .or. (iSyma > nSym)) call ChoMP2_Quit(SecNam,'bug detected','[1]')
-if ((nOcc(iSymi) < 1) .or. (nVir(iSyma) < 1)) call ChoMP2_Quit(SecNam,'bug detected','[2]')
+if ((iSymi < 1) .or. (iSymi > nSym) .or. (iSyma < 1) .or. (iSyma > nSym)) call SysAbendMsg(SecNam,'bug detected','[1]')
+if ((nOcc(iSymi) < 1) .or. (nVir(iSyma) < 1)) call SysAbendMsg(SecNam,'bug detected','[2]')
 #endif
 
 ! Find a and i.
@@ -66,7 +66,7 @@ do while (i_ < nOcc(iSymi))
 end do
 
 #ifdef _DEBUGPRINT_
-if ((i < 1) .or. (i > nOcc(iSymi)) .or. (a < 1) .or. (a > nVir(iSyma))) call ChoMP2_Quit(SecNam,'bug detected','[3]')
+if ((i < 1) .or. (i > nOcc(iSymi)) .or. (a < 1) .or. (a > nVir(iSyma))) call SysAbendMsg(SecNam,'bug detected','[3]')
 #endif
 
 end subroutine ChoMP2_Col_Invai

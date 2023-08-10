@@ -50,9 +50,7 @@ call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
 if (StopBA) return
 CofOld(1:I_Dim) = Coeff(1:I_Dim)
 
-do I=1,I_Dim
-  VV(I) = DD(I)+DD(I+1)
-end do
+VV(1:I_Dim) = DD(1:I_Dim)+DD(2:I_Dim+1)
 Eps0 = FindMx(I_Dim,VV)
 !-tbp: avoid the risk of using eps1 later:
 Eps1 = Eps0
@@ -79,13 +77,12 @@ if (Eps0 > TOL) then
     TOld(1:I_Dim) = T(1:I_Dim)
 
     do
-      do I=1,I_Dim
-        T(I) = TOld(I)-Theta2*W(I)
-      end do
+      T(1:I_Dim) = TOld(1:I_Dim)-Theta2*W(1:I_Dim)
       call CkAltT(K_Lap,R,T,NG)
       if (NG) then
         write(IW,'(A)') '!! wrong T-values !!'
-        call AbortG()
+        call WarningMessage(2,'Remez aborting!')
+        call Abend()
         New2 = 100
         T(1:I_Dim) = TOld(1:I_Dim)
       else
@@ -93,9 +90,7 @@ if (Eps0 > TOL) then
         call SlvNt1(K_Lap,New2,Coeff,T)
         call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
         if (StopBA) return
-        do I=1,I_Dim
-          VV(I) = DD(I)+DD(I+1)
-        end do
+        VV(1:I_Dim) = DD(1:I_Dim)+DD(2:I_Dim+1)
         Eps1 = FindMx(I_Dim,VV)
         if (Dbg) write(IW,*) 'eps1',Eps1
         if (Eps1 < Eps0) then

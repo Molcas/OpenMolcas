@@ -37,6 +37,7 @@
 
 subroutine CD_Tester(irc,PDM,n,Verbose)
 
+use Index_Functions, only: nTri_Elem
 use CD_Tester_mod, only: Mat, Vec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
@@ -44,7 +45,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, n
-real(kind=wp) :: PDM(n*(n+1)/2)
+real(kind=wp) :: PDM(nTri_Elem(n))
 logical(kind=iwp) :: Verbose
 integer(kind=iwp) :: irc_sav, jrc, l_Buf, l_ES, l_iQual, l_Pivot, l_Qual, MxQual, NumCho
 real(kind=wp) :: Span, Thr

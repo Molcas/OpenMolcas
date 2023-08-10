@@ -34,7 +34,7 @@ iSym = NowSym
 if (nDim /= nT1am(iSym)) then
   write(u6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
   write(u6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
-  call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
+  call SysAbendMsg(SecNam,'inconsistent dimension',' ')
 end if
 
 ! Calculate (ai|bj) integrals.

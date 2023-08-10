@@ -80,9 +80,7 @@ character(len=*), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
 ! ----------------
 
 irc = 0
-do iSym=1,nSym
-  lU_AO(iSym) = -999999
-end do
+lU_AO(1:nSym) = -999999
 if (DoDiag) then
   iCount = 0
   do iSym=1,nSym

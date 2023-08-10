@@ -14,7 +14,7 @@ subroutine CHO_MCA_INT_1_DBG2()
 ! Purpose: test symmetry of integral matrix.
 
 use Symmetry_Info, only: Mul
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, iSP2F, LuPri, Mx2Sh, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -55,7 +55,7 @@ do ISHLAB=1,NNSHL
 
   call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
   if (ISHLB == ISHLA) then
-    NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLB)+1)/2
+    NUMAB = nTri_Elem(NBSTSH(ISHLA))
   else
     NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
   end if
@@ -64,7 +64,7 @@ do ISHLAB=1,NNSHL
 
     call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
     if (ISHLD == ISHLC) then
-      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLD)+1)/2
+      NUMCD = nTri_Elem(NBSTSH(ISHLC))
     else
       NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
     end if

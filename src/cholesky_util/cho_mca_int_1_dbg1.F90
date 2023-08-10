@@ -15,6 +15,7 @@ subroutine CHO_MCA_INT_1_DBG1(DIAG,IRED)
 !          diagonal *must* be the original diagonal stored
 !          in reduced set 1.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: IFCSew, iiBstR, iiBstRSh, IndRed, IndRSh, iSP2F, LuPri, Mx2Sh, nBstSh, nnBstRSh, nnBstrT, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -57,7 +58,7 @@ do ISHLAB=1,NNSHL
 
   call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
   if (ISHLB == ISHLA) then
-    NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLB)+1)/2
+    NUMAB = nTri_Elem(NBSTSH(ISHLA))
   else
     NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
   end if

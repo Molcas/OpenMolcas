@@ -69,6 +69,6 @@ else
     write(LuPri,'(A,I8,A)') 'Proc 0 has been idle',Idle(1),' times'
   end if
 end if
-call Cho_Flush(LuPri)
+call XFlush(LuPri)
 
 end subroutine Cho_TrcIdl_Report

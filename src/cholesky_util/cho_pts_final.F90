@@ -20,13 +20,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: l_NVT, NVT(l_NVT)
-integer(kind=iwp) :: i
 
 NumCho_G(1:l_NVT) = NVT(:)
-NumChT_G = NumCho_G(1)
-do i=2,l_NVT
-  NumChT_G = NumChT_G+NumCho_G(i)
-end do
+NumChT_G = sum(NumCho_G(1:l_NVT))
 call Cho_Final(.false.)
 
 end subroutine Cho_PTS_Final

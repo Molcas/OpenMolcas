@@ -15,14 +15,12 @@ use Cholesky, only: iQuAB, iQuAB_L, nQual, nQual_L, nSym, pTemp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, scr
+integer(kind=iwp) :: scr(8)
 
 ! Swap nQual array  local <-> global
-do i=1,nSym
-  scr = nQual_L(i)
-  nQual_L(i) = nQual(i)
-  nQual(i) = scr
-end do
+scr(1:nSym) = nQual_L(1:nSym)
+nQual_L(1:nSym) = nQual(1:nSym)
+nQual(1:nSym) = scr(1:nSym)
 
 ! Swap pointer for iQuAB  local <-> global
 pTemp => iQuAB

@@ -35,10 +35,7 @@ if (nQSP < 1) return
 
 if (mSym < nSym) call Cho_Quit('mSym<nSym in '//SecNam,104)
 
-nVT = nV(1)
-do iSym=2,nSym
-  nVT = nVT+nV(iSym)
-end do
+nVT = sum(nV(1:nSym))
 if (nVT < 1) return
 
 do iSym=1,nSym

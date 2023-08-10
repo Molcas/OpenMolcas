@@ -95,9 +95,7 @@ iOption_MP2CD = iOption  ! copy to include file chomp2_dec.fh
 ! You may want to calculate the MxCDVec values somewhere else and store
 ! them in an include-file (say, chomp2_dec.fh).
 ! For now, I simply define the array here:
-do iSym=1,nSym
-  MxCDVec(iSym) = nT1Am(iSym)
-end do
+MxCDVec(1:nSym) = nT1Am(1:nSym)
 
 lErrStat = 3
 call mma_allocate(ErrStat,lErrStat,Label='ErrStat')
@@ -109,10 +107,8 @@ else
   call mma_allocate(Bin,1,Label='Bin')
 end if
 
-do iSym=1,nSym
-  nMP2Vec(iSym) = 0
-  InCore(iSym) = .false.
-end do
+nMP2Vec(1:nSym) = 0
+InCore(1:nSym) = .false.
 NowSym = -999999
 
 if (DelOrig) then
@@ -283,7 +279,7 @@ do iSym=1,nSym
           irc = 0
         else
           write(u6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
-          call ChoMP2_Quit(SecNam,'decomposition failed!',' ')
+          call SysAbendMsg(SecNam,'decomposition failed!',' ')
         end if
       else
         XMn = ErrStat(1)

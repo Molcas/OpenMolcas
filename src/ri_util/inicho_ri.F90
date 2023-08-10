@@ -35,8 +35,8 @@ subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 use Index_Functions, only: iTri
 use RICD_Info, only: Thrshld_CD
 use Para_Info, only: Is_Real_Par
-use Cholesky, only: Cho_DecAlg, CHO_FAKE_PAR, IfcSew, InfRed, InfVec, IPRINT, iSP2F, MaxRed, MaxVec, nnShl, NumCho, nShell, nSym, &
-                    RUN_EXTERNAL, RUN_MODE, ThrCom, XnPass
+use Cholesky, only: Cho_DecAlg, CHO_FAKE_PAR, Cho_Real_Par, IfcSew, InfRed, InfVec, IPRINT, iSP2F, MaxRed, MaxVec, nnShl, NumCho, &
+                    nShell, nSym, RUN_EXTERNAL, RUN_MODE, ThrCom, XnPass
 #ifdef _MOLCAS_MPP_
 use Cholesky, only: myNumCho, NumCho_G
 #endif
@@ -67,7 +67,7 @@ ThrCom = Thrshld_CD
 ! ----------------------
 
 CHO_FAKE_PAR = .false.
-call Cho_ParConf(CHO_FAKE_PAR)
+Cho_Real_Par = Is_Real_Par() .and. (.not. CHO_FAKE_PAR)
 
 ! Set run mode to "external" (should be irrelevant for RI).
 ! ---------------------------------------------------------

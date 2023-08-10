@@ -19,7 +19,7 @@ use Cholesky, only: iiBstR, iiBstR_G, iiBstRSh, iiBstRSh_G, iL2G, IndRed, IndRed
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, i0, iC, irc, iShlAB, iSP, iSym, j, k, k0, l, ll, nDim
+integer(kind=iwp) :: i, i0, iC, irc, iShlAB, iSP, iSym, j, k, k0, l, ll
 character(len=*), parameter :: SecNam = 'Cho_P_SetRed_L'
 
 ! Copy current local reduced set (at location 2) to location 3.
@@ -34,7 +34,6 @@ end if
 ! Re-initialize local reduced set indices at location 2.
 ! ------------------------------------------------------
 
-nDim = nSym*nnShl
 IndRed(:,2) = 0
 iiBstRSh(:,:,2) = 0
 nnBstRSh(:,:,2) = 0
@@ -47,9 +46,7 @@ nnBstRT(2) = 0
 
 do iSP=1,nnShl
   iShlAB = mySP(iSP)
-  do iSym=1,nSym
-    nnBstRSh(iSym,iSP,2) = nnBstRSh_G(iSym,iShlAB,2)
-  end do
+  nnBstRSh(1:nSym,iSP,2) = nnBstRSh_G(1:nSym,iShlAB,2)
 end do
 
 ! Set remaining reduced set indices (excl. IndRed), location 2.

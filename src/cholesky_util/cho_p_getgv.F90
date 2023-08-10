@@ -11,16 +11,16 @@
 
 subroutine Cho_P_getGV(numV,nSym)
 
-use Cholesky, only: Cho_Real_Par
+use Cholesky, only: Cho_Real_Par, NumCho, NumCho_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nSym, numV(nSym)
 
 if (Cho_Real_Par) then
-  call Cho_P_getGV_P(numV,nSym)
+  numV(1:nSym) = numCho_G(1:nSym)
 else
-  call Cho_P_getGV_S(numV,nSym)
+  numV(1:nSym) = numCho(1:nSym)
 end if
 
 end subroutine Cho_P_getGV

@@ -27,15 +27,14 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: GetDr2
 integer(kind=iwp) :: K_Lap
-real(kind=wp) :: X, Coeff(40)
-integer(kind=iwp) :: I, Idx
+real(kind=wp) :: X, Coeff(2,20)
+integer(kind=iwp) :: I
 real(kind=wp) :: Alpha, Dum, Omega
 
 Dum = Zero
 do I=1,K_Lap
-  Idx = 2*I-1
-  Omega = Coeff(Idx)
-  Alpha = Coeff(Idx+1)
+  Omega = Coeff(1,I)
+  Alpha = Coeff(2,I)
   Dum = Dum+Omega*Alpha*Alpha*exp(-Alpha*X)
 end do
 

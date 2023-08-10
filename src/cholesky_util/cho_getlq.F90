@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
 real(kind=wp), target :: QVec(l_Qvec)
-integer(kind=iwp) :: iSym, iV1(8), nTot, nV(8)
+integer(kind=iwp) :: iSym, iV1(8), nV(8)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -39,17 +39,9 @@ end interface
 ! ------------
 
 if (nQSP < 1) return
-nTot = NumCho(1)
-do iSym=2,nSym
-  nTot = nTot+NumCho(iSym)
-end do
-if (nTot < 1) return
+if (sum(NumCho(1:nSym)) < 1) return
 
-nTot = nQual(1)
-do iSym=2,nSym
-  nTot = nTot+nQual(iSym)
-end do
-if (nTot < 1) return
+if (sum(nQual(1:nSym)) < 1) return
 
 ! Extract from vectors in buffer.
 ! -------------------------------

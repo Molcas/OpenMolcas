@@ -28,14 +28,13 @@ real(kind=wp) :: x, xMemMax(8)
 logical(kind=iwp) :: Enough
 character(len=2) :: Unt
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init_I'
-integer(kind=iwp), external :: Cho_iSumElm
 
 if (LocDbg) then
   write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
   write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
   write(Lupri,'(A,I8)') 'nSym: ',nSym
   write(Lupri,'(A,8I8)') 'lVec: ',(lVec(iSym),iSym=1,nSym)
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 if ((nSym < 1) .or. (nSym > 8)) call Cho_Quit('nSym out of bounds in '//SecNam,102)
@@ -60,15 +59,10 @@ else
     l_ChVBuf_Sym(1:nSym) = 0
   else
     MemEach = l_ChVBuf/nSym
-    Enough = MemEach > lVec(1)
-    do iSym=2,nSym
-      Enough = Enough .and. (MemEach > lVec(iSym))
-    end do
+    Enough = all(MemEach > lVec(1:nSym))
     if (.not. Enough) then ! whole buffer for sym. 1
       l_ChVBuf_Sym(1) = l_ChVBuf
-      do iSym=2,nSym
-        l_ChVBuf_Sym(iSym) = 0
-      end do
+      l_ChVBuf_Sym(2:nSym) = 0
     else
       MemLeft = l_ChVBuf-nSym*MemEach
       l_ChVBuf_Sym(1) = MemEach+MemLeft
@@ -78,7 +72,7 @@ else
         if (real(l_ChVBuf_Sym(iSym),kind=wp) > xMemMax(iSym)) l_ChVBuf_Sym(iSym) = int(xMemMax(iSym))
       end do
     end if
-    l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
+    l_ChVBuf = sum(l_ChVBuf_Sym(1:nSym))
 
     call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
 
@@ -97,7 +91,7 @@ if (LocDbg) then
   write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
   write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',(ip_ChVBuf_Sym(iSym),iSym=1,nSym)
   write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 end subroutine Cho_VecBuf_Init_I

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP)
-integer(kind=iwp) :: i, iAdr, iAdr0, iBatch, ip_Mem, ip_T, ip_V, iSP, iSP1, iSP2, iSP_Batch, iSym, j, J1, kOffT, kOffV, kT, kV, &
+integer(kind=iwp) :: iAdr, iAdr0, iBatch, ip_Mem, ip_T, ip_V, iSP, iSP1, iSP2, iSP_Batch, iSym, j, J1, kOffT, kOffV, kT, kV, &
                      l_Mem, lTot, max_block_dim, max_vector_dim, nBatch, nDim, nSP_this_batch, nVec_per_batch, nVec_this_batch
 real(kind=wp) :: X0, X1, Y0, Y1
 real(kind=wp), allocatable :: DVSVEC(:)
@@ -75,7 +75,7 @@ do iSym=1,nSym
     write(LuPri,'(3X,A,I8)') 'Total number of vectors:',NumCho(iSym)
     write(LuPri,'(3X,A,I8)') 'Vector dimension       :',nnBstR(iSym,2)
     write(LuPri,'(3X,A,I8)') 'Shell pair batches     :',nSP_Batch
-    call Cho_Flush(LuPri)
+    call XFlush(LuPri)
   end if
   if ((NumCho(iSym) > 0) .and. (nnBstR(iSym,2) > 0)) then
     ! Set up batching
@@ -85,7 +85,7 @@ do iSym=1,nSym
     nBatch = (NumCho(iSym)-1)/nVec_per_batch+1
     if (iPrint >= Inf_Progress) then
       write(LuPri,'(3X,A,I8)') 'Vector batches         :',nBatch
-      call Cho_Flush(LuPri)
+      call XFlush(LuPri)
     end if
     ! Read and write vectors in batches
     do iBatch=1,nBatch
@@ -101,8 +101,8 @@ do iSym=1,nSym
         write(LuPri,'(3X,A,I8,/,3X,A)') 'Vector batch number:',iBatch,'++++++++++++++++++++++++++++'
         write(LuPri,'(6X,A,I8)') 'Number of vectors in this batch:',nVec_this_batch
         write(LuPri,'(6X,A,I8,1X,I8)') 'First and last vector          :',J1,J1+nVec_this_batch-1
-        call Cho_Flush(LuPri)
-        call Cho_Timer(X0,Y0)
+        call XFlush(LuPri)
+        call CWTime(X0,Y0)
       end if
       ! Set memory pointers
       ip_T = ip_Mem
@@ -126,27 +126,25 @@ do iSym=1,nSym
           do J=1,nVec_this_batch
             kOffT = kT+nDim*(J-1)
             kOffV = kV+nnBstR(iSym,2)*(J-1)+iiBstRSh(iSym,id_mySP(iSP1),2)
-            do i=1,nDim
-              DVSVEC(kOffV+i) = DVSVEC(kOffT+i)
-            end do
+            DVSVEC(kOffV+1:kOffV+nDim) = DVSVEC(kOffT+1:kOffT+nDim)
           end do
           iAdr0 = iAdr0+nDim*NumCho(iSym)
         end if
         iSP1 = iSP1+nSP_this_batch
       end do
       if (iPrint >= Inf_Progress) then
-        call Cho_Timer(X1,Y1)
+        call CWTime(X1,Y1)
         write(LuPri,'(6X,A,F12.2,1X,F12.2)') 'Time for read/reorder (sec)    :',(X1-X0),(Y1-Y0)
-        call Cho_Flush(LuPri)
+        call XFlush(LuPri)
       end if
       ! Write full vectors to disk
       lTot = nnBstR(iSym,2)*nVec_this_batch
       iAdr = nnBstR(iSym,2)*(J1-1)
       call DDAFile(LuCho(iSym),1,DVSVEC(ip_V),lTot,iAdr)
       if (iPrint >= Inf_Progress) then
-        call Cho_Timer(X0,Y0)
+        call CWTime(X0,Y0)
         write(LuPri,'(6X,A,F12.2,1X,F12.2)') 'Time for write (sec)           :',(X0-X1),(Y0-Y1)
-        call Cho_Flush(LuPri)
+        call XFlush(LuPri)
       end if
     end do
   end if

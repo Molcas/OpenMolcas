@@ -29,10 +29,10 @@ implicit none
 integer(kind=iwp) :: LWRK, ISYM
 real(kind=wp) :: XINT(*), WRK(LWRK)
 logical(kind=iwp) :: FXDMEM
-integer(kind=iwp) :: I, IAB, IBATCH, ILOC, IMAPC, IOFF(0:1), IREDC, ISHGD, IVEC1, IVEC1_1, IVSTAT(2,2), J, JAB, JRED, JRED1, &
-                     JRED2, JVEC1, JVEC2, KCHO1, KCHO2, KEND0, KEND1, KEND2, KJUNK, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, &
-                     KREAD, KVEC, KVEC1, LEFT, LNUM, LREAD, LRED, LVEC, LVEC1, LWRK0, LWRK1, LWRK2, MINLFT, MMEM, MUSED, MUST, &
-                     NBATCH, NGD, NUMBAT, NUMRD, NUMSMN, NUMSUB, NUMV, NVEC, NVEC_TO_READ, NVRD
+integer(kind=iwp) :: IAB, IBATCH, ILOC, IMAPC, IOFF(0:1), IREDC, ISHGD, IVEC1, IVEC1_1, IVSTAT(2,2), J, JAB, JRED, JRED1, JRED2, &
+                     JVEC1, JVEC2, KCHO1, KCHO2, KEND0, KEND1, KEND2, KJUNK, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, KREAD, &
+                     KVEC, KVEC1, LEFT, LNUM, LREAD, LRED, LVEC, LVEC1, LWRK0, LWRK1, LWRK2, MINLFT, MMEM, MUSED, MUST, NBATCH, &
+                     NGD, NUMBAT, NUMRD, NUMSMN, NUMSUB, NUMV, NVEC, NVEC_TO_READ, NVRD
 real(kind=wp) :: C1, C2, SCRPCT, TIMLOC(2,3), TST, W1, W2, X1, X2, XAVERD, XAVEVC, XDON, XM, XREAD, XTOT
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_SUBTR1'
@@ -142,12 +142,12 @@ do while (IVEC1 <= NUMCHO(ISYM))
   ! Read as many vectors as possible into buffer.
   ! ---------------------------------------------
 
-  call CHO_TIMER(C1,W1)
+  call CWTIME(C1,W1)
   NVRD = 0
   MUSED = 0
   call CHO_VECRD(WRK(KREAD),LREAD,IVEC1,NUMCHO(ISYM),ISYM,NVRD,IREDC,MUSED)
   NUMRD = NUMRD+1
-  call CHO_TIMER(C2,W2)
+  call CWTIME(C2,W2)
   TIMLOC(1,1) = TIMLOC(1,1)+C2-C1
   TIMLOC(2,1) = TIMLOC(2,1)+W2-W1
 
@@ -186,10 +186,8 @@ do while (IVEC1 <= NUMCHO(ISYM))
 
   NUMBAT = NUMBAT+NBATCH
   if (NUMRD == 1) then
-    do I=1,2
-      IVSTAT(I,1) = NVRD
-      IVSTAT(I,2) = NVEC
-    end do
+    IVSTAT(:,1) = NVRD
+    IVSTAT(:,2) = NVEC
   else
     IVSTAT(1,1) = min(IVSTAT(1,1),NVRD)
     IVSTAT(2,1) = max(IVSTAT(2,1),NVRD)
@@ -225,7 +223,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
     ! compatibility).
     ! -----------------------------------------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
 
     JVEC1 = NVEC*(IBATCH-1)+1
     JVEC2 = JVEC1+NUMV-1
@@ -278,7 +276,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
 
     end do
 
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TIMLOC(1,2) = TIMLOC(1,2)+C2-C1
     TIMLOC(2,2) = TIMLOC(2,2)+W2-W1
 
@@ -287,7 +285,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
     ! one employs level 3 blas.
     ! ------------------------------------------------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
 
     if (CHO_SSCREEN) then ! screened subtraction
 
@@ -365,7 +363,7 @@ do while (IVEC1 <= NUMCHO(ISYM))
 
     end if
 
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TIMLOC(1,3) = TIMLOC(1,3)+C2-C1
     TIMLOC(2,3) = TIMLOC(2,3)+W2-W1
 

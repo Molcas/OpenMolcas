@@ -89,9 +89,7 @@ do while ((nVec < MaxNVec) .and. (Diag(Jm) > thr))
   ! save ID of vector = ID of current max diagonal
   ID_bj(nVec) = Jm
   ! update diagonals
-  do ip=1,nOV
-    Diag(ip) = Diag(ip)*((W(ip)-W(Jm))/(W(ip)+W(Jm)))**2
-  end do
+  Diag(1:nOV) = Diag(1:nOV)*((W(1:nOV)-W(Jm))/(W(1:nOV)+W(Jm)))**2
   ! find ID (Jm) of max updated diagonal
   Jm = 1
   do ip=2,nOV

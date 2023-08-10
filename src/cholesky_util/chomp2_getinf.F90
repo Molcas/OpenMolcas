@@ -22,14 +22,11 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
-integer(kind=iwp) :: iSym
 
-do iSym=1,nSym
-  lnOrb(iSym) = nOrb(iSym)
-  lnOcc(iSym) = nOcc(iSym)
-  lnFro(iSym) = nFro(iSym)
-  lnDel(iSym) = nDel(iSym)
-  lnVir(iSym) = nExt(iSym)
-end do
+lnOrb(1:nSym) = nOrb(1:nSym)
+lnOcc(1:nSym) = nOcc(1:nSym)
+lnFro(1:nSym) = nFro(1:nSym)
+lnDel(1:nSym) = nDel(1:nSym)
+lnVir(1:nSym) = nExt(1:nSym)
 
 end subroutine ChoMP2_GetInf

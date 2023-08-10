@@ -72,7 +72,7 @@ end if
 ! Start timing.
 ! -------------
 
-if (DoTime) call Cho_Timer(C1,W1)
+if (DoTime) call CWTime(C1,W1)
 
 ! Initialize.
 ! -----------
@@ -235,7 +235,7 @@ end if
 ! ---------------------
 
 if (DoTime) then
-  call Cho_Timer(C2,W2)
+  call CWTime(C2,W2)
   tDecom(1,3) = tDecom(1,3)+C2-C1
   tDecom(2,3) = tDecom(2,3)+W2-W1
 end if

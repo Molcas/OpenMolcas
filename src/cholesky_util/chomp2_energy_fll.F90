@@ -74,7 +74,7 @@ call ChoMP2_Energy_GetInd(LnT2am,LiT2am,1,1)
 kXaibj = 1
 kEnd0 = kXaibj+LnT2am
 lWrk0 = lWrk-kEnd0+1
-if (lWrk0 < 0) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
+if (lWrk0 < 0) call SysAbendMsg(SecNam,'insufficient memory','[0]')
 
 ! Initialize MP2 energy correction.
 ! ---------------------------------
@@ -108,13 +108,13 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
       kEnd1 = kVecai+Nai
       lWrk1 = lWrk-kEnd1+1
 
-      if (lWrk1 < Nai) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.1]')
+      if (lWrk1 < Nai) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.1]')
 
       ! Set up batch over Cholesky vectors.
       ! -----------------------------------
 
       nVec = min(lWrk1/Nai,nEnrVec(iSym))
-      if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
+      if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
       nBat = (nEnrVec(iSym)-1)/nVec+1
 
       ! Open Cholesky vector files.
@@ -150,7 +150,7 @@ if (ChoAlg == 2) then ! level 3 BLAS algorithm
         kVec = kEnd1
         kEnd2 = kVec+nVaJi
         lWrk2 = lWrk-kEnd2+1
-        if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
+        if (lWrk2 < 0) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
 
         ! Read one vector at a time and reorder.
         ! --------------------------------------
@@ -252,7 +252,7 @@ else ! level 2 BLAS algorithm
       ! ----------------------
 
       NumVec = min(lWrk0/nT1am(iSym),nEnrVec(iSym))
-      if (NumVec < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
+      if (NumVec < 1) call SysAbendMsg(SecNam,'insufficient memory','[2]')
       nBat = (nEnrVec(iSym)-1)/NumVec+1
 
       ! Open Cholesky vector file.

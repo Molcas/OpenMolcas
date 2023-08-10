@@ -14,6 +14,9 @@ subroutine CHO_MCA_DRV()
 ! Purpose: MOLCAS interface to Cholesky decomposition driver.
 
 use Cholesky, only: HaltIt, Lupri, MySP, nShell
+#ifdef _DEBUGPRINT_
+use Cholesky, only: CutInt, ThrInt
+#endif
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -31,7 +34,8 @@ call STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 ! --------------------------------------------------
 
 #ifdef _DEBUGPRINT_
-call CHO_PRESCR(CUTINT1,THRINT1)
+CUTINT1 = CutInt
+THRINT1 = ThrInt
 #endif
 
 call Set_Basis_Mode('Valence')
@@ -44,7 +48,8 @@ DOGRAD = .false.
 call SETUP_INTS(NSHELL,INDEXATION,THRAO,DOFOCK,DOGRAD)
 
 #ifdef _DEBUGPRINT_
-call CHO_PRESCR(CUTINT2,THRINT2)
+CUTINT1 = CutInt
+THRINT1 = ThrInt
 write(LUPRI,*) SECNAM,': CutInt before Setup_Ints: ',CUTINT1
 write(LUPRI,*) SECNAM,': CutInt after  Setup_Ints: ',CUTINT2
 write(LUPRI,*) SECNAM,': ThrInt before Setup_Ints: ',THRINT1

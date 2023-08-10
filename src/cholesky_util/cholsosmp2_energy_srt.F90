@@ -19,6 +19,7 @@ subroutine ChoLSOSMP2_Energy_Srt(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! vectors (i.e., occupied orbitals processed in batches).
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: DecoMP2, iFirstS, iOcc, iVir, Laplace_BlockSize, Laplace_nGridPoints, LiT1am, LnOcc, LnT1am, lUnit, nBatch, &
                   nMP2Vec, nT1am, nVir
@@ -121,7 +122,7 @@ do q=1,N
       bsize = min(Laplace_BlockSize,nEnrVec(iSym))
       nBlock = (nEnrVec(iSym)-1)/bsize+1
       blast = nEnrVec(iSym)-bsize*(nBlock-1)
-      lenX = nEnrVec(iSym)*(nEnrVec(iSym)+1)/2+(nBlock-1)*(bsize*(bsize-1)/2)+blast*(blast-1)/2
+      lenX = nTri_Elem(nEnrVec(iSym))+(nBlock-1)*nTri_Elem(bsize-1)+nTri_Elem(blast-1)
 #     ifdef _DEBUGPRINT_
       if (lenX > l_X) then
         call WarningMessage(2,SecNam//': insufficient X allocation')

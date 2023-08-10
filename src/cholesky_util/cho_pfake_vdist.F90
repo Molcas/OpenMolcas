@@ -61,9 +61,7 @@ do iSym=1,nSym
 # ifdef _DEBUGPRINT_
   if (iV /= nV) call Cho_Quit('Logical error in '//SecNam,103)
 # endif
-  do iV=1,nV
-    InfVec(iV,3,iSym) = InfV(2,iV)
-  end do
+  InfVec(1:nV,3,iSym) = InfV(2,1:nV)
 end do
 
 ! Deallocation.

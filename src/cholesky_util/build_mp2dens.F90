@@ -24,7 +24,7 @@ type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
 #include "corbinf.fh"
-integer(kind=iwp) :: i, iLen, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, j, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+integer(kind=iwp) :: i, iLen, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
@@ -47,11 +47,11 @@ end do
 ! allocated and set to zero
 call mma_allocate(AORecBlock,nOrbAllMax**2,Label='AORecBlock')
 call mma_allocate(TmpRecBlock,nOrbAllMax**2,Label='TmpRecBlock')
-call mma_allocate(AOTriBlock,nOrbAllMax*(nOrbAllMax+1)/2,Label='AOTriBlock')
+call mma_allocate(AOTriBlock,nTri_Elem(nOrbAllMax),Label='AOTriBlock')
 
 if (Diagonalize) then
-  call mma_allocate(MOTriBlock,nOrbAllMax*(nOrbAllMax+1)/2,Label='MOTriBlock')
-  call mma_allocate(EigenVecBlock,nOrbAllMax*nOrbAllMax,Label='EigenVecBlock')
+  call mma_allocate(MOTriBlock,nTri_Elem(nOrbAllMax),Label='MOTriBlock')
+  call mma_allocate(EigenVecBlock,nOrbAllMax**2,Label='EigenVecBlock')
   call mma_allocate(EigenValBlock,nOrbAllMax,Label='EigenValBlock')
   call mma_allocate(EigenVecTot,lRecTot,Label='EigenVecTot')
   call mma_allocate(EigenValTot,nOrbAllTot,Label='EigenValTot')
@@ -69,7 +69,7 @@ ipSymRec(1) = 0
 ipSymTri(1) = 0
 ipSymLin(1) = 0
 do iSym=2,8
-  ipSymTri(iSym) = ipSymTri(iSym-1)+(nOrbAll(iSym-1))*(nOrbAll(iSym-1)+1)/2
+  ipSymTri(iSym) = ipSymTri(iSym-1)+nTri_Elem(nOrbAll(iSym-1))
   ipSymRec(iSym) = ipSymRec(iSym-1)+(nOrbAll(iSym-1))**2
   ipSymLin(iSym) = ipSymLin(iSym-1)+(nOrbAll(iSym-1))
 end do
@@ -84,9 +84,7 @@ do iSym=1,mSym
     ! AO to canonical basis. Also sets the energies to zero since they
     ! have no physical relevance in this basis.
     if (Diagonalize) then
-      do i=1,nOrbAll(iSym)**2
-        EigenVecBlock(i) = CMO(ipSymRec(iSym)+i)
-      end do
+      EigenVecBlock(1:nOrbAll(iSym)**2) = CMO(ipSymRec(iSym)+1:ipSymRec(iSym)+nOrbAll(iSym)**2)
     end if
     ! Transform the symmetryblock to AO-density
     call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym),MP2X_e(iSym)%A, &
@@ -103,10 +101,8 @@ do iSym=1,mSym
 
       indx = 0
       do i=1,nOrbAll(iSym)
-        do j=1,i
-          MOTriBlock(1+indx) = MP2X_e(iSym)%A(j,i)
-          indx = indx+1
-        end do
+        MOTriBlock(indx+1:indx+i) = MP2X_e(iSym)%A(1:i,i)
+        indx = indx+i
       end do
 
       call NIDiag(MOTriBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym))
@@ -144,15 +140,13 @@ if (Diagonalize) then
   LuMP2 = 50
   LuMP2 = IsFreeUnit(LuMP2)
   ! Build the TypeIndex array
-  do iSym=1,mSym
-    IndT(1,iSym) = nFro(iSym)
-    IndT(2,iSym) = nOcc(iSym)
-    IndT(3,iSym) = 0
-    IndT(4,iSym) = 0
-    IndT(5,iSym) = 0
-    IndT(6,iSym) = nOrb(iSym)-nFro(iSym)-nOcc(iSym)-nDel(iSym)
-    IndT(7,iSym) = nDel(iSym)
-  end do
+  IndT(1,1:mSym) = nFro(1:mSym)
+  IndT(2,1:mSym) = nOcc(1:mSym)
+  IndT(3,1:mSym) = 0
+  IndT(4,1:mSym) = 0
+  IndT(5,1:mSym) = 0
+  IndT(6,1:mSym) = nOrb(1:mSym)-nFro(1:mSym)-nOcc(1:mSym)-nDel(1:mSym)
+  IndT(7,1:mSym) = nDel(1:mSym)
   Note = '*  Natural MP2 orbitals'
   call WrVec('MP2ORB',LuMP2,'COEI',mSym,nOrbAll,nOrbAll,EigenVecTot,EigenValTot,Energies,IndT,Note)
   ! Create a molden-file

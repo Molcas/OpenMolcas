@@ -17,16 +17,37 @@ subroutine CHO_RESETCNF()
 
 use Cholesky, only: DAMP, SCDIAG, SPAN, THRCOM, THRDIAG, THRNEG, TOONEG, WARNEG, XDAMP, XSCDIAG, XSPAN, XTHRCOM, XTHRDIAG, &
                     XTHRNEG, XTOONEG, XWARNEG
-implicit none
+use Definitions, only: wp, iwp
 
-call CHO_DSWAP(THRCOM,XTHRCOM)
-call CHO_DSWAP(THRDIAG,XTHRDIAG)
-call CHO_DSWAP(DAMP(1),XDAMP(1))
-call CHO_DSWAP(DAMP(2),XDAMP(2))
-call CHO_DSWAP(SPAN,XSPAN)
-call CHO_DSWAP(THRNEG,XTHRNEG)
-call CHO_DSWAP(WARNEG,XWARNEG)
-call CHO_DSWAP(TOONEG,XTOONEG)
-call CHO_LSWAP(SCDIAG,XSCDIAG)
+implicit none
+real(kind=wp) :: Tmp(8)
+logical(kind=iwp) :: lTmp
+
+Tmp(1) = XTHRCOM
+Tmp(2) = XTHRDIAG
+Tmp(3:4) = XDAMP(:)
+Tmp(5) = XSPAN
+Tmp(6) = XTHRNEG
+Tmp(7) = XWARNEG
+Tmp(8) = XTOONEG
+lTmp = XSCDIAG
+
+XTHRCOM = THRCOM
+XTHRDIAG = THRDIAG
+XDAMP(:) = DAMP(:)
+XSPAN = SPAN
+XTHRNEG = THRNEG
+XWARNEG = WARNEG
+XTOONEG = TOONEG
+XSCDIAG = SCDIAG
+
+THRCOM = Tmp(1)
+THRDIAG = Tmp(2)
+DAMP(:) = Tmp(3:4)
+SPAN = Tmp(5)
+THRNEG = Tmp(6)
+WARNEG = Tmp(7)
+TOONEG = Tmp(8)
+SCDIAG = lTmp
 
 end subroutine CHO_RESETCNF

@@ -58,10 +58,8 @@ do iPass=1,n
       irc = 101
       return
     else
-      do j=1,n
-        X(j,1) = Zero
-        X(1,j) = Zero
-      end do
+      X(1:n,1) = Zero
+      X(1,1:n) = Zero
     end if
   end if
   Xmax = Zero
@@ -72,10 +70,8 @@ do iPass=1,n
         irc = 101
         return
       else
-        do j=1,n
-          X(j,i) = Zero
-          X(i,j) = Zero
-        end do
+        X(1:n,i) = Zero
+        X(i,1:n) = Zero
       end if
     end if
     if (X(i,i) > Xmax+Acc) then

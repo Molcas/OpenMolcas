@@ -26,7 +26,7 @@ subroutine IndSft_Cho(TInt,lInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO, iOffSO
 use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use sort_data, only: nSkip
@@ -67,12 +67,12 @@ NUMA = NBSTSH(SHA)
 NUMB = NBSTSH(SHB)
 
 if (SHC == SHD) then
-  NUMCD = NUMC*(NUMC+1)/2
+  NUMCD = nTri_Elem(NUMC)
 else
   NUMCD = NUMC*NUMD
 end if
 if (SHA == SHB) then
-  NUMAB = NUMA*(NUMA+1)/2
+  NUMAB = nTri_Elem(NUMA)
 else
   NUMAB = NUMA*NUMB
 end if
@@ -163,7 +163,7 @@ do i1=1,iCmp(1)
             j12 = ieor(j1,j2)
             if (qijij) then
               if (Shij .and. qij) then
-                k12 = j1*(j1+1)/2+j2+1
+                k12 = nTri_Elem(j1)+j2+1
               else if (Shij) then
                 k12 = nIrrep*j1+j2+1
               else if (iShell(1) > iShell(2)) then
@@ -180,7 +180,7 @@ do i1=1,iCmp(1)
               if (Shkl .and. qkl .and. (j4 > j3)) cycle
               if (qijij) then
                 if (Shkl .and. qkl) then
-                  k34 = j3*(j3+1)/2+j4+1
+                  k34 = nTri_Elem(j3)+j4+1
                 else if (Shkl) then
                   k34 = nIrrep*j3+j4+1
                 else if (iShell(3) > iShell(4)) then

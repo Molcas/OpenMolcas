@@ -30,30 +30,19 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: irc
 real(kind=wp) :: EOcc(*), EVir(*)
-integer(kind=iwp) :: i, iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
+integer(kind=iwp) :: iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
 
 nMOType = 3
 call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
 
 ! Initialize an  offset for writing choleskyvectors to disk
-do iProdType=1,nMoType**2
-  do iSym=1,nSym
-    iAdrOff(iSym,iProdType) = 0
-  end do
-end do
+iAdrOff(1:nSym,1:nMoType**2) = 0
 
-nOccVirT = nOcc(1)*nVir(1)
-do iSym=2,nSym
-  nOccVirT = nOccVirT+nOcc(iSym)*nVir(iSym)
-end do
+nOccVirT = sum(nOcc(1:nSym)*nVir(1:nSym))
 
-do iMOType=1,nMOType
-  do iSym=1,nSym
-    nMO(iSym,1) = nFro(iSym)
-    nMO(isym,2) = nOcc(iSym)
-    nMO(iSym,3) = nVir(iSym)
-  end do
-end do
+nMO(1:nSym,1) = nFro(1:nSym)
+nMO(1:nSym,2) = nOcc(1:nSym)
+nMO(1:nSym,3) = nVir(1:nSym)
 
 do iMoType=1,nMoType
   do jMoType=1,nMoType
@@ -92,10 +81,7 @@ end do
 ! Allocate MP2_density
 ! --------------------
 
-lDens = nOrb(1)*nOrb(1)
-do iSym=2,nSym
-  lDens = lDens+nOrb(iSym)*nOrb(iSym)
-end do
+lDens = sum(nOrb(1:nSym)*nOrb(1:nSym))
 
 ChoMP2g_Allocated = .true.
 
@@ -116,10 +102,7 @@ end do
 ! Allocate extended MP2_density (with deleted orbitals)
 ! -----------------------------------------------------
 
-lDens_e = (nOrb(1)+nDel(1))*(nOrb(1)+nDel(1))
-do iSym=2,nSym
-  lDens_e = lDens_e+(nOrb(iSym)+nDel(iSym))*(nOrb(iSym)+nDel(iSym))
-end do
+lDens_e = sum((nOrb(1:nSym)+nDel(1:nSym))*(nOrb(1:nSym)+nDel(1:nSym)))
 
 call mma_allocate(MP2D_e_full,lDens_e,Label='MP2D_e_full')
 call mma_allocate(MP2W_e_full,lDens_e,Label='MP2W_e_full')
@@ -147,15 +130,9 @@ call mma_allocate(EOccuT,max(1,nOccT),Label='EOccuT')
 call mma_allocate(EVirtT,max(1,nVirT),Label='EVirtT')
 ! Fill them with the right things
 do iSym=1,nSym
-  do i=1,nFro(iSym)
-    EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT+i)
-  end do
-  do i=1,nOcc(iSym)
-    EOccuT(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)
-  end do
-  do i=1,nVir(iSym)
-    EVirtT(iVir(iSym)+i) = EVir(iVir(iSym)+iDel(iSym)+i)
-  end do
+  EFrozT(iFro(iSym)+1:iFro(iSym)+nFro(iSym)) = EOcc(iFro(iSym)+nOccT+1:iFro(iSym)+nOccT+nFro(iSym))
+  EOccuT(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym)) = EOcc(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym))
+  EVirtT(iVir(iSym)+1:iVir(iSym)+nVir(iSym)) = EVir(iVir(iSym)+iDel(iSym)+1:iVir(iSym)+iDel(iSym)+nVir(iSym))
 end do
 
 irc = 0

@@ -21,6 +21,7 @@ subroutine ChoMP2g_GradSetup(irc,CMO)
 !                           meeting, 7-11 April 2013).                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use Cholesky, only: nBas, nSym, NumCho
 use ChoMP2, only: iAdrOff, lUnit_F, nFro, nMoMo, nMP2Vec, nOcc, nOrb, nVir
@@ -80,7 +81,7 @@ do iSym=1,nSym
   iAdrB(iSym) = jAdr
   iOffD(iSym) = nBas2
   nBas2 = nBas2+nBas(iSym)*nBas(iSym)
-  lTriDens = lTriDens+nBas(iSym)*(nBas(iSym)+1)/2
+  lTriDens = lTriDens+nTri_Elem(nBas(iSym))
   lRecDens = lRecDens+nBas(iSym)*nBas(iSym)
   nOccAll(iSym) = nFro(iSym)+nOcc(iSym)
   iOffCInv(iSym) = nOrbBas
@@ -303,7 +304,7 @@ maxvalue = 10
 nVec = 0
 do iSym=1,nSym
   nVec = min(max(NumCho(iSym),nMP2Vec(iSym),nVec),maxvalue)
-  if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+  if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 end do
 iSym = 1  ! Here we are!
 
@@ -800,7 +801,7 @@ do iSym=1,nSym
             kl = k+nBas(jSym)*(l-1)+iOffLRb(iSym,jSym)
             kl_s = kl
             lk = l+nBas(kSym)*(k-1)+iOffLRb(iSym,kSym)
-            B3kl_s(1+iOffL+kl_s-1) = (B3kl(1+iOffL+kl-1)+B3kl(1+iOffL+lk-1))/2
+            B3kl_s(1+iOffL+kl_s-1) = (B3kl(1+iOffL+kl-1)+B3kl(1+iOffL+lk-1))*Half
           end do
         end do
 

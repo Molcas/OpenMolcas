@@ -27,7 +27,7 @@ subroutine PLF_Cho(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
 use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use Constants, only: One
@@ -59,12 +59,12 @@ NUMA = NBSTSH(SHA)
 NUMB = NBSTSH(SHB)
 
 if (SHC == SHD) then
-  NUMCD = NUMC*(NUMD+1)/2
+  NUMCD = nTri_Elem(NUMC)
 else
   NUMCD = NUMC*NUMD
 end if
 if (SHA == SHB) then
-  NUMAB = NUMA*(NUMB+1)/2
+  NUMAB = nTri_Elem(NUMA)
 else
   NUMAB = NUMA*NUMB
 end if

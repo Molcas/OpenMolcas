@@ -57,7 +57,7 @@ else if (iOpt == 2) then
 else
 
   write(u6,*) SecNam,': illegal option: iOpt = ',iOpt
-  call ChoMP2_Quit(SecNam,'illegal option',' ')
+  call SysAbendMsg(SecNam,'illegal option',' ')
 
 end if
 

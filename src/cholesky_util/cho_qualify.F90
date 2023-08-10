@@ -34,7 +34,6 @@ logical(kind=iwp) :: FULL
 integer(kind=iwp) :: I, I1, I2, ISHLA, ISHLB, ISYM, K, K1, K2, LEFT, MEM0, MINM, NEED, NUM
 logical(kind=iwp), parameter :: LOCDBG = _DBG_
 character(len=*), parameter :: SECNAM = 'CHO_QUALIFY'
-integer(kind=iwp), external :: CHO_IDOT
 
 ! Copy counter to offset array.
 ! -----------------------------
@@ -44,7 +43,7 @@ IOFFQ(1:NSYM) = NQUAL(1:NSYM)
 ! Check memory.
 ! -------------
 
-MEM0 = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
+MEM0 = sum(NQUAL(1:NSYM)*NNBSTR(1:NSYM,2))
 LEFT = MEM-MEM0
 if (IALQUA == 0) then
   MINM = NNBSTR(1,2)
@@ -87,7 +86,7 @@ end if
 ! any symmetry, or b) MAXQUAL reached in any symmetry.
 ! ----------------------------------------------------------------
 
-NEED = CHO_IDOT(NSYM,NQUAL,1,NNBSTR(1,2),1)
+NEED = sum(NQUAL(1:NSYM)*NNBSTR(1:NSYM,2))
 if ((NEED < 1) .or. (NEED > MEM)) then
   call CHO_QUIT('Logical error (2) in '//SECNAM,104)
 else

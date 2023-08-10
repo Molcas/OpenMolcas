@@ -43,8 +43,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: rc
 real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, krs, LWORK, mrs, &
-                     MUSED, nBatch, nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jrs, jSym, JVEC, krs, LWORK, mrs, MUSED, &
+                     nBatch, nRS, NUMV, nVec, nVrs
 real(kind=wp), allocatable :: Lrs(:,:)
 character(len=*), parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 
@@ -133,10 +133,7 @@ do jSym=1,nSym
         mrs = iiBstR(JSYM,iLoc)+krs
         jrs = IndRed(mrs,iLoc) ! address in 1st red set
 
-        do jvc=1,JNUM
-
-          Diag(jrs) = Diag(jrs)+Lrs(krs,jvc)**2
-        end do
+        Diag(jrs) = Diag(jrs)+sum(Lrs(krs,1:JNUM)**2)
 
       end do
 

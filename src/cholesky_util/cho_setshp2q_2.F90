@@ -17,6 +17,7 @@ subroutine Cho_SetShP2Q_2(irc,iLoc,iShlAB,nAB)
 !          If a non-zero code (irc) is returned, nothing has been
 !          set!!
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: IndRed, IndRSh, iQuAB, iShP2Q, iSP2F, nBstSh, nQual, nSym
 use Definitions, only: iwp
 
@@ -29,7 +30,7 @@ integer(kind=iwp) :: iAB, iQ, iShlA, iShlB, iSym, jAB, kAB, kShlAB, l_iShP2Q, lT
 
 call Cho_InvPck(iSP2F(iShlAB),iShlA,iShlB,.true.)
 if (iShlA == iShlB) then
-  NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
+  NumAB = nTri_Elem(nBstSh(iShlA))
 else
   NumAB = nBstSh(iShlA)*nBstSh(iShlB)
 end if

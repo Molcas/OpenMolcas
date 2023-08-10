@@ -82,7 +82,7 @@ call ChoMP2_OpenF(1,1,iSym)
 maxvalue = 200
 nVec = min(NumCho(iSym),maxvalue)
 nBatL = (NumCho(iSym)-1)/nVec+1
-if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 
 ! Allocate memory for Lia-vector and LIa-vector
 ! ---------------------------------------------
@@ -167,14 +167,8 @@ call ChoMP2_OpenF(iClos,1,iSym)
 
 ! Allocate vectors needed for the PCG
 ! -----------------------------------
-lCGFVec = 0
-do iSym=1,nSym
-  lCGFVec = lCGFVec+(nFro(iSym))*nVir(iSym)
-end do
-lCGOVec = 0
-do iSym=1,nSym
-  lCGOVec = lCGOVec+(nOcc(iSym))*nVir(iSym)
-end do
+lCGFVec = sum(nFro(1:nSym)*nVir(1:nSym))
+lCGOVec = sum(nOcc(1:nSym)*nVir(1:nSym))
 lCGVec = lCGOVec+lCGFVec
 ! Vector Legend (as they are named in Conj_Grad):
 !                Z = 1, Ztemp = 2
@@ -231,7 +225,7 @@ do iIter=1,nIter
     call DaName_MF_WA(LuWVec,Fname)
 
     nVec = min(NumCho(iSym),maxvalue)
-    if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+    if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 
     lScr = lWrk-kEndCGVec(9)
     iOff = lCGFVec
@@ -395,7 +389,7 @@ iSym = 1
 call ChoMP2_OpenF(1,1,iSym)
 
 nVec = min(NumCho(iSym),maxvalue)
-if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 nBatL = (NumCho(iSym)-1)/nVec+1
 
 ! Allocate memory for U-vector
@@ -599,9 +593,7 @@ kEndVip = kVip+lVip
 
 lWij2 = nOccAll(iSym)*nOccAll(iSym)
 kWij2 = kEndVip
-do i=1,lWij2
-  Wrk(kWij2+i-1) = Zero
-end do
+Wrk(kWij2:kWij2+lWij2-1) = Zero
 
 do iBat=1,nBatL
   if (iBat == nBatL) then

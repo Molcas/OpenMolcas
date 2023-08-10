@@ -70,7 +70,7 @@ FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Init returned ',irc
-  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+  call SysAbendMsg(SecNam,'Cholesky initialization error',' ')
 end if
 
 !-TBP:
@@ -104,10 +104,7 @@ end if
 
 if (Verbose) call CWTime(CPUTra1,WallTra1)
 
-lDiag = nT1am(1)
-do iSym=2,nSym
-  lDiag = lDiag+nT1am(iSym)
-end do
+lDiag = sum(nT1am(1:nSym))
 
 call mma_allocate(Diag,lDiag,Label='Diag')
 
@@ -159,7 +156,7 @@ Delete = Delete_def ! delete transf. vector files after dec.
 call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_DecDrv returned ',irc
-  call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
+  call SysAbendMsg(SecNam,'MP2 decomposition failed!',' ')
 end if
 call mma_deallocate(Diag)
 
@@ -190,7 +187,7 @@ call mma_allocate(Diag,lDiag,Label='Diag')
 call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,Diag,lDiag,lU_AO,irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
-  call ChoMP2_Quit(SecNam,'MP2 amplitude vector backtransformation failed!',' ')
+  call SysAbendMsg(SecNam,'MP2 amplitude vector backtransformation failed!',' ')
 end if
 call mma_deallocate(Diag)
 

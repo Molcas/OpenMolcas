@@ -22,20 +22,15 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: n, nV(n)
-integer(kind=iwp) :: iSym
 
 #ifdef _DEBUGPRINT_
 if (n < nSym) call Cho_Quit('Illegal input variable in Cho_X_GetTotV',104)
 #endif
 
 if (Cho_Real_Par) then
-  do iSym=1,nSym
-    nV(iSym) = NumCho_Bak(iSym)
-  end do
+  nV(1:nSym) = NumCho_Bak(1:nSym)
 else
-  do iSym=1,nSym
-    nV(iSym) = NumCho(iSym)
-  end do
+  nV(1:nSym) = NumCho(1:nSym)
 end if
 
 end subroutine Cho_X_GetTotV

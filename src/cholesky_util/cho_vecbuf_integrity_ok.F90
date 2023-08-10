@@ -29,7 +29,7 @@ logical(kind=iwp) :: Report
 integer(kind=iwp) :: ipV, iSym, jRed, jVec, n, nErr
 logical(kind=iwp) :: OK
 real(kind=wp) :: Nrm, Sm
-real(kind=wp), external :: Cho_dSumElm, dDot_
+real(kind=wp), external :: dDot_
 
 nErr = 0
 if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
@@ -40,7 +40,7 @@ if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
         jRed = InfVec(jVec,2,iSym)
         n = nDimRS(iSym,jRed)
         Nrm = sqrt(dDot_(n,CHVBUF(ipV),1,CHVBUF(ipV),1))
-        Sm = Cho_dSumElm(CHVBUF(ipV),n)
+        Sm = sum(CHVBUF(ipV:ipV+n-1))
         OK = (abs(Nrm-CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec)) < Tol) .and. (abs(Sm-CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)) < Tol)
         if (.not. OK) then
           nErr = nErr+1

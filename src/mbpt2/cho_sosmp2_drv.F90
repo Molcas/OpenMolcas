@@ -72,7 +72,7 @@ FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Init returned ',irc
-  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+  call SysAbendMsg(SecNam,'Cholesky initialization error',' ')
 end if
 
 call Cho_SOSmp2_Setup(irc)
@@ -153,7 +153,7 @@ Delete = Delete_def ! delete transf. vector files after dec.
 call Cho_SOSmp2_DecDrv(irc,Delete,Diag)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
-  call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+  call SysAbendMsg(SecNam,'SOS-MP2 decomposition failed!',' ')
 end if
 if (Verbose) then
   call CWTime(CPUDec2,WallDec2)

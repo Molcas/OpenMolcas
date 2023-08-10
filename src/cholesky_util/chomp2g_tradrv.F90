@@ -41,9 +41,7 @@ DoDiagBak = DoDiag
 DoDiag = .false.
 nProdType = nMOType**2
 l_COrb = 0
-do iSym=1,nSym
-  nAdrOff(iSym) = 0
-end do
+nAdrOff(1:nSym) = 0
 
 do iSym=1,nSym
   do i=1,nProdType

@@ -43,17 +43,17 @@ write(Lunit,*)
 write(Lunit,*)
 write(Lunit,*) '>>> Output from ',SecNam,':'
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 
 write(Lunit,*) '*** Contents of Choleksy:'
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'iBas : ',(iBas(i),i=1,8)
 write(Lunit,*) 'nBas : ',(nBas(i),i=1,8)
 write(Lunit,*) 'XnBas: ',(XnBas(i),i=1,8)
 write(Lunit,*) 'nBasT: ',nBasT
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'ThrDef        : ',ThrDef
 write(Lunit,*) 'ThrCom        : ',ThrCom
 write(Lunit,*) 'ThrDiag       : ',ThrDiag
@@ -93,7 +93,7 @@ write(Lunit,*) 'Did_DecDrv    : ',Did_DecDrv
 write(Lunit,*) 'HaltIt        : ',HaltIt
 write(Lunit,*) 'Trace_Idle    : ',Trace_Idle
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'LuCho: ',(LuCho(i),i=1,8)
 write(Lunit,*) 'LuSel: ',(LuSel(i),i=1,8)
 write(Lunit,*) 'LuTmp: ',(LuTmp(i),i=1,8)
@@ -103,7 +103,7 @@ write(Lunit,*) 'LuRed: ',LuRed
 write(Lunit,*) 'LuRst: ',LuRst
 write(Lunit,*) 'LuMap: ',LuMap
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'nShell   : ',nShell
 write(Lunit,*) 'nnShl_Tot: ',nnShl_Tot
 write(Lunit,*) 'nnShl    : ',nnShl
@@ -120,7 +120,7 @@ write(Lunit,*) 'mmBstRT: ',mmBstRT
 write(Lunit,*) 'nQual  : ',(nQual(i),i=1,8)
 write(Lunit,*) 'iOffQ  : ',(iOffQ(i),i=1,8)
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'DiaMax: ',(DiaMax(i),i=1,8)
 write(Lunit,*) 'DiaMin: ',(DiaMin(i),i=1,8)
 write(Lunit,*) 'Damp  : ',(Damp(i),i=1,2)
@@ -131,14 +131,14 @@ write(Lunit,*) 'Thr_PreScreen: ',Thr_PreScreen
 write(Lunit,*) 'iABMnZ: ',iABMnZ
 write(Lunit,*) 'nnZTot: ',nnZTot
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'NumCho   : ',(NumCho(i),i=1,8)
 write(Lunit,*) 'NumChT   : ',NumChT
 write(Lunit,*) 'MaxVec   : ',MaxVec
 write(Lunit,*) 'MaxRed   : ',MaxRed
 write(Lunit,*) 'BlockSize: ',BlockSize
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'ShA     : ',ShA
 write(Lunit,*) 'ShB     : ',ShB
 write(Lunit,*) 'ShAB    : ',ShAB
@@ -148,7 +148,7 @@ write(Lunit,*) 'ShCD    : ',ShCD
 write(Lunit,*) 'nColAB  : ',nColAB
 write(Lunit,*) 'iOff_Col: ',(iOff_Col(i),i=1,8)
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'XThrCom    : ',XThrCom
 write(Lunit,*) 'XThrDiag   : ',XThrDiag
 write(Lunit,*) 'XDamp      : ',(XDamp(i),i=1,2)
@@ -163,7 +163,7 @@ write(Lunit,*) 'XnPass     : ',XnPass
 write(Lunit,*) 'XCho_AdrVec: ',XCho_AdrVec
 write(Lunit,*) 'XScDiag    : ',XScDiag
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 do j=1,nChkQ+1
   write(Lunit,*) 'iChkQ   : ',(iChkQ(i,j),i=1,4)
 end do
@@ -181,7 +181,7 @@ write(Lunit,*) 'tDecDrv : ',(tDecDrv(i),i=1,2)
 write(Lunit,*)
 write(Lunit,*) 'nVecRS1: ',(nVecRS1(i),i=1,8)
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'Cho_AdrVec: ',Cho_AdrVec
 write(Lunit,*) 'Cho_IOVec : ',Cho_IOVec
 write(Lunit,*) 'nSys_Call : ',nSys_Call
@@ -190,12 +190,12 @@ write(Lunit,*) 'N1_VecRd  : ',N1_VecRd
 write(Lunit,*) 'N2_VecRd  : ',N2_VecRd
 write(Lunit,*) 'N_Subtr   : ',N_Subtr
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'N1_Qual: ',N1_Qual
 write(Lunit,*) 'N2_Qual: ',N2_Qual
 write(Lunit,*)
 write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 
 call Cho_PrintPointers(irc,Lunit)
 if (irc /= 0) return

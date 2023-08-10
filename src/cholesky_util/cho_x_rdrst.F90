@@ -20,6 +20,7 @@ subroutine Cho_X_RdRst(ifail)
 !          most likely, some of the restart info is not
 !          defined/initialized.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: Cho_AdrVec, Damp, InfRed, InfRed_Hidden, InfVec, InfVec_Hidden, InfVec_N2, LuRst, MaxRed, MaxVec, nBas, nnShl, &
                     nShell, nSym, NumCho, Span, ThrCom, ThrDiag, ThrNeg, TooNeg, WarNeg, XCho_AdrVec, XnPass, XDamp, XScDiag, &
                     XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
@@ -54,7 +55,7 @@ if (jScr(2) < 1) then
   call Finish_this()
   return
 end if
-nSP_UpLim = nShell*(nShell+1)/2
+nSP_UpLim = nTri_Elem(nShell)
 if ((jScr(3) < 1) .or. (jScr(3) > nSP_UpLim)) then
   write(u6,'(A,A,I10)') SecNam,': #shell pairs from restart file:',jScr(3)
   ifail = 1

@@ -116,7 +116,7 @@ do jSym=1,nSym
 
       nVec = min(lWrk/(Nai+NKVec),nEnrVec(jSym))
       if (nVec < 1) then
-        call ChoMP2_Quit(SecNam,'Insufficient memory','Batch setup')
+        call SysAbendMsg(SecNam,'Insufficient memory','Batch setup')
       end if
       nBat = (nEnrVec(jSym)-1)/nVec+1
 

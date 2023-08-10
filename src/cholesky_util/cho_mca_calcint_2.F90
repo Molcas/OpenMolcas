@@ -41,10 +41,8 @@ call mma_maxDBLE(MEM_START)
 
 call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
 
-NAB(1) = NQUAL(1)-IOFFQ(1)
-do ISYM=2,NSYM
-  NAB(ISYM) = NQUAL(ISYM)-IOFFQ(ISYM)
-end do
+NAB(1) = 0 ! dummy initialization
+NAB(1:NSYM) = NQUAL(1:NSYM)-IOFFQ(1:NSYM)
 
 IOFF_COL(1) = 0
 LCOL = NNBSTR(1,2)*NAB(1)
@@ -127,9 +125,9 @@ do ISHLCD=1,NNSHL
     ! Calculate integrals.
     ! --------------------
 
-    call CHO_TIMER(C1,W1)
+    call CWTIME(C1,W1)
     call CHO_MCA_INT_1(ISCD,ISHLAB,IntCol,LCOL,LOCDBG .or. (IPRINT >= 100))
-    call CHO_TIMER(C2,W2)
+    call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1
     TINTEG(2,1) = TINTEG(2,1)+W2-W1
 
@@ -153,7 +151,7 @@ end do
 ! Write the columns to disk.
 ! --------------------------
 
-call CHO_TIMER(C1,W1)
+call CWTIME(C1,W1)
 do ISYM=1,NSYM
   LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
   if (LTOT > 0) then
@@ -163,7 +161,7 @@ do ISYM=1,NSYM
     call DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
   end if
 end do
-call CHO_TIMER(C2,W2)
+call CWTIME(C2,W2)
 TINTEG(1,2) = TINTEG(1,2)+C2-C1
 TINTEG(2,2) = TINTEG(2,2)+W2-W1
 

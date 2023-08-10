@@ -51,9 +51,7 @@ if ((nVec < 1) .or. (nnBstR(iSym,iLoc) < 1)) return
 
 do iVec=1,nVec
   kOff = nnBstR(iSym,iLoc)*(iVec-1)
-  do iAB=1,nnBstR(iSym,iLoc)
-    DSubScr(iAB) = DSubScr(iAB)+ChoVec(kOff+iAB)*ChoVec(kOff+iAB)
-  end do
+  DSubScr(1:nnBstR(iSym,iLoc)) = DSubScr(1:nnBstR(iSym,iLoc))+ChoVec(kOff+1:kOff+nnBstR(iSym,iLoc))**2
 end do
 
 ! Find diagonal norm in each shell pair.
@@ -90,9 +88,7 @@ else if (myDSPNorm == 'FRO') then
   do iSP=1,nnShl
     iAB1 = iiBstRSh(iSym,iSP,iLoc)+1
     iAB2 = iAB1+nnBstRSh(iSym,iSP,iLoc)-1
-    do iAB=iAB1,iAB2
-      DSPNm(iSP) = DSPNm(iSP)+DSubScr(iAB)*DSubScr(iAB)
-    end do
+    DSPNm(iSP) = DSPNm(iSP)+sum(DSubScr(iAB1:iAB2)**2)
     DSPNm(iSP) = sqrt(DSPNm(iSP))
   end do
 else

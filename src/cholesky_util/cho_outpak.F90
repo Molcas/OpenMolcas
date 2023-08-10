@@ -49,6 +49,7 @@ subroutine CHO_OUTPAK(AMATRX,NROW,NCTL,LUPRI)
 !..........VERSION = 09/05/73/03
 !.......................................................................
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -75,7 +76,7 @@ else
   CTL = BLNK
 end if
 
-J = NROW*(NROW+1)/2
+J = nTri_Elem(NROW)
 AMAX = Zero
 do I=1,J
   AMAX = max(AMAX,abs(AMATRX(I)))
@@ -103,7 +104,7 @@ else
     NCOL = 1
     write(LUPRI,1000) (COLUMN,I,I=BEGIN,LAST)
     do K=BEGIN,NROW
-      KTOTAL = (K*(K-1))/2+BEGIN-1
+      KTOTAL = nTri_Elem(K-1)+BEGIN-1
       do I=1,NCOL
         if (AMATRX(KTOTAL+I) /= Zero) then
           write(LUPRI,PFMT) CTL,K,(AMATRX(J+KTOTAL),J=1,NCOL)

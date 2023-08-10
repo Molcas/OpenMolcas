@@ -34,6 +34,7 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 
 #include "intent.fh"
 
+use Para_Info, only: Is_Real_Par, nProcs
 use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
                         Thr_ghs, Title
 use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens, DoFNO, DoGrdt, DoMP2, DoT1amp, EOSMP2, FNOMP2, &
@@ -64,7 +65,7 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
 integer(kind=iwp), external :: iPrintLevel
-logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
+logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
 #include "corbinf.fh"
 #include "warnings.h"
@@ -476,7 +477,7 @@ outer: do
       SOS_MP2 = .true.
       if (.not. DoLDF) then
         DecoMP2 = .true.
-        if (ChoMP2_ChkPar()) then
+        if ((nProcs > 1) .and. Is_Real_Par()) then
           call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
           call Quit(_RC_NOT_AVAILABLE_)
         end if
@@ -803,7 +804,7 @@ end if
 
 ! turn off decomposition for parallel runs.
 
-if (DecoMP2 .and. ChoMP2_ChkPar()) then
+if (DecoMP2 .and. (nProcs > 1) .and. Is_Real_Par()) then
   write(u6,'(/,A)') 'WARNING!'
   write(u6,'(A)') 'Decomposition of MP2 integrals is not possible. Turning off decomposition.'
   DecoMP2 = .false.

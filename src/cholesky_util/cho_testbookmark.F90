@@ -11,7 +11,7 @@
 
 subroutine Cho_TestBookmark(irc,verbose,is1CCD)
 
-use Cholesky, only: Cho_1Center, DiaMax, DiaMaxT, nnBstRT, nSym, NumCho, NumChT, ThrCom
+use Cholesky, only: Cho_1Center, DiaMax, DiaMaxT, iAtomShl, nnBstRT, nSym, NumCho, NumChT, ThrCom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -110,16 +110,13 @@ if (irc /= 0) then
 else
   Cho_1Center_Bak = Cho_1Center
   Cho_1Center = is1CCD
-  do iSym=1,nSym
-    NumChoBak(iSym) = NumCho(iSym)
-  end do
+  NumChoBak(1:nSym) = NumCho(1:nSym)
   NumChTBak = NumChT
   ThrComBak = ThrCom
-  NumChT = 0
+  NumCho(1:nSym) = nVec(1:nSym)
+  NumChT = sum(NumCho(1:nSym))
   ThrCom = Zero
   do iSym=1,nSym
-    NumCho(iSym) = nVec(iSym)
-    NumChT = NumChT+NumCho(iSym)
     ThrCom = max(ThrCom,delta(iSym))
   end do
   call mma_allocate(BkmDia,nnBstRT(1),Label='BkmDia')
@@ -131,7 +128,7 @@ else
     if (Cho_1Center) then
       call Cho_TestBookmark_1CInit(dealloc)
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
-      if (dealloc) call Cho_TestBookmark_1CFinal()
+      if (dealloc .and. allocated(iAtomShl)) call mma_deallocate(iAtomShl)
     else
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
     end if
@@ -149,9 +146,7 @@ else
     if (verbose) call Cho_TestBookmark_Prt(5,'failed')
   end if
   call mma_deallocate(BkmDia)
-  do iSym=1,nSym
-    NumCho(iSym) = NumChoBak(iSym)
-  end do
+  NumCho(1:nSym) = NumChoBak(1:nSym)
   NumChT = NumChTBak
   ThrCom = ThrComBak
   Cho_1Center = Cho_1Center_Bak

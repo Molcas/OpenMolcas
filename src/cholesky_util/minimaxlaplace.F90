@@ -51,10 +51,10 @@ implicit none
 logical(kind=iwp) :: Verbose
 integer(kind=iwp) :: N, l_wt, irc
 real(kind=wp) :: xmin, xmax, w(l_wt), t(l_wt)
-integer(kind=iwp) :: i, K_Lap, l_Coeff
+integer(kind=iwp) :: K_Lap
 logical(kind=iwp) :: Inf
 character(len=8) :: Demand
-real(kind=wp), allocatable :: Coeff(:)
+real(kind=wp), allocatable :: Coeff(:,:)
 integer(kind=iwp), parameter :: mGrid = 20 ! limited by Remez implementation
 character(len=*), parameter :: DefaultGrid = 'MICRO   '
 
@@ -82,8 +82,7 @@ if (N == 0) then
 else
   Demand = '        '
 end if
-l_Coeff = 2*mGrid
-call mma_Allocate(Coeff,l_Coeff,Label='LapCoef')
+call mma_Allocate(Coeff,2,mGrid,Label='LapCoef')
 Inf = .false.
 call Remez(Verbose,K_Lap,xmin,xmax,Coeff,Demand,Inf)
 if (K_Lap < 0) then
@@ -94,16 +93,12 @@ if (K_Lap < 0) then
 end if
 if (N == 0) N = K_Lap
 if (l_wt < K_Lap) then
-  do i=1,l_wt
-    w(i) = Coeff(2*i-1)
-    t(i) = Coeff(2*i)
-  end do
+  w(1:l_wt) = Coeff(1,1:l_wt)
+  t(1:l_wt) = Coeff(2,1:l_wt)
   irc = 2
 else
-  do i=1,K_Lap
-    w(i) = Coeff(2*i-1)
-    t(i) = Coeff(2*i)
-  end do
+  w(1:l_wt) = Coeff(1,1:l_wt)
+  t(1:l_wt) = Coeff(2,1:l_wt)
 end if
 call mma_Deallocate(Coeff)
 

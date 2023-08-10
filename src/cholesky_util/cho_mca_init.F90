@@ -13,6 +13,7 @@ subroutine CHO_MCA_INIT(SKIP_PRESCREEN)
 !
 ! Purpose: initialization of Cholesky decomposition in MOLCAS.
 
+use Index_Functions, only: nTri_Elem
 use index_arrays, only: iSO2Sh
 use Cholesky, only: iBas, iBasSh, IFCSew, iShlSO, iShP2Q, iShP2RS, iSOShl, iSP2F, LuPri, Mx2Sh, MxOrSh, nBas, nBasSh, nBasT, &
                     nBstSh, nnShl, nnShl_Tot, nShell, nSym
@@ -35,9 +36,9 @@ end if
 ! Compute total #shell pair.
 ! --------------------------
 
-NNSHL_TOT = NSHELL*(NSHELL+1)/2
+NNSHL_TOT = nTri_Elem(NSHELL)
 if (NNSHL_TOT < 1) then
-  write(LUPRI,*) 'NNSHL_TOT=NSHELL*(NSHELL+1)/2 is non-positive: ',NNSHL_TOT
+  write(LUPRI,*) 'NNSHL_TOT=nTri_Elem(NSHELL) is non-positive: ',NNSHL_TOT
   write(LUPRI,*) 'Integer overflow ?'
   call CHO_QUIT('NNSHL_TOT out of bounds in '//SECNAM,102)
 end if
@@ -128,7 +129,7 @@ do IJSHL=1,NNSHL
   IJ = iSP2F(IJSHL)
   call CHO_INVPCK(IJ,I,J,.true.)
   if (I == J) then
-    NUMIJ = NBSTSH(I)*(NBSTSH(I)+1)/2
+    NUMIJ = nTri_Elem(NBSTSH(I))
   else
     NUMIJ = NBSTSH(I)*NBSTSH(J)
   end if

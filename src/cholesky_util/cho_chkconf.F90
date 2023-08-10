@@ -13,6 +13,7 @@ subroutine CHO_CHKCONF(NCONFL,VERBOSE)
 !
 ! Purpose: check configuration, return the number of errors NCONFL.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: BLOCKSIZE, CHO_1CENTER, CHO_DECALG, CHO_IOVEC, CHO_NDECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_Real_Par, &
                     CHO_SIMRI, Cho_SScreen, Damp, FRAC_CHVBUF, IALQUA, IFCSEW, lBuf, LuPri, MaxQual, MaxRed, MaxVec, MinQual, &
                     MXSHPR, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, NALQUA, NBAST, nShell, nSym, RstCho, SCDIAG, Span, &
@@ -271,7 +272,7 @@ end if
 ! Min. #qualifieds needed to proceed to decomposition.
 ! -----------------------------------------------------
 
-NNN = NSHELL*(NSHELL+1)/2
+NNN = nTri_Elem(NSHELL)
 if ((MXSHPR < 0) .or. (MXSHPR > NNN)) then
   if (REPORT) then
     write(LUPRI,'(A,I8)') 'Max. #shell pairs allowed before proceeding to deco. is: ',MXSHPR

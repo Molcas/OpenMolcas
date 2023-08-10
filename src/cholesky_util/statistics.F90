@@ -57,13 +57,11 @@ else
   xn1 = One/real(n-1,kind=wp)
 end if
 
-xMean = X(1)
-xMeanAbs = abs(X(1))
+xMean = sum(X(1:n))
+xMeanAbs = sum(abs(X(1:n)))
 xMax = X(1)
 xMin = X(1)
 do i=2,n
-  xMean = xMean+X(i)
-  xMeanAbs = xMeanAbs+abs(X(i))
   xMax = max(xMax,X(i))
   xMin = min(xMin,X(i))
 end do
@@ -76,10 +74,7 @@ if (ip_Max > 0) Stat(ip_Max) = xMax
 if (ip_MaxAbs > 0) Stat(ip_MaxAbs) = max(abs(xMax),abs(xMin))
 
 if ((ip_Variance > 0) .or. (ip_VarianceU > 0)) then
-  xVariance = (X(1)-xMean)**2
-  do i=2,n
-    xVariance = xVariance+(X(i)-xMean)**2
-  end do
+  xVariance = sum((X(1:n)-xMean)**2)
   if (ip_VarianceU > 0) Stat(ip_VarianceU) = sqrt(xVariance*xn1)
   if (ip_Variance > 0) Stat(ip_Variance) = sqrt(xVariance*xn)
 end if

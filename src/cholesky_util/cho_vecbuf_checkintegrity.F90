@@ -38,7 +38,7 @@ logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
 if (Cho_VecBuf_Integrity_OK(Tol,Verbose)) then
   if (Verbose) then
     write(LuPri,'(A,A)') Txt,' Cholesky vector buffer integrity checked: OK'
-    call Cho_Flush(LuPri)
+    call XFlush(LuPri)
   end if
   irc = 0
 else

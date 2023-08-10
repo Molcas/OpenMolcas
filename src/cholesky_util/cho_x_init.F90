@@ -54,11 +54,14 @@
 
 subroutine Cho_X_Init(irc,BufFrac)
 
-use Cholesky, only: BkmThr, BkmVec, Cho_AdrVec, Cho_Fake_Par, Cho_IOVec, ChoIniCheck, iBas, iBasSh, iiBstRSh, iiBstRSh_Hidden, &
-                    IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, IPRINT, iRS2F, iShlSO, iSOShl, iSP2F, LuPri, MaxRed, MaxVec, &
-                    mmBstRT, Mx2Sh, MxOrSh, MySP, N1_VecRd, N2_VecRd, n_MySP, nBas, nBasSh, nBasT, nBstSh, nCol_BkmThr, &
-                    nCol_BkmVec, nDGM_call, nDimRS, nnBstRSh, nnBstRSh_Hidden, nnBstR, nnBstRT, nnShl, nnShl_SP, nnShl_Tot, &
-                    nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, NumCho, NumChT, RUN_EXTERNAL, RUN_MODE
+use Index_Functions, only: nTri_Elem
+use Para_Info, only: Is_Real_Par
+use Cholesky, only: BkmThr, BkmVec, Cho_AdrVec, Cho_Fake_Par, Cho_IOVec, ChoIniCheck, Cho_Real_Par, iBas, iBasSh, iiBstRSh, &
+                    iiBstRSh_Hidden, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, IPRINT, iRS2F, iShlSO, iSOShl, iSP2F, LuCho, &
+                    LuMap, LuPri, LuRed, LuRst, MaxRed, MaxVec, mmBstRT, Mx2Sh, MxOrSh, MySP, N1_VecRd, N2_VecRd, n_MySP, nBas, &
+                    nBasSh, nBasT, nBstSh, nCol_BkmThr, nCol_BkmVec, nDGM_call, nDimRS, nnBstRSh, nnBstRSh_Hidden, nnBstR, &
+                    nnBstRT, nnShl, nnShl_SP, nnShl_Tot, nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, NumCho, NumChT, &
+                    RUN_EXTERNAL, RUN_MODE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -73,7 +76,6 @@ logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF, isLocalDF
 character(len=2) :: Unt
 #endif
 integer(kind=iwp), allocatable :: BkmDim(:)
-integer(kind=iwp), external :: Cho_iSumElm
 character(len=*), parameter :: SecNam = 'Cho_X_Init'
 
 #ifdef _DEBUGPRINT_
@@ -130,7 +132,7 @@ end if
 ! ---------------------------------------------
 
 CHO_FAKE_PAR = .false.
-call Cho_ParConf(CHO_FAKE_PAR)
+Cho_Real_Par = Is_Real_Par() .and. (.not. CHO_FAKE_PAR)
 
 ! Define n_MySP.
 ! --------------
@@ -172,7 +174,10 @@ call Get_iScalar('ChoVec Address',Cho_AdrVec)
 ! Open files with red. set and vector info.
 ! -----------------------------------------
 
-call Cho_UnIni()
+LURED = 0
+LUCHO(1:NSYM) = 0
+LURST = 0
+LUMAP = 0
 call Cho_OpenVR(1,2)
 
 ! Set vector I/O model etc.
@@ -207,7 +212,7 @@ call mma_allocate(iSOShl,nBasT,Label='iSOShl')
 call Get_iArray('ISOSHL',iSOShl,nBasT)
 
 call Get_iArray('NumCho',NumCho,nSym)
-NumChT = Cho_iSumElm(NumCho,nSym)
+NumChT = sum(NumCho(1:nSym))
 MaxVec = NumCho(1)
 do iSym=2,nSym
   MaxVec = max(MaxVec,NumCho(iSym))
@@ -248,7 +253,7 @@ if (ierr /= 0) then
   call Finish_this(2)
   return
 end if
-nnShl_Tot = nShell*(nShell+1)/2
+nnShl_Tot = nTri_Elem(nShell)
 call Cho_X_DefineInfVec_5(isDF)
 
 ! nnShl_SP makes it possible to use function Cho_F2SP.
@@ -359,7 +364,7 @@ Mx2Sh = 0
 do ijShl=1,nnShl
   call Cho_InvPck(iSP2F(ijShl),iShl,jShl,.true.)
   if (iShl == jShl) then
-    Numij = nBstSh(iShl)*(nBstSh(iShl)+1)/2
+    Numij = nTri_Elem(nBstSh(iShl))
   else
     Numij = nBstSh(iShl)*nBstSh(jShl)
   end if

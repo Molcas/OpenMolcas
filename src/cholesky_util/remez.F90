@@ -209,9 +209,7 @@ else
       ! ===== Check convergence =====
       ! CofOld is updated by the mean of Coeff
 
-      do J=1,I_Dim
-        CofOld(J) = abs(CofOld(J)-Coeff(J))
-      end do
+      CofOld(1:I_Dim) = abs(CofOld(1:I_Dim)-Coeff(1:I_Dim))
       call FindAM(I_Dim+1,DD,DDMax,IMax)
       DCofMx = FindMx(I_Dim,CofOld)
 

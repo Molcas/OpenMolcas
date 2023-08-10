@@ -14,18 +14,17 @@ function Cho_P_IndxParentDiag(iQ,iSym)
 ! Purpose: return index in global 1st reduced set of qualified iQ,
 !          sym. iSym.
 
-use Cholesky, only: Cho_Real_Par
+use Cholesky, only: Cho_Real_Par, IndRed, IndRed_G, iQuAB
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_P_IndxParentDiag
 integer(kind=iwp) :: iQ, iSym
-integer(kind=iwp), external :: Cho_IndxParentDiag_P, Cho_IndxParentDiag_S
 
 if (Cho_Real_Par) then
-  Cho_P_IndxParentDiag = Cho_IndxParentDiag_P(iQ,iSym)
+  Cho_P_IndxParentDiag = IndRed_G(iQuAB(iQ,iSym),2)
 else
-  Cho_P_IndxParentDiag = Cho_IndxParentDiag_S(iQ,iSym)
+  Cho_P_IndxParentDiag = IndRed(iQuAB(iQ,iSym),2)
 end if
 
 end function Cho_P_IndxParentDiag

@@ -42,7 +42,7 @@ logical(kind=iwp) :: incore
 integer(kind=iwp) :: nOV, NVec, ID_bj(*), JVec
 real(kind=wp) :: W(*), Y(*), R(*)
 #include "warnings.h"
-integer(kind=iwp) :: ip, Jk, Jm, kp, np
+integer(kind=iwp) :: Jk, Jm, kp, np
 real(kind=wp), parameter :: xtwo = sqrt(Two)
 !******************************************************************
 
@@ -63,24 +63,18 @@ if (incore) then
     kp = NOV*(Jk-1)
     np = kp-NOV
     Jm = ID_bj(Jk-1)
-    do ip=1,NOV
-      Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-    end do
+    Y(kp+1:kp+NOV) = Y(np+1:np+NOV)*(W(1:NOV)-W(Jm))/(W(1:NOV)+W(Jm))
   end do
 
 else
 
   Jm = ID_bj(JVec-1)
-  do ip=1,NOV
-    Y(ip) = R(ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-  end do
+  Y(1:NOV) = R(1:NOV)*(W(1:NOV)-W(Jm))/(W(1:NOV)+W(Jm))
   do Jk=2,NVec
     kp = NOV*(Jk-1)
     np = kp-NOV
     Jm = ID_bj(JVec+Jk-3)
-    do ip=1,NOV
-      Y(kp+ip) = Y(np+ip)*(W(ip)-W(Jm))/(W(ip)+W(Jm))
-    end do
+    Y(kp+1:kp+NOV) = Y(np+1:np+NOV)*(W(1:NOV)-W(Jm))/(W(1:NOV)+W(Jm))
   end do
   R(1:NOV) = Y(NOV*(NVec-1)+1:NOV*NVec)
 
@@ -91,9 +85,7 @@ end if
 do Jk=1,NVec
   kp = NOV*(Jk-1)
   Jm = ID_bj(JVec+Jk-1)
-  do ip=1,NOV
-    Y(kp+ip) = Y(kp+ip)*xtwo*sqrt(W(Jm))/(W(ip)+W(Jm))
-  end do
+  Y(kp+1:kp+NOV) = Y(kp+1:kp+NOV)*xtwo*sqrt(W(Jm))/(W(1:NOV)+W(Jm))
 end do
 
 return

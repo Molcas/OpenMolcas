@@ -20,7 +20,7 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 !          apart from first)
 
 use Symmetry_Info, only: Mul
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, LuPri, Mx2Sh, nBas, nBstSh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -97,12 +97,12 @@ do I=1,NSHLQ
   if ((ISHLC > 0) .and. (ISHLD > 0) .and. (ISHLA > 0) .and. (ISHLB > 0)) then
 
     if (ISHLD == ISHLC) then
-      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+      NUMCD = nTri_Elem(NBSTSH(ISHLC))
     else
       NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
     end if
     if (ISHLB == ISHLA) then
-      NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+      NUMAB = nTri_Elem(NBSTSH(ISHLA))
     else
       NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
     end if
@@ -176,9 +176,7 @@ call mma_deallocate(INT1)
 ! Check total number of comparisons.
 ! ----------------------------------
 
-do ISYM=1,NSYM
-  XLBAS(ISYM) = real(NBAS(ISYM),kind=wp)
-end do
+XLBAS(1:NSYM) = real(NBAS(1:NSYM),kind=wp)
 XNINT = Zero
 do ISYM=1,NSYM
   XXLBST = Zero

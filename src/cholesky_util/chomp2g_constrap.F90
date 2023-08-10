@@ -44,19 +44,13 @@ iTypL = 1
 do i=1,nTypes
   if (typ(i) == 'f') then
     iOrbType(i) = 1
-    do iSym1=1,nSym
-      nOrb1(iSym1,i) = nFro(iSym1)
-    end do
+    nOrb1(1:nSym,i) = nFro(1:nSym)
   else if (typ(i) == 'o') then
     iOrbType(i) = 2
-    do iSym1=1,nSym
-      nOrb1(iSym1,i) = nOcc(iSym1)
-    end do
+    nOrb1(1:nSym,i) = nOcc(1:nSym)
   else if (typ(i) == 'v') then
     iOrbType(i) = 3
-    do iSym1=1,nSym
-      nOrb1(iSym1,i) = nVir(iSym1)
-    end do
+    nOrb1(1:nSym,i) = nVir(1:nSym)
   else
     write(u6,*) 'Forbidden Type pqrs in',SecNam
     irc = -1

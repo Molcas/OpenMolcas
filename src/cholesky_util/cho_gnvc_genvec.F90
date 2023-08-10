@@ -48,9 +48,7 @@ if (mPass /= nPass) call Cho_Quit('Input error [4] in '//SecNam,103)
 
 NumVec = 0
 do iPass=iPass1,iPass2
-  do iSym=1,nSym
-    NumVec = NumVec+nVecRS(iSym,iPass)
-  end do
+  NumVec = NumVec+sum(nVecRS(1:nSym,iPass))
 end do
 if (NumVec < 1) return ! exit
 
@@ -68,10 +66,8 @@ call mma_deallocate(Wrk)
 ! Initialize vector generation.
 ! -----------------------------
 
-do iSym=1,nSym
-  iOff1(iSym) = iOff_Col(iSym)+1
-  iOff2(iSym) = iOff_Col(iSym)+1
-end do
+iOff1(1:nSym) = iOff_Col(1:nSym)+1
+iOff2(1:nSym) = iOff_Col(1:nSym)+1
 
 l_VecTmp = 0
 do iPass=iPass1,iPass2
@@ -83,10 +79,7 @@ end do
 MxSubtr = 0
 do iPass=iPass1,iPass2
   do iSym=1,nSym
-    nAB = 0
-    do jPass=iPass+1,iPass2
-      nAB = nAB+nVecRS(iSym,jPass)
-    end do
+    nAB = sum(nVecRS(iSym,iPass+1:iPass2))
     Need = nAB*nVecRS(iSym,iPass)
     MxSubtr = max(MxSubtr,Need)
   end do
@@ -124,13 +117,13 @@ do iPass=iPass1,iPass2
                              'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
     LenLin = 79
     write(Lupri,'(80A)') ('-',i=1,LenLin)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
     NumCho_OLD(1:nSym) = NumCho(1:nSym)
   else if (iPrint >= INF_PASS) then
     write(Lupri,'(/,A,I5)') 'Integral pass number',iPass
     write(LUPRI,'(A,8I8)') '#Cholesky vec.: ',(NumCho(iSym),iSym=1,nSym)
     write(LUPRI,'(A,8I8)') '#qualified    : ',(nVecRS(iSym,iPass),iSym=1,nSym)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
     NumCho_OLD(1:nSym) = NumCho(1:nSym)
   end if
 
@@ -222,10 +215,7 @@ do iPass=iPass1,iPass2
       ! Subtract contributions to later vectors.
       ! ----------------------------------------
 
-      nAB = nQual(iSym)
-      do jPass=iPass1,iPass
-        nAB = nAB-nVecRS(iSym,jPass)
-      end do
+      nAB = nQual(iSym)+sum(nVecRS(iSym,iPass1:iPass))
       if (nAB > 0) then
         ip_Scr = 1
         iP = iPass
@@ -287,7 +277,7 @@ do iPass=iPass1,iPass2
     ! Cycle point for empty symmetry.
     ! -------------------------------
 
-    if (iPrint >= INF_PROGRESS) call Cho_Flush(Lupri)
+    if (iPrint >= INF_PROGRESS) call XFlush(Lupri)
 
   end do ! symmetry
 
@@ -295,18 +285,14 @@ do iPass=iPass1,iPass2
   ! ------
 
   if (iPrint >= INF_PROGRESS) then
-    do iSym=1,nSym
-      NumCho_OLD(iSym) = NumCho(iSym)-NumCho_OLD(iSym)
-    end do
+    NumCho_OLD(1:nSym) = NumCho(1:nSym)-NumCho_OLD(1:nSym)
     write(Lupri,'(80A)') ('-',I=1,LenLin)
     write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
   else if (iPrint >= INF_PASS) then
-    do iSym=1,nSym
-      NumCho_OLD(iSym) = NumCho(iSym)-NumCho_OLD(iSym)
-    end do
+    NumCho_OLD(1:nSym) = NumCho(1:nSym)-NumCho_OLD(1:nSym)
     write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
   end if
 
   ! Analyze diagonal.
@@ -328,7 +314,7 @@ do iPass=iPass1,iPass2
   call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
   if (iPrint >= INF_PASS) then
     call Cho_PrtRed(2)
-    call Cho_Flush(Lupri)
+    call XFlush(Lupri)
   end if
 
   ! Swap locations so that:
@@ -353,12 +339,9 @@ call mma_deallocate(VecTmp)
 ! Write vectors to disk.
 ! ----------------------
 
-call Cho_Timer(C1,W1)
+call CWTime(C1,W1)
 do iSym=1,nSym
-  NumVec = nVecRS(iSym,iPass1)
-  do iPass=iPass1+1,iPass2
-    NumVec = NumVec+nVecRS(iSym,iPass)
-  end do
+  NumVec = sum(nVecRS(iSym,iPass1:iPass2))
   if (NumVec > 0) then
     iPass = iPass1
     iVec1 = iVecRS(iSym,iPass)
@@ -373,7 +356,7 @@ do iSym=1,nSym
     end if
   end if
 end do
-call Cho_Timer(C2,W2)
+call CWTime(C2,W2)
 tDecom(1,2) = tDecom(1,2)+C2-C1
 tDecom(2,2) = tDecom(2,2)+W2-W1
 

@@ -68,7 +68,7 @@ if (MP2_small) then
     kXaibj = 1
     kEnd0 = kXaibj+LnT2am
     lWrk0 = lWrk-kEnd0+1
-    if (lWrk0 < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
+    if (lWrk0 < 1) call SysAbendMsg(SecNam,'insufficient memory','[0]')
 
     if (ChoAlg == 2) then
 
@@ -90,13 +90,13 @@ if (MP2_small) then
           kEnd1 = kVecai+Nai
           lWrk1 = lWrk-kEnd1+1
 
-          if (lWrk1 < Nai) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.1]')
+          if (lWrk1 < Nai) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.1]')
 
           ! Set up batch over Cholesky vectors.
           ! -----------------------------------
 
           nVec = min(lWrk1/Nai,nEnrVec(iSym))
-          if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
+          if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
           nBat = (nEnrVec(iSym)-1)/nVec+1
 
           ! Open Cholesky vector files.
@@ -132,7 +132,7 @@ if (MP2_small) then
             kVec = kEnd1
             kEnd2 = kVec+nVaJi
             lWrk2 = lWrk-kEnd2+1
-            if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
+            if (lWrk2 < 0) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
 
             ! Read one vector at a time and reorder.
             ! --------------------------------------
@@ -261,7 +261,7 @@ do iBatch=1,nBatch
   kXaibj = 1
   kEnd0 = kXaibj+LnT2am
   lWrk0 = lWrk-kEnd0+1
-  if (lWrk0 < 1) call ChoMP2_Quit(SecNam,'insufficient memory','[0]')
+  if (lWrk0 < 1) call SysAbendMsg(SecNam,'insufficient memory','[0]')
 
   if (ChoAlg == 2) then
 
@@ -283,13 +283,13 @@ do iBatch=1,nBatch
         kEnd1 = kVecai+Nai
         lWrk1 = lWrk-kEnd1+1
 
-        if (lWrk1 < Nai) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.1]')
+        if (lWrk1 < Nai) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.1]')
 
         ! Set up batch over Cholesky vectors.
         ! -----------------------------------
 
         nVec = min(lWrk1/Nai,nEnrVec(iSym))
-        if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
+        if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.2]') ! should not happen
         nBat = (nEnrVec(iSym)-1)/nVec+1
 
         ! Open Cholesky vector files.
@@ -325,7 +325,7 @@ do iBatch=1,nBatch
           kVec = kEnd1
           kEnd2 = kVec+nVaJi
           lWrk2 = lWrk-kEnd2+1
-          if (lWrk2 < 0) call ChoMP2_Quit(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
+          if (lWrk2 < 0) call SysAbendMsg(SecNam,'Insufficient memory','[ChoAlg.2.3]') ! should not happen
 
           ! Read one vector at a time and reorder.
           ! --------------------------------------

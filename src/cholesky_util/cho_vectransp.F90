@@ -130,7 +130,7 @@ nelm = nRS_g*nV
 iGAL = ga_local_woff(g_a)
 call Cho_GAdGOP(Work(iGAL),nelm,'+')
 #else
-call Cho_GASync()
+call GASync()
 #endif
 Jin0 = Jin-1
 do i=1,nVR
@@ -169,12 +169,7 @@ call Cho_GAIGOP(iAdrLG,size(iAdrLG),'+')
 call mma_deallocate(MapRS2RS)
 
 if (LocDbg) then
-  iCount = 0
-  do iNode=1,nProcs
-    do iRSL=1,nRSL(iNode)
-      iCount = iCount+1
-    end do
-  end do
+  iCount = sum(nRSL(1:nProcs))
   if (iCount /= nRS_g) call Cho_Quit('nRSL error in '//SecNam,104)
 end if
 

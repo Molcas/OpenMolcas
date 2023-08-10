@@ -85,7 +85,7 @@ nBlock_Max = nBlock(1)
 do iSym=2,nSym
   nBlock_Max = max(nBlock_Max,nBlock(iSym))
 end do
-nnB = nBlock_Max*(nBlock_Max+1)/2
+nnB = nTri_Elem(nBlock_Max)
 if ((l_nV1 < nBlock_Max) .or. (l_iV11 < nBlock_Max) .or. (l_Z1 < nnB)) then
   irc = -2
   return
@@ -105,7 +105,7 @@ do iSym=1,nSym
   do j=1,nBlock(iSym)
     do i=j,nBlock(iSym)
       if (i == j) then
-        k = nV(i,iSym)*(nV(i,iSym)+1)/2
+        k = nTri_Elem(nV(i,iSym))
       else
         k = nV(i,iSym)*nV(j,iSym)
       end if
@@ -117,9 +117,9 @@ do iSym=1,nSym
     end do
   end do
 end do
-k = NVT(1)*(NVT(1)+1)/2
+k = nTri_Elem(NVT(1))
 do iSym=2,nSym
-  k = k+NVT(iSym)*(NVT(iSym)+1)/2
+  k = k+nTri_Elem(NVT(iSym))
 end do
 if (iPrint >= myDebugInfo) then
   write(Lupri,'(A,I8)') 'Total dimension of Z (from blocks):',n
@@ -187,13 +187,13 @@ do iSym=1,nSym
   do while (KK1 <= NumCho(iSym))
     nVRead = 0
     mUsed = 0
-    call Cho_Timer(C0,W0)
+    call CWTime(C0,W0)
     call Cho_X_VecRd(Wrk,size(Wrk),KK1,NumCho(iSym),iSym,nVRead,iRedC,mUsed)
     if (nVRead < 1) then
       irc = 2
       return ! exit
     end if
-    call Cho_Timer(C1,W1)
+    call CWTime(C1,W1)
     tDecom(1,2) = tDecom(1,2)+(C1-C0)
     tDecom(2,2) = tDecom(2,2)+(W1-W0)
     nSys_Call = nSys_Call+1
@@ -249,7 +249,7 @@ end do
 
 do iSym=1,nSym
   do kBlock=1,nBlock(iSym)
-    call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2,'+')
+    call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),nTri_Elem(nV(kBlock,iSym)),'+')
     do jBlock=kBlock+1,nBlock(iSym)
       call Cho_GAdGOp(Z(ip_Z(iTri(jBlock,kBlock),iSym)),nV(jBlock,iSym)*nV(kBlock,iSym),'+')
     end do

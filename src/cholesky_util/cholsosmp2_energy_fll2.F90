@@ -21,6 +21,7 @@ subroutine ChoLSOSMP2_Energy_Fll2(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 ! vector files once for each grid point.
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: DecoMP2, iOcc, iT1am, iVir, Laplace_BlockSize, Laplace_nGridPoints, lUNit_F, nMP2Vec, nOcc, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -119,7 +120,7 @@ do q=1,N
       bsize = min(Laplace_BlockSize,nEnrVec(iSym))
       nBlock = (nEnrVec(iSym)-1)/bsize+1
       blast = nEnrVec(iSym)-bsize*(nBlock-1)
-      lenX = nEnrVec(iSym)*(nEnrVec(iSym)+1)/2+(nBlock-1)*(bsize*(bsize-1)/2)+blast*(blast-1)/2
+      lenX = nTri_Elem(nEnrVec(iSym))+(nBlock-1)*nTri_Elem(bsize-1)+nTri_Elem(blast-1)
       X(1:lenX) = Zero
       ! open file, read vectors, close file
       ! do not delete file here - it may be needed later

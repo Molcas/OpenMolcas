@@ -81,7 +81,6 @@ logical(kind=iwp) :: Done
 integer(kind=iwp) :: lVector
 real(kind=wp) :: AP(lVector), P(lVector), Prec(lVector), PTemp(lVector), R(lVector), res, RTemp(lVector), Tolerance, X(lVector), &
                  XTemp(lVector), Z(lVector), ZTemp(lVector)
-integer(kind=iwp) :: i
 real(kind=wp) :: Alfa, Beta
 real(kind=wp), external :: ddot_
 
@@ -109,9 +108,7 @@ if (Res < Tolerance) then
 else
 
   ! Now we calculate z_k+1 =
-  do i=1,lVector
-    Z(i) = R(i)*Prec(i)
-  end do
+  Z(:) = R(:)*Prec(:)
 
   ! Now we calculate beta = (r_k+1 * z_k+1) / (r_k * z_k)
   Beta = ddot_(lVector,R(1),1,Z(1),1)/ddot_(lVector,RTemp(1),1,ZTemp(1),1)

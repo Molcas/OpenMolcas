@@ -202,7 +202,7 @@ do iSym=1,nSym
       call Cho_SOSmp2_DecChk(irc,iSym,Qual,nDim,MxQual,Buf,lBuf,ErrStat)
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
-        call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+        call SysAbendMsg(SecNam,'SOS-MP2 decomposition failed!',' ')
       else
         XMn = ErrStat(1)
         XMx = ErrStat(2)

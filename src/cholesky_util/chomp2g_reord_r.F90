@@ -68,7 +68,7 @@ end do
 do iSym=1,nSym
   if (nMP2Vec(iSym) == 0) cycle
   nVec = min(maxvalue,nMP2Vec(iSym))
-  if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+  if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
   nBatR = (nMP2Vec(iSym)-1)/nVec+1
 
   ! Allocate memory for Ria-vectors

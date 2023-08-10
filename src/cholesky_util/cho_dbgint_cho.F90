@@ -17,6 +17,7 @@ subroutine CHO_DBGINT_CHO(XINT,NCD,NAB,WRK,LWRK,ERRMAX,ERRMIN,ERRRMS,NCMP,ISHLCD
 !
 ! NOTE: this is *only* for debugging.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, iSP2F, nBstSh, nnBstR, nnBstRSh, nSym, nSys_call, NumCho
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -43,12 +44,12 @@ NCMP = 0
 LCDABT = NCD*NAB
 
 if (ISHLC == ISHLD) then
-  NCDL = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+  NCDL = nTri_Elem(NBSTSH(ISHLC))
 else
   NCDL = NBSTSH(ISHLC)*NBSTSH(ISHLD)
 end if
 if (ISHLA == ISHLB) then
-  NABL = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+  NABL = nTri_Elem(NBSTSH(ISHLA))
 else
   NABL = NBSTSH(ISHLA)*NBSTSH(ISHLB)
 end if

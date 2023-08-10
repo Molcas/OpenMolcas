@@ -14,6 +14,7 @@ subroutine CHO_REOINI()
 ! Purpose: initializations for vector reordering.
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: NABPK, NBAS, NNBST, nSym
 use Definitions, only: iwp
 
@@ -28,7 +29,7 @@ do ISYMA=1,NSYM
     ISYM = MUL(ISYMB,ISYMA)
     NNBST(ISYM) = NNBST(ISYM)+NABPK(ISYMA,ISYMB)
   end do
-  NABPK(ISYMA,ISYMA) = NBAS(ISYMA)*(NBAS(ISYMA)+1)/2
+  NABPK(ISYMA,ISYMA) = nTri_Elem(NBAS(ISYMA))
   NNBST(1) = NNBST(1)+NABPK(ISYMA,ISYMA)
 end do
 

@@ -31,7 +31,7 @@ subroutine CHO_DRV_Inner(IRETURN)
 
 use Para_Info, only: Is_Real_Par, nProcs
 use Cholesky, only: Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Reord, Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, &
-                    INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
+                    Idle, INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -54,7 +54,7 @@ call CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
 ! Start overall timing.
 ! ---------------------
 
-if (IPRINT >= INF_TIMING) call CHO_TIMER(TCPU0,TWALL0)
+if (IPRINT >= INF_TIMING) call CWTIME(TCPU0,TWALL0)
 
 ! Set return code.
 ! ----------------
@@ -71,11 +71,11 @@ Check(1) = DUMTST
 ! ===============
 
 ISEC = 1
-if (IPRINT >= INF_TIMING) call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+if (IPRINT >= INF_TIMING) call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
 call CHO_INIT(SKIP_PRESCREEN,ALLOC_BKM)
-call CHO_GASYNC()
+call GASYNC()
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+  call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
   call CHO_PRTTIM('Cholesky initialization',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
 end if
 #ifdef _DEBUGPRINT_
@@ -93,14 +93,14 @@ end if
 
 ISEC = 2
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+  call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
   write(LUPRI,'(/,A)') '***** Starting Cholesky diagonal setup *****'
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
 call CHO_GETDIAG(LCONV)
-call CHO_GASYNC()
+call GASYNC()
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+  call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
   call CHO_PRTTIM('Cholesky diagonal setup',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
 end if
 #ifdef _DEBUGPRINT_
@@ -128,27 +128,27 @@ if (LCONV) then
   end if
 else
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting Cholesky decomposition *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   call CHO_P_SETADDR()
 
   if (CHO_SSCREEN) call CHO_SUBSCR_INIT()
 
   call CHO_DECDRV(Diag)
-  call CHO_GASYNC()
+  call GASYNC()
   if (CHO_DECALG == 2) then
     ! generate vectors from map
     call CHO_P_OPENVR(2) ! close files
     call CHO_P_OPENVR(1) ! re-open (problem on dec-alpha)
     if (IPRINT >= INF_TIMING) then
-      call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+      call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
       call CHO_PRTTIM('Cholesky map generation',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),2)
     end if
     IRC = 0
     call CHO_X_GENVEC(IRC,Diag)
-    call CHO_GASYNC()
+    call GASYNC()
     if (IRC /= 0) then
       write(LUPRI,'(A,A)') SECNAM,': decomposition failed!'
       write(LUPRI,'(A,A,I9)') SECNAM,': CHO_X_GENVEC returned ',IRC
@@ -156,13 +156,13 @@ else
       call CHO_QUIT('Error',104)
     end if
     if (IPRINT >= INF_TIMING) then
-      call CHO_TIMER(TC,TW)
+      call CWTIME(TC,TW)
       call CHO_PRTTIM('Cholesky vector generation',TC,TIMSEC(2,ISEC),TW,TIMSEC(4,ISEC),2)
     end if
   end if
   if (CHO_SSCREEN) call CHO_SUBSCR_FINAL()
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Cholesky decomposition',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 end if
@@ -178,14 +178,14 @@ if (LCONV) then
   TIMSEC(:,ISEC) = Zero
 else
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting Cholesky diagonal check *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   call mma_maxDBLE(LWRK)
   call mma_allocate(KWRK,LWRK,Label='KWRK')
   call CHO_RESTART(Diag,KWRK,LWRK,.true.,LCONV)
-  call CHO_GASYNC()
+  call GASYNC()
   call mma_deallocate(KWRK)
   if (.not. LCONV) then
     write(LUPRI,'(A,A)') SECNAM,': Decomposition failed!'
@@ -193,7 +193,7 @@ else
     call CHO_QUIT('Decomposition failed!',104)
   end if
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Cholesky diagonal check',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 # ifdef _DEBUGPRINT_
@@ -212,14 +212,14 @@ call CHO_P_WRDIAG()
 ISEC = 5
 if (CHO_INTCHK) then
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting Cholesky integral check *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   call CHO_DBGINT()
-  call CHO_GASYNC()
+  call GASYNC()
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Cholesky integral check',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 # ifdef _DEBUGPRINT_
@@ -235,20 +235,20 @@ end if
 ISEC = 6
 if (CHO_REORD) then
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting vector reordering *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   LIRS1F = NNBSTRT(1)*3
   call mma_allocate(KIRS1F,LIRS1F,Label='KIRS1F')
   call mma_maxDBLE(LWRK)
   call mma_allocate(KWRK,LWRK,Label='KWRK')
   call CHO_REOVEC(KIRS1F,3,NNBSTRT(1),KWRK,LWRK)
-  call CHO_GASYNC()
+  call GASYNC()
   call mma_deallocate(KWRK)
   call mma_deallocate(KIRS1F)
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Vector reordering',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 # ifdef _DEBUGPRINT_
@@ -266,14 +266,14 @@ end if
 ISEC = 7
 if (CHO_FAKE_PAR .and. (NPROCS > 1) .and. Is_Real_Par()) then
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting vector distribution *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   call CHO_PFAKE_VDIST()
   call CHO_P_WRRSTC(XNPASS)
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Vector distribution',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 # ifdef _DEBUGPRINT_
@@ -288,15 +288,15 @@ end if
 
 ISEC = 8
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+  call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
   write(LUPRI,'(/,A)') '***** Starting Cholesky finalization *****'
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
-call CHO_TRCIDL_FINAL()
+if (allocated(Idle)) call mma_deallocate(Idle)
 call CHO_FINAL(.true.)
-call CHO_GASYNC()
+call GASYNC()
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+  call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
   call CHO_PRTTIM('Cholesky finalization',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
 end if
 #ifdef _DEBUGPRINT_
@@ -309,14 +309,14 @@ call CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_FINAL]')
 if (IPRINT >= 1) then
   ISEC = 9
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
+    call CWTIME(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
     write(LUPRI,'(/,A)') '***** Starting Cholesky statistics *****'
-    call CHO_FLUSH(LUPRI)
+    call XFLUSH(LUPRI)
   end if
   call CHO_P_STAT()
-  call CHO_GASYNC()
+  call GASYNC()
   if (IPRINT >= INF_TIMING) then
-    call CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
+    call CWTIME(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
     call CHO_PRTTIM('Cholesky statistics',TIMSEC(2,ISEC),TIMSEC(1,ISEC),TIMSEC(4,ISEC),TIMSEC(3,ISEC),1)
   end if
 end if
@@ -334,7 +334,7 @@ call CHO_P_OPENVR(2)
 TST = DUMTST-Check(1)
 if (abs(TST) > DUMTOL) then
   write(LUPRI,*) SECNAM,': memory has been out of bounds!!!'
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
   IRETURN = 2
 end if
 
@@ -345,7 +345,7 @@ nullify(Diag_G)
 call mma_deallocate(Check)
 
 if (IPRINT >= INF_TIMING) then
-  call CHO_TIMER(TCPU1,TWALL1)
+  call CWTIME(TCPU1,TWALL1)
   call CHO_PRTTIM('Cholesky procedure',TCPU1,TCPU0,TWALL1,TWALL0,1)
 end if
 

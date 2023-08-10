@@ -36,7 +36,7 @@
 
 subroutine Cho_X_CalculateGMat(irc)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, nnBstR, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -120,7 +120,7 @@ do iSym=1,nSym
   l_iRS2RS = nnBstR(iSym,1)
   call mma_allocate(iRS2RS,l_iRS2RS,Label='iRS2RS')
   iRS2RS(:) = 0
-  l_G = NVT(iSym)*(NVT(iSym)+1)/2
+  l_G = nTri_Elem(NVT(iSym))
   call mma_allocate(G,l_G,Label='G')
   call mma_MaxDBLE(l_Wrk)
   call mma_allocate(Wrk,l_Wrk,Label='Wrk')

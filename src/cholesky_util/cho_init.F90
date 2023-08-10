@@ -23,10 +23,11 @@ subroutine CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
 use Symmetry_Info, only: Mul
 use Cholesky, only: BkmThr, BkmVec, CHKONLY, CHO_1CENTER, CHO_DECALG, CHO_NO2CENTER, CHO_PRESCREEN, Cho_SScreen, DIAMNZ, &
                     DID_DECDRV, IABMNZ, iAtomShl, iBas, iBasSh, ICHKQ, iiBstRSh, iiBstRSh_Hidden, INF_INIT, InfRed, InfRed_Hidden, &
-                    InfVec, InfVec_Hidden, INFVEC_N2, IntMap, IPRINT, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, LuPri, MaxQual, MaxRed, &
-                    MaxVec, MODE_SCREEN, MX2SH, MXORSH, MySP, nBas, nBasSh, nBasT, nBstSh, nCol_BkmThr, nCol_BkmVec, nDGM_call, &
-                    nDimRS, nnBstRSh, nnBstRSh_Hidden, nnShl, nnShl_SP, nnShl_tot, NNZTOT, nRow_BkmThr, nRow_BkmVec, nShell, nSym, &
-                    nSys_call, nVecRS1, RstCho, SSTau, TDECDRV, TDECOM, Thr_PreScreen, ThrCom, TINTEG, TMISC, Trace_Idle
+                    InfVec, InfVec_Hidden, INFVEC_N2, IntMap, IPRINT, iQuAB, iQuAB_Hidden, iShlSO, iSOShl, LuCho, LuMap, LuPri, &
+                    LuRed, LuRst, MaxQual, MaxRed, MaxVec, MODE_SCREEN, MX2SH, MXORSH, MySP, nBas, nBasSh, nBasT, nBstSh, &
+                    nCol_BkmThr, nCol_BkmVec, nDGM_call, nDimRS, nnBstRSh, nnBstRSh_Hidden, nnShl, nnShl_SP, nnShl_tot, NNZTOT, &
+                    nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, nVecRS1, RstCho, SSTau, TDECDRV, TDECOM, Thr_PreScreen, &
+                    ThrCom, TINTEG, TMISC, Trace_Idle
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -112,7 +113,10 @@ NDGM_CALL = 0
 ! Open restart files.
 ! ----------------------------------------------
 
-call CHO_UNINI()
+LURED = 0
+LUCHO(1:NSYM) = 0
+LURST = 0
+LUMAP = 0
 call CHO_P_OPENVR(1)
 
 ! Initialize integral SP counter.
@@ -218,7 +222,7 @@ end if
 
 if (IPRINT >= 1) then
   call CHO_PRTHEAD(.false.)
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
 
 ! Check configuration.

@@ -34,18 +34,18 @@ real(kind=wp) :: C0, C1, W0, W1
 
 irc = 0
 if (Cho_Real_Par) then
-  if (iPrint >= Inf_Pass) call Cho_Timer(C0,W0)
+  if (iPrint >= Inf_Pass) call CWTime(C0,W0)
   call Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP,NVT,l_NVT)
   if (iPrint >= Inf_Pass) then
-    call Cho_Timer(C1,W1)
+    call CWTime(C1,W1)
     write(LuPri,'(/,1X,A)') 'Timing of vector distribution:'
     call Cho_PrtTim(' ',C1,C0,W1,W0,-1)
   end if
 else
-  if (iPrint >= Inf_Pass) call Cho_Timer(C0,W0)
+  if (iPrint >= Inf_Pass) call CWTime(C0,W0)
   call Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,idSP,n_idSP)
   if (iPrint >= Inf_Pass) then
-    call Cho_Timer(C1,W1)
+    call CWTime(C1,W1)
     write(LuPri,'(/,1X,A)') 'Timing of vector write:'
     call Cho_PrtTim(' ',C1,C0,W1,W0,-1)
   end if

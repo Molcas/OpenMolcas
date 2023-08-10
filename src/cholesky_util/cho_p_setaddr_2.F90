@@ -15,7 +15,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MaxRed, InfRed(MaxRed), MaxVec, N2, nSym, InfVec(MaxVec,N2,nSym), irc
-integer(kind=iwp) :: iSym
 
 irc = 0
 
@@ -27,10 +26,7 @@ else
 end if
 
 if ((MaxVec > 0) .and. (N2 >= 4)) then
-  do iSym=1,nSym
-    InfVec(1,3,iSym) = 0
-    InfVec(1,4,iSym) = 0
-  end do
+  InfVec(1,3:4,1:nSym) = 0
 else
   irc = 2
   return

@@ -26,24 +26,18 @@ integer(kind=iwp) :: N
 real(kind=wp) :: A(40,40), X(40), B(40)
 logical(kind=iwp) :: Error
 integer(kind=iwp) :: I, II, J, K
-real(kind=wp) :: P, PInv, S, SInv, Temp
+real(kind=wp) :: P, PInv, S, SInv
 real(kind=wp), parameter :: G_Eps = 1.0e-19_wp
 
 Error = .false.
 do I=1,N
   do K=I,N
-    S = Zero
-    do J=I,N
-      Temp = A(K,J)*A(K,J)
-      S = S+Temp
-    end do
+    S = sum(A(K,I:N)**2)
     if (S == Zero) return
     S = sqrt(S)
     SInv = One/S
     B(K) = B(K)*SInv
-    do J=1,N
-      A(K,J) = A(K,J)*SInv
-    end do
+    A(K,1:N) = A(K,1:N)*SInv
   end do
 
   P = A(I,I)
@@ -69,30 +63,19 @@ do I=1,N
 
   PInv = One/P
   B(I) = B(I)*PInv
-  do J=I+1,N
-    A(I,J) = A(I,J)*PInv
-  end do
+  A(I,I+1:N) = A(I,I+1:N)*PInv
   do K=I+1,N
     S = A(K,I)
     if (S /= Zero) then
-      Temp = S*B(I)
-      B(K) = B(K)-Temp
-      do J=I+1,N
-        Temp = S*A(I,J)
-        A(K,J) = A(K,J)-Temp
-      end do
+      B(K) = B(K)-S*B(I)
+      A(K,J) = A(K,J)-S*sum(A(I,I+1:N))
     end if
   end do
 end do
 
 II = N
 do I=1,N
-  S = B(II)
-  do J=II+1,N
-    Temp = A(II,J)*X(J)
-    S = S-Temp
-  end do
-  X(II) = S
+  X(II) = B(II)-sum(A(II,II+1:N)*X(II+1:N))
   II = II-1
 end do
 

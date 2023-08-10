@@ -78,7 +78,7 @@ if (LocDbg) then
   write(Lupri,'(A,A,8I10)') SecNam,'(exit): nVec_in_Buf:',(nVec_in_Buf(iSym),iSym=1,nSym)
   write(Lupri,'(A,A,8I10)') SecNam,'(exit): buffer allocated:',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
   write(Lupri,'(A,A,8I10)') SecNam,'(exit): memory used:',(mUsed(iSym),iSym=1,nSym)
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 end subroutine Cho_VecBuf_Ini2

@@ -24,12 +24,7 @@ character(len=6) :: FNAME
 character(len=*), parameter :: SECNAM = 'CHO_OPFVEC'
 
 if (IOPT == 0) then
-  do ISYMA=1,NSYM
-    do ISYMB=1,ISYMA
-      LUFV(ISYMA,ISYMB) = -1
-      LUFV(ISYMB,ISYMA) = -1
-    end do
-  end do
+  LUFV(1:NSYM,1:NSYM) = -1
 else if (IOPT == 1) then
   do ISYMB=1,NSYM
     ISYMA = MUL(ISYMB,ISYM)

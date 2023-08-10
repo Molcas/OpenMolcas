@@ -184,8 +184,8 @@ C
       Integer  LDF_nBas_Atom, LDF_nBasAux_Pair
       External LDF_nBas_Atom, LDF_nBasAux_Pair
 
-      Real*8   dDot_, LDF_AtomicDistance, Cho_dSumElm
-      external ddot_, LDF_AtomicDistance, Cho_dSumElm
+      Real*8   dDot_, LDF_AtomicDistance
+      external ddot_, LDF_AtomicDistance
 
       Character*4 Label1, Label2
 
@@ -242,7 +242,7 @@ C
          Call LDF_Quit(1)
       End If
       NrmI=sqrt(dDot_(l_Int,Work(ip_Int),1,Work(ip_Int),1))
-      SmI=Cho_dSumElm(Work(ip_Int),l_Int)
+      SmI=sum(Work(ip_Int:ip_Int+l_Int-1))
 
       ! Allocate and compute G matrix
       l_G=M**2
@@ -263,7 +263,7 @@ C
       Else
          irc=0
       End If
-      Sm=Cho_dSumElm(Work(ip_Int),l_Int)
+      Sm=sum(Work(ip_Int:ip_Int+l_Int-1))
 
       ! Compute and print statistics
       If (.not.Silent) Then
@@ -349,8 +349,8 @@ C
       External LDF_nBasAux_Pair
       External LDF_nBas_Atom, LDF_nBasAux_Pair_wLD, LDF_nBasAux_Atom
 
-      Real*8   dDot_, LDF_AtomicDistance, Cho_dSumElm
-      external ddot_, LDF_AtomicDistance, Cho_dSumElm
+      Real*8   dDot_, LDF_AtomicDistance
+      external ddot_, LDF_AtomicDistance
 
       Character*4 Label1, Label2
 
@@ -471,7 +471,7 @@ C
          Call LDF_Quit(1)
       End If
       NrmI=sqrt(dDot_(l_Int,Work(ip_Int),1,Work(ip_Int),1))
-      SmI=Cho_dSumElm(Work(ip_Int),l_Int)
+      SmI=sum(Work(ip_Int:ip_Int+l_Int-1))
 
       ! Compute contributions from 2-index integrals (J_A|K_A)
       l=MA**2
@@ -550,7 +550,7 @@ C
       Else
          irc=0
       End If
-      Sm=Cho_dSumElm(Work(ip_Int),l_Int)
+      Sm=sum(Work(ip_Int:ip_Int+l_Int-1))
 
       ! Compute and print statistics
       If (.not.Silent) Then

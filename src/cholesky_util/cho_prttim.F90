@@ -51,6 +51,6 @@ else
   write(LUPRI,'(A,I8,A,I2,A,F6.2,A)') 'Total wall time:',IHRW,' hours ',IMNW,' minutes ',SECW,' seconds'
 end if
 
-call CHO_FLUSH(LUPRI)
+call XFLUSH(LUPRI)
 
 end subroutine CHO_PRTTIM

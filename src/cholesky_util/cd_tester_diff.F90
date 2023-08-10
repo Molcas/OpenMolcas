@@ -30,7 +30,7 @@ else
   Err(1) = x(1)
   Err(2) = x(1)
   Err(3) = x(1)*x(1)
-  do i=2,n*n
+  do i=2,n**2
     Err(1) = min(Err(1),x(i))
     Err(2) = max(Err(2),x(i))
     Err(3) = Err(3)+x(i)*x(i)

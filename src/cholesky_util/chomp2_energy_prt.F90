@@ -70,7 +70,7 @@ else if (Job == 3) then
 
 else
 
-  call ChoMP2_Quit(SecNam,'Input parameter "Job" is out of range',' ')
+  call SysAbendMsg(SecNam,'Input parameter "Job" is out of range',' ')
 
 end if
 

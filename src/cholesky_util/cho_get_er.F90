@@ -50,6 +50,7 @@
 
 subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
@@ -59,8 +60,8 @@ implicit none
 integer(kind=iwp) :: irc, nOcc(*)
 real(kind=wp) :: CMO(*), ER(*), W
 logical(kind=iwp) :: timings
-integer(kind=iwp) :: i, ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, &
-                     jv, JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, jv, &
+                     JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, tintg(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWI1, TWI2, &
                  TWR1, TWR2
 real(kind=wp), allocatable :: Dab(:), DLT(:), Lab(:), VJ(:)
@@ -75,10 +76,9 @@ end if
 
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = Zero  !time for reading the vectors
-  tintg(i) = Zero  !time for computing the functional
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = Zero  !time for reading the vectors
+tintg(:) = Zero  !time for computing the functional
 
 ! compute some offsets and other quantities
 MaxB = nBas(1)
@@ -90,7 +90,7 @@ do kSym=2,nSym
   MaxB = max(MaxB,nBas(kSym))
 end do
 
-MaxBB = MaxB*(MaxB+1)/2
+MaxBB = nTri_Elem(MaxB)
 nOccT = iOcc(nSym)+nOcc(nSym)
 
 W = Zero ! initialization of the ER-functional value
@@ -188,12 +188,12 @@ do JRED=JRED1,JRED2
           do ia=1,ib-1
 
             ipa = isMO(kSym)+nBas(kSym)*(ik-1)+ia
-            ipab = ib*(ib-1)/2+ia
+            ipab = iTri(ib,ia)
             DLT(ipab) = CMO(ipa)*CMO(ipb)
 
           end do
 
-          ipab = ib*(ib+1)/2
+          ipab = nTri_Elem(ib)
           DLT(ipab) = Half*CMO(ipb)**2  !diagonal scaled
 
         end do
@@ -239,10 +239,7 @@ call mma_deallocate(DLT)
 call GAdGOp(ER,nOccT,'+')
 
 ! Compute the ER-functional from its orbital components
-W = Zero
-do ik=1,nOccT
-  W = W+ER(ik)
-end do
+W = sum(ER(1:nOccT))
 
 call CWTIME(TOTCPU2,TOTWALL2)
 TOTCPU = TOTCPU2-TOTCPU1

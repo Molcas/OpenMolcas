@@ -77,7 +77,7 @@ do iSym=1,nSym
 
     call mma_maxDBLE(l_Buf)
     if (l_Buf < nAB(iSym)) then
-      call ChoMP2_Quit(SecNam,'Insufficient memory!',' ')
+      call SysAbendMsg(SecNam,'Insufficient memory!',' ')
     else
       call mma_allocate(Buf,l_Buf,Label='Buf')
     end if
@@ -138,7 +138,7 @@ do iSym=1,nSym
 
     end do
 #   ifdef _DEBUGPRINT_
-    if ((nVecOnDisk /= nMP2Vec(iSym)) .or. (nVecInCore /= 0)) call ChoMP2_Quit(SecNam,'Logical bug detected!',' [1]')
+    if ((nVecOnDisk /= nMP2Vec(iSym)) .or. (nVecInCore /= 0)) call SysAbendMsg(SecNam,'Logical bug detected!',' [1]')
 #   endif
 
     call mma_deallocate(Buf)

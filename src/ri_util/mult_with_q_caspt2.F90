@@ -163,7 +163,7 @@ do iSym=1,nSym
   nBasTri = nTri_Elem(nBas(1))
   nVec = MaxMem/(2*nBasTri+1) ! MaxMem/(2*nLRb(iSym)+1)
   nVec = min(max(NumCV,NumAux),nVec)
-  if (nVec < 1) call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
+  if (nVec < 1) call SysAbendMsg(SecNam,'nVec is non-positive','[1]')
 
   l_B_t = nBasTri*nVec ! nLRb(iSym)*nVec
   ip_B = 1+l_B_t

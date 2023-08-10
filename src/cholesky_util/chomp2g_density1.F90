@@ -232,7 +232,7 @@ kEndFLagr = kFLagr(1)+lFLagr
 Wrk(kFlagr(1):kEndFlagr-1) = Zero
 
 nVec = min(maxvalue,max(nMP2VecMax,NumChoMax))
-if (nVec < 1) call ChoMP2_Quit(SecNam,'Insufficient memory','[1]')
+if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 
 ! Allocate memory for X^KJ-vector
 ! -------------------------------

@@ -27,6 +27,7 @@ subroutine SetExp(K,InitR,RIni,Coeff,T)
 !-----------------------------------------------------------------------
 
 use ReMez_mod, only: IW
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -40,11 +41,11 @@ logical(kind=iwp) :: Dbg
 Dbg = .false.
 
 I_Dim = 2*K
-call LVCLR(Alpha,1,KMAX)
-call LVCLR(Omega,1,KMAX)
-call LVCLR(Xi,1,KMAX2)
-call LVCLR(Coeff,1,KMAX2)
-call LVCLR(T,1,KMAX2)
+Alpha(:) = Zero
+Omega(:) = Zero
+Xi(:) = Zero
+Coeff(:,:) = Zero
+T(:) = Zero
 
 ! ===== Check K value =====
 

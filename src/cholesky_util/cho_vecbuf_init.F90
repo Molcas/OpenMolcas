@@ -46,7 +46,7 @@ if (LocDbg) then
   MF = int(Frac*dble(l_Max))
   call Cho_Word2Byte(MF,8,xMF,Unt)
   write(Lupri,*) 'Memory fraction : ',MF,' = ',xMF,Unt
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 l_ChVBfI_Sym(1:nSym) = 0
@@ -62,7 +62,7 @@ end if
 
 if (LocDbg) then
   write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-  call Cho_Flush(Lupri)
+  call XFlush(Lupri)
 end if
 
 end subroutine Cho_VecBuf_Init

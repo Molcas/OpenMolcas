@@ -23,6 +23,7 @@ subroutine CHO_MCA_DBGINT_A()
 !          (only partial particle permutation symmetry)
 
 use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: IFCSEW, iSP2F, LuPri, MX2SH, NBAS, nBstSh, nCol_chk, nnShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -92,7 +93,7 @@ do ISHLAB=ISAB1,ISAB2
 
   call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
   if (ISHLB == ISHLA) then
-    NUMAB = NBSTSH(ISHLA)*(NBSTSH(ISHLA)+1)/2
+    NUMAB = nTri_Elem(NBSTSH(ISHLA))
   else
     NUMAB = NBSTSH(ISHLA)*NBSTSH(ISHLB)
   end if
@@ -109,7 +110,7 @@ do ISHLAB=ISAB1,ISAB2
 
     call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
     if (ISHLD == ISHLC) then
-      NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC)+1)/2
+      NUMCD = nTri_Elem(NBSTSH(ISHLC))
     else
       NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
     end if
@@ -173,9 +174,7 @@ call mma_deallocate(INT1)
 ! Check total number of comparisons.
 ! ----------------------------------
 
-do ISYM=1,NSYM
-  XLBAS(ISYM) = real(NBAS(ISYM),kind=wp)
-end do
+XLBAS(1:NSYM) = real(NBAS(1:NSYM),kind=wp)
 XNINT = Zero
 do ISYM=1,NSYM
   XXLBST = Zero

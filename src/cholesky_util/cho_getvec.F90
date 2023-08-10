@@ -100,7 +100,7 @@ end if
 ! ------------
 
 if (LOCDBG) then
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
   write(LUPRI,*)
   write(LUPRI,*) SECNAM,':'
   write(LUPRI,*) 'Vectors ',IVEC1,' to ',IVEC1+NUMVEC-1,' of symmetry ',ISYM,' read from unit ',LUCHO(ISYM)
@@ -112,7 +112,7 @@ if (LOCDBG) then
     XNRM = sqrt(DDOT_(LENVEC,CHOVEC(1,IVEC),1,CHOVEC(1,IVEC),1))
     write(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',XNRM
   end do
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 end if
 
 end subroutine CHO_GETVEC

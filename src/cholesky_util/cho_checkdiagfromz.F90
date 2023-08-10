@@ -86,10 +86,7 @@ end do
 
 ! Total number of vectors
 ! ...should equal number of converged diagonals
-nTot = NVT(1)
-do iSym=2,nSym
-  nTot = nTot+NVT(iSym)
-end do
+nTot = sum(NVT(1:nSym))
 
 ! Count diagonals smaller than threshold
 n1 = 0

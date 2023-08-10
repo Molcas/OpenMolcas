@@ -124,12 +124,8 @@ EFermi = Half*(EHOMO+ELUMO)
 
 ! translate orbital energy origin to EFermi
 do iSym=1,nSym
-  do i=1,nOcc(iSym)
-    EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)-EFermi
-  end do
-  do i=1,nVir(iSym)
-    EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)-EFermi
-  end do
+  EOcc(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym)) = EOcc(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym))-EFermi
+  EVir(iVir(iSym)+1:iVir(iSym)+nVir(iSym)) = EVir(iVir(iSym)+1:iVir(iSym)+nVir(iSym))-EFermi
 end do
 ELOMO = ELOMO-EFermi
 EHOMO = EHOMO-EFermi
@@ -205,17 +201,13 @@ contains
 !========
 subroutine Finish_this()
 
-  integer(kind=iwp) :: i, iSym
+  integer(kind=iwp) :: iSym
 
   ! translate orbital energy origin from Fermi back to original
   if (FermiShift) then
     do iSym=1,nSym
-      do i=1,nOcc(iSym)
-        EOcc(iOcc(iSym)+i) = EOcc(iOcc(iSym)+i)+EFermi
-      end do
-      do i=1,nVir(iSym)
-        EVir(iVir(iSym)+i) = EVir(iVir(iSym)+i)+EFermi
-      end do
+      EOcc(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym)) = EOcc(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym))+EFermi
+      EVir(iVir(iSym)+1:iVir(iSym)+nVir(iSym)) = EVir(iVir(iSym)+1:iVir(iSym)+nVir(iSym))+EFermi
     end do
   end if
 

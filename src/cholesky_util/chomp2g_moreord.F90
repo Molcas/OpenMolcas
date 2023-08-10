@@ -30,14 +30,8 @@ integer(kind=iwp) :: iMoType1, iMOType2
 integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2, nOffOrb1(8), nOffOrb2(8), nOrb1(8), nOrb2(8)
 
 do iSym=1,nSym
-  nOffOrb1(iSym) = 0
-  nOffOrb2(iSym) = 0
-  do i=1,iMOType1-1
-    nOffOrb1(iSym) = nOffOrb1(iSym)+nMo(iSym,i)
-  end do
-  do i=1,iMOType2-1
-    nOffOrb2(iSym) = nOffOrb2(iSym)+nMo(iSym,i)
-  end do
+  nOffOrb1(iSym) = sum(nMo(iSym,1:iMOType1-1))
+  nOffOrb2(iSym) = sum(nMo(iSym,1:iMOType2-1))
   nOrb1(iSym) = nMo(iSym,iMOType1)
   nOrb2(iSym) = nMo(iSym,iMOType2)
 end do

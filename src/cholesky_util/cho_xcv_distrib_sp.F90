@@ -25,7 +25,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: l_mySP, mySP(l_mySP), N_mySP
-integer(kind=iwp) :: iNode, iSP, iSym, n
+integer(kind=iwp) :: iNode, iSP, n
 integer(kind=iwp), allocatable :: ProcDim(:)
 integer(kind=iwp), external :: Cho_iFindSmallest
 
@@ -39,10 +39,7 @@ if (Cho_Real_Par) then
 
   N_mySP = 0
   do iSP=1,nnShl
-    n = nnBstRSh(1,iSP,1)
-    do iSym=2,nSym
-      n = n+nnBstRSh(iSym,iSP,1)
-    end do
+    n = sum(nnBstRSh(1:nSym,iSP,1))
     if (n > 0) then
       iNode = Cho_iFindSmallest(ProcDim,nProcs)
       ProcDim(iNode) = ProcDim(iNode)+n
@@ -57,10 +54,7 @@ if (Cho_Real_Par) then
 else
   N_mySP = 0
   do iSP=1,nnShl
-    n = nnBstRSh(1,iSP,1)
-    do iSym=2,nSym
-      n = n+nnBstRSh(iSym,iSP,1)
-    end do
+    n = sum(nnBstRSh(1:nSym,iSP,1))
     if (n > 0) then
       N_mySP = N_mySP+1
       mySP(N_mySP) = iSP

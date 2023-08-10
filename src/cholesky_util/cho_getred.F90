@@ -23,7 +23,6 @@ logical(kind=iwp) :: LRSH
 integer(kind=iwp) :: IADR, IADR1, IOPT, LSAV, LTOT
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GETRED'
-integer(kind=iwp), external :: CHO_ISUMELM
 
 #ifdef _DEBUGPRINT_
 ! Test dimensions.
@@ -60,7 +59,7 @@ LTOT = NSYM*NNSHL
 call IDAFILE(LURED,IOPT,NNBSTRSH(:,:,ILOC),LTOT,IADR)
 IOPT = 2
 IADR = IADR1+NSYM*NNSHL
-LSAV = CHO_ISUMELM(NNBSTRSH(:,:,ILOC),NSYM*NNSHL)
+LSAV = sum(NNBSTRSH(:,:,ILOC))
 LTOT = LSAV
 call IDAFILE(LURED,IOPT,INDRED(:,ILOC),LTOT,IADR)
 if (LRSH .and. (IPASS == 1)) then

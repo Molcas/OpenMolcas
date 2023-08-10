@@ -36,7 +36,6 @@ character(len=LenIn8) :: AtomLabel(MxBas)
 integer(kind=iwp), allocatable :: iBF2Atom(:), mapRS2F(:,:), nBas_per_Atom(:), nBas_Start(:), nPC1(:)
 real(kind=wp), allocatable :: Coord(:,:), RC2(:)
 character(len=*), parameter :: SecNam = 'Cho_Stat_ParentDiag'
-integer(kind=iwp), external :: Cho_iSumElm
 
 ! Set debug flag.
 ! ---------------
@@ -141,7 +140,7 @@ do iVec=1,NumChT
     Rave = Rave+R
   end if
 end do
-nTot1 = Cho_iSumElm(nPC1,nAtom)
+nTot1 = sum(nPC1(:))
 nTot2 = NumChT-nTot1
 if (nTot2 > 0) then
   Rave = Rave/real(nTot2,kind=wp)

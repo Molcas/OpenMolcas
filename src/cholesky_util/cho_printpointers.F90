@@ -25,7 +25,7 @@ integer(kind=iwp) :: irc, Lunit
 write(Lunit,*) '*** Contents of Cholesky:'
 write(Lunit,*) '    (dimension)'
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 write(Lunit,*) 'InfRed  : ',size(InfRed)
 write(Lunit,*) 'InfVec  : ',size(InfVec)
 write(Lunit,*) 'IndRed  : ',size(IndRed)
@@ -45,7 +45,7 @@ write(Lunit,*) 'nBstSh  : ',size(nBstSh)
 write(Lunit,*) 'iAtomShl: ',size(iAtomShl)
 write(Lunit,*) 'iSP2F   : ',size(iSP2F)
 write(Lunit,*)
-call Cho_Flush(Lunit)
+call XFlush(Lunit)
 
 irc = 0
 

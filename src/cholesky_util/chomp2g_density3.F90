@@ -18,6 +18,7 @@ subroutine ChoMP2g_Density3(irc,CMO)
 !     Purpose: Finalize MP2 Density.                                   *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym
 use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e, nDel, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,13 +50,11 @@ end interface
 !                                                                      *
 irc = 0
 
-do iSym=1,8
-  nOrbAll(iSym) = nOrb(iSym)+nDel(iSym)
-end do
+nOrbAll(:) = nOrb(:)+nDel(:)
 
 lTriDens = 0
 do iSym=1,nSym
-  lTriDens = lTriDens+nOrbAll(iSym)*(nOrbAll(iSym)+1)/2
+  lTriDens = lTriDens+nTri_Elem(nOrbAll(iSym))
 end do
 
 do iSym=1,nSym

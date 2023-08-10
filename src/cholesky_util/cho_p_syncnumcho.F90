@@ -14,24 +14,21 @@ subroutine Cho_P_SyncNumCho(NumCho,nSym)
 ! Purpose: sync global NumCho_G vector counter. On entry, NumCho is
 !          the local counter (unchanged).
 
-use Cholesky, only: Cho_Real_Par, NumCho_G, NumChT_G
+use Cholesky, only: Cho_Real_Par, NumCho_G, NumChT_G, tMisc
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nSym, NumCho(nSym)
-integer(kind=iwp) :: iSym
 real(kind=wp) :: c1, c2, w1, w2
 
 if (Cho_Real_Par) then
-  call Cho_Timer(c1,w1)
+  call CWTime(c1,w1)
   NumCho_G(1:nSym) = NumCho(1:nSym)
   call Cho_GAIGop(NumCho_G,nSym,'max')
-  NumChT_G = NumCho_G(1)
-  do iSym=2,nSym
-    NumChT_G = NumChT_G+NumCho_G(iSym)
-  end do
-  call Cho_Timer(c2,w2)
-  call Cho_P_SyncNumCho_Time(c2-c1,w2-w1)
+  NumChT_G = sum(NumCho_G(1:nSym))
+  call CWTime(c2,w2)
+  tMisc(1,5) = tMisc(1,5)+c2-c1
+  tMisc(2,5) = tMisc(2,5)+w2-w1
 end if
 
 end subroutine Cho_P_SyncNumCho

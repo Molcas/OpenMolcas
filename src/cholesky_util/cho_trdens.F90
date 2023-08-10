@@ -31,8 +31,8 @@ type(DSBA_Type), intent(in) :: DLT, Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
 #include "debug.fh"
-integer(kind=iwp) :: dimX, i, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, &
-                     k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, k, &
+                     kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
                  TWC1, TWC2, TWR1, TWR2
 logical(kind=iwp) :: add, DoRead
@@ -84,10 +84,9 @@ end if
 
 call CWTIME(TOTCPU1,TOTWALL1) ! start clock for total time
 
-do i=1,2          ! 1 --> CPU   2 --> Wall
-  tread(i) = Zero ! time for reading the vectors
-  tcoul(i) = Zero ! time for computing Coulomb
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = Zero ! time for reading the vectors
+tcoul(:) = Zero ! time for computing Coulomb
 
 iLoc = 3 ! use scratch location in reduced index arrays
 

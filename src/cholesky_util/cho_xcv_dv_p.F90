@@ -84,7 +84,7 @@ do iSym=1,nSym
     write(LuPri,'(3X,A,I8)') 'Local number of vectors:',NumCho(iSym)
     write(LuPri,'(3X,A,I8)') 'Vector dimension       :',nnBstR(iSym,2)
     write(LuPri,'(3X,A,I8)') 'Shell pair batches     :',nSP_Batch
-    call Cho_Flush(LuPri)
+    call XFlush(LuPri)
   end if
   if ((NVT(iSym) > 0) .and. (nnBstR(iSym,2) > 0)) then
     ! Set up batching, ensuring that the number of vectors is
@@ -106,13 +106,13 @@ do iSym=1,nSym
     if (.not. ok) call Cho_Quit(SecNam//': ga_create() failed!',101)
     if (iPrint >= Inf_Progress) then
       write(LuPri,'(3X,A,I8)') 'Vector batches         :',nBatch
-      call Cho_Flush(LuPri)
+      call XFlush(LuPri)
     end if
     ! Distribute in batches
     do iBatch=1,nBatch
       ! Sync: all must be at the same batch
       ! (so that we do not put while another is getting)
-      call Cho_GASync()
+      call GASync()
       ! Determine number of vectors in this batch
       if (iBatch == nBatch) then
         nVec_this_batch = NVT(iSym)-nVec_per_batch*(nBatch-1)
@@ -126,8 +126,8 @@ do iSym=1,nSym
         write(LuPri,'(3X,A,I8,/,3X,A)') 'Vector batch number:',iBatch,'++++++++++++++++++++++++++++'
         write(LuPri,'(6X,A,I8)') 'Number of vectors in this batch:',nVec_this_batch
         write(LuPri,'(6X,A,I8,1X,I8)') 'First and last vector          :',J1,J2
-        call Cho_Flush(LuPri)
-        call Cho_Timer(X0,Y0)
+        call XFlush(LuPri)
+        call CWTime(X0,Y0)
       end if
       ! Loop through SP blocks of vectors in this vector batch
       iAdr0 = 0
@@ -160,16 +160,16 @@ do iSym=1,nSym
         iSP1 = iSP1+nSP_this_batch
       end do
       if (iPrint >= Inf_Progress) then
-        call Cho_Timer(X1,Y1)
+        call CWTime(X1,Y1)
         write(LuPri,'(6X,A,F12.2,1X,F12.2)') 'Time for read/ga_put (sec)     :',(X1-X0),(Y1-Y0)
-        call Cho_Flush(LuPri)
+        call XFlush(LuPri)
       end if
       ! Sync: all must be done putting data into g_a
-      call Cho_GASync()
+      call GASync()
       ! Compute vector distribution for this batch
       my_nV = 0
       call Cho_P_Distrib_Vec(J1,J2,GADIST,my_nV)
-      if (iPrint >= Inf_Progress) call Cho_Timer(X0,Y0)
+      if (iPrint >= Inf_Progress) call CWTime(X0,Y0)
       ! Get vectors from global array
       J0 = J1-1
       kV = 1
@@ -187,7 +187,7 @@ do iSym=1,nSym
         kV = kV+nnBstR(iSym,2)*my_nV
       end if
       ! VVP: First performs RMA and only then I/O
-      call Cho_GASync()
+      call GASync()
 #     endif
       ! Write vectors to disk
       lTot = nnBstR(iSym,2)*my_nV
@@ -196,9 +196,9 @@ do iSym=1,nSym
         call DDAFile(LuCho(iSym),iOpt,GAVEC,lTot,iAdr)
       end if
       if (iPrint >= Inf_Progress) then
-        call Cho_Timer(X1,Y1)
+        call CWTime(X1,Y1)
         write(LuPri,'(6X,A,F12.2,1X,F12.2)') 'Time for ga_get/write (sec)    :',(X1-X0),(Y1-Y0)
-        call Cho_Flush(LuPri)
+        call XFlush(LuPri)
       end if
       ! Update my vector counter
       GAMNCH(iSym) = GAMNCH(iSym)+my_nV

@@ -92,9 +92,9 @@ do IBATCH=1,NBATCH
   ! Read previous vectors.
   ! ----------------------
 
-  call CHO_TIMER(C1,W1)
+  call CWTIME(C1,W1)
   call CHO_GETVEC(WRK(KCHO1),NNBSTR(ISYM,2),NUMV,IVEC1,ISYM,WRK(KEND2),LWRK2)
-  call CHO_TIMER(C2,W2)
+  call CWTIME(C2,W2)
   TDECOM(1,2) = TDECOM(1,2)+C2-C1
   TDECOM(2,2) = TDECOM(2,2)+W2-W1
 
@@ -103,7 +103,7 @@ do IBATCH=1,NBATCH
   ! one employs level 3 blas.
   ! ------------------------------------------------------------
 
-  call CHO_TIMER(C1,W1)
+  call CWTIME(C1,W1)
 
   if (CHO_SSCREEN) then ! screened subtraction
 
@@ -181,7 +181,7 @@ do IBATCH=1,NBATCH
 
   end if
 
-  call CHO_TIMER(C2,W2)
+  call CWTIME(C2,W2)
   TDECOM(1,3) = TDECOM(1,3)+C2-C1
   TDECOM(2,3) = TDECOM(2,3)+W2-W1
 

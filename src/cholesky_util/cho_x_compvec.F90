@@ -36,7 +36,7 @@ subroutine Cho_X_CompVec(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11
 ! Vectors are distributed across nodes and stored according to
 ! reduced set 1 (all of them!).
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 #ifdef _DEBUGPRINT_
 use Cholesky, only: iSP2F
 #endif
@@ -59,6 +59,7 @@ character(len=2) :: Unt
 integer(kind=iwp), pointer :: InfVcT(:,:,:)
 integer(kind=iwp), allocatable :: XCVLSP(:), XCVnBt(:), XCVTMP(:)
 real(kind=wp), allocatable :: XCVInt(:), XCVZd(:)
+real(kind=wp), parameter :: Mnt = 60.0_wp
 character(len=*), parameter :: SecNam = 'Cho_X_CompVec'
 integer(kind=iwp), external :: Cho_F2SP
 #ifdef _DEBUGPRINT_
@@ -89,7 +90,7 @@ nBlock_Max = nBlock(1)
 do iSym=2,nSym
   nBlock_Max = max(nBlock_Max,nBlock(iSym))
 end do
-nnB = nBlock_Max*(nBlock_Max+1)/2
+nnB = nTri_Elem(nBlock_Max)
 if ((l_nV1 < nBlock_Max) .or. (l_iV11 < nBlock_Max) .or. (l_Z1 < nnB)) then
   irc = -1
   return
@@ -145,10 +146,7 @@ do iSP=1,nnShl
 end do
 #ifdef _DEBUGPRINT_
 if (nSP /= size(XCVLSP)) call Cho_Quit('SP counting error [1] in '//SecNam,103)
-nTot = NVT(1)
-do iSym=2,nSym
-  nTot = nTot+NVT(iSym)
-end do
+nTot = sum(NVT(1:nSym))
 nTot2 = 0
 do i=1,nSP
   nTot2 = nTot2+XCVTMP(XCVLSP(i))
@@ -177,12 +175,8 @@ do iSym=2,nSym
 end do
 call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
 iQuAB => iQuAB_here
-do iSym=1,nSym
-  nQual(iSym) = NVT(iSym)
-  do J=1,nQual(iSym)
-    iQuAB(J,iSym) = InfVcT(J,1,iSym) ! parent product for vector J
-  end do
-end do
+nQual(1:nSym) = NVT(1:nSym)
+iQuAB(1:nQual(iSym),1:nSym) = InfVcT(1:nQual(iSym),1,1:nSym) ! parent product for vector J
 
 ! Modify diagonal of Z matrix
 ! Z(J,J) <- 1/Z(J,J)
@@ -192,10 +186,7 @@ if (Free_Z) then
   l_Zd = 1
   incZd = 0
 else
-  l_Zd = NVT(1)
-  do iSym=2,nSym
-    l_Zd = l_Zd+NVT(iSym)
-  end do
+  l_Zd = sum(NVT(1:nSym))
   incZd = 1
 end if
 call mma_allocate(XCVZd,l_Zd,Label='XCVZd')
@@ -256,7 +247,7 @@ if (iPrint >= Inf_Pass) then
   write(LuPri,'(//,65X,A)') 'Time/min'
   write(LuPri,'(1X,A,5X,A,5X,A,2X,A,10X,A,16X,A,6X,A)') 'Batch','iSP1','iSP2','%Done','Memory','CPU','Wall'
   write(LuPri,'(A)') '----------------------------------------------------------------------------'
-  call Cho_Flush(LuPri)
+  call XFlush(LuPri)
   TotMem = Zero
   TotCPU = Zero
   TotWall = Zero
@@ -267,17 +258,14 @@ iAdr(1:nSym) = 0 ! disk addresses
 iSP_1 = 1
 nBatch = 0
 do while (iSP_1 <= iCountSP)
-  if (iPrint >= Inf_Pass) call Cho_Timer(X0,Y0)
+  if (iPrint >= Inf_Pass) call CWTime(X0,Y0)
   ! Set batch info
   Left = l_Int
   nSP_Max = iCountSP-iSP_1+1
   nSP_this_batch = 0
   do while ((Left > 0) .and. (nSP_this_batch < nSP_Max))
     iSP = iSP_1+nSP_this_batch
-    n = nnBstRSh(1,XCVTMP(iSP),2)*NVT(1)
-    do iSym=2,nSym
-      n = n+nnBstRSh(iSym,XCVTMP(iSP),2)*NVT(iSym)
-    end do
+    n = sum(nnBstRSh(1:nSym,XCVTMP(iSP),2)*NVT(1:nSym))
     if (n <= Left) then
       Left = Left-n
       nSP_this_batch = nSP_this_batch+1
@@ -304,7 +292,7 @@ do while (iSP_1 <= iCountSP)
     call Cho_Quit(SecNam//': Error in Cho_XCV_GetInt',104)
   end if
   ! Convert integrals into Cholesky vectors in each symmetry
-  call Cho_Timer(C0,W0)
+  call CWTime(C0,W0)
   kOffI = 1
   do iSym=1,nSym
     ldL = max(nDim_Batch(iSym),1)
@@ -339,14 +327,14 @@ do while (iSP_1 <= iCountSP)
         call dGeMM_('N','T',nDim_Batch(iSym),nV(kBlock,iSym),nV(jBlock,iSym),-One,XCVInt(kL),ldL,Z(kZ),ldZ,One,XCVInt(kI),ldL)
       end do
     end do
-    nDGM_Call = nDGM_Call+nBlock(iSym)*(nBlock(iSym)-1)/2
+    nDGM_Call = nDGM_Call+nTri_Elem(nBlock(iSym)-1)
     kOffI = kOffI+nDim_Batch(iSym)*NVT(iSym)
   end do
-  call Cho_Timer(C1,W1)
+  call CWTime(C1,W1)
   tDecom(1,3) = tDecom(1,3)+(C1-C0)
   tDecom(2,3) = tDecom(2,3)+(W1-W0)
   ! Write vectors to temp files
-  call Cho_Timer(C0,W0)
+  call CWTime(C0,W0)
   kL = 1
   do iSym=1,nSym
     lTot = nDim_Batch(iSym)*NVT(iSym)
@@ -355,25 +343,22 @@ do while (iSP_1 <= iCountSP)
       kL = kL+lTot
     end if
   end do
-  call Cho_Timer(C1,W1)
+  call CWTime(C1,W1)
   tDecom(1,2) = tDecom(1,2)+(C1-C0)
   tDecom(2,2) = tDecom(2,2)+(W1-W0)
   ! Print
   if (iPrint >= Inf_Pass) then
-    call Cho_Timer(X1,Y1)
+    call CWTime(X1,Y1)
     PDone = 1.0e2_wp*real(iSP_2,kind=wp)/real(iCountSP,kind=wp)
-    lTot = nDim_Batch(1)*NVT(1)
-    do iSym=2,nSym
-      lTot = lTot+nDim_Batch(iSym)*NVT(iSym)
-    end do
+    lTot = sum(nDim_Batch(1:nSym)*NVT(1:nSym))
     call Cho_Word2Byte(lTot,8,Byte,Unt)
     PMem = 1.0e2_wp*real(lTot,kind=wp)/real(l_Int,kind=wp)
     write(LuPri,'(I6,1X,I8,1X,I8,1X,F6.1,1X,F10.3,1X,A,A,F7.2,A,1X,F9.2,1X,F9.2)') nBatch+1,iSP_1,iSP_2,PDone,Byte,Unt,' (',PMem, &
-                                                                                   '%)',(X1-X0)/6.0e1_wp,(Y1-Y0)/6.0e1_wp
-    call Cho_Flush(LuPri)
+                                                                                   '%)',(X1-X0)/Mnt,(Y1-Y0)/Mnt
+    call XFlush(LuPri)
     TotMem = TotMem+real(lTot,kind=wp)
-    TotCPU = TotCPU+(X1-X0)/6.0e1_wp
-    TotWall = TotWall+(Y1-Y0)/6.0e1_wp
+    TotCPU = TotCPU+(X1-X0)/Mnt
+    TotWall = TotWall+(Y1-Y0)/Mnt
   end if
   ! Update counters and save batch dimension
   iSP_1 = iSP_1+nSP_this_batch
@@ -385,7 +370,7 @@ if (iPrint >= Inf_Pass) then
   call Cho_RWord2Byte(TotMem,Byte,Unt)
   write(LuPri,'(32X,F10.3,1X,A,12X,F9.2,1X,F9.2)') Byte,Unt,TotCPU,TotWall
   write(LuPri,'(A)') '----------------------------------------------------------------------------'
-  call Cho_Flush(LuPri)
+  call XFlush(LuPri)
 end if
 
 ! If not deallocate Z matrix then reconstruct diagonal of Z matrix
@@ -419,13 +404,13 @@ MaxQual = MaxQual_SAVE
 
 ! Parallel runs: distribute vectors across nodes (store on files)
 ! Serial runs: write vectors to permanent files
-call Cho_Timer(C0,W0)
+call CWTime(C0,W0)
 call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,XCVTMP,iCountSP,NVT,l_NVT)
 if (irc /= 0) then
   write(LuPri,'(A,A,I8)') SecNam,': Cho_XCV_DistributeVectors returned code',irc
   call Cho_Quit(SecNam//': Error in Cho_XCV_DistributeVectors',104)
 end if
-call Cho_Timer(C1,W1)
+call CWTime(C1,W1)
 tDecom(1,2) = tDecom(1,2)+(C1-C0)
 tDecom(2,2) = tDecom(2,2)+(W1-W0)
 

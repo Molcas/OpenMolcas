@@ -17,12 +17,14 @@ subroutine CHO_INP(DFONLY,LUNIT,LUOUT)
 !          which is stored internally in the Cholesky program as
 !          LUPRI
 
+use Para_Info, only: Is_Real_Par
 use Cholesky, only: BLOCKSIZE, CHKONLY, CHO_1CENTER, CHO_ADRVEC, CHO_DECALG, CHO_DECALG_DEF, CHO_DIACHK, CHO_FAKE_PAR, CHO_INTCHK, &
-                    CHO_IOVEC, CHO_MINCHK, CHO_NO2CENTER, CHO_PRESCREEN, CHO_REORD, CHO_SIMP, CHO_SIMRI, Cho_SScreen, CHO_TRCNEG, &
-                    CHO_TSTSCREEN, CHO_USEABS, Damp, FRAC_CHVBUF, HALTIT, IALQUA, IFCSEW, IPRINT, LBUF, LuPri, MaxQual, MaxRed, &
-                    MaxVec, MinQual, ModRst, MXSHPR, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, NCOL_CHK, RstCho, RstDia, &
-                    RUN_INTERNAL, RUN_MODE, SCDIAG, Span, SSNorm, SSTau, SubScrStat, Thr_PreScreen, THR_SIMRI, ThrCom, ThrDef, &
-                    ThrDiag, Tol_DiaChk, Trace_Idle, ThrNeg, TOONEG, WARNEG, XlDiag
+                    CHO_IOVEC, CHO_MINCHK, CHO_NO2CENTER, CHO_PRESCREEN, Cho_Real_Par, CHO_REORD, CHO_SIMP, CHO_SIMRI, &
+                    Cho_SScreen, CHO_TRCNEG, CHO_TSTSCREEN, CHO_USEABS, Damp, FRAC_CHVBUF, HALTIT, IALQUA, IFCSEW, IPRINT, LBUF, &
+                    LuPri, MaxQual, MaxRed, MaxVec, MinQual, ModRst, MXSHPR, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, &
+                    NCOL_CHK, n_MySP, RstCho, RstDia, RUN_INTERNAL, RUN_MODE, SCDIAG, Span, SSNorm, SSTau, SubScrStat, &
+                    Thr_PreScreen, THR_SIMRI, ThrCom, ThrDef, ThrDiag, Tol_DiaChk, Trace_Idle, ThrNeg, TOONEG, WARNEG, XlDiag
+use RICD_Info, only: Do_RI, Thrshld_CD
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -109,16 +111,16 @@ if (IRC /= 0) then
   write(LUPRI,*) '(most likely due to a programming error...)'
   call CHO_QUIT('Include file initialization error in '//SECNAM,102)
 end if
-call CHO_SETPTR2()
+n_MySP = 0
 call CHO_SETGLOB()
 
 ! Set default parallel configuration.
-! CHO_FAKE_PAR = .TRUE. : fake parallel.
-! CHO_FAKE_PAR = .FALSE.: true parallel.
+! CHO_FAKE_PAR = .true. : fake parallel.
+! CHO_FAKE_PAR = .false.: true parallel.
 ! --------------------------------------
 
 CHO_FAKE_PAR = .false.
-call CHO_PARCONF(CHO_FAKE_PAR)
+Cho_Real_Par = Is_Real_Par() .and. (.not. CHO_FAKE_PAR)
 
 ! Set default decomposition algorithm (depends on parallel or serial
 ! installation).
@@ -693,7 +695,8 @@ end if
 ! ----------------
 
 if (FAKE_USRDEF) then
-  call CHO_PARCONF(CHO_FAKE_PAR) ! reset parallel configuration
+  ! reset parallel configuration
+  Cho_Real_Par = Is_Real_Par() .and. (.not. CHO_FAKE_PAR)
   if (.not. DECALG_USRDEF) then ! reset default decomposition alg
     call CHO_SETDECALG_DEF()
     CHO_DECALG = CHO_DECALG_DEF
@@ -715,7 +718,7 @@ end if
 ! Put decomposition threshold in RICD_Info.
 ! -----------------------------------------
 
-call PUT_THR_CHO(THRCOM)
+if (.not. Do_RI) Thrshld_CD = THRCOM
 
 ! Normal exit.
 ! ------------

@@ -33,7 +33,7 @@ real(kind=wp) :: AVEERR, BIN1, DMX, ERR, ERRMN, ERRMX, EXAMN, EXAMX, RMSERR, SAV
 logical(kind=iwp) :: SCDIAG_SAVE, SYNC
 character(len=*), parameter :: SECNAM = 'CHO_RESTART'
 integer(kind=iwp), external :: CHO_F2SP
-real(kind=wp), external :: CHO_DSUMELM, ddot_
+real(kind=wp), external :: ddot_
 
 ! Read diagonal (in reduced set 1).
 ! ---------------------------------
@@ -146,7 +146,7 @@ do ISYM=1,NSYM
     KOFF = IIBSTR(ISYM,1)+1
     XDIM = real(NDIM,kind=wp)
     RMSERR = sqrt(DDOT_(NDIM,DIAG(KOFF),1,DIAG(KOFF),1)/XDIM)
-    AVEERR = CHO_DSUMELM(DIAG(KOFF),NDIM)/XDIM
+    AVEERR = sum(DIAG(KOFF:KOFF+NDIM-1))/XDIM
 
     ! Print.
     ! ------
@@ -173,7 +173,7 @@ do ISYM=1,NSYM
 
   end if
 
-  call CHO_FLUSH(LUPRI)
+  call XFLUSH(LUPRI)
 
 end do
 

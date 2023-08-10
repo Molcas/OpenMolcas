@@ -17,6 +17,7 @@ subroutine ChoMP2_Energy_GetPQInd(LnPQRSprod,LiPQRSprod,iBatch,jBatch)
 !
 ! Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym
 use ChoMP2, only: ChoAlg, LnPQprod
 use Definitions, only: iwp
@@ -32,11 +33,11 @@ if (iBatch == jBatch) then
   if (ChoAlg == 1) then
     do iSym=1,nSym
       LiPQRSprod(iSym) = LnPQRSprod
-      LnPQRSprod = LnPQRSprod+LnPQprod(iSym,iBatch)*(LnPQprod(iSym,iBatch)+1)/2
+      LnPQRSprod = LnPQRSprod+nTri_Elem(LnPQprod(iSym,iBatch))
     end do
   else
     write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-    call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',String)
+    call SysAbendMsg(SecNam,'ChoAlg out-of-bounds error!',String)
   end if
 else
   LnPQRSprod = 0
