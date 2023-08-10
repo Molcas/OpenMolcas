@@ -91,8 +91,7 @@
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
      &        iTOffs(8,8,8),Map4(4), kOp(4)
-      Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb(nDens),
-     &        FckNoExch(nDens)
+      Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb,FckNoExch
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -440,8 +439,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb(1),FckNoExch(1),Aux,nAux,
-     & ExFac(1))
+     & FckNoClmb,FckNoExch,Aux,nAux,ExFac(1))
 *
                   Else
 *
@@ -473,8 +471,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb(1),FckNoExch(1),Aux,nAux,
-     & ExFac(1))
+     & FckNoClmb,FckNoExch,Aux,nAux,ExFac(1))
 *
                   End If
 *                                                                      *

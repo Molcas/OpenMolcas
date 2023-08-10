@@ -65,7 +65,7 @@
 *
       Parameter (nDens=1, lDens=1)
       Real*8 Fock(lDens), Dens(lDens), ExFac(nDens)
-      Logical FckNoClmb(nDens), FckNoExch(nDens)
+      Logical FckNoClmb, FckNoExch
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -141,8 +141,8 @@
       Disc_Mx=0.0D0
       Disc=0.0D0
       Quad_ijkl=0.0D0
-      FckNoClmb(1)=.False.
-      FckNoExch(1)=.False.
+      FckNoClmb=.False.
+      FckNoExch=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -435,7 +435,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & FckNoClmb,FckNoExch,Aux,nAux,
      & ExFac(1))
 *
                   Else
@@ -468,7 +468,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & FckNoClmb(1),FckNoExch(1),Aux,nAux,
+     & FckNoClmb,FckNoExch,Aux,nAux,
      & ExFac(1))
 *
                   End If

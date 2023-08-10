@@ -40,8 +40,7 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, FckNoClmb(1), FckNoExch(1), &
-                     Triangular
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, FckNoClmb, FckNoExch, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
