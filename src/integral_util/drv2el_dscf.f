@@ -62,7 +62,6 @@
       Logical FstItr, Semi_Direct,Rsv_GTList,
      &        Free_K2, Verbose, Indexation,
      &        DoGrad, Triangular
-      Integer iTOffs(8,8,8)
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
@@ -266,7 +265,7 @@
 !                                                                      *
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
-     &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,Count)
+     &                  (iS,jS,kS,lS,TInt,nTInt,No_Routine,Count)
 
  14      Continue
          Count=Count+One

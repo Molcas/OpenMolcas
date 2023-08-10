@@ -23,8 +23,9 @@ Real(kind=wp) :: Disc_Mx=Zero
 Real(kind=wp) :: Disc=Zero
 Logical(kind=iwp) :: W2Disc=.False.
 Logical(kind=iwp) :: PreSch=.True.
+Integer(kind=iwp) :: iTOffs(8**3)
 
 Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, &
-          PreSch, Disc_Mx, Disc
+          PreSch, Disc_Mx, Disc, iTOffs
 
 End Module Int_Options

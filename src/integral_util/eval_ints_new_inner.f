@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          iTOffs,Integ_Proc,Quad_ijkl)
+     &                          Integ_Proc,Quad_ijkl)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals, parallel region          *
@@ -24,7 +24,6 @@
 *          iiS,jjS,kkS,llS     : shell indices                         *
 *          TInt                : Computed Integrals                    *
 *          nTInt               : dimension of TInt                     *
-*          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
 *  Auxiliary:                                                          *
 *          ipMem1              : base pointer to Scratch space for     *
@@ -58,15 +57,14 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock
+      use Int_Options, only: DoIntegrals, DoFock, iTOffs
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
       Real*8  Coor(3,4), TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax,
-     &        iTOffs(8,8,8),Map4(4), kOp(4)
+     &        ipMem1,MemMax, Map4(4), kOp(4)
       Logical Shijij, NoInts
 *
 #include "ndarray.fh"

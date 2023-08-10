@@ -38,7 +38,7 @@ use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
+integer(kind=iwp) :: nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
                      lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
@@ -263,7 +263,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,Cnt)
+    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine,Cnt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then

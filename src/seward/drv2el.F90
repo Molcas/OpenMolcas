@@ -40,7 +40,7 @@ external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
-integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, DoGrad, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
@@ -175,8 +175,7 @@ do
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
           call mma_allocate(TInt,nTInt,label='TInt')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut, &
-                                   TskCount)
+          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut,TskCount)
           call mma_deallocate(TInt)
         end if
       end if

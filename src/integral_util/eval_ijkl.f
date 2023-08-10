@@ -39,7 +39,6 @@
 *          Shijij,                           : swap booleans           *
 *                                                                      *
 *          nTInt               : dimension of TInt                     *
-*          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
 *     Author: Roland Lindh / Martin Schuetz,                           *
 *             Dept. of Theoretical Chemistry, University of Lund,      *
@@ -59,10 +58,9 @@
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx, Disc
+      use Int_Options, only: iTOffs
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
-*
-#include "iTOffs.fh"
 *
 *     subroutine parameters
       Real*8  Coor(3,4), TInt(nTInt), Tmax

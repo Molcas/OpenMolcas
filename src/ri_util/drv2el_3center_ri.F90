@@ -47,6 +47,7 @@ use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Int_Options, only: iTOffs
 
 implicit none
 external :: Integral_WrOut
@@ -54,7 +55,6 @@ real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
 #include "lRI.fh"
-#include "iTOffs.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iAdr_AB, iCase, iCenter, iChoVec, id, iIrrep, iLB, iLO, iMax_R(2,0:7), IncVec, &
                      iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSO_Aux, iSym, &
                      iTask, iTtmp(0:7), iVec, j_e, j_s, jCenter, jS, jS_, kCenter, kCnttp, klCenter, klS_, kQv, kS, lCenter, &
