@@ -61,8 +61,7 @@
       External Integ_Proc
 *     subroutine parameters
       Real*8  Coor(3,4), TInt(nTInt), Tmax
-      Integer iAngV(4),iCmpV(4),
-     &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
+      Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax, Map4(4), kOp(4)
       Logical Shijij, NoInts
 *

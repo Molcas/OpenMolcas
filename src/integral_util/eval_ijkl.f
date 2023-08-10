@@ -56,7 +56,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock, Thize, iTOffs
+      use Int_Options, only: DoIntegrals, DoFock, iTOffs
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -221,6 +221,7 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       If (nSO.eq.0) Then
         Return
       End If
+      If (.Not.DoIntegrals) nSO = 0
 *
       iS = iShelV(1)
       jS = iShelV(2)
@@ -398,7 +399,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      *                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Thize,
+     &                            IJeqKL,kOp,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
@@ -428,7 +429,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Thize,
+     &                            IJeqKL,kOp,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
