@@ -390,6 +390,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Call Init_Int_Options()
 return
 
 end subroutine Drv2El_FAIEMP

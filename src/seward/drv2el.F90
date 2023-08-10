@@ -219,7 +219,7 @@ Verbose = .false.
 FreeK2 = .true.
 call Term_Ints(Verbose,FreeK2)
 call Free_iSD()
-
+call Init_Int_Options()
 return
 
 end subroutine Drv2El

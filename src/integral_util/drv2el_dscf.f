@@ -328,6 +328,7 @@ CMAW start
 C     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
 CMAW end
       Call Free_iSD()
+      Call Init_Int_Options()
       Return
       End
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)

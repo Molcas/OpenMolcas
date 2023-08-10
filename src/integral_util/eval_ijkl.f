@@ -56,9 +56,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx, Disc
-      use Int_Options, only: iTOffs, Quad_ijkl
+      use Int_Options, only: DoIntegrals, DoFock, Thize, iTOffs
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -122,19 +120,9 @@
 *                                                                      *
       iRout=9
       iPrint=nPrint(iRout)
-*
-*     Set variables in module Int_Options
-      DoIntegrals=.True.  ! Default value
-      DoFock=.False.      ! Default value
-      FckNoClmb=.False.   ! Default value
-      FckNoExch=.False.   ! Default value
-      Thize=Zero          ! Default value
-      W2Disc=.False.      ! Default value
-      PreSch=.True.       ! Default value
-      Disc_Mx=Zero        ! Default value
-      Disc=Zero           ! Default Value
-      Quad_ijkl=Zero      ! Default Value
 
+      Call Init_Int_Options()
+*
       NoInts=.True.
       Tmax=Zero
 *                                                                      *
