@@ -265,7 +265,8 @@
 !                                                                      *
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 
-         Call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine)
+!        Call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine)
+         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 
  14      Continue
          Count=Count+One

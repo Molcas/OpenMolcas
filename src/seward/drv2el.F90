@@ -176,7 +176,8 @@ do
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
           call mma_allocate(TInt,nTInt,label='TInt')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut,TskCount)
+!         call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut)
+          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut)
           call mma_deallocate(TInt)
         end if
       end if
