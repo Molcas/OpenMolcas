@@ -22,7 +22,9 @@ subroutine Drv2El_FAIEMP()
 !   Modified: Liviu Ungur                                              *
 !***********************************************************************
 
+#ifdef _DEBUGPRINT_
 use k2_arrays, only: pDq, pFq
+#endif
 use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
@@ -261,7 +263,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,ExFac,Thize, &
+    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,ExFac,Thize, &
                              W2Disc,PreSch,Disc_Mx,Disc,Cnt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls

@@ -13,8 +13,7 @@
 ************************************************************************
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          iTOffs,Integ_Proc,
-     &                          Dens,Fock,lDens,ExFac,
+     &                          iTOffs,Integ_Proc,ExFac,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
@@ -29,8 +28,6 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*          Dens                : 1-particle density matrix             *
-*          lDens               : length of density/Fock matrices       *
 *          ExFac               : another scaling factor passed to      *
 *                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
@@ -80,9 +77,7 @@
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
-      Integer lDens
-      Real*8  Coor(3,4),Thize,Fock(lDens),Dens(lDens),
-     &        ExFac, Disc_Mx,Disc, TInt(nTInt), Tmax
+      Real*8  Coor(3,4),Thize, ExFac, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
@@ -423,7 +418,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
      &                Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
      &                Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
      &                Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
@@ -455,7 +449,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk, DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
      &                Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
      &                Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
      &                Shells(iShllV(3))%pCff(1,kBasAO),kBasn,

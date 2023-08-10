@@ -63,8 +63,7 @@
 *
 *     Dummy definitions
 *
-      Parameter (lDens=1)
-      Real*8 Fock(lDens), Dens(lDens), ExFac
+      Real*8 ExFac
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -422,7 +421,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
      &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
      &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
      &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
@@ -454,7 +452,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
      &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
      &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
      &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,

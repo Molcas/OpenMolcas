@@ -41,7 +41,6 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: pDq, pFq
       use IOBUF
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
@@ -268,8 +267,7 @@
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,No_Routine,
-     &                   pDq,pFq,mDens,ExFac,
+     &                   iTOffs,No_Routine,ExFac,
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count)
 

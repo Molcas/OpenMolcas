@@ -22,7 +22,6 @@
      &           Disc_Mx,Disc,Thize,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
-     &           TwoHam,Dens,nDens,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
@@ -50,6 +49,7 @@
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -62,8 +62,7 @@
      &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
-     &       Wrk(nWork2), QInd(2), Aux(nAux),
-     &       TwoHam(nDens), Dens(nDens), FckTmp(nFT),
+     &       Wrk(nWork2), QInd(2), Aux(nAux), FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
@@ -744,7 +743,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                     Shijij,iShll,iShell,kOp,nijkl,
-     &                     Wrk(iW2),TwoHam,nDens,Wrk(iW3),mWork3,
+     &                     Wrk(iW2),TwoHam,Size(TwoHam),Wrk(iW3),mWork3,
      &                     iAO,iAOst,
      &                     iBasi,jBasj,kBask,lBasl,
      &                     Dij(1,jOp(1)),ij1,ij2,ij3,ij4,
@@ -779,7 +778,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           Disc_Mx,Disc,Thize,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
-     &           TwoHam,Dens,nDens,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
@@ -806,6 +804,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -817,8 +816,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
-     &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),
-     &       TwoHam(nDens), Dens(nDens), FckTmp(nFT),
+     &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
@@ -1229,7 +1227,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       If (DoFock)
      &Call FckAcc_NoSymq(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                  Shijij, iShll, iShell, nijkl,
-     &                  Wrk(iW2),TwoHam,Dens,nDens,
+     &                  Wrk(iW2),TwoHam,Dens,Size(TwoHam),
      &                  iAO,iAOst,
      &                  iBasi,jBasj,kBask,lBasl,DoCoul,DoExch,
      &                  vij,vkl,vik,vil,vjk,vjl,ExFac)

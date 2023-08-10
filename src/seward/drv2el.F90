@@ -42,8 +42,8 @@ real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, Triangular
 character(len=72) :: SLine
-real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
-integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
+real(kind=wp), allocatable :: TInt(:), TMax(:,:)
+integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 
@@ -174,15 +174,10 @@ do
 
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
-          ! from Dens are dummy arguments
           call mma_allocate(TInt,nTInt,label='TInt')
-          call mma_allocate(Dens,mDens,label='Dens')
-          call mma_allocate(Fock,mDens,label='Fock')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac, &
+          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,ExFac, &
                                    Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount)
           call mma_deallocate(TInt)
-          call mma_deallocate(Dens)
-          call mma_deallocate(Fock)
         end if
       end if
     end if
