@@ -46,7 +46,7 @@
       use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: Exfac, Thize
+      use Int_Options, only: Exfac, Thize, W2Disc
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -58,7 +58,7 @@
       Parameter(nTInt=1)
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Real*8 TInt(nTInt)
-      Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
+      Logical FstItr, Semi_Direct,Rsv_GTList,
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoGrad, Triangular
       Integer iTOffs(8,8,8)
@@ -82,6 +82,7 @@
       DoIntegrals=.False.
       DoFock=.True.
       FckNoExch=ExFac.eq.Zero
+      W2Disc=.False.     ! Default value
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,7 +118,6 @@
 ************************************************************************
 *                                                                      *
       Disc = Zero
-      W2Disc=.False.
       TskHi=Zero
       TskLw=Zero
 *                                                                      *
@@ -192,7 +192,6 @@
 *     in return. Function will be false if no more tasks to execute.
 
       If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Then
-
          Go To 11
       Endif
 
@@ -267,7 +266,7 @@
 !        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,
-     &                   W2Disc,PreSch,Disc_Mx,Disc,Count)
+     &                   PreSch,Disc_Mx,Disc,Count)
 
  14      Continue
          Count=Count+One

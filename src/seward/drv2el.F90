@@ -33,7 +33,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize
+use Int_Options, only: ExFac, Thize, W2Disc
 
 implicit none
 external :: Integral_WrOut
@@ -41,7 +41,7 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp) :: A_int, Disc, Dix_Mx, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
                  TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoGrad, Triangular
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, PreSch, DoGrad, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
@@ -177,7 +177,7 @@ do
         if (A_Int >= CutInt) then
           call mma_allocate(TInt,nTInt,label='TInt')
           call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut, &
-                                   W2Disc,PreSch,Dix_Mx,Disc,TskCount)
+                                   PreSch,Dix_Mx,Disc,TskCount)
           call mma_deallocate(TInt)
         end if
       end if

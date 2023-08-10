@@ -26,7 +26,7 @@
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
-     &           Shijij,W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
+     &           Shijij,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           Aux,nAux)
 ************************************************************************
 *                                                                      *
@@ -49,7 +49,7 @@
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: ExFac, Thize
+      use Int_Options, only: ExFac, Thize, W2Disc
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -75,7 +75,7 @@
      &        IJeqKL,IeqK,JeqL,
      &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
-     &        Batch_On_Disk, W2Disc,
+     &        Batch_On_Disk,
      &        IntOnly, NoInts, DoAOBatch, All_Spherical
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -783,7 +783,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SoInt,nSoInt,Wrk,nWork2,
-     &           Shijij, W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
+     &           Shijij, IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           Aux,nAux)
 ************************************************************************
 *                                                                      *
@@ -805,7 +805,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: ExFac, Thize
+      use Int_Options, only: ExFac, Thize, W2Disc
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -828,7 +828,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &        Pij, Pkl, Pijkl, Pik, Pjl,
      &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
-     &        Batch_On_Disk, W2Disc, DoAOBatch, All_Spherical,
+     &        Batch_On_Disk, DoAOBatch, All_Spherical,
      &        IntOnly, NoInts
       Data Copy/.True./, NoCopy/.False./
 #include "SysDef.fh"

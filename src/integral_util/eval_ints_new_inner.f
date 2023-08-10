@@ -14,7 +14,7 @@
       SubRoutine Eval_Ints_New_Inner
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
-     &                          W2Disc,PreSch,Disc_Mx,Disc,
+     &                          PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl)
 ************************************************************************
 *                                                                      *
@@ -30,7 +30,7 @@
 *                                                                      *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
 *                                construction                          *
-*          W2Disc,PreSch       : booleans 1st iter / prescreening      *
+*          PreSch              : boolean prescreening                  *
 *          Disc_Mx             : # ints to write on disk (semidirect)  *
 *          iDisk               : act. position in file TMPINT          *
 *                                                                      *
@@ -79,7 +79,7 @@
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
      &        iTOffs(8,8,8),Map4(4), kOp(4)
-      Logical Shijij, W2Disc,PreSch,NoInts
+      Logical Shijij, PreSch,NoInts
 *
 #include "ndarray.fh"
 #include "real.fh"
@@ -425,7 +425,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
+     & Shijij,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
      & Aux,nAux)
 *
                   Else
@@ -456,7 +456,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
      & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
+     & Shijij,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
      & Aux,nAux)
 *
                   End If
