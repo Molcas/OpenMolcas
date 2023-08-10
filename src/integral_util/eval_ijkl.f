@@ -121,8 +121,6 @@
       iRout=9
       iPrint=nPrint(iRout)
 
-      Call Init_Int_Options()
-*
       NoInts=.True.
       Tmax=Zero
 *                                                                      *

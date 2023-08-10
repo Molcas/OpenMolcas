@@ -10,8 +10,7 @@
 !***********************************************************************
 SubRoutine Init_Int_Options()
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx, Disc
-use Int_Options, only: iTOffs, Quad_ijkl
+use Int_Options, only: Thize, W2Disc, PreSch, Disc_Mx, Disc, Quad_ijkl
 use Constants, only: Zero
 Implicit None
 
