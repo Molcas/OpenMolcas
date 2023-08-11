@@ -71,5 +71,6 @@
 ! Avoid unused argument warnings
       IF (.False.) Then
          Call Unused_integer(nSkal)
+         Call Unused_integer(mSym)
       End If
       End
