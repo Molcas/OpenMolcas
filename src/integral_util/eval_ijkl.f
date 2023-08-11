@@ -61,7 +61,8 @@
 !
 #include "ibas_ricd.fh"
 !     local variables to save
-      Integer, Save ::
+!     Integer, Save ::
+      Integer::
      &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
      &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,
      &        ipMem2,
