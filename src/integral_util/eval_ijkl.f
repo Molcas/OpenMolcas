@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1991,1993,1999,2023 Roland Lindh                       *
+! Copyright (C) 1991,1993,1999,2023, Roland Lindh                      *
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 !#define _DEBUGPRINT_
