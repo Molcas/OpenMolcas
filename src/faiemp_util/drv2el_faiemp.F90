@@ -263,7 +263,6 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-!   call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,No_Routine)
     call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
