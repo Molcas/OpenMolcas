@@ -136,6 +136,7 @@ call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
+call mma_allocate(TInt,nTInt,label='TInt') ! Not used
 do
   ! make reservations of a tesk in global task list and get task range
   ! in return. Function will be false if no more tasks to execute.
@@ -175,9 +176,7 @@ do
 
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
-          call mma_allocate(TInt,nTInt,label='TInt')
           call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut)
-          call mma_deallocate(TInt)
         end if
       end if
     end if
@@ -195,6 +194,7 @@ do
   end do
 
 end do
+call mma_deallocate(TInt)
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
 !                                                                      *

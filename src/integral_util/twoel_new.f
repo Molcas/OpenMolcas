@@ -158,7 +158,7 @@ c Avoid unused argument warnings
       nabcd = nab*ncd
       nInts =nijkl*nabcd
       If (nSOInt.ne.0) Call FZero(SOInt,nSOInt*nijkl)
-      iW2=1
+      ipAOInt=1
       iW3=1+nInts
       iW4=1
 *                                                                      *
@@ -179,8 +179,6 @@ c Avoid unused argument warnings
 *
       Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
      &           dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-*     Write (*,'(20A)') ' M=(',
-*    &      (ChOper(iStabM(i)),',',i=0,lStabM-1),')'
 *
 *                                                                      *
 ************************************************************************
@@ -200,8 +198,6 @@ c Avoid unused argument warnings
 *
       Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
      &           dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-*     Write (*,'(20A)') ' N=(',
-*    &      (ChOper(iStabN(i)),',',i=0,lStabN-1),')'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -210,9 +206,6 @@ c Avoid unused argument warnings
 *     distributions.
 *
       Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-*     Write (*,*) ' LmbdT=',LmbdT
-*     Write (*,'(20A)') ' T=(',
-*    &      (ChOper(iDCRT(i)),',',i=0,nDCRT-1),')'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -246,7 +239,7 @@ c Avoid unused argument warnings
 *
             vijkl = vijij * Data2(ip_abMax( nEta),lDCR2)
             Do 300 lDCRT = 0, nDCRT-1
-               iW2=1
+               ipAOInt=1
                iW3=1+nInts
                RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
                RST_triplet=DBLE(lDCRT*nDCRR*nDCRS)+RS_doublet
@@ -255,9 +248,6 @@ c Avoid unused argument warnings
                iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
                Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
                Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
-*              If (iPrint.ge.9)
-*
-*    &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
                AeqC = EQ(CoorM(1,1),CoorM(1,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
                If (ABeqCD .and. Mod(iSmAng,2).eq.1) Go To 300
@@ -324,7 +314,6 @@ clwj
 *
                Batch_On_Disk = (vijkl.gt.Thize) .and.
      &                (Disc+DBLE(nInts+2+2/RtoI).le.Disc_Mx)
-*              Write (*,*) 'Batch_On_Disk=',Batch_On_Disk
 *
 *--------------Set prescreening level
 *
@@ -378,7 +367,6 @@ clwj
                DoAOBatch=(DoIntegrals.and.vijkl.gt.CutInt).or.
      &                   (DoFock.and.(DoCoul.or.DoExch)) .or.
      &                   (Batch_On_Disk.and.W2Disc)
-C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
 *--------------Branch out if crude estimate indicates no contributions!
 *
@@ -387,14 +375,11 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
 *                    AO batch is not on the disk
 *
-*                    Write (*,*) ' Skip the batch!'
                      Go To 300
                   Else If (Batch_On_Disk.and..Not.W2Disc) Then
 *
 *                    AO batch is on disk! Do a no copy read to
 *                    position the next batch on the disc.
-*
-*                    Write (*,*) ' Skip the batch!'
 *
  1111                Continue
                      Call iRBuf(iWR,2,Copy)
@@ -402,7 +387,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                      Call Store_QLast(QInd)
                      kInts=iWR(1)
                      mInts=iWR(2)
-*                    Write (*,*) 'kInts,mInts=',kInts,mInts
                      If (QInd(1).eq.Quad_ijkl .and.
      &                   QInd(2).eq.RST_triplet) Then
                         If (kInts.ne.nInts) Then
@@ -430,7 +414,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &                               Quad_ijkl,RST_triplet
                         Call Abend()
                      End If
-*                    Write (*,*) QInd(1),QInd(2),'Empty'
                   End If
                End If
 *
@@ -546,17 +529,17 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
 *--------------Loops to partition the primitives
 *
-*              Reset pointer iW2 if we need to reserve speacial
+*              Reset pointer ipAOInt if we need to reserve speacial
 *              space for the contracted integrals.
 *
                IncZet=nAlpha*jPrInc
                IncEta=nGamma*lPrInc
                If (nZeta.ne.IncZet.or.nEta.ne.IncEta) Then
                   mWork2 = nWork2 - nijkl*mabcd
-                  iW2=1+nijkl*mabcd
+                  ipAOInt=1+nijkl*mabcd
                Else
                   mWork2 = nWork2
-                  iW2=1
+                  ipAOInt=1
                End If
 *
 *
@@ -570,7 +553,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                Do_TnsCtl=.False.
                NoInts   =.True.
                NoPInts  =.True.
-               iW2_=iW2
+               ipAOInt_=ipAOInt
                iW4_=iW4
 *
                Do iZeta = 1, nZeta_Tot, IncZet
@@ -599,7 +582,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &                        Prescreen_On_Int_Only,NoInts,iAnga,
      &                        CoorM,CoorAC,
      &                        mabMin,mabMax,mcdMin,mcdMax,nijkl,
-     &                        nabcd,mabcd,Wrk,iW2_,iW4_,
+     &                        nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                        nWork2,mWork2,
      &                        Data1(iZ13_,lDCR1),Data2(iE13_,lDCR2),
      &                        la,lb,lc,ld,
@@ -612,7 +595,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
                End Do
                End Do
-*              Call RecPrt('(e0,f0) Total',' ',Wrk(iW4),nijkl,kabcd)
 *
                If (NoPInts) Then
                   If (W2Disc) Then
@@ -657,7 +639,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &                        la,lb,lc,ld,
      &                        iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                        iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
-                  iW2=i_Int
+                  ipAOInt=i_Int
                   If (i_Int.eq.1) Then
                      iW3=1+nijkl*nabcd
                   Else
@@ -667,8 +649,9 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
 *---------------- Undo the late Cntrct
 *
-                  call dcopy_(nijkl*nabcd,Wrk(iW2),1,Wrk(iW3),1)
-                  Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(iW2),nijkl)
+                  call dcopy_(nijkl*nabcd,Wrk(ipAOInt),1,Wrk(iW3),1)
+                  Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),
+     &                        nijkl)
 *
                End If
 *
@@ -679,19 +662,15 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *---------------- Write integrals to current position on disc.
 *
                   iOpt=0 ! Always Packing, not run length
-                  Call PkR8(iOpt,nInts,nByte,Wrk(iW2),Wrk(iW3))
+                  Call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
                   mInts=(nByte+RtoB-1)/RtoB
 *
                   iWR(1)=nInts
                   iWR(2)=mInts
-*                 Write (*,*) 'nInts,mInts=',nInts,mInts
                   Call iWBuf(iWR,2)
                   Call dWBuf(QInd,2)
                   Call Store_QLast(Qind)
                   Call dWBuf(Wrk(iW3),mInts)
-*                 Write (*,*) QInd(1),QInd(2),DDot_(nInts,Wrk(iW2),1,
-*    &                                                   Wrk(iW2),1)
-*
                   Disc = Disc + DBLE(2/RtoI + 2 + mInts)
 *
                End If
@@ -704,7 +683,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                   Call Store_QLast(QInd)
                   kInts=iWR(1)
                   mInts=iWR(2)
-*                 Write (*,*) 'kInts,mInts=',kInts,mInts
                   If (QInd(1).eq.Quad_ijkl .and.
      &                QInd(2).eq.RST_triplet) Then
                      If (kInts.ne.nInts) Then
@@ -731,9 +709,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                   End If
 *
                   iOpt=0 ! Always packing, not run length
-                  Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(iW2))
-*                 Write (*,*) QInd(1),QInd(2),DDot_(nInts,Wrk(iW2),1,
-*    &                                                   Wrk(iW2),1)
+                  Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(ipAOInt))
                End If
 *
 *--------------Accumulate contributions directly to the symmetry
@@ -743,7 +719,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                     Shijij,iShll,iShell,kOp,nijkl,
-     &                     Wrk(iW2),TwoHam,Size(TwoHam),Wrk(iW3),mWork3,
+     &                     Wrk(ipAOInt),TwoHam,Size(TwoHam),
+     &                     Wrk(iW3),mWork3,
      &                     iAO,iAOst,
      &                     iBasi,jBasj,kBask,lBasl,
      &                     Dij(1,jOp(1)),ij1,ij2,ij3,ij4,
@@ -759,7 +736,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
-     &                     Aux,nAux,Wrk(iW2),SOInt,nSOInt,NoInts)
+     &                     Aux,nAux,Wrk(ipAOInt),SOInt,nSOInt,NoInts)
 *
  300        Continue
  200     Continue
@@ -923,7 +900,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       nijkl = iBasi*jBasj*kBask*lBasl
       nabcd = nab*ncd
       nInts =nijkl*nabcd
-      iW2=1
+      ipAOInt=1
       iW3=1+nInts
       iW4=1
 *
@@ -969,10 +946,8 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       If (.Not.DoAOBatch) Then
          If (.Not.Batch_On_Disk) Then
-*           Write (*,*) ' Skip the batch!'
             Go To 99
          Else If (Batch_On_Disk.and..Not.W2Disc) Then
-*           Write (*,*) ' Skip the batch!'
  1111       Continue
             Call iRBuf(iWR,2,Copy)
             Call dRBuf(QInd,2,Copy)
@@ -1052,10 +1027,10 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       IncEta=nGamma*lPrInc
       If (nZeta.ne.IncZet.or.nEta.ne.IncEta) Then
          mWork2 = nWork2 - nijkl*mabcd
-         iW2=1+nijkl*mabcd
+         ipAOInt=1+nijkl*mabcd
       Else
          mWork2 = nWork2
-         iW2=1
+         ipAOInt=1
       End If
 *
       nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta)),nZeta+1)
@@ -1065,12 +1040,11 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
 #endif
 *
-*
       kabcd=0
       Do_TnsCtl=.False.
       NoInts=.True.
       NoPInts = .True.
-      iW2_=iW2
+      ipAOInt_=ipAOInt
       iW4_=iW4
 *
       Do iZeta = 1, nZeta_Tot, IncZet
@@ -1099,7 +1073,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                  Prescreen_On_Int_Only,NoInts,iAnga,
      &                  Coor,CoorAC,
      &                  mabMin,mabMax,mcdMin,mcdMax,nijkl,
-     &                  nabcd,mabcd,Wrk,iW2_,iW4_,
+     &                  nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                  nWork2,mWork2,
      &                  Data1(ip_HrrMtrx(nZeta)),
      &                  Data2(ip_HrrMtrx(nEta) ),
@@ -1112,7 +1086,6 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
          End Do
       End Do
-*              Call RecPrt('(e0,f0) Total',' ',Wrk(iW4),nijkl,kabcd)
 *
       If (NoPInts) Then
          If (W2Disc) Then
@@ -1144,7 +1117,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &               la,lb,lc,ld,
      &               iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &               iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
-         iW2=i_Int
+         ipAOInt=i_Int
          If (i_Int.eq.1) Then
             iW3=1+nijkl*nabcd
          Else
@@ -1154,12 +1127,12 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
 *--------Undo the late Cntrct
 *
-         call dcopy_(nijkl*nabcd,Wrk(iW2),1,Wrk(iW3),1)
-         Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(iW2),nijkl)
+         call dcopy_(nijkl*nabcd,Wrk(ipAOInt),1,Wrk(iW3),1)
+         Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
 *
       End If
 #ifdef _DEBUGPRINT_
-      Call RecPrt('(AB|CD)',' ',Wrk(iW2),nijkl,
+      Call RecPrt('(AB|CD)',' ',Wrk(ipAOInt),nijkl,
      &            iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
 #endif
 *
@@ -1170,7 +1143,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *--------Write integrals to current position on disc.
 *
          iOpt=0
-         Call PkR8(iOpt,nInts,nByte,Wrk(iW2),Wrk(iW3))
+         Call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
          mInts=(nByte+RtoB-1)/RtoB
 *
          iWR(1)=nInts
@@ -1218,7 +1191,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          End If
 *
          iOpt=0
-         Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(iW2))
+         Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(ipAOInt))
       End If
 *
 *-----Accumulate contributions directly to the Fock matrix.
@@ -1226,14 +1199,17 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       If (DoFock)
      &Call FckAcc_NoSymq(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                  Shijij, iShll, iShell, nijkl,
-     &                  Wrk(iW2),TwoHam,Dens,Size(TwoHam),
+     &                  Wrk(ipAOInt),TwoHam,Dens,Size(TwoHam),
      &                  iAO,iAOst,
      &                  iBasi,jBasj,kBask,lBasl,DoCoul,DoExch,
      &                  vij,vkl,vik,vil,vjk,vjl,ExFac)
 *
       If (DoIntegrals) Then
-         If (iW2.ne.1) call dcopy_(nijkl*iCmp(1)*iCmp(2)*
-     &                            iCmp(3)*iCmp(4),Wrk(iW2),1,Wrk(1),1)
+         If (ipAOInt.ne.1) Then
+            call dcopy_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),
+     &                  Wrk(ipAOInt),1,Wrk(1),1)
+            ipAOInt=1
+         ENd If
          iPer = 1
          Pij= iS_.eq.jS_
          Pkl= kS_.eq.lS_
@@ -1246,7 +1222,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          q4 = DBLE(8)/DBLE(iPer)
          If (nIrrep.eq.1) q4 = One
          If (q4.ne.One) Call DScal_(nijkl*iCmp(1)*iCmp(2)
-     &                            *iCmp(3)*iCmp(4),q4,Wrk(iW2),1)
+     &                            *iCmp(3)*iCmp(4),q4,Wrk(ipAOInt),1)
       End If
   99  Continue
       End Subroutine TwoEl_NoSym_New_Internal
