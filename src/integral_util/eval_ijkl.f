@@ -60,13 +60,10 @@
 #include "status.fh"
 !
 #include "ibas_ricd.fh"
-!     local variables to save
-!     Integer, Save ::
       Integer::
      &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
      &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,
-     &        ipMem2,
-     &        Mem1,Mem2
+     &        ipMem1, ipMem2, Mem1,Mem2
 
 !     other local variables
       Integer iS_,jS_,kS_,lS_
@@ -88,8 +85,9 @@
      &        iS,jS,kS,lS,ijS,klS,ikS,ilS,jkS,jlS
       Logical IJeqKL
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax, kOp(4)
+     &        MemMax, kOp(4)
       Logical Shijij, NoInts
+      Real*8, pointer:: SOInt(:), AOInt(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -366,6 +364,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
       Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
       Write (6,*) ' ***********************************************'
 #endif
+      SOInt(1:Mem1)=>Sew_Scr(ipMem1:ipMem1+Mem1-1)
+      AOInt(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem1-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -470,8 +470,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                          Mem_DBLE(ipEta), Mem_DBLE(ipEI),
      &                          Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      &                          Mem_DBLE(ipQ),nEta,
-     &                          Sew_Scr(ipMem1),nSO,
-     &                          Sew_Scr(ipMem2),Mem2,
+     &                          SOInt,nSO,AOInt,Mem2,
      &                          Shijij,nHRRAB,nHRRCD,Aux,nAux)
 *                                                                      *
 ************************************************************************
@@ -483,20 +482,18 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *                    Get max AO/SO integrals
                      If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-                        ip=ipMem2
+                        Tmax=max(Tmax,
+     &                       abs(AOInt(iDAMax_(n,AOInt,1))))
                      Else
                         n=nijkl*nSO
-                        ip=ipMem1
+                        Tmax=max(Tmax,
+     &                        abs(SOInt(iDAMax_(n,SOInt,1))))
                      End If
-                     Tmax=max(Tmax,
-     &                        abs(Sew_Scr(ip+
-     &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
                         Call Integ_Proc(iCmpV,iShelV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
-     &                                  Sew_Scr(ipMem2),
-     &                                  Sew_Scr(ipMem1),nSO,
+     &                                  AOInt,SOInt,nSO,
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,nIrrep)
                      Else
@@ -508,6 +505,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
             End Do
          End Do
       End Do
+      SOInt=>Null()
+      AOInt=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *

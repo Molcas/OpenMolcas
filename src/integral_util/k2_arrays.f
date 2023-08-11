@@ -36,7 +36,8 @@
       Integer MemR, MemI, ipZeta, ipiZet
       Real*8, Allocatable:: Mem_DBLE(:)
       Integer, Allocatable:: Mem_INT(:)
-      Real*8, Allocatable:: Aux(:), Sew_Scr(:)
+      Real*8, Allocatable:: Aux(:)
+      Real*8, Allocatable, Target:: Sew_Scr(:)
       Integer, Allocatable:: iSOSym(:,:)
 
       End Module
