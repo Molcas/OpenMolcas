@@ -56,7 +56,7 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock, iTOffs
+      use Int_Options, only: DoIntegrals, DoFock
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -472,7 +472,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  Sew_Scr(ipMem2),
      &                                  Sew_Scr(ipMem1),nSO,
      &                                  iSOSym,mSkal,nSOs,
-     &                                  TInt,nTInt,iTOffs,nIrrep)
+     &                                  TInt,nTInt,nIrrep)
                      Else
                         Tmax=Zero
                      End If

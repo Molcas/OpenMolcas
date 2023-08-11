@@ -13,7 +13,7 @@
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
-     &                          TInt,nTInt,itOffs,nSym)
+     &                          TInt,nTInt,nSym)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -21,8 +21,7 @@
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
-     &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
+     &        iAOst(4), kOp(4), iSOSym(2,nSOs), MapOrg(4)
       Logical Shijij,IJeqKL
 *
       If (nSym.eq.1) Then
@@ -41,6 +40,5 @@ c Avoid unused argument warnings
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
          Call Unused_real_array(TInt)
-         Call Unused_integer_array(itOffs)
       End If
       End

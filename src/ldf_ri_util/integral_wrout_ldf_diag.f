@@ -41,6 +41,5 @@ c Avoid unused argument warnings
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_integer_array(itOffs)
       End If
       End

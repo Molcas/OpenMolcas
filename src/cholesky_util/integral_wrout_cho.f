@@ -72,6 +72,5 @@
       IF (.False.) Then
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
-         Call Unused_integer_array(itOffs)
       End If
       End
