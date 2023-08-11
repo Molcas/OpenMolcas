@@ -25,8 +25,9 @@ Logical(kind=iwp) :: W2Disc=.False.
 Logical(kind=iwp) :: PreSch=.True.
 Integer(kind=iwp) :: iTOffs(8**3)
 Real(kind=wp) :: Quad_ijkl=Zero
+Integer(kind=iwp) :: Map4(4)
 
 Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, &
-          PreSch, Disc_Mx, Disc, iTOffs, Quad_ijkl
+          PreSch, Disc_Mx, Disc, iTOffs, Quad_ijkl, Map4
 
 End Module Int_Options

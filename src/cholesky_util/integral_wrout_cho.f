@@ -70,7 +70,6 @@
       Return
 ! Avoid unused argument warnings
       IF (.False.) Then
-         Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
       End If
       End

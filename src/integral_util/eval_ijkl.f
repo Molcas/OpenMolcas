@@ -56,14 +56,14 @@
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use Int_Options, only: DoIntegrals, DoFock
+      use Int_Options, only: DoIntegrals, DoFock, Map4
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
 *     subroutine parameters
       Real*8  Coor(3,4), TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax, kOp(4) ,Map4(4)
+     &        ipMem1,MemMax, kOp(4)
       Logical Shijij, NoInts
 *
 #include "ndarray.fh"
@@ -466,7 +466,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        abs(Sew_Scr(ip+
      &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,
+                        Call Integ_Proc(iCmpV,iShelV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Sew_Scr(ipMem2),

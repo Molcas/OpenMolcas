@@ -11,22 +11,22 @@
 
 #ifdef _CALLING_
 #ifdef _FIXED_FORMAT_
-     &iCmp,iShell,MapOrg,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqKL,iAO,     &
+     &iCmp,iShell,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqKL,iAO,            &
      &iAOst,ijkl,AOInt,SOInt,nSOint,iSOSym,nSkal,nSOs,TInt,nTInt,       &
      &mSym                                                              &
 #else
-iCmp,iShell,MapOrg,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqKL,iAO,iAOst,ijkl,AOInt,SOInt,nSOint,iSOSym,nSkal,nSOs,TInt,nTInt,        &
+iCmp,iShell,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqKL,iAO,iAOst,ijkl,AOInt,SOInt,nSOint,iSOSym,nSkal,nSOs,TInt,nTInt,        &
 mSym &
 #endif
 #else
 ! TODO: unknown intents
 #ifdef _FIXED_FORMAT_
-      integer iCmp(4),iShell(4),MapOrg(4),iBas,jBas,kBas,lBas,kOp(4),   &
+      integer iCmp(4),iShell(4),iBas,jBas,kBas,lBas,kOp(4),             &
      &iAO(4),iAOst(4),ijkl,nSOint,nSOs,iSOSym(2,nSOs),nSkal,nTInt,mSym  &
       logical Shijij,IJeqKL
       real*8 AOInt(*),SOInt(*),TInt(nTInt)
 #else
-integer(kind=iwp) :: iCmp(4), iShell(4), MapOrg(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, nSOs, &
+integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, nSOs, &
                      iSOSym(2,nSOs), nSkal, nTInt, mSym
 logical(kind=iwp) :: Shijij, IJeqKL
 real(kind=wp) :: AOInt(*), SOInt(*), TInt(nTInt)

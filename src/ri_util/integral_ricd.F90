@@ -21,7 +21,6 @@ implicit none
 
 #include "macros.fh"
 unused_var(iShell)
-unused_var(MapOrg)
 unused_var(Shijij)
 unused_var(IJeqKL)
 unused_var(SOInt(1))

@@ -26,7 +26,6 @@ implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
-unused_var(MapOrg)
 unused_var(iSOSym)
 unused_var(nSkal)
 
