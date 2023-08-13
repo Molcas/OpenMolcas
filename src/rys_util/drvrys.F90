@@ -101,6 +101,7 @@ If (nOrdOp/=0) Then
 End If
 
 ! Transfer k2 data and prescreen
+! In case of integral according to Breit we still will do the prescreening according to the conventional 1/r integrals.
 
 iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
