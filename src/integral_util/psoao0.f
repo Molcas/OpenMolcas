@@ -45,6 +45,7 @@
       use Gateway_global, only: force_part_c, force_part_p, iWROpt
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
+      use Breit, only: nOrdOp
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -52,12 +53,15 @@
 #include "pstat.fh"
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, DoFock, Fail
+      Integer :: nComp=1
 #include "SysDef.fh"
 *
 *     Statement function to compute canonical index
 *
+      Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
+      If (nOrdOp/=0) nComp=6
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -76,9 +80,9 @@
       mcdMax=nabSz(lc+ld)
       nf=(mcdMax-mcdMin+1)
 *     e0|f0 size
-      mabcd=ne*nf
+      mabcd=ne*nf*nComp
 *     ab|cd size
-      nabcd=nab*ncd
+      nabcd=nab*ncd*nComp
 *
 *     For test purposed we can force partitioning for both the
 *     contracted and primitive block
@@ -270,9 +274,9 @@
 *              index.
 *
       If (jPrInc.ne.jPrim.or.lPrInc.ne.lPrim) Then
-         MemSp1= Max(mabcd+nab*nf,nabcd+nab*nf)*nijkl
+         MemSp1= Max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
       Else
-         MemSp1= Max(mabcd+nab*nf,nabcd+nab*nf)*nijkl
+         MemSp1= Max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
       End If
 *
 *     MemFck : Scratch for FckAcc.

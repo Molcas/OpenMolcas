@@ -50,6 +50,7 @@
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
+      use Breit, only: nOrdOp
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -69,6 +70,7 @@
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
      &        iAO(4), iAnga(4), iCmp(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
+      Integer :: nComp=1
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy,Do_TnsCtl,
      &        IJeqKL,IeqK,JeqL,
@@ -84,6 +86,7 @@
       Data Copy/.True./, NoCopy/.False./, jOp/0,0,0,0,0,0/
 #include "SysDef.fh"
       External EQ, lEmpty
+
       Interface
       Integer Function iGet(A,n)
       Integer :: n
@@ -93,8 +96,10 @@
 *
 *     Declaration of statement functions to compute canonical index
 *
+      Integer :: ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
+      If (nOrdOp/=0) nComp=6
       Call TwoEl_Sym_New_Internal(Data1,Data2)
 *
       Return
@@ -152,7 +157,7 @@ c Avoid unused argument warnings
       ld = iAnga(4)
       iSmAng=la+lb+lc+ld
       LmbdT=0
-      nijkl = iBasi*jBasj*kBask*lBasl
+      nijkl = iBasi*jBasj*kBask*lBasl*nComp
       nab = iCmp(1)*iCmp(2)
       ncd = iCmp(3)*iCmp(4)
       nabcd = nab*ncd
@@ -581,7 +586,7 @@ clwj
      &                        vij,vkl,vik,vil,vjk,vjl,
      &                        Prescreen_On_Int_Only,NoInts,iAnga,
      &                        CoorM,CoorAC,
-     &                        mabMin,mabMax,mcdMin,mcdMax,nijkl,
+     &                        mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,
      &                        nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                        nWork2,mWork2,
      &                        Data1(iZ13_,lDCR1),Data2(iE13_,lDCR2),
@@ -595,7 +600,9 @@ clwj
 *
                End Do
                End Do
-*
+!
+!              Integarls are now returned in Wrk(ipAOInt) or Wrk(iW4)
+!
                If (NoPInts) Then
                   If (W2Disc) Then
                      If (Batch_On_Disk) Then
@@ -718,7 +725,7 @@ clwj
                mWork3=nWork2-iW3+1
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,kOp,nijkl/nComp,
      &                     Wrk(ipAOInt),TwoHam,Size(TwoHam),
      &                     Wrk(iW3),mWork3,
      &                     iAO,iAOst,
@@ -782,6 +789,7 @@ clwj
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
+      use Breit, only: nOrdOp
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -796,6 +804,7 @@ clwj
      &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
+      Integer :: nComp=1
       Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -823,8 +832,10 @@ clwj
 *
 *     Declaration of statement functions to compute canonical index
 *
+      Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
+      If (nOrdOp/=0) nComp=6
       Call TwoEl_NoSym_New_Internal(Data1,Data2)
 *
       Return
@@ -897,7 +908,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       nab = iCmp(1)*iCmp(2)
       ncd = iCmp(3)*iCmp(4)
-      nijkl = iBasi*jBasj*kBask*lBasl
+      nijkl = iBasi*jBasj*kBask*lBasl*nComp
       nabcd = nab*ncd
       nInts =nijkl*nabcd
       ipAOInt=1
@@ -1072,7 +1083,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                  vij,vkl,vik,vil,vjk,vjl,
      &                  Prescreen_On_Int_Only,NoInts,iAnga,
      &                  Coor,CoorAC,
-     &                  mabMin,mabMax,mcdMin,mcdMax,nijkl,
+     &                  mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,
      &                  nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                  nWork2,mWork2,
      &                  Data1(ip_HrrMtrx(nZeta)),

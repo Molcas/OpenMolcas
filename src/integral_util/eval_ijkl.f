@@ -12,6 +12,7 @@
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _DEBUGBREIT_
       SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
 !***********************************************************************
 !                                                                      *
@@ -44,6 +45,9 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
+#ifdef _DEBUGBREIT_
+      use Breif, only: nOrdOp
+#endif
       Implicit None
 !
 !     subroutine parameters
@@ -71,7 +75,7 @@
       Integer n
       Integer nHRRAB, nHRRCD
       Integer iTmp, ijCmp, klCmp, mData1, mData2, Nr_of_D, nIJKL,
-     &        ip, iDAMax_, ipDum , MemPrm, MemSO2
+     &        ipDum , MemPrm, MemSO2
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
      &        iBasn,jBasn,kBasn,lBasn,
@@ -88,6 +92,7 @@
      &        MemMax, kOp(4)
       Logical Shijij, NoInts
       Real*8, pointer:: SOInt(:), AOInt(:)
+      Integer, External :: iDAMax_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -159,6 +164,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+#ifdef _DEBUGBREIT_
+!     use the Breit option computing 1/r^3 integralas but convert to
+!     conventional 1/r integrals
+      Call Set_Breit(1)
+#endif
       mDCRij=1
       mDCRkl=1
       If (nIrrep.eq.1) Then
@@ -472,14 +482,26 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                          Mem_DBLE(ipQ),nEta,
      &                          SOInt,nSO,AOInt,Mem2,
      &                          Shijij,nHRRAB,nHRRCD,Aux,nAux)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*              Process SO/AO-integrals
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+#ifdef _DEBUGBREIT_
+      If (nIrrep==0) Then
+         n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+         Call ReSort_Int(AOInt,nijkl,6,n)
+      Else
+         Call ReSort_Int(SOInt,nijkl,6,nSO)
+      End If
+#endif
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!              Process SO/AO-integrals
+!
                   nijkl=iBasn*jBasn*kBasn*lBasn
                   If (DoIntegrals.and..Not.NoInts) Then
-*                    Get max AO/SO integrals
+!                    Get max AO/SO integrals
                      If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
                         Tmax=max(Tmax,
@@ -507,8 +529,34 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
       End Do
       SOInt=>Null()
       AOInt=>Null()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+#ifdef _DEBUGBREIT_
+      Call Set_Breit(0)
+
+      Contains
+      Subrotine ReSort_Int(IntRaw,nijkl,nComp,nA)
+      Implicit None
+      Integer, intent(In) :: nijkl, nComp, nA)
+      Real*8, Target :: IntRaw(nijkl*nComp*nA)
+
+      Real*8, Pointer :: IntIn(:,:,:), IntOut(:,:,:)
+      Integer iA, i_ijkl
+
+      IntIn(1:nijkl,1:nComp,1:nA)=>IntRaw(:)
+      IntOut(1:nijkl,1:1,1:nA)=>IntRaw(1:nijkl*nA)
+
+      Do iA = 1, nA
+         Do i_ijkl = 1, nijkl
+            IntOut(i_ijkl,iA) = IntIn(i_ijkl,1,iA)
+     &                        + IntIn(i_ijkl,4,iA)
+     &                        + IntIn(i_ijkl,6,iA)
+         End Do
+      End Do
+
+      IntIn(1:nijkl,1:nComp,1:nA)=>Null()
+      IntOut(1:nijkl,1:1,1:nA)=>Null()
+      End Subrotine ReSort_Int
+#endif
       End SubRoutine Eval_ijkl
