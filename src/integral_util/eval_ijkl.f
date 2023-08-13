@@ -45,9 +45,6 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
-#ifdef _DEBUGBREIT_
-      use Breif, only: nOrdOp
-#endif
       Implicit None
 !
 !     subroutine parameters
@@ -536,9 +533,9 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
       Call Set_Breit(0)
 
       Contains
-      Subrotine ReSort_Int(IntRaw,nijkl,nComp,nA)
+      Subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
       Implicit None
-      Integer, intent(In) :: nijkl, nComp, nA)
+      Integer, intent(In) :: nijkl, nComp, nA
       Real*8, Target :: IntRaw(nijkl*nComp*nA)
 
       Real*8, Pointer :: IntIn(:,:,:), IntOut(:,:,:)
@@ -549,14 +546,14 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 
       Do iA = 1, nA
          Do i_ijkl = 1, nijkl
-            IntOut(i_ijkl,iA) = IntIn(i_ijkl,1,iA)
-     &                        + IntIn(i_ijkl,4,iA)
-     &                        + IntIn(i_ijkl,6,iA)
+            IntOut(i_ijkl,1,iA) = IntIn(i_ijkl,1,iA)
+     &                          + IntIn(i_ijkl,4,iA)
+     &                          + IntIn(i_ijkl,6,iA)
          End Do
       End Do
 
-      IntIn(1:nijkl,1:nComp,1:nA)=>Null()
-      IntOut(1:nijkl,1:1,1:nA)=>Null()
-      End Subrotine ReSort_Int
+      IntIn=>Null()
+      IntOut=>Null()
+      End Subroutine ReSort_Int
 #endif
       End SubRoutine Eval_ijkl
