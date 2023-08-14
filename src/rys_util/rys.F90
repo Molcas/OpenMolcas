@@ -550,12 +550,12 @@ end select
 #ifdef _DEBUGPRINT_
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 If (nOrdOp==0) Then
-call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
+call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
 Else
 #ifdef _CHECK_R3_TERM_
-call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
+call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
 #else
-call RecPrt('{e0|f0}',' ',Array,nT,6*mabcd)
+call RecPrt('Rys: {e0|f0}',' ',Array,nT,6*mabcd)
 #endif
 End If
 #endif

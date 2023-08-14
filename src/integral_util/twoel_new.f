@@ -11,6 +11,7 @@
 * Copyright (C) 1990,1991,1993, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
@@ -78,7 +79,6 @@
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
      &        Batch_On_Disk,
      &        NoInts, DoAOBatch, All_Spherical
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
@@ -601,7 +601,7 @@ clwj
                End Do
                End Do
 !
-!              Integarls are now returned in Wrk(ipAOInt) or Wrk(iW4)
+!              Integrals are now returned in Wrk(ipAOInt) or Wrk(iW4)
 !
                If (NoPInts) Then
                   If (W2Disc) Then
@@ -641,7 +641,7 @@ clwj
 *
                If (Do_TnsCtl) Then
                   Call TnsCtl(Wrk(iW4),nWork2,CoorM,
-     &                        mabcd,nijkl,mabMax,mabMin,mcdMax,mcdMin,
+     &                        nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &                        Data1(iZ13_,lDCR1),Data2(iE13_,lDCR2),
      &                        la,lb,lc,ld,
      &                        iCmp(1),iCmp(2),iCmp(3),iCmp(4),
@@ -656,9 +656,9 @@ clwj
 *
 *---------------- Undo the late Cntrct
 *
-                  call dcopy_(nijkl*nabcd,Wrk(ipAOInt),1,Wrk(iW3),1)
-                  Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),
-     &                        nijkl)
+                  call dcopy_(nabcd*nijkl,Wrk(ipAOInt),1,Wrk(iW3),1)
+                  Call DGeTMO(Wrk(iW3),nabcd,nabcd,
+     &                        nijkl,Wrk(ipAOInt),nijkl)
 *
                End If
 *
@@ -751,6 +751,7 @@ clwj
       End Subroutine TwoEl_Sym_New_Internal
 *
       End
+!#define _DEBUGPRINT_
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
@@ -822,10 +823,6 @@ clwj
       Real*8, Target :: A(*)
       End Function iGet
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1122,7 +1119,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       If (Do_TnsCtl) Then
          Call TnsCtl(Wrk(iW4),nWork2,Coor,
-     &               mabcd,nijkl,mabMax,mabMin,mcdMax,mcdMin,
+     &               nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &               Data1(ip_HrrMtrx(nZeta)),
      &               Data2(ip_HrrMtrx(nEta) ),
      &               la,lb,lc,ld,
@@ -1143,8 +1140,8 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       End If
 #ifdef _DEBUGPRINT_
-      Call RecPrt('(AB|CD)',' ',Wrk(ipAOInt),nijkl,
-     &            iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
+      Call RecPrt('(AB|CD)',' ',Wrk(ipAOInt),nijkl/nComp,
+     &            nComp*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
 #endif
 *
 *-----Branch point for partial integral storage

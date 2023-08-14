@@ -168,7 +168,7 @@
 #endif
       mDCRij=1
       mDCRkl=1
-      If (nIrrep.eq.1) Then
+      If (nIrrep==1) Then
          Do_TwoEl => TwoEl_NoSym_New
       Else
          Do_TwoEl => TwoEl_Sym_New
@@ -483,20 +483,29 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 !***********************************************************************
 !                                                                      *
 !
+                  nijkl=iBasn*jBasn*kBasn*lBasn
 #ifdef _DEBUGBREIT_
-      If (nIrrep==0) Then
-         n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-         Call ReSort_Int(AOInt,nijkl,6,n)
-      Else
-         Call ReSort_Int(SOInt,nijkl,6,nSO)
-      End If
+                  If (nIrrep==1) Then
+                     n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+                     Call ReSort_Int(AOInt,nijkl,6,n)
+                  Else
+                     Call ReSort_Int(SOInt,nijkl,6,nSO)
+                  End If
+#endif
+#ifdef _DEBUGPRINT_
+                  If (nIrrep==1) Then
+                     n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+                     Write (6,*) 'nijkl,n=',nijkl,n
+                     Call RecPrt('AOInt',' ',AOInt,nijkl,n)
+                  Else
+                     Call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
+                  End If
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !              Process SO/AO-integrals
 !
-                  nijkl=iBasn*jBasn*kBasn*lBasn
                   If (DoIntegrals.and..Not.NoInts) Then
 !                    Get max AO/SO integrals
                      If (nIrrep.eq.1) Then
@@ -543,6 +552,9 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 
       IntIn(1:nijkl,1:nComp,1:nA)=>IntRaw(:)
       IntOut(1:nijkl,1:1,1:nA)=>IntRaw(1:nijkl*nA)
+#ifdef _DEBUGPRINT_
+!     Call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
+#endif
 
       Do iA = 1, nA
          Do i_ijkl = 1, nijkl

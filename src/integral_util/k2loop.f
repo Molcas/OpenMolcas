@@ -231,7 +231,7 @@
             Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
             call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
             Call TnsCtl(Wrk,nWork2,Coora,
-     &                  mabcd,mZeta,mabMax,mabMin,mabMax,mabMin,
+     &                  mZeta,mabMax,mabMin,mabMax,mabMin,
      &                  Data(ip_HrrMtrx(nZeta),lDCRR+1),
      &                  Data(ip_HrrMtrx(nZeta),lDCRR+1),
      &                  la,lb,la,lb,

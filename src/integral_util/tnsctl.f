@@ -11,7 +11,7 @@
 * Copyright (C) 1993,1999, Roland Lindh                                *
 ************************************************************************
       Subroutine TnsCtl(Wrk,nWrk,Coora,
-     &                  mabcd,nijkl,mabMax,mabMin,mcdMax,mcdMin,
+     &                  nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &                  HMtrxAB,HMtrxCD,la,lb,lc,ld,
      &                  iCmpa,jCmpb,kCmpc,lCmpd,
      &                  iShlla,jShllb,kShllc,lShlld,i_out)
@@ -28,6 +28,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Breit, only: nOrdOp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "print.fh"
@@ -38,25 +39,40 @@
       Real*8 Coora(3,4)
       Integer, Intent(out) :: i_out
       ![all others are intent(in)]
-*
-*---- Integral are stored as e,f,IJKL in Wrk
-*
-*---- Observe that Transf is false for s and p functions.
-*
-*---- If (ss|ss) integral exit.
-*
-      If (la+lb+lc+ld.eq.0) Then
-         i_out=1
-         Return
-      End If
-*
+
+      Integer :: nComp=1
+      Integer :: nDim
+!
+!     If nComp==1
+!---- Integral are stored as e,f,IJKL in Wrk
+!     If nComp/=1
+!---- Integral are stored as ncomp,e,f,IJKL in Wrk
+!
+!---- Observe that Transf is false for s and p functions.
+
+      If (nOrdOp/=0) nComp=6
       ne=(mabMax-mabMin+1)
       nf=(mcdMax-mcdMin+1)
       nab=iCmpa*jCmpb
       ncd=kCmpc*lCmpd
-*
+      nDim=Max(ne*nf,nab*nf,nab*ncd)
+
       iW2=1
-      iW3=1+nijkl*Max(ne*nf,nab*nf,nab*ncd)
+      iW3=1+nijkl*nDim
+
+      If (nComp/=1) Then
+         Wrk(iW3:iW3+ne*nf*nijkl-1)=Wrk(iW2:iW2+ne*nf*nijkl-1)
+         Call DGetMO(Wrk(iW3),nComp,
+     &               nComp,ne*nf*(nijkl/nComp),
+     &               Wrk(iW2),ne*nf*(nijkl/nComp))
+      End If
+
+!---- If (ss|ss) integral exit.
+
+      If (la+lb+lc+ld==0) Then
+         i_out=1
+         Return
+      End If
 *
 *---- Transpose if no transformation is needed.
 *
@@ -119,6 +135,5 @@
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Coora)
-         Call Unused_integer(mabcd)
       End If
       End

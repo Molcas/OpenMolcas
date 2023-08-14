@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Cntrct(First,
      &                  Coef1,n1,m1,Coef2,n2,m2,
      &                  Coef3,n3,m3,Coef4,n4,m4,
@@ -27,7 +28,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
 *
 *-----Cache size
 *
@@ -42,13 +42,7 @@
       Integer nComp
       ![all others are intent(in)]
 *
-#ifdef _DEBUGPRINT_
-      iRout = 18
-      iPrint = nPrint(iRout)
-#endif
-*
       mabcd=nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Call RecPrt('Cntrct: Coef1',' ',Coef1,n1,m1)
          Call RecPrt('Cntrct: Coef2',' ',Coef2,n2,m2)
@@ -101,8 +95,8 @@
      &            IndZet)
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Call RecPrt('Halftransformed',' ',
-     &                       Scrtch(ipA3),nVec,m1*m2)
+      Call RecPrt('Halftransformed',' ',
+     &             Scrtch(ipA3),nVec,m1*m2)
 #endif
 *
       nCache_ = (3*lCache)/4 - n3*m3 - n4*m4

@@ -130,7 +130,7 @@
          Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
          call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
          Call TnsCtl(Wrk,nWork2,CoorM,
-     &               mabcd,mZeta,mabMax,mabMin,mabMax,mabMin,
+     &               mZeta,mabMax,mabMin,mabMax,mabMin,
      &               HMtrx(1,1),HMtrx(1,2),
      &               la,lb,la,lb,
      &               nElem(la),nElem(lb),nElem(la),nElem(lb),
