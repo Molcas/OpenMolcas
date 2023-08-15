@@ -95,10 +95,7 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 
 NoSpecial = .false. ! Use special code if possible
 
-If (nOrdOp/=0) Then
-   NoSpecial=.true.   ! Don't use special code to compute Breit-type integrals
-   nComp=6
-End If
+If (nOrdOp/=0) nComp=6
 
 ! Transfer k2 data and prescreen
 ! In case of integral according to Breit we still will do the prescreening according to the conventional 1/r integrals.

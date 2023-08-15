@@ -31,6 +31,7 @@ integer(kind=iwp), intent(out) :: MemPrm
 integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys, nabcdN
 
+integer :: nComp=1
 la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
@@ -57,14 +58,11 @@ labcd = (labMax-labMin+1)*(lcdMax-lcdMin+1)
   write(u6,*) ' lcdMin=',lcdMin
   write(u6,*) ' lcdMax=',lcdMax
 #endif
+If (nOrdOp/=0) nComp=6
 MemPrm = 0
 ! [a0|c0]
-If (nOrdOp==0) Then
-   MemPrm = MemPrm+labcd
-Else
 !  6 elements in the case of integrals for spin-spin coupling
-   MemPrm = MemPrm+labcd*6
-End If
+MemPrm = MemPrm+nComp*labcd
 !                                                                     *
 !***********************************************************************
 !                                                                      *
@@ -72,7 +70,7 @@ End If
 ! to store full and long-range components (which are subtracted)
 ! This option is not active for nOrdOp/=0
 
-if (FMM_shortrange) MemPrm = MemPrm+labcd
+if (FMM_shortrange) MemPrm = MemPrm+nComp*labcd
 !                                                                      *
 !***********************************************************************
 !                                                                      *
