@@ -51,7 +51,7 @@
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
-      use Breit, only: nOrdOp
+      use Breit, only: nOrdOp, nComp
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
