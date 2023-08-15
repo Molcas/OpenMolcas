@@ -45,8 +45,8 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
-      use Breit, only: nOrdOp
 #ifdef _DEBUGBREIT_
+      use Breit, only: nOrdOp
       use UnixInfo, only: SuperName
 #endif
       Implicit None
