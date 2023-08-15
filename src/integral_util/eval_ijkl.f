@@ -12,7 +12,7 @@
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 !#define _DEBUGPRINT_
-#define _DEBUGBREIT_
+!#define _DEBUGBREIT_
       SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
 !***********************************************************************
 !                                                                      *
