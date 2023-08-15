@@ -76,10 +76,11 @@ integer(kind=iwp), intent(out) :: IndZet(nZeta), IndEta(nEta), kabcd
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
-logical(kind=iwp) :: Nospecial
-external :: TERI, ModU2, vCff2D, vRys2D
 integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
 integer(kind=iwp) :: nComp=1
+
+external :: TERI, ModU2, vCff2D, vRys2D
+logical(kind=iwp), parameter :: Nospecial=.false.
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
@@ -92,8 +93,6 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 call RecPrt('KappAB',' ',KappAB,1,nZeta)
 call RecPrt('KappCD',' ',KappCD,1,nEta)
 #endif
-
-NoSpecial = .false. ! Use special code if possible
 
 If (nOrdOp/=0) nComp=6
 
