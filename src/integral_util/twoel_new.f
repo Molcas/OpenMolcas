@@ -100,6 +100,11 @@
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
       If (nOrdOp/=0) nComp=6
+      If (nOrdOp/=0) Then
+         Write (6,*) 'Breit two-electron integrals not implemented yet'
+         Write (6,*) 'Symmetry adaptation different since the operator'
+         Write (6,*) 'is not symmetric.'
+      End If
       Call TwoEl_Sym_New_Internal(Data1,Data2)
 *
       Return

@@ -121,6 +121,7 @@ else
   ! and perform the HRR later once the complete set of
   ! contracted integrals have been generated.
 #ifdef _DEBUGPRINT_
+  Write (6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,mabcd
   Call RecPrt('DrvRys: [a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*mabcd)
 #endif
 
@@ -156,6 +157,7 @@ else
     kabcd = mabcd
   end if
 #ifdef _DEBUGPRINT_
+  Write (6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,kabcd
   Call RecPrt('[a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*kabcd)
 #endif
 
@@ -177,7 +179,7 @@ else
 end if
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
+write(u6,*) 'nComp,kabcd,iBasi*jBasj*kBask*lBasl=',nComp,kabcd,iBasi*jBasj*kBask*lBasl
 call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),nComp*kabcd,iBasi*jBasj*kBask*lBasl)
 #endif
 

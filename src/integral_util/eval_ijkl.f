@@ -12,7 +12,7 @@
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 !#define _DEBUGPRINT_
-!#define _DEBUGBREIT_
+#define _DEBUGBREIT_
       SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
 !***********************************************************************
 !                                                                      *
@@ -45,6 +45,7 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
+      use Breit, only: nOrdOp
       Implicit None
 !
 !     subroutine parameters
@@ -164,7 +165,7 @@
 #ifdef _DEBUGBREIT_
 !     use the Breit option computing 1/r^3 integralas but convert to
 !     conventional 1/r integrals
-      if (.NOT.DoFock) Call Set_Breit(1)
+      If (.NOT.DoFock .and. nIrrep==1) Call Set_Breit(1)
 #endif
       mDCRij=1
       mDCRkl=1
@@ -484,11 +485,14 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 !
                   nijkl=iBasn*jBasn*kBasn*lBasn
 #ifdef _DEBUGBREIT_
-                  If (nIrrep==1) Then
-                     n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-                     Call ReSort_Int(AOInt,nijkl,6,n)
-                  Else
-                     Call ReSort_Int(SOInt,nijkl,6,nSO)
+                  If (nOrdOp/=0) Then
+                     Write (6,*) 'nIrrep=',nIrrep
+                     If (nIrrep==1) Then
+                        n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+                        Call ReSort_Int(AOInt,nijkl,6,n)
+                     Else
+                        Call ReSort_Int(SOInt,nijkl,6,nSO)
+                     End If
                   End If
 #endif
 #ifdef _DEBUGPRINT_
@@ -551,7 +555,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
       IntIn(1:nijkl,1:nComp,1:nA)=>IntRaw(:)
       IntOut(1:nijkl,1:1,1:nA)=>IntRaw(1:nijkl*nA)
 #ifdef _DEBUGPRINT_
-!     Call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
+      Write (6,*) 'nijkl,nComp,nA=',nijkl,nComp,nA
+      Call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
 #endif
 
       Do iA = 1, nA
