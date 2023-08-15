@@ -46,6 +46,9 @@
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
       use Breit, only: nOrdOp
+#ifdef _DEBUGBREIT_
+      use UnixInfo, only: SuperName
+#endif
       Implicit None
 !
 !     subroutine parameters
@@ -165,7 +168,9 @@
 #ifdef _DEBUGBREIT_
 !     use the Breit option computing 1/r^3 integralas but convert to
 !     conventional 1/r integrals
-      If (.NOT.DoFock .and. nIrrep==1) Call Set_Breit(1)
+      If (.NOT.DoFock .and.
+     &    SuperName/= 'gateway' .and.
+     &    nIrrep==1) Call Set_Breit(1)
 #endif
       mDCRij=1
       mDCRkl=1
@@ -486,7 +491,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   nijkl=iBasn*jBasn*kBasn*lBasn
 #ifdef _DEBUGBREIT_
                   If (nOrdOp/=0) Then
-                     Write (6,*) 'nIrrep=',nIrrep
                      If (nIrrep==1) Then
                         n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
                         Call ReSort_Int(AOInt,nijkl,6,n)

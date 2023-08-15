@@ -11,8 +11,13 @@
 ! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
 Subroutine Set_Breit(n)
-use Breit, only: nOrdOp
+use Breit, only: nOrdOp, nComp
 Integer, Intent(In):: n
 nOrdOp=n
+If (nOrdOp==0) Then
+  nComp=1
+Else
+  nComp=6
+End If
 End Subroutine Set_Breit
 

@@ -28,7 +28,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
-      use Breit, only: nOrdOp
+      use Breit, only: nComp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "print.fh"
@@ -40,7 +40,6 @@
       Integer, Intent(out) :: i_out
       ![all others are intent(in)]
 
-      Integer :: nComp=1
       Integer :: nDim
 !
 !     If nComp==1
@@ -50,7 +49,6 @@
 !
 !---- Observe that Transf is false for s and p functions.
 
-      If (nOrdOp/=0) nComp=6
       ne=(mabMax-mabMin+1)
       nf=(mcdMax-mcdMin+1)
       nab=iCmpa*jCmpb

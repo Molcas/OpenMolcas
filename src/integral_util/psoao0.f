@@ -45,7 +45,7 @@
       use Gateway_global, only: force_part_c, force_part_p, iWROpt
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
-      use Breit, only: nOrdOp
+      use Breit, only: nComp
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -53,7 +53,6 @@
 #include "pstat.fh"
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, DoFock, Fail
-      Integer :: nComp=1
 #include "SysDef.fh"
 *
 *     Statement function to compute canonical index
@@ -61,7 +60,6 @@
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      If (nOrdOp/=0) nComp=6
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)

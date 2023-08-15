@@ -11,6 +11,6 @@
 ! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
 Module Breit
-Integer :: nOrdOp=0
+Integer :: nOrdOp=0, nComp=1
 End Module Breit
 

@@ -20,7 +20,7 @@ subroutine MemRys(iAnga,MemPrm)
 use Gateway_global, only: FMM_shortrange
 use Index_Functions, only: nTri3_Elem1
 use Definitions, only: iwp
-use Breit, only: nOrdOp
+use Breit, only: nOrdOp, nComp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -31,7 +31,6 @@ integer(kind=iwp), intent(out) :: MemPrm
 integer(kind=iwp) :: la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys, nabcdN
 
-integer :: nComp=1
 la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
@@ -58,7 +57,6 @@ labcd = (labMax-labMin+1)*(lcdMax-lcdMin+1)
   write(u6,*) ' lcdMin=',lcdMin
   write(u6,*) ' lcdMax=',lcdMax
 #endif
-If (nOrdOp/=0) nComp=6
 MemPrm = 0
 ! [a0|c0]
 !  6 elements in the case of integrals for spin-spin coupling

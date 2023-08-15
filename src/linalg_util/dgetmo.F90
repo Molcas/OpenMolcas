@@ -28,6 +28,7 @@ if (M <= 0) then
   write(u6,*) '  Invalid dimension of matrix A :'
   write(u6,*) '  The number of columns, M, must be greater than zero'
   write(u6,*)
+  Call abend()
 end if
 if (N <= 0) then
   write(u6,*)
@@ -35,6 +36,7 @@ if (N <= 0) then
   write(u6,*) '  Invalid leading dimension of matrix B :'
   write(u6,*) '  The number of rows, N, must be greater than zero'
   write(u6,*)
+  Call abend()
 end if
 if (ldA < M) then
   write(u6,*)
@@ -42,6 +44,7 @@ if (ldA < M) then
   write(u6,*) '  Invalid leading dimension of matrix A :'
   write(u6,*) '  ldA must be equal to M or greater'
   write(u6,*)
+  Call abend()
 end if
 if (ldB < N) then
   write(u6,*)
@@ -49,6 +52,7 @@ if (ldB < N) then
   write(u6,*) '  Invalid leading dimension of matrix B :'
   write(u6,*) '  ldB must be equal to N or greater'
   write(u6,*)
+  Call abend()
 end if
 INC = 8
 do j=1,M,INC

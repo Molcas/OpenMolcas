@@ -71,7 +71,6 @@
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
      &        iAO(4), iAnga(4), iCmp(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
-      Integer :: nComp=1
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy,Do_TnsCtl,
      &        IJeqKL,IeqK,JeqL,
@@ -99,7 +98,6 @@
       Integer :: ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      If (nOrdOp/=0) nComp=6
       If (nOrdOp/=0) Then
          Write (6,*) 'Breit two-electron integrals not implemented yet'
          Write (6,*) 'Symmetry adaptation different since the operator'
@@ -795,7 +793,7 @@ clwj
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
-      use Breit, only: nOrdOp
+      use Breit, only: nComp
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -810,7 +808,6 @@ clwj
      &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Integer :: nComp=1
       Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -836,7 +833,6 @@ clwj
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      If (nOrdOp/=0) nComp=6
       Call TwoEl_NoSym_New_Internal(Data1,Data2)
 *
       Return

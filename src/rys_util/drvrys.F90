@@ -60,7 +60,7 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Breit, only: nOrdOp
+use Breit, only: nComp
 
 implicit none
 integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
@@ -77,7 +77,6 @@ logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
 integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
-integer(kind=iwp) :: nComp=1
 
 external :: TERI, ModU2, vCff2D, vRys2D
 logical(kind=iwp), parameter :: Nospecial=.false.
@@ -93,8 +92,6 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 call RecPrt('KappAB',' ',KappAB,1,nZeta)
 call RecPrt('KappCD',' ',KappCD,1,nEta)
 #endif
-
-If (nOrdOp/=0) nComp=6
 
 ! Transfer k2 data and prescreen
 ! In case of integral according to Breit we still will do the prescreening according to the conventional 1/r integrals.
