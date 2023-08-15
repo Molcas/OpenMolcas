@@ -162,7 +162,7 @@ c Avoid unused argument warnings
       ncd = iCmp(3)*iCmp(4)
       nabcd = nab*ncd
       nInts =nijkl*nabcd
-      If (nSOInt.ne.0) Call FZero(SOInt,nSOInt*nijkl)
+      SOInt(:,:) = Zero
       ipAOInt=1
       iW3=1+nInts
       iW4=1
@@ -765,7 +765,7 @@ clwj
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
-     &           SoInt,nSoInt,Wrk,nWork2,
+     &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
 ************************************************************************
 *                                                                      *
@@ -826,7 +826,6 @@ clwj
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
 *     Declaration of statement functions to compute canonical index
 *
       Integer ixyz, nabSz

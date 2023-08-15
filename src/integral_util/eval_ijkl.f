@@ -164,7 +164,7 @@
 #ifdef _DEBUGBREIT_
 !     use the Breit option computing 1/r^3 integralas but convert to
 !     conventional 1/r integrals
-      Call Set_Breit(1)
+      if (.NOT.DoFock) Call Set_Breit(1)
 #endif
       mDCRij=1
       mDCRkl=1
@@ -284,7 +284,6 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       If (nSO.eq.0) Then
         Return
       End If
-      If (.Not.DoIntegrals) nSO = 0
 *
       iS = iShelV(1)
       jS = iShelV(2)
@@ -331,9 +330,9 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' *** Centers ***'
-      Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
-      Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
+!     Write (6,*) ' *** Centers ***'
+!     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
+!     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
 #endif
 *                                                                      *
 ************************************************************************
@@ -356,20 +355,20 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &            ipMem1,ipMem2,
      &            Mem1,Mem2,DoFock)
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' ************** Memory partioning **************'
-      Write (6,*) ' ipMem1=',ipMem1
-      Write (6,*) ' ipMem2=',ipMem2
-      Write (6,*) ' Mem1=',Mem1
-      Write (6,*) ' Mem2=',Mem2
-      Write (6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-      Write (6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-      Write (6,*) ' kBasi,kBsInc=',kBask,kBsInc
-      Write (6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-      Write (6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-      Write (6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-      Write (6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-      Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
-      Write (6,*) ' ***********************************************'
+!     Write (6,*) ' ************** Memory partioning **************'
+!     Write (6,*) ' ipMem1=',ipMem1
+!     Write (6,*) ' ipMem2=',ipMem2
+!     Write (6,*) ' Mem1=',Mem1
+!     Write (6,*) ' Mem2=',Mem2
+!     Write (6,*) ' iBasi,iBsInc=',iBasi,iBsInc
+!     Write (6,*) ' jBasj,jBsInc=',jBasj,jBsInc
+!     Write (6,*) ' kBasi,kBsInc=',kBask,kBsInc
+!     Write (6,*) ' lBasl,lBsInc=',lBasl,lBsInc
+!     Write (6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
+!     Write (6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
+!     Write (6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
+!     Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
+!     Write (6,*) ' ***********************************************'
 #endif
       SOInt(1:Mem1)=>Sew_Scr(ipMem1:ipMem1+Mem1-1)
       AOInt(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem1-1)
@@ -495,7 +494,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 #ifdef _DEBUGPRINT_
                   If (nIrrep==1) Then
                      n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-                     Write (6,*) 'nijkl,n=',nijkl,n
                      Call RecPrt('AOInt',' ',AOInt,nijkl,n)
                   Else
                      Call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
