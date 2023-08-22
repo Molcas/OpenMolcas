@@ -19,9 +19,9 @@
       SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
       USE CHOVEC_IO
       use caspt2_output, only: iPrGlb, verbose, debug
-      use caspt2_global, only: real_shift, imag_shift
+      use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
-     *                           iRoot2
+     *                           iRoot2, if_invaria
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -122,6 +122,14 @@ C
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         !! Diagonal part
         CALL TRDNS2D(iVecX,iVecR,WORK(LDPT),NDPT,VECROT(JSTATE))
+        if (.not.if_invaria) then
+          do i = 1, norb(1)
+            do j = i+1, norb(1)
+              work(ldpt+i-1+norb(1)*(j-1)) = 0.0d+00
+              work(ldpt+j-1+norb(1)*(i-1)) = 0.0d+00
+            end do
+          end do
+        end if
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *       write(6,*)' DPT after TRDNS2D.'
 *       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
@@ -194,7 +202,7 @@ C
         Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
         Call DCopy_(nOLag,[0.0D+00],0,Work(ipOLag),1)
 C
-        If (nFroT.ne.0) Then
+        If (nFroT.ne.0 .or. .not.if_invaria) Then
           CALL GETMEM('DIA   ','ALLO','REAL',ipDIA ,nBsqT)
           CALL GETMEM('DI    ','ALLO','REAL',ipDI  ,nBsqT)
         Else
@@ -214,7 +222,7 @@ C
         !! Note also that unrelaxed (w/o Z-vector) dipole moments with
         !! frozen orbitals must be wrong.
 C       call dcopy_(ndpt,[0.0d+00],0,work(ldpt),1)
-        If (nFroT.eq.0) Then
+        If (nFroT.eq.0 .and. if_invaria) Then
           Call DCopy_(nOsqT,Work(LDSUM),1,Work(ipDPT),1)
         Else
           Call OLagFro0(Work(LDSUM),Work(ipDPT))
@@ -338,7 +346,7 @@ C
         !! Note that the contribution is multiplied by two
         !! somewhere else (maybe in olagns?)
         If (real_shift .ne. 0.0D+00 .or. imag_shift .ne. 0.0D+00
-     &      .OR. IFMSCOUP) Then
+     &      .OR. sigma_p_epsilon .ne. 0.0D+00 .OR. IFMSCOUP) Then
           !! Have to weight the T-amplitude for MS-CASPT2
           IF (IFMSCOUP) THEN
             !! add lambda
@@ -393,7 +401,7 @@ C       CALL GETMEM('DEPSA ','FREE','REAL',ipDEPSA,nAshT)
 C
 C       ----- Construct orbital Lagrangian -----
 C
-        If (nFroT.ne.0) Then
+        If (nFroT.ne.0 .or. .not.if_invaria) Then
           !! If frozen orbitals exist, we need to obtain
           !! electron-repulsion integrals with frozen orbitals to
           !! construct the orbital Lagrangian.
@@ -449,7 +457,8 @@ C         write(6,*) "DPT2C"
 C         call sqprt(work(ipdptc),nbast)
 C
           !! MO -> AO transformations for DPT2 and DPT2C
-          If ((.not.IfChol.or.iALGO.ne.1).or.nFroT.eq.0) Then
+          If ((.not.IfChol.or.iALGO.ne.1)
+     *       .or.(nFroT.eq.0.and.if_invaria)) Then
             Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPT),
      *                   Work(ipDPTAO),Work(ipWRK1))
             Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPTC),
@@ -492,11 +501,14 @@ C     call sqprt(work(ipfptao),12)
 C     call abend
 C
           !! AO -> MO transformations for FPT2AO and FPT2CAO
-          If ((.not.IfChol.or.iALGO.ne.1).or.nFroT.eq.0) Then
+          If ((.not.IfChol.or.iALGO.ne.1)
+     *        .or.(nFroT.eq.0.and.if_invaria)) Then
             Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPT),
      *                   Work(ipFPTAO),Work(ipWRK1))
             Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPTC),
      *                   Work(ipFPTCAO),Work(ipWRK1))
+          write(6,*) "fptao in olag"
+          call sqprt(work(ipfptao),nbast)
           End If
 C
           If (.not.IfChol.or.iALGO.ne.1) Then
@@ -531,7 +543,7 @@ C
         !! unrelaxed PT2 density matrix is computed using the orbital
         !! Lagrangian. Additionally, Fock transformation is also
         !! required.
-        If (nFroT.ne.0) Then
+        If (nFroT.ne.0 .or. .not.if_invaria) Then
           !! Compute DPT2 density for frozen-inactive
 C         write(6,*) "dpt before frozen"
 C         call sqprt(work(ipdpt),nbast)
@@ -540,6 +552,8 @@ C         call sqprt(work(ipdpt),nbast)
             Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
      *                    Work(ipWRK2))
           end if
+          !! Save DPT in order to subtract later
+          Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
           !! Add explicit FIMO and FIFA contributions. Implicit
           !! contributions are all symmetric in frozen + inactive
           !! orbitals, so they do not contribute to frozen density
@@ -555,11 +569,29 @@ C         call sqprt(work(ipdpt),nbast)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
      *                1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
      *                1.0D+00,Work(ipOLAG),nBasT)
-          !! Save DPT in order to subtract later
-          Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
 C
+          !! non-invariant in inactive and secondary
+          if(.not.if_invaria) then
+            !! Construct the density from orbital Lagrangian
+            call caspt2_grad_invaria2(Work(ipDPT),Work(ipOLag))
+            !! FIFA contributions from the non-invariant density
+            call DaXpY_(nDPTAO,-1.0D+00,Work(ipWRK1),1,Work(ipDPT),1)
+            !! Add the non-invariant contribution to unrelaxed density
+            Call AddDPTC(Work(ipDPT),Work(LDSUM))
+            CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
+     *                  1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
+     *                  1.0D+00,Work(ipOLAG),nBasT)
+            CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
+     *                  1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
+     *                  1.0D+00,Work(ipOLAG),nBasT)
+            !! Restore the second-order correlated density
+            call DaXpY_(nDPTAO,+1.0D+00,Work(ipWRK1),1,Work(ipDPT),1)
+            Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
+          end if
           !! Now, compute pseudo-density using orbital Lagrangian
-          Call OLagFro1(Work(ipDPT),Work(ipOLag))
+          !! LDSUM does not contain frozen orbitals,
+          !! so the properties using this density may be inaccurate
+          If(nFroT.ne.0) Call OLagFro1(Work(ipDPT),Work(ipOLag))
 C
           !! Subtract the orbital Lagrangian added above.
           !! It is computed again in EigDer
@@ -591,6 +623,8 @@ C
             !! It seems that it is not possible to do this
             !! transformation in OLagVVVO, because the frozen-part of
             !! the DPT2 is obtained after OLagVVVO.
+            Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTAO),1)
+            Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTCAO),1)
             Call OLagFro4(1,1,1,1,1,
      *                    Work(ipDPTAO),Work(ipDPTCAO),Work(ipFPTAO),
      *                    Work(ipFPTCAO),Work(ipWRK1))
@@ -761,7 +795,8 @@ C         Call CLagFinal(Work(ipCLag),Work(ipSLag))
 C
         !! Restore integrals without frozen orbitals, although not sure
         !! this operation is required.
-        If (nFroT.ne.0.and..not.IfChol) Call TRAFRO(2)
+        If ((nFroT.ne.0.or..not.if_invaria).and..not.IfChol)
+     *    Call TRAFRO(2)
 C
         IDCIEX = ISAV
         !! Canonical -> natural transformation
@@ -1161,6 +1196,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstTrf(Trf0,Trf)
 C
+      use caspt2_gradient, only: TraFro
+C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1199,8 +1236,14 @@ C       Do iIsh = 1, nFroI + nIshI
 C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
 C       End Do
         !! frozen
-        Do iIsh = 1, nFroI
-          Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
+C       Do iIsh = 1, nFroI
+C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
+C       End Do
+        Do I = 1, nFroI
+          Do J = 1, nFroI
+            Trf(ipTrfL+I+nBasI*(J-1))
+     *        = TraFro(I+nFroI*(J-1))
+          End Do
         End Do
         !! inactive
         Do I = 1, nIshI

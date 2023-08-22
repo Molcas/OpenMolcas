@@ -13,7 +13,9 @@
       Subroutine GrdIni
 C
       use caspt2_gradient, only: do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
-     *                           idBoriMat
+     *                           idBoriMat,TraFro
+      use stdalloc, only: mma_allocate
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -174,6 +176,8 @@ C
       End If
       Call GETMEM('WRK','FREE','REAL',ipWRK,MaxLen)
 C
+      if (nFroT.ne.0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
+C
       Return
 
       End Subroutine GrdIni
@@ -184,7 +188,8 @@ C-----------------------------------------------------------------------
 C
       use caspt2_output, only: iPrGlb, verbose
       use caspt2_gradient, only: do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
-     *                           LUSTD
+     *                           LUSTD,TraFro
+      use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -352,6 +357,7 @@ C
 
       !! orbital Lagrangian (read in RHS_PT2)
       If (DEB) call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
+      call sqprt(work(ipolagfull),nbast)
       Do i = 1, nOLag
         Write (LuPT2,*) Work(ipOLagFull+i-1)
       End Do
@@ -451,6 +457,8 @@ C     Call Put_dScalar('BSHIFT',BSHIFT)
 C
       !! Close files
       Call DaClos(LUSTD)
+C
+      if (nFroT.ne.0) call mma_deallocate(TraFro)
 C
       Return
 C
@@ -665,6 +673,8 @@ C-----------------------------------------------------------------------
 
       Subroutine CnstFIFAFIMO(MODE)
 
+      use caspt2_gradient, only: TraFro
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -729,6 +739,20 @@ C             call sqprt(work(ipfifasa+isq),nbasi)
      *                     Work(ipWRK1),Work(ipWRK2))
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
+              !! canonicalize frozen orbitals
+              If (nFroT.ne.0) Then
+                CALL GETMEM('WRK3   ','ALLO','REAL',ipWRK3   ,nBasSq)
+                CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK3),1)
+                CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),
+C    &                      WORK(ipWRK2),NBAS(ISYM),WORK(LCMOPT2),
+     &                      TraFro,NBAS(ISYM),WORK(LCMOPT2),
+     *                      WORK(ipWRK3))
+                CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),
+     *                      Work(ipWRK3),1,Work(LCMOPT2),1)
+                Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFA+iSQ),
+     *                       Work(ipWRK1),Work(ipWRK2))
+                CALL GETMEM('WRK3   ','FREE','REAL',ipWRK3   ,nBasSq)
+              End If
             End If
           End If
 C
@@ -738,7 +762,6 @@ C         If (MODE.eq.0) Then
               Call SQUARE(Work(LFIMO+iTr),Work(ipFIMO+iSQ),
      *                    1,nBasI,nBasI)
             Else
-              !! FIMO will be natural basis
               Call SQUARE(Work(ipFIMO+iTr),Work(ipWRK1),1,nBasI,nBasI)
               Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIMO+iSQ),
      *                     Work(ipWRK1),Work(ipOLag))

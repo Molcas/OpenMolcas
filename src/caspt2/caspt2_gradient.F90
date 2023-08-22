@@ -29,9 +29,16 @@ module caspt2_gradient
 
   ! for IPEA
   logical(kind=iwp) :: do_lindep       = .false.
-  logical(kind=iwp) :: if_invar        = .true.
+  logical(kind=iwp) :: if_invar        = .true. ! active invariance
   integer(kind=iwp) :: LUSTD           = 0_iwp
   integer(kind=iwp) :: IDSAVGRD        = 0_iwp
   integer(kind=iwp) :: idBoriMat(8,13) = 0_iwp
+
+  ! whether CASPT2 energy is invariant wrt rotations among inactive
+  ! and secondary orbitals
+  logical(kind=iwp) :: if_invaria      = .true.
+
+  ! natural <-> quasi-canonical transformation of frozen orbitals
+  real(kind=wp),allocatable :: TraFro(:)
 
 end module caspt2_gradient

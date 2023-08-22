@@ -194,6 +194,9 @@ module InputData
     Integer :: iNACRoot1=0, iNACRoot2=0
     ! CSF       compute CSF contributions in derivative coupling
     Logical :: CSF = .False.
+    ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
+    !           and secondary orbital rotations. Development purpose
+    Logical :: IAINVAR  = .True.
 
   end type ! end of type InputTable
 
@@ -687,6 +690,9 @@ contains
 
       Case('CSF ')
         Input%CSF = .true.
+
+      Case('IAIN')
+        Input%IAINVAR = .false.
 
         ! OBSOLETE KEYWORDS
 

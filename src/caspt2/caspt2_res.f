@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine CASPT2_Res(VECROT)
 C
-      use caspt2_global, only: real_shift, imag_shift
+      use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -46,11 +46,14 @@ C
       !! For MS-CASPT2, the rotation is mutiplied later.
       SAV=real_shift
       SAVI=imag_shift
+      savreg=sigma_p_epsilon
       real_shift=0.0d0
       imag_shift=0.0d0
+      sigma_p_epsilon=0.0d0
       CALL SIGMA_CASPT2(2.0D+00,2.0D+00,IVECX,IRHS2)
       real_shift=SAV
       imag_shift=SAVI
+      sigma_p_epsilon=savreg
 C
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
@@ -139,7 +142,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! RHS_SGMDIA
-      SUBROUTINE CASPT2_ResD(Mode,NIN,NIS,lg_W,DIN,DIS)
+      SUBROUTINE CASPT2_ResD(Mode,NIN,NIS,lg_W1,lg_W2,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -163,11 +166,12 @@ C Apply the resolvent of the diagonal part of H0 to an RHS array
         CALL GA_Sync()
         myRank = GA_NodeID()
 C-SVC: get the local vertical stripes of the lg_W vector
-        CALL GA_Distribution (lg_W,myRank,iLo,iHi,jLo,jHi)
+      !! not yet, probably just repeat for lg_W2
+        CALL GA_Distribution (lg_W1,myRank,iLo,iHi,jLo,jHi)
         IF (iLo.NE.0.AND.jLo.NE.0) THEN
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
-          CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
+          CALL GA_Access (lg_W1,iLo,iHi,jLo,jHi,mW,LDW)
           CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
      &                DIS(jLo))
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
@@ -175,10 +179,12 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GA_Sync()
 C       CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
+        CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W1),WORK(lg_W2),
+     *                    NIN,DIN,DIS)
       END IF
 #else
-      CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
+      CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W1),WORK(lg_W2),
+     *                  NIN,DIN,DIS)
 #endif
 
       END
@@ -186,31 +192,88 @@ C
 C-----------------------------------------------------------------------
 C
       !! RESDIA
-      SUBROUTINE CASPT2_ResD2(Mode,NROW,NCOL,W,LDW,DIN,DIS)
-      use caspt2_global, only: real_shift, imag_shift
-      IMPLICIT REAL*8 (A-H,O-Z)
+      subroutine CASPT2_ResD2(Mode,nRow,nCol,W1,W2,LDW,dIn,dIs)
 
-      DIMENSION W(LDW,*),DIN(*),DIS(*)
+      use definitions, only: wp, iwp
+      use caspt2_global, only: real_shift, imag_shift,
+     &                         sigma_p_epsilon, sigma_p_exponent
 
-      DO J=1,NCOL
-        DO I=1,NROW
-          SCAL = 0.0D+00
-          If (Mode.eq.1) Then
-            DELTA  = real_shift+DIN(I)+DIS(J)
-            DELINV = DELTA/(DELTA**2+imag_shift**2)
+      implicit none
+
+      integer(kind=iwp), intent(in)    :: Mode, nRow, nCol, LDW
+      real(kind=wp),     intent(inout) :: W1(LDW,*), W2(LDW,*)
+      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
+
+      integer(kind=iwp)                :: i, j, p
+      real(kind=wp)                    :: scal, delta, delta_inv,
+     &                                    sigma, epsilon, expscal,
+     *                                    delta_ps
+
+      epsilon = 0.0_wp
+      if (sigma_p_epsilon .ne. 0.0_wp) then
+        epsilon = sigma_p_epsilon
+        p = sigma_p_exponent
+      end if
+
+      do j = 1, nCol
+        do i = 1, nRow
+          scal = 0.0_wp
+          if (Mode.eq.1) then
+            ! energy denominator plus real shift
+            delta = dIn(i) + dIs(j) + real_shift
+            ! inverse denominator plus imaginary shift
+            delta_inv = delta/(delta**2 + imag_shift**2)
+            ! multiply by (inverse) sigma-p regularizer
+            epsilon = sigma_p_epsilon
+            p = sigma_p_exponent
+            if (epsilon > 0.0_wp) then
+              sigma = 1.0_wp/epsilon**p
+              delta_inv
+     *          = delta_inv * (1.0_wp - exp(-sigma*abs(delta)**p))
+            end if
             !! The following SCAL is the actual residual
-            SCAL   = 1.0D+00 - (DIN(I)+DIS(J))*DELINV
-C           write(6,*) "residue = ", scal
-C           if (abs(residue).ge.1.0d-08) write(6,*) "residue = ", scal
+            scal = 1.0_wp - (dIn(i)+dIs(j))*delta_inv
             !! Another scaling is required for lambda
-            SCAL   =-SCAL*DELINV
-          ELse If (Mode.eq.2) Then
-            SCAL   =-imag_shift/(DIN(I)+DIS(J))
-          End If
-          W(I,J) = SCAL*W(I,J)
-        END DO
-      END DO
-      END
+            scal = -scal*delta_inv
+!
+            W1(i,j) = scal*W1(i,j)
+            W2(i,j) = scal*W2(i,j)
+          else if (Mode.eq.2) then
+            if (imag_shift .ne. 0.0_wp) then
+              scal = imag_shift/(dIn(i)+dIs(j))
+              W1(i,j) = scal*W1(i,j)
+              W2(i,j) = scal*W2(i,j)
+            else if (epsilon.ne.0.0_wp) then
+              ! derivative of the denominator of sigma-p CASPT2
+              ! always real_shift = imag_shift = 0
+              delta   = dIn(i)+dIs(j)
+              ! multiply by (inverse) sigma-p regularizer
+              sigma   = 1.0_wp/epsilon**p
+              delta_ps= (delta**p)*sigma
+              expscal = exp(-abs(delta_ps))
+              delta_inv = 1.0_wp / (1.0_wp - expscal)
+
+              W1(i,j) = delta_inv*p*(delta_ps)*expscal*W1(i,j)
+     *                  *(SIGN(1.0_wp,delta)**p)
+              W2(i,j) = delta_inv*W2(i,j)
+C             W2(i,j) = delta_inv*p*(delta_ps)*expscal*W2(i,j)
+C    *                  *(SIGN(1.0_wp,delta)**p)
+C             W1(i,j) = delta_inv*W1(i,j)
+            end if
+          else if (Mode.eq.3) then
+            ! derivative of the numerator of sigma-p CASPT2
+            ! always real_shift = imag_shift = 0
+            delta     = dIn(i)+dIs(j)
+            ! multiply by (inverse) sigma-p regularizer
+            sigma = 1.0_wp/epsilon**p
+            expscal = exp(-sigma*abs(delta)**p)
+            delta_inv = 1.0_wp / (1.0_wp - expscal)
+            W1(i,j) = delta_inv*W1(i,j)
+          end if
+        end do
+      end do
+
+      end subroutine CASPT2_ResD2
 C
 C-----------------------------------------------------------------------
 C

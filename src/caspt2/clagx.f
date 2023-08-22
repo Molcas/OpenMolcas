@@ -123,7 +123,7 @@ C
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
 
-      use caspt2_global, only:imag_shift
+      use caspt2_global, only:imag_shift, sigma_p_epsilon
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -164,6 +164,16 @@ C         write(6,*) "dimension for Vec = ", nin*nis
           !! lg_V2 = lambda (shift correction)
           Call RHS_ALLO(nIN,nIS,lg_V2)
           CALL RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
+          if (sigma_p_epsilon.ne.0.0d+00) then
+            Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
+            Call GETMEM('LID','ALLO','REAL',LID,nIS)
+            iD = iDBMat(iSym,iCase)
+            Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
+            Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
+            Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,Work(LBD),Work(LID))
+            Call GETMEM('LBD','FREE','REAL',LBD,nAS)
+            Call GETMEM('LID','FREE','REAL',LID,nIS)
+          end if
 C
           If (iCase.ne.12.and.iCase.ne.13) Then
             !! lg_V3 = RHS (in IC basis)
@@ -206,7 +216,7 @@ C
     !  *                    WORK(LVEC3),WORK(LVEC4),
     !  *                    nIN,nIS,nAS,G1,G2,G3,
     !  *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                    VECROT,Work(lg_V5))
+    !  *                    VECROT,Work(lg_V5),lg_V2)
 
     !           ! free local buffer
     !           CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -218,7 +228,7 @@ C
     !  *                  Work(lg_V3),Work(lg_V4),
     !  *                  nIN,nIS,nAS,G1,G2,G3,
     !  *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                  VECROT,Work(lg_V5))
+    !  *                  VECROT,Work(lg_V5),lg_V2)
     !       END IF
 ! #else
 C          write(6,*) "calling clagdx for icase = ", icase
@@ -226,10 +236,10 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
      *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                VECROT,Work(lg_V5))
+     *                VECROT,Work(lg_V5),lg_V2)
 ! #endif
 
-          If (imag_shift .ne. 0.0d0) Then
+          If (imag_shift .ne. 0.0d0 .or. sigma_p_epsilon.ne.0.0d0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
@@ -238,12 +248,8 @@ C          write(6,*) "calling clagdx for icase = ", icase
             Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
 
             CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V1,Work(LBD),Work(LID))
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V2,Work(LBD),Work(LID))
-            CALL RHS_READ_SR(lg_V4,ICASE,ISYM,iVecR)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V4,Work(LBD),Work(LID))
-!           Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
+            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,Work(LBD),Work(LID))
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)
@@ -267,7 +273,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
 !      *                    WORK(LVEC3),WORK(LVEC4),
 !      *                    nIN,nIS,nAS,G1,G2,G3,
 !      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                    VECROT,Work(lg_V5))
+!      *                    VECROT,Work(lg_V5),lg_V2)
 
 !               ! free local buffer
 !               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -279,7 +285,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
 !      *                  Work(lg_V3),Work(lg_V4),
 !      *                  nIN,nIS,nAS,G1,G2,G3,
 !      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                  VECROT,Work(lg_V5))
+!      *                  VECROT,Work(lg_V5),lg_V2)
 !           END IF
 ! #else
 C          write(6,*) "calling clagdx for icase = ", icase
@@ -287,7 +293,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  VECROT,Work(lg_V5))
+     *                  VECROT,Work(lg_V5),lg_V2)
 ! #endif
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
@@ -333,11 +339,12 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
      *                  G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,
-     *                  DEASUM,DEPSA,VECROT,VEC5)
+     *                  DEASUM,DEPSA,VECROT,VEC5,lg_V2)
 C
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only:ipea_shift, real_shift, imag_shift
+      use caspt2_global, only:ipea_shift, real_shift, imag_shift,
+     *                        sigma_p_epsilon
       use caspt2_gradient, only:do_lindep,LUSTD
 C
       Implicit Real*8 (A-H,O-Z)
@@ -403,8 +410,10 @@ C
       End If
 C
       If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &    .OR. IFMSCOUP) Then
+     &    .OR. sigma_p_epsilon .ne. 0.0D+00 .OR. IFMSCOUP) Then
         !! Work(LWRK1) = T*T + (T*lambda+lambda*T)/2
+        !! For sigma-p CASPT2, this if branch computes the pseudo-
+        !! density that comes from the numerator of the shift.
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *              0.5D+00,VEC2,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
@@ -412,40 +421,11 @@ C
      *              0.5D+00,VEC1,nIN,VEC2,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
       End If
-C
-      If (ipea_shift.NE.0.0D+00) Then
-C       write(6,*) "B derivative in internally contracted"
-C       call sqprt(Work(lWRK1),nin)
-C       Do iICB = 1, nIN
-C         Work(LWRK3+iICB-1) = Work(LWRK1+iICB-1+nIN*(iICB-1))
-C       End Do
-C       Call DGEMM_('N','T',nIN,nIN,nIS,
-C    *              1.0D+00,VEC3,nIN,VEC1,nIN,
-C    *              0.0D+00,Work(LWRK2),nIN)
-C       Call DGeSub(Work(LWRK2),nIN,'N',
-C    *              Work(LWRK2),nIN,'T',
-C    *              Work(LWRK1),nIN,
-C    *              nIN,nIN)
-C       Do iICB = 1, nIN
-C         EigI = Work(LEIG+iICB-1)
-C         Do jICB = 1, iICB-1
-C           EigJ = Work(LEIG+jICB-1)
-C           Work(LWRK1+iICB-1+nIN*(jICB-1))
-C    *        = Work(LWRK1+iICB-1+nIN*(jICB-1))/(EigJ-EigI)
-C           Work(LWRK1+jICB-1+nIN*(iICB-1))
-C    *        =-Work(LWRK1+jICB-1+nIN*(iICB-1))/(EigJ-EigI)
-C         End Do
-C         Work(LWRK1+iICB-1+nIN*(iICB-1)) = Work(LWRK3+iICB-1)
-C       End Do
-C       write(6,*) "B derivative in internally contracted"
-C       call sqprt(Work(lWRK1),nin)
-C       call abend
-      End If
-C     write(6,*) "B derivative in internally contracted"
-C     call sqprt(Work(lWRK1),nin)
-C     do i = 1, nin*nis
-C       write(6,'(i4,f20.10)') i,vec1(i)
-C     end do
+      if (sigma_p_epsilon.ne.0.0d+00 .and. mode.eq.0) then
+        !! the remaining is the derivative of 2<1|H|0>, so the unscaled
+        !! lambda is loaded
+        CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+      end if
 C
       !! Transform the internally contracted density to
       !! active MO basis
@@ -481,14 +461,14 @@ C
       !! WRK1(o,p) = WRK1(o,p) - T_{o,i}^{ab}*RHS(p,i,a,b)
       !! This contribution should not be done for the imaginary
       !! shift-specific term
-      !  1) Implicit overlap derivative
+      !  1) Implicit overlap derivative of the 2<1|H|0> part
       If (Mode.eq.0) Then
         !! Work(LWRK1) = -RHS*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *             -1.0D+00,VEC5,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
         If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. IFMSCOUP) Then
+     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
           !! Work(LWRK1) = -RHS*(T+lambda/2)
           Call DGEMM_('N','T',nIN,nIN,nIS,
      *               -0.5D+00,VEC3,nIN,VEC2,nIN,
@@ -515,15 +495,15 @@ C
         Call LinDepLag(Work(LWRK3),Work(LWRK1),nAS,nIN,iSym,iCase)
       End If
 !
-      !  2) Explicit overlap derivative
+      !  2) Explicit overlap derivative of the 2<1|H|0> part
       !     Again, not for imaginary shift-specific terms
       If (Mode.eq.0) Then
-        !! E = 2<0|H|1> - <1|H0-E0|1>
+        !! E = 2<1|H|0> + <1|H0-E0|1>
         Call DGEMM_('N','N',nAS,nIS,nIN,
      *              SCAL,Work(LTRANS),nAS,VEC1,nIN,
      *              0.0D+00,Work(LWRK2),nAS)
         If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. IFMSCOUP) THEN
+     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
           Call DGEMM_('N','N',nAS,nIS,nIN,
      *                0.5D+00,Work(LTRANS),nAS,VEC2,nIN,
      *                1.0D+00,Work(LWRK2),nAS)
