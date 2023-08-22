@@ -357,7 +357,6 @@ C
 
       !! orbital Lagrangian (read in RHS_PT2)
       If (DEB) call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
-      call sqprt(work(ipolagfull),nbast)
       Do i = 1, nOLag
         Write (LuPT2,*) Work(ipOLagFull+i-1)
       End Do
@@ -741,17 +740,14 @@ C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
               !! canonicalize frozen orbitals
               If (nFroT.ne.0) Then
-                CALL GETMEM('WRK3   ','ALLO','REAL',ipWRK3   ,nBasSq)
-                CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK3),1)
+                CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
                 CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),
-C    &                      WORK(ipWRK2),NBAS(ISYM),WORK(LCMOPT2),
      &                      TraFro,NBAS(ISYM),WORK(LCMOPT2),
-     *                      WORK(ipWRK3))
+     *                      WORK(ipWRK2))
                 CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),
-     *                      Work(ipWRK3),1,Work(LCMOPT2),1)
+     *                      Work(ipWRK2),1,Work(LCMOPT2),1)
                 Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFA+iSQ),
      *                       Work(ipWRK1),Work(ipWRK2))
-                CALL GETMEM('WRK3   ','FREE','REAL',ipWRK3   ,nBasSq)
               End If
             End If
           End If

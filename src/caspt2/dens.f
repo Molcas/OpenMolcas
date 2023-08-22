@@ -507,8 +507,6 @@ C
      *                   Work(ipFPTAO),Work(ipWRK1))
             Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPTC),
      *                   Work(ipFPTCAO),Work(ipWRK1))
-          write(6,*) "fptao in olag"
-          call sqprt(work(ipfptao),nbast)
           End If
 C
           If (.not.IfChol.or.iALGO.ne.1) Then
