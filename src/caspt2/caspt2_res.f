@@ -212,7 +212,6 @@ C
       epsilon = 0.0_wp
       if (sigma_p_epsilon .ne. 0.0_wp) then
         epsilon = sigma_p_epsilon
-        p = sigma_p_exponent
       end if
 
       do j = 1, nCol
@@ -248,6 +247,7 @@ C
               ! always real_shift = imag_shift = 0
               delta   = dIn(i)+dIs(j)
               ! multiply by (inverse) sigma-p regularizer
+              p = sigma_p_exponent
               sigma   = 1.0_wp/epsilon**p
               delta_ps= (delta**p)*sigma
               expscal = exp(-abs(delta_ps))
@@ -265,6 +265,7 @@ C             W1(i,j) = delta_inv*W1(i,j)
             ! always real_shift = imag_shift = 0
             delta     = dIn(i)+dIs(j)
             ! multiply by (inverse) sigma-p regularizer
+            p = sigma_p_exponent
             sigma = 1.0_wp/epsilon**p
             expscal = exp(-sigma*abs(delta)**p)
             delta_inv = 1.0_wp / (1.0_wp - expscal)
