@@ -544,8 +544,9 @@ subroutine procinp_caspt2
   end if
 
   ! check first if the user specifically asked for analytic gradients
+  ! I think GRDT keyword should be ignored for numerical gradient and last energy
   do_lindep = .False.
-  if (input%GRDT) then
+  if (input%GRDT .and. SuperName(1:18) /= 'numerical_gradient' .and. SuperName(1:11) /= 'last_energy') then
     do_grad = Input%GRDT
 
     ! quit if both analytical and numerical gradients were explicitly requested
