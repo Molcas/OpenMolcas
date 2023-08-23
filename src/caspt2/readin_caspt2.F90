@@ -664,6 +664,7 @@ contains
         Input%SADREF = .true.
 
       case('DORT')
+      case('SORT') !! it is actually the symmetric orthonormalization
         Input%DORTHO = .true.
 
       case('INVA')
