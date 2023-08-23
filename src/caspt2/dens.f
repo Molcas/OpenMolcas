@@ -549,6 +549,8 @@ C         call sqprt(work(ipdpt),nbast)
             !! Construct FIFA and FIMO
             Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
      *                    Work(ipWRK2))
+            !! if possible, canonicalize frozen orbitals, and update
+            !! FIMO and Trf
           end if
           !! Save DPT in order to subtract later
           Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
@@ -1234,15 +1236,18 @@ C       Do iIsh = 1, nFroI + nIshI
 C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
 C       End Do
         !! frozen
-C       Do iIsh = 1, nFroI
-C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
-C       End Do
-        Do I = 1, nFroI
-          Do J = 1, nFroI
-            Trf(ipTrfL+I+nBasI*(J-1))
-     *        = TraFro(I+nFroI*(J-1))
+        If (IfChol) Then
+          Do I = 1, nFroI
+            Do J = 1, nFroI
+              Trf(ipTrfL+I+nBasI*(J-1))
+     *          = TraFro(I+nFroI*(J-1))
+            End Do
           End Do
-        End Do
+        else
+          Do iIsh = 1, nFroI
+            Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
+          End Do
+        End If
         !! inactive
         Do I = 1, nIshI
           iIsh = nFroI + I

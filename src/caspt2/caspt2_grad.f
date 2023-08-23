@@ -739,6 +739,7 @@ C             call sqprt(work(ipfifasa+isq),nbasi)
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
               !! canonicalize frozen orbitals
+              !! still under investigation
               If (nFroT.ne.0) Then
                 CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
                 CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),

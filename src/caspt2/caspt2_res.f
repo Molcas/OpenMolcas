@@ -172,8 +172,8 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W1,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo))
+          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW),DBL_MB(mW),
+     &                      LDW,DIN(iLo),DIS(jLo))
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()

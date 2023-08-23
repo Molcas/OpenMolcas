@@ -79,7 +79,7 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
 
     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
     CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
-    If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
+!   If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
     CPUGIN=CPTF10-CPTF0
     TIOGIN=TIOTF10-TIOTF0
@@ -94,6 +94,7 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
       CALL RHS_INIT !! somehow
       Call SavGradParams(2,IDSAVGRD)
       Call SavGradParams2(2,UEFF,U0,H0)
+      If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
       CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
       CPUSIN=CPTF11-CPTF0
       TIOSIN=TIOTF11-TIOTF0
