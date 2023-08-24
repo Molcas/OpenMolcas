@@ -490,7 +490,6 @@ C     transition density matrices.
 ! Beginning of second step, in case gradient of (X)MS
 
         If (nStpGrd.eq.2) Then
-          Call SavGradParams2(1,UEFF,U0,H0)
           IF (IPRGLB.GE.TERSE) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
             WRITE(6,'(A)')
@@ -512,6 +511,7 @@ C     transition density matrices.
               Call DCopy_(nState*nState,H0Sav,1,H0,1)
             End If
           End If
+          Call SavGradParams2(1,UEFF,U0,H0)
 !
           Call GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
 !
