@@ -294,18 +294,16 @@ C       Call EQCTL2(ICONV)
              WRITE(6,'(20A4)')('****',I=1,20)
              WRITE(6,*)' CASPT2 PROPERTY SECTION'
            END IF
-           CALL PRPCTL(UEFF,U0)
+           CALL PRPCTL(0,UEFF,U0)
            If (nStpGrd==2) Call SavGradParams(1,IDSAVGRD)
-         ELSE IF (nStpGrd == 2) THEN
-           ! don't say anything, it will be clear it's in
-           ! the second run that we compute the properties
-           Call SavGradParams(1,IDSAVGRD)
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
              WRITE(6,*)'  (Skipping property calculation,'
              WRITE(6,*)'   use PROP keyword to activate)'
            END IF
+           !! Save many quantities needed for gradient calculations
+           IF (nStpGrd == 2) Call SavGradParams(1,IDSAVGRD)
          END IF
 
          CALL TIMING(CPTF13,CPE,TIOTF13,TIOE)

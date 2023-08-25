@@ -762,7 +762,7 @@ C
         call abend
       End If
 C
-      If (Mode.eq.0) Then
+      If (Mode.eq.0 .or. .not.IFMSCOUP) Then
         do I=1,Istate-1
           call ddafile(LUCIEX,0,CI,Nconf,ID)
         end do

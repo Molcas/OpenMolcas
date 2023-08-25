@@ -16,10 +16,11 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRPCTL(UEFF,U0)
+      SUBROUTINE PRPCTL(MODE,UEFF,U0)
       USE PT2WFN
       use caspt2_output, only:iPrGlb,usual,verbose
       use OneDat, only: sNoNuc, sNoOri
+      use caspt2_gradient, only: iRoot1,iRoot2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -29,6 +30,7 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
+#include "caspt2_grad.fh"
       Logical FullMlk,lSave,Do_ESPF
 
       Character(Len=8) Label
@@ -36,7 +38,8 @@
       Character(Len=80) Note
       Integer IndType(56)
       Real*8 Dummy(2),DUM(1)
-      Dimension UEFF(*),U0(*)
+      Dimension UEFF(NSTATE,NSTATE),U0(*)
+      Integer NFROSAV(NSYM),NORBSAV(NSYM)
 
 
 #ifdef _MOLCAS_MPP_
@@ -86,21 +89,108 @@ C to produce output orbitals.
 C This density matrix may be approximated in several ways, see DENS.
       NDMAT=0
       NOCC=0
-      DO ISYM=1,NSYM
-        NO=NORB(ISYM)
-        NDMAT=NDMAT+(NO**2+NO)/2
-        NOCC=NOCC+NBAS(ISYM)
-      END DO
-      CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
-      CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
-      CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
-      CALL MKLIST(iWORK(LLISTS))
-      CALL DENS(IVECX,WORK(LDMAT),UEFF,U0)
-      CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
+      IF (MODE.EQ.0) THEN
+        !! Density matrix for each state (single-state)
+        DO ISYM=1,NSYM
+          NO=NORB(ISYM)
+          NDMAT=NDMAT+(NO**2+NO)/2
+          NOCC=NOCC+NBAS(ISYM)
+        END DO
+        CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
+        CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
+        CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
+        CALL MKLIST(iWORK(LLISTS))
+        CALL DENS(IVECX,WORK(LDMAT),UEFF,U0)
+        CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
+      ELSE IF (MODE.EQ.1) THEN
+        !! Density matrix for the target adiabatic state
+        !! Called after gradient calculations, only
+        DO ISYM=1,NSYM
+          NO=NBAS(ISYM)
+          NDMAT=NDMAT+(NO**2+NO)/2
+          NOCC=NOCC+NBAS(ISYM)
+        END DO
+        CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
+        CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
+        !! Copy the unrelaxed density matrix to triangular
+        !! The basis of ipDPT2 is natural (CASSCF)
+        IDMAT = 0
+        IDMOFF = 0
+        DO ISYM=1,NSYM
+          NO=NBAS(ISYM)
+          DO II = 1, NO
+            IACT = II-NFRO(ISYM)-NISH(ISYM)
+            DO IJ = 1, II
+              JACT = IJ-NFRO(ISYM)-NISH(ISYM)
+              WORK(LDMAT+IDMAT) = WORK(IPDPT2 +IDMOFF+II-1+NO*(IJ-1))
+     *                 + WORK(IPDPT2C+IDMOFF+II-1+NO*(IJ-1))*0.25d+00
+              !! Add the reference density matrix (inactive)
+              IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
+     *          WORK(LDMAT+IDMAT) = WORK(LDMAT+IDMAT) + 2.0D+00
+              IDMAT = IDMAT + 1
+            END DO
+          END DO
+          IDMOFF = IDMOFF + NO*NO
+        END DO
+        !! Add the reference density matrix (active)
+        CALL GETMEM('CI1','ALLO','REAL',LCI1,NCONF)
+        CALL GETMEM('CI2','ALLO','REAL',LCI2,NCONF)
+        CALL GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
+        CALL GETMEM('TG1','ALLO','REAL',LTG1,NASHT**2)
+        DO ISTATE = 1, NSTATE
+          IF (ISCF.NE.0) THEN
+            WORK(LCI1)=1.0D+00
+          ELSE
+            CALL LOADCI_XMS('N',1,WORK(LCI1),ISTATE,U0)
+          END IF
+          DO KSTATE = 1, NSTATE
+            SCAL = WORK(IPSLAG+ISTATE-1+NSTATE*(KSTATE-1))
+            IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
+     *        SCAL = SCAL + 1.0D+00
+            IF (ABS(SCAL).LE.1.0D-09) CYCLE
+            IF (ISCF.NE.0) THEN
+              WORK(LCI2)=1.0D+00
+            ELSE
+              CALL LOADCI_XMS('N',1,WORK(LCI2),KSTATE,U0)
+            END IF
+            Call Dens1T_RPT2(Work(LCI1),Work(LCI2),
+     *                       Work(LSGM),Work(LTG1))
+            CALL DSCAL_(NASHT**2,SCAL,WORK(LTG1),1)
+            DO II = 1, NASH(1)
+              II2 = II+NFRO(1)+NISH(1)
+              DO IJ = 1, II
+                IJ2 = IJ+NFRO(1)+NISH(1)
+                WORK(LDMAT+II2*(II2-1)/2+IJ2-1)
+     *            = WORK(LDMAT+II2*(II2-1)/2+IJ2-1)
+     *            + WORK(LTG1+II-1+NASHT*(IJ-1))*0.5D+00
+     *            + WORK(LTG1+IJ-1+NASHT*(II-1))*0.5D+00
+              END DO
+            END DO
+          END DO
+        END DO
+        CALL GETMEM('CI1','FREE','REAL',LCI1,NCONF)
+        CALL GETMEM('CI2','FREE','REAL',LCI2,NCONF)
+        CALL GETMEM('SGM','FREE','REAL',LSGM,NCONF)
+        CALL GETMEM('TG1','FREE','REAL',LTG1,NASHT**2)
+
+        !! The density matrix above has frozen orbitals.
+        !! Accordingly, the natural orbitals should be generated
+        !! by diagonalizing all orbitals (including frozen), so
+        !! make the number of frozen orbitals zero for the moment.
+        CALL ICOPY(NSYM,NFRO,1,NFROSAV,1)
+        CALL ICOPY(NSYM,NORB,1,NORBSAV,1)
+        CALL ICOPY(NSYM,[0],0,NFRO,1)
+        CALL ICOPY(NSYM,NBAS,1,NORB,1)
+      END IF
 
 C Compute natural orbitals of CASPT2 wave function.
       CALL GETMEM('CMO','ALLO','REAL',LCMO,NCMO)
       CALL DCOPY_(NCMO,WORK(LCMOPT2),1,WORK(LCMO),1)
+      IF (MODE.EQ.1) THEN
+        !! Read the CASSCF orbital (really?)
+        IDISK=IAD1M(1)
+        call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+      END IF
       CALL GETMEM('CNAT','ALLO','REAL',LCNAT,NCMO)
       CALL GETMEM('OCC','ALLO','REAL',LOCC,NOCC)
       CALL NATORB_CASPT2(WORK(LDMAT),WORK(LCMO),WORK(LOCC),WORK(LCNAT))
@@ -109,11 +199,23 @@ C Backtransform density matrix to original MO basis before storing
       CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
+      IF (MODE.EQ.1) THEN
+        CALL ICOPY(NSYM,NFROSAV,1,NFRO,1)
+        CALL ICOPY(NSYM,NORBSAV,1,NORB,1)
+      END IF
+
+      IF (MODE.EQ.0.AND..NOT.IFPROP) THEN
+        !! Do not show properties, if PROP calculation is not requested
+        CALL GETMEM('OCC','FREE','REAL',LOCC,NOCC)
+        CALL GETMEM('CNAT','FREE','REAL',LCNAT,NCMO)
+        RETURN
+      END IF
+
 C Write natural orbitals as standard orbital file on LUMORB.
 * PAM2008: Separate PT2ORB files for each state:
       FILENAME='PT2ORB'
       MDNAME='MD_PT2'
-      IF(NSTATE.GT.1) THEN
+      IF(NSTATE.GT.1.AND.MODE.EQ.0) THEN
        FILENAME='PT2ORB.x'
        MDNAME='MD_PT2.x'
        N=MSTATE(JSTATE)
@@ -234,6 +336,7 @@ C Write natural orbitals to standard output.
       Call Put_dArray('D1ao',WORK(LXXX),nDens)
 *
       Note='Temporary orbital file used by prpt.'
+      if (mode.eq.1) Note='var'
       LuTmp=50
       LuTmp=IsFreeUnit(LuTmp)
       Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,

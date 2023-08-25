@@ -142,7 +142,7 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
           WRITE(6,'(20A4)')('****',I=1,20)
           WRITE(6,*)' CASPT2 PROPERTY SECTION'
         END IF
-        CALL PRPCTL(UEFF,U0)
+        CALL PRPCTL(0,UEFF,U0)
       ELSE
         IF (IPRGLB.GE.USUAL) THEN
           WRITE(6,*)

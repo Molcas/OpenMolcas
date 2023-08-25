@@ -346,6 +346,9 @@ C
         Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
       End If
 C
+      !! Compute true unrelaxed properties
+      if (.not.do_nac) CALL PRPCTL(1,UEFF,U0)
+C
       Call Molcas_Open(LuPT2,'PT2_Lag')
 
       DEB = .false.
