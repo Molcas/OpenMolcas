@@ -442,15 +442,32 @@ C
 C
       !! Prepare for MCLR
 C     If (Method.eq.'CASPT2  ') Then
-      iGo = 0
+      iGo = 1
       Call Put_iScalar('SA ready',iGo)
-      mstate1 = '****************'
-      Call Put_cArray('MCLR Root',mstate1,16)
+C     mstate1 = '****************'
+C     Call Put_cArray('MCLR Root',mstate1,16)
 
       ! overwrites whatever was set in CASSCF with the relax
       ! root that was chosen in CASPT2
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
-      Call Put_iScalar('Relax Original root',irlxroot)
+      if (do_nac) then
+C       write (*,*) "NAC"
+C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
+        Call Put_iScalar('Relax CASSCF root',iRoot1)
+        Call Put_iScalar('Relax Original root',iRoot2)
+        Call Get_cArray('MCLR Root',mstate1,16)
+C       write (*,*) "mstate1 = "
+C       write (*,'(a)') mstate1
+        if (mstate1(8:8).eq.'0' .and. mstate1(16:16).eq.'0') then
+          !! NAC states have not been specified
+          write (mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+          Call Put_cArray('MCLR Root',mstate1,16)
+        end if
+      else
+C       write (*,*) "GRD"
+C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
+        Call Put_iScalar('Relax CASSCF root',irlxroot)
+        Call Put_iScalar('Relax Original root',irlxroot)
+      end if
 C     End If
 C       write(6,*) "5"
 C     write(6,*) "LuGamma is ", LuGamma

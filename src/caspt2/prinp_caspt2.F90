@@ -34,7 +34,7 @@ subroutine prinp_caspt2()
   use caspt2_output, only: iPrGlb, terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac, do_csf
+  use caspt2_gradient, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
 
   implicit none
 
@@ -97,7 +97,11 @@ subroutine prinp_caspt2()
     write(6,fmt2//'A,T45,I6)') 'State symmetry', STSYM
     write(6,fmt2//'A,T40,I11)') 'Number of CSFs', NCONF
     write(6,fmt2//'A,T45,I6)') 'Number of CASSCF root(s) available', NROOTS
-    write(6,fmt2//'A,T45,I6)') 'CASPT2 state passed to geometry opt.', iRlxRoot
+    if (do_nac) then
+      write(6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'CASPT2 states for NAC', iRoot1,iRoot2
+    else
+      write(6,fmt2//'A,T45,I6)') 'CASPT2 state passed to geometry opt.', iRlxRoot
+    end if
     if (ifmix) then
       write(6,fmt2//'A,T45,10I3)') 'A file JOBMIX will be created'
     end if

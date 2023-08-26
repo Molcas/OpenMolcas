@@ -168,7 +168,10 @@
              call Finish(_RC_INVOKED_OTHER_MODULE_)
            End if
       End if
-
+*
+      !! check the status; if quantities needed for MCLR have not been
+      !! computed, call CASPT2
+      if (Method.eq.'CASPT2  ') call check_caspt2()
 *                                                                      *
 ************************************************************************
 *                                                                      *

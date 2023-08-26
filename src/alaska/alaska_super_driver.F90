@@ -121,7 +121,8 @@ if (Method == 'DMRGSCFS') then
 end if
 
 if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
-    ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+    ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+!   ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
     (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -236,6 +237,11 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     ! Reset iGO to 0 to allow for new MCLR/ALASKA calculations
     if (iGo == 1) iGo = 0
     call Put_iScalar('SA ready',iGo)
+    if (Method == 'CASPT2  ')  then
+      !! Reset MCLR Root so as not to use leftover states
+      write(mstate2,'(1X,"      0",1X,"      0")')
+      call Put_cArray('MCLR Root',mstate2,16)
+    end if
   else if (iGO == -1) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
     write(u6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
@@ -295,6 +301,20 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     write(LuInput,'(A)') '>export MOLCAS_TRAP=$AL_OLD_TRAP'
     write(LuInput,'(A)') '>ECHO ON'
     close(LuInput)
+
+    if (Method == 'CASPT2  ') then
+      !! if states computed in CASPT2 and MCLR are inconsistent,
+      !! do CASPT2 again
+      if (iGo == 1 .and. mstate1/=mstate2) then
+        iGo = 0
+        call Put_iScalar('SA ready',iGo)
+      end if
+      !! use "@" temporarily to distinguish the module (either ALASKA
+      !! or MCLR) specifying the states
+      !! @: ALASKA, comma: MCLR
+      mstate1(9:9) = '@'
+      call Put_cArray('MCLR Root',mstate1,16)
+    end if
     call Finish(_RC_INVOKED_OTHER_MODULE_)
 
   end if

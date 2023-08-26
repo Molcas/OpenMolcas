@@ -47,6 +47,8 @@ subroutine procinp_caspt2
   logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
   character(Len=180) :: Env
+  ! NAC or not
+  character(Len=16) :: mstate1
 
   integer(kind=iwp) :: I,J,M,N
   integer(kind=iwp) :: iSym
@@ -621,12 +623,36 @@ subroutine procinp_caspt2
   if (do_grad) then
     call put_iScalar('mp2prpt',2)
     do_nac = input%NAC
-    if (input%iNACRoot1 == 0 .and. input%iNACRoot2 == 0) then
-      iRoot1 = iRlxRoot
-      iRoot2 = iRlxRoot
-    else
-      iRoot1 = input%iNACRoot1
-      iRoot2 = input%iNACRoot2
+
+    !! If states to be computed are requested by ALASKA
+    !! (if "@" presents in MCLR Root), always compute for these states
+    call Get_cArray('MCLR Root',mstate1,16)
+!   write (*,*) "mstate1"
+!   write (*,'(a)') mstate1
+    if (mstate1 /= '****************') then
+      if (index(mstate1,'@') /= 0) then
+        read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+!       write (*,*) "MCLR Root read:", iRoot1,iRoot2
+        if (iRoot1 /= 0) do_nac = .true.
+        if (iRoot1 == 0) then
+          iRoot1 = iRoot2
+          iRlxRoot = iRoot1
+          do_nac = .false.
+        end if
+      end if
+    end if
+
+!   write (*,*) "roots after MCLR Root:",iRoot1,iRoot2
+
+    !! If nothing is specified by ALASKA, use the states in &CASPT2
+    if (iRoot1 == 0 .and. iRoot2 == 0) then
+      if (input%iNACRoot1 == 0 .and. input%iNACRoot2 == 0) then
+        iRoot1 = iRlxRoot
+        iRoot2 = iRlxRoot
+      else
+        iRoot1 = input%iNACRoot1
+        iRoot2 = input%iNACRoot2
+      end if
     end if
   end if
 
