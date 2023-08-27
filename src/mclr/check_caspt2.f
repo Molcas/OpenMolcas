@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      subroutine check_caspt2()
+      subroutine check_caspt2(mode)
       use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
 
@@ -62,7 +62,10 @@ C
         NACStates(1) = iRlxRoot
         NACStates(2) = iRlxRootPT2
         isNAC = .true.
+        override = .true.
       end if
+
+      if (mode.eq.1) return
 
 C     write (*,*) "isnac = ", isnac
 C     if (isnac) then

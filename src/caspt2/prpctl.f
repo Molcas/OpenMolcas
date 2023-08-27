@@ -20,7 +20,7 @@
       USE PT2WFN
       use caspt2_output, only:iPrGlb,usual,verbose
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_gradient, only: iRoot1,iRoot2
+      use caspt2_gradient, only: do_nac,iRoot1,iRoot2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -124,9 +124,11 @@ C This density matrix may be approximated in several ways, see DENS.
               JACT = IJ-NFRO(ISYM)-NISH(ISYM)
               WORK(LDMAT+IDMAT) = WORK(IPDPT2 +IDMOFF+II-1+NO*(IJ-1))
      *                 + WORK(IPDPT2C+IDMOFF+II-1+NO*(IJ-1))*0.25d+00
-              !! Add the reference density matrix (inactive)
-              IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
-     *          WORK(LDMAT+IDMAT) = WORK(LDMAT+IDMAT) + 2.0D+00
+              IF (.NOT.DO_NAC) THEN
+                !! Add the reference density matrix (inactive)
+                IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
+     *            WORK(LDMAT+IDMAT) = WORK(LDMAT+IDMAT) + 2.0D+00
+              END IF
               IDMAT = IDMAT + 1
             END DO
           END DO
@@ -145,8 +147,10 @@ C This density matrix may be approximated in several ways, see DENS.
           END IF
           DO KSTATE = 1, NSTATE
             SCAL = WORK(IPSLAG+ISTATE-1+NSTATE*(KSTATE-1))
-            IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
-     *        SCAL = SCAL + 1.0D+00
+            IF (.NOT.DO_NAC) THEN
+              IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
+     *          SCAL = SCAL + 1.0D+00
+            END IF
             IF (ABS(SCAL).LE.1.0D-09) CYCLE
             IF (ISCF.NE.0) THEN
               WORK(LCI2)=1.0D+00

@@ -77,7 +77,11 @@
 *
       PT2 = .FALSE.
       Call Get_cArray('Relax Method',Method,8)
-      If (Method.eq.'CASPT2  ') PT2 = .TRUE.
+      If (Method.eq.'CASPT2  ') Then
+        PT2 = .TRUE.
+        !! Read the states requested by CASPT2
+        Call check_caspt2(1)
+      End If
 *
 C     write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
