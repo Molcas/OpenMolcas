@@ -13,7 +13,7 @@
       Subroutine GrdIni
 C
       use caspt2_gradient, only: do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
-     *                           idBoriMat,TraFro
+     *                           idBoriMat,TraFro,if_rmgrad
       use stdalloc, only: mma_allocate
 C
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -51,6 +51,7 @@ C
       !! this is the right way to manipulate files...
       FileName = 'PT2GRD'
       Call f_inquire(FileName,Exists)
+      if (if_rmgrad) Exists = .false.
       If (Exists) iStpGrd = 0
       ! Not sure none/mf/mf_wa
       CALL DANAME_MF_wa(LUGRAD,'PT2GRD')

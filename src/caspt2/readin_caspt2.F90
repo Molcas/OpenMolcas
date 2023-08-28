@@ -197,6 +197,9 @@ module InputData
     ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
     !           and secondary orbital rotations. Development purpose
     Logical :: IAINVAR  = .True.
+    ! OWGF      Overwrite gradient file that is generated in a previous
+    !           CASPT2 calculation. Development and verification purpose
+    Logical :: OWGF = .False.
 
   end type ! end of type InputTable
 
@@ -694,6 +697,9 @@ contains
 
       Case('IAIN')
         Input%IAINVAR = .false.
+
+      Case('OWGF')
+        Input%OWGF  = .true.
 
         ! OBSOLETE KEYWORDS
 

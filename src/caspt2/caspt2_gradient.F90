@@ -26,6 +26,7 @@ module caspt2_gradient
   ! for removing the weired loop
   integer(kind=iwp) :: iStpGrd         = 1_iwp
   integer(kind=iwp) :: LUGRAD          = 0_iwp
+  logical(kind=iwp) :: if_rmgrad       = .false.
 
   ! for IPEA
   logical(kind=iwp) :: do_lindep       = .false.

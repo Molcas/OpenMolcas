@@ -17,7 +17,8 @@ subroutine procinp_caspt2
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
-                             if_invar, iRoot1, iRoot2, if_invaria
+                             if_invar, iRoot1, iRoot2, if_invaria, &
+                             if_rmgrad
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -669,6 +670,7 @@ subroutine procinp_caspt2
   if_invar   = input%INVAR
   if (ipea_shift /= 0.0_wp) if_invar = .false.
   if_invaria = input%IAINVAR
+  if_rmgrad  = input%OWGF
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.
