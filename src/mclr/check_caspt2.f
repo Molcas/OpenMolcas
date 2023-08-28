@@ -11,7 +11,6 @@
 
       subroutine check_caspt2(mode)
       use MckDat, only: sNew
-      use Arrays, only: CMO, G2t, G1t
 
       Implicit Real*8 (a-h,o-z)
 
@@ -25,10 +24,9 @@
 #include "warnings.h"
 
       Character*72 Line
-      Character*8 Method
       character(len=128) :: FileName
       character(len=16) :: StdIn, mstate1
-      Logical Found,Exists,NeedGrdt
+      Logical Exists,NeedGrdt
 C
 C     Call RdInp_MCLR()  ! Read in input
 C     write (*,*) "isnac = ", isnac
@@ -38,7 +36,7 @@ C     write (*,*) "isnac = ", isnac
       call Get_iScalar('SA ready',iGo)
       !! Requested root for gradient
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-      if (iGo.eq.1) then
+      if (iGo.eq.3) then
         !! CASPT2 density has been computed
         !! Check the root of the density
         Call Get_iScalar('Relax original root',iRlxRootPT2)
@@ -50,12 +48,13 @@ C
       !! Check this is NAC or not
       isNAC = .false.
       call Get_cArray('MCLR Root',mstate1,16)
+C     write (*,'(a)') mstate1
       if (index(mstate1,'@') /= 0) then
         !! Requested root for NAC by ALASKA
         read(mstate1,'(1X,I7,1X,I7)') NACStates(1),NACStates(2)
         if (NACStates(1) /= 0) isNAC = .true.
         if (NACStates(1) == 0) iRlxRoot = NACStates(2)
-      else if (iGo.eq.1 .and. iRlxRoot.ne.iRlxRootPT2) then
+      else if (iGo.eq.3 .and. iRlxRoot.ne.iRlxRootPT2) then
         !! this means CASPT2 density has been computed for the states
         !! specified by NAC in &CASPT2
         !! in this case, perform MCLR anyway(?)

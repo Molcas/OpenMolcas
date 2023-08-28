@@ -121,8 +121,7 @@ if (Method == 'DMRGSCFS') then
 end if
 
 if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
-    ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
-!   ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+    ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
     (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -199,6 +198,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
   ! iGo = 2  single root SA-CASSCF
+  ! iGo = 3  CASPT2 density has been computed, but MCLR has not
   mstate2 = ''
   if (iGo /= 2) then
     call Get_cArray('MCLR Root',mstate2,16)
@@ -220,7 +220,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   mstate1(1:1) = mstate2(1:1)
   MCLR_Ready = (iGO == 1) .and. (mstate1 == mstate2)
 
-  if (MCLR_Ready .or. (iGO > 1)) then
+  if (MCLR_Ready .or. (iGO == 1 .or. iGo == 2)) then
     call Alaska(LuSpool,iRC)
 
     ! Add ESPF contribution

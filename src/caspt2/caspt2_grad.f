@@ -199,7 +199,7 @@ C
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
-      LOGICAL DEB
+      LOGICAL DEB,Found
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
      *          WRK2(nState,nState)
@@ -346,8 +346,8 @@ C
         Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
       End If
 C
-      !! Compute true unrelaxed properties
-      if (.not.do_nac) CALL PRPCTL(1,UEFF,U0)
+      !! Compute true unrelaxed properties for MS-CASPT2
+      if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
 C
       Call Molcas_Open(LuPT2,'PT2_Lag')
 
@@ -441,12 +441,8 @@ C
       End If
 C
       !! Prepare for MCLR
-C     If (Method.eq.'CASPT2  ') Then
-      iGo = 1
+      iGo = 3
       Call Put_iScalar('SA ready',iGo)
-C     mstate1 = '****************'
-C     Call Put_cArray('MCLR Root',mstate1,16)
-
       ! overwrites whatever was set in CASSCF with the relax
       ! root that was chosen in CASPT2
       if (do_nac) then
@@ -454,12 +450,16 @@ C       write (*,*) "NAC"
 C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
         Call Put_iScalar('Relax CASSCF root',iRoot1)
         Call Put_iScalar('Relax Original root',iRoot2)
-        Call Get_cArray('MCLR Root',mstate1,16)
-C       write (*,*) "mstate1 = "
-C       write (*,'(a)') mstate1
-        if (mstate1(8:8).eq.'0' .and. mstate1(16:16).eq.'0') then
-          !! NAC states have not been specified
-          write (mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+        call Qpg_cArray('MCLR Root',Found,I)
+        if (Found) then
+          Call Get_cArray('MCLR Root',mstate1,16)
+          if (mstate1(8:8).eq.'0' .and. mstate1(16:16).eq.'0') then
+            !! NAC states have not been specified
+            write (mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+            Call Put_cArray('MCLR Root',mstate1,16)
+          end if
+        else
+          mstate1 = '****************'
           Call Put_cArray('MCLR Root',mstate1,16)
         end if
       else
@@ -467,12 +467,9 @@ C       write (*,*) "GRD"
 C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
         Call Put_iScalar('Relax CASSCF root',irlxroot)
         Call Put_iScalar('Relax Original root',irlxroot)
+        mstate1 = '****************'
+        Call Put_cArray('MCLR Root',mstate1,16)
       end if
-C     End If
-C       write(6,*) "5"
-C     write(6,*) "LuGamma is ", LuGamma
-C     write(6,*) "bshift =", bshift
-C     Call Put_dScalar('BSHIFT',BSHIFT)
 C
       !! Close files
       Call DaClos(LUSTD)

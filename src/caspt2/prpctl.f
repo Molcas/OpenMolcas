@@ -208,7 +208,7 @@ C Backtransform density matrix to original MO basis before storing
         CALL ICOPY(NSYM,NORBSAV,1,NORB,1)
       END IF
 
-      IF (MODE.EQ.0.AND..NOT.IFPROP) THEN
+      IF (IFMSCOUP.AND.MODE.EQ.0.AND..NOT.IFPROP) THEN
         !! Do not show properties, if PROP calculation is not requested
         CALL GETMEM('OCC','FREE','REAL',LOCC,NOCC)
         CALL GETMEM('CNAT','FREE','REAL',LCNAT,NCMO)

@@ -49,6 +49,7 @@ subroutine procinp_caspt2
   character(Len=180) :: Env
   ! NAC or not
   character(Len=16) :: mstate1
+  logical(kind=iwp) :: Found
 
   integer(kind=iwp) :: I,J,M,N
   integer(kind=iwp) :: iSym
@@ -626,18 +627,21 @@ subroutine procinp_caspt2
 
     !! If states to be computed are requested by ALASKA
     !! (if "@" presents in MCLR Root), always compute for these states
-    call Get_cArray('MCLR Root',mstate1,16)
-!   write (*,*) "mstate1"
-!   write (*,'(a)') mstate1
-    if (mstate1 /= '****************') then
-      if (index(mstate1,'@') /= 0) then
-        read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
-!       write (*,*) "MCLR Root read:", iRoot1,iRoot2
-        if (iRoot1 /= 0) do_nac = .true.
-        if (iRoot1 == 0) then
-          iRoot1 = iRoot2
-          iRlxRoot = iRoot1
-          do_nac = .false.
+    call Qpg_cArray('MCLR Root',Found,I)
+    if (Found) then
+      call Get_cArray('MCLR Root',mstate1,16)
+!     write (*,*) "mstate1"
+!     write (*,'(a)') mstate1
+      if (mstate1 /= '****************') then
+        if (index(mstate1,'@') /= 0) then
+          read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+!         write (*,*) "MCLR Root read:", iRoot1,iRoot2
+          if (iRoot1 /= 0) do_nac = .true.
+          if (iRoot1 == 0) then
+            iRoot1 = iRoot2
+            iRlxRoot = iRoot1
+            do_nac = .false.
+          end if
         end if
       end if
     end if
