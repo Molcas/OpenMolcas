@@ -102,7 +102,7 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL MKLIST(iWORK(LLISTS))
         CALL DENS(IVECX,WORK(LDMAT),UEFF,U0)
         CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
-      ELSE IF (MODE.EQ.1) THEN
+      ELSE
         !! Density matrix for the target adiabatic state
         !! Called after gradient calculations, only
         DO ISYM=1,NSYM
