@@ -95,7 +95,7 @@ call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 ! Loop over the cosets of the stabilizer group:
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),Ccoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   ! Generate the quadrupole integral tables:
   iComp = 6

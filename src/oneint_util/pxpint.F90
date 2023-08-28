@@ -39,6 +39,19 @@ integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr,
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
 
+    Interface
+    subroutine pXint( &
+#                define _CALLING_
+#                include "int_interface.fh"
+              )
+    use Definitions, only: wp, iwp
+    use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+    End subroutine pXint
+
+    End Interface
+
+
 #include "macros.fh"
 unused_var(nHer)
 
@@ -120,13 +133,13 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,kIC,kComp,la,lb+1,A,RB,iDum,Array(ipArr),mArr,CCoor, &
+call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,kIC,kComp,la,lb+1,A,RB,iDum,Array(ipArr),mArr,CoorO, &
            kOrdOp,kOper,kChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (lb > 0) then
-  call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,iDum,Array(ipArr),mArr,CCoor, &
+  call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,iDum,Array(ipArr),mArr,CoorO, &
              kOrdOp,kOper,kChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 call mma_deallocate(kChO)

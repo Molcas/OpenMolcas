@@ -75,7 +75,7 @@ do iBeta=1,nBeta
 end do
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),Ccoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   nHer = (la+(lb+1)+(nOrdOp-1)+2)/2
   call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1)

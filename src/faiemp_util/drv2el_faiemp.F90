@@ -22,7 +22,9 @@ subroutine Drv2El_FAIEMP()
 !   Modified: Liviu Ungur                                              *
 !***********************************************************************
 
+#ifdef _DEBUGPRINT_
 use k2_arrays, only: pDq, pFq
+#endif
 use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
@@ -31,14 +33,16 @@ use Integral_Interfaces, only: DeDe_SCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
+use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
-                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, &
+integer(kind=iwp) :: nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
+                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
                      nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
+real(kind=wp) :: TInt(nTInt), A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
+logical(kind=iwp) :: FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -54,13 +58,18 @@ character(len=80) :: Line
 !***********************************************************************
 !                                                                      *
 call xFlush(u6)
-ExFac = One
-Nr_Dens = 1
+! set variables in module Int_Options
 DoIntegrals = .false.
-NoCoul = .false.
-NoExch = .false.
-!W2Disc = .false.
+DoFock = .true.
+FckNoClmb = .false. ! Default value
+FckNoExch = .false. ! Default value
+ExFac = One
+Thize = 1.0e-6_wp
 W2Disc = .true.
+PreSch = .false.
+Disc_Mx = Zero      ! Default value
+Disc = Zero         ! Default value
+
 
 ! Handle both the valence and the fragment basis set
 
@@ -179,17 +188,12 @@ end if
 
 ThrAO = Zero
 Indexation = .false.
-DoFock = .true.
 DoGrad = .false.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Thize = 1.0e-6_wp
-PreSch = .false.
-Disc_Mx = Zero
 
-Disc = Zero
 ThrInt = CutInt   ! Integral neglect threshold from SCF
 !                                                                      *
 !***********************************************************************
@@ -259,8 +263,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize, &
-                             W2Disc,PreSch,Disc_Mx,Disc,Cnt,DoIntegrals,DoFock)
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then
@@ -387,6 +390,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Call Init_Int_Options()
 return
 
 end subroutine Drv2El_FAIEMP

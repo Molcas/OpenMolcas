@@ -59,7 +59,7 @@ iPrint = nPrint(iRout)
 if (iPrint >= 49) then
   call RecPrt(' In SROInt: A',' ',A,1,3)
   call RecPrt(' In SROInt: RB',' ',RB,1,3)
-  call RecPrt(' In SROInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In SROInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In SROInt: P',' ',P,nZeta,3)
   write(u6,*) ' In SROInt: la,lb=',' ',la,lb
 end if
@@ -124,7 +124,7 @@ do iCnttp=1,nCnttp
 
           nHer = (la+iAng+2)/2
           call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1), &
-                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp)
           if (iPrint >= 99) call RecPrt('<a|srbs>',' ',Array(ipF1),nAlpha*nExpi,nac)
           ip = ip-6*nAlpha*nExpi
 
@@ -154,7 +154,7 @@ do iCnttp=1,nCnttp
 
           nHer = (iAng+lb+2)/2
           call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),nExpi*nBeta, &
-                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CoorO,nOrdOp)
           if (iPrint >= 99) call RecPrt('<srbs|b>',' ',Array(ipF2),nExpi*nBeta,ncb)
           ip = ip-6*nExpi*nBeta
           ipTmp = ip

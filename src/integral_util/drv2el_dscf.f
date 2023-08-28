@@ -12,8 +12,7 @@
 *               1990, IBM                                              *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,
-     &                       FstItr,NoCoul,ExFac)
+      SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -41,12 +40,14 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: pDq, pFq
       use IOBUF
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
+      use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+      use Int_Options, only: Exfac, Thize, W2Disc
+      use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -54,15 +55,13 @@
 #include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Logical NoCoul,NoExch
 *
       Parameter(nTInt=1)
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Real*8 TInt(nTInt)
-      Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
-     &        PreSch, Free_K2, Verbose, Indexation,
-     &        DoIntegrals, DoFock, DoGrad, Triangular
-      Integer iTOffs(8,8,8)
+      Logical FstItr, Semi_Direct,Rsv_GTList,
+     &        Free_K2, Verbose, Indexation,
+     &        DoGrad, Triangular
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
@@ -79,9 +78,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Nr_Dens=1
+*     Set variables in module Int_Options
       DoIntegrals=.False.
-      NoExch=ExFac.eq.Zero
+      DoFock=.True.
+      FckNoExch=ExFac.eq.Zero
+      W2Disc=.False.     ! Default value
+*     Disc_Mx = file size in Real*8 128=1024/8
+      Disc_Mx= DBLE(nDisc)*128.D00
+*     Subtract for the last buffer
+      Disc_Mx= Disc_Mx - lBuf
+      Disc = Zero        ! Default value
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -92,10 +98,6 @@
       If (Semi_Direct) Then
          Call Init_SemiDSCF(FstItr,Thize,Cutint)
       Endif
-*     Disc_Mx = file size in Real*8 128=1024/8
-      Disc_Mx= DBLE(nDisc)*128.D00
-*     Subtract for the last buffer
-      Disc_Mx= Disc_Mx - lBuf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -110,15 +112,12 @@
 *                                                                      *
       Indexation=.False.
       ThrAO=Zero           ! Do not modify CutInt
-      DoFock=.True.
       DoGrad=.False.
 *
       Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Disc = Zero
-      W2Disc=.False.
       TskHi=Zero
       TskLw=Zero
 *                                                                      *
@@ -193,7 +192,6 @@
 *     in return. Function will be false if no more tasks to execute.
 
       If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Then
-
          Go To 11
       Endif
 
@@ -245,10 +243,10 @@
            If (AInt.lt.CutInt) Go To 14
          Else
 
-           If(NoCoul) then
+           If(FckNoClmb) then
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
      &                 DMax(js,ls)/Four,DMax(js,ks)/Four)
-           Else If(NoExch) then
+           Else If(FckNoExch) then
               Dtst=Max(DMax(is,js),DMax(ks,ls))
            Else
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
@@ -265,14 +263,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-         Call Eval_Ints_New_Inner
-     &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,No_Routine,
-     &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                   [NoCoul],[NoExch],
-     &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
-     &                   Count,DoIntegrals,DoFock)
+         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
 
  14      Continue
          Count=Count+One
@@ -335,6 +326,7 @@ CMAW start
 C     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
 CMAW end
       Call Free_iSD()
+!     Call Init_Int_Options()    ?
       Return
       End
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)

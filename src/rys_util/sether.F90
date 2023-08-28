@@ -42,7 +42,7 @@ real(kind=wp), allocatable :: Beta(:), BInv(:), Herm(:)
 ! 2) Rys-Gauss (asymptotic formula)
 
 n_1 = (2*S%iAngMx+nPrp+2+nDiff)/2
-n_2 = 4*S%iAngMx+2+nDiff
+n_2 = 4*S%iAngMx+4+nDiff
 
 if (allocated(HerR) .and. (max(n_1,n_2) <= MaxHer)) then
   return

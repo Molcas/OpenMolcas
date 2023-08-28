@@ -1,59 +1,60 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine SymAdp(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
      &                  iShll, iShell, iAO, kOp, ijkl,
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
-************************************************************************
-*                                                                      *
-*  Object: to transform the integrals in AO basis to symmetry adapted  *
-*          orbitals , SO. This is done by accumulating the AO inte-    *
-*          grals onto the SO integrals.                                *
-*          Observe that one of the operator is the Unit operation      *
-*          performed on center A. However, since we scramble the order *
-*          we do not really know which center is which. However, the   *
-*          Unit operator will always give a factor of one. Hence, this *
-*          is a convenient way to do the symmetry transformation with- *
-*          out having to know the order.                               *
-*                                                                      *
-*          The indices has been scrambled before calling this routine. *
-*          Hence we must take special care in order to regain the can- *
-*          onical order.                                               *
-*                                                                      *
-*          This code is never executed in the no symmetry case!!!      *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: to transform the integrals in AO basis to symmetry adapted  *
+!          orbitals , SO. This is done by accumulating the AO inte-    *
+!          grals onto the SO integrals.                                *
+!          Observe that one of the operator is the Unit operation      *
+!          performed on center A. However, since we scramble the order *
+!          we do not really know which center is which. However, the   *
+!          Unit operator will always give a factor of one. Hence, this *
+!          is a convenient way to do the symmetry transformation with- *
+!          out having to know the order.                               *
+!                                                                      *
+!          The indices has been scrambled before calling this routine. *
+!          Hence we must take special care in order to regain the can- *
+!          onical order.                                               *
+!                                                                      *
+!          This code is never executed in the no symmetry case!!!      *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!***********************************************************************
       use Basis_Info
       use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-      Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp),
-     &       SOInt(ijkl,nSOInt), Aux(nAux)
+      Integer, Intent(In) :: ijkl,iCmp,jCmp,kCmp,lCmp, nSOInt, nAux
+      Real*8, Intent(In) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
+      Real*8, Intent(InOut) :: SOInt(ijkl,nSOInt), Aux(nAux)
+
       Logical Shij, Shkl, Shijij, Qij, Qkl, Qijij, Done
       Integer iAng(4), iShell(4), iShll(4), kOp(4), iAO(4)
-*     Local Array
+!     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-*
-*     Statement Function
-*
+!
+!     Statement Function
+!
+      Integer ixyz, iOff
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-*
-      iRout = 38
-      iPrint = nPrint(iRout)
+!
       Done=.False.
       k12=0
       k34=0
@@ -62,16 +63,16 @@
       kk = iOff(iAng(3))
       ll = iOff(iAng(4))
       MemSO2 = 1
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SymAdp: AOInt ',' ',
-     &               AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-      End If
-*
-*     Quadruple loop over elements of the basis functions angular
-*     description. Loops are reduced to just produce unique SO integrals
-*     Observe that we will walk through the memory in AOInt in a
-*     sequential way.
-*
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SymAdp: AOInt ',' ',
+     &             AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+#endif
+!
+!     Quadruple loop over elements of the basis functions angular
+!     description. Loops are reduced to just produce unique SO integrals
+!     Observe that we will walk through the memory in AOInt in a
+!     sequential way.
+!
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp
@@ -130,11 +131,11 @@
                   End If
                   If (Shijij .and. i34.gt.i12) Go To 400
                   Qijij = Shijij .and. i12.eq.i34
-*
-*      Loop over irreps which are spanned by the basis function.
-*      Again, the loop structure is restricted to ensure unique
-*      integrals.
-*
+!
+!      Loop over irreps which are spanned by the basis function.
+!      Again, the loop structure is restricted to ensure unique
+!      integrals.
+!
        iAux = 0
        Do 110 j1 = 0, nIrrep-1
           If (iSym(j1).eq.0) Go To 110
@@ -176,12 +177,14 @@
                 Xg = DBLE(iChTbl(j3,kOp(3))) * Xb
                 iAux = iAux + 1
                 Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg
-*
+
  310         Continue
  210      Continue
  110   Continue
-*
-       If (iPrint.ge.99) Call RecPrt(' Aux',' ',Aux,iAux,1)
+
+#ifdef _DEBUGPRINT_
+       Call RecPrt(' Aux',' ',Aux,iAux,1)
+#endif
        If (iAux.ne.0) Then
           If (iAux.ne.1) Then
              Call DNaXpY(iAux,ijkl,Aux,1,AOInt(1,i1,i2,i3,i4),1,0,
@@ -198,6 +201,8 @@
  200     Continue
  100  Continue
 *
-*     Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
+#endif
       Return
       End

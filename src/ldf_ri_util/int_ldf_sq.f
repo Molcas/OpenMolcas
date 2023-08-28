@@ -13,6 +13,8 @@
 #define _CALLING_
 #include "int_wrout_interface.fh"
      &                     )
+      use Int_Options, only: MapOrg=>Map4
+
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -81,6 +83,5 @@ c Avoid unused argument warnings
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_integer_array(itOffs)
       End If
       End

@@ -81,7 +81,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In KnEInt: A',' ',A,1,3)
   call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
   write(u6,*) ' In KnEInt: la,lb=',la,lb
 end if
@@ -105,7 +105,7 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   ! Compute the contribution from the multipole moment operator
 

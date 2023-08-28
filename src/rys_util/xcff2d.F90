@@ -11,8 +11,9 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
-subroutine XCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
+subroutine XCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -29,7 +30,7 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
 real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
 integer(kind=iwp) :: iCar, iT, nabMax_, ncdMax_
@@ -42,17 +43,24 @@ unused_var(ncdMax)
 unused_var(Eta)
 unused_var(EInv)
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
-call RecPrt(' In XCff2D: P',' ',P,nT,3)
-call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
+call RecPrt('XCff2D: Coori',' ',Coori,3,4)
+call RecPrt('XCff2D: P',' ',P,nT,3)
+call RecPrt('XCff2D: Q',' ',Q,nT,3)
+call RecPrt('XCff2D: Zeta',' ',Zeta,nT,1)
+call RecPrt('XCff2D: ZInv',' ',ZInv,nT,1)
+call RecPrt('XCff2D: U2',' ',U2,nRys,nT)
 #endif
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
 
+If (nOrdOp==0) then
 nabMax_ = la+lb
 ncdMax_ = ld+lc
+else
+nabMax_ = la+lb+2
+ncdMax_ = ld+lc+2
+endif
 
 ! Compute B10, B00, and B01
 
@@ -64,9 +72,9 @@ if (nabMax_ > 1) then
   B10(:,:,3) = B10(:,:,1)
 end if
 if (lac /= 0) then
-  B00(:,:,1) = U2
-  B00(:,:,2) = U2
-  B00(:,:,3) = U2
+  B00(:,:,1) = U2(:,:)
+  B00(:,:,2) = U2(:,:)
+  B00(:,:,3) = U2(:,:)
 end if
 if (ncdMax_ > 1) then
   do iT=1,nT
@@ -114,30 +122,30 @@ else if (ncdMax_ /= 0) then
   end do
 end if
 #ifdef _DEBUGPRINT_
-if (la+lb > 0) then
-  call RecPrt(' PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
-  call RecPrt(' PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
-  call RecPrt(' PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
+if (la+lb+nOrdOp > 0) then
+  call RecPrt('xCff2D:  PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
+  call RecPrt('xCff2D:  PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
+  call RecPrt('xCff2D:  PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
-if (lc+ld > 0) then
-  call RecPrt(' QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
-  call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
-  call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
+if (lc+ld+nOrdOp > 0) then
+  call RecPrt('xCff2D:  QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
+  call RecPrt('xCff2D:  QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
+  call RecPrt('xCff2D:  QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
 if (nabMax_ /= 0) then
-  call RecPrt(' B10(x)',' ',B10(:,:,1),nRys,nT)
-  call RecPrt(' B10(y)',' ',B10(:,:,2),nRys,nT)
-  call RecPrt(' B10(z)',' ',B10(:,:,3),nRys,nT)
+  call RecPrt('xCff2D:  B10(x)',' ',B10(:,:,1),nRys,nT)
+  call RecPrt('xCff2D:  B10(y)',' ',B10(:,:,2),nRys,nT)
+  call RecPrt('xCff2D:  B10(z)',' ',B10(:,:,3),nRys,nT)
 end if
 if (lac /= 0) then
-  call RecPrt(' B00(x)',' ',B00(:,:,1),nRys,nT)
-  call RecPrt(' B00(y)',' ',B00(:,:,2),nRys,nT)
-  call RecPrt(' B00(z)',' ',B00(:,:,3),nRys,nT)
+  call RecPrt('xCff2D:  B00(x)',' ',B00(:,:,1),nRys,nT)
+  call RecPrt('xCff2D:  B00(y)',' ',B00(:,:,2),nRys,nT)
+  call RecPrt('xCff2D:  B00(z)',' ',B00(:,:,3),nRys,nT)
 end if
 if (ncdMax_ /= 0) then
-  call RecPrt(' B01(x)',' ',B01(:,:,1),nRys,nT)
-  call RecPrt(' B01(y)',' ',B01(:,:,2),nRys,nT)
-  call RecPrt(' B01(z)',' ',B01(:,:,3),nRys,nT)
+  call RecPrt('xCff2D:  B01(x)',' ',B01(:,:,1),nRys,nT)
+  call RecPrt('xCff2D:  B01(y)',' ',B01(:,:,2),nRys,nT)
+  call RecPrt('xCff2D:  B01(z)',' ',B01(:,:,3),nRys,nT)
 end if
 #endif
 

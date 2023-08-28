@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1995, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
@@ -42,18 +43,15 @@ real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys
 integer(kind=iwp) :: iab, in_
 #ifdef _DEBUGPRINT_
 character(len=30) :: Label
+integer(kind=iwp) :: icd
 #endif
 
 #ifdef _DEBUGPRINT_
-iRout = 15
-iPrint = nPrint(iRout)
-if (iPrint >= 59) then
-  if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
-  if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-  call RecPrt(' B10',' ',B10,nArg*lRys,3)
-  call RecPrt(' B00',' ',B00,nArg*lRys,3)
-  call RecPrt(' B01',' ',B01,nArg*lRys,3)
-end if
+if (nabMax > 0) call RecPrt('xRys2D: PAWP',' ',PAWP,nArg*lRys,3)
+if (ncdMax > 0) call RecPrt('xRys2D: QCWQ',' ',QCWQ,nArg*lRys,3)
+call RecPrt('xRys2D:  B10',' ',B10,nArg*lRys,3)
+call RecPrt('xRys2D:  B00',' ',B00,nArg*lRys,3)
+call RecPrt('xRys2D:  B01',' ',B01,nArg*lRys,3)
 #endif
 
 ! Compute 2D integrals with index (0,0). Observe that the z
@@ -87,19 +85,17 @@ do in_=1,ncdMax-1
 end do
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  write(u6,*) ' 2D-integral computed in XRys2D'
-  do iab=0,nabMax
-    do icd=0,ncdMax
-      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-      call RecPrt(Label,' ',xyz2D(:,1,iab,icd),nArg,lRys)
-      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-      call RecPrt(Label,' ',xyz2D(:,2,iab,icd),nArg,lRys)
-      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-      call RecPrt(Label,' ',xyz2D(:,3,iab,icd),nArg,lRys)
-    end do
+write(u6,*) ' 2D-integral computed in XRys2D'
+do iab=0,nabMax
+  do icd=0,ncdMax
+    write(Label,'(A,I2,A,I2,A)') 'xRys2D:  2D(',iab,',',icd,')(x)'
+    call RecPrt(Label,' ',xyz2D(:,1,iab,icd),nArg,lRys)
+    write(Label,'(A,I2,A,I2,A)') 'xRys2D:  2D(',iab,',',icd,')(y)'
+    call RecPrt(Label,' ',xyz2D(:,2,iab,icd),nArg,lRys)
+    write(Label,'(A,I2,A,I2,A)') 'xRys2D:  2D(',iab,',',icd,')(z)'
+    call RecPrt(Label,' ',xyz2D(:,3,iab,icd),nArg,lRys)
   end do
-end if
+end do
 #endif
 
 return

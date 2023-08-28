@@ -33,6 +33,18 @@ implicit none
 integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
 external :: Fake, TNAI, XCff2D, XRys2D
 
+    Interface
+    subroutine NAInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+              )
+    use Definitions, only: wp, iwp
+    use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+    End subroutine NAInt
+
+    End Interface
+
 iRout = 221
 iPrint = nPrint(iRout)
 
@@ -69,7 +81,7 @@ kRys = ((la+1)+lb+2)/2
 
 kIC = 1
 kComp = 1
-call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CCoor, &
+call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CoorO, &
            nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 
 ipOff = ipB-1
@@ -83,7 +95,7 @@ end do
 if (lb > 0) then
   kRys = ((la-1)+lb+2)/2
 
-  call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,CCoor, &
+  call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,CoorO, &
              nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 

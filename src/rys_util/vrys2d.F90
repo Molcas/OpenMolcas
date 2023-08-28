@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
@@ -38,18 +39,18 @@ real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys
 integer(kind=iwp) :: iab, icd
 real(kind=wp) :: Fac1, Fac2, Fact
 logical(kind=iwp) :: lPAWP, lQCWQ
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character(len=30) :: Label
 #endif
 
 #ifdef _DEBUGPRINT_
-if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,lRys,nArg*3)
-if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,lRys,nArg*3)
-call RecPrt(' B10',' ',B10,lRys,nArg)
-call RecPrt(' B00',' ',B00,lRys,nArg)
-call RecPrt(' B01',' ',B01,lRys,nArg)
+if (nabMax > 0) call RecPrt('vRys2D: PAWP',' ',PAWP,lRys,nArg*3)
+if (ncdMax > 0) call RecPrt('vRys2D: QCWQ',' ',QCWQ,lRys,nArg*3)
+call RecPrt('vRys2D:  B10',' ',B10,lRys,nArg)
+call RecPrt('vRys2D:  B00',' ',B00,lRys,nArg)
+call RecPrt('vRys2D:  B01',' ',B01,lRys,nArg)
 #endif
+
 
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then
 
@@ -173,15 +174,17 @@ end if
 #ifdef _DEBUGPRINT_
 do iab=0,nabMax
   do icd=0,ncdMax
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
+    write(Label,'(A,I2,A,I2,A)') 'vRys2D:  2D(',iab,',',icd,')(x)'
     call RecPrt(Label,' ',xyz2D(:,1,iab,icd),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
+    write(Label,'(A,I2,A,I2,A)') 'vRys2D:  2D(',iab,',',icd,')(y)'
     call RecPrt(Label,' ',xyz2D(:,2,iab,icd),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
+    write(Label,'(A,I2,A,I2,A)') 'vRys2D:  2D(',iab,',',icd,')(z)'
     call RecPrt(Label,' ',xyz2D(:,3,iab,icd),lRys,nArg)
   end do
 end do
 #endif
+
+xyz2D(:,1:2,0,0)=One
 
 return
 

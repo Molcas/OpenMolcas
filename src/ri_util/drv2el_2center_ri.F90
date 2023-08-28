@@ -44,6 +44,7 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Int_Options, only: iTOffs
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
@@ -51,7 +52,6 @@ real(kind=wp), allocatable, intent(out) :: A_Diag(:)
 integer(kind=iwp), intent(out) :: nSO_Aux, MaxCntr
 integer(kind=iwp), allocatable, intent(out) :: SO2C(:)
 #include "setup.fh"
-#include "iTOffs.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
                      lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2

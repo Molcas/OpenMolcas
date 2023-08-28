@@ -13,6 +13,8 @@
 #define _CALLING_
 #include "int_wrout_interface.fh"
      &                        )
+      use Int_Options, only: MapOrg=>Map4
+
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
       Implicit Real*8 (a-h,o-z)
@@ -86,6 +88,5 @@ c Avoid unused argument warnings
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_integer_array(itOffs)
       End If
       End

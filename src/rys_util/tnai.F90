@@ -8,11 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1990, Roland Lindh                                     *
+! Copyright (C) 1990,2023, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
-subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
+subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute entities for the nuclear attraction integrals     *
@@ -23,18 +24,18 @@ subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !             March '90                                                *
 !***********************************************************************
 
-use Constants, only: One, Two, Pi
+use Constants, only: One, Two, Three, Four, Pi
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nT, IsChi
+integer(kind=iwp), intent(in) :: nT, IsChi, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), ChiI2
 real(kind=wp), intent(out) :: T(nT), Fact(nT), ZEInv(nT)
 integer(kind=iwp) :: iT
-real(kind=wp) :: PQ2
+real(kind=wp) :: PQ2, tmp, Rho
 
 #include "macros.fh"
 unused_var(Eta)
@@ -43,30 +44,54 @@ unused_var(IsChi)
 unused_var(ChiI2)
 
 #ifdef _DEBUGPRINT_
-iRout = 57
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
-  call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
-  call RecPrt(' P in TNAI',' ',P,nT,3)
-  call RecPrt(' Q in TNAI',' ',Q,nT,3)
-  call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
-  call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
-  write(u6,*) ' In TNAI: ABeqCD=',ABeqCD
-end if
+call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
+call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
+call RecPrt(' P in TNAI',' ',P,nT,3)
+call RecPrt(' Q in TNAI',' ',Q,nT,3)
+call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
+call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
 #endif
-do iT=1,nT
-  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
-  T(iT) = Zeta(iT)*PQ2
-end do
-ZEInv(:) = One/Zeta
-Fact(:) = Two*rKapab*Pi*ZEInv
+
+select case (nOrdOp)
+
+case(0)
+
+  do iT=1,nT
+    tmp= One/Zeta(iT)
+    ZEInv(iT) = tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    Rho = Zeta(iT)
+    T(iT) = Rho*PQ2
+    Fact(iT) = Two*rKapab(iT)*Pi*tmp
+  end do
+
+case(1)
+
+  do iT=1,nT
+    tmp= One/Zeta(iT)
+    ZEInv(iT) = tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    Rho = Zeta(iT)
+    T(iT) = Rho*PQ2
+    Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Two * Rho)
+  end do
+
+case(2)
+
+  do iT=1,nT
+    tmp= One/Zeta(iT)
+    ZEInv(iT) = tmp
+    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+    Rho = Zeta(iT)
+    T(iT) = Rho*PQ2
+    Fact(iT) = Two*rKapab(iT)*Pi*tmp * (Four * Rho**2 / Three)
+  end do
+
+end select
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-  call RecPrt('Fact  ',' ',Fact,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
+call RecPrt('Fact  ',' ',Fact,nT,1)
 #endif
 
 return

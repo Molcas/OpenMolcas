@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Rys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
@@ -39,11 +40,11 @@ integer(kind=iwp) :: iab, icd
 
 #ifdef _DEBUGPRINT_
 character*30 Label
-if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
-if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-call RecPrt(' B10',' ',B10,nArg*lRys,3)
-call RecPrt(' B00',' ',B00,nArg*lRys,3)
-call RecPrt(' B01',' ',B01,nArg*lRys,3)
+if (nabMax > 0) call RecPrt('Rys2D: PAWP',' ',PAWP,nArg,lRys*3)
+if (ncdMax > 0) call RecPrt('Rys2D: QCWQ',' ',QCWQ,nArg,lRys*3)
+call RecPrt('Rys2D:  B10',' ',B10,nArg*lRys,3)
+call RecPrt('Rys2D:  B00',' ',B00,nArg*lRys,3)
+call RecPrt('Rys2D:  B01',' ',B01,nArg*lRys,3)
 #endif
 
 ! Compute 2D integrals with index (0,0). Observe that the z
@@ -109,11 +110,11 @@ end if
 #ifdef _DEBUGPRINT_
 do iab=0,nabMax
   do icd=0,ncdMax
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
+    write(Label,'(A,I2,A,I2,A)') 'Rys2D:  2D(',iab,',',icd,')(x)'
     call RecPrt(Label,' ',xyz2D(:,1,iab,icd),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
+    write(Label,'(A,I2,A,I2,A)') 'Rys2D:  2D(',iab,',',icd,')(y)'
     call RecPrt(Label,' ',xyz2D(:,2,iab,icd),lRys,nArg)
-    write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
+    write(Label,'(A,I2,A,I2,A)') 'Rys2D:  2D(',iab,',',icd,')(z)'
     call RecPrt(Label,' ',xyz2D(:,3,iab,icd),lRys,nArg)
   end do
 end do

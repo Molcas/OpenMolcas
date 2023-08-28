@@ -1,119 +1,184 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1993,1999, Roland Lindh                           *
-*               1995, Martin Schuetz                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1993,1999,2023, Roland Lindh                      *
+!               1995, Martin Schuetz                                   *
+!***********************************************************************
+!#define _DEBUGPRINT_
+!#define _DEBUGBREIT_
       SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
-************************************************************************
-*                                                                      *
-*  Object: driver for two-electron integrals, parallel region          *
-*          contains memory partitioning and loops over uncontracted    *
-*          functions...                                                *
-*                                                                      *
-*  Input:                                                              *
-*          iiS,jjS,kkS,llS     : shell indices                         *
-*          TInt                : Computed Integrals                    *
-*                                                                      *
-*  Auxiliary:                                                          *
-*          ipMem1              : base pointer to Scratch space for     *
-*                                Integral batch, which is further      *
-*                                partitioned within this subroutine    *
-*          MemMax              : amount of wrkspace for processing of  *
-*                                integral batch                        *
-*                                                                      *
-*  Local:                                                              *
-*          Coor                : coordinates of four centers           *
-*          iAngV               : angular momenta                       *
-*          iCmpV               : # spherical components                *
-*          iShelV,iShllV       : shell indices                         *
-*          iAOV                : pointers to ??                        *
-*          iStabs              : IDs of 4 unique centers, i.e. ptrs to *
-*          Shijij,                           : swap booleans           *
-*                                                                      *
-*          nTInt               : dimension of TInt                     *
-*          iTOffs              : iTOffs holds symmetry block offsets   *
-*                                                                      *
-*     Author: Roland Lindh / Martin Schuetz,                           *
-*             Dept. of Theoretical Chemistry, University of Lund,      *
-*             SWEDEN.                                                  *
-*             Modified for k2 loop. August '91                         *
-*             Modified for direct SCF. January '93                     *
-*             Modified to minimize overhead for calculations with      *
-*             small basis sets and large molecules. Sept. '93          *
-*             parallel region split off in drvtwo.f, April '95         *
-*             Total rehack May '99                                     *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: driver for two-electron integrals, parallel region          *
+!          contains memory partitioning and loops over uncontracted    *
+!          functions...                                                *
+!                                                                      *
+!  Input:                                                              *
+!          iiS,jjS,kkS,llS     : shell indices                         *
+!          TInt                : Computed Integrals                    *
+!          nTInt               : dimension of TInt                     *
+!          Integ_Proc          : subroutine for post processing        *
+!                                                                      *
+!                                                                      *
+!     Author: Roland Lindh / Martin Schuetz,                           *
+!             Dept. of Theoretical Chemistry, University of Lund,      *
+!             SWEDEN.                                                  *
+!             Modified for k2 loop. August '91                         *
+!             Modified for direct SCF. January '93                     *
+!             Modified to minimize overhead for calculations with      *
+!             small basis sets and large molecules. Sept. '93          *
+!             parallel region split off in drvtwo.f, April '95         *
+!             Total rehack May '99                                     *
+!             Total rehack Aug '23                                     *
+!***********************************************************************
       use k2_setup
       use k2_arrays
       use iSD_data
       use Basis_Info
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      use Int_Options, only: DoIntegrals, DoFock, Map4
+#ifdef _DEBUGBREIT_
+      use Breit, only: nOrdOp
+      use UnixInfo, only: SuperName
+#endif
+      Implicit None
+!
+!     subroutine parameters
+      Integer iiS,jjS,kkS,llS
+      Integer nTInt
+      Real*8  TInt(nTInt)
       External Integ_Proc
-*
-*     Dummy definitions
-*
-      Parameter (nDens=1, lDens=1)
-      Real*8 Fock(lDens), Dens(lDens), ExFac(nDens)
-      Logical FckNoClmb(nDens), FckNoExch(nDens)
-#include "iTOffs.fh"
-*
-*     subroutine parameters
-      Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
-      Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax, kOp(4) ,Map4(4)
-      Logical Shijij, W2Disc,PreSch,NoInts, DoIntegrals,DoFock
-*
+
+!
 #include "ndarray.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "setup.fh"
 #include "status.fh"
-*
+!
 #include "ibas_ricd.fh"
-*     local variables to save
-      Integer ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
+      Integer::
+     &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
      &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,
-     &        ipMem2,
-     &        Mem1,Mem2
-      Save    ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
-     &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,
-     &        ipMem2,
-     &        Mem1,Mem2
-*     other local variables
+     &        ipMem1, ipMem2, Mem1,Mem2
+
+!     other local variables
+      Integer iS_,jS_,kS_,lS_
+      Real*8  Coor(3,4), Tmax
+      Integer n
+      Integer nHRRAB, nHRRCD
+      Integer iTmp, ijCmp, klCmp, mData1, mData2, Nr_of_D, nIJKL,
+     &        ipDum , MemPrm, MemSO2
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
-     &  iBasn,jBasn,kBasn,lBasn,
-     &  k2ij,nDCRR,k2kl,nDCRS, ipTmp,
-     &  mDij,mDik,mDjk,mDkl,mDil,mDjl,
-     &  mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,
-     &  ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl,
-     &  ipZI,ipKab,ipP,nZeta,
-     &  ipEta,ipEI,ipiEta,ipKcd,ipQ,nEta
-      Integer   nSO,iBasAO,jBasAO,kBasAO,lBasAO,
-     &  iS,jS,kS,lS,ijS,klS,ikS,ilS,jkS,jlS
+     &        iBasn,jBasn,kBasn,lBasn,
+     &        k2ij,nDCRR,k2kl,nDCRS, ipTmp,
+     &        mDij,mDik,mDjk,mDkl,mDil,mDjl,
+     &        mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,
+     &        ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl,
+     &        ipZI,ipKab,ipP,nZeta,
+     &        ipEta,ipEI,ipiEta,ipKcd,ipQ,nEta
+      Integer nSO,iBasAO,jBasAO,kBasAO,lBasAO,
+     &        iS,jS,kS,lS,ijS,klS,ikS,ilS,jkS,jlS
       Logical IJeqKL
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
+      Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
+     &        MemMax, kOp(4)
+      Logical Shijij, NoInts
+      Real*8, pointer:: SOInt(:), AOInt(:)
+      Integer, External :: iDAMax_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      Abstract Interface
+
+      SubRoutine TwoEl(iS_,jS_,kS_,lS_,
+     &           Coor,
+     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           NoInts,iStb,jStb,kStb,lStb,
+     &           nAlpha,iPrInc, nBeta,jPrInc,
+     &           nGamma,kPrInc,nDelta,lPrInc,
+     &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           IJeqKL,kOp,
+     &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
+     &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
+     &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
+     &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
+     &           Eta,EInv,IndEta,Kappcd,Q,nEta,
+     &           SOInt,nSOInt,Wrk,nWork2,
+     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
+      Implicit None
+      Integer iS_,jS_,kS_,lS_
+      Real*8  Coor(3,4)
+      Integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
+      Logical NoInts
+      Integer iStb,jStb,kStb,lStb
+      Integer iPrInc, jPrInc, kPrInc, lPrInc
+      Integer mData1, nData1, mData2, nData2
+      Real*8  Data1(mData1,nData1),Data2(mData2,nData2)
+      Logical IJeqKL
+      Integer kOp(4)
+      Integer mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
+     &        mDil,mDCRil,mDjk,mDCRjk,mDjl,mDCRjl
+      Real*8  Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
+     &        Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
+      Integer nAlpha, nBeta, nGamma, nDelta
+      Integer iBasi, jBasj, kBask, lBasl
+      Real*8 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
+     &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
+      Integer nFT
+      Real*8  FckTmp(nFT)
+      Integer nZeta, nEta
+      Real*8  Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
+     &        Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3)
+      Integer IndZet(nZeta), IndEta(nEta)
+      Integer nSOInt, nWork2
+      Real*8  SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
+      Real*8  Wrk(nWork2)
+      Logical Shijij
+      Integer nHRRAB, nHRRCD, nAux
+      Real*8  Aux(nAux)
+
+
+      End SubRoutine TwoEl
+      End Interface
+
+      Procedure(Twoel) :: TwoEl_NoSym_New, TwoEl_Sym_New
+      Procedure(Twoel), pointer :: Do_TwoEl=>Null()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement functions
+!
+      Integer i, j, nElem, iTri, nabSz, ixyz
+
       nElem(i)=(i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+#ifdef _DEBUGBREIT_
+!     use the Breit option computing 1/r^3 integralas but convert to
+!     conventional 1/r integrals
+      If (.NOT.DoFock .and.
+     &    SuperName/= 'gateway' .and.
+     &    nIrrep==1) Call Set_Breit(1)
+#endif
       mDCRij=1
       mDCRkl=1
+      If (nIrrep==1) Then
+         Do_TwoEl => TwoEl_NoSym_New
+      Else
+         Do_TwoEl => TwoEl_Sym_New
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -125,21 +190,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=9
-      iPrint=nPrint(iRout)
-*
       NoInts=.True.
       Tmax=Zero
-      Thize=0.0D0
-      W2Disc=.False.
-      PreSch=.True.
-      Disc_Mx=0.0D0
-      Disc=0.0D0
-      Quad_ijkl=0.0D0
-      DoIntegrals=.True.
-      DoFock=.False.
-      FckNoClmb(1)=.False.
-      FckNoExch(1)=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -238,7 +290,6 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       If (nSO.eq.0) Then
         Return
       End If
-      If (.Not.DoIntegrals) nSO = 0
 *
       iS = iShelV(1)
       jS = iShelV(2)
@@ -284,13 +335,11 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iPrint.ge.99) Then
-         Write (6,*) ' *** Centers ***'
-         Write (6,'(3F7.3,6X,3F7.3)')
-     &         ((Coor(i,j),i=1,3),j=1,2)
-         Write (6,'(3F7.3,6X,3F7.3)')
-     &         ((Coor(i,j),i=1,3),j=3,4)
-      End If
+#ifdef _DEBUGPRINT_
+!     Write (6,*) ' *** Centers ***'
+!     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
+!     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -311,22 +360,24 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &            kPrimk,kPrInc,lPriml,lPrInc,
      &            ipMem1,ipMem2,
      &            Mem1,Mem2,DoFock)
-      If (iPrint.ge.59) Then
-         Write (6,*) ' ************** Memory partioning **************'
-         Write (6,*) ' ipMem1=',ipMem1
-         Write (6,*) ' ipMem2=',ipMem2
-         Write (6,*) ' Mem1=',Mem1
-         Write (6,*) ' Mem2=',Mem2
-         Write (6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-         Write (6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-         Write (6,*) ' kBasi,kBsInc=',kBask,kBsInc
-         Write (6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-         Write (6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-         Write (6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-         Write (6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-         Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
-         Write (6,*) ' ***********************************************'
-      End If
+#ifdef _DEBUGPRINT_
+!     Write (6,*) ' ************** Memory partioning **************'
+!     Write (6,*) ' ipMem1=',ipMem1
+!     Write (6,*) ' ipMem2=',ipMem2
+!     Write (6,*) ' Mem1=',Mem1
+!     Write (6,*) ' Mem2=',Mem2
+!     Write (6,*) ' iBasi,iBsInc=',iBasi,iBsInc
+!     Write (6,*) ' jBasj,jBsInc=',jBasj,jBsInc
+!     Write (6,*) ' kBasi,kBsInc=',kBask,kBsInc
+!     Write (6,*) ' lBasl,lBsInc=',lBasl,lBsInc
+!     Write (6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
+!     Write (6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
+!     Write (6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
+!     Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
+!     Write (6,*) ' ***********************************************'
+#endif
+      SOInt(1:Mem1)=>Sew_Scr(ipMem1:ipMem1+Mem1-1)
+      AOInt(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem1-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -404,98 +455,81 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *                                                                      *
 *                 Compute SO/AO-integrals
 *
-                  If (nIrrep.eq.1) Then
-*
-                  Call TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
-     &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,
-     &                            iAOV,iAOst,NoInts,
-     &                            iStabs(1),iStabs(2),
-     &                            iStabs(3),iStabs(4),
-     &                            iPrimi,iPrInc,jPrimj,jPrInc,
-     &                            kPrimk,kPrInc,lPriml,lPrInc,
-     &                            Data_k2(k2ij),mData1,nDCRR,
-     *                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            DeDe(ipDDij),mDij,mDCRij,
-     &                            DeDe(ipDDkl),mDkl,mDCRkl,
-     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
-     & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
-     &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
-     &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
-     &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
-     &                  Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
-     &                  FT,nFT,
-     & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
-     & Mem_DBLE(ipP),nZeta,
-     & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
-     & Mem_DBLE(ipQ),nEta,
-     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
-     & ExFac(1))
-*
-                  Else
-*
-
-                  Call TwoEl_Sym_New(iS_,jS_,kS_,lS_,
-     &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,
-     &                            iAOV,iAOst,NoInts,
-     &                            iStabs(1),iStabs(2),
-     &                            iStabs(3),iStabs(4),
-     &                            iPrimi,iPrInc,jPrimj,jPrInc,
-     &                            kPrimk,kPrInc,lPriml,lPrInc,
-     &                            Data_k2(k2ij),mData1,nDCRR,
-     &                            Data_k2(k2kl),mData2,nDCRS,
-     &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            DeDe(ipDDij),mDij,mDCRij,
-     &                            DeDe(ipDDkl),mDkl,mDCRkl,
-     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
-     & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens,
-     &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
-     &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
-     &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
-     &                  Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
-     &                            FT,nFT,
-     & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
-     & Mem_DBLE(ipP),nZeta,
-     & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
-     & Mem_DBLE(ipQ),nEta,
-     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
-     & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
-     & ExFac(1))
-*
-                  End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*              Process SO/AO-integrals
-*
+                  Call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,
+     &                          iAngV,iCmpV,iShelV,iShllV,
+     &                          iAOV,iAOst,NoInts,
+     &                          iStabs(1),iStabs(2),
+     &                          iStabs(3),iStabs(4),
+     &                          iPrimi,iPrInc,jPrimj,jPrInc,
+     &                          kPrimk,kPrInc,lPriml,lPrInc,
+     &                          Data_k2(k2ij),mData1,nDCRR,
+     *                          Data_k2(k2kl),mData2,nDCRS,
+     &                          IJeqKL,kOp,
+     &                          DeDe(ipDDij),mDij,mDCRij,
+     &                          DeDe(ipDDkl),mDkl,mDCRkl,
+     &                          DeDe(ipDDik),mDik,mDCRik,
+     &                          DeDe(ipDDil),mDil,mDCRil,
+     &                          DeDe(ipDDjk),mDjk,mDCRjk,
+     &                          DeDe(ipDDjl),mDjl,mDCRjl,
+     &                          Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &                          Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &                          Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &                          Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &                          FT,nFT,
+     &                          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
+     &                          Mem_INT(ipiZet),Mem_DBLE(ipKab),
+     &                          Mem_DBLE(ipP),nZeta,
+     &                          Mem_DBLE(ipEta), Mem_DBLE(ipEI),
+     &                          Mem_INT(ipiEta),Mem_DBLE(ipKcd),
+     &                          Mem_DBLE(ipQ),nEta,
+     &                          SOInt,nSO,AOInt,Mem2,
+     &                          Shijij,nHRRAB,nHRRCD,Aux,nAux)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
                   nijkl=iBasn*jBasn*kBasn*lBasn
+#ifdef _DEBUGBREIT_
+                  If (nOrdOp/=0) Then
+                     If (nIrrep==1) Then
+                        n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+                        Call ReSort_Int(AOInt,nijkl,6,n)
+                     Else
+                        Call ReSort_Int(SOInt,nijkl,6,nSO)
+                     End If
+                  End If
+#endif
+#ifdef _DEBUGPRINT_
+                  If (nIrrep==1) Then
+                     n=iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+                     Call RecPrt('AOInt',' ',AOInt,nijkl,n)
+                  Else
+                     Call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
+                  End If
+#endif
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!              Process SO/AO-integrals
+!
                   If (DoIntegrals.and..Not.NoInts) Then
-*                    Get max AO/SO integrals
+!                    Get max AO/SO integrals
                      If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-                        ip=ipMem2
+                        Tmax=max(Tmax,
+     &                       abs(AOInt(iDAMax_(n,AOInt,1))))
                      Else
                         n=nijkl*nSO
-                        ip=ipMem1
+                        Tmax=max(Tmax,
+     &                        abs(SOInt(iDAMax_(n,SOInt,1))))
                      End If
-                     Tmax=max(Tmax,
-     &                        abs(Sew_Scr(ip+
-     &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,
+                        Call Integ_Proc(iCmpV,iShelV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
-     &                                  Sew_Scr(ipMem2),
-     &                                  Sew_Scr(ipMem1),nSO,
+     &                                  AOInt,SOInt,nSO,
      &                                  iSOSym,mSkal,nSOs,
-     &                                  TInt,nTInt,iTOffs,nIrrep)
+     &                                  TInt,nTInt,nIrrep)
                      Else
                         Tmax=Zero
                      End If
@@ -505,8 +539,40 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
             End Do
          End Do
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
+      SOInt=>Null()
+      AOInt=>Null()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+#ifdef _DEBUGBREIT_
+      Call Set_Breit(0)
+
+      Contains
+      Subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
+      Implicit None
+      Integer, intent(In) :: nijkl, nComp, nA
+      Real*8, Target :: IntRaw(nijkl*nComp*nA)
+
+      Real*8, Pointer :: IntIn(:,:,:), IntOut(:,:,:)
+      Integer iA, i_ijkl
+
+      IntIn(1:nijkl,1:nComp,1:nA)=>IntRaw(:)
+      IntOut(1:nijkl,1:1,1:nA)=>IntRaw(1:nijkl*nA)
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'nijkl,nComp,nA=',nijkl,nComp,nA
+      Call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
+#endif
+
+      Do iA = 1, nA
+         Do i_ijkl = 1, nijkl
+            IntOut(i_ijkl,1,iA) = IntIn(i_ijkl,1,iA)
+     &                          + IntIn(i_ijkl,4,iA)
+     &                          + IntIn(i_ijkl,6,iA)
+         End Do
+      End Do
+
+      IntIn=>Null()
+      IntOut=>Null()
+      End Subroutine ReSort_Int
+#endif
+      End SubRoutine Eval_ijkl

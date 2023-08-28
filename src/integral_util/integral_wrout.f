@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_WrOut(iCmp,iShell,MapOrg,
+      SubRoutine Integral_WrOut(iCmp,iShell,
      &                          iBas,jBas,kBas,lBas,kOp,
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
-     &                          TInt,nTInt,itOffs,nSym)
+     &                          TInt,nTInt,nSym)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -21,8 +21,7 @@
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
-     &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
+     &        iAOst(4), kOp(4), iSOSym(2,nSOs)
       Logical Shijij,IJeqKL
 *
       If (nSym.eq.1) Then
@@ -37,10 +36,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(MapOrg)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
          Call Unused_real_array(TInt)
-         Call Unused_integer_array(itOffs)
       End If
       End

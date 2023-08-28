@@ -11,8 +11,11 @@
 ! Copyright (C) 1993, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,lOper, &
-                 iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot,Kernel)
+subroutine PVInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                 , Kernel)
+
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of  pX integrals          *
@@ -27,14 +30,21 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
-! TODO: unknown intents, probably all "in" except rFinal (see int_interface.fh)
-integer(kind=iwp) :: nAlpha, nBeta, nZeta, nIC, nComp, la, lb, nHer, nArr, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
-                     iStabM(0:nStabM-1), nGrid, iAddPot
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), A(3), RB(3), Array(nZeta*nArr), Ccoor(3,nComp), PtChrg(nGrid)
-external :: Kernel
+#include "int_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
+
+    Interface
+    subroutine Kernel( &
+#                define _CALLING_
+#                include "int_interface.fh"
+              )
+    use Definitions, only: wp, iwp
+    use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+    End subroutine Kernel
+
+    End Interface
 
 #include "macros.fh"
 unused_var(nHer)
@@ -74,7 +84,8 @@ end if
 ! Compute contribution from a+1,b
 
 kRys = ((la+1)+lb+2)/2
-call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la+1,lb,A,RB,kRys,Array(ipArr),mArr,CCoor, &
+call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1:ipS2-1),&
+            nZeta,nIC,nComp,la+1,lb,A,RB,kRys,Array(ipArr:),mArr,CoorO, &
             nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 !                                                                      *
 !***********************************************************************
@@ -83,7 +94,8 @@ call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nCo
 
 if (la > 0) then
   kRys = ((la-1)+lb+2)/2
-  call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nIC,nComp,la-1,lb,A,RB,kRys,Array(ipArr),mArr,CCoor, &
+  call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2:ipArr-1),&
+              nZeta,nIC,nComp,la-1,lb,A,RB,kRys,Array(ipArr:),mArr,CoorO, &
               nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 !                                                                      *

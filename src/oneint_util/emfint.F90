@@ -86,7 +86,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In EMFInt: A',' ',A,1,3)
   call RecPrt(' In EMFInt: RB',' ',RB,1,3)
-  call RecPrt(' In EMFInt: KVector',' ',CCoor,1,3)
+  call RecPrt(' In EMFInt: KVector',' ',CoorO,1,3)
   call RecPrt(' In EMFInt: P',' ',P,nZeta,3)
   write(u6,*) ' In EMFInt: la,lb=',la,lb
 end if
@@ -129,8 +129,8 @@ subroutine EMFInt_Internal(Array)
   call c_f_pointer(c_loc(Array(ipBxyz)),zBxyz,[nZeta,3,nHer,lb+nOrdOp+1])
   call c_f_pointer(c_loc(Array(ipQxyz)),zQxyz,[nZeta,3,la+nOrdOp+1,lb+nOrdOp+1])
 
-  call CCrtCmp(Zeta,P,nZeta,A,zAxyz,la+nOrdOp,HerR(iHerR(nHer)),nHer,CCoor)
-  call CCrtCmp(Zeta,P,nZeta,RB,zBxyz,lb+nOrdOp,HerR(iHerR(nHer)),nHer,CCoor)
+  call CCrtCmp(Zeta,P,nZeta,A,zAxyz,la+nOrdOp,HerR(iHerR(nHer)),nHer,CoorO)
+  call CCrtCmp(Zeta,P,nZeta,RB,zBxyz,lb+nOrdOp,HerR(iHerR(nHer)),nHer,CoorO)
 
   ! Compute the cartesian components for the multipole moment
   ! integrals. The integrals are factorized into components.
@@ -158,11 +158,11 @@ subroutine EMFInt_Internal(Array)
 
     ! Combine the cartesian components to the full one electron integral.
 
-    call CCmbnVe(zQxyz,nZeta,la,lb,Zeta,rKappa,Array(ipRes),nComp,zVxyz,CCoor,P)
+    call CCmbnVe(zQxyz,nZeta,la,lb,Zeta,rKappa,Array(ipRes),nComp,zVxyz,CoorO,P)
     nullify(zVxyz)
   else
     call c_f_pointer(c_loc(Array(ipQxyz)),zQxyz2,[nZeta,3,la+1,lb+1,nOrdOp+1])
-    call CCmbnMP(zQxyz2,nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipRes),nComp,CCoor,P)
+    call CCmbnMP(zQxyz2,nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipRes),nComp,CoorO,P)
     nullify(zQxyz2)
   end if
 

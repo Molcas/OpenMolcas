@@ -32,6 +32,7 @@ use Definitions, only: wp, iwp
 #if defined(_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
+use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
@@ -182,7 +183,7 @@ end do
 
 ! Compute the arguments for which we will compute the roots and the weights.
 
-call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,Array(ipTv),Array(ipDiv),IsChi,ChiI2)
+call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,Array(ipTv),Array(ipDiv),IsChi,ChiI2,nOrdOp)
 
 ! Compute roots and weights. Make sure that the weights ends up in
 ! the array where the z component of the 2D integrals will be.
@@ -201,7 +202,7 @@ if ((nRys > nMxRys) .or. NoTab) then
     call Abend()
   end if
 # endif
-  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+  call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys,nOrdOp)
 else
 # ifdef _CHECK_
   if (ip-1 > nArray) then
@@ -211,7 +212,7 @@ else
     call Abend()
   end if
 # endif
-  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
+  call vRysRW(la+1,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys,nOrdOp)
 end if
 ! Drop ipTv
 ip = ip-nT
@@ -225,7 +226,8 @@ ip = ip-nT
 ! Compute coefficients for the recurrence relations of the 2D-integrals
 
 call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC,Array(ipP), &
-           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01))
+           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01),   &
+           nOrdOp)
 ! Drop ipU2
 ip = ip-nT*nRys
 ! Let go of Zeta, ZInv, Eta, and EInv

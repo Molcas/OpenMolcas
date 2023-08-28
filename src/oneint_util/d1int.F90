@@ -60,7 +60,7 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In D1Int: A',' ',A,1,3)
   call RecPrt(' In D1Int: RB',' ',RB,1,3)
-  call RecPrt(' In D1Int: Ccoor',' ',Ccoor,1,3)
+  call RecPrt(' In D1Int: CoorO',' ',CoorO,1,3)
   call RecPrt(' In D1Int: P',' ',P,nZeta,3)
   write(u6,*) ' In D1Int: la,lb=',la,lb
 end if

@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1995, Roland Lindh                                *
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine EFInt( &
 #                define _CALLING_
 #                include "int_interface.fh"
@@ -28,21 +28,27 @@ subroutine EFInt( &
 
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Constants, only: Zero, One, Two, Three
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), iElem, ij, iOffxx, iOffyy, iOffzz, ip, ip1, ip2, ip3, ipIn, iPrint, iRout, &
-                     iStabO(0:7), jElem, kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
+integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), ip1, ip2, ip3, ipIn, &
+                     iStabO(0:7), kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
                      nFLOP, nMem, nOp, nStabO, nT, nzab
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), RR, TC(3), XX, YY
 logical(kind=iwp) :: NoSpecial
-character(len=80) :: Label
 real(kind=wp), parameter :: ThreeI = One/Three
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer :: EFInts(:,:)
 external :: Fake, TNAI, XCff2D, XRys2D
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iElem, ij, ip, jElem
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -50,9 +56,6 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 200
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -98,10 +101,10 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
-  CoorAC(:,2) = TC
-  Coori(:,3) = TC
-  Coori(:,4) = TC
+  call OA(iDCRT(lDCRT),CoorO,TC)
+  CoorAC(:,2) = TC(:)
+  Coori(:,3) = TC(:)
+  Coori(:,4) = TC(:)
 
   ! Compute integrals with the Rys-Gauss quadrature.
 
@@ -132,24 +135,23 @@ do lDCRT=0,nDCRT-1
   ! Modify to traceless form, the sixth element contains r*r and
 
   if (nOrdOp == 2) then
-    !if (.false.) then
     nzab = nZeta*kab
-    iOffxx = ip1
-    iOffyy = ip1+nzab*3
-    iOffzz = ip1+nzab*5
-    do i=0,nzab-1
-      RR = Array(iOffxx+i)+Array(iOffyy+i)+Array(iOffzz+i)
-      XX = Two*Array(iOffxx+i)-Array(iOffyy+i)-Array(iOffzz+i)
-      YY = Two*Array(iOffyy+i)-Array(iOffxx+i)-Array(iOffzz+i)
-      Array(iOffxx+i) = XX*ThreeI
-      Array(iOffyy+i) = YY*ThreeI
-      Array(iOffzz+i) = RR
+    EFInts(1:nzab,1:6) => Array(ip1:ip1-1+6*nzab)
+    do i=1,nzab
+      RR =     EFInts(i,1)+     EFInts(i,4) +     EFInts(i,6)
+      XX = Two*EFInts(i,1)-     EFInts(i,4) -     EFInts(i,6)
+      YY =    -EFInts(i,1)+ Two*EFInts(i,4) -     EFInts(i,6)
+      EFInts(i,1) = ThreeI * XX
+      EFInts(i,4) = ThreeI * YY
+      EFInts(i,6) =          RR
     end do
+    Nullify(EFInts)
   end if
+
+#ifdef _DEBUGPRINT_
 
   ! Stored as nZeta,iElem,jElem,iComp
 
-  if (iPrint >= 49) then
     write(u6,*) ' In EFInt la,lb=',la,lb
     nzab = nZeta*kab
     do iElem=1,nTri_Elem1(la)
@@ -163,7 +165,7 @@ do lDCRT=0,nDCRT-1
         end do
       end do
     end do
-  end if
+#endif
 
   ! Accumulate contributions
 
@@ -171,7 +173,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ip1),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine EFInt

@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+      SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
      &                 nOrdOp,rNuc,rHrmt,iChO,
      &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                 PtChrg,nGrid,iAddPot)
@@ -25,14 +25,52 @@
       External Kernel, KrnlMm
 #include "stdalloc.fh"
 #include "real.fh"
-      Real*8, Dimension(:), Allocatable :: Out, Nuc, El, Array
+      Real*8, Dimension(:), Allocatable :: Out, Nuc, El
+      Real*8, Dimension(:), Allocatable :: Array
       Character Label*8, LBL*4
       Character L_Temp*8
-      Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
+      Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
       dimension opmol(*),opnuc(*),iopadr(ncomp,*)
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
+
+      Interface
+
+      Subroutine OneEl_Inner
+     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
+     &                  nOrdOp,rHrmt,iChO,
+     &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
+     &                  iStabO,nStabO,nIC,
+     &                  PtChrg,nGrid,iAddPot,Array,LenTot)
+      External KrnlMm
+
+      Character Label*8
+      Integer nComp
+      Integer ip(nComp), lOper(nComp)
+      Real*8 CoorO(3,nComp)
+      Integer nOrdOp
+      Real*8 rHrmt
+      Integer iChO(nComp)
+      Real*8 opmol(*),opnuc(*)
+      Integer ipad, iopadr(nComp,*), idirect, isyop, iStabO(0:7), nIC
+      Integer nGrid, LenTot, iAddPot
+      Real*8 PtChrg(nGrid)
+      Real*8 :: Array(LenTot)
+      Interface
+      Subroutine Kernel(
+#                define _CALLING_
+#                include "int_interface.fh"
+     &        )
+      use Definitions, only: wp, iwp
+      use Index_Functions, only: nTri_Elem1
+#include "int_interface.fh"
+      End subroutine Kernel
+      End Interface
+
+      End Subroutine OneEl_Inner
+
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,7 +86,7 @@
          ip(iComp) = n2Tri(lOper(iComp))
       End Do
       Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-      Call RecPrt(' CCoor',' ',CCoor,3,nComp)
+      Call RecPrt(' CoorO',' ',CoorO,3,nComp)
 #endif
 *                                                                      *
 ************************************************************************
@@ -93,7 +131,7 @@
          ip(icomp)=iadr
          iadr=iadr+LenInt+4
 *        Copy center of operator to work area.
-         call dcopy_(3,Ccoor(1,iComp),1,Array(ip(iComp)+LenInt),1)
+         call dcopy_(3,CoorO(1,iComp),1,Array(ip(iComp)+LenInt),1)
 *        Copy nuclear contribution to work area.
          Array(ip(iComp)+LenInt+3) = rNuc(iComp)
       End Do
@@ -103,7 +141,7 @@
 *---- Compute all SO integrals for all components of the operator.
 *
       Call OneEl_Inner
-     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
      &            nOrdOp,rHrmt,iChO,
      &            opmol,opnuc,ipad,iopadr,idirect,isyop,
      &            iStabO,nStabO,nIC,
@@ -201,7 +239,7 @@ c               Close(28)
                Else
                   ipC2 = 2 ! Used only for diamagnetic shielding.
                End If
-               Call Prop(Short,Label,Ccoor(1,1),Ccoor(1,ipC2),
+               Call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),
      &                   nIrrep,nBas,mDim,Occ,Thrs,
      &                   Out,Nuc,lpole,ifallorb)
 *

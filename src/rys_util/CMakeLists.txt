@@ -23,6 +23,7 @@ set (sources
      assg1.F90
      assg1_mck.F90
      assg2.F90
+     breit.F90
      cff2d.F90
      cff2dq.F90
      cff2ds.F90
@@ -60,6 +61,7 @@ set (sources
      rys11.F90
      rys22.F90
      rys2d.F90
+     rys2dn.F90
      rys2dg.F90
      rys33.F90
      rys44.F90
@@ -68,6 +70,8 @@ set (sources
      rys77.F90
      rys88.F90
      rys99.F90
+     rysefn.F90
+     rysefx.F90
      rysef0.F90
      rysef1.F90
      rysef2.F90
@@ -78,6 +82,7 @@ set (sources
      rysg1.F90
      rysg2.F90
      rysscratch.F90
+     set_breit.F90
      sether.F90
      setupr.F90
      setup_rw.F90
@@ -104,6 +109,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      her_rw.F90
+     breit.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

@@ -43,6 +43,7 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Int_Options, only: iTOffs
 
 implicit none
 external :: Integral_WrOut
@@ -52,7 +53,6 @@ real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
 integer(kind=iwp), intent(out) :: nTInt, LuA
 logical(kind=iwp), intent(out) :: In_Core
 #include "setup.fh"
-#include "iTOffs.fh"
 integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
                      MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
 logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, FreeK2, Indexation, Only_DB, Out_of_Core, Verbose

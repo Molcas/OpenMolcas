@@ -32,18 +32,20 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
+use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
+use Int_Options, only: TskCount=>Quad_ijkl
 
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
-                 TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
-integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoIntegrals, DoFock, DoGrad, FckNoClmb(1), FckNoExch(1), &
-                     Triangular
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
+                 TMax_all, TskHi, TskLw, TWall1, Twall2
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, DoGrad, Triangular
 character(len=72) :: SLine
-real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
-integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
+real(kind=wp), allocatable :: TInt(:), TMax(:,:)
+integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 
@@ -55,13 +57,18 @@ call StatusLine(' Seward:',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! Set variables in module Int_Options
+DoIntegrals = .true. ! Default value
+DoFock = .false.     ! Default value
+FckNoClmb = .false.  ! Default value
+FckNoExch = .false.  ! Default value
 ExFac = One
-Nr_Dens = 1
-DoIntegrals = .true.
-DoFock = .false.
+Thize = Zero         ! Default value
+PreSch = .true.      ! Default value
+Disc_Mx = Zero       ! Default value
+Disc = Zero          ! Default value
+
 DoGrad = .false.
-FckNoClmb = .false.
-FckNoExch = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -78,11 +85,6 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Thize = Zero               ! Not used for conventional integrals
-PreSch = .true.            ! Not used for conventional integrals
-
-Disc = Zero
-Dix_Mx = Zero
 TskHi = Zero
 TskLw = Zero
 !                                                                      *
@@ -134,6 +136,7 @@ call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
+call mma_allocate(TInt,nTInt,label='TInt') ! Not used
 do
   ! make reservations of a tesk in global task list and get task range
   ! in return. Function will be false if no more tasks to execute.
@@ -173,15 +176,7 @@ do
 
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
-          ! from Dens are dummy arguments
-          call mma_allocate(TInt,nTInt,label='TInt')
-          call mma_allocate(Dens,mDens,label='Dens')
-          call mma_allocate(Fock,mDens,label='Fock')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch, &
-                                   Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount,DoIntegrals,DoFock)
-          call mma_deallocate(TInt)
-          call mma_deallocate(Dens)
-          call mma_deallocate(Fock)
+          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut)
         end if
       end if
     end if
@@ -199,6 +194,7 @@ do
   end do
 
 end do
+call mma_deallocate(TInt)
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
 !                                                                      *
@@ -223,7 +219,7 @@ Verbose = .false.
 FreeK2 = .true.
 call Term_Ints(Verbose,FreeK2)
 call Free_iSD()
-
+call Init_Int_Options()
 return
 
 end subroutine Drv2El

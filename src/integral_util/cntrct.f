@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Cntrct(First,
      &                  Coef1,n1,m1,Coef2,n2,m2,
      &                  Coef3,n3,m3,Coef4,n4,m4,
      &                  ACInt,mabMin,mabMax,mcdMin,mcdMax,
      &                  Scrtch,nScrtch,ACOut,
-     &                  IndZet,lZeta,IndEta,lEta)
+     &                  IndZet,lZeta,IndEta,lEta,nComp)
 ************************************************************************
 *                                                                      *
 * Object: to transform the integrals from primitives to contracted     *
@@ -27,27 +28,21 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
 *
 *-----Cache size
 *
 #include "lCache.fh"
       Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
-     &       ACInt(n1*n2*n3*n4,(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
+     &      ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
       Real*8, Intent(out) :: Scrtch(nScrtch)
-      Real*8, Intent(inout) :: ACOut((mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-     &                               ,m1*m2*m3*m4)
+      Real*8, Intent(inout) ::
+     &      ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
       Logical, Intent(inout) :: First
       Integer IndZet(lZeta), IndEta(lEta)
+      Integer nComp
       ![all others are intent(in)]
 *
-#ifdef _DEBUGPRINT_
-      iRout = 18
-      iPrint = nPrint(iRout)
-#endif
-*
-      mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*define _DEBUGPRINT_
+      mabcd=nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 #ifdef _DEBUGPRINT_
          Call RecPrt('Cntrct: Coef1',' ',Coef1,n1,m1)
          Call RecPrt('Cntrct: Coef2',' ',Coef2,n2,m2)
@@ -100,8 +95,8 @@
      &            IndZet)
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Call RecPrt('Halftransformed',' ',
-     &                       Scrtch(ipA3),nVec,m1*m2)
+      Call RecPrt('Halftransformed',' ',
+     &             Scrtch(ipA3),nVec,m1*m2)
 #endif
 *
       nCache_ = (3*lCache)/4 - n3*m3 - n4*m4

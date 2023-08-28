@@ -36,11 +36,9 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(MapOrg)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_integer_array(itOffs)
       End If
       End
