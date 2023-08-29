@@ -20,7 +20,7 @@ use Cholesky, only: CHO_ADRVEC, Damp, InfRed, InfVec, IntMap, LuMap, LuRst, nBas
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IPASS
+integer(kind=iwp), intent(in) :: IPASS
 integer(kind=iwp), parameter :: LSCR = 10
 integer(kind=iwp) :: IADR, IOPT, ISYM, J, JADR, JSCR(LSCR), NDIM, NTOT, NWR
 real(kind=wp) :: DSCR(LSCR)

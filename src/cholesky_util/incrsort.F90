@@ -16,8 +16,8 @@ subroutine IncrSort(EVal,EVec,dimens)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimens
-real(kind=wp) :: EVal(dimens), EVec(dimens,dimens)
+integer(kind=iwp), intent(in) :: dimens
+real(kind=wp), intent(inout) :: EVal(dimens), EVec(dimens,dimens)
 integer(kind=iwp) :: i, k, j, l
 real(kind=wp) :: swap
 

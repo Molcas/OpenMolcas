@@ -23,8 +23,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, lUnit, Nai, Nbj, ibj1, NumVec, lWork
-real(kind=wp) :: Col(Nai,Nbj), Work(lWork), Fac
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lUnit, Nai, Nbj, ibj1, NumVec, lWork
+real(kind=wp), intent(inout) :: Col(Nai,Nbj)
+real(kind=wp), intent(out) :: Work(lWork)
+real(kind=wp), intent(in) :: Fac
 integer(kind=iwp) :: iAdr, iBat, ibj2, iOpt, iVec1, lTot, nBat, NumV, nVec
 
 irc = 0

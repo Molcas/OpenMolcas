@@ -17,7 +17,7 @@ use Cholesky, only: LUPRI, NBAS, NNSHL, NSHELL, NSYM, XNBAS, XNNSHL, XNSHELL, XN
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NERR
+integer(kind=iwp), intent(out) :: NERR
 integer(kind=iwp) :: ISYM
 
 NERR = 0

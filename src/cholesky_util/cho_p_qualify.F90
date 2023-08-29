@@ -27,9 +27,10 @@ use Cholesky, only: Cho_Real_Par, Diag_G, tMisc
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-logical(kind=iwp) :: Sync, Full
-integer(kind=iwp) :: iShlAB, iSyMax, Mem
+real(kind=wp), intent(in) :: Diag(*)
+logical(kind=iwp), intent(in) :: Sync
+integer(kind=iwp), intent(in) :: iShlAB, iSyMax, Mem
+logical(kind=iwp), intent(out) :: Full
 integer(kind=iwp) :: iLoc
 real(kind=wp) :: c1, c2, w1, w2
 

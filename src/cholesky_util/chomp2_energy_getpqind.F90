@@ -23,7 +23,8 @@ use ChoMP2, only: ChoAlg, LnPQprod
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LnPQRSprod, LiPQRSprod(8), iBatch, jBatch
+integer(kind=iwp), intent(out) :: LnPQRSprod, LiPQRSprod(8)
+integer(kind=iwp), intent(in) :: iBatch, jBatch
 integer(kind=iwp) :: iSym
 character(len=14) :: String
 character(len=*), parameter :: SecNam='ChoMP2_Energy_GetPQInd'

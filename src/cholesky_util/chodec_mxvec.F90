@@ -82,10 +82,10 @@
 !> @param[in,out] Span    Span factor
 !> @param[in]     MxQual  Max. number of qualified columns per decomposition pass
 !> @param[in]     Diag    Array containing the diagonal of the matrix to be decomposed
-!> @param[in]     Qual    Storage array for matrix columns
-!> @param[in]     Buf     Buffer for storing Cholesky vectors
-!> @param[in]     iPivot  Pivoting array
-!> @param[in]     iQual   Array for storing qualified indices
+!> @param[out]    Qual    Storage array for matrix columns
+!> @param[in,out] Buf     Buffer for storing Cholesky vectors
+!> @param[out]    iPivot  Pivoting array
+!> @param[out]    iQual   Array for storing qualified indices
 !> @param[in]     nDim    Linear dimension of matrix
 !> @param[in]     lBuf    Buffer size
 !> @param[out]    ErrStat Min, max, and RMS errors, respectively, for decomposition as judged
@@ -101,9 +101,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: CD_Col, CD_Vec
-integer(kind=iwp) :: MxVec, MxQual, nDim, iPivot(nDim), iQual(MxQual), lBuf, NumCho, irc
-logical(kind=iwp) :: Restart
-real(kind=wp) :: Thr, Span, Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf), ErrStat(3)
+integer(kind=iwp), intent(in) :: MxVec, MxQual, nDim, lBuf
+logical(kind=iwp), intent(in) :: Restart
+real(kind=wp), intent(inout) :: Thr, Span, Buf(lBuf)
+real(kind=wp), intent(in) :: Diag(nDim)
+real(kind=wp), intent(out) :: Qual(nDim,0:MxQual), ErrStat(3)
+integer(kind=iwp), intent(out) :: iPivot(nDim), iQual(MxQual), irc
+integer(kind=iwp), intent(inout) :: NumCho
 integer(kind=iwp) :: MinBuf, mQual, MxNumCho
 logical(kind=iwp) :: Converged
 real(kind=wp), parameter :: DefThr = 1.0e-6_wp, DefSpan = 1.0e-2_wp, dum = 9.876543210e15_wp, ThrFail = -1.0e-8_wp, &

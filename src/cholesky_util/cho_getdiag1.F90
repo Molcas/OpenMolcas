@@ -17,9 +17,13 @@ use Cholesky, only: IndRed, IndRSh, INF_DIAG, IPRINT, mmBstRT, nnBstRT, nSym, Rs
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), NDUMP
-real(kind=wp) :: Diag(*), BUF(LENBUF)
+integer(kind=iwp), intent(in) :: LENBUF, NDUMP
+real(kind=wp), intent(_OUT_) :: Diag(*)
+real(kind=wp), intent(out) :: BUF(LENBUF)
+integer(kind=iwp), intent(out) :: IBUF(4,LENBUF)
 integer(kind=iwp) :: IOPT, IRED, IRS, ISYLST(8), ISYM, NSYLST
 logical(kind=iwp), parameter :: LOCDBG = .false.
 

@@ -36,41 +36,37 @@ subroutine Conj_Grad(Done,lVector,Prec,X,XTemp,R,RTemp,P,PTemp,Z,ZTemp,AP,Tolera
 !
 ! Parameters:
 !
-! Done:        A logical parameter that decides if there is
-!              convergence
+! Done:      A logical parameter that decides if there is convergence
 !
+! X:         A vector with a value for x_k which will be overwritten
+!            with x_k+1.
 !
-! ipX:         A pointer to the workspace with a value for x_k which
-!              will be overwritten with x_k+1.
+! Xtemp:     A temporary scratch vector which will be used to replace X.
+!            If its defined outside the routine a lot of allocating and
+!            deallocating is avoided.
 !
-! ipXtemp:     A pointer to a temporary scratch vector which will be
-!              used to replace X. If its defined outside the routine
-!              a lot of allocating and deallocating is avoided.
+! R:         A vector with a value for r_k which will be overwritten
+!            with r_k+1.
 !
-! ipR:         A pointer to the workspace with a value for r_k which
-!              will be overwritten with r_k+1.
+! Xtemp:     A temporary scratch vector which will be used to replace R.
 !
-! ipXtemp:     A pointer to a temporary scratch vector which will be
-!              used to replace R.
+! P:         A vector with a value for p_k which will be overwritten
+!            with p_k+1.
 !
-! ipP:         A pointer to the workspace with a value for p_k which
-!              will be overwritten with p_k+1.
+! Ptemp:     A temporary scratch vector which will be used to replace P.
 !
-! ipPtemp:     A pointer to a temporary scratch vector which will be
-!              used to replace P.
+! lVector:   The vectorial dimension of the problem.
+!            A is assumed to be a square matrix.
 !
-! lVector:     The vectorial dimension of the problem. A is
-!              assumed to be a square matrix.
+! Prec:      A diagonal preconditioner.
 !
-! ipPrec:      A diagonal preconditioner.
+! AP:        A vector containing the product of A and P.
+!            The reason for not specifying A is that the dimension may
+!            be too big to keep in the workspace.
 !
-! ipAP:        A pointer to a vector containing the product of A and P.
-!              The reason for not specifying A is that the dimension may
-!              be too big to keep in the workspace.
-!
-! Res:         Returns the norm of the residual. Can be useful for the
-!              user to make a judgement call if the procedure does not
-!              converge below the tolerance.
+! Res:       Returns the norm of the residual. Can be useful for the
+!            user to make a judgement call if the procedure does not
+!            converge below the tolerance.
 !
 !***********************************************************************
 
@@ -92,7 +88,7 @@ PTemp(:) = P(:)
 ZTemp(:) = Z(:)
 
 ! Now we calculate Alfa = (r_k * z_k) / (p_k * [A * p_k])
-Alfa = ddot_(lVector,RTemp(1),1,ZTemp(1),1)/ddot_(lVector,PTemp(1),1,AP(1),1)
+Alfa = ddot_(lVector,RTemp,1,ZTemp,1)/ddot_(lVector,PTemp,1,AP,1)
 
 ! Now we calculate x_k+1 = x_k + alfa * p_k
 
@@ -102,7 +98,7 @@ X(:) = X(:)+Alfa*PTemp(:)
 R(:) = R(:)-Alfa*AP(:)
 
 ! At this point we can both see if we are done and
-Res = sqrt(ddot_(lVector,R(1),1,R(1),1))
+Res = sqrt(ddot_(lVector,R,1,R,1))
 if (Res < Tolerance) then
   Done = .true.
 else
@@ -111,7 +107,7 @@ else
   Z(:) = R(:)*Prec(:)
 
   ! Now we calculate beta = (r_k+1 * z_k+1) / (r_k * z_k)
-  Beta = ddot_(lVector,R(1),1,Z(1),1)/ddot_(lVector,RTemp(1),1,ZTemp(1),1)
+  Beta = ddot_(lVector,R,1,Z,1)/ddot_(lVector,RTemp,1,ZTemp,1)
 
   ! Now we calculate P_k+1
   P(:) = Z(:)+Beta*PTemp(:)

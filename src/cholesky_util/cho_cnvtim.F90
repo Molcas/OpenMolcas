@@ -16,8 +16,9 @@ subroutine CHO_CNVTIM(TIM,IHR,IMN,SEC)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: TIM, SEC
-integer(kind=iwp) :: IHR, IMN
+real(kind=wp), intent(in) :: TIM
+integer(kind=iwp), intent(out) :: IHR, IMN
+real(kind=wp), intent(out) :: SEC
 real(kind=wp) :: XHR, XMN
 real(kind=wp), parameter :: hour_s = 3600.0_wp, min_s = 60.0_wp
 

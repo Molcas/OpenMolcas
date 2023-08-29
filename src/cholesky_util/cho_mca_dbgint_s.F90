@@ -27,9 +27,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NSHLQ, ISHLQ(4,NSHLQ)
-logical(kind=iwp) :: PRTLAB
-integer(kind=iwp) :: I, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
+integer(kind=iwp), intent(in) :: NSHLQ, ISHLQ(4,NSHLQ)
+logical(kind=iwp), intent(in) :: PRTLAB
+integer(kind=iwp) :: I, ID, ISHLA, ISHLAB, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, ISYMA, ISYMB, LINT1, LINTMX, LWRK, NCMP, NUMAB, NUMCD
 real(kind=wp) :: ERRMAX, ERRMIN, ERRRMS, GLMAX, GLMIN, GLRMS, RMS, XCMP, XLBAS(8), XNINT, XPECT, XPECTL, XTCMP, XXLBST
 character(len=8) :: LABEL
 real(kind=wp), allocatable :: INT1(:), WRK(:)
@@ -139,7 +139,8 @@ do I=1,NSHLQ
       XTCMP = XTCMP+XCMP
       RMS = sqrt(ERRRMS/XCMP)
       if (PRTLAB) then
-        call CHO_INTCHK_ID_OF(LABEL,I,-1)
+        ID = I
+        call CHO_INTCHK_ID_OF(LABEL,ID,-1)
         write(LUPRI,'(4(I5,1X),1P,3(D12.4,1X),A,A,A)') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS,'(',LABEL,')'
       else
         write(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS

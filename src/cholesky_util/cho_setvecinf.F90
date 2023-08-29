@@ -17,7 +17,7 @@ use Cholesky, only: InfVec, LuPri, MaxVec, nnBstR
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IVEC, ISYM, IAB, IPASS, ILOC
+integer(kind=iwp), intent(in) :: IVEC, ISYM, IAB, IPASS, ILOC
 character(len=*), parameter :: SECNAM = 'CHO_SETVECINF'
 
 if (IVEC > MAXVEC) then

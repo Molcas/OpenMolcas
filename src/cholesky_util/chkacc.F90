@@ -22,9 +22,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K, InitR
-real(kind=wp) :: Error, R
-logical(kind=iwp) :: Change
+integer(kind=iwp), intent(in) :: K
+integer(kind=iwp), intent(inout) :: InitR
+real(kind=wp), intent(in) :: Error, R
+logical(kind=iwp), intent(inout) :: Change
 real(kind=wp) :: ErrMax, ErrMin
 logical(kind=iwp) :: Skip
 real(kind=wp), parameter :: E2(7) = [2.128e-2_wp,2.080e-4_wp,1.833e-6_wp,1.542e-8_wp,1.261e-10_wp,1.012e-12_wp,8.020e-15_wp], &

@@ -19,8 +19,8 @@ subroutine CHO_ORDER(VEC,LVEC,IJOB)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LVEC, IJOB
-real(kind=wp) :: VEC(LVEC)
+integer(kind=iwp), intent(in) :: LVEC, IJOB
+real(kind=wp), intent(inout) :: VEC(LVEC)
 integer(kind=iwp) :: I, IMAX, IMIN, J
 real(kind=wp) :: VMAX, VMIN
 

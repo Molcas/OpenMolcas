@@ -20,8 +20,8 @@ use Cholesky, only: CHO_IOVEC, InfVec, iScr, LuCho, LuPri, MaxVec, nnBstR, nSym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
-real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
+integer(kind=iwp), intent(in) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp), intent(inout) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 integer(kind=iwp) :: IFAIL, IVEC, IVEC2, JADR, JVEC
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.
@@ -109,7 +109,7 @@ if (LOCDBG) then
   do IVEC=1,NUMVEC
     JVEC = IVEC1+IVEC-1
     JADR = INFVEC(JVEC,3,ISYM)
-    XNRM = sqrt(DDOT_(LENVEC,CHOVEC(1,IVEC),1,CHOVEC(1,IVEC),1))
+    XNRM = sqrt(DDOT_(LENVEC,CHOVEC(:,IVEC),1,CHOVEC(:,IVEC),1))
     write(LUPRI,*) 'Vector:',JVEC,' address: ',JADR,' norm: ',XNRM
   end do
   call XFLUSH(LUPRI)

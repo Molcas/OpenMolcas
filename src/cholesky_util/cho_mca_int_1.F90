@@ -23,9 +23,9 @@ use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IJ, KL, LINT
-real(kind=wp) :: XINT(LINT)
-logical(kind=iwp) :: LOCPRT
+integer(kind=iwp), intent(in) :: IJ, KL, LINT
+real(kind=wp), intent(inout) :: XINT(LINT)
+logical(kind=iwp), intent(in) :: LOCPRT
 #include "itmax.fh"
 integer(kind=iwp) :: I, II, IIJJ, J, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'

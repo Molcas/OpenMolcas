@@ -22,8 +22,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: EOcc(*), EVir(*), EFro(*), CMO(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: EOcc(*), EVir(*), EFro(*), CMO(*)
 integer(kind=iwp) :: lWrk
 real(kind=wp), allocatable :: Wrk(:)
 

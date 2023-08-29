@@ -19,9 +19,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: l_D
-real(kind=wp) :: Diag(l_D), Stat(7)
-logical(kind=iwp) :: DoPrint
+integer(kind=iwp), intent(in) :: l_D
+real(kind=wp), intent(inout) :: Diag(l_D)
+real(kind=wp), intent(out) :: Stat(7)
+logical(kind=iwp), intent(in) :: DoPrint
 #include "Molcas.fh"
 integer(kind=iwp) :: ia, ib, krs
 real(kind=wp) :: Err(4)

@@ -20,8 +20,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISYM, LWRK
-real(kind=wp) :: Diag(*), WRK(LWRK)
+integer(kind=iwp), intent(in) :: ISYM, LWRK
+real(kind=wp), intent(inout) :: Diag(*), WRK(LWRK)
 integer(kind=iwp) :: IAB, IABG, ILOC, IREDC, IVEC1, JAB, JRED, JVEC, KAB, KOFFV, MUSED, NCONV, NNEG, NNEGT, NSCALL, NVRD
 real(kind=wp) :: DMX, XM, XMAX, XMIN
 logical(kind=iwp) :: SCDIAG_SAVE

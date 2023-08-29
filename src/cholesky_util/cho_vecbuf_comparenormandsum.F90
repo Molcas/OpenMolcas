@@ -28,8 +28,9 @@ use Cholesky, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, nVec, J1, iSym, irc
-real(kind=wp) :: Vec(n,nVec)
+integer(kind=iwp), intent(in) :: n, nVec, J1, iSym
+real(kind=wp), intent(in) :: Vec(n,nVec)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: J, J0, mVec
 real(kind=wp) :: Nrm, Sm
 real(kind=wp), parameter :: Tol = 1.0e-12_wp
@@ -40,7 +41,7 @@ if (allocated(CHVBFI)) then
   J0 = J1-1
   mVec = min(J0+nVec,nVec_in_Buf(iSym))-J0
   do J=1,mVec
-    Nrm = sqrt(dDot_(n,Vec(1,J),1,Vec(1,J),1))
+    Nrm = sqrt(dDot_(n,Vec(:,J),1,Vec(:,J),1))
     Sm = sum(Vec(:,J))
     if ((abs(CHVBFI(1,ip_ChVBfI_Sym(iSym)+J0+J)-Nrm) > Tol) .or. (abs(CHVBFI(2,ip_ChVBfI_Sym(iSym)+J0+J)-Sm) > Tol)) irc = irc+1
   end do

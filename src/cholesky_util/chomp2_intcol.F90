@@ -25,8 +25,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim, nCol, iCol(nCol), l_Buf
-real(kind=wp) :: Col(nDim,nCol), Buf(l_Buf)
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
+real(kind=wp), intent(out) :: Col(nDim,nCol), Buf(l_Buf)
 integer(kind=iwp) :: iAdr, iBat, iOpt, irc, iSym, iVec1, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
 real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose
@@ -83,7 +83,7 @@ else ! old vectors must be read on disk
       iOpt = 2
       lTot = nDim*NumV
       iAdr = nDim*(iVec1-1)+1
-      call ddaFile(lUnit_F(iSym,1),iOpt,Buf(1),lTot,iAdr)
+      call ddaFile(lUnit_F(iSym,1),iOpt,Buf,lTot,iAdr)
 
       if (iBat == 1) then
         Fac = Zero

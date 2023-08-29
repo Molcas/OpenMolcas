@@ -17,8 +17,9 @@ use Constants, only: Eight
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: Word, Byte
-character(len=2) :: Unt
+real(kind=wp), intent(in) :: Word
+real(kind=wp), intent(out) :: Byte
+character(len=2), intent(out) :: Unt
 
 Byte = Word*Eight
 Unt = 'b '

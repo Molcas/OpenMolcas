@@ -37,8 +37,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: TestMinimaxLaplace
-real(kind=wp) :: Tolerance
-logical(kind=iwp) :: Verbose
+real(kind=wp), intent(in) :: Tolerance
+logical(kind=iwp), intent(in) :: Verbose
 integer(kind=iwp) :: irc, K_Lap, l_t, l_t_ref, l_w, l_w_ref, l_wt
 real(kind=wp) :: Emax, Emin, RMSt, RMSw, Tol
 real(kind=wp), allocatable :: tmlwr(:), tmltr(:), tmlw(:), tmlt(:)

@@ -18,7 +18,7 @@ use Cholesky, only: IFCSEW
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISHLAB
+integer(kind=iwp), intent(in) :: ISHLAB
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT'
 
 if (IFCSEW == 1) then ! store full shell quadruple

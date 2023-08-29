@@ -17,8 +17,8 @@ use Cholesky, only: LuPri
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: STRING
-integer(kind=iwp) :: IERR
+character(len=*), intent(in) :: STRING
+integer(kind=iwp), intent(in) :: IERR
 integer(kind=iwp) :: MOLCASCODE
 
 write(LUPRI,'(//,1X,A)') '***'

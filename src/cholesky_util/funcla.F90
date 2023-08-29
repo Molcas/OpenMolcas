@@ -19,7 +19,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: FuncLa
-real(kind=wp) :: X, Delta
+real(kind=wp), intent(in) :: X, Delta
 
 FuncLa = exp((-Delta+One)*X)
 

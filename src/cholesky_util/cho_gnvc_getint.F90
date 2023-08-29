@@ -19,8 +19,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), mmShl, ListSP(mmShl), iPass1, NumPass, NumSP
-real(kind=wp) :: xInt(lInt)
+integer(kind=iwp), intent(in) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), mmShl, iPass1, NumPass
+real(kind=wp), intent(inout) :: xInt(lInt)
+integer(kind=iwp), intent(out) :: ListSP(mmShl), NumSP
 integer(kind=iwp) :: iAB, iPass, iPass2, iShAB, iSP, iSym, iV, iV1, iV2, jShAB, lSewInt
 integer(kind=iwp), allocatable :: SPTmp(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_GetInt'

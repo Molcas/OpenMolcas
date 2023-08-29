@@ -24,8 +24,9 @@ use Cholesky, only: Cho_Real_Par, nnBstRSh, nnShl, nSym, NumCho
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_Vec, NVT, n_myRankSP, myRankSP(n_myRankSP), J1, J2, iSym
-real(kind=wp) :: Vec(l_Vec)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_Vec, NVT, n_myRankSP, myRankSP(n_myRankSP), J1, J2, iSym
+real(kind=wp), intent(out) :: Vec(l_Vec)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, n
 #endif

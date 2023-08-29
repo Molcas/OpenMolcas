@@ -27,8 +27,10 @@ use Constants, only: Zero, One, Two, Four, Eight, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, lWrk
-real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: EOcc(*), EVir(*), EFro(*)
+integer(kind=iwp), intent(in) :: lWrk
+real(kind=wp), intent(out) :: Wrk(lWrk)
 integer(kind=iwp) :: i, iAdr, iB, iB1, iBBlock, iBRel, iClos, iI, iJ, iK, iOff, iOff1, iOffAmp, iOffL, iOffL1, iOffLic, iOffRic, &
                      iOffU, iOffU1, iOffV, iOffV1, iOffX, iOpt, iSeed, iSym, iSymA, iSymB, iSymC, iSymI, iSymJ, iSymJC, iSymK, &
                      iTypL, iTypR, iVecFV, iVecOF, iVecOO, iVecOV, iVecVV, jBat, jSym, jVec, jVec1, kAmp, kBat, kEndAmp, &
@@ -367,8 +369,8 @@ do iSym=1,nSym
         end if
         jVec = nVec*(jBat-1)+1
 
-!                 Read Amplitude vectors from jBat
-!                 --------------------------------
+        ! Read Amplitude vectors from jBat
+        ! --------------------------------
         iOpt = 2
         lTot = nMoMo(iSym,iVecOV)*NumVecJ
         iAdr = nMoMo(iSym,iVecOV)*(jVec-1)+1

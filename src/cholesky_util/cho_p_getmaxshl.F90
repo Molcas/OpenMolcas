@@ -17,8 +17,9 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DiaSh(*), Smax
-integer(kind=iwp) :: iShlAB
+real(kind=wp), intent(inout) :: DiaSh(*)
+real(kind=wp), intent(out) :: Smax
+integer(kind=iwp), intent(out) :: iShlAB
 
 if (Cho_Real_Par) then
   ! Swap local and global reduced set index arrays and use original

@@ -27,8 +27,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), XM, YM, ZM
-integer(kind=iwp) :: ISYM, NNEGT, NNEG, NCONV
+real(kind=wp), intent(inout) :: Diag(*)
+integer(kind=iwp), intent(in) :: ISYM
+real(kind=wp), intent(out) :: XM, YM, ZM
+integer(kind=iwp), intent(out) :: NNEGT, NNEG, NCONV
 integer(kind=iwp) :: IAB, JAB, JAB1, JAB2
 real(kind=wp) :: TST
 character(len=*), parameter :: SECNAM = 'CHO_CHKDIA'

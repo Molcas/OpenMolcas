@@ -15,7 +15,7 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MxShPr_Def
+integer(kind=iwp), intent(out) :: MxShPr_Def
 
 if (Cho_Real_Par) then
   MxShPr_Def = 1

@@ -22,18 +22,20 @@ subroutine Cho_Dump(irc,Lunit)
 use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho_DecAlg_Def, Cho_DiaChk, Cho_Fake_Par, Cho_IntChk, &
                     Cho_IOVec, Cho_MinChk, Cho_No2Center, Cho_PreScreen, Cho_Reord, Cho_SimP, Cho_SScreen, Cho_TrcNeg, &
                     Cho_TstScreen, Cho_UseAbs, Damp, DiaMax, DiaMin, DiaMnZ, Did_DecDrv, DSPNm, DSubScr, Frac_ChVBuf, HaltIt, &
-                    iABMnZ, iAlQua, iBas, iChkQ, IFCSew, iiBstR, iOff_Col, iOffQ, lBuf, LuCho, LuMap, LuPri, LuRed, LuRst, LuScr, &
-                    LuSel, LuTmp, MaxQual, MaxRed, MaxVec, MinQual, mmBstRT, Mode_Screen, ModRst, Mx2Sh, MxORSh, MxShPr, N1_Qual, &
-                    N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nBas, nBasT, nChkQ, nCol_Chk, nColAB, nDecom, nDGM_call, nInteg, nnBstR, &
-                    nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual, nSection, nShell, nSym, nSys_call, NumCho, NumChT, nVecRS1, RstCho, &
-                    RstDia, Run_Mode, ScDiag, ShA, ShAB, ShB, ShC, ShCD, ShD, Span, SSTau, SubScrStat, tDecDrv, tDecom, &
-                    Thr_PreScreen, ThrCom, ThrDef, ThrDiag, ThrNeg, TimSec, tInteg, Tol_DiaChk, TooNeg, Trace_Idle, WarNeg, &
-                    XCho_AdrVec, XDamp, XlDiag, XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, &
-                    XTooNeg, XWarNeg
+                    iABMnZ, iAlQua, iAtomShl, iBas, iBasSh, iChkQ, IFCSew, iiBstR, iiBstRSh, IndRed, IndRSh, InfRed, InfVec, &
+                    IntMap, iOff_Col, iOffQ, iQuAB, iRS2F, iScr, iShlSO, iSOShl, iSP2F, lBuf, LuCho, LuMap, LuPri, LuRed, LuRst, &
+                    LuScr, LuSel, LuTmp, MaxQual, MaxRed, MaxVec, MinQual, mmBstRT, Mode_Screen, ModRst, Mx2Sh, MxORSh, MxShPr, &
+                    N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nBas, nBasSh, nBasT, nBstSh, nChkQ, nCol_Chk, nColAB, nDecom, &
+                    nDGM_call, nDimRS, nInteg, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_Tot, nnZTot, nQual, nSection, nShell, nSym, &
+                    nSys_call, NumCho, NumChT, nVecRS1, RstCho, RstDia, Run_Mode, ScDiag, ShA, ShAB, ShB, ShC, ShCD, ShD, Span, &
+                    SSTau, SubScrStat, tDecDrv, tDecom, Thr_PreScreen, ThrCom, ThrDef, ThrDiag, ThrNeg, TimSec, tInteg, &
+                    Tol_DiaChk, TooNeg, Trace_Idle, WarNeg, XCho_AdrVec, XDamp, XlDiag, XnBas, XnnShl, XnPass, XnShell, XnSym, &
+                    XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, Lunit
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: Lunit
 integer(kind=iwp) :: i, j
 character(len=*), parameter :: SecNam = 'Cho_Dump'
 
@@ -196,10 +198,30 @@ write(Lunit,*) 'N2_Qual: ',N2_Qual
 write(Lunit,*)
 write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
 call XFlush(Lunit)
-
-call Cho_PrintPointers(irc,Lunit)
-if (irc /= 0) return
-
+write(Lunit,*)
+write(Lunit,*) '    (dimension)'
+write(Lunit,*)
+call XFlush(Lunit)
+write(Lunit,*) 'InfRed  : ',size(InfRed)
+write(Lunit,*) 'InfVec  : ',size(InfVec)
+write(Lunit,*) 'IndRed  : ',size(IndRed)
+write(Lunit,*) 'IndRSh  : ',size(IndRsh)
+write(Lunit,*) 'iScr    : ',size(iScr)
+write(Lunit,*) 'iiBstRSh: ',size(iiBstRSh)
+write(Lunit,*) 'nnBstRSh: ',size(nnBstRSh)
+write(Lunit,*) 'IntMap  : ',size(IntMap)
+write(Lunit,*) 'nDimRS  : ',size(nDimRS)
+write(Lunit,*) 'iRS2F   : ',size(iRS2F)
+write(Lunit,*) 'iSOShl  : ',size(iSOShl)
+write(Lunit,*) 'iShlSO  : ',size(iShlSO)
+write(Lunit,*) 'iQuab   : ',size(iQuab)
+write(Lunit,*) 'iBasSh  : ',size(iBasSh)
+write(Lunit,*) 'nBasSh  : ',size(nBasSh)
+write(Lunit,*) 'nBstSh  : ',size(nBstSh)
+write(Lunit,*) 'iAtomShl: ',size(iAtomShl)
+write(Lunit,*) 'iSP2F   : ',size(iSP2F)
+write(Lunit,*)
+call XFlush(Lunit)
 write(Lunit,*)
 write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
 write(Lunit,*) 'SSTau      : ',SSTau

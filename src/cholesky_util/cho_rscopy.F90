@@ -19,7 +19,7 @@ use Cholesky, only: iiBstR, iiBstRSh, IndRed, nnBstR, nnBstRSh, nnBstRT
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IRS1, IRS2
+integer(kind=iwp), intent(in) :: IRS1, IRS2
 integer(kind=iwp) :: IAB
 integer(kind=iwp) :: MSYM
 

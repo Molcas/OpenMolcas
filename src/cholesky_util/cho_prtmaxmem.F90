@@ -17,7 +17,7 @@ use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Location
+character(len=*), intent(in) :: Location
 integer(kind=iwp) :: l, lMax
 real(kind=wp) :: dlMax
 character(len=2) :: Unt

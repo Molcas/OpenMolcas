@@ -21,8 +21,8 @@ use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM, LuPri, nSym, RUN_INTERNAL, RUN_
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Frac
-integer(kind=iwp) :: lVec(*)
+real(kind=wp), intent(in) :: Frac
+integer(kind=iwp), intent(in) :: lVec(*)
 integer(kind=iwp) :: l_Max, MF
 real(kind=wp) :: xMF
 character(len=2) :: Unt

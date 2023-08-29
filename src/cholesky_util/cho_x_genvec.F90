@@ -15,9 +15,11 @@ use Cholesky, only: iQuAB, pTemp, iQuAB_here, LuPri, MaxQual, Mode_Screen, nnZTo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: Diag(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(_OUT_) :: Diag(*)
 integer(kind=iwp) :: iSym, MaxQual_SAVE
 character(len=*), parameter :: SecNam = 'Cho_X_GenVec'
 

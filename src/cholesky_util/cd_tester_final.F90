@@ -16,9 +16,10 @@ subroutine CD_Tester_Final(irc,NumCho,n,Thr,Err,Verbose)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, NumCho, n
-real(kind=wp) :: Thr, Err(6)
-logical(kind=iwp) :: Verbose
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: NumCho, n
+real(kind=wp), intent(in) :: Thr, Err(6)
+logical(kind=iwp), intent(in) :: Verbose
 character(len=*), parameter :: SecNam = 'CD_Tester_Final'
 
 irc = 0

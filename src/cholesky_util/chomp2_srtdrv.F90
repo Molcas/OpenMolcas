@@ -28,8 +28,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-logical(kind=iwp) :: DelOrig
+integer(kind=iwp), intent(out) :: irc
+logical(kind=iwp), intent(inout) :: DelOrig
 integer(kind=iwp) :: iAdr, iBat, iBatch, iClos, iOpt, iSym, iTyp, iVec1, kChoMO, kSort, lChoMO, LnT1amx, lSort, lTot, lWrk, &
                      MinMem, nBat, nSrtVec, NumV, NumVec
 real(kind=wp), allocatable :: Wrk(:)

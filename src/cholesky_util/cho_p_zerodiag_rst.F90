@@ -21,8 +21,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: iSym, iABG
+real(kind=wp), intent(inout) :: Diag(*)
+integer(kind=iwp), intent(in) :: iSym, iABG
 integer(kind=iwp) :: iAB, iAB1, iAB2, jAB, kAB
 
 if (Cho_Real_Par) then

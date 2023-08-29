@@ -24,7 +24,7 @@ use ChoMP2, only: LnT1am, lUnit
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iOpt, iSym, iBatch
+integer(kind=iwp), intent(in) :: iOpt, iSym, iBatch
 integer(kind=iwp) :: lU
 character(len=6) :: BtchNm
 character(len=*), parameter :: BaseNm = '_I', SecNam = 'ChoMP2_OpenB'

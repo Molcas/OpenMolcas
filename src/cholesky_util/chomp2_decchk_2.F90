@@ -36,8 +36,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, iSym, nDim, nCol, lWrk
-real(kind=wp) :: Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iSym, nDim, nCol, lWrk
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
 integer(kind=iwp) :: a, b, i, iai, iai0, iBatCol, ibj, ibj0, ibj1, iCol, iSyma, iSymb, iSymi, iSymj, j, kai, kbj, lU, Nai, &
                      nBatCol, Nbj, NumCol, NumVec
 real(kind=wp) :: DE, Ebj, Fac, xdim

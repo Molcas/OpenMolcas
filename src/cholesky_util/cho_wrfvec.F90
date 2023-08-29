@@ -16,9 +16,11 @@ subroutine CHO_WRFVEC(VEC,ISYMA,ISYMB,IVEC1,NUMV)
 use Cholesky, only: LUFV, NABPK
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: VEC(*)
-integer(kind=iwp) :: ISYMA, ISYMB, IVEC1, NUMV
+real(kind=wp), intent(_IN_) :: VEC(*)
+integer(kind=iwp), intent(in) :: ISYMA, ISYMB, IVEC1, NUMV
 integer(kind=iwp) :: IADR, IOPT, NTOT
 
 IOPT = 1

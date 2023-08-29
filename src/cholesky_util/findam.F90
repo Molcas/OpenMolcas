@@ -21,8 +21,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, IMax
-real(kind=wp) :: X(n), XMax
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: X(n)
+real(kind=wp), intent(out) :: XMax
+integer(kind=iwp), intent(out) :: IMax
 integer(kind=iwp) :: I
 real(kind=wp) :: XVal
 

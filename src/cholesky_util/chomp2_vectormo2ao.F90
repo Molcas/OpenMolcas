@@ -61,10 +61,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iTyp, lDiag, lU_AO(*), irc
-logical(kind=iwp) :: Delete, DoDiag
-character(len=3) :: BaseName_AO
-real(kind=wp) :: CMO(*), Diag(lDiag)
+integer(kind=iwp), intent(in) :: iTyp, lDiag
+logical(kind=iwp), intent(in) :: Delete, DoDiag
+character(len=3), intent(in) :: BaseName_AO
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(out) :: Diag(lDiag)
+integer(kind=iwp), intent(out) :: lU_AO(*), irc
 integer(kind=iwp) :: iClose, iCount, iOpen, iSym, iSyma, iSymb
 character(len=4) :: FullName_AO
 real(kind=wp), allocatable :: COcc(:), CVir(:)

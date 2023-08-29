@@ -31,8 +31,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: ExpSum
-real(kind=wp) :: X, Coeff(2,20)
-integer(kind=iwp) :: K
+real(kind=wp), intent(in) :: X, Coeff(2,20)
+integer(kind=iwp), intent(in) :: K
 integer(kind=iwp) :: I
 real(kind=wp) :: Alpha, Dum, Omega
 

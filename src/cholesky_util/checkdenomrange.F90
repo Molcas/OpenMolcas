@@ -18,8 +18,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: CheckDenomRange
-integer(kind=iwp) :: nSym, iOcc(nSym), nOcc(nSym), iVir(nSym), nVir(nSym)
-real(kind=wp) :: xmin, xmax, EOcc(nSym), EVir(nSym)
+integer(kind=iwp), intent(in) :: nSym, iOcc(nSym), nOcc(nSym), iVir(nSym), nVir(nSym)
+real(kind=wp), intent(in) :: xmin, xmax, EOcc(nSym), EVir(nSym)
 integer(kind=iwp) :: a, aSym, i, irC, iSym
 real(kind=wp) :: e, emax, emin
 real(kind=wp), parameter :: Tol = 1.0e-12_wp

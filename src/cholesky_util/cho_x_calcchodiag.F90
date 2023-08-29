@@ -40,9 +40,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc
-real(kind=wp) :: Diag(*)
+integer(kind=iwp), intent(out) :: rc
+real(kind=wp), intent(_OUT_) :: Diag(*)
 integer(kind=iwp) :: iBatch, iLoc, irc, IREDC, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jrs, jSym, JVEC, krs, LWORK, mrs, MUSED, &
                      nBatch, nRS, NUMV, nVec, nVrs
 real(kind=wp), allocatable :: Lrs(:,:)

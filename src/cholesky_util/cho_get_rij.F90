@@ -50,14 +50,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nOcc(*)
-type(DSBA_Type) :: MO
-real(kind=wp) :: Rij(*)
-logical(kind=iwp) :: timings
-integer(kind=iwp) :: iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, IVEC2, iVrs, JNUM, jpR, JRED, JRED1, JRED2, &
-                     JSYM, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, nOcs, nRS, NUMV, &
-                     nVec, nVrs
+integer(kind=iwp), intent(out) :: irc
+type(DSBA_Type), intent(in) :: MO(1)
+integer(kind=iwp), intent(in) :: nOcc(*)
+real(kind=wp), intent(_OUT_) :: Rij(*)
+logical(kind=iwp), intent(in) :: timings
+integer(kind=iwp) :: iBatch, iE, iLoc, iOcc(8), iOcs(8), IREDC, iS, iSkip(8), iSwap, IVEC2, iVrs, JNUM, jpR, JRED, JRED_, JRED1, &
+                     JRED2, JSYM, jVEC, kMOs, kS, kSym, lj, LREAD, LWORK, Maj, Mneed, Mocc, MUSED, n1, nBatch, nMOs, nOcs, nRS, &
+                     NUMV, nVec, nVrs
 real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, TCT1, TCT2, tintg(2), tmotr(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, &
                  tread(2), TWI1, TWI2, TWR1, TWR2, TWT1, TWT2
 type(SBA_Type) :: Laq(1)
@@ -179,7 +182,8 @@ do JRED=JRED1,JRED2
 
     call CWTIME(TCR1,TWR1)
 
-    call CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
 
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77
@@ -198,7 +202,7 @@ do JRED=JRED1,JRED2
 
     call CWTIME(TCT1,TWT1)
 
-    call CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,MO,Laq(1),DoRead)
+    call CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,MO(1),Laq(1),DoRead)
 
     if (irc /= 0) return
 
@@ -223,7 +227,7 @@ do JRED=JRED1,JRED2
         ! Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
         !---------------------------------------------------------------
 
-        call DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,MO%SB(kSym)%A2, &
+        call DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,MO(1)%SB(kSym)%A2, &
                     nOcc(kSym),Zero,pLab,nOcc(kSym)*JNUM)
 
         call CWTIME(TCT2,TWT2)

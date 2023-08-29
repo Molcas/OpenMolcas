@@ -26,7 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_F2SP
-integer(kind=iwp) :: iSP
+integer(kind=iwp), intent(in) :: iSP
 integer(kind=iwp) :: jSP
 
 Cho_F2SP = 0

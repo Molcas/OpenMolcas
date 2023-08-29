@@ -46,7 +46,8 @@ use Cholesky, only: IndRed, MaxRed
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iLoc, iRed
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iLoc, iRed
 integer(kind=iwp) :: iab
 
 if ((iLoc == 2) .or. (iLoc == 3)) then

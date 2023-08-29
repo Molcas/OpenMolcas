@@ -17,15 +17,16 @@ subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), pointer :: InfVcT(:,:,:)
-integer(kind=iwp) :: n, NVT(n)
+integer(kind=iwp), pointer, intent(out) :: InfVcT(:,:,:)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: NVT(n)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVct(:,:,:)
+    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 

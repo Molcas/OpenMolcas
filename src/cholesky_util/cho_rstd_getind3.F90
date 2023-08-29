@@ -15,7 +15,8 @@ use Cholesky, only: LuRed, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: l_iSP2F, iSP2F(l_iSP2F)
+integer(kind=iwp), intent(in) :: l_iSP2F
+integer(kind=iwp), intent(out) :: iSP2F(l_iSP2F)
 integer(kind=iwp) :: iAdr, iOpt
 
 iOpt = 2

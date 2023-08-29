@@ -54,8 +54,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: AMATRX(*)
-integer(kind=iwp) :: NROW, NCTL, LUPRI
+real(kind=wp), intent(in) :: AMATRX(*)
+integer(kind=iwp), intent(in) :: NROW, NCTL, LUPRI
 integer(kind=iwp) :: BEGIN, I, J, K, KCOL, KTOTAL, LAST, MCTL, NCOL
 real(kind=wp) :: AMAX
 character(len=20) :: PFMT

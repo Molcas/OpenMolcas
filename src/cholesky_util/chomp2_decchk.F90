@@ -34,8 +34,10 @@ use ChoMP2, only: iOption_MP2CD
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, iSym, nDim, nCol, lWrk
-real(kind=wp) :: Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iSym, nDim, nCol, lWrk
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
 character(len=*), parameter :: SecNam = 'ChoMP2_DecChk'
 
 if (iOption_MP2CD == 1) then ! (ai|bj) int

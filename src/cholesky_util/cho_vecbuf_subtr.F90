@@ -23,9 +23,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lWrk, iSym
-real(kind=wp), target :: xInt(*), Wrk(lWrk)
-logical(kind=iwp) :: DoTime, DoStat
+real(kind=wp), target, intent(inout) :: xInt(*)
+integer(kind=iwp), intent(in) :: lWrk, iSym
+real(kind=wp), target, intent(out) :: Wrk(lWrk)
+logical(kind=iwp), intent(in) :: DoTime, DoStat
 integer(kind=iwp) :: iAB, iBatch, iE, iGD, iS, iShGD, iVec0, jAB, jVec, lCol, lRow, nBatch, nGD, NumV, nVec
 real(kind=wp) :: C1, C2, Tst, W1, W2, xDon, xTot
 real(kind=wp), pointer :: U(:,:), V(:,:), W(:,:)

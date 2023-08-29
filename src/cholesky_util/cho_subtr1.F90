@@ -26,8 +26,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LWRK, ISYM
-real(kind=wp) :: XINT(*), WRK(LWRK)
+integer(kind=iwp), intent(in) :: LWRK, ISYM
+real(kind=wp), intent(inout) :: XINT(*), WRK(LWRK)
 logical(kind=iwp) :: FXDMEM
 integer(kind=iwp) :: IAB, IBATCH, ILOC, IMAPC, IOFF(0:1), IREDC, ISHGD, IVEC1, IVEC1_1, IVSTAT(2,2), J, JAB, JRED, JRED1, JRED2, &
                      JVEC1, JVEC2, KCHO1, KCHO2, KEND0, KEND1, KEND2, KJUNK, KOFB0, KOFF1, KOFF2, KOFF3, KOFFA, KOFFB, KREAD, &

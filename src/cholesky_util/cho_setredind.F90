@@ -18,7 +18,7 @@ use Cholesky, only: iiBstR, iiBstRSh, nnBstR, nnBstRSh, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IRED
+integer(kind=iwp), intent(in) :: IRED
 integer(kind=iwp) :: ISHLAB, ISYM, J
 character(len=*), parameter :: SECNAM = 'CHO_SETREDIND'
 

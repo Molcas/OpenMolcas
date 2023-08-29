@@ -22,9 +22,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(40,40), X(40), B(40)
-logical(kind=iwp) :: Error
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: A(40,40), X(40), B(40)
+logical(kind=iwp), intent(out) :: Error
 integer(kind=iwp) :: I, II, J, K
 real(kind=wp) :: P, PInv, S, SInv
 real(kind=wp), parameter :: G_Eps = 1.0e-19_wp

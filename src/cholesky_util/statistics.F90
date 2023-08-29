@@ -42,9 +42,12 @@ subroutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,ip_MaxAbs,ip_Var
 use Constants, only: One
 use Definitions, only: iwp, wp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs, ip_Variance, ip_VarianceU
-real(kind=wp) :: X(n), Stat(*)
+integer(kind=iwp), intent(in) :: n, ip_Mean, ip_MeanAbs, ip_Min, ip_Max, ip_MaxAbs, ip_Variance, ip_VarianceU
+real(kind=wp), intent(in) :: X(n)
+real(kind=wp), intent(_OUT_) :: Stat(*)
 integer(kind=iwp) :: i
 real(kind=wp) :: xMax, xMean, xMeanAbs, xMin, xn, xn1, xVariance
 

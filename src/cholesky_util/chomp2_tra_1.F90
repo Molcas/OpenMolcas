@@ -26,9 +26,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lWrk, iSym
-real(kind=wp) :: COcc(*), CVir(*), Diag(*), Wrk(lWrk)
-logical(kind=iwp) :: DoDiag
+real(kind=wp), intent(in) :: COcc(*), CVir(*)
+real(kind=wp), intent(inout) :: Diag(*)
+logical(kind=iwp), intent(in) :: DoDiag
+integer(kind=iwp), intent(in) :: lWrk, iSym
+real(kind=wp), intent(out) :: Wrk(lWrk)
 integer(kind=iwp) :: iAdr, iBat, iLoc, iOpt, irc, iRed, iRedC, iVec, iVec1, iVec2, jNum, jVec, jVec1, kChoAO, kChoMO, kEnd0, &
                      kHlfTr, kOff, kOffMO, lChoAO, lChoMO, lHlfTr, lRead, lWrk0, lWrk1, mUsed, nMOVec, NumBat, NumV
 character(len=*), parameter :: SecNam = 'ChoMP2_Tra_1'

@@ -24,7 +24,8 @@ use Cholesky, only: IndRSh
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iLoc, iShlAB, nAB(*)
 integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlB, iSym, jAB, kAB, l_iShP2RS, lTst, NumAB
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SecNam = 'Cho_SetShP2RS_2'

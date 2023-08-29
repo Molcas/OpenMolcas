@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-logical(kind=iwp) :: verbose, is1CCD
+integer(kind=iwp), intent(out) :: irc
+logical(kind=iwp), intent(in) :: verbose, is1CCD
 logical(kind=iwp) :: Cho_1Center_Bak, dealloc
 integer(kind=iwp) :: iSym, jrc, NumChoBak(8), NumChTBak, nVec(8)
 real(kind=wp) :: delta(8), ErrMx, Thr, ThrComBak

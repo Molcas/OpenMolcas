@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.
 #else

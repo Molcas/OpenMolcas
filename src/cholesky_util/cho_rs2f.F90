@@ -20,7 +20,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_RS2F
-integer(kind=iwp) :: LAB, ISHLAB, ISYMAB, IRED
+integer(kind=iwp), intent(in) :: LAB, ISHLAB, ISYMAB, IRED
 integer(kind=iwp) :: K, K2
 character(len=*), parameter :: SECNAM = 'CHO_RS2F'
 

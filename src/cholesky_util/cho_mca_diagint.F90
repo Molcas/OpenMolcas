@@ -20,8 +20,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISHLA, ISHLB, LSCR
-real(kind=wp) :: SCR(LSCR)
+integer(kind=iwp), intent(in) :: ISHLA, ISHLB, LSCR
+real(kind=wp), intent(out) :: SCR(LSCR)
 #include "itmax.fh"
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'

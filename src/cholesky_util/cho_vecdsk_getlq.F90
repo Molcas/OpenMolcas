@@ -19,8 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP), mSym, iV1(mSym), nV(mSym)
-real(kind=wp) :: QVec(l_QVec)
+integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP), mSym, iV1(mSym), nV(mSym)
+real(kind=wp), intent(inout) :: QVec(l_QVec)
 integer(kind=iwp) :: iAB, iLoc, iQ, iQSP, iRedC, iRedQ, iShlAB, iSym, iV2, jLoc, jV, kOffQ, kQ, l_iQuAB_2, l_Scr, lDim, &
                      nVecTot(8), nVT
 integer(kind=iwp), allocatable :: iQuAB_2(:)

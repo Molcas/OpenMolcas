@@ -24,7 +24,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISHLAB
+integer(kind=iwp), intent(in) :: ISHLAB
 integer(kind=iwp) :: IAB, IADR, ICD, IOPT, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, JAB, JCD, JCD0, JCDS, KAB, KOFF, KOFF1, &
                      KOFF2, L4SH, L4SHMX, LCOL, LINT, LTOT, MAXCD, NAB(8), NUMAB, NUMCD
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL

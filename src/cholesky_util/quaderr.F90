@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: QuadErr
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: X, Coeff(40)
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: X, Coeff(2,20)
 real(kind=wp) :: S
 real(kind=wp), external :: ExpSum
 

@@ -17,8 +17,8 @@ subroutine Cho_RdQCol_Indx(xInt,IDCol,nRow,nCol,Lunit)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCol, IDCol(nCol), nRow, Lunit
-real(kind=wp) :: xInt(nRow,nCol)
+integer(kind=iwp), intent(in) :: nCol, IDCol(nCol), nRow, Lunit
+real(kind=wp), intent(out) :: xInt(nRow,nCol)
 integer(kind=iwp) :: iAdr, iCol, iOpt, lTot
 
 if ((nRow < 1) .or. (nCol < 1)) return
@@ -27,7 +27,7 @@ do iCol=1,nCol
   iOpt = 2
   lTot = nRow
   iAdr = nRow*(IDCol(iCol)-1)
-  call dDAFile(Lunit,iOpt,xInt(1,iCol),lTot,iAdr)
+  call dDAFile(Lunit,iOpt,xInt(:,iCol),lTot,iAdr)
 end do
 
 end subroutine Cho_RdQCol_Indx

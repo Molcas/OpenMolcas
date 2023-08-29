@@ -21,8 +21,11 @@ subroutine Cho_SetQ2(iQuAB2,LstSP,nSP,iSym,jLoc,iLoc)
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, IndRSh, iQuAB, nnBstRSh, nQual
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iQuAB2(*), nSP, LstSP(nSP), iSym, jLoc, iLoc
+integer(kind=iwp), intent(_OUT_) :: iQuAB2(*)
+integer(kind=iwp), intent(in) :: nSP, LstSP(nSP), iSym, jLoc, iLoc
 integer(kind=iwp) :: iAB, iAB0, iAB1, iC, iQ, iSP, jAB, jAB1, jShlAB, jShlAB_Ref, kShlAB
 integer(kind=iwp), external :: Cho_F2SP, Cho_P_LocalSP
 

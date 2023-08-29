@@ -22,9 +22,12 @@ use ChoMP2, only: nMoMo, nMoType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: COrb1(*), COrb2(*), Diag(*)
-logical(kind=iwp) :: DoDiag
+real(kind=wp), intent(in) :: COrb1(*), COrb2(*)
+real(kind=wp), intent(_OUT_) :: Diag(*)
+logical(kind=iwp), intent(in) :: DoDiag
 integer(kind=iwp) :: iMoType1, iMoType2
 integer(kind=iwp) :: iSym, iVecType, kOffD, lw
 real(kind=wp), allocatable :: TraMax(:)

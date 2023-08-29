@@ -27,10 +27,10 @@
 !> @note
 !> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
 !>
-!> @param[in] iVec1 First vector
-!> @param[in] iSym  Symmetry
-!> @param[in] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
-!> @param[in] Mem   Memory available for read
+!> @param[in]     iVec1 First vector
+!> @param[in]     iSym  Symmetry
+!> @param[in,out] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
+!> @param[in]     Mem   Memory available for read
 !***********************************************************************
 
 function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
@@ -40,7 +40,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_X_NumRd
-integer(kind=iwp) :: iVec1, iSym, iRedC, Mem
+integer(kind=iwp), intent(in) :: iVec1, iSym, Mem
+integer(kind=iwp), intent(inout) :: iRedC
 integer(kind=iwp) :: iLoc, irc, iRed, iVec, Need, NumRd
 
 if ((iSym < 1) .or. (iSym > nSym)) then

@@ -26,8 +26,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LnPQRSprod,LiPQRSprod(8), lWrk, iBatch, jBatch, kXpqrs
-real(kind=wp) :: Wrk(lWrk)
+integer(kind=iwp), intent(in) :: LnPQRSprod,LiPQRSprod(8), lWrk, iBatch, jBatch
+integer(kind=iwp), intent(out) :: kXpqrs
+real(kind=wp), intent(out) :: Wrk(lWrk)
 integer(kind=iwp) :: iAdr, iBat, iOpt, iSym, iTyp, iVec, iVec1, jVec, kEnd0, kEnd1, kEnd2, kOff, kRead, kVai, kVbj, kXint, lTot, &
                      lWrk0, lWrk1, lWrk2, MinMem, Nai, nBat, Nbj, nEnrVec(8), NumV, NumVec
 real(kind=wp) :: Fac

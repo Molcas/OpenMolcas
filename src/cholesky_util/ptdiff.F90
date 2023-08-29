@@ -22,8 +22,9 @@ subroutine PtDiff(I_Dim,Coeff,T,A)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I_Dim
-real(kind=wp) :: Coeff(40), T(40), A(40,40)
+integer(kind=iwp), intent(in) :: I_Dim
+real(kind=wp), intent(in) :: Coeff(40), T(40)
+real(kind=wp), intent(out) :: A(40,40)
 integer(kind=iwp) :: I, J
 real(kind=wp) :: X
 

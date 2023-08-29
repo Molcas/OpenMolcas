@@ -31,7 +31,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: blast, bsize, iSym, iSyma, iSymAl, iSymb, iSymi, iTyp, l_X, lAvail, lWork, mBatch, nBlock, nFrac(8), nT1amx, &
                      NumVec(8)
 real(kind=wp) :: Byte, lX, xb, xbp, xM, xn

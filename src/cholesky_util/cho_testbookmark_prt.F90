@@ -14,8 +14,8 @@ subroutine Cho_TestBookmark_Prt(TestNumber,PassFail)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: TestNumber
-character(len=*) :: PassFail
+integer(kind=iwp), intent(in) :: TestNumber
+character(len=*), intent(in) :: PassFail
 
 write(u6,'(A,I3,1X,A)') 'Test',TestNumber,PassFail
 

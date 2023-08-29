@@ -48,8 +48,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: CD_Col, CD_Vec
-integer(kind=iwp) :: MxNumCho, MxQual, nDim, iPivot(nDim), iQual(MxQual), lBuf, NumCho, irc
-real(kind=wp) :: Thr, Span, ThrNeg, ThrFail, Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
+integer(kind=iwp), intent(in) :: MxNumCho, MxQual, nDim, lBuf
+real(kind=wp), intent(in) :: Thr, Span, ThrNeg, ThrFail
+real(kind=wp), intent(inout) :: Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
+integer(kind=iwp), intent(out) :: iPivot(nDim), iQual(MxQual), irc
+integer(kind=iwp), intent(inout) :: NumCho
 integer(kind=iwp) :: i, iBatch, iCho, iChoMx, iDump, iOpt, iPass, iVec1, ix, jVec, kOff, kOff1, kOff2, kOffQ, kOffV, lVec, MinBuf, &
                      mPass, MxVec, nBatch, nQual, NumV, nVec
 real(kind=wp) :: DiaMin, Dmax, Dx, Factor, xm
@@ -136,7 +139,7 @@ do while (iPass < mPass)
           end do
         end do
 
-        call DGEMM_('N','N',nDim,nQual,NumV,-One,Buf(kOffV),nDim,Buf(kOffQ),NumV,One,Qual(1,1),nDim)
+        call DGEMM_('N','N',nDim,nQual,NumV,-One,Buf(kOffV),nDim,Buf(kOffQ),NumV,One,Qual(:,:),nDim)
 
       end do
 

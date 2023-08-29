@@ -26,9 +26,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ChoVec(*)
-integer(kind=iwp) :: nVec, iSym, iLoc
-character(len=*) :: DSPNorm
+real(kind=wp), intent(in) :: ChoVec(*)
+integer(kind=iwp), intent(in) :: nVec, iSym, iLoc
+character(len=*), intent(in) :: DSPNorm
 integer(kind=iwp) :: iAB, iAB1, iAB2, iSP, iVec, kOff, lstr
 character(len=3) :: myDSPNorm
 character(len=*), parameter :: SecNam = 'Cho_SubScr_Dia'

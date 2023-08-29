@@ -16,8 +16,9 @@ subroutine CHO_RDBUF(LENGTH,BUF,IBUF,LENBUF,IUNIT)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENGTH, LENBUF, IBUF(4,LENBUF), IUNIT
-real(kind=wp) :: BUF(LENBUF)
+integer(kind=iwp), intent(in) :: LENBUF, IUNIT
+integer(kind=iwp), intent(out) :: LENGTH, IBUF(4,LENBUF)
+real(kind=wp), intent(out) :: BUF(LENBUF)
 
 read(IUNIT) LENGTH,BUF,IBUF
 

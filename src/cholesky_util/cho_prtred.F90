@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IOPT
+integer(kind=iwp), intent(in) :: IOPT
 integer(kind=iwp) :: IRED, ISHLAB, ISYM, ISYMA, ISYMB, NRED, NSHP(2)
 real(kind=wp) :: PCT1, PCT2, XBAS(8), XXBAS(8), XXBAST
 logical(kind=iwp) :: CONTRIB(2)

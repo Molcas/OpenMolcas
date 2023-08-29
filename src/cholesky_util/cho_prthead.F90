@@ -20,7 +20,7 @@ use Cholesky, only: BlockSize, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho_IOVec, C
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: SKIPH
+logical(kind=iwp), intent(in) :: SKIPH
 integer(kind=iwp) :: I, IADRMODE, IALG, IUSE
 real(kind=wp) :: X1, X2, XF, XF2
 integer(kind=iwp), parameter :: NADRMODE = 2, NALG = 6

@@ -25,7 +25,7 @@ use Cholesky, only: LuPri, Trace_Idle
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: IAmIdle
+logical(kind=iwp), intent(in) :: IAmIdle
 
 #ifdef _DEBUGPRINT_
 if ((.not. allocated(Idle)) .or. (.not. Trace_Idle)) then

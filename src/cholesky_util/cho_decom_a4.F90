@@ -19,8 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: NumSP, LstQSP(NumSP), iPass
+real(kind=wp), intent(inout) :: Diag(*)
+integer(kind=iwp), intent(in) :: NumSP, LstQSP(NumSP), iPass
 integer(kind=iwp) :: I, iEn, iK, iRed, iSt, iSym, iVec1, Jfi, Jin, jK, jVec, kI, kID, kK1, kK2, kK_1, kK_2, kQD, kV, l_IDKVec, &
                      l_KVec, l_LQ, l_Wrk1, l_xInt, LenLin, lK, MxQ, nkVec(8), nQual_Old(8), NumCho_Old(8), NumV(8)
 real(kind=wp) :: C1, C2, W1, W2
@@ -33,8 +33,8 @@ character(len=*), parameter :: SecNam = 'Cho_Decom_A4'
 interface
   subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
     import :: wp, iwp
-    integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
-    real(kind=wp), target :: QVec(l_Qvec)
+    integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
+    real(kind=wp), target, intent(out) :: QVec(l_Qvec)
   end subroutine Cho_P_GetLQ
 end interface
 !                                                                      *
@@ -247,7 +247,7 @@ do iSym=1,nSym
       call mma_maxDBLE(l_Wrk1)
       call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
 
-      call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),Wrk1,size(Wrk1),iSym,iPass)
+      call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),Wrk1,l_Wrk1,iSym,iPass)
 
       call mma_deallocate(Wrk1)
 

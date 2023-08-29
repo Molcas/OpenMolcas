@@ -16,8 +16,9 @@ subroutine CHO_MCA_GETKEY(LUNIT,OPTION,LOPTION,NOPTION,IDKEY,LUPRI)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LUNIT, LOPTION, NOPTION, IDKEY, LUPRI
-character(len=LOPTION) :: OPTION(NOPTION)
+integer(kind=iwp), intent(in) :: LUNIT, LOPTION, NOPTION, LUPRI
+character(len=LOPTION), intent(in) :: OPTION(NOPTION)
+integer(kind=iwp), intent(out) :: IDKEY
 integer(kind=iwp), parameter :: LKEY = 4, LKWORD = 180, NALIAS = 12, NEOINP = 1, NOBSOL = 1, NTABLE = 58
 integer(kind=iwp) :: I, IALIAS, IOBSOL, IOPTION, LAST
 character(len=LKWORD) :: KWORD, KEY

@@ -24,9 +24,12 @@ use Cholesky, only: nBas, nSym
 use ChoMP2, only: iAoMo, iMoAo, nMo
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*), COrb1(*), COrb2(*)
-integer(kind=iwp) :: iMoType1, iMOType2
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: COrb1(*), COrb2(*)
+integer(kind=iwp), intent(in) :: iMoType1, iMOType2
 integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2, nOffOrb1(8), nOffOrb2(8), nOrb1(8), nOrb2(8)
 
 do iSym=1,nSym

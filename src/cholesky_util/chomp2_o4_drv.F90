@@ -36,8 +36,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(in) :: CMO(*), EOcc(*), EVir(*)
 integer(kind=iwp) :: a, ai, i, iSym, iSyma, iSymb, iSymi, iTyp, kD0, kD1, kD2, lDiag, lU_AO(8)
 real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Ei, FracMem, WallBT1, &
                  WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2

@@ -24,9 +24,12 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, lWrk
-logical(kind=iwp) :: Delete
-real(kind=wp) :: P_ab(*), P_ii(*),  EOcc(*), EVir(*), Wrk(lWrk)
+integer(kind=iwp), intent(out) :: irc
+logical(kind=iwp), intent(in) :: Delete
+real(kind=wp), intent(inout) :: P_ab(*), P_ii(*)
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
+integer(kind=iwp), intent(in) :: lWrk
+real(kind=wp), intent(out) :: Wrk(lWrk)
 integer(kind=iwp) :: i, iAdr, iBat, iClos, ij, iOpt, iS, iSym, iSyma, iSymb, iSymi, iSymj, iTyp, iVaJi(8), iVec, iVec0, iVec1, j, &
                      ja, jb, kEnd0, kEnd1, kEnd2, kMabij, kOff1, kOff2, kOffi, kOffj, kOffM, kOffMM, kP(8), kVec, kVecai, kXaibj, &
                      LiT2am(8), LnT2am, lP(8), lTot, lWrk0, lWrk1, lWrk2, Nai, nBat, nEnrVec(8), NumVec, nVaJi, nVec

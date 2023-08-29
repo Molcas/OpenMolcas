@@ -18,7 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: VCSTOR(*)
+real(kind=wp), intent(out) :: VCSTOR(nSym)
 integer(kind=iwp) :: ISYM
 character(len=*), parameter :: SECNAM = 'CHO_GETSTOR'
 

@@ -17,8 +17,8 @@ subroutine Cho_PrtSt(Vec,lVec,Stat)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lVec
-real(kind=wp) :: Vec(lVec), Stat(7)
+integer(kind=iwp), intent(in) :: lVec
+real(kind=wp), intent(in) :: Vec(lVec), Stat(7)
 real(kind=wp), external :: dDot_
 
 write(u6,'(/,1X,A,I15)') 'No. of elements: ',lVec

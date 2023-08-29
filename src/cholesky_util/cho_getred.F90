@@ -11,15 +11,14 @@
 
 subroutine CHO_GETRED(IPASS,ILOC,LRSH)
 !
-! Purpose: read index arrays for current reduced set (reduced set
-!          IPASS).
+! Purpose: read index arrays for current reduced set (reduced set IPASS).
 
 use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, LuRed, LuPri, nnBstRSh, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IPASS, ILOC
-logical(kind=iwp) :: LRSH
+integer(kind=iwp), intent(in) :: IPASS, ILOC
+logical(kind=iwp), intent(in) :: LRSH
 integer(kind=iwp) :: IADR, IADR1, IOPT, LSAV, LTOT
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GETRED'

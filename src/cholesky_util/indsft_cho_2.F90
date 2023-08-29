@@ -34,9 +34,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint
-real(kind=wp) :: TInt(lInt), SOint(ijkl,nSOint)
-logical(kind=iwp) :: Shijij
+integer(kind=iwp), intent(in) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint
+real(kind=wp), intent(inout) :: TInt(lInt)
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
 #include "print.fh"
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i12, i2, i3, i34, i4, IAB, ICD, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, &
                      ISHLK, ISHLL, iSO, iSOi, iSym(0:7), ISYM_AB, ISYM_CD, ISYM_RS, ix, j, j1, j12, j2, j2max, j3, j4, jCmpMx, &

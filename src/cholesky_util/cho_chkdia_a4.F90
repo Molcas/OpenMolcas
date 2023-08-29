@@ -26,8 +26,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), Dmax, xM, yM, zM
-integer(kind=iwp) :: iSym, nNeg, nNegT, nConv
+real(kind=wp), intent(inout) :: Diag(*)
+real(kind=wp), intent(in) :: Dmax
+integer(kind=iwp), intent(in) :: iSym
+integer(kind=iwp), intent(out) :: nNeg, nNegT, nConv
+real(kind=wp), intent(out) :: xM, yM, zM
 integer(kind=iwp) :: i, j, j1, j2
 real(kind=wp) :: Tst
 character(len=*), parameter :: SecNam = 'Cho_ChkDia_A4'

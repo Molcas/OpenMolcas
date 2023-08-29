@@ -18,9 +18,12 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, lScr, iSym, nVec, lAp, lDens
-real(kind=wp) :: Scr(lScr), Ap(lAp), Dens(lDens), factor
-character :: typ(4)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lScr, iSym, nVec, lAp, lDens
+real(kind=wp), intent(out) :: Scr(lScr)
+real(kind=wp), intent(inout) :: Ap(lAp)
+real(kind=wp), intent(in) :: Dens(lDens), factor
+character, intent(in) :: typ(4)
 integer(kind=iwp) :: i, iAdr, iAdrLip, iAdrLiq, iAdrLir, iAdrLpq, iAdrLrp, iAdrLrq, iBat, iCol, iIP, iIQ, iIR, iOffAp(8), iOffL, &
                      iOffL1, iOffp(8), iOffY, iOffY1, iOffZ, iOffZ1, iOpt, iOrbType(4), iPQ, iRP, iRQ, iSym1, iSymI, iSymP, iSymQ, &
                      iSymR, iTypL, iVec, iVec1, kEndLip, kEndLiq, kEndLir, kEndLpq, kEndLrp, kEndLrq, kEndX, kEndY, kLip, kLiq, &

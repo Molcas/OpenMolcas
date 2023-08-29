@@ -16,8 +16,8 @@ subroutine CHO_WRBUF(LENGTH,BUF,IBUF,LENBUF,IUNIT)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENGTH, LENBUF, IBUF(4,LENBUF), IUNIT
-real(kind=wp) :: BUF(LENBUF)
+integer(kind=iwp), intent(in) :: LENGTH, LENBUF, IBUF(4,LENBUF), IUNIT
+real(kind=wp), intent(in) :: BUF(LENBUF)
 
 write(IUNIT) LENGTH,BUF,IBUF
 

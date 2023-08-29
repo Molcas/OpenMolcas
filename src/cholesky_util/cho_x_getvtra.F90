@@ -58,12 +58,16 @@ use Data_Structures, only: DSBA_Type, SBA_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, nDen, kDen
-real(kind=wp) :: RedVec(lRedVec)
-type(DSBA_Type) :: MOs(nDen)
-type(SBA_Type) :: ChoT(nDen)
-logical(kind=iwp) :: DoRead
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lRedVec, IVEC1, NUMV, ISYM, iSwap, nDen, kDen
+real(kind=wp), intent(inout) :: RedVec(lRedVec)
+integer(kind=iwp), intent(inout) :: IREDC
+type(DSBA_Type), intent(in) :: MOs(nDen)
+type(SBA_Type), intent(_OUT_) :: ChoT(nDen)
+logical(kind=iwp), intent(in) :: DoRead
 integer(kind=iwp) :: IVEC2, jDen, JNUM, JVEC1, JVREF, MUSED, MXUSD
 
 MXUSD = 0

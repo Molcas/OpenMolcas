@@ -24,8 +24,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LENSCR, NDUMP
-real(kind=wp) :: BUF(LENBUF), SCR(LENSCR)
+integer(kind=iwp), intent(in) :: LENBUF, LENSCR
+real(kind=wp), intent(out) :: BUF(LENBUF), SCR(LENSCR)
+integer(kind=iwp), intent(out) :: IBUF(4,LENBUF), NDUMP
 integer(kind=iwp) :: I, I_MYSP, IA, IAA, IAB, IB, IBB, ICOUNT, IDUMP, IOPT, ISAB, ISHLA, ISHLAB, ISHLB, ISYM, ISYMA, ISYMAB, &
                      ISYMB, IUNIT, JUNIT, L, LENGTH, LINTD, ll, LSCR, n_NegCalcDiag, n_NegCalcDiag_local, NIATOMSHL, NUMA, NUMAB, &
                      NUMB

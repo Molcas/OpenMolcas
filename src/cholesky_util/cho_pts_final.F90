@@ -19,7 +19,7 @@ use Cholesky, only: NumCho_G, NumChT_G
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: l_NVT, NVT(l_NVT)
+integer(kind=iwp), intent(in) :: l_NVT, NVT(l_NVT)
 
 NumCho_G(1:l_NVT) = NVT(:)
 NumChT_G = sum(NumCho_G(1:l_NVT))

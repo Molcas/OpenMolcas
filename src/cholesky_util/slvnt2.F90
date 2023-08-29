@@ -30,9 +30,11 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap
-logical(kind=iwp) :: StopBA
-real(kind=wp) :: R, Coeff(40), T(40), Theta2, VVMax
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: R
+real(kind=wp), intent(inout) :: Coeff(40), T(40), Theta2
+real(kind=wp), intent(out) :: VVMax
+logical(kind=iwp), intent(out) :: StopBA
 integer(kind=iwp) :: I, I_Dim, J, New2
 real(kind=wp) :: A(40,40), CofOld(40), DD(82), Eprel, EprINv, Eps, Eps0, Eps1, TCpy, Temp, Theta, Theta2Mx, TOld(40), VV(40), W(40)
 logical(kind=iwp) :: Error, NG, Dbg

@@ -17,9 +17,10 @@ use Cholesky, only: iiBstR, IndRed, iQuAB, LuPri, nnBstR, nQual
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: XINT(*), DIAG(*), TOL
-integer(kind=iwp) :: ISYM, NERR
-logical(kind=iwp) :: REPORT
+real(kind=wp), intent(in) :: XINT(*), DIAG(*), TOL
+integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(out) :: NERR
+logical(kind=iwp), intent(in) :: REPORT
 integer(kind=iwp) :: I, II, IK, JJ, KK
 real(kind=wp) :: DF
 character(len=*), parameter :: SECNAM = 'CHO_CHKINT'

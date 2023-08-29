@@ -18,7 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, n, iAtomShl(n)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: irc, iAtomShl(n)
 #include "Molcas.fh"
 integer(kind=iwp) :: i, i1, i2, iAtom, iBatch, iSh, iSh0, iSh1, iSh2, nAtom, nBatch, nErr, nSh, numSh
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)

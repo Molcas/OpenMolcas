@@ -56,10 +56,12 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, lScr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSWap, nDen, kDen
-real(kind=wp) :: Scr(lscr)
-type(DSBA_Type) :: MOs(nDen)
-type(SBA_Type) :: ChoT(nDen)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lScr, jVref, JVEC1, JNUM, NUMV, JSYM, iSWap, nDen, kDen
+real(kind=wp), intent(in) :: Scr(lscr)
+integer(kind=iwp), intent(inout) :: IREDC
+type(DSBA_Type), intent(in) :: MOs(nDen)
+type(SBA_Type), intent(inout) :: ChoT(nDen)
 integer(kind=iwp) :: iag, ias, ibg, ibs, iDen, iE, ij, iLoc, iRab, iSym, iSyma, iSymb, jDen, jRab, JRED, JVEC, kRab, kscr, kVEC, &
                      LVEC, n1, NREAD
 real(kind=wp) :: xfd

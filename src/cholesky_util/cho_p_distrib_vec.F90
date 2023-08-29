@@ -14,8 +14,12 @@ subroutine Cho_P_Distrib_Vec(Jin,Jfi,iDV,nV)
 use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: Jin, Jfi, iDV(*), nV
+integer(kind=iwp), intent(in) :: Jin, Jfi
+integer(kind=iwp), intent(_OUT_) :: iDV(*)
+integer(kind=iwp), intent(out) :: nV
 integer(kind=iwp) :: J, J0
 
 if (Cho_Real_Par) then

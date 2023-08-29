@@ -57,8 +57,10 @@ use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, lscr, jVref, JVEC1, JNUM, NUMV, JSYM, IREDC, iSwap, ipChoV(*), iSkip(*)
-real(kind=wp) :: Scr(lscr)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lscr, jVref, JVEC1, JNUM, NUMV, JSYM, iSwap, ipChoV(*), iSkip(*)
+real(kind=wp), intent(in) :: Scr(lscr)
+integer(kind=iwp), intent(inout) :: IREDC
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iabf, iag, ias, ibg, ibs, iLoc, iRab, iSyma, iSymb, jRab, JRED, JVEC, kchov, kchov1, kchov2, kRab, kscr, NREAD
 integer(kind=iwp), external :: cho_isao

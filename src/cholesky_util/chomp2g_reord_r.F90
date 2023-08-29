@@ -24,8 +24,8 @@ use ChoMP2, only: AdrR1, AdrR2, iT1am, lUnit_F, LuRInv, nMoMo, nMP2Vec, nOcc, nV
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lWrk
-real(kind=wp) :: Wrk(lWrk)
+integer(kind=iwp), intent(in) :: lWrk
+real(kind=wp), intent(out) :: Wrk(lWrk)
 integer(kind=iwp) :: iA, iAdr, iAdr1, iAdr2, iBat, iClos, iI, ioffset1, iOffset2, iOpt, iSeed, iSym, iSymA, iSymI, iTypR, iVec, &
                      iVec1, iVecOV, kEndRia1, kRia1, kRia2, lRia, lTot, maxvalue, nBatR, NumVec, nVec
 character(len=5) :: Fname

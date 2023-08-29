@@ -22,8 +22,8 @@ use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-logical(kind=iwp) :: Sync
+real(kind=wp), intent(in) :: Diag(*)
+logical(kind=iwp), intent(in) :: Sync
 integer(kind=iwp) :: iLoc
 
 if (Cho_Real_Par) then

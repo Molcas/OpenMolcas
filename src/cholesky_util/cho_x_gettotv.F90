@@ -21,7 +21,8 @@ use Cholesky, only: Cho_Real_Par, nSym, NumCho, NumCho_Bak
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, nV(n)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: nV(n)
 
 #ifdef _DEBUGPRINT_
 if (n < nSym) call Cho_Quit('Illegal input variable in Cho_X_GetTotV',104)

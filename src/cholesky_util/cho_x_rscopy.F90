@@ -36,7 +36,8 @@ subroutine Cho_X_RSCopy(irc,iRS,jRS)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iRS, jRS
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iRS, jRS
 
 if ((iRS < 1) .or. (iRS > 3) .or. (jRS < 1) .or. (jRS > 3)) then
   irc = 1

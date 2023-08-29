@@ -15,7 +15,7 @@ use Cholesky, only: Cho_DecAlg, Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: ForceParallel
+logical(kind=iwp), intent(in) :: ForceParallel
 
 if (Cho_Real_Par .or. ForceParallel) then
   if (Cho_DecAlg == 1) then

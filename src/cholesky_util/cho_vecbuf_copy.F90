@@ -21,8 +21,8 @@ use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, nnBstR, NumCho, nVec_in
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Vec(*)
-integer(kind=iwp) :: nVec, iSym
+real(kind=wp), intent(in) :: Vec(*)
+integer(kind=iwp), intent(in) :: nVec, iSym
 integer(kind=iwp) :: kOff, lCopy, Left, mUsed, nCopy
 
 ! Check if there is anything to do at all.

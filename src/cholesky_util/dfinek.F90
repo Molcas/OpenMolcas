@@ -28,9 +28,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap, InitR
-real(kind=wp) :: R
-character(len=8) :: Demand
+integer(kind=iwp), intent(out) :: K_Lap
+real(kind=wp), intent(in) :: R
+integer(kind=iwp), intent(in) :: InitR
+character(len=8), intent(in) :: Demand
 integer(kind=iwp) :: IdxR, IVal
 real(kind=wp) :: ErrVal, R_Val
 logical(kind=iwp) :: Trial

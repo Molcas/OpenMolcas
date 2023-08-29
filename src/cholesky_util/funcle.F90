@@ -15,7 +15,7 @@
 function FuncLe(X,Delta)
 !----------------------------------------------------------------------
 ! Function : Define function after CoV for Gauss-Legendre Method
-!            H.Koch,A.Sanchez de Meras (J.Chem.Phys. 113,508)
+!            H. Koch, A. Sanchez de Meras (J. Chem. Phys. 113, 508)
 !-----------------------------------------------------------------------
 
 use Constants, only: One
@@ -23,7 +23,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: FuncLe
-real(kind=wp) :: X, Delta
+real(kind=wp), intent(in) :: X, Delta
 real(kind=wp) :: DerV, Varl
 
 Varl = X/(One-X)

@@ -26,8 +26,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: CMO(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp) :: i, iSym, j, lTriDens, nOrbAll(8)
 real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
 !                                                                      *

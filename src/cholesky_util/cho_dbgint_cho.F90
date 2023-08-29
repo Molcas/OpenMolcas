@@ -23,8 +23,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NCD, NAB, LWRK, NCMP, ISHLCD, ISHLAB
-real(kind=wp) :: XINT(NCD,NAB), WRK(LWRK), ERRMAX, ERRMIN, ERRRMS
+integer(kind=iwp), intent(in) :: NCD, NAB, LWRK, ISHLCD, ISHLAB
+real(kind=wp), intent(in) :: XINT(NCD,NAB)
+real(kind=wp), intent(out) :: WRK(LWRK), ERRMAX, ERRMIN, ERRRMS
+integer(kind=iwp), intent(out) :: NCMP
 integer(kind=iwp) :: IAB, IBATCH, ICD, ICDAB, ISHLA, ISHLB, ISHLC, ISHLD, ISYM, IVEC, JAB, JCD, JVEC, JVEC1, KAB, KCD, KCDAB, &
                      KCHOAB, KCHOCD, KEND0, KEND1, KEND2, KINT, KOFF1, KOFF2, KREAD, KVEC1, KXINT, LCDABT, LENint, LREAD, LVEC1, &
                      LWRK0, LWRK1, LWRK2, MINM, NABL, NBATCH, NCDL, NSCALL, NUMAB, NUMCD, NUMV, NVEC

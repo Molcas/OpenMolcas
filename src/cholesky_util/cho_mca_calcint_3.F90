@@ -25,8 +25,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LINT, ISHLAB
-real(kind=wp) :: XINT(LINT)
+integer(kind=iwp), intent(in) :: LINT, ISHLAB
+real(kind=wp), intent(inout) :: XINT(LINT)
 integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS

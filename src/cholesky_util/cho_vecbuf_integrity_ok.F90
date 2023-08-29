@@ -24,8 +24,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
-real(kind=wp) :: Tol
-logical(kind=iwp) :: Report
+real(kind=wp), intent(in) :: Tol
+logical(kind=iwp), intent(in) :: Report
 integer(kind=iwp) :: ipV, iSym, jRed, jVec, n, nErr
 logical(kind=iwp) :: OK
 real(kind=wp) :: Nrm, Sm

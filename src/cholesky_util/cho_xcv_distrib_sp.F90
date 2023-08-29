@@ -24,7 +24,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: l_mySP, mySP(l_mySP), N_mySP
+integer(kind=iwp), intent(in) :: l_mySP
+integer(kind=iwp), intent(out) :: mySP(l_mySP), N_mySP
 integer(kind=iwp) :: iNode, iSP, n
 integer(kind=iwp), allocatable :: ProcDim(:)
 integer(kind=iwp), external :: Cho_iFindSmallest

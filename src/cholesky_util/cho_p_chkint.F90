@@ -17,8 +17,9 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: xInt(*), Diag(*), Tol
-integer(kind=iwp) :: iSym, nErr
+real(kind=wp), intent(in) :: xInt(*), Diag(*), Tol
+integer(kind=iwp), intent(in) :: iSym
+integer(kind=iwp), intent(out) :: nErr
 logical(kind=iwp) :: Report
 
 if (Cho_Real_Par) then

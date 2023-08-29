@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_P_IndxParentDiag
-integer(kind=iwp) :: iQ, iSym
+integer(kind=iwp), intent(in) :: iQ, iSym
 
 if (Cho_Real_Par) then
   Cho_P_IndxParentDiag = IndRed_G(iQuAB(iQ,iSym),2)

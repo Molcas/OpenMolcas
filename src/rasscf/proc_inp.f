@@ -859,7 +859,7 @@ C   No changing about read in orbital information from INPORB yet.
       CMSStartMat='XMS'
       If (KeyCMSS.and.(iCMSP.eq.1)) Then
        If (DBG) Then
-         Write(6,*)' Reading CMS inital rotation matrix'
+         Write(6,*)' Reading CMS initial rotation matrix'
        End If
        Call SetPos(LUInput,'CMSS',Line,iRc)
        Line=Get_Ln(LUInput)

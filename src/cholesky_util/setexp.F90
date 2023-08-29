@@ -32,8 +32,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), parameter :: KMAX = 20, KMAX2 = 2*KMAX
-integer(kind=iwp) :: K, InitR
-real(kind=wp) :: RIni, Coeff(2,KMAX), T(KMAX2)
+integer(kind=iwp), intent(in) :: K, InitR
+real(kind=wp), intent(out) :: RIni, Coeff(2,KMAX), T(KMAX2)
 integer(kind=iwp) :: I, I_Dim
 real(kind=wp) :: Alpha(KMAX), Omega(KMAX), Xi(KMAX2)
 logical(kind=iwp) :: Dbg

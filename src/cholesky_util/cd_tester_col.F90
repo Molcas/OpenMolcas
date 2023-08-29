@@ -17,8 +17,9 @@ use CD_Tester_mod, only: Mat
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nCol, iCol(nCol), lBuf
-real(kind=wp) :: Col(nDim,nCol), Buf(lBuf)
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), lBuf
+real(kind=wp), intent(out) :: Col(nDim,nCol)
+real(kind=wp), intent(in) :: Buf(lBuf)
 integer(kind=iwp) :: i, kOff
 
 #include "macros.fh"

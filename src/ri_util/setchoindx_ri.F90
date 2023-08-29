@@ -19,8 +19,9 @@ use Cholesky, only: iiBstR, iSP2F, iBasSh, nBasSh, nBstSh, nnBstR, nnBstRT, nnSh
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: I_nSym, I_nnShl, I_mmBstRT, iRS2F(2,I_mmBstRT), nShij, iShij(2,nShij)
-integer(kind=iwp), intent(out) :: iiBstRSh(I_nSym,I_nnShl,3), nnBstRSh(I_nSym,I_nnShl,3), IndRed(I_mmBstRT,3), IndRsh(I_mmBstRT)
+integer(kind=iwp), intent(in) :: I_nSym, I_nnShl, I_mmBstRT, nShij, iShij(2,nShij)
+integer(kind=iwp), intent(out) :: iiBstRSh(I_nSym,I_nnShl,3), nnBstRSh(I_nSym,I_nnShl,3), IndRed(I_mmBstRT,3), IndRsh(I_mmBstRT), &
+                                  iRS2F(2,I_mmBstRT)
 integer(kind=iwp) :: i, ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, &
                      nErr
 integer(kind=iwp), external :: Cho_iSAOSh

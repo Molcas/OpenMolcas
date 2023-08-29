@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_ISAO
-integer(kind=iwp) :: IAO
+integer(kind=iwp), intent(in) :: IAO
 integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
 character(len=8), parameter :: SECNAM = 'CHO_ISAO'

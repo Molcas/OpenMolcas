@@ -22,8 +22,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DIAG(*)
-integer(kind=iwp) :: IRED
+real(kind=wp), intent(in) :: DIAG(*)
+integer(kind=iwp), intent(in) :: IRED
 integer(kind=iwp) :: IAB, IERR, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, JSHLAB, KAB, KABAB, LINT, LINT1, LSEW, NERR, NTST, &
                      NUMAB
 real(kind=wp) :: DIFF

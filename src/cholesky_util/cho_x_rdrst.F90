@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ifail
+integer(kind=iwp), intent(out) :: ifail
 integer(kind=iwp), parameter :: lScr = 8
 integer(kind=iwp) :: iAdr, iOpt, iSym, j, jScr(lScr), nRd, nSP_UpLim
 real(kind=wp) :: dScr(lScr)

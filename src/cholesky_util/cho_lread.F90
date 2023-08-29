@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_LREAD
-integer(kind=iwp) :: ISYM, LWRK
+integer(kind=iwp), intent(in) :: ISYM, LWRK
 integer(kind=iwp) :: IRED, JRED, JVEC, LEN1, LEN2, LEN3, LMIN
 integer(kind=iwp), parameter :: MNVECRS1 = 5
 

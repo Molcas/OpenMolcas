@@ -41,8 +41,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iTyp, lU_AO(*)
-real(kind=wp) :: COcc(*), CVir(*)
+integer(kind=iwp), intent(in) :: iTyp, lU_AO(*)
+real(kind=wp), intent(in) :: COcc(*), CVir(*)
 integer(kind=iwp) :: a, Al, AlBe, i, iAdr, iOpt, iSym, iSyma, iSymAl, iSymBe, iSymi, J, kC, kP, kP_, lTot, na, nAlBe, nMP2Vec_Tot, &
                      nOcc_Max
 real(kind=wp) :: AbsMaxErr, AbsMinErr, AvgErr, Err(4,8), RMSErr

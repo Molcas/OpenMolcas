@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
-real(kind=wp) :: WRK(LWRK)
+integer(kind=iwp), intent(in) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
+real(kind=wp), intent(inout) :: WRK(LWRK)
 integer(kind=iwp) :: I, IAB, IBATCH, ICOUNT, IOFF(8,8), IRS, ISYM, ISYMA, ISYMB, IVEC, IVEC1, KCHO1, KCHO2, KOFF, KOFF1, KREAD, &
                      LOFF, LREAD, MINMEM, NBATCH, NSCALL, NUMV, NVEC
 character(len=*), parameter :: SECNAM = 'CHO_REOVC1'

@@ -34,8 +34,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: EMP2, CMO(*), EOcc(*), EVir(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(inout) :: EOcc(*), EVir(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: lDiag, nSym_Sav
 real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &

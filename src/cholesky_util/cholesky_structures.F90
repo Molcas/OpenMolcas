@@ -86,8 +86,8 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
   use Cholesky, only: nBasSh, nnBstRSh
 
   type(L_Full_Type), target, intent(out) :: Adam
-  integer(kind=iwp) :: nShell, iShp_rs(nTri_Elem(nShell)), JNUM, JSYM, nSym
-  integer(kind=iwp), intent(out), optional :: Memory(2)
+  integer(kind=iwp), intent(in) :: nShell, iShp_rs(nTri_Elem(nShell)), JNUM, JSYM, nSym
+  integer(kind=iwp), optional, intent(out) :: Memory(2)
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, MemSPB, n1, n2
 
   LFULL = 0
@@ -222,7 +222,7 @@ subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 
   type(Lab_Type), target, intent(out) :: Lab
   integer(kind=iwp), intent(in) :: JNUM, nShell, nSym, nBasSh(nSym,nShell), nBas(nSym), nDen
-  integer(kind=iwp), intent(out), optional :: Memory(2)
+  integer(kind=iwp), optional, intent(out) :: Memory(2)
   integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh, MemKeep, MemSB
 
   Lab_Memory = 0

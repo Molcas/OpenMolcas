@@ -15,7 +15,7 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iOpt
+integer(kind=iwp), intent(in) :: iOpt
 
 if (Cho_Real_Par) then
   call Cho_P_IndxSwp()

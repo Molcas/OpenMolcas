@@ -18,7 +18,7 @@ use Cholesky, only: Cho_Real_Par, NumCho_G, NumChT_G, tMisc
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSym, NumCho(nSym)
+integer(kind=iwp), intent(in) :: nSym, NumCho(nSym)
 real(kind=wp) :: c1, c2, w1, w2
 
 if (Cho_Real_Par) then

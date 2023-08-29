@@ -43,7 +43,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iDisk, idRS2RS, iI, iJ, iLoc, iOpt, iRed, iRedC, iSym, j, K, kG_IJ, KK, KK1, KKK, kOffV, l_G, l_iRS2RS, &
                      l_Wrk, lUnit, mUSed, nVRead
 real(kind=wp) :: V_J
@@ -61,8 +61,9 @@ real(kind=wp), external :: ddot_
 interface
   subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVcT(:,:,:)
-    integer(kind=iwp) :: n, NVT(n)
+    integer(kind=iwp), pointer, intent(out) :: InfVcT(:,:,:)
+    integer(kind=iwp), intent(in) :: n
+    integer(kind=iwp), intent(out) :: NVT(n)
   end subroutine Cho_CGM_InfVec
 end interface
 

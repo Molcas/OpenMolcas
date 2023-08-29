@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: WriteBookmarks
+logical(kind=iwp), intent(in) :: WriteBookmarks
 integer(kind=iwp) :: CHOISINI, IREO, l, NUMV(8)
 integer(kind=iwp), allocatable :: BkmDim(:), iScratch(:)
 real(kind=wp), allocatable :: Scratch(:)

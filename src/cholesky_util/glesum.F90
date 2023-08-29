@@ -31,8 +31,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GLeSum
-integer(kind=iwp) :: K
-real(kind=wp) :: X(20), W(20), Delta
+integer(kind=iwp), intent(in) :: K
+real(kind=wp), intent(in) :: X(20), W(20), Delta
 integer(kind=iwp) :: I
 real(kind=wp) :: A, Derv, Dum, Val, Varl
 

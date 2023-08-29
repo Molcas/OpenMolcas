@@ -20,7 +20,8 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(8)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iLoc, iShlAB, nAB(8)
 
 if (Cho_Real_Par) then
   call Cho_P_IndxSwp()

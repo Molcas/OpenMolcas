@@ -67,8 +67,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: BufFrac
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: BufFrac
 integer(kind=iwp) :: ChoIsIni, iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, l, Numij
 real(kind=wp) :: Frac
 logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF, isLocalDF

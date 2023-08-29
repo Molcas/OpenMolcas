@@ -15,9 +15,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NI, NJ, IMN, JMN, IMX, JMX, ITST, IERR, LUPRI
-real(kind=wp) :: XINT1(NI,NJ), XINT2(NJ,NI), ERRMIN, ERRMAX, THR
-logical(kind=iwp) :: PRTERR
+integer(kind=iwp), intent(in) :: NI, NJ, LUPRI
+real(kind=wp), intent(in) :: XINT1(NI,NJ), XINT2(NJ,NI), THR
+real(kind=wp), intent(out) :: ERRMIN, ERRMAX
+integer(kind=iwp), intent(out) :: IMN, JMN, IMX, JMX
+integer(kind=iwp), intent(inout) :: ITST, IERR
+logical(kind=iwp), intent(in) :: PRTERR
 integer(kind=iwp) :: I, J, JERR
 real(kind=wp) :: DIFF
 

@@ -24,8 +24,11 @@ use Cholesky, only: nBas, nSym
 use ChoMP2, only: iAOVir, iT1AOT, nFro, nOcc, nVir
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: COcc(*), CVir(*), CMO(*)
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: COcc(*), CVir(*)
 integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2
 
 iCount = 0

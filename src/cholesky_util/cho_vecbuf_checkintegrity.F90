@@ -29,10 +29,10 @@ use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Tol
-logical(kind=iwp) :: Verbose
-character(len=*) :: Txt
-integer(kind=iwp) :: irc
+real(kind=wp), intent(in) :: Tol
+logical(kind=iwp), intent(in) :: Verbose
+character(len=*), intent(in) :: Txt
+integer(kind=iwp), intent(out) :: irc
 logical(kind=iwp) :: Cho_VecBuf_Integrity_OK
 
 if (Cho_VecBuf_Integrity_OK(Tol,Verbose)) then

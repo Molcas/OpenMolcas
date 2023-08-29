@@ -17,8 +17,9 @@ use Cholesky, only: DiaMin, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, MaxQual, nnB
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: ISYM, ISHLAB, MEM, MEM0, LEFT
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: ISYM, ISHLAB, MEM
+integer(kind=iwp), intent(inout) :: MEM0, LEFT
 integer(kind=iwp) :: I, I2, J, MAXQ, NUMQ
 
 if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then

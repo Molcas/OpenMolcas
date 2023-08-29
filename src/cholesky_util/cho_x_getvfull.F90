@@ -42,18 +42,18 @@
 !> - \p IREDC: reduced set in core at the moment of the call to the routine.
 !>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
 !>
-!> @param[out] irc     return code
-!> @param[in]  RedVec  vectors stored in reduced set(s) [\p DoRead option off]
-!>                     or scratch space for reading reduced vectors [\p DoRead option on]
-!> @param[in]  lRedVec size of the \p RedVec
-!> @param[in]  IVEC1   first vector to read
-!> @param[in]  NUMV    number of vectors to read starting from \p IVEC1
-!> @param[in]  ISYM    compound symmetry of the Cholesky vectors
-!> @param[in]  iSwap   type of the full storage for the returned Cholesky vectors
-!> @param[in]  IREDC   current reduced set in core (location ``3``)
-!> @param[in]  ipChoV  pointers to the target arrays
-!> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
-!> @param[in]  DoRead  flag for reading reduced vectors from disk
+!> @param[out]    irc     return code
+!> @param[in,out] RedVec  vectors stored in reduced set(s) [\p DoRead option off]
+!>                        or scratch space for reading reduced vectors [\p DoRead option on]
+!> @param[in]     lRedVec size of the \p RedVec
+!> @param[in]     IVEC1   first vector to read
+!> @param[in]     NUMV    number of vectors to read starting from \p IVEC1
+!> @param[in]     ISYM    compound symmetry of the Cholesky vectors
+!> @param[in]     iSwap   type of the full storage for the returned Cholesky vectors
+!> @param[in,out] IREDC   current reduced set in core (location ``3``)
+!> @param[in]     ipChoV  pointers to the target arrays
+!> @param[in]     iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
+!> @param[in]     DoRead  flag for reading reduced vectors from disk
 !***********************************************************************
 
 subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
@@ -64,9 +64,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, lRedVec, IVEC1, NUMV, ISYM, iSwap, IREDC, ipChoV(*), iSkip(*)
-real(kind=wp) :: RedVec(lRedVec)
-logical(kind=iwp) :: DoRead
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lRedVec, IVEC1, NUMV, ISYM, iSwap, ipChoV(*), iSkip(*)
+real(kind=wp), intent(inout) :: RedVec(lRedVec)
+integer(kind=iwp), intent(inout) :: IREDC
+logical(kind=iwp), intent(in) :: DoRead
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
 

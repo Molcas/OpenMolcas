@@ -20,8 +20,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LWRK, IPASS, NUM
-real(kind=wp) :: Diag(*), WRK(LWRK)
+integer(kind=iwp), intent(in) :: LWRK, IPASS, NUM
+real(kind=wp), intent(inout) :: Diag(*), WRK(LWRK)
 integer(kind=iwp) :: I, IAB, IABG, IADR, ICHO, IDUMP, II, IOPT, ISYM, IVEC, IVEC1, IVECT, JJ, KAB, KCHO1, KEND0, KEND1, KINT1, &
                      KOFF, KOFF0, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, NUMCHO_OLD(8)
 real(kind=wp) :: C1, C2, FAC, OLDIAG, TOL, W1, W2, XC, XM, XMAX, XMIN, YM

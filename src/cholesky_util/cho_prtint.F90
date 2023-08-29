@@ -23,8 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iSCD, iSAB, lInt
-real(kind=wp) :: xInt(lInt)
+integer(kind=iwp), intent(in) :: iSCD, iSAB, lInt
+real(kind=wp), intent(in) :: xInt(lInt)
 integer(kind=iwp) :: AB, CD, iAB, iCD, iSA, iSB, iSC, iSD, iSym, kOffI, nAB, nCD, nRow(8)
 real(kind=wp) :: xNorm
 character(len=*), parameter :: SecNam = 'Cho_PrtInt'

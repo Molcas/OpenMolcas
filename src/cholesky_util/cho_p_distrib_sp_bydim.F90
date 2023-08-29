@@ -23,8 +23,11 @@ use Cholesky, only: Cho_Real_Par, iSP2F, nBstSh, nnShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: mySP(*), N_mySP
+integer(kind=iwp), intent(_OUT_) :: mySP(*)
+integer(kind=iwp), intent(out) :: N_mySP
 integer(kind=iwp) :: iA, iAB, iB, iNode, iSP, n
 integer(kind=iwp), allocatable :: ProcDim(:)
 integer(kind=iwp), external :: Cho_iFindSmallest

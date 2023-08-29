@@ -27,9 +27,11 @@ use Cholesky, only: Cho_AdrVec, InfVec, LuCho, LuPri, nDimRS, nnBstR
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LSCR, JVEC1, IVEC2, ISYM, JNUM, IREDC, MUSED
-real(kind=wp) :: SCR(LSCR)
-logical(kind=iwp) :: DOREAD
+integer(kind=iwp), intent(in) :: LSCR, JVEC1, IVEC2, ISYM
+real(kind=wp), intent(inout) :: SCR(LSCR)
+integer(kind=iwp), intent(out) :: JNUM, MUSED
+integer(kind=iwp), intent(inout) :: IREDC
+logical(kind=iwp), intent(in) :: DOREAD
 integer(kind=iwp) :: IADR, ILOC, IOPT, IVEC, JADR, JRED, JVEC, KOFFV, KSCR, LENR, LTOT, NTST
 real(kind=wp) :: XNRM
 logical(kind=iwp) :: FULL

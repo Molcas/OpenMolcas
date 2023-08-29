@@ -18,8 +18,8 @@ use Cholesky, only: nQual, nSym, NumCho, nVec_in_Buf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
-real(kind=wp), target :: QVec(l_Qvec)
+integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
+real(kind=wp), target, intent(out) :: QVec(l_Qvec)
 integer(kind=iwp) :: iSym, iV1(8), nV(8)
 !                                                                      *
 !***********************************************************************
@@ -27,8 +27,8 @@ integer(kind=iwp) :: iSym, iV1(8), nV(8)
 interface
   subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
     import :: wp, iwp
-    integer(kind=iwp) :: l_QVec
-    real(kind=wp), target :: QVec(l_QVec)
+    integer(kind=iwp), intent(in) :: l_QVec
+    real(kind=wp), target, intent(out) :: QVec(l_QVec)
   end subroutine Cho_VecBuf_GetLQ
 end interface
 !                                                                      *

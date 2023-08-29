@@ -47,7 +47,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: Cho_X_GetTol
-integer(kind=iwp) :: iTolDef
+integer(kind=iwp), intent(in) :: iTolDef
 integer(kind=iwp) :: ChoIsIni
 real(kind=wp) :: d, ThrAbs
 logical(kind=iwp) :: DidCholesky, DidLDF

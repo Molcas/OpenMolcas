@@ -31,8 +31,8 @@ type(DSBA_Type), intent(in) :: DLT, Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
 #include "debug.fh"
-integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, k, &
-                     kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, &
+                     JVEC, k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
                  TWC1, TWC2, TWR1, TWR2
 logical(kind=iwp) :: add, DoRead
@@ -157,7 +157,8 @@ do JRED=JRED1,JRED2
     IVEC2 = JVEC-1+JNUM
 
     call CWTIME(TCR1,TWR1)
-    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77
       return

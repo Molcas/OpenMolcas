@@ -21,8 +21,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nCol, iCol(nCol), nVec, lBuf, irc
-real(kind=wp) :: Col(nDim,nCol), Vec(nDim,nVec), Buf(lBuf), Fac
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), nVec, lBuf
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(in) :: Vec(nDim,nVec), Fac
+real(kind=wp), intent(out) :: Buf(lBuf)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iBat, iC, iC1, NumBat, NumC, NumCol
 
 irc = 0
@@ -52,14 +55,14 @@ if ((nCol > 1) .and. (lBuf >= nVec)) then
     end if
 
     call ChoMP2_Col_cp(Vec,nDim,nVec,Buf,NumC,iCol(iC1))
-    call DGEMM_('N','T',nDim,NumC,nVec,One,Vec,nDim,Buf,NumC,Fac,Col(1,iC1),nDim)
+    call DGEMM_('N','T',nDim,NumC,nVec,One,Vec,nDim,Buf,NumC,Fac,Col(:,iC1),nDim)
 
   end do
 
 else
 
   do iC=1,nCol
-    call dGeMV_('N',nDim,nVec,One,Vec(1,1),nDim,Vec(iCol(iC),1),nDim,Fac,Col(1,iC),1)
+    call dGeMV_('N',nDim,nVec,One,Vec(:,:),nDim,Vec(iCol(iC),1),nDim,Fac,Col(:,iC),1)
   end do
 
 end if

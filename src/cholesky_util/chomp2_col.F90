@@ -21,8 +21,8 @@ use ChoMP2, only: EOcc, EVir, iOption_MP2CD, NowSym, nT1am
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim, nCol, iCol(nCol), l_Buf
-real(kind=wp) :: Col(nDim,nCol), Buf(l_Buf)
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
+real(kind=wp), intent(out) :: Col(nDim,nCol), Buf(l_Buf)
 integer(kind=iwp) :: iSym
 character(len=*), parameter :: SecNam = 'ChoMP2_Col'
 

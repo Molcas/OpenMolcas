@@ -21,7 +21,7 @@ use Cholesky, only: Cho_Real_Par, LuRed, LuRed_G, TMISC
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iPass, iLoc
+integer(kind=iwp), intent(in) :: iPass, iLoc
 integer(kind=iwp) :: iTmp
 real(kind=wp) :: c1, c2, w1, w2
 

@@ -53,8 +53,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp,u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: Err(4)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: Err(4)
 integer(kind=iwp) :: i
 real(kind=wp), allocatable :: Bin(:), CD(:), Stat(:), XD(:)
 integer(kind=iwp), parameter :: iPrThr = -5

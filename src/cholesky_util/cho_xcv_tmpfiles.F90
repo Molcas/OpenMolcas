@@ -16,7 +16,8 @@ subroutine Cho_XCV_TmpFiles(irc,iOpt)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iOpt
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iOpt
 
 irc = 0
 if (iOpt == 1) then

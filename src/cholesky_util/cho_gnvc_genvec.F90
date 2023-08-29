@@ -21,8 +21,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
-real(kind=wp) :: Diag(*), xInt(lInt)
+integer(kind=iwp), intent(in) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(mSym,mPass), iPass1, NumPass
+real(kind=wp), intent(inout) :: Diag(*), xInt(lInt)
 type(Alloc1DiArray_Type) :: RS2RS(8)
 integer(kind=iwp) :: i, iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
                      jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
@@ -59,7 +59,7 @@ call mma_maxDBLE(l_Wrk)
 call mma_allocate(Wrk,l_Wrk,Label='Wrk')
 do iSym=1,nSym
   kOff = iOff_Col(iSym)+1
-  call Cho_Subtr(xInt(kOff),Wrk,size(Wrk),iSym)
+  call Cho_Subtr(xInt(kOff),Wrk,l_Wrk,iSym)
 end do
 call mma_deallocate(Wrk)
 

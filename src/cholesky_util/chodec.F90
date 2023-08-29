@@ -75,10 +75,10 @@
 !> @param[in,out] Span    Span factor
 !> @param[in]     MxQual  Max. number of qualified columns per decomposition pass
 !> @param[in]     Diag    Array containing the diagonal of the matrix to be decomposed
-!> @param[in]     Qual    Storage array for matrix columns
-!> @param[in]     Buf     Buffer for storing Cholesky vectors
-!> @param[in]     iPivot  Pivoting array
-!> @param[in]     iQual   Array for storing qualified indices
+!> @param[out]    Qual    Storage array for matrix columns
+!> @param[in,out] Buf     Buffer for storing Cholesky vectors
+!> @param[out]    iPivot  Pivoting array
+!> @param[out]    iQual   Array for storing qualified indices
 !> @param[in]     nDim    Linear dimension of matrix
 !> @param[in]     lBuf    Buffer size
 !> @param[out]    ErrStat Min, max, and RMS errors, respectively, for decomposition as judged
@@ -94,9 +94,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: CD_Col, CD_Vec
-logical(kind=iwp) :: Restart
-integer(kind=iwp) :: MxQual, nDim, iPivot(nDim), iQual(MxQual), lBuf, NumCho, irc
-real(kind=wp) :: Thr, Span, Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf), ErrStat(3)
+logical(kind=iwp), intent(in) :: Restart
+integer(kind=iwp), intent(in) :: MxQual, nDim, lBuf
+real(kind=wp), intent(inout) :: Thr, Span, Buf(lBuf)
+real(kind=wp), intent(in) :: Diag(nDim)
+real(kind=wp), intent(out) :: Qual(nDim,0:MxQual), ErrStat(3)
+integer(kind=iwp), intent(out) :: iPivot(nDim), iQual(MxQual), irc
+integer(kind=iwp), intent(inout) :: NumCho
 integer(kind=iwp) :: MinBuf, mQual, MxNumCho
 logical(kind=iwp) :: Converged
 real(kind=wp), parameter :: DefThr = 1.0e-6_wp, DefSpan = 1.0e-2_wp, dum = 9.876543210e15_wp, ThrFail = -1.0e-8_wp, &
@@ -140,7 +144,7 @@ if ((Span < Zero) .or. (Span > One)) Span = DefSpan ! reset span factor
 ! Test diagonal for negative elements.
 ! -------------------------------------------------
 
-call CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
+call CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(:,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
 if (irc /= 0) return ! exit (initial diagonal error)
 
 ! Only do decomposition if not converged!
@@ -152,13 +156,13 @@ if (.not. Converged) then
   ! -------------------
 
   MxNumCho = nDim ! generate as many vectors as needed
-  call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,mQual,ThrNeg,ThrFail,Qual(1,0),Qual(1,1),Buf,iPivot,iQual,nDim,lBuf,NumCho,irc)
+  call CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,mQual,ThrNeg,ThrFail,Qual(:,0),Qual(:,1),Buf,iPivot,iQual,nDim,lBuf,NumCho,irc)
   if (irc /= 0) return  ! exit (decomposition error)
 
   ! Check diagonal and set up error statistics.
   ! -------------------------------------------
 
-  call CD_Diag(CD_Vec,.true.,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(1,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
+  call CD_Diag(CD_Vec,.true.,Converged,Thr,ThrNeg,ThrFail,Diag,Qual(:,0),Buf,nDim,lBuf,ErrStat,NumCho,irc)
   if (irc /= 0) then
     irc = irc+200 ! makes the error code 400 + n
     return ! exit (check error)

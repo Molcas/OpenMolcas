@@ -23,7 +23,7 @@ use Cholesky, only: InfRed, InfVec, LuPri, LuRst, MaxRed, MaxVec, nSym, NumCho, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IFAIL
+integer(kind=iwp), intent(out) :: IFAIL
 integer(kind=iwp), parameter :: LSCR = 8
 integer(kind=iwp) :: IADR, IOPT, ISYM, J, JSCR(LSCR), NRD
 real(kind=wp) :: DSCR(LSCR)

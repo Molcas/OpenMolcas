@@ -19,8 +19,9 @@ subroutine CHO_INTCHK_ID_OF(LABEL,ID,IOPT)
 use Definitions, only: iwp
 
 implicit none
-character(len=8) :: LABEL
-integer(kind=iwp) :: ID, IOPT
+character(len=8), intent(inout) :: LABEL
+integer(kind=iwp), intent(inout) :: ID
+integer(kind=iwp), intent(in) :: IOPT
 integer(kind=iwp), parameter :: NTABLE = 12
 character(len=*), parameter :: TABLE(NTABLE) = ['EXCL RS1','MAX|XRS1','MIN|XRS1','NEG DIAG','MAX|NEG ','MIN|NEG ','NEG->ZER', &
                                                 'MAX|NEGZ','MIN|NEGZ','MAX DIAG','MIN DIAG','MAX|MIN ']

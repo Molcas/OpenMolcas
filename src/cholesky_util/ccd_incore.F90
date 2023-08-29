@@ -35,8 +35,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, irc
-real(kind=wp) :: X(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: X(n,n)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: Fac
 

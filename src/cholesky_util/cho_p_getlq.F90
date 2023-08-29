@@ -16,8 +16,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
-real(kind=wp), target :: QVec(l_Qvec)
+integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
+real(kind=wp), target, intent(out) :: QVec(l_Qvec)
 character(len=*), parameter :: SecNam = 'Cho_P_GetLQ'
 !                                                                      *
 !***********************************************************************
@@ -25,8 +25,8 @@ character(len=*), parameter :: SecNam = 'Cho_P_GetLQ'
 interface
   subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
     import :: wp, iwp
-    integer(kind=iwp) :: l_QVec, nQSP, LstQSP(nQSP)
-    real(kind=wp), target :: QVec(l_Qvec)
+    integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
+    real(kind=wp), target, intent(out) :: QVec(l_Qvec)
   end subroutine Cho_GetLQ
 end interface
 !                                                                      *

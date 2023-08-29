@@ -21,8 +21,10 @@ use Index_Functions, only: iTri_Rev
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IJ, I, J, RES(2)
-logical(kind=iwp) :: LOW
+integer(kind=iwp), intent(in) :: IJ
+integer(kind=iwp), intent(out) :: I, J
+logical(kind=iwp), intent(in) :: LOW
+integer(kind=iwp) :: RES(2)
 
 if (IJ > 0) then
 

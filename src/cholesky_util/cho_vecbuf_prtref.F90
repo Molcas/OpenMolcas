@@ -23,7 +23,7 @@ use Cholesky, only: CHVBFI, InfVec, ip_CHVBFI_SYM, LuPri, nDimRS, nSym, nVec_in_
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Txt
+character(len=*), intent(in) :: Txt
 integer(kind=iwp) :: iSym, jRed, jVec, nDim
 
 if (.not. allocated(nDimRS)) call Cho_Quit('Cho_VecBuf_PrtRef: unable to print reference values',104)

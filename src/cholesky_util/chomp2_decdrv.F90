@@ -41,9 +41,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-logical(kind=iwp) :: DelOrig
-real(kind=wp) :: Diag(*)
+integer(kind=iwp), intent(out) :: irc
+logical(kind=iwp), intent(in) :: DelOrig
+real(kind=wp), intent(in) :: Diag(*)
 character(len=*) :: CD_Type
 integer(kind=iwp) :: iAdr, iBin, iClos(2), iOpt, IOPTION, ISYM, iTyp, kOffD, lB, LEFT, LERRSTAT, lTot, MxCDVec(8), MxQual, nBin, &
                      nDim, nInc

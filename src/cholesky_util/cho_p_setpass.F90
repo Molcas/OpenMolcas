@@ -25,10 +25,16 @@ subroutine Cho_P_SetPass(Diag,Sync,DiaSh,iSySh,iLoc,Conv,nPotSh)
 use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Diag(*), DiaSh(*)
-logical(kind=iwp) :: Sync, Conv
-integer(kind=iwp) :: iSySh(*), iLoc, nPotSh
+real(kind=wp), intent(in) :: Diag(*)
+logical(kind=iwp), intent(in) :: Sync
+real(kind=wp), intent(_OUT_) :: DiaSh(*)
+integer(kind=iwp), intent(_OUT_) :: iSySh(*)
+integer(kind=iwp), intent(in) :: iLoc
+logical(kind=iwp), intent(out) :: Conv
+integer(kind=iwp), intent(out) :: nPotSh
 
 if (Cho_Real_Par) then
 

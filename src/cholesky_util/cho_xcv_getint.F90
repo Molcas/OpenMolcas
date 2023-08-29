@@ -27,8 +27,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_ListCD, ListCD(l_ListCD), l_ListSP, ListSP(l_ListSP), l_NVT, NVT(l_NVT), l_Int
-real(kind=wp) :: xInt(l_Int)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_ListCD, ListCD(l_ListCD), l_ListSP, ListSP(l_ListSP), l_NVT, NVT(l_NVT), l_Int
+real(kind=wp), intent(out) :: xInt(l_Int)
 integer(kind=iwp) :: iCD, iSP, iSym, n
 
 ! Set return code

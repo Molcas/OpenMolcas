@@ -21,7 +21,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_iFindSmallest
-integer(kind=iwp) :: n, iVec(n)
+integer(kind=iwp), intent(in) :: n, iVec(n)
 integer(kind=iwp) :: i, imin
 
 if (n < 1) then

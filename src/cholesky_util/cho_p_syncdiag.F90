@@ -20,8 +20,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: iLoc
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: iLoc
 integer(kind=iwp) :: i, j
 real(kind=wp) :: c1, c2, w1, w2
 

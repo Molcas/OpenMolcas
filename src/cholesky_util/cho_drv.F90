@@ -24,7 +24,7 @@ use Cholesky, only: Cho_DecAlg
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iReturn
+integer(kind=iwp), intent(out) :: iReturn
 
 iReturn = 0
 if (Cho_DecAlg == 5) then ! parallel two-step algorithm

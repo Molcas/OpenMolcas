@@ -19,9 +19,11 @@ subroutine CHO_PUTVEC2(CHOVEC,NUMVEC,IVEC1,ISYM)
 use Cholesky, only: CHO_ADRVEC, InfVec, LuCho, LuPri, MaxVec, nDimRS, nSym
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CHOVEC(*)
-integer(kind=iwp) :: NUMVEC, IVEC1, ISYM
+real(kind=wp), intent(_IN_) :: CHOVEC(*)
+integer(kind=iwp), intent(in) :: NUMVEC, IVEC1, ISYM
 integer(kind=iwp) :: IADR, IADR2, IOPT, IVEC, IVEC2, JADR, JRED, JVEC, KOFF, LTOT, LVEC
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.

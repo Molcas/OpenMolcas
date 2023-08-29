@@ -19,7 +19,7 @@ use Cholesky, only: Cho_AdrVec, Cho_Fake_Par, Cho_Real_Par, LuCho, LuCho_G, LuPr
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iOpt
+integer(kind=iwp), intent(in) :: iOpt
 integer(kind=iwp) :: ID, iSym
 character(len=6) :: FNRst, FNVec(8)
 character(len=5) :: FNRed

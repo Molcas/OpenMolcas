@@ -29,8 +29,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: DFONLY
-integer(kind=iwp) :: LUNIT, LUOUT
+logical(kind=iwp), intent(in) :: DFONLY
+integer(kind=iwp), intent(in) :: LUNIT, LUOUT
 integer(kind=iwp), parameter :: LINTSCR = 2, NOPTION = 58
 integer(kind=iwp) :: IDKEY, INTSCR(LINTSCR), IRC, MXSHPR_DEF
 logical(kind=iwp) :: DECALG_USRDEF, FAKE_USRDEF, FORCEPARALLEL, MXSHPR_USRDEF

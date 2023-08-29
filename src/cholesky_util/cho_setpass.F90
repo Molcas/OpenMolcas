@@ -18,10 +18,15 @@ use Cholesky, only: DiaMax, DiaMin, nnShl, nSym, Span, ThrCom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Diag(*), DIASH(*)
-integer(kind=iwp) :: ISYSH(*), IRED, NPOTSH
-logical(kind=iwp) :: CONV
+real(kind=wp), intent(in) :: Diag(*)
+real(kind=wp), intent(_OUT_) :: DIASH(*)
+integer(kind=iwp), intent(_OUT_) :: ISYSH(*)
+integer(kind=iwp), intent(in) :: IRED
+logical(kind=iwp), intent(out) :: CONV
+integer(kind=iwp), intent(out) :: NPOTSH
 integer(kind=iwp) :: ISHLAB, ISYM
 real(kind=wp) :: DGMAX
 

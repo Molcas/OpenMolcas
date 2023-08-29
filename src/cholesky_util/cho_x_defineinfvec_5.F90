@@ -22,7 +22,7 @@ use Cholesky, only: InfVec, nSym, NumCho
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: isDF
+logical(kind=iwp), intent(in) :: isDF
 integer(kind=iwp) :: i, iSym
 logical(kind=iwp) :: doDefine
 

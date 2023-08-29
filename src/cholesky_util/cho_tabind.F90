@@ -21,9 +21,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_TABIND
-integer(kind=iwp) :: LKEY, NTABLE, LEOINP, NEOINP
-character(len=LKEY) :: TABLE(NTABLE), WORD
-character(len=LEOINP) :: EOINP(NEOINP)
+integer(kind=iwp), intent(in) :: LKEY, NTABLE, LEOINP, NEOINP
+character(len=LKEY), intent(in) :: TABLE(NTABLE), WORD
+character(len=LEOINP), intent(in) :: EOINP(NEOINP)
 integer(kind=iwp) :: IJUMP, LCMP
 logical(kind=iwp) :: Test
 

@@ -23,9 +23,13 @@ use ChoMp2, only: iAOVir, iT1am, iT1AOT, nOcc, nT1AOT, nVir
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
-real(kind=wp) :: VecAO(*), VecMO(*), COcc(*), CVir(*), Scr(lScr)
+real(kind=wp), intent(in) :: VecAO(*), COcc(*), CVir(*)
+real(kind=wp), intent(_OUT_) :: VecMO(*)
+integer(kind=iwp), intent(in) :: lScr, iSyCho, iSyCO, iSyCV, iLoc
+real(kind=wp), intent(out) :: Scr(lScr)
 integer(kind=iwp) :: iAlBe, iAlpha, iBeta, iSym, iSyma, iSymAl, iSymBe, iSymi, iSyScr, jAlBe, jAlpha, jBeta, kOff1, kOff2, kOff3, &
                      kOffAl, kOffBe, nTota, nTotAl, nToti
 real(kind=wp) :: AOVal

@@ -35,8 +35,8 @@ implicit none
 integer(kind=iwp), intent(inout) :: irc
 type(DSBA_Type), intent(in) :: DLT
 type(DSBA_Type), intent(inout) :: FLT(1)
-integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
-                     NUMV, nVec, nVrs
+integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, &
+                     nRS, NUMV, nVec, nVrs
 real(kind=wp) :: FactC, TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
                  TWC2, TWR1, TWR2, xfac
 logical(kind=iwp) :: add
@@ -134,7 +134,8 @@ do JRED=JRED1,JRED2
 
     call CWTIME(TCR1,TWR1)
 
-    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
 
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77

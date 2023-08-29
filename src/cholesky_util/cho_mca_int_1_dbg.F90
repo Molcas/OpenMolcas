@@ -21,8 +21,8 @@ use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: Level
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: Level
 integer(kind=iwp) :: IRED
 logical(kind=iwp) :: LOCDIAG, LOCSYM
 

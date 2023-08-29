@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DIASH(*), SMAX
-integer(kind=iwp) :: ISHLAB
+real(kind=wp), intent(inout) :: DIASH(*)
+real(kind=wp), intent(out) :: SMAX
+integer(kind=iwp), intent(out) :: ISHLAB
 integer(kind=iwp) :: JSHLAB
 character(len=*), parameter :: SECNAM = 'CHO_GETMAXSHL'
 

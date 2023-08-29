@@ -21,8 +21,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=17) :: Caller
-integer(kind=iwp) :: Job, iBatch
+character(len=*), intent(in) :: Caller
+integer(kind=iwp), intent(in) :: Job, iBatch
 real(kind=wp) :: CME_Time(2,2) = Zero, CPU, Ratio, Wall
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_Prt', ThisNam = 'Energy_Prt'
 

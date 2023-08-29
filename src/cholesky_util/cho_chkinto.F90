@@ -16,10 +16,14 @@ subroutine CHO_CHKINTO(XINT,DIAG,ISYM,NERR,TOL,REPORT)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: XINT(*), DIAG(*), TOL
-integer(kind=iwp) :: ISYM, NERR
-logical(kind=iwp) :: REPORT
+real(kind=wp), intent(in) :: XINT(*), TOL
+real(kind=wp), intent(_OUT_) :: DIAG(*)
+integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(out) :: NERR
+logical(kind=iwp), intent(in) :: REPORT
 integer(kind=iwp) :: IOPT
 
 IOPT = 2

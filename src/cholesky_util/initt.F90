@@ -22,8 +22,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: T(40), RIni, RNew
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(out) :: T(2*K_Lap)
+real(kind=wp), intent(in) :: RIni, RNew
 integer(kind=iwp) :: I
 real(kind=wp) :: Val
 logical(kind=iwp) :: Dbg

@@ -22,8 +22,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NVar, NOcc, NCore
-real(kind=wp) :: E(NVar), EMin, EMax
+integer(kind=iwp), intent(in) :: NVar, NOcc, NCore
+real(kind=wp), intent(in) :: E(NVar)
+real(kind=wp), intent(out) :: EMin, EMax
 integer(kind=iwp) :: I
 integer(kind=iwp), allocatable :: IDX(:)
 

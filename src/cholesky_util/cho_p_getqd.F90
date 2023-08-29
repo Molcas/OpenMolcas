@@ -17,8 +17,10 @@ subroutine Cho_P_GetQD(QD)
 use Cholesky, only: Diag_G, IndRed_G, iQuAB, nQual, nSym
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: QD(*)
+real(kind=wp), intent(_OUT_) :: QD(*)
 integer(kind=iwp) :: iAB, iQ, iSym, kQD
 
 kQD = 0

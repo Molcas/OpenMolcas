@@ -34,8 +34,10 @@ use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, l_CHVBFI_SYM, l_CHVBUF_SYM, L
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lVec, jVec1, iVec2, iSym, jNum, iRedC, mUsed
-real(kind=wp) :: Vec(lVec)
+integer(kind=iwp), intent(in) :: lVec, jVec1, iVec2, iSym
+real(kind=wp), intent(out) :: Vec(lVec)
+integer(kind=iwp), intent(out) :: jNum, mUsed
+integer(kind=iwp), intent(inout) :: iRedC
 logical(kind=iwp) :: Full
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.

@@ -21,8 +21,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: Coeff(40), T(40), VV(40), Eps
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: Coeff(40), T(40)
+real(kind=wp), intent(out) :: VV(40), Eps
 integer(kind=iwp) :: I, I_Dim, J
 real(kind=wp) :: X
 real(kind=wp), external :: QuadErr

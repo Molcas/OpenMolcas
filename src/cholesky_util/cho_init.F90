@@ -33,7 +33,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: SKIP_PRESCREEN, ALLOCATE_BOOKMARKS
+logical(kind=iwp), intent(in) :: SKIP_PRESCREEN, ALLOCATE_BOOKMARKS
 integer(kind=iwp) :: I, IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl, nnBMx, nnBT
 real(kind=wp) :: XA, XB, XXB(8), XXBMx, XXBT
 real(kind=wp), parameter :: GBLIM = 2.147483648e9_wp

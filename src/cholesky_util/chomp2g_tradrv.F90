@@ -24,21 +24,26 @@ use ChoMP2, only: nAdrOff, nMoAo, nMoType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: CMO(*), Diag(*)
-logical(kind=iwp) :: DoDiag
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: Diag(*)
+logical(kind=iwp), intent(in) :: DoDiag
 integer(kind=iwp) :: i, iMoType, iSym, jMOType, l_COrb, nProdType
-logical(kind=iwp) :: DoDiagbak
+logical(kind=iwp) :: DoDiag_
 real(kind=wp), allocatable :: COrb1(:), COrb2(:)
+
+#include "macros.fh"
+unused_var(DoDiag)
 
 irc = 0
 
 ! Reorder MO coefficients.
 ! ------------------------
 
-DoDiagBak = DoDiag
-DoDiag = .false.
+DoDiag_ = .false.
 nProdType = nMOType**2
 l_COrb = 0
 nAdrOff(1:nSym) = 0
@@ -51,10 +56,10 @@ end do
 call mma_allocate(COrb1,l_COrb,Label='COrb1')
 call mma_allocate(COrb2,l_COrb,Label='COrb2')
 
-DoDiag = .true.
+DoDiag_ = .true.
 call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,2,3)
-call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,2,3)
-DoDiag = .false.
+call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag_,2,3)
+DoDiag_ = .false.
 do iMoType=1,3
   do jMOType=1,3
     if ((iMoType == 2) .and. (jMoType == 3)) cycle
@@ -62,15 +67,13 @@ do iMoType=1,3
     call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMOType,jMOType)
     ! Transform vectors.
     ! ------------------
-    call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType,jMoType)
+    call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag_,iMoType,jMoType)
 
   end do
 end do
 
 ! Deallocate reordered MO coefficients.
 ! -------------------------------------
-
-DoDiag = DoDiagBak
 
 call mma_deallocate(COrb2)
 call mma_deallocate(COrb1)

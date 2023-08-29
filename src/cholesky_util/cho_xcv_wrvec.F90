@@ -24,9 +24,12 @@ use Cholesky, only: nnBstRSh, nnShl, nSym, NumCho
 #endif
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, l_Vec, l_NVT, NVT(l_NVT), l_myRankSP, myRankSP(l_myRankSP), SP
-real(kind=wp) :: Vec(l_Vec)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_Vec, l_NVT, NVT(l_NVT), l_myRankSP, myRankSP(l_myRankSP), SP
+real(kind=wp), intent(_IN_) :: Vec(l_Vec)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iSP, iSym, n
 

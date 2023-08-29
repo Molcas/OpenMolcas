@@ -38,9 +38,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: CD_Vec
-logical(kind=iwp) :: Restart, Converged
-integer(kind=iwp) :: nDim, lBuf, NumCho, irc
-real(kind=wp) :: Thr, ThrNeg, ThrFail, DiaInp(nDim), Diag(nDim), Buf(lBuf), ErrStat(3)
+logical(kind=iwp), intent(in) :: Restart
+logical(kind=iwp), intent(out) :: Converged
+integer(kind=iwp), intent(in) :: nDim, lBuf, NumCho
+real(kind=wp), intent(in) :: Thr, ThrNeg, ThrFail, DiaInp(nDim)
+real(kind=wp), intent(out) :: Diag(nDim), ErrStat(3)
+real(kind=wp), intent(inout) :: Buf(lBuf)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iBatch, ij, iOpt, iVec1, jVec, kOff, nBatch, NumV, nVec
 real(kind=wp) :: xDim
 

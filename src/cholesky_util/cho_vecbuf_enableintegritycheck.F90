@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 real(kind=wp), external :: dDot_
 integer(kind=iwp) :: ip, ipV, iSym, jRed, jVec, l_ChVBfI
 

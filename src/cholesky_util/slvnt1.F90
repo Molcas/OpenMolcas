@@ -23,8 +23,9 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap, NTimes
-real(kind=wp) :: Coeff(40), T(40)
+integer(kind=iwp), intent(in) :: K_Lap, NTimes
+real(kind=wp), intent(inout) :: Coeff(40)
+real(kind=wp), intent(in) :: T(40)
 integer(kind=iwp) :: I, I_Dim, IRes, Iter
 real(kind=wp) :: A(40,40), CoeffOld(40), Eps0, Eps1, Theta, VV(40), W(40)
 logical(kind=iwp) :: Dbg, Error

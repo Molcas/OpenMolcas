@@ -24,8 +24,9 @@ use ChoMP2, only: iOcc, iT1am, iVir, nOcc, NowSym, nVir
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nCol, iCol(nCol)
-real(kind=wp) :: Col(nDim,nCol), EOcc(*), EVir(*)
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol)
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
 integer(kind=iwp) :: a, ai, ai0, b, bj, bj_, i, iSym, iSyma, iSymb, iSymi, iSymj, j
 real(kind=wp) :: DE, Ebj
 

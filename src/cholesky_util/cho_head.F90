@@ -16,9 +16,9 @@ subroutine CHO_HEAD(STRING,LINE,LENMAX,LUNIT)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: STRING
-character :: LINE
-integer(kind=iwp) :: LENMAX, LUNIT
+character(len=*), intent(in) :: STRING
+character, intent(in) :: LINE
+integer(kind=iwp), intent(in) :: LENMAX, LUNIT
 integer(kind=iwp) :: I, LENSTR, LENTOT
 
 LENSTR = len(STRING)

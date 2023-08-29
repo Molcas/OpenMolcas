@@ -43,8 +43,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, MxVec, NumCho, iD(MxVec), irc
-real(kind=wp) :: X(n,n), Wg(n), Vec(n,MxVec), Thr, ThrNeg, ThrFail
+integer(kind=iwp), intent(in) :: n, MxVec
+real(kind=wp), intent(inout) :: X(n,n)
+real(kind=wp), intent(in) :: Wg(n), Thr, ThrNeg, ThrFail
+real(kind=wp), intent(out) :: Vec(n,MxVec)
+integer(kind=iwp), intent(out) :: NumCho, iD(MxVec), irc
 integer(kind=iwp) :: i, imax, iPass, j
 real(kind=wp) :: Acc, xFac, Xmax
 

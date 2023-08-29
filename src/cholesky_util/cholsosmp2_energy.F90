@@ -25,9 +25,10 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: EMP2, EOcc(*), EVir(*)
-logical(kind=iwp) :: Sorted, DelOrig
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(inout) :: EOcc(*), EVir(*)
+logical(kind=iwp), intent(in) :: Sorted, DelOrig
 integer(kind=iwp) :: CheckDenomRange, i, iSym, l_w
 logical(kind=iwp) :: FermiShift, Verb
 real(kind=wp) :: EFermi, EHOMO, EHUMO, ELOMO, ELUMO, xmax, xmin

@@ -16,7 +16,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MaxQual, nSym
+integer(kind=iwp), intent(in) :: MaxQual, nSym
 
 if (Cho_Real_Par) then
   call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,Label='iQuAB_L_Hidden')

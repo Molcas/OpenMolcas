@@ -14,7 +14,9 @@ subroutine Cho_P_SetAddr_2(InfRed,InfVec,MaxRed,MaxVec,N2,nSym,irc)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MaxRed, InfRed(MaxRed), MaxVec, N2, nSym, InfVec(MaxVec,N2,nSym), irc
+integer(kind=iwp), intent(in) :: MaxRed, MaxVec, N2, nSym
+integer(kind=iwp), intent(inout) :: InfRed(MaxRed), InfVec(MaxVec,N2,nSym)
+integer(kind=iwp), intent(out) :: irc
 
 irc = 0
 

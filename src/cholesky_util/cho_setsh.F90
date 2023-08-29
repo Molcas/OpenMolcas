@@ -14,8 +14,8 @@ subroutine CHO_SETSH(IBASSH,NBASSH,NBSTSH,IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NSYM, NSHELL, IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL), NBSTSH(NSHELL), IBAS(NSYM), NBAS(NSYM), NBAST, &
-                     ISOSHL(NBAST)
+integer(kind=iwp), intent(in) :: NSYM, IBAS(NSYM), NBAS(NSYM), NBAST, ISOSHL(NBAST), NSHELL
+integer(kind=iwp), intent(out) :: IBASSH(NSYM,NSHELL), NBASSH(NSYM,NSHELL), NBSTSH(NSHELL)
 integer(kind=iwp) :: IA, ISHL, ISYM
 
 NBASSH(:,:) = 0

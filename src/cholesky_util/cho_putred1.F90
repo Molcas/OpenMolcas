@@ -17,9 +17,11 @@ subroutine CHO_PUTRED1(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,MRED,MSYM,MMSHL,LMMBS
 use Cholesky, only: LuPri, LuRed, MaxRed, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: MRED, INFRED(MRED), MSYM, MMSHL, NNBSTRSH(MSYM,MMSHL), LMMBSTRT, INDRED(LMMBSTRT), INDRSH(LMMBSTRT), &
-                     ISP2F(MMSHL), IPASS, ILOC
+integer(kind=iwp), intent(in) :: MRED, INFRED(MRED), MSYM, MMSHL, LMMBSTRT, IPASS, ILOC
+integer(kind=iwp), intent(_IN_) :: NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT), ISP2F(MMSHL)
 integer(kind=iwp) :: IADR, IADR1, IOPT, LTOT
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_PUTRED1'
@@ -56,7 +58,7 @@ if (LOCDBG) write(LUPRI,*) SECNAM,': putting reduced set ',IPASS,' at addr: ',IA
 IOPT = 1
 IADR = IADR1
 LTOT = NSYM*NNSHL
-call IDAFILE(LURED,IOPT,NNBSTRSH(1,1),LTOT,IADR)
+call IDAFILE(LURED,IOPT,NNBSTRSH,LTOT,IADR)
 IOPT = 1
 IADR = IADR1+NSYM*NNSHL
 LTOT = NNBSTRT(ILOC)

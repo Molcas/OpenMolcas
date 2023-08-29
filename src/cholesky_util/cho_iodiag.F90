@@ -20,8 +20,8 @@ use Cholesky, only: LuPri, nnBstRT
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DIAG(*)
-integer(kind=iwp) :: IOPT
+real(kind=wp), intent(inout) :: DIAG(*)
+integer(kind=iwp), intent(in) :: IOPT
 integer(kind=iwp) :: IADR, LENGTH, LUNIT
 character(len=*), parameter :: FNAME = 'CHODIAG', SECNAM = 'CHO_IODIAG_1'
 

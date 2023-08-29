@@ -14,8 +14,9 @@ subroutine UpdateMostNegative(n,X,Val)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: X(n), Val
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: X(n)
+real(kind=wp), intent(in) :: Val
 integer(kind=iwp) :: i, j
 
 if (Val >= X(n)) return

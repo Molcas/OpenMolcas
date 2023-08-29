@@ -23,9 +23,9 @@ use Cholesky, only: DiaMin, IALQUA, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, iSP2
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: ISHLAB, ISYMAX, MEM
-logical(kind=iwp) :: FULL
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: ISHLAB, ISYMAX, MEM
+logical(kind=iwp), intent(out) :: FULL
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.
 #else

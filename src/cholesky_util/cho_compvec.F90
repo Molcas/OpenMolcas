@@ -23,8 +23,10 @@ use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lWrk, iSym, iPass
-real(kind=wp) :: Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
+integer(kind=iwp), intent(inout) :: lWrk
+real(kind=wp), intent(inout) :: Diag(*), xInt(*), QDiag(*), Wrk(lWrk)
+real(kind=wp), intent(in) :: VecK(*)
+integer(kind=iwp), intent(in) :: iSym, iPass
 integer(kind=iwp) :: i, iABG, iVec, iVecT, j, jAB, jAB1, kInt, kK0, kOff, kOff0, nConv, nErr, nNeg, nNegT
 real(kind=wp) :: Fac, OlDiag, QDmax, Tol, xC, xM, yM, zM
 logical(kind=iwp), parameter :: LocDbg = .false.

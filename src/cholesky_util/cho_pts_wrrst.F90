@@ -24,7 +24,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_NVT
+integer(kind=iwp), intent(inout) :: NVT(l_NVT)
 integer(kind=iwp) :: iAdr, iSym, iV
 integer(kind=iwp), pointer :: InfVcT(:,:,:)
 #ifdef _DEBUGPRINT_
@@ -38,7 +40,7 @@ character(len=*), parameter :: SecNam = 'Cho_PTS_WrRst'
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVct(:,:,:)
+    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 

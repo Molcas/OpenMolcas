@@ -33,7 +33,7 @@ use Constants, only: Zero
 use Definitions, only: iwp, wp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), parameter :: iLarge = 99999999
 real(kind=wp), parameter :: Large = 1.0e15_wp, Small = 1.0e-15_wp
 

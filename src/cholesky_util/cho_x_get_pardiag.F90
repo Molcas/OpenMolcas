@@ -38,7 +38,8 @@ use Cholesky, only: iiBstR, InfVec, iRS2F, NumCho
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: jSym, iSO_ab(2,*)
+integer(kind=iwp), intent(in) :: jSym
+integer(kind=iwp), intent(out) :: iSO_ab(2,*)
 integer(kind=iwp) :: iOff, jRab, jv, kRab
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iRank, kv, nTot

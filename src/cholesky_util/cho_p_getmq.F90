@@ -16,8 +16,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_MQ, nQSP, LstQSP(nQSP)
-real(kind=wp) :: MQ(l_MQ)
+integer(kind=iwp), intent(in) :: l_MQ, nQSP, LstQSP(nQSP)
+real(kind=wp), intent(out) :: MQ(l_MQ)
 character(len=*), parameter :: SecNam = 'Cho_P_GetMQ'
 
 ! In parallel:

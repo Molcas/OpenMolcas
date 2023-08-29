@@ -45,9 +45,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nOV, MaxNVec, ID_bj(*), NVec
-real(kind=wp) :: thr, W(*), Dmax
+integer(kind=iwp), intent(in) :: nOV, MaxNVec
+real(kind=wp) , intent(in):: thr, W(*)
+integer(kind=iwp), intent(_OUT_) :: ID_bj(*)
+integer(kind=iwp), intent(out) :: NVec
+real(kind=wp) , intent(out):: Dmax
 integer(kind=iwp) :: ip, Jm
 real(kind=wp), allocatable :: Diag(:)
 

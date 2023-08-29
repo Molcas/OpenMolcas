@@ -23,7 +23,7 @@ use Cholesky, only: Cho_AdrVec, Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Real_P
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 logical(kind=iwp) :: WriteBlank
 
 irc = 0

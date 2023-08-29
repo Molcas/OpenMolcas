@@ -20,8 +20,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Frac
-logical(kind=iwp) :: LocDbg
+real(kind=wp), intent(in) :: Frac
+logical(kind=iwp), intent(in) :: LocDbg
 integer(kind=iwp), parameter :: lScr = 1
 integer(kind=iwp) :: i, iRedC, iSym, jNum, l_ChVBuf = 0, l_Max, Left, mUsed, nErr
 real(kind=wp) :: Byte, Diff, Scr(lScr)

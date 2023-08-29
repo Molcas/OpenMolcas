@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP)
 integer(kind=iwp) :: iAdr, iAdr0, iBatch, ip_Mem, ip_T, ip_V, iSP, iSP1, iSP2, iSP_Batch, iSym, j, J1, kOffT, kOffV, kT, kV, &
                      l_Mem, lTot, max_block_dim, max_vector_dim, nBatch, nDim, nSP_this_batch, nVec_per_batch, nVec_this_batch
 real(kind=wp) :: X0, X1, Y0, Y1

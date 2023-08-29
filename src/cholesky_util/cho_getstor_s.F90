@@ -18,8 +18,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: VCSTOR
-integer(kind=iwp) :: ISYM
+real(kind=wp), intent(out) :: VCSTOR
+integer(kind=iwp), intent(in) :: ISYM
 integer(kind=iwp) :: IRED, JRED
 
 if (NUMCHO(ISYM) < 1) then

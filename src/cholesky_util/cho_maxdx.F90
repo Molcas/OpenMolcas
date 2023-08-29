@@ -20,7 +20,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), Dmax(*)
+real(kind=wp), intent(inout) :: Diag(*)
+real(kind=wp), intent(out) :: Dmax(nSym)
 integer(kind=iwp) :: iab, iQ, iRab, jRab, jRab1, jRab2, jSym, MxQ
 real(kind=wp), allocatable :: ExQ(:)
 

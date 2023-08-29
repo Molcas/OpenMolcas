@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: DoDummy
+logical(kind=iwp), intent(in) :: DoDummy
 integer(kind=iwp) :: iSym, l_iScr
 
 if (DoDummy) then

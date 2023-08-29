@@ -38,8 +38,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, iRed
-logical(kind=iwp) :: DoTime, DoStat
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iRed
+logical(kind=iwp), intent(in) :: DoTime, DoStat
 integer(kind=iwp) :: iE, iMapC, iOff3, iRedC, iRS2, iS, iSym, iVec, iVec1, iVec2, jRed, jRS3, jVec, kVec, l_VRd, lCol, Left, lRow, &
                      mUsed, nDisk, nErr, nSys, nVec, nVRd
 real(kind=wp) :: C1, C2, W1, W2

@@ -16,8 +16,8 @@ subroutine Cho_X_Init_Par(irc,isDF)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc
-logical(kind=iwp) :: isDF
+integer(kind=iwp), intent(out) :: irc
+logical(kind=iwp), intent(in) :: isDF
 
 if (isDF) then
   call Cho_X_Init_Par_DF(irc)

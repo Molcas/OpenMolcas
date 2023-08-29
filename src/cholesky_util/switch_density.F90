@@ -17,9 +17,12 @@ use Index_Functions, only: iTri
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nnBstR
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iLoc, kSym
-real(kind=wp) :: XLT(*), Xab(*)
+integer(kind=iwp), intent(in) :: iLoc, kSym
+real(kind=wp), intent(in) :: XLT(*)
+real(kind=wp), intent(_OUT_) :: Xab(*)
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jRab, jSym, kRab
 real(kind=wp) :: xf
 integer(kind=iwp), external :: cho_isao

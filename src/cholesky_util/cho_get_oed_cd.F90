@@ -38,9 +38,10 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: incore
-integer(kind=iwp) :: nOV, NVec, ID_bj(*), JVec
-real(kind=wp) :: W(*), Y(*), R(*)
+logical(kind=iwp), intent(in) :: incore
+integer(kind=iwp), intent(in) :: nOV, NVec, ID_bj(*), JVec
+real(kind=wp), intent(in) :: W(*)
+real(kind=wp), intent(inout) :: Y(*), R(*)
 #include "warnings.h"
 integer(kind=iwp) :: Jk, Jm, kp, np
 real(kind=wp), parameter :: xtwo = sqrt(Two)

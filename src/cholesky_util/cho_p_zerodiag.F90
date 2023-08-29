@@ -24,9 +24,11 @@ use Cholesky, only: Cho_Real_Par, iL2G, IndRed, iQuAB_L, nQual_L
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: iSym, iABG
+real(kind=wp), intent(_OUT_) :: Diag(*)
+integer(kind=iwp), intent(in) :: iSym, iABG
 integer(kind=iwp) :: iAB, iQ, jAB, kAB
 
 if (Cho_Real_Par) then

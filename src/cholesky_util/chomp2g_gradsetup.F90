@@ -30,8 +30,8 @@ use Constants, only: Zero, One, Two, Eight, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: CMO(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp) , intent(in):: CMO(*)
 integer(kind=iwp) :: i, iAdr, iAdr1, iAdr2, iAdrB(8), iAdrR(8), iB3, iClos, iCMOo, iComp, iiJ, iiK, iJ, iK, indx, iOff, iOff0, &
                      iOff1, iOff2, iOff3, iOff_A, iOff_A2, iOff_JL, iOff_Ria, iOff_Rin, iOff_Rmn, iOff_WJL(8), iOffA, iOffB, &
                      iOffB1, iOffB2, iOffB3(8,8), iOffBB, iOffCInv(8), iOffCMOo(8), iOffD(8), iOffFF, iOffFO, iOffFV, iOffL, &

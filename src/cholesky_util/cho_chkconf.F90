@@ -22,8 +22,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NCONFL
-logical(kind=iwp) :: VERBOSE
+integer(kind=iwp), intent(out) :: NCONFL
+logical(kind=iwp), intent(in) :: VERBOSE
 integer(kind=iwp) :: INEGRR, MMM, NNN
 logical(kind=iwp) :: REPORT
 real(kind=wp) :: XLBUF, XMBUF

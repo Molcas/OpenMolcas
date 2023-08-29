@@ -16,7 +16,9 @@ subroutine Cho_ReoQual(iQuAB,MxQ,nSym,iQScr,IDK,nK,nQ)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MxQ, nSym, iQuAB(MxQ,nSym), iQScr(MxQ), IDK(*), nK(nSym), nQ(nSym)
+integer(kind=iwp), intent(in) :: MxQ, nSym, IDK(*), nK(nSym), nQ(nSym)
+integer(kind=iwp), intent(inout) :: iQuAB(MxQ,nSym)
+integer(kind=iwp), intent(out) :: iQScr(MxQ)
 integer(kind=iwp) :: iK, iSym, kID, lK
 
 kID = 0

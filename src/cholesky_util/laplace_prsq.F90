@@ -18,8 +18,8 @@ use ReMez_mod, only: IW
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: M, N, NDIM
-real(kind=wp) :: V(NDIM,M)
+integer(kind=iwp), intent(in) :: M, N, NDIM
+real(kind=wp), intent(in) :: V(NDIM,M)
 integer(kind=iwp) :: I, IMAX, IMIN, J, NMAX
 
 ! ----- PRINT OUT A SQUARE MATRIX -----

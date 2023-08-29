@@ -56,12 +56,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nOcc(*)
-real(kind=wp) :: CMO(*), ER(*), W
-logical(kind=iwp) :: timings
-integer(kind=iwp) :: ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, jv, &
-                     JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nOcc(*)
+real(kind=wp), intent(_OUT_) :: ER(*)
+real(kind=wp), intent(out) :: W
+logical(kind=iwp), intent(in) :: timings
+integer(kind=iwp) :: ia, ib, iBatch, ik, iLoc, iOcc(8), ipa, ipab, ipb, isMO(8), IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, &
+                     JSYM, jv, JVEC, kSym, LREAD, LWORK, MaxB, MaxBB, MUSED, nBatch, nOccT, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: TCI1, TCI2, TCR1, TCR2, tintg(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWI1, TWI2, &
                  TWR1, TWR2
 real(kind=wp), allocatable :: Dab(:), DLT(:), Lab(:), VJ(:)
@@ -162,7 +167,8 @@ do JRED=JRED1,JRED2
 
     call CWTIME(TCR1,TWR1)
 
-    call CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
 
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77

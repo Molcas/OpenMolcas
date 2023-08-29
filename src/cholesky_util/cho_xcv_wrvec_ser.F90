@@ -20,9 +20,12 @@ subroutine Cho_XCV_WrVec_Ser(irc,Vec,iSP)
 use Cholesky, only: iiBstRSh, LuCho, nnBstR, nnBstRSh, nSym, NumCho
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, iSP
-real(kind=wp) :: Vec(*)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iSP
+real(kind=wp), intent(_IN_) :: Vec(*)
 integer(kind=iwp) :: iAdr, iAdr0, iSym, j, kV, lTot
 integer(kind=iwp), parameter :: iOpt = 1
 

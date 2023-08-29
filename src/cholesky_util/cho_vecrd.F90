@@ -25,8 +25,10 @@ use Cholesky, only: RUN_EXTERNAL, RUN_MODE
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LSCR, JVEC1, IVEC2, ISYM, JNUM, IREDC, MUSED
-real(kind=wp) :: SCR(LSCR)
+integer(kind=iwp), intent(in) :: LSCR, JVEC1, IVEC2, ISYM
+real(kind=wp), intent(inout) :: SCR(LSCR)
+integer(kind=iwp), intent(out) :: JNUM, MUSED
+integer(kind=iwp), intent(inout) :: IREDC
 integer(kind=iwp) :: JN, JV1, KS, LFT, MU
 logical(kind=iwp) :: DOREAD
 

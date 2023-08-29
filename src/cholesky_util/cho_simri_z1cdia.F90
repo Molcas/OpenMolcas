@@ -20,9 +20,12 @@ use Cholesky, only: iAtomShl, iiBstR, iiBstRSh, IPRINT, iSP2F, LuPri, nnBstR, nn
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Diag(*), Thr
-integer(kind=iwp) :: Indx(*)
+real(kind=wp), intent(inout) :: Diag(*)
+real(kind=wp), intent(in) :: Thr
+integer(kind=iwp), intent(_OUT_) :: Indx(*)
 integer(kind=iwp) :: iAB, iAB1, iAB2, iShlA, iShlAB, iShlB, n
 real(kind=wp) :: zmx
 integer(kind=iwp), parameter :: Inf_SimRI = 0

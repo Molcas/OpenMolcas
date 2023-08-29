@@ -46,9 +46,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, wp
 
 implicit none
-integer(kind=iwp) :: n, nVec, lY, irc
-real(kind=wp) :: X(*), Vec(n,nVec), xf, Y(lY), Thr
-logical(kind=iwp) :: Square
+integer(kind=iwp), intent(in) :: n, nVec, lY
+real(kind=wp), intent(in) :: X(*), Vec(n,nVec), xf, Thr
+real(kind=wp), intent(out) :: Y(lY)
+logical(kind=iwp), intent(in) :: Square
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: lX
 real(kind=wp) :: RMS
 real(kind=wp), external :: ddot_

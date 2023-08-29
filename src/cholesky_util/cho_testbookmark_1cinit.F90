@@ -16,7 +16,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: AllocatedHere
+logical(kind=iwp), intent(out) :: AllocatedHere
 integer(kind=iwp) :: irc
 
 if (.not. allocated(iAtomShl)) then

@@ -19,8 +19,8 @@ use Cholesky, only: Cho_Real_Par, Diag_G
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), Bin1, Step
-logical(kind=iwp) :: Sync, Full
+real(kind=wp), intent(in) :: Diag(*), Bin1, Step
+logical(kind=iwp), intent(in) :: Sync, Full
 integer(kind=iwp) :: NumBin
 integer(kind=iwp) :: iLoc
 

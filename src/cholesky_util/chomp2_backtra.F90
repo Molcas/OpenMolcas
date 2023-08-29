@@ -29,11 +29,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iTyp
-real(kind=wp) :: COcc(*), CVir(*), Diag(*)
-character(len=3) :: BaseName_AO
-logical(kind=iwp) :: DoDiag
+integer(kind=iwp), intent(in) :: iTyp
+real(kind=wp), intent(in) :: COcc(*), CVir(*)
+character(len=3), intent(in) :: BaseName_AO
+logical(kind=iwp), intent(in) :: DoDiag
+real(kind=wp), intent(_OUT_) :: Diag(*)
 integer(kind=iwp) :: AlBe, iAB(8,8), iAdr, iOpt, iSym, iSyma, iSymAl, iSymb, iSymBe, iSymi, iVec, kAOVec, kCOcc, kCVir, kD, kDiag, &
                      kMOVec, kTemp, l_Buf, lU_AO, lVec, MaxInCore, na, nAB(8), nAB_Tot, nAl, ni, nVecInCore, nVecOnDisk
 character(len=4) :: FullName_AO

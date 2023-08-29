@@ -22,7 +22,8 @@ use Cholesky, only: IndRed, IndRSh, iQuAB, iShP2Q, iSP2F, nBstSh, nQual, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iLoc, iShlAB, nAB(*)
+integer(kind=iwp), intent(out) :: irc, nAB(nSym)
+integer(kind=iwp), intent(in) :: iLoc, iShlAB
 integer(kind=iwp) :: iAB, iQ, iShlA, iShlB, iSym, jAB, kAB, kShlAB, l_iShP2Q, lTst, NumAB
 
 ! Check allocations.
@@ -57,7 +58,7 @@ end if
 ! -------------------------------------------------------
 
 iShP2Q(:,1:NumAB) = 0
-nAB(1:nSym) = 0
+nAB(:) = 0
 
 do iSym=1,nSym
   do iQ=1,nQual(iSym)

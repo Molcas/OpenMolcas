@@ -23,7 +23,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: LCONV
+logical(kind=iwp), intent(out) :: LCONV
 integer(kind=iwp) :: IOPT, IPRTRED, ISP, ISYLST(8), ISYM, l_MySP, LMAX, LSCR, LWRK, NBIN, NDUMP, NEEDI, NEEDR, NERR
 real(kind=wp) :: BIN1, STEP
 logical(kind=iwp) :: DODUMMY, SYNC

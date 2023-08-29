@@ -19,8 +19,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: SumLeg
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: W(K_Lap), X(K_Lap), Delta
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: W(K_Lap), X(K_Lap), Delta
 integer(kind=iwp) :: I
 real(kind=wp) :: Dum
 real(kind=wp), external :: FuncLe

@@ -17,7 +17,7 @@ use Cholesky, only: Cho_Real_Par, iQuAB, IndRed, NumCho, NumCho_G
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nVec, iSym, iPass
+integer(kind=iwp), intent(in) :: nVec, iSym, iPass
 integer(kind=iwp) :: iV, iVec, iAB
 integer(kind=iwp), external :: Cho_P_IndxParentDiag
 

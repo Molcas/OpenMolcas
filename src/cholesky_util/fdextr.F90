@@ -22,9 +22,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: iwp, wp
 
 implicit none
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: T(40), Coeff(40), R, Theta, DD(82)
-logical(kind=iwp) :: StpBA
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: T(40), Coeff(40), R
+real(kind=wp), intent(out) :: Theta, DD(82)
+logical(kind=iwp), intent(out) :: StpBA
 integer(kind=iwp) :: I, IDimEnd, IDr, IDrEnd, Iter, IX, J
 real(kind=wp) :: DFX, DifX, DrDif, DrInv, Dum, FF, FFF, FMax, FNew, FX, X, X1, X2, XErr1, XErr2, XErr3, XM1, XM2, XM3, XMx, XNew, &
                  XXMax

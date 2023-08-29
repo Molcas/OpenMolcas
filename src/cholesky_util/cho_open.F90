@@ -16,8 +16,8 @@ subroutine CHO_OPEN(LUNIT,FNAME)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LUNIT
-character(len=*) :: FNAME
+integer(kind=iwp), intent(inout) :: LUNIT
+character(len=*), intent(in) :: FNAME
 integer(kind=iwp) :: ISEED, LOCUNT
 integer(kind=iwp), external :: ISFREEUNIT
 

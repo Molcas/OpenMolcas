@@ -15,7 +15,8 @@ use Cholesky, only: Cho_Real_Par, NumCho, NumCho_G
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, numV(nSym)
+integer(kind=iwp), intent(in) :: nSym
+integer(kind=iwp), intent(out) :: numV(nSym)
 
 if (Cho_Real_Par) then
   numV(1:nSym) = numCho_G(1:nSym)

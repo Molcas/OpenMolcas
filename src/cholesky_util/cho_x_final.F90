@@ -30,7 +30,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: ChoIsIni
 
 ! Set  error code.

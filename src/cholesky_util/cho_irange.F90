@@ -41,8 +41,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_IRANGE
-integer(kind=iwp) :: I, BIN(*), NBIN
-logical(kind=iwp) :: LOWER
+integer(kind=iwp), intent(in) :: I, BIN(*), NBIN
+logical(kind=iwp), intent(in) :: LOWER
 integer(kind=iwp) :: IBIN, JBIN, JBIN1
 
 CHO_IRANGE = 0

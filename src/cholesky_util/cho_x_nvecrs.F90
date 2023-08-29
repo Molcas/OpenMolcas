@@ -40,7 +40,8 @@ use Cholesky, only: InfVec, MaxVec, nSym, NumCho
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRed, iSym, iVec, nVec
+integer(kind=iwp), intent(in) :: iRed, iSym
+integer(kind=iwp), intent(out) :: iVec, nVec
 integer(kind=iwp) :: irc, jRed, jVec, LastRed
 logical(kind=iwp) :: Found
 character(len=*), parameter :: SecNam = 'Cho_X_nVecRS'

@@ -24,7 +24,7 @@ use Cholesky, only: Cho_Real_Par, InfVec_Bak
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), pointer :: InfVct(:,:,:)
+integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
 
 #ifdef _MOLCAS_MPP_
 if (Cho_Real_Par) then

@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: MRED, INFRED(MRED), MVEC, M2, MSYM, INFVEC(MVEC,M2,MSYM)
+integer(kind=iwp), intent(in) :: MRED, MVEC, M2, MSYM
+integer(kind=iwp), intent(inout) :: INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 integer(kind=iwp) :: IADR, IOPT, IPASS, IRED, ISYM, JPASS, LSA
 real(kind=wp), allocatable :: KSA(:)
 character(len=*), parameter :: SECNAM = 'CHO_SETADDR'

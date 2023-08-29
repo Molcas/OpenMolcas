@@ -22,9 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: DD(82)
-logical(kind=iwp) :: NG
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: DD(82)
+logical(kind=iwp), intent(out) :: NG
 integer(kind=iwp) :: I, IDimEnd
 real(kind=wp) :: A
 

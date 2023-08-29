@@ -28,7 +28,7 @@
 !> @note
 !> \p Q is destroyed and cannot be used after this routine.
 !>
-!> @param[in]     Diag  Array of diagonal integrals stored as in the first reduced set
+!> @param[in,out] Diag  Array of diagonal integrals stored as in the first reduced set
 !> @param[in]     Lab   Array of Cholesky vectors (symmetry blocked) for the qualified shell pairs
 !> @param[in,out] Q     Array (symmetry blocked) containing the matrix of the qualified integrals
 !> @param[out]    Kab   Array symmetry blocked of Cholesky vectors resulting from the decomposition
@@ -46,9 +46,13 @@ use Cholesky, only: Cho_1Center, nQual, nSym, Span, ThrCom
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Diag(*), Lab(*), Q(*), Kab(*), QDiag(*)
-integer(kind=iwp) :: iD(*), NumV(*)
+real(kind=wp), intent(inout) :: Diag(*), Q(*)
+real(kind=wp), intent(in) :: Lab(*)
+real(kind=wp), intent(_OUT_) :: Kab(*), QDiag(*)
+integer(kind=iwp), intent(_OUT_) :: iD(*), NumV(*)
 integer(kind=iwp) :: ipD, ipQ, ipQD, ipSQK, ipSQL, iQ, irc, jSym, mQ, nVecG(8)
 real(kind=wp) :: Dmax(8), Thr
 logical(kind=iwp) :: Sync

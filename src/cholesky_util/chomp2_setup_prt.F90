@@ -23,7 +23,7 @@ use ChoMP2, only: ChoAlg, DecoMP2, ForceBatch, iFirst, Laplace, Laplace_nGridPoi
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iBatch, iCount(8), iSym
 
 irc = 0

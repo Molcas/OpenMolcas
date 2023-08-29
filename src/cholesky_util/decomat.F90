@@ -31,8 +31,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dimens, NumV, rc
-real(kind=wp) :: MAT(dimens,dimens), eigenvec(dimens,dimens)
+integer(kind=iwp), intent(in) :: dimens
+real(kind=wp), intent(inout) :: MAT(dimens,dimens), eigenvec(dimens,dimens)
+integer(kind=iwp), intent(out) :: NumV, rc
 integer(kind=iwp) :: j
 real(kind=wp), allocatable :: eigenval(:)
 

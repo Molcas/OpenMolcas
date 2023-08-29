@@ -26,8 +26,7 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 !               (here, j is a compound index j=iTri(k,l) for
 !                block k,l)
 !
-! On exit, the Z vector blocks are stored in memory according
-! to ip_Z.
+! On exit, the Z vector blocks are stored in memory according to ip_Z.
 
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, LuPri, nnBstR, nSym, nSys_call, NumCho, TDECOM
@@ -36,9 +35,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
-                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
-real(kind=wp) :: Z(l_Z)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                                 iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp), intent(out) :: Z(l_Z)
 integer(kind=iwp) :: idRS2RS, iJ, iLoc, iRed, iRedC, iSym, j, J_inBlock, jBlock, k, K_inBlock, kBlock, KK, KK1, KKK, kOffV, kOffZ, &
                      l_Wrk, mUsed, nVRead
 real(kind=wp) :: C0, C1, W0, W1
@@ -58,7 +58,7 @@ real(kind=wp), parameter :: Tol = 1.0e-14_wp
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVct(:,:,:)
+    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 !                                                                      *

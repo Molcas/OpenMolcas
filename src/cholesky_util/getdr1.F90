@@ -26,8 +26,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GetDr1
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: X, Coeff(40)
+integer(kind=iwp), intent(in) :: K_Lap
+real(kind=wp), intent(in) :: X, Coeff(40)
 integer(kind=iwp) :: I, Idx
 real(kind=wp) :: Alpha, Dum, Omega
 

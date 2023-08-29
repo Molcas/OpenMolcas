@@ -46,8 +46,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mSym, nVec(mSym), irc
-real(kind=wp) :: Thr, delta(mSym)
+real(kind=wp), intent(in) :: Thr
+integer(kind=iwp), intent(in) :: mSym
+integer(kind=iwp), intent(out) :: nVec(mSym), irc
+real(kind=wp), intent(out) :: delta(mSym)
 integer(kind=iwp) :: iRS, iSym, l, n
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: BkmScr(:)

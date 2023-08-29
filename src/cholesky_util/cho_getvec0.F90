@@ -28,8 +28,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
-real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
+integer(kind=iwp), intent(in) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp), intent(out) :: CHOVEC(LENVEC,NUMVEC)
+real(kind=wp), intent(inout) :: SCR(LSCR)
 integer(kind=iwp) :: IAB, ILOC, IRED, IREDC, IVEC, JAB, JNUM, JRED, JVEC, KAB, KEND1, KREAD, KRED1, KREDU, LSCR1, MUSED
 real(kind=wp) :: XNRM
 logical(kind=iwp), parameter :: LOCDBG = .false.

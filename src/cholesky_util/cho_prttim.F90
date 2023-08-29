@@ -17,9 +17,9 @@ use Cholesky, only: LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: SECTION
-real(kind=wp) :: TCPU1, TCPU2, TWALL1, TWALL2
-integer(kind=iwp) :: IOPT
+character(len=*), intent(in) :: SECTION
+real(kind=wp), intent(in) :: TCPU1, TCPU2, TWALL1, TWALL2
+integer(kind=iwp), intent(in) :: IOPT
 integer(kind=iwp) :: IHRC, IHRW, IMNC, IMNW, LENSEC
 real(kind=wp) :: SECC, SECW, TCPUT, TWALLT
 character(len=80) :: STRING

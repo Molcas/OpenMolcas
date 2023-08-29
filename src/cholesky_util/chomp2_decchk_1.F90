@@ -35,8 +35,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, iSym, nDim, nCol, lWrk
-real(kind=wp) :: Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iSym, nDim, nCol, lWrk
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
 integer(kind=iwp) :: iBatCol, ibj1, kai, kbj, lU, Nai, nBatCol, Nbj, NumCol, NumVec
 real(kind=wp) :: Fac, xdim
 character(len=*), parameter :: SecNam = 'ChoMP2_DecChk_1'

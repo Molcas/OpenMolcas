@@ -17,8 +17,9 @@ use Cholesky, only: DiaMin, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, MaxQual, nnB
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*)
-integer(kind=iwp) :: ISYM, ISHLAB, MEM, MEM0, LEFT
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: ISYM, ISHLAB, MEM
+integer(kind=iwp), intent(inout) :: MEM0, LEFT
 integer(kind=iwp) :: I, I1, I2, II, II1, IMAX, J, JJ, JJ1, K, K1, K2, KKMN, MAXQ, NDIM, NUMQ
 real(kind=wp) :: XMAX, XMIN
 character(len=*), parameter :: SECNAM = 'CHO_QUALIFY_2'

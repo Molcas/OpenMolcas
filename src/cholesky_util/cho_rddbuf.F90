@@ -11,15 +11,18 @@
 
 subroutine CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,LENBUF,LMMBSTRT,NDUMP)
 !
-! Purpose: read diagonal from disk and set first reduced set
-!          indices.
+! Purpose: read diagonal from disk and set first reduced set indices.
 
 use Cholesky, only: iiBstR, iiBstRsh, iSP2F, lBuf, LuPri, LuScr
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LENBUF, IBUF(4,LENBUF), LMMBSTRT, INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3), NDUMP
-real(kind=wp) :: Diag(*), BUF(LENBUF)
+real(kind=wp), intent(_OUT_) :: Diag(*)
+integer(kind=iwp), intent(in) :: LENBUF, LMMBSTRT, NDUMP
+real(kind=wp), intent(out) ::  BUF(LENBUF)
+integer(kind=iwp), intent(out) :: IBUF(4,LENBUF), INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
 integer(kind=iwp) :: IAB, IDUMP, ISHLAB, ISYMAB, IUNIT, L, LENGTH
 character(len=*), parameter:: SECNAM = 'CHO_RDDBUF'
 

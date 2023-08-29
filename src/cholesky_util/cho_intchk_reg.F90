@@ -18,9 +18,10 @@ use Cholesky, only: iChkq, iSP2F, nChkq, nnShl
 use Definitions, only: iwp
 
 implicit none
-character(len=8) :: LABEL
-integer(kind=iwp) :: ISHLCD, ISHLAB
+character(len=8), intent(in) :: LABEL
+integer(kind=iwp), intent(in) :: ISHLCD, ISHLAB
 integer(kind=iwp) :: ID, ISHLA, ISHLB, ISHLC, ISHLD
+character(len=8) :: LAB
 character(len=*), parameter :: SECNAM = 'CHO_INTCHK_REG'
 
 ! Check shell pair index.
@@ -34,7 +35,8 @@ if ((ISHLAB < 1) .or. (ISHLAB > NNSHL)) call CHO_QUIT('Shell index error 2 in '/
 
 call CHO_INVPCK(ISP2F(ISHLCD),ISHLC,ISHLD,.true.)
 call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
-call CHO_INTCHK_ID_OF(LABEL,ID,1)
+LAB = LABEL
+call CHO_INTCHK_ID_OF(LAB,ID,1)
 if ((ID < 1) .or. (ID > NCHKQ)) ID = NCHKQ+1 ! junk yard
 ICHKQ(1,ID) = ISHLC
 ICHKQ(2,ID) = ISHLD

@@ -16,13 +16,13 @@ subroutine CHO_CLOSE(LUNIT,STAT)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LUNIT
-character(len=*) :: STAT
+integer(kind=iwp), intent(inout) :: LUNIT
+character(len=*), intent(in) :: STAT
 
 if ((LUNIT < 1) .or. (LUNIT > 99)) then
   call CHO_QUIT('CHO_CLOSE: unit out of bounds!',104)
 else
-  close(LUNIT,STATUS=STAT)
+  close(LUNIT,status=STAT)
   LUNIT = -1
 end if
 

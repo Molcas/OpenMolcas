@@ -20,7 +20,7 @@ subroutine ChoMP2_GetInf(lnOrb,lnOcc,lnFro,lnDel,lnVir)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+integer(kind=iwp), intent(out) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
 
 lnOrb(1:nSym) = nOrb(1:nSym)

@@ -20,9 +20,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: D_ab(*), D_ii(*), EOcc(*), EVir(*)
-logical(kind=iwp) :: Sorted, DelOrig
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(inout) :: D_ab(*), D_ii(*)
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
+logical(kind=iwp), intent(in) :: Sorted, DelOrig
 integer(kind=iwp) :: lWrk
 real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'ChoMP2_FNO'

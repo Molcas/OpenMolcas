@@ -18,7 +18,7 @@ use Cholesky, only: LuRed_G
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iOpt
+integer(kind=iwp), intent(in) :: iOpt
 character(len=5) :: FNRed
 character(len=*), parameter :: SecNam = 'Cho_P_OpenR'
 

@@ -18,8 +18,9 @@ use Cholesky, only: Cho_DiaChk, Cho_IOVec, LuPri, nnBstR, nnBstRT, nQual, NumCho
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LWRK, ISYM
-real(kind=wp) :: XINT(*), WRK(LWRK)
+integer(kind=iwp), intent(inout) :: LWRK
+real(kind=wp), intent(inout) :: XINT(*), WRK(LWRK)
+integer(kind=iwp), intent(in) :: ISYM
 integer(kind=iwp) :: KDIAG, KEND, NERR
 real(kind=wp) :: TOL
 logical(kind=iwp) :: FXDMEM
@@ -31,9 +32,10 @@ character(len=*), parameter :: SECNAM = 'CHO_SUBTR'
 interface
   subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
     import :: wp, iwp
-    integer(kind=iwp) :: lWrk, iSym
-    real(kind=wp), target :: xInt(*), Wrk(lWrk)
-    logical(kind=iwp) :: DoTime, DoStat
+    real(kind=wp), target, intent(inout) :: xInt(*)
+    integer(kind=iwp), intent(in) :: lWrk, iSym
+    real(kind=wp), target, intent(out) :: Wrk(lWrk)
+    logical(kind=iwp), intent(in) :: DoTime, DoStat
   end subroutine Cho_VecBuf_Subtr
 end interface
 

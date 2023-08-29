@@ -27,9 +27,11 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, irc
-real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
-logical(kind=iwp) :: Delete
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: w(N), t(N), EOcc(*), EVir(*)
+logical(kind=iwp), intent(in) :: Delete
+real(kind=wp), intent(out) :: EMP2
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: a, i, iAddr, iBlock, iClos, iOpt, ip0, ip1, ipi, ipj, iSym, iSyma, iSymi, iTyp, iVec, jBlock, l_Tot, l_X, &
                      Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
 real(kind=wp) :: Eq, tq

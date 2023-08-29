@@ -26,7 +26,7 @@ use Cholesky, only: BkmThr, BkmVec, Cho_Real_Par, DiaMaxT, nCol_BkmThr, nCol_Bkm
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRS
+integer(kind=iwp), intent(in) :: iRS
 
 if ((.not. allocated(BkmVec)) .or. (.not. allocated(BkmThr))) return
 

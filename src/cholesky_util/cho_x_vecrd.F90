@@ -47,8 +47,10 @@ use Cholesky, only: NumCho
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
-real(kind=wp) :: Scr(lScr)
+integer(kind=iwp), intent(in) :: lScr, jVec1, jVec2, iSym
+real(kind=wp), intent(out) :: Scr(lScr)
+integer(kind=iwp), intent(out) :: jNum, mUsed
+integer(kind=iwp), intent(inout) :: iRedC
 integer(kind=iwp) :: l_jVec2
 
 if ((iSym < 1) .or. (iSym > 8)) then

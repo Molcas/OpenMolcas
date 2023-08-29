@@ -18,8 +18,8 @@ use Cholesky, only: CHVBUF, iiBstR, ip_CHVBUF_SYM, iQuAB, nnBstR, nQual, nSym, n
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_QVec
-real(kind=wp), target :: QVec(l_QVec)
+integer(kind=iwp), intent(in) :: l_QVec
+real(kind=wp), target, intent(out) :: QVec(l_QVec)
 integer(kind=iwp) :: iAB, iE, iQ, iS, iSym, iVec, kOffQ, lCol, lRow, nVecTot(8)
 real(kind=wp), pointer :: BVec(:,:), Q(:,:)
 

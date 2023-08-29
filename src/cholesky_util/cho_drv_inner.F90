@@ -37,7 +37,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IRETURN
+integer(kind=iwp), intent(out) :: IRETURN
 integer(kind=iwp) :: IRC, ISEC, LIRS1F, LWRK
 real(kind=wp) :: TC, TCPU0, TCPU1, TST, TW, TWALL0, TWALL1
 logical(kind=iwp) :: LCONV

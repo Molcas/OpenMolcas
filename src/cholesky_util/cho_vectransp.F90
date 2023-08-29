@@ -20,9 +20,11 @@ use Definitions, only: u6
 #endif
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Vec(*)
-integer(kind=iwp) :: Jin, Jfi, iSym, iRed, iPass
+real(kind=wp), intent(_OUT_) :: Vec(*)
+integer(kind=iwp), intent(in) :: Jin, Jfi, iSym, iRed, iPass
 character(len=*), parameter :: SecNam = 'Cho_VecTransp'
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"

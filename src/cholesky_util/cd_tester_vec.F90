@@ -17,8 +17,8 @@ use CD_Tester_mod, only: Vec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iVec1, nVec, lBuf, nDim, iOpt
-real(kind=wp) :: Buf(lBuf)
+integer(kind=iwp), intent(in) :: iVec1, nVec, lBuf, nDim, iOpt
+real(kind=wp), intent(inout) :: Buf(lBuf)
 integer(kind=iwp) :: kOff, lTot
 character(len=*), parameter :: SecNam = 'CD_Tester_Vec'
 

@@ -22,8 +22,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), DIASH(*)
-integer(kind=iwp) :: ISYSH(*), NPOTSH, LSTQSP(NPOTSH), ICOUNT
+real(kind=wp), intent(in) :: Diag(*)
+real(kind=wp), intent(inout) :: DIASH(*)
+integer(kind=iwp), intent(in) :: ISYSH(*), NPOTSH
+integer(kind=iwp), intent(out) :: LSTQSP(NPOTSH), ICOUNT
 integer(kind=iwp) :: i, ISHLA, ISHLAB, ISHLB, ISYM, ISYMAB, LMAX, MCOUNT, MEMQ(1), MXDIM, NSEL
 real(kind=wp) :: SMAX, XMMQ
 logical(kind=iwp) :: DODECO, FULL, SYNC

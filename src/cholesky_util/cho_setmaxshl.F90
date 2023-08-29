@@ -18,16 +18,18 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DIAG(*), DIASH(*)
-integer(kind=iwp) :: ISYSH(*), IRED
+real(kind=wp), intent(in) :: DIAG(*)
+real(kind=wp), intent(out) :: DIASH(nnShl)
+integer(kind=iwp), intent(out) :: ISYSH(nnShl)
+integer(kind=iwp), intent(in) :: IRED
 integer(kind=iwp) :: IAB, IAB1, IAB2, ISAB, ISHLA, ISHLAB, ISHLB, ISYMAB, JAB, JAB1, JAB2
 character(len=*), parameter ::SECNAM = 'CHO_SETMAXSHL'
 
 ! Initialize the largest diagonal in each shell pair.
 ! ---------------------------------------------------
 
-DIASH(1:NNSHL) = Zero
-ISYSH(1:NNSHL) = 0
+DIASH(:) = Zero
+ISYSH(:) = 0
 
 ! Find largest diagonal in each shell pair. Loop only
 ! over those that are included in the reduced set at hand.

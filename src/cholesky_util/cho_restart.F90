@@ -23,10 +23,14 @@ use Cholesky, only: Cho_1Center, Cho_DecAlg, Cho_MinChk, Cho_SimRI, IABMNZ, iAto
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LWRK
-real(kind=wp) :: Diag(*), WRK(LWRK)
-logical(kind=iwp) :: DSKDIA, LCONV
+real(kind=wp), intent(_OUT_) :: Diag(*)
+integer(kind=iwp), intent(in) :: LWRK
+real(kind=wp), intent(out) :: WRK(LWRK)
+logical(kind=iwp), intent(in) :: DSKDIA
+logical(kind=iwp), intent(out) :: LCONV
 integer(kind=iwp) :: I0AB, IAB, IAB1, IAB2, IMNAB, IMXAB, IOPT, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JMXAB, JSHLAB, KDIAG, KEND1, &
                      KOFF, KRED, LWRK1, NBIN, NCONV, NCONVT, NDIM, NNEG, NNEGT, NSCR, NTOT, NVEC
 real(kind=wp) :: AVEERR, BIN1, DMX, ERR, ERRMN, ERRMX, EXAMN, EXAMX, RMSERR, SAV, STEP, XAMAX, XDIM, XMAX, XMIN, XX

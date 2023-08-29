@@ -44,7 +44,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iReo, l_Wrk
 integer(kind=iwp), allocatable :: iRS2F(:,:)
 real(kind=wp), allocatable :: Wrk(:)

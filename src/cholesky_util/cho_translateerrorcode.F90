@@ -14,25 +14,27 @@ subroutine Cho_TranslateErrorCode(iErr,MolcasCode)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iErr, MolcasCode
+integer(kind=iwp), intent(in) :: iErr
+integer(kind=iwp), intent(out) :: MolcasCode
 #include "warnings.h"
 
-if (iErr == 3) then ! special code used in parallel
-  MolcasCode = _RC_NOT_AVAILABLE_
-else if (iErr == 100) then
-  MolcasCode = _RC_CHO_DUM_
-else if (iErr == 101) then
-  MolcasCode = _RC_CHO_MEM_
-else if (iErr == 102) then
-  MolcasCode = _RC_CHO_INI_
-else if (iErr == 103) then
-  MolcasCode = _RC_CHO_LOG_
-else if (iErr == 104) then
-  MolcasCode = _RC_CHO_RUN_
-else if (iErr == 105) then
-  MolcasCode = _RC_CHO_INP_
-else
-  MolcasCode = _RC_GENERAL_ERROR_
-end if
+select case (iErr)
+  case (3) ! special code used in parallel
+    MolcasCode = _RC_NOT_AVAILABLE_
+  case (100)
+    MolcasCode = _RC_CHO_DUM_
+  case (101)
+    MolcasCode = _RC_CHO_MEM_
+  case (102)
+    MolcasCode = _RC_CHO_INI_
+  case (103)
+    MolcasCode = _RC_CHO_LOG_
+  case (104)
+    MolcasCode = _RC_CHO_RUN_
+  case (105)
+    MolcasCode = _RC_CHO_INP_
+  case default
+    MolcasCode = _RC_GENERAL_ERROR_
+end select
 
 end subroutine Cho_TranslateErrorCode

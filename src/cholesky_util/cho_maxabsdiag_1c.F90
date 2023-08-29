@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Diag(*), DGMax
-integer(kind=iwp) :: iLoc
+real(kind=wp), intent(in) :: Diag(*)
+integer(kind=iwp), intent(in) :: iLoc
+real(kind=wp), intent(out) :: DGMax
 integer(kind=iwp) :: i, i1, i2, iShlA, iShlAB, iShlB, iSym
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.

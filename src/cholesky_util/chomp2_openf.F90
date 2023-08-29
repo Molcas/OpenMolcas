@@ -26,7 +26,7 @@ use ChoMP2, only: DoDens, lUnit_F, nPQ_prod, nT1am, nTypF
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iOpt, iTyp, iSym
+integer(kind=iwp), intent(in) :: iOpt, iTyp, iSym
 character(len=4) :: FullNm
 character(len=3) :: BaseNm
 character(len=*), parameter :: SecNam = 'ChoMP2_OpenF'

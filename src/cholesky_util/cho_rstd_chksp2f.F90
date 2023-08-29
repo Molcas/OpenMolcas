@@ -15,7 +15,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: l_iSP2F, iSP2F(l_iSP2F), nErr
+integer(kind=iwp), intent(in) :: l_iSP2F, iSP2F(l_iSP2F)
+integer(kind=iwp), intent(out) :: nErr
 integer(kind=iwp) :: i
 integer(kind=iwp), allocatable :: iChk(:)
 

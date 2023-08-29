@@ -18,8 +18,8 @@ use Cholesky, only: iiBstR, iiBstRSh, IndRed, IndRSh, iSP2F, LuPri, nnBstRSh, nn
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NSYLST, ISYLST(NSYLST), IRED
-real(kind=wp) :: Diag(*)
+integer(kind=iwp), intent(in) :: NSYLST, ISYLST(NSYLST), IRED
+real(kind=wp), intent(in) :: Diag(*)
 integer(kind=iwp) :: IAB, IAB1, IAB2, ILST, ISHLAB, ISYM, JAB
 character(len=*), parameter :: SECNAM = 'CHO_PRTDIA'
 

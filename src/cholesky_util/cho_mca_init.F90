@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: SKIP_PRESCREEN
+logical(kind=iwp), intent(in) :: SKIP_PRESCREEN
 integer(kind=iwp) :: I, IA, IJ, IJSHL, ISHL, ISYM, J, NUMIJ
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INIT'
 

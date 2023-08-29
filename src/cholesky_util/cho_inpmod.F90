@@ -26,7 +26,7 @@ use Cholesky, only: Cho_1Center, ThrCom
 use Definitions, only: wp
 
 implicit none
-character(len=4) :: Mode
+character(len=4), intent(in) :: Mode
 character(len=4) :: Mod2
 
 Mod2 = Mode

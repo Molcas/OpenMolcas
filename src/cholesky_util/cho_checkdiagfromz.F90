@@ -32,10 +32,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
-                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
-real(kind=wp) :: Z(l_Z)
-logical(kind=iwp) :: Report
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                                 iV1(l_iV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp), intent(in) :: Z(l_Z)
+logical(kind=iwp), intent(in) :: Report
 integer(kind=iwp) :: iD, iSym, J_inBlock, jBlock, J, K_inBlock, kblock, kOffZ, n1, n2, n3, n4, n5, nTot
 real(kind=wp) :: Damax, Damin, Dmax, Dmin
 integer(kind=iwp), pointer :: InfVct(:,:,:)
@@ -47,7 +48,7 @@ character(len=*), parameter :: SecNam = 'Cho_CheckDiagFromZ'
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVct(:,:,:)
+    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 

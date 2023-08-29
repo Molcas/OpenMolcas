@@ -18,7 +18,7 @@ use Cholesky, only: Cho_AdrVec, Damp, LuPri, ScDiag, Span, ThrCom, ThrDiag, ThrN
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NERR
+integer(kind=iwp), intent(out) :: NERR
 integer(kind=iwp) :: I, J
 real(kind=wp) :: ERR
 real(kind=wp), parameter :: ERRTOL = 1.0e-14_wp

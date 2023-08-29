@@ -18,7 +18,7 @@ use ReMez_mod, only: IW
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: print_to_molcas_log
+logical(kind=iwp), intent(in) :: print_to_molcas_log
 integer(kind=iwp) :: ini
 integer(kind=iwp), external :: isFreeUnit
 

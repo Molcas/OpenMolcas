@@ -21,7 +21,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: CHO_ISAOSH
-integer(kind=iwp) :: IAO, ISHL
+integer(kind=iwp), intent(in) :: IAO, ISHL
 integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SECNAM = 'CHO_ISAOSH'
@@ -45,6 +45,6 @@ else if ((IAO > NBSTSH(ISHL)) .or. (IAO < 1)) then
 end if
 #endif
 
-CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(1,ISHL),NSYM,.false.)
+CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(:,ISHL),NSYM,.false.)
 
 end function CHO_ISAOSH

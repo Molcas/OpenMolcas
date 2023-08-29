@@ -20,7 +20,7 @@ use Cholesky, only: Cho_AdrVec, LuCho, LuMap, LuPri, LuRed, LuRst, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IOPT, ID
+integer(kind=iwp), intent(in) :: IOPT, ID
 integer(kind=iwp) :: ISYM
 character(len=6) :: FMAP, FNVEC(8), FRST
 character(len=5) :: FNRED

@@ -16,8 +16,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: l_MQ, nQShp, List_QShp(nQShp)
-real(kind=wp) :: MQ(l_MQ)
+integer(kind=iwp), intent(in) :: l_MQ, nQShp, List_QShp(nQShp)
+real(kind=wp), intent(out) :: MQ(l_MQ)
 integer(kind=iwp) :: iAB, iabSh, iAdr, iL_Shp, iL_ShpG, ipfr, ipS, ipto, iQ, iQoff, isAB, iShAB, iShABG, iShp, iShpAdr, jQ, jSym, &
                      Lint, Lread
 integer(kind=iwp), allocatable :: kOff_Shp(:)

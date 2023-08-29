@@ -18,7 +18,7 @@ use Cholesky, only: LUFV, nSym, REONAM
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISYM, IOPT
+integer(kind=iwp), intent(in) :: ISYM, IOPT
 integer(kind=iwp) :: ISYMA, ISYMB, LUNIT
 character(len=6) :: FNAME
 character(len=*), parameter :: SECNAM = 'CHO_OPFVEC'

@@ -22,8 +22,12 @@ subroutine Cho_P_Distrib_SP(iOpt,mySP,N_mySP)
 use Cholesky, only: nnShl
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOpt, mySP(*), N_mySP
+integer(kind=iwp), intent(in) :: iOpt
+integer(kind=iwp), intent(_OUT_) :: mySP(*)
+integer(kind=iwp), intent(out) :: N_mySP
 
 N_mySP = 0
 if (iOpt == 1) then

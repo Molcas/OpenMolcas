@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Cho_P_LocalSP
-integer(kind=iwp) :: iShlAB
+integer(kind=iwp), intent(in) :: iShlAB
 integer(kind=iwp) :: iSP
 
 if (Cho_Real_Par) then

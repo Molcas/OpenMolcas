@@ -18,7 +18,7 @@ use ReMez_mod, only: IW
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: print_to_molcas_log
+logical(kind=iwp), intent(in) :: print_to_molcas_log
 
 if ((.not. print_to_molcas_log) .and. (IW > 0)) then
   close(IW)

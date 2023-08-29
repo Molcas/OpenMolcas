@@ -18,9 +18,12 @@ subroutine Cho_XCV_RdVec_(irc,Vec,myRankSP,n_myRankSP,NVT,J1,J2,iSym)
 use Cholesky, only: LuTmp, nnBstRSh
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, n_myRankSP, myRankSP(n_myRankSP), NVT, J1, J2, iSym
-real(kind=wp) :: Vec(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(_OUT_) :: Vec(*)
+integer(kind=iwp), intent(in) :: n_myRankSP, myRankSP(n_myRankSP), NVT, J1, J2, iSym
 integer(kind=iwp) :: i, iAdr, iAdr0, iSP, kV, lTot, n
 integer(kind=iwp), parameter :: iOpt = 2
 

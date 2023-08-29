@@ -48,9 +48,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: Verbose
-integer(kind=iwp) :: N, l_wt, irc
-real(kind=wp) :: xmin, xmax, w(l_wt), t(l_wt)
+logical(kind=iwp), intent(in) :: Verbose
+integer(kind=iwp), intent(out) :: N, irc
+real(kind=wp), intent(in) :: xmin, xmax
+integer(kind=iwp), intent(in) :: l_wt
+real(kind=wp), intent(out) :: w(l_wt), t(l_wt)
 integer(kind=iwp) :: K_Lap
 logical(kind=iwp) :: Inf
 character(len=8) :: Demand

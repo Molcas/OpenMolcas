@@ -17,8 +17,9 @@ use Cholesky, only: MaxRed, nnBstR, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MSYM, MRED, NDIMRS(MSYM,MRED), IRED, ILOC
+integer(kind=iwp), intent(in) :: MSYM, MRED, IRED, ILOC
+integer(kind=iwp), intent(inout) :: NDIMRS(MSYM,MRED)
 
-if (IRED <= MAXRED) NDIMRS(1:NSYM,IRED) = NNBSTR(1:NSYM,ILOC)
+if (IRED <= MAXRED) NDIMRS(:,IRED) = NNBSTR(1:NSYM,ILOC)
 
 end subroutine CHO_SETRSDIM

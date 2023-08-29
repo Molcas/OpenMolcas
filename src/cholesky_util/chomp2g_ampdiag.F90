@@ -25,8 +25,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: Diag(*), EOcc(*), EVir(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(inout) :: Diag(*)
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
 integer(kind=iwp) :: iA, iAI, iI, iSym, iSymA, iSymI, iVecType, kD0, kD1, kD2
 real(kind=wp) :: DE, Ei
 

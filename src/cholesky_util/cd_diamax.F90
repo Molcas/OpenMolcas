@@ -22,8 +22,10 @@ subroutine CD_DiaMax(Diag,nDim,iPivot,iQual,nQual,DiaMin)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, iPivot(nDim), nQual, iQual(nQual)
-real(kind=wp) :: Diag(nDim), DiaMin
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: Diag(nDim), DiaMin
+integer(kind=iwp), intent(inout) :: nQual
+integer(kind=iwp), intent(out) :: iPivot(nDim), iQual(nQual)
 integer(kind=iwp) :: i, iMax, iTmp, j
 
 do i=1,nDim

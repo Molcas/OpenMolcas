@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: FindMx
-integer(kind=iwp) :: n
-real(kind=wp) :: X(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: X(n)
 integer(kind=iwp) :: I
 real(kind=wp) :: XMax
 

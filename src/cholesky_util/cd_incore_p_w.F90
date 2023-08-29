@@ -43,16 +43,22 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, MxVec, iD(MxVec), NumCho, irc
-real(kind=wp) :: X(n,n), Wg(n), Vec(n,MxVec), Thr
+integer(kind=iwp), intent(in) :: n, MxVec
+real(kind=wp), intent(inout) :: X(n,n)
+real(kind=wp), intent(in) :: Wg(n), Thr
+real(kind=wp), intent(out) :: Vec(n,MxVec)
+integer(kind=iwp), intent(inout) :: iD(MxVec)
+integer(kind=iwp), intent(out) :: NumCho, irc
 integer(kind=iwp) :: k
+real(kind=wp) :: Thr_
 real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -1.0e-13_wp
 character(len=*), parameter :: SecNam = 'CD_InCore_p_w'
 
 irc = 0
 NumCho = 0
 if (n >= 1) then
-  if (Thr < Zero) Thr = DefThr
+  Thr_ = Thr
+  if (Thr_ < Zero) Thr_ = DefThr
 
   do k=1,n
     if (Wg(k) < Zero) then
@@ -62,7 +68,7 @@ if (n >= 1) then
   end do
 
   if (MxVec > 0) then
-    call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
+    call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr_,ThrNeg,ThrFail,iD,irc)
   else
     irc = -1
   end if

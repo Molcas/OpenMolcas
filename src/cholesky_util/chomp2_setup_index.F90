@@ -25,9 +25,10 @@ use ChoMP2, only: ChoAlg, iBatOrb, nBatch, nBatOrbT, nDel, nFro, nOcc, nVir
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mBatch, iFirst(mBatch), mSym, iFirstS(mSym,mBatch), NumOcc(mBatch), LnOcc(mSym,mBatch), NumBatOrb(mBatch), &
-                     LnBatOrb(mSym,mBatch), LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch), LnPQprod(mSym,mBatch), &
-                     LiPQprod(mSym,mSym,mBatch), LnMatij(mSym,mBatch), LiMatij(mSym,mSym,mBatch)
+integer(kind=iwp), intent(in) :: mBatch, mSym
+integer(kind=iwp), intent(out) :: iFirst(mBatch), iFirstS(mSym,mBatch), NumOcc(mBatch), LnOcc(mSym,mBatch), NumBatOrb(mBatch), &
+                                  LnBatOrb(mSym,mBatch), LnT1am(mSym,mBatch), LiT1am(mSym,mSym,mBatch), LnPQprod(mSym,mBatch), &
+                                  LiPQprod(mSym,mSym,mBatch), LnMatij(mSym,mBatch), LiMatij(mSym,mSym,mBatch)
 integer(kind=iwp) :: i, iBatch, iSym, iSyma, iSymi, iSymj, Left, Num
 integer(kind=iwp), external :: Cho_iRange
 

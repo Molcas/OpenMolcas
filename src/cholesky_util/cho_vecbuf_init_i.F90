@@ -20,9 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Frac
-integer(kind=iwp) :: lVec(*)
-logical(kind=iwp) :: LocDbg
+real(kind=wp), intent(in) :: Frac
+integer(kind=iwp), intent(in) :: lVec(*)
+logical(kind=iwp), intent(in) :: LocDbg
 integer(kind=iwp) :: iSym, l_ChVBuf = 0, l_Max, lVecTot, MemEach, MemLeft
 real(kind=wp) :: x, xMemMax(8)
 logical(kind=iwp) :: Enough

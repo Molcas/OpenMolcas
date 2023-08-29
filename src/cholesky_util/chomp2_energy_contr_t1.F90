@@ -30,8 +30,9 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
-real(kind=wp) :: EMP2, EOcc(*), EVir(*), Xaibj(LnT2am)
+integer(kind=iwp), intent(in) :: LnT2am, LiT2am(8), iBatch, jBatch
+real(kind=wp), intent(inout) :: EMP2, Xaibj(LnT2am)
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, i, ia, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, &
                      iSymi, iSymij, iSymj, j, jb, Lai, Laj, Lbi, Lbj, Li, Lj

@@ -24,7 +24,8 @@ use ChoMP2, only: ChoAlg, LnMatij, LnT1am, nMatab
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LnT2am, LiT2am(8), iBatch, jBatch
+integer(kind=iwp), intent(out) :: LnT2am, LiT2am(8)
+integer(kind=iwp), intent(in) :: iBatch, jBatch
 integer(kind=iwp) :: iSym
 character(len=14) :: String
 character(len=*), parameter :: SecNam = 'ChoMP2_Energy_GetInd'

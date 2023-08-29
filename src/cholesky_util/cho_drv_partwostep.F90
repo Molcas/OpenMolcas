@@ -31,7 +31,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: BlockSize_Bak, Cho_DecAlg_Bak, Cho_DecAlg_Def_Bak, Cho_IOVec_Bak, i1, iAlQua_Bak, iBlock, ijBlock, &
                      iPrint_Bak, iSec, iSym, jBlock, l_Z, MaxQual_Bak, MinQual_Bak, Mode_Screen_Bak, ModRst_Bak, MxShPr_Bak, n, &
                      N1_Qual_Bak, N1_VecRD_Bak, N2_Qual_Bak, N2_VecRd_Bak, N_Subtr_Bak, nB, nB_Max, nDGM_Call_Bak, ni, nj, &

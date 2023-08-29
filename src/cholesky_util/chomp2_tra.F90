@@ -23,8 +23,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: COcc(*), CVir(*), Diag(*)
-logical(kind=iwp) :: DoDiag
+real(kind=wp), intent(in) :: COcc(*), CVir(*)
+real(kind=wp), intent(inout) :: Diag(*)
+logical(kind=iwp), intent(in) :: DoDiag
 integer(kind=iwp) :: iSym, kOffD, lW
 real(kind=wp), allocatable :: TraMax(:)
 

@@ -20,15 +20,14 @@ subroutine ChoMP2_Col_cp(X,nRow,nCol,S,nSRow,iSRow)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nRow, nCol, nSRow, iSRow(nSRow)
-real(kind=wp) :: X(nRow,nCol), S(nSRow,nCol)
-integer(kind=iwp) :: iCol, iR, iSR
+integer(kind=iwp), intent(in) :: nRow, nCol, nSRow, iSRow(nSRow)
+real(kind=wp), intent(in) :: X(nRow,nCol)
+real(kind=wp), intent(out) :: S(nSRow,nCol)
+integer(kind=iwp) :: iR, iSR
 
-do iCol=1,nCol
-  do iSR=1,nSRow
-    iR = iSRow(iSR)
-    S(iSR,iCol) = X(iR,iCol)
-  end do
+do iSR=1,nSRow
+  iR = iSRow(iSR)
+  S(iSR,:) = X(iR,:)
 end do
 
 end subroutine ChoMP2_Col_cp

@@ -51,8 +51,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ROWLOW, ROWHI, COLLOW, COLHI, ROWDIM, COLDIM, NCTL, LUPRI
-real(kind=wp) :: AMATRX(ROWDIM,COLDIM)
+integer(kind=iwp), intent(in) :: ROWLOW, ROWHI, COLLOW, COLHI, ROWDIM, COLDIM, NCTL, LUPRI
+real(kind=wp), intent(in) :: AMATRX(ROWDIM,COLDIM)
 integer(kind=iwp) :: BEGIN, I, J, K, KCOL, LAST, MCTL
 real(kind=wp) :: AMAX
 character(len=20) :: PFMT

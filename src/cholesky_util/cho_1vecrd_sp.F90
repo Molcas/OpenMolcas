@@ -23,8 +23,9 @@ use Cholesky, only: Cho_AdrVec, iiBstRSh, InfVec, LuCho, LuPri, nnBstRSh, NumCho
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lVec, jVec, iSym, nSP, LstSP(nSP), iRedC, iLoc
-real(kind=wp) :: Vec(lVec)
+integer(kind=iwp), intent(in) :: lVec, jVec, iSym, nSP, LstSP(nSP), iLoc
+real(kind=wp), intent(out) :: Vec(lVec)
+integer(kind=iwp), intent(inout) :: iRedC
 integer(kind=iwp) :: iAdr, iAdr0, iOpt, irc, iRed, iShlAB, iSP, kV, lTot
 character(len=*), parameter :: SecNam = 'Cho_1VecRd_SP'
 integer(kind=iwp), external :: Cho_P_LocalSP

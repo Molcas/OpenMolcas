@@ -15,9 +15,9 @@ use Cholesky, only: Cho_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: X(n)
-character(len=*) :: Op
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: X(n)
+character(len=*), intent(in) :: Op
 integer(kind=iwp) :: iv, kv
 
 if (Cho_Real_Par) then

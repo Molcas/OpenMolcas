@@ -25,7 +25,8 @@ use Definitions, only: wp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP), l_NVT, NVT(l_NVT)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSP_Batch, SP_BatchDim(nSP_Batch), n_mySP, id_mySP(n_mySP), l_NVT, NVT(l_NVT)
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 integer(kind=iwp) :: g_a, iAdr, iAdr0, iBatch, iSP, iSP1, iSP2, iSP_, iSP_Batch, iSym, J0, J1, J2, kV, l_IDV, l_Mem, l_numV, l_V, &

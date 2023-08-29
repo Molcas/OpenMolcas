@@ -25,8 +25,10 @@ use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, lWrk
-real(kind=wp) :: EOcc(*), EVir(*), EFro(*), Wrk(lWrk)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: EOcc(*), EVir(*), EFro(*)
+integer(kind=iwp), intent(in) :: lWrk
+real(kind=wp), intent(inout) :: Wrk(lWrk)
 integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, iOff, iOff1, iOff2, iOffL, iOpt, iOrb, iOrbI, &
                      iSeed, iSym, iSym1, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, &
                      iVecVO, iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, &
@@ -188,8 +190,8 @@ do i=2,nCGVec
   Wrk(kCGVec(i):kEndCGVec(i)-1) = Zero
 end do
 
-! Calculate inital values for the CG-vectors needing that
-! -------------------------------------------------------
+! Calculate initial values for the CG-vectors needing that
+! --------------_-----------------------------------------
 
 do i=1,lCGFVec
   Wrk(kCGVec(1)+i-1) = Wrk(kFLagr(1)+i-1)*Wrk(kDiag(1)+i-1)

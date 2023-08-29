@@ -18,8 +18,9 @@ use Cholesky, only: iBas, nBas, mmBstRT, nnBstRT
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, LRDIM, IRS2F(N,LRDIM), LWRK
-real(kind=wp) :: WRK(LWRK)
+integer(kind=iwp), intent(in) :: N, LRDIM, LWRK
+integer(kind=iwp), intent(out) :: IRS2F(N,LRDIM)
+real(kind=wp), intent(inout) :: WRK(LWRK)
 integer(kind=iwp) :: IA, IB, IRS1, ISYMA, ISYMB, JA, JAB, JB
 character(len=*), parameter :: SECNAM = 'CHO_REOVEC'
 integer(kind=iwp), external :: CHO_ISAO

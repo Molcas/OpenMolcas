@@ -17,8 +17,9 @@ use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: PDM(nTri_Elem(n)), Diag(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: PDM(nTri_Elem(n))
+real(kind=wp), intent(out) :: Diag(n)
 integer(kind=iwp) :: i
 
 do i=1,n

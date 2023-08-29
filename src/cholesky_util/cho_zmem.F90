@@ -32,8 +32,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_Z, l_NVT, NVT(l_NVT)
-logical(kind=iwp) :: DoPrint, DoCheck
+integer(kind=iwp), intent(out) :: irc, l_Z
+integer(kind=iwp), intent(in) :: l_NVT, NVT(l_NVT)
+logical(kind=iwp), intent(in) :: DoPrint, DoCheck
 integer(kind=iwp) :: iSym, l_Mx
 real(kind=wp) :: Byte, Word(8), xl_Z
 character(len=2) :: Unt

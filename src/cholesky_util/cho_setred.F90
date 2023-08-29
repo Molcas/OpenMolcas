@@ -20,7 +20,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DIAG(*)
+real(kind=wp), intent(in) :: DIAG(*)
 integer(kind=iwp) :: IAB, INEG, ISHLA, ISHLAB, ISHLB, ISYM, JAB, JAB1, JAB2, KAB, MSYM, NNEG
 real(kind=wp) :: TST, XM
 character(len=*), parameter :: SECNAM = 'CHO_SETRED'

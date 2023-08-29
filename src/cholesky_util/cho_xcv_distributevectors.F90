@@ -29,7 +29,8 @@ use Cholesky, only: Cho_Real_Par, INF_PASS, IPRINT, LuPri
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, nSP_Batch, SP_BatchDim(nSP_Batch), n_idSP, idSP(n_idSP), l_NVT, NVT(l_NVT)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSP_Batch, SP_BatchDim(nSP_Batch), n_idSP, idSP(n_idSP), l_NVT, NVT(l_NVT)
 real(kind=wp) :: C0, C1, W0, W1
 
 irc = 0

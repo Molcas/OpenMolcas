@@ -49,13 +49,14 @@ use Constants, only: Zero, One, Two, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: Vrbse, Inf
-integer(kind=iwp) :: K_Lap
-real(kind=wp) :: EMin, EMax, Coeff(40)
+logical(kind=iwp), intent(in) :: Vrbse, Inf
+integer(kind=iwp), intent(inout) :: K_Lap
+real(kind=wp), intent(in) :: EMin, EMax
+real(kind=wp), intent(out) :: Coeff(40)
+character(len=8), intent(in) :: Demand
 integer(kind=iwp) :: I, I_Dim, Idx, IMax, IMes, InitR, Iter, J
 real(kind=wp) :: CofOld(40), DCofMx, DD(82), DDMax, EDiff, EMinIv, R, RIni, RLim, RMax0, T(40), Theta, Theta2, VVMax
 logical(kind=iwp) :: Change, Conv, Dbg, SkpRem, StopBA, Verbose
-character(len=8) :: Demand
 integer(kind=iwp), parameter :: IRMax(20) = [3,7,13,16,22,23,27,31,31,31,31,31,31,31,31,31,31,31,31,31], ItrEnd = 50, MxList = 30
 real(kind=wp), parameter :: RList(MxList) = [2.0e0_wp,5.0e0_wp,1.0e1_wp,2.0e1_wp,3.0e1_wp,4.0e1_wp,5.0e1_wp,6.0e1_wp,7.0e1_wp, &
                                              8.0e1_wp,9.0e1_wp,1.0e2_wp,2.0e2_wp,3.0e2_wp,4.0e2_wp,5.0e2_wp,6.0e2_wp,7.0e2_wp, &

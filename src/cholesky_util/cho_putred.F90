@@ -18,7 +18,7 @@ use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, LuPri, MaxRed, mmBstRT, nnBst
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IPASS, IRED
+integer(kind=iwp), intent(in) :: IPASS, IRED
 character(len=*), parameter :: SECNAM = 'CHO_PUTRED'
 
 if (IPASS > MAXRED) then

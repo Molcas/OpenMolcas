@@ -24,9 +24,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: CMO(*), Diag(*)
-logical(kind=iwp) :: DoDiag
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(inout) :: Diag(*)
+logical(kind=iwp), intent(in) :: DoDiag
 real(kind=wp), allocatable :: COcc(:), CVir(:)
 
 irc = 0

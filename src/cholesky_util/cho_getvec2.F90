@@ -28,8 +28,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
-real(kind=wp) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
+integer(kind=iwp), intent(in) :: LENVEC, NUMVEC, IVEC1, ISYM, LSCR
+real(kind=wp), intent(inout) :: CHOVEC(LENVEC,NUMVEC), SCR(LSCR)
 integer(kind=iwp) :: IAB, ILOC, IMAPC, IOFF(0:1), IREDC, IVEC2, JRED, JRED1, JRED2, JVEC1, JVEC2, KJUNK, KOFF, KSCR, KVEC, KVEC1, &
                      LEFT, LNUM, LRED, LVEC, LVEC1, MUSED, NVRD
 character(len=*), parameter :: SECNAM = 'CHO_GETVEC2'

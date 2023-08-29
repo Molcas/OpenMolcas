@@ -17,8 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LVEC, LBIN, LUPRI
-real(kind=wp) :: VEC(LVEC), BIN(LBIN)
+integer(kind=iwp), intent(in) :: LVEC, LBIN, LUPRI
+real(kind=wp), intent(in) :: VEC(LVEC)
+real(kind=wp), intent(inout) :: BIN(LBIN)
 integer(kind=iwp), parameter :: MBIN = 20
 integer(kind=iwp) :: I, IBIN, ICOUNT(MBIN), IJOB, JCOUNT, NBIN, NLOW, NNEG, NZER
 real(kind=wp) :: TEST, TOPCT, XNEG

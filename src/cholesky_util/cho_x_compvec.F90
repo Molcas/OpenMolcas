@@ -47,9 +47,10 @@ use Constants, only: Zero, One, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
-                     iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
-real(kind=wp) :: Z(l_Z)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_NVT, NVT(l_NVT), l_nBlock, nBlock(l_nBlock), l_nV1, l_nV2, nV(l_NV1,l_NV2), l_iV11, l_iV12, &
+                                 iV1(l_IV11,l_iV12), l_Z1, l_Z2, ip_Z(l_Z1,l_Z2), l_Z
+real(kind=wp), intent(inout) :: Z(l_Z)
 logical(kind=iwp) :: Free_Z
 integer(kind=iwp) :: iAdr(8), iCountSP, incZd, iSp, iSP_, iSP_1, iSP_2, iSym, J, J_inBlock, jBlock, K, K_inBlock, kBlock, kI, kL, &
                      kOffI, kOffZ, kZ, kZd, l_Int, l_Wrk, l_Zd, ldL, ldZ, Left, lTot, MaxQual_SAVE, n, nBatch, nSP, nSP_Max, &
@@ -73,7 +74,7 @@ real(kind=wp), parameter :: Tol = 1.0e-14_wp
 interface
   subroutine Cho_X_GetIP_InfVec(InfVcT)
     import :: iwp
-    integer(kind=iwp), pointer :: InfVct(:,:,:)
+    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
   end subroutine Cho_X_GetIP_InfVec
 end interface
 

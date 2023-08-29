@@ -25,9 +25,12 @@ use ChoMP2, only: iPQ_prod, LiPQprod, LnBatOrb, LnPQprod, nDel, nFro, nOcc, nPQ_
 #endif
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Vec(*), Srt(*)
-integer(kind=iwp) :: nVec, iSym, iBatch
+real(kind=wp), intent(in) :: Vec(*)
+real(kind=wp), intent(_OUT_) :: Srt(*)
+integer(kind=iwp), intent(in) :: nVec, iSym, iBatch
 integer(kind=iwp) :: iSyma, iSymi, iVec, kOff0, kOff1, kOff2, kOff3, lCp
 
 if (.not. DoDens) then

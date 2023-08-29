@@ -23,9 +23,11 @@ use ChoMP2, only: DecoMP2, Laplace_BlockSize, nMP2Vec, nT1am
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: N, irc
-real(kind=wp) :: w(N), t(N), EOcc(*), EVir(*), EMP2
-logical(kind=iwp) :: Delete
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: w(N), t(N), EOcc(*), EVir(*)
+logical(kind=iwp), intent(in) :: Delete
+real(kind=wp), intent(out) :: EMP2
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iSym, l, l_V, l_X, Nai, need, nEnrVec(8)
 character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy_Fll'
 

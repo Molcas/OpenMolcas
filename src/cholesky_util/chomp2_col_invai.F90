@@ -24,7 +24,8 @@ use ChoMP2, only: iT1am, nOcc, nVir
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ai, iSymai, a, iSyma, i, iSymi
+integer(kind=iwp), intent(in) :: ai, iSymai
+integer(kind=iwp), intent(out) :: a, iSyma, i, iSymi
 integer(kind=iwp) :: iSym, i_, ai_1, ai_2
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SecNam = 'ChoMP2_Col_Invai'

@@ -28,8 +28,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc
-real(kind=wp) :: EOcc(*), EVir(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
 integer(kind=iwp) :: iE, iMOType, iProdType, iS, iSym, iSymAl, iSymP, iSymQ, jMoType, lDens, lDens_e, nb
 
 nMOType = 3

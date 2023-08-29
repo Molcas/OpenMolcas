@@ -41,17 +41,23 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, MxVec, iD(MxVec), NumCho, irc
-real(kind=wp) :: X(n,n), Vec(n,MxVec), Thr
+integer(kind=iwp), intent(in) :: n, MxVec
+real(kind=wp), intent(inout) :: X(n,n)
+real(kind=wp), intent(out) :: Vec(n,MxVec)
+integer(kind=iwp), intent(inout) :: iD(MxVec)
+integer(kind=iwp), intent(out) :: NumCho, irc
+real(kind=wp), intent(in) :: Thr
+real(kind=wp) :: Thr_
 real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -1.0e-13_wp
 
 irc = 0
 NumCho = 0
 if (n >= 1) then
-  if (Thr < Zero) Thr = DefThr
+  Thr_ = Thr
+  if (Thr_ < Zero) Thr_ = DefThr
 
   if (MxVec > 0) then
-    call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,iD,irc)
+    call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr_,ThrNeg,ThrFail,iD,irc)
   else
     irc = -1
   end if

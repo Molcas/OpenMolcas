@@ -16,8 +16,9 @@ subroutine CD_Tester_ES(X,n,Err)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: X(n,n), Err(3)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: X(n,n)
+real(kind=wp), intent(out) :: Err(3)
 integer(kind=iwp) :: i
 real(kind=wp), parameter :: dum = 9.876543210e15_wp
 

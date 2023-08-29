@@ -31,9 +31,9 @@ subroutine Cho_Word2Byte(iWord,n,Byte,Unt)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iWord, n
-real(kind=wp) :: Byte
-character(len=2) :: Unt
+integer(kind=iwp), intent(in) :: iWord, n
+real(kind=wp), intent(out) :: Byte
+character(len=2), intent(out) :: Unt
 
 Byte = real(iWord,kind=wp)*real(n,kind=wp)
 Unt = 'b '

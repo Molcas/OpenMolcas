@@ -18,7 +18,7 @@ use Cholesky, only: CHVBUF, l_CHVBUF_SYM
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lupri, nSym
+integer(kind=iwp), intent(in) :: Lupri, nSym
 integer(kind=iwp) :: iSym
 real(kind=wp) :: xGb
 character(len=2) :: Unt
