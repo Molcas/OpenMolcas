@@ -1088,6 +1088,7 @@ C
         CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasT*nBasT)
         CALL GETMEM('RDMSA ','FREE','REAL',ipRDMSA ,nAshT*nAshT)
         CALL GETMEM('RDMEIG','FREE','REAL',ipRDMEIG,nAshT*nAshT)
+        DENORM = 1.0D+00
         !! end of with gradient
       ELSE
         !! without gradient
