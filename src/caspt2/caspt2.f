@@ -191,8 +191,8 @@ C
         !! avoid doing a lot of calculations in dens.f in the first loop
         do_grad = .false.
         CALL MMA_ALLOCATE(ESav,Nstate)
+        CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
         If ((IFXMS.and.IFDW) .or. IFRMS) Then
-          CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
           ! at this stage, H0 is just a zero matrix
           Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         End IF
@@ -551,7 +551,7 @@ C     transition density matrices.
         CALL MMA_DEALLOCATE(U0Sav)
         IF (IFMSCOUP) Then
           CALL MMA_DEALLOCATE(ESav)
-          If ((IFXMS.AND.IFDW) .or. IFRMS) CALL MMA_DEALLOCATE(H0Sav)
+          CALL MMA_DEALLOCATE(H0Sav)
         End If
       End If
 C Free resources, close files
