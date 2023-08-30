@@ -177,7 +177,7 @@ module InputData
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
     Logical :: SADREF = .False.
-    ! DORT      use the conventional orthonormalization for generating
+    ! DORT      use the conventional (canonical) orthonormalization for generating
     !           internally contracted basis, rather than scaled (?)
     !           procedure by the diagonal element. This option is
     !           'sometimes' needed for analytic gradient.
@@ -664,7 +664,7 @@ contains
         Input%SADREF = .true.
 
       case('DORT')
-      case('SORT') !! it is actually the symmetric orthonormalization
+      case('CORT') !! it is actually the canonical orthonormalization
         Input%DORTHO = .true.
 
       case('INVA')

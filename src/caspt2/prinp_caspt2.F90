@@ -247,7 +247,7 @@ subroutine prinp_caspt2()
     end if
 
     if (IFDORTHO) then
-      write(6,fmt1) 'Unscaled orthornormalization will be used for the IC basis'
+      write(6,fmt1) 'Canonical orthornormalization will be used for the IC basis'
     end if
 
     if (do_grad .and. (.not. do_nac)) then
