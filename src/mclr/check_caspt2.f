@@ -1,17 +1,31 @@
-!***********************************************************************
-! This file is part of OpenMolcas.                                     *
-!                                                                      *
-! OpenMolcas is free software; you can redistribute it and/or modify   *
-! it under the terms of the GNU Lesser General Public License, v. 2.1. *
-! OpenMolcas is distributed in the hope that it will be useful, but it *
-! is provided "as is" and without any express or implied warranties.   *
-! For more details see the full text of the license in the file        *
-! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!***********************************************************************
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2023, Yoshio Nishimoto                                 *
+************************************************************************
 
       subroutine check_caspt2(mode)
-      use MckDat, only: sNew
-
+C
+C     With mode = 0, this subroutine should first try to decide the root
+C     for which CASPT2 density and MCLR are performed. If we do not have
+C     CASPT2 density, i.e. iGo /= 3, call CASPT2 using the root
+C     specified by ALASKA (or 'Relax CASSCF root'). Othewise (iGo = 3),
+C     we are going to perform MCLR next. If ALASKA has not specified
+C     roots, perform MCLR for the roots specified by CASPT2 ('Relax
+C     original root' for gradients, or that and 'Relax CASSCF root' for
+C     NAC). If ALASKA has specified, the roots are obtained from 'MCLR
+C     Root', and CASPT2 is then called to compute the density etc.
+C
+C     With mode = 1, this subroutine obtains the character in 'MCLR
+C     Root' and determine the roots for NAC calculation.
+C
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -28,16 +42,13 @@
       character(len=16) :: StdIn, mstate1
       Logical Exists,NeedGrdt
 C
-C     Call RdInp_MCLR()  ! Read in input
-C     write (*,*) "isnac = ", isnac
-
       iRlxRoot    = 0
       iRlxRootPT2 = 0
       call Get_iScalar('SA ready',iGo)
       !! Requested root for gradient
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-      if (iGo.eq.3) then
-        !! CASPT2 density has been computed
+      if (iGo == 3) then
+        !! iGo=3 means that CASPT2 density has been computed
         !! Check the root of the density
         Call Get_iScalar('Relax original root',iRlxRootPT2)
       end if
@@ -48,23 +59,23 @@ C
       !! Check this is NAC or not
       isNAC = .false.
       call Get_cArray('MCLR Root',mstate1,16)
-C     write (*,'(a)') mstate1
       if (index(mstate1,'@') /= 0) then
         !! Requested root for NAC by ALASKA
         read(mstate1,'(1X,I7,1X,I7)') NACStates(1),NACStates(2)
         if (NACStates(1) /= 0) isNAC = .true.
         if (NACStates(1) == 0) iRlxRoot = NACStates(2)
-      else if (iGo.eq.3 .and. iRlxRoot.ne.iRlxRootPT2) then
-        !! this means CASPT2 density has been computed for the states
-        !! specified by NAC in &CASPT2
-        !! in this case, perform MCLR anyway(?)
+      else if (iGo == 3 .and. iRlxRoot /= iRlxRootPT2) then
+        !! This means CASPT2 density has been computed for the states
+        !! specified by NAC in &CASPT2.
+        !! In this case, perform MCLR anyway(?)
+        !! The states can be different from those ALASKA requests.
         NACStates(1) = iRlxRoot
         NACStates(2) = iRlxRootPT2
         isNAC = .true.
         override = .true.
       end if
 
-      if (mode.eq.1) return
+      if (mode == 1) return
 
 C     write (*,*) "isnac = ", isnac
 C     if (isnac) then
@@ -82,16 +93,15 @@ C     endif
         iRoot2req = MIN(NACStates(1),NACStates(2))
         iRoot1com = MAX(iRlxRoot,iRlxRootPT2)
         iRoot2com = MIN(iRlxRoot,iRlxRootPT2)
-        if (iGo.ne.0 .and. iRoot1req.eq.iRoot1com
-     *               .and. iRoot2req.eq.iRoot2com) return
+        if (iGo /= 0 .and. iRoot1req == iRoot1com
+     *               .and. iRoot2req == iRoot2com)   return
       else
-        if (iGo.ne.0 .and. iRlxRoot.eq.iRlxRootPT2) return
+        if (iGo /= 0 .and. iRlxRoot  == iRlxRootPT2) return
       end if
+
       !! Otherwise, compute CASPT2 density for the state specified
       !! by ALASKA (iRlxRoot)
 
-      !! This most likely means that density for the state
-      !! has not been computed
       LuInput = 11
       LuInput = IsFreeUnit(LuInput)
       call StdIn_Name(StdIn)
@@ -126,22 +136,20 @@ C         write (*,'(a)') line
         end if
 
         close(LuSpool2)
-
       else
-
+        write(6,'(A)') "CASPT2 gradient without &CASPT2?"
         write(6,'(A)') "this cannot happen, ig"
         call abend()
-
       end if
 
       FileName = 'MCLRINP'
       call f_inquire(Filename,Exists)
 
+      !! NAC states are obtained from "MCLR Roots"
       if (Exists) then
         LuSpool2 = 77
         LuSpool2 = IsFreeUnit(LuSpool2)
         call Molcas_Open(LuSpool2,Filename)
-
         do
           read(LuSpool2,'(A)',iostat=istatus) Line
 C         write (*,'(a)') line
@@ -149,17 +157,12 @@ C         write (*,'(a)') line
           if (istatus < 0) exit
           write(LuInput,'(A)') Line
         end do
-
         close(LuSpool2)
-
       else
-
         write(LuInput,'(A)') ' &Mclr &End'
         write(LuInput,'(A)') 'End of Input'
-
       end if
 
-!     write(LuInput,'(A)') '>RM -FORCE $Project.MckInt'
       write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
       write(LuInput,'(A)') '>ECHO ON'
 

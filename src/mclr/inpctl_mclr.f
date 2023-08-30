@@ -80,6 +80,8 @@
       If (Method.eq.'CASPT2  ') Then
         PT2 = .TRUE.
         !! Read the states requested by CASPT2
+        !! This means that the root(s) specified in &MCLR is usually
+        !! ignored for CASPT2 gradient/NAC.
         Call check_caspt2(1)
       End If
 *
