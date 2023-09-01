@@ -445,7 +445,6 @@ do iSym=1,nSym
 
     end do
 
-
     ! Calculate Intermediate vectors U*
     ! ---------------------------------
     do kBat=1,nBatL

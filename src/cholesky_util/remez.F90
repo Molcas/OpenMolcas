@@ -261,7 +261,7 @@ end if
 
 !call TStat(" Check T",1)
 call SlvNt1(K_Lap,1,Coeff,T)
-if (Change)  R = RIni
+if (Change) R = RIni
 !call TStat(" Newton1",1)
 
 write(IW,'(/A,F10.4/)') ' Optimized solution in R = ',R

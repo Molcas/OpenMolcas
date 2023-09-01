@@ -27,6 +27,7 @@ subroutine Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l
 
 use Index_Functions, only: iTri
 use Cholesky, only: LuPri, nnBstRT, nSym, ThrCom, ThrNeg, TOONEG, WARNEG
+use Cholesky_procedures, only: Cho_X_GetIP_InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -42,15 +43,6 @@ real(kind=wp) :: Damax, Damin, Dmax, Dmin
 integer(kind=iwp), pointer :: InfVct(:,:,:)
 real(kind=wp), allocatable :: IntDia(:)
 character(len=*), parameter :: SecNam = 'Cho_CheckDiagFromZ'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_X_GetIP_InfVec(InfVcT)
-    import :: iwp
-    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
-  end subroutine Cho_X_GetIP_InfVec
-end interface
 
 ! Get pointer to global InfVec array
 call Cho_X_getIP_InfVec(InfVcT)

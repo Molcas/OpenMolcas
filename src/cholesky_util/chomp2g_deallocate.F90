@@ -20,7 +20,7 @@ subroutine ChoMP2g_deallocate(irc)
 
 use ChoMP2, only: AdrR1, AdrR2, ChoMP2g_allocated, EFrozT, EOccuT, EVirtT, MP2D, MP2D_e, MP2D_e_full, MP2D_full, MP2W, MP2W_e, &
                   MP2W_e_full, MP2W_full
-use stdalloc, only:  mma_deallocate
+use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none

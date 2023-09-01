@@ -30,6 +30,7 @@ subroutine Cho_GetZ(irc,NVT,l_NVT,nBlock,l_nBlock,nV,l_nV1,l_nV2,iV1,l_iV11,l_iV
 
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, LuPri, nnBstR, nSym, nSys_call, NumCho, TDECOM
+use Cholesky_procedures, only: Cho_X_GetIP_InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -52,18 +53,6 @@ integer(kind=iwp) :: n, nBlock_Max, nnB
 integer(kind=iwp), parameter :: myDebugInfo = 100
 real(kind=wp), parameter :: Tol = 1.0e-14_wp
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_X_GetIP_InfVec(InfVcT)
-    import :: iwp
-    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
-  end subroutine Cho_X_GetIP_InfVec
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"

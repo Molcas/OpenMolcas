@@ -58,7 +58,7 @@ else
       NumV = NumV+1
       if (eigenval(j) > Two) eigenval(j) = Two
     else
-    eigenval(j) = Zero
+      eigenval(j) = Zero
     end if
   end do
   ! Sort eigenvalues in decreasing order of occupation number

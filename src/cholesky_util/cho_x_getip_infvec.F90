@@ -11,6 +11,11 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Cho_X_GetIP_InfVec(InfVcT)
 !
 ! Thomas Bondo Pedersen, April 2010.

@@ -7,26 +7,23 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) Thomas Bondo Pedersen                                  *
-!               2020,2021, Roland Lindh                                *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
+! This module contains procedures that need an interface
+module Cholesky_procedures
 
-subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
+private
+public :: Build_Mp2Dens, Cho_CGM_InfVec, Cho_GetLQ, Cho_P_GetLQ, Cho_VecBuf_Subtr, Cho_X_GetIP_InfVec
 
-use Definitions, only: iwp
+contains
 
-implicit none
-integer(kind=iwp), pointer, intent(out) :: InfVcT(:,:,:)
-integer(kind=iwp), intent(in) :: n
-integer(kind=iwp), intent(out) :: NVT(n)
+#define _IN_MODULE_
+#include "build_mp2dens.F90"
+#include "cho_cgm_infvec.F90"
+#include "cho_getlq.F90"
+#include "cho_p_getlq.F90"
+#include "cho_vecbuf_getlq.F90"
+#include "cho_vecbuf_subtr.F90"
+#include "cho_x_getip_infvec.F90"
 
-call Cho_X_GetIP_InfVec(InfVcT)
-call Cho_X_GetTotV(NVT,n)
-
-end subroutine Cho_CGM_InfVec
+end module Cholesky_procedures

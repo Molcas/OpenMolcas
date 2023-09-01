@@ -42,6 +42,7 @@ use Cholesky, only: iSP2F
 #endif
 use Cholesky, only: IndRSh, INF_PASS, iOff_Batch, IPRINT, iQuAB, iQuAB_here, LuPri, LuTmp, MaxQual, nDGM_call, nDim_Batch, &
                     nnBstRSh, nnShl, nQual, nSym, pTemp, TDECOM
+use Cholesky_procedures, only: Cho_X_GetIP_InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, OneHalf
 use Definitions, only: wp, iwp
@@ -68,15 +69,6 @@ integer(kind=iwp) :: nBlock_Max, nnB, nTot, nTot2
 integer(kind=iwp), parameter :: myDebugInfo = 100
 real(kind=wp), parameter :: Tol = 1.0e-14_wp
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_X_GetIP_InfVec(InfVcT)
-    import :: iwp
-    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
-  end subroutine Cho_X_GetIP_InfVec
-end interface
 
 ! Init return code
 irc = 0

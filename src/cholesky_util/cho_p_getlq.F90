@@ -9,6 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 
 use Cholesky, only: Cho_Real_Par
@@ -19,19 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
 real(kind=wp), target, intent(out) :: QVec(l_Qvec)
 character(len=*), parameter :: SecNam = 'Cho_P_GetLQ'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
-    real(kind=wp), target, intent(out) :: QVec(l_Qvec)
-  end subroutine Cho_GetLQ
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 ! In parallel:
 ! This code only works if MxShpr is set to 1

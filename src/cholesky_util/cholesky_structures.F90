@@ -64,7 +64,7 @@ interface cptr2loff
   module procedure :: lfp_cptr2loff, v1_cptr2loff
 end interface
 interface mma_allocate
-  module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim,  v1_mma_allo_3D, v1_mma_allo_3D_lim
+  module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim
 end interface
 interface mma_deallocate
   module procedure :: lfp_mma_free_3D, v1_mma_free_3D

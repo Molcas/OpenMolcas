@@ -9,6 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
 !
 ! Purpose: extract elements corresponding to qualified columns from
@@ -21,19 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
 real(kind=wp), target, intent(out) :: QVec(l_Qvec)
 integer(kind=iwp) :: iSym, iV1(8), nV(8)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_VecBuf_GetLQ(QVec,l_QVec)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: l_QVec
-    real(kind=wp), target, intent(out) :: QVec(l_QVec)
-  end subroutine Cho_VecBuf_GetLQ
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 ! Check input.
 ! ------------

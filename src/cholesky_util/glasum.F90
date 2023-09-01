@@ -30,7 +30,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) ::GLaSum
+real(kind=wp) :: GLaSum
 integer(kind=iwp), intent(in) :: K
 real(kind=wp), intent(in) :: X(20), W(20), Delta
 integer(kind=iwp) :: I

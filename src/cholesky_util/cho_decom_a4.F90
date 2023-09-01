@@ -15,6 +15,7 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 
 use Cholesky, only: Cho_Real_Par, INF_PASS, INF_PROGRESS, IPRINT, LQ_Tot, LQ, LuPri, LuSel, nnBstR, nQual, nSym, NumCho, NumChT, &
                     nVec_in_Buf, TDECOM
+use Cholesky_procedures, only: Cho_P_GetLQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -27,19 +28,6 @@ real(kind=wp) :: C1, C2, W1, W2
 integer(kind=iwp), allocatable :: IDKVec(:), iQScr(:)
 real(kind=wp), allocatable :: KVec(:), KVScr(:), MQ(:), QDiag(:), Wrk1(:), xInt(:)
 character(len=*), parameter :: SecNam = 'Cho_Decom_A4'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: l_QVec, nQSP, LstQSP(nQSP)
-    real(kind=wp), target, intent(out) :: QVec(l_Qvec)
-  end subroutine Cho_P_GetLQ
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 ! Print header.
 ! -------------

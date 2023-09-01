@@ -124,9 +124,9 @@ real(kind=wp), parameter :: E2(7) = [2.128e-2_wp,2.080e-4_wp,1.833e-6_wp,1.542e-
 
 Skip = .false.
 select case (InitR)
-  ! probably default should be 31...
-  ! this is what you get when you use computed gotos
   case default ! (1)
+    ! probably default should be 31...
+    ! this is what you get when you use computed gotos
     ErrMin = E2(K)
     ErrMax = E5(K)
   case (2)

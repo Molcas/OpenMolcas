@@ -24,7 +24,7 @@ use Cholesky, only: INF_IN2, IPRINT, iSP2F, LuPri, NCOLAB, nSym, TINTEG
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) , intent(in):: LINT, ISHLCD, ISHLAB
+integer(kind=iwp), intent(in) :: LINT, ISHLCD, ISHLAB
 real(kind=wp), intent(inout) :: XINT(LINT)
 integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLD, NAB(8)
 real(kind=wp) :: C1, C2, W1, W2

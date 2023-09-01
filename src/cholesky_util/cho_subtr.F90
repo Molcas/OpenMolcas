@@ -15,6 +15,7 @@ subroutine CHO_SUBTR(XINT,WRK,LWRK,ISYM)
 !          from the qualified integrals (in XINT).
 
 use Cholesky, only: Cho_DiaChk, Cho_IOVec, LuPri, nnBstR, nnBstRT, nQual, NumCho, Tol_DiaChk
+use Cholesky_procedures, only: Cho_VecBuf_Subtr
 use Definitions, only: wp, iwp
 
 implicit none
@@ -24,20 +25,8 @@ integer(kind=iwp), intent(in) :: ISYM
 integer(kind=iwp) :: KDIAG, KEND, NERR
 real(kind=wp) :: TOL
 logical(kind=iwp) :: FXDMEM
-logical(kind=iwp), parameter :: LOCDBG=.false.
+logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_SUBTR'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
-    import :: wp, iwp
-    real(kind=wp), target, intent(inout) :: xInt(*)
-    integer(kind=iwp), intent(in) :: lWrk, iSym
-    real(kind=wp), target, intent(out) :: Wrk(lWrk)
-    logical(kind=iwp), intent(in) :: DoTime, DoStat
-  end subroutine Cho_VecBuf_Subtr
-end interface
 
 ! Return if nothing to do.
 ! ------------------------

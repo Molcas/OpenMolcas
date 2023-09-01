@@ -23,7 +23,7 @@ real(kind=wp), intent(out) :: DIASH(nnShl)
 integer(kind=iwp), intent(out) :: ISYSH(nnShl)
 integer(kind=iwp), intent(in) :: IRED
 integer(kind=iwp) :: IAB, IAB1, IAB2, ISAB, ISHLA, ISHLAB, ISHLB, ISYMAB, JAB, JAB1, JAB2
-character(len=*), parameter ::SECNAM = 'CHO_SETMAXSHL'
+character(len=*), parameter :: SECNAM = 'CHO_SETMAXSHL'
 
 ! Initialize the largest diagonal in each shell pair.
 ! ---------------------------------------------------

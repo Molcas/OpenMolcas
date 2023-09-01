@@ -38,6 +38,7 @@ subroutine Cho_X_CalculateGMat(irc)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, nnBstR, nSym, NumCho
+use Cholesky_procedures, only: Cho_CGM_InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -55,17 +56,6 @@ real(kind=wp), allocatable :: G(:), Wrk(:)
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: ddot_
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_CGM_InfVec(InfVcT,NVT,n)
-    import :: iwp
-    integer(kind=iwp), pointer, intent(out) :: InfVcT(:,:,:)
-    integer(kind=iwp), intent(in) :: n
-    integer(kind=iwp), intent(out) :: NVT(n)
-  end subroutine Cho_CGM_InfVec
-end interface
 
 ! Set return code.
 ! ----------------

@@ -44,7 +44,7 @@ real(kind=wp) :: Emax, Emin, RMSt, RMSw, Tol
 real(kind=wp), allocatable :: tmlwr(:), tmltr(:), tmlw(:), tmlt(:)
 integer(kind=iwp), parameter :: N = 8
 real(kind=wp), parameter :: xmax = 1.08976414_wp, xmin = 1.08976414_wp
-real(kind=wp), external ::ddot_
+real(kind=wp), external :: ddot_
 
 if (Verbose) then
   write(u6,'(//,A)') '>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<'

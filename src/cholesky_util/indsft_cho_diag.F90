@@ -40,7 +40,7 @@ logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
 #include "print.fh"
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, irout, ISHLI, ISHLJ, iSO, iSOi, iSOij, iSOkl, iSym(0:7), ix, j, j1, j12, j2, j2max, &
-                     j3, j4, jCmpMx, jprint, jSO, jSOj,jSym(0:7), k12, k34, KIJ, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, &
+                     j3, j4, jCmpMx, jprint, jSO, jSOj, jSym(0:7), k12, k34, KIJ, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, &
                      lSym(0:7), memSO2, nijkl, NUMI, NUMJ
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl

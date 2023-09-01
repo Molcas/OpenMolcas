@@ -21,10 +21,10 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(_OUT_) :: Diag(*)
 integer(kind=iwp), intent(in) :: LENBUF, LMMBSTRT, NDUMP
-real(kind=wp), intent(out) ::  BUF(LENBUF)
+real(kind=wp), intent(out) :: BUF(LENBUF)
 integer(kind=iwp), intent(out) :: IBUF(4,LENBUF), INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
 integer(kind=iwp) :: IAB, IDUMP, ISHLAB, ISYMAB, IUNIT, L, LENGTH
-character(len=*), parameter:: SECNAM = 'CHO_RDDBUF'
+character(len=*), parameter :: SECNAM = 'CHO_RDDBUF'
 
 if (LENBUF < LBUF) then
   write(LUPRI,'(//,1X,A,A)') SECNAM,': LENBUF >= LBUF required!'

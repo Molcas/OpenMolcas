@@ -20,6 +20,7 @@ subroutine ChoMP2g_Density3(irc,CMO)
 
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym
+use Cholesky_procedures, only: Build_Mp2Dens
 use ChoMP2, only: MP2D, MP2D_e, MP2W, MP2W_e, nDel, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -30,20 +31,6 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp) :: i, iSym, j, lTriDens, nOrbAll(8)
 real(kind=wp), allocatable :: AOTriDens(:), WAOTriDens(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
-    use Data_Structures, only: V2
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8)
-    real(kind=wp), intent(inout) :: TriDens(nTriDens)
-    type(V2), intent(in) :: MP2X_e(8)
-    real(kind=wp), intent(in) :: CMO(*)
-    logical(kind=iwp), intent(in) :: Diagonalize
-  end subroutine Build_Mp2Dens
-end interface
 
 !                                                                      *
 !***********************************************************************

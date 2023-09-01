@@ -43,7 +43,7 @@ integer(kind=iwp) :: a, ai, i, iSym, iSyma, iSymb, iSymi, iTyp, kD0, kD1, kD2, l
 real(kind=wp) :: CPUBT1, CPUBT2, CPUDec1, CPUDec2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, DE, Ei, FracMem, WallBT1, &
                  WallBT2, WallDec1, WallDec2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
 logical(kind=iwp) :: Delete, DoAmpDiag
-character(len=3) ::BaseName_AO
+character(len=3) :: BaseName_AO
 real(kind=wp), allocatable :: Check(:), Diag(:)
 integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp

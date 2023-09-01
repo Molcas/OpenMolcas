@@ -18,6 +18,7 @@ subroutine Cho_PTS_WrRst(irc,NVT,l_NVT)
 ! Purpose: Write restart files (parallel two-step algorithm).
 
 use Cholesky, only: InfRed, InfVec, LuCho, LuMap, LuRed, LuRst, MaxVec, nnBstR, NumCho, nSym
+use Cholesky_procedures, only: Cho_X_GetIP_InfVec
 #ifdef _DEBUGPRINT_
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
@@ -34,15 +35,6 @@ integer(kind=iwp) :: myNumCho(8)
 integer(kind=iwp), allocatable :: IDV(:)
 character(len=*), parameter :: SecNam = 'Cho_PTS_WrRst'
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_X_GetIP_InfVec(InfVcT)
-    import :: iwp
-    integer(kind=iwp), pointer, intent(out) :: InfVct(:,:,:)
-  end subroutine Cho_X_GetIP_InfVec
-end interface
 
 !                                                                      *
 !***********************************************************************

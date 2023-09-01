@@ -49,10 +49,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nOV, MaxNVec
-real(kind=wp) , intent(in):: thr, W(*)
+real(kind=wp), intent(in) :: thr, W(*)
 integer(kind=iwp), intent(_OUT_) :: ID_bj(*)
 integer(kind=iwp), intent(out) :: NVec
-real(kind=wp) , intent(out):: Dmax
+real(kind=wp), intent(out) :: Dmax
 integer(kind=iwp) :: ip, Jm
 real(kind=wp), allocatable :: Diag(:)
 

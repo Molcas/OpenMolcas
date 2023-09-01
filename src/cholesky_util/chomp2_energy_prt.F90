@@ -34,7 +34,7 @@ if (Job == 0) then
   write(u6,'(4X,A,A)') 'Evaluator: ',Caller
 
   write(u6,'(/,4X,A,/,4X,A,/,4X,A)') 'Batch      CPU       Wall    Ratio',' No.     seconds    seconds', &
-                                    '----------------------------------'
+                                     '----------------------------------'
 
   call xFlush(u6)
 

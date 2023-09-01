@@ -27,7 +27,7 @@ integer(kind=iwp), intent(out) :: LnPQRSprod, LiPQRSprod(8)
 integer(kind=iwp), intent(in) :: iBatch, jBatch
 integer(kind=iwp) :: iSym
 character(len=14) :: String
-character(len=*), parameter :: SecNam='ChoMP2_Energy_GetPQInd'
+character(len=*), parameter :: SecNam = 'ChoMP2_Energy_GetPQInd'
 
 if (iBatch == jBatch) then
   LnPQRSprod = 0

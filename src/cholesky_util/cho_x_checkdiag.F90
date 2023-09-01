@@ -50,7 +50,7 @@ subroutine Cho_X_CheckDiag(irc,Err)
 use Cholesky, only: Cho_1Center, IPRINT, nnBstRT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp,u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

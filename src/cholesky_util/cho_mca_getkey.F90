@@ -28,7 +28,7 @@ character(len=*), parameter :: COMMENT = '*', SECNAM = 'CHO_MCA_GETKEY'
 character(len=LKEY), parameter :: ALIAS(NALIAS,2) = reshape(['PREC','THSI','THSU','STOP','MEMQ','IOMO','DYNA','1CEN','NO2C', &
                                                              'THRP','1CCD','1C-C', &
                                                              'THRC','DMP1','DMP2','HALT','QFRA','ADDR','VBUF','1-CE','NO2-', &
-                                                             'PRET','1-CE','1-CE'],[NALIAS,2]),&
+                                                             'PRET','1-CE','1-CE'],[NALIAS,2]), &
                                   EOINP(NEOINP) = ['ENDC'], OBSOL(NOBSOL) = ['XXXX'], &
                                   TABLE(NTABLE) = ['THRC','PRIN','BUFF','THRD','DMP1','DMP2','SPAN','MINQ','MXSH','SCRE','NOSC', &
                                                    'QUAL','THRN','WARN','TOON','CHEC','CHKA','RSTD','RSTC','RSTM','MAXQ','CHOM', &

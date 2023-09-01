@@ -241,7 +241,7 @@ do i1=1,iCmp(1)
                       else
                         write(LUPRI,*) 'Shell quadruple requested: ',SHC,SHD,SHA,SHB
                         write(LUPRI,*) 'Shell quadruple of element ',NTELM,':',ISHLI,ISHLJ,ISHLK,ISHLL
-                        call CHO_QUIT( 'Logical error in IndSft_Cho_3',103)
+                        call CHO_QUIT('Logical error in IndSft_Cho_3',103)
                       end if
 
                       if (SHA == SHB) then

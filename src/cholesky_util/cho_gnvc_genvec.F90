@@ -27,7 +27,7 @@ type(Alloc1DiArray_Type) :: RS2RS(8)
 integer(kind=iwp) :: i, iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
                      jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
                      nBin, nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec
-real(kind=wp) :: Bin1, C1, C2, Fac,olDiag, Step, W1, W2, XC, xM, xMax, xMin
+real(kind=wp) :: Bin1, C1, C2, Fac, olDiag, Step, W1, W2, XC, xM, xMax, xMin
 real(kind=wp), allocatable :: VecTmp(:), Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_GenVec'
 

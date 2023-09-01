@@ -100,8 +100,8 @@ do iSym=1,nSym
     iSymP = Mul(iSymQ,iSym)
     iPQ_prod(iSymP,iSymQ) = nPQ_prod(iSym)
 
-    nPQ_prod(iSym) = nPQ_Prod(iSym)+(nOcc(iSymP)+nVir(iSymP)+nFro(iSymP)+nDel(iSymP))*(nOcc(iSymQ)+nVir(iSymQ)+nFro(iSymQ)+ &
-                     nDel(iSymQ))
+    nPQ_prod(iSym) = nPQ_Prod(iSym)+(nOcc(iSymP)+nVir(iSymP)+nFro(iSymP)+nDel(iSymP))* &
+                     (nOcc(iSymQ)+nVir(iSymQ)+nFro(iSymQ)+nDel(iSymQ))
     nPQ_prodij(iSym) = nPQ_Prodij(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nFro(iSymQ)+nOcc(iSymQ))
     nPQ_prodia(iSym) = nPQ_Prodia(iSym)+(nFro(iSymP)+nOcc(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
     nPQ_prodab(iSym) = nPQ_Prodab(iSym)+(nVir(iSymP)+nDel(iSymP))*(nVir(iSymQ)+nDel(iSymQ))
