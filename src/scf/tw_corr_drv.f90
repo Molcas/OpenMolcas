@@ -124,9 +124,8 @@
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),nDel(nSym)
       Real*8  CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
 !
-      Integer i, ifr, ioff, ip_X, ip_Y, iSkip, iSym, iTo, jD, jOcc, jp,jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT, &
-              nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV, j, jOff
-      Integer, External:: ip_of_Work
+      Integer i, ifr, ioff, iSkip, iSym, iTo, jD, jOcc, jp,jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT, nBmx, nCMO, nOA, &
+              nOkk, nOrb, nSQ, nTri, nVV, j, jOff
       Real*8 SqOcc, tmp, Dummy
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8, Allocatable:: CMO(:,:), EOrb(:,:), DMAT(:)
@@ -203,10 +202,7 @@
       Call mma_Allocate(DMAT,nVV+nOA,Label='DMAT')
       DMAT(:)=Zero
 
-      ip_X = ip_of_Work(DMAT(1))
-      ip_Y = ip_X+nVV
-      Call FnoSCF_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
-      ip_X = 1
+      Call FnoSCF_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 
       CMO(:,2)=Zero
       iOff=0
@@ -221,7 +217,8 @@
       End Do
       Call Check_Amp_SCF(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,CMO(:,2),EOrb(:,3),EOrb(:,4))
+         Call ChoMP2_Drv(irc,Dummy,CMO(:,2),EOrb(:,3),EOrb(:,4), &
+                         DMAT(1:nVV),DMAT(nVV+1:))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend
@@ -237,7 +234,7 @@
 !
 !     Compute the correlated density in AO basis
 !     -------------------------------------------------------------
-      jOcc=ip_X+nVV
+      jOcc=1+nVV
 !           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
 !           write(6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
       call dscal_(nOA,Two,DMAT(jOcc),1)
@@ -268,7 +265,7 @@
                             Zero,DM(kDM),nBas(iSym))
 !
          if (nSsh(iSym).gt.0) then
-           jD=ip_X+iOff
+           jD=1+iOff
 !     Eigenvectors will be in increasing order of eigenvalues
            Call Eigen_Molcas(nSsh(iSym),DMAT(jD),EOrb(:,2),Eorb(:,1))
 !     Reorder to get relevant eigenpairs first
@@ -348,15 +345,14 @@
 !***********************************************************************
 !                                                                      *
 !***********************************************************************
-      SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
+      SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 !
 !     Purpose: put info in MP2 common blocks.
 !
-      Use ChoMP2, only: DoFNO, ip_Dab, ip_Dii, l_Dab, l_Dii
+      Use ChoMP2, only: DoFNO, l_Dii
       Implicit None
       Integer mSym
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer ip_X, ip_Y
 !
 #include "corbinf.fh"
 !
@@ -373,12 +369,8 @@
       End Do
 !
       DoFNO=.true.
-      ip_Dab=ip_X
-      ip_Dii=ip_Y
-      l_Dab=nExt(1)
       l_Dii=nOcc(1)
       Do iSym=2,nSym
-         l_Dab=l_Dab+nExt(iSym)**2
          l_Dii=l_Dii+nOcc(iSym)
       End Do
 !

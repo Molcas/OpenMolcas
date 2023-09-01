@@ -23,8 +23,8 @@
 !> \p DoRead = ``.false.`` the reduced vectors must be supplied in
 !> array \p RedVec.
 !>
-!> Given a set of pointers (\p ipChoV) to target
-!> arrays, the routine reorders \p NUMV Cholesky
+!> Given a set of target arrays (\p Wab),
+!> the routine reorders \p NUMV Cholesky
 !> vectors of compound symmetry \p ISYM starting with
 !> vector \p JVEC1 and returns them in the target arrays.
 !> Each pointer should thereby point to a
@@ -51,29 +51,37 @@
 !> @param[in]     ISYM    compound symmetry of the Cholesky vectors
 !> @param[in]     iSwap   type of the full storage for the returned Cholesky vectors
 !> @param[in,out] IREDC   current reduced set in core (location ``3``)
-!> @param[in]     ipChoV  pointers to the target arrays
+!> @param[in,out] Wab     target arrays
 !> @param[in]     iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 !> @param[in]     DoRead  flag for reading reduced vectors from disk
 !***********************************************************************
 
-subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)
+subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,Wab,iSkip,DoRead)
 
 use Symmetry_Info, only: Mul
 use Cholesky, only: nBas, nSym
+use Data_structures, only: Map_to_SBA, SBA_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-integer(kind=iwp), intent(in) :: lRedVec, IVEC1, NUMV, ISYM, iSwap, ipChoV(*), iSkip(*)
+integer(kind=iwp), intent(in) :: lRedVec, IVEC1, NUMV, ISYM, iSwap, iSkip(*)
 real(kind=wp), intent(inout) :: RedVec(lRedVec)
 integer(kind=iwp), intent(inout) :: IREDC
+type(SBA_Type), intent(inout) :: Wab
 logical(kind=iwp), intent(in) :: DoRead
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
+integer(kind=iwp) :: i, iOff, ipChoV(8), ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
+integer(kind=iwp), external :: ip_of_Work
 
 MXUSD = 0
 MUSED = 0
+
+ipChoV(1:nSym) = -6666
+call Map_to_SBA(Wab,ipChoV)
+! Get pointers relative to Wab%A0
+iOff = ip_of_Work(Wab%A0(1))
+ipChoV(1:nSym) = ipChoV(1:nSym)-iOff+1
 
 ipVec(1:nSym) = ipChoV(1:nSym)
 
@@ -83,18 +91,14 @@ if (iSwap == 0) then
 
   do iSymq=1,nSym
     iSymp = mul(iSym,iSymq)
-    if (nnBSF(iSymp,iSymq) > 0) then
-      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) Work(ipChoV(iSymp):ipChoV(iSymp)+nnBSF(iSymp,iSymq)*NUMV-1) = Zero
-    end if
+    if ((nnBSF(iSymp,iSymq) > 0) .and. ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0))) Wab%SB(iSymp)%A2(:,:) = Zero
   end do
 
 else if ((iSwap == 1) .or. (iSwap == 2)) then
 
   do iSymq=1,nSym
     iSymp = mul(iSym,iSymq)
-    if (n2BSF(iSymp,iSymq) > 0) then
-      if ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0)) Work(ipChoV(iSymp):ipChoV(iSymp)+n2BSF(iSymp,iSymq)*NUMV-1) = Zero
-    end if
+    if ((n2BSF(iSymp,iSymq) > 0) .and. ((iSymp >= iSymq) .and. (iSkip(iSymp) /= 0))) Wab%SB(iSymp)%A2(:,:) = Zero
   end do
 
 else
@@ -120,7 +124,7 @@ if (DoRead) then
     end if
 
     jVref = JVEC1-IVEC1+1
-    call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,iSkip)
+    call cho_Reordr(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,Wab%A0,iSkip)
 
     if (irc /= 0) return
 
@@ -145,7 +149,7 @@ else ! only reorder
 
   JNUM = NUMV
 
-  call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,iSkip)
+  call cho_Reordr(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,iSwap,ipVec,Wab%A0,iSkip)
 
   if (irc /= 0) return
 

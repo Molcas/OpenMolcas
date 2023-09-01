@@ -25,7 +25,8 @@ subroutine ChoMP2_Energy_Contr_T1(EMP2,EOcc,EVir,Xaibj,LnT2am,LiT2am,iBatch,jBat
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Cholesky, only: nSym
-use ChoMP2, only: ChoAlg, EOSMP2, iFirstS, iMatab, iOcc, iOffT1, iVir, LiMatij, LiT1am, LnOcc, LnT1am, nMatab, nOcc, nVir, Wref
+use ChoMP2, only: ChoAlg, EOSMP2, iFirstS, iMatab, iOcc, iOffT1, iVir, LiMatij, LiT1am, LnOcc, LnT1am, nMatab, nOcc, nVir, T1amp, &
+                  Wref
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -33,7 +34,6 @@ implicit none
 integer(kind=iwp), intent(in) :: LnT2am, LiT2am(8), iBatch, jBatch
 real(kind=wp), intent(inout) :: EMP2, Xaibj(LnT2am)
 real(kind=wp), intent(in) :: EOcc(*), EVir(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: a, abij, aibj, b, baij, biaj, i, ia, ij, iSym1, iSym2, iSyma, iSymab, iSymai, iSymaj, iSymb, iSymbi, iSymbj, &
                      iSymi, iSymij, iSymj, j, jb, Lai, Laj, Lbi, Lbj, Li, Lj
 real(kind=wp) :: Dnom, Eaibj, EMP2_sav, EOSMP2_sav, Taibj, Waibj, WREF_sav, Xtmp
@@ -63,7 +63,7 @@ if (iBatch == jBatch) then
                   ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
                   jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
                   Xtmp = Xaibj(abij)
-                  Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                  Taibj = Xtmp/Dnom-T1amp(ia)*T1amp(jb)
                   Waibj = Two*Xtmp
                   EOSMP2 = EOSMP2+Taibj*Waibj
                   Waibj = Waibj-Xaibj(baij)
@@ -119,7 +119,7 @@ if (iBatch == jBatch) then
                     ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
                     jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
                     Xtmp = Xaibj(abij)
-                    Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                    Taibj = Xtmp/Dnom-T1amp(ia)*T1amp(jb)
                     Waibj = Two*Xtmp
                     EOSMP2 = EOSMP2+Taibj*Waibj
                     Waibj = Waibj-Xaibj(baij)
@@ -178,7 +178,7 @@ if (iBatch == jBatch) then
                     ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
                     jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
                     Xtmp = Xaibj(aibj)
-                    Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                    Taibj = Xtmp/Dnom-T1amp(ia)*T1amp(jb)
                     Waibj = Two*Xtmp
                     EOSMP2 = EOSMP2+Taibj*Waibj
                     Waibj = Waibj-Xaibj(biaj)
@@ -248,7 +248,7 @@ else ! rectangular storage (ai|bj) with ai<bj.
                   ia = iOffT1(iSymi)+nOcc(iSymi)*(a-1)+i
                   jb = iOffT1(iSymj)+nOcc(iSymj)*(b-1)+j
                   Xtmp = Xaibj(aibj)
-                  Taibj = Xtmp/Dnom-Work(ia)*Work(jb)
+                  Taibj = Xtmp/Dnom-T1amp(ia)*T1amp(jb)
                   Waibj = Two*Xtmp
                   EOSMP2 = EOSMP2+Taibj*Waibj
                   Waibj = Waibj-Xaibj(biaj)

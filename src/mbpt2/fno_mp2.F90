@@ -112,7 +112,7 @@ end do
 call mma_allocate(X,nVV+nOA,label='Dmat')
 X(:) = Zero
 
-call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:))
+call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 CMO(:,2) = Zero
 iOff = 1
 do iSym=1,nSym
@@ -126,7 +126,7 @@ do iSym=1,nSym
 end do
 call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
-  call ChoMP2_Drv(irc,Dummy,CMO(:,2),OrbE(:,3),OrbE(:,4))
+  call ChoMP2_Drv(irc,Dummy,CMO(:,2),OrbE(:,3),OrbE(:,4),X(1:nVV),X(nVV+1:))
   if (irc /= 0) then
     write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
@@ -204,7 +204,7 @@ call Check_Amp2(nSym,lnOcc,nSsh,iSkip)
 MP2_small = iSkip > 0
 if (MP2_small) then
 
-  call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh,X(1:nVV),X(nVV+1:))
+  call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh)
 
   call mma_allocate(iD,nOrb,label='iD_orb')
   do k=1,nOrb
@@ -251,7 +251,7 @@ if (MP2_small) then
 
   EMP2 = DeMP2
   DeMP2 = Zero
-  if (DoMP2) call ChoMP2_Drv(irc,Dummy,CMOI,OrbE(:,3),OrbE(:,1))
+  if (DoMP2) call ChoMP2_Drv(irc,Dummy,CMOI,OrbE(:,3),OrbE(:,1),X(1:nVV),X(nVV+1:))
   if (irc /= 0) then
     write(u6,*) 'MP2 in truncated virtual space failed !'
     call Abend()

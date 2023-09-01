@@ -21,8 +21,9 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(inout) :: CMOI(*), EOcc(*), EVir(*)
-logical(kind=iwp) :: DoDens_
 integer(kind=iwp) :: ChoAlg_
+logical(kind=iwp) :: DoDens_
+real(kind=wp) :: Dum(2)
 #include "corbinf.fh"
 
 DoDens_ = DoDens
@@ -39,7 +40,7 @@ end if
 ChoAlg = ChoAlg_
 DoDens = DoDens_
 DoFNO = .false.
-call ChoMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
+call ChoMP2_Drv(irc,EMP2,CMOI,EOcc,EVir,Dum(1),Dum(2))
 EMP2 = EMP2+XEMP2
 
 return

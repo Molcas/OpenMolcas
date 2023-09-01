@@ -41,8 +41,8 @@ real(kind=wp), allocatable :: VecR(:,:)
 logical(kind=iwp), parameter :: LocDbg = _DBG_
 logical(kind=iwp), external :: ga_create_irreg, ga_destroy
 #ifndef _GA_
-#include "WrkSpc.fh"
 !VVP:2014 DGA is here
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iGAL, nelm
 integer(kind=iwp), external :: ga_local_woff
 logical(kind=iwp), external :: ga_create_local

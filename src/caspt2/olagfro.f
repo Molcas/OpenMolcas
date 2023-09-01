@@ -520,10 +520,10 @@ C           lscr  = nBasI*(nBasI+1)/2
             iSwap = 2
 C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
-C    *                      iSkip)
+C    *                      Work,iSkip)
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
-     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,
+     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,Work,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C

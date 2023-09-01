@@ -2048,7 +2048,7 @@ C
             End If
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,1,
-     *                      1,1,1,iSym,JREDC,2,ipWRK,
+     *                      1,1,1,iSym,JREDC,2,ipWRK,Work,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C

@@ -65,8 +65,7 @@
       ip_Y=ip_X+nVV
       Call FZero(Work(ip_X),nVV+nOA)
 *
-      Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,
-     &                           ip_Y,.true.)
+      Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
       Call GetMem('CMON','Allo','Real',iCMO,nBB)
       Call FZero(Work(iCMO),nBB)
       iOff=0
@@ -82,7 +81,8 @@
 *
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                   Work(ip_X),Work(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend

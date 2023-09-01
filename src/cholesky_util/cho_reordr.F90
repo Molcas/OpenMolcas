@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV,iSkip)
+subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV,Arr,iSkip)
 !***********************************************************
 ! Author: F. Aquilante
 !
@@ -61,7 +61,7 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: lscr, jVref, JVEC1, JNUM, NUMV, JSYM, iSwap, ipChoV(*), iSkip(*)
 real(kind=wp), intent(in) :: Scr(lscr)
 integer(kind=iwp), intent(inout) :: IREDC
-#include "WrkSpc.fh"
+real(kind=wp), intent(inout) :: Arr(*)
 integer(kind=iwp) :: iabf, iag, ias, ibg, ibs, iLoc, iRab, iSyma, iSymb, jRab, JRED, JVEC, kchov, kchov1, kchov2, kRab, kscr, NREAD
 integer(kind=iwp), external :: cho_isao
 
@@ -124,7 +124,7 @@ if ((jSym == 1) .and. (iSwap == 0)) then  ! L(ab),J
         iabf = iTri(ias,ibs)
         kchov = (JVEC-1)*nTri_Elem(nBas(iSyma))+iabf+ipChoV(iSyma)-1
 
-        Work(kchov) = Scr(kscr)
+        Arr(kchov) = Scr(kscr)
 
       end if
 
@@ -169,8 +169,8 @@ else if ((jSym == 1) .and. (iSwap == 1)) then  ! LaJ,b
         kchov1 = nBas(iSyma)*NUMV*(ibs-1)+nBas(iSyma)*(jVref+JVEC-2)+ias+ipChoV(iSyma)-1
         kchov2 = nBas(iSyma)*NUMV*(ias-1)+nBas(iSyma)*(jVref+JVEC-2)+ibs+ipChoV(iSyma)-1
 
-        Work(kchov1) = Scr(kscr)
-        Work(kchov2) = Scr(kscr)
+        Arr(kchov1) = Scr(kscr)
+        Arr(kchov2) = Scr(kscr)
 
       end if
 
@@ -215,8 +215,8 @@ else if ((jSym == 1) .and. (iSwap == 2)) then  ! L[ab],J
         kchov1 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)+nBas(iSyma)*(ibs-1)+ias+ipChoV(iSyma)-1
         kchov2 = nBas(iSyma)*nBas(iSyma)*(JVEC-1)+nBas(iSyma)*(ias-1)+ibs+ipChoV(iSyma)-1
 
-        Work(kchov1) = Scr(kscr)
-        Work(kchov2) = Scr(kscr)
+        Arr(kchov1) = Scr(kscr)
+        Arr(kchov2) = Scr(kscr)
 
       end if
 
@@ -261,7 +261,7 @@ else if ((jSym > 1) .and. (iSwap == 0)) then
 
         kchov = nBas(iSyma)*nBas(iSymb)*(JVEC-1)+nBas(iSyma)*(ibs-1)+ias+ipChoV(iSyma)-1
 
-        Work(kchov) = Scr(kscr)
+        Arr(kchov) = Scr(kscr)
 
       end if
 
@@ -306,7 +306,7 @@ else if ((jSym > 1) .and. (iSwap == 1)) then
 
         kchov = nBas(iSyma)*NUMV*(ibs-1)+nBas(iSyma)*(jVref+JVEC-2)+ias+ipChoV(iSyma)-1
 
-        Work(kchov) = Scr(kscr)
+        Arr(kchov) = Scr(kscr)
 
       end if
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
+subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir,Dab,Dii)
 !
 ! Thomas Bondo Pedersen, October 2004.
 !
@@ -27,8 +27,8 @@ subroutine ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     are taken!)
 
 use Cholesky, only: LuPri, nSym, NumCho
-use ChoMP2, only: DecoMP2, DoDens, DoFNO, DoGrdt, EFrozT, EMP2_dens, EOccuT, EVirtT, ip_Dab, ip_Dii, l_Dii, Laplace, nBatch, &
-                  nMoMo, nMP2Vec, nT1am, SOS_mp2, Verbose
+use ChoMP2, only: DecoMP2, DoDens, DoFNO, DoGrdt, EFrozT, EMP2_dens, EOccuT, EVirtT, l_Dii, Laplace, nBatch, nMoMo, nMP2Vec, &
+                  nT1am, SOS_mp2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -37,8 +37,7 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(in) :: CMO(*)
-real(kind=wp), intent(inout) :: EOcc(*), EVir(*)
-#include "WrkSpc.fh"
+real(kind=wp), intent(inout) :: EOcc(*), EVir(*), Dab(*), Dii(*)
 integer(kind=iwp) :: lDiag, nSym_Sav
 real(kind=wp) :: CPUDab1, CPUDab2, CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUSrt1, CPUSrt2, CPUTot1, CPUTot2, &
                  CPUTra1, CPUTra2, FracMem, WallDab1, WallDab2, WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, &
@@ -224,8 +223,8 @@ end if
 if (DoFNO .and. (.not. DoDens)) then
   if (Verbose) call CWTime(CPUDab1,WallDab1)
   Delete = Delete_def
-  call ChoMP2_FNO(irc,Work(ip_Dab),Work(ip_Dii),EOcc,EVir,DoSort,Delete)
-  Work(ip_Dii:ip_Dii+l_Dii-1) = -Work(ip_Dii:ip_Dii+l_Dii-1)
+  call ChoMP2_FNO(irc,Dab,Dii,EOcc,EVir,DoSort,Delete)
+  Dii(1:l_Dii) = -Dii(1:l_Dii)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_FNO returned ',irc
     call Finish_this()

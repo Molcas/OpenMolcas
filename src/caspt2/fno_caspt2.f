@@ -129,8 +129,7 @@
       Call FZero(Work(ip_X),nVV+nOA)
       ip_Y = ip_X + nVV
 *
-      Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                      ip_X,ip_Y)
+      Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
       Call FZero(Work(iCMO),NCMO)
       iOff=0
       Do iSym=1,nSym
@@ -144,7 +143,8 @@
       End Do
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                   Work(ip_X),Work(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend
@@ -236,8 +236,7 @@
       MP2_small = DoMP2 .and. iSkip.gt.0
       If (MP2_small) Then
 *
-         Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh,
-     &                         ip_X,ip_Y)
+         Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh)
 *
          Call GetMem('iD_orb','Allo','Inte',ip_iD,nOrb)
          Do k=1,nOrb
@@ -272,7 +271,8 @@
 *
          EMP2=DeMP2
          DeMP2=0.0d0
-         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                   Work(ip_X),Work(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
            Call Abend
@@ -289,19 +289,16 @@
 ************************************************************************
 *                                                                      *
 ************************************************************************
-      SubRoutine FnoCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                            ip_X,ip_Y)
+      SubRoutine FnoCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 C
 C     Purpose: put info in MP2 common blocks.
 C
       Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
-     &                  DoFNO, EOSMP2, ForceBatch, ip_Dab, ip_Dii,
-     &                  l_Dab, l_Dii, MxQual_Def, MxQualMP2, OED_Thr,
-     &                  set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrMP2,
-     &                  Verbose
+     &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
+     &                  MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2,
+     &                  Span_Def, SpanMP2, ThrMP2, Verbose
 #include "implicit.fh"
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer ip_X, ip_Y
 C
 #include "corbinf.fh"
 C
@@ -331,12 +328,8 @@ C
       EOSMP2=0.0d0
 C
       DoFNO=.true.
-      ip_Dab=ip_X
-      ip_Dii=ip_Y
-      l_Dab=nExt(1)
       l_Dii=nOcc(1)
       Do iSym=2,nSym
-         l_Dab=l_Dab+nExt(iSym)**2
          l_Dii=l_Dii+nOcc(iSym)
       End Do
 C

@@ -1211,6 +1211,7 @@ C
       Use Cholesky, only: INFVEC_N2, MaxVec, nnBstR
       Implicit Real*8 (A-H,O-Z)
 C
+#include "WrkSpc.fh"
       Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
       Dimension INFVEC(MAXVEC,INFVEC_N2,*),nDimRS(nSym0,*),iSkip(8)
 C
@@ -1239,7 +1240,7 @@ C
         ipVecL = ipVecL - lscr
         Call DCopy_(nBasT**2,[0.0D+00],0,WRK,1)
         Call Cho_ReOrdr(irc,CHSPC(ipVecL,1),lscr,1,
-     *                  1,1,1,iSym,JREDC,2,ipWRK,
+     *                  1,1,1,iSym,JREDC,2,ipWRK,Work,
      *                  iSkip)
         Call DCopy_(nBasT**2,WRK,1,CHSPC(1,jloc),1)
         jloc = jloc-1
