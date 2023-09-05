@@ -159,6 +159,7 @@ C
       Integer nFinal, nScrtch, nScrSph, nKern
       Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
       Real*8 , Target:: Final(nFinal), Kern(nKern)
+#define _FIXED_FORMAT_
       Interface
       Subroutine Kernel(
 #                define _CALLING_
@@ -441,6 +442,7 @@ C
       Integer nFinal, nScrtch, nScrSph, nKern
       Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
       Real*8 , Target:: Final(nFinal), Kern(nKern)
+#define _FIXED_FORMAT_
       Interface
       Subroutine Kernel(
 #                define _CALLING_

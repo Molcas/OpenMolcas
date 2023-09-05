@@ -19,8 +19,8 @@ subroutine Integral_RI_3( &
 
 use RICD_Info, only: LDF
 use RI_glob, only: iSSOff, nBasSh, klS, nSkal_Valence, nSO, SOShl, ShlSO
-use Definitions, only: wp, iwp
 use Int_Options, only: iTOffs
+use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"

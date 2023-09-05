@@ -49,38 +49,38 @@ call RecPrt(' Kcd in TERISq',' ',rKapcd,nT,1)
 
 select case (nOrdOp)
 
-case (0)
+  case (0)
 
-  do iT=1,nT
-    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
-    ZEInv(iT) = tmp
-    Rho = Zeta(iT)*Zeta(iT)*tmp
-    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
-    T(iT) = Rho*PQ2
-    Fact(iT) = rKapab(iT)*rKapcd(iT)
-  end do
+    do iT=1,nT
+      tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+      ZEInv(iT) = tmp
+      Rho = Zeta(iT)*Zeta(iT)*tmp
+      PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+      T(iT) = Rho*PQ2
+      Fact(iT) = rKapab(iT)*rKapcd(iT)
+    end do
 
-case (1)
+  case (1)
 
-  do iT=1,nT
-    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
-    ZEInv(iT) = tmp
-    Rho = Zeta(iT)*Zeta(iT)*tmp
-    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
-    T(iT) = Rho*PQ2
-    Fact(iT) = rKapab(iT)*rKapcd(iT) * (Two * Rho)
-  end do
+    do iT=1,nT
+      tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+      ZEInv(iT) = tmp
+      Rho = Zeta(iT)*Zeta(iT)*tmp
+      PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+      T(iT) = Rho*PQ2
+      Fact(iT) = rKapab(iT)*rKapcd(iT)*(Two*Rho)
+    end do
 
-case (2)
+  case (2)
 
-  do iT=1,nT
-    tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
-    ZEInv(iT) = tmp
-    Rho = Zeta(iT)*Zeta(iT)*tmp
-    PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
-    T(iT) = Rho*PQ2
-    Fact(iT) = rKapab(iT)*rKapcd(iT) * (Four * Rho**2 / Three)
-  end do
+    do iT=1,nT
+      tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
+      ZEInv(iT) = tmp
+      Rho = Zeta(iT)*Zeta(iT)*tmp
+      PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+      T(iT) = Rho*PQ2
+      Fact(iT) = rKapab(iT)*rKapcd(iT)*(Four*Rho**2/Three)
+    end do
 
 end select
 

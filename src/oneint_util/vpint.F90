@@ -33,17 +33,15 @@ implicit none
 integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
 external :: Fake, TNAI, XCff2D, XRys2D
 
-    Interface
-    subroutine NAInt( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-    use Definitions, only: wp, iwp
-    use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-    End subroutine NAInt
-
-    End Interface
+interface
+  subroutine NAInt( &
+#                  define _CALLING_
+#                  include "int_interface.fh"
+                  )
+    import :: nTri_Elem1, wp, iwp
+#   include "int_interface.fh"
+  end subroutine NAInt
+end interface
 
 iRout = 221
 iPrint = nPrint(iRout)

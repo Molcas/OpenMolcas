@@ -39,18 +39,15 @@ integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr,
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
 
-    Interface
-    subroutine pXint( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-    use Definitions, only: wp, iwp
-    use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-    End subroutine pXint
-
-    End Interface
-
+interface
+  subroutine pXint( &
+#                  define _CALLING_
+#                  include "int_interface.fh"
+                  )
+    import :: nTri_Elem1, wp, iwp
+#   include "int_interface.fh"
+  end subroutine pXint
+end interface
 
 #include "macros.fh"
 unused_var(nHer)

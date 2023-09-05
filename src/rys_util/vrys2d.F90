@@ -11,7 +11,6 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
@@ -50,7 +49,6 @@ call RecPrt('vRys2D:  B10',' ',B10,lRys,nArg)
 call RecPrt('vRys2D:  B00',' ',B00,lRys,nArg)
 call RecPrt('vRys2D:  B01',' ',B01,lRys,nArg)
 #endif
-
 
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then
 
@@ -184,7 +182,7 @@ do iab=0,nabMax
 end do
 #endif
 
-xyz2D(:,1:2,0,0)=One
+xyz2D(:,1:2,0,0) = One
 
 return
 

@@ -70,8 +70,8 @@ use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi, NoTab
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp, u6
 use Breit, only: nOrdOp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)

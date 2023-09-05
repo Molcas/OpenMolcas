@@ -12,8 +12,6 @@
 !               1990, IBM                                              *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-!#define _DEBUGPRINT_
-!#define _CHECK_R3_TERM_
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
                Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
@@ -39,9 +37,9 @@ use RysScratch, only: RysRtsWgh
 #else
 use vRys_RW, only: nMxRys
 #endif
+use Breit, only: nOrdOp
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
-use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax, mcdMin, mcdMax, nArray
@@ -51,14 +49,14 @@ real(kind=wp), intent(inout) :: Array(nArray)
 external :: Tvalue, ModU2, Cff2D, Rys2D
 logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
-                     ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
-                     ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, &
-                     ntmp, nTR, nabcdN, ipxyzN
-logical(kind=iwp) :: AeqB, CeqD, secondpass
-logical(kind=iwp), external :: EQ
+                     ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipxyzN, &
+                     ipZeta, ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabcdN, nabMax, nabMin, ncdMax, &
+                     ncdMin, nRys, ntmp, nTR
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: mabcd
 #endif
+logical(kind=iwp) :: AeqB, CeqD, secondpass
+logical(kind=iwp), external :: EQ
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'NoSpecial=',NoSpecial
@@ -82,34 +80,33 @@ CeqD = EQ(Coori(1,3),Coori(1,4))
 
 ! Compute the order of the needed polynomial.
 nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
-If (nOrdOp==0) Then
-   nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
-!  nRys = (la+lb+lc+ld+4)/2
-Else If (nOrdOp==1) Then
-   nRys = (la+lb+lc+ld+4)/2
-Else If (nOrdOp==2) Then
-   nRys = (la+lb+lc+ld+4)/2
-End If
+if (nOrdOp == 0) then
+  nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+  !nRys = (la+lb+lc+ld+4)/2
+else if (nOrdOp == 1) then
+  nRys = (la+lb+lc+ld+4)/2
+else if (nOrdOp == 2) then
+  nRys = (la+lb+lc+ld+4)/2
+end if
 
-
-If (nOrdOp==0) Then
-   nabMax = la+lb
-   nabMin = max(la,lb)
-   ncdMax = lc+ld
-   ncdMin = max(lc,ld)
-Else
-   nabMax = la+lb+2
-   nabMin = max(la,lb)
-   ncdMax = lc+ld+2
-   ncdMin = max(lc,ld)
-End If
+if (nOrdOp == 0) then
+  nabMax = la+lb
+  nabMin = max(la,lb)
+  ncdMax = lc+ld
+  ncdMin = max(lc,ld)
+else
+  nabMax = la+lb+2
+  nabMin = max(la,lb)
+  ncdMax = lc+ld+2
+  ncdMin = max(lc,ld)
+end if
 
 nabcd = (nabMax+1)*(ncdMax+1)
-If (nOrdOp==0) Then
-   nabcdN=0
-Else
-   nabcdN=(nabMax-1+1)*(ncdMax-1+1)
-End If
+if (nOrdOp == 0) then
+  nabcdN = 0
+else
+  nabcdN = (nabMax-1+1)*(ncdMax-1+1)
+end if
 
 ! In some cases a pointer to Array will not be used. However, the
 ! subroutine call still have the same number of arguments. In this
@@ -120,7 +117,7 @@ ip_Array_Dummy = nArray
 
 ijkl = 0
 if (NoSpecial) ijkl = -1
-if (nOrdOp/=0) ijkl = -1
+if (nOrdOp /= 0) ijkl = -1
 
 ! For FMM, compute short-range integrals disabling special cases
 !gh - disable special cases anyway for the short range integrals
@@ -210,11 +207,11 @@ select case (ijkl)
     ! Allocate memory for integrals of [a0|c0] type
     ip = 1
     ipAC = ip
-    If (nOrdOp==0) Then
-       ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-    Else
-       ip = ip+nT*6*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-    End If
+    if (nOrdOp == 0) then
+      ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    else
+      ip = ip+nT*6*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    end if
     !gh - in order to produce the short range integrals, two arrays of
     !gh - this type are needed - one for the ordinary full range, one for
     !gh - the long range integrals
@@ -315,7 +312,6 @@ select case (ijkl)
       ip = ip+nT
       iprKapcd = ip
       ip = ip+nT
-!#     define _CHECK_
 #     ifdef _CHECK_
       if (ip-1 > nArray) then
         call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.1)')
@@ -402,7 +398,7 @@ select case (ijkl)
         write(u6,*) ' ip-1  =',ip-1
         call Abend()
       end if
-      if (nOrdOp/=0) then
+      if (nOrdOp /= 0) then
         call WarningMessage(2,'Rys: check not implemented for nOrdOp/=0'
         call Abend()
       end if
@@ -461,13 +457,12 @@ select case (ijkl)
 
       ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
 
-      If (nOrdOp/=0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,CoorAC)
-
+      if (nOrdOp /= 0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,CoorAC)
 
       ! Compute [a0|c0] integrals
 
       ipScr = ip
-      If (nOrdOp==0) ip = ip+nT*nRys
+      if (nOrdOp == 0) ip = ip+nT*nRys
       AeqB = EQ(Coora(1,1),Coora(1,2))
       CeqD = EQ(Coora(1,3),Coora(1,4))
       !                                                                *
@@ -523,14 +518,13 @@ select case (ijkl)
         !                                                              *
         !***************************************************************
         !                                                              *
-        if (nOrdOp==0) then
-           call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax, &
-                      Array(ipScr),Array(ipFact),AeqB,CeqD)
+        if (nOrdOp == 0) then
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
+                     Array(ipFact),AeqB,CeqD)
         else
-           call RysEFn(Array(ipxyz),Array(ipxyzN),nT,nT,nRys,nabMin,nabMax-2,ncdMin,ncdMax-2,Array(ipAC), &
-                       mabMin,mabMax,mcdMin,mcdMax, &
-                       Array(ipFact),AeqB,CeqD)
-        endif
+          call RysEFn(Array(ipxyz),Array(ipxyzN),nT,nT,nRys,nabMin,nabMax-2,ncdMin,ncdMax-2,Array(ipAC),mabMin,mabMax,mcdMin, &
+                      mcdMax,Array(ipFact),AeqB,CeqD)
+        end if
         exit
         !                                                              *
         !***************************************************************
@@ -549,15 +543,15 @@ select case (ijkl)
 end select
 #ifdef _DEBUGPRINT_
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-If (nOrdOp==0) Then
-call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
-Else
-#ifdef _CHECK_R3_TERM_
-call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
-#else
-call RecPrt('Rys: {e0|f0}',' ',Array,nT,6*mabcd)
-#endif
-End If
+if (nOrdOp == 0) then
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
+else
+# ifdef _CHECK_R3_TERM_
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
+# else
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,6*mabcd)
+# endif
+end if
 #endif
 
 return

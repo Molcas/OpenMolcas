@@ -11,7 +11,6 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys,nOrdOp)
 !***********************************************************************
@@ -28,17 +27,16 @@ subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys,nOrdOp)
 
 use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
 use Gateway_global, only: asymptotic_Rys
-use Definitions, only: wp, iwp, u6
 use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: la, lb, lc, ld, nArg, nRys, nOrdOp
 real(kind=wp), intent(in) :: Arg(nArg)
 real(kind=wp), intent(inout) :: Root(nRys,nArg)
 real(kind=wp), intent(out) :: Weight(nRys,nArg)
-integer(kind=iwp) :: labcd
+integer(kind=iwp) :: iT, iRoot, labcd
 real(kind=wp) :: Tmax_
-integer(kind=iwp) :: iT, iRoot
 
 #ifdef _DEBUGPRINT_
 call RecPrt('vRysRW:Arg',' ',Arg,nArg,1)
@@ -62,7 +60,7 @@ select case (nRys)
 
   case (1)
     labcd = la+lb+lc+ld
-    if (labcd == 0 .and. nOrdOp==0) then
+    if ((labcd == 0) .and. (nOrdOp == 0)) then
       call Rys01(Arg,nArg,Weight,Map(iMap(1)),nMap(1),x0(ix0(1)),nx0(1),Cff(iCffW(6,1)),Cff(iCffW(5,1)),Cff(iCffW(4,1)), &
                  Cff(iCffW(3,1)),Cff(iCffW(2,1)),Cff(iCffW(1,1)),Cff(iCffW(0,1)),ddx(nRys),HerW2(iHerW2(1)),TMax_)
     else
@@ -117,16 +115,16 @@ select case (nRys)
 
 end select
 
-if (nOrdOp==1 .or. nOrdOp==2) Then
+if ((nOrdOp == 1) .or. (nOrdOp == 2)) then
   do iT=1,nArg
     do iRoot=1,nRys
-!     Write (6,*) 't^2, n',Root(iRoot,iT), nOrdOp
-!     Write (6,*) 't^2/(1-t^2)^n, w:',(Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp , Weight(iRoot,iT)
-      Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp * Weight(iRoot,iT)
-!     Write (6,*) 'w:',Weight(iRoot,iT)
+      !write(u6,*) 't^2, n',Root(iRoot,iT),nOrdOp
+      !write(u6,*) 't^2/(1-t^2)^n, w:',(Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp,Weight(iRoot,iT)
+      Weight(iRoot,iT) = (Root(iRoot,iT)/(One-Root(iRoot,iT)))**nOrdOp*Weight(iRoot,iT)
+      !write(u6,*) 'w:',Weight(iRoot,iT)
     end do
   end do
-End if
+end if
 
 #ifdef _DEBUGPRINT_
 if (labcd /= 0) call Recprt('vRysRW: Roots ',' ',Root,nRys,nArg)

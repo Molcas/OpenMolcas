@@ -10,14 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
-Subroutine Set_Breit(n)
+
+subroutine Set_Breit(n)
+
 use Breit, only: nOrdOp, nComp
-Integer, Intent(In):: n
-nOrdOp=n
-If (nOrdOp==0) Then
-  nComp=1
-Else
-  nComp=6
-End If
-End Subroutine Set_Breit
+use Definitions, only: iwp
+
+integer(kind=iwp), intent(in) :: n
+
+nOrdOp = n
+if (nOrdOp == 0) then
+  nComp = 1
+else
+  nComp = 6
+end if
+
+end subroutine Set_Breit
 

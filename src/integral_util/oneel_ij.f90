@@ -62,6 +62,7 @@
     Data iTwoj/1,2,4,8,16,32,64,128/
     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 
+#define _FIXED_FORMAT_
     Interface
     subroutine Kernel( &
 #                define _CALLING_

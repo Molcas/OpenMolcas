@@ -57,6 +57,7 @@
       Integer nGrid, LenTot, iAddPot
       Real*8 PtChrg(nGrid)
       Real*8 :: Array(LenTot)
+#define _FIXED_FORMAT_
       Interface
       Subroutine Kernel(
 #                define _CALLING_

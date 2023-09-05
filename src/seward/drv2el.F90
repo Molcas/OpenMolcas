@@ -29,19 +29,17 @@ subroutine Drv2El(Integral_WrOut,ThrAO)
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, TskCount => Quad_ijkl, W2Disc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
-use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
-use Int_Options, only: TskCount=>Quad_ijkl
 
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, &
-                 TMax_all, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
+                 Twall2
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, DoGrad, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
@@ -220,6 +218,7 @@ FreeK2 = .true.
 call Term_Ints(Verbose,FreeK2)
 call Free_iSD()
 call Init_Int_Options()
+
 return
 
 end subroutine Drv2El

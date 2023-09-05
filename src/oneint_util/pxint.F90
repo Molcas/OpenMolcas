@@ -14,7 +14,6 @@
 subroutine PXInt( &
 #                define _CALLING_
 #                include "int_interface.fh"
-
                 )
 !***********************************************************************
 !                                                                      *
@@ -33,7 +32,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-
 #include "property_label.fh"
 integer(kind=iwp), parameter :: mComp = 200
 integer(kind=iwp) :: iComp, ipar_p1, ipar_p2, ipar_p3, iSym_p1, iSym_p2, iSym_p3, iSym_px, iSym_X, jComp1, jComp2, jComp3, &
@@ -42,29 +40,24 @@ integer(kind=iwp), allocatable :: kChO(:), kOper(:)
 integer(kind=iwp), external :: IrrFnc
 external :: CntInt, EFInt, MltInt, NAInt
 
-Interface
+interface
   subroutine PVInt( &
-#                define _CALLING_
-#                include "int_interface.fh"
-                 , Kernel)
-use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp
-# include "int_interface.fh"
-
-      Interface
-      Subroutine Kernel( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-      use Index_Functions, only: nTri_Elem1
-      use Definitions, only: wp, iwp
-#include "int_interface.fh"
-      End subroutine Kernel
-      End Interface
-
+#                  define _CALLING_
+#                  include "int_interface.fh"
+                   , Kernel)
+    import :: nTri_Elem1, wp, iwp
+#   include "int_interface.fh"
+    interface
+      subroutine Kernel( &
+#                       define _CALLING_
+#                       include "int_interface.fh"
+                       )
+        import :: nTri_Elem1, wp, iwp
+#       include "int_interface.fh"
+      end subroutine Kernel
+    end interface
   end subroutine PVInt
-end Interface
-
+end interface
 
 !                                                                      *
 !***********************************************************************

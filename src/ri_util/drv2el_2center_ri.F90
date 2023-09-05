@@ -41,10 +41,10 @@ use Index_arrays, only: iSO2Sh, nShBF
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
+use Int_Options, only: iTOffs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Int_Options, only: iTOffs
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
