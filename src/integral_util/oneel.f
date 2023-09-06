@@ -21,11 +21,11 @@
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: Thrs
       use Symmetry_Info, only: nIrrep
-      use Integral_interfaces, only: int_kernel, OneEl_inner
+      use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
-      External KrnlMm
-#include "stdalloc.fh"
+      Procedure(int_mem) :: KrnlMm
 #include "real.fh"
       Real*8, Dimension(:), Allocatable :: Out, Nuc, El
       Real*8, Dimension(:), Allocatable :: Array

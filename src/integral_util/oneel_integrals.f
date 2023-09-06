@@ -13,10 +13,10 @@
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
+      use stdalloc, only: mma_allocate
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "stdalloc.fh"
 #include "real.fh"
       Character Label*8
       Real*8 CCoor(3,nComp)

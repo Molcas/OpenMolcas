@@ -49,13 +49,14 @@
       use iSD_data
       use Basis_Info, only: dbsc
       use Sizes_of_Seward, only: S
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
-      External KrnlMm, Rsv_Tsk
+      Procedure(int_mem) :: KrnlMm
+      External Rsv_Tsk
 !     Logical Addpot
 #include "real.fh"
 #include "rmat_option.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -287,7 +288,7 @@
          Call Unused_integer(idirect)
          Call Unused_integer(isyop)
       End If
-      End
+      End Subroutine OneEl_Inner
 
 #elif !defined (EMPTY_FILES)
 

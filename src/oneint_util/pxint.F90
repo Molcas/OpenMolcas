@@ -40,7 +40,15 @@ integer(kind=iwp) :: iComp, ipar_p1, ipar_p2, ipar_p3, iSym_p1, iSym_p2, iSym_p3
                      jpar_p1, jpar_p2, jpar_p3, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, nRys
 integer(kind=iwp), allocatable :: kChO(:), kOper(:)
 integer(kind=iwp), external :: IrrFnc
-procedure(int_kernel) :: CntInt, EFInt, MltInt, NAInt
+! FIXME: This must be some compiler bug, as it fails when using the name "EFInt",
+! EFldInt is just a transparent wrapper that simply avoids the name.
+! (It also fails with "EFlInt", so it cannot be a name collision.)
+#ifdef __PGI
+#define _EFINT_ EFldInt
+#else
+#define _EFINT_ EFInt
+#endif
+procedure(int_kernel) :: CntInt, _EFINT_, MltInt, NAInt
 
 !                                                                      *
 !***********************************************************************
@@ -181,7 +189,7 @@ else if (PLabel == 'MltInt') then
              iStabM,nStabM,PtChrg,nGrid,iAddPot,MltInt)
 else if (PLabel == 'EFInt ') then
   call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
-             iStabM,nStabM,PtChrg,nGrid,iAddPot,EFInt)
+             iStabM,nStabM,PtChrg,nGrid,iAddPot,_EFINT_)
 else if (PLabel == 'CntInt') then
   call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,CntInt)

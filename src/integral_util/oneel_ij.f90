@@ -36,7 +36,7 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: Kernel
-      External KrnlMm
+      Procedure(int_mem) :: KrnlMm
 #include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
@@ -584,12 +584,12 @@
       End If
 !
       Return
-      End
+      End Subroutine OneEl_IJ
 
 #elif !defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-      dummy_empty_procedure(OneEl_Integrals)
+      dummy_empty_procedure(OneEl_IJ)
 
 #endif

@@ -10,7 +10,7 @@
 ************************************************************************
       Module Integral_Interfaces
 
-      ! dummy modules to get correct order of compilation
+      ! Dummy modules to get correct order of compilation
       Use Real_Spherical, only:
       Use iSD_data, only:
       Use k2_arrays, only:
