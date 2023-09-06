@@ -13,6 +13,7 @@ subroutine Drvh1_EMB(Grad,Temp,nGrad)
 
 use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
+use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -28,7 +29,8 @@ logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D_Var(:)
-external :: FragPGrd, FragPMmG, M1Grd, M1MmG, M2Grd, M2MmG, NAGrd, NAMmG, PPGrd, PPMmG, PrjGrd, PrjMmG, SROGrd, SROMmG
+procedure(grd_kernel) :: FragPGrd, M1Grd, M2Grd, NAGrd, PPGrd, PrjGrd, SROGrd
+procedure(grd_mem) :: FragPMmG, M1MmG, M2MmG, NAMmG, PPMmG, PrjMmG, SROMmG
 
 !...  Prologue
 iRout = 131

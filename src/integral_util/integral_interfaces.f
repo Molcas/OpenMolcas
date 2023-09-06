@@ -10,6 +10,11 @@
 ************************************************************************
       Module Integral_Interfaces
 
+      ! dummy modules to get correct order of compilation
+      Use Real_Spherical, only:
+      Use iSD_data, only:
+      Use k2_arrays, only:
+
       Private
 
       Public :: DeDe_SCF, int_kernel, int_mem, OneEl_ij, OneEl_Inner,

@@ -14,6 +14,7 @@ subroutine PotGrd(Grad,nGrad)
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
+use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -27,7 +28,8 @@ logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
 character(len=8) :: Method
 real(kind=wp), allocatable :: D_Var(:)
-external :: PCMGrd1, PCMMmg
+procedure(grd_kernel) :: PCMGrd1
+procedure(grd_mem) :: PCMMmG
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"

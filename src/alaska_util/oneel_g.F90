@@ -43,12 +43,14 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
+use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: KrnlMm
+procedure(grd_kernel) :: Kernel
+procedure(grd_mem) :: KrnlMm
 integer(kind=iwp), intent(in) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
 real(kind=wp), intent(out) :: Grad(nGrad)
 real(kind=wp), intent(in) :: CCoor(3,nComp), FD(nFD)

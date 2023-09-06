@@ -7,31 +7,32 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
-
-use Integral_interfaces, only: int_mem
-use Definitions, only: iwp
+module grd_interface
 
 implicit none
-integer(kind=iwp), intent(out) :: nHer, Mem
-integer(kind=iwp), intent(in) :: la, lb, lr
-procedure(int_mem) :: KrnMem
-integer(kind=iwp) :: MemNA1, MemNA2
+private
 
-call KrnMem(nHer,MemNA1,la+1,lb,lr-1)
+abstract interface
+  subroutine grd_kernel( &
+#                       define _CALLING_
+#                       include "grd_interface.fh"
+                       )
+    use Index_Functions, only: nTri_Elem1
+    use Definitions, only: wp, iwp
+#   include "grd_interface.fh"
+  end subroutine grd_kernel
 
-if (la /= 0) then
-  call KrnMem(nHer,MemNA2,la-1,lb,lr-1)
-else
-  MemNA2 = 0
-end if
+  subroutine grd_mem( &
+#                    define _CALLING_
+#                    include "mem_interface.fh"
+                    )
+    use Definitions, only: iwp
+#   include "mem_interface.fh"
+  end subroutine grd_mem
+end interface
 
-Mem = max(MemNA1,MemNA2)
+public :: grd_kernel, grd_mem
 
-return
-
-end subroutine PVMem
+end module grd_interface
