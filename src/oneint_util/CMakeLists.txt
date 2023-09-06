@@ -78,6 +78,7 @@ set (sources
      one2h5_crtmom.F90
      one2h5_fckint.F90
      one2h5_ovlmat.F90
+     oneint_interfaces.F90
      pam2.F90
      pam2int.F90
      pam2mem.F90
@@ -87,7 +88,6 @@ set (sources
      pot_nuc.F90
      prjint.F90
      prjmem.F90
-     pvint.F90
      pvmem.F90
      pxint.F90
      pxmem.F90

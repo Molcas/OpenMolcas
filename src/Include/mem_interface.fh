@@ -10,9 +10,18 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+#ifdef _FIXED_FORMAT_
+     &nHer,Mem,la,lb,lr
+#else
 nHer,Mem,la,lb,lr &
+#endif
+#else
+#ifdef _FIXED_FORMAT_
+      integer, intent(out) :: nHer, Mem
+      integer, intent(in) :: la, lb, lr
 #else
 integer(kind=iwp), intent(out) :: nHer, Mem
 integer(kind=iwp), intent(in) :: la, lb, lr
+#endif
 #endif
 #undef _CALLING_

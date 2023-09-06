@@ -87,6 +87,7 @@ C     Purpose: compute \int J(r)dr for auxiliary functions J(r) on atom
 C              A.
 C
       use iSD_data
+      use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       Implicit None
       Integer A
       Integer l_xInt_
@@ -108,7 +109,8 @@ C
       Character*19 SecNam
       Parameter (SecNam='LDF_ComputeAuxInt_1')
 
-      External MltInt, MltMem
+      Procedure(int_kernel) :: MltInt
+      Procedure(int_mem) :: MltMem
 
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
@@ -132,48 +134,6 @@ C
 
       Integer i
       Integer nBasSh
-
-      Interface
-      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,
-     &                    xZeta,xZI,xKappa,xPCoor,
-     &                    Kernel,KrnlMm,Label,lOper,nComp,CCoor,
-     &                    nOrdOp,iChO,
-     &                    iStabO,nStabO,nIC,
-     &                    PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
-     &                    Final,nFinal,Scrtch,nScrtch,
-     &                    ScrSph,nScrSph,Kern,nKern)
-      Integer iS,jS,iPrint
-      Logical Do_PGamma
-      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-      External  KrnlMm
-      Character Label*8
-      Integer nComp
-      Integer lOper(nComp)
-      Real*8 CCoor(3,nComp)
-      Integer nOrdOp
-      Integer iChO(nComp), iStabO(0:7)
-      Integer nStabO, nIC, nGrid, iAddPot
-      Real*8 PtChrg(nGrid)
-      Integer l_SOInt
-      Real*8  SOInt(l_SOInt)
-      Integer nFinal, nScrtch, nScrSph, nKern
-      Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
-      Real*8 , Target:: Final(nFinal), Kern(nKern)
-#define _FIXED_FORMAT_
-      Interface
-      Subroutine Kernel(
-#                define _CALLING_
-#                include "int_interface.fh"
-     &        )
-      use Definitions, only: wp, iwp
-      use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-      End subroutine Kernel
-      End Interface
-
-      End Subroutine OneEl_IJ
-
-      End Interface
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -366,6 +326,7 @@ C     Purpose: compute \int J(r)dr for 2C auxiliary functions J(r) on
 C              atom pair AB.
 C
       use iSD_data
+      use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       Implicit None
       Integer AB
       Integer l_xInt_
@@ -388,7 +349,8 @@ C
       Character*19 SecNam
       Parameter (SecNam='LDF_ComputeAuxInt_2')
 
-      External MltInt, MltMem
+      Procedure(int_kernel) :: MltInt
+      Procedure(int_mem) :: MltMem
 
       Integer  LDF_nBasAux_Pair
       External LDF_nBasAux_Pair
@@ -415,47 +377,6 @@ C
       Integer nBasSh
       Integer AP_2CFunctions
       Integer AP_2CList
-
-      Interface
-      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,
-     &                    xZeta,xZI,xKappa,xPCoor,
-     &                    Kernel,KrnlMm,Label,lOper,nComp,CCoor,
-     &                    nOrdOp,iChO,
-     &                    iStabO,nStabO,nIC,
-     &                    PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
-     &                    Final,nFinal,Scrtch,nScrtch,
-     &                    ScrSph,nScrSph,Kern,nKern)
-      Integer iS,jS,iPrint
-      Logical Do_PGamma
-      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-      External  KrnlMm
-      Character Label*8
-      Integer nComp
-      Integer lOper(nComp)
-      Real*8 CCoor(3,nComp)
-      Integer nOrdOp
-      Integer iChO(nComp), iStabO(0:7)
-      Integer nStabO, nIC, nGrid, iAddPot
-      Real*8 PtChrg(nGrid)
-      Integer l_SOInt
-      Real*8  SOInt(l_SOInt)
-      Integer nFinal, nScrtch, nScrSph, nKern
-      Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
-      Real*8 , Target:: Final(nFinal), Kern(nKern)
-#define _FIXED_FORMAT_
-      Interface
-      Subroutine Kernel(
-#                define _CALLING_
-#                include "int_interface.fh"
-     &        )
-      use Definitions, only: wp, iwp
-      use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-      End subroutine Kernel
-      End Interface
-      End Subroutine OneEl_IJ
-
-      End Interface
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

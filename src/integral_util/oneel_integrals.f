@@ -14,7 +14,8 @@
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+      Procedure(int_kernel) :: Kernel
+      Procedure(int_mem) :: KrnlMm
 #include "stdalloc.fh"
 #include "real.fh"
       Character Label*8

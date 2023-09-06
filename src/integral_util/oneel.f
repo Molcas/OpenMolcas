@@ -21,8 +21,10 @@
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: Thrs
       use Symmetry_Info, only: nIrrep
+      use Integral_interfaces, only: int_kernel, OneEl_inner
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+      Procedure(int_kernel) :: Kernel
+      External KrnlMm
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8, Dimension(:), Allocatable :: Out, Nuc, El
@@ -35,43 +37,6 @@
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
 
-      Interface
-
-      Subroutine OneEl_Inner
-     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
-     &                  nOrdOp,rHrmt,iChO,
-     &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
-     &                  iStabO,nStabO,nIC,
-     &                  PtChrg,nGrid,iAddPot,Array,LenTot)
-      External KrnlMm
-
-      Character Label*8
-      Integer nComp
-      Integer ip(nComp), lOper(nComp)
-      Real*8 CoorO(3,nComp)
-      Integer nOrdOp
-      Real*8 rHrmt
-      Integer iChO(nComp)
-      Real*8 opmol(*),opnuc(*)
-      Integer ipad, iopadr(nComp,*), idirect, isyop, iStabO(0:7), nIC
-      Integer nGrid, LenTot, iAddPot
-      Real*8 PtChrg(nGrid)
-      Real*8 :: Array(LenTot)
-#define _FIXED_FORMAT_
-      Interface
-      Subroutine Kernel(
-#                define _CALLING_
-#                include "int_interface.fh"
-     &        )
-      use Definitions, only: wp, iwp
-      use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-      End subroutine Kernel
-      End Interface
-
-      End Subroutine OneEl_Inner
-
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

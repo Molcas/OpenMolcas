@@ -11,12 +11,14 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine OneEl_Inner                                       &
-                       (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,  &
-                        nOrdOp,rHrmt,iChO,                         &
-                        opmol,opnuc,ipad,iopadr,idirect,isyop,     &
-                        iStabO,nStabO,nIC,                         &
-                        PtChrg,nGrid,iAddPot,Array,LenTot)
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+      Subroutine OneEl_Inner                                            &
+     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,       &
+     &                  nOrdOp,rHrmt,iChO,                              &
+     &                  opmol,opnuc,ipad,iopadr,idirect,isyop,          &
+     &                  iStabO,nStabO,nIC,                              &
+     &                  PtChrg,nGrid,iAddPot,Array,LenTot)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the one-electron integrals. The method employed at*
@@ -48,6 +50,7 @@
       use Basis_Info, only: dbsc
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
+      Procedure(int_kernel) :: Kernel
       External KrnlMm, Rsv_Tsk
 !     Logical Addpot
 #include "real.fh"
@@ -67,59 +70,9 @@
       Integer LenTot
       Real*8 Array(LenTot)
 
-      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor, SOInt, Scrtch, ScrSph
+      Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,      &
+     &                                     SOInt, Scrtch, ScrSph
       Real*8, Allocatable, Target :: FArray(:)
-
-      Interface
-      Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,                  &
-                          xZeta,xZI,xKappa,xPCoor,                 &
-                          Kernel,KrnlMm,Label,lOper,nComp,CoorO,   &
-                          nOrdOp,iChO,                             &
-                          iStabO,nStabO,nIC,                       &
-                          PtChrg,nGrid,iAddPot,SOInt,l_SOInt,      &
-                          Final,nFinal,Scrtch,nScrtch,             &
-                          ScrSph,nScrSph,Kern,nKern)
-      Integer iS,jS,iPrint
-      Logical Do_PGamma
-      Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-      External  KrnlMm
-      Character Label*8
-      Integer nComp
-      Integer lOper(nComp)
-      Real*8 CoorO(3,nComp)
-      Integer nOrdOp
-      Integer iChO(nComp), iStabO(0:7)
-      Integer nStabO, nIC, nGrid, iAddPot
-      Real*8 PtChrg(nGrid)
-      Integer l_SOInt
-      Real*8  SOInt(l_SOInt)
-      Integer nFinal, nScrtch, nScrSph, nKern
-      Real*8 Scrtch(nScrtch),ScrSph(nScrSph)
-      Real*8, Target:: Final(nFinal)
-      Real*8 , Target:: Kern(nKern)
-#define _FIXED_FORMAT_
-      Interface
-      Subroutine Kernel( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-      use Definitions, only: wp, iwp
-      use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-      End subroutine Kernel
-      End Interface
-      End Subroutine OneEl_IJ
-
-      Subroutine Kernel( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-      use Definitions, only: wp, iwp
-      use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-      End subroutine Kernel
-
-      End Interface
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -190,7 +143,8 @@
          lFinal=Max(lFinal,mFinal)
 !
          If (Label(1:3).eq.'MAG') Cycle
-         mScrt1=nIC*Max(iPrim,jBas)*Max(iBas,jPrim)*nElem(iAng)*nElem(jAng)
+         mScrt1=nIC*Max(iPrim,jBas)*Max(iBas,jPrim)*nElem(iAng)*        &
+     &          nElem(jAng)
          lScrt1=Max(mScrt1,lScrt1)
 !
          mScrt2=nIC*iBas*jBas*nElem(iAng)*nElem(jAng)
@@ -259,21 +213,21 @@
 !     Do not compute matrix elements in which electronic and
 !     muonic basis sets are mixed.
 !
-      If (nSO.gt.0 .AND.                               &
-         dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass      &
-         ) Then
+      If (nSO.gt.0 .AND.                                                &
+     &   dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass                       &
+     &   ) Then
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')
          SOInt(:)=Zero
          ipSO=1
-         Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,                     &
-                       Zeta,ZI,Kappa,PCoor,                        &
-                       Kernel,KrnlMm,Label,lOper,nComp,CoorO,      &
-                       nOrdOp,iChO,                                &
-                       iStabO,nStabO,nIC,                          &
-                       PtChrg,nGrid,iAddPot,SOInt,l_SOInt,         &
-                       FArray,lFinal,Scrtch,lScrt1,                &
-                       ScrSph,lScrt2,Kern,MemKrn)
+         Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,                          &
+     &                 Zeta,ZI,Kappa,PCoor,                             &
+     &                 Kernel,KrnlMm,Label,lOper,nComp,CoorO,           &
+     &                 nOrdOp,iChO,                                     &
+     &                 iStabO,nStabO,nIC,                               &
+     &                 PtChrg,nGrid,iAddPot,SOInt,l_SOInt,              &
+     &                 FArray,lFinal,Scrtch,lScrt1,                     &
+     &                 ScrSph,lScrt2,Kern,MemKrn)
          iSOBlk = ipSO
          Do iComp = 1, nComp
             iSmLbl=lOper(iComp)
@@ -297,9 +251,9 @@
             End If
 !           Write (*,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
             If (mSO.ne.0) Then
-               Call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),     &
-                           n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,            &
-                           jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
+               Call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),&
+     &                     n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,       &
+     &                     jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
                iSOBlk = iSOBlk + mSO*iBas*jBas
             End If
             rHrmt=rHrmt_Save
@@ -334,3 +288,11 @@
          Call Unused_integer(isyop)
       End If
       End
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(OneEl_inner)
+
+#endif

@@ -30,9 +30,11 @@
       use external_centers
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
+      use Integral_interfaces, only: int_kernel, int_mem
       use Gateway_global, only: PrPrt
       Implicit Real*8 (a-h,o-z)
-      External EFInt, EFMem
+      Procedure(int_kernel) :: EFInt
+      Procedure(int_mem) :: EFMem
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"

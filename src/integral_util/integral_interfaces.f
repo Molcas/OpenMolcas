@@ -11,11 +11,33 @@
       Module Integral_Interfaces
 
       Private
-      Public :: OneEl_Integrals, DeDe_SCF
+
+      Public :: DeDe_SCF, int_kernel, int_mem, OneEl_ij, OneEl_Inner,
+     &          OneEl_Integrals
+
+#define _FIXED_FORMAT_
+      Abstract interface
+        Subroutine int_kernel(
+#                             define _CALLING_
+#                             include "int_interface.fh"
+     &                       )
+        Use Index_Functions, only: nTri_Elem1
+#       include "int_interface.fh"
+        End Subroutine int_kernel
+
+        Subroutine int_mem(
+#                          define _CALLING_
+#                          include "mem_interface.fh"
+     &                    )
+#       include "mem_interface.fh"
+        End Subroutine int_mem
+      End interface
 
       Contains
 
 #define _IN_MODULE_
+#include "oneel_ij.f90"
+#include "oneel_inner.f90"
 #include "oneel_integrals.f"
 #include "dede_scf.f"
 

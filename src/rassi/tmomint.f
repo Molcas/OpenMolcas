@@ -15,6 +15,7 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
+      Use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       use OneDat, only: sOpSiz
@@ -23,7 +24,8 @@
       use Symmetry_Info, only: nIrrep
 #endif
       Implicit Real*8 (A-H,O-Z)
-      External EMFInt, EMFMem
+      Procedure(int_kernel) :: EMFInt
+      Procedure(int_mem) :: EMFMem
 *     ipList: list of pointers to the integrals of each component
 *             of the operator
 *     OperI: list which irreps a particular component of the operator

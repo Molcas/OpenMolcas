@@ -16,12 +16,13 @@ subroutine PXMem( &
 #                include "mem_interface.fh"
                 )
 
+use Integral_interfaces, only: int_mem
 use Definitions, only: iwp, u6
 
 implicit none
 #include "mem_interface.fh"
 #include "property_label.fh"
-external :: CntMem, EFMem, MltMem, NAMem
+procedure(int_mem) :: CntMem, EFMem, MltMem, NAMem
 
 if (PLabel == 'NAInt ') then
   call PVMem(nHer,Mem,la,lb,lr,NAMem)

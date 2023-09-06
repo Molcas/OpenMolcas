@@ -9,29 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DumMem( &
-#                 define _CALLING_
-#                 include "mem_interface.fh"
-                 )
-!***********************************************************************
-!                                                                      *
-! Object: dummy routine that should never be actually called.          *
-!                                                                      *
-!***********************************************************************
-
-use Definitions, only: iwp
+module OneInt_Interfaces
 
 implicit none
-#include "mem_interface.fh"
+private
 
-#include "macros.fh"
-nHer = 0
-Mem = 0
-unused_var(la)
-unused_var(lb)
-unused_var(lr)
+public :: PVInt
 
-call WarningMessage(2,'DumMem should never be called')
-call Abend()
+contains
 
-end subroutine DumMem
+#define _IN_MODULE_
+#include "pvint.F90"
+
+end module OneInt_Interfaces

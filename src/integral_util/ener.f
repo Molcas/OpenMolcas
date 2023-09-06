@@ -35,9 +35,11 @@
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
       use Gateway_global, only: PrPrt
-      use Integral_Interfaces, only: OneEl_Integrals
+      use Integral_Interfaces, only: int_kernel, int_mem,
+     &                               OneEl_Integrals
       Implicit Real*8 (a-h,o-z)
-      External EFInt,EFMem
+      Procedure(int_kernel) :: EFInt
+      Procedure(int_mem) :: EFMem
 #include "real.fh"
 #include "rctfld.fh"
 #include "stdalloc.fh"

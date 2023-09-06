@@ -55,7 +55,7 @@
 ************************************************************************
 *                                                                      *
       If (nip-1.gt.nArr*nZeta) Then
-         Call WarningMessage(2,'KNEInt: nip-1.gt.nArr*nZeta')
+         Call WarningMessage(2,'KnEPrm: nip-1.gt.nArr*nZeta')
          Write (6,*) 'nip=',nip
          Write (6,*) 'nArr,nZeta=',nArr,nZeta
          Call  Abend()
@@ -63,11 +63,11 @@
 *
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In KnEInt: A',' ',A,1,3)
-      Call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-      Call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
-      Call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-      Write (6,*) ' In KnEInt: la,lb=',la,lb
+      Call RecPrt(' In KnEPrm: A',' ',A,1,3)
+      Call RecPrt(' In KnEPrm: RB',' ',RB,1,3)
+      Call RecPrt(' In KnEPrm: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In KnEPrm: P',' ',P,nZeta,3)
+      Write (6,*) ' In KnEPrm: la,lb=',la,lb
 #endif
 *                                                                      *
 ************************************************************************

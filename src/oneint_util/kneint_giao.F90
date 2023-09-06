@@ -72,18 +72,18 @@ nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 !***********************************************************************
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
-  call WarningMessage(2,'KNEInt: nip-1 > nArr*nZeta')
+  call WarningMessage(2,'KNEInt_GIAO: nip-1 > nArr*nZeta')
   write(u6,*) 'nip=',nip
   write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
 if (iPrint >= 49) then
-  call RecPrt(' In KnEInt: A',' ',A,1,3)
-  call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In KnEInt: la,lb=',la,lb
+  call RecPrt(' In KnEInt_GIAO: A',' ',A,1,3)
+  call RecPrt(' In KnEInt_GIAO: RB',' ',RB,1,3)
+  call RecPrt(' In KnEInt_GIAO: CoorO',' ',CoorO,1,3)
+  call RecPrt(' In KnEInt_GIAO: P',' ',P,nZeta,3)
+  write(u6,*) ' In KnEInt_GIAO: la,lb=',la,lb
 end if
 !                                                                      *
 !***********************************************************************

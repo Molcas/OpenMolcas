@@ -11,6 +11,11 @@
 ! Copyright (C) 1993, Bernd Artur Hess                                 *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine PVInt( &
 #                define _CALLING_
 #                include "int_interface.fh"
@@ -27,22 +32,14 @@ subroutine PVInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
+procedure(int_kernel) :: Kernel
 #include "print.fh"
 integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
-
-interface
-  subroutine Kernel( &
-#                   define _CALLING_
-#                   include "int_interface.fh"
-                   )
-    import :: nTri_Elem1, wp, iwp
-#   include "int_interface.fh"
-  end subroutine Kernel
-end interface
 
 #include "macros.fh"
 unused_var(nHer)

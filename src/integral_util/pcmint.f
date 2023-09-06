@@ -10,10 +10,11 @@
 *                                                                      *
 * Copyright (C) 1991,2001, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PCMInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM)
+#define _FIXED_FORMAT_
+      SubRoutine PCMInt(
+#                       define _CALLING_
+#                       include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -25,21 +26,16 @@
 *             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 ************************************************************************
       use PCM_arrays
+      use Index_Functions, only: nTri_Elem1
       Implicit Real*8 (A-H,O-Z)
+#include "int_interface.fh"
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
-*     Used for finite nuclei
-      External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp)
 *-----Local arrys
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
-      Integer iAnga(4), iDCRT(0:7), iChO(nComp)
+      Integer iAnga(4), iDCRT(0:7)
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
@@ -51,7 +47,7 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 *
       iAnga(1) = la
       iAnga(2) = lb
@@ -134,13 +130,13 @@
 *-----------Accumulate contributions to the symmetry adapted operator
 *
             nOp = NrOpr(iDCRT(lDCRT))
-            Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
+            Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
 #ifdef _DEBUGPRINT_
             Write (6,*) Fact*QTessera
             Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
      &              nZeta,nElem(la)*nElem(lb)*nComp)
-            Call RecPrt('PCMInt: Final',' ',Final,
+            Call RecPrt('PCMInt: rFinal',' ',rFinal,
      &              nZeta,nElem(la)*nElem(lb)*nIC)
 #endif
 *
@@ -151,9 +147,11 @@
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
-         Call Unused_real_array(CCoor)
+         Call Unused_integer(nHer)
+         Call Unused_real_array(CoorO)
          Call Unused_integer(nOrdOp)
+         Call Unused_real_array(PtChrg)
+         Call Unused_integer(iAddPot)
       End If
 #endif
       End

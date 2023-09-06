@@ -13,7 +13,7 @@
 
 module Breit
 
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
