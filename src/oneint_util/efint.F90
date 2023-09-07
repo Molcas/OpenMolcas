@@ -174,24 +174,3 @@ do lDCRT=0,nDCRT-1
 end do
 
 end subroutine EFInt
-
-! Workaround for a possible compiler bug (see pxint)
-#ifdef __PGI
-subroutine EFldInt( &
-#                  define _CALLING_
-#                  include "int_interface.fh"
-                  )
-
-use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp
-
-implicit none
-#include "int_interface.fh"
-
-call EFInt( &
-#          define _CALLING_
-#          include "int_interface.fh"
-)
-
-end subroutine EFldInt
-#endif
