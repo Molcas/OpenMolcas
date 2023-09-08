@@ -68,7 +68,7 @@
     - docker
 
 .pgi:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
   variables:
     cache_file: |
       set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
