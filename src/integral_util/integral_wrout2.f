@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut2(
-#define                          _FIXED_FORMAT_
-#define                          _CALLING_
-#include                         "int_wrout_interface.fh"
+#define _FIXED_FORMAT_
+#define _CALLING_
+#include "int_wrout_interface.fh"
      &                          )
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl

@@ -41,12 +41,13 @@ use Basis_Info, only: dbsc, nBas
 use Gateway_global, only: force_out_of_core, iWROpt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Integral_WrOut
+procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
 real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)

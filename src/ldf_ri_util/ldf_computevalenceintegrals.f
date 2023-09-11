@@ -17,6 +17,7 @@ C
 C     Purpose: Compute valence integrals (u_A v_B | k_C l_D) for atom
 C              pairs AB and CD.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer AB
       Integer CD
@@ -37,7 +38,7 @@ C
       Integer  ji, lk
 #endif
 
-      External Int_LDF_SQ
+      Procedure(int_wrout) :: Int_LDF_SQ
 
       Integer  LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom

@@ -419,13 +419,14 @@ C     Thomas Bondo Pedersen, June 2010.
 C
 C     Purpose: compute diagonal (iS jS | iS jS)
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer iS, jS
       Integer l_Diag
       Real*8  Diag(l_Diag)
 #include "localdf_int.fh"
 
-      External Integral_WrOut_LDF_Diag
+      Procedure(int_wrout) :: Integral_WrOut_LDF_Diag
 
       SHA=iS
       SHB=jS

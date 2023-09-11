@@ -17,8 +17,8 @@
 
       Private
 
-      Public :: DeDe_SCF, int_kernel, int_mem, OneEl_ij, OneEl_Inner,
-     &          OneEl_Integrals
+      Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,
+     &          OneEl_Inner, OneEl_Integrals
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -36,6 +36,13 @@
      &                    )
 #       include "mem_interface.fh"
         End Subroutine int_mem
+
+        Subroutine int_wrout(
+#                            define _CALLING_
+#                            include "int_wrout_interface.fh"
+     &                      )
+#       include "int_wrout_interface.fh"
+        End Subroutine int_wrout
       End interface
 
       Contains

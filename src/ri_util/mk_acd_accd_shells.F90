@@ -28,6 +28,7 @@ use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Extend_Shells, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -56,8 +57,8 @@ real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
 logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
 character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
+procedure(int_wrout) :: Integral_RICD
 integer(kind=iwp), external :: IsFreeUnit
-external :: Integral_RICD
 
 !                                                                      *
 !***********************************************************************

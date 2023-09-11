@@ -45,12 +45,13 @@ use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use Int_Options, only: iTOffs
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: Integral_WrOut
+procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"

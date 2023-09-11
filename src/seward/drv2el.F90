@@ -30,12 +30,13 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, TskCount => Quad_ijkl, W2Disc
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Integral_WrOut
+procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &

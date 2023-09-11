@@ -54,6 +54,7 @@ use k2_arrays, only: DeDe
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, iWROpt, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -69,7 +70,7 @@ logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 character(len=256) :: cDNA
 integer(kind=iwp), external :: ip_of_Work, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
-external :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
+procedure(int_wrout) :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
     use, intrinsic :: iso_c_binding, only: c_char

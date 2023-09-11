@@ -33,6 +33,7 @@ use Real_Spherical, only: Sphere
 use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Thrshld_CD
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -45,8 +46,8 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_r
 real(kind=wp) :: Thr_CB, ThrAO
 logical(kind=iwp) :: In_Core
 real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:,:), TInt_c(:), TInt_d(:), Tmp(:,:)
+procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit
-external :: Integral_RI_2
 
 !                                                                      *
 !***********************************************************************

@@ -25,6 +25,7 @@ C     M is the total number of auxiliary functions (1C and 2C) minus the
 C     number of linearly dependent functions, as computed by the
 C     function LDF_nBasAux_Pair(iAtomPair).
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer iAtomPair
       Integer M
@@ -59,7 +60,7 @@ C
       External LDF_nAuxShell_Atom
       External LDF_lAuxShell_Atom
 
-      External Integral_WrOut_LDF_G
+      Procedure(int_wrout) :: Integral_WrOut_LDF_G
 
       Integer i, j
       Integer AP_Atoms
