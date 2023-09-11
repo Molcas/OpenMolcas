@@ -258,7 +258,7 @@
 !                                                                      *
 !======================================================================*
 !
-!     Set some paramters to starting defaults.
+!     Set some parameters to starting defaults.
 !
       AllowFlip=.true.
       iAufOK=0
