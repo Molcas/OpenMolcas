@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine change5_cvb()
       implicit real*8 (a-h,o-z)
       logical changed,construc
-c ... Change of dimensioning variables ...
+! ... Change of dimensioning variables ...
       logical, external :: chpcmp_cvb,lchpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -23,7 +23,7 @@ c ... Change of dimensioning variables ...
 
 #include "rls_cvb.fh"
 
-c  Dimensioning for symmetry handling :
+!  Dimensioning for symmetry handling :
       changed=.false.
       if(chpcmp_cvb(nsyme))changed=.true.
       if(chpcmp_cvb(ndimrel))changed=.true.
@@ -33,21 +33,21 @@ c  Dimensioning for symmetry handling :
       if(chpcmp_cvb(nort))changed=.true.
       if(chpcmp_cvb(ndrot))changed=.true.
 
-      orbfr_is_unit=(ndimrel.eq.0.and.nfxorb.eq.0
-     >  .and.nort.eq.0.and.(.not.plc_const))
-c  Set ORBFR_IS_UNIT if optimization method is 'NONE' :
+      orbfr_is_unit=(ndimrel.eq.0.and.nfxorb.eq.0                       &
+     &  .and.nort.eq.0.and.(.not.plc_const))
+!  Set ORBFR_IS_UNIT if optimization method is 'NONE' :
       if(imethod.eq.11)orbfr_is_unit=.true.
       if(lchpcmp_cvb(orbfr_is_unit))changed=.true.
       nfxvbr=nfxvb
       if(lfxvb.eq.1)nfxvbr=nvb-nfxvb
       nzrvbr=nzrvb
       if(lzrvb.eq.1)nzrvbr=nvb-nzrvb
-c  NPR arrays -- depend on nature of opt procedure
-      construc=((nzrvbr.gt.0).or.
-     >          (nfxvbr.gt.0.and.nfxvbr.lt.nvb).or.
-     >          (nzeta.gt.0))
+!  NPR arrays -- depend on nature of opt procedure
+      construc=((nzrvbr.gt.0).or.                                       &
+     &          (nfxvbr.gt.0.and.nfxvbr.lt.nvb).or.                     &
+     &          (nzeta.gt.0))
       if(construc)then
-        if(nvb.gt.20.or..not.strucopt)then
+        if(nvb.gt.20.or. .not.strucopt)then
           iconstruc=1
         else
           iconstruc=2

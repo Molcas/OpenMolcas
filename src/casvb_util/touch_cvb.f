@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine touch_cvb(chr)
       implicit real*8 (a-h,o-z)
       character*(*) chr
@@ -29,11 +29,11 @@
         goto 50
       endif
       up2date(iobj)=.false.
-      if(iprint.ge.1)
-     >  write(6,'(/,a,i3,2a)')' Touch (1) of object no.',iobj,
-     >  ', name : ',charobj(iobj)
+      if(iprint.ge.1)                                                   &
+     &  write(6,'(/,a,i3,2a)')' Touch (1) of object no.',iobj,          &
+     &  ', name : ',charobj(iobj)
 
-c  Mark all "child" objects as out-of-date :
+!  Mark all "child" objects as out-of-date :
 200   n_touched=0
       do 300 iobj=1,nobj
       if(.not.up2date(iobj))then
@@ -41,9 +41,9 @@ c  Mark all "child" objects as out-of-date :
         call touchrules_cvb(charobj(j_dep_on_i(i)))
         if(up2date(j_dep_on_i(i)))then
           up2date(j_dep_on_i(i))=.false.
-          if(iprint.ge.1)
-     >      write(6,'(/,a,i3,2a)')' Touch (2) of object no.',
-     >      j_dep_on_i(i),', name : ',charobj(j_dep_on_i(i))
+          if(iprint.ge.1)                                               &
+     &      write(6,'(/,a,i3,2a)')' Touch (2) of object no.',           &
+     &      j_dep_on_i(i),', name : ',charobj(j_dep_on_i(i))
           n_touched=n_touched+1
         endif
 400     continue

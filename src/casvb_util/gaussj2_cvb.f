@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine gaussj2_cvb(a,lrow,lcol,ibook,irows,ijs,oijs,n)
       implicit real*8 (a-h,o-z)
       dimension a(n,n)
@@ -19,7 +19,7 @@
       save zero,one,thresh
       data zero/0.d0/,one/1.d0/,thresh/1.d-10/
 
-c  initialize imx & jmx to suppress compiler warnings ...
+!  initialize imx & jmx to suppress compiler warnings ...
       imx=0
       jmx=0
 

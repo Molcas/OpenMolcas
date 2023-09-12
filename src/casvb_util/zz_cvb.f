@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine zz_cvb(act1,zz1,fx,fxbest1,exp1,ip1)
       implicit real*8 (a-h,o-z)
 #include "opt_cvb.fh"
@@ -25,8 +25,8 @@
 
       act1=fx-fxbest1
       if(fxbest1.eq.-thous)act1=one
-      if((abs(act1).lt.dfxtol.and.abs(exp1).lt.dfxtol)
-     >  .or.act1.eq.one)then
+      if((abs(act1).lt.dfxtol.and.abs(exp1).lt.dfxtol)                  &
+     &  .or.act1.eq.one)then
         zz1=one
       elseif(exp1.eq.zero)then
         zz1=one
@@ -36,8 +36,8 @@
         zz1=act1/exp1
       endif
       if(ip1.ge.2)then
-        if(act1.ne.one)write(6,formAD)
-     >    ' Actual and expected changes :',act1,exp1
+        if(act1.ne.one)write(6,formAD)                                  &
+     &    ' Actual and expected changes :',act1,exp1
         write(6,formAD)' Ratio act/exp    : ',zz1
       endif
       return

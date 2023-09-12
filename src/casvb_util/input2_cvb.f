@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine input2_cvb(
-     >  iorbrel,mxdimrel,ifxorb,
-     >  iorts,irots,izeta,orbs,irdorbs)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine input2_cvb(                                            &
+     &  iorbrel,mxdimrel,ifxorb,                                        &
+     &  iorts,irots,izeta,orbs,irdorbs)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -41,7 +41,7 @@
       call defs_cvb()
       call casinfodef_cvb()
 
-c  Counters
+!  Counters
       nconf=0
       nvbinp=0
       nsyme=0
@@ -60,20 +60,20 @@ c  Counters
       call izero(izeta,mxsyme)
       call fraginit_cvb()
 
-      call input3_cvb(
-     >  iorbrel,mxdimrel,ifxorb,ifxstr,
-     >  idelstr,iorts,irots,izeta,
-     >  ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
+      call input3_cvb(                                                  &
+     &  iorbrel,mxdimrel,ifxorb,ifxstr,                                 &
+     &  idelstr,iorts,irots,izeta,                                      &
+     &  ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
 
       if(inputmode.eq.2)then
-c  Input parsing complete for this step ...
-c  ... Work out NORB, NEL, S ...
+!  Input parsing complete for this step ...
+!  ... Work out NORB, NEL, S ...
         noe1=noe
         call casinfoset_cvb()
-c  ... Do ICONFS before others to get NVB and related info ...
+!  ... Do ICONFS before others to get NVB and related info ...
         do 100 iconf=1,nconf
-        call imove_cvb(iwork((iconf-1)*noe1+ip_iconfs),
-     >    iwork((iconf-1)*noe+ip_iconfs),noe)
+        call imove_cvb(iwork((iconf-1)*noe1+ip_iconfs),                 &
+     &    iwork((iconf-1)*noe+ip_iconfs),noe)
 100     continue
         call mrealloci_cvb(ip_iconfs,noe*nconf)
 
@@ -117,8 +117,8 @@ c  ... Do ICONFS before others to get NVB and related info ...
           nconf_fr(ifrag)=1
           call mrealloci_cvb(ip_iconfs,noe*nconf)
           do jconf=nconf,iconf_add+2,-1
-          call imove_cvb(iwork((jconf-2)*noe+ip_iconfs),
-     >      iwork((jconf-1)*noe+ip_iconfs),noe)
+          call imove_cvb(iwork((jconf-2)*noe+ip_iconfs),                &
+     &      iwork((jconf-1)*noe+ip_iconfs),noe)
           enddo
           call izero(iwork(iconf_add*noe+ip_iconfs),noe)
           do 1201 i=1,min(nel_fr(ifrag),norb)
@@ -128,15 +128,15 @@ c  ... Do ICONFS before others to get NVB and related info ...
           iwork(i+iconf_add*noe+ip_iconfs-1)=2
 1301      continue
         endif
-        call cnfcheck_cvb(iwork(iconf_add*noe+ip_iconfs),
-     >    nconf_fr(ifrag),
-     >    nel_fr(ifrag))
-        call cnfini_cvb(iwork(iconf_add*noe+ip_iconfs),nconf_fr(ifrag),
-     >    nel_fr(ifrag),
-     >    nS_fr(ifrag),i2s_fr(1,ifrag),
-     >    nMs_fr(ifrag),nalf_fr(1,ifrag),nbet_fr(1,ifrag),
-     >    nvbr_fr(ifrag),ndetvb_fr(ifrag),ndetvb2_fr(ifrag),
-     >    mnion_fr(ifrag),mxion_fr(ifrag),nconfion_fr(0,ifrag),ifsc)
+        call cnfcheck_cvb(iwork(iconf_add*noe+ip_iconfs),               &
+     &    nconf_fr(ifrag),                                              &
+     &    nel_fr(ifrag))
+        call cnfini_cvb(iwork(iconf_add*noe+ip_iconfs),nconf_fr(ifrag), &
+     &    nel_fr(ifrag),                                                &
+     &    nS_fr(ifrag),i2s_fr(1,ifrag),                                 &
+     &    nMs_fr(ifrag),nalf_fr(1,ifrag),nbet_fr(1,ifrag),              &
+     &    nvbr_fr(ifrag),ndetvb_fr(ifrag),ndetvb2_fr(ifrag),            &
+     &    mnion_fr(ifrag),mxion_fr(ifrag),nconfion_fr(0,ifrag),ifsc)
         iconf_add=iconf_add+nconf_fr(ifrag)
 1001    continue
         ndetvb=0
@@ -150,13 +150,13 @@ c  ... Do ICONFS before others to get NVB and related info ...
         nelcheck=nelcheck+nel_fr(i)
         enddo
         if(nelcheck.ne.nel)then
-          write(6,*)' Error: total number of electrons in fragment ',
-     >      'wavefunctions :',nelcheck,
-     >      ' not equal to number of electrons ',nel
+          write(6,*)' Error: total number of electrons in fragment ',   &
+     &      'wavefunctions :',nelcheck,                                 &
+     &      ' not equal to number of electrons ',nel
           call abend_cvb()
         endif
         sc=(nfrag.eq.1.and.ifsc.eq.1)
-c  Set absym and use just lowest spin value if spinbas=determinants :
+!  Set absym and use just lowest spin value if spinbas=determinants :
         absym(1)=(nalf.eq.nbet)
         do ifrag=1,nfrag
         i2s_min=nel_fr(ifrag)
@@ -178,20 +178,20 @@ c  Set absym and use just lowest spin value if spinbas=determinants :
         mnion=min(mnion,mnion_fr(i))
         mxion=max(mxion,mxion_fr(i))
         enddo
-c  ... Now remaining quantities that depend on NORB or NVB ...
-c  SYMELM
+!  ... Now remaining quantities that depend on NORB or NVB ...
+!  SYMELM
         ip_from=ip_symelm
         ip_to=ip_symelm
         do 400 isyme=1,nsyme
         do 500 iorb=1,norb
-        if(ip_from.ne.ip_to)call fmove_cvb(work(ip_from),work(ip_to),
-     >                                     norb)
+        if(ip_from.ne.ip_to)call fmove_cvb(work(ip_from),work(ip_to),   &
+     &                                     norb)
         ip_from=ip_from+mxorb_cvb
         ip_to=ip_to+norb
 500     continue
         ip_from=ip_from+(mxorb_cvb-norb)*mxorb_cvb
 400     continue
-c  IORBREL
+!  IORBREL
         ifrom=1
         ito=1
 600     continue
@@ -200,15 +200,15 @@ c  IORBREL
           jorb=iorbrel(ifrom+1)
           nmov=3+iorbrel(ifrom+2)
           if(iorb.le.norb.and.jorb.le.norb)then
-            if(ifrom.ne.ito)
-     *            call imove_cvb(iorbrel(ifrom),iorbrel(ito),nmov)
+            if(ifrom.ne.ito)                                            &
+     &            call imove_cvb(iorbrel(ifrom),iorbrel(ito),nmov)
             ito=ito+nmov
           endif
           ifrom=ifrom+nmov
           goto 600
         endif
         ndimrel=ito-1
-c  IFXSTR
+!  IFXSTR
         ito=0
         do 700 ifrom=1,nfxvb
         if(iwork(ifrom+ifxstr-1).le.nvb)then
@@ -217,7 +217,7 @@ c  IFXSTR
         endif
 700     continue
         nfxvb=ito
-c  IDELSTR
+!  IDELSTR
         ito=0
         do 800 ifrom=1,nzrvb
         if(iwork(ifrom+idelstr-1).le.nvb)then
@@ -226,7 +226,7 @@ c  IDELSTR
         endif
 800     continue
         nzrvb=ito
-c  IORTS
+!  IORTS
         ito=0
         do 900 ifrom=1,nort
         if(iorts(1,ifrom).le.norb.and.iorts(2,ifrom).le.norb)then
@@ -236,7 +236,7 @@ c  IORTS
         endif
 900     continue
         nort=ito
-c  IROTS
+!  IROTS
         ito=0
         do 1000 ifrom=1,ndrot
         if(irots(1,ifrom).le.norb.and.irots(2,ifrom).le.norb)then
@@ -246,21 +246,21 @@ c  IROTS
         endif
 1000    continue
         ndrot=ito
-c  Calling DEFS2 before INITOPT is required in order to set things
-c  such as ICRIT :
+!  Calling DEFS2 before INITOPT is required in order to set things
+!  such as ICRIT :
         call defs2_cvb(ifxorb)
         call initopt_cvb(icrit,lfxvb,nfxvb,iorts,nort,norb)
 
         call defs2_cvb(ifxorb)
 
-c Try for new record
+! Try for new record
         call rdioff1_cvb(need)
-        need=need+3*ihlf_cvb(1)+ihlf_cvb(noe*nconf)+
-     >    mxaobf*norb+ihlf_cvb(norb)+nvbinp+nsyme*norb*norb+
-     >    ihlf_cvb(ndimrel)+
-     >    ihlf_cvb(norb)+ihlf_cvb(nfxvb)+ihlf_cvb(nzrvb)+
-     >    ihlf_cvb(2*nort)+ihlf_cvb(2*ndrot)+ihlf_cvb(2*ndrot)+
-     >    ihlf_cvb(nsyme)
+        need=need+3*ihlf_cvb(1)+ihlf_cvb(noe*nconf)+                    &
+     &    mxaobf*norb+ihlf_cvb(norb)+nvbinp+nsyme*norb*norb+            &
+     &    ihlf_cvb(ndimrel)+                                            &
+     &    ihlf_cvb(norb)+ihlf_cvb(nfxvb)+ihlf_cvb(nzrvb)+               &
+     &    ihlf_cvb(2*nort)+ihlf_cvb(2*ndrot)+ihlf_cvb(2*ndrot)+         &
+     &    ihlf_cvb(nsyme)
         if(recinp.eq.0d0)then
           recinp=recn_tmp01
         elseif(recinp_old.eq.0d0)then
@@ -291,8 +291,8 @@ c Try for new record
         call wrrs_cvb(work(ip_symelm),nsyme*norb*norb,recinp,ioffs)
         call wrioff_cvb(9,recinp,ioffs)
 
-        call dset_cvb(iorbrel,ifxorb,ifxstr,
-     >    idelstr,iorts,irots,izeta)
+        call dset_cvb(iorbrel,ifxorb,ifxstr,                            &
+     &    idelstr,iorts,irots,izeta)
       else
         call maxdims_cvb()
       endif

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine opt2_cvb(orbs,cvb)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
@@ -22,13 +22,13 @@
 #include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
 
-c The following initialization is to appease a compiler
+! The following initialization is to appease a compiler
       fx=zero
       ioptc=0
       iter=0
 
       if(imethod.eq.11)then
-c  Method = None :
+!  Method = None :
         goto 10
       endif
       if(imethod.eq.4)then
@@ -45,15 +45,15 @@ c  Method = None :
 
       fx=zero
 
-      call optize_cvb(fx,ioptc,iter,
-     >  imethod,isaddle,mxiter,icrit.eq.1,corenrg,ip(3),ip(4)-2,ip(4)-2,
-     >  strucopt)
+      call optize_cvb(fx,ioptc,iter,                                    &
+     &  imethod,isaddle,mxiter,icrit.eq.1,corenrg,ip(3),ip(4)-2,ip(4)-2,&
+     &  strucopt)
 
       if(ioptc.eq.-1.and.mxiter.gt.0)then
-        if(ip(3).ge.0)write(6,'(a,i4)')
-     >    ' Maximum number of iterations reached:',mxiter
-        if(ip(3).ge.0)
-     >  write(6,'(a)')' Calculation NOT converged!!!'
+        if(ip(3).ge.0)write(6,'(a,i4)')                                 &
+     &    ' Maximum number of iterations reached:',mxiter
+        if(ip(3).ge.0)                                                  &
+     &  write(6,'(a)')' Calculation NOT converged!!!'
       endif
 10    continue
       if(icrit.eq.1)then
@@ -66,8 +66,8 @@ c  Method = None :
           if(icrit.eq.1)write(6,formE)' Final Svb :',svb
           if(icrit.eq.2)write(6,formE)' Final Evb :',evb
         endif
-        if(ip(3).le.1.and.ioptc.ne.-1)
-     >    write(6,'(a,i4)')' Number of iterations used:',iter
+        if(ip(3).le.1.and.ioptc.ne.-1)                                  &
+     &    write(6,'(a,i4)')' Number of iterations used:',iter
       endif
       if(ip(5).ge.2)then
         call report_cvb(orbs,norb)

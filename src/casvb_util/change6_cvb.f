@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine change6_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
-c ... Change of dimensioning variables ...
+! ... Change of dimensioning variables ...
       logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -40,16 +40,16 @@ c ... Change of dimensioning variables ...
       endif
       if(chpcmp_cvb(npr))changed=.true.
       if((.not.(imethod.eq.4.or.imethod.eq.6)).and.ifinish.eq.0)then
-c  Standard 2nd-order procedure :
+!  Standard 2nd-order procedure :
         icase=1
       elseif(imethod.eq.4.and.icrit.eq.1.and.ifinish.eq.0)then
-c  Overlap-based Davidson
+!  Overlap-based Davidson
         icase=2
       elseif(imethod.eq.4.and.icrit.eq.2.and.ifinish.eq.0)then
-c  Energy-based Davidson
+!  Energy-based Davidson
         icase=3
       elseif(imethod.eq.6.or.ifinish.eq.1.or.ifinish.eq.2)then
-c  No arrays needed
+!  No arrays needed
         icase=4
       else
         icase=5
@@ -66,7 +66,7 @@ c  No arrays needed
 
       call setcnt2_cvb(6,0)
       if(icase.eq.1)then
-c  Standard non-linear optimization procedure :
+!  Standard non-linear optimization procedure :
         lp(1)= mstackr_cvb(norb*norb+nvb+1+mxirrep)
         lp(2)= mstackr_cvb(npr)
         lq(3)= mstackr_cvb(nprorb*nprorb)
@@ -76,16 +76,16 @@ c  Standard non-linear optimization procedure :
         lq(7)= mstackr_cvb(npr)
         lq(8)= mstackr_cvb(npr)
         lq(9)= mstackr_cvb(norb*norb)
-c  Vec1 work array
+!  Vec1 work array
         lq(10)= mstackr_cvb(max(npr,ndetvb))
       elseif(icase.eq.2)then
-c  Overlap-based Davidson optimization :
+!  Overlap-based Davidson optimization :
         iremain=mavailr_cvb()
         maxdav=min(mxiter,nvb,mxdav)
 
         memwrk=ndetvb+5*norb*norb+3*ihlf_cvb(norb+2*norb*norb)
         do 1 idav=maxdav,1,-1
-c  NEED is approx req. memory :
+!  NEED is approx req. memory :
         need=2*nvb*idav+2*nvb+idav+1000+memwrk
         if(need.lt.iremain)goto 2
 1       continue
@@ -99,7 +99,7 @@ c  NEED is approx req. memory :
 2       maxdav=idav
 
       elseif(icase.eq.3)then
-c  Energy-based Davidson optimization :
+!  Energy-based Davidson optimization :
         iremain=mavailr_cvb()
         maxdav=min(mxiter,nvb,mxdav)
 
@@ -112,7 +112,7 @@ c  Energy-based Davidson optimization :
         memwrk=ndetvb+3*norb*norb+2*ihlf_cvb(norb+2*norb*norb)
 
         do 11 idav=maxdav,1,-1
-c  NEED is approx req. memory :
+!  NEED is approx req. memory :
         need=3*nvb*idav+nvb+idav*(2*idav+3)+1000+mem_applyh+memwrk
         if(need.lt.iremain)goto 12
 11      continue
@@ -126,10 +126,10 @@ c  NEED is approx req. memory :
 12      maxdav=idav
 
       elseif(icase.eq.4)then
-c  Wavefunction analysis :
+!  Wavefunction analysis :
         mstackr_cvb0=mstackr_cvb(0)
-        if(((.not.variat).or.endvar).and.
-     >    (ivbweights.gt.1.or.ishstruc.eq.1))then
+        if(((.not.variat).or.endvar).and.                               &
+     &    (ivbweights.gt.1.or.ishstruc.eq.1))then
           lp(1)= mstackr_cvb(nvb*nvb)
           lp(2)= mstackr_cvb(nvb*nvb)
         else

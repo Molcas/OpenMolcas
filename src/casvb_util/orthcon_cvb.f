@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine orthcon_cvb(ipairs,ipair,igroups,ngroup,iorthlst,
-     >  mxortl,mxpair)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine orthcon_cvb(ipairs,ipair,igroups,ngroup,iorthlst,      &
+     &  mxortl,mxpair)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -26,14 +26,14 @@
       dimension igroups(mxorb_cvb,mxgroup),ngroup(mxgroup)
       dimension iorthlst(mxortl)
       save string
-      data string/'GROUP   ','ORTH    ','PAIRS   ','STRONG  ',
-     >            'FULL    ','END     ','ENDORTHC'/
+      data string/'GROUP   ','ORTH    ','PAIRS   ','STRONG  ',          &
+     &            'FULL    ','END     ','ENDORTHC'/
 
       call izero(ipair,mxorb_cvb*mxorb_cvb)
       ngrp=0
 2000  call fstring_cvb(string,nstrin,istr,ncmp,2)
       if(istr.eq.1)then
-c 'GROUP'
+! 'GROUP'
       ngrp=ngrp+1
       if(ngrp.gt.mxgroup)then
         write(6,*)' Too many GROUP keywords in input!',mxgroup
@@ -42,8 +42,8 @@ c 'GROUP'
       glabel(ngrp)=' '
       call string_cvb(glabel(ngrp),1,nread,1)
       if(glabel(ngrp)(1:1).lt.'A'.or.glabel(ngrp)(1:1).gt.'Z')then
-        write(6,*)' Group label must begin with a character A-Z: ',
-     >    glabel(ngrp)
+        write(6,*)' Group label must begin with a character A-Z: ',     &
+     &    glabel(ngrp)
         call abend_cvb()
       endif
       call int_cvb(igroups(1,ngrp),mxorb_cvb,ngroup(ngrp),0)
@@ -53,8 +53,8 @@ c 'GROUP'
       endif
       do 100 i=1,ngroup(ngrp)
       if(igroups(i,ngrp).lt.1.or.igroups(i,ngrp).gt.mxorb_cvb)then
-        write(6,*)' Illegal orbital number in group ',glabel(ngrp),
-     >    ' :',igroups(i,ngrp)
+        write(6,*)' Illegal orbital number in group ',glabel(ngrp),     &
+     &    ' :',igroups(i,ngrp)
         call abend_cvb()
       endif
 100   continue
@@ -65,7 +65,7 @@ c 'GROUP'
       endif
 150   continue
       elseif(istr.eq.2)then
-c 'ORTH'
+! 'ORTH'
       nsp=0
 175   continue
       call int_cvb(iorthlst(1+nsp),mxortl-nsp,nread,0)
@@ -106,7 +106,7 @@ c 'ORTH'
 501   continue
 500   continue
       elseif(istr.eq.3)then
-c 'PAIRS'
+! 'PAIRS'
       nsp=0
 975   continue
       call int_cvb(ipairs(1+nsp,1),2*mxpair-nsp,nread,0)
@@ -150,21 +150,21 @@ c 'PAIRS'
       endif
 1300  continue
       elseif(istr.eq.4)then
-c 'STRONG'
+! 'STRONG'
       do 1700 i=1,mxorb_cvb
       do 1701 j=i+1,mxorb_cvb
       if(.not.(mod(i,2).eq.1.and.j.eq.i+1))ipair(i,j)=1
 1701  continue
 1700  continue
       elseif(istr.eq.5)then
-c 'FULL'
+! 'FULL'
       do 1800 i=1,mxorb_cvb
       do 1801 j=i+1,mxorb_cvb
       ipair(i,j)=1
 1801  continue
 1800  continue
       endif
-c 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input :
+! 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input :
       if(.not.(istr.eq.6.or.istr.eq.7.or.istr.eq.0))goto 2000
       call izero(ipairs,2*mxpair)
       nort=0

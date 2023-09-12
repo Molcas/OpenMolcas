@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine mkorbfree2_cvb(orbs,north,corth,
-     >  irels,relorb,ifxorb,iorts,irots,
-     >  trprm,owrk,owrk2,orbinv,idel)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine mkorbfree2_cvb(orbs,north,corth,                       &
+     &  irels,relorb,ifxorb,iorts,irots,                                &
+     &  trprm,owrk,owrk2,orbinv,idel)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -44,9 +44,9 @@
       ioffs=0
       do 100 iorb=1,norb
       if(north(iorb).gt.0.and.ifxorb(iorb).ne.1)then
-c  Transform simple constraints to basis of VB orbitals :
-        call mxattb_cvb(orbs,corth(1,1+ioffs),norb,norb,north(iorb),
-     >    owrk)
+!  Transform simple constraints to basis of VB orbitals :
+        call mxattb_cvb(orbs,corth(1,1+ioffs),norb,norb,north(iorb),    &
+     &    owrk)
         call span_cvb(owrk,north(iorb),ncon,dum,norb,0)
         ishift=(iorb-1)*(norb-1)
         do 300 icon=1,ncon
@@ -70,8 +70,8 @@ c  Transform simple constraints to basis of VB orbitals :
 100   continue
 
       call mxattb_cvb(orbs,orbs,norb,norb,norb,owrk)
-      call ortelim_cvb(trprm,iorts,irots,owrk,
-     >  nc,nprorb,norb*(norb-1),nrem)
+      call ortelim_cvb(trprm,iorts,irots,owrk,                          &
+     &  nc,nprorb,norb*(norb-1),nrem)
       call izero(idel,nprorb)
       do 500 i=1,nrem
       idel(i)=1
@@ -98,8 +98,8 @@ c  Transform simple constraints to basis of VB orbitals :
       if(j.eq.jorb)goto 720
       j2=j2+1
       do 740 iprm=1,nprorb
-      trprm(i2+ishift2,iprm)=trprm(i2+ishift2,iprm)
-     >  +owrk2(i,j)*trprm(j2+ishift,iprm)
+      trprm(i2+ishift2,iprm)=trprm(i2+ishift2,iprm)                     &
+     &  +owrk2(i,j)*trprm(j2+ishift,iprm)
 740   continue
 720   continue
 700   continue
@@ -110,8 +110,8 @@ c  Transform simple constraints to basis of VB orbitals :
       do 800 i=nrem+1,nprorb
       sum1=ddot_(norb-1,trprm(ioff,i),1,trprm(ioff,i),1)
       sum2=ddot_(nl1,trprm(1,i),1,trprm(1,i),1)
-      if(nl2.gt.0) sum2=sum2
-     >    +ddot_(nl2,trprm(ioff2,i),1,trprm(ioff2,i),1)
+      if(nl2.gt.0) sum2=sum2                                            &
+     &    +ddot_(nl2,trprm(ioff2,i),1,trprm(ioff2,i),1)
       if(sum1.gt.thresh.and.sum2.lt.thresh)idel(i)=1
 800   continue
 600   continue

@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-c  *********************************************************************
-c  *                                                                   *
-c  *  CNFINI   := Set NVBR, NDETVB, NDETVB2, MNION, MXION,             *
-c  *              NCONFION, and IFSC.                                  *
-c  *                                                                   *
-c  *********************************************************************
-      subroutine cnfini_cvb(iconfs,nconf1,nel1,
-     >  nS,i2s,nMs,nalf1,nbet1,
-     >  nvbr1,ndetvb1,ndetvb21,mnion1,mxion1,nconfion,ifsc1)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  CNFINI   := Set NVBR, NDETVB, NDETVB2, MNION, MXION,             *
+!  *              NCONFION, and IFSC.                                  *
+!  *                                                                   *
+!  *********************************************************************
+      subroutine cnfini_cvb(iconfs,nconf1,nel1,                         &
+     &  nS,i2s,nMs,nalf1,nbet1,                                         &
+     &  nvbr1,ndetvb1,ndetvb21,mnion1,mxion1,nconfion,ifsc1)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -31,7 +31,7 @@ c  *********************************************************************
       dimension i2s(nS),nalf1(nMs),nbet1(nMs)
       dimension nconfion(0:*)
 
-c  Main loop over configurations :
+!  Main loop over configurations :
       mnion1=nel1/2
       mxion1=0
       call izero(nconfion,1+nel1/2)
@@ -66,6 +66,6 @@ c  Main loop over configurations :
         ifsc1=0
       endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer_array(nbet1)
       end

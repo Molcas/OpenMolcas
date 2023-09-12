@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine serber_cvb(bikcof,
-     > nel,nalf,nbet,ndet,ifns,
-     > minspn,maxspn,nkspn,locca,lnocca,xspin,
-     > ialfs,ibets,ianti)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine serber_cvb(bikcof,                                     &
+     & nel,nalf,nbet,ndet,ifns,                                         &
+     & minspn,maxspn,nkspn,locca,lnocca,xspin,                          &
+     & ialfs,ibets,ianti)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       dimension bikcof(ndet,ifns)
       dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
@@ -23,14 +23,14 @@
       dimension ialfs(nalf),ibets(nbet),ianti(ifns)
       dimension dum(1)
 
-c
-c Serber spin functions
-c
+!
+! Serber spin functions
+!
 
-c For each Rumer spin function we determine (minus) the "antisymmetry"
-c number, as explained in [Spin Eigenfunctions, R. Pauncz, Sec. 5.5].
+! For each Rumer spin function we determine (minus) the "antisymmetry"
+! number, as explained in [Spin Eigenfunctions, R. Pauncz, Sec. 5.5].
 
-c Spin function weight arrays:
+! Spin function weight arrays:
       do 2000 iorb=0,nel
       minspn(iorb)=max(iorb-nalf,0)
       maxspn(iorb)=min(iorb/2,nbet)
@@ -42,9 +42,9 @@ c Spin function weight arrays:
       endif
       call imove_cvb(maxspn,nkspn,nel+1)
       call occupy_cvb(nkspn,nel,locca,lnocca)
-c Loop:
+! Loop:
       index=1
-c Determine pairings
+! Determine pairings
 2100  continue
       do 2200 ib=1,nbet
       ibets(ib)=locca(ib)
@@ -62,13 +62,13 @@ c Determine pairings
 
       ianti(index)=0
       do 2600 ib=1,nbet
-      if(mod(ialfs(ib),2).eq.1.and.ialfs(ib).eq.ibets(ib)-1)
-     >  ianti(index)=ianti(index)-1
+      if(mod(ialfs(ib),2).eq.1.and.ialfs(ib).eq.ibets(ib)-1)            &
+     &  ianti(index)=ianti(index)-1
 2600  continue
-      call loind_cvb(nel,nbet,nkspn,minspn,maxspn,
-     >                       locca,lnocca,index,xspin,*2100)
+      call loind_cvb(nel,nbet,nkspn,minspn,maxspn,                      &
+     &                       locca,lnocca,index,xspin,*2100)
 
-c Sort according to decreasing values of IANTI :
+! Sort according to decreasing values of IANTI :
       nc=0
       do 4000 iantival=nbet,0,-1
       do 4001 k=1,ifns
@@ -92,7 +92,7 @@ c Sort according to decreasing values of IANTI :
       endif
 5000  continue
 
-c Orthonormalize :
+! Orthonormalize :
       call schmidtn_cvb(bikcof,ifns,dum,ndet,0)
       return
       end

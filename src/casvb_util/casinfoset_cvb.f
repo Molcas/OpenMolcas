@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine casinfoset_cvb()
       implicit real*8 (a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: valid_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -74,7 +74,7 @@ c ... Files/Hamiltonian available ...
       endif
 
       mcore_d=0
-c  Ensure no negative number of orbitals :
+!  Ensure no negative number of orbitals :
       do 300 i=1,mxirrep
       iorclos_d(i)=iorclos_d(i)+iorcore_d(i)
       iorocc_d(i)=iorocc_d(i)+iorclos_d(i)
@@ -89,10 +89,10 @@ c  Ensure no negative number of orbitals :
         call imove_cvb(istms2_c,istms2_d,mxstsy_ci)
         call fmove_cvb(weight_c,weight_d,mxstt_ci*mxstsy_ci)
         if(mcore_d.ne.mcore_c)then
-c  Different number of core orbitals input -> assume NELTOT the same :
+!  Different number of core orbitals input -> assume NELTOT the same :
           do 400 i=1,mxstsy_ci
-          if(istnel_d(i).ne.0)istnel_d(i)=istnel_d(i)
-     >      +2*(mcore_c-mcore_d)
+          if(istnel_d(i).ne.0)istnel_d(i)=istnel_d(i)                   &
+     &      +2*(mcore_c-mcore_d)
 400       continue
         endif
       endif
@@ -106,13 +106,13 @@ c  Different number of core orbitals input -> assume NELTOT the same :
       strtmo=strtmo_d
       strtci=strtci_d
 
-c  Set active space information
+!  Set active space information
       sum=zero
       do 600 i=1,nstsym_d
       do 601 j=1,nstats_d(i)
       if(weight_d(j,i).lt.zero)then
-        write(6,'(a,f10.4,i3,a,i1)')
-     >    ' Fatal error: WEIGHT factor negative :',weight_d(j,i),j,'.',i
+        write(6,'(a,f10.4,i3,a,i1)')                                    &
+     &    ' Fatal error: WEIGHT factor negative :',weight_d(j,i),j,'.',i
         call abend_cvb()
       endif
       sum=sum+weight_d(j,i)
@@ -163,11 +163,11 @@ c  Set active space information
 1200  continue
       incr=incr+ioc
 1100  continue
-c  Set NIRREP :
+!  Set NIRREP :
       nirrep=1
       do 1350 irrep=1,mxirrep
-      if(iorcore_d(irrep).gt.0.or.iorclos_d(irrep).gt.0.or.
-     >   iorocc_d(irrep).gt.0)nirrep=irrep
+      if(iorcore_d(irrep).gt.0.or.iorclos_d(irrep).gt.0.or.             &
+     &   iorocc_d(irrep).gt.0)nirrep=irrep
 1350  continue
       if(nirrep.eq.3)nirrep=4
       if(nirrep.gt.4)nirrep=8
@@ -175,13 +175,13 @@ c  Set NIRREP :
       noe=max(norb,nel)
       nbet=(nel-i2s_d)/2
       nalf=nel-nbet
-c  Basic checks
-      if(nel.lt.0.or.norb.lt.0.or.i2s_d.lt.0.or.nel.gt.2*norb.or.
-     >  mod(nel,2).ne.mod(i2s_d,2))then
+!  Basic checks
+      if(nel.lt.0.or.norb.lt.0.or.i2s_d.lt.0.or.nel.gt.2*norb.or.       &
+     &  mod(nel,2).ne.mod(i2s_d,2))then
         write(6,*)' Impossible numbers: active electrons :',nel
         write(6,*)'                     active orbitals  :',norb
-        write(6,*)'                     total spin       :',
-     >    DBLE(nalf-nbet)/two
+        write(6,*)'                     total spin       :',            &
+     &    DBLE(nalf-nbet)/two
         call abend_cvb()
       endif
       if(isym.eq.0)then

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,
-     >  xalf,xbet,mingrph,maxgrph,
-     >  nk,locc,lunocc,inewocc,inocc2,negs,
-     >  inda,phsa,indb,phsb,v2,ialg)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,                    &
+     &  xalf,xbet,mingrph,maxgrph,                                      &
+     &  nk,locc,lunocc,inewocc,inocc2,negs,                             &
+     &  inda,phsa,indb,phsb,v2,ialg)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       logical vb
 #include "main_cvb.fh"
@@ -29,12 +29,12 @@
       dimension nk(0:norb),locc(norb+1),lunocc(norb+1)
       dimension inewocc(norb),inocc2(norb),negs(norb)
       dimension inda(nda),phsa(nda),indb(ndb),phsb(ndb)
-c  V1 is dimensioned either NDET or NDETVB according to CI/VB
-c  V2 is dimensioned NDET/NDA or NDETVB according to CI/VB
+!  V1 is dimensioned either NDET or NDETVB according to CI/VB
+!  V2 is dimensioned NDET/NDA or NDETVB according to CI/VB
       dimension v1(*),v2(*)
 
-c  Some tests of permutation
-c  Valid ?
+!  Some tests of permutation
+!  Valid ?
       call izero(negs,norb)
       do 10 i=1,norb
       iprm=abs(iperm(i))
@@ -50,13 +50,13 @@ c  Valid ?
         call abend_cvb()
       endif
 20    continue
-c  Return if identity
+!  Return if identity
       do 30 iorb=1,norb
       if(iperm(iorb).ne.iorb)goto 35
 30    continue
       return
 35    continue
-c  Use IALG=2 if only phase changes
+!  Use IALG=2 if only phase changes
       do 40 iorb=1,norb
       if(abs(iperm(iorb)).ne.iorb)goto 45
 40    continue
@@ -66,7 +66,7 @@ c  Use IALG=2 if only phase changes
       do 50 i=1,norb
       if(iperm(i).lt.0)negs(abs(iperm(i)))=1
 50    continue
-c Alpha loop:
+! Alpha loop:
       call izero(inocc2,norb)
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
@@ -98,9 +98,9 @@ c Alpha loop:
       endif
       inda(index)=indget_cvb(inewocc,nalf,norb,xalf)
 
-      call loind_cvb(norb,nalf,nk,mingrph,maxgrph,
-     >                       locc,lunocc,index,xalf,*200)
-c Beta loop:
+      call loind_cvb(norb,nalf,nk,mingrph,maxgrph,                      &
+     &                       locc,lunocc,index,xalf,*200)
+! Beta loop:
       call izero(inocc2,norb)
       do 400 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
@@ -132,8 +132,8 @@ c Beta loop:
       endif
       indb(index)=indget_cvb(inewocc,nbet,norb,xbet)
 
-      call loind_cvb(norb,nbet,nk,mingrph,maxgrph,
-     >                       locc,lunocc,index,xbet,*500)
+      call loind_cvb(norb,nbet,nk,mingrph,maxgrph,                      &
+     &                       locc,lunocc,index,xbet,*500)
 
       if(vb)then
         call fzero(v2,ndetvb)
@@ -145,9 +145,9 @@ c Beta loop:
         do 1100 ixato=ixapr(iato),ixapr(iato+1)-1
         if(iapr(ixato).eq.ibto)goto 1200
 1100    continue
-c  Shouldn't get here ...
-        write(6,'(a,100i3)')
-     >    ' Error, VB determinants not closed under permutation :',iperm
+!  Shouldn't get here ...
+        write(6,'(a,100i3)')                                            &
+     &    ' Error, VB determinants not closed under permutation :',iperm
         call abend_cvb()
 1200    continue
         v2(ixa)=phsa(ia)*phsb(ib)*v1(ixato)
@@ -155,7 +155,7 @@ c  Shouldn't get here ...
 1000    continue
         call fmove_cvb(v2,v1,ndetvb)
       elseif(ialg.eq.1)then
-c  Brute force strategy if enough memory (x1.5 faster) :
+!  Brute force strategy if enough memory (x1.5 faster) :
         do 2000 ib=1,ndb
         iboff=(ib-1)*nda
         inboff=(indb(ib)-1)*nda
@@ -165,7 +165,7 @@ c  Brute force strategy if enough memory (x1.5 faster) :
 2000    continue
         call fmove_cvb(v2,v1,ndet)
       elseif(ialg.eq.2)then
-c  More-or-less in-place update of V1 :
+!  More-or-less in-place update of V1 :
         do 3000 ia=1,nda
         if(ia.eq.inda(ia))then
           if(phsa(ia).eq.-one)then
@@ -175,7 +175,7 @@ c  More-or-less in-place update of V1 :
 3100        continue
           endif
         elseif(inda(ia).ne.0)then
-c  Cyclic permutation involving IA :
+!  Cyclic permutation involving IA :
           ioffs=ia-nda
           do 3300 ib=1,ndb
           v2(ib)=v1(ib*nda+ioffs)
@@ -222,7 +222,7 @@ c  Cyclic permutation involving IA :
 4100        continue
           endif
         elseif(indb(ib).ne.0)then
-c  Cyclic permutation involving IB :
+!  Cyclic permutation involving IB :
           ioffs=(ib-1)*nda
           do 4300 ia=1,nda
           v2(ia)=v1(ia+ioffs)
@@ -263,6 +263,6 @@ c  Cyclic permutation involving IB :
       endif
       return
       end
-c  **********************************
-c  ** Routines involving CI and VB **
-c  **********************************
+!  **********************************
+!  ** Routines involving CI and VB **
+!  **********************************

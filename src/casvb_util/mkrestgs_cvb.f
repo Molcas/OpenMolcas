@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,
-     >  cvbdet,iapr,ixapr,iabind,cvbdet1)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,                       &
+     &  cvbdet,iapr,ixapr,iabind,cvbdet1)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -35,8 +35,8 @@
       call rdis_cvb(idum,1,recn_tmp04,ioffs)
       nbet1=idum(1)
       if(norb1.ne.norb.or.nalf1.ne.nalf.or.nbet1.ne.nbet)then
-        write(6,'(2a)')' Inconsistency between previous and current',
-     >    ' VB wavefunction definitions.'
+        write(6,'(2a)')' Inconsistency between previous and current',   &
+     &    ' VB wavefunction definitions.'
         write(6,*)' NORB now ',norb,' before ',norb1
         write(6,*)' NALF now ',nalf,' before ',nalf1
         write(6,*)' NBET now ',nbet,' before ',nbet1
@@ -51,7 +51,7 @@
 
       call fzero(cvbdet,ndetvb)
       do 200 idetvb1=1,ndetvb1
-c  NDA & string definitions assumed the same :
+!  NDA & string definitions assumed the same :
       ib=(iabind(idetvb1)-1)/nda+1
       ia=iabind(idetvb1)-(ib-1)*nda
       do 300 ixa=ixapr(ia),ixapr(ia+1)-1

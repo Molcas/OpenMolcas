@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine vbgenabdet2_cvb(
-     >  idetavb,idetbvb,
-     >  iconfs,nconf,nconfion,
-     >  ndetvb,nel,noe,
-     >  nalf,nbet,norb,
-     >  xalf,xbet,mingrph,maxgrph,
-     >  inewocc,iaccm)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine vbgenabdet2_cvb(                                       &
+     &  idetavb,idetbvb,                                                &
+     &  iconfs,nconf,nconfion,                                          &
+     &  ndetvb,nel,noe,                                                 &
+     &  nalf,nbet,norb,                                                 &
+     &  xalf,xbet,mingrph,maxgrph,                                      &
+     &  inewocc,iaccm)
       implicit real*8 (a-h,o-w,y-z),integer(x)
 #include "WrkSpc.fh"
       dimension idetavb(ndetvb),idetbvb(ndetvb)
@@ -29,7 +29,7 @@
       logical debug
       data debug/.false./
 
-c Set xalf and xbet for indget :
+! Set xalf and xbet for indget :
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
       maxgrph(iorb)=min(iorb,nalf)
@@ -41,33 +41,33 @@ c Set xalf and xbet for indget :
 200   continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 
-c  Transformation matrix VB structures  <->  determinants
+!  Transformation matrix VB structures  <->  determinants
       incrdet=0
       ioff_nconf=0
       do 1000 ion=0,nel/2
       nelsing=nel-2*ion
       nalfsing=nalf-ion
       nbetsing=nbet-ion
-c  Skip if configurations are incompatible with Ms :
+!  Skip if configurations are incompatible with Ms :
       if(nalfsing.lt.0.or.nbetsing.lt.0.or.nelsing.lt.0)goto 1001
 
-c  Generate alpha/beta strings for singly occupied electrons :
+!  Generate alpha/beta strings for singly occupied electrons :
       call icomb_cvb(nelsing,nalfsing,nstring)
       iastr = mstacki_cvb(nalfsing*nstring)
       ibstr = mstacki_cvb(nbetsing*nstring)
-      call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),
-     >                  nstring)
+      call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),     &
+     &                  nstring)
       if(debug)then
         write(6,*)' ionicity=',ion,' nconf=',nconfion(ion)
         write(6,*)' check alpha strings :'
         do i=1,nstring
-        write(6,*)i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,
-     >                      nalfsing)
+        write(6,*)i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,      &
+     &                      nalfsing)
         enddo
         write(6,*)' check beta strings :'
         do i=1,nstring
-        write(6,*)i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,
-     >                      nbetsing)
+        write(6,*)i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,      &
+     &                      nbetsing)
         enddo
       endif
 
@@ -82,10 +82,10 @@ c  Generate alpha/beta strings for singly occupied electrons :
       inewocc(iorb)=max(0,inewocc(iorb)-1)
 1200  continue
 
-c  Spin string loop :
+!  Spin string loop :
       do 1300 index=1,nstring
 
-c  Alpha index in full string space ...
+!  Alpha index in full string space ...
       do 1400 i=1,nalfsing
       iaocc=iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
       inewocc(iaocc)=inewocc(iaocc)+1
@@ -96,7 +96,7 @@ c  Alpha index in full string space ...
       inewocc(iaocc)=inewocc(iaocc)-1
 1500  continue
 
-c  Beta index in full string space ...
+!  Beta index in full string space ...
       do 1600 i=1,nbetsing
       ibocc=iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
       inewocc(ibocc)=inewocc(ibocc)+1

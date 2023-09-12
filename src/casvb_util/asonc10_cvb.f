@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
@@ -21,14 +21,14 @@
 #include "WrkSpc.fh"
 #include "ipp.fh"
       dimension c(nprm,nvec),axc(nprm,nvec)
-c      save iter,ipp
+!      save iter,ipp
 
       iter=iter+1
       if(ipp.ge.2)then
-        write(6,'(/,a,i5,a,f10.3,a)')' Davidson iteration',iter,
-     >    ' at',tim_cvb(cpu0),' CPU seconds'
-        write(6,'(a)')
-     >    ' -----------------------------------------------'
+        write(6,'(/,a,i5,a,f10.3,a)')' Davidson iteration',iter,        &
+     &    ' at',tim_cvb(cpu0),' CPU seconds'
+        write(6,'(a)')                                                  &
+     &    ' -----------------------------------------------'
       endif
 
       do 100 ivec=1,nvec
@@ -37,7 +37,7 @@ c      save iter,ipp
       call ddproj_cvb(axc(1,ivec),nprm)
 100   continue
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_real(dum1)
       end
 
@@ -50,7 +50,7 @@ c Avoid unused argument warnings
 
 #include "WrkSpc.fh"
 #include "ipp.fh"
-c      save iter
+!      save iter
 
       iter=0
       ipp=ippinp

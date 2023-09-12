@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-c  ************************************************
-c  ** Subroutines to deal with CASSCF CI vectors **
-c  ************************************************
-c  ********************************
-c  ** Routines involving CI only **
-c  ********************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+!  ************************************************
+!  ** Subroutines to deal with CASSCF CI vectors **
+!  ************************************************
+!  ********************************
+!  ** Routines involving CI only **
+!  ********************************
       subroutine cird_cvb(cvec,recn)
       implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
@@ -27,11 +27,11 @@ c  ********************************
 #include "WrkSpc.fh"
       dimension cvec(*)
       dimension idum(1)
-c  *********************************************************************
-c  *                                                                   *
-c  *  CIRD   := Read CI vector.                                        *
-c  *                                                                   *
-c  *********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  CIRD   := Read CI vector.                                        *
+!  *                                                                   *
+!  *********************************************************************
 
       ivec=nint(cvec(1))
       iformat=iform_ci(ivec)

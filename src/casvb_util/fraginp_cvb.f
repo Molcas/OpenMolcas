@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine fraginp_cvb(ip_iconfs)
       implicit real*8 (a-h,o-z)
       parameter (nstrin=2,ncmp=4)
@@ -28,7 +28,7 @@
 
 1000  call fstring_cvb(string,nstrin,istr,ncmp,2)
       if(istr.eq.1)then
-c 'WAVE'
+! 'WAVE'
         nfrag=nfrag+1
         nel_fr(nfrag)=0
         call int_cvb(nel_fr(nfrag),1,nread,1)
@@ -46,7 +46,7 @@ c 'WAVE'
           goto 100
         endif
       elseif(istr.eq.2)then
-c 'CON'
+! 'CON'
         if(nfrag.eq.0)then
           nfrag=1
           nel_fr(nfrag)=0
@@ -63,8 +63,8 @@ c 'CON'
         nconf=nconf+1
 200     continue
         if(mxconf.lt.nconf)then
-          write(6,*)' Insufficient memory for configuration read',
-     >      mavaili_cvb(),mxconf,nconf
+          write(6,*)' Insufficient memory for configuration read',      &
+     &      mavaili_cvb(),mxconf,nconf
           call abend_cvb()
         endif
         call izero(iwork(noe*(nconf-1)+ip_iconfs),noe)

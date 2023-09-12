@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,
-     >  idetvb,
-     >  i2s,nS,nalf1,nMs,
-     >  ifnss,ndetvbs,
-     >  absym,mnion,mxion,nconf,ndetvb,nvb,kbasis,nel,nalf,neltot,
-     >  w,nconfion)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,             &
+     &  idetvb,                                                         &
+     &  i2s,nS,nalf1,nMs,                                               &
+     &  ifnss,ndetvbs,                                                  &
+     &  absym,mnion,mxion,nconf,ndetvb,nvb,kbasis,nel,nalf,neltot,      &
+     &  w,nconfion)
       implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
       logical absym
@@ -30,10 +30,10 @@
       data one/1d0/,sqp5/.70710678118654752440d0/
       data sq2/1.41421356237309504880d0/
 
-c
+!
       i2s_keep      = 0 ! dummy initialize
       nalfsing_keep = 0 ! dummy initialize
-c  Determinant to structure transformation
+!  Determinant to structure transformation
       if(iway.eq.1)then
         call fzero(cvb,nvb)
         do 100 idet=1,ndetvb
@@ -48,9 +48,9 @@ c  Determinant to structure transformation
       do 200 ion=0,nel/2
       if(nconfion(ion).eq.0)goto 201
       nelsing=nel-2*ion
-c  Investigate different S and Ms possibilities and
-c  prepare to collect different BIKCOF matrices if
-c  necessary :
+!  Investigate different S and Ms possibilities and
+!  prepare to collect different BIKCOF matrices if
+!  necessary :
       n_spin=0
       n_spin_values=0
       do 300 iS=1,nS
@@ -80,26 +80,26 @@ c  necessary :
             if(nalfsing.ne.nalfsing_det)goto 600
             if(iway.eq.1)then
               do 700 idet=1,ifnss(nelsing,i2s(iS))
-              if(i2s(iS).eq.0.and.absym.and.
-     >          ndetvbs(nelsing,nalfsing).ne.1)then
-                call daxpy_(nconfion(ion),sq2,w(idet+idadd),n_det,
-     >            cvb(idet+isadd),n_spin)
+              if(i2s(iS).eq.0.and.absym.and.                            &
+     &          ndetvbs(nelsing,nalfsing).ne.1)then
+                call daxpy_(nconfion(ion),sq2,w(idet+idadd),n_det,      &
+     &            cvb(idet+isadd),n_spin)
               else
-                call daxpy_(nconfion(ion),one,w(idet+idadd),n_det,
-     >            cvb(idet+isadd),n_spin)
+                call daxpy_(nconfion(ion),one,w(idet+idadd),n_det,      &
+     &            cvb(idet+isadd),n_spin)
               endif
 700           continue
             elseif(iway.eq.2)then
               do 800 idet=1,ifnss(nelsing,i2s(iS))
-              if(i2s(iS).eq.0.and.absym.and.
-     >          ndetvbs(nelsing,nalfsing).ne.1)then
-                call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,
-     >            w(idet+idadd),n_det)
-                call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,
-     >            w(ndetvbs(nelsing,nalfsing)-idet+1+idadd),n_det)
+              if(i2s(iS).eq.0.and.absym.and.                            &
+     &          ndetvbs(nelsing,nalfsing).ne.1)then
+                call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,  &
+     &            w(idet+idadd),n_det)
+                call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,  &
+     &            w(ndetvbs(nelsing,nalfsing)-idet+1+idadd),n_det)
               else
-                call daxpy_(nconfion(ion),one,cvb(idet+isadd),n_spin,
-     >            w(idet+idadd),n_det)
+                call daxpy_(nconfion(ion),one,cvb(idet+isadd),n_spin,   &
+     &            w(idet+idadd),n_det)
               endif
 800           continue
             endif
@@ -107,16 +107,16 @@ c  necessary :
 600       continue
         endif
 500     continue
-c  Skip collection if not necessary ...
+!  Skip collection if not necessary ...
       elseif(n_spin_values.eq.1.and.n_det_values.eq.1)then
         if(iway.eq.1)then
-          call mxattbp_cvb(
-     >      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),
-     >      w(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
+          call mxattbp_cvb(                                             &
+     &      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),           &
+     &      w(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
         elseif(iway.eq.2)then
-          call mxatbp_cvb(
-     >      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),
-     >      cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
+          call mxatbp_cvb(                                              &
+     &      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),           &
+     &      cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
         endif
       else
         i1 = mstackrz_cvb(n_det*n_spin)
@@ -131,8 +131,8 @@ c  Skip collection if not necessary ...
               ioff_bikcof=1+ikcoff(nelsing,nalfsing,i2s(iS))
               ioff_i1=i1+i_spin*n_det+i_det
               do 1100 j_spin=1,ifnss(nelsing,i2s(iS))
-              call fmove_cvb(bikcof(ioff_bikcof),work(ioff_i1),
-     >          ndetvbs(nelsing,nalfsing))
+              call fmove_cvb(bikcof(ioff_bikcof),work(ioff_i1),         &
+     &          ndetvbs(nelsing,nalfsing))
               ioff_bikcof=ioff_bikcof+ndetvbs(nelsing,nalfsing)
               ioff_i1=ioff_i1+n_det
 1100          continue
@@ -145,11 +145,11 @@ c  Skip collection if not necessary ...
 900     continue
 
         if(iway.eq.1)then
-          call mxattbp_cvb(work(i1),w(1+idadd),
-     >     n_spin,n_det,nconfion(ion),cvb(1+isadd))
+          call mxattbp_cvb(work(i1),w(1+idadd),                         &
+     &     n_spin,n_det,nconfion(ion),cvb(1+isadd))
         elseif(iway.eq.2)then
-          call mxatbp_cvb(work(i1),cvb(1+isadd),
-     >      n_det,n_spin,nconfion(ion),w(1+idadd))
+          call mxatbp_cvb(work(i1),cvb(1+isadd),                        &
+     &      n_det,n_spin,nconfion(ion),w(1+idadd))
         endif
         call mfreer_cvb(i1)
       endif
@@ -163,7 +163,7 @@ c  Skip collection if not necessary ...
 1200    continue
       endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
         call Unused_integer(mnion)
         call Unused_integer(mxion)

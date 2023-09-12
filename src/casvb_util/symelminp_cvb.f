@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,
-     >  mxirrep,mxorb,mxsyme,ityp)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,              &
+     &  mxirrep,mxorb,mxsyme,ityp)
       implicit real*8 (a-h,o-z)
-c ... Matrices (orthogonal/determinant) ...
+! ... Matrices (orthogonal/determinant) ...
       logical, external :: mxorth_cvb
 #include "WrkSpc.fh"
       parameter (nsymelm=5,nsign=2,ncmp=4)
@@ -24,8 +24,8 @@ c ... Matrices (orthogonal/determinant) ...
       dimension ityp(mxorb)
       dimension iaux(1),daux(1)
       save symelm,sign
-      data symelm/'IRREPS  ','COEFFS  ','TRANS   ','END     ',
-     >            'ENDSYMEL'/
+      data symelm/'IRREPS  ','COEFFS  ','TRANS   ','END     ',          &
+     &            'ENDSYMEL'/
       data sign/'+       ','-       '/
       save zero,one
       data zero/0d0/,one/1d0/
@@ -51,20 +51,20 @@ c ... Matrices (orthogonal/determinant) ...
 
 1000  call fstring_cvb(symelm,nsymelm,istr2,ncmp,2)
       if(istr2.eq.1)then
-c    'IRREPS'
+!    'IRREPS'
         do 1100 i=1,mxirrep
         iaux=0
         call int_cvb(iaux,1,nread,0)
         irrep=iaux(1)
         if(irrep.ne.0)then
           do 1200 iorb=1,mxorb
-          if(irrep.eq.ityp(iorb))
-     >      work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
+          if(irrep.eq.ityp(iorb))                                       &
+     &      work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
 1200      continue
         endif
 1100    continue
       elseif(istr2.eq.2)then
-c    'COEFFS'
+!    'COEFFS'
         do 1300 i=1,mxorb
         iaux=0
         call int_cvb(iaux,1,nread,0)
@@ -77,7 +77,7 @@ c    'COEFFS'
 1300    continue
 1301    continue
       elseif(istr2.eq.3)then
-c    'TRANS'
+!    'TRANS'
         iaux=0
         call int_cvb(iaux,1,nread,0)
         idim=iaux(1)
@@ -106,7 +106,7 @@ c    'TRANS'
 1500    continue
         call mfreei_cvb(itmp)
       endif
-c    'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input :
+!    'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input :
       if(.not.(istr2.eq.4.or.istr2.eq.5.or.istr2.eq.0))goto 1000
       if(.not.mxorth_cvb(work(ishft+ip_symelm),mxorb))then
         write(6,*)' Symmetry element ',tags(nsyme),' not orthogonal!'

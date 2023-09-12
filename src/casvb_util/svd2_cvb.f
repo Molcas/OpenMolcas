@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine svd2_cvb(ainp,val,vec,vmat,n1,n2,n12,
-     >  a,w,u,v,rv1,indx)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine svd2_cvb(ainp,val,vec,vmat,n1,n2,n12,                  &
+     &  a,w,u,v,rv1,indx)
       implicit real*8 (a-h,o-z)
       dimension ainp(n1,n2),val(n2),vec(n1,n2),vmat(n2,n2)
       dimension a(n12,n2),w(n2),u(n12,n2),v(n12,n2),rv1(n2),indx(n2)
@@ -33,10 +33,10 @@
         call abend_cvb()
       endif
 
-c  Eispack code is broken, in the following u is generated
-c  from v :
+!  Eispack code is broken, in the following u is generated
+!  from v :
 
-c  First recreate a :
+!  First recreate a :
       if(n12.eq.n1)then
         call fmove_cvb(ainp,a,n1*n2)
       else
@@ -51,7 +51,7 @@ c  First recreate a :
       call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
 300   continue
 
-c  Sort singular values in ascending order:
+!  Sort singular values in ascending order:
       call sortindxr_cvb(n2,w,indx)
       do 400 i=1,n2
       val(i)=w(indx(i))
@@ -65,13 +65,13 @@ c  Sort singular values in ascending order:
 #include "WrkSpc.fh"
       dimension a(n*n)
       dimension det(2)
-cstart linpack_determinant
+!start linpack_determinant
       save zero,one
       data zero/0d0/,one/1d0/
-celse
-c;      save one
-c;      data one/1d0/
-cend
+!else
+!;      save one
+!;      data one/1d0/
+!end
 
       if(n.eq.0)then
         detm_cvb=one
@@ -82,8 +82,8 @@ cend
       ierr=0
       call fmove_cvb(a,work(i1),n*n)
       call dgetrf_(n,n,work(i1),n,iwork(i2),ierr)
-cstart linpack_determinant
-c      call dgefa(work(i1),n,n,iwork(i2),ierr)
+!start linpack_determinant
+!      call dgefa(work(i1),n,n,iwork(i2),ierr)
       i3 = mstackr_cvb(n*n)
       if(ierr.ne.0)then
         detm_cvb=zero
@@ -91,20 +91,20 @@ c      call dgefa(work(i1),n,n,iwork(i2),ierr)
         return
       endif
       call dgedi(work(i1),n,n,iwork(i2),det,work(i3),10)
-celse
-c;      dl=0d0
-c;      ds=1d0
-c;      do k=0,n-1
-c;        dl=dl+log10(abs(work(i1+k*(n+1))))
-c;        if(work(i1+k*(n+1)).lt.0d0)ds=-ds
-c;      end do
-c;      det(2)=dble(int(dl))
-c;      det(1)=ds*(10d0**(dl-det(2)))
-cend
+!else
+!;      dl=0d0
+!;      ds=1d0
+!;      do k=0,n-1
+!;        dl=dl+log10(abs(work(i1+k*(n+1))))
+!;        if(work(i1+k*(n+1)).lt.0d0)ds=-ds
+!;      end do
+!;      det(2)=dble(int(dl))
+!;      det(1)=ds*(10d0**(dl-det(2)))
+!end
       detm_cvb=det(1) * 10d0**det(2)
       call mfreer_cvb(i1)
       return
       end
-c  *******************************************
-c  ** Orthogonalisation, normalisation etc. **
-c  *******************************************
+!  *******************************************
+!  ** Orthogonalisation, normalisation etc. **
+!  *******************************************

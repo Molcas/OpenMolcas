@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       Subroutine rdcivec_cvb(detvec,fn,reord)
-************************************************************************
-*                                                                      *
-*     Read the contents of the JOBIPH file.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read the contents of the JOBIPH file.                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -44,11 +44,11 @@
 
       lujob=15
       call daname_cvb(lujob,fn)
-c Allocate at least NDET words for each vector, since this is
-c required by csdtvc :
-c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
-      Call GetMem('OCIvec','Allo','Real',ipCI,
-     >  nConf_j*nroots_j+ndet_j-nconf_j)
+! Allocate at least NDET words for each vector, since this is
+! required by csdtvc :
+!      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
+      Call GetMem('OCIvec','Allo','Real',ipCI,                          &
+     &  nConf_j*nroots_j+ndet_j-nconf_j)
       if(iwr.eq.0)then
         Do 200 i=1,nroots_j
         j=iroot_j(i)
@@ -56,8 +56,8 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         Do 300 k=1,j-1
         Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
 300     continue
-        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
-     >    nConf_j,iDisk)
+        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),                  &
+     &    nConf_j,iDisk)
 200     continue
 
         if(reord)then
@@ -84,8 +84,8 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         Do 500 k=1,j-1
         Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
 500     continue
-        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
-     >    nConf_j,iDisk)
+        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),                  &
+     &    nConf_j,iDisk)
 400     continue
       endif
       if (debug) then
@@ -119,11 +119,11 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
 
       lujob=15
       call daname_cvb(lujob,fn)
-c Allocate at least NDET words for each vector, since this is
-c required by csdtvc :
-c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
-      Call GetMem('OCIvec','Allo','Real',ipCI,
-     >  nConf_j*nroots_j+ndet_j-nconf_j)
+! Allocate at least NDET words for each vector, since this is
+! required by csdtvc :
+!      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
+      Call GetMem('OCIvec','Allo','Real',ipCI,                          &
+     &  nConf_j*nroots_j+ndet_j-nconf_j)
       if(iwr.eq.0)then
         Do 200 i=1,nroots_j
         j=iroot_j(i)
@@ -131,8 +131,8 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         Do 300 k=1,j-1
         Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
 300     continue
-        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
-     >    nConf_j,iDisk)
+        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),                  &
+     &    nConf_j,iDisk)
 200     continue
 
         if(reord)then
@@ -159,8 +159,8 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         Do 500 k=1,j-1
         Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
 500     continue
-        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
-     >    nConf_j,iDisk)
+        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),                  &
+     &    nConf_j,iDisk)
 400     continue
       endif
       if (debug) then

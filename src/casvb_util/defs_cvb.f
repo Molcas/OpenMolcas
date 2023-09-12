@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine defs_cvb()
       implicit real*8 (a-h,o-z)
       parameter (iunset=-1357924680,unset=-1357924680d0)
@@ -23,7 +23,7 @@
       logical :: ifploc = .false.
       dimension ifxorb(mxorb_cvb)
 
-c  Default settings :
+!  Default settings :
       strtvb=zero
       savvb=zero
       savvbci=zero
@@ -38,7 +38,7 @@ c  Default settings :
       projsym=.false.
       npcf=iunset
       ishstruc=iunset
-c  +1=CHIRGWIN +2=LOWDIN +4=INVERSE
+!  +1=CHIRGWIN +2=LOWDIN +4=INVERSE
       ivbweights=iunset
       iciweights=iunset
       opposite=.false.
@@ -58,7 +58,7 @@ c  +1=CHIRGWIN +2=LOWDIN +4=INVERSE
         ploc=.false.
       endif
 
-c  Counters
+!  Counters
       norbrel=0
       ndimrel=0
       nfxorb=0
@@ -77,14 +77,14 @@ c  Counters
           icrit=2
         endif
       endif
-c Set ifxorb
+! Set ifxorb
       nfxorb=0
       do i=1,norb
       if(ifxorb(i).eq.1)nfxorb=nfxorb+1
       enddo
       call izero(ifxorb(norb+1),mxorb_cvb-norb)
 
-c Set STRUCOPT :
+! Set STRUCOPT :
       if(projcas)then
         strucopt=.false.
       elseif(imethod.eq.11)then
@@ -106,7 +106,7 @@ c Set STRUCOPT :
         endif
       endif
       if(isaddle.eq.iunset)isaddle=0
-c  If unset, set default for IMETHOD :
+!  If unset, set default for IMETHOD :
       if(imethod.eq.iunset)then
         if(isaddle.eq.0)then
           imethod=10
@@ -117,7 +117,7 @@ c  If unset, set default for IMETHOD :
       elseif(isaddle.ne.0.and.imethod.eq.1)then
         call abend_cvb()
       endif
-c  If unset, set default for MXITER :
+!  If unset, set default for MXITER :
       if(mxiter.eq.iunset)then
         if(imethod.ne.4)then
           mxiter=50

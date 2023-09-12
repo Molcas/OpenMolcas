@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine rumer_cvb(bikcof,
-     > nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,
-     > minspn,maxspn,nkspn,
-     > minswp,maxswp,nkswp,ioccswp,locca,lnocca,
-     > xdet,xspin,iw,
-     > ialfs,ibets)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine rumer_cvb(bikcof,                                      &
+     & nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,                   &
+     & minspn,maxspn,nkspn,                                             &
+     & minswp,maxswp,nkswp,ioccswp,locca,lnocca,                        &
+     & xdet,xspin,iw,                                                   &
+     & ialfs,ibets)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       dimension bikcof(ndet,ifns)
       dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
@@ -24,29 +24,29 @@
       dimension nkswp(0:2*nbet)
       dimension ioccswp(nbet,nswpdim)
       dimension locca(nel), lnocca(nel)
-      dimension xdet(0:nel,0:nalf),xspin((nel+1)*(nalf+1)),
-     > iw(nel)
+      dimension xdet(0:nel,0:nalf),xspin((nel+1)*(nalf+1)),             &
+     & iw(nel)
       dimension ialfs(nalf),ibets(nbet)
       save one
       data one/1.0d0/
 
       call fzero(bikcof,ifns*ndet)
 
-c Determinant weight array (index from alpha spin string):
+! Determinant weight array (index from alpha spin string):
       call weightfl_cvb(xdet,nalf,nel)
       if(ndet.ne.xdet(nel,nalf))then
         write(6,*) ' Discrepancy in NDET:',ndet,xdet(nel,nalf)
         call abend_cvb()
       endif
 
-c
-c Rumer spin functions
-c
-      if(iprint.ge.2.and.(kbasis.eq.3.or.kbasis.eq.4))
-     >  write(6,6100) 2**nbet
+!
+! Rumer spin functions
+!
+      if(iprint.ge.2.and.(kbasis.eq.3.or.kbasis.eq.4))                  &
+     &  write(6,6100) 2**nbet
       abphase=DBLE(1-2*mod(nbet*(nbet-1)/2,2))
 
-c Prepare NKs for a<->b interchanges in (ab-ba) terms :
+! Prepare NKs for a<->b interchanges in (ab-ba) terms :
       nbet2=nbet+nbet
       do 1000 iorb=0,nbet2
       minswp(iorb)=iorb/2
@@ -60,7 +60,7 @@ c Prepare NKs for a<->b interchanges in (ab-ba) terms :
 1200  continue
       call loop_cvb(nbet2,nkswp,minswp,maxswp,*1100)
 
-c Spin function weight arrays:
+! Spin function weight arrays:
       do 2000 iorb=0,nel
       minspn(iorb)=max(iorb-nalf,0)
       maxspn(iorb)=min(iorb/2,nbet)
@@ -73,9 +73,9 @@ c Spin function weight arrays:
       call imove_cvb(maxspn,nkspn,nel+1)
       call occupy_cvb(nkspn,nel,locca,lnocca)
 
-c Loop:
+! Loop:
       index=1
-c Determine pairings
+! Determine pairings
 2100  continue
       if(kbasis.eq.6.and.index.gt.ifns)goto 3300
       do 2200 ib=1,nbet
@@ -101,8 +101,8 @@ c Determine pairings
 2700  continue
 2600  continue
 
-      if(iprint.ge.2.and.(kbasis.eq.3.or.kbasis.eq.4))
-     >  write(6,6200) index,(ialfs(ii),ibets(ii),ii=1,nbet)
+      if(iprint.ge.2.and.(kbasis.eq.3.or.kbasis.eq.4))                  &
+     &  write(6,6200) index,(ialfs(ii),ibets(ii),ii=1,nbet)
 
       if(kbasis.eq.4)then
         bikvalue=one
@@ -117,18 +117,18 @@ c Determine pairings
 3100  continue
       do 3200 ia=1,nbet
       if(ioccswp(ia,iswp).ne.0)then
-c  IA => alpha electron in position number 2 (= swap).
+!  IA => alpha electron in position number 2 (= swap).
         iw(ialfs(ia))=0
         iw(ibets(ia))=1
       endif
 3200  continue
       bikcof(indget_cvb(iw,nalf,nel,xdet),index)=bikvalue
 3000  continue
-      call loind_cvb(nel,nbet,nkspn,minspn,maxspn,
-     >                       locca,lnocca,index,xspin,*2100)
+      call loind_cvb(nel,nbet,nkspn,minspn,maxspn,                      &
+     &                       locca,lnocca,index,xspin,*2100)
 3300  continue
 
-c Normalise
+! Normalise
       scale=one/sqrt(dble(2**nbet))
       call dscal_(ndet*ifns,scale,bikcof,1)
       return

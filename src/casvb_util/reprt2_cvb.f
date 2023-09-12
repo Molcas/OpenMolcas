@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine reprt2_cvb(orbs,cvb,
-     >  civec,civb,civbs,civbh,citmp,
-     >  sstruc,sstruc2,
-     >  orbinv,sorbs,owrk,gjorb,gjorb2,gjorb3,
-     >  cvbstot,cvbsspn,cvbdet,dvbdet,evbdet,
-     >  dmat,occ)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine reprt2_cvb(orbs,cvb,                                   &
+     &  civec,civb,civbs,civbh,citmp,                                   &
+     &  sstruc,sstruc2,                                                 &
+     &  orbinv,sorbs,owrk,gjorb,gjorb2,gjorb3,                          &
+     &  cvbstot,cvbsspn,cvbdet,dvbdet,evbdet,                           &
+     &  dmat,occ)
       implicit real*8 (a-h,o-z)
       logical make_sstruc
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: valid_cvb,ifcasci_cvb,ifhamil_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -44,7 +44,7 @@ c ... Files/Hamiltonian available ...
         call vecprint_cvb(cvb,nvb)
       endif
 
-c First save CI vector
+! First save CI vector
       call str2vbc_cvb(cvb,cvbdet)
       call vb2cic_cvb(cvbdet,civb)
       call gaussj_cvb(orbs,gjorb)
@@ -54,7 +54,7 @@ c First save CI vector
       call ciscale_cvb(civb,one/cnrm)
       call symweight_cvb(civb,civb,wsym)
 
-c Save VB wavefunction
+! Save VB wavefunction
       call setsavvb_cvb(savvb)
       if(valid_cvb(savvb))then
         if(ip(5).ge.1)then
@@ -66,7 +66,7 @@ c Save VB wavefunction
       call putci_cvb(civb)
       call fzero(dmat,norb*norb)
       call onedens_cvb(civb,civb,dmat,.true.,0)
-c  Before overwriting CIVB/CIVEC get SVB :
+!  Before overwriting CIVB/CIVEC get SVB :
       if(lcalcsvb)then
         call cidot_cvb(civec,civb,svb)
         call untouch_cvb('SVB')
@@ -77,7 +77,7 @@ c  Before overwriting CIVB/CIVEC get SVB :
         call cidot_cvb(civb,civbh,evb)
         evb=evb+corenrg
         call untouch_cvb('EVB')
-c  ESYM needed for variational calculation
+!  ESYM needed for variational calculation
         call symweight_cvb(civb,civbh,esym)
         do 100 i=1,nirrep
         if(wsym(i).gt.1d-10)then
@@ -90,12 +90,12 @@ c  ESYM needed for variational calculation
       if(lcalcsvb.and.ip(5).ge.1)then
         write(6,'(a)')' '
         write(6,formE)' Svb :      ',svb
-        if((lcalcevb.and.ip(5).ge.1).or.
-     >    (icrit.eq.2.and.ip(3).lt.0.and.ip(5).ge.1))
-     >    write(6,formE)' Evb :      ',evb
+        if((lcalcevb.and.ip(5).ge.1).or.                                &
+     &    (icrit.eq.2.and.ip(3).lt.0.and.ip(5).ge.1))                   &
+     &    write(6,formE)' Evb :      ',evb
       else
-        if((lcalcevb.and.ip(5).ge.1).or.
-     >    (icrit.eq.2.and.ip(3).lt.0.and.ip(5).ge.1))then
+        if((lcalcevb.and.ip(5).ge.1).or.                                &
+     &    (icrit.eq.2.and.ip(3).lt.0.and.ip(5).ge.1))then
           write(6,'(a)')' '
           write(6,formE)' Evb :      ',evb
         endif
@@ -109,9 +109,9 @@ c  ESYM needed for variational calculation
       call dscal_(nvb,one/cnrm,cvb,1)
       call dscal_(ndetvb,one/cnrm,cvbdet,1)
       call finalresult_cvb()
-c -- Analysis
+! -- Analysis
       if(.not.lcalccivbs)then
-c  CIVBS has been evaluated previously (NB. based on unnormalized CVB) :
+!  CIVBS has been evaluated previously (NB. based on unnormalized CVB) :
         call ciscale_cvb(civbs,one/cnrm)
         call ci2vbg_cvb(civbs,dvbdet)
       else
@@ -125,8 +125,8 @@ c  CIVBS has been evaluated previously (NB. based on unnormalized CVB) :
       sum1=ddot_(nvb,cvb,1,cvbstot,1)
       call vb2strg_cvb(cvbdet,cvbsspn)
       sum2=ddot_(nvb,cvb,1,cvbsspn,1)
-      if((ip(5).ge.1.and.ivbweights.lt.0)
-     >  .or.(ivbweights.ge.0.and.mod(ivbweights,2).eq.1))then
+      if((ip(5).ge.1.and.ivbweights.lt.0)                               &
+     &  .or.(ivbweights.ge.0.and.mod(ivbweights,2).eq.1))then
         write(6,'(/,a)')' Chirgwin-Coulson weights of structures :'
         write(6,'(a)')' ----------------------------------------'
         write(6,formVBWnorm) ' VB spin+space (norm ',sum1,') :'
@@ -180,15 +180,15 @@ c  CIVBS has been evaluated previously (NB. based on unnormalized CVB) :
       endif
 
       if(ivbweights.gt.1)then
-c  --  VB analysis Lowdin and Inverse  - begin  --
+!  --  VB analysis Lowdin and Inverse  - begin  --
         if(mod(ivbweights,8).gt.3)then
-          write(6,'(/,a)')
-     >      ' Inverse-overlap weights of structures :'
-          write(6,'(a)')
-     >      ' ---------------------------------------'
+          write(6,'(/,a)')                                              &
+     &      ' Inverse-overlap weights of structures :'
+          write(6,'(a)')                                                &
+     &      ' ---------------------------------------'
           call fmove_cvb(sstruc,sstruc2,nvb*nvb)
           call mxinv_cvb(sstruc2,nvb)
-c  Use DVBDET for weights :
+!  Use DVBDET for weights :
           sum=zero
           do 7300 k=1,nvb
           dvbdet(k)=cvb(k)*cvb(k)/sstruc2(k,k)
@@ -200,13 +200,13 @@ c  Use DVBDET for weights :
         endif
 
         if(mod(ivbweights,4).gt.1)then
-          write(6,'(/,a)')
-     >      ' Weights of Lowdin-orthogonalized structures :'
-          write(6,'(a)')
-     >      ' ---------------------------------------------'
+          write(6,'(/,a)')                                              &
+     &      ' Weights of Lowdin-orthogonalized structures :'
+          write(6,'(a)')                                                &
+     &      ' ---------------------------------------------'
           call fmove_cvb(sstruc,sstruc2,nvb*nvb)
-c  Normalise overlap matrix before square root :
-c  Use CVBDET for normalized structure coefficients :
+!  Normalise overlap matrix before square root :
+!  Use CVBDET for normalized structure coefficients :
           call fmove_cvb(cvb,cvbdet,nvb)
           do 7400 k=1,nvb
           fac=sqrt(sstruc2(k,k))
@@ -218,7 +218,7 @@ c  Use CVBDET for normalized structure coefficients :
 7400      continue
 
           call mxsqrt_cvb(sstruc2,nvb,1)
-c  Use DVBDET for weights :
+!  Use DVBDET for weights :
           call mxatb_cvb(sstruc2,cvbdet,nvb,nvb,1,dvbdet)
           sum=zero
           do 7500 k=1,nvb
@@ -230,10 +230,10 @@ c  Use DVBDET for weights :
           call vecprint_cvb(dvbdet,nvb)
         endif
       endif
-c  --  VB analysis Lowdin and Inverse  - end    --
+!  --  VB analysis Lowdin and Inverse  - end    --
 
-c  Spin correlation analysis
-c  Transform spin -> det to cater for non-orthogonal spin basis
+!  Spin correlation analysis
+!  Transform spin -> det to cater for non-orthogonal spin basis
       if(sij.and.sc)then
         call str2vbc_cvb(cvb,cvbdet)
         call str2vbg_cvb(cvbstot,dvbdet)
@@ -241,16 +241,16 @@ c  Transform spin -> det to cater for non-orthogonal spin basis
         call scorr_cvb(cvbdet,dvbdet,evbdet)
       endif
 
-c  Weights of CASSCF vector in VB basis
+!  Weights of CASSCF vector in VB basis
       if(lciweights)then
         if(.not.ifcasci_cvb())then
-          write(6,'(2a)')' Warning - no CIWEIGHTS without CASSCF',
-     >      ' vector.'
+          write(6,'(2a)')' Warning - no CIWEIGHTS without CASSCF',      &
+     &      ' vector.'
         else
           call str2vbc_cvb(cvb,cvbdet)
           call vb2cic_cvb(cvbdet,civb)
-          call ciweight_cvb(civec,civbs,civb,citmp,civbh,
-     >      orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3)
+          call ciweight_cvb(civec,civbs,civb,citmp,civbh,               &
+     &      orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3)
         endif
       endif
 
@@ -286,11 +286,11 @@ c  Weights of CASSCF vector in VB basis
           call mxprintd_cvb(sstruc2,nvb,nvb,0)
           call mxgendiag_cvb(sstruc2,sstruc,dvbdet,nvb)
           nr_print=min(20,nvb)
-          if(nr_print.lt.nvb)
-     >      write(6,'(/,a,i4,a)')' Printing',nr_print,' lowest roots:'
+          if(nr_print.lt.nvb)                                           &
+     &      write(6,'(/,a,i4,a)')' Printing',nr_print,' lowest roots:'
           do 7290 iroot=1,nr_print
-          write(6,formroot)' Root no.',iroot,' energy=',dvbdet(iroot),
-     >      ' :'
+          write(6,formroot)' Root no.',iroot,' energy=',dvbdet(iroot),  &
+     &      ' :'
           call vecprint_cvb(sstruc2(1,iroot),nvb)
 7290      continue
         endif
@@ -299,10 +299,10 @@ c  Weights of CASSCF vector in VB basis
       call dscal_(nvb,cnrm,cvb,1)
 
       if(ip(5).ge.1.and.nirrep.gt.1)then
-        write(6,'(/,a)')
-     >    ' Symmetry contributions to total VB wavefunction :'
-        write(6,'(a)')
-     >    ' -------------------------------------------------'
+        write(6,'(/,a)')                                                &
+     &    ' Symmetry contributions to total VB wavefunction :'
+        write(6,'(a)')                                                  &
+     &    ' -------------------------------------------------'
         iimx=min(4,nirrep)
         write(6,formSymW)' Irreps 1 to',iimx,' :',(wsym(ii),ii=1,iimx)
         if(nirrep.gt.4)then
@@ -310,16 +310,16 @@ c  Weights of CASSCF vector in VB basis
           write(6,formSymW)' Irreps 5 to',iimx,' :',(wsym(ii),ii=5,iimx)
         endif
         if(lcalcevb)then
-          write(6,'(/,a)')
-     >      ' Energies for components > 1d-10 :'
-          write(6,'(a)')
-     >      ' ---------------------------------'
+          write(6,'(/,a)')                                              &
+     &      ' Energies for components > 1d-10 :'
+          write(6,'(a)')                                                &
+     &      ' ---------------------------------'
           iimx=min(4,nirrep)
           write(6,formSymW)' Irreps 1 to',iimx,' :',(esym(ii),ii=1,iimx)
           if(nirrep.gt.4)then
             iimx=min(8,nirrep)
-            write(6,formSymW)' Irreps 5 to',iimx,' :',
-     >        (esym(ii),ii=5,iimx)
+            write(6,formSymW)' Irreps 5 to',iimx,' :',                  &
+     &        (esym(ii),ii=5,iimx)
           endif
         endif
       endif
@@ -328,7 +328,7 @@ c  Weights of CASSCF vector in VB basis
         write(6,'(a)')' ----------------------'
         call mxprint_cvb(dmat,norb,norb,0)
         call mxdiag_cvb(dmat,occ,norb)
-c  Sort NOs in order of increasing occ. numbers :
+!  Sort NOs in order of increasing occ. numbers :
         do 8000 iorb=1,norb/2
         call dswap_(norb,dmat(1,iorb),1,dmat(1,norb+1-iorb),1)
         swp=occ(iorb)
@@ -345,9 +345,9 @@ c  Sort NOs in order of increasing occ. numbers :
         do i=1,norb
         occ_nel=occ_nel+occ(i)
         enddo
-        if(abs(occ_nel-DBLE(nel)).gt..1d0)then
-          write(6,*)' Error, sum of occupation numbers not equal to ',
-     >      'number of electrons :',occ_nel,nel
+        if(abs(occ_nel-DBLE(nel)).gt. .1d0)then
+          write(6,*)' Error, sum of occupation numbers not equal to ',  &
+     &      'number of electrons :',occ_nel,nel
           call abend_cvb()
         endif
       endif

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine hess_evb1_cvb(orbs,
-     >   civbh,citmp,civb,
-     >   sorbs,owrk,
-     >   gjorb,gjorb2,gjorb3,
-     >   dvbdet,
-     >   grad1,grad2,hessorb,
-     >   vec1,iorts,
-     >   hessinp,hessout)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine hess_evb1_cvb(orbs,                                    &
+     &   civbh,citmp,civb,                                              &
+     &   sorbs,owrk,                                                    &
+     &   gjorb,gjorb2,gjorb3,                                           &
+     &   dvbdet,                                                        &
+     &   grad1,grad2,hessorb,                                           &
+     &   vec1,iorts,                                                    &
+     &   hessinp,hessout)
       implicit real*8 (a-h,o-z)
       logical orbopt2,strucopt2
 #include "main_cvb.fh"
@@ -37,7 +37,7 @@
       dimension grad1(npr),grad2(npr)
       dimension hessorb(nprorb,nprorb)
 
-c  VEC1 dimension is MAX(NPRORB,NDETVB)
+!  VEC1 dimension is MAX(NPRORB,NDETVB)
       dimension vec1(*)
       dimension hessinp(npr),hessout(npr)
       dimension iorts(2,nort)
@@ -50,17 +50,17 @@ c  VEC1 dimension is MAX(NPRORB,NDETVB)
         hess_ci_nrm=zero
       endif
       strucopt2=strucopt.and.hess_ci_nrm.gt.1d-10
-      if(orbopt2.and..not.strucopt2)n_orbhess=n_orbhess+1
-      if(strucopt2.and..not.orbopt2)n_cihess=n_cihess+1
+      if(orbopt2.and. .not.strucopt2)n_orbhess=n_orbhess+1
+      if(strucopt2.and. .not.orbopt2)n_cihess=n_cihess+1
 
       call transp_cvb(orbs,owrk,norb,norb)
       call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
 
       call fzero(hessout,npr)
-      if(orbopt2)call mxatb_cvb(hessorb,hessinp,
-     >  nprorb,nprorb,1,hessout)
+      if(orbopt2)call mxatb_cvb(hessorb,hessinp,                        &
+     &  nprorb,nprorb,1,hessout)
 
-c  Combinations of gradients :
+!  Combinations of gradients :
       g1f=ddot_(npr,grad1,1,hessinp,1)
       g2f=ddot_(npr,grad2,1,hessinp,1)
       fac1=g1f*f4+g2f*f3
@@ -74,8 +74,8 @@ c  Combinations of gradients :
         call cizero_cvb(citmp)
         call oneexc_cvb(civbh,citmp,owrk,.true.,2)
         call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.false.)
-        call daxpy_(nprvb,f1,vec1(nprorb+1),1,
-     >    hessout(nprorb+1),1)
+        call daxpy_(nprvb,f1,vec1(nprorb+1),1,                          &
+     &    hessout(nprorb+1),1)
       endif
       if(strucopt2)then
         call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
@@ -83,7 +83,7 @@ c  Combinations of gradients :
         call mkgrd_cvb(citmp,civbh,vec1,dvbdet,nprorb,.true.)
         call daxpy_(nprorb,f1,vec1,1,hessout,1)
         call oneexc_cvb(civb,citmp,hessinp,.false.,1)
-c  2nd-order term for structure coefficients
+!  2nd-order term for structure coefficients
         if(nfrag.gt.1)then
           call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
           i1 = mstackr_cvb(ndetvb)
@@ -102,7 +102,7 @@ c  2nd-order term for structure coefficients
       call daxpy_(npr,f1,vec1,1,hessout,1)
 
       if(orbopt2.and.nort.gt.0)then
-c  Non-linear correction for orthogonality constraints :
+!  Non-linear correction for orthogonality constraints :
         call fmove_cvb(sorbs,owrk,norb*norb)
         call mxinv_cvb(owrk,norb)
         do 100 iort=1,nort
@@ -114,10 +114,10 @@ c  Non-linear correction for orthogonality constraints :
         if(korb.gt.iorb)ki=ki-1
         kj=korb+(jorb-1)*(norb-1)
         if(korb.gt.jorb)kj=kj-1
-        if(korb.ne.iorb)corr1=corr1+owrk(jorb,korb)*
-     >    (f1*grad2(ki)+f2*grad1(ki))
-        if(korb.ne.jorb)corr1=corr1+owrk(iorb,korb)*
-     >    (f1*grad2(kj)+f2*grad1(kj))
+        if(korb.ne.iorb)corr1=corr1+owrk(jorb,korb)*                    &
+     &    (f1*grad2(ki)+f2*grad1(ki))
+        if(korb.ne.jorb)corr1=corr1+owrk(iorb,korb)*                    &
+     &    (f1*grad2(kj)+f2*grad1(kj))
 200     continue
         corr1=-.5d0*corr1
         do 300 korb=1,norb

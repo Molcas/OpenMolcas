@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine oohess_cvb(orbs,civecp,civbs,civb,
-     >   orbinv,sorbs,owrk,
-     >   grad2,gradx,hessorb,hesst)
-c  Evaluate "cheap" orbital <-> orbital part of hessian :
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine oohess_cvb(orbs,civecp,civbs,civb,                     &
+     &   orbinv,sorbs,owrk,                                             &
+     &   grad2,gradx,hessorb,hesst)
+!  Evaluate "cheap" orbital <-> orbital part of hessian :
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -38,9 +38,9 @@ c  Evaluate "cheap" orbital <-> orbital part of hessian :
       endif
 
       call fzero(hessorb,nprorb*nprorb)
-      if(icrit.eq.1.and..not.(proj.or.projcas))then
-        call dev2b_cvb(civbs,civecp,civb,hessorb,hesst,
-     >    oaa2_use,aa1_use,gradx,grad2)
+      if(icrit.eq.1.and. .not.(proj.or.projcas))then
+        call dev2b_cvb(civbs,civecp,civb,hessorb,hesst,                 &
+     &    oaa2_use,aa1_use,gradx,grad2)
 
         call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
         call fmove_cvb(sorbs,orbinv,norb*norb)
@@ -66,8 +66,8 @@ c  Evaluate "cheap" orbital <-> orbital part of hessian :
         iprm2=iprm2+1
         ifr2=korb+(lorb-1)*norb
         if(iprm2.le.iprm1)then
-          hessorb(iprm2,iprm1)=hessorb(iprm2,iprm1)+
-     >      oaa2_use*hesst(ifr2,ifr1)
+          hessorb(iprm2,iprm1)=hessorb(iprm2,iprm1)+                    &
+     &      oaa2_use*hesst(ifr2,ifr1)
           hessorb(iprm1,iprm2)=hessorb(iprm2,iprm1)
         endif
 301     continue

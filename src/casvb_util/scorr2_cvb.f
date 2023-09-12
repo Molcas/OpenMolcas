@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine scorr2_cvb(cvbdet,dvbdet,evbdet,
-     >      ssq,wvbdet,iperm)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine scorr2_cvb(cvbdet,dvbdet,evbdet,                       &
+     &      ssq,wvbdet,iperm)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -29,23 +29,23 @@
       write(6,'(/,1x,a)') 'Expectation values of (s(i)+s(j))**2'
       snorm=ddot_(ndetvb,cvbdet,1,dvbdet,1)
       ssnorm=ddot_(ndetvb,cvbdet,1,evbdet,1)
-      write(6,formAF)
-     >  ' Lower triangle uses SPIN function with Snorm=',ssnorm
-      write(6,formAF)
-     >  ' Upper triangle uses FULL function with Snorm=',snorm
-c! DLC
-c     snorm=one/snorm
-c     ssnorm=one/ssnorm
+      write(6,formAF)                                                   &
+     &  ' Lower triangle uses SPIN function with Snorm=',ssnorm
+      write(6,formAF)                                                   &
+     &  ' Upper triangle uses FULL function with Snorm=',snorm
+!! DLC
+!     snorm=one/snorm
+!     ssnorm=one/ssnorm
       phase=(-one)**iabs(nalf-nbet)
       snorm=phase/snorm
       ssnorm=phase/ssnorm
-c! DLC
+!! DLC
       call fzero(ssq,norb*norb)
       tot=zero
       stot=zero
       do 100 mu=1,norb
       do 101 nu=mu+1,norb
-c  Apply s_mu x s_nu to the wavefunction
+!  Apply s_mu x s_nu to the wavefunction
       do 200 i=1,norb
       iperm(i)=i
 200   continue
@@ -65,7 +65,7 @@ c  Apply s_mu x s_nu to the wavefunction
       tot=tot+r3by4*dble(norb-2*norb*(norb-1)/2)
       stot=stot+r3by4*dble(norb-2*norb*(norb-1)/2)
       scheck=half*dble(iabs(nalf-nbet))*(half*dble(iabs(nalf-nbet))+one)
-      if(abs(tot-scheck).gt.cut .or. abs(stot-scheck).gt.cut)
-     >  write(6,formAD) 'WARNING: spins ',stot,tot,scheck
+      if(abs(tot-scheck).gt.cut .or. abs(stot-scheck).gt.cut)           &
+     &  write(6,formAD) 'WARNING: spins ',stot,tot,scheck
       return
       end

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine bspset2_cvb(ikcoff,nel,kbasis,need)
       implicit real*8 (a-h,o-z)
 #include "frag_cvb.fh"
@@ -24,9 +24,9 @@
       nalfsing=nalf_fr(iMs,ifrag)-ion
       if(nalfsing.lt.0)goto 200
       do 300 iS=1,nS_fr(ifrag)
-      if(i2s_fr(iS,ifrag).le.nelsing.and.
-     >  i2s_fr(iS,ifrag).ge.2*nalfsing-nelsing)
-     >  ikcoff(nelsing,nalfsing,i2S_fr(iS,ifrag))=1
+      if(i2s_fr(iS,ifrag).le.nelsing.and.                               &
+     &  i2s_fr(iS,ifrag).ge.2*nalfsing-nelsing)                         &
+     &  ikcoff(nelsing,nalfsing,i2S_fr(iS,ifrag))=1
 300   continue
 200   continue
 101   continue

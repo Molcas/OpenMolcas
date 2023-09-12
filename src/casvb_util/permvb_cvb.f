@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-c  *********************************************************************
-c  *                                                                   *
-c  *  PERMVB := Permute orbitals in V1 according to IPERM.             *
-c  *  PERMCI := Permute orbitals in V1 according to IPERM.             *
-c  *                                                                   *
-c  *  V1 is either full CI vector (NDET), or just                      *
-c  *  VB determinants (NDETVB).                                        *
-c  *                                                                   *
-c  *********************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  PERMVB := Permute orbitals in V1 according to IPERM.             *
+!  *  PERMCI := Permute orbitals in V1 according to IPERM.             *
+!  *                                                                   *
+!  *  V1 is either full CI vector (NDET), or just                      *
+!  *  VB determinants (NDETVB).                                        *
+!  *                                                                   *
+!  *********************************************************************
       subroutine permvb_cvb(v1,iperm)
-c  Permutes orbitals in V1 according to IPERM.
+!  Permutes orbitals in V1 according to IPERM.
       implicit real*8 (a-h,o-z)
       logical vb
 #include "main_cvb.fh"
@@ -57,20 +57,20 @@ c  Permutes orbitals in V1 according to IPERM.
         k17= mstackr_cvb(nda)
       endif
       if(vb)then
-        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),
-     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
-     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
-     >    iwork(k12),
-     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),       &
+     &    iwork(k1),iwork(k2),iwork(k5),iwork(k6),                      &
+     &    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),          &
+     &    iwork(k12),                                                   &
+     &    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       else
         iv1=nint(v1(1))
-cDLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
-        call permvb2_cvb(work(iaddr_ci(iv1)),
-     >    iperm,vb,iwork(ll(11)),iwork(ll(12)),
-     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
-     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
-     >    iwork(k12),
-     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+!DLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
+        call permvb2_cvb(work(iaddr_ci(iv1)),                           &
+     &    iperm,vb,iwork(ll(11)),iwork(ll(12)),                         &
+     &    iwork(k1),iwork(k2),iwork(k5),iwork(k6),                      &
+     &    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),          &
+     &    iwork(k12),                                                   &
+     &    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       endif
       call mfreei_cvb(k1)
       return
@@ -110,20 +110,20 @@ cDLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
         k17= mstackr_cvb(nda)
       endif
       if(vb)then
-        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),
-     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
-     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
-     >    iwork(k12),
-     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),       &
+     &    iwork(k1),iwork(k2),iwork(k5),iwork(k6),                      &
+     &    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),          &
+     &    iwork(k12),                                                   &
+     &    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       else
         iv1=nint(v1(1))
-cDLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
-        call permvb2_cvb(work(iaddr_ci(iv1)),
-     >    iperm,vb,iwork(ll(11)),iwork(ll(12)),
-     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
-     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
-     >    iwork(k12),
-     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+!DLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
+        call permvb2_cvb(work(iaddr_ci(iv1)),                           &
+     &    iperm,vb,iwork(ll(11)),iwork(ll(12)),                         &
+     &    iwork(k1),iwork(k2),iwork(k5),iwork(k6),                      &
+     &    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),          &
+     &    iwork(k12),                                                   &
+     &    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       endif
       call mfreei_cvb(k1)
       return

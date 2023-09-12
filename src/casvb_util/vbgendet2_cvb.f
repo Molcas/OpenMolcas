@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine vbgendet2_cvb(
-     >  iapr,ixapr,ibpr,ixbpr,
-     >  iconfs,idetvb,
-     >  nconf,nconfion,
-     >  nda,ndb,ndetvb,nel,
-     >  noe,nalf,nbet,norb,
-     >  idetavb,idetbvb,iwrk1,iwrk2)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine vbgendet2_cvb(                                         &
+     &  iapr,ixapr,ibpr,ixbpr,                                          &
+     &  iconfs,idetvb,                                                  &
+     &  nconf,nconfion,                                                 &
+     &  nda,ndb,ndetvb,nel,                                             &
+     &  noe,nalf,nbet,norb,                                             &
+     &  idetavb,idetbvb,iwrk1,iwrk2)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       dimension iapr(ndetvb),ixapr(nda+1),ibpr(ndetvb),ixbpr(ndb+1)
       dimension iconfs(noe,nconf),idetvb(ndetvb)
@@ -32,12 +32,12 @@
         write(6,*)' ----------------------------------'
       endif
 
-c  vbgenabdet gives all VB alpha and beta strings, to use in CASSCF
-c  space we sort in A/B strings to get increasing order :
-      call vbgenabdet_cvb(idetavb,idetbvb,
-     >  iconfs,nconf,nconfion,
-     >  ndetvb,nel,noe,
-     >  nalf,nbet,norb)
+!  vbgenabdet gives all VB alpha and beta strings, to use in CASSCF
+!  space we sort in A/B strings to get increasing order :
+      call vbgenabdet_cvb(idetavb,idetbvb,                              &
+     &  iconfs,nconf,nconfion,                                          &
+     &  ndetvb,nel,noe,                                                 &
+     &  nalf,nbet,norb)
 
       call sortindxi_cvb(ndetvb,idetbvb,idetvb)
       do 100 i=1,ndetvb

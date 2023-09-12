@@ -1,80 +1,80 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine dirdiag_cvb(ddasonc,ddsol,
-     >  ddres,ddres2upd,ddrestart,
-     >  c,axc,sxc,share,vec,res,rhs,
-     >  ap,rhsp,solp,solp_res,
-     >  symm,use_a,use_rhs,maxdav,n,nprmdim,
-     >  nvguess,nvrestart,isaddle,ifollow,mxiter,
-     >  resthr,orththr,nortiter,corenrg,
-     >  ioptc,iter,fx,ip)
-c  *********************************************************************
-c  *                                                                   *
-c  *  Routine for "direct" diagonalization.                            *
-c  *                                                                   *
-c  *  Uses the following functions:                                    *
-c  *                                                                   *
-c  *  "External" :                                                     *
-c  *     DDASonC:    Apply A and S onto vector(s)                      *
-c  *     DDSOL:      Solve linear equation in Davidson subspace        *
-c  *     DDRES:      From solution, evaluate residual vector           *
-c  *     DDRES2UPD:  Convert residual into next Davidson vector        *
-c  *     DDRESTART:  Restart when Davidson dimension becomes max       *
-c  *                                                                   *
-c  *  Other :                                                          *
-c  *     ABEND:      Error exit                                        *
-c  *     FMOVE:      Vector copy                                       *
-c  *     FZERO:      Vector zero                                       *
-c  *     MXATB:      Matrix multiply                                   *
-c  *     DAXPY:      Level 1 BLAS                                      *
-c  *     DDOT:       Level 1 BLAS                                      *
-c  *     DNRM2:      Level 1 BLAS                                      *
-c  *     DSCAL:      Level 1 BLAS                                      *
-c  *                                                                   *
-c  *  If no metric is used (S=1), C and SxC may share memory. If they  *
-c  *  do, SHARE should be set true.                                    *
-c  *                                                                   *
-c  *  IFOLLOW controls root selecting :                                *
-c  *                                                                   *
-c  *     IFOLLOW=1   Maximization                                      *
-c  *     IFOLLOW=2   Minimization                                      *
-c  *     IFOLLOW=3   Overlap-based root following                      *
-c  *     IFOLLOW=4   Eigenvalue-based root following                   *
-c  *                                                                   *
-c  *  For IFOLLOW=1 the root chosen will be number ISADDLE+1 from the  *
-c  *  end, for IFOLLOW=2, number ISADDLE+1 from the beginning.         *
-c  *                                                                   *
-c  *  IOPTC is optimization control :                                  *
-c  *                                                                   *
-c  *     IOPTC=-3    Opt. terminated close to convergence (at request) *
-c  *     IOPTC=-2    Optimization failed -- too small step size        *
-c  *     IOPTC=-1    Maximum number of iterations used                 *
-c  *     IOPTC= 0    Converged                                         *
-c  *     IOPTC= 1    Not complete                                      *
-c  *                                                                   *
-c  *  NVRESTART on entry: the number of Davidson vectors in a "restart"*
-c  *  run. These are assumed to be obtained from a previous call to    *
-c  *  DIRDIAG, and the relevant C, AxC, SxC, AP and RHSP quantities    *
-c  *  must be unchanged.                                               *
-c  *                                                                   *
-c  *  NVRESTART on exit: the final dimension of the Davidson space --  *
-c  *  can be used as input in a following restart run.                 *
-c  *                                                                   *
-c  *  NVGUESS represents the total number of guess vectors (thus       *
-c  *  NVGUESS>=NVRESTART).                                             *
-c  *                                                                   *
-c  *********************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine dirdiag_cvb(ddasonc,ddsol,                             &
+     &  ddres,ddres2upd,ddrestart,                                      &
+     &  c,axc,sxc,share,vec,res,rhs,                                    &
+     &  ap,rhsp,solp,solp_res,                                          &
+     &  symm,use_a,use_rhs,maxdav,n,nprmdim,                            &
+     &  nvguess,nvrestart,isaddle,ifollow,mxiter,                       &
+     &  resthr,orththr,nortiter,corenrg,                                &
+     &  ioptc,iter,fx,ip)
+!  *********************************************************************
+!  *                                                                   *
+!  *  Routine for "direct" diagonalization.                            *
+!  *                                                                   *
+!  *  Uses the following functions:                                    *
+!  *                                                                   *
+!  *  "External" :                                                     *
+!  *     DDASonC:    Apply A and S onto vector(s)                      *
+!  *     DDSOL:      Solve linear equation in Davidson subspace        *
+!  *     DDRES:      From solution, evaluate residual vector           *
+!  *     DDRES2UPD:  Convert residual into next Davidson vector        *
+!  *     DDRESTART:  Restart when Davidson dimension becomes max       *
+!  *                                                                   *
+!  *  Other :                                                          *
+!  *     ABEND:      Error exit                                        *
+!  *     FMOVE:      Vector copy                                       *
+!  *     FZERO:      Vector zero                                       *
+!  *     MXATB:      Matrix multiply                                   *
+!  *     DAXPY:      Level 1 BLAS                                      *
+!  *     DDOT:       Level 1 BLAS                                      *
+!  *     DNRM2:      Level 1 BLAS                                      *
+!  *     DSCAL:      Level 1 BLAS                                      *
+!  *                                                                   *
+!  *  If no metric is used (S=1), C and SxC may share memory. If they  *
+!  *  do, SHARE should be set true.                                    *
+!  *                                                                   *
+!  *  IFOLLOW controls root selecting :                                *
+!  *                                                                   *
+!  *     IFOLLOW=1   Maximization                                      *
+!  *     IFOLLOW=2   Minimization                                      *
+!  *     IFOLLOW=3   Overlap-based root following                      *
+!  *     IFOLLOW=4   Eigenvalue-based root following                   *
+!  *                                                                   *
+!  *  For IFOLLOW=1 the root chosen will be number ISADDLE+1 from the  *
+!  *  end, for IFOLLOW=2, number ISADDLE+1 from the beginning.         *
+!  *                                                                   *
+!  *  IOPTC is optimization control :                                  *
+!  *                                                                   *
+!  *     IOPTC=-3    Opt. terminated close to convergence (at request) *
+!  *     IOPTC=-2    Optimization failed -- too small step size        *
+!  *     IOPTC=-1    Maximum number of iterations used                 *
+!  *     IOPTC= 0    Converged                                         *
+!  *     IOPTC= 1    Not complete                                      *
+!  *                                                                   *
+!  *  NVRESTART on entry: the number of Davidson vectors in a "restart"*
+!  *  run. These are assumed to be obtained from a previous call to    *
+!  *  DIRDIAG, and the relevant C, AxC, SxC, AP and RHSP quantities    *
+!  *  must be unchanged.                                               *
+!  *                                                                   *
+!  *  NVRESTART on exit: the final dimension of the Davidson space --  *
+!  *  can be used as input in a following restart run.                 *
+!  *                                                                   *
+!  *  NVGUESS represents the total number of guess vectors (thus       *
+!  *  NVGUESS>=NVRESTART).                                             *
+!  *                                                                   *
+!  *********************************************************************
       implicit real*8 (a-h,o-z)
 #include "formats_cvb.fh"
       logical share,is_converged,symm,use_a,use_rhs
@@ -93,9 +93,9 @@ c  *********************************************************************
         write(6,'(/,a)')' Starting Davidson optimization.'
         write(6,'(a)')' -------------------------------'
       endif
-      if(ip.ge.1)
-     >  write(6,'(a,i5)')' Maximum dimension of Davidson subspace:',
-     >  maxdav
+      if(ip.ge.1)                                                       &
+     &  write(6,'(a,i5)')' Maximum dimension of Davidson subspace:',    &
+     &  maxdav
 
       nroot=max(1,isaddle+1)
       ifail=-1
@@ -106,8 +106,8 @@ c  *********************************************************************
       endif
       if(ifail.ne.-1)then
         write(6,'(a)')' Davidson dimension too small!'
-        write(6,'(a,i3,a)')' Need storage for at least',
-     >    ifail,' vectors.'
+        write(6,'(a,i3,a)')' Need storage for at least',                &
+     &    ifail,' vectors.'
         call abend_cvb()
       endif
 
@@ -126,12 +126,12 @@ c  *********************************************************************
 100   continue
 
       iter=0
-c  MXITER max possible no of macro iterations, normally opt will skip
+!  MXITER max possible no of macro iterations, normally opt will skip
       do 1000 imacro=1,mxiter
       do 1100 itdav=max(nvrestart,1),min(maxdav,mxiter-iter)
       if(itdav.gt.nvrestart)then
         iter=iter+1
-c  Ensure accurate orthogonalization :
+!  Ensure accurate orthogonalization :
         facn=dnrm2_(n,c(1,itdav),1)
         do 1300 iorth=1,nortiter
         call dscal_(n,one/facn,c(1,itdav),1)
@@ -140,8 +140,8 @@ c  Ensure accurate orthogonalization :
         facn=dnrm2_(n,c(1,itdav),1)
         if(abs(one-facn).lt.orththr)goto 1400
 1300    continue
-        write(6,*)' Not able to achieve orthonormality in max number',
-     >    ' of attempts:',nortiter
+        write(6,*)' Not able to achieve orthonormality in max number',  &
+     &    ' of attempts:',nortiter
         call abend_cvb()
 1400    call dscal_(n,one/facn,c(1,itdav),1)
 
@@ -175,8 +175,8 @@ c  Ensure accurate orthogonalization :
         call vecprint_cvb(c(1,itdav),n)
       endif
       if(.not.(itdav.lt.nvguess))then
-        call ddres(axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,
-     >    is_converged)
+        call ddres(axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,     &
+     &    is_converged)
 
         call ddproj_cvb(res,n)
         if(is_converged)then
@@ -184,8 +184,8 @@ c  Ensure accurate orthogonalization :
           is_converged=(resnrm.lt.resthr)
         endif
         if(is_converged)then
-          if(ip.ge.0)write(6,formAD)
-     >      ' Converged ... residual norm:',resnrm
+          if(ip.ge.0)write(6,formAD)                                    &
+     &      ' Converged ... residual norm:',resnrm
         else
           if(ip.ge.2)then
             write(6,'(a)')' '
@@ -205,22 +205,22 @@ c  Ensure accurate orthogonalization :
       endif
 1100  continue
       if(iter.ge.mxiter)then
-        if(ip.ge.0)write(6,'(2a,i5,a)')' Davidson optimization ',
-     >    'not converged in ',mxiter,' iterations'
+        if(ip.ge.0)write(6,'(2a,i5,a)')' Davidson optimization ',       &
+     &    'not converged in ',mxiter,' iterations'
         ioptc=-1
         goto 1200
       endif
-      call ddrestart(c,axc,vec,
-     >  ap,solp,
-     >  maxdav,n,
-     >  nvguess,nvrestart)
+      call ddrestart(c,axc,vec,                                         &
+     &  ap,solp,                                                        &
+     &  maxdav,n,                                                       &
+     &  nvguess,nvrestart)
 1000  continue
 1200  continue
       ndavvec=min(itdav,maxdav)
       call mxatb_cvb(c,solp,n,ndavvec,1,vec)
 
-      if(ip.ge.2)write(6,formAD)
-     >  ' Total eigenvalue change in Davidson :',eig-e1
+      if(ip.ge.2)write(6,formAD)                                        &
+     &  ' Total eigenvalue change in Davidson :',eig-e1
       if(ip.ge.3.and.n.le.500)then
         write(6,'(a)')' Final projected solution vector :'
         call vecprint_cvb(solp,n)
@@ -228,7 +228,7 @@ c  Ensure accurate orthogonalization :
         call vecprint_cvb(vec,n)
       endif
       fx=eig+corenrg
-c  Prepare for restart :
+!  Prepare for restart :
       nvguess=0
       nvrestart=itdav
       return

@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine svbd2_cvb(orbs,cvb,fx,ioptc,iter,
-     >  civec,civbs,gjorb,gjorb2,gjorb3,cvbdet,
-     >  c,sxc,res,rhs,rhsp,solp,solp_res)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine svbd2_cvb(orbs,cvb,fx,ioptc,iter,                      &
+     &  civec,civbs,gjorb,gjorb2,gjorb3,cvbdet,                         &
+     &  c,sxc,res,rhs,rhsp,solp,solp_res)
       implicit real*8 (a-h,o-z)
-      external asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,
-     >  ddres2upd10_cvb
+      external asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,                    &
+     &  ddres2upd10_cvb
       external ddrestart_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -56,15 +56,15 @@
 
       call ddinitsvb_cvb(ifollow,isaddle,ip(3))
       call ddres2updinit_cvb(0)
-      call dirdiag_cvb(
-     >  asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,ddres2upd10_cvb,
-     >  ddrestart_cvb,
-     >  c,dum,sxc,.false.,cvb,res,rhs,
-     >  dum,rhsp,solp,solp_res,
-     >  .false.,.false.,.true.,maxdav,nvb,nvb,
-     >  nvguess,nvrestart,isaddle,ifollow,mxiter,
-     >  resthr,orththr,nortiter,zero,
-     >  ioptc,iter,fx,ip(3))
+      call dirdiag_cvb(                                                 &
+     &  asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,ddres2upd10_cvb,           &
+     &  ddrestart_cvb,                                                  &
+     &  c,dum,sxc,.false.,cvb,res,rhs,                                  &
+     &  dum,rhsp,solp,solp_res,                                         &
+     &  .false.,.false.,.true.,maxdav,nvb,nvb,                          &
+     &  nvguess,nvrestart,isaddle,ifollow,mxiter,                       &
+     &  resthr,orththr,nortiter,zero,                                   &
+     &  ioptc,iter,fx,ip(3))
       have_solved_it=.true.
 
       ovraa=one

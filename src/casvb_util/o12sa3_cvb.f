@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine o12sa3_cvb(vec,cvb,
-     >  orbs,gjorb,gjorb2,gjorb3,
-     >  civec,civecp,civb,cvbdet,vec_all,
-     >  nvb,nprorb,nparm1,strucopt)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine o12sa3_cvb(vec,cvb,                                    &
+     &  orbs,gjorb,gjorb2,gjorb3,                                       &
+     &  civec,civecp,civb,cvbdet,vec_all,                               &
+     &  nvb,nprorb,nparm1,strucopt)
       implicit real*8 (a-h,o-z)
       logical strucopt
 #include "opt_cvb.fh"
@@ -38,8 +38,8 @@
       call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
       call fzero(vec_all,nprorb)
       call onedens_cvb(civb,civecp,vec_all,.false.,0)
-c  If no optimization of structure coefficients we are doing
-c  "Augmented" calc:
+!  If no optimization of structure coefficients we are doing
+!  "Augmented" calc:
       if(strucopt)then
         ic1=1
       else

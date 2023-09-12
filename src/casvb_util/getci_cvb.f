@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine getci_cvb(civec)
       implicit real*8 (a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: valid_cvb,ifcasci_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -51,8 +51,8 @@ c ... Files/Hamiltonian available ...
 
       do 1000 istsym_d=1,nstsym_d
       isyml=istsy_d(istsym_d)
-      call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),
-     >  istsy_d(istsym_d))
+      call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),       &
+     &  istsy_d(istsym_d))
       nci=ncix(1)
       lcim=mstackr_cvb(nci)
       if(iwr.eq.0)then
@@ -81,7 +81,7 @@ c ... Files/Hamiltonian available ...
       end
       subroutine putci_cvb(civec)
       implicit real*8 (a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: valid_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -116,8 +116,8 @@ c ... Files/Hamiltonian available ...
 
       do 1000 istsym_d=1,nstsym_d
       isyml=istsy_d(istsym_d)
-      call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),
-     >  istsy_d(istsym_d))
+      call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),       &
+     &  istsy_d(istsym_d))
       nci=ncix(1)
       lcim=mstackr_cvb(nci)
       if(iwr.eq.0)then

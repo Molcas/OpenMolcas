@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine oneexc2_cvb(cfrom,cto,vij,
-     > i1alf,i1bet,iato,ibto,phato,phbto,
-     > iapr,ixapr,ibpr,ixbpr,npvb,
-     > nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym,diag,idens,
-     > iPvb)
-c  Calculates Cto = Pvb Eij Cfrom
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine oneexc2_cvb(cfrom,cto,vij,                             &
+     & i1alf,i1bet,iato,ibto,phato,phbto,                               &
+     & iapr,ixapr,ibpr,ixbpr,npvb,                                      &
+     & nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym,diag,idens,       &
+     & iPvb)
+!  Calculates Cto = Pvb Eij Cfrom
       implicit real*8 (a-h,o-z)
       logical commut,sc,absym,diag
       dimension cfrom(nda,ndb),cto(nda,ndb)
@@ -43,11 +43,11 @@ c  Calculates Cto = Pvb Eij Cfrom
       iprm=0
       do 1100 jorb=1,norb
       do 1200 iorb=1,norb
-      if(iorb.eq.jorb.and..not.diag)goto 1200
+      if(iorb.eq.jorb.and. .not.diag)goto 1200
       iprm=iprm+1
       if(idens.eq.0.and.abs(vij(iprm)).lt.thresh)goto 1200
       if(.not.sc)then
-c  a) Alpha excitation
+!  a) Alpha excitation
       do 2100 ia=1,n1a
       iaxtmp=i1alf(ia,iorb)
       jax=iato(jorb,iaxtmp)
@@ -71,8 +71,8 @@ c  a) Alpha excitation
         else
           tcof=phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
           if(iPvb.eq.0)then
-            vij(iprm)=vij(iprm)+tcof*
-     >        ddot_(ndb,cto(iax,1),nda,cfrom(jax,1),nda)
+            vij(iprm)=vij(iprm)+tcof*                                   &
+     &        ddot_(ndb,cto(iax,1),nda,cfrom(jax,1),nda)
           elseif(iPvb.eq.1)then
             do 2400 ixa=ixapr(jax),ixapr(jax+1)-1
             ibx=iapr(ixa)
@@ -89,7 +89,7 @@ c  a) Alpha excitation
 2100  continue
 
       if(.not.absym)then
-c  c) Beta excitation
+!  c) Beta excitation
         do 3100 ib=1,n1b
         ibxtmp=i1bet(ib,iorb)
         jbx=ibto(jorb,ibxtmp)
@@ -113,8 +113,8 @@ c  c) Beta excitation
           else
             tcof=phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
             if(iPvb.eq.0)then
-              vij(iprm)=vij(iprm)+tcof*
-     >          ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
+              vij(iprm)=vij(iprm)+tcof*                                 &
+     &          ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
             elseif(iPvb.eq.1)then
               do 3400 ixb=ixbpr(jbx),ixbpr(jbx+1)-1
               iax=ibpr(ixb)
@@ -131,7 +131,7 @@ c  c) Beta excitation
 3100    continue
       endif
       elseif(sc)then
-c  a) Alpha excitation
+!  a) Alpha excitation
       do 4100 ia=1,n1a
       iaxtmp=i1alf(ia,iorb)
       jax=iato(jorb,iaxtmp)
@@ -151,8 +151,8 @@ c  a) Alpha excitation
         else
           tcof=phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
           if(iPvb.eq.0)then
-            vij(iprm)=vij(iprm)+tcof*
-     >        ddot_(ndb,cto(iax,1),nda,cfrom(jax,1),nda)
+            vij(iprm)=vij(iprm)+tcof*                                   &
+     &        ddot_(ndb,cto(iax,1),nda,cfrom(jax,1),nda)
           elseif(iPvb.eq.1)then
             ibx=ndb-jax+1
             vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(jax,ibx)
@@ -165,7 +165,7 @@ c  a) Alpha excitation
 4100  continue
 
       if(.not.absym)then
-c  c) Beta excitation
+!  c) Beta excitation
         do 5100 ib=1,n1b
         ibxtmp=i1bet(ib,iorb)
         jbx=ibto(jorb,ibxtmp)
@@ -185,8 +185,8 @@ c  c) Beta excitation
           else
             tcof=phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
             if(iPvb.eq.0)then
-              vij(iprm)=vij(iprm)+tcof*
-     >          ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
+              vij(iprm)=vij(iprm)+tcof*                                 &
+     &          ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
             elseif(iPvb.eq.1)then
               iax=nda-jbx+1
               vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
@@ -214,6 +214,6 @@ c  c) Beta excitation
         endif
       endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_logical(commut)
       end

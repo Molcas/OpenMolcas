@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine rdline_cvb(nfield)
       implicit real*8 (a-h,o-z)
-c  BLANKDELIM signifies whether blanks are used to delimit fields :
+!  BLANKDELIM signifies whether blanks are used to delimit fields :
       logical blankdelim,variat
       logical debug
       logical isitanint_cvb,isitareal_cvb
       external isitanint_cvb,isitareal_cvb
 #include "luinp_cvb.fh"
-      parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nempty=1,
-     >  nalias=2)
+      parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nempty=1,   &
+     &  nalias=2)
       character*300 line
       character*(*) string
       character*1 blanks(nblank)
-c  COMEOL are comments that comment out the rest of the line
-c  (might add 'bracketing' comments (e.g. /* ... */ ) later) :
+!  COMEOL are comments that comment out the rest of the line
+!  (might add 'bracketing' comments (e.g. /* ... */ ) later) :
       character*3 comeol(ncomeol)
       character*1 eol(neol)
       character*1 eofield(neofield)
@@ -58,39 +58,39 @@ c  (might add 'bracketing' comments (e.g. /* ... */ ) later) :
       else
         iline=1
       endif
-c  Read full input line from file and make preparations :
+!  Read full input line from file and make preparations :
 100   read(inp,'(a)',end=200)line
       lenline=len_trim_cvb(line)
       call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
       call upper_case_cvb(line,lenline)
-c  Check for "end-of-file" character sequence :
+!  Check for "end-of-file" character sequence :
       do 300 ieof=1,neof
       ilength=len_trim_cvb(eof(ieof))
       if(line(1:ilength).eq.eof(ieof)(1:ilength))goto 200
 300   continue
-c  Comment strings (skip rest of line ) :
+!  Comment strings (skip rest of line ) :
       indmin=lenline+1
       do 500 icom=1,ncomeol
-      ind=index(line(1:lenline),comeol(icom)
-     >  (1:len_trim_cvb(comeol(icom))))
+      ind=index(line(1:lenline),comeol(icom)                            &
+     &  (1:len_trim_cvb(comeol(icom))))
       if(ind.ne.0)indmin=min(indmin,ind)
 500   continue
       lenline=len_trim_cvb(line(1:indmin-1))
       if(lenline.eq.0)goto 100
-c  Aliases :
+!  Aliases :
       do 550 ialias=1,nalias
-560   ind=index(line(1:lenline),alias(ialias,1)
-     >  (1:len_trim_cvb(alias(ialias,1))))
+560   ind=index(line(1:lenline),alias(ialias,1)                         &
+     &  (1:len_trim_cvb(alias(ialias,1))))
       if(ind.ne.0)then
-        call charinsert_cvb(alias(ialias,2),
-     >    len_trim_cvb(alias(ialias,2)),
-     >    line,lenline,ind,len_trim_cvb(alias(ialias,1)))
+        call charinsert_cvb(alias(ialias,2),                            &
+     &    len_trim_cvb(alias(ialias,2)),                                &
+     &    line,lenline,ind,len_trim_cvb(alias(ialias,1)))
         goto 560
       endif
 550   continue
       lenline=len_trim_cvb(line(1:indmin-1))
       if(lenline.eq.0)goto 100
-c  Split into lines :
+!  Split into lines :
       call izero(ilv,lenline)
       do 600 ieol=1,neol
       if=0
@@ -107,7 +107,7 @@ c  Split into lines :
       do 700 ich=1,lenline
       if(ilv(ich).eq.1)nline=nline+1
 700   continue
-c  Split into fields :
+!  Split into fields :
       do 800 ieofield=1,neofield
       if=0
       ilength=max(1,len_trim_cvb(eofield(ieofield)))
@@ -118,7 +118,7 @@ c  Split into fields :
         goto 850
       endif
 800   continue
-c  Eliminate field separators at end of lines:
+!  Eliminate field separators at end of lines:
       do 873 ieofield=1,neofield
       ihadchar=0
       do 875 ich=lenline,1,-1
@@ -136,8 +136,8 @@ c  Eliminate field separators at end of lines:
       endif
 875   continue
 873   continue
-c  Count the number of fields in present card (ILINE).
-c  Also make sure line is not all empty :
+!  Count the number of fields in present card (ILINE).
+!  Also make sure line is not all empty :
 899   continue
       nfield=1
       jline=1
@@ -151,7 +151,7 @@ c  Also make sure line is not all empty :
 900   continue
       if(iline.eq.1)ilinebeg=1
       if(ilineend.eq.-1)ilineend=lenline
-c  Go back and read a new line if this one is empty :
+!  Go back and read a new line if this one is empty :
       if(ilinebeg.gt.ilineend)goto 50
       if(len_trim_cvb(line(ilinebeg:ilineend)).eq.0)goto 50
       return
@@ -168,14 +168,14 @@ c  Go back and read a new line if this one is empty :
       endif
       return
       entry gtany_cvb(string,int,real,ic,ifield,ierr)
-c      ic=1
-c      goto 1050
-c      entry gtint_cvb(int,ifield,ierr)
-c      ic=2
-c      goto 1050
-c      entry gtreal_cvb(real,ifield,ierr)
-c      ic=3
-c1050  continue
+!      ic=1
+!      goto 1050
+!      entry gtint_cvb(int,ifield,ierr)
+!      ic=2
+!      goto 1050
+!      entry gtreal_cvb(real,ifield,ierr)
+!      ic=3
+!1050  continue
       if(ic.gt.1)ierr=0
       jfield=1
       jline=1
@@ -189,10 +189,10 @@ c1050  continue
         if(ilv(jch).eq.0.and.jch.ne.lenline+1)goto 1100
         ifirst=ich+1
         if(ich.eq.1)ifirst=1
-c  Special character strings to signify empty field ?
+!  Special character strings to signify empty field ?
         do 1125 iempty=1,nempty
-        if(line(ifirst:jch-1).eq.empty(iempty)
-     >    (1:len_trim_cvb(empty(iempty))))goto 1130
+        if(line(ifirst:jch-1).eq.empty(iempty)                          &
+     &    (1:len_trim_cvb(empty(iempty))))goto 1130
 1125    continue
         if(debug)write(6,*)' Field=',line(ifirst:jch-1)
         if(ic.eq.1)then
@@ -217,7 +217,7 @@ c  Special character strings to signify empty field ?
         endif
         return
 1130    continue
-c  "Empty" field :
+!  "Empty" field :
         if(ic.eq.1)then
           string=' '
         else
@@ -245,8 +245,8 @@ c  "Empty" field :
       call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
       call upper_case_cvb(line,lenline)
       if(line(1:6).ne.'&CASVB')goto 2100
-C     if(.not.(((.not.blankdelim).and.line(1:10).eq.'&CASVB&END').or.
-C    >   (blankdelim.and.line(1:11).eq.'&CASVB &END')))goto 2100
+!     if(.not.(((.not.blankdelim).and.line(1:10).eq.'&CASVB&END').or.
+!    >   (blankdelim.and.line(1:11).eq.'&CASVB &END')))goto 2100
       return
 2200  write(6,*)' WARNING: Initiation string not found in input file.'
       return
@@ -276,8 +276,8 @@ C    >   (blankdelim.and.line(1:11).eq.'&CASVB &END')))goto 2100
       parameter(nallowed=17)
       character*(*) a
       character*(1) allowedchars(nallowed)
-      data allowedchars/'+','-','0','1','2','3','4','5','6','7','8','9',
-     >  '.','E','e','D','d'/
+      data allowedchars/'+','-','0','1','2','3','4','5','6','7','8','9',&
+     &  '.','E','e','D','d'/
 
       do 100 ich=1,len_trim_cvb(a)
       do 200 j=1,nallowed

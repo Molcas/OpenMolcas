@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine o7b2_cvb(nparm,dx,
-     >  dxnrm,grdnrm,close2conv)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine o7b2_cvb(nparm,dx,                                     &
+     &  dxnrm,grdnrm,close2conv)
       implicit real*8 (a-h,o-z)
       logical skip
       logical close2conv
@@ -38,13 +38,13 @@
       skip=(resthr_use.eq.resthr_old.and.have_solved_it)
       resthr_old=resthr_use
       if(skip)goto 100
-      call axex_cvb(asonc7_cvb,ddres2upd7_cvb,dx,
-     >  resthr_use,ioptc2,iter2,fx_exp)
+      call axex_cvb(asonc7_cvb,ddres2upd7_cvb,dx,                       &
+     &  resthr_use,ioptc2,iter2,fx_exp)
       have_solved_it=.true.
       exp=.5d0*fx_exp
 
-      if(ip.ge.2)write(6,'(2a,i4)')' Number of iterations for ',
-     >  'direct diagonalization :',iter2
+      if(ip.ge.2)write(6,'(2a,i4)')' Number of iterations for ',        &
+     &  'direct diagonalization :',iter2
 
       if(ioptc2.ne.0)then
         write(6,*)' Direct diagonalization not converged!'

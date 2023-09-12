@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,
-     >  solp,solp_res,eig,eig_res,
-     >  eigval,eigvec,dxp,gradp,w2)
-c  Solve linear equation in Davidson subspace.
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,            &
+     &  solp,solp_res,eig,eig_res,                                      &
+     &  eigval,eigvec,dxp,gradp,w2)
+!  Solve linear equation in Davidson subspace.
       implicit real*8 (a-h,o-z)
 #include "direct_cvb.fh"
 #include "locopt1_cvb.fh"
@@ -88,17 +88,17 @@ c  Solve linear equation in Davidson subspace.
         gnrm=dnrm2_(itdav,gradp,1)
         if(cnrm.gt.1d-15.and.gnrm.gt.1d-15.and.safety_use.ne.1d-4)then
           ovr_dx_grad=ddot_(itdav,dxp,1,gradp,1)/(cnrm*gnrm)
-          if(ovr_dx_grad.lt..3d0)then
+          if(ovr_dx_grad.lt. .3d0)then
             safety_use=1d-4
             goto 200
           endif
         endif
       endif
 
-      call makedx_cvb(solp,itdav,0,
-     >  eigvec,eigval,dxp,gradp,w2,
-     >  .false.,.false.,nposeig,.false.,
-     >  .false.,nnegeig,.false.,alfastart,eig)
+      call makedx_cvb(solp,itdav,0,                                     &
+     &  eigvec,eigval,dxp,gradp,w2,                                     &
+     &  .false.,.false.,nposeig,.false.,                                &
+     &  .false.,nnegeig,.false.,alfastart,eig)
 
       eig_res=eig
       call fmove_cvb(solp,solp_res,itdav)
@@ -108,6 +108,6 @@ c  Solve linear equation in Davidson subspace.
         call vecprint_cvb(solp,itdav)
       endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(nfrdim1)
       end

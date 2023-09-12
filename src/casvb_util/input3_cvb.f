@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine input3_cvb(
-     >  iorbrel,mxdimrel,ifxorb,ifxstr,
-     >  izrstr,iorts,irots,izeta,
-     >  ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine input3_cvb(                                            &
+     &  iorbrel,mxdimrel,ifxorb,ifxstr,                                 &
+     &  izrstr,iorts,irots,izeta,                                       &
+     &  ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
       implicit real*8 (a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: valid_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -26,8 +26,8 @@ c ... Files/Hamiltonian available ...
 #include "inpmod_cvb.fh"
 #include "spinb_cvb.fh"
 #include "WrkSpc.fh"
-      parameter (nglob=5,nstrin=51,nendvb=3,nspec=3,
-     >  ncrit=2,nmeth=12,nwkw=5,ncmp=4)
+      parameter (nglob=5,nstrin=51,nendvb=3,nspec=3,                    &
+     &  ncrit=2,nmeth=12,nwkw=5,ncmp=4)
       character*8 global,string,endvb,specl
       character*8 crit,weightkw,methkw
       character*50 inpstr
@@ -43,29 +43,29 @@ c ... Files/Hamiltonian available ...
       dimension idum(1)
       save global,string,endvb,specl
       save crit,weightkw,methkw
-      data global/'XXXXxxxx','START   ','GUESS   ','PRINT   ',
-     >            'PREC    '/
-      data string/'XXXXxxxx','XXXXxxxx','SAVE    ','XXXXxxxx',
-     >            'ORBPERM ','COUPLE  ','MAXITER ','CRIT    ',
-     >            'CASPROJ ','PROJCAS ','NOCASPRO','NOPROJCA',
-     >            'XXXXxxxx','XXXXxxxx','SYMELM  ','ORBREL  ',
-     >            'XXXXxxxx','SYMPROJ ','NOSYMPRO','FIXORB  ',
-     >            'FIXSTRUC','DELSTRUC','FREORB  ','FRESTRUC',
-     >            'ORTHCON ','SADDLE  ','SHSTRUC ','VBWEIGHT',
-     >            'CIWEIGHT','SCORR   ','NOSCORR ','METHOD  ',
-     >            'OPTIM   ','OPT     ','ENDOPTIM','REPORT  ',
-     >            'ENDREPOR','XXXXxxxx','TUNE    ','XXXXxxxx',
-     >            'OPPOSITE','XXXXxxxx','XXXXxxxx','STAT    ',
-     >            'INIT    ','NOINIT  ','TIDY    ','PLOC    ',
-     >            'NOPLOC  ','ALTERNAT','ENDALTER'/
+      data global/'XXXXxxxx','START   ','GUESS   ','PRINT   ',          &
+     &            'PREC    '/
+      data string/'XXXXxxxx','XXXXxxxx','SAVE    ','XXXXxxxx',          &
+     &            'ORBPERM ','COUPLE  ','MAXITER ','CRIT    ',          &
+     &            'CASPROJ ','PROJCAS ','NOCASPRO','NOPROJCA',          &
+     &            'XXXXxxxx','XXXXxxxx','SYMELM  ','ORBREL  ',          &
+     &            'XXXXxxxx','SYMPROJ ','NOSYMPRO','FIXORB  ',          &
+     &            'FIXSTRUC','DELSTRUC','FREORB  ','FRESTRUC',          &
+     &            'ORTHCON ','SADDLE  ','SHSTRUC ','VBWEIGHT',          &
+     &            'CIWEIGHT','SCORR   ','NOSCORR ','METHOD  ',          &
+     &            'OPTIM   ','OPT     ','ENDOPTIM','REPORT  ',          &
+     &            'ENDREPOR','XXXXxxxx','TUNE    ','XXXXxxxx',          &
+     &            'OPPOSITE','XXXXxxxx','XXXXxxxx','STAT    ',          &
+     &            'INIT    ','NOINIT  ','TIDY    ','PLOC    ',          &
+     &            'NOPLOC  ','ALTERNAT','ENDALTER'/
       data endvb/ 'ENDVB   ','ENDCASVB','END     '/
       data specl/ 'SERVICE ','MOSCOW  ','PERFLOC '/
       data crit/  'OVERLAP ','ENERGY  '/
-      data weightkw/'CHIRGWIN','LOWDIN  ','INVERSE ','NONE    ',
-     >              'ALL     '/
-      data methkw/'FLETCHER','TRIM    ','TRUSTOPT','DAVIDSON',
-     >            'STEEP   ','VB2CAS  ','AUGHESS ','AUG2    ',
-     >            'CHECK   ','DFLETCH ','NONE    ','SUPER   '/
+      data weightkw/'CHIRGWIN','LOWDIN  ','INVERSE ','NONE    ',        &
+     &              'ALL     '/
+      data methkw/'FLETCHER','TRIM    ','TRUSTOPT','DAVIDSON',          &
+     &            'STEEP   ','VB2CAS  ','AUGHESS ','AUG2    ',          &
+     &            'CHECK   ','DFLETCH ','NONE    ','SUPER   '/
 
 
       Call DecideOnCholesky(DoCholesky)
@@ -76,13 +76,13 @@ c ... Files/Hamiltonian available ...
 
       call fstring_cvb(specl,nspec,istr,ncmp,2)
       if(istr.eq.1)then
-c 'SERVICE'
+! 'SERVICE'
         service=.true.
         write(6,'(1x,a,/)') '**** Service mode **** '
         call service_cvb()
         return
       elseif(istr.eq.2)then
-c 'MOSCOW'
+! 'MOSCOW'
         service=.true.
         write(6,'(1x,a,/)') '**** MOSCOW mode **** '
         call moscow_cvb()
@@ -97,9 +97,9 @@ c 'MOSCOW'
 
 1000  continue
 
-c  CASSCF wavefunction information :
+!  CASSCF wavefunction information :
       call casinfoinp_cvb()
-c  VB wavefunction information :
+!  VB wavefunction information :
       call fraginp_cvb(ip_iconfs)
 
       igroup=0
@@ -120,13 +120,13 @@ c  VB wavefunction information :
       endif
 1110  continue
       if(igroup.eq.3)then
-c 'ENDVB', 'ENDCASVB' or 'END'
+! 'ENDVB', 'ENDCASVB' or 'END'
         istr=0
       endif
 
       if(igroup.eq.2)goto 1111
       if(istr.eq.2)then
-c 'START'
+! 'START'
         strtvb=zero
 520     call string_cvb(inpstr,1,nread,1)
         if(nread.eq.1)then
@@ -144,18 +144,18 @@ c 'START'
             goto 520
           endif
         endif
-        if(valid_cvb(strtvb).and.firsttime_cvb())
-     >    call touch_cvb('STRTGS')
+        if(valid_cvb(strtvb).and.firsttime_cvb())                       &
+     &    call touch_cvb('STRTGS')
       elseif(istr.eq.3)then
-c 'GUESS'
-        call gsinp_cvb(
-     >    orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,
-     >    mxaobf,mxorb_cvb,kbasis,strtvb)
+! 'GUESS'
+        call gsinp_cvb(                                                 &
+     &    orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,                     &
+     &    mxaobf,mxorb_cvb,kbasis,strtvb)
       elseif(istr.eq.4)then
-c 'PRINT'
+! 'PRINT'
         call int_cvb(ip,10,nread,1)
       elseif(istr.eq.5)then
-c 'PREC'
+! 'PREC'
         call int_cvb(idum,1,nread,1)
         iprec=idum(1)
         if(iprec.lt.0)then
@@ -167,14 +167,14 @@ c 'PREC'
         call formats_cvb()
       endif
 
-c 'ENDVB', 'ENDCASVB' , 'END' or unrecognized keyword -- end of input :
+! 'ENDVB', 'ENDCASVB' , 'END' or unrecognized keyword -- end of input :
       if(istr.ne.0)goto 1000
 1111  continue
 
       if(istr.eq.1)then
       elseif(istr.eq.2)then
       elseif(istr.eq.3)then
-c 'SAVE'
+! 'SAVE'
 1520    call string_cvb(inpstr,1,nread,1)
         if(nread.eq.1)then
           if(inpstr(1:5).eq.'VBCI=')then
@@ -187,7 +187,7 @@ c 'SAVE'
         endif
       elseif(istr.eq.4)then
       elseif(istr.eq.5)then
-c 'ORBPERM'
+! 'ORBPERM'
         if(firsttime_cvb())call touch_cvb('ORBPERM')
         call int_cvb(iorbprm,mxorb_cvb,nread,0)
         if(nread.gt.mxorb_cvb)then
@@ -195,50 +195,50 @@ c 'ORBPERM'
           call abend_cvb()
         endif
         do 13350 iorb=1,nread
-        if(abs(iorbprm(iorb)).lt.1.or.abs(iorbprm(iorb)).gt.mxorb_cvb)
-     >    then
-          write(6,'(a,40i3)')' Illegal orbital label(s) in ORBPERM:',
-     >      (iorbprm(ior),ior=1,nread)
+        if(abs(iorbprm(iorb)).lt.1.or.abs(iorbprm(iorb)).gt.mxorb_cvb)  &
+     &    then
+          write(6,'(a,40i3)')' Illegal orbital label(s) in ORBPERM:',   &
+     &      (iorbprm(ior),ior=1,nread)
           call abend_cvb()
         endif
 13350   continue
       elseif(istr.eq.6)then
-c 'COUPLE'
+! 'COUPLE'
         kbasis_old=kbasis
         call fstring_cvb(spinbkw,nspinb,kbasis,ncmp,1)
         if(kbasis.eq.0)kbasis=kbasis_old
         if(kbasis.eq.7)kbasis=6
       elseif(istr.eq.7)then
-c  'MAXITER'
+!  'MAXITER'
         call int_cvb(idum,1,nread,0)
         mxiter=idum(1)
       elseif(istr.eq.8)then
-c 'CRIT'
+! 'CRIT'
         call fstring_cvb(crit,ncrit,icrit,ncmp,1)
         if(icrit.ne.1.and.icrit.ne.2)then
           write(6,*)' Unrecognized CRIT keyword!'
           call abend_cvb()
         endif
       elseif(istr.eq.9.or.istr.eq.10)then
-c 'CASPROJ' or 'PROJCAS'
+! 'CASPROJ' or 'PROJCAS'
         projcas=.true.
       elseif(istr.eq.11.or.istr.eq.12)then
-c 'NOCASPROJ' or 'NOPROJCAS'
+! 'NOCASPROJ' or 'NOPROJCAS'
         projcas=.false.
       elseif(istr.eq.15)then
-c 'SYMELM'
-        call symelminp_cvb(ip_symelm,nsyme,tags,izeta,
-     >    mxirrep,mxorb_cvb,mxsyme,ityp)
+! 'SYMELM'
+        call symelminp_cvb(ip_symelm,nsyme,tags,izeta,                  &
+     &    mxirrep,mxorb_cvb,mxsyme,ityp)
       elseif(istr.eq.16)then
-c 'ORBREL'
+! 'ORBREL'
         iorb=0
         jorb=0
         call int_cvb(idum,1,nread,1)
         iorb=idum(1)
         call int_cvb(idum,1,nread,1)
         jorb=idum(1)
-        if(iorb.lt.1.or.iorb.gt.mxorb_cvb.or.jorb.lt.1.or.
-     >     jorb.gt.mxorb_cvb)then
+        if(iorb.lt.1.or.iorb.gt.mxorb_cvb.or.jorb.lt.1.or.              &
+     &     jorb.gt.mxorb_cvb)then
           write(6,*)' Illegal orbital number(s) in ORBREL:',iorb,jorb
           call abend_cvb()
         endif
@@ -259,7 +259,7 @@ c 'ORBREL'
         norbrel=norbrel+1
         ndimrel=ndimrel+3+nops
       elseif(istr.eq.18)then
-c 'SYMPROJ'
+! 'SYMPROJ'
         projsym=.true.
         call izero(isympr,mxirrep)
         call int_cvb(idum,1,nread,1)
@@ -276,10 +276,10 @@ c 'SYMPROJ'
           call imove_cvb(isymv,isympr,mxirrep)
         endif
       elseif(istr.eq.19)then
-c 'NOSYMPROJ'
+! 'NOSYMPROJ'
         projsym=.false.
       elseif(istr.eq.20)then
-c 'FIXORB'
+! 'FIXORB'
         itmp = mstacki_cvb(mxorb_cvb)
         call intchk_cvb(iwork(itmp),mxorb_cvb,nfxorb,0,'FIXORB',-1)
         call izero(ifxorb,mxorb_cvb)
@@ -288,7 +288,7 @@ c 'FIXORB'
 15340   continue
         call mfreei_cvb(itmp)
       elseif(istr.eq.21)then
-c 'FIXSTRUC'
+! 'FIXSTRUC'
         lfxvb=0
         call mhpfreei_cvb(ifxstr)
         mxread=mavaili_cvb()/2
@@ -296,7 +296,7 @@ c 'FIXSTRUC'
         call intchk_cvb(iwork(ifxstr),mxread,nfxvb,0,'FIXSTRUC',lfxvb)
         call mrealloci_cvb(ifxstr,nfxvb)
       elseif(istr.eq.22)then
-c 'DELSTRUC'
+! 'DELSTRUC'
         lzrvb=0
         call mhpfreei_cvb(izrstr)
         mxread=mavaili_cvb()/2
@@ -304,7 +304,7 @@ c 'DELSTRUC'
         call intchk_cvb(iwork(izrstr),mxread,nzrvb,0,'DELSTRUC',lzrvb)
         call mrealloci_cvb(izrstr,nzrvb)
       elseif(istr.eq.23)then
-c 'FREORB' - not implemented
+! 'FREORB' - not implemented
         itmp = mstacki_cvb(mxorb_cvb)
         call intchk_cvb(iwork(itmp),mxorb_cvb,nfrorb1,0,'FREORB',-1)
         itmp2 = mstackiz_cvb(mxorb_cvb)
@@ -321,7 +321,7 @@ c 'FREORB' - not implemented
         call mfreei_cvb(itmp)
         nfxorb=max(nfxorb,nfxorb1)
       elseif(istr.eq.24)then
-c 'FRESTRUC' - not implemented (and code incomplete)
+! 'FRESTRUC' - not implemented (and code incomplete)
         lfxvb=1
         call mhpfreei_cvb(ifxstr)
         mxread=mavaili_cvb()/2
@@ -329,7 +329,7 @@ c 'FRESTRUC' - not implemented (and code incomplete)
         call intchk_cvb(iwork(ifxstr),mxread,nfxvb,0,'FRESTRUC',lfxvb)
         call mrealloci_cvb(ifxstr,nfxvb)
       elseif(istr.eq.25)then
-c 'ORTHCON'
+! 'ORTHCON'
         mxgroup=40
         mxortl=40
         mxpair=mxorb_cvb*(mxorb_cvb-1)/2
@@ -337,18 +337,18 @@ c 'ORTHCON'
         itmpb = mstacki_cvb(mxorb_cvb*mxgroup)
         itmpc = mstacki_cvb(mxgroup)
         itmpd = mstacki_cvb(mxortl)
-        call orthcon_cvb(iorts,iwork(itmpa),iwork(itmpb),iwork(itmpc),
-     >  iwork(itmpd),mxortl,mxpair)
+        call orthcon_cvb(iorts,iwork(itmpa),iwork(itmpb),iwork(itmpc),  &
+     &  iwork(itmpd),mxortl,mxpair)
         call mfreei_cvb(itmpa)
       elseif(istr.eq.26)then
-c 'SADDLE'
+! 'SADDLE'
         call int_cvb(idum,1,nread,1)
         isaddle=idum(1)
       elseif(istr.eq.27)then
-c 'SHSTRUC'
+! 'SHSTRUC'
         ishstruc=1
       elseif(istr.eq.28)then
-c 'VBWEIGHT'
+! 'VBWEIGHT'
         ivbweights=0
 15600   call fstring_cvb(weightkw,nwkw,istr2,ncmp,1)
         if(istr2.eq.1)then
@@ -364,7 +364,7 @@ c 'VBWEIGHT'
         endif
         if(istr2.gt.0)goto 15600
       elseif(istr.eq.29)then
-c 'CIWEIGHT'
+! 'CIWEIGHT'
         npcf=10
         iciweights=0
 15700   call fstring_cvb(weightkw,nwkw,istr2,ncmp,1)
@@ -383,70 +383,70 @@ c 'CIWEIGHT'
         call int_cvb(idum,1,nread,1)
         npcf=idum(1)
       elseif(istr.eq.30)then
-c 'SCORR'
+! 'SCORR'
         sij=.true.
       elseif(istr.eq.31)then
-c 'NOSCORR'
+! 'NOSCORR'
         sij=.false.
       elseif(istr.eq.32)then
-c 'METHOD'
+! 'METHOD'
         call fstring_cvb(methkw,nmeth,istr2,ncmp,1)
         if(istr2.ne.0)then
           imethod=istr2
         endif
       elseif(istr.eq.33.or.istr.eq.34)then
-c 'OPTIM' or 'OPT'
+! 'OPTIM' or 'OPT'
         call maxdims_cvb()
         call loopcntr_cvb(1)
       elseif(istr.eq.35)then
-c 'ENDOPTIM'
+! 'ENDOPTIM'
         call maxdims_cvb()
         call loopcntr_cvb(2)
       elseif(istr.eq.36)then
-c 'REPORT '
+! 'REPORT '
         call maxdims_cvb()
         call loopcntr_cvb(3)
       elseif(istr.eq.37)then
-c 'ENDREPOR'
+! 'ENDREPOR'
         call maxdims_cvb()
         call loopcntr_cvb(4)
       elseif(istr.eq.39)then
-c 'TUNE'
+! 'TUNE'
         call tuneinp_cvb()
       elseif(istr.eq.41)then
-c 'OPPOSITE'
+! 'OPPOSITE'
         opposite=.true.
       elseif(istr.eq.44)then
-c 'STAT'
+! 'STAT'
         if(firsttime_cvb())call touch_cvb('STAT')
       elseif(istr.eq.45)then
-c 'INIT'
+! 'INIT'
         initial=1
       elseif(istr.eq.46)then
-c 'NOINIT'
+! 'NOINIT'
         initial=0
       elseif(istr.eq.47)then
-c 'TIDY'
+! 'TIDY'
       elseif(istr.eq.48)then
-c 'PLOC'
+! 'PLOC'
         ploc=.true.
       elseif(istr.eq.49)then
-c 'NOPLOC'
+! 'NOPLOC'
         ploc=.false.
       elseif(istr.eq.50)then
-c 'ALTERN'
+! 'ALTERN'
         mxalter=50
         call int_cvb(idum,1,nread,1)
         mxalter=idum(1)
         call loopcntr2_cvb(5,mxalter)
       elseif(istr.eq.51)then
-c 'ENDALTER'
+! 'ENDALTER'
         call loopcntr_cvb(6)
       endif
 
-c 'ENDVB', 'ENDCASVB' , 'END' or unrecognized keyword -- end of input :
+! 'ENDVB', 'ENDCASVB' , 'END' or unrecognized keyword -- end of input :
       if(istr.ne.0)goto 1000
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer_array(irots)
       end

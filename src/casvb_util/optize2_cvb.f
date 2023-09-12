@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine optize2_cvb(fx,nparm,ioptc,
-     >  dx,grad,iter_is_1,
-     >  opta,optb)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine optize2_cvb(fx,nparm,ioptc,                            &
+     &  dx,grad,iter_is_1,                                              &
+     &  opta,optb)
       implicit real*8 (a-h,o-z)
       logical opth,skipupd,first_time
       logical iter_is_1,close2conv_begin
@@ -33,7 +33,7 @@
       converged=.false.
       if(iter_is_1)close2conv=.false.
 
-c  << Initialization >>
+!  << Initialization >>
       call grad_cvb(grad)
       call ddproj_cvb(grad,nparm)
       grdnrm=dnrm2_(nparm,grad,1)
@@ -41,16 +41,16 @@ c  << Initialization >>
 
       if(ip.ge.2)write(6,'(/a)')' *****   2. order optimizer   *****'
 
-c  << Now trust region control >>
+!  << Now trust region control >>
       exp_tc=exp
       first_time=.true.
       opth=.false.
       iopth=0
-100   call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,
-     >  hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
+100   call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,                   &
+     &  hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
       if(ioptc.eq.-2)return
 
-c    << Make update >>
+!    << Make update >>
       if(.not.(skipupd.or.hh.eq.zero))then
 
 200     close2conv_begin=close2conv
@@ -60,19 +60,19 @@ c    << Make update >>
         if(first_time)then
           first_time=.false.
 
-          call testconv_cvb(fx,nparm,
-     >      dx,grad,exp_tc,
-     >      close2conv,converged,wrongstat)
+          call testconv_cvb(fx,nparm,                                   &
+     &      dx,grad,exp_tc,                                             &
+     &      close2conv,converged,wrongstat)
 
-          if(close2conv.and..not.close2conv_begin)goto 200
+          if(close2conv.and. .not.close2conv_begin)goto 200
         endif
-        if((ip.eq.2.and..not.opth).or.ip.ge.3)then
+        if((ip.eq.2.and. .not.opth).or.ip.ge.3)then
           s11=ddot_(nparm,dx,1,dx,1)
           s22=ddot_(nparm,grad,1,grad,1)
           s12=ddot_(nparm,dx,1,grad,1)
-          write(6,formAD)
-     >      ' Overlap between normalized vectors <DX|GRAD> :',
-     >      s12/sqrt(s11*s22)
+          write(6,formAD)                                               &
+     &      ' Overlap between normalized vectors <DX|GRAD> :',          &
+     &      s12/sqrt(s11*s22)
         endif
         call fxdx_cvb(fx,.false.,dx)
       endif

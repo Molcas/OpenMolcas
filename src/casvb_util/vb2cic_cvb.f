@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine vb2cic_cvb(cvbdet,civec)
-c  *********************************************************************
-c  *                                                                   *
-c  *  VB2CI[CFG] := VB to CASSCF transformation.                       *
-c  *  CI2VB[CFG] := CASSCF to VB transformation.                       *
-c  *  VB2CIAF    := Adds first-order term in CVBDET to CAS CI vector.  *
-c  *                                                                   *
-c  *  Transformation between VB vector and CASSCF vector (both defined *
-c  *  in determinant basis).                                           *
-c  *                                                                   *
-c  *  Normally a simple indexed copy of the coefficients is all that   *
-c  *  is required. For direct-product wavefunctions, however, a        *
-c  *  partial contraction is also carried out (relevant for first-     *
-c  *  order changes and gradient back transformation).                 *
-c  *                                                                   *
-c  *  [C] : Transforms coefficients.                                   *
-c  *  [F] : Transforms a first-order change of the coefficients.       *
-c  *  [G] : Transforms a gradient-type quantity.                       *
-c  *                                                                   *
-c  *********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  VB2CI[CFG] := VB to CASSCF transformation.                       *
+!  *  CI2VB[CFG] := CASSCF to VB transformation.                       *
+!  *  VB2CIAF    := Adds first-order term in CVBDET to CAS CI vector.  *
+!  *                                                                   *
+!  *  Transformation between VB vector and CASSCF vector (both defined *
+!  *  in determinant basis).                                           *
+!  *                                                                   *
+!  *  Normally a simple indexed copy of the coefficients is all that   *
+!  *  is required. For direct-product wavefunctions, however, a        *
+!  *  partial contraction is also carried out (relevant for first-     *
+!  *  order changes and gradient back transformation).                 *
+!  *                                                                   *
+!  *  [C] : Transforms coefficients.                                   *
+!  *  [F] : Transforms a first-order change of the coefficients.       *
+!  *  [G] : Transforms a gradient-type quantity.                       *
+!  *                                                                   *
+!  *********************************************************************
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -49,11 +49,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
-     >    iwork(ll(11)),iwork(ll(12)),dum,1)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,                  &
+     &    iwork(ll(11)),iwork(ll(12)),dum,1)
       else
-        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
-     >                   dum,1)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,  &
+     &                   dum,1)
       endif
       call setcnt2_cvb(icivec,0)
       return
@@ -78,11 +78,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
-     >    iwork(ll(11)),iwork(ll(12)),dum,1)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,                  &
+     &    iwork(ll(11)),iwork(ll(12)),dum,1)
       else
-        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
-     >                   dum,1)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,  &
+     &                   dum,1)
       endif
       call setcnt2_cvb(icivec,0)
       return
@@ -107,11 +107,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
-     >    iwork(ll(11)),iwork(ll(12)),dum,0)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,                  &
+     &    iwork(ll(11)),iwork(ll(12)),dum,0)
       else
-        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
-     >                   dum,0)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,  &
+     &                   dum,0)
       endif
       return
       end
@@ -136,11 +136,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
-     >    iwork(ll(11)),iwork(ll(12)),dum,0)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,                  &
+     &    iwork(ll(11)),iwork(ll(12)),dum,0)
       else
-        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
-     >                   dum,0)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,  &
+     &                   dum,0)
       endif
       return
       end
@@ -161,11 +161,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
-     >    iwork(ll(11)),iwork(ll(12)),dum,2)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,                  &
+     &    iwork(ll(11)),iwork(ll(12)),dum,2)
       else
-        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),1,
-     >                   dum,2)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),1,   &
+     &                   dum,2)
       endif
       call setcnt2_cvb(icivec,0)
       return

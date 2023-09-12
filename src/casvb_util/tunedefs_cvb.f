@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine tunedefs_cvb()
       implicit real*8 (a-h,o-z)
       logical endifclose1
@@ -23,8 +23,8 @@
       data small/1d-3/,small2/1d-5/,smaller/1d-6/,smallest/1d-10/
       data zero/0d0/
 
-c  General defaults
-c  << TUNE_CVB common block : >>
+!  General defaults
+!  << TUNE_CVB common block : >>
       cnrmtol=1.d-9
       safety=1d-7
       signtol=1.d-3
@@ -35,14 +35,14 @@ c  << TUNE_CVB common block : >>
       eigwrngtol=-huge
       lastupd=.true.
       endifclose=.false.
-c  << TOLS_CVB common block : >>
-c  (*,1) ... global region, non-singular Hessian
-c  (*,2) ... global region, singular Hessian
-c  (*,3) ... local region, non-singular Hessian
-c  (*,4) ... local region, singular Hessian
-c  (*,5) ... wrong stationary point, non-singular Hessian
-c  (*,6) ... wrong stationary point, singular Hessian
-c  First set values that disable tests :
+!  << TOLS_CVB common block : >>
+!  (*,1) ... global region, non-singular Hessian
+!  (*,2) ... global region, singular Hessian
+!  (*,3) ... local region, non-singular Hessian
+!  (*,4) ... local region, singular Hessian
+!  (*,5) ... wrong stationary point, non-singular Hessian
+!  (*,6) ... wrong stationary point, singular Hessian
+!  First set values that disable tests :
       singul(1)=-huge
       singul(2)=-huge
       singul(3)=-huge
@@ -56,7 +56,7 @@ c  First set values that disable tests :
       grd(i,j)=huge
 101   continue
 100   continue
-c  << TRST_CVB common block : >>
+!  << TRST_CVB common block : >>
       scalesmall(1)=.false.
       nopth1(1)=1
       nopth2(1)=0
@@ -98,7 +98,7 @@ c  << TRST_CVB common block : >>
       zzrejmin(2)=-huge
       zzrejmax(2)=huge
       hhstart=1d0
-c  << DAVTUNE common block : >>
+!  << DAVTUNE common block : >>
       resthr=5d-6
       orththr=smallest
       nortiter=50
@@ -106,12 +106,12 @@ c  << DAVTUNE common block : >>
       follow=.false.
       return
       entry tunedefs2_cvb(imethod,endifclose1)
-c  << TUNE_CVB common block : >>
+!  << TUNE_CVB common block : >>
       endifclose=endifclose1
       if(imethod.eq.1.or.imethod.eq.10)then
-c  'FLETCHER'
+!  'FLETCHER'
         exp12tol=zero
-c  Criteria for entering local region :
+!  Criteria for entering local region :
         grd(1,1)=5d-4
         grd(1,2)=5d-4
         sign(1)=smaller
@@ -119,13 +119,13 @@ c  Criteria for entering local region :
         singul(1)=1d-2
         zzmin(1)=-small
         zzmin(2)=-small
-c  Final convergence criteria :
+!  Final convergence criteria :
         grd(1,3)=5d-6
         grd(1,4)=5d-6
         dx(1,3)=5d-6
         dx(1,4)=1d-4
         singul(2)=1d-2
-c  << TRST_CVB common block : >>
+!  << TRST_CVB common block : >>
         scalesmall(1)=.false.
         nopth1(1)=1
         nopth2(1)=0
@@ -147,9 +147,9 @@ c  << TRST_CVB common block : >>
         dfxmin(2)=zero
       endif
       if(imethod.eq.2)then
-c  'TRIM'
+!  'TRIM'
         exp12tol=zero
-c  Criteria for entering local region :
+!  Criteria for entering local region :
         grd(1,1)=5d-6
         grd(1,2)=5d-6
         sign(1)=smaller
@@ -157,11 +157,11 @@ c  Criteria for entering local region :
         singul(1)=small
         zzmin(1)=-small
         zzmin(2)=-small
-c  Final convergence criteria :
+!  Final convergence criteria :
         dx(1,3)=5d-6
         dx(1,4)=1d-4
         singul(2)=small2
-c  << TRST_CVB common block : >>
+!  << TRST_CVB common block : >>
         scalesmall(1)=.false.
         nopth1(1)=1
         nopth2(1)=0
@@ -182,9 +182,9 @@ c  << TRST_CVB common block : >>
         hhtol(2)=1d-10
       endif
       if(imethod.eq.3)then
-c  'TRUSTOPT'
-c  << TOLS_CVB common block : >>
-c  Criteria for entering local region :
+!  'TRUSTOPT'
+!  << TOLS_CVB common block : >>
+!  Criteria for entering local region :
         grd(1,1)=5d-6
         grd(1,2)=5d-6
         sign(1)=smaller
@@ -192,11 +192,11 @@ c  Criteria for entering local region :
         singul(1)=small
         zzmin(1)=-small
         zzmin(2)=-small
-c  Final convergence criteria :
+!  Final convergence criteria :
         dx(1,3)=5d-6
         dx(1,4)=1d-4
         singul(2)=small2
-c  << TRST_CVB common block : >>
+!  << TRST_CVB common block : >>
         scalesmall(1)=.true.
         nopth1(1)=5
         nopth2(1)=2
@@ -215,19 +215,19 @@ c  << TRST_CVB common block : >>
         dfxmin(2)=zero
       endif
       if(imethod.eq.4)then
-c  'DAVIDSON'
+!  'DAVIDSON'
         resthr=1d-6
       endif
       if(imethod.eq.5)then
-c  'STEEP'
+!  'STEEP'
         exp12tol=zero
-c  Criteria for entering local region :
+!  Criteria for entering local region :
         grd(1,1)=5d-6
         grd(1,2)=5d-6
         zzmin(1)=-small
         zzmin(2)=-small
-c  Final convergence criteria :
-c  << TRST_CVB common block : >>
+!  Final convergence criteria :
+!  << TRST_CVB common block : >>
         hhstart=.1d0
         scalesmall(1)=.true.
         nopth1(1)=1
@@ -256,11 +256,11 @@ c  << TRST_CVB common block : >>
         hhtol(2)=5.d-6
         hhmax(2)=.5d0
       endif
-      if(imethod.eq.6.or.imethod.eq.7.or.imethod.eq.8
-     >  .or.imethod.eq.10.or.imethod.eq.12)then
-c  'VB2CAS' or 'AUGHESS' or 'AUG2' or 'DFLETCH' or 'SUPER'
+      if(imethod.eq.6.or.imethod.eq.7.or.imethod.eq.8                   &
+     &  .or.imethod.eq.10.or.imethod.eq.12)then
+!  'VB2CAS' or 'AUGHESS' or 'AUG2' or 'DFLETCH' or 'SUPER'
         exp12tol=zero
-c  Criteria for entering local region :
+!  Criteria for entering local region :
         grd(1,1)=5d-4
         grd(1,2)=5d-4
         sign(1)=smaller
@@ -268,15 +268,15 @@ c  Criteria for entering local region :
         singul(1)=small
         zzmin(1)=-small
         zzmin(2)=-small
-c  Final convergence criteria :
+!  Final convergence criteria :
         grd(1,3)=5d-6
         grd(1,4)=5d-6
-cvv
-c        dx(1,3)=5d-6
+!vv
+!        dx(1,3)=5d-6
         dx(1,3)=5d-5
         dx(1,4)=1d-4
         singul(2)=small2
-c  << TRST_CVB common block : >>
+!  << TRST_CVB common block : >>
         scalesmall(1)=.false.
         nopth1(1)=1
         nopth2(1)=0

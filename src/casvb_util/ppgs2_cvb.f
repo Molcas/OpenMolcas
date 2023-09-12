@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine ppgs2_cvb(cvb,cvbdet,ifnss)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
@@ -23,8 +23,8 @@
 #include "WrkSpc.fh"
       dimension cvb(nvb),cvbdet(ndetvb),ifnss(0:nel,0:nel)
 
-c  First applicable configuration with first possible spin in
-c  each fragment is set to perfect-pairing:
+!  First applicable configuration with first possible spin in
+!  each fragment is set to perfect-pairing:
       call dcopy_(nvb,[1d-2],0,cvb,1)
       ioffs_cvb=0
       icoffs_nconf=0
@@ -46,5 +46,5 @@ c  each fragment is set to perfect-pairing:
       call vb2strc_cvb(cvbdet,cvb)
       return
       end
-c  Changes phases between alpha-beta separated determinants, and
-c  determinants with increasing orbital numbers:
+!  Changes phases between alpha-beta separated determinants, and
+!  determinants with increasing orbital numbers:

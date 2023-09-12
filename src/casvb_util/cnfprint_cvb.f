@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine cnfprint_cvb()
       implicit real*8 (a-h,o-z)
-c ... Make: up to date? ...
+! ... Make: up to date? ...
       logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -48,19 +48,19 @@ c ... Make: up to date? ...
         endif
         nconf_off=0
         do 300 ifrag=1,nfrag
-        if(nfrag.gt.1)write(6,'(/,a,i3)')
-     >    ' Configuration list for wavefunction fragment',ifrag
+        if(nfrag.gt.1)write(6,'(/,a,i3)')                               &
+     &    ' Configuration list for wavefunction fragment',ifrag
         write(6,'(/,a)')' Spatial VB configurations'
         write(6,'(a)')' -------------------------'
         write(6,'(a)')'     Conf. =>   Orbitals'
-        call cnfprt_cvb(iwork(noe*nconf_off+i1),
-     >    nconf_fr(ifrag),nel_fr(ifrag))
-        write(6,'(/,a,i6)')' Number of VB configurations :',
-     >    nconf_fr(ifrag)
-        write(6,'(a,i6)')  '           VB structures     :',
-     >    nvbr_fr(ifrag)
-        write(6,'(a,i6)')  '           VB determinants   :',
-     >    ndetvb_fr(ifrag)
+        call cnfprt_cvb(iwork(noe*nconf_off+i1),                        &
+     &    nconf_fr(ifrag),nel_fr(ifrag))
+        write(6,'(/,a,i6)')' Number of VB configurations :',            &
+     &    nconf_fr(ifrag)
+        write(6,'(a,i6)')  '           VB structures     :',            &
+     &    nvbr_fr(ifrag)
+        write(6,'(a,i6)')  '           VB determinants   :',            &
+     &    ndetvb_fr(ifrag)
         nconf_off=nconf_off+nconf_fr(ifrag)
 300     continue
         call mfreei_cvb(i1)

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine initopt_cvb(icrit,lfxvb,nfxvb,iorts,nort,norb)
       implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
@@ -18,11 +18,11 @@
 #include "initopt_cvb.fh"
       dimension iorts(2,*)
 
-c  IOPTCODE    +1  = REPORT
-c              +2  = OPTIM
-c              +4  = Svb
-c              +8  = freeze structure coefficients
-c              +16 = strong-orthogonality constraints
+!  IOPTCODE    +1  = REPORT
+!              +2  = OPTIM
+!              +4  = Svb
+!              +8  = freeze structure coefficients
+!              +16 = strong-orthogonality constraints
 
       if(ioptim.eq.0) return
 

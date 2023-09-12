@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine applyt2_cvb(vec,gjorb,igjorb,
-     > i1alf,i1bet,iato,ibto,phato,phbto)
-c  Apply T(O) to the vector VEC. O is defined in terms of GJORB.
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine applyt2_cvb(vec,gjorb,igjorb,                          &
+     & i1alf,i1bet,iato,ibto,phato,phbto)
+!  Apply T(O) to the vector VEC. O is defined in terms of GJORB.
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -33,7 +33,7 @@ c  Apply T(O) to the vector VEC. O is defined in terms of GJORB.
       jorb=igjorb(1,ij)
       scale=gjorb(ij)
       if(iorb.ne.jorb.and.abs(scale).gt.thresh)then
-c  a) Alpha excitation
+!  a) Alpha excitation
         if(absym(2))then
           do 1100 ia=1,n1a
           iaxtmp=i1alf(ia,iorb)
@@ -42,13 +42,13 @@ c  a) Alpha excitation
             iax=iato(iorb,iaxtmp)
             tcof=scale*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
             if(jax.gt.iax)then
-              call daxpy_(ndb-jax+1,tcof,vec(iax,jax),nda,
-     >          vec(jax,jax),nda)
+              call daxpy_(ndb-jax+1,tcof,vec(iax,jax),nda,              &
+     &          vec(jax,jax),nda)
             else
               call daxpy_(iax-jax,tcof,vec(jax,iax),1,vec(jax,jax),nda)
               vec(jax,iax)=vec(jax,iax)+tcof*vec(iax,iax)
-              if(ndb-iax.gt.0) call daxpy_(ndb-iax,tcof,
-     >          vec(iax,iax+1),nda,vec(jax,iax+1),nda)
+              if(ndb-iax.gt.0) call daxpy_(ndb-iax,tcof,                &
+     &          vec(iax,iax+1),nda,vec(jax,iax+1),nda)
             endif
           endif
 1100      continue
@@ -63,7 +63,7 @@ c  a) Alpha excitation
           endif
 2100      continue
         endif
-c  b) Beta excitation
+!  b) Beta excitation
         if(absym(2))then
           do 3100 ib=1,n1b
           ibxtmp=i1bet(ib,iorb)
@@ -74,8 +74,8 @@ c  b) Beta excitation
             if(jbx.gt.ibx)then
               call daxpy_(ibx-1,tcof,vec(1,ibx),1,vec(1,jbx),1)
               vec(ibx,jbx)=vec(ibx,jbx)+tcof*vec(ibx,ibx)
-              if(jbx-ibx.gt.0) call daxpy_(jbx-ibx,tcof,
-     >          vec(ibx,ibx+1),nda,vec(ibx+1,jbx),1)
+              if(jbx-ibx.gt.0) call daxpy_(jbx-ibx,tcof,                &
+     &          vec(ibx,ibx+1),nda,vec(ibx+1,jbx),1)
             else
               call daxpy_(jbx,tcof,vec(1,ibx),1,vec(1,jbx),1)
             endif
@@ -93,7 +93,7 @@ c  b) Beta excitation
 4100      continue
         endif
       elseif(iorb.eq.jorb.and.abs(scale-one).gt.thresh)then
-c Alpha singly occupied
+! Alpha singly occupied
         if(absym(2))then
           do 5100 ia=1,n1a
           iak=iato(iorb,i1alf(ia,iorb))
@@ -105,7 +105,7 @@ c Alpha singly occupied
           call dscal_(ndb,scale,vec(iak,1),nda)
 5200      continue
         endif
-c Beta singly occupied
+! Beta singly occupied
         if(absym(2))then
           do 5300 ib=1,n1b
           ibk=ibto(iorb,i1bet(ib,iorb))

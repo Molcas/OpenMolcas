@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine change1_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
-c ... Change of dimensioning variables ...
+! ... Change of dimensioning variables ...
       logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -24,8 +24,8 @@ c ... Change of dimensioning variables ...
 #include "frag_cvb.fh"
 #include "rls_cvb.fh"
 
-c  Arrays for determinant handling (E_ij) and definition
-c  of VB wavefunction :
+!  Arrays for determinant handling (E_ij) and definition
+!  of VB wavefunction :
       changed=.false.
       if(chpcmp_cvb(norb))changed=.true.
       if(chpcmp_cvb(nalf))changed=.true.
@@ -50,7 +50,7 @@ c  of VB wavefunction :
       release(1)=.true.
       release(2)=.false.
 
-c  Dimensions
+!  Dimensions
       call icomb_cvb(norb,nalf,nda)
       call icomb_cvb(norb,nbet,ndb)
       do i=1,nfrag
@@ -62,9 +62,9 @@ c  Dimensions
       call icomb_cvb(norb,nalf-1,nam1)
       call icomb_cvb(norb,nbet-1,nbm1)
       ndet = nda*ndb
-c  Symmetry of determinant strings :
+!  Symmetry of determinant strings :
       call getnci_cvb(ncivb,nel,nalf-nbet,0)
-c  Identical indexing arrays may share memory :
+!  Identical indexing arrays may share memory :
       ll(1) = mstacki_cvb(norb*n1a)
       ll(2) = ll(1)
       if(.not.absym(4))ll(2) = mstacki_cvb(norb*n1b)
@@ -75,13 +75,13 @@ c  Identical indexing arrays may share memory :
       ll(6) = ll(5)
       if(.not.absym(4))ll(6) = mstacki_cvb(norb*(nbm1+1))
 
-c  7 & 8 (PHAFRM & PHBFRM) taken out
+!  7 & 8 (PHAFRM & PHBFRM) taken out
 
       ll(9) = mstackr_cvb(norb*nam1)
       ll(10)= ll(9)
       if(.not.absym(4))ll(10)= mstackr_cvb(norb*nbm1)
 
-c  Determinant dimensioning for VB wavefunction :
+!  Determinant dimensioning for VB wavefunction :
       ndavb=0
       ndbvb=0
       naprodvb=1
@@ -107,9 +107,9 @@ c  Determinant dimensioning for VB wavefunction :
       ll(13)= mstacki_cvb(npvb)
       ll(14)= mstacki_cvb(ndb+1)
       ll(15)= mstacki_cvb(nconf*noe)
-c  16 obsolete (former ioncty)
+!  16 obsolete (former ioncty)
       ll(17)= mstacki_cvb(ndetvb)
-c  Use 7 & 8 for IA12IND / IB12IND
+!  Use 7 & 8 for IA12IND / IB12IND
       ll(7)= mstacki_cvb(naprodvb)
       ll(8)= mstacki_cvb(nbprodvb)
 

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine setifinish_cvb(icode)
       implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
@@ -45,17 +45,17 @@
         if(loopstep.eq.0) then
           begbracket=.false.
         else
-          begbracket=
-     >      (icode(loopstep).eq.1.and.icode(loopstep+1).eq.2).or.
-     >      (icode(loopstep).eq.3.and.icode(loopstep+1).eq.4)
+          begbracket=                                                   &
+     &      (icode(loopstep).eq.1.and.icode(loopstep+1).eq.2).or.       &
+     &      (icode(loopstep).eq.3.and.icode(loopstep+1).eq.4)
         endif
 
-        firsttime_cvb=(joptstep.eq.ioptstep-1.or.
-     >    (ioptstep.eq.0.and.joptstep.eq.0)) .or.
-     >    (joptstep.eq.ioptstep.and.begbracket)
+        firsttime_cvb=(joptstep.eq.ioptstep-1.or.                       &
+     &    (ioptstep.eq.0.and.joptstep.eq.0)) .or.                       &
+     &    (joptstep.eq.ioptstep.and.begbracket)
 
-        if(ioptim.gt.1.and.iopt2step(ioptim).eq.iopt2step(ioptim-1))
-     >    firsttime_cvb=.false.
+        if(ioptim.gt.1.and.iopt2step(ioptim).eq.iopt2step(ioptim-1))    &
+     &    firsttime_cvb=.false.
 
         if(istkprobe_cvb(istackrep))then
           call istkpop_cvb(istackrep,nc_zeroed_l)

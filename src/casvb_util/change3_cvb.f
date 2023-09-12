@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine change3_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
-c ... Change of dimensioning variables ...
+! ... Change of dimensioning variables ...
       logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -25,13 +25,13 @@ c ... Change of dimensioning variables ...
 #include "WrkSpc.fh"
 
       changed=.false.
-c Spin functions coefficients (BIKCOF) + inverse (AIKCOF)
-c  Get KBASISCVB if we don't know it already (eqv. to
-c  GETGUESS later):
-c  Need to reserve enough space for both KBASIS and KBASISCVB
-c  --> figure out which one needs most :
-      if((kbasis.gt.2.and.kbasis.ne.6).or.
-     >   (kbasiscvb.gt.2.and.kbasiscvb.ne.6))then
+! Spin functions coefficients (BIKCOF) + inverse (AIKCOF)
+!  Get KBASISCVB if we don't know it already (eqv. to
+!  GETGUESS later):
+!  Need to reserve enough space for both KBASIS and KBASISCVB
+!  --> figure out which one needs most :
+      if((kbasis.gt.2.and.kbasis.ne.6).or.                              &
+     &   (kbasiscvb.gt.2.and.kbasiscvb.ne.6))then
         kmost=3
       elseif(kbasis.le.2.or.kbasiscvb.le.2)then
         kmost=1
@@ -52,8 +52,8 @@ c  --> figure out which one needs most :
       mxfns=iretval1-iretval2
       if(kbasis.eq.5)call icomb_cvb(nel,nalf,mxfns)
       call icomb_cvb(nel,nalf,mxdetvb)
-      if((kbasis.gt.2.and.kbasis.ne.6).or.
-     >   (kbasiscvb.gt.2.and.kbasiscvb.ne.6))then
+      if((kbasis.gt.2.and.kbasis.ne.6).or.                              &
+     &   (kbasiscvb.gt.2.and.kbasiscvb.ne.6))then
         kmost=3
       elseif(kbasis.le.2.or.kbasiscvb.le.2)then
         kmost=1
@@ -71,7 +71,7 @@ c  --> figure out which one needs most :
         lb(1) = mstackr_cvb(1)
         lb(2) = lb(1)
       endif
-c  Flag AIKCOF/BIKCOF as unset :
+!  Flag AIKCOF/BIKCOF as unset :
       work(lb(1))=zero
       work(lb(2))=zero
 

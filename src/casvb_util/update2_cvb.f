@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine update2_cvb(orbs,cvb,orbsp,cvbp,
-     >  sorbs,dxorg,
-     >  ic,
-     >  norb,nvb,nprorb,npr,orbopt,strucopt,sym,
-     >  dx,iorts,nort,sorbsinv)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine update2_cvb(orbs,cvb,orbsp,cvbp,                       &
+     &  sorbs,dxorg,                                                    &
+     &  ic,                                                             &
+     &  norb,nvb,nprorb,npr,orbopt,strucopt,sym,                        &
+     &  dx,iorts,nort,sorbsinv)
       implicit real*8 (a-h,o-z)
       logical orbopt,strucopt,sym
 #include "print_cvb.fh"
@@ -53,7 +53,7 @@
 201     continue
 200     continue
 
-c  2nd-order correction for orthogonality constraints:
+!  2nd-order correction for orthogonality constraints:
         call fmove_cvb(sorbs,sorbsinv,norb*norb)
         call mxinv_cvb(sorbsinv,norb)
         do 500 iort=1,nort
@@ -66,8 +66,8 @@ c  2nd-order correction for orthogonality constraints:
         do 601 l=1,norb-1
         lorb=l
         if(lorb.ge.jorb)lorb=lorb+1
-        sdidj=sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))
-     >    *dx(l+(jorb-1)*(norb-1))
+        sdidj=sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))            &
+     &    *dx(l+(jorb-1)*(norb-1))
 601     continue
 600     continue
         fac=-.5d0*sdidj

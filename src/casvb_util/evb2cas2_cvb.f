@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,
-     >   dxnrm,dx_amx,
-     >   civec,civb,civbh,res,resh,
-     >   cvbdet,gjorb)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,                   &
+     &   dxnrm,dx_amx,                                                  &
+     &   civec,civb,civbh,res,resh,                                     &
+     &   cvbdet,gjorb)
       implicit real*8 (a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: tstfile_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -68,19 +68,19 @@ c ... Files/Hamiltonian available ...
       call applyh_cvb(civbh)
 
       call cidot_cvb(civb,civbh,evb)
-      if(ip(3).ge.2)write(6,formAF)
-     >  ' Residual calculation based on Evb :',evb+corenrg
-c RES()=CIVBH()-EVB*CIVB()
+      if(ip(3).ge.2)write(6,formAF)                                     &
+     &  ' Residual calculation based on Evb :',evb+corenrg
+! RES()=CIVBH()-EVB*CIVB()
       call cicopy_cvb(civbh,res)
       call cidaxpy_cvb(-evb,civb,res)
 
       if(tstfile_cvb(67123.2d0))then
         call cird_cvb(resh,67123.2d0)
         call cidot_cvb(res,resh,rescas_ovr)
-c        call cidot_cvb(civb,resh,civb_ovr)
-c        dxnrm_ci=sqrt(2d0*(one-civb_ovr))
-c        write(6,*)' dxnrm dxnrm_ci :',dxnrm,dxnrm_ci
-c        write(6,*)' gradient in VB basis :',2d0*rescas_ovr/dxnrm
+!        call cidot_cvb(civb,resh,civb_ovr)
+!        dxnrm_ci=sqrt(2d0*(one-civb_ovr))
+!        write(6,*)' dxnrm dxnrm_ci :',dxnrm,dxnrm_ci
+!        write(6,*)' gradient in VB basis :',2d0*rescas_ovr/dxnrm
         grad_ok=(2d0*rescas_ovr/dxnrm.lt.grd(1,3))
       else
         grad_ok=.false.
@@ -95,7 +95,7 @@ c        write(6,*)' gradient in VB basis :',2d0*rescas_ovr/dxnrm
       endif
       call ciscale_cvb(res,one/sqrt(resnrm))
       call cidot_cvb(res,civb,ovr)
-c RES()=RES()-OVR*CIVB()
+! RES()=RES()-OVR*CIVB()
       call cidaxpy_cvb(-ovr,civb,res)
       call cinorm_cvb(res,resnrm)
       call ciscale_cvb(res,one/sqrt(resnrm))
@@ -138,11 +138,11 @@ c RES()=RES()-OVR*CIVB()
       call cinorm_cvb(civb,cnrm)
       call ciscale_cvb(civb,one/sqrt(cnrm))
       if(memplenty)then
-c        call cidot_cvb(civb,civec,ovr)
+!        call cidot_cvb(civb,civec,ovr)
         call cicopy_cvb(civb,civec)
       else
         call cird_cvb(res,61001.2d0)
-c        call cidot_cvb(civb,res,ovr)
+!        call cidot_cvb(civb,res,ovr)
         call ciwr_cvb(civb,61001.2d0)
       endif
 
@@ -151,8 +151,8 @@ c        call cidot_cvb(civb,res,ovr)
       ovraa=one
       iter=1
       ioptc=0
-c      ovrcrit=.125d-10
-c      if(abs(one-abs(ovr)).gt.ovrcrit)iter=2
+!      ovrcrit=.125d-10
+!      if(abs(one-abs(ovr)).gt.ovrcrit)iter=2
       if(.not.(dx_ok.and.grad_ok))iter=2
       call setcnt_cvb(civec,1)
       return

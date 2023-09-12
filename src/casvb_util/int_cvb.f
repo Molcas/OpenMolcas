@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine int_cvb(iarr,nmax,nread,ifc)
       implicit real*8 (a-h,o-z)
 #include "inpmod_cvb.fh"
@@ -23,7 +23,7 @@
       nread=0
       if(nmax.le.0)goto 2000
 
-c  Treat first field differently
+!  Treat first field differently
       ifcuse=mod(ifc,4)
       if(ifcuse.ge.2)ifcuse=2
       call popfield_cvb(ifcuse)
@@ -40,7 +40,7 @@ c  Treat first field differently
 100   continue
       goto 2000
 1000  continue
-c  Crash if invalid field and IFC +4 :
+!  Crash if invalid field and IFC +4 :
       if(ierr.eq.4.and.ifc.ge.4)then
         write(6,*)' Invalid field found while reading integer!'
         call abend_cvb()

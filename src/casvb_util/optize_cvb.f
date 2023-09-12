@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine optize_cvb(fx,ioptc,iter,
-     >  imetinp,isadinp,mxiter,maxinp,corenrg,ipinp,ipdd1,ipdd2,
-     >  strucopt)
-c  *********************************************************************
-c  *                                                                   *
-c  *  Routine for second-order optimization.                           *
-c  *                                                                   *
-c  *  Uses the following functions:                                    *
-c  *                                                                   *
-c  *   GETFREE:   Determine # free parameters                          *
-c  *    UPDATE:   Add dx to vector of free variables, x                *
-c  *        FX:   Calculate f(x)                                       *
-c  *      GRAD:   Calculate gradient of f                              *
-c  *      HESS:   Calculate the action of the hessian on trial vector  *
-c  *   GETHESS:   Calculate full hessian                               *
-c  *                                                                   *
-c  *  IOPTC is optimization control :                                  *
-c  *                                                                   *
-c  *  IOPTC=-3    Opt. terminated close to convergence (at request)    *
-c  *  IOPTC=-2    Optimization failed -- too small step size           *
-c  *  IOPTC=-1    Maximum number of iterations used                    *
-c  *  IOPTC= 0    Converged                                            *
-c  *  IOPTC= 1    Not complete                                         *
-c  *                                                                   *
-c  *********************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine optize_cvb(fx,ioptc,iter,                              &
+     &  imetinp,isadinp,mxiter,maxinp,corenrg,ipinp,ipdd1,ipdd2,        &
+     &  strucopt)
+!  *********************************************************************
+!  *                                                                   *
+!  *  Routine for second-order optimization.                           *
+!  *                                                                   *
+!  *  Uses the following functions:                                    *
+!  *                                                                   *
+!  *   GETFREE:   Determine # free parameters                          *
+!  *    UPDATE:   Add dx to vector of free variables, x                *
+!  *        FX:   Calculate f(x)                                       *
+!  *      GRAD:   Calculate gradient of f                              *
+!  *      HESS:   Calculate the action of the hessian on trial vector  *
+!  *   GETHESS:   Calculate full hessian                               *
+!  *                                                                   *
+!  *  IOPTC is optimization control :                                  *
+!  *                                                                   *
+!  *  IOPTC=-3    Opt. terminated close to convergence (at request)    *
+!  *  IOPTC=-2    Optimization failed -- too small step size           *
+!  *  IOPTC=-1    Maximum number of iterations used                    *
+!  *  IOPTC= 0    Converged                                            *
+!  *  IOPTC= 1    Not complete                                         *
+!  *                                                                   *
+!  *********************************************************************
       implicit real*8 (a-h,o-z)
       logical maxinp,iter_is_1,strucopt
 #include "WrkSpc.fh"
@@ -58,13 +58,13 @@ c  *********************************************************************
         return
       endif
 
-c  Initialize for new optimization - input parameters:
+!  Initialize for new optimization - input parameters:
       imethod=imetinp
       isaddle=isadinp
       maxize=maxinp
       ip=ipinp
 
-c  Parameters initialized:
+!  Parameters initialized:
       exp=zero
       hh=hhstart
       hhkeep=hh
@@ -100,56 +100,56 @@ c  Parameters initialized:
         ix(5) = mstackr_cvb(nparm)
         ix(6) = mstackr_cvb(nparm)
         ix(7) = mstackr_cvb(nparm)
-        call optize2_cvb(fx,nparm,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    o123a_cvb,o123b_cvb)
+        call optize2_cvb(fx,nparm,ioptc,                                &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    o123a_cvb,o123b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.5)then
         ix(1) = mstackr_cvb(nparm)
         ix(2) = mstackr_cvb(nparm)
-        call optize2_cvb(fx,nparm,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    dum_a_cvb,o5b_cvb)
+        call optize2_cvb(fx,nparm,ioptc,                                &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    dum_a_cvb,o5b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.7)then
         ix(1) = mstackr_cvb(nparm+1)
         ix(2) = mstackr_cvb(nparm+1)
         maxd=min(nparm+1,200)
         mxit=500
-        call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,
-     >    ifollow,isaddle,ipdd1,zero,n_div)
+        call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,              &
+     &    ifollow,isaddle,ipdd1,zero,n_div)
         call asonC7init_cvb(ix(2),ipdd2)
-        call optize2_cvb(fx,nparm,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    o7a_cvb,o7b_cvb)
+        call optize2_cvb(fx,nparm,ioptc,                                &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    o7a_cvb,o7b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.8)then
         ix(1) = mstackr_cvb(nparm)
         ix(2) = mstackr_cvb(nparm)
         ix(3) = mstackr_cvb((nparm+1)*(nparm+1))
         ix(4) = mstackr_cvb(nparm+1)
-        call optize2_cvb(fx,nparm,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    dum_a_cvb,o8b_cvb)
+        call optize2_cvb(fx,nparm,ioptc,                                &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    dum_a_cvb,o8b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.9)then
         i1 = mstackr_cvb(nparm)
         i2 = mstackr_cvb(nparm)
         i3 = mstackr_cvb(nparm)
-        call optize9_cvb(fx,nparm,ioptc,
-     >    work(i1),work(i2),work(i3))
+        call optize9_cvb(fx,nparm,ioptc,                                &
+     &    work(i1),work(i2),work(i3))
       call mfreer_cvb(i1)
       elseif(imethod.eq.10)then
         ix(1)  = mstackr_cvb(nparm)
         ix(2)  = mstackr_cvb(nparm)
         maxd=min(nparm,200)
         mxit=500
-        call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,
-     >    ifollow,isaddle,ipdd1,zero,n_div)
+        call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,                 &
+     &    ifollow,isaddle,ipdd1,zero,n_div)
         call asonc10init_cvb(ipdd2)
-        call optize2_cvb(fx,nparm,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    o10a_cvb,o10b_cvb)
+        call optize2_cvb(fx,nparm,ioptc,                                &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    o10a_cvb,o10b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.12.and.maxize)then
         if(strucopt)then
@@ -163,14 +163,14 @@ c  Parameters initialized:
         ix(2)  = mstackr_cvb(nparm_dav)
         maxd=min(nparm_dav,200)
         mxit=500
-        call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,
-     >    ifollow,isaddle,ipdd1,zero,0)
+        call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,           &
+     &    ifollow,isaddle,ipdd1,zero,0)
         call asonc12sinit_cvb(ipdd2)
-        call optize2_cvb(fx,nparm_dav,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    o12sa_cvb,o12sb_cvb)
+        call optize2_cvb(fx,nparm_dav,ioptc,                            &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    o12sa_cvb,o12sb_cvb)
         call mfreer_cvb(ix(1))
-      elseif(imethod.eq.12.and..not.maxize)then
+      elseif(imethod.eq.12.and. .not.maxize)then
         if(strucopt)then
           nparm_dav=nparm
           nfrdim_dav=nfrdim
@@ -182,12 +182,12 @@ c  Parameters initialized:
         ix(2) = mstackr_cvb(nparm_dav)
         maxd=min(nparm_dav,200)
         mxit=500
-        call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,
-     >    ifollow,isaddle,ipdd1,corenrg,n_div)
+        call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,         &
+     &    ifollow,isaddle,ipdd1,corenrg,n_div)
         call asonc12einit_cvb(ipdd2)
-        call optize2_cvb(fx,nparm_dav,ioptc,
-     >    work(ix(1)),work(ix(2)),iter_is_1,
-     >    o12ea_cvb,o12eb_cvb)
+        call optize2_cvb(fx,nparm_dav,ioptc,                            &
+     &    work(ix(1)),work(ix(2)),iter_is_1,                            &
+     &    o12ea_cvb,o12eb_cvb)
         call mfreer_cvb(ix(1))
       else
         write(6,*)' Unrecognized optimization algorithm!',imethod

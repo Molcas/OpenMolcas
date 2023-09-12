@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,
-     >  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,
-     >  vec1,vec2,vec3,
-     >  vec4,vec5,
-     >  wghtion1,wghtion2,wghtion3,wghtion4,wghtion5,wghtion6,
-     >  mingrph,maxgrph,xalf,xbet,iaocc,ibocc,
-     >  mingion,maxgion,nkion,xion,locion,lunion,
-     >  mingsng,maxgsng,nksng,xsng,locsng,lunsng,
-     >  mingasg,maxgasg,nkasg,xasg,locasg,lunasg,
-     >  gal1,gal2,indavec,indbvec,
-     >  ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,           &
+     &  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,                     &
+     &  vec1,vec2,vec3,                                                 &
+     &  vec4,vec5,                                                      &
+     &  wghtion1,wghtion2,wghtion3,wghtion4,wghtion5,wghtion6,          &
+     &  mingrph,maxgrph,xalf,xbet,iaocc,ibocc,                          &
+     &  mingion,maxgion,nkion,xion,locion,lunion,                       &
+     &  mingsng,maxgsng,nksng,xsng,locsng,lunsng,                       &
+     &  mingasg,maxgasg,nkasg,xasg,locasg,lunasg,                       &
+     &  gal1,gal2,indavec,indbvec,                                      &
+     &  ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
       implicit real*8 (a-h,o-w,y-z),integer(x)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -30,8 +30,8 @@
 
 #include "formats_cvb.fh"
       character*240 line
-      dimension civec(ndet),civbs(ndet),civb(ndet),citmp(ndet),
-     >  civec5(ndet)
+      dimension civec(ndet),civbs(ndet),civb(ndet),citmp(ndet),         &
+     &  civec5(ndet)
       dimension orbs(norb,norb),sorbs(norb,norb)
       dimension orbinv(norb,norb),owrk(norb,norb)
       dimension gjorb(*),gjorb2(*),gjorb3(*)
@@ -62,14 +62,14 @@
       call mxinv_cvb(orbinv,norb)
       call gaussj_cvb(orbinv,gjorb)
       call applyt_cvb(civec,gjorb)
-c  Chirgwin-Coulson weights
+!  Chirgwin-Coulson weights
       if(mod(iciweights,2).eq.1)then
         call transp_cvb(orbs,owrk,norb,norb)
         call gaussj_cvb(owrk,gjorb2)
         call applyt_cvb(citmp,gjorb2)
         do 200 idet=1,ndet
-        vec2(idet)=(vec1(idet)-fac*vec2(idet))*
-     >              (vec3(idet)-fac*vec4(idet))
+        vec2(idet)=(vec1(idet)-fac*vec2(idet))*                         &
+     &              (vec3(idet)-fac*vec4(idet))
 200     continue
         do 300 idet=1,ndet
         vec1(idet)=vec1(idet)*vec3(idet)
@@ -79,19 +79,19 @@ c  Chirgwin-Coulson weights
       vec4(idet)=vec3(idet)-fac*vec4(idet)
 400   continue
 
-c  Inverse-overlap weights
+!  Inverse-overlap weights
       if(.not.mod(iciweights,8).gt.3)goto 4010
       call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
       call fmove_cvb(sorbs,orbinv,norb*norb)
       call mxinv_cvb(orbinv,norb)
       call gaussj_cvb(orbinv,gjorb)
-c Alpha weight array:
+! Alpha weight array:
       do 1100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
       maxgrph(iorb)=min(iorb,nalf)
 1100  continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
-c Beta weight array:
+! Beta weight array:
       do 1200 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
       maxgrph(iorb)=min(iorb,nbet)
@@ -104,7 +104,7 @@ c Beta weight array:
       mrem=norb-ion
       nalfsng=nalf-ion
       nbetsng=nbet-ion
-c  Initialise loop for ionic orbitals
+!  Initialise loop for ionic orbitals
       do 2100 iorb=0,norb
       mingion(iorb)=max(iorb-norb+ion,0)
       maxgion(iorb)=min(iorb,ion)
@@ -112,7 +112,7 @@ c  Initialise loop for ionic orbitals
       call weight_cvb(xion,mingion,maxgion,ion,norb)
       call imove_cvb(maxgion,nkion,norb+1)
       call occupy_cvb(nkion,norb,locion,lunion)
-c  Initialise loop for singly occupied orbitals
+!  Initialise loop for singly occupied orbitals
       do 2200 iorb=0,mrem
       mingsng(iorb)=max(iorb-mrem+nsing,0)
       maxgsng(iorb)=min(iorb,nsing)
@@ -120,7 +120,7 @@ c  Initialise loop for singly occupied orbitals
       call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
       call imove_cvb(maxgsng,nksng,mrem+1)
       call occupy_cvb(nksng,mrem,locsng,lunsng)
-c  Initialise loop for singly occupied alpha orbitals
+!  Initialise loop for singly occupied alpha orbitals
       do 2300 iorb=0,nsing
       mingasg(iorb)=max(iorb-nsing+nalfsng,0)
       maxgasg(iorb)=min(iorb,nalfsng)
@@ -129,17 +129,17 @@ c  Initialise loop for singly occupied alpha orbitals
       call imove_cvb(maxgasg,nkasg,nsing+1)
       call occupy_cvb(nkasg,nsing,locasg,lunasg)
 
-c  Loop ionic
+!  Loop ionic
       indion=1
 3000  continue
-c  Loop singly occupied
+!  Loop singly occupied
       indsng=1
 3100  continue
       call fzero(vec5,ndet)
       s11=zero
       s22=zero
       s12=zero
-c  Loop singly occupied alpha
+!  Loop singly occupied alpha
       indasg=1
 3200  continue
 
@@ -168,8 +168,8 @@ c  Loop singly occupied alpha
       s22=s22+vec4(indab)*vec4(indab)
       s12=s12+vec3(indab)*vec4(indab)
 
-      call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,
-     >                       locasg,lunasg,indasg,xasg,*3200)
+      call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,               &
+     &                       locasg,lunasg,indasg,xasg,*3200)
 
       call applyt_cvb(civec5,gjorb)
 
@@ -216,10 +216,10 @@ c  Loop singly occupied alpha
       gal1(nc)=sm1
       gal2(nc)=sm2
 
-      call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,
-     >                       locsng,lunsng,indsng,xsng,*3100)
-      call loind_cvb(norb,ion,nkion,mingion,maxgion,
-     >                       locion,lunion,indion,xion,*3000)
+      call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,                  &
+     &                       locsng,lunsng,indsng,xsng,*3100)
+      call loind_cvb(norb,ion,nkion,mingion,maxgion,                    &
+     &                       locion,lunion,indion,xion,*3000)
 2000  continue
       sum1=zero
       sum2=zero
@@ -239,7 +239,7 @@ c  Loop singly occupied alpha
 4000  continue
 4010  continue
 
-c  Weights of Lowdin orthonormalized structures
+!  Weights of Lowdin orthonormalized structures
       if(mod(iciweights,4).gt.1)then
         call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
         call mxsqrt_cvb(sorbs,norb,1)
@@ -254,10 +254,10 @@ c  Weights of Lowdin orthonormalized structures
 4100    continue
       endif
 
-      write(6,'(/,2a)')' Weights of CASSCF configurations ',
-     >                 'in VB basis (c_res=c_cas-Svb*c_vb) :'
-      write(6,'(2a)')  ' ---------------------------------',
-     >                 '------------------------------------'
+      write(6,'(/,2a)')' Weights of CASSCF configurations ',            &
+     &                 'in VB basis (c_res=c_cas-Svb*c_vb) :'
+      write(6,'(2a)')  ' ---------------------------------',            &
+     &                 '------------------------------------'
       if(mod(iciweights,8).gt.3)then
         write(6,'(a)')' Sum of inverse-overlap weights :'
         write(6,form2AD)' c_cas :',sum1,' expected :',one
@@ -307,13 +307,13 @@ c  Weights of Lowdin orthonormalized structures
       endif
       call cblank_cvb(line,240)
 
-c Alpha weight array:
+! Alpha weight array:
       do 5100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
       maxgrph(iorb)=min(iorb,nalf)
 5100  continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
-c Beta weight array:
+! Beta weight array:
       do 5200 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
       maxgrph(iorb)=min(iorb,nbet)
@@ -332,7 +332,7 @@ c Beta weight array:
       mrem=norb-ion
       nalfsng=nalf-ion
       nbetsng=nbet-ion
-c  Initialise loop for ionic orbitals
+!  Initialise loop for ionic orbitals
       do 6100 iorb=0,norb
       mingion(iorb)=max(iorb-norb+ion,0)
       maxgion(iorb)=min(iorb,ion)
@@ -340,7 +340,7 @@ c  Initialise loop for ionic orbitals
       call weight_cvb(xion,mingion,maxgion,ion,norb)
       call imove_cvb(maxgion,nkion,norb+1)
       call occupy_cvb(nkion,norb,locion,lunion)
-c  Initialise loop for singly occupied orbitals
+!  Initialise loop for singly occupied orbitals
       do 6200 iorb=0,mrem
       mingsng(iorb)=max(iorb-mrem+nsing,0)
       maxgsng(iorb)=min(iorb,nsing)
@@ -348,7 +348,7 @@ c  Initialise loop for singly occupied orbitals
       call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
       call imove_cvb(maxgsng,nksng,mrem+1)
       call occupy_cvb(nksng,mrem,locsng,lunsng)
-c  Initialise loop for singly occupied alpha orbitals
+!  Initialise loop for singly occupied alpha orbitals
       do 6300 iorb=0,nsing
       mingasg(iorb)=max(iorb-nsing+nalfsng,0)
       maxgasg(iorb)=min(iorb,nalfsng)
@@ -357,17 +357,17 @@ c  Initialise loop for singly occupied alpha orbitals
       call imove_cvb(maxgasg,nkasg,nsing+1)
       call occupy_cvb(nkasg,nsing,locasg,lunasg)
 
-c  Loop ionic
+!  Loop ionic
       indion=1
 7000  continue
-c  Loop singly occupied
+!  Loop singly occupied
       indsng=1
 7100  continue
       c1=zero
       c2=zero
       c3=zero
       c4=zero
-c  Loop singly occupied alpha
+!  Loop singly occupied alpha
       indasg=1
 7200  continue
 
@@ -394,8 +394,8 @@ c  Loop singly occupied alpha
       c3=c3+vec3(indab)
       c4=c4+vec4(indab)
 
-      call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,
-     >                       locasg,lunasg,indasg,xasg,*7200)
+      call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,               &
+     &                       locasg,lunasg,indasg,xasg,*7200)
       nc=nc+1
       wghtion1(ion)=wghtion1(ion)+c1
       wghtion2(ion)=wghtion2(ion)+c2
@@ -436,10 +436,10 @@ c  Loop singly occupied alpha
         endif
         write(6,formAD)line(1:ilin),(cprint(mp),mp=1,nprint)
       endif
-      call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,
-     >                       locsng,lunsng,indsng,xsng,*7100)
-      call loind_cvb(norb,ion,nkion,mingion,maxgion,
-     >                       locion,lunion,indion,xion,*7000)
+      call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,                  &
+     &                       locsng,lunsng,indsng,xsng,*7100)
+      call loind_cvb(norb,ion,nkion,mingion,maxgion,                    &
+     &                       locion,lunion,indion,xion,*7000)
 6000  continue
 
       call cblank_cvb(line,240)

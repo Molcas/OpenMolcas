@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine syminit2_cvb(symelm,iorbrel,north,corth,
-     >  irels,relorb,io,iorder,iorbs,a,b,
-     >  rr,ri,vr,vi,intger,
-     >  ifxorb,ifxstr,idelstr,
-     >  iorts,irots,izeta)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine syminit2_cvb(symelm,iorbrel,north,corth,               &
+     &  irels,relorb,io,iorder,iorbs,a,b,                               &
+     &  rr,ri,vr,vi,intger,                                             &
+     &  ifxorb,ifxstr,idelstr,                                          &
+     &  iorts,irots,izeta)
       implicit real*8 (a-h,o-z)
       logical found
 #include "main_cvb.fh"
@@ -28,15 +28,15 @@
       dimension north(norb),corth(norb,*)
       dimension io(4,norbrel),iorder(norb,norbrel),iorbs(norb)
       dimension a(norb,norb),b(norb,norb)
-      dimension rr(norb),ri(norb),vr(norb,norb),vi(norb,norb),
-     >  intger(norb)
+      dimension rr(norb),ri(norb),vr(norb,norb),vi(norb,norb),          &
+     &  intger(norb)
       dimension ifxorb(norb),ifxstr(nfxvb),idelstr(nzrvb)
       dimension iorts(2,nort),irots(2,ndrot),izeta(nsyme)
       dimension dum(1)
       save thresh
       data thresh/1.d-8/
 
-c  Restore arrays :
+!  Restore arrays :
       call rdioff_cvb(9,recinp,ioffs)
       call rdis_cvb(iorbrel,ndimrel,recinp,ioffs)
       call rdis_cvb(ifxorb,norb,recinp,ioffs)
@@ -46,8 +46,8 @@ c  Restore arrays :
       call rdis_cvb(irots,2*ndrot,recinp,ioffs)
       call rdis_cvb(izeta,nsyme,recinp,ioffs)
 
-c  First check that minimum number of orbital relations has been given
-c  (no cycle should be complete) :
+!  First check that minimum number of orbital relations has been given
+!  (no cycle should be complete) :
       ishift=0
       do 10 ijrel=1,nijrel
       iorb=abs(iorbrel(1+ishift))
@@ -70,8 +70,8 @@ c  (no cycle should be complete) :
             intger(ncount)=i
           endif
 40        continue
-          write(6,'(2a,/,20i4)')' Too many orbital relations ',
-     >      'involving orbitals :',(intger(ii),ii=1,ncount)
+          write(6,'(2a,/,20i4)')' Too many orbital relations ',         &
+     &      'involving orbitals :',(intger(ii),ii=1,ncount)
           write(6,'(a)')' Please reduce number of ORBREL cards.'
           call abend_cvb()
         else
@@ -85,11 +85,11 @@ c  (no cycle should be complete) :
 11    ishift=ishift+3+iorbrel(3+ishift)
 10    continue
 
-c  Diagonal orbital relations :
+!  Diagonal orbital relations :
       nciorth=0
       call izero(north,norb)
       do 100 iorb=1,norb
-c  Orbital conditions on IORB :
+!  Orbital conditions on IORB :
       call span0_cvb(norb,norb)
       ishift=0
       do 150 i=1,norbrel
@@ -103,8 +103,8 @@ c  Orbital conditions on IORB :
         call mxatb_cvb(symelm(1,1,irel),b,norb,norb,norb,a)
         call fmove_cvb(a,b,norb*norb)
 200     continue
-c  Everything that hasn't got eigenvalue +1 will be orthogonalised away
-c  Unsymmetric diagonalisation :
+!  Everything that hasn't got eigenvalue +1 will be orthogonalised away
+!  Unsymmetric diagonalisation :
         ifail=0
         call f02agf(b,norb,norb,rr,ri,vr,norb,vi,norb,intger,ifail)
         if(ifail.ne.0)then
@@ -127,7 +127,7 @@ c  Unsymmetric diagonalisation :
 100   continue
       niorth=nciorth
 
-c  Off-diagonal relations :
+!  Off-diagonal relations :
       call izero(io,2*norbrel)
       call izero(iorder,norb*norbrel)
       ijrel=0
@@ -150,7 +150,7 @@ c  Off-diagonal relations :
 300   continue
       nijrel=ijrel
 
-c  Orbitals with constraints should be generating orbitals if possible:
+!  Orbitals with constraints should be generating orbitals if possible:
       icnt=0
       do 400 iorb=1,norb
       if(north(iorb).gt.0)then
@@ -165,12 +165,12 @@ c  Orbitals with constraints should be generating orbitals if possible:
       endif
 500   continue
 600   continue
-c  Sort relations and define generating orbitals:
+!  Sort relations and define generating orbitals:
       do 700 i=1,norb
       iorb=iorbs(i)
       do 701 ii=1,nijrel
       if(iorder(1,ii).eq.iorb.or.iorder(2,ii).eq.iorb)then
-c  Has IORB already been generated from KORB ? :
+!  Has IORB already been generated from KORB ? :
         do 800 j=1,i-1
         korb=iorbs(j)
         if(iorder(1,ii).eq.korb.or.iorder(2,ii).eq.korb)goto 701
@@ -180,20 +180,20 @@ c  Has IORB already been generated from KORB ? :
           iorder(2,ii)=iorb
         endif
         jorb=iorder(1,ii)
-c  JORB will be generated from IORB
+!  JORB will be generated from IORB
         if(north(jorb).ne.0)then
-          write(6,'(2(a,i4),a)')' Attempting to generate orbital',jorb,
-     >      ' from orbital',iorb,'  ---'
-          write(6,'(2a,i4,a)')' the orbital conditions',
-     >      ' for orbital',jorb,' cannot be enforced.'
+          write(6,'(2(a,i4),a)')' Attempting to generate orbital',jorb, &
+     &      ' from orbital',iorb,'  ---'
+          write(6,'(2a,i4,a)')' the orbital conditions',                &
+     &      ' for orbital',jorb,' cannot be enforced.'
           write(6,'(a)')' Please reduce number of ORBREL cards.'
           call abend_cvb()
         endif
         found=.false.
         do 900 jj=1,nijrel
-        if(jj.ne.ii.and.(iorder(1,jj).eq.jorb.or.
-     >    iorder(2,jj).eq.jorb))then
-c  Is JORB involved in any other orbital relations ? :
+        if(jj.ne.ii.and.(iorder(1,jj).eq.jorb.or.                       &
+     &    iorder(2,jj).eq.jorb))then
+!  Is JORB involved in any other orbital relations ? :
           do 1000 j=1,i-1
           korb=iorbs(j)
           if(iorder(1,jj).eq.korb.or.iorder(2,jj).eq.korb)goto 900
@@ -205,7 +205,7 @@ c  Is JORB involved in any other orbital relations ? :
           endif
           iorder(3,jj)=iorder(2,jj)
           call imove_cvb(iorder(3,ii),iorder(4,jj),norb-3)
-c  KORB will be generated from IORB (via JORB) :
+!  KORB will be generated from IORB (via JORB) :
           iorder(2,jj)=iorder(2,ii)
         endif
 900     continue
@@ -213,7 +213,7 @@ c  KORB will be generated from IORB (via JORB) :
       endif
 701   continue
 700   continue
-c  Generate transformation matrix for each relation :
+!  Generate transformation matrix for each relation :
       do i=1,nijrel
       irels(1,i)=iorder(1,i)
       irels(2,i)=iorder(2,i)
@@ -234,19 +234,19 @@ c  Generate transformation matrix for each relation :
       if(iorder(jl,ijrel).eq.0)goto 1300
       jorb=iorder(jl,ijrel)
       do 1400 ii=1,nijrel
-      if((iorb.eq.io(1,ii).or.iorb.eq.io(2,ii)).and.
-     >   (jorb.eq.io(1,ii).or.jorb.eq.io(2,ii)))then
+      if((iorb.eq.io(1,ii).or.iorb.eq.io(2,ii)).and.                    &
+     &   (jorb.eq.io(1,ii).or.jorb.eq.io(2,ii)))then
         nrel=io(3,ii)
         iaddr=io(4,ii)
-c  Operate right-to-left :
+!  Operate right-to-left :
         do 1500 ir=nrel,1,-1
         irel=iorbrel(ir+iaddr)
         if(jorb.eq.io(1,ii))then
-          call mxatb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),
-     >      norb,norb,norb,a)
+          call mxatb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),            &
+     &      norb,norb,norb,a)
         else
-          call mxattb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),
-     >      norb,norb,norb,a)
+          call mxattb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),           &
+     &      norb,norb,norb,a)
         endif
         call fmove_cvb(a,relorb(1,1,ijrel),norb*norb)
 1500    continue
@@ -256,6 +256,6 @@ c  Operate right-to-left :
 1100  continue
       return
       end
-c  ********************
-c  ** Symmetrization **
-c  ********************
+!  ********************
+!  ** Symmetrization **
+!  ********************

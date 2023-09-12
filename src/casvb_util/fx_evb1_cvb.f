@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine fx_evb1_cvb(fx,fast,orbstry,cvbtry,
-     >   civec,civbh,civbs,civb,
-     >   gjorb,gjorb2,gjorb3,cvbdet)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine fx_evb1_cvb(fx,fast,orbstry,cvbtry,                    &
+     &   civec,civbh,civbs,civb,                                        &
+     &   gjorb,gjorb2,gjorb3,cvbdet)
       implicit real*8 (a-h,o-z)
       logical fast
 #include "main_cvb.fh"
@@ -49,7 +49,7 @@
       endif
       evb=ww_try/ovraa_try+corenrg
       fx=evb
-      if(fast.and.ip(3).ge.2)
-     >  write(6,formE)' Evb :      ',evb
+      if(fast.and.ip(3).ge.2)                                           &
+     &  write(6,formE)' Evb :      ',evb
       return
       end

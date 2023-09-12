@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine intchk_cvb(iarr,nmax,nread,ifc,a,lflag)
       implicit real*8 (a-h,o-z)
       parameter (nkeyw=3,ncmp=4)
@@ -26,10 +26,10 @@
 1000  call fstring_cvb(keyword,nkeyw,istr,ncmp,1)
       if(istr.gt.0)lf=lflag
       if(istr.eq.1)then
-c 'NONE'
+! 'NONE'
         nread=0
       elseif(istr.eq.2)then
-c 'ALL'
+! 'ALL'
         if(lflag.eq.-1)then
           nread=nmax
           do 100 i=1,nmax
@@ -40,10 +40,10 @@ c 'ALL'
           lf=1-lflag
         endif
       elseif(istr.eq.3)then
-c 'TO'
+! 'TO'
         if(nread.eq.nmax)then
-          write(6,'(3a)')' Too many numbers specified in ',a,
-     >      ' keyword!'
+          write(6,'(3a)')' Too many numbers specified in ',a,           &
+     &      ' keyword!'
           call abend_cvb()
         elseif(nread.eq.0)then
           write(6,'(3a)')' No number before ',a,' -- TO keyword!'
@@ -59,8 +59,8 @@ c 'TO'
           write(6,*)' From greater than to:',ifrom,ito(1)
           call abend_cvb()
         elseif(nread+ito(1)-ifrom.gt.nmax)then
-          write(6,'(3a)')' Too many numbers specified in ',a,
-     >      ' keyword!'
+          write(6,'(3a)')' Too many numbers specified in ',a,           &
+     &      ' keyword!'
           call abend_cvb()
         endif
         do 150 i=ifrom+1,ito(1)
@@ -71,8 +71,8 @@ c 'TO'
         call int_cvb(iarr(1+nread),nmax-nread,nr,ifc)
         if(nread.gt.0)lf=lflag
         if(nr.eq.-1)then
-          write(6,'(3a)')' Too many numbers specified in ',a,
-     >      ' keyword!'
+          write(6,'(3a)')' Too many numbers specified in ',a,           &
+     &      ' keyword!'
           call abend_cvb()
         endif
         nread=nread+nr
@@ -89,7 +89,7 @@ c 'TO'
       endif
 200   continue
 
-c  Sort numbers and ensure uniqueness :
+!  Sort numbers and ensure uniqueness :
       call sorti_cvb(nread,iarr)
       ncnt=1
       do 300 i=2,nread

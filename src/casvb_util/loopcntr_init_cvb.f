@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine loopcntr_init_cvb(inputmode1,initfalse)
       implicit real*8(a-h,o-z)
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: ifcasci_cvb
-c ... Make: up to date? ...
+! ... Make: up to date? ...
       logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -37,7 +37,7 @@ c ... Make: up to date? ...
         loopstepmx=loopstep
         noptstep=joptstep
 
-c  Check for "special case" => initial optimizations
+!  Check for "special case" => initial optimizations
         initial_opts=.true.
         guess_available=.false.
         if(nmcscf.ge.2)guess_available=.true.
@@ -47,7 +47,7 @@ c  Check for "special case" => initial optimizations
 
         if(guess_available)initial_opts=.false.
         if(noptstep.gt.0)initial_opts=.false.
-c  Are we doing a constrained optimization ? :
+!  Are we doing a constrained optimization ? :
         constrained_opt=.false.
         if(norbrel.gt.0)constrained_opt=.true.
         if(nort.gt.0)constrained_opt=.true.
@@ -56,23 +56,23 @@ c  Are we doing a constrained optimization ? :
         if(ploc)constrained_opt=.true.
         if(nfxvb.gt.0.or.lfxvb.eq.1)constrained_opt=.true.
         if(nzrvb.gt.0.or.lzrvb.eq.1)constrained_opt=.true.
-c  If INIT/NOINIT keyword was encountered, override :
+!  If INIT/NOINIT keyword was encountered, override :
         if(initial.eq.0)initial_opts=.false.
         if(initial.eq.1)initial_opts=.true.
-c  Finally may be overridden by initfalse :
+!  Finally may be overridden by initfalse :
         if(initfalse)initial_opts=.false.
         if(initial_opts)then
-c  IOPTCODE    +1  = REPORT
-c              +2  = OPTIM
-c              +4  = Svb
-c              +8  = freeze structure coefficients
-c              +16 = strong-orthogonality constraints
+!  IOPTCODE    +1  = REPORT
+!              +2  = OPTIM
+!              +4  = Svb
+!              +8  = freeze structure coefficients
+!              +16 = strong-orthogonality constraints
 
-c  Should we do Svb optimization first ? :
+!  Should we do Svb optimization first ? :
           svbfirst=ifcasci_cvb()
 
           if(.not.constrained_opt)then
-c  Two first optimizations are SOPP & PP :
+!  Two first optimizations are SOPP & PP :
             noptim=0
             if(svbfirst)then
               if(norb.gt.2)then
@@ -96,15 +96,15 @@ c  Two first optimizations are SOPP & PP :
               endif
             endif
           endif
-c  Then a third Svb optimization if we are doing Evb :
+!  Then a third Svb optimization if we are doing Evb :
           if(icrit.ne.1.and.svbfirst)then
             noptim=noptim+1
             ioptcode(noptim)=6
           endif
-c  Finally actual optimization :
+!  Finally actual optimization :
           noptim=noptim+1
           ioptcode(noptim)=2
-c  Add "report" :
+!  Add "report" :
           noptim=noptim+1
           ioptcode(noptim)=1
 
@@ -119,7 +119,7 @@ c  Add "report" :
           do 200 i=0,noptim
           iopt2step(i)=i
 200       continue
-c  Append OPTIM keyword if none present
+!  Append OPTIM keyword if none present
           noptkw=0
           do 300 lll=1,loopstepmx
           if(icode(lll).eq.1)noptkw=noptkw+1
@@ -129,7 +129,7 @@ c  Append OPTIM keyword if none present
             ioptcode(noptim)=2
             iopt2step(noptim)=iopt2step(noptim-1)
           endif
-c  Append REPORT keyword if none present
+!  Append REPORT keyword if none present
           nrepkw=0
           do 400 lll=1,loopstepmx
           if(icode(lll).eq.3)nrepkw=nrepkw+1
@@ -165,7 +165,7 @@ c  Append REPORT keyword if none present
 1     continue
 11    ll1=ll
 10    continue
-c  First determine if end of multi-step optimization may have been reached:
+!  First determine if end of multi-step optimization may have been reached:
       if(istkprobe_cvb(istackrep))then
         call istkpop_cvb(istackrep,nc_zeroed)
         call istkpop_cvb(istackrep,nconvinone)
@@ -174,14 +174,14 @@ c  First determine if end of multi-step optimization may have been reached:
         call istkpop_cvb(istackrep,kk2)
         call istkpop_cvb(istackrep,ioptstep2)
         call istkpop_cvb(istackrep,ioptstep1)
-c  Number of steps is IOPTSTEP2-IOPTSTEP1+1
+!  Number of steps is IOPTSTEP2-IOPTSTEP1+1
         if(nconvinone.eq.ioptstep2-ioptstep1+1)then
           ioptstep=ioptstep2
           joptstep=ioptstep2
           ll1=kk2+1
           goto 10
         endif
-c  Restore loop information :
+!  Restore loop information :
         call istkpush_cvb(istackrep,ioptstep1)
         call istkpush_cvb(istackrep,ioptstep2)
         call istkpush_cvb(istackrep,kk2)
@@ -192,7 +192,7 @@ c  Restore loop information :
       endif
       do 100 ll=ll1,loopstepmx
       if(joptstep.eq.ioptstep)then
-c  Looking for next card after previous OPTIM/REPORT:
+!  Looking for next card after previous OPTIM/REPORT:
         if(icode(ll).eq.2.or.icode(ll).eq.4)then
           if(ll.eq.1)then
             unmatched=.true.
@@ -205,12 +205,12 @@ c  Looking for next card after previous OPTIM/REPORT:
           endif
         endif
         if(icode(ll).eq.1.or.icode(ll).eq.3)then
-c  OPTIM / REPORT :
+!  OPTIM / REPORT :
           ioptstep=ioptstep+1
           goto 1000
         elseif(icode(ll).eq.5)then
-c  ALTERN :
-c  Scan rest of file for number of steps in this loop:
+!  ALTERN :
+!  Scan rest of file for number of steps in this loop:
           iend=0
           ioptstep2=joptstep
           do 200 kk=ll+1,loopstepmx
@@ -239,7 +239,7 @@ c  Scan rest of file for number of steps in this loop:
           call istkpush_cvb(istackrep,nconvinone)
           call istkpush_cvb(istackrep,nc_zeroed)
         elseif(icode(ll).eq.6)then
-c  ENDALTERN :
+!  ENDALTERN :
           call istkpop_cvb(istackrep,nc_zeroed)
           call istkpop_cvb(istackrep,nconvinone)
           call istkpop_cvb(istackrep,italter)
@@ -250,7 +250,7 @@ c  ENDALTERN :
           italter=italter+1
           nstep=ioptstep-ioptstep1+1
           if(nstep.gt.0.and.italter.le.mxalter)then
-c  Next loop iteration :
+!  Next loop iteration :
             call istkpush_cvb(istackrep,ioptstep1)
             call istkpush_cvb(istackrep,ioptstep2)
             call istkpush_cvb(istackrep,kk2)
@@ -262,10 +262,10 @@ c  Next loop iteration :
             goto 1000
           else
             if(nstep.gt.0)then
-              write(6,'(/,a,i4,a)')' Exiting',nstep,
-     >          '-step optimization.'
-              write(6,'(a,i4)')
-     >          ' Maximum number of loop iterations reached :',mxalter
+              write(6,'(/,a,i4,a)')' Exiting',nstep,                    &
+     &          '-step optimization.'
+              write(6,'(a,i4)')                                         &
+     &          ' Maximum number of loop iterations reached :',mxalter
             endif
           endif
         endif

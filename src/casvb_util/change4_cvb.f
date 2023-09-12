@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine change4_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
       logical ndres_ok
-c ... Files/Hamiltonian available ...
+! ... Files/Hamiltonian available ...
       logical, external :: ifcasci_cvb,ifhamil_cvb
-c ... Make: up to date? ...
+! ... Make: up to date? ...
       logical, external :: up2date_cvb
-c ... Change of dimensioning variables ...
+! ... Change of dimensioning variables ...
       logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -32,7 +32,7 @@ c ... Change of dimensioning variables ...
       save ndres_ok
 
       changed=.false.
-c CI vectors
+! CI vectors
       call icomb_cvb(norb,nalf,nda)
       call icomb_cvb(norb,nbet,ndb)
       ndet = nda*ndb
@@ -50,15 +50,15 @@ c CI vectors
       if(.not.(icritold.eq.1.and.ifin_old.eq.0))call touch_cvb('RDCAS')
 
       if(ifinish.eq.1.or.ifinish.eq.2)then
-c  Logical variables for wavefunction analysis :
-c  Always evaluate svb/evb when possible
-c    (a) to get exact values (wfn is updated by optim in last iteration)
-c    (b) to generate ESYM (variational calculations)
+!  Logical variables for wavefunction analysis :
+!  Always evaluate svb/evb when possible
+!    (a) to get exact values (wfn is updated by optim in last iteration)
+!    (b) to generate ESYM (variational calculations)
         lcalcsvb=ifcasci_cvb()
         lcalcevb=ifhamil_cvb()
         lcalccivbs=.true.
-        lciweights=(npcf.gt.-2.and.((.not.variat).or.endvar)
-     >    .and.iciweights.gt.0)
+        lciweights=(npcf.gt.-2.and.((.not.variat).or.endvar)            &
+     &    .and.iciweights.gt.0)
       endif
       if(imethod.eq.11.and.ifinish.eq.0)then
         nv=2
@@ -69,7 +69,7 @@ c    (b) to generate ESYM (variational calculations)
           icase=1
         else
           if(icrit.eq.2.and.imethod.ne.6)then
-c  No need for CITMP :
+!  No need for CITMP :
             nv=3
             icase=5
           else
@@ -106,7 +106,7 @@ c  No need for CITMP :
       release(5)=.false.
 
 
-c  CIVECP and CIVBH share memory --> LC(2)
+!  CIVECP and CIVBH share memory --> LC(2)
       do iv=1,nv
       lc(iv) = mstackr_cvb(ndres)
       enddo
@@ -117,16 +117,16 @@ c  CIVECP and CIVBH share memory --> LC(2)
       do iv=1,nv
       lc(iv)=lc(iv)+2
       enddo
-c Fix to put in "objects" :
+! Fix to put in "objects" :
       do iv=1,nv
-      call creatci_cvb(iv,work(lc(iv)),lc(iv)+1,nint(work(lc(iv)-2)),
-     >  work(lc(iv)-1))
+      call creatci_cvb(iv,work(lc(iv)),lc(iv)+1,nint(work(lc(iv)-2)),   &
+     &  work(lc(iv)-1))
       if(.not.ndres_ok)call setcnt_cvb(work(lc(iv)),0)
       enddo
-c-- ins
-      if((ifinish.eq.1.or.ifinish.eq.2).and..not.lciweights)then
-        if(((.not.lcalcevb).or.lcalccivbs).and.
-     >     ((.not.lcalcsvb).or.lcalccivbs))then
+!-- ins
+      if((ifinish.eq.1.or.ifinish.eq.2).and. .not.lciweights)then
+        if(((.not.lcalcevb).or.lcalccivbs).and.                         &
+     &     ((.not.lcalcsvb).or.lcalccivbs))then
           lc(3)=lc(1)
           lc(4)=lc(1)
         elseif((.not.lcalcevb).or.lcalccivbs)then

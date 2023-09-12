@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine dset_cvb(iorbrel,ifxorb,ifxstr,
-     >  idelstr,iorts,irots,izeta)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine dset_cvb(iorbrel,ifxorb,ifxstr,                        &
+     &  idelstr,iorts,irots,izeta)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -21,10 +21,10 @@
 
 #include "inpmod_cvb.fh"
 #include "WrkSpc.fh"
-      dimension iorbrel(ndimrel),ifxorb(mxorb_cvb),
-     >  iorts(*),irots(*),izeta(*)
+      dimension iorbrel(ndimrel),ifxorb(mxorb_cvb),                     &
+     &  iorts(*),irots(*),izeta(*)
 
-c  Check if any molecular interaction constraints :
+!  Check if any molecular interaction constraints :
       if(ploc)call plcconst_plc()
       sym=(norbrel.gt.0.or.nort.gt.0.or.plc_const)
       call rdioff_cvb(9,recinp,ioffs)

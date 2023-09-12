@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-c  *********************************************************************
-c  *                                                                   *
-c  *  CIWEIGHT  := Chirgwin-Couson/Lowdin/inverse-overlap weights of   *
-c  *            := full CASSCF vector and residual.                    *
-c  *                                                                   *
-c  *********************************************************************
-      subroutine ciweight_cvb(civec,civbs,civb,citmp,vec5,
-     >  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  CIWEIGHT  := Chirgwin-Couson/Lowdin/inverse-overlap weights of   *
+!  *            := full CASSCF vector and residual.                    *
+!  *                                                                   *
+!  *********************************************************************
+      subroutine ciweight_cvb(civec,civbs,civb,citmp,vec5,              &
+     &  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -28,8 +28,8 @@ c  *********************************************************************
 #include "WrkSpc.fh"
       dimension orbs(norb,norb),sorbs(norb,norb)
       dimension orbinv(norb,norb),owrk(norb,norb)
-      dimension gjorb(*),gjorb2(*),gjorb3(*),civec(*),civbs(*),
-     > civb(*),citmp(*),vec5(*)
+      dimension gjorb(*),gjorb2(*),gjorb3(*),civec(*),civbs(*),         &
+     & civb(*),citmp(*),vec5(*)
 
       ionmin=max(nel-norb,0)
       ionmax=nbet
@@ -37,7 +37,7 @@ c  *********************************************************************
       mxsng=nel-2*ionmin
       mxasg=nalf-ionmin
       call icomb_cvb(mxsng,mxasg,mxdetcas)
-c  Work out number of configurations in CASSCF vector :
+!  Work out number of configurations in CASSCF vector :
       ncnfcas=0
       do 100 ion=ionmin,ionmax
       call icomb_cvb(norb,ion,iretval1)
@@ -91,21 +91,21 @@ c  Work out number of configurations in CASSCF vector :
       icivb=nint(civb(1))
       icitmp=nint(citmp(1))
       ivec5=nint(vec5(1))
-      call ciweight2_cvb(civec,civbs,civb,citmp,vec5,
-     >  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,
-     >  work(iaddr_ci(icitmp)),work(iaddr_ci(icivbs)),
-     >  work(iaddr_ci(icivec)),
-     >  work(iaddr_ci(icivb)),work(iaddr_ci(ivec5)),
-     >  work(k1),work(k2),work(k3),work(k4),work(k5),work(k6),
-     >  iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),iwork(k12),
-     >  iwork(k13),iwork(k14),iwork(k15),iwork(k16),iwork(k17),
-     >  iwork(k18),
-     >  iwork(k19),iwork(k20),iwork(k21),iwork(k22),iwork(k23),
-     >  iwork(k24),
-     >  iwork(k25),iwork(k26),iwork(k27),iwork(k28),iwork(k29),
-     >  iwork(k30),
-     >  work(k31),work(k32),iwork(k33),iwork(k34),
-     >  ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
+      call ciweight2_cvb(civec,civbs,civb,citmp,vec5,                   &
+     &  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,                     &
+     &  work(iaddr_ci(icitmp)),work(iaddr_ci(icivbs)),                  &
+     &  work(iaddr_ci(icivec)),                                         &
+     &  work(iaddr_ci(icivb)),work(iaddr_ci(ivec5)),                    &
+     &  work(k1),work(k2),work(k3),work(k4),work(k5),work(k6),          &
+     &  iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),iwork(k12), &
+     &  iwork(k13),iwork(k14),iwork(k15),iwork(k16),iwork(k17),         &
+     &  iwork(k18),                                                     &
+     &  iwork(k19),iwork(k20),iwork(k21),iwork(k22),iwork(k23),         &
+     &  iwork(k24),                                                     &
+     &  iwork(k25),iwork(k26),iwork(k27),iwork(k28),iwork(k29),         &
+     &  iwork(k30),                                                     &
+     &  work(k31),work(k32),iwork(k33),iwork(k34),                      &
+     &  ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
       call mfreer_cvb(k1)
       return
       end

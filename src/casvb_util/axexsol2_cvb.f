@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,
-     >  solp,solp_res,eig,eig_res)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,        &
+     &  solp,solp_res,eig,eig_res)
       implicit real*8 (a-h,o-z)
 #include "direct_cvb.fh"
       dimension ap(maxdav,maxdav),eigval(itdav),eigvec(itdav,itdav)
@@ -51,7 +51,7 @@
         write(6,*)' Overlap-based root following not yet implemented!'
         call abend_cvb()
       elseif(ifollow.eq.4)then
-c  Eigenvalue-based root following -- determine closest root :
+!  Eigenvalue-based root following -- determine closest root :
         iroot=1
         delmin=abs(eigval(1)-eig)
         do 200 i=1,min(itdav,nroot)
@@ -84,6 +84,6 @@ c  Eigenvalue-based root following -- determine closest root :
         endif
       endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_real(dum)
       end

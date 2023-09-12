@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-c  *********************************************************************
-c  *                                                                   *
-c  *  CNFPRT   := Print configurations.                                *
-c  *                                                                   *
-c  *********************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+!  *********************************************************************
+!  *                                                                   *
+!  *  CNFPRT   := Print configurations.                                *
+!  *                                                                   *
+!  *********************************************************************
       subroutine cnfprt_cvb(iconfs,nconf1,nel1)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
@@ -28,9 +28,9 @@ c  *********************************************************************
       dimension iconfs(noe,nconf1)
 
       i1 = mstacki_cvb(noe)
-c  Main loop over configurations :
+!  Main loop over configurations :
       do 100 iconf=1,nconf1
-c  Prepare iwork(i1) for print
+!  Prepare iwork(i1) for print
       ioffs=i1-1
       do 200 iorb=1,norb
       if(iconfs(iorb,iconf).eq.2)then

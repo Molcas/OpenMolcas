@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine o12sb2_cvb(orbs,cvb,nparm1,nvb,
-     >  nfrorb,
-     >  gjorb,gjorb2,gjorb3,
-     >  dx,
-     >  dxnrm,grdnrm,close2conv,strucopt)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine o12sb2_cvb(orbs,cvb,nparm1,nvb,                        &
+     &  nfrorb,                                                         &
+     &  gjorb,gjorb2,gjorb3,                                            &
+     &  dx,                                                             &
+     &  dxnrm,grdnrm,close2conv,strucopt)
       implicit real*8 (a-h,o-z)
       logical strucopt,skip
       logical close2conv
@@ -48,24 +48,24 @@
 
       call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 
-      call axb_cvb(asonc12s_cvb,ddres2upd10_cvb,dx,
-     >  resthr_use,ioptc,iter,fx_exp)
+      call axb_cvb(asonc12s_cvb,ddres2upd10_cvb,dx,                     &
+     &  resthr_use,ioptc,iter,fx_exp)
       exp=fx_exp-fxbest
       have_solved_it=.true.
 
-      if(ip.ge.2)write(6,'(2a,i4)')' Number of iterations for ',
-     >  'direct diagonalization :',iter
+      if(ip.ge.2)write(6,'(2a,i4)')' Number of iterations for ',        &
+     &  'direct diagonalization :',iter
 
       if(strucopt)then
         cnrm2=ddot_(nvb,cvb,1,dx(nfrorb+1),1)
-c  "Orthogonalize" on CVB to get smallest possible update norm :
+!  "Orthogonalize" on CVB to get smallest possible update norm :
         call daxpy_(nvb,-cnrm2,cvb,1,dx(nfrorb+1),1)
-c  Scale variables according to overlap with CVB :
+!  Scale variables according to overlap with CVB :
         call dscal_(nparm1,one/cnrm2,dx,1)
       else
-c  We are doing "Augmented" calc:
+!  We are doing "Augmented" calc:
         fac=one/dx(1)
-c  Scale variables according to overlap with CVB :
+!  Scale variables according to overlap with CVB :
         do 50 i=1,nparm1-1
         dx(i)=fac*dx(i+1)
 50      continue

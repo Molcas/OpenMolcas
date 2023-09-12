@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine ortelim_cvb(trprm,iorts,irots,sorbs,
-     >  nc,npr1,norbprm,nrem)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine ortelim_cvb(trprm,iorts,irots,sorbs,                   &
+     &  nc,npr1,norbprm,nrem)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -49,10 +49,10 @@
       if(korb.gt.iorb)ki=ki-1
       kj=korb+(jorb-1)*(norb-1)
       if(korb.gt.jorb)kj=kj-1
-      if(korb.ne.iorb)work(ki+(irot+nc+nort-1)*norbprm+i1ff)=
-     >  sorbs(korb,jorb)
-      if(korb.ne.jorb)work(kj+(irot+nc+nort-1)*norbprm+i1ff)=
-     >  -sorbs(korb,iorb)
+      if(korb.ne.iorb)work(ki+(irot+nc+nort-1)*norbprm+i1ff)=           &
+     &  sorbs(korb,jorb)
+      if(korb.ne.jorb)work(kj+(irot+nc+nort-1)*norbprm+i1ff)=           &
+     &  -sorbs(korb,iorb)
 301   continue
 300   continue
       call span_cvb(work(i1),nc+nort+ndrot,nrem,dum,norbprm,0)

@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
-      subroutine asonc12s2_cvb(c,sxc,nvec,nprm,
-     >   civb,civbs,
-     >   orbs,gjorb,gjorb2,gjorb3,cvbdet,
-     >   cvb,
-     >   vec_all)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+      subroutine asonc12s2_cvb(c,sxc,nvec,nprm,                         &
+     &   civb,civbs,                                                    &
+     &   orbs,gjorb,gjorb2,gjorb3,cvbdet,                               &
+     &   cvb,                                                           &
+     &   vec_all)
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -31,14 +31,14 @@
 
       iter=iter+1
       if(ipp.ge.2)then
-        write(6,'(/,a,i5,a,f10.3,a)')' Davidson iteration',iter,
-     >    ' at',tim_cvb(cpu0),' CPU seconds'
-        write(6,'(a)')
-     >    ' -----------------------------------------------'
+        write(6,'(/,a,i5,a,f10.3,a)')' Davidson iteration',iter,        &
+     &    ' at',tim_cvb(cpu0),' CPU seconds'
+        write(6,'(a)')                                                  &
+     &    ' -----------------------------------------------'
       endif
 
-c  If no optimization of structure coefficients we are doing
-c  "Augmented" calc:
+!  If no optimization of structure coefficients we are doing
+!  "Augmented" calc:
       if(strucopt)then
         ic1=1
       else
@@ -47,9 +47,9 @@ c  "Augmented" calc:
 
       do 100 ivec=1,nvec
       call free2all_cvb(c(ic1,ivec),vec_all,1)
-      if(.not.strucopt)call daxpy_(nvb,c(1,ivec),cvb,1,
-     >  vec_all(nprorb+1),1)
-c  (CIVB set in O12SA :)
+      if(.not.strucopt)call daxpy_(nvb,c(1,ivec),cvb,1,                 &
+     &  vec_all(nprorb+1),1)
+!  (CIVB set in O12SA :)
       call cizero_cvb(civbs)
       call oneexc_cvb(civb,civbs,vec_all,.false.,0)
       call str2vbf_cvb(vec_all(nprorb+1),cvbdet)

@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine rdbis_cvb(ivec,n,ioffset)
-c  Buffered integer IO with integer offset
+!  Buffered integer IO with integer offset
       implicit real*8 (a-h,o-z)
 #include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
@@ -30,7 +30,7 @@ c  Buffered integer IO with integer offset
       i_max=min(lbuf,ioffset+n-(jbuf-1)*lbuf)
 
       if(ibuf.ne.jbuf)then
-c  Following line only needed if reads and writes can be mixed
+!  Following line only needed if reads and writes can be mixed
         call bufio_wrbuf_cvb()
         call bufio_chbuf_cvb(jbuf)
         call bufio_rdbuf_cvb()
