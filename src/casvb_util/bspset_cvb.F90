@@ -11,27 +11,29 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine bspset_cvb(kbasis1,ic,need)
-      implicit real*8 (a-h,o-z)
+
+subroutine bspset_cvb(kbasis1,ic,need)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
-
 #include "WrkSpc.fh"
 
-      if(ic.eq.1)then
-        i1 = mstackiz_cvb((nel+1)*(nel+1)*(nel+1))
-        call bspset2_cvb(iwork(i1),nel,kbasis1,need)
-        call mfreei_cvb(i1)
-      elseif(ic.eq.2)then
-        do 100 i=0,(nel+1)*(nel+1)*(nel+1)-1
-        iwork(i+lb(3))=-1
-100     continue
-        call bspset2_cvb(iwork(lb(3)),nel,kbasis1,need)
-        call setifnss_cvb(iwork(lb(4)),iwork(lb(5)),iwork(lb(6)))
-      endif
-      if(kbasis1.eq.6)need=0
-      return
-      end
+if (ic == 1) then
+  i1 = mstackiz_cvb((nel+1)*(nel+1)*(nel+1))
+  call bspset2_cvb(iwork(i1),nel,kbasis1,need)
+  call mfreei_cvb(i1)
+else if (ic == 2) then
+  do i=0,(nel+1)*(nel+1)*(nel+1)-1
+    iwork(i+lb(3)) = -1
+  end do
+  call bspset2_cvb(iwork(lb(3)),nel,kbasis1,need)
+  call setifnss_cvb(iwork(lb(4)),iwork(lb(5)),iwork(lb(6)))
+end if
+if (kbasis1 == 6) need = 0
+
+return
+
+end subroutine bspset_cvb

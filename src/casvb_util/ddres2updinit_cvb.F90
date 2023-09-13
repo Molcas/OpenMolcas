@@ -11,9 +11,14 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddres2updinit_cvb(n_div1)
-      implicit real*8 (a-h,o-z)
+
+subroutine ddres2updinit_cvb(n_div1)
+
+implicit real*8(a-h,o-z)
 #include "direct_cvb.fh"
-      n_div=n_div1
-      return
-      end
+
+n_div = n_div1
+
+return
+
+end subroutine ddres2updinit_cvb

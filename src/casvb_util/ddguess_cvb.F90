@@ -11,24 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddguess_cvb(vec,ndim,ioffs)
-      implicit real*8(a-h,o-z)
+
+subroutine ddguess_cvb(vec,ndim,ioffs)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
-      dimension vec(ndim)
+dimension vec(ndim)
 
-      nvguess=nvguess+1
-      if(nvguess.gt.maxd)then
-        write(6,*)' Too many guess vectors in Davidson!',nvguess,maxd
-        call abend_cvb()
-      endif
-      if(ndim+ioffs.gt.nparm)then
-        write(6,*)' Illegal call to DDGUESS :',ndim,ioffs,nparm
-        call abend_cvb()
-      endif
-      call fzero(work(idd(1)+(nvguess-1)*nparm),ioffs)
-      call fmove_cvb(vec,work(ioffs+idd(1)+(nvguess-1)*nparm),ndim)
-      call fzero(work(ndim+ioffs+idd(1)+(nvguess-1)*nparm),             &
-     &  nparm-ioffs-ndim)
-      return
-      end
+nvguess = nvguess+1
+if (nvguess > maxd) then
+  write(6,*) ' Too many guess vectors in Davidson!',nvguess,maxd
+  call abend_cvb()
+end if
+if (ndim+ioffs > nparm) then
+  write(6,*) ' Illegal call to DDGUESS :',ndim,ioffs,nparm
+  call abend_cvb()
+end if
+call fzero(work(idd(1)+(nvguess-1)*nparm),ioffs)
+call fmove_cvb(vec,work(ioffs+idd(1)+(nvguess-1)*nparm),ndim)
+call fzero(work(ndim+ioffs+idd(1)+(nvguess-1)*nparm),nparm-ioffs-ndim)
+
+return
+
+end subroutine ddguess_cvb

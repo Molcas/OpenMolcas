@@ -11,32 +11,36 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cvbinit_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine cvbinit_cvb()
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+parameter(iset=1)
+save is_set
+data is_set/0/
 
-      parameter(iset=1)
-      save is_set
-      data is_set/0/
+if (is_set == iset) return
 
-      if(is_set.eq.iset)return
-      entry cvbfinit_cvb()
+entry cvbfinit_cvb()
 
-      mxaobf=maxbfn
-      iprec=8
-      iwidth=110
-      call formats_cvb()
-      call setidbl_cvb()
-      call meminit_cvb()
-      if(is_set.ne.iset)then
-!  Initializations below are only carried out once :
-        call io_init_cvb()
-        call main_bdata_cvb()
-      endif
-      is_set=iset
-      return
-      end
+mxaobf = maxbfn
+iprec = 8
+iwidth = 110
+call formats_cvb()
+call setidbl_cvb()
+call meminit_cvb()
+if (is_set /= iset) then
+  ! Initializations below are only carried out once:
+  call io_init_cvb()
+  call main_bdata_cvb()
+end if
+is_set = iset
+
+return
+
+end subroutine cvbinit_cvb

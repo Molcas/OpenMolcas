@@ -11,79 +11,82 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,        &
-     &  solp,solp_res,eig,eig_res)
-      implicit real*8 (a-h,o-z)
+
+subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,solp,solp_res,eig,eig_res)
+
+implicit real*8(a-h,o-z)
 #include "direct_cvb.fh"
-      dimension ap(maxdav,maxdav),eigval(itdav),eigvec(itdav,itdav)
-      dimension solp(maxdav),solp_res(maxdav)
+dimension ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
+dimension solp(maxdav), solp_res(maxdav)
 
-      do 100 it=1,itdav
-      call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
-100   continue
+do it=1,itdav
+  call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
+end do
 
-      if(ip.ge.3)then
-        write(6,*)' AP matrix :'
-        do i=1,itdav
-        eigval(i)=eigvec(i,i)
-        eigvec(i,i)=eigvec(i,i)+corenrg
-        enddo
-        call mxprintd_cvb(eigvec,itdav,itdav,0)
-        do i=1,itdav
-        eigvec(i,i)=eigval(i)
-        enddo
-      endif
+if (ip >= 3) then
+  write(6,*) ' AP matrix :'
+  do i=1,itdav
+    eigval(i) = eigvec(i,i)
+    eigvec(i,i) = eigvec(i,i)+corenrg
+  end do
+  call mxprintd_cvb(eigvec,itdav,itdav,0)
+  do i=1,itdav
+    eigvec(i,i) = eigval(i)
+  end do
+end if
 
-      call mxdiag_cvb(eigvec,eigval,itdav)
+call mxdiag_cvb(eigvec,eigval,itdav)
 
-      if(ifollow.le.2)then
-        iroot=nroot
-        jroot=mod(itdav,nroot)
-        if(jroot.eq.0)jroot=nroot
-        if(itdav.eq.maxdav.or.itdav.eq.nfrdim)jroot=nroot
-        iroot=min(itdav,iroot)
-        jroot=min(itdav,jroot)
-        if(ifollow.eq.1)then
-          iroot=itdav-iroot+1
-          jroot=itdav-jroot+1
-        endif
-      elseif(ifollow.eq.3)then
-        write(6,*)' Overlap-based root following not yet implemented!'
-        call abend_cvb()
-      elseif(ifollow.eq.4)then
-!  Eigenvalue-based root following -- determine closest root :
-        iroot=1
-        delmin=abs(eigval(1)-eig)
-        do 200 i=1,min(itdav,nroot)
-        del=abs(eigval(i)-eig)
-        if(del.lt.delmin)then
-          delmin=del
-          iroot=i
-        endif
-200     continue
-        jroot=iroot
-      endif
-      eig=eigval(iroot)
-      call fmove_cvb(eigvec(1,iroot),solp,itdav)
-      eig_res=eigval(jroot)
-      call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
-      if(ip.ge.2)then
-        write(6,'(a)')' Eigenvalues :'
-        do i=1,itdav
-        eigval(i)=eigval(i)+corenrg
-        enddo
-        call vecprint_cvb(eigval,itdav)
-        do i=1,itdav
-        eigval(i)=eigval(i)-corenrg
-        enddo
-        write(6,'(a,i3,a)')' Eigenvector number',iroot,' :'
-        call vecprint_cvb(solp,itdav)
-        if(jroot.ne.iroot)then
-          write(6,'(a,i3,a)')' Eigenvector number',jroot,' :'
-          call vecprint_cvb(solp_res,itdav)
-        endif
-      endif
-      return
+if (ifollow <= 2) then
+  iroot = nroot
+  jroot = mod(itdav,nroot)
+  if (jroot == 0) jroot = nroot
+  if ((itdav == maxdav) .or. (itdav == nfrdim)) jroot = nroot
+  iroot = min(itdav,iroot)
+  jroot = min(itdav,jroot)
+  if (ifollow == 1) then
+    iroot = itdav-iroot+1
+    jroot = itdav-jroot+1
+  end if
+else if (ifollow == 3) then
+  write(6,*) ' Overlap-based root following not yet implemented!'
+  call abend_cvb()
+else if (ifollow == 4) then
+  ! Eigenvalue-based root following -- determine closest root:
+  iroot = 1
+  delmin = abs(eigval(1)-eig)
+  do i=1,min(itdav,nroot)
+    del = abs(eigval(i)-eig)
+    if (del < delmin) then
+      delmin = del
+      iroot = i
+    end if
+  end do
+  jroot = iroot
+end if
+eig = eigval(iroot)
+call fmove_cvb(eigvec(1,iroot),solp,itdav)
+eig_res = eigval(jroot)
+call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
+if (ip >= 2) then
+  write(6,'(a)') ' Eigenvalues :'
+  do i=1,itdav
+    eigval(i) = eigval(i)+corenrg
+  end do
+  call vecprint_cvb(eigval,itdav)
+  do i=1,itdav
+    eigval(i) = eigval(i)-corenrg
+  end do
+  write(6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
+  call vecprint_cvb(solp,itdav)
+  if (jroot /= iroot) then
+    write(6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
+    call vecprint_cvb(solp_res,itdav)
+  end if
+end if
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(dum)
-      end
+if (.false.) call Unused_real(dum)
+
+end subroutine axexsol2_cvb

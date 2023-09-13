@@ -11,79 +11,72 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddsol72_cvb(hp,eigval,eigvec,dum,itdav,maxdav,nfrdim1, &
-     &  solp,solp_res,eig,eig_res)
-!  Solve linear equation in Davidson subspace.
-      implicit real*8 (a-h,o-z)
+
+subroutine ddsol72_cvb(hp,eigval,eigvec,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
+! Solve linear equation in Davidson subspace.
+
+implicit real*8(a-h,o-z)
 #include "direct_cvb.fh"
-      dimension hp(maxdav,maxdav),eigval(itdav),eigvec(itdav,itdav)
-      dimension solp(maxdav),solp_res(maxdav)
+dimension hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
+dimension solp(maxdav), solp_res(maxdav)
 
-      if(ip.ge.3)then
-        write(6,*)' HP matrix (b) :'
-        call mxprint2_cvb(hp,itdav,maxdav,itdav,0)
-      endif
+if (ip >= 3) then
+  write(6,*) ' HP matrix (b) :'
+  call mxprint2_cvb(hp,itdav,maxdav,itdav,0)
+end if
 
-      do it=1,itdav
-      call fmove_cvb(hp(1,it),eigvec(1,it),itdav)
-      enddo
-      call mxdiag_cvb(eigvec,eigval,itdav)
+do it=1,itdav
+  call fmove_cvb(hp(1,it),eigvec(1,it),itdav)
+end do
+call mxdiag_cvb(eigvec,eigval,itdav)
 
-      if(ifollow.le.2)then
-        iroot=nroot
-        jroot=mod(itdav,nroot)
-        if(jroot.eq.0)jroot=nroot
-        if(itdav.eq.maxdav.or.itdav.eq.nfrdim)jroot=nroot
-        iroot=min(itdav,iroot)
-        jroot=min(itdav,jroot)
-        if(ifollow.eq.1)then
-          iroot=itdav-iroot+1
-          jroot=itdav-jroot+1
-        endif
-      elseif(ifollow.eq.3)then
-        write(6,*)' Overlap-based root following not yet implemented!'
-        call abend_cvb()
-      elseif(ifollow.eq.4)then
-!  Eigenvalue-based root following -- determine closest root :
-        iroot=1
-        delmin=abs(eigval(1)-eig)
-        do 100 i=1,min(itdav,nroot)
-        del=abs(eigval(i)-eig)
-        if(del.lt.delmin)then
-          delmin=del
-          iroot=i
-        endif
-100     continue
-        jroot=iroot
-      endif
-      eig=eigval(iroot)
-      call fmove_cvb(eigvec(1,iroot),solp,itdav)
-      eig_res=eigval(jroot)
-      call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
-      if(ip.ge.2)then
-        write(6,'(a)')' Eigenvalues :'
-        call vecprint_cvb(eigval,itdav)
-        write(6,'(a,i3,a)')' Eigenvector number',iroot,' :'
-        call vecprint_cvb(solp,itdav)
-        if(jroot.ne.iroot)then
-          write(6,'(a,i3,a)')' Eigenvector number',jroot,' :'
-        call vecprint_cvb(solp_res,itdav)
-        endif
-      endif
-      return
+if (ifollow <= 2) then
+  iroot = nroot
+  jroot = mod(itdav,nroot)
+  if (jroot == 0) jroot = nroot
+  if ((itdav == maxdav) .or. (itdav == nfrdim)) jroot = nroot
+  iroot = min(itdav,iroot)
+  jroot = min(itdav,jroot)
+  if (ifollow == 1) then
+    iroot = itdav-iroot+1
+    jroot = itdav-jroot+1
+  end if
+else if (ifollow == 3) then
+  write(6,*) ' Overlap-based root following not yet implemented!'
+  call abend_cvb()
+else if (ifollow == 4) then
+  ! Eigenvalue-based root following -- determine closest root:
+  iroot = 1
+  delmin = abs(eigval(1)-eig)
+  do i=1,min(itdav,nroot)
+    del = abs(eigval(i)-eig)
+    if (del < delmin) then
+      delmin = del
+      iroot = i
+    end if
+  end do
+  jroot = iroot
+end if
+eig = eigval(iroot)
+call fmove_cvb(eigvec(1,iroot),solp,itdav)
+eig_res = eigval(jroot)
+call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
+if (ip >= 2) then
+  write(6,'(a)') ' Eigenvalues :'
+  call vecprint_cvb(eigval,itdav)
+  write(6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
+  call vecprint_cvb(solp,itdav)
+  if (jroot /= iroot) then
+    write(6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
+    call vecprint_cvb(solp_res,itdav)
+  end if
+end if
+
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_real(dum)
-        call Unused_integer(nfrdim1)
-      end if
-      end
-      subroutine ddinit7_cvb(ifollow1,isaddle1,ip1)
-      implicit real*8 (a-h,o-z)
-#include "direct_cvb.fh"
+if (.false.) then
+  call Unused_real(dum)
+  call Unused_integer(nfrdim1)
+end if
 
-      ifollow=ifollow1
-      isaddle=isaddle1
-      nroot=max(1,isaddle+1)
-      ip=ip1
-      return
-      end
+end subroutine ddsol72_cvb

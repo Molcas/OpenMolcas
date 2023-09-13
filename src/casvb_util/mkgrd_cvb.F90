@@ -11,31 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
-      implicit real*8 (a-h,o-z)
-      logical doorb
+
+subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
+
+implicit real*8(a-h,o-z)
+logical doorb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension civb(ndet),civb2(ndet),grad(npr),dvbdet(ndetvb)
+dimension civb(ndet), civb2(ndet), grad(npr), dvbdet(ndetvb)
 
-      call fzero(grad,nprorb)
-      if(doorb)call onedens_cvb(civb,civb2,grad,.false.,1)
-      if(strucopt)then
-        call ci2vbg_cvb(civb2,dvbdet)
-        if(np-nprorb.eq.nvb)then
-          call vb2strg_cvb(dvbdet,grad(nprorb+1))
-        elseif(np-nprorb.lt.nvb)then
-          i1 = mstackrz_cvb(nvb)
-          call vb2strg_cvb(dvbdet,work(i1))
-          call fmove_cvb(work(i1),work(lv(5)),np-nprorb)
-          call mfreer_cvb(i1)
-        else
-          write(6,*)' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb
-        endif
-      endif
-      return
-      end
+call fzero(grad,nprorb)
+if (doorb) call onedens_cvb(civb,civb2,grad,.false.,1)
+if (strucopt) then
+  call ci2vbg_cvb(civb2,dvbdet)
+  if (np-nprorb == nvb) then
+    call vb2strg_cvb(dvbdet,grad(nprorb+1))
+  else if (np-nprorb < nvb) then
+    i1 = mstackrz_cvb(nvb)
+    call vb2strg_cvb(dvbdet,work(i1))
+    call fmove_cvb(work(i1),work(lv(5)),np-nprorb)
+    call mfreer_cvb(i1)
+  else
+    write(6,*) ' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb
+  end if
+end if
+
+return
+
+end subroutine mkgrd_cvb

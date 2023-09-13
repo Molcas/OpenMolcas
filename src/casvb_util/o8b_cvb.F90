@@ -11,17 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o8b_cvb(nparm,                                         &
-     &  dxnrm,grdnrm,close2conv)
-      implicit real*8 (a-h,o-z)
-      logical close2conv
+
+subroutine o8b_cvb(nparm,dxnrm,grdnrm,close2conv)
+
+implicit real*8(a-h,o-z)
+logical close2conv
 #include "WrkSpc.fh"
 #include "opt2_cvb.fh"
 
-      call o8b2_cvb(nparm,                                              &
-     &  work(ix(1)),work(ix(2)),work(ix(3)),work(ix(4)),                &
-     &  dxnrm,close2conv)
-      return
+call o8b2_cvb(nparm,work(ix(1)),work(ix(2)),work(ix(3)),work(ix(4)),dxnrm,close2conv)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(grdnrm)
-      end
+if (.false.) call Unused_real(grdnrm)
+
+end subroutine o8b_cvb

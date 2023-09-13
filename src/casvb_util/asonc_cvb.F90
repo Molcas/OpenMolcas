@@ -11,21 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine asonc_cvb(c,axc,sxc,nvec,nprm)
-!  Applies H and S on c vector(s).
-      implicit real*8 (a-h,o-z)
+
+subroutine asonc_cvb(c,axc,sxc,nvec,nprm)
+! Applies H and S on c vector(s).
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension c(nvb,nvec),axc(nvb,nvec),sxc(nvb,nvec)
+dimension c(nvb,nvec), axc(nvb,nvec), sxc(nvb,nvec)
 
-      call asonc2_cvb(c,axc,sxc,nvec,                                   &
-     &  work(lc(1)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),    &
-     &  work(lw(6)),work(lw(9)))
-      return
+call asonc2_cvb(c,axc,sxc,nvec,work(lc(1)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)))
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(nprm)
-      end
+if (.false.) call Unused_integer(nprm)
+
+end subroutine asonc_cvb

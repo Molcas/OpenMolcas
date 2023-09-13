@@ -11,13 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cblank_cvb(a,ndim)
-      character*(*) a
-      character*1 blank
-      save blank
-      data blank/' '/
-      do 100 i=1,ndim
-      a(i:i)=blank
-100   continue
-      return
-      end
+
+subroutine cblank_cvb(a,ndim)
+
+character*(*) a
+character*1 blank
+save blank
+data blank/' '/
+
+do i=1,ndim
+  a(i:i) = blank
+end do
+
+return
+
+end subroutine cblank_cvb

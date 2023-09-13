@@ -11,19 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine writegs_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine writegs_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      i1=mstacki_cvb(ndetvb)
-      call writegs2_cvb(work(lv(1)),work(lv(2)),                        &
-     &  work(lw(9)),iwork(ll(11)),iwork(ll(12)),                        &
-     &  iwork(i1))
-      call mfreei_cvb(i1)
-      return
-      end
+i1 = mstacki_cvb(ndetvb)
+call writegs2_cvb(work(lv(1)),work(lv(2)),work(lw(9)),iwork(ll(11)),iwork(ll(12)),iwork(i1))
+call mfreei_cvb(i1)
+
+return
+
+end subroutine writegs_cvb

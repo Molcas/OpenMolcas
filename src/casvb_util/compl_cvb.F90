@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine compl_cvb(a,nvec,n)
-!  Creates orthogonal complement.
-!  On entry : A is square (NxN) and contains NVEC vectors.
-!  On exit  : A is a full matrix, NVEC first vectors are untouched,
-!  remaining orthonormal vectors span the orthogonal complement.
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension a(n,n)
 
-      i1 = mstackr_cvb(n*(nvec+n))
-      i2 = mstackr_cvb(n*n)
-      i3 = mstackr_cvb(n)
-      call compl2_cvb(a,nvec,n,work(i1),work(i2),work(i3))
-      call mfreer_cvb(i1)
-      return
-      end
+subroutine compl_cvb(a,nvec,n)
+! Creates orthogonal complement.
+! On entry : A is square (NxN) and contains NVEC vectors.
+! On exit  : A is a full matrix, NVEC first vectors are untouched,
+! remaining orthonormal vectors span the orthogonal complement.
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension a(n,n)
+
+i1 = mstackr_cvb(n*(nvec+n))
+i2 = mstackr_cvb(n*n)
+i3 = mstackr_cvb(n)
+call compl2_cvb(a,nvec,n,work(i1),work(i2),work(i3))
+call mfreer_cvb(i1)
+
+return
+
+end subroutine compl_cvb

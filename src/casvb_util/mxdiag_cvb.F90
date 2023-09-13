@@ -11,17 +11,21 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mxdiag_cvb(a,eigval,n)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension a(n,n),eigval(n)
 
-      itmp = mstackr_cvb(n*3)
-      call dsyev_('V','L',n,a,n,eigval,work(itmp),n*3,ierr)
-      call mfreer_cvb(itmp)
-      if(ierr.ne.0)then
-        write(6,*)' Fatal error in mxdiag, ierr :',ierr
-        call abend_cvb()
-      endif
-      return
-      end
+subroutine mxdiag_cvb(a,eigval,n)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension a(n,n), eigval(n)
+
+itmp = mstackr_cvb(n*3)
+call dsyev_('V','L',n,a,n,eigval,work(itmp),n*3,ierr)
+call mfreer_cvb(itmp)
+if (ierr /= 0) then
+  write(6,*) ' Fatal error in mxdiag, ierr :',ierr
+  call abend_cvb()
+end if
+
+return
+
+end subroutine mxdiag_cvb

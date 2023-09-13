@@ -11,111 +11,115 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine change1_cvb()
-      implicit real*8 (a-h,o-z)
-      logical changed
+
+subroutine change1_cvb()
+
+implicit real*8(a-h,o-z)
+logical changed
 ! ... Change of dimensioning variables ...
-      logical, external :: chpcmp_cvb
+logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "frag_cvb.fh"
 #include "rls_cvb.fh"
 
-!  Arrays for determinant handling (E_ij) and definition
-!  of VB wavefunction :
-      changed=.false.
-      if(chpcmp_cvb(norb))changed=.true.
-      if(chpcmp_cvb(nalf))changed=.true.
-      if(chpcmp_cvb(nbet))changed=.true.
-      if(chpcmp_cvb(nel))changed=.true.
+! Arrays for determinant handling (E_ij) and definition
+! of VB wavefunction:
+changed = .false.
+if (chpcmp_cvb(norb)) changed = .true.
+if (chpcmp_cvb(nalf)) changed = .true.
+if (chpcmp_cvb(nbet)) changed = .true.
+if (chpcmp_cvb(nel)) changed = .true.
 
-      if(changed)call touch_cvb('CASPRINT')
+if (changed) call touch_cvb('CASPRINT')
 
-      if(chpcmp_cvb(nconf))changed=.true.
+if (chpcmp_cvb(nconf)) changed = .true.
 
-      if(.not.changed)call cnfchk_cvb()
-      nvb=nvb_cvb(kbasis)
+if (.not. changed) call cnfchk_cvb()
+nvb = nvb_cvb(kbasis)
 
-      if(chpcmp_cvb(ndetvb))changed=.true.
-      if(chpcmp_cvb(mxion))changed=.true.
-      if(chpcmp_cvb(mnion))changed=.true.
-      if(changed)call touch_cvb('MEM1')
-      return
+if (chpcmp_cvb(ndetvb)) changed = .true.
+if (chpcmp_cvb(mxion)) changed = .true.
+if (chpcmp_cvb(mnion)) changed = .true.
+if (changed) call touch_cvb('MEM1')
 
-      entry chop1_cvb()
-      if(release(1))call mfreei_cvb(ll(1))
-      release(1)=.true.
-      release(2)=.false.
+return
 
-!  Dimensions
-      call icomb_cvb(norb,nalf,nda)
-      call icomb_cvb(norb,nbet,ndb)
-      do i=1,nfrag
-      call icomb_cvb(norb,nalf_fr(i,1),nda_fr(i,1))
-      call icomb_cvb(norb,nbet_fr(i,1),ndb_fr(i,1))
-      enddo
-      call icomb_cvb(norb-1,nalf-1,n1a)
-      call icomb_cvb(norb-1,nbet-1,n1b)
-      call icomb_cvb(norb,nalf-1,nam1)
-      call icomb_cvb(norb,nbet-1,nbm1)
-      ndet = nda*ndb
-!  Symmetry of determinant strings :
-      call getnci_cvb(ncivb,nel,nalf-nbet,0)
-!  Identical indexing arrays may share memory :
-      ll(1) = mstacki_cvb(norb*n1a)
-      ll(2) = ll(1)
-      if(.not.absym(4))ll(2) = mstacki_cvb(norb*n1b)
-      ll(3) = mstacki_cvb(norb*nda)
-      ll(4) = ll(3)
-      if(.not.absym(4))ll(4) = mstacki_cvb(norb*ndb)
-      ll(5) = mstacki_cvb(norb*(nam1+1))
-      ll(6) = ll(5)
-      if(.not.absym(4))ll(6) = mstacki_cvb(norb*(nbm1+1))
+entry chop1_cvb()
+if (release(1)) call mfreei_cvb(ll(1))
+release(1) = .true.
+release(2) = .false.
 
-!  7 & 8 (PHAFRM & PHBFRM) taken out
+! Dimensions
+call icomb_cvb(norb,nalf,nda)
+call icomb_cvb(norb,nbet,ndb)
+do i=1,nfrag
+  call icomb_cvb(norb,nalf_fr(i,1),nda_fr(i,1))
+  call icomb_cvb(norb,nbet_fr(i,1),ndb_fr(i,1))
+end do
+call icomb_cvb(norb-1,nalf-1,n1a)
+call icomb_cvb(norb-1,nbet-1,n1b)
+call icomb_cvb(norb,nalf-1,nam1)
+call icomb_cvb(norb,nbet-1,nbm1)
+ndet = nda*ndb
+! Symmetry of determinant strings:
+call getnci_cvb(ncivb,nel,nalf-nbet,0)
+! Identical indexing arrays may share memory:
+ll(1) = mstacki_cvb(norb*n1a)
+ll(2) = ll(1)
+if (.not. absym(4)) ll(2) = mstacki_cvb(norb*n1b)
+ll(3) = mstacki_cvb(norb*nda)
+ll(4) = ll(3)
+if (.not. absym(4)) ll(4) = mstacki_cvb(norb*ndb)
+ll(5) = mstacki_cvb(norb*(nam1+1))
+ll(6) = ll(5)
+if (.not. absym(4)) ll(6) = mstacki_cvb(norb*(nbm1+1))
 
-      ll(9) = mstackr_cvb(norb*nam1)
-      ll(10)= ll(9)
-      if(.not.absym(4))ll(10)= mstackr_cvb(norb*nbm1)
+! 7 & 8 (PHAFRM & PHBFRM) taken out
 
-!  Determinant dimensioning for VB wavefunction :
-      ndavb=0
-      ndbvb=0
-      naprodvb=1
-      nbprodvb=1
-      nvbprod=1
-      npvb=1
-      do ifrag=1,nfrag
-      ndavb=ndavb+nda_fr(1,ifrag)+1
-      ndbvb=ndbvb+ndb_fr(1,ifrag)+1
-      naprodvb=naprodvb*nda_fr(1,ifrag)
-      nbprodvb=nbprodvb*ndb_fr(1,ifrag)
-      nvbprod=nvbprod*ndetvb_fr(ifrag)
-      npvb=npvb*ndetvb_fr(ifrag)
-      enddo
-      if(nfrag.le.1)then
-        naprodvb=0
-        nbprodvb=0
-        nvbprod=0
-      endif
+ll(9) = mstackr_cvb(norb*nam1)
+ll(10) = ll(9)
+if (.not. absym(4)) ll(10) = mstackr_cvb(norb*nbm1)
 
-      ll(11)= mstacki_cvb(npvb)
-      ll(12)= mstacki_cvb(nda+1)
-      ll(13)= mstacki_cvb(npvb)
-      ll(14)= mstacki_cvb(ndb+1)
-      ll(15)= mstacki_cvb(nconf*noe)
-!  16 obsolete (former ioncty)
-      ll(17)= mstacki_cvb(ndetvb)
-!  Use 7 & 8 for IA12IND / IB12IND
-      ll(7)= mstacki_cvb(naprodvb)
-      ll(8)= mstacki_cvb(nbprodvb)
+! Determinant dimensioning for VB wavefunction:
+ndavb = 0
+ndbvb = 0
+naprodvb = 1
+nbprodvb = 1
+nvbprod = 1
+npvb = 1
+do ifrag=1,nfrag
+  ndavb = ndavb+nda_fr(1,ifrag)+1
+  ndbvb = ndbvb+ndb_fr(1,ifrag)+1
+  naprodvb = naprodvb*nda_fr(1,ifrag)
+  nbprodvb = nbprodvb*ndb_fr(1,ifrag)
+  nvbprod = nvbprod*ndetvb_fr(ifrag)
+  npvb = npvb*ndetvb_fr(ifrag)
+end do
+if (nfrag <= 1) then
+  naprodvb = 0
+  nbprodvb = 0
+  nvbprod = 0
+end if
 
-      ll(20)= mstacki_cvb(ndetvb)
-      ll(21)= mstacki_cvb(ndavb)
-      ll(22)= mstacki_cvb(ndetvb)
-      ll(23)= mstacki_cvb(ndbvb)
-      return
-      end
+ll(11) = mstacki_cvb(npvb)
+ll(12) = mstacki_cvb(nda+1)
+ll(13) = mstacki_cvb(npvb)
+ll(14) = mstacki_cvb(ndb+1)
+ll(15) = mstacki_cvb(nconf*noe)
+! 16 obsolete (former ioncty)
+ll(17) = mstacki_cvb(ndetvb)
+! Use 7 & 8 for IA12IND / IB12IND
+ll(7) = mstacki_cvb(naprodvb)
+ll(8) = mstacki_cvb(nbprodvb)
+
+ll(20) = mstacki_cvb(ndetvb)
+ll(21) = mstacki_cvb(ndavb)
+ll(22) = mstacki_cvb(ndetvb)
+ll(23) = mstacki_cvb(ndbvb)
+
+return
+
+end subroutine change1_cvb

@@ -11,23 +11,24 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mktrnspn2_cvb(cvb,cvbdet)
-      implicit real*8 (a-h,o-z)
+
+subroutine mktrnspn2_cvb(cvb,cvbdet)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "spinb_cvb.fh"
-      dimension cvb(nvb),cvbdet(ndetvb)
+dimension cvb(nvb), cvbdet(ndetvb)
 
-      if(ip(1).ge.1)                                                    &
-     &  write(6,'(/,4a)')' Changing spin basis : ',                     &
-     &  spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ',     &
-     &  spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
-      call str2vbc_cvb(cvb,cvbdet)
-      kbasiscvb=kbasis
-      nvb=nvb_cvb(kbasiscvb)
-      call vb2strc_cvb(cvbdet,cvb)
-      return
-      end
+if (ip(1) >= 1) write(6,'(/,4a)') ' Changing spin basis : ',spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ', &
+                                  spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
+call str2vbc_cvb(cvb,cvbdet)
+kbasiscvb = kbasis
+nvb = nvb_cvb(kbasiscvb)
+call vb2strc_cvb(cvbdet,cvb)
+
+return
+
+end subroutine mktrnspn2_cvb

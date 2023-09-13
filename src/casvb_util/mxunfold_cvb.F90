@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mxunfold_cvb(avec,a,n)
-      implicit real*8 (a-h,o-z)
-      dimension avec(n*(n-1)),a(n,n)
 
-      call fzero(a,n*n)
-      iprm=0
-      do 100 i=1,n
-      do 101 j=1,n
-      if(j.ne.i)then
-        iprm=iprm+1
-        a(j,i)=avec(iprm)
-      endif
-101   continue
-100   continue
-      return
-      end
+subroutine mxunfold_cvb(avec,a,n)
+
+implicit real*8(a-h,o-z)
+dimension avec(n*(n-1)), a(n,n)
+
+call fzero(a,n*n)
+iprm = 0
+do i=1,n
+  do j=1,n
+    if (j /= i) then
+      iprm = iprm+1
+      a(j,i) = avec(iprm)
+    end if
+  end do
+end do
+
+return
+
+end subroutine mxunfold_cvb

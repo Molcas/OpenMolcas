@@ -11,16 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine opt_cvb()
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
 
+subroutine opt_cvb()
+
+implicit real*8(a-h,o-z)
+#include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      call opt2_cvb(work(lv(1)),work(lv(2)))
-      return
-      end
+call opt2_cvb(work(lv(1)),work(lv(2)))
+
+return
+
+end subroutine opt_cvb

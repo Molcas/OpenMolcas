@@ -14,83 +14,85 @@
 !  **********************
 !  ** EISPACK ROUTINES **
 !  **********************
-      subroutine eltran(nm,n,low,igh,a,int,z)
+
+subroutine eltran(nm,n,low,igh,a,int,z)
+! this subroutine is a translation of the algol procedure elmtrans,
+! num. math. 16, 181-204(1970) by peters and wilkinson.
+! handbook for auto. comp., vol.ii-linear algebra, 372-395(1971).
 !
-      integer i,j,n,kl,mm,mp,nm,igh,low,mp1
-      REAL*8 a(nm,igh),z(nm,n)
-      integer int(igh)
+! this subroutine accumulates the stabilized elementary
+! similarity transformations used in the reduction of a
+! real general matrix to upper hessenberg form by  elmhes.
 !
-!     this subroutine is a translation of the algol procedure elmtrans,
-!     num. math. 16, 181-204(1970) by peters and wilkinson.
-!     handbook for auto. comp., vol.ii-linear algebra, 372-395(1971).
+! on input
 !
-!     this subroutine accumulates the stabilized elementary
-!     similarity transformations used in the reduction of a
-!     real general matrix to upper hessenberg form by  elmhes.
+!    nm must be set to the row dimension of two-dimensional
+!      array parameters as declared in the calling program
+!      dimension statement.
 !
-!     on input
+!    n is the order of the matrix.
 !
-!        nm must be set to the row dimension of two-dimensional
-!          array parameters as declared in the calling program
-!          dimension statement.
+!    low and igh are integers determined by the balancing
+!      subroutine  balanc.  if  balanc  has not been used,
+!      set low=1, igh=n.
 !
-!        n is the order of the matrix.
+!    a contains the multipliers which were used in the
+!      reduction by  elmhes  in its lower triangle
+!      below the subdiagonal.
 !
-!        low and igh are integers determined by the balancing
-!          subroutine  balanc.  if  balanc  has not been used,
-!          set low=1, igh=n.
+!    int contains information on the rows and columns
+!      interchanged in the reduction by  elmhes.
+!      only elements low through igh are used.
 !
-!        a contains the multipliers which were used in the
-!          reduction by  elmhes  in its lower triangle
-!          below the subdiagonal.
+! on output
 !
-!        int contains information on the rows and columns
-!          interchanged in the reduction by  elmhes.
-!          only elements low through igh are used.
+!    z contains the transformation matrix produced in the
+!      reduction by  elmhes.
 !
-!     on output
+! questions and comments should be directed to burton s. garbow,
+! mathematics and computer science div, argonne national laboratory
 !
-!        z contains the transformation matrix produced in the
-!          reduction by  elmhes.
+! this version dated august 1983.
 !
-!     questions and comments should be directed to burton s. garbow,
-!     mathematics and computer science div, argonne national laboratory
-!
-!     this version dated august 1983.
-!
-!     ------------------------------------------------------------------
-!
-!     .......... initialize z to identity matrix ..........
-      do 80 j = 1, n
-!
-         do 60 i = 1, n
-         z(i,j) = 0.0d0
-   60    continue
-!
-         z(j,j) = 1.0d0
-   80 continue
-!
-      kl = igh - low - 1
-      if (kl .lt. 1) go to 200
-!     .......... for mp=igh-1 step -1 until low+1 do -- ..........
-      do 140 mm = 1, kl
-         mp = igh - mm
-         mp1 = mp + 1
-!
-         do 100 i = mp1, igh
-         z(i,mp) = a(i,mp-1)
-  100    continue
-!
-         i = int(mp)
-         if (i .eq. mp) go to 140
-!
-         do 130 j = mp, igh
-            z(mp,j) = z(i,j)
-            z(i,j) = 0.0d0
-  130    continue
-!
-         z(i,mp) = 1.0d0
-  140 continue
-!
-  200 return
-      end
+! ----------------------------------------------------------------------
+
+integer i, j, n, kl, mm, mp, nm, igh, low, mp1
+real*8 a(nm,igh), z(nm,n)
+integer int(igh)
+
+! .......... initialize z to identity matrix ..........
+do j=1,n
+
+  do i=1,n
+    z(i,j) = 0.0d0
+  end do
+
+  z(j,j) = 1.0d0
+end do
+
+kl = igh-low-1
+if (kl < 1) go to 200
+! .......... for mp=igh-1 step -1 until low+1 do -- ..........
+do mm=1,kl
+  mp = igh-mm
+  mp1 = mp+1
+
+  do i=mp1,igh
+    z(i,mp) = a(i,mp-1)
+  end do
+
+  i = int(mp)
+  if (i == mp) go to 140
+
+  do j=mp,igh
+    z(mp,j) = z(i,j)
+    z(i,j) = 0.0d0
+  end do
+
+  z(i,mp) = 1.0d0
+140 continue
+end do
+
+200 return
+
+end subroutine eltran

@@ -11,100 +11,54 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine svd2_cvb(ainp,val,vec,vmat,n1,n2,n12,                  &
-     &  a,w,u,v,rv1,indx)
-      implicit real*8 (a-h,o-z)
-      dimension ainp(n1,n2),val(n2),vec(n1,n2),vmat(n2,n2)
-      dimension a(n12,n2),w(n2),u(n12,n2),v(n12,n2),rv1(n2),indx(n2)
 
-      if(n12.eq.n1)then
-        call fmove_cvb(ainp,a,n1*n2)
-      else
-        call fzero(a,n12*n2)
-        do 100 i=1,n2
-        call fmove_cvb(ainp(1,i),a(1,i),n1)
-100     continue
-      endif
-      ierr=0
-      call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
+subroutine svd2_cvb(ainp,val,vec,vmat,n1,n2,n12,a,w,u,v,rv1,indx)
 
-      if(ierr.ne.0)then
-        write(6,*)' Fatal error in SVD_CVB!',ierr
-        call abend_cvb()
-      endif
+implicit real*8(a-h,o-z)
+dimension ainp(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
+dimension a(n12,n2), w(n2), u(n12,n2), v(n12,n2), rv1(n2), indx(n2)
 
-!  Eispack code is broken, in the following u is generated
-!  from v :
+if (n12 == n1) then
+  call fmove_cvb(ainp,a,n1*n2)
+else
+  call fzero(a,n12*n2)
+  do i=1,n2
+    call fmove_cvb(ainp(1,i),a(1,i),n1)
+  end do
+end if
+ierr = 0
+call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
 
-!  First recreate a :
-      if(n12.eq.n1)then
-        call fmove_cvb(ainp,a,n1*n2)
-      else
-        call fzero(a,n12*n2)
-        do 200 i=1,n2
-        call fmove_cvb(ainp(1,i),a(1,i),n1)
-200     continue
-      endif
+if (ierr /= 0) then
+  write(6,*) ' Fatal error in SVD_CVB!',ierr
+  call abend_cvb()
+end if
 
-      do 300 i=1,n2
-      call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
-      call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
-300   continue
+! Eispack code is broken, in the following u is generated from v:
 
-!  Sort singular values in ascending order:
-      call sortindxr_cvb(n2,w,indx)
-      do 400 i=1,n2
-      val(i)=w(indx(i))
-      call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
-      call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
-400   continue
-      return
-      end
-      function detm_cvb(a,n)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension a(n*n)
-      dimension det(2)
-!start linpack_determinant
-      save zero,one
-      data zero/0d0/,one/1d0/
-!else
-!;      save one
-!;      data one/1d0/
-!end
+! First recreate a:
+if (n12 == n1) then
+  call fmove_cvb(ainp,a,n1*n2)
+else
+  call fzero(a,n12*n2)
+  do i=1,n2
+    call fmove_cvb(ainp(1,i),a(1,i),n1)
+  end do
+end if
 
-      if(n.eq.0)then
-        detm_cvb=one
-        return
-      endif
-      i1 = mstackr_cvb(n*n)
-      i2 = mstacki_cvb(n)
-      ierr=0
-      call fmove_cvb(a,work(i1),n*n)
-      call dgetrf_(n,n,work(i1),n,iwork(i2),ierr)
-!start linpack_determinant
-!      call dgefa(work(i1),n,n,iwork(i2),ierr)
-      i3 = mstackr_cvb(n*n)
-      if(ierr.ne.0)then
-        detm_cvb=zero
-        call mfreer_cvb(i1)
-        return
-      endif
-      call dgedi(work(i1),n,n,iwork(i2),det,work(i3),10)
-!else
-!;      dl=0d0
-!;      ds=1d0
-!;      do k=0,n-1
-!;        dl=dl+log10(abs(work(i1+k*(n+1))))
-!;        if(work(i1+k*(n+1)).lt.0d0)ds=-ds
-!;      end do
-!;      det(2)=dble(int(dl))
-!;      det(1)=ds*(10d0**(dl-det(2)))
-!end
-      detm_cvb=det(1) * 10d0**det(2)
-      call mfreer_cvb(i1)
-      return
-      end
-!  *******************************************
-!  ** Orthogonalisation, normalisation etc. **
-!  *******************************************
+do i=1,n2
+  call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
+  call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
+end do
+
+! Sort singular values in ascending order:
+call sortindxr_cvb(n2,w,indx)
+do i=1,n2
+  val(i) = w(indx(i))
+  call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
+  call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
+end do
+
+return
+
+end subroutine svd2_cvb

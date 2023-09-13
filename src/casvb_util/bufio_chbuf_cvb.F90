@@ -11,18 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine bufio_chbuf_cvb(jbuf)
-!  Change buffer position to JBUF. NB: Does not write current buffer,
-!  neither is JBUF buffer read.
-      implicit real*8 (a-h,o-z)
+
+subroutine bufio_chbuf_cvb(jbuf)
+! Change buffer position to JBUF. NB: Does not write current buffer,
+! neither is JBUF buffer read.
+
+implicit real*8(a-h,o-z)
 #include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
 
-!  Dumy writes so that we don't exceed end-of-file:
-      do 100 kbuf=nbuf+1,jbuf-1
-      ibuf=kbuf
-      call bufio_wrzbuf_cvb()
-100   continue
-      ibuf=jbuf
-      return
-      end
+! Dummy writes so that we don't exceed end-of-file:
+do kbuf=nbuf+1,jbuf-1
+  ibuf = kbuf
+  call bufio_wrzbuf_cvb()
+end do
+ibuf = jbuf
+
+return
+
+end subroutine bufio_chbuf_cvb

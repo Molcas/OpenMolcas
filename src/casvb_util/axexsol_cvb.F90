@@ -11,21 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axexsol_cvb(ap,dum,itdav,maxdav,nfrdim1,               &
-     &  solp,solp_res,eig,eig_res)
-!  Diagonalize Hamiltonian in Davidson subspace:
-      implicit real*8 (a-h,o-z)
+
+subroutine axexsol_cvb(ap,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
+! Diagonalize Hamiltonian in Davidson subspace:
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      dimension ap(maxdav,maxdav),solp(maxdav),solp_res(maxdav)
+dimension ap(maxdav,maxdav), solp(maxdav), solp_res(maxdav)
 
-      i1 = mstackr_cvb(itdav)
-      i2 = mstackr_cvb(itdav*itdav)
+i1 = mstackr_cvb(itdav)
+i2 = mstackr_cvb(itdav*itdav)
 
-      call axexsol2_cvb(ap,work(i1),work(i2),dum,itdav,maxdav,          &
-     &  solp,solp_res,eig,eig_res)
+call axexsol2_cvb(ap,work(i1),work(i2),dum,itdav,maxdav,solp,solp_res,eig,eig_res)
 
-      call mfreer_cvb(i1)
-      return
+call mfreer_cvb(i1)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(nfrdim1)
-      end
+if (.false.) call Unused_integer(nfrdim1)
+
+end subroutine axexsol_cvb

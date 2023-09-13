@@ -11,73 +11,73 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine wrgspr_cvb(recn,c,i,n,ic,ierr)
-      implicit real*8 (a-h,o-z)
+
+subroutine wrgspr_cvb(recn,c,i,n,ic,ierr)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 #include "mo_cvb.fh"
-      dimension c(n)
+dimension c(n)
 
-!  Read header :
-      call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,            &
-     &  ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
+! Read header:
+call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 
-      if(ic.eq.1)then
-!  >>> Orbital write, I is orbital number :
-        if(i.gt.norb1)then
-          ierr=1
-          return
-        endif
-        ioffs=(i-1)*norb1+ioffs_orbs
-        call wrr_cvb(c,min(norb1,n),recn,ioffs)
-      elseif(ic.eq.2)then
-!  >>> Structure write, I is starting structure coefficient :
-        if(i.gt.nvb1)then
-          ierr=1
-          return
-        endif
-        ioffs=i-1+ioffs_cvb
-        call wrr_cvb(c,min(nvb1,n),recn,ioffs)
-      elseif(ic.eq.3)then
-!  >>> Write of orbital in AO basis, I is orbital number :
-        if(i.gt.norb1)then
-          ierr=1
-          return
-        endif
-        if(nbas_mo1.eq.0)then
-          nbas_mo1=nbas_mo
-          call wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,        &
-     &      ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
-        endif
-!  Error return if AO bases are not identical :
-        if(nbas_mo1.ne.n)then
-          ierr=1
-          return
-        endif
-        ioffs=(i-1)*nbas_mo1+ioffs_orbsao
-        call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
-      elseif(ic.eq.4)then
-!  >>> Write of localized orbital in AO basis, I is orbital number :
-        if(i.gt.norb1)then
-          ierr=1
-          return
-        endif
-        if(nbas_mo1.eq.0)then
-          nbas_mo1=nbas_mo
-          call wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,        &
-     &      ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
-        endif
-!  Error return if AO bases are not identical :
-        if(nbas_mo1.ne.n)then
-          ierr=1
-          return
-        endif
-        ioffs=(i-1)*nbas_mo1+ioffs_orbslao
-        call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
-      endif
-      return
-      end
+if (ic == 1) then
+  ! >>> Orbital write, I is orbital number:
+  if (i > norb1) then
+    ierr = 1
+    return
+  end if
+  ioffs = (i-1)*norb1+ioffs_orbs
+  call wrr_cvb(c,min(norb1,n),recn,ioffs)
+else if (ic == 2) then
+  ! >>> Structure write, I is starting structure coefficient:
+  if (i > nvb1) then
+    ierr = 1
+    return
+  end if
+  ioffs = i-1+ioffs_cvb
+  call wrr_cvb(c,min(nvb1,n),recn,ioffs)
+else if (ic == 3) then
+  ! >>> Write of orbital in AO basis, I is orbital number:
+  if (i > norb1) then
+    ierr = 1
+    return
+  end if
+  if (nbas_mo1 == 0) then
+    nbas_mo1 = nbas_mo
+    call wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
+  end if
+  ! Error return if AO bases are not identical:
+  if (nbas_mo1 /= n) then
+    ierr = 1
+    return
+  end if
+  ioffs = (i-1)*nbas_mo1+ioffs_orbsao
+  call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+else if (ic == 4) then
+  ! >>> Write of localized orbital in AO basis, I is orbital number:
+  if (i > norb1) then
+    ierr = 1
+    return
+  end if
+  if (nbas_mo1 == 0) then
+    nbas_mo1 = nbas_mo
+    call wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
+  end if
+  ! Error return if AO bases are not identical:
+  if (nbas_mo1 /= n) then
+    ierr = 1
+    return
+  end if
+  ioffs = (i-1)*nbas_mo1+ioffs_orbslao
+  call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+end if
+
+return
+
+end subroutine wrgspr_cvb

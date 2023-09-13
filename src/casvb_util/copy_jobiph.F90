@@ -11,15 +11,19 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      SUBROUTINE Copy_JobIph(InFile,OutFile)
+
+subroutine Copy_JobIph(InFile,OutFile)
 ! This is very nasty routine, actually a temporary hack!!!
 ! should be replaced to a proper copy of JobIph files!
-      Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      Character*(*) InFile,OutFile
 
-      call fcopy(InFile,OutFile,ierr)
-        if(iErr.ne.0) call abend
-!      Junk='cp -p '//File1(1:lFile1)//' '//File2(1:lFile2)
-      Return
-      End
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+character*(*) InFile, OutFile
+
+call fcopy(InFile,OutFile,ierr)
+if (iErr /= 0) call abend()
+!Junk = 'cp -p '//File1(1:lFile1)//' '//File2(1:lFile2)
+
+return
+
+end subroutine Copy_JobIph

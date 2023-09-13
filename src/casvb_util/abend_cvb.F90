@@ -11,18 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  ****************
-!  ** Error exit **
-!  ****************
-      subroutine abend_cvb()
-      implicit real*8 (a-h,o-z)
+
+!****************
+!** Error exit **
+!****************
+subroutine abend_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
+write(6,'(a)') ' Error exit CASVB.'
+call date2_cvb(tim_cvb(cpu0))
+call abend()
 
-      write(6,'(a)')' Error exit CASVB.'
-      call date2_cvb(tim_cvb(cpu0))
-      call abend()
-      end
+end subroutine abend_cvb

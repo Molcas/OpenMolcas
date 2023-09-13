@@ -11,19 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine hello_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine hello_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
+if (variat) write(6,'(a)') ' '
+write(6,10)
+10 format(/,'     CASVB (Valence bond MCSCF)   Authors: T. Thorsteinsson and D. L. Cooper  (1996-2006)',/)
+if (.not. variat) call date1_cvb()
 
-      if(variat)write(6,'(a)')' '
-      write(6,10)
-10    format(/,'     CASVB (Valence bond MCSCF)   ',                    &
-     & 'Authors: T. Thorsteinsson and D. L. Cooper  (1996-2006)',/)
-      if(.not.variat)call date1_cvb()
+return
 
-      return
-      end
+end subroutine hello_cvb

@@ -11,29 +11,32 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cizero_cvb(cvec)
-      implicit real*8(a-h,o-z)
+
+!***********************************************************************
+!*                                                                     *
+!*  CIZERO := Zero vector                                              *
+!*                                                                     *
+!***********************************************************************
+subroutine cizero_cvb(cvec)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension cvec(*)
-!  *********************************************************************
-!  *                                                                   *
-!  *  CIZERO := Zero vector                                            *
-!  *                                                                   *
-!  *********************************************************************
+dimension cvec(*)
 
-      ivec=nint(cvec(1))
-      iformat=iform_ci(ivec)
-      if(iformat.eq.0)then
-        call fzero(work(iaddr_ci(ivec)),ndet)
-      else
-        write(6,*)' Unsupported format in CIZERO :',iformat
-        call abend_cvb()
-      endif
-      call setcnt2_cvb(ivec,0)
-      return
-      end
+ivec = nint(cvec(1))
+iformat = iform_ci(ivec)
+if (iformat == 0) then
+  call fzero(work(iaddr_ci(ivec)),ndet)
+else
+  write(6,*) ' Unsupported format in CIZERO :',iformat
+  call abend_cvb()
+end if
+call setcnt2_cvb(ivec,0)
+
+return
+
+end subroutine cizero_cvb

@@ -11,18 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine span2_cvb(c,nvec,s,n,metr)
-      implicit real*8 (a-h,o-z)
+
+subroutine span2_cvb(c,nvec,s,n,metr)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "span_comcvb.fh"
-      dimension c(n,nvec),s(*)
+dimension c(n,nvec), s(*)
 
-      if(nvtot.ne.0)then
-        call span_cvb(work(iaddr),nvtot,nvtot_,s,n,metr)
-        nvtot=nvtot_
-        call fmove_cvb(work(iaddr),c,n*nvtot)
-      endif
-      nvec=nvtot
-      call mfreer_cvb(iaddr)
-      return
-      end
+if (nvtot /= 0) then
+  call span_cvb(work(iaddr),nvtot,nvtot_,s,n,metr)
+  nvtot = nvtot_
+  call fmove_cvb(work(iaddr),c,n*nvtot)
+end if
+nvec = nvtot
+call mfreer_cvb(iaddr)
+
+return
+
+end subroutine span2_cvb

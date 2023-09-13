@@ -11,64 +11,71 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine pvb_2_cvb(cfrom,cto,csk,                               &
-     &  iapr,ixapr,mult)
-      implicit real*8 (a-h,o-z)
+
+!***********************************************************************
+!*                                                                     *
+!*  PVB    := Zero parts of CI vector not in VB wfn.                   *
+!*                                                                     *
+!***********************************************************************
+subroutine pvb_2_cvb(cfrom,cto,csk,iapr,ixapr,mult)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension cfrom(nda,ndb), cto(nda,ndb), csk(ndetvb)
+dimension iapr(ndetvb), ixapr(nda+1)
 
-      dimension cfrom(nda,ndb),cto(nda,ndb),csk(ndetvb)
-      dimension iapr(ndetvb),ixapr(nda+1)
+if (mult == -1) then
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      csk(idetvb) = cfrom(ia,ib)
+    end do
+  end do
+else if (mult == 0) then
+  call fzero(cto,nda*ndb)
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      cto(ia,ib) = cfrom(ia,ib)
+      csk(idetvb) = cfrom(ia,ib)
+    end do
+  end do
+else if (mult == 1) then
+  csk(1) = zero
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      csk(1) = csk(1)+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
+    end do
+  end do
+else if (mult == 2) then
+  call fzero(cto,nda*ndb)
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      cto(ia,ib) = csk(idetvb)
+    end do
+  end do
+else if (mult == 3) then
+  csk(1) = zero
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ! CFROM is really CDETVB
+      csk(1) = csk(1)+cto(ia,iapr(ixa))*cfrom(idetvb,1)
+    end do
+  end do
+end if
 
-      if(mult.eq.-1)then
-        idetvb=0
-        do 50 ia=1,nda
-        do 51 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        csk(idetvb)=cfrom(ia,ib)
-51      continue
-50      continue
-      elseif(mult.eq.0)then
-        call fzero(cto,nda*ndb)
-        idetvb=0
-        do 100 ia=1,nda
-        do 101 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        cto(ia,ib)=cfrom(ia,ib)
-        csk(idetvb)=cfrom(ia,ib)
-101     continue
-100     continue
-      elseif(mult.eq.1)then
-        csk(1)=zero
-        do 200 ia=1,nda
-        do 201 ixa=ixapr(ia),ixapr(ia+1)-1
-        csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
-201     continue
-200     continue
-      elseif(mult.eq.2)then
-        call fzero(cto,nda*ndb)
-        idetvb=0
-        do 300 ia=1,nda
-        do 301 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        cto(ia,ib)=csk(idetvb)
-301     continue
-300     continue
-      elseif(mult.eq.3)then
-        csk(1)=zero
-        idetvb=0
-        do 400 ia=1,nda
-        do 401 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-! CFROM is really CDETVB
-        csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(idetvb,1)
-401     continue
-400     continue
-      endif
-      return
-      end
+return
+
+end subroutine pvb_2_cvb

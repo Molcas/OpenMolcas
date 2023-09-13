@@ -11,18 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  *******************
-!  ** File handling **
-!  *******************
-      subroutine lendat_cvb(fileid,len)
-!
-!        return in len the length of record name in file ifil
-!            len = -1 if record does not exist
-!
-      implicit real*8 (a-h,o-z)
-!
-      len=-1
-      return
+!*******************
+!** File handling **
+!*******************
+
+subroutine lendat_cvb(fileid,len)
+! return in len the length of record name in file ifil
+!   len = -1 if record does not exist
+
+implicit real*8(a-h,o-z)
+
+len = -1
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(fileid)
-      end
+if (.false.) call Unused_real(fileid)
+
+end subroutine lendat_cvb

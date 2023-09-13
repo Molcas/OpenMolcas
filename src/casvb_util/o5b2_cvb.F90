@@ -11,32 +11,33 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o5b2_cvb(nparm,                                        &
-     &  dx,grad,                                                        &
-     &  dxnrm,close2conv)
-      implicit real*8 (a-h,o-z)
-      logical close2conv
+
+subroutine o5b2_cvb(nparm,dx,grad,dxnrm,close2conv)
+
+implicit real*8(a-h,o-z)
+logical close2conv
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"
 #include "trst_cvb.fh"
 #include "tune_cvb.fh"
+dimension dx(nparm), grad(nparm)
+save one
+data one/1d0/
 
-      dimension dx(nparm),grad(nparm)
-      save one
-      data one/1d0/
+call fmove_cvb(grad,dx,nparm)
+if (.not. maxize) call dscal_(nparm,-one,dx,1)
+dxnrm = dnrm2_(nparm,dx,1)
+if (.not. close2conv) then
+  ipu = 1
+else
+  ipu = 2
+end if
+if ((dxnrm > hh) .or. scalesmall(ipu)) then
+  call dscal_(nparm,hh/dxnrm,dx,1)
+  dxnrm = hh
+end if
 
-      call fmove_cvb(grad,dx,nparm)
-      if(.not.maxize)call dscal_(nparm,-one,dx,1)
-      dxnrm=dnrm2_(nparm,dx,1)
-      if(.not.close2conv)then
-        ipu=1
-      else
-        ipu=2
-      endif
-      if(dxnrm.gt.hh.or.scalesmall(ipu))then
-        call dscal_(nparm,hh/dxnrm,dx,1)
-        dxnrm=hh
-      endif
-      return
-      end
+return
+
+end subroutine o5b2_cvb

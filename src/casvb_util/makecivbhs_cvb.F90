@@ -11,30 +11,33 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
-!  Construct CIVBS ( = T(s) * CIVB ) & CIVBH ( = T(O)*H*T(O) * CIVB ):
-      implicit real*8 (a-h,o-z)
+
+subroutine makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
+! Construct CIVBS ( = T(s) * CIVB ) & CIVBH ( = T(O)*H*T(O) * CIVB ):
+
+implicit real*8(a-h,o-z)
 ! ... Content of CI vectors ...
-      logical, external :: tstcnt_cvb
+logical, external :: tstcnt_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension orbs(norb,norb)
+dimension civbh(ndet), civbs(ndet)
+dimension gjorb(*), gjorb2(*), gjorb3(*)
 
-      dimension orbs(norb,norb)
-      dimension civbh(ndet),civbs(ndet)
-      dimension gjorb(*),gjorb2(*),gjorb3(*)
+if (tstcnt_cvb(civbs,4) .and. tstcnt_cvb(civbh,5)) then
+  return
+else if (tstcnt_cvb(civbs,4)) then
+  call applyth_cvb(civbh,orbs,gjorb,gjorb2,gjorb3)
+else if (tstcnt_cvb(civbs,5)) then
+  call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+else
+  call applyths_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
+end if
+call setcnt_cvb(civbs,4)
+call setcnt_cvb(civbh,5)
 
-      if(tstcnt_cvb(civbs,4).and.tstcnt_cvb(civbh,5))then
-        return
-      elseif(tstcnt_cvb(civbs,4))then
-        call applyth_cvb(civbh,orbs,gjorb,gjorb2,gjorb3)
-      elseif(tstcnt_cvb(civbs,5))then
-        call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
-      else
-        call applyths_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
-      endif
-      call setcnt_cvb(civbs,4)
-      call setcnt_cvb(civbh,5)
-      return
-      end
+return
+
+end subroutine makecivbhs_cvb

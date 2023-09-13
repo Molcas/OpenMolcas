@@ -11,37 +11,36 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine biks_cvb(aikcof,bikcof,ikcoff,                         &
-     &  nel,kbasis,share,iprint)
-      implicit real*8 (a-h,o-z)
-      logical share
-      character*10 basis(7)
-      dimension aikcof(*),bikcof(*),ikcoff(0:nel,0:nel,0:nel)
-      save basis
-      data basis/'Kotani','Serber','Rumer','Rumer (LT)',                &
-     &  'projected','Determ','Determ'/
 
-      aikcof(1)=DBLE(kbasis)
-      bikcof(1)=DBLE(kbasis)
-      if(kbasis.eq.6)return
+subroutine biks_cvb(aikcof,bikcof,ikcoff,nel,kbasis,share,iprint)
 
-      if(iprint.ge.1)write(6,6100)                                      &
-     &  basis(kbasis)(1:len_trim_cvb(basis(kbasis)))
+implicit real*8(a-h,o-z)
+logical share
+character*10 basis(7)
+dimension aikcof(*), bikcof(*), ikcoff(0:nel,0:nel,0:nel)
+save basis
+data basis/'Kotani','Serber','Rumer','Rumer (LT)','projected','Determ','Determ'/
 
-      do 100 nel1=0,nel
-      do 101 nalf1=0,nel
-      do 102 i2s1=0,nel
-      if(ikcoff(nel1,nalf1,i2s1).ne.-1)then
-        ifns=ifns_cvb(nel1,(nel1+i2s1)/2,kbasis)
-        ndet=ndet_cvb(nel1,nalf1)
-        call bikset_cvb(                                                &
-     &    aikcof(2+ikcoff(nel1,nalf1,i2s1)),                            &
-     &    bikcof(2+ikcoff(nel1,nalf1,i2s1)),                            &
-     &    nel1,nalf1,i2s1,ndet,ifns,kbasis,share,iprint)
-      endif
-102   continue
-101   continue
-100   continue
-      return
-6100  format(/,' Generate ',a,' spin functions.')
-      end
+aikcof(1) = dble(kbasis)
+bikcof(1) = dble(kbasis)
+if (kbasis == 6) return
+
+if (iprint >= 1) write(6,6100) basis(kbasis)(1:len_trim_cvb(basis(kbasis)))
+
+do nel1=0,nel
+  do nalf1=0,nel
+    do i2s1=0,nel
+      if (ikcoff(nel1,nalf1,i2s1) /= -1) then
+        ifns = ifns_cvb(nel1,(nel1+i2s1)/2,kbasis)
+        ndet = ndet_cvb(nel1,nalf1)
+        call bikset_cvb(aikcof(2+ikcoff(nel1,nalf1,i2s1)),bikcof(2+ikcoff(nel1,nalf1,i2s1)),nel1,nalf1,i2s1,ndet,ifns,kbasis, &
+                        share,iprint)
+      end if
+    end do
+  end do
+end do
+
+return
+6100 format(/,' Generate ',a,' spin functions.')
+
+end subroutine biks_cvb

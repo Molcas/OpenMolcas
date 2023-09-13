@@ -11,15 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mksymorbs_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine mksymorbs_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      call mksymorbs2_cvb(work(lv(1)),work(lw(2)))
-      return
-      end
+call mksymorbs2_cvb(work(lv(1)),work(lw(2)))
+
+return
+
+end subroutine mksymorbs_cvb

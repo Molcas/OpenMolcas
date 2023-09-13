@@ -11,58 +11,58 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine getfree_cvb(nfrr,n_div,nfrdim,iter,fx)
-      implicit real*8 (a-h,o-z)
-      logical orb_is_cheap
+
+subroutine getfree_cvb(nfrr,n_div,nfrdim,iter,fx)
+
+implicit real*8(a-h,o-z)
+logical orb_is_cheap
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "formats_cvb.fh"
 #include "WrkSpc.fh"
-      save fxlast
+save fxlast
 
-      dxmove=.true.
-      if(iter.ge.0)then
-        if(ip(3).ge.2)then
-          write(6,'(/,a,i5,a,f10.3,a)')' Iteration',iter,' at',         &
-     &     tim_cvb(cpu0),' CPU seconds'
-          write(6,'(a)')' ---------------------------------------'
-        endif
-        if(icrit.eq.1)then
-          if(ip(3).ge.2)write(6,formE)' Svb :      ',fx
-          if(ip(3).ge.2.and.iter.gt.1)                                  &
-     &      write(6,formE)' Svb chg. : ',fx-fxlast
-        elseif(icrit.eq.2)then
-          if(ip(3).ge.2)write(6,formE)' Evb :      ',fx
-          if(ip(3).ge.2.and.iter.gt.1)                                  &
-     &      write(6,formE)' Evb chg. : ',fx-fxlast
-        endif
-        if(ip(3).ge.2)then
-          call report_cvb(work(lv(1)),norb)
-          if(strucopt)then
-            write(6,'(/,a)')' Structure coefficients :'
-            write(6,'(a)')' ------------------------'
-            call vecprint_cvb(work(lv(2)),nvb)
-          endif
-        endif
-      endif
-      fxlast=fx
-      call make_cvb('ORBFREE')
-      call make_cvb('CIFREE')
-      nfrr=nfr
-      if(imethod.ne.4)then
-        nfrdim=max(0,nfr-1)
-      else
-        nfrdim=nfr
-      endif
-      orb_is_cheap=(icrit.eq.1.and. .not.(proj.or.projcas))
-!  Set N_DIV :
-      if((.not.strucopt).or.(.not.orb_is_cheap))then
-        n_div=0
-      else
-        n_div=nfrorb
-      endif
-      return
-      end
+dxmove = .true.
+if (iter >= 0) then
+  if (ip(3) >= 2) then
+    write(6,'(/,a,i5,a,f10.3,a)') ' Iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
+    write(6,'(a)') ' ---------------------------------------'
+  end if
+  if (icrit == 1) then
+    if (ip(3) >= 2) write(6,formE) ' Svb :      ',fx
+    if ((ip(3) >= 2) .and. (iter > 1)) write(6,formE) ' Svb chg. : ',fx-fxlast
+  else if (icrit == 2) then
+    if (ip(3) >= 2) write(6,formE) ' Evb :      ',fx
+    if ((ip(3) >= 2) .and. (iter > 1)) write(6,formE) ' Evb chg. : ',fx-fxlast
+  end if
+  if (ip(3) >= 2) then
+    call report_cvb(work(lv(1)),norb)
+    if (strucopt) then
+      write(6,'(/,a)') ' Structure coefficients :'
+      write(6,'(a)') ' ------------------------'
+      call vecprint_cvb(work(lv(2)),nvb)
+    end if
+  end if
+end if
+fxlast = fx
+call make_cvb('ORBFREE')
+call make_cvb('CIFREE')
+nfrr = nfr
+if (imethod /= 4) then
+  nfrdim = max(0,nfr-1)
+else
+  nfrdim = nfr
+end if
+orb_is_cheap = ((icrit == 1) .and. (.not. (proj .or. projcas)))
+! Set N_DIV:
+if ((.not. strucopt) .or. (.not. orb_is_cheap)) then
+  n_div = 0
+else
+  n_div = nfrorb
+end if
+
+return
+
+end subroutine getfree_cvb

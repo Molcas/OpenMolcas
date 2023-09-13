@@ -11,10 +11,14 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine wrr_cvb(vec,n,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
-      dimension vec(n)
 
-      call wrlow_cvb(vec,n,file_id,ioffset)
-      return
-      end
+subroutine wrr_cvb(vec,n,file_id,ioffset)
+
+implicit real*8(a-h,o-z)
+dimension vec(n)
+
+call wrlow_cvb(vec,n,file_id,ioffset)
+
+return
+
+end subroutine wrr_cvb

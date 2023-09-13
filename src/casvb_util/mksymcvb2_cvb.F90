@@ -11,39 +11,39 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mksymcvb2_cvb(cvb,tconstr,cvbdet)
-      implicit real*8 (a-h,o-z)
+
+subroutine mksymcvb2_cvb(cvb,tconstr,cvbdet)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension cvb(nvb)
+dimension tconstr(nvb*nvb)
+dimension cvbdet(ndetvb)
+save thresh
+data thresh/1.d-15/
 
-      dimension cvb(nvb)
-      dimension tconstr(nvb*nvb)
-      dimension cvbdet(ndetvb)
-      save thresh
-      data thresh/1.d-15/
+! Constraints on struc coeffs - either symmetry or deleted
+if (iconstruc > 0) then
+  if (ip(1) >= 0) write(6,'(/,a)') ' Imposing constraints on the structure coefficients.'
+  call symtrizcvb_cvb(cvb)
+  psnrm = ddot_(nvb,cvb,1,cvb,1)
+  if (psnrm < thresh) then
+    write(6,*) ' Fatal error - structure coefficients null after symmetrization!'
+    call abend_cvb()
+  end if
+  if (ip(1) >= 0) then
+    write(6,'(/,a)') ' Constrained structure coefficients :'
+    write(6,'(a)') ' ------------------------------------'
+    call vecprint_cvb(cvb,nvb)
+  end if
+end if
+call str2vbc_cvb(cvb,cvbdet)
 
-!  Constraints on struc coeffs - either symmetry or deleted
-      if(iconstruc.gt.0)then
-        if(ip(1).ge.0)                                                  &
-     &  write(6,'(/,2a)')' Imposing constraints on ',                   &
-     &    'the structure coefficients.'
-        call symtrizcvb_cvb(cvb)
-        psnrm=ddot_(nvb,cvb,1,cvb,1)
-        if(psnrm.lt.thresh)then
-          write(6,*)' Fatal error - structure coefficients',            &
-     &      ' null after symmetrization!'
-          call abend_cvb()
-        endif
-        if(ip(1).ge.0)then
-          write(6,'(/,a)')' Constrained structure coefficients :'
-          write(6,'(a)')' ------------------------------------'
-          call vecprint_cvb(cvb,nvb)
-        endif
-      endif
-      call str2vbc_cvb(cvb,cvbdet)
-      return
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real_array(tconstr)
-      end
+if (.false.) call Unused_real_array(tconstr)
+
+end subroutine mksymcvb2_cvb

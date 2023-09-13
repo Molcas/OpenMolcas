@@ -11,8 +11,11 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine dum_a_cvb(idum)
-      return
+
+subroutine dum_a_cvb(idum)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(idum)
-      end
+if (.false.) call Unused_integer(idum)
+
+end subroutine dum_a_cvb

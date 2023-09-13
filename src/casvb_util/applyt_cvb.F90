@@ -11,83 +11,46 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  ************************************
-!  ** Routines involving CI and ORBS **
-!  ************************************
-!  *********************************************************************
-!  *                                                                   *
-!  *  APPLYT := transform CI vector IVEC according to orbital          *
-!  *         := transformation in IGJORB (from GAUSSJ)                 *
-!  *                                                                   *
-!  *  :> IVEC:      starting CI vector                                 *
-!  *  :> IGJORB:    simple orbital updates                             *
-!  *  :> N_APPLYT   stats                                              *
-!  *  :> I1ALF:     string handling                                    *
-!  *  :> I1BET:           do.                                          *
-!  *  :> IATO:            do.                                          *
-!  *  :> IBTO:            do.                                          *
-!  *  :> PHATO:           do.                                          *
-!  *  :> PHBTO:           do.                                          *
-!  *                                                                   *
-!  *  :< IVEC:      transformed CI vector                              *
-!  *  :< N_APPLYT   stats                                              *
-!  *                                                                   *
-!  *********************************************************************
-      subroutine iapplyt_cvb(cvec,igjorb)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
-#include "WrkSpc.fh"
-      dimension igjorb(*),cvec(*)
+!************************************
+!** Routines involving CI and ORBS **
+!************************************
+!***********************************************************************
+!*                                                                     *
+!*  APPLYT := transform CI vector IVEC according to orbital            *
+!*         := transformation in IGJORB (from GAUSSJ)                   *
+!*                                                                     *
+!*  :> IVEC:      starting CI vector                                   *
+!*  :> IGJORB:    simple orbital updates                               *
+!*  :> N_APPLYT   stats                                                *
+!*  :> I1ALF:     string handling                                      *
+!*  :> I1BET:           do.                                            *
+!*  :> IATO:            do.                                            *
+!*  :> IBTO:            do.                                            *
+!*  :> PHATO:           do.                                            *
+!*  :> PHBTO:           do.                                            *
+!*                                                                     *
+!*  :< IVEC:      transformed CI vector                                *
+!*  :< N_APPLYT   stats                                                *
+!*                                                                     *
+!***********************************************************************
+subroutine applyt_cvb(cvec,gjorb)
 
-      call iapplyt_cvb_internal(igjorb)
-!
-!     This is to allow type punning without an explicit interface
-      contains
-      subroutine iapplyt_cvb_internal(igjorb)
-      use iso_c_binding
-      integer, target :: igjorb(*)
-      real*8, pointer :: gjorb(:)
-      ivec=nint(cvec(1))
-      n_applyt=n_applyt+1
-      ioff=idbl_cvb(norb*norb)
-      if(iform_ci(ivec).eq.0)then
-        call permci_cvb(cvec,igjorb(1+ioff))
-        call c_f_pointer(c_loc(igjorb(1)),gjorb,[1])
-        call applyt2_cvb(work(iaddr_ci(ivec)),                          &
-     &    gjorb,igjorb(1+norb+ioff),                                    &
-     &    iwork(ll(1)),iwork(ll(2)),iwork(ll(5)),iwork(ll(6)),          &
-     &    work(ll(9)),work(ll(10)))
-        nullify(gjorb)
-      else
-        write(6,*)' Unsupported format in APPLYT :',iform_ci(ivec)
-        call abend_cvb()
-      endif
+implicit real*8(a-h,o-z)
+dimension gjorb(*), cvec(*)
 
-      call setcnt2_cvb(ivec,0)
-      return
-      end subroutine iapplyt_cvb_internal
-!
-      end
-!
-      subroutine applyt_cvb(cvec,gjorb)
-      implicit real*8 (a-h,o-z)
-      dimension gjorb(*),cvec(*)
-!
-      call applyt_cvb_internal(gjorb)
-!
-!     This is to allow type punning without an explicit interface
-      contains
-      subroutine applyt_cvb_internal(gjorb)
-      use iso_c_binding
-      real*8, target :: gjorb(*)
-      integer, pointer :: igjorb(:)
-      call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
-      call iapplyt_cvb(cvec,igjorb)
-      nullify(igjorb)
-      end subroutine applyt_cvb_internal
-!
-      end
+call applyt_cvb_internal(gjorb)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine applyt_cvb_internal(gjorb)
+  use iso_c_binding
+  real*8, target :: gjorb(*)
+  integer, pointer :: igjorb(:)
+  call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
+  call iapplyt_cvb(cvec,igjorb)
+  nullify(igjorb)
+end subroutine applyt_cvb_internal
+
+end subroutine applyt_cvb

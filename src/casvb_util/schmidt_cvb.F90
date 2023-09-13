@@ -11,20 +11,24 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine schmidt_cvb(c,nvec,sao,n,metr)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension c(n,nvec),sao(*)
 
-      if(metr.eq.0)then
-        i1 = mstackr_cvb(nvec)
-        call schmidt2_cvb(c,c,work(i1),nvec,sao,n,metr)
-        call mfreer_cvb(i1)
-      else
-        i1 = mstackr_cvb(n*nvec)
-        i2 = mstackr_cvb(nvec)
-        call schmidt2_cvb(c,work(i1),work(i2),nvec,sao,n,metr)
-        call mfreer_cvb(i1)
-      endif
-      return
-      end
+subroutine schmidt_cvb(c,nvec,sao,n,metr)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension c(n,nvec), sao(*)
+
+if (metr == 0) then
+  i1 = mstackr_cvb(nvec)
+  call schmidt2_cvb(c,c,work(i1),nvec,sao,n,metr)
+  call mfreer_cvb(i1)
+else
+  i1 = mstackr_cvb(n*nvec)
+  i2 = mstackr_cvb(nvec)
+  call schmidt2_cvb(c,work(i1),work(i2),nvec,sao,n,metr)
+  call mfreer_cvb(i1)
+end if
+
+return
+
+end subroutine schmidt_cvb

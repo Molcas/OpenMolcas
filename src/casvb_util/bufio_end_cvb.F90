@@ -11,12 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine bufio_end_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine bufio_end_cvb()
+
+implicit real*8(a-h,o-z)
 #include "bufio_cvb.fh"
 
-      call bufio_wrbuf_cvb()
-      dnbuf=DBLE(nbuf)
-      call wrlow_cvb([dnbuf],1,file_id,0)
-      return
-      end
+call bufio_wrbuf_cvb()
+dnbuf = dble(nbuf)
+call wrlow_cvb([dnbuf],1,file_id,0)
+
+return
+
+end subroutine bufio_end_cvb

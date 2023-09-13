@@ -11,94 +11,96 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine change7_cvb()
-      implicit real*8 (a-h,o-z)
-      logical changed
+
+subroutine change7_cvb()
+
+implicit real*8(a-h,o-z)
+logical changed
 ! ... Change of dimensioning variables ...
-      logical, external :: chpcmp_cvb
+logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "rls_cvb.fh"
-      save icase
+save icase
 
-!  Inconsequential work arrays
-      changed=.false.
-      if((imethod.ne.4.and.ifinish.eq.0).or.                            &
-     &  (ifinish.eq.1.or.ifinish.eq.2))then
-        icase=1
-      elseif(imethod.eq.4.and.icrit.eq.1.and.ifinish.eq.0)then
-        icase=2
-      elseif(imethod.eq.4.and.icrit.eq.2.and.ifinish.eq.0)then
-        icase=3
-      else
-        icase=4
-      endif
-      if(chpcmp_cvb(icase))changed=.true.
-      if(changed)call touch_cvb('MEM7')
-      return
+! Inconsequential work arrays
+changed = .false.
+if (((imethod /= 4) .and. (ifinish == 0)) .or. ((ifinish == 1) .or. (ifinish == 2))) then
+  icase = 1
+else if ((imethod == 4) .and. (icrit == 1) .and. (ifinish == 0)) then
+  icase = 2
+else if ((imethod == 4) .and. (icrit == 2) .and. (ifinish == 0)) then
+  icase = 3
+else
+  icase = 4
+end if
+if (chpcmp_cvb(icase)) changed = .true.
+if (changed) call touch_cvb('MEM7')
 
-      entry chop7_cvb()
-      if(release(7))call mfreer_cvb(lw(1))
-      release(7)=.true.
-      release(8)=.false.
+return
 
-      if(icase.eq.1)then
-        lw(1)= mstackr_cvb(norb*norb)
-        lw(2)= mstackr_cvb(norb*norb)
-        lw(3)= mstackr_cvb(norb*norb)
+entry chop7_cvb()
+if (release(7)) call mfreer_cvb(lw(1))
+release(7) = .true.
+release(8) = .false.
 
-        lw(4)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(5)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(6)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+if (icase == 1) then
+  lw(1) = mstackr_cvb(norb*norb)
+  lw(2) = mstackr_cvb(norb*norb)
+  lw(3) = mstackr_cvb(norb*norb)
 
-        lw(7)= mstackr_cvb(nvb)
-        lw(8)= mstackr_cvb(nvb)
-        lw(9)= mstackr_cvb(ndetvb)
-        lw(10)=mstackr_cvb(ndetvb)
-        lw(11)=mstackr_cvb(ndetvb)
-      elseif(icase.eq.2)then
-        lw(1)= mstackr_cvb(norb*norb)
-        lw(2)= mstackr_cvb(norb*norb)
-        lw(3)= mstackr_cvb(norb*norb)
+  lw(4) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(5) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(6) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
 
-        lw(4)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(5)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(6)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(7) = mstackr_cvb(nvb)
+  lw(8) = mstackr_cvb(nvb)
+  lw(9) = mstackr_cvb(ndetvb)
+  lw(10) = mstackr_cvb(ndetvb)
+  lw(11) = mstackr_cvb(ndetvb)
+else if (icase == 2) then
+  lw(1) = mstackr_cvb(norb*norb)
+  lw(2) = mstackr_cvb(norb*norb)
+  lw(3) = mstackr_cvb(norb*norb)
 
-        lw(7)= mstackr_cvb(nvb)
-        lw(8)= mstackr_cvb(nvb)
-        lw(9)= mstackr_cvb(ndetvb)
-        lw(10)=mstackr_cvb(ndetvb)
-        lw(11)=mstackr_cvb(ndetvb)
-      elseif(icase.eq.3)then
-        lw(1)= mstackr_cvb(norb*norb)
-        lw(2)= mstackr_cvb(norb*norb)
-        lw(3)= mstackr_cvb(norb*norb)
+  lw(4) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(5) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(6) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
 
-        lw(4)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(5)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-        lw(6)= mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(7) = mstackr_cvb(nvb)
+  lw(8) = mstackr_cvb(nvb)
+  lw(9) = mstackr_cvb(ndetvb)
+  lw(10) = mstackr_cvb(ndetvb)
+  lw(11) = mstackr_cvb(ndetvb)
+else if (icase == 3) then
+  lw(1) = mstackr_cvb(norb*norb)
+  lw(2) = mstackr_cvb(norb*norb)
+  lw(3) = mstackr_cvb(norb*norb)
 
-        lw(7)= mstackr_cvb(nvb)
-        lw(8)= mstackr_cvb(nvb)
-        lw(9)= mstackr_cvb(ndetvb)
-        lw(10)=mstackr_cvb(ndetvb)
-        lw(11)=mstackr_cvb(ndetvb)
-      endif
-      if(anyslater)then
-        nvb_alloc=ndetvb
-      else
-        nvb_alloc=ndetvb
-      endif
-      lw(12)=mstackr_cvb(norb*norb)
-      lw(13)=mstackr_cvb(nvb_alloc)
+  lw(4) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(5) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+  lw(6) = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
 
-      lv(5)=mstackr_cvb(ndetvb)
+  lw(7) = mstackr_cvb(nvb)
+  lw(8) = mstackr_cvb(nvb)
+  lw(9) = mstackr_cvb(ndetvb)
+  lw(10) = mstackr_cvb(ndetvb)
+  lw(11) = mstackr_cvb(ndetvb)
+end if
+if (anyslater) then
+  nvb_alloc = ndetvb
+else
+  nvb_alloc = ndetvb
+end if
+lw(12) = mstackr_cvb(norb*norb)
+lw(13) = mstackr_cvb(nvb_alloc)
 
-      ibasemx=max(ibasemx,mstackr_cvb(0))
+lv(5) = mstackr_cvb(ndetvb)
 
-      return
-      end
+ibasemx = max(ibasemx,mstackr_cvb(0))
+
+return
+
+end subroutine change7_cvb

@@ -11,33 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine stat1_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine stat1_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      cpu0=tim0_cvb()
-      if(((.not.variat).or.nmcscf.eq.1).or.(ip(3).ge.1.and.             &
-     &  ((.not.endvar).or.ip(6).ge.2)))then
-        cpu_prev=zero
-        n_applyt=0
-        n_applyh=0
-        n_hess=0
-        n_orbhess=0
-        n_cihess=0
-        n_2el=0
-        ibase0=mstackr_cvb(0)
-        call mfreer_cvb(ibase0)
-        ibasemx=ibase0
-      else
-        ibase0=mstackr_cvb(0)
-        call mfreer_cvb(ibase0)
-        ibasemx=ibase0+memused
-      endif
-      n_iter=0
-      return
-      end
+cpu0 = tim0_cvb()
+if (((.not. variat) .or. (nmcscf == 1)) .or. ((ip(3) >= 1) .and. ((.not. endvar) .or. (ip(6) >= 2)))) then
+  cpu_prev = zero
+  n_applyt = 0
+  n_applyh = 0
+  n_hess = 0
+  n_orbhess = 0
+  n_cihess = 0
+  n_2el = 0
+  ibase0 = mstackr_cvb(0)
+  call mfreer_cvb(ibase0)
+  ibasemx = ibase0
+else
+  ibase0 = mstackr_cvb(0)
+  call mfreer_cvb(ibase0)
+  ibasemx = ibase0+memused
+end if
+n_iter = 0
+
+return
+
+end subroutine stat1_cvb

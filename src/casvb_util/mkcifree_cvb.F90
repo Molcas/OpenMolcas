@@ -11,15 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkcifree_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine mkcifree_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      call mkcifree2_cvb(work(lv(2)),iwork(ls(9)),work(ls(15)))
-      return
-      end
+call mkcifree2_cvb(work(lv(2)),iwork(ls(9)),work(ls(15)))
+
+return
+
+end subroutine mkcifree_cvb

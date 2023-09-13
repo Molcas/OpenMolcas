@@ -11,15 +11,17 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o7b_cvb(nparm1,                                        &
-     &  dxnrm,grdnrm,close2conv)
-      implicit real*8 (a-h,o-z)
-      logical close2conv
+
+subroutine o7b_cvb(nparm1,dxnrm,grdnrm,close2conv)
+
+implicit real*8(a-h,o-z)
+logical close2conv
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
 #include "opt2_cvb.fh"
 
-      call o7b2_cvb(nparm1,work(ix(1)),                                 &
-     &  dxnrm,grdnrm,close2conv)
-      return
-      end
+call o7b2_cvb(nparm1,work(ix(1)),dxnrm,grdnrm,close2conv)
+
+return
+
+end subroutine o7b_cvb

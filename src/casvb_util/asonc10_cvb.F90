@@ -11,49 +11,33 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
-      implicit real*8 (a-h,o-z)
+
+subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 #include "ipp.fh"
-      dimension c(nprm,nvec),axc(nprm,nvec)
-!      save iter,ipp
+dimension c(nprm,nvec), axc(nprm,nvec)
+!save iter, ipp
 
-      iter=iter+1
-      if(ipp.ge.2)then
-        write(6,'(/,a,i5,a,f10.3,a)')' Davidson iteration',iter,        &
-     &    ' at',tim_cvb(cpu0),' CPU seconds'
-        write(6,'(a)')                                                  &
-     &    ' -----------------------------------------------'
-      endif
+iter = iter+1
+if (ipp >= 2) then
+  write(6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
+  write(6,'(a)') ' -----------------------------------------------'
+end if
 
-      do 100 ivec=1,nvec
-      call fmove_cvb(c(1,ivec),axc(1,ivec),nprm)
-      call hess_cvb(axc(1,ivec))
-      call ddproj_cvb(axc(1,ivec),nprm)
-100   continue
-      return
+do ivec=1,nvec
+  call fmove_cvb(c(1,ivec),axc(1,ivec),nprm)
+  call hess_cvb(axc(1,ivec))
+  call ddproj_cvb(axc(1,ivec),nprm)
+end do
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(dum1)
-      end
+if (.false.) call Unused_real(dum1)
 
-      subroutine asonc10init_cvb(ippinp)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-
-#include "WrkSpc.fh"
-#include "ipp.fh"
-!      save iter
-
-      iter=0
-      ipp=ippinp
-      call orthcvb_init_cvb()
-      return
-      end
+end subroutine asonc10_cvb

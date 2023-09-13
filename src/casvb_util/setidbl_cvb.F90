@@ -11,31 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  ************************************
-!  ** Memory allocation and the like **
-!  ************************************
-      subroutine setidbl_cvb()
-      implicit real*8(a-h,o-z)
+!************************************
+!** Memory allocation and the like **
+!************************************
+
+subroutine setidbl_cvb()
+
+implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
 #include "SysDef.fh"
 
-      idbl=RtoI
-      return
-      end
-      integer function idbl_cvb(nreals)
-      implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
+idbl = RtoI
 
-      idbl_cvb=nreals*idbl
-      return
-      end
-      integer function ihlf_cvb(nints)
-      implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
+return
 
-      ihlf_cvb=(nints+idbl-1)/idbl
-      return
-      end
-!
-!  -- Initialization of casvb memory manager ---
-!
+end subroutine setidbl_cvb

@@ -11,35 +11,38 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine makecivecp_cvb(civec,civecp,orbs)
-!  Construct CIVECP :
-      implicit real*8 (a-h,o-z)
+
+subroutine makecivecp_cvb(civec,civecp,orbs)
+
+! Construct CIVECP:
+implicit real*8(a-h,o-z)
 ! ... Content of CI vectors ...
-      logical, external :: tstcnt_cvb
+logical, external :: tstcnt_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension orbs(norb,norb)
-      dimension civec(ndet),civecp(ndet)
+dimension orbs(norb,norb)
+dimension civec(ndet), civecp(ndet)
 
-      if(tstcnt_cvb(civecp,3))return
+if (tstcnt_cvb(civecp,3)) return
 
-      iowrk  = mstackr_cvb(norb*norb)
-      igjorb = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-      call transp_cvb(orbs,work(iowrk),norb,norb)
-      call gaussj_cvb(work(iowrk),work(igjorb))
-      if(memplenty)then
-        call getci_cvb(civec)
-        call cicopy_cvb(civec,civecp)
-      else
-        call cird_cvb(civecp,61001.2d0)
-      endif
-      call applyt_cvb(civecp,work(igjorb))
-      call mfreer_cvb(iowrk)
+iowrk = mstackr_cvb(norb*norb)
+igjorb = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
+call transp_cvb(orbs,work(iowrk),norb,norb)
+call gaussj_cvb(work(iowrk),work(igjorb))
+if (memplenty) then
+  call getci_cvb(civec)
+  call cicopy_cvb(civec,civecp)
+else
+  call cird_cvb(civecp,61001.2d0)
+end if
+call applyt_cvb(civecp,work(igjorb))
+call mfreer_cvb(iowrk)
 
-      call setcnt_cvb(civecp,3)
-      return
-      end
+call setcnt_cvb(civecp,3)
+
+return
+
+end subroutine makecivecp_cvb

@@ -11,17 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine parse_init_cvb(luinp)
-      implicit real*8 (a-h,o-z)
+
+subroutine parse_init_cvb(luinp)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "luinp_cvb.fh"
 
-      inp=luinp
-      call rdline_init_cvb(variat)
-      call loopcntr_init_cvb(1,.false.)
-      return
-      end
+inp = luinp
+call rdline_init_cvb(variat)
+call loopcntr_init_cvb(1,.false.)
+
+return
+
+end subroutine parse_init_cvb

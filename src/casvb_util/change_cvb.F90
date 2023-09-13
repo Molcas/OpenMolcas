@@ -11,48 +11,49 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine change_cvb()
-      implicit real*8 (a-h,o-z)
-! ... Make: up to date? ...
-      logical, external :: up2date_cvb
-! ... Change of dimensioning variables ...
-      logical, external :: chpcmp_cvb,lchpcmp_cvb
-#include "main_cvb.fh"
 
+subroutine change_cvb()
+
+implicit real*8(a-h,o-z)
+! ... Make: up to date? ...
+logical, external :: up2date_cvb
+! ... Change of dimensioning variables ...
+logical, external :: chpcmp_cvb, lchpcmp_cvb
+#include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
+! General settings:
+proj = projsym
 
-! General settings :
-      proj=projsym
+! Determine changes to memory assignment:
+call chpcmp0_cvb()
 
-! Determine changes to memory assignment :
-      call chpcmp0_cvb()
+call change1_cvb()
+call change2_cvb()
+call change3_cvb()
+call change4_cvb()
+call change5_cvb()
+call change6_cvb()
+call change7_cvb()
 
-      call change1_cvb()
-      call change2_cvb()
-      call change3_cvb()
-      call change4_cvb()
-      call change5_cvb()
-      call change6_cvb()
-      call change7_cvb()
+! Finished determining reassignment of memory, now determine
+! what information must be evaluated/read again:
 
-!  Finished determining reassignment of memory, now determine
-!  what information must be evaluated/read again :
+call chpcmp2_cvb(kbasis,kbasisp)
+if (up2date_cvb('GUESS') .and. (kbasiscvb /= kbasis)) call touch_cvb('TRNSPN')
+call symchk_cvb()
+if (chpcmp_cvb(nint(strtint*1d1))) call touch_cvb('RDINT')
 
-      call chpcmp2_cvb(kbasis,kbasisp)
-      if(up2date_cvb('GUESS').and.kbasiscvb.ne.kbasis)                  &
-     &  call touch_cvb('TRNSPN')
-      call symchk_cvb()
-      if(chpcmp_cvb(nint(strtint*1d1)))call touch_cvb('RDINT')
+! Redo CIVB if definition has changed (from CVB or CIVECP):
+if (lchpcmp_cvb(projcas)) then
+  call setcnt2_cvb(2,0)
+  call setcnt2_cvb(3,0)
+  call setcnt2_cvb(4,0)
+  call setcnt2_cvb(5,0)
+end if
 
-!  Redo CIVB if definition has changed (from CVB or CIVECP) :
-      if(lchpcmp_cvb(projcas))then
-        call setcnt2_cvb(2,0)
-        call setcnt2_cvb(3,0)
-        call setcnt2_cvb(4,0)
-        call setcnt2_cvb(5,0)
-      endif
-      return
-      end
+return
+
+end subroutine change_cvb

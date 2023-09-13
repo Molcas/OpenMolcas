@@ -11,25 +11,29 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine bufio_init_cvb(file_id1)
-      implicit real*8 (a-h,o-z)
+
+subroutine bufio_init_cvb(file_id1)
+
+implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
-      logical, external :: tstfile_cvb
+logical, external :: tstfile_cvb
 #include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
-      dimension dnbuf(1)
+dimension dnbuf(1)
 
-      file_id=file_id1
-      ibuf=0
-      if(.not.tstfile_cvb(file_id))then
-        nbuf=0
-        dnbuf=DBLE(nbuf)
-        call wrlow_cvb(dnbuf,1,file_id,0)
-      else
-        call rdlow_cvb(dnbuf,1,file_id,0)
-        nbuf=nint(dnbuf(1))
-      endif
-      nword=lbuf/idbl
-      call izero(izbuffer,lbuf)
-      return
-      end
+file_id = file_id1
+ibuf = 0
+if (.not. tstfile_cvb(file_id)) then
+  nbuf = 0
+  dnbuf = dble(nbuf)
+  call wrlow_cvb(dnbuf,1,file_id,0)
+else
+  call rdlow_cvb(dnbuf,1,file_id,0)
+  nbuf = nint(dnbuf(1))
+end if
+nword = lbuf/idbl
+call izero(izbuffer,lbuf)
+
+return
+
+end subroutine bufio_init_cvb

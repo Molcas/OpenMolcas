@@ -11,20 +11,24 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine setretvals_cvb(esym,n_iter)
-      implicit real*8 (a-h,o-z)
-      dimension esym(*)
+
+subroutine setretvals_cvb(esym,n_iter)
+
+implicit real*8(a-h,o-z)
+dimension esym(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
-      if(nac.eq.0) then
-        ener(1,iter)=emy
-      else
-        do 100 jroot=1,lroots
-        ener(jroot,iter)=esym(stsym)
-100     continue
-      endif
-      iterci=n_iter
-      return
-      end
+if (nac == 0) then
+  ener(1,iter) = emy
+else
+  do jroot=1,lroots
+    ener(jroot,iter) = esym(stsym)
+  end do
+end if
+iterci = n_iter
+
+return
+
+end subroutine setretvals_cvb

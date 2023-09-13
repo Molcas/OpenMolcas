@@ -11,30 +11,33 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkorbperm2_cvb(orbs,cvb,owrk,cvbdet)
-      implicit real*8 (a-h,o-z)
+
+subroutine mkorbperm2_cvb(orbs,cvb,owrk,cvbdet)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "spinb_cvb.fh"
-      dimension orbs(norb,norb),cvb(nvb)
-      dimension owrk(norb,norb),cvbdet(ndetvb)
+dimension orbs(norb,norb), cvb(nvb)
+dimension owrk(norb,norb), cvbdet(ndetvb)
 
-      if(ip(1).ge.1)then
-        write(6,'(/,a)')' Permuting orbitals :'
-        write(6,'(1x,30i4)')(iorbprm(iorb),iorb=1,norb)
-      endif
-      do 100 iorb=1,norb
-      jorb=abs(iorbprm(iorb))
-      sgn=dble(sign(1,iorbprm(iorb)))
-      call fmove_cvb(orbs(1,jorb),owrk(1,iorb),norb)
-      call dscal_(norb,sgn,owrk(1,iorb),1)
-100   continue
-      call fmove_cvb(owrk,orbs,norb*norb)
-      call str2vbc_cvb(cvb,cvbdet)
-      call permvb_cvb(cvbdet,iorbprm)
-      call vb2strc_cvb(cvbdet,cvb)
-      return
-      end
+if (ip(1) >= 1) then
+  write(6,'(/,a)') ' Permuting orbitals :'
+  write(6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
+end if
+do iorb=1,norb
+  jorb = abs(iorbprm(iorb))
+  sgn = dble(sign(1,iorbprm(iorb)))
+  call fmove_cvb(orbs(1,jorb),owrk(1,iorb),norb)
+  call dscal_(norb,sgn,owrk(1,iorb),1)
+end do
+call fmove_cvb(owrk,orbs,norb*norb)
+call str2vbc_cvb(cvb,cvbdet)
+call permvb_cvb(cvbdet,iorbprm)
+call vb2strc_cvb(cvbdet,cvb)
+
+return
+
+end subroutine mkorbperm2_cvb

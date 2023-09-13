@@ -11,23 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine hini_cvb()
-      implicit real*8(a-h,o-z)
+
+subroutine hini_cvb()
+
+implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
 #include "WrkSpc.fh"
 #include "seth_cvb.fh"
 #include "loopcntr_cvb.fh"
 #include "files_cvb.fh"
 
-      loopstep=0
-      joptstep=0
-      if(inputmode.eq.1)then
-        ncnt=0
-        recn=recn_tmp03
-        call bufio_init_cvb(recn)
-      elseif(inputmode.eq.2)then
-        icnt=0
-        call bufio_init_cvb(recn)
-      endif
-      return
-      end
+loopstep = 0
+joptstep = 0
+if (inputmode == 1) then
+  ncnt = 0
+  recn = recn_tmp03
+  call bufio_init_cvb(recn)
+else if (inputmode == 2) then
+  icnt = 0
+  call bufio_init_cvb(recn)
+end if
+
+return
+
+end subroutine hini_cvb

@@ -11,28 +11,30 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine symtrizcvb_cvb(vecstr)
-      implicit real*8 (a-h,o-z)
+
+subroutine symtrizcvb_cvb(vecstr)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension vecstr(nvb)
-      dimension dum(1)
+dimension vecstr(nvb)
+dimension dum(1)
 
-      if(iconstruc.eq.0)then
-        return
-      elseif(iconstruc.eq.1)then
-        i1 = mstackr_cvb(ndetvb)
-        i2 = mstackr_cvb(nvb)
-        call symtrizcvb2_cvb(vecstr,                                    &
-     &    iwork(ls(13)),iwork(ls(16)),work(i1),work(i2))
-        call mfreer_cvb(i1)
-        call symtrizcvb3_cvb(vecstr,iwork(ls(10)))
-      elseif(iconstruc.eq.2)then
-        call schmidtd_cvb(work(ls(15)),nconstr,vecstr,1,dum,nvb,0)
-      endif
-      return
-      end
+if (iconstruc == 0) then
+  return
+else if (iconstruc == 1) then
+  i1 = mstackr_cvb(ndetvb)
+  i2 = mstackr_cvb(nvb)
+  call symtrizcvb2_cvb(vecstr,iwork(ls(13)),iwork(ls(16)),work(i1),work(i2))
+  call mfreer_cvb(i1)
+  call symtrizcvb3_cvb(vecstr,iwork(ls(10)))
+else if (iconstruc == 2) then
+  call schmidtd_cvb(work(ls(15)),nconstr,vecstr,1,dum,nvb,0)
+end if
+
+return
+
+end subroutine symtrizcvb_cvb

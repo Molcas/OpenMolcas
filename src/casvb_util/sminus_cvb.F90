@@ -11,55 +11,49 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine sminus_cvb(bikfrom,bikto,                              &
-     &  nel,nalffrom,nalfto,nvec)
-      implicit real*8 (a-h,o-z)
-      dimension bikfrom(*),bikto(*)
+
+subroutine sminus_cvb(bikfrom,bikto,nel,nalffrom,nalfto,nvec)
+
+implicit real*8(a-h,o-z)
+dimension bikfrom(*), bikto(*)
 #include "WrkSpc.fh"
 
-      call ab2asc_cvb(bikfrom,nvec,nel,nalffrom)
+call ab2asc_cvb(bikfrom,nvec,nel,nalffrom)
 
-      do 100 ialfto=nalffrom-1,nalfto,-1
-      ialffrom=ialfto+1
-      i1 = mstacki_cvb((nel+1)*(ialffrom))
-      i2 = mstacki_cvb(ialffrom)
-      i3 = mstacki_cvb(ialfto)
-      ndetfrom=ndet_cvb(nel,ialffrom)
-      ndetto=ndet_cvb(nel,ialfto)
-      if(nalffrom.eq.nalfto+1)then
-        call sminus2_cvb(bikfrom,bikto,                                 &
-     &    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,                     &
-     &    iwork(i1),iwork(i2),iwork(i3))
-      elseif(ialfto.eq.nalffrom-1)then
-        i4 = mheapr_cvb(ndetto*nvec)
-        call sminus2_cvb(bikfrom,work(i4),                              &
-     &    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,                     &
-     &    iwork(i1),iwork(i2),iwork(i3))
-      elseif(ialfto.eq.nalfto)then
-        call sminus2_cvb(work(i4),bikto,                                &
-     &    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,                     &
-     &    iwork(i1),iwork(i2),iwork(i3))
-        call mhpfreer_cvb(i4)
-      else
-        i5 = mheapr_cvb(ndetto*nvec)
-        call sminus2_cvb(work(i4),work(i5),                             &
-     &    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,                     &
-     &    iwork(i1),iwork(i2),iwork(i3))
-        call mhpfreer_cvb(i4)
-        i4=i5
-      endif
-      call mfreei_cvb(i1)
-100   continue
+do ialfto=nalffrom-1,nalfto,-1
+  ialffrom = ialfto+1
+  i1 = mstacki_cvb((nel+1)*(ialffrom))
+  i2 = mstacki_cvb(ialffrom)
+  i3 = mstacki_cvb(ialfto)
+  ndetfrom = ndet_cvb(nel,ialffrom)
+  ndetto = ndet_cvb(nel,ialfto)
+  if (nalffrom == nalfto+1) then
+    call sminus2_cvb(bikfrom,bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+  else if (ialfto == nalffrom-1) then
+    i4 = mheapr_cvb(ndetto*nvec)
+    call sminus2_cvb(bikfrom,work(i4),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+  else if (ialfto == nalfto) then
+    call sminus2_cvb(work(i4),bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call mhpfreer_cvb(i4)
+  else
+    i5 = mheapr_cvb(ndetto*nvec)
+    call sminus2_cvb(work(i4),work(i5),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call mhpfreer_cvb(i4)
+    i4 = i5
+  end if
+  call mfreei_cvb(i1)
+end do
 
-      call asc2ab_cvb(bikto,nvec,nel,nalfto)
-!  Now try to retain normalization ...
-      ndetfrom=ndet_cvb(nel,nalffrom)
-      ndetto=ndet_cvb(nel,nalfto)
-      do 200 ivec=1,nvec
-      cnrmfrom=dnrm2_(ndetfrom,bikfrom(1+(ivec-1)*ndetfrom),1)
-      cnrmto=dnrm2_(ndetto,bikto(1+(ivec-1)*ndetto),1)
-      if(cnrmto.gt.1d-10)                                               &
-     &  call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
-200   continue
-      return
-      end
+call asc2ab_cvb(bikto,nvec,nel,nalfto)
+! Now try to retain normalization ...
+ndetfrom = ndet_cvb(nel,nalffrom)
+ndetto = ndet_cvb(nel,nalfto)
+do ivec=1,nvec
+  cnrmfrom = dnrm2_(ndetfrom,bikfrom(1+(ivec-1)*ndetfrom),1)
+  cnrmto = dnrm2_(ndetto,bikto(1+(ivec-1)*ndetto),1)
+  if (cnrmto > 1d-10) call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
+end do
+
+return
+
+end subroutine sminus_cvb

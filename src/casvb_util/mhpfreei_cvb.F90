@@ -11,13 +11,17 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mhpfreei_cvb(ipoint)
-      implicit real*8 (a-h,o-z)
+
+subroutine mhpfreei_cvb(ipoint)
+
+implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
 #include "memman_cvb.fh"
 
-      if(memdebug)write(6,*)'   Enter mhpfreei: pointer :',ipoint
-      iraddr=(ipoint-1)/idbl+1
-      call mhpfreer_cvb(iraddr)
-      return
-      end
+if (memdebug) write(6,*) '   Enter mhpfreei: pointer :',ipoint
+iraddr = (ipoint-1)/idbl+1
+call mhpfreer_cvb(iraddr)
+
+return
+
+end subroutine mhpfreei_cvb

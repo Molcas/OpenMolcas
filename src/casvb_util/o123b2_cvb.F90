@@ -11,59 +11,56 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o123b2_cvb(nparm,                                      &
-     &  dx,eigvec,eigval,dxp,gradp,wrk,                                 &
-     &  dxnrm)
-      implicit real*8 (a-h,o-z)
+
+subroutine o123b2_cvb(nparm,dx,eigvec,eigval,dxp,gradp,wrk,dxnrm)
+
+implicit real*8(a-h,o-z)
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"
 #include "trst_cvb.fh"
 #include "tune_cvb.fh"
+dimension dx(nparm)
+dimension eigvec(nparm,nparm), eigval(nparm)
+dimension dxp(nparm), gradp(nparm), wrk(nparm)
+save zero, one
+data zero/0.d0/,one/1d0/
 
-      dimension dx(nparm)
-      dimension eigvec(nparm,nparm),eigval(nparm)
-      dimension dxp(nparm),gradp(nparm),wrk(nparm)
-      save zero,one
-      data zero/0.d0/,one/1d0/
+if (maxize) then
+  nposeig = min(isaddle,nparm)
+else
+  nposeig = max(nparm-isaddle,nparm)
+end if
+nnegeig = nparm-nposeig
 
-      if(maxize)then
-        nposeig=min(isaddle,nparm)
-      else
-        nposeig=max(nparm-isaddle,nparm)
-      endif
-      nnegeig=nparm-nposeig
+eigmx = -one
+eigmn = one
+if (nnegeig > 0) eigmx = eigval(nnegeig)
+if (nposeig > 0) eigmn = eigval(nnegeig+1)
+safety_use = safety
+!200 continue
+if ((eigmx < -signtol) .and. (eigmn > signtol)) then
+  alfastart = zero
+else
+  alfastart = max(eigmx,-eigmn,zero)+safety_use
+end if
+call getdxp_cvb(dxp,gradp,eigval,nnegeig,nparm,alfastart)
+cnrm = dnrm2_(nparm,dxp,1)
+!Increased level shift not necessary when full Hessian is calculated:
+!if (alfastart /= zero) then
+!  gnrm = dnrm2_(nparm,gradp,1)
+!  if ((cnrm > 1d-15) .and. (gnrm > 1d-15) .and. (safety_use /= 1d-4)) then
+!    ovr_dx_grad = ddot_(nparm,dxp,1,gradp,1)/(cnrm*gnrm)
+!    if (ovr_dx_grad < .3d0) then
+!      safety_use = 1d-4
+!      goto 200
+!    end if
+!  end if
+!end if
 
-      eigmx=-one
-      eigmn=one
-      if(nnegeig.gt.0)eigmx=eigval(nnegeig)
-      if(nposeig.gt.0)eigmn=eigval(nnegeig+1)
-      safety_use=safety
-!200   continue
-      if(eigmx.lt.-signtol.and.eigmn.gt.signtol)then
-        alfastart=zero
-      else
-        alfastart=max(eigmx,-eigmn,zero)+safety_use
-      endif
-      call getdxp_cvb(dxp,gradp,eigval,nnegeig,nparm,alfastart)
-      cnrm=dnrm2_(nparm,dxp,1)
-!  Increased level shift not necessary when full Hessian is calculated :
-!      if(alfastart.ne.zero)then
-!        gnrm=dnrm2_(nparm,gradp,1)
-!        if(cnrm.gt.1d-15.and.gnrm.gt.1d-15.and.safety_use.ne.1d-4)then
-!          ovr_dx_grad=ddot_(nparm,dxp,1,gradp,1)/(cnrm*gnrm)
-!          if(ovr_dx_grad.lt. .3d0)then
-!            safety_use=1d-4
-!            goto 200
-!          endif
-!        endif
-!      endif
+call makedx_cvb(dx,nparm,0,eigvec,eigval,dxp,gradp,wrk,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+dxnrm = dnrm2_(nparm,dx,1)
 
-      call makedx_cvb(dx,nparm,0,                                       &
-     &  eigvec,eigval,dxp,gradp,wrk,                                    &
-     &  .false.,.false.,nposeig,.false.,                                &
-     &  .false.,nnegeig,.false.,alfastart,eig)
-      dxnrm=dnrm2_(nparm,dx,1)
+return
 
-      return
-      end
+end subroutine o123b2_cvb

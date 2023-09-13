@@ -11,18 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ppgs_cvb(cvb)
-      implicit real*8 (a-h,o-z)
+
+subroutine ppgs_cvb(cvb)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
-
 #include "WrkSpc.fh"
 
-      dimension cvb(*)
+dimension cvb(*)
 
-      call ppgs2_cvb(cvb,work(lv(5)),iwork(lb(4)))
-      return
-      end
+call ppgs2_cvb(cvb,work(lv(5)),iwork(lb(4)))
+
+return
+
+end subroutine ppgs_cvb

@@ -11,45 +11,50 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine clearcnt_cvb(icode)
-!  ICODE=1 : Orbitals changed
-!  ICODE=2 : CI coefficients changed
-!  ICODE=3 : Everything changed
-      implicit real*8 (a-h,o-z)
-      logical initialize
+
+subroutine clearcnt_cvb(icode)
+! ICODE=1 : Orbitals changed
+! ICODE=2 : CI coefficients changed
+! ICODE=3 : Everything changed
+
+implicit real*8(a-h,o-z)
+logical initialize
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-      dimension iunset(mxciobj,2)
-      data initialize/.true./
-      save iunset,initialize
-      if (initialize) then
-       iunset(1,1)=0
-       iunset(1,2)=0
-       do 50 i=2,mxciobj
-       iunset(i,1)=1
-       iunset(i,2)=1
-50     continue
-       initialize=.false.
-      endif
+dimension iunset(mxciobj,2)
+data initialize/.true./
+save iunset, initialize
 
-      if(icode.eq.3)then
-        do 100 i=1,mxciobj
-        icnt_ci(i)=0
-100     continue
-      else
-        ipow1=2
-        ipow2=1
-        do 200 ichg=1,2
-        if(mod(icode,ipow1).ge.ipow2)then
-          do 300 i=1,mxciobj
-          if(iunset(i,ichg).eq.1)icnt_ci(i)=0
-300       continue
-        endif
-        ipow1=2*ipow1
-        ipow2=2*ipow2
-200     continue
-      endif
-      return
-      end
+if (initialize) then
+  iunset(1,1) = 0
+  iunset(1,2) = 0
+  do i=2,mxciobj
+    iunset(i,1) = 1
+    iunset(i,2) = 1
+  end do
+  initialize = .false.
+end if
+
+if (icode == 3) then
+  do i=1,mxciobj
+    icnt_ci(i) = 0
+  end do
+else
+  ipow1 = 2
+  ipow2 = 1
+  do ichg=1,2
+    if (mod(icode,ipow1) >= ipow2) then
+      do i=1,mxciobj
+        if (iunset(i,ichg) == 1) icnt_ci(i) = 0
+      end do
+    end if
+    ipow1 = 2*ipow1
+    ipow2 = 2*ipow2
+  end do
+end if
+
+return
+
+end subroutine clearcnt_cvb

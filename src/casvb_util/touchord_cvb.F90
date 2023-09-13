@@ -11,21 +11,25 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine touchord_cvb(itouch,iorder,n)
-      implicit real*8(a-h,o-z)
-      dimension iorder(n)
-      logical debug
-      data debug/.false./
 
-      if(debug)then
-        write(6,*)' itouch :',itouch
-        write(6,*)' iorder on entry :',iorder
-      endif
-      itchord=iorder(itouch)
-      do 100 i=1,n
-      if(iorder(i).lt.itchord.and.iorder(i).ne.0)iorder(i)=iorder(i)+1
-100   continue
-      iorder(itouch)=1
-      if(debug)write(6,*)' iorder on exit  :',iorder
-      return
-      end
+subroutine touchord_cvb(itouch,iorder,n)
+
+implicit real*8(a-h,o-z)
+dimension iorder(n)
+logical debug
+data debug/.false./
+
+if (debug) then
+  write(6,*) ' itouch :',itouch
+  write(6,*) ' iorder on entry :',iorder
+end if
+itchord = iorder(itouch)
+do i=1,n
+  if ((iorder(i) < itchord) .and. (iorder(i) /= 0)) iorder(i) = iorder(i)+1
+end do
+iorder(itouch) = 1
+if (debug) write(6,*) ' iorder on exit  :',iorder
+
+return
+
+end subroutine touchord_cvb

@@ -11,8 +11,8 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-! Format statements depending on iprec :
-!---------------------------------------
+! Format statements depending on iprec:
+!--------------------------------------
       character*20                                                      &
      &  formMXP1,formMXP1b,formMXP2,formMXP3,formMXP4,formMXP5,formMXP6,&
      &  formE,formSymW,formVBWnorm,                                     &

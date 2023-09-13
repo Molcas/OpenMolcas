@@ -11,45 +11,42 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
-      implicit real*8(a-h,o-z)
-      logical ause,suse
+
+subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
+
+implicit real*8(a-h,o-z)
+logical ause, suse
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
-      dimension vec(ndim),avec(ndim),svec(ndim)
+dimension vec(ndim), avec(ndim), svec(ndim)
 
-      nvguess=nvguess+1
-      nvrestart=nvrestart+1
-      if(nvguess.gt.maxd.or.nvrestart.gt.maxd)then
-        write(6,*)' Too many guess vectors in Davidson!',nvguess,       &
-     &    nvrestart,maxd
-        call abend_cvb()
-      endif
-      if(ndim+ioffs.gt.nparm)then
-        write(6,*)' Illegal call to DDRESTV :',ndim,ioffs,nparm
-        call abend_cvb()
-      endif
-      iddvec=1
-      call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-      call fmove_cvb(vec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),   &
-     &               ndim)
-      call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),      &
-     &  nparm-ioffs-ndim)
-      if(ause)then
-        iddvec=iddvec+1
-        call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove_cvb(avec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),&
-     &    ndim)
-        call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),    &
-     &    nparm-ioffs-ndim)
-      endif
-      if(suse)then
-        iddvec=iddvec+1
-        call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove_cvb(svec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),&
-     &    ndim)
-        call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),    &
-     &    nparm-ioffs-ndim)
-      endif
-      return
-      end
+nvguess = nvguess+1
+nvrestart = nvrestart+1
+if ((nvguess > maxd) .or. (nvrestart > maxd)) then
+  write(6,*) ' Too many guess vectors in Davidson!',nvguess,nvrestart,maxd
+  call abend_cvb()
+end if
+if (ndim+ioffs > nparm) then
+  write(6,*) ' Illegal call to DDRESTV :',ndim,ioffs,nparm
+  call abend_cvb()
+end if
+iddvec = 1
+call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+call fmove_cvb(vec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+if (ause) then
+  iddvec = iddvec+1
+  call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+  call fmove_cvb(avec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+  call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+end if
+if (suse) then
+  iddvec = iddvec+1
+  call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+  call fmove_cvb(svec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+  call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+end if
+
+return
+
+end subroutine ddrestv_cvb

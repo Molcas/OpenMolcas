@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  *************************************
-!  ** Routines to emulate unix "make" **
-!  *************************************
-      subroutine makeinit_cvb()
-      implicit real*8 (a-h,o-z)
+!*************************************
+!** Routines to emulate unix "make" **
+!*************************************
+
+subroutine makeinit_cvb()
+
+implicit real*8(a-h,o-z)
 #include "make_cvb.fh"
 
-      nobj=0
-      ndep_ij=0
-      ndep_ji=0
-      ioffs(1)=0
-      joffs(1)=0
-      mustdeclare=.false.
-      iprint=0
-      return
-      end
+nobj = 0
+ndep_ij = 0
+ndep_ji = 0
+ioffs(1) = 0
+joffs(1) = 0
+mustdeclare = .false.
+iprint = 0
+
+return
+
+end subroutine makeinit_cvb

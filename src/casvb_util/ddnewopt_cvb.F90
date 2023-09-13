@@ -11,12 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddnewopt_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine ddnewopt_cvb()
+
+implicit real*8(a-h,o-z)
 #include "direct_cvb.fh"
 
-      nvrestart=0
-      nvguess=0
-      nvrhs=0
-      return
-      end
+nvrestart = 0
+nvguess = 0
+nvrhs = 0
+
+return
+
+end subroutine ddnewopt_cvb

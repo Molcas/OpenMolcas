@@ -11,13 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ioopn_cvb(fn,lu)
-      implicit real*8(a-h,o-z)
-      character*(*) fn
-      logical isopen
 
-!  Close first in case file is 'hanging' from previous session:
-      inquire(lu,opened=isopen)
-      if(isopen)call daclos(lu)
-      call daname_wa(lu,fn)
-      end
+subroutine ioopn_cvb(fn,lu)
+
+implicit real*8(a-h,o-z)
+character*(*) fn
+logical isopen
+
+! Close first in case file is 'hanging' from previous session:
+inquire(lu,opened=isopen)
+if (isopen) call daclos(lu)
+call daname_wa(lu,fn)
+
+end subroutine ioopn_cvb

@@ -17,11 +17,10 @@
 ! domain or freely distributable and modifiable.                       *
 !***********************************************************************
 
-!  ******************************
-!  ** Random number generation **
-!  ******************************
-      REAL*8 function rand_cvb(r)
-      implicit REAL*8 (a-h,o-z)
+!******************************
+!** Random number generation **
+!******************************
+real*8 function rand_cvb(r)
 !***BEGIN PROLOGUE  RAND
 !***DATE WRITTEN   770401   (YYMMDD)
 !***REVISION DATE  820801   (YYMMDD)
@@ -103,34 +102,36 @@
 !***REFERENCES  (NONE)
 !***ROUTINES CALLED  (NONE)
 !***END PROLOGUE  RAND
-      save ia1,ia0,ia1ma0,ic,ix1,ix0
-      data ia1, ia0, ia1ma0 /1536, 1029, 507/
-      data ic /1731/
-      data ix1, ix0 /0, 0/
+
+implicit real*8(a-h,o-z)
+save ia1, ia0, ia1ma0, ic, ix1, ix0
+data ia1,ia0,ia1ma0/1536,1029,507/
+data ic/1731/
+data ix1,ix0/0,0/
+
 !***FIRST EXECUTABLE STATEMENT  RAND
-      if (r.lt.0.d0) go to 10
-      if (r.gt.0.d0) go to 20
-!
-!           A*X = 2**22*IA1*IX1 + 2**11*(IA1*IX1 + (IA1-IA0)*(IX0-IX1)
-!                   + IA0*IX0) + IA0*IX0
-!
-      iy0 = ia0*ix0
-      iy1 = ia1*ix1 + ia1ma0*(ix0-ix1) + iy0
-      iy0 = iy0 + ic
-      ix0 = mod (iy0, 2048)
-      iy1 = iy1 + (iy0-ix0)/2048
-      ix1 = mod (iy1, 2048)
-!
- 10   rand = dble(ix1*2048 + ix0)
-      rand_cvb = rand / 4194304.d0
-      return
-!
- 20   ix1 = int( dmod(r,1.d0)*4194304.d0 + 0.5d0 )
-      ix0 = mod (ix1, 2048)
-      ix1 = (ix1-ix0)/2048
-      go to 10
-!
-      end
-!  *************
-!  ** Various **
-!  *************
+if (r < 0.d0) go to 10
+if (r > 0.d0) go to 20
+
+! A*X = 2**22*IA1*IX1 + 2**11*(IA1*IX1 + (IA1-IA0)*(IX0-IX1) + IA0*IX0) + IA0*IX0
+
+iy0 = ia0*ix0
+iy1 = ia1*ix1+ia1ma0*(ix0-ix1)+iy0
+iy0 = iy0+ic
+ix0 = mod(iy0,2048)
+iy1 = iy1+(iy0-ix0)/2048
+ix1 = mod(iy1,2048)
+
+10 rand = dble(ix1*2048+ix0)
+rand_cvb = rand/4194304.d0
+return
+
+20 ix1 = int(dmod(r,1.d0)*4194304.d0+0.5d0)
+ix0 = mod(ix1,2048)
+ix1 = (ix1-ix0)/2048
+go to 10
+
+end function rand_cvb
+!*************
+!** Various **
+!*************

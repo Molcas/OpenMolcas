@@ -11,29 +11,31 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
-!  Construct Gauss-Jordan factorizations of ORBS, ORBS transpose,
-!  and overlap matrix corresonding to ORBS :
-      implicit real*8 (a-h,o-z)
+
+subroutine makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
+! Construct Gauss-Jordan factorizations of ORBS, ORBS transpose,
+! and overlap matrix corresonding to ORBS:
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension orbs(norb,norb),gjorb(*),gjorb2(*),gjorb3(*)
+dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 
-      iowrk  = mstackr_cvb(norb*norb)
+iowrk = mstackr_cvb(norb*norb)
 
-      call gaussj_cvb(orbs,gjorb)
+call gaussj_cvb(orbs,gjorb)
 
-      call transp_cvb(orbs,work(iowrk),norb,norb)
-      call gaussj_cvb(work(iowrk),gjorb2)
+call transp_cvb(orbs,work(iowrk),norb,norb)
+call gaussj_cvb(work(iowrk),gjorb2)
 
-      call mxattb_cvb(orbs,orbs,norb,norb,norb,work(iowrk))
-      call gaussj_cvb(work(iowrk),gjorb3)
+call mxattb_cvb(orbs,orbs,norb,norb,norb,work(iowrk))
+call gaussj_cvb(work(iowrk),gjorb3)
 
-      call mfreer_cvb(iowrk)
+call mfreer_cvb(iowrk)
 
-      return
-      end
+return
+
+end subroutine makegjorbs_cvb

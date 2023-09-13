@@ -11,26 +11,29 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkcifree2_cvb(cvb,ifxstr,tconstr)
-      implicit real*8 (a-h,o-z)
+
+subroutine mkcifree2_cvb(cvb,ifxstr,tconstr)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension cvb(nvb), ifxstr(nfxvb), tconstr(nvb,nvb)
 
-      dimension cvb(nvb),ifxstr(nfxvb),tconstr(nvb,nvb)
+if (strucopt) then
+  nfrvb = nvb
+else
+  nfrvb = 0
+end if
+nfr = nfrorb+nfrvb
 
-      if(strucopt)then
-        nfrvb=nvb
-      else
-        nfrvb=0
-      endif
-      nfr=nfrorb+nfrvb
-      return
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_real_array(cvb)
-        call Unused_integer_array(ifxstr)
-        call Unused_real_array(tconstr)
-      end if
-      end
+if (.false.) then
+  call Unused_real_array(cvb)
+  call Unused_integer_array(ifxstr)
+  call Unused_real_array(tconstr)
+end if
+
+end subroutine mkcifree2_cvb

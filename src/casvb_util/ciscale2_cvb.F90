@@ -11,31 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ciscale2_cvb(cvec,scale,iscf,cscf)
-      implicit real*8(a-h,o-z)
+
+subroutine ciscale2_cvb(cvec,scale,iscf,cscf)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension cvec(*)
+dimension cvec(*)
 
-      ivec=nint(cvec(1))
-      iscf=0
-      cscf=zero
-      iformat=iform_ci(ivec)
-      if(iformat.eq.0)then
-        do 100 idet=1,ndet
-        work(idet+iaddr_ci(ivec)-1)=scale*work(idet+iaddr_ci(ivec)-1)
-        if(abs(work(idet+iaddr_ci(ivec)-1)).gt.p8)then
-          iscf=idet
-          cscf=work(idet+iaddr_ci(ivec)-1)
-        endif
-100     continue
-      else
-        write(6,*)' Unsupported format in CISCALE2 :',iformat
-        call abend_cvb()
-      endif
-      return
-      end
+ivec = nint(cvec(1))
+iscf = 0
+cscf = zero
+iformat = iform_ci(ivec)
+if (iformat == 0) then
+  do idet=1,ndet
+    work(idet+iaddr_ci(ivec)-1) = scale*work(idet+iaddr_ci(ivec)-1)
+    if (abs(work(idet+iaddr_ci(ivec)-1)) > p8) then
+      iscf = idet
+      cscf = work(idet+iaddr_ci(ivec)-1)
+    end if
+  end do
+else
+  write(6,*) ' Unsupported format in CISCALE2 :',iformat
+  call abend_cvb()
+end if
+
+return
+
+end subroutine ciscale2_cvb

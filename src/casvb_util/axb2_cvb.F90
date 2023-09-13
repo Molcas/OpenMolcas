@@ -11,31 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axb2_cvb(asonc,ddres2upd,vec,                          &
-     &  resthr_inp,ioptc,iter,fx_exp,                                   &
-     &  c,sxc,res,rhs,                                                  &
-     &  rhsp,solp,solp_res)
-      implicit real*8 (a-h,o-z)
-#include "direct_cvb.fh"
-      external asonc,ddres2upd
-      external axbsol_cvb,axbres_cvb,ddrestart_cvb
-      dimension vec(nparm)
-      dimension c(nparm,maxd),sxc(nparm,maxd),res(nparm),rhs(nparm)
-      dimension rhsp(maxd),solp(maxd),solp_res(maxd),dum(1)
 
-!  If RESTHR_INP unset use default:
-      if(resthr_inp.ne.0d0)then
-        resthr_use=resthr_inp
-      else
-        resthr_use=resthr
-      endif
-      call dirdiag_cvb(asonc,axbsol_cvb,                                &
-     &  axbres_cvb,ddres2upd,ddrestart_cvb,                             &
-     &  c,dum,sxc,.false.,vec,res,rhs,                                  &
-     &  dum,rhsp,solp,solp_res,                                         &
-     &  .false.,.false.,.true.,maxd,nparm,nfrdim,                       &
-     &  nvguess,nvrestart,isaddle,ifollow,mxit,                         &
-     &  resthr_use,orththr,nortiter,corenrg,                            &
-     &  ioptc,iter,fx_exp,ip)
-      return
-      end
+subroutine axb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,c,sxc,res,rhs,rhsp,solp,solp_res)
+
+implicit real*8(a-h,o-z)
+#include "direct_cvb.fh"
+external asonc, ddres2upd
+external axbsol_cvb, axbres_cvb, ddrestart_cvb
+dimension vec(nparm)
+dimension c(nparm,maxd), sxc(nparm,maxd), res(nparm), rhs(nparm)
+dimension rhsp(maxd), solp(maxd), solp_res(maxd), dum(1)
+
+! If RESTHR_INP unset use default:
+if (resthr_inp /= 0d0) then
+  resthr_use = resthr_inp
+else
+  resthr_use = resthr
+end if
+call dirdiag_cvb(asonc,axbsol_cvb,axbres_cvb,ddres2upd,ddrestart_cvb,c,dum,sxc,.false.,vec,res,rhs,dum,rhsp,solp,solp_res,.false., &
+                 .false.,.true.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddle,ifollow,mxit,resthr_use,orththr,nortiter,corenrg, &
+                 ioptc,iter,fx_exp,ip)
+
+return
+
+end subroutine axb2_cvb

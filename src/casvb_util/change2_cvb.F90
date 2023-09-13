@@ -11,36 +11,40 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine change2_cvb()
-      implicit real*8 (a-h,o-z)
-      logical changed
+
+subroutine change2_cvb()
+
+implicit real*8(a-h,o-z)
+logical changed
 ! ... Change of dimensioning variables ...
-      logical, external :: chpcmp_cvb
+logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "rls_cvb.fh"
 
-      changed=.false.
-!  VB wavefunction
-!  (MXNVB should be upper bound on KBASIS & KBASISCVB ) :
-      nvb_alloc=max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
-      if(chpcmp_cvb(norb))changed=.true.
-      if(chpcmp_cvb(nvb_alloc))changed=.true.
-      if(changed)call touch_cvb('MEM2')
-      return
+changed = .false.
+! VB wavefunction
+! (MXNVB should be upper bound on KBASIS & KBASISCVB):
+nvb_alloc = max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
+if (chpcmp_cvb(norb)) changed = .true.
+if (chpcmp_cvb(nvb_alloc)) changed = .true.
+if (changed) call touch_cvb('MEM2')
 
-      entry chop2_cvb()
-      if(release(2))call mfreer_cvb(lv(1))
-      release(2)=.true.
-      release(3)=.false.
+return
 
-!  Note zeroing of ORBS and CVB :
-      lv(1) = mstackrz_cvb(norb*norb)
-!  (MXNVB should be upper bound on KBASIS & KBASISCVB ) :
-      nvb_alloc=max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
-      lv(2)= mstackrz_cvb(nvb_alloc)
-      return
-      end
+entry chop2_cvb()
+if (release(2)) call mfreer_cvb(lv(1))
+release(2) = .true.
+release(3) = .false.
+
+! Note zeroing of ORBS and CVB:
+lv(1) = mstackrz_cvb(norb*norb)
+! (MXNVB should be upper bound on KBASIS & KBASISCVB):
+nvb_alloc = max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
+lv(2) = mstackrz_cvb(nvb_alloc)
+
+return
+
+end subroutine change2_cvb

@@ -11,23 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      REAL*8 FUNCTION CASVB_PYTHAG(A,B)
-      REAL*8 A,B
-!
-!     FINDS sqrt(A**2+B**2) WITHOUT OVERFLOW OR DESTRUCTIVE UNDERFLOW
-!
-      REAL*8 P,R,S,T,U
-      P = MAX(abs(A),abs(B))
-      IF (P .EQ. 0.0D0) GO TO 20
-      R = (MIN(abs(A),abs(B))/P)**2
-10    CONTINUE
-         T = 4.0D0 + R
-         IF (T .EQ. 4.0D0) GO TO 20
-         S = R/T
-         U = 1.0D0 + 2.0D0*S
-         P = U*P
-         R = (S/U)**2 * R
-      GO TO 10
-20    CASVB_PYTHAG = P
-      RETURN
-      END
+
+real*8 function PYTHAG(A,B)
+! FINDS sqrt(A**2+B**2) WITHOUT OVERFLOW OR DESTRUCTIVE UNDERFLOW
+
+real*8 A, B
+real*8 P, R, S, T, U
+
+P = max(abs(A),abs(B))
+if (P == 0.0d0) GO TO 20
+R = (min(abs(A),abs(B))/P)**2
+10 continue
+T = 4.0d0+R
+if (T == 4.0d0) GO TO 20
+S = R/T
+U = 1.0d0+2.0d0*S
+P = U*P
+R = (S/U)**2*R
+GO TO 10
+20 PYTHAG = P
+
+return
+
+end function PYTHAG

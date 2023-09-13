@@ -11,24 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axesxres_cvb(axc,sxc,dum,res,                          &
-     &  solp_res,maxdav,n,itdav,eig_res,                                &
-     &  is_converged)
-      implicit real*8 (a-h,o-z)
-      logical is_converged
+
+subroutine axesxres_cvb(axc,sxc,dum,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
+
+implicit real*8(a-h,o-z)
+logical is_converged
 #include "direct_cvb.fh"
-      dimension axc(n,maxdav),sxc(n,maxdav),res(n)
-      dimension solp_res(maxdav)
+dimension axc(n,maxdav), sxc(n,maxdav), res(n)
+dimension solp_res(maxdav)
 
-      call fzero(res,n)
-      do 300 i=1,itdav
-      do 301 ivb=1,n
-      res(ivb)=res(ivb)+(axc(ivb,i)-eig_res*sxc(ivb,i))*solp_res(i)
-301   continue
-300   continue
+call fzero(res,n)
+do i=1,itdav
+  do ivb=1,n
+    res(ivb) = res(ivb)+(axc(ivb,i)-eig_res*sxc(ivb,i))*solp_res(i)
+  end do
+end do
 
-      is_converged=(jroot.eq.iroot)
-      return
+is_converged = (jroot == iroot)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(dum)
-      end
+if (.false.) call Unused_real(dum)
+
+end subroutine axesxres_cvb

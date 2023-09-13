@@ -11,60 +11,24 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine rdioff_cvb(ifield,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
+
+subroutine rdioff_cvb(ifield,file_id,ioffset)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+parameter(nbuf=50)
+dimension ioff(nbuf)
 
-      parameter (nbuf=50)
-      dimension ioff(nbuf)
+if (ifield > nbuf) then
+  write(6,*) ' ifield too large in rdioff :',ifield,nbuf
+  call abend_cvb()
+end if
+call rdi_cvb(ioff,nbuf,file_id,0)
+ioffset = ioff(ifield)
 
-      if(ifield.gt.nbuf)then
-        write(6,*)' ifield too large in rdioff :',ifield,nbuf
-        call abend_cvb()
-      endif
-      call rdi_cvb(ioff,nbuf,file_id,0)
-      ioffset=ioff(ifield)
-      return
-      end
-      subroutine wrioff_cvb(ifield,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
-! ... Files/Hamiltonian available ...
-      logical, external :: tstfile_cvb
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+return
 
-      parameter (nbuf=50)
-      dimension ioff(nbuf)
-      if(ifield.gt.nbuf)then
-        write(6,*)' ifield too large in wrioff :',ifield,nbuf
-        call abend_cvb()
-      endif
-      if(tstfile_cvb(file_id))then
-        call rdi_cvb(ioff,nbuf,file_id,0)
-      else
-        call izero(ioff,nbuf)
-      endif
-      ioff(ifield)=ioffset
-      call wri_cvb(ioff,nbuf,file_id,0)
-      return
-      end
-      subroutine rdioff1_cvb(ioffset)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-
-      parameter (nbuf=50)
-!      dimension ioff(nbuf)
-      ioffset=ihlf_cvb(nbuf)
-      return
-      end
-!
-!  Low-level CASVB IO routines
-!
+end subroutine rdioff_cvb

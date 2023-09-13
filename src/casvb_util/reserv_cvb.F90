@@ -11,18 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine reserv_cvb(need,recn)
-      implicit real*8 (a-h,o-z)
+
+subroutine reserv_cvb(need,recn)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-
-      return
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_integer(need)
-        call Unused_real(recn)
-      end if
-      end
+if (.false.) then
+  call Unused_integer(need)
+  call Unused_real(recn)
+end if
+
+end subroutine reserv_cvb

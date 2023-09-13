@@ -11,20 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine schmidt2_cvb(c,sxc,cnrm,nvec,sao,n,metr)
-      implicit real*8 (a-h,o-z)
-      dimension c(n,nvec),sxc(n,nvec),cnrm(nvec),sao(*)
-      save thresh
-      data thresh/1d-20/
 
-      do 100 i=1,nvec
-      do 200 j=1,i-1
-      if(cnrm(j).gt.thresh)                                             &
-     &  call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1)/cnrm(j),            &
-     &  c(1,j),1,c(1,i),1)
-200   continue
-      if(metr.ne.0)call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
-      cnrm(i)=ddot_(n,c(1,i),1,sxc(1,i),1)
-100   continue
-      return
-      end
+subroutine schmidt2_cvb(c,sxc,cnrm,nvec,sao,n,metr)
+
+implicit real*8(a-h,o-z)
+dimension c(n,nvec), sxc(n,nvec), cnrm(nvec), sao(*)
+save thresh
+data thresh/1d-20/
+
+do i=1,nvec
+  do j=1,i-1
+    if (cnrm(j) > thresh) call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1)/cnrm(j),c(1,j),1,c(1,i),1)
+  end do
+  if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
+  cnrm(i) = ddot_(n,c(1,i),1,sxc(1,i),1)
+end do
+
+return
+
+end subroutine schmidt2_cvb

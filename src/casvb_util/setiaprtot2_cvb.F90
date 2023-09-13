@@ -11,45 +11,45 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine setiaprtot2_cvb(civec,                                 &
-     &  iapr,ixapr,ibpr,ixbpr,npvb,                                     &
-     &  nda,ndb)
-      implicit real*8 (a-h,o-z)
-      dimension civec(nda,ndb)
-      dimension iapr(npvb),ixapr(nda+1),ibpr(npvb),ixbpr(ndb+1)
 
+subroutine setiaprtot2_cvb(civec,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb)
 
-      idetvb=0
-      ixapr(1)=1
-      do 100 ia=1,nda
-      do 200 ib=1,ndb
-      if(civec(ia,ib).eq.1d0)then
-        idetvb=idetvb+1
-        if(idetvb.gt.npvb)then
-          write(6,*)' Error in setiaprtot!',npvb
-          call abend_cvb()
-        endif
-        iapr(idetvb)=ib
-      endif
-200   continue
-      ixapr(ia+1)=idetvb+1
-100   continue
+implicit real*8(a-h,o-z)
+dimension civec(nda,ndb)
+dimension iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
 
-      idetvb=0
-      ixbpr(1)=1
-      do 300 ib=1,ndb
-      do 400 ia=1,nda
-      if(civec(ia,ib).eq.1d0)then
-        idetvb=idetvb+1
-        if(idetvb.gt.npvb)then
-          write(6,*)' Error in setiaprtot!',npvb
-          call abend_cvb()
-        endif
-        ibpr(idetvb)=ia
-      endif
-400   continue
-      ixbpr(ib+1)=idetvb+1
-300   continue
+idetvb = 0
+ixapr(1) = 1
+do ia=1,nda
+  do ib=1,ndb
+    if (civec(ia,ib) == 1d0) then
+      idetvb = idetvb+1
+      if (idetvb > npvb) then
+        write(6,*) ' Error in setiaprtot!',npvb
+        call abend_cvb()
+      end if
+      iapr(idetvb) = ib
+    end if
+  end do
+  ixapr(ia+1) = idetvb+1
+end do
 
-      return
-      end
+idetvb = 0
+ixbpr(1) = 1
+do ib=1,ndb
+  do ia=1,nda
+    if (civec(ia,ib) == 1d0) then
+      idetvb = idetvb+1
+      if (idetvb > npvb) then
+        write(6,*) ' Error in setiaprtot!',npvb
+        call abend_cvb()
+      end if
+      ibpr(idetvb) = ia
+    end if
+  end do
+  ixbpr(ib+1) = idetvb+1
+end do
+
+return
+
+end subroutine setiaprtot2_cvb

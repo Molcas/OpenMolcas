@@ -11,41 +11,42 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,                  &
-     &   grad,grad1,grad2,gradx,vec1)
-      implicit real*8 (a-h,o-z)
+
+subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "fx_cvb.fh"
-      dimension civecp(ndet),civbs(ndet),civb(ndet)
-      dimension dvbdet(ndetvb)
-      dimension grad(npr),grad1(npr),grad2(npr),gradx(norb,norb)
+dimension civecp(ndet), civbs(ndet), civb(ndet)
+dimension dvbdet(ndetvb)
+dimension grad(npr), grad1(npr), grad2(npr), gradx(norb,norb)
+! VEC1 dimension is MAX(NPRORB,NDETVB)
+dimension vec1(*)
 
-!  VEC1 dimension is MAX(NPRORB,NDETVB)
-      dimension vec1(*)
+aa1 = one/sqrt(ovraa)
+aa2 = -aa1/(two*ovraa)
+oaa2 = two*ovrab*aa2
+oaa3 = 3d0*ovrab*aa1/(4d0*ovraa*ovraa)
 
-      aa1=one/sqrt(ovraa)
-      aa2=-aa1/(two*ovraa)
-      oaa2=two*ovrab*aa2
-      oaa3=3d0*ovrab*aa1/(4d0*ovraa*ovraa)
+call fzero(gradx,norb*norb)
+call onedens_cvb(civb,civbs,gradx,.true.,1)
 
-      call fzero(gradx,norb*norb)
-      call onedens_cvb(civb,civbs,gradx,.true.,1)
+call mkgrd_cvb(civb,civbs,grad1,dvbdet,npr,.true.)
+call mkgrd_cvb(civb,civecp,grad2,dvbdet,npr,.true.)
 
-      call mkgrd_cvb(civb,civbs,grad1,dvbdet,npr,.true.)
-      call mkgrd_cvb(civb,civecp,grad2,dvbdet,npr,.true.)
+do i=1,npr
+  vec1(i) = aa1*grad2(i)+oaa2*grad1(i)
+  grad1(i) = two*grad1(i)
+end do
+call prgrad_cvb(vec1,npr)
 
-      do 100 i=1,npr
-      vec1(i)=aa1*grad2(i)+oaa2*grad1(i)
-      grad1(i)=two*grad1(i)
-100   continue
-      call prgrad_cvb(vec1,npr)
+call make_cvb('ORBFREE')
+call make_cvb('CIFREE')
+call all2free_cvb(vec1,grad,1)
 
-      call make_cvb('ORBFREE')
-      call make_cvb('CIFREE')
-      call all2free_cvb(vec1,grad,1)
-      return
-      end
+return
+
+end subroutine gr_svb1_cvb

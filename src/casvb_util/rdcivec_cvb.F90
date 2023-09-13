@@ -11,166 +11,85 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      Subroutine rdcivec_cvb(detvec,fn,reord)
+
+subroutine rdcivec_cvb(detvec,fn,reord)
 !***********************************************************************
 !                                                                      *
 !     Read the contents of the JOBIPH file.                            *
 !                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!                                                                      *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-      character*(*) fn
-      logical debug
-      data debug/.false./
-      dimension detvec(*)
-      dimension ncix(8)
-      logical reord
-      dimension rdum(1)
+character*(*) fn
+logical debug
+data debug/.false./
+dimension detvec(*)
+dimension ncix(8)
+logical reord
+dimension rdum(1)
 
-      iwr=0
+iwr = 0
 
-      call getnci_cvb(ncix,nactel_j,ispin_j-1,lsym_j)
-      ndet_j=ncix(1)
+call getnci_cvb(ncix,nactel_j,ispin_j-1,lsym_j)
+ndet_j = ncix(1)
 
-      lujob=15
-      call daname_cvb(lujob,fn)
+lujob = 15
+call daname_cvb(lujob,fn)
 ! Allocate at least NDET words for each vector, since this is
-! required by csdtvc :
+! required by csdtvc:
 !      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
-      Call GetMem('OCIvec','Allo','Real',ipCI,                          &
-     &  nConf_j*nroots_j+ndet_j-nconf_j)
-      if(iwr.eq.0)then
-        Do 200 i=1,nroots_j
-        j=iroot_j(i)
-        iDisk=iadr15_j(4)
-        Do 300 k=1,j-1
-        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-300     continue
-        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),                  &
-     &    nConf_j,iDisk)
-200     continue
+call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j+ndet_j-nconf_j)
+if (iwr == 0) then
+  do i=1,nroots_j
+    j = iroot_j(i)
+    iDisk = iadr15_j(4)
+    do k=1,j-1
+      call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+    end do
+    call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),nConf_j,iDisk)
+  end do
 
-        if(reord)then
-          Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-          call reord2_cvb(work(ipci),work(ipci2),1)
-          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-          Call GetMem('ipci2','Free','Real',ipCI2,idum)
-        endif
+  if (reord) then
+    call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
+    call reord2_cvb(work(ipci),work(ipci2),1)
+    call fmove_cvb(work(ipci2),work(ipci),nconf_j)
+    call GetMem('ipci2','Free','Real',ipCI2,idum)
+  end if
 
-        call csf2det_cvb(work(ipci),detvec,lsym_j,1)
-      elseif(iwr.eq.1)then
-        call csf2det_cvb(work(ipci),detvec,lsym_j,2)
+  call csf2det_cvb(work(ipci),detvec,lsym_j,1)
+else if (iwr == 1) then
+  call csf2det_cvb(work(ipci),detvec,lsym_j,2)
 
-        if(reord)then
-          Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-          call reord2_cvb(work(ipci),work(ipci2),0)
-          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-          Call GetMem('ipci2','Free','Real',ipCI2,idum)
-        endif
+  if (reord) then
+    call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
+    call reord2_cvb(work(ipci),work(ipci2),0)
+    call fmove_cvb(work(ipci2),work(ipci),nconf_j)
+    call GetMem('ipci2','Free','Real',ipCI2,idum)
+  end if
 
-        Do 400 i=1,nroots_j
-        j=iroot_j(i)
-        iDisk=iadr15_j(4)
-        Do 500 k=1,j-1
-        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-500     continue
-        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),                  &
-     &    nConf_j,iDisk)
-400     continue
-      endif
-      if (debug) then
-        do 600 i=0,nroots_j-1
-        write(6,'(a,i3,a)')' (CSF) CI vector ',i+1,' :'
-        write(6,'(a)')' ---------------------'
-        call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
-600     continue
-      endif
-      Call GetMem('OCIvec','Free','Real',ipCI,idum)
-      call daclos_cvb(lujob)
-      Return
-      end
-      subroutine wrcivec_cvb(detvec,fn,reord)
-      Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-#include "rasdim.fh"
-#include "jobiph_j.fh"
-      character*(*) fn
-      logical debug
-      data debug/.false./
-      dimension detvec(*)
-      dimension ncix(8)
-      logical reord
-      dimension rdum(1)
-      iwr=1
+  do i=1,nroots_j
+    j = iroot_j(i)
+    iDisk = iadr15_j(4)
+    do k=1,j-1
+      call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+    end do
+    call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),nConf_j,iDisk)
+  end do
+end if
+if (debug) then
+  do i=0,nroots_j-1
+    write(6,'(a,i3,a)') ' (CSF) CI vector ',i+1,' :'
+    write(6,'(a)') ' ---------------------'
+    call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+  end do
+end if
+call GetMem('OCIvec','Free','Real',ipCI,idum)
+call daclos_cvb(lujob)
 
-      call getnci_cvb(ncix,nactel_j,ispin_j-1,lsym_j)
-      ndet_j=ncix(1)
+return
 
-      lujob=15
-      call daname_cvb(lujob,fn)
-! Allocate at least NDET words for each vector, since this is
-! required by csdtvc :
-!      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
-      Call GetMem('OCIvec','Allo','Real',ipCI,                          &
-     &  nConf_j*nroots_j+ndet_j-nconf_j)
-      if(iwr.eq.0)then
-        Do 200 i=1,nroots_j
-        j=iroot_j(i)
-        iDisk=iadr15_j(4)
-        Do 300 k=1,j-1
-        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-300     continue
-        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),                  &
-     &    nConf_j,iDisk)
-200     continue
-
-        if(reord)then
-          Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-          call reord2_cvb(work(ipci),work(ipci2),1)
-          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-          Call GetMem('ipci2','Free','Real',ipCI2,idum)
-        endif
-
-        call csf2det_cvb(work(ipci),detvec,lsym_j,1)
-      elseif(iwr.eq.1)then
-        call csf2det_cvb(work(ipci),detvec,lsym_j,2)
-
-        if(reord)then
-          Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-          call reord2_cvb(work(ipci),work(ipci2),0)
-          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-          Call GetMem('ipci2','Free','Real',ipCI2,idum)
-        endif
-
-        Do 400 i=1,nroots_j
-        j=iroot_j(i)
-        iDisk=iadr15_j(4)
-        Do 500 k=1,j-1
-        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-500     continue
-        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),                  &
-     &    nConf_j,iDisk)
-400     continue
-      endif
-      if (debug) then
-        do 600 i=0,nroots_j-1
-        write(6,'(a,i3,a)')' (CSF) CI vector ',i+1,' :'
-        write(6,'(a)')' ---------------------'
-        call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
-600     continue
-      endif
-      Call GetMem('OCIvec','Free','Real',ipCI,idum)
-      call daclos_cvb(lujob)
-      Return
-      end
+end subroutine rdcivec_cvb

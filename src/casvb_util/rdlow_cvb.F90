@@ -11,22 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine rdlow_cvb(vec,n,fileid,ioffset)
-      implicit real*8(a-h,o-z)
+
+subroutine rdlow_cvb(vec,n,fileid,ioffset)
+
+implicit real*8(a-h,o-z)
 #include "io_cvb.fh"
 #include "idbl_cvb.fh"
-      !integer vec
-      dimension vec(n)
-      logical newfile,debug
-      data debug/.false./
+!integer vec
+dimension vec(n)
+logical newfile, debug
+data debug/.false./
 
-      if(debug)write(6,*)' rdlow :',n,fileid,ioffset
-      call mkfn_cvb(fileid,ibf)
-      call ibf2unit_cvb(ibf,lu,newfile)
+if (debug) write(6,*) ' rdlow :',n,fileid,ioffset
+call mkfn_cvb(fileid,ibf)
+call ibf2unit_cvb(ibf,lu,newfile)
 
-      if(newfile)call ioopn_cvb(filename(ibf),lu)
+if (newfile) call ioopn_cvb(filename(ibf),lu)
 
-      ioffs=ioffset
-      call dDaFile(lu,2,vec,n,ioffs)
-      return
-      end
+ioffs = ioffset
+call dDaFile(lu,2,vec,n,ioffs)
+
+return
+
+end subroutine rdlow_cvb

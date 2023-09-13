@@ -11,31 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o10a_cvb(nparm1)
-      implicit real*8 (a-h,o-z)
+
+subroutine o10a_cvb(nparm1)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
 #include "opt2_cvb.fh"
 
-      call ddnewopt_cvb()
-      have_solved_it=.false.
+call ddnewopt_cvb()
+have_solved_it = .false.
 
-      ixp=mstackr_cvb(nparm)
-      call fmove_cvb(work(ix(2)),work(ixp),nparm)
-      call ddproj_cvb(work(ixp),nparm)
-      cnrm1=dnrm2_(n_div,work(ixp),1)
-      cnrm2=dnrm2_(nparm-n_div,work(n_div+ixp),1)
-      if(cnrm1.gt.cnrm2)then
-        call ddguess_cvb(work(ixp),n_div,0)
-        if(cnrm2.gt.1d-8)                                               &
-     &    call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
-      else
-        call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
-        if(cnrm1.gt.1d-8)call ddguess_cvb(work(ixp),n_div,0)
-      endif
-      call ddrhs_cvb(work(ixp),nparm,0)
-      call mfreer_cvb(ixp)
-      return
+ixp = mstackr_cvb(nparm)
+call fmove_cvb(work(ix(2)),work(ixp),nparm)
+call ddproj_cvb(work(ixp),nparm)
+cnrm1 = dnrm2_(n_div,work(ixp),1)
+cnrm2 = dnrm2_(nparm-n_div,work(n_div+ixp),1)
+if (cnrm1 > cnrm2) then
+  call ddguess_cvb(work(ixp),n_div,0)
+  if (cnrm2 > 1d-8) call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
+else
+  call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
+  if (cnrm1 > 1d-8) call ddguess_cvb(work(ixp),n_div,0)
+end if
+call ddrhs_cvb(work(ixp),nparm,0)
+call mfreer_cvb(ixp)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(nparm1)
-      end
+if (.false.) call Unused_integer(nparm1)
+
+end subroutine o10a_cvb

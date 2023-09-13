@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine depend_cvb(chr1,chr2)
-      implicit real*8 (a-h,o-z)
-      character*(*) chr1,chr2
+
+subroutine depend_cvb(chr1,chr2)
+
+implicit real*8(a-h,o-z)
+character*(*) chr1, chr2
 #include "make_cvb.fh"
 
-      call mkafter_cvb(chr1,chr2)
-      call touchdepend_cvb(chr1,chr2)
+call mkafter_cvb(chr1,chr2)
+call touchdepend_cvb(chr1,chr2)
 
-      if(iprint.ge.10)then
-        write(6,*)' IOFFS :',(ioffs(ii),ii=1,nobj+1)
-        write(6,*)' JOFFS :',(joffs(ii),ii=1,nobj+1)
-        write(6,*)' I_DEP_ON_J :',(i_dep_on_j(ii),ii=1,ndep_ij)
-        write(6,*)' J_DEP_ON_I :',(j_dep_on_i(ii),ii=1,ndep_ji)
-      endif
-      return
-      end
+if (iprint >= 10) then
+  write(6,*) ' IOFFS :',(ioffs(ii),ii=1,nobj+1)
+  write(6,*) ' JOFFS :',(joffs(ii),ii=1,nobj+1)
+  write(6,*) ' I_DEP_ON_J :',(i_dep_on_j(ii),ii=1,ndep_ij)
+  write(6,*) ' J_DEP_ON_I :',(j_dep_on_i(ii),ii=1,ndep_ji)
+end if
+
+return
+
+end subroutine depend_cvb

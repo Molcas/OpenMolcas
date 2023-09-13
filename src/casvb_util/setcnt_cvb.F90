@@ -11,48 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  Contents of CI vectors :
-      subroutine setcnt_cvb(xident_ci,idep1)
-      implicit real*8 (a-h,o-z)
+! Contents of CI vectors:
+
+subroutine setcnt_cvb(xident_ci,idep1)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-      dimension xident_ci(1)
+dimension xident_ci(1)
 
-      ident_ci=nint(xident_ci(1))
-      call setcnt2_cvb(ident_ci,idep1)
-      return
-      end
-      subroutine setcnt2_cvb(ident_ci,idep1)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+ident_ci = nint(xident_ci(1))
+call setcnt2_cvb(ident_ci,idep1)
 
-      icnt_ci(ident_ci)=idep1
-      return
-      end
-      function igetcnt2_cvb(ident_ci)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+return
 
-      igetcnt2_cvb=icnt_ci(ident_ci)
-      return
-      end
-      logical function tstcnt_cvb(xident_ci,idep1)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-      dimension xident_ci(1)
-
-      ident_ci=nint(xident_ci(1))
-      tstcnt_cvb=icnt_ci(ident_ci).eq.idep1
-      return
-      end
+end subroutine setcnt_cvb

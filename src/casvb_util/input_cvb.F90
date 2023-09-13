@@ -11,36 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine input_cvb()
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
 
+subroutine input_cvb()
+
+implicit real*8(a-h,o-z)
+#include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      ibase = mstacki_cvb(0)
+ibase = mstacki_cvb(0)
 
-      mxpair=mxorb_cvb*(mxorb_cvb+1)/2
-      mxdimrel=mxpair*(3+mxops)
-      iorbrel = mstacki_cvb(mxpair*(3+mxops))
+mxpair = mxorb_cvb*(mxorb_cvb+1)/2
+mxdimrel = mxpair*(3+mxops)
+iorbrel = mstacki_cvb(mxpair*(3+mxops))
 
-      ifxorb = mstacki_cvb(mxorb_cvb)
+ifxorb = mstacki_cvb(mxorb_cvb)
 
-      iorts = mstacki_cvb(2*mxpair)
-      irots = mstacki_cvb(2*mxpair)
+iorts = mstacki_cvb(2*mxpair)
+irots = mstacki_cvb(2*mxpair)
 
-      izeta = mstacki_cvb(mxsyme)
+izeta = mstacki_cvb(mxsyme)
 
-      iorbs = mstackrz_cvb(mxaobf*mxorb_cvb)
-      irdorbs = mstackiz_cvb(mxorb_cvb)
+iorbs = mstackrz_cvb(mxaobf*mxorb_cvb)
+irdorbs = mstackiz_cvb(mxorb_cvb)
 
-      call input2_cvb(                                                  &
-     &  iwork(iorbrel),mxdimrel,iwork(ifxorb),                          &
-     &  iwork(iorts),iwork(irots),iwork(izeta),work(iorbs),             &
-     &  iwork(irdorbs))
-      call mfreei_cvb(ibase)
-      return
-      end
+call input2_cvb(iwork(iorbrel),mxdimrel,iwork(ifxorb),iwork(iorts),iwork(irots),iwork(izeta),work(iorbs),iwork(irdorbs))
+call mfreei_cvb(ibase)
+
+return
+
+end subroutine input_cvb

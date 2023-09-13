@@ -11,22 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine loopstr_cvb(iocc,index,nel,norb)
-      implicit real*8 (a-h,o-z)
-      dimension iocc(nel)
 
-      index=index+1
-!  Find electron for which orbital number can be increased :
-      do 100 iel=1,nel-1
-      if(iocc(iel+1).gt.iocc(iel)+1)goto 200
-100   continue
-      iel=nel
-      if(iocc(iel).lt.norb)goto 200
-      call loopstr0_cvb(iocc,index,nel,norb)
-      return
-200   iocc(iel)=iocc(iel)+1
-      do 300 jel=1,iel-1
-      iocc(jel)=jel
-300   continue
-      return
-      end
+subroutine loopstr_cvb(iocc,index,nel,norb)
+
+implicit real*8(a-h,o-z)
+dimension iocc(nel)
+
+index = index+1
+! Find electron for which orbital number can be increased:
+do iel=1,nel-1
+  if (iocc(iel+1) > iocc(iel)+1) goto 200
+end do
+iel = nel
+if (iocc(iel) < norb) goto 200
+call loopstr0_cvb(iocc,index,nel,norb)
+return
+200 iocc(iel) = iocc(iel)+1
+do jel=1,iel-1
+  iocc(jel) = jel
+end do
+
+return
+
+end subroutine loopstr_cvb

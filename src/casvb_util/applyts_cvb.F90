@@ -11,25 +11,28 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
-!  Apply T(s) to CIVBS :
-      implicit real*8 (a-h,o-z)
+
+subroutine applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+! Apply T(s) to CIVBS:
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension civbs(ndet)
+dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 
-      dimension civbs(ndet)
-      dimension orbs(norb,norb),gjorb(*),gjorb2(*),gjorb3(*)
+call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 
-      call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
+if (.not. proj) then
+  call applyt_cvb(civbs,gjorb3)
+else
+  call applyt_cvb(civbs,gjorb)
+  call proj_cvb(civbs)
+  call applyt_cvb(civbs,gjorb2)
+end if
 
-      if(.not.proj)then
-        call applyt_cvb(civbs,gjorb3)
-      else
-        call applyt_cvb(civbs,gjorb)
-        call proj_cvb(civbs)
-        call applyt_cvb(civbs,gjorb2)
-      endif
-      return
-      end
+return
+
+end subroutine applyts_cvb

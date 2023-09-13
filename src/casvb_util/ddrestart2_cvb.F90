@@ -11,36 +11,36 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddrestart2_cvb(c,axc,vec,                              &
-     &  hp,solp,                                                        &
-     &  maxdav,n,                                                       &
-     &  nvguess1,nvrestart1,                                            &
-     &  eigval,eigvec)
-      implicit real*8 (a-h,o-z)
+
+subroutine ddrestart2_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1,eigval,eigvec)
+
+implicit real*8(a-h,o-z)
 #include "direct_cvb.fh"
-      dimension c(n,maxdav),axc(n,maxdav),vec(n)
-      dimension hp(maxdav,maxdav)
-      dimension solp(maxdav)
-      dimension eigval(maxdav),eigvec(maxdav,maxdav)
+dimension c(n,maxdav), axc(n,maxdav), vec(n)
+dimension hp(maxdav,maxdav)
+dimension solp(maxdav)
+dimension eigval(maxdav), eigvec(maxdav,maxdav)
 
-      call fmove_cvb(hp,eigvec,maxdav*maxdav)
-      call mxdiag_cvb(eigvec,eigval,maxdav)
+call fmove_cvb(hp,eigvec,maxdav*maxdav)
+call mxdiag_cvb(eigvec,eigval,maxdav)
 
-      nvrestart1=0
-      nvguess1=0
-      call mxatb_cvb(c,solp,n,maxdav,1,vec)
-      if(ifollow.le.2)then
-!  (Put lower-lying solutions in AxC :)
-        do 200 ir=1,nroot-1
-        if(ifollow.eq.1)then
-          ir_use=maxdav-ir+1
-        else
-          ir_use=ir
-        endif
-        call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
-200     continue
-        call fmove_cvb(axc(1,2),c(1,2),n*(nroot-1))
-      endif
-      call fmove_cvb(vec,c(1,1),n)
-      return
-      end
+nvrestart1 = 0
+nvguess1 = 0
+call mxatb_cvb(c,solp,n,maxdav,1,vec)
+if (ifollow <= 2) then
+  ! (Put lower-lying solutions in AxC :)
+  do ir=1,nroot-1
+    if (ifollow == 1) then
+      ir_use = maxdav-ir+1
+    else
+      ir_use = ir
+    end if
+    call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
+  end do
+  call fmove_cvb(axc(1,2),c(1,2),n*(nroot-1))
+end if
+call fmove_cvb(vec,c(1,1),n)
+
+return
+
+end subroutine ddrestart2_cvb

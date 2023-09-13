@@ -11,14 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine schmidtd2_cvb(c1,sxc1,nvec1,c2,nvec2,n)
-      implicit real*8 (a-h,o-z)
-      dimension c1(n,nvec1),sxc1(n,nvec1),c2(n,nvec2)
 
-      do 100 i=1,nvec2
-      do 101 j=1,nvec1
-      call daxpy_(n,-ddot_(n,c2(1,i),1,sxc1(1,j),1),c1(1,j),1,c2(1,i),1)
-101   continue
-100   continue
-      return
-      end
+subroutine schmidtd2_cvb(c1,sxc1,nvec1,c2,nvec2,n)
+
+implicit real*8(a-h,o-z)
+dimension c1(n,nvec1), sxc1(n,nvec1), c2(n,nvec2)
+
+do i=1,nvec2
+  do j=1,nvec1
+    call daxpy_(n,-ddot_(n,c2(1,i),1,sxc1(1,j),1),c1(1,j),1,c2(1,i),1)
+  end do
+end do
+
+return
+
+end subroutine schmidtd2_cvb

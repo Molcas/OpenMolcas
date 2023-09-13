@@ -11,21 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddressvb_cvb(dum,sxc,rhs,res,                          &
-     &  solp_res,maxdav,n,itdav,eig_res,                                &
-     &  is_converged)
-      implicit real*8 (a-h,o-z)
-      logical is_converged
+
+subroutine ddressvb_cvb(dum,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
+
+implicit real*8(a-h,o-z)
+logical is_converged
 #include "direct_cvb.fh"
-      dimension sxc(n,maxdav),rhs(n),res(n)
-      dimension solp_res(maxdav)
+dimension sxc(n,maxdav), rhs(n), res(n)
+dimension solp_res(maxdav)
 
-      call mxatb_cvb(sxc,solp_res,n,itdav,1,res)
-      call dscal_(n,-eig_res,res,1)
-      call addvec(res,res,rhs,n)
+call mxatb_cvb(sxc,solp_res,n,itdav,1,res)
+call dscal_(n,-eig_res,res,1)
+call addvec(res,res,rhs,n)
 
-      is_converged=.true.
-      return
+is_converged = .true.
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_real(dum)
-      end
+if (.false.) call Unused_real(dum)
+
+end subroutine ddressvb_cvb

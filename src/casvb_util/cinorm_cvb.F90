@@ -11,28 +11,31 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cinorm_cvb(cvec,cnrm)
-      implicit real*8(a-h,o-z)
+
+subroutine cinorm_cvb(cvec,cnrm)
+!***********************************************************************
+!*                                                                     *
+!*  CINORM  := Finds the sum of squared vector elements                *
+!*                                                                     *
+!***********************************************************************
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension cvec(*)
-!  *********************************************************************
-!  *                                                                   *
-!  *  CINORM  := Finds the sum of squared vector elements              *
-!  *                                                                   *
-!  *********************************************************************
+dimension cvec(*)
 
-      ivec=nint(cvec(1))
-      iformat=iform_ci(ivec)
-      if(iformat.eq.0)then
-        cnrm=ddot_(ndet,work(iaddr_ci(ivec)),1,work(iaddr_ci(ivec)),1)
-      else
-        write(6,*)' Unsupported format in CINORM :',iformat
-        call abend_cvb()
-      endif
-      return
-      end
+ivec = nint(cvec(1))
+iformat = iform_ci(ivec)
+if (iformat == 0) then
+  cnrm = ddot_(ndet,work(iaddr_ci(ivec)),1,work(iaddr_ci(ivec)),1)
+else
+  write(6,*) ' Unsupported format in CINORM :',iformat
+  call abend_cvb()
+end if
+
+return
+
+end subroutine cinorm_cvb

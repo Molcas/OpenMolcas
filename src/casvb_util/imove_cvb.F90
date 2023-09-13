@@ -8,11 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine imove_cvb(iv1,iv2,n)
-      implicit real*8 (a-h,o-z)
-      dimension iv1(n),iv2(n)
-      do 100 i=1,n
-      iv2(i)=iv1(i)
-100   continue
-      return
-      end
+
+subroutine imove_cvb(iv1,iv2,n)
+
+implicit real*8(a-h,o-z)
+dimension iv1(n), iv2(n)
+
+do i=1,n
+  iv2(i) = iv1(i)
+end do
+
+return
+
+end subroutine imove_cvb

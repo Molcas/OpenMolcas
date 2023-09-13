@@ -11,41 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine asc2ab_cvb(detvec,nvec,nel,nalf)
-      implicit real*8 (a-h,o-z)
+
+subroutine asc2ab_cvb(detvec,nvec,nel,nalf)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      dimension detvec(*)
+dimension detvec(*)
 
+call icomb_cvb(nel,nalf,ndet)
+nbet = nel-nalf
+i1 = mstacki_cvb(nel+1)
+i2 = mstacki_cvb(nel+1)
+i3 = mstacki_cvb(nel+1)
+i4 = mstacki_cvb((nel+1)*(nalf+1))
+i5 = mstacki_cvb(nel)
+call asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet,iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
+call mfreei_cvb(i1)
 
-      call icomb_cvb(nel,nalf,ndet)
-      nbet=nel-nalf
-      i1 = mstacki_cvb(nel+1)
-      i2 = mstacki_cvb(nel+1)
-      i3 = mstacki_cvb(nel+1)
-      i4 = mstacki_cvb((nel+1)*(nalf+1))
-      i5 = mstacki_cvb(nel)
-      call asc2ab2_cvb(detvec,nvec,nel,nalf,                            &
-     &  nbet,ndet,                                                      &
-     &  iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
-      call mfreei_cvb(i1)
-      return
-      end
-      subroutine ab2asc_cvb(detvec,nvec,nel,nalf)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension detvec(*)
+return
 
-
-      call icomb_cvb(nel,nalf,ndet)
-      nbet=nel-nalf
-      i1 = mstacki_cvb(nel+1)
-      i2 = mstacki_cvb(nel+1)
-      i3 = mstacki_cvb(nel+1)
-      i4 = mstacki_cvb((nel+1)*(nalf+1))
-      i5 = mstacki_cvb(nel)
-      call asc2ab2_cvb(detvec,nvec,nel,nalf,                            &
-     &  nbet,ndet,                                                      &
-     &  iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
-      call mfreei_cvb(i1)
-      return
-      end
+end subroutine asc2ab_cvb

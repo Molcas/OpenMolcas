@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine sorti_cvb(n,arrin)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      integer arrin
-      dimension arrin(n)
 
-      i1 = mstacki_cvb(n)
-      call sortindxi_cvb(n,arrin,iwork(i1))
-      i2 = mstacki_cvb(n)
-      do 100 i=0,n-1
-      iwork(i+i2)=arrin(iwork(i+i1))
-100   continue
-      call imove_cvb(iwork(i2),arrin,n)
-      call mfreei_cvb(i1)
-      return
-      end
+subroutine sorti_cvb(n,arrin)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+integer arrin
+dimension arrin(n)
+
+i1 = mstacki_cvb(n)
+call sortindxi_cvb(n,arrin,iwork(i1))
+i2 = mstacki_cvb(n)
+do i=0,n-1
+  iwork(i+i2) = arrin(iwork(i+i1))
+end do
+call imove_cvb(iwork(i2),arrin,n)
+call mfreei_cvb(i1)
+
+return
+
+end subroutine sorti_cvb

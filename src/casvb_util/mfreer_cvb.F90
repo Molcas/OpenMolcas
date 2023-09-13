@@ -11,51 +11,30 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mfreer_cvb(ipoint)
-!  Memory allocator. Releases pointer.
-      implicit real*8 (a-h,o-z)
+
+subroutine mfreer_cvb(ipoint)
+! Memory allocator. Releases pointer.
+
+implicit real*8(a-h,o-z)
 #include "memman_cvb.fh"
 
-
-      if(memdebug)write(6,*)'     Enter mfreer: pointer :',ipoint
-!  Check if allocated using mstack :
-      do 100 ifield=1,nfield
-      if(iaddr(ifield).eq.ipoint)then
-        do 200 jfield=ifield,nfield
-        ipoint_g=iaddr(jfield)-ioff_r
-        if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-        call getmem('casvb','FREE','REAL',ipoint_g,nword)
-200     continue
-        nfield=ifield-1
-        return
-      endif
-100   continue
-!  Allocated through mheap :
-      ipoint_g=ipoint-ioff_r
+if (memdebug) write(6,*) '     Enter mfreer: pointer :',ipoint
+! Check if allocated using mstack:
+do ifield=1,nfield
+  if (iaddr(ifield) == ipoint) then
+    do jfield=ifield,nfield
+      ipoint_g = iaddr(jfield)-ioff_r
+      if (memdebug) write(6,*) '     Release pointer :',iaddr(jfield)
       call getmem('casvb','FREE','REAL',ipoint_g,nword)
-      return
-      end
-      subroutine mhpfreer_cvb(ipoint)
-!  Memory allocator. Releases pointer.
-      implicit real*8 (a-h,o-z)
-#include "memman_cvb.fh"
+    end do
+    nfield = ifield-1
+    return
+  end if
+end do
+! Allocated through mheap:
+ipoint_g = ipoint-ioff_r
+call getmem('casvb','FREE','REAL',ipoint_g,nword)
 
+return
 
-      if(memdebug)write(6,*)'     Enter mfreer: pointer :',ipoint
-!  Check if allocated using mstack :
-      do 100 ifield=1,nfield
-      if(iaddr(ifield).eq.ipoint)then
-        do 200 jfield=ifield,nfield
-        ipoint_g=iaddr(jfield)-ioff_r
-        if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-        call getmem('casvb','FREE','REAL',ipoint_g,nword)
-200     continue
-        nfield=ifield-1
-        return
-      endif
-100   continue
-!  Allocated through mheap :
-      ipoint_g=ipoint-ioff_r
-      call getmem('casvb','FREE','REAL',ipoint_g,nword)
-      return
-      end
+end subroutine mfreer_cvb

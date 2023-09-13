@@ -11,38 +11,28 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mmstringen_cvb(norb,nel,locc,lunocc,nstring,           &
-     &  nkmin,nkmax)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension locc(*),lunocc(*)
-      dimension nkmin(0:norb),nkmax(0:norb)
 
-      i_nk    = mstacki_cvb(norb+1)
-! Spin string loop initialization (use xdet as graph storage) :
-      call imove_cvb(nkmax,iwork(i_nk),norb+1)
-!  Spin string loop starts here :
-      index=0
-100   index=index+1
-      i_locc=(index-1)*nel+1
-      i_lunocc=(index-1)*(norb-nel)+1
-      call occupy_cvb(iwork(i_nk),norb,locc(i_locc),lunocc(i_lunocc))
-      call loop_cvb(norb,iwork(i_nk),nkmin,nkmax,*100)
-      call mfreei_cvb(i_nk)
-      return
+subroutine mmstringen_cvb(norb,nel,locc,lunocc,nstring,nkmin,nkmax)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension locc(*), lunocc(*)
+dimension nkmin(0:norb), nkmax(0:norb)
+
+i_nk = mstacki_cvb(norb+1)
+! Spin string loop initialization (use xdet as graph storage):
+call imove_cvb(nkmax,iwork(i_nk),norb+1)
+! Spin string loop starts here:
+index = 0
+100 index = index+1
+i_locc = (index-1)*nel+1
+i_lunocc = (index-1)*(norb-nel)+1
+call occupy_cvb(iwork(i_nk),norb,locc(i_locc),lunocc(i_lunocc))
+call loop_cvb(norb,iwork(i_nk),nkmin,nkmax,*100)
+call mfreei_cvb(i_nk)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(nstring)
-      end
-      real*8 function party_cvb(iperm,n)
-!  Returns parity of permutation
-      implicit real*8(a-h,o-z)
-      dimension iperm(n)
-#include "WrkSpc.fh"
+if (.false.) call Unused_integer(nstring)
 
-      i1 = mstacki_cvb(n)
-      call imove_cvb(iperm,iwork(i1),n)
-      call party2_cvb(iwork(i1),n,party)
-      call mfreei_cvb(i1)
-      party_cvb=party
-      return
-      end
+end subroutine mmstringen_cvb

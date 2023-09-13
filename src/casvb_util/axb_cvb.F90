@@ -11,23 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axb_cvb(asonc,ddres2upd,vec,                           &
-     &  resthr_inp,ioptc,iter,fx_exp)
-!  *********************************************************************
-!  *                                                                   *
-!  *  DIRDIAG front-end for solving  A x = b .                         *
-!  *                                                                   *
-!  *********************************************************************
-      implicit real*8 (a-h,o-z)
+
+subroutine axb_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
-      external asonc,ddres2upd
+external asonc, ddres2upd
+dimension vec(*)
 
-      dimension vec(*)
+call axb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,work(idd(1)),work(idd(2)),work(idd(3)),work(idd(4)),work(idd(5)), &
+              work(idd(6)),work(idd(7)))
 
-      call axb2_cvb(asonc,ddres2upd,vec,                                &
-     &  resthr_inp,ioptc,iter,fx_exp,                                   &
-     &  work(idd(1)),work(idd(2)),work(idd(3)),work(idd(4)),            &
-     &  work(idd(5)),work(idd(6)),work(idd(7)))
-      return
-      end
+return
+
+end subroutine axb_cvb

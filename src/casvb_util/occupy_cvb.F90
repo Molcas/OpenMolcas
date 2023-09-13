@@ -11,22 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine occupy_cvb(nk,nel,locc,lunocc)
-      dimension nk(0:nel),locc(*),lunocc(*)
 
-      iocc=0
-      iunocc=0
-      do 2100 iel=1,nel
-      if(nk(iel)-nk(iel-1) .eq. 1)then
-        iocc=iocc+1
-        locc(iocc)=iel
-      elseif(nk(iel)-nk(iel-1) .eq. 0)then
-        iunocc=iunocc+1
-        lunocc(iunocc)=iel
-      else
-        write(6,*)' Error in graphical indexing routine!'
-        call abend_cvb()
-      endif
-2100  continue
-      return
-      end
+subroutine occupy_cvb(nk,nel,locc,lunocc)
+
+dimension nk(0:nel), locc(*), lunocc(*)
+
+iocc = 0
+iunocc = 0
+do iel=1,nel
+  if (nk(iel)-nk(iel-1) == 1) then
+    iocc = iocc+1
+    locc(iocc) = iel
+  else if (nk(iel)-nk(iel-1) == 0) then
+    iunocc = iunocc+1
+    lunocc(iunocc) = iel
+  else
+    write(6,*) ' Error in graphical indexing routine!'
+    call abend_cvb()
+  end if
+end do
+
+return
+
+end subroutine occupy_cvb

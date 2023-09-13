@@ -11,25 +11,19 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine istkpop_cvb(iarr,ival)
-      implicit real*8(a-h,o-z)
-      dimension iarr(*)
 
-      if(iarr(2).eq.2)then
-        write(6,*)' Trying to pop off empty stack!'
-        call abend_cvb()
-      endif
-      ival=iarr(iarr(2))
-      iarr(2)=iarr(2)-1
-      return
-      end
-      logical function istkprobe_cvb(iarr)
-      implicit real*8(a-h,o-z)
-      dimension iarr(*)
+subroutine istkpop_cvb(iarr,ival)
 
-      istkprobe_cvb=(iarr(2).gt.2)
-      return
-      end
-!  ***********************************
-!  ** Character string manipulation **
-!  ***********************************
+implicit real*8(a-h,o-z)
+dimension iarr(*)
+
+if (iarr(2) == 2) then
+  write(6,*) ' Trying to pop off empty stack!'
+  call abend_cvb()
+end if
+ival = iarr(iarr(2))
+iarr(2) = iarr(2)-1
+
+return
+
+end subroutine istkpop_cvb

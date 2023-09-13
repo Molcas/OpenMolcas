@@ -11,33 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
-      use csfbas, only: cts, kdtoc
-      implicit real*8 (a-h,o-z)
+
+subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
+
+use csfbas, only: cts, kdtoc
+implicit real*8(a-h,o-z)
 #include "ciinfo.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
-      dimension vec(*),detvec(*)
+dimension vec(*), detvec(*)
 
-      if(iWay.eq.1)then
-        if ( nac.eq.0 ) then
-          detvec(1)=vec(1)
-          return
-        endif
+if (iWay == 1) then
+  if (nac == 0) then
+    detvec(1) = vec(1)
+    return
+  end if
 
-        jCopy = 0
-        call csdtvc(vec,detvec,iway,work(kdtoc),                        &
-     &              cts,isym_loc,jcopy)
-      elseif(iWay.eq.2)then
-        if ( nac.eq.0 ) then
-          vec(1)=detvec(1)
-          return
-        endif
+  jCopy = 0
+  call csdtvc(vec,detvec,iway,work(kdtoc),cts,isym_loc,jcopy)
+else if (iWay == 2) then
+  if (nac == 0) then
+    vec(1) = detvec(1)
+    return
+  end if
 
-        jCopy = 0
-        call csdtvc(vec,detvec,iway,work(kdtoc),                        &
-     &              cts,isym_loc,jcopy)
-      endif
-      return
-      end
+  jCopy = 0
+  call csdtvc(vec,detvec,iway,work(kdtoc),cts,isym_loc,jcopy)
+end if
+
+return
+
+end subroutine csf2det_cvb

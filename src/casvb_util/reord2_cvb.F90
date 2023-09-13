@@ -11,12 +11,14 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine reord2_cvb(cfrom,cto,imode)
-      use csfbas, only: conf, kcftp
-      implicit real*8(a-h,o-z)
+
+subroutine reord2_cvb(cfrom,cto,imode)
 ! Front-end routine for molcas reord2, transforms
 ! from SGA CSFs to split-graph-GUGA CSFs.
-      dimension cfrom(*),cto(*)
+
+use csfbas, only: conf, kcftp
+implicit real*8(a-h,o-z)
+dimension cfrom(*), cto(*)
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -26,10 +28,10 @@
 ! NACTEL   general.fh
 ! STSYM    general.fh
 ! IPR      rasscf.fh
-      call getmem('kcnf','allo','inte',ivkcnf,nactel)
-      call reord2(nac,nactel,stsym,imode,                               &
-     &  conf,iwork(kcftp),                                              &
-     &  cfrom,cto,iWork(ivkcnf))
-      call getmem('kcnf','free','inte',ivkcnf,nactel)
-      return
-      end
+call getmem('kcnf','allo','inte',ivkcnf,nactel)
+call reord2(nac,nactel,stsym,imode,conf,iwork(kcftp),cfrom,cto,iWork(ivkcnf))
+call getmem('kcnf','free','inte',ivkcnf,nactel)
+
+return
+
+end subroutine reord2_cvb

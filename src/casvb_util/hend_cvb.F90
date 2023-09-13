@@ -11,9 +11,13 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine hend_cvb()
-      implicit real*8(a-h,o-z)
 
-      call bufio_end_cvb()
-      return
-      end
+subroutine hend_cvb()
+
+implicit real*8(a-h,o-z)
+
+call bufio_end_cvb()
+
+return
+
+end subroutine hend_cvb

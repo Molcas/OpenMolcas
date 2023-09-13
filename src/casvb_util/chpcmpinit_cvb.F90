@@ -11,63 +11,33 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine chpcmpinit_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine chpcmpinit_cvb()
+
+implicit real*8(a-h,o-z)
 #include "lstprm_cvb.fh"
 
-      do 100 i=1,mxprm
-      lstprm(i)=iunset
-100   continue
-      iprm=0
-      return
-      entry chpcmp0_cvb()
-      iprm=0
-      return
-      entry chpcmp2_cvb(itst,iret)
-      iprm=iprm+1
-      if(iprm.gt.mxprm)then
-        write(6,*)' Dimensioning error in CHPCMP2!',iprm,mxprm
-        call abend_cvb()
-      endif
-      iret=lstprm(iprm)
-      lstprm(iprm)=itst
-      return
-      end
-      function recinpcmp_cvb(ifield)
-      implicit real*8 (a-h,o-z)
-      logical recinpcmp_cvb
-! ... Files/Hamiltonian available ...
-      logical, external :: valid_cvb
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+do i=1,mxprm
+  lstprm(i) = iunset
+end do
+iprm = 0
 
-#include "WrkSpc.fh"
+return
 
-      if(.not.valid_cvb(recinp_old))then
-        recinpcmp_cvb=.true.
-      else
-        call rdioff_cvb(ifield,recinp,ioff1)
-        call rdioff_cvb(ifield+1,recinp,ioff2)
-        call rdioff_cvb(ifield,recinp_old,joff1)
-        call rdioff_cvb(ifield+1,recinp_old,joff2)
-        if(ioff2-ioff1.ne.joff2-joff1)then
-          recinpcmp_cvb=.true.
-        else
-          i1=mstackr_cvb(ioff2-ioff1)
-          j1=mstackr_cvb(joff2-joff1)
-          call rdr_cvb(work(i1),ioff2-ioff1,recinp,ioff1)
-          call rdr_cvb(work(j1),joff2-joff1,recinp_old,joff1)
-          do 100 i=0,ioff2-ioff1-1
-          if(work(i+i1).ne.work(i+j1))then
-            recinpcmp_cvb=.true.
-            goto 200
-          endif
-100       continue
-          recinpcmp_cvb=.false.
-200       call mfreer_cvb(i1)
-        endif
-      endif
-      return
-      end
+entry chpcmp0_cvb()
+iprm = 0
+
+return
+
+entry chpcmp2_cvb(itst,iret)
+iprm = iprm+1
+if (iprm > mxprm) then
+  write(6,*) ' Dimensioning error in CHPCMP2!',iprm,mxprm
+  call abend_cvb()
+end if
+iret = lstprm(iprm)
+lstprm(iprm) = itst
+
+return
+
+end subroutine chpcmpinit_cvb

@@ -11,30 +11,30 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  *************************************************************
-!  ** Routines for imposing constraints on VB wfn. parameters **
-!  *************************************************************
-!  *********************
-!  ** Set-up routines **
-!  *********************
-      subroutine construc_cvb(tconstr,ipermzeta)
-      implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
+!*************************************************************
+!** Routines for imposing constraints on VB wfn. parameters **
+!*************************************************************
+!*********************
+!** Set-up routines **
+!*********************
 
+subroutine construc_cvb(tconstr,ipermzeta)
+
+implicit real*8(a-h,o-z)
+#include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension tconstr(nvb,nvb),ipermzeta(norb,nzeta)
+dimension tconstr(nvb,nvb), ipermzeta(norb,nzeta)
 
-      i1 = mstackr_cvb(norb*norb)
-      i2 = mstackr_cvb(norb*norb)
-      i3 = mstackr_cvb(norb*norb)
-      call setipermzeta_cvb(ipermzeta,                                  &
-     &  work(lv(1)),work(ls(1)),iwork(ls(13)),                          &
-     &  work(i1),work(i2),work(i3))
-      call mfreer_cvb(i1)
-      if(iconstruc.eq.2)call construc2_cvb(tconstr)
-      return
-      end
+i1 = mstackr_cvb(norb*norb)
+i2 = mstackr_cvb(norb*norb)
+i3 = mstackr_cvb(norb*norb)
+call setipermzeta_cvb(ipermzeta,work(lv(1)),work(ls(1)),iwork(ls(13)),work(i1),work(i2),work(i3))
+call mfreer_cvb(i1)
+if (iconstruc == 2) call construc2_cvb(tconstr)
+
+return
+
+end subroutine construc_cvb

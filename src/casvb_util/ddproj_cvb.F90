@@ -11,20 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddproj_cvb(c,nparm1)
-      implicit real*8 (a-h,o-z)
+
+subroutine ddproj_cvb(c,nparm1)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "frag_cvb.fh"
 #include "WrkSpc.fh"
-      dimension c(*)
+dimension c(*)
 
-      if(.not.(imethod.eq.4.or.imethod.eq.12))                          &
-     &  call orthcvb_cvb(c,nparm1)
-      ioffs=nparm1-nprvb+1
-      call symtrizcvb_cvb(c(ioffs))
-      return
-      end
+if (.not. ((imethod == 4) .or. (imethod == 12))) call orthcvb_cvb(c,nparm1)
+ioffs = nparm1-nprvb+1
+call symtrizcvb_cvb(c(ioffs))
+
+return
+
+end subroutine ddproj_cvb

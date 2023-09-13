@@ -11,21 +11,24 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cvbstart_cvb_ge9(icode)
-      implicit real*8 (a-h,o-z)
+
+subroutine cvbstart_cvb_ge9(icode)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
+if (icode >= 9) then
+  call cvbfinit_cvb()
+  nmcscf = 0
+end if
+variat = (mod(icode,10) /= 0)
+endvar = (mod(icode,10) == 2)
+recinp = 0d0
+recinp_old = 0d0
 
-      if(icode.ge.9)then
-        call cvbfinit_cvb()
-        nmcscf=0
-      endif
-      variat=(mod(icode,10).ne.0)
-      endvar=(mod(icode,10).eq.2)
-      recinp=0d0
-      recinp_old=0d0
-      return
-      end
+return
+
+end subroutine cvbstart_cvb_ge9

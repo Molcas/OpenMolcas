@@ -11,19 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      logical function up2date_cvb(chr)
-      implicit real*8 (a-h,o-z)
-      character*(*) chr
+
+logical function up2date_cvb(chr)
+
+implicit real*8(a-h,o-z)
+character*(*) chr
 #include "make_cvb.fh"
 
-      iobj=0
-      do 100 i=1,nobj
-      if(charobj(i).eq.chr)iobj=i
-100   continue
-      if(iobj.eq.0)then
-        write(6,*)' Make object not found :',chr
-        call abend_cvb()
-      endif
-      up2date_cvb=up2date(iobj)
-      return
-      end
+iobj = 0
+do i=1,nobj
+  if (charobj(i) == chr) iobj = i
+end do
+if (iobj == 0) then
+  write(6,*) ' Make object not found :',chr
+  call abend_cvb()
+end if
+up2date_cvb = up2date(iobj)
+
+return
+
+end function up2date_cvb

@@ -11,33 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine setifnss_cvb(ifnss1,ifnss2,ndetvbs)
-      implicit real*8 (a-h,o-z)
+
+subroutine setifnss_cvb(ifnss1,ifnss2,ndetvbs)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension ifnss1(0:nel,0:nel), ifnss2(0:nel,0:nel)
+dimension ndetvbs(0:nel,0:nel)
 
+call izero(ifnss1,(nel+1)*(nel+1))
+call izero(ifnss2,(nel+1)*(nel+1))
+call izero(ndetvbs,(nel+1)*(nel+1))
 
-      dimension ifnss1(0:nel,0:nel),ifnss2(0:nel,0:nel)
-      dimension ndetvbs(0:nel,0:nel)
+do n=0,nel
+  do nalfa=(n+1)/2,n
+    nbeta = n-nalfa
+    if (nbeta > nalfa) goto 101
+    call icomb_cvb(n,nbeta,iretval1)
+    call icomb_cvb(n,nbeta-1,iretval2)
+    ifnss1(n,nalfa-nbeta) = iretval1-iretval2
+    call icomb_cvb(n,nalfa,ifnss2(n,nalfa-nbeta))
+    if (nalfa == nbeta) ifnss2(n,nalfa-nbeta) = (ifnss2(n,nalfa-nbeta)+1)/2
+    call icomb_cvb(n,nalfa,ndetvbs(n,nalfa))
+101 continue
+  end do
+end do
 
-      call izero(ifnss1,(nel+1)*(nel+1))
-      call izero(ifnss2,(nel+1)*(nel+1))
-      call izero(ndetvbs,(nel+1)*(nel+1))
+return
 
-      do 100 n=0,nel
-      do 101 nalfa=(n+1)/2,n
-      nbeta=n-nalfa
-      if(nbeta.gt.nalfa)goto 101
-      call icomb_cvb(n,nbeta,iretval1)
-      call icomb_cvb(n,nbeta-1,iretval2)
-      ifnss1(n,nalfa-nbeta)=iretval1-iretval2
-      call icomb_cvb(n,nalfa,ifnss2(n,nalfa-nbeta))
-      if(nalfa.eq.nbeta)ifnss2(n,nalfa-nbeta)=                          &
-     &  (ifnss2(n,nalfa-nbeta)+1)/2
-      call icomb_cvb(n,nalfa,ndetvbs(n,nalfa))
-101   continue
-100   continue
-      return
-      end
+end subroutine setifnss_cvb

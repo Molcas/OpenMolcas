@@ -11,24 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine asonc12_cvb(c,sxc,nvec,                                &
-     &   citmp,orbs,gjorb,gjorb2,gjorb3,cvbdet)
-      implicit real*8 (a-h,o-z)
+
+subroutine asonc12_cvb(c,sxc,nvec,citmp,orbs,gjorb,gjorb2,gjorb3,cvbdet)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension c(nvb,nvec), sxc(nvb,nvec)
+dimension citmp(ndet), orbs(norb,norb)
+dimension gjorb(*), gjorb2(*), gjorb3(*), cvbdet(ndetvb)
 
-      dimension c(nvb,nvec),sxc(nvb,nvec)
-      dimension citmp(ndet),orbs(norb,norb)
-      dimension gjorb(*),gjorb2(*),gjorb3(*),cvbdet(ndetvb)
+do ivec=1,nvec
+  call str2vbf_cvb(c(1,ivec),cvbdet)
+  call vb2cif_cvb(cvbdet,citmp)
+  call applyts_cvb(citmp,orbs,gjorb,gjorb2,gjorb3)
+  call ci2vbg_cvb(citmp,cvbdet)
+  call vb2strg_cvb(cvbdet,sxc(1,ivec))
+end do
 
-      do 100 ivec=1,nvec
-      call str2vbf_cvb(c(1,ivec),cvbdet)
-      call vb2cif_cvb(cvbdet,citmp)
-      call applyts_cvb(citmp,orbs,gjorb,gjorb2,gjorb3)
-      call ci2vbg_cvb(citmp,cvbdet)
-      call vb2strg_cvb(cvbdet,sxc(1,ivec))
-100   continue
-      return
-      end
+return
+
+end subroutine asonc12_cvb

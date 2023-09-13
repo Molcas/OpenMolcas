@@ -11,22 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine findamx_cvb(vec,n,vmx,imx)
-      implicit real*8 (a-h,o-z)
-      dimension vec(n)
 
-      if(n.gt.0)then
-      imx=1
-      vmx=abs(vec(1))
-      do 100 i=2,n
-      if(abs(vec(i)).gt.vmx)then
-        imx=i
-        vmx=abs(vec(i))
-      endif
-100   continue
-      else
-        imx=0
-        vmx=0d0
-      endif
-      return
-      end
+subroutine findamx_cvb(vec,n,vmx,imx)
+
+implicit real*8(a-h,o-z)
+dimension vec(n)
+
+if (n > 0) then
+  imx = 1
+  vmx = abs(vec(1))
+  do i=2,n
+    if (abs(vec(i)) > vmx) then
+      imx = i
+      vmx = abs(vec(i))
+    end if
+  end do
+else
+  imx = 0
+  vmx = 0d0
+end if
+
+return
+
+end subroutine findamx_cvb

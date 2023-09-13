@@ -11,49 +11,52 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine symchk_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine symchk_cvb()
+
+implicit real*8(a-h,o-z)
 ! ... Make: up to date? ...
-      logical, external :: up2date_cvb
+logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+logical recinpcmp_cvb
 
-      logical recinpcmp_cvb
+if (up2date_cvb('SYMINIT')) then
+  ! iorts:
+  if (recinpcmp_cvb(14)) call touch_cvb('ORBFREE')
+  ! irots:
+  if (recinpcmp_cvb(15)) call touch_cvb('ORBFREE')
+  ! iorbrel:
+  if (recinpcmp_cvb(9)) then
+    call touch_cvb('SYMINIT')
+    call touch_cvb('ORBFREE')
+  end if
+  ! ifxorb:
+  if (recinpcmp_cvb(11)) then
+    call touch_cvb('SYMINIT')
+    call touch_cvb('ORBFREE')
+  end if
+end if
+if (up2date_cvb('CONSTRUC')) then
+  ! ifxstr:
+  if (recinpcmp_cvb(12)) then
+    call touch_cvb('CONSTRUC')
+    call touch_cvb('CIFREE')
+  end if
+  ! idelstr:
+  if (recinpcmp_cvb(13)) then
+    call touch_cvb('CONSTRUC')
+    call touch_cvb('CIFREE')
+  end if
+  ! izeta:
+  if (recinpcmp_cvb(16)) then
+    call touch_cvb('CONSTRUC')
+    call touch_cvb('CIFREE')
+  end if
+end if
 
-      if(up2date_cvb('SYMINIT'))then
-!  iorts:
-        if(recinpcmp_cvb(14))call touch_cvb('ORBFREE')
-!  irots:
-        if(recinpcmp_cvb(15))call touch_cvb('ORBFREE')
-!  iorbrel:
-        if(recinpcmp_cvb(9))then
-          call touch_cvb('SYMINIT')
-          call touch_cvb('ORBFREE')
-        endif
-!  ifxorb:
-        if(recinpcmp_cvb(11))then
-          call touch_cvb('SYMINIT')
-          call touch_cvb('ORBFREE')
-        endif
-      endif
-      if(up2date_cvb('CONSTRUC'))then
-!  ifxstr:
-        if(recinpcmp_cvb(12))then
-          call touch_cvb('CONSTRUC')
-          call touch_cvb('CIFREE')
-        endif
-!  idelstr:
-        if(recinpcmp_cvb(13))then
-          call touch_cvb('CONSTRUC')
-          call touch_cvb('CIFREE')
-        endif
-!  izeta:
-        if(recinpcmp_cvb(16))then
-          call touch_cvb('CONSTRUC')
-          call touch_cvb('CIFREE')
-        endif
-      endif
-      return
-      end
+return
+
+end subroutine symchk_cvb

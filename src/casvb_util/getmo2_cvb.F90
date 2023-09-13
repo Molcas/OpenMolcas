@@ -11,32 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine getmo2_cvb(cmo,cmo2,cmoblk,                            &
-     &  ic,ic2)
-      implicit real*8 (a-h,o-z)
+
+subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic,ic2)
+
+implicit real*8(a-h,o-z)
 #include "mo_cvb.fh"
-      dimension cmo(nbas_mo,nbas_mo),cmo2(nbas_mo,nbas_mo)
-      dimension cmoblk(nbasisq_mo)
+dimension cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo)
+dimension cmoblk(nbasisq_mo)
 
-!  Construct full matrix of MOs in symmetry-adapted AO basis :
-      call getmoblk_cvb(cmoblk,ic2)
-      call fzero(cmo,nbas_mo*nbas_mo)
-      do 100 isk=1,nsym_mo
-      do 101 jbas=1,nbasi_mo(isk)
-      call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),  &
-     &  cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
-101   continue
-100   continue
+! Construct full matrix of MOs in symmetry-adapted AO basis:
+call getmoblk_cvb(cmoblk,ic2)
+call fzero(cmo,nbas_mo*nbas_mo)
+do isk=1,nsym_mo
+  do jbas=1,nbasi_mo(isk)
+    call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
+  end do
+end do
 
-      if(mod(ic,2).eq.1)then
-        call mxinv_cvb(cmo,nbas_mo)
-        call transp_cvb(cmo,cmo,nbas_mo,nbas_mo)
-      endif
+if (mod(ic,2) == 1) then
+  call mxinv_cvb(cmo,nbas_mo)
+  call transp_cvb(cmo,cmo,nbas_mo,nbas_mo)
+end if
 
-      if(ic.ge.2)then
-        do 200 iorb=1,nact_mo
-        call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
-200     continue
-      endif
-      return
-      end
+if (ic >= 2) then
+  do iorb=1,nact_mo
+    call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
+  end do
+end if
+
+return
+
+end subroutine getmo2_cvb

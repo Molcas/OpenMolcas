@@ -11,11 +11,15 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine rdrs_cvb(vec,n,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
-      dimension vec(n)
 
-      call rdlow_cvb(vec,n,file_id,ioffset)
-      ioffset=ioffset+n
-      return
-      end
+subroutine rdrs_cvb(vec,n,file_id,ioffset)
+
+implicit real*8(a-h,o-z)
+dimension vec(n)
+
+call rdlow_cvb(vec,n,file_id,ioffset)
+ioffset = ioffset+n
+
+return
+
+end subroutine rdrs_cvb

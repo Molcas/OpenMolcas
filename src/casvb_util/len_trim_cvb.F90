@@ -8,15 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      function len_trim_cvb(a)
-!  Length of string excluding trailing blanks
-      implicit real*8(a-h,o-z)
-      character*(*) a
 
-      do 100 i=len(a),1,-1
-      if(a(i:i).ne.' ')goto 200
-100   continue
-      i=0
-200   len_trim_cvb=i
-      return
-      end
+function len_trim_cvb(a)
+! Length of string excluding trailing blanks
+
+implicit real*8(a-h,o-z)
+character*(*) a
+
+do i=len(a),1,-1
+  if (a(i:i) /= ' ') goto 200
+end do
+i = 0
+200 len_trim_cvb = i
+
+return
+
+end function len_trim_cvb

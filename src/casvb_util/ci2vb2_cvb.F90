@@ -11,60 +11,57 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  *********************************************************************
-!  *                                                                   *
-!  *  PVB    := Zero parts of CI vector not in VB wfn.                 *
-!  *                                                                   *
-!  *********************************************************************
-      subroutine ci2vb2_cvb(civec,cvbdet,                               &
-     &  iapr,ixapr,ret,ic)
-      implicit real*8 (a-h,o-z)
+
+subroutine ci2vb2_cvb(civec,cvbdet,iapr,ixapr,ret,ic)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension civec(nda,ndb), cvbdet(ndetvb)
+dimension iapr(ndetvb), ixapr(nda+1)
 
-      dimension civec(nda,ndb),cvbdet(ndetvb)
-      dimension iapr(ndetvb),ixapr(nda+1)
+if (ic == 0) then
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      cvbdet(idetvb) = civec(ia,ib)
+    end do
+  end do
+else if (ic == 1) then
+  call fzero(civec,nda*ndb)
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      civec(ia,ib) = cvbdet(idetvb)
+    end do
+  end do
+else if (ic == 2) then
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      civec(ia,ib) = civec(ia,ib)+cvbdet(idetvb)
+    end do
+  end do
+else if (ic == 3) then
+  ret = zero
+  idetvb = 0
+  do ia=1,nda
+    do ixa=ixapr(ia),ixapr(ia+1)-1
+      idetvb = idetvb+1
+      ib = iapr(ixa)
+      ret = ret+civec(ia,ib)*cvbdet(idetvb)
+    end do
+  end do
+end if
 
-      if(ic.eq.0)then
-        idetvb=0
-        do 100 ia=1,nda
-        do 101 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        cvbdet(idetvb)=civec(ia,ib)
-101     continue
-100     continue
-      elseif(ic.eq.1)then
-        call fzero(civec,nda*ndb)
-        idetvb=0
-        do 200 ia=1,nda
-        do 201 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        civec(ia,ib)=cvbdet(idetvb)
-201     continue
-200     continue
-      elseif(ic.eq.2)then
-        idetvb=0
-        do 300 ia=1,nda
-        do 301 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        civec(ia,ib)=civec(ia,ib)+cvbdet(idetvb)
-301     continue
-300     continue
-      elseif(ic.eq.3)then
-        ret=zero
-        idetvb=0
-        do 400 ia=1,nda
-        do 401 ixa=ixapr(ia),ixapr(ia+1)-1
-        idetvb=idetvb+1
-        ib=iapr(ixa)
-        ret=ret+civec(ia,ib)*cvbdet(idetvb)
-401     continue
-400     continue
-      endif
-      return
-      end
+return
+
+end subroutine ci2vb2_cvb

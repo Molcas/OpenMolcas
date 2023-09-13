@@ -11,17 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkbiks_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine mkbiks_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
-
 #include "WrkSpc.fh"
 
-      call biks_cvb(work(lb(1)),work(lb(2)),iwork(lb(3)),               &
-     &  nel,kbasiscvb,(lb(1).eq.lb(2)),ip(1))
-      return
-      end
+call biks_cvb(work(lb(1)),work(lb(2)),iwork(lb(3)),nel,kbasiscvb,(lb(1) == lb(2)),ip(1))
+
+return
+
+end subroutine mkbiks_cvb

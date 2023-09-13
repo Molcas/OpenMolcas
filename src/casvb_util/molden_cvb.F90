@@ -11,20 +11,25 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine molden_cvb()
-      use rctfld_module, only: lRF
-      implicit None
+
+subroutine molden_cvb()
+
+use rctfld_module, only: lRF
+
+implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
-      Integer iDisk
-      Real*8 Dummy(1)
+integer iDisk
+real*8 Dummy(1)
 
-      call daname_cvb(JOBIPH,'JOBIPH')
-      idisk=0
-      call idafile(JOBIPH,2,iadr15,15,idisk)
-      Dummy = 0.0D0
-      if(.not.lRF) call interf(0,Dummy,0,1)
-      return
-      end
+call daname_cvb(JOBIPH,'JOBIPH')
+idisk = 0
+call idafile(JOBIPH,2,iadr15,15,idisk)
+Dummy = 0.0d0
+if (.not. lRF) call interf(0,Dummy,0,1)
+
+return
+
+end subroutine molden_cvb

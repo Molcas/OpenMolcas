@@ -11,32 +11,36 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine saoon_cvb(c1,c2,n2,s,n,metr)
-!  Put matrix product S*C1 in C2:
-      implicit real*8 (a-h,o-z)
-      dimension c1(n,n2),c2(n,n2),s(*)
 
-      if(metr.eq.0)then
-        call fmove_cvb(c1,c2,n*n2)
-      elseif(metr.eq.1)then
-        call mxatb_cvb(s,c1,n,n,n2,c2)
-      elseif(metr.eq.2)then
-        call fzero(c2,n*n2)
-        do 100 j=1,n2
-        ik=0
-        do 200 k=1,n
-        do 300 i=1,k-1
-        ik=ik+1
-        c2(i,j)=c2(i,j)+s(ik)*c1(k,j)
-        c2(k,j)=c2(k,j)+s(ik)*c1(i,j)
-300     continue
-        ik=ik+1
-        c2(k,j)=c2(k,j)+s(ik)*c1(k,j)
-200     continue
-100     continue
-      endif
-      return
-      end
-!  *******************************
-!  ** Vector sorting and search **
-!  *******************************
+subroutine saoon_cvb(c1,c2,n2,s,n,metr)
+! Put matrix product S*C1 in C2:
+
+implicit real*8(a-h,o-z)
+dimension c1(n,n2), c2(n,n2), s(*)
+
+if (metr == 0) then
+  call fmove_cvb(c1,c2,n*n2)
+else if (metr == 1) then
+  call mxatb_cvb(s,c1,n,n,n2,c2)
+else if (metr == 2) then
+  call fzero(c2,n*n2)
+  do j=1,n2
+    ik = 0
+    do k=1,n
+      do i=1,k-1
+        ik = ik+1
+        c2(i,j) = c2(i,j)+s(ik)*c1(k,j)
+        c2(k,j) = c2(k,j)+s(ik)*c1(i,j)
+      end do
+      ik = ik+1
+      c2(k,j) = c2(k,j)+s(ik)*c1(k,j)
+    end do
+  end do
+end if
+
+return
+
+end subroutine saoon_cvb
+!*******************************
+!** Vector sorting and search **
+!*******************************

@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE FMOVE_CVB(IA,IB,N)
-!      INTEGER    N
-!      REAL*8     IA(N),IB(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8      IA,IB
-      DIMENSION   IA(*),IB(*)
+
+subroutine FMOVE_CVB(IA,IB,N)
+
+implicit real*8(A-H,O-Z)
+!integer N
+!real*8 IA(N), IB(N)
+real*8 IA, IB
+dimension IA(*), IB(*)
 #include "SysDef.fh"
 
-!      CALL DCOPY_(N*RtoI,IA,1,IB,1)
-      DO I=1,N*RtoI
-         IB(I)=IA(I)
-      END DO
+!call DCOPY_(N*RtoI,IA,1,IB,1)
+do I=1,N*RtoI
+  IB(I) = IA(I)
+end do
 
-      RETURN
-      END
+return
+
+end subroutine FMOVE_CVB

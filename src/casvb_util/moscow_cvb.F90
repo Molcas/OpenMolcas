@@ -11,28 +11,46 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine moscow_cvb()
-      write(6,*)' Casvb dummy routine called : MOSCOW'
-      return
-      entry service_cvb()
-      write(6,*)' Casvb dummy routine called : SERV'
-      return
-      entry rtransf_plc()
-      write(6,*)' Molint dummy routine called : rtransf_plc'
-      return
-      entry perfloc_plc()
-      write(6,*)' Molint dummy routine called : perfloc_plc'
-      return
-      entry plcconst_plc()
-      write(6,*)' Molint dummy routine called : plcconst_plc'
-      return
-      entry rconstr_plc()
-      write(6,*)' Molint dummy routine called : rconstr_plc'
-      return
-      entry getr_plc()
-      write(6,*)' Molint dummy routine called : getr_plc'
-      return
-      entry qget_plc()
-      write(6,*)' Molint dummy routine called : qget_plc'
-      return
-      end
+
+subroutine moscow_cvb()
+
+write(6,*) ' Casvb dummy routine called : MOSCOW'
+
+return
+
+entry service_cvb()
+write(6,*) ' Casvb dummy routine called : SERV'
+
+return
+
+entry rtransf_plc()
+write(6,*) ' Molint dummy routine called : rtransf_plc'
+
+return
+
+entry perfloc_plc()
+write(6,*) ' Molint dummy routine called : perfloc_plc'
+
+return
+
+entry plcconst_plc()
+write(6,*) ' Molint dummy routine called : plcconst_plc'
+
+return
+
+entry rconstr_plc()
+write(6,*) ' Molint dummy routine called : rconstr_plc'
+
+return
+
+entry getr_plc()
+write(6,*) ' Molint dummy routine called : getr_plc'
+
+return
+
+entry qget_plc()
+write(6,*) ' Molint dummy routine called : qget_plc'
+
+return
+
+end subroutine moscow_cvb

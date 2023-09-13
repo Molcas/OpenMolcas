@@ -11,25 +11,29 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine schmidtn2_cvb(c,sxc,nvec,sao,n,metr)
-      implicit real*8 (a-h,o-z)
-      dimension c(n,nvec),sxc(n,nvec),sao(*)
-      save thresh,one
-      data thresh/1d-20/,one/1d0/
 
-      do 100 i=1,nvec
-      do 200 j=1,i-1
-      call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1),c(1,j),1,c(1,i),1)
-200   continue
-      if(metr.ne.0)call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
-      cnrm=ddot_(n,c(1,i),1,sxc(1,i),1)
-      if(cnrm.lt.thresh)then
-        write(6,*)' Warning : near-singularity in orthonormalization.'
-        write(6,*)' Vector norm :',cnrm
-      endif
-      fac=one/sqrt(cnrm)
-      call dscal_(n,fac,c(1,i),1)
-      if(metr.ne.0)call dscal_(n,fac,sxc(1,i),1)
-100   continue
-      return
-      end
+subroutine schmidtn2_cvb(c,sxc,nvec,sao,n,metr)
+
+implicit real*8(a-h,o-z)
+dimension c(n,nvec), sxc(n,nvec), sao(*)
+save thresh, one
+data thresh/1d-20/,one/1d0/
+
+do i=1,nvec
+  do j=1,i-1
+    call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1),c(1,j),1,c(1,i),1)
+  end do
+  if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
+  cnrm = ddot_(n,c(1,i),1,sxc(1,i),1)
+  if (cnrm < thresh) then
+    write(6,*) ' Warning : near-singularity in orthonormalization.'
+    write(6,*) ' Vector norm :',cnrm
+  end if
+  fac = one/sqrt(cnrm)
+  call dscal_(n,fac,c(1,i),1)
+  if (metr /= 0) call dscal_(n,fac,sxc(1,i),1)
+end do
+
+return
+
+end subroutine schmidtn2_cvb

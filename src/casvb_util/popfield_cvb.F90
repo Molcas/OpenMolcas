@@ -11,96 +11,36 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  **************************************
-!  ** Low-level input parsing routines **
-!  **************************************
-      subroutine popfield_cvb(ifc)
-!  IFC is field control :
-!  IFC=1 --> read to end of line only, no new line -- DISABLED in MOLCAS
-!  IFC=2 --> begin read from next line
-      implicit real*8 (a-h,o-z)
-!      character*8 string
-#include "pop_cvb.fh"
-      save initpop
-      data initpop/0/
-      if(initpop.eq.0) then
-      ifield=0
-      nfield=0
-      nfold=0
-      endif
-      initpop=1
+!**************************************
+!** Low-level input parsing routines **
+!**************************************
 
-      if((ifield.eq.nfield).or.ifc.eq.2)then
-        nfold=nfield
-        call rdline_cvb(nfield)
-        ifield=1
-      else
-!  IFIELD > NFIELD will signify no read
-        ifield=min(ifield+1,nfield+1)
-      endif
-      return
-      end
+subroutine popfield_cvb(ifc)
+! IFC is field control:
+! IFC=1 --> read to end of line only, no new line -- DISABLED in MOLCAS
+! IFC=2 --> begin read from next line
 
-      subroutine pushfield_cvb()
-      implicit real*8 (a-h,o-z)
-!      character*8 string
+implicit real*8(a-h,o-z)
+!character*8 string
 #include "pop_cvb.fh"
-      if(ifield.eq.1.or.nfield.eq.-1)then
-        call pushline_cvb()
-        ifield=nfold
-        nfield=nfold
-      else
-        ifield=ifield-1
-      endif
-      return
-      end
-      subroutine rdstring_cvb(string,ierr)
-!  Check if field is applicable:
-      implicit real*8 (a-h,o-z)
-      character*8 string
-#include "pop_cvb.fh"
-      ierr=0
-      if(nfield.eq.-1)ierr=1
-      if(ifield.gt.nfield)ierr=2
-      if(ierr.ne.0)then
-        string='        '
-        return
-      endif
-!      call gtstring_cvb(string,ifield)
-      call gtany_cvb(string,idi,rdr,1,ifield,ierr)
-      return
-      end
-      subroutine rdint_cvb(intval,ierr)
-!  Check if field is applicable:
-      implicit real*8 (a-h,o-z)
-      character*8 string
-#include "pop_cvb.fh"
-      ierr=0
-      if(nfield.eq.-1)ierr=1
-      if(ifield.gt.nfield)ierr=2
-      if(ierr.ne.0)return
-!      call gtint_cvb(intval,ifield,jerr)
-      call gtany_cvb(string,intval,rdr,2,ifield,jerr)
-      if(jerr.eq.1)then
-        if(ifield.eq.1)ierr=3
-        if(ifield.ne.1)ierr=4
-      endif
-      return
-      end
-      subroutine rdreal_cvb(realval,ierr)
-!  Check if field is applicable:
-      implicit real*8 (a-h,o-z)
-      character*8 string
-#include "pop_cvb.fh"
-      ierr=0
-      if(nfield.eq.-1)ierr=1
-      if(ifield.gt.nfield)ierr=2
-      if(ierr.ne.0)return
-!      call gtreal_cvb(realval,ifield,jerr)
-      call gtany_cvb(string,idi,realval,3,ifield,jerr)
-      if(jerr.eq.1)then
-        if(ifield.eq.1)ierr=3
-        if(ifield.ne.1)ierr=4
-      endif
-      return
-      end
+save initpop
+data initpop/0/
+if (initpop == 0) then
+  ifield = 0
+  nfield = 0
+  nfold = 0
+end if
+initpop = 1
+
+if ((ifield == nfield) .or. (ifc == 2)) then
+  nfold = nfield
+  call rdline_cvb(nfield)
+  ifield = 1
+else
+  ! IFIELD > NFIELD will signify no read
+  ifield = min(ifield+1,nfield+1)
+end if
+
+return
+
+end subroutine popfield_cvb

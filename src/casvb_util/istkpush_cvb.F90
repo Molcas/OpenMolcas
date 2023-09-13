@@ -11,16 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine istkpush_cvb(iarr,ival)
-      implicit real*8(a-h,o-z)
-      dimension iarr(*)
 
-      iarr(2)=iarr(2)+1
-      if(iarr(2).gt.iarr(1))then
-        write(6,*)' Stack dimension too small :',iarr(1)
-        write(6,*)' Tried push of :',ival
-        call abend_cvb()
-      endif
-      iarr(iarr(2))=ival
-      return
-      end
+subroutine istkpush_cvb(iarr,ival)
+
+implicit real*8(a-h,o-z)
+dimension iarr(*)
+
+iarr(2) = iarr(2)+1
+if (iarr(2) > iarr(1)) then
+  write(6,*) ' Stack dimension too small :',iarr(1)
+  write(6,*) ' Tried push of :',ival
+  call abend_cvb()
+end if
+iarr(iarr(2)) = ival
+
+return
+
+end subroutine istkpush_cvb

@@ -11,28 +11,31 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ciscale_cvb(cvec,scale)
-      implicit real*8(a-h,o-z)
+
+subroutine ciscale_cvb(cvec,scale)
+!***********************************************************************
+!*                                                                     *
+!*  CISCALE := Analogous to the blas routine DSCAL                     *
+!*                                                                     *
+!***********************************************************************
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension cvec(*)
-!  *********************************************************************
-!  *                                                                   *
-!  *  CISCALE := Analogous to the blas routine DSCAL                   *
-!  *                                                                   *
-!  *********************************************************************
+dimension cvec(*)
 
-      ivec=nint(cvec(1))
-      iformat=iform_ci(ivec)
-      if(iformat.eq.0)then
-        call dscal_(ndet,scale,work(iaddr_ci(ivec)),1)
-      else
-        write(6,*)' Unsupported format in CISCALE :',iformat
-        call abend_cvb()
-      endif
-      return
-      end
+ivec = nint(cvec(1))
+iformat = iform_ci(ivec)
+if (iformat == 0) then
+  call dscal_(ndet,scale,work(iaddr_ci(ivec)),1)
+else
+  write(6,*) ' Unsupported format in CISCALE :',iformat
+  call abend_cvb()
+end if
+
+return
+
+end subroutine ciscale_cvb

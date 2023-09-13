@@ -11,22 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine sethr_cvb(iarr,n)
-      implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
-      dimension iarr(n)
 
-      call seth_cvb([n],1)
-      call seth_cvb(iarr,idbl*n)
-      return
-      end
+subroutine sethr_cvb(iarr,n)
 
-      subroutine gethr_cvb(iarr,n)
-      implicit real*8(a-h,o-z)
+implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-      dimension iarr(n), iaux(1)
-      call geth_cvb(iaux,1)
-      n=iaux(1)
-      call geth_cvb(iarr,idbl*n)
-      return
-      end
+dimension iarr(n)
+
+call seth_cvb([n],1)
+call seth_cvb(iarr,idbl*n)
+
+return
+
+end subroutine sethr_cvb

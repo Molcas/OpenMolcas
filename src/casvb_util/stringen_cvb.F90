@@ -11,20 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine stringen_cvb(norb,nel,locc,lunocc,nstring)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension locc(*),lunocc(*)
 
-      i_nkmin = mstacki_cvb(norb+1)
-      i_nkmax = mstacki_cvb(norb+1)
-! Spin string loop initialization (use xdet as graph storage) :
-      do 100 iorb=0,norb
-      iwork(iorb+i_nkmin)=max(iorb-norb+nel,0)
-      iwork(iorb+i_nkmax)=min(iorb,nel)
-100   continue
-      call mmstringen_cvb(norb,nel,locc,lunocc,nstring,                 &
-     &  iwork(i_nkmin),iwork(i_nkmax))
-      call mfreei_cvb(i_nkmin)
-      return
-      end
+subroutine stringen_cvb(norb,nel,locc,lunocc,nstring)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension locc(*), lunocc(*)
+
+i_nkmin = mstacki_cvb(norb+1)
+i_nkmax = mstacki_cvb(norb+1)
+! Spin string loop initialization (use xdet as graph storage):
+do iorb=0,norb
+  iwork(iorb+i_nkmin) = max(iorb-norb+nel,0)
+  iwork(iorb+i_nkmax) = min(iorb,nel)
+end do
+call mmstringen_cvb(norb,nel,locc,lunocc,nstring,iwork(i_nkmin),iwork(i_nkmax))
+call mfreei_cvb(i_nkmin)
+
+return
+
+end subroutine stringen_cvb

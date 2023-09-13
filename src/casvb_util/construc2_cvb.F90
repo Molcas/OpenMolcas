@@ -11,32 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine construc2_cvb(tconstr)
-      implicit real*8 (a-h,o-z)
+
+subroutine construc2_cvb(tconstr)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension tconstr(nvb,nvb)
-      dimension dum(1)
+dimension tconstr(nvb,nvb)
+dimension dum(1)
 
-      iconstruc_kp=iconstruc
-      iconstruc=1
-      irepm = mstackr_cvb(nvb)
+iconstruc_kp = iconstruc
+iconstruc = 1
+irepm = mstackr_cvb(nvb)
 
-      call span0_cvb(nvb,nvb)
-      do 100 ivb=1,nvb
-      call fzero(work(irepm),nvb)
-      work(ivb+irepm-1)=-1d0
-      call symtrizcvb_cvb(work(irepm))
-      work(ivb+irepm-1)=work(ivb+irepm-1)+1d0
-      call span1_cvb(work(irepm),1,dum,nvb,0)
-100   continue
-      call span2_cvb(tconstr,nconstr,dum,nvb,0)
+call span0_cvb(nvb,nvb)
+do ivb=1,nvb
+  call fzero(work(irepm),nvb)
+  work(ivb+irepm-1) = -1d0
+  call symtrizcvb_cvb(work(irepm))
+  work(ivb+irepm-1) = work(ivb+irepm-1)+1d0
+  call span1_cvb(work(irepm),1,dum,nvb,0)
+end do
+call span2_cvb(tconstr,nconstr,dum,nvb,0)
 
-      call mfreer_cvb(irepm)
-      iconstruc=iconstruc_kp
-      return
-      end
+call mfreer_cvb(irepm)
+iconstruc = iconstruc_kp
+
+return
+
+end subroutine construc2_cvb

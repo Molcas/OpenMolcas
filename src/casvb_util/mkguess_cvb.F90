@@ -11,20 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mkguess_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine mkguess_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 #include "mo_cvb.fh"
 
-      irdorbs=mstacki_cvb(norb)
-      iorbsao=mstackr_cvb(nbas_mo*norb)
-      call mkguess2_cvb(work(lv(1)),work(lv(2)),                        &
-     &  iwork(irdorbs),work(iorbsao))
-      call mfreei_cvb(irdorbs)
-      return
-      end
+irdorbs = mstacki_cvb(norb)
+iorbsao = mstackr_cvb(nbas_mo*norb)
+call mkguess2_cvb(work(lv(1)),work(lv(2)),iwork(irdorbs),work(iorbsao))
+call mfreei_cvb(irdorbs)
+
+return
+
+end subroutine mkguess_cvb

@@ -11,88 +11,90 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine main_cvb()
-      implicit real*8 (a-h,o-z)
-! ... Make: up to date? ...
-      logical, external :: up2date_cvb
-#include "main_cvb.fh"
 
+subroutine main_cvb()
+
+implicit real*8(a-h,o-z)
+! ... Make: up to date? ...
+logical, external :: up2date_cvb
+#include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      external loopcntr_iterate_cvb
-      logical loopcntr_iterate_cvb
+external loopcntr_iterate_cvb
+logical loopcntr_iterate_cvb
 
-      if(service) return
-      ibase=mstackr_cvb(0)
-      if(variat)nmcscf=nmcscf+1
-      call stat1_cvb()
+if (service) return
+ibase = mstackr_cvb(0)
+if (variat) nmcscf = nmcscf+1
+call stat1_cvb()
 
 ! ---------  make objects  ---------
-      call makefile_cvb()
-      if(nmcscf.le.1)call touch_cvb('WRITEGS')
+call makefile_cvb()
+if (nmcscf <= 1) call touch_cvb('WRITEGS')
 ! ----------------------------------
 
-      call change0_cvb()
+call change0_cvb()
 
-      call loopcntr_init_cvb(2,.true.)
-      call input_cvb()
-      call loopcntr_init_cvb(2,.false.)
-1000  continue
-      if(loopcntr_iterate_cvb())then
-        call input_cvb()
+call loopcntr_init_cvb(2,.true.)
+call input_cvb()
+call loopcntr_init_cvb(2,.false.)
+1000 continue
+if (loopcntr_iterate_cvb()) then
+  call input_cvb()
 
-        if(variat.and.(.not.endvar).and.ip(6).lt.2)then
-!  Reduce output level for main variational iterations:
-          do 1100 i=1,10
-          ip(i)=-1
-1100      continue
-        endif
+  if (variat .and. (.not. endvar) .and. (ip(6) < 2)) then
+    ! Reduce output level for main variational iterations:
+    do i=1,10
+      ip(i) = -1
+    end do
+  end if
 
-        if(endvar.and. .not.up2date_cvb('PRTSUM'))then
-!  End of variational calculation
-          if(ip(1).ge.0)write(6,'(/,a)')' CASVB -- summary of results :'
-          if(ip(1).ge.0)write(6,'(a)')  ' -----------------------------'
-          call make_cvb('PRTSUM')
-        endif
+  if (endvar .and. (.not. up2date_cvb('PRTSUM'))) then
+    ! End of variational calculation
+    if (ip(1) >= 0) write(6,'(/,a)') ' CASVB -- summary of results :'
+    if (ip(1) >= 0) write(6,'(a)') ' -----------------------------'
+    call make_cvb('PRTSUM')
+  end if
 
-        call make_cvb('STAT')
+  call make_cvb('STAT')
 
-        call touch_cvb('ORBFREE')
-        call touch_cvb('CIFREE')
+  call touch_cvb('ORBFREE')
+  call touch_cvb('CIFREE')
 
-        if(ifinish.le.2)call change_cvb()
+  if (ifinish <= 2) call change_cvb()
 
-        call casinfoprint_cvb()
-        call cnfprint_cvb()
-        call prtopt_cvb()
+  call casinfoprint_cvb()
+  call cnfprint_cvb()
+  call prtopt_cvb()
 
-        if(ifinish.le.2)call make_cvb('INIT')
+  if (ifinish <= 2) call make_cvb('INIT')
 
-! -------  make dependencies -------
-        if(nort.gt.0)then
-          call depend_cvb('ORBFREE','ORBS')
-        else
-          call undepend_cvb('ORBFREE','ORBS')
-        endif
-        call depend_cvb('CIFREE','CVB')
-! ----------------------------------
+  ! -------  make dependencies -------
+  if (nort > 0) then
+    call depend_cvb('ORBFREE','ORBS')
+  else
+    call undepend_cvb('ORBFREE','ORBS')
+  end if
+  call depend_cvb('CIFREE','CVB')
+  ! ----------------------------------
 
-        if(ifinish.eq.0)then
-          call opt_cvb()
-          call ncset_cvb(ioptc_new)
-        elseif(ifinish.eq.1.or.ifinish.eq.2)then
-          call reprt_cvb()
-          call ncset_cvb(0)
-        endif
-        call writegs_cvb()
-        goto 1000
-      endif
+  if (ifinish == 0) then
+    call opt_cvb()
+    call ncset_cvb(ioptc_new)
+  else if ((ifinish == 1) .or. (ifinish == 2)) then
+    call reprt_cvb()
+    call ncset_cvb(0)
+  end if
+  call writegs_cvb()
+  goto 1000
+end if
 
-      call stat2_cvb()
+call stat2_cvb()
 
-      call mfreer_cvb(ibase)
-      return
-      end
+call mfreer_cvb(ibase)
+
+return
+
+end subroutine main_cvb

@@ -11,23 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine dafupd_cvb(lu,ioffset)
-      implicit real*8(a-h,o-z)
+
+subroutine dafupd_cvb(lu,ioffset)
+
+implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-      dimension ibuf(1000)
-      Integer   mxddr
-      data ibuf/1000*0/
+dimension ibuf(1000)
+integer mxddr
+data ibuf/1000*0/
 
-      mxddr=1000
-      nwrite=1000
+mxddr = 1000
+nwrite = 1000
 
-      Call iDaFile(lu,8,ibuf,nwrite,mxddr)
+call iDaFile(lu,8,ibuf,nwrite,mxddr)
 
-      if(mxddr.lt.ioffset)then
-        ioff=mxddr
-100     nwrite=min((ioffset-ioff)*idbl,1000)
-        call iDaFile(lu,1,ibuf,nwrite,ioff)
-        if(ioff.lt.ioffset)goto 100
-      endif
-      return
-      end
+if (mxddr < ioffset) then
+  ioff = mxddr
+100 nwrite = min((ioffset-ioff)*idbl,1000)
+  call iDaFile(lu,1,ibuf,nwrite,ioff)
+  if (ioff < ioffset) goto 100
+end if
+
+return
+
+end subroutine dafupd_cvb

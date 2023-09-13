@@ -11,24 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o123a2_cvb(nparm,grad,eigvec,eigval,gradp)
-      implicit real*8 (a-h,o-z)
+
+subroutine o123a2_cvb(nparm,grad,eigvec,eigval,gradp)
+
+implicit real*8(a-h,o-z)
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"
 #include "trst_cvb.fh"
 #include "tune_cvb.fh"
+dimension grad(nparm)
+dimension eigvec(nparm,nparm), eigval(nparm)
+dimension gradp(nparm)
 
-      dimension grad(nparm)
-      dimension eigvec(nparm,nparm),eigval(nparm)
-      dimension gradp(nparm)
+call gethess_cvb(eigvec)
+call mxdiag_cvb(eigvec,eigval,nparm)
+call mxatb_cvb(grad,eigvec,1,nparm,nparm,gradp)
+if (ip >= 2) then
+  write(6,'(a)') ' Gradient in basis of Hessian eigenvectors :'
+  call vecprint_cvb(gradp,nparm)
+end if
 
-      call gethess_cvb(eigvec)
-      call mxdiag_cvb(eigvec,eigval,nparm)
-      call mxatb_cvb(grad,eigvec,1,nparm,nparm,gradp)
-      if(ip.ge.2)then
-        write(6,'(a)')' Gradient in basis of Hessian eigenvectors :'
-        call vecprint_cvb(gradp,nparm)
-      endif
-      return
-      end
+return
+
+end subroutine o123a2_cvb

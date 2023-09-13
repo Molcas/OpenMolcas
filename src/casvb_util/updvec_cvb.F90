@@ -11,39 +11,40 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine updvec_cvb(upd,iorb,jorb,niprev,iprev,                 &
-     &  orbs,north,corth)
-!  Find update for IORB as projection of JORB on allowed space
-      implicit real*8 (a-h,o-z)
+
+subroutine updvec_cvb(upd,iorb,jorb,niprev,iprev,orbs,north,corth)
+! Find update for IORB as projection of JORB on allowed space
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension upd(norb)
-      dimension iprev(niprev),orbs(norb,norb)
-      dimension north(norb),corth(norb,niorth)
-      dimension dum(1)
+dimension upd(norb)
+dimension iprev(niprev), orbs(norb,norb)
+dimension north(norb), corth(norb,niorth)
+dimension dum(1)
 
-      i1 = mstackr_cvb(norb*norb)
-      noffort=0
-      do 100 ior=1,iorb-1
-      noffort=noffort+north(ior)
-100   continue
-!  Collect all constraints and find span :
-      call span0_cvb(norb,norb)
-      if(north(iorb).gt.0)                                              &
-     &  call span1_cvb(corth(1,1+noffort),north(iorb),dum,norb,0)
-      do 200 i=1,niprev
-      call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
-200   continue
-      call span1_cvb(orbs(1,iorb),1,dum,norb,0)
-      call span2_cvb(work(i1),ncon,dum,norb,0)
+i1 = mstackr_cvb(norb*norb)
+noffort = 0
+do ior=1,iorb-1
+  noffort = noffort+north(ior)
+end do
+! Collect all constraints and find span:
+call span0_cvb(norb,norb)
+if (north(iorb) > 0) call span1_cvb(corth(1,1+noffort),north(iorb),dum,norb,0)
+do i=1,niprev
+  call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
+end do
+call span1_cvb(orbs(1,iorb),1,dum,norb,0)
+call span2_cvb(work(i1),ncon,dum,norb,0)
 
-!  Orthogonalise update to all remaining constraints
-      call fmove_cvb(orbs(1,jorb),upd,norb)
-      call schmidtd_cvb(work(i1),ncon,upd,1,dum,norb,0)
-      call mfreer_cvb(i1)
-      return
-      end
+! Orthogonalise update to all remaining constraints
+call fmove_cvb(orbs(1,jorb),upd,norb)
+call schmidtd_cvb(work(i1),ncon,upd,1,dum,norb,0)
+call mfreer_cvb(i1)
+
+return
+
+end subroutine updvec_cvb

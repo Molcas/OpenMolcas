@@ -11,74 +11,72 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine opt2_cvb(orbs,cvb)
-      implicit real*8 (a-h,o-z)
+
+subroutine opt2_cvb(orbs,cvb)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "formats_cvb.fh"
 #include "WrkSpc.fh"
-      dimension orbs(norb,norb),cvb(nvb)
+dimension orbs(norb,norb), cvb(nvb)
 
 ! The following initialization is to appease a compiler
-      fx=zero
-      ioptc=0
-      iter=0
+fx = zero
+ioptc = 0
+iter = 0
 
-      if(imethod.eq.11)then
-!  Method = None :
-        goto 10
-      endif
-      if(imethod.eq.4)then
-        if(icrit.eq.1)then
-          call svbd_cvb(orbs,cvb,fx,ioptc,iter)
-        elseif(icrit.eq.2)then
-          call evbd_cvb(orbs,cvb,fx,ioptc,iter)
-        endif
-        goto 10
-      elseif(imethod.eq.6)then
-        call evb2cas_cvb(orbs,cvb,fx,ioptc,iter)
-        goto 10
-      endif
+if (imethod == 11) then
+  ! Method = None:
+  goto 10
+end if
+if (imethod == 4) then
+  if (icrit == 1) then
+    call svbd_cvb(orbs,cvb,fx,ioptc,iter)
+  else if (icrit == 2) then
+    call evbd_cvb(orbs,cvb,fx,ioptc,iter)
+  end if
+  goto 10
+else if (imethod == 6) then
+  call evb2cas_cvb(orbs,cvb,fx,ioptc,iter)
+  goto 10
+end if
 
-      fx=zero
+fx = zero
 
-      call optize_cvb(fx,ioptc,iter,                                    &
-     &  imethod,isaddle,mxiter,icrit.eq.1,corenrg,ip(3),ip(4)-2,ip(4)-2,&
-     &  strucopt)
+call optize_cvb(fx,ioptc,iter,imethod,isaddle,mxiter,icrit == 1,corenrg,ip(3),ip(4)-2,ip(4)-2,strucopt)
 
-      if(ioptc.eq.-1.and.mxiter.gt.0)then
-        if(ip(3).ge.0)write(6,'(a,i4)')                                 &
-     &    ' Maximum number of iterations reached:',mxiter
-        if(ip(3).ge.0)                                                  &
-     &  write(6,'(a)')' Calculation NOT converged!!!'
-      endif
-10    continue
-      if(icrit.eq.1)then
-        svb=fx
-      else
-        evb=fx
-      endif
-      if(ip(5).ge.0)then
-        if(imethod.ne.11)then
-          if(icrit.eq.1)write(6,formE)' Final Svb :',svb
-          if(icrit.eq.2)write(6,formE)' Final Evb :',evb
-        endif
-        if(ip(3).le.1.and.ioptc.ne.-1)                                  &
-     &    write(6,'(a,i4)')' Number of iterations used:',iter
-      endif
-      if(ip(5).ge.2)then
-        call report_cvb(orbs,norb)
-        write(6,'(/,a)')' Structure coefficients :'
-        write(6,'(a)')' ------------------------'
-        call vecprint_cvb(cvb,nvb)
-      endif
-      convinone=((ioptc.eq.0.and.iter.le.1).or.endvar)
-      ioptc_new=ioptc
-      n_iter=n_iter+iter
-      if(ioptc.eq.1)ioptc_new=mxiter
-      if(ioptc.eq.0)ioptc_new=iter
-      return
-      end
+if ((ioptc == -1) .and. (mxiter > 0)) then
+  if (ip(3) >= 0) write(6,'(a,i4)') ' Maximum number of iterations reached:',mxiter
+  if (ip(3) >= 0) write(6,'(a)') ' Calculation NOT converged!!!'
+end if
+10 continue
+if (icrit == 1) then
+  svb = fx
+else
+  evb = fx
+end if
+if (ip(5) >= 0) then
+  if (imethod /= 11) then
+    if (icrit == 1) write(6,formE) ' Final Svb :',svb
+    if (icrit == 2) write(6,formE) ' Final Evb :',evb
+  end if
+  if ((ip(3) <= 1) .and. (ioptc /= -1)) write(6,'(a,i4)') ' Number of iterations used:',iter
+end if
+if (ip(5) >= 2) then
+  call report_cvb(orbs,norb)
+  write(6,'(/,a)') ' Structure coefficients :'
+  write(6,'(a)') ' ------------------------'
+  call vecprint_cvb(cvb,nvb)
+end if
+convinone = ((ioptc == 0) .and. (iter <= 1)) .or. endvar
+ioptc_new = ioptc
+n_iter = n_iter+iter
+if (ioptc == 1) ioptc_new = mxiter
+if (ioptc == 0) ioptc_new = iter
+
+return
+
+end subroutine opt2_cvb

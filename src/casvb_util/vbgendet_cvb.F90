@@ -11,29 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine vbgendet_cvb(                                          &
-     &  iapr,ixapr,ibpr,ixbpr,                                          &
-     &  iconfs,idetvb,                                                  &
-     &  nconf,nconfion,                                                 &
-     &  nda,ndb,ndetvb,nel,                                             &
-     &  noe,nalf,nbet,norb)
-      implicit real*8 (a-h,o-z)
-      dimension iapr(ndetvb),ixapr(nda+1),ibpr(ndetvb),ixbpr(ndb+1)
-      dimension iconfs(noe,nconf),idetvb(ndetvb)
-      dimension nconfion(0:nel)
+
+subroutine vbgendet_cvb(iapr,ixapr,ibpr,ixbpr,iconfs,idetvb,nconf,nconfion,nda,ndb,ndetvb,nel,noe,nalf,nbet,norb)
+
+implicit real*8(a-h,o-z)
+dimension iapr(ndetvb), ixapr(nda+1), ibpr(ndetvb), ixbpr(ndb+1)
+dimension iconfs(noe,nconf), idetvb(ndetvb)
+dimension nconfion(0:nel)
 #include "WrkSpc.fh"
 
-      k1= mstacki_cvb(ndetvb)
-      k2= mstacki_cvb(ndetvb)
-      k3= mstacki_cvb(ndetvb)
-      k4= mstacki_cvb(ndetvb)
-      call vbgendet2_cvb(                                               &
-     &  iapr,ixapr,ibpr,ixbpr,                                          &
-     &  iconfs,idetvb,                                                  &
-     &  nconf,nconfion,                                                 &
-     &  nda,ndb,ndetvb,nel,                                             &
-     &  noe,nalf,nbet,norb,                                             &
-     &  iwork(k1),iwork(k2),iwork(k3),iwork(k4))
-      call mfreei_cvb(k1)
-      return
-      end
+k1 = mstacki_cvb(ndetvb)
+k2 = mstacki_cvb(ndetvb)
+k3 = mstacki_cvb(ndetvb)
+k4 = mstacki_cvb(ndetvb)
+call vbgendet2_cvb(iapr,ixapr,ibpr,ixbpr,iconfs,idetvb,nconf,nconfion,nda,ndb,ndetvb,nel,noe,nalf,nbet,norb,iwork(k1),iwork(k2), &
+                   iwork(k3),iwork(k4))
+call mfreei_cvb(k1)
+
+return
+
+end subroutine vbgendet_cvb

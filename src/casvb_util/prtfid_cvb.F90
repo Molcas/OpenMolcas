@@ -11,35 +11,21 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine prtfid_cvb(chr,fileid)
-      implicit real*8 (a-h,o-z)
-#include "io_cvb.fh"
-      character*200 line
-      character*(*) chr
 
-      line=chr
-      call mkfn_cvb(fileid,ibf)
-      call appendchr_cvb(line,' file ',0)
-      call appendchr_cvb(line,filename(ibf),1)
-      call appendchr_cvb(line,'.',0)
-      write(6,'(a)')line(1:len_trim_cvb(line))
-      return
-      end
-      logical function tstfile_cvb(fileid)
-      implicit real*8 (a-h,o-z)
-      logical ex
-#include "io_cvb.fh"
+subroutine prtfid_cvb(chr,fileid)
 
-      if(fileid.lt.1.d-2)then
-        tstfile_cvb=.false.
-        return
-      endif
-      call mkfn_cvb(fileid,ibf)
-      if(ifilio(ibf).eq.0)then
-        call f_inquire(filename(ibf),ex)
-        tstfile_cvb=ex
-      else
-        tstfile_cvb=.true.
-      endif
-      return
-      end
+implicit real*8(a-h,o-z)
+#include "io_cvb.fh"
+character*200 line
+character*(*) chr
+
+line = chr
+call mkfn_cvb(fileid,ibf)
+call appendchr_cvb(line,' file ',0)
+call appendchr_cvb(line,filename(ibf),1)
+call appendchr_cvb(line,'.',0)
+write(6,'(a)') line(1:len_trim_cvb(line))
+
+return
+
+end subroutine prtfid_cvb

@@ -11,23 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine axbsol_cvb(dum,rhsp,itdav,maxdav,nfrdim1,              &
-     &  solp,solp_res,eig,eig_res)
-      implicit real*8 (a-h,o-z)
-#include "direct_cvb.fh"
-      dimension rhsp(maxdav),solp(maxdav),solp_res(maxdav)
-      save one
-      data one/1d0/
 
-      call fmove_cvb(rhsp,solp,itdav)
-      eig=dnrm2_(itdav,solp,1)
-      call dscal_(itdav,one/eig,solp,1)
-      eig_res=eig
-      call fmove_cvb(solp,solp_res,itdav)
-      return
+subroutine axbsol_cvb(dum,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
+
+implicit real*8(a-h,o-z)
+#include "direct_cvb.fh"
+dimension rhsp(maxdav), solp(maxdav), solp_res(maxdav)
+save one
+data one/1d0/
+
+call fmove_cvb(rhsp,solp,itdav)
+eig = dnrm2_(itdav,solp,1)
+call dscal_(itdav,one/eig,solp,1)
+eig_res = eig
+call fmove_cvb(solp,solp_res,itdav)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_real(dum)
-        call Unused_integer(nfrdim1)
-      end if
-      end
+if (.false.) then
+  call Unused_real(dum)
+  call Unused_integer(nfrdim1)
+end if
+
+end subroutine axbsol_cvb

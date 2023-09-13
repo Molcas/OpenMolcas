@@ -11,25 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddrestart_cvb(c,axc,vec,                               &
-     &  hp,solp,                                                        &
-     &  maxdav,n,                                                       &
-     &  nvguess1,nvrestart1)
-      implicit real*8 (a-h,o-z)
+
+subroutine ddrestart_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      dimension c(n,maxdav),axc(n,maxdav),vec(n)
-      dimension hp(maxdav,maxdav)
-      dimension solp(maxdav)
+dimension c(n,maxdav), axc(n,maxdav), vec(n)
+dimension hp(maxdav,maxdav)
+dimension solp(maxdav)
 
-      i1 = mstackr_cvb(maxdav)
-      i2 = mstackr_cvb(maxdav*maxdav)
+i1 = mstackr_cvb(maxdav)
+i2 = mstackr_cvb(maxdav*maxdav)
 
-      call ddrestart2_cvb(c,axc,vec,                                    &
-     &  hp,solp,                                                        &
-     &  maxdav,n,                                                       &
-     &  nvguess1,nvrestart1,                                            &
-     &  work(i1),work(i2))
+call ddrestart2_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1,work(i1),work(i2))
 
-      call mfreer_cvb(i1)
-      return
-      end
+call mfreer_cvb(i1)
+
+return
+
+end subroutine ddrestart_cvb

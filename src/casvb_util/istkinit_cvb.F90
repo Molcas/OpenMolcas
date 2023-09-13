@@ -11,18 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  ******************************
-!  ** Simple stack of integers **
-!  ******************************
-      subroutine istkinit_cvb(iarr,n)
-      implicit real*8(a-h,o-z)
-      dimension iarr(n)
+!******************************
+!** Simple stack of integers **
+!******************************
 
-      if(n.lt.2)then
-        write(6,*)' Too small dimension in ISTKINIT_CVB :',n
-        call abend_cvb()
-      endif
-      iarr(1)=n
-      iarr(2)=2
-      return
-      end
+subroutine istkinit_cvb(iarr,n)
+
+implicit real*8(a-h,o-z)
+dimension iarr(n)
+
+if (n < 2) then
+  write(6,*) ' Too small dimension in ISTKINIT_CVB :',n
+  call abend_cvb()
+end if
+iarr(1) = n
+iarr(2) = 2
+
+return
+
+end subroutine istkinit_cvb

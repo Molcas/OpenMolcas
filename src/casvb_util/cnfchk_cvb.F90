@@ -11,15 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cnfchk_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine cnfchk_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+logical recinpcmp_cvb
 
-      logical recinpcmp_cvb
+if (recinpcmp_cvb(4)) call touch_cvb('ICONFS')
 
-      if(recinpcmp_cvb(4))call touch_cvb('ICONFS')
-      return
-      end
+return
+
+end subroutine cnfchk_cvb

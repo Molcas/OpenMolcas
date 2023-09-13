@@ -11,15 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mksymcvb_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine mksymcvb_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
 
-      call mksymcvb2_cvb(work(lv(2)),work(ls(15)),work(lv(5)))
-      return
-      end
+call mksymcvb2_cvb(work(lv(2)),work(ls(15)),work(lv(5)))
+
+return
+
+end subroutine mksymcvb_cvb

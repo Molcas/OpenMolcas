@@ -11,14 +11,18 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine proj_cvb(civec)
-      implicit real*8 (a-h,o-z)
+
+subroutine proj_cvb(civec)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension civec(ndet)
 
-      dimension civec(ndet)
-      if(projsym)call psym_cvb(civec)
-      return
-      end
+if (projsym) call psym_cvb(civec)
+
+return
+
+end subroutine proj_cvb

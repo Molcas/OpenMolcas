@@ -11,40 +11,42 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ppgs2_cvb(cvb,cvbdet,ifnss)
-      implicit real*8 (a-h,o-z)
+
+subroutine ppgs2_cvb(cvb,cvbdet,ifnss)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
-
 #include "frag_cvb.fh"
 #include "WrkSpc.fh"
-      dimension cvb(nvb),cvbdet(ndetvb),ifnss(0:nel,0:nel)
+dimension cvb(nvb), cvbdet(ndetvb), ifnss(0:nel,0:nel)
 
-!  First applicable configuration with first possible spin in
-!  each fragment is set to perfect-pairing:
-      call dcopy_(nvb,[1d-2],0,cvb,1)
-      ioffs_cvb=0
-      icoffs_nconf=0
-      do 100 ifrag=1,nfrag
-      nelsing=nel_fr(ifrag)-2*mnion_fr(ifrag)
-      do 200 iS=1,nS_fr(ifrag)
-      if(i2s_fr(iS,ifrag).le.nelsing)then
-        cvb(ifnss(nelsing,i2s_fr(iS,ifrag))+ioffs_cvb)=1d0
-        goto 300
-      endif
-200   continue
-300   ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-      icoffs_nconf=icoffs_nconf+nconf_fr(ifrag)
-100   continue
-      kbasiscvb_kp=kbasiscvb
-      kbasiscvb=1
-      call str2vbc_cvb(cvb,cvbdet)
-      kbasiscvb=kbasiscvb_kp
-      call vb2strc_cvb(cvbdet,cvb)
-      return
-      end
-!  Changes phases between alpha-beta separated determinants, and
-!  determinants with increasing orbital numbers:
+! First applicable configuration with first possible spin in
+! each fragment is set to perfect-pairing:
+call dcopy_(nvb,[1d-2],0,cvb,1)
+ioffs_cvb = 0
+icoffs_nconf = 0
+do ifrag=1,nfrag
+  nelsing = nel_fr(ifrag)-2*mnion_fr(ifrag)
+  do iS=1,nS_fr(ifrag)
+    if (i2s_fr(iS,ifrag) <= nelsing) then
+      cvb(ifnss(nelsing,i2s_fr(iS,ifrag))+ioffs_cvb) = 1d0
+      goto 300
+    end if
+  end do
+300 ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)
+  icoffs_nconf = icoffs_nconf+nconf_fr(ifrag)
+end do
+kbasiscvb_kp = kbasiscvb
+kbasiscvb = 1
+call str2vbc_cvb(cvb,cvbdet)
+kbasiscvb = kbasiscvb_kp
+call vb2strc_cvb(cvbdet,cvb)
+
+return
+
+end subroutine ppgs2_cvb
+! Changes phases between alpha-beta separated determinants, and
+! determinants with increasing orbital numbers:

@@ -11,17 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  CASVB IO routines:
+! CASVB IO routines:
 !
-!  RDRS --> [RD/WR] [R/I]     [S]         [I]
+! RDRS --> [RD/WR] [R/I]     [S]         [I]
 !
-!           Read/   Real/     Increment   Include also
-!           write   integer   ioffset     integer offset
-!
-      subroutine rdr_cvb(vec,n,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
-      dimension vec(n)
+!          Read/   Real/     Increment   Include also
+!          write   integer   ioffset     integer offset
 
-      call rdlow_cvb(vec,n,file_id,ioffset)
-      return
-      end
+subroutine rdr_cvb(vec,n,file_id,ioffset)
+
+implicit real*8(a-h,o-z)
+dimension vec(n)
+
+call rdlow_cvb(vec,n,file_id,ioffset)
+
+return
+
+end subroutine rdr_cvb

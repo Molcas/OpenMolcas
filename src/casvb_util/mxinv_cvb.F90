@@ -11,48 +11,52 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine mxinv_cvb(a,n)
-      implicit real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      dimension a(n,n)
-      save one,thresh
-      data one/1.d0/,thresh/1.d-10/
 
-      i1 = mstackr_cvb(n*n)
-      i2 = mstackr_cvb(n*n)
-      i3 = mstacki_cvb(n)
-      ierr=0
-      call fmove_cvb(a,work(i1),n*n)
-      call dgetrf_(n,n,work(i1),n,iwork(i3),ierr)
-      if(ierr.ne.0) then
-        write(6,*)' Error in LU decomposition for inversion:',ierr
-        call mxprint_cvb(a,n,n,0)
-        call abend_cvb()
-      endif
-      call dgetri_(n,work(i1),n,iwork(i3),work(i2),n*n,ierr)
-!  Check solution
-      call mxatb_cvb(a,work(i1),n,n,n,work(i2))
-      do 100 i=1,n
-      work(i+(i-1)*n+i2-1)=work(i+(i-1)*n+i2-1)-one
-100   continue
-      rms=sqrt(ddot_(n*n,work(i2),1,work(i2),1)/DBLE(n*n))
-      if(rms.gt.thresh)then
-        write(6,*)' Fatal error in matrix inversion - error:',rms
-        write(6,*)' Singular or near-singular matrix.'
-        write(6,*)' Matrix :'
-        call mxprint_cvb(a,n,n,0)
-        write(6,*)' Inverted matrix :'
-        call mxprint_cvb(work(i1),n,n,0)
-        write(6,*)' Check :'
-        call mxprint_cvb(work(i2),n,n,0)
-        call mxdiag_cvb(a,work(i2),n)
-        write(6,*)' Eigenvalues :'
-        call mxprint_cvb(work(i2),1,n,0)
-        write(6,*)' Eigenvectors :'
-        call mxprint_cvb(a,1,n,0)
-        call abend_cvb()
-      endif
-      call fmove_cvb(work(i1),a,n*n)
-      call mfreer_cvb(i1)
-      return
-      end
+subroutine mxinv_cvb(a,n)
+
+implicit real*8(a-h,o-z)
+#include "WrkSpc.fh"
+dimension a(n,n)
+save one, thresh
+data one/1.d0/,thresh/1.d-10/
+
+i1 = mstackr_cvb(n*n)
+i2 = mstackr_cvb(n*n)
+i3 = mstacki_cvb(n)
+ierr = 0
+call fmove_cvb(a,work(i1),n*n)
+call dgetrf_(n,n,work(i1),n,iwork(i3),ierr)
+if (ierr /= 0) then
+  write(6,*) ' Error in LU decomposition for inversion:',ierr
+  call mxprint_cvb(a,n,n,0)
+  call abend_cvb()
+end if
+call dgetri_(n,work(i1),n,iwork(i3),work(i2),n*n,ierr)
+! Check solution
+call mxatb_cvb(a,work(i1),n,n,n,work(i2))
+do i=1,n
+  work(i+(i-1)*n+i2-1) = work(i+(i-1)*n+i2-1)-one
+end do
+rms = sqrt(ddot_(n*n,work(i2),1,work(i2),1)/dble(n*n))
+if (rms > thresh) then
+  write(6,*) ' Fatal error in matrix inversion - error:',rms
+  write(6,*) ' Singular or near-singular matrix.'
+  write(6,*) ' Matrix :'
+  call mxprint_cvb(a,n,n,0)
+  write(6,*) ' Inverted matrix :'
+  call mxprint_cvb(work(i1),n,n,0)
+  write(6,*) ' Check :'
+  call mxprint_cvb(work(i2),n,n,0)
+  call mxdiag_cvb(a,work(i2),n)
+  write(6,*) ' Eigenvalues :'
+  call mxprint_cvb(work(i2),1,n,0)
+  write(6,*) ' Eigenvectors :'
+  call mxprint_cvb(a,1,n,0)
+  call abend_cvb()
+end if
+call fmove_cvb(work(i1),a,n*n)
+call mfreer_cvb(i1)
+
+return
+
+end subroutine mxinv_cvb

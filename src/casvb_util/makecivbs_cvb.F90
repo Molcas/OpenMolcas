@@ -11,25 +11,28 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine makecivbs_cvb(civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet)
-!  Construct CIVBS ( = T(s) * CIVB ) :
-      implicit real*8 (a-h,o-z)
+
+subroutine makecivbs_cvb(civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet)
+! Construct CIVBS ( = T(s) * CIVB ):
+
+implicit real*8(a-h,o-z)
 ! ... Content of CI vectors ...
-      logical, external :: tstcnt_cvb
+logical, external :: tstcnt_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension orbs(norb,norb)
+dimension civbs(ndet)
+dimension gjorb(*), gjorb2(*), gjorb3(*)
+dimension cvbdet(ndetvb)
 
-      dimension orbs(norb,norb)
-      dimension civbs(ndet)
-      dimension gjorb(*),gjorb2(*),gjorb3(*)
-      dimension cvbdet(ndetvb)
+if (tstcnt_cvb(civbs,4)) return
 
-      if(tstcnt_cvb(civbs,4))return
+call vb2cic_cvb(cvbdet,civbs)
+call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+call setcnt_cvb(civbs,4)
 
-      call vb2cic_cvb(cvbdet,civbs)
-      call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
-      call setcnt_cvb(civbs,4)
-      return
-      end
+return
+
+end subroutine makecivbs_cvb

@@ -11,22 +11,26 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine findmn_cvb(vec,n,vmn,imn)
-      implicit real*8 (a-h,o-z)
-      dimension vec(n)
 
-      if(n.gt.0)then
-        imn=1
-        vmn=vec(1)
-        do 100 i=2,n
-        if(vec(i).lt.vmn)then
-          imn=i
-          vmn=vec(i)
-        endif
-100     continue
-      else
-        imn=0
-        vmn=1d20
-      endif
-      return
-      end
+subroutine findmn_cvb(vec,n,vmn,imn)
+
+implicit real*8(a-h,o-z)
+dimension vec(n)
+
+if (n > 0) then
+  imn = 1
+  vmn = vec(1)
+  do i=2,n
+    if (vec(i) < vmn) then
+      imn = i
+      vmn = vec(i)
+    end if
+  end do
+else
+  imn = 0
+  vmn = 1d20
+end if
+
+return
+
+end subroutine findmn_cvb

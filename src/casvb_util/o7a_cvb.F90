@@ -11,16 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine o7a_cvb(nparm)
-      implicit real*8 (a-h,o-z)
-#include "opt2_cvb.fh"
-      save one
-      data one/1d0/
 
-      call ddnewopt_cvb()
-      have_solved_it=.false.
-      call ddguess_cvb([one],1,0)
-      return
+subroutine o7a_cvb(nparm)
+
+implicit real*8(a-h,o-z)
+#include "opt2_cvb.fh"
+save one
+data one/1d0/
+
+call ddnewopt_cvb()
+have_solved_it = .false.
+call ddguess_cvb([one],1,0)
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(nparm)
-      end
+if (.false.) call Unused_integer(nparm)
+
+end subroutine o7a_cvb

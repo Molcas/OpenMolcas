@@ -11,27 +11,30 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine creatci_cvb(inumber,xident_ci,iaddr,iform,fileid)
-      implicit real*8 (a-h,o-z)
+
+subroutine creatci_cvb(inumber,xident_ci,iaddr,iform,fileid)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+logical debug
+data debug/.false./
 
-      logical debug
-      data debug/.false./
+ident_ci = inumber
+xident_ci = dble(ident_ci)
+ident_ci = inumber
+iaddr_ci(ident_ci) = iaddr
+iform_ci(ident_ci) = iform
+fileid_ci(ident_ci) = fileid
+if (debug) then
+  write(6,*) ' Creating CI vector :',inumber
+  write(6,*) ' Address            :',iaddr
+  write(6,*) ' Format             :',iform
+  write(6,*) ' File identifier    :',fileid
+end if
 
-      ident_ci=inumber
-      xident_ci=dble(ident_ci)
-      ident_ci=inumber
-      iaddr_ci(ident_ci)=iaddr
-      iform_ci(ident_ci)=iform
-      fileid_ci(ident_ci)=fileid
-      if(debug)then
-        write(6,*)' Creating CI vector :',inumber
-        write(6,*)' Address            :',iaddr
-        write(6,*)' Format             :',iform
-        write(6,*)' File identifier    :',fileid
-      endif
-      return
-      end
+return
+
+end subroutine creatci_cvb

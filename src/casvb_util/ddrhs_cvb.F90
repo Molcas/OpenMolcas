@@ -11,24 +11,27 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ddrhs_cvb(vec,ndim,ioffs)
-      implicit real*8(a-h,o-z)
+
+subroutine ddrhs_cvb(vec,ndim,ioffs)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "direct_cvb.fh"
-      dimension vec(ndim)
+dimension vec(ndim)
 
-      nvrhs=nvrhs+1
-      if(nvrhs.gt.mxrhs)then
-        write(6,*)' Too many RHS vectors in Davidson!',nvrhs,mxrhs
-        call abend_cvb()
-      endif
-      if(ndim+ioffs.gt.nparm)then
-        write(6,*)' Illegal call to DDRHS :',ndim,ioffs,nparm
-        call abend_cvb()
-      endif
-      call fzero(work(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
-      call fmove_cvb(vec,work(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
-      call fzero(work(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),           &
-     &  nparm-ioffs-ndim)
-      return
-      end
+nvrhs = nvrhs+1
+if (nvrhs > mxrhs) then
+  write(6,*) ' Too many RHS vectors in Davidson!',nvrhs,mxrhs
+  call abend_cvb()
+end if
+if (ndim+ioffs > nparm) then
+  write(6,*) ' Illegal call to DDRHS :',ndim,ioffs,nparm
+  call abend_cvb()
+end if
+call fzero(work(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
+call fmove_cvb(vec,work(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
+call fzero(work(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),nparm-ioffs-ndim)
+
+return
+
+end subroutine ddrhs_cvb

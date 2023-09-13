@@ -11,30 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine nize_cvb(c,nnrm,s,n,metr,ierr)
-!  Normalizes NNRM vectors in C.
-      implicit real*8 (a-h,o-z)
-      logical safe
-#include "WrkSpc.fh"
-      dimension c(n,nnrm),s(*)
-      save one,thresh
-      data one/1.d0/,thresh/1.d-8/
 
-      if(metr.ne.0)i1=mstackr_cvb(n)
-      safe=ierr.ne.0
-      do 100 i=1,nnrm
-      if(metr.eq.0)then
-        cnrm=dnrm2_(n,c(1,i),1)
-      else
-        call saoon_cvb(c(1,i),work(i1),1,s,n,metr)
-        cnrm=sqrt(ddot_(n,c(1,i),1,work(i1),1))
-      endif
-      if(safe.and.cnrm.lt.thresh)then
-        ierr=ierr+1
-      else
-        call dscal_(n,one/cnrm,c(1,i),1)
-      endif
-100   continue
-      if(metr.ne.0)call mfreer_cvb(i1)
-      return
-      end
+subroutine nize_cvb(c,nnrm,s,n,metr,ierr)
+
+! Normalizes NNRM vectors in C.
+implicit real*8(a-h,o-z)
+logical safe
+#include "WrkSpc.fh"
+dimension c(n,nnrm), s(*)
+save one, thresh
+data one/1.d0/,thresh/1.d-8/
+
+if (metr /= 0) i1 = mstackr_cvb(n)
+safe = ierr /= 0
+do i=1,nnrm
+  if (metr == 0) then
+    cnrm = dnrm2_(n,c(1,i),1)
+  else
+    call saoon_cvb(c(1,i),work(i1),1,s,n,metr)
+    cnrm = sqrt(ddot_(n,c(1,i),1,work(i1),1))
+  end if
+  if (safe .and. (cnrm < thresh)) then
+    ierr = ierr+1
+  else
+    call dscal_(n,one/cnrm,c(1,i),1)
+  end if
+end do
+if (metr /= 0) call mfreer_cvb(i1)
+
+return
+
+end subroutine nize_cvb

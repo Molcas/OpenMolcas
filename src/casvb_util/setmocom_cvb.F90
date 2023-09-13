@@ -11,47 +11,51 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine setmocom_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine setmocom_cvb()
+
+implicit real*8(a-h,o-z)
 #include "rasdim.fh"
 #include "jobiph_j.fh"
 #include "mo_cvb.fh"
-      logical debug
-      data debug/.false./
+logical debug
+data debug/.false./
 
-      nsym_mo=nsym_j
-      call imove_cvb(nbas_j,nbasi_mo,8)
+nsym_mo = nsym_j
+call imove_cvb(nbas_j,nbasi_mo,8)
 
-      nbas_mo=0
-      nbasisq_mo=0
-      do 100 i=1,8
-      nbassqi_mo(i)=nbasi_mo(i)*nbasi_mo(i)
-      nbasf_mo(i)=nbas_mo
-      nbassqf_mo(i)=nbasisq_mo
-      nbas_mo=nbas_mo+nbasi_mo(i)
-      nbasisq_mo=nbasisq_mo+nbassqi_mo(i)
-100   continue
+nbas_mo = 0
+nbasisq_mo = 0
+do i=1,8
+  nbassqi_mo(i) = nbasi_mo(i)*nbasi_mo(i)
+  nbasf_mo(i) = nbas_mo
+  nbassqf_mo(i) = nbasisq_mo
+  nbas_mo = nbas_mo+nbasi_mo(i)
+  nbasisq_mo = nbasisq_mo+nbassqi_mo(i)
+end do
 
-      nact_mo=0
-      do 200 i=1,8
-      do 201 j=1,nash_j(i)
-      nact_mo=nact_mo+1
-      iact_mo(nact_mo)=nbasf_mo(i)+nfro_j(i)+nish_j(i)+j
-201   continue
-200   continue
+nact_mo = 0
+do i=1,8
+  do j=1,nash_j(i)
+    nact_mo = nact_mo+1
+    iact_mo(nact_mo) = nbasf_mo(i)+nfro_j(i)+nish_j(i)+j
+  end do
+end do
 
-      if(debug)then
-        write(6,*)' MO interface'
-        write(6,*)' ------------'
-        write(6,*)' nsym    :',nsym_mo
-        write(6,*)' nbas    :',nbas_mo
-        write(6,*)' nbasisq :',nbasisq_mo
-        write(6,*)' nbasi   :',nbasi_mo
-        write(6,*)' nbassqi :',nbassqi_mo
-        write(6,*)' nbasf   :',nbasf_mo
-        write(6,*)' nbassqf :',nbassqf_mo
-        write(6,*)' nact    :',nact_mo
-        write(6,*)' iact    :',(iact_mo(ii),ii=1,nact_mo)
-      endif
-      return
-      end
+if (debug) then
+  write(6,*) ' MO interface'
+  write(6,*) ' ------------'
+  write(6,*) ' nsym    :',nsym_mo
+  write(6,*) ' nbas    :',nbas_mo
+  write(6,*) ' nbasisq :',nbasisq_mo
+  write(6,*) ' nbasi   :',nbasi_mo
+  write(6,*) ' nbassqi :',nbassqi_mo
+  write(6,*) ' nbasf   :',nbasf_mo
+  write(6,*) ' nbassqf :',nbassqf_mo
+  write(6,*) ' nact    :',nact_mo
+  write(6,*) ' iact    :',(iact_mo(ii),ii=1,nact_mo)
+end if
+
+return
+
+end subroutine setmocom_cvb

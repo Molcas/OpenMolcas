@@ -11,10 +11,14 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine fraginit_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine fraginit_cvb()
+
+implicit real*8(a-h,o-z)
 #include "frag_cvb.fh"
 
-      nfrag=0
-      return
-      end
+nfrag = 0
+
+return
+
+end subroutine fraginit_cvb

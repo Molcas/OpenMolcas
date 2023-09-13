@@ -11,12 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine appendchr_cvb(c,string,iskip)
-      implicit REAL*8 (a-h,o-z)
-      character*(*)c,string
 
-      ibegin=len_trim_cvb(c)+1+iskip
-      iend=min(len(c),ibegin+len_trim_cvb(string)-1)
-      c(ibegin:iend)=string(1:len_trim_cvb(string))
-      return
-      end
+subroutine appendchr_cvb(c,string,iskip)
+
+implicit real*8(a-h,o-z)
+character*(*) c, string
+
+ibegin = len_trim_cvb(c)+1+iskip
+iend = min(len(c),ibegin+len_trim_cvb(string)-1)
+c(ibegin:iend) = string(1:len_trim_cvb(string))
+
+return
+
+end subroutine appendchr_cvb

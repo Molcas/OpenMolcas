@@ -11,33 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine seths_cvb(arr,n)
-      implicit real*8(a-h,o-z)
-      character*(*) arr(n)
 
-      call seth_cvb([n],1)
-      lenarr=len(arr(1))
-      do 100 i=1,n
-      do 101 j=1,lenarr
-      call seth_cvb([ichar(arr(i)(j:j))],1)
-101   continue
-100   continue
-      return
-      end
+subroutine seths_cvb(arr,n)
 
-      subroutine geths_cvb(arr,n)
-      implicit real*8(a-h,o-z)
-      character*(*) arr(n)
-      dimension iaux(1)
-      call geth_cvb(iaux,1)
-      n=iaux(1)
-      lenarr=len(arr(1))
-      do 200 i=1,n
-      do 201 j=1,lenarr
-      call geth_cvb(iaux,1)
-      iret=iaux(1)
-      arr(i)(j:j)=char(iret)
-201   continue
-200   continue
-      return
-      end
+implicit real*8(a-h,o-z)
+character*(*) arr(n)
+
+call seth_cvb([n],1)
+lenarr = len(arr(1))
+do i=1,n
+  do j=1,lenarr
+    call seth_cvb([ichar(arr(i)(j:j))],1)
+  end do
+end do
+
+return
+
+end subroutine seths_cvb

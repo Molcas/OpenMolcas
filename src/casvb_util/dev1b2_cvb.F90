@@ -11,61 +11,62 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine dev1b2_cvb(cfrom,cto,dmat,                             &
-     & i1alf,i1bet,iato,ibto,phato,phbto,                               &
-     & iparmx,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym,diag)
-!  Calculates all CTO Eij CFROM
-      implicit real*8 (a-h,o-z)
-      logical commut,sc,absym,diag
-      dimension cfrom(nda,ndb),cto(nda,ndb),dmat(iparmx)
-      dimension i1alf(n1a,norb),i1bet(n1b,norb)
-      dimension iato(norb,0:nam1),ibto(norb,0:nbm1)
-      dimension phato(norb,nam1),phbto(norb,nbm1)
-      save two
-      data two/2d0/
 
-      call fzero(dmat,iparmx)
+subroutine dev1b2_cvb(cfrom,cto,dmat,i1alf,i1bet,iato,ibto,phato,phbto,iparmx,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym,diag)
+! Calculates all CTO Eij CFROM
 
-      iparm=0
-      do 1100 iorb=1,norb
-      do 1200 jorb=1,norb
-      if(jorb.eq.iorb.and. .not.diag)goto 1200
-      iparm=iparm+1
-      if(iparm.gt.iparmx)return
+implicit real*8(a-h,o-z)
+logical commut, sc, absym, diag
+dimension cfrom(nda,ndb), cto(nda,ndb), dmat(iparmx)
+dimension i1alf(n1a,norb), i1bet(n1b,norb)
+dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
+dimension phato(norb,nam1), phbto(norb,nbm1)
+save two
+data two/2d0/
 
-!  a) Alpha excitation
-      do 2100 ia=1,n1a
-      iaxtmp=i1alf(ia,iorb)
-      jax=iato(jorb,iaxtmp)
-      if(jax.ne.0)then
-        iax=iato(iorb,iaxtmp)
-        tcof=phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
-        dmat(iparm)=dmat(iparm)+tcof*                                   &
-     &    ddot_(ndb,cto(jax,1),nda,cfrom(iax,1),nda)
-      endif
-2100  continue
+call fzero(dmat,iparmx)
 
-      if(.not.absym)then
-!  c) Beta excitation
-        do 3100 ib=1,n1b
-        ibxtmp=i1bet(ib,iorb)
-        jbx=ibto(jorb,ibxtmp)
-        if(jbx.ne.0)then
-          ibx=ibto(iorb,ibxtmp)
-          tcof=phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
-          dmat(iparm)=dmat(iparm)+tcof*                                 &
-     &      ddot_(nda,cto(1,jbx),1,cfrom(1,ibx),1)
-        endif
-3100    continue
-      else
-        dmat(iparm)=two*dmat(iparm)
-      endif
-1200  continue
-1100  continue
-      return
-! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_logical(commut)
-        call Unused_logical(sc)
+iparm = 0
+do iorb=1,norb
+  do jorb=1,norb
+    if ((jorb == iorb) .and. (.not. diag)) goto 1200
+    iparm = iparm+1
+    if (iparm > iparmx) return
+
+    ! a) Alpha excitation
+    do ia=1,n1a
+      iaxtmp = i1alf(ia,iorb)
+      jax = iato(jorb,iaxtmp)
+      if (jax /= 0) then
+        iax = iato(iorb,iaxtmp)
+        tcof = phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
+        dmat(iparm) = dmat(iparm)+tcof*ddot_(ndb,cto(jax,1),nda,cfrom(iax,1),nda)
       end if
-      end
+    end do
+
+    if (.not. absym) then
+      ! c) Beta excitation
+      do ib=1,n1b
+        ibxtmp = i1bet(ib,iorb)
+        jbx = ibto(jorb,ibxtmp)
+        if (jbx /= 0) then
+          ibx = ibto(iorb,ibxtmp)
+          tcof = phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
+          dmat(iparm) = dmat(iparm)+tcof*ddot_(nda,cto(1,jbx),1,cfrom(1,ibx),1)
+        end if
+      end do
+    else
+      dmat(iparm) = two*dmat(iparm)
+    end if
+1200 continue
+  end do
+end do
+
+return
+! Avoid unused argument warnings
+if (.false.) then
+  call Unused_logical(commut)
+  call Unused_logical(sc)
+end if
+
+end subroutine dev1b2_cvb

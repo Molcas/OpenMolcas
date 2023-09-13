@@ -11,16 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      integer function maddr_r2i_cvb(m_real_addr)
-      implicit real*8 (a-h,o-z)
+
+integer function maddr_r2i_cvb(m_real_addr)
+
+implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
 #include "memman_cvb.fh"
 
-      m_int_addr=(m_real_addr-1)*idbl+1
-      maddr_r2i_cvb=m_int_addr
-      if(memdebug)then
-       write(6,*)' maddr_r2i_cvb: real pointer :',m_real_addr
-       write(6,*)'                int pointer  :',m_int_addr
-      endif
-      return
-      end
+m_int_addr = (m_real_addr-1)*idbl+1
+maddr_r2i_cvb = m_int_addr
+if (memdebug) then
+  write(6,*) ' maddr_r2i_cvb: real pointer :',m_real_addr
+  write(6,*) '                int pointer  :',m_int_addr
+end if
+
+return
+
+end function maddr_r2i_cvb

@@ -11,58 +11,58 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ortelim_cvb(trprm,iorts,irots,sorbs,                   &
-     &  nc,npr1,norbprm,nrem)
-      implicit real*8 (a-h,o-z)
+
+subroutine ortelim_cvb(trprm,iorts,irots,sorbs,nc,npr1,norbprm,nrem)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension trprm(npr1,npr1),iorts(2,nort),irots(2,ndrot)
-      dimension sorbs(norb,norb)
-      dimension dum(1)
+dimension trprm(npr1,npr1), iorts(2,nort), irots(2,ndrot)
+dimension sorbs(norb,norb)
+dimension dum(1)
 
-      i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
-      i1ff=i1-1
-      do 100 i=1,nc
-      call fmove_cvb(trprm(1,i),work(1+(i-1)*norbprm+i1ff),norbprm)
-100   continue
-      do 200 iort=1,nort
-      iorb=iorts(1,iort)
-      jorb=iorts(2,iort)
-      do 201 korb=1,norb
-      ki=korb+(iorb-1)*(norb-1)
-      if(korb.gt.iorb)ki=ki-1
-      kj=korb+(jorb-1)*(norb-1)
-      if(korb.gt.jorb)kj=kj-1
-      if(korb.ne.iorb)work(ki+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,jorb)
-      if(korb.ne.jorb)work(kj+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,iorb)
-201   continue
-200   continue
-      do 300 irot=1,ndrot
-      iorb=irots(1,irot)
-      jorb=irots(2,irot)
-      do 301 korb=1,norb
-      ki=korb+(iorb-1)*(norb-1)
-      if(korb.gt.iorb)ki=ki-1
-      kj=korb+(jorb-1)*(norb-1)
-      if(korb.gt.jorb)kj=kj-1
-      if(korb.ne.iorb)work(ki+(irot+nc+nort-1)*norbprm+i1ff)=           &
-     &  sorbs(korb,jorb)
-      if(korb.ne.jorb)work(kj+(irot+nc+nort-1)*norbprm+i1ff)=           &
-     &  -sorbs(korb,iorb)
-301   continue
-300   continue
-      call span_cvb(work(i1),nc+nort+ndrot,nrem,dum,norbprm,0)
-      call compl_cvb(work(i1),nrem,norbprm)
+i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
+i1ff = i1-1
+do i=1,nc
+  call fmove_cvb(trprm(1,i),work(1+(i-1)*norbprm+i1ff),norbprm)
+end do
+do iort=1,nort
+  iorb = iorts(1,iort)
+  jorb = iorts(2,iort)
+  do korb=1,norb
+    ki = korb+(iorb-1)*(norb-1)
+    if (korb > iorb) ki = ki-1
+    kj = korb+(jorb-1)*(norb-1)
+    if (korb > jorb) kj = kj-1
+    if (korb /= iorb) work(ki+(iort+nc-1)*norbprm+i1ff) = sorbs(korb,jorb)
+    if (korb /= jorb) work(kj+(iort+nc-1)*norbprm+i1ff) = sorbs(korb,iorb)
+  end do
+end do
+do irot=1,ndrot
+  iorb = irots(1,irot)
+  jorb = irots(2,irot)
+  do korb=1,norb
+    ki = korb+(iorb-1)*(norb-1)
+    if (korb > iorb) ki = ki-1
+    kj = korb+(jorb-1)*(norb-1)
+    if (korb > jorb) kj = kj-1
+    if (korb /= iorb) work(ki+(irot+nc+nort-1)*norbprm+i1ff) = sorbs(korb,jorb)
+    if (korb /= jorb) work(kj+(irot+nc+nort-1)*norbprm+i1ff) = -sorbs(korb,iorb)
+  end do
+end do
+call span_cvb(work(i1),nc+nort+ndrot,nrem,dum,norbprm,0)
+call compl_cvb(work(i1),nrem,norbprm)
 
-      call fzero(trprm,npr1*npr1)
-      do 400 i=1,norbprm
-      call fmove_cvb(work(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
-400   continue
+call fzero(trprm,npr1*npr1)
+do i=1,norbprm
+  call fmove_cvb(work(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
+end do
 
-      call mfreer_cvb(i1)
-      return
-      end
+call mfreer_cvb(i1)
+
+return
+
+end subroutine ortelim_cvb

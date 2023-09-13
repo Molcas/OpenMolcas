@@ -11,31 +11,34 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine ciwr_cvb(cvec,recn)
-      implicit real*8(a-h,o-z)
+
+!***********************************************************************
+!*                                                                     *
+!*  CIWR   := Write CI vector.                                         *
+!*                                                                     *
+!***********************************************************************
+subroutine ciwr_cvb(cvec,recn)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-      dimension cvec(*)
-!  *********************************************************************
-!  *                                                                   *
-!  *  CIWR   := Write CI vector.                                       *
-!  *                                                                   *
-!  *********************************************************************
+dimension cvec(*)
 
-      ivec=nint(cvec(1))
-      iformat=iform_ci(ivec)
-      if(iformat.eq.0)then
-        ioffs=0
-        call wris_cvb(iform_ci(ivec),1,recn,ioffs)
-        call wris_cvb(icnt_ci(ivec),1,recn,ioffs)
-        call wrrs_cvb(work(iaddr_ci(ivec)),ndet,recn,ioffs)
-      else
-        write(6,*)' Unsupported format in CIWR :',iformat
-        call abend_cvb()
-      endif
-      return
-      end
+ivec = nint(cvec(1))
+iformat = iform_ci(ivec)
+if (iformat == 0) then
+  ioffs = 0
+  call wris_cvb(iform_ci(ivec),1,recn,ioffs)
+  call wris_cvb(icnt_ci(ivec),1,recn,ioffs)
+  call wrrs_cvb(work(iaddr_ci(ivec)),ndet,recn,ioffs)
+else
+  write(6,*) ' Unsupported format in CIWR :',iformat
+  call abend_cvb()
+end if
+
+return
+
+end subroutine ciwr_cvb

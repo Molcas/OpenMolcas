@@ -11,18 +11,21 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine gethess_cvb(hess)
-      implicit real*8 (a-h,o-z)
+
+subroutine gethess_cvb(hess)
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+dimension hess(nfr,nfr)
 
-      dimension hess(nfr,nfr)
+call mxunit_cvb(hess,nfr)
+do ivar=1,nfr
+  call hess_cvb(hess(1,ivar))
+end do
 
-      call mxunit_cvb(hess,nfr)
-      do 100 ivar=1,nfr
-      call hess_cvb(hess(1,ivar))
-100   continue
-      return
-      end
+return
+
+end subroutine gethess_cvb

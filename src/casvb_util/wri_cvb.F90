@@ -11,46 +11,49 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine wri_cvb(ivec,n,file_id,ioffset)
-      implicit real*8 (a-h,o-z)
-#include "idbl_cvb.fh"
-      dimension ivec(n)
-      save ibuf
-      dimension ibuf(8)
-      data ibuf/8*0/
 
-      call wri_cvb_internal(ivec,ibuf)
-!
-!     This is to allow type punning without an explicit interface
-      contains
-      subroutine wri_cvb_internal(ivec,ibuf)
-      use iso_c_binding
-      integer, target :: ivec(*),ibuf(*)
-      real*8, pointer :: vec(:),buf(:)
-      nreals=n/idbl
-      nrem=n-nreals*idbl
-      if(nreals.gt.0) then
-        call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
-        call wrlow_cvb(vec,nreals,file_id,ioffset)
-        nullify(vec)
-      end if
-      if(nrem.gt.0)then
-        len=0
-        call lendat_cvb(file_id,len)
-        if(len.ge.1+nreals+ioffset) then
-          call c_f_pointer(c_loc(ibuf(1)),buf,[1])
-          call rdlow_cvb(buf,1,file_id,nreals+ioffset)
-          nullify(buf)
-        end if
-        call imove_cvb(ivec(1+nreals*idbl),ibuf,nrem)
-!  Trying for a "clean" write (unwritten integers written as zeros),
-!  but explicit zeroing of ibuf is not necessary as long as idbl <= 2.
-!        call izero(ibuf(nrem+1),idbl-nrem)
-        call c_f_pointer(c_loc(ibuf(1)),buf,[1])
-        call wrlow_cvb(buf,1,file_id,nreals+ioffset)
-        nullify(buf)
-      endif
-      return
-      end subroutine wri_cvb_internal
-!
-      end
+subroutine wri_cvb(ivec,n,file_id,ioffset)
+
+implicit real*8(a-h,o-z)
+#include "idbl_cvb.fh"
+dimension ivec(n)
+save ibuf
+dimension ibuf(8)
+data ibuf/8*0/
+
+call wri_cvb_internal(ivec,ibuf)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine wri_cvb_internal(ivec,ibuf)
+  use iso_c_binding
+  integer, target :: ivec(*), ibuf(*)
+  real*8, pointer :: vec(:), buf(:)
+  nreals = n/idbl
+  nrem = n-nreals*idbl
+  if (nreals > 0) then
+    call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
+    call wrlow_cvb(vec,nreals,file_id,ioffset)
+    nullify(vec)
+  end if
+  if (nrem > 0) then
+    len = 0
+    call lendat_cvb(file_id,len)
+    if (len >= 1+nreals+ioffset) then
+      call c_f_pointer(c_loc(ibuf(1)),buf,[1])
+      call rdlow_cvb(buf,1,file_id,nreals+ioffset)
+      nullify(buf)
+    end if
+    call imove_cvb(ivec(1+nreals*idbl),ibuf,nrem)
+    ! Trying for a "clean" write (unwritten integers written as zeros),
+    ! but explicit zeroing of ibuf is not necessary as long as idbl <= 2.
+    !call izero(ibuf(nrem+1),idbl-nrem)
+    call c_f_pointer(c_loc(ibuf(1)),buf,[1])
+    call wrlow_cvb(buf,1,file_id,nreals+ioffset)
+    nullify(buf)
+  end if
+  return
+end subroutine wri_cvb_internal
+
+end subroutine wri_cvb

@@ -11,22 +11,28 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine maxdims0_cvb()
-      implicit real*8 (a-h,o-z)
+
+subroutine maxdims0_cvb()
+
+implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "inpmod_cvb.fh"
-      if(inputmode.eq.1)then
-        mxnvb=0
-        mxnvb=1000
-      endif
-      return
-      entry maxdims_cvb()
-      if(inputmode.eq.1)then
-        mxnvb=max(mxnvb,nvb_cvb(kbasis))
-      endif
-      return
-      end
+
+if (inputmode == 1) then
+  mxnvb = 0
+  mxnvb = 1000
+end if
+
+return
+
+entry maxdims_cvb()
+if (inputmode == 1) then
+  mxnvb = max(mxnvb,nvb_cvb(kbasis))
+end if
+
+return
+
+end subroutine maxdims0_cvb
