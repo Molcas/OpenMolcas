@@ -21,7 +21,6 @@
       recinp=0d0
       recinp_old=0d0
         call chpcmpinit_cvb()
-        call finalresult_init_cvb()
         if(.not.variat)call casinfo1_rvb()
       return
       end

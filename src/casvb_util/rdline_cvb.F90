@@ -16,14 +16,10 @@ subroutine rdline_cvb(nfield)
 
 implicit real*8(a-h,o-z)
 ! BLANKDELIM signifies whether blanks are used to delimit fields:
-logical blankdelim, variat
-logical debug
-logical isitanint_cvb, isitareal_cvb
-external isitanint_cvb, isitareal_cvb
+logical blankdelim
 #include "luinp_cvb.fh"
-parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nempty=1,nalias=2)
-character*300 line
-character*(*) string
+#include "rdline.fh"
+parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nalias=2)
 character*1 blanks(nblank)
 ! COMEOL are comments that comment out the rest of the line
 ! (might add 'bracketing' comments (e.g. /* ... */ ) later):
@@ -31,22 +27,15 @@ character*3 comeol(ncomeol)
 character*1 eol(neol)
 character*1 eofield(neofield)
 character*10 eof(neof)
-character*2 empty(nempty)
 character*5 alias(nalias,2)
-dimension ilv(300)
 save blankdelim
-save blanks, comeol, eof, eol, eofield, empty
-save line, lenline, ilv
-save iline, nline, nlold
-data iline/0/,nline/0/,nlold/0/
+save blanks, comeol, eof, eol, eofield
 data blankdelim/.true./
 data blanks/' ',','/,comeol/'***','!  ','*  '/
 data eof/'---       ','ENDOFINPUT'/
 data eol/';','=','{','}'/
 data eofield/' '/
-data empty/'--'/
 data alias/'={   ',';    ','}    ',';END;'/
-data debug/.false./
 
 50 continue
 if (nline == -1) then
@@ -157,104 +146,9 @@ nfield = -1
 
 return
 
-entry pushline_cvb()
-if ((iline == 1) .or. (nline == -1)) then
-  backspace(inp)
-  iline = nlold
-  nline = nlold
-else
-  iline = iline-1
-end if
-
-return
-
-entry gtany_cvb(string,int,real,ic,ifield,ierr)
-!ic = 1
-!goto 1050
-!
-!entry gtint_cvb(int,ifield,ierr)
-!ic = 2
-!goto 1050
-!
-!entry gtreal_cvb(real,ifield,ierr)
-!ic = 3
-!1050 continue
-if (ic > 1) ierr = 0
-jfield = 1
-jline = 1
-do ich=1,lenline
-  if (ilv(ich) == 1) jline = jline+1
-  if ((jline == iline) .and. (ilv(ich) == 2)) jfield = jfield+1
-  if ((jline == iline) .and. (jfield == ifield)) then
-    jch = ich
-    if (ich == 1) jch = 0
-1100 jch = jch+1
-    if ((ilv(jch) == 0) .and. (jch /= lenline+1)) goto 1100
-    ifirst = ich+1
-    if (ich == 1) ifirst = 1
-    ! Special character strings to signify empty field?
-    do iempty=1,nempty
-      if (line(ifirst:jch-1) == empty(iempty)(1:len_trim_cvb(empty(iempty)))) goto 1130
-    end do
-    if (debug) write(6,*) ' Field=',line(ifirst:jch-1)
-    if (ic == 1) then
-      string = line(ifirst:jch-1)
-      if (debug) write(6,*) ' Field read as string :',string
-    else if (ic == 2) then
-      if (ifirst > jch-1) then
-        ierr = 2
-        return
-      end if
-      if (.not. isitanint_cvb(line(ifirst:jch-1))) goto 1150
-      read(line(ifirst:jch-1),*,err=1150) int
-      if (debug) write(6,*) ' Field read as int :',int
-    else if (ic == 3) then
-      if (ifirst > jch-1) then
-        ierr = 2
-        return
-      end if
-      if (.not. isitareal_cvb(line(ifirst:jch-1))) goto 1150
-      read(line(ifirst:jch-1),*,err=1150) real
-      if (debug) write(6,*) ' Field read as real :',real
-    end if
-    return
-1130 continue
-    ! "Empty" field:
-    if (ic == 1) then
-      string = ' '
-    else
-      ierr = 2
-    end if
-    return
-  end if
-end do
-write(6,*) ' Error in input parsing !'
-call abend_cvb()
-1150 ierr = 1
-if (debug) then
-  if (ic == 2) then
-    write(6,*) ' Could not read field as integer.'
-  else
-    write(6,*) ' Could not read field as real.'
-  end if
-end if
-
-return
-
-entry rdline_init_cvb(variat)
-if (variat) return
-rewind(inp)
-2100 read(inp,'(a)',end=2200) line
-lenline = len_trim_cvb(line)
-call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
-call upper_case_cvb(line,lenline)
-if (line(1:6) /= '&CASVB') goto 2100
-!if (.not. (((.not. blankdelim) .and. (line(1:10) == '&CASVB&END')) .or. (blankdelim .and. (line(1:11) == '&CASVB &END')))) goto 2100
-
-return
-
-2200 write(6,*) ' WARNING: Initiation string not found in input file.'
-
-return
-
 end subroutine rdline_cvb
+
+block data rdline_bd
+#include "rdline.fh"
+data iline/0/,nline/0/,nlold/0/
+end block data rdline_bd

@@ -16,7 +16,6 @@ subroutine change4_cvb()
 
 implicit real*8(a-h,o-z)
 logical changed
-logical ndres_ok
 ! ... Files/Hamiltonian available ...
 logical, external :: ifcasci_cvb, ifhamil_cvb
 ! ... Make: up to date? ...
@@ -30,7 +29,7 @@ logical, external :: chpcmp_cvb
 #include "casinfo_cvb.fh"
 #include "rls_cvb.fh"
 #include "WrkSpc.fh"
-save ndres_ok
+#include "change4.fh"
 
 changed = .false.
 ! CI vectors
@@ -98,48 +97,6 @@ end if
 if (chpcmp_cvb(nv)) changed = .true.
 if (chpcmp_cvb(icase)) changed = .true.
 if (changed) call touch_cvb('MEM4')
-
-return
-
-entry chop4_cvb()
-if (release(4)) call mfreer_cvb(lc(1)-2)
-release(4) = .true.
-release(5) = .false.
-
-! CIVECP and CIVBH share memory --> LC(2)
-do iv=1,nv
-  lc(iv) = mstackr_cvb(ndres)
-end do
-do iv=1,nv
-  work(lc(iv)) = zero
-  work(lc(iv)+1) = zero
-end do
-do iv=1,nv
-  lc(iv) = lc(iv)+2
-end do
-! Fix to put in "objects":
-do iv=1,nv
-  call creatci_cvb(iv,work(lc(iv)),lc(iv)+1,nint(work(lc(iv)-2)),work(lc(iv)-1))
-  if (.not. ndres_ok) call setcnt_cvb(work(lc(iv)),0)
-end do
-!-- ins
-if (((ifinish == 1) .or. (ifinish == 2)) .and. (.not. lciweights)) then
-  if (((.not. lcalcevb) .or. lcalccivbs) .and. ((.not. lcalcsvb) .or. lcalccivbs)) then
-    lc(3) = lc(1)
-    lc(4) = lc(1)
-  else if ((.not. lcalcevb) .or. lcalccivbs) then
-    lc(4) = lc(3)
-  else if ((.not. lcalcsvb) .or. lcalccivbs) then
-    lc(4) = lc(3)
-    lc(3) = lc(1)
-  end if
-end if
-if (.not. memplenty) lc(nv+1) = lc(1)
-if ((nv == 3) .or. (nv == 4) .or. (nv == 5)) then
-  lc(6) = lc(2)
-  lc(7) = lc(3)
-  lc(8) = lc(4)
-end if
 
 return
 

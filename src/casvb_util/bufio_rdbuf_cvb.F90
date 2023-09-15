@@ -12,45 +12,32 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine moscow_cvb()
+subroutine bufio_rdbuf_cvb()
 
-write(6,*) ' Casvb dummy routine called : MOSCOW'
+implicit real*8(a-h,o-z)
+#include "bufio_cvb.fh"
+#include "idbl_cvb.fh"
 
-return
-
-entry service_cvb()
-write(6,*) ' Casvb dummy routine called : SERV'
-
-return
-
-entry rtransf_plc()
-write(6,*) ' Molint dummy routine called : rtransf_plc'
+call bufio_rdbuf_internal(ibuffer)
 
 return
 
-entry perfloc_plc()
-write(6,*) ' Molint dummy routine called : perfloc_plc'
+! This is to allow type punning without an explicit interface
+contains
 
-return
+subroutine bufio_rdbuf_internal(ibuffer)
+  use iso_c_binding
+  integer, target :: ibuffer(*)
+  real*8, pointer :: buffer(:)
+  if (nbuf < ibuf) then
+    call izero(ibuffer,lbuf)
+    return
+  end if
+  ioffset = (ibuf-1)*lbuf/idbl
+  call c_f_pointer(c_loc(ibuffer(1)),buffer,[nword])
+  call rdlow_cvb(buffer,nword,file_id,ioffset+1)
+  nullify(buffer)
+  return
+end subroutine bufio_rdbuf_internal
 
-entry plcconst_plc()
-write(6,*) ' Molint dummy routine called : plcconst_plc'
-
-return
-
-entry rconstr_plc()
-write(6,*) ' Molint dummy routine called : rconstr_plc'
-
-return
-
-entry getr_plc()
-write(6,*) ' Molint dummy routine called : getr_plc'
-
-return
-
-entry qget_plc()
-write(6,*) ' Molint dummy routine called : qget_plc'
-
-return
-
-end subroutine moscow_cvb
+end subroutine bufio_rdbuf_cvb

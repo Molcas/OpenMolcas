@@ -24,7 +24,7 @@ logical, external :: chpcmp_cvb
 #include "print_cvb.fh"
 #include "rls_cvb.fh"
 #include "davtune_cvb.fh"
-save icase
+#include "change6.fh"
 
 changed = .false.
 if (changed) call touch_cvb('CIFREE')
@@ -57,90 +57,6 @@ else
 end if
 if (chpcmp_cvb(icase)) changed = .true.
 if (changed) call touch_cvb('MEM6')
-
-return
-
-entry chop6_cvb()
-if (release(6)) call mfreer_cvb(lp(1))
-release(6) = .true.
-release(7) = .false.
-lp(1) = mstackr_cvb(0)
-
-call setcnt2_cvb(6,0)
-if (icase == 1) then
-  ! Standard non-linear optimization procedure:
-  lp(1) = mstackr_cvb(norb*norb+nvb+1+mxirrep)
-  lp(2) = mstackr_cvb(npr)
-  lq(3) = mstackr_cvb(nprorb*nprorb)
-  lq(4) = mstackr_cvb(norb**4)
-  lp(5) = mstackr_cvb(npr)
-  lp(6) = mstackr_cvb(npr)
-  lq(7) = mstackr_cvb(npr)
-  lq(8) = mstackr_cvb(npr)
-  lq(9) = mstackr_cvb(norb*norb)
-  ! Vec1 work array
-  lq(10) = mstackr_cvb(max(npr,ndetvb))
-else if (icase == 2) then
-  ! Overlap-based Davidson optimization:
-  iremain = mavailr_cvb()
-  maxdav = min(mxiter,nvb,mxdav)
-
-  memwrk = ndetvb+5*norb*norb+3*ihlf_cvb(norb+2*norb*norb)
-  do idav=maxdav,1,-1
-    ! NEED is approx req. memory:
-    need = 2*nvb*idav+2*nvb+idav+1000+memwrk
-    if (need < iremain) goto 2
-  end do
-  idav = 0
-  if (nvb == 0) then
-    need = 1000+memwrk
-    if (need < iremain) goto 2
-  end if
-  write(6,*) ' Not enough memory for Davidson!',need,iremain
-  call abend_cvb()
-2 maxdav = idav
-
-else if (icase == 3) then
-  ! Energy-based Davidson optimization:
-  iremain = mavailr_cvb()
-  maxdav = min(mxiter,nvb,mxdav)
-
-  mem_applyh = ndet+neread
-  ncimx = 0
-  do ir=1,nirrep
-    ncimx = max(ncimx,ncivb(ir))
-  end do
-  if (ncimx /= ndet) mem_applyh = mem_applyh+ncimx
-  memwrk = ndetvb+3*norb*norb+2*ihlf_cvb(norb+2*norb*norb)
-
-  do idav=maxdav,1,-1
-    ! NEED is approx req. memory:
-    need = 3*nvb*idav+nvb+idav*(2*idav+3)+1000+mem_applyh+memwrk
-    if (need < iremain) goto 12
-  end do
-  idav = 0
-  if (nvb == 0) then
-    need = 1000+memwrk
-    if (need < iremain) goto 12
-  end if
-  write(6,*) ' Not enough memory for Davidson!',need,iremain
-  call abend_cvb()
-12 maxdav = idav
-
-else if (icase == 4) then
-  ! Wavefunction analysis:
-  mstackr_cvb0 = mstackr_cvb(0)
-  if (((.not. variat) .or. endvar) .and. ((ivbweights > 1) .or. (ishstruc == 1))) then
-    lp(1) = mstackr_cvb(nvb*nvb)
-    lp(2) = mstackr_cvb(nvb*nvb)
-  else
-    lp(1) = mstackr_cvb0
-    lp(2) = mstackr_cvb0
-  end if
-  do i=3,11
-    lp(i) = mstackr_cvb0
-  end do
-end if
 
 return
 

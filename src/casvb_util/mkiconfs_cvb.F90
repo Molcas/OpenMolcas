@@ -15,11 +15,6 @@
 subroutine mkiconfs_cvb()
 
 implicit real*8(a-h,o-z)
-logical need_cas
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
-! ... Files/Hamiltonian available ...
-logical, external :: valid_cvb, ifcasci_cvb, ifhamil_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -31,75 +26,6 @@ logical, external :: valid_cvb, ifcasci_cvb, ifhamil_cvb
 ! ICONFS
 call rdioff_cvb(4,recinp,ioffs)
 call rdis_cvb(iwork(ll(15)),nconf*noe,recinp,ioffs)
-
-return
-
-entry mksymelm_cvb()
-call rdioff_cvb(8,recinp,ioffs)
-call rdr_cvb(work(ls(1)),nsyme*norb*norb,recinp,ioffs)
-if ((ip(2) >= 1) .and. (.not. up2date_cvb('PRSYMELM'))) then
-  do isyme=1,nsyme
-    write(6,'(/,a,i4,3x,a)') ' Symmetry element no.',isyme,tags(isyme)
-    ishft = norb*norb*(isyme-1)
-    call mxprint_cvb(work(ishft+ls(1)),norb,norb,0)
-  end do
-  if (nsyme > 0) write(6,*) ' '
-  call untouch_cvb('PRSYMELM')
-end if
-
-return
-
-entry mkconstruc_cvb()
-call construc_cvb(work(ls(15)),iwork(ls(16)))
-
-return
-
-entry mkrdint_cvb()
-
-return
-
-entry mkrdcas_cvb()
-if (ifinish == 0) then
-  need_cas = (icrit == 1) .or. projcas
-else
-  need_cas = ifcasci_cvb() .and. (.not. variat)
-end if
-if (.not. need_cas) return
-! Get CASSCF eigenvector
-if (.not. ifcasci_cvb()) then
-  if ((ip(1) >= 0) .and. valid_cvb(strtci)) call prtfid_cvb(' Warning: CI vector not found - no ',strtci)
-  if (icrit == 1) then
-    write(6,*) ' No optimization without CASSCF vector!'
-    call abend_cvb()
-  end if
-else
-  if (ip(3) >= 2) write(6,'(/,a)') ' Read CASSCF eigenvector:'
-  call getci_cvb(work(lc(1)))
-end if
-call cinorm2_cvb(work(lc(1)),cnrm)
-cnrm = one/cnrm
-call ciscale2_cvb(work(lc(1)),cnrm,iscf,cscf)
-if ((.not. up2date_cvb('CASCHECK')) .or. (ip(3) >= 2)) then
-  call untouch_cvb('CASCHECK')
-  ! Some checks
-  if (abs(cnrm-one) > 1.d-3) then
-    if (ip(3) >= 0) write(6,formE) ' WARNING: Norm of CI vector read differs from one :',cnrm
-  else if (ip(3) >= 2) then
-    write(6,formE) ' Norm of CI vector read ',cnrm
-  end if
-  if ((ip(3) >= 2) .and. (iscf /= 0)) then
-    write(6,'(a,i6)') ' SCF determinant:',iscf
-    write(6,formE) '     coefficient:',cscf
-  end if
-  if (ifhamil_cvb()) then
-    call cicopy_cvb(work(lc(1)),work(lc(2)))
-    call applyh_cvb(work(lc(2)))
-    call cidot_cvb(work(lc(1)),work(lc(2)),eexp)
-    if (ip(3) >= 1) write(6,formE) ' CASSCF energy :',eexp+corenrg
-    if (ip(3) >= 1) write(6,'(a)') ' '
-  end if
-end if
-if (.not. memplenty) call ciwr_cvb(work(lc(1)),61001.2d0)
 
 return
 

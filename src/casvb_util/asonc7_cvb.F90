@@ -20,8 +20,8 @@ implicit real*8(a-h,o-z)
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
+#include "asonc7.fh"
 dimension c(nprm,nvec), axc(nprm,nvec)
-save igrad, iter, ipp
 save thresh
 data thresh/1d-15/
 
@@ -34,8 +34,8 @@ end if
 do ivec=1,nvec
   axc(1,ivec) = ddot_(nprm-1,work(igrad),1,c(2,ivec),1)
   call fmove_cvb(c(2,ivec),axc(2,ivec),nprm-1)
-!  Save Hessian application (& DNRM2 call) whenever possible:
-!  (C assumed to be normalized)
+  ! Save Hessian application (& DNRM2 call) whenever possible:
+  ! (C assumed to be normalized)
   if (abs(abs(c(1,ivec))-one) > thresh) then
     call hess_cvb(axc(2,ivec))
   else if (dnrm2_(nprm-1,axc(2,ivec),1) > thresh) then
@@ -44,14 +44,6 @@ do ivec=1,nvec
   call daxpy_(nprm-1,c(1,ivec),work(igrad),1,axc(2,ivec),1)
   call ddproj_cvb(axc(2,ivec),nprm-1)
 end do
-
-return
-
-entry asonc7init_cvb(igradinp,ippinp)
-iter = 0
-igrad = igradinp
-ipp = ippinp
-call orthcvb_init_cvb()
 
 return
 ! Avoid unused argument warnings

@@ -47,7 +47,6 @@ if (use_ao) then
     i2 = mstackr_cvb(norb*norb)
     i3 = mstackr_cvb(norb)
     !call getr_plc(work(i1))
-    call getr_plc()
     call transp_cvb(work(i1),work(i1),norb,norb)
     call mxatb_cvb(work(i1),orbs,norb,norb,norb,work(i2))
     call lmo2ao_cvb(work(i2),work(iorbsao),norb)

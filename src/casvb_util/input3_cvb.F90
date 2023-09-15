@@ -65,19 +65,21 @@ if (istr == 1) then
   ! 'SERVICE'
   service = .true.
   write(6,'(1x,a,/)') '**** Service mode **** '
-  call service_cvb()
+  !call service_cvb()
+  write(6,*) ' Casvb dummy routine called : SERV'
   return
 else if (istr == 2) then
   ! 'MOSCOW'
   service = .true.
   write(6,'(1x,a,/)') '**** MOSCOW mode **** '
-  call moscow_cvb()
+  !call moscow_cvb()
+  write(6,*) ' Casvb dummy routine called : MOSCOW'
   return
 else if (istr == 3) then
   service = .true.
   write(6,'(1x,a,/)') '**** PERFLOC mode **** '
   !call perfloc_plc(3)
-  call perfloc_plc()
+  write(6,*) ' Molint dummy routine called : perfloc_plc'
   return
 end if
 

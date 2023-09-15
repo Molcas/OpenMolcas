@@ -117,7 +117,6 @@ do iorb=1,norb
     ishift = ishift+3+nrel
   end do
   !if (plc_const) call rconstr_plc(iorb)
-  if (plc_const) call rconstr_plc()
   call span2_cvb(corth(1,1+nciorth),north(iorb),dum,norb,0)
   nciorth = nciorth+north(iorb)
 end do

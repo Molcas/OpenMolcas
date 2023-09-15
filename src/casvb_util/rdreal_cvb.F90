@@ -26,7 +26,6 @@ ierr = 0
 if (nfield == -1) ierr = 1
 if (ifield > nfield) ierr = 2
 if (ierr /= 0) return
-!call gtreal_cvb(realval,ifield,jerr)
 call gtany_cvb(string,idi,realval,3,ifield,jerr)
 if (jerr == 1) then
   if (ifield == 1) ierr = 3

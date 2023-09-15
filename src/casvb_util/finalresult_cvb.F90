@@ -34,8 +34,4 @@ end if
 
 return
 
-entry finalresult_init_cvb()
-
-return
-
 end subroutine finalresult_cvb

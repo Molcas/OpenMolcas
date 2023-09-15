@@ -46,7 +46,7 @@ else if (chr == 'SYMINIT') then
 else if (chr == 'CONSTRUC') then
   call mkconstruc_cvb()
 else if (chr == 'RDINT') then
-  call mkrdint_cvb()
+  ! do nothing
 else if (chr == 'RDCAS') then
   call mkrdcas_cvb()
 else if (chr == 'SYMORBS') then

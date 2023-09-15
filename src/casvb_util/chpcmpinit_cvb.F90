@@ -24,20 +24,4 @@ iprm = 0
 
 return
 
-entry chpcmp0_cvb()
-iprm = 0
-
-return
-
-entry chpcmp2_cvb(itst,iret)
-iprm = iprm+1
-if (iprm > mxprm) then
-  write(6,*) ' Dimensioning error in CHPCMP2!',iprm,mxprm
-  call abend_cvb()
-end if
-iret = lstprm(iprm)
-lstprm(iprm) = itst
-
-return
-
 end subroutine chpcmpinit_cvb

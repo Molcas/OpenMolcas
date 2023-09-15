@@ -178,7 +178,6 @@ if (kbasiscvb /= kbasis) then
 end if
 
 !if(ploc) call rtransf_plc(orbs,cvb)
-if (ploc) call rtransf_plc()
 
 if ((ip(1) >= 2) .and. (.not. endvar)) then
   write(6,'(/,a)') ' Wavefunction guess :'

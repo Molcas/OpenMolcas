@@ -23,11 +23,4 @@ write(6,'(6a,f10.3,a)') ' CASVB completed on ',line(1:10),line(20:24),' at ',lin
 
 return
 
-entry date1_cvb()
-line = ' '
-call datimx(line)
-write(6,'(5a/)') ' CASVB started on ',line(1:10),line(20:24),' at ',line(12:19)
-
-return
-
 end subroutine date2_cvb

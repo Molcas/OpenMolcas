@@ -19,12 +19,12 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+#include "asonc12s.fh"
 dimension c(nprm,nvec), sxc(nprm,nvec)
 dimension civb(ndet), civbs(ndet)
 dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 dimension cvb(nvb), cvbdet(ndetvb)
 dimension vec_all(npr)
-save iter, ipp
 
 iter = iter+1
 if (ipp >= 2) then
@@ -32,8 +32,7 @@ if (ipp >= 2) then
   write(6,'(a)') ' -----------------------------------------------'
 end if
 
-! If no optimization of structure coefficients we are doing
-! "Augmented" calc:
+! If no optimization of structure coefficients we are doing "Augmented" calc:
 if (strucopt) then
   ic1 = 1
 else
@@ -57,12 +56,6 @@ do ivec=1,nvec
   call all2free_cvb(vec_all,sxc(ic1,ivec),1)
   if (.not. strucopt) sxc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 end do
-
-return
-
-entry asonc12sinit_cvb(ippinp)
-iter = 0
-ipp = ippinp
 
 return
 

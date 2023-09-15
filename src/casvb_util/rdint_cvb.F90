@@ -26,7 +26,6 @@ ierr = 0
 if (nfield == -1) ierr = 1
 if (ifield > nfield) ierr = 2
 if (ierr /= 0) return
-!call gtint_cvb(intval,ifield,jerr)
 call gtany_cvb(string,intval,rdr,2,ifield,jerr)
 if (jerr == 1) then
   if (ifield == 1) ierr = 3

@@ -24,7 +24,7 @@ implicit real*8(a-h,o-z)
 dimension iorbrel(ndimrel), ifxorb(mxorb_cvb), iorts(*), irots(*), izeta(*)
 
 ! Check if any molecular interaction constraints:
-if (ploc) call plcconst_plc()
+!if (ploc) call plcconst_plc()
 sym = ((norbrel > 0) .or. (nort > 0) .or. plc_const)
 call rdioff_cvb(9,recinp,ioffs)
 call wris_cvb(iorbrel,ndimrel,recinp,ioffs)

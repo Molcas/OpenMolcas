@@ -34,17 +34,4 @@ if (changed) call touch_cvb('MEM2')
 
 return
 
-entry chop2_cvb()
-if (release(2)) call mfreer_cvb(lv(1))
-release(2) = .true.
-release(3) = .false.
-
-! Note zeroing of ORBS and CVB:
-lv(1) = mstackrz_cvb(norb*norb)
-! (MXNVB should be upper bound on KBASIS & KBASISCVB):
-nvb_alloc = max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
-lv(2) = mstackrz_cvb(nvb_alloc)
-
-return
-
 end subroutine change2_cvb

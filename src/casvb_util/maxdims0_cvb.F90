@@ -28,11 +28,4 @@ end if
 
 return
 
-entry maxdims_cvb()
-if (inputmode == 1) then
-  mxnvb = max(mxnvb,nvb_cvb(kbasis))
-end if
-
-return
-
 end subroutine maxdims0_cvb

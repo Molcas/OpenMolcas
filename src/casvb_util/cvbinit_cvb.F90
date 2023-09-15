@@ -20,27 +20,18 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+#include "cvbinit.fh"
 parameter(iset=1)
-save is_set
-data is_set/0/
 
 if (is_set == iset) return
 
-entry cvbfinit_cvb()
-
-mxaobf = maxbfn
-iprec = 8
-iwidth = 110
-call formats_cvb()
-call setidbl_cvb()
-call meminit_cvb()
-if (is_set /= iset) then
-  ! Initializations below are only carried out once:
-  call io_init_cvb()
-  call main_bdata_cvb()
-end if
-is_set = iset
+call cvbfinit_cvb()
 
 return
 
 end subroutine cvbinit_cvb
+
+block data cvbinit_bd
+#include "cvbinit.fh"
+data is_set/0/
+end block data cvbinit_bd

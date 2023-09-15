@@ -18,29 +18,11 @@ implicit real*8(a-h,o-z)
 #include "formats_cvb.fh"
 character*20 a
 logical l
-character*16 a1
-save huge
-data huge/1d20/
 
 if (l) then
   write(6,'(2a)') a,'     Converged.'
 else
   write(6,'(2a)') a,' Not converged.'
-end if
-
-return
-
-entry cvprt2_cvb(a1,f1,f2,ic)
-if (abs(f2) /= huge) then
-  if ((ic == 1) .and. (f1 < f2)) then
-    write(6,formcvp) a1,f1,'     smaller than',f2
-  else if (ic == 1) then
-    write(6,formcvp) a1,f1,' not smaller than',f2
-  else if ((ic == 2) .and. (f1 > f2)) then
-    write(6,formcvp) a1,f1,'     greater than',f2
-  else if (ic == 2) then
-    write(6,formcvp) a1,f1,' not greater than',f2
-  end if
 end if
 
 return

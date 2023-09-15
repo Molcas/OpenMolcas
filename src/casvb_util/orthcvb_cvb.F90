@@ -37,17 +37,4 @@ end if
 
 return
 
-entry orthcvb_init_cvb()
-if (nfrag <= 1) then
-  cvbnrm = ddot_(nvb,work(lv(2)),1,work(lv(2)),1)
-else
-  ifr_off = 0
-  do ifrag=1,nfrag
-    cvbnrm_fr(ifrag) = ddot_(nvb_fr(ifrag),work(ifr_off+lv(2)),1,work(ifr_off+lv(2)),1)
-    ifr_off = ifr_off+nvb_fr(ifrag)
-  end do
-end if
-
-return
-
 end subroutine orthcvb_cvb
