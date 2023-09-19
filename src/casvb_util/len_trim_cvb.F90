@@ -16,10 +16,9 @@ implicit real*8(a-h,o-z)
 character*(*) a
 
 do i=len(a),1,-1
-  if (a(i:i) /= ' ') goto 200
+  if (a(i:i) /= ' ') exit
 end do
-i = 0
-200 len_trim_cvb = i
+len_trim_cvb = i
 
 return
 

@@ -15,7 +15,7 @@
 subroutine cnfcheck2_cvb(iconfs,nconf1,nel1,iocc)
 
 implicit real*8(a-h,o-z)
-logical locc, lorbs, locc_only, lorbs_only
+logical found, locc, lorbs, locc_only, lorbs_only
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -132,14 +132,19 @@ do iconf=1,nconf1
   if (iconf <= 500) then
     ! Test for repeated configurations:
     do jconf=1,iconf-1
+      found = .false.
       do iorb=1,norb
-        if (iconfs(iorb,iconf) /= iconfs(iorb,jconf)) goto 1900
+        if (iconfs(iorb,iconf) /= iconfs(iorb,jconf)) then
+          found = .true.
+          exit
+        end if
       end do
-      write(6,'(/,a,2i4)') ' Fatal error - spatial VB configuration repeated :',jconf,iconf
-      write(6,'(i8,a,20i3)') jconf,'   =>  ',(iocc(ii),ii=1,norb)
-      write(6,'(i8,a,20i3)') iconf,'   =>  ',(iocc(ii),ii=1,norb)
-      call abend_cvb()
-1900  continue
+      if (.not. found) then
+        write(6,'(/,a,2i4)') ' Fatal error - spatial VB configuration repeated :',jconf,iconf
+        write(6,'(i8,a,20i3)') jconf,'   =>  ',(iocc(ii),ii=1,norb)
+        write(6,'(i8,a,20i3)') iconf,'   =>  ',(iocc(ii),ii=1,norb)
+        call abend_cvb()
+      end if
     end do
   end if
 end do

@@ -16,17 +16,26 @@ subroutine loopstr_cvb(iocc,index,nel,norb)
 
 implicit real*8(a-h,o-z)
 dimension iocc(nel)
+logical done
 
 index = index+1
 ! Find electron for which orbital number can be increased:
+done = .false.
 do iel=1,nel-1
-  if (iocc(iel+1) > iocc(iel)+1) goto 200
+  if (iocc(iel+1) > iocc(iel)+1) then
+    done = .true.
+    exit
+  end if
 end do
-iel = nel
-if (iocc(iel) < norb) goto 200
-call loopstr0_cvb(iocc,index,nel,norb)
-return
-200 iocc(iel) = iocc(iel)+1
+if (.not. done) then
+  iel = nel
+  if (iocc(iel) >= norb) then
+    call loopstr0_cvb(iocc,index,nel,norb)
+    return
+  end if
+end if
+
+iocc(iel) = iocc(iel)+1
 do jel=1,iel-1
   iocc(jel) = jel
 end do

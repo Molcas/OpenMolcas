@@ -43,6 +43,7 @@ dimension xasg((mxsng+1)*(mxasg+1)), locasg(norb), lunasg(norb)
 dimension gal1(ncnfcas), gal2(ncnfcas)
 dimension indavec(mxdetcas), indbvec(mxdetcas)
 dimension cprint(6)
+integer rc
 
 call cidot_cvb(civb,civbs,cnrm)
 fac = svb/sqrt(cnrm)
@@ -69,161 +70,167 @@ do idet=1,ndet
 end do
 
 ! Inverse-overlap weights
-if (.not. (mod(iciweights,8) > 3)) goto 4010
-call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
-call fmove_cvb(sorbs,orbinv,norb*norb)
-call mxinv_cvb(orbinv,norb)
-call gaussj_cvb(orbinv,gjorb)
-! Alpha weight array:
-do iorb=0,norb
-  mingrph(iorb) = max(iorb-norb+nalf,0)
-  maxgrph(iorb) = min(iorb,nalf)
-end do
-call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
-! Beta weight array:
-do iorb=0,norb
-  mingrph(iorb) = max(iorb-norb+nbet,0)
-  maxgrph(iorb) = min(iorb,nbet)
-end do
-call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
-
-nc = 0
-do ion=ionmin,ionmax
-  nsing = nel-2*ion
-  mrem = norb-ion
-  nalfsng = nalf-ion
-  nbetsng = nbet-ion
-  ! Initialise loop for ionic orbitals
+if (mod(iciweights,8) > 3) then
+  call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
+  call fmove_cvb(sorbs,orbinv,norb*norb)
+  call mxinv_cvb(orbinv,norb)
+  call gaussj_cvb(orbinv,gjorb)
+  ! Alpha weight array:
   do iorb=0,norb
-    mingion(iorb) = max(iorb-norb+ion,0)
-    maxgion(iorb) = min(iorb,ion)
+    mingrph(iorb) = max(iorb-norb+nalf,0)
+    maxgrph(iorb) = min(iorb,nalf)
   end do
-  call weight_cvb(xion,mingion,maxgion,ion,norb)
-  call imove_cvb(maxgion,nkion,norb+1)
-  call occupy_cvb(nkion,norb,locion,lunion)
-  ! Initialise loop for singly occupied orbitals
-  do iorb=0,mrem
-    mingsng(iorb) = max(iorb-mrem+nsing,0)
-    maxgsng(iorb) = min(iorb,nsing)
+  call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
+  ! Beta weight array:
+  do iorb=0,norb
+    mingrph(iorb) = max(iorb-norb+nbet,0)
+    maxgrph(iorb) = min(iorb,nbet)
   end do
-  call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
-  call imove_cvb(maxgsng,nksng,mrem+1)
-  call occupy_cvb(nksng,mrem,locsng,lunsng)
-  ! Initialise loop for singly occupied alpha orbitals
-  do iorb=0,nsing
-    mingasg(iorb) = max(iorb-nsing+nalfsng,0)
-    maxgasg(iorb) = min(iorb,nalfsng)
+  call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
+
+  nc = 0
+  do ion=ionmin,ionmax
+    nsing = nel-2*ion
+    mrem = norb-ion
+    nalfsng = nalf-ion
+    nbetsng = nbet-ion
+    ! Initialise loop for ionic orbitals
+    do iorb=0,norb
+      mingion(iorb) = max(iorb-norb+ion,0)
+      maxgion(iorb) = min(iorb,ion)
+    end do
+    call weight_cvb(xion,mingion,maxgion,ion,norb)
+    call imove_cvb(maxgion,nkion,norb+1)
+    call occupy_cvb(nkion,norb,locion,lunion)
+    ! Initialise loop for singly occupied orbitals
+    do iorb=0,mrem
+      mingsng(iorb) = max(iorb-mrem+nsing,0)
+      maxgsng(iorb) = min(iorb,nsing)
+    end do
+    call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
+    call imove_cvb(maxgsng,nksng,mrem+1)
+    call occupy_cvb(nksng,mrem,locsng,lunsng)
+    ! Initialise loop for singly occupied alpha orbitals
+    do iorb=0,nsing
+      mingasg(iorb) = max(iorb-nsing+nalfsng,0)
+      maxgasg(iorb) = min(iorb,nalfsng)
+    end do
+    call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
+    call imove_cvb(maxgasg,nkasg,nsing+1)
+    call occupy_cvb(nkasg,nsing,locasg,lunasg)
+
+    ! Loop ionic
+    indion = 1
+    do
+      ! Loop singly occupied
+      indsng = 1
+      do
+        call fzero(vec5,ndet)
+        s11 = zero
+        s22 = zero
+        s12 = zero
+        ! Loop singly occupied alpha
+        indasg = 1
+
+        do
+          call izero(iaocc,norb)
+          call izero(ibocc,norb)
+          do i=1,ion
+            iaocc(locion(i)) = 1
+            ibocc(locion(i)) = 1
+          end do
+          do ia=1,nalfsng
+            iaorb = lunion(locsng(locasg(ia)))
+            iaocc(iaorb) = 1
+          end do
+          do ib=1,nbetsng
+            iborb = lunion(locsng(lunasg(ib)))
+            ibocc(iborb) = 1
+          end do
+          inda = indget_cvb(iaocc,nalf,norb,xalf)
+          indb = indget_cvb(ibocc,nbet,norb,xbet)
+          indavec(indasg) = inda
+          indbvec(indasg) = indb
+
+          indab = (indb-1)*nda+inda
+          vec5(indab) = vec3(indab)
+          s11 = s11+vec3(indab)*vec3(indab)
+          s22 = s22+vec4(indab)*vec4(indab)
+          s12 = s12+vec3(indab)*vec4(indab)
+
+          call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,rc)
+          if (rc == 0) exit
+        end do
+
+        call applyt_cvb(civec5,gjorb)
+
+        call icomb_cvb(nsing,nalfsng,nindasg)
+        sm1 = zero
+        do indasg=1,nindasg
+          inda = indavec(indasg)
+          indb = indbvec(indasg)
+          indab = (indb-1)*nda+inda
+          sm1 = sm1+vec3(indab)*vec5(indab)
+        end do
+
+        if (abs(sm1) > 1.d-20) then
+          sm1 = s11*s11/sm1
+        else if (abs(sm1) <= 1.d-20) then
+          sm1 = zero
+        end if
+
+        call fzero(vec5,ndet)
+        do indasg=1,nindasg
+          inda = indavec(indasg)
+          indb = indbvec(indasg)
+          indab = (indb-1)*nda+inda
+          vec5(indab) = vec4(indab)
+        end do
+
+        call applyt_cvb(civec5,gjorb)
+
+        sm2 = zero
+        do indasg=1,nindasg
+          inda = indavec(indasg)
+          indb = indbvec(indasg)
+          indab = (indb-1)*nda+inda
+          sm2 = sm2+vec4(indab)*vec5(indab)
+        end do
+
+        if (abs(sm2) > 1.d-20) then
+          sm2 = s22*s22/sm2
+        else if (abs(sm2) <= 1.d-20) then
+          sm2 = zero
+        end if
+
+        nc = nc+1
+        gal1(nc) = sm1
+        gal2(nc) = sm2
+
+        call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,locsng,lunsng,indsng,xsng,rc)
+        if (rc == 0) exit
+      end do
+      call loind_cvb(norb,ion,nkion,mingion,maxgion,locion,lunion,indion,xion,rc)
+      if (rc == 0) exit
+    end do
   end do
-  call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
-  call imove_cvb(maxgasg,nkasg,nsing+1)
-  call occupy_cvb(nkasg,nsing,locasg,lunasg)
-
-  ! Loop ionic
-  indion = 1
-3000 continue
-  ! Loop singly occupied
-  indsng = 1
-3100 continue
-  call fzero(vec5,ndet)
-  s11 = zero
-  s22 = zero
-  s12 = zero
-  ! Loop singly occupied alpha
-  indasg = 1
-3200 continue
-
-  call izero(iaocc,norb)
-  call izero(ibocc,norb)
-  do i=1,ion
-    iaocc(locion(i)) = 1
-    ibocc(locion(i)) = 1
+  sum1 = zero
+  sum2 = zero
+  do ic=1,ncnfcas
+    sum1 = sum1+gal1(ic)
+    sum2 = sum2+gal2(ic)
   end do
-  do ia=1,nalfsng
-    iaorb = lunion(locsng(locasg(ia)))
-    iaocc(iaorb) = 1
-  end do
-  do ib=1,nbetsng
-    iborb = lunion(locsng(lunasg(ib)))
-    ibocc(iborb) = 1
-  end do
-  inda = indget_cvb(iaocc,nalf,norb,xalf)
-  indb = indget_cvb(ibocc,nbet,norb,xbet)
-  indavec(indasg) = inda
-  indbvec(indasg) = indb
-
-  indab = (indb-1)*nda+inda
-  vec5(indab) = vec3(indab)
-  s11 = s11+vec3(indab)*vec3(indab)
-  s22 = s22+vec4(indab)*vec4(indab)
-  s12 = s12+vec3(indab)*vec4(indab)
-
-  call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,*3200)
-
-  call applyt_cvb(civec5,gjorb)
-
-  call icomb_cvb(nsing,nalfsng,nindasg)
-  sm1 = zero
-  do indasg=1,nindasg
-    inda = indavec(indasg)
-    indb = indbvec(indasg)
-    indab = (indb-1)*nda+inda
-    sm1 = sm1+vec3(indab)*vec5(indab)
-  end do
-
-  if (abs(sm1) > 1.d-20) then
-    sm1 = s11*s11/sm1
-  else if (abs(sm1) <= 1.d-20) then
-    sm1 = zero
+  fac1 = one/sum1
+  if ((abs(one-svb*svb) < 1.d-20) .and. (abs(sum2) < 1.d-20)) then
+    fac2 = one
+  else
+    fac2 = (one-svb*svb)/sum2
   end if
-
-  call fzero(vec5,ndet)
-  do indasg=1,nindasg
-    inda = indavec(indasg)
-    indb = indbvec(indasg)
-    indab = (indb-1)*nda+inda
-    vec5(indab) = vec4(indab)
+  do ic=1,ncnfcas
+    gal1(ic) = fac1*gal1(ic)
+    gal2(ic) = fac2*gal2(ic)
   end do
-
-  call applyt_cvb(civec5,gjorb)
-
-  sm2 = zero
-  do indasg=1,nindasg
-    inda = indavec(indasg)
-    indb = indbvec(indasg)
-    indab = (indb-1)*nda+inda
-    sm2 = sm2+vec4(indab)*vec5(indab)
-  end do
-
-  if (abs(sm2) > 1.d-20) then
-    sm2 = s22*s22/sm2
-  else if (abs(sm2) <= 1.d-20) then
-    sm2 = zero
-  end if
-
-  nc = nc+1
-  gal1(nc) = sm1
-  gal2(nc) = sm2
-
-  call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,locsng,lunsng,indsng,xsng,*3100)
-  call loind_cvb(norb,ion,nkion,mingion,maxgion,locion,lunion,indion,xion,*3000)
-end do
-sum1 = zero
-sum2 = zero
-do ic=1,ncnfcas
-  sum1 = sum1+gal1(ic)
-  sum2 = sum2+gal2(ic)
-end do
-fac1 = one/sum1
-if ((abs(one-svb*svb) < 1.d-20) .and. (abs(sum2) < 1.d-20)) then
-  fac2 = one
-else
-  fac2 = (one-svb*svb)/sum2
 end if
-do ic=1,ncnfcas
-  gal1(ic) = fac1*gal1(ic)
-  gal2(ic) = fac2*gal2(ic)
-end do
-4010 continue
 
 ! Weights of Lowdin orthonormalized structures
 if (mod(iciweights,4) > 1) then
@@ -343,84 +350,90 @@ do ion=ionmin,ionmax
 
   ! Loop ionic
   indion = 1
-7000 continue
-  ! Loop singly occupied
-  indsng = 1
-7100 continue
-  c1 = zero
-  c2 = zero
-  c3 = zero
-  c4 = zero
-  ! Loop singly occupied alpha
-  indasg = 1
-7200 continue
+  do
+    ! Loop singly occupied
+    indsng = 1
+    do
+      c1 = zero
+      c2 = zero
+      c3 = zero
+      c4 = zero
+      ! Loop singly occupied alpha
+      indasg = 1
 
-  call izero(iaocc,norb)
-  call izero(ibocc,norb)
-  do i=1,ion
-    iaocc(locion(i)) = 1
-    ibocc(locion(i)) = 1
-  end do
-  do ia=1,nalfsng
-    iaorb = lunion(locsng(locasg(ia)))
-    iaocc(iaorb) = 1
-  end do
-  do ib=1,nbetsng
-    iborb = lunion(locsng(lunasg(ib)))
-    ibocc(iborb) = 1
-  end do
-  inda = indget_cvb(iaocc,nalf,norb,xalf)
-  indb = indget_cvb(ibocc,nbet,norb,xbet)
+      do
+        call izero(iaocc,norb)
+        call izero(ibocc,norb)
+        do i=1,ion
+          iaocc(locion(i)) = 1
+          ibocc(locion(i)) = 1
+        end do
+        do ia=1,nalfsng
+          iaorb = lunion(locsng(locasg(ia)))
+          iaocc(iaorb) = 1
+        end do
+        do ib=1,nbetsng
+          iborb = lunion(locsng(lunasg(ib)))
+          ibocc(iborb) = 1
+        end do
+        inda = indget_cvb(iaocc,nalf,norb,xalf)
+        indb = indget_cvb(ibocc,nbet,norb,xbet)
 
-  indab = (indb-1)*nda+inda
-  c1 = c1+vec1(indab)
-  c2 = c2+vec2(indab)
-  c3 = c3+vec3(indab)
-  c4 = c4+vec4(indab)
+        indab = (indb-1)*nda+inda
+        c1 = c1+vec1(indab)
+        c2 = c2+vec2(indab)
+        c3 = c3+vec3(indab)
+        c4 = c4+vec4(indab)
 
-  call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,*7200)
-  nc = nc+1
-  wghtion1(ion) = wghtion1(ion)+c1
-  wghtion2(ion) = wghtion2(ion)+c2
-  wghtion3(ion) = wghtion3(ion)+c3
-  wghtion4(ion) = wghtion4(ion)+c4
-  wghtion5(ion) = wghtion5(ion)+gal1(nc)
-  wghtion6(ion) = wghtion6(ion)+gal2(nc)
-  if ((nc <= npcf) .or. (npcf == -1)) then
-    call int2char_cvb(line,nc,7)
-    line(9:10) = '=>'
-    ilin = 11
-    do i=1,ion
-      call int2char_cvb(line(ilin:ilin+2),locion(i),3)
-      ilin = ilin+3
-      call int2char_cvb(line(ilin:ilin+2),locion(i),3)
-      ilin = ilin+3
+        call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,rc)
+        if (rc == 0) exit
+      end do
+      nc = nc+1
+      wghtion1(ion) = wghtion1(ion)+c1
+      wghtion2(ion) = wghtion2(ion)+c2
+      wghtion3(ion) = wghtion3(ion)+c3
+      wghtion4(ion) = wghtion4(ion)+c4
+      wghtion5(ion) = wghtion5(ion)+gal1(nc)
+      wghtion6(ion) = wghtion6(ion)+gal2(nc)
+      if ((nc <= npcf) .or. (npcf == -1)) then
+        call int2char_cvb(line,nc,7)
+        line(9:10) = '=>'
+        ilin = 11
+        do i=1,ion
+          call int2char_cvb(line(ilin:ilin+2),locion(i),3)
+          ilin = ilin+3
+          call int2char_cvb(line(ilin:ilin+2),locion(i),3)
+          ilin = ilin+3
+        end do
+        do i=1,nsing
+          call int2char_cvb(line(ilin:ilin+2),lunion(locsng(i)),3)
+          ilin = ilin+3
+        end do
+        ilin = max(ilin,19)
+        nprint = 0
+        if (mod(iciweights,2) == 1) then
+          cprint(nprint+1) = c1
+          cprint(nprint+2) = c2
+          nprint = nprint+2
+        end if
+        if (mod(iciweights,4) > 1) then
+          cprint(nprint+1) = c3
+          cprint(nprint+2) = c4
+          nprint = nprint+2
+        end if
+        if (mod(iciweights,8) > 3) then
+          cprint(nprint+1) = gal1(nc)
+          cprint(nprint+2) = gal2(nc)
+          nprint = nprint+2
+        end if
+        write(6,formAD) line(1:ilin),(cprint(mp),mp=1,nprint)
+      end if
+      call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,locsng,lunsng,indsng,xsng,rc)
+      if (rc == 0) exit
     end do
-    do i=1,nsing
-      call int2char_cvb(line(ilin:ilin+2),lunion(locsng(i)),3)
-      ilin = ilin+3
-    end do
-    ilin = max(ilin,19)
-    nprint = 0
-    if (mod(iciweights,2) == 1) then
-      cprint(nprint+1) = c1
-      cprint(nprint+2) = c2
-      nprint = nprint+2
-    end if
-    if (mod(iciweights,4) > 1) then
-      cprint(nprint+1) = c3
-      cprint(nprint+2) = c4
-      nprint = nprint+2
-    end if
-    if (mod(iciweights,8) > 3) then
-      cprint(nprint+1) = gal1(nc)
-      cprint(nprint+2) = gal2(nc)
-      nprint = nprint+2
-    end if
-    write(6,formAD) line(1:ilin),(cprint(mp),mp=1,nprint)
-  end if
-  call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,locsng,lunsng,indsng,xsng,*7100)
-  call loind_cvb(norb,ion,nkion,mingion,maxgion,locion,lunion,indion,xion,*7000)
+    call loind_cvb(norb,ion,nkion,mingion,maxgion,locion,lunion,indion,xion,rc)
+    if (rc == 0) exit
+  end do
 end do
 
 call cblank_cvb(line,240)

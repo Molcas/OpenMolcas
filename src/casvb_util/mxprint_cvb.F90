@@ -25,45 +25,47 @@ nbuf = min((iwidth-4)/(iprec+4),mxbuf)
 if (nbuf == 7) nbuf = 6
 iform = 0
 jin = 1
-100 jend = jin+nbuf-1
-if (ncol <= nbuf) jend = ncol
-if (jend > ncol+nbuf-1) return
-jend = min(ncol,jend)
-k = 0
-do j=jin,jend
-  k = k+1
-  ibuf(k) = j
-end do
-if (iform == 0) then
-  write(6,formMXP1) (ibuf(i),i=1,jend-jin+1)
-else
-  write(6,formMXP2) (ibuf(i),i=1,jend-jin+1)
-end if
-do i=1,nrow
+do
+  jend = jin+nbuf-1
+  if (ncol <= nbuf) jend = ncol
+  if (jend > ncol+nbuf-1) return
+  jend = min(ncol,jend)
   k = 0
   do j=jin,jend
     k = k+1
-    if (itype == 0) then
-      ind = (j-1)*nrow+i
-    else if (itype == 1) then
-      if (i >= j) then
-        ind = i*(i-1)/2+j
-      else
-        ind = j*(j-1)/2+i
-      end if
-    else
-      ind = (i-1)*ncol+j
-    end if
-    buffer(k) = a(ind)
+    ibuf(k) = j
   end do
   if (iform == 0) then
-    write(6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
+    write(6,formMXP1) (ibuf(i),i=1,jend-jin+1)
   else
-    write(6,formMXP4) i,(buffer(ii),ii=1,jend-jin+1)
+    write(6,formMXP2) (ibuf(i),i=1,jend-jin+1)
   end if
+  do i=1,nrow
+    k = 0
+    do j=jin,jend
+      k = k+1
+      if (itype == 0) then
+        ind = (j-1)*nrow+i
+      else if (itype == 1) then
+        if (i >= j) then
+          ind = i*(i-1)/2+j
+        else
+          ind = j*(j-1)/2+i
+        end if
+      else
+        ind = (i-1)*ncol+j
+      end if
+      buffer(k) = a(ind)
+    end do
+    if (iform == 0) then
+      write(6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
+    else
+      write(6,formMXP4) i,(buffer(ii),ii=1,jend-jin+1)
+    end if
+  end do
+  jin = jend+1
+  if (ncol <= nbuf) exit
 end do
-jin = jend+1
-if (ncol > nbuf) goto 100
 
 return
 

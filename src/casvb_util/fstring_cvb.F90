@@ -18,7 +18,7 @@ implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
 character*(*) strings(nstring)
 character*8 string
-logical debug
+logical debug, done
 data debug/.false./
 
 if (inputmode == 2) then
@@ -31,20 +31,22 @@ if (inputmode == 2) then
 end if
 call popfield_cvb(ifc)
 call rdstring_cvb(string,ierr)
+done = .false.
 do istring=1,nstring
   if (string(1:ncmp) == strings(istring)(1:ncmp)) then
     ! For keywords starting by END we check more letters. This
     ! implementation is a bit ungainly, but simpler to code:
     if (string(1:3) == 'END') then
-      if (string(4:ncmp+3) /= strings(istring)(4:ncmp+3)) goto 100
+      if (string(4:ncmp+3) /= strings(istring)(4:ncmp+3)) cycle
     end if
-    goto 200
+    done = .true.
+    exit
   end if
-100 continue
 end do
-istring = 0
-call pushfield_cvb()
-200 continue
+if (.not. done) then
+  istring = 0
+  call pushfield_cvb()
+end if
 if (inputmode == 1) then
   call sethfs_cvb(istring)
 end if

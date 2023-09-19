@@ -35,12 +35,12 @@ if (inputmode == 2) then
   if (joptstep == ioptstep) call setifinish_cvb(icode(loopstep))
   begbracket = ((icode(loopstep) == 1) .and. (icode(loopstep+1) == 2)) .or. ((icode(loopstep) == 3) .and. (icode(loopstep+1) == 4))
   if ((joptstep >= ioptstep+1) .or. ((joptstep == ioptstep) .and. (.not. begbracket))) then
-    ! Goto end of input:
+    ! Go to end of input:
     icnt = ncnt
     loopstep = loopstepmx
     joptstep = noptstep
   else if ((joptstep < ioptstep) .and. begbracket) then
-    ! Goto next closing bracket:
+    ! Go to next closing bracket:
     icnt = ipos(loopstep+1)
     loopstep = loopstep+1
   end if

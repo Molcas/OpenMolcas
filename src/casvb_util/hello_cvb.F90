@@ -22,9 +22,9 @@ implicit real*8(a-h,o-z)
 
 if (variat) write(6,'(a)') ' '
 write(6,10)
-10 format(/,'     CASVB (Valence bond MCSCF)   Authors: T. Thorsteinsson and D. L. Cooper  (1996-2006)',/)
 if (.not. variat) call date1_cvb()
 
 return
+10 format(/,'     CASVB (Valence bond MCSCF)   Authors: T. Thorsteinsson and D. L. Cooper  (1996-2006)',/)
 
 end subroutine hello_cvb

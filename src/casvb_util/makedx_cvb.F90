@@ -43,25 +43,18 @@ if ((cnrm < hh) .and. scalesmall) then
       call getdxp_cvb(dxp,w2,heigval,nnegeig,nparm,alfa)
       cnrm = dnrm2_(nparm,dxp,1)
     end if
-    call dscal_(nparm,hh/cnrm,dxp,1)
-    cnrm = hh
-    goto 600
+  else
+    if ((.not. opth) .and. (ip >= 2)) write(6,form2AF) ' Scaling update from :',cnrm,' to :',hh
   end if
-  if ((.not. opth) .and. (ip >= 2)) write(6,form2AF) ' Scaling update from :',cnrm,' to :',hh
   call dscal_(nparm,hh/cnrm,dxp,1)
   cnrm = hh
-  goto 600
-else if (cnrm < hh) then
-  goto 600
+else if (cnrm >= hh) then
+  call optalf_cvb(heigval,gradp,nparm,hh,alfa,nnegeig,alfastart,alftol)
+  call getdxp_cvb(dxp,gradp,heigval,nnegeig,nparm,alfa)
+  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
+  cnrm = dnrm2_(nparm,dxp,1)
+  if ((.not. opth) .and. (ip >= 2)) write(6,formAF) ' Alpha and norm of update :',alfa,cnrm
 end if
-
-call optalf_cvb(heigval,gradp,nparm,hh,alfa,nnegeig,alfastart,alftol)
-call getdxp_cvb(dxp,gradp,heigval,nnegeig,nparm,alfa)
-call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
-cnrm = dnrm2_(nparm,dxp,1)
-if ((.not. opth) .and. (ip >= 2)) write(6,formAF) ' Alpha and norm of update :',alfa,cnrm
-
-600 continue
 
 if ((ioptc > 0) .and. ((.not. opth) .and. (cnrm < cnrmtol))) then
   if (ip >= 0) then
@@ -71,16 +64,16 @@ if ((ioptc > 0) .and. ((.not. opth) .and. (cnrm < cnrmtol))) then
   ioptc = -2
   return
 end if
-1100 call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
-if ((exp1 < -exp12tol) .or. (exp2 > exp12tol)) then
+do
+  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
+  if ((exp1 >= -exp12tol) .and. (exp2 <= exp12tol)) exit
   call dscal_(nparm,0.9d0,dxp,1)
   cnrm = dnrm2_(nparm,dxp,1)
   if (cnrm < cnrmtol) then
     write(6,formAD) ' Norm of update too small :',cnrm,cnrmtol
     call abend_cvb()
   end if
-  goto 1100
-end if
+end do
 if ((ip >= 2) .and. close2conv .and. ((exp1 < zero) .or. (exp2 > zero))) then
   write(6,*) ' Warning - not a max/min direction !'
   if (nnegeig > 0) write(6,*) ' Expected change for maximized variables :',exp1

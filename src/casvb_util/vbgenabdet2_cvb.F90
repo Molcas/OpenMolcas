@@ -46,68 +46,69 @@ do ion=0,nel/2
   nalfsing = nalf-ion
   nbetsing = nbet-ion
   ! Skip if configurations are incompatible with Ms:
-  if ((nalfsing < 0) .or. (nbetsing < 0) .or. (nelsing < 0)) goto 1001
+  if ((nalfsing >= 0) .and. (nbetsing >= 0) .and. (nelsing >= 0)) then
 
-  ! Generate alpha/beta strings for singly occupied electrons:
-  call icomb_cvb(nelsing,nalfsing,nstring)
-  iastr = mstacki_cvb(nalfsing*nstring)
-  ibstr = mstacki_cvb(nbetsing*nstring)
-  call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),nstring)
-  if (debug) then
-    write(6,*) ' ionicity=',ion,' nconf=',nconfion(ion)
-    write(6,*) ' check alpha strings :'
-    do i=1,nstring
-      write(6,*) i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,nalfsing)
+    ! Generate alpha/beta strings for singly occupied electrons:
+    call icomb_cvb(nelsing,nalfsing,nstring)
+    iastr = mstacki_cvb(nalfsing*nstring)
+    ibstr = mstacki_cvb(nbetsing*nstring)
+    call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),nstring)
+    if (debug) then
+      write(6,*) ' ionicity=',ion,' nconf=',nconfion(ion)
+      write(6,*) ' check alpha strings :'
+      do i=1,nstring
+        write(6,*) i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,nalfsing)
+      end do
+      write(6,*) ' check beta strings :'
+      do i=1,nstring
+        write(6,*) i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,nbetsing)
+      end do
+    end if
+
+    do iconf=ioff_nconf+1,ioff_nconf+nconfion(ion)
+      call imove_cvb(iconfs(1,iconf),inewocc,norb)
+      incr = 0
+      do iorb=1,norb
+        if (inewocc(iorb) == 1) then
+          incr = incr+1
+          iaccm(incr) = iorb
+        end if
+        inewocc(iorb) = max(0,inewocc(iorb)-1)
+      end do
+
+      ! Spin string loop:
+      do index=1,nstring
+
+        ! Alpha index in full string space ...
+        do i=1,nalfsing
+          iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
+          inewocc(iaocc) = inewocc(iaocc)+1
+        end do
+        iaind = indget_cvb(inewocc,nalf,norb,xalf)
+        do i=1,nalfsing
+          iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
+          inewocc(iaocc) = inewocc(iaocc)-1
+        end do
+
+        ! Beta index in full string space ...
+        do i=1,nbetsing
+          ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
+          inewocc(ibocc) = inewocc(ibocc)+1
+        end do
+        ibind = indget_cvb(inewocc,nbet,norb,xbet)
+        do i=1,nbetsing
+          ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
+          inewocc(ibocc) = inewocc(ibocc)-1
+        end do
+
+        incrdet = incrdet+1
+        idetavb(incrdet) = iaind
+        idetbvb(incrdet) = ibind
+      end do
     end do
-    write(6,*) ' check beta strings :'
-    do i=1,nstring
-      write(6,*) i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,nbetsing)
-    end do
+    call mfreei_cvb(iastr)
   end if
-
-  do iconf=ioff_nconf+1,ioff_nconf+nconfion(ion)
-    call imove_cvb(iconfs(1,iconf),inewocc,norb)
-    incr = 0
-    do iorb=1,norb
-      if (inewocc(iorb) == 1) then
-        incr = incr+1
-        iaccm(incr) = iorb
-      end if
-      inewocc(iorb) = max(0,inewocc(iorb)-1)
-    end do
-
-    ! Spin string loop:
-    do index=1,nstring
-
-      ! Alpha index in full string space ...
-      do i=1,nalfsing
-        iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
-        inewocc(iaocc) = inewocc(iaocc)+1
-      end do
-      iaind = indget_cvb(inewocc,nalf,norb,xalf)
-      do i=1,nalfsing
-        iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
-        inewocc(iaocc) = inewocc(iaocc)-1
-      end do
-
-      ! Beta index in full string space ...
-      do i=1,nbetsing
-        ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
-        inewocc(ibocc) = inewocc(ibocc)+1
-      end do
-      ibind = indget_cvb(inewocc,nbet,norb,xbet)
-      do i=1,nbetsing
-        ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
-        inewocc(ibocc) = inewocc(ibocc)-1
-      end do
-
-      incrdet = incrdet+1
-      idetavb(incrdet) = iaind
-      idetbvb(incrdet) = ibind
-    end do
-  end do
-  call mfreei_cvb(iastr)
-1001 ioff_nconf = ioff_nconf+nconfion(ion)
+  ioff_nconf = ioff_nconf+nconfion(ion)
 end do
 if (debug) then
   write(6,*) ' idetavb='

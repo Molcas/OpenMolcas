@@ -76,24 +76,21 @@ eigmn = one
 if (nnegeig > 0) eigmx = eigval(nnegeig)
 if (nposeig > 0) eigmn = eigval(nnegeig+1)
 safety_use = safety
-200 continue
-if ((eigmx < -signtol) .and. (eigmn > signtol)) then
-  alfastart = zero
-else
-  alfastart = max(eigmx,-eigmn,zero)+safety_use
-end if
-call getdxp_cvb(dxp,gradp,eigval,nnegeig,itdav,alfastart)
-cnrm = dnrm2_(itdav,dxp,1)
-if (alfastart /= zero) then
-  gnrm = dnrm2_(itdav,gradp,1)
-  if ((cnrm > 1d-15) .and. (gnrm > 1d-15) .and. (safety_use /= 1d-4)) then
-    ovr_dx_grad = ddot_(itdav,dxp,1,gradp,1)/(cnrm*gnrm)
-    if (ovr_dx_grad < .3d0) then
-      safety_use = 1d-4
-      goto 200
-    end if
+do
+  if ((eigmx < -signtol) .and. (eigmn > signtol)) then
+    alfastart = zero
+  else
+    alfastart = max(eigmx,-eigmn,zero)+safety_use
   end if
-end if
+  call getdxp_cvb(dxp,gradp,eigval,nnegeig,itdav,alfastart)
+  cnrm = dnrm2_(itdav,dxp,1)
+  if (alfastart == zero) exit
+  gnrm = dnrm2_(itdav,gradp,1)
+  if ((cnrm <= 1d-15) .or. (gnrm <= 1d-15) .or. (safety_use == 1d-4)) exit
+  ovr_dx_grad = ddot_(itdav,dxp,1,gradp,1)/(cnrm*gnrm)
+  if (ovr_dx_grad >= .3d0) exit
+  safety_use = 1d-4
+end do
 
 call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 

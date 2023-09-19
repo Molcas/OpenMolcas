@@ -22,6 +22,3 @@ istkprobe_cvb = (iarr(2) > 2)
 return
 
 end function istkprobe_cvb
-!***********************************
-!** Character string manipulation **
-!***********************************

@@ -16,6 +16,7 @@ subroutine fouti_cvb(fi,ni,a1,a2)
 
 implicit real*8(a-h,o-z)
 !logical l
+logical done
 character*(*) a1, a2
 character*15 b1
 character*46 b2
@@ -32,12 +33,17 @@ b2 = ' '
 ! Find IPOS : position of I index in string
 ichar0 = ichar('0')
 ichar9 = ichar('9')
+done = .false.
 do ipos=15,1,-1
-  if ((ichar(b1(ipos:ipos)) >= ichar0) .and. (ichar(b1(ipos:ipos)) <= ichar9)) goto 100
+  if ((ichar(b1(ipos:ipos)) >= ichar0) .and. (ichar(b1(ipos:ipos)) <= ichar9)) then
+    done = .true.
+    exit
+  end if
 end do
-write(6,*) ' Fatal error in FOUTI!'
-call abend_cvb()
-100 continue
+if (.not. done) then
+  write(6,*) ' Fatal error in FOUTI!'
+  call abend_cvb()
+end if
 do i=1,ni
   if (abs(fi(i)) /= huge) then
     write(b1(ipos:ipos),'(i1)') i

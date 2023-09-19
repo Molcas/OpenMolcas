@@ -24,6 +24,7 @@ dimension ioccswp(nbet,nswpdim)
 dimension locca(nel), lnocca(nel)
 dimension xdet(0:nel,0:nalf), xspin((nel+1)*(nalf+1)), iw(nel)
 dimension ialfs(nalf), ibets(nbet)
+integer rc
 save one
 data one/1.0d0/
 
@@ -49,11 +50,14 @@ do iorb=0,nbet2
 end do
 call imove_cvb(maxswp,nkswp,nbet2+1)
 iswp = 0
-1100 iswp = iswp+1
-do ia=1,nbet
-  ioccswp(ia,iswp) = nkswp(2*ia)-nkswp(2*ia-1)
+do
+  iswp = iswp+1
+  do ia=1,nbet
+    ioccswp(ia,iswp) = nkswp(2*ia)-nkswp(2*ia-1)
+  end do
+  call loop_cvb(nbet2,nkswp,minswp,maxswp,rc)
+  if (rc == 0) exit
 end do
-call loop_cvb(nbet2,nkswp,minswp,maxswp,*1100)
 
 ! Spin function weight arrays:
 do iorb=0,nel
@@ -71,58 +75,54 @@ call occupy_cvb(nkspn,nel,locca,lnocca)
 ! Loop:
 index = 1
 ! Determine pairings
-2100 continue
-if ((kbasis == 6) .and. (index > ifns)) goto 3300
-do ib=1,nbet
-  ibets(ib) = locca(ib)
-  do ia=nalf,1,-1
-    ialfs(ib) = lnocca(ia)
-    if (ialfs(ib) < ibets(ib)) then
-      do iachek=1,ib-1
-        if (ialfs(iachek) == ialfs(ib)) goto 2300
-      end do
-      goto 2500
-    end if
-2300 continue
-  end do
-2500 continue
-end do
-do ib=nbet+1,nalf
-  do ia=1,nalf
-    ialfs(ib) = lnocca(ia)
-    do iachek=1,ib-1
-      if (ialfs(iachek) == ialfs(ib)) goto 2700
+do while ((kbasis /= 6) .or. (index <= ifns))
+  do ib=1,nbet
+    ibets(ib) = locca(ib)
+    do ia=nalf,1,-1
+      ialfs(ib) = lnocca(ia)
+      if (ialfs(ib) < ibets(ib)) then
+        do iachek=1,ib-1
+          if (ialfs(iachek) == ialfs(ib)) exit
+        end do
+        if (iachek >= ib) exit
+      end if
     end do
-    goto 2600
-2700 continue
   end do
-2600 continue
+  do ib=nbet+1,nalf
+    do ia=1,nalf
+      ialfs(ib) = lnocca(ia)
+      do iachek=1,ib-1
+        if (ialfs(iachek) == ialfs(ib)) exit
+      end do
+      if (iachek >= ib) exit
+    end do
+  end do
+
+  if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(6,6200) index,(ialfs(ii),ibets(ii),ii=1,nbet)
+
+  if (kbasis == 4) then
+    bikvalue = one
+  else
+    bikvalue = abphase*party_cvb(ialfs,nalf)*party_cvb(ibets,nbet)
+  end if
+
+  do iswp=1,nswpdim
+    call izero(iw,nel)
+    do ia=1,nalf
+      iw(ialfs(ia)) = 1
+    end do
+    do ia=1,nbet
+      if (ioccswp(ia,iswp) /= 0) then
+        ! IA => alpha electron in position number 2 (= swap).
+        iw(ialfs(ia)) = 0
+        iw(ibets(ia)) = 1
+      end if
+    end do
+    bikcof(indget_cvb(iw,nalf,nel,xdet),index) = bikvalue
+  end do
+  call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,index,xspin,rc)
+  if (rc == 0) exit
 end do
-
-if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(6,6200) index,(ialfs(ii),ibets(ii),ii=1,nbet)
-
-if (kbasis == 4) then
-  bikvalue = one
-else
-  bikvalue = abphase*party_cvb(ialfs,nalf)*party_cvb(ibets,nbet)
-end if
-
-do iswp=1,nswpdim
-  call izero(iw,nel)
-  do ia=1,nalf
-    iw(ialfs(ia)) = 1
-  end do
-  do ia=1,nbet
-    if (ioccswp(ia,iswp) /= 0) then
-      ! IA => alpha electron in position number 2 (= swap).
-      iw(ialfs(ia)) = 0
-      iw(ibets(ia)) = 1
-    end if
-  end do
-  bikcof(indget_cvb(iw,nalf,nel,xdet),index) = bikvalue
-end do
-call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,index,xspin,*2100)
-3300 continue
 
 ! Normalise
 scale = one/sqrt(dble(2**nbet))

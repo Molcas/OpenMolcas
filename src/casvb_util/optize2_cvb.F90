@@ -45,32 +45,35 @@ exp_tc = exp
 first_time = .true.
 opth = .false.
 iopth = 0
-100 call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
-if (ioptc == -2) return
+do
+  call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
+  if (ioptc == -2) return
 
-! << Make update >>
-if (.not. (skipupd .or. (hh == zero))) then
+  ! << Make update >>
+  if (.not. (skipupd .or. (hh == zero))) then
 
-200 close2conv_begin = close2conv
+    do
+      close2conv_begin = close2conv
 
-  call optb(nparm,dxnrm,grdnrm,close2conv)
+      call optb(nparm,dxnrm,grdnrm,close2conv)
 
-  if (first_time) then
-    first_time = .false.
+      if (.not. first_time) exit
+      first_time = .false.
 
-    call testconv_cvb(fx,nparm,dx,grad,exp_tc,close2conv,converged,wrongstat)
+      call testconv_cvb(fx,nparm,dx,grad,exp_tc,close2conv,converged,wrongstat)
 
-    if (close2conv .and. (.not. close2conv_begin)) goto 200
+      if ((.not. close2conv) .or. close2conv_begin) exit
+    end do
+    if (((ip == 2) .and. (.not. opth)) .or. (ip >= 3)) then
+      s11 = ddot_(nparm,dx,1,dx,1)
+      s22 = ddot_(nparm,grad,1,grad,1)
+      s12 = ddot_(nparm,dx,1,grad,1)
+      write(6,formAD) ' Overlap between normalized vectors <DX|GRAD> :',s12/sqrt(s11*s22)
+    end if
+    call fxdx_cvb(fx,.false.,dx)
   end if
-  if (((ip == 2) .and. (.not. opth)) .or. (ip >= 3)) then
-    s11 = ddot_(nparm,dx,1,dx,1)
-    s22 = ddot_(nparm,grad,1,grad,1)
-    s12 = ddot_(nparm,dx,1,grad,1)
-    write(6,formAD) ' Overlap between normalized vectors <DX|GRAD> :',s12/sqrt(s11*s22)
-  end if
-  call fxdx_cvb(fx,.false.,dx)
-end if
-if (opth) goto 100
+  if (.not. opth) exit
+end do
 
 if ((ioptc >= -1) .and. (hh /= zero)) then
   if (ip >= 2) then

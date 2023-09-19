@@ -28,6 +28,7 @@ dimension coeff(0:nfrag), idetind(nfrag)
 dimension iapr(ndetvb), ixapr(ndavb)
 dimension ipr_off(nfrag), ixapr_off(nfrag), ixbpr_off(nfrag)
 dimension ndetvb_fr(nfrag)
+logical fail
 
 if (ic == 0) then
   call fzero(cvbdet,ndetvb)
@@ -76,94 +77,116 @@ nloop = nfrag
 nestlevel = 0
 call istkinit_cvb(istack,mxstack)
 
-! Here we go to the beginning of the next loop in the sequence:
-1000 continue
-if (nestlevel < nloop) then
-  nestlevel = nestlevel+1
-  iter = 0
-  mxiter = ndetvb_fr(nestlevel)
-  call istkpush_cvb(istack,iter)
-  call istkpush_cvb(istack,mxiter)
-end if
+outer: do
+  ! Here we go to the beginning of the next loop in the sequence:
+  if (nestlevel < nloop) then
+    nestlevel = nestlevel+1
+    iter = 0
+    mxiter = ndetvb_fr(nestlevel)
+    call istkpush_cvb(istack,iter)
+    call istkpush_cvb(istack,mxiter)
+  end if
 
-! Here we do the next loop iteration of the current loop:
-2000 if (nestlevel == 0) goto 3000
-call istkpop_cvb(istack,mxiter)
-call istkpop_cvb(istack,iter)
-iter = iter+1
-if (iter > mxiter) then
-  nestlevel = nestlevel-1
-  goto 2000
-else
-  call istkpush_cvb(istack,iter)
-  call istkpush_cvb(istack,mxiter)
-end if
-
-! Here goes the code specific to this loop level.
-idetvb = 0
-ixa = 0 ! dummy initialize
-do ia=1,nda_fr(nestlevel)
-  do ixa=ixapr(ia+ixapr_off(nestlevel)),ixapr(ia+1+ixapr_off(nestlevel))-1
-    idetvb = idetvb+1
-    if (idetvb == iter) goto 2200
+  ! Here we do the next loop iteration of the current loop:
+  do
+    if (nestlevel == 0) exit outer
+    call istkpop_cvb(istack,mxiter)
+    call istkpop_cvb(istack,iter)
+    iter = iter+1
+    if (iter > mxiter) then
+      nestlevel = nestlevel-1
+    else
+      call istkpush_cvb(istack,iter)
+      call istkpush_cvb(istack,mxiter)
+      exit
+    end if
   end do
-end do
-write(6,*) ' Error in DPCI2VB '
-call abend_cvb()
-2200 ib = iapr(ixa+ipr_off(nestlevel))
 
-idetind(nestlevel) = iter+ipr_off(nestlevel)
-if (((ic == 1) .and. (ic1 == 0)) .or. (ic == 3)) then
-  coeff(nestlevel) = coeff(nestlevel-1)*cvbdet(iter+ipr_off(nestlevel))
-else if (ic /= 4) then
-  coeff(nestlevel) = dvbdet(iter+ipr_off(nestlevel))
-end if
+  ! Here goes the code specific to this loop level.
+  idetvb = 0
+  ixa = 0 ! dummy initialize
+  fail = .true.
+  do ia=1,nda_fr(nestlevel)
+    do ixa=ixapr(ia+ixapr_off(nestlevel)),ixapr(ia+1+ixapr_off(nestlevel))-1
+      idetvb = idetvb+1
+      if (idetvb == iter) then
+        fail = .false.
+        exit
+      end if
+    end do
+  end do
+  if (fail) then
+    write(6,*) ' Error in DPCI2VB '
+    call abend_cvb()
+  end if
+  ib = iapr(ixa+ipr_off(nestlevel))
 
-ncindalf(nestlevel) = ncindalf(nestlevel-1)+nc_facalf(nestlevel)*(ia-1)
-ncindbet(nestlevel) = ncindbet(nestlevel-1)+nc_facbet(nestlevel)*(ib-1)
+  idetind(nestlevel) = iter+ipr_off(nestlevel)
+  if (((ic == 1) .and. (ic1 == 0)) .or. (ic == 3)) then
+    coeff(nestlevel) = coeff(nestlevel-1)*cvbdet(iter+ipr_off(nestlevel))
+  else if (ic /= 4) then
+    coeff(nestlevel) = dvbdet(iter+ipr_off(nestlevel))
+  end if
 
-if (nestlevel == nfrag) then
-  ia_ci = ia12ind(ncindalf(nestlevel))
-  if (ia_ci /= 0) then
-    ib_ci = ib12ind(ncindbet(nestlevel))
-    if (ib_ci /= 0) then
-      if (ic == 0) then
-        if (ic1 == 0) then
-          ! --  CI2VBC  --
-          cinrm = cinrm+civec(abs(ia_ci),abs(ib_ci))*civec(abs(ia_ci),abs(ib_ci))
-          if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-            do ifr=1,nfrag
-              cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))+civec(abs(ia_ci),abs(ib_ci))
-            end do
-          else
-            do ifr=1,nfrag
-              cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))-civec(abs(ia_ci),abs(ib_ci))
-            end do
-          end if
-        else if (ic1 == 2) then
-          ! --  CI2VBG  --
-          do ifr=1,nfrag
-            cf = 1d0
-            do jfr=1,nfrag
-              if (jfr /= ifr) cf = cf*coeff(jfr)
-            end do
+  ncindalf(nestlevel) = ncindalf(nestlevel-1)+nc_facalf(nestlevel)*(ia-1)
+  ncindbet(nestlevel) = ncindbet(nestlevel-1)+nc_facbet(nestlevel)*(ib-1)
+
+  if (nestlevel == nfrag) then
+    ia_ci = ia12ind(ncindalf(nestlevel))
+    if (ia_ci /= 0) then
+      ib_ci = ib12ind(ncindbet(nestlevel))
+      if (ib_ci /= 0) then
+        if (ic == 0) then
+          if (ic1 == 0) then
+            ! --  CI2VBC  --
+            cinrm = cinrm+civec(abs(ia_ci),abs(ib_ci))*civec(abs(ia_ci),abs(ib_ci))
             if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-              cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))+cf*civec(abs(ia_ci),abs(ib_ci))
+              do ifr=1,nfrag
+                cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))+civec(abs(ia_ci),abs(ib_ci))
+              end do
             else
-              cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))-cf*civec(abs(ia_ci),abs(ib_ci))
+              do ifr=1,nfrag
+                cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))-civec(abs(ia_ci),abs(ib_ci))
+              end do
             end if
-          end do
-        end if
-      else if (ic == 1) then
-        if (ic1 == 0) then
-          ! --  VB2CIC  --
-          if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-            civec(abs(ia_ci),abs(ib_ci)) = coeff(nestlevel)
-          else
-            civec(abs(ia_ci),abs(ib_ci)) = -coeff(nestlevel)
+          else if (ic1 == 2) then
+            ! --  CI2VBG  --
+            do ifr=1,nfrag
+              cf = 1d0
+              do jfr=1,nfrag
+                if (jfr /= ifr) cf = cf*coeff(jfr)
+              end do
+              if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
+                cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))+cf*civec(abs(ia_ci),abs(ib_ci))
+              else
+                cvbdet(idetind(ifr)) = cvbdet(idetind(ifr))-cf*civec(abs(ia_ci),abs(ib_ci))
+              end if
+            end do
           end if
-        else if (ic1 == 1) then
-          ! --  VB2CIF  --
+        else if (ic == 1) then
+          if (ic1 == 0) then
+            ! --  VB2CIC  --
+            if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
+              civec(abs(ia_ci),abs(ib_ci)) = coeff(nestlevel)
+            else
+              civec(abs(ia_ci),abs(ib_ci)) = -coeff(nestlevel)
+            end if
+          else if (ic1 == 1) then
+            ! --  VB2CIF  --
+            do ifr=1,nfrag
+              cf = 1d0
+              do jfr=1,nfrag
+                if (jfr /= ifr) cf = cf*coeff(jfr)
+              end do
+              if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
+                civec(abs(ia_ci),abs(ib_ci)) = civec(abs(ia_ci),abs(ib_ci))+cf*cvbdet(idetind(ifr))
+              else
+                civec(abs(ia_ci),abs(ib_ci)) = civec(abs(ia_ci),abs(ib_ci))-cf*cvbdet(idetind(ifr))
+              end if
+            end do
+          end if
+        else if (ic == 2) then
+          ! --  VB2CIAF  --
           do ifr=1,nfrag
             cf = 1d0
             do jfr=1,nfrag
@@ -175,58 +198,43 @@ if (nestlevel == nfrag) then
               civec(abs(ia_ci),abs(ib_ci)) = civec(abs(ia_ci),abs(ib_ci))-cf*cvbdet(idetind(ifr))
             end if
           end do
-        end if
-      else if (ic == 2) then
-        ! --  VB2CIAF  --
-        do ifr=1,nfrag
-          cf = 1d0
-          do jfr=1,nfrag
-            if (jfr /= ifr) cf = cf*coeff(jfr)
-          end do
+        else if (ic == 3) then
+          ! --   VB2CIDOT  --
           if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-            civec(abs(ia_ci),abs(ib_ci)) = civec(abs(ia_ci),abs(ib_ci))+cf*cvbdet(idetind(ifr))
+            ret = ret+civec(abs(ia_ci),abs(ib_ci))*coeff(nestlevel)
           else
-            civec(abs(ia_ci),abs(ib_ci)) = civec(abs(ia_ci),abs(ib_ci))-cf*cvbdet(idetind(ifr))
+            ret = ret-civec(abs(ia_ci),abs(ib_ci))*coeff(nestlevel)
           end if
-        end do
-      else if (ic == 3) then
-        ! --   VB2CIDOT  --
-        if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-          ret = ret+civec(abs(ia_ci),abs(ib_ci))*coeff(nestlevel)
-        else
-          ret = ret-civec(abs(ia_ci),abs(ib_ci))*coeff(nestlevel)
-        end if
-      else if (ic == 4) then
-        ! --  SETIAPR  --
-        civec(abs(ia_ci),abs(ib_ci)) = 1d0
-      else if (ic == 5) then
-        ! --  CI2ORDR  --
-        do ifr=1,nfrag
-          cf = 0d0
-          do jfr=1,nfrag
-            if (jfr /= ifr) then
-              cf2 = cvbdet(idetind(jfr))
-              do kfr=1,nfrag
-                if ((kfr /= ifr) .and. (kfr /= jfr)) cf2 = cf2*dvbdet(idetind(kfr))
-              end do
-              cf = cf+cf2
+        else if (ic == 4) then
+          ! --  SETIAPR  --
+          civec(abs(ia_ci),abs(ib_ci)) = 1d0
+        else if (ic == 5) then
+          ! --  CI2ORDR  --
+          do ifr=1,nfrag
+            cf = 0d0
+            do jfr=1,nfrag
+              if (jfr /= ifr) then
+                cf2 = cvbdet(idetind(jfr))
+                do kfr=1,nfrag
+                  if ((kfr /= ifr) .and. (kfr /= jfr)) cf2 = cf2*dvbdet(idetind(kfr))
+                end do
+                cf = cf+cf2
+              end if
+            end do
+            if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
+              evbdet(idetind(ifr)) = evbdet(idetind(ifr))+cf*civec(abs(ia_ci),abs(ib_ci))
+            else
+              evbdet(idetind(ifr)) = evbdet(idetind(ifr))-cf*civec(abs(ia_ci),abs(ib_ci))
             end if
           end do
-          if ((ia_ci > 0) .eqv. (ib_ci > 0)) then
-            evbdet(idetind(ifr)) = evbdet(idetind(ifr))+cf*civec(abs(ia_ci),abs(ib_ci))
-          else
-            evbdet(idetind(ifr)) = evbdet(idetind(ifr))-cf*civec(abs(ia_ci),abs(ib_ci))
-          end if
-        end do
+        end if
       end if
     end if
   end if
-end if
 
-goto 1000
+end do outer
 
 ! This is the end ...
-3000 continue
 
 if ((ic == 0) .and. (ic1 == 0)) then
   ! "Normalize" the coefficients for each fragment:

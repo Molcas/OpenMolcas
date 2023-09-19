@@ -52,26 +52,29 @@ subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer n, nm, ierr, matz
 real*8 a(nm,n), w(n), z(nm,n), fv1(n), fv2(n)
 
-if (n <= nm) go to 10
-ierr = 10*n
-go to 50
+if (n > nm) then
+  ierr = 10*n
+  return
+end if
 
-10 if (matz /= 0) go to 20
-! .......... find eigenvalues only ..........
-call tred1(nm,n,a,w,fv1,fv2)
-! tqlrat encounters catastrophic underflow on the Vax
-!call tqlrat(n,w,fv2,ierr)
-call tql1(n,w,fv1,ierr)
-go to 50
-! .......... find both eigenvalues and eigenvectors ..........
-20 call tred2(nm,n,a,w,fv1,z)
-call tql2(nm,n,w,fv1,z,ierr)
+if (matz /= 0) then
+  ! .......... find both eigenvalues and eigenvectors ..........
+  call tred2(nm,n,a,w,fv1,z)
+  call tql2(nm,n,w,fv1,z,ierr)
+else
+  ! .......... find eigenvalues only ..........
+  call tred1(nm,n,a,w,fv1,fv2)
+  ! tqlrat encounters catastrophic underflow on the Vax
+  !call tqlrat(n,w,fv2,ierr)
+  call tql1(n,w,fv1,ierr)
+end if
 
-50 return
+return
 
 end subroutine rs

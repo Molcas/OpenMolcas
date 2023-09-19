@@ -54,16 +54,18 @@ subroutine tql1(n,d,e,ierr)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, l, m, n, ii, l1, l2, mml, ierr
 real*8 d(n), e(n)
 real*8 c, c2, c3, dl1, el1, f, g, h, p, r, s, s2, tst1, tst2, pythag
+logical skip
 
 ierr = 0
 c3 = 0.0d0 ! dummy initialize
 s2 = 0.0d0 ! dummy initialize
-if (n == 1) go to 1001
+if (n == 1) return
 
 do i=2,n
   e(i-1) = e(i)
@@ -80,76 +82,83 @@ do l=1,n
   ! .......... look for small sub-diagonal element ..........
   do m=l,n
     tst2 = tst1+abs(e(m))
-    if (tst2 == tst1) go to 120
+    if (tst2 == tst1) exit
     ! .......... e(n) is always zero, so there is no exit through the bottom of the loop ..........
   end do
 
-120 if (m == l) go to 210
-130 if (j == 30) go to 1000
-  j = j+1
-  ! .......... form shift ..........
-  l1 = l+1
-  l2 = l1+1
-  g = d(l)
-  p = (d(l1)-g)/(2.0d0*e(l))
-  r = pythag(p,1.0d0)
-  d(l) = e(l)/(p+sign(r,p))
-  d(l1) = e(l)*(p+sign(r,p))
-  dl1 = d(l1)
-  h = g-d(l)
-  if (l2 > n) go to 145
+  if (m /= l) then
+    do
+      if (j == 30) then
+        ! .......... set error -- no convergence to an eigenvalue after 30 iterations ..........
+        ierr = l
+        return
+      end if
+      j = j+1
+      ! .......... form shift ..........
+      l1 = l+1
+      l2 = l1+1
+      g = d(l)
+      p = (d(l1)-g)/(2.0d0*e(l))
+      r = pythag(p,1.0d0)
+      d(l) = e(l)/(p+sign(r,p))
+      d(l1) = e(l)*(p+sign(r,p))
+      dl1 = d(l1)
+      h = g-d(l)
 
-  do i=l2,n
-    d(i) = d(i)-h
-  end do
+      do i=l2,n
+        d(i) = d(i)-h
+      end do
 
-145 f = f+h
-  ! .......... ql transformation ..........
-  p = d(m)
-  c = 1.0d0
-  c2 = c
-  el1 = e(l1)
-  s = 0.0d0
-  mml = m-l
-  ! .......... for i=m-1 step -1 until l do -- ..........
-  do ii=1,mml
-    c3 = c2
-    c2 = c
-    s2 = s
-    i = m-ii
-    g = c*e(i)
-    h = c*p
-    r = pythag(p,e(i))
-    e(i+1) = s*r
-    s = e(i)/r
-    c = p/r
-    p = c*d(i)-s*g
-    d(i+1) = h+s*(c*g+s*d(i))
-  end do
+      f = f+h
+      ! .......... ql transformation ..........
+      p = d(m)
+      c = 1.0d0
+      c2 = c
+      el1 = e(l1)
+      s = 0.0d0
+      mml = m-l
+      ! .......... for i=m-1 step -1 until l do -- ..........
+      do ii=1,mml
+        c3 = c2
+        c2 = c
+        s2 = s
+        i = m-ii
+        g = c*e(i)
+        h = c*p
+        r = pythag(p,e(i))
+        e(i+1) = s*r
+        s = e(i)/r
+        c = p/r
+        p = c*d(i)-s*g
+        d(i+1) = h+s*(c*g+s*d(i))
+      end do
 
-  p = -s*s2*c3*el1*e(l)/dl1
-  e(l) = s*p
-  d(l) = c*p
-  tst2 = tst1+abs(e(l))
-  if (tst2 > tst1) go to 130
-210 p = d(l)+f
+      p = -s*s2*c3*el1*e(l)/dl1
+      e(l) = s*p
+      d(l) = c*p
+      tst2 = tst1+abs(e(l))
+      if (tst2 <= tst1) exit
+    end do
+  end if
+  p = d(l)+f
   ! .......... order eigenvalues ..........
-  if (l == 1) go to 250
-  ! .......... for i=l step -1 until 2 do -- ..........
-  do ii=2,l
-    i = l+2-ii
-    if (p >= d(i-1)) go to 270
-    d(i) = d(i-1)
-  end do
+  skip = .false.
+  if (l /= 1) then
+    ! .......... for i=l step -1 until 2 do -- ..........
+    do ii=2,l
+      i = l+2-ii
+      if (p >= d(i-1)) then
+        skip = .true.
+        exit
+      end if
+      d(i) = d(i-1)
+    end do
+  end if
 
-250 i = 1
-270 d(i) = p
+  if (.not. skip) i = 1
+  d(i) = p
 end do
 
-go to 1001
-! .......... set error -- no convergence to an eigenvalue after 30 iterations ..........
-1000 ierr = l
-
-1001 return
+return
 
 end subroutine tql1

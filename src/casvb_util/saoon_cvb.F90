@@ -41,6 +41,3 @@ end if
 return
 
 end subroutine saoon_cvb
-!*******************************
-!** Vector sorting and search **
-!*******************************

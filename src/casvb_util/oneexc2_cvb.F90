@@ -42,9 +42,9 @@ end if
 iprm = 0
 do jorb=1,norb
   do iorb=1,norb
-    if ((iorb == jorb) .and. (.not. diag)) goto 1200
+    if ((iorb == jorb) .and. (.not. diag)) cycle
     iprm = iprm+1
-    if ((idens == 0) .and. (abs(vij(iprm)) < thresh)) goto 1200
+    if ((idens == 0) .and. (abs(vij(iprm)) < thresh)) cycle
     if (.not. sc) then
       ! a) Alpha excitation
       do ia=1,n1a
@@ -194,7 +194,6 @@ do jorb=1,norb
         end do
       end if
     end if
-1200 continue
   end do
 end do
 if (absym) then

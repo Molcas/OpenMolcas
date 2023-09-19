@@ -33,10 +33,10 @@ do ifrag=1,nfrag
   do iS=1,nS_fr(ifrag)
     if (i2s_fr(iS,ifrag) <= nelsing) then
       cvb(ifnss(nelsing,i2s_fr(iS,ifrag))+ioffs_cvb) = 1d0
-      goto 300
+      exit
     end if
   end do
-300 ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)
+  ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)
   icoffs_nconf = icoffs_nconf+nconf_fr(ifrag)
 end do
 kbasiscvb_kp = kbasiscvb
@@ -48,5 +48,3 @@ call vb2strc_cvb(cvbdet,cvb)
 return
 
 end subroutine ppgs2_cvb
-! Changes phases between alpha-beta separated determinants, and
-! determinants with increasing orbital numbers:

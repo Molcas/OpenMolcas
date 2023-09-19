@@ -23,6 +23,7 @@ logical, external :: valid_cvb
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
+logical done
 
 if (.not. valid_cvb(recinp_old)) then
   recinpcmp_cvb = .true.
@@ -38,14 +39,16 @@ else
     j1 = mstackr_cvb(joff2-joff1)
     call rdr_cvb(work(i1),ioff2-ioff1,recinp,ioff1)
     call rdr_cvb(work(j1),joff2-joff1,recinp_old,joff1)
+    done = .false.
     do i=0,ioff2-ioff1-1
       if (work(i+i1) /= work(i+j1)) then
         recinpcmp_cvb = .true.
-        goto 200
+        done = .true.
+        exit
       end if
     end do
-    recinpcmp_cvb = .false.
-200 call mfreer_cvb(i1)
+    if (.not. done) recinpcmp_cvb = .false.
+    call mfreer_cvb(i1)
   end if
 end if
 

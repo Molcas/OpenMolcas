@@ -16,6 +16,7 @@ subroutine foutij_cvb(fij,ni,nj,a1,a2)
 
 implicit real*8(a-h,o-z)
 !logical l
+logical done
 character*(*) a1, a2
 character*15 b1
 character*46 b2
@@ -32,18 +33,28 @@ b2 = ' '
 ! Find IPOS/JPOS : position of I/J indices in string
 ichar0 = ichar('0')
 ichar9 = ichar('9')
+done = .false.
 do jpos=15,1,-1
-  if ((ichar(b1(jpos:jpos)) >= ichar0) .and. (ichar(b1(jpos:jpos)) <= ichar9)) goto 200
+  if ((ichar(b1(jpos:jpos)) >= ichar0) .and. (ichar(b1(jpos:jpos)) <= ichar9)) then
+    done = .true.
+    exit
+  end if
 end do
-write(6,*) ' Fatal error in FOUTIJ!'
-call abend_cvb()
-200 continue
+if (.not. done) then
+  write(6,*) ' Fatal error in FOUTIJ!'
+  call abend_cvb()
+end if
+done = .false.
 do ipos=jpos-1,1,-1
-  if ((ichar(b1(ipos:ipos)) >= ichar0) .and. (ichar(b1(ipos:ipos)) <= ichar9)) goto 300
+  if ((ichar(b1(ipos:ipos)) >= ichar0) .and. (ichar(b1(ipos:ipos)) <= ichar9)) then
+    done = .true.
+    exit
+  end if
 end do
-write(6,*) ' Fatal error in FOUTIJ!'
-call abend_cvb()
-300 continue
+if (.not. done) then
+  write(6,*) ' Fatal error in FOUTIJ!'
+  call abend_cvb()
+end if
 do j=1,nj
   do i=1,ni
     if (abs(fij(i,j)) /= huge) then

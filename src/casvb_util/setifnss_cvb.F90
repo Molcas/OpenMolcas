@@ -29,14 +29,13 @@ call izero(ndetvbs,(nel+1)*(nel+1))
 do n=0,nel
   do nalfa=(n+1)/2,n
     nbeta = n-nalfa
-    if (nbeta > nalfa) goto 101
+    if (nbeta > nalfa) cycle
     call icomb_cvb(n,nbeta,iretval1)
     call icomb_cvb(n,nbeta-1,iretval2)
     ifnss1(n,nalfa-nbeta) = iretval1-iretval2
     call icomb_cvb(n,nalfa,ifnss2(n,nalfa-nbeta))
     if (nalfa == nbeta) ifnss2(n,nalfa-nbeta) = (ifnss2(n,nalfa-nbeta)+1)/2
     call icomb_cvb(n,nalfa,ndetvbs(n,nalfa))
-101 continue
   end do
 end do
 

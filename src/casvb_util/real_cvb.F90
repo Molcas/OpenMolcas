@@ -17,6 +17,7 @@ subroutine real_cvb(arr,nmax,nread,ifc)
 implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
 dimension arr(nmax)
+logical done
 
 call real_cvb_internal(arr)
 
@@ -34,31 +35,37 @@ subroutine real_cvb_internal(arr)
     return
   end if
   nread = 0
-  if (nmax <= 0) goto 2000
-  ! Treat first field differently
-  ifcuse = mod(ifc,4)
-  if (ifcuse >= 2) ifcuse = 2
-  call popfield_cvb(ifcuse)
-  call rdreal_cvb(arr(1),ierr)
-  if (ierr > 0) goto 1000
-  nread = nread+1
-
-  ifcuse = mod(ifc,2)
-  do i=2,nmax
+  if (nmax > 0) then
+    ! Treat first field differently
+    ifcuse = mod(ifc,4)
+    if (ifcuse >= 2) ifcuse = 2
     call popfield_cvb(ifcuse)
-    call rdreal_cvb(arr(i),ierr)
-    if (ierr > 0) goto 1000
-    nread = nread+1
-  end do
-  goto 2000
-1000 continue
-  ! Crash if invalid field and IFC +4:
-  if ((ierr == 4) .and. (ifc >= 4)) then
-    write(6,*) ' Invalid field found while reading real!'
-    call abend_cvb()
+    call rdreal_cvb(arr(1),ierr)
+    done = .false.
+    if (ierr <= 0) then
+      nread = nread+1
+
+      ifcuse = mod(ifc,2)
+      done = .true.
+      do i=2,nmax
+        call popfield_cvb(ifcuse)
+        call rdreal_cvb(arr(i),ierr)
+        if (ierr > 0) then
+          done = .false.
+          exit
+        end if
+        nread = nread+1
+      end do
+    end if
+    if (.not. done) then
+      ! Crash if invalid field and IFC +4:
+      if ((ierr == 4) .and. (ifc >= 4)) then
+        write(6,*) ' Invalid field found while reading real!'
+        call abend_cvb()
+      end if
+      call pushfield_cvb()
+    end if
   end if
-  call pushfield_cvb()
-2000 continue
   if (inputmode == 1) then
     call c_f_pointer(c_loc(arr(1)),iarr,[nread])
     call sethr_cvb(iarr,nread)

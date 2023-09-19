@@ -28,10 +28,13 @@ do i=1,nrec
   end if
 end do
 itry = 0
-200 itry = itry+1
-fileid_try = dble(itry)
-do i=1,nrec
-  if (fileid_try == fileids(i)) goto 200
+do
+  itry = itry+1
+  fileid_try = dble(itry)
+  do i=1,nrec
+    if (fileid_try == fileids(i)) exit
+  end do
+  if (i > nrec) exit
 end do
 nrec = nrec+1
 if (nrec > max_rec) then

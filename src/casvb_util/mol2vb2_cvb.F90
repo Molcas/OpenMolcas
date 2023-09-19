@@ -31,7 +31,7 @@ do isyma=1,mxirrep
   isymb = md2h(isyma,isyml)
   nnsa = nstra(isyma)
   nnsb = nstrb(isymb)
-  if ((nnsa <= 0) .or. (nnsb <= 0)) goto 500
+  if ((nnsa <= 0) .or. (nnsb <= 0)) cycle
 
   ioffsa = 0
   do is=1,isyma-1
@@ -56,7 +56,6 @@ do isyma=1,mxirrep
       end if
     end do
   end do
-500 continue
 end do
 
 return

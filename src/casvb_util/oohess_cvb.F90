@@ -54,23 +54,21 @@ if ((icrit == 1) .and. (.not. (proj .or. projcas))) then
   iprm1 = 0
   do iorb=1,norb
     do jorb=1,norb
-      if (jorb == iorb) goto 201
+      if (jorb == iorb) cycle
       iprm1 = iprm1+1
       ifr1 = jorb+(iorb-1)*norb
       iprm2 = 0
       do korb=1,norb
         do lorb=1,norb
-          if (lorb == korb) goto 301
+          if (lorb == korb) cycle
           iprm2 = iprm2+1
           ifr2 = korb+(lorb-1)*norb
           if (iprm2 <= iprm1) then
             hessorb(iprm2,iprm1) = hessorb(iprm2,iprm1)+oaa2_use*hesst(ifr2,ifr1)
             hessorb(iprm1,iprm2) = hessorb(iprm2,iprm1)
           end if
-301       continue
         end do
       end do
-201   continue
     end do
   end do
 else if (icrit == 1) then

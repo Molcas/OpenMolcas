@@ -50,16 +50,16 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !            DETERMINANT OF ORIGINAL MATRIX IF REQUESTED.
 !            OTHERWISE NOT REFERENCED.
 !            DETERMINANT = DET(1) * 10.0**DET(2)
-!            WITH  1.0 .LE. abs(DET(1)) .LT. 10.0
-!            OR  DET(1) .EQ. 0.0 .
+!            WITH  1.0 <= abs(DET(1)) < 10.0
+!            OR  DET(1) == 0.0 .
 !
 ! ERROR CONDITION
 !
 !    A DIVISION BY ZERO WILL OCCUR IF THE INPUT FACTOR CONTAINS
 !    A ZERO ON THE DIAGONAL AND THE INVERSE IS REQUESTED.
 !    IT WILL NOT OCCUR IF THE SUBROUTINES ARE CALLED CORRECTLY
-!    AND IF DGECO HAS SET RCOND .GT. 0.0 OR DGEFA HAS SET
-!    INFO .EQ. 0 .
+!    AND IF DGECO HAS SET RCOND > 0.0 OR DGEFA HAS SET
+!    INFO == 0 .
 !
 ! LINPACK. THIS VERSION DATED 08/14/78 .
 ! CLEVE MOLER, UNIVERSITY OF NEW MEXICO, ARGONNE NATIONAL LAB.
@@ -68,6 +68,8 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !
 ! BLAS DAXPY,DSCAL,DSWAP
 ! FORTRAN ABS,MOD
+!
+! Updated to Fortran 90+ (Sep. 2023)
 
 integer LDA, N, IPVT(N), JOB
 real*8 A(LDA,N), DET(2), W(*)
@@ -78,66 +80,64 @@ integer I, J, K, KB, KP1, L, NM1
 
 ! COMPUTE DETERMINANT
 
-if (JOB/10 == 0) GO TO 70
-DET(1) = 1.0d0
-DET(2) = 0.0d0
-TEN = 10.0d0
-do I=1,N
-  if (IPVT(I) /= I) DET(1) = -DET(1)
-  DET(1) = A(I,I)*DET(1)
-  ! ...EXIT
-  if (DET(1) == 0.0d0) GO TO 60
-10 if (abs(DET(1)) >= 1.0d0) GO TO 20
-  DET(1) = TEN*DET(1)
-  DET(2) = DET(2)-1.0d0
-  GO TO 10
-20 continue
-30 if (abs(DET(1)) < TEN) GO TO 40
-  DET(1) = DET(1)/TEN
-  DET(2) = DET(2)+1.0d0
-  GO TO 30
-40 continue
-end do
-60 continue
-70 continue
+if (JOB/10 /= 0) then
+  DET(1) = 1.0d0
+  DET(2) = 0.0d0
+  TEN = 10.0d0
+  do I=1,N
+    if (IPVT(I) /= I) DET(1) = -DET(1)
+    DET(1) = A(I,I)*DET(1)
+    ! ...EXIT
+    if (DET(1) == 0.0d0) exit
+    do
+      if (abs(DET(1)) >= 1.0d0) exit
+      DET(1) = TEN*DET(1)
+      DET(2) = DET(2)-1.0d0
+    end do
+    do
+      if (abs(DET(1)) < TEN) exit
+      DET(1) = DET(1)/TEN
+      DET(2) = DET(2)+1.0d0
+    end do
+  end do
+end if
 
 ! COMPUTE INVERSE(U)
 
-if (mod(JOB,10) == 0) GO TO 150
-do K=1,N
-  A(K,K) = 1.0d0/A(K,K)
-  T = -A(K,K)
-  call DSCAL_(K-1,T,A(1,K),1)
-  KP1 = K+1
-  if (N < KP1) GO TO 90
-  do J=KP1,N
-    T = A(K,J)
-    A(K,J) = 0.0d0
-    call DAXPY_(K,T,A(1,K),1,A(1,J),1)
+if (mod(JOB,10) /= 0) then
+  do K=1,N
+    A(K,K) = 1.0d0/A(K,K)
+    T = -A(K,K)
+    call DSCAL_(K-1,T,A(1,K),1)
+    KP1 = K+1
+    if (N < KP1) cycle
+    do J=KP1,N
+      T = A(K,J)
+      A(K,J) = 0.0d0
+      call DAXPY_(K,T,A(1,K),1,A(1,J),1)
+    end do
   end do
-90 continue
-end do
 
-! FORM INVERSE(U)*INVERSE(L)
+  ! FORM INVERSE(U)*INVERSE(L)
 
-NM1 = N-1
-if (NM1 < 1) GO TO 140
-do KB=1,NM1
-  K = N-KB
-  KP1 = K+1
-  do I=KP1,N
-    W(I) = A(I,K)
-    A(I,K) = 0.0d0
-  end do
-  do J=KP1,N
-    T = W(J)
-    call DAXPY_(N,T,A(1,J),1,A(1,K),1)
-  end do
-  L = IPVT(K)
-  if (L /= K) call DSWAP_(N,A(1,K),1,A(1,L),1)
-end do
-140 continue
-150 continue
+  NM1 = N-1
+  if (NM1 >= 1) then
+    do KB=1,NM1
+      K = N-KB
+      KP1 = K+1
+      do I=KP1,N
+        W(I) = A(I,K)
+        A(I,K) = 0.0d0
+      end do
+      do J=KP1,N
+        T = W(J)
+        call DAXPY_(N,T,A(1,J),1,A(1,K),1)
+      end do
+      L = IPVT(K)
+      if (L /= K) call DSWAP_(N,A(1,K),1,A(1,L),1)
+    end do
+  end if
+end if
 
 return
 

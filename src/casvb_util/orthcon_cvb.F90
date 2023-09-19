@@ -30,55 +30,99 @@ data string/'GROUP   ','ORTH    ','PAIRS   ','STRONG  ','FULL    ','END     ','E
 
 call izero(ipair,mxorb_cvb*mxorb_cvb)
 ngrp = 0
-2000 call fstring_cvb(string,nstrin,istr,ncmp,2)
-if (istr == 1) then
-  ! 'GROUP'
-  ngrp = ngrp+1
-  if (ngrp > mxgroup) then
-    write(6,*) ' Too many GROUP keywords in input!',mxgroup
-    call abend_cvb()
-  end if
-  glabel(ngrp) = ' '
-  call string_cvb(glabel(ngrp),1,nread,1)
-  if ((glabel(ngrp)(1:1) < 'A') .or. (glabel(ngrp)(1:1) > 'Z')) then
-    write(6,*) ' Group label must begin with a character A-Z: ',glabel(ngrp)
-    call abend_cvb()
-  end if
-  call int_cvb(igroups(1,ngrp),mxorb_cvb,ngroup(ngrp),0)
-  if (ngroup(ngrp) == -1) then
-    write(6,*) ' Too many elements for group ',glabel(ngrp)
-    call abend_cvb()
-  end if
-  do i=1,ngroup(ngrp)
-    if ((igroups(i,ngrp) < 1) .or. (igroups(i,ngrp) > mxorb_cvb)) then
-      write(6,*) ' Illegal orbital number in group ',glabel(ngrp),' :',igroups(i,ngrp)
+do
+  call fstring_cvb(string,nstrin,istr,ncmp,2)
+  if (istr == 1) then
+    ! 'GROUP'
+    ngrp = ngrp+1
+    if (ngrp > mxgroup) then
+      write(6,*) ' Too many GROUP keywords in input!',mxgroup
       call abend_cvb()
     end if
-  end do
-  do i=1,ngrp-1
-    if (glabel(ngrp) == glabel(i)) then
-      write(6,*) ' Repeated label in GROUP keywords : ',glabel(ngrp)
+    glabel(ngrp) = ' '
+    call string_cvb(glabel(ngrp),1,nread,1)
+    if ((glabel(ngrp)(1:1) < 'A') .or. (glabel(ngrp)(1:1) > 'Z')) then
+      write(6,*) ' Group label must begin with a character A-Z: ',glabel(ngrp)
       call abend_cvb()
     end if
-  end do
-else if (istr == 2) then
-  ! 'ORTH'
-  nsp = 0
-175 continue
-  call int_cvb(iorthlst(1+nsp),mxortl-nsp,nread,0)
-  nsp = nsp+nread
-  if (mxortl-nsp > 0) then
-    call fstring_cvb(glabel,ngrp,igrp,3,0)
-    if (igrp > 0) then
+    call int_cvb(igroups(1,ngrp),mxorb_cvb,ngroup(ngrp),0)
+    if (ngroup(ngrp) == -1) then
+      write(6,*) ' Too many elements for group ',glabel(ngrp)
+      call abend_cvb()
+    end if
+    do i=1,ngroup(ngrp)
+      if ((igroups(i,ngrp) < 1) .or. (igroups(i,ngrp) > mxorb_cvb)) then
+        write(6,*) ' Illegal orbital number in group ',glabel(ngrp),' :',igroups(i,ngrp)
+        call abend_cvb()
+      end if
+    end do
+    do i=1,ngrp-1
+      if (glabel(ngrp) == glabel(i)) then
+        write(6,*) ' Repeated label in GROUP keywords : ',glabel(ngrp)
+        call abend_cvb()
+      end if
+    end do
+  else if (istr == 2) then
+    ! 'ORTH'
+    nsp = 0
+    do
+      call int_cvb(iorthlst(1+nsp),mxortl-nsp,nread,0)
+      nsp = nsp+nread
+      if (mxortl-nsp <= 0) exit
+      call fstring_cvb(glabel,ngrp,igrp,3,0)
+      if (igrp <= 0) exit
       nsp = nsp+1
       iorthlst(nsp) = -igrp
-      if (mxortl-nsp > 0) goto 175
+      if (mxortl-nsp <= 0) exit
+    end do
+    do isp=1,nsp
+      do jsp=isp+1,nsp
+        ior = iorthlst(isp)
+        jor = iorthlst(jsp)
+        if ((ior > 0) .and. (jor > 0)) then
+          ipair(ior,jor) = 1
+        else if ((ior > 0) .and. (jor < 0)) then
+          jor2 = -jor
+          do jo=1,ngroup(jor2)
+            ipair(ior,igroups(jo,jor2)) = 1
+          end do
+        else if ((ior < 0) .and. (jor > 0)) then
+          ior2 = -ior
+          do io=1,ngroup(ior2)
+            ipair(jor,igroups(io,ior2)) = 1
+          end do
+        else if ((ior < 0) .and. (jor < 0)) then
+          ior2 = -ior
+          jor2 = -jor
+          do io=1,ngroup(ior2)
+            do jo=1,ngroup(jor2)
+              ipair(igroups(io,ior2),igroups(jo,jor2)) = 1
+            end do
+          end do
+        end if
+      end do
+    end do
+  else if (istr == 3) then
+    ! 'PAIRS'
+    nsp = 0
+    do
+      call int_cvb(ipairs(1+nsp,1),2*mxpair-nsp,nread,0)
+      nsp = nsp+nread
+      if (2*mxpair-nsp <= 0) exit
+      call fstring_cvb(glabel,ngrp,igrp,3,0)
+      if (igrp <= 0) exit
+      nsp = nsp+1
+      ipairs(nsp,1) = -igrp
+      if (mxortl-nsp <= 0) exit
+    end do
+    if (mod(nsp,2) == 1) then
+      write(6,*) ' Odd number of orthogonalization numbers in PAIRS!'
+      call abend_cvb()
     end if
-  end if
-  do isp=1,nsp
-    do jsp=isp+1,nsp
-      ior = iorthlst(isp)
-      jor = iorthlst(jsp)
+    npairs = nsp/2
+    do ipar=1,npairs
+      ior = ipairs(1,ipar)
+      jor = ipairs(2,ipar)
       if ((ior > 0) .and. (jor > 0)) then
         ipair(ior,jor) = 1
       else if ((ior > 0) .and. (jor < 0)) then
@@ -101,68 +145,24 @@ else if (istr == 2) then
         end do
       end if
     end do
-  end do
-else if (istr == 3) then
-  ! 'PAIRS'
-  nsp = 0
-975 continue
-  call int_cvb(ipairs(1+nsp,1),2*mxpair-nsp,nread,0)
-  nsp = nsp+nread
-  if (2*mxpair-nsp > 0) then
-    call fstring_cvb(glabel,ngrp,igrp,3,0)
-    if (igrp > 0) then
-      nsp = nsp+1
-      ipairs(nsp,1) = -igrp
-      if (mxortl-nsp > 0) goto 975
-    end if
-  end if
-  if (mod(nsp,2) == 1) then
-    write(6,*) ' Odd number of orthogonalization numbers in PAIRS!'
-    call abend_cvb()
-  end if
-  npairs = nsp/2
-  do ipar=1,npairs
-    ior = ipairs(1,ipar)
-    jor = ipairs(2,ipar)
-    if ((ior > 0) .and. (jor > 0)) then
-      ipair(ior,jor) = 1
-    else if ((ior > 0) .and. (jor < 0)) then
-      jor2 = -jor
-      do jo=1,ngroup(jor2)
-        ipair(ior,igroups(jo,jor2)) = 1
+  else if (istr == 4) then
+    ! 'STRONG'
+    do i=1,mxorb_cvb
+      do j=i+1,mxorb_cvb
+        if (.not. ((mod(i,2) == 1) .and. (j == i+1))) ipair(i,j) = 1
       end do
-    else if ((ior < 0) .and. (jor > 0)) then
-      ior2 = -ior
-      do io=1,ngroup(ior2)
-        ipair(jor,igroups(io,ior2)) = 1
-      end do
-    else if ((ior < 0) .and. (jor < 0)) then
-      ior2 = -ior
-      jor2 = -jor
-      do io=1,ngroup(ior2)
-        do jo=1,ngroup(jor2)
-          ipair(igroups(io,ior2),igroups(jo,jor2)) = 1
-        end do
-      end do
-    end if
-  end do
-else if (istr == 4) then
-  ! 'STRONG'
-  do i=1,mxorb_cvb
-    do j=i+1,mxorb_cvb
-      if (.not. ((mod(i,2) == 1) .and. (j == i+1))) ipair(i,j) = 1
     end do
-  end do
-else if (istr == 5) then
-  ! 'FULL'
-  do i=1,mxorb_cvb
-    do j=i+1,mxorb_cvb
-      ipair(i,j) = 1
+  else if (istr == 5) then
+    ! 'FULL'
+    do i=1,mxorb_cvb
+      do j=i+1,mxorb_cvb
+        ipair(i,j) = 1
+      end do
     end do
-  end do
-end if
-! 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input:
-if (.not. ((istr == 6) .or. (istr == 7) .or. (istr == 0))) goto 2000
+  end if
+  ! 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input:
+  if ((istr == 6) .or. (istr == 7) .or. (istr == 0)) exit
+end do
 call izero(ipairs,2*mxpair)
 nort = 0
 do i=1,mxorb_cvb

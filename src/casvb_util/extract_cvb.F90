@@ -28,15 +28,15 @@ i4 = mstackr_cvb(nbf*nvec)
 call svd_cvb(c,work(i1),work(i2),work(i3),nbf,nvec)
 
 if (mode < 2) then
-!  Determine NEXTRACT:
+  ! Determine NEXTRACT:
   do i=nvec,1,-1
-    if (work(i+i1-1) <= thr) goto 200
+    if (work(i+i1-1) <= thr) exit
   end do
-200 nextract = nvec-i
+  nextract = nvec-i
 end if
 call fmove_cvb(work(1+(nvec-nextract)*nbf+i2-1),c,nbf*nextract)
 if (mod(mode,2) == 1) then
-!  Apply same transformation to T:
+  ! Apply same transformation to T:
   call mxatb_cvb(t,work(i3),nbf,nvec,nvec,work(i4))
   do i=1,nvec
     call dscal_(nbf,1.d0/work(i+i1-1),work((i-1)*nbf+i4),1)

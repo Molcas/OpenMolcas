@@ -18,6 +18,7 @@ implicit real*8(a-h,o-w,y-z),integer(x)
 dimension detvec(ndet,nvec)
 dimension mindet(0:nel), maxdet(0:nel), nkdet(0:nel), xdet(0:nel,0:nalf)
 dimension locc(nel)
+integer rc
 
 do iorb=0,nel
   mindet(iorb) = max(iorb-nbet,0)
@@ -27,13 +28,12 @@ call weight_cvb(xdet,mindet,maxdet,nalf,nel)
 call imove_cvb(maxdet,nkdet,nel+1)
 call occupy_cvb(nkdet,nel,locc,locc(nalf+1))
 inddet = 1
-200 continue
-call dscal_(nvec,party_cvb(locc,nel),detvec(inddet,1),ndet)
-call loind_cvb(nel,nalf,nkdet,mindet,maxdet,locc,locc(nalf+1),inddet,xdet,*200)
+do
+  call dscal_(nvec,party_cvb(locc,nel),detvec(inddet,1),ndet)
+  call loind_cvb(nel,nalf,nkdet,mindet,maxdet,locc,locc(nalf+1),inddet,xdet,rc)
+  if (rc == 0) exit
+end do
 
 return
 
 end subroutine asc2ab2_cvb
-!  ********************************
-!  ** VB determinant information **
-!  ********************************

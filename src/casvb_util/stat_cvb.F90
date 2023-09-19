@@ -36,4 +36,3 @@ end if
 return
 
 end subroutine stat_cvb
-! Format statement settings:

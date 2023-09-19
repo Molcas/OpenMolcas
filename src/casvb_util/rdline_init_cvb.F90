@@ -21,6 +21,7 @@ logical blankdelim, variat
 #include "rdline.fh"
 parameter(nblank=2)
 character*1 blanks(nblank)
+integer istatus
 save blankdelim
 save blanks
 data blankdelim/.true./
@@ -28,16 +29,18 @@ data blanks/' ',','/
 
 if (variat) return
 rewind(inp)
-2100 read(inp,'(a)',end=2200) line
-lenline = len_trim_cvb(line)
-call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
-call upper_case_cvb(line,lenline)
-if (line(1:6) /= '&CASVB') goto 2100
-!if (.not. (((.not. blankdelim) .and. (line(1:10) == '&CASVB&END')) .or. (blankdelim .and. (line(1:11) == '&CASVB &END')))) goto 2100
-
-return
-
-2200 write(6,*) ' WARNING: Initiation string not found in input file.'
+do
+  read(inp,'(a)',iostat=istatus) line
+  if (istatus < 0) then
+    write(6,*) ' WARNING: Initiation string not found in input file.'
+    return
+  end if
+  lenline = len_trim_cvb(line)
+  call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
+  call upper_case_cvb(line,lenline)
+  if (line(1:6) == '&CASVB') exit
+  !if (((.not. blankdelim) .and. (line(1:10) == '&CASVB&END')) .or. (blankdelim .and. (line(1:11) == '&CASVB &END'))) exit
+end do
 
 return
 

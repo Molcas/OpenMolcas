@@ -16,12 +16,14 @@ subroutine projspn_cvb(bikcof,nel,nalf,nbet,ndet,ifns,minalf,maxalf,nkalf,minspn
                        xdet,xspin,iw,detphase)
 
 implicit real*8(a-h,o-w,y-z),integer(x)
+logical done, first
 dimension bikcof(ndet,ifns)
 dimension minalf(0:nel), maxalf(0:nel), nkalf(0:nel)
 dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
 dimension locswp(2*nbet), lnoswp(2*nbet), locca(nel), lnocca(nel)
 dimension ialfa(nalf), xdet(0:nel,0:nalf), xspin((nel+1)*(nalf+1))
 dimension iw(nel), detphase(ndet)
+integer rc
 
 ! Phase factors between alpha-beta separated determinants
 ! and determinants with ascending orbital numbers
@@ -49,28 +51,41 @@ call imove_cvb(maxalf,nkalf,nel+1)
 call occupy_cvb(nkalf,nel,locca,lnocca)
 ! Loop:
 index = 1
-! Skip first function
-goto 2200
-2300 inddet = 1
-! MAXSPN contains same elements as MAXALF
-call imove_cvb(maxspn,nkalf,nel+1)
-call occupy_cvb(nkalf,nel,locswp,lnoswp)
-2400 continue
-do i=1,nalf
-  ialfa(i) = iw(locswp(i))
-end do
-2600 continue
-do i=2,nalf
-  if (ialfa(i) < ialfa(i-1)) then
-    iswp = ialfa(i-1)
-    ialfa(i-1) = ialfa(i)
-    ialfa(i) = iswp
-    goto 2600
+first = .true.
+do
+  ! Skip first function
+  if (first) then
+    first = .false.
+  else
+    inddet = 1
+    ! MAXSPN contains same elements as MAXALF
+    call imove_cvb(maxspn,nkalf,nel+1)
+    call occupy_cvb(nkalf,nel,locswp,lnoswp)
+    do
+      do i=1,nalf
+        ialfa(i) = iw(locswp(i))
+      end do
+      do
+        done = .false.
+        do i=2,nalf
+          if (ialfa(i) < ialfa(i-1)) then
+            iswp = ialfa(i-1)
+            ialfa(i-1) = ialfa(i)
+            ialfa(i) = iswp
+            done = .true.
+            exit
+          end if
+        end do
+        if (.not. done) exit
+      end do
+      bikcof(minind_cvb(ialfa,nalf,nel,xdet),index) = bikcof(inddet,1)*detphase(inddet)*detphase(minind_cvb(ialfa,nalf,nel,xdet))
+      call loind_cvb(nel,nalf,nkalf,minalf,maxalf,locswp,lnoswp,inddet,xdet,rc)
+      if (rc == 0) exit
+    end do
   end if
+  call loind_cvb(nel,nalf,nkspn,minspn,maxspn,iw,iw(nalf+1),index,xspin,rc)
+  if (rc == 0) exit
 end do
-bikcof(minind_cvb(ialfa,nalf,nel,xdet),index) = bikcof(inddet,1)*detphase(inddet)*detphase(minind_cvb(ialfa,nalf,nel,xdet))
-call loind_cvb(nel,nalf,nkalf,minalf,maxalf,locswp,lnoswp,inddet,xdet,*2400)
-2200 call loind_cvb(nel,nalf,nkspn,minspn,maxspn,iw,iw(nalf+1),index,xspin,*2300)
 
 return
 

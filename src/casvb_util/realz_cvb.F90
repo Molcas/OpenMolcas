@@ -22,12 +22,14 @@ data nbuf/100/
 
 i1 = mstackr_cvb(nbuf)
 nread = 0
-100 call fzero(work(i1),nbuf)
-nleft = nmax-nread
-call real_cvb(work(i1),min(nbuf,nleft),nread1,ifc)
-call fmove_cvb(work(i1),arr(1+nread),nread1)
-nread = nread+nread1
-if (nread1 > 0) goto 100
+do
+  call fzero(work(i1),nbuf)
+  nleft = nmax-nread
+  call real_cvb(work(i1),min(nbuf,nleft),nread1,ifc)
+  call fmove_cvb(work(i1),arr(1+nread),nread1)
+  nread = nread+nread1
+  if (nread1 <= 0) exit
+end do
 call mfreer_cvb(i1)
 
 return

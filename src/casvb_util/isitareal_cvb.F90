@@ -15,18 +15,24 @@
 logical function isitareal_cvb(a)
 
 implicit real*8(a-h,o-z)
+logical done
 parameter(nallowed=17)
 character*(*) a
 character*(1) allowedchars(nallowed)
 data allowedchars/'+','-','0','1','2','3','4','5','6','7','8','9','.','E','e','D','d'/
 
+done = .false.
 do ich=1,len_trim_cvb(a)
   do j=1,nallowed
-    if (a(ich:ich) == allowedchars(j)) goto 100
+    if (a(ich:ich) == allowedchars(j)) then
+      done = .true.
+      exit
+    end if
   end do
-  isitareal_cvb = .false.
-  return
-100 continue
+  if (.not. done) then
+    isitareal_cvb = .false.
+    return
+  end if
 end do
 isitareal_cvb = .true.
 

@@ -38,7 +38,7 @@ eigmn = one
 if (nnegeig > 0) eigmx = eigval(nnegeig)
 if (nposeig > 0) eigmn = eigval(nnegeig+1)
 safety_use = safety
-!200 continue
+!do
 if ((eigmx < -signtol) .and. (eigmn > signtol)) then
   alfastart = zero
 else
@@ -46,17 +46,14 @@ else
 end if
 call getdxp_cvb(dxp,gradp,eigval,nnegeig,nparm,alfastart)
 cnrm = dnrm2_(nparm,dxp,1)
-!Increased level shift not necessary when full Hessian is calculated:
-!if (alfastart /= zero) then
+!  Increased level shift not necessary when full Hessian is calculated:
+!  if (alfastart == zero) exit
 !  gnrm = dnrm2_(nparm,gradp,1)
-!  if ((cnrm > 1d-15) .and. (gnrm > 1d-15) .and. (safety_use /= 1d-4)) then
-!    ovr_dx_grad = ddot_(nparm,dxp,1,gradp,1)/(cnrm*gnrm)
-!    if (ovr_dx_grad < .3d0) then
-!      safety_use = 1d-4
-!      goto 200
-!    end if
-!  end if
-!end if
+!  if ((cnrm <= 1d-15) .or. (gnrm <= 1d-15) .or. (safety_use == 1d-4)) exit
+!  ovr_dx_grad = ddot_(nparm,dxp,1,gradp,1)/(cnrm*gnrm)
+!  if (ovr_dx_grad >= .3d0) exit
+!  safety_use = 1d-4
+!end do
 
 call makedx_cvb(dx,nparm,0,eigvec,eigval,dxp,gradp,wrk,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 dxnrm = dnrm2_(nparm,dx,1)

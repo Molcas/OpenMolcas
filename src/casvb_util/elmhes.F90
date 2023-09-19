@@ -54,6 +54,7 @@ subroutine elmhes(nm,n,low,igh,a,int)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, m, n, la, nm, igh, kp1, low, mm1, mp1
@@ -63,7 +64,6 @@ integer int(igh)
 
 la = igh-1
 kp1 = low+1
-if (la < kp1) go to 200
 
 do m=kp1,la
   mm1 = m-1
@@ -71,33 +71,33 @@ do m=kp1,la
   i = m
 
   do j=m,igh
-    if (abs(a(j,mm1)) <= abs(x)) go to 100
+    if (abs(a(j,mm1)) <= abs(x)) cycle
     x = a(j,mm1)
     i = j
-100 continue
   end do
 
   int(m) = i
-  if (i == m) go to 130
-  ! .......... interchange rows and columns of a ..........
-  do j=mm1,n
-    y = a(i,j)
-    a(i,j) = a(m,j)
-    a(m,j) = y
-  end do
+  if (i /= m) then
+    ! .......... interchange rows and columns of a ..........
+    do j=mm1,n
+      y = a(i,j)
+      a(i,j) = a(m,j)
+      a(m,j) = y
+    end do
 
-  do j=1,igh
-    y = a(j,i)
-    a(j,i) = a(j,m)
-    a(j,m) = y
-  end do
-  ! .......... end interchange ..........
-130 if (x == 0.0d0) go to 180
+    do j=1,igh
+      y = a(j,i)
+      a(j,i) = a(j,m)
+      a(j,m) = y
+    end do
+    ! .......... end interchange ..........
+  end if
+  if (x == 0.0d0) cycle
   mp1 = m+1
 
   do i=mp1,igh
     y = a(i,mm1)
-    if (y == 0.0d0) go to 160
+    if (y == 0.0d0) cycle
     y = y/x
     a(i,mm1) = y
 
@@ -109,12 +109,10 @@ do m=kp1,la
       a(j,m) = a(j,m)+y*a(j,i)
     end do
 
-160 continue
   end do
 
-180 continue
 end do
 
-200 return
+return
 
 end subroutine elmhes

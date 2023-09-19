@@ -124,23 +124,22 @@ i2s_d = -1
 call izero(isymv,mxirrep)
 do i=1,nstsym_d
   do j=1,nstats_d(i)
-    if (weight_d(j,i) > 1.d-20) goto 900
+    if (weight_d(j,i) > 1.d-20) then
+      if ((nel_d /= -1) .and. (nel_d /= istnel_d(i))) then
+        write(6,*) ' Fatal error: ELEC varies in WF cards!'
+        call abend_cvb()
+      end if
+      if ((i2s_d /= -1) .and. (i2s_d /= istms2_d(i))) then
+        write(6,*) ' Fatal error: SPIN varies in WF cards!'
+        call abend_cvb()
+      end if
+      nel_d = istnel_d(i)
+      i2s_d = istms2_d(i)
+      isym_d = istsy_d(i)
+      isymv(isym_d) = 1
+      exit
+    end if
   end do
-  goto 700
-900 continue
-  if ((nel_d /= -1) .and. (nel_d /= istnel_d(i))) then
-    write(6,*) ' Fatal error: ELEC varies in WF cards!'
-    call abend_cvb()
-  end if
-  if ((i2s_d /= -1) .and. (i2s_d /= istms2_d(i))) then
-    write(6,*) ' Fatal error: SPIN varies in WF cards!'
-    call abend_cvb()
-  end if
-  nel_d = istnel_d(i)
-  i2s_d = istms2_d(i)
-  isym_d = istsy_d(i)
-  isymv(isym_d) = 1
-700 continue
 end do
 nsym = 0
 do is=1,mxirrep

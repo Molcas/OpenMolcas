@@ -29,6 +29,7 @@ dimension xalf2(0:norb,0:nalf-1), xbet2(0:norb,0:nbet-1)
 dimension mingrph(0:norb), maxgrph(0:norb)
 dimension nk(0:norb), locc(norb+1), lunocc(norb+1)
 dimension inewocc(norb), iaccm(norb)
+integer rc
 
 call izero(iafrm,nda*norb)
 call izero(ibfrm,ndb*norb)
@@ -46,24 +47,26 @@ call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
 index = 1
-200 continue
-call izero(inewocc,norb)
-do i=1,nalf
-  inewocc(locc(i)) = 1
+do
+  call izero(inewocc,norb)
+  do i=1,nalf
+    inewocc(locc(i)) = 1
+  end do
+  do iel=1,norb
+    if (inewocc(iel) == 1) then
+      iaccm(iel) = iaccm(iel)+1
+      i1alf(iaccm(iel),iel) = index
+    end if
+  end do
+  ! Indexing arrays:
+  do i=1,nalf
+    inewocc(locc(i)) = 0
+    iafrm(locc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
+    inewocc(locc(i)) = 1
+  end do
+  call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,index,xalf,rc)
+  if (rc == 0) exit
 end do
-do iel=1,norb
-  if (inewocc(iel) == 1) then
-    iaccm(iel) = iaccm(iel)+1
-    i1alf(iaccm(iel),iel) = index
-  end if
-end do
-! Indexing arrays:
-do i=1,nalf
-  inewocc(locc(i)) = 0
-  iafrm(locc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
-  inewocc(locc(i)) = 1
-end do
-call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,index,xalf,*200)
 ! Beta loop:
 call izero(iaccm,norb)
 do iorb=0,norb
@@ -74,24 +77,26 @@ call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
 index = 1
-500 continue
-call izero(inewocc,norb)
-do i=1,nbet
-  inewocc(locc(i)) = 1
+do
+  call izero(inewocc,norb)
+  do i=1,nbet
+    inewocc(locc(i)) = 1
+  end do
+  do iel=1,norb
+    if (inewocc(iel) == 1) then
+      iaccm(iel) = iaccm(iel)+1
+      i1bet(iaccm(iel),iel) = index
+    end if
+  end do
+  ! Indexing arrays:
+  do i=1,nbet
+    inewocc(locc(i)) = 0
+    ibfrm(locc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
+    inewocc(locc(i)) = 1
+  end do
+  call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,index,xbet,rc)
+  if (rc == 0) exit
 end do
-do iel=1,norb
-  if (inewocc(iel) == 1) then
-    iaccm(iel) = iaccm(iel)+1
-    i1bet(iaccm(iel),iel) = index
-  end if
-end do
-! Indexing arrays:
-do i=1,nbet
-  inewocc(locc(i)) = 0
-  ibfrm(locc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
-  inewocc(locc(i)) = 1
-end do
-call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,index,xbet,*500)
 
 ! Altered definitions of I1ALF & I1BET:
 do iorb=1,norb
@@ -123,69 +128,55 @@ call weight_cvb(xalf2,mingrph,maxgrph,nalf-1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
 index = 1
-1200 continue
-call izero(inewocc,norb)
-do i=1,nalf-1
-  inewocc(locc(i)) = 1
+do
+  call izero(inewocc,norb)
+  do i=1,nalf-1
+    inewocc(locc(i)) = 1
+  end do
+  do i=1,norb-nalf+1
+    inewocc(lunocc(i)) = 1
+    iato(lunocc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
+    inewocc(lunocc(i)) = 0
+    if (mod(nalf+i+1+lunocc(i),2) == 0) then
+      phato(lunocc(i),index) = one
+    else
+      phato(lunocc(i),index) = -one
+    end if
+  end do
+  call loind_cvb(norb,nalf-1,nk,mingrph,maxgrph,locc,lunocc,index,xalf2,rc)
+  if (rc == 0) exit
 end do
-do i=1,norb-nalf+1
-  inewocc(lunocc(i)) = 1
-  iato(lunocc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
-  inewocc(lunocc(i)) = 0
-  if (mod(nalf+i+1+lunocc(i),2) == 0) then
-    phato(lunocc(i),index) = one
-  else
-    phato(lunocc(i),index) = -one
-  end if
-end do
-call loind_cvb(norb,nalf-1,nk,mingrph,maxgrph,locc,lunocc,index,xalf2,*1200)
 
-if (nbet <= 0) goto 1700
-! Second beta loop (NBET-1):
-do iorb=0,norb
-  mingrph(iorb) = max(iorb-norb+nbet-1,0)
-  maxgrph(iorb) = min(iorb,nbet-1)
-end do
-call weight_cvb(xbet2,mingrph,maxgrph,nbet-1,norb)
-call imove_cvb(maxgrph,nk,norb+1)
-call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
-1500 continue
-call izero(inewocc,norb)
-do i=1,nbet-1
-  inewocc(locc(i)) = 1
-end do
-do i=1,norb-nbet+1
-  inewocc(lunocc(i)) = 1
-  ibto(lunocc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
-  inewocc(lunocc(i)) = 0
-  if (mod(nbet+i+1+lunocc(i),2) == 0) then
-    phbto(lunocc(i),index) = one
-  else
-    phbto(lunocc(i),index) = -one
-  end if
-end do
-call loind_cvb(norb,nbet-1,nk,mingrph,maxgrph,locc,lunocc,index,xbet2,*1500)
-1700 continue
+if (nbet > 0) then
+  ! Second beta loop (NBET-1):
+  do iorb=0,norb
+    mingrph(iorb) = max(iorb-norb+nbet-1,0)
+    maxgrph(iorb) = min(iorb,nbet-1)
+  end do
+  call weight_cvb(xbet2,mingrph,maxgrph,nbet-1,norb)
+  call imove_cvb(maxgrph,nk,norb+1)
+  call occupy_cvb(nk,norb,locc,lunocc)
+  index = 1
+  do
+    call izero(inewocc,norb)
+    do i=1,nbet-1
+      inewocc(locc(i)) = 1
+    end do
+    do i=1,norb-nbet+1
+      inewocc(lunocc(i)) = 1
+      ibto(lunocc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
+      inewocc(lunocc(i)) = 0
+      if (mod(nbet+i+1+lunocc(i),2) == 0) then
+        phbto(lunocc(i),index) = one
+      else
+        phbto(lunocc(i),index) = -one
+      end if
+    end do
+    call loind_cvb(norb,nbet-1,nk,mingrph,maxgrph,locc,lunocc,index,xbet2,rc)
+    if (rc == 0) exit
+  end do
+end if
 
 return
 
 end subroutine mkciinfo2_cvb
-!****************************************
-!** Routines involving CI, ORBS and VB **
-!****************************************
-!***********************************************************************
-!*                                                                     *
-!*  EXC1   := apply combination of single-excitations                  *
-!*  DENS1  := calculate one-electron (transition) density              *
-!*                                                                     *
-!*  :> Icfrom:    right-hand vector                                    *
-!*  :> Icto:      left-hand vector (dens1: input exc1: output)         *
-!*  :> vij:       Orbital matrix (exc1: input dens1: output)           *
-!*  :> diag:      Include diagonal of vij?                             *
-!*  :> iPvb:      Include Pvb (0: no, 1: on left, 2: on right)         *
-!*                                                                     *
-!*  :< Icto:      left-hand vector (dens1: input exc1: output)         *
-!*  :< vij:       Orbital matrix (exc1: input dens1: output)           *
-!*                                                                     *
-!***********************************************************************

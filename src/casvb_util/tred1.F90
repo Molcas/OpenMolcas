@@ -54,6 +54,7 @@ subroutine tred1(nm,n,a,d,e,e2)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, k, l, n, ii, nm, jp1
@@ -70,86 +71,87 @@ do ii=1,n
   l = i-1
   h = 0.0d0
   scale = 0.0d0
-  if (l < 1) go to 130
   ! .......... scale row (algol tol then not needed) ..........
   do k=1,l
     scale = scale+abs(d(k))
   end do
 
-  if (scale /= 0.0d0) go to 140
+  if (scale == 0.0d0) then
 
-  do j=1,l
-    d(j) = a(l,j)
-    a(l,j) = a(i,j)
-    a(i,j) = 0.0d0
-  end do
-
-130 e(i) = 0.0d0
-  e2(i) = 0.0d0
-  go to 300
-
-140 do k=1,l
-    d(k) = d(k)/scale
-    h = h+d(k)*d(k)
-  end do
-
-  e2(i) = scale*scale*h
-  f = d(l)
-  g = -sign(sqrt(h),f)
-  e(i) = scale*g
-  h = h-f*g
-  d(l) = f-g
-  if (l == 1) go to 285
-  ! .......... form a*u ..........
-  do j=1,l
-    e(j) = 0.0d0
-  end do
-
-  do j=1,l
-    f = d(j)
-    g = e(j)+a(j,j)*f
-    jp1 = j+1
-    if (l < jp1) go to 220
-
-    do k=jp1,l
-      g = g+a(k,j)*d(k)
-      e(k) = e(k)+a(k,j)*f
+    do j=1,l
+      d(j) = a(l,j)
+      a(l,j) = a(i,j)
+      a(i,j) = 0.0d0
     end do
 
-220 e(j) = g
-  end do
-  ! .......... form p ..........
-  f = 0.0d0
+    e(i) = 0.0d0
+    e2(i) = 0.0d0
 
-  do j=1,l
-    e(j) = e(j)/h
-    f = f+e(j)*d(j)
-  end do
+  else
 
-  h = f/(h+h)
-  ! .......... form q ..........
-  do j=1,l
-    e(j) = e(j)-h*d(j)
-  end do
-  ! .......... form reduced a ..........
-  do j=1,l
-    f = d(j)
-    g = e(j)
-
-    do k=j,l
-      a(k,j) = a(k,j)-f*e(k)-g*d(k)
+    do k=1,l
+      d(k) = d(k)/scale
+      h = h+d(k)*d(k)
     end do
 
-  end do
+    e2(i) = scale*scale*h
+    f = d(l)
+    g = -sign(sqrt(h),f)
+    e(i) = scale*g
+    h = h-f*g
+    d(l) = f-g
+    if (l /= 1) then
+      ! .......... form a*u ..........
+      do j=1,l
+        e(j) = 0.0d0
+      end do
 
-285 do j=1,l
-    f = d(j)
-    d(j) = a(l,j)
-    a(l,j) = a(i,j)
-    a(i,j) = f*scale
-  end do
+      do j=1,l
+        f = d(j)
+        g = e(j)+a(j,j)*f
+        jp1 = j+1
 
-300 continue
+        do k=jp1,l
+          g = g+a(k,j)*d(k)
+          e(k) = e(k)+a(k,j)*f
+        end do
+
+        e(j) = g
+      end do
+      ! .......... form p ..........
+      f = 0.0d0
+
+      do j=1,l
+        e(j) = e(j)/h
+        f = f+e(j)*d(j)
+      end do
+
+      h = f/(h+h)
+      ! .......... form q ..........
+      do j=1,l
+        e(j) = e(j)-h*d(j)
+      end do
+      ! .......... form reduced a ..........
+      do j=1,l
+        f = d(j)
+        g = e(j)
+
+        do k=j,l
+          a(k,j) = a(k,j)-f*e(k)-g*d(k)
+        end do
+
+      end do
+    end if
+
+    do j=1,l
+      f = d(j)
+      d(j) = a(l,j)
+      a(l,j) = a(i,j)
+      a(i,j) = f*scale
+    end do
+
+  end if
+
 end do
 
 return

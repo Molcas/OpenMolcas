@@ -46,6 +46,3 @@ call mfreer_cvb(i1)
 return
 
 end function detm_cvb
-!*******************************************
-!** Orthogonalisation, normalisation etc. **
-!*******************************************

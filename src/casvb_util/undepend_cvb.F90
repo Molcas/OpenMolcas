@@ -17,65 +17,74 @@ subroutine undepend_cvb(chr1,chr2)
 implicit real*8(a-h,o-z)
 character*(*) chr1, chr2
 #include "make_cvb.fh"
+logical done
 
 ic = 3
-50 continue
 
-iobj = 0
-jobj = 0
-do i=1,nobj
-  if (charobj(i) == chr1) iobj = i
-  if (charobj(i) == chr2) jobj = i
+do
+  iobj = 0
+  jobj = 0
+  do i=1,nobj
+    if (charobj(i) == chr1) iobj = i
+    if (charobj(i) == chr2) jobj = i
+  end do
+  if (iobj == 0) then
+    if (mustdeclare) then
+      write(6,*) ' Make object not found :',chr1
+      call abend_cvb()
+    end if
+    call decl_cvb(chr1)
+  else if (jobj == 0) then
+    if (mustdeclare) then
+      write(6,*) ' Make object not found :',chr2
+      call abend_cvb()
+    end if
+    call decl_cvb(chr2)
+  else
+    exit
+  end if
 end do
-if (iobj == 0) then
-  if (mustdeclare) then
-    write(6,*) ' Make object not found :',chr1
-    call abend_cvb()
-  end if
-  call decl_cvb(chr1)
-  goto 50
-end if
-if (jobj == 0) then
-  if (mustdeclare) then
-    write(6,*) ' Make object not found :',chr2
-    call abend_cvb()
-  end if
-  call decl_cvb(chr2)
-  goto 50
-end if
 
 if (iprint >= 10) write(6,*) ' Cancel I depends on J :',iobj,jobj
 n_cancelled = 0
 if (mod(ic,2) == 1) then
-190 continue
-  do i=ioffs(iobj)+1,ioffs(iobj+1)
-    if (i_dep_on_j(i) == jobj) then
-      do j=i,ioffs(nobj+1)-1
-        i_dep_on_j(j) = i_dep_on_j(j+1)
-      end do
-      do ii=iobj+1,nobj+1
-        ioffs(ii) = ioffs(ii)-1
-      end do
-      n_cancelled = n_cancelled+1
-      goto 190
-    end if
+  do
+    done = .false.
+    do i=ioffs(iobj)+1,ioffs(iobj+1)
+      if (i_dep_on_j(i) == jobj) then
+        do j=i,ioffs(nobj+1)-1
+          i_dep_on_j(j) = i_dep_on_j(j+1)
+        end do
+        do ii=iobj+1,nobj+1
+          ioffs(ii) = ioffs(ii)-1
+        end do
+        n_cancelled = n_cancelled+1
+        done = .true.
+        exit
+      end if
+    end do
+    if (.not. done) exit
   end do
 end if
 
 m_cancelled = 0
 if (ic >= 2) then
-490 continue
-  do i=joffs(jobj)+1,joffs(jobj+1)
-    if (j_dep_on_i(i) == iobj) then
-      do j=i,joffs(nobj+1)-1
-        j_dep_on_i(j) = j_dep_on_i(j+1)
-      end do
-      do ii=jobj+1,nobj+1
-        joffs(ii) = joffs(ii)-1
-      end do
-      m_cancelled = m_cancelled+1
-      goto 490
-    end if
+  do
+    done = .false.
+    do i=joffs(jobj)+1,joffs(jobj+1)
+      if (j_dep_on_i(i) == iobj) then
+        do j=i,joffs(nobj+1)-1
+          j_dep_on_i(j) = j_dep_on_i(j+1)
+        end do
+        do ii=jobj+1,nobj+1
+          joffs(ii) = joffs(ii)-1
+        end do
+        m_cancelled = m_cancelled+1
+        done = .true.
+        exit
+      end if
+    end do
+    if (.not. done) exit
   end do
 end if
 

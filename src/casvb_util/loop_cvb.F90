@@ -12,27 +12,29 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine loop_cvb(nel,nk,nkmin,nkmax,*)
+subroutine loop_cvb(nel,nk,nkmin,nkmax,rc)
 
+integer rc
 dimension nk(0:nel), nkmin(0:nel), nkmax(0:nel)
 
+rc = 0
 do iel=1,nel-1
   ik = nk(iel)
   ! Tests: (1) IK+1 OCCUPIED; (2) IK NOT OCCUPIED; (3) IK MINIMAL
-  if (.not. ((nk(iel+1)-ik == 1) .or. (ik == nk(iel-1)) .or. (ik == nkmin(iel)))) goto 1200
+  if (.not. ((nk(iel+1)-ik == 1) .or. (ik == nk(iel-1)) .or. (ik == nkmin(iel)))) then
+    ! SITUATION IS :  IEL       \     <= NOT MINIMAL
+    !                 IEL+1     |
+    nk(iel) = ik-1
+    do jel=1,iel-1
+      nk(jel) = min(nkmax(jel),ik-1)
+    end do
+    rc = 1
+    return
+  end if
 end do
 ! Maximize the loop on exit
 call imove_cvb(nkmax,nk,nel)
 
 return
-
-! SITUATION IS :  IEL       \     <= NOT MINIMAL
-!                 IEL+1     |
-1200 nk(iel) = ik-1
-do jel=1,iel-1
-  nk(jel) = min(nkmax(jel),ik-1)
-end do
-
-return 1
 
 end subroutine loop_cvb

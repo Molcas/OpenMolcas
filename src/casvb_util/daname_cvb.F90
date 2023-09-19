@@ -24,15 +24,13 @@ external find_lu, isfreeunit, is_opened
 ilu = find_lu(fname)
 if (ilu > 0) then
   lu = ilu
-  goto 1000
-end if
-find_unused = (lu < 1)
-if (.not. find_unused) find_unused = is_opened(lu)
-if (find_unused) then
-  ilu = isfreeunit(10)
+else
+  find_unused = (lu < 1)
+  if (.not. find_unused) find_unused = is_opened(lu)
+  if (find_unused) ilu = isfreeunit(10)
 end if
 
-1000 if (is_opened(lu)) then
+if (is_opened(lu)) then
   i_open = 1
 else
   i_open = 0

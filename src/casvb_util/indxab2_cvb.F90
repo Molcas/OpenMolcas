@@ -30,36 +30,37 @@ indb = 0
 do iisym=1,mxirrep
 
   call loopstr0_cvb(iocc,index,nalf,norb)
-400 continue
-  irp = 1
-  do ia=1,nalf
-    irp = md2h(irp,ityp(iocc(ia)))
+  do
+    irp = 1
+    do ia=1,nalf
+      irp = md2h(irp,ityp(iocc(ia)))
+    end do
+    if (irp == iisym) then
+      inda = inda+1
+      nstra(iisym) = nstra(iisym)+1
+      indxa(inda) = index
+    end if
+    call loopstr_cvb(iocc,index,nalf,norb)
+    if (index == 1) exit
   end do
-  if (irp /= iisym) goto 600
-  inda = inda+1
-  nstra(iisym) = nstra(iisym)+1
-  indxa(inda) = index
-600 call loopstr_cvb(iocc,index,nalf,norb)
-  if (index /= 1) goto 400
 
   call loopstr0_cvb(iocc,index,nbet,norb)
-700 continue
-  irp = 1
-  do ib=1,nbet
-    irp = md2h(irp,ityp(iocc(ib)))
+  do
+    irp = 1
+    do ib=1,nbet
+      irp = md2h(irp,ityp(iocc(ib)))
+    end do
+    if (irp == iisym) then
+      indb = indb+1
+      nstrb(iisym) = nstrb(iisym)+1
+      indxb(indb) = index
+    end if
+    call loopstr_cvb(iocc,index,nbet,norb)
+    if (index == 1) exit
   end do
-  if (irp /= iisym) goto 900
-  indb = indb+1
-  nstrb(iisym) = nstrb(iisym)+1
-  indxb(indb) = index
-900 call loopstr_cvb(iocc,index,nbet,norb)
-  if (index /= 1) goto 700
 
 end do
 
 return
 
 end subroutine indxab2_cvb
-!*************************
-!** MOs, read and write **
-!*************************

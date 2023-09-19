@@ -37,7 +37,7 @@ subroutine optize_cvb(fx,ioptc,iter,imetinp,isadinp,mxiter,maxinp,corenrg,ipinp,
 !***********************************************************************
 
 implicit real*8(a-h,o-z)
-logical maxinp, iter_is_1, strucopt
+logical maxinp, iter_is_1, strucopt, done
 #include "WrkSpc.fh"
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
@@ -76,6 +76,7 @@ end if
 
 call fx_cvb(fx,.false.)
 fxbest = fx
+done = .false.
 do iter=1,mxiter
   iter_is_1 = (iter == 1)
   call getfree_cvb(nparm,n_div,nfrdim,iter,fx)
@@ -172,10 +173,13 @@ do iter=1,mxiter
     write(6,*) ' Unrecognized optimization algorithm!',imethod
     call abend_cvb()
   end if
-  if (ioptc <= 0) goto 1100
+  if (ioptc <= 0) then
+    done = .true.
+    exit
+  end if
 end do
-iter = iter-1
-1100 if (ioptc >= 0) call getfree_cvb(nparm,n_div,nfrdim,-1,fx)
+if (.not. done) iter = iter-1
+if (ioptc >= 0) call getfree_cvb(nparm,n_div,nfrdim,-1,fx)
 if ((iter == mxiter) .and. (ioptc > 0)) ioptc = -1
 
 return

@@ -37,32 +37,33 @@ else
 end if
 skip = ((resthr_use == resthr_old) .and. have_solved_it)
 resthr_old = resthr_use
-if (skip) goto 100
-call axex_cvb(asonc7_cvb,ddres2upd7_cvb,dx,resthr_use,ioptc2,iter2,fx_exp)
-have_solved_it = .true.
-exp = .5d0*fx_exp
+if (.not. skip) then
+  call axex_cvb(asonc7_cvb,ddres2upd7_cvb,dx,resthr_use,ioptc2,iter2,fx_exp)
+  have_solved_it = .true.
+  exp = .5d0*fx_exp
 
-if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
+  if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
 
-if (ioptc2 /= 0) then
-  write(6,*) ' Direct diagonalization not converged!'
-  call abend_cvb()
-end if
+  if (ioptc2 /= 0) then
+    write(6,*) ' Direct diagonalization not converged!'
+    call abend_cvb()
+  end if
 
-if (ip >= 2) then
-  write(6,'(a)') ' Eigenvector to be followed :'
-  call vecprint_cvb(dx,nparm+1)
+  if (ip >= 2) then
+    write(6,'(a)') ' Eigenvector to be followed :'
+    call vecprint_cvb(dx,nparm+1)
+  end if
+  if (abs(dx(1)) > 1d-8) then
+    fac1 = one/dx(1)
+  else
+    fac1 = sign(one,dx(1))
+  end if
+  call dscal_(nparm,fac1,dx(1),1)
+  do i=1,nparm
+    dx(i) = dx(i+1)
+  end do
 end if
-if (abs(dx(1)) > 1d-8) then
-  fac1 = one/dx(1)
-else
-  fac1 = sign(one,dx(1))
-end if
-call dscal_(nparm,fac1,dx(1),1)
-do i=1,nparm
-  dx(i) = dx(i+1)
-end do
-100 dxnrm = dnrm2_(nparm,dx,1)
+dxnrm = dnrm2_(nparm,dx,1)
 if (.not. close2conv) then
   ipu = 1
 else

@@ -25,4 +25,3 @@ ihlf_cvb = (nints+idbl-1)/idbl
 return
 
 end function ihlf_cvb
-! -- Initialization of casvb memory manager ---

@@ -28,6 +28,7 @@ dimension mingrph(0:norb), maxgrph(0:norb)
 dimension nk(0:norb), locc(norb+1), lunocc(norb+1)
 dimension xalf(0:norb,0:nalf1), xbet(0:norb,0:nbet1)
 dimension icount(mxirrep)
+integer rc
 
 ! Alpha loop:
 call izero(irpalf,mxirrep)
@@ -39,14 +40,16 @@ call weight_cvb(xalf,mingrph,maxgrph,nalf1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
 index = 1
-200 continue
-irp = 1
-do ia=1,nalf1
-  irp = md2h(irp,ityp(locc(ia)))
+do
+  irp = 1
+  do ia=1,nalf1
+    irp = md2h(irp,ityp(locc(ia)))
+  end do
+  irpalf(irp) = irpalf(irp)+1
+  ialfsym(index) = irp
+  call loind_cvb(norb,nalf1,nk,mingrph,maxgrph,locc,lunocc,index,xalf,rc)
+  if (rc == 0) exit
 end do
-irpalf(irp) = irpalf(irp)+1
-ialfsym(index) = irp
-call loind_cvb(norb,nalf1,nk,mingrph,maxgrph,locc,lunocc,index,xalf,*200)
 iasyind(0) = 0
 do irp=1,mxirrep
   iasyind(irp) = iasyind(irp-1)+irpalf(irp)
@@ -68,14 +71,16 @@ call weight_cvb(xbet,mingrph,maxgrph,nbet1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
 index = 1
-400 continue
-irp = 1
-do ib=1,nbet1
-  irp = md2h(irp,ityp(locc(ib)))
+do
+  irp = 1
+  do ib=1,nbet1
+    irp = md2h(irp,ityp(locc(ib)))
+  end do
+  irpbet(irp) = irpbet(irp)+1
+  ibetsym(index) = irp
+  call loind_cvb(norb,nbet1,nk,mingrph,maxgrph,locc,lunocc,index,xbet,rc)
+  if (rc == 0) exit
 end do
-irpbet(irp) = irpbet(irp)+1
-ibetsym(index) = irp
-call loind_cvb(norb,nbet1,nk,mingrph,maxgrph,locc,lunocc,index,xbet,*400)
 ibsyind(0) = 0
 do irp=1,mxirrep
   ibsyind(irp) = ibsyind(irp-1)+irpbet(irp)

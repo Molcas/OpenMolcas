@@ -41,32 +41,33 @@ else
 end if
 skip = ((resthr_use == resthr_old) .and. have_solved_it)
 resthr_old = resthr_use
-if (skip) goto 100
 
-call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
+if (.not. skip) then
+  call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 
-call axesx_cvb(asonc12e_cvb,ddres2upd10_cvb,dx,resthr_use,ioptc2,iter2,fx_exp)
-exp = fx_exp-fxbest
-have_solved_it = .true.
+  call axesx_cvb(asonc12e_cvb,ddres2upd10_cvb,dx,resthr_use,ioptc2,iter2,fx_exp)
+  exp = fx_exp-fxbest
+  have_solved_it = .true.
 
-if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
+  if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
 
-if (strucopt) then
-  cnrm2 = ddot_(nvb,cvb,1,dx(nfrorb+1),1)
-  ! "Orthogonalize" on CVB to get smallest possible update norm:
-  call daxpy_(nvb,-cnrm2,cvb,1,dx(nfrorb+1),1)
-  ! Scale variables according to overlap with CVB:
-  call dscal_(nparm1,one/cnrm2,dx,1)
-else
-  ! We are doing "Augmented" calc:
-  fac = one/dx(1)
-  ! Scale variables according to overlap with CVB:
-  do i=1,nparm1-1
-    dx(i) = fac*dx(i+1)
-  end do
+  if (strucopt) then
+    cnrm2 = ddot_(nvb,cvb,1,dx(nfrorb+1),1)
+    ! "Orthogonalize" on CVB to get smallest possible update norm:
+    call daxpy_(nvb,-cnrm2,cvb,1,dx(nfrorb+1),1)
+    ! Scale variables according to overlap with CVB:
+    call dscal_(nparm1,one/cnrm2,dx,1)
+  else
+    ! We are doing "Augmented" calc:
+    fac = one/dx(1)
+    ! Scale variables according to overlap with CVB:
+    do i=1,nparm1-1
+      dx(i) = fac*dx(i+1)
+    end do
+  end if
 end if
 
-100 dxnrm = dnrm2_(nparm1,dx,1)
+dxnrm = dnrm2_(nparm1,dx,1)
 if (.not. close2conv) then
   ipu = 1
 else

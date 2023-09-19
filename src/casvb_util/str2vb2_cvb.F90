@@ -43,7 +43,7 @@ idadd = 0
 isadd = 0
 iconfadd = 0
 do ion=0,nel/2
-  if (nconfion(ion) == 0) goto 201
+  if (nconfion(ion) == 0) cycle
   nelsing = nel-2*ion
   ! Investigate different S and Ms possibilities and
   ! prepare to collect different BIKCOF matrices if necessary:
@@ -73,7 +73,7 @@ do ion=0,nel/2
         do iMs=1,nMs
           nalfsing = nalf1(iMs)-ion
           if (nalfsing >= 0) then
-            if (nalfsing /= nalfsing_det) goto 600
+            if (nalfsing /= nalfsing_det) cycle
             if (iway == 1) then
               do idet=1,ifnss(nelsing,i2s(iS))
                 if ((i2s(iS) == 0) .and. absym .and. (ndetvbs(nelsing,nalfsing) /= 1)) then
@@ -93,7 +93,6 @@ do ion=0,nel/2
               end do
             end if
           end if
-600       continue
         end do
       end if
     end do
@@ -138,7 +137,7 @@ do ion=0,nel/2
   end if
   isadd = isadd+nconfion(ion)*n_spin
   idadd = idadd+nconfion(ion)*n_det
-201 iconfadd = iconfadd+nconfion(ion)
+  iconfadd = iconfadd+nconfion(ion)
 end do
 if (iway == 2) then
   do idet=1,ndetvb

@@ -31,15 +31,16 @@ if (ndetto /= xdetto(nel,nalfto)) then
 end if
 
 call loopstr0_cvb(ioccfrom,indfrom,nalffrom,nel)
-100 continue
-call imove_cvb(ioccfrom(2),ioccto,nalfto)
-do iexc=1,nalffrom
-  indto = minind_cvb(ioccto,nalfto,nel,xdetto)
-  call daxpy_(nvec,1d0,bikfrom(indfrom,1),ndetfrom,bikto(indto,1),ndetto)
-  if (iexc < nalffrom) ioccto(iexc) = ioccfrom(iexc)
+do
+  call imove_cvb(ioccfrom(2),ioccto,nalfto)
+  do iexc=1,nalffrom
+    indto = minind_cvb(ioccto,nalfto,nel,xdetto)
+    call daxpy_(nvec,1d0,bikfrom(indfrom,1),ndetfrom,bikto(indto,1),ndetto)
+    if (iexc < nalffrom) ioccto(iexc) = ioccfrom(iexc)
+  end do
+  call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)
+  if (indfrom == 1) exit
 end do
-call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)
-if (indfrom /= 1) goto 100
 
 return
 

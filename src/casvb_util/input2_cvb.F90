@@ -180,8 +180,7 @@ if (inputmode == 2) then
   ! IORBREL
   ifrom = 1
   ito = 1
-600 continue
-  if (ifrom <= ndimrel) then
+  do while (ifrom <= ndimrel)
     iorb = iorbrel(ifrom)
     jorb = iorbrel(ifrom+1)
     nmov = 3+iorbrel(ifrom+2)
@@ -190,8 +189,7 @@ if (inputmode == 2) then
       ito = ito+nmov
     end if
     ifrom = ifrom+nmov
-    goto 600
-  end if
+  end do
   ndimrel = ito-1
   ! IFXSTR
   ito = 0

@@ -32,7 +32,7 @@ if (iwr == 0) call fzero(work(iaddr_ci(icivec)),ndet)
 icioffs = 0
 do istsym_d=1,nstsym_d
   isyml = istsy_d(istsym_d)
-  if (isymv(isyml) /= 1) goto 1000
+  if (isymv(isyml) /= 1) cycle
   call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),istsy_d(istsym_d))
   nci = ncix(1)
   lcim = mstackr_cvb(nci)
@@ -55,7 +55,6 @@ do istsym_d=1,nstsym_d
     end do
   end if
   call mfreer_cvb(lcim)
-1000 continue
 end do
 
 return

@@ -18,37 +18,41 @@ implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
 character*(*) arr(nmax)
 character*100 string
+logical done
 
 if (inputmode == 2) then
   call geths_cvb(arr,nread)
   return
 end if
 nread = 0
-if (nmax <= 0) goto 2000
 
-! Treat first field differently
-ifcuse = mod(ifc,4)
-if (ifcuse >= 2) ifcuse = 2
-call popfield_cvb(ifcuse)
-call rdstring_cvb(string,ierr)
-if (ierr > 0) goto 1000
-arr(1) = string
-nread = nread+1
-
-ifcuse = mod(ifc,2)
-do i=2,nmax
+if (nmax > 0) then
+  ! Treat first field differently
+  ifcuse = mod(ifc,4)
+  if (ifcuse >= 2) ifcuse = 2
   call popfield_cvb(ifcuse)
   call rdstring_cvb(string,ierr)
-  if (ierr > 0) goto 1000
-  arr(i) = string
-  nread = nread+1
-end do
-goto 2000
-1000 call pushfield_cvb()
-2000 continue
-if (inputmode == 1) then
-  call seths_cvb(arr,nread)
+  done = .false.
+  if (ierr <= 0) then
+    arr(1) = string
+    nread = nread+1
+
+    ifcuse = mod(ifc,2)
+    done = .true.
+    do i=2,nmax
+      call popfield_cvb(ifcuse)
+      call rdstring_cvb(string,ierr)
+      if (ierr > 0) then
+        done = .false.
+        exit
+      end if
+      arr(i) = string
+      nread = nread+1
+    end do
+  end if
+  if (.not. done) call pushfield_cvb()
 end if
+if (inputmode == 1) call seths_cvb(arr,nread)
 
 return
 

@@ -18,6 +18,7 @@ implicit real*8(a-h,o-z)
 dimension a(n,n)
 dimension lrow(n), lcol(n), ibook(n)
 dimension irows(n), ijs(2,n*n), oijs(n*n)
+logical done
 save zero, one, thresh
 data zero/0.d0/,one/1.d0/,thresh/1.d-10/
 
@@ -30,6 +31,7 @@ do i=1,n
   irows(i) = i
   ibook(i) = 0
 end do
+done = .false.
 do imain=1,n
   amx = zero
   do i=1,n
@@ -63,7 +65,8 @@ do imain=1,n
   lcol(imain) = jmx
   if (abs(a(jmx,jmx)) < thresh) then
     ihad = imain-1
-    goto 3000
+    done = .true.
+    exit
   end if
   ijs(1,nij) = irows(jmx)
   ijs(2,nij) = irows(jmx)
@@ -88,35 +91,35 @@ do imain=1,n
     end if
   end do
 end do
-do ii=n,1,-1
-  if (lrow(ii) /= lcol(ii)) then
-    do ii2=1,n
-      dum = a(ii2,lrow(ii))
-      a(ii2,lrow(ii)) = a(ii2,lcol(ii))
-      a(ii2,lcol(ii)) = dum
+if (done) then
+  outer: do i=1,n
+    do j=1,ihad
+      if (lcol(j) == i) cycle outer
     end do
-  end if
-end do
-return
-3000 continue
-do i=1,n
-  do j=1,ihad
-    if (lcol(j) == i) goto 3100
-  end do
-  ijs(1,nij) = irows(i)
-  ijs(2,nij) = irows(i)
-  oijs(nij) = zero
-  nij = nij-1
-  do j=1,n
-    if (j /= i) then
-      ijs(1,nij) = irows(j)
-      ijs(2,nij) = irows(i)
-      oijs(nij) = a(j,i)
-      nij = nij-1
+    ijs(1,nij) = irows(i)
+    ijs(2,nij) = irows(i)
+    oijs(nij) = zero
+    nij = nij-1
+    do j=1,n
+      if (j /= i) then
+        ijs(1,nij) = irows(j)
+        ijs(2,nij) = irows(i)
+        oijs(nij) = a(j,i)
+        nij = nij-1
+      end if
+    end do
+  end do outer
+else
+  do ii=n,1,-1
+    if (lrow(ii) /= lcol(ii)) then
+      do ii2=1,n
+        dum = a(ii2,lrow(ii))
+        a(ii2,lrow(ii)) = a(ii2,lcol(ii))
+        a(ii2,lcol(ii)) = dum
+      end do
     end if
   end do
-3100 continue
-end do
+end if
 
 return
 

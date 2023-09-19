@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+! -- Initialization of casvb memory manager ---
 subroutine meminit_cvb()
 
 implicit real*8(a-h,o-z)

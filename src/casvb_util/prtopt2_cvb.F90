@@ -61,7 +61,6 @@ if (ifinish == 0) then
     if (nort > 0) then
       write(6,'(/,i4,a)') nort,' orthogonalization pairs defined :'
       write(6,6100) (ior,iorts(1+(ior-1)*2),iorts(2+(ior-1)*2),ior=1,nort)
-6100  format(3(i4,': ',i2,' -',i2))
     end if
     if (nfxorb == norb) then
       write(6,'(/,a)') ' All orbitals will be frozen.'
@@ -111,8 +110,6 @@ else if (ifinish < 3) then
 end if
 
 return
+6100 format(3(i4,': ',i2,' -',i2))
 
 end subroutine prtopt2_cvb
-!******************************************
-!** Highest-level input parsing routines **
-!******************************************

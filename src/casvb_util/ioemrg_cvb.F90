@@ -20,24 +20,26 @@ dimension ia1(na1), ia2(na2)
 n1 = 1
 n2 = 1
 ioe = 0
-100 continue
-if (n1 > na1) then
-  ioemrg_cvb = 1-2*mod(ioe,2)
-  return
-else if (n2 > na2) then
-  ioe = ioe+(na1-n1+1)*na2
-  ioemrg_cvb = 1-2*mod(ioe,2)
-  return
-end if
-if (ia1(n1) < ia2(n2)) then
-  ioe = ioe+n2-1
-  n1 = n1+1
-else if (ia1(n1) > ia2(n2)) then
-  n2 = n2+1
-else if (ia1(n1) == ia2(n2)) then
-  ioemrg_cvb = 0
-  return
-end if
-goto 100
+do
+  if (n1 > na1) then
+    ioemrg_cvb = 1-2*mod(ioe,2)
+    exit
+  else if (n2 > na2) then
+    ioe = ioe+(na1-n1+1)*na2
+    ioemrg_cvb = 1-2*mod(ioe,2)
+    exit
+  end if
+  if (ia1(n1) < ia2(n2)) then
+    ioe = ioe+n2-1
+    n1 = n1+1
+  else if (ia1(n1) > ia2(n2)) then
+    n2 = n2+1
+  else if (ia1(n1) == ia2(n2)) then
+    ioemrg_cvb = 0
+    exit
+  end if
+end do
+
+return
 
 end function ioemrg_cvb

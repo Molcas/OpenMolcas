@@ -37,6 +37,3 @@ end if
 return
 
 end subroutine symtrizcvb3_cvb
-!*****************************************
-!** All <-> constrained transformations **
-!*****************************************

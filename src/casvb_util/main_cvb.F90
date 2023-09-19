@@ -40,8 +40,7 @@ call change0_cvb()
 call loopcntr_init_cvb(2,.true.)
 call input_cvb()
 call loopcntr_init_cvb(2,.false.)
-1000 continue
-if (loopcntr_iterate_cvb()) then
+do while (loopcntr_iterate_cvb())
   call input_cvb()
 
   if (variat .and. (.not. endvar) .and. (ip(6) < 2)) then
@@ -88,8 +87,7 @@ if (loopcntr_iterate_cvb()) then
     call ncset_cvb(0)
   end if
   call writegs_cvb()
-  goto 1000
-end if
+end do
 
 call stat2_cvb()
 

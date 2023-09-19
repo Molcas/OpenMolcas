@@ -27,9 +27,11 @@ call iDaFile(lu,8,ibuf,nwrite,mxddr)
 
 if (mxddr < ioffset) then
   ioff = mxddr
-100 nwrite = min((ioffset-ioff)*idbl,1000)
-  call iDaFile(lu,1,ibuf,nwrite,ioff)
-  if (ioff < ioffset) goto 100
+  do
+    nwrite = min((ioffset-ioff)*idbl,1000)
+    call iDaFile(lu,1,ibuf,nwrite,ioff)
+    if (ioff >= ioffset) exit
+  end do
 end if
 
 return

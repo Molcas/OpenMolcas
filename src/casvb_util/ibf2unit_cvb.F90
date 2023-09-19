@@ -29,20 +29,22 @@ else
     if (iorder(i) == 0) then
       iorder(i) = i
       ifil = i
-      goto 200
-    end if
-  end do
-  do i=1,mxunits
-    if (iorder(i) == mxunits) then
-      ifil = i
-      goto 200
+      exit
     end if
   end do
   if (ifil == 0) then
-    write(6,*) ' ifil error - iorder :',iorder
-    call abend_cvb()
+    do i=1,mxunits
+      if (iorder(i) == mxunits) then
+        ifil = i
+        exit
+      end if
+    end do
+    if (ifil == 0) then
+      write(6,*) ' ifil error - iorder :',iorder
+      call abend_cvb()
+    end if
   end if
-200 ifilio(ibf) = ifil
+  ifilio(ibf) = ifil
 end if
 call touchord_cvb(ifil,iorder,mxunits)
 lu = 90+ifil

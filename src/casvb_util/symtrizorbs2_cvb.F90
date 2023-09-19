@@ -111,100 +111,100 @@ do iortorb=1,nortorb
         end if
       end if
     end do
-    if (iok == 0) goto 451
+    if (iok == 0) cycle
     sovr = ddot_(norb,orbs(1,iorb),1,orbs(1,jorb),1)
-    if (abs(sovr) < thresh) goto 490
-    ! Now ready to orthogonalise
-    ! Update vectors
-    call updvec_cvb(updi,iorb,jorb,niprev,iprev,orbs,north,corth)
-    cnrmi = ddot_(norb,updi,1,updi,1)
-    if (ifxorb(iorb) == 1) cnrmi = zero
-    call updvec_cvb(updj,jorb,iorb,njprev,jprev,orbs,north,corth)
-    cnrmj = ddot_(norb,updj,1,updj,1)
-    if (ifxorb(jorb) == 1) cnrmj = zero
+    if (abs(sovr) >= thresh) then
+      ! Now ready to orthogonalise
+      ! Update vectors
+      call updvec_cvb(updi,iorb,jorb,niprev,iprev,orbs,north,corth)
+      cnrmi = ddot_(norb,updi,1,updi,1)
+      if (ifxorb(iorb) == 1) cnrmi = zero
+      call updvec_cvb(updj,jorb,iorb,njprev,jprev,orbs,north,corth)
+      cnrmj = ddot_(norb,updj,1,updj,1)
+      if (ifxorb(jorb) == 1) cnrmj = zero
 
-    if ((cnrmi > thresh) .and. (cnrmj > thresh)) then
-      faci = one/sqrt(cnrmi)
-      call dscal_(norb,faci,updi,1)
-      facj = one/sqrt(cnrmj)
-      call dscal_(norb,facj,updj,1)
-      s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
-      s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
-      s3 = ddot_(norb,updi,1,updj,1)
-      ! Initialize cpp & cpm to suppress compiler warning ...
-      cpp = 0d0
-      cpm = 0d0
-      ! Same magnitudes of updates, either ++ or +-:
-      if (abs(s3) > thresh) then
-        a = s3
-        b = s1+s2
-        c = sovr
-        discrpp = b*b-four*a*c
-        if (discrpp >= zero) then
-          c1 = (-b+sqrt(discrpp))/(two*a)
-          c2 = (-b-sqrt(discrpp))/(two*a)
-          if (abs(c1) < abs(c2)) cpp = c1
-          if (abs(c2) <= abs(c1)) cpp = c2
+      if ((cnrmi > thresh) .and. (cnrmj > thresh)) then
+        faci = one/sqrt(cnrmi)
+        call dscal_(norb,faci,updi,1)
+        facj = one/sqrt(cnrmj)
+        call dscal_(norb,facj,updj,1)
+        s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
+        s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
+        s3 = ddot_(norb,updi,1,updj,1)
+        ! Initialize cpp & cpm to suppress compiler warning ...
+        cpp = 0d0
+        cpm = 0d0
+        ! Same magnitudes of updates, either ++ or +-:
+        if (abs(s3) > thresh) then
+          a = s3
+          b = s1+s2
+          c = sovr
+          discrpp = b*b-four*a*c
+          if (discrpp >= zero) then
+            c1 = (-b+sqrt(discrpp))/(two*a)
+            c2 = (-b-sqrt(discrpp))/(two*a)
+            if (abs(c1) < abs(c2)) cpp = c1
+            if (abs(c2) <= abs(c1)) cpp = c2
+          else
+            cpp = hund
+          end if
+          a = -s3
+          b = s1-s2
+          discrpm = b*b-four*a*c
+          if (discrpm >= zero) then
+            c1 = (-b+sqrt(discrpm))/(two*a)
+            c2 = (-b-sqrt(discrpm))/(two*a)
+            if (abs(c1) < abs(c2)) cpm = c1
+            if (abs(c2) <= abs(c1)) cpm = c2
+          else
+            cpm = hund
+          end if
         else
-          cpp = hund
+          if (abs(s1+s2) > thresh) then
+            cpp = sovr/(s1+s2)
+          else
+            cpp = hund
+          end if
+          if (abs(s1-s2) > thresh) then
+            cpm = sovr/(s1+s2)
+          else
+            cpm = hund
+          end if
         end if
-        a = -s3
-        b = s1-s2
-        discrpm = b*b-four*a*c
-        if (discrpm >= zero) then
-          c1 = (-b+sqrt(discrpm))/(two*a)
-          c2 = (-b-sqrt(discrpm))/(two*a)
-          if (abs(c1) < abs(c2)) cpm = c1
-          if (abs(c2) <= abs(c1)) cpm = c2
-        else
-          cpm = hund
+        if (abs(cpp) < abs(cpm)) c = cpp
+        if (abs(cpm) <= abs(cpp)) c = cpm
+        if ((c == hund) .or. (abs(s2+c*s3) < thresh)) then
+          write(6,'(a,2i3)') ' Could not orthogonalize orbitals',iorb,jorb
+          write(6,'(a)') ' Please simplify orthogonality constraints.'
+          call abend_cvb()
         end if
+        d = -(sovr+c*s1)/(s2+c*s3)
+        call dscal_(norb,c,updi,1)
+        call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
+        call dscal_(norb,d,updj,1)
+        call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
+      else if (cnrmi > thresh) then
+        faci = one/sqrt(cnrmi)
+        call dscal_(norb,faci,updi,1)
+        s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
+        c = -sovr/s1
+        call dscal_(norb,c,updi,1)
+        call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
+      else if (cnrmj > thresh) then
+        facj = one/sqrt(cnrmj)
+        call dscal_(norb,facj,updj,1)
+        s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
+        d = -sovr/s2
+        call dscal_(norb,d,updj,1)
+        call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
       else
-        if (abs(s1+s2) > thresh) then
-          cpp = sovr/(s1+s2)
-        else
-          cpp = hund
-        end if
-        if (abs(s1-s2) > thresh) then
-          cpm = sovr/(s1+s2)
-        else
-          cpm = hund
-        end if
-      end if
-      if (abs(cpp) < abs(cpm)) c = cpp
-      if (abs(cpm) <= abs(cpp)) c = cpm
-      if ((c == hund) .or. (abs(s2+c*s3) < thresh)) then
         write(6,'(a,2i3)') ' Could not orthogonalize orbitals',iorb,jorb
         write(6,'(a)') ' Please simplify orthogonality constraints.'
         call abend_cvb()
       end if
-      d = -(sovr+c*s1)/(s2+c*s3)
-      call dscal_(norb,c,updi,1)
-      call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
-      call dscal_(norb,d,updj,1)
-      call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
-    else if (cnrmi > thresh) then
-      faci = one/sqrt(cnrmi)
-      call dscal_(norb,faci,updi,1)
-      s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
-      c = -sovr/s1
-      call dscal_(norb,c,updi,1)
-      call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
-    else if (cnrmj > thresh) then
-      facj = one/sqrt(cnrmj)
-      call dscal_(norb,facj,updj,1)
-      s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
-      d = -sovr/s2
-      call dscal_(norb,d,updj,1)
-      call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
-    else
-      write(6,'(a,2i3)') ' Could not orthogonalize orbitals',iorb,jorb
-      write(6,'(a)') ' Please simplify orthogonality constraints.'
-      call abend_cvb()
     end if
-490 niprev = niprev+1
+    niprev = niprev+1
     iprev(niprev) = jorb
-451 continue
   end do
 end do
 

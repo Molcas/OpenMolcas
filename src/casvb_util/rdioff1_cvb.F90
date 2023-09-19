@@ -27,4 +27,3 @@ ioffset = ihlf_cvb(nbuf)
 return
 
 end subroutine rdioff1_cvb
-! Low-level CASVB IO routines

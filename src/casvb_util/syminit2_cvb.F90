@@ -49,36 +49,38 @@ ishift = 0
 do ijrel=1,nijrel
   iorb = abs(iorbrel(1+ishift))
   jorb = abs(iorbrel(2+ishift))
-  if (iorb == jorb) goto 11
-  call izero(iorbs,norb)
-  iorbs(iorb) = 1
-  iorbs(jorb) = 1
-  ishift2 = 0
-  do ijrel2=1,nijrel
-    iorb2 = abs(iorbrel(1+ishift2))
-    jorb2 = abs(iorbrel(2+ishift2))
-    if ((ijrel2 == ijrel) .or. (iorb2 == jorb2)) goto 31
-    if (iorbs(iorb2) == 1) then
-      if (iorbs(jorb2) == 1) then
-        ncount = 0
-        do i=1,norb
-          if (iorbs(i) == 1) then
-            ncount = ncount+1
-            intger(ncount) = i
+  if (iorb /= jorb) then
+    call izero(iorbs,norb)
+    iorbs(iorb) = 1
+    iorbs(jorb) = 1
+    ishift2 = 0
+    do ijrel2=1,nijrel
+      iorb2 = abs(iorbrel(1+ishift2))
+      jorb2 = abs(iorbrel(2+ishift2))
+      if ((ijrel2 /= ijrel) .and. (iorb2 /= jorb2)) then
+        if (iorbs(iorb2) == 1) then
+          if (iorbs(jorb2) == 1) then
+            ncount = 0
+            do i=1,norb
+              if (iorbs(i) == 1) then
+                ncount = ncount+1
+                intger(ncount) = i
+              end if
+            end do
+            write(6,'(a,/,20i4)') ' Too many orbital relations involving orbitals :',(intger(ii),ii=1,ncount)
+            write(6,'(a)') ' Please reduce number of ORBREL cards.'
+            call abend_cvb()
+          else
+            iorbs(jorb2) = 1
           end if
-        end do
-        write(6,'(a,/,20i4)') ' Too many orbital relations involving orbitals :',(intger(ii),ii=1,ncount)
-        write(6,'(a)') ' Please reduce number of ORBREL cards.'
-        call abend_cvb()
-      else
-        iorbs(jorb2) = 1
+        else if (iorbs(jorb2) == 1) then
+          iorbs(iorb2) = 1
+        end if
       end if
-    else if (iorbs(jorb2) == 1) then
-      iorbs(iorb2) = 1
-    end if
-31  ishift2 = ishift2+3+iorbrel(3+ishift2)
-  end do
-11 ishift = ishift+3+iorbrel(3+ishift)
+      ishift2 = ishift2+3+iorbrel(3+ishift2)
+    end do
+  end if
+  ishift = ishift+3+iorbrel(3+ishift)
 end do
 
 ! Diagonal orbital relations:
@@ -159,16 +161,16 @@ do iorb=1,norb
     iorbs(icnt) = iorb
   end if
 end do
-600 continue
-! Sort relations and define generating orbitals:
-do i=1,norb
-  iorb = iorbs(i)
-  do ii=1,nijrel
-    if ((iorder(1,ii) == iorb) .or. (iorder(2,ii) == iorb)) then
+do
+  ! Sort relations and define generating orbitals:
+  loop1: do i=1,norb
+    iorb = iorbs(i)
+    loop2: do ii=1,nijrel
+      if ((iorder(1,ii) /= iorb) .and. (iorder(2,ii) /= iorb)) cycle loop2
       ! Has IORB already been generated from KORB?:
       do j=1,i-1
         korb = iorbs(j)
-        if ((iorder(1,ii) == korb) .or. (iorder(2,ii) == korb)) goto 701
+        if ((iorder(1,ii) == korb) .or. (iorder(2,ii) == korb)) cycle loop2
       end do
       if (iorder(1,ii) == iorb) then
         iorder(1,ii) = iorder(2,ii)
@@ -183,29 +185,27 @@ do i=1,norb
         call abend_cvb()
       end if
       found = .false.
-      do jj=1,nijrel
-        if ((jj /= ii) .and. ((iorder(1,jj) == jorb) .or. (iorder(2,jj) == jorb))) then
-          ! Is JORB involved in any other orbital relations?:
-          do j=1,i-1
-            korb = iorbs(j)
-            if ((iorder(1,jj) == korb) .or. (iorder(2,jj) == korb)) goto 900
-          end do
-          found = .true.
-          if (iorder(1,jj) == jorb) then
-            iorder(1,jj) = iorder(2,jj)
-            iorder(2,jj) = jorb
-          end if
-          iorder(3,jj) = iorder(2,jj)
-          call imove_cvb(iorder(3,ii),iorder(4,jj),norb-3)
-          ! KORB will be generated from IORB (via JORB):
-          iorder(2,jj) = iorder(2,ii)
+      loop3: do jj=1,nijrel
+        if ((jj == ii) .or. ((iorder(1,jj) /= jorb) .and. (iorder(2,jj) /= jorb))) cycle loop3
+        ! Is JORB involved in any other orbital relations?:
+        do j=1,i-1
+          korb = iorbs(j)
+          if ((iorder(1,jj) == korb) .or. (iorder(2,jj) == korb)) cycle loop3
+        end do
+        found = .true.
+        if (iorder(1,jj) == jorb) then
+          iorder(1,jj) = iorder(2,jj)
+          iorder(2,jj) = jorb
         end if
-900     continue
-      end do
-      if (found) goto 600
-    end if
-701 continue
-  end do
+        iorder(3,jj) = iorder(2,jj)
+        call imove_cvb(iorder(3,ii),iorder(4,jj),norb-3)
+        ! KORB will be generated from IORB (via JORB):
+        iorder(2,jj) = iorder(2,ii)
+      end do loop3
+      if (found) exit loop1
+    end do loop2
+  end do loop1
+  if (i > norb) exit
 end do
 ! Generate transformation matrix for each relation:
 do i=1,nijrel
@@ -218,14 +218,16 @@ do ijrel=1,nijrel
     il = norb+2-i
     if (i == 1) il = 2
     if (i == norb) il = 1
-    if (iorder(il,ijrel) == 0) goto 1200
+    if (iorder(il,ijrel) == 0) cycle
     iorb = iorder(il,ijrel)
     j = i
-1300 j = j+1
-    jl = norb+2-j
-    if (j == 1) jl = 2
-    if (j == norb) jl = 1
-    if (iorder(jl,ijrel) == 0) goto 1300
+    do
+      j = j+1
+      jl = norb+2-j
+      if (j == 1) jl = 2
+      if (j == norb) jl = 1
+      if (iorder(jl,ijrel) /= 0) exit
+    end do
     jorb = iorder(jl,ijrel)
     do ii=1,nijrel
       if (((iorb == io(1,ii)) .or. (iorb == io(2,ii))) .and. ((jorb == io(1,ii)) .or. (jorb == io(2,ii)))) then
@@ -243,13 +245,9 @@ do ijrel=1,nijrel
         end do
       end if
     end do
-1200 continue
   end do
 end do
 
 return
 
 end subroutine syminit2_cvb
-!********************
-!** Symmetrization **
-!********************

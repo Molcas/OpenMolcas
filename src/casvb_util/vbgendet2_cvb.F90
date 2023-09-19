@@ -41,10 +41,9 @@ end do
 ixbpr(1) = 1
 do i=1,ndb
   do j=ixbpr(i),ndetvb
-    if (iwrk1(j) /= i) goto 400
+    if (iwrk1(j) /= i) exit
   end do
-  j = ndetvb+1
-400 ixbpr(i+1) = j
+  ixbpr(i+1) = j
 end do
 do i=1,ndb
   call sortindxi_cvb(ixbpr(i+1)-ixbpr(i),ibpr(ixbpr(i)),iwrk2)
@@ -68,10 +67,9 @@ end do
 ixapr(1) = 1
 do i=1,nda
   do j=ixapr(i),ndetvb
-    if (iwrk1(j) /= i) goto 1000
+    if (iwrk1(j) /= i) exit
   end do
-  j = ndetvb+1
-1000 ixapr(i+1) = j
+  ixapr(i+1) = j
 end do
 do i=1,nda
   call sortindxi_cvb(ixapr(i+1)-ixapr(i),iapr(ixapr(i)),iwrk2)

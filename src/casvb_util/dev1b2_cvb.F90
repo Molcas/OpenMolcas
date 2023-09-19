@@ -29,7 +29,7 @@ call fzero(dmat,iparmx)
 iparm = 0
 do iorb=1,norb
   do jorb=1,norb
-    if ((jorb == iorb) .and. (.not. diag)) goto 1200
+    if ((jorb == iorb) .and. (.not. diag)) cycle
     iparm = iparm+1
     if (iparm > iparmx) return
 
@@ -58,7 +58,6 @@ do iorb=1,norb
     else
       dmat(iparm) = two*dmat(iparm)
     end if
-1200 continue
   end do
 end do
 

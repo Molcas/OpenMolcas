@@ -22,6 +22,7 @@ implicit real*8(a-h,o-z)
 #include "rls_cvb.fh"
 #include "davtune_cvb.fh"
 #include "change6.fh"
+logical done
 
 if (release(6)) call mfreer_cvb(lp(1))
 release(6) = .true.
@@ -48,19 +49,27 @@ else if (icase == 2) then
   maxdav = min(mxiter,nvb,mxdav)
 
   memwrk = ndetvb+5*norb*norb+3*ihlf_cvb(norb+2*norb*norb)
+  done = .false.
   do idav=maxdav,1,-1
     ! NEED is approx req. memory:
     need = 2*nvb*idav+2*nvb+idav+1000+memwrk
-    if (need < iremain) goto 2
+    if (need < iremain) then
+      done = .true.
+      exit
+    end if
   end do
-  idav = 0
-  if (nvb == 0) then
-    need = 1000+memwrk
-    if (need < iremain) goto 2
+  if (.not. done) then
+    idav = 0
+    if (nvb == 0) then
+      need = 1000+memwrk
+      if (need < iremain) done = .true.
+    end if
   end if
-  write(6,*) ' Not enough memory for Davidson!',need,iremain
-  call abend_cvb()
-2 maxdav = idav
+  if (.not. done) then
+    write(6,*) ' Not enough memory for Davidson!',need,iremain
+    call abend_cvb()
+  end if
+  maxdav = idav
 
 else if (icase == 3) then
   ! Energy-based Davidson optimization:
@@ -75,19 +84,27 @@ else if (icase == 3) then
   if (ncimx /= ndet) mem_applyh = mem_applyh+ncimx
   memwrk = ndetvb+3*norb*norb+2*ihlf_cvb(norb+2*norb*norb)
 
+  done = .false.
   do idav=maxdav,1,-1
     ! NEED is approx req. memory:
     need = 3*nvb*idav+nvb+idav*(2*idav+3)+1000+mem_applyh+memwrk
-    if (need < iremain) goto 12
+    if (need < iremain) then
+      done = .true.
+      exit
+    end if
   end do
-  idav = 0
-  if (nvb == 0) then
-    need = 1000+memwrk
-    if (need < iremain) goto 12
+  if (.not. done) then
+    idav = 0
+    if (nvb == 0) then
+      need = 1000+memwrk
+      if (need < iremain) done = .true.
+    end if
   end if
-  write(6,*) ' Not enough memory for Davidson!',need,iremain
-  call abend_cvb()
-12 maxdav = idav
+  if (.not. done) then
+    write(6,*) ' Not enough memory for Davidson!',need,iremain
+    call abend_cvb()
+  end if
+  maxdav = idav
 
 else if (icase == 4) then
   ! Wavefunction analysis:

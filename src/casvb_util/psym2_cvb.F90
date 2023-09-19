@@ -26,7 +26,7 @@ dimension osym(mxirrep)
 
 if (ips == 1) then
   do irp=1,nirrep
-    if (isympr(irp) == 1) goto 1000
+    if (isympr(irp) == 1) cycle
     do jrpa=1,nirrep
       jrpb = md2h(irp,jrpa)
       do ida=iasyind(jrpa-1)+1,iasyind(jrpa)
@@ -36,7 +36,6 @@ if (ips == 1) then
         end do
       end do
     end do
-1000 continue
   end do
 else if (ips == 2) then
   do irp=1,nirrep

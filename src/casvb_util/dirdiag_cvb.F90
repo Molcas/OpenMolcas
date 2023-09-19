@@ -74,7 +74,7 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 
 implicit real*8(a-h,o-z)
 #include "formats_cvb.fh"
-logical share, is_converged, symm, use_a, use_rhs
+logical share, is_converged, symm, use_a, use_rhs, done
 external ddasonc, ddsol, ddres, ddres2upd, ddrestart
 dimension c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n)
 dimension rhs(n)
@@ -121,22 +121,28 @@ end do
 
 iter = 0
 ! MXITER max possible no of macro iterations, normally opt will skip
-do imacro=1,mxiter
+outer: do imacro=1,mxiter
   do itdav=max(nvrestart,1),min(maxdav,mxiter-iter)
     if (itdav > nvrestart) then
       iter = iter+1
       ! Ensure accurate orthogonalization:
       facn = dnrm2_(n,c(1,itdav),1)
+      done = .false.
       do iorth=1,nortiter
         call dscal_(n,one/facn,c(1,itdav),1)
         call schmidtd2_cvb(c,sxc,itdav-1,c(1,itdav),1,n)
         call ddproj_cvb(c(1,itdav),n)
         facn = dnrm2_(n,c(1,itdav),1)
-        if (abs(one-facn) < orththr) goto 1400
+        if (abs(one-facn) < orththr) then
+          done = .true.
+          exit
+        end if
       end do
-      write(6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
-      call abend_cvb()
-1400  call dscal_(n,one/facn,c(1,itdav),1)
+      if (.not. done) then
+        write(6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
+        call abend_cvb()
+      end if
+      call dscal_(n,one/facn,c(1,itdav),1)
 
       call ddasonc(c(1,itdav),axc(1,itdav),sxc(1,itdav),1,n)
 
@@ -190,7 +196,7 @@ do imacro=1,mxiter
       end if
       if (is_converged) then
         ioptc = 0
-        goto 1200
+        exit outer
       end if
       if (itdav <= maxdav-1) call ddres2upd(res,c(1,itdav+1),n)
     end if
@@ -198,11 +204,10 @@ do imacro=1,mxiter
   if (iter >= mxiter) then
     if (ip >= 0) write(6,'(2a,i5,a)') ' Davidson optimization not converged in ',mxiter,' iterations'
     ioptc = -1
-    goto 1200
+    exit outer
   end if
   call ddrestart(c,axc,vec,ap,solp,maxdav,n,nvguess,nvrestart)
-end do
-1200 continue
+end do outer
 ndavvec = min(itdav,maxdav)
 call mxatb_cvb(c,solp,n,ndavvec,1,vec)
 

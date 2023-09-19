@@ -67,124 +67,153 @@ subroutine balanc(nm,n,a,low,igh,scale)
 !
 ! this version dated january 1989. (for the IBM 3090vf)
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, m, n, nm, igh, low, iexc
+integer i, j, k, l, m, n, nm, igh, low
 real*8 a(nm,n), scale(n)
 real*8 c, f, g, r, s, b2, radix
-logical noconv
+logical first, noconv, skip
 
 radix = 16.0d0
 
 b2 = radix*radix
 k = 1
 l = n
-go to 100
-! .......... in-line procedure for row and column exchange ..........
-20 scale(m) = j
-if (j == m) go to 50
-
-do i=1,l
-  f = a(i,j)
-  a(i,j) = a(i,m)
-  a(i,m) = f
-end do
-
-do i=k,n
-  f = a(j,i)
-  a(j,i) = a(m,i)
-  a(m,i) = f
-end do
-
-50 go to(80,130),iexc
 ! .......... search for rows isolating an eigenvalue and push them down ..........
-80 if (l == 1) go to 280
-l = l-1
-! .......... for j=l step -1 until 1 do -- ..........
-100 do j=l,1,-1
+first = .true.
+do
+  if (first) then
+    first = .false.
+  else
+    if (l == 1) exit
+    l = l-1
+  end if
+  ! .......... for j=l step -1 until 1 do -- ..........
+  do j=l,1,-1
 
-  do i=1,l
-    if (i == j) go to 110
-    if (a(j,i) /= 0.0d0) go to 120
-110 continue
+    skip = .false.
+    do i=1,l
+      if (i == j) cycle
+      if (a(j,i) /= 0.0d0) then
+        skip = .true.
+        exit
+      end if
+    end do
+
+    if (.not. skip) then
+      m = l
+      call rc_exchange()
+      exit
+    end if
   end do
-
-  m = l
-  iexc = 1
-  go to 20
-120 continue
 end do
 
-go to 140
-! .......... search for columns isolating an eigenvalue and push them left ..........
-130 k = k+1
+if (first .or. (l /= 1)) then
 
-140 do j=k,l
+  ! .......... search for columns isolating an eigenvalue and push them left ..........
+  first = .true.
+  do
+    if (first) then
+      first = .false.
+    else
+      k = k+1
+    end if
 
+    do j=k,l
+
+      skip = .false.
+      do i=k,l
+        if (i == j) cycle
+        if (a(i,j) /= 0.0d0) then
+          skip = .true.
+          exit
+        end if
+      end do
+
+      if (.not. skip) then
+        m = k
+        call rc_exchange()
+        exit
+      end if
+    end do
+  end do
+  ! .......... now balance the submatrix in rows k to l ..........
   do i=k,l
-    if (i == j) go to 150
-    if (a(i,j) /= 0.0d0) go to 170
-150 continue
+    scale(i) = 1.0d0
+  end do
+  ! .......... iterative loop for norm reduction ..........
+  do
+    noconv = .false.
+
+    do i=k,l
+      c = 0.0d0
+      r = 0.0d0
+
+      do j=k,l
+        if (j == i) cycle
+        c = c+abs(a(j,i))
+        r = r+abs(a(i,j))
+      end do
+      ! .......... guard against zero c or r due to underflow ..........
+      if ((c == 0.0d0) .or. (r == 0.0d0)) cycle
+      g = r/radix
+      f = 1.0d0
+      s = c+r
+      do
+        if (c >= g) exit
+        f = f*radix
+        c = c*b2
+      end do
+      g = r*radix
+      do
+        if (c < g) exit
+        f = f/radix
+        c = c/b2
+      end do
+      ! .......... now balance ..........
+      if ((c+r)/f >= 0.95d0*s) cycle
+      g = 1.0d0/f
+      scale(i) = scale(i)*f
+      noconv = .true.
+
+      do j=k,n
+        a(i,j) = a(i,j)*g
+      end do
+
+      do j=1,l
+        a(j,i) = a(j,i)*f
+      end do
+
+    end do
+
+    if (.not. noconv) exit
   end do
 
-  m = k
-  iexc = 2
-  go to 20
-170 continue
-end do
-! .......... now balance the submatrix in rows k to l ..........
-do i=k,l
-  scale(i) = 1.0d0
-end do
-! .......... iterative loop for norm reduction ..........
-190 noconv = .false.
+end if
 
-do i=k,l
-  c = 0.0d0
-  r = 0.0d0
-
-  do j=k,l
-    if (j == i) go to 200
-    c = c+abs(a(j,i))
-    r = r+abs(a(i,j))
-200 continue
-  end do
-  ! .......... guard against zero c or r due to underflow ..........
-  if ((c == 0.0d0) .or. (r == 0.0d0)) go to 270
-  g = r/radix
-  f = 1.0d0
-  s = c+r
-210 if (c >= g) go to 220
-  f = f*radix
-  c = c*b2
-  go to 210
-220 g = r*radix
-230 if (c < g) go to 240
-  f = f/radix
-  c = c/b2
-  go to 230
-  ! .......... now balance ..........
-240 if ((c+r)/f >= 0.95d0*s) go to 270
-  g = 1.0d0/f
-  scale(i) = scale(i)*f
-  noconv = .true.
-
-  do j=k,n
-    a(i,j) = a(i,j)*g
-  end do
-
-  do j=1,l
-    a(j,i) = a(j,i)*f
-  end do
-
-270 continue
-end do
-
-if (noconv) go to 190
-
-280 low = k
+low = k
 igh = l
 
 return
+
+contains
+
+! .......... in-line procedure for row and column exchange ..........
+subroutine rc_exchange()
+  integer i
+  scale(m) = j
+  if (j == m) return
+  do i=1,l
+    f = a(i,j)
+    a(i,j) = a(i,m)
+    a(i,m) = f
+  end do
+  do i=k,n
+    f = a(j,i)
+    a(j,i) = a(m,i)
+    a(m,i) = f
+  end do
+end subroutine rc_exchange
 
 end subroutine balanc

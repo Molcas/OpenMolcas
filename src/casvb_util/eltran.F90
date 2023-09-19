@@ -54,6 +54,7 @@ subroutine eltran(nm,n,low,igh,a,int,z)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, n, kl, mm, mp, nm, igh, low, mp1
@@ -71,7 +72,6 @@ do j=1,n
 end do
 
 kl = igh-low-1
-if (kl < 1) go to 200
 ! .......... for mp=igh-1 step -1 until low+1 do -- ..........
 do mm=1,kl
   mp = igh-mm
@@ -82,7 +82,7 @@ do mm=1,kl
   end do
 
   i = int(mp)
-  if (i == mp) go to 140
+  if (i == mp) cycle
 
   do j=mp,igh
     z(mp,j) = z(i,j)
@@ -90,9 +90,8 @@ do mm=1,kl
   end do
 
   z(i,mp) = 1.0d0
-140 continue
 end do
 
-200 return
+return
 
 end subroutine eltran

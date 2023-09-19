@@ -90,10 +90,10 @@ real*8 function rand_cvb(r)
 !    Possible   3.3  2.3  1.7  1.4    3.6  5.9  9.7  14.9
 !
 !             Input Argument --
-! R      If R=0., the next random number of the sequence is generated.
-!        If R .LT. 0., the last generated number will be returned for
+! R      If R = 0., the next random number of the sequence is generated.
+!        If R < 0., the last generated number will be returned for
 !          possible use in a restart procedure.
-!        If R .GT. 0., the sequence of random numbers will start with
+!        If R > 0., the sequence of random numbers will start with
 !          the seed R mod 1.  This seed is also returned as the value of
 !          RAND provided the arithmetic is done exactly.
 !
@@ -110,28 +110,28 @@ data ic/1731/
 data ix1,ix0/0,0/
 
 !***FIRST EXECUTABLE STATEMENT  RAND
-if (r < 0.d0) go to 10
-if (r > 0.d0) go to 20
+if (r > 0.d0) then
 
-! A*X = 2**22*IA1*IX1 + 2**11*(IA1*IX1 + (IA1-IA0)*(IX0-IX1) + IA0*IX0) + IA0*IX0
+  ix1 = int(dmod(r,1.d0)*4194304.d0+0.5d0)
+  ix0 = mod(ix1,2048)
+  ix1 = (ix1-ix0)/2048
 
-iy0 = ia0*ix0
-iy1 = ia1*ix1+ia1ma0*(ix0-ix1)+iy0
-iy0 = iy0+ic
-ix0 = mod(iy0,2048)
-iy1 = iy1+(iy0-ix0)/2048
-ix1 = mod(iy1,2048)
+else if (r == 0.d0) then
 
-10 rand = dble(ix1*2048+ix0)
+  ! A*X = 2**22*IA1*IX1 + 2**11*(IA1*IX1 + (IA1-IA0)*(IX0-IX1) + IA0*IX0) + IA0*IX0
+
+  iy0 = ia0*ix0
+  iy1 = ia1*ix1+ia1ma0*(ix0-ix1)+iy0
+  iy0 = iy0+ic
+  ix0 = mod(iy0,2048)
+  iy1 = iy1+(iy0-ix0)/2048
+  ix1 = mod(iy1,2048)
+
+end if
+
+rand = dble(ix1*2048+ix0)
 rand_cvb = rand/4194304.d0
+
 return
 
-20 ix1 = int(dmod(r,1.d0)*4194304.d0+0.5d0)
-ix0 = mod(ix1,2048)
-ix1 = (ix1-ix0)/2048
-go to 10
-
 end function rand_cvb
-!*************
-!** Various **
-!*************

@@ -110,18 +110,16 @@ if (orbopt2 .and. (nort > 0)) then
     end do
     corr1 = -.5d0*corr1
     do korb=1,norb
-      if (korb == iorb) goto 300
+      if (korb == iorb) cycle
       ki = korb+(iorb-1)*(norb-1)
       if (korb > iorb) ki = ki-1
       do lorb=1,norb
-        if (lorb == jorb) goto 400
+        if (lorb == jorb) cycle
         lj = lorb+(jorb-1)*(norb-1)
         if (lorb > jorb) lj = lj-1
         hessout(ki) = hessout(ki)+sorbs(korb,lorb)*corr1*hessinp(lj)
         hessout(lj) = hessout(lj)+sorbs(korb,lorb)*corr1*hessinp(ki)
-400     continue
       end do
-300   continue
     end do
   end do
 end if

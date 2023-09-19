@@ -21,17 +21,15 @@ dimension ikcoff(0:nel,0:nel,0:nel)
 do ifrag=1,nfrag
   do ion=mnion_fr(ifrag),mxion_fr(ifrag)
     nelsing = nel_fr(ifrag)-2*ion
-    if (nelsing < 0) goto 101
+    if (nelsing < 0) cycle
     do iMs=1,nMs_fr(ifrag)
       nalfsing = nalf_fr(iMs,ifrag)-ion
-      if (nalfsing < 0) goto 200
+      if (nalfsing < 0) cycle
       do iS=1,nS_fr(ifrag)
         if ((i2s_fr(iS,ifrag) <= nelsing) .and. (i2s_fr(iS,ifrag) >= 2*nalfsing-nelsing)) &
           ikcoff(nelsing,nalfsing,i2S_fr(iS,ifrag)) = 1
       end do
-200   continue
     end do
-101 continue
   end do
 end do
 need = 0

@@ -51,51 +51,51 @@ nloop = nfrag
 nestlevel = 0
 call istkinit_cvb(istack,mxstack)
 
-! Here we go to the beginning of the next loop in the sequence:
-1000 continue
-if (nestlevel < nloop) then
-  nestlevel = nestlevel+1
-  iter = 0
-  mxiter = nda_fr(nestlevel)
-  call istkpush_cvb(istack,iter)
-  call istkpush_cvb(istack,mxiter)
-end if
+outer: do
+  ! Here we go to the beginning of the next loop in the sequence:
+  if (nestlevel < nloop) then
+    nestlevel = nestlevel+1
+    iter = 0
+    mxiter = nda_fr(nestlevel)
+    call istkpush_cvb(istack,iter)
+    call istkpush_cvb(istack,mxiter)
+  end if
 
-! Here we do the next loop iteration of the current loop:
-2000 if (nestlevel == 0) goto 3000
-call istkpop_cvb(istack,mxiter)
-call istkpop_cvb(istack,iter)
-iter = iter+1
-if (iter > mxiter) then
-  nestlevel = nestlevel-1
-  goto 2000
-else
-  call istkpush_cvb(istack,iter)
-  call istkpush_cvb(istack,mxiter)
-end if
+  ! Here we do the next loop iteration of the current loop:
+  do
+    if (nestlevel == 0) exit outer
+    call istkpop_cvb(istack,mxiter)
+    call istkpop_cvb(istack,iter)
+    iter = iter+1
+    if (iter > mxiter) then
+      nestlevel = nestlevel-1
+    else
+      call istkpush_cvb(istack,iter)
+      call istkpush_cvb(istack,mxiter)
+      exit
+    end if
+  end do
 
-! Here goes the code specific to this loop level.
-if (nestlevel == 1) then
-  call imove_cvb(iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),iastr_acc(1,nestlevel),nalf_fr(nestlevel))
-  iphase(nestlevel) = 1
-else
-  iphase(nestlevel) = iphase(nestlevel-1)* &
-                      ioemrg2_cvb(iastr_acc(1,nestlevel-1),nalf_acc(nestlevel-1), &
-                                  iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),nalf_fr(nestlevel),&
-                                  iastr_acc(1,nestlevel))
-  if (iphase(nestlevel) == 0) goto 1000
-end if
-ncombindex(nestlevel) = ncombindex(nestlevel-1)+nc_fac(nestlevel)*(iter-1)
-if (nestlevel == nfrag) then
-  iatotindx = minind_cvb(iastr_acc(1,nestlevel),nalf,norb,xalf)
-  ia12ind(ncombindex(nestlevel)) = iatotindx*iphase(nestlevel)
-end if
+  ! Here goes the code specific to this loop level.
+  if (nestlevel == 1) then
+    call imove_cvb(iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),iastr_acc(1,nestlevel),nalf_fr(nestlevel))
+    iphase(nestlevel) = 1
+  else
+    iphase(nestlevel) = iphase(nestlevel-1)* &
+                        ioemrg2_cvb(iastr_acc(1,nestlevel-1),nalf_acc(nestlevel-1), &
+                                    iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),nalf_fr(nestlevel),&
+                                    iastr_acc(1,nestlevel))
+    if (iphase(nestlevel) == 0) cycle outer
+  end if
+  ncombindex(nestlevel) = ncombindex(nestlevel-1)+nc_fac(nestlevel)*(iter-1)
+  if (nestlevel == nfrag) then
+    iatotindx = minind_cvb(iastr_acc(1,nestlevel),nalf,norb,xalf)
+    ia12ind(ncombindex(nestlevel)) = iatotindx*iphase(nestlevel)
+  end if
 
-goto 1000
+end do outer
 
 ! This is the end ...
-3000 continue
-
 return
 
 end subroutine detsort2_cvb

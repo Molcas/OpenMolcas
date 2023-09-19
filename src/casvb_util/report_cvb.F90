@@ -32,6 +32,3 @@ call mfreer_cvb(i1)
 return
 
 end subroutine report_cvb
-!****************************
-!** Matrix multiplications **
-!****************************

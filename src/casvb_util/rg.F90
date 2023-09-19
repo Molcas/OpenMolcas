@@ -61,28 +61,30 @@ subroutine rg(nm,n,a,wr,wi,matz,z,iv1,fv1,ierr)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer n, nm, is1, is2, ierr, matz
 real*8 a(nm,n), wr(n), wi(n), z(nm,n), fv1(n)
 integer iv1(n)
 
-if (n <= nm) go to 10
-ierr = 10*n
-go to 50
+if (n > nm) then
+  ierr = 10*n
+  return
+end if
 
-10 call balanc(nm,n,a,is1,is2,fv1)
+call balanc(nm,n,a,is1,is2,fv1)
 call elmhes(nm,n,is1,is2,a,iv1)
-if (matz /= 0) go to 20
-! .......... find eigenvalues only ..........
-call hqr(nm,n,is1,is2,a,wr,wi,ierr)
-go to 50
-! .......... find both eigenvalues and eigenvectors ..........
-20 call eltran(nm,n,is1,is2,a,iv1,z)
-call hqr2(nm,n,is1,is2,a,wr,wi,z,ierr)
-if (ierr /= 0) go to 50
-call balbak(nm,n,is1,is2,fv1,n,z)
+if (matz /= 0) then
+  ! .......... find both eigenvalues and eigenvectors ..........
+  call eltran(nm,n,is1,is2,a,iv1,z)
+  call hqr2(nm,n,is1,is2,a,wr,wi,z,ierr)
+  if (ierr == 0) call balbak(nm,n,is1,is2,fv1,n,z)
+else
+  ! .......... find eigenvalues only ..........
+  call hqr(nm,n,is1,is2,a,wr,wi,ierr)
+end if
 
-50 return
+return
 
 end subroutine rg

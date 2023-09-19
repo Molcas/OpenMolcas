@@ -28,38 +28,41 @@ alfmin = alfa
 alfmax = 1.d2+alfmin
 
 relfac = one
-700 alfmin = olf
-alfmx1 = alfmax
-cnrmin = zero
-cnrmax = zero
-do i=1,nnegeig
-  cnrmin = cnrmin+(gradp(i)/(heigval(i)-alfmin))**2
-  cnrmax = cnrmax+(gradp(i)/(heigval(i)-alfmax))**2
-end do
-do i=nnegeig+1,nparm
-  cnrmin = cnrmin+(gradp(i)/(heigval(i)+alfmin))**2
-  cnrmax = cnrmax+(gradp(i)/(heigval(i)+alfmax))**2
-end do
-cnrmin = sqrt(cnrmin)
-cnrmax = sqrt(cnrmax)
-900 alfa = half*(alfmax+alfmin)
-cnrm = zero
-do i=1,nnegeig
-  cnrm = cnrm+(gradp(i)/(heigval(i)-alfa))**2
-end do
-do i=nnegeig+1,nparm
-  cnrm = cnrm+(gradp(i)/(heigval(i)+alfa))**2
-end do
-cnrm = sqrt(cnrm)
-if (cnrm < hh) then
-  alfmax = alfa
-  cnrmax = cnrm
-else
-  alfmin = alfa
-  cnrmin = cnrm
-end if
-if (abs(relfac*(alfmax-alfmin)) > alftol) goto 900
-if (alfmax == alfmx1) then
+do
+  alfmin = olf
+  alfmx1 = alfmax
+  cnrmin = zero
+  cnrmax = zero
+  do i=1,nnegeig
+    cnrmin = cnrmin+(gradp(i)/(heigval(i)-alfmin))**2
+    cnrmax = cnrmax+(gradp(i)/(heigval(i)-alfmax))**2
+  end do
+  do i=nnegeig+1,nparm
+    cnrmin = cnrmin+(gradp(i)/(heigval(i)+alfmin))**2
+    cnrmax = cnrmax+(gradp(i)/(heigval(i)+alfmax))**2
+  end do
+  cnrmin = sqrt(cnrmin)
+  cnrmax = sqrt(cnrmax)
+  do
+    alfa = half*(alfmax+alfmin)
+    cnrm = zero
+    do i=1,nnegeig
+      cnrm = cnrm+(gradp(i)/(heigval(i)-alfa))**2
+    end do
+    do i=nnegeig+1,nparm
+      cnrm = cnrm+(gradp(i)/(heigval(i)+alfa))**2
+    end do
+    cnrm = sqrt(cnrm)
+    if (cnrm < hh) then
+      alfmax = alfa
+      cnrmax = cnrm
+    else
+      alfmin = alfa
+      cnrmin = cnrm
+    end if
+    if (abs(relfac*(alfmax-alfmin)) <= alftol) exit
+  end do
+  if (alfmax /= alfmx1) exit
   if (alfmax > 1d20) then
     write(6,*) ' Optimization of trust region size failed!'
     write(6,*) ' Trust region size required :',hh
@@ -69,8 +72,7 @@ if (alfmax == alfmx1) then
   end if
   alfmax = 1.d1*alfmax
   relfac = one/alfmax
-  goto 700
-end if
+end do
 ! Found the optimal alpha value, construct corresponding update:
 alfa = half*(alfmax+alfmin)
 

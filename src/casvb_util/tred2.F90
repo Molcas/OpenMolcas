@@ -52,6 +52,7 @@ subroutine tred2(nm,n,a,d,e,z)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, k, l, n, ii, nm, jp1
@@ -67,86 +68,87 @@ do i=1,n
   d(i) = a(n,i)
 end do
 
-if (n == 1) go to 510
 ! .......... for i=n step -1 until 2 do -- ..........
 do ii=2,n
   i = n+2-ii
   l = i-1
   h = 0.0d0
   scale = 0.0d0
-  if (l < 2) go to 130
-  ! .......... scale row (algol tol then not needed) ..........
-  do k=1,l
-    scale = scale+abs(d(k))
-  end do
+  if (l >= 2) then
+    ! .......... scale row (algol tol then not needed) ..........
+    do k=1,l
+      scale = scale+abs(d(k))
+    end do
+  end if
 
-  if (scale /= 0.0d0) go to 140
-130 e(i) = d(l)
+  if (scale == 0.0d0) then
+    e(i) = d(l)
 
-  do j=1,l
-    d(j) = z(l,j)
-    z(i,j) = 0.0d0
-    z(j,i) = 0.0d0
-  end do
-
-  go to 290
-
-140 do k=1,l
-    d(k) = d(k)/scale
-    h = h+d(k)*d(k)
-  end do
-
-  f = d(l)
-  g = -sign(sqrt(h),f)
-  e(i) = scale*g
-  h = h-f*g
-  d(l) = f-g
-  ! .......... form a*u ..........
-  do j=1,l
-    e(j) = 0.0d0
-  end do
-
-  do j=1,l
-    f = d(j)
-    z(j,i) = f
-    g = e(j)+z(j,j)*f
-    jp1 = j+1
-    if (l < jp1) go to 220
-
-    do k=jp1,l
-      g = g+z(k,j)*d(k)
-      e(k) = e(k)+z(k,j)*f
+    do j=1,l
+      d(j) = z(l,j)
+      z(i,j) = 0.0d0
+      z(j,i) = 0.0d0
     end do
 
-220 e(j) = g
-  end do
-  ! .......... form p ..........
-  f = 0.0d0
+  else
 
-  do j=1,l
-    e(j) = e(j)/h
-    f = f+e(j)*d(j)
-  end do
-
-  hh = f/(h+h)
-  ! .......... form q ..........
-  do j=1,l
-    e(j) = e(j)-hh*d(j)
-  end do
-  ! .......... form reduced a ..........
-  do j=1,l
-    f = d(j)
-    g = e(j)
-
-    do k=j,l
-      z(k,j) = z(k,j)-f*e(k)-g*d(k)
+    do k=1,l
+      d(k) = d(k)/scale
+      h = h+d(k)*d(k)
     end do
 
-    d(j) = z(l,j)
-    z(i,j) = 0.0d0
-  end do
+    f = d(l)
+    g = -sign(sqrt(h),f)
+    e(i) = scale*g
+    h = h-f*g
+    d(l) = f-g
+    ! .......... form a*u ..........
+    do j=1,l
+      e(j) = 0.0d0
+    end do
 
-290 d(i) = h
+    do j=1,l
+      f = d(j)
+      z(j,i) = f
+      g = e(j)+z(j,j)*f
+      jp1 = j+1
+
+      do k=jp1,l
+        g = g+z(k,j)*d(k)
+        e(k) = e(k)+z(k,j)*f
+      end do
+
+      e(j) = g
+    end do
+    ! .......... form p ..........
+    f = 0.0d0
+
+    do j=1,l
+      e(j) = e(j)/h
+      f = f+e(j)*d(j)
+    end do
+
+    hh = f/(h+h)
+    ! .......... form q ..........
+    do j=1,l
+      e(j) = e(j)-hh*d(j)
+    end do
+    ! .......... form reduced a ..........
+    do j=1,l
+      f = d(j)
+      g = e(j)
+
+      do k=j,l
+        z(k,j) = z(k,j)-f*e(k)-g*d(k)
+      end do
+
+      d(j) = z(l,j)
+      z(i,j) = 0.0d0
+    end do
+
+  end if
+
+  d(i) = h
 end do
 ! .......... accumulation of transformation matrices ..........
 do i=2,n
@@ -154,31 +156,32 @@ do i=2,n
   z(n,l) = z(l,l)
   z(l,l) = 1.0d0
   h = d(i)
-  if (h == 0.0d0) go to 380
+
+  if (h /= 0.0d0) then
+    do k=1,l
+      d(k) = z(k,i)/h
+    end do
+
+    do j=1,l
+      g = 0.0d0
+
+      do k=1,l
+        g = g+z(k,i)*z(k,j)
+      end do
+
+      do k=1,l
+        z(k,j) = z(k,j)-g*d(k)
+      end do
+    end do
+  end if
 
   do k=1,l
-    d(k) = z(k,i)/h
-  end do
-
-  do j=1,l
-    g = 0.0d0
-
-    do k=1,l
-      g = g+z(k,i)*z(k,j)
-    end do
-
-    do k=1,l
-      z(k,j) = z(k,j)-g*d(k)
-    end do
-  end do
-
-380 do k=1,l
     z(k,i) = 0.0d0
   end do
 
 end do
 
-510 do i=1,n
+do i=1,n
   d(i) = z(n,i)
   z(n,i) = 0.0d0
 end do

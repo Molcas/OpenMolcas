@@ -30,29 +30,25 @@ iter = 0
 
 if (imethod == 11) then
   ! Method = None:
-  goto 10
-end if
-if (imethod == 4) then
+else if (imethod == 4) then
   if (icrit == 1) then
     call svbd_cvb(orbs,cvb,fx,ioptc,iter)
   else if (icrit == 2) then
     call evbd_cvb(orbs,cvb,fx,ioptc,iter)
   end if
-  goto 10
 else if (imethod == 6) then
   call evb2cas_cvb(orbs,cvb,fx,ioptc,iter)
-  goto 10
+else
+
+  fx = zero
+
+  call optize_cvb(fx,ioptc,iter,imethod,isaddle,mxiter,icrit == 1,corenrg,ip(3),ip(4)-2,ip(4)-2,strucopt)
+
+  if ((ioptc == -1) .and. (mxiter > 0)) then
+    if (ip(3) >= 0) write(6,'(a,i4)') ' Maximum number of iterations reached:',mxiter
+    if (ip(3) >= 0) write(6,'(a)') ' Calculation NOT converged!!!'
+  end if
 end if
-
-fx = zero
-
-call optize_cvb(fx,ioptc,iter,imethod,isaddle,mxiter,icrit == 1,corenrg,ip(3),ip(4)-2,ip(4)-2,strucopt)
-
-if ((ioptc == -1) .and. (mxiter > 0)) then
-  if (ip(3) >= 0) write(6,'(a,i4)') ' Maximum number of iterations reached:',mxiter
-  if (ip(3) >= 0) write(6,'(a)') ' Calculation NOT converged!!!'
-end if
-10 continue
 if (icrit == 1) then
   svb = fx
 else

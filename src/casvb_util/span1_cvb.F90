@@ -20,16 +20,18 @@ implicit real*8(a-h,o-z)
 dimension c(n,nvec), s(*)
 
 nvremain = nvec
-100 nvmove = min(nvremain,nvecmx-nvtot)
-if ((nvmove == 0) .and. (nvremain > 0)) then
-  write(6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
-  call abend_cvb()
-end if
-call fmove_cvb(c(1,1+nvec-nvremain),work(nvtot*n+iaddr),n*nvmove)
-nvtot = nvtot+nvmove
-if (nvtot == nvecmx) call span_cvb(work(iaddr),nvtot,nvtot,s,n,metr)
-nvremain = nvremain-nvmove
-if (nvremain > 0) goto 100
+do
+  nvmove = min(nvremain,nvecmx-nvtot)
+  if ((nvmove == 0) .and. (nvremain > 0)) then
+    write(6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
+    call abend_cvb()
+  end if
+  call fmove_cvb(c(1,1+nvec-nvremain),work(nvtot*n+iaddr),n*nvmove)
+  nvtot = nvtot+nvmove
+  if (nvtot == nvecmx) call span_cvb(work(iaddr),nvtot,nvtot,s,n,metr)
+  nvremain = nvremain-nvmove
+  if (nvremain <= 0) exit
+end do
 
 return
 

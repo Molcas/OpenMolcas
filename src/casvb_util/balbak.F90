@@ -49,31 +49,33 @@ subroutine balbak(nm,n,low,igh,scale,m,z)
 !
 ! this version dated august 1983.
 !
+! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
 integer i, j, k, m, n, ii, nm, igh, low
 real*8 scale(n), z(nm,m)
 real*8 s
 
-if (m == 0) go to 200
-if (igh == low) go to 120
+if (m == 0) return
+if (igh /= low) then
+  do i=low,igh
+    s = scale(i)
+    ! .......... left hand eigenvectors are back transformed if the
+    !            foregoing statement is replaced by s=1.0d0/scale(i). ..........
+    do j=1,m
+      z(i,j) = z(i,j)*s
+    end do
 
-do i=low,igh
-  s = scale(i)
-  ! .......... left hand eigenvectors are back transformed if the
-  !            foregoing statement is replaced by s=1.0d0/scale(i). ..........
-  do j=1,m
-    z(i,j) = z(i,j)*s
   end do
+end if
 
-end do
 ! ......... for i=low-1 step -1 until 1, igh+1 step 1 until n do -- ..........
-120 do ii=1,n
+do ii=1,n
   i = ii
-  if ((i >= low) .and. (i <= igh)) go to 140
+  if ((i >= low) .and. (i <= igh)) cycle
   if (i < low) i = low-ii
   k = int(scale(i))
-  if (k == i) go to 140
+  if (k == i) cycle
 
   do j=1,m
     s = z(i,j)
@@ -81,9 +83,8 @@ end do
     z(k,j) = s
   end do
 
-140 continue
 end do
 
-200 return
+return
 
 end subroutine balbak
