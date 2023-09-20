@@ -14,8 +14,9 @@
 
 subroutine bufio_wrbuf_cvb()
 
+use casvb_global, only: file_id, ibuf, ibuffer, lbuf, nbuf, nword
+
 implicit real*8(a-h,o-z)
-#include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
 
 call bufio_wrbuf_internal(ibuffer)

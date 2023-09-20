@@ -14,14 +14,14 @@
 
 subroutine tuneinp_cvb()
 
+use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol, dx, eigwrngtol, endwhenclose, exp12tol, follow, &
+                        grd, grdwrngtol, hhaccfac, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, resthr, &
+                        safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
+
 implicit real*8(a-h,o-z)
 parameter(nstrin=37,ncmp=8)
 character*8 string(nstrin)
 character*1 true(1)
-#include "tune_cvb.fh"
-#include "tols_cvb.fh"
-#include "trst_cvb.fh"
-#include "davtune_cvb.fh"
 #include "optze_cvb.fh"
 #include "print_cvb.fh"
 #include "idbl_cvb.fh"
@@ -97,7 +97,7 @@ do
       write(6,*) ' Illegal I index in SIGN :',i
       call abend_cvb()
     end if
-    call real_cvb(sign(i),1,nread,1)
+    call real_cvb(sgn(i),1,nread,1)
   else if (istr == 12) then
     ! 'ZZMAX'
     call int_cvb(iaux,1,nread,1)
@@ -291,14 +291,14 @@ do
     ! 'MXDAV'
     call int_cvb(iaux,1,nread,1)
     mxdav = iaux(1)
-  else if (istr == 34) then
-    ! 'LASTUPD'
-    call fstring_cvb(true,1,istr2,1,1)
-    lastupd = (istr2 == 1)
+  !else if (istr == 34) then
+  !  ! 'LASTUPD'
+  !  call fstring_cvb(true,1,istr2,1,1)
+  !  lastupd = (istr2 == 1)
   else if (istr == 35) then
     ! 'ENDIFCLOSE'
     call fstring_cvb(true,1,istr2,1,1)
-    endifclose = (istr2 == 1)
+    endwhenclose = (istr2 == 1)
   end if
   ! 'END', 'ENDTUNE' or unrecognized keyword -- end of input:
   if (istr == 0) exit

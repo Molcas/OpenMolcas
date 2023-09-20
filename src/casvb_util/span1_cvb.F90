@@ -14,9 +14,10 @@
 
 subroutine span1_cvb(c,nvec,s,n,metr)
 
+use casvb_global, only: iaddr, nvecmx, nvtot
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "span_comcvb.fh"
 dimension c(n,nvec), s(*)
 
 nvremain = nvec

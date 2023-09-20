@@ -14,6 +14,8 @@
 
 subroutine mkguess2_cvb(orbs,cvb,irdorbs,orbsao)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
 logical, external :: tstfile_cvb
@@ -23,9 +25,7 @@ logical, external :: up2date_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-
 #include "WrkSpc.fh"
-#include "mo_cvb.fh"
 dimension orbs(norb,norb), cvb(nvb)
 dimension irdorbs(norb), orbsao(nbas_mo,norb)
 dimension idum(1), dum(1)

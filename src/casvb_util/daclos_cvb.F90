@@ -14,8 +14,9 @@
 
 subroutine daclos_cvb(lu)
 
+use casvb_global, only: idan
+
 implicit real*8(a-h,o-z)
-#include "dancom_cvb.fh"
 !logical find_unused
 
 call istkpop_cvb(idan,iwasopen)

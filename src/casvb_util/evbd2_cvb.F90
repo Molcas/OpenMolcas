@@ -14,6 +14,8 @@
 
 subroutine evbd2_cvb(orbs,cvb,fx,ioptc,iter,gjorb,gjorb2,gjorb3,c,axc,sxc,res,hp,solp,solp_res)
 
+use casvb_global, only: follow, have_solved_it, nortiter, orththr, resthr
+
 implicit real*8(a-h,o-z)
 external asonc_cvb, ddsol7_cvb, ddres7_cvb, ddres2upd10_cvb
 external ddrestart_cvb
@@ -21,8 +23,6 @@ external ddrestart_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "davtune_cvb.fh"
-#include "opt2_cvb.fh"
 #include "WrkSpc.fh"
 dimension orbs(norb,norb), cvb(nvb)
 dimension gjorb(*), gjorb2(*), gjorb3(*)

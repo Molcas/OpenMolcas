@@ -14,8 +14,9 @@
 
 subroutine daninit_cvb()
 
+use casvb_global, only: idan, mxfiles
+
 implicit real*8(a-h,o-z)
-#include "dancom_cvb.fh"
 !logical find_unused
 
 call istkinit_cvb(idan,mxfiles)

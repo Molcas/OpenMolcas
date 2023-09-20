@@ -14,13 +14,10 @@
 
 subroutine testconv_cvb(fx,npr,dx,w2,exp_tc,close2conv,converged,wrongstat)
 
+use casvb_global, only: fxbest, ip, isaddle, maxize
+
 implicit real*8(a-h,o-z)
 logical close2conv, converged, wrongstat
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 dimension dx(npr), w2(npr)
 save one
 data one/1.d0/

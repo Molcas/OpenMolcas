@@ -14,9 +14,10 @@
 
 subroutine axex_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
+use casvb_global, only: idd
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "direct_cvb.fh"
 external asonc, ddres2upd
 dimension vec(*)
 

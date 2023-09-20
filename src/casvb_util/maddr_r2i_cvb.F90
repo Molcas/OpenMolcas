@@ -14,9 +14,10 @@
 
 integer function maddr_r2i_cvb(m_real_addr)
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-#include "memman_cvb.fh"
 
 m_int_addr = (m_real_addr-1)*idbl+1
 maddr_r2i_cvb = m_int_addr

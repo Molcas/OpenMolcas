@@ -14,12 +14,14 @@
 
 subroutine formats_cvb()
 
+use casvb_global, only: form2AD, form2AF, formAD, formAF, formChk1, formChk2, formChk3, formcvp, formE, formMXP1, formMXP2, &
+                        formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, formVBWnorm
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 
 lenfld = 4+iprec
 ix2 = max(0,(lenfld-3)/2)

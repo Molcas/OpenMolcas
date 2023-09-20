@@ -14,12 +14,9 @@
 
 subroutine o123a2_cvb(nparm,grad,eigvec,eigval,gradp)
 
+use casvb_global, only: ip
+
 implicit real*8(a-h,o-z)
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 dimension grad(nparm)
 dimension eigvec(nparm,nparm), eigval(nparm)
 dimension gradp(nparm)

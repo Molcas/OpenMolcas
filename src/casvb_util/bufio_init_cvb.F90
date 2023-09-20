@@ -14,10 +14,11 @@
 
 subroutine bufio_init_cvb(file_id1)
 
+use casvb_global, only: file_id, ibuf, izbuffer, lbuf, nbuf, nword
+
 implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
 logical, external :: tstfile_cvb
-#include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
 dimension dnbuf(1)
 

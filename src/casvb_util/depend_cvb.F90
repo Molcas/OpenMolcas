@@ -14,9 +14,10 @@
 
 subroutine depend_cvb(chr1,chr2)
 
+use casvb_global, only: i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, ndep_ij, ndep_ji, nobj
+
 implicit real*8(a-h,o-z)
 character*(*) chr1, chr2
-#include "make_cvb.fh"
 
 call mkafter_cvb(chr1,chr2)
 call touchdepend_cvb(chr1,chr2)

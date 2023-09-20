@@ -14,6 +14,8 @@
 
 subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn,kbasis1)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 logical use_ao, ifmos_cvb
 #include "main_cvb.fh"
@@ -21,7 +23,6 @@ logical use_ao, ifmos_cvb
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "mo_cvb.fh"
 dimension orbsao(nbas_mo,norb), irdorbs(norb), cvb(*)
 
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)

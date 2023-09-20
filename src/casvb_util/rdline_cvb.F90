@@ -14,12 +14,12 @@
 
 subroutine rdline_cvb(nfield)
 
+use casvb_global, only: iline, ilv, inp, lenline, line, nline, nlold
+
 implicit real*8(a-h,o-z)
 ! BLANKDELIM signifies whether blanks are used to delimit fields:
 logical blankdelim
 integer istatus
-#include "luinp_cvb.fh"
-#include "rdline.fh"
 parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nalias=2)
 character*1 blanks(nblank)
 ! COMEOL are comments that comment out the rest of the line
@@ -157,8 +157,3 @@ end do
 return
 
 end subroutine rdline_cvb
-
-block data rdline_bd
-#include "rdline.fh"
-data iline/0/,nline/0/,nlold/0/
-end block data rdline_bd

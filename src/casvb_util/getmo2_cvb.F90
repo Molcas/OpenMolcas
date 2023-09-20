@@ -14,8 +14,9 @@
 
 subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic,ic2)
 
+use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nsym_mo
+
 implicit real*8(a-h,o-z)
-#include "mo_cvb.fh"
 dimension cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo)
 dimension cmoblk(nbasisq_mo)
 

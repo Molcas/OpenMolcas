@@ -14,10 +14,11 @@
 
 subroutine o8b_cvb(nparm,dxnrm,grdnrm,close2conv)
 
+use casvb_global, only: ix
+
 implicit real*8(a-h,o-z)
 logical close2conv
 #include "WrkSpc.fh"
-#include "opt2_cvb.fh"
 
 call o8b2_cvb(nparm,work(ix(1)),work(ix(2)),work(ix(3)),work(ix(4)),dxnrm,close2conv)
 

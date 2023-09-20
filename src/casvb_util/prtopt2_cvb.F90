@@ -14,12 +14,13 @@
 
 subroutine prtopt2_cvb(iopt1,ioptim,italter,noptim,iorts,ifxorb,ifxstr,idelstr)
 
+use casvb_global, only: spinb
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "spinb_cvb.fh"
 #include "WrkSpc.fh"
 parameter(nmeth=12)
 character*3 ayn

@@ -20,11 +20,13 @@ subroutine popfield_cvb(ifc)
 ! IFC=1 --> read to end of line only, no new line -- DISABLED in MOLCAS
 ! IFC=2 --> begin read from next line
 
+use casvb_global, only: ifield, nfield, nfold
+
 implicit real*8(a-h,o-z)
 !character*8 string
-#include "pop_cvb.fh"
 save initpop
 data initpop/0/
+
 if (initpop == 0) then
   ifield = 0
   nfield = 0

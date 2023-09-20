@@ -15,8 +15,9 @@
 subroutine mreallocr_cvb(ipoint,nword)
 ! Memory allocator (heap). Reallocate pointer.
 
+use casvb_global, only: ioff_r, memdebug
+
 implicit real*8(a-h,o-z)
-#include "memman_cvb.fh"
 #include "WrkSpc.fh"
 #include "files_cvb.fh"
 

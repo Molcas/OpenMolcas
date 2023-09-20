@@ -14,9 +14,10 @@
 
 subroutine ddguess_cvb(vec,ndim,ioffs)
 
+use casvb_global, only: idd, maxd, nparm, nvguess
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "direct_cvb.fh"
 dimension vec(ndim)
 
 nvguess = nvguess+1

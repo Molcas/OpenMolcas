@@ -14,8 +14,9 @@
 
 subroutine chpcmp2_cvb(itst,iret)
 
+use casvb_global, only: iprm, lstprm, mxprm
+
 implicit real*8(a-h,o-z)
-#include "lstprm_cvb.fh"
 
 iprm = iprm+1
 if (iprm > mxprm) then

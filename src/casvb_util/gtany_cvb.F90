@@ -14,12 +14,12 @@
 
 subroutine gtany_cvb(string,int,real,ic,ifield,ierr)
 
+use casvb_global, only: iline, ilv, lenline, line
+
 implicit real*8(a-h,o-z)
 logical debug, done
 logical isitanint_cvb, isitareal_cvb
 external isitanint_cvb, isitareal_cvb
-#include "luinp_cvb.fh"
-#include "rdline.fh"
 integer istatus
 parameter(nblank=2,nempty=1)
 character*(*) string

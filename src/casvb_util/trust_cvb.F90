@@ -14,13 +14,13 @@
 
 subroutine trust_cvb(iopth,opth,maxize,fx,fxbest,exp,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
 
+use casvb_global, only: cpropt, delopth1, delopth2, dfxmin, formAD, hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhtol, nopth1, &
+                        nopth2, scalesmall, zzacclim, zzrejmax, zzrejmin
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 logical opth, maxize, scalesmall1, close2conv, converged
 logical skipupd
 logical dfx_ok, zz_ok
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 #include "print_cvb.fh"
 save zero, half, one
 data zero/0d0/,half/.5d0/,one/1d0/

@@ -15,12 +15,13 @@
 subroutine applythmes_cvb(civbh,orbs,gjorb,gjorb2,gjorb3)
 ! Apply T(O) (H - E) T(O) to CIVBH:
 
+use casvb_global, only: ww
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "fx_cvb.fh"
 dimension civbh(ndet)
 dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 

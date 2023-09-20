@@ -15,9 +15,10 @@
 subroutine mxprint2_cvb(a,nrow,nrow2,ncol,itype)
 ! Prints matrix A, stored according to ITYPE
 
+use casvb_global, only: formMXP1, formMXP3
+
 implicit real*8(a-h,o-z)
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 parameter(mxbuf=8)
 dimension buffer(mxbuf), ibuf(mxbuf), a(*)
 

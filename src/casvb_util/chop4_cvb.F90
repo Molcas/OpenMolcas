@@ -14,15 +14,15 @@
 
 subroutine chop4_cvb()
 
+use casvb_global, only: ndres_ok, release
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "casinfo_cvb.fh"
-#include "rls_cvb.fh"
 #include "WrkSpc.fh"
-#include "change4.fh"
 
 if (release(4)) call mfreer_cvb(lc(1)-2)
 release(4) = .true.

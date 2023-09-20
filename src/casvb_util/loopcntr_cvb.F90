@@ -14,10 +14,9 @@
 
 subroutine loopcntr_cvb(icode1)
 
+use casvb_global, only: icnt, icode, inputmode, ioptstep, ipos, joptstep, loopstep, loopstepmx, mxstep, ncnt, noptstep
+
 implicit real*8(a-h,o-z)
-#include "inpmod_cvb.fh"
-#include "seth_cvb.fh"
-#include "loopcntr_cvb.fh"
 logical begbracket
 
 loopstep = loopstep+1

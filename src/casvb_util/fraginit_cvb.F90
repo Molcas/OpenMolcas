@@ -14,8 +14,9 @@
 
 subroutine fraginit_cvb()
 
+use casvb_global, only: nfrag
+
 implicit real*8(a-h,o-z)
-#include "frag_cvb.fh"
 
 nfrag = 0
 

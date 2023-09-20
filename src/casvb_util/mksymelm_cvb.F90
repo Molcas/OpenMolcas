@@ -21,8 +21,6 @@ logical, external :: up2date_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
-#include "formats_cvb.fh"
 #include "WrkSpc.fh"
 
 call rdioff_cvb(8,recinp,ioffs)

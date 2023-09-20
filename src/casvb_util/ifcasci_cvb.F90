@@ -19,7 +19,7 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "applyh_cvb.fh"
+#include "casvb.fh"
 
 call f_inquire('JOBOLD',ifcasci_cvb)
 ! In variational calculations, CI vectors will be of no use

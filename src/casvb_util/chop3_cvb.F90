@@ -14,12 +14,13 @@
 
 subroutine chop3_cvb()
 
+use casvb_global, only: release
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
 #include "WrkSpc.fh"
 
 if (release(3)) call mfreer_cvb(lb(1))

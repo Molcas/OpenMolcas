@@ -15,12 +15,13 @@
 subroutine ddsol72_cvb(hp,eigval,eigvec,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
 ! Solve linear equation in Davidson subspace.
 
+use casvb_global, only: ifollow, ipdd, iroot, jroot, nfrdim, nroot
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 dimension hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
 dimension solp(maxdav), solp_res(maxdav)
 
-if (ip >= 3) then
+if (ipdd >= 3) then
   write(6,*) ' HP matrix (b) :'
   call mxprint2_cvb(hp,itdav,maxdav,itdav,0)
 end if
@@ -61,7 +62,7 @@ eig = eigval(iroot)
 call fmove_cvb(eigvec(1,iroot),solp,itdav)
 eig_res = eigval(jroot)
 call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
-if (ip >= 2) then
+if (ipdd >= 2) then
   write(6,'(a)') ' Eigenvalues :'
   call vecprint_cvb(eigval,itdav)
   write(6,'(a,i3,a)') ' Eigenvector number',iroot,' :'

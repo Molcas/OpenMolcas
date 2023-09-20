@@ -14,9 +14,10 @@
 
 subroutine daname_cvb(lu,fname)
 
+use casvb_global, only: idan
+
 implicit real*8(a-h,o-z)
 character*(*) fname
-#include "dancom_cvb.fh"
 integer find_lu, isfreeunit, i_open
 logical find_unused, is_opened
 external find_lu, isfreeunit, is_opened

@@ -14,9 +14,11 @@
 
 subroutine ddinit_cvb(method,nparm1,nfrdim1,maxd1,mxit1,ifollow1,isaddle1,ip1,corenrg1,n_div1)
 
+use casvb_global, only: corenrg, idd, ifollow, ipdd, isaddledd, ivrhs, maxd, mxit, mxrhs, n_div, nfrdim, nortiterdd, nparm, nroot, &
+                        orththrdd, resthrdd
+
 implicit real*8(a-h,o-z)
 character*(*) method
-#include "direct_cvb.fh"
 
 ! Input parameters:
 nparm = nparm1
@@ -24,16 +26,16 @@ nfrdim = nfrdim1
 maxd = maxd1
 mxit = mxit1
 ifollow = ifollow1
-isaddle = isaddle1
+isaddledd = isaddle1
 nroot = max(1,isaddle1+1)
-ip = ip1
+ipdd = ip1
 corenrg = corenrg1
 n_div = n_div1
 ! Defaults:
-resthr = 1d-5
+resthrdd = 1d-5
 ! Local DIRDIAG parameters:
-orththr = 1d-10
-nortiter = 50
+orththrdd = 1d-10
+nortiterdd = 50
 
 if (method == 'AxEx') then
   mxrhs = 0

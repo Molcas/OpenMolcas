@@ -14,10 +14,9 @@
 
 logical function loopcntr_iterate_cvb()
 
+use casvb_global, only: icode, iopt2step, ioptim, ioptstep, ipos, istackrep, joptstep, loopstepmx, noptim, noptstep
+
 implicit real*8(a-h,o-z)
-#include "seth_cvb.fh"
-#include "loopcntr_cvb.fh"
-#include "initopt_cvb.fh"
 logical done, done2, unmatched
 external istkprobe_cvb
 logical istkprobe_cvb

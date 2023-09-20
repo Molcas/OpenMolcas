@@ -14,13 +14,9 @@
 
 subroutine zz_cvb(act1,zz1,fx,fxbest1,exp1,ip1)
 
+use casvb_global, only: dfxtol, formAD
+
 implicit real*8(a-h,o-z)
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
-#include "formats_cvb.fh"
 save zero, one, thous
 data zero/0.d0/,one/1.d0/,thous/1d3/
 

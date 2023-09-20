@@ -15,10 +15,9 @@
 subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res,eigval,eigvec,dxp,gradp,w2)
 ! Solve linear equation in Davidson subspace.
 
+use casvb_global, only: cnrm, corenrg, ifollow, ipdd, nroot, safety, signtol
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "tune_cvb.fh"
 dimension ap(maxdav,maxdav), rhsp(maxdav)
 dimension solp(maxdav), solp_res(maxdav)
 dimension eigval(itdav), eigvec(itdav,itdav)
@@ -30,7 +29,7 @@ do it=1,itdav
   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
 end do
 
-if (ip >= 3) then
+if (ipdd >= 3) then
   write(6,*) ' AP matrix :'
   do i=1,itdav
     eigval(i) = eigvec(i,i)
@@ -46,7 +45,7 @@ end if
 
 call mxdiag_cvb(eigvec,eigval,itdav)
 
-if (ip >= 2) then
+if (ipdd >= 2) then
   write(6,'(a)') ' Eigenvalues :'
   do i=1,itdav
     eigval(i) = eigval(i)+corenrg
@@ -96,7 +95,7 @@ call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,.false.,nposeig,
 
 eig_res = eig
 call fmove_cvb(solp,solp_res,itdav)
-if (ip >= 2) then
+if (ipdd >= 2) then
   write(6,'(a,f15.8)') ' Eigenvalue :',eig
   write(6,'(a)') ' Solution vector :'
   call vecprint_cvb(solp,itdav)

@@ -14,13 +14,14 @@
 
 subroutine cvbnrm_cvb(cvb)
 
+use casvb_global, only: nfrag, nvb_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "frag_cvb.fh"
 dimension cvb(nvb)
 
 if (nfrag <= 1) then

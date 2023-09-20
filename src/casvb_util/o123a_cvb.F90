@@ -14,9 +14,10 @@
 
 subroutine o123a_cvb(nparm)
 
+use casvb_global, only: ix
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "opt2_cvb.fh"
 
 call o123a2_cvb(nparm,work(ix(2)),work(ix(3)),work(ix(4)),work(ix(6)))
 

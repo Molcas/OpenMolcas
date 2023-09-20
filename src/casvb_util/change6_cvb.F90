@@ -14,6 +14,8 @@
 
 subroutine change6_cvb()
 
+use casvb_global, only: icase6
+
 implicit real*8(a-h,o-z)
 logical changed
 ! ... Change of dimensioning variables ...
@@ -22,9 +24,6 @@ logical, external :: chpcmp_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
-#include "davtune_cvb.fh"
-#include "change6.fh"
 
 changed = .false.
 if (changed) call touch_cvb('CIFREE')
@@ -42,20 +41,20 @@ end if
 if (chpcmp_cvb(npr)) changed = .true.
 if ((.not. ((imethod == 4) .or. (imethod == 6))) .and. (ifinish == 0)) then
   ! Standard 2nd-order procedure:
-  icase = 1
+  icase6 = 1
 else if ((imethod == 4) .and. (icrit == 1) .and. (ifinish == 0)) then
   ! Overlap-based Davidson
-  icase = 2
+  icase6 = 2
 else if ((imethod == 4) .and. (icrit == 2) .and. (ifinish == 0)) then
   ! Energy-based Davidson
-  icase = 3
+  icase6 = 3
 else if ((imethod == 6) .or. (ifinish == 1) .or. (ifinish == 2)) then
   ! No arrays needed
-  icase = 4
+  icase6 = 4
 else
-  icase = 5
+  icase6 = 5
 end if
-if (chpcmp_cvb(icase)) changed = .true.
+if (chpcmp_cvb(icase6)) changed = .true.
 if (changed) call touch_cvb('MEM6')
 
 return

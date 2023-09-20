@@ -14,13 +14,14 @@
 
 subroutine wrgspr_cvb(recn,c,i,n,ic,ierr)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "mo_cvb.fh"
 dimension c(n)
 
 ! Read header:

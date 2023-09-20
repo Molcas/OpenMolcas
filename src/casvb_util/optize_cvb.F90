@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine optize_cvb(fx,ioptc,iter,imetinp,isadinp,mxiter,maxinp,corenrg,ipinp,ipdd1,ipdd2,strucopt)
+subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,ipdd1,ipdd2,strucopt)
 !***********************************************************************
 !*                                                                     *
 !*  Routine for second-order optimization.                             *
@@ -36,15 +36,11 @@ subroutine optize_cvb(fx,ioptc,iter,imetinp,isadinp,mxiter,maxinp,corenrg,ipinp,
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, ix, maxize
+
 implicit real*8(a-h,o-z)
 logical maxinp, iter_is_1, strucopt, done
 #include "WrkSpc.fh"
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
-#include "opt2_cvb.fh"
 external dum_a_cvb, o123a_cvb, o123b_cvb, o5b_cvb, o7a_cvb, o7b_cvb
 external o8b_cvb, o10a_cvb, o10b_cvb
 external o12sa_cvb, o12sb_cvb, o12ea_cvb, o12eb_cvb
@@ -57,13 +53,12 @@ if (mxiter == 0) then
 end if
 
 ! Initialize for new optimization - input parameters:
-imethod = imetinp
 isaddle = isadinp
 maxize = maxinp
 ip = ipinp
 
 ! Parameters initialized:
-exp = zero
+expct = zero
 hh = hhstart
 hhkeep = hh
 ioptc = 1

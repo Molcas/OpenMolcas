@@ -15,7 +15,6 @@
 subroutine cvprt_cvb(a,l)
 
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 character*20 a
 logical l
 

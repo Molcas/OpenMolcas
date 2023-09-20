@@ -14,13 +14,13 @@
 
 subroutine defs2_cvb(ifxorb)
 
+use casvb_global, only: iunset, nfrag
+
 implicit real*8(a-h,o-z)
-parameter(iunset=-1357924680,unset=-1357924680d0)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 dimension ifxorb(mxorb_cvb)
 
 if (icrit == iunset) then

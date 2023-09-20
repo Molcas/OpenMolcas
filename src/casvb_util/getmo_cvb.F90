@@ -14,8 +14,9 @@
 
 subroutine getmo_cvb(cmo,ic,ic2)
 
+use casvb_global, only: nbas_mo, nbasisq_mo
+
 implicit real*8(a-h,o-z)
-#include "mo_cvb.fh"
 #include "WrkSpc.fh"
 dimension cmo(*)
 

@@ -14,14 +14,13 @@
 
 subroutine chop6_cvb()
 
+use casvb_global, only: icase6, mxdav, release
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
-#include "davtune_cvb.fh"
-#include "change6.fh"
 logical done
 
 if (release(6)) call mfreer_cvb(lp(1))
@@ -30,7 +29,7 @@ release(7) = .false.
 lp(1) = mstackr_cvb(0)
 
 call setcnt2_cvb(6,0)
-if (icase == 1) then
+if (icase6 == 1) then
   ! Standard non-linear optimization procedure:
   lp(1) = mstackr_cvb(norb*norb+nvb+1+mxirrep)
   lp(2) = mstackr_cvb(npr)
@@ -43,7 +42,7 @@ if (icase == 1) then
   lq(9) = mstackr_cvb(norb*norb)
   ! Vec1 work array
   lq(10) = mstackr_cvb(max(npr,ndetvb))
-else if (icase == 2) then
+else if (icase6 == 2) then
   ! Overlap-based Davidson optimization:
   iremain = mavailr_cvb()
   maxdav = min(mxiter,nvb,mxdav)
@@ -71,7 +70,7 @@ else if (icase == 2) then
   end if
   maxdav = idav
 
-else if (icase == 3) then
+else if (icase6 == 3) then
   ! Energy-based Davidson optimization:
   iremain = mavailr_cvb()
   maxdav = min(mxiter,nvb,mxdav)
@@ -106,7 +105,7 @@ else if (icase == 3) then
   end if
   maxdav = idav
 
-else if (icase == 4) then
+else if (icase6 == 4) then
   ! Wavefunction analysis:
   mstackr_cvb0 = mstackr_cvb(0)
   if (((.not. variat) .or. endvar) .and. ((ivbweights > 1) .or. (ishstruc == 1))) then

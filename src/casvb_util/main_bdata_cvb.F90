@@ -19,8 +19,6 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "seth_cvb.fh"
-#include "spinb_cvb.fh"
 
 md2h(1,1) = 1
 md2h(2,1) = 2
@@ -102,24 +100,8 @@ r3by4 = .75d0
 p8 = .8d0
 sqp5 = .70710678118654752440d0
 sq2 = 1.41421356237309504880d0
-mxopt = 500
-mxcnt = 5000
 opposite = .false.
 corenrg = 0d0
-spinb(1) = 'Kotani      '
-spinb(2) = 'Serber      '
-spinb(3) = 'Rumer       '
-spinb(4) = 'Rumer (LT)  '
-spinb(5) = 'Projected   '
-spinb(6) = 'Determinants'
-spinb(7) = 'Determinants'
-spinbkw(1) = 'KOTANI  '
-spinbkw(2) = 'SERBER  '
-spinbkw(3) = 'RUMER   '
-spinbkw(4) = 'LTRUMER '
-spinbkw(5) = 'PROJECT '
-spinbkw(6) = 'DET     '
-spinbkw(7) = 'DETERM  '
 
 return
 

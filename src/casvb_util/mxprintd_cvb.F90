@@ -14,9 +14,10 @@
 
 subroutine mxprintd_cvb(a,nrow,ncol,itype)
 
+use casvb_global, only: formMXP1, formMXP2, formMXP3, formMXP4
+
 implicit real*8(a-h,o-z)
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 parameter(mxbuf=8)
 dimension buffer(mxbuf), ibuf(mxbuf), a(*)
 

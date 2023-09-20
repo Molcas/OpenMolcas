@@ -15,12 +15,10 @@
 subroutine makedx_cvb(dx,nparm,ioptc,heigvec,heigval,dxp,gradp,w2,close2conv,converged,nposeig,scalesmall,wrongstat,nnegeig,opth, &
                       alfastart,alfa)
 
+use casvb_global, only: alftol, cnrm, cnrmtol, eigwrngtol, exp12tol, expct, form2AF, formAD, formAF, grdwrngtol, hh, ip
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 logical opth, close2conv, converged, wrongstat, scalesmall
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "tune_cvb.fh"
 dimension heigvec(nparm,nparm), heigval(nparm)
 dimension dxp(nparm), dx(nparm), gradp(nparm), w2(nparm)
 save zero, one
@@ -51,7 +49,7 @@ if ((cnrm < hh) .and. scalesmall) then
 else if (cnrm >= hh) then
   call optalf_cvb(heigval,gradp,nparm,hh,alfa,nnegeig,alfastart,alftol)
   call getdxp_cvb(dxp,gradp,heigval,nnegeig,nparm,alfa)
-  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
+  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,expct,exp1,exp2)
   cnrm = dnrm2_(nparm,dxp,1)
   if ((.not. opth) .and. (ip >= 2)) write(6,formAF) ' Alpha and norm of update :',alfa,cnrm
 end if
@@ -65,7 +63,7 @@ if ((ioptc > 0) .and. ((.not. opth) .and. (cnrm < cnrmtol))) then
   return
 end if
 do
-  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,exp,exp1,exp2)
+  call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,expct,exp1,exp2)
   if ((exp1 >= -exp12tol) .and. (exp2 <= exp12tol)) exit
   call dscal_(nparm,0.9d0,dxp,1)
   cnrm = dnrm2_(nparm,dxp,1)

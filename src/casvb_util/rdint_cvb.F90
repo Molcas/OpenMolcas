@@ -18,9 +18,10 @@
 subroutine rdint_cvb(intval,ierr)
 ! Check if field is applicable:
 
+use casvb_global, only: ifield, nfield
+
 implicit real*8(a-h,o-z)
 character*8 string
-#include "pop_cvb.fh"
 
 ierr = 0
 if (nfield == -1) ierr = 1

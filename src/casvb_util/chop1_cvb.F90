@@ -14,13 +14,13 @@
 
 subroutine chop1_cvb()
 
+use casvb_global, only: nalf_fr, nbet_fr, nda_fr, ndb_fr, ndetvb_fr, nfrag, release
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
-#include "rls_cvb.fh"
 
 if (release(1)) call mfreei_cvb(ll(1))
 release(1) = .true.

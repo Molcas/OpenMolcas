@@ -15,17 +15,19 @@
 
 integer function mstackr_cvb(nword)
 ! Memory allocator (stack). Returns pointer to NWORD real*8 words.
+
+use casvb_global, only: iaddrm, memdebug, mxfield, nfieldm
+
 implicit real*8(a-h,o-z)
-#include "memman_cvb.fh"
 
 if (memdebug) write(6,*) '     Enter mstackr: nword :',nword
 mstackr_cvb = mheapr_cvb(nword)
-nfield = nfield+1
-if (nfield > mxfield) then
-  write(6,*) ' Too many field in mstackr :',nfield,mxfield
+nfieldm = nfieldm+1
+if (nfieldm > mxfield) then
+  write(6,*) ' Too many field in mstackr :',nfieldm,mxfield
   call abend_cvb()
 end if
-iaddr(nfield) = mstackr_cvb
+iaddrm(nfieldm) = mstackr_cvb
 if (memdebug) write(6,*) '     mstackr: nword & pointer :',nword,mstackr_cvb
 
 return

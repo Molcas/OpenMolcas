@@ -16,8 +16,9 @@ subroutine bufio_chbuf_cvb(jbuf)
 ! Change buffer position to JBUF. NB: Does not write current buffer,
 ! neither is JBUF buffer read.
 
+use casvb_global, only: ibuf, nbuf
+
 implicit real*8(a-h,o-z)
-#include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
 
 ! Dummy writes so that we don't exceed end-of-file:

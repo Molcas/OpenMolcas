@@ -22,8 +22,6 @@ logical, external :: chpcmp_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
-#include "rls_cvb.fh"
 
 ! Arrays for determinant handling (E_ij) and definition
 ! of VB wavefunction:

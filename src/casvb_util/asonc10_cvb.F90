@@ -14,15 +14,15 @@
 
 subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
 
+use casvb_global, only: ipp, iter
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "ipp.fh"
 dimension c(nprm,nvec), axc(nprm,nvec)
-!save iter, ipp
 
 iter = iter+1
 if (ipp >= 2) then

@@ -14,13 +14,14 @@
 
 subroutine mkvbinfo_cvb()
 
+use casvb_global, only: nconfion_fr, nfrag
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 
 if (nfrag > 1) then
   call dpgendet_cvb()

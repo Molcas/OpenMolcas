@@ -14,12 +14,13 @@
 
 subroutine orthcvb_cvb(c,nparm1)
 
+use casvb_global, only: cvbnrm_fr, nfrag, nvb_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 dimension c(*)
 

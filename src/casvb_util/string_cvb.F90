@@ -14,8 +14,9 @@
 
 subroutine string_cvb(arr,nmax,nread,ifc)
 
+use casvb_global, only: inputmode
+
 implicit real*8(a-h,o-z)
-#include "inpmod_cvb.fh"
 character*(*) arr(nmax)
 character*100 string
 logical done

@@ -14,14 +14,14 @@
 
 subroutine hess_evb1_cvb(orbs,civbh,citmp,civb,sorbs,owrk,gjorb,gjorb2,gjorb3,dvbdet,grad1,grad2,hessorb,vec1,iorts,hessinp,hessout)
 
+use casvb_global, only: f1, f2, f3, f4, nfrag
+
 implicit real*8(a-h,o-z)
 logical orbopt2, strucopt2
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
-#include "fx_cvb.fh"
 #include "WrkSpc.fh"
 dimension orbs(norb,norb)
 dimension civbh(ndet), citmp(ndet), civb(ndet)

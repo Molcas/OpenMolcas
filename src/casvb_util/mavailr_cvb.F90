@@ -15,8 +15,9 @@
 integer function mavailr_cvb()
 ! Memory allocator (heap). Returns number of real*8 words free.
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
-#include "memman_cvb.fh"
 
 ipoint_g = 0
 call getmem('casvb','MAX ','REAL',ipoint_g,nword)

@@ -14,6 +14,8 @@
 
 subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res,resh,cvbdet,gjorb)
 
+use casvb_global, only: dx, formAD, formAF, grd
+
 implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
 logical, external :: tstfile_cvb
@@ -21,8 +23,6 @@ logical, external :: tstfile_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
-#include "tols_cvb.fh"
 logical dx_ok, grad_ok
 dimension orbs(norb,norb), cvb(nvb)
 dimension civec(ndet), civb(ndet), civbh(ndet)

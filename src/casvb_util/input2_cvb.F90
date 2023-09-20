@@ -14,14 +14,14 @@
 
 subroutine input2_cvb(iorbrel,mxdimrel,ifxorb,iorts,irots,izeta,orbs,irdorbs)
 
+use casvb_global, only: i2s_fr, inputmode, mnion_fr, mxion_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, ndetvb_fr, ndetvb2_fr, &
+                        nel_fr, nfrag, nMs_fr, nS_fr, nvbr_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
-#include "spinb_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 dimension iorbrel(mxdimrel), ifxorb(mxorb_cvb)
 dimension iorts(2,*), irots(2,*), izeta(*)

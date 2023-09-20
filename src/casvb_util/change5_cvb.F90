@@ -22,7 +22,6 @@ logical, external :: chpcmp_cvb, lchpcmp_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
 
 ! Dimensioning for symmetry handling:
 changed = .false.

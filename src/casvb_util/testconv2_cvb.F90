@@ -14,12 +14,12 @@
 
 subroutine testconv2_cvb(close2conv,converged,wrongstat,act,zz,step,grad,npr,eigmn,eigmx,eigmna,nposeig,nnegeig)
 
+use casvb_global, only: dx, dfx, formAD, grd, sgn, singul, zzmin, zzmax
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 logical close2conv, converged, wrongstat, close_old
 logical dfx_is_small, step_is_small, grad_is_small
 logical correct_index, zz_ok
-#include "tols_cvb.fh"
 #include "print_cvb.fh"
 dimension step(npr), grad(npr)
 
@@ -59,7 +59,7 @@ end if
 dfx_is_small = act < dfx(mm)
 step_is_small = (step_nrm < dx(2,mm)) .and. (step_rms < dx(3,mm)) .and. (step_amx < dx(1,mm))
 grad_is_small = (grad_nrm < grd(2,mm)) .and. (grad_rms < grd(3,mm)) .and. (grad_amx < grd(1,mm))
-correct_index = (eigmx < sign(mm)) .and. (eigmn > -sign(mm))
+correct_index = (eigmx < sgn(mm)) .and. (eigmn > -sgn(mm))
 zz_ok = (zz > zzmin(mm)) .and. (zz < zzmax(mm))
 
 close2conv = dfx_is_small .and. step_is_small .and. grad_is_small .and. correct_index .and. zz_ok
@@ -72,7 +72,7 @@ end if
 dfx_is_small = act < dfx(mm)
 step_is_small = (step_nrm < dx(2,mm)) .and. (step_rms < dx(3,mm)) .and. (step_amx < dx(1,mm))
 grad_is_small = (grad_nrm < grd(2,mm)) .and. (grad_rms < grd(3,mm)) .and. (grad_amx < grd(1,mm))
-correct_index = (eigmx < sign(mm)) .and. (eigmn > -sign(mm))
+correct_index = (eigmx < sgn(mm)) .and. (eigmn > -sgn(mm))
 zz_ok = (zz > zzmin(mm)) .and. (zz < zzmax(mm))
 
 if (ip(3) >= 2) then
@@ -91,8 +91,8 @@ if (ip(3) >= 2) then
   call cvprt2_cvb(' Norm of grad  :',grad_nrm,grd(2,mm),1)
   call cvprt2_cvb(' RMS of grad   :',grad_rms,grd(3,mm),1)
   call cvprt2_cvb(' AMAX of grad  :',grad_amx,grd(1,mm),1)
-  call cvprt2_cvb(' Max. eigval   :',eigmx,sign(mm),1)
-  call cvprt2_cvb(' Min. eigval   :',eigmn,-sign(mm),2)
+  call cvprt2_cvb(' Max. eigval   :',eigmx,sgn(mm),1)
+  call cvprt2_cvb(' Min. eigval   :',eigmn,-sgn(mm),2)
   call cvprt2_cvb(' Act/Exp ratio :',zz,zzmin(mm),2)
   call cvprt2_cvb(' Act/Exp ratio :',zz,zzmax(mm),1)
   write(6,*) ' '
@@ -109,7 +109,7 @@ end if
 dfx_is_small = act < dfx(mm)
 step_is_small = (step_nrm < dx(2,mm)) .and. (step_rms < dx(3,mm)) .and. (step_amx < dx(1,mm))
 grad_is_small = (grad_nrm < grd(2,mm)) .and. (grad_rms < grd(3,mm)) .and. (grad_amx < grd(1,mm))
-correct_index = (eigmx < sign(mm)) .and. (eigmn > -sign(mm))
+correct_index = (eigmx < sgn(mm)) .and. (eigmn > -sgn(mm))
 zz_ok = (zz > zzmin(mm)) .and. (zz < zzmax(mm))
 
 ! Wrong stationary point if otherwise converged, but Hessian

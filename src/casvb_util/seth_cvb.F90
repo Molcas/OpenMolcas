@@ -14,9 +14,10 @@
 
 subroutine seth_cvb(iarr,n)
 
+use casvb_global, only: ncnt
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "seth_cvb.fh"
 dimension iarr(n)
 
 call wrbis_cvb(iarr,n,ncnt)

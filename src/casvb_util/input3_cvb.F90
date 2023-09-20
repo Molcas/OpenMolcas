@@ -14,6 +14,8 @@
 
 subroutine input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,izrstr,iorts,irots,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
 
+use casvb_global, only: nspinb, spinbkw
+
 implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
 logical, external :: valid_cvb
@@ -21,8 +23,6 @@ logical, external :: valid_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
-#include "spinb_cvb.fh"
 #include "WrkSpc.fh"
 parameter(nglob=5,nstrin=51,nendvb=3,nspec=3,ncrit=2,nmeth=12,nwkw=5,ncmp=4)
 character*8 global, string, endvb, specl

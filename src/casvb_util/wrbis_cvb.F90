@@ -15,8 +15,9 @@
 subroutine wrbis_cvb(ivec,n,ioffset)
 ! Buffered integer IO with integer offset
 
+use casvb_global, only: ibuf, ibuffer, lbuf
+
 implicit real*8(a-h,o-z)
-#include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
 dimension ivec(n)
 logical full_buffer

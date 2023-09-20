@@ -14,15 +14,11 @@
 
 subroutine o7b2_cvb(nparm,dx,dxnrm,grdnrm,close2conv)
 
+use casvb_global, only: expct, have_solved_it, hh, ip, scalesmall
+
 implicit real*8(a-h,o-z)
 logical skip
 logical close2conv
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
-#include "opt2_cvb.fh"
 external asonc7_cvb, ddres2upd7_cvb
 dimension dx(nparm)
 save one, resthr_old
@@ -40,7 +36,7 @@ resthr_old = resthr_use
 if (.not. skip) then
   call axex_cvb(asonc7_cvb,ddres2upd7_cvb,dx,resthr_use,ioptc2,iter2,fx_exp)
   have_solved_it = .true.
-  exp = .5d0*fx_exp
+  expct = .5d0*fx_exp
 
   if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
 

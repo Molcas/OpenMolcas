@@ -14,12 +14,13 @@
 
 subroutine grad_cvb(grad)
 
+use casvb_global, only: ovraa_try, ovrab, ovrab_try, ww, ww_try
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "fx_cvb.fh"
 #include "WrkSpc.fh"
 dimension grad(*)
 

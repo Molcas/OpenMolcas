@@ -15,9 +15,10 @@
 subroutine vecprint_cvb(a,n)
 ! Prints vector A
 
+use casvb_global, only: formMXP5, formMXP6
+
 implicit real*8(a-h,o-z)
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 parameter(mxbuf=8)
 dimension a(n)
 

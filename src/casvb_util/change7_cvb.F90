@@ -14,6 +14,8 @@
 
 subroutine change7_cvb()
 
+use casvb_global, only: icase7
+
 implicit real*8(a-h,o-z)
 logical changed
 ! ... Change of dimensioning variables ...
@@ -22,21 +24,19 @@ logical, external :: chpcmp_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
-#include "change7.fh"
 
 ! Inconsequential work arrays
 changed = .false.
 if (((imethod /= 4) .and. (ifinish == 0)) .or. ((ifinish == 1) .or. (ifinish == 2))) then
-  icase = 1
+  icase7 = 1
 else if ((imethod == 4) .and. (icrit == 1) .and. (ifinish == 0)) then
-  icase = 2
+  icase7 = 2
 else if ((imethod == 4) .and. (icrit == 2) .and. (ifinish == 0)) then
-  icase = 3
+  icase7 = 3
 else
-  icase = 4
+  icase7 = 4
 end if
-if (chpcmp_cvb(icase)) changed = .true.
+if (chpcmp_cvb(icase7)) changed = .true.
 if (changed) call touch_cvb('MEM7')
 
 return

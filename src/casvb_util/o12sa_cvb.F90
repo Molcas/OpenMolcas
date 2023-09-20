@@ -14,6 +14,8 @@
 
 subroutine o12sa_cvb(nparm1)
 
+use casvb_global, only: have_solved_it, ix
+
 implicit real*8(a-h,o-z)
 ! ... Content of CI vectors ...
 logical, external :: tstcnt_cvb
@@ -21,7 +23,6 @@ logical, external :: tstcnt_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "opt2_cvb.fh"
 #include "WrkSpc.fh"
 
 call ddnewopt_cvb()

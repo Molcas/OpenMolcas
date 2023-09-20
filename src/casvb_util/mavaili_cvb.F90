@@ -15,9 +15,10 @@
 
 integer function mavaili_cvb()
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-#include "memman_cvb.fh"
 
 mavaili_cvb = mavailr_cvb()*idbl
 if (memdebug) write(6,*) '   mavaili :',mavaili_cvb

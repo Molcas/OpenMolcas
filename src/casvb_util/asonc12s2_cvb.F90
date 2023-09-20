@@ -14,21 +14,22 @@
 
 subroutine asonc12s2_cvb(c,sxc,nvec,nprm,civb,civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet,cvb,vec_all)
 
+use casvb_global, only: ipp12s, iter12s
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "asonc12s.fh"
 dimension c(nprm,nvec), sxc(nprm,nvec)
 dimension civb(ndet), civbs(ndet)
 dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 dimension cvb(nvb), cvbdet(ndetvb)
 dimension vec_all(npr)
 
-iter = iter+1
-if (ipp >= 2) then
-  write(6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
+iter12s = iter12s+1
+if (ipp12s >= 2) then
+  write(6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter12s,' at',tim_cvb(cpu0),' CPU seconds'
   write(6,'(a)') ' -----------------------------------------------'
 end if
 

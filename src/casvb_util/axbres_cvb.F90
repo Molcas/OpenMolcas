@@ -16,7 +16,6 @@ subroutine axbres_cvb(dum,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converg
 
 implicit real*8(a-h,o-z)
 logical is_converged
-#include "direct_cvb.fh"
 dimension sxc(n,maxdav), rhs(n), res(n)
 dimension solp_res(maxdav)
 

@@ -15,7 +15,6 @@
 subroutine ddsolsvb_cvb(dum,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
 
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 dimension rhsp(maxdav), solp(maxdav), solp_res(maxdav)
 save one
 data one/1d0/

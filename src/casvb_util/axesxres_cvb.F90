@@ -14,9 +14,10 @@
 
 subroutine axesxres_cvb(axc,sxc,dum,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
 
+use casvb_global, only: iroot, jroot
+
 implicit real*8(a-h,o-z)
 logical is_converged
-#include "direct_cvb.fh"
 dimension axc(n,maxdav), sxc(n,maxdav), res(n)
 dimension solp_res(maxdav)
 

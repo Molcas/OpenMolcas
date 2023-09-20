@@ -14,13 +14,14 @@
 
 subroutine cvbinit_cvb()
 
+use casvb_global, only: is_set
+
 implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "cvbinit.fh"
 parameter(iset=1)
 
 if (is_set == iset) return
@@ -30,8 +31,3 @@ call cvbfinit_cvb()
 return
 
 end subroutine cvbinit_cvb
-
-block data cvbinit_bd
-#include "cvbinit.fh"
-data is_set/0/
-end block data cvbinit_bd

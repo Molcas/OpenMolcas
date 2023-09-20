@@ -14,12 +14,13 @@
 
 subroutine maxdims_cvb()
 
+use casvb_global, only: inputmode
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
 
 if (inputmode == 1) then
   mxnvb = max(mxnvb,nvb_cvb(kbasis))

@@ -14,8 +14,9 @@
 
 subroutine ddrestart2_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1,eigval,eigvec)
 
+use casvb_global, only: ifollow, nroot
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 dimension c(n,maxdav), axc(n,maxdav), vec(n)
 dimension hp(maxdav,maxdav)
 dimension solp(maxdav)

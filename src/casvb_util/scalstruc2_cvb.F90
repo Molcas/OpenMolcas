@@ -14,12 +14,13 @@
 
 subroutine scalstruc2_cvb(orbs,cvb,iconfs,ifnss)
 
+use casvb_global, only: i2s_fr, nconfion_fr, nfrag, nS_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 dimension orbs(norb,norb), cvb(nvb)
 dimension iconfs(noe,nconf), ifnss(0:nel,0:nel)
 

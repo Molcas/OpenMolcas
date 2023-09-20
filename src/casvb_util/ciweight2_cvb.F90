@@ -16,12 +16,13 @@ subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,gj
                          maxgion,nkion,xion,locion,lunion,mingsng,maxgsng,nksng,xsng,locsng,lunsng,mingasg,maxgasg,nkasg,xasg, &
                          locasg,lunasg,gal1,gal2,indavec,indbvec,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
+use casvb_global, only: form2AD, formAD
+
 implicit real*8(a-h,o-w,y-z),integer(x)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 character*240 line
 dimension civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet)
 dimension orbs(norb,norb), sorbs(norb,norb)

@@ -14,15 +14,16 @@
 
 subroutine asonc12einit_cvb(ippinp)
 
+use casvb_global, only: ipp12e, iter12e
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "asonc12e.fh"
 
-iter = 0
-ipp = ippinp
+iter12e = 0
+ipp12e = ippinp
 
 return
 

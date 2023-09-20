@@ -14,6 +14,8 @@
 
 subroutine change4_cvb()
 
+use casvb_global, only: ndres_ok
+
 implicit real*8(a-h,o-z)
 logical changed
 ! ... Files/Hamiltonian available ...
@@ -27,9 +29,7 @@ logical, external :: chpcmp_cvb
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "casinfo_cvb.fh"
-#include "rls_cvb.fh"
 #include "WrkSpc.fh"
-#include "change4.fh"
 
 changed = .false.
 ! CI vectors

@@ -14,12 +14,9 @@
 
 subroutine o123b2_cvb(nparm,dx,eigvec,eigval,dxp,gradp,wrk,dxnrm)
 
+use casvb_global, only: cnrm, isaddle, maxize, safety, signtol
+
 implicit real*8(a-h,o-z)
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 dimension dx(nparm)
 dimension eigvec(nparm,nparm), eigval(nparm)
 dimension dxp(nparm), gradp(nparm), wrk(nparm)

@@ -14,6 +14,8 @@
 
 subroutine putguess_cvb(orbs,cvb,recn)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 logical use_ao, ifmos_cvb
 #include "main_cvb.fh"
@@ -21,7 +23,6 @@ logical use_ao, ifmos_cvb
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "mo_cvb.fh"
 dimension orbs(norb,*), cvb(*)
 
 call wrheader_cvb(recn,norb,nbas_mo,nvb,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)

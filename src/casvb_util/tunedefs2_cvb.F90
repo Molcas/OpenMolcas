@@ -12,28 +12,27 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine tunedefs2_cvb(imethod,endifclose1)
+subroutine tunedefs2_cvb(imethod,endwhenclose1)
+
+use casvb_global, only: delopth1, delopth2, dfxmin, dx, endwhenclose, exp12tol, grd, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, &
+                        nopth1, nopth2, resthr, scalesmall, sgn, singul, zzacclim, zzmin, zzrejmax, zzrejmin
 
 implicit real*8(a-h,o-z)
-logical endifclose1
-#include "tune_cvb.fh"
-#include "tols_cvb.fh"
-#include "trst_cvb.fh"
-#include "davtune_cvb.fh"
+logical endwhenclose1
 save small, small2, smaller, zero
 data small/1d-3/,small2/1d-5/,smaller/1d-6/
 data zero/0d0/
 
 ! << TUNE_CVB common block: >>
-endifclose = endifclose1
+endwhenclose = endwhenclose1
 if ((imethod == 1) .or. (imethod == 10)) then
   !'FLETCHER'
   exp12tol = zero
   ! Criteria for entering local region:
   grd(1,1) = 5d-4
   grd(1,2) = 5d-4
-  sign(1) = smaller
-  sign(2) = smaller
+  sgn(1) = smaller
+  sgn(2) = smaller
   singul(1) = 1d-2
   zzmin(1) = -small
   zzmin(2) = -small
@@ -70,8 +69,8 @@ if (imethod == 2) then
   ! Criteria for entering local region:
   grd(1,1) = 5d-6
   grd(1,2) = 5d-6
-  sign(1) = smaller
-  sign(2) = smaller
+  sgn(1) = smaller
+  sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small
@@ -105,8 +104,8 @@ if (imethod == 3) then
   ! Criteria for entering local region:
   grd(1,1) = 5d-6
   grd(1,2) = 5d-6
-  sign(1) = smaller
-  sign(2) = smaller
+  sgn(1) = smaller
+  sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small
@@ -180,8 +179,8 @@ if ((imethod == 6) .or. (imethod == 7) .or. (imethod == 8) .or. (imethod == 10) 
   ! Criteria for entering local region:
   grd(1,1) = 5d-4
   grd(1,2) = 5d-4
-  sign(1) = smaller
-  sign(2) = smaller
+  sgn(1) = smaller
+  sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small

@@ -14,13 +14,10 @@
 
 subroutine o8b2_cvb(nparm,dx,grad,eigvec,eigval,dxnrm,close2conv)
 
+use casvb_global, only: hh, ip, scalesmall
+
 implicit real*8(a-h,o-z)
 logical close2conv
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 dimension dx(nparm), grad(nparm)
 dimension eigvec(nparm+1,nparm+1), eigval(nparm+1)
 save one

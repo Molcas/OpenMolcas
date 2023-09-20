@@ -15,6 +15,8 @@
 subroutine reprt2_cvb(orbs,cvb,civec,civb,civbs,civbh,citmp,sstruc,sstruc2,orbinv,sorbs,owrk,gjorb,gjorb2,gjorb3,cvbstot,cvbsspn, &
                       cvbdet,dvbdet,evbdet,dmat,occ)
 
+use casvb_global, only: formE, formroot, formSymW, formVBWnorm
+
 implicit real*8(a-h,o-z)
 logical make_sstruc
 ! ... Files/Hamiltonian available ...
@@ -23,7 +25,6 @@ logical, external :: valid_cvb, ifcasci_cvb, ifhamil_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 dimension orbs(norb,norb), cvb(nvb)
 dimension civec(ndet), civb(ndet)
 dimension civbs(ndet), civbh(ndet), citmp(ndet)

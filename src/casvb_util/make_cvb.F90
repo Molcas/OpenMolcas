@@ -14,9 +14,10 @@
 
 subroutine make_cvb(chr)
 
+use casvb_global, only: charobj, i_dep_on_j, ioffs, iprint, mustdeclare, nobj, up2date
+
 implicit real*8(a-h,o-z)
 character*(*) chr
-#include "make_cvb.fh"
 logical done
 
 do

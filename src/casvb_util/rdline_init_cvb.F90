@@ -14,11 +14,11 @@
 
 subroutine rdline_init_cvb(variat)
 
+use casvb_global, only: inp, lenline, line
+
 implicit real*8(a-h,o-z)
 ! BLANKDELIM signifies whether blanks are used to delimit fields:
 logical blankdelim, variat
-#include "luinp_cvb.fh"
-#include "rdline.fh"
 parameter(nblank=2)
 character*1 blanks(nblank)
 integer istatus

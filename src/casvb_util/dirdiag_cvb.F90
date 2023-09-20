@@ -72,8 +72,9 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: formAD, formAF
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 logical share, is_converged, symm, use_a, use_rhs, done
 external ddasonc, ddsol, ddres, ddres2upd, ddrestart
 dimension c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n)

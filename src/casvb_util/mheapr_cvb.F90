@@ -16,8 +16,9 @@
 integer function mheapr_cvb(nword1)
 ! Memory allocator (heap). Returns pointer to NWORD real*8 words.
 
+use casvb_global, only: ioff_r, memdebug
+
 implicit real*8(a-h,o-z)
-#include "memman_cvb.fh"
 
 nword = nword1
 if (memdebug) write(6,*) '     Enter mheapr: nword :',nword

@@ -14,19 +14,19 @@
 
 subroutine chop7_cvb()
 
+use casvb_global, only: icase7, release
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "rls_cvb.fh"
-#include "change7.fh"
 
 if (release(7)) call mfreer_cvb(lw(1))
 release(7) = .true.
 release(8) = .false.
 
-if (icase == 1) then
+if (icase7 == 1) then
   lw(1) = mstackr_cvb(norb*norb)
   lw(2) = mstackr_cvb(norb*norb)
   lw(3) = mstackr_cvb(norb*norb)
@@ -40,7 +40,7 @@ if (icase == 1) then
   lw(9) = mstackr_cvb(ndetvb)
   lw(10) = mstackr_cvb(ndetvb)
   lw(11) = mstackr_cvb(ndetvb)
-else if (icase == 2) then
+else if (icase7 == 2) then
   lw(1) = mstackr_cvb(norb*norb)
   lw(2) = mstackr_cvb(norb*norb)
   lw(3) = mstackr_cvb(norb*norb)
@@ -54,7 +54,7 @@ else if (icase == 2) then
   lw(9) = mstackr_cvb(ndetvb)
   lw(10) = mstackr_cvb(ndetvb)
   lw(11) = mstackr_cvb(ndetvb)
-else if (icase == 3) then
+else if (icase7 == 3) then
   lw(1) = mstackr_cvb(norb*norb)
   lw(2) = mstackr_cvb(norb*norb)
   lw(3) = mstackr_cvb(norb*norb)

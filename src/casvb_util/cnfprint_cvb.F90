@@ -14,6 +14,8 @@
 
 subroutine cnfprint_cvb()
 
+use casvb_global, only: nconf_fr, ndetvb_fr, nel_fr, nfrag, nvbr_fr
+
 implicit real*8(a-h,o-z)
 ! ... Make: up to date? ...
 logical, external :: up2date_cvb
@@ -21,8 +23,6 @@ logical, external :: up2date_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 logical recinpcmp_cvb
 dimension idum(1)

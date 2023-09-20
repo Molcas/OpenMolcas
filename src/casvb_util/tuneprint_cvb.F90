@@ -14,12 +14,12 @@
 
 subroutine tuneprint_cvb()
 
+use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol, dx, eigwrngtol, endwhenclose, exp12tol, follow, &
+                        grd, grdwrngtol, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, &
+                        resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
+
 implicit real*8(a-h,o-z)
 parameter(nstrin=37,ncmp=8)
-#include "tune_cvb.fh"
-#include "tols_cvb.fh"
-#include "trst_cvb.fh"
-#include "davtune_cvb.fh"
 #include "optze_cvb.fh"
 #include "print_cvb.fh"
 #include "idbl_cvb.fh"
@@ -36,8 +36,7 @@ if (imethod /= 4) then
   call fout_cvb(exp12tol,'EXP12TOL','Criterion on expected change of f(x):')
   call fout_cvb(grdwrngtol,'GRDWRNGTOL','Gradient tol. for scaling small updates:')
   call fout_cvb(eigwrngtol,'EIGWRNGTOL','Eigenvalue tol. for scaling small updates:')
-  call lout_cvb(lastupd,'LASTUPD','Perform update at convergence?')
-  call lout_cvb(endifclose,'ENDIFCLOSE','Exit if optimization close to convergence?')
+  call lout_cvb(endwhenclose,'ENDIFCLOSE','Exit if optimization close to convergence?')
   write(6,'(/,a)') ' Convergence criteria:'
   write(6,'(/,a)') ' Elements of arrays:'
   write(6,'(a)') ' (1) ... Optimization is in global region.'
@@ -51,7 +50,7 @@ if (imethod /= 4) then
   write(6,'(a)') ' (*,4) ... Local region, singular Hessian.'
   write(6,'(a)') ' (*,5) ... Wrong stationary point, non-singular Hessian.'
   write(6,'(a)') ' (*,6) ... Wrong stationary point, singular Hessian.'
-  call fouti_cvb(sign,6,'SIGN(6)','Threshold for sign of Hessian eigenvalues:')
+  call fouti_cvb(sgn,6,'SIGN(6)','Threshold for sign of Hessian eigenvalues:')
   call fouti_cvb(zzmin,6,'ZZMIN(6)','Mininum allowed act/exp ratio:')
   call fouti_cvb(zzmax,6,'ZZMAX(6)','Maximum allowed act/exp ratio:')
   call fouti_cvb(dfx,6,'DFX(6)','Maximum allowed change in f(x):')

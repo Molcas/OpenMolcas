@@ -14,14 +14,13 @@
 
 subroutine prtopt_cvb()
 
+use casvb_global, only: ioptim, istackrep, noptim
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "seth_cvb.fh"
-#include "initopt_cvb.fh"
-#include "loopcntr_cvb.fh"
 #include "WrkSpc.fh"
 external istkprobe_cvb
 logical istkprobe_cvb

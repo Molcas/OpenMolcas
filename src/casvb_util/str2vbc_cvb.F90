@@ -42,12 +42,13 @@
 
 subroutine str2vbc_cvb(cvb,cvbdet)
 
+use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nconf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 dimension cvb(nvb), cvbdet(ndetvb)
 

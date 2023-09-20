@@ -14,6 +14,8 @@
 
 subroutine mkrdcas_cvb()
 
+use casvb_global, only: formE
+
 implicit real*8(a-h,o-z)
 logical need_cas
 ! ... Make: up to date? ...
@@ -24,8 +26,6 @@ logical, external :: valid_cvb, ifcasci_cvb, ifhamil_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
-#include "formats_cvb.fh"
 #include "WrkSpc.fh"
 
 if (ifinish == 0) then

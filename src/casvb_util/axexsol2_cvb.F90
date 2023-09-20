@@ -14,8 +14,9 @@
 
 subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,solp,solp_res,eig,eig_res)
 
+use casvb_global, only: corenrg, ifollow, ipdd, iroot, jroot, nfrdim, nroot
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 dimension ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
 dimension solp(maxdav), solp_res(maxdav)
 
@@ -23,7 +24,7 @@ do it=1,itdav
   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
 end do
 
-if (ip >= 3) then
+if (ipdd >= 3) then
   write(6,*) ' AP matrix :'
   do i=1,itdav
     eigval(i) = eigvec(i,i)
@@ -68,7 +69,7 @@ eig = eigval(iroot)
 call fmove_cvb(eigvec(1,iroot),solp,itdav)
 eig_res = eigval(jroot)
 call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
-if (ip >= 2) then
+if (ipdd >= 2) then
   write(6,'(a)') ' Eigenvalues :'
   do i=1,itdav
     eigval(i) = eigval(i)+corenrg

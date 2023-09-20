@@ -14,9 +14,10 @@
 
 subroutine ddrhs_cvb(vec,ndim,ioffs)
 
+use casvb_global, only: idd, ivrhs, mxrhs, nparm, nvrhs
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "direct_cvb.fh"
 dimension vec(ndim)
 
 nvrhs = nvrhs+1

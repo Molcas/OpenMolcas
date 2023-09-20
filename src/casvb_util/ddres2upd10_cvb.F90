@@ -14,8 +14,9 @@
 
 subroutine ddres2upd10_cvb(res,c,n)
 
+use casvb_global, only: n_div
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 dimension res(n), c(n)
 
 if (n_div == 0) then

@@ -14,9 +14,10 @@
 
 subroutine mkafter_cvb(chr1,chr2)
 
+use casvb_global, only: charobj, i_dep_on_j, ioffs, mxdep, ndep_ij, nobj
+
 implicit real*8(a-h,o-z)
 character*(*) chr1, chr2
-#include "make_cvb.fh"
 
 call undepend2_cvb(chr1,chr2,1)
 

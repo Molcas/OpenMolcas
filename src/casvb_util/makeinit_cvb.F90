@@ -17,8 +17,9 @@
 
 subroutine makeinit_cvb()
 
+use casvb_global, only: ioffs, iprint, joffs, mustdeclare, ndep_ij, ndep_ji, nobj
+
 implicit real*8(a-h,o-z)
-#include "make_cvb.fh"
 
 nobj = 0
 ndep_ij = 0

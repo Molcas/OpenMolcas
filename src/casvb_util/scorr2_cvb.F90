@@ -14,12 +14,13 @@
 
 subroutine scorr2_cvb(cvbdet,dvbdet,evbdet,ssq,wvbdet,iperm)
 
+use casvb_global, only: formAD, formAF
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 dimension cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
 dimension ssq(norb,norb), wvbdet(ndetvb), iperm(norb)
 save cut, half

@@ -14,8 +14,9 @@
 
 subroutine fstring_cvb(strings,nstring,istring,ncmp,ifc)
 
+use casvb_global, only: inputmode
+
 implicit real*8(a-h,o-z)
-#include "inpmod_cvb.fh"
 character*(*) strings(nstring)
 character*8 string
 logical debug, done

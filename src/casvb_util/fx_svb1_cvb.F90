@@ -14,14 +14,14 @@
 
 subroutine fx_svb1_cvb(fx,fast,orbstry,cvbtry,civec,civecp,civbs,civb,gjorb,gjorb2,gjorb3,cvbdet)
 
+use casvb_global, only: formE, ovraa_try, ovrab_try
+
 implicit real*8(a-h,o-z)
 logical fast
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
-#include "fx_cvb.fh"
 dimension orbstry(norb,norb), cvbtry(nvb)
 dimension civec(ndet), civecp(ndet), civbs(ndet), civb(ndet)
 dimension gjorb(*), gjorb2(*), gjorb3(*)

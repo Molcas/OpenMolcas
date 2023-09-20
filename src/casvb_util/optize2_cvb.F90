@@ -14,16 +14,12 @@
 
 subroutine optize2_cvb(fx,nparm,ioptc,dx,grad,iter_is_1,opta,optb)
 
+use casvb_global, only: endwhenclose, expct, formAD, formAF, fxbest, hh, ip, maxize
+
 implicit real*8(a-h,o-z)
 logical opth, skipupd, first_time
 logical iter_is_1, close2conv_begin
 logical close2conv, converged, wrongstat, scalesmall1
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
-#include "formats_cvb.fh"
 external opta, optb
 dimension dx(nparm), grad(nparm)
 save zero, close2conv, converged
@@ -41,12 +37,12 @@ call opta(nparm)
 if (ip >= 2) write(6,'(/a)') ' *****   2. order optimizer   *****'
 
 ! << Now trust region control >>
-exp_tc = exp
+exp_tc = expct
 first_time = .true.
 opth = .false.
 iopth = 0
 do
-  call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
+  call trust_cvb(iopth,opth,maxize,fx,fxbest,expct,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
   if (ioptc == -2) return
 
   ! << Make update >>
@@ -84,7 +80,7 @@ if ((ioptc >= -1) .and. (hh /= zero)) then
 end if
 if (converged) then
   ioptc = 0
-else if (close2conv .and. endifclose) then
+else if (close2conv .and. endwhenclose) then
   ioptc = -3
 else
   ioptc = 1

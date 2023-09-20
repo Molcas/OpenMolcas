@@ -19,7 +19,6 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "spinb_cvb.fh"
 dimension orbs(norb,norb), cvb(nvb)
 dimension owrk(norb,norb), cvbdet(ndetvb)
 

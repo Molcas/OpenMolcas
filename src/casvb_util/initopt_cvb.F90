@@ -14,10 +14,9 @@
 
 subroutine initopt_cvb(icrit,lfxvb,nfxvb,iorts,nort,norb)
 
+use casvb_global, only: ioptcode, ioptim
+
 implicit real*8(a-h,o-z)
-#include "inpmod_cvb.fh"
-#include "seth_cvb.fh"
-#include "initopt_cvb.fh"
 dimension iorts(2,*)
 
 ! IOPTCODE    +1  = REPORT

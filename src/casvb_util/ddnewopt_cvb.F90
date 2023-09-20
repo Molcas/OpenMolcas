@@ -14,8 +14,9 @@
 
 subroutine ddnewopt_cvb()
 
+use casvb_global, only: nvguess, nvrestart, nvrhs
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 
 nvrestart = 0
 nvguess = 0

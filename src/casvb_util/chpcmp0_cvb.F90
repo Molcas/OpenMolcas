@@ -14,8 +14,9 @@
 
 subroutine chpcmp0_cvb()
 
+use casvb_global, only: iprm
+
 implicit real*8(a-h,o-z)
-#include "lstprm_cvb.fh"
 
 iprm = 0
 

@@ -14,10 +14,11 @@
 
 subroutine setmocom_cvb()
 
+use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nsym_mo
+
 implicit real*8(a-h,o-z)
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-#include "mo_cvb.fh"
 logical debug
 data debug/.false./
 

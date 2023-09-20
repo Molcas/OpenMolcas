@@ -14,12 +14,13 @@
 
 subroutine dpgendet_cvb()
 
+use casvb_global, only: iastr_fr, ibstr_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, nfrag
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 
 ibase = mstacki_cvb(0)

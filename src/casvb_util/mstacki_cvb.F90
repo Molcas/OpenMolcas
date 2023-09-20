@@ -15,9 +15,10 @@
 
 integer function mstacki_cvb(nword)
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-#include "memman_cvb.fh"
 
 if (memdebug) write(6,*) '   Enter mstacki: nword :',nword
 nwordr = (nword+idbl-1)/idbl

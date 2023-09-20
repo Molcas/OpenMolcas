@@ -14,8 +14,9 @@
 
 subroutine chpcmpinit_cvb()
 
+use casvb_global, only: iprm, iunset, lstprm, mxprm
+
 implicit real*8(a-h,o-z)
-#include "lstprm_cvb.fh"
 
 do i=1,mxprm
   lstprm(i) = iunset

@@ -14,12 +14,13 @@
 
 subroutine symtrizorbs2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts,ihlp,ihlp2,ihlp3,iprev,jprev,updi,updj)
 
+use casvb_global, only: formAD
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "formats_cvb.fh"
 dimension orbs(norb,norb)
 dimension north(norb), corth(norb,niorth)
 dimension irels(2,nijrel), relorb(norb,norb,nijrel)

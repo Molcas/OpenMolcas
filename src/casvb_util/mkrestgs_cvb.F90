@@ -14,12 +14,13 @@
 
 subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr,iabind,cvbdet1)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "mo_cvb.fh"
 dimension orbsao(nbas_mo,norb), irdorbs(norb), cvb(nvb)
 dimension cvbdet(ndetvb), iapr(ndetvb), ixapr(nda+1)
 dimension iabind(*), cvbdet1(*)

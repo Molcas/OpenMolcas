@@ -14,8 +14,9 @@
 
 subroutine ddres2updinit_cvb(n_div1)
 
+use casvb_global, only: n_div
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 
 n_div = n_div1
 

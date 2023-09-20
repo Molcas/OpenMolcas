@@ -14,10 +14,11 @@
 
 subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
 
+use casvb_global, only: idd, maxd, nparm, nvguess, nvrestart
+
 implicit real*8(a-h,o-z)
 logical ause, suse
 #include "WrkSpc.fh"
-#include "direct_cvb.fh"
 dimension vec(ndim), avec(ndim), svec(ndim)
 
 nvguess = nvguess+1

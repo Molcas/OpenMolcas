@@ -15,8 +15,9 @@
 
 integer function mstackrz_cvb(nword)
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
-#include "memman_cvb.fh"
 #include "WrkSpc.fh"
 
 if (memdebug) write(6,*) ' mstackrz :'

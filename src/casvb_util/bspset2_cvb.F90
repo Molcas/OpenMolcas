@@ -14,8 +14,9 @@
 
 subroutine bspset2_cvb(ikcoff,nel,kbasis,need)
 
+use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+
 implicit real*8(a-h,o-z)
-#include "frag_cvb.fh"
 dimension ikcoff(0:nel,0:nel,0:nel)
 
 do ifrag=1,nfrag
@@ -27,7 +28,7 @@ do ifrag=1,nfrag
       if (nalfsing < 0) cycle
       do iS=1,nS_fr(ifrag)
         if ((i2s_fr(iS,ifrag) <= nelsing) .and. (i2s_fr(iS,ifrag) >= 2*nalfsing-nelsing)) &
-          ikcoff(nelsing,nalfsing,i2S_fr(iS,ifrag)) = 1
+          ikcoff(nelsing,nalfsing,i2s_fr(iS,ifrag)) = 1
       end do
     end do
   end do

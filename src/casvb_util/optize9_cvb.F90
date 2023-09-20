@@ -14,8 +14,9 @@
 
 subroutine optize9_cvb(fx1,nparm,ioptc,hessdx,grad,dx)
 
+use casvb_global, only: formChk1, formChk2, formChk3
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 dimension hessdx(nparm), grad(nparm), dx(nparm)
 dimension dum(1)
 save zero, tenth, half, one

@@ -14,12 +14,13 @@
 
 function nvb_cvb(kbasis_loc)
 
+use casvb_global, only: ndetvb_fr, ndetvb2_fr, nfrag, nvb_fr, nvbr_fr
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 
 ndetvb = 0
 ndetvb2 = 0

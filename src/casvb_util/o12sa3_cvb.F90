@@ -16,11 +16,6 @@ subroutine o12sa3_cvb(vec,cvb,orbs,gjorb,gjorb2,gjorb3,civec,civecp,civb,cvbdet,
 
 implicit real*8(a-h,o-z)
 logical strucopt
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
 dimension vec(nparm1)
 dimension cvb(nvb), civec(*), civecp(*), civb(*), cvbdet(*)
 dimension vec_all(nparm1)

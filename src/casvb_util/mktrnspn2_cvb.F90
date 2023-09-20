@@ -14,12 +14,13 @@
 
 subroutine mktrnspn2_cvb(cvb,cvbdet)
 
+use casvb_global, only: spinb
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "spinb_cvb.fh"
 dimension cvb(nvb), cvbdet(ndetvb)
 
 if (ip(1) >= 1) write(6,'(/,4a)') ' Changing spin basis : ',spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ', &

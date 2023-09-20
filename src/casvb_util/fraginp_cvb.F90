@@ -14,6 +14,8 @@
 
 subroutine fraginp_cvb(ip_iconfs)
 
+use casvb_global, only: i2s_fr, nalf_fr, nbet_fr, nconf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+
 implicit real*8(a-h,o-z)
 parameter(nstrin=2,ncmp=4)
 character*8 string(nstrin)
@@ -24,7 +26,6 @@ data string/'WAVE    ','CON    '/
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 
 do

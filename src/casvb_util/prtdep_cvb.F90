@@ -14,9 +14,10 @@
 
 logical function up2date_cvb(chr)
 
+use casvb_global, only: charobj, nobj, up2date
+
 implicit real*8(a-h,o-z)
 character*(*) chr
-#include "make_cvb.fh"
 
 iobj = 0
 do i=1,nobj

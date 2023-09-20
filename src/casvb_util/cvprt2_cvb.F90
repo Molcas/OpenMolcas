@@ -14,8 +14,9 @@
 
 subroutine cvprt2_cvb(a1,f1,f2,ic)
 
+use casvb_global, only: formcvp
+
 implicit real*8(a-h,o-z)
-#include "formats_cvb.fh"
 character*16 a1
 save huge
 data huge/1d20/

@@ -14,7 +14,7 @@
 
 subroutine change0_cvb()
 
-#include "rls_cvb.fh"
+use casvb_global, only: release
 
 call touch_cvb('MEM0')
 release(1) = .false.

@@ -14,11 +14,11 @@
 
 subroutine tunedefs_cvb()
 
+use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol, dx, eigwrngtol, endwhenclose, exp12tol, follow, &
+                        grd, grdwrngtol, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, &
+                        resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
+
 implicit real*8(a-h,o-z)
-#include "tune_cvb.fh"
-#include "tols_cvb.fh"
-#include "trst_cvb.fh"
-#include "davtune_cvb.fh"
 save huge, smallest
 data huge/1d20/
 data smallest/1d-10/
@@ -33,8 +33,7 @@ dfxtol = 1.d-10
 exp12tol = huge
 grdwrngtol = -huge
 eigwrngtol = -huge
-lastupd = .true.
-endifclose = .false.
+endwhenclose = .false.
 ! << TOLS_CVB common block: >>
 ! (*,1) ... global region, non-singular Hessian
 ! (*,2) ... global region, singular Hessian
@@ -48,7 +47,7 @@ singul(2) = -huge
 singul(3) = -huge
 do j=1,6
   dfx(j) = huge
-  sign(j) = huge
+  sgn(j) = huge
   zzmax(j) = huge
   zzmin(j) = -huge
   do i=1,3
@@ -98,7 +97,7 @@ dfxmin(2) = -huge
 zzrejmin(2) = -huge
 zzrejmax(2) = huge
 hhstart = 1d0
-! << DAVTUNE common block: >>
+! << DAVTUNE global vars: >>
 resthr = 5d-6
 orththr = smallest
 nortiter = 50

@@ -14,12 +14,13 @@
 
 subroutine ci2ordr_cvb(civec,cvbdet,evbdet)
 
+use casvb_global, only: nda_fr, ndb_fr, ndetvb_fr, nfrag
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 #include "WrkSpc.fh"
 dimension civec(nda,ndb), cvbdet(ndetvb)
 dimension evbdet(*)

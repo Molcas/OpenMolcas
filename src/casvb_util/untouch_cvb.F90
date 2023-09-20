@@ -14,9 +14,10 @@
 
 subroutine untouch_cvb(chr)
 
+use casvb_global, only: charobj, iprint, mustdeclare, nobj, up2date
+
 implicit real*8(a-h,o-z)
 character*(*) chr
-#include "make_cvb.fh"
 
 do
   iobj = 0

@@ -14,8 +14,9 @@
 
 subroutine o7a_cvb(nparm)
 
+use casvb_global, only: have_solved_it
+
 implicit real*8(a-h,o-z)
-#include "opt2_cvb.fh"
 save one
 data one/1d0/
 

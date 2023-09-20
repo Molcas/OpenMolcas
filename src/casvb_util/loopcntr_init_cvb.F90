@@ -14,6 +14,9 @@
 
 subroutine loopcntr_init_cvb(inputmode1,initfalse)
 
+use casvb_global, only: icode, inputmode, iopt2step, ioptcode, ioptim, ioptstep, istackrep, joptstep, loopstep, loopstepmx, &
+                        noptim, noptstep, nstackrep
+
 implicit real*8(a-h,o-z)
 ! ... Files/Hamiltonian available ...
 logical, external :: ifcasci_cvb
@@ -23,10 +26,6 @@ logical, external :: up2date_cvb
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
-#include "loopcntr_cvb.fh"
-#include "seth_cvb.fh"
-#include "initopt_cvb.fh"
 logical initfalse
 logical guess_available, initial_opts, svbfirst, constrained_opt
 

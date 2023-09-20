@@ -14,13 +14,14 @@
 
 subroutine cvbfinit_cvb()
 
+use casvb_global, only: is_set
+
 implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "cvbinit.fh"
 parameter(iset=1)
 
 mxaobf = maxbfn

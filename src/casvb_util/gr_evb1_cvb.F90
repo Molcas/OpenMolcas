@@ -14,12 +14,13 @@
 
 subroutine gr_evb1_cvb(civbh,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
+use casvb_global, only: f1, f2, f3, f4, ww
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "fx_cvb.fh"
 dimension civbh(ndet), civbs(ndet), civb(ndet)
 dimension dvbdet(ndetvb)
 dimension grad(npr), grad1(npr), grad2(npr), gradx(norb,norb)

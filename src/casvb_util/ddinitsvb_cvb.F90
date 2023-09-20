@@ -14,13 +14,14 @@
 
 subroutine ddinitsvb_cvb(ifollow1,isaddle1,ip1)
 
+use casvb_global, only: ifollow, ipdd, isaddledd, nroot
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 
 ifollow = ifollow1
-isaddle = isaddle1
-nroot = max(1,isaddle+1)
-ip = ip1
+isaddledd = isaddle1
+nroot = max(1,isaddledd+1)
+ipdd = ip1
 
 return
 ! Avoid unused argument warnings

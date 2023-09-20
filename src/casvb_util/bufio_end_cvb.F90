@@ -14,8 +14,9 @@
 
 subroutine bufio_end_cvb()
 
+use casvb_global, only: file_id, nbuf
+
 implicit real*8(a-h,o-z)
-#include "bufio_cvb.fh"
 
 call bufio_wrbuf_cvb()
 dnbuf = dble(nbuf)

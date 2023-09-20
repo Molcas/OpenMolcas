@@ -14,8 +14,9 @@
 
 subroutine span0_cvb(nvecmx1,n)
 
+use casvb_global, only: iaddr, nvecmx, nvtot
+
 implicit real*8(a-h,o-z)
-#include "span_comcvb.fh"
 save nmult
 data nmult/5/
 

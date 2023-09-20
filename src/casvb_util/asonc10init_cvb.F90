@@ -14,14 +14,14 @@
 
 subroutine asonc10init_cvb(ippinp)
 
+use casvb_global, only: ipp, iter
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "ipp.fh"
-!save iter
 
 iter = 0
 ipp = ippinp

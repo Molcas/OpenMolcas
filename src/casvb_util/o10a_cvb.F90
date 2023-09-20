@@ -14,10 +14,10 @@
 
 subroutine o10a_cvb(nparm1)
 
+use casvb_global, only: have_solved_it, ix, n_div, nparm
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "direct_cvb.fh"
-#include "opt2_cvb.fh"
 
 call ddnewopt_cvb()
 have_solved_it = .false.

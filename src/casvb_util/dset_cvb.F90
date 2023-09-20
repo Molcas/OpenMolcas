@@ -19,7 +19,6 @@ implicit real*8(a-h,o-z)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
 #include "WrkSpc.fh"
 dimension iorbrel(ndimrel), ifxorb(mxorb_cvb), iorts(*), irots(*), izeta(*)
 

@@ -14,8 +14,10 @@
 
 subroutine axb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,c,sxc,res,rhs,rhsp,solp,solp_res)
 
+use casvb_global, only: corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, orththrdd, &
+                        resthrdd
+
 implicit real*8(a-h,o-z)
-#include "direct_cvb.fh"
 external asonc, ddres2upd
 external axbsol_cvb, axbres_cvb, ddrestart_cvb
 dimension vec(nparm)
@@ -26,11 +28,11 @@ dimension rhsp(maxd), solp(maxd), solp_res(maxd), dum(1)
 if (resthr_inp /= 0d0) then
   resthr_use = resthr_inp
 else
-  resthr_use = resthr
+  resthr_use = resthrdd
 end if
 call dirdiag_cvb(asonc,axbsol_cvb,axbres_cvb,ddres2upd,ddrestart_cvb,c,dum,sxc,.false.,vec,res,rhs,dum,rhsp,solp,solp_res,.false., &
-                 .false.,.true.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddle,ifollow,mxit,resthr_use,orththr,nortiter,corenrg, &
-                 ioptc,iter,fx_exp,ip)
+                 .false.,.true.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddledd,ifollow,mxit,resthr_use,orththrdd,nortiterdd, &
+                 corenrg,ioptc,iter,fx_exp,ipdd)
 
 return
 

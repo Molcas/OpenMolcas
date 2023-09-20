@@ -14,17 +14,18 @@
 
 subroutine asonc7init_cvb(igradinp,ippinp)
 
+use casvb_global, only: igrad, ipp7, iter7
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "asonc7.fh"
 
-iter = 0
+iter7 = 0
 igrad = igradinp
-ipp = ippinp
+ipp7 = ippinp
 call orthcvb_init_cvb()
 
 return

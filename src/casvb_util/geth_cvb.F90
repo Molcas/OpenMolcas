@@ -14,9 +14,10 @@
 
 subroutine geth_cvb(iarr,n)
 
+use casvb_global, only: icnt, ncnt
+
 implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "seth_cvb.fh"
 dimension iarr(n)
 
 if (icnt < ncnt) then

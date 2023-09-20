@@ -14,16 +14,14 @@
 
 logical function firsttime_cvb()
 
+use casvb_global, only: icode, inputmode, iopt2step, ioptim, ioptstep, istackrep, joptstep, loopstep
+
 implicit real*8(a-h,o-z)
 logical begbracket, second_time_round
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "inpmod_cvb.fh"
-#include "seth_cvb.fh"
-#include "loopcntr_cvb.fh"
-#include "initopt_cvb.fh"
 external istkprobe_cvb
 logical istkprobe_cvb
 

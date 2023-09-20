@@ -14,15 +14,11 @@
 
 subroutine o10b_cvb(nparm,dxnrm,grdnrm,close2conv)
 
+use casvb_global, only: have_solved_it, ip, ix
+
 implicit real*8(a-h,o-z)
 logical close2conv
 #include "WrkSpc.fh"
-#include "opt_cvb.fh"
-#include "locopt1_cvb.fh"
-#include "locopt2_cvb.fh"
-#include "trst_cvb.fh"
-#include "tune_cvb.fh"
-#include "opt2_cvb.fh"
 external asonc10_cvb, ddres2upd10_cvb
 
 if (.not. close2conv) then

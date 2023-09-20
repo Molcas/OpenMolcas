@@ -14,13 +14,14 @@
 
 subroutine lmo2ao_cvb(orbs,orbsao,norb1)
 
+use casvb_global, only: nbas_mo
+
 implicit real*8(a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-#include "mo_cvb.fh"
 dimension orbsao(nbas_mo,norb1), orbs(norb,norb1)
 
 if (norb1 == 0) return

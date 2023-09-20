@@ -14,9 +14,10 @@
 
 subroutine undepend2_cvb(chr1,chr2,ic1)
 
+use casvb_global, only: charobj, i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, mustdeclare, ndep_ij, ndep_ji, nobj
+
 implicit real*8(a-h,o-z)
 character*(*) chr1, chr2
-#include "make_cvb.fh"
 logical done
 
 ic = ic1

@@ -14,9 +14,10 @@
 
 subroutine mrealloci_cvb(ipoint,nword)
 
+use casvb_global, only: memdebug
+
 implicit real*8(a-h,o-z)
 #include "idbl_cvb.fh"
-#include "memman_cvb.fh"
 
 iraddr = (ipoint-1)/idbl+1
 nwordr = (nword+idbl-1)/idbl

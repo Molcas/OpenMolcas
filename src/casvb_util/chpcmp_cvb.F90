@@ -14,9 +14,10 @@
 
 function chpcmp_cvb(itst)
 
+use casvb_global, only: iprm, lstprm, mxprm
+
 implicit real*8(a-h,o-z)
 logical chpcmp_cvb
-#include "lstprm_cvb.fh"
 
 iprm = iprm+1
 if (iprm > mxprm) then

@@ -14,13 +14,13 @@
 
 subroutine defs_cvb()
 
+use casvb_global, only: iunset
+
 implicit real*8(a-h,o-z)
-parameter(iunset=-1357924680,unset=-1357924680d0)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "frag_cvb.fh"
 logical :: ifploc = .false.
 
 ! Default settings:
