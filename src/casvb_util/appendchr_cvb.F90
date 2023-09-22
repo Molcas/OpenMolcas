@@ -14,8 +14,13 @@
 
 subroutine appendchr_cvb(c,string,iskip)
 
-implicit real*8(a-h,o-z)
-character*(*) c, string
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: c, string
+integer(kind=iwp) :: iskip
+integer(kind=iwp) :: ibegin, iend
+integer(kind=iwp), external :: len_trim_cvb
 
 ibegin = len_trim_cvb(c)+1+iskip
 iend = min(len(c),ibegin+len_trim_cvb(string)-1)

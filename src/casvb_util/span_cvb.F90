@@ -20,10 +20,15 @@ subroutine span_cvb(a,nvec,nlin,s,n,metr)
 !              spanning the same set as the NVEC input vectors
 !              Vectors will be orthonormal on exit
 
-implicit real*8(a-h,o-z)
-dimension a(n,nvec), s(*)
-save thresh
-data thresh/1.d-10/
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, nlin, n, metr
+real(kind=wp) :: a(n,nvec), s(*)
+integer(kind=iwp) :: i, ierr, nvect
+real(kind=wp) :: cnrm
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
+real(kind=wp), external :: dnrm2_
 
 nvect = nvec
 ierr = 1

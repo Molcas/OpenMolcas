@@ -12,13 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine main_bdata_cvb()
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 md2h(1,1) = 1
 md2h(2,1) = 2
@@ -92,16 +93,15 @@ md2h(6,8) = 3
 md2h(7,8) = 2
 md2h(8,8) = 1
 
-zero = 0d0
-one = 1.d0
-two = 2d0
-onem = -1d0
-r3by4 = .75d0
-p8 = .8d0
-sqp5 = .70710678118654752440d0
-sq2 = 1.41421356237309504880d0
+one = 1.0d0
+two = 2.0d0
+onem = -One
+r3by4 = 0.75_wp
+p8 = 0.8_wp
+sqp5 = 0.70710678118654752440_wp
+sq2 = 1.41421356237309504880_wp
 opposite = .false.
-corenrg = 0d0
+corenrg = Zero
 
 return
 

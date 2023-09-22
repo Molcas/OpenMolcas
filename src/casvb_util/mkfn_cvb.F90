@@ -14,11 +14,17 @@
 
 subroutine mkfn_cvb(fileid,ibf)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: fileid
+integer(kind=iwp) :: ibf
 #include "io_cvb.fh"
-character*20 fn_tmp
-logical debug, done
-data debug/.false./
+integer(kind=iwp) :: i, ifile, irec
+logical(kind=iwp) :: done
+character(len=20) :: fn_tmp
+integer(kind=iwp), external :: len_trim_cvb
+logical(kind=iwp), parameter :: debug = .false.
 
 done = .false.
 do i=1,nrec
@@ -31,7 +37,7 @@ end do
 if (.not. done) then
   nrec = nrec+1
   if (nrec > max_rec) then
-    write(6,*) ' nrec > max_rec in mkfn :',nrec,max_rec
+    write(u6,*) ' nrec > max_rec in mkfn :',nrec,max_rec
     call abend_cvb()
   end if
   ibf = nrec
@@ -47,9 +53,9 @@ if (.not. done) then
   ifilio(ibf) = 0
 end if
 if (debug) then
-  write(6,*) ' IO information for identifier :',fileid
-  write(6,*) ' IBF is :',ibf
-  write(6,*) ' File name is :',filename(ibf)
+  write(u6,*) ' IO information for identifier :',fileid
+  write(u6,*) ' IBF is :',ibf
+  write(u6,*) ' File name is :',filename(ibf)
 end if
 
 return

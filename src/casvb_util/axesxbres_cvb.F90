@@ -15,11 +15,14 @@
 subroutine axesxbres_cvb(axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
 
 use casvb_global, only: ifollow, nroot
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical is_converged
-dimension axc(n,maxdav), sxc(n,maxdav), rhs(n), res(n)
-dimension solp_res(maxdav)
+implicit none
+integer(kind=iwp) :: maxdav, n, itdav
+real(kind=wp) :: axc(n,maxdav), sxc(n,maxdav), rhs(n), res(n), solp_res(maxdav), eig_res
+logical(kind=iwp) :: is_converged
+real(kind=wp) :: alfa
+integer(kind=iwp) :: i, ivb, nnegeig, nposeig
 
 if (ifollow == 1) then
   nposeig = nroot-1
@@ -30,7 +33,7 @@ else if (ifollow == 2) then
 else
   nnegeig = 0
   nposeig = 0
-  write(6,*) ' Error in IFOLLOW with direct Fletcher!',ifollow
+  write(u6,*) ' Error in IFOLLOW with direct Fletcher!',ifollow
   call abend_cvb()
 end if
 call fmove_cvb(rhs,res,n)

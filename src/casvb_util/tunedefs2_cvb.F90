@@ -17,201 +17,203 @@ subroutine tunedefs2_cvb(imethod,endwhenclose1)
 use casvb_global, only: delopth1, delopth2, dfxmin, dx, endwhenclose, exp12tol, grd, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, &
                         nopth1, nopth2, resthr, scalesmall, sgn, singul, zzacclim, zzmin, zzrejmax, zzrejmin
 
-implicit real*8(a-h,o-z)
-logical endwhenclose1
-save small, small2, smaller, zero
-data small/1d-3/,small2/1d-5/,smaller/1d-6/
-data zero/0d0/
+use Constants, only: Zero, One, Half, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: imethod
+logical(kind=iwp) :: endwhenclose1
+real(kind=wp), parameter :: small = 1.0e-3_wp, small2 = 1.0e-5_wp, smaller = 1.0e-6_wp
 
 ! << TUNE_CVB common block: >>
 endwhenclose = endwhenclose1
 if ((imethod == 1) .or. (imethod == 10)) then
   !'FLETCHER'
-  exp12tol = zero
+  exp12tol = Zero
   ! Criteria for entering local region:
-  grd(1,1) = 5d-4
-  grd(1,2) = 5d-4
+  grd(1,1) = 5.0e-4_wp
+  grd(1,2) = 5.0e-4_wp
   sgn(1) = smaller
   sgn(2) = smaller
-  singul(1) = 1d-2
+  singul(1) = 1.0e-2_wp
   zzmin(1) = -small
   zzmin(2) = -small
   ! Final convergence criteria:
-  grd(1,3) = 5d-6
-  grd(1,4) = 5d-6
-  dx(1,3) = 5d-6
-  dx(1,4) = 1d-4
-  singul(2) = 1d-2
+  grd(1,3) = 5.0e-6_wp
+  grd(1,4) = 5.0e-6_wp
+  dx(1,3) = 5.0e-6_wp
+  dx(1,4) = 1.0e-4_wp
+  singul(2) = 1.0e-2_wp
   ! << TRST_CVB common block: >>
   scalesmall(1) = .false.
   nopth1(1) = 1
   nopth2(1) = 0
-  zzrejmin(1) = 0d0
-  hhrejfac(1) = .4d0
-  hhaccfac(2,1) = 1d0
-  hhaccfac(3,1) = 1.5d0
-  hhaccfac(4,1) = 1d0
-  zzacclim(2,2) = .8d0
-  zzacclim(3,2) = 1.25d0
-  hhtol(1) = 1d-10
-  dfxmin(1) = zero
+  zzrejmin(1) = Zero
+  hhrejfac(1) = 0.4_wp
+  hhaccfac(2,1) = One
+  hhaccfac(3,1) = OneHalf
+  hhaccfac(4,1) = One
+  zzacclim(2,2) = 0.8_wp
+  zzacclim(3,2) = 1.25_wp
+  hhtol(1) = 1.0e-10_wp
+  dfxmin(1) = Zero
   scalesmall(2) = .false.
   nopth1(2) = 1
   nopth2(2) = 0
-  hhrejfac(2) = .4d0
-  hhaccfac(3,2) = 1.2d0
-  hhtol(2) = 1d-10
-  dfxmin(2) = zero
+  hhrejfac(2) = 0.4_wp
+  hhaccfac(3,2) = 1.2_wp
+  hhtol(2) = 1.0e-10_wp
+  dfxmin(2) = Zero
 end if
 if (imethod == 2) then
   ! 'TRIM'
-  exp12tol = zero
+  exp12tol = Zero
   ! Criteria for entering local region:
-  grd(1,1) = 5d-6
-  grd(1,2) = 5d-6
+  grd(1,1) = 5.0e-6_wp
+  grd(1,2) = 5.0e-6_wp
   sgn(1) = smaller
   sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small
   ! Final convergence criteria:
-  dx(1,3) = 5d-6
-  dx(1,4) = 1d-4
+  dx(1,3) = 5.0e-6_wp
+  dx(1,4) = 1.0e-4_wp
   singul(2) = small2
   ! << TRST_CVB common block: >>
   scalesmall(1) = .false.
   nopth1(1) = 1
   nopth2(1) = 0
-  zzrejmin(1) = .75d0
-  zzrejmax(1) = 1.33d0
-  hhrejfac(1) = .4d0
-  hhaccfac(2,1) = 1d0
-  hhaccfac(3,1) = 1.5d0
-  hhaccfac(4,1) = 1d0
-  zzacclim(2,2) = .8d0
-  zzacclim(3,2) = 1.25d0
-  hhtol(1) = 1d-10
+  zzrejmin(1) = 0.75_wp
+  zzrejmax(1) = 1.33_wp
+  hhrejfac(1) = 0.4_wp
+  hhaccfac(2,1) = One
+  hhaccfac(3,1) = OneHalf
+  hhaccfac(4,1) = One
+  zzacclim(2,2) = 0.8_wp
+  zzacclim(3,2) = 1.25_wp
+  hhtol(1) = 1.0e-10_wp
   scalesmall(2) = .false.
   nopth1(2) = 1
   nopth2(2) = 0
-  hhrejfac(2) = .4d0
-  hhaccfac(3,2) = 1.2d0
-  hhtol(2) = 1d-10
+  hhrejfac(2) = 0.4_wp
+  hhaccfac(3,2) = 1.2_wp
+  hhtol(2) = 1.0e-10_wp
 end if
 if (imethod == 3) then
   ! 'TRUSTOPT'
   ! << TOLS_CVB common block: >>
   ! Criteria for entering local region:
-  grd(1,1) = 5d-6
-  grd(1,2) = 5d-6
+  grd(1,1) = 5.0e-6_wp
+  grd(1,2) = 5.0e-6_wp
   sgn(1) = smaller
   sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small
   ! Final convergence criteria:
-  dx(1,3) = 5d-6
-  dx(1,4) = 1d-4
+  dx(1,3) = 5.0e-6_wp
+  dx(1,4) = 1.0e-4_wp
   singul(2) = small2
   ! << TRST_CVB common block: >>
   scalesmall(1) = .true.
   nopth1(1) = 5
   nopth2(1) = 2
-  delopth1(1) = .33333d0
-  delopth2(1) = 1.d0
-  hhrejfac(1) = .08333d0
-  hhaccfac(3,1) = 1d0
-  hhtol(1) = 5.d-6
-  dfxmin(1) = zero
+  delopth1(1) = 0.33333_wp
+  delopth2(1) = One
+  hhrejfac(1) = 0.08333_wp
+  hhaccfac(3,1) = One
+  hhtol(1) = 5.0e-6_wp
+  dfxmin(1) = Zero
   scalesmall(2) = .false.
   nopth1(2) = 1
   nopth2(2) = 0
-  hhrejfac(2) = .5d0
-  hhaccfac(3,2) = 1.2d0
-  hhtol(2) = 5.d-6
-  dfxmin(2) = zero
+  hhrejfac(2) = Half
+  hhaccfac(3,2) = 1.2_wp
+  hhtol(2) = 5.0e-6_wp
+  dfxmin(2) = Zero
 end if
 if (imethod == 4) then
   ! 'DAVIDSON'
-  resthr = 1d-6
+  resthr = 1.0e-6_wp
 end if
 if (imethod == 5) then
   ! 'STEEP'
-  exp12tol = zero
+  exp12tol = Zero
   ! Criteria for entering local region:
-  grd(1,1) = 5d-6
-  grd(1,2) = 5d-6
+  grd(1,1) = 5.0e-6_wp
+  grd(1,2) = 5.0e-6_wp
   zzmin(1) = -small
   zzmin(2) = -small
   ! Final convergence criteria:
   ! << TRST_CVB common block: >>
-  hhstart = .1d0
+  hhstart = 0.1_wp
   scalesmall(1) = .true.
   nopth1(1) = 1
   nopth2(1) = 0
-  zzrejmin(1) = 0d0
-  zzrejmax(1) = 1.33d0
-  hhrejfac(1) = .5d0
-  hhaccfac(2,1) = 1.2d0
-  hhaccfac(3,1) = 1.5d0
-  hhaccfac(4,1) = 1.2d0
-  zzacclim(2,1) = .8d0
-  zzacclim(3,1) = 1.25d0
-  hhtol(1) = 5.d-6
-  hhmax(1) = .1d0
+  zzrejmin(1) = Zero
+  zzrejmax(1) = 1.33_wp
+  hhrejfac(1) = Half
+  hhaccfac(2,1) = 1.2_wp
+  hhaccfac(3,1) = 1.5_wp
+  hhaccfac(4,1) = 1.2_wp
+  zzacclim(2,1) = 0.8_wp
+  zzacclim(3,1) = 1.25_wp
+  hhtol(1) = 5.0e-6_wp
+  hhmax(1) = 0.1_wp
   scalesmall(2) = .true.
   nopth1(2) = 1
   nopth2(2) = 0
-  zzrejmin(2) = 0d0
-  zzrejmax(2) = 1.33d0
-  hhrejfac(2) = .5d0
-  hhaccfac(2,2) = 1.2d0
-  hhaccfac(3,2) = 1.5d0
-  hhaccfac(4,2) = 1.2d0
-  zzacclim(2,2) = .8d0
-  zzacclim(3,2) = 1.25d0
-  hhtol(2) = 5.d-6
-  hhmax(2) = .5d0
+  zzrejmin(2) = Zero
+  zzrejmax(2) = 1.33_wp
+  hhrejfac(2) = Half
+  hhaccfac(2,2) = 1.2_wp
+  hhaccfac(3,2) = 1.5_wp
+  hhaccfac(4,2) = 1.2_wp
+  zzacclim(2,2) = 0.8_wp
+  zzacclim(3,2) = 1.25_wp
+  hhtol(2) = 5.0e-6_wp
+  hhmax(2) = Half
 end if
 if ((imethod == 6) .or. (imethod == 7) .or. (imethod == 8) .or. (imethod == 10) .or. (imethod == 12)) then
   ! 'VB2CAS' or 'AUGHESS' or 'AUG2' or 'DFLETCH' or 'SUPER'
-  exp12tol = zero
+  exp12tol = Zero
   ! Criteria for entering local region:
-  grd(1,1) = 5d-4
-  grd(1,2) = 5d-4
+  grd(1,1) = 5.0e-4_wp
+  grd(1,2) = 5.0e-4_wp
   sgn(1) = smaller
   sgn(2) = smaller
   singul(1) = small
   zzmin(1) = -small
   zzmin(2) = -small
   ! Final convergence criteria:
-  grd(1,3) = 5d-6
-  grd(1,4) = 5d-6
+  grd(1,3) = 5.0e-6_wp
+  grd(1,4) = 5.0e-6_wp
   !vv
-  !dx(1,3) = 5d-6
-  dx(1,3) = 5d-5
-  dx(1,4) = 1d-4
+  !dx(1,3) = 5.0e-6_wp
+  dx(1,3) = 5.0e-5_wp
+  dx(1,4) = 1.0e-4_wp
   singul(2) = small2
   ! << TRST_CVB common block: >>
   scalesmall(1) = .false.
   nopth1(1) = 1
   nopth2(1) = 0
-  zzrejmin(1) = 0d0
-  hhrejfac(1) = .4d0
-  hhaccfac(2,1) = 1d0
-  hhaccfac(3,1) = 1.5d0
-  hhaccfac(4,1) = 1d0
-  zzacclim(2,2) = .8d0
-  zzacclim(3,2) = 1.25d0
-  hhtol(1) = 1d-10
-  dfxmin(1) = zero
+  zzrejmin(1) = Zero
+  hhrejfac(1) = 0.4_wp
+  hhaccfac(2,1) = One
+  hhaccfac(3,1) = OneHalf
+  hhaccfac(4,1) = One
+  zzacclim(2,2) = 0.8_wp
+  zzacclim(3,2) = 1.25_wp
+  hhtol(1) = 1.0e-10_wp
+  dfxmin(1) = Zero
   scalesmall(2) = .false.
   nopth1(2) = 1
   nopth2(2) = 0
-  hhrejfac(2) = .4d0
-  hhaccfac(3,2) = 1.2d0
-  hhtol(2) = 1d-10
-  dfxmin(2) = zero
+  hhrejfac(2) = 0.4_wp
+  hhaccfac(3,2) = 1.2_wp
+  hhtol(2) = 1.0e-10_wp
+  dfxmin(2) = Zero
 end if
 
 return

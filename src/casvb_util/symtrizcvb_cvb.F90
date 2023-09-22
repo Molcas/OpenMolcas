@@ -14,14 +14,15 @@
 
 subroutine symtrizcvb_cvb(vecstr)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: vecstr(nvb)
 #include "WrkSpc.fh"
-dimension vecstr(nvb)
-dimension dum(1)
+integer(kind=iwp) :: i1, i2
+real(kind=wp) :: dum(1)
+integer(kind=iwp), external :: mstackr_cvb
 
 if (iconstruc == 0) then
   return

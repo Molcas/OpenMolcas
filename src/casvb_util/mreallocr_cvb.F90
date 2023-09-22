@@ -16,12 +16,16 @@ subroutine mreallocr_cvb(ipoint,nword)
 ! Memory allocator (heap). Reallocate pointer.
 
 use casvb_global, only: ioff_r, memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ipoint, nword
 #include "WrkSpc.fh"
 #include "files_cvb.fh"
+integer(kind=iwp) :: ipoint_g, nword_move, nword_old
+integer(kind=iwp), external :: mheapr_cvb
 
-if (memdebug) write(6,*) '     Enter mreallocr: nword & pointer :',nword,ipoint
+if (memdebug) write(u6,*) '     Enter mreallocr: nword & pointer :',nword,ipoint
 
 ipoint_g = ipoint-ioff_r
 
@@ -35,7 +39,7 @@ call mfreer_cvb(ipoint)
 ipoint = mheapr_cvb(nword)
 call rdr_cvb(work(ipoint),nword_move,recn_tmp06,0)
 
-if (memdebug) write(6,*) '     mreallocr : nword & pointer :',nword,ipoint
+if (memdebug) write(u6,*) '     mreallocr : nword & pointer :',nword,ipoint
 
 return
 

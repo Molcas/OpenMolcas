@@ -16,13 +16,9 @@
       integer find_lu
       external find_lu
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "casvb.fh"
 
 #include "io_cvb.fh"
-#include "idbl_cvb.fh"
       character*8 vec(11)
       vec(1)='TMP01'
       vec(2)='TMP02'

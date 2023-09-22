@@ -14,21 +14,17 @@
 
 subroutine mkorbfree2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts,irots,trprm,owrk,owrk2,orbinv,idel)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbs(norb,norb)
-dimension north(norb), corth(norb,niorth)
-dimension irels(2,nijrel), relorb(norb,norb,nijrel)
-dimension ifxorb(norb), iorts(2,nort), irots(2,ndrot)
-dimension trprm(nprorb,nprorb)
-dimension owrk(norb,norb), owrk2(norb,norb)
-dimension orbinv(norb,norb), idel(nprorb)
-dimension dum(1)
-save thresh
-data thresh/1.d-7/
+real(kind=wp) :: orbs(norb,norb), corth(norb,niorth), relorb(norb,norb,nijrel), trprm(nprorb,nprorb), owrk(norb,norb), &
+                 owrk2(norb,norb), orbinv(norb,norb)
+integer(kind=iwp) :: north(norb), irels(2,nijrel), ifxorb(norb), iorts(2,nort), irots(2,ndrot), idel(nprorb)
+integer(kind=iwp) :: i, i2, icon, ioff, ioff2, ioffs, iorb, iprm, irel, ishift, ishift2, j, j2, jorb, nc, ncon, nl1, nl2, nrem
+real(kind=wp) :: dum(1), sum1, sum2
+real(kind=wp), parameter :: thresh = 1.0e-7_wp
+real(kind=wp), external :: ddot_
 
 if (orbfr_is_unit) then
   nfrorb = nprorb
@@ -80,7 +76,7 @@ else
     call mxatb_cvb(relorb(1,1,irel),orbs,norb,norb,norb,owrk)
     call mxatb_cvb(orbinv,owrk,norb,norb,norb,owrk2)
     if (abs(abs(owrk2(iorb,jorb))-one) > thresh) then
-      write(6,*) ' Transformation matrix cannot be correct !'
+      write(u6,*) ' Transformation matrix cannot be correct !'
       call mxprint_cvb(owrk2,norb,norb,0)
       call abend_cvb()
     end if

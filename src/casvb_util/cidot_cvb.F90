@@ -19,26 +19,27 @@ subroutine cidot_cvb(cvec1,cvec2,ret)
 !*                                                                     *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cvec1(*), cvec2(*), ret
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension cvec1(*), cvec2(*)
+integer(kind=iwp) :: iformat1, iformat2, ivec1, ivec2
+real(kind=wp), external :: ddot_
 
 ivec1 = nint(cvec1(1))
 ivec2 = nint(cvec2(1))
 iformat1 = iform_ci(ivec1)
 iformat2 = iform_ci(ivec2)
 if (iformat1 /= iformat2) then
-  write(6,*) ' Format discrepancy in CIDOT :',iformat1,iformat2
+  write(u6,*) ' Format discrepancy in CIDOT :',iformat1,iformat2
   call abend_cvb()
 end if
 if (iformat1 == 0) then
   ret = ddot_(ndet,work(iaddr_ci(ivec1)),1,work(iaddr_ci(ivec2)),1)
 else
-  write(6,*) ' Unsupported format in CIDOT :',iformat1
+  write(u6,*) ' Unsupported format in CIDOT :',iformat1
   call abend_cvb()
 end if
 

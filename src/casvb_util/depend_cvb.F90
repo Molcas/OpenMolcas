@@ -15,18 +15,20 @@
 subroutine depend_cvb(chr1,chr2)
 
 use casvb_global, only: i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, ndep_ij, ndep_ji, nobj
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr1, chr2
+implicit none
+character(len=*) :: chr1, chr2
+integer(kind=iwp) :: ii
 
 call mkafter_cvb(chr1,chr2)
 call touchdepend_cvb(chr1,chr2)
 
 if (iprint >= 10) then
-  write(6,*) ' IOFFS :',(ioffs(ii),ii=1,nobj+1)
-  write(6,*) ' JOFFS :',(joffs(ii),ii=1,nobj+1)
-  write(6,*) ' I_DEP_ON_J :',(i_dep_on_j(ii),ii=1,ndep_ij)
-  write(6,*) ' J_DEP_ON_I :',(j_dep_on_i(ii),ii=1,ndep_ji)
+  write(u6,*) ' IOFFS :',(ioffs(ii),ii=1,nobj+1)
+  write(u6,*) ' JOFFS :',(joffs(ii),ii=1,nobj+1)
+  write(u6,*) ' I_DEP_ON_J :',(i_dep_on_j(ii),ii=1,ndep_ij)
+  write(u6,*) ' J_DEP_ON_I :',(j_dep_on_i(ii),ii=1,ndep_ji)
 end if
 
 return

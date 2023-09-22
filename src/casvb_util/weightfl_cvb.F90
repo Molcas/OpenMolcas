@@ -14,7 +14,11 @@
 
 subroutine weightfl_cvb(ix,n,nel)
 
-dimension ix(0:nel,0:n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, nel, ix(0:nel,0:n)
+integer(kind=iwp) :: iel, ik
 
 call izero(ix,(n+1)*(nel+1))
 ix(0,0) = 1

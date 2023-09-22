@@ -19,13 +19,14 @@
 !***********************************************************************
 subroutine cnfprt_cvb(iconfs,nconf1,nel1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 #include "WrkSpc.fh"
-dimension iconfs(noe,nconf1)
+integer(kind=iwp) :: i1, iconf, ii, ioffs, iorb
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(noe)
 ! Main loop over configurations:
@@ -45,7 +46,7 @@ do iconf=1,nconf1
       ioffs = ioffs+1
     end if
   end do
-  write(6,'(i8,a,20i3)') iconf,'   =>  ',(iwork(ii+i1-1),ii=1,nel1)
+  write(u6,'(i8,a,20i3)') iconf,'   =>  ',(iwork(ii+i1-1),ii=1,nel1)
 end do
 call mfreei_cvb(i1)
 

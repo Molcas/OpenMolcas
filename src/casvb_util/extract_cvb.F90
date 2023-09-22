@@ -16,9 +16,15 @@ subroutine extract_cvb(c,t,nvec1,nextract,mode,thr,s,nbf,metr)
 ! MODE: 0,1 => determine NEXTRACT based on THR
 !       1,3 => transform also T matrix
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec1, nextract, mode, nbf, metr
+real(kind=wp) :: c(nbf,nvec1), t(nbf,nvec1), thr, s(*)
 #include "WrkSpc.fh"
-dimension c(nbf,nvec1), t(nbf,nvec1), s(*)
+integer(kind=iwp) :: i, i1, i2, i3, i4, nvec
+integer(kind=iwp), external :: mstackr_cvb
 
 nvec = nvec1
 i1 = mstackr_cvb(nvec)
@@ -39,7 +45,7 @@ if (mod(mode,2) == 1) then
   ! Apply same transformation to T:
   call mxatb_cvb(t,work(i3),nbf,nvec,nvec,work(i4))
   do i=1,nvec
-    call dscal_(nbf,1.d0/work(i+i1-1),work((i-1)*nbf+i4),1)
+    call dscal_(nbf,One/work(i+i1-1),work((i-1)*nbf+i4),1)
   end do
   call fmove_cvb(work(1+(nvec-nextract)*nbf+i4-1),t,nbf*nextract)
   call schmidtt_cvb(c,nextract,t,nbf,s,nbf,metr)

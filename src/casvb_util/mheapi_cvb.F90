@@ -13,18 +13,23 @@
 !***********************************************************************
 ! -- Integer routines - just front-ends for real*8 ---
 
-integer function mheapi_cvb(nword)
+function mheapi_cvb(nword)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mheapi_cvb
+integer(kind=iwp) :: nword
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: iraddr, nwordr
+integer(kind=iwp), external :: mheapr_cvb
 
-if (memdebug) write(6,*) '   Enter mheapi: nword :',nword
+if (memdebug) write(u6,*) '   Enter mheapi: nword :',nword
 nwordr = (nword+idbl-1)/idbl
 iraddr = mheapr_cvb(nwordr)
 mheapi_cvb = (iraddr-1)*idbl+1
-if (memdebug) write(6,*) '   mheapi: nword & pointer :',nword,mheapi_cvb
+if (memdebug) write(u6,*) '   mheapi: nword & pointer :',nword,mheapi_cvb
 
 return
 

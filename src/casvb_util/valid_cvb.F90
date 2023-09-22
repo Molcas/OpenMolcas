@@ -12,11 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function valid_cvb(fileid)
+!IFG trivial
+function valid_cvb(fileid)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
 
-valid_cvb = (fileid >= 1d-2)
+implicit none
+logical(kind=iwp) :: valid_cvb
+real(kind=wp) :: fileid
+
+valid_cvb = (fileid >= 1.0e-2_wp)
 
 return
 

@@ -19,9 +19,12 @@
 !***********************************************************************
 subroutine gaussj_cvb(orbs,gjorb)
 
-implicit real*8(a-h,o-z)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-dimension orbs(norb,norb), gjorb(*)
+real(kind=wp) :: orbs(norb,norb), gjorb(*)
 
 call gaussj_cvb_internal(gjorb)
 
@@ -29,9 +32,8 @@ call gaussj_cvb_internal(gjorb)
 contains
 
 subroutine gaussj_cvb_internal(gjorb)
-  use iso_c_binding
-  real*8, target :: gjorb(*)
-  integer, pointer :: igjorb(:)
+  real(kind=wp), target :: gjorb(*)
+  integer(kind=iwp), pointer :: igjorb(:)
   call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
   call igaussj_cvb(orbs,igjorb)
   nullify(igjorb)

@@ -15,37 +15,40 @@
 subroutine o8b2_cvb(nparm,dx,grad,eigvec,eigval,dxnrm,close2conv)
 
 use casvb_global, only: hh, ip, scalesmall
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical close2conv
-dimension dx(nparm), grad(nparm)
-dimension eigvec(nparm+1,nparm+1), eigval(nparm+1)
-save one
-data one/1d0/
+implicit none
+integer(kind=iwp) :: nparm
+real(kind=wp) :: dx(nparm), grad(nparm), eigvec(nparm+1,nparm+1), eigval(nparm+1), dxnrm
+logical(kind=iwp) :: close2conv
+integer(kind=iwp) :: iprm, ipu, iroot
+real(kind=wp) :: fac1
+real(kind=wp), external :: dnrm2_
 
 call fzero(eigvec,(nparm+1)*(nparm+1))
 do iprm=1,nparm
   eigvec(iprm+1,1) = grad(iprm)
   eigvec(1,iprm+1) = grad(iprm)
-  eigvec(iprm+1,iprm+1) = one
+  eigvec(iprm+1,iprm+1) = One
   call hess_cvb(eigvec(2,iprm+1))
 end do
-write(6,*) ' Augmented Hessian matrix :'
+write(u6,*) ' Augmented Hessian matrix :'
 call mxprint_cvb(eigvec,nparm+1,nparm+1,0)
 call mxdiag_cvb(eigvec,eigval,nparm+1)
 iroot = nparm+1
 if (ip >= 2) then
-  write(6,'(a)') ' Eigenvalues of augmented Hessian :'
+  write(u6,'(a)') ' Eigenvalues of augmented Hessian :'
   call vecprint_cvb(eigval,nparm+1)
-  write(6,'(a)') ' Eigenvector to be followed :'
+  write(u6,'(a)') ' Eigenvector to be followed :'
   call vecprint_cvb(eigvec(1,iroot),nparm+1)
 end if
-write(6,*) ' Following root no :',iroot
+write(u6,*) ' Following root no :',iroot
 call fmove_cvb(eigvec(2,iroot),dx,nparm)
-if (abs(eigvec(1,iroot)) > 1d-8) then
-  fac1 = one/eigvec(1,iroot)
+if (abs(eigvec(1,iroot)) > 1.0e-8_wp) then
+  fac1 = One/eigvec(1,iroot)
 else
-  fac1 = sign(one,eigvec(1,iroot))
+  fac1 = sign(One,eigvec(1,iroot))
 end if
 call dscal_(nparm,fac1,dx,1)
 dxnrm = dnrm2_(nparm,dx,1)

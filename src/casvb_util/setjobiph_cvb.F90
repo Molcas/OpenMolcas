@@ -15,13 +15,18 @@
 subroutine setjobiph_cvb(iorcore_c,iorclos_c,iorocc_c,mxirrep,nstsym_c,weight_c,istnel_c,istsy_c,istms2_c,nstats_c,mxstt_ci, &
                          mxstsy_ci,nel_c,norb_c,i2s_c,isym_c,mcore_c,neltot_c)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: mxirrep, iorcore_c(mxirrep), iorclos_c(mxirrep), iorocc_c(mxirrep), nstsym_c, mxstsy_ci, istnel_c(mxstsy_ci), &
+                     istsy_c(mxstsy_ci), istms2_c(mxstsy_ci), nstats_c(mxstsy_ci), mxstt_ci, nel_c, norb_c, i2s_c, isym_c, &
+                     mcore_c, neltot_c
+real(kind=wp) :: weight_c(mxstt_ci,mxstsy_ci)
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-dimension iorcore_c(mxirrep), iorclos_c(mxirrep), iorocc_c(mxirrep)
-dimension weight_c(mxstt_ci,mxstsy_ci)
-dimension istnel_c(mxstsy_ci), istsy_c(mxstsy_ci)
-dimension istms2_c(mxstsy_ci), nstats_c(mxstsy_ci)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: wgt
 
 ! Orbitals  --  OCC, CLOSED and CORE cards
 call imove_cvb(nfro_j,iorcore_c,mxirrep)
@@ -31,13 +36,13 @@ call imove_cvb(nrs2_j,iorocc_c,mxirrep)
 nstsym_c = 1
 call fzero(weight_c,mxstt_ci*mxstsy_ci)
 do i=1,lroots_j
-  wgt = 0.0d0
+  wgt = Zero
   do j=1,nroots_j
     if (iroot_j(j) == i) wgt = weight_j(j)
   end do
-  if (wgt /= 0d0) then
+  if (wgt /= Zero) then
     if (i > mxstt_ci) then
-      write(6,*) ' Root number too large in casrecov_cvb :',i,mxstt_ci
+      write(u6,*) ' Root number too large in casrecov_cvb :',i,mxstt_ci
       call abend_cvb()
     end if
   end if

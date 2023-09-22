@@ -14,16 +14,21 @@
 
 function detm_cvb(a,n)
 
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
-dimension a(n*n)
-dimension det(2)
-!start linpack_determinant
-save zero, one
-data zero/0d0/,one/1d0/
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
 
+implicit none
+real(kind=wp) :: detm_cvb
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n*n)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, i3, ierr
+real(kind=wp) :: det(2)
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+
+! start linpack_determinant
 if (n == 0) then
-  detm_cvb = one
+  detm_cvb = One
   return
 end if
 i1 = mstackr_cvb(n*n)
@@ -31,16 +36,16 @@ i2 = mstacki_cvb(n)
 ierr = 0
 call fmove_cvb(a,work(i1),n*n)
 call dgetrf_(n,n,work(i1),n,iwork(i2),ierr)
-!start linpack_determinant
+! start linpack_determinant
 !call dgefa(work(i1),n,n,iwork(i2),ierr)
 i3 = mstackr_cvb(n*n)
 if (ierr /= 0) then
-  detm_cvb = zero
+  detm_cvb = Zero
   call mfreer_cvb(i1)
   return
 end if
 call dgedi(work(i1),n,n,iwork(i2),det,work(i3),10)
-detm_cvb = det(1)*10d0**det(2)
+detm_cvb = det(1)*Ten**det(2)
 call mfreer_cvb(i1)
 
 return

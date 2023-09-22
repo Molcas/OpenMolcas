@@ -8,6 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer mxstsy_ci,mxstt_ci,mxirrep_ci,iorcore_c,iorclos_c,        &
+     &        iorocc_c,nstsym_c,nstats_c,istnel_c,istsy_c,istms2_c,     &
+     &        iorcore_d,iorclos_d,iorocc_d,nstsym_d,nstats_d,istnel_d,  &
+     &        istsy_d,istms2_d,nel_c,norb_c,i2s_c,isym_c,mcore_c,       &
+     &        neltot_c,nel_d,norb_d,i2s_d,isym_d,mcore_d,neltot_d
+      real*8 weight_c,strtint_c,strtci_c,strtmo_c,weight_d,strtint_d,   &
+     &       strtci_d,strtmo_d,strtcas
       parameter (mxstsy_ci=8,mxstt_ci=20,mxirrep_ci=8)
 !  _c quantities are based on latest CASSCF
 !  _d quantities are those actually used

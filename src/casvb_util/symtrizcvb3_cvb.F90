@@ -14,17 +14,19 @@
 
 subroutine symtrizcvb3_cvb(vecstr,idelstr)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension vecstr(nvb), idelstr(nzrvb)
+real(kind=wp) :: vecstr(nvb)
+integer(kind=iwp) :: idelstr(nzrvb)
+integer(kind=iwp) :: i, ikeep
 
 ! Zero coefficients specified by idelstr:
 if (lzrvb == 0) then
   do i=1,nzrvb
-    if (idelstr(i) > 0) vecstr(idelstr(i)) = 0d0
+    if (idelstr(i) > 0) vecstr(idelstr(i)) = Zero
   end do
 else
   ! if here, idelstr specifies which structures to *keep*:

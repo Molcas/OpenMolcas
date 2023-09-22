@@ -12,12 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine daninit_cvb()
 
 use casvb_global, only: idan, mxfiles
 
-implicit real*8(a-h,o-z)
-!logical find_unused
+implicit none
+!logical(kind=iwp) :: find_unused
 
 call istkinit_cvb(idan,mxfiles)
 

@@ -14,10 +14,14 @@
 
 subroutine schmidt2_cvb(c,sxc,cnrm,nvec,sao,n,metr)
 
-implicit real*8(a-h,o-z)
-dimension c(n,nvec), sxc(n,nvec), cnrm(nvec), sao(*)
-save thresh
-data thresh/1d-20/
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, n, metr
+real(kind=wp) :: c(n,nvec), sxc(n,nvec), cnrm(nvec), sao(*)
+integer(kind=iwp) :: i, j
+real(kind=wp), parameter :: thresh = 1.0e-20_wp
+real(kind=wp), external :: ddot_
 
 do i=1,nvec
   do j=1,i-1

@@ -13,23 +13,27 @@
 !***********************************************************************
 ! -- All memory allocated via real*8 routines ---
 
-integer function mheapr_cvb(nword1)
+function mheapr_cvb(nword1)
 ! Memory allocator (heap). Returns pointer to NWORD real*8 words.
 
 use casvb_global, only: ioff_r, memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mheapr_cvb
+integer(kind=iwp) :: nword1
+integer(kind=iwp) :: ipoint_g, nword
 
 nword = nword1
-if (memdebug) write(6,*) '     Enter mheapr: nword :',nword
+if (memdebug) write(u6,*) '     Enter mheapr: nword :',nword
 if (nword < 0) then
-  write(6,*) ' Error: attempting to allocate negative amount of memory.'
-  write(6,*) ' nword=',nword
+  write(u6,*) ' Error: attempting to allocate negative amount of memory.'
+  write(u6,*) ' nword=',nword
   call abend_cvb()
 end if
 call getmem('casvb','ALLO','REAL',ipoint_g,nword)
 mheapr_cvb = ipoint_g+ioff_r
-if (memdebug) write(6,*) '     mheapr: nword & pointer :',nword,mheapr_cvb
+if (memdebug) write(u6,*) '     mheapr: nword & pointer :',nword,mheapr_cvb
 
 return
 

@@ -15,21 +15,19 @@
 subroutine change4_cvb()
 
 use casvb_global, only: ndres_ok
+use Constants, only: Ten
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-logical changed
-! ... Files/Hamiltonian available ...
-logical, external :: ifcasci_cvb, ifhamil_cvb
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
-! ... Change of dimensioning variables ...
-logical, external :: chpcmp_cvb
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "casinfo_cvb.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: icase, icritold, ifin_old
+logical(kind=iwp) :: changed
+integer(kind=iwp), external :: mavailr_cvb
+logical(kind=iwp), external :: chpcmp_cvb, &               ! ... Change of dimensioning variables ...
+                               ifcasci_cvb, ifhamil_cvb, & ! ... Files/Hamiltonian available ...
+                               up2date_cvb                 ! ... Make: up to date? ...
 
 changed = .false.
 ! CI vectors
@@ -44,7 +42,7 @@ if (chpcmp_cvb(ndres)) changed = .true.
 ndres_ok = (.not. changed) .and. (up2date_cvb('MEM3'))
 
 if (changed) call touch_cvb('RDCAS')
-if (chpcmp_cvb(nint(strtcas*1d1))) call touch_cvb('RDCAS')
+if (chpcmp_cvb(nint(strtcas*Ten))) call touch_cvb('RDCAS')
 call chpcmp2_cvb(icrit,icritold)
 call chpcmp2_cvb(ifinish,ifin_old)
 if (.not. ((icritold == 1) .and. (ifin_old == 0))) call touch_cvb('RDCAS')

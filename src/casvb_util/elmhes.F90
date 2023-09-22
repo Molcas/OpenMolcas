@@ -15,7 +15,7 @@
 !** EISPACK ROUTINES **
 !**********************
 
-subroutine elmhes(nm,n,low,igh,a,int)
+subroutine elmhes(nm,n,low,igh,a,intx)
 ! this subroutine is a translation of the algol procedure elmhes,
 ! num. math. 12, 349-368(1968) by martin and wilkinson.
 ! handbook for auto. comp., vol.ii-linear algebra, 339-358(1971).
@@ -45,7 +45,7 @@ subroutine elmhes(nm,n,low,igh,a,int)
 !      which were used in the reduction are stored in the
 !      remaining triangle under the hessenberg matrix.
 !
-!    int contains information on the rows and columns
+!    intx contains information on the rows and columns
 !      interchanged in the reduction.
 !      only elements low through igh are used.
 !
@@ -57,17 +57,21 @@ subroutine elmhes(nm,n,low,igh,a,int)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, m, n, la, nm, igh, kp1, low, mm1, mp1
-real*8 a(nm,n)
-real*8 x, y
-integer int(igh)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, low, igh, intx(igh)
+real(kind=wp) :: a(nm,n)
+integer(kind=iwp) :: i, j, kp1, la, m, mm1, mp1
+real(kind=wp) :: x, y
 
 la = igh-1
 kp1 = low+1
 
 do m=kp1,la
   mm1 = m-1
-  x = 0.0d0
+  x = Zero
   i = m
 
   do j=m,igh
@@ -76,7 +80,7 @@ do m=kp1,la
     i = j
   end do
 
-  int(m) = i
+  intx(m) = i
   if (i /= m) then
     ! .......... interchange rows and columns of a ..........
     do j=mm1,n
@@ -92,12 +96,12 @@ do m=kp1,la
     end do
     ! .......... end interchange ..........
   end if
-  if (x == 0.0d0) cycle
+  if (x == Zero) cycle
   mp1 = m+1
 
   do i=mp1,igh
     y = a(i,mm1)
-    if (y == 0.0d0) cycle
+    if (y == Zero) cycle
     y = y/x
     a(i,mm1) = y
 

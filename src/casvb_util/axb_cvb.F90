@@ -15,11 +15,13 @@
 subroutine axb_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
 use casvb_global, only: idd
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "WrkSpc.fh"
-external asonc, ddres2upd
-dimension vec(*)
+external :: asonc, ddres2upd
+real(kind=wp) :: vec(*), resthr_inp, fx_exp
+integer(kind=iwp) :: ioptc, iter
 
 call axb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,work(idd(1)),work(idd(2)),work(idd(3)),work(idd(4)),work(idd(5)), &
               work(idd(6)),work(idd(7)))

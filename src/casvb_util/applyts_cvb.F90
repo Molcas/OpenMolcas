@@ -15,13 +15,11 @@
 subroutine applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
 ! Apply T(s) to CIVBS:
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civbs(ndet)
-dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+real(kind=wp) :: civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 
 call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 

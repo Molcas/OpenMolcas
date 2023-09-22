@@ -13,14 +13,18 @@
 !***********************************************************************
 ! -- Zeroing routines - just front-ends ---
 
-integer function mheapiz_cvb(nword)
+function mheapiz_cvb(nword)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mheapiz_cvb
+integer(kind=iwp) :: nword
 #include "WrkSpc.fh"
+integer(kind=iwp), external :: mheapi_cvb
 
-if (memdebug) write(6,*) ' mheapiz :'
+if (memdebug) write(u6,*) ' mheapiz :'
 mheapiz_cvb = mheapi_cvb(nword)
 call izero(iwork(mheapiz_cvb),nword)
 

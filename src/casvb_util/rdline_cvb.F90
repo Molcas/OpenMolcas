@@ -15,28 +15,22 @@
 subroutine rdline_cvb(nfield)
 
 use casvb_global, only: iline, ilv, inp, lenline, line, nline, nlold
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-! BLANKDELIM signifies whether blanks are used to delimit fields:
-logical blankdelim
-integer istatus
-parameter(nblank=2,ncomeol=3,neol=4,neofield=1,neof=2,nalias=2)
-character*1 blanks(nblank)
-! COMEOL are comments that comment out the rest of the line
-! (might add 'bracketing' comments (e.g. /* ... */ ) later):
-character*3 comeol(ncomeol)
-character*1 eol(neol)
-character*1 eofield(neofield)
-character*10 eof(neof)
-character*5 alias(nalias,2)
-save blankdelim
-save blanks, comeol, eof, eol, eofield
-data blankdelim/.true./
-data blanks/' ',','/,comeol/'***','!  ','*  '/
-data eof/'---       ','ENDOFINPUT'/
-data eol/';','=','{','}'/
-data eofield/' '/
-data alias/'={   ',';    ','}    ',';END;'/
+implicit none
+integer(kind=iwp) :: nfield
+integer(kind=iwp) :: i, ialias, ich, icom, ieof, ieofield, ieol, iff, ihadchar, ilength, ilinebeg, ilineend, ind, indmin, istatus, &
+                     jline
+integer(kind=iwp), parameter :: nalias = 2, nblank = 2, ncomeol = 3, neof = 2, neofield = 1, neol = 4
+character(len=*), parameter :: alias(nalias,2) = reshape(['={   ',';    ','}    ',';END;'],[nalias,2]), &
+                               blanks(nblank) = [' ',','], &
+                               comeol(ncomeol) = ['***','!  ','*  '], & ! COMEOL are comments that comment out the rest of the line
+                                                                        ! (might add 'bracketing' comments (e.g. /* ... */ ) later)
+                               eof(neof) = ['---       ','ENDOFINPUT'], &
+                               eofield(neofield) = [' '], &
+                               eol(neol) = [';','=','{','}']
+logical(kind=iwp), parameter :: blankdelim = .true. ! BLANKDELIM signifies whether blanks are used to delimit fields
+integer(kind=iwp), external :: len_trim_cvb
 
 do
   if (nline == -1) then
@@ -90,13 +84,13 @@ do
     ! Split into lines:
     call izero(ilv,lenline)
     do ieol=1,neol
-      if = 0
+      iff = 0
       ilength = len_trim_cvb(eol(ieol))
       do
-        ind = index(line(if+1:lenline),eol(ieol)(1:ilength))
+        ind = index(line(iff+1:lenline),eol(ieol)(1:ilength))
         if (ind == 0) exit
-        ilv(ind+if) = 1
-        if = ind+if
+        ilv(ind+iff) = 1
+        iff = ind+iff
       end do
     end do
     nlold = nline
@@ -106,13 +100,13 @@ do
     end do
     ! Split into fields:
     do ieofield=1,neofield
-      if = 0
+      iff = 0
       ilength = max(1,len_trim_cvb(eofield(ieofield)))
       do
-        ind = index(line(if+1:lenline),eofield(ieofield)(1:ilength))
+        ind = index(line(iff+1:lenline),eofield(ieofield)(1:ilength))
         if (ind == 0) exit
-        ilv(ind+if) = 2
-        if = ind+if
+        ilv(ind+iff) = 2
+        iff = ind+iff
       end do
     end do
     ! Eliminate field separators at end of lines:

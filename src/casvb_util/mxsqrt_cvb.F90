@@ -14,9 +14,14 @@
 
 subroutine mxsqrt_cvb(a,n,ipow)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, ipow
+real(kind=wp) :: a(n,n)
 #include "WrkSpc.fh"
-dimension a(n,n)
+integer(kind=iwp) :: i, i1, i2, i3, i4, i5, ifail, j, k
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(n)
 i2 = mstackr_cvb(n*n)
@@ -26,7 +31,7 @@ i5 = mstackr_cvb(n*n)
 ifail = 0
 call rs(n,n,a,work(i1),1,work(i2),work(i3),work(i4),ifail)
 if (ifail /= 0) then
-  write(6,*) ' Fatal error in diagonalization (MXSQRT) :',ifail
+  write(u6,*) ' Fatal error in diagonalization (MXSQRT) :',ifail
   call abend_cvb()
 end if
 call fzero(a,n*n)

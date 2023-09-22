@@ -15,20 +15,15 @@
 subroutine symgen_cvb(nalf1,nbet1,nda1,ndb1,isymalf,isymbet,iasyind,ibsyind,ialfsym,ibetsym,irpdet,irpalf,irpbet,mingrph,maxgrph, &
                       nk,locc,lunocc,xalf,xbet,icount)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension isymalf(nda1), isymbet(ndb1)
-dimension iasyind(0:mxirrep), ibsyind(0:mxirrep)
-dimension ialfsym(nda1), ibetsym(ndb1)
-dimension irpdet(mxirrep), irpalf(mxirrep), irpbet(mxirrep)
-dimension mingrph(0:norb), maxgrph(0:norb)
-dimension nk(0:norb), locc(norb+1), lunocc(norb+1)
-dimension xalf(0:norb,0:nalf1), xbet(0:norb,0:nbet1)
-dimension icount(mxirrep)
-integer rc
+integer(kind=iwp) :: nalf1, nbet1, nda1, ndb1, isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), &
+                     ialfsym(nda1), ibetsym(ndb1), irpdet(mxirrep), irpalf(mxirrep), irpbet(mxirrep), mingrph(0:norb), &
+                     maxgrph(0:norb), nk(0:norb), locc(norb+1), lunocc(norb+1), xalf(0:norb,0:nalf1), xbet(0:norb,0:nbet1), &
+                     icount(mxirrep)
+integer(kind=iwp) :: ia, ib, ida, idb, indx, iorb, irp, irrep, jrp, rc
 
 ! Alpha loop:
 call izero(irpalf,mxirrep)
@@ -39,15 +34,15 @@ end do
 call weight_cvb(xalf,mingrph,maxgrph,nalf1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   irp = 1
   do ia=1,nalf1
     irp = md2h(irp,ityp(locc(ia)))
   end do
   irpalf(irp) = irpalf(irp)+1
-  ialfsym(index) = irp
-  call loind_cvb(norb,nalf1,nk,mingrph,maxgrph,locc,lunocc,index,xalf,rc)
+  ialfsym(indx) = irp
+  call loind_cvb(norb,nalf1,nk,mingrph,maxgrph,locc,lunocc,indx,xalf,rc)
   if (rc == 0) exit
 end do
 iasyind(0) = 0
@@ -70,15 +65,15 @@ end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   irp = 1
   do ib=1,nbet1
     irp = md2h(irp,ityp(locc(ib)))
   end do
   irpbet(irp) = irpbet(irp)+1
-  ibetsym(index) = irp
-  call loind_cvb(norb,nbet1,nk,mingrph,maxgrph,locc,lunocc,index,xbet,rc)
+  ibetsym(indx) = irp
+  call loind_cvb(norb,nbet1,nk,mingrph,maxgrph,locc,lunocc,indx,xbet,rc)
   if (rc == 0) exit
 end do
 ibsyind(0) = 0

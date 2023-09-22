@@ -12,18 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-integer function maddr_r2i_cvb(m_real_addr)
+function maddr_r2i_cvb(m_real_addr)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: maddr_r2i_cvb
+integer(kind=iwp) :: m_real_addr
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: m_int_addr
 
 m_int_addr = (m_real_addr-1)*idbl+1
 maddr_r2i_cvb = m_int_addr
 if (memdebug) then
-  write(6,*) ' maddr_r2i_cvb: real pointer :',m_real_addr
-  write(6,*) '                int pointer  :',m_int_addr
+  write(u6,*) ' maddr_r2i_cvb: real pointer :',m_real_addr
+  write(u6,*) '                int pointer  :',m_int_addr
 end if
 
 return

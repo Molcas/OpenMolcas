@@ -73,25 +73,27 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 !***********************************************************************
 
 use casvb_global, only: formAD, formAF
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical share, is_converged, symm, use_a, use_rhs, done
-external ddasonc, ddsol, ddres, ddres2upd, ddrestart
-dimension c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n)
-dimension rhs(n)
-dimension ap(maxdav,maxdav)
-dimension rhsp(maxdav)
-dimension solp(maxdav), solp_res(maxdav)
-save zero, one
-data zero/0d0/,one/1d0/
+implicit none
+external :: ddasonc, ddsol, ddres, ddres2upd, ddrestart
+integer(kind=iwp) :: maxdav, n, nprmdim, nvguess, nvrestart, isaddle, ifollow, mxiter, nortiter, ioptc, iter, ip
+real(kind=wp) :: c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n), rhs(n), ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), &
+                 solp_res(maxdav), resthr, orththr, corenrg, fx
+logical(kind=iwp) :: share, symm, use_a, use_rhs
+integer(kind=iwp) :: i, ifail, imacro, iorth, itdav, ivres, ndavvec, nroot
+real(kind=wp) :: e1, eig, eig_res, facn, resnrm
+logical(kind=iwp) :: done, is_converged
+real(kind=wp), external :: ddot_, dnrm2_
 
-e1 = zero
+e1 = Zero
 
 if (ip >= 2) then
-  write(6,'(/,a)') ' Starting Davidson optimization.'
-  write(6,'(a)') ' -------------------------------'
+  write(u6,'(/,a)') ' Starting Davidson optimization.'
+  write(u6,'(a)') ' -------------------------------'
 end if
-if (ip >= 1) write(6,'(a,i5)') ' Maximum dimension of Davidson subspace:',maxdav
+if (ip >= 1) write(u6,'(a,i5)') ' Maximum dimension of Davidson subspace:',maxdav
 
 nroot = max(1,isaddle+1)
 ifail = -1
@@ -101,8 +103,8 @@ else if (maxdav < min(2,nprmdim)) then
   ifail = min(2,nprmdim)
 end if
 if (ifail /= -1) then
-  write(6,'(a)') ' Davidson dimension too small!'
-  write(6,'(a,i3,a)') ' Need storage for at least',ifail,' vectors.'
+  write(u6,'(a)') ' Davidson dimension too small!'
+  write(u6,'(a,i3,a)') ' Need storage for at least',ifail,' vectors.'
   call abend_cvb()
 end if
 
@@ -130,27 +132,27 @@ outer: do imacro=1,mxiter
       facn = dnrm2_(n,c(1,itdav),1)
       done = .false.
       do iorth=1,nortiter
-        call dscal_(n,one/facn,c(1,itdav),1)
+        call dscal_(n,One/facn,c(1,itdav),1)
         call schmidtd2_cvb(c,sxc,itdav-1,c(1,itdav),1,n)
         call ddproj_cvb(c(1,itdav),n)
         facn = dnrm2_(n,c(1,itdav),1)
-        if (abs(one-facn) < orththr) then
+        if (abs(One-facn) < orththr) then
           done = .true.
           exit
         end if
       end do
       if (.not. done) then
-        write(6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
+        write(u6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
         call abend_cvb()
       end if
-      call dscal_(n,one/facn,c(1,itdav),1)
+      call dscal_(n,One/facn,c(1,itdav),1)
 
       call ddasonc(c(1,itdav),axc(1,itdav),sxc(1,itdav),1,n)
 
       facn = sqrt(ddot_(n,c(1,itdav),1,sxc(1,itdav),1))
-      call dscal_(n,one/facn,c(1,itdav),1)
-      if (.not. share) call dscal_(n,one/facn,sxc(1,itdav),1)
-      if (use_a) call dscal_(n,one/facn,axc(1,itdav),1)
+      call dscal_(n,One/facn,c(1,itdav),1)
+      if (.not. share) call dscal_(n,One/facn,sxc(1,itdav),1)
+      if (use_a) call dscal_(n,One/facn,axc(1,itdav),1)
 
       if (use_a) then
         do i=1,itdav
@@ -167,11 +169,11 @@ outer: do imacro=1,mxiter
 
     call ddsol(ap,rhsp,itdav,maxdav,nprmdim,solp,solp_res,eig,eig_res)
 
-    if (ip >= 2) write(6,formAF) ' Optimal eigenvalue :',eig+corenrg
-    if (e1 == zero) e1 = eig
+    if (ip >= 2) write(u6,formAF) ' Optimal eigenvalue :',eig+corenrg
+    if (e1 == Zero) e1 = eig
 
     if ((ip >= 3) .or. ((n <= 100) .and. (ip == 2))) then
-      write(6,'(a)') ' Current vector :'
+      write(u6,'(a)') ' Current vector :'
       call vecprint_cvb(c(1,itdav),n)
     end if
     if (.not. (itdav < nvguess)) then
@@ -183,16 +185,16 @@ outer: do imacro=1,mxiter
         is_converged = (resnrm < resthr)
       end if
       if (is_converged) then
-        if (ip >= 0) write(6,formAD) ' Converged ... residual norm:',resnrm
+        if (ip >= 0) write(u6,formAD) ' Converged ... residual norm:',resnrm
       else
         if (ip >= 2) then
-          write(6,'(a)') ' '
-          write(6,formAD) ' Residual norm:',resnrm
-          write(6,'(a)') ' '
+          write(u6,'(a)') ' '
+          write(u6,formAD) ' Residual norm:',resnrm
+          write(u6,'(a)') ' '
         end if
       end if
       if ((ip >= 3) .or. ((n <= 100) .and. (ip == 2))) then
-        write(6,'(a)') ' Residual vector :'
+        write(u6,'(a)') ' Residual vector :'
         call vecprint_cvb(res,n)
       end if
       if (is_converged) then
@@ -203,7 +205,7 @@ outer: do imacro=1,mxiter
     end if
   end do
   if (iter >= mxiter) then
-    if (ip >= 0) write(6,'(2a,i5,a)') ' Davidson optimization not converged in ',mxiter,' iterations'
+    if (ip >= 0) write(u6,'(2a,i5,a)') ' Davidson optimization not converged in ',mxiter,' iterations'
     ioptc = -1
     exit outer
   end if
@@ -212,11 +214,11 @@ end do outer
 ndavvec = min(itdav,maxdav)
 call mxatb_cvb(c,solp,n,ndavvec,1,vec)
 
-if (ip >= 2) write(6,formAD) ' Total eigenvalue change in Davidson :',eig-e1
+if (ip >= 2) write(u6,formAD) ' Total eigenvalue change in Davidson :',eig-e1
 if ((ip >= 3) .and. (n <= 500)) then
-  write(6,'(a)') ' Final projected solution vector :'
+  write(u6,'(a)') ' Final projected solution vector :'
   call vecprint_cvb(solp,n)
-  write(6,'(a)') ' Final solution vector :'
+  write(u6,'(a)') ' Final solution vector :'
   call vecprint_cvb(vec,n)
 end if
 fx = eig+corenrg

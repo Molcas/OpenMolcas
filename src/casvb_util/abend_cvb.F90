@@ -17,13 +17,13 @@
 !****************
 subroutine abend_cvb()
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+use Definitions, only: wp, u6
 
-write(6,'(a)') ' Error exit CASVB.'
+implicit none
+#include "main_cvb.fh"
+real(kind=wp), external :: tim_cvb
+
+write(u6,'(a)') ' Error exit CASVB.'
 call date2_cvb(tim_cvb(cpu0))
 call abend()
 

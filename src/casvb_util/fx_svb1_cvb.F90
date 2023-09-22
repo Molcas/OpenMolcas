@@ -15,17 +15,14 @@
 subroutine fx_svb1_cvb(fx,fast,orbstry,cvbtry,civec,civecp,civbs,civb,gjorb,gjorb2,gjorb3,cvbdet)
 
 use casvb_global, only: formE, ovraa_try, ovrab_try
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical fast
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(ndet), civecp(ndet), civbs(ndet), civb(ndet), gjorb(*), gjorb2(*), &
+                 gjorb3(*), cvbdet(ndetvb)
+logical(kind=iwp) :: fast
 #include "print_cvb.fh"
-dimension orbstry(norb,norb), cvbtry(nvb)
-dimension civec(ndet), civecp(ndet), civbs(ndet), civb(ndet)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension cvbdet(ndetvb)
 
 call str2vbc_cvb(cvbtry,cvbdet)
 if (fast) then
@@ -37,7 +34,7 @@ if (fast) then
   if (memplenty) then
     call cidot_cvb(civec,civb,ovrab_try)
   else
-    call cird_cvb(civecp,61001.2d0)
+    call cird_cvb(civecp,61001.2_wp)
     call cidot_cvb(civecp,civb,ovrab_try)
   end if
 else
@@ -50,7 +47,7 @@ else
 end if
 svb = ovrab_try/sqrt(ovraa_try)
 fx = svb
-if (fast .and. (ip(3) >= 2)) write(6,formE) ' Svb :      ',svb
+if (fast .and. (ip(3) >= 2)) write(u6,formE) ' Svb :      ',svb
 
 return
 

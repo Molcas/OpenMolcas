@@ -14,22 +14,24 @@
 
 subroutine fout_cvb(f,a1,a2)
 
-implicit real*8(a-h,o-z)
-character*(*) a1, a2
-character*15 b1
-character*46 b2
-character*12 b3
-save huge
-data huge/1d20/
+use Definitions, only: wp, u6
+
+implicit none
+real(kind=wp) :: f
+character(len=*) :: a1, a2
+character(len=46) :: b2
+character(len=15) :: b1
+character(len=12) :: b3
+real(kind=wp), parameter :: hge = 1.0e20_wp
 
 b1 = a1
 b2 = a2
-if (abs(f) /= huge) then
+if (abs(f) /= hge) then
   write(b3,'(d12.4)') f
 else
   b3 = '    Disabled'
 end if
-write(6,'(1x,3a)') b1,b2,b3
+write(u6,'(1x,3a)') b1,b2,b3
 
 return
 

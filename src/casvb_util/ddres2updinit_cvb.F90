@@ -12,11 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine ddres2updinit_cvb(n_div1)
 
 use casvb_global, only: n_div
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: n_div1
 
 n_div = n_div1
 

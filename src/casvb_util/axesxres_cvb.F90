@@ -15,11 +15,13 @@
 subroutine axesxres_cvb(axc,sxc,dum,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
 
 use casvb_global, only: iroot, jroot
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical is_converged
-dimension axc(n,maxdav), sxc(n,maxdav), res(n)
-dimension solp_res(maxdav)
+implicit none
+integer(kind=iwp) :: maxdav, n, itdav
+real(kind=wp) :: axc(n,maxdav), sxc(n,maxdav), dum, res(n), solp_res(maxdav), eig_res
+logical(kind=iwp) :: is_converged
+integer(kind=iwp) :: i, ivb
 
 call fzero(res,n)
 do i=1,itdav

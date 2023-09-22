@@ -15,24 +15,21 @@
 subroutine applyt2_cvb(vec,gjorb,igjorb,i1alf,i1bet,iato,ibto,phato,phbto)
 ! Apply T(O) to the vector VEC. O is defined in terms of GJORB.
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension vec(nda,ndb)
-dimension gjorb(norb*norb), igjorb(2,norb*norb)
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-save thresh
-data thresh/1.d-10/
+real(kind=wp) :: vec(nda,ndb), gjorb(norb*norb), phato(norb,nam1), phbto(norb,nbm1)
+integer(kind=iwp) :: igjorb(2,norb*norb), i1alf(n1a,norb), i1bet(n1b,norb), iato(norb,0:nam1), ibto(norb,0:nbm1)
+integer(kind=iwp) :: ia, iak, iax, iaxtmp, ib, ibk, ibx, ibxtmp, ij, iorb, jax, jbx, jorb
+real(kind=wp) :: scl, tcof
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
 
 do ij=1,norb*norb
   iorb = igjorb(2,ij)
   jorb = igjorb(1,ij)
-  scale = gjorb(ij)
-  if ((iorb /= jorb) .and. (abs(scale) > thresh)) then
+  scl = gjorb(ij)
+  if ((iorb /= jorb) .and. (abs(scl) > thresh)) then
     ! a) Alpha excitation
     if (absym(2)) then
       do ia=1,n1a
@@ -40,7 +37,7 @@ do ij=1,norb*norb
         jax = iato(jorb,iaxtmp)
         if (jax /= 0) then
           iax = iato(iorb,iaxtmp)
-          tcof = scale*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
+          tcof = scl*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
           if (jax > iax) then
             call daxpy_(ndb-jax+1,tcof,vec(iax,jax),nda,vec(jax,jax),nda)
           else
@@ -56,7 +53,7 @@ do ij=1,norb*norb
         jax = iato(jorb,iaxtmp)
         if (jax /= 0) then
           iax = iato(iorb,iaxtmp)
-          tcof = scale*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
+          tcof = scl*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
           call daxpy_(ndb,tcof,vec(iax,1),nda,vec(jax,1),nda)
         end if
       end do
@@ -68,7 +65,7 @@ do ij=1,norb*norb
         jbx = ibto(jorb,ibxtmp)
         if (jbx /= 0) then
           ibx = ibto(iorb,ibxtmp)
-          tcof = scale*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
+          tcof = scl*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
           if (jbx > ibx) then
             call daxpy_(ibx-1,tcof,vec(1,ibx),1,vec(1,jbx),1)
             vec(ibx,jbx) = vec(ibx,jbx)+tcof*vec(ibx,ibx)
@@ -84,34 +81,34 @@ do ij=1,norb*norb
         jbx = ibto(jorb,ibxtmp)
         if (jbx /= 0) then
           ibx = ibto(iorb,ibxtmp)
-          tcof = scale*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
+          tcof = scl*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
           call daxpy_(nda,tcof,vec(1,ibx),1,vec(1,jbx),1)
         end if
       end do
     end if
-  else if ((iorb == jorb) .and. (abs(scale-one) > thresh)) then
+  else if ((iorb == jorb) .and. (abs(scl-one) > thresh)) then
     ! Alpha singly occupied
     if (absym(2)) then
       do ia=1,n1a
         iak = iato(iorb,i1alf(ia,iorb))
-        call dscal_(ndb-iak+1,scale,vec(iak,iak),nda)
+        call dscal_(ndb-iak+1,scl,vec(iak,iak),nda)
       end do
     else
       do ia=1,n1a
         iak = iato(iorb,i1alf(ia,iorb))
-        call dscal_(ndb,scale,vec(iak,1),nda)
+        call dscal_(ndb,scl,vec(iak,1),nda)
       end do
     end if
     ! Beta singly occupied
     if (absym(2)) then
       do ib=1,n1b
         ibk = ibto(iorb,i1bet(ib,iorb))
-        call dscal_(ibk,scale,vec(1,ibk),1)
+        call dscal_(ibk,scl,vec(1,ibk),1)
       end do
     else
       do ib=1,n1b
         ibk = ibto(iorb,i1bet(ib,iorb))
-        call dscal_(nda,scale,vec(1,ibk),1)
+        call dscal_(nda,scl,vec(1,ibk),1)
       end do
     end if
   end if

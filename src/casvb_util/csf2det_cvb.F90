@@ -15,12 +15,16 @@
 subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
 
 use csfbas, only: cts, kdtoc
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: vec(*), detvec(*)
+integer(kind=iwp) :: isym_loc, iWay
 #include "ciinfo.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
-dimension vec(*), detvec(*)
+integer(kind=iwp) :: jCopy
 
 if (iWay == 1) then
   if (nac == 0) then

@@ -10,4 +10,5 @@
 !***********************************************************************
 ! Parameters relating to the optimization procedure :
 !----------------------------------------------------
+      integer imethod,isaddle,mxiter,maxdav
       common/optzei_comcvb/imethod,isaddle,mxiter,maxdav

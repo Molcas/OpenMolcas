@@ -14,13 +14,12 @@
 
 subroutine setifnss_cvb(ifnss1,ifnss2,ndetvbs)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension ifnss1(0:nel,0:nel), ifnss2(0:nel,0:nel)
-dimension ndetvbs(0:nel,0:nel)
+integer(kind=iwp) :: ifnss1(0:nel,0:nel), ifnss2(0:nel,0:nel), ndetvbs(0:nel,0:nel)
+integer(kind=iwp) :: iretval1, iretval2, n, nalfa, nbeta
 
 call izero(ifnss1,(nel+1)*(nel+1))
 call izero(ifnss2,(nel+1)*(nel+1))

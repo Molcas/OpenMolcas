@@ -12,21 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine gtany_cvb(string,int,real,ic,ifield,ierr)
+subroutine gtany_cvb(string,intx,realx,ic,ifield,ierr)
 
 use casvb_global, only: iline, ilv, lenline, line
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical debug, done
-logical isitanint_cvb, isitareal_cvb
-external isitanint_cvb, isitareal_cvb
-integer istatus
-parameter(nblank=2,nempty=1)
-character*(*) string
-character*2 empty(nempty)
-save empty
-data empty/'--'/
-data debug/.false./
+implicit none
+character(len=*) :: string
+integer(kind=iwp) :: intx, ic, ifield, ierr
+real(kind=wp) :: realx
+integer(kind=iwp) :: ich, iempty, ifirst, istatus, jch, jfield, jline
+logical(kind=iwp) :: done
+integer(kind=iwp), parameter :: nempty = 1
+logical(kind=iwp), parameter :: debug = .false.
+character(len=*), parameter :: empty(nempty) = ['--']
+integer(kind=iwp), external :: len_trim_cvb
+logical(kind=iwp), external :: isitanint_cvb, isitareal_cvb
 
 if (ic > 1) ierr = 0
 jfield = 1
@@ -59,10 +60,10 @@ do ich=1,lenline
         ierr = 2
       end if
     else
-      if (debug) write(6,*) ' Field=',line(ifirst:jch-1)
+      if (debug) write(u6,*) ' Field=',line(ifirst:jch-1)
       if (ic == 1) then
         string = line(ifirst:jch-1)
-        if (debug) write(6,*) ' Field read as string :',string
+        if (debug) write(u6,*) ' Field read as string :',string
       else if (ic == 2) then
         if (ifirst > jch-1) then
           ierr = 2
@@ -70,16 +71,16 @@ do ich=1,lenline
         end if
         if (.not. isitanint_cvb(line(ifirst:jch-1))) then
           ierr = 1
-          if (debug) write(6,*) ' Could not read field as integer.'
+          if (debug) write(u6,*) ' Could not read field as integer.'
           return
         end if
-        read(line(ifirst:jch-1),*,iostat=istatus) int
+        read(line(ifirst:jch-1),*,iostat=istatus) intx
         if (istatus > 0) then
           ierr = 1
-          if (debug) write(6,*) ' Could not read field as integer.'
+          if (debug) write(u6,*) ' Could not read field as integer.'
           return
         end if
-        if (debug) write(6,*) ' Field read as int :',int
+        if (debug) write(u6,*) ' Field read as int :',intx
       else if (ic == 3) then
         if (ifirst > jch-1) then
           ierr = 2
@@ -87,23 +88,23 @@ do ich=1,lenline
         end if
         if (.not. isitareal_cvb(line(ifirst:jch-1))) then
           ierr = 1
-          if (debug) write(6,*) ' Could not read field as real.'
+          if (debug) write(u6,*) ' Could not read field as real.'
           return
         end if
-        read(line(ifirst:jch-1),*,iostat=istatus) real
+        read(line(ifirst:jch-1),*,iostat=istatus) realx
         if (istatus > 0) then
           ierr = 1
-          if (debug) write(6,*) ' Could not read field as real.'
+          if (debug) write(u6,*) ' Could not read field as real.'
           return
         end if
-        if (debug) write(6,*) ' Field read as real :',real
+        if (debug) write(u6,*) ' Field read as real :',realx
       end if
     end if
     exit
   end if
 end do
 if (ich > lenline) then
-  write(6,*) ' Error in input parsing !'
+  write(u6,*) ' Error in input parsing !'
   call abend_cvb()
 end if
 

@@ -14,13 +14,16 @@
 
 subroutine gaussj2_cvb(a,lrow,lcol,ibook,irows,ijs,oijs,n)
 
-implicit real*8(a-h,o-z)
-dimension a(n,n)
-dimension lrow(n), lcol(n), ibook(n)
-dimension irows(n), ijs(2,n*n), oijs(n*n)
-logical done
-save zero, one, thresh
-data zero/0.d0/,one/1.d0/,thresh/1.d-10/
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, lrow(n), lcol(n), ibook(n), irows(n), ijs(2,n*n)
+real(kind=wp) :: a(n,n), oijs(n*n)
+integer(kind=iwp) :: i, idum, ihad, ii, ii2, imain, imx, j, jmx, nij
+real(kind=wp) :: amx, dum, oneovamx
+logical(kind=iwp) :: done
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
 
 ! initialize imx & jmx to suppress compiler warnings ...
 imx = 0
@@ -33,7 +36,7 @@ do i=1,n
 end do
 done = .false.
 do imain=1,n
-  amx = zero
+  amx = Zero
   do i=1,n
     if (ibook(i) /= 1) then
       do j=1,n
@@ -44,7 +47,7 @@ do imain=1,n
             jmx = j
           end if
         else if (ibook(j) > 1) then
-          write(6,*) ' Singular matrix in GAUSSJ !'
+          write(u6,*) ' Singular matrix in GAUSSJ !'
           call abend_cvb()
         end if
       end do
@@ -72,15 +75,15 @@ do imain=1,n
   ijs(2,nij) = irows(jmx)
   oijs(nij) = a(jmx,jmx)
   nij = nij-1
-  oneovamx = one/a(jmx,jmx)
-  a(jmx,jmx) = one
+  oneovamx = One/a(jmx,jmx)
+  a(jmx,jmx) = One
   do ii=1,n
     a(jmx,ii) = oneovamx*a(jmx,ii)
   end do
   do ii2=1,n
     if (ii2 /= jmx) then
       dum = a(ii2,jmx)
-      a(ii2,jmx) = zero
+      a(ii2,jmx) = Zero
       do ii=1,n
         a(ii2,ii) = a(ii2,ii)-dum*a(jmx,ii)
       end do
@@ -98,7 +101,7 @@ if (done) then
     end do
     ijs(1,nij) = irows(i)
     ijs(2,nij) = irows(i)
-    oijs(nij) = zero
+    oijs(nij) = Zero
     nij = nij-1
     do j=1,n
       if (j /= i) then

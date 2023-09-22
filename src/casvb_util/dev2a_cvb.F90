@@ -20,20 +20,20 @@
 subroutine dev2a_cvb(v1,v2,cfrom,hessorb,oaa2,aa1)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: v1(*), v2(*), cfrom(*), hessorb(nprorb,nprorb), oaa2, aa1
 #include "WrkSpc.fh"
-dimension hessorb(nprorb,nprorb), v1(*), v2(*), cfrom(*)
+integer(kind=iwp) :: icfrom, iv1, iv2
 
 iv1 = nint(v1(1))
 iv2 = nint(v2(1))
 icfrom = nint(cfrom(1))
 n_2el = n_2el+2
 if (iform_ci(icfrom) /= 0) then
-  write(6,*) ' Unsupported format in DEV2A :',iform_ci(icfrom)
+  write(u6,*) ' Unsupported format in DEV2A :',iform_ci(icfrom)
   call abend_cvb()
 end if
 

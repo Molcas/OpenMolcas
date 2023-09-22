@@ -12,11 +12,12 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine chpcmp0_cvb()
 
 use casvb_global, only: iprm
 
-implicit real*8(a-h,o-z)
+implicit none
 
 iprm = 0
 

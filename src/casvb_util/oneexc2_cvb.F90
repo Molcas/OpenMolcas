@@ -16,16 +16,18 @@ subroutine oneexc2_cvb(cfrom,cto,vij,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixap
                        commut,sc,absym,diag,idens,iPvb)
 ! Calculates Cto = Pvb Eij Cfrom
 
-implicit real*8(a-h,o-z)
-logical commut, sc, absym, diag
-dimension cfrom(nda,ndb), cto(nda,ndb)
-dimension vij(*)
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-dimension iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
-save two, half, thresh
-data two/2d0/,half/.5d0/,thresh/1.d-10/
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nam1, iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, &
+                     iapr(npvb), nda, ixapr(nda+1), ibpr(npvb), ndb, ixbpr(ndb+1), idens, iPvb
+real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), vij(*), phato(norb,nam1), phbto(norb,nbm1)
+logical(kind=iwp) :: commut, sc, absym, diag
+integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iprm, ixa, ixb, jax, jbx, jorb, nvij
+real(kind=wp) :: tcof
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
+real(kind=wp), external :: ddot_
 
 if (diag) then
   nvij = norb*norb
@@ -34,9 +36,9 @@ else if (idens == 1) then
 end if
 if (absym) then
   if (idens == 0) then
-    call dscal_(nda*ndb,half,cto,1)
+    call dscal_(nda*ndb,Half,cto,1)
   else
-    call dscal_(nvij,half,vij,1)
+    call dscal_(nvij,Half,vij,1)
   end if
 end if
 iprm = 0
@@ -205,7 +207,7 @@ if (absym) then
       end do
     end do
   else
-    call dscal_(nvij,two,vij,1)
+    call dscal_(nvij,Two,vij,1)
   end if
 end if
 

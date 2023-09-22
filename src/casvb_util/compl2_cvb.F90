@@ -14,8 +14,14 @@
 
 subroutine compl2_cvb(a,nvec,n,awrk,bwrk,cwrk)
 
-implicit real*8(a-h,o-z)
-dimension a(n,n), awrk(n,nvec+n), bwrk(n,n), cwrk(n), dum(1)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, n
+real(kind=wp) :: a(n,n), awrk(n,nvec+n), bwrk(n,n), cwrk(n)
+integer(kind=iwp) :: i, imx, j
+real(kind=wp) :: cmx, dum(1)
+real(kind=wp), external :: ddot_
 
 call fmove_cvb(a,awrk,n*nvec)
 call mxunit_cvb(awrk(1,1+nvec),n)
@@ -34,7 +40,7 @@ do j=1,n
       imx = i
     end if
   end do
-  cwrk(imx) = -dble(j)
+  cwrk(imx) = -real(j,kind=wp)
   call fmove_cvb(awrk(1,imx+nvec),bwrk(1,j),n)
 end do
 call schmidt_cvb(bwrk,n,dum,n,0)
@@ -51,7 +57,7 @@ do j=1,n-nvec
       imx = i
     end if
   end do
-  cwrk(imx) = -dble(j)
+  cwrk(imx) = -real(j,kind=wp)
   call fmove_cvb(bwrk(1,imx),a(1,nvec+j),n)
 end do
 call nize_cvb(a(1,nvec+1),n-nvec,dum,n,0,0)

@@ -15,13 +15,15 @@
 function chpcmp_cvb(itst)
 
 use casvb_global, only: iprm, lstprm, mxprm
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-logical chpcmp_cvb
+implicit none
+logical(kind=iwp) :: chpcmp_cvb
+integer(kind=iwp) :: itst
 
 iprm = iprm+1
 if (iprm > mxprm) then
-  write(6,*) ' Dimensioning error in CHPCMP!',iprm,mxprm
+  write(u6,*) ' Dimensioning error in CHPCMP!',iprm,mxprm
   call abend_cvb()
 end if
 chpcmp_cvb = (lstprm(iprm) /= itst)

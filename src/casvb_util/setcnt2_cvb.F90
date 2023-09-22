@@ -13,13 +13,14 @@
 !***********************************************************************
 ! Contents of CI vectors:
 
+!IFG trivial
 subroutine setcnt2_cvb(ident_ci,idep1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ident_ci, idep1
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 icnt_ci(ident_ci) = idep1
 

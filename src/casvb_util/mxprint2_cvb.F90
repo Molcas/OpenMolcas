@@ -16,11 +16,15 @@ subroutine mxprint2_cvb(a,nrow,nrow2,ncol,itype)
 ! Prints matrix A, stored according to ITYPE
 
 use casvb_global, only: formMXP1, formMXP3
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: a(*)
+integer(kind=iwp) :: nrow, nrow2, ncol, itype
 #include "print_cvb.fh"
-parameter(mxbuf=8)
-dimension buffer(mxbuf), ibuf(mxbuf), a(*)
+integer(kind=iwp), parameter :: mxbuf = 8
+integer(kind=iwp) :: i, ibuf(mxbuf), ii, ind, j, jend, jin, k, nbuf
+real(kind=wp) :: buffer(mxbuf)
 
 nbuf = min((iwidth-4)/(iprec+4),mxbuf)
 if (nbuf == 7) nbuf = 6
@@ -35,7 +39,7 @@ do
     k = k+1
     ibuf(k) = j
   end do
-  write(6,formMXP1) (ibuf(i),i=1,jend-jin+1)
+  write(u6,formMXP1) (ibuf(i),i=1,jend-jin+1)
   do i=1,nrow
     k = 0
     do j=jin,jend
@@ -53,7 +57,7 @@ do
       end if
       buffer(k) = a(ind)
     end do
-    write(6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
+    write(u6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
   end do
   jin = jend+1
   if (ncol <= nbuf) exit

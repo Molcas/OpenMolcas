@@ -16,16 +16,19 @@ subroutine input2_cvb(iorbrel,mxdimrel,ifxorb,iorts,irots,izeta,orbs,irdorbs)
 
 use casvb_global, only: i2s_fr, inputmode, mnion_fr, mxion_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, ndetvb_fr, ndetvb2_fr, &
                         nel_fr, nfrag, nMs_fr, nS_fr, nvbr_fr
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+integer(kind=iwp) :: mxdimrel, iorbrel(mxdimrel), ifxorb(mxorb_cvb), iorts(2,*), irots(2,*), izeta(*), irdorbs(mxorb_cvb)
+real(kind=wp) :: orbs(mxaobf,mxorb_cvb)
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension iorbrel(mxdimrel), ifxorb(mxorb_cvb)
-dimension iorts(2,*), irots(2,*), izeta(*)
-dimension orbs(mxaobf,mxorb_cvb), irdorbs(mxorb_cvb)
+integer(kind=iwp) :: i, i2s_min, ibase, iconf, iconf_add, idelstr, ifrag, ifrom, ifsc, ifxstr, ioffs, iorb, ip_cvb, ip_from, &
+                     ip_iconfs, ip_symelm, ip_to, iS, isyme, ito, jconf, jorb, kbasiscvb_inp, need, nelcheck, nmov, noe1
+real(kind=wp) :: swap
+integer(kind=iwp), external :: ihlf_cvb, mheapiz_cvb, mheaprz_cvb, mstacki_cvb, nvb_cvb
 
 ibase = mstacki_cvb(0)
 ip_iconfs = mheapiz_cvb(0)
@@ -139,7 +142,7 @@ if (inputmode == 2) then
     nelcheck = nelcheck+nel_fr(i)
   end do
   if (nelcheck /= nel) then
-    write(6,*) ' Error: total number of electrons in fragment wavefunctions :',nelcheck,' not equal to number of electrons ',nel
+    write(u6,*) ' Error: total number of electrons in fragment wavefunctions :',nelcheck,' not equal to number of electrons ',nel
     call abend_cvb()
   end if
   sc = (nfrag == 1) .and. (ifsc == 1)
@@ -239,9 +242,9 @@ if (inputmode == 2) then
   call rdioff1_cvb(need)
   need = need+3*ihlf_cvb(1)+ihlf_cvb(noe*nconf)+mxaobf*norb+ihlf_cvb(norb)+nvbinp+nsyme*norb*norb+ihlf_cvb(ndimrel)+ &
          ihlf_cvb(norb)+ihlf_cvb(nfxvb)+ihlf_cvb(nzrvb)+ihlf_cvb(2*nort)+ihlf_cvb(2*ndrot)+ihlf_cvb(2*ndrot)+ihlf_cvb(nsyme)
-  if (recinp == 0d0) then
+  if (recinp == Zero) then
     recinp = recn_tmp01
-  else if (recinp_old == 0d0) then
+  else if (recinp_old == Zero) then
     recinp_old = recn_tmp01
     recinp = recn_tmp02
   else

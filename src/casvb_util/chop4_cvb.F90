@@ -15,14 +15,15 @@
 subroutine chop4_cvb()
 
 use casvb_global, only: ndres_ok, release
+use Constants, only: Zero
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "casinfo_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iv
+integer(kind=iwp), external :: mstackr_cvb
 
 if (release(4)) call mfreer_cvb(lc(1)-2)
 release(4) = .true.
@@ -33,8 +34,8 @@ do iv=1,nv
   lc(iv) = mstackr_cvb(ndres)
 end do
 do iv=1,nv
-  work(lc(iv)) = zero
-  work(lc(iv)+1) = zero
+  work(lc(iv)) = Zero
+  work(lc(iv)+1) = Zero
 end do
 do iv=1,nv
   lc(iv) = lc(iv)+2

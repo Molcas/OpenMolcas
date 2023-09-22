@@ -24,14 +24,16 @@
 subroutine permvb_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
-implicit real*8(a-h,o-z)
-logical vb
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: v1(*)
+integer(kind=iwp) :: iperm(norb)
 #include "WrkSpc.fh"
-dimension iperm(norb), v1(*)
+integer(kind=iwp) :: ialg, iv1, k1, k10, k11, k12, k13, k14, k15, k16, k17, k2, k5, k6, k7, k8, k9
+logical(kind=iwp) :: vb
+integer(kind=iwp), external :: mavailr_cvb, mstacki_cvb, mstackr_cvb
 
 vb = .true.
 k1 = mstacki_cvb((norb+1)*(nalf+1))

@@ -16,17 +16,17 @@ subroutine dev2c_2_cvb(v1,cfrom,hessorb,oaa2,nprorb,i1alf,i1bet,iafrm,ibfrm,iato
                        ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym)
 ! Calculates V1 EijEkl CFROM
 
-implicit real*8(a-h,o-z)
-logical commut, sc, absym
-dimension v1(nda,ndb), cfrom(nda,ndb)
-dimension hessorb(nprorb,nprorb)
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iafrm(norb,nda), ibfrm(norb,ndb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-dimension iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
-save zero, two
-data zero/0.0d0/,two/2d0/
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nprorb, n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nda, iafrm(norb,nda), ndb, ibfrm(norb,ndb), nam1, &
+                     iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
+real(kind=wp) :: v1(nda,ndb), cfrom(nda,ndb), hessorb(nprorb,nprorb), oaa2, phato(norb,nam1), phbto(norb,nbm1)
+logical(kind=iwp) :: commut, sc, absym
+integer(kind=iwp) :: i1, i2, i3, i4, ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iprm1, iprm2, itmp, ixa, ixb, jax, jbx, jorb, kax, &
+                     kbx, korb, lax, lbx, lorb
+real(kind=wp) :: phase, res1, tcof, term
 
 do iprm1=1,nprorb
   i1 = (iprm1-1)/(norb-1)+1
@@ -47,7 +47,7 @@ do iprm1=1,nprorb
       korb = i3
       lorb = i4
     end if
-    res1 = zero
+    res1 = Zero
     if (commut .and. (.not. sc)) then
       ! 1) Alpha excitation
       do ia=1,n1a
@@ -132,7 +132,7 @@ do iprm1=1,nprorb
       end do
 
       if (absym) then
-        res1 = two*res1
+        res1 = Two*res1
       else
         ! 2) Beta excitation
         do ib=1,n1b
@@ -248,7 +248,7 @@ do iprm1=1,nprorb
       end do
 
       if (absym) then
-        res1 = two*res1
+        res1 = Two*res1
       else
         ! 2) Beta excitation
         do ib=1,n1b
@@ -360,7 +360,7 @@ do iprm1=1,nprorb
       end do
 
       if (absym) then
-        res1 = two*res1
+        res1 = Two*res1
       else
         ! 2) Beta excitation
         do ib=1,n1b
@@ -470,7 +470,7 @@ do iprm1=1,nprorb
       end do
 
       if (absym) then
-        res1 = two*res1
+        res1 = Two*res1
       else
         ! 2) Beta excitation
         do ib=1,n1b

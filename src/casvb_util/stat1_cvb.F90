@@ -14,16 +14,18 @@
 
 subroutine stat1_cvb()
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: tim0_cvb
 
 cpu0 = tim0_cvb()
 if (((.not. variat) .or. (nmcscf == 1)) .or. ((ip(3) >= 1) .and. ((.not. endvar) .or. (ip(6) >= 2)))) then
-  cpu_prev = zero
+  cpu_prev = Zero
   n_applyt = 0
   n_applyh = 0
   n_hess = 0

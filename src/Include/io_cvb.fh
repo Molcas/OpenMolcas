@@ -8,6 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer max_rec,ifilio,nrec,mxunits,iorder
+      real*8 fileids,thresh_io
       parameter(max_rec=5000)
       character*20 filename(max_rec)
       dimension fileids(max_rec)

@@ -12,12 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine o7b_cvb(nparm1,dxnrm,grdnrm,close2conv)
 
 use casvb_global, only: ix
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical close2conv
+implicit none
+integer(kind=iwp) :: nparm1
+real(kind=wp) :: dxnrm, grdnrm
+logical(kind=iwp) :: close2conv
 #include "WrkSpc.fh"
 
 call o7b2_cvb(nparm1,work(ix(1)),dxnrm,grdnrm,close2conv)

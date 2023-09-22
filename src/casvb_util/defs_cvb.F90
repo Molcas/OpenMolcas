@@ -15,18 +15,21 @@
 subroutine defs_cvb()
 
 use casvb_global, only: iunset
+use Constants, only: Zero
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-logical :: ifploc = .false.
+integer(kind=iwp) :: i
+logical(kind=iwp), parameter :: ifploc = .false.
 
 ! Default settings:
-strtvb = zero
-savvb = zero
-savvbci = zero
+strtvb = Zero
+savvb = Zero
+savvbci = Zero
 kbasis = 1
 mxiter = iunset
 icrit = iunset

@@ -64,9 +64,12 @@ subroutine rg(nm,n,a,wr,wi,matz,z,iv1,fv1,ierr)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer n, nm, is1, is2, ierr, matz
-real*8 a(nm,n), wr(n), wi(n), z(nm,n), fv1(n)
-integer iv1(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, matz, iv1(n), ierr
+real(kind=wp) :: a(nm,n), wr(n), wi(n), z(nm,n), fv1(n)
+integer(kind=iwp) :: is1, is2
 
 if (n > nm) then
   ierr = 10*n

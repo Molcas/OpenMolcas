@@ -15,18 +15,21 @@
 subroutine fstring_cvb(strings,nstring,istring,ncmp,ifc)
 
 use casvb_global, only: inputmode
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) strings(nstring)
-character*8 string
-logical debug, done
-data debug/.false./
+implicit none
+integer(kind=iwp) :: nstring, istring, ncmp, ifc
+character(len=*) :: strings(nstring)
+integer(kind=iwp) :: ierr
+logical(kind=iwp) :: done
+character(len=8) :: string
+logical(kind=iwp), parameter :: debug = .false.
 
 if (inputmode == 2) then
   call gethfs_cvb(istring)
   if (debug) then
-    write(6,*) ' fstring :',istring
-    if (istring /= 0) write(6,*) ' fstring :',strings(istring)
+    write(u6,*) ' fstring :',istring
+    if (istring /= 0) write(u6,*) ' fstring :',strings(istring)
   end if
   return
 end if
@@ -52,8 +55,8 @@ if (inputmode == 1) then
   call sethfs_cvb(istring)
 end if
 if (debug) then
-  write(6,*) ' fstring :',istring
-  if (istring /= 0) write(6,*) ' fstring :',strings(istring)
+  write(u6,*) ' fstring :',istring
+  if (istring /= 0) write(u6,*) ' fstring :',strings(istring)
 end if
 
 return

@@ -14,12 +14,14 @@
 
 subroutine date1_cvb()
 
-implicit real*8(a-h,o-z)
-character*120 line
+use Definitions, only: u6
+
+implicit none
+character(len=120) :: line
 
 line = ' '
 call datimx(line)
-write(6,'(5a/)') ' CASVB started on ',line(1:10),line(20:24),' at ',line(12:19)
+write(u6,'(5a/)') ' CASVB started on ',line(1:10),line(20:24),' at ',line(12:19)
 
 return
 

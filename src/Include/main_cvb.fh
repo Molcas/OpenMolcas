@@ -10,21 +10,26 @@
 !***********************************************************************
 ! Set mxorb :
 !------------
+      integer mxorb_cvb
       parameter (mxorb_cvb=50)
 
 ! What calculation? :
 !--------------------
+      integer nmcscf
       common /calci_comcvb/nmcscf
       logical variat,endvar,service
       common /calcl_comcvb/variat,endvar,service
 
 ! Addresses :
 !------------
+      integer ll,lv,lb,lc,ls,lp,lq,lw
       common /sts_comcvb/ll(23),lv(5),lb(6),lc(8),ls(16),lp(11),lq(11), &
      &  lw(13)
 
 ! Definition of CASSCF active space :
 !------------------------------------
+      integer mxirrep,ityp,nsym,nirrep,isymv,isym,isympr,ncivb
+      real*8 wsym,esym
       parameter (mxirrep=8)
 ! ... Orbital space ...
       common /casspace1_comcvb/ityp(mxorb_cvb)
@@ -38,6 +43,7 @@
 
 ! Numbers defining, or relating to, the active CI space :
 !--------------------------------------------------------
+      integer norb,nel,nalf,nbet,noe,ndet,nda,ndb,nam1,nbm1,n1a,n1b
       common/actspci_comcvb/norb,nel,nalf,nbet,noe,                     &
      &  ndet,nda,ndb,                                                   &
      &  nam1,nbm1,n1a,n1b
@@ -47,6 +53,9 @@
 
 ! Numbers relating to the definition of the VB wavefunction :
 !------------------------------------------------------------
+      integer nconf,nvb,nvbr,nvbinp,ndetvb,ndetvb2,mnion,mxion,mxfns,   &
+     &        kbasis,kbasiscvb,ndavb,ndbvb,naprodvb,nbprodvb,nvbprod,   &
+     &        npvb
       common/vbwfni_comcvb/nconf,                                       &
      &  nvb,nvbr,nvbinp,                                                &
      &  ndetvb,ndetvb2,                                                 &
@@ -59,6 +68,7 @@
 
 ! CASVB algorithm (for evaluating g/G, etc.) :
 !---------------------------------------------
+      integer icrit
 ! ... Overlap-based or energy based? ...
       common/crit_comcvb/icrit
 ! ... Projection operators ...
@@ -74,16 +84,20 @@
 
 ! Optimization handler :
 !-----------------------
+      integer initial,ifinish,ioptc_new
       common/opthndli_comcvb/initial,ifinish,ioptc_new
       logical convinone
       common/opthndll_comcvb/convinone
 
 ! Orbital permutation :
 !----------------------
+      integer iorbprm
       common /initi_comcvb/iorbprm(mxorb_cvb)
 
 ! CI vectors :
 !-------------
+      integer mxciobj,iform_ci,iaddr_ci,icnt_ci,nv,ndres
+      real*8 fileid_ci
       parameter (mxciobj=20)
       common /objr_comcvb/fileid_ci(mxciobj)
       common /obji_comcvb/iform_ci(mxciobj),iaddr_ci(mxciobj),          &
@@ -92,6 +106,8 @@
 
 ! Symmetry information and constraints:
 !--------------------------------------
+      integer mxsyme,nsyme,mxops,norbrel,ndimrel,nijrel,niorth,nfxorb,  &
+     &        nort,ndrot,nfxvb,nzrvb,lfxvb,lzrvb,nconstr,nzeta,iconstruc
 ! ... General ...
       logical sym
       common/symtzel_comcvb/sym
@@ -113,10 +129,12 @@
 
 ! Various maximum dimensions defined in input :
 !----------------------------------------------
+      integer mxnvb,mxnfxvb,mxnzrvb
       common/inpmaxdim_comcvb/mxnvb,mxnfxvb,mxnzrvb
 
 ! All2free/free2all variable transformation :
 !--------------------------------------------
+      integer npr,nprorb,nprvb,nfr,nfrorb,nfrvb
       common/all2freei_comcvb/npr,nprorb,nprvb,nfr,nfrorb,nfrvb
       logical orbfr_is_unit
       logical orbopt,strucopt
@@ -129,11 +147,14 @@
 
 ! Integrals (number of, core energy, etc.) :
 !-------------------------------------------
+      integer neread,mxaobf
+      real*8 corenrg
       common/intgrli_comcvb/neread,mxaobf
       common/intgrlr_comcvb/corenrg
 
 ! Analysis :
 !-----------
+      integer ivbweights,iciweights,npcf,ishstruc
       common/analysisi_comcvb/ivbweights,iciweights,npcf,ishstruc
       logical lcalcsvb,lcalcevb,lcalccivbs,lciweights,sij
       common/analysisl_comcvb/lcalcsvb,lcalcevb,lcalccivbs,lciweights,  &
@@ -146,10 +167,14 @@
 
 ! Various quantities calculated from VB wavefunction :
 !-----------------------------------------------------
+      real*8 svb,evb,ovraa,cvbnrm
       common/wfinfo_comcvb/svb,evb,ovraa,cvbnrm
 
 ! Usage statistics :
 !-------------------
+      integer n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,n_2el,n_iter, &
+     &        ibase0,ibasemx,memused
+      real*8 cpu0,cpu_prev
       common /statsi_comcvb/n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,&
      &  n_2el,n_iter,ibase0,ibasemx,memused
       common /statsr_comcvb/cpu0,cpu_prev
@@ -165,5 +190,7 @@
 
 ! Ubiquitous constants (initialised in bdata.f) :
 !------------------------------------------------
-      common/const_comcvb/zero,one,two,onem,r3by4,p8,sqp5,sq2
+      real*8 one,two,onem,r3by4,p8,sqp5,sq2
+      integer md2h
+      common/const_comcvb/one,two,onem,r3by4,p8,sqp5,sq2
       common/d2h_comcvb/md2h(mxirrep,mxirrep)

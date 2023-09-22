@@ -13,14 +13,21 @@
 !***********************************************************************
 
 subroutine nize_cvb(c,nnrm,s,n,metr,ierr)
-
 ! Normalizes NNRM vectors in C.
-implicit real*8(a-h,o-z)
-logical safe
+
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nnrm, n, metr, ierr
+real(kind=wp) :: c(n,nnrm), s(*)
 #include "WrkSpc.fh"
-dimension c(n,nnrm), s(*)
-save one, thresh
-data one/1.d0/,thresh/1.d-8/
+integer(kind=iwp) :: i, i1
+real(kind=wp) :: cnrm
+logical(kind=iwp) :: safe
+real(kind=wp), parameter :: thresh = 1.0e-8_wp
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: ddot_, dnrm2_
 
 if (metr /= 0) i1 = mstackr_cvb(n)
 safe = ierr /= 0
@@ -34,7 +41,7 @@ do i=1,nnrm
   if (safe .and. (cnrm < thresh)) then
     ierr = ierr+1
   else
-    call dscal_(n,one/cnrm,c(1,i),1)
+    call dscal_(n,One/cnrm,c(1,i),1)
   end if
 end do
 if (metr /= 0) call mfreer_cvb(i1)

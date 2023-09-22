@@ -14,14 +14,11 @@
 
 subroutine symchk_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-logical recinpcmp_cvb
+logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (up2date_cvb('SYMINIT')) then
   ! iorts:

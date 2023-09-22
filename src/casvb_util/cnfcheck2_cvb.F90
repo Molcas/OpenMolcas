@@ -14,13 +14,13 @@
 
 subroutine cnfcheck2_cvb(iconfs,nconf1,nel1,iocc)
 
-implicit real*8(a-h,o-z)
-logical found, locc, lorbs, locc_only, lorbs_only
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension iconfs(noe,nconf1), iocc(noe)
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, iocc(noe)
+integer(kind=iwp) :: i, iconf, ii, iorb, jconf, nsum
+logical(kind=iwp) :: found, locc, locc_only, lorbs, lorbs_only
 
 if (nconf1 == 0) then
   ! Special case -- iconfs will be ok and adhere to occ no definition.
@@ -74,8 +74,8 @@ do iconf=1,nconf1
   else if (lorbs .and. (.not. locc)) then
     lorbs_only = .true.
   else if ((.not. lorbs) .and. (.not. locc)) then
-    write(6,*) ' Illegal configuration read ',iconf
-    write(6,*) (iconfs(ii,iconf),ii=1,noe)
+    write(u6,*) ' Illegal configuration read ',iconf
+    write(u6,*) (iconfs(ii,iconf),ii=1,noe)
     call abend_cvb()
   end if
 end do
@@ -140,9 +140,9 @@ do iconf=1,nconf1
         end if
       end do
       if (.not. found) then
-        write(6,'(/,a,2i4)') ' Fatal error - spatial VB configuration repeated :',jconf,iconf
-        write(6,'(i8,a,20i3)') jconf,'   =>  ',(iocc(ii),ii=1,norb)
-        write(6,'(i8,a,20i3)') iconf,'   =>  ',(iocc(ii),ii=1,norb)
+        write(u6,'(/,a,2i4)') ' Fatal error - spatial VB configuration repeated :',jconf,iconf
+        write(u6,'(i8,a,20i3)') jconf,'   =>  ',(iocc(ii),ii=1,norb)
+        write(u6,'(i8,a,20i3)') iconf,'   =>  ',(iocc(ii),ii=1,norb)
         call abend_cvb()
       end if
     end do

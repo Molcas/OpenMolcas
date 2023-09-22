@@ -16,26 +16,25 @@ subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic,nda,ndb,ndetvb,nfr
                         nc_facbet,ncindalf,ncindbet,istack,mxstack,coeff,idetind,iapr,ixapr,ipr_off,ixapr_off,ixbpr_off,ndetvb_fr, &
                         ndavb)
 
-implicit real*8(a-h,o-z)
-dimension civec(nda,ndb)
-dimension cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
-dimension istack(mxstack)
-dimension nda_fr(nfrag), ndb_fr(nfrag)
-dimension ncindalf(0:nfrag), ncindbet(0:nfrag)
-dimension nc_facalf(nfrag), nc_facbet(nfrag)
-dimension ia12ind(*), ib12ind(*)
-dimension coeff(0:nfrag), idetind(nfrag)
-dimension iapr(ndetvb), ixapr(ndavb)
-dimension ipr_off(nfrag), ixapr_off(nfrag), ixbpr_off(nfrag)
-dimension ndetvb_fr(nfrag)
-logical fail
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ic1, ic, nda, ndb, ndetvb, nfrag, nda_fr(nfrag), ndb_fr(nfrag), ia12ind(*), ib12ind(*), nc_facalf(nfrag), &
+                     nc_facbet(nfrag), ncindalf(0:nfrag), ncindbet(0:nfrag), mxstack, istack(mxstack), idetind(nfrag), &
+                     iapr(ndetvb), ndavb, ixapr(ndavb), ipr_off(nfrag), ixapr_off(nfrag), ixbpr_off(nfrag), ndetvb_fr(nfrag)
+real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret, coeff(0:nfrag)
+integer(kind=iwp) :: i, ia, ia_ci, ib, ib_ci, idetvb, ifr, iter, ixa, jfr, kfr, mxiter, ndetvb_add, nestlevel, nloop
+real(kind=wp) :: cf, cf2, cinrm, cnrm, fac, fac1
+logical(kind=iwp) :: fail
+real(kind=wp), external :: ddot_
 
 if (ic == 0) then
   call fzero(cvbdet,ndetvb)
 else if ((ic == 1) .or. (ic == 4)) then
   call fzero(civec,nda*ndb)
 else if (ic == 3) then
-  ret = 0d0
+  ret = Zero
 else if (ic == 5) then
   call fzero(evbdet,ndetvb)
 end if
@@ -52,8 +51,8 @@ do ifr=1,nfrag
   end if
 end do
 
-cinrm = 0d0
-coeff(0) = 1d0
+cinrm = Zero
+coeff(0) = One
 ncindalf(0) = 1
 ncindbet(0) = 1
 do i=1,nfrag
@@ -116,7 +115,7 @@ outer: do
     end do
   end do
   if (fail) then
-    write(6,*) ' Error in DPCI2VB '
+    write(u6,*) ' Error in DPCI2VB '
     call abend_cvb()
   end if
   ib = iapr(ixa+ipr_off(nestlevel))
@@ -152,7 +151,7 @@ outer: do
           else if (ic1 == 2) then
             ! --  CI2VBG  --
             do ifr=1,nfrag
-              cf = 1d0
+              cf = One
               do jfr=1,nfrag
                 if (jfr /= ifr) cf = cf*coeff(jfr)
               end do
@@ -174,7 +173,7 @@ outer: do
           else if (ic1 == 1) then
             ! --  VB2CIF  --
             do ifr=1,nfrag
-              cf = 1d0
+              cf = One
               do jfr=1,nfrag
                 if (jfr /= ifr) cf = cf*coeff(jfr)
               end do
@@ -188,7 +187,7 @@ outer: do
         else if (ic == 2) then
           ! --  VB2CIAF  --
           do ifr=1,nfrag
-            cf = 1d0
+            cf = One
             do jfr=1,nfrag
               if (jfr /= ifr) cf = cf*coeff(jfr)
             end do
@@ -207,11 +206,11 @@ outer: do
           end if
         else if (ic == 4) then
           ! --  SETIAPR  --
-          civec(abs(ia_ci),abs(ib_ci)) = 1d0
+          civec(abs(ia_ci),abs(ib_ci)) = One
         else if (ic == 5) then
           ! --  CI2ORDR  --
           do ifr=1,nfrag
-            cf = 0d0
+            cf = Zero
             do jfr=1,nfrag
               if (jfr /= ifr) then
                 cf2 = cvbdet(idetind(jfr))
@@ -238,7 +237,7 @@ end do outer
 
 if ((ic == 0) .and. (ic1 == 0)) then
   ! "Normalize" the coefficients for each fragment:
-  fac = 1d0/sqrt(cinrm**(1d0/dble(nfrag)))
+  fac = One/sqrt(cinrm**(One/real(nfrag,kind=wp)))
   ndetvb_add = 1
   do ifr=1,nfrag
     cnrm = ddot_(ndetvb_fr(ifr),cvbdet(ndetvb_add),1,cvbdet(ndetvb_add),1)

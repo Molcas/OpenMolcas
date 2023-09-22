@@ -15,13 +15,14 @@
 subroutine chop6_cvb()
 
 use casvb_global, only: icase6, mxdav, release
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-logical done
+integer(kind=iwp) :: i, idav, ir, iremain, mem_applyh, memwrk, mstackr_cvb0, ncimx, need
+logical(kind=iwp) :: done
+integer(kind=iwp), external :: ihlf_cvb, mavailr_cvb, mstackr_cvb
 
 if (release(6)) call mfreer_cvb(lp(1))
 release(6) = .true.
@@ -65,7 +66,7 @@ else if (icase6 == 2) then
     end if
   end if
   if (.not. done) then
-    write(6,*) ' Not enough memory for Davidson!',need,iremain
+    write(u6,*) ' Not enough memory for Davidson!',need,iremain
     call abend_cvb()
   end if
   maxdav = idav
@@ -100,7 +101,7 @@ else if (icase6 == 3) then
     end if
   end if
   if (.not. done) then
-    write(6,*) ' Not enough memory for Davidson!',need,iremain
+    write(u6,*) ' Not enough memory for Davidson!',need,iremain
     call abend_cvb()
   end if
   maxdav = idav

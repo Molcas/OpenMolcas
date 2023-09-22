@@ -25,14 +25,13 @@ subroutine cird_cvb(cvec,recn)
 !*                                                                     *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cvec(*), recn
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension cvec(*)
-dimension idum(1)
+integer(kind=iwp) :: idum(1), iformat, ioffs, ivec
 
 ivec = nint(cvec(1))
 iformat = iform_ci(ivec)
@@ -41,14 +40,14 @@ if (iformat == 0) then
   call rdis_cvb(idum,1,recn,ioffs)
   iformat = idum(1)
   if (iformat /= iform_ci(ivec)) then
-    write(6,*) ' Incompatible vector format on file.'
-    write(6,*) ' Read :',iformat,' present :',iform_ci(ivec)
+    write(u6,*) ' Incompatible vector format on file.'
+    write(u6,*) ' Read :',iformat,' present :',iform_ci(ivec)
     call abend_cvb()
   end if
   call rdis_cvb(icnt_ci(ivec),1,recn,ioffs)
   call rdrs_cvb(work(iaddr_ci(ivec)),ndet,recn,ioffs)
 else
-  write(6,*) ' Unsupported format in CIRD :',iformat
+  write(u6,*) ' Unsupported format in CIRD :',iformat
   call abend_cvb()
 end if
 

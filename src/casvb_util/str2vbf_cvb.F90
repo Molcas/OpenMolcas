@@ -43,14 +43,14 @@
 subroutine str2vbf_cvb(cvb,cvbdet)
 
 use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nconf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
 #include "WrkSpc.fh"
-dimension cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp) :: idetvb_add, ifnss_add, ifrag, ioffs_cvb, ioffs_cvbdet, iwrk, kab, kbs, ndetvbs_add
+integer(kind=iwp), external :: mstackr_cvb
 
 kab = 2
 

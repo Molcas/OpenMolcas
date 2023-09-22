@@ -14,21 +14,27 @@
 
 subroutine rdi_cvb(ivec,n,file_id,ioffset)
 
-implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
-dimension ivec(n), ibuf(8)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: n, ivec(n), ioffset
+real(kind=wp) :: file_id
+#include "idbl_cvb.fh"
+integer(kind=iwp) :: ibuf(8), nreals, nrem
+
+nreals = n/idbl
+nrem = n-nreals*idbl
 call rdi_cvb_internal(ivec,ibuf)
+
+return
 
 ! This is to allow type punning without an explicit interface
 contains
 
 subroutine rdi_cvb_internal(ivec,ibuf)
-  use iso_c_binding
-  integer, target :: ivec(*), ibuf(*)
-  real*8, pointer :: vec(:), buf(:)
-  nreals = n/idbl
-  nrem = n-nreals*idbl
+  integer(kind=iwp), target :: ivec(*), ibuf(*)
+  real(kind=wp), pointer :: buf(:), vec(:)
   call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
   call rdlow_cvb(vec,nreals,file_id,ioffset)
   nullify(buf)
@@ -38,7 +44,6 @@ subroutine rdi_cvb_internal(ivec,ibuf)
     nullify(buf)
     call imove_cvb(ibuf,ivec(1+nreals*idbl),nrem)
   end if
-  return
 end subroutine rdi_cvb_internal
 
 end subroutine rdi_cvb

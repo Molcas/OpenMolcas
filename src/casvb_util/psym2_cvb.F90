@@ -14,15 +14,14 @@
 
 subroutine psym2_cvb(civec1,civec2,isymalf,isymbet,iasyind,ibsyind,osym,ips)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civec1(nda,ndb), civec2(nda,ndb)
-dimension isymalf(nda), isymbet(ndb)
-dimension iasyind(0:mxirrep), ibsyind(0:mxirrep)
-dimension osym(mxirrep)
+real(kind=wp) :: civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
+integer(kind=iwp) :: isymalf(nda), isymbet(ndb), iasyind(0:mxirrep), ibsyind(0:mxirrep), ips
+integer(kind=iwp) :: ida, idb, inda, irp, jrpa, jrpb
 
 if (ips == 1) then
   do irp=1,nirrep
@@ -32,14 +31,14 @@ if (ips == 1) then
       do ida=iasyind(jrpa-1)+1,iasyind(jrpa)
         inda = isymalf(ida)
         do idb=ibsyind(jrpb-1)+1,ibsyind(jrpb)
-          civec1(inda,isymbet(idb)) = zero
+          civec1(inda,isymbet(idb)) = Zero
         end do
       end do
     end do
   end do
 else if (ips == 2) then
   do irp=1,nirrep
-    osym(irp) = zero
+    osym(irp) = Zero
     do jrpa=1,nirrep
       jrpb = md2h(irp,jrpa)
       do ida=iasyind(jrpa-1)+1,iasyind(jrpa)

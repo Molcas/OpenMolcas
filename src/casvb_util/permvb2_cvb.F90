@@ -15,23 +15,21 @@
 subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,xalf,xbet,mingrph,maxgrph,nk,locc,lunocc,inewocc,inocc2,negs,inda,phsa,indb,phsb,v2, &
                        ialg)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-logical done, vb
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension iperm(norb)
-dimension iapr(ndetvb), ixapr(nda+1)
-dimension xalf(0:norb,0:nalf), xbet(0:norb,0:nbet)
-dimension mingrph(0:norb), maxgrph(0:norb)
-dimension nk(0:norb), locc(norb+1), lunocc(norb+1)
-dimension inewocc(norb), inocc2(norb), negs(norb)
-dimension inda(nda), phsa(nda), indb(ndb), phsb(ndb)
 ! V1 is dimensioned either NDET or NDETVB according to CI/VB
 ! V2 is dimensioned NDET/NDA or NDETVB according to CI/VB
-dimension v1(*), v2(*)
-integer rc
+real(kind=wp) :: v1(*), phsa(nda), phsb(ndb), v2(*)
+integer(kind=iwp) :: iperm(norb), iapr(ndetvb), ixapr(nda+1), xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), mingrph(0:norb), &
+                     maxgrph(0:norb), nk(0:norb), locc(norb+1), lunocc(norb+1), inewocc(norb), inocc2(norb), negs(norb), &
+                     inda(nda), indb(ndb), ialg
+integer(kind=iwp) :: i, ia, ialf, iat, iato, iatold, ib, ibet, iboff, ibt, ibto, ibtold, inboff, indx, ineg, ioffs, ioffs1, &
+                     ioffs2, iorb, iprm, ixa, ixato, rc
+logical(kind=iwp) :: done, vb
+integer(kind=iwp), external :: indget_cvb
+real(kind=wp), external :: party_cvb
 
 ! Some tests of permutation
 ! Valid?
@@ -39,14 +37,14 @@ call izero(negs,norb)
 do i=1,norb
   iprm = abs(iperm(i))
   if ((iprm < 1) .or. (iprm > norb)) then
-    write(6,*) ' Illegal orbital permutation!'
+    write(u6,*) ' Illegal orbital permutation!'
     call abend_cvb()
   end if
   negs(iprm) = negs(iprm)+1
 end do
 do iorb=1,norb
   if (negs(iorb) /= 1) then
-    write(6,*) ' Illegal orbital permutation!'
+    write(u6,*) ' Illegal orbital permutation!'
     call abend_cvb()
   end if
 end do
@@ -73,7 +71,7 @@ end do
 call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   call izero(inewocc,norb)
   do ialf=1,nalf
@@ -90,13 +88,13 @@ do
     end if
   end do
   if (mod(ineg,2) == 0) then
-    phsa(index) = party_cvb(inocc2,nalf)
+    phsa(indx) = party_cvb(inocc2,nalf)
   else
-    phsa(index) = -party_cvb(inocc2,nalf)
+    phsa(indx) = -party_cvb(inocc2,nalf)
   end if
-  inda(index) = indget_cvb(inewocc,nalf,norb,xalf)
+  inda(indx) = indget_cvb(inewocc,nalf,norb,xalf)
 
-  call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,index,xalf,rc)
+  call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,indx,xalf,rc)
   if (rc == 0) exit
 end do
 ! Beta loop:
@@ -108,7 +106,7 @@ end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   call izero(inewocc,norb)
   do ibet=1,nbet
@@ -125,13 +123,13 @@ do
     end if
   end do
   if (mod(ineg,2) == 0) then
-    phsb(index) = party_cvb(inocc2,nbet)
+    phsb(indx) = party_cvb(inocc2,nbet)
   else
-    phsb(index) = -party_cvb(inocc2,nbet)
+    phsb(indx) = -party_cvb(inocc2,nbet)
   end if
-  indb(index) = indget_cvb(inewocc,nbet,norb,xbet)
+  indb(indx) = indget_cvb(inewocc,nbet,norb,xbet)
 
-  call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,index,xbet,rc)
+  call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,indx,xbet,rc)
   if (rc == 0) exit
 end do
 
@@ -151,7 +149,7 @@ if (vb) then
       end do
       if (.not. done) then
         ! Shouldn't get here ...
-        write(6,'(a,100i3)') ' Error, VB determinants not closed under permutation :',iperm
+        write(u6,'(a,100i3)') ' Error, VB determinants not closed under permutation :',iperm
         call abend_cvb()
       end if
       v2(ixa) = phsa(ia)*phsb(ib)*v1(ixato)

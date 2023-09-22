@@ -14,10 +14,15 @@
 
 subroutine mxgendiag_cvb(a,s,eigval,n)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n,n), s(n,n), eigval(n)
 #include "WrkSpc.fh"
-dimension a(n,n), s(n,n), eigval(n)
-dimension wrk(1)
+integer(kind=iwp) :: i1, info, lwrk
+real(kind=wp) :: wrk(1)
+integer(kind=iwp), external :: mstackr_cvb
 
 info = 0
 lwrk = -1
@@ -27,8 +32,8 @@ i1 = mstackr_cvb(lwrk)
 call dsygv_(1,'V','U',n,a,n,s,n,eigval,work(i1),lwrk,info)
 call mfreer_cvb(i1)
 if (info /= 0) then
-  write(6,*) ' Error in generalized diagonalization!'
-  write(6,*) ' Dsygv exited with code:',info
+  write(u6,*) ' Error in generalized diagonalization!'
+  write(u6,*) ' Dsygv exited with code:',info
   call abend_cvb()
 end if
 

@@ -15,9 +15,13 @@
 subroutine ddres2upd10_cvb(res,c,n)
 
 use casvb_global, only: n_div
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-dimension res(n), c(n)
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: res(n), c(n)
+real(kind=wp) :: resnrm1, resnrm2
+real(kind=wp), external :: dnrm2_
 
 if (n_div == 0) then
   call fmove_cvb(res,c,n)

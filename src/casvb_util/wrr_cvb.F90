@@ -12,10 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine wrr_cvb(vec,n,file_id,ioffset)
 
-implicit real*8(a-h,o-z)
-dimension vec(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, ioffset
+real(kind=wp) :: vec(n), file_id
 
 call wrlow_cvb(vec,n,file_id,ioffset)
 

@@ -14,9 +14,14 @@
 
 subroutine svd2_cvb(ainp,val,vec,vmat,n1,n2,n12,a,w,u,v,rv1,indx)
 
-implicit real*8(a-h,o-z)
-dimension ainp(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
-dimension a(n12,n2), w(n2), u(n12,n2), v(n12,n2), rv1(n2), indx(n2)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n1, n2, n12, indx(n2)
+real(kind=wp) :: ainp(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2), a(n12,n2), w(n2), u(n12,n2), v(n12,n2), rv1(n2)
+integer(kind=iwp) :: i, ierr
+real(kind=wp), external :: dnrm2_
 
 if (n12 == n1) then
   call fmove_cvb(ainp,a,n1*n2)
@@ -30,7 +35,7 @@ ierr = 0
 call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
 
 if (ierr /= 0) then
-  write(6,*) ' Fatal error in SVD_CVB!',ierr
+  write(u6,*) ' Fatal error in SVD_CVB!',ierr
   call abend_cvb()
 end if
 
@@ -48,7 +53,7 @@ end if
 
 do i=1,n2
   call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
-  call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
+  call dscal_(n12,One/dnrm2_(n12,u(1,i),1),u(1,i),1)
 end do
 
 ! Sort singular values in ascending order:

@@ -14,21 +14,24 @@
 
 subroutine prgrad_cvb(grad,n)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: grad(n)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension grad(n)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackr_cvb
 
 if (ip(3) < 2) return
 i1 = mstackr_cvb(norb*norb)
 call mxunfold_cvb(grad,work(i1),norb)
-write(6,'(/,a)') ' Orbital gradient :'
+write(u6,'(/,a)') ' Orbital gradient :'
 call mxprint_cvb(work(i1),norb,norb,0)
 if (n-nprorb > 0) then
-  write(6,'(a)') ' Structure coefficient gradient :'
+  write(u6,'(a)') ' Structure coefficient gradient :'
   call mxprint_cvb(grad(nprorb+1),1,n-nprorb,0)
 end if
 call mfreer_cvb(i1)

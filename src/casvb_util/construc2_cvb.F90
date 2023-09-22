@@ -14,14 +14,15 @@
 
 subroutine construc2_cvb(tconstr)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: tconstr(nvb,nvb)
 #include "WrkSpc.fh"
-dimension tconstr(nvb,nvb)
-dimension dum(1)
+integer(kind=iwp) :: iconstruc_kp, irepm, ivb
+real(kind=wp) :: dum(1)
+integer(kind=iwp), external :: mstackr_cvb
 
 iconstruc_kp = iconstruc
 iconstruc = 1
@@ -30,9 +31,9 @@ irepm = mstackr_cvb(nvb)
 call span0_cvb(nvb,nvb)
 do ivb=1,nvb
   call fzero(work(irepm),nvb)
-  work(ivb+irepm-1) = -1d0
+  work(ivb+irepm-1) = -One
   call symtrizcvb_cvb(work(irepm))
-  work(ivb+irepm-1) = work(ivb+irepm-1)+1d0
+  work(ivb+irepm-1) = work(ivb+irepm-1)+One
   call span1_cvb(work(irepm),1,dum,nvb,0)
 end do
 call span2_cvb(tconstr,nconstr,dum,nvb,0)

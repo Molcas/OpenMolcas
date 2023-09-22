@@ -15,25 +15,28 @@
 subroutine zz_cvb(act1,zz1,fx,fxbest1,exp1,ip1)
 
 use casvb_global, only: dfxtol, formAD
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-save zero, one, thous
-data zero/0.d0/,one/1.d0/,thous/1d3/
+implicit none
+real(kind=wp) :: act1, zz1, fx, fxbest1, exp1
+integer(kind=iwp) :: ip1
+real(kind=wp), parameter :: thous = 1.0e3_wp
 
 act1 = fx-fxbest1
-if (fxbest1 == -thous) act1 = one
-if (((abs(act1) < dfxtol) .and. (abs(exp1) < dfxtol)) .or. (act1 == one)) then
-  zz1 = one
-else if (exp1 == zero) then
-  zz1 = one
+if (fxbest1 == -thous) act1 = One
+if (((abs(act1) < dfxtol) .and. (abs(exp1) < dfxtol)) .or. (act1 == One)) then
+  zz1 = One
+else if (exp1 == Zero) then
+  zz1 = One
 else if (abs(exp1) < dfxtol) then
-  zz1 = sign(one,act1)*sign(one,exp1)
+  zz1 = sign(One,act1)*sign(One,exp1)
 else
   zz1 = act1/exp1
 end if
 if (ip1 >= 2) then
-  if (act1 /= one) write(6,formAD) ' Actual and expected changes :',act1,exp1
-  write(6,formAD) ' Ratio act/exp    : ',zz1
+  if (act1 /= One) write(u6,formAD) ' Actual and expected changes :',act1,exp1
+  write(u6,formAD) ' Ratio act/exp    : ',zz1
 end if
 
 return

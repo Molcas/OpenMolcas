@@ -12,8 +12,11 @@
 subroutine cdiv(ar,ai,br,bi,cr,ci)
 ! complex division, (cr,ci) = (ar,ai)/(br,bi)
 
-real*8 ar, ai, br, bi, cr, ci
-real*8 s, ars, ais, brs, bis
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: ar, ai, br, bi, cr, ci
+real(kind=wp) :: ais, ars, bis, brs, s
 
 s = abs(br)+abs(bi)
 ars = ar/s

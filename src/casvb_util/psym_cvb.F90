@@ -19,14 +19,14 @@
 !*********************************************************************
 subroutine psym_cvb(civec)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension civec(*)
-dimension dum(mxirrep)
+integer(kind=iwp) :: icivec
+real(kind=wp) :: dum(mxirrep)
 
 icivec = nint(civec(1))
 call psym1_cvb(work(iaddr_ci(icivec)),work(iaddr_ci(icivec)),dum,1)

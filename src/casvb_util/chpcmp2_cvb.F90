@@ -15,12 +15,14 @@
 subroutine chpcmp2_cvb(itst,iret)
 
 use casvb_global, only: iprm, lstprm, mxprm
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: itst, iret
 
 iprm = iprm+1
 if (iprm > mxprm) then
-  write(6,*) ' Dimensioning error in CHPCMP2!',iprm,mxprm
+  write(u6,*) ' Dimensioning error in CHPCMP2!',iprm,mxprm
   call abend_cvb()
 end if
 iret = lstprm(iprm)

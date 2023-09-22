@@ -14,16 +14,14 @@
 
 subroutine casinfoinp_cvb()
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: iwp, u6
+
+implicit none
 #include "casinfo_cvb.fh"
-parameter(nstrin=6,ncmp=4)
-character*8 string
-dimension string(nstrin)
-save string
-data string/'RAS2    ','INACTIVE','FROZEN  ','NACTEL  ','SPIN    ','SYMMETRY'/
-dimension nactel(3)
-save one
-data one/1d0/
+integer(kind=iwp), parameter :: ncmp = 4, nstrin = 6
+integer(kind=iwp) :: istr, nactel(3), nread
+character(len=8), parameter :: string(nstrin) = ['RAS2    ','INACTIVE','FROZEN  ','NACTEL  ','SPIN    ','SYMMETRY']
 
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)
@@ -52,7 +50,7 @@ do
       nstsym_d = 1
       istsy_d(nstsym_d) = 1
       nstats_d(nstsym_d) = 1
-      weight_d(1,nstsym_d) = one
+      weight_d(1,nstsym_d) = One
     end if
   end if
   if (istr == 4) then
@@ -60,8 +58,8 @@ do
     call izero(nactel,3)
     call int_cvb(nactel,3,nread,1)
     if ((nactel(2) /= 0) .or. (nactel(3) /= 0)) then
-      write(6,*) ' Illegal NACTEL read :',nactel
-      write(6,*) ' Use CASVB only with CASSCF wavefunctions!'
+      write(u6,*) ' Illegal NACTEL read :',nactel
+      write(u6,*) ' Use CASVB only with CASSCF wavefunctions!'
       call abend_cvb()
     end if
     istnel_d(nstsym_d) = nactel(1)

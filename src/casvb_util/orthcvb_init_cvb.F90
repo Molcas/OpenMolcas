@@ -15,13 +15,13 @@
 subroutine orthcvb_init_cvb()
 
 use casvb_global, only: cvbnrm_fr, nfrag, nvb_fr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ifr_off, ifrag
+real(kind=wp), external :: ddot_
 
 if (nfrag <= 1) then
   cvbnrm = ddot_(nvb,work(lv(2)),1,work(lv(2)),1)

@@ -14,13 +14,14 @@
 
 subroutine pvbcopy2_cvb(cfrom,cto,iapr,ixapr,ret,ic)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension cfrom(nda,ndb), cto(nda,ndb)
-dimension iapr(ndetvb), ixapr(nda+1)
+real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), ret
+integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
+integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (ic == 0) then
   call fzero(cto,nda*ndb)
@@ -33,7 +34,7 @@ if (ic == 0) then
     end do
   end do
 else if (ic == 1) then
-  ret = zero
+  ret = Zero
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1
       ret = ret+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))

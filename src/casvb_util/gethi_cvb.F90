@@ -14,8 +14,11 @@
 
 subroutine gethi_cvb(iarr,n)
 
-implicit real*8(a-h,o-z)
-dimension iarr(n), iaux(1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp) :: iaux(1)
 
 call geth_cvb(iaux,1)
 n = iaux(1)

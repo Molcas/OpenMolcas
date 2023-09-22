@@ -12,9 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function ifhamil_cvb()
+!IFG trivial
+function ifhamil_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: ifhamil_cvb
 
 ifhamil_cvb = .true.
 

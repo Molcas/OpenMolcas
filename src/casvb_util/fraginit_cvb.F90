@@ -12,11 +12,12 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine fraginit_cvb()
 
 use casvb_global, only: nfrag
 
-implicit real*8(a-h,o-z)
+implicit none
 
 nfrag = 0
 

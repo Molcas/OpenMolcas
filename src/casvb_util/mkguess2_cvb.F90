@@ -15,22 +15,23 @@
 subroutine mkguess2_cvb(orbs,cvb,irdorbs,orbsao)
 
 use casvb_global, only: nbas_mo
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: tstfile_cvb
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsao(nbas_mo,norb)
+integer(kind=iwp) :: irdorbs(norb)
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension irdorbs(norb), orbsao(nbas_mo,norb)
-dimension idum(1), dum(1)
-save thresh
-data thresh/1d-10/
+integer(kind=iwp) :: i1, i2, idum(1), ii, ioffs, iorb, iorb_ao, ndetvb1, norb_ao
+real(kind=wp) :: c, cnrm, dum(1)
+real(kind=wp) :: thresh = 1.0e-10_wp
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+real(kind=wp), external :: detm_cvb, dnrm2_, rand_cvb
+logical(kind=iwp), external :: tstfile_cvb, & ! ... Files/Hamiltonian available ...
+                               up2date_cvb    ! ... Make: up to date? ...
 
 call izero(irdorbs,norb)
 ! -- transfer from orbs if applicable -
@@ -94,19 +95,19 @@ if (.not. up2date_cvb('INPGS')) then
 end if
 ! -- semi-random --
 ! Leading diagonal, random but positive orbital overlaps:
-dum = rand_cvb(.777d0)
-c = 1d-1
+dum = rand_cvb(0.777_wp)
+c = 0.1_wp
 do iorb=1,norb
   if (irdorbs(iorb) == 0) then
     irdorbs(iorb) = 1
     do ii=1,norb
-      orbsao(ii,iorb) = c*rand_cvb(zero)
+      orbsao(ii,iorb) = c*rand_cvb(Zero)
       if (ii == iorb) orbsao(ii,iorb) = one
     end do
   else
     ! Dummy calls to RAND to get consistent guesses:
     do ii=1,norb
-      dum = rand_cvb(zero)
+      dum = rand_cvb(Zero)
     end do
   end if
 end do
@@ -134,26 +135,26 @@ call mfreer_cvb(i1)
 
 call nize_cvb(orbs,norb,dum,norb,0,0)
 
-if (abs(detm_cvb(orbs,norb)) < 1d-8) then
-  dum = rand_cvb(.777d0)
-  c = 1d-1
+if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
+  dum = rand_cvb(0.777_wp)
+  c = 0.1_wp
   do iorb=1,norb
     do ii=1,norb
-      orbs(ii,iorb) = orbs(ii,iorb)+c*(one-two*rand_cvb(zero))
+      orbs(ii,iorb) = orbs(ii,iorb)+c*(one-two*rand_cvb(Zero))
     end do
   end do
-  if (abs(detm_cvb(orbs,norb)) < 1d-8) then
-    if (ip(1) >= 0) write(6,'(a)') ' Starting orbital guess was near-singular - using semi-random guess instead.'
-    dum = rand_cvb(.777d0)
-    c = 1d-1
+  if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
+    if (ip(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - using semi-random guess instead.'
+    dum = rand_cvb(0.777_wp)
+    c = 0.1_wp
     do iorb=1,norb
       do ii=1,norb
-        orbs(ii,iorb) = c*rand_cvb(zero)
+        orbs(ii,iorb) = c*rand_cvb(Zero)
         if (ii == iorb) orbs(ii,iorb) = one
       end do
     end do
   else
-    if (ip(1) >= 0) write(6,'(a)') ' Starting orbital guess was near-singular - scrambling orbital coefficients.'
+    if (ip(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - scrambling orbital coefficients.'
   end if
   call nize_cvb(orbs,norb,dum,norb,0,0)
 end if
@@ -168,7 +169,7 @@ end if
 
 cnrm = dnrm2_(nvb,cvb,1)
 if (cnrm < thresh) then
-  write(6,*) ' Fatal error - starting structure coefficients all zero !'
+  write(u6,*) ' Fatal error - starting structure coefficients all zero !'
   call abend_cvb()
 end if
 
@@ -180,10 +181,10 @@ end if
 !if(ploc) call rtransf_plc(orbs,cvb)
 
 if ((ip(1) >= 2) .and. (.not. endvar)) then
-  write(6,'(/,a)') ' Wavefunction guess :'
+  write(u6,'(/,a)') ' Wavefunction guess :'
   call report_cvb(orbs,norb)
-  write(6,'(/,a)') ' Structure coefficients :'
-  write(6,'(a)') ' ------------------------'
+  write(u6,'(/,a)') ' Structure coefficients :'
+  write(u6,'(a)') ' ------------------------'
   call vecprint_cvb(cvb,nvb)
 end if
 

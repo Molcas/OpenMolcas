@@ -14,19 +14,19 @@
 
 subroutine iout_cvb(ii,a1,a2)
 
-implicit real*8(a-h,o-z)
-!logical l
-character*(*) a1, a2
-character*15 b1
-character*46 b2
-character*12 b3
-!save huge
-!data huge/1d20/
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: ii
+character(len=*) :: a1, a2
+character(len=46) :: b2
+character(len=15) :: b1
+character(len=12) :: b3
 
 b1 = a1
 b2 = a2
 write(b3,'(i12)') ii
-write(6,'(1x,3a)') b1,b2,b3
+write(u6,'(1x,3a)') b1,b2,b3
 
 return
 

@@ -15,7 +15,7 @@
 !  ** EISPACK ROUTINES **
 !  **********************
 
-subroutine balanc(nm,n,a,low,igh,scale)
+subroutine balanc(nm,n,a,low,igh,scl)
 ! this subroutine is a translation of the algol procedure balance,
 ! num. math. 13, 293-304(1969) by parlett and reinsch.
 ! handbook for auto. comp., vol.ii-linear algebra, 315-326(1971).
@@ -42,16 +42,16 @@ subroutine balanc(nm,n,a,low,igh,scale)
 !       (1) i is greater than j and
 !       (2) j=1,...,low-1 or i=igh+1,...,n.
 !
-!    scale contains information determining the
+!    scl contains information determining the
 !       permutations and scaling factors used.
 !
 ! suppose that the principal submatrix in rows low through igh
 ! has been balanced, that p(j) denotes the index interchanged
 ! with j during the permutation step, and that the elements
 ! of the diagonal matrix used are denoted by d(i,j).  then
-!    scale(j) = p(j),    for j = 1,...,low-1
-!             = d(j,j),      j = low,...,igh
-!             = p(j)         j = igh+1,...,n.
+!    scl(j) = p(j),    for j = 1,...,low-1
+!           = d(j,j),      j = low,...,igh
+!           = p(j)         j = igh+1,...,n.
 ! the order in which the interchanges are made is n to igh+1,
 ! then 1 to low-1.
 !
@@ -70,14 +70,18 @@ subroutine balanc(nm,n,a,low,igh,scale)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, m, n, nm, igh, low
-real*8 a(nm,n), scale(n)
-real*8 c, f, g, r, s, b2, radix
-logical first, noconv, skip
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-radix = 16.0d0
+implicit none
+integer(kind=iwp) :: nm, n, low, igh
+real(kind=wp) :: a(nm,n), scl(n)
+integer(kind=iwp) :: i, j, k, l, m
+real(kind=wp) :: b2, c, f, g, r, s
+logical(kind=iwp) :: first, noconv, skip
+real(kind=wp), parameter :: rdx = 16.0_wp
 
-b2 = radix*radix
+b2 = rdx*rdx
 k = 1
 l = n
 ! .......... search for rows isolating an eigenvalue and push them down ..........
@@ -95,7 +99,7 @@ do
     skip = .false.
     do i=1,l
       if (i == j) cycle
-      if (a(j,i) /= 0.0d0) then
+      if (a(j,i) /= Zero) then
         skip = .true.
         exit
       end if
@@ -125,7 +129,7 @@ if (first .or. (l /= 1)) then
       skip = .false.
       do i=k,l
         if (i == j) cycle
-        if (a(i,j) /= 0.0d0) then
+        if (a(i,j) /= Zero) then
           skip = .true.
           exit
         end if
@@ -140,15 +144,15 @@ if (first .or. (l /= 1)) then
   end do
   ! .......... now balance the submatrix in rows k to l ..........
   do i=k,l
-    scale(i) = 1.0d0
+    scl(i) = One
   end do
   ! .......... iterative loop for norm reduction ..........
   do
     noconv = .false.
 
     do i=k,l
-      c = 0.0d0
-      r = 0.0d0
+      c = Zero
+      r = Zero
 
       do j=k,l
         if (j == i) cycle
@@ -156,25 +160,25 @@ if (first .or. (l /= 1)) then
         r = r+abs(a(i,j))
       end do
       ! .......... guard against zero c or r due to underflow ..........
-      if ((c == 0.0d0) .or. (r == 0.0d0)) cycle
-      g = r/radix
-      f = 1.0d0
+      if ((c == Zero) .or. (r == Zero)) cycle
+      g = r/rdx
+      f = One
       s = c+r
       do
         if (c >= g) exit
-        f = f*radix
+        f = f*rdx
         c = c*b2
       end do
-      g = r*radix
+      g = r*rdx
       do
         if (c < g) exit
-        f = f/radix
+        f = f/rdx
         c = c/b2
       end do
       ! .......... now balance ..........
-      if ((c+r)/f >= 0.95d0*s) cycle
-      g = 1.0d0/f
-      scale(i) = scale(i)*f
+      if ((c+r)/f >= 0.95_wp*s) cycle
+      g = One/f
+      scl(i) = scl(i)*f
       noconv = .true.
 
       do j=k,n
@@ -201,8 +205,8 @@ contains
 
 ! .......... in-line procedure for row and column exchange ..........
 subroutine rc_exchange()
-  integer i
-  scale(m) = j
+  integer(kind=iwp) :: i
+  scl(m) = j
   if (j == m) return
   do i=1,l
     f = a(i,j)

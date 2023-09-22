@@ -13,18 +13,17 @@
 !***********************************************************************
 
 subroutine makecivecp_cvb(civec,civecp,orbs)
-
 ! Construct CIVECP:
-implicit real*8(a-h,o-z)
-! ... Content of CI vectors ...
-logical, external :: tstcnt_cvb
+
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec(ndet), civecp(ndet), orbs(norb,norb)
 #include "WrkSpc.fh"
-dimension orbs(norb,norb)
-dimension civec(ndet), civecp(ndet)
+integer(kind=iwp) :: igjorb, iowrk
+integer(kind=iwp), external :: ihlf_cvb, mstackr_cvb
+logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civecp,3)) return
 
@@ -36,7 +35,7 @@ if (memplenty) then
   call getci_cvb(civec)
   call cicopy_cvb(civec,civecp)
 else
-  call cird_cvb(civecp,61001.2d0)
+  call cird_cvb(civecp,61001.2_wp)
 end if
 call applyt_cvb(civecp,work(igjorb))
 call mfreer_cvb(iowrk)

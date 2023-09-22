@@ -14,9 +14,12 @@
 
 subroutine ioopn_cvb(fn,lu)
 
-implicit real*8(a-h,o-z)
-character*(*) fn
-logical isopen
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: fn
+integer(kind=iwp) :: lu
+logical(kind=iwp) :: isopen
 
 ! Close first in case file is 'hanging' from previous session:
 inquire(lu,opened=isopen)

@@ -14,9 +14,14 @@
 
 subroutine party2_cvb(iperm,n,party)
 
-implicit real*8(a-h,o-z)
-dimension iperm(n)
-logical done
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, iperm(n)
+real(kind=wp) :: party
+integer(kind=iwp) :: i, iswp, j, ntransp
+logical(kind=iwp) :: done
 
 ! Following caters for non-contiguous integers:
 ntransp = 0
@@ -43,9 +48,9 @@ do
   if (.not. done) exit
 end do
 if (mod(ntransp-n,2) == 0) then
-  party = 1d0
+  party = One
 else
-  party = -1d0
+  party = -One
 end if
 
 return

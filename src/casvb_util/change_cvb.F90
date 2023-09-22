@@ -14,15 +14,15 @@
 
 subroutine change_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
-! ... Change of dimensioning variables ...
-logical, external :: chpcmp_cvb, lchpcmp_cvb
+use Constants, only: Ten
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: kbasisp
+logical(kind=iwp), external :: chpcmp_cvb, lchpcmp_cvb, & ! ... Change of dimensioning variables ...
+                               up2date_cvb ! ... Make: up to date? ...
 
 ! General settings:
 proj = projsym
@@ -44,7 +44,7 @@ call change7_cvb()
 call chpcmp2_cvb(kbasis,kbasisp)
 if (up2date_cvb('GUESS') .and. (kbasiscvb /= kbasis)) call touch_cvb('TRNSPN')
 call symchk_cvb()
-if (chpcmp_cvb(nint(strtint*1d1))) call touch_cvb('RDINT')
+if (chpcmp_cvb(nint(strtint*Ten))) call touch_cvb('RDINT')
 
 ! Redo CIVB if definition has changed (from CVB or CIVECP):
 if (lchpcmp_cvb(projcas)) then

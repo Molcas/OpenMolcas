@@ -14,12 +14,13 @@
 
 subroutine mkiconfs_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ioffs
 
 ! ICONFS
 call rdioff_cvb(4,recinp,ioffs)

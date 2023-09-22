@@ -15,11 +15,13 @@
 !** Memory allocation and the like **
 !************************************
 
+!IFG trivial
 subroutine setidbl_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: RtoI
+
+implicit none
 #include "idbl_cvb.fh"
-#include "SysDef.fh"
 
 idbl = RtoI
 

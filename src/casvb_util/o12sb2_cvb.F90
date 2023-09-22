@@ -15,24 +15,25 @@
 subroutine o12sb2_cvb(orbs,cvb,nparm1,nvb,nfrorb,gjorb,gjorb2,gjorb3,dx,dxnrm,grdnrm,close2conv,strucopt)
 
 use casvb_global, only: expct, fxbest, have_solved_it, hh, ip, scalesmall
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical strucopt, skip
-logical close2conv
-external asonc12s_cvb, ddres2upd10_cvb
-#include "WrkSpc.fh"
-dimension orbs(*), cvb(nvb)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension dx(nparm1)
-save resthr_old, one
-data one/1d0/
+implicit none
+integer(kind=iwp) :: nparm1, nvb, nfrorb
+real(kind=wp) :: orbs(*), cvb(nvb), gjorb(*), gjorb2(*), gjorb3(*), dx(nparm1), dxnrm, grdnrm
+logical(kind=iwp) :: close2conv, strucopt
+integer(kind=iwp) :: i, ioptc, ipu, iter
+real(kind=wp) :: cnrm2, fac, fx_exp, resthr_old = -One, resthr_use
+logical(kind=iwp) :: skip
+real(kind=wp), external :: ddot_, dnrm2_
+external :: asonc12s_cvb, ddres2upd10_cvb
 
 if (.not. close2conv) then
-  resthr_use = 1d-5
+  resthr_use = 1.0e-5_wp
 else
-  resthr_use = 5d-2*grdnrm
-  resthr_use = min(1d-5,resthr_use)
-  resthr_use = max(1d-9,resthr_use)
+  resthr_use = 0.05_wp*grdnrm
+  resthr_use = min(1.0e-5_wp,resthr_use)
+  resthr_use = max(1.0e-9_wp,resthr_use)
 end if
 skip = ((resthr_use == resthr_old) .and. have_solved_it)
 resthr_old = resthr_use
@@ -44,17 +45,17 @@ if (.not. skip) then
   expct = fx_exp-fxbest
   have_solved_it = .true.
 
-  if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter
+  if (ip >= 2) write(u6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter
 
   if (strucopt) then
     cnrm2 = ddot_(nvb,cvb,1,dx(nfrorb+1),1)
     ! "Orthogonalize" on CVB to get smallest possible update norm:
     call daxpy_(nvb,-cnrm2,cvb,1,dx(nfrorb+1),1)
     ! Scale variables according to overlap with CVB:
-    call dscal_(nparm1,one/cnrm2,dx,1)
+    call dscal_(nparm1,One/cnrm2,dx,1)
   else
     ! We are doing "Augmented" calc:
-    fac = one/dx(1)
+    fac = One/dx(1)
     ! Scale variables according to overlap with CVB:
     do i=1,nparm1-1
       dx(i) = fac*dx(i+1)

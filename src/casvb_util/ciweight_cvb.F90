@@ -20,15 +20,17 @@
 !***********************************************************************
 subroutine ciweight_cvb(civec,civbs,civb,citmp,vec5,orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec(*), civbs(*), civb(*), citmp(*), vec5(*), orbs(norb,norb), sorbs(norb,norb), orbinv(norb,norb), &
+                 owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), sorbs(norb,norb)
-dimension orbinv(norb,norb), owrk(norb,norb)
-dimension gjorb(*), gjorb2(*), gjorb3(*), civec(*), civbs(*), civb(*), citmp(*), vec5(*)
+integer(kind=iwp) :: icitmp, icivb, icivbs, icivec, ion, ionmax, ionmin, iretval1, iretval2, ivec5, k1, k10, k11, k12, k13, k14, &
+                     k15, k16, k17, k18, k19, k2, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k3, k30, k31, k32, k33, k34, &
+                     k4, k5, k6, k7, k8, k9, mxasg, mxdetcas, mxrem, mxsng, ncnfcas
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 ionmin = max(nel-norb,0)
 ionmax = nbet
@@ -36,7 +38,7 @@ mxrem = norb-ionmin
 mxsng = nel-2*ionmin
 mxasg = nalf-ionmin
 call icomb_cvb(mxsng,mxasg,mxdetcas)
-!  Work out number of configurations in CASSCF vector:
+! Work out number of configurations in CASSCF vector:
 ncnfcas = 0
 do ion=ionmin,ionmax
   call icomb_cvb(norb,ion,iretval1)

@@ -12,7 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine dum_a_cvb(idum)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: idum
 
 return
 ! Avoid unused argument warnings

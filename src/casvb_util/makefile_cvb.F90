@@ -14,6 +14,8 @@
 
 subroutine makefile_cvb()
 
+implicit none
+
 call makeinit_cvb()
 ! Memory allocation:
 call depend_cvb('MEM1','MEM0')

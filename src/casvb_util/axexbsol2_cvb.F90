@@ -16,21 +16,23 @@ subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res,
 ! Solve linear equation in Davidson subspace.
 
 use casvb_global, only: cnrm, corenrg, ifollow, ipdd, nroot, safety, signtol
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension ap(maxdav,maxdav), rhsp(maxdav)
-dimension solp(maxdav), solp_res(maxdav)
-dimension eigval(itdav), eigvec(itdav,itdav)
-dimension dxp(itdav), gradp(itdav), w2(itdav)
-save zero, one
-data zero/0d0/,one/1d0/
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim1
+real(kind=wp) :: ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), solp_res(maxdav), eig, eig_res, eigval(itdav), &
+                 eigvec(itdav,itdav), dxp(itdav), gradp(itdav), w2(itdav)
+integer(kind=iwp) :: i, it, nnegeig, nposeig
+real(kind=wp) :: alfastart, eigmn, eigmx, gnrm, ovr_dx_grad, safety_use
+real(kind=wp), external :: ddot_, dnrm2_
 
 do it=1,itdav
   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
 end do
 
 if (ipdd >= 3) then
-  write(6,*) ' AP matrix :'
+  write(u6,*) ' AP matrix :'
   do i=1,itdav
     eigval(i) = eigvec(i,i)
     eigvec(i,i) = eigvec(i,i)+corenrg
@@ -39,14 +41,14 @@ if (ipdd >= 3) then
   do i=1,itdav
     eigvec(i,i) = eigval(i)
   end do
-  write(6,*) ' RHSP vector :'
+  write(u6,*) ' RHSP vector :'
   call mxprint_cvb(rhsp,1,itdav,0)
 end if
 
 call mxdiag_cvb(eigvec,eigval,itdav)
 
 if (ipdd >= 2) then
-  write(6,'(a)') ' Eigenvalues :'
+  write(u6,'(a)') ' Eigenvalues :'
   do i=1,itdav
     eigval(i) = eigval(i)+corenrg
   end do
@@ -64,31 +66,31 @@ else if (ifollow == 2) then
   nnegeig = nroot-1
   nposeig = itdav-nnegeig
 else
-  write(6,*) ' Error in IFOLLOW with direct Fletcher!',ifollow
+  write(u6,*) ' Error in IFOLLOW with direct Fletcher!',ifollow
   call abend_cvb()
   nnegeig = 0
   nposeig = 0
 end if
 
-eigmx = -one
-eigmn = one
+eigmx = -One
+eigmn = One
 if (nnegeig > 0) eigmx = eigval(nnegeig)
 if (nposeig > 0) eigmn = eigval(nnegeig+1)
 safety_use = safety
 do
   if ((eigmx < -signtol) .and. (eigmn > signtol)) then
-    alfastart = zero
+    alfastart = Zero
   else
-    alfastart = max(eigmx,-eigmn,zero)+safety_use
+    alfastart = max(eigmx,-eigmn,Zero)+safety_use
   end if
   call getdxp_cvb(dxp,gradp,eigval,nnegeig,itdav,alfastart)
   cnrm = dnrm2_(itdav,dxp,1)
-  if (alfastart == zero) exit
+  if (alfastart == Zero) exit
   gnrm = dnrm2_(itdav,gradp,1)
-  if ((cnrm <= 1d-15) .or. (gnrm <= 1d-15) .or. (safety_use == 1d-4)) exit
+  if ((cnrm <= 1.0e-15_wp) .or. (gnrm <= 1.0e-15_wp) .or. (safety_use == 1.0e-4_wp)) exit
   ovr_dx_grad = ddot_(itdav,dxp,1,gradp,1)/(cnrm*gnrm)
-  if (ovr_dx_grad >= .3d0) exit
-  safety_use = 1d-4
+  if (ovr_dx_grad >= 0.3_wp) exit
+  safety_use = 1.0e-4_wp
 end do
 
 call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
@@ -96,8 +98,8 @@ call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,.false.,nposeig,
 eig_res = eig
 call fmove_cvb(solp,solp_res,itdav)
 if (ipdd >= 2) then
-  write(6,'(a,f15.8)') ' Eigenvalue :',eig
-  write(6,'(a)') ' Solution vector :'
+  write(u6,'(a,f15.8)') ' Eigenvalue :',eig
+  write(u6,'(a)') ' Solution vector :'
   call vecprint_cvb(solp,itdav)
 end if
 

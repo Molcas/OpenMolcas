@@ -15,10 +15,14 @@
 subroutine getmo_cvb(cmo,ic,ic2)
 
 use casvb_global, only: nbas_mo, nbasisq_mo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: cmo(*)
+integer(kind=iwp) :: ic, ic2
 #include "WrkSpc.fh"
-dimension cmo(*)
+integer(kind=iwp) :: i1, i2
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(nbasisq_mo)
 

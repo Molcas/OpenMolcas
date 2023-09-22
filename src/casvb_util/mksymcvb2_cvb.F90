@@ -14,29 +14,28 @@
 
 subroutine mksymcvb2_cvb(cvb,tconstr,cvbdet)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: cvb(nvb), tconstr(nvb*nvb), cvbdet(ndetvb)
 #include "print_cvb.fh"
-dimension cvb(nvb)
-dimension tconstr(nvb*nvb)
-dimension cvbdet(ndetvb)
-save thresh
-data thresh/1.d-15/
+real(kind=wp) :: psnrm
+real(kind=wp), parameter :: thresh = 1.0e-15_wp
+real(kind=wp), external :: ddot_
 
 ! Constraints on struc coeffs - either symmetry or deleted
 if (iconstruc > 0) then
-  if (ip(1) >= 0) write(6,'(/,a)') ' Imposing constraints on the structure coefficients.'
+  if (ip(1) >= 0) write(u6,'(/,a)') ' Imposing constraints on the structure coefficients.'
   call symtrizcvb_cvb(cvb)
   psnrm = ddot_(nvb,cvb,1,cvb,1)
   if (psnrm < thresh) then
-    write(6,*) ' Fatal error - structure coefficients null after symmetrization!'
+    write(u6,*) ' Fatal error - structure coefficients null after symmetrization!'
     call abend_cvb()
   end if
   if (ip(1) >= 0) then
-    write(6,'(/,a)') ' Constrained structure coefficients :'
-    write(6,'(a)') ' ------------------------------------'
+    write(u6,'(/,a)') ' Constrained structure coefficients :'
+    write(u6,'(a)') ' ------------------------------------'
     call vecprint_cvb(cvb,nvb)
   end if
 end if

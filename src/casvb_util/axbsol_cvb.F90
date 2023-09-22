@@ -14,14 +14,17 @@
 
 subroutine axbsol_cvb(dum,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
 
-implicit real*8(a-h,o-z)
-dimension rhsp(maxdav), solp(maxdav), solp_res(maxdav)
-save one
-data one/1d0/
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim1
+real(kind=wp) :: dum, rhsp(maxdav), solp(maxdav), solp_res(maxdav), eig, eig_res
+real(kind=wp), external :: dnrm2_
 
 call fmove_cvb(rhsp,solp,itdav)
 eig = dnrm2_(itdav,solp,1)
-call dscal_(itdav,one/eig,solp,1)
+call dscal_(itdav,One/eig,solp,1)
 eig_res = eig
 call fmove_cvb(solp,solp_res,itdav)
 

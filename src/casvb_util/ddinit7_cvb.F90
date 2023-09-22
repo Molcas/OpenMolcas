@@ -12,11 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine ddinit7_cvb(ifollow1,isaddle1,ip1)
 
 use casvb_global, only: ifollow, ipdd, isaddledd, nroot
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ifollow1, isaddle1, ip1
 
 ifollow = ifollow1
 isaddledd = isaddle1

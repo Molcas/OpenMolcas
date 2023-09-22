@@ -16,13 +16,14 @@ subroutine makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 ! Construct Gauss-Jordan factorizations of ORBS, ORBS transpose,
 ! and overlap matrix corresonding to ORBS:
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+integer(kind=iwp) :: iowrk
+integer(kind=iwp), external :: mstackr_cvb
 
 iowrk = mstackr_cvb(norb*norb)
 

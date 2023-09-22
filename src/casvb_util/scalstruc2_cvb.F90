@@ -15,14 +15,15 @@
 subroutine scalstruc2_cvb(orbs,cvb,iconfs,ifnss)
 
 use casvb_global, only: i2s_fr, nconfion_fr, nfrag, nS_fr
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension iconfs(noe,nconf), ifnss(0:nel,0:nel)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: iconfs(noe,nconf), ifnss(0:nel,0:nel)
+integer(kind=iwp) :: i, iconf_off, ifrag, ion, iorb, iS, istr, nelsing
+real(kind=wp) :: fac, fac1, fac2
+real(kind=wp), external :: ddot_
 
 if (sc) then
   fac = one
@@ -54,7 +55,7 @@ else
       end do
     end do
     if (istr /= nvb) then
-      write(6,*) ' ISTR not equal to NVB in SCALSTRUC! ',istr,nvb
+      write(u6,*) ' ISTR not equal to NVB in SCALSTRUC! ',istr,nvb
       call abend_cvb()
     end if
   end do

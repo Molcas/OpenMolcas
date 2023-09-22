@@ -15,16 +15,16 @@
 subroutine vbgenabdet2_cvb(idetavb,idetbvb,iconfs,nconf,nconfion,ndetvb,nel,noe,nalf,nbet,norb,xalf,xbet,mingrph,maxgrph,inewocc, &
                            iaccm)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: ndetvb, idetavb(ndetvb), idetbvb(ndetvb), nconf, noe, iconfs(noe,nconf), nel, nconfion(0:nel), nalf, nbet, &
+                     norb, xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), mingrph(0:norb), maxgrph(0:norb), inewocc(norb), iaccm(norb)
 #include "WrkSpc.fh"
-dimension idetavb(ndetvb), idetbvb(ndetvb)
-dimension iconfs(noe,nconf), nconfion(0:nel)
-integer xalf, xbet
-dimension xalf(0:norb,0:nalf), xbet(0:norb,0:nbet)
-dimension mingrph(0:norb), maxgrph(0:norb)
-dimension inewocc(norb), iaccm(norb)
-logical debug
-data debug/.false./
+integer(kind=iwp) :: i, iaind, iaocc, iastr, ibind, ibocc, ibstr, iconf, ii, incr, incrdet, indx, ioff_nconf, ion, iorb, nalfsing, &
+                     nbetsing, nelsing, nstring
+logical(kind=iwp), parameter :: debug = .false.
+integer(kind=iwp), external :: indget_cvb, mstacki_cvb
 
 ! Set xalf and xbet for indget:
 do iorb=0,norb
@@ -54,14 +54,14 @@ do ion=0,nel/2
     ibstr = mstacki_cvb(nbetsing*nstring)
     call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),nstring)
     if (debug) then
-      write(6,*) ' ionicity=',ion,' nconf=',nconfion(ion)
-      write(6,*) ' check alpha strings :'
+      write(u6,*) ' ionicity=',ion,' nconf=',nconfion(ion)
+      write(u6,*) ' check alpha strings :'
       do i=1,nstring
-        write(6,*) i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,nalfsing)
+        write(u6,*) i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,nalfsing)
       end do
-      write(6,*) ' check beta strings :'
+      write(u6,*) ' check beta strings :'
       do i=1,nstring
-        write(6,*) i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,nbetsing)
+        write(u6,*) i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,nbetsing)
       end do
     end if
 
@@ -77,27 +77,27 @@ do ion=0,nel/2
       end do
 
       ! Spin string loop:
-      do index=1,nstring
+      do indx=1,nstring
 
         ! Alpha index in full string space ...
         do i=1,nalfsing
-          iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
+          iaocc = iaccm(iwork(i+(indx-1)*nalfsing+iastr-1))
           inewocc(iaocc) = inewocc(iaocc)+1
         end do
         iaind = indget_cvb(inewocc,nalf,norb,xalf)
         do i=1,nalfsing
-          iaocc = iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
+          iaocc = iaccm(iwork(i+(indx-1)*nalfsing+iastr-1))
           inewocc(iaocc) = inewocc(iaocc)-1
         end do
 
         ! Beta index in full string space ...
         do i=1,nbetsing
-          ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
+          ibocc = iaccm(iwork(i+(indx-1)*nbetsing+ibstr-1))
           inewocc(ibocc) = inewocc(ibocc)+1
         end do
         ibind = indget_cvb(inewocc,nbet,norb,xbet)
         do i=1,nbetsing
-          ibocc = iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
+          ibocc = iaccm(iwork(i+(indx-1)*nbetsing+ibstr-1))
           inewocc(ibocc) = inewocc(ibocc)-1
         end do
 
@@ -111,10 +111,10 @@ do ion=0,nel/2
   ioff_nconf = ioff_nconf+nconfion(ion)
 end do
 if (debug) then
-  write(6,*) ' idetavb='
-  write(6,'(10i6)') idetavb
-  write(6,*) ' idetbvb='
-  write(6,'(10i6)') idetbvb
+  write(u6,*) ' idetavb='
+  write(u6,'(10i6)') idetavb
+  write(u6,*) ' idetbvb='
+  write(u6,'(10i6)') idetbvb
 end if
 
 return

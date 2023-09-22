@@ -14,15 +14,17 @@
 
 subroutine rdlow_cvb(vec,n,fileid,ioffset)
 
-implicit real*8(a-h,o-z)
-#include "io_cvb.fh"
-#include "idbl_cvb.fh"
-!integer vec
-dimension vec(n)
-logical newfile, debug
-data debug/.false./
+use Definitions, only: wp, iwp, u6
 
-if (debug) write(6,*) ' rdlow :',n,fileid,ioffset
+implicit none
+integer(kind=iwp) :: n, ioffset
+real(kind=wp) :: vec(n), fileid
+#include "io_cvb.fh"
+integer(kind=iwp) :: ibf, ioffs, lu
+logical(kind=iwp) :: newfile
+logical(kind=iwp), parameter :: debug = .false.
+
+if (debug) write(u6,*) ' rdlow :',n,fileid,ioffset
 call mkfn_cvb(fileid,ibf)
 call ibf2unit_cvb(ibf,lu,newfile)
 

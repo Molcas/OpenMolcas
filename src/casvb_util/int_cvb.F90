@@ -15,10 +15,12 @@
 subroutine int_cvb(iarr,nmax,nread,ifc)
 
 use casvb_global, only: inputmode
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension iarr(*)
-logical done
+implicit none
+integer(kind=iwp) :: iarr(*), nmax, nread, ifc
+logical(kind=iwp) :: done
+integer(kind=iwp) :: i, ierr, ifcuse
 
 if (inputmode == 2) then
   call gethi_cvb(iarr,nread)
@@ -51,7 +53,7 @@ if (nmax > 0) then
   if (.not. done) then
     ! Crash if invalid field and IFC +4:
     if ((ierr == 4) .and. (ifc >= 4)) then
-      write(6,*) ' Invalid field found while reading integer!'
+      write(u6,*) ' Invalid field found while reading integer!'
       call abend_cvb()
     end if
     call pushfield_cvb()

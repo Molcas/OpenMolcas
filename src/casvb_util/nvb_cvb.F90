@@ -15,12 +15,13 @@
 function nvb_cvb(kbasis_loc)
 
 use casvb_global, only: ndetvb_fr, ndetvb2_fr, nfrag, nvb_fr, nvbr_fr
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nvb_cvb
+integer(kind=iwp) :: kbasis_loc
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: ifrag, nvb_loc
 
 ndetvb = 0
 ndetvb2 = 0

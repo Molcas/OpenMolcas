@@ -10,4 +10,5 @@
 !***********************************************************************
 ! Print control :
 !----------------
+      integer ip,iprec,iwidth
       common /print_comcvb/ip(10),iprec,iwidth

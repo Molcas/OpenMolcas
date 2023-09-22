@@ -15,28 +15,26 @@
 subroutine svbd2_cvb(orbs,cvb,fx,ioptc,iter,civec,civbs,gjorb,gjorb2,gjorb3,cvbdet,c,sxc,res,rhs,rhsp,solp,solp_res)
 
 use casvb_global, only: follow, have_solved_it, nortiter, orththr, resthr
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-external asonc1_cvb, ddsolsvb_cvb, ddressvb_cvb, ddres2upd10_cvb
-external ddrestart_cvb
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, civec(ndet), civbs(ndet), gjorb(*), gjorb2(*), gjorb3(*), cvbdet(ndetvb), &
+                 c(nvb,maxdav), sxc(nvb,maxdav), res(nvb), rhs(nvb), rhsp(maxdav), solp(maxdav), solp_res(maxdav)
+integer(kind=iwp) :: ioptc, iter
 #include "print_cvb.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension civec(ndet), civbs(ndet)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension cvbdet(ndetvb)
-dimension c(nvb,maxdav), sxc(nvb,maxdav), res(nvb), rhs(nvb)
-dimension rhsp(maxdav), solp(maxdav), solp_res(maxdav)
-dimension dum(max(nvb,maxdav),maxdav)
+integer(kind=iwp) :: ifollow, nvguess, nvrestart
+real(kind=wp) :: dum(max(nvb,maxdav),maxdav) !IFG
+external :: asonc1_cvb, ddres2upd10_cvb, ddressvb_cvb, ddrestart_cvb, ddsolsvb_cvb
 
 call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 
 if (memplenty) then
   call cicopy_cvb(civec,civbs)
 else
-  call cird_cvb(civbs,61001.2d0)
+  call cird_cvb(civbs,61001.2_wp)
 end if
 call applyt_cvb(civbs,gjorb2)
 call ci2vbg_cvb(civbs,cvbdet)
@@ -56,7 +54,7 @@ call ddinitsvb_cvb(ifollow,isaddle,ip(3))
 call ddres2updinit_cvb(0)
 call dirdiag_cvb(asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,ddres2upd10_cvb,ddrestart_cvb,c,dum,sxc,.false.,cvb,res,rhs,dum,rhsp,solp, &
                  solp_res,.false.,.false.,.true.,maxdav,nvb,nvb,nvguess,nvrestart,isaddle,ifollow,mxiter,resthr,orththr,nortiter, &
-                 zero,ioptc,iter,fx,ip(3))
+                 Zero,ioptc,iter,fx,ip(3))
 have_solved_it = .true.
 
 ovraa = one

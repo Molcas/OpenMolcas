@@ -12,18 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function firsttime_cvb()
+function firsttime_cvb()
 
 use casvb_global, only: icode, inputmode, iopt2step, ioptim, ioptstep, istackrep, joptstep, loopstep
 
-implicit real*8(a-h,o-z)
-logical begbracket, second_time_round
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: firsttime_cvb
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-external istkprobe_cvb
-logical istkprobe_cvb
+integer(kind=iwp) :: italter_l, nc_zeroed_l, nconvinone_l
+logical(kind=iwp) :: begbracket, second_time_round
+logical(kind=iwp), external :: istkprobe_cvb
 
 if (inputmode == 2) then
   if (loopstep == 0) then

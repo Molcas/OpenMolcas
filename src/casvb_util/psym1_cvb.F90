@@ -14,13 +14,15 @@
 
 subroutine psym1_cvb(civec1,civec2,osym,ientry)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
+integer(kind=iwp) :: ientry
 #include "WrkSpc.fh"
-dimension civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
+integer(kind=iwp) :: k1, k10, k11, k12, k13, k14, k15, k16, k17, k2, k3, k4, k5, k6, k7, k8, k9
+integer(kind=iwp), external :: mstacki_cvb
 
 k1 = mstacki_cvb(nda)
 k2 = mstacki_cvb(ndb)

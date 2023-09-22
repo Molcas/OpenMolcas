@@ -14,10 +14,14 @@
 
 subroutine ibf2unit_cvb(ibf,lu,newfile)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: ibf, lu
+logical(kind=iwp) :: newfile
 #include "io_cvb.fh"
-logical newfile, debug
-data debug/.false./
+integer(kind=iwp) :: i, ifil
+logical(kind=iwp), parameter :: debug = .false.
 
 if (ifilio(ibf) /= 0) then
   newfile = .false.
@@ -40,7 +44,7 @@ else
       end if
     end do
     if (ifil == 0) then
-      write(6,*) ' ifil error - iorder :',iorder
+      write(u6,*) ' ifil error - iorder :',iorder
       call abend_cvb()
     end if
   end if
@@ -48,7 +52,7 @@ else
 end if
 call touchord_cvb(ifil,iorder,mxunits)
 lu = 90+ifil
-if (debug) write(6,*) ' buffer:',ibf,' now associated with unit:',lu
+if (debug) write(u6,*) ' buffer:',ibf,' now associated with unit:',lu
 
 return
 

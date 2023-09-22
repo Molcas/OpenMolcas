@@ -57,9 +57,14 @@ subroutine tred1(nm,n,a,d,e,e2)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, n, ii, nm, jp1
-real*8 a(nm,n), d(n), e(n), e2(n)
-real*8 f, g, h, scale
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n
+real(kind=wp) :: a(nm,n), d(n), e(n), e2(n)
+integer(kind=iwp) :: i, ii, j, jp1, k, l
+real(kind=wp) :: f, g, h, scl
 
 do i=1,n
   d(i) = a(n,i)
@@ -69,41 +74,41 @@ end do
 do ii=1,n
   i = n+1-ii
   l = i-1
-  h = 0.0d0
-  scale = 0.0d0
+  h = Zero
+  scl = Zero
   ! .......... scale row (algol tol then not needed) ..........
   do k=1,l
-    scale = scale+abs(d(k))
+    scl = scl+abs(d(k))
   end do
 
-  if (scale == 0.0d0) then
+  if (scl == Zero) then
 
     do j=1,l
       d(j) = a(l,j)
       a(l,j) = a(i,j)
-      a(i,j) = 0.0d0
+      a(i,j) = Zero
     end do
 
-    e(i) = 0.0d0
-    e2(i) = 0.0d0
+    e(i) = Zero
+    e2(i) = Zero
 
   else
 
     do k=1,l
-      d(k) = d(k)/scale
+      d(k) = d(k)/scl
       h = h+d(k)*d(k)
     end do
 
-    e2(i) = scale*scale*h
+    e2(i) = scl*scl*h
     f = d(l)
     g = -sign(sqrt(h),f)
-    e(i) = scale*g
+    e(i) = scl*g
     h = h-f*g
     d(l) = f-g
     if (l /= 1) then
       ! .......... form a*u ..........
       do j=1,l
-        e(j) = 0.0d0
+        e(j) = Zero
       end do
 
       do j=1,l
@@ -119,7 +124,7 @@ do ii=1,n
         e(j) = g
       end do
       ! .......... form p ..........
-      f = 0.0d0
+      f = Zero
 
       do j=1,l
         e(j) = e(j)/h
@@ -147,7 +152,7 @@ do ii=1,n
       f = d(j)
       d(j) = a(l,j)
       a(l,j) = a(i,j)
-      a(i,j) = f*scale
+      a(i,j) = f*scl
     end do
 
   end if

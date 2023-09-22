@@ -14,21 +14,23 @@
 
 subroutine foutij_cvb(fij,ni,nj,a1,a2)
 
-implicit real*8(a-h,o-z)
-!logical l
-logical done
-character*(*) a1, a2
-character*15 b1
-character*46 b2
-character*12 b3
-dimension fij(ni,nj)
-save huge
-data huge/1d20/
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ni, nj
+real(kind=wp) :: fij(ni,nj)
+character(len=*) :: a1, a2
+character(len=46) :: b2
+character(len=15) :: b1
+character(len=12) :: b3
+integer(kind=iwp) :: i, ichar0, ichar9, ipos, j, jpos
+logical(kind=iwp) :: done
+real(kind=wp), parameter :: hge = 1.0e20_wp
 
 b1 = a1
 b2 = a2
 b3 = '     ......'
-write(6,'(/,1x,3a)') b1,b2,b3
+write(u6,'(/,1x,3a)') b1,b2,b3
 b2 = ' '
 ! Find IPOS/JPOS : position of I/J indices in string
 ichar0 = ichar('0')
@@ -41,7 +43,7 @@ do jpos=15,1,-1
   end if
 end do
 if (.not. done) then
-  write(6,*) ' Fatal error in FOUTIJ!'
+  write(u6,*) ' Fatal error in FOUTIJ!'
   call abend_cvb()
 end if
 done = .false.
@@ -52,16 +54,16 @@ do ipos=jpos-1,1,-1
   end if
 end do
 if (.not. done) then
-  write(6,*) ' Fatal error in FOUTIJ!'
+  write(u6,*) ' Fatal error in FOUTIJ!'
   call abend_cvb()
 end if
 do j=1,nj
   do i=1,ni
-    if (abs(fij(i,j)) /= huge) then
+    if (abs(fij(i,j)) /= hge) then
       write(b1(ipos:ipos),'(i1)') i
       write(b1(jpos:jpos),'(i1)') j
       write(b3,'(d12.4)') fij(i,j)
-      write(6,'(1x,3a)') b1,b2,b3
+      write(u6,'(1x,3a)') b1,b2,b3
     end if
   end do
 end do

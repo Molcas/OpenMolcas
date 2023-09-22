@@ -15,13 +15,13 @@
 subroutine mkguess_cvb()
 
 use casvb_global, only: nbas_mo
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iorbsao, irdorbs
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 irdorbs = mstacki_cvb(norb)
 iorbsao = mstackr_cvb(nbas_mo*norb)

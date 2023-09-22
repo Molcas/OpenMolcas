@@ -14,10 +14,14 @@
 
 subroutine axexbsol_cvb(ap,rhsp,itdav,maxdav,nfrdim,solp,solp_res,eig,eig_res)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim
+real(kind=wp) :: ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), solp_res(maxdav), eig, eig_res
 #include "WrkSpc.fh"
-dimension ap(maxdav,maxdav), rhsp(maxdav)
-dimension solp(maxdav), solp_res(maxdav)
+integer(kind=iwp) :: i1, i2, i3, i4, i5
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(itdav)
 i2 = mstackr_cvb(itdav*itdav)

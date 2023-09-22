@@ -16,13 +16,16 @@ subroutine ddsol72_cvb(hp,eigval,eigvec,dum,itdav,maxdav,nfrdim1,solp,solp_res,e
 ! Solve linear equation in Davidson subspace.
 
 use casvb_global, only: ifollow, ipdd, iroot, jroot, nfrdim, nroot
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
-dimension solp(maxdav), solp_res(maxdav)
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim1
+real(kind=wp) :: hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
+integer(kind=iwp) :: i, it
+real(kind=wp) :: del, delmin
 
 if (ipdd >= 3) then
-  write(6,*) ' HP matrix (b) :'
+  write(u6,*) ' HP matrix (b) :'
   call mxprint2_cvb(hp,itdav,maxdav,itdav,0)
 end if
 
@@ -43,7 +46,7 @@ if (ifollow <= 2) then
     jroot = itdav-jroot+1
   end if
 else if (ifollow == 3) then
-  write(6,*) ' Overlap-based root following not yet implemented!'
+  write(u6,*) ' Overlap-based root following not yet implemented!'
   call abend_cvb()
 else if (ifollow == 4) then
   ! Eigenvalue-based root following -- determine closest root:
@@ -63,12 +66,12 @@ call fmove_cvb(eigvec(1,iroot),solp,itdav)
 eig_res = eigval(jroot)
 call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
 if (ipdd >= 2) then
-  write(6,'(a)') ' Eigenvalues :'
+  write(u6,'(a)') ' Eigenvalues :'
   call vecprint_cvb(eigval,itdav)
-  write(6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
+  write(u6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
   call vecprint_cvb(solp,itdav)
   if (jroot /= iroot) then
-    write(6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
+    write(u6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
     call vecprint_cvb(solp_res,itdav)
   end if
 end if

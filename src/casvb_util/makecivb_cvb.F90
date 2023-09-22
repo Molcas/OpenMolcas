@@ -17,17 +17,16 @@ subroutine makecivb_cvb(civec,civb,cvbdet,orbs,cvb,ic)
 ! IC=0 : CIVB will contain full set of structures (if PROJCAS).
 ! IC=1 : CIVB will contain only VB structures.
 
-implicit real*8(a-h,o-z)
-! ... Content of CI vectors ...
-logical, external :: tstcnt_cvb
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec(ndet), civb(ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: ic
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension civec(ndet), civb(ndet)
-dimension cvbdet(ndetvb)
+integer(kind=iwp) :: igjorb, iorbinv
+integer(kind=iwp), external :: ihlf_cvb, mstackr_cvb
+logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civb,3-ic)) return
 
@@ -42,7 +41,7 @@ else if (projcas) then
     call getci_cvb(civec)
     call cicopy_cvb(civec,civb)
   else
-    call cird_cvb(civb,61001.2d0)
+    call cird_cvb(civb,61001.2_wp)
   end if
   call fmove_cvb(orbs,work(iorbinv),norb*norb)
   call mxinv_cvb(work(iorbinv),norb)

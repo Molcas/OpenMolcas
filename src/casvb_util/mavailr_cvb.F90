@@ -12,17 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-integer function mavailr_cvb()
+function mavailr_cvb()
 ! Memory allocator (heap). Returns number of real*8 words free.
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mavailr_cvb
+integer(kind=iwp) :: ipoint_g, nword
 
 ipoint_g = 0
 call getmem('casvb','MAX ','REAL',ipoint_g,nword)
 mavailr_cvb = nword
-if (memdebug) write(6,*) '     mavailr :',mavailr_cvb
+if (memdebug) write(u6,*) '     mavailr :',mavailr_cvb
 
 return
 

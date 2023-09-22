@@ -21,18 +21,18 @@ subroutine dens_2_cvb(v1,v2,cfrom,d2mata,d2matb,i1alf,i1bet,iafrm,ibfrm,iato,ibt
                       nbm1,norb,commut,sc,absym)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
-implicit real*8(a-h,o-z)
-logical commut, sc, absym
-dimension v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb)
-dimension d2mata(norb*norb,norb*norb), d2matb(norb*norb,norb*norb)
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iafrm(norb,nda), ibfrm(norb,ndb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-dimension d1mata(norb,norb), d1matb(norb,norb)
-dimension res1(20*20), res2(20*20)
-save thresh, two
-data thresh/1d-10/,two/2d0/
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nda, iafrm(norb,nda), ndb, ibfrm(norb,ndb), nam1, &
+                     iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1)
+real(kind=wp) :: v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb), d2mata(norb*norb,norb*norb), d2matb(norb*norb,norb*norb), &
+                 phato(norb,nam1), phbto(norb,nbm1), d1mata(norb,norb), d1matb(norb,norb)
+logical(kind=iwp) :: commut, sc, absym
+integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, ip1, ip2, itmp, jax, jbx, jorb, kax, kbx, korb, lorb
+real(kind=wp) :: phase, res1(20*20), res2(20*20), tcof, term
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
 
 call dev1b2_cvb(v1,cfrom,d1mata,i1alf,i1bet,iato,ibto,phato,phbto,norb*norb,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,.true.,absym)
 call dev1b2_cvb(v1,v2,d1matb,i1alf,i1bet,iato,ibto,phato,phbto,norb*norb,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,.true.,absym)
@@ -135,8 +135,8 @@ do ip1=1,norb*norb
     end do
   else
     do ip2=1,ip1
-      res1(ip2) = two*res1(ip2)
-      res2(ip2) = two*res2(ip2)
+      res1(ip2) = Two*res1(ip2)
+      res2(ip2) = Two*res2(ip2)
     end do
   end if
 

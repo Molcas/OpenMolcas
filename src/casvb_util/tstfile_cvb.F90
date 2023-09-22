@@ -12,13 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function tstfile_cvb(fileid)
+function tstfile_cvb(fileid)
 
-implicit real*8(a-h,o-z)
-logical ex
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: tstfile_cvb
+real(kind=wp) :: fileid
 #include "io_cvb.fh"
+integer(kind=iwp) :: ibf
+logical(kind=iwp) :: ex
 
-if (fileid < 1.d-2) then
+if (fileid < 1.0e-2_wp) then
   tstfile_cvb = .false.
   return
 end if

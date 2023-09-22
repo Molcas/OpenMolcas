@@ -12,22 +12,26 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine expec_cvb(dxp,gradp,heigval,nnegeig,npr,exp,exp1,exp2)
+subroutine expec_cvb(dxp,gradp,heigval,nnegeig,npr,expc,exp1,exp2)
 
-implicit real*8(a-h,o-z)
-dimension dxp(npr), gradp(npr), heigval(npr)
-save zero, half
-data zero/0.d0/,half/0.5d0/
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
-exp1l = zero
+implicit none
+integer(kind=iwp) :: nnegeig, npr
+real(kind=wp) :: dxp(npr), gradp(npr), heigval(npr), expc, exp1, exp2
+integer(kind=iwp) :: i
+real(kind=wp) :: exp1l, exp2l
+
+exp1l = Zero
 do i=1,nnegeig
-  exp1l = exp1l+dxp(i)*(gradp(i)+half*dxp(i)*heigval(i))
+  exp1l = exp1l+dxp(i)*(gradp(i)+Half*dxp(i)*heigval(i))
 end do
-exp2l = zero
+exp2l = Zero
 do i=nnegeig+1,npr
-  exp2l = exp2l+dxp(i)*(gradp(i)+half*dxp(i)*heigval(i))
+  exp2l = exp2l+dxp(i)*(gradp(i)+Half*dxp(i)*heigval(i))
 end do
-exp = exp1l+exp2l
+expc = exp1l+exp2l
 exp1 = exp1l
 exp2 = exp2l
 

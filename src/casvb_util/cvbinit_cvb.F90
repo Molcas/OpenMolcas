@@ -15,14 +15,12 @@
 subroutine cvbinit_cvb()
 
 use casvb_global, only: is_set
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-parameter(iset=1)
+integer(kind=iwp), parameter :: iset = 1
 
 if (is_set == iset) return
 

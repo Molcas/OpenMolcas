@@ -14,12 +14,11 @@
 
 subroutine cnfchk_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-logical recinpcmp_cvb
+logical(kind=iwp), external :: recinpcmp_cvb
 
 if (recinpcmp_cvb(4)) call touch_cvb('ICONFS')
 

@@ -46,7 +46,7 @@ real(kind=wp) :: Dummy(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: Do_Grad, l_casdft
 character(len=80) :: Label
 character(len=80) :: KSDFT
-character(len=8) Method
+character(len=8) :: Method
 character(len=4) :: DFTFOCK
 real(kind=wp), allocatable :: Temp2(:), R(:), G1qs(:), G2qs(:), G1qt(:), G2qt(:), D1AOMS(:), D1SAOMS(:), D1AOt(:), D1SAOt(:)
 

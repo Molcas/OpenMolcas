@@ -14,9 +14,16 @@
 
 subroutine sminus_cvb(bikfrom,bikto,nel,nalffrom,nalfto,nvec)
 
-implicit real*8(a-h,o-z)
-dimension bikfrom(*), bikto(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: bikfrom(*), bikto(*)
+integer(kind=iwp) :: nel, nalffrom, nalfto, nvec
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, i3, i4, i5, ialffrom, ialfto, ivec, ndetfrom, ndetto
+real(kind=wp) :: cnrmfrom, cnrmto
+integer(kind=iwp), external :: mheapr_cvb, mstacki_cvb, ndet_cvb
+real(kind=wp), external :: dnrm2_
 
 call ab2asc_cvb(bikfrom,nvec,nel,nalffrom)
 
@@ -51,7 +58,7 @@ ndetto = ndet_cvb(nel,nalfto)
 do ivec=1,nvec
   cnrmfrom = dnrm2_(ndetfrom,bikfrom(1+(ivec-1)*ndetfrom),1)
   cnrmto = dnrm2_(ndetto,bikto(1+(ivec-1)*ndetto),1)
-  if (cnrmto > 1d-10) call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
+  if (cnrmto > 1.0e-10_wp) call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
 end do
 
 return

@@ -12,9 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-integer function indget_cvb(iminor,idim,nel,ixmin)
+function indget_cvb(iminor,i_dim,nel,ixmin)
 
-dimension ixmin(0:nel,0:idim), iminor(nel)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: indget_cvb
+integer(kind=iwp) :: nel, iminor(nel), i_dim, ixmin(0:nel,0:i_dim)
+integer(kind=iwp) :: i, iacc
 
 indget_cvb = 1
 iacc = 0

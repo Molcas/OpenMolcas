@@ -14,54 +14,56 @@
 
 subroutine rules_cvb(chr)
 
-character*(*) chr
+implicit none
+character(len=*) :: chr
 
-if (chr == 'MEM1') then
-  call chop1_cvb()
-else if (chr == 'MEM2') then
-  call chop2_cvb()
-else if (chr == 'MEM3') then
-  call chop3_cvb()
-else if (chr == 'MEM4') then
-  call chop4_cvb()
-else if (chr == 'MEM5') then
-  call chop5_cvb()
-else if (chr == 'MEM6') then
-  call chop6_cvb()
-else if (chr == 'MEM7') then
-  call chop7_cvb()
-else if (chr == 'ORBFREE') then
-  call mkorbfree_cvb()
-else if (chr == 'CIFREE') then
-  call mkcifree_cvb()
-else if (chr == 'ICONFS') then
-  call mkiconfs_cvb()
-else if (chr == 'GENDET') then
-  call mkciinfo_cvb()
-  call mkvbinfo_cvb()
-else if (chr == 'SYMELM') then
-  call mksymelm_cvb()
-else if (chr == 'SYMINIT') then
-  call mksyminit_cvb()
-else if (chr == 'CONSTRUC') then
-  call mkconstruc_cvb()
-else if (chr == 'RDINT') then
-  ! do nothing
-else if (chr == 'RDCAS') then
-  call mkrdcas_cvb()
-else if (chr == 'SYMORBS') then
-  call mksymorbs_cvb()
-else if (chr == 'SYMCVB') then
-  call mksymcvb_cvb()
-else if (chr == 'GUESS') then
-  call mkguess_cvb()
-else if (chr == 'ORBPERM') then
-  call mkorbperm_cvb()
-else if (chr == 'TRNSPN') then
-  call mktrnspn_cvb()
-else if (chr == 'STAT') then
-  call stat_cvb()
-end if
+select case (chr)
+  case ('MEM1')
+    call chop1_cvb()
+  case ('MEM2')
+    call chop2_cvb()
+  case ('MEM3')
+    call chop3_cvb()
+  case ('MEM4')
+    call chop4_cvb()
+  case ('MEM5')
+    call chop5_cvb()
+  case ('MEM6')
+    call chop6_cvb()
+  case ('MEM7')
+    call chop7_cvb()
+  case ('ORBFREE')
+    call mkorbfree_cvb()
+  case ('CIFREE')
+    call mkcifree_cvb()
+  case ('ICONFS')
+    call mkiconfs_cvb()
+  case ('GENDET')
+    call mkciinfo_cvb()
+    call mkvbinfo_cvb()
+  case ('SYMELM')
+    call mksymelm_cvb()
+  case ('SYMINIT')
+    call mksyminit_cvb()
+  case ('CONSTRUC')
+    call mkconstruc_cvb()
+  case ('RDINT')
+    ! do nothing
+  case ('RDCAS')
+    call mkrdcas_cvb()
+  case ('SYMORBS')
+    call mksymorbs_cvb()
+  case ('SYMCVB')
+    call mksymcvb_cvb()
+  case ('GUESS')
+    call mkguess_cvb()
+  case ('ORBPERM')
+    call mkorbperm_cvb()
+  case ('TRNSPN')
+    call mktrnspn_cvb()
+  case ('STAT')
+    call stat_cvb()
+end select
 
 return
 

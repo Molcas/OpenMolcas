@@ -17,12 +17,16 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use csfbas, only: conf, kcftp
-implicit real*8(a-h,o-z)
-dimension cfrom(*), cto(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: cfrom(*), cto(*)
+integer(kind=iwp) :: imode
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
+integer(kind=iwp) :: ivkcnf
 
 ! NAC      rasscf.fh
 ! NACTEL   general.fh

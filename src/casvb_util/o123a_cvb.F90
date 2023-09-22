@@ -12,11 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine o123a_cvb(nparm)
 
 use casvb_global, only: ix
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nparm
 #include "WrkSpc.fh"
 
 call o123a2_cvb(nparm,work(ix(2)),work(ix(3)),work(ix(4)),work(ix(6)))

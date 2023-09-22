@@ -37,15 +37,19 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,
 !***********************************************************************
 
 use casvb_global, only: expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, ix, maxize
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical maxinp, iter_is_1, strucopt, done
+implicit none
+real(kind=wp) :: fx, corenrg
+integer(kind=iwp) :: ioptc, iter, imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
+logical(kind=iwp) :: maxinp, strucopt
 #include "WrkSpc.fh"
-external dum_a_cvb, o123a_cvb, o123b_cvb, o5b_cvb, o7a_cvb, o7b_cvb
-external o8b_cvb, o10a_cvb, o10b_cvb
-external o12sa_cvb, o12sb_cvb, o12ea_cvb, o12eb_cvb
-save zero
-data zero/0.d0/
+integer(kind=iwp) :: i1, i2, i3, ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
+logical(kind=iwp) :: done, iter_is_1
+integer(kind=iwp), external :: mstackr_cvb
+external :: dum_a_cvb, o10a_cvb, o10b_cvb, o123a_cvb, o123b_cvb, o12ea_cvb, o12eb_cvb, o12sa_cvb, o12sb_cvb, o5b_cvb, o7a_cvb, &
+            o7b_cvb, o8b_cvb
 
 if (mxiter == 0) then
   ioptc = -1
@@ -58,7 +62,7 @@ maxize = maxinp
 ip = ipinp
 
 ! Parameters initialized:
-expct = zero
+expct = Zero
 hh = hhstart
 hhkeep = hh
 ioptc = 1
@@ -76,12 +80,12 @@ do iter=1,mxiter
   iter_is_1 = (iter == 1)
   call getfree_cvb(nparm,n_div,nfrdim,iter,fx)
   if (nfrdim <= 0) then
-    if (ip >= 0) write(6,'(a)') ' No free parameters!'
-    if (ip >= 0) write(6,'(a)') ' Calculation converged.'
+    if (ip >= 0) write(u6,'(a)') ' No free parameters!'
+    if (ip >= 0) write(u6,'(a)') ' Calculation converged.'
     ioptc = 0
     return
   end if
-  if ((fx < zero) .and. maxize) then
+  if ((fx < Zero) .and. maxize) then
     call chgsgn_cvb(fx)
     call getfree_cvb(nparm,n_div,nfrdim,iter,fx)
   end if
@@ -106,7 +110,7 @@ do iter=1,mxiter
     ix(2) = mstackr_cvb(nparm+1)
     maxd = min(nparm+1,200)
     mxit = 500
-    call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddle,ipdd1,zero,n_div)
+    call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
     call asonC7init_cvb(ix(2),ipdd2)
     call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o7a_cvb,o7b_cvb)
     call mfreer_cvb(ix(1))
@@ -128,7 +132,7 @@ do iter=1,mxiter
     ix(2) = mstackr_cvb(nparm)
     maxd = min(nparm,200)
     mxit = 500
-    call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddle,ipdd1,zero,n_div)
+    call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
     call asonc10init_cvb(ipdd2)
     call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o10a_cvb,o10b_cvb)
     call mfreer_cvb(ix(1))
@@ -144,7 +148,7 @@ do iter=1,mxiter
     ix(2) = mstackr_cvb(nparm_dav)
     maxd = min(nparm_dav,200)
     mxit = 500
-    call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,zero,0)
+    call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,Zero,0)
     call asonc12sinit_cvb(ipdd2)
     call optize2_cvb(fx,nparm_dav,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o12sa_cvb,o12sb_cvb)
     call mfreer_cvb(ix(1))
@@ -165,7 +169,7 @@ do iter=1,mxiter
     call optize2_cvb(fx,nparm_dav,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o12ea_cvb,o12eb_cvb)
     call mfreer_cvb(ix(1))
   else
-    write(6,*) ' Unrecognized optimization algorithm!',imethod
+    write(u6,*) ' Unrecognized optimization algorithm!',imethod
     call abend_cvb()
   end if
   if (ioptc <= 0) then

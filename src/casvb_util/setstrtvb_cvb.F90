@@ -14,23 +14,22 @@
 
 subroutine setstrtvb_cvb(recn)
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: tstfile_cvb
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-save recdef
-data recdef/3200.2d0/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-if (recn /= zero) return
+implicit none
+real(kind=wp) :: recn
+#include "main_cvb.fh"
+integer(kind=iwp) :: iadd, jadd
+real(kind=wp), parameter :: recdef = 3200.2_wp
+logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
+
+if (recn /= Zero) return
 if (.not. tstfile_cvb(recdef)) return
 do iadd=1,99
-  if (.not. tstfile_cvb(recdef+dble(iadd))) then
+  if (.not. tstfile_cvb(recdef+real(iadd,kind=wp))) then
     jadd = iadd-1
-    recn = recdef+dble(jadd)
+    recn = recdef+real(jadd,kind=wp)
     return
   end if
 end do

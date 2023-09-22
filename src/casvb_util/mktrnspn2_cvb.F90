@@ -15,16 +15,16 @@
 subroutine mktrnspn2_cvb(cvb,cvbdet)
 
 use casvb_global, only: spinb
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
 #include "print_cvb.fh"
-dimension cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp), external :: len_trim_cvb, nvb_cvb
 
-if (ip(1) >= 1) write(6,'(/,4a)') ' Changing spin basis : ',spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ', &
-                                  spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
+if (ip(1) >= 1) write(u6,'(/,4a)') ' Changing spin basis : ',spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ', &
+                                   spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
 call str2vbc_cvb(cvb,cvbdet)
 kbasiscvb = kbasis
 nvb = nvb_cvb(kbasiscvb)

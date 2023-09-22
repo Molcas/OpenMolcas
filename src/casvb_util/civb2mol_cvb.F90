@@ -14,15 +14,16 @@
 
 subroutine civb2mol_cvb(civec,vec)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: civec(*), vec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
-dimension vec(*), civec(*)
-dimension ncix(mxirrep)
+integer(kind=iwp) :: icioffs, icivec, istate, istsym_d, isyml, iwr, lcim, nci, ncix(mxirrep)
+real(kind=wp) :: fac
+integer(kind=iwp), external :: mstackr_cvb
 
 iwr = 1
 icivec = nint(civec(1))
@@ -38,7 +39,7 @@ do istsym_d=1,nstsym_d
   lcim = mstackr_cvb(nci)
   if (iwr == 0) then
     do istate=1,nstats_d(istsym_d)
-      if (abs(weight_d(istate,istsym_d)) > 1.d-20) then
+      if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call fmove_cvb(vec(1+icioffs),work(lcim),nci)
         icioffs = icioffs+nci
         fac = sqrt(weight_d(istate,istsym_d))
@@ -47,7 +48,7 @@ do istsym_d=1,nstsym_d
     end do
   else if (iwr == 1) then
     do istate=1,nstats_d(istsym_d)
-      if (abs(weight_d(istate,istsym_d)) > 1.d-20) then
+      if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
         call fmove_cvb(work(lcim),vec(1+icioffs),nci)
         icioffs = icioffs+nci

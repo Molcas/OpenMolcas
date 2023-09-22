@@ -16,9 +16,11 @@ subroutine Copy_JobIph(InFile,OutFile)
 ! This is very nasty routine, actually a temporary hack!!!
 ! should be replaced to a proper copy of JobIph files!
 
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
-character*(*) InFile, OutFile
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: InFile, OutFile
+integer(kind=iwp) :: ierr
 
 call fcopy(InFile,OutFile,ierr)
 if (iErr /= 0) call abend()

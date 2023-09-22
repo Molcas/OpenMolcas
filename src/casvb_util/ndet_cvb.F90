@@ -12,9 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 function ndet_cvb(nel1,nalf1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ndet_cvb
+integer(kind=iwp) :: nel1, nalf1
+integer(kind=iwp) :: nd
 
 call icomb_cvb(nel1,nalf1,nd)
 ndet_cvb = nd

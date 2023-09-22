@@ -19,8 +19,7 @@ subroutine pushfield_cvb()
 
 use casvb_global, only: ifield, nfield, nfold
 
-implicit real*8(a-h,o-z)
-!character*8 string
+implicit none
 
 if ((ifield == 1) .or. (nfield == -1)) then
   call pushline_cvb()

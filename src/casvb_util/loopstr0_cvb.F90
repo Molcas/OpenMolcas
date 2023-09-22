@@ -12,16 +12,19 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine loopstr0_cvb(iocc,index,nel,norb)
+subroutine loopstr0_cvb(iocc,indx,nel,norb)
 
-implicit real*8(a-h,o-z)
-dimension iocc(nel)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nel, iocc(nel), indx, norb
+integer(kind=iwp) :: iel
 
 if (nel > norb) then
-  write(6,*) ' Error in loopstr0, nel > norb :',nel,norb
+  write(u6,*) ' Error in loopstr0, nel > norb :',nel,norb
   call abend_cvb()
 end if
-index = 1
+indx = 1
 do iel=1,nel
   iocc(iel) = iel
 end do

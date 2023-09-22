@@ -15,9 +15,15 @@
 subroutine o10a_cvb(nparm1)
 
 use casvb_global, only: have_solved_it, ix, n_div, nparm
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nparm1
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ixp
+real(kind=wp) :: cnrm1, cnrm2
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: dnrm2_
 
 call ddnewopt_cvb()
 have_solved_it = .false.
@@ -29,10 +35,10 @@ cnrm1 = dnrm2_(n_div,work(ixp),1)
 cnrm2 = dnrm2_(nparm-n_div,work(n_div+ixp),1)
 if (cnrm1 > cnrm2) then
   call ddguess_cvb(work(ixp),n_div,0)
-  if (cnrm2 > 1d-8) call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
+  if (cnrm2 > 1.0e-8_wp) call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
 else
   call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
-  if (cnrm1 > 1d-8) call ddguess_cvb(work(ixp),n_div,0)
+  if (cnrm1 > 1.0e-8_wp) call ddguess_cvb(work(ixp),n_div,0)
 end if
 call ddrhs_cvb(work(ixp),nparm,0)
 call mfreer_cvb(ixp)

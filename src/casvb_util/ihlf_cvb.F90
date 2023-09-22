@@ -15,9 +15,14 @@
 !** Memory allocation and the like **
 !************************************
 
-integer function ihlf_cvb(nints)
+!IFG trivial
+function ihlf_cvb(nints)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ihlf_cvb
+integer(kind=iwp) :: nints
 #include "idbl_cvb.fh"
 
 ihlf_cvb = (nints+idbl-1)/idbl

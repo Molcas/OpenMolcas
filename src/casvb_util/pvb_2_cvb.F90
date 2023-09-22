@@ -19,13 +19,14 @@
 !***********************************************************************
 subroutine pvb_2_cvb(cfrom,cto,csk,iapr,ixapr,mult)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension cfrom(nda,ndb), cto(nda,ndb), csk(ndetvb)
-dimension iapr(ndetvb), ixapr(nda+1)
+real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), csk(ndetvb)
+integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), mult
+integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (mult == -1) then
   idetvb = 0
@@ -48,7 +49,7 @@ else if (mult == 0) then
     end do
   end do
 else if (mult == 1) then
-  csk(1) = zero
+  csk(1) = Zero
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1
       csk(1) = csk(1)+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
@@ -65,7 +66,7 @@ else if (mult == 2) then
     end do
   end do
 else if (mult == 3) then
-  csk(1) = zero
+  csk(1) = Zero
   idetvb = 0
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1

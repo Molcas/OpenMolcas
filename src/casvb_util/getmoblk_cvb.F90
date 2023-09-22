@@ -15,16 +15,15 @@
 subroutine getmoblk_cvb(cmoblk,ic2)
 
 use casvb_global, only: nbasisq_mo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+real(kind=wp) :: cmoblk(nbasisq_mo)
+integer(kind=iwp) :: ic2
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "io_cvb.fh"
-#include "idbl_cvb.fh"
-dimension cmoblk(nbasisq_mo)
-dimension iadr15(15)
+integer(kind=iwp) :: iad, iadr15(15), ibf, lujob
 
 call mkfn_cvb(strtmo,ibf)
 lujob = 15

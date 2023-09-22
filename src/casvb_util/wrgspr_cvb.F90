@@ -15,14 +15,13 @@
 subroutine wrgspr_cvb(recn,c,i,n,ic,ierr)
 
 use casvb_global, only: nbas_mo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: i, n, ic, ierr
+real(kind=wp) :: recn, c(n)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension c(n)
+integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ! Read header:
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)

@@ -14,14 +14,14 @@
 
 subroutine upd_cvb(dx,orbs,cvb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: dx(*), orbs(norb,norb), cvb(nvb)
 #include "WrkSpc.fh"
-dimension dx(*)
-dimension orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: i1, ic
+integer(kind=iwp), external :: mstackr_cvb
 
 if (orbopt) call touch_cvb('ORBSTRY')
 if (strucopt) call touch_cvb('CVBTRY')

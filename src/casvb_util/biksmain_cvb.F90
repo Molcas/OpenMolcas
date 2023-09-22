@@ -14,16 +14,20 @@
 
 subroutine biksmain_cvb(aikcof,bikcof,nel,nalf,ndet,ifns,kbasis,share,iprint)
 
-implicit real*8(a-h,o-z)
-logical share
-dimension aikcof(ndet,ifns), bikcof(ndet,ifns)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nel, nalf, ndet, ifns, kbasis, iprint
+real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
+logical(kind=iwp) :: share
 #include "WrkSpc.fh"
-save one
-data one/1d0/
+integer(kind=iwp) :: i1, i10, i11, i12, i13, i14, i15, i2, i3, i4, i5, i6, i7, i8, i9, nalf1, nbet, nbet2, np1, nswpdim
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 if ((nel == 0) .and. (kbasis /= 6)) then
-  bikcof(1,1) = one
-  aikcof(1,1) = one
+  bikcof(1,1) = One
+  aikcof(1,1) = One
   return
 end if
 

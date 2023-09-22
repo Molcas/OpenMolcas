@@ -14,12 +14,15 @@
 
 subroutine date2_cvb(delcpu)
 
-implicit real*8(a-h,o-z)
-character*120 line
+use Definitions, only: wp, u6
+
+implicit none
+real(kind=wp) :: delcpu
+character(len=120) :: line
 
 line = ' '
 call datimx(line)
-write(6,'(6a,f10.3,a)') ' CASVB completed on ',line(1:10),line(20:24),' at ',line(12:19),' after',delcpu,' CPU seconds'
+write(u6,'(6a,f10.3,a)') ' CASVB completed on ',line(1:10),line(20:24),' at ',line(12:19),' after',delcpu,' CPU seconds'
 
 return
 

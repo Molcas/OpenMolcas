@@ -19,13 +19,14 @@
 !***********************************************************************
 subroutine cidaxpy_cvb(fac,cvec1,cvec2)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cvec1(*), cvec2(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension cvec1(*), cvec2(*)
+integer(kind=iwp) :: iformat, ivec1, ivec2
+real(kind=wp) :: fac
 
 ivec1 = nint(cvec1(1))
 ivec2 = nint(cvec2(1))
@@ -33,7 +34,7 @@ iformat = iform_ci(ivec1)
 if (iformat == 0) then
   call daxpy_(ndet,fac,work(iaddr_ci(ivec1)),1,work(iaddr_ci(ivec2)),1)
 else
-  write(6,*) ' Unsupported format in CIDAXPY :',iformat
+  write(u6,*) ' Unsupported format in CIDAXPY :',iformat
   call abend_cvb()
 end if
 call setcnt2_cvb(ivec2,0)

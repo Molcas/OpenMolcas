@@ -15,14 +15,15 @@
 subroutine o7a_cvb(nparm)
 
 use casvb_global, only: have_solved_it
+use Constants, only: One
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-save one
-data one/1d0/
+implicit none
+integer(kind=iwp) :: nparm
 
 call ddnewopt_cvb()
 have_solved_it = .false.
-call ddguess_cvb([one],1,0)
+call ddguess_cvb([One],1,0)
 
 return
 ! Avoid unused argument warnings

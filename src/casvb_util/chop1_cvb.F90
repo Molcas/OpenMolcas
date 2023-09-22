@@ -15,12 +15,12 @@
 subroutine chop1_cvb()
 
 use casvb_global, only: nalf_fr, nbet_fr, nda_fr, ndb_fr, ndetvb_fr, nfrag, release
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: i, ifrag
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 if (release(1)) call mfreei_cvb(ll(1))
 release(1) = .true.

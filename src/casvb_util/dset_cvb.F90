@@ -14,13 +14,14 @@
 
 subroutine dset_cvb(iorbrel,ifxorb,ifxstr,idelstr,iorts,irots,izeta)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+integer(kind=iwp) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr, idelstr, iorts(*), irots(*), izeta(*)
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension iorbrel(ndimrel), ifxorb(mxorb_cvb), iorts(*), irots(*), izeta(*)
+integer(kind=iwp) :: ioffs
 
 ! Check if any molecular interaction constraints:
 !if (ploc) call plcconst_plc()

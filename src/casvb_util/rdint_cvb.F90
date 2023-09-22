@@ -19,9 +19,13 @@ subroutine rdint_cvb(intval,ierr)
 ! Check if field is applicable:
 
 use casvb_global, only: ifield, nfield
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-character*8 string
+implicit none
+integer(kind=iwp) :: intval, ierr
+integer(kind=iwp) :: jerr
+real(kind=wp) :: rdr
+character(len=8) :: string
 
 ierr = 0
 if (nfield == -1) ierr = 1

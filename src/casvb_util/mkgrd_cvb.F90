@@ -14,14 +14,16 @@
 
 subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
 
-implicit real*8(a-h,o-z)
-logical doorb
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civb(ndet), civb2(ndet), grad(npr), dvbdet(ndetvb)
+integer(kind=iwp) :: np
+logical(kind=iwp) :: doorb
 #include "WrkSpc.fh"
-dimension civb(ndet), civb2(ndet), grad(npr), dvbdet(ndetvb)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackrz_cvb
 
 call fzero(grad,nprorb)
 if (doorb) call onedens_cvb(civb,civb2,grad,.false.,1)
@@ -35,7 +37,7 @@ if (strucopt) then
     call fmove_cvb(work(i1),work(lv(5)),np-nprorb)
     call mfreer_cvb(i1)
   else
-    write(6,*) ' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb
+    write(u6,*) ' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb
   end if
 end if
 

@@ -9,10 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!IFG trivial
 subroutine imove_cvb(iv1,iv2,n)
 
-implicit real*8(a-h,o-z)
-dimension iv1(n), iv2(n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, iv1(n), iv2(n)
+integer(kind=iwp) :: i
 
 do i=1,n
   iv2(i) = iv1(i)

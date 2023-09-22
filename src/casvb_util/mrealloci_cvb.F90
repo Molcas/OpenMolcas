@@ -15,15 +15,18 @@
 subroutine mrealloci_cvb(ipoint,nword)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ipoint, nword
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: iraddr, nwordr
 
 iraddr = (ipoint-1)/idbl+1
 nwordr = (nword+idbl-1)/idbl
 call mreallocr_cvb(iraddr,nwordr)
 ipoint = (iraddr-1)*idbl+1
-if (memdebug) write(6,*) '   mrealloci : nword & pointer :',nword,ipoint
+if (memdebug) write(u6,*) '   mrealloci : nword & pointer :',nword,ipoint
 
 return
 

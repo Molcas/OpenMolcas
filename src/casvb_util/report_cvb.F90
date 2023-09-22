@@ -14,15 +14,20 @@
 
 subroutine report_cvb(orbs,norb)
 
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
-dimension orbs(norb,norb)
+use Definitions, only: wp, iwp, u6
 
-write(6,'(/,a)') ' Orbital coefficients :'
-write(6,'(a)') ' ----------------------'
+implicit none
+integer(kind=iwp) :: norb
+real(kind=wp) :: orbs(norb,norb)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackr_cvb
+
+write(u6,'(/,a)') ' Orbital coefficients :'
+write(u6,'(a)') ' ----------------------'
 call mxprint_cvb(orbs,norb,norb,0)
-write(6,'(/,a)') ' Overlap between orbitals :'
-write(6,'(a)') ' --------------------------'
+write(u6,'(/,a)') ' Overlap between orbitals :'
+write(u6,'(a)') ' --------------------------'
 
 i1 = mstackr_cvb(norb*norb)
 call mxattb_cvb(orbs,orbs,norb,norb,norb,work(i1))

@@ -14,11 +14,13 @@
 
 subroutine cvbstart_cvb_ge9(icode)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: icode
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 
 if (icode >= 9) then
   call cvbfinit_cvb()
@@ -26,8 +28,8 @@ if (icode >= 9) then
 end if
 variat = (mod(icode,10) /= 0)
 endvar = (mod(icode,10) == 2)
-recinp = 0d0
-recinp_old = 0d0
+recinp = Zero
+recinp_old = Zero
 
 return
 

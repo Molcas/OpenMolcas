@@ -15,20 +15,23 @@
 subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
 
 use casvb_global, only: idd, maxd, nparm, nvguess, nvrestart
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical ause, suse
+implicit none
+integer(kind=iwp) :: ndim, ioffs
+real(kind=wp) :: vec(ndim), avec(ndim), svec(ndim)
+logical(kind=iwp) :: ause, suse
 #include "WrkSpc.fh"
-dimension vec(ndim), avec(ndim), svec(ndim)
+integer(kind=iwp) :: iddvec
 
 nvguess = nvguess+1
 nvrestart = nvrestart+1
 if ((nvguess > maxd) .or. (nvrestart > maxd)) then
-  write(6,*) ' Too many guess vectors in Davidson!',nvguess,nvrestart,maxd
+  write(u6,*) ' Too many guess vectors in Davidson!',nvguess,nvrestart,maxd
   call abend_cvb()
 end if
 if (ndim+ioffs > nparm) then
-  write(6,*) ' Illegal call to DDRESTV :',ndim,ioffs,nparm
+  write(u6,*) ' Illegal call to DDRESTV :',ndim,ioffs,nparm
   call abend_cvb()
 end if
 iddvec = 1

@@ -15,13 +15,15 @@
 subroutine o123b2_cvb(nparm,dx,eigvec,eigval,dxp,gradp,wrk,dxnrm)
 
 use casvb_global, only: cnrm, isaddle, maxize, safety, signtol
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-dimension dx(nparm)
-dimension eigvec(nparm,nparm), eigval(nparm)
-dimension dxp(nparm), gradp(nparm), wrk(nparm)
-save zero, one
-data zero/0.d0/,one/1d0/
+implicit none
+integer(kind=iwp) :: nparm
+real(kind=wp) :: dx(nparm), eigvec(nparm,nparm), eigval(nparm), dxp(nparm), gradp(nparm), wrk(nparm), dxnrm
+integer(kind=iwp) :: nnegeig, nposeig
+real(kind=wp) :: alfastart, eig, eigmn, eigmx, safety_use
+real(kind=wp), external :: dnrm2_
 
 if (maxize) then
   nposeig = min(isaddle,nparm)
@@ -30,26 +32,26 @@ else
 end if
 nnegeig = nparm-nposeig
 
-eigmx = -one
-eigmn = one
+eigmx = -One
+eigmn = One
 if (nnegeig > 0) eigmx = eigval(nnegeig)
 if (nposeig > 0) eigmn = eigval(nnegeig+1)
 safety_use = safety
 !do
 if ((eigmx < -signtol) .and. (eigmn > signtol)) then
-  alfastart = zero
+  alfastart = Zero
 else
-  alfastart = max(eigmx,-eigmn,zero)+safety_use
+  alfastart = max(eigmx,-eigmn,Zero)+safety_use
 end if
 call getdxp_cvb(dxp,gradp,eigval,nnegeig,nparm,alfastart)
 cnrm = dnrm2_(nparm,dxp,1)
 !  Increased level shift not necessary when full Hessian is calculated:
-!  if (alfastart == zero) exit
+!  if (alfastart == Zero) exit
 !  gnrm = dnrm2_(nparm,gradp,1)
-!  if ((cnrm <= 1d-15) .or. (gnrm <= 1d-15) .or. (safety_use == 1d-4)) exit
+!  if ((cnrm <= 1.0e-15_wp) .or. (gnrm <= 1.0e-15_wp) .or. (safety_use == 1.0e-4_wp)) exit
 !  ovr_dx_grad = ddot_(nparm,dxp,1,gradp,1)/(cnrm*gnrm)
-!  if (ovr_dx_grad >= .3d0) exit
-!  safety_use = 1d-4
+!  if (ovr_dx_grad >= 0.3_wp) exit
+!  safety_use = 1.0e-4_wp
 !end do
 
 call makedx_cvb(dx,nparm,0,eigvec,eigval,dxp,gradp,wrk,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)

@@ -24,13 +24,14 @@
 !***********************************************************************
 subroutine cnfcheck_cvb(iconfs,nconf1,nel1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 #include "WrkSpc.fh"
-dimension iconfs(noe,nconf1)
+integer(kind=iwp) :: i1, iconfs2, ioncty
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(noe)
 call cnfcheck2_cvb(iconfs,nconf1,nel1,iwork(i1))

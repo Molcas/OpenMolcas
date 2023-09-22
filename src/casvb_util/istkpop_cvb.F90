@@ -14,11 +14,13 @@
 
 subroutine istkpop_cvb(iarr,ival)
 
-implicit real*8(a-h,o-z)
-dimension iarr(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iarr(*), ival
 
 if (iarr(2) == 2) then
-  write(6,*) ' Trying to pop off empty stack!'
+  write(u6,*) ' Trying to pop off empty stack!'
   call abend_cvb()
 end if
 ival = iarr(iarr(2))

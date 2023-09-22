@@ -16,6 +16,8 @@ subroutine change0_cvb()
 
 use casvb_global, only: release
 
+implicit none
+
 call touch_cvb('MEM0')
 release(1) = .false.
 

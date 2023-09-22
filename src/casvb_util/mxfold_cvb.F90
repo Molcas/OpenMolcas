@@ -20,8 +20,12 @@
 
 subroutine mxfold_cvb(a,avec,n)
 
-implicit real*8(a-h,o-z)
-dimension a(n,n), avec(n*(n-1))
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n,n), avec(n*(n-1))
+integer(kind=iwp) :: i, iprm, j
 
 iprm = 0
 do i=1,n

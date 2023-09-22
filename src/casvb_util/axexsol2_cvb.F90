@@ -15,17 +15,20 @@
 subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,solp,solp_res,eig,eig_res)
 
 use casvb_global, only: corenrg, ifollow, ipdd, iroot, jroot, nfrdim, nroot
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav)
-dimension solp(maxdav), solp_res(maxdav)
+implicit none
+integer(kind=iwp) :: itdav, maxdav
+real(kind=wp) :: ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
+integer(kind=iwp) :: i, it
+real(kind=wp) :: del, delmin
 
 do it=1,itdav
   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
 end do
 
 if (ipdd >= 3) then
-  write(6,*) ' AP matrix :'
+  write(u6,*) ' AP matrix :'
   do i=1,itdav
     eigval(i) = eigvec(i,i)
     eigvec(i,i) = eigvec(i,i)+corenrg
@@ -50,7 +53,7 @@ if (ifollow <= 2) then
     jroot = itdav-jroot+1
   end if
 else if (ifollow == 3) then
-  write(6,*) ' Overlap-based root following not yet implemented!'
+  write(u6,*) ' Overlap-based root following not yet implemented!'
   call abend_cvb()
 else if (ifollow == 4) then
   ! Eigenvalue-based root following -- determine closest root:
@@ -70,7 +73,7 @@ call fmove_cvb(eigvec(1,iroot),solp,itdav)
 eig_res = eigval(jroot)
 call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
 if (ipdd >= 2) then
-  write(6,'(a)') ' Eigenvalues :'
+  write(u6,'(a)') ' Eigenvalues :'
   do i=1,itdav
     eigval(i) = eigval(i)+corenrg
   end do
@@ -78,10 +81,10 @@ if (ipdd >= 2) then
   do i=1,itdav
     eigval(i) = eigval(i)-corenrg
   end do
-  write(6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
+  write(u6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
   call vecprint_cvb(solp,itdav)
   if (jroot /= iroot) then
-    write(6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
+    write(u6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
     call vecprint_cvb(solp_res,itdav)
   end if
 end if

@@ -14,10 +14,13 @@
 
 subroutine vbgenabdet_cvb(idetavb,idetbvb,iconfs,nconf,nconfion,ndetvb,nel,noe,nalf,nbet,norb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ndetvb, idetavb(ndetvb), idetbvb(ndetvb), noe, nconf, iconfs(noe,nconf), nel, nconfion(0:nel), nalf, nbet, norb
 #include "WrkSpc.fh"
-dimension idetavb(ndetvb), idetbvb(ndetvb)
-dimension iconfs(noe,nconf), nconfion(0:nel)
+integer(kind=iwp) :: i1, i2, i3, i4, i5, i6
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb((norb+1)*(nalf+1))
 i2 = mstacki_cvb((norb+1)*(nbet+1))

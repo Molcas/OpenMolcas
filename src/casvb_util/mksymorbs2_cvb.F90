@@ -14,16 +14,16 @@
 
 subroutine mksymorbs2_cvb(orbs,sorbs)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), sorbs(norb,norb)
 #include "print_cvb.fh"
-dimension orbs(norb,norb)
-dimension sorbs(norb,norb)
-dimension dum(1)
-save thresh
-data thresh/1.d-7/
+integer(kind=iwp) :: nconstr_kp
+real(kind=wp) :: delorbs, dum(1)
+real(kind=wp), parameter :: thresh = 1.0e-7_wp
+real(kind=wp), external :: detm_cvb, dnrm2_
 
 if (sym) then
   call fmove_cvb(orbs,sorbs,norb*norb)
@@ -34,16 +34,16 @@ if (sym) then
   call subvec(sorbs,orbs,sorbs,norb*norb)
   delorbs = dnrm2_(norb*norb,sorbs,1)
   if ((delorbs > thresh) .and. (ip(1) >= 2)) then
-    write(6,'(/,a)') ' Change in symmetrized orbitals:'
+    write(u6,'(/,a)') ' Change in symmetrized orbitals:'
     call report_cvb(sorbs,norb)
   end if
   call nize_cvb(orbs,norb,dum,norb,0,0)
   if ((delorbs > thresh) .and. (ip(1) >= 2)) then
-    write(6,'(a)') ' Orbitals after symmetrization:'
+    write(u6,'(a)') ' Orbitals after symmetrization:'
     call report_cvb(orbs,norb)
   end if
-  if (abs(detm_cvb(orbs,norb)) < 1d-8) then
-    write(6,*) ' Fatal error - orbital matrix singular after symmetrization!'
+  if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
+    write(u6,*) ' Fatal error - orbital matrix singular after symmetrization!'
     call abend_cvb()
   end if
 end if

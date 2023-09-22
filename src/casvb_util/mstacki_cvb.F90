@@ -13,18 +13,23 @@
 !***********************************************************************
 ! -- Integer routines - just front-ends for real*8 ---
 
-integer function mstacki_cvb(nword)
+function mstacki_cvb(nword)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mstacki_cvb
+integer(kind=iwp) :: nword
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: iraddr, nwordr
+integer(kind=iwp), external :: mstackr_cvb
 
-if (memdebug) write(6,*) '   Enter mstacki: nword :',nword
+if (memdebug) write(u6,*) '   Enter mstacki: nword :',nword
 nwordr = (nword+idbl-1)/idbl
 iraddr = mstackr_cvb(nwordr)
 mstacki_cvb = (iraddr-1)*idbl+1
-if (memdebug) write(6,*) '   mstacki: nword & pointer :',nword,mstacki_cvb
+if (memdebug) write(u6,*) '   mstacki: nword & pointer :',nword,mstacki_cvb
 
 return
 

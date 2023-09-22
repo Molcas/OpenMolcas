@@ -15,9 +15,11 @@
 subroutine daclos_cvb(lu)
 
 use casvb_global, only: idan
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-!logical find_unused
+implicit none
+integer(kind=iwp) :: lu
+integer(kind=iwp) :: iwasopen
 
 call istkpop_cvb(idan,iwasopen)
 if (iwasopen == 0) call daclos(lu)

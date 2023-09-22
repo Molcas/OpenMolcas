@@ -14,10 +14,12 @@
 
 subroutine ddressvb_cvb(dum,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
 
-implicit real*8(a-h,o-z)
-logical is_converged
-dimension sxc(n,maxdav), rhs(n), res(n)
-dimension solp_res(maxdav)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: maxdav, n, itdav
+real(kind=wp) :: dum, sxc(n,maxdav), rhs(n), res(n), solp_res(maxdav), eig_res
+logical(kind=iwp) :: is_converged
 
 call mxatb_cvb(sxc,solp_res,n,itdav,1,res)
 call dscal_(n,-eig_res,res,1)

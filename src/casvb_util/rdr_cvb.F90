@@ -18,10 +18,14 @@
 !          Read/   Real/     Increment   Include also
 !          write   integer   ioffset     integer offset
 
+!IFG trivial
 subroutine rdr_cvb(vec,n,file_id,ioffset)
 
-implicit real*8(a-h,o-z)
-dimension vec(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, ioffset
+real(kind=wp) :: vec(n), file_id
 
 call rdlow_cvb(vec,n,file_id,ioffset)
 

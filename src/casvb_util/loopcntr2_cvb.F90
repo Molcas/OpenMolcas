@@ -15,14 +15,16 @@
 subroutine loopcntr2_cvb(icode1,mxalter)
 
 use casvb_global, only: icnt, icode, inputmode, ioptstep, ipos, joptstep, loopstep, loopstepmx, mxstep, noptstep
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-logical begbracket
+implicit none
+integer(kind=iwp) :: icode1, mxalter
+logical(kind=iwp) :: begbracket
 
 loopstep = loopstep+1
 if ((inputmode == 2) .and. ((icode1 == 5) .or. (icode1 == 6))) return
 if (loopstep > mxstep) then
-  write(6,*) ' Loop structure too complicated -- mxstep :',mxstep
+  write(u6,*) ' Loop structure too complicated -- mxstep :',mxstep
   call abend_cvb()
 end if
 if (inputmode == 1) then

@@ -15,13 +15,13 @@
 subroutine defs2_cvb(ifxorb)
 
 use casvb_global, only: iunset, nfrag
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
+integer(kind=iwp) :: ifxorb(mxorb_cvb)
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension ifxorb(mxorb_cvb)
+integer(kind=iwp) :: i, nfxvbr, nzrvbr
 
 if (icrit == iunset) then
   if ((.not. variat) .and. (imethod /= 6)) then
@@ -52,7 +52,7 @@ else
   if (nfxvbr >= nvb) then
     strucopt = .false.
   else if (nfxvbr+nzrvbr >= nvb) then
-    write(6,*) ' Should check!'
+    write(u6,*) ' Should check!'
     call abend_cvb()
   else
     strucopt = .true.

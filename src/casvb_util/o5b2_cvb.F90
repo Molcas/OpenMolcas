@@ -15,15 +15,18 @@
 subroutine o5b2_cvb(nparm,dx,grad,dxnrm,close2conv)
 
 use casvb_global, only: hh, maxize, scalesmall
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical close2conv
-dimension dx(nparm), grad(nparm)
-save one
-data one/1d0/
+implicit none
+integer(kind=iwp) :: nparm
+real(kind=wp) :: dx(nparm), grad(nparm), dxnrm
+logical(kind=iwp) :: close2conv
+integer(kind=iwp) :: ipu
+real(kind=wp), external :: dnrm2_
 
 call fmove_cvb(grad,dx,nparm)
-if (.not. maxize) call dscal_(nparm,-one,dx,1)
+if (.not. maxize) call dscal_(nparm,-One,dx,1)
 dxnrm = dnrm2_(nparm,dx,1)
 if (.not. close2conv) then
   ipu = 1

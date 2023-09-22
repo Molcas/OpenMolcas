@@ -15,18 +15,20 @@
 subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,mnion,mxion,nconf,ndetvb,nvb, &
                        kbasis,nel,nalf,neltot,w,nconfion)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: neltot, ikcoff(0:neltot,0:neltot,0:neltot), iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), &
+                     ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot), mnion, mxion, nconf, nvb, kbasis, nel, nalf, &
+                     nconfion(0:*)
+logical(kind=iwp) :: absym
+real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb), w(ndetvb)
 #include "WrkSpc.fh"
-logical absym
-dimension bikcof(*), ikcoff(0:neltot,0:neltot,0:neltot)
-dimension cvb(nvb), cvbdet(ndetvb)
-dimension idetvb(ndetvb)
-dimension i2S(nS), nalf1(nMs)
-dimension ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot)
-dimension w(ndetvb), nconfion(0:*)
-save one, sqp5, sq2
-data one/1d0/,sqp5/.70710678118654752440d0/
-data sq2/1.41421356237309504880d0/
+integer(kind=iwp) :: i1, i2s_keep, i_det, i_spin, iconfadd, idadd, idet, iMs, ioff_bikcof, ioff_i1, ion, iS, isadd, j_spin, n_det, &
+                     n_det_values, n_spin, n_spin_values, nalfsing, nalfsing_det, nalfsing_keep, nelsing
+real(kind=wp), parameter :: sq2 = sqrt(Two), sqp5 = sqrt(Half)
+integer(kind=iwp), external :: mstackrz_cvb
 
 i2s_keep = 0 ! dummy initialize
 nalfsing_keep = 0 ! dummy initialize

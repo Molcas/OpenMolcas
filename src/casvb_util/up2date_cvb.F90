@@ -12,19 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function up2date_cvb(chr)
+function up2date_cvb(chr)
 
 use casvb_global, only: charobj, nobj, up2date
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr
+implicit none
+logical(kind=iwp) :: up2date_cvb
+character(len=*) :: chr
+integer(kind=iwp) :: i, iobj
 
 iobj = 0
 do i=1,nobj
   if (charobj(i) == chr) iobj = i
 end do
 if (iobj == 0) then
-  write(6,*) ' Make object not found :',chr
+  write(u6,*) ' Make object not found :',chr
   call abend_cvb()
 end if
 up2date_cvb = up2date(iobj)

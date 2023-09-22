@@ -14,21 +14,23 @@
 
 subroutine casinfoprint_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, ii, incr, iqisym
+integer(kind=iwp), external :: mstacki_cvb
+logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if ((ip(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
-  write(6,'(/,a,i4)') ' Number of active electrons :',nel
-  write(6,'(a,i4)') ' Number of active orbitals  :',norb
-  write(6,'(a,f4.1)') ' Total spin                 :',dble(nalf-nbet)/two
+  write(u6,'(/,a,i4)') ' Number of active electrons :',nel
+  write(u6,'(a,i4)') ' Number of active orbitals  :',norb
+  write(u6,'(a,f4.1)') ' Total spin                 :',real(nalf-nbet,kind=wp)*Half
   if (nsym == 1) then
-    write(6,'(a,i4)') ' State symmetry             :',isym
+    write(u6,'(a,i4)') ' State symmetry             :',isym
   else
     iqisym = mstacki_cvb(nsym)
     incr = 0
@@ -38,10 +40,10 @@ if ((ip(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
         iwork(incr+iqisym-1) = i
       end if
     end do
-    write(6,'(a,i4,7i3)') ' State symmetries           :',(iwork(ii+iqisym-1),ii=1,nsym)
+    write(u6,'(a,i4,7i3)') ' State symmetries           :',(iwork(ii+iqisym-1),ii=1,nsym)
     call mfreei_cvb(iqisym)
   end if
-  write(6,'(/,a,100i3)') ' Symmetries of active MOs   : ',(ityp(ii),ii=1,norb)
+  write(u6,'(/,a,100i3)') ' Symmetries of active MOs   : ',(ityp(ii),ii=1,norb)
   call make_cvb('CASPRINT')
 end if
 

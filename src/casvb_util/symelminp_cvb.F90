@@ -14,40 +14,39 @@
 
 subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,mxirrep,mxorb,mxsyme,ityp)
 
-implicit real*8(a-h,o-z)
-! ... Matrices (orthogonal/determinant) ...
-logical, external :: mxorth_cvb
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ip_symelm, nsyme, izeta(*), mxirrep, mxorb, mxsyme, ityp(mxorb)
+character(len=3) :: tags(mxsyme)
 #include "WrkSpc.fh"
-parameter(nsymelm=5,nsign=2,ncmp=4)
-character*8 symelm(nsymelm), sign(nsign)
-character*3 tags(mxsyme)
-dimension izeta(*)
-dimension ityp(mxorb)
-dimension iaux(1), daux(1)
-save symelm, sign
-data symelm/'IRREPS  ','COEFFS  ','TRANS   ','END     ','ENDSYMEL'/
-data sign/'+       ','-       '/
-save zero, one
-data zero/0d0/,one/1d0/
+integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, ishift, isgn, istr2, itmp, jor, jorb, nread
+real(kind=wp) :: daux(1)
+integer(kind=iwp), parameter :: ncmp = 4, nsign = 2, nsymelm = 5
+character(len=*), parameter :: sgn(nsign) = ['+       ','-       '], &
+                               symelm(nsymelm) = ['IRREPS  ','COEFFS  ','TRANS   ','END     ','ENDSYMEL']
+integer(kind=iwp), external :: mstacki_cvb
+logical(kind=iwp), external :: mxorth_cvb ! ... Matrices (orthogonal/determinant) ...
 
 nsyme = nsyme+1
 if (nsyme > mxsyme) then
-  write(6,*) ' Too many symmetry elements found :',nsyme,mxsyme
+  write(u6,*) ' Too many symmetry elements found :',nsyme,mxsyme
   call abend_cvb()
 end if
 tags(nsyme) = ' '
 call string_cvb(tags(nsyme),1,nread,1)
-call fstring_cvb(sign,nsign,isign,ncmp,1)
-if (isign == 1) then
+call fstring_cvb(sgn,nsign,isgn,ncmp,1)
+if (isgn == 1) then
   izeta(nsyme) = 1
-else if (isign == 2) then
+else if (isgn == 2) then
   izeta(nsyme) = -1
 else
   izeta(nsyme) = 0
 end if
 call mreallocr_cvb(ip_symelm,mxorb*mxorb*nsyme)
-ishft = mxorb*mxorb*(nsyme-1)
-call mxunit_cvb(work(ishft+ip_symelm),mxorb)
+ishift = mxorb*mxorb*(nsyme-1)
+call mxunit_cvb(work(ishift+ip_symelm),mxorb)
 
 do
   call fstring_cvb(symelm,nsymelm,istr2,ncmp,2)
@@ -59,7 +58,7 @@ do
       irrep = iaux(1)
       if (irrep /= 0) then
         do iorb=1,mxorb
-          if (irrep == ityp(iorb)) work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1) = -one
+          if (irrep == ityp(iorb)) work(iorb+(iorb-1)*mxorb+ishift+ip_symelm-1) = -One
         end do
       end if
     end do
@@ -70,7 +69,7 @@ do
       call int_cvb(iaux,1,nread,0)
       iorb = iaux(1)
       if (iorb /= 0) then
-        work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1) = -one
+        work(iorb+(iorb-1)*mxorb+ishift+ip_symelm-1) = -One
       else
         exit
       end if
@@ -79,28 +78,28 @@ do
     ! 'TRANS'
     iaux = 0
     call int_cvb(iaux,1,nread,0)
-    idim = iaux(1)
-    if ((idim < 1) .or. (idim > mxorb)) then
-      write(6,*) ' Illegal dimension in TRANS:',idim,mxorb
+    i_dim = iaux(1)
+    if ((i_dim < 1) .or. (i_dim > mxorb)) then
+      write(u6,*) ' Illegal dimension in TRANS:',i_dim,mxorb
       call abend_cvb()
     end if
-    itmp = mstacki_cvb(idim)
-    do i=1,idim
+    itmp = mstacki_cvb(i_dim)
+    do i=1,i_dim
       call int_cvb(iaux,1,nread,0)
       iorb = iaux(1)
       if ((iorb < 1) .or. (iorb > mxorb)) then
-        write(6,*) ' Illegal orbital number in TRANS:',iorb
+        write(u6,*) ' Illegal orbital number in TRANS:',iorb
         call abend_cvb()
       end if
       iwork(i+itmp-1) = iorb
     end do
-    do ior=1,idim
-      iorb = iwork(ior+itmp-1)
-      do jor=1,idim
+    do io=1,i_dim
+      iorb = iwork(io+itmp-1)
+      do jor=1,i_dim
         jorb = iwork(jor+itmp-1)
-        daux = zero
+        daux = Zero
         call real_cvb(daux(1),1,nread,0)
-        work(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1) = daux(1)
+        work(iorb+(jorb-1)*mxorb+ishift+ip_symelm-1) = daux(1)
       end do
     end do
     call mfreei_cvb(itmp)
@@ -108,9 +107,9 @@ do
   ! 'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input:
   if ((istr2 == 4) .or. (istr2 == 5) .or. (istr2 == 0)) exit
 end do
-if (.not. mxorth_cvb(work(ishft+ip_symelm),mxorb)) then
-  write(6,*) ' Symmetry element ',tags(nsyme),' not orthogonal!'
-  write(6,*) ' Check usage of TRANS keyword.'
+if (.not. mxorth_cvb(work(ishift+ip_symelm),mxorb)) then
+  write(u6,*) ' Symmetry element ',tags(nsyme),' not orthogonal!'
+  write(u6,*) ' Check usage of TRANS keyword.'
   call abend_cvb()
 end if
 

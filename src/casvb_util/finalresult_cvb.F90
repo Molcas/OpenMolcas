@@ -17,13 +17,11 @@
 !************************************
 subroutine finalresult_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if ((.not. variat) .and. up2date_cvb('SVB')) then
   call add_info('SVB',[abs(svb)],1,7)

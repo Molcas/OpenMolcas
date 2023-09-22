@@ -55,9 +55,14 @@ subroutine tred2(nm,n,a,d,e,z)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, n, ii, nm, jp1
-real*8 a(nm,n), d(n), e(n), z(nm,n)
-real*8 f, g, h, hh, scale
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n
+real(kind=wp) :: a(nm,n), d(n), e(n), z(nm,n)
+integer(kind=iwp) :: i, ii, j, jp1, k, l
+real(kind=wp) :: f, g, h, hh, scl
 
 do i=1,n
 
@@ -72,39 +77,39 @@ end do
 do ii=2,n
   i = n+2-ii
   l = i-1
-  h = 0.0d0
-  scale = 0.0d0
+  h = Zero
+  scl = Zero
   if (l >= 2) then
     ! .......... scale row (algol tol then not needed) ..........
     do k=1,l
-      scale = scale+abs(d(k))
+      scl = scl+abs(d(k))
     end do
   end if
 
-  if (scale == 0.0d0) then
+  if (scl == Zero) then
     e(i) = d(l)
 
     do j=1,l
       d(j) = z(l,j)
-      z(i,j) = 0.0d0
-      z(j,i) = 0.0d0
+      z(i,j) = Zero
+      z(j,i) = Zero
     end do
 
   else
 
     do k=1,l
-      d(k) = d(k)/scale
+      d(k) = d(k)/scl
       h = h+d(k)*d(k)
     end do
 
     f = d(l)
     g = -sign(sqrt(h),f)
-    e(i) = scale*g
+    e(i) = scl*g
     h = h-f*g
     d(l) = f-g
     ! .......... form a*u ..........
     do j=1,l
-      e(j) = 0.0d0
+      e(j) = Zero
     end do
 
     do j=1,l
@@ -121,7 +126,7 @@ do ii=2,n
       e(j) = g
     end do
     ! .......... form p ..........
-    f = 0.0d0
+    f = Zero
 
     do j=1,l
       e(j) = e(j)/h
@@ -143,7 +148,7 @@ do ii=2,n
       end do
 
       d(j) = z(l,j)
-      z(i,j) = 0.0d0
+      z(i,j) = Zero
     end do
 
   end if
@@ -154,16 +159,16 @@ end do
 do i=2,n
   l = i-1
   z(n,l) = z(l,l)
-  z(l,l) = 1.0d0
+  z(l,l) = One
   h = d(i)
 
-  if (h /= 0.0d0) then
+  if (h /= Zero) then
     do k=1,l
       d(k) = z(k,i)/h
     end do
 
     do j=1,l
-      g = 0.0d0
+      g = Zero
 
       do k=1,l
         g = g+z(k,i)*z(k,j)
@@ -176,18 +181,18 @@ do i=2,n
   end if
 
   do k=1,l
-    z(k,i) = 0.0d0
+    z(k,i) = Zero
   end do
 
 end do
 
 do i=1,n
   d(i) = z(n,i)
-  z(n,i) = 0.0d0
+  z(n,i) = Zero
 end do
 
-z(n,n) = 1.0d0
-e(1) = 0.0d0
+z(n,n) = One
+e(1) = Zero
 
 return
 

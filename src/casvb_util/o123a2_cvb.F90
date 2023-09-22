@@ -15,17 +15,17 @@
 subroutine o123a2_cvb(nparm,grad,eigvec,eigval,gradp)
 
 use casvb_global, only: ip
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension grad(nparm)
-dimension eigvec(nparm,nparm), eigval(nparm)
-dimension gradp(nparm)
+implicit none
+integer(kind=iwp) :: nparm
+real(kind=wp) :: grad(nparm), eigvec(nparm,nparm), eigval(nparm), gradp(nparm)
 
 call gethess_cvb(eigvec)
 call mxdiag_cvb(eigvec,eigval,nparm)
 call mxatb_cvb(grad,eigvec,1,nparm,nparm,gradp)
 if (ip >= 2) then
-  write(6,'(a)') ' Gradient in basis of Hessian eigenvectors :'
+  write(u6,'(a)') ' Gradient in basis of Hessian eigenvectors :'
   call vecprint_cvb(gradp,nparm)
 end if
 

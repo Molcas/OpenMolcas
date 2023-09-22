@@ -15,23 +15,20 @@
 subroutine syminit2_cvb(symelm,iorbrel,north,corth,irels,relorb,io,iorder,iorbs,a,b,rr,ri,vr,vi,intger,ifxorb,ifxstr,idelstr, &
                         iorts,irots,izeta)
 
-implicit real*8(a-h,o-z)
-logical found
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+real(kind=wp) :: symelm(norb,norb,nsyme), corth(norb,*), relorb(norb,norb,*), a(norb,norb), b(norb,norb), rr(norb), ri(norb), &
+                 vr(norb,norb), vi(norb,norb)
+integer(kind=iwp) :: iorbrel(ndimrel), north(norb), irels(2,*), io(4,norbrel), iorder(norb,norbrel), iorbs(norb), intger(norb), &
+                     ifxorb(norb), ifxstr(nfxvb), idelstr(nzrvb), iorts(2,nort), irots(2,ndrot), izeta(nsyme)
 #include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension symelm(norb,norb,nsyme), iorbrel(ndimrel)
-dimension irels(2,*), relorb(norb,norb,*)
-dimension north(norb), corth(norb,*)
-dimension io(4,norbrel), iorder(norb,norbrel), iorbs(norb)
-dimension a(norb,norb), b(norb,norb)
-dimension rr(norb), ri(norb), vr(norb,norb), vi(norb,norb), intger(norb)
-dimension ifxorb(norb), ifxstr(nfxvb), idelstr(nzrvb)
-dimension iorts(2,nort), irots(2,ndrot), izeta(nsyme)
-dimension dum(1)
-save thresh
-data thresh/1.d-8/
+integer(kind=iwp) :: i, iaddr, icnt, ieig, ifail, ii, iior, ijrel, ijrel2, il, ioffs, iorb, iorb2, ir, irel, ishift, ishift2, j, &
+                     jj, jl, jor, jorb, jorb2, korb, nciorth, ncount, nrel
+real(kind=wp) :: dum(1)
+logical(kind=iwp) :: found
+real(kind=wp), parameter :: thresh = 1.0e-8_wp
 
 ! Restore arrays:
 call rdioff_cvb(9,recinp,ioffs)
@@ -67,8 +64,8 @@ do ijrel=1,nijrel
                 intger(ncount) = i
               end if
             end do
-            write(6,'(a,/,20i4)') ' Too many orbital relations involving orbitals :',(intger(ii),ii=1,ncount)
-            write(6,'(a)') ' Please reduce number of ORBREL cards.'
+            write(u6,'(a,/,20i4)') ' Too many orbital relations involving orbitals :',(intger(ii),ii=1,ncount)
+            write(u6,'(a)') ' Please reduce number of ORBREL cards.'
             call abend_cvb()
           else
             iorbs(jorb2) = 1
@@ -91,10 +88,10 @@ do iorb=1,norb
   call span0_cvb(norb,norb)
   ishift = 0
   do i=1,norbrel
-    ior = iorbrel(1+ishift)
+    iior = iorbrel(1+ishift)
     jor = iorbrel(2+ishift)
     nrel = iorbrel(3+ishift)
-    if ((iorb == ior) .and. (iorb == jor)) then
+    if ((iorb == iior) .and. (iorb == jor)) then
       call mxunit_cvb(b,norb)
       do ir=nrel,1,-1
         irel = iorbrel(ir+3+ishift)
@@ -106,7 +103,7 @@ do iorb=1,norb
       ifail = 0
       call f02agf(b,norb,norb,rr,ri,vr,norb,vi,norb,intger,ifail)
       if (ifail /= 0) then
-        write(6,*) ' Error in diagonalisation, IFAIL :',ifail
+        write(u6,*) ' Error in diagonalisation, IFAIL :',ifail
         call abend_cvb()
       end if
       do ieig=1,norb
@@ -179,9 +176,9 @@ do
       jorb = iorder(1,ii)
       ! JORB will be generated from IORB
       if (north(jorb) /= 0) then
-        write(6,'(2(a,i4),a)') ' Attempting to generate orbital',jorb,' from orbital',iorb,'  ---'
-        write(6,'(a,i4,a)') ' the orbital conditions for orbital',jorb,' cannot be enforced.'
-        write(6,'(a)') ' Please reduce number of ORBREL cards.'
+        write(u6,'(2(a,i4),a)') ' Attempting to generate orbital',jorb,' from orbital',iorb,'  ---'
+        write(u6,'(a,i4,a)') ' the orbital conditions for orbital',jorb,' cannot be enforced.'
+        write(u6,'(a)') ' Please reduce number of ORBREL cards.'
         call abend_cvb()
       end if
       found = .false.

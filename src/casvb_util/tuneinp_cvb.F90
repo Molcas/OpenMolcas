@@ -18,20 +18,19 @@ use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol
                         grd, grdwrngtol, hhaccfac, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, resthr, &
                         safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
 
-implicit real*8(a-h,o-z)
-parameter(nstrin=37,ncmp=8)
-character*8 string(nstrin)
-character*1 true(1)
-#include "optze_cvb.fh"
-#include "print_cvb.fh"
-#include "idbl_cvb.fh"
-dimension iaux(1), daux(1)
-save string, true
-data string/'CNRMTOL ','SAFETY  ','SIGNTOL ','ALFTOL  ','DFXTOL  ','EXP12TOL','GRDWRNGT','EIGWRNG ','SINGUL  ','DFX     ', &
-            'SIGN    ','ZZMAX   ','ZZMIN   ','DX      ','GRD     ','NOPTH1  ','NOPTH2  ','DELOPTH1','DELOPTH2','HHREJFAC', &
-            'HHACCFAC','ZZACCLIM','HHTOL   ','DFXMIN  ','ZZREJMIN','ZZREJMAX','SCALESMA','HHSTART ','RESTHR  ','NORTITER', &
-            'ORTHTHR ','FOLLOW  ','MXDAV   ','LASTUPD ','ENDIFCLO','ENDTUNE ','END     '/
-data true/'T'/
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: i, iaux(1), istr, istr2, j, nread
+real(kind=wp) :: daux(1)
+integer(kind=iwp), parameter :: ncmp = 8, nstrin = 37
+character(len=*), parameter :: string(nstrin) = ['CNRMTOL ','SAFETY  ','SIGNTOL ','ALFTOL  ','DFXTOL  ','EXP12TOL','GRDWRNGT', &
+                                                 'EIGWRNG ','SINGUL  ','DFX     ','SIGN    ','ZZMAX   ','ZZMIN   ','DX      ', &
+                                                 'GRD     ','NOPTH1  ','NOPTH2  ','DELOPTH1','DELOPTH2','HHREJFAC','HHACCFAC', &
+                                                 'ZZACCLIM','HHTOL   ','DFXMIN  ','ZZREJMIN','ZZREJMAX','SCALESMA','HHSTART ', &
+                                                 'RESTHR  ','NORTITER','ORTHTHR ','FOLLOW  ','MXDAV   ','LASTUPD ','ENDIFCLO', &
+                                                 'ENDTUNE ','END     '], &
+                               true(1) = ['T']
 
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)
@@ -76,7 +75,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 3)) then
-      write(6,*) ' Illegal I index in SINGUL :',i
+      write(u6,*) ' Illegal I index in SINGUL :',i
       call abend_cvb()
     end if
     call real_cvb(singul(i),1,nread,1)
@@ -85,7 +84,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 6)) then
-      write(6,*) ' Illegal I index in DFX :',i
+      write(u6,*) ' Illegal I index in DFX :',i
       call abend_cvb()
     end if
     call real_cvb(dfx(i),1,nread,1)
@@ -94,7 +93,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 6)) then
-      write(6,*) ' Illegal I index in SIGN :',i
+      write(u6,*) ' Illegal I index in SIGN :',i
       call abend_cvb()
     end if
     call real_cvb(sgn(i),1,nread,1)
@@ -103,7 +102,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 6)) then
-      write(6,*) ' Illegal I index in ZZMAX :',i
+      write(u6,*) ' Illegal I index in ZZMAX :',i
       call abend_cvb()
     end if
     call real_cvb(zzmax(i),1,nread,1)
@@ -112,7 +111,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 6)) then
-      write(6,*) ' Illegal I index in ZZMIN :',i
+      write(u6,*) ' Illegal I index in ZZMIN :',i
       call abend_cvb()
     end if
     call real_cvb(zzmin(i),1,nread,1)
@@ -121,13 +120,13 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 3)) then
-      write(6,*) ' Illegal I index in DX :',i
+      write(u6,*) ' Illegal I index in DX :',i
       call abend_cvb()
     end if
     call int_cvb(iaux,1,nread,1)
     j = iaux(1)
     if ((j < 1) .or. (j > 6)) then
-      write(6,*) ' Illegal J index in DX :',j
+      write(u6,*) ' Illegal J index in DX :',j
       call abend_cvb()
     end if
     call real_cvb(dx(i,j),1,nread,1)
@@ -136,13 +135,13 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 3)) then
-      write(6,*) ' Illegal I index in GRD :',i
+      write(u6,*) ' Illegal I index in GRD :',i
       call abend_cvb()
     end if
     call int_cvb(iaux,1,nread,1)
     j = iaux(1)
     if ((j < 1) .or. (j > 6)) then
-      write(6,*) ' Illegal J index in GRD :',j
+      write(u6,*) ' Illegal J index in GRD :',j
       call abend_cvb()
     end if
     call real_cvb(grd(i,j),1,nread,1)
@@ -151,7 +150,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in NOPTH1 :',i
+      write(u6,*) ' Illegal I index in NOPTH1 :',i
       call abend_cvb()
     end if
     call int_cvb(nopth1(i),1,nread,1)
@@ -160,7 +159,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in NOPTH2 :',i
+      write(u6,*) ' Illegal I index in NOPTH2 :',i
       call abend_cvb()
     end if
     call int_cvb(nopth2(i),1,nread,1)
@@ -169,7 +168,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in DELOPTH1 :',i
+      write(u6,*) ' Illegal I index in DELOPTH1 :',i
       call abend_cvb()
     end if
     call real_cvb(delopth1(i),1,nread,1)
@@ -178,7 +177,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in DELOPTH2 :',i
+      write(u6,*) ' Illegal I index in DELOPTH2 :',i
       call abend_cvb()
     end if
     call real_cvb(delopth2(i),1,nread,1)
@@ -187,7 +186,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in HHREJFAC :',i
+      write(u6,*) ' Illegal I index in HHREJFAC :',i
       call abend_cvb()
     end if
     call real_cvb(hhrejfac(i),1,nread,1)
@@ -196,13 +195,13 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 5)) then
-      write(6,*) ' Illegal I index in HHACCFAC :',i
+      write(u6,*) ' Illegal I index in HHACCFAC :',i
       call abend_cvb()
     end if
     call int_cvb(iaux,1,nread,1)
     j = iaux(1)
     if ((j < 1) .or. (j > 2)) then
-      write(6,*) ' Illegal J index in HHACCFAC :',j
+      write(u6,*) ' Illegal J index in HHACCFAC :',j
       call abend_cvb()
     end if
     call real_cvb(hhaccfac(i,j),1,nread,1)
@@ -211,13 +210,13 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 4)) then
-      write(6,*) ' Illegal I index in ZZACCLIM :',i
+      write(u6,*) ' Illegal I index in ZZACCLIM :',i
       call abend_cvb()
     end if
     call int_cvb(iaux,1,nread,1)
     j = iaux(1)
     if ((j < 1) .or. (j > 2)) then
-      write(6,*) ' Illegal J index in ZZACCLIM :',j
+      write(u6,*) ' Illegal J index in ZZACCLIM :',j
       call abend_cvb()
     end if
     call real_cvb(zzacclim(i,j),1,nread,1)
@@ -226,7 +225,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in HHTOL :',i
+      write(u6,*) ' Illegal I index in HHTOL :',i
       call abend_cvb()
     end if
     call real_cvb(hhtol(i),1,nread,1)
@@ -235,7 +234,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in DFXMIN :',i
+      write(u6,*) ' Illegal I index in DFXMIN :',i
       call abend_cvb()
     end if
     call real_cvb(dfxmin(i),1,nread,1)
@@ -244,7 +243,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in ZZREJMIN :',i
+      write(u6,*) ' Illegal I index in ZZREJMIN :',i
       call abend_cvb()
     end if
     call real_cvb(zzrejmin(i),1,nread,1)
@@ -253,7 +252,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in ZZREJMAX :',i
+      write(u6,*) ' Illegal I index in ZZREJMAX :',i
       call abend_cvb()
     end if
     call real_cvb(zzrejmax(i),1,nread,1)
@@ -262,7 +261,7 @@ do
     call int_cvb(iaux,1,nread,1)
     i = iaux(1)
     if ((i < 1) .or. (i > 2)) then
-      write(6,*) ' Illegal I index in SCALESMALL :',i
+      write(u6,*) ' Illegal I index in SCALESMALL :',i
       call abend_cvb()
     end if
     call fstring_cvb(true,1,istr2,1,1)

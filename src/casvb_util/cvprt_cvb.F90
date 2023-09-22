@@ -14,14 +14,16 @@
 
 subroutine cvprt_cvb(a,l)
 
-implicit real*8(a-h,o-z)
-character*20 a
-logical l
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=20) :: a
+logical(kind=iwp) :: l
 
 if (l) then
-  write(6,'(2a)') a,'     Converged.'
+  write(u6,'(2a)') a,'     Converged.'
 else
-  write(6,'(2a)') a,' Not converged.'
+  write(u6,'(2a)') a,' Not converged.'
 end if
 
 return

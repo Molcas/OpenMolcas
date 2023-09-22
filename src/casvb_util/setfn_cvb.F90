@@ -14,11 +14,16 @@
 
 subroutine setfn_cvb(fileid,fn)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: fileid
+character(len=*) :: fn
 #include "io_cvb.fh"
-character*(*) fn
-logical debug
-data debug/.false./
+real(kind=wp) :: fileid_try
+integer(kind=iwp) :: i, itry, lenfn
+logical(kind=iwp), parameter :: debug = .false.
+integer(kind=iwp), external :: len_trim_cvb
 
 lenfn = len_trim_cvb(fn)
 do i=1,nrec
@@ -30,7 +35,7 @@ end do
 itry = 0
 do
   itry = itry+1
-  fileid_try = dble(itry)
+  fileid_try = real(itry,kind=wp)
   do i=1,nrec
     if (fileid_try == fileids(i)) exit
   end do
@@ -38,7 +43,7 @@ do
 end do
 nrec = nrec+1
 if (nrec > max_rec) then
-  write(6,*) ' nrec > max_rec in setfn :',nrec,max_rec
+  write(u6,*) ' nrec > max_rec in setfn :',nrec,max_rec
   call abend_cvb()
 end if
 ! set file name
@@ -46,9 +51,9 @@ filename(nrec) = fn
 fileids(nrec) = fileid_try
 ifilio(nrec) = 0
 if (debug) then
-  write(6,*) ' IO information for identifier :',fileids(nrec)
-  write(6,*) ' IBF is :',nrec
-  write(6,*) ' File name is :',filename(nrec)
+  write(u6,*) ' IO information for identifier :',fileids(nrec)
+  write(u6,*) ' IBF is :',nrec
+  write(u6,*) ' File name is :',filename(nrec)
 end if
 fileid = fileids(nrec)
 

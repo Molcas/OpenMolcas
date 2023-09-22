@@ -14,14 +14,14 @@
 
 subroutine intchk_cvb(iarr,nmax,nread,ifc,a,lflag)
 
-implicit real*8(a-h,o-z)
-parameter(nkeyw=3,ncmp=4)
-character*8 keyword(nkeyw)
-character*(*) a
-#include "WrkSpc.fh"
-dimension iarr(*), ito(1)
-save keyword
-data keyword/'NONE    ','ALL     ','TO      '/
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iarr(*), nmax, nread, ifc, lflag
+character(len=*) :: a
+integer(kind=iwp) :: i, ifrom, istr, ito(1), lf, ncnt, nr
+integer(kind=iwp), parameter :: ncmp = 4, nkeyw = 3
+character(len=*), parameter :: keyword(nkeyw) = ['NONE    ','ALL     ','TO      ']
 
 nread = 0
 lf = lflag
@@ -45,23 +45,23 @@ do
   else if (istr == 3) then
     ! 'TO'
     if (nread == nmax) then
-      write(6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
+      write(u6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
       call abend_cvb()
     else if (nread == 0) then
-      write(6,'(3a)') ' No number before ',a,' -- TO keyword!'
+      write(u6,'(3a)') ' No number before ',a,' -- TO keyword!'
       call abend_cvb()
     end if
     call int_cvb(ito,1,nr,ifc)
     if (nr == -1) then
-      write(6,'(3a)') ' No number after ',a,' -- TO keyword!'
+      write(u6,'(3a)') ' No number after ',a,' -- TO keyword!'
       call abend_cvb()
     end if
     ifrom = iarr(nread)
     if (ifrom > ito(1)) then
-      write(6,*) ' From greater than to:',ifrom,ito(1)
+      write(u6,*) ' From greater than to:',ifrom,ito(1)
       call abend_cvb()
     else if (nread+ito(1)-ifrom > nmax) then
-      write(6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
+      write(u6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
       call abend_cvb()
     end if
     do i=ifrom+1,ito(1)
@@ -72,7 +72,7 @@ do
     call int_cvb(iarr(1+nread),nmax-nread,nr,ifc)
     if (nread > 0) lf = lflag
     if (nr == -1) then
-      write(6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
+      write(u6,'(3a)') ' Too many numbers specified in ',a,' keyword!'
       call abend_cvb()
     end if
     nread = nread+nr
@@ -84,8 +84,8 @@ if (lflag /= -1) lflag = lf
 
 do i=1,nread
   if ((iarr(i) < 1) .or. (iarr(i) > nmax)) then
-    write(6,'(3a,i5)') ' Illegal ',a,' number read!',iarr(i)
-    write(6,'(a,i3)') ' Must be in the range 1 --',nmax
+    write(u6,'(3a,i5)') ' Illegal ',a,' number read!',iarr(i)
+    write(u6,'(a,i3)') ' Must be in the range 1 --',nmax
     call abend_cvb()
   end if
 end do

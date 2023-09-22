@@ -15,20 +15,18 @@
 subroutine evbd2_cvb(orbs,cvb,fx,ioptc,iter,gjorb,gjorb2,gjorb3,c,axc,sxc,res,hp,solp,solp_res)
 
 use casvb_global, only: follow, have_solved_it, nortiter, orththr, resthr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-external asonc_cvb, ddsol7_cvb, ddres7_cvb, ddres2upd10_cvb
-external ddrestart_cvb
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, gjorb(*), gjorb2(*), gjorb3(*), c(nvb,maxdav), axc(nvb,maxdav), sxc(nvb,maxdav), &
+                 res(nvb), hp(maxdav,maxdav), solp(maxdav), solp_res(maxdav)
+integer(kind=iwp) :: ioptc, iter
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension c(nvb,maxdav), axc(nvb,maxdav), sxc(nvb,maxdav), res(nvb)
-dimension hp(maxdav,maxdav), solp(maxdav), solp_res(maxdav)
-dimension dum(max(nvb,maxdav))
+integer(kind=iwp) :: ifollow, nvguess, nvrestart
+real(kind=wp) :: dum(max(nvb,maxdav))
+external :: asonc_cvb, ddres2upd10_cvb, ddres7_cvb, ddrestart_cvb, ddsol7_cvb
 
 call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 

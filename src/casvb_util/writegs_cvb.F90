@@ -14,12 +14,13 @@
 
 subroutine writegs_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(ndetvb)
 call writegs2_cvb(work(lv(1)),work(lv(2)),work(lw(9)),iwork(ll(11)),iwork(ll(12)),iwork(i1))

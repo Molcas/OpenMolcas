@@ -14,13 +14,15 @@
 
 subroutine mol2vbma_cvb(vecvb,vecmol,isyml,fac)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: vecvb(ndet), vecmol(*), fac
+integer(kind=iwp) :: isyml
 #include "WrkSpc.fh"
-dimension vecvb(ndet), vecmol(*)
+integer(kind=iwp) :: i1, i2, i3, i4, iwr, nsa, nsb
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 iwr = 2
 call icomb_cvb(norb,nalf,nsa)

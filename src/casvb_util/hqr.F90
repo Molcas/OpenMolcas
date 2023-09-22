@@ -69,19 +69,24 @@ subroutine hqr(nm,n,low,igh,h,wr,wi,ierr)
 !
 !  RESTORED CORRECT INDICES OF LOOPS (200,210,230,240). (9/29/89 BSG)
 
-integer i, j, k, l, m, n, en, ll, mm, na, nm, igh, itn, its, low, mp2, enm2, ierr, nroot
-real*8 h(nm,n), wr(n), wi(n)
-real*8 p, q, r, s, t, w, x, y, zz, norm, tst1, tst2
-logical notlas
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, low, igh, ierr
+real(kind=wp) :: h(nm,n), wr(n), wi(n)
+integer(kind=iwp) :: en, enm2, i, itn, its, j, k, l, ll, m, mm, mp2, na, nroot
+real(kind=wp) :: norm, p, q, r, s, t, tst1, tst2, w, x, y, zz
+logical(kind=iwp) :: notlas
 
 ierr = 0
-norm = 0.0d0
+norm = Zero
 k = 1
 l = 0     ! dummy initialize
 m = 0     ! dummy initialize
-p = 0.0d0 ! dummy initialize
-q = 0.0d0 ! dummy initialize
-r = 0.0d0 ! dummy initialize
+p = Zero  ! dummy initialize
+q = Zero  ! dummy initialize
+r = Zero  ! dummy initialize
 nroot = 0 ! dummy initialize
 ! .......... store roots isolated by balanc and compute matrix norm ..........
 do i=1,n
@@ -93,11 +98,11 @@ do i=1,n
   k = i
   if ((i >= low) .and. (i <= igh)) cycle
   wr(i) = h(i,i)
-  wi(i) = 0.0d0
+  wi(i) = Zero
 end do
 
 en = igh
-t = 0.0d0
+t = Zero
 itn = 30*n
 do
   ! .......... search for next eigenvalues ..........
@@ -111,7 +116,7 @@ do
       l = en+low-ll
       if (l == low) exit
       s = abs(h(l-1,l-1))+abs(h(l,l))
-      if (s == 0.0d0) s = norm
+      if (s == Zero) s = norm
       tst1 = s
       tst2 = tst1+abs(h(l,l-1))
       if (tst2 == tst1) exit
@@ -142,9 +147,9 @@ do
       end do
 
       s = abs(h(en,na))+abs(h(na,enm2))
-      x = 0.75d0*s
+      x = 0.75_wp*s
       y = x
-      w = -0.4375d0*s*s
+      w = -0.4375_wp*s*s
     end if
     its = its+1
     itn = itn-1
@@ -171,9 +176,9 @@ do
     mp2 = m+2
 
     do i=mp2,en
-      h(i,i-2) = 0.0d0
+      h(i,i-2) = Zero
       if (i == mp2) cycle
-      h(i,i-3) = 0.0d0
+      h(i,i-3) = Zero
     end do
     ! .......... double qr step involving rows l to en and columns m to en ..........
     do k=m,na
@@ -181,10 +186,10 @@ do
       if (k /= m) then
         p = h(k,k-1)
         q = h(k+1,k-1)
-        r = 0.0d0
+        r = Zero
         if (notlas) r = h(k+2,k-1)
         x = abs(p)+abs(q)+abs(r)
-        if (x == 0.0d0) cycle
+        if (x == Zero) cycle
         p = p/x
         q = q/x
         r = r/x
@@ -241,15 +246,15 @@ do
   if (nroot == 1) then
     ! .......... one root found ..........
     wr(en) = x+t
-    wi(en) = 0.0d0
+    wi(en) = Zero
     en = na
   else if (nroot == 2) then
     ! .......... two roots found ..........
-    p = (y-x)/2.0d0
+    p = (y-x)*Half
     q = p*p+w
     zz = sqrt(abs(q))
     x = x+t
-    if (q < 0.0d0) then
+    if (q < Zero) then
       ! .......... complex pair ..........
       wr(na) = x+p
       wr(en) = x+p
@@ -260,9 +265,9 @@ do
       zz = p+sign(zz,p)
       wr(na) = x+zz
       wr(en) = wr(na)
-      if (zz /= 0.0d0) wr(en) = x-w/zz
-      wi(na) = 0.0d0
-      wi(en) = 0.0d0
+      if (zz /= Zero) wr(en) = x-w/zz
+      wi(na) = Zero
+      wi(en) = Zero
     end if
     en = enm2
   end if

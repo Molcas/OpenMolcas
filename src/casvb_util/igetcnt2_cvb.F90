@@ -13,13 +13,15 @@
 !***********************************************************************
 ! Contents of CI vectors:
 
+!IFG trivial
 function igetcnt2_cvb(ident_ci)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: igetcnt2_cvb
+integer(kind=iwp) :: ident_ci
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 igetcnt2_cvb = icnt_ci(ident_ci)
 

@@ -14,9 +14,14 @@
 
 subroutine ddsol7_cvb(hp,dum,itdav,maxdav,nfrdim,solp,solp_res,eig,eig_res)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim
+real(kind=wp) :: hp(maxdav,maxdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
 #include "WrkSpc.fh"
-dimension hp(maxdav,maxdav), solp(maxdav), solp_res(maxdav)
+integer(kind=iwp) :: i1, i2
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(itdav)
 i2 = mstackr_cvb(itdav*itdav)

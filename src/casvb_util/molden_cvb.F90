@@ -14,21 +14,25 @@
 
 subroutine molden_cvb()
 
-use rctfld_module, only: lRF
+use rctfld_module,only: lRF
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
-integer iDisk
-real*8 Dummy(1)
+integer(kind=iwp) :: iDisk
+real(kind=wp) :: Dummy(1)
 
 call daname_cvb(JOBIPH,'JOBIPH')
-idisk = 0
-call idafile(JOBIPH,2,iadr15,15,idisk)
-Dummy = 0.0d0
-if (.not. lRF) call interf(0,Dummy,0,1)
+iDisk = 0
+call idafile(JOBIPH,2,iadr15,15,iDisk)
+if (.not. lRF) then
+  Dummy(1) = Zero
+  call interf(0,Dummy,0,1)
+end if
 
 return
 

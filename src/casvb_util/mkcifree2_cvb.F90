@@ -14,12 +14,12 @@
 
 subroutine mkcifree2_cvb(cvb,ifxstr,tconstr)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension cvb(nvb), ifxstr(nfxvb), tconstr(nvb,nvb)
+real(kind=wp) :: cvb(nvb), tconstr(nvb,nvb)
+integer(kind=iwp) :: ifxstr(nfxvb)
 
 if (strucopt) then
   nfrvb = nvb

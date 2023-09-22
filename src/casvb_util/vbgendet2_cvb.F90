@@ -15,18 +15,18 @@
 subroutine vbgendet2_cvb(iapr,ixapr,ibpr,ixbpr,iconfs,idetvb,nconf,nconfion,nda,ndb,ndetvb,nel,noe,nalf,nbet,norb,idetavb,idetbvb, &
                          iwrk1,iwrk2)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension iapr(ndetvb), ixapr(nda+1), ibpr(ndetvb), ixbpr(ndb+1)
-dimension iconfs(noe,nconf), idetvb(ndetvb)
-dimension nconfion(0:nel)
-dimension idetavb(ndetvb), idetbvb(ndetvb)
-dimension iwrk1(ndetvb), iwrk2(ndetvb)
-logical debug
-data debug/.false./
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: ndetvb, iapr(ndetvb), nda, ixapr(nda+1), ibpr(ndetvb), ndb, ixbpr(ndb+1), nconf, noe, iconfs(noe,nconf), &
+                     idetvb(ndetvb), nel, nconfion(0:nel), nalf, nbet, norb, idetavb(ndetvb), idetbvb(ndetvb), iwrk1(ndetvb), &
+                     iwrk2(ndetvb)
+integer(kind=iwp) :: i, j
+logical(kind=iwp), parameter :: debug = .false.
 
 if (debug) then
-  write(6,*) ' Generate determinant information :'
-  write(6,*) ' ----------------------------------'
+  write(u6,*) ' Generate determinant information :'
+  write(u6,*) ' ----------------------------------'
 end if
 
 ! vbgenabdet gives all VB alpha and beta strings, to use in CASSCF
@@ -53,10 +53,10 @@ do i=1,ndb
   call imove_cvb(iwrk1,ibpr(ixbpr(i)),ixbpr(i+1)-ixbpr(i))
 end do
 if (debug) then
-  write(6,*) ' ixbpr='
-  write(6,'(10i6)') ixbpr
-  write(6,*) ' ibpr='
-  write(6,'(10i6)') ibpr
+  write(u6,*) ' ixbpr='
+  write(u6,'(10i6)') ixbpr
+  write(u6,*) ' ibpr='
+  write(u6,'(10i6)') ibpr
 end if
 
 call sortindxi_cvb(ndetvb,idetavb,idetvb)
@@ -83,18 +83,18 @@ do i=1,nda
   call imove_cvb(iwrk1,idetvb(ixapr(i)),ixapr(i+1)-ixapr(i))
 end do
 if (debug) then
-  write(6,*) ' ixapr='
-  write(6,'(10i6)') ixapr
-  write(6,*) ' iapr='
-  write(6,'(10i6)') iapr
+  write(u6,*) ' ixapr='
+  write(u6,'(10i6)') ixapr
+  write(u6,*) ' iapr='
+  write(u6,'(10i6)') iapr
 end if
 do i=1,ndetvb
   idetavb(idetvb(i)) = i
 end do
 call imove_cvb(idetavb,idetvb,ndetvb)
 if (debug) then
-  write(6,*) ' idetvb='
-  write(6,'(10i6)') idetvb
+  write(u6,*) ' idetvb='
+  write(u6,'(10i6)') idetvb
 end if
 
 return

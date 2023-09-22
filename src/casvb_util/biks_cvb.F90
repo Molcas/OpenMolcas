@@ -14,15 +14,19 @@
 
 subroutine biks_cvb(aikcof,bikcof,ikcoff,nel,kbasis,share,iprint)
 
-implicit real*8(a-h,o-z)
-logical share
-character*10 basis(7)
-dimension aikcof(*), bikcof(*), ikcoff(0:nel,0:nel,0:nel)
-save basis
-data basis/'Kotani','Serber','Rumer','Rumer (LT)','projected','Determ','Determ'/
+use Definitions, only: wp, iwp
 
-aikcof(1) = dble(kbasis)
-bikcof(1) = dble(kbasis)
+implicit none
+real(kind=wp) :: aikcof(*), bikcof(*)
+integer(kind=iwp) :: nel, ikcoff(0:nel,0:nel,0:nel), kbasis, iprint
+logical(kind=iwp) :: share
+integer(kind=iwp) :: i2s1, ifns, nalf1, ndet, nel1
+integer(kind=iwp), external :: ifns_cvb, ndet_cvb, len_trim_cvb
+character(len=*), parameter :: basis(7) = ['Kotani    ','Serber    ','Rumer     ','Rumer (LT)','projected ','Determ    ', &
+                                           'Determ    ']
+
+aikcof(1) = real(kbasis,kind=wp)
+bikcof(1) = real(kbasis,kind=wp)
 if (kbasis == 6) return
 
 if (iprint >= 1) write(6,6100) basis(kbasis)(1:len_trim_cvb(basis(kbasis)))

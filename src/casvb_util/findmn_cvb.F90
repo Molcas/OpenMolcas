@@ -14,8 +14,12 @@
 
 subroutine findmn_cvb(vec,n,vmn,imn)
 
-implicit real*8(a-h,o-z)
-dimension vec(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, imn
+real(kind=wp) :: vec(n), vmn
+integer(kind=iwp) :: i
 
 if (n > 0) then
   imn = 1
@@ -28,7 +32,7 @@ if (n > 0) then
   end do
 else
   imn = 0
-  vmn = 1d20
+  vmn = 1.0e20_wp
 end if
 
 return

@@ -15,14 +15,15 @@
 subroutine orthcvb_cvb(c,nparm1)
 
 use casvb_global, only: cvbnrm_fr, nfrag, nvb_fr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: c(*)
+integer(kind=iwp) :: nparm1
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension c(*)
+integer(kind=iwp) :: ifr_off, ifrag, ioffs
+real(kind=wp), external :: ddot_
 
 ioffs = nparm1-nprvb+1
 if (nfrag <= 1) then

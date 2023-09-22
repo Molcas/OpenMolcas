@@ -14,9 +14,12 @@
 
 subroutine gethr_cvb(iarr,n)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp) :: iaux(1)
 #include "idbl_cvb.fh"
-dimension iarr(n), iaux(1)
 
 call geth_cvb(iaux,1)
 n = iaux(1)

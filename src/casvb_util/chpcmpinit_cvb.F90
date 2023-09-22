@@ -12,11 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine chpcmpinit_cvb()
 
 use casvb_global, only: iprm, iunset, lstprm, mxprm
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: i
 
 do i=1,mxprm
   lstprm(i) = iunset

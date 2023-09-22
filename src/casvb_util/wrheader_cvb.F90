@@ -14,14 +14,16 @@
 
 subroutine wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: recn
+integer(kind=iwp) :: norb1, nbas_mo1, nvb1, kbasiscvb1, ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-logical debug
-data debug/.false./
+integer(kind=iwp) :: iheader
+integer(kind=iwp), external :: ihlf_cvb, mstackiz_cvb
+logical(kind=iwp), parameter :: debug = .false.
 
 ioffs_orbs = ihlf_cvb(10)
 ioffs_cvb = ioffs_orbs+norb1*norb1
@@ -40,16 +42,16 @@ iwork(8+iheader) = ioffs_orbslao
 call wri_cvb(iwork(iheader),10,recn,0)
 call mfreei_cvb(iheader)
 if (debug) then
-  write(6,*) ' wrheader :'
-  write(6,*) ' ----------'
-  write(6,*) ' norb1         :',norb1
-  write(6,*) ' nbas_mo1      :',nbas_mo1
-  write(6,*) ' nvb1          :',nvb1
-  write(6,*) ' kbasiscvb1    :',kbasiscvb1
-  write(6,*) ' ioffs_orbs    :',ioffs_orbs
-  write(6,*) ' ioffs_cvb     :',ioffs_cvb
-  write(6,*) ' ioffs_orbsao  :',ioffs_orbsao
-  write(6,*) ' ioffs_orbslao :',ioffs_orbslao
+  write(u6,*) ' wrheader :'
+  write(u6,*) ' ----------'
+  write(u6,*) ' norb1         :',norb1
+  write(u6,*) ' nbas_mo1      :',nbas_mo1
+  write(u6,*) ' nvb1          :',nvb1
+  write(u6,*) ' kbasiscvb1    :',kbasiscvb1
+  write(u6,*) ' ioffs_orbs    :',ioffs_orbs
+  write(u6,*) ' ioffs_cvb     :',ioffs_cvb
+  write(u6,*) ' ioffs_orbsao  :',ioffs_orbsao
+  write(u6,*) ' ioffs_orbslao :',ioffs_orbslao
 end if
 
 return

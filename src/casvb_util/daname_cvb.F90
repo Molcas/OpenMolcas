@@ -15,12 +15,15 @@
 subroutine daname_cvb(lu,fname)
 
 use casvb_global, only: idan
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-character*(*) fname
-integer find_lu, isfreeunit, i_open
-logical find_unused, is_opened
-external find_lu, isfreeunit, is_opened
+implicit none
+integer(kind=iwp) :: lu
+character(len=*) :: fname
+integer(kind=iwp) :: i_open, ilu
+logical(kind=iwp) :: find_unused
+integer(kind=iwp), external :: isfreeunit, find_lu
+logical(kind=iwp), external :: is_opened
 
 ilu = find_lu(fname)
 if (ilu > 0) then

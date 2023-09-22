@@ -14,17 +14,14 @@
 
 subroutine setipermzeta_cvb(ipermzeta,orbs,symelm,izeta,orbinv,owrk,owrk2)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension ipermzeta(norb,nzeta)
-dimension orbs(norb,norb)
-dimension symelm(norb*norb,nsyme), izeta(nsyme)
-dimension orbinv(norb,norb), owrk(norb,norb), owrk2(norb,norb)
-save thresh
-data thresh/1.d-8/
+integer(kind=iwp) :: ipermzeta(norb,nzeta), izeta(nsyme)
+real(kind=wp) :: orbs(norb,norb), symelm(norb*norb,nsyme), orbinv(norb,norb), owrk(norb,norb), owrk2(norb,norb)
+integer(kind=iwp) :: iorb, isyme, izeta1, jorb
+real(kind=wp), parameter :: thresh = 1.0e-8_wp
 
 if (nzeta > 0) then
   call fmove_cvb(orbs,orbinv,norb*norb)
@@ -43,7 +40,7 @@ do isyme=1,nsyme
         if (abs(abs(owrk(jorb,iorb))-one) < thresh) then
           ipermzeta(iorb,izeta1) = nint(owrk(jorb,iorb))*jorb
         else if (abs(owrk(jorb,iorb)) > thresh) then
-          write(6,*) ' Fatal error! Symmetry operation ',tags(isyme),' does not permute the VB orbitals!'
+          write(u6,*) ' Fatal error! Symmetry operation ',tags(isyme),' does not permute the VB orbitals!'
           call mxprint_cvb(owrk,norb,norb,0)
           call abend_cvb()
         end if

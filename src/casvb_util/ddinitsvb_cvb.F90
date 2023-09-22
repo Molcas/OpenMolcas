@@ -12,11 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine ddinitsvb_cvb(ifollow1,isaddle1,ip1)
 
 use casvb_global, only: ifollow, ipdd, isaddledd, nroot
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ifollow1, isaddle1, ip1
 
 ifollow = ifollow1
 isaddledd = isaddle1
@@ -24,10 +27,5 @@ nroot = max(1,isaddledd+1)
 ipdd = ip1
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(dum)
-  call Unused_integer(nfrdim1)
-end if
 
 end subroutine ddinitsvb_cvb

@@ -12,14 +12,21 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function mxorth_cvb(a,n)
+function mxorth_cvb(a,n)
 ! Returns .TRUE. if A is orthogonal.
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: mxorth_cvb
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n,n)
 #include "WrkSpc.fh"
-dimension a(n,n)
-save thresh, one
-data thresh/1d-8/,one/1d0/
+integer(kind=iwp) :: i, i1, i2, j
+real(kind=wp) :: tst
+real(kind=wp), parameter :: thresh = 1.0e-8_wp
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(n*n)
 i2 = mstackr_cvb(n*n)
@@ -38,7 +45,7 @@ do j=1,n
       tst = abs(work(i+(j-1)*n+i2-1))
       if (tst > thresh) mxorth_cvb = .false.
     else
-      tst = abs(work(i+(j-1)*n+i2-1)-one)
+      tst = abs(work(i+(j-1)*n+i2-1)-One)
       if (tst > thresh) mxorth_cvb = .false.
     end if
   end do

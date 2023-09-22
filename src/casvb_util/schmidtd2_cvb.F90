@@ -14,8 +14,13 @@
 
 subroutine schmidtd2_cvb(c1,sxc1,nvec1,c2,nvec2,n)
 
-implicit real*8(a-h,o-z)
-dimension c1(n,nvec1), sxc1(n,nvec1), c2(n,nvec2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec1, nvec2, n
+real(kind=wp) :: c1(n,nvec1), sxc1(n,nvec1), c2(n,nvec2)
+integer(kind=iwp) :: i, j
+real(kind=wp), external :: ddot_
 
 do i=1,nvec2
   do j=1,nvec1

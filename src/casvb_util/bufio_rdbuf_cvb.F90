@@ -14,11 +14,19 @@
 
 subroutine bufio_rdbuf_cvb()
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use casvb_global, only: file_id, ibuf, ibuffer, lbuf, nbuf, nword
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: ioffset
 
+if (nbuf < ibuf) then
+  call izero(ibuffer,lbuf)
+  return
+end if
+ioffset = (ibuf-1)*lbuf/idbl
 call bufio_rdbuf_internal(ibuffer)
 
 return
@@ -27,18 +35,11 @@ return
 contains
 
 subroutine bufio_rdbuf_internal(ibuffer)
-  use iso_c_binding
-  integer, target :: ibuffer(*)
-  real*8, pointer :: buffer(:)
-  if (nbuf < ibuf) then
-    call izero(ibuffer,lbuf)
-    return
-  end if
-  ioffset = (ibuf-1)*lbuf/idbl
+  integer(kind=iwp), target :: ibuffer(*)
+  real(kind=wp), pointer :: buffer(:)
   call c_f_pointer(c_loc(ibuffer(1)),buffer,[nword])
   call rdlow_cvb(buffer,nword,file_id,ioffset+1)
   nullify(buffer)
-  return
 end subroutine bufio_rdbuf_internal
 
 end subroutine bufio_rdbuf_cvb

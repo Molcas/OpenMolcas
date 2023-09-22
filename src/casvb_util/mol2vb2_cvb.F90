@@ -14,14 +14,13 @@
 
 subroutine mol2vb2_cvb(vecvb,vecmol,isyml,fac,iwr,indxa,indxb,nstra,nstrb,nsa,nsb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension vecvb(ndet), vecmol(*)
-dimension indxa(nsa), indxb(nsb)
-dimension nstra(mxirrep), nstrb(mxirrep)
+real(kind=wp) :: vecvb(ndet), vecmol(*), fac
+integer(kind=iwp) :: isyml, iwr, nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
+integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, is, isa, isb, isyma, isymb, nnsa, nnsb
 
 call indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 
@@ -45,14 +44,14 @@ do isyma=1,mxirrep
   do isb=1,nnsb
     indbet = indxb(isb+ioffsb)
     do isa=1,nnsa
-      index = indxa(isa+ioffsa)+(indbet-1)*nda
+      indx = indxa(isa+ioffsa)+(indbet-1)*nda
       idet = idet+1
       if (iwr == 0) then
-        vecmol(idet) = vecvb(index)
+        vecmol(idet) = vecvb(indx)
       else if (iwr == 1) then
-        vecvb(index) = vecmol(idet)
+        vecvb(indx) = vecmol(idet)
       else if (iwr == 2) then
-        vecvb(index) = vecvb(index)+fac*vecmol(idet)
+        vecvb(indx) = vecvb(indx)+fac*vecmol(idet)
       end if
     end do
   end do

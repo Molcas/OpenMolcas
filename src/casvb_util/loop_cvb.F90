@@ -14,8 +14,11 @@
 
 subroutine loop_cvb(nel,nk,nkmin,nkmax,rc)
 
-integer rc
-dimension nk(0:nel), nkmin(0:nel), nkmax(0:nel)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nel, nk(0:nel), nkmin(0:nel), nkmax(0:nel), rc
+integer(kind=iwp) :: iel, ik, jel
 
 rc = 0
 do iel=1,nel-1

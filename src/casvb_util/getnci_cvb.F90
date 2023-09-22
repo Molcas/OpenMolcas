@@ -19,13 +19,13 @@
 !***********************************************************************
 subroutine getnci_cvb(nciloc,nelloc,i2sloc,isymloc)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+implicit none
+integer(kind=iwp) :: nciloc(*), nelloc, i2sloc, isymloc
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension nciloc(*)
+integer(kind=iwp) :: k1, k10, k11, k12, k13, k14, k15, k16, k17, k2, k3, k4, k5, k6, k7, k8, k9, nalf1, nbet1, nda1, ndb1
+integer(kind=iwp), external :: mstacki_cvb
 
 nalf1 = (nelloc+i2sloc)/2
 nbet1 = nelloc-nalf1

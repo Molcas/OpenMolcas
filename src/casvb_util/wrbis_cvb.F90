@@ -16,13 +16,13 @@ subroutine wrbis_cvb(ivec,n,ioffset)
 ! Buffered integer IO with integer offset
 
 use casvb_global, only: ibuf, ibuffer, lbuf
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
-dimension ivec(n)
-logical full_buffer
-logical debug
-data debug/.false./
+implicit none
+integer(kind=iwp) :: n, ivec(n), ioffset
+integer(kind=iwp) :: i_max, i_min, ibuf_max, ibuf_min, ivec_offs, jbuf
+logical(kind=iwp) :: full_buffer
+logical(kind=iwp), parameter :: debug = .false.
 
 if (n <= 0) return
 
@@ -44,8 +44,8 @@ do jbuf=ibuf_min,ibuf_max
 end do
 
 if (debug) then
-  write(6,*) ' wrbis :',n,ioffset
-  write(6,'(40i4)') ivec
+  write(u6,*) ' wrbis :',n,ioffset
+  write(u6,'(40i4)') ivec
 end if
 ioffset = ioffset+n
 

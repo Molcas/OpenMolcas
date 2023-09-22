@@ -18,21 +18,23 @@ use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol
                         grd, grdwrngtol, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, &
                         resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
 
-implicit real*8(a-h,o-z)
-save huge, smallest
-data huge/1d20/
-data smallest/1d-10/
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, j
+real(kind=wp), parameter :: hge = 1.0e20_wp, smallest = 1.0e-10_wp
 
 ! General defaults
 ! << TUNE_CVB common block: >>
-cnrmtol = 1.d-9
-safety = 1d-7
-signtol = 1.d-3
-alftol = 1.d-10
-dfxtol = 1.d-10
-exp12tol = huge
-grdwrngtol = -huge
-eigwrngtol = -huge
+cnrmtol = 1.0e-9_wp
+safety = 1.0e-7_wp
+signtol = 1.0e-3_wp
+alftol = 1.0e-10_wp
+dfxtol = 1.0e-10_wp
+exp12tol = hge
+grdwrngtol = -hge
+eigwrngtol = -hge
 endwhenclose = .false.
 ! << TOLS_CVB common block: >>
 ! (*,1) ... global region, non-singular Hessian
@@ -42,63 +44,63 @@ endwhenclose = .false.
 ! (*,5) ... wrong stationary point, non-singular Hessian
 ! (*,6) ... wrong stationary point, singular Hessian
 ! First set values that disable tests:
-singul(1) = -huge
-singul(2) = -huge
-singul(3) = -huge
+singul(1) = -hge
+singul(2) = -hge
+singul(3) = -hge
 do j=1,6
-  dfx(j) = huge
-  sgn(j) = huge
-  zzmax(j) = huge
-  zzmin(j) = -huge
+  dfx(j) = hge
+  sgn(j) = hge
+  zzmax(j) = hge
+  zzmin(j) = -hge
   do i=1,3
-    dx(i,j) = huge
-    grd(i,j) = huge
+    dx(i,j) = hge
+    grd(i,j) = hge
   end do
 end do
 ! << TRST_CVB common block: >>
 scalesmall(1) = .false.
 nopth1(1) = 1
 nopth2(1) = 0
-delopth1(1) = 1d0
-delopth2(1) = huge
-delopth1(2) = 1d0
-delopth2(2) = huge
-hhrejfac(1) = 1d0
-hhaccfac(1,1) = 1d0
-hhaccfac(2,1) = 1d0
-hhaccfac(3,1) = 1d0
-hhaccfac(4,1) = 1d0
-hhaccfac(5,1) = 1d0
-zzacclim(1,1) = -huge
-zzacclim(2,1) = -huge
-zzacclim(3,1) = huge
-zzacclim(4,1) = huge
-hhtol(1) = -huge
-hhmax(1) = 1d0
-dfxmin(1) = -huge
-zzrejmin(1) = -huge
-zzrejmax(1) = huge
+delopth1(1) = One
+delopth2(1) = hge
+delopth1(2) = One
+delopth2(2) = hge
+hhrejfac(1) = One
+hhaccfac(1,1) = One
+hhaccfac(2,1) = One
+hhaccfac(3,1) = One
+hhaccfac(4,1) = One
+hhaccfac(5,1) = One
+zzacclim(1,1) = -hge
+zzacclim(2,1) = -hge
+zzacclim(3,1) = hge
+zzacclim(4,1) = hge
+hhtol(1) = -hge
+hhmax(1) = One
+dfxmin(1) = -hge
+zzrejmin(1) = -hge
+zzrejmax(1) = hge
 scalesmall(2) = .false.
 nopth1(2) = 1
 nopth2(2) = 0
-hhrejfac(2) = 1d0
-hhaccfac(1,2) = 1d0
-hhaccfac(2,2) = 1d0
-hhaccfac(3,2) = 1d0
-hhaccfac(4,2) = 1d0
-hhaccfac(5,2) = 1d0
-zzacclim(1,2) = -huge
-zzacclim(2,2) = -huge
-zzacclim(3,2) = huge
-zzacclim(4,2) = huge
-hhtol(2) = -huge
-hhmax(2) = 1d0
-dfxmin(2) = -huge
-zzrejmin(2) = -huge
-zzrejmax(2) = huge
-hhstart = 1d0
+hhrejfac(2) = One
+hhaccfac(1,2) = One
+hhaccfac(2,2) = One
+hhaccfac(3,2) = One
+hhaccfac(4,2) = One
+hhaccfac(5,2) = One
+zzacclim(1,2) = -hge
+zzacclim(2,2) = -hge
+zzacclim(3,2) = hge
+zzacclim(4,2) = hge
+hhtol(2) = -hge
+hhmax(2) = One
+dfxmin(2) = -hge
+zzrejmin(2) = -hge
+zzrejmax(2) = hge
+hhstart = One
 ! << DAVTUNE global vars: >>
-resthr = 5d-6
+resthr = 5.0e-6_wp
 orththr = smallest
 nortiter = 50
 mxdav = 200

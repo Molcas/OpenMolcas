@@ -14,14 +14,13 @@
 
 subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta,dvbdet,vecstr2)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension vecstr(nvb)
-dimension izeta(nsyme), ipermzeta(norb,nzeta)
-dimension dvbdet(ndetvb), vecstr2(nvb)
+integer(kind=iwp) :: izeta(nsyme), ipermzeta(norb,nzeta)
+real(kind=wp) :: vecstr(nvb), dvbdet(ndetvb), vecstr2(nvb)
+integer(kind=iwp) :: isyme, izeta1
 
 izeta1 = 0
 do isyme=1,nsyme
@@ -30,10 +29,10 @@ do isyme=1,nsyme
     call str2vbc_cvb(vecstr,dvbdet)
     call permvb_cvb(dvbdet,ipermzeta(1,izeta1))
     call vb2strc_cvb(dvbdet,vecstr2)
-    call daxpy_(nvb,dble(izeta(isyme)),vecstr2,1,vecstr,1)
+    call daxpy_(nvb,real(izeta(isyme),kind=wp),vecstr2,1,vecstr,1)
   end if
 end do
-if (izeta1 > 0) call dscal_(nvb,1d0/dble(2**izeta1),vecstr,1)
+if (izeta1 > 0) call dscal_(nvb,One/real(2**izeta1,kind=wp),vecstr,1)
 
 return
 

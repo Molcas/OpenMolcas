@@ -14,33 +14,36 @@
 
 subroutine wri_cvb(ivec,n,file_id,ioffset)
 
-implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
-dimension ivec(n)
-save ibuf
-dimension ibuf(8)
-data ibuf/8*0/
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: n, ivec(n), ioffset
+real(kind=wp) :: file_id
+#include "idbl_cvb.fh"
+integer(kind=iwp) :: ibuf(8) = 0, ilen, nreals, nrem
+
+nreals = n/idbl
+nrem = n-nreals*idbl
 call wri_cvb_internal(ivec,ibuf)
+
+return
 
 ! This is to allow type punning without an explicit interface
 contains
 
 subroutine wri_cvb_internal(ivec,ibuf)
-  use iso_c_binding
-  integer, target :: ivec(*), ibuf(*)
-  real*8, pointer :: vec(:), buf(:)
-  nreals = n/idbl
-  nrem = n-nreals*idbl
+  integer(kind=iwp), target :: ivec(*), ibuf(*)
+  real(kind=wp), pointer :: buf(:), vec(:)
   if (nreals > 0) then
     call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
     call wrlow_cvb(vec,nreals,file_id,ioffset)
     nullify(vec)
   end if
   if (nrem > 0) then
-    len = 0
-    call lendat_cvb(file_id,len)
-    if (len >= 1+nreals+ioffset) then
+    ilen = 0
+    call lendat_cvb(file_id,ilen)
+    if (ilen >= 1+nreals+ioffset) then
       call c_f_pointer(c_loc(ibuf(1)),buf,[1])
       call rdlow_cvb(buf,1,file_id,nreals+ioffset)
       nullify(buf)
@@ -53,7 +56,6 @@ subroutine wri_cvb_internal(ivec,ibuf)
     call wrlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)
   end if
-  return
 end subroutine wri_cvb_internal
 
 end subroutine wri_cvb

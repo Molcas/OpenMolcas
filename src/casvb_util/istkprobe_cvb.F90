@@ -12,10 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function istkprobe_cvb(iarr)
+function istkprobe_cvb(iarr)
 
-implicit real*8(a-h,o-z)
-dimension iarr(*)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: istkprobe_cvb
+integer(kind=iwp) :: iarr(*)
 
 istkprobe_cvb = (iarr(2) > 2)
 

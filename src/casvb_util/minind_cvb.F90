@@ -12,12 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-integer function minind_cvb(iminor,idim,nel,ixmin)
+function minind_cvb(iminor,i_dim,nel,ixmin)
 
-dimension ixmin(0:nel,0:idim), iminor(idim)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: minind_cvb
+integer(kind=iwp) :: i_dim, iminor(i_dim), nel, ixmin(0:nel,0:i_dim)
+integer(kind=iwp) :: i
 
 minind_cvb = 1
-do i=1,idim
+do i=1,i_dim
   minind_cvb = minind_cvb+ixmin(iminor(i)-1,i)
 end do
 

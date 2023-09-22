@@ -12,14 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine proj_cvb(civec)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civec(ndet)
+real(kind=wp) :: civec(ndet)
 
 if (projsym) call psym_cvb(civec)
 

@@ -16,11 +16,8 @@ subroutine maxdims0_cvb()
 
 use casvb_global, only: inputmode
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 if (inputmode == 1) then
   mxnvb = 0

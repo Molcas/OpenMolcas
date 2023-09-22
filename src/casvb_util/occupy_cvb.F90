@@ -14,7 +14,11 @@
 
 subroutine occupy_cvb(nk,nel,locc,lunocc)
 
-dimension nk(0:nel), locc(*), lunocc(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nel, nk(0:nel), locc(*), lunocc(*)
+integer(kind=iwp) :: iel, iocc, iunocc
 
 iocc = 0
 iunocc = 0
@@ -26,7 +30,7 @@ do iel=1,nel
     iunocc = iunocc+1
     lunocc(iunocc) = iel
   else
-    write(6,*) ' Error in graphical indexing routine!'
+    write(u6,*) ' Error in graphical indexing routine!'
     call abend_cvb()
   end if
 end do

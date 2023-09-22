@@ -14,13 +14,14 @@
 
 subroutine writegs2_cvb(orbs,cvb,cvbdet,iapr,ixapr,iabind)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), iabind(ndetvb)
 #include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension cvbdet(ndetvb), iapr(ndetvb), ixapr(nda+1), iabind(ndetvb)
+integer(kind=iwp) :: ia, ib, idetvb, ioffs, ixa
 
 call str2vbc_cvb(cvb,cvbdet)
 ioffs = 0

@@ -15,14 +15,11 @@
 subroutine applyth_cvb(civbh,orbs,gjorb,gjorb2,gjorb3)
 ! Apply T(O) H T(O) to CIVBH:
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+use Definitions, only: wp
 
-dimension civbh(ndet)
-dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+implicit none
+#include "main_cvb.fh"
+real(kind=wp) :: civbh(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
 
 call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 

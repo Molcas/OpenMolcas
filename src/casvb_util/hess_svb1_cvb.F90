@@ -16,35 +16,31 @@ subroutine hess_svb1_cvb(orbs,civecp,civbs,civb,citmp,orbinv,sorbs,owrk,gjorb,gj
                          hessinp,hessout,owrk2,owrk3)
 
 use casvb_global, only: aa1, aa2, nfrag, oaa2, oaa3
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical orbopt2, strucopt2
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension orbs(norb,norb)
-dimension civecp(ndet), civbs(ndet), civb(ndet), citmp(ndet)
-dimension orbinv(norb,norb), sorbs(norb,norb), owrk(norb,norb)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension owrk2(*), owrk3(*)
-dimension dvbdet(ndetvb)
-dimension grad1(npr), grad2(npr)
-dimension hessorb(nprorb,nprorb)
-dimension iorts(2,nort)
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-dimension vec1(*)
-dimension hessinp(npr), hessout(npr)
+real(kind=wp) :: orbs(norb,norb), civecp(ndet), civbs(ndet), civb(ndet), citmp(ndet), orbinv(norb,norb), sorbs(norb,norb), &
+                 owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), dvbdet(ndetvb), grad1(npr), grad2(npr), hessorb(nprorb,nprorb), &
+                 vec1(*), hessinp(npr), hessout(npr), owrk2(*), owrk3(*)
+integer(kind=iwp) :: iorts(2,nort)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, iorb, iort, jorb, ki, kj, korb, lj, lorb
+real(kind=wp) :: corr1, fac1, fac2, g1f, g2f, hess_ci_nrm, hess_orb_nrm
+logical(kind=iwp) :: orbopt2, strucopt2
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: ddot_, dnrm2_
 
 hess_orb_nrm = dnrm2_(nprorb,hessinp,1)
-orbopt2 = hess_orb_nrm > 1d-10
+orbopt2 = hess_orb_nrm > 1.0e-10_wp
 if (nprvb > 0) then
   hess_ci_nrm = dnrm2_(nprvb,hessinp(nprorb+1),1)
 else
-  hess_ci_nrm = zero
+  hess_ci_nrm = Zero
 end if
-strucopt2 = strucopt .and. (hess_ci_nrm > 1d-10)
+strucopt2 = strucopt .and. (hess_ci_nrm > 1.0e-10_wp)
 if (orbopt2 .and. (.not. strucopt2)) n_orbhess = n_orbhess+1
 if (strucopt2 .and. (.not. orbopt2)) n_cihess = n_cihess+1
 
@@ -121,16 +117,16 @@ if (orbopt2 .and. (nort > 0)) then
   do iort=1,nort
     iorb = iorts(1,iort)
     jorb = iorts(2,iort)
-    corr1 = zero
+    corr1 = Zero
     do korb=1,norb
       ki = korb+(iorb-1)*(norb-1)
       if (korb > iorb) ki = ki-1
       kj = korb+(jorb-1)*(norb-1)
       if (korb > jorb) kj = kj-1
-      if (korb /= iorb) corr1 = corr1+owrk(jorb,korb)*(aa1*grad2(ki)+.5d0*oaa2*grad1(ki))
-      if (korb /= jorb) corr1 = corr1+owrk(iorb,korb)*(aa1*grad2(kj)+.5d0*oaa2*grad1(kj))
+      if (korb /= iorb) corr1 = corr1+owrk(jorb,korb)*(aa1*grad2(ki)+Half*oaa2*grad1(ki))
+      if (korb /= jorb) corr1 = corr1+owrk(iorb,korb)*(aa1*grad2(kj)+Half*oaa2*grad1(kj))
     end do
-    corr1 = -.5d0*corr1
+    corr1 = -Half*corr1
     do korb=1,norb
       if (korb == iorb) cycle
       ki = korb+(iorb-1)*(norb-1)

@@ -14,21 +14,22 @@
 
 subroutine mkorbperm2_cvb(orbs,cvb,owrk,cvbdet)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), owrk(norb,norb), cvbdet(ndetvb)
 #include "print_cvb.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension owrk(norb,norb), cvbdet(ndetvb)
+integer(kind=iwp) :: iorb, jorb
+real(kind=wp) :: sgn
 
 if (ip(1) >= 1) then
-  write(6,'(/,a)') ' Permuting orbitals :'
-  write(6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
+  write(u6,'(/,a)') ' Permuting orbitals :'
+  write(u6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
 end if
 do iorb=1,norb
   jorb = abs(iorbprm(iorb))
-  sgn = dble(sign(1,iorbprm(iorb)))
+  sgn = real(sign(1,iorbprm(iorb)),kind=wp)
   call fmove_cvb(orbs(1,jorb),owrk(1,iorb),norb)
   call dscal_(norb,sgn,owrk(1,iorb),1)
 end do

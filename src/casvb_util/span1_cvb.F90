@@ -15,16 +15,19 @@
 subroutine span1_cvb(c,nvec,s,n,metr)
 
 use casvb_global, only: iaddr, nvecmx, nvtot
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nvec, n, metr
+real(kind=wp) :: c(n,nvec), s(*)
 #include "WrkSpc.fh"
-dimension c(n,nvec), s(*)
+integer(kind=iwp) :: nvmove, nvremain
 
 nvremain = nvec
 do
   nvmove = min(nvremain,nvecmx-nvtot)
   if ((nvmove == 0) .and. (nvremain > 0)) then
-    write(6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
+    write(u6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
     call abend_cvb()
   end if
   call fmove_cvb(c(1,1+nvec-nvremain),work(nvtot*n+iaddr),n*nvmove)

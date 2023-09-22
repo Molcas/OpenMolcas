@@ -15,8 +15,12 @@
 subroutine saoon_cvb(c1,c2,n2,s,n,metr)
 ! Put matrix product S*C1 in C2:
 
-implicit real*8(a-h,o-z)
-dimension c1(n,n2), c2(n,n2), s(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n2, n, metr
+real(kind=wp) :: c1(n,n2), c2(n,n2), s(*)
+integer(kind=iwp) :: i, ik, j, k
 
 if (metr == 0) then
   call fmove_cvb(c1,c2,n*n2)

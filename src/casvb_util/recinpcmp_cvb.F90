@@ -14,16 +14,18 @@
 
 function recinpcmp_cvb(ifield)
 
-implicit real*8(a-h,o-z)
-logical recinpcmp_cvb
-! ... Files/Hamiltonian available ...
-logical, external :: valid_cvb
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: recinpcmp_cvb
+integer(kind=iwp) :: ifield
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-logical done
+integer(kind=iwp) :: i, i1, ioff1, ioff2, j1, joff1, joff2
+logical(kind=iwp) :: done
+integer(kind=iwp), external :: mstackr_cvb
+logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
 
 if (.not. valid_cvb(recinp_old)) then
   recinpcmp_cvb = .true.

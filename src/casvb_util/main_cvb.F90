@@ -14,16 +14,14 @@
 
 subroutine main_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-external loopcntr_iterate_cvb
-logical loopcntr_iterate_cvb
+integer(kind=iwp) :: i, ibase
+integer(kind=iwp), external :: mstackr_cvb
+logical(kind=iwp), external :: loopcntr_iterate_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (service) return
 ibase = mstackr_cvb(0)
@@ -52,8 +50,8 @@ do while (loopcntr_iterate_cvb())
 
   if (endvar .and. (.not. up2date_cvb('PRTSUM'))) then
     ! End of variational calculation
-    if (ip(1) >= 0) write(6,'(/,a)') ' CASVB -- summary of results :'
-    if (ip(1) >= 0) write(6,'(a)') ' -----------------------------'
+    if (ip(1) >= 0) write(u6,'(/,a)') ' CASVB -- summary of results :'
+    if (ip(1) >= 0) write(u6,'(a)') ' -----------------------------'
     call make_cvb('PRTSUM')
   end if
 

@@ -15,9 +15,12 @@
 subroutine bspset2_cvb(ikcoff,nel,kbasis,need)
 
 use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-dimension ikcoff(0:nel,0:nel,0:nel)
+implicit none
+integer(kind=iwp) :: nel, kbasis, need, ikcoff(0:nel,0:nel,0:nel)
+integer(kind=iwp) :: i2s1, ifrag, iMs, ion, iS, nalf1, nalf1_spin, nalfsing, nel1, nelsing
+integer(kind=iwp), external :: ifns_cvb, ndet_cvb
 
 do ifrag=1,nfrag
   do ion=mnion_fr(ifrag),mxion_fr(ifrag)

@@ -15,10 +15,12 @@
 subroutine undepend_cvb(chr1,chr2)
 
 use casvb_global, only: charobj, i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, mustdeclare, ndep_ij, ndep_ji, nobj
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr1, chr2
-logical done
+implicit none
+character(len=*) :: chr1, chr2
+integer(kind=iwp) :: i, ic, ii, iobj, j, jobj, m_cancelled, n_cancelled
+logical(kind=iwp) :: done
 
 ic = 3
 
@@ -31,13 +33,13 @@ do
   end do
   if (iobj == 0) then
     if (mustdeclare) then
-      write(6,*) ' Make object not found :',chr1
+      write(u6,*) ' Make object not found :',chr1
       call abend_cvb()
     end if
     call decl_cvb(chr1)
   else if (jobj == 0) then
     if (mustdeclare) then
-      write(6,*) ' Make object not found :',chr2
+      write(u6,*) ' Make object not found :',chr2
       call abend_cvb()
     end if
     call decl_cvb(chr2)
@@ -46,7 +48,7 @@ do
   end if
 end do
 
-if (iprint >= 10) write(6,*) ' Cancel I depends on J :',iobj,jobj
+if (iprint >= 10) write(u6,*) ' Cancel I depends on J :',iobj,jobj
 n_cancelled = 0
 if (mod(ic,2) == 1) then
   do

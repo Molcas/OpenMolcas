@@ -13,15 +13,18 @@
 !***********************************************************************
 ! -- Integer routines - just front-ends for real*8 ---
 
-integer function mavaili_cvb()
+function mavaili_cvb()
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: mavaili_cvb
 #include "idbl_cvb.fh"
+integer(kind=iwp), external :: mavailr_cvb
 
 mavaili_cvb = mavailr_cvb()*idbl
-if (memdebug) write(6,*) '   mavaili :',mavaili_cvb
+if (memdebug) write(u6,*) '   mavaili :',mavaili_cvb
 
 return
 

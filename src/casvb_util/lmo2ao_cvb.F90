@@ -15,14 +15,15 @@
 subroutine lmo2ao_cvb(orbs,orbsao,norb1)
 
 use casvb_global, only: nbas_mo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: norb1
+real(kind=wp) :: orbs(norb,norb1), orbsao(nbas_mo,norb1)
 #include "WrkSpc.fh"
-dimension orbsao(nbas_mo,norb1), orbs(norb,norb1)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackr_cvb
 
 if (norb1 == 0) return
 i1 = mstackr_cvb(nbas_mo*norb)

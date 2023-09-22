@@ -15,21 +15,23 @@
 subroutine decl_cvb(chr)
 
 use casvb_global, only: charobj, ioffs, iprint, joffs, mxobj, nobj, up2date
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr
+implicit none
+character(len=*) :: chr
+integer(kind=iwp) :: i, ii, iobj
 
 iobj = 0
 do i=1,nobj
   if (charobj(i) == chr) iobj = i
 end do
 if (iobj > 0) then
-  if (iprint > 1) write(6,*) ' Make object exists already :',chr
+  if (iprint > 1) write(u6,*) ' Make object exists already :',chr
   return
 end if
 nobj = nobj+1
 if (nobj > mxobj) then
-  write(6,*) ' Too many make objects, max :',mxobj
+  write(u6,*) ' Too many make objects, max :',mxobj
   call abend_cvb()
 end if
 charobj(nobj) = chr
@@ -37,8 +39,8 @@ up2date(nobj) = .false.
 ioffs(nobj+1) = ioffs(nobj)
 joffs(nobj+1) = joffs(nobj)
 if (iprint >= 10) then
-  write(6,*) ' IOFFS :',(ioffs(ii),ii=1,nobj+1)
-  write(6,*) ' JOFFS :',(joffs(ii),ii=1,nobj+1)
+  write(u6,*) ' IOFFS :',(ioffs(ii),ii=1,nobj+1)
+  write(u6,*) ' JOFFS :',(joffs(ii),ii=1,nobj+1)
 end if
 
 return

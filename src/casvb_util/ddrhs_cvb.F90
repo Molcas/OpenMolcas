@@ -15,18 +15,20 @@
 subroutine ddrhs_cvb(vec,ndim,ioffs)
 
 use casvb_global, only: idd, ivrhs, mxrhs, nparm, nvrhs
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ndim, ioffs
+real(kind=wp) :: vec(ndim)
 #include "WrkSpc.fh"
-dimension vec(ndim)
 
 nvrhs = nvrhs+1
 if (nvrhs > mxrhs) then
-  write(6,*) ' Too many RHS vectors in Davidson!',nvrhs,mxrhs
+  write(u6,*) ' Too many RHS vectors in Davidson!',nvrhs,mxrhs
   call abend_cvb()
 end if
 if (ndim+ioffs > nparm) then
-  write(6,*) ' Illegal call to DDRHS :',ndim,ioffs,nparm
+  write(u6,*) ' Illegal call to DDRHS :',ndim,ioffs,nparm
   call abend_cvb()
 end if
 call fzero(work(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)

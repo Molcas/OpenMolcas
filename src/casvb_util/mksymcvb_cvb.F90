@@ -12,13 +12,11 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mksymcvb_cvb()
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
 
 call mksymcvb2_cvb(work(lv(2)),work(ls(15)),work(lv(5)))

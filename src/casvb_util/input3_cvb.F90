@@ -15,48 +15,44 @@
 subroutine input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,izrstr,iorts,irots,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
 
 use casvb_global, only: nspinb, spinbkw
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: valid_cvb
+implicit none
 #include "main_cvb.fh"
+integer(kind=iwp) :: mxdimrel, iorbrel(mxdimrel), ifxorb(mxorb_cvb), ifxstr, izrstr, iorts(*), irots(*), izeta(*), ip_iconfs, &
+                     irdorbs(mxorb_cvb), ip_cvb, ip_symelm, kbasiscvb_inp
+real(kind=wp) :: orbs(mxaobf,mxorb_cvb)
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-parameter(nglob=5,nstrin=51,nendvb=3,nspec=3,ncrit=2,nmeth=12,nwkw=5,ncmp=4)
-character*8 global, string, endvb, specl
-character*8 crit, weightkw, methkw
-character*50 inpstr
-logical firsttime_cvb
-logical DoCholesky
-external firsttime_cvb
-dimension global(nglob), string(nstrin), endvb(nendvb), specl(nspec)
-dimension crit(ncrit)
-dimension weightkw(nwkw), methkw(nmeth)
-dimension iorbrel(mxdimrel), ifxorb(mxorb_cvb)
-dimension iorts(*), irots(*), izeta(*)
-dimension orbs(mxaobf,mxorb_cvb), irdorbs(mxorb_cvb)
-dimension idum(1)
-save global, string, endvb, specl
-save crit, weightkw, methkw
-data global/'XXXXxxxx','START   ','GUESS   ','PRINT   ','PREC    '/
-data string/'XXXXxxxx','XXXXxxxx','SAVE    ','XXXXxxxx','ORBPERM ','COUPLE  ','MAXITER ','CRIT    ','CASPROJ ','PROJCAS ', &
-            'NOCASPRO','NOPROJCA','XXXXxxxx','XXXXxxxx','SYMELM  ','ORBREL  ','XXXXxxxx','SYMPROJ ','NOSYMPRO','FIXORB  ', &
-            'FIXSTRUC','DELSTRUC','FREORB  ','FRESTRUC','ORTHCON ','SADDLE  ','SHSTRUC ','VBWEIGHT','CIWEIGHT','SCORR   ', &
-            'NOSCORR ','METHOD  ','OPTIM   ','OPT     ','ENDOPTIM','REPORT  ','ENDREPOR','XXXXxxxx','TUNE    ','XXXXxxxx', &
-            'OPPOSITE','XXXXxxxx','XXXXxxxx','STAT    ','INIT    ','NOINIT  ','TIDY    ','PLOC    ','NOPLOC  ','ALTERNAT', &
-            'ENDALTER'/
-data endvb/'ENDVB   ','ENDCASVB','END     '/
-data specl/'SERVICE ','MOSCOW  ','PERFLOC '/
-data crit/'OVERLAP ','ENERGY  '/
-data weightkw/'CHIRGWIN','LOWDIN  ','INVERSE ','NONE    ','ALL     '/
-data methkw/'FLETCHER','TRIM    ','TRUSTOPT','DAVIDSON','STEEP   ','VB2CAS  ','AUGHESS ','AUG2    ','CHECK   ','DFLETCH ', &
-            'NONE    ','SUPER   '/
+integer(kind=iwp) :: i, idum(1), igroup, io, iorb, istr, istr2, isymput, itag, itmp, itmp2, itmpa, itmpb, itmpc, itmpd, jorb, &
+                     kbasis_old, mxalter, mxgroup, mxortl, mxpair, mxread, nfrorb1, nfxorb1, nops, nread
+logical(kind=iwp) :: DoCholesky
+character(len=50) :: inpstr
+integer(kind=iwp), parameter :: ncmp = 4, ncrit = 2, nendvb = 3, nglob = 5, nmeth = 12, nspec = 3, nstrin = 51, nwkw = 5
+character(len=*), parameter :: crit(ncrit) = ['OVERLAP ','ENERGY  '], &
+                               endvb(nendvb) = ['ENDVB   ','ENDCASVB','END     '], &
+                               glbl(nglob) = ['XXXXxxxx','START   ','GUESS   ','PRINT   ','PREC    '], &
+                               methkw(nmeth) = ['FLETCHER','TRIM    ','TRUSTOPT','DAVIDSON','STEEP   ','VB2CAS  ','AUGHESS ', &
+                                                'AUG2    ','CHECK   ','DFLETCH ','NONE    ','SUPER   '], &
+                               specl(nspec) = ['SERVICE ','MOSCOW  ','PERFLOC '], &
+                               string(nstrin) = ['XXXXxxxx','XXXXxxxx','SAVE    ','XXXXxxxx','ORBPERM ','COUPLE  ','MAXITER ', &
+                                                 'CRIT    ','CASPROJ ','PROJCAS ','NOCASPRO','NOPROJCA','XXXXxxxx','XXXXxxxx', &
+                                                 'SYMELM  ','ORBREL  ','XXXXxxxx','SYMPROJ ','NOSYMPRO','FIXORB  ','FIXSTRUC', &
+                                                 'DELSTRUC','FREORB  ','FRESTRUC','ORTHCON ','SADDLE  ','SHSTRUC ','VBWEIGHT', &
+                                                 'CIWEIGHT','SCORR   ','NOSCORR ','METHOD  ','OPTIM   ','OPT     ','ENDOPTIM', &
+                                                 'REPORT  ','ENDREPOR','XXXXxxxx','TUNE    ','XXXXxxxx','OPPOSITE','XXXXxxxx', &
+                                                 'XXXXxxxx','STAT    ','INIT    ','NOINIT  ','TIDY    ','PLOC    ','NOPLOC  ', &
+                                                 'ALTERNAT','ENDALTER'], &
+                               weightkw(nwkw) = ['CHIRGWIN','LOWDIN  ','INVERSE ','NONE    ','ALL     ']
+integer(kind=iwp), external :: mavaili_cvb, mheapi_cvb, mstacki_cvb, mstackiz_cvb
+logical(kind=iwp), external :: firsttime_cvb, valid_cvb ! ... Files/Hamiltonian available ...
 
 call DecideOnCholesky(DoCholesky)
 if (DoCholesky) then
-  write(6,*) '** Cholesky or RI/DF not yet implemented in CASVB **'
+  write(u6,*) '** Cholesky or RI/DF not yet implemented in CASVB **'
   call abend_cvb()
 end if
 
@@ -64,22 +60,22 @@ call fstring_cvb(specl,nspec,istr,ncmp,2)
 if (istr == 1) then
   ! 'SERVICE'
   service = .true.
-  write(6,'(1x,a,/)') '**** Service mode **** '
+  write(u6,'(1x,a,/)') '**** Service mode **** '
   !call service_cvb()
-  write(6,*) ' Casvb dummy routine called : SERV'
+  write(u6,*) ' Casvb dummy routine called : SERV'
   return
 else if (istr == 2) then
   ! 'MOSCOW'
   service = .true.
-  write(6,'(1x,a,/)') '**** MOSCOW mode **** '
+  write(u6,'(1x,a,/)') '**** MOSCOW mode **** '
   !call moscow_cvb()
-  write(6,*) ' Casvb dummy routine called : MOSCOW'
+  write(u6,*) ' Casvb dummy routine called : MOSCOW'
   return
 else if (istr == 3) then
   service = .true.
-  write(6,'(1x,a,/)') '**** PERFLOC mode **** '
+  write(u6,'(1x,a,/)') '**** PERFLOC mode **** '
   !call perfloc_plc(3)
-  write(6,*) ' Molint dummy routine called : perfloc_plc'
+  write(u6,*) ' Molint dummy routine called : perfloc_plc'
   return
 end if
 
@@ -91,7 +87,7 @@ do
   call fraginp_cvb(ip_iconfs)
 
   igroup = 0
-  call fstring_cvb(global,nglob,istr,ncmp,2)
+  call fstring_cvb(glbl,nglob,istr,ncmp,2)
   if (istr /= 0) then
     igroup = 1
   else
@@ -111,7 +107,7 @@ do
   if (igroup /= 2) then
     if (istr == 2) then
       ! 'START'
-      strtvb = zero
+      strtvb = Zero
       do
         call string_cvb(inpstr,1,nread,1)
         if (nread /= 1) exit
@@ -139,7 +135,7 @@ do
       call int_cvb(idum,1,nread,1)
       iprec = idum(1)
       if (iprec < 0) then
-        write(6,*) ' Illegal precision :',iprec
+        write(u6,*) ' Illegal precision :',iprec
         call abend_cvb()
       end if
       call int_cvb(idum,1,nread,1)
@@ -172,12 +168,12 @@ do
     if (firsttime_cvb()) call touch_cvb('ORBPERM')
     call int_cvb(iorbprm,mxorb_cvb,nread,0)
     if (nread > mxorb_cvb) then
-      write(6,*) ' Too many orbitals in ORBPERM keyword!'
+      write(u6,*) ' Too many orbitals in ORBPERM keyword!'
       call abend_cvb()
     end if
     do iorb=1,nread
       if ((abs(iorbprm(iorb)) < 1) .or. (abs(iorbprm(iorb)) > mxorb_cvb)) then
-        write(6,'(a,40i3)') ' Illegal orbital label(s) in ORBPERM:',(iorbprm(ior),ior=1,nread)
+        write(u6,'(a,40i3)') ' Illegal orbital label(s) in ORBPERM:',(iorbprm(io),io=1,nread)
         call abend_cvb()
       end if
     end do
@@ -195,7 +191,7 @@ do
     ! 'CRIT'
     call fstring_cvb(crit,ncrit,icrit,ncmp,1)
     if ((icrit /= 1) .and. (icrit /= 2)) then
-      write(6,*) ' Unrecognized CRIT keyword!'
+      write(u6,*) ' Unrecognized CRIT keyword!'
       call abend_cvb()
     end if
   else if ((istr == 9) .or. (istr == 10)) then
@@ -216,7 +212,7 @@ do
     call int_cvb(idum,1,nread,1)
     jorb = idum(1)
     if ((iorb < 1) .or. (iorb > mxorb_cvb) .or. (jorb < 1) .or. (jorb > mxorb_cvb)) then
-      write(6,*) ' Illegal orbital number(s) in ORBREL:',iorb,jorb
+      write(u6,*) ' Illegal orbital number(s) in ORBREL:',iorb,jorb
       call abend_cvb()
     end if
     iorbrel(1+ndimrel) = iorb
@@ -227,7 +223,7 @@ do
       if (itag == 0) exit
       nops = nops+1
       if (ndimrel+3+nops > mxdimrel) then
-        write(6,*) ' Too many symmetry elements in ORBREL keyword!'
+        write(u6,*) ' Too many symmetry elements in ORBREL keyword!'
         call abend_cvb()
       end if
       iorbrel(nops+3+ndimrel) = itag

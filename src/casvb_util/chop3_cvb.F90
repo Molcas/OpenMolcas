@@ -15,13 +15,14 @@
 subroutine chop3_cvb()
 
 use casvb_global, only: release
+use Constants, only: Zero
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iretval1, iretval2, kmost, mxdetvb, need
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 if (release(3)) call mfreer_cvb(lb(1))
 release(3) = .true.
@@ -51,8 +52,8 @@ else
   lb(2) = lb(1)
 end if
 ! Flag AIKCOF/BIKCOF as unset:
-work(lb(1)) = zero
-work(lb(2)) = zero
+work(lb(1)) = Zero
+work(lb(2)) = Zero
 
 lb(3) = mstacki_cvb((nel+1)*(nel+1)*(nel+1))
 lb(4) = mstacki_cvb((nel+1)*(nel+1))

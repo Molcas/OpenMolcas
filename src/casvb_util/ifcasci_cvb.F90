@@ -12,13 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function ifcasci_cvb()
+function ifcasci_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: ifcasci_cvb
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "casvb.fh"
 
 call f_inquire('JOBOLD',ifcasci_cvb)

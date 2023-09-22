@@ -14,11 +14,11 @@
 
 subroutine setifinish_cvb(icode)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: icode
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 if (icode == 1) then
   ifinish = 0

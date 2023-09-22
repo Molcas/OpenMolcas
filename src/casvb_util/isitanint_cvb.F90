@@ -12,14 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function isitanint_cvb(a)
+function isitanint_cvb(a)
 
-implicit real*8(a-h,o-z)
-logical done
-parameter(nallowed=12)
-character*(*) a
-character*(1) allowedchars(nallowed)
-data allowedchars/'+','-','0','1','2','3','4','5','6','7','8','9'/
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: isitanint_cvb
+character(len=*) :: a
+integer(kind=iwp) :: ich, j
+logical(kind=iwp) :: done
+integer(kind=iwp), parameter :: nallowed = 12
+character, parameter :: allowedchars(nallowed) = ['+','-','0','1','2','3','4','5','6','7','8','9']
+integer(kind=iwp), external :: len_trim_cvb
 
 done = .false.
 do ich=1,len_trim_cvb(a)

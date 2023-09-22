@@ -14,10 +14,15 @@
 
 subroutine bikset_cvb(aikcof,bikcof,nel,nalf,i2s,ndet,ifns,kbasis,share,iprint)
 
-implicit real*8(a-h,o-z)
-logical share
-dimension aikcof(ndet,ifns), bikcof(ndet,ifns)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nel, nalf, i2s, ndet, ifns, kbasis, iprint
+real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
+logical(kind=iwp) :: share
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, nalf_use, ndet_use
+integer(kind=iwp), external :: ndet_cvb, mstackr_cvb
 
 if (i2s /= 2*nalf-nel) then
   nalf_use = (i2s+nel)/2

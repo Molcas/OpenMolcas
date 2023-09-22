@@ -18,9 +18,11 @@ subroutine sortindxi_cvb(n,arrin,indx)
 !    method is heapsort, see also subroutine hpsort.
 ! -- taken from numerical recipies, p 233.
 
-implicit real*8(a-h,o-z)
-integer arrin
-dimension arrin(n), indx(n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, arrin(n), indx(n)
+integer(kind=iwp) :: i, indxt, ir, j, l, q
 
 do j=1,n
   indx(j) = j

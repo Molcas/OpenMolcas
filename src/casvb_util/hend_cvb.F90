@@ -12,9 +12,10 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine hend_cvb()
 
-implicit real*8(a-h,o-z)
+implicit none
 
 call bufio_end_cvb()
 

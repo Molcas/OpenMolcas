@@ -14,9 +14,14 @@
 
 subroutine schmidtt_cvb(c,nvec,t,nt,sao,n,metr)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, nt, n, metr
+real(kind=wp) :: c(n,nvec), t(nt,nvec), sao(*)
 #include "WrkSpc.fh"
-dimension c(n,nvec), t(nt,nvec), sao(*)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackr_cvb
 
 if (metr == 0) then
   call schmidtt2_cvb(c,c,nvec,t,nt,sao,n,metr)

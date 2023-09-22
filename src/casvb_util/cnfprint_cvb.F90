@@ -15,17 +15,16 @@
 subroutine cnfprint_cvb()
 
 use casvb_global, only: nconf_fr, ndetvb_fr, nel_fr, nfrag, nvbr_fr
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-logical recinpcmp_cvb
-dimension idum(1)
+integer(kind=iwp) :: i, i1, idum(1), ifrag, ioffs, nconf_off
+integer(kind=iwp), external :: mstacki_cvb
+logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (recinpcmp_cvb(4)) call touch_cvb('CNFPRINT')
 
@@ -49,14 +48,14 @@ if ((ip(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
   end if
   nconf_off = 0
   do ifrag=1,nfrag
-    if (nfrag > 1) write(6,'(/,a,i3)') ' Configuration list for wavefunction fragment',ifrag
-    write(6,'(/,a)') ' Spatial VB configurations'
-    write(6,'(a)') ' -------------------------'
-    write(6,'(a)') '     Conf. =>   Orbitals'
+    if (nfrag > 1) write(u6,'(/,a,i3)') ' Configuration list for wavefunction fragment',ifrag
+    write(u6,'(/,a)') ' Spatial VB configurations'
+    write(u6,'(a)') ' -------------------------'
+    write(u6,'(a)') '     Conf. =>   Orbitals'
     call cnfprt_cvb(iwork(noe*nconf_off+i1),nconf_fr(ifrag),nel_fr(ifrag))
-    write(6,'(/,a,i6)') ' Number of VB configurations :',nconf_fr(ifrag)
-    write(6,'(a,i6)') '           VB structures     :',nvbr_fr(ifrag)
-    write(6,'(a,i6)') '           VB determinants   :',ndetvb_fr(ifrag)
+    write(u6,'(/,a,i6)') ' Number of VB configurations :',nconf_fr(ifrag)
+    write(u6,'(a,i6)') '           VB structures     :',nvbr_fr(ifrag)
+    write(u6,'(a,i6)') '           VB determinants   :',ndetvb_fr(ifrag)
     nconf_off = nconf_off+nconf_fr(ifrag)
   end do
   call mfreei_cvb(i1)

@@ -14,7 +14,11 @@
 
 subroutine weight_cvb(ix,nkmin,nkmax,n,nel)
 
-dimension nkmin(0:nel), nkmax(0:nel), ix(0:nel,0:n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, nel, ix(0:nel,0:n), nkmin(0:nel), nkmax(0:nel)
+integer(kind=iwp) :: iel, ik
 
 call izero(ix,(n+1)*(nel+1))
 ix(0,0) = 1

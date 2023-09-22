@@ -16,18 +16,20 @@ subroutine axesxb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,c,axc,sx
 
 use casvb_global, only: corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, orththrdd, &
                         resthrdd
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical share
-external asonc, ddres2upd
-external axexbsol_cvb, axesxbres_cvb, ddrestart_cvb
-dimension c(nparm,maxd), axc(nparm,maxd), sxc(nparm,maxd)
-dimension vec(nparm), res(nparm), rhs(*)
-dimension ap(maxd,maxd), rhsp(maxd)
-dimension solp(maxd), solp_res(maxd)
+implicit none
+external :: asonc, ddres2upd
+real(kind=wp) :: vec(nparm), resthr_inp, fx_exp, c(nparm,maxd), axc(nparm,maxd), sxc(nparm,maxd), res(nparm), rhs(*), &
+                 ap(maxd,maxd), rhsp(maxd), solp(maxd), solp_res(maxd)
+integer(kind=iwp) :: ioptc, iter
+logical(kind=iwp) :: share
+real(kind=wp) :: resthr_use
+external :: axesxbres_cvb, axexbsol_cvb, ddrestart_cvb
 
 ! If RESTHR_INP unset use default:
-if (resthr_inp /= 0d0) then
+if (resthr_inp /= Zero) then
   resthr_use = resthr_inp
 else
   resthr_use = resthrdd

@@ -15,14 +15,17 @@
 subroutine dev1b2_cvb(cfrom,cto,dmat,i1alf,i1bet,iato,ibto,phato,phbto,iparmx,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym,diag)
 ! Calculates all CTO Eij CFROM
 
-implicit real*8(a-h,o-z)
-logical commut, sc, absym, diag
-dimension cfrom(nda,ndb), cto(nda,ndb), dmat(iparmx)
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-save two
-data two/2d0/
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nam1, iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), iparmx, &
+                     nda, ndb
+real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), dmat(iparmx), phato(norb,nam1), phbto(norb,nbm1)
+logical(kind=iwp) :: commut, sc, absym, diag
+integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iparm, jax, jbx, jorb
+real(kind=wp) :: tcof
+real(kind=wp), external :: ddot_
 
 call fzero(dmat,iparmx)
 
@@ -56,7 +59,7 @@ do iorb=1,norb
         end if
       end do
     else
-      dmat(iparm) = two*dmat(iparm)
+      dmat(iparm) = Two*dmat(iparm)
     end if
   end do
 end do

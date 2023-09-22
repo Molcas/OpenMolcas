@@ -14,9 +14,12 @@
 
 subroutine charinsert_cvb(cinsert,linsert,c,lc,ipos,idel)
 
-implicit real*8(a-h,o-z)
-character*(*) cinsert, c
-character*300 buff
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: cinsert, c
+integer(kind=iwp) :: linsert, lc, ipos, idel
+character(len=300) :: buff
 
 buff(1:lc-(ipos+idel)+1) = c(ipos+idel:lc)
 c(ipos:ipos+linsert-1) = cinsert(1:linsert)

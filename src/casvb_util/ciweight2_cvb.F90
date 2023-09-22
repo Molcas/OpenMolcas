@@ -17,34 +17,28 @@ subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,gj
                          locasg,lunasg,gal1,gal2,indavec,indbvec,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
 use casvb_global, only: form2AD, formAD
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-w,y-z),integer(x)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+integer(kind=iwp) :: mingrph(0:norb), maxgrph(0:norb), xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), iaocc(norb), ibocc(norb), &
+                     mingion(0:norb), maxgion(0:norb), nkion(0:norb), ionmax, xion((norb+1)*(ionmax+1)), locion(norb), &
+                     lunion(norb), mingsng(0:norb), maxgsng(0:norb), nksng(0:norb), mxrem, mxsng, xsng((mxrem+1)*(mxsng+1)), &
+                     locsng(norb), lunsng(norb), mingasg(0:norb), maxgasg(0:norb), nkasg(0:norb), mxasg, &
+                     xasg((mxsng+1)*(mxasg+1)), locasg(norb), lunasg(norb), mxdetcas, indavec(mxdetcas), indbvec(mxdetcas), &
+                     ionmin, ncnfcas
+real(kind=wp) :: civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet), orbs(norb,norb), sorbs(norb,norb), &
+                 orbinv(norb,norb), owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), vec1(ndet), vec2(ndet), vec3(ndet), &
+                 vec4(ndet), vec5(ndet), wghtion1(ionmin:ionmax), wghtion2(ionmin:ionmax), wghtion3(ionmin:ionmax), &
+                 wghtion4(ionmin:ionmax), wghtion5(ionmin:ionmax), wghtion6(ionmin:ionmax), gal1(ncnfcas), gal2(ncnfcas)
 #include "print_cvb.fh"
-character*240 line
-dimension civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet)
-dimension orbs(norb,norb), sorbs(norb,norb)
-dimension orbinv(norb,norb), owrk(norb,norb)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
-dimension vec1(ndet), vec2(ndet), vec3(ndet), vec4(ndet), vec5(ndet)
-dimension wghtion1(ionmin:ionmax), wghtion2(ionmin:ionmax)
-dimension wghtion3(ionmin:ionmax), wghtion4(ionmin:ionmax)
-dimension wghtion5(ionmin:ionmax), wghtion6(ionmin:ionmax)
-dimension mingrph(0:norb), maxgrph(0:norb)
-dimension xalf(0:norb,0:nalf), xbet(0:norb,0:nbet)
-dimension iaocc(norb), ibocc(norb)
-dimension mingion(0:norb), maxgion(0:norb), nkion(0:norb)
-dimension xion((norb+1)*(ionmax+1)), locion(norb), lunion(norb)
-dimension mingsng(0:norb), maxgsng(0:norb), nksng(0:norb)
-dimension xsng((mxrem+1)*(mxsng+1)), locsng(norb), lunsng(norb)
-dimension mingasg(0:norb), maxgasg(0:norb), nkasg(0:norb)
-dimension xasg((mxsng+1)*(mxasg+1)), locasg(norb), lunasg(norb)
-dimension gal1(ncnfcas), gal2(ncnfcas)
-dimension indavec(mxdetcas), indbvec(mxdetcas)
-dimension cprint(6)
-integer rc
+integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
+                     ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
+real(kind=wp) :: c1, c2, c3, c4, cnrm, cprint(6), fac, fac1, fac2, s11, s12, s22, sm1, sm2, sum1, sum2, total1, total2, total3, &
+                 total4, total5, total6
+character(len=240) :: line
+integer(kind=iwp), external :: indget_cvb, len_trim_cvb
 
 call cidot_cvb(civb,civbs,cnrm)
 fac = svb/sqrt(cnrm)
@@ -127,9 +121,9 @@ if (mod(iciweights,8) > 3) then
       indsng = 1
       do
         call fzero(vec5,ndet)
-        s11 = zero
-        s22 = zero
-        s12 = zero
+        s11 = Zero
+        s22 = Zero
+        s12 = Zero
         ! Loop singly occupied alpha
         indasg = 1
 
@@ -166,7 +160,7 @@ if (mod(iciweights,8) > 3) then
         call applyt_cvb(civec5,gjorb)
 
         call icomb_cvb(nsing,nalfsng,nindasg)
-        sm1 = zero
+        sm1 = Zero
         do indasg=1,nindasg
           inda = indavec(indasg)
           indb = indbvec(indasg)
@@ -174,10 +168,10 @@ if (mod(iciweights,8) > 3) then
           sm1 = sm1+vec3(indab)*vec5(indab)
         end do
 
-        if (abs(sm1) > 1.d-20) then
+        if (abs(sm1) > 1.0e-20_wp) then
           sm1 = s11*s11/sm1
-        else if (abs(sm1) <= 1.d-20) then
-          sm1 = zero
+        else if (abs(sm1) <= 1.0e-20_wp) then
+          sm1 = Zero
         end if
 
         call fzero(vec5,ndet)
@@ -190,7 +184,7 @@ if (mod(iciweights,8) > 3) then
 
         call applyt_cvb(civec5,gjorb)
 
-        sm2 = zero
+        sm2 = Zero
         do indasg=1,nindasg
           inda = indavec(indasg)
           indb = indbvec(indasg)
@@ -198,10 +192,10 @@ if (mod(iciweights,8) > 3) then
           sm2 = sm2+vec4(indab)*vec5(indab)
         end do
 
-        if (abs(sm2) > 1.d-20) then
+        if (abs(sm2) > 1.0e-20_wp) then
           sm2 = s22*s22/sm2
-        else if (abs(sm2) <= 1.d-20) then
-          sm2 = zero
+        else if (abs(sm2) <= 1.0e-20_wp) then
+          sm2 = Zero
         end if
 
         nc = nc+1
@@ -215,14 +209,14 @@ if (mod(iciweights,8) > 3) then
       if (rc == 0) exit
     end do
   end do
-  sum1 = zero
-  sum2 = zero
+  sum1 = Zero
+  sum2 = Zero
   do ic=1,ncnfcas
     sum1 = sum1+gal1(ic)
     sum2 = sum2+gal2(ic)
   end do
   fac1 = one/sum1
-  if ((abs(one-svb*svb) < 1.d-20) .and. (abs(sum2) < 1.d-20)) then
+  if ((abs(one-svb*svb) < 1.0e-20_wp) .and. (abs(sum2) < 1.0e-20_wp)) then
     fac2 = one
   else
     fac2 = (one-svb*svb)/sum2
@@ -248,13 +242,13 @@ if (mod(iciweights,4) > 1) then
   end do
 end if
 
-write(6,'(/,2a)') ' Weights of CASSCF configurations in VB basis (c_res=c_cas-Svb*c_vb) :'
-write(6,'(2a)') ' ---------------------------------------------------------------------'
+write(u6,'(/,2a)') ' Weights of CASSCF configurations in VB basis (c_res=c_cas-Svb*c_vb) :'
+write(u6,'(2a)') ' ---------------------------------------------------------------------'
 if (mod(iciweights,8) > 3) then
-  write(6,'(a)') ' Sum of inverse-overlap weights :'
-  write(6,form2AD) ' c_cas :',sum1,' expected :',one
-  write(6,form2AD) ' c_res :',sum2,' expected :',one-svb*svb
-  write(6,'(a)') ' '
+  write(u6,'(a)') ' Sum of inverse-overlap weights :'
+  write(u6,form2AD) ' c_cas :',sum1,' expected :',one
+  write(u6,form2AD) ' c_res :',sum2,' expected :',one-svb*svb
+  write(u6,'(a)') ' '
 end if
 lenfld = 8+iprec
 ix1 = max(0,min(3,2*lenfld-16))
@@ -275,7 +269,7 @@ if ((npcf > 0) .or. (npcf == -1)) then
     line(ibegt+ix1:ibegt+2*lenfld-1) = 'Inverse'
     ibegt = ibegt+2*lenfld
   end if
-  write(6,'(a)') line(1:len_trim_cvb(line))
+  write(u6,'(a)') line(1:len_trim_cvb(line))
   call cblank_cvb(line,240)
   if (mod(iciweights,2) == 1) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
@@ -295,7 +289,7 @@ if ((npcf > 0) .or. (npcf == -1)) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
     ibeg = ibeg+lenfld
   end if
-  write(6,'(a)') line(1:len_trim_cvb(line))
+  write(u6,'(a)') line(1:len_trim_cvb(line))
 end if
 call cblank_cvb(line,240)
 
@@ -355,10 +349,10 @@ do ion=ionmin,ionmax
     ! Loop singly occupied
     indsng = 1
     do
-      c1 = zero
-      c2 = zero
-      c3 = zero
-      c4 = zero
+      c1 = Zero
+      c2 = Zero
+      c3 = Zero
+      c4 = Zero
       ! Loop singly occupied alpha
       indasg = 1
 
@@ -427,7 +421,7 @@ do ion=ionmin,ionmax
           cprint(nprint+2) = gal2(nc)
           nprint = nprint+2
         end if
-        write(6,formAD) line(1:ilin),(cprint(mp),mp=1,nprint)
+        write(u6,formAD) line(1:ilin),(cprint(mp),mp=1,nprint)
       end if
       call loind_cvb(mrem,nsing,nksng,mingsng,maxgsng,locsng,lunsng,indsng,xsng,rc)
       if (rc == 0) exit
@@ -452,7 +446,7 @@ if (mod(iciweights,8) > 3) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Inverse'
   ibeg = ibeg+2*lenfld
 end if
-write(6,'(/,a)') line(1:len_trim_cvb(line))
+write(u6,'(/,a)') line(1:len_trim_cvb(line))
 call cblank_cvb(line,240)
 ibeg = 22
 if (mod(iciweights,2) == 1) then
@@ -473,14 +467,14 @@ if (mod(iciweights,8) > 3) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
   ibeg = ibeg+lenfld
 end if
-write(6,'(a)') line(1:len_trim_cvb(line))
+write(u6,'(a)') line(1:len_trim_cvb(line))
 call cblank_cvb(line,240)
-total1 = zero
-total2 = zero
-total3 = zero
-total4 = zero
-total5 = zero
-total6 = zero
+total1 = Zero
+total2 = Zero
+total3 = Zero
+total4 = Zero
+total5 = Zero
+total6 = Zero
 do ion=ionmin,ionmax
   total1 = total1+wghtion1(ion)
   total2 = total2+wghtion2(ion)
@@ -506,7 +500,7 @@ do ion=ionmin,ionmax
     cprint(nprint+2) = wghtion6(ion)
     nprint = nprint+2
   end if
-  write(6,formAD) line(1:19),(cprint(mp),mp=1,nprint)
+  write(u6,formAD) line(1:19),(cprint(mp),mp=1,nprint)
 end do
 nprint = 0
 if (mod(iciweights,2) == 1) then
@@ -524,8 +518,8 @@ if (mod(iciweights,8) > 3) then
   cprint(nprint+2) = total6
   nprint = nprint+2
 end if
-write(6,formAD) ' Total all       : ',(cprint(mp),mp=1,nprint)
-write(6,'(a)') ' '
+write(u6,formAD) ' Total all       : ',(cprint(mp),mp=1,nprint)
+write(u6,'(a)') ' '
 
 return
 

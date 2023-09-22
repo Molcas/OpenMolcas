@@ -14,8 +14,12 @@
 
 subroutine rdgspr_cvb(recn,c,i,n,ic,ierr)
 
-implicit real*8(a-h,o-z)
-dimension c(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, n, ic, ierr
+real(kind=wp) :: recn, c(n)
+integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ierr = 0
 call fzero(c,n)

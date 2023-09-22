@@ -14,35 +14,39 @@
 
 subroutine putci_cvb(civec)
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: valid_cvb
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
 #include "io_cvb.fh"
-dimension ncix(mxirrep), civec(*)
+integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, lcim, nci, ncix(mxirrep)
+real(kind=wp) :: cnrm, fac
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
 
 icivec = nint(civec(1))
 iwr = 1
 
 if (iform_ci(icivec) /= 0) then
-  write(6,*) ' Unsupported format in GETCI :',iform_ci(icivec)
+  write(u6,*) ' Unsupported format in GETCI :',iform_ci(icivec)
   call abend_cvb()
 end if
 
 if (iwr == 0) then
   if (ip(1) >= 1) then
-    write(6,'(a)') ' '
+    write(u6,'(a)') ' '
     call prtfid_cvb(' Restoring CI vector from ',strtci)
   end if
   call fzero(work(iaddr_ci(icivec)),ndet)
 else if (iwr == 1) then
   if ((ip(5) >= 1) .and. valid_cvb(savvbci)) then
-    write(6,'(a)') ' '
+    write(u6,'(a)') ' '
     call prtfid_cvb(' Saving VB CI vector to ',savvbci)
   end if
 end if
@@ -54,7 +58,7 @@ do istsym_d=1,nstsym_d
   lcim = mstackr_cvb(nci)
   if (iwr == 0) then
     do istate=1,nstats_d(istsym_d)
-      if (abs(weight_d(istate,istsym_d)) > 1.d-20) then
+      if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call mkfn_cvb(strtci,ibf)
         call rdcivec_cvb(work(lcim),filename(ibf),.true.)
         fac = sqrt(weight_d(istate,istsym_d))
@@ -63,7 +67,7 @@ do istsym_d=1,nstsym_d
     end do
   else if (iwr == 1) then
     do istate=1,nstats_d(istsym_d)
-      if (abs(weight_d(istate,istsym_d)) > 1.d-20) then
+      if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
         cnrm = one/dnrm2_(nci,work(lcim),1)
         call dscal_(nci,cnrm,work(lcim),1)

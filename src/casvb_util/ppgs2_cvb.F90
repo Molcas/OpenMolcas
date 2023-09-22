@@ -15,25 +15,24 @@
 subroutine ppgs2_cvb(cvb,cvbdet,ifnss)
 
 use casvb_global, only: i2s_fr, mnion_fr, nconf_fr, nel_fr, nfrag, nS_fr, nvb_fr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension cvb(nvb), cvbdet(ndetvb), ifnss(0:nel,0:nel)
+real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp) :: ifnss(0:nel,0:nel)
+integer(kind=iwp) :: icoffs_nconf, ifrag, ioffs_cvb, iS, kbasiscvb_kp, nelsing
 
 ! First applicable configuration with first possible spin in
 ! each fragment is set to perfect-pairing:
-call dcopy_(nvb,[1d-2],0,cvb,1)
+call dcopy_(nvb,[1.0e-2_wp],0,cvb,1)
 ioffs_cvb = 0
 icoffs_nconf = 0
 do ifrag=1,nfrag
   nelsing = nel_fr(ifrag)-2*mnion_fr(ifrag)
   do iS=1,nS_fr(ifrag)
     if (i2s_fr(iS,ifrag) <= nelsing) then
-      cvb(ifnss(nelsing,i2s_fr(iS,ifrag))+ioffs_cvb) = 1d0
+      cvb(ifnss(nelsing,i2s_fr(iS,ifrag))+ioffs_cvb) = One
       exit
     end if
   end do

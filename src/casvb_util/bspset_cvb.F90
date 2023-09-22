@@ -14,12 +14,14 @@
 
 subroutine bspset_cvb(kbasis1,ic,need)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: kbasis1, ic, need
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, i1
+integer(kind=iwp), external :: mstackiz_cvb
 
 if (ic == 1) then
   i1 = mstackiz_cvb((nel+1)*(nel+1)*(nel+1))

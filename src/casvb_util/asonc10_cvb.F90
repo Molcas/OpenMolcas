@@ -15,19 +15,19 @@
 subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
 
 use casvb_global, only: ipp, iter
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nvec, nprm
+real(kind=wp) :: c(nprm,nvec), axc(nprm,nvec), dum1
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension c(nprm,nvec), axc(nprm,nvec)
+integer(kind=iwp) :: ivec
+real(kind=wp), external :: tim_cvb
 
 iter = iter+1
 if (ipp >= 2) then
-  write(6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
-  write(6,'(a)') ' -----------------------------------------------'
+  write(u6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
+  write(u6,'(a)') ' -----------------------------------------------'
 end if
 
 do ivec=1,nvec

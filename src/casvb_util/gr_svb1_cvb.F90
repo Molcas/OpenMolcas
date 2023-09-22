@@ -15,22 +15,19 @@
 subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
 use casvb_global, only: aa1, aa2, oaa2, oaa3, ovrab
+use Constants, only: Three, Four
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civecp(ndet), civbs(ndet), civb(ndet)
-dimension dvbdet(ndetvb)
-dimension grad(npr), grad1(npr), grad2(npr), gradx(norb,norb)
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-dimension vec1(*)
+real(kind=wp) :: civecp(ndet), civbs(ndet), civb(ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), vec1(*)
+integer(kind=iwp) :: i
 
 aa1 = one/sqrt(ovraa)
 aa2 = -aa1/(two*ovraa)
 oaa2 = two*ovrab*aa2
-oaa3 = 3d0*ovrab*aa1/(4d0*ovraa*ovraa)
+oaa3 = Three*ovrab*aa1/(Four*ovraa*ovraa)
 
 call fzero(gradx,norb*norb)
 call onedens_cvb(civb,civbs,gradx,.true.,1)

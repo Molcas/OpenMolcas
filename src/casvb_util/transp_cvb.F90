@@ -15,9 +15,14 @@
 subroutine transp_cvb(a,b,n1,n2)
 ! Transposes matrix A; A and B may share memory.
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1, n2
+real(kind=wp) :: a(n1,n2), b(n2,n1)
 #include "WrkSpc.fh"
-dimension a(n1,n2), b(n2,n1)
+integer(kind=iwp) :: i, i1, iskip, j
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(n2*n1)
 iskip = -n2+i1-1

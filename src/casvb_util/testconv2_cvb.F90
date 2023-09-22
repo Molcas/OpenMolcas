@@ -15,32 +15,36 @@
 subroutine testconv2_cvb(close2conv,converged,wrongstat,act,zz,step,grad,npr,eigmn,eigmx,eigmna,nposeig,nnegeig)
 
 use casvb_global, only: dx, dfx, formAD, grd, sgn, singul, zzmin, zzmax
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical close2conv, converged, wrongstat, close_old
-logical dfx_is_small, step_is_small, grad_is_small
-logical correct_index, zz_ok
+implicit none
+logical(kind=iwp) :: close2conv, converged, wrongstat
+integer(kind=iwp) :: npr, nposeig, nnegeig
+real(kind=wp) :: act, zz, step(npr), grad(npr), eigmn, eigmx, eigmna
 #include "print_cvb.fh"
-dimension step(npr), grad(npr)
+integer(kind=iwp) :: idum, mm
+real(kind=wp) :: grad_amx, grad_nrm, grad_rms, step_amx, step_nrm, step_rms
+logical(kind=iwp) :: close_old, correct_index, dfx_is_small, grad_is_small, step_is_small, zz_ok
+real(kind=wp), external :: dnrm2_
 
 close_old = close2conv
 
 step_nrm = dnrm2_(npr,step,1)
-step_rms = step_nrm/sqrt(dble(npr))
+step_rms = step_nrm/sqrt(real(npr,kind=wp))
 call findamx_cvb(step,npr,step_amx,idum)
 
 grad_nrm = dnrm2_(npr,grad,1)
-grad_rms = grad_nrm/sqrt(dble(npr))
+grad_rms = grad_nrm/sqrt(real(npr,kind=wp))
 call findamx_cvb(grad,npr,grad_amx,idum)
 
 if (ip(3) >= 2) then
   if ((nnegeig > 0) .and. (nposeig > 0)) then
-    write(6,*) ' Maximum eigenvalue : ',eigmx,' of first ',nnegeig,' values.'
-    write(6,*) ' Minimum eigenvalue : ',eigmn,' of last  ',nposeig,' values.'
+    write(u6,*) ' Maximum eigenvalue : ',eigmx,' of first ',nnegeig,' values.'
+    write(u6,*) ' Minimum eigenvalue : ',eigmn,' of last  ',nposeig,' values.'
   else if (nnegeig > 0) then
-    write(6,*) ' Maximum eigenvalue : ',eigmx
+    write(u6,*) ' Maximum eigenvalue : ',eigmx
   else
-    write(6,*) ' Minimum eigenvalue : ',eigmn
+    write(u6,*) ' Minimum eigenvalue : ',eigmn
   end if
 end if
 
@@ -76,14 +80,14 @@ correct_index = (eigmx < sgn(mm)) .and. (eigmn > -sgn(mm))
 zz_ok = (zz > zzmin(mm)) .and. (zz < zzmax(mm))
 
 if (ip(3) >= 2) then
-  write(6,'(/,a)') ' Test of convergence :'
-  write(6,'(a)') ' ---------------------'
+  write(u6,'(/,a)') ' Test of convergence :'
+  write(u6,'(a)') ' ---------------------'
   call cvprt_cvb(' 1) Change in F(x) :',dfx_is_small)
   call cvprt_cvb(' 2) Step length    :',step_is_small)
   call cvprt_cvb(' 3) Grad norm      :',grad_is_small)
   call cvprt_cvb(' 4) Hessian index  :',correct_index)
   call cvprt_cvb(' 5) Act/Exp ratio  :',zz_ok)
-  write(6,*) ' '
+  write(u6,*) ' '
   call cvprt2_cvb(' F(x) change   :',act,dfx(mm),1)
   call cvprt2_cvb(' Norm of step  :',step_nrm,dx(2,mm),1)
   call cvprt2_cvb(' RMS of step   :',step_rms,dx(3,mm),1)
@@ -95,7 +99,7 @@ if (ip(3) >= 2) then
   call cvprt2_cvb(' Min. eigval   :',eigmn,-sgn(mm),2)
   call cvprt2_cvb(' Act/Exp ratio :',zz,zzmin(mm),2)
   call cvprt2_cvb(' Act/Exp ratio :',zz,zzmax(mm),1)
-  write(6,*) ' '
+  write(u6,*) ' '
 end if
 
 converged = dfx_is_small .and. step_is_small .and. grad_is_small .and. correct_index .and. zz_ok
@@ -116,12 +120,12 @@ zz_ok = (zz > zzmin(mm)) .and. (zz < zzmax(mm))
 ! hasn't got correct index:
 wrongstat = dfx_is_small .and. step_is_small .and. grad_is_small .and. (.not. correct_index) .and. zz_ok
 
-if ((ip(3) >= 1) .and. close2conv .and. (.not. (converged .or. close_old))) write(6,'(a)') ' Optimization entering local region.'
+if ((ip(3) >= 1) .and. close2conv .and. (.not. (converged .or. close_old))) write(u6,'(a)') ' Optimization entering local region.'
 if (converged .and. (ip(3) >= 0)) then
-  write(6,formAD) ' Converged ... maximum update to coefficient:',step_amx
+  write(u6,formAD) ' Converged ... maximum update to coefficient:',step_amx
   if (eigmna <= singul(2)) then
-    write(6,'(a)') ' Warning - singular hessian!'
-    write(6,formAD) ' Smallest Hessian eigenvalue :',eigmna
+    write(u6,'(a)') ' Warning - singular hessian!'
+    write(u6,formAD) ' Smallest Hessian eigenvalue :',eigmna
   end if
 end if
 

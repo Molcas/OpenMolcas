@@ -12,16 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mxunit_cvb(a,n)
 
-implicit real*8(a-h,o-z)
-dimension a(n,n)
-save one
-data one/1d0/
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n,n)
+integer(kind=iwp) :: i
 
 call fzero(a,n*n)
 do i=1,n
-  a(i,i) = one
+  a(i,i) = One
 end do
 
 return

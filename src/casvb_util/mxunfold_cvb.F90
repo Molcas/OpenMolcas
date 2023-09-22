@@ -14,8 +14,12 @@
 
 subroutine mxunfold_cvb(avec,a,n)
 
-implicit real*8(a-h,o-z)
-dimension avec(n*(n-1)), a(n,n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: avec(n*(n-1)), a(n,n)
+integer(kind=iwp) :: i, iprm, j
 
 call fzero(a,n*n)
 iprm = 0

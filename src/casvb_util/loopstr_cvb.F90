@@ -12,13 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine loopstr_cvb(iocc,index,nel,norb)
+subroutine loopstr_cvb(iocc,indx,nel,norb)
 
-implicit real*8(a-h,o-z)
-dimension iocc(nel)
-logical done
+use Definitions, only: iwp
 
-index = index+1
+implicit none
+integer(kind=iwp) :: nel, iocc(nel), indx, norb
+integer(kind=iwp) :: iel, jel
+logical(kind=iwp) :: done
+
+indx = indx+1
 ! Find electron for which orbital number can be increased:
 done = .false.
 do iel=1,nel-1
@@ -30,7 +33,7 @@ end do
 if (.not. done) then
   iel = nel
   if (iocc(iel) >= norb) then
-    call loopstr0_cvb(iocc,index,nel,norb)
+    call loopstr0_cvb(iocc,indx,nel,norb)
     return
   end if
 end if

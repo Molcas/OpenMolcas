@@ -16,7 +16,7 @@ subroutine pushline_cvb()
 
 use casvb_global, only: iline, inp, nline, nlold
 
-implicit real*8(a-h,o-z)
+implicit none
 
 if ((iline == 1) .or. (nline == -1)) then
   backspace(inp)

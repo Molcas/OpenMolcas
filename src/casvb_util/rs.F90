@@ -55,8 +55,11 @@ subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer n, nm, ierr, matz
-real*8 a(nm,n), w(n), z(nm,n), fv1(n), fv2(n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, matz, ierr
+real(kind=wp) :: a(nm,n), w(n), z(nm,n), fv1(n), fv2(n)
 
 if (n > nm) then
   ierr = 10*n

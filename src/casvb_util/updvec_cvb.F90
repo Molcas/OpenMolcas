@@ -15,21 +15,21 @@
 subroutine updvec_cvb(upd,iorb,jorb,niprev,iprev,orbs,north,corth)
 ! Find update for IORB as projection of JORB on allowed space
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: upd(norb), orbs(norb,norb), corth(norb,niorth)
+integer(kind=iwp) :: iorb, jorb, niprev, iprev(niprev), north(norb)
 #include "WrkSpc.fh"
-dimension upd(norb)
-dimension iprev(niprev), orbs(norb,norb)
-dimension north(norb), corth(norb,niorth)
-dimension dum(1)
+integer(kind=iwp) :: i, i1, io, ncon, noffort
+real(kind=wp) :: dum(1)
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(norb*norb)
 noffort = 0
-do ior=1,iorb-1
-  noffort = noffort+north(ior)
+do io=1,iorb-1
+  noffort = noffort+north(io)
 end do
 ! Collect all constraints and find span:
 call span0_cvb(norb,norb)

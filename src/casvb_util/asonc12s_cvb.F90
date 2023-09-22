@@ -15,13 +15,15 @@
 subroutine asonc12s_cvb(c,dum,sxc,nvec,nprm)
 ! Applies S and H on c vector(s).
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nvec, nprm
+real(kind=wp) :: c(nvb,nvec), dum, sxc(nvb,nvec)
 #include "WrkSpc.fh"
-dimension c(nvb,nvec), sxc(nvb,nvec)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(nvb+nprorb)
 call asonc12s2_cvb(c,sxc,nvec,nprm,work(lc(3)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)), &

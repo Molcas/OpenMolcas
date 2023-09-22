@@ -15,16 +15,14 @@
 subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr,iabind,cvbdet1)
 
 use casvb_global, only: nbas_mo
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
+real(kind=wp) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb), cvbdet1(*)
+integer(kind=iwp) :: irdorbs(norb), iapr(ndetvb), ixapr(nda+1), iabind(*)
 #include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbsao(nbas_mo,norb), irdorbs(norb), cvb(nvb)
-dimension cvbdet(ndetvb), iapr(ndetvb), ixapr(nda+1)
-dimension iabind(*), cvbdet1(*)
-dimension idum(1)
+integer(kind=iwp) :: ia, ib, idetvb1, idum(1), ioffs, iorb, ixa, nalf1, nbet1, ndetvb1, norb1
 
 ioffs = 0
 call rdis_cvb(idum,1,recn_tmp04,ioffs)
@@ -36,10 +34,10 @@ nalf1 = idum(1)
 call rdis_cvb(idum,1,recn_tmp04,ioffs)
 nbet1 = idum(1)
 if ((norb1 /= norb) .or. (nalf1 /= nalf) .or. (nbet1 /= nbet)) then
-  write(6,'(a)') ' Inconsistency between previous and current VB wavefunction definitions.'
-  write(6,*) ' NORB now ',norb,' before ',norb1
-  write(6,*) ' NALF now ',nalf,' before ',nalf1
-  write(6,*) ' NBET now ',nbet,' before ',nbet1
+  write(u6,'(a)') ' Inconsistency between previous and current VB wavefunction definitions.'
+  write(u6,*) ' NORB now ',norb,' before ',norb1
+  write(u6,*) ' NALF now ',nalf,' before ',nalf1
+  write(u6,*) ' NBET now ',nbet,' before ',nbet1
   call abend_cvb()
 end if
 do iorb=1,norb

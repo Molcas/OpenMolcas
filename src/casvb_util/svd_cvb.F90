@@ -14,9 +14,14 @@
 
 subroutine svd_cvb(a,val,vec,vmat,n1,n2)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1, n2
+real(kind=wp) :: a(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
 #include "WrkSpc.fh"
-dimension a(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
+integer(kind=iwp) :: i1, i2, i3, i4, i5, i6, n12
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 n12 = max(n1,n2)
 i1 = mstackr_cvb(n12*n2)

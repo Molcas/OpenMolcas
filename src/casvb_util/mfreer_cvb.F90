@@ -16,16 +16,19 @@ subroutine mfreer_cvb(ipoint)
 ! Memory allocator. Releases pointer.
 
 use casvb_global, only: iaddrm, ioff_r, memdebug, nfieldm
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ipoint
+integer(kind=iwp) :: ifield, ipoint_g, jfield, nword
 
-if (memdebug) write(6,*) '     Enter mfreer: pointer :',ipoint
+if (memdebug) write(u6,*) '     Enter mfreer: pointer :',ipoint
 ! Check if allocated using mstack:
 do ifield=1,nfieldm
   if (iaddrm(ifield) == ipoint) then
     do jfield=ifield,nfieldm
       ipoint_g = iaddrm(jfield)-ioff_r
-      if (memdebug) write(6,*) '     Release pointer :',iaddrm(jfield)
+      if (memdebug) write(u6,*) '     Release pointer :',iaddrm(jfield)
       call getmem('casvb','FREE','REAL',ipoint_g,nword)
     end do
     nfieldm = ifield-1

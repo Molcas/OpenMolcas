@@ -12,10 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine loind_cvb(nel,n,nk,nkmin,nkmax,locc,lunocc,index,ix,rc)
+subroutine loind_cvb(nel,n,nk,nkmin,nkmax,locc,lunocc,indx,ix,rc)
 
-integer rc
-dimension nk(0:nel), nkmin(0:nel), nkmax(0:nel), locc(n), lunocc(nel-n), ix(0:nel,0:n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nel, n, nk(0:nel), nkmin(0:nel), nkmax(0:nel), locc(n), lunocc(nel-n), indx, ix(0:nel,0:n), rc
+integer(kind=iwp) :: iel, ik, jel
+integer(kind=iwp), external :: minind_cvb
 
 rc = 0
 do iel=1,nel-1
@@ -29,7 +33,7 @@ do iel=1,nel-1
       nk(jel) = min(nkmax(jel),ik-1)
     end do
     call occupy_cvb(nk,nel,locc,lunocc)
-    index = minind_cvb(locc,n,nel,ix)
+    indx = minind_cvb(locc,n,nel,ix)
     rc = 1
     return
   end if
@@ -37,7 +41,7 @@ end do
 ! Maximize the loop on exit
 call imove_cvb(nkmax,nk,nel)
 call occupy_cvb(nk,nel,locc,lunocc)
-index = minind_cvb(locc,n,nel,ix)
+indx = minind_cvb(locc,n,nel,ix)
 
 return
 

@@ -15,12 +15,11 @@
 subroutine chgsgn_cvb(fx)
 
 use casvb_global, only: nfrag, nvb_fr, ndetvb_fr
+use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: fx
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
 
 if (nfrag <= 1) then

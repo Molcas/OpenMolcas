@@ -15,18 +15,20 @@
 subroutine ddguess_cvb(vec,ndim,ioffs)
 
 use casvb_global, only: idd, maxd, nparm, nvguess
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ndim, ioffs
+real(kind=wp) :: vec(ndim)
 #include "WrkSpc.fh"
-dimension vec(ndim)
 
 nvguess = nvguess+1
 if (nvguess > maxd) then
-  write(6,*) ' Too many guess vectors in Davidson!',nvguess,maxd
+  write(u6,*) ' Too many guess vectors in Davidson!',nvguess,maxd
   call abend_cvb()
 end if
 if (ndim+ioffs > nparm) then
-  write(6,*) ' Illegal call to DDGUESS :',ndim,ioffs,nparm
+  write(u6,*) ' Illegal call to DDGUESS :',ndim,ioffs,nparm
   call abend_cvb()
 end if
 call fzero(work(idd(1)+(nvguess-1)*nparm),ioffs)

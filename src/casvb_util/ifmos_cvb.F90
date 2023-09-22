@@ -12,9 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function ifmos_cvb()
+!IFG trivial
+function ifmos_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: ifmos_cvb
 
 ifmos_cvb = .true.
 

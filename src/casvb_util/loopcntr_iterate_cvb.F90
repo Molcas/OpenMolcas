@@ -12,14 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-logical function loopcntr_iterate_cvb()
+function loopcntr_iterate_cvb()
 
 use casvb_global, only: icode, iopt2step, ioptim, ioptstep, ipos, istackrep, joptstep, loopstepmx, noptim, noptstep
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-logical done, done2, unmatched
-external istkprobe_cvb
-logical istkprobe_cvb
+implicit none
+logical(kind=iwp) :: loopcntr_iterate_cvb
+integer(kind=iwp) :: i, iend, ioptstep1, ioptstep2, italter, kk, kk2, ll, ll1, mxalter, nc_zeroed, nconvinone, nstep
+logical(kind=iwp) :: done, done2, unmatched
+logical(kind=iwp), external :: istkprobe_cvb
 
 if (iopt2step(ioptim+1) == iopt2step(ioptim)) then
   ioptim = ioptim+1
@@ -69,7 +71,7 @@ else
           unmatched = (icode(ll)-icode(ll-1) /= 1)
         end if
         if (unmatched) then
-          write(6,'(a)') ' Unmatched END or closing bracket!'
+          write(u6,'(a)') ' Unmatched END or closing bracket!'
           call abend_cvb()
         end if
       end if
@@ -98,7 +100,7 @@ else
           end if
         end do
         if (.not. done) then
-          write(6,*) ' Run-away ENDALTERN or closing bracket!'
+          write(u6,*) ' Run-away ENDALTERN or closing bracket!'
           call abend_cvb()
         end if
 
@@ -137,8 +139,8 @@ else
           done2 = .true.
           exit
         else if (nstep > 0) then
-          write(6,'(/,a,i4,a)') ' Exiting',nstep,'-step optimization.'
-          write(6,'(a,i4)') ' Maximum number of loop iterations reached :',mxalter
+          write(u6,'(/,a,i4,a)') ' Exiting',nstep,'-step optimization.'
+          write(u6,'(a,i4)') ' Maximum number of loop iterations reached :',mxalter
         end if
       end if
     end if

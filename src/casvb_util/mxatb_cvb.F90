@@ -12,12 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mxatb_cvb(a,b,n1,n2,n3,c)
 
-implicit real*8(a-h,o-z)
-dimension a(n1,n2), b(n2,n3), c(n1,n3)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-call DGEMM_('N','N',n1,n3,n2,1.0d0,a,n1,b,n2,0.0d0,c,n1)
+implicit none
+integer(kind=iwp) :: n1, n2, n3
+real(kind=wp) :: a(n1,n2), b(n2,n3), c(n1,n3)
+
+call DGEMM_('N','N',n1,n3,n2,One,a,n1,b,n2,Zero,c,n1)
 
 return
 

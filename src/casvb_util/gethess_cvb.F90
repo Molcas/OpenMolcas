@@ -14,12 +14,12 @@
 
 subroutine gethess_cvb(hess)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension hess(nfr,nfr)
+real(kind=wp) :: hess(nfr,nfr)
+integer(kind=iwp) :: ivar
 
 call mxunit_cvb(hess,nfr)
 do ivar=1,nfr

@@ -12,16 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine ppgs_cvb(cvb)
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
+use Definitions, only: wp
 
-dimension cvb(*)
+implicit none
+real(kind=wp) :: cvb(*)
+#include "main_cvb.fh"
+#include "WrkSpc.fh"
 
 call ppgs2_cvb(cvb,work(lv(5)),iwork(lb(4)))
 

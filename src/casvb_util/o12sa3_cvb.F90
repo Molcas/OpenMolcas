@@ -14,12 +14,15 @@
 
 subroutine o12sa3_cvb(vec,cvb,orbs,gjorb,gjorb2,gjorb3,civec,civecp,civb,cvbdet,vec_all,nvb,nprorb,nparm1,strucopt)
 
-implicit real*8(a-h,o-z)
-logical strucopt
-dimension vec(nparm1)
-dimension cvb(nvb), civec(*), civecp(*), civb(*), cvbdet(*)
-dimension vec_all(nparm1)
-dimension orbs(*), gjorb(*), gjorb2(*), gjorb3(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvb, nprorb, nparm1
+real(kind=wp) :: vec(nparm1), cvb(nvb), orbs(*), gjorb(*), gjorb2(*), gjorb3(*), civec(*), civecp(*), civb(*), cvbdet(*), &
+                 vec_all(nparm1)
+logical(kind=iwp) :: strucopt
+integer(kind=iwp) :: ic1
+real(kind=wp), external :: ddot_
 
 call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 

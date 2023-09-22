@@ -14,13 +14,14 @@
 
 subroutine indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
 #include "WrkSpc.fh"
-dimension indxa(nsa), indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
+integer(kind=iwp) :: i1
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(norb+1)
 

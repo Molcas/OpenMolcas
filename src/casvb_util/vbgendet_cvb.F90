@@ -14,11 +14,14 @@
 
 subroutine vbgendet_cvb(iapr,ixapr,ibpr,ixbpr,iconfs,idetvb,nconf,nconfion,nda,ndb,ndetvb,nel,noe,nalf,nbet,norb)
 
-implicit real*8(a-h,o-z)
-dimension iapr(ndetvb), ixapr(nda+1), ibpr(ndetvb), ixbpr(ndb+1)
-dimension iconfs(noe,nconf), idetvb(ndetvb)
-dimension nconfion(0:nel)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ndetvb, iapr(ndetvb), nda, ixapr(nda+1), ibpr(ndetvb), ndb, ixbpr(ndb+1), nconf, noe, iconfs(noe,nconf), &
+                     idetvb(ndetvb), nel, nconfion(0:nel), nalf, nbet, norb
 #include "WrkSpc.fh"
+integer(kind=iwp) :: k1, k2, k3, k4
+integer(kind=iwp), external :: mstacki_cvb
 
 k1 = mstacki_cvb(ndetvb)
 k2 = mstacki_cvb(ndetvb)

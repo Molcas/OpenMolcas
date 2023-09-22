@@ -15,24 +15,22 @@
 subroutine rdline_init_cvb(variat)
 
 use casvb_global, only: inp, lenline, line
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-! BLANKDELIM signifies whether blanks are used to delimit fields:
-logical blankdelim, variat
-parameter(nblank=2)
-character*1 blanks(nblank)
-integer istatus
-save blankdelim
-save blanks
-data blankdelim/.true./
-data blanks/' ',','/
+implicit none
+logical(kind=iwp) :: variat
+integer(kind=iwp) :: istatus
+logical(kind=iwp), parameter :: blankdelim = .true. ! BLANKDELIM signifies whether blanks are used to delimit fields
+integer(kind=iwp), parameter :: nblank = 2
+character(len=*), parameter :: blanks(nblank) = [' ',',']
+integer(kind=iwp), external :: len_trim_cvb
 
 if (variat) return
 rewind(inp)
 do
   read(inp,'(a)',iostat=istatus) line
   if (istatus < 0) then
-    write(6,*) ' WARNING: Initiation string not found in input file.'
+    write(u6,*) ' WARNING: Initiation string not found in input file.'
     return
   end if
   lenline = len_trim_cvb(line)

@@ -14,13 +14,14 @@
 
 subroutine setiaprtot_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension dum1(1), dum2(1)
+real(kind=wp) :: dum1(1), dum2(1), dum3
+integer(kind=iwp) :: k1
+integer(kind=iwp), external :: mstackr_cvb
 
 k1 = mstackr_cvb(nda*ndb)
 call dpci2vb_cvb(work(k1),dum1,dum2,0,dum3,4)

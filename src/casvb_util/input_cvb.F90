@@ -14,12 +14,13 @@
 
 subroutine input_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ibase, ifxorb, iorbrel, iorbs, iorts, irots, izeta, mxdimrel, mxpair, irdorbs
+integer(kind=iwp), external :: mstacki_cvb, mstackiz_cvb, mstackrz_cvb
 
 ibase = mstacki_cvb(0)
 

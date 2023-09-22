@@ -12,9 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine sethfs_cvb(istring)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: istring
 
 call seth_cvb([istring],1)
 

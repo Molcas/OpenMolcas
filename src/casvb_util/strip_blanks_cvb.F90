@@ -16,11 +16,16 @@ subroutine strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
 ! If BLANKDELIM, a given number of blanks (not leading or trailing)
 ! will be subsituted by a single blank. Otherwise all blanks are stripped.
 
-implicit real*8(a-h,o-z)
-logical blankdelim
-character*(*) line
-character*1 blanks(nblank)
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: line
+integer(kind=iwp) :: lenline, nblank
+character :: blanks(nblank)
+logical(kind=iwp) :: blankdelim
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iblank, ich, ich2, ilv
+integer(kind=iwp), external :: mstacki_cvb
 
 do iblank=1,nblank
   if (blanks(iblank) /= ' ') then

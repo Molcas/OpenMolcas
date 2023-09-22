@@ -14,38 +14,40 @@
 
 subroutine igaussj_cvb(orbs,igjorb)
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension orbs(norb,norb), igjorb(*)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
 
+implicit none
+#include "main_cvb.fh"
+real(kind=wp) :: orbs(norb,norb)
+integer(kind=iwp) :: igjorb(*)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ioff, k1, k2, k3, k4
+integer(kind=iwp) :: idbl_cvb, mstacki_cvb, mstackr_cvb
+
+k1 = mstackr_cvb(norb*norb)
+k2 = mstacki_cvb(norb)
+k3 = mstacki_cvb(norb)
+k4 = mstacki_cvb(norb)
+call fmove_cvb(orbs,work(k1),norb*norb)
+ioff = idbl_cvb(norb*norb)
 call igaussj_cvb_internal(igjorb)
+call imove_cvb(igjorb(1+ioff),iwork(k2),norb)
+do i=1,norb
+  igjorb(iwork(i+k2-1)+ioff) = i
+end do
+call mfreer_cvb(k1)
+return
 
 ! This is to allow type punning without an explicit interface
 contains
 
 subroutine igaussj_cvb_internal(igjorb)
-  use iso_c_binding
-  integer, target :: igjorb(*)
-  real*8, pointer :: gjorb(:)
-  k1 = mstackr_cvb(norb*norb)
-  k2 = mstacki_cvb(norb)
-  k3 = mstacki_cvb(norb)
-  k4 = mstacki_cvb(norb)
-  call fmove_cvb(orbs,work(k1),norb*norb)
-  ioff = idbl_cvb(norb*norb)
+  integer(kind=iwp), target :: igjorb(*)
+  real(kind=wp), pointer :: gjorb(:)
   call c_f_pointer(c_loc(igjorb(1)),gjorb,[norb*norb])
   call gaussj2_cvb(work(k1),iwork(k2),iwork(k3),iwork(k4),igjorb(1+ioff),igjorb(1+norb+ioff),gjorb,norb)
   nullify(gjorb)
-  call imove_cvb(igjorb(1+ioff),iwork(k2),norb)
-  do i=1,norb
-    igjorb(iwork(i+k2-1)+ioff) = i
-  end do
-  call mfreer_cvb(k1)
-  return
 end subroutine igaussj_cvb_internal
 
 end subroutine igaussj_cvb

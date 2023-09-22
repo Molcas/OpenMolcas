@@ -15,12 +15,11 @@
 subroutine parse_init_cvb(luinp)
 
 use casvb_global, only: inp
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: luinp
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 inp = luinp
 call rdline_init_cvb(variat)

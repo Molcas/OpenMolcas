@@ -16,12 +16,14 @@ subroutine dpgendet_cvb()
 
 use casvb_global, only: iastr_fr, ibstr_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, nfrag
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iapr_add, ibase, ibpr_add, iconfs_add, idetvb_add, ifrag, ixapr_add, ixbpr_add, k1, k2, k3, k4, k5, k6, k7, &
+                     mxstack, nalf_l, nbet_l, nda_l, ndb_l
+integer(kind=iwp), external :: mstacki_cvb
 
 ibase = mstacki_cvb(0)
 

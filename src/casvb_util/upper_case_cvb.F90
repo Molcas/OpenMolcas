@@ -12,10 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine upper_case_cvb(line,lenline)
 
-implicit real*8(a-h,o-z)
-character*(*) line
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: line
+integer(kind=iwp) :: ich, ichar_Aa, lenline
 
 ichar_Aa = ichar('A')-ichar('a')
 do ich=1,lenline

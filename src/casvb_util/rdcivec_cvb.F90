@@ -19,18 +19,19 @@ subroutine rdcivec_cvb(detvec,fn,reord)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: detvec(*)
+character(len=*) :: fn
+logical(kind=iwp) :: reord
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-character*(*) fn
-logical debug
-data debug/.false./
-dimension detvec(*)
-dimension ncix(8)
-logical reord
-dimension rdum(1)
+integer(kind=iwp) :: i, iDisk, idum, ipCI, ipCI2, iwr, j, k, lujob, ncix(8), ndet_j
+real(kind=wp) :: rdum(1)
+logical(kind=iwp), parameter :: debug = .false.
 
 iwr = 0
 
@@ -41,7 +42,7 @@ lujob = 15
 call daname_cvb(lujob,fn)
 ! Allocate at least NDET words for each vector, since this is
 ! required by csdtvc:
-!      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
+!call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
 call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j+ndet_j-nconf_j)
 if (iwr == 0) then
   do i=1,nroots_j
@@ -82,8 +83,8 @@ else if (iwr == 1) then
 end if
 if (debug) then
   do i=0,nroots_j-1
-    write(6,'(a,i3,a)') ' (CSF) CI vector ',i+1,' :'
-    write(6,'(a)') ' ---------------------'
+    write(u6,'(a,i3,a)') ' (CSF) CI vector ',i+1,' :'
+    write(u6,'(a)') ' ---------------------'
     call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
   end do
 end if

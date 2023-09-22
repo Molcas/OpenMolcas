@@ -14,14 +14,14 @@
 
 subroutine serber_cvb(bikcof,nel,nalf,nbet,ndet,ifns,minspn,maxspn,nkspn,locca,lnocca,xspin,ialfs,ibets,ianti)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension bikcof(ndet,ifns)
-dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
-dimension locca(nel), lnocca(nel)
-dimension xspin((nel+1)*(nalf+1))
-dimension ialfs(nalf), ibets(nbet), ianti(ifns)
-dimension dum(1)
-integer rc
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, minspn(0:nel), maxspn(0:nel), nkspn(0:nel), locca(nel), lnocca(nel), &
+                     xspin((nel+1)*(nalf+1)), ialfs(nalf), ibets(nbet), ianti(ifns)
+real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp) :: ia, iachek, iantival, ib, indx, iorb, k, l, nc, rc
+real(kind=wp) :: dum(1)
 
 ! Serber spin functions
 
@@ -35,13 +35,13 @@ do iorb=0,nel
 end do
 call weight_cvb(xspin,minspn,maxspn,nbet,nel)
 if (ifns /= xspin((nel+1)*(nbet+1))) then
-  write(6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
+  write(u6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
   call abend_cvb()
 end if
 call imove_cvb(maxspn,nkspn,nel+1)
 call occupy_cvb(nkspn,nel,locca,lnocca)
 ! Loop:
-index = 1
+indx = 1
 ! Determine pairings
 do
   do ib=1,nbet
@@ -57,11 +57,11 @@ do
     end do
   end do
 
-  ianti(index) = 0
+  ianti(indx) = 0
   do ib=1,nbet
-    if ((mod(ialfs(ib),2) == 1) .and. (ialfs(ib) == ibets(ib)-1)) ianti(index) = ianti(index)-1
+    if ((mod(ialfs(ib),2) == 1) .and. (ialfs(ib) == ibets(ib)-1)) ianti(indx) = ianti(indx)-1
   end do
-  call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,index,xspin,rc)
+  call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,indx,xspin,rc)
   if (rc == 0) exit
 end do
 
@@ -82,7 +82,7 @@ do k=1,ifns
       if (ianti(l) == k) exit
     end do
     if (l > ifns) then
-      write(6,*) ' Error - swap function not found!',k,ianti(k)
+      write(u6,*) ' Error - swap function not found!',k,ianti(k)
       call abend_cvb()
     end if
     call dswap_(ndet,bikcof(1,k),1,bikcof(1,l),1)

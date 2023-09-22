@@ -14,14 +14,13 @@
 
 subroutine change3_cvb()
 
-implicit real*8(a-h,o-z)
-logical changed
-! ... Change of dimensioning variables ...
-logical, external :: chpcmp_cvb
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: kmost
+logical(kind=iwp) :: changed
+logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...
 
 changed = .false.
 ! Spin functions coefficients (BIKCOF) + inverse (AIKCOF)

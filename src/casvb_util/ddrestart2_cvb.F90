@@ -15,12 +15,12 @@
 subroutine ddrestart2_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1,eigval,eigvec)
 
 use casvb_global, only: ifollow, nroot
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-dimension c(n,maxdav), axc(n,maxdav), vec(n)
-dimension hp(maxdav,maxdav)
-dimension solp(maxdav)
-dimension eigval(maxdav), eigvec(maxdav,maxdav)
+implicit none
+integer(kind=iwp) :: maxdav, n, nvguess1, nvrestart1
+real(kind=wp) :: c(n,maxdav), axc(n,maxdav), vec(n), hp(maxdav,maxdav), solp(maxdav), eigval(maxdav), eigvec(maxdav,maxdav)
+integer(kind=iwp) :: ir, ir_use
 
 call fmove_cvb(hp,eigvec,maxdav*maxdav)
 call mxdiag_cvb(eigvec,eigval,maxdav)

@@ -15,36 +15,40 @@
 subroutine optize9_cvb(fx1,nparm,ioptc,hessdx,grad,dx)
 
 use casvb_global, only: formChk1, formChk2, formChk3
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-dimension hessdx(nparm), grad(nparm), dx(nparm)
-dimension dum(1)
-save zero, tenth, half, one
-data zero/0d0/,tenth/1d-1/,half/.5d0/,one/1d0/
+implicit none
+integer(kind=iwp) :: nparm, ioptc
+real(kind=wp) :: fx1, hessdx(nparm), grad(nparm), dx(nparm)
+integer(kind=iwp) :: iparm, it
+real(kind=wp) :: cn, dum(1), e1, e2, fx
+real(kind=wp), parameter :: tenth = 0.1_wp
+real(kind=wp), external :: ddot_, rand_cvb
 
 call grad_cvb(grad)
 
-dum(1) = rand_cvb(.777d0)
+dum(1) = rand_cvb(0.777_wp)
 do iparm=1,nparm
-  dx(iparm) = rand_cvb(zero)-half
+  dx(iparm) = rand_cvb(Zero)-Half
 end do
 call nize_cvb(dx,1,dum,nparm,0,0)
 call fmove_cvb(dx,hessdx,nparm)
 call hess_cvb(hessdx)
 
-write(6,'(a)') ' Simple check of gradient and Hessian using a random update vector :'
+write(u6,'(a)') ' Simple check of gradient and Hessian using a random update vector :'
 e1 = ddot_(nparm,dx,1,grad,1)
 e2 = ddot_(nparm,dx,1,hessdx,1)
-write(6,'(a)') ' '
-write(6,formChk1) ' First-order change  :',e1
-write(6,formChk1) ' Second-order change :',e2
-write(6,'(a)') ' '
+write(u6,'(a)') ' '
+write(u6,formChk1) ' First-order change  :',e1
+write(u6,formChk1) ' Second-order change :',e2
+write(u6,'(a)') ' '
 
-write(6,formChk2) 'Norm     ','DFX(act) ','DFX(pred)','Ratio    ','F2(act)'
-cn = one
+write(u6,formChk2) 'Norm     ','DFX(act) ','DFX(pred)','Ratio    ','F2(act)'
+cn = One
 do it=1,10
   call fxdx_cvb(fx,.false.,dx)
-  write(6,formChk3) cn,fx-fx1,cn*e1+cn*cn*half*e2,(fx-fx1)/(cn*e1+cn*cn*half*e2),(fx-fx1-cn*e1)/(cn*cn*half)
+  write(u6,formChk3) cn,fx-fx1,cn*e1+cn*cn*Half*e2,(fx-fx1)/(cn*e1+cn*cn*Half*e2),(fx-fx1-cn*e1)/(cn*cn*Half)
   call dscal_(nparm,tenth,dx,1)
   cn = tenth*cn
 end do

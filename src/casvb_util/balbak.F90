@@ -15,7 +15,7 @@
 !  ** EISPACK ROUTINES **
 !  **********************
 
-subroutine balbak(nm,n,low,igh,scale,m,z)
+subroutine balbak(nm,n,low,igh,scl,m,z)
 ! this subroutine is a translation of the algol procedure balbak,
 ! num. math. 13, 293-304(1969) by parlett and reinsch.
 ! handbook for auto. comp., vol.ii-linear algebra, 315-326(1971).
@@ -34,7 +34,7 @@ subroutine balbak(nm,n,low,igh,scale,m,z)
 !
 !    low and igh are integers determined by  balanc.
 !
-!    scale contains information determining the permutations
+!    scl contains information determining the permutations
 !      and scaling factors used by  balanc.
 !
 !    m is the number of columns of z to be back transformed.
@@ -52,16 +52,20 @@ subroutine balbak(nm,n,low,igh,scale,m,z)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, m, n, ii, nm, igh, low
-real*8 scale(n), z(nm,m)
-real*8 s
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, low, igh, m
+real(kind=wp) :: scl(n), z(nm,m)
+integer(kind=iwp) :: i, ii, j, k
+real(kind=wp) :: s
 
 if (m == 0) return
 if (igh /= low) then
   do i=low,igh
-    s = scale(i)
+    s = scl(i)
     ! .......... left hand eigenvectors are back transformed if the
-    !            foregoing statement is replaced by s=1.0d0/scale(i). ..........
+    !            foregoing statement is replaced by s=1.0/scl(i). ..........
     do j=1,m
       z(i,j) = z(i,j)*s
     end do
@@ -74,7 +78,7 @@ do ii=1,n
   i = ii
   if ((i >= low) .and. (i <= igh)) cycle
   if (i < low) i = low-ii
-  k = int(scale(i))
+  k = int(scl(i))
   if (k == i) cycle
 
   do j=1,m

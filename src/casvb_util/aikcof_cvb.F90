@@ -14,10 +14,12 @@
 
 subroutine aikcof_cvb(aikcof,bikcof,ndet,ifns,kbasis,share,sovr)
 
-implicit real*8(a-h,o-z)
-logical share
-dimension aikcof(ndet,ifns), bikcof(ndet,ifns)
-dimension sovr(ifns,ifns)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndet, ifns, kbasis
+real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns), sovr(ifns,ifns)
+logical(kind=iwp) :: share
 
 if (kbasis == 6) return
 

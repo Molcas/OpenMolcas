@@ -15,9 +15,14 @@
 !** Memory allocation and the like **
 !************************************
 
-integer function idbl_cvb(nreals)
+!IFG trivial
+function idbl_cvb(nreals)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: idbl_cvb
+integer(kind=iwp) :: nreals
 #include "idbl_cvb.fh"
 
 idbl_cvb = nreals*idbl

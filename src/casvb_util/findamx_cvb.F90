@@ -14,8 +14,13 @@
 
 subroutine findamx_cvb(vec,n,vmx,imx)
 
-implicit real*8(a-h,o-z)
-dimension vec(n)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, imx
+real(kind=wp) :: vec(n), vmx
+integer(kind=iwp) :: i
 
 if (n > 0) then
   imx = 1
@@ -28,7 +33,7 @@ if (n > 0) then
   end do
 else
   imx = 0
-  vmx = 0d0
+  vmx = Zero
 end if
 
 return

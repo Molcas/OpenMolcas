@@ -16,18 +16,14 @@ subroutine oohess_cvb(orbs,civecp,civbs,civb,orbinv,sorbs,owrk,grad2,gradx,hesso
 ! Evaluate "cheap" orbital <-> orbital part of hessian:
 
 use casvb_global, only: aa1, oaa2, f1, f2, ww
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbs(norb,norb)
-dimension civecp(ndet), civbs(ndet), civb(ndet)
-dimension orbinv(norb,norb), sorbs(norb,norb), owrk(norb,norb)
-dimension grad2(npr), gradx(norb,norb)
-dimension hessorb(nprorb,nprorb)
-dimension hesst(norb*norb,norb*norb)
+real(kind=wp) :: orbs(norb,norb), civecp(ndet), civbs(ndet), civb(ndet), orbinv(norb,norb), sorbs(norb,norb), owrk(norb,norb), &
+                 grad2(npr), gradx(norb,norb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb)
+integer(kind=iwp) :: ifr1, ifr2, iorb, iprm, iprm1, iprm2, jorb, korb, lorb
+real(kind=wp) :: aa1_use, oaa2_use
 
 if (icrit == 1) then
   oaa2_use = oaa2

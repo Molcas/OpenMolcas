@@ -14,24 +14,25 @@
 
 subroutine mksymelm_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ioffs, ishift, isyme
+logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 call rdioff_cvb(8,recinp,ioffs)
 call rdr_cvb(work(ls(1)),nsyme*norb*norb,recinp,ioffs)
 if ((ip(2) >= 1) .and. (.not. up2date_cvb('PRSYMELM'))) then
   do isyme=1,nsyme
-    write(6,'(/,a,i4,3x,a)') ' Symmetry element no.',isyme,tags(isyme)
-    ishft = norb*norb*(isyme-1)
-    call mxprint_cvb(work(ishft+ls(1)),norb,norb,0)
+    write(u6,'(/,a,i4,3x,a)') ' Symmetry element no.',isyme,tags(isyme)
+    ishift = norb*norb*(isyme-1)
+    call mxprint_cvb(work(ishift+ls(1)),norb,norb,0)
   end do
-  if (nsyme > 0) write(6,*) ' '
+  if (nsyme > 0) write(u6,*) ' '
   call untouch_cvb('PRSYMELM')
 end if
 

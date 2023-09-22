@@ -15,10 +15,13 @@
 subroutine span2_cvb(c,nvec,s,n,metr)
 
 use casvb_global, only: iaddr, nvtot
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nvec, n, metr
+real(kind=wp) :: c(n,nvec), s(*)
 #include "WrkSpc.fh"
-dimension c(n,nvec), s(*)
+integer(kind=iwp) :: nvtot_
 
 if (nvtot /= 0) then
   call span_cvb(work(iaddr),nvtot,nvtot_,s,n,metr)

@@ -12,20 +12,25 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-real*8 function PYTHAG(A,B)
+function PYTHAG(A,B)
 ! FINDS sqrt(A**2+B**2) WITHOUT OVERFLOW OR DESTRUCTIVE UNDERFLOW
 
-real*8 A, B
-real*8 P, R, S, T, U
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: PYTHAG
+real(kind=wp) :: A, B
+real(kind=wp) :: P, R, S, T, U
 
 P = max(abs(A),abs(B))
-if (P /= 0.0d0) then
+if (P /= Zero) then
   R = (min(abs(A),abs(B))/P)**2
   do
-    T = 4.0d0+R
-    if (T == 4.0d0) exit
+    T = Four+R
+    if (T == Four) exit
     S = R/T
-    U = 1.0d0+2.0d0*S
+    U = One+Two*S
     P = U*P
     R = (S/U)**2*R
   end do

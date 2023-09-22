@@ -15,15 +15,15 @@
 subroutine prtopt_cvb()
 
 use casvb_global, only: ioptim, istackrep, noptim
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-external istkprobe_cvb
-logical istkprobe_cvb
+integer(kind=iwp) :: i1, i2, i3, i4, ioffs, ioptstep1, ioptstep2, italter, kk2, mxalter, nc_zeroed, nconvinone
+integer(kind=iwp), external :: mstacki_cvb
+logical(kind=iwp), external :: istkprobe_cvb
 
 ! First determine if end of multi-step optimization may have been reached:
 if (istkprobe_cvb(istackrep)) then

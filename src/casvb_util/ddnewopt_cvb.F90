@@ -12,11 +12,12 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine ddnewopt_cvb()
 
 use casvb_global, only: nvguess, nvrestart, nvrhs
 
-implicit real*8(a-h,o-z)
+implicit none
 
 nvrestart = 0
 nvguess = 0

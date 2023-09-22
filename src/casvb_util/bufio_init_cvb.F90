@@ -15,18 +15,19 @@
 subroutine bufio_init_cvb(file_id1)
 
 use casvb_global, only: file_id, ibuf, izbuffer, lbuf, nbuf, nword
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: tstfile_cvb
+implicit none
+real(kind=wp) :: file_id1
 #include "idbl_cvb.fh"
-dimension dnbuf(1)
+real(kind=wp) :: dnbuf(1)
+logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 
 file_id = file_id1
 ibuf = 0
 if (.not. tstfile_cvb(file_id)) then
   nbuf = 0
-  dnbuf = dble(nbuf)
+  dnbuf = real(nbuf,kind=wp)
   call wrlow_cvb(dnbuf,1,file_id,0)
 else
   call rdlow_cvb(dnbuf,1,file_id,0)

@@ -17,17 +17,16 @@ subroutine loopcntr_init_cvb(inputmode1,initfalse)
 use casvb_global, only: icode, inputmode, iopt2step, ioptcode, ioptim, ioptstep, istackrep, joptstep, loopstep, loopstepmx, &
                         noptim, noptstep, nstackrep
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: ifcasci_cvb
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: inputmode1
+logical(kind=iwp) :: initfalse
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-logical initfalse
-logical guess_available, initial_opts, svbfirst, constrained_opt
+integer(kind=iwp) :: i, lll, noptkw, nrepkw
+logical(kind=iwp) :: constrained_opt, guess_available, initial_opts, svbfirst
+logical(kind=iwp), external :: ifcasci_cvb, & ! ... Files/Hamiltonian available ...
+                               up2date_cvb    ! ... Make: up to date? ...
 
 call istkinit_cvb(istackrep,nstackrep)
 inputmode = inputmode1

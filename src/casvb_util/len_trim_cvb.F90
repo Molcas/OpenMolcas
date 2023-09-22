@@ -9,11 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!IFG trivial
 function len_trim_cvb(a)
 ! Length of string excluding trailing blanks
 
-implicit real*8(a-h,o-z)
-character*(*) a
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: len_trim_cvb
+character(len=*) :: a
+integer(kind=iwp) :: i
 
 do i=len(a),1,-1
   if (a(i:i) /= ' ') exit

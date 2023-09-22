@@ -15,15 +15,15 @@
 subroutine ci2ordr_cvb(civec,cvbdet,evbdet)
 
 use casvb_global, only: nda_fr, ndb_fr, ndetvb_fr, nfrag
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), evbdet(*)
 #include "WrkSpc.fh"
-dimension civec(nda,ndb), cvbdet(ndetvb)
-dimension evbdet(*)
+integer(kind=iwp) :: icivec, k1, k10, k2, k3, k4, k5, k6, k7, k8, k9, mxstack
+real(kind=wp) :: dum
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 icivec = nint(civec(1,1))
 if (nfrag <= 1) then

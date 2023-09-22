@@ -14,13 +14,14 @@
 
 subroutine all2free_cvb(vecfrom,vecto,nvec)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nvec
+real(kind=wp) :: vecfrom(npr,nvec), vecto(nfr,nvec)
 #include "WrkSpc.fh"
-dimension vecfrom(npr,nvec), vecto(nfr,nvec)
+integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
   if (.not. orbfr_is_unit) then

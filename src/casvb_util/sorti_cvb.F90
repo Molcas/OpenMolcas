@@ -14,10 +14,13 @@
 
 subroutine sorti_cvb(n,arrin)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, arrin(n)
 #include "WrkSpc.fh"
-integer arrin
-dimension arrin(n)
+integer(kind=iwp) :: i, i1, i2
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(n)
 call sortindxi_cvb(n,arrin,iwork(i1))

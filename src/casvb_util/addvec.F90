@@ -9,10 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!IFG trivial
 subroutine ADDVEC(A,B,C,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(N), B(N), C(N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N), B(N), C(N)
+integer(kind=iwp) :: I
 
 do I=1,N
   A(I) = B(I)+C(I)

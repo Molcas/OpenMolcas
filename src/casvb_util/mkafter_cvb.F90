@@ -15,9 +15,11 @@
 subroutine mkafter_cvb(chr1,chr2)
 
 use casvb_global, only: charobj, i_dep_on_j, ioffs, mxdep, ndep_ij, nobj
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr1, chr2
+implicit none
+character(len=*) :: chr1, chr2
+integer(kind=iwp) :: i, iobj, jobj
 
 call undepend2_cvb(chr1,chr2,1)
 
@@ -28,16 +30,16 @@ do i=1,nobj
   if (charobj(i) == chr2) jobj = i
 end do
 if (iobj == 0) then
-  write(6,*) ' Make object not found :',chr1
+  write(u6,*) ' Make object not found :',chr1
   call abend_cvb()
 end if
 if (jobj == 0) then
-  write(6,*) ' Make object not found :',chr2
+  write(u6,*) ' Make object not found :',chr2
   call abend_cvb()
 end if
 ndep_ij = ndep_ij+1
 if (ndep_ij > mxdep) then
-  write(6,*) ' Too many make dependencies, max :',mxdep
+  write(u6,*) ' Too many make dependencies, max :',mxdep
   call abend_cvb()
 end if
 do i=ioffs(nobj+1),ioffs(iobj+1)+1,-1

@@ -15,15 +15,15 @@
 subroutine o12ea_cvb(nparm1)
 
 use casvb_global, only: have_solved_it
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-! ... Content of CI vectors ...
-logical, external :: tstcnt_cvb
+implicit none
+integer(kind=iwp) :: nparm1
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, i3, i4, iv, ivuse2, ivuse_h, ivuse_s
+integer(kind=iwp), external :: mstackr_cvb
+logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 call ddnewopt_cvb()
 have_solved_it = .false.

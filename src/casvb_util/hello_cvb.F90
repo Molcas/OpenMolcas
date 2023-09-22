@@ -14,14 +14,13 @@
 
 subroutine hello_cvb()
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+use Definitions, only: u6
 
-if (variat) write(6,'(a)') ' '
-write(6,10)
+implicit none
+#include "main_cvb.fh"
+
+if (variat) write(u6,'(a)') ' '
+write(u6,10)
 if (.not. variat) call date1_cvb()
 
 return

@@ -14,15 +14,20 @@
 
 subroutine mxdiag_cvb(a,eigval,n)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n,n), eigval(n)
 #include "WrkSpc.fh"
-dimension a(n,n), eigval(n)
+integer(kind=iwp) :: ierr, itmp
+integer(kind=iwp), external :: mstackr_cvb
 
 itmp = mstackr_cvb(n*3)
 call dsyev_('V','L',n,a,n,eigval,work(itmp),n*3,ierr)
 call mfreer_cvb(itmp)
 if (ierr /= 0) then
-  write(6,*) ' Fatal error in mxdiag, ierr :',ierr
+  write(u6,*) ' Fatal error in mxdiag, ierr :',ierr
   call abend_cvb()
 end if
 

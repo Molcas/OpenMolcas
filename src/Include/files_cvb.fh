@@ -10,6 +10,10 @@
 !***********************************************************************
 ! Various record names. 'start', 'save', or scratch :
 !----------------------------------------------------
+      real*8 strtci,strtvb,strtmo,strtint,savvb,savvbci,recinp,         &
+     &       recinp_old,recn_jobold,recn_jobiph,recn_oneint,recn_vbwfn, &
+     &       recn_tmp01,recn_tmp02,recn_tmp03,recn_tmp04,recn_tmp05,    &
+     &       recn_tmp06,recn_tmp07,recn_tmp08,recn_tmp09
       common/records_comcvb/strtci,strtvb,strtmo,strtint,               &
      &  savvb,savvbci,                                                  &
      &  recinp,recinp_old

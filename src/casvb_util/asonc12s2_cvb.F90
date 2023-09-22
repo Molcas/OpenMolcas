@@ -15,22 +15,20 @@
 subroutine asonc12s2_cvb(c,sxc,nvec,nprm,civb,civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet,cvb,vec_all)
 
 use casvb_global, only: ipp12s, iter12s
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension c(nprm,nvec), sxc(nprm,nvec)
-dimension civb(ndet), civbs(ndet)
-dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
-dimension cvb(nvb), cvbdet(ndetvb)
-dimension vec_all(npr)
+integer(kind=iwp) :: nvec, nprm
+real(kind=wp) :: c(nprm,nvec), sxc(nprm,nvec), civb(ndet), civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), &
+                 cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+integer(kind=iwp) :: ic1, ivec
+real(kind=wp) :: ddot_, tim_cvb
 
 iter12s = iter12s+1
 if (ipp12s >= 2) then
-  write(6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter12s,' at',tim_cvb(cpu0),' CPU seconds'
-  write(6,'(a)') ' -----------------------------------------------'
+  write(u6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter12s,' at',tim_cvb(cpu0),' CPU seconds'
+  write(u6,'(a)') ' -----------------------------------------------'
 end if
 
 ! If no optimization of structure coefficients we are doing "Augmented" calc:

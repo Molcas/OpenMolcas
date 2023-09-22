@@ -14,15 +14,16 @@
 
 subroutine ortelim_cvb(trprm,iorts,irots,sorbs,nc,npr1,norbprm,nrem)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm, nrem
+real(kind=wp) :: trprm(npr1,npr1), sorbs(norb,norb)
 #include "WrkSpc.fh"
-dimension trprm(npr1,npr1), iorts(2,nort), irots(2,ndrot)
-dimension sorbs(norb,norb)
-dimension dum(1)
+integer(kind=iwp) :: i, i1, i1ff, iorb, iort, irot, jorb, ki, kj, korb
+real(kind=wp) :: dum(1)
+integer(kind=iwp), external :: mstackrz_cvb
 
 i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
 i1ff = i1-1

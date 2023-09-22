@@ -15,10 +15,10 @@
 subroutine geth_cvb(iarr,n)
 
 use casvb_global, only: icnt, ncnt
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
-dimension iarr(n)
+implicit none
+integer(kind=iwp) :: n, iarr(n)
 
 if (icnt < ncnt) then
   call rdbis_cvb(iarr,n,icnt)

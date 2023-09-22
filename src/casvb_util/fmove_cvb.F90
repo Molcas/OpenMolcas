@@ -9,14 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!IFG trivial
 subroutine FMOVE_CVB(IA,IB,N)
 
-implicit real*8(A-H,O-Z)
-!integer N
-!real*8 IA(N), IB(N)
-real*8 IA, IB
-dimension IA(*), IB(*)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, RtoI
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: IA(N*RtoI), IB(N*RtoI)
+integer(kind=iwp) :: I
 
 !call DCOPY_(N*RtoI,IA,1,IB,1)
 do I=1,N*RtoI

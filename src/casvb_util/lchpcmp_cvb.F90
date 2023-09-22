@@ -12,12 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 function lchpcmp_cvb(ltst)
 
-implicit real*8(a-h,o-z)
-logical lchpcmp_cvb
-logical ltst
-logical, external :: chpcmp_cvb
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: lchpcmp_cvb
+logical(kind=iwp) :: ltst
+integer(kind=iwp) :: itst
+logical(kind=iwp), external :: chpcmp_cvb
 
 if (ltst) then
   itst = 1

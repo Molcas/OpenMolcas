@@ -14,11 +14,15 @@
 
 subroutine setretvals_cvb(esym,n_iter)
 
-implicit real*8(a-h,o-z)
-dimension esym(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n_iter
+real(kind=wp) :: esym(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
+integer(kind=iwp) :: jroot
 
 if (nac == 0) then
   ener(1,iter) = emy

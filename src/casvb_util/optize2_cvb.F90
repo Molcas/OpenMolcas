@@ -15,15 +15,18 @@
 subroutine optize2_cvb(fx,nparm,ioptc,dx,grad,iter_is_1,opta,optb)
 
 use casvb_global, only: endwhenclose, expct, formAD, formAF, fxbest, hh, ip, maxize
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical opth, skipupd, first_time
-logical iter_is_1, close2conv_begin
-logical close2conv, converged, wrongstat, scalesmall1
-external opta, optb
-dimension dx(nparm), grad(nparm)
-save zero, close2conv, converged
-data zero/0.d0/
+implicit none
+integer(kind=iwp) :: nparm, ioptc
+real(kind=wp) :: fx, dx(nparm), grad(nparm)
+logical(kind=iwp) :: iter_is_1
+external :: opta, optb
+integer(kind=iwp) :: iopth
+real(kind=wp) :: dxnrm, exp_tc, grdnrm, s11, s12, s22
+logical(kind=iwp) :: close2conv = .false., close2conv_begin, converged, first_time, opth, scalesmall1, skipupd, wrongstat
+real(kind=wp), external :: ddot_, dnrm2_
 
 converged = .false.
 if (iter_is_1) close2conv = .false.
@@ -34,7 +37,7 @@ call ddproj_cvb(grad,nparm)
 grdnrm = dnrm2_(nparm,grad,1)
 call opta(nparm)
 
-if (ip >= 2) write(6,'(/a)') ' *****   2. order optimizer   *****'
+if (ip >= 2) write(u6,'(/a)') ' *****   2. order optimizer   *****'
 
 ! << Now trust region control >>
 exp_tc = expct
@@ -46,7 +49,7 @@ do
   if (ioptc == -2) return
 
   ! << Make update >>
-  if (.not. (skipupd .or. (hh == zero))) then
+  if (.not. (skipupd .or. (hh == Zero))) then
 
     do
       close2conv_begin = close2conv
@@ -64,17 +67,17 @@ do
       s11 = ddot_(nparm,dx,1,dx,1)
       s22 = ddot_(nparm,grad,1,grad,1)
       s12 = ddot_(nparm,dx,1,grad,1)
-      write(6,formAD) ' Overlap between normalized vectors <DX|GRAD> :',s12/sqrt(s11*s22)
+      write(u6,formAD) ' Overlap between normalized vectors <DX|GRAD> :',s12/sqrt(s11*s22)
     end if
     call fxdx_cvb(fx,.false.,dx)
   end if
   if (.not. opth) exit
 end do
 
-if ((ioptc >= -1) .and. (hh /= zero)) then
+if ((ioptc >= -1) .and. (hh /= Zero)) then
   if (ip >= 2) then
-    write(6,'(a)') ' '
-    write(6,formAF) ' HH & norm of update :',hh,dxnrm
+    write(u6,'(a)') ' '
+    write(u6,formAF) ' HH & norm of update :',hh,dxnrm
   end if
   call update_cvb(dx)
 end if

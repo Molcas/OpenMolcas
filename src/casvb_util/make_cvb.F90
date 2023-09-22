@@ -15,10 +15,12 @@
 subroutine make_cvb(chr)
 
 use casvb_global, only: charobj, i_dep_on_j, ioffs, iprint, mustdeclare, nobj, up2date
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-character*(*) chr
-logical done
+implicit none
+character(len=*) :: chr
+integer(kind=iwp) :: i, iobj, mkobj
+logical(kind=iwp) :: done
 
 do
   iobj = 0
@@ -27,7 +29,7 @@ do
   end do
   if (iobj /= 0) exit
   if (mustdeclare) then
-    write(6,*) ' Make object not found :',chr
+    write(u6,*) ' Make object not found :',chr
     call abend_cvb()
   end if
   call decl_cvb(chr)
@@ -48,7 +50,7 @@ do
     if (.not. done) exit
   end do
   if (.not. up2date(mkobj)) then
-    if (iprint >= 1) write(6,'(/,a,i3,2a)') ' Making object no.',mkobj,', name : ',charobj(mkobj)
+    if (iprint >= 1) write(u6,'(/,a,i3,2a)') ' Making object no.',mkobj,', name : ',charobj(mkobj)
     call rules_cvb(charobj(mkobj))
     up2date(mkobj) = .true.
   end if

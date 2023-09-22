@@ -14,11 +14,15 @@
 
 subroutine f02agf(a,ia,n,rr,ri,vr,ivr,vi,ivi,intger,ifail)
 
-implicit real*8(a-h,o-z)
-logical pair
-dimension a(ia,*), rr(*), ri(*), vr(ivr,*), vi(ivi,*), intger(*)
-save thresh
-data thresh/1.d-8/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ia, n, ivr, ivi, intger(*), ifail
+real(kind=wp) :: a(ia,*), rr(*), ri(*), vr(ivr,*), vi(ivi,*)
+integer(kind=iwp) :: info, k, l
+logical(kind=iwp) :: pair
+real(kind=wp), parameter :: thresh = 1.0e-8_wp
 
 if (ifail /= 0) call SysHalt('ifail f02agf')
 
@@ -28,14 +32,14 @@ if (info /= 0) call SysHalt('info f02agf')
 call fzero(vi,n*ivi)
 pair = .false.
 do k=1,n-1
-  if ((ri(k) /= 0d0) .and. (.not. pair)) then
+  if ((ri(k) /= Zero) .and. (.not. pair)) then
     if (rr(k) /= rr(k+1)) call SysHalt('rr trouble')
-    if (abs(ri(k)+ri(k+1)) > 1d-12) call SysHalt('ri trouble')
+    if (abs(ri(k)+ri(k+1)) > 1.0e-12_wp) call SysHalt('ri trouble')
     pair = .true.
     ! If eig value almost real: return real value & vectors:
     if (abs(ri(k)) <= thresh) then
-      ri(k) = 0.d0
-      ri(k+1) = 0.d0
+      ri(k) = Zero
+      ri(k+1) = Zero
     else
       do l=1,n
         vi(l,k) = vr(l,k+1)

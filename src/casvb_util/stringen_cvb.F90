@@ -14,9 +14,13 @@
 
 subroutine stringen_cvb(norb,nel,locc,lunocc,nstring)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: norb, nel, locc(*), lunocc(*), nstring
 #include "WrkSpc.fh"
-dimension locc(*), lunocc(*)
+integer(kind=iwp) :: i_nkmax, i_nkmin, iorb
+integer(kind=iwp), external :: mstacki_cvb
 
 i_nkmin = mstacki_cvb(norb+1)
 i_nkmax = mstacki_cvb(norb+1)

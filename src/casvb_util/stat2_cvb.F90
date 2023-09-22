@@ -14,21 +14,21 @@
 
 subroutine stat2_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
+real(kind=wp), external :: tim_cvb
 
 if (ip(3) >= 1) then
-  write(6,'(/,a,i16)') ' Total number of structure transformations :',n_applyt
-  write(6,'(a,i17)') ' Total number of Hamiltonian applications :',n_applyh
-  write(6,'(a,i11)') ' Total number of 2-electron density evaluations :',n_2el
-  write(6,'(a,i21)') ' Total number of Hessian applications :',n_hess
-  if (n_orbhess > 0) write(6,'(a,i8)') ' Total number of pure orbital Hessian applications :',n_orbhess
-  if (n_cihess > 0) write(6,'(a,i13)') ' Total number of pure CI Hessian applications :',n_cihess
-  write(6,'(a,i18,/)') ' Approximate memory usage (8-byte words) :',ibasemx-ibase0
+  write(u6,'(/,a,i16)') ' Total number of structure transformations :',n_applyt
+  write(u6,'(a,i17)') ' Total number of Hamiltonian applications :',n_applyh
+  write(u6,'(a,i11)') ' Total number of 2-electron density evaluations :',n_2el
+  write(u6,'(a,i21)') ' Total number of Hessian applications :',n_hess
+  if (n_orbhess > 0) write(u6,'(a,i8)') ' Total number of pure orbital Hessian applications :',n_orbhess
+  if (n_cihess > 0) write(u6,'(a,i13)') ' Total number of pure CI Hessian applications :',n_cihess
+  write(u6,'(a,i18,/)') ' Approximate memory usage (8-byte words) :',ibasemx-ibase0
   if (.not. endvar) then
     call date2_cvb(tim_cvb(cpu0))
   else

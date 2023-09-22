@@ -13,14 +13,17 @@
 !***********************************************************************
 ! Contents of CI vectors:
 
-logical function tstcnt_cvb(xident_ci,idep1)
+!IFG trivial
+function tstcnt_cvb(xident_ci,idep1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: tstcnt_cvb
+real(kind=wp) :: xident_ci(1)
+integer(kind=iwp) :: idep1
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension xident_ci(1)
+integer(kind=iwp) :: ident_ci
 
 ident_ci = nint(xident_ci(1))
 tstcnt_cvb = icnt_ci(ident_ci) == idep1

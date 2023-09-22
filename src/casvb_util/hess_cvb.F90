@@ -14,15 +14,15 @@
 
 subroutine hess_cvb(vec)
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: vec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension vec(*)
+integer(kind=iwp) :: i1, i2, i3, i4
+integer(kind=iwp), external :: mstackr_cvb
+logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 n_hess = n_hess+1
 if (.not. up2date_cvb('OOHESS')) then

@@ -14,17 +14,22 @@
 
 subroutine prtfid_cvb(chr,fileid)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*) :: chr
+real(kind=wp) :: fileid
 #include "io_cvb.fh"
-character*200 line
-character*(*) chr
+integer(kind=iwp) :: ibf
+character(len=200) :: line
+integer(kind=iwp), external :: len_trim_cvb
 
 line = chr
 call mkfn_cvb(fileid,ibf)
 call appendchr_cvb(line,' file ',0)
 call appendchr_cvb(line,filename(ibf),1)
 call appendchr_cvb(line,'.',0)
-write(6,'(a)') line(1:len_trim_cvb(line))
+write(u6,'(a)') line(1:len_trim_cvb(line))
 
 return
 

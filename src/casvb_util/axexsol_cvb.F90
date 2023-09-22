@@ -15,9 +15,14 @@
 subroutine axexsol_cvb(ap,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
 ! Diagonalize Hamiltonian in Davidson subspace:
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: itdav, maxdav, nfrdim1
+real(kind=wp) :: ap(maxdav,maxdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
 #include "WrkSpc.fh"
-dimension ap(maxdav,maxdav), solp(maxdav), solp_res(maxdav)
+integer(kind=iwp) :: i1, i2
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(itdav)
 i2 = mstackr_cvb(itdav*itdav)

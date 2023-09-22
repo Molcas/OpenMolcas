@@ -14,9 +14,11 @@
 
 subroutine sethr_cvb(iarr,n)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, iarr(n)
 #include "idbl_cvb.fh"
-dimension iarr(n)
 
 call seth_cvb([n],1)
 call seth_cvb(iarr,idbl*n)

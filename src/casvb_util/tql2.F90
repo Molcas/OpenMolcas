@@ -73,22 +73,28 @@ subroutine tql2(nm,n,d,e,z,ierr)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, m, n, ii, l1, l2, nm, mml, ierr
-real*8 d(n), e(n), z(nm,n)
-real*8 c, c2, c3, dl1, el1, f, g, h, p, r, s, s2, tst1, tst2, pythag
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, ierr
+real(kind=wp) :: d(n), e(n), z(nm,n)
+integer(kind=iwp) :: i, ii, j, k, l, l1, l2, m, mml
+real(kind=wp) :: c, c2, c3, dl1, el1, f, g, h, p, r, s, s2, tst1, tst2
+real(kind=wp), external :: pythag
 
 ierr = 0
-c3 = 0.0d0 ! dummy initialize
-s2 = 0.0d0 ! dummy initialize
+c3 = Zero ! dummy initialize
+s2 = Zero ! dummy initialize
 if (n == 1) return
 
 do i=2,n
   e(i-1) = e(i)
 end do
 
-f = 0.0d0
-tst1 = 0.0d0
-e(n) = 0.0d0
+f = Zero
+tst1 = Zero
+e(n) = Zero
 
 do l=1,n
   j = 0
@@ -113,8 +119,8 @@ do l=1,n
       l1 = l+1
       l2 = l1+1
       g = d(l)
-      p = (d(l1)-g)/(2.0d0*e(l))
-      r = pythag(p,1.0d0)
+      p = (d(l1)-g)/(Two*e(l))
+      r = pythag(p,One)
       d(l) = e(l)/(p+sign(r,p))
       d(l1) = e(l)*(p+sign(r,p))
       dl1 = d(l1)
@@ -127,10 +133,10 @@ do l=1,n
       f = f+h
       ! .......... ql transformation ..........
       p = d(m)
-      c = 1.0d0
+      c = One
       c2 = c
       el1 = e(l1)
-      s = 0.0d0
+      s = Zero
       mml = m-l
       ! .......... for i=m-1 step -1 until l do -- ..........
       do ii=1,mml

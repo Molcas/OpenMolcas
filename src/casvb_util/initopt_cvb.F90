@@ -15,9 +15,11 @@
 subroutine initopt_cvb(icrit,lfxvb,nfxvb,iorts,nort,norb)
 
 use casvb_global, only: ioptcode, ioptim
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-dimension iorts(2,*)
+implicit none
+integer(kind=iwp) :: icrit, lfxvb, nfxvb, iorts(2,*), nort, norb
+integer(kind=iwp) :: iorb, jorb
 
 ! IOPTCODE    +1  = REPORT
 !             +2  = OPTIM

@@ -15,15 +15,18 @@
 subroutine putguess_cvb(orbs,cvb,recn)
 
 use casvb_global, only: nbas_mo
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical use_ao, ifmos_cvb
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
+real(kind=wp) :: orbs(norb,*), cvb(*), recn
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension orbs(norb,*), cvb(*)
+integer(kind=iwp) :: i, i1, i2, i3, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, iorbsao, kbasiscvb1, nbas_mo1, &
+                     norb1, nvb1
+logical(kind=iwp) :: ifmos_cvb, use_ao
+integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), external :: dnrm2_
 
 call wrheader_cvb(recn,norb,nbas_mo,nvb,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
@@ -39,8 +42,8 @@ if (use_ao) then
     call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),iorb,nbas_mo,3,ierr)
   end do
   if (ip(5) >= 2) then
-    write(6,'(/,a)') ' VB orbitals in AO basis :'
-    write(6,'(a)') ' -------------------------'
+    write(u6,'(/,a)') ' VB orbitals in AO basis :'
+    write(u6,'(a)') ' -------------------------'
     call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
   end if
   if (ploc) then
@@ -55,17 +58,17 @@ if (use_ao) then
       call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),iorb,nbas_mo,4,ierr)
     end do
     if (ip(5) >= 2) then
-      write(6,'(/,a)') ' Original localized VB orbitals in AO basis :'
-      write(6,'(a)') ' --------------------------------------------'
+      write(u6,'(/,a)') ' Original localized VB orbitals in AO basis :'
+      write(u6,'(a)') ' --------------------------------------------'
       call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
     end if
     do i=1,norb
       work(i+i3-1) = dnrm2_(norb,work((i-1)*norb+i2),1)
-      call dscal_(norb,1d0/work(i+i3-1),work((i-1)*norb+i2),1)
+      call dscal_(norb,One/work(i+i3-1),work((i-1)*norb+i2),1)
     end do
     if (ip(5) >= 2) then
-      write(6,'(/,a)') ' Norms of original localized VB orbitals :'
-      write(6,'(a)') ' -----------------------------------------'
+      write(u6,'(/,a)') ' Norms of original localized VB orbitals :'
+      write(u6,'(a)') ' -----------------------------------------'
       call mxprint_cvb(work(i3),1,norb,0)
     end if
     call mfreer_cvb(i1)

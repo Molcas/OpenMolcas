@@ -15,12 +15,15 @@
 subroutine testconv_cvb(fx,npr,dx,w2,exp_tc,close2conv,converged,wrongstat)
 
 use casvb_global, only: fxbest, ip, isaddle, maxize
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-logical close2conv, converged, wrongstat
-dimension dx(npr), w2(npr)
-save one
-data one/1.d0/
+implicit none
+integer(kind=iwp) :: npr
+real(kind=wp) :: fx, dx(npr), w2(npr), exp_tc
+logical(kind=iwp) :: close2conv, converged, wrongstat
+integer(kind=iwp) :: nnegeig, nposeig
+real(kind=wp) :: act, eigmn, eigmna, eigmx, zz
 
 if (maxize) then
   nposeig = min(isaddle,npr)
@@ -31,9 +34,9 @@ nnegeig = npr-nposeig
 
 ! EIGMX is maximum of NNEGEIG first Hessian eigenvalues (which should
 ! all be negative) EIGMN the minimum of NPOSEIG last eigenvalues:
-eigmx = -one
-eigmn = one
-eigmna = one
+eigmx = -One
+eigmn = One
+eigmna = One
 
 call zz_cvb(act,zz,fx,fxbest,exp_tc,ip)
 fxbest = fx

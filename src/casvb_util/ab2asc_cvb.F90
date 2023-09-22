@@ -14,9 +14,14 @@
 
 subroutine ab2asc_cvb(detvec,nvec,nel,nalf)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: detvec(*)
+integer(kind=iwp) :: nvec, nel, nalf
 #include "WrkSpc.fh"
-dimension detvec(*)
+integer(kind=iwp) :: i1, i2, i3, i4, i5, nbet, ndet
+integer(kind=iwp), external :: mstacki_cvb
 
 call icomb_cvb(nel,nalf,ndet)
 nbet = nel-nalf

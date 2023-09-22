@@ -50,8 +50,8 @@ real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
 real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
 character(len=80) :: Title
 character(len=8) :: Lbl
-!character(len=4) AtName(MxAtom)
-!character(len=4) Label(2,MxBasis)
+!character(len=4) :: AtName(MxAtom)
+!character(len=4) :: Label(2,MxBasis)
 
 !----------------------------------------------------------------------*
 ! Some setup                                                           *

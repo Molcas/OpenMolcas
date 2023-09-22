@@ -14,23 +14,23 @@
 
 subroutine fxdx_cvb(fx,fast,dx)
 
-implicit real*8(a-h,o-z)
-logical fast
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: fx, dx(*)
+logical(kind=iwp) :: fast
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension dx(*)
+integer(kind=iwp) :: iwf1, iwf2
 
 dxmove = .false.
 iwf1 = lw(12)
 iwf2 = lw(13)
 call upd_cvb(dx,work(iwf1),work(iwf2))
 if (.not. memplenty) then
-  call ciwr_cvb(work(lc(2)),61002.2d0)
-  call ciwr_cvb(work(lc(3)),61003.2d0)
-  call ciwr_cvb(work(lc(4)),61004.2d0)
+  call ciwr_cvb(work(lc(2)),61002.2_wp)
+  call ciwr_cvb(work(lc(3)),61003.2_wp)
+  call ciwr_cvb(work(lc(4)),61004.2_wp)
   call setcnt2_cvb(2,0)
   call setcnt2_cvb(3,0)
   call setcnt2_cvb(4,0)
@@ -46,12 +46,12 @@ else if (icrit == 2) then
                    work(lw(6)),work(lw(9)))
 end if
 if (.not. memplenty) then
-  call ciwr_cvb(work(lc(6)),61006.2d0)
-  call ciwr_cvb(work(lc(7)),61007.2d0)
-  call ciwr_cvb(work(lc(8)),61008.2d0)
-  call cird_cvb(work(lc(2)),61002.2d0)
-  call cird_cvb(work(lc(3)),61003.2d0)
-  call cird_cvb(work(lc(4)),61004.2d0)
+  call ciwr_cvb(work(lc(6)),61006.2_wp)
+  call ciwr_cvb(work(lc(7)),61007.2_wp)
+  call ciwr_cvb(work(lc(8)),61008.2_wp)
+  call cird_cvb(work(lc(2)),61002.2_wp)
+  call cird_cvb(work(lc(3)),61003.2_wp)
+  call cird_cvb(work(lc(4)),61004.2_wp)
 end if
 ! Figure out what we just calculated, and make it up2date:
 if (dxmove) then

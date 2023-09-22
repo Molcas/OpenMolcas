@@ -14,18 +14,18 @@
 
 subroutine pvbdot_cvb(cfrom,cto,ret)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cfrom(*), cto(*), ret
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension cfrom(*), cto(*)
+integer(kind=iwp) :: icfrom, icto
 
 icfrom = nint(cfrom(1))
 icto = nint(cto(1))
 if ((iform_ci(icfrom) /= 0) .or. (iform_ci(icto) /= 0)) then
-  write(6,*) ' Unsupported format in PVBDOT'
+  write(u6,*) ' Unsupported format in PVBDOT'
   call abend_cvb()
 end if
 call pvbcopy2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),iwork(ll(11)),iwork(ll(12)),ret,1)

@@ -15,21 +15,23 @@
 subroutine cvprt2_cvb(a1,f1,f2,ic)
 
 use casvb_global, only: formcvp
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-character*16 a1
-save huge
-data huge/1d20/
+implicit none
+character(len=16) :: a1
+real(kind=wp) :: f1, f2
+integer(kind=iwp) :: ic
+real(kind=wp), parameter :: hge = 1.0e20_wp
 
-if (abs(f2) /= huge) then
+if (abs(f2) /= hge) then
   if ((ic == 1) .and. (f1 < f2)) then
-    write(6,formcvp) a1,f1,'     smaller than',f2
+    write(u6,formcvp) a1,f1,'     smaller than',f2
   else if (ic == 1) then
-    write(6,formcvp) a1,f1,' not smaller than',f2
+    write(u6,formcvp) a1,f1,' not smaller than',f2
   else if ((ic == 2) .and. (f1 > f2)) then
-    write(6,formcvp) a1,f1,'     greater than',f2
+    write(u6,formcvp) a1,f1,'     greater than',f2
   else if (ic == 2) then
-    write(6,formcvp) a1,f1,' not greater than',f2
+    write(u6,formcvp) a1,f1,' not greater than',f2
   end if
 end if
 

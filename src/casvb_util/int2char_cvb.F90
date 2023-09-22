@@ -12,51 +12,53 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine int2char_cvb(a,int,iform)
-! Simulates internal write:    write(a,'(i<iform>)') int
+subroutine int2char_cvb(a,intx,iform)
+! Simulates internal write:    write(a,'(i<iform>)') intx
 
-implicit real*8(a-h,o-z)
-character*(*) a
-character*1 blank, minus, cnumb(0:9)
-save blank, minus, cnumb
-data blank/' '/,minus/'-'/
-data cnumb/'0','1','2','3','4','5','6','7','8','9'/
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*) :: a
+integer(kind=iwp) :: intx, iform
+real(kind=wp) :: dum
+integer(kind=iwp) :: i, ia, iamax, idum, int2, la, numb
+character, parameter :: blnk = ' ', cnumb(0:9) = ['0','1','2','3','4','5','6','7','8','9'], minus = '-'
 
 la = len(a)
 if (iform > la) then
-  write(6,*) ' Illegal call to int2char_cvb:',iform,la
+  write(u6,*) ' Illegal call to int2char_cvb:',iform,la
   call abend_cvb()
 end if
-dum = log10(dble(max(abs(int),1)))
+dum = log10(real(max(abs(intx),1),kind=wp))
 idum = nint(dum)
-if (abs(int) >= 10**idum) then
+if (abs(intx) >= 10**idum) then
   iamax = idum+1
 else
   iamax = idum
 end if
-if (int < 0) iamax = iamax+1
+if (intx < 0) iamax = iamax+1
 if (iamax > iform) then
-  write(6,*) ' Integer too large in int2char_cvb:',int,iform
+  write(u6,*) ' Integer too large in int2char_cvb:',intx,iform
   call abend_cvb()
 end if
 ia = 0
 do i=1,iform-iamax
   ia = ia+1
-  a(ia:ia) = blank
+  a(ia:ia) = blnk
 end do
-if (int < 0) then
+if (intx < 0) then
   ia = ia+1
   a(ia:ia) = minus
   iamax = iamax-1
 end if
-int2 = abs(int)
+int2 = abs(intx)
 do i=iamax-1,0,-1
   ia = ia+1
   numb = int2/(10**i)
   a(ia:ia) = cnumb(numb)
   int2 = int2-numb*(10**i)
 end do
-if (int == 0) a(iform:iform) = cnumb(0)
+if (intx == 0) a(iform:iform) = cnumb(0)
 
 return
 

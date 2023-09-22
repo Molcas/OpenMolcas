@@ -14,19 +14,21 @@
 
 subroutine sminus2_cvb(bikfrom,bikto,nel,nalffrom,ndetfrom,nalfto,ndetto,nvec,xdetto,ioccfrom,ioccto)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension bikfrom(ndetfrom,nvec), bikto(ndetto,nvec)
-integer xdetto
-dimension xdetto(0:nel,0:nalfto)
-dimension ioccfrom(nalffrom), ioccto(nalfto)
-#include "WrkSpc.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nel, nalffrom, ndetfrom, nalfto, ndetto, nvec, xdetto(0:nel,0:nalfto), ioccfrom(nalffrom), ioccto(nalfto)
+real(kind=wp) :: bikfrom(ndetfrom,nvec), bikto(ndetto,nvec)
+integer(kind=iwp) :: iexc, indfrom, indto
+integer(kind=iwp), external :: minind_cvb
 
 call fzero(bikto,ndetto*nvec)
 
 ! Determinant (to) weight array:
 call weightfl_cvb(xdetto,nalfto,nel)
 if (ndetto /= xdetto(nel,nalfto)) then
-  write(6,*) ' Discrepancy in NDET:',ndetto,xdetto(nel,nalfto)
+  write(u6,*) ' Discrepancy in NDET:',ndetto,xdetto(nel,nalfto)
   call abend_cvb()
 end if
 
@@ -35,7 +37,7 @@ do
   call imove_cvb(ioccfrom(2),ioccto,nalfto)
   do iexc=1,nalffrom
     indto = minind_cvb(ioccto,nalfto,nel,xdetto)
-    call daxpy_(nvec,1d0,bikfrom(indfrom,1),ndetfrom,bikto(indto,1),ndetto)
+    call daxpy_(nvec,One,bikfrom(indfrom,1),ndetfrom,bikto(indto,1),ndetto)
     if (iexc < nalffrom) ioccto(iexc) = ioccfrom(iexc)
   end do
   call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)

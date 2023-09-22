@@ -36,18 +36,22 @@
 !***********************************************************************
 subroutine applyt_cvb(cvec,gjorb)
 
-implicit real*8(a-h,o-z)
-dimension gjorb(*), cvec(*)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: cvec(*), gjorb(*)
 
 call applyt_cvb_internal(gjorb)
+
+return
 
 ! This is to allow type punning without an explicit interface
 contains
 
 subroutine applyt_cvb_internal(gjorb)
-  use iso_c_binding
-  real*8, target :: gjorb(*)
-  integer, pointer :: igjorb(:)
+  real(kind=wp), target :: gjorb(*)
+  integer(kind=iwp), pointer :: igjorb(:)
   call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
   call iapplyt_cvb(cvec,igjorb)
   nullify(igjorb)

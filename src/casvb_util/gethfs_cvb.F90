@@ -14,8 +14,11 @@
 
 subroutine gethfs_cvb(istring)
 
-implicit real*8(a-h,o-z)
-dimension istr(1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: istring
+integer(kind=iwp) :: istr(1)
 
 call geth_cvb(istr,1)
 istring = istr(1)

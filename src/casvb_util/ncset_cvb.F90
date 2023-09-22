@@ -15,14 +15,12 @@
 subroutine ncset_cvb(ic)
 
 use casvb_global, only: istackrep
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-external istkprobe_cvb
-logical istkprobe_cvb
+integer(kind=iwp) :: ic, nc_zeroed, nconvinone
+logical(kind=iwp), external :: istkprobe_cvb
 
 if (istkprobe_cvb(istackrep)) then
   call istkpop_cvb(istackrep,nc_zeroed)

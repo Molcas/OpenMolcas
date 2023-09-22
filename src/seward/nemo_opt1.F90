@@ -27,7 +27,7 @@ integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), L
                      iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
                      kExp, kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
-character(len=8) Label
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
 real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
 integer(kind=iwp), parameter :: MxMltPl = 10

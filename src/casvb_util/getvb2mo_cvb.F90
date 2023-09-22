@@ -14,10 +14,13 @@
 
 subroutine getvb2mo_cvb(orbs)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: orbs(*)
 #include "files_cvb.fh"
 #include "casvb.fh"
-dimension orbs(*)
+integer(kind=iwp) :: ierr, ioff, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 if (ifvb == 1) call cvbinit_cvb()
 call rdheader_cvb(recn_vbwfn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
@@ -25,7 +28,7 @@ ioff = 1
 do iorb=1,norb1
   call rdgspr_cvb(recn_vbwfn,orbs(ioff),iorb,norb1,1,ierr)
   if (ierr /= 0) then
-    write(6,*) ' Error in VB orbital read :',ierr
+    write(u6,*) ' Error in VB orbital read :',ierr
     call abend()
   end if
   ioff = ioff+norb1

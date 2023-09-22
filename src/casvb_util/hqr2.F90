@@ -82,22 +82,27 @@ subroutine hqr2(nm,n,low,igh,h,wr,wi,z,ierr)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, k, l, m, n, en, ii, jj, ll, mm, na, nm, nn, igh, itn, its, low, mp2, enm2, ierr, nroot
-real*8 h(nm,n), wr(n), wi(n), z(nm,n)
-real*8 p, q, r, s, t, w, x, y, ra, sa, vi, vr, zz, norm, tst1, tst2
-logical notlas
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-zz = 0.0d0
+implicit none
+integer(kind=iwp) :: nm, n, low, igh, ierr
+real(kind=wp) :: h(nm,n), wr(n), wi(n), z(nm,n)
+integer(kind=iwp) :: en, enm2, i, ii, itn, its, j, jj, k, l, ll, m, mm, mp2, na, nn, nroot
+real(kind=wp) :: norm, p, q, r, ra, s, sa, t, tst1, tst2, vi, vr, w, x, y, zz
+logical(kind=iwp) :: notlas
+
+w = Zero
+zz = Zero
 ierr = 0
-norm = 0.0d0
+norm = Zero
 k = 1
 l = 0     ! dummy initialize
 m = 0     ! dummy initialize
-p = 0.0d0 ! dummy initialize
-q = 0.0d0 ! dummy initialize
-r = 0.0d0 ! dummy initialize
-s = 0.0d0 ! dummy initialize
+p = Zero  ! dummy initialize
+q = Zero  ! dummy initialize
+r = Zero  ! dummy initialize
+s = Zero  ! dummy initialize
 nroot = 0 ! dummy initialize
 ! .......... store roots isolated by balanc and compute matrix norm ..........
 do i=1,n
@@ -109,11 +114,11 @@ do i=1,n
   k = i
   if ((i >= low) .and. (i <= igh)) cycle
   wr(i) = h(i,i)
-  wi(i) = 0.0d0
+  wi(i) = Zero
 end do
 
 en = igh
-t = 0.0d0
+t = Zero
 itn = 30*n
 do
   ! .......... search for next eigenvalues ..........
@@ -127,7 +132,7 @@ do
       l = en+low-ll
       if (l == low) exit
       s = abs(h(l-1,l-1))+abs(h(l,l))
-      if (s == 0.0d0) s = norm
+      if (s == Zero) s = norm
       tst1 = s
       tst2 = tst1+abs(h(l,l-1))
       if (tst2 == tst1) exit
@@ -158,9 +163,9 @@ do
       end do
 
       s = abs(h(en,na))+abs(h(na,enm2))
-      x = 0.75d0*s
+      x = 0.75_wp*s
       y = x
-      w = -0.4375d0*s*s
+      w = -0.4375_wp*s*s
     end if
     its = its+1
     itn = itn-1
@@ -187,9 +192,9 @@ do
     mp2 = m+2
 
     do i=mp2,en
-      h(i,i-2) = 0.0d0
+      h(i,i-2) = Zero
       if (i == mp2) cycle
-      h(i,i-3) = 0.0d0
+      h(i,i-3) = Zero
     end do
     ! .......... double qr step involving rows l to en and columns m to en ..........
     do k=m,na
@@ -197,10 +202,10 @@ do
       if (k /= m) then
         p = h(k,k-1)
         q = h(k+1,k-1)
-        r = 0.0d0
+        r = Zero
         if (notlas) r = h(k+2,k-1)
         x = abs(p)+abs(q)+abs(r)
-        if (x == 0.0d0) cycle
+        if (x == Zero) cycle
         p = p/x
         q = q/x
         r = r/x
@@ -271,17 +276,17 @@ do
     ! .......... one root found ..........
     h(en,en) = x+t
     wr(en) = h(en,en)
-    wi(en) = 0.0d0
+    wi(en) = Zero
     en = na
   else if (nroot == 2) then
     ! .......... two roots found ..........
-    p = (y-x)/2.0d0
+    p = (y-x)*Half
     q = p*p+w
     zz = sqrt(abs(q))
     h(en,en) = x+t
     x = h(en,en)
     h(na,na) = y+t
-    if (q < 0.0d0) then
+    if (q < Zero) then
       ! .......... complex pair ..........
       wr(na) = x+p
       wr(en) = x+p
@@ -292,9 +297,9 @@ do
       zz = p+sign(zz,p)
       wr(na) = x+zz
       wr(en) = wr(na)
-      if (zz /= 0.0d0) wr(en) = x-w/zz
-      wi(na) = 0.0d0
-      wi(en) = 0.0d0
+      if (zz /= Zero) wr(en) = x-w/zz
+      wi(na) = Zero
+      wi(en) = Zero
       x = h(en,na)
       s = abs(x)+abs(zz)
       p = x/s
@@ -326,35 +331,35 @@ do
   end if
 end do
 ! .......... all roots found.  backsubstitute to find vectors of upper triangular form ..........
-if (norm == 0.0d0) return
+if (norm == Zero) return
 ! .......... for en=n step -1 until 1 do -- ..........
 do nn=1,n
   en = n+1-nn
   p = wr(en)
   q = wi(en)
   na = en-1
-  if (q == 0.0d0) then
+  if (q == Zero) then
     ! .......... real vector ..........
     m = en
-    h(en,en) = 1.0d0
+    h(en,en) = One
     if (na == 0) cycle
     ! .......... for i=en-1 step -1 until 1 do -- ..........
     do ii=1,na
       i = en-ii
       w = h(i,i)-p
-      r = 0.0d0
+      r = Zero
 
       do j=m,en
         r = r+h(i,j)*h(j,en)
       end do
 
-      if (wi(i) < 0.0d0) then
+      if (wi(i) < Zero) then
         zz = w
         s = r
         cycle
       end if
       m = i
-      if (wi(i) /= 0.0d0) then
+      if (wi(i) /= Zero) then
         ! .......... solve real equations ..........
         x = h(i,i+1)
         y = h(i+1,i)
@@ -368,11 +373,11 @@ do nn=1,n
         end if
       else
         t = w
-        if (t == 0.0d0) then
+        if (t == Zero) then
           tst1 = norm
           t = tst1
           do
-            t = 0.01d0*t
+            t = 0.01_wp*t
             tst2 = norm+t
             if (tst2 <= tst1) exit
           end do
@@ -382,9 +387,9 @@ do nn=1,n
 
       ! .......... overflow control ..........
       t = abs(h(i,en))
-      if (t == 0.0d0) cycle
+      if (t == Zero) cycle
       tst1 = t
-      tst2 = tst1+1.0d0/tst1
+      tst2 = tst1+One/tst1
       if (tst2 > tst1) cycle
       do j=i,en
         h(j,en) = h(j,en)/t
@@ -392,49 +397,49 @@ do nn=1,n
 
     end do
     ! .......... end real vector ..........
-  else if (q < 0.0d0) then
+  else if (q < Zero) then
     ! .......... complex vector ..........
     m = na
     ! .......... last vector component chosen imaginary so that eigenvector matrix is triangular ..........
     if (abs(h(en,na)) <= abs(h(na,en))) then
-      call cdiv(0.0d0,-h(na,en),h(na,na)-p,q,h(na,na),h(na,en))
+      call cdiv(Zero,-h(na,en),h(na,na)-p,q,h(na,na),h(na,en))
     else
       h(na,na) = q/h(en,na)
       h(na,en) = -(h(en,en)-p)/h(en,na)
     end if
-    h(en,na) = 0.0d0
-    h(en,en) = 1.0d0
+    h(en,na) = Zero
+    h(en,en) = One
     enm2 = na-1
     if (enm2 == 0) cycle
     ! .......... for i=en-2 step -1 until 1 do -- ..........
     do ii=1,enm2
       i = na-ii
       w = h(i,i)-p
-      ra = 0.0d0
-      sa = 0.0d0
+      ra = Zero
+      sa = Zero
 
       do j=m,en
         ra = ra+h(i,j)*h(j,na)
         sa = sa+h(i,j)*h(j,en)
       end do
 
-      if (wi(i) < 0.0d0) then
+      if (wi(i) < Zero) then
         zz = w
         r = ra
         s = sa
       else
         m = i
-        if (wi(i) /= 0.0d0) then
+        if (wi(i) /= Zero) then
           ! .......... solve complex equations ..........
           x = h(i,i+1)
           y = h(i+1,i)
           vr = (wr(i)-p)*(wr(i)-p)+wi(i)*wi(i)-q*q
-          vi = (wr(i)-p)*2.0d0*q
-          if ((vr == 0.0d0) .and. (vi == 0.0d0)) then
+          vi = (wr(i)-p)*Two*q
+          if ((vr == Zero) .and. (vi == Zero)) then
             tst1 = norm*(abs(w)+abs(q)+abs(x)+abs(y)+abs(zz))
             vr = tst1
             do
-              vr = 0.01d0*vr
+              vr = 0.01_wp*vr
               tst2 = tst1+vr
               if (tst2 <= tst1) exit
             end do
@@ -452,9 +457,9 @@ do nn=1,n
 
         ! .......... overflow control ..........
         t = max(abs(h(i,na)),abs(h(i,en)))
-        if (t == 0.0d0) cycle
+        if (t == Zero) cycle
         tst1 = t
-        tst2 = tst1+1.0d0/tst1
+        tst2 = tst1+One/tst1
         if (tst2 > tst1) cycle
         do j=i,en
           h(j,na) = h(j,na)/t
@@ -482,7 +487,7 @@ do jj=low,n
   m = min(j,igh)
 
   do i=low,igh
-    zz = 0.0d0
+    zz = Zero
 
     do k=low,m
       zz = zz+z(i,k)*h(k,j)

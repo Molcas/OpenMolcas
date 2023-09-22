@@ -84,16 +84,21 @@ subroutine svd(nm,m,n,a,w,matu,u,matv,v,ierr,rv1)
 !
 !  TESTING FOR EQUALITY OR ZERO NOW DONE USING THRESHOLD, TT, 110100.
 
-integer i, j, k, l, m, n, ii, i1, kk, k1, ll, l1, mn, nm, its, ierr
-real*8 a(nm,n), w(n), u(nm,n), v(nm,n), rv1(n)
-real*8 c, f, g, h, s, x, y, z, tst1, tst2, scale, pythag, thresh
-logical matu, matv, skip
-save thresh
-data thresh/1d-16/
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, m, n, ierr
+real(kind=wp) :: a(nm,n), w(n), u(nm,n), v(nm,n), rv1(n)
+logical(kind=iwp) :: matu, matv
+integer(kind=iwp) :: i, i1, ii, its, j, k, k1, kk, l, l1, ll, mn
+real(kind=wp) :: c, f, g, h, pythag, s, scl, tst1, tst2, x, y, z
+logical(kind=iwp) :: skip
+real(kind=wp), parameter :: thresh = 1.0e-16_wp
 
 ! The next two initializations are to appease a compiler
-f = 0.0d0
-h = 0.0d0
+f = Zero
+h = Zero
 
 ierr = 0
 l = 0 ! dummy initialize
@@ -105,25 +110,25 @@ do i=1,m
   end do
 end do
 ! .......... householder reduction to bidiagonal form ..........
-g = 0.0d0
-scale = 0.0d0
-x = 0.0d0
+g = Zero
+scl = Zero
+x = Zero
 
 do i=1,n
   l = i+1
-  rv1(i) = scale*g
-  g = 0.0d0
-  s = 0.0d0
-  scale = 0.0d0
+  rv1(i) = scl*g
+  g = Zero
+  s = Zero
+  scl = Zero
 
   if (i <= m) then
     do k=i,m
-      scale = scale+abs(u(k,i))
+      scl = scl+abs(u(k,i))
     end do
 
-    if (abs(scale) >= thresh) then
+    if (abs(scl) >= thresh) then
       do k=i,m
-        u(k,i) = u(k,i)/scale
+        u(k,i) = u(k,i)/scl
         s = s+u(k,i)**2
       end do
 
@@ -134,7 +139,7 @@ do i=1,n
 
       if (i /= n) then
         do j=l,n
-          s = 0.0d0
+          s = Zero
 
           do k=i,m
             s = s+u(k,i)*u(k,j)
@@ -149,24 +154,24 @@ do i=1,n
       end if
 
       do k=i,m
-        u(k,i) = scale*u(k,i)
+        u(k,i) = scl*u(k,i)
       end do
     end if
   end if
 
-  w(i) = scale*g
-  g = 0.0d0
-  s = 0.0d0
-  scale = 0.0d0
+  w(i) = scl*g
+  g = Zero
+  s = Zero
+  scl = Zero
 
   if ((i <= m) .and. (i /= n)) then
     do k=l,n
-      scale = scale+abs(u(i,k))
+      scl = scl+abs(u(i,k))
     end do
 
-    if (abs(scale) >= thresh) then
+    if (abs(scl) >= thresh) then
       do k=l,n
-        u(i,k) = u(i,k)/scale
+        u(i,k) = u(i,k)/scl
         s = s+u(i,k)**2
       end do
 
@@ -181,7 +186,7 @@ do i=1,n
 
       if (i /= m) then
         do j=l,m
-          s = 0.0d0
+          s = Zero
 
           do k=l,n
             s = s+u(j,k)*u(i,k)
@@ -194,7 +199,7 @@ do i=1,n
       end if
 
       do k=l,n
-        u(i,k) = scale*u(i,k)
+        u(i,k) = scl*u(i,k)
       end do
     end if
   end if
@@ -215,7 +220,7 @@ if (matv) then
         end do
 
         do j=l,n
-          s = 0.0d0
+          s = Zero
 
           do k=l,n
             s = s+u(i,k)*v(k,j)
@@ -228,12 +233,12 @@ if (matv) then
       end if
 
       do j=l,n
-        v(i,j) = 0.0d0
-        v(j,i) = 0.0d0
+        v(i,j) = Zero
+        v(j,i) = Zero
       end do
     end if
 
-    v(i,i) = 1.0d0
+    v(i,i) = One
     g = rv1(i)
     l = i
   end do
@@ -251,18 +256,18 @@ if (matu) then
 
     if (i /= n) then
       do j=l,n
-        u(i,j) = 0.0d0
+        u(i,j) = Zero
       end do
     end if
 
     if (abs(g) < thresh) then
       do j=i,m
-        u(j,i) = 0.0d0
+        u(j,i) = Zero
       end do
     else
       if (i /= mn) then
         do j=l,n
-          s = 0.0d0
+          s = Zero
 
           do k=l,m
             s = s+u(k,i)*u(k,j)
@@ -281,7 +286,7 @@ if (matu) then
       end do
     end if
 
-    u(i,i) = u(i,i)+1.0d0
+    u(i,i) = u(i,i)+One
   end do
 end if
 ! .......... diagonalization of the bidiagonal form ..........
@@ -309,8 +314,8 @@ do kk=1,n
     end do
     if (.not. skip) then
       ! .......... cancellation of rv1(l) if l greater than 1 ..........
-      c = 0.0d0
-      s = 1.0d0
+      c = Zero
+      s = One
 
       do i=l,k
         f = s*rv1(i)
@@ -338,7 +343,7 @@ do kk=1,n
     z = w(k)
     if (l == k) then
       ! .......... convergence ..........
-      if (z >= 0.0d0) exit
+      if (z >= Zero) exit
       ! .......... w(k) is made non-negative ..........
       w(k) = -z
 
@@ -360,12 +365,12 @@ do kk=1,n
       y = w(k1)
       g = rv1(k1)
       h = rv1(k)
-      f = 0.5d0*(((g+z)/h)*((g-z)/y)+y/h-h/y)
-      g = pythag(f,1.0d0)
+      f = Half*(((g+z)/h)*((g-z)/y)+y/h-h/y)
+      g = pythag(f,One)
       f = x-(z/x)*z+(h/x)*(y/(f+sign(g,f))-h)
       ! .......... next qr transformation ..........
-      c = 1.0d0
-      s = 1.0d0
+      c = One
+      s = One
 
       do i1=l,k1
         i = i1+1
@@ -412,7 +417,7 @@ do kk=1,n
 
       end do
 
-      rv1(l) = 0.0d0
+      rv1(l) = Zero
       rv1(k) = f
       w(k) = x
     end if

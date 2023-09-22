@@ -14,15 +14,15 @@
 
 subroutine io_init_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "io_cvb.fh"
 
 nrec = 0
-thresh_io = 1d-5
+thresh_io = 1.0e-5_wp
 call izero(iorder,mxunits)
 call daninit_cvb()
 

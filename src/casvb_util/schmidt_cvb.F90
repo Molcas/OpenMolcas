@@ -14,9 +14,14 @@
 
 subroutine schmidt_cvb(c,nvec,sao,n,metr)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, n, metr
+real(kind=wp) :: c(n,nvec), sao(*)
 #include "WrkSpc.fh"
-dimension c(n,nvec), sao(*)
+integer(kind=iwp) :: i1, i2
+integer(kind=iwp), external :: mstackr_cvb
 
 if (metr == 0) then
   i1 = mstackr_cvb(nvec)

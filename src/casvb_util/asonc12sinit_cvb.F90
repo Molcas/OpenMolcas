@@ -12,15 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine asonc12sinit_cvb(ippinp)
 
 use casvb_global, only: ipp12s, iter12s
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ippinp
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 iter12s = 0
 ipp12s = ippinp

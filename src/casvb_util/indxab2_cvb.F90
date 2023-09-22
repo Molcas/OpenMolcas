@@ -14,14 +14,12 @@
 
 subroutine indxab2_cvb(indxa,indxb,nstra,nstrb,iocc,nsa,nsb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension indxa(nsa), indxb(nsb)
-dimension nstra(mxirrep), nstrb(mxirrep)
-dimension iocc(norb+1)
+integer(kind=iwp) :: nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep), iocc(norb+1)
+integer(kind=iwp) :: ia, ib, iisym, inda, indb, indx, irp
 
 call izero(nstra,mxirrep)
 call izero(nstrb,mxirrep)
@@ -29,7 +27,7 @@ inda = 0
 indb = 0
 do iisym=1,mxirrep
 
-  call loopstr0_cvb(iocc,index,nalf,norb)
+  call loopstr0_cvb(iocc,indx,nalf,norb)
   do
     irp = 1
     do ia=1,nalf
@@ -38,13 +36,13 @@ do iisym=1,mxirrep
     if (irp == iisym) then
       inda = inda+1
       nstra(iisym) = nstra(iisym)+1
-      indxa(inda) = index
+      indxa(inda) = indx
     end if
-    call loopstr_cvb(iocc,index,nalf,norb)
-    if (index == 1) exit
+    call loopstr_cvb(iocc,indx,nalf,norb)
+    if (indx == 1) exit
   end do
 
-  call loopstr0_cvb(iocc,index,nbet,norb)
+  call loopstr0_cvb(iocc,indx,nbet,norb)
   do
     irp = 1
     do ib=1,nbet
@@ -53,10 +51,10 @@ do iisym=1,mxirrep
     if (irp == iisym) then
       indb = indb+1
       nstrb(iisym) = nstrb(iisym)+1
-      indxb(indb) = index
+      indxb(indb) = indx
     end if
-    call loopstr_cvb(iocc,index,nbet,norb)
-    if (index == 1) exit
+    call loopstr_cvb(iocc,indx,nbet,norb)
+    if (indx == 1) exit
   end do
 
 end do

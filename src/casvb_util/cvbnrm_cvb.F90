@@ -15,14 +15,13 @@
 subroutine cvbnrm_cvb(cvb)
 
 use casvb_global, only: nfrag, nvb_fr
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension cvb(nvb)
+real(kind=wp) :: cvb(nvb)
+integer(kind=iwp) :: ifrag, nvbadd
+real(kind=wp), external :: dnrm2_
 
 if (nfrag <= 1) then
   call dscal_(nvb,one/dnrm2_(nvb,cvb,1),cvb,1)

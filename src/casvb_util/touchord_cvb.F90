@@ -14,21 +14,23 @@
 
 subroutine touchord_cvb(itouch,iorder,n)
 
-implicit real*8(a-h,o-z)
-dimension iorder(n)
-logical debug
-data debug/.false./
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: itouch, n, iorder(n)
+integer(kind=iwp) :: i, itchord
+logical(kind=iwp), parameter :: debug = .false.
 
 if (debug) then
-  write(6,*) ' itouch :',itouch
-  write(6,*) ' iorder on entry :',iorder
+  write(u6,*) ' itouch :',itouch
+  write(u6,*) ' iorder on entry :',iorder
 end if
 itchord = iorder(itouch)
 do i=1,n
   if ((iorder(i) < itchord) .and. (iorder(i) /= 0)) iorder(i) = iorder(i)+1
 end do
 iorder(itouch) = 1
-if (debug) write(6,*) ' iorder on exit  :',iorder
+if (debug) write(u6,*) ' iorder on exit  :',iorder
 
 return
 

@@ -14,12 +14,13 @@
 
 subroutine mkorbfree_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1, i2, i3, i4
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 i1 = mstackr_cvb(norb*norb)
 i2 = mstackr_cvb(norb*norb)

@@ -14,15 +14,14 @@
 
 subroutine asonc2_cvb(c,axc,sxc,nvec,civbh,civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension c(nvb,nvec), axc(nvb,nvec), sxc(nvb,nvec)
-dimension civbh(ndet), civbs(ndet)
-dimension orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
-dimension cvbdet(ndetvb)
+integer(kind=iwp) :: nvec
+real(kind=wp) :: c(nvb,nvec), axc(nvb,nvec), sxc(nvb,nvec), civbh(ndet), civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), &
+                 gjorb3(*), cvbdet(ndetvb)
+integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
   call str2vbf_cvb(c(1,ivec),cvbdet)

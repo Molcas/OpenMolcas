@@ -14,12 +14,13 @@
 
 subroutine mkciinfo_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: k1, k10, k11, k2, k3, k4, k5, k6, k7, k8, k9
+integer(kind=iwp), external :: mstacki_cvb
 
 k1 = mstacki_cvb((norb+1)*(nalf+1))
 k2 = mstacki_cvb((norb+1)*(nbet+1))

@@ -14,13 +14,14 @@
 
 subroutine scorr_cvb(cvbdet,dvbdet,evbdet)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
 #include "WrkSpc.fh"
-dimension cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
+integer(kind=iwp) :: k1, k2, k3
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 k1 = mstackr_cvb(norb*norb)
 k2 = mstackr_cvb(ndetvb)

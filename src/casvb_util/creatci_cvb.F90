@@ -14,25 +14,23 @@
 
 subroutine creatci_cvb(inumber,xident_ci,iaddr,iform,fileid)
 
-implicit real*8(a-h,o-z)
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-logical debug
-data debug/.false./
+use Definitions, only: wp, iwp, u6
 
-ident_ci = inumber
-xident_ci = dble(ident_ci)
-ident_ci = inumber
-iaddr_ci(ident_ci) = iaddr
-iform_ci(ident_ci) = iform
-fileid_ci(ident_ci) = fileid
+implicit none
+integer(kind=iwp) :: inumber, iaddr, iform, fileid
+real(kind=wp) :: xident_ci
+#include "main_cvb.fh"
+logical(kind=iwp), parameter :: debug = .false.
+
+xident_ci = real(inumber,kind=wp)
+iaddr_ci(inumber) = iaddr
+iform_ci(inumber) = iform
+fileid_ci(inumber) = fileid
 if (debug) then
-  write(6,*) ' Creating CI vector :',inumber
-  write(6,*) ' Address            :',iaddr
-  write(6,*) ' Format             :',iform
-  write(6,*) ' File identifier    :',fileid
+  write(u6,*) ' Creating CI vector :',inumber
+  write(u6,*) ' Address            :',iaddr
+  write(u6,*) ' Format             :',iform
+  write(u6,*) ' File identifier    :',fileid
 end if
 
 return

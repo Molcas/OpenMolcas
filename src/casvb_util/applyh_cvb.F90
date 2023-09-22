@@ -14,26 +14,29 @@
 
 subroutine applyh_cvb(civec)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
-dimension civec(*)
-save thr2
-data thr2/1.d-20/
+integer(kind=iwp) :: icivec, isyml, isymmx, lcim, lcim2, nci
+real(kind=wp) :: c_daxpy, cnrm
+real(kind=wp), parameter :: thr2 = 1.0e-20_wp
+integer(kind=iwp), external :: mstackr_cvb, mstackrz_cvb
+real(kind=wp), external :: ddot_
 
 kH0_Pointer = lw1_cvb
 icivec = nint(civec(1))
-c_daxpy = zero
+c_daxpy = Zero
 
 n_applyh = n_applyh+1
 call setcnt2_cvb(icivec,0)
 if (iform_ci(icivec) /= 0) then
-  write(6,*) ' Unsupported format in APPLYH :',iform_ci(icivec)
+  write(u6,*) ' Unsupported format in APPLYH :',iform_ci(icivec)
   call abend_cvb()
 end if
 
@@ -53,9 +56,9 @@ do isyml=1,isymmx
     ! If anything there, apply Hamiltonian to vector of this symmetry:
     if (cnrm > thr2) then
       call sigmadet_cvb(work(lcim),work(lcim2),isyml,nci)
-      if (c_daxpy /= zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
+      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
     else
-      if (c_daxpy /= zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
+      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
     end if
     call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim2),isyml)
     call mfreer_cvb(lcim2)
@@ -66,10 +69,10 @@ do isyml=1,isymmx
     if (cnrm > thr2) then
       call fzero(work(iaddr_ci(icivec)),nci)
       call sigmadet_cvb(work(lcim),work(iaddr_ci(icivec)),isyml,nci)
-      if (c_daxpy /= zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
+      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
       call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
     else
-      if (c_daxpy /= zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
+      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
       call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
     end if
     call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)

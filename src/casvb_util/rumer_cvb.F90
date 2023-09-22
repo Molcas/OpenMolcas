@@ -15,32 +15,32 @@
 subroutine rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,minspn,maxspn,nkspn,minswp,maxswp,nkswp,ioccswp,locca, &
                      lnocca,xdet,xspin,iw,ialfs,ibets)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension bikcof(ndet,ifns)
-dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
-dimension minswp(0:2*nbet), maxswp(0:2*nbet)
-dimension nkswp(0:2*nbet)
-dimension ioccswp(nbet,nswpdim)
-dimension locca(nel), lnocca(nel)
-dimension xdet(0:nel,0:nalf), xspin((nel+1)*(nalf+1)), iw(nel)
-dimension ialfs(nalf), ibets(nbet)
-integer rc
-save one
-data one/1.0d0/
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, kbasis, iprint, nswpdim, minspn(0:nel), maxspn(0:nel), nkspn(0:nel), &
+                     minswp(0:2*nbet), maxswp(0:2*nbet), nkswp(0:2*nbet), ioccswp(nbet,nswpdim), locca(nel), lnocca(nel), &
+                     xdet(0:nel,0:nalf), xspin((nel+1)*(nalf+1)), iw(nel), ialfs(nalf), ibets(nbet)
+real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp) :: ia, iachek, ib, ii, indx, iorb, iswp, nbet2, rc
+real(kind=wp) :: abphase, bikvalue, scl
+integer(kind=iwp), external :: indget_cvb
+real(kind=wp), external :: party_cvb
 
 call fzero(bikcof,ifns*ndet)
 
 ! Determinant weight array (index from alpha spin string):
 call weightfl_cvb(xdet,nalf,nel)
 if (ndet /= xdet(nel,nalf)) then
-  write(6,*) ' Discrepancy in NDET:',ndet,xdet(nel,nalf)
+  write(u6,*) ' Discrepancy in NDET:',ndet,xdet(nel,nalf)
   call abend_cvb()
 end if
 
 ! Rumer spin functions
 
-if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(6,6100) 2**nbet
-abphase = dble(1-2*mod(nbet*(nbet-1)/2,2))
+if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(u6,6100) 2**nbet
+abphase = real(1-2*mod(nbet*(nbet-1)/2,2),kind=wp)
 
 ! Prepare NKs for a<->b interchanges in (ab-ba) terms:
 nbet2 = nbet+nbet
@@ -66,16 +66,16 @@ do iorb=0,nel
 end do
 call weight_cvb(xspin,minspn,maxspn,nbet,nel)
 if ((ifns /= xspin((nel+1)*(nbet+1))) .and. (kbasis /= 6)) then
-  write(6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
+  write(u6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
   call abend_cvb()
 end if
 call imove_cvb(maxspn,nkspn,nel+1)
 call occupy_cvb(nkspn,nel,locca,lnocca)
 
 ! Loop:
-index = 1
+indx = 1
 ! Determine pairings
-do while ((kbasis /= 6) .or. (index <= ifns))
+do while ((kbasis /= 6) .or. (indx <= ifns))
   do ib=1,nbet
     ibets(ib) = locca(ib)
     do ia=nalf,1,-1
@@ -98,10 +98,10 @@ do while ((kbasis /= 6) .or. (index <= ifns))
     end do
   end do
 
-  if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(6,6200) index,(ialfs(ii),ibets(ii),ii=1,nbet)
+  if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(u6,6200) indx,(ialfs(ii),ibets(ii),ii=1,nbet)
 
   if (kbasis == 4) then
-    bikvalue = one
+    bikvalue = One
   else
     bikvalue = abphase*party_cvb(ialfs,nalf)*party_cvb(ibets,nbet)
   end if
@@ -118,15 +118,15 @@ do while ((kbasis /= 6) .or. (index <= ifns))
         iw(ibets(ia)) = 1
       end if
     end do
-    bikcof(indget_cvb(iw,nalf,nel,xdet),index) = bikvalue
+    bikcof(indget_cvb(iw,nalf,nel,xdet),indx) = bikvalue
   end do
-  call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,index,xspin,rc)
+  call loind_cvb(nel,nbet,nkspn,minspn,maxspn,locca,lnocca,indx,xspin,rc)
   if (rc == 0) exit
 end do
 
 ! Normalise
-scale = one/sqrt(dble(2**nbet))
-call dscal_(ndet*ifns,scale,bikcof,1)
+scl = One/sqrt(real(2**nbet,kind=wp))
+call dscal_(ndet*ifns,scl,bikcof,1)
 
 return
 6100 format(/,' Number of determinants per structure:',i4)

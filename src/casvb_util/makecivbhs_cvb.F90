@@ -15,16 +15,12 @@
 subroutine makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
 ! Construct CIVBS ( = T(s) * CIVB ) & CIVBH ( = T(O)*H*T(O) * CIVB ):
 
-implicit real*8(a-h,o-z)
-! ... Content of CI vectors ...
-logical, external :: tstcnt_cvb
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension orbs(norb,norb)
-dimension civbh(ndet), civbs(ndet)
-dimension gjorb(*), gjorb2(*), gjorb3(*)
+real(kind=wp) :: civbh(ndet), civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civbs,4) .and. tstcnt_cvb(civbh,5)) then
   return

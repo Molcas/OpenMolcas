@@ -17,9 +17,11 @@ subroutine bufio_chbuf_cvb(jbuf)
 ! neither is JBUF buffer read.
 
 use casvb_global, only: ibuf, nbuf
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-#include "idbl_cvb.fh"
+implicit none
+integer(kind=iwp) :: jbuf
+integer(kind=iwp) :: kbuf
 
 ! Dummy writes so that we don't exceed end-of-file:
 do kbuf=nbuf+1,jbuf-1

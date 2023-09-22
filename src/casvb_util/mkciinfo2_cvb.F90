@@ -15,21 +15,16 @@
 subroutine mkciinfo2_cvb(i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,xalf,xbet,xalf2,xbet2,mingrph,maxgrph,nk,locc,lunocc, &
                          inewocc,iaccm)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension i1alf(n1a,norb), i1bet(n1b,norb)
-dimension iafrm(norb,nda), ibfrm(norb,ndb)
-dimension iato(norb,0:nam1), ibto(norb,0:nbm1)
-dimension phato(norb,nam1), phbto(norb,nbm1)
-dimension xalf(0:norb,0:nalf), xbet(0:norb,0:nbet)
-dimension xalf2(0:norb,0:nalf-1), xbet2(0:norb,0:nbet-1)
-dimension mingrph(0:norb), maxgrph(0:norb)
-dimension nk(0:norb), locc(norb+1), lunocc(norb+1)
-dimension inewocc(norb), iaccm(norb)
-integer rc
+integer(kind=iwp) :: i1alf(n1a,norb), i1bet(n1b,norb), iafrm(norb,nda), ibfrm(norb,ndb), iato(norb,0:nam1), ibto(norb,0:nbm1), &
+                     xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), xalf2(0:norb,0:nalf-1), xbet2(0:norb,0:nbet-1), mingrph(0:norb), &
+                     maxgrph(0:norb), nk(0:norb), locc(norb+1), lunocc(norb+1), inewocc(norb), iaccm(norb)
+real(kind=wp) :: phato(norb,nam1), phbto(norb,nbm1)
+integer(kind=iwp) :: i, ia, iax, iaxtmp, ib, ibx, ibxtmp, iel, indx, iorb, rc
+integer(kind=iwp), external :: indget_cvb, ip_of_iWork
 
 call izero(iafrm,nda*norb)
 call izero(ibfrm,ndb*norb)
@@ -46,7 +41,7 @@ end do
 call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   call izero(inewocc,norb)
   do i=1,nalf
@@ -55,16 +50,16 @@ do
   do iel=1,norb
     if (inewocc(iel) == 1) then
       iaccm(iel) = iaccm(iel)+1
-      i1alf(iaccm(iel),iel) = index
+      i1alf(iaccm(iel),iel) = indx
     end if
   end do
   ! Indexing arrays:
   do i=1,nalf
     inewocc(locc(i)) = 0
-    iafrm(locc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
+    iafrm(locc(i),indx) = indget_cvb(inewocc,nalf,norb,xalf)
     inewocc(locc(i)) = 1
   end do
-  call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,index,xalf,rc)
+  call loind_cvb(norb,nalf,nk,mingrph,maxgrph,locc,lunocc,indx,xalf,rc)
   if (rc == 0) exit
 end do
 ! Beta loop:
@@ -76,7 +71,7 @@ end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   call izero(inewocc,norb)
   do i=1,nbet
@@ -85,16 +80,16 @@ do
   do iel=1,norb
     if (inewocc(iel) == 1) then
       iaccm(iel) = iaccm(iel)+1
-      i1bet(iaccm(iel),iel) = index
+      i1bet(iaccm(iel),iel) = indx
     end if
   end do
   ! Indexing arrays:
   do i=1,nbet
     inewocc(locc(i)) = 0
-    ibfrm(locc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
+    ibfrm(locc(i),indx) = indget_cvb(inewocc,nbet,norb,xbet)
     inewocc(locc(i)) = 1
   end do
-  call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,index,xbet,rc)
+  call loind_cvb(norb,nbet,nk,mingrph,maxgrph,locc,lunocc,indx,xbet,rc)
   if (rc == 0) exit
 end do
 
@@ -127,7 +122,7 @@ end do
 call weight_cvb(xalf2,mingrph,maxgrph,nalf-1,norb)
 call imove_cvb(maxgrph,nk,norb+1)
 call occupy_cvb(nk,norb,locc,lunocc)
-index = 1
+indx = 1
 do
   call izero(inewocc,norb)
   do i=1,nalf-1
@@ -135,15 +130,15 @@ do
   end do
   do i=1,norb-nalf+1
     inewocc(lunocc(i)) = 1
-    iato(lunocc(i),index) = indget_cvb(inewocc,nalf,norb,xalf)
+    iato(lunocc(i),indx) = indget_cvb(inewocc,nalf,norb,xalf)
     inewocc(lunocc(i)) = 0
     if (mod(nalf+i+1+lunocc(i),2) == 0) then
-      phato(lunocc(i),index) = one
+      phato(lunocc(i),indx) = one
     else
-      phato(lunocc(i),index) = -one
+      phato(lunocc(i),indx) = -one
     end if
   end do
-  call loind_cvb(norb,nalf-1,nk,mingrph,maxgrph,locc,lunocc,index,xalf2,rc)
+  call loind_cvb(norb,nalf-1,nk,mingrph,maxgrph,locc,lunocc,indx,xalf2,rc)
   if (rc == 0) exit
 end do
 
@@ -156,7 +151,7 @@ if (nbet > 0) then
   call weight_cvb(xbet2,mingrph,maxgrph,nbet-1,norb)
   call imove_cvb(maxgrph,nk,norb+1)
   call occupy_cvb(nk,norb,locc,lunocc)
-  index = 1
+  indx = 1
   do
     call izero(inewocc,norb)
     do i=1,nbet-1
@@ -164,15 +159,15 @@ if (nbet > 0) then
     end do
     do i=1,norb-nbet+1
       inewocc(lunocc(i)) = 1
-      ibto(lunocc(i),index) = indget_cvb(inewocc,nbet,norb,xbet)
+      ibto(lunocc(i),indx) = indget_cvb(inewocc,nbet,norb,xbet)
       inewocc(lunocc(i)) = 0
       if (mod(nbet+i+1+lunocc(i),2) == 0) then
-        phbto(lunocc(i),index) = one
+        phbto(lunocc(i),indx) = one
       else
-        phbto(lunocc(i),index) = -one
+        phbto(lunocc(i),indx) = -one
       end if
     end do
-    call loind_cvb(norb,nbet-1,nk,mingrph,maxgrph,locc,lunocc,index,xbet2,rc)
+    call loind_cvb(norb,nbet-1,nk,mingrph,maxgrph,locc,lunocc,indx,xbet2,rc)
     if (rc == 0) exit
   end do
 end if

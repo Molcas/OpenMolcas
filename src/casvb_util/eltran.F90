@@ -15,7 +15,7 @@
 !  ** EISPACK ROUTINES **
 !  **********************
 
-subroutine eltran(nm,n,low,igh,a,int,z)
+subroutine eltran(nm,n,low,igh,a,intx,z)
 ! this subroutine is a translation of the algol procedure elmtrans,
 ! num. math. 16, 181-204(1970) by peters and wilkinson.
 ! handbook for auto. comp., vol.ii-linear algebra, 372-395(1971).
@@ -40,7 +40,7 @@ subroutine eltran(nm,n,low,igh,a,int,z)
 !      reduction by  elmhes  in its lower triangle
 !      below the subdiagonal.
 !
-!    int contains information on the rows and columns
+!    intx contains information on the rows and columns
 !      interchanged in the reduction by  elmhes.
 !      only elements low through igh are used.
 !
@@ -57,18 +57,22 @@ subroutine eltran(nm,n,low,igh,a,int,z)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
-integer i, j, n, kl, mm, mp, nm, igh, low, mp1
-real*8 a(nm,igh), z(nm,n)
-integer int(igh)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nm, n, low, igh, intx(igh)
+real(kind=wp) :: a(nm,igh), z(nm,n)
+integer(kind=iwp) :: i, j, kl, mm, mp, mp1
 
 ! .......... initialize z to identity matrix ..........
 do j=1,n
 
   do i=1,n
-    z(i,j) = 0.0d0
+    z(i,j) = Zero
   end do
 
-  z(j,j) = 1.0d0
+  z(j,j) = One
 end do
 
 kl = igh-low-1
@@ -81,15 +85,15 @@ do mm=1,kl
     z(i,mp) = a(i,mp-1)
   end do
 
-  i = int(mp)
+  i = intx(mp)
   if (i == mp) cycle
 
   do j=mp,igh
     z(mp,j) = z(i,j)
-    z(i,j) = 0.0d0
+    z(i,j) = Zero
   end do
 
-  z(i,mp) = 1.0d0
+  z(i,mp) = One
 end do
 
 return

@@ -14,39 +14,33 @@
 
 subroutine rdjobiph_cvb(fnjob)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-! Input parameters:
-! ------------------
-character*(*) fnjob ! subroutine arguments
-!integer mxtit, mxorb, mxroot, mxsym  ! rasdim.fh
-!integer itob, rtoi                   ! SysDef.fh
+character(len=*) :: fnjob
+integer(kind=iwp) :: idisk, ii, lujob
+logical(kind=iwp), parameter :: debug = .false.
+integer(kind=iwp), external :: len_trim_cvb
+
 ! Output parameters (in jobiph_j):
 ! --------------------------------
-!integer iadr15_j(15)
-!integer nactel_j, ispin_j, nsym_j, lsym_j, nfro_j(mxsym), nish_j(mxsym), nash_j(mxsym), ndel_j(mxsym), nbas_j(mxsym)
-!character*(lenin8) name_j(mxorb)
-!integer nconf_j
-!character*2 header_j(72)
-!character*72 title_j(18)
-!real*8 potnuc_j
-!integer lroots_j, nroots_j, iroot_j(mxroot), nrs1_j(mxsym), nrs2_j(mxsym), nrs3_j(mxsym), nhole1_j, nelec3_j, ipt2_j
-!real*8 weight_j(mxroot)
+! iadr15_j(15)
+! nactel_j, ispin_j, nsym_j, lsym_j, nfro_j(mxsym), nish_j(mxsym), nash_j(mxsym), ndel_j(mxsym), nbas_j(mxsym)
+! name_j(mxorb)
+! nconf_j
+! header_j(72)
+! title_j(18)
+! potnuc_j
+! lroots_j, nroots_j, iroot_j(mxroot), nrs1_j(mxsym), nrs2_j(mxsym), nrs3_j(mxsym), nhole1_j, nelec3_j, ipt2_j
+! weight_j(mxroot)
 !w
 !w    NA                   NORB                NNA              NTASH
 !w    NTASQR             NTATRI              NTBAS             NTBSQR
 !w    NTBTRI              NTISH             NTISQR             NTITRI
-! Local/work parameters:
-! ----------------------
-!  local / work
-integer lujob
-integer idisk
-logical debug
-data debug/.false./
-! integer iwork   ! WrkSpc.fh
 
 ! Read the table of disk adresses:
 lujob = 15
@@ -60,38 +54,38 @@ call WR_RASSCF_Info(lujob,2,idisk,nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,nish_j,n
                     nhole1_j,nelec3_j,ipt2_j,weight_j)
 
 if (debug) then
-  write(6,*) ' Information read from jobiph :'
-  write(6,*) ' ------------------------------'
-  write(6,*) ' nactel :',nactel_j
-  write(6,*) ' ispin  :',ispin_j
-  write(6,*) ' nsym   :',nsym_j
-  write(6,*) ' lsym   :',lSym_j
-  write(6,*) ' nfro   :',nfro_j
-  write(6,*) ' nish   :',nish_j
-  write(6,*) ' nash   :',nash_j
-  write(6,*) ' ndel   :',ndel_j
-  write(6,*) ' nbas   :',nbas_j
-  write(6,*) ' name   :'
+  write(u6,*) ' Information read from jobiph :'
+  write(u6,*) ' ------------------------------'
+  write(u6,*) ' nactel :',nactel_j
+  write(u6,*) ' ispin  :',ispin_j
+  write(u6,*) ' nsym   :',nsym_j
+  write(u6,*) ' lsym   :',lSym_j
+  write(u6,*) ' nfro   :',nfro_j
+  write(u6,*) ' nish   :',nish_j
+  write(u6,*) ' nash   :',nash_j
+  write(u6,*) ' ndel   :',ndel_j
+  write(u6,*) ' nbas   :',nbas_j
+  write(u6,*) ' name   :'
   do ii=1,mxorb
-    if (name_j(ii)(4:4) == ' ') write(6,*) name_j(ii)
+    if (name_j(ii)(4:4) == ' ') write(u6,*) name_j(ii)
   end do
-  write(6,*) ' nconf  :',nconf_j
-  write(6,*) ' header :',header_j
-  write(6,*) ' title  :'
+  write(u6,*) ' nconf  :',nconf_j
+  write(u6,*) ' header :',header_j
+  write(u6,*) ' title  :'
   do ii=1,mxtit
-    if (len_trim_cvb(title_j(ii)) > 0) write(6,*) title_j(ii)
+    if (len_trim_cvb(title_j(ii)) > 0) write(u6,*) title_j(ii)
   end do
-  write(6,*) ' potnuc :',potnuc_j
-  write(6,*) ' lroots :',lroots_j
-  write(6,*) ' nroots :',nroots_j
-  write(6,*) ' iroot  :',iroot_j
-  write(6,*) ' nrs1   :',nrs1_j
-  write(6,*) ' nrs2   :',nrs2_j
-  write(6,*) ' nrs3   :',nrs3_j
-  write(6,*) ' nhole1 :',nhole1_j
-  write(6,*) ' nelec3 :',nelec3_j
-  write(6,*) ' ipt2   :',ipt2_j
-  write(6,*) ' weight :',weight_j
+  write(u6,*) ' potnuc :',potnuc_j
+  write(u6,*) ' lroots :',lroots_j
+  write(u6,*) ' nroots :',nroots_j
+  write(u6,*) ' iroot  :',iroot_j
+  write(u6,*) ' nrs1   :',nrs1_j
+  write(u6,*) ' nrs2   :',nrs2_j
+  write(u6,*) ' nrs3   :',nrs3_j
+  write(u6,*) ' nhole1 :',nhole1_j
+  write(u6,*) ' nelec3 :',nelec3_j
+  write(u6,*) ' ipt2   :',ipt2_j
+  write(u6,*) ' weight :',weight_j
 end if
 
 call daclos_cvb(lujob)

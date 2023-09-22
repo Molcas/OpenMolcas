@@ -14,16 +14,17 @@
 
 subroutine rdioff_cvb(ifield,file_id,ioffset)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ifield, ioffset
+real(kind=wp) :: file_id
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-parameter(nbuf=50)
-dimension ioff(nbuf)
+integer(kind=iwp), parameter :: nbuf = 50
+integer(kind=iwp) :: ioff(nbuf)
 
 if (ifield > nbuf) then
-  write(6,*) ' ifield too large in rdioff :',ifield,nbuf
+  write(u6,*) ' ifield too large in rdioff :',ifield,nbuf
   call abend_cvb()
 end if
 call rdi_cvb(ioff,nbuf,file_id,0)

@@ -14,9 +14,13 @@
 
 subroutine icomb_cvb(i1,i2,icomb_cvbval)
 
-implicit real*8(a-h,o-z)
-save one, half
-data one/1.d0/,half/0.5d0/
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i1, i2, icomb_cvbval
+integer(kind=iwp) :: i3, j
+real(kind=wp) :: comb
 
 icomb_cvbval = 0
 
@@ -27,14 +31,14 @@ if ((i1 < 0) .or. (i2 < 0) .or. (i1 < i2)) then
 end if
 ! I3 is I2 but always less than I1/2:
 i3 = (i1-abs(i1-2*i2))/2
-comb = one
+comb = One
 do j=1,i3
-  comb = comb/dble(j)
-  comb = comb*dble(i1-j+1)
+  comb = comb/real(j,kind=wp)
+  comb = comb*real(i1-j+1,kind=wp)
 end do
 icomb_cvbval = nint(comb)
 ! If integer overflow - return ICOMB_CVB=-1:
-if (abs(dble(icomb_cvbval)-comb) > half) icomb_cvbval = -1
+if (abs(real(icomb_cvbval,kind=wp)-comb) > Half) icomb_cvbval = -1
 
 return
 

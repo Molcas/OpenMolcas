@@ -15,16 +15,18 @@
 subroutine span0_cvb(nvecmx1,n)
 
 use casvb_global, only: iaddr, nvecmx, nvtot
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-save nmult
-data nmult/5/
+implicit none
+integer(kind=iwp) :: nvecmx1, n
+integer(kind=iwp), parameter :: nmult = 5
+integer(kind=iwp), external :: mavailr_cvb, mstackr_cvb
 
 nvecmx = min(nmult*nvecmx1,mavailr_cvb()/n)
 if (nvecmx <= 0) then
-  write(6,*) ' Not enough vectors in SPAN0_CVB!',nvecmx
-  write(6,*) ' Remaining memory :',mavailr_cvb()
-  write(6,*) ' Max number of vectors :',nvecmx1
+  write(u6,*) ' Not enough vectors in SPAN0_CVB!',nvecmx
+  write(u6,*) ' Remaining memory :',mavailr_cvb()
+  write(u6,*) ' Max number of vectors :',nvecmx1
   call abend_cvb()
 end if
 iaddr = mstackr_cvb(n*nvecmx)

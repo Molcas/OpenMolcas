@@ -19,13 +19,13 @@
 !***********************************************************************
 subroutine symweight_cvb(civec1,civec2,osym)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: civec1(*), civec2(*), osym(mxirrep)
 #include "WrkSpc.fh"
-dimension osym(mxirrep), civec1(*), civec2(*)
+integer(kind=iwp) :: icivec1, icivec2
 
 icivec1 = nint(civec1(1))
 icivec2 = nint(civec2(1))

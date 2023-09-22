@@ -14,22 +14,20 @@
 
 subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,dx,iorts,nort,sorbsinv)
 
-implicit real*8(a-h,o-z)
-logical orbopt, strucopt, sym
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr), dx(npr), sorbsinv(norb,norb)
+logical(kind=iwp) :: orbopt, strucopt, sym
 #include "print_cvb.fh"
-dimension orbs(norb,norb), cvb(nvb)
-dimension orbsp(norb,norb), cvbp(nvb)
-dimension sorbs(norb,norb)
-dimension dxorg(npr), dx(npr)
-dimension iorts(2,nort)
-dimension sorbsinv(norb,norb)
-dimension dum(1)
-save zero
-data zero/0d0/
+integer(kind=iwp) :: i, ij, iorb, iort, j, jorb, k, korb, l, lorb
+real(kind=wp) :: dum(1), fac, sdidj
 
 call free2all_cvb(dxorg,dx,1)
 if ((ip(3) >= 3) .and. (ic == 1)) then
-  write(6,'(/,a)') ' Update vector :'
+  write(u6,'(/,a)') ' Update vector :'
   call vecprint_cvb(dx,npr)
 end if
 
@@ -67,7 +65,7 @@ if (orbopt) then
         sdidj = sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))*dx(l+(jorb-1)*(norb-1))
       end do
     end do
-    fac = -.5d0*sdidj
+    fac = -Half*sdidj
     do i=1,norb
       do j=1,norb
         orbs(i,iorb) = orbs(i,iorb)+fac*orbsp(i,j)*sorbsinv(j,jorb)

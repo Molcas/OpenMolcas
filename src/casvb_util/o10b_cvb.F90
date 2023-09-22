@@ -15,26 +15,32 @@
 subroutine o10b_cvb(nparm,dxnrm,grdnrm,close2conv)
 
 use casvb_global, only: have_solved_it, ip, ix
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical close2conv
+implicit none
+integer(kind=iwp) :: nparm
+real(kind=wp) :: dxnrm, grdnrm
+logical(kind=iwp) :: close2conv
 #include "WrkSpc.fh"
-external asonc10_cvb, ddres2upd10_cvb
+integer(kind=iwp) :: ioptc2, iter2
+real(kind=wp) :: fx_exp, resthr_use
+real(kind=wp), external :: dnrm2_
+external :: asonc10_cvb, ddres2upd10_cvb
 
 if (.not. close2conv) then
-  resthr_use = 1d-5
+  resthr_use = 1.0e-5_wp
 else
-  resthr_use = 5d-2*grdnrm
-  resthr_use = min(1d-5,resthr_use)
-  resthr_use = max(1d-9,resthr_use)
+  resthr_use = 0.05_wp*grdnrm
+  resthr_use = min(1.0e-5_wp,resthr_use)
+  resthr_use = max(1.0e-9_wp,resthr_use)
 end if
 call axexb_cvb(asonc10_cvb,ddres2upd10_cvb,work(ix(1)),resthr_use,ioptc2,iter2,fx_exp)
 have_solved_it = .true.
 
-if (ip >= 2) write(6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
+if (ip >= 2) write(u6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
 
 if (ioptc2 /= 0) then
-  write(6,*) ' Direct diagonalization not converged!'
+  write(u6,*) ' Direct diagonalization not converged!'
   call abend_cvb()
 end if
 

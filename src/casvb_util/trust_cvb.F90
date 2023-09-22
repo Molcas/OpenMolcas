@@ -12,20 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine trust_cvb(iopth,opth,maxize,fx,fxbest,exp,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
+subroutine trust_cvb(iopth,opth,maxize,fx,fxbest,expc,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
 
 use casvb_global, only: cpropt, delopth1, delopth2, dfxmin, formAD, hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhtol, nopth1, &
                         nopth2, scalesmall, zzacclim, zzrejmax, zzrejmin
 
-implicit real*8(a-h,o-z)
-logical opth, maxize, scalesmall1, close2conv, converged
-logical skipupd
-logical dfx_ok, zz_ok
-#include "print_cvb.fh"
-save zero, half, one
-data zero/0d0/,half/.5d0/,one/1d0/
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-call zz_cvb(dum,zz,fx,fxbest,exp,-1)
+implicit none
+integer(kind=iwp) :: iopth, ioptc
+real(kind=wp) :: fx, fxbest, expc, hh, dxnrm
+logical(kind=iwp) :: opth, maxize, scalesmall1, close2conv, converged, skipupd
+#include "print_cvb.fh"
+integer(kind=iwp) :: icprbst, icprbst2, idum, iop, ioptst, ipu, nopth
+real(kind=wp) :: cprbst, dfx, dum, gap2, hh_min, hhlargest, oldstep, scl, zz
+logical(kind=iwp) :: dfx_ok, zz_ok
+
+call zz_cvb(dum,zz,fx,fxbest,expc,-1)
 skipupd = .false.
 if (.not. close2conv) then
   ipu = 1
@@ -59,7 +63,7 @@ do
       ! Restore HH as used before (so repeated update vector will be
       ! exactly the same):
       if (icprbst <= nopth1(ipu)) then
-        hh = hhkeep*(one+(dble(icprbst)-half*dble(nopth1(ipu)+1))*delopth1(ipu))
+        hh = hhkeep*(One+(real(icprbst,kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))
       else if (icprbst <= nopth) then
         ! IFG: nopth1 was used in these two calls, probably a bug
         if (maxize) then
@@ -67,37 +71,37 @@ do
         else
           call findmn_cvb(cpropt,nopth,cprbst,icprbst2)
         end if
-        hh = hhkeep*(one+(dble(icprbst2)-half*dble(nopth1(ipu)+1))*delopth1(ipu))
+        hh = hhkeep*(One+(real(icprbst2,kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))
         gap2 = hhkeep*delopth1(ipu)*delopth2(ipu)
-        hh = hh+gap2*(dble(icprbst-nopth1(ipu))-half*dble(nopth2(ipu)+1))
+        hh = hh+gap2*(real(icprbst-nopth1(ipu),kind=wp)-Half*real(nopth2(ipu)+1,kind=wp))
       end if
       hh = min(hh,hhmax(ipu))
       ! Scale trust region size according to ZZ:
       if (zz < zzacclim(1,ipu)) then
-        scale = hhaccfac(1,ipu)
+        scl = hhaccfac(1,ipu)
       else if (zz > zzacclim(4,ipu)) then
-        scale = hhaccfac(5,ipu)
+        scl = hhaccfac(5,ipu)
       else if (zz < zzacclim(2,ipu)) then
-        scale = hhaccfac(2,ipu)
+        scl = hhaccfac(2,ipu)
       else if (zz > zzacclim(3,ipu)) then
-        scale = hhaccfac(4,ipu)
+        scl = hhaccfac(4,ipu)
       else
-        scale = hhaccfac(3,ipu)
+        scl = hhaccfac(3,ipu)
       end if
       if (nopth > 1) then
-        if ((hhopt(icprbst) > 1d-8) .and. (hh/hhopt(icprbst) > 2d0)) then
+        if ((hhopt(icprbst) > 1.0e-8_wp) .and. (hh/hhopt(icprbst) > Two)) then
           hhkeep = hh
         else
           ! Scale trust region size according to ZZ:
-          hhkeep = hh*scale
+          hhkeep = hh*scl
         end if
       else
         oldstep = hhopt(icprbst)
         ! Scale trust region size according to ZZ:
-        if (scale >= one) then
-          hhkeep = max(hhkeep,oldstep*scale)
+        if (scl >= One) then
+          hhkeep = max(hhkeep,oldstep*scl)
         else
-          hhkeep = hhkeep*scale
+          hhkeep = hhkeep*scl
         end if
       end if
       skipupd = (icprbst == nopth)
@@ -106,34 +110,34 @@ do
       ! << Rejecting update >>
       if (converged) then
         iopth = 0
-        hh = zero
+        hh = Zero
         return
       end if
-      if (ip(3) >= 1) write(6,'(a)') ' Rejecting step.'
+      if (ip(3) >= 1) write(u6,'(a)') ' Rejecting step.'
       call findmn_cvb(hhopt,nopth,hh_min,idum)
       hhkeep = min(hh_min,hhkeep)*hhrejfac(ipu)
       gap2 = hhkeep*delopth1(ipu)*delopth2(ipu)
-      if (nopth2(ipu) == 0) gap2 = zero
-      hhlargest = hhkeep*(one+(dble(nopth1(ipu))-half*dble(nopth1(ipu)+1))*delopth1(ipu))+ &
-                  gap2*(dble(nopth-nopth1(ipu))-half*dble(nopth2(ipu)+1))
+      if (nopth2(ipu) == 0) gap2 = Zero
+      hhlargest = hhkeep*(One+(real(nopth1(ipu),kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))+ &
+                  gap2*(real(nopth-nopth1(ipu),kind=wp)-Half*real(nopth2(ipu)+1,kind=wp))
       if (hhlargest < hhtol(ipu)) then
         if (ip(3) >= 0) then
-          write(6,formAD) ' Trust region size smaller than tolerance !',hhlargest,hhtol(ipu)
-          write(6,'(a)') ' Calculation NOT converged!'
+          write(u6,formAD) ' Trust region size smaller than tolerance !',hhlargest,hhtol(ipu)
+          write(u6,'(a)') ' Calculation NOT converged!'
         end if
         ioptc = -2
         return
       end if
     end if
   else
-    if ((iopth == 0) .and. (nopth > 1) .and. (ip(3) >= 2)) write(6,'(/,a)') ' Optimising trust region size :'
+    if ((iopth == 0) .and. (nopth > 1) .and. (ip(3) >= 2)) write(u6,'(/,a)') ' Optimising trust region size :'
     opth = .true.
     iopth = iopth+1
     ioptst = mod(iopth,nopth)
     if (ioptst == 0) ioptst = ioptst+nopth
 
     if (ioptst <= nopth1(ipu)) then
-      hh = hhkeep*(one+(dble(ioptst)-half*dble(nopth1(ipu)+1))*delopth1(ipu))
+      hh = hhkeep*(One+(real(ioptst,kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))
     else if (ioptst <= nopth) then
       ! IFG: nopth1 was used in these two calls, probably a bug
       if (maxize) then
@@ -141,9 +145,9 @@ do
       else
         call findmn_cvb(cpropt,nopth,cprbst,icprbst)
       end if
-      hh = hhkeep*(one+(dble(icprbst)-half*dble(nopth1(ipu)+1))*delopth1(ipu))
+      hh = hhkeep*(One+(real(icprbst,kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))
       gap2 = hhkeep*delopth1(ipu)*delopth2(ipu)
-      hh = hh+gap2*(dble(ioptst-nopth1(ipu))-half*dble(nopth2(ipu)+1))
+      hh = hh+gap2*(real(ioptst-nopth1(ipu),kind=wp)-Half*real(nopth2(ipu)+1,kind=wp))
     end if
     hh = min(hh,hhmax(ipu))
     hhopt(ioptst) = hh

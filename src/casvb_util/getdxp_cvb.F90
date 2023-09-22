@@ -14,8 +14,12 @@
 
 subroutine getdxp_cvb(dxp,gradp,heigval,nnegeig,npr,alfa)
 
-implicit real*8(a-h,o-z)
-dimension dxp(npr), gradp(npr), heigval(npr)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nnegeig, npr
+real(kind=wp) :: dxp(npr), gradp(npr), heigval(npr), alfa
+integer(kind=iwp) :: i
 
 do i=1,nnegeig
   dxp(i) = -gradp(i)/(heigval(i)-alfa)

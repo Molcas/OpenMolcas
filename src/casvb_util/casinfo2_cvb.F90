@@ -14,11 +14,8 @@
 
 subroutine casinfo2_cvb()
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "casinfo_cvb.fh"
 
 ! Information from molcas interface file "JOBIPH":

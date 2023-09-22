@@ -14,11 +14,13 @@
 
 subroutine asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet,mindet,maxdet,nkdet,xdet,locc)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension detvec(ndet,nvec)
-dimension mindet(0:nel), maxdet(0:nel), nkdet(0:nel), xdet(0:nel,0:nalf)
-dimension locc(nel)
-integer rc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, nel, nalf, nbet, ndet, mindet(0:nel), maxdet(0:nel), nkdet(0:nel), xdet(0:nel,0:nalf), locc(nel)
+real(kind=wp) :: detvec(ndet,nvec)
+integer(kind=iwp) :: inddet, iorb, rc
+real(kind=wp), external :: party_cvb
 
 do iorb=0,nel
   mindet(iorb) = max(iorb-nbet,0)

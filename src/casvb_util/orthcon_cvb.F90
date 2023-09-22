@@ -14,19 +14,16 @@
 
 subroutine orthcon_cvb(ipairs,ipair,igroups,ngroup,iorthlst,mxortl,mxpair)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-parameter(nstrin=7,ncmp=4,mxgroup=40)
-character*8 string(nstrin)
-character*3 glabel(mxgroup)
-dimension ipairs(2,mxpair), ipair(mxorb_cvb,mxorb_cvb)
-dimension igroups(mxorb_cvb,mxgroup), ngroup(mxgroup)
-dimension iorthlst(mxortl)
-save string
-data string/'GROUP   ','ORTH    ','PAIRS   ','STRONG  ','FULL    ','END     ','ENDORTHC'/
+integer(kind=iwp), parameter :: ncmp = 4, nstrin = 7, mxgroup = 40
+integer(kind=iwp) :: mxpair, ipairs(2,mxpair), ipair(mxorb_cvb,mxorb_cvb), igroups(mxorb_cvb,mxgroup), ngroup(mxgroup), mxortl, &
+                     iorthlst(mxortl)
+integer(kind=iwp) :: i, igrp, io, ior1, ior2, ipar, isp, istr, j, jo, jor1, jor2, jsp, ngrp, npairs, nread, nsp
+character(len=3) :: glabel(mxgroup)
+character(len=*), parameter :: string(nstrin) = ['GROUP   ','ORTH    ','PAIRS   ','STRONG  ','FULL    ','END     ','ENDORTHC']
 
 call izero(ipair,mxorb_cvb*mxorb_cvb)
 ngrp = 0
@@ -36,29 +33,29 @@ do
     ! 'GROUP'
     ngrp = ngrp+1
     if (ngrp > mxgroup) then
-      write(6,*) ' Too many GROUP keywords in input!',mxgroup
+      write(u6,*) ' Too many GROUP keywords in input!',mxgroup
       call abend_cvb()
     end if
     glabel(ngrp) = ' '
     call string_cvb(glabel(ngrp),1,nread,1)
     if ((glabel(ngrp)(1:1) < 'A') .or. (glabel(ngrp)(1:1) > 'Z')) then
-      write(6,*) ' Group label must begin with a character A-Z: ',glabel(ngrp)
+      write(u6,*) ' Group label must begin with a character A-Z: ',glabel(ngrp)
       call abend_cvb()
     end if
     call int_cvb(igroups(1,ngrp),mxorb_cvb,ngroup(ngrp),0)
     if (ngroup(ngrp) == -1) then
-      write(6,*) ' Too many elements for group ',glabel(ngrp)
+      write(u6,*) ' Too many elements for group ',glabel(ngrp)
       call abend_cvb()
     end if
     do i=1,ngroup(ngrp)
       if ((igroups(i,ngrp) < 1) .or. (igroups(i,ngrp) > mxorb_cvb)) then
-        write(6,*) ' Illegal orbital number in group ',glabel(ngrp),' :',igroups(i,ngrp)
+        write(u6,*) ' Illegal orbital number in group ',glabel(ngrp),' :',igroups(i,ngrp)
         call abend_cvb()
       end if
     end do
     do i=1,ngrp-1
       if (glabel(ngrp) == glabel(i)) then
-        write(6,*) ' Repeated label in GROUP keywords : ',glabel(ngrp)
+        write(u6,*) ' Repeated label in GROUP keywords : ',glabel(ngrp)
         call abend_cvb()
       end if
     end do
@@ -77,23 +74,23 @@ do
     end do
     do isp=1,nsp
       do jsp=isp+1,nsp
-        ior = iorthlst(isp)
-        jor = iorthlst(jsp)
-        if ((ior > 0) .and. (jor > 0)) then
-          ipair(ior,jor) = 1
-        else if ((ior > 0) .and. (jor < 0)) then
-          jor2 = -jor
+        ior1 = iorthlst(isp)
+        jor1 = iorthlst(jsp)
+        if ((ior1 > 0) .and. (jor1 > 0)) then
+          ipair(ior1,jor1) = 1
+        else if ((ior1 > 0) .and. (jor1 < 0)) then
+          jor2 = -jor1
           do jo=1,ngroup(jor2)
-            ipair(ior,igroups(jo,jor2)) = 1
+            ipair(ior1,igroups(jo,jor2)) = 1
           end do
-        else if ((ior < 0) .and. (jor > 0)) then
-          ior2 = -ior
+        else if ((ior1 < 0) .and. (jor1 > 0)) then
+          ior2 = -ior1
           do io=1,ngroup(ior2)
-            ipair(jor,igroups(io,ior2)) = 1
+            ipair(jor1,igroups(io,ior2)) = 1
           end do
-        else if ((ior < 0) .and. (jor < 0)) then
-          ior2 = -ior
-          jor2 = -jor
+        else if ((ior1 < 0) .and. (jor1 < 0)) then
+          ior2 = -ior1
+          jor2 = -jor1
           do io=1,ngroup(ior2)
             do jo=1,ngroup(jor2)
               ipair(igroups(io,ior2),igroups(jo,jor2)) = 1
@@ -116,28 +113,28 @@ do
       if (mxortl-nsp <= 0) exit
     end do
     if (mod(nsp,2) == 1) then
-      write(6,*) ' Odd number of orthogonalization numbers in PAIRS!'
+      write(u6,*) ' Odd number of orthogonalization numbers in PAIRS!'
       call abend_cvb()
     end if
     npairs = nsp/2
     do ipar=1,npairs
-      ior = ipairs(1,ipar)
-      jor = ipairs(2,ipar)
-      if ((ior > 0) .and. (jor > 0)) then
-        ipair(ior,jor) = 1
-      else if ((ior > 0) .and. (jor < 0)) then
-        jor2 = -jor
+      ior1 = ipairs(1,ipar)
+      jor1 = ipairs(2,ipar)
+      if ((ior1 > 0) .and. (jor1 > 0)) then
+        ipair(ior1,jor1) = 1
+      else if ((ior1 > 0) .and. (jor1 < 0)) then
+        jor2 = -jor1
         do jo=1,ngroup(jor2)
-          ipair(ior,igroups(jo,jor2)) = 1
+          ipair(ior1,igroups(jo,jor2)) = 1
         end do
-      else if ((ior < 0) .and. (jor > 0)) then
-        ior2 = -ior
+      else if ((ior1 < 0) .and. (jor1 > 0)) then
+        ior2 = -ior1
         do io=1,ngroup(ior2)
-          ipair(jor,igroups(io,ior2)) = 1
+          ipair(jor1,igroups(io,ior2)) = 1
         end do
-      else if ((ior < 0) .and. (jor < 0)) then
-        ior2 = -ior
-        jor2 = -jor
+      else if ((ior1 < 0) .and. (jor1 < 0)) then
+        ior2 = -ior1
+        jor2 = -jor1
         do io=1,ngroup(ior2)
           do jo=1,ngroup(jor2)
             ipair(igroups(io,ior2),igroups(jo,jor2)) = 1

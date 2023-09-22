@@ -18,9 +18,14 @@ subroutine compl_cvb(a,nvec,n)
 ! On exit  : A is a full matrix, NVEC first vectors are untouched,
 ! remaining orthonormal vectors span the orthogonal complement.
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, n
+real(kind=wp) :: a(n,n)
 #include "WrkSpc.fh"
-dimension a(n,n)
+integer(kind=iwp) :: i1, i2, i3
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(n*(nvec+n))
 i2 = mstackr_cvb(n*n)

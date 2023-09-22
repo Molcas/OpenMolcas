@@ -16,9 +16,13 @@ subroutine ddinit_cvb(method,nparm1,nfrdim1,maxd1,mxit1,ifollow1,isaddle1,ip1,co
 
 use casvb_global, only: corenrg, idd, ifollow, ipdd, isaddledd, ivrhs, maxd, mxit, mxrhs, n_div, nfrdim, nortiterdd, nparm, nroot, &
                         orththrdd, resthrdd
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-character*(*) method
+implicit none
+character(len=*) :: method
+integer(kind=iwp) :: nparm1, nfrdim1, maxd1, mxit1, ifollow1, isaddle1, ip1, n_div1
+real(kind=wp) :: corenrg1
+integer(kind=iwp), external :: mstackr_cvb
 
 ! Input parameters:
 nparm = nparm1
@@ -32,9 +36,9 @@ ipdd = ip1
 corenrg = corenrg1
 n_div = n_div1
 ! Defaults:
-resthrdd = 1d-5
+resthrdd = 1.0e-5_wp
 ! Local DIRDIAG parameters:
-orththrdd = 1d-10
+orththrdd = 1.0e-10_wp
 nortiterdd = 50
 
 if (method == 'AxEx') then

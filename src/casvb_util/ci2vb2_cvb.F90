@@ -14,13 +14,14 @@
 
 subroutine ci2vb2_cvb(civec,cvbdet,iapr,ixapr,ret,ic)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civec(nda,ndb), cvbdet(ndetvb)
-dimension iapr(ndetvb), ixapr(nda+1)
+real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), ret
+integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
+integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (ic == 0) then
   idetvb = 0
@@ -51,7 +52,7 @@ else if (ic == 2) then
     end do
   end do
 else if (ic == 3) then
-  ret = zero
+  ret = Zero
   idetvb = 0
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1

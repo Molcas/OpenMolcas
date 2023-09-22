@@ -34,18 +34,18 @@
 subroutine vb2ciaf_cvb(cvbdet,civec)
 
 use casvb_global, only: nfrag
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: cvbdet(ndetvb), civec(*)
 #include "WrkSpc.fh"
-dimension cvbdet(ndetvb), civec(*)
+integer(kind=iwp) :: icivec
+real(kind=wp) :: dum
 
 icivec = nint(civec(1))
 if (iform_ci(icivec) /= 0) then
-  write(6,*) ' Unsupported format in VB2CIP :',iform_ci(icivec)
+  write(u6,*) ' Unsupported format in VB2CIP :',iform_ci(icivec)
   call abend_cvb()
 end if
 if (nfrag <= 1) then

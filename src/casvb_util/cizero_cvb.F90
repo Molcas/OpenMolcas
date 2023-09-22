@@ -19,20 +19,20 @@
 !***********************************************************************
 subroutine cizero_cvb(cvec)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cvec(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension cvec(*)
+integer(kind=iwp) :: iformat, ivec
 
 ivec = nint(cvec(1))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
   call fzero(work(iaddr_ci(ivec)),ndet)
 else
-  write(6,*) ' Unsupported format in CIZERO :',iformat
+  write(u6,*) ' Unsupported format in CIZERO :',iformat
   call abend_cvb()
 end if
 call setcnt2_cvb(ivec,0)

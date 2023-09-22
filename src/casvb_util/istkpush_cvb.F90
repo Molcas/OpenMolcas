@@ -14,13 +14,15 @@
 
 subroutine istkpush_cvb(iarr,ival)
 
-implicit real*8(a-h,o-z)
-dimension iarr(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iarr(*), ival
 
 iarr(2) = iarr(2)+1
 if (iarr(2) > iarr(1)) then
-  write(6,*) ' Stack dimension too small :',iarr(1)
-  write(6,*) ' Tried push of :',ival
+  write(u6,*) ' Stack dimension too small :',iarr(1)
+  write(u6,*) ' Tried push of :',ival
   call abend_cvb()
 end if
 iarr(iarr(2)) = ival

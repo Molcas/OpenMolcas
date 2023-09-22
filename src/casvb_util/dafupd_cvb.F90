@@ -14,11 +14,13 @@
 
 subroutine dafupd_cvb(lu,ioffset)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: lu, ioffset
 #include "idbl_cvb.fh"
-dimension ibuf(1000)
-integer mxddr
-data ibuf/1000*0/
+integer(kind=iwp) :: ioff, mxddr, nwrite
+integer(kind=iwp), parameter :: ibuf(1000) = 0
 
 mxddr = 1000
 nwrite = 1000

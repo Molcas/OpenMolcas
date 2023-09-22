@@ -14,17 +14,17 @@
 
 subroutine gsinp_cvb(orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,mxaobf,mxorb,kbasis,strtvb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: mxorb, irdorbs(mxorb), ip_cvb, nvbinp, kbasiscvb_inp, mxaobf, kbasis
+real(kind=wp) :: orbs(mxaobf,mxorb), strtvb
 #include "WrkSpc.fh"
-parameter(ngs=7,ncmp=4)
-character*8 guess
-logical firsttime_cvb
-external firsttime_cvb
-dimension guess(ngs)
-dimension orbs(mxaobf,mxorb), irdorbs(mxorb)
-dimension idum(1)
-save guess
-data guess/'ORB     ','STRUC   ','READ    ','AOBASIS ','MOBASIS ','END     ','ENDGUESS'/
+integer(kind=iwp) :: idum(1), iorb, istr, mouse, mxread, nread
+integer(kind=iwp), parameter :: ncmp = 4, ngs = 7
+character(len=*), parameter :: guess(ngs) = ['ORB     ','STRUC   ','READ    ','AOBASIS ','MOBASIS ','END     ','ENDGUESS']
+integer(kind=iwp), external :: mavailr_cvb, mheapr_cvb
+logical(kind=iwp), external :: firsttime_cvb
 
 if (firsttime_cvb()) call touch_cvb('INPGS')
 mouse = 1
@@ -35,11 +35,11 @@ do
     call int_cvb(idum,1,nread,0)
     iorb = idum(1)
     if ((iorb <= 0) .or. (iorb > mxorb)) then
-      write(6,*) ' Illegal orbital number read :',iorb
+      write(u6,*) ' Illegal orbital number read :',iorb
       call abend_cvb()
     end if
     if (nread == 0) then
-      write(6,*) ' Orbital label in ORB keyword not found!'
+      write(u6,*) ' Orbital label in ORB keyword not found!'
       call abend_cvb()
     end if
     irdorbs(iorb) = mouse
@@ -64,7 +64,7 @@ do
   !    call int_cvb(idum,1,nread,0)
   !    iorb1 = idum(1)
   !    if (nread == 0) then
-  !      write(6,*) ' No orbital number in READ,ORB keyword!'
+  !      write(u6,*) ' No orbital number in READ,ORB keyword!'
   !      call abend_cvb()
   !    end if
   !    call fstring_cvb('TO      ',1,jstr,ncmp,1)
@@ -72,7 +72,7 @@ do
   !      call int_cvb(idum,1,nread,0)
   !      iorb2 = idum(1)
   !      if (nread == 0) then
-  !        write(6,*) ' No orbital number after READ,...,TO, !'
+  !        write(u6,*) ' No orbital number after READ,...,TO, !'
   !        call abend_cvb()
   !      end if
   !    else
@@ -87,14 +87,14 @@ do
   !      if (istr3 == 1) then
   !        call real_cvb(recordnm,1,nread,0)
   !        if (nread == 0) then
-  !          write(6,*) ' No identifier after READ,...,FROM, !'
+  !          write(u6,*) ' No identifier after READ,...,FROM, !'
   !          call abend_cvb()
   !        end if
   !      else if (istr3 == 2) then
   !        call int_cvb(idum,1,nread,0)
   !        jorb1 = idum(1)
   !        if (nread == 0) then
-  !          write(6,*) ' No orbital number after READ,...,AS, !'
+  !          write(u6,*) ' No orbital number after READ,...,AS, !'
   !          call abend_cvb()
   !        end if
   !        call fstring_cvb('TO      ',1,jstr,ncmp,1)
@@ -102,7 +102,7 @@ do
   !          call int_cvb(idum,1,nread,0)
   !          jorb2 = idum(1)
   !          if (nread == 0) then
-  !            write(6,*) ' No orbital number after READ,...,TO, !'
+  !            write(u6,*) ' No orbital number after READ,...,TO, !'
   !            call abend_cvb()
   !          end if
   !        else
@@ -119,7 +119,7 @@ do
   !    call int_cvb(idum,1,nread,0)
   !    istruc1 = idum(1)
   !    if (nread == 0) then
-  !      write(6,*) ' No structure number in READ,STRUC keyword!'
+  !      write(u6,*) ' No structure number in READ,STRUC keyword!'
   !      call abend_cvb()
   !    end if
   !    call fstring_cvb('TO      ',1,jstr,ncmp,1)
@@ -127,7 +127,7 @@ do
   !      call int_cvb(idum,1,nread,0)
   !      istruc2 = idum(1)
   !      if (nread == 0) then
-  !        write(6,*) ' No structure number after READ,...,TO, !'
+  !        write(u6,*) ' No structure number after READ,...,TO, !'
   !        call abend_cvb()
   !      end if
   !    else
@@ -142,14 +142,14 @@ do
   !      if (istr3 == 1) then
   !        call real_cvb(recordnm,1,nread,0)
   !        if (nread == 0) then
-  !          write(6,*) ' No identifier after READ,...,FROM, !'
+  !          write(u6,*) ' No identifier after READ,...,FROM, !'
   !          call abend_cvb()
   !        end if
   !      else if (istr3 == 2) then
   !        call int_cvb(idum,1,nread,0)
   !        jstruc1 = idum(1)
   !        if (nread == 0) then
-  !          write(6,*) ' No structure number after READ,...,AS, !'
+  !          write(u6,*) ' No structure number after READ,...,AS, !'
   !          call abend_cvb()
   !        end if
   !        call fstring_cvb('TO      ',1,jstr,ncmp,1)
@@ -157,7 +157,7 @@ do
   !          call int_cvb(idum,1,nread,0)
   !          jstruc2 = idum(1)
   !          if (nread == 0) then
-  !            write(6,*) ' No structure number after READ,...,TO, !'
+  !            write(u6,*) ' No structure number after READ,...,TO, !'
   !            call abend_cvb()
   !          end if
   !        else
@@ -175,7 +175,7 @@ do
   !    if (jstr /= 0) then
   !      call real_cvb(recordnm,1,nread,0)
   !      if (nread == 0) then
-  !        write(6,*) ' No identifier after READ,...,FROM, !'
+  !        write(u6,*) ' No identifier after READ,...,FROM, !'
   !        call abend_cvb()
   !      end if
   !    end if

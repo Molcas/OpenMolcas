@@ -15,11 +15,14 @@
 subroutine mhpfreei_cvb(ipoint)
 
 use casvb_global, only: memdebug
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: ipoint
 #include "idbl_cvb.fh"
+integer(kind=iwp) :: iraddr
 
-if (memdebug) write(6,*) '   Enter mhpfreei: pointer :',ipoint
+if (memdebug) write(u6,*) '   Enter mhpfreei: pointer :',ipoint
 iraddr = (ipoint-1)/idbl+1
 call mhpfreer_cvb(iraddr)
 

@@ -14,10 +14,16 @@
 
 subroutine schmidtt2_cvb(c,sxc,nvec,t,nt,sao,n,metr)
 
-implicit real*8(a-h,o-z)
-dimension c(n,nvec), sxc(n,nvec), t(nt,nvec), sao(*)
-save thresh, one
-data thresh/1d-20/,one/1d0/
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nvec, nt, n, metr
+real(kind=wp) :: c(n,nvec), sxc(n,nvec), t(nt,nvec), sao(*)
+real(kind=wp) :: thresh = 1.0e-20_wp
+integer(kind=iwp) :: i, j
+real(kind=wp) :: cnrm, fac
+real(kind=wp), external :: ddot_
 
 do i=1,nvec
   do j=1,i-1
@@ -28,10 +34,10 @@ do i=1,nvec
   if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
   cnrm = ddot_(n,c(1,i),1,sxc(1,i),1)
   if (cnrm < thresh) then
-    write(6,*) ' Warning : near-singularity in orthonormalization.'
-    write(6,*) ' Vector norm :',cnrm
+    write(u6,*) ' Warning : near-singularity in orthonormalization.'
+    write(u6,*) ' Vector norm :',cnrm
   end if
-  fac = one/sqrt(cnrm)
+  fac = One/sqrt(cnrm)
   call dscal_(n,fac,c(1,i),1)
   if (metr /= 0) call dscal_(n,fac,sxc(1,i),1)
   call dscal_(nt,fac,t(1,i),1)

@@ -15,18 +15,17 @@
 subroutine fraginp_cvb(ip_iconfs)
 
 use casvb_global, only: i2s_fr, nalf_fr, nbet_fr, nconf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-parameter(nstrin=2,ncmp=4)
-character*8 string(nstrin)
-dimension dum(1)
-save string
-data string/'WAVE    ','CON    '/
+implicit none
+integer(kind=iwp) :: ip_iconfs
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: istr, istr2, mxconf, nread
+real(kind=wp) :: dum(1), Scurr
+integer(kind=iwp), parameter :: ncmp = 4, nstrin = 2
+character(len=*), parameter :: string(nstrin) = ['WAVE    ','CON     ']
+integer(kind=iwp), external :: mavaili_cvb
 
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)
@@ -46,7 +45,7 @@ do
       Scurr = dum(1)
       if (Scurr == -one) exit
       nS_fr(nfrag) = nS_fr(nfrag)+1
-      i2s_fr(nS_fr(nfrag),nfrag) = nint(2d0*Scurr)
+      i2s_fr(nS_fr(nfrag),nfrag) = nint(Two*Scurr)
     end do
   else if (istr == 2) then
     ! 'CON'
@@ -66,7 +65,7 @@ do
     nconf = nconf+1
     do
       if (mxconf < nconf) then
-        write(6,*) ' Insufficient memory for configuration read',mavaili_cvb(),mxconf,nconf
+        write(u6,*) ' Insufficient memory for configuration read',mavaili_cvb(),mxconf,nconf
         call abend_cvb()
       end if
       call izero(iwork(noe*(nconf-1)+ip_iconfs),noe)

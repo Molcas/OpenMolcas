@@ -12,12 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-real*8 function party_cvb(iperm,n)
+function party_cvb(iperm,n)
 ! Returns parity of permutation
 
-implicit real*8(a-h,o-z)
-dimension iperm(n)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: party_cvb
+integer(kind=iwp) :: n, iperm(n)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i1
+real(kind=wp) :: party
+integer(kind=iwp), external :: mstacki_cvb
 
 i1 = mstacki_cvb(n)
 call imove_cvb(iperm,iwork(i1),n)

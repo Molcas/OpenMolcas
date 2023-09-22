@@ -14,18 +14,22 @@
 
 subroutine setiaprtot2_cvb(civec,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb)
 
-implicit real*8(a-h,o-z)
-dimension civec(nda,ndb)
-dimension iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: npvb, iapr(npvb), nda, ixapr(nda+1), ibpr(npvb), ndb, ixbpr(ndb+1)
+real(kind=wp) :: civec(nda,ndb)
+integer(kind=iwp) :: ia, ib, idetvb
 
 idetvb = 0
 ixapr(1) = 1
 do ia=1,nda
   do ib=1,ndb
-    if (civec(ia,ib) == 1d0) then
+    if (civec(ia,ib) == One) then
       idetvb = idetvb+1
       if (idetvb > npvb) then
-        write(6,*) ' Error in setiaprtot!',npvb
+        write(u6,*) ' Error in setiaprtot!',npvb
         call abend_cvb()
       end if
       iapr(idetvb) = ib
@@ -38,10 +42,10 @@ idetvb = 0
 ixbpr(1) = 1
 do ib=1,ndb
   do ia=1,nda
-    if (civec(ia,ib) == 1d0) then
+    if (civec(ia,ib) == One) then
       idetvb = idetvb+1
       if (idetvb > npvb) then
-        write(6,*) ' Error in setiaprtot!',npvb
+        write(u6,*) ' Error in setiaprtot!',npvb
         call abend_cvb()
       end if
       ibpr(idetvb) = ia

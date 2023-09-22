@@ -14,15 +14,17 @@
 
 subroutine touchrules_cvb(chr)
 
-character*(*) chr
+implicit none
+character(len=*) :: chr
 
-if (chr == 'CI-ORBS') then
-  call clearcnt_cvb(1)
-else if (chr == 'CI-CVB') then
-  call clearcnt_cvb(2)
-else if (chr == 'CI-ALL') then
-  call clearcnt_cvb(3)
-end if
+select case (chr)
+  case ('CI-ORBS')
+    call clearcnt_cvb(1)
+  case ('CI-CVB')
+    call clearcnt_cvb(2)
+  case ('CI-ALL')
+    call clearcnt_cvb(3)
+end select
 
 return
 

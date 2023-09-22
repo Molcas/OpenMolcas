@@ -15,12 +15,13 @@
 subroutine setmocom_cvb()
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nsym_mo
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-logical debug
-data debug/.false./
+integer(kind=iwp) :: i, ii, j
+logical(kind=iwp), parameter :: debug = .false.
 
 nsym_mo = nsym_j
 call imove_cvb(nbas_j,nbasi_mo,8)
@@ -44,17 +45,17 @@ do i=1,8
 end do
 
 if (debug) then
-  write(6,*) ' MO interface'
-  write(6,*) ' ------------'
-  write(6,*) ' nsym    :',nsym_mo
-  write(6,*) ' nbas    :',nbas_mo
-  write(6,*) ' nbasisq :',nbasisq_mo
-  write(6,*) ' nbasi   :',nbasi_mo
-  write(6,*) ' nbassqi :',nbassqi_mo
-  write(6,*) ' nbasf   :',nbasf_mo
-  write(6,*) ' nbassqf :',nbassqf_mo
-  write(6,*) ' nact    :',nact_mo
-  write(6,*) ' iact    :',(iact_mo(ii),ii=1,nact_mo)
+  write(u6,*) ' MO interface'
+  write(u6,*) ' ------------'
+  write(u6,*) ' nsym    :',nsym_mo
+  write(u6,*) ' nbas    :',nbas_mo
+  write(u6,*) ' nbasisq :',nbasisq_mo
+  write(u6,*) ' nbasi   :',nbasi_mo
+  write(u6,*) ' nbassqi :',nbassqi_mo
+  write(u6,*) ' nbasf   :',nbasf_mo
+  write(u6,*) ' nbassqf :',nbassqf_mo
+  write(u6,*) ' nact    :',nact_mo
+  write(u6,*) ' iact    :',(iact_mo(ii),ii=1,nact_mo)
 end if
 
 return

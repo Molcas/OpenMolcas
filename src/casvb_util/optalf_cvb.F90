@@ -14,10 +14,14 @@
 
 subroutine optalf_cvb(heigval,gradp,nparm,hh,alfa,nnegeig,alfastart,alftol)
 
-implicit real*8(a-h,o-z)
-dimension heigval(nparm), gradp(nparm)
-save zero, half, one
-data zero/0.d0/,half/0.5d0/,one/1.d0/
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nparm, nnegeig
+real(kind=wp) :: heigval(nparm), gradp(nparm), hh, alfa, alfastart, alftol
+integer(kind=iwp) :: i
+real(kind=wp) :: alfmax, alfmin, alfmx1, cnrm, cnrmax, cnrmin, olf, relfac
 
 alfa = alfastart
 
@@ -25,14 +29,14 @@ alfa = alfastart
 ! Norm of dX should be HH in:  dX = - (H - alpha I)   * G
 olf = alfa
 alfmin = alfa
-alfmax = 1.d2+alfmin
+alfmax = 1.0e2_wp+alfmin
 
-relfac = one
+relfac = One
 do
   alfmin = olf
   alfmx1 = alfmax
-  cnrmin = zero
-  cnrmax = zero
+  cnrmin = Zero
+  cnrmax = Zero
   do i=1,nnegeig
     cnrmin = cnrmin+(gradp(i)/(heigval(i)-alfmin))**2
     cnrmax = cnrmax+(gradp(i)/(heigval(i)-alfmax))**2
@@ -44,8 +48,8 @@ do
   cnrmin = sqrt(cnrmin)
   cnrmax = sqrt(cnrmax)
   do
-    alfa = half*(alfmax+alfmin)
-    cnrm = zero
+    alfa = Half*(alfmax+alfmin)
+    cnrm = Zero
     do i=1,nnegeig
       cnrm = cnrm+(gradp(i)/(heigval(i)-alfa))**2
     end do
@@ -63,18 +67,18 @@ do
     if (abs(relfac*(alfmax-alfmin)) <= alftol) exit
   end do
   if (alfmax /= alfmx1) exit
-  if (alfmax > 1d20) then
-    write(6,*) ' Optimization of trust region size failed!'
-    write(6,*) ' Trust region size required :',hh
-    write(6,*) ' Min/max alpha values :',alfmin,alfmax
-    write(6,*) ' Min/max step sizes :',cnrmin,cnrmax
+  if (alfmax > 1.0e20_wp) then
+    write(u6,*) ' Optimization of trust region size failed!'
+    write(u6,*) ' Trust region size required :',hh
+    write(u6,*) ' Min/max alpha values :',alfmin,alfmax
+    write(u6,*) ' Min/max step sizes :',cnrmin,cnrmax
     call abend_cvb()
   end if
-  alfmax = 1.d1*alfmax
-  relfac = one/alfmax
+  alfmax = Ten*alfmax
+  relfac = One/alfmax
 end do
 ! Found the optimal alpha value, construct corresponding update:
-alfa = half*(alfmax+alfmin)
+alfa = Half*(alfmax+alfmin)
 
 return
 

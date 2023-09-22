@@ -16,11 +16,14 @@ subroutine vecprint_cvb(a,n)
 ! Prints vector A
 
 use casvb_global, only: formMXP5, formMXP6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(n)
 #include "print_cvb.fh"
-parameter(mxbuf=8)
-dimension a(n)
+integer(kind=iwp) :: i, ibegin, iend, iform, nbuf
+integer(kind=iwp), parameter :: mxbuf = 8
 
 nbuf = min((iwidth-4)/(iprec+4),mxbuf)
 if (nbuf == 7) nbuf = 6
@@ -28,9 +31,9 @@ iform = 0
 do ibegin=1,n,nbuf
   iend = min(ibegin+nbuf-1,n)
   if (iform == 0) then
-    write(6,formMXP5) (a(i),i=ibegin,iend)
+    write(u6,formMXP5) (a(i),i=ibegin,iend)
   else
-    write(6,formMXP6) (a(i),i=ibegin,iend)
+    write(u6,formMXP6) (a(i),i=ibegin,iend)
   end if
 end do
 

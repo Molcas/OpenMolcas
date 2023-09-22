@@ -14,14 +14,14 @@
 
 subroutine change5_cvb()
 
-implicit real*8(a-h,o-z)
-logical changed, construc
-! ... Change of dimensioning variables ...
-logical, external :: chpcmp_cvb, lchpcmp_cvb
+use Definitions, only: iwp
+
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nfxvbr, nzrvbr
+logical(kind=iwp) :: changed, construc
+logical(kind=iwp), external :: chpcmp_cvb, lchpcmp_cvb ! ... Change of dimensioning variables ...
 
 ! Dimensioning for symmetry handling:
 changed = .false.

@@ -14,11 +14,14 @@
 
 subroutine ddrestart_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: maxdav, n, nvguess1, nvrestart1
+real(kind=wp) :: c(n,maxdav), axc(n,maxdav), vec(n), hp(maxdav,maxdav), solp(maxdav)
 #include "WrkSpc.fh"
-dimension c(n,maxdav), axc(n,maxdav), vec(n)
-dimension hp(maxdav,maxdav)
-dimension solp(maxdav)
+integer(kind=iwp) :: i1, i2
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(maxdav)
 i2 = mstackr_cvb(maxdav*maxdav)

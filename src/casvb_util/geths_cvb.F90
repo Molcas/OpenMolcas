@@ -14,9 +14,12 @@
 
 subroutine geths_cvb(arr,n)
 
-implicit real*8(a-h,o-z)
-character*(*) arr(n)
-dimension iaux(1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n
+character(len=*) :: arr(n)
+integer(kind=iwp) :: i, iaux(1), iret, j, lenarr
 
 call geth_cvb(iaux,1)
 n = iaux(1)

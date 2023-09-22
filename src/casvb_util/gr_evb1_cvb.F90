@@ -15,17 +15,13 @@
 subroutine gr_evb1_cvb(civbh,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
 use casvb_global, only: f1, f2, f3, f4, ww
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension civbh(ndet), civbs(ndet), civb(ndet)
-dimension dvbdet(ndetvb)
-dimension grad(npr), grad1(npr), grad2(npr), gradx(norb,norb)
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-dimension vec1(*)
+real(kind=wp) :: civbh(ndet), civbs(ndet), civb(ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), vec1(*)
+integer(kind=iwp) :: i
 
 f1 = one/ovraa
 f2 = -two*f1*f1*ww

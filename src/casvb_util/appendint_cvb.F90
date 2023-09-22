@@ -12,39 +12,44 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine appendint_cvb(c,number,iskip)
+subroutine appendint_cvb(c,nmbr,iskip)
 
-implicit real*8(a-h,o-z)
-character*(*) c
-character*10 format
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*) :: c
+integer(kind=iwp) :: nmbr, iskip
+integer(kind=iwp) :: ibegin, iend, itens, limit, mnumber
+character(len=10) :: frmt
+integer(kind=iwp), external :: len_trim_cvb
 
 ibegin = len_trim_cvb(c)+1+iskip
 iend = len(c)
 
-format = ' '
-if (number >= 0) then
+frmt = ' '
+if (nmbr >= 0) then
   limit = 0
   do itens=0,99
     limit = limit+9*(10**itens)
-    if (number <= limit) then
-      write(format,'(a,i4.4,a)') '(i',itens+1,')'
-      write(c(ibegin:iend),format) number
+    if (nmbr <= limit) then
+      write(frmt,'(a,i4.4,a)') '(i',itens+1,')'
+      write(c(ibegin:iend),frmt) nmbr
       return
     end if
   end do
 else
-  mnumber = -number
+  mnumber = -nmbr
   limit = 0
   do itens=0,99
     limit = limit+9*(10**itens)
     if (mnumber <= limit) then
-      write(format,'(a,i4.4,a)') '(a,i',itens+1,')'
-      write(c(ibegin:iend),format) '-',mnumber
+      write(frmt,'(a,i4.4,a)') '(a,i',itens+1,')'
+      write(c(ibegin:iend),frmt) '-',mnumber
       return
     end if
   end do
 end if
-write(6,*) ' Number too large in appendint :',number
+write(u6,*) ' Number too large in appendint :',nmbr
 call abend_cvb()
 
 end subroutine appendint_cvb

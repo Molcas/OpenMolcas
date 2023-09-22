@@ -14,13 +14,13 @@
 
 subroutine scalstruc_cvb(orbs,cvb)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: ifnss
 
 ifnss = lb(4)
 if (kbasis == 6) ifnss = lb(5)

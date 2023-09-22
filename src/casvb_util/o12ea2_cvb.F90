@@ -14,14 +14,15 @@
 
 subroutine o12ea2_cvb(c,sxc,axc,nprm,civb,civbs,civbh,cvbdet,cvb,vec_all)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension c(nprm), sxc(nprm), axc(nprm)
-dimension civb(ndet), civbs(ndet), civbh(ndet)
-dimension cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+integer(kind=iwp) :: nprm
+real(kind=wp) :: c(nprm), sxc(nprm), axc(nprm), civb(ndet), civbs(ndet), civbh(ndet), cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+integer(kind=iwp) :: ic1
+real(kind=wp) :: cnrm
+real(kind=wp), external :: ddot_
 
 ! If no optimization of structure coefficients we are doing "Augmented" calc:
 if (strucopt) then

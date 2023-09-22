@@ -14,46 +14,46 @@
 
 subroutine casinfoset_cvb()
 
-implicit real*8(a-h,o-z)
-! ... Files/Hamiltonian available ...
-logical, external :: valid_cvb
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
 #include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
-logical hadinput
-logical debug
-data debug/.false./
+integer(kind=iwp) :: i, incr, ioc, irrep, is, j, mcore
+real(kind=wp) :: rsum
+logical(kind=iwp) :: hadinput
+logical(kind=iwp), parameter :: debug = .false.
+logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
 
 if (debug) then
-  write(6,*) ' casinfoset :'
-  write(6,*) ' ------------'
-  write(6,*) ' iorocc_c  :',iorocc_c
-  write(6,*) ' iorclos_c :',iorclos_c
-  write(6,*) ' iorcore_c :',iorcore_c
-  write(6,*) ' nstsym_c  :',nstsym_c
-  write(6,*) ' weight_c  :',weight_c
-  write(6,*) ' istnel_c  :',istnel_c
-  write(6,*) ' istsy_c   :',istsy_c
-  write(6,*) ' istms2_c  :',istms2_c
-  write(6,*) ' nstats_c  :',nstats_c
-  write(6,*) ' strtint_c :',strtint_c
-  write(6,*) ' strtci_c  :',strtci_c
-  write(6,*) ' strtmo_c  :',strtmo_c
-  write(6,*) ' iorocc_d  :',iorocc_d
-  write(6,*) ' iorclos_d :',iorclos_d
-  write(6,*) ' iorcore_d :',iorcore_d
-  write(6,*) ' nstsym_d  :',nstsym_d
-  write(6,*) ' weight_d  :',weight_d
-  write(6,*) ' istnel_d  :',istnel_d
-  write(6,*) ' istsy_d   :',istsy_d
-  write(6,*) ' istms2_d  :',istms2_d
-  write(6,*) ' nstats_d  :',nstats_d
-  write(6,*) ' strtint_d :',strtint_d
-  write(6,*) ' strtci_d  :',strtci_d
-  write(6,*) ' strtmo_d  :',strtmo_d
+  write(u6,*) ' casinfoset :'
+  write(u6,*) ' ------------'
+  write(u6,*) ' iorocc_c  :',iorocc_c
+  write(u6,*) ' iorclos_c :',iorclos_c
+  write(u6,*) ' iorcore_c :',iorcore_c
+  write(u6,*) ' nstsym_c  :',nstsym_c
+  write(u6,*) ' weight_c  :',weight_c
+  write(u6,*) ' istnel_c  :',istnel_c
+  write(u6,*) ' istsy_c   :',istsy_c
+  write(u6,*) ' istms2_c  :',istms2_c
+  write(u6,*) ' nstats_c  :',nstats_c
+  write(u6,*) ' strtint_c :',strtint_c
+  write(u6,*) ' strtci_c  :',strtci_c
+  write(u6,*) ' strtmo_c  :',strtmo_c
+  write(u6,*) ' iorocc_d  :',iorocc_d
+  write(u6,*) ' iorclos_d :',iorclos_d
+  write(u6,*) ' iorcore_d :',iorcore_d
+  write(u6,*) ' nstsym_d  :',nstsym_d
+  write(u6,*) ' weight_d  :',weight_d
+  write(u6,*) ' istnel_d  :',istnel_d
+  write(u6,*) ' istsy_d   :',istsy_d
+  write(u6,*) ' istms2_d  :',istms2_d
+  write(u6,*) ' nstats_d  :',nstats_d
+  write(u6,*) ' strtint_d :',strtint_d
+  write(u6,*) ' strtci_d  :',strtci_d
+  write(u6,*) ' strtmo_d  :',strtmo_d
 end if
 hadinput = .false.
 do i=1,mxstsy_ci
@@ -106,30 +106,30 @@ strtmo = strtmo_d
 strtci = strtci_d
 
 !  Set active space information
-sum = zero
+rsum = Zero
 do i=1,nstsym_d
   do j=1,nstats_d(i)
-    if (weight_d(j,i) < zero) then
-      write(6,'(a,f10.4,i3,a,i1)') ' Fatal error: WEIGHT factor negative :',weight_d(j,i),j,'.',i
+    if (weight_d(j,i) < Zero) then
+      write(u6,'(a,f10.4,i3,a,i1)') ' Fatal error: WEIGHT factor negative :',weight_d(j,i),j,'.',i
       call abend_cvb()
     end if
-    sum = sum+weight_d(j,i)
+    rsum = rsum+weight_d(j,i)
   end do
 end do
-sum = one/sum
-call dscal_(mxstt_ci*mxstsy_ci,sum,weight_d,1)
+rsum = one/rsum
+call dscal_(mxstt_ci*mxstsy_ci,rsum,weight_d,1)
 nel_d = -1
 i2s_d = -1
 call izero(isymv,mxirrep)
 do i=1,nstsym_d
   do j=1,nstats_d(i)
-    if (weight_d(j,i) > 1.d-20) then
+    if (weight_d(j,i) > 1.0e-20_wp) then
       if ((nel_d /= -1) .and. (nel_d /= istnel_d(i))) then
-        write(6,*) ' Fatal error: ELEC varies in WF cards!'
+        write(u6,*) ' Fatal error: ELEC varies in WF cards!'
         call abend_cvb()
       end if
       if ((i2s_d /= -1) .and. (i2s_d /= istms2_d(i))) then
-        write(6,*) ' Fatal error: SPIN varies in WF cards!'
+        write(u6,*) ' Fatal error: SPIN varies in WF cards!'
         call abend_cvb()
       end if
       nel_d = istnel_d(i)
@@ -174,13 +174,13 @@ nbet = (nel-i2s_d)/2
 nalf = nel-nbet
 ! Basic checks
 if ((nel < 0) .or. (norb < 0) .or. (i2s_d < 0) .or. (nel > 2*norb) .or. (mod(nel,2) /= mod(i2s_d,2))) then
-  write(6,*) ' Impossible numbers: active electrons :',nel
-  write(6,*) '                     active orbitals  :',norb
-  write(6,*) '                     total spin       :',dble(nalf-nbet)/two
+  write(u6,*) ' Impossible numbers: active electrons :',nel
+  write(u6,*) '                     active orbitals  :',norb
+  write(u6,*) '                     total spin       :',real(nalf-nbet,kind=wp)*Half
   call abend_cvb()
 end if
 if (isym == 0) then
-  write(6,*) ' WARNING: State symmetry not found - assuming A1.'
+  write(u6,*) ' WARNING: State symmetry not found - assuming A1.'
   isym = 1
   nsym = 1
   call izero(isymv,mxirrep)

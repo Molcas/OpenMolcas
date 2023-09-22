@@ -14,13 +14,16 @@
 
 subroutine evbd_cvb(orbs,cvb,fx,ioptc,iter)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
+integer(kind=iwp) :: ioptc, iter
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: i1, i2, i3, i4, i5, i6, i7, mstackr_cvb1
+integer(kind=iwp), external :: mavailr_cvb, mstackr_cvb
 
 mstackr_cvb1 = mavailr_cvb()
 maxdav = min((mstackr_cvb1-ndet-nvb)/(3*nvb),nvb)

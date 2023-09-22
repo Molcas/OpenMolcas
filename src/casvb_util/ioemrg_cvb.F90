@@ -12,10 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-integer function ioemrg_cvb(ia1,na1,ia2,na2)
+function ioemrg_cvb(ia1,na1,ia2,na2)
 
-implicit real*8(a-h,o-z)
-dimension ia1(na1), ia2(na2)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ioemrg_cvb
+integer(kind=iwp) :: na1, ia1(na1), na2, ia2(na2)
+integer(kind=iwp) :: ioe, n1, n2
 
 n1 = 1
 n2 = 1

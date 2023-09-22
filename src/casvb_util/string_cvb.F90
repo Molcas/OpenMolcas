@@ -15,11 +15,14 @@
 subroutine string_cvb(arr,nmax,nread,ifc)
 
 use casvb_global, only: inputmode
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-character*(*) arr(nmax)
-character*100 string
-logical done
+implicit none
+integer(kind=iwp) :: nmax, nread, ifc
+character(len=*) :: arr(nmax)
+integer(kind=iwp) :: i, ierr, ifcuse
+character(len=100) :: string
+logical(kind=iwp) :: done
 
 if (inputmode == 2) then
   call geths_cvb(arr,nread)

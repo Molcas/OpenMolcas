@@ -12,12 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine cblank_cvb(a,ndim)
 
-character*(*) a
-character*1 blank
-save blank
-data blank/' '/
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: a
+integer(kind=iwp) :: ndim
+integer(kind=iwp) :: i
+character, parameter :: blank = ' '
 
 do i=1,ndim
   a(i:i) = blank

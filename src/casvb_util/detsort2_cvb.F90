@@ -15,17 +15,14 @@
 subroutine detsort2_cvb(xalf,norb,nalf,nfrag,nda_fr,nalf_fr,nalf_acc,ia12ind,iphase,nc_fac,ncombindex,iastr,iastr_off,iastr_acc, &
                         istack,mxstack)
 
-implicit real*8(a-h,o-w,y-z),integer(x)
-dimension xalf(0:norb,0:nalf)
-dimension istack(mxstack)
-dimension nalf_fr(nfrag)
-dimension nalf_acc(nfrag)
-dimension nda_fr(nfrag)
-dimension iastr(*), iastr_off(nfrag)
-dimension iastr_acc(norb,nfrag)
-dimension ncombindex(0:nfrag)
-dimension iphase(nfrag), nc_fac(nfrag)
-dimension ia12ind(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: norb, nalf, xalf(0:norb,0:nalf), nfrag, nda_fr(nfrag), nalf_fr(nfrag), nalf_acc(nfrag), ia12ind(*), &
+                     iphase(nfrag), nc_fac(nfrag), ncombindex(0:nfrag), iastr(*), iastr_off(nfrag), iastr_acc(norb,nfrag), &
+                     mxstack, istack(mxstack)
+integer(kind=iwp) :: i, iatotindx, iter, mxiter, nestlevel, nloop
+integer(kind=iwp), external :: ioemrg2_cvb, minind_cvb
 
 call weightfl_cvb(xalf,nalf,norb)
 
@@ -83,7 +80,7 @@ outer: do
   else
     iphase(nestlevel) = iphase(nestlevel-1)* &
                         ioemrg2_cvb(iastr_acc(1,nestlevel-1),nalf_acc(nestlevel-1), &
-                                    iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),nalf_fr(nestlevel),&
+                                    iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),nalf_fr(nestlevel), &
                                     iastr_acc(1,nestlevel))
     if (iphase(nestlevel) == 0) cycle outer
   end if

@@ -14,24 +14,26 @@
 
 subroutine onedens_cvb(cfrom,cto,vij,diag,iPvb)
 
-implicit real*8(a-h,o-z)
-logical diag
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: cfrom(*), cto(*), vij(*)
+logical(kind=iwp) :: diag
+integer(kind=iwp) :: iPvb
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension vij(*), cfrom(*), cto(*)
+integer(kind=iwp) :: icfrom, icto, idens, ivij2, nvij
+integer(kind=iwp), external :: mstackr_cvb
 
 idens = 1
 icfrom = nint(cfrom(1))
 icto = nint(cto(1))
 
 if (iform_ci(icfrom) /= 0) then
-  write(6,*) ' Unsupported format in ONEEXC/ONEDENS :',iform_ci(icfrom)
+  write(u6,*) ' Unsupported format in ONEEXC/ONEDENS :',iform_ci(icfrom)
   call abend_cvb()
 else if (iform_ci(icto) /= 0) then
-  write(6,*) ' Unsupported format in ONEEXC/ONEDENS :',iform_ci(icto)
+  write(u6,*) ' Unsupported format in ONEEXC/ONEDENS :',iform_ci(icto)
   call abend_cvb()
 end if
 
@@ -49,14 +51,14 @@ if (projcas .and. (iPvb /= 0)) then
   ivij2 = mstackr_cvb(nvij)
   if (idens == 0) then
     call fmove_cvb(vij,work(ivij2),nvij)
-    call dscal_(nvij,-1d0,work(ivij2),1)
+    call dscal_(nvij,-One,work(ivij2),1)
   else
     call fzero(work(ivij2),nvij)
   end if
   call oneexc2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),work(ivij2),iwork(ll(1)),iwork(ll(2)),iwork(ll(5)),iwork(ll(6)), &
                    work(ll(9)),work(ll(10)),iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb,n1a,n1b,nam1, &
                    nbm1,norb,projcas,sc,absym(3),diag,idens,3-iPvb)
-  if (idens == 1) call daxpy_(nvij,-1d0,work(ivij2),1,vij,1)
+  if (idens == 1) call daxpy_(nvij,-One,work(ivij2),1,vij,1)
   call mfreer_cvb(ivij2)
 end if
 

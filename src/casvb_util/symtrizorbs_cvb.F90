@@ -14,13 +14,14 @@
 
 subroutine symtrizorbs_cvb(orbs)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+real(kind=wp) :: orbs(norb,norb)
 #include "WrkSpc.fh"
-dimension orbs(norb,norb)
+integer(kind=iwp) :: i1, i2, i3, i4, i5, i6, i7
+integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 i1 = mstacki_cvb(norb)
 i2 = mstacki_cvb(norb)

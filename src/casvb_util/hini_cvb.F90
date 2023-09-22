@@ -16,8 +16,7 @@ subroutine hini_cvb()
 
 use casvb_global, only: icnt, inputmode, joptstep, loopstep, ncnt, recn
 
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
+implicit none
 #include "files_cvb.fh"
 
 loopstep = 0

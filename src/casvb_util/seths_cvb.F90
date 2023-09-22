@@ -14,8 +14,12 @@
 
 subroutine seths_cvb(arr,n)
 
-implicit real*8(a-h,o-z)
-character*(*) arr(n)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n
+character(len=*) :: arr(n)
+integer(kind=iwp) :: i, j, lenarr
 
 call seth_cvb([n],1)
 lenarr = len(arr(1))

@@ -15,9 +15,14 @@
 !** Time and date routines **
 !****************************
 
+!IFG trivial
 function tim0_cvb()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: tim0_cvb
+real(kind=wp) :: cpu, cpusince, wall, wallsince
 
 call timing(cpu,cpusince,wall,wallsince)
 tim0_cvb = cpu

@@ -74,7 +74,7 @@ integer(kind=iwp), save :: nVec_
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: Debug
 #endif
-character(len=50) CFmt
+character(len=50) :: CFmt
 character :: mode, mode2
 type(DSBA_Type) :: CM(2), JALT(1), QTmp(2), Tmp(2)
 type(SBA_Type) :: Lpq(3)

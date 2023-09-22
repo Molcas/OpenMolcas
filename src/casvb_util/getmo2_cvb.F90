@@ -15,10 +15,12 @@
 subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic,ic2)
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nsym_mo
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-dimension cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo)
-dimension cmoblk(nbasisq_mo)
+implicit none
+real(kind=wp) :: cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo), cmoblk(nbasisq_mo)
+integer(kind=iwp) :: ic, ic2
+integer(kind=iwp) :: iorb, isk, jbas
 
 ! Construct full matrix of MOs in symmetry-adapted AO basis:
 call getmoblk_cvb(cmoblk,ic2)

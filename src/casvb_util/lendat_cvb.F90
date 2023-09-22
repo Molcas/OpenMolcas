@@ -15,13 +15,18 @@
 !** File handling **
 !*******************
 
-subroutine lendat_cvb(fileid,len)
-! return in len the length of record name in file ifil
-!   len = -1 if record does not exist
+!IFG trivial
+subroutine lendat_cvb(fileid,lenf)
+! return in lenf the length of record name in file ifil
+!   lenf = -1 if record does not exist
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
 
-len = -1
+implicit none
+real(kind=wp) :: fileid
+integer(kind=iwp) :: lenf
+
+lenf = -1
 
 return
 ! Avoid unused argument warnings

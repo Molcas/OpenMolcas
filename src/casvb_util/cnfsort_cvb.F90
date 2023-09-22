@@ -14,12 +14,12 @@
 
 subroutine cnfsort_cvb(iconfs,nconf1,nel1,ioncty,iconfs2)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-dimension iconfs(noe,nconf1), ioncty(nconf1), iconfs2(noe,nconf1)
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, ioncty(nconf1), iconfs2(noe,nconf1)
+integer(kind=iwp) :: iconf, ion, iorb, jconf, mnion1, mxion1
 
 mnion1 = nel1/2
 mxion1 = 0
@@ -42,7 +42,7 @@ do ion=mnion1,mxion1
   end do
 end do
 if (jconf /= nconf1) then
-  write(6,*) ' Error in cnfsort - jconf not same as nconf1 :',jconf,nconf1
+  write(u6,*) ' Error in cnfsort - jconf not same as nconf1 :',jconf,nconf1
   call abend_cvb()
 end if
 call imove_cvb(iconfs2,iconfs,noe*nconf1)

@@ -21,11 +21,11 @@ subroutine popfield_cvb(ifc)
 ! IFC=2 --> begin read from next line
 
 use casvb_global, only: ifield, nfield, nfold
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-!character*8 string
-save initpop
-data initpop/0/
+implicit none
+integer(kind=iwp) :: ifc
+integer(kind=iwp) :: initpop = 0
 
 if (initpop == 0) then
   ifield = 0

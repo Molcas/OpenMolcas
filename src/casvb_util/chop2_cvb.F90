@@ -15,12 +15,12 @@
 subroutine chop2_cvb()
 
 use casvb_global, only: release
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+integer(kind=iwp) :: nvb_alloc
+integer(kind=iwp), external :: mstackrz_cvb, nvb_cvb
 
 if (release(2)) call mfreer_cvb(lv(1))
 release(2) = .true.

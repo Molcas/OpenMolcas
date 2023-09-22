@@ -17,11 +17,13 @@
 
 subroutine istkinit_cvb(iarr,n)
 
-implicit real*8(a-h,o-z)
-dimension iarr(n)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, iarr(n)
 
 if (n < 2) then
-  write(6,*) ' Too small dimension in ISTKINIT_CVB :',n
+  write(u6,*) ' Too small dimension in ISTKINIT_CVB :',n
   call abend_cvb()
 end if
 iarr(1) = n

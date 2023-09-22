@@ -15,11 +15,13 @@
 subroutine bufio_end_cvb()
 
 use casvb_global, only: file_id, nbuf
+use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: dnbuf
 
 call bufio_wrbuf_cvb()
-dnbuf = dble(nbuf)
+dnbuf = real(nbuf,kind=wp)
 call wrlow_cvb([dnbuf],1,file_id,0)
 
 return

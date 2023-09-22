@@ -15,15 +15,13 @@
 subroutine change6_cvb()
 
 use casvb_global, only: icase6
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-logical changed
-! ... Change of dimensioning variables ...
-logical, external :: chpcmp_cvb
+implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
+logical(kind=iwp) :: changed
+logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...
 
 changed = .false.
 if (changed) call touch_cvb('CIFREE')

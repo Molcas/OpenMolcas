@@ -71,33 +71,34 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !
 ! Updated to Fortran 90+ (Sep. 2023)
 
-integer LDA, N, IPVT(N), JOB
-real*8 A(LDA,N), DET(2), W(*)
-! INTERNAL VARIABLES
-real*8 T
-real*8 TEN
-integer I, J, K, KB, KP1, L, NM1
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LDA, N, IPVT(N), JOB
+real(kind=wp) :: A(LDA,N), DET(2), W(*)
+integer(kind=iwp) :: I, J, K, KB, KP1, L, NM1
+real(kind=wp) :: T
 
 ! COMPUTE DETERMINANT
 
 if (JOB/10 /= 0) then
-  DET(1) = 1.0d0
-  DET(2) = 0.0d0
-  TEN = 10.0d0
+  DET(1) = One
+  DET(2) = Zero
   do I=1,N
     if (IPVT(I) /= I) DET(1) = -DET(1)
     DET(1) = A(I,I)*DET(1)
     ! ...EXIT
-    if (DET(1) == 0.0d0) exit
+    if (DET(1) == Zero) exit
     do
-      if (abs(DET(1)) >= 1.0d0) exit
-      DET(1) = TEN*DET(1)
-      DET(2) = DET(2)-1.0d0
+      if (abs(DET(1)) >= One) exit
+      DET(1) = Ten*DET(1)
+      DET(2) = DET(2)-One
     end do
     do
-      if (abs(DET(1)) < TEN) exit
-      DET(1) = DET(1)/TEN
-      DET(2) = DET(2)+1.0d0
+      if (abs(DET(1)) < Ten) exit
+      DET(1) = DET(1)/Ten
+      DET(2) = DET(2)+One
     end do
   end do
 end if
@@ -106,14 +107,14 @@ end if
 
 if (mod(JOB,10) /= 0) then
   do K=1,N
-    A(K,K) = 1.0d0/A(K,K)
+    A(K,K) = One/A(K,K)
     T = -A(K,K)
     call DSCAL_(K-1,T,A(1,K),1)
     KP1 = K+1
     if (N < KP1) cycle
     do J=KP1,N
       T = A(K,J)
-      A(K,J) = 0.0d0
+      A(K,J) = Zero
       call DAXPY_(K,T,A(1,K),1,A(1,J),1)
     end do
   end do
@@ -127,7 +128,7 @@ if (mod(JOB,10) /= 0) then
       KP1 = K+1
       do I=KP1,N
         W(I) = A(I,K)
-        A(I,K) = 0.0d0
+        A(I,K) = Zero
       end do
       do J=KP1,N
         T = W(J)

@@ -12,15 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine rdioff1_cvb(ioffset)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ioffset
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-parameter(nbuf=50)
-!dimension ioff(nbuf)
+integer(kind=iwp), parameter :: nbuf = 50
+integer(kind=iwp), external :: ihlf_cvb
 
 ioffset = ihlf_cvb(nbuf)
 

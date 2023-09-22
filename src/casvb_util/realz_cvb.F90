@@ -14,11 +14,15 @@
 
 subroutine realz_cvb(arr,nmax,nread,ifc)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nmax, nread, ifc
+real(kind=wp) :: arr(nmax)
 #include "WrkSpc.fh"
-dimension arr(nmax)
-save nbuf
-data nbuf/100/
+integer(kind=iwp), parameter :: nbuf = 100
+integer(kind=iwp) :: i1, nleft, nread1
+integer(kind=iwp), external :: mstackr_cvb
 
 i1 = mstackr_cvb(nbuf)
 nread = 0

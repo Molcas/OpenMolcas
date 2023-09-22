@@ -15,15 +15,14 @@
 subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn,kbasis1)
 
 use casvb_global, only: nbas_mo
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-logical use_ao, ifmos_cvb
+implicit none
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "WrkSpc.fh"
-dimension orbsao(nbas_mo,norb), irdorbs(norb), cvb(*)
+real(kind=wp) :: orbsao(nbas_mo,norb), cvb(*), recn
+integer(kind=iwp) :: irdorbs(norb), kbasis1
+integer(kind=iwp) :: ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, nbas_mo1, norb1, nvb1
+logical(kind=iwp) :: ifmos_cvb, use_ao
 
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 use_ao = ifmos_cvb() .and. ((.not. variat) .or. (variat .and. (nmcscf == 1))) .and. (nbas_mo == nbas_mo1) .and. (ioffs_orbsao > 0)
@@ -37,11 +36,11 @@ do iorb=1,norb
   end if
   if (ierr /= 0) then
     call prtfid_cvb(' Error in orbital read from ',recn)
-    write(6,'(a)') ' Orbital no :',iorb
+    write(u6,'(a)') ' Orbital no :',iorb
     if (use_ao) then
-      write(6,'(a)') ' AO basis ? : Yes'
+      write(u6,'(a)') ' AO basis ? : Yes'
     else
-      write(6,'(a)') ' AO basis ? : No'
+      write(u6,'(a)') ' AO basis ? : No'
     end if
     call abend_cvb()
   end if

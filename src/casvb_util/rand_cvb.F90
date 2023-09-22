@@ -20,7 +20,7 @@
 !******************************
 !** Random number generation **
 !******************************
-real*8 function rand_cvb(r)
+function rand_cvb(r)
 !***BEGIN PROLOGUE  RAND
 !***DATE WRITTEN   770401   (YYMMDD)
 !***REVISION DATE  820801   (YYMMDD)
@@ -103,34 +103,39 @@ real*8 function rand_cvb(r)
 !***ROUTINES CALLED  (NONE)
 !***END PROLOGUE  RAND
 
-implicit real*8(a-h,o-z)
-save ia1, ia0, ia1ma0, ic, ix1, ix0
-data ia1,ia0,ia1ma0/1536,1029,507/
-data ic/1731/
-data ix1,ix0/0,0/
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: rand_cvb
+real(kind=wp) :: r
+integer(kind=iwp) :: ix0 = 0, ix1 = 0, iy0, iy1
+real(kind=wp) :: rand
+integer(kind=iwp), parameter :: ia0 = 1029, ia1 = 1536, ia1ma0 = ia1-ia0, ic = 1731, sc = 2048
+real(kind=wp), parameter :: xx = 4194304.0_wp
 
 !***FIRST EXECUTABLE STATEMENT  RAND
-if (r > 0.d0) then
+if (r > Zero) then
 
-  ix1 = int(dmod(r,1.d0)*4194304.d0+0.5d0)
-  ix0 = mod(ix1,2048)
-  ix1 = (ix1-ix0)/2048
+  ix1 = int(mod(r,One)*xx+Half)
+  ix0 = mod(ix1,sc)
+  ix1 = (ix1-ix0)/sc
 
-else if (r == 0.d0) then
+else if (r == Zero) then
 
   ! A*X = 2**22*IA1*IX1 + 2**11*(IA1*IX1 + (IA1-IA0)*(IX0-IX1) + IA0*IX0) + IA0*IX0
 
   iy0 = ia0*ix0
   iy1 = ia1*ix1+ia1ma0*(ix0-ix1)+iy0
   iy0 = iy0+ic
-  ix0 = mod(iy0,2048)
-  iy1 = iy1+(iy0-ix0)/2048
-  ix1 = mod(iy1,2048)
+  ix0 = mod(iy0,sc)
+  iy1 = iy1+(iy0-ix0)/sc
+  ix1 = mod(iy1,sc)
 
 end if
 
-rand = dble(ix1*2048+ix0)
-rand_cvb = rand/4194304.d0
+rand = real(ix1*sc+ix0,kind=wp)
+rand_cvb = rand/xx
 
 return
 

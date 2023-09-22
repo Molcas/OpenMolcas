@@ -14,16 +14,15 @@
 
 subroutine update_cvb(dx)
 
-implicit real*8(a-h,o-z)
-! ... Make: up to date? ...
-logical, external :: up2date_cvb
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: dx(*)
 #include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 #include "WrkSpc.fh"
-dimension dx(*)
-!dimension orbs(norb,norb), cvb(nvb)
+integer(kind=iwp) :: i1, i2, i3, ic
+integer(kind=iwp), external :: mstackr_cvb
+logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if (orbopt) call touch_cvb('ORBS')
 if (strucopt) call touch_cvb('CVB')
