@@ -1,62 +1,62 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000, Gunnar Karlstrom                                 *
-*               2000, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000, Gunnar Karlstrom                                 *
+!               2000, Roland Lindh                                     *
+!***********************************************************************
       Subroutine edip(Ravxyz,Cavxyz,lMax_,
      &                EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_,
      &                nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
 
-************************************************************************
-*                                                                      *
-*     Object: to solve equation system iteratively.                    *
-*                                                                      *
-*     Input:                                                           *
-*            dEF   : the electric field of the QM system               *
-*            Cavxyz: the MM expansion of the QM system                 *
-*            DipEff: Effective dipole moments                          *
-*            PolEff: Effective polarizabilities                        *
-*            Grid  : list of grid centers                              *
-*            nGird_: effective list length                             *
-*                                                                      *
-*     Scratch:                                                         *
-*            Ravxyz: incremental charge distribution on the boundary   *
-*                    of the cavity                                     *
-*                                                                      *
-*     Output:                                                          *
-*            EF    : Total EF                                          *
-*            DipMom: Langevin dipole moments on the grid               *
-*                                                                      *
-*                                                                      *
-*     Authors: G. Karlstroem                                           *
-*              Dept. of Theor. Chem., Univ. of Lund, Sweden.           *
-*                                                                      *
-*              and                                                     *
-*                                                                      *
-*              R. Lindh                                                *
-*              Dept. of Chem. Phys., Univ. of Lund, Sweden.            *
-*                                                                      *
-*              March 2000                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: to solve equation system iteratively.                    *
+!                                                                      *
+!     Input:                                                           *
+!            dEF   : the electric field of the QM system               *
+!            Cavxyz: the MM expansion of the QM system                 *
+!            DipEff: Effective dipole moments                          *
+!            PolEff: Effective polarizabilities                        *
+!            Grid  : list of grid centers                              *
+!            nGird_: effective list length                             *
+!                                                                      *
+!     Scratch:                                                         *
+!            Ravxyz: incremental charge distribution on the boundary   *
+!                    of the cavity                                     *
+!                                                                      *
+!     Output:                                                          *
+!            EF    : Total EF                                          *
+!            DipMom: Langevin dipole moments on the grid               *
+!                                                                      *
+!                                                                      *
+!     Authors: G. Karlstroem                                           *
+!              Dept. of Theor. Chem., Univ. of Lund, Sweden.           *
+!                                                                      *
+!              and                                                     *
+!                                                                      *
+!              R. Lindh                                                *
+!              Dept. of Chem. Phys., Univ. of Lund, Sweden.            *
+!                                                                      *
+!              March 2000                                              *
+!***********************************************************************
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "rctfld.fh"
-*
+!
       Real*8 Ravxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
      &       Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8 Grid(3,nGrid_), EF (4,nGrid_), DipMom   (3,nGrid_),
      &       dEF(4,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Integer XMolnr(nXMolnr,nXF)
       Logical NonEq,lExcl
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
       Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
@@ -76,7 +76,7 @@
 
       NonEq=.False.
 
-*
+!
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Iter fmax             testa'
@@ -87,25 +87,25 @@
       testa=fmax*afac
 #endif
       Iter=Iter+1
-*
-*---- Loop over Langevin grid and make EF and dipol moments at the
-*     grid self consistent.
-*
+!
+!---- Loop over Langevin grid and make EF and dipol moments at the
+!     grid self consistent.
+!
       Do iGrid = 1, nGrid_
 
          fx=dEF(1,iGrid)+EF(1,iGrid)
          fy=dEF(2,iGrid)+EF(2,iGrid)
          fz=dEF(3,iGrid)+EF(3,iGrid)
          ftot=fx*fx+fy*fy+fz*fz
-*------- Update EF and square norm
-*
+!------- Update EF and square norm
+!
          EF(1,iGrid)=fx
          EF(2,iGrid)=fy
          EF(3,iGrid)=fz
          EF(4,iGrid)=ftot
-*
-*------- Reset update vector
-*
+!
+!------- Reset update vector
+!
          dEF(1,iGrid)=Zero
          dEF(2,iGrid)=Zero
          dEF(3,iGrid)=Zero
@@ -117,30 +117,30 @@
          fy=EF(2,iGrid)
          fz=EF(3,iGrid)
          ftot=EF(4,iGrid)
-*
-*------- Skip if square norm below threshold
-*
+!
+!------- Skip if square norm below threshold
+!
 c         If (dEF(4,iGrid).lt.testa) Go To 666
-*
+!
          ghx=Grid(1,iGrid)
          ghy=Grid(2,iGrid)
          ghz=Grid(3,iGrid)
 
-*
-*------- Pick up dipole moment at grid point
-*
+!
+!------- Pick up dipole moment at grid point
+!
          dx=DipMom(1,iGrid)
          dy=DipMom(2,iGrid)
          dz=DipMom(3,iGrid)
 
-*
+!
 
 c         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
          Dip_Eff=DipEff(iGrid)
-*
-*------- Compute new dipole moment as a function of the EF, effective dipole
-*        moment and effective polarizability.
-*
+!
+!------- Compute new dipole moment as a function of the EF, effective dipole
+!        moment and effective polarizability.
+!
          If (Dip_Eff.lt.1.0D-10) Then
             If(iGrid.gt.nAnisoPol) Then   ! isotropic
                DipMom(1,iGrid)=fx*PolEff(1,iGrid)
@@ -169,13 +169,13 @@ c            alang=x/Three  !Linear approximation
             DipMom(3,iGrid)=uind*fz*ftots
          End If
 
-*Grid
-*
-*------- Compute the change in the dipole moment between the old (dx,dy,dz) and
-*        the new (DipMom).
+!Grid
+!
+!------- Compute the change in the dipole moment between the old (dx,dy,dz) and
+!        the new (DipMom).
 
-*------- Try damping the change in dipole moment for better convergence
-*
+!------- Try damping the change in dipole moment for better convergence
+!
          DipMom(1,iGrid)=(One-dampIter)*DipMom(1,iGrid)+dampIter*dx
          DipMom(2,iGrid)=(One-dampIter)*DipMom(2,iGrid)+dampIter*dy
          DipMom(3,iGrid)=(One-dampIter)*DipMom(3,iGrid)+dampIter*dz
@@ -183,19 +183,19 @@ c            alang=x/Three  !Linear approximation
          dx=DipMom(1,iGrid)-dx
          dy=DipMom(2,iGrid)-dy
          dz=DipMom(3,iGrid)-dz
-*
-*------- Given the charge (qqo=0.0) and the change of the dipole moment
-*        at this point modify the multipole expansion around the origin
-*        accordingly. On the first iteration we will have the MM of the
-*        QM in Cavxyz too, in subsequential iterations we will only deal
-*        with incremental contributions.
-*
+!
+!------- Given the charge (qqo=0.0) and the change of the dipole moment
+!        at this point modify the multipole expansion around the origin
+!        accordingly. On the first iteration we will have the MM of the
+!        QM in Cavxyz too, in subsequential iterations we will only deal
+!        with incremental contributions.
+!
 
          Call qlm(ghx,ghy,ghz,qqo,dx,dy,dz,lMax,Cavxyz)
-*
-*------- Loop over the whole grid and update the EF due to the change of
-*        the dipole moment at the grid point "iGrid".
-*
+!
+!------- Loop over the whole grid and update the EF due to the change of
+!        the dipole moment at the grid point "iGrid".
+!
          Tr1=Zero
          If(lDamping) Then
             If(iGrid.gt.nAnisopol) Then
@@ -216,7 +216,7 @@ c            alang=x/Three  !Linear approximation
                   If(XMolnr(1,jGrid).eq.-XMolnr(i,iGrid)) scal=scal14
                EndDo
                If(lExcl) Then
-*     exclude field from iGrid when calculating the field at jGrid
+!     exclude field from iGrid when calculating the field at jGrid
 c                  Write(6,*)'EXCLUDE dip', iGrid, ' at ', jGrid
                   Goto 777
                Elseif (scal.lt.One) Then
@@ -261,26 +261,26 @@ c               Write(6,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
             EndIf
  777        Continue
          End Do           ! jGrid
-*
+!
 c666     Continue
       End Do           ! iGrid
 
 
 
       If(lRFCav) Then
-*
-*---- Compute the charge distribution on the boundary of the cavity due to the
-*     MM expansion at origin.
-*
+!
+!---- Compute the charge distribution on the boundary of the cavity due to the
+!     MM expansion at origin.
+!
          call dcopy_(nCavxyz_,Cavxyz,1,Ravxyz,1)
 
          Call AppFld(Ravxyz,rds,Eps,lMax,EpsInf,NonEq)
 
 
-*
-*---- Compute EF at the grid due to the charge distribution in MM expansion
-*     for the QM system plus the dipole moments on the grid.
-*
+!
+!---- Compute EF at the grid due to the charge distribution in MM expansion
+!     for the QM system plus the dipole moments on the grid.
+!
          Do iGrid = 1, nGrid_
             ghx1=Grid(1,iGrid)
             ghy1=Grid(2,iGrid)
@@ -288,14 +288,14 @@ c666     Continue
             fax=Zero
             fay=Zero
             faz=Zero
-*
-*------- Given the charge distribution on the boundary of the cavity
-*        compute EF at (ghx1,ghy1,ghz1).
-*
+!
+!------- Given the charge distribution on the boundary of the cavity
+!        compute EF at (ghx1,ghy1,ghz1).
+!
             Call hmod(ghx1,ghy1,ghz1,v_dummy,fax,fay,faz,Ravxyz,lmax)
-*
-*------- Accumulate in update vector
-*
+!
+!------- Accumulate in update vector
+!
             dEF(1,iGrid)=dEF(1,iGrid)+fax
             dEF(2,iGrid)=dEF(2,iGrid)+fay
             dEF(3,iGrid)=dEF(3,iGrid)+faz
@@ -311,27 +311,27 @@ c666     Continue
          dEF(4,iGrid)=ftest
          fmax=Max(ftest,fmax)
       End Do          ! iGrid
-*
+!
       Call FZero(Cavxyz,nCavxyz_)
-*
-*---- Check convergence
-*
+!
+!---- Check convergence
+!
 c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 
 #ifdef _DEBUGPRINT_
       Write (6,*) Iter,fmax,testa
 #endif
       If (fmax.gt.clim) Go To 555
-*
-*---- Now we have a MM from QM + Langevin grid which is consistent with the
-*     charge distribution on the boundary of the cavity. The Langevin
-*     distribution of dipole moments is also internally consistent!
-*
+!
+!---- Now we have a MM from QM + Langevin grid which is consistent with the
+!     charge distribution on the boundary of the cavity. The Langevin
+!     distribution of dipole moments is also internally consistent!
+!
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
-*     Write out dipoles and a pointcharge representation of the dipoles
+!     Write out dipoles and a pointcharge representation of the dipoles
       Write(6,*)'QREP'
       do i=1,nGrid_
          dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)

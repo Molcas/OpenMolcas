@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        Subroutine Init_RctFld(NonEq,iCharge)
        use Langevin_arrays
        use PCM_arrays, only: MM
@@ -17,7 +17,7 @@
 #include "status.fh"
 #include "stdalloc.fh"
        Logical NonEq
-*
+!
        tK=1.0D-99 ! Boltzman factor, initial set to 0 K
        If (RctFld_Status.eq.Active) Return
        mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
@@ -43,7 +43,7 @@
           Call mma_allocate(PolEf,nPolComp,nGrid,Label='PolEf')
           Call mma_allocate(DipEf,nGrid,Label='DipEf')
           Call mma_allocate(Grid,3,nGrid,Label='Grid')
-*
+!
           nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
           Call mma_allocate(davxyz,nCavxyz,Label='davxyz')
           Call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
@@ -52,6 +52,6 @@
        If (.Not.PCM) NonEq_Ref=NonEq
        Call Init_PCM(NonEq,iCharge)
        RctFld_Status=Active
-*
+!
        Return
        End

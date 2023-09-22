@@ -195,12 +195,12 @@
           End If
           MemSO2 = MemSO2 + iAux
        End If
-*
+!
  400           Continue
  300        Continue
  200     Continue
  100  Continue
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
 #endif

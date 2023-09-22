@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine IndSft(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                  Shijij,iAO,iAOst,ijkl,SOInt,nSOInt)
-************************************************************************
-*  Object: to sift and index the SO integrals.                         *
-*                                                                      *
-*          The indices has been scrambled before calling this routine. *
-*          Hence we must take special care in order to regain the can- *
-*          onical order.                                               *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             April '90                                                *
-************************************************************************
+!***********************************************************************
+!  Object: to sift and index the SO integrals.                         *
+!                                                                      *
+!          The indices has been scrambled before calling this routine. *
+!          Hence we must take special care in order to regain the can- *
+!          onical order.                                               *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             April '90                                                *
+!***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use LundIO
       use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
+      use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "print.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
      &        iQij, iQkl, Wijij
-*     Local Array
+!     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-*
+!
       iRout = 39
       iPrint = nPrint(iRout)
       k12=0
@@ -44,12 +44,12 @@
       If (iPrint.ge.99)
      &   Call RecPrt(' In IndSft:SOInt ',' ',SOInt,ijkl,nSOInt)
       MemSO2 = 0
-*
-*     Quadruple loop over elements of the basis functions angular
-*     description. Loops are reduced to just produce unique SO integrals
-*     Observe that we will walk through the memory in AOInt in a
-*     sequential way.
-*
+!
+!     Quadruple loop over elements of the basis functions angular
+!     description. Loops are reduced to just produce unique SO integrals
+!     Observe that we will walk through the memory in AOInt in a
+!     sequential way.
+!
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp(1)
@@ -96,14 +96,14 @@
                   Qijij = Shijij .and. i12.eq.i34
                   iQij = Shij .and. i1.eq.i2
                   iQkl = Shkl .and. i3.eq.i4
-*
-*      Loop over irreps which are spanned by the basis function.
-*      Again, the loop structure is restricted to ensure unique
-*      integrals.
-*
+!
+!      Loop over irreps which are spanned by the basis function.
+!      Again, the loop structure is restricted to ensure unique
+!      integrals.
+!
        Do 110 j1 = 0, nIrrep-1
           If (iSym(j1).eq.0) Go To 110
-*
+!
           j2Max = nIrrep-1
           If (Shij .and. Qij) j2Max = j1
           Do 210 j2 = 0, j2Max
@@ -120,7 +120,7 @@
                     k12 = nIrrep*j2 + j1+1
                 End If
              End If
-*
+!
              Do 310 j3 = 0, nIrrep-1
                 If (kSym(j3).eq.0) Go To 310
                 j4 = iEor(j12,j3)
@@ -139,12 +139,12 @@
                    If (Qijij .and. k34.gt.k12) Go To 310
                 End If
                 Wijij = Qijij .and. k12.eq.k34
-*               Unfold the way the eight indices have been reordered.
+!               Unfold the way the eight indices have been reordered.
                 iSO = iAOtSO(iAO(1)+i1,j1)+iAOst(1)+iOffSO(j1)
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-*
+!
                 MemSO2 = MemSO2 + 1
                 nkl = 0
                 Do 120 lAOl = 0, lBas-1
@@ -207,16 +207,16 @@
  320                  Continue
  220               Continue
  120            Continue
-*
+!
  310         Continue
  210      Continue
  110   Continue
-*
-*
+!
+!
  400           Continue
  300        Continue
  200     Continue
  100  Continue
-*
+!
       Return
       End

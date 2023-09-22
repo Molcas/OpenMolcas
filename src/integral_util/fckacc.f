@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993,1998, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993,1998, Roland Lindh                                *
+!***********************************************************************
       Subroutine FckAcc(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
      &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
@@ -21,44 +21,43 @@
      &                  Djk,jk1,jk2,jk3,jk4,
      &                  Djl,jl1,jl2,jl3,jl4,
      &                  FT,nFT,DoCoul,DoExch,ExFac)
-************************************************************************
-*                                                                      *
-*  Object: to accumulate contributions from the AO integrals directly  *
-*          to the symmetry adapted Fock matrix.                        *
-*                                                                      *
-*          The indices has been scrambled before calling this routine. *
-*          Hence we must take special care in order to regain the can- *
-*          onical order.                                               *
-*                                                                      *
-*          In addition to this complication we have that the order of  *
-*          indices in the integrals are not ordered canonically but    *
-*          rather in an order such that the contraction step will be   *
-*          optimal. Hence, special care has to be taken when tracing   *
-*          the density with the integrals so that both entities have   *
-*          the same order.                                             *
-*                                                                      *
-*          The Fock matrix is computed in lower triangular form.       *
-*                                                                      *
-*          The density matrix is not folded if the shell indices and   *
-*          the angular indices are identical.                          *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden. February '93                            *
-*                                                                      *
-*     Modified July '98 in Tokyo by R. Lindh                           *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: to accumulate contributions from the AO integrals directly  *
+!          to the symmetry adapted Fock matrix.                        *
+!                                                                      *
+!          The indices has been scrambled before calling this routine. *
+!          Hence we must take special care in order to regain the can- *
+!          onical order.                                               *
+!                                                                      *
+!          In addition to this complication we have that the order of  *
+!          indices in the integrals are not ordered canonically but    *
+!          rather in an order such that the contraction step will be   *
+!          optimal. Hence, special care has to be taken when tracing   *
+!          the density with the integrals so that both entities have   *
+!          the same order.                                             *
+!                                                                      *
+!          The Fock matrix is computed in lower triangular form.       *
+!                                                                      *
+!          The density matrix is not folded if the shell indices and   *
+!          the angular indices are identical.                          *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, Sweden. February '93                            *
+!                                                                      *
+!     Modified July '98 in Tokyo by R. Lindh                           *
+!***********************************************************************
       use Basis_Info
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
       use Gateway_Info, only: ThrInt, CutInt
+      use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-*
-*     Since I sometimes use Scrt as an anchor to reach into the
-*     density matrix a check if I'm out of bounds does not work!
-*
+!
+!     Since I sometimes use Scrt as an anchor to reach into the
+!     density matrix a check if I'm out of bounds does not work!
+!
 #ifndef _BOUND_
       Real*8 Scrt(nScrt)
 #else
@@ -77,39 +76,39 @@
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
      &        iAO(4), iAOst(4), iCmpa(4)
-*     Local Arrays
+!     Local Arrays
       Integer iSym(4)
 c     Character*72 Label
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement Function
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement Function
+!
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
 c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (.Not.DoCoul.and..Not.DoExch) Return
-*     iRout = 38
-*     iPrint = nPrint(iRout)
-*
-*     If (iPrint.ge.49) Then
-*        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-*    &               AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-*    &               AOInt,1,One,0)
-*     End If
-*     If (iPrint.ge.99) Then
-*        Call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-*        Write (*,*)'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-*        Write (*,*)'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-*        Write (*,*)'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-*        Write (*,*)'Dil=',XDot(Dil,il1,il2,il3,il4)
-*        Write (*,*)'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-*        Write (*,*)'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
-*     End If
+!     iRout = 38
+!     iPrint = nPrint(iRout)
+!
+!     If (iPrint.ge.49) Then
+!        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
+!    &               AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
+!    &               AOInt,1,One,0)
+!     End If
+!     If (iPrint.ge.99) Then
+!        Call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
+!        Write (*,*)'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
+!        Write (*,*)'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
+!        Write (*,*)'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
+!        Write (*,*)'Dil=',XDot(Dil,il1,il2,il3,il4)
+!        Write (*,*)'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
+!        Write (*,*)'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+!     End If
 C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-*
+!
       If (iBas*jBas*kBas*lBas.gt.nScrt) Then
          Call WarningMessage(2,'FckAcc: nScrt too small!')
          Call Abend()
@@ -133,27 +132,27 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       lFjl = .False.
       lFil = .False.
       lFjk = .False.
-*
+!
       ipFij = 1
       nFij  = iBas*jBas*iCmpa(1)*iCmpa(2)
-*
+!
       ipFkl = ipFij + nFij
       nFkl  = kBas*lBas*iCmpa(3)*iCmpa(4)
-*
+!
       ipFik = ipFkl + nFkl
       nFik  = iBas*kBas*iCmpa(1)*iCmpa(3)
-*
+!
       ipFjl = ipFik + nFik
       nFjl  = jBas*lBas*iCmpa(2)*iCmpa(4)
-*
+!
       ipFil = ipFjl + nFjl
       nFil  = iBas*lBas*iCmpa(1)*iCmpa(4)
-*
+!
       ipFjk = ipFil + nFil
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
-*
+!
       call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,[Zero],0,FT(ipFij),1)
-*
+!
       ipDij = 1
       ipDkl = 1
       ipDik = 1
@@ -166,12 +165,12 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       ipFil1= 1
       ipFjk1= 1
       ipFjl1= 1
-*
-*     Quadruple loop over elements of the basis functions angular
-*     description. Loops are reduced to just produce unique SO integrals
-*     Observe that we will walk through the memory in AOInt in a
-*     sequential way.
-*
+!
+!     Quadruple loop over elements of the basis functions angular
+!     description. Loops are reduced to just produce unique SO integrals
+!     Observe that we will walk through the memory in AOInt in a
+!     sequential way.
+!
       iShij = iShell(1).eq.iShell(2)
       iShkl = iShell(3).eq.iShell(4)
       iShik = iShell(1).eq.iShell(3)
@@ -239,7 +238,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
 c                 vijkl = DNrm2_(iBas*jBas*kBas*lBas,
 c    &                          AOInt(1,i1,i2,i3,i4),1)
                   If (vijkl.lt.CutInt) Go To 400
-*
+!
                   Qijij = Shijij .and. i12.eq.i34
                   iQij = iShij.and.i1.eq.i2
                   iQkl = iShkl.and.i3.eq.i4
@@ -248,8 +247,8 @@ c    &                          AOInt(1,i1,i2,i3,i4),1)
                   iQjk = iShjk.and.i2.eq.i3
                   iQjl = iShjl.and.i2.eq.i4
                   pFctr=pEa*pRb*pTc*pTSd
-************************************************************************
-*
+!***********************************************************************
+!
                   Fac_ij = pFctr
                   Fac_kl = pFctr
                   Fac_ik =-Quart * pFctr
@@ -262,7 +261,7 @@ c    &                          AOInt(1,i1,i2,i3,i4),1)
                   If (iQik.and. .Not.iQjl) Fac_jl = Fac_jl * Two
                   If (iQjk.and. .Not.iQil) Fac_il = Fac_il * Two
                   If (iQil.and. .Not.iQjk) Fac_jk = Fac_jk * Two
-*
+!
                   D_ij=Two
                   If (iQij) D_ij=One
                   D_kl=Two
@@ -275,14 +274,14 @@ c    &                          AOInt(1,i1,i2,i3,i4),1)
                   If (iQil) D_il=One
                   D_jk=Two
                   If (iQjk) D_jk=One
-*
+!
                   Fac_ij=Fac_ij*D_kl
                   Fac_kl=Fac_kl*D_ij
                   Fac_jl=Fac_jl*D_ik
                   Fac_ik=Fac_ik*D_jl
                   Fac_jk=Fac_jk*D_il
                   Fac_il=Fac_il*D_jk
-*
+!
 C                 Write (*,*)
 C                 Write (*,*) 'iShell(1),iShell(2),i1,i2=',
 C    &                         iShell(1),iShell(2),i1,i2
@@ -307,15 +306,15 @@ C                 Write (*,*)
                      Fac_il = Zero
                      Fac_jk = Zero
                   End If
-************************************************************************
-*
+!***********************************************************************
+!
                   iOpt=0
                   ip = 1
                   If (DoCoul .and.
      &                iAnd(iSym(1),iSym(2)).ne.0 .and.
      &                iAnd(iSym(3),iSym(4)).ne.0) Then
                      iOpt = iOpt + 1
-*
+!
                      If (iShell(3).lt.iShell(4)) Then
                         vkl = Dkl(kBas*lBas+1,i4,i3)
                         ipDkl=ip
@@ -368,7 +367,7 @@ C                 Write (*,*)
      &                iAnd(iSym(1),iSym(3)).ne.0 .and.
      &                iAnd(iSym(2),iSym(4)).ne.0) Then
                      iOpt = iOpt + 2
-*
+!
                      If (iShell(2).lt.iShell(4)) Then
                         vjl=Djl(jBas*lBas+1,i4,i2)
                         ipDjl=ip
@@ -421,7 +420,7 @@ C                 Write (*,*)
      &                iAnd(iSym(1),iSym(4)).ne.0 .and.
      &                iAnd(iSym(2),iSym(3)).ne.0) Then
                      iOpt = iOpt + 4
-*
+!
                      If (iShell(2).lt.iShell(3)) Then
                         vjk = Djk(jBas*kBas+1,i3,i2)
                         ipDjk = ip
@@ -477,8 +476,8 @@ C                 Write (*,*)
 C                 Write (*,*) 'iOpt=',iOpt
                   Go To ( 1, 2, 3, 4, 5, 6, 7) iOpt
                   Go To 400
-*
-************************************************************************
+!
+!***********************************************************************
  1                Continue
                   Call Fck1(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
      &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
@@ -524,13 +523,13 @@ C                 Write (*,*) 'iOpt=',iOpt
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
                   Go To 400
-************************************************************************
-*
+!***********************************************************************
+!
  400           Continue
  300        Continue
  200     Continue
  100  Continue
-*
+!
       iIrrep=0
       Fact=One
       If (lFij)
@@ -539,21 +538,21 @@ C                 Write (*,*) 'iOpt=',iOpt
      &            iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
      &            Fact)
-*
+!
       If (lFkl)
      &Call FckDst(TwoHam,nDens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),
      &            kOp2(3),kOp2(4),iIrrep,
      &            iShkl,
      &            iAO(3),iAO(4),iAOst(3),iAOst(4),
      &            Fact)
-*
+!
       If (lFik)
      &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
      &            iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
      &            Fact)
-*
+!
       If (lFjl)
      &Call FckDst(TwoHam,nDens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),
      &            kOp2(2),kOp2(4),iIrrep,
@@ -572,17 +571,17 @@ C                 Write (*,*) 'iOpt=',iOpt
      &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
-*
+!
       Return
       End
       Subroutine Fck1(AOInt,iBas,jBas,kBas,lBas,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas)
-*
+!
 C     Call RecPrt('Dij',' ',Dij,iBas,jBas)
 C     Write (*,*) 'Cij=',Cij
 C     Call RecPrt('Dkl',' ',Dkl,kBas,lBas)
@@ -595,29 +594,29 @@ C     Call RecPrt('Fij(enter)',' ',Fij,iBas,jBas)
             Do j = 1, jBas
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)
-*
+!
                   Fij(i,j) = Fij(i,j) +D_kl*Vijkl
                   F_kl = F_kl + Dij(i,j)*Vijkl
-*
+!
                End Do
             End Do
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
 C     Call RecPrt('Fij(exit)',' ',Fij,iBas,jBas)
-*
+!
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(ExFac)
       End
       Subroutine Fck2(AOInt,iBas,jBas,kBas,lBas,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             Do j = 1, jBas
@@ -625,23 +624,23 @@ c Avoid unused argument warnings
                D_jl = Djl(j,l)*Cik
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)*ExFac
-*
+!
                   Fik(i,k) = Fik(i,k) + D_jl*Vijkl
                   F_jl = F_jl + Dik(i,k)*Vijkl
-*
+!
                End Do
                Fjl(j,l) = Fjl(j,l) + Cjl*F_jl
             End Do
          End Do
       End Do
-*
+!
       Return
       End
       Subroutine Fck3(AOInt,iBas,jBas,kBas,lBas,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      1       Dij(iBas,jBas), Fij(iBas,jBas),
      2       Dkl(kBas,lBas), Fkl(kBas,lBas),
@@ -649,7 +648,7 @@ c Avoid unused argument warnings
      4       Djl(jBas,lBas), Fjl(jBas,lBas)
 c    5       Dil(iBas,lBas), Fil(iBas,lBas),
 c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             F_kl = Zero
@@ -659,30 +658,30 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
                D_jl = Djl(j,l)*Cik
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)
-*
+!
                   Fij(i,j) = Fij(i,j) +D_kl*Vijkl
                   F_kl = F_kl + Dij(i,j)*Vijkl
-*
+!
                   Fik(i,k) = Fik(i,k) + D_jl*Vijkl*ExFac
                   F_jl = F_jl + Dik(i,k)*Vijkl
-*
+!
                End Do
                Fjl(j,l) = Fjl(j,l) + Cjl*F_jl*ExFac
             End Do
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
-*
+!
       Return
       End
       Subroutine Fck4(AOInt,iBas,jBas,kBas,lBas,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             Do j = 1, jBas
@@ -690,29 +689,29 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
                D_jk = Djk(j,k)*Cil
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)*ExFac
-*
+!
                   Fil(i,l) = Fil(i,l) + D_jk*Vijkl
                   F_jk = F_jk + Dil(i,l)*Vijkl
-*
+!
                End Do
                Fjk(j,k) = Fjk(j,k) + Cjk*F_jk
             End Do
          End Do
       End Do
-*
+!
       Return
       End
       Subroutine Fck5(AOInt,iBas,jBas,kBas,lBas,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             F_kl = Zero
@@ -722,33 +721,33 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
                D_jk = Djk(j,k)*Cil
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)
-*
+!
                   Fij(i,j) = Fij(i,j) +D_kl*Vijkl
                   F_kl = F_kl + Dij(i,j)*Vijkl
-*
+!
                   Fil(i,l) = Fil(i,l) + D_jk*Vijkl*ExFac
                   F_jk = F_jk + Dil(i,l)*Vijkl
-*
+!
                End Do
                Fjk(j,k) = Fjk(j,k) + Cjk*F_jk*ExFac
             End Do
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
-*
+!
       Return
       End
       Subroutine Fck6(AOInt,iBas,jBas,kBas,lBas,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             Do j = 1, jBas
@@ -758,28 +757,28 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
                D_jk = Djk(j,k)*Cil
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)
-*
+!
                   Fik(i,k) = Fik(i,k) + D_jl*Vijkl*ExFac
                   F_jl = F_jl + Dik(i,k)*Vijkl
-*
+!
                   Fil(i,l) = Fil(i,l) + D_jk*Vijkl*ExFac
                   F_jk = F_jk + Dil(i,l)*Vijkl
-*
+!
                End Do
                Fjl(j,l) = Fjl(j,l) + Cjl*F_jl*ExFac
                Fjk(j,k) = Fjk(j,k) + Cjk*F_jk*ExFac
             End Do
          End Do
       End Do
-*
+!
       Return
       End
       Subroutine Fck7(AOInt,iBas,jBas,kBas,lBas,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
@@ -787,7 +786,7 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
-*
+!
       Do l = 1, lBas
          Do k = 1, kBas
             F_kl = Zero
@@ -799,16 +798,16 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
                D_jk = Djk(j,k)*Cil
                Do i = 1, iBas
                   Vijkl = AOInt(i,j,k,l)
-*
+!
                   Fij(i,j) = Fij(i,j) +D_kl*Vijkl
                   F_kl = F_kl + Dij(i,j)*Vijkl
-*
+!
                   Fik(i,k) = Fik(i,k) + D_jl*Vijkl*ExFac
                   F_jl = F_jl + Dik(i,k)*Vijkl
-*
+!
                   Fil(i,l) = Fil(i,l) + D_jk*Vijkl*ExFac
                   F_jk = F_jk + Dil(i,l)*Vijkl
-*
+!
                End Do
                Fjl(j,l) = Fjl(j,l) + Cjl*F_jl*ExFac
                Fjk(j,k) = Fjk(j,k) + Cjk*F_jk*ExFac
@@ -816,6 +815,6 @@ c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
-*
+!
       Return
       End

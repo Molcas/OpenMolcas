@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1991,1993, Roland Lindh                           *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1993, Roland Lindh                           *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine Drvk2(Cmpct,DoFock,DoGrad)
-************************************************************************
-*                                                                      *
-*  Object: to precompute all pair entites as zeta, kappa, P and the    *
-*          integral prescreening vector to be used with the Schwartz   *
-*          inequlity.                                                  *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN.                              *
-*             June '91, modified for k2 loop.                          *
-*             Modified for direct SCF, January '93                     *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: to precompute all pair entites as zeta, kappa, P and the    *
+!          integral prescreening vector to be used with the Schwartz   *
+!          inequlity.                                                  *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!             Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN.                              *
+!             June '91, modified for k2 loop.                          *
+!             Modified for direct SCF, January '93                     *
+!***********************************************************************
       use Real_Spherical
       use k2_setup
       use iSD_data
@@ -36,50 +36,50 @@
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: lSchw
       use UnixInfo, only: ProgName
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
-#include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-*     Local arrays
+!     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
       Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
       Character*8 Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement functions
+!
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (k2_Status.eq.Produced) Return
-*
+!
       ReOrder=.False.
       If (Index(ProgName,'scf').ne.0) Then
          Call Get_cArray('Relax Method',Method,8)
          ReOrder=Method.eq.'KS-DFT'
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iRout = 240
       iPrint = nPrint(iRout)
-*     iPrint = 99
+!     iPrint = 99
       Call CWTime(TCpu1,TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       DoGrad_=DoGrad
       DoHess_=.False.
       la_=S%iAngMx
@@ -88,24 +88,24 @@
       ne_=(mabMax_-mabMin_+1)
       nHrrMtrx=ne_*nElem(la_)*nElem(la_)
       call mma_allocate(HRRMtrx,nHRRMtrx,2,Label='HRRMatrix')
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate memory for k2 data. Observe that the call to Allok2
-*     can be done elsewhere and then this call will simply result in
-*     a return.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Allocate memory for k2 data. Observe that the call to Allok2
+!     can be done elsewhere and then this call will simply result in
+!     a return.
+!
       Call Allok2()
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nScree = 0
       mScree = 0
       jpk2 = 1
       nk2 = 0
       mk2 = 0
-*
-*     Allocate memory for zeta, kappa, and P.
+!
+!     Allocate memory for zeta, kappa, and P.
       ipZInv = ipZeta + S%m2Max
       ipKab  = ipZInv + S%m2Max
       ipP    = ipKab  + S%m2Max
@@ -113,9 +113,9 @@
       ipAlpha= ipCon  + S%m2Max
       ipBeta = ipAlpha+ S%m2Max
       ipInd  = ipiZet
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       MemTmp=0
       Do iAng = 0, S%iAngMx
          MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
@@ -125,9 +125,9 @@
       Call mma_allocate(Lnew,S%m2Max,Label='Lnew')
       Call mma_allocate(Pnew,S%m2Max*3,Label='Pnew')
       Call mma_allocate(Qnew,S%m2Max*3,Label='Qnew')
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Allocated(Sew_Scr)) Then
          Rls=.False.
          MemMax=SIZE(Sew_Scr)
@@ -140,11 +140,11 @@ C        Write (*,*) 'Drvk2: Memory already allocated:',MemMax
 C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
       End If
       ipMem1=1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Canonical double loop over shells.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Canonical double loop over shells.
+!
       Do iS = 1, mSkal
          iShll  = iSD( 0,iS)
          If (Shells(iShll)%Aux.and.iS.ne.mSkal) Go To 100
@@ -157,10 +157,10 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
          Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
-*
+!
          If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
      &                                     Shells(iShll)%pCff)
-*
+!
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
@@ -177,39 +177,39 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
             Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
-*
+!
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
-*
-*           Fix for the dummy basis set
+!
+!           Fix for the dummy basis set
             If (Shells(iShll)%Aux) Coor(1:3,1)=Coor(1:3,2)
-*
+!
             Call iCopy(2,iAngV(1),1,iAngV(3),1)
             Call ICopy(2,iCmpV(1),1,iCmpV(3),1)
-*
+!
             iPrimi   = iPrim
             jPrimj   = jPrim
             nBasi    = iBas
             nBasj    = jBas
-*
+!
             iBasi = iPrimi
             jBasj = jPrimj
             kPrimk = 1
             lPriml = 1
             kBask = 1
             lBasl = 1
-*
+!
             nZeta = iPrimi * jPrimj
-*
+!
             Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
      &                  Shells(iShll)%pCff,nBasi,
      &                  Shells(jShll)%pCff,nBasj)
-*
+!
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
             If (iPrint.ge.99) Call RecPrt(' Sym. Dist. Centers',' ',
      &                                    Coor,3,4)
-*
+!
             ijS=iTri(iShell,jShell)
             If (DoFock) Then
                ipDij =ipOffD(1,ijS)
@@ -220,20 +220,20 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
                nDCR  =1
                nDij=1
             End If
-*
+!
             nSO = 1
-*
-*           Compute memory request for the primitives, i.e. how much
-*           memory is needed up to the transfer equation.
-*
+!
+!           Compute memory request for the primitives, i.e. how much
+!           memory is needed up to the transfer equation.
+!
             Call MemRys(iAngV,MemPrm)
-*
-*           Decide on the partioning of the shells based on
-*           on the available memory and the requested memory
-*
-*-----------Now do a dirty trick to avoid splitting of the first
-*           contracted index. Move all over on the second index.
-*
+!
+!           Decide on the partioning of the shells based on
+!           on the available memory and the requested memory
+!
+!-----------Now do a dirty trick to avoid splitting of the first
+!           contracted index. Move all over on the second index.
+!
             iPrims=iPrimi
             jPrims=jPrimj
             iBasi = 1
@@ -264,20 +264,20 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
                Write (6,*) ' *********************',
      &                     '**************************'
             End If
-*
-*           Find the Double Coset Representatives for center A and B.
-*
+!
+!           Find the Double Coset Representatives for center A and B.
+!
             iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
-*
-*           Compute all pair entities (zeta, kappa, P, and [nm|nm],
-*           total of six types) for all possible unique pairs of
-*           centers generated for the symmetry unique centers A and B.
-*
-*           Write (*,*) ' Generating batches:', mk2+1,' -',
-*    &                  mk2+nDCRR
-*           Write (*,*) ' Shell index =', ijS, iShell, jShell
-*           Write (*,*) ' jpk2=',jpk2
+!
+!           Compute all pair entities (zeta, kappa, P, and [nm|nm],
+!           total of six types) for all possible unique pairs of
+!           centers generated for the symmetry unique centers A and B.
+!
+!           Write (*,*) ' Generating batches:', mk2+1,' -',
+!    &                  mk2+nDCRR
+!           Write (*,*) ' Shell index =', ijS, iShell, jShell
+!           Write (*,*) ' jpk2=',jpk2
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
             nHm=nHm*nIrrep
             ijCmp=nElem(iAng)*nElem(jAng)
@@ -299,21 +299,21 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
      &                  Scr, MemTmp,
      &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,
      &                  HrrMtrx,nHrrMtrx)
-*
+!
             Indk2(1,ijS) = jpk2
             Indk2(2,ijS) = nDCRR
             nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
             nk2 = nk2 + nData*nDCRR
             mk2 = mk2 + nDCRR
             jpk2 = 1 + nk2
-*
+!
  200        Continue
          End Do
  100     Continue
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Rls) Then
 C        Write (6,*) 'Drvk2: Release Sew_Scr'
          Call mma_deallocate(Sew_Scr)
@@ -324,10 +324,10 @@ C        Write (6,*) 'Drvk2: Release Sew_Scr'
       Call mma_deallocate(Knew)
       Call mma_deallocate(Scr)
       Call mma_deallocate(HRRMtrx)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     rScree = One -(One*mScree)/(One*nScree)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     rScree = One -(One*mScree)/(One*nScree)
       If (iPrint.ge.19) Then
       Write (6,*)
       Write (6,*) ' *** The k2 entities has been precomputed ***'
@@ -338,17 +338,17 @@ C        Write (6,*) 'Drvk2: Release Sew_Scr'
       Else
          Write (6,*) ' Prescreening based on radial overlap.'
       End If
-*     Write (*,'(1X,A,F7.5)') 'Pair screening ratio:',rScree
+!     Write (*,'(1X,A,F7.5)') 'Pair screening ratio:',rScree
       Write (6,*)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       Call CWTime(TCpu2,TWall2)
       k2_Status=Produced
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-*               1994, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!               1994, Markus P. Fuelscher                              *
+!***********************************************************************
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
@@ -18,32 +18,32 @@
 #include "rctfld.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable:: VTot(:), QTot(:)
-*
+!
       If (.Not.lRF) Return
       nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
       Call mma_allocate(VTot,nComp,Label='VTot')
       Call mma_allocate(QTot,nComp,Label='QTot')
-*
+!
       Call RFmltp_(MM,VTot,QTot,nComp)
-*
+!
       Call mma_deallocate(VTot)
       Call mma_deallocate(QTot)
-*
+!
       Return
       End
       Subroutine RFmltp_(Qs,QTot,VTot,nComp)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*                                                                      *
-*     modified by M. P. Fuelscher, 94/04/28                            *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!                                                                      *
+!     modified by M. P. Fuelscher, 94/04/28                            *
+!***********************************************************************
+      use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 Qs(nComp,2), QTot(nComp), VTot(nComp)
 #include "print.fh"
-#include "real.fh"
 #include "rctfld.fh"
-*
+!
       iRout = 4
       iPrint = nPrint(iRout)
       If ( lRF .and. .Not.PCM .and. lRFCav) then
@@ -52,14 +52,14 @@
          If (iPrint.ge.99) Call RecPrt('Total Multipole Moments',' ',
      &                                 QTot,1,nComp)
          call dcopy_(nComp,QTot,1,VTot,1)
-*--------Compute the electric field due to the total charge
-*        distribution.
+!--------Compute the electric field due to the total charge
+!        distribution.
          Call AppFld(VTot,rds,Eps,lMax,EpsInf,NonEq_ref)
          If (iPrint.ge.99) Call RecPrt('Total Electric Field',
      &                                 ' ',VTot,1,nComp)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          Write (6,*)
      &   '     Multipole analysis of the contributions to the '//
      &          'dielectric solvation energy'
@@ -111,6 +111,6 @@
          Write (6,*) '     -----------------------------------'
          Write (6,*)
       End If
-*
+!
       Return
       End

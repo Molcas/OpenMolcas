@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Put_ln(In_Line)
-************************************************************************
-* This function replaces function getln                                *
-*                                                                      *
-* It reads, broadcasts, and parses an input line                       *
-*                                                                      *
-* Blank lines or lines containing star (*) in column 1 are skipped     *
-* Lines staring with exclaimation (!) in column 1 are skipped          *
-*                                                                      *
-* After this routine has been called, data can be retrieved using      *
-* the subroutines                                                      *
-*                                                                      *
-*   Get_F(icol,array,n)  (for floating point values)                   *
-*   Get_I(icol,iarry,n)  (for integer values)                          *
-*   Get_S(icol,strgs,n)  (for character strings)                       *
-*                                                                      *
-* where icol is the first non-blank work to be taken, and n is the     *
-* number of data.                                                      *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This function replaces function getln                                *
+!                                                                      *
+! It reads, broadcasts, and parses an input line                       *
+!                                                                      *
+! Blank lines or lines containing star (*) in column 1 are skipped     *
+! Lines staring with exclaimation (!) in column 1 are skipped          *
+!                                                                      *
+! After this routine has been called, data can be retrieved using      *
+! the subroutines                                                      *
+!                                                                      *
+!   Get_F(icol,array,n)  (for floating point values)                   *
+!   Get_I(icol,iarry,n)  (for integer values)                          *
+!   Get_S(icol,strgs,n)  (for character strings)                       *
+!                                                                      *
+! where icol is the first non-blank work to be taken, and n is the     *
+! number of data.                                                      *
+!                                                                      *
+!***********************************************************************
       implicit real*8 (a-h,o-z)
       Character*(*) In_line
 #include "cgetl.fh"
@@ -77,25 +77,25 @@
       End
 
       character*180 function get_ln_quit(lunit,icritical)
-************************************************************************
-* This function replaces function getln                                *
-*                                                                      *
-* It reads, broadcasts, and parses an input line                       *
-*                                                                      *
-* Blank lines or lines containing star (*) in column 1 are skipped     *
-* Lines staring with exclaimation (!) in column 1 are skipped          *
-*                                                                      *
-* After this routine has been called, data can be retrieved using      *
-* the subroutines                                                      *
-*                                                                      *
-*   Get_F(icol,array,n)  (for floating point values)                   *
-*   Get_I(icol,iarry,n)  (for integer values)                          *
-*   Get_S(icol,strgs,n)  (for character strings)                       *
-*                                                                      *
-* where icol is the first non-blank work to be taken, and n is the     *
-* number of data.                                                      *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This function replaces function getln                                *
+!                                                                      *
+! It reads, broadcasts, and parses an input line                       *
+!                                                                      *
+! Blank lines or lines containing star (*) in column 1 are skipped     *
+! Lines staring with exclaimation (!) in column 1 are skipped          *
+!                                                                      *
+! After this routine has been called, data can be retrieved using      *
+! the subroutines                                                      *
+!                                                                      *
+!   Get_F(icol,array,n)  (for floating point values)                   *
+!   Get_I(icol,iarry,n)  (for integer values)                          *
+!   Get_S(icol,strgs,n)  (for character strings)                       *
+!                                                                      *
+! where icol is the first non-blank work to be taken, and n is the     *
+! number of data.                                                      *
+!                                                                      *
+!***********************************************************************
       implicit real*8 (a-h,o-z)
       Character*256 filename
 #include "cgetl.fh"
@@ -132,7 +132,7 @@
       istrt(ncol)=i
       iend(ncol)=j-1
       goto 10
-*
+!
 100   filename=' '
       inquire(unit=lunit,name=filename)
       if(filename.ne.' ') then
@@ -157,7 +157,7 @@ c
 
       Quit_On_Error=.true.
       end
-*
+!
       subroutine Get_F(icol,val,n)
       implicit real*8 (a-h,o-z)
       Character*80 string
@@ -186,12 +186,12 @@ c
         end if
       end do
       return
-*
+!
 600       Call FindErrorLine
           Call WarningMessage(2,'Error in Get_F')
           Call Quit_OnUserError()
       end
-*
+!
       subroutine Get_F1(icol,val)
       implicit real*8 (a-h,o-z)
       dimension dum(1)
@@ -231,14 +231,14 @@ c
           Call WarningMessage(2,'Error in Get_I')
           Call Quit_OnUserError()
       end
-*
+!
       subroutine Get_I1(icol,ival)
       implicit real*8 (a-h,o-z)
       dimension idum(1)
       call Get_I(icol,idum,1)
       ival=idum(1)
       end
-*
+!
       Subroutine Get_S(icol,str,n)
       character*(*) str(n)
 #include "cgetl.fh"

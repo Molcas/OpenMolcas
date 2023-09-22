@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Real*8 Function CovRad(i)
       Implicit Real*8 (a-h,o-z)
       Real*8 CovRad_(0:86)
-*     Character*144 Warning
+!     Character*144 Warning
       Data CovRad_/
      &  0.0d0,
      &  0.643d0,0.643d0,2.457d0,1.909d0,1.587d0,1.436d0,1.209d0, !1-7
@@ -27,15 +27,15 @@
      &  2.948d0,2.721d0,2.532d0,2.457d0,2.419d0,2.381d0,2.400d0, !71-77
      &  2.457d0,2.532d0,2.816d0,2.797d0,2.778d0,2.759d0,2.759d0, !78-84
      &  2.740d0,2.710d0/                                         !85-
-*
+!
       If (i.gt.86) Then
-*        Write (Warning,'(2A)') 'CovRad: Warning i.gt.86!,;'//
-*    &               'Guestimate of 2.70 au is used!'
-*        Call WarningMessage(1,Warning)
+!        Write (Warning,'(2A)') 'CovRad: Warning i.gt.86!,;'//
+!    &               'Guestimate of 2.70 au is used!'
+!        Call WarningMessage(1,Warning)
          CovRad=2.70D0
       Else
          CovRad=CovRad_(i)
       End If
-*
+!
       Return
       End

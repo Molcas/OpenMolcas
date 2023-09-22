@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
+      use Constants
       Implicit Real*8(A-H,O-Z)
-#include "real.fh"
 #include "welcom.fh"
       Real*8 grint(0:lmax,lmax),rri(0:kmax+2)
-*
+!
       M=K+1
       EXPA=-A*A*ALFA-BETA*R0*R0
       AEXP=(ALFA+BETA)
@@ -80,7 +80,7 @@ C     Call RecPrt(' rri',' ',rri,l+3,1)
       IF(K.EQ.0)  go to 100
       Do 20 ll=1,l
          Do kk = 1, ll+1
-*
+!
             tmp1= fiint(kk-1,0)/fiint(0,0)
             tmp2= -Two*DBLE(kk-1)
             tmp = Zero
@@ -93,7 +93,7 @@ C     Call RecPrt(' rri',' ',rri,l+3,1)
      &              + AA4/(Three*(DBLE(2*ll+4)+tmp4))     * rri(ll+2))
             End Do
             Grint(ll*2,  kk) = pi4 * tmp
-*
+!
             if (kk.eq.1) cycle
             tmp1= fiint(kk-2,0)/fiint(0,0)
             tmp=Zero
@@ -107,11 +107,11 @@ C     Call RecPrt(' rri',' ',rri,l+3,1)
             End Do
             Grint(ll*2-1,kk-1) = pi4 * tmp
             Grint(ll*2-1,kk) = Zero
-*
+!
          End Do
  20   Continue
  100  Continue
-*
-*     Call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
+!
+!     Call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
       Return
       End

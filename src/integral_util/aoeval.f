@@ -1,80 +1,79 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Roland Lindh                                     *
-*               2004, Takashi Tsuchiya                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Roland Lindh                                     *
+!               2004, Takashi Tsuchiya                                 *
+!***********************************************************************
       Subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,
      &                  Angular,nTerm,nForm,Thr_Rad,nRad,mExp,nExp,
      &                  Alpha,Radial,nBas,CffCnt,AOValue,mAO,
      &                  px,py,pz,ipx,ipy,ipz)
-************************************************************************
-* Object: to compute the values of the AOs on a grid. The calculation  *
-*         is sectioned in an angular part and a radial part. Due to the*
-*         gradients we have 3 angular parts and 2 radial part.         *
-*                                                                      *
-*      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN. November '95                            *
-*      Modified by: Takashi Tsuchiya, Dept. of Theoretical Chemistry,  *
-*                   University of Lund, SWEDEN. February 2004          *
-************************************************************************
+!***********************************************************************
+! Object: to compute the values of the AOs on a grid. The calculation  *
+!         is sectioned in an angular part and a radial part. Due to the*
+!         gradients we have 3 angular parts and 2 radial part.         *
+!                                                                      *
+!      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN. November '95                            *
+!      Modified by: Takashi Tsuchiya, Dept. of Theoretical Chemistry,  *
+!                   University of Lund, SWEDEN. February 2004          *
+!***********************************************************************
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "print.fh"
       Real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3),
      &       CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas),
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
       Integer Angular(nTerm,5,nForm)
       Logical Transf
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Index for derivatives in AOValue
-*
-*     mAO =   1:    F
-*             2:   dFdx
-*             3:   dFdy
-*             4:   dFdz
-*             5:  d2Fdxdx
-*             6:  d2Fdxdy
-*             7:  d2Fdxdz
-*             8:  d2Fdydy
-*             9:  d2Fdydz
-*            10:  d2Fdzdz
-*            11:  d3Fdxdxdx
-*            12:  d3Fdxdxdy
-*            13:  d3Fdxdxdz
-*            14:  d3Fdxdydy
-*            15:  d3Fdxdydz
-*            16:  d3Fdxdzdz
-*            17:  d3Fdydydy
-*            18:  d3Fdydydz
-*            19:  d3Fdydzdz
-*            20:  d3Fdzdzdz
-*            ... and so on;
-*                in the same order for the higher order derivatives.
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Index for derivatives in AOValue
+!
+!     mAO =   1:    F
+!             2:   dFdx
+!             3:   dFdy
+!             4:   dFdz
+!             5:  d2Fdxdx
+!             6:  d2Fdxdy
+!             7:  d2Fdxdz
+!             8:  d2Fdydy
+!             9:  d2Fdydz
+!            10:  d2Fdzdz
+!            11:  d3Fdxdxdx
+!            12:  d3Fdxdxdy
+!            13:  d3Fdxdxdz
+!            14:  d3Fdxdydy
+!            15:  d3Fdxdydz
+!            16:  d3Fdxdzdz
+!            17:  d3Fdydydy
+!            18:  d3Fdydydz
+!            19:  d3Fdydzdz
+!            20:  d3Fdzdzdz
+!            ... and so on;
+!                in the same order for the higher order derivatives.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2 + iz + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       iRout=132
       iPrint=nPrint(iRout)
-C     iPrint=99
       If (iPrint.ge.49) Then
          Write(6,*) '********** AOEval ***********'
          Write (6,*) 'In AOEval'
@@ -84,31 +83,31 @@ C     iPrint=99
          Write (6,*) 'RA=',RA
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Initialize AOValue
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Initialize AOValue
+!
       AOValue(:,:,:,:)=Zero
-*
-*---- Set the order of derivation
-*
+!
+!---- Set the order of derivation
+!
       nDrv=nRad-1
 C     Write(6,*) '----- nDrv = ', nDrv
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Evaluate the radial part
-*----    Normal radial part and
-*----    premultiplied with (minus two times the exponent)**iDrv
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Evaluate the radial part
+!----    Normal radial part and
+!----    premultiplied with (minus two times the exponent)**iDrv
+!
 #ifdef _DEBUGPRINT_
       If (nRad.LE.0 .AND. nRad.GE.5) Then
          Write (6,*) 'AOEval: illegal value of nRad!'
          Call Abend()
       End If
 #endif
-*
+!
       Thre=-99D0
       If (Thr_Rad.gt.0.0D0) Thre=Log(Thr_Rad)
       Exp_Min=1.0D10
@@ -172,7 +171,7 @@ C     Write(6,*) '----- nDrv = ', nDrv
          End Do
  9898    Continue
       End Do
-*
+!
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
             Write (6,*) mExp,nExp
@@ -180,11 +179,11 @@ C     Write(6,*) '----- nDrv = ', nDrv
             Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Evaluate the angular part
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Evaluate the angular part
+!
       If (iAng+nRad-1.ge.1) Then
          Do iCoor = 1, nCoor
             xyz(iCoor,1,0)=One
@@ -212,33 +211,33 @@ C     Write(6,*) '----- nDrv = ', nDrv
          End Do
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Calculate the angular components of the derivatives
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Calculate the angular components of the derivatives
+!
       Angular(:,:,:)=0
-*
+!
       Do ix = iAng, 0, -1
-*
+!
          Do iy = iAng-ix, 0, -1
             iz = iAng-ix-iy
             ip=Ind(iy,iz)
-*
-*---------- Initial values for 0th-order derivative
-*
+!
+!---------- Initial values for 0th-order derivative
+!
             Angular(1,1,1)=ix
             Angular(1,2,1)=iy
             Angular(1,3,1)=iz
             Angular(1,4,1)=0
             Angular(1,5,1)=1
-*
-*
-*---------- Calculate derivatives of the angular components
-*
-*           jf: Formula to be derivated
-*           if: New formula by way of derivation
-*
+!
+!
+!---------- Calculate derivatives of the angular components
+!
+!           jf: Formula to be derivated
+!           if: New formula by way of derivation
+!
             if = 1
 C           Call PrntA(nterm,nform,Angular,if,0)
             Do jDrv = 0,nDrv-1
@@ -246,17 +245,17 @@ C           Call PrntA(nterm,nform,Angular,if,0)
                   Do jy = jDrv-jx,0,-1
                      jz = jDrv-jx-jy
                      jf = Ind(jy,jz)
-*
+!
                      Do kDrv = 0,jDrv-1
                         jf=jf+(kDrv+1)*(kDrv+2)/2
                      End Do
-*
+!
 #ifdef _DEBUGPRINT_
                      If (iPrint.ge.99) Then
                         Write (6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
                      End If
 #endif
-*
+!
                      If (jy .EQ. 0 .AND. jz .EQ. 0) then
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,1,ipx,jDrv)
@@ -282,12 +281,12 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                   End Do
                End Do
             End Do
-*
-*
-*---------- Distribute contributions to the real spherical harmonics
-*----------            and combine with angular part
-*----------       to yield the values and the gradients
-*
+!
+!
+!---------- Distribute contributions to the real spherical harmonics
+!----------            and combine with angular part
+!----------       to yield the values and the gradients
+!
             If (Transf) Then
               Do iCmp = 1, nCmp
                 Cff=CffSph(ip,iCmp)
@@ -349,14 +348,14 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                 kForm=kForm+mForm
               End Do
             End If
-*
-*
+!
+!
          End Do
-*
+!
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
@@ -365,28 +364,28 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
 #endif
 
       End
-*
+!
       Subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
-*
+!
       Implicit real*8 (a-h,o-z)
       Integer N(mterm,5,mform)
-*
-*
-*     ipf: Phase factor in integer
-*
-*
-*
-*
+!
+!
+!     ipf: Phase factor in integer
+!
+!
+!
+!
       nterm=2**jdrv
       iterm=0
-*
+!
       Do jterm=1,nterm
-*
-*
-*        downward operation
-*        (derivation of angular part)
-*
-*
+!
+!
+!        downward operation
+!        (derivation of angular part)
+!
+!
          iterm=iterm+1
          Do i=1,5
             If (i .EQ. ixyz) then
@@ -397,12 +396,12 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
          End do
          N(iterm,5,ip)=N(iterm,5,ip)*N(jterm,ixyz,jp)
          N(iterm,5,ip)=N(iterm,5,ip)*ipf
-*
-*
-*        upward operation
-*        (derivation of radial  part)
-*
-*
+!
+!
+!        upward operation
+!        (derivation of radial  part)
+!
+!
          iterm=iterm+1
          Do i=1,5
             If (i .EQ. ixyz) then

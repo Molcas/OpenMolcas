@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine PrMtrx(Label,lOper,nComp,ip,Matrix)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, Sweden, January '91                  *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, Sweden, January '91                  *
+!***********************************************************************
       Use Basis_Info, only: nBas
       use Gateway_global, only: PrPrt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-*     Local arrays
+!     Local arrays
       Real*8 Matrix(*)
       Character Label*(*), Line*80
       Integer ip(nComp), lOper(nComp)
       Logical Type
-*
-*
+!
+!
       Do 10 iComp = 1, nComp
          ip1 = ip(iComp)
          iSmLbl = lOper(iComp)
@@ -63,6 +63,6 @@
  40         Continue
  30      Continue
  10   Continue
-*
+!
       Return
       End

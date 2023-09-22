@@ -49,6 +49,7 @@
       use Breit, only: nOrdOp
       use UnixInfo, only: SuperName
 #endif
+      use Constants
       Implicit None
 !
 !     subroutine parameters
@@ -59,7 +60,6 @@
 
 !
 #include "ndarray.fh"
-#include "real.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"
@@ -179,24 +179,24 @@
       Else
          Do_TwoEl => TwoEl_Sym_New
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (ERI_Status.ne.Active) Then
          Call WarningMessage(2,
      &               'Eval_Ints_: Integral environment is not set up!')
          Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       NoInts=.True.
       Tmax=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     If memory not allocated already at this point allocate!          *
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     If memory not allocated already at this point allocate!          *
+!                                                                      *
       If (.Not.Allocated(Sew_Scr)) Then
 C        Write (*,*) 'Eval_ints: Allocate memory'
          Call mma_MaxDBLE(MemMax)
@@ -208,7 +208,7 @@ C        Write (*,*) 'Eval_ints: Memory already allocated'
       End If
 C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       ipMem1=1
-*
+!
       Map4(1)=1
       Map4(2)=2
       Map4(3)=3
@@ -227,15 +227,15 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
           Map4(3)=Map4(4)
           Map4(4)=iTmp
       End If
-*     Write (*,*) ' -->',iS_,jS_,kS_,lS_,'<--'
-*                                                                      *
-************************************************************************
-*                                                                      *
+!     Write (*,*) ' -->',iS_,jS_,kS_,lS_,'<--'
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
      &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iPrimi   = Shells(iShllV(1))%nExp
       jPrimj   = Shells(iShllV(2))%nExp
       kPrimk   = Shells(iShllV(3))%nExp
@@ -248,7 +248,7 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       nEta     = kPrimk * lPriml
       mDij=nZeta+1 ! Dummy initialize
       mDkl=nEta+1  ! Dummy initialize
-*
+!
       nHRRAB=iCmpV(1)*iCmpV(2)*
      &      (nabSz(iAngV(1)+iAngV(2)) -
      &       nabSz(Max(iAngV(1),iAngV(2))-1))
@@ -266,10 +266,10 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       End If
       mData1=nZeta*(nDArray+2*ijCmp)+nDScalar+nHRRAB
       mData2=nEta*(nDArray+2*klCmp)+nDScalar+nHRRCD
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
       ipZI  = ipZeta + nZeta
       ipKab = ipZI   + nZeta
       ipP   = ipKab  + nZeta
@@ -278,11 +278,11 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       ipKcd = ipEI   + nEta
       ipQ   = ipKcd  + nEta
       ipiEta = ipiZet + nZeta + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     No SO block in direct construction of the Fock matrix.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     No SO block in direct construction of the Fock matrix.
       nSO = MemSO2(iAngV(1),iAngV(2),iAngV(3),iAngV(4),
      &             iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
      &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),
@@ -290,7 +290,7 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       If (nSO.eq.0) Then
         Return
       End If
-*
+!
       iS = iShelV(1)
       jS = iShelV(2)
       kS = iShelV(3)
@@ -301,23 +301,23 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       ilS = iTri(iS,lS)
       jkS = iTri(jS,kS)
       jlS = iTri(jS,lS)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Pick up pointers to k2 entities.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Pick up pointers to k2 entities.
+!
 
       k2ij  = IndK2(1,ijS)
       nDCRR = IndK2(2,ijS)
       k2kl  = IndK2(1,klS)
       nDCRS = IndK2(2,klS)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Pick up pointers to desymmetrized 1st order density
-*     matrices. Observe that the desymmetrized 1st order
-*     density matrices follows the contraction index.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Pick up pointers to desymmetrized 1st order density
+!     matrices. Observe that the desymmetrized 1st order
+!     density matrices follows the contraction index.
+!
       If (DoFock) Then
          ipTmp = ipDijs
          Nr_of_D=1
@@ -327,31 +327,31 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
          Call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D)
          Call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
          Call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
-*
+!
 c        Write (*,*) ' Pointers to D=',
 c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
-*
+!
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
 !     Write (6,*) ' *** Centers ***'
 !     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
 !     Write (6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute memory request for the primitives, i.e.
-*     how much memory is needed up to the transfer
-*     equation.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Compute memory request for the primitives, i.e.
+!     how much memory is needed up to the transfer
+!     equation.
       Call MemRys(iAngV,MemPrm)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Decide on the partioning of the shells based on the
-*     available memory and the requested memory.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Decide on the partioning of the shells based on the
+!     available memory and the requested memory.
       Call PSOAO0(nSO,MemPrm,MemMax,
      &            iAngV,iCmpV,
      &            iBasi,iBsInc,jBasj,jBsInc,
@@ -378,83 +378,83 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 #endif
       SOInt(1:Mem1)=>Sew_Scr(ipMem1:ipMem1+Mem1-1)
       AOInt(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem1-1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       jbas_=jBasj
       lbas_=lBasl
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     These loops will partition the contraction loops if there is not
-*     enough memory to store the whole SO/AO-block simultaneously. The
-*     memory partitioning is determined by PSOAO0.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     These loops will partition the contraction loops if there is not
+!     enough memory to store the whole SO/AO-block simultaneously. The
+!     memory partitioning is determined by PSOAO0.
+!
       Do iBasAO = 1, iBasi, iBsInc
          iBasn=Min(iBsInc,iBasi-iBasAO+1)
          iAOst(1) = iBasAO-1
-*
+!
          Do jBasAO = 1, jBasj, jBsInc
             jBasn=Min(jBsInc,jBasj-jBasAO+1)
             iAOst(2) = jBasAO-1
-*
-*---------- Move appropiate portions of the desymmetrized 1st
-*           order density matrix.
-*
+!
+!---------- Move appropiate portions of the desymmetrized 1st
+!           order density matrix.
+!
             If (DoFock) Then
                Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
      &                     mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
             End If
-*
+!
             Do kBasAO = 1, kBask, kBsInc
                kBasn=Min(kBsInc,kBask-kBasAO+1)
                iAOst(3) = kBasAO-1
-*
+!
                If (DoFock) Then
                   Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
      &                        mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe)
                End If
-*
+!
                If (DoFock) Then
                   Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
      &                        mDCRjk,ipDjk,ipDDjk,mDjk,DeDe,nDeDe)
                End If
-*
+!
                 Do lBasAO = 1, lBasl, lBsInc
                    lBasn=Min(lBsInc,lBasl-lBasAO+1)
                    iAOst(4) = lBasAO-1
-*
+!
                    If (DoFock) Then
                       Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
      &                            mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe)
                    End If
-*
+!
                    If (DoFock) Then
                       Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
      &                            mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe)
                    End If
-*
+!
                    If (DoFock) Then
                       Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
      &                            mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe)
                    End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                 Compute SO/AO-integrals
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                 Compute SO/AO-integrals
+!
                   Call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,
      &                          iAngV,iCmpV,iShelV,iShllV,
      &                          iAOV,iAOst,NoInts,
@@ -534,7 +534,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                         Tmax=Zero
                      End If
                   End If
-*
+!
                End Do
             End Do
          End Do

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 c -------------------------------------------------------------------
 c The following subroutine calculates a batch of 2-electron
 c density matrix elements in SO basis.
@@ -33,6 +33,7 @@ c -------------------------------------------------------------------
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
       use aces_stuff, only: nSSDM,SSDM
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
@@ -41,12 +42,11 @@ c -------------------------------------------------------------------
      &       ScrP(nsP)
 !      logical do_pdft
 
-#include "real.fh"
 #include "print.fh"
 #include "etwas.fh"
 c Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
-*
+!
       iRout = 251
       iPrint = nPrint(iRout)
 c Offsets into the ipam array:
@@ -130,7 +130,7 @@ c Break loop if no such symmetry block:
 c Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
 c Pick up matrix elements and put in a full symmetry block:
-* State-average 2-DM
+! State-average 2-DM
         ind=0
         do  ix=ixsta,ixend
          do  iv=ivsta,ivend
@@ -234,7 +234,7 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &                              nPam(3,kSym)*nPam(4,lSym))
 
 
-*======================================================================*
+!======================================================================*
 c
 c Put results into correct positions in PSOPam:
       do  l=lsta,lend
@@ -255,13 +255,13 @@ c Put results into correct positions in PSOPam:
        End Do
       End Do
  777  Continue
-*======================================================================*
-* State-specific 2-DM
+!======================================================================*
+! State-specific 2-DM
         ind=0
         do  ix=ixsta,ixend
          do  iv=ivsta,ivend
           ivx=i3adr(iv,ix)
-*
+!
           do  iu=iusta,iuend
            do  it=itsta,itend
             itu=i3adr(it,iu)
@@ -361,7 +361,7 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
 
       If (iPrint.ge.89) Call RecPrt('PSOPam 0',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
-*======================================================================*
+!======================================================================*
 c
 c Put results into correct positions in PSOPam:
       do  l=lsta,lend
@@ -383,9 +383,9 @@ c Put results into correct positions in PSOPam:
       End Do
       If (iPrint.ge.89) Call RecPrt('PSOPam no 1-el',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
-*
+!
 
-*======================================================================*
+!======================================================================*
 
 c Add contributions from 1-el density matrix:
 
@@ -419,12 +419,12 @@ c Add contributions from 1-el density matrix:
           ip=INT(ipam(iopam1+i))
           ipq=i3adr(ip,iq)
           ipso=i+jkloff
-*
+!
 C   ANDERS HAS ADDED LAGRANGIAN HERE
 C   BY USING A VECTOR OF DENSITIES, THIS CAN EASILY BE
 C   GENERALIZED TO CALCULATE FOR EXAMPLE THE E_2 CONTRIBUTION
 C   FOR RAMAN SPECTRA
-*
+!
           if(isym.eq.lsym) then
            ips=i3adr(ip,is)
            irq=i3adr(ir,iq)

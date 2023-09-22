@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!***********************************************************************
       Function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,
      &              xab,nab,Scrt,nScrt,IndZ)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!***********************************************************************
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "real.fh"
       Real*8 EstI
       Real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta),
      &       Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas),
      &       xab(nAlpha*nBeta), Scrt(nScrt)
       Integer IndZ(nAlpha*nBeta+1)
-*
+!
       iRout = 238
       iPrint = nPrint(iRout)
-*
+!
       If (iPrint.ge.99) Then
          Write (6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
          Call RecPrt('Esti:xab',' ',xab,1,nAlpha*nBeta)
          Call RecPrt('Esti:Coeff1',' ',Coeff1,nAlpha,niBas)
          Call RecPrt('Esti:Coeff2',' ',Coeff2,nBeta ,njBas)
       End If
-*
+!
       mZeta=IndZ(nAlpha*nBeta+1)
       call dcopy_(niBas*njBas,[Zero],0,Scrt,1)
       Do iZeta = 1, mZeta
@@ -59,7 +59,7 @@
       End Do
       iHigh = iDAMax_(niBas*njBas,Scrt,1)
       EstI = Sqrt(Scrt(iHigh))
-*
+!
       Return
 c Avoid unused argument warnings
       If (.False.) Then

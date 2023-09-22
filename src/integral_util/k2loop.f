@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine k2Loop(Coor,
      &                  iAnga,iCmpa,iShll,
      &                  iDCRR,nDCRR,Data,
@@ -23,31 +23,31 @@
      &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
      &                  Scr,nScr,
      &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
-************************************************************************
-*                                                                      *
-* Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
-*         prescreening. This is done for all unique pairs of centers   *
-*         generated from the symmetry unique centers A and B.          *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN.                              *
-*             June '91, modified to compute zeta, P, kappa and inte-   *
-*             grals for Schwartz inequality in a k2 loop.              *
-*             Modified for direct SCF, January '93                     *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
+!         prescreening. This is done for all unique pairs of centers   *
+!         generated from the symmetry unique centers A and B.          *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!             Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN.                              *
+!             June '91, modified to compute zeta, P, kappa and inte-   *
+!             grals for Schwartz inequality in a k2 loop.              *
+!             Modified for direct SCF, January '93                     *
+!***********************************************************************
       use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_Info, only: CutInt, RadMax, cdMax, EtMax
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
-#include "real.fh"
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
@@ -66,12 +66,12 @@
      &        DoFock, DoGrad
       External EQ
       Dimension Dummy(1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call k2loop_internal(Data)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine k2loop_internal(Data)
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
@@ -99,18 +99,18 @@
          End Subroutine Rys
       End Interface
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function to compute canonical index
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function to compute canonical index
+!
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iRout = 241
       iPrint = nPrint(iRout)
-*     iPrint = 99
+!     iPrint = 99
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
       call dcopy_(nData*nDCRR,[Zero],0,Data,1)
@@ -123,31 +123,31 @@
       jCmpb_= iCmpa(2)
       iShlla = iShll(1)
       jShllb = iShll(2)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Do 100 lDCRR = 0, nDCRR-1
-*
+!
          Call ICopy(1024,nPrint,1,iSave,1)
          Call ICopy(1024,[5],0,nPrint,1)
-*
+!
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
-*        Branch out if integrals are zero by symmetry.
+!        Branch out if integrals are zero by symmetry.
          If (AeqB .and. Mod(iSmAng,2).eq.1) Go To 100
          call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
          If (iPrint.ge.99) Call RecPrt(' Actual centers',
      &                                  ' ',CoorM,3,4)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Compute zeta, P and kappa.
-*
-*        No triangulatization applied at this level
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Compute zeta, P and kappa.
+!
+!        No triangulatization applied at this level
          Call DoZeta(Alpha,nAlpha,Beta,nBeta,
      &               CoorM(1,1),CoorM(1,2),
      &               P,
@@ -157,12 +157,12 @@
      &               Alpha_,
      &               Beta_,
      &               IndP)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Generate transformation matrix from intermediate integrals
-*        to final angular composition.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Generate transformation matrix from intermediate integrals
+!        to final angular composition.
+!
          mabMin=nabSz(Max(la,lb)-1)+1
          If (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
          mabMax=nabSz(la+lb)
@@ -176,41 +176,41 @@
      &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
      &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Compute primitive integrals to be used in the prescreening
-*        by the Schwartz inequality.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Compute primitive integrals to be used in the prescreening
+!        by the Schwartz inequality.
+!
          call dcopy_(12,CoorM(1,1),1,Coora(1,1),1)
          call dcopy_(12,CoorM(1,1),1,Coori(1,1),1)
-*
-*        Compute actual size of [a0|c0] block
-*
+!
+!        Compute actual size of [a0|c0] block
+!
          mcdMin=mabMin
          mcdMax=mabMax
          mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*
-*        Find the proper centers to start of with the angular
-*        momentum on. If la.eq.lb there will exist an
-*        ambiguity to which center that angular momentum should
-*        be accumulated on. In that case we will use A and C of
-*        the order as defined by the basis functions types.
-*
+!
+!        Find the proper centers to start of with the angular
+!        momentum on. If la.eq.lb there will exist an
+!        ambiguity to which center that angular momentum should
+!        be accumulated on. In that case we will use A and C of
+!        the order as defined by the basis functions types.
+!
          If (iAnga(1).ge.iAnga(2)) Then
             call dcopy_(3,Coora(1,1),1,CoorAC(1,1),1)
          Else
             call dcopy_(3,Coora(1,2),1,CoorAC(1,1),1)
          End If
          call dcopy_(3,CoorAC(1,1),1,CoorAC(1,2),1)
-*
-*        Compute [a0|c0], ijkl,a,c
-*
+!
+!        Compute [a0|c0], ijkl,a,c
+!
          Jnd = 0
          nScree = nScree + nZeta
          Do iZeta = 1, nZeta, IncZZ
             mZeta = Min(nZeta-iZeta+1,IncZZ)
-*
+!
             nT = mZeta*1
             NoSpecial=.True.
             Call Rys(iAnga,nT,
@@ -223,10 +223,10 @@
             If (iPrint.ge.59)
      &         Call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,
      &                               mZeta,mabcd)
-*
-*---------- Apply a transpose prior to Tnsctl to fake the action
-*           of Cntrct.
-*
+!
+!---------- Apply a transpose prior to Tnsctl to fake the action
+!           of Cntrct.
+!
             iW3=1+mZeta*mabcd
             Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
             call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
@@ -244,16 +244,16 @@
                iW2=i_Int
                iW3=1
             End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
      &                    [nAlpha*nBeta+1])
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----------Store data in core
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----------Store data in core
+!
             Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
      &                 Zeta(iZeta),Kappab(iZeta),
      &                 P(iZeta,1),IndP(iZeta),Con,
@@ -269,14 +269,14 @@
      &                 Data(ip_Alpha(1,nZeta,1),lDCRR+1),
      &                 Beta_(iZeta),
      &                 Data(ip_Beta (1,nZeta,2),lDCRR+1))
-*
+!
          End Do ! iZeta
          mScree = mScree + Jnd
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Estimate the largest contracted integral.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Estimate the largest contracted integral.
+!
          Data(ip_EstI(nZeta),lDCRR+1) =
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
@@ -287,17 +287,17 @@
      &                           Wrk,nWork2,
      &                           iData)
          Nullify(iData)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Find the largest integral estimate (AO Basis).
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!------- Find the largest integral estimate (AO Basis).
+!
          Tst  = -One
          Do  iZeta = 0, nZeta-1
              Tst=Max(Data(ip_Z(iZeta+1,nZeta),lDCRR+1),Tst)
          End Do
          Data(ip_ZetaM(nZeta),lDCRR+1) = tst
-*
+!
          iOffZ = nDij-nZeta-1
          ZtMax=One
          abMax=Zero
@@ -326,17 +326,17 @@
          Data(ip_ZtMaxD(nZeta),lDCRR+1) = ZtMaxD
          Data(ip_abMaxD(nZeta),lDCRR+1) = abMaxD
          Call ICopy(1024,iSave,1,nPrint,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Compute data for gradient evaluation
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!------- Compute data for gradient evaluation
+!
          mZeta=Jnd
          If (DoGrad.and.mZeta.gt.0) Then
-*
-*---------- Compute primitive integrals to be used in the prescreening
-*           by the Cauchy-Schwarz inequality.
-*
+!
+!---------- Compute primitive integrals to be used in the prescreening
+!           by the Cauchy-Schwarz inequality.
+!
             Do iZeta = 1, mZeta, IncZZ
                lZeta = Min(mZeta-iZeta+1,IncZZ)
                Call SchInt(CoorM,iAnga,iCmpa,lZeta,
@@ -354,22 +354,22 @@
      &                     Data(ip_Z   (iZeta,nZeta),lDCRR+1),nZeta,
      &                     Dummy)
             End Do
-*
-*---------- Second order numerical differentiation. The gradients are
-*           restricted to only those with respect to symmetrical
-*           displacements. The symmetric three point formula is used in
-*           the numerical procedure.
-*
+!
+!---------- Second order numerical differentiation. The gradients are
+!           restricted to only those with respect to symmetrical
+!           displacements. The symmetric three point formula is used in
+!           the numerical procedure.
+!
             iIrrep=0
             Delta = 1.0D-03
             iOff_g=ip_abG(nZeta,nHm)+ijCmp*nZeta
             Call FZero(Data(iOff_g,lDCRR+1),nZeta*ijCmp)
             Scr(1:nZeta*ijCmp,:)=Zero
-*
-*---------- Loop over center A and B.
-*
+!
+!---------- Loop over center A and B.
+!
             Do iCnt = 1, 2
-*
+!
                nDisp=IndDsp(mStb(iCnt),iIrrep)
                Do iComp = 1, 3
                   iCmp=2**(iComp-1)
@@ -377,7 +377,7 @@
      &                Direct(nDisp+1)) Then
                      nDisp = nDisp + 1
                      temp = CoorM(iComp,iCnt)
-*
+!
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
                      Call NewPK(CoorM(1,1),CoorM(1,2),
@@ -405,7 +405,7 @@
      &                              nZeta,
      &                              Knew(iZeta))
                      End Do
-*
+!
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
                      Call NewPK(CoorM(1,1),CoorM(1,2),
@@ -433,10 +433,10 @@
      &                              nZeta,
      &                              Lnew(iZeta))
                      End Do
-*
+!
                      Call DaXpY_(nZeta*ijCmp, One,Scr(1,2),1,
      &                                           Scr(1,1),1)
-*
+!
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
                      Do iZeta = 1, mZeta, IncZZ
@@ -459,10 +459,10 @@
      &                              nZeta,
      &                              Lnew(iZeta))
                      End Do
-*
+!
                      Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
      &                                           Scr(1,1),1)
-*
+!
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
                      Do iZeta = 1, mZeta, IncZZ
@@ -485,26 +485,26 @@
      &                              nZeta,
      &                              Knew(iZeta))
                      End Do
-*
+!
                      Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
      &                                           Scr(1,1),1)
-*
+!
                      Call DScal_(nZeta*ijCmp,One/(Four*Delta**2),
      &                                           Scr(1,1),1)
                      Call AbsAdd(nZeta*ijCmp,    Scr(1,1),1,
      &                                   Data(iOff_g,lDCRR+1),1)
-*
+!
                      CoorM(iComp,iCnt  ) = temp
                      CoorM(iComp,iCnt+2) = temp
                   End If
                End Do
-*
+!
             End Do
          End If       ! DoGrad
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
@@ -532,8 +532,8 @@
      &        ne*iCmpa_*jCmpb_)
 #endif
  100  Continue ! lDCRR
-*
+!
       Return
       End Subroutine k2loop_internal
-*
+!
       End

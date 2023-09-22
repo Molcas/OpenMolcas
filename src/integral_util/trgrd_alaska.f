@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine TrGrd_Alaska(GradIn,nGrad)
-********************************************************************
-*                                                                  *
-*      Transforms a symmetry adapted gradient to unsymmetric  form *
-*                                                                  *
-*       Written by Anders Bernhardsson                             *
-*       960427                                                     *
-********************************************************************
+!*******************************************************************
+!                                                                  *
+!      Transforms a symmetry adapted gradient to unsymmetric  form *
+!                                                                  *
+!       Written by Anders Bernhardsson                             *
+!       960427                                                     *
+!*******************************************************************
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep
+      use Constants
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "Molcas.fh"
 #include "disp.fh"
-#include "real.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad)
       Logical, External :: TF
-*
+!
       mdc=0
       iIrrep=0
-*
+!
       call dcopy_(3*MxAtom,[Zero],0,CGrad,1)
       iCen=0
       nCnttp_Valence=0
@@ -42,7 +42,7 @@
          nCnttp_Valence = nCnttp_Valence+1
       End Do
  999  Continue
-*
+!
       Do iCnttp=1,nCnttp_Valence
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
@@ -61,7 +61,7 @@
             End Do
          End Do
       End Do
-*
-*     Call RecPrt('CGrad',' ',CGrad,3,iCen)
+!
+!     Call RecPrt('CGrad',' ',CGrad,3,iCen)
       Return
       End

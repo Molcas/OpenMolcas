@@ -34,12 +34,12 @@
       use Sizes_of_Seward, only:S
       use Gateway_Info, only: FNMC
       use Symmetry_Info, only: nIrrep
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
 #include "angtp.fh"
 #include "Molcas.fh"
-#include "real.fh"
 #include "rmat_option.fh"
 #include "nsd.fh"
 #include "setup.fh"

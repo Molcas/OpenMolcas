@@ -1,63 +1,63 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine SOOUT(label,cnt_ico,phase_ico)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
-*
+!
       Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
-*
+!
       Return
       End
-*
+!
       Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use Real_Spherical, only: iSphCr, LblCBs, LblSBs
+      use Constants
       Implicit Real*8 (a-h,o-z)
-*
+!
 #include "Molcas.fh"
-#include "real.fh"
-*
+!
       Character ChTemp*8, Mamn(nMamn)*(LENIN8)
       Logical TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
-*
-*     Generate list of symmetry adapted or petite list basis functions
-*
-*     Loop over Irreps
+!
+!     Generate list of symmetry adapted or petite list basis functions
+!
+!     Loop over Irreps
       iSO = 0
-*
-*     Loop over irreducible representations and symmetry operations,
-*     respectively, for SO and Petite list, respectively.
-*
+!
+!     Loop over irreducible representations and symmetry operations,
+!     respectively, for SO and Petite list, respectively.
+!
       Do 200 iIrrep = 0, nIrrep-1
-*
-*        Loop over distinct shell types
-*
+!
+!        Loop over distinct shell types
+!
          mdc = 0
          mc  = 1
          Do 201 iCnttp = 1, nCnttp
             If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
-*
-*           Loop over distinct centers
-*
+!
+!           Loop over distinct centers
+!
             Do 202 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
-*
-*              Loop over shells associated with this center
-*              Start with s type shells
-*
+!
+!              Loop over shells associated with this center
+!              Start with s type shells
+!
                kComp = 0
                iSh = dbsc(iCnttp)%iVal - 1
                Do 203 iAng = 0, dbsc(iCnttp)%nVal-1
@@ -73,15 +73,15 @@
                   End If
                   Do 204 iComp = 1, jComp
                      lComp = kComp + iComp
-*                    Get character of basis function
+!                    Get character of basis function
                      iChBs = iChBas(lComp)
                      If (Shells(iSh)%Transf) iChBs=iChBas(iSphCr(lComp))
-*
-*                    Skip if function not a basis of irreps.
-*
+!
+!                    Skip if function not a basis of irreps.
+!
                      If (.Not.TstFnc(dc(mdc)%iCoSet,
      &                          iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
-*
+!
                      Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
                         If (iSO.gt.nMamn) Then
@@ -99,16 +99,16 @@
                         End Do
                         Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
  205                 Continue
-*
+!
  204              Continue
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue
                mc = mc + nIrrep/dc(mdc)%nStab
  202        Continue
-*
+!
  201     Continue
  200  Continue
-*
+!
       Return
       End

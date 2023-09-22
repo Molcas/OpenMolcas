@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-************************************************************************
-*                                                                      *
-*  Subroutine Shell_MxSchwz:  gets max integral estimates for each     *
-*                             shell pair...                            *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!  Subroutine Shell_MxSchwz:  gets max integral estimates for each     *
+!                             shell pair...                            *
+!                                                                      *
+!***********************************************************************
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 c----------------------------------------------------------------------
       use k2_setup
@@ -21,19 +21,19 @@ c----------------------------------------------------------------------
       use iSD_data
       use Basis_Info
       use Symmetry_Info, only: nIrrep
+      use Constants
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
-*
+!
 #include "ndarray.fh"
-#include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
-*
+!
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
-*     loop over shell pair...
+!
+!     loop over shell pair...
       call dcopy_(nSkal*nSkal,[Zero],0,Schwz_Shl,1)
       Do iS = 1, nSkal
         iShll= iSD( 0,iS)
@@ -67,10 +67,10 @@ C         Write (*,*) 'nDCRR=',nDCRR
           nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
           nHm=nHm*nIrrep
           If (DoHess_) nHm=0
-*         i9    = ip_abMax(nZeta)-1
+!         i9    = ip_abMax(nZeta)-1
           i9    = ip_EstI(nZeta)-1
           i10   = nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
-*         now loop over  R operator...
+!         now loop over  R operator...
           If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
              Schwz_tmp=Data_k2(k2ij+i9)
              Do lDCRR = 1, nDCRR-1
@@ -85,6 +85,6 @@ C         Write (*,*) 'nDCRR=',nDCRR
         End Do
  100    Continue
       End Do
-*     Call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
+!     Call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
       return
       end

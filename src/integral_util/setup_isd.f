@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine SetUp_iSD()
       use iSD_data
       use k2_arrays, only: MxDij, MxFT
@@ -16,21 +16,21 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "stdalloc.fh"
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Allocated(iSD)) Call mma_deallocate(iSD)
       Call Nr_Shells(nSkal)
       mSkal=nSkal
       nSkal_iSD=nSkal+4  ! Add four slots for future use.
       call mma_allocate(iSD,[0,nSD],[1,nSkal_iSD],label='iSD')
       Call Def_Shells(iSD,nSD,nSkal)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*.... Compute the size of and allocate auxiliary memory
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!.... Compute the size of and allocate auxiliary memory
+!
       MxPrm = 0
       MxFT = 0
       MxDij = 0
@@ -48,8 +48,8 @@
          End If
       End Do
       MxDij = 6 * nIrrep * MxDij
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

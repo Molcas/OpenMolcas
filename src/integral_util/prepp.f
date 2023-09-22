@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine PrepP()
-************************************************************************
-*                                                                      *
-* Object: to set up the handling of the 2nd order density matrix.      *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             January '92                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to set up the handling of the 2nd order density matrix.      *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             January '92                                              *
+!***********************************************************************
       use iSD_data
       use aces_stuff
       use pso_stuff
@@ -26,9 +26,9 @@
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "real.fh"
 #include "stdalloc.fh"
 #include "etwas.fh"
 #include "mp2alaska.fh"
@@ -36,14 +36,14 @@
 #include "dmrginfo_mclr.fh"
 #include "nac.fh"
 #include "mspdft.fh"
-*#define _CD_TIMING_
+!#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-************ columbus interface ****************************************
+!*********** columbus interface ****************************************
 #include "columbus_gamma.fh"
 #include "setup.fh"
-************************************************************************
+!***********************************************************************
       Integer nFro(0:7)
       Integer Columbus
       Character*8 RlxLbl,Method, KSDFT*80
@@ -52,11 +52,11 @@
       Real*8 CoefX,CoefR
       Character Fmt*60
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
-*     hybrid MC-PDFT things
+!     hybrid MC-PDFT things
       Logical Do_Hybrid
       Real*8  WF_Ratio,PDFT_Ratio
-*
-*...  Prologue
+!
+!...  Prologue
 
       iRout = 250
       iPrint = nPrint(iRout)
@@ -64,12 +64,12 @@
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU1,PreppWall1)
 #endif
-*
+!
       Call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
-*
+!
       iD0Lbl=1
       iComp=1
-*
+!
       lsa=.False.
       Gamma_On=.False.
       Gamma_mrcisd=.FALSE.
@@ -82,9 +82,9 @@
       Do 1 iIrrep = 0, nIrrep - 1
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
  1    Continue
-*
-*
-*...  Get the method label
+!
+!
+!...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
       Call Get_iScalar('Columbus',columbus)
       nCMo = S%n2Tot
@@ -104,12 +104,12 @@
          ExFac=One
          CoulFac=One
       End If
-*
-*...  Check the wave function type
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
+!
+!...  Check the wave function type
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If ( Method.eq.'RHF-SCF ' .or.
      &     Method.eq.'UHF-SCF ' .or.
      &     Method.eq.'IVO-SCF ' .or.
@@ -139,9 +139,9 @@
                Call Aces_Gamma()
             End If
          End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else if ( Method.eq.'Corr. WF' ) then
          If (lPrint) Then
             Write (6,*)
@@ -152,24 +152,24 @@
          Gamma_On=.True.
          Call Aces_Gamma()
        Else if (Method(1:7).eq.'MR-CISD' .and. Columbus.eq.1) then
-************ columbus interface ****************************************
-*do not reconstruct the two-particle density from the one-particle
-*density or partial two-particle densities but simply read them from
-*file
+!*********** columbus interface ****************************************
+!do not reconstruct the two-particle density from the one-particle
+!density or partial two-particle densities but simply read them from
+!file
 
         nShell=mSkal
         nPair=nShell*(nShell+1)/2
         nQuad=nPair*(nPair+1)/2
 
-*---- Allocate Table Of Content for half sorted gammas.
-*
+!---- Allocate Table Of Content for half sorted gammas.
+!
       Call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
 
-*  find free unit number
+!  find free unit number
         lgtoc=61
         lgtoc=isFreeUnit(lgtoc)
         idisk=0
-*  read table of contents of half-sorted gamma file
+!  read table of contents of half-sorted gamma file
          Call DaName(lgtoc,'gtoc')
          Call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
          Call Daclos(lgtoc)
@@ -183,19 +183,19 @@
 
         Gamma_On=.True.
         Gamma_mrcisd=.TRUE.
-*       open gamma file
+!       open gamma file
          LuGamma=60
          LuGamma=isfreeunit(LuGamma)
-*        closed in closep
+!        closed in closep
          Call DaName_MF(LuGamma,'GAMMA')
-*  allocate space for bins
+!  allocate space for bins
          Call mma_Allocate(Bin,2,lBin,Label='Bin')
-*  compute SO2cI array
+!  compute SO2cI array
          Call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
          call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else if ( Method.eq.'RASSCF  ' .or.
      &          Method.eq.'CASSCF  ' .or.
      &          Method.eq.'GASSCF  ' .or.
@@ -203,14 +203,14 @@
      &          Method.eq.'MSPDFT  ' .or.
      &          Method.eq.'DMRGSCF ' .or.
      &          Method.eq.'CASDFT  ') then
-*
+!
          Call Get_iArray('nAsh',nAsh,nIrrep)
          nAct = 0
          Do iIrrep = 0, nIrrep-1
             nAct = nAct + nAsh(iIrrep)
          End Do
          If (nAct.gt.0) lPSO=.true.
-*
+!
          nDSO = nDens
          mIrrep=nIrrep
          Call ICopy(nIrrep,nBas,1,mBas,1)
@@ -228,9 +228,9 @@
           lSA=.true.
           dogradmspd=.true.
          End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else if ( Method.eq.'CASSCFSA' .or.
      &          Method.eq.'DMRGSCFS' .or.
      &          Method.eq.'GASSCFSA' .or.
@@ -273,9 +273,9 @@ C           If(.not.DoCholesky) Then
 C           End If
          End If
          Method='RASSCF  '
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else
          Call WarningMessage(2,'Alaska: Unknown wavefuntion type')
          Write (6,*) 'Wavefunction type:',Method
@@ -283,9 +283,9 @@ C           End If
          Write (6,*) 'ALASKA cannot continue.'
          Call Quit_OnUserError()
       End If
-*
-*...  Read the (non) variational 1st order density matrix
-*...  density matrix in AO/SO basis
+!
+!...  Read the (non) variational 1st order density matrix
+!...  density matrix in AO/SO basis
          nsa=1
          If (lsa) nsa=5
          If ( Method.eq.'MCPDFT  ') nsa=5
@@ -297,10 +297,10 @@ C           End If
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
          if (.not.gamma_mrcisd)
      &      Call Get_dArray_chk('D1ao',D0(1,1),nDens)
-*
+!
 
          Call Get_D1ao_Var(DVar,nDens)
-*
+!
          Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')
          If (Method.eq.'UHF-SCF ' .or.
@@ -313,14 +313,14 @@ C           End If
             DS   (:)=Zero
             DSVar(:)=Zero
          End If
-*
-*   This is necessary for the ci-lag
-*
-*
-*     Unfold density matrix
-*
-************ columbus interface ****************************************
-*do not modify the effective density matrices and fock matrices
+!
+!   This is necessary for the ci-lag
+!
+!
+!     Unfold density matrix
+!
+!*********** columbus interface ****************************************
+!do not modify the effective density matrices and fock matrices
       if (.not.gamma_mrcisd) then
       ij = -1
       Do 10 iIrrep = 0, nIrrep-1
@@ -348,11 +348,11 @@ C           End If
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
       End If
 
-*
-*...  Get the MO-coefficients
-************ columbus interface ****************************************
-*     not that the columbus mcscf MO coefficients have been written
-*     to the RUNFILE !
+!
+!...  Get the MO-coefficients
+!*********** columbus interface ****************************************
+!     not that the columbus mcscf MO coefficients have been written
+!     to the RUNFILE !
 
          If (Method.eq.'UHF-SCF ' .or.
      &       Method.eq.'ROHF    ' .or.
@@ -375,12 +375,12 @@ C           End If
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
          End If
-*
-*
-*...  Get additional information in the case of a RASSCF wave function
-*...  Get the number of inactive, active and frozen orbitals
-************ columbus interface ****************************************
-*  no need for MRCI gradient
+!
+!
+!...  Get additional information in the case of a RASSCF wave function
+!...  Get the number of inactive, active and frozen orbitals
+!*********** columbus interface ****************************************
+!  no need for MRCI gradient
          If (.not.lpso .or. gamma_mrcisd ) Goto 1000
          Call Get_iScalar('nSym',i)
          Call Get_iArray('nIsh',nIsh,i)
@@ -404,9 +404,9 @@ C           End If
      &                  '; ALASKA cannot continue;')
             Call Quit_OnUserError()
          End If
-*
-*...  Get the one body density for the active orbitals
-*     (not needed for SA-CASSCF)
+!
+!...  Get the one body density for the active orbitals
+!     (not needed for SA-CASSCF)
          nG1 = nAct*(nAct+1)/2
          nsa=1
          If (lsa) nsa=0
@@ -416,8 +416,8 @@ C           End If
             Call Get_dArray_chk('D1mo',G1(:,1),nG1)
             If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(:,1),nAct)
          End If
-*
-*...  Get the two body density for the active orbitals
+!
+!...  Get the two body density for the active orbitals
          nG2 = nG1*(nG1+1)/2
          nsa=1
          if (lsa) nsa=2
@@ -432,10 +432,10 @@ C           End If
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 
-*  CMO1 Ordinary CMOs
-*
-*  CMO2 CMO*Kappa
-*
+!  CMO1 Ordinary CMOs
+!
+!  CMO2 CMO*Kappa
+!
            Call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
            If (iPrint.ge.99) Then
             ipTmp1 = 1
@@ -446,12 +446,12 @@ C           End If
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
            End If
-*
-* P are stored as
-*                            _                     _
-*   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
-*   P2=sum_i <i|e_pqrs|i>
-*
+!
+! P are stored as
+!                            _                     _
+!   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
+!   P2=sum_i <i|e_pqrs|i>
+!
            Call Get_dArray_chk('PLMO',G2(:,2),nG2)
            ndim1=0
            if(doDMRG)then
@@ -468,26 +468,26 @@ C           End If
            Call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
            If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
            If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
-*
+!
            Call Get_dArray_chk('D2av',G2(:,2),nG2)
            If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG1)
-*
-*
-*  Densities are stored as:
-*
-*       ipd0 AO:
-*
-*       D1 = inactive diagonal density matrix
-*                                _                 _
-*       D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
-*
-*       D3 = sum_i <i|E_pq|i> (active)
-*
-*       D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
-*
-*       G1 = <i|e_ab|i>
-*       G2 = sum i <i|e_ab|i>
-*
+!
+!
+!  Densities are stored as:
+!
+!       ipd0 AO:
+!
+!       D1 = inactive diagonal density matrix
+!                                _                 _
+!       D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
+!
+!       D3 = sum_i <i|E_pq|i> (active)
+!
+!       D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
+!
+!       G1 = <i|e_ab|i>
+!       G2 = sum i <i|e_ab|i>
+!
 !************************
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
@@ -499,14 +499,14 @@ C           End If
 !************************
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
-*
+!
            Call dcopy_(ndens,DVar,1,D0(1,2),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 !          RlxLbl='D1COMBO  '
 !          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
-*
-*   This is necessary for the kap-lag
-*
+!
+!   This is necessary for the kap-lag
+!
            nG1 = nAct*(nAct+1)/2
            Call mma_allocate(D1AV,nG1,Label='D1AV')
            Call Get_dArray_chk('D1av',D1AV,nG1)
@@ -516,10 +516,10 @@ C           End If
 !************************
 !          RlxLbl='D1AOA   '
 !          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
-*
+!
            Call Get_dArray_chk('DLAO',D0(:,4),nDens)
 
-*        Getting conditions for hybrid MC-PDFT
+!        Getting conditions for hybrid MC-PDFT
          Do_Hybrid=.false.
          CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
          If(Do_Hybrid) Then
@@ -555,11 +555,11 @@ C           End If
             call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
 
           if(do_hybrid) then
-*           add back the wave function parts that are subtracted
-*           this might be inefficient, but should have a clear logic
+!           add back the wave function parts that are subtracted
+!           this might be inefficient, but should have a clear logic
             call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
             call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
-*           scale the pdft part
+!           scale the pdft part
             call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
           end if
             Call mma_deallocate(D1ao)
@@ -585,11 +585,11 @@ C           End If
            !end if
          End If
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
-*
-*...  Close 'RELAX' file
+!
+!...  Close 'RELAX' file
 1000     Continue
-*
-*...  Epilogue, end
+!
+!...  Epilogue, end
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU2,PreppWall2)
       Prepp_CPU  = PreppCPU2 - PreppCPU1
@@ -600,8 +600,8 @@ C           End If
       End
 
       Subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
+      use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
       Dimension CMO(*), D1I(*),D1It(*)
       Integer nbas(nsym),nish(nsym)
 
@@ -631,8 +631,8 @@ C           End If
 
       Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,
      &                    nsym,nbas,nish,nash,ndens)
+      use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "stdalloc.fh"
       Dimension CMO(*) , D1A_MO(*) , D1A_AO(*)
       Integer nbas(nsym),nish(nsym),nash(nsym)
@@ -703,8 +703,8 @@ C           End If
 
       Return
       end
-************ columbus interface ****************************************
-*read table of contents for gamma file
+!*********** columbus interface ****************************************
+!read table of contents for gamma file
 
         subroutine read_lgtoc(lgtoc,gtoc,n)
         integer n,lgtoc

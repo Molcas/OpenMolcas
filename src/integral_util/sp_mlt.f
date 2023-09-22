@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Sp_Mlt(W_In,ne,W_out,nVec,C,nab)
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Parameter(meMax=10)
+      Integer, Parameter:: meMax=10
       Real*8 W_In(ne,nVec), W_Out(nVec,nab), C(ne,nab)
       Integer iAux(meMax+1)
-*
+!
       Do iab = 1, nab
          me=0
          Do ie = 1, ne
@@ -24,7 +24,7 @@
                If (me.gt.meMax) Go To 98
             End If
          End Do
-*
+!
          If (me.eq.1) Then
             Do iVec = 1, nVec
                W_Out(iVec,iab)=C(iAux(1),iab)*W_In(iAux(1),iVec)
@@ -116,7 +116,7 @@
             Call Abend()
          End If
          Go To 99
-*
+!
  98      Continue
             Do iVec = 1, nVec
                W_Out(iVec,iab)=C(iAux(1),iab)*W_In(iAux(1),iVec)
@@ -137,6 +137,6 @@
             End Do
  99      Continue
       End Do
-*
+!
       Return
       End

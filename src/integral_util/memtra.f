@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 c -------------------------------------------------------------------
 c The following function returns the size needed by ptrans for
 c temporaries. It also puts into common some offsets and stuff.
@@ -17,8 +17,8 @@ c -------------------------------------------------------------------
 #include "etwas.fh"
       Integer nPam(4,0:7)
       intrinsic max
-*
-*     iQ = 1
+!
+!     iQ = 1
       mxact=0
       mxS1=0
       mxS2=0
@@ -50,6 +50,6 @@ c Max sizes, in common, needed for certain temporaries:
       nScr1=max(1,nscr1,nscr3,nscr5)
       nScr2=max(1,nscr2,nscr4)
       memtra=nCred+2*nScr1+nScr2+3
-*
+!
       Return
       End

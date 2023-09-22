@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c -------------------------------------------------------------------
-c The following subroutine calculates a batch of 2-electron
-c density matrix elements in SO basis.
-c Need to know:
-c   nish(),nash(),nbas()
-c   cmo()
-c   npam(indpos,isym)= Nr of SO indices at index position 1..4,
-c       with symmetry label isym=0..7.
-c   ipam()= A consecutive list of SO indices.
-c   DSO()=Density matrix in SO basis, symmetry blocked.
-c   G1()=Active MO 1-el density matrix.
-c   G2()=d:o,   MO 2-el density matrix.
-c Also:
-c   ncmo=Size of cmo array (for dimensioning only)
-c   nDSO=Similar, DSO matrix
-c   mxpam=Similar, ipam array
-c   mxSO=Largest batch of SO indices in one single symmetry
-c Returns:
-c   PSOPam()=a four-index array containing the selected matrix
-c         elements.
-c -------------------------------------------------------------------
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! -------------------------------------------------------------------
+! The following subroutine calculates a batch of 2-electron
+! density matrix elements in SO basis.
+! Need to know:
+!   nish(),nash(),nbas()
+!   cmo()
+!   npam(indpos,isym)= Nr of SO indices at index position 1..4,
+!       with symmetry label isym=0..7.
+!   ipam()= A consecutive list of SO indices.
+!   DSO()=Density matrix in SO basis, symmetry blocked.
+!   G1()=Active MO 1-el density matrix.
+!   G2()=d:o,   MO 2-el density matrix.
+! Also:
+!   ncmo=Size of cmo array (for dimensioning only)
+!   nDSO=Similar, DSO matrix
+!   mxpam=Similar, ipam array
+!   mxSO=Largest batch of SO indices in one single symmetry
+! Returns:
+!   PSOPam()=a four-index array containing the selected matrix
+!         elements.
+! -------------------------------------------------------------------
       subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
       Real*8 DSO(nDSO), PSOPam(nPSOPam), G1(nG1), G2(nG2),
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
-#include "real.fh"
 #include "print.fh"
 #include "etwas.fh"
 c Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
-*
+!
       iRout = 251
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
@@ -314,6 +314,6 @@ c End of loop over symmetry labels.
  1040 continue
       If (iPrint.ge.89) Call RecPrt('PSOPam',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
-*
+!
       return
       end

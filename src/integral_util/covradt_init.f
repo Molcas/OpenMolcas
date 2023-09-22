@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CovRadT_Init()
       Implicit Real*8 (a-h,o-z)
 #include "covradt_data.fh"
       Real*8 Temp(0:92)
-*     From: http://wulff.mit.edu/pt/pert5.html
+!     From: http://wulff.mit.edu/pt/pert5.html
 c     Same as below but with H,C,N,O from urocanic acid article
       Data Temp/
      & 0.00d0,
@@ -35,7 +35,7 @@ c     Same as below but with H,C,N,O from urocanic acid article
      &                   1.48d0,1.47d0,1.46d0,1.53d0,1.47d0,1.3d0,
      & 2.50d0,2.05d0,1.50d0,
      &                    1.65d0,1.50d0,1.42d0/
-*
+!
        Do i = 0, 92
           CovRadT_(i)=Temp(i)
        End Do
@@ -63,7 +63,7 @@ c     &                   1.48d0,1.47d0,1.46d0,1.53d0,1.47d0,1.3d0,
 c     & 2.50d0,2.05d0,1.50d0,
 c     &                    1.65d0,1.50d0,1.42d0/
 
-*     Following  elements has been faked by me: 86, 87, 88, 89, 91
+!     Following  elements has been faked by me: 86, 87, 88, 89, 91
 c     From: H.B. Schlegel, TCA, 66, 333 (1984).
 c     Data CovRadT/
 c    &  0.0d0,
@@ -71,6 +71,6 @@ c    &  0.32D0,0.60D0,
 c    &  1.2D0,1.05D0,0.81D0,0.77D0,2*0.74D0,2*0.72D0,
 c    &  1.5D0,1.40D0,1.30D0,1.17D0,1.10D0,1.04D0,2*0.99D0,
 c    &  1.8D0,1.60D0,11*1.4D0,1.3D0,2*1.2D0,2*1.1D0/
-*
+!
       Return
       End

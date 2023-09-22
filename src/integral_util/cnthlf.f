@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Roland Lindh                                     *
+!***********************************************************************
       Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
      &                  lZeta,nVec,First,IncVec,A1,A2,A3,
      &                  Indij)
-************************************************************************
-*                                                                      *
-* Object: to do a half transformation. The loop over the two matrix-   *
-*         matrix multiplications is segmented such that the end of the *
-*         intermediate matrix will not push the start of the same out  *
-*         from the cache.                                              *
-*                                                                      *
-* Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN.                                         *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to do a half transformation. The loop over the two matrix-   *
+!         matrix multiplications is segmented such that the end of the *
+!         intermediate matrix will not push the start of the same out  *
+!         from the cache.                                              *
+!                                                                      *
+! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN.                                         *
+!***********************************************************************
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "print.fh"
       Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
      &       A1(lZeta,nVec)
@@ -34,15 +34,15 @@
      &        ifirst(mxnprm),last(mxnprm)
       Logical First
       ![all others are intent(in)]
-*
+!
       If (nPrm1.gt.mxnprm .or.
      &    nPrm2.gt.mxnprm) Then
           Call WarningMessage(2,'CntHlf: nPrm.gt.mxnprm')
           Call Abend()
       End If
-*
-*     Sparsity check
-*
+!
+!     Sparsity check
+!
       nz2=0
       minva=max(4,(nPrm2+1)/2)
       Do iCntr2 = 1,nCntr2
@@ -58,21 +58,21 @@
          End Do
          If (nnz2(icntr2).ge.minva.and.nz2.eq.iCntr2-1) nz2=iCntr2
       End Do
-*
-*-----Loop sectioning
-*
+!
+!-----Loop sectioning
+!
       Do iiVec = 1, nVec, IncVec
          mVec = Min(IncVec,nVec-iiVec+1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*--------First quarter transformation
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!--------First quarter transformation
+!
          Do iCntr1 = 1, nCntr1
             Do iprm2=1,nprm2
                idone(iprm2)=0
             End Do
-*
+!
             Do iZeta = 1, lZeta
                iPrm2 = (Indij(iZeta)-1)/nPrm1 + 1
                iPrm1 = Indij(iZeta) - (iPrm2-1)*nPrm1
@@ -88,15 +88,15 @@
                   End If
                End If
             End Do ! iZeta
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----------Second quarter transformation
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----------Second quarter transformation
+!
             Do iprm2=1,nprm2
                If (idone(iprm2).eq.0) Call FZero(a2(1,iprm2),mvec)
             End Do
-*
+!
             ic1=1
             If (nz2.gt.1) Then
                If (first) Then
@@ -113,7 +113,7 @@ C     &                       mVec,nPrm2,nz2)
                End If
                ic1=nz2+1
             End If
-*
+!
             Do iCntr2=ic1,nCntr2
                If (first) Then
                   If (nnz2(icntr2).ge.minva) Then
@@ -127,14 +127,14 @@ C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                      c2=coeff2(iprm2,icntr2)
                      Call DYaX(mVec,C2,A2(1,iPrm2),1,
      &                                 A3(iiVec,iCntr1,iCntr2),1)
-*
+!
                      iPrm2=ifirst(icntr2)+1
                      mPrm2=last(iCntr2)-iPrm2+1
                      If (mPrm2.gt.0)
      &                  Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,
      &                              A2(1,iPrm2),1,IncVec,
      &                              A3(iiVec,iCntr1,iCntr2),1,0)
-*
+!
                   End If
                Else
                   If (nnz2(icntr2).ge.minva) Then
@@ -153,10 +153,10 @@ C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                End If
             End Do ! iCntr2
          End Do    ! iCntr1
-*
-*-----End of loop sectioning
-*
+!
+!-----End of loop sectioning
+!
       End Do    ! iiVec
-*
+!
       Return
       End

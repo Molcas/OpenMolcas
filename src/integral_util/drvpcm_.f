@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine DrvPCM_(h1,TwoHam,D,RepNuc,nh1,First,NonEq,
      &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
      &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
@@ -18,6 +18,7 @@
       use Gateway_global, only: PrPrt
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
+      use Constants
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: PCMInt
       Procedure(int_mem) :: NaMem
@@ -27,7 +28,6 @@
      &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
 #include "SysDef.fh"
 #include "print.fh"
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable:: FactOp(:), Integrals(:)
       Integer, Allocatable:: lOper2(:)
@@ -35,13 +35,13 @@
       Character*8 Label
       Logical Save_tmp, NonEq
       Dimension ip(1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Reaction field a la PCM
-*
-*     Set up some parameters.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Reaction field a la PCM
+!
+!     Set up some parameters.
+!
       rHrmt=One
       nOrdOp=0
       nComp=1
@@ -50,23 +50,23 @@
       Origin(1)=Zero
       Origin(2)=Zero
       Origin(3)=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Pick up slow charges and W's. These are present if we are doing
-*     the final state.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Pick up slow charges and W's. These are present if we are doing
+!     the final state.
+!
       If (NonEq) Then
-*
-*------- Read slow components originating from the initial state
-*
-*        Write (*,*) 'Rd:',QTessera_Slow(1)
+!
+!------- Read slow components originating from the initial state
+!
+!        Write (*,*) 'Rd:',QTessera_Slow(1)
          Call Get_dArray('RCTFLD',QTessera_Slow,nTs)
          Call Get_dScalar('W_or_el',W_0_or_el)
          Call Get_dScalar('W_or_Inf',W_0_or_Inf)
-*
-*       Compute the electrostatic potential due to slow charges
-*
+!
+!       Compute the electrostatic potential due to slow charges
+!
         VSlow(1:nTs)=Zero
         Do iTile = 1, nTs
           XI=Tessera(1,iTile)
@@ -86,62 +86,62 @@
           End Do
         End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Evaluate the potential field on the tiles.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Evaluate the potential field on the tiles.
+!
       Save_tmp=PrPrt
       PrPrt=.True.
-*
-*---- Do the nuclear contribution
-*
+!
+!---- Do the nuclear contribution
+!
       Do iTile = 1, nTs
          Call EFNuc(Tessera(1,iTile),Z_Nuc,Cord,MaxAto,
      &             VTessera(1,iTile),nOrdOp)
          VTessera(2,iTile)=Zero
       End Do
-*
-*---- Do the electronic contribution
-*
+!
+!---- Do the electronic contribution
+!
       call mma_allocate(FactOp,nTs,Label='FactOp')
       call mma_allocate(lOper2,nTs,Label='lOper2')
       FactOp(:)=One
       lOper2(:)=255
-*
+!
       Call Drv1_PCM(FactOp,nTs,D,nh1,Tessera,lOper2,VTessera,nOrdOp)
-*
+!
       Call mma_deallocate(lOper2)
       Call mma_deallocate(FactOp)
-*
-*     Save the electrostatic potential
-*
+!
+!     Save the electrostatic potential
+!
       call dcopy_(2*nTs,VTessera,1,VSave,1)
-*
-*     Add the slow charge contribution to the nuclear potential
-*
+!
+!     Add the slow charge contribution to the nuclear potential
+!
       If (NonEq) Call DaXpY_(nTs,One,VSlow,1,VTessera(1,1),2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Evaluate the charges on the cavity boundary, nuclear and
-*     electronic.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Evaluate the charges on the cavity boundary, nuclear and
+!     electronic.
+!
       Call PCM_Driver(DMat,VTessera,QTessera,nTs)
-*
-*---- Make the slow charges (also called orientational charges or
-*     frozen charges). This is always done regardless if they ever
-*     will be used.  The charges can be used in non-equilibrium
-*     calculations.
-*
+!
+!---- Make the slow charges (also called orientational charges or
+!     frozen charges). This is always done regardless if they ever
+!     will be used.  The charges can be used in non-equilibrium
+!     calculations.
+!
       If (EpsInf.gt.Zero.and..Not.NonEq) Then
         Fact=(Eps-EpsInf)/(Eps-One)
         call dcopy_(nTs,    QTessera(1,1),2,QTessera_Slow,1)
         Call DaXpY_(nTs,One,QTessera(2,1),2,QTessera_Slow,1)
         Call DScal_(nTs,Fact,QTessera_Slow,1)
-*
-*      Compute the electrostatic potential due to slow charges
-*
+!
+!      Compute the electrostatic potential due to slow charges
+!
        call dcopy_(nTs,[Zero],0,VSlow,1)
        Do iTile = 1, nTs
          XI=Tessera(1,iTile)
@@ -162,12 +162,12 @@
        End Do
 
       End If
-*
-*     Recover the nuclear potential (discarding the possible variations
-*     due to slow charges)
-*
+!
+!     Recover the nuclear potential (discarding the possible variations
+!     due to slow charges)
+!
       call dcopy_(nTs,VSave(1,1),2,VTessera(1,1),2)
-*
+!
       W_or_el     = Zero
       W_or_nuc    = Zero
       W_or_Inf    = Zero
@@ -184,27 +184,27 @@
         W_or_Inf = W_or_Inf + QInf * VSlow(iTile)
         W_or_InfNuc = W_or_InfNuc + QTessera(1,iTile) * VSlow(iTile)
       End Do
-*
-*---- Write out the slow charges and constants if this is an
-*     equilibrium calculations.
-*
+!
+!---- Write out the slow charges and constants if this is an
+!     equilibrium calculations.
+!
       If (EpsInf.gt.Zero.and..Not.NonEq) Then
-*        Write (*,*) 'Wr:',QTessera_Slow(1)
+!        Write (*,*) 'Wr:',QTessera_Slow(1)
          Call Put_dArray('RCTFLD',QTessera_Slow,nTs)
          Call Put_dScalar('W_or_el',W_or_el)
          Call Put_dScalar('W_or_Inf',W_or_Inf)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Now add terms to RepNuc
-*
-*     Interaction terms:
-*     nuclei-nuclear solvation charge       (ENN)
-*     nuclei-electronic solvation charge    (ENE)
-*     electrons-nuclear solvation charge    (EEN)
-*     electrons-electronic solvation charge (EEE)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Now add terms to RepNuc
+!
+!     Interaction terms:
+!     nuclei-nuclear solvation charge       (ENN)
+!     nuclei-electronic solvation charge    (ENE)
+!     electrons-nuclear solvation charge    (EEN)
+!     electrons-electronic solvation charge (EEE)
+!
       ENN = Zero
       ENE = Zero
       EEN = Zero
@@ -227,23 +227,23 @@
          Call Put_Temp(Label,[RepNuc],1)
       End If
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Now add terms to h1 and TwoHam!
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Now add terms to h1 and TwoHam!
+!
       Call mma_allocate(C_Tessera,3,nTs,Label='C_Tessera')
       nTiles=nTs
       C_Tessera(:,:)=Tessera(1:3,:)
       Call mma_allocate(Q_Tessera,nTs,Label='Q_Tessera')
       Label='<Q|V>'
-*
-*
+!
+!
       If (First) then
-*
-*------- PCM-integrals weighted by Q(1)
-*        h1 + correction
-*
+!
+!------- PCM-integrals weighted by Q(1)
+!        h1 + correction
+!
          Q_Tessera(:)=QTessera(1,:)
          If (NonEq) Call DaXpY_(nTs,One,QTessera_Slow,1,Q_Tessera,1)
          Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,
@@ -253,18 +253,18 @@
          Alpha=One
          Call DaXpY_(nInt,Alpha,Integrals(ip(1)),1,h1,1)
          Call mma_deallocate(Integrals)
-*
-*------  Save the modified h1 matrix
-*
+!
+!------  Save the modified h1 matrix
+!
          Label='h1_raw  '
          Call Put_Temp(Label,h1,nh1)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- PCM-integrals weighted by Q(2)
-*     TwoHam + correction
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- PCM-integrals weighted by Q(2)
+!     TwoHam + correction
+!
       Q_Tessera(:)=QTessera(2,:)
       Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,
      &                     nOrdOp,rHrmt,[kOper],Integrals)
@@ -273,14 +273,14 @@
       Alpha=One
       Call DaXpY_(nInt,Alpha,Integrals(ip(1)),1,TwoHam,1)
       Call mma_deallocate(Integrals)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call mma_deallocate(Q_Tessera)
       Call mma_deallocate(C_Tessera)
       PrPrt=Save_tmp
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

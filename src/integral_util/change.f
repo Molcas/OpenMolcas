@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
      &                  jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
      &                  jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,MaxReq,
      &                  Fail)
-************************************************************************
-*                                                                      *
-* Object: to change the length of the primitive and basis functions    *
-*         vectors of center D and B, and center  D, B, C, and A,       *
-*         respectively.                                                *
-*                                                                      *
-* Called from: PSOAOx                                                  *
-*                                                                      *
-* Calling    : None                                                    *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to change the length of the primitive and basis functions    *
+!         vectors of center D and B, and center  D, B, C, and A,       *
+!         respectively.                                                *
+!                                                                      *
+! Called from: PSOAOx                                                  *
+!                                                                      *
+! Calling    : None                                                    *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
-*
+!
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-*
+!
 c     iRout = 11
 c     iPrint = nPrint(iRout)
       Fail = .False.
@@ -131,7 +131,7 @@ c     iPrint = nPrint(iRout)
             End If
  60      Continue
       End If
-*
+!
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(MaxReq)

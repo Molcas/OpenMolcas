@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1991,1993, Roland Lindh                           *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1993, Roland Lindh                           *
+!               1990, IBM                                              *
+!***********************************************************************
 !#define _DEBUGPRINT_
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
@@ -27,19 +27,19 @@
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
-************************************************************************
-*                                                                      *
-* Object: to generate the SO integrals for four fixed centers and      *
-*         fixed basis set types.                                       *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*          Roland Lindh, Dept. of Theoretical Chemistry, University of *
-*          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
-*          screening, July 1991.                                       *
-*          Modified for direct SCF, January '93                        *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to generate the SO integrals for four fixed centers and      *
+!         fixed basis set types.                                       *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!          Roland Lindh, Dept. of Theoretical Chemistry, University of *
+!          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
+!          screening, July 1991.                                       *
+!          Modified for direct SCF, January '93                        *
+!***********************************************************************
       use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
@@ -52,9 +52,9 @@
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nOrdOp, nComp
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "real.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
@@ -92,19 +92,19 @@
       Real*8, Target :: A(*)
       End Function iGet
       End Interface
-*
-*     Declaration of statement functions to compute canonical index
-*
+!
+!     Declaration of statement functions to compute canonical index
+!
       Integer :: ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
+!
       If (nOrdOp/=0) Then
          Write (6,*) 'Breit two-electron integrals not implemented yet'
          Write (6,*) 'Symmetry adaptation different since the operator'
          Write (6,*) 'is not symmetric.'
       End If
       Call TwoEl_Sym_New_Internal(Data1,Data2)
-*
+!
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -116,28 +116,28 @@ c Avoid unused argument warnings
          Call Unused_integer(kPrInc)
          Call Unused_real_array(Dens)
       End If
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_Sym_New_Internal(Data1,Data2)
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
       Integer, Pointer :: iData1(:),iData2(:)
-*
+!
 #ifdef _DEBUGPRINT_
       iRout = 12
       iPrint = nPrint(iRout)
 #endif
-*
+!
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
      &              Shells(iShll(3))%Prjct.and.
      &              Shells(iShll(4))%Prjct
       QInd(1)=Quad_ijkl
       RST_triplet=One
-*
+!
       Do_tnsctl=.False.
       kabcd=0
-*
+!
 #ifdef _DEBUGPRINT_
       Do iData = 1, nData1
          Call RecPrt('Twoel: Data1',' ',
@@ -153,7 +153,7 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
       Call RecPrt('Coor',' ',Coor,3,4)
 #endif
-*
+!
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -169,11 +169,11 @@ c Avoid unused argument warnings
       ipAOInt=1
       iW3=1+nInts
       iW4=1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Find the Double Coset Representatives for center A and B
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Find the Double Coset Representatives for center A and B
+!
       Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
      &               dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       u = DBLE(dc(iStb)%nStab)
@@ -182,17 +182,17 @@ c Avoid unused argument warnings
       If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
-*
-*-----Find stabilizer for center A and B
-*
+!
+!-----Find stabilizer for center A and B
+!
       Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
      &           dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Find the Double Coset Representatives for center C and D.
-*
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Find the Double Coset Representatives for center C and D.
+!
       Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
      &               dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
       w = DBLE(dc(kStb)%nStab)
@@ -201,50 +201,50 @@ c Avoid unused argument warnings
       If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
-*
-*-----Find stabilizer for center C and D
-*
+!
+!-----Find stabilizer for center C and D
+!
       Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
      &           dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*-----Find the Double Coset Representatives for the two charge
-*     distributions.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!-----Find the Double Coset Representatives for the two charge
+!     distributions.
+!
       Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       kOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
          kOp(2)=NrOpr(iDCRR(lDCRR))
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
-*
+!
          lDCR1=NrOpr(iDCRR(lDCRR))+1
-*
+!
          vijij=Data1(ip_abMax(nZeta),lDCR1)
-*
-*switch (to generate better start orbitals...)
+!
+!switch (to generate better start orbitals...)
          If (NDDO .AND. .NOT.AeqB) Go To 100
-*switch
+!switch
          MxDCRS = nDCRS-1
          Do 200 lDCRS = 0, MxDCRS
             RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
             Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
-*
-*switch (to generate better start orbitals...)
+!
+!switch (to generate better start orbitals...)
             If (NDDO .AND. .NOT.CeqD) Go To 200
-*
+!
             lDCR2=NrOpr(iDCRS(lDCRS))+1
-*
-*-----------Pickup estimated largest integral value (AO)
-*
+!
+!-----------Pickup estimated largest integral value (AO)
+!
             vijkl = vijij * Data2(ip_abMax( nEta),lDCR2)
             Do 300 lDCRT = 0, nDCRT-1
                ipAOInt=1
@@ -252,7 +252,7 @@ c Avoid unused argument warnings
                RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
                RST_triplet=DBLE(lDCRT*nDCRR*nDCRS)+RS_doublet
                QInd(2)=RST_triplet
-*              Write (*,*) QInd(1), QInd(2)
+!              Write (*,*) QInd(1), QInd(2)
                iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
                Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
                Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
@@ -265,17 +265,17 @@ clwj           (DS|SS), (FP|SS) and (FS|PS) vanish as well
                If (ABeqCD .and. All_Spherical .and.
      &                2*Max(la,lb,lc,ld).gt.iSmAng) Go To 300
 clwj
-*
+!
 #ifdef _DEBUGPRINT_
                If (iPrint.ge.9) Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
-*
+!
                kOp(3) = NrOpr(iDCRT(lDCRT))
                kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
-*
+!
                ix1 = 1
                iy1 = 1
                iz1 = 1
@@ -284,66 +284,66 @@ clwj
                iz2 = iPhase(3,iDCRT(lDCRT))
                lDCRE_=0
                lDCRT_=iDCRT(lDCRT)
-*
-*------------- Find index to desymmetrized Dij, Dkl, Dik, Dil, Djk, and
-*              Djl. Some care has to be taken here. Assume that there
-*              are two operators, T and S which generates the center
-*              pairs A,T(B) and A,S(B). If these pairs are symmetry
-*              related we will only
-*
+!
+!------------- Find index to desymmetrized Dij, Dkl, Dik, Dil, Djk, and
+!              Djl. Some care has to be taken here. Assume that there
+!              are two operators, T and S which generates the center
+!              pairs A,T(B) and A,S(B). If these pairs are symmetry
+!              related we will only
+!
                If (DoFock) Then
-*--------------Dij
+!--------------Dij
                iR = iDCRR(lDCRR)
                jOp(1) = NrOpr(iR) + 1
-*--------------Dkl
+!--------------Dkl
                iS = iDCRS(lDCRS)
                jOp(2)= NrOpr(iS) + 1
-*--------------Dik
+!--------------Dik
                iT  = iDCRT(lDCRT)
                jOp(3)= NrOpr(iT) + 1
-*--------------Dil
+!--------------Dil
                iTS = iEor(iT,iS)
                jOp(4)= NrOpr(iTS) + 1
-*--------------Djk
+!--------------Djk
                iRT = iEor(iR,iT)
                jOp(5)= NrOpr(iRT) + 1
-*--------------Djl
+!--------------Djl
                iRTS= iEor(iRT,iS)
                jOp(6)= NrOpr(iRTS) + 1
-*
+!
                End If ! DoFock
-*                                                                      *
-************************************************************************
-*                                                                      *
-*--------------Prescreening at group level
-*
-*--------------Select if batch should be written on the disc at the
-*              first iteration and then later on read.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!--------------Prescreening at group level
+!
+!--------------Select if batch should be written on the disc at the
+!              first iteration and then later on read.
+!
                Batch_On_Disk = (vijkl.gt.Thize) .and.
      &                (Disc+DBLE(nInts+2+2/RtoI).le.Disc_Mx)
-*
-*--------------Set prescreening level
-*
-*              IntOnly = T  prescreening on integral value only
-*              IntOnly = F  prescreening on integral & density matrix
-*
-*              If integral batch is written to disc, no prescreening
-*              since prescreening on integrals only was done in k2 loop.
-*
+!
+!--------------Set prescreening level
+!
+!              IntOnly = T  prescreening on integral value only
+!              IntOnly = F  prescreening on integral & density matrix
+!
+!              If integral batch is written to disc, no prescreening
+!              since prescreening on integrals only was done in k2 loop.
+!
                Prescreen_On_Int_Only = IntOnly
                If (DoIntegrals) Prescreen_On_Int_Only=.True.
                If (Batch_On_Disk) Prescreen_On_Int_Only = .True.
-*
-*--------------Prescreening based on the 1st order density in AO
-*              basis (contracted). Observe that this is a rough
-*              estimate of if there will be any contribution due to
-*              this integral batch.
-*
-*--------------Special care here for RS, RT and ST degeneracy.
-*
-*............. Get maximum density elements in AO basis.
-*
+!
+!--------------Prescreening based on the 1st order density in AO
+!              basis (contracted). Observe that this is a rough
+!              estimate of if there will be any contribution due to
+!              this integral batch.
+!
+!--------------Special care here for RS, RT and ST degeneracy.
+!
+!............. Get maximum density elements in AO basis.
+!
                If (DoFock) Then
                   vij = Dij(mDij,jOp(1))
                   vkl = Dkl(mDkl,jOp(2))
@@ -351,12 +351,12 @@ clwj
                   vil = Dil(mDil,jOp(4))
                   vjk = Djk(mDjk,jOp(5))
                   vjl = Djl(mDjl,jOp(6))
-*                 Coulomb contributions
+!                 Coulomb contributions
                   Scrkl = vij*vijkl.ge.ThrInt
                   Scrij = vkl*vijkl.ge.ThrInt
                   DoCoul  = Scrij .or. Scrkl
-*
-*                 Exchange contributions
+!
+!                 Exchange contributions
                   vik = vik/Four
                   vil = vil/Four
                   vjk = vjk/Four
@@ -375,20 +375,20 @@ clwj
                DoAOBatch=(DoIntegrals.and.vijkl.gt.CutInt).or.
      &                   (DoFock.and.(DoCoul.or.DoExch)) .or.
      &                   (Batch_On_Disk.and.W2Disc)
-*
-*--------------Branch out if crude estimate indicates no contributions!
-*
+!
+!--------------Branch out if crude estimate indicates no contributions!
+!
                If (.Not.DoAOBatch) Then
                   If (.Not.Batch_On_Disk) Then
-*
-*                    AO batch is not on the disk
-*
+!
+!                    AO batch is not on the disk
+!
                      Go To 300
                   Else If (Batch_On_Disk.and..Not.W2Disc) Then
-*
-*                    AO batch is on disk! Do a no copy read to
-*                    position the next batch on the disc.
-*
+!
+!                    AO batch is on disk! Do a no copy read to
+!                    position the next batch on the disc.
+!
  1111                Continue
                      Call iRBuf(iWR,2,Copy)
                      Call dRBuf(QInd,2,Copy)
@@ -424,7 +424,7 @@ clwj
                      End If
                   End If
                End If
-*
+!
                If (DoFock) Then
                   If (iShell(1).ge.iShell(2)) Then
                      ij1 = iBasi
@@ -493,17 +493,17 @@ clwj
                      jl4 = iCmp(2)
                   End If
                End If ! DoFock
-*
-*--------------Branch point for partial integral storage.
-*
+!
+!--------------Branch point for partial integral storage.
+!
                If (Batch_On_Disk.and..Not.W2Disc) Go To 6767
-*                                                                      *
-************************************************************************
-*                                                                      *
-*              Here if the AO batch will be computed !
-*
-*--------------Compute actual size of the {a0|c0} block
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!              Here if the AO batch will be computed !
+!
+!--------------Compute actual size of the {a0|c0} block
+!
                mabMin=nabSz(Max(la,lb)-1)+1
                If (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
                mabMax=nabSz(la+lb)
@@ -511,13 +511,13 @@ clwj
                If (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nabSz(lc+ld-1)+1
                mcdMax=nabSz(lc+ld)
                mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*
-*--------------Find the proper centers to start of with the angular
-*              momentum on. If la.eq.lb there will exist an
-*              ambiguity to which center that angular momentum should
-*              be accumulated on. In that case we will use A and C of
-*              the order as defined by the basis functions types.
-*
+!
+!--------------Find the proper centers to start of with the angular
+!              momentum on. If la.eq.lb there will exist an
+!              ambiguity to which center that angular momentum should
+!              be accumulated on. In that case we will use A and C of
+!              the order as defined by the basis functions types.
+!
                If (iAnga(1).ge.iAnga(2)) Then
                   call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
                Else
@@ -528,18 +528,18 @@ clwj
                Else
                    call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
                End If
-*
-*--------------Set flags if triangularization will be used
-*
+!
+!--------------Set flags if triangularization will be used
+!
                IeqK = EQ(CoorM(1,1),CoorM(1,3))
                JeqL = EQ(CoorM(1,2),CoorM(1,4))
                IJeqKL = IeqK .and. JeqL
-*
-*--------------Loops to partition the primitives
-*
-*              Reset pointer ipAOInt if we need to reserve speacial
-*              space for the contracted integrals.
-*
+!
+!--------------Loops to partition the primitives
+!
+!              Reset pointer ipAOInt if we need to reserve speacial
+!              space for the contracted integrals.
+!
                IncZet=nAlpha*jPrInc
                IncEta=nGamma*lPrInc
                If (nZeta.ne.IncZet.or.nEta.ne.IncEta) Then
@@ -549,29 +549,29 @@ clwj
                   mWork2 = nWork2
                   ipAOInt=1
                End If
-*
-*
+!
+!
                nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta),lDCR1),nZeta+1)
                nEta_Tot =iGet(Data2(ip_IndZ(1,nEta ),lDCR2),nEta +1)
-*
+!
                iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
                iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
-*
+!
                kabcd=0
                Do_TnsCtl=.False.
                NoInts   =.True.
                NoPInts  =.True.
                ipAOInt_=ipAOInt
                iW4_=iW4
-*
+!
                Do iZeta = 1, nZeta_Tot, IncZet
                   mZeta=Min(IncZet,nZeta_Tot-iZeta+1)
                   If (lEmpty(Coeff2,nBeta,nBeta,jBasj)) Cycle
-*
+!
                Do iEta  = 1, nEta_Tot,  IncEta
                   mEta=Min(IncEta,nEta_Tot-iEta+1)
                   If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
-*
+!
                   Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
      &                             iData1,[nZeta])
                   Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
@@ -600,7 +600,7 @@ clwj
      &                        Coeff1,iBasi,Coeff2,jBasj,
      &                        Coeff3,kBask,Coeff4,lBasl)
                   Nullify(iData1,iData2)
-*
+!
                End Do
                End Do
 !
@@ -609,26 +609,26 @@ clwj
                If (NoPInts) Then
                   If (W2Disc) Then
                      If (Batch_On_Disk) Then
-*
-*                       If the batch was supposed to be on disk make
-*                       a mark.
-*
+!
+!                       If the batch was supposed to be on disk make
+!                       a mark.
+!
                         mInts=0
-*
+!
                         iWR(1)=nInts
                         iWR(2)=mInts
                         Call iWBuf(iWR,RtoI)
                         Call dWBuf(QInd,2)
                         Call Store_QLast(QInd)
-*
+!
                         Disc = Disc + DBLE(2/RtoI + 2 + mInts)
                      End If
                   End If
                   Go To 300
                End If
-*
-*------------- Multiply with factors due to summation over DCR
-*
+!
+!------------- Multiply with factors due to summation over DCR
+!
                If (MolWgh.eq.1) Then
                   FactNd = DBLE(nIrrep) / DBLE(LmbdT)
                Else If (MolWgh.eq.0) Then
@@ -638,10 +638,10 @@ clwj
                End If
                If (FactNd.ne.One) Call DScal_(kabcd*nijkl,FactNd,
      &                                       Wrk(iW4),1)
-*
-*--------------Apply the transfer equation and transform the spherical
-*              harmonic gaussian.
-*
+!
+!--------------Apply the transfer equation and transform the spherical
+!              harmonic gaussian.
+!
                If (Do_TnsCtl) Then
                   Call TnsCtl(Wrk(iW4),nWork2,CoorM,
      &                        nijkl,mabMax,mabMin,mcdMax,mcdMin,
@@ -656,25 +656,25 @@ clwj
                      iW3=1
                   End If
                Else
-*
-*---------------- Undo the late Cntrct
-*
+!
+!---------------- Undo the late Cntrct
+!
                   call dcopy_(nabcd*nijkl,Wrk(ipAOInt),1,Wrk(iW3),1)
                   Call DGeTMO(Wrk(iW3),nabcd,nabcd,
      &                        nijkl,Wrk(ipAOInt),nijkl)
-*
+!
                End If
-*
-*--------------Branch point for partial integral storage
-*
+!
+!--------------Branch point for partial integral storage
+!
                If (Batch_On_Disk.and.W2Disc) Then
-*
-*---------------- Write integrals to current position on disc.
-*
+!
+!---------------- Write integrals to current position on disc.
+!
                   iOpt=0 ! Always Packing, not run length
                   Call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
                   mInts=(nByte+RtoB-1)/RtoB
-*
+!
                   iWR(1)=nInts
                   iWR(2)=mInts
                   Call iWBuf(iWR,2)
@@ -682,9 +682,9 @@ clwj
                   Call Store_QLast(Qind)
                   Call dWBuf(Wrk(iW3),mInts)
                   Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-*
+!
                End If
-*
+!
  6767          Continue
                If (Batch_On_Disk.and..Not.W2Disc) Then
  1112             Continue
@@ -717,14 +717,14 @@ clwj
      &                            Quad_ijkl,RST_triplet
                      Call Abend()
                   End If
-*
+!
                   iOpt=0 ! Always packing, not run length
                   Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(ipAOInt))
                End If
-*
-*--------------Accumulate contributions directly to the symmetry
-*              adapted Fock matrix.
-*
+!
+!--------------Accumulate contributions directly to the symmetry
+!              adapted Fock matrix.
+!
                mWork3=nWork2-iW3+1
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
@@ -740,19 +740,19 @@ clwj
      &                     Djk(1,jOp(5)),jk1,jk2,jk3,jk4,
      &                     Djl(1,jOp(6)),jl1,jl2,jl3,jl4,
      &                     FckTmp,nFT,DoCoul,DoExch,ExFac)
-*
-*              Transform from AO basis to SO basis
-*
+!
+!              Transform from AO basis to SO basis
+!
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
      &                     Aux,nAux,Wrk(ipAOInt),SOInt,nSOInt,NoInts)
-*
+!
  300        Continue
  200     Continue
  100  Continue
       End Subroutine TwoEl_Sym_New_Internal
-*
+!
       End
 !#define _DEBUGPRINT_
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
@@ -770,19 +770,19 @@ clwj
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
-************************************************************************
-*                                                                      *
-* Object: to generate the SO integrals for four fixed centers and      *
-*         fixed basis set types.                                       *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*          Roland Lindh, Dept. of Theoretical Chemistry, University of *
-*          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
-*          screening, July 1991.                                       *
-*          Modified for direct SCF, January '93                        *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to generate the SO integrals for four fixed centers and      *
+!         fixed basis set types.                                       *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!          Roland Lindh, Dept. of Theoretical Chemistry, University of *
+!          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
+!          screening, July 1991.                                       *
+!          Modified for direct SCF, January '93                        *
+!***********************************************************************
       use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
@@ -794,9 +794,9 @@ clwj
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nComp
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "real.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
@@ -825,16 +825,16 @@ clwj
       Real*8, Target :: A(*)
       End Function iGet
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Declaration of statement functions to compute canonical index
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Declaration of statement functions to compute canonical index
+!
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
+!
       Call TwoEl_NoSym_New_Internal(Data1,Data2)
-*
+!
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -852,18 +852,18 @@ c Avoid unused argument warnings
          Call Unused_integer(nHRRCD)
          Call Unused_real_array(Aux)
       End If
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_NoSym_New_Internal(Data1,Data2)
       Real*8, Target :: Data1(*),Data2(*)
       Integer, Pointer :: iData1(:),iData2(:)
-*
+!
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
      &              Shells(iShll(3))%Prjct.and.
      &              Shells(iShll(4))%Prjct
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('Twoel: Data1',' ',
      &             Data1,nAlpha*nBeta,nDArray-1)
@@ -874,27 +874,27 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 #endif
-*
+!
       RST_triplet=One
       QInd(2)=RST_triplet
       kOp(1)=0
       kOp(2)=0
       kOp(3)=0
       kOp(4)=0
-*
+!
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
       ld = iAnga(4)
       iSmAng=la+lb+lc+ld
-*
-*switch (to generate better start orbitals...)
+!
+!switch (to generate better start orbitals...)
       AeqB = EQ(Coor(1,1),Coor(1,2))
       If (NDDO .AND. .NOT.AeqB) Go To 99
       CeqD = EQ(Coor(1,3),Coor(1,4))
       If (NDDO .AND. .NOT.CeqD) Go To 99
-*switch
-*
+!switch
+!
       AeqC = EQ(Coor(1,1),Coor(1,3))
       ABeqCD = AeqB .and. CeqD .and. AeqC
       If (ABeqCD .and. Mod(iSmAng,2).eq.1) Go To 99
@@ -902,7 +902,7 @@ c     For Spherical Gaussians, batches like
 c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       If (ABeqCD .and. All_Spherical .and.
      &    2*Max(la,lb,lc,ld).gt.iSmAng) Go To 99
-*
+!
       nab = iCmp(1)*iCmp(2)
       ncd = iCmp(3)*iCmp(4)
       nijkl = iBasi*jBasj*kBask*lBasl*nComp
@@ -911,26 +911,26 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       ipAOInt=1
       iW3=1+nInts
       iW4=1
-*
+!
       vijkl = Data1(ip_abMax(nZeta))
      &      * Data2(ip_abMax( nEta))
-*
+!
       Batch_On_Disk = (vijkl.gt.Thize) .and.
      &       (Disc+DBLE(nInts+2+2/RtoI).le.Disc_Mx)
-*
+!
       Prescreen_On_Int_Only = IntOnly
       If (DoIntegrals) Prescreen_On_Int_Only=.True.
       If (Batch_On_Disk) Prescreen_On_Int_Only = .True.
-*
+!
       If (DoFock) Then
          vij = Dij(mDij,1)
          vkl = Dkl(mDkl,1)
-*        Coulomb contributions
+!        Coulomb contributions
          Scrkl = vij*vijkl.ge.ThrInt
          Scrij = vkl*vijkl.ge.ThrInt
          DoCoul  = Scrij .or. Scrkl
-*
-*        Exchange contributions
+!
+!        Exchange contributions
          vik = Dik(mDik,1)/Four
          vil = Dil(mDil,1)/Four
          vjk = Djk(mDjk,1)/Four
@@ -949,9 +949,9 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       DoAOBatch=(DoIntegrals.and.vijkl.gt.CutInt).or.
      &          (DoFock.and.(DoCoul.or.DoExch)) .or.
      &          (Batch_On_Disk.and.W2Disc)
-*
-*-----Branch out if crude estimate indicates no contributions!
-*
+!
+!-----Branch out if crude estimate indicates no contributions!
+!
       If (.Not.DoAOBatch) Then
          If (.Not.Batch_On_Disk) Then
             Go To 99
@@ -986,18 +986,18 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             End If
          End If
       End If
-*
-*
-*-----Branch point for partial integral storage
-*
+!
+!
+!-----Branch point for partial integral storage
+!
       If (Batch_On_Disk.and..Not.W2Disc) Go To 6767
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Here if the AO batch will be computed!
-*
-*-----Compute actual size of the {a0|c0} block
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Here if the AO batch will be computed!
+!
+!-----Compute actual size of the {a0|c0} block
+!
       mabMin=nabSz(Max(la,lb)-1)+1
       If (EQ(Coor(1,1),Coor(1,2))) mabMin = nabSz(la+lb-1)+1
       mabMax=nabSz(la+lb)
@@ -1005,13 +1005,13 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       If (EQ(Coor(1,3),Coor(1,4))) mcdMin = nabSz(lc+ld-1)+1
       mcdMax=nabSz(lc+ld)
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*
-*-----Find the proper centers to start of with the angular
-*     momentum on. If la.eq.lb there will exist an
-*     ambiguity to which center that angular momentum should
-*     be accumulated on. In that case we will use A and C of
-*     the order as defined by the basis functions types.
-*
+!
+!-----Find the proper centers to start of with the angular
+!     momentum on. If la.eq.lb there will exist an
+!     ambiguity to which center that angular momentum should
+!     be accumulated on. In that case we will use A and C of
+!     the order as defined by the basis functions types.
+!
       If (iAnga(1).ge.iAnga(2)) Then
          call dcopy_(3,Coor(1,1),1,CoorAC(1,1),1)
       Else
@@ -1022,15 +1022,15 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       Else
          call dcopy_(3,Coor(1,4),1,CoorAC(1,2),1)
       End If
-*
-*-----Set flags if triangularization will be used
-*
+!
+!-----Set flags if triangularization will be used
+!
       IeqK = EQ(Coor(1,1),Coor(1,3))
       JeqL = EQ(Coor(1,2),Coor(1,4))
       IJeqKL = IeqK .and. JeqL
-*
-*-----Loops to partion the primitives
-*
+!
+!-----Loops to partion the primitives
+!
       IncZet=nAlpha*jPrInc
       IncEta=nGamma*lPrInc
       If (nZeta.ne.IncZet.or.nEta.ne.IncEta) Then
@@ -1040,29 +1040,29 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          mWork2 = nWork2
          ipAOInt=1
       End If
-*
+!
       nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta)),nZeta+1)
       nEta_Tot =iGet(Data2(ip_IndZ(1,nEta )),nEta +1)
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nZeta_Tot, IncZet=',nZeta_Tot, IncZet
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
 #endif
-*
+!
       kabcd=0
       Do_TnsCtl=.False.
       NoInts=.True.
       NoPInts = .True.
       ipAOInt_=ipAOInt
       iW4_=iW4
-*
+!
       Do iZeta = 1, nZeta_Tot, IncZet
          mZeta=Min(IncZet,nZeta_Tot-iZeta+1)
          If (lEmpty(Coeff2,nBeta,nBeta,jBasj)) Cycle
-*
+!
          Do iEta  = 1, nEta_Tot,  IncEta
             mEta=Min(IncEta,nEta_Tot-iEta+1)
             If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
-*
+!
             Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta))),
      &                             iData1,[nZeta])
             Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta))),
@@ -1091,32 +1091,32 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                  Coeff1,iBasi,Coeff2,jBasj,
      &                  Coeff3,kBask,Coeff4,lBasl)
             Nullify(iData1,iData2)
-*
+!
          End Do
       End Do
-*
+!
       If (NoPInts) Then
          If (W2Disc) Then
             If (Batch_On_Disk) Then
                iOpt=0
                mInts=0
-*
+!
                iWR(1)=nInts
                iWR(2)=mInts
                Call iWBuf(iWR,2)
                QInd(1)=Quad_ijkl
                Call dWBuf(QInd,2)
                Call Store_QLast(QInd)
-*
+!
                Disc = Disc + DBLE(2/RtoI + 2 + mInts)
             End If
          End If
          Go To 99
       End If
-*
-*-----Apply the transfer equation and transform the spherical
-*     harmonic gaussian.
-*
+!
+!-----Apply the transfer equation and transform the spherical
+!     harmonic gaussian.
+!
       If (Do_TnsCtl) Then
          Call TnsCtl(Wrk(iW4),nWork2,Coor,
      &               nijkl,mabMax,mabMin,mcdMax,mcdMin,
@@ -1132,41 +1132,41 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             iW3=1
          End If
       Else
-*
-*--------Undo the late Cntrct
-*
+!
+!--------Undo the late Cntrct
+!
          call dcopy_(nijkl*nabcd,Wrk(ipAOInt),1,Wrk(iW3),1)
          Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
-*
+!
       End If
 #ifdef _DEBUGPRINT_
       Call RecPrt('(AB|CD)',' ',Wrk(ipAOInt),nijkl/nComp,
      &            nComp*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
 #endif
-*
-*-----Branch point for partial integral storage
-*
+!
+!-----Branch point for partial integral storage
+!
       If (Batch_On_Disk.and.W2Disc) Then
-*
-*--------Write integrals to current position on disc.
-*
+!
+!--------Write integrals to current position on disc.
+!
          iOpt=0
          Call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
          mInts=(nByte+RtoB-1)/RtoB
-*
+!
          iWR(1)=nInts
          iWR(2)=mInts
-*        Write (*,*) 'nInts,mInts=',nInts,mInts
+!        Write (*,*) 'nInts,mInts=',nInts,mInts
          Call iWBuf(iWR,2)
          QInd(1)=Quad_ijkl
          Call dWBuf(QInd,2)
          Call Store_QLast(QInd)
          Call dWBuf(Wrk(iW3),mInts)
-*
+!
          Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-*
+!
       End If
-*
+!
  6767 Continue
       If (Batch_On_Disk.and..Not.W2Disc) Then
  1112    Continue
@@ -1197,13 +1197,13 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                   Quad_ijkl,RST_triplet
             Call Abend()
          End If
-*
+!
          iOpt=0
          Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(ipAOInt))
       End If
-*
-*-----Accumulate contributions directly to the Fock matrix.
-*
+!
+!-----Accumulate contributions directly to the Fock matrix.
+!
       If (DoFock)
      &Call FckAcc_NoSymq(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                  Shijij, iShll, iShell, nijkl,
@@ -1211,7 +1211,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                  iAO,iAOst,
      &                  iBasi,jBasj,kBask,lBasl,DoCoul,DoExch,
      &                  vij,vkl,vik,vil,vjk,vjl,ExFac)
-*
+!
       If (DoIntegrals) Then
          If (ipAOInt.ne.1) Then
             call dcopy_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),
@@ -1234,5 +1234,5 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       End If
   99  Continue
       End Subroutine TwoEl_NoSym_New_Internal
-*
+!
       End

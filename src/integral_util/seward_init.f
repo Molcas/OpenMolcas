@@ -1,28 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,2020, Roland Lindh                                *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,2020, Roland Lindh                                *
+!               1990, IBM                                              *
+!***********************************************************************
       Subroutine Seward_Init()
-************************************************************************
-*                                                                      *
-*     Object: to set data which is stored in common blocks             *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
-*             January 1990                                             *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: to set data which is stored in common blocks             *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
+!             January 1990                                             *
+!***********************************************************************
       use EFP_Module
       use k2_arrays
       use Basis_Info
       use RICD_Info, only: iRI_Type, Do_RI
+      use Constants
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
@@ -32,28 +33,27 @@
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
-#include "real.fh"
 #include "nac.fh"
       Character(LEN=180) Env
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*-----Info
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!-----Info
+!
       Seward_Status=InActive
-*
-*-----LInfo
-*
+!
+!-----LInfo
+!
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
       Call UpCase(Env)
       If (Env.eq.'YES') Then
          Do_RI=.True.
          iRI_Type=4
       End If
-*
-*-----PStat
-*
+!
+!-----PStat
+!
       r1=0.d0
       r2=0.d0
       r3=0.d0
@@ -66,9 +66,9 @@
       MinXtr=0
       iTotal=0
       MaxMem=0
-*
-*-----Print
-*
+!
+!-----Print
+!
       iPL=iPrintLevel(-1)
       If (iPL.eq.2) Then
          iPL=5
@@ -87,9 +87,9 @@
       Else
          Show=.True.
       End If
-*
+!
       NDDO=.False.
-*
+!
       k2_Status=InActive
       RctFld_Status=InActive
       ERI_Status=InActive
@@ -97,14 +97,14 @@
       XMem_Status=Inactive
       NQ_Status=Inactive
       Seward_Status=Active
-*
+!
       Call Set_Binom
       Call Set_CanInd
-*
-*     Set some default value for RMAT type integration
-*
-*---- rmat.fh
-*
+!
+!     Set some default value for RMAT type integration
+!
+!---- rmat.fh
+!
       RmatR     = 10.0D0
       Epsabs    = 10.D-10
       Epsrel    = 1.D-14
@@ -120,26 +120,26 @@
       nagint    = .False.
       testint   = .False.
       RMat_On   = .False.
-*
-*---- gam.fh
-*
+!
+!---- gam.fh
+!
       lgamma = 9
-*
+!
       Call DCR_Init()
-*
+!
       Call Set_Basis_Mode('Valence')
-*
+!
       Call CovRadT_Init()
-*
-*     nac.fh
-*
+!
+!     nac.fh
+!
       isNAC = .False.
       isCSF = .False.
-*
-*     EFP stuff
-*
+!
+!     EFP stuff
+!
       lEFP=.False.
       nEFP_fragments=0
-*
+!
       Return
       End
