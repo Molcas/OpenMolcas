@@ -23,7 +23,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4),
      &       rKappa(nZeta), Beta(nZeta),
      &       Rnxyz(nZeta,3,0:la,0:lb+ld)
@@ -33,13 +32,10 @@
 !
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 !
-      iRout = 134
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In CmbnCB: rKappa',' ',rKappa,1,nZeta)
-         Call RecPrt(' In CmbnCB: Beta  ',' ',Beta  ,1,nZeta)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In CmbnCB: rKappa',' ',rKappa,1,nZeta)
+      Call RecPrt(' In CmbnCB: Beta  ',' ',Beta  ,1,nZeta)
+#endif
       Do 10 ixa = 0, la
          iyaMax=la-ixa
       Do 11 ixb = 0, lb

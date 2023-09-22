@@ -20,7 +20,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
@@ -29,9 +28,6 @@
 !
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-!
-      iRout = 134
-      iPrint = nPrint(iRout)
 !
       Do 130 iZeta = 1, nZeta
          Fact(iZeta) = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two)
@@ -46,10 +42,10 @@
          Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
-!           If (iPrint.ge.99) Then
-!              Write (*,*) ixa,iya,iza,ixb,iyb,izb
-!              Write (*,*) ipa,ipb
-!           End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) ixa,iya,iza,ixb,iyb,izb
+            Write (6,*) ipa,ipb
+#endif
 !
 !           Combine multipole moment integrals
 !
@@ -77,7 +73,9 @@
  10   Continue
 !
       nFinal=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-      If (iPrint.ge.99) Call RecPrt('Final',' ',Final,nFinal,nComp)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Final',' ',Final,nFinal,nComp)
+#endif
 !
       Return
       End

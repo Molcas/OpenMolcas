@@ -30,22 +30,19 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl),
      &       KappAB(mijkl), P(nijkl,3), xZeta(nijkl), xKapp(nijkl),
      &       xP(nijkl,3), xZInv(nijkl), Con(mijkl), xabCon(nijkl),
      &       Alpha(mijkl), xAlpha(nijkl), Beta(mijkl), xBeta(nijkl)
       Integer IndZ(nijkl+1), Ind_Pair(mijkl)
       Logical AeqB
-!
-      iRout = 245
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.59) Then
-         Write (6,*) ' In CmpctS'
-         Write (6,*) AeqB,iOff,Jnd
-         Call RecPrt('Zeta',' ',Zeta,mijkl,1)
-         Call RecPrt('abcd',' ',abcd,mijkl,(na*nb)**2)
-      End If
+
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In CmpctS'
+      Write (6,*) AeqB,iOff,Jnd
+      Call RecPrt('Zeta',' ',Zeta,mijkl,1)
+      Call RecPrt('abcd',' ',abcd,mijkl,(na*nb)**2)
+#endif
 !
 !     Move data
 !
@@ -102,20 +99,20 @@
       End If
       IndZ(nijkl+1)=Jnd
 !
-      If (iPrint.ge.99) Then
-         Write (6,*) 'AeqB=',AeqB
-         Write (6,*) 'IndZ=',IndZ
-         Call RecPrt('xZeta ',' ',xZeta,  1,nijkl)
-         Call RecPrt('xKapp ',' ',xKapp,  1,nijkl)
-         Call RecPrt('xP(x) ',' ',xP(1,1),1,nijkl)
-         Call RecPrt('xP(y) ',' ',xP(1,2),1,nijkl)
-         Call RecPrt('xP(z) ',' ',xP(1,3),1,nijkl)
-         Call RecPrt('xZInv ',' ',xZInv,  1,nijkl)
-         Call RecPrt('xab   ',' ',xab,    1,nijkl)
-         Call RecPrt('xabCon',' ',xabCon, 1,nijkl)
-         Call RecPrt('xAlpha',' ',Alpha,  1,nijkl)
-         Call RecPrt('xBeta ',' ',Beta,   1,nijkl)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'AeqB=',AeqB
+      Write (6,*) 'IndZ=',IndZ
+      Call RecPrt('xZeta ',' ',xZeta,  1,nijkl)
+      Call RecPrt('xKapp ',' ',xKapp,  1,nijkl)
+      Call RecPrt('xP(x) ',' ',xP(1,1),1,nijkl)
+      Call RecPrt('xP(y) ',' ',xP(1,2),1,nijkl)
+      Call RecPrt('xP(z) ',' ',xP(1,3),1,nijkl)
+      Call RecPrt('xZInv ',' ',xZInv,  1,nijkl)
+      Call RecPrt('xab   ',' ',xab,    1,nijkl)
+      Call RecPrt('xabCon',' ',xabCon, 1,nijkl)
+      Call RecPrt('xAlpha',' ',Alpha,  1,nijkl)
+      Call RecPrt('xBeta ',' ',Beta,   1,nijkl)
+#endif
 !
       Return
 ! Avoid unused argument warnings

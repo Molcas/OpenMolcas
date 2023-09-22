@@ -25,7 +25,6 @@
       Subroutine AppFld_(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
       Logical NonEq
 !
@@ -33,17 +32,17 @@
 !
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
-      iRout=2
-      iPrint=nPrint(iRout)
-!
-      If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
 !-----Backtransform from cartesian to spherical harmonics
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.True.)
-      If (iPrint.ge.99) Call RecPrt(' CavSph',' ',
-     &                              Cavsph,(lMax+1)**2,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' CavSph',' ',Cavsph,(lMax+1)**2,1)
+#endif
 !
 !-----Evaluate the electric field components at the origin.
 !     This is identical to the charge distribution on the
@@ -73,8 +72,10 @@
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
-      If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
       Return
       End
@@ -94,7 +95,6 @@
       Subroutine AppFld_1(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
       Logical NonEq
 !
@@ -102,17 +102,17 @@
 !
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
-      iRout=2
-      iPrint=nPrint(iRout)
-!
-      If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
 !-----Backtransform from cartesian to spherical harmonics
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.True.)
-      If (iPrint.ge.99) Call RecPrt(' CavSph',' ',
-     &                              Cavsph,(lMax+1)**2,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' CavSph',' ',Cavsph,(lMax+1)**2,1)
+#endif
 !
 !-----Evaluate the electric field components at the origin.
 !     This is identical to the charge distribution on the
@@ -132,8 +132,10 @@
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
-      If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
       Return
 ! Avoid unused argument warnings
@@ -155,7 +157,6 @@
       Subroutine AppFld_2(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
       Logical NonEq
 !
@@ -163,17 +164,18 @@
 !
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
-      iRout=2
-      iPrint=nPrint(iRout)
-!
-      If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
 !-----Backtransform from cartesian to spherical harmonics
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.True.)
-      If (iPrint.ge.99) Call RecPrt(' CavSph',' ',
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' CavSph',' ',
      &                              Cavsph,(lMax+1)**2,1)
+#endif
 !
 !-----Evaluate the electric field components at the origin.
 !     This is identical to the charge distribution on the
@@ -194,8 +196,10 @@
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
-      If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+#endif
 !
       Return
 ! Avoid unused argument warnings

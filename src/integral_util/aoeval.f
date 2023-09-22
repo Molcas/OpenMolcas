@@ -28,7 +28,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (a-h,o-z)
-#include "print.fh"
       Real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3),
      &       CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas),
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
@@ -72,16 +71,12 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iRout=132
-      iPrint=nPrint(iRout)
-      If (iPrint.ge.49) Then
-         Write(6,*) '********** AOEval ***********'
-         Write (6,*) 'In AOEval'
-         Call RecPrt('Coor',' ',Coor,3,nCoor)
-         Call RecPrt('CffCnt',' ',CffCnt,mExp,nBas)
-         Call RecPrt('CffSph',' ',CffSph,nElem,nCmp)
-         Write (6,*) 'RA=',RA
-      End If
+      Write(6,*) '********** AOEval ***********'
+      Write (6,*) 'In AOEval'
+      Call RecPrt('Coor',' ',Coor,3,nCoor)
+      Call RecPrt('CffCnt',' ',CffCnt,mExp,nBas)
+      Call RecPrt('CffSph',' ',CffSph,nElem,nCmp)
+      Write (6,*) 'RA=',RA
 #endif
 !                                                                      *
 !***********************************************************************
@@ -173,11 +168,9 @@
       End Do
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-            Write (6,*) mExp,nExp
-            Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
-            Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
-      End If
+      Write (6,*) mExp,nExp
+      Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
+      Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -204,12 +197,10 @@
          xyz(:,:,0)=One
       End If
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Do i = 0, iAng+nRad-1
-            Write (Label,'(A,I2,A)')'xyz(nCoor,nCar,',i,')'
-            Call RecPrt(Label,'(3E12.6)',xyz(1,1,i),nCoor,3)
-         End Do
-      End If
+      Do i = 0, iAng+nRad-1
+         Write (Label,'(A,I2,A)')'xyz(nCoor,nCar,',i,')'
+         Call RecPrt(Label,'(3E12.6)',xyz(1,1,i),nCoor,3)
+      End Do
 #endif
 !                                                                      *
 !***********************************************************************
@@ -251,9 +242,7 @@
                      End Do
 !
 #ifdef _DEBUGPRINT_
-                     If (iPrint.ge.99) Then
-                        Write (6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
-                     End If
+                     Write (6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
 #endif
 !
                      If (jy .EQ. 0 .AND. jz .EQ. 0) then
@@ -357,10 +346,8 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.49) Then
-         Write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
-         Call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
-      End If
+      Write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
+      Call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
 #endif
 
       End

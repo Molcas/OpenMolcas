@@ -11,7 +11,6 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
       SubRoutine CarSph(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,
      &                  Coeff2,n2,Tr2,Pr2,Wout,mab)
 !***********************************************************************
@@ -29,7 +28,6 @@
 !             February '90                                             *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Win(nab*nijx), Scrt(nScrt),
      &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),
      &       Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2),

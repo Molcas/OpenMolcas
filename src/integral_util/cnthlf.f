@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUGPRINT_
       Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
      &                  lZeta,nVec,First,IncVec,A1,A2,A3,
      &                  Indij)
@@ -26,7 +25,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (a-h,o-z)
-#include "print.fh"
       Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
      &       A1(lZeta,nVec)
       Real*8, Intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)

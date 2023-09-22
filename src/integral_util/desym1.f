@@ -26,17 +26,14 @@
       use SOAO_Info, only: iAOtSO
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO),
      &       Scrt(iBas*jBas)
       Integer nOp(2)
 !
-      iRout = 133
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' lOper=',lOper
-         Call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' lOper=',lOper
+      Call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
+#endif
 !
       call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
 !
@@ -83,9 +80,9 @@
  200     Continue
  100  Continue
 !
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
+#endif
       Return
 ! Avoid unused argument warnings
       If (.False.) Then

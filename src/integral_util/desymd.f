@@ -28,16 +28,13 @@
       use Real_Spherical, only: iSphCr
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO)
       Integer nOp(2)
 !
-      iRout = 133
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' lOper=',lOper
-         Call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' lOper=',lOper
+      Call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
+#endif
 !
       call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
       lSO = 1
@@ -81,8 +78,8 @@
  100  Continue
 !
       If (FactNd.ne.One) Call DScal_(iBas*jBas*iCmp*jCmp,FactNd,DAO,1)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
+#endif
       Return
       End
