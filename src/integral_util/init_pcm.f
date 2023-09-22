@@ -22,11 +22,11 @@
       use Isotopes, only: MaxAtomNum, PTab
       use UnixInfo, only: ProgName
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "print.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
       Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)

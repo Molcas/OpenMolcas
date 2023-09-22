@@ -12,10 +12,10 @@
        use Langevin_arrays
        use PCM_arrays, only: MM
        use external_centers, only: nXF, iXPolType
+      use stdalloc
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
-#include "stdalloc.fh"
        Logical NonEq
 !
        tK=1.0D-99 ! Boltzman factor, initial set to 0 K

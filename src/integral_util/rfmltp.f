@@ -13,10 +13,10 @@
 !***********************************************************************
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: VTot(:), QTot(:)
 !
       If (.Not.lRF) Return

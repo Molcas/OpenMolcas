@@ -11,12 +11,12 @@
       SubRoutine DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,iCharge)
       use External_Centers, only: iXPolType
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "SysDef.fh"
 #include "print.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
       Logical First, Dff, NonEq
       Character*8 Label
       Real*8 RepNuc_Temp

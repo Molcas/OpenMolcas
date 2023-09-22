@@ -22,8 +22,8 @@
 !***********************************************************************
       use k2_setup
       use k2_arrays
+      use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"
 !

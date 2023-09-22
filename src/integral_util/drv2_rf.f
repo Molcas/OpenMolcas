@@ -46,9 +46,9 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"

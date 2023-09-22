@@ -11,9 +11,9 @@
        Subroutine Flip_Flop(Primitive)
        use Basis_Info
        use Sizes_of_Seward, only:S
+       use stdalloc
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
-#include "stdalloc.fh"
 #include "Basis_Mode.fh"
 !
       S%MaxBas(:)=0

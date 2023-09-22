@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
       Module Real_Spherical
+      use stdalloc
       Private
-#include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
      &          Sphere_Dmp, iSphCr, LblCBs, LblSBs

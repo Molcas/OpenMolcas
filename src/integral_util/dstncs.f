@@ -19,8 +19,8 @@
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 xyz(3,mCentr)
       Character*(LENIN) Lbls(mCentr)

@@ -16,8 +16,8 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "setup.fh"
       Integer nDens, mDens
       Real*8, Target:: Dens(nDens), TwoHam(nDens)

@@ -21,10 +21,10 @@
 !***********************************************************************
       use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
       use Index_arrays
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 !
 #include "setup.fh"
-#include "stdalloc.fh"
 #include "nsd.fh"
 #include "status.fh"
       Logical Verbose, Free_K2

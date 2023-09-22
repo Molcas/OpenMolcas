@@ -45,9 +45,9 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"

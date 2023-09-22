@@ -23,8 +23,8 @@
       Use SOAO_Info
       use Symmetry_Info, only: Symmetry_Info_Free
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "nsd.fh"
 #include "setup.fh"

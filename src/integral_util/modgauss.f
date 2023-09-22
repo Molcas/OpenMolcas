@@ -152,8 +152,8 @@
       End
       Subroutine DiagMtrx_x(H,nH,iNeg)
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
       Real*8, Allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
       Real*8 H(nH,nH)
 !

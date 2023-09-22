@@ -33,12 +33,12 @@
       use Integral_interfaces, only: int_kernel, int_mem
       use Gateway_global, only: PrPrt
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: EFInt
       Procedure(int_mem) :: EFMem
 #include "rctfld.fh"
 #include "print.fh"
-#include "stdalloc.fh"
       Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
      &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)

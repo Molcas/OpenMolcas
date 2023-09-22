@@ -38,11 +38,11 @@
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: EFInt
       Procedure(int_mem) :: EFMem
 #include "rctfld.fh"
-#include "stdalloc.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), EF_Grid(3),
      &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
      &       DipEff(nGrid_), PolEff(nPolComp,nGrid_), CCoor(3),

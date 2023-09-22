@@ -50,6 +50,7 @@
       use UnixInfo, only: SuperName
 #endif
       use Constants
+      use stdalloc
       Implicit None
 !
 !     subroutine parameters
@@ -60,7 +61,6 @@
 
 !
 #include "ndarray.fh"
-#include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"
 !

@@ -10,8 +10,8 @@
 !***********************************************************************
       SubRoutine Free_HerRW()
       use Her_RW, only: HerR, HerW, iHerR, iHerw
+      use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
       If (Allocated(iHerR)) Call mma_deallocate(iHerR)
       If (Allocated(iHerW)) Call mma_deallocate(iHerW)
       If (Allocated( HerR)) Call mma_deallocate( HerR)

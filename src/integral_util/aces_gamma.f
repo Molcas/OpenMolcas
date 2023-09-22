@@ -14,9 +14,9 @@
       use Index_arrays, only: iSO2Sh
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "setup.fh"
-#include "stdalloc.fh"
        Integer, Allocatable:: iTable(:,:)
        Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
 !                                                                      *

@@ -21,8 +21,8 @@
       use aces_stuff
       use pso_stuff
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "setup.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky

@@ -13,8 +13,8 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "setup.fh"
 !
       Real*8 :: Dens(nDens), TwoHam(nDens)

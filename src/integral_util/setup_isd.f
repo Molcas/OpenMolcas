@@ -12,10 +12,10 @@
       use iSD_data
       use k2_arrays, only: MxDij, MxFT
       use Symmetry_Info, only: nIrrep
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
 #include "setup.fh"
-#include "stdalloc.fh"
 !
 !                                                                      *
 !***********************************************************************

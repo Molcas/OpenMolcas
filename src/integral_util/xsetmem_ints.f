@@ -10,9 +10,9 @@
 !***********************************************************************
       subroutine xsetmem_ints(mem)
       use k2_arrays, only: Sew_Scr
+      use stdalloc
       implicit real*8 (a-h,o-z)
 #include "status.fh"
-#include "stdalloc.fh"
 !
       If (XMem_Status.eq.Active) Then
          Call WarningMessage(2,

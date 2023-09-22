@@ -27,9 +27,9 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "stdalloc.fh"
 #include "etwas.fh"
 #include "mp2alaska.fh"
 #include "nsd.fh"
@@ -632,9 +632,9 @@
       Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,
      &                    nsym,nbas,nish,nash,ndens)
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
-      Dimension CMO(*) , D1A_MO(*) , D1A_AO(*)
+      Real*8 CMO(*) , D1A_MO(*) , D1A_AO(*)
       Integer nbas(nsym),nish(nsym),nash(nsym)
       Real*8, Allocatable:: Scr1(:), Tmp1(:,:), Tmp2(:,:)
 

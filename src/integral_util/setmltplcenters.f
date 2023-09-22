@@ -19,8 +19,8 @@
       use MpmC
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: CoM
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 
       ! Check
       If (S%nMltpl.lt.0) Then

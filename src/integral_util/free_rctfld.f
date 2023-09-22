@@ -11,10 +11,10 @@
        Subroutine Free_RctFld(iXPolType)
        use PCM_arrays
        use Langevin_arrays
+       use stdalloc
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
-#include "stdalloc.fh"
 !
        If (RctFld_Status.eq.InActive) Return
        Call mma_deallocate(MM)

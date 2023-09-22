@@ -30,10 +30,10 @@
       use Gateway_Info, only: CutInt, lSchw
       use Symmetry_Info, only: nIrrep
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "Basis_Mode.fh"
-#include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"
 #include "ndarray.fh"

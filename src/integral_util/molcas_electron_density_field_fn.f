@@ -15,6 +15,7 @@
      &                                          user_field)
       use EFP
       use iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
+      use stdalloc
 !***********************************************************************
 !                                                                      *
 !     This is a callback routine for the computation of the electric   *
@@ -22,7 +23,6 @@
 !     them, coordinates stored in the variable xyz).                   *
 !                                                                      *
 !***********************************************************************
-#include "stdalloc.fh"
       integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       integer(c_size_t), intent(in) :: n_pt
       real(c_double), intent(in):: xyz(3,n_pt)

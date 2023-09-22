@@ -34,9 +34,9 @@
       use iSD_data
       use Index_arrays
       use Basis_Info, only: nBas, nBas_Aux
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 !
-#include "stdalloc.fh"
 #include "Basis_Mode.fh"
       Integer nSkal, nSym, nSOs, nShOff(0:7)
       Dimension iTmp(1 )

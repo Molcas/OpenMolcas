@@ -49,9 +49,9 @@
       use Int_Options, only: Exfac, Thize, W2Disc
       use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
-#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"

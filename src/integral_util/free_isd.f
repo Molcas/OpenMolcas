@@ -10,10 +10,10 @@
 !***********************************************************************
       SubRoutine Free_iSD()
       use iSD_data
+      use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
 #include "setup.fh"
-#include "stdalloc.fh"
 !
       If (Allocated(iSD)) Call mma_deallocate(iSD)
       nSkal_iSD=0

@@ -19,6 +19,7 @@
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: PCMInt
       Procedure(int_mem) :: NaMem
@@ -28,7 +29,6 @@
      &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
 #include "SysDef.fh"
 #include "print.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: FactOp(:), Integrals(:)
       Integer, Allocatable:: lOper2(:)
       Logical First

@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
@@ -78,8 +78,8 @@
       Return
       End
       Subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
@@ -139,8 +139,8 @@
       If (.False.) Call Unused_logical(NonEq)
       End
       Subroutine AppFld_NonEq_2(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq

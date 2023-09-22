@@ -21,9 +21,9 @@
 !             of Lund, April '95.                                      *
 !***********************************************************************
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "stdalloc.fh"
       Real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2),
      &       CoOp(3)
       Integer, Allocatable:: C_ESIT(:)

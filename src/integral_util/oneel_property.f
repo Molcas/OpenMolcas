@@ -16,10 +16,10 @@
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "stdalloc.fh"
 #include "print.fh"
       Character Label*8
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)

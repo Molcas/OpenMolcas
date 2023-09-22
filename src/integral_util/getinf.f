@@ -27,8 +27,8 @@
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "status.fh"
       Logical DoRys

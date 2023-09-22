@@ -37,10 +37,10 @@
       use Gateway_Info, only: lSchw
       use UnixInfo, only: ProgName
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
-#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"

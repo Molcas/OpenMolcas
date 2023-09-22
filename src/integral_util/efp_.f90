@@ -20,7 +20,7 @@
 ! Some compilers do not like empty files
 #include "macros.fh"
 module EFP
-!ontains
+contains
 dummy_empty_procedure(efp_mod)
 end module EFP
 

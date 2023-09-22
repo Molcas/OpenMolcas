@@ -10,9 +10,9 @@
 !***********************************************************************
       subroutine rlsmem_ints()
       use k2_arrays, only: Sew_Scr
+      use stdalloc
       implicit real*8 (a-h,o-z)
 #include "setup.fh"
-#include "stdalloc.fh"
 #include "status.fh"
 !
       If (XMem_Status.eq.Active) Then
