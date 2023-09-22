@@ -112,7 +112,7 @@
       End If
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iAng)
          Call Unused_integer(jAng)

@@ -120,7 +120,7 @@
 !
 !------- Skip if square norm below threshold
 !
-c         If (dEF(4,iGrid).lt.testa) Go To 666
+!         If (dEF(4,iGrid).lt.testa) Go To 666
 !
          ghx=Grid(1,iGrid)
          ghy=Grid(2,iGrid)
@@ -135,7 +135,7 @@ c         If (dEF(4,iGrid).lt.testa) Go To 666
 
 !
 
-c         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
+!         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
          Dip_Eff=DipEff(iGrid)
 !
 !------- Compute new dipole moment as a function of the EF, effective dipole
@@ -161,7 +161,7 @@ c         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
             ex=exp(x)
             emx=One/ex
             alang=(ex+emx)/(ex-emx)-One/x
-c            alang=x/Three  !Linear approximation
+!            alang=x/Three  !Linear approximation
             i=iGrid
             uind=Dip_Eff*alang+ftot*PolEff(1,iGrid)*ftots
             DipMom(1,iGrid)=uind*fx*ftots
@@ -217,11 +217,11 @@ c            alang=x/Three  !Linear approximation
                EndDo
                If(lExcl) Then
 !     exclude field from iGrid when calculating the field at jGrid
-c                  Write(6,*)'EXCLUDE dip', iGrid, ' at ', jGrid
+!                  Write(6,*)'EXCLUDE dip', iGrid, ' at ', jGrid
                   Goto 777
                Elseif (scal.lt.One) Then
-c                  Write(6,*)'SCALE dip', iGrid, ' at ', jGrid,
-c     &                 ' with ', scal
+!                  Write(6,*)'SCALE dip', iGrid, ' at ', jGrid,
+!     &                 ' with ', scal
 
                EndIf
             EndIf
@@ -250,7 +250,7 @@ c     &                 ' with ', scal
                v = min(1.0D0,sqrt(r2)/s)
                d1 = 4.0*v**3 - 3.0*v**4
                d2 = v**4
-c               Write(6,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
+!               Write(6,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
                dEF(1,jGrid)=dEF(1,jGrid)-(dx*d1-temp*rx*d2)*dist3*scal
                dEF(2,jGrid)=dEF(2,jGrid)-(dy*d1-temp*ry*d2)*dist3*scal
                dEF(3,jGrid)=dEF(3,jGrid)-(dz*d1-temp*rz*d2)*dist3*scal
@@ -262,7 +262,7 @@ c               Write(6,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
  777        Continue
          End Do           ! jGrid
 !
-c666     Continue
+!666     Continue
       End Do           ! iGrid
 
 
@@ -316,7 +316,7 @@ c666     Continue
 !
 !---- Check convergence
 !
-c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
+!      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 
 #ifdef _DEBUGPRINT_
       Write (6,*) Iter,fmax,testa
@@ -357,6 +357,6 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 #endif
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(lMax_)
       End

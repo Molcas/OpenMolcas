@@ -138,7 +138,7 @@
  100  Continue
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iAng)
          Call Unused_integer_array(iShll)

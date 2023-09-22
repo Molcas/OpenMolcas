@@ -194,7 +194,7 @@
       Call RecPrt(' KappCD',' ',KappCD,lEta, 1)
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nAlpha)
          Call Unused_integer(nBeta)

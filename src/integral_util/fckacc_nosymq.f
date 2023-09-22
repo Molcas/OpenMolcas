@@ -90,7 +90,7 @@
       Else
         Return
       End If
-c
+!
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       ntg=nbas(0)
@@ -100,7 +100,7 @@ c
       If (Shijij) Fac=Fac*Half
       Fac_C=Four*Fac
       Fac_E=-Fac*Exfac
-C     If (nijkl.ne.ibas*jbas*kbas*lbas) Call SysHalt( 'fckacc_nosym' )
+!     If (nijkl.ne.ibas*jbas*kbas*lbas) Call SysHalt( 'fckacc_nosym' )
 !
       nCmpx(1)=iCmp
       nCmpx(2)=jCmp
@@ -270,14 +270,14 @@ C     If (nijkl.ne.ibas*jbas*kbas*lbas) Call SysHalt( 'fckacc_nosym' )
          End Do
       End If
 !
-C     If (iPrint.ge.99) Then
-C        Write (*,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
-C    &                            DDot_(nDens,DMat,1,One,0)
-c     End If
+!     If (iPrint.ge.99) Then
+!        Write (*,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
+!    &                            DDot_(nDens,DMat,1,One,0)
+!     End If
 !
       Return
 #ifndef _DEBUGPRINT_
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iAng)
          Call Unused_integer_array(iShll)

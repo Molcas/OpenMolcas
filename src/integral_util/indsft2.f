@@ -115,7 +115,7 @@
                   End If
                   If (Shijij .and. i34.gt.i12) go to 400
                   qijij = Shijij .and. i12.eq.i34
-C          Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
+!          Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 !
 !      loop over Irreps which are spanned by the basis function.
 !      again, the loop structure is restricted to ensure unique
@@ -160,7 +160,7 @@ C          Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
                    End If
                    If (k34.gt.k12) go to 310
                 End If
-C               Write (6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
+!               Write (6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
 !
                 memSO2 = memSO2 + 1
                 If ( (nSkip(j1+1)+nSkip(j2+1)+
@@ -171,7 +171,7 @@ C               Write (6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-C               Write (6,*) 'iSO,jSO,kSO,lSO=',iSO,jSO,kSO,lSO
+!               Write (6,*) 'iSO,jSO,kSO,lSO=',iSO,jSO,kSO,lSO
 !
                 kSymk=max(j3,j4)+1
                 lSyml=min(j3,j4)+1
@@ -215,14 +215,14 @@ C               Write (6,*) 'iSO,jSO,kSO,lSO=',iSO,jSO,kSO,lSO
                    iPP3=iQQ3
                    iPP4=0
                 End If
-C               Write (*,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-C               Write (*,*) 'iSyBlk,jSyBlk=',iSyBlk,jSyBlk
-C               Write (*,*) 'iSq1,iSq2,iSq3,iSq4=',
-C    &                       iSq1,iSq2,iSq3,iSq4
-C               Write (*,*) 'iQQ1,iQQ2,iQQ3,iQQ4=',
-C    &                       iQQ1,iQQ2,iQQ3,iQQ4
-C               Write (*,*) 'nkl,nij=',
-C    &                       nkl,nij
+!               Write (*,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+!               Write (*,*) 'iSyBlk,jSyBlk=',iSyBlk,jSyBlk
+!               Write (*,*) 'iSq1,iSq2,iSq3,iSq4=',
+!    &                       iSq1,iSq2,iSq3,iSq4
+!               Write (*,*) 'iQQ1,iQQ2,iQQ3,iQQ4=',
+!    &                       iQQ1,iQQ2,iQQ3,iQQ4
+!               Write (*,*) 'nkl,nij=',
+!    &                       nkl,nij
 !
 !               Duplicate integral if permuted integral is
 !               in the same irrep or if all blocks should
@@ -241,10 +241,10 @@ C    &                       nkl,nij
                             AInt=SOint(nijkl,memSO2)
                             If (Abs(AInt).lt.ThrInt) Go To 199
                             ij=iPD(iSOi,jSOj,iSOSym,nSOs)
-C                           Write (*,*)
-C                           Write (*,*) 'iSOi,jSOj,kSOk,lSOl=',
-C    &                                   iSOi,jSOj,kSOk,lSO
-C                           Write (*,*) 'ij,kl=',ij,kl
+!                           Write (*,*)
+!                           Write (*,*) 'iSOi,jSOj,kSOk,lSOl=',
+!    &                                   iSOi,jSOj,kSOk,lSO
+!                           Write (*,*) 'ij,kl=',ij,kl
 !
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
@@ -254,8 +254,8 @@ C                           Write (*,*) 'ij,kl=',ij,kl
      &                             - nkl
                             Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
-C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
-C    &                                   iStBin(iSyBlk)
+!                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
+!    &                                   iStBin(iSyBlk)
 !
  199                        Continue
                          End Do
@@ -276,10 +276,10 @@ C    &                                   iStBin(iSyBlk)
                             If (Abs(AInt).lt.ThrInt) Go To 299
                             ij=iPD(iSOi,jSOj,iSOSym,nSOs)
 !
-C                           Write (*,*)
-C                           Write (*,*) 'iSOi,jSOj,kSOk,lSOl=',
-C    &                                   iSOi,jSOj,kSOk,lSO
-C                           Write (*,*) 'ij,kl=',ij,kl
+!                           Write (*,*)
+!                           Write (*,*) 'iSOi,jSOj,kSOk,lSOl=',
+!    &                                   iSOi,jSOj,kSOk,lSO
+!                           Write (*,*) 'ij,kl=',ij,kl
 !
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
@@ -289,8 +289,8 @@ C                           Write (*,*) 'ij,kl=',ij,kl
      &                             - nkl
                             Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
-C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
-C    &                                   iStBin(iSyBlk)
+!                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
+!    &                                   iStBin(iSyBlk)
 !
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
@@ -300,8 +300,8 @@ C    &                                   iStBin(iSyBlk)
      &                             - nij
                             Sew_Scr(lwSqN+nUt)=DBLE(jSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(jBin+iStBin(jSyBlk))
-C                           Write (*,*) 'jSqNum,jBin=',jSqNum,jBin+
-C    &                                   iStBin(jSyBlk)
+!                           Write (*,*) 'jSqNum,jBin=',jSqNum,jBin+
+!    &                                   iStBin(jSyBlk)
 !
  299                        Continue
                          End Do

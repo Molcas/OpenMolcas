@@ -408,6 +408,6 @@
 !
       Call CWTime(TCpu2,TWall2)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDInf)
       End

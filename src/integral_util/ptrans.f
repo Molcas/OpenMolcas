@@ -39,7 +39,7 @@
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
 #include "print.fh"
 #include "etwas.fh"
-c Triangular addressing without symmetry:
+! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 !
       iRout = 251
@@ -52,7 +52,7 @@ c Triangular addressing without symmetry:
          Write (6,*) ' nPam',(nPam(4,i),i=0,mIrrep-1)
       End If
       t14 = Quart
-c Offsets into the ipam array:
+! Offsets into the ipam array:
       nnpam1=0
       nnpam2=0
       nnpam3=0
@@ -69,7 +69,7 @@ c Offsets into the ipam array:
       iopam2=nnpam1
       iopam3=iopam2+nnpam2
       iopam4=iopam3+nnpam3
-c Loop over all possible symmetry combinations.
+! Loop over all possible symmetry combinations.
       lend=0
       ixend=0
       iocmol=0
@@ -124,15 +124,15 @@ c Loop over all possible symmetry combinations.
         itend=itend+nt
         nxvut=nxvu*nt
         iocmot=iocmoi+nish(isym)*mbas(isym)
-c Break loop if not acceptable symmetry combination.
+! Break loop if not acceptable symmetry combination.
         ijsym=ieor(isym,jsym)
         if(klsym.ne.ijsym) goto 1005
-c Break loop if no such symmetry block:
+! Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
         If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
-c Bypass transformation if no active orbitals:
+! Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
-c Pick up matrix elements and put in a full symmetry block:
+! Pick up matrix elements and put in a full symmetry block:
         ind=0
         do 140 ix=ixsta,ixend
          do 130 iv=ivsta,ivend
@@ -148,13 +148,13 @@ c Pick up matrix elements and put in a full symmetry block:
               if(itu.ge.ivx .and. iv.eq.ix) fact=2.0d00
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scr1(ind)=fact*scr1(ind)
-chjw multiplying the G1 product with coulfac gives wrong result
+!hjw multiplying the G1 product with coulfac gives wrong result
               scr1(ind)=scr1(ind)-G1(itu)*G1(ivx)
             end if
             if(isym.eq.lsym) then
               itx=i3adr(it,ix)
               ivu=i3adr(iv,iu)
-chjw t14 includes exfac, why not coulfac above? What are these terms?
+!hjw t14 includes exfac, why not coulfac above? What are these terms?
               scr1(ind)=scr1(ind)+t14*G1(itx)*G1(ivu)
             end if
             if(isym.eq.ksym) then
@@ -170,9 +170,9 @@ chjw t14 includes exfac, why not coulfac above? What are these terms?
      &                              Scr1,
      &                              nash(iSym)*nash(jSym),
      &                              nash(kSym)*nash(lsym))
-c
-c Transform:
-c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
+!
+! Transform:
+!  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       ncopy=nash(lsym)
       nskip1=mbas(lsym)
       ioff2=0
@@ -188,8 +188,8 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
      &            1.0d0,Cred,nskip2,
      &            Scr1,ntuv,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
+! Transform:
+!  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       ncopy=nash(ksym)
       nskip1=mbas(ksym)
       ioff2=0
@@ -205,8 +205,8 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
      &            1.0d0,Cred,nskip2,
      &            Scr2,nltu,
      &            0.0d0,Scr1,nskip2)
-c Transform:
-c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
+! Transform:
+!  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       ncopy=nash(jsym)
       nskip1=mbas(jsym)
       ioff2=0
@@ -222,8 +222,8 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
      &            1.0d0,Cred,nskip2,
      &            Scr1,nklt,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
+! Transform:
+!  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       ncopy=nash(isym)
       nskip1=mbas(isym)
       ioff2=0
@@ -243,8 +243,8 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &                              Scr1,
      &                              nPam(1,iSym)*nPam(2,jSym),
      &                              nPam(3,kSym)*nPam(4,lSym))
-c
-c Put results into correct positions in PSOPam:
+!
+! Put results into correct positions in PSOPam:
       do 280 l=lsta,lend
        loff=nnpam3*(l-1)
        lof1=nPam(3,ksym)*(l-lsta)
@@ -262,7 +262,7 @@ c Put results into correct positions in PSOPam:
  260    continue
  270   continue
  280  continue
-c Add contributions from 1-el density matrix:
+! Add contributions from 1-el density matrix:
  300  continue
       do 340 l=lsta,lend
        is=INT(ipam(iopam4+l))
@@ -295,7 +295,7 @@ c Add contributions from 1-el density matrix:
  320    continue
  330   continue
  340  continue
-c End of loop over symmetry labels.
+! End of loop over symmetry labels.
  1005     continue
           nbi=mbas(isym)
           iocmoi=iocmoi+nbi**2

@@ -78,14 +78,14 @@
      &        iAO(4), iAOst(4), iCmpa(4)
 !     Local Arrays
       Integer iSym(4)
-c     Character*72 Label
+!     Character*72 Label
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Statement Function
 !
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+!     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -107,7 +107,7 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !        Write (*,*)'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
 !        Write (*,*)'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
 !     End If
-C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
+!     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
 !
       If (iBas*jBas*kBas*lBas.gt.nScrt) Then
          Call WarningMessage(2,'FckAcc: nScrt too small!')
@@ -235,8 +235,8 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                   do ijkl=1,mijkl
                     vijkl=max(vijkl,abs(AOInt(ijkl,i1,i2,i3,i4)))
                   end do
-c                 vijkl = DNrm2_(iBas*jBas*kBas*lBas,
-c    &                          AOInt(1,i1,i2,i3,i4),1)
+!                 vijkl = DNrm2_(iBas*jBas*kBas*lBas,
+!    &                          AOInt(1,i1,i2,i3,i4),1)
                   If (vijkl.lt.CutInt) Go To 400
 !
                   Qijij = Shijij .and. i12.eq.i34
@@ -282,17 +282,17 @@ c    &                          AOInt(1,i1,i2,i3,i4),1)
                   Fac_jk=Fac_jk*D_il
                   Fac_il=Fac_il*D_jk
 !
-C                 Write (*,*)
-C                 Write (*,*) 'iShell(1),iShell(2),i1,i2=',
-C    &                         iShell(1),iShell(2),i1,i2
-C                 Write (*,*) 'Dij=',Dij(1,i1,i2)
-C                 Write (*,*) 'Fac_ij,iQij=',Fac_ij,iQij
-C                 Write (*,*)
-C                 Write (*,*) 'iShell(3),iShell(4),i3,i4=',
-C    &                         iShell(3),iShell(4),i3,i4
-C                 Write (*,*) 'Dkl=',Dkl(1,i3,i4)
-C                 Write (*,*) 'Fac_kl,iQkl=',Fac_kl,iQkl
-C                 Write (*,*)
+!                 Write (*,*)
+!                 Write (*,*) 'iShell(1),iShell(2),i1,i2=',
+!    &                         iShell(1),iShell(2),i1,i2
+!                 Write (*,*) 'Dij=',Dij(1,i1,i2)
+!                 Write (*,*) 'Fac_ij,iQij=',Fac_ij,iQij
+!                 Write (*,*)
+!                 Write (*,*) 'iShell(3),iShell(4),i3,i4=',
+!    &                         iShell(3),iShell(4),i3,i4
+!                 Write (*,*) 'Dkl=',Dkl(1,i3,i4)
+!                 Write (*,*) 'Fac_kl,iQkl=',Fac_kl,iQkl
+!                 Write (*,*)
                   If (Qijij) Then
                      Fac_kl = Zero
                      Fac_jk = Zero
@@ -473,7 +473,7 @@ C                 Write (*,*)
                      Call WarningMessage(2,'FckAcc: nScrt too small!')
                      Call Abend()
                   End If
-C                 Write (*,*) 'iOpt=',iOpt
+!                 Write (*,*) 'iOpt=',iOpt
                   Go To ( 1, 2, 3, 4, 5, 6, 7) iOpt
                   Go To 400
 !
@@ -582,11 +582,11 @@ C                 Write (*,*) 'iOpt=',iOpt
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas)
 !
-C     Call RecPrt('Dij',' ',Dij,iBas,jBas)
-C     Write (*,*) 'Cij=',Cij
-C     Call RecPrt('Dkl',' ',Dkl,kBas,lBas)
-C     Write (*,*) 'Ckl=',Ckl
-C     Call RecPrt('Fij(enter)',' ',Fij,iBas,jBas)
+!     Call RecPrt('Dij',' ',Dij,iBas,jBas)
+!     Write (*,*) 'Cij=',Cij
+!     Call RecPrt('Dkl',' ',Dkl,kBas,lBas)
+!     Write (*,*) 'Ckl=',Ckl
+!     Call RecPrt('Fij(enter)',' ',Fij,iBas,jBas)
       Do l = 1, lBas
          Do k = 1, kBas
             F_kl = Zero
@@ -603,10 +603,10 @@ C     Call RecPrt('Fij(enter)',' ',Fij,iBas,jBas)
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
-C     Call RecPrt('Fij(exit)',' ',Fij,iBas,jBas)
+!     Call RecPrt('Fij(exit)',' ',Fij,iBas,jBas)
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real(ExFac)
       End
       Subroutine Fck2(AOInt,iBas,jBas,kBas,lBas,
@@ -646,8 +646,8 @@ c Avoid unused argument warnings
      2       Dkl(kBas,lBas), Fkl(kBas,lBas),
      3       Dik(iBas,kBas), Fik(iBas,kBas),
      4       Djl(jBas,lBas), Fjl(jBas,lBas)
-c    5       Dil(iBas,lBas), Fil(iBas,lBas),
-c    6       Djk(jBas,kBas), Fjk(jBas,kBas)
+!    5       Dil(iBas,lBas), Fil(iBas,lBas),
+!    6       Djk(jBas,kBas), Fjk(jBas,kBas)
 !
       Do l = 1, lBas
          Do k = 1, kBas

@@ -19,7 +19,7 @@
       Call binte(k,alfa,beta,r0,a,grin,nz)
 !     Call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
 !
-c.....distribute the integrals into gri
+!.....distribute the integrals into gri
 !
       indst=1
       isum=ipot3(k+1)
@@ -39,8 +39,8 @@ c.....distribute the integrals into gri
                jj=jj-(ixyz-1)*idiv
 12          Continue
 !
-c.....the potency vector for this integral is now ready
-c .....now analyze it
+!.....the potency vector for this integral is now ready
+! .....now analyze it
 !
             ix=0
             iy=0

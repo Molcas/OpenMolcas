@@ -42,13 +42,13 @@
 !---- Reinitialize always for gradient calculations
 !
       DoDeriv=.False.
-cpcm_solvent
-c added mckinley for pcm in second derivatives
+!pcm_solvent
+! added mckinley for pcm in second derivatives
       If (      ProgName.eq.'alaska'
      &     .or. ProgName.eq.'mckinley'
      &     .or. ProgName.eq.'mclr'    )
      &    DoDeriv=.True.
-cpcm_solvent end
+!pcm_solvent end
       If (DoDeriv) Then
          LcNAtm = ISlPar(42)
          Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')

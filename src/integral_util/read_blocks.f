@@ -61,7 +61,7 @@
          iIrrep_B=iTable(3,iBlock)
          iIrrep_C=iTable(4,iBlock)
          iIrrep_D=iTable(5,iBlock)
-C        IND     =iTable(6,iBlock)
+!        IND     =iTable(6,iBlock)
 !        Write (*,*)  'Irreps:',iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D
 !
          nA=nBas(iIrrep_A)
@@ -89,7 +89,7 @@ C        IND     =iTable(6,iBlock)
 !
 ! This call is to an ACES2 routine. This has to be replaced once this
 ! code is used by MOLCAS. RL 2007-10-18.
-C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
+!           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
 !***********************************************************************
 ! Jonas B 2010. This code is used for reading nonseparable two-electron
 !               density matrices when doing conventional mp2-gradients.

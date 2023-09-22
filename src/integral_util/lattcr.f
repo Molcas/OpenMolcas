@@ -139,8 +139,8 @@
                   rpa2=dggx**2+dggy**2+dggz**2
                   if(rpa2.lt.distSparse**2) Goto 13
                   ener=ener+(rrr/rpa2)**nexpo
-c     If(rpa2.lt.6.0D0)
-c     &           write(*,*)'DIST',iGrid,iXF,sqrt(rpa2),atrad
+!     If(rpa2.lt.6.0D0)
+!     &           write(*,*)'DIST',iGrid,iXF,sqrt(rpa2),atrad
                EndDo
 
                ener=prefac*ener*500.0D0+ener1
@@ -207,8 +207,8 @@ c     &           write(*,*)'DIST',iGrid,iXF,sqrt(rpa2),atrad
                         dggz=za-zp
                         rpa2=dggx**2+dggy**2+dggz**2
                         ener=ener+(rrr/rpa2)**nexpo
-c     If(rpa2.lt.6.0D0)
-c     &           write(*,*)'DIST0',iGrid,sqrt(rpa2),atorad(m)
+!     If(rpa2.lt.6.0D0)
+!     &           write(*,*)'DIST0',iGrid,sqrt(rpa2),atorad(m)
                      End Do
 
 !
@@ -229,13 +229,13 @@ c     &           write(*,*)'DIST0',iGrid,sqrt(rpa2),atorad(m)
                         dggz=za-zp
                         rpa2=dggx**2+dggy**2+dggz**2
                         ener=ener+(rrr/rpa2)**nexpo
-c     If(rpa2.lt.6.0D0)
-c     &           write(*,*)'DIST',iGrid,iXF,sqrt(rpa2),atrad
+!     If(rpa2.lt.6.0D0)
+!     &           write(*,*)'DIST',iGrid,iXF,sqrt(rpa2),atrad
                      EndDo
 
-c         ener=prefac*ener*tk5+ener1
+!         ener=prefac*ener*tk5+ener1
                      ener=prefac*ener*500.0D0+ener1
-c         ener=prefac*ener*1000.0D0+ener1
+!         ener=prefac*ener*1000.0D0+ener1
                      If (ener.gt.12.D0) Then
                         Write(6,*)'REMOVED',xp,yp,zp
                         Go To 11

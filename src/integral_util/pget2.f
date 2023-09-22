@@ -213,6 +213,6 @@
       Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)
       End

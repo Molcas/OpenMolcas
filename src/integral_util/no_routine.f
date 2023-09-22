@@ -15,7 +15,7 @@
      &                     )
 #include "int_wrout_interface.fh"
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iCmp)
          Call Unused_integer_array(iShell)

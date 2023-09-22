@@ -55,7 +55,7 @@
             iq = iq + 1
             iz = ir-ix-iy
             temp = Zero
-C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
+!           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 !
             ndc = 0
             Do iCnttp = 1, nCnttp
@@ -71,8 +71,8 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                   mdc = ndc + iCnt
                   Do i = 0, nIrrep/dc(mdc)%nStab - 1
                      Call OA(dc(mdc)%iCoSet(i,0),A,RA)
-C                    Call RecPrt(' RA',' ',RA,1,3)
-C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
+!                    Call RecPrt(' RA',' ',RA,1,3)
+!                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 #ifdef NAGFOR
                      If (iCnt.lt.-2) Write (6,*) 'Nag problem'
 #endif
@@ -92,7 +92,7 @@ C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
                      Else
                         CCoMz=(RA(3)-CoOp(3))**iz
                      End If
-C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
+!                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                      temp = temp + ZA * CCoMx * CCoMy * CCoMz
                   End Do
                End Do
@@ -232,7 +232,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 
                End Do
             End Do
-c            Write (*,*) ' Temp=',temp
+!            Write (*,*) ' Temp=',temp
             rNucMm(iq) = rNucMm(iq) + temp
 
          End Do

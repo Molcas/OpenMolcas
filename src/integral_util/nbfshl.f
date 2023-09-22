@@ -13,11 +13,11 @@
 !  Integer Function NbfShl    returns # of bf for shell,symmetry       *
 !                                                                      *
 !***********************************************************************
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       Integer Function nbfshl(iSkal,irp)
       use iSD_data
       use SOAO_Info, only: iAOtSO
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       Implicit Real*8 (A-H,O-Z)
 !
 !  returns number of basis functions for given shell and symmetry

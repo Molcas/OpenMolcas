@@ -18,7 +18,7 @@
 !
 !----- AAAA
 !
-c     Write (*,*) 'AAAA'
+!     Write (*,*) 'AAAA'
       IND=0
       DO 11 IRREP=1,NIRREP
        IND=IND+1
@@ -29,12 +29,12 @@ c     Write (*,*) 'AAAA'
        iTable(4,iBlock)=IRREP-1
        iTable(5,iBlock)=IRREP-1
        iTable(6,iBlock)=IND
-c      Write (*,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
+!      Write (*,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
  11   CONTINUE
 !
 !----- AABB
 !
-c     Write (*,*) 'AABB'
+!     Write (*,*) 'AABB'
       IND=0
       DO 12 IRREP1=2,NIRREP
       DO 120 IRREP2=1,IRREP1-1
@@ -46,7 +46,7 @@ c     Write (*,*) 'AABB'
        iTable(4,iBlock)=IRREP1-1
        iTable(5,iBlock)=IRREP1-1
        iTable(6,iBlock)=IND
-c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
+!      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
 120    CONTINUE
 12    CONTINUE
 !
@@ -73,7 +73,7 @@ c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
 !
 !----- ABCD
 !
-c     Write (*,*) 'ABCD'
+!     Write (*,*) 'ABCD'
       IND=0
       DO 313 IRREP=2,NIRREP
        DO 314 IRREP1=1,NIRREP
@@ -96,7 +96,7 @@ c     Write (*,*) 'ABCD'
          iTable(4,iBlock)=IRREP1-1
          iTable(5,iBlock)=IRREP2-1
          iTable(6,iBlock)=IND
-c        Write (*,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
+!        Write (*,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
 315     CONTINUE
 314    CONTINUE
 313   CONTINUE

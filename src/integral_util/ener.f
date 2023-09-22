@@ -126,18 +126,18 @@
          x=ftot*DipEff(iGrid)*tk
          If (x.le.0.0000001d0) Then
             ag=Zero
-c           alang=Zero
+!           alang=Zero
          Else
             ex=exp(x)
             emx=One/ex
-c           alang=(ex+emx)/(ex-emx)-One/x
+!           alang=(ex+emx)/(ex-emx)-One/x
             ag=-log((ex-emx)/(Two*x))/tk
          End If
 !
 
          If(iGrid.gt.nAnisopol) Then  ! isotropic
-c            uind=DipEff(iGrid)*alang+ftot*PolEff(1,iGrid)
-c            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
+!            uind=DipEff(iGrid)*alang+ftot*PolEff(1,iGrid)
+!            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
             Eself=Eself+fDd-Half*ftot2*PolEff(1,iGrid)
             agsum=agsum+ag
          Else ! anisotropic
@@ -167,9 +167,9 @@ c            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
 
       RepNuc = RepNuc + Eself + agsum + Eint + Half*Enucdip
 !
-c     Note:Before PS made this code compatible with XFIE, the following
-c     quantity was reported as Electrostatic energy: Half*Edip2
-c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
+!     Note:Before PS made this code compatible with XFIE, the following
+!     quantity was reported as Electrostatic energy: Half*Edip2
+!     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 
 
 !                                                                      *

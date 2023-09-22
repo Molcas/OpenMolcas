@@ -11,11 +11,11 @@
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
       Subroutine SetMltplCenters()
-C
-C     Thomas Bondo Pedersen, July 2012.
-C
-C     Set multipole centers.
-C
+!
+!     Thomas Bondo Pedersen, July 2012.
+!
+!     Set multipole centers.
+!
       use MpmC
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: CoM

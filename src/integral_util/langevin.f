@@ -84,7 +84,7 @@
          ElseIf(nGridSeed.eq.-1) Then
             iSeed=0
 !     Use system_clock only for some systems
-c            Call System_clock(iSeed,j,k)
+!            Call System_clock(iSeed,j,k)
          Else
             iSeed=nGridSeed
          EndIf
@@ -140,7 +140,7 @@ c            Call System_clock(iSeed,j,k)
      &                  Cord,maxato,Atom_R,nPolComp,
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
-c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
+!        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
 !
       End If

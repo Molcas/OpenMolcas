@@ -106,7 +106,7 @@
       Call TwoEl_Sym_New_Internal(Data1,Data2)
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iS_)
          Call Unused_integer(jS_)
@@ -259,12 +259,12 @@ c Avoid unused argument warnings
                AeqC = EQ(CoorM(1,1),CoorM(1,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
                If (ABeqCD .and. Mod(iSmAng,2).eq.1) Go To 300
-clwj
-clwj           For Spherical Gaussians, batches like
-clwj           (DS|SS), (FP|SS) and (FS|PS) vanish as well
+!lwj
+!lwj           For Spherical Gaussians, batches like
+!lwj           (DS|SS), (FP|SS) and (FS|PS) vanish as well
                If (ABeqCD .and. All_Spherical .and.
      &                2*Max(la,lb,lc,ld).gt.iSmAng) Go To 300
-clwj
+!lwj
 !
 #ifdef _DEBUGPRINT_
                If (iPrint.ge.9) Write (6,'(6A)')
@@ -836,7 +836,7 @@ clwj
       Call TwoEl_NoSym_New_Internal(Data1,Data2)
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iStb)
          Call Unused_integer(jStb)
@@ -898,8 +898,8 @@ c Avoid unused argument warnings
       AeqC = EQ(Coor(1,1),Coor(1,3))
       ABeqCD = AeqB .and. CeqD .and. AeqC
       If (ABeqCD .and. Mod(iSmAng,2).eq.1) Go To 99
-c     For Spherical Gaussians, batches like
-c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
+!     For Spherical Gaussians, batches like
+!     (DS|SS), (FP|SS) and (FS|PS) vanish as well
       If (ABeqCD .and. All_Spherical .and.
      &    2*Max(la,lb,lc,ld).gt.iSmAng) Go To 99
 !

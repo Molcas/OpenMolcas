@@ -30,9 +30,9 @@
 !
       iRout = 134
       iPrint = nPrint(iRout)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     iPrint = 99
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     iPrint = 99
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -79,6 +79,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 10    Continue
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Zeta)
       End

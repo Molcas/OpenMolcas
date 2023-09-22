@@ -83,7 +83,7 @@
 !
 !     Call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(Pr3)
          Call Unused_logical(Pr4)

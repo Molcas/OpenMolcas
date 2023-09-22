@@ -34,9 +34,9 @@
 !
       iRout = 122
       iPrint = nPrint(iRout)
-ccccccccccccccccccccccccccccccccccccccc
-c     iPrint = 99
-ccccccccccccccccccccccccccccccccccccccc
+!cccccccccccccccccccccccccccccccccccccc
+!     iPrint = 99
+!cccccccccccccccccccccccccccccccccccccc
       Call Untested('Radlq')
 !                                                                      *
 !***********************************************************************

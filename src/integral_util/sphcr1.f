@@ -90,7 +90,7 @@
 !
 !     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(Pr3)
          Call Unused_logical(Pr4)
@@ -131,15 +131,15 @@ c Avoid unused argument warnings
       Return
       End
 #else
-c--------------------------------------------------------------------
+!--------------------------------------------------------------------
       subroutine ntmul(a,b,r,ncol,nlink,nrow)
-c--------------------------------------------------------------------
+!--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       parameter (mxind=2000)
       dimension r(ncol,*),a(ncol,*),b(nrow,*),ind(mxind)
-c
+!
       do 100 i=1,ncol
-c
+!
       nnot=0
       do k=1,min(nlink,mxind)
         if ( a(i,k) .ne. 0.0d0 ) then
@@ -147,7 +147,7 @@ c
           ind(nnot) = k
         end if
       end do
-c
+!
       do 20 j=1,nrow-15,16
       s1=0.0D0
       s2=0.0D0
@@ -200,11 +200,11 @@ c
       r(i,j+14)=t7
       r(i,j+15)=t8
 20    continue
-c
+!
       nr1=mod(nrow,16)
       if(nr1.eq.0) goto 100
       j=nrow-nr1+1
-c
+!
       if(nr1.ge.8) then
       s1=0.0D0
       s2=0.0D0
@@ -235,7 +235,7 @@ c
       nr1=nr1-8
       j=j+8
       end if
-c
+!
       if(nr1.ge.4) then
       s1=0.0D0
       s2=0.0D0
@@ -254,7 +254,7 @@ c
       nr1=nr1-4
       j=j+4
       end if
-c
+!
       If (nr1.eq.1) Then
          s1=0.0D0
          do 45 k=1,nnot

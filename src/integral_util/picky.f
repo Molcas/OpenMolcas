@@ -52,8 +52,8 @@
  20            Continue
 !--------------Move the largest density matrix element for
 !              this angular combination
-c              jIn = nijCmp*(n*m+1)
-c              jOut= nijCmp*((nEnd-nSt+1)*(mEnd-mSt+1)+1)
+!              jIn = nijCmp*(n*m+1)
+!              jOut= nijCmp*((nEnd-nSt+1)*(mEnd-mSt+1)+1)
                jIn = ij1(n,m,ijCmp)+1
                jOut= ij2(nEnd-nSt+1,mEnd-mSt+1,ijCmp)+1
                Dout(jOut,iDCR) = Din(jIn,iDCR)

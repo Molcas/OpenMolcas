@@ -104,9 +104,9 @@
      &                       1.0d0,A2,IncVec,Coeff2,nprm2,
      &                       0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
                Else
-C                  Call mxmb(A2,1,IncVec, Coeff2,1,nprm2,
-C     &                      A3(iivec,iCntr1,1),1,nvec*ncntr1,
-C     &                       mVec,nPrm2,nz2)
+!                  Call mxmb(A2,1,IncVec, Coeff2,1,nprm2,
+!     &                      A3(iivec,iCntr1,1),1,nvec*ncntr1,
+!     &                       mVec,nPrm2,nz2)
                   Call DGEMM_('N','N',mVec,nz2,nPrm2,
      &                         1.0d0,A2,IncVec,Coeff2,nprm2,
      &                         1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
@@ -117,8 +117,8 @@ C     &                       mVec,nPrm2,nz2)
             Do iCntr2=ic1,nCntr2
                If (first) Then
                   If (nnz2(icntr2).ge.minva) Then
-C                     Call mxva(A2,1,IncVec, Coeff2(1,icntr2),1,
-C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
+!                     Call mxva(A2,1,IncVec, Coeff2(1,icntr2),1,
+!     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                       Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
      &                            Coeff2(1,icntr2),1,0.d0,
      &                            A3(iivec,iCntr1,icntr2),1)
@@ -138,8 +138,8 @@ C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                   End If
                Else
                   If (nnz2(icntr2).ge.minva) Then
-C                     Call mxvb(A2,1,IncVec, Coeff2(1,icntr2),1,
-C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
+!                     Call mxvb(A2,1,IncVec, Coeff2(1,icntr2),1,
+!     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                       Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
      &                            Coeff2(1,icntr2),1,1.d0,
      &                            A3(iivec,iCntr1,icntr2),1)

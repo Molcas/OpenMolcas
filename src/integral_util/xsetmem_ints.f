@@ -13,23 +13,23 @@
       implicit real*8 (a-h,o-z)
 #include "status.fh"
 #include "stdalloc.fh"
-c
+!
       If (XMem_Status.eq.Active) Then
          Call WarningMessage(2,
      &               'External handling of scratch already active!')
          Call Abend()
       End If
       Mem_ = Mem
-C Avoid using up all available memory
+! Avoid using up all available memory
       Call mma_maxDBLE(MemMax)
       If (MemMax-Mem_.lt.1000) Then
         If (Mem_.gt.1000) Mem_=Mem_-1000
       End If
-C     Write (6,*) 'xsetmem_ints: External allocate:',Mem_
+!     Write (6,*) 'xsetmem_ints: External allocate:',Mem_
       Call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')
       XMem_Status=Active
-C     Call mma_MaxDBLE(nu)
-C     Write (6,*) 'xsetmem_ints: External allocate left to allocate:',nu
+!     Call mma_MaxDBLE(nu)
+!     Write (6,*) 'xsetmem_ints: External allocate left to allocate:',nu
 !
       Return
       End

@@ -198,15 +198,15 @@
 !     If memory not allocated already at this point allocate!          *
 !                                                                      *
       If (.Not.Allocated(Sew_Scr)) Then
-C        Write (*,*) 'Eval_ints: Allocate memory'
+!        Write (*,*) 'Eval_ints: Allocate memory'
          Call mma_MaxDBLE(MemMax)
          If (MemMax.gt.1000) MemMax=MemMax-1000
          Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       Else
-C        Write (*,*) 'Eval_ints: Memory already allocated'
+!        Write (*,*) 'Eval_ints: Memory already allocated'
          MemMax=SIZE(Sew_Scr)
       End If
-C     Write (*,*) 'Eval_ints: MemMax=',MemMax
+!     Write (*,*) 'Eval_ints: MemMax=',MemMax
       ipMem1=1
 !
       Map4(1)=1
@@ -328,8 +328,8 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
          Call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
          Call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
 !
-c        Write (*,*) ' Pointers to D=',
-c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
+!        Write (*,*) ' Pointers to D=',
+!    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 !
       End If
 !                                                                      *

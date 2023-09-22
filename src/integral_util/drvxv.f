@@ -64,7 +64,7 @@
       RepNuc=RN(1)
       Label='h1_raw  '
       Call Get_Temp(Label,h1,nh1)
-cnf
+!nf
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -74,7 +74,7 @@ cnf
 !                                                                      *
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Call h1_espf(h1,RepNuc,nh1,First,Do_DFT)
-cnf
+!nf
 !                                                                      *
 !***********************************************************************
 !                                                                      *

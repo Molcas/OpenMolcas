@@ -29,12 +29,12 @@
 !             March '90                                                *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+!#include "print.fh"
 !
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 !
-c     iRout = 11
-c     iPrint = nPrint(iRout)
+!     iRout = 11
+!     iPrint = nPrint(iRout)
       Fail = .False.
       If (QlPrim) Then
          If (lPrInc.eq.1) Then
@@ -133,6 +133,6 @@ c     iPrint = nPrint(iRout)
       End If
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(MaxReq)
       End

@@ -19,7 +19,7 @@
          If (OnDisk) Call EAFWait(LuTmp,id)
          Return
       End If
-c     Disk_Save=Disk
+!     Disk_Save=Disk
 !     Write (6,*) 'Enter WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
       If (InCore.and.iBuf.eq.2) Then
          Call WarningMessage(2,
@@ -40,14 +40,14 @@ c     Disk_Save=Disk
             Disk_2 = Disk_1
             Disk_1 = Disk
 !           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
-c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
+!           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
             If (OnDisk) Call dEAFWrite(LuTmp,Buffer(1,iBuf),
      &                                lBuf*RtoI,Disk)
 !---------- Put a dummy record at the end
             temp=Disk+DBLE(lBuf*RtoB)
 !           Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
             If (temp.le.DiskMx_Byte.and.OnDisk) Then
-c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
+!              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
                Zero=0.0D0
                Call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
                Call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
@@ -62,10 +62,10 @@ c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
       End If
       iPos = 1
 !
-c     If (Disk_save.ne.Disk) Then
-c        Write (6,*) 'Enter WLBuf: Disk @:',Disk_Save
-c        Write (6,*) 'Exit  WLBuf: Disk @:',Disk
-c     End If
+!     If (Disk_save.ne.Disk) Then
+!        Write (6,*) 'Enter WLBuf: Disk @:',Disk_Save
+!        Write (6,*) 'Exit  WLBuf: Disk @:',Disk
+!     End If
 !     Write (*,*) 'Exit WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
       Return
       End

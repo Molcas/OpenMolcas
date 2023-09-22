@@ -36,9 +36,9 @@
 !
       iRout = 122
       iPrint = nPrint(iRout)
-ccccccccccccccccccccccccccccccccccccccc
-c     iPrint = 99
-ccccccccccccccccccccccccccccccccccccccc
+!cccccccccccccccccccccccccccccccccccccc
+!     iPrint = 99
+!cccccccccccccccccccccccccccccccccccccc
       Result=Zero
       Call Untested('Radlc')
 !
@@ -74,77 +74,77 @@ ccccccccccccccccccccccccccccccccccccccc
             Call WarningMessage(2,
      &                          'Radlc: Nagint option not implemented!')
             Call Abend()
-C           ier1=-1
-C           call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,
-C    *                  wrk1,4*INtparm,iwrk1,INtparm,ier1)
-C           if (ier1.ne.0) then
-C              write(*,*)
-C              write(*,*) ' WARNING in Radlc'
-C              write(*,*)
-C              write(6,*)
-C    &                ' ier=',ier1,' Error in D01ajf called from Radlc.'
-C              write(6,*) ' result=',result1
-C              write(6,*) ' abser=',abser
-C              write(6,*) ' intparm=',intparm
-C              write(6,*)
-C           end if
-C           result=result1
+!           ier1=-1
+!           call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,
+!    *                  wrk1,4*INtparm,iwrk1,INtparm,ier1)
+!           if (ier1.ne.0) then
+!              write(*,*)
+!              write(*,*) ' WARNING in Radlc'
+!              write(*,*)
+!              write(6,*)
+!    &                ' ier=',ier1,' Error in D01ajf called from Radlc.'
+!              write(6,*) ' result=',result1
+!              write(6,*) ' abser=',abser
+!              write(6,*) ' intparm=',intparm
+!              write(6,*)
+!           end if
+!           result=result1
          EndIf
          If (testint) then
             Call WarningMessage(2,
      &                  'Radlc: testint option not implemented!')
             Call Abend()
-C           ier2=-1
-C           call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,
-C    &                abser,neval,ier2,
-C    &                limit,lenw,last,iScrt,Scrt)
-C           if (ier2.ne.0) then
-C              write(*,*)
-C              write(*,*) ' WARNING in Radlc'
-C              write(*,*)
-C              write(6,*)
-C    &                  ' ier=',ier2,' Error in Dqag called from Radlc.'
-C              write(6,*) ' result=',result2
-C              write(6,*) ' abser=',abser
-C              write(6,*) ' neval=',neval
-C              write(6,*)
-C           end if
+!           ier2=-1
+!           call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,
+!    &                abser,neval,ier2,
+!    &                limit,lenw,last,iScrt,Scrt)
+!           if (ier2.ne.0) then
+!              write(*,*)
+!              write(*,*) ' WARNING in Radlc'
+!              write(*,*)
+!              write(6,*)
+!    &                  ' ier=',ier2,' Error in Dqag called from Radlc.'
+!              write(6,*) ' result=',result2
+!              write(6,*) ' abser=',abser
+!              write(6,*) ' neval=',neval
+!              write(6,*)
+!           end if
 !
-C           ier1=-1
-C           call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,
-C    *                  wrk1,4*INtparm,iwrk1,INtparm,ier1)
-C           if (ier1.ne.0.or.ier2.ne.0) then
-C              write(*,*)
-C              write(*,*) ' WARNING in Radlc'
-C              write(*,*)
-C              write(6,*)
-C    &                ' ier=',ier1,' Error in D01ajf called from Radlc.'
-C              write(6,*) ' result=',result1
-C              write(6,*) ' abser=',abser
-C              write(6,*) ' intparm=',intparm
-C              write(6,*)
-C           end if
-C           result=result1
+!           ier1=-1
+!           call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,
+!    *                  wrk1,4*INtparm,iwrk1,INtparm,ier1)
+!           if (ier1.ne.0.or.ier2.ne.0) then
+!              write(*,*)
+!              write(*,*) ' WARNING in Radlc'
+!              write(*,*)
+!              write(6,*)
+!    &                ' ier=',ier1,' Error in D01ajf called from Radlc.'
+!              write(6,*) ' result=',result1
+!              write(6,*) ' abser=',abser
+!              write(6,*) ' intparm=',intparm
+!              write(6,*)
+!           end if
+!           result=result1
 !
-C           diff=abs(result2-result1)
-C           diff1=abs((result2-result1)/result2)
-C           If (diff.gt.epsabs.or.diff1.gt.epsrel) then
-C              write(*,*)
-C              write(*,*) ' WARNING in Radlc'
-C              write(*,*)
-C              write(6,*) ' DIFFabs =',diff
-C              write(*,*)
-C              write(6,*) ' DIFFrel =',diff1
-C              write(*,*)
-C              write(6,*) ' NAG result=',result1
-C              write(*,*)
-C              write(6,*) ' NAG error =',ier1
-C              write(*,*)
-C              write(6,*) ' QUAD result=',result2
-C              write(*,*)
-C              write(6,*) ' QUAD error =',ier2
-C              write(*,*)
-C           End If
+!           diff=abs(result2-result1)
+!           diff1=abs((result2-result1)/result2)
+!           If (diff.gt.epsabs.or.diff1.gt.epsrel) then
+!              write(*,*)
+!              write(*,*) ' WARNING in Radlc'
+!              write(*,*)
+!              write(6,*) ' DIFFabs =',diff
+!              write(*,*)
+!              write(6,*) ' DIFFrel =',diff1
+!              write(*,*)
+!              write(6,*) ' NAG result=',result1
+!              write(*,*)
+!              write(6,*) ' NAG error =',ier1
+!              write(*,*)
+!              write(6,*) ' QUAD result=',result2
+!              write(*,*)
+!              write(6,*) ' QUAD error =',ier2
+!              write(*,*)
+!           End If
          End If
          Rnr(iZeta,ir)=result
 250     continue

@@ -24,7 +24,7 @@
       End If
       iArray = 1
       mArray=nArray
-chjw  Do While (mArray.ge.1)
+!hjw  Do While (mArray.ge.1)
 10       If (iPos.eq.1) Then
 !
 !---------- Wait for pending buffer.
@@ -47,7 +47,7 @@ chjw  Do While (mArray.ge.1)
                End If
                Disk_2 = Disk_1
                Disk_1 = Disk
-c              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
+!              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
                If (OnDisk) Then
 !                 Write (6,*) 'In drbuf.'
                   Call dEAFARead(LuTmp,Buffer(1,jBuf),lBuf*RtoI,Disk,id)
@@ -76,8 +76,8 @@ c              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
             mArray=0
          End If
       If(mArray.gt.0) goto 10
-chjw  End Do
+!hjw  End Do
 !
-C     Write (6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
+!     Write (6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
       Return
       End

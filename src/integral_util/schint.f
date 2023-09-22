@@ -143,6 +143,6 @@
       If (iPrint.ge.99) Call RecPrt(' In SchInt',' ',Wrk(i_Int),
      &      mZeta,(nElem(la)*nElem(lb))**2)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(iCmp)
       End

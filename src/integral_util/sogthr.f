@@ -106,6 +106,6 @@
          Call RecPrt(' In SOGthr: SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(AeqB)
       End

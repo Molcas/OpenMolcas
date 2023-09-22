@@ -34,6 +34,6 @@
       Endif
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real(x)
       End

@@ -102,7 +102,7 @@
       End Do
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(MapOrg)
       End
       Subroutine PLF_Fck2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
@@ -205,6 +205,6 @@ c Avoid unused argument warnings
       End Do
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(MapOrg)
       End

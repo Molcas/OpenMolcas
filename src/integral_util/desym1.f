@@ -86,7 +86,7 @@
          Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iAng)
          Call Unused_integer(jAng)

@@ -14,15 +14,15 @@
 #include "setup.fh"
 #include "stdalloc.fh"
 #include "status.fh"
-c
+!
       If (XMem_Status.eq.Active) Then
-C        Write (6,*) 'RlsMem_Ints: External scratch handling active!'
+!        Write (6,*) 'RlsMem_Ints: External scratch handling active!'
       Else If (XMem_Status.eq.InActive) Then
          If (Allocated(Sew_Scr)) Then
-C           Write (6,*) 'RlsMem_Ints: Memory released!'
+!           Write (6,*) 'RlsMem_Ints: Memory released!'
             Call mma_deallocate(Sew_Scr)
-C        Else
-C           Write (6,*) 'RlsMem_Ints: No memory to release!'
+!        Else
+!           Write (6,*) 'RlsMem_Ints: No memory to release!'
          End If
       End If
 !

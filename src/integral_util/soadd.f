@@ -99,7 +99,7 @@
  100  Continue
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_logical(AeqB)
       End If

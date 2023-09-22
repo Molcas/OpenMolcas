@@ -89,7 +89,7 @@
          Write (Lu,'(A)') '     Atom centers     '//
      &                    '    Bohr        Angstrom'
 !
-CVV   Set .false. to get faster printing without sorting.
+!VV   Set .false. to get faster printing without sorting.
 !
          If (.true.) then
             Thr_R=(3.0D0/Angstr)**2

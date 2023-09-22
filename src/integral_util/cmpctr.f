@@ -117,7 +117,7 @@
       End If
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(cdMax)
          Call Unused_real(EtMax)

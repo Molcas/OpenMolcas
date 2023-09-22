@@ -22,9 +22,9 @@
 !
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !
-C     nA = (la+1)*(la+2)/2
-C     nB = (lb+1)*(lb+2)/2
-C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
+!     nA = (la+1)*(la+2)/2
+!     nB = (lb+1)*(lb+2)/2
+!     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
 !
 !--------Accumulate contributions
 !
@@ -44,7 +44,7 @@ C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
          Write (6,*) 'iIC,nIC=',iIC,nIC
          Call Abend()
       End If
-C     Call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
+!     Call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
 !
       Return
       End

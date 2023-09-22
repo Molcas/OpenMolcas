@@ -166,7 +166,7 @@
      &                 Out(ipOut+(iComp-1)*mDim))
 !
             If (Label(1:3).eq.'PAM') Then
-c               Open(unit=28,file='R_vect',access='append')
+!               Open(unit=28,file='R_vect',access='append')
                EndFile(28)
                If(Short) Then
                   write(28,'(a8,2x,f20.14)')
@@ -178,7 +178,7 @@ c               Open(unit=28,file='R_vect',access='append')
                   End Do
                   write(28,'(a8,2x,f20.14)') Label,-Sum
                End If
-c               Close(28)
+!               Close(28)
              End If
 !
 !---------- Once all components have been computed print them.

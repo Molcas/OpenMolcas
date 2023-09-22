@@ -261,7 +261,7 @@
          fmax=Max(fmax,ftest)
       End Do ! iGrid
 
-c      Call RecPrt('eperm: dEF ',' ',dEF,4,nGrid_)
+!      Call RecPrt('eperm: dEF ',' ',dEF,4,nGrid_)
 !
       Return
       End

@@ -135,7 +135,7 @@
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)
       End
       Subroutine AppFld_NonEq_2(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
@@ -197,6 +197,6 @@ c Avoid unused argument warnings
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)
       End

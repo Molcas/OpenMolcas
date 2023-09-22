@@ -92,24 +92,24 @@
       Subroutine InitIA(I,mDeg)
       implicit integer (a-z)
       dimension I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
-c
-c Purpose: Express the interaction tensor, defined by the
-c quantities T(a,b,c) as functions of the vector R=(x,y,z),
-c where a,b, and c are nonnegative integers and
-c T(a,b,c)=((d/dx)**a)((d/dy)**b)((d/dz)**c) 1/R, in terms
-c of a polynomial:
-c T(a,b,c)=
-c  (sum over p,q,r of I(a,b,c,p,q,r) x**p y**q z**r)/(R**(2*n+1)),
-c where n=a+b+c.
-c The polynomial coefficients are integers, and are 0 unless
-c p+q+r=n.
-c Author: PAM
+!
+! Purpose: Express the interaction tensor, defined by the
+! quantities T(a,b,c) as functions of the vector R=(x,y,z),
+! where a,b, and c are nonnegative integers and
+! T(a,b,c)=((d/dx)**a)((d/dy)**b)((d/dz)**c) 1/R, in terms
+! of a polynomial:
+! T(a,b,c)=
+!  (sum over p,q,r of I(a,b,c,p,q,r) x**p y**q z**r)/(R**(2*n+1)),
+! where n=a+b+c.
+! The polynomial coefficients are integers, and are 0 unless
+! p+q+r=n.
+! Author: PAM
 !
 !----- Statement function
 !
-c      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
+!      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 !
-c initialize:
+! initialize:
       do 10 a=0,mDeg
       do 11 b=0,mDeg
       do 12 c=0,mDeg
@@ -156,10 +156,10 @@ c initialize:
  102  continue
  101  continue
  100  continue
-c
-c write out only elements with a>=b>=c. The others are obtained
-c by index permutation.
-c This restriction has been removed! (Roland Lindh)
+!
+! write out only elements with a>=b>=c. The others are obtained
+! by index permutation.
+! This restriction has been removed! (Roland Lindh)
 !     n=mDeg
 !     do 200 a=n,0,-1
 !     do 200 b=n-a,0,-1
@@ -182,27 +182,27 @@ c This restriction has been removed! (Roland Lindh)
       implicit integer (a-z)
       dimension I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
       Real*8 ESIT((mDeg+1)*(mDeg+2)/2), Temp
-c
-c Purpose: Express the interaction tensor, defined by the
-c quantities T(a,b,c) as functions of the vector R=(x,y,z),
-c where a,b, and c are nonnegative integers and
-c T(a,b,c)=((d/dx)**a)((d/dy)**b)((d/dz)**c) 1/R, in terms
-c of a polynomial:
-c T(a,b,c)=
-c  (sum over p,q,r of I(a,b,c,p,q,r) x**p y**q z**r)/(R**(2*n+1)),
-c where n=a+b+c.
-c The polynomial coefficients are integers, and are 0 unless
-c p+q+r=n.
-c
+!
+! Purpose: Express the interaction tensor, defined by the
+! quantities T(a,b,c) as functions of the vector R=(x,y,z),
+! where a,b, and c are nonnegative integers and
+! T(a,b,c)=((d/dx)**a)((d/dy)**b)((d/dz)**c) 1/R, in terms
+! of a polynomial:
+! T(a,b,c)=
+!  (sum over p,q,r of I(a,b,c,p,q,r) x**p y**q z**r)/(R**(2*n+1)),
+! where n=a+b+c.
+! The polynomial coefficients are integers, and are 0 unless
+! p+q+r=n.
+!
 !
 !----- Statement function
 !
-c      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
+!      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 !
-c
-c write out only elements with a>=b>=c. The others are obtained
-c by index permutation.
-c This restriction has been removed! (Roland Lindh)
+!
+! write out only elements with a>=b>=c. The others are obtained
+! by index permutation.
+! This restriction has been removed! (Roland Lindh)
 !     n=mDeg
 !     do 200 a=n,0,-1
 !     do 200 b=n-a,0,-1

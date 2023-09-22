@@ -146,7 +146,7 @@
        Quit_On_Error=.true.
       return
       endif
-c
+!
       filename=' '
       inquire(unit=lunit,name=filename)
       if(filename.ne.' ') then
@@ -311,10 +311,10 @@ c
          write (6,'(a)') line
         endif
         goto 1
-c        write(6,'(a)') ' >>>>> Input error <<<<<'
-c        rewind(lunit)
-c        igetline=0
-c        goto 1
+!        write(6,'(a)') ' >>>>> Input error <<<<<'
+!        rewind(lunit)
+!        igetline=0
+!        goto 1
 100    continue
 200    continue
 300    continue

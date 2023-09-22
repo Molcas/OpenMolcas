@@ -34,7 +34,7 @@
      &              iAO,iAOst,ijkl,SOInt,nSOint)
       End If
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)

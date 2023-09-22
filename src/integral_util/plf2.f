@@ -61,7 +61,7 @@
       nUt=-1
       nij=DimSyB(1,1)
       mij=lSll(1)/nij
-C     Write (*,*) 'nij,mij=',nij,mij
+!     Write (*,*) 'nij,mij=',nij,mij
 !
 !     quadruple loop over elements of the basis functions angular
 !     description. loops are reduced to just produce unique SO integrals
@@ -105,26 +105,26 @@ C     Write (*,*) 'nij,mij=',nij,mij
                             If (Abs(AInt).lt.ThrInt) Go To 420
                             iSOij = iTri(iSOi,jSOj)
 !
-C                           Write (*,*) 'iSOij,iSOkl=',iSOij,iSOkl
+!                           Write (*,*) 'iSOij,iSOkl=',iSOij,iSOkl
 !
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=Aint
                             iBin=(iSOkl-1)/mij
-C                           Write (*,*) 'iBin=',iBin+1
+!                           Write (*,*) 'iBin=',iBin+1
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
                             Sew_Scr(lwSqN+nUt)=DBLE((iSOkl-1-iBin*mij)
      &                                      *nij+iSOij)
-C                           Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
+!                           Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 !
                             If (iSOij.ne.iSOkl) Then
                                nUt=nUt+1
                                Sew_Scr(lwInt+nUt)=Aint
                                iBin=(iSOij-1)/mij
-C                              Write (*,*) 'iBin=',iBin+1
+!                              Write (*,*) 'iBin=',iBin+1
                                Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
                                Sew_Scr(lwSqN+nUt)=
      &                               DBLE((iSOij-1-iBin*mij)*nij+iSOkl)
-C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
+!                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
                             End If
 !
 420                      Continue
@@ -143,7 +143,7 @@ C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
       nUt=0
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iShell)
       End If

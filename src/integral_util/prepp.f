@@ -259,7 +259,7 @@
          End If
          If (Method.eq.'CASPT2  ') Then
             Call DecideOnCholesky(DoCholesky)
-C           If(.not.DoCholesky) Then
+!           If(.not.DoCholesky) Then
                Gamma_On=.True.
                !! It is opened, but not used actually. I just want to
                !! use the Gamma_On flag.
@@ -270,7 +270,7 @@ C           If(.not.DoCholesky) Then
                If (DoCholesky) Call mma_allocate(G_Toc,1,Label='G_Toc')
                Call mma_allocate(SO2cI,1,1,Label='SO2cI')
                Call mma_allocate(Bin,1,1,Label='Bin')
-C           End If
+!           End If
          End If
          Method='RASSCF  '
 !                                                                      *

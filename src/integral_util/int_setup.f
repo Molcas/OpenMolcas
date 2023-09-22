@@ -63,7 +63,7 @@
          iShelV(iQuad) = iSD(11,iSkal)
          iShllV(iQuad) = iSD( 0,iSkal)
       End Do
-CMAW start
+!MAW start
 !
 !  For the FMM coulomb integrals <AB(r1)|1/r12|CD(r2)>
 !  Here we flag the integral routines that we only want to compute
@@ -83,7 +83,7 @@ CMAW start
          End Do
          IF (D .gt. RPQMIN*RPQMIN) FMM_shortrange = .True.
       End If
-CMAW end
+!MAW end
 !
       Return
       End

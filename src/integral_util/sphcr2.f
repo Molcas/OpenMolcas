@@ -99,7 +99,7 @@
          Call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
       End If
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(Pr1)
          Call Unused_logical(Pr2)

@@ -28,8 +28,8 @@
       Parameter ( Mode_Read = 987654321  )
       Parameter ( Mode_Write= 198765432  )
       Parameter ( Mode_None = 111111111  )
-C     Parameter ( DiskMx_MByte=2.0D00**11)
-C     Parameter ( DiskMx_Byte =2.0D00**31)
+!     Parameter ( DiskMx_MByte=2.0D00**11)
+!     Parameter ( DiskMx_Byte =2.0D00**31)
 !     Real*8 Buf_IO(lStRec,2)
       Integer iPos, LuTmp, iStatIO, id, iBuf, ipBuf, nBuf, lBuf
       Real*8 Disk, Disk_1, Disk_2

@@ -322,9 +322,9 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-CMAW start
-C     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
-CMAW end
+!MAW start
+!     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
+!MAW end
       Call Free_iSD()
 !     Call Init_Int_Options()    ?
       Return
@@ -354,7 +354,7 @@ CMAW end
          control(3)=thize
          control(4)=cutint
 !        write(6,*) 'control written:',control
-C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
+!        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
          If(OnDisk) Call dEAFAwrite(LuTmp,control,4*RtoI,Disk,id)
       Else
          iStatIO = Mode_Read
@@ -364,7 +364,7 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 !
 !        Write (6,*) 'lBuf*RtoI=',lbuf*RtoI,' rtoi=',Rtoi
          If (OnDisk) then
-C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
+!           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             Call dEAFread(LuTmp,control,4*RtoI,Disk)
             Disk_2 = Disk
             Disk_1 = Disk
@@ -396,7 +396,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
      &                   '  current:',cutint
               call Abend()
             end if
-c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
+!           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 !           If(OnDisk) Write (6,*) ' Initial EAFARead'
             Call dEAFARead(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
          End If
@@ -411,7 +411,7 @@ c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 !
 !---- If data was transfered to the I/O buffer write buffer on disc.
 !
-C  If buffer empty force the write :
+!  If buffer empty force the write :
       If (iPos.EQ.1) iPos=2
       If (OnDisk) Call WLBuf
 !

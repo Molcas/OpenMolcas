@@ -15,7 +15,7 @@
 !                                                                      *
 !***********************************************************************
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       use k2_setup
       use k2_arrays
       use iSD_data
@@ -47,7 +47,7 @@ c----------------------------------------------------------------------
           jShll= iSD( 0,jS)
           If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Go To 200
           If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
-C         Write (*,*) 'Shell_..:iS,jS=',iS,jS
+!         Write (*,*) 'Shell_..:iS,jS=',iS,jS
           jShell=iSD(11,jS)
           jPrimj=iSD( 5,jS)
           jCmp=iSD(2,jS)
@@ -61,7 +61,7 @@ C         Write (*,*) 'Shell_..:iS,jS=',iS,jS
           End If
           k2ij  = Indk2(1,ijS)
           nDCRR = Indk2(2,ijS)
-C         Write (*,*) 'nDCRR=',nDCRR
+!         Write (*,*) 'nDCRR=',nDCRR
           ijCmp=nElem(iAng)*nElem(jAng)
           If (.Not.DoGrad_) ijCmp=0
           nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))

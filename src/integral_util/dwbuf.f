@@ -46,7 +46,7 @@
             If (temp.le.DiskMx_Byte) Then
                Disk_2 = Disk_1
                Disk_1 = Disk
-c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
+!              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
                If (OnDisk) Then
 !                 Write (6,*) 'In dwbuf'
                   Call dEAFAWrite(LuTmp,Buffer(1,iBuf),

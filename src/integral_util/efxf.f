@@ -59,11 +59,11 @@
      &            scal=scal14
             EndDo
             If(LExcl) Then
-c               Write(6,*)'EXCLUDE ',iFd,' from field at ',iGrid
+!               Write(6,*)'EXCLUDE ',iFd,' from field at ',iGrid
                Goto 1
             ElseIf(scal.lt.One) Then
-c               Write(6,*)'SCALE ',iFd,' from field at ',iGrid,
-c     &              ' with', scal
+!               Write(6,*)'SCALE ',iFd,' from field at ',iGrid,
+!     &              ' with', scal
             EndIf
          EndIf
          ZA=Zero
@@ -146,29 +146,29 @@ c     &              ' with', scal
      &   +2.0D0*QAyz*y
      &   +3.0D0*QAzz*z))
 
-c     These formulas gives the corresponding energy terms in drvn0
-c         eZD=ZA*(DRBx*x+DRBy*y+DRBz*z)/r12**3
-c         eDD=(DAx*DRBx+DAy*DRBy+DAz*DRBz)/r12**3
-c     &        -Three*(DAx* x+DAy* y+DAz *z)
-c     &        *(DRBx*x+DRBy*y+DRBz*z)/r12**5c
-c         eQD=-0.5D0*(-15.0D0/r12**7*
-c     & (DRBx*x+DRBy*y+DRBz*z)*QAsum
-c     &                   +3.0D0/r12**5*
-c     &   (3.0D0*DRBx*QAxx*x
-c     &   +1.0D0*DRBy*QAxx*y
-c     &   +1.0D0*DRBz*QAxx*z
-c     &   +2.0D0*DRBx*QAxy*y
-c     &   +2.0D0*DRBy*QAxy*x
-c     &   +2.0D0*DRBx*QAxz*z
-c     &   +2.0D0*DRBz*QAxz*x
-c     &   +1.0D0*DRBx*QAyy*x
-c     &   +3.0D0*DRBy*QAyy*y
-c     &   +1.0D0*DRBz*QAyy*z
-c     &   +2.0D0*DRBy*QAyz*z
-c     &   +2.0D0*DRBz*QAyz*y
-c     &   +1.0D0*DRBx*QAzz*x
-c     &   +1.0D0*DRBy*QAzz*y
-c     &   +3.0D0*DRBz*QAzz*z))
+!     These formulas gives the corresponding energy terms in drvn0
+!         eZD=ZA*(DRBx*x+DRBy*y+DRBz*z)/r12**3
+!         eDD=(DAx*DRBx+DAy*DRBy+DAz*DRBz)/r12**3
+!     &        -Three*(DAx* x+DAy* y+DAz *z)
+!     &        *(DRBx*x+DRBy*y+DRBz*z)/r12**5c
+!         eQD=-0.5D0*(-15.0D0/r12**7*
+!     & (DRBx*x+DRBy*y+DRBz*z)*QAsum
+!     &                   +3.0D0/r12**5*
+!     &   (3.0D0*DRBx*QAxx*x
+!     &   +1.0D0*DRBy*QAxx*y
+!     &   +1.0D0*DRBz*QAxx*z
+!     &   +2.0D0*DRBx*QAxy*y
+!     &   +2.0D0*DRBy*QAxy*x
+!     &   +2.0D0*DRBx*QAxz*z
+!     &   +2.0D0*DRBz*QAxz*x
+!     &   +1.0D0*DRBx*QAyy*x
+!     &   +3.0D0*DRBy*QAyy*y
+!     &   +1.0D0*DRBz*QAyy*z
+!     &   +2.0D0*DRBy*QAyz*z
+!     &   +2.0D0*DRBz*QAyz*y
+!     &   +1.0D0*DRBx*QAzz*x
+!     &   +1.0D0*DRBy*QAzz*y
+!     &   +3.0D0*DRBz*QAzz*z))
 
 
  1    Continue

@@ -8,10 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-c -------------------------------------------------------------------
-c The following function returns the size needed by ptrans for
-c temporaries. It also puts into common some offsets and stuff.
-c -------------------------------------------------------------------
+! -------------------------------------------------------------------
+! The following function returns the size needed by ptrans for
+! temporaries. It also puts into common some offsets and stuff.
+! -------------------------------------------------------------------
       integer function memtra(npam)
       use pso_stuff
 #include "etwas.fh"
@@ -39,7 +39,7 @@ c -------------------------------------------------------------------
       mxa4=mxa3*mxact
       mxS34=mxS3*mxS4
       mxS234=mxS2*mxS34
-c Max sizes, in common, needed for certain temporaries:
+! Max sizes, in common, needed for certain temporaries:
       ncred=Max(1,mxS*mxact)
 
       nscr1=mxa4

@@ -129,7 +129,7 @@
       End If
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Coora)
       End If

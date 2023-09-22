@@ -28,20 +28,20 @@
             TEST=A*ALFA
          End If
       End If
-CFUE  IF(TEST.LT..02D+00)GO TO 900
+!FUE  IF(TEST.LT..02D+00)GO TO 900
       IF(TEST.LT..005D+00)GO TO 900
-C     Write (*,*) ' Large A'
-C.....K=0 ONE CONTRIBUTION SS-INTEGRAL
+!     Write (*,*) ' Large A'
+!.....K=0 ONE CONTRIBUTION SS-INTEGRAL
       Do 40 i=0,k
          rri(i)=qrint(i+1,aexp,bexp1,expa)*DBLE((-1)**i)
      &          -qrint(i+1,aexp,bexp2,expa)
  40   Continue
-C     Call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
+!     Call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
       AL=One/(Two*ALFA*A)
       Do 41 i=0,k
          mmax=i/2
          Do 42 m=1,mmax+1
-c.....calculate integral ri(i,m)
+!.....calculate integral ri(i,m)
             fiintm=fiint(m-1,0)
             grint(i,m)=Zero
             Do 43 n=1,m
@@ -56,18 +56,18 @@ c.....calculate integral ri(i,m)
 41    Continue
       go to 100
 900   Continue
-C     Write (*,*) ' SERIES EXPANSION FOR SMALL A'
-c
-C.....SERIES EXPANSION FOR SMALL A
-c
-C.... K=0 FIRST
+!     Write (*,*) ' SERIES EXPANSION FOR SMALL A'
+!
+!.....SERIES EXPANSION FOR SMALL A
+!
+!.... K=0 FIRST
       l = (k+1)/2
       EXP1=-(ALFA*A*A+BETA*R0*R0)
       BEXP=-Two*BETA*R0/(ALFA+BETA)
       Do 45 i=0,l+2
          rri(i)=qrint(2*(i+1),AExp,BExp,Exp1)
  45   Continue
-C     Call RecPrt(' rri',' ',rri,l+3,1)
+!     Call RecPrt(' rri',' ',rri,l+3,1)
       pi4=pi*Four
       AA  = Two *(A*Alfa)
       AA2 = Two *(A*Alfa)**2

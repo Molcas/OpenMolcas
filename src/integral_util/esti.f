@@ -61,7 +61,7 @@
       EstI = Sqrt(Scrt(iHigh))
 !
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Zeta)
          Call Unused_real_array(rKapAB)

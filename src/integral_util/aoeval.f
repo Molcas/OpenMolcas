@@ -93,7 +93,7 @@
 !---- Set the order of derivation
 !
       nDrv=nRad-1
-C     Write(6,*) '----- nDrv = ', nDrv
+!     Write(6,*) '----- nDrv = ', nDrv
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -239,7 +239,7 @@ C     Write(6,*) '----- nDrv = ', nDrv
 !           if: New formula by way of derivation
 !
             if = 1
-C           Call PrntA(nterm,nform,Angular,if,0)
+!           Call PrntA(nterm,nform,Angular,if,0)
             Do jDrv = 0,nDrv-1
                Do jx = jDrv,0,-1
                   Do jy = jDrv-jx,0,-1
@@ -259,24 +259,24 @@ C           Call PrntA(nterm,nform,Angular,if,0)
                      If (jy .EQ. 0 .AND. jz .EQ. 0) then
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,1,ipx,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,2,ipy,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                      Else if (jz .EQ. 0) then
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,2,ipy,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                      Else
                        if=if+1
                        Call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
+!                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
                      Endif
                   End Do
                End Do
