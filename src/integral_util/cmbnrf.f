@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1992, Roland Lindh                                *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Fact,Temp)
 !***********************************************************************

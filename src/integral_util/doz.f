@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine DoZ   (Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,ZInv,
      &                  rKappa,IndZt,IncZet,SkipZt,Data,IndZ,
      &                  iphX,iphY,iphZ)

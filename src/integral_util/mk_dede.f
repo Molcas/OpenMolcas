@@ -11,6 +11,7 @@
 ! Copyright (C) 1990-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,
      &                   mDeDe,mIndij,Special_NoSym,DFT_Storage,
      &                   DeDe,nDeDe)

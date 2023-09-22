@@ -11,6 +11,7 @@
 ! Copyright (C) 1990-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine SchInt(CoorM,
      &                  iAnga,iCmp,mZeta,Zeta,ZInv,
      &                  rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2,

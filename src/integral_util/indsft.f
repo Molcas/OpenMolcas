@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine IndSft(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                  Shijij,iAO,iAOst,ijkl,SOInt,nSOInt)
 !***********************************************************************

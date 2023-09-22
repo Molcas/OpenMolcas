@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) Kurt Pfingst                                           *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CmbnMPr(Rnr,nZeta,la,lb,lr,Zeta,Final,nComp)
 !***********************************************************************
 !     Author: K.Pfingst                                                *
@@ -17,7 +18,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 !     External gammat,gammaf
-#include "print.fh"
 #include "rmat.fh"
 #include "gam.fh"
 #include "nrmf.fh"
@@ -27,12 +27,6 @@
 !     Statement function for Cartesian index
 !
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-!
-      iRout = 134
-      iPrint = nPrint(iRout)
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!     iPrint = 99
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -44,10 +38,10 @@
          Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
-            If (iPrint.ge.99) Then
-               Write (6,*) ixa,iya,iza,ixb,iyb,izb
-               Write (6,*) ipa,ipb
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) ixa,iya,iza,ixb,iyb,izb
+            Write (6,*) ipa,ipb
+#endif
 !
 !           Combine multipole moment integrals
 !

@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PGet2(iCmp,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax)

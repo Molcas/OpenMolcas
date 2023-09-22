@@ -31,7 +31,6 @@
 !             January '92.                                             *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),
      &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
      &       Wout(mcd*ijkla)

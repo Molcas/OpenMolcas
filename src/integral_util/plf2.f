@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
      &                iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************

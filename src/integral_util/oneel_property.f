@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,
      &                          D_tot,nDens,Property,Sig)

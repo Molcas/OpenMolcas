@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,
      &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,

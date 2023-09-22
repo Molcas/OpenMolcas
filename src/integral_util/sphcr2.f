@@ -31,14 +31,11 @@
 !             January '92.                                             *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Win(ijkl*ncd*iSph*jSph), Scrt(nScrt),
      &       Coeff1(iCar,iCar), Coeff2(jCar,jCar),
      &       Wout(ijkl*ncd*mab)
       Logical Tr1, Pr1, Tr2, Pr2
 !
-      iRout = 60
-      iPrint = nPrint(iRout)
 !     Call RecPrt(' In SphCr2: P(AB|cd) ',' ',Win,ncd*ijkl,iSph*jSph)
       If (Tr1.and.Tr2) Then
 !        Call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
@@ -95,9 +92,7 @@
           End If
       End If
 !
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
-      End If
+!        Call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
       Return
 ! Avoid unused argument warnings
       If (.False.) Then

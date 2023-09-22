@@ -20,7 +20,6 @@
 !             May '90                                                  *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Target(nPrim,nTrgt)
 !
 !     Statment functions

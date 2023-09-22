@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,
      &                  Fac3,Fac4,Fac5,A,B,P)
 !***********************************************************************

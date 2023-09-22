@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir,nComp)
 !***********************************************************************
 !                                                                      *

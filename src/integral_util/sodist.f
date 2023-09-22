@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       use SOAO_Info, only: iAOtSO

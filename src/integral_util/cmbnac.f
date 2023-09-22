@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,Final,Alpha,
      &                  IfGrad,ld,nVecAC)
 !***********************************************************************

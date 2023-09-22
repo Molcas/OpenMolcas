@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
      &                  iShll,jShll,iAO,jAO,DAO,iBas,jBas,
      &                  DSO,nDSO,nOp,FactNd,Scrt)

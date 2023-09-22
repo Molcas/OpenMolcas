@@ -11,6 +11,7 @@
 ! Copyright (C) 1990-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Drv1_RF(FactOp,nOpr,FD,nFD,CCoor,lOper,Cavxyz,lMax)
 !***********************************************************************
 !                                                                      *

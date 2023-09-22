@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine  StatP(Index)
       Implicit Real*8 (a-h,o-z)
 #include "pstat.fh"

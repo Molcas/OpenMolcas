@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
       Use Basis_Info
       use Center_Info

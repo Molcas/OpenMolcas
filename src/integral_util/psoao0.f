@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,2015, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PSOAO0(nSO,MemPrm,MemMax,iAnga, iCmpa,
      &                  iBas,  iBsInc, jBas,  jBsInc,
      &                  kBas,  kBsInc, lBas,  lBsInc,

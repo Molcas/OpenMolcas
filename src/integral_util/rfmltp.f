@@ -11,6 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !               1994, Markus P. Fuelscher                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
       use stdalloc

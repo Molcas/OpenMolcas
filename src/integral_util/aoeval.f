@@ -11,6 +11,7 @@
 ! Copyright (C) 1995, Roland Lindh                                     *
 !               2004, Takashi Tsuchiya                                 *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,
      &                  Angular,nTerm,nForm,Thr_Rad,nRad,mExp,nExp,
      &                  Alpha,Radial,nBas,CffCnt,AOValue,mAO,
@@ -33,7 +34,6 @@
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
       Integer Angular(nTerm,5,nForm)
       Logical Transf
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif

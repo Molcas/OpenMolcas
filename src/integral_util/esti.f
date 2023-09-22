@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,
      &              xab,nab,Scrt,nScrt,IndZ)
 !***********************************************************************

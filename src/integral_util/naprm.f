@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine NAPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
      &                 Final,nZeta,nComp,la,lb,A,RB,nRys,
      &                 Array,nArr,CCoor,nOrdOp)

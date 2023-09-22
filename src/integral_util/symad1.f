@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
      &                  iShll,jShll,iAO,jAO,
      &                  AOInt,iBas,jBas,nIC,iIC,

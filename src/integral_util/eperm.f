@@ -11,6 +11,7 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine eperm(D_Tot,nDens,Ravxyz,Cavxyz,nCavxyz_,dEF,
      &                 Grid,nGrid_,Cord,MaxAto,Z_Nuc,xfEF)
 !***********************************************************************

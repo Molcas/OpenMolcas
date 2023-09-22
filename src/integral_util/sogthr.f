@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
      &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 !***********************************************************************

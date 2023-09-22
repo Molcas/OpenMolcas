@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine FckAcc_NoSymq(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
      &                  iShll, iShell, nijkl,
      &                  AOInt,FMat,DMat,nDens,

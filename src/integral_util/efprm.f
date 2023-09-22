@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1995, Roland Lindh                                *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine EFPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
      &                 Final,nZeta,nComp,la,lb,A,RB,nRys,
      &                 Array,nArr,Ccoor,nOrdOp)

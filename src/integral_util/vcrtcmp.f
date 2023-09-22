@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine vCrtCmp(Zeta12,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !***********************************************************************
 !                                                                      *
@@ -29,7 +30,6 @@
 !
       iRout = 116
       iPrint = nPrint(iRout)
-!     iPrint = 99
 !
       If (iPrint.ge.99) Then
          Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)

@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,
      &                  qKappa)
 !***********************************************************************

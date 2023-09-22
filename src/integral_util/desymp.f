@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,
      &                  iShell, iAO, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
 !***********************************************************************

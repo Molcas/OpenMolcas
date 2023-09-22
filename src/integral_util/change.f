@@ -29,12 +29,9 @@
 !             March '90                                                *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-!#include "print.fh"
 !
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 !
-!     iRout = 11
-!     iPrint = nPrint(iRout)
       Fail = .False.
       If (QlPrim) Then
          If (lPrInc.eq.1) Then

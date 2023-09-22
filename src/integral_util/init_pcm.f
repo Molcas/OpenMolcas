@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Init_PCM(NonEq,iCharg)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *

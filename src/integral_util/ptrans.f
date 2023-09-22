@@ -29,6 +29,7 @@
 !   PSOPam()=a four-index array containing the selected matrix
 !         elements.
 ! -------------------------------------------------------------------
+!#define _DEBUGPRINT_
       subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants

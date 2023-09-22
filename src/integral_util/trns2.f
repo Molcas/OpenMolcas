@@ -24,7 +24,6 @@
 !             June '90                                                 *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Win(nvec,nc,nc), Wout(nvec,nc,nc)
 !
 !     Write (*,*) ' In Trns2, nvec,nc=',nVec,nc

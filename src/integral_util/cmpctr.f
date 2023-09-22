@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1993,1998, Roland Lindh                           *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CmpctR(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,
      &                  Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,
      &                  xZInv,CutInt,RadMax,cdMax,EtMax,AeqB,xab,

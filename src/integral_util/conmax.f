@@ -23,7 +23,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 A(nPrim,mPrim), B(nPrim,nCont), C(mPrim,mCont)
-#include "print.fh"
 !
       Do iPrim = 1, nPrim
          Temp= Zero

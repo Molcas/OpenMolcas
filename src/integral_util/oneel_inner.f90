@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
       Subroutine OneEl_Inner                                            &

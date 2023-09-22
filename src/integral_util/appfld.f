@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       use stdalloc
       Implicit Real*8 (A-H,O-Z)

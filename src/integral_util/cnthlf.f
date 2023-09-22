@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
      &                  lZeta,nVec,First,IncVec,A1,A2,A3,
      &                  Indij)

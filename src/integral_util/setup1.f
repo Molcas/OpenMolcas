@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Setup1(ExpA,nPrim,ExpB,mPrim,A,B,rKappa,Pcoor,ZInv)
 !***********************************************************************
 !                                                                      *

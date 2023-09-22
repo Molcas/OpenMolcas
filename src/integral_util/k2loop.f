@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine k2Loop(Coor,
      &                  iAnga,iCmpa,iShll,
      &                  iDCRR,nDCRR,Data,
