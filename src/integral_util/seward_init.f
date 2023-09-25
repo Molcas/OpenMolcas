@@ -75,7 +75,6 @@
       ERI_Status=InActive
       Indexation_Status=Inactive
       XMem_Status=Inactive
-      NQ_Status=Inactive
       Seward_Status=Active
 !
       Call Set_Binom()
