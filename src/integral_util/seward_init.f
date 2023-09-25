@@ -67,7 +67,24 @@
       iTotal=0
       MaxMem=0
 !
-      Show = .NOT. Reduce_Prt()
+      iPL=iPrintLevel(-1)
+      If (iPL.eq.2) Then
+         iPL=5
+      Else If (iPL.eq.3) Then
+         iPL=6
+      Else If (iPL.eq.4) Then
+         iPL=7
+      Else If (iPL.eq.5) Then
+         iPL=49  ! 99 would be just too much
+      End If
+      Do i = 1, nRout
+         nPrint(i)=iPL
+      End Do
+      If ((Reduce_Prt().and.iPL.lt.6).or.iPL.eq.0) Then
+         Show=.False.
+      Else
+         Show=.True.
+      End If
 !
       NDDO=.False.
 !
