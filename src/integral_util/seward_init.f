@@ -71,7 +71,6 @@
 !
       NDDO=.False.
 !
-      k2_Status=InActive
       RctFld_Status=InActive
       ERI_Status=InActive
       Indexation_Status=Inactive
@@ -79,8 +78,8 @@
       NQ_Status=Inactive
       Seward_Status=Active
 !
-      Call Set_Binom
-      Call Set_CanInd
+      Call Set_Binom()
+      Call Set_CanInd()
 !
 !     Set some default value for RMAT type integration
 !

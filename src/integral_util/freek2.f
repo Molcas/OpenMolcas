@@ -25,7 +25,6 @@
       use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "setup.fh"
-#include "status.fh"
 !
       If (.Not.Allocated(Data_k2)) Return
 
@@ -33,7 +32,6 @@
 !
       Call mma_deallocate(Data_k2)
       Call mma_deallocate(Indk2)
-      k2_Status=InActive
 !
       Return
       End

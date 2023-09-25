@@ -46,7 +46,6 @@
       External Cmpct
 #include "nsd.fh"
 #include "setup.fh"
-#include "status.fh"
 !     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
@@ -65,7 +64,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (k2_Status.eq.Produced) Return
+      If (Allocated(Data_k2)) Return
 !
       ReOrder=.False.
       If (Index(ProgName,'scf').ne.0) Then
@@ -347,7 +346,6 @@
 !                                                                      *
 !
       Call CWTime(TCpu2,TWall2)
-      k2_Status=Produced
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -34,11 +34,9 @@
 #include "ndarray.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "status.fh"
 !
 !     declaration of local vars...
-      Logical Debug
-      Data Debug/.False./
+      Logical :: Debug=.False.
 !
 !---- Statement function
 !
@@ -49,13 +47,11 @@
       If (Debug) Then
          If (Allocated(Data_k2)) Then
             Write (6,*) 'Enter Allok2, k2_Status=Active'
-         Else If (k2_Status.eq.Produced) Then
-            Write (6,*) 'Enter Allok2, k2_Status=Produced'
          Else
             Write (6,*) 'Enter Allok2, k2_Status=InActive'
          End If
       End If
-      If (Allocated(Data_k2) .or. k2_Status.eq.Produced   ) Return
+      If (Allocated(Data_k2)) Return
 !
       Call Nr_Shells(nSkal)
 !
