@@ -120,8 +120,8 @@ if (flag_fdm) then
   call mh5_init_attr(out_tfdm,'description','TFDM grid')
   ! full density matrix (only abs values for state multipoles in spherical basis)
   if (basis == 'SPH') then
-    out_fdmr = mh5_create_dset_real(out_id,'FDM',4,[Ntime_tmp_dm,len_sph,d,d])
-    call mh5_init_attr(out_fdmr,'description','Absolute values of state multipoles')
+    out_fdmr = mh5_create_dset_real(out_id,'SPH_MULTIPOLES',4,[Ntime_tmp_dm,len_sph,d,d])
+    call mh5_init_attr(out_fdmr,'description','Absolute values of state multipoles stored as [n_time,sph_length,d,d]')
   else
     out_fdmr = mh5_create_dset_real(out_id,'FDM_R',3,[Ntime_tmp_dm,d,d])
     out_fdmi = mh5_create_dset_real(out_id,'FDM_I',3,[Ntime_tmp_dm,d,d])
