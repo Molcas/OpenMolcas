@@ -35,7 +35,9 @@
       Real*8 Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4)
+#ifdef _DEBUGPRINT_
       Character*80 Label
+#endif
 !
 !     Statement function for Cartesian index
 !
@@ -45,6 +47,9 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In EFPrm: Beta',' ',Beta,nBeta,1)
+#else
+      If (.False.) Call Unused_Real_Array(Alpha)
+      If (.False.) Call Unused_Real_Array(Beta)
 #endif
 !
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Final,1)
