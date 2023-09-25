@@ -33,7 +33,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
 !                                                                      *
@@ -45,15 +44,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      iRout = 130
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SOGthr: PrpInt',' ',PrpInt,1,nPrp)
-         Write (6,*) ' iAO, jAO=',iAO, jAO
-         Write (6,*) ' iShell, jShell=',iShell, jShell
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SOGthr: PrpInt',' ',PrpInt,1,nPrp)
+      Write (6,*) ' iAO, jAO=',iAO, jAO
+      Write (6,*) ' iShell, jShell=',iShell, jShell
+#endif
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
        Do 200 i1 = 1, iCmp
@@ -103,9 +98,9 @@
  200   Continue
  100  Continue
 !
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SOGthr: SOInt',' ',SOInt,iBas*jBas,nSOInt)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SOGthr: SOInt',' ',SOInt,iBas*jBas,nSOInt)
+#endif
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(AeqB)

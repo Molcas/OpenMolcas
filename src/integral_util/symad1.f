@@ -30,22 +30,18 @@
       use Real_Spherical, only: iSphCr
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
       Integer nOp(2)
       Integer iTwoj(0:7), jIC(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
 !
-      iRout = 133
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' lOper=',lOper
-         Write (6,*) ' nSOInt=',nSOInt
-         Call RecPrt(' In SymAd1: AOInt',' ',AOInt,iBas*jBas,
-     &                iCmp*jCmp*nIC)
-         Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
-         Write (6,*) ' iIC=',iIC
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' lOper=',lOper
+      Write (6,*) ' nSOInt=',nSOInt
+      Call RecPrt(' In SymAd1: AOInt',' ',AOInt,iBas*jBas,iCmp*jCmp*nIC)
+      Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
+      Write (6,*) ' iIC=',iIC
+#endif
       Do 10 iIrrep = 0, nIrrep-1
          jIC(iIrrep) = -999999999
          If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Cycle
@@ -95,8 +91,8 @@
          Call Abend()
       End If
 !
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
+#endif
       Return
       End

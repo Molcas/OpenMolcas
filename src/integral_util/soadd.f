@@ -23,7 +23,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
 !                                                                      *
@@ -37,11 +36,7 @@
 
 !
 #ifdef _DEBUGPRINT_
-      iRout = 130
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
-      End If
+      Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
 #endif
 !
       lSO = 0

@@ -24,13 +24,11 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8  A(nZeta,3,3), Pxyz(nZeta,3)
 !
-      iRout = 233
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99)
-     &   Call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
+#endif
 !
 !-----Set up the transformation matrix
 !
@@ -69,7 +67,8 @@
          End If
  100  Continue
 !
-      If (iPrint.ge.99)
-     &   Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
+#endif
       Return
       End

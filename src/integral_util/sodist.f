@@ -16,26 +16,25 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (a-h,o-z)
-#include "print.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
       Integer DoIt(nMOs)
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
+#ifdef _DEBUGPRINT_
       Character*80 Label
+#endif
 !
-      iRout=135
-      iPrint=nPrint(iRout)
-      If (iPrint.ge.49) Then
-         Write (6,*) 'SODist: MO-Coefficients'
-         iOff=1
-         Do iIrrep = 0, nIrrep-1
-            If (nBas(iIrrep).gt.0) Then
-               Write (6,*) ' Symmetry Block',iIrrep
-               Call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
-            End If
-            iOff=iOff+nBas(iIrrep)**2
-         End Do
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'SODist: MO-Coefficients'
+      iOff=1
+      Do iIrrep = 0, nIrrep-1
+         If (nBas(iIrrep).gt.0) Then
+            Write (6,*) ' Symmetry Block',iIrrep
+            Call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
+         End If
+         iOff=iOff+nBas(iIrrep)**2
+      End Do
+#endif
 !
 !---- Compute some offsets
 !
@@ -70,10 +69,10 @@
           End Do
       End Do
 !
-      If (iPrint.ge.49) Then
-         Write (Label,'(A)')'SODist: MOValue(mAO*nCoor,nMOs)'
-         Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (Label,'(A)')'SODist: MOValue(mAO*nCoor,nMOs)'
+      Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
+#endif
 !
       Return
       End

@@ -23,12 +23,9 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 ExpA(nPrim), ExpB(mPrim), rKappa(nPrim,mPrim),
      &       Pcoor(nPrim,mPrim,3),  ZInv(nPrim,mPrim), A(3), B(3)
 !
-      iRout = 114
-      iPrint = nPrint(iRout)
       ab  = (A(1)-B(1))**2 + (A(2)-B(2))**2 + (A(3)-B(3))**2
       If (ab.ne.Zero) Then
       Do 10 iPrim = 1, nPrim
@@ -49,12 +46,12 @@
         call dcopy_(nPrim*mPrim,A(2),0,Pcoor(1,1,2),1)
         call dcopy_(nPrim*mPrim,A(3),0,Pcoor(1,1,3),1)
       End If
-      If (iPrint.ge.99) Then
-         Call RecPrt(' *** Kappa ***',' ',rKappa, nPrim, mPrim)
-         Call RecPrt(' ***   Px  ***',' ',Pcoor(1,1,1),nPrim,mPrim)
-         Call RecPrt(' ***   Py  ***',' ',Pcoor(1,1,2),nPrim,mPrim)
-         Call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' *** Kappa ***',' ',rKappa, nPrim, mPrim)
+      Call RecPrt(' ***   Px  ***',' ',Pcoor(1,1,1),nPrim,mPrim)
+      Call RecPrt(' ***   Py  ***',' ',Pcoor(1,1,2),nPrim,mPrim)
+      Call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
+#endif
 !
       Return
       End

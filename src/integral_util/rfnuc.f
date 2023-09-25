@@ -29,7 +29,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)
 #ifdef _OBSOLETE_
      &        ,rRMy(3)
@@ -38,11 +37,9 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 124
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In RFNuc:CoOp',' ',CoOp,1,3)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In RFNuc:CoOp',' ',CoOp,1,3)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -62,11 +59,11 @@
             Do iCnttp = 1, nCnttp
                ZA = dbsc(iCnttp)%Charge
                If (ZA.eq.Zero) Go To 101
-               If (iPrint.ge.99) Then
-                  Write (6,*) ' Charge=',ZA
-                  Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
-     &                        dbsc(iCnttp)%nCntr)
-               End If
+#ifdef _DEBUGPRINT_
+               Write (6,*) ' Charge=',ZA
+               Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
+     &                     dbsc(iCnttp)%nCntr)
+#endif
                Do iCnt = 1, dbsc(iCnttp)%nCntr
                   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
@@ -164,11 +161,11 @@
      &                      'RFNuc: Option not implemented yet!')
                   Call Abend()
                End If
-               If (iPrint.ge.99) Then
-                  Write (6,*) ' Charge=',ZA
-                  Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',XF(1,iXF),3,1)
-               End If
+#ifdef _DEBUGPRINT_
+               Write (6,*) ' Charge=',ZA
+               Write (6,*) ' ixyz=',ixyz
+               Call RecPrt(' Centers',' ',XF(1,iXF),3,1)
+#endif
 !
                A(1:3) = XF(1:3,iXF)
 !
@@ -241,8 +238,9 @@
 !
  99   Continue
 #endif
-      If (iPrint.ge.99) Call RecPrt(' Nuclear Multipole Moments',
-     &                              ' ',rNucMm,ip,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' Nuclear Multipole Moments',' ',rNucMm,ip,1)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

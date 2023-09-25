@@ -24,16 +24,13 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la),
      &       A(nZeta,3,3)
 !
-      iRout = 233
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)
-         Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)
+      Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
+#endif
 !
 !-----Transform
 !
@@ -68,8 +65,9 @@
          call dcopy_(nZeta*kLen,Scr,1,WInt,1)
  210  Continue
 !
-      If (iPrint.ge.99)
-     &   Call RecPrt('Exit Traxyz :Global well integrals',' ',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Exit Traxyz :Global well integrals',' ',
      &                WInt,nZeta,kLen)
+#endif
       Return
       End

@@ -16,7 +16,6 @@
       use PCM_arrays, only: MM
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "rctfld.fh"
       Real*8, Allocatable:: VTot(:), QTot(:)
 !
@@ -42,22 +41,21 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 Qs(nComp,2), QTot(nComp), VTot(nComp)
-#include "print.fh"
 #include "rctfld.fh"
 !
-      iRout = 4
-      iPrint = nPrint(iRout)
       If ( lRF .and. .Not.PCM .and. lRFCav) then
          call dcopy_(nComp,Qs(1,1),1,QTot,1)
          Call DaXpY_(nComp,One,Qs(1,2),1,QTot,1)
-         If (iPrint.ge.99) Call RecPrt('Total Multipole Moments',' ',
-     &                                 QTot,1,nComp)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Total Multipole Moments',' ',QTot,1,nComp)
+#endif
          call dcopy_(nComp,QTot,1,VTot,1)
 !--------Compute the electric field due to the total charge
 !        distribution.
          Call AppFld(VTot,rds,Eps,lMax,EpsInf,NonEq_ref)
-         If (iPrint.ge.99) Call RecPrt('Total Electric Field',
-     &                                 ' ',VTot,1,nComp)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Total Electric Field',' ',VTot,1,nComp)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

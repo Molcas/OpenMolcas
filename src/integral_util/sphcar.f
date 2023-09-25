@@ -36,26 +36,23 @@
 !             Modified spherical harmonics to cartesians October '91.  *
 !***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Win(nab*nijx), Scrt(nScrt),
      &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),
      &       Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2),
      &       Wout(mab*nijx)
       Logical Tr1, Pr1, Tr2, Pr2
 !
-      iRout = 26
-      iPrint = nPrint(iRout)
       l1=(n1+1)*(n1+2)/2
       k1=l1
       If (Pr1) k1 = 2*n1 + 1
       l2=(n2+1)*(n2+2)/2
       k2 = l2
       If (Pr2) k2 = 2*n2 + 1
-      if (iprint.ge.99) then
-        call recprt(' Win',' ',Win,nab,nijx)
-        call recprt('Coeff1',' ',Coeff1,l1,l1)
-        call recprt('Coeff2',' ',Coeff2,l2,l2)
-      end if
+#ifdef _DEBUGPRINT_
+      call recprt(' Win',' ',Win,nab,nijx)
+      call recprt('Coeff1',' ',Coeff1,l1,l1)
+      call recprt('Coeff2',' ',Coeff2,l2,l2)
+#endif
 !
       If (Tr1.and.Tr2) Then
 !

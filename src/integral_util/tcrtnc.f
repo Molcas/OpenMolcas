@@ -33,7 +33,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 !
 !---- Cache size
 !
@@ -43,22 +42,14 @@
      &       ACOut(lZeta*lEta,mabcd)
       Integer IndZet(lZeta), IndEta(lEta)
 !
-      iRout = 18
-      iPrint = nPrint(iRout)
-      iPrint = 000000 !yma
-
-!
 !#ifdef _DEBUGPRINT_  !yma
-      If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,
-     &                                m1*m2*m3*m4*mabcd)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,mabcd,m1*m2*m3*m4)
-         Call RecPrt(' Coef1',' ',Coef1,n1,m1)
-         Call RecPrt(' Coef2',' ',Coef2,n2,m2)
-         Call RecPrt(' Coef3',' ',Coef3,n3,m3)
-         Call RecPrt(' Coef4',' ',Coef4,n4,m4)
-         Write (6,*) n1, n2, n3, n4
-      End If
+      Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
+      Call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,mabcd,m1*m2*m3*m4)
+      Call RecPrt(' Coef1',' ',Coef1,n1,m1)
+      Call RecPrt(' Coef2',' ',Coef2,n2,m2)
+      Call RecPrt(' Coef3',' ',Coef3,n3,m3)
+      Call RecPrt(' Coef4',' ',Coef4,n4,m4)
+      Write (6,*) n1, n2, n3, n4
 !#endif
 !
 !---- Reduce for contraction matrix
@@ -106,10 +97,8 @@
      &            IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.59)
-     &  Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
-      If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,
-     &                                lZeta*lEta*mabcd)
+      Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
+      Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZeta*lEta*mabcd)
 #endif
 !
       Return

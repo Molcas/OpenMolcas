@@ -24,22 +24,20 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer),
      &       Axyz(nZeta*3,nHer,0:la),
      &       Rxyz(nZeta*3,nHer,0:lr),
      &       Bxyz(nZeta*3,nHer,0:lb), Temp(nZeta*3,nHer)
+#ifdef _DEBUGPRINT_
       Character*80 Label
+#endif
 !
-      iRout = 123
-      iPrint = nPrint(iRout)
-!     iPrint = 99
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)
-         Call RecPrt(' In vAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
-         Call RecPrt(' In vAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
-         Call RecPrt(' In vAssmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)
+      Call RecPrt(' In vAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
+      Call RecPrt(' In vAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
+      Call RecPrt(' In vAssmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
+#endif
 !
 !
       call dcopy_(3*nZeta*(la+1)*(lb+1)*(lr+1),[Zero],0,
@@ -66,11 +64,11 @@
  10               Continue
  30            Continue
 !
-               If (iPrint.ge.99) Then
-                  Write (Label,'(A,I2,A,I2,A,I2,A)')
-     &            ' In vAssmbl: Rnxyz(',ia,',',ib,',',ir,')'
-                  Call RecPrt(Label,' ',Rnxyz(1,ia,ib,ir),nZeta,3)
-               End If
+#ifdef _DEBUGPRINT_
+               Write (Label,'(A,I2,A,I2,A,I2,A)')
+     &         ' In vAssmbl: Rnxyz(',ia,',',ib,',',ir,')'
+               Call RecPrt(Label,' ',Rnxyz(1,ia,ib,ir),nZeta,3)
+#endif
  120        Continue
  110     Continue
  100  Continue

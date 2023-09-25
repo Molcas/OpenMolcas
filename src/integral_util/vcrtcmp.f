@@ -23,20 +23,16 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer),
      &       Axyz(nZeta,3,nHer,0:na)
       Logical ABeq(3)
 !
-      iRout = 116
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
-         Call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
-         Call RecPrt(' In vCrtCmp: A   ',' ',A   ,1    ,3)
-         Call RecPrt(' In vCrtCmp: P   ',' ',P   ,nZeta,3)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
+      Call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
+      Call RecPrt(' In vCrtCmp: A   ',' ',A   ,1    ,3)
+      Call RecPrt(' In vCrtCmp: P   ',' ',P   ,nZeta,3)
+#endif
       call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
       If (na.eq.0) Go To 999
 !
@@ -67,14 +63,14 @@
  10   Continue
 !
  999  Continue
-!     If (iPrint.ge.99) Then
-!        Do 100 ia = 0, na
-!           Do 110 iHer = 1, nHer
-!              Write (Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',
-!    &               iHer,',ia=',ia,')'
-!              Call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
-!110        Continue
-!100     Continue
-!     End If
+#ifdef _DEBUGPRINT_
+      Do 100 ia = 0, na
+         Do 110 iHer = 1, nHer
+            Write (Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',
+     &            iHer,',ia=',ia,')'
+            Call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
+110      Continue
+100   Continue
+#endif
       Return
       End

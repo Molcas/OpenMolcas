@@ -23,21 +23,17 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "rmat.fh"
 #include "nrmf.fh"
       external fradf
-      Character*80 Label
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
       Parameter(limit=200,lenw=4*limit)
       Integer iScrt(limit)
       Real*8 Scrt(lenw)
+#ifdef _DEBUGPRINT_
+      Character*80 Label
+#endif
 !
-      iRout = 122
-      iPrint = nPrint(iRout)
-!cccccccccccccccccccccccccccccccccccccc
-!     iPrint = 99
-!cccccccccccccccccccccccccccccccccccccc
       Call Untested('Radlq')
 !                                                                      *
 !***********************************************************************
@@ -66,11 +62,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPrint.ge.99) Then
-         Write (6,*) ' Result in Radlq'
-         Write (Label,'(A)') ' Rnr'
-         Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' Result in Radlq'
+      Write (Label,'(A)') ' Rnr'
+      Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
+#endif
 !
       Return
       End

@@ -19,7 +19,6 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),GInt(nZeta,jSum),
      &       rKappa(nZeta), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta),
      &       Fac4(nZeta), Fac5(nZeta), A(3), B(3), P(nZeta,3)
@@ -28,14 +27,14 @@
 !
       iad(ix,iy,iz) = (iy+iz) * (iy+iz+1) / 2 + iz + 1
       iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
+#ifdef _DEBUGPRINT_
       nElem(i) = (i+1)*(i+2)/2
+#endif
 !
-      iRout = 239
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
-         Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
+      Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
+#endif
 !
 !-----Initilize
 !
@@ -80,10 +79,10 @@
 !
          kOff = kOff + 3**i
  101  Continue
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,
      &      (la+lb+1)*(la+lb+2)*(la+lb+3)/6)
-      End If
+#endif
 !
 !-----Loop over the elements of the basis functions on A and B
 !
@@ -198,10 +197,9 @@
  20      Continue
  10   Continue
 !
-      If (iPrint.ge.89) Then
-         nab = nElem(la) * nElem(lb)
-         Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nab)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nElem(la)*nElem(lb))
+#endif
 !
       Return
       End

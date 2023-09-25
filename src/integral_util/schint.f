@@ -36,7 +36,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       External TERISq, ModU2, Cff2Dq, xRys2D
-#include "print.fh"
       Real*8  CoorM(3,4), CoorAC(3,2), HMtrx(nHrrMtrx,2),
      &       Zeta(mZeta), ZInv(mZeta), rKapab(mZeta), P(nZeta,3),
      &       Q(nZeta,3), rKapcd(mZeta), Wrk(nWork2)
@@ -48,17 +47,15 @@
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
       nElem(i)    = (i+1)*(i+2)/2
 !
-      iRout = 242
-      iPrint = nPrint(iRout)
 !     iQ = 1
       la = iAnga(1)
       lb = iAnga(2)
-      If (iPrint.ge.19) Then
-         Call RecPrt(' In SchInt: CoorM',' ',CoorM,3,4)
-         Call RecPrt(' In SchInt: P',' ',P,nZeta,3)
-         Call RecPrt(' In SchInt: Q',' ',Q,nZeta,3)
-         Write (6,*) 'iAnga=',iAnga
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SchInt: CoorM',' ',CoorM,3,4)
+      Call RecPrt(' In SchInt: P',' ',P,nZeta,3)
+      Call RecPrt(' In SchInt: Q',' ',Q,nZeta,3)
+      Write (6,*) 'iAnga=',iAnga
+#endif
 !
 !
 !-----Compute primitive integrals to be used in the prescreening
@@ -91,7 +88,6 @@
 !
 !-----Compute [a0|c0], ijkl,a,c
 !
-      If (iPrint.ge.19) nPrint(13)=99
       nT = mZeta*1
       NoSpecial=.True.
       Call Rys(iAnga,nT,
@@ -100,12 +96,10 @@
      &         mabMin,mabMax,mcdMin,mcdMax,
      &         Wrk,nWork2,TERISq,ModU2,Cff2Dq,
      &         xRys2D,NoSpecial)
-      If (iPrint.ge.19) nPrint(13)=5
 !
-      If (iPrint.ge.19) Call TrcPrt(' In SchInt: ijkl,[a0|c0]',' ',
-     &                              Wrk,mZeta,mabcd)
-      If (iPrint.ge.59) Call RecPrt(' In SchInt: ijkl,[a0|c0]',' ',
-     &                              Wrk,mZeta,mabcd)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SchInt: ijkl,[a0|c0]',' ',Wrk,mZeta,mabcd)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -139,10 +133,10 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPrint.ge.19) Call TrcPrt(' In SchInt',' ',Wrk(i_Int),
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SchInt',' ',Wrk(i_Int),
      &      mZeta,(nElem(la)*nElem(lb))**2)
-      If (iPrint.ge.99) Call RecPrt(' In SchInt',' ',Wrk(i_Int),
-     &      mZeta,(nElem(la)*nElem(lb))**2)
+#endif
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(iCmp)

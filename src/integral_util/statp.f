@@ -12,30 +12,27 @@
       Subroutine  StatP(Index)
       Implicit Real*8 (a-h,o-z)
 #include "pstat.fh"
-#include "print.fh"
 !
-      iRout = 10
-      iPrint = nPrint(iRout)
       If (Index.eq.0) Then
          Call mma_MaxDBLE(MaxMem)
          MinXtr = MaxMem
       Else
-         If (iPrint.ge.6) Then
-            Write (6,*)
-            Write (6,'(21X,A)') '******* Partitioning Ratios *******'
-            Write (6,'(21X,A)') '* Index  i     j     k     l      *'
-            Write (6,'(21X,A7,4F6.3,A4)') '* Cont.',
-     &                r1/DBLE(iTotal),r2/DBLE(iTotal),
-     &                r3/DBLE(iTotal),r4/DBLE(iTotal),'   *'
-            Write (6,'(21X,A7,4F6.3,A4)') '* Prim.',
-     &                q1/DBLE(iTotal),q2/DBLE(iTotal),
-     &                q3/DBLE(iTotal),q4/DBLE(iTotal),'   *'
-            Write (6,'(21X,A)') '***********************************'
-            Write (6,*)
-            Write (6,'(21X,A,I8)') ' Largest Memory Deficiency:',MaxReq
-            Write (6,'(21X,A,I8)') ' Least Overflow of Memory :',MinXtr
-            Write (6,'(21X,A,I8)') ' Max Available Memory     :',MaxMem
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         Write (6,'(21X,A)') '******* Partitioning Ratios *******'
+         Write (6,'(21X,A)') '* Index  i     j     k     l      *'
+         Write (6,'(21X,A7,4F6.3,A4)') '* Cont.',
+     &             r1/DBLE(iTotal),r2/DBLE(iTotal),
+     &             r3/DBLE(iTotal),r4/DBLE(iTotal),'   *'
+         Write (6,'(21X,A7,4F6.3,A4)') '* Prim.',
+     &             q1/DBLE(iTotal),q2/DBLE(iTotal),
+     &             q3/DBLE(iTotal),q4/DBLE(iTotal),'   *'
+         Write (6,'(21X,A)') '***********************************'
+         Write (6,*)
+         Write (6,'(21X,A,I8)') ' Largest Memory Deficiency:',MaxReq
+         Write (6,'(21X,A,I8)') ' Least Overflow of Memory :',MinXtr
+         Write (6,'(21X,A,I8)') ' Max Available Memory     :',MaxMem
+#endif
       End If
 !
       Return

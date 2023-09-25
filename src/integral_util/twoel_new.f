@@ -55,7 +55,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "print.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
@@ -123,10 +122,6 @@
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
       Integer, Pointer :: iData1(:),iData2(:)
 !
-#ifdef _DEBUGPRINT_
-      iRout = 12
-      iPrint = nPrint(iRout)
-#endif
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -179,7 +174,7 @@
       u = DBLE(dc(iStb)%nStab)
       v = DBLE(dc(jStb)%nStab)
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
+      Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
 !
@@ -198,7 +193,7 @@
       w = DBLE(dc(kStb)%nStab)
       x = DBLE(dc(lStb)%nStab)
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
+      Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
 !
@@ -267,7 +262,7 @@
 !lwj
 !
 #ifdef _DEBUGPRINT_
-               If (iPrint.ge.9) Write (6,'(6A)')
+               Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
      &         ', T=',ChOper(iDCRT(lDCRT))
@@ -797,7 +792,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "print.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
      &       Data1(mData1),Data2(mData2),

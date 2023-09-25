@@ -22,7 +22,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "print.fh"
 #include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8, Allocatable:: Vs(:,:), QV(:,:)
@@ -70,17 +69,20 @@
 !                                                                      *
 !             Modified for nonequilibrum calculations January 2002 (RL)*
 !***********************************************************************
+#ifdef _DEBUGPRINT_
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
+#endif
       use External_Centers, only: XF
       use Gateway_global, only: PrPrt
       use Gateway_Info, only: PotNuc
-      use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
+#ifdef _DEBUGPRINT_
       Character*72 Label
+#endif
       Character*8 Label2
-#include "print.fh"
 #include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8 Q_solute(nComp,2), Vs(nComp,2), QV(nComp,2)
@@ -89,9 +91,6 @@
 !-----Statement Functions
 !
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-!
-      iRout = 1
-      iPrint = nPrint(iRout)
 !
       lOper(1)=1
       nOrdOp=lMax
@@ -132,8 +131,10 @@
             Call XFMoment(lMax,Q_solute,Vs,nComp,Origin)
          EndIf
 
-         If (iPrint.ge.99) Call RecPrt('Nuclear Multipole Moments',
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Nuclear Multipole Moments',
      &                                 ' ',Q_solute(1,1),1,nComp)
+#endif
 !
 !--------Solve dielectical equation(nuclear contribution), i.e.
 !        M(nuc,nl) -> E(nuc,nl)
@@ -141,8 +142,10 @@
          call dcopy_(nComp,Q_solute(1,1),1,Vs(1,1),1)
          Call AppFld(Vs(1,1),rds,Eps,lMax,EpsInf,NonEq)
 !
-         If (iPrint.ge.99) Call RecPrt('Nuclear Electric Field',
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Nuclear Electric Field',
      &                                 ' ',Vs(1,1),1,nComp)
+#endif
 !
 !--------Vnn = Vnn - 1/2 Sum(nl) E(nuc,nl)*M(nuc,nl)
 !
@@ -152,26 +155,28 @@
 !------- Add contributions due to slow counter charges
 !
          If (NonEq) RepNuc=RepNuc+E_0_NN
-         If (iPrint.ge.99) Write (6,*) ' RepNuc=',RepNuc
+#ifdef _DEBUGPRINT_
+         Write (6,*) ' RepNuc=',RepNuc
+#endif
 !2)
 !
 !--------Compute contribution to the one-electron hamiltonian
 !
 !        hpq = hpq + Sum(nl) E(nuc,nl)*<p|M(nl)|q>
 !
-         If (iPrint.ge.19) Then
-            Write (6,*) 'h1'
-            lOff = 1
-            Do iIrrep = 0, nIrrep-1
-               n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               If (n.gt.0) Then
-                  Write (Label,'(A,I1)')
-     &             'Diagonal Symmetry Block ',iIrrep+1
-                  Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
-                  lOff = lOff + n
-               End If
-            End Do
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'h1'
+         lOff = 1
+         Do iIrrep = 0, nIrrep-1
+            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+            If (n.gt.0) Then
+               Write (Label,'(A,I1)')
+     &          'Diagonal Symmetry Block ',iIrrep+1
+               Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
+               lOff = lOff + n
+            End If
+         End Do
+#endif
 !
 !------- Add potential due to slow counter charges
 !
@@ -183,19 +188,19 @@
 !
          Call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,1),lMax,h1,nh1)
 !
-         If (iPrint.ge.19) Then
-            Write (6,*) 'h1(mod)'
-            lOff = 1
-            Do iIrrep = 0, nIrrep-1
-               n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               If (n.gt.0) Then
-                  Write (Label,'(A,I1)')
-     &             'Diagonal Symmetry Block ',iIrrep+1
-                  Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
-                  lOff = lOff + n
-               End If
-            End Do
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'h1(mod)'
+         lOff = 1
+         Do iIrrep = 0, nIrrep-1
+            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+            If (n.gt.0) Then
+               Write (Label,'(A,I1)')
+     &          'Diagonal Symmetry Block ',iIrrep+1
+               Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
+               lOff = lOff + n
+            End If
+         End Do
+#endif
 !
 !------- Update h1 and RepNuc_save with respect to static contributions!
 !
@@ -248,30 +253,34 @@
             End Do
          End Do
       End Do
-      If (iPrint.ge.19) Then
-         Write (6,*) '1st order density'
-         lOff = 1
-         Do iIrrep = 0, nIrrep-1
-            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-            Write (Label,'(A,I1)')
-     &       'Diagonal Symmetry Block ',iIrrep+1
-            Call Triprt(Label,' ',D(lOff),nBas(iIrrep))
-            lOff = lOff + n
-         End Do
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) '1st order density'
+      lOff = 1
+      Do iIrrep = 0, nIrrep-1
+         n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+         Write (Label,'(A,I1)')
+     &    'Diagonal Symmetry Block ',iIrrep+1
+         Call Triprt(Label,' ',D(lOff),nBas(iIrrep))
+         lOff = lOff + n
+      End Do
+#endif
 !
       Call Drv1_RF(FactOp,nOpr,D,nh1,Origin,lOper,Q_solute(1,2),lMax)
 !
-      If (iPrint.ge.99) Call RecPrt('Electronic Multipole Moments',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electronic Multipole Moments',
      &                              ' ',Q_solute(1,2),1,nComp)
+#endif
 !
 !-----Solve dielectical equation(electronic contribution), i.e.
 !     M(el,nl) -> E(el,nl)
 !
       call dcopy_(nComp,Q_solute(1,2),1,Vs(1,2),1)
       Call AppFld(Vs(1,2),rds,Eps,lMax,EpsInf,NonEq)
-      If (iPrint.ge.99) Call RecPrt('Electronic Electric Field',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electronic Electric Field',
      &                              ' ',Vs(1,2),1,nComp)
+#endif
 !4)
 !
 !-----Compute contribution to the two-electron hamiltonian.
@@ -280,29 +289,29 @@
 !
       Call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,2),lMax,TwoHam,nh1)
 !
-      If (iPrint.ge.19) Then
-         Write (6,*) 'h1(mod)'
-         lOff = 1
-         Do iIrrep = 0, nIrrep-1
-            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-            If (n.gt.0) Then
-               Write (Label,'(A,I1)')
-     &          'Diagonal Symmetry Block ',iIrrep+1
-               Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
-               lOff = lOff + n
-            End If
-         End Do
-         Write (6,*) 'TwoHam(mod)'
-         lOff = 1
-         Do iIrrep = 0, nIrrep-1
-            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'h1(mod)'
+      lOff = 1
+      Do iIrrep = 0, nIrrep-1
+         n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+         If (n.gt.0) Then
             Write (Label,'(A,I1)')
      &       'Diagonal Symmetry Block ',iIrrep+1
-            Call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
+            Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
             lOff = lOff + n
-         End Do
-         Write (6,*) ' RepNuc=',RepNuc
-      End If
+         End If
+      End Do
+      Write (6,*) 'TwoHam(mod)'
+      lOff = 1
+      Do iIrrep = 0, nIrrep-1
+         n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+         Write (Label,'(A,I1)')
+     &    'Diagonal Symmetry Block ',iIrrep+1
+         Call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
+         lOff = lOff + n
+      End Do
+      Write (6,*) ' RepNuc=',RepNuc
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
