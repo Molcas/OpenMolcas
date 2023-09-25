@@ -11,13 +11,12 @@
       Integer, Parameter:: Active=34343434,                             &
      &                     Inactive=43344334,                           &
      &                     Produced=54334555
-      Integer k2_Status
       Integer RctFld_Status
       Integer ERI_Status
       Integer Indexation_Status
       Integer XMem_Status
       Integer NQ_Status
       Integer Seward_Status
-      Common /Status_Fields/ k2_Status, RctFld_Status,                  &
+      Common /Status_Fields/ RctFld_Status,                             &
      &                       ERI_Status, Indexation_Status,             &
      &                       XMem_Status, NQ_Status, Seward_Status
