@@ -23,6 +23,9 @@
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
+#ifdef _DEBUGPRINT_
+      Integer :: nFinal
+#endif
 !
 !     Statement function for Cartesian index
 !
@@ -72,8 +75,8 @@
  11   Continue
  10   Continue
 !
-      nFinal=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 #ifdef _DEBUGPRINT_
+      nFinal=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
       Call RecPrt('Final',' ',Final,nFinal,nComp)
 #endif
 !
