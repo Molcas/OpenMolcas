@@ -30,7 +30,6 @@
 !     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "oneswi.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,2),
@@ -44,9 +43,6 @@
 !
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-!
-      iRout = 151
-      iPrint = nPrint(iRout)
 !
       Call FZero(Final,nZeta*nElem(la)*nElem(lb)*nComp)
 !
@@ -89,7 +85,9 @@
 
       If (Q_Nuc.eq.Zero) Go To 111
       call dcopy_(3,CCoor,1,C,1)
-      If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('C',' ',C,1,3)
+#endif
 !
       Call DCopy_(3,C,1,CoorAC(1,2),1)
       Call DCopy_(3,C,1,Coori(1,3),1)

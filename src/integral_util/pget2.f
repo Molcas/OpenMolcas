@@ -33,7 +33,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
@@ -43,12 +42,8 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
-      End If
+      iComp = 1
+      Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
 #endif
       lOper=1
       t14 = Quart * ExFac

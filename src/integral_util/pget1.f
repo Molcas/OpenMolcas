@@ -31,19 +31,14 @@
       use pso_stuff
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
 !
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-         Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
-      End If
+      iComp = 1
+      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+      Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
 #endif
 !
 !     Quadruple loop over elements of the basis functions angular
@@ -130,13 +125,10 @@
       End If
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
-         Do 3333 i = 1, ijkl
-            Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,
-     &                            PAO(i,1),ijkl)
- 3333    Continue
-      End If
+      Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
+      Do 3333 i = 1, ijkl
+         Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+ 3333 Continue
 #endif
       Return
 ! Avoid unused argument warnings

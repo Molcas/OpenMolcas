@@ -49,16 +49,17 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)
-      Character ChOper(0:7)*3
       Integer    iDCRR(0:7), nOp(2), ipOffD(2+mFD,nOffD)
       Logical AeqB, Special_NoSym, DFT_Storage
+#ifdef _DEBUGPRINT_
+      Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -68,29 +69,26 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
 !
-      If (iPrint.ge.99) Then
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) ' Differential 1st order density matrix'
+      iFD = 1
+      Do iIrrep = 0, nIrrep - 1
          Write (6,*)
-         Write (6,*) ' Differential 1st order density matrix'
-         iFD = 1
-         Do iIrrep = 0, nIrrep - 1
+         Write (6,*) 'iIrrep=',iIrrep
+         Do jFD = 1, mFD
+            Write (6,*) 'jFD=',jFD
             Write (6,*)
-            Write (6,*) 'iIrrep=',iIrrep
-            Do jFD = 1, mFD
-               Write (6,*) 'jFD=',jFD
-               Write (6,*)
-               Call TriPrt(' Diagonal block',' ',
-     &                     FD(iFD,jFD),nBas(iIrrep))
-            End Do
-            iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
+            Call TriPrt(' Diagonal block',' ',
+     &                  FD(iFD,jFD),nBas(iIrrep))
          End Do
-      End If
+         iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      End Do
+#endif
 !
       mIndij = 0
-      iIrrep = 0
       jOffD = 0
       Inc=3
       If (mFD.eq.2) Inc=4
@@ -135,11 +133,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-            If (iPrint.ge.19) Then
-               Write (6,*) 'iS,jS=',iS,jS
-               Write (6,'(A,A,A,A,A)')
-     &            ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) 'iS,jS=',iS,jS
+            Write (6,'(A,A,A,A,A)')
+     &         ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
 !
             Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
      &                        label='DAO')
@@ -151,8 +149,10 @@
             iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
             LmbdR=1
-            If (iPrint.ge.49) Write (6,'(10A)')
+#ifdef _DEBUGPRINT_
+            Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#endif
 !
 !-----------Compute normalization factor due the DCR symmetrization
 !           of the two basis functions and the operator.
@@ -214,13 +214,13 @@
 !           Loop over the density and the spin-density (optional)
 !
             Do iFD = 1,  mFD
-               If (iPrint.ge.99) Then
-                  If (iFD.eq.1) Then
-                     Write (6,*) 'Processing the density'
-                  Else
-                     Write (6,*) 'Processing the spin-density'
-                  End If
+#ifdef _DEBUGPRINT_
+               If (iFD.eq.1) Then
+                  Write (6,*) 'Processing the density'
+               Else
+                  Write (6,*) 'Processing the spin-density'
                End If
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -236,12 +236,12 @@
 !-----------Project the Fock/1st order density matrix in AO
 !           basis on to the primitive basis.
 !
-            If (iPrint.ge.99) Then
-               Call RecPrt(' Left side contraction',' ',
-     &                     Shells(iShll)%pCff,iPrimi,iBasi)
-               Call RecPrt(' Right side contraction',' ',
-     &                     Shells(jShll)%pCff,jPrimj,jBasj)
-            End If
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' Left side contraction',' ',
+     &                  Shells(iShll)%pCff,iPrimi,iBasi)
+            Call RecPrt(' Right side contraction',' ',
+     &                  Shells(jShll)%pCff,jPrimj,jBasj)
+#endif
 !
 !-----------Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
@@ -259,9 +259,10 @@
             Call DGeTmO(DSO,nSO,nSO,iPrimi*jPrimj,DSOp,
      &                  iPrimi*jPrimj)
 !
-            If (iPrint.ge.99) Call
-     &         RecPrt(' Decontracted 1st order density/Fock matrix',' ',
-     &                        DSOp,iPrimi*jPrimj,nSO)
+#ifdef _DEBUGPRINT_
+            RecPrt(' Decontracted 1st order density/Fock matrix',' ',
+     &                     DSOp,iPrimi*jPrimj,nSO)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -289,10 +290,10 @@
             End If
             mIndij = mIndij + (nIrrep/dc(mdci)%nStab)*
      &                        (nIrrep/dc(mdcj)%nStab)
-            If (iPrint.ge.99) Then
-               Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',
-     &                       ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',
+     &                    ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
+#endif
             Do lDCRR = 0, nDCRR-1
                nOp(2) = NrOpr(iDCRR(lDCRR))
 !                                                                      *
@@ -342,9 +343,11 @@
                      jOffD = jOffD + 1
                      jpDAO = jpDAO + iBas*jBas
                   End Do
-                  If ( (nIrrep.ne.1.or..Not.Special_NoSym) .and.
-     &                iPrint.ge.99) Call RecPrt(' DAO(+AMax)',' ',
+#ifdef _DEBUGPRINT_
+                  If ( (nIrrep.ne.1.or..Not.Special_NoSym))
+     &               Call RecPrt(' DAO(+AMax)',' ',
      &               DeDe(ipStart),iBas*jBas+1,iCmp*jCmp)
+#endif
                End If
 !
                If (DFT_Storage) Go To 99
@@ -374,11 +377,11 @@
 !--------------Find the overall largest density
                DeDe(ipDeDe+jOffD) = Temp
                jOffD = jOffD + 1
-               If (iPrint.ge.99) Then
-                  Call RecPrt(' D,prim',' ',
-     &               DeDe(ipStart),iPrimi,jPrimj)
-                  Write (6,*) ' Max(DAO)=',Temp
-               End If
+#ifdef _DEBUGPRINT_
+               Call RecPrt(' D,prim',' ',
+     &            DeDe(ipStart),iPrimi,jPrimj)
+               Write (6,*) ' Max(DAO)=',Temp
+#endif
 !
  99            Continue
 !                                                                      *

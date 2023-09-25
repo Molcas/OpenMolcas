@@ -35,18 +35,15 @@
       use aces_stuff, only: Gamma_On,G_Toc
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer iAO(4), kOp(4), iAOst(4), nPam(4), iiBas(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 !
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
+#endif
 !
 !-----Prepare some data for Pam
 !

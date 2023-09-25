@@ -28,17 +28,13 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3),
      &       rKappa(nZeta)
 !
-      iRout = 243
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
-         Call RecPrt(' In NewPK:Beta',' ',Beta,mZeta,1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
+      Call RecPrt(' In NewPK:Beta',' ',Beta,mZeta,1)
+#endif
 !
       AB2=(A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
       Do iZeta = 1, mZeta
@@ -57,12 +53,12 @@
          P(iZeta,3) = Zero
       End Do
 !
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In NewPK: Kappa',' ',rKappa,mZeta,1)
-         Call RecPrt(' In NewPK: Px',' ',P(1,1),mZeta,1)
-         Call RecPrt(' In NewPK: Py',' ',P(1,2),mZeta,1)
-         Call RecPrt(' In NewPK: Px',' ',P(1,3),mZeta,1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In NewPK: Kappa',' ',rKappa,mZeta,1)
+      Call RecPrt(' In NewPK: Px',' ',P(1,1),mZeta,1)
+      Call RecPrt(' In NewPK: Py',' ',P(1,2),mZeta,1)
+      Call RecPrt(' In NewPK: Px',' ',P(1,3),mZeta,1)
+#endif
 !
       Return
       End

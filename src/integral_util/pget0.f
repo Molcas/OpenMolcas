@@ -35,7 +35,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "Basis_Mode.fh"
-#include "print.fh"
 #include "setup.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
@@ -47,10 +46,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _DEBUGPRINT_
-      iRout = 248
-      iPrint = nPrint(iRout)
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -322,8 +317,7 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Call RecPrt('PSO in PGet0',' ',
-     &                               PSO,ijkl,nPSO)
+      Call RecPrt('PSO in PGet0',' ',PSO,ijkl,nPSO)
 #endif
 !                                                                      *
 !***********************************************************************

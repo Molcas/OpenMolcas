@@ -34,7 +34,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iiBas(4),

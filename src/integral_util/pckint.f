@@ -27,13 +27,9 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta),
      &       Zeta(mZeta), qKappa(mZeta)
       Logical Mode
-!
-      iRout=399
-      iPrint=nPrint(iRout)
 !
       If (Mode) Then
 !--------Integrals
@@ -54,15 +50,15 @@
             End Do
          End Do
       End If
-      If (iPrint.ge.99) Then
-         Write (6,*) 'nZeta,mZeta=',nZeta,mZeta
-         Call RecPrt(' abab','(5G20.10)',abab,mZeta,nab**2)
-         Call RecPrt(' rKappa','(5G20.10)',rKappa,mZeta,1)
-         Call RecPrt(' Zeta  ','(5G20.10)',Zeta  ,mZeta,1)
-         Do iab = 1, nab
-            Call RecPrt(' ab ','(5G20.10)',ab(1,iab),mZeta,1)
-         End Do
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'nZeta,mZeta=',nZeta,mZeta
+      Call RecPrt(' abab','(5G20.10)',abab,mZeta,nab**2)
+      Call RecPrt(' rKappa','(5G20.10)',rKappa,mZeta,1)
+      Call RecPrt(' Zeta  ','(5G20.10)',Zeta  ,mZeta,1)
+      Do iab = 1, nab
+         Call RecPrt(' ab ','(5G20.10)',ab(1,iab),mZeta,1)
+      End Do
+#endif
 !
       Return
       End

@@ -38,7 +38,6 @@
       use pso_stuff
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 !*********** columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
@@ -57,18 +56,14 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
-         Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
-         Write (6,*) 'iSO2Sh=',iSO2Sh
-         Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
-         Write (6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
-         Call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
-      End If
+      iComp = 1
+      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+      Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
+      Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
+      Write (6,*) 'iSO2Sh=',iSO2Sh
+      Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
+      Write (6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
+      Call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
 #endif
 !
 !     Quadruple loop over elements of the basis functions angular
@@ -214,13 +209,10 @@
       End If
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
-         Do 3333 i = 1, ijkl
-            Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,
-     &                            PAO(i,1),ijkl)
- 3333    Continue
-      End If
+      Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
+      Do 3333 i = 1, ijkl
+         Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+ 3333 Continue
 #endif
       Return
 ! Avoid unused argument warnings

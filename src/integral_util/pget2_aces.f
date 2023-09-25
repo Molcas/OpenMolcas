@@ -40,7 +40,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 !*********** columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
@@ -61,15 +60,11 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) 'nSOs=',nSOs
-         Write (6,*) 'iSO2Sh=',iSO2Sh
-         iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
-         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
-      End If
+      Write (6,*) 'nSOs=',nSOs
+      Write (6,*) 'iSO2Sh=',iSO2Sh
+      iComp = 1
+      Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
+      Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
 #endif
       lOper = 1
       t14 = Quart * ExFac
@@ -298,9 +293,7 @@
       End If
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
-      End If
+      Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
       Return
 ! Avoid unused argument warnings

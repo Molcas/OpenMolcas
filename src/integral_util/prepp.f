@@ -30,7 +30,6 @@
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "etwas.fh"
 #include "mp2alaska.fh"
 #include "nsd.fh"
@@ -47,21 +46,21 @@
 !***********************************************************************
       Integer nFro(0:7)
       Integer Columbus
-      Character*8 RlxLbl,Method, KSDFT*80
-      Logical lPrint
+      Character*8 Method, KSDFT*80
       Logical DoCholesky
       Real*8 CoefX,CoefR
-      Character Fmt*60
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
 !     hybrid MC-PDFT things
       Logical Do_Hybrid
       Real*8  WF_Ratio,PDFT_Ratio
+#ifdef _DEBUGPRINT_
+      Character*8 RlxLbl
+      Character Fmt*60
+      Integer :: iComp=1
+#endif
 !
 !...  Prologue
 
-      iRout = 250
-      iPrint = nPrint(iRout)
-      lPrint=iPrint.ge.6
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU1,PreppWall1)
 #endif
@@ -69,7 +68,6 @@
       Call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
 !
       iD0Lbl=1
-      iComp=1
 !
       lsa=.False.
       Gamma_On=.False.
@@ -117,17 +115,17 @@
      &     Method.eq.'MBPT2   ' .or.
      &     Method.eq.'KS-DFT  ' .or.
      &     Method.eq.'ROHF    ' ) then
-         If (lPrint) Then
-            Write (6,*)
-            Write (6,'(2A)') ' Wavefunction type: ',Method
-            If (Method.eq.'KS-DFT  ') Then
-               Write (6,'(2A)') ' Functional type:   ',KSDFT
-               Fmt = '(1X,A26,20X,F18.6)'
-               Write(6,Fmt)'Exchange scaling factor',CoefX
-               Write(6,Fmt)'Correlation scaling factor',CoefR
-            End If
-            Write (6,*)
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         Write (6,'(2A)') ' Wavefunction type: ',Method
+         If (Method.eq.'KS-DFT  ') Then
+            Write (6,'(2A)') ' Functional type:   ',KSDFT
+            Fmt = '(1X,A26,20X,F18.6)'
+            Write(6,Fmt)'Exchange scaling factor',CoefX
+            Write(6,Fmt)'Correlation scaling factor',CoefR
          End If
+         Write (6,*)
+#endif
          If(Method.eq.'MBPT2   ') Then
             Case_mp2=.true.
             Call DecideOnCholesky(DoCholesky)
@@ -144,12 +142,12 @@
 !***********************************************************************
 !                                                                      *
       Else if ( Method.eq.'Corr. WF' ) then
-         If (lPrint) Then
-            Write (6,*)
-            Write (6,*)
-     &         ' Wavefunction type: an Aces 2 correlated wavefunction'
-            Write (6,*)
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         Write (6,*)
+     &      ' Wavefunction type: an Aces 2 correlated wavefunction'
+         Write (6,*)
+#endif
          Gamma_On=.True.
          Call Aces_Gamma()
        Else if (Method(1:7).eq.'MR-CISD' .and. Columbus.eq.1) then
@@ -215,15 +213,15 @@
          nDSO = nDens
          mIrrep=nIrrep
          Call ICopy(nIrrep,nBas,1,mBas,1)
-         If (lPrint) Then
-            Write (6,*)
-            Write (6,'(2A)') ' Wavefunction type: ', Method
-            If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')
-     &         Write (6,'(2A)') ' Functional type:   ',KSDFT
-            If (Method.eq.'MSPDFT  ')
-     &         Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
-            Write (6,*)
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         Write (6,'(2A)') ' Wavefunction type: ', Method
+         If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')
+     &      Write (6,'(2A)') ' Functional type:   ',KSDFT
+         If (Method.eq.'MSPDFT  ')
+     &      Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
+         Write (6,*)
+#endif
          If (method.eq.'MCPDFT  ') lSA=.true.
          If (method.eq.'MSPDFT  ') then
           lSA=.true.
@@ -248,16 +246,16 @@
          If (iGO.eq.1) lSA=.true.
          mIrrep=nIrrep
          Call ICopy(nIrrep,nBas,1,mBas,1)
-         If (lPrint) Then
-            Write (6,*)
-            If (lSA) Then
-               Write (6,'(2A)') ' Wavefunction type: State average ',
-     &                            Method(1:6)
-            Else
-               Write (6,'(2A)') ' Wavefunction type: ', Method
-            End If
-            Write (6,*)
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         If (lSA) Then
+            Write (6,'(2A)') ' Wavefunction type: State average ',
+     &                         Method(1:6)
+         Else
+            Write (6,'(2A)') ' Wavefunction type: ', Method
          End If
+         Write (6,*)
+#endif
          If (Method.eq.'CASPT2  ') Then
             Call DecideOnCholesky(DoCholesky)
 !           If(.not.DoCholesky) Then
@@ -338,16 +336,16 @@
  10   Continue
       endif
 
-      If (iPrint.ge.99) Then
-         RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
-         RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
-         RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
-         RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
-      End If
+#ifdef _DEBUGPRINT_
+      RlxLbl='D1AO    '
+      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
+      RlxLbl='D1AO-Var'
+      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
+      RlxLbl='DSAO    '
+      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
+      RlxLbl='DSAO-Var'
+      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
+#endif
 
 !
 !...  Get the MO-coefficients
@@ -367,15 +365,15 @@
          kCMO=nsa
          Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
          Call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
-         If (iPrint.ge.99) Then
-            ipTmp1 = 1
-            Do iIrrep = 0, nIrrep-1
-               Call RecPrt(' CMO''s',' ',
-     &                     CMO(ipTmp1,1),nBas(iIrrep),
-     &                     nBas(iIrrep))
-               ipTmp1 = ipTmp1 + nBas(iIrrep)**2
-            End Do
-         End If
+#ifdef _DEBUGPRINT_
+         ipTmp1 = 1
+         Do iIrrep = 0, nIrrep-1
+            Call RecPrt(' CMO''s',' ',
+     &                  CMO(ipTmp1,1),nBas(iIrrep),
+     &                  nBas(iIrrep))
+            ipTmp1 = ipTmp1 + nBas(iIrrep)**2
+         End Do
+#endif
 !
 !
 !...  Get additional information in the case of a RASSCF wave function
@@ -387,11 +385,11 @@
          Call Get_iArray('nIsh',nIsh,i)
          Call Get_iArray('nAsh',nAsh,i)
          Call Get_iArray('nFro',nFro,i)
-         If (iPrint.ge.99) Then
-            Write (6,*) ' nISh=',nISh
-            Write (6,*) ' nASh=',nASh
-            Write (6,*) ' nFro=',nFro
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*) ' nISh=',nISh
+         Write (6,*) ' nASh=',nASh
+         Write (6,*) ' nFro=',nFro
+#endif
          nAct = 0
          nTst = 0
          Do iIrrep = 0, nIrrep-1
@@ -415,7 +413,9 @@
          Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
             Call Get_dArray_chk('D1mo',G1(:,1),nG1)
-            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(:,1),nAct)
+#ifdef _DEBUGPRINT_
+            Call TriPrt(' G1',' ',G1(:,1),nAct)
+#endif
          End If
 !
 !...  Get the two body density for the active orbitals
@@ -430,7 +430,9 @@
          else
            Call Get_dArray_chk('P2mo',G2,nG2)
          end if
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
+#ifdef _DEBUGPRINT_
+         Call TriPrt(' G2',' ',G2(1,1),nG1)
+#endif
          If (lsa) Then
 
 !  CMO1 Ordinary CMOs
@@ -438,15 +440,15 @@
 !  CMO2 CMO*Kappa
 !
            Call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
-           If (iPrint.ge.99) Then
-            ipTmp1 = 1
-            Do iIrrep = 0, nIrrep-1
-               Call RecPrt('LCMO''s',' ',
-     &                     CMO(ipTmp1,2),nBas(iIrrep),
-     &                     nBas(iIrrep))
-               ipTmp1 = ipTmp1 + nBas(iIrrep)**2
-            End Do
-           End If
+#ifdef _DEBUGPRINT_
+           ipTmp1 = 1
+           Do iIrrep = 0, nIrrep-1
+              Call RecPrt('LCMO''s',' ',
+     &                    CMO(ipTmp1,2),nBas(iIrrep),
+     &                    nBas(iIrrep))
+              ipTmp1 = ipTmp1 + nBas(iIrrep)**2
+           End Do
+#endif
 !
 ! P are stored as
 !                            _                     _
@@ -467,11 +469,15 @@
              end do
            end if
            Call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
+#ifdef _DEBUGPRINT_
+           Call TriPrt(' G2L',' ',G2(:,2),nG1)
+           Call TriPrt(' G2T',' ',G2(:,1),nG1)
+#endif
 !
            Call Get_dArray_chk('D2av',G2(:,2),nG2)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG1)
+#ifdef _DEBUGPRINT_
+           Call TriPrt('G2A',' ',G2(:,2),nG1)
+#endif
 !
 !
 !  Densities are stored as:
@@ -490,7 +496,7 @@
 !       G2 = sum i <i|e_ab|i>
 !
 !************************
-         RlxLbl='D1AO    '
+!         RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
            Call mma_allocate(Tmp,nDens,2,Label='Tmp')
@@ -498,7 +504,7 @@
            Call mma_deallocate(Tmp)
 
 !************************
-         RlxLbl='D1AO    '
+!         RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 !
            Call dcopy_(ndens,DVar,1,D0(1,2),1)
@@ -578,14 +584,16 @@
            !Call dscal_(Length,0.5d0,D0(1,4),1)
            !Call dscal_(Length,0.0d0,D0(1,4),1)
 
-         RlxLbl='DLAO    '
+!         RlxLbl='DLAO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
 ! DMRG with the reduced AS
            !if(doDMRG)then
            !  length=ndim1  !yma
            !end if
          End If
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
+#ifdef _DEBUGPRINT_
+         Call TriPrt(' G2',' ',G2(1,1),nG1)
+#endif
 !
 !...  Close 'RELAX' file
 1000     Continue

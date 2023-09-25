@@ -58,7 +58,6 @@
       External Rsv_Tsk
 !     Logical Addpot
 #include "rmat_option.fh"
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
@@ -81,8 +80,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#else
+      iPrint=5
+#endif
       RMat_type_integrals=.False.
       Do_PGamma = .True.
 !
@@ -210,7 +212,9 @@
          iSmLbl=lOper(iComp)
          nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
-      If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' nSO=',nSO
+#endif
 !
 !     Do not compute matrix elements in which electronic and
 !     muonic basis sets are mixed.

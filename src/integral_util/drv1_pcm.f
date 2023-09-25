@@ -48,14 +48,16 @@
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),
      &       RB(3), TRB(3), TA(3),
      &       VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
-      Character ChOper(0:7)*3
       Integer   lOper(nTs), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
       Logical AeqB
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
      &                      DAO(:), DSOpr(:), DSO(:)
+#ifdef _DEBUGPRINT_
+      Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

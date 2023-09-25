@@ -49,7 +49,6 @@
       use Breit, only: nComp
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
       Integer iAnga(4), iCmpa(4)

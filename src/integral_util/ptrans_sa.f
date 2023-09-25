@@ -43,13 +43,10 @@
      &       ScrP(nsP)
 !      logical do_pdft
 
-#include "print.fh"
 #include "etwas.fh"
 ! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 !
-      iRout = 251
-      iPrint = nPrint(iRout)
 ! Offsets into the ipam array:
       nnpam1=0
       nnpam2=0
@@ -127,7 +124,9 @@
         if(klsym.ne.ijsym) goto 1005
 ! Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
-        If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+#ifdef _DEBUGPRINT_
+        Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+#endif
 ! Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
 ! Pick up matrix elements and put in a full symmetry block:
@@ -229,10 +228,10 @@
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
-      If (iPrint.ge.99) Call RecPrt('G2(SO1)',' ',
-     &                              Scr1,
-     &                              nPam(1,iSym)*nPam(2,jSym),
-     &                              nPam(3,kSym)*nPam(4,lSym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(SO1)',' ',Scr1,
+     &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
+#endif
 
 
 !======================================================================*
@@ -279,10 +278,10 @@
         End do
        End do
       End do
-      If (iPrint.ge.99) Call RecPrt('G2(MO)',' ',
-     &                              Scr1,
-     &                              nash(iSym)*nash(jSym),
-     &                              nash(kSym)*nash(lsym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(MO)',' ',Scr1,
+     &            nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
+#endif
 
 !
 ! Transform:
@@ -354,14 +353,13 @@
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
-      If (iPrint.ge.99) Call RecPrt('G2(SO2)',' ',
-     &                              Scr1,
-     &                              nPam(1,iSym)*nPam(2,jSym),
-     &                              nPam(3,kSym)*nPam(4,lSym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(SO2)',' ',Scr1,
+     &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
+      Call RecPrt('PSOPam 0',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
+#endif
 
 
-      If (iPrint.ge.89) Call RecPrt('PSOPam 0',' ',PSOPam,
-     &                     nnPam1*nnPam2,nnPam3*nnPam4)
 !======================================================================*
 !
 ! Put results into correct positions in PSOPam:
@@ -382,8 +380,10 @@
         End Do
        End Do
       End Do
-      If (iPrint.ge.89) Call RecPrt('PSOPam no 1-el',' ',PSOPam,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('PSOPam no 1-el',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
+#endif
 !
 
 !======================================================================*
@@ -510,8 +510,9 @@
        iocmol=iocmol+nbl**2
        ioDs=ioDs+(nbl*(nbl+1))/2
  1040 continue
-      If (iPrint.ge.89) Call RecPrt('PSOPam',' ',PSOPam,
-     &                     nnPam1*nnPam2,nnPam3*nnPam4)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('PSOPam',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
+#endif
       return
 ! Avoid unused argument warnings
       if (.false.) then

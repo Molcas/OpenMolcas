@@ -21,7 +21,6 @@
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "print.fh"
       Character Label*8
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
       Integer ip(nComp), lOper(nComp), iChO(nComp)
@@ -29,8 +28,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
       If (rHrmt.ne.One) Then
          Call WarningMessage(2,'OneEl_Property: rHrmt.ne.One')
          Call Abend()
@@ -49,7 +46,9 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPrint.ge.10)    Call PrMtrx(Label,lOper,nComp,ip,Integrals)
+#ifdef _DEBUGPRINT_
+      Call PrMtrx(Label,lOper,nComp,ip,Integrals)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

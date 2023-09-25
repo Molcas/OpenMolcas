@@ -33,23 +33,17 @@
       use sort_data, only: DimSyB, lSll
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 !
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
 !
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !
-      irout = 109
-      iprint = nprint(irout)
-      If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-         r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-         Write (6,*) ' Sum=',r1
-         Write (6,*) ' Dot=',r2
-      End If
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+      r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
+      Write (6,*) ' Sum=',r1
+      Write (6,*) ' Dot=',r2
       Call RecPrt(' In Plf2: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
