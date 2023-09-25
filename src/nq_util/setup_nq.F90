@@ -73,7 +73,7 @@ ntotgp = 0
 !                                                                      *
 ! Check if NQ environment has been activated
 
-if (Allocated(NQ_Data) return
+if (Allocated(NQ_Data)) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
