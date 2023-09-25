@@ -163,7 +163,7 @@
       Character*80 string
 #include "cgetl.fh"
 #include "igetline.fh"
-      dimension val(n)
+      Real*8 val(n)
       ic=icol
       do i=1,n
         if(ic.le.ncol) then
@@ -194,7 +194,7 @@
 !
       subroutine Get_F1(icol,val)
       implicit real*8 (a-h,o-z)
-      dimension dum(1)
+      Real*8 dum(1)
       call Get_F(icol,dum,1)
       val=dum(1)
       end
@@ -204,7 +204,7 @@
       Character*80 string
 #include "cgetl.fh"
 #include "igetline.fh"
-      dimension ival(n)
+      integer ival(n)
       ic=icol
       do i=1,n
         if(ic.le.ncol) then
@@ -234,7 +234,7 @@
 !
       subroutine Get_I1(icol,ival)
       implicit real*8 (a-h,o-z)
-      dimension idum(1)
+      integer idum(1)
       call Get_I(icol,idum,1)
       ival=idum(1)
       end
@@ -263,7 +263,7 @@
       end
       subroutine Read_v(lunit,work,istrt,iend,inc,ierr)
       implicit real*8 (a-h,o-z)
-      dimension work(iend)
+      real*8 work(iend)
       ierr=0
       read(lunit,*,err=100) (work(istrt+i),i=0,iend-istrt,inc)
       goto 110
@@ -273,7 +273,7 @@
       end
       subroutine Read_iv(lunit,iwork,istrt,iend,inc,ierr)
       implicit real*8 (a-h,o-z)
-      dimension iwork(iend)
+      integer iwork(iend)
       ierr=0
       read(lunit,*,err=100) (iwork(istrt+i),i=0,iend-istrt,inc)
       goto 110

@@ -28,7 +28,7 @@
 #include "disp.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
-      dimension GradIn(nGrad)
+      Real*8 GradIn(nGrad)
       Logical, External :: TF
 !
       mdc=0

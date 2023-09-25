@@ -23,7 +23,8 @@
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
-      Dimension dum(1),idum(1)
+      Real*8 dum(1)
+      Integer idum(1),
       Real*8, Allocatable:: Integrals(:)
 !                                                                      *
 !***********************************************************************

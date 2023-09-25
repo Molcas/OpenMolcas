@@ -135,7 +135,8 @@
 !--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       parameter (mxind=2000)
-      dimension r(ncol,*),a(ncol,*),b(nrow,*),ind(mxind)
+      Real*8 r(ncol,*),a(ncol,*),b(nrow,*)
+      Integer ind(mxind)
 !
       do 100 i=1,ncol
 !

@@ -611,7 +611,7 @@
       Subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
       use Constants
       Implicit Real*8 (A-H,O-Z)
-      Dimension CMO(*), D1I(*),D1It(*)
+      Real*8 CMO(*), D1I(*),D1It(*)
       Integer nbas(nsym),nish(nsym)
 
       iOff1 = 0
@@ -694,7 +694,8 @@
 
       Implicit Real*8 (A-H,O-Z)
 
-      Dimension nBas(*) , A(*) , B(*)
+      Integer nBas(*)
+      Real*8 A(*) , B(*)
 
       iOff1 = 0
       iOff2 = 0

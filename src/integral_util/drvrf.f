@@ -21,7 +21,7 @@
       Character*8 Label
       Real*8 RepNuc_Temp
       Save RepNuc_Temp
-      Dimension RepNucXX(1)
+      Real*8 RepNucXX(1)
       Real*8, Allocatable:: RFld(:,:), h1_RF(:), h1_XX(:)
 !                                                                      *
 !***********************************************************************

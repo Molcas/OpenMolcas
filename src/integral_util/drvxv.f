@@ -21,7 +21,7 @@
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2)
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
-      Dimension Grad(1),RN(1)
+      Real*8 Grad(1),RN(1)
 !
       Logical Do_ESPF
 #ifdef _EFP_

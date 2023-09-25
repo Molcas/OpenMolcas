@@ -86,7 +86,8 @@
 #include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8 Q_solute(nComp,2), Vs(nComp,2), QV(nComp,2)
-      Dimension FactOp(1), lOper(1)
+      Real*8 FactOp(1)
+      Integer lOper(1)
 !
 !-----Statement Functions
 !

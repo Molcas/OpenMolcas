@@ -39,7 +39,7 @@
 !
 #include "Basis_Mode.fh"
       Integer nSkal, nSym, nSOs, nShOff(0:7)
-      Dimension iTmp(1 )
+      Integer iTmp(1 )
 !
 !     Allocate all memory
 !

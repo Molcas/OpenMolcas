@@ -18,7 +18,7 @@
 !----------------------------------------------------------------------
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      dimension dmax(nskal,nskal),dens(*)
+      Real*8 dmax(nskal,nskal),dens(*)
       ijoff=0
       call fzero(dmax,nskal*nskal)
       Do irp=0,nirrep-1

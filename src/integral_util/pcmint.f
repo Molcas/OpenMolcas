@@ -40,7 +40,7 @@
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 #endif
-      Dimension jStab_(0:0)
+      Integer jStab_(0:0)
 !
 !     Statement function for Cartesian index
 !

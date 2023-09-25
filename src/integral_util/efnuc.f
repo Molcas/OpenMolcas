@@ -90,7 +90,7 @@
       End
       Subroutine InitIA(I,mDeg)
       implicit integer (a-z)
-      dimension I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
+      Integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
 !
 ! Purpose: Express the interaction tensor, defined by the
 ! quantities T(a,b,c) as functions of the vector R=(x,y,z),
@@ -179,7 +179,7 @@
       End
       Subroutine ContEI(I,mDeg,ESIT,ix,iy,iz,temp)
       implicit integer (a-z)
-      dimension I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
+      Integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
       Real*8 ESIT((mDeg+1)*(mDeg+2)/2), Temp
 !
 ! Purpose: Express the interaction tensor, defined by the

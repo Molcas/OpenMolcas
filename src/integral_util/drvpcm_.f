@@ -34,7 +34,7 @@
       Logical First
       Character*8 Label
       Logical Save_tmp, NonEq
-      Dimension ip(1)
+      Integer ip(1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

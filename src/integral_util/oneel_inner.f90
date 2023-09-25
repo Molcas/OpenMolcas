@@ -64,7 +64,8 @@
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij
       Real*8 CoorO(3,nComp), PtChrg(nGrid)
-      dimension opmol(*),opnuc(*),iopadr(nComp,*)
+      Real*8 opmol(*),opnuc(*)
+      Integer iopadr(nComp,*)
       Character Label*8
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
       Logical Do_PGamma, Rsv_Tsk

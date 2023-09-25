@@ -29,8 +29,11 @@
 !              March 2000                                              *
 !***********************************************************************
       use external_centers
-      use Symmetry_Info, only: nIrrep, iChBas
+      use Symmetry_Info, only: iChBas
+#ifdef _DEBUGPRINT_
+      use Symmetry_Info, only: nIrrep
       use Basis_Info, only: nBas
+#endif
       use Integral_interfaces, only: int_kernel, int_mem
       use Gateway_global, only: PrPrt
       use Constants
@@ -44,7 +47,8 @@
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
       Logical Save_tmp
       Character*8 Label
-      Dimension FactOp(1), l_Oper(1)
+      Real*8 FactOp(1)
+      Integer l_Oper(1)
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:), Nuc(:)
 !                                                                      *

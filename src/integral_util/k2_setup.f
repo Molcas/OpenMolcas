@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module k2_setup
-      Real*8, Dimension(:), Allocatable :: Data_k2
-      Integer, Dimension(:,:), Allocatable :: IndK2
+      Real*8, Allocatable :: Data_k2(:)
+      Integer, Allocatable :: IndK2(:,:)
       Integer nk2, nIndk2
       End Module k2_setup

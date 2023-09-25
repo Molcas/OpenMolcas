@@ -54,14 +54,16 @@
 #include "setup.fh"
       Real*8 A(3), B(3), Ccoor(3),
      &       Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
-      Character ChOper(0:7)*3
       Integer   nOp(2), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Real*8, Allocatable:: Kern(:), Fnl(:,:), Scr1(:), Scr2(:),
      &                      SO_Int(:)
+#ifdef _DEBUGPRINT_
+      Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

@@ -26,7 +26,7 @@
 !      this case picky_ will extract those elements and put them into
 !      this part of DeDe on the fly.
 !
-      Integer, Dimension(:,:), Allocatable :: ipOffD
+      Integer, Allocatable :: ipOffD(:,:)
       Real*8, Allocatable:: FT(:), DeDe(:)
       Integer  ipDeDe, ipD00, ipDijS
       Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT, nFT

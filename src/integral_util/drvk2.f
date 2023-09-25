@@ -35,7 +35,9 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
+#ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
+#endif
       use UnixInfo, only: ProgName
       use Constants
       use stdalloc

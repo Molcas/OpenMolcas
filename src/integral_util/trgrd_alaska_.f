@@ -30,7 +30,7 @@
 #include "disp.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
-      Dimension GradIn(nGrad)
+      Real*8 GradIn(nGrad)
       Character CNames(MxAtom)*(LENIN5)
       Logical, External :: TF
 !

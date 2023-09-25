@@ -47,14 +47,16 @@
 #include "setup.fh"
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nOpr), CCoor(3,nOpr),
      &       RB(3), TRB(3), TA(3), Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
-      Character ChOper(0:7)*3
       Integer   lOper(nOpr), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
       Logical AeqB
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
      &                      DAO(:), DSOpr(:), DSO(:)
+#ifdef _DEBUGPRINT_
+      Character ChOper(0:7)*3
+      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -202,9 +204,10 @@
      &                  iPrim*jPrim)
             Call mma_deallocate(DSO)
 !
-            If (iPrint.ge.99) Call
-     &         RecPrt(' Decontracted 1st order density/Fock matrix',
+#ifdef _DEBUGPRINT_
+            RecPrt(' Decontracted 1st order density/Fock matrix',
      &                ' ',DSOpr,iPrim*jPrim,nSO)
+#endif
 !
 !           Loops over symmetry operations.
 !

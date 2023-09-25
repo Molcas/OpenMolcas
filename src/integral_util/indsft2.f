@@ -41,8 +41,10 @@
 !     local array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Logical dupli
-      Data tr1,tr2/0.0d0,0.0d0/
-      Save tr1,tr2
+#ifdef _DEBUGPRINT_
+      Real*8, Save :: Tr1=0.0D0, Tr2=0.0D0
+#endif
+
       k12=0
       k34=0
 #ifdef _DEBUGPRINT_

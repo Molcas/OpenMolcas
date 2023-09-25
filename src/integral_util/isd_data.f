@@ -10,5 +10,5 @@
 !***********************************************************************
       Module iSD_data
       Integer nSkal_iSD
-      Integer, Dimension(:,:), Allocatable :: iSD
+      Integer, Allocatable :: iSD(:,:)
       End Module iSD_data

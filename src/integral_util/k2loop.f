@@ -64,7 +64,7 @@
       Logical AeqB, EQ, NoSpecial,
      &        DoFock, DoGrad
       External EQ
-      Dimension Dummy(1)
+      Real*8 Dummy(1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
