@@ -26,7 +26,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "print.fh"
 #include "rctfld.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
@@ -35,9 +34,6 @@
 !
       If (.Not.PCM) Return
 !
-      iRout=1
-      iPrint=nPrint(iRout)
-!                                                                      *
 !***********************************************************************
 !                                                                      *
 !---- Reinitialize always for gradient calculations
@@ -146,12 +142,17 @@
 !     ip_Ts: pointer to tesserae
 !     nTs  : number of tesserae
 !
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#else
+      iPrint=5
+#endif
       Call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,
      &              LcANr,NonEq)
-      If (iPrint.gt.5) Then
-         Write (6,*)
-         Write (6,*)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*)
+#endif
 !
       Call mma_deallocate(LcANr)
       Call mma_deallocate(LcCoor)

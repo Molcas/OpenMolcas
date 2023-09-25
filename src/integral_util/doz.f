@@ -30,16 +30,12 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "print.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       A(3),          B(3),        P(nAlpha*nBeta,3),
      &       Data(nAlpha*nBeta*(nDarray-1)), rKappa(nAlpha*nBeta),
      &       ZInv(nAlpha*nBeta)
       Integer IndZt(nAlpha*nBeta), IndZ(nAlpha*nBeta)
       Logical SkipZt
-!
-      iRout = 68
-      iPrint = nPrint(iRout)
 !
 !     Transfer precomputer data
 !
@@ -61,19 +57,19 @@
       If (iphX.ne.1) Call DScal_(mZeta,One*DBLE(iphX),P(1,1),1)
       If (iphZ.ne.1) Call DScal_(mZeta,One*DBLE(iphZ),P(1,3),1)
 !
-      If (iPrint.ge.99) Then
-         Write (6,*) ' In DoZ'
-         Call RecPrt(' Zeta',' ',Zeta,mZeta,1)
-         Call RecPrt(' ZInv',' ',ZInv,mZeta,1)
-         Call RecPrt(' Kappa',' ',rKappa,mZeta,1)
-         Call RecPrt(' Px',' ',P(1,1),mZeta,1)
-         Call RecPrt(' Py',' ',P(1,2),mZeta,1)
-         Call RecPrt(' Pz',' ',P(1,3),mZeta,1)
-         Write (6,*) ' phase factors=',iphX, iphY, iphZ
-         Write (6,*) ' IndZt=',IndZt
-         Call RecPrt(' Data',' ',Data,nAlpha*nBeta,nDArray)
-         Write (6,*) ' Exit DoZ'
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In DoZ'
+      Call RecPrt(' Zeta',' ',Zeta,mZeta,1)
+      Call RecPrt(' ZInv',' ',ZInv,mZeta,1)
+      Call RecPrt(' Kappa',' ',rKappa,mZeta,1)
+      Call RecPrt(' Px',' ',P(1,1),mZeta,1)
+      Call RecPrt(' Py',' ',P(1,2),mZeta,1)
+      Call RecPrt(' Pz',' ',P(1,3),mZeta,1)
+      Write (6,*) ' phase factors=',iphX, iphY, iphZ
+      Write (6,*) ' IndZt=',IndZt
+      Call RecPrt(' Data',' ',Data,nAlpha*nBeta,nDArray)
+      Write (6,*) ' Exit DoZ'
+#endif
 !
       Return
 ! Avoid unused argument warnings

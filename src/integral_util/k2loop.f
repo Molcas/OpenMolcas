@@ -51,7 +51,6 @@
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "Molcas.fh"
 #include "disp.fh"
-#include "print.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
      &       Alpha(nAlpha), Beta(nBeta), Dij(nDij,nDCR),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
@@ -62,7 +61,6 @@
       Real*8  Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3)
       Integer   iDCRR(0:7), iAnga(4), iCmpa(4), mStb(2),
      &          iShll(2), IndP(nZeta)
-      Integer isave(1024)
       Logical AeqB, EQ, NoSpecial,
      &        DoFock, DoGrad
       External EQ
@@ -109,9 +107,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 241
-      iPrint = nPrint(iRout)
-!     iPrint = 99
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
       call dcopy_(nData*nDCRR,[Zero],0,Data,1)
@@ -133,16 +128,14 @@
 !                                                                      *
       Do 100 lDCRR = 0, nDCRR-1
 !
-         Call ICopy(1024,nPrint,1,iSave,1)
-         Call ICopy(1024,[5],0,nPrint,1)
-!
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 !        Branch out if integrals are zero by symmetry.
          If (AeqB .and. Mod(iSmAng,2).eq.1) Go To 100
          call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
-         If (iPrint.ge.99) Call RecPrt(' Actual centers',
-     &                                  ' ',CoorM,3,4)
+#ifdef _DEBUGPRINT_
+         Call RecPrt(' Actual centers',' ',CoorM,3,4)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -221,9 +214,10 @@
      &               mabMin,mabMax,mcdMin,mcdMax,
      &               Wrk,nWork2,TERIS,ModU2,Cff2DS,
      &               Rys2D,NoSpecial)
-            If (iPrint.ge.59)
-     &         Call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,
-     &                               mZeta,mabcd)
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,
+     &                            mZeta,mabcd)
+#endif
 !
 !---------- Apply a transpose prior to Tnsctl to fake the action
 !           of Cntrct.
@@ -326,7 +320,6 @@
          Data(ip_abMax (nZeta),lDCRR+1) = abMax
          Data(ip_ZtMaxD(nZeta),lDCRR+1) = ZtMaxD
          Data(ip_abMaxD(nZeta),lDCRR+1) = abMaxD
-         Call ICopy(1024,iSave,1,nPrint,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -505,7 +498,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR

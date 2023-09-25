@@ -27,7 +27,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
@@ -43,13 +42,10 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
-      iRout = 200
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
-         Call RecPrt(' In EFPrm: Beta',' ',Beta,nBeta,1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
+      Call RecPrt(' In EFPrm: Beta',' ',Beta,nBeta,1)
+#endif
 !
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Final,1)
 !
@@ -121,28 +117,28 @@
       Call DGetMO(Array(ip3),lcd,lcd,nZeta*kab,Final,nZeta*kab)
       Call DScal_(nZeta*kab*lcd,-One,Final,1)
 !
-      If (iPrint.ge.49) Then
-         Write (6,*) ' In EFPrm la,lb=',la,lb
-         Do 400 iElem = 1, nElem(la)
-            Do 410 jElem = 1, nElem(lb)
-               If (lcd.eq.1) Then
-                  Write (Label,'(A,I2,A,I2,A)')
-     &                  ' EFPrm: Final (',iElem,',',jElem,') '
-                  Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
-               Else If (lcd.eq.3) tHEN
-                  Write (Label,'(A,I2,A,I2,A)')
-     &                  ' EFPrm: Final (',iElem,',',jElem,',x) '
-                  Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
-                  Write (Label,'(A,I2,A,I2,A)')
-     &                  ' EFPrm: Final (',iElem,',',jElem,',y) '
-                  Call RecPrt(Label,' ',Final(1,iElem,jElem,2),nZeta,1)
-                  Write (Label,'(A,I2,A,I2,A)')
-     &                  ' EFPrm: Final (',iElem,',',jElem,',z) '
-                  Call RecPrt(Label,' ',Final(1,iElem,jElem,3),nZeta,1)
-               End If
- 410        Continue
- 400     Continue
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In EFPrm la,lb=',la,lb
+      Do 400 iElem = 1, nElem(la)
+         Do 410 jElem = 1, nElem(lb)
+            If (lcd.eq.1) Then
+               Write (Label,'(A,I2,A,I2,A)')
+     &               ' EFPrm: Final (',iElem,',',jElem,') '
+               Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
+            Else If (lcd.eq.3) tHEN
+               Write (Label,'(A,I2,A,I2,A)')
+     &               ' EFPrm: Final (',iElem,',',jElem,',x) '
+               Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
+               Write (Label,'(A,I2,A,I2,A)')
+     &               ' EFPrm: Final (',iElem,',',jElem,',y) '
+               Call RecPrt(Label,' ',Final(1,iElem,jElem,2),nZeta,1)
+               Write (Label,'(A,I2,A,I2,A)')
+     &               ' EFPrm: Final (',iElem,',',jElem,',z) '
+               Call RecPrt(Label,' ',Final(1,iElem,jElem,3),nZeta,1)
+            End If
+ 410     Continue
+ 400  Continue
+#endif
 !
       Return
 ! Avoid unused argument warnings

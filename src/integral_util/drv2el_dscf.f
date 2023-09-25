@@ -53,7 +53,6 @@
       use stdalloc
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
 !

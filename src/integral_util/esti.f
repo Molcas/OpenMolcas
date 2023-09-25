@@ -19,22 +19,18 @@
 !***********************************************************************
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 EstI
       Real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta),
      &       Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas),
      &       xab(nAlpha*nBeta), Scrt(nScrt)
       Integer IndZ(nAlpha*nBeta+1)
 !
-      iRout = 238
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Write (6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
-         Call RecPrt('Esti:xab',' ',xab,1,nAlpha*nBeta)
-         Call RecPrt('Esti:Coeff1',' ',Coeff1,nAlpha,niBas)
-         Call RecPrt('Esti:Coeff2',' ',Coeff2,nBeta ,njBas)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
+      Call RecPrt('Esti:xab',' ',xab,1,nAlpha*nBeta)
+      Call RecPrt('Esti:Coeff1',' ',Coeff1,nAlpha,niBas)
+      Call RecPrt('Esti:Coeff2',' ',Coeff2,nBeta ,njBas)
+#endif
 !
       mZeta=IndZ(nAlpha*nBeta+1)
       call dcopy_(niBas*njBas,[Zero],0,Scrt,1)

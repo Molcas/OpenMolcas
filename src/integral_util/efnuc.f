@@ -24,7 +24,6 @@
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2),
      &       CoOp(3)
       Integer, Allocatable:: C_ESIT(:)
@@ -32,9 +31,6 @@
 !---- Statement function
 !
       nElem(n)=(n+1)*(n+2)/2
-!
-      iRout = 185
-      iPrint = nPrint(iRout)
 !
 !     Compute the nuclear contribution to the electrostatic interation
 !     tensor, ESIT.
@@ -86,8 +82,10 @@
 !
       Call mma_deallocate(C_ESIT)
 !
-      If (iPrint.ge.99) Call RecPrt(' The Electrostatic Interaction'
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' The Electrostatic Interaction'
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
+#endif
       Return
       End
       Subroutine InitIA(I,mDeg)

@@ -43,7 +43,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),
@@ -60,9 +59,6 @@
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      iRout = 112
-      iPrint = nPrint(iRout)
 !
 !     Auxiliary memory allocation.
 !
@@ -110,8 +106,10 @@
             iSmLbl = 1
             nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
-            If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
+#ifdef _DEBUGPRINT_
+            Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
 !
 !           Call kernel routine to get memory requirement.
 !
@@ -154,8 +152,10 @@
 !
             Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
      &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-            If (iPrint.ge.49) Write (6,'(10A)')
+#ifdef _DEBUGPRINT_
+            Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#endif
 !
 !-----------Find the stabilizer for A and B
 !
@@ -180,12 +180,12 @@
 !           Project the Fock/1st order density matrix in AO
 !           basis on to the primitive basis.
 !
-            If (iPrint.ge.99) Then
-               Call RecPrt(' Left side contraction',' ',
-     &                     Shells(iShll)%pCff,iPrim,iBas)
-               Call RecPrt(' Right side contraction',' ',
-     &                     Shells(jShll)%pCff,jPrim,jBas)
-            End If
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' Left side contraction',' ',
+     &                  Shells(iShll)%pCff,iPrim,iBas)
+            Call RecPrt(' Right side contraction',' ',
+     &                  Shells(jShll)%pCff,jPrim,jBas)
+#endif
 !
 !           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
@@ -204,9 +204,10 @@
      &                  iPrim*jPrim)
             Call mma_deallocate(DSO)
 !
-            If (iPrint.ge.99) Call
-     &         RecPrt(' Decontracted 1st order density/Fock matrix',
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' Decontracted 1st order density/Fock matrix',
      &                ' ',DSOpr,iPrim*jPrim,nSO)
+#endif
 !
 !           Loops over symmetry operations.
 !
@@ -227,14 +228,14 @@
 !
                   Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,
      &                     iDCRT,nDCRT)
-                  If (iPrint.ge.49) Then
-                     Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),
-     &                     i=0,nStabM-1),')'
-                     Write (6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),
-     &                     i=0,nStabO-1),')'
-                     Write (6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),
-     &                     i=0,nDCRT-1),')'
-                  End If
+#ifdef _DEBUGPRINT_
+                  Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),
+     &                  i=0,nStabM-1),')'
+                  Write (6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),
+     &                  i=0,nStabO-1),')'
+                  Write (6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),
+     &                  i=0,nDCRT-1),')'
+#endif
 !
 !-----------------Compute normalization factor due the DCR symmetrization
 !                 of the two basis functions and the operator.
@@ -256,14 +257,14 @@
 
                      Call OA(iDCRT(lDCRT),A,TA)
                      Call OA(iDCRT(lDCRT),RB,TRB)
-                     If (iPrint.ge.49) Then
-                        Write (6,'(A,/,3(3F6.2,2X))')
-     &                  ' *** Centers A, B, C ***',
-     &                  ( TA(i),i=1,3),
-     &                  (TRB(i),i=1,3),
-     &                  (C(i),i=1,3)
-                        Write (6,*) ' nOp=',nOp
-                     End If
+#ifdef _DEBUGPRINT_
+                     Write (6,'(A,/,3(3F6.2,2X))')
+     &               ' *** Centers A, B, C ***',
+     &               ( TA(i),i=1,3),
+     &               (TRB(i),i=1,3),
+     &               (C(i),i=1,3)
+                     Write (6,*) ' nOp=',nOp
+#endif
 !
 !--------------------Desymmetrize the matrix with which we will
 !                    contracte the trace.
@@ -294,9 +295,11 @@
      &                                   Shells(jShll)%Prjct,
      &                              DAO,kk)
                      End If
-                     If (iPrint.ge.99) Call RecPrt(
-     &                        ' Decontracted FD in the cartesian space',
-     &                        ' ',DAO,iPrim*jPrim,kk)
+#ifdef _DEBUGPRINT_
+                     Call RecPrt(
+     &                     ' Decontracted FD in the cartesian space',
+     &                     ' ',DAO,iPrim*jPrim,kk)
+#endif
 !
 !--------------------Compute kappa and P.
 !
@@ -313,27 +316,33 @@
      &                          Fnl,iPrim*jPrim,nComp,
      &                          iAng,jAng,TA,TRB,nOrder,Kern,
      &                          MemKer,C,nOrdOp)
-                     If (iPrint.ge.49) Call RecPrt(' Final Integrals',
+#ifdef _DEBUGPRINT_
+                     Call RecPrt(' Final Integrals',
      &                                 ' ',Fnl,nDAO,nComp)
+#endif
 !
 !--------------------Trace with 1st order density matrix and accumulate
 !                    to the potenital at tessera iTile
 !
-                     If (iPrint.ge.49) Call RecPrt(
+#ifdef _DEBUGPRINT_
+                     Call RecPrt(
      &                        ' Decontracted FD in the cartesian space',
      &                        ' ',DAO,nDAO,1)
+#endif
                      ipFnlc=1
                      Do iComp = 1, nComp
-                        If (iPrint.ge.49)
-     &                     Call RecPrt('VTessera(iComp,2,iTile)',' ',
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('VTessera(iComp,2,iTile)',' ',
      &                                  VTessera(iComp,2,iTile),1,1)
+#endif
 
                         VTessera(iComp,2,iTile)=
      &                      VTessera(iComp,2,iTile) +
      &                      DDot_(nDAO,DAO,1,Fnl(ipFnlc),1)
-                        If (iPrint.ge.49)
-     &                     Call RecPrt('VTessera(iComp,2,iTile)',' ',
-     &                                  VTessera(iComp,2,iTile),1,1)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('VTessera(iComp,2,iTile)',' ',
+     &                               VTessera(iComp,2,iTile),1,1)
+#endif
                         ipFnlc=ipFnlc+nDAO
                      End Do
 !

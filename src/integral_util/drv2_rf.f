@@ -50,7 +50,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 A(3), B(3), Ccoor(3),
@@ -67,15 +66,12 @@
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !
-      iRout = 212
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.19) Then
-         Write (6,*) ' In Drv2_RF: llOper'
-         Write (6,'(1X,8I5)') llOper
-         Write (6,*) ' In Drv2_RF: n2Tri'
-         Write (6,'(1X,8I5)')  n2Tri(llOper)
-      End If
-!
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In Drv2_RF: llOper'
+      Write (6,'(1X,8I5)') llOper
+      Write (6,*) ' In Drv2_RF: n2Tri'
+      Write (6,'(1X,8I5)')  n2Tri(llOper)
+#endif
 !
       Call SOS(iStabO,nStabO,llOper)
 !
@@ -121,11 +117,15 @@
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
             nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
+#ifdef _DEBUGPRINT_
+            Write (6,*) ' nSO=',nSO
+#endif
             If (nSO.eq.0) Go To 131
 !
-            If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
+#ifdef _DEBUGPRINT_
+            Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
 !
 !           Call kernel routine to get memory requirement. Observe, however
 !           that kernels which will use the HRR will allocate that
@@ -185,30 +185,30 @@
 !
             Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 !
-            If (iPrint.ge.19) Then
-               Write (6,*)
-               Write (6,*) ' g      =',nIrrep
-               Write (6,*) ' u      =',dc(mdci)%nStab
-               Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
-     &               ii = 0, dc(mdci)%nStab-1)
-               Write (6,*) ' v      =',dc(mdcj)%nStab
-               Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
-     &               ii = 0, dc(mdcj)%nStab-1)
-               Write (6,*) ' LambdaR=',LmbdR
-               Write (6,*) ' r      =',nDCRR
-               Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
-     &               ii = 0, nDCRR-1)
-               Write (6,*) ' m      =',nStabM
-               Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
-     &               ii = 0, nStabM-1)
-               Write (6,*) ' s      =',nStabO
-               Write (6,'(9A)') '(S)=',(ChOper(iStabO(ii)),
-     &               ii = 0, nStabO-1)
-               Write (6,*) ' LambdaT=',LmbdT
-               Write (6,*) ' t      =',nDCRT
-               Write (6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),
-     &               ii = 0, nDCRT-1)
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*)
+            Write (6,*) ' g      =',nIrrep
+            Write (6,*) ' u      =',dc(mdci)%nStab
+            Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+     &            ii = 0, dc(mdci)%nStab-1)
+            Write (6,*) ' v      =',dc(mdcj)%nStab
+            Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+     &            ii = 0, dc(mdcj)%nStab-1)
+            Write (6,*) ' LambdaR=',LmbdR
+            Write (6,*) ' r      =',nDCRR
+            Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
+     &            ii = 0, nDCRR-1)
+            Write (6,*) ' m      =',nStabM
+            Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
+     &            ii = 0, nStabM-1)
+            Write (6,*) ' s      =',nStabO
+            Write (6,'(9A)') '(S)=',(ChOper(iStabO(ii)),
+     &            ii = 0, nStabO-1)
+            Write (6,*) ' LambdaT=',LmbdT
+            Write (6,*) ' t      =',nDCRT
+            Write (6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),
+     &            ii = 0, nDCRT-1)
+#endif
 !
 !           Compute normalization factor
 !
@@ -230,9 +230,11 @@
              iDCRRT=iEor(iDCRR(lDCRR),iDCRT(lDCRT))
              Call OA(iDCRRT,dbsc(jCnttp)%Coor(1:3,jCnt),B)
              nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)))
-             If (iPrint.ge.49) Write (6,'(A,3(3F6.2,2X))')
+#ifdef _DEBUGPRINT_
+             Write (6,'(A,3(3F6.2,2X))')
      &             '***** Centers A, B, & C. *****',
      &             (A(i),i=1,3),(B(i),i=1,3),(Ccoor(i),i=1,3)
+#endif
 !
 !            Compute kappa and P.
 !
@@ -249,10 +251,11 @@
      &                   Fnl,iPrim*jPrim,nComp,
      &                   iAng,jAng,A,B,nOrder,Kern,
      &                   MemKer,Ccoor,lMax)
-             If (iPrint.ge.49)
-     &          Call RecPrt(' Primitive Integrals',' ',
+#ifdef _DEBUGPRINT_
+             Call RecPrt(' Primitive Integrals',' ',
      &                      Fnl,iPrim*jPrim*
      &                      nElem(iAng)*nElem(jAng),nComp)
+#endif
 !
 !-----------Accumulate contributions due to interaction between the
 !           electric field and the multipole moments.
@@ -262,9 +265,11 @@
             Call DNaXpY(nComp,nFnc,Fldxyz,1,
      &                  Fnl,1,nFnc,
      &                  Fnl(1,nComp+1),1,0)
-            If (iPrint.ge.99) Call RecPrt(' Solvation integrals',' ',
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' Solvation integrals',' ',
      &                        Fnl(1,nComp+1),iPrim*jPrim,
      &                        nElem(iAng)*nElem(jAng))
+#endif
 !
 !
 !------------Transform from primitive to contracted basis functions.
@@ -272,12 +277,12 @@
 !            testing that the index order ij,ab will give a performance
 !            that is up to 20% faster than the ab,ij index order.
 !
-             If (iPrint.ge.99) Then
-                Call RecPrt(' Left side contraction',' ',
-     &                      Shells(iShll)%pCff,iPrim,iBas)
-                Call RecPrt(' Right side contraction',' ',
-     &                      Shells(jShll)%pCff,jPrim,jBas)
-             End If
+#ifdef _DEBUGPRINT_
+             Call RecPrt(' Left side contraction',' ',
+     &                   Shells(iShll)%pCff,iPrim,iBas)
+             Call RecPrt(' Right side contraction',' ',
+     &                   Shells(jShll)%pCff,jPrim,jBas)
+#endif
 !
 !            Transform ij,x,ab to j,xabI
              kk=nElem(iAng)*nElem(jAng)
@@ -293,9 +298,11 @@
      &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Fnl(1,nComp+1),kk*iBas)
 !
-             If (iPrint.ge.99) Call
+#ifdef _DEBUGPRINT_
+             Call
      &          RecPrt(' Contracted integrals in cartesians',' ',
      &                     Fnl(1,nComp+1),kk,iBas*jBas)
+#endif
 !
 !            Transform to spherical gaussians if needed.
 !
@@ -318,17 +325,16 @@
               Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,
      &                   Scr1,iBas*jBas)
              End If
-             If (iPrint.ge.99)
-     &          Call RecPrt(' Contracted Integrals in Sphericals',
+#ifdef _DEBUGPRINT_
+             Call RecPrt(' Contracted Integrals in Sphericals',
      &                   ' ',Scr1,iBas*jBas,iCmp*jCmp)
 !
 !            At this point accumulate the batch of integrals onto the
 !            final symmetry adapted integrals.
 !
-             If (iPrint.ge.99) Then
-                Call RecPrt (' Accumulated SO integrals, so far...',
+              all RecPrt (' Accumulated SO integrals, so far...',
      &                               ' ',SO_Int,iBas*jBas,nSO)
-             End If
+#endif
 !
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
@@ -347,11 +353,11 @@
 !           Multiply with factors due to projection operators
 !
            If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,SO_Int,1)
-            If (iPrint.ge.99) Then
-               Write (6,*) ' Scaling SO''s', Fact
-               Call RecPrt(' Final SO integrals',' ',
-     &                     SO_Int,iBas*jBas,mSO)
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) ' Scaling SO''s', Fact
+            Call RecPrt(' Final SO integrals',' ',
+     &                  SO_Int,iBas*jBas,mSO)
+#endif
 !
 !-----------Accumulate contribution to the Hamiltonian.
 !

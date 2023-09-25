@@ -39,7 +39,6 @@
       Procedure(int_kernel) :: EFInt
       Procedure(int_mem) :: EFMem
 #include "rctfld.fh"
-#include "print.fh"
       Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
      &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
@@ -57,7 +56,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iPrint=5
       If(.not.lRFCav) Goto 99  !Skip calculation of moments if no cavity
       Call FZero(Origin,3)
 !                                                                      *
@@ -78,8 +76,10 @@
          Call RFNuc(Origin,Ravxyz(ip),iMax)
       End Do
 
-      If (iPrint.ge.99) Call RecPrt('Nuclear Multipole Moments',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Nuclear Multipole Moments',
      &                              ' ',Ravxyz,1,nCavxyz_)
+#endif
 !
 !---- 2) Compute the electronic contribution to the charge distribution.
 !
@@ -120,38 +120,44 @@
             End Do
          End Do
       End Do
-      If (iPrint.ge.19) Then
-         Write (6,*) '1st order total density'
-         lOff = 1
-         Do iIrrep = 0, nIrrep-1
-            n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-            Write (Label,'(A,I1)')
-     &       'Diagonal Symmetry Block ',iIrrep+1
-            Call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
-            lOff = lOff + n
-         End Do
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) '1st order total density'
+      lOff = 1
+      Do iIrrep = 0, nIrrep-1
+         n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+         Write (Label,'(A,I1)')
+     &    'Diagonal Symmetry Block ',iIrrep+1
+         Call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
+         lOff = lOff + n
+      End Do
+#endif
 !
 
       Call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,l_Oper,Cavxyz,lMax)
 !
-      If (iPrint.ge.99) Call RecPrt('Electronic Multipole Moments',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electronic Multipole Moments',
      &                              ' ',Cavxyz,1,nCavxyz_)
+#endif
 !
 !---- Add nuclear MM expansion to the electronic one
 !
       Call DaXpY_(nCavxyz_,One,Ravxyz,1,Cavxyz,1)
 !
-      If (iPrint.ge.99) Call RecPrt('Electronic+Nuclear Moments',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Electronic+Nuclear Moments',
      &                              ' ',Cavxyz,1,nCavxyz_)
+#endif
 
 
       If(Allocated(XF)) Then
          Call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
       EndIf
 
-      If (iPrint.ge.99) Call RecPrt('Total Multipole Moments ',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Total Multipole Moments ',
      &                              ' ',Cavxyz,1,nCavxyz_)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

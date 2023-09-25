@@ -42,7 +42,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
-#include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
@@ -74,9 +73,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 240
-      iPrint = nPrint(iRout)
-!     iPrint = 99
       Call CWTime(TCpu1,TWall1)
 !                                                                      *
 !***********************************************************************
@@ -208,8 +204,10 @@
      &                  Shells(jShll)%pCff,nBasj)
 !
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
-            If (iPrint.ge.99) Call RecPrt(' Sym. Dist. Centers',' ',
+#ifdef _DEBUGPRINT_
+            Call RecPrt(' Sym. Dist. Centers',' ',
      &                                    Coor,3,4)
+#endif
 !
             ijS=iTri(iShell,jShell)
             If (DoFock) Then
@@ -255,16 +253,16 @@
             ijInc = Min(jBsInc,jPrInc)
             iPrimi = iPrims
             jPrimj = jPrims
-            If (iPrint.ge.59) Then
-               Write (6,*) ' ************** Memory',
-     &                     ' partioning **************'
-               Write (6,*) ' ipMem1=',ipMem1
-               Write (6,*) ' ipMem2=',ipMem2
-               Write (6,*) ' Mem1=',Mem1
-               Write (6,*) ' Mem2=',Mem2
-               Write (6,*) ' *********************',
-     &                     '**************************'
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) ' ************** Memory',
+     &                  ' partioning **************'
+            Write (6,*) ' ipMem1=',ipMem1
+            Write (6,*) ' ipMem2=',ipMem2
+            Write (6,*) ' Mem1=',Mem1
+            Write (6,*) ' Mem2=',Mem2
+            Write (6,*) ' *********************',
+     &                  '**************************'
+#endif
 !
 !           Find the Double Coset Representatives for center A and B.
 !
@@ -329,7 +327,7 @@
 !***********************************************************************
 !                                                                      *
 !     rScree = One -(One*mScree)/(One*nScree)
-      If (iPrint.ge.19) Then
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' *** The k2 entities has been precomputed ***'
       Write (6,'(I7,A)') mk2,' blocks of k2 data were computed and'
@@ -341,7 +339,7 @@
       End If
 !     Write (*,'(1X,A,F7.5)') 'Pair screening ratio:',rScree
       Write (6,*)
-      End If
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

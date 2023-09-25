@@ -44,30 +44,23 @@
       use Real_Spherical, only: iSphCr
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)
       Logical Shij, Shkl, Shijij
       Integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
 !
-#ifdef _DEBUGPRINT_
-      iRout = 38
-      iPrint = nPrint(iRout)
-#endif
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       MemSO2 = 1
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In DesymP: PSO ',' ',PSO,ijkl,nPSO)
-         Call WrCheck(' In DesymP: PSO ',PSO,ijkl*nPSO)
-         Write (6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',
-     &                iCmp,jCmp,kCmp,lCmp,nPSO
-         Write (6,*) Shij, Shkl, Shijij
-         Write (6,*) 'kOp=',kOp
-      End If
+      Call RecPrt(' In DesymP: PSO ',' ',PSO,ijkl,nPSO)
+      Call WrCheck(' In DesymP: PSO ',PSO,ijkl*nPSO)
+      Write (6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',
+     &             iCmp,jCmp,kCmp,lCmp,nPSO
+      Write (6,*) Shij, Shkl, Shijij
+      Write (6,*) 'kOp=',kOp
 #endif
       Fact=Eight
       If (Shij)   Fact=Fact*Half
@@ -177,7 +170,7 @@
 !
       If (iAux.ne.0) Then
 #ifdef _DEBUGPRINT_
-         If (iPrint.ge.99) Call RecPrt(' Aux',' ',Aux,iAux,1)
+         Call RecPrt(' Aux',' ',Aux,iAux,1)
 #endif
          If (iAux.ne.1) Then
             Call DNaXpY(iAux,ijkl,Aux,1,PSO(1,MemSO2),1,ijkl,
@@ -195,18 +188,16 @@
  100  Continue
 !
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' On exit from DesymP: PAO ',' ', PAO,
-     &            ijkl,iCmp*jCmp*kCmp*lCmp)
-         Do 3333 i = 1, ijkl
-            Write (6,*) DDot_(iCmp*jCmp*kCmp*lCmp,
-     &                  PAO(i,1,1,1,1),ijkl,
-     &                  PAO(i,1,1,1,1),ijkl)
- 3333    Continue
-        Call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
-        write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
-        write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
-      End If
+      Call RecPrt(' On exit from DesymP: PAO ',' ', PAO,
+     &         ijkl,iCmp*jCmp*kCmp*lCmp)
+      Do 3333 i = 1, ijkl
+         Write (6,*) DDot_(iCmp*jCmp*kCmp*lCmp,
+     &               PAO(i,1,1,1,1),ijkl,
+     &               PAO(i,1,1,1,1),ijkl)
+ 3333 Continue
+      all WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
+      rite (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
+      rite (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
 #endif
       Return
       End

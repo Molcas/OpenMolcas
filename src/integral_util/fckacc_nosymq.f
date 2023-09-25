@@ -49,7 +49,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max
-#include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij, DoCoul, DoExch
@@ -64,25 +63,20 @@
 !                                                                      *
       If (.Not.DoExch.and..Not.DoCoul) Return
 #ifdef _DEBUGPRINT_
-      iRout = 38
-      iPrint = nPrint(iRout)
-!
 !     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 !    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
-      If (iPrint.ge.49) Then
-         Write (6,*) iCmp,jCmp,kCmp,lCmp
-         Write (6,*) 'iAO=',iAO
-         Write (6,*) 'iAOst=',iAOst
-         Write (6,*) 'iShell=',iShell
-         Write (6,*) 'iShll=',iShll
-         Write (6,*) 'iAng=',iAng
-         Write (6,*) DoCoul,DoExch,Shijij
-         Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),
-     &                            DDot_(nDens,DMat,1,[One],0)
-         Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-     &               AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-     &               AOInt,1,[One],0)
-      End If
+      Write (6,*) iCmp,jCmp,kCmp,lCmp
+      Write (6,*) 'iAO=',iAO
+      Write (6,*) 'iAOst=',iAOst
+      Write (6,*) 'iShell=',iShell
+      Write (6,*) 'iShll=',iShll
+      Write (6,*) 'iAng=',iAng
+      Write (6,*) DoCoul,DoExch,Shijij
+      Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),
+     &                         DDot_(nDens,DMat,1,[One],0)
+      Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
+     &            AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
+     &            AOInt,1,[One],0)
 #endif
 !
       DMax=Max(Dij,Dkl,Dik,Dil,Djk,Djl)
@@ -271,10 +265,8 @@
          End Do
       End If
 !
-!     If (iPrint.ge.99) Then
-!        Write (*,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
-!    &                            DDot_(nDens,DMat,1,One,0)
-!     End If
+!     Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
+!    &                         DDot_(nDens,DMat,1,One,0)
 !
       Return
 #ifndef _DEBUGPRINT_

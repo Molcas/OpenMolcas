@@ -18,7 +18,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "print.fh"
 #include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),

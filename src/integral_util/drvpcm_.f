@@ -29,7 +29,6 @@
      &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),
      &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
 #include "SysDef.fh"
-#include "print.fh"
       Real*8, Allocatable:: FactOp(:), Integrals(:)
       Integer, Allocatable:: lOper2(:)
       Logical First

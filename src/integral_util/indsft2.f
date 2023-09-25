@@ -34,7 +34,6 @@
      &                     TriSyB
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 !
       Real*8 SOint(ijkl,nSOint)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
@@ -44,20 +43,17 @@
       Logical dupli
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
-      irout = 39
-      iprint = nprint(irout)
       k12=0
       k34=0
-      If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
-         r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
-         tr1=tr1+r1
-         tr2=tr2+r2
-         Write (6,*) ' Sum=',r1,tr1
-         Write (6,*) ' Dot=',r2,tr2
-      End If
-      If (iprint.ge.99)
-     &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
+#ifdef _DEBUGPRINT_
+      r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+      r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
+      tr1=tr1+r1
+      tr2=tr2+r2
+      Write (6,*) ' Sum=',r1,tr1
+      Write (6,*) ' Dot=',r2,tr2
+      Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
+#endif
       memSO2 = 0
 !
 !     allocate space to store integrals together with their

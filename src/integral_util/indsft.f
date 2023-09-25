@@ -30,7 +30,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
@@ -38,12 +37,11 @@
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
 !
-      iRout = 39
-      iPrint = nPrint(iRout)
       k12=0
       k34=0
-      If (iPrint.ge.99)
-     &   Call RecPrt(' In IndSft:SOInt ',' ',SOInt,ijkl,nSOInt)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In IndSft:SOInt ',' ',SOInt,ijkl,nSOInt)
+#endif
       MemSO2 = 0
 !
 !     Quadruple loop over elements of the basis functions angular
