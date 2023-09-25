@@ -40,7 +40,7 @@
       A3    = 1.0d0*DBLE(A)**(1.0d0/3.0d0)
 !     DA Eq. 51
       RMS=0.836d0*A3+0.570d0                    ! fm
-      RMS=RMS*1.0D-15/CONST_BOHR_RADIUS_IN_SI_  ! bohr
+      RMS=RMS*1.0D-15/rBohr  ! bohr
 !     Write (6,*) 'RMS:',RMS
       w=0.0D0
       Xi=1.0D0/R(w)**2
@@ -53,7 +53,7 @@
 !     Write (*,*) 'Xi:',Xi
 !
       T=2.30D0                              ! fm
-      T=T*1.0D-15/CONST_BOHR_RADIUS_IN_SI_  ! bohr
+      T=T*1.0D-15/rBohr  ! bohr
 !
 !     Start seeds
 !
@@ -82,7 +82,7 @@
 !     The error is a function of r_90 and w
 !
 !     RMS_s=RMS
-!     RMS=RMS*1.0D-15/CONST_BOHR_RADIUS_IN_SI_  ! bohr
+!     RMS=RMS*1.0D-15/rBohr  ! bohr
 !     Write (6,*) 'RMS:',RMS
 !     Xi = 1.0D0/R(w)**2
 !     Write (*,*) 'Xi=',Xi
